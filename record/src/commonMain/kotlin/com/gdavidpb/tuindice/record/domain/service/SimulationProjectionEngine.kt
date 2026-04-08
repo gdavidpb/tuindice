@@ -8,12 +8,14 @@ import com.gdavidpb.tuindice.record.data.model.quarter.LocalSubject
 class SimulationProjectionEngine {
 	private data class SubjectAttempt(
 		val subjectId: String,
-		val grade: Int
+		val grade: Int,
+		val approved: Boolean
 	)
 
 	private data class EffectiveAttempt(
 		val grade: Int,
-		val credits: Int
+		val credits: Int,
+		val approved: Boolean
 	) {
 		val weighted: Long = grade.toLong() * credits.toLong()
 	}
@@ -34,7 +36,7 @@ class SimulationProjectionEngine {
 			return if (
 				(currentLatest != null) &&
 				(currentSecond != null) &&
-				(currentLatest.grade >= MIN_APPROVED_GRADE)
+				currentLatest.approved
 			) {
 				currentSecond.subjectId
 			} else {
@@ -58,7 +60,7 @@ class SimulationProjectionEngine {
 				return when {
 					currentLatest == null -> 0L
 					currentSecond == null -> weightedSum
-					currentLatest.grade >= MIN_APPROVED_GRADE -> weightedSum - currentSecond.weighted
+					currentLatest.approved -> weightedSum - currentSecond.weighted
 					else -> weightedSum
 				}
 			}
@@ -71,7 +73,7 @@ class SimulationProjectionEngine {
 				return when {
 					currentLatest == null -> 0L
 					currentSecond == null -> creditsSum
-					currentLatest.grade >= MIN_APPROVED_GRADE -> creditsSum - currentSecond.credits.toLong()
+					currentLatest.approved -> creditsSum - currentSecond.credits.toLong()
 					else -> creditsSum
 				}
 			}
@@ -108,11 +110,8 @@ class SimulationProjectionEngine {
 					else -> null
 				}
 
-				if (subject.grade > 0) {
-					val weighted = subject.grade.toLong() * subject.credits.toLong()
-					quarterWeighted += weighted
-					quarterCredits += subject.credits.toLong()
-				}
+				quarterWeighted += subject.numericWeightedContribution()
+				quarterCredits += subject.numericCreditsContribution().toLong()
 
 				subject.copy(simulationStatus = simulationStatus)
 			}
@@ -124,7 +123,7 @@ class SimulationProjectionEngine {
 			}
 
 			sortedSubjects.forEach { subject ->
-				if (subject.grade <= 0) return@forEach
+				if (!subject.countsTowardRetakeTimeline()) return@forEach
 
 				val state = codeStates.getOrPut(subject.code, ::EffectiveCodeState)
 				val previousWeighted = state.effectiveWeighted
@@ -133,7 +132,8 @@ class SimulationProjectionEngine {
 				state.add(
 					EffectiveAttempt(
 						grade = subject.grade,
-						credits = subject.credits
+						credits = subject.credits,
+						approved = subject.isApprovalEvent()
 					)
 				)
 
@@ -184,14 +184,15 @@ class SimulationProjectionEngine {
 			}
 
 			sortedSubjects.forEach { subject ->
-				if (subject.grade <= 0) return@forEach
+				if (!subject.countsTowardRetakeTimeline()) return@forEach
 
 				codeStates
 					.getOrPut(subject.code, ::CodeState)
 					.add(
 						SubjectAttempt(
 							subjectId = subject.id,
-							grade = subject.grade
+							grade = subject.grade,
+							approved = subject.isApprovalEvent()
 						)
 					)
 			}
@@ -212,7 +213,4 @@ class SimulationProjectionEngine {
 		)
 	}
 
-	private companion object {
-		private const val MIN_APPROVED_GRADE = 3
-	}
 }

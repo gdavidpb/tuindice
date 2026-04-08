@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.data.resolver
 
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationProjectionSpec
 import com.gdavidpb.tuindice.record.data.model.QuarterSyncResolution
@@ -16,6 +17,11 @@ class VisibleRecordStateResolver(
 	private val indexComputationEngine: IndexComputationEngine,
 	private val simulationProjectionEngine: SimulationProjectionEngine
 ) : MutationProjectionSpec<String, RecordMutation, List<LocalQuarter>, List<LocalQuarter>, QuarterSyncResolution> {
+	private data class PendingSubjectMutation(
+		val grade: Int?,
+		val status: SubjectStatus?
+	)
+
 	override fun projectVisibleState(
 		confirmedState: List<LocalQuarter>,
 		pendingMutations: List<MutationEnvelope<String, RecordMutation>>
@@ -133,12 +139,12 @@ class VisibleRecordStateResolver(
 		confirmedSnapshot: List<LocalQuarter>,
 		pendingMutations: List<MutationEnvelope<String, RecordMutation>>
 	): List<LocalQuarter> {
-		val pendingGradesBySubject = pendingSubjectGrades(
+		val pendingMutationsBySubject = pendingSubjectMutations(
 			confirmedSnapshot = confirmedSnapshot,
 			pendingMutations = pendingMutations
 		)
 
-		if (pendingGradesBySubject.isEmpty()) return confirmedSnapshot
+		if (pendingMutationsBySubject.isEmpty()) return confirmedSnapshot
 
 		var affectedStartDate = Long.MAX_VALUE
 		var hasChanges = false
@@ -149,16 +155,22 @@ class VisibleRecordStateResolver(
 			var quarterChanged = false
 
 			val patchedSubjects = quarter.subjects.map { subject ->
-				val pendingGrade = pendingGradesBySubject[subject.id]
+				val pendingMutation = pendingMutationsBySubject[subject.id]
 					?: return@map subject
 
-				if (pendingGrade == subject.grade) return@map subject
+				val nextGrade = pendingMutation.grade ?: subject.grade
+				val nextStatus = pendingMutation.status ?: subject.status
+
+				if ((nextGrade == subject.grade) && (nextStatus == subject.status)) return@map subject
 
 				hasChanges = true
 				quarterChanged = true
 				affectedStartDate = minOf(affectedStartDate, quarter.startDate)
 
-				subject.copy(grade = pendingGrade)
+				subject.copy(
+					grade = nextGrade,
+					status = nextStatus
+				)
 			}
 
 			if (quarterChanged)
@@ -251,10 +263,10 @@ class VisibleRecordStateResolver(
 		}
 	}
 
-	private fun pendingSubjectGrades(
+	private fun pendingSubjectMutations(
 		confirmedSnapshot: List<LocalQuarter>,
 		pendingMutations: List<MutationEnvelope<String, RecordMutation>>
-	): Map<String, Int> {
+	): Map<String, PendingSubjectMutation> {
 		val quartersById = confirmedSnapshot.associateBy { quarter -> quarter.id }
 
 		return pendingMutations.mapNotNull { mutation ->
@@ -273,7 +285,12 @@ class VisibleRecordStateResolver(
 				return@mapNotNull null
 			}
 
-			payload.subjectId to payload.grade
+			payload.subjectId to PendingSubjectMutation(
+				grade = payload.grade,
+				status = payload.status?.let { value ->
+					SubjectStatus.entries.firstOrNull { status -> status.value == value }
+				}
+			)
 		}.toMap()
 	}
 

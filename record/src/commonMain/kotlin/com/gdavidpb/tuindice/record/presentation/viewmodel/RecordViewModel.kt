@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.record.presentation.action.ObserveQuartersActionProcessor
@@ -34,7 +35,8 @@ class RecordViewModel(
 	fun updateSubjectAction(
 		quarterId: String,
 		subjectId: String,
-		grade: Int,
+		grade: Int? = null,
+		status: SubjectStatus? = null,
 		commit: Boolean
 	) =
 		sendAction(
@@ -42,6 +44,7 @@ class RecordViewModel(
 				quarterId = quarterId,
 				subjectId = subjectId,
 				grade = grade,
+				status = status,
 				commit = commit
 			)
 		)

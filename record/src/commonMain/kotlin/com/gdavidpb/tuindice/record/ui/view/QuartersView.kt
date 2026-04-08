@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.record.presentation.model.QuarterItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 
@@ -18,6 +19,29 @@ fun QuartersView(
 		quarterId: String,
 		subjectId: String,
 		newGrade: Int,
+		isSelected: Boolean
+	) -> Unit
+) {
+	QuartersView(
+		modifier = modifier,
+		lazyListState = lazyListState,
+		quarters = quarters,
+		onSubjectGradeChange = { quarterId, subjectId, newGrade, _, isSelected ->
+			onSubjectGradeChange(quarterId, subjectId, newGrade ?: 0, isSelected)
+		}
+	)
+}
+
+@Composable
+fun QuartersView(
+	modifier: Modifier = Modifier,
+	lazyListState: LazyListState,
+	quarters: List<QuarterItem>,
+	onSubjectGradeChange: (
+		quarterId: String,
+		subjectId: String,
+		newGrade: Int?,
+		newStatus: SubjectStatus?,
 		isSelected: Boolean
 	) -> Unit
 ) {

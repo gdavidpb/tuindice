@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.ui.view
 
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
@@ -16,7 +17,7 @@ fun SubjectCardItemView(
 	modifier: Modifier = Modifier,
 	item: SubjectItem,
 	gradeState: MutableIntState? = null,
-	onGradeChange: (newGrade: Int, isSelected: Boolean) -> Unit
+	onGradeChange: (newGrade: Int?, newStatus: SubjectStatus?, isSelected: Boolean) -> Unit
 ) {
 	ElevatedCard(
 		modifier = modifier

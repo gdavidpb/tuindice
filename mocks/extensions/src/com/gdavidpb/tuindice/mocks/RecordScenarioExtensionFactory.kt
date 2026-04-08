@@ -102,6 +102,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				name = node.get("name").asText(),
 				credits = node.get("credits").asInt(),
 				grade = node.get("grade").asInt(),
+				gradingMode = node.path("grading_mode").asText("numeric"),
 				mutable = node.path("mutable").asBoolean(false),
 				scenario = if (node.hasNonNull("scenario")) node.get("scenario").asText() else null,
 				status = if (node.hasNonNull("status")) node.get("status").asText() else null,
@@ -210,6 +211,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 					name = "MOCK $code",
 					credits = node.path("credits").asInt(DEFAULT_ADDED_SUBJECT_CREDITS),
 					grade = node.path("grade").asInt(0),
+					gradingMode = node.path("grading_mode").asText("numeric"),
 					mutable = false,
 					scenario = null,
 					status = if (node.hasNonNull("status")) node.get("status").asText() else null,
@@ -232,11 +234,21 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			if (state == Scenario.STARTED) return baseSubject
 
 			val matcher = SUBJECT_STATE_PATTERN.matcher(state)
-			if (!matcher.matches()) return baseSubject
+			if (matcher.matches()) {
+				return baseSubject.copyWith(
+					grade = matcher.group(2).toInt(),
+					status = if (baseSubject.gradingMode == "qualitative_pass_fail") "normal" else baseSubject.status,
+					revision = matcher.group(1).toLong(),
+				)
+			}
+
+			val statusMatcher = SUBJECT_STATUS_STATE_PATTERN.matcher(state)
+			if (!statusMatcher.matches()) return baseSubject
 
 			return baseSubject.copyWith(
-				grade = matcher.group(2).toInt(),
-				revision = matcher.group(1).toLong(),
+				grade = 0,
+				status = statusMatcher.group(2).lowercase(),
+				revision = statusMatcher.group(1).toLong(),
 			)
 		}
 
@@ -265,23 +277,21 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				var quarterWeighted = 0L
 
 				for (subject in quarter.subjects) {
-					if (subject.countsTowardIndex()) {
-						quarterCredits += subject.credits.toLong()
-						quarterWeighted += subject.grade.toLong() * subject.credits.toLong()
-					}
+					quarterCredits += subject.numericCreditsContribution().toLong()
+					quarterWeighted += subject.numericWeightedContribution()
 				}
 
 				val quarterGrade = computeAverage(quarterWeighted, quarterCredits)
 				val sortedSubjects = quarter.subjects.sortedByDescending(SubjectModel::id)
 
 				for (subject in sortedSubjects) {
-					if (!subject.countsTowardIndex()) continue
+					if (!subject.countsTowardRetakeTimeline()) continue
 
 					val state = codeStates.getOrPut(subject.code) { CodeState() }
 					val previousWeighted = state.effectiveWeighted()
 					val previousCredits = state.effectiveCredits()
 
-					state.add(CodeAttempt(subject.grade, subject.credits))
+					state.add(CodeAttempt(subject.grade, subject.credits, subject.isApprovalEvent()))
 
 					cumulativeWeighted += state.effectiveWeighted() - previousWeighted
 					cumulativeCredits += state.effectiveCredits() - previousCredits
@@ -329,11 +339,8 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 						else -> null
 					}
 
-					if (subject.grade > 0) {
-						val weighted = subject.grade.toLong() * subject.credits.toLong()
-						quarterWeighted += weighted
-						quarterCredits += subject.credits.toLong()
-					}
+					quarterWeighted += subject.numericWeightedContribution()
+					quarterCredits += subject.numericCreditsContribution().toLong()
 
 					subject.copy(simulationStatus = simulationStatus)
 				}
@@ -341,13 +348,13 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				val sortedSubjects = quarter.subjects.sortedByDescending(SubjectModel::id)
 
 				for (subject in sortedSubjects) {
-					if (subject.grade <= 0) continue
+					if (!subject.countsTowardRetakeTimeline()) continue
 
 					val state = codeStates.getOrPut(subject.code) { CodeState() }
 					val previousWeighted = state.effectiveWeighted()
 					val previousCredits = state.effectiveCredits()
 
-					state.add(CodeAttempt(subject.grade, subject.credits))
+					state.add(CodeAttempt(subject.grade, subject.credits, subject.isApprovalEvent()))
 
 					cumulativeWeighted += state.effectiveWeighted() - previousWeighted
 					cumulativeCredits += state.effectiveCredits() - previousCredits
@@ -382,14 +389,14 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				val sortedSubjects = quarter.subjects.sortedByDescending(SubjectModel::id)
 
 				sortedSubjects.forEach { subject ->
-					if (subject.grade <= 0) return@forEach
+					if (!subject.countsTowardRetakeTimeline()) return@forEach
 
 					codeStates
 						.getOrPut(subject.code) { SimulationCodeState() }
 						.add(
 							SimulationAttempt(
 								subjectId = subject.id,
-								grade = subject.grade
+								approved = subject.isApprovalEvent()
 							)
 						)
 				}
@@ -516,15 +523,17 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 		val name: String,
 		val credits: Int,
 		val grade: Int,
+		val gradingMode: String,
 		val mutable: Boolean,
 		val scenario: String?,
 		val status: String?,
 		val simulationStatus: String?,
 		val revision: Long,
 	) {
-		fun copyWith(grade: Int, revision: Long): SubjectModel =
+		fun copyWith(grade: Int, status: String?, revision: Long): SubjectModel =
 			copy(
 				grade = grade,
+				status = status,
 				revision = revision,
 			)
 
@@ -536,19 +545,57 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				"name" to name,
 				"credits" to credits,
 				"grade" to grade,
+				"grading_mode" to gradingMode,
 			).also { model ->
 				status?.let { model["status"] = it }
 				simulationStatus?.let { model["simulation_status"] = it }
 				model["revision"] = revision
 			}
 
-		fun countsTowardIndex(): Boolean =
-			grade > 0
+		fun resolvedOutcome(): String {
+			return when (status ?: "normal") {
+				"approved",
+				"failed",
+				"retired",
+				"without_effect" -> status ?: "normal"
+
+				else -> when (gradingMode) {
+					"qualitative_pass_fail" -> "normal"
+					else -> when {
+						grade >= 3 -> "approved"
+						grade > 0 -> "failed"
+						else -> "normal"
+					}
+				}
+			}
+		}
+
+		fun countsTowardNumericAverage(): Boolean =
+			(gradingMode == "numeric") &&
+				(resolvedOutcome() !in setOf("normal", "retired", "without_effect")) &&
+				(grade > 0)
+
+		fun numericCreditsContribution(): Int =
+			if (countsTowardNumericAverage()) credits else 0
+
+		fun numericWeightedContribution(): Long =
+			if (countsTowardNumericAverage()) grade.toLong() * credits.toLong() else 0L
+
+		fun isApprovalEvent(): Boolean =
+			resolvedOutcome() == "approved"
+
+		fun isResolvedQualitativeOutcome(): Boolean =
+			(gradingMode == "qualitative_pass_fail") &&
+				(resolvedOutcome() in setOf("approved", "failed"))
+
+		fun countsTowardRetakeTimeline(): Boolean =
+			countsTowardNumericAverage() || isResolvedQualitativeOutcome()
 	}
 
 	private data class CodeAttempt(
 		val grade: Int,
 		val credits: Int,
+		val approved: Boolean,
 	) {
 		fun weighted(): Long = grade.toLong() * credits.toLong()
 	}
@@ -569,19 +616,19 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 		fun effectiveWeighted(): Long {
 			val latestAttempt = latest ?: return 0L
 			val secondAttempt = second ?: return weightedSum
-			return if (latestAttempt.grade >= 3) weightedSum - secondAttempt.weighted() else weightedSum
+			return if (latestAttempt.approved) weightedSum - secondAttempt.weighted() else weightedSum
 		}
 
 		fun effectiveCredits(): Long {
 			val latestAttempt = latest ?: return 0L
 			val secondAttempt = second ?: return creditsSum
-			return if (latestAttempt.grade >= 3) creditsSum - secondAttempt.credits.toLong() else creditsSum
+			return if (latestAttempt.approved) creditsSum - secondAttempt.credits.toLong() else creditsSum
 		}
 	}
 
 	private data class SimulationAttempt(
 		val subjectId: String,
-		val grade: Int,
+		val approved: Boolean,
 	)
 
 	private class SimulationCodeState {
@@ -600,7 +647,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			return if (
 				(latestAttempt != null) &&
 				(secondAttempt != null) &&
-				(latestAttempt.grade >= 3)
+				latestAttempt.approved
 			) {
 				secondAttempt.subjectId
 			} else {
@@ -615,6 +662,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 		private const val ADDED_QUARTER_ID = "MOCK-ADDED-QUARTER"
 		private const val DEFAULT_ADDED_SUBJECT_CREDITS = 4
 		private val SUBJECT_STATE_PATTERN = Pattern.compile("^REV_(\\d+)_GRADE_(\\d+)$")
+		private val SUBJECT_STATUS_STATE_PATTERN = Pattern.compile("^REV_(\\d+)_STATUS_([A-Z_]+)$")
 		private val PRESENT_STATE_PATTERN = Pattern.compile("^ADDED_R(\\d+)$")
 		private val DELETED_STATE_PATTERN = Pattern.compile("^DELETED_R(\\d+)$")
 		private val DESCENDING_QUARTER_ORDER = compareByDescending<QuarterModel> { it.startDate }

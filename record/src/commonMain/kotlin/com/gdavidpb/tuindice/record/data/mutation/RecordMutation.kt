@@ -16,7 +16,7 @@ sealed interface RecordMutation : OutboxMutation {
 		@Serializable
 		data class SubjectSeed(
 			val code: String,
-			val grade: Int
+			val grade: Int? = null
 		)
 
 		override val entityType: String = "record:add_quarter"
@@ -29,7 +29,8 @@ sealed interface RecordMutation : OutboxMutation {
 	data class SetSubjectGrade(
 		val quarterId: String,
 		val subjectId: String,
-		val grade: Int
+		val grade: Int? = null,
+		val status: String? = null
 	) : RecordMutation {
 		override val entityType: String = "record:set_subject_grade"
 		override val entityId: String = subjectId

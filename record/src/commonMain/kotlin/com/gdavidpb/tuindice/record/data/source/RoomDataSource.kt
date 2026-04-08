@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.data.source
 
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.data.room.withImmediateTransaction
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
@@ -199,7 +200,8 @@ class RoomDataSource(
 	override suspend fun setSubjectGradeAndRecompute(
 		qid: String,
 		sid: String,
-		grade: Int,
+		grade: Int?,
+		status: SubjectStatus?,
 		commit: Boolean
 	): SetSubjectGradeResult {
 		return writeMutex.withLock {
@@ -216,6 +218,18 @@ class RoomDataSource(
 			)
 
 			if (!commit) {
+				if (grade == null) {
+					return@withLock SetSubjectGradeResult.Applied(
+						updatedQuarters = visibleRecordStateResolver.resolveVisibleState(
+							confirmedSnapshot = confirmedSnapshot,
+							pendingMutations = currentPendingMutations(),
+							gradePreviewSnapshot = gradePreviewSnapshot
+						),
+						updatedTargetQuarter = sourceQuarter,
+						expectedRevision = sourceQuarter.revision
+					)
+				}
+
 				upsertGradePreview(
 					key = key,
 					requestedGrade = grade
@@ -238,7 +252,10 @@ class RoomDataSource(
 
 			removeGradePreview(key)
 
-			if (sourceSubject.grade == grade) {
+			val normalizedGrade = grade ?: sourceSubject.grade
+			val normalizedStatus = status ?: sourceSubject.status
+
+			if ((sourceSubject.grade == normalizedGrade) && (sourceSubject.status == normalizedStatus)) {
 				return@withLock SetSubjectGradeResult.Applied(
 					updatedQuarters = emptyList(),
 					updatedTargetQuarter = sourceQuarter,
@@ -250,7 +267,8 @@ class RoomDataSource(
 				snapshot = confirmedSnapshot,
 				qid = qid,
 				sid = sid,
-				grade = grade
+				grade = normalizedGrade,
+				status = normalizedStatus
 			)
 
 			val quarterEntities = recomputed.quarters
@@ -396,12 +414,20 @@ class RoomDataSource(
 		snapshot: List<LocalQuarter>,
 		qid: String,
 		sid: String,
-		grade: Int
+		grade: Int,
+		status: SubjectStatus?
 	): IndexComputationEngine.RecomputeResult {
 		val sourceQuarter = snapshot.first { quarter -> quarter.id == qid }
 		val updatedQuarter = sourceQuarter.copy(
 			subjects = sourceQuarter.subjects.map { subject ->
-				if (subject.id == sid) subject.copy(grade = grade) else subject
+				if (subject.id == sid) {
+					subject.copy(
+						grade = grade,
+						status = status
+					)
+				} else {
+					subject
+				}
 			}
 		)
 		val patchedSnapshot = snapshot.map { quarter ->

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.data.source
 
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
@@ -116,6 +117,7 @@ class QuarterDataSource(
 			qid = set.quarterId,
 			sid = set.id,
 			grade = set.grade,
+			status = set.status,
 			commit = set.commit
 		)
 
@@ -131,6 +133,7 @@ class QuarterDataSource(
 			quarterId = set.quarterId,
 			subjectId = set.id,
 			grade = set.grade,
+			status = set.status,
 			expectedRevision = expectedRevision
 		)
 
@@ -160,7 +163,8 @@ class QuarterDataSource(
 	private fun buildPendingSetSubjectGradeMutation(
 		quarterId: String,
 		subjectId: String,
-		grade: Int,
+		grade: Int?,
+		status: SubjectStatus?,
 		expectedRevision: Long
 	): MutationEnvelope<String, RecordMutation> {
 		val now = currentTimeMillis()
@@ -170,7 +174,8 @@ class QuarterDataSource(
 			command = RecordMutation.SetSubjectGrade(
 				quarterId = quarterId,
 				subjectId = subjectId,
-				grade = grade
+				grade = grade,
+				status = status?.value
 			),
 			precondition = MutationPrecondition.Revision(expectedRevision),
 			status = PendingMutationStatus.Pending,

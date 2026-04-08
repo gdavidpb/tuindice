@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.data.repository
 
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
@@ -175,7 +176,8 @@ class QuarterRepositoryContractTest {
 			override suspend fun setSubjectGrade(
 				qid: String,
 				sid: String,
-				grade: Int,
+				grade: Int?,
+				status: SubjectStatus?,
 				mutationId: String,
 				expectedRevision: Long
 			) = error("unused")
@@ -452,19 +454,20 @@ class QuarterRepositoryContractTest {
 			override suspend fun setSubjectGrade(
 				qid: String,
 				sid: String,
-				grade: Int,
+				grade: Int?,
+				status: SubjectStatus?,
 				mutationId: String,
 				expectedRevision: Long
 			): RemoteSetSubjectGradeAck {
 				setCalls += 1
 				val ack = RemoteSetSubjectGradeAck(
 					mutationId = mutationId,
-					subject = DEFAULT_RECORD_REMOTE_SUBJECT.copy(grade = grade),
+					subject = DEFAULT_RECORD_REMOTE_SUBJECT.copy(grade = grade ?: DEFAULT_RECORD_REMOTE_SUBJECT.grade),
 					affectedQuarters = listOf(
 						DEFAULT_RECORD_REMOTE_QUARTER.copy(
-							grade = grade.toDouble(),
-							gradeSum = grade.toDouble(),
-							subjects = listOf(DEFAULT_RECORD_REMOTE_SUBJECT.copy(grade = grade))
+							grade = (grade ?: DEFAULT_RECORD_REMOTE_SUBJECT.grade).toDouble(),
+							gradeSum = (grade ?: DEFAULT_RECORD_REMOTE_SUBJECT.grade).toDouble(),
+							subjects = listOf(DEFAULT_RECORD_REMOTE_SUBJECT.copy(grade = grade ?: DEFAULT_RECORD_REMOTE_SUBJECT.grade))
 						)
 					)
 				)
@@ -615,7 +618,8 @@ class QuarterRepositoryContractTest {
 			override suspend fun setSubjectGrade(
 				qid: String,
 				sid: String,
-				grade: Int,
+				grade: Int?,
+				status: SubjectStatus?,
 				mutationId: String,
 				expectedRevision: Long
 			): RemoteSetSubjectGradeAck {
@@ -704,7 +708,7 @@ class QuarterRepositoryContractTest {
 		val releaseFirstAck = CompletableDeferred<Unit>()
 		var remoteQuarterRevision = 7L
 		var remoteSubject = DEFAULT_RECORD_REMOTE_SUBJECT.copy(revision = 1L)
-		val remoteCalls = mutableListOf<Pair<Int, Long>>()
+		val remoteCalls = mutableListOf<Pair<Int?, Long>>()
 		val localDataSource = FakeQuarterLocalDataSource(
 			initialQuarters = listOf(
 				DEFAULT_RECORD_LOCAL_QUARTER.copy(
@@ -741,7 +745,8 @@ class QuarterRepositoryContractTest {
 			override suspend fun setSubjectGrade(
 				qid: String,
 				sid: String,
-				grade: Int,
+				grade: Int?,
+				status: SubjectStatus?,
 				mutationId: String,
 				expectedRevision: Long
 			): RemoteSetSubjectGradeAck {
@@ -753,7 +758,7 @@ class QuarterRepositoryContractTest {
 						releaseFirstAck.await()
 						remoteQuarterRevision = expectedRevision + 1
 						remoteSubject = remoteSubject.copy(
-							grade = grade,
+							grade = grade ?: remoteSubject.grade,
 							revision = remoteSubject.revision + 1
 						)
 						RemoteSetSubjectGradeAck(
@@ -772,7 +777,7 @@ class QuarterRepositoryContractTest {
 					3 -> {
 						remoteQuarterRevision = expectedRevision + 1
 						remoteSubject = remoteSubject.copy(
-							grade = grade,
+							grade = grade ?: remoteSubject.grade,
 							revision = remoteSubject.revision + 1
 						)
 						RemoteSetSubjectGradeAck(
@@ -830,7 +835,10 @@ class QuarterRepositoryContractTest {
 		firstMutationJob.join()
 		secondMutationJob.join()
 
-		assertEquals(listOf(80 to 7L, 90 to 7L, 90 to 8L), remoteCalls)
+		assertEquals(
+			listOf<Pair<Int?, Long>>(80 to 7L, 90 to 7L, 90 to 8L),
+			remoteCalls
+		)
 		assertEquals(90, localDataSource.getQuarter(DEFAULT_RECORD_QUARTER.id)?.subjects?.single()?.grade)
 		assertEquals(3L, localDataSource.getQuarter(DEFAULT_RECORD_QUARTER.id)?.subjects?.single()?.revision)
 		assertTrue(outboxRepository.getPendingMutations(RECORD_MUTATION_SCOPE).isEmpty())
@@ -871,12 +879,13 @@ class QuarterRepositoryContractTest {
 			override suspend fun setSubjectGrade(
 				qid: String,
 				sid: String,
-				grade: Int,
+				grade: Int?,
+				status: SubjectStatus?,
 				mutationId: String,
 				expectedRevision: Long
 			) = RemoteSetSubjectGradeAck(
 				mutationId = mutationId,
-				subject = DEFAULT_RECORD_REMOTE_SUBJECT.copy(grade = grade),
+				subject = DEFAULT_RECORD_REMOTE_SUBJECT.copy(grade = grade ?: DEFAULT_RECORD_REMOTE_SUBJECT.grade),
 				affectedQuarters = listOf(updatedRemoteQuarter)
 			)
 		}

@@ -20,6 +20,7 @@ FALLBACK_PRIORITY = 9
 
 MIN_GRADE = 0
 MAX_GRADE = 5
+QUALITATIVE_STATUSES = ("normal", "approved", "failed", "retired")
 
 ADDED_QUARTER_ID = "MOCK-ADDED-QUARTER"
 ADDED_QUARTER_SCENARIO = "record-quarter-MOCK-ADDED-QUARTER"
@@ -49,8 +50,12 @@ POST_SUCCESS_BODY = (
 )
 
 
-def scenario_subject_state(revision: int, grade: int) -> str:
+def scenario_subject_grade_state(revision: int, grade: int) -> str:
     return f"REV_{revision}_GRADE_{grade}"
+
+
+def scenario_subject_status_state(revision: int, status: str) -> str:
+    return f"REV_{revision}_STATUS_{status.upper()}"
 
 
 def ensure_clean_directory(directory: Path) -> None:
@@ -224,65 +229,125 @@ def build_patch_mappings(target_dir: Path, base_state: dict, max_revision: int) 
     for subject in mutable_subjects:
         url_path = f"/quarters/v1/{subject['qid']}/subjects/{subject['id']}"
         base_revision = subject["revision"]
+        grading_mode = subject.get("grading_mode", "numeric")
 
-        for new_grade in range(MIN_GRADE, MAX_GRADE + 1):
-            write_mapping(
-                target_dir,
-                f"patch-{subject['id'].lower()}-started-g{new_grade}.json",
-                {
-                    "priority": SUCCESS_PRIORITY,
-                    "scenarioName": subject["scenario"],
-                    "requiredScenarioState": "Started",
-                    "newScenarioState": scenario_subject_state(base_revision + 1, new_grade),
-                    "request": {
-                        "method": "PATCH",
-                        "urlPath": url_path,
-                        "bodyPatterns": [
-                            matches_json_path_exists("$.mutation_id"),
-                            matches_number("expected_revision", base_revision),
-                            matches_number("grade", new_grade)
-                        ]
-                    },
-                    "response": response(
-                        status=200,
-                        body=PATCH_SUCCESS_BODY,
-                        delay_ms=PATCH_DELAY_MS
-                    )
-                }
-            )
+        if grading_mode == "qualitative_pass_fail":
+            for new_status in QUALITATIVE_STATUSES:
+                write_mapping(
+                    target_dir,
+                    f"patch-{subject['id'].lower()}-started-{new_status}.json",
+                    {
+                        "priority": SUCCESS_PRIORITY,
+                        "scenarioName": subject["scenario"],
+                        "requiredScenarioState": "Started",
+                        "newScenarioState": scenario_subject_status_state(base_revision + 1, new_status),
+                        "request": {
+                            "method": "PATCH",
+                            "urlPath": url_path,
+                            "bodyPatterns": [
+                                matches_json_path_exists("$.mutation_id"),
+                                matches_number("expected_revision", base_revision),
+                                {"matchesJsonPath": f"$[?(@.status == '{new_status}')]"}
+                            ]
+                        },
+                        "response": response(
+                            status=200,
+                            body=PATCH_SUCCESS_BODY,
+                            delay_ms=PATCH_DELAY_MS
+                        )
+                    }
+                )
+        else:
+            for new_grade in range(MIN_GRADE, MAX_GRADE + 1):
+                write_mapping(
+                    target_dir,
+                    f"patch-{subject['id'].lower()}-started-g{new_grade}.json",
+                    {
+                        "priority": SUCCESS_PRIORITY,
+                        "scenarioName": subject["scenario"],
+                        "requiredScenarioState": "Started",
+                        "newScenarioState": scenario_subject_grade_state(base_revision + 1, new_grade),
+                        "request": {
+                            "method": "PATCH",
+                            "urlPath": url_path,
+                            "bodyPatterns": [
+                                matches_json_path_exists("$.mutation_id"),
+                                matches_number("expected_revision", base_revision),
+                                matches_number("grade", new_grade)
+                            ]
+                        },
+                        "response": response(
+                            status=200,
+                            body=PATCH_SUCCESS_BODY,
+                            delay_ms=PATCH_DELAY_MS
+                        )
+                    }
+                )
 
         for current_revision in range(base_revision + 1, max_revision + 1):
             next_revision = min(current_revision + 1, max_revision)
-            for current_grade in range(MIN_GRADE, MAX_GRADE + 1):
-                required_state = scenario_subject_state(current_revision, current_grade)
-                for new_grade in range(MIN_GRADE, MAX_GRADE + 1):
-                    write_mapping(
-                        target_dir,
-                        (
-                            f"patch-{subject['id'].lower()}-r{current_revision}"
-                            f"-g{current_grade}-to-g{new_grade}.json"
-                        ),
-                        {
-                            "priority": SUCCESS_PRIORITY,
-                            "scenarioName": subject["scenario"],
-                            "requiredScenarioState": required_state,
-                            "newScenarioState": scenario_subject_state(next_revision, new_grade),
-                            "request": {
-                                "method": "PATCH",
-                                "urlPath": url_path,
-                                "bodyPatterns": [
-                                    matches_json_path_exists("$.mutation_id"),
-                                    matches_number("expected_revision", current_revision),
-                                    matches_number("grade", new_grade)
-                                ]
-                            },
-                            "response": response(
-                                status=200,
-                                body=PATCH_SUCCESS_BODY,
-                                delay_ms=PATCH_DELAY_MS
-                            )
-                        }
-                    )
+            if grading_mode == "qualitative_pass_fail":
+                for current_status in QUALITATIVE_STATUSES:
+                    required_state = scenario_subject_status_state(current_revision, current_status)
+                    for new_status in QUALITATIVE_STATUSES:
+                        write_mapping(
+                            target_dir,
+                            (
+                                f"patch-{subject['id'].lower()}-r{current_revision}"
+                                f"-{current_status}-to-{new_status}.json"
+                            ),
+                            {
+                                "priority": SUCCESS_PRIORITY,
+                                "scenarioName": subject["scenario"],
+                                "requiredScenarioState": required_state,
+                                "newScenarioState": scenario_subject_status_state(next_revision, new_status),
+                                "request": {
+                                    "method": "PATCH",
+                                    "urlPath": url_path,
+                                    "bodyPatterns": [
+                                        matches_json_path_exists("$.mutation_id"),
+                                        matches_number("expected_revision", current_revision),
+                                        {"matchesJsonPath": f"$[?(@.status == '{new_status}')]"}
+                                    ]
+                                },
+                                "response": response(
+                                    status=200,
+                                    body=PATCH_SUCCESS_BODY,
+                                    delay_ms=PATCH_DELAY_MS
+                                )
+                            }
+                        )
+            else:
+                for current_grade in range(MIN_GRADE, MAX_GRADE + 1):
+                    required_state = scenario_subject_grade_state(current_revision, current_grade)
+                    for new_grade in range(MIN_GRADE, MAX_GRADE + 1):
+                        write_mapping(
+                            target_dir,
+                            (
+                                f"patch-{subject['id'].lower()}-r{current_revision}"
+                                f"-g{current_grade}-to-g{new_grade}.json"
+                            ),
+                            {
+                                "priority": SUCCESS_PRIORITY,
+                                "scenarioName": subject["scenario"],
+                                "requiredScenarioState": required_state,
+                                "newScenarioState": scenario_subject_grade_state(next_revision, new_grade),
+                                "request": {
+                                    "method": "PATCH",
+                                    "urlPath": url_path,
+                                    "bodyPatterns": [
+                                        matches_json_path_exists("$.mutation_id"),
+                                        matches_number("expected_revision", current_revision),
+                                        matches_number("grade", new_grade)
+                                    ]
+                                },
+                                "response": response(
+                                    status=200,
+                                    body=PATCH_SUCCESS_BODY,
+                                    delay_ms=PATCH_DELAY_MS
+                                )
+                            }
+                        )
 
         write_mapping(
             target_dir,
@@ -292,12 +357,11 @@ def build_patch_mappings(target_dir: Path, base_state: dict, max_revision: int) 
                 "request": {
                     "method": "PATCH",
                     "urlPath": url_path,
-                    "bodyPatterns": [
-                        matches_json_path_exists("$.mutation_id"),
-                        matches_json_path_exists("$.expected_revision"),
-                        matches_json_path_exists("$.grade")
-                    ]
-                },
+                        "bodyPatterns": [
+                            matches_json_path_exists("$.mutation_id"),
+                            matches_json_path_exists("$.expected_revision")
+                        ]
+                    },
                 "response": response(
                     status=412,
                     body="{\"error\":\"precondition_failed\"}",
@@ -447,7 +511,6 @@ def build_post_mappings(target_dir: Path, base_state: dict) -> None:
             matches_json_path_exists("$.year"),
             matches_json_path_exists("$.subjects"),
             matches_json_path_exists("$.subjects[0].code"),
-            matches_json_path_exists("$.subjects[0].grade"),
             matches_json_path_exists("$.mutation_id"),
             matches_number("expected_revision", expected_revision)
         ]

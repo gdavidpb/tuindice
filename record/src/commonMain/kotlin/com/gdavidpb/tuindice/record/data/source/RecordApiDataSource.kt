@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.data.source
 
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.record.data.repository.QuarterRemoteDataRepository
 import com.gdavidpb.tuindice.record.data.mutation.RecordMutation
 import com.gdavidpb.tuindice.record.data.model.quarter.RemoteAddQuarterAck
@@ -77,7 +78,8 @@ class RecordApiDataSource(
 	override suspend fun setSubjectGrade(
 		qid: String,
 		sid: String,
-		grade: Int,
+		grade: Int?,
+		status: SubjectStatus?,
 		mutationId: String,
 		expectedRevision: Long
 	): RemoteSetSubjectGradeAck {
@@ -85,6 +87,7 @@ class RecordApiDataSource(
 			setBody(
 				SetSubjectGradeRequest(
 					grade = grade,
+					status = status,
 					mutationId = mutationId,
 					expectedRevision = expectedRevision
 				)

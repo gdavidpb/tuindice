@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.data.repository
 
 
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.record.data.mutation.RecordMutation
 import com.gdavidpb.tuindice.record.data.model.quarter.RemoteAddQuarterAck
 import com.gdavidpb.tuindice.record.data.model.quarter.RemoteDeleteQuarterAck
@@ -23,7 +24,8 @@ interface QuarterRemoteDataRepository {
 	suspend fun setSubjectGrade(
 		qid: String,
 		sid: String,
-		grade: Int,
+		grade: Int?,
+		status: SubjectStatus?,
 		mutationId: String,
 		expectedRevision: Long
 	): RemoteSetSubjectGradeAck

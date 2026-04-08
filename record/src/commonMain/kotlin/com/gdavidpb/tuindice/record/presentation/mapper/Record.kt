@@ -7,5 +7,6 @@ fun (Record.Action.SetSubjectGrade).toSetSubjectGradeParams() = SetSubjectGradeP
 	quarterId = quarterId,
 	subjectId = subjectId,
 	grade = grade,
+	status = status,
 	commit = commit
 )

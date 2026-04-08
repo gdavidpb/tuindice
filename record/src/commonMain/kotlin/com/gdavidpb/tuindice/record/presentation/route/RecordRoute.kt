@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.presentation.route
 
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -61,7 +62,15 @@ fun RecordRoute(
 			}
 		},
 		onRetryClick = viewModel::refreshQuartersAction,
-		onSubjectGradeChange = viewModel::updateSubjectAction
+		onSubjectGradeChange = { quarterId, subjectId, grade, status, isSelected ->
+			viewModel.updateSubjectAction(
+				quarterId = quarterId,
+				subjectId = subjectId,
+				grade = grade,
+				status = status,
+				commit = isSelected
+			)
+		}
 	)
 }
 

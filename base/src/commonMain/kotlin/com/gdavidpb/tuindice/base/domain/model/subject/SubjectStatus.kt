@@ -8,6 +8,12 @@ enum class SubjectStatus(val value: String) {
 	@SerialName("normal")
 	NORMAL("normal"),
 
+	@SerialName("approved")
+	APPROVED("approved"),
+
+	@SerialName("failed")
+	FAILED("failed"),
+
 	@SerialName("retired")
 	RETIRED("retired"),
 

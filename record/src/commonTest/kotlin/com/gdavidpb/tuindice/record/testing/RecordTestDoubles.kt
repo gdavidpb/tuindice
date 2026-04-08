@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.record.testing
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
@@ -317,13 +318,16 @@ class FakeQuarterLocalDataSource(
 	override suspend fun setSubjectGradeAndRecompute(
 		qid: String,
 		sid: String,
-		grade: Int,
+		grade: Int?,
+		status: SubjectStatus?,
 		commit: Boolean
 	): SetSubjectGradeResult {
+		val normalizedGrade = grade ?: 0
 		val call = SetSubjectGradeCall(
 			quarterId = qid,
 			subjectId = sid,
 			grade = grade,
+			status = status,
 			commit = commit
 		)
 		lastSetSubjectGradeArgs = call
@@ -344,12 +348,19 @@ class FakeQuarterLocalDataSource(
 			if (quarter.id != qid || !commit) return@map quarter
 
 			val updatedSubjects = quarter.subjects.map { subject ->
-				if (subject.id == sid) subject.copy(grade = grade) else subject
+				if (subject.id == sid) {
+					subject.copy(
+						grade = normalizedGrade,
+						status = status
+					)
+				} else {
+					subject
+				}
 			}
 
 			quarter.copy(
-				grade = grade.toDouble(),
-				gradeSum = grade.toDouble(),
+				grade = normalizedGrade.toDouble(),
+				gradeSum = normalizedGrade.toDouble(),
 				subjects = updatedSubjects
 			)
 		}
@@ -397,7 +408,8 @@ class FakeQuarterLocalDataSource(
 data class SetSubjectGradeCall(
 	val quarterId: String,
 	val subjectId: String,
-	val grade: Int,
+	val grade: Int? = null,
+	val status: SubjectStatus? = null,
 	val commit: Boolean,
 	val mutationId: String? = null,
 	val expectedRevision: Long? = null
@@ -489,7 +501,8 @@ class FakeQuarterRemoteDataSource(
 	override suspend fun setSubjectGrade(
 		qid: String,
 		sid: String,
-		grade: Int,
+		grade: Int?,
+		status: SubjectStatus?,
 		mutationId: String,
 		expectedRevision: Long
 	): RemoteSetSubjectGradeAck {
@@ -498,6 +511,7 @@ class FakeQuarterRemoteDataSource(
 			quarterId = qid,
 			subjectId = sid,
 			grade = grade,
+			status = status,
 			commit = true,
 			mutationId = mutationId,
 			expectedRevision = expectedRevision

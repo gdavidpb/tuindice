@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.ui.view
 
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,6 +42,29 @@ fun RecordContentView(
 		quarterId: String,
 		subjectId: String,
 		newGrade: Int,
+		isSelected: Boolean
+	) -> Unit
+) {
+	RecordContentView(
+		state = state,
+		selectedQuarterId = selectedQuarterId,
+		onSelectedQuarterChange = onSelectedQuarterChange,
+		onSubjectGradeChange = { quarterId, subjectId, newGrade, _, isSelected ->
+			onSubjectGradeChange(quarterId, subjectId, newGrade ?: 0, isSelected)
+		}
+	)
+}
+
+@Composable
+fun RecordContentView(
+	state: Record.State.Content,
+	selectedQuarterId: String?,
+	onSelectedQuarterChange: (quarterId: String) -> Unit,
+	onSubjectGradeChange: (
+		quarterId: String,
+		subjectId: String,
+		newGrade: Int?,
+		newStatus: SubjectStatus?,
 		isSelected: Boolean
 	) -> Unit
 ) {
@@ -118,6 +142,31 @@ private fun RecordQuarterPagerView(
 		quarterId: String,
 		subjectId: String,
 		newGrade: Int,
+		isSelected: Boolean
+	) -> Unit
+) {
+	RecordQuarterPagerView(
+		modifier = modifier,
+		quarters = quarters,
+		selectedQuarterId = selectedQuarterId,
+		onSelectedQuarterChange = onSelectedQuarterChange,
+		onSubjectGradeChange = { quarterId, subjectId, newGrade, _, isSelected ->
+			onSubjectGradeChange(quarterId, subjectId, newGrade ?: 0, isSelected)
+		}
+	)
+}
+
+@Composable
+private fun RecordQuarterPagerView(
+	modifier: Modifier = Modifier,
+	quarters: List<QuarterItem>,
+	selectedQuarterId: String,
+	onSelectedQuarterChange: (quarterId: String) -> Unit,
+	onSubjectGradeChange: (
+		quarterId: String,
+		subjectId: String,
+		newGrade: Int?,
+		newStatus: SubjectStatus?,
 		isSelected: Boolean
 	) -> Unit
 ) {

@@ -28,5 +28,6 @@ fun SetSubjectGradeParams.toSubjectGradeSet() = SubjectGradeSet(
 	id = subjectId,
 	quarterId = quarterId,
 	grade = grade,
+	status = status,
 	commit = commit
 )

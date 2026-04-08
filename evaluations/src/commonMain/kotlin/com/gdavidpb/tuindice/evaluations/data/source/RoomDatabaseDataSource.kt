@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.data.source
 
+import com.gdavidpb.tuindice.base.domain.model.subject.GradingMode
 import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
@@ -76,6 +77,7 @@ class RoomDatabaseDataSource(
 		return room.quarters.getOpenQuartersWithSubjects()
 			.flatMap { quarter -> quarter.subjects }
 			.map { subject -> subject.toLocalSubject() }
+			.filter { subject -> subject.gradingMode == GradingMode.NUMERIC }
 			.sortedBy(LocalSubject::code)
 	}
 

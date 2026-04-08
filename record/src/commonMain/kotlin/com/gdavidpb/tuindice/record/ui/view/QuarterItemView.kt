@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.record.ui.view
 
+import com.gdavidpb.tuindice.base.domain.model.subject.GradingMode
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,6 +22,27 @@ fun QuarterItemView(
 		quarterId: String,
 		subjectId: String,
 		newGrade: Int,
+		isSelected: Boolean
+	) -> Unit
+) {
+	QuarterItemView(
+		modifier = modifier,
+		item = item,
+		onSubjectGradeChange = { quarterId, subjectId, newGrade, _, isSelected ->
+			onSubjectGradeChange(quarterId, subjectId, newGrade ?: 0, isSelected)
+		}
+	)
+}
+
+@Composable
+fun QuarterItemView(
+	modifier: Modifier = Modifier,
+	item: QuarterItem,
+	onSubjectGradeChange: (
+		quarterId: String,
+		subjectId: String,
+		newGrade: Int?,
+		newStatus: SubjectStatus?,
 		isSelected: Boolean
 	) -> Unit
 ) {
@@ -56,12 +79,13 @@ fun QuarterItemView(
 
 						SubjectItemView(
 							item = subject,
-							gradeState = gradeState,
-							onGradeChange = { newGrade, isSelected ->
+							gradeState = gradeState.takeIf { subject.gradingMode == GradingMode.NUMERIC },
+							onGradeChange = { newGrade, newStatus, isSelected ->
 								onSubjectGradeChange(
 									subject.quarterId,
 									subject.subjectId,
 									newGrade,
+									newStatus,
 									isSelected
 								)
 							}

@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.ui.screen
 
 import androidx.compose.runtime.Composable
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.record.presentation.contract.Record
@@ -27,6 +28,31 @@ fun RecordScreen(
 		quarterId: String,
 		subjectId: String,
 		newGrade: Int,
+		isSelected: Boolean
+	) -> Unit
+) {
+	RecordScreen(
+		state = state,
+		selectedQuarterId = selectedQuarterId,
+		onSelectedQuarterChange = onSelectedQuarterChange,
+		onRetryClick = onRetryClick,
+		onSubjectGradeChange = { quarterId, subjectId, newGrade, _, isSelected ->
+			onSubjectGradeChange(quarterId, subjectId, newGrade ?: 0, isSelected)
+		}
+	)
+}
+
+@Composable
+fun RecordScreen(
+	state: Record.State,
+	selectedQuarterId: String?,
+	onSelectedQuarterChange: (quarterId: String) -> Unit,
+	onRetryClick: () -> Unit,
+	onSubjectGradeChange: (
+		quarterId: String,
+		subjectId: String,
+		newGrade: Int?,
+		newStatus: SubjectStatus?,
 		isSelected: Boolean
 	) -> Unit
 ) {

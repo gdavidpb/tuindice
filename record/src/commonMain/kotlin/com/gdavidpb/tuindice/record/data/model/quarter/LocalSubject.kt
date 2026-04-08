@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.data.model.quarter
 
+import com.gdavidpb.tuindice.base.domain.model.subject.GradingMode
 import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 
 data class LocalSubject(
@@ -9,6 +10,7 @@ data class LocalSubject(
 	val name: String,
 	val credits: Int,
 	val grade: Int,
+	val gradingMode: GradingMode = GradingMode.NUMERIC,
 	val status: SubjectStatus? = null,
 	val simulationStatus: SubjectStatus? = null,
 	val revision: Long

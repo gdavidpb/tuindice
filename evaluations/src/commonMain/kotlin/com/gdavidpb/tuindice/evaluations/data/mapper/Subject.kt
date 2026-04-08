@@ -10,7 +10,10 @@ fun SubjectEntity.toLocalSubject() = LocalSubject(
 	code = code,
 	name = name,
 	credits = credits,
-	grade = grade
+	grade = grade,
+	gradingMode = com.gdavidpb.tuindice.base.domain.model.subject.GradingMode.entries.firstOrNull { mode ->
+		mode.value == gradingMode
+	} ?: com.gdavidpb.tuindice.base.domain.model.subject.GradingMode.NUMERIC
 )
 
 fun LocalSubject.toSubject() = Subject(
@@ -19,5 +22,6 @@ fun LocalSubject.toSubject() = Subject(
 	code = code,
 	name = name,
 	credits = credits,
-	grade = grade
+	grade = grade,
+	gradingMode = gradingMode
 )

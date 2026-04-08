@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.data.source.database.mapper
 
+import com.gdavidpb.tuindice.base.domain.model.subject.GradingMode
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectEntity
@@ -13,6 +14,7 @@ fun SubjectEntity.toLocalSubject() = LocalSubject(
 	name = name,
 	credits = credits,
 	grade = grade,
+	gradingMode = gradingMode.toGradingMode(),
 	status = status.toSubjectStatus(),
 	simulationStatus = simulationStatus.toSubjectStatus(),
 	revision = revision
@@ -25,6 +27,7 @@ fun LocalSubject.toSubjectEntity() = SubjectEntity(
 	name = name,
 	credits = credits,
 	grade = grade,
+	gradingMode = gradingMode.value,
 	status = status?.value,
 	simulationStatus = simulationStatus?.value,
 	revision = revision
@@ -37,6 +40,7 @@ fun RemoteSubject.toLocalSubject() = LocalSubject(
 	name = name,
 	credits = credits,
 	grade = grade,
+	gradingMode = gradingMode,
 	status = status,
 	simulationStatus = simulationStatus,
 	revision = revision
@@ -49,6 +53,7 @@ fun LocalSubject.toSubject() = Subject(
 	name = name,
 	credits = credits,
 	grade = grade,
+	gradingMode = gradingMode,
 	status = status,
 	simulationStatus = simulationStatus
 )
@@ -60,6 +65,7 @@ fun Subject.toLocalSubject() = LocalSubject(
 	name = name,
 	credits = credits,
 	grade = grade,
+	gradingMode = gradingMode,
 	status = status,
 	simulationStatus = simulationStatus,
 	revision = 0L
@@ -67,4 +73,9 @@ fun Subject.toLocalSubject() = LocalSubject(
 
 private fun String?.toSubjectStatus(): SubjectStatus? {
 	return SubjectStatus.entries.firstOrNull { status -> status.value == this }
+}
+
+private fun String.toGradingMode(): GradingMode {
+	return GradingMode.entries.firstOrNull { mode -> mode.value == this }
+		?: GradingMode.NUMERIC
 }

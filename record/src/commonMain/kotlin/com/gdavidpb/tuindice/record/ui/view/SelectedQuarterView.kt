@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.ui.view
 
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -21,7 +22,8 @@ fun SelectedQuarterView(
 	onSubjectGradeChange: (
 		quarterId: String,
 		subjectId: String,
-		newGrade: Int,
+		newGrade: Int?,
+		newStatus: SubjectStatus?,
 		isSelected: Boolean
 	) -> Unit
 ) {
@@ -56,12 +58,13 @@ fun SelectedQuarterView(
 
 			SubjectCardItemView(
 				item = subject,
-				gradeState = gradeState,
-				onGradeChange = { newGrade, isSelected ->
+				gradeState = gradeState.takeIf { subject.gradingMode == com.gdavidpb.tuindice.base.domain.model.subject.GradingMode.NUMERIC },
+				onGradeChange = { newGrade, newStatus, isSelected ->
 					onSubjectGradeChange(
 						subject.quarterId,
 						subject.subjectId,
 						newGrade,
+						newStatus,
 						isSelected
 					)
 				}

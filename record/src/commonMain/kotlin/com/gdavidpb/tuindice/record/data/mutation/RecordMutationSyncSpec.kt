@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.data.mutation
 
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.base.utils.extension.isPreconditionFailed
@@ -48,6 +49,9 @@ class RecordMutationSyncSpec(
 					qid = command.quarterId,
 					sid = command.subjectId,
 					grade = command.grade,
+					status = command.status?.let { value ->
+						SubjectStatus.entries.firstOrNull { status -> status.value == value }
+					},
 					mutationId = mutation.mutationId,
 					expectedRevision = mutation.expectedRevision
 						?: error("SetSubjectGrade requires a revision precondition.")
@@ -176,7 +180,8 @@ class RecordMutationSyncSpec(
 					remoteQuarter == null || remoteSubject == null ->
 						MutationFailureResolution.Drop()
 
-					remoteSubject.grade == command.grade ->
+					(remoteSubject.grade == command.grade) &&
+						(remoteSubject.status?.value == command.status) ->
 						MutationFailureResolution.Drop()
 
 					else ->

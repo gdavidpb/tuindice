@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.presentation.contract
 
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.base.domain.model.quarter.Quarter
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
@@ -36,7 +37,8 @@ object Record {
 		class SetSubjectGrade(
 			val quarterId: String,
 			val subjectId: String,
-			val grade: Int,
+			val grade: Int? = null,
+			val status: SubjectStatus? = null,
 			val commit: Boolean
 		) : Action()
 	}

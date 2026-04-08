@@ -6,5 +6,5 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AddSubjectRequest(
 	@SerialName("code") val code: String,
-	@SerialName("grade") val grade: Int
+	@SerialName("grade") val grade: Int? = null
 )

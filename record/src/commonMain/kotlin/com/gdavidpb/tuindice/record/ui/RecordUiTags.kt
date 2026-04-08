@@ -24,4 +24,6 @@ object RecordUiTags {
 	fun subjectItem(subjectId: String): String = "record_subject_item_$subjectId"
 	fun subjectCard(subjectId: String): String = "record_subject_card_$subjectId"
 	fun subjectGradeSlider(subjectId: String): String = "record_subject_grade_slider_$subjectId"
+	fun subjectStatusChip(subjectId: String): String = "record_subject_status_chip_$subjectId"
+	fun subjectStatusOption(subjectId: String, status: String): String = "record_subject_status_option_${subjectId}_$status"
 }

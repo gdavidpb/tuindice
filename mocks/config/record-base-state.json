@@ -202,6 +202,19 @@
           "scenario": "record-subject-LLA113Q2026A"
         },
         {
+          "id": "DEP101Q2026A",
+          "qid": "Q2026A",
+          "code": "DEP101",
+          "name": "DEPORTE FORMATIVO I",
+          "credits": 2,
+          "grade": 0,
+          "grading_mode": "qualitative_pass_fail",
+          "status": "normal",
+          "revision": 1,
+          "mutable": true,
+          "scenario": "record-subject-DEP101Q2026A"
+        },
+        {
           "id": "CSA213Q2026A",
           "qid": "Q2026A",
           "code": "CSA213",
@@ -252,6 +265,17 @@
           "name": "INGLES II",
           "credits": 3,
           "grade": 5,
+          "revision": 1
+        },
+        {
+          "id": "DEP100Q2025B",
+          "qid": "Q2025B",
+          "code": "DEP100",
+          "name": "DEPORTE FORMATIVO",
+          "credits": 2,
+          "grade": 0,
+          "grading_mode": "qualitative_pass_fail",
+          "status": "approved",
           "revision": 1
         },
         {
@@ -322,6 +346,17 @@
           "credits": 3,
           "grade": 5,
           "revision": 1
+        },
+        {
+          "id": "ART101Q2025A",
+          "qid": "Q2025A",
+          "code": "ART101",
+          "name": "EXPRESIÓN ARTÍSTICA",
+          "credits": 2,
+          "grade": 0,
+          "grading_mode": "qualitative_pass_fail",
+          "status": "failed",
+          "revision": 1
         }
       ]
     },
@@ -365,6 +400,7 @@
           "name": "LENGUAJE I",
           "credits": 3,
           "grade": 2,
+          "status": "failed",
           "revision": 1
         },
         {

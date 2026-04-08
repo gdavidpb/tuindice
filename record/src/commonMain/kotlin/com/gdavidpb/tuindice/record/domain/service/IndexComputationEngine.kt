@@ -12,7 +12,8 @@ class IndexComputationEngine {
 
 	private data class CodeAttempt(
 		val grade: Int,
-		val credits: Int
+		val credits: Int,
+		val approved: Boolean
 	) {
 		val weighted: Long = grade.toLong() * credits
 	}
@@ -35,7 +36,7 @@ class IndexComputationEngine {
 				return when {
 					currentLatest == null -> 0L
 					currentSecond == null -> weightedSum
-					currentLatest.grade >= 3 -> weightedSum - currentSecond.weighted
+					currentLatest.approved -> weightedSum - currentSecond.weighted
 					else -> weightedSum
 				}
 			}
@@ -48,7 +49,7 @@ class IndexComputationEngine {
 				return when {
 					currentLatest == null -> 0L
 					currentSecond == null -> creditsSum
-					currentLatest.grade >= 3 -> creditsSum - currentSecond.credits
+					currentLatest.approved -> creditsSum - currentSecond.credits
 					else -> creditsSum
 				}
 			}
@@ -94,11 +95,8 @@ class IndexComputationEngine {
 			var quarterWeighted = 0L
 
 			quarter.subjects.forEach { subject ->
-				if (subject.grade != 0) {
-					quarterCredits += subject.credits
-				}
-
-				quarterWeighted += subject.grade.toLong() * subject.credits
+				quarterCredits += subject.numericCreditsContribution()
+				quarterWeighted += subject.numericWeightedContribution()
 			}
 			val quarterGrade = computeAverage(
 				weighted = quarterWeighted,
@@ -111,7 +109,7 @@ class IndexComputationEngine {
 				quarter.subjects
 
 			sortedSubjects.forEach { subject ->
-				if (subject.grade <= 0) return@forEach
+				if (!subject.countsTowardRetakeTimeline()) return@forEach
 
 				val state = codeStates.getOrPut(subject.code, ::CodeState)
 
@@ -121,7 +119,8 @@ class IndexComputationEngine {
 				state.add(
 					CodeAttempt(
 						grade = subject.grade,
-						credits = subject.credits
+						credits = subject.credits,
+						approved = subject.isApprovalEvent()
 					)
 				)
 

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.data.repository
 
+import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.record.data.model.quarter.LocalQuarter
 import com.gdavidpb.tuindice.record.data.model.quarter.LocalSubject
 import com.gdavidpb.tuindice.record.data.model.quarter.SetSubjectGradeResult
@@ -19,7 +20,8 @@ interface QuarterLocalDataRepository {
 	suspend fun setSubjectGradeAndRecompute(
 		qid: String,
 		sid: String,
-		grade: Int,
+		grade: Int?,
+		status: SubjectStatus?,
 		commit: Boolean
 	): SetSubjectGradeResult
 }
