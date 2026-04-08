@@ -8,7 +8,6 @@ data class AcademicRecord(
 	val id: String,
 	val revision: Long = 0L,
 	val profile: AcademicProfile = AcademicProfile(),
-	@SerialName("curriculum_key") val curriculumKey: String = "",
 	@SerialName("official_snapshot") val officialSnapshot: AcademicSnapshot = AcademicSnapshot(),
 	@SerialName("local_overlay") val localOverlay: AcademicOverlay = AcademicOverlay(),
 	@SerialName("official_projection") val officialProjection: RecordProjection = RecordProjection(

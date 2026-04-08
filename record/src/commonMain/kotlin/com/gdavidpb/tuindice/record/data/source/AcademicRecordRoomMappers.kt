@@ -82,7 +82,6 @@ internal fun AcademicRecord.toAcademicRecordEntity(): AcademicRecordEntity {
 	return AcademicRecordEntity(
 		id = id,
 		revision = revision,
-		curriculumKey = curriculumKey,
 		updatedAt = updatedAtMillis
 	)
 }

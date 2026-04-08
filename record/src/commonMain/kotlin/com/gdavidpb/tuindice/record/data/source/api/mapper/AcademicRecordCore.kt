@@ -63,7 +63,6 @@ fun AcademicRecordResponse.toAcademicRecord(): AcademicRecord {
 	val record = AcademicRecord(
 		id = CURRENT_ACADEMIC_RECORD_ID,
 		revision = revision,
-		curriculumKey = "default",
 		officialSnapshot = officialSnapshot,
 		localOverlay = AcademicOverlay(
 			attemptOverrides = attemptOverrides,

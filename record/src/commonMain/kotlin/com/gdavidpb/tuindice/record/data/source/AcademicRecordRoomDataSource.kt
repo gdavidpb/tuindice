@@ -98,7 +98,6 @@ class AcademicRecordRoomDataSource(
 			AcademicRecord(
 				id = recordEntity.id,
 				revision = recordEntity.revision,
-				curriculumKey = recordEntity.curriculumKey,
 				officialSnapshot = partial.officialSnapshot,
 				localOverlay = partial.overlay,
 				officialProjection = partial.officialProjection,

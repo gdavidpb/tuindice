@@ -12,8 +12,6 @@ data class AcademicRecordEntity(
 	val id: String,
 	@ColumnInfo(name = AcademicRecordTable.REVISION)
 	val revision: Long,
-	@ColumnInfo(name = AcademicRecordTable.CURRICULUM_KEY)
-	val curriculumKey: String,
 	@ColumnInfo(name = AcademicRecordTable.UPDATED_AT)
 	val updatedAt: Long
 )
