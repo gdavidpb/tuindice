@@ -25,7 +25,7 @@ class UpsertAttemptSelectionUseCase(
 			status = params.status
 		)
 
-		if (shouldClearOverride(
+		if (params.commit && shouldClearOverride(
 				attemptId = params.attemptId,
 				score = score,
 				outcome = outcome

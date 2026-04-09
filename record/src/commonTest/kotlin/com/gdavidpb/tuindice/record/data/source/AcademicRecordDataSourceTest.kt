@@ -32,6 +32,126 @@ import kotlin.test.assertEquals
 
 class AcademicRecordDataSourceTest {
 	@Test
+	fun upsertAttemptOverride_whenEarlierAckArrivesAfterNewerTap_keepsLaterPendingOverrideVisible() = runTest {
+		val firstAttemptId = "PB5611Q2026A"
+		val secondAttemptId = "MA1001Q2026A"
+		val initialRecord = AcademicRecord(
+			id = "record-1",
+			terms = listOf(
+				AcademicTerm(
+					id = "term-1",
+					label = "2026-1",
+					startAtMillis = 1L,
+					endAtMillis = 2L,
+					kind = TermKind.OFFICIAL_CURRENT,
+					attempts = listOf(
+						AcademicAttempt(
+							id = firstAttemptId,
+							subjectCode = "PB5611",
+							subjectName = "Probabilidad",
+							credits = 10,
+							officialScore = AttemptScore.numeric(3),
+							officialOutcome = AttemptOutcome.APPROVED
+						),
+						AcademicAttempt(
+							id = secondAttemptId,
+							subjectCode = "MA1001",
+							subjectName = "Calculo",
+							credits = 10,
+							officialScore = AttemptScore.numeric(3),
+							officialOutcome = AttemptOutcome.APPROVED
+						)
+					)
+				)
+			),
+			attemptOverrides = emptyList()
+		)
+		val firstAckRecord = initialRecord.copy(
+			attemptOverrides = listOf(
+				AttemptOverride(
+					attemptId = firstAttemptId,
+					score = AttemptScore.numeric(4),
+					updatedAtMillis = 2L
+				)
+			)
+		)
+		val secondAckRecord = firstAckRecord.copy(
+			attemptOverrides = firstAckRecord.attemptOverrides + AttemptOverride(
+				attemptId = secondAttemptId,
+				score = AttemptScore.numeric(5),
+				updatedAtMillis = 3L
+			)
+		)
+		val localDataSource = FakeAcademicRecordLocalDataRepository(
+			record = VersionedAcademicRecord(
+				revision = 1L,
+				record = initialRecord
+			)
+		)
+		val remoteDataSource = DelayedSequentialUpsertAcademicRecordRemoteDataRepository(
+			firstResponse = VersionedAcademicRecord(
+				revision = 2L,
+				record = firstAckRecord
+			),
+			secondResponse = VersionedAcademicRecord(
+				revision = 3L,
+				record = secondAckRecord
+			)
+		)
+		val dataSource = AcademicRecordDataSource(
+			localDataSource = localDataSource,
+			remoteDataSource = remoteDataSource,
+			settingsDataSource = FakeRecordSettingsDataRepository(),
+			mutationEngine = createMutationEngine(this),
+			identifierRepository = FakeIdentifierRepository()
+		)
+
+		val firstUpsertJob = async {
+			dataSource.upsertAttemptOverride(
+				attemptId = firstAttemptId,
+				score = AttemptScore.numeric(4),
+				outcome = null,
+				commit = true
+			)
+		}
+		remoteDataSource.firstUpsertStarted.await()
+
+		val secondUpsertJob = async {
+			dataSource.upsertAttemptOverride(
+				attemptId = secondAttemptId,
+				score = AttemptScore.numeric(5),
+				outcome = null,
+				commit = true
+			)
+		}
+
+		remoteDataSource.releaseFirstUpsert.complete(Unit)
+
+		firstUpsertJob.await()
+		secondUpsertJob.await()
+
+		assertEquals(
+			listOf(null, null, 5, 5, 5),
+			localDataSource.overrideGradeTimeline(secondAttemptId)
+		)
+		assertEquals(
+			listOf(
+				AttemptOverride(
+					attemptId = firstAttemptId,
+					score = AttemptScore.numeric(4),
+					updatedAtMillis = 2L
+				),
+				AttemptOverride(
+					attemptId = secondAttemptId,
+					score = AttemptScore.numeric(5),
+					updatedAtMillis = 3L
+				)
+			),
+			localDataSource.getAcademicRecord().attemptOverrides
+		)
+	}
+
+	@Test
 	fun upsertAttemptOverride_whenSupersededRevisionFails_rebasesWithoutRestoringOldGrade() = runTest {
 		val attemptId = "PB5611Q2026A"
 		val initialRecord = AcademicRecord(
@@ -460,6 +580,55 @@ private class RebasingAcademicRecordRemoteDataRepository(
 		mutationId: String,
 		expectedRevision: Long
 	): VersionedAcademicRecord = latestResponse
+}
+
+private class DelayedSequentialUpsertAcademicRecordRemoteDataRepository(
+	private val firstResponse: VersionedAcademicRecord,
+	private val secondResponse: VersionedAcademicRecord
+) : AcademicRecordRemoteDataRepository {
+	val firstUpsertStarted = CompletableDeferred<Unit>()
+	val releaseFirstUpsert = CompletableDeferred<Unit>()
+
+	private var upsertAttemptCalls = 0
+
+	override suspend fun getAcademicRecord(): VersionedAcademicRecord = secondResponse
+
+	override suspend fun upsertAttemptOverride(
+		attemptId: String,
+		score: AttemptScore?,
+		outcome: AttemptOutcome?,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord {
+		upsertAttemptCalls += 1
+		return when (upsertAttemptCalls) {
+			1 -> {
+				firstUpsertStarted.complete(Unit)
+				releaseFirstUpsert.await()
+				firstResponse
+			}
+
+			else -> secondResponse
+		}
+	}
+
+	override suspend fun deleteAttemptOverride(
+		attemptId: String,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord = secondResponse
+
+	override suspend fun addSyntheticTerm(
+		command: AcademicRecordMutation.AddSyntheticTerm,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord = secondResponse
+
+	override suspend fun deleteSyntheticTerm(
+		termId: String,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord = secondResponse
 }
 
 private class FakeRecordSettingsDataRepository : RecordSettingsDataRepository {

@@ -11,13 +11,12 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureKind
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureResolution
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationSyncSpec
-import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
 
 class AcademicRecordMutationSyncSpec(
-	private val localDataSource: AcademicRecordLocalDataRepository,
 	private val remoteDataSource: AcademicRecordRemoteDataRepository,
-	private val refreshRemoteSnapshot: suspend (AcademicRecordMutation?) -> VersionedAcademicRecord
+	private val persistConfirmedSnapshot: suspend (VersionedAcademicRecord) -> Unit,
+	private val refreshRemoteSnapshot: suspend () -> VersionedAcademicRecord
 ) : MutationSyncSpec<String, AcademicRecordMutation, AcademicRecord, AcademicRecord, VersionedAcademicRecord> {
 	override val maxRebaseAttempts: Int = 1
 
@@ -69,7 +68,7 @@ class AcademicRecordMutationSyncSpec(
 		mutation: MutationEnvelope<String, AcademicRecordMutation>,
 		ack: VersionedAcademicRecord
 	) {
-		localDataSource.saveAcademicRecord(ack)
+		persistConfirmedSnapshot(ack)
 	}
 
 	override fun classifyError(
@@ -120,7 +119,7 @@ class AcademicRecordMutationSyncSpec(
 		return when (classifyError(mutation, throwable)) {
 			MutationFailureKind.Conflict,
 			MutationFailureKind.PreconditionFailed -> {
-				val refreshedSnapshot = refreshRemoteSnapshot(mutation.command)
+				val refreshedSnapshot = refreshRemoteSnapshot()
 				val remoteOverride = refreshedSnapshot.record.attemptOverrides.firstOrNull { override ->
 					override.attemptId == command.attemptId
 				}
@@ -137,7 +136,7 @@ class AcademicRecordMutationSyncSpec(
 			}
 
 			MutationFailureKind.NotFound -> {
-				refreshRemoteSnapshot(null)
+				refreshRemoteSnapshot()
 				MutationFailureResolution.Drop(propagate = true)
 			}
 
@@ -154,7 +153,7 @@ class AcademicRecordMutationSyncSpec(
 		return when (classifyError(mutation, throwable)) {
 			MutationFailureKind.Conflict,
 			MutationFailureKind.PreconditionFailed -> {
-				val refreshedSnapshot = refreshRemoteSnapshot(mutation.command)
+				val refreshedSnapshot = refreshRemoteSnapshot()
 				val remoteOverride = refreshedSnapshot.record.attemptOverrides.firstOrNull { override ->
 					override.attemptId == command.attemptId
 				}
@@ -171,7 +170,7 @@ class AcademicRecordMutationSyncSpec(
 			}
 
 			MutationFailureKind.NotFound -> {
-				refreshRemoteSnapshot(null)
+				refreshRemoteSnapshot()
 				MutationFailureResolution.Drop()
 			}
 
@@ -187,7 +186,7 @@ class AcademicRecordMutationSyncSpec(
 		return when (classifyError(mutation, throwable)) {
 			MutationFailureKind.Conflict,
 			MutationFailureKind.PreconditionFailed -> {
-				val refreshedSnapshot = refreshRemoteSnapshot(mutation.command)
+				val refreshedSnapshot = refreshRemoteSnapshot()
 				MutationFailureResolution.Retry(
 					mutation.copy(
 						precondition = MutationPrecondition.Revision(refreshedSnapshot.revision)
@@ -196,7 +195,7 @@ class AcademicRecordMutationSyncSpec(
 			}
 
 			MutationFailureKind.NotFound -> {
-				refreshRemoteSnapshot(null)
+				refreshRemoteSnapshot()
 				MutationFailureResolution.Drop(propagate = true)
 			}
 

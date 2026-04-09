@@ -31,8 +31,8 @@ class AcademicRecordDataSource(
 	private val identifierRepository: IdentifierRepository
 ) : AcademicRecordRepository {
 	private val mutationSyncSpec = AcademicRecordMutationSyncSpec(
-		localDataSource = localDataSource,
 		remoteDataSource = remoteDataSource,
+		persistConfirmedSnapshot = ::persistRemoteSnapshot,
 		refreshRemoteSnapshot = ::refreshRemoteSnapshot
 	)
 
@@ -51,7 +51,7 @@ class AcademicRecordDataSource(
 			val snapshotVersion = mutationEngine.currentMutationVersion()
 			val remoteRecord = remoteDataSource.getAcademicRecord()
 			if (snapshotVersion == mutationEngine.currentMutationVersion()) {
-				localDataSource.saveAcademicRecord(remoteRecord)
+				persistRemoteSnapshot(remoteRecord)
 				settingsDataSource.setGetAcademicRecordOnCooldown()
 			}
 		}
@@ -148,15 +148,21 @@ class AcademicRecordDataSource(
 		submitTrackedMutation(mutation = mutation)
 	}
 
-	private suspend fun refreshRemoteSnapshot(
-		preserveMutation: AcademicRecordMutation? = null
-	): VersionedAcademicRecord {
+	private suspend fun refreshRemoteSnapshot(): VersionedAcademicRecord {
 		val snapshotVersion = mutationEngine.currentMutationVersion()
 		val remoteRecord = remoteDataSource.getAcademicRecord()
 		if (snapshotVersion == mutationEngine.currentMutationVersion()) {
-			localDataSource.saveAcademicRecord(remoteRecord.reapplying(preserveMutation))
+			persistRemoteSnapshot(remoteRecord)
 		}
 		return remoteRecord
+	}
+
+	private suspend fun persistRemoteSnapshot(
+		remoteRecord: VersionedAcademicRecord
+	) {
+		localDataSource.saveAcademicRecord(
+			remoteRecord.reapplyingPendingMutations(currentPendingMutations())
+		)
 	}
 
 	private suspend fun submitTrackedMutation(
@@ -174,13 +180,16 @@ class AcademicRecordDataSource(
 		)
 	}
 
-	private fun VersionedAcademicRecord.reapplying(
-		mutation: AcademicRecordMutation?
+	private suspend fun currentPendingMutations(): List<MutationEnvelope<String, AcademicRecordMutation>> {
+		return mutationEngine.getPendingMutations(RECORD_MUTATION_SCOPE)
+			.sortedWith(compareBy(MutationEnvelope<String, AcademicRecordMutation>::createdAt, MutationEnvelope<String, AcademicRecordMutation>::mutationId))
+	}
+
+	private fun VersionedAcademicRecord.reapplyingPendingMutations(
+		pendingMutations: List<MutationEnvelope<String, AcademicRecordMutation>>
 	): VersionedAcademicRecord {
-		return if (mutation == null) {
-			this
-		} else {
-			copy(record = record.reapplying(mutation))
+		return pendingMutations.fold(this) { currentRecord, pendingMutation ->
+			currentRecord.copy(record = currentRecord.record.reapplying(pendingMutation.command))
 		}
 	}
 
