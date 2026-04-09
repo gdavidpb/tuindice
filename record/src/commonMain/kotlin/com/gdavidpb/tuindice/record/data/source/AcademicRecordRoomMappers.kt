@@ -31,10 +31,9 @@ internal fun List<AcademicTermEntity>.toAcademicTerms(
 
 internal fun AcademicRecordEntity.revisionValue(): Long = revision
 
-internal fun AcademicTerm.toAcademicTermEntity(recordId: String): AcademicTermEntity {
+internal fun AcademicTerm.toAcademicTermEntity(): AcademicTermEntity {
 	return AcademicTermEntity(
 		id = id,
-		recordId = recordId,
 		label = label,
 		startAt = startAtMillis,
 		endAt = endAtMillis,
@@ -43,13 +42,11 @@ internal fun AcademicTerm.toAcademicTermEntity(recordId: String): AcademicTermEn
 }
 
 internal fun AcademicAttempt.toAcademicAttemptEntity(
-	recordId: String,
 	termId: String,
 	positionInTerm: Int
 ): AcademicAttemptEntity {
 	return AcademicAttemptEntity(
 		id = id,
-		recordId = recordId,
 		termId = termId,
 		subjectCode = subjectCode,
 		subjectName = subjectName,
@@ -64,10 +61,9 @@ internal fun AcademicAttempt.toAcademicAttemptEntity(
 	)
 }
 
-internal fun AttemptOverride.toAcademicAttemptOverrideEntity(recordId: String): AcademicAttemptOverrideEntity {
+internal fun AttemptOverride.toAcademicAttemptOverrideEntity(): AcademicAttemptOverrideEntity {
 	return AcademicAttemptOverrideEntity(
 		attemptId = attemptId,
-		recordId = recordId,
 		scoreKind = score?.storageType,
 		scoreNumericValue = score?.numericValue,
 		scoreSymbolicValue = score?.symbolicValue,

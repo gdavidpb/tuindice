@@ -64,7 +64,7 @@ class EvaluationsActionProcessorContractTest {
 	}
 
 	@Test
-	fun loadEvaluationsActionProcessor_keepsLoading_whenInitialSnapshotIsEmpty() = runTest {
+	fun loadEvaluationsActionProcessor_reducesStateToEmpty_whenInitialSnapshotIsEmpty() = runTest {
 		val processor = LoadEvaluationsActionProcessor(
 			getEvaluationsUseCase = GetEvaluationsUseCase(
 				evaluationRepository = RecordingEvaluationRepository(
@@ -80,7 +80,7 @@ class EvaluationsActionProcessorContractTest {
 			sideEffect = {}
 		).test {
 			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Empty))
-			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Loading))
+			assertEquals(Evaluations.State.Empty, awaitItem()(Evaluations.State.Loading))
 
 			awaitComplete()
 		}

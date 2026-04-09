@@ -16,16 +16,16 @@ import kotlin.test.assertEquals
 
 class AcademicRecordCoreMapperTest {
 	@Test
-	fun toVersionedAcademicRecord_preservesRevisionAndCanonicalRecord() {
+	fun toVersionedAcademicRecord_preservesRevisionAndRecordPayload() {
 		val record = AcademicRecord(
-			id = CURRENT_ACADEMIC_RECORD_ID,
-				profile = AcademicProfile(
-					userId = "u1",
-					firstNames = "Ada",
-					lastNames = "Lovelace",
-					careerName = "Ingenieria",
-					careerCode = 12039
-				),
+			id = "u1",
+			profile = AcademicProfile(
+				userId = "u1",
+				firstNames = "Ada",
+				lastNames = "Lovelace",
+				careerName = "Ingenieria",
+				careerCode = 12039
+			),
 			terms = listOf(
 				AcademicTerm(
 					id = "term-1",

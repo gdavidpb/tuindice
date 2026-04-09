@@ -8,14 +8,12 @@ import com.gdavidpb.tuindice.persistence.data.room.schema.AcademicAttemptOverrid
 
 @Entity(
 	tableName = AcademicAttemptOverrideTable.TABLE_NAME,
-	indices = [Index(value = [AcademicAttemptOverrideTable.RECORD_ID])]
+	indices = [Index(value = [AcademicAttemptOverrideTable.UPDATED_AT])]
 )
 data class AcademicAttemptOverrideEntity(
 	@PrimaryKey
 	@ColumnInfo(name = AcademicAttemptOverrideTable.ATTEMPT_ID)
 	val attemptId: String,
-	@ColumnInfo(name = AcademicAttemptOverrideTable.RECORD_ID)
-	val recordId: String,
 	@ColumnInfo(name = AcademicAttemptOverrideTable.SCORE_KIND)
 	val scoreKind: String? = null,
 	@ColumnInfo(name = AcademicAttemptOverrideTable.SCORE_NUMERIC_VALUE)

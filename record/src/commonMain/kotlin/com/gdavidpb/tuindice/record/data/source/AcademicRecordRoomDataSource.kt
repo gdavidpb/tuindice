@@ -13,7 +13,6 @@ import com.gdavidpb.tuindice.persistence.data.room.withImmediateTransaction
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
-import com.gdavidpb.tuindice.record.data.source.api.mapper.CURRENT_ACADEMIC_RECORD_ID
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -28,9 +27,9 @@ class AcademicRecordRoomDataSource(
 	override fun observeAcademicRecordFlow(): Flow<AcademicRecord?> {
 		return combine(
 			room.academicRecords.observeRecordFlow(),
-			room.academicTerms.observeTermsFlow(CURRENT_ACADEMIC_RECORD_ID),
-			room.academicAttempts.observeAttemptsFlow(CURRENT_ACADEMIC_RECORD_ID),
-			room.academicAttemptOverrides.observeOverridesFlow(CURRENT_ACADEMIC_RECORD_ID)
+			room.academicTerms.observeTermsFlow(),
+			room.academicAttempts.observeAttemptsFlow(),
+			room.academicAttemptOverrides.observeOverridesFlow()
 		) { recordEntity, terms, attempts, overrides ->
 			val persistedRecord = recordEntity ?: return@combine null
 
@@ -145,6 +144,10 @@ class AcademicRecordRoomDataSource(
 
 	private suspend fun persistVersionedRecord(record: VersionedAcademicRecord) {
 		room.withImmediateTransaction {
+			room.academicAttemptOverrides.deleteAll()
+			room.academicAttempts.deleteAll()
+			room.academicTerms.deleteAll()
+			room.academicRecords.deleteAll()
 			room.academicRecords.upsertEntity(
 				com.gdavidpb.tuindice.persistence.data.room.entity.AcademicRecordEntity(
 					id = record.record.id,
@@ -152,17 +155,12 @@ class AcademicRecordRoomDataSource(
 					updatedAt = currentTimeMillis()
 				)
 			)
-			room.academicTerms.deleteByRecord(record.record.id)
-			room.academicAttempts.deleteByRecord(record.record.id)
-			room.academicAttemptOverrides.deleteByRecord(record.record.id)
-
 			room.academicTerms.upsertEntities(record.record.terms.map { term ->
-				term.toAcademicTermEntity(record.record.id)
+				term.toAcademicTermEntity()
 			})
 			room.academicAttempts.upsertEntities(record.record.terms.flatMap { term ->
 				term.attempts.mapIndexed { index, attempt ->
 					attempt.toAcademicAttemptEntity(
-						recordId = record.record.id,
 						termId = term.id,
 						positionInTerm = index
 					)
@@ -170,7 +168,7 @@ class AcademicRecordRoomDataSource(
 			})
 			if (record.record.attemptOverrides.isNotEmpty()) {
 				room.academicAttemptOverrides.upsertEntities(record.record.attemptOverrides.map { override ->
-					override.toAcademicAttemptOverrideEntity(record.record.id)
+					override.toAcademicAttemptOverrideEntity()
 				})
 			}
 		}

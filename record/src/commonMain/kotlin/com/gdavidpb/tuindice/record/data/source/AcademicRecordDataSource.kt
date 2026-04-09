@@ -62,7 +62,7 @@ class AcademicRecordDataSource(
 		outcome: AttemptOutcome?,
 		commit: Boolean
 	) {
-		val current = localDataSource.getAcademicRecord() ?: return
+		localDataSource.getAcademicRecord() ?: return
 		val currentRevision = localDataSource.getRecordRevision() ?: return
 		localDataSource.upsertAttemptOverride(
 			attemptId = attemptId,
@@ -100,7 +100,7 @@ class AcademicRecordDataSource(
 	}
 
 	override suspend fun deleteAttemptOverride(attemptId: String) {
-		val current = localDataSource.getAcademicRecord() ?: return
+		localDataSource.getAcademicRecord() ?: return
 		val currentRevision = localDataSource.getRecordRevision() ?: return
 		localDataSource.deleteAttemptOverride(attemptId)
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
@@ -122,7 +122,7 @@ class AcademicRecordDataSource(
 	}
 
 	override suspend fun addSyntheticTerm(command: AcademicRecordMutation.AddSyntheticTerm) {
-		val current = localDataSource.getAcademicRecord() ?: return
+		localDataSource.getAcademicRecord() ?: return
 		val currentRevision = localDataSource.getRecordRevision() ?: return
 		localDataSource.addSyntheticTerm(command)
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
@@ -144,7 +144,7 @@ class AcademicRecordDataSource(
 	}
 
 	override suspend fun deleteSyntheticTerm(termId: String) {
-		val current = localDataSource.getAcademicRecord() ?: return
+		localDataSource.getAcademicRecord() ?: return
 		val currentRevision = localDataSource.getRecordRevision() ?: return
 		localDataSource.deleteSyntheticTerm(termId)
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(

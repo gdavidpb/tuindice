@@ -27,8 +27,6 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-private const val CURRENT_ACADEMIC_RECORD_ID = "self"
-
 class RoomDatabaseDataSource(
 	private val room: TuIndiceDatabase,
 	private val mutationEngine: StoreBackedMutationEngine<String, EvaluationMutation, LocalEvaluationsSnapshot, List<LocalEvaluation>, EvaluationMutationAck>,
@@ -79,12 +77,12 @@ class RoomDatabaseDataSource(
 
 	override suspend fun getAvailableSubjects(): List<LocalSubject> {
 		val openTermIds = room.academicTerms
-			.getTerms(CURRENT_ACADEMIC_RECORD_ID)
+			.getTerms()
 			.filter { term -> isEditableTermKind(term.kind) }
 			.mapTo(hashSetOf()) { term -> term.id }
 
 		return room.academicAttempts
-			.getAttempts(CURRENT_ACADEMIC_RECORD_ID)
+			.getAttempts()
 			.asSequence()
 			.filter { attempt -> attempt.termId in openTermIds }
 			.filter { attempt -> attempt.gradingMode == "NUMERIC" }

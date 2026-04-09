@@ -69,9 +69,6 @@ class LoadEvaluationsActionProcessor(
 											activeFilters = evaluations.activeFilters
 										)
 
-									current is Evaluations.State.Loading ->
-										current
-
 									else ->
 										Evaluations.State.Empty
 								}
@@ -80,8 +77,7 @@ class LoadEvaluationsActionProcessor(
 					}
 
 					is UseCaseState.Error -> suspend { _: Evaluations.State ->
-						val error = useCaseState.error
-						val message = when (error) {
+						val message = when (val error = useCaseState.error) {
 							is EvaluationsUseCaseError.NoConnection ->
 								if (error.isNetworkAvailable)
 									getString(Res.string.snack_service_unavailable)

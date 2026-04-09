@@ -8,14 +8,12 @@ import com.gdavidpb.tuindice.persistence.data.room.schema.AcademicTermTable
 
 @Entity(
 	tableName = AcademicTermTable.TABLE_NAME,
-	indices = [Index(value = [AcademicTermTable.RECORD_ID, AcademicTermTable.START_AT])]
+	indices = [Index(value = [AcademicTermTable.START_AT])]
 )
 data class AcademicTermEntity(
 	@PrimaryKey
 	@ColumnInfo(name = AcademicTermTable.ID)
 	val id: String,
-	@ColumnInfo(name = AcademicTermTable.RECORD_ID)
-	val recordId: String,
 	@ColumnInfo(name = AcademicTermTable.LABEL)
 	val label: String,
 	@ColumnInfo(name = AcademicTermTable.START_AT)

@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.persistence.data.room.schema
 object AcademicAttemptTable {
 	const val TABLE_NAME = "academic_attempt"
 	const val ID = "id"
-	const val RECORD_ID = "record_id"
 	const val TERM_ID = "term_id"
 	const val SUBJECT_CODE = "subject_code"
 	const val SUBJECT_NAME = "subject_name"

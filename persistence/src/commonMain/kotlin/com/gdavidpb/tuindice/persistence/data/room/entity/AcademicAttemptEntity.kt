@@ -9,16 +9,14 @@ import com.gdavidpb.tuindice.persistence.data.room.schema.AcademicAttemptTable
 @Entity(
 	tableName = AcademicAttemptTable.TABLE_NAME,
 	indices = [
-		Index(value = [AcademicAttemptTable.RECORD_ID, AcademicAttemptTable.TERM_ID]),
-		Index(value = [AcademicAttemptTable.RECORD_ID, AcademicAttemptTable.SUBJECT_CODE])
+		Index(value = [AcademicAttemptTable.TERM_ID]),
+		Index(value = [AcademicAttemptTable.SUBJECT_CODE])
 	]
 )
 data class AcademicAttemptEntity(
 	@PrimaryKey
 	@ColumnInfo(name = AcademicAttemptTable.ID)
 	val id: String,
-	@ColumnInfo(name = AcademicAttemptTable.RECORD_ID)
-	val recordId: String,
 	@ColumnInfo(name = AcademicAttemptTable.TERM_ID)
 	val termId: String,
 	@ColumnInfo(name = AcademicAttemptTable.SUBJECT_CODE)

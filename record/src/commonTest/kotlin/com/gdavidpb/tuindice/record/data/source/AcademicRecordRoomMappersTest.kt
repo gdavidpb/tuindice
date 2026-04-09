@@ -22,7 +22,7 @@ class AcademicRecordRoomMappersTest {
 			kind = TermKind.OFFICIAL_CURRENT
 		)
 
-		val roundTrip = listOf(term.toAcademicTermEntity(recordId = "self"))
+		val roundTrip = listOf(term.toAcademicTermEntity())
 			.toAcademicTerms(attempts = emptyList())
 			.single()
 
@@ -59,16 +59,14 @@ class AcademicRecordRoomMappersTest {
 			officialBadge = AttemptBadge.WITHOUT_EFFECT
 		)
 
-		val roundTrip = listOf(term.toAcademicTermEntity(recordId = "self"))
+		val roundTrip = listOf(term.toAcademicTermEntity())
 			.toAcademicTerms(
 				attempts = listOf(
 					laterAttempt.toAcademicAttemptEntity(
-						recordId = "self",
 						termId = term.id,
 						positionInTerm = 1
 					),
 					earlierAttempt.toAcademicAttemptEntity(
-						recordId = "self",
 						termId = term.id,
 						positionInTerm = 0
 					)
@@ -89,7 +87,7 @@ class AcademicRecordRoomMappersTest {
 		)
 
 		val roundTrip = override
-			.toAcademicAttemptOverrideEntity(recordId = "self")
+			.toAcademicAttemptOverrideEntity()
 			.toAttemptOverride()
 
 		assertEquals(override, roundTrip)
