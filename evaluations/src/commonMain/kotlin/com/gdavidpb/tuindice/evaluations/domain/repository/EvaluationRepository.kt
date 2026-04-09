@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface EvaluationRepository {
 	suspend fun observeEvaluationsFlow(): Flow<List<Evaluation>>
+	suspend fun observeHasSyncedEvaluationsFlow(): Flow<Boolean>
 	suspend fun updateEvaluations()
 	suspend fun getEvaluation(eid: String): Evaluation?
 	suspend fun addEvaluation(add: EvaluationAdd)

@@ -47,6 +47,10 @@ class EvaluationDataSource(
 			.map { evaluations -> evaluations.map { evaluation -> evaluation.toEvaluation() } }
 	}
 
+	override suspend fun observeHasSyncedEvaluationsFlow(): Flow<Boolean> {
+		return databaseDataSource.observeHasSyncedEvaluationsFlow()
+	}
+
 	override suspend fun updateEvaluations() {
 		val isOnCooldown = settingsDataSource.isGetEvaluationsOnCooldown()
 

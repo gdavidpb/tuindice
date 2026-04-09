@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface DatabaseDataRepository {
 	fun observeEvaluationsFlow(): Flow<List<LocalEvaluation>>
+	fun observeHasSyncedEvaluationsFlow(): Flow<Boolean>
 	suspend fun getEvaluation(eid: String): LocalEvaluation?
 	suspend fun getConfirmedSnapshot(): LocalEvaluationsSnapshot
 	suspend fun getAvailableSubjects(): List<LocalSubject>

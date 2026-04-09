@@ -64,11 +64,36 @@ class EvaluationsActionProcessorContractTest {
 	}
 
 	@Test
-	fun loadEvaluationsActionProcessor_reducesStateToEmpty_whenInitialSnapshotIsEmpty() = runTest {
+	fun loadEvaluationsActionProcessor_keepsLoading_whenInitialSnapshotIsEmptyAndNeverSynced() = runTest {
 		val processor = LoadEvaluationsActionProcessor(
 			getEvaluationsUseCase = GetEvaluationsUseCase(
 				evaluationRepository = RecordingEvaluationRepository(
 					evaluationsFlow = flowOf(emptyList()),
+					hasSyncedEvaluationsFlow = flowOf(false),
+					availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
+				),
+				reportingRepository = RecordingReportingRepository()
+			)
+		)
+
+		processor.process(
+			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
+			sideEffect = {}
+		).test {
+			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Empty))
+			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Loading))
+
+			awaitComplete()
+		}
+	}
+
+	@Test
+	fun loadEvaluationsActionProcessor_reducesStateToEmpty_whenInitialSnapshotIsEmptyAfterSync() = runTest {
+		val processor = LoadEvaluationsActionProcessor(
+			getEvaluationsUseCase = GetEvaluationsUseCase(
+				evaluationRepository = RecordingEvaluationRepository(
+					evaluationsFlow = flowOf(emptyList()),
+					hasSyncedEvaluationsFlow = flowOf(true),
 					availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
 				),
 				reportingRepository = RecordingReportingRepository()

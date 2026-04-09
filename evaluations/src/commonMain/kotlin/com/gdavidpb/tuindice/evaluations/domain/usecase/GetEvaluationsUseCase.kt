@@ -10,9 +10,9 @@ import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlin.math.sign
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -37,7 +37,10 @@ class GetEvaluationsUseCase(
 		if (availableSubjects.isEmpty()) return flowOf(GetEvaluations.NoSubjects)
 
 		return params.flatMapLatest { activeFilters ->
-			evaluationRepository.observeEvaluationsFlow().map { evaluations ->
+			combine(
+				evaluationRepository.observeEvaluationsFlow(),
+				evaluationRepository.observeHasSyncedEvaluationsFlow()
+			) { evaluations, hasSyncedEvaluations ->
 				val sortedEvaluations = evaluations.sortedWith(evaluationComparator)
 
 				val filteredEvaluations = if (activeFilters.isEmpty())
@@ -55,7 +58,8 @@ class GetEvaluationsUseCase(
 				GetEvaluations.Content(
 					originalEvaluations = sortedEvaluations,
 					filteredEvaluations = filteredEvaluations,
-					activeFilters = activeFilters
+					activeFilters = activeFilters,
+					hasSyncedEvaluations = hasSyncedEvaluations
 				)
 			}
 		}

@@ -32,6 +32,7 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
 private const val PAST_EVALUATION_DATE = 1_700_000_000_000L
@@ -170,6 +171,7 @@ class RecordingEvaluationRepository(
 	private val updateThrowable: Throwable? = null,
 	private val removeThrowable: Throwable? = null,
 	private val refreshThrowable: Throwable? = null,
+	private val hasSyncedEvaluationsFlow: Flow<Boolean> = flowOf(true),
 	private val availableSubjects: List<Subject> = listOf(
 		DEFAULT_EVALUATION_SUBJECT,
 		SECOND_EVALUATION_SUBJECT
@@ -183,6 +185,8 @@ class RecordingEvaluationRepository(
 	var updateEvaluationsCalls = 0
 
 	override suspend fun observeEvaluationsFlow(): Flow<List<Evaluation>> = evaluationsFlow ?: evaluationsState
+
+	override suspend fun observeHasSyncedEvaluationsFlow(): Flow<Boolean> = hasSyncedEvaluationsFlow
 
 	override suspend fun updateEvaluations() {
 		updateEvaluationsCalls++
@@ -257,6 +261,7 @@ class FakeDatabaseDataSource(
 	)
 ) : DatabaseDataRepository {
 	private val snapshotState = MutableStateFlow(initialSnapshot)
+	private val hasSyncedEvaluationsState = MutableStateFlow(initialSnapshot.anchorRevision != 0L)
 
 	val savedSnapshots = mutableListOf<LocalEvaluationsSnapshot>()
 	val addedEvaluations = mutableListOf<Pair<Long, LocalEvaluation>>()
@@ -266,6 +271,8 @@ class FakeDatabaseDataSource(
 	override fun observeEvaluationsFlow(): Flow<List<LocalEvaluation>> {
 		return snapshotState.map { snapshot -> snapshot.evaluations }
 	}
+
+	override fun observeHasSyncedEvaluationsFlow(): Flow<Boolean> = hasSyncedEvaluationsState
 
 	override suspend fun getEvaluation(eid: String): LocalEvaluation? {
 		return snapshotState.value.evaluations.firstOrNull { evaluation -> evaluation.id == eid }
@@ -277,6 +284,7 @@ class FakeDatabaseDataSource(
 
 	override suspend fun confirmAddedEvaluation(evaluation: LocalEvaluation, anchorRevision: Long): LocalEvaluation {
 		addedEvaluations += anchorRevision to evaluation
+		hasSyncedEvaluationsState.value = true
 		snapshotState.value = snapshotState.value.copy(
 			anchorRevision = anchorRevision,
 			evaluations = snapshotState.value.evaluations
@@ -289,6 +297,7 @@ class FakeDatabaseDataSource(
 
 	override suspend fun confirmUpdatedEvaluation(evaluation: LocalEvaluation, anchorRevision: Long): LocalEvaluation {
 		updatedEvaluations += anchorRevision to evaluation
+		hasSyncedEvaluationsState.value = true
 		snapshotState.value = snapshotState.value.copy(
 			anchorRevision = anchorRevision,
 			evaluations = snapshotState.value.evaluations.map { current ->
@@ -300,6 +309,7 @@ class FakeDatabaseDataSource(
 
 	override suspend fun confirmRemovedEvaluation(eid: String, anchorRevision: Long) {
 		removedEvaluations += anchorRevision to eid
+		hasSyncedEvaluationsState.value = true
 		snapshotState.value = snapshotState.value.copy(
 			anchorRevision = anchorRevision,
 			evaluations = snapshotState.value.evaluations.filterNot { evaluation -> evaluation.id == eid }
@@ -315,6 +325,7 @@ class FakeDatabaseDataSource(
 
 	override suspend fun saveConfirmedSnapshot(snapshot: LocalEvaluationsSnapshot) {
 		savedSnapshots += snapshot
+		hasSyncedEvaluationsState.value = true
 		snapshotState.value = snapshot
 	}
 }

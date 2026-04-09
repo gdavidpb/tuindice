@@ -70,6 +70,11 @@ class RoomDatabaseDataSource(
 		}
 	}
 
+	override fun observeHasSyncedEvaluationsFlow(): Flow<Boolean> {
+		return evaluationSyncStateDao.observeSyncState()
+			.map { syncState -> syncState != null }
+	}
+
 	override suspend fun getEvaluation(eid: String): LocalEvaluation? {
 		val confirmedSnapshot = getConfirmedSnapshot()
 		return visibleEvaluationsStateResolver.resolveVisibleState(

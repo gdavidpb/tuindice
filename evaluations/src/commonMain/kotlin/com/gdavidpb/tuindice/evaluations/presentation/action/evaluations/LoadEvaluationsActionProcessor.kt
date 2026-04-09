@@ -39,7 +39,7 @@ class LoadEvaluationsActionProcessor(
 						Evaluations.State.Loading
 					}
 
-					is UseCaseState.Data -> suspend { _: Evaluations.State ->
+					is UseCaseState.Data -> suspend { current: Evaluations.State ->
 						when (val evaluations = useCaseState.value) {
 							GetEvaluations.NoSubjects -> Evaluations.State.NoSubjects
 
@@ -69,8 +69,14 @@ class LoadEvaluationsActionProcessor(
 											activeFilters = evaluations.activeFilters
 										)
 
-									else ->
+									evaluations.hasSyncedEvaluations ->
 										Evaluations.State.Empty
+
+									else ->
+										when (current) {
+											is Evaluations.State.Failed -> current
+											else -> Evaluations.State.Loading
+										}
 								}
 							}
 						}
