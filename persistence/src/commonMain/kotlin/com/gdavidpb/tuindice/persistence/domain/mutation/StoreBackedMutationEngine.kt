@@ -290,6 +290,11 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Confir
 
 				return UpdaterResult.Success.Typed(ack)
 			} catch (throwable: Throwable) {
+				if (!shouldApplyMutation(currentMutation)) {
+					forgetMutationVersion(currentMutation.mutationId)
+					return UpdaterResult.Success.Untyped(Unit)
+				}
+
 				when (val resolution = syncSpec.resolveFailure(currentMutation, throwable)) {
 					is MutationFailureResolution.Drop -> {
 						outboxStore.deletePendingMutation(

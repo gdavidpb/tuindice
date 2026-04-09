@@ -10,9 +10,23 @@ interface AcademicRecordRemoteDataRepository {
 	suspend fun upsertAttemptOverride(
 		attemptId: String,
 		score: AttemptScore?,
-		outcome: AttemptOutcome?
+		outcome: AttemptOutcome?,
+		mutationId: String,
+		expectedRevision: Long
 	): VersionedAcademicRecord
-	suspend fun deleteAttemptOverride(attemptId: String): VersionedAcademicRecord
-	suspend fun addSyntheticTerm(command: AcademicRecordMutation.AddSyntheticTerm): VersionedAcademicRecord
-	suspend fun deleteSyntheticTerm(termId: String): VersionedAcademicRecord
+	suspend fun deleteAttemptOverride(
+		attemptId: String,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord
+	suspend fun addSyntheticTerm(
+		command: AcademicRecordMutation.AddSyntheticTerm,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord
+	suspend fun deleteSyntheticTerm(
+		termId: String,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord
 }

@@ -1,0 +1,367 @@
+package com.gdavidpb.tuindice.record.data.source
+
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
+import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
+import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
+import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
+import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
+import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
+import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
+import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository
+import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
+import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+
+class AcademicRecordDataSourceTest {
+	@Test
+	fun deleteAttemptOverride_whenSupersededByLaterUpsert_suppressesStaleFailure_and_keepsLatestOverride() = runTest {
+		val attemptId = "PB5611Q2026A"
+		val initialRecord = AcademicRecord(
+			id = "record-1",
+			terms = listOf(
+				AcademicTerm(
+					id = "term-1",
+					label = "2026-1",
+					startAtMillis = 1L,
+					endAtMillis = 2L,
+					kind = TermKind.OFFICIAL_CURRENT,
+					attempts = listOf(
+						AcademicAttempt(
+							id = attemptId,
+							subjectCode = "PB5611",
+							subjectName = "Probabilidad",
+							credits = 10,
+							officialScore = AttemptScore.numeric(3),
+							officialOutcome = AttemptOutcome.FAILED
+						)
+					)
+				)
+			),
+			attemptOverrides = listOf(
+				AttemptOverride(
+					attemptId = attemptId,
+					score = AttemptScore.numeric(4),
+					updatedAtMillis = 1L
+				)
+			)
+		)
+		val remoteRecord = initialRecord.copy(
+			attemptOverrides = listOf(
+				AttemptOverride(
+					attemptId = attemptId,
+					score = AttemptScore.numeric(5),
+					updatedAtMillis = 2L
+				)
+			)
+		)
+		val localDataSource = FakeAcademicRecordLocalDataRepository(
+			record = VersionedAcademicRecord(
+				revision = 2L,
+				record = initialRecord
+			)
+		)
+		val remoteDataSource = ControlledAcademicRecordRemoteDataRepository(
+			upsertResponse = VersionedAcademicRecord(
+				revision = 3L,
+				record = remoteRecord
+			)
+		)
+		val dataSource = AcademicRecordDataSource(
+			localDataSource = localDataSource,
+			remoteDataSource = remoteDataSource,
+			settingsDataSource = FakeRecordSettingsDataRepository(),
+			mutationEngine = createMutationEngine(this),
+			identifierRepository = FakeIdentifierRepository()
+		)
+
+		val deleteJob = async {
+			dataSource.deleteAttemptOverride(attemptId)
+		}
+		remoteDataSource.deleteStarted.await()
+
+		val upsertJob = async {
+			dataSource.upsertAttemptOverride(
+				attemptId = attemptId,
+				score = AttemptScore.numeric(5),
+				outcome = null,
+				commit = true
+			)
+		}
+
+		remoteDataSource.releaseDeleteFailure.complete(Unit)
+
+		deleteJob.await()
+		upsertJob.await()
+
+		assertEquals(1, remoteDataSource.deleteAttemptCalls)
+		assertEquals(1, remoteDataSource.upsertAttemptCalls)
+		assertEquals(0, remoteDataSource.getRecordCalls)
+		assertEquals(listOf("mutation-1"), remoteDataSource.deleteAttemptMutationIds)
+		assertEquals(listOf(2L), remoteDataSource.deleteAttemptExpectedRevisions)
+		assertEquals(listOf("mutation-2"), remoteDataSource.upsertAttemptMutationIds)
+		assertEquals(listOf(2L), remoteDataSource.upsertAttemptExpectedRevisions)
+		assertEquals(
+			listOf(
+				AttemptOverride(
+					attemptId = attemptId,
+					score = AttemptScore.numeric(5),
+					updatedAtMillis = 2L
+				)
+			),
+			localDataSource.getAcademicRecord().attemptOverrides
+		)
+	}
+}
+
+private fun createMutationEngine(
+	coroutineScope: CoroutineScope
+) = StoreBackedMutationEngine<String, AcademicRecordMutation, AcademicRecord, AcademicRecord, VersionedAcademicRecord>(
+	storeId = "record-test",
+	outboxStore = InMemoryMutationEnvelopeStore(),
+	coroutineScope = coroutineScope
+)
+
+private class FakeAcademicRecordLocalDataRepository(
+	record: VersionedAcademicRecord
+) : AcademicRecordLocalDataRepository {
+	private val recordState = MutableStateFlow(record.record)
+	private var revision = record.revision
+
+	override fun observeAcademicRecordFlow(): Flow<AcademicRecord?> = recordState
+
+	override suspend fun getAcademicRecord(): AcademicRecord = recordState.value
+
+	override suspend fun getRecordRevision(): Long = revision
+
+	override suspend fun saveAcademicRecord(record: VersionedAcademicRecord) {
+		revision = record.revision
+		recordState.value = record.record
+	}
+
+	override suspend fun upsertAttemptOverride(
+		attemptId: String,
+		score: AttemptScore?,
+		outcome: AttemptOutcome?,
+		committed: Boolean
+	): AcademicRecord {
+		val updated = recordState.value.copy(
+			attemptOverrides = recordState.value.attemptOverrides
+				.filterNot { override -> override.attemptId == attemptId } +
+				AttemptOverride(
+					attemptId = attemptId,
+					score = score,
+					outcome = outcome,
+					updatedAtMillis = 10L
+				)
+		)
+		recordState.value = updated
+		return updated
+	}
+
+	override suspend fun deleteAttemptOverride(attemptId: String): AcademicRecord {
+		val updated = recordState.value.copy(
+			attemptOverrides = recordState.value.attemptOverrides.filterNot { override ->
+				override.attemptId == attemptId
+			}
+		)
+		recordState.value = updated
+		return updated
+	}
+
+	override suspend fun addSyntheticTerm(command: AcademicRecordMutation.AddSyntheticTerm): AcademicRecord {
+		val updated = recordState.value.copy(
+			terms = recordState.value.terms.filterNot { term -> term.id == command.termId } + AcademicTerm(
+				id = command.termId,
+				label = command.label,
+				startAtMillis = command.startAtMillis,
+				endAtMillis = command.endAtMillis,
+				kind = TermKind.SYNTHETIC,
+				attempts = command.attempts.map { attempt ->
+					AcademicAttempt(
+						id = attempt.attemptId,
+						subjectCode = attempt.subjectCode,
+						subjectName = attempt.subjectName,
+						credits = attempt.credits,
+						gradingMode = attempt.gradingMode,
+						officialScore = attempt.score ?: AttemptScore.empty(),
+						officialOutcome = attempt.outcome ?: AttemptOutcome.PENDING
+					)
+				}
+			)
+		)
+		recordState.value = updated
+		return updated
+	}
+
+	override suspend fun deleteSyntheticTerm(termId: String): AcademicRecord {
+		val updated = recordState.value.copy(
+			terms = recordState.value.terms.filterNot { term -> term.id == termId }
+		)
+		recordState.value = updated
+		return updated
+	}
+}
+
+private class ControlledAcademicRecordRemoteDataRepository(
+	private val upsertResponse: VersionedAcademicRecord
+) : AcademicRecordRemoteDataRepository {
+	val deleteStarted = CompletableDeferred<Unit>()
+	val releaseDeleteFailure = CompletableDeferred<Unit>()
+
+	var getRecordCalls = 0
+	var upsertAttemptCalls = 0
+	var deleteAttemptCalls = 0
+	val upsertAttemptMutationIds = mutableListOf<String>()
+	val upsertAttemptExpectedRevisions = mutableListOf<Long>()
+	val deleteAttemptMutationIds = mutableListOf<String>()
+	val deleteAttemptExpectedRevisions = mutableListOf<Long>()
+
+	override suspend fun getAcademicRecord(): VersionedAcademicRecord {
+		getRecordCalls += 1
+		return upsertResponse
+	}
+
+	override suspend fun upsertAttemptOverride(
+		attemptId: String,
+		score: AttemptScore?,
+		outcome: AttemptOutcome?,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord {
+		upsertAttemptCalls += 1
+		upsertAttemptMutationIds += mutationId
+		upsertAttemptExpectedRevisions += expectedRevision
+		return upsertResponse
+	}
+
+	override suspend fun deleteAttemptOverride(
+		attemptId: String,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord {
+		deleteAttemptCalls += 1
+		deleteAttemptMutationIds += mutationId
+		deleteAttemptExpectedRevisions += expectedRevision
+		deleteStarted.complete(Unit)
+		releaseDeleteFailure.await()
+		throw clientRequestException(
+			statusCode = HttpStatusCode.NotFound,
+			path = "/record/v3/overlay/attempts/$attemptId"
+		)
+	}
+
+	override suspend fun addSyntheticTerm(
+		command: AcademicRecordMutation.AddSyntheticTerm,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord = upsertResponse
+
+	override suspend fun deleteSyntheticTerm(
+		termId: String,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord = upsertResponse
+}
+
+private class FakeRecordSettingsDataRepository : RecordSettingsDataRepository {
+	override suspend fun isGetAcademicRecordOnCooldown(): Boolean = false
+
+	override suspend fun setGetAcademicRecordOnCooldown() = Unit
+
+	override fun observeSelectedTermId(viewMode: RecordViewMode): Flow<String?> = MutableStateFlow(null)
+
+	override fun observeRecordViewMode(): Flow<RecordViewMode> = MutableStateFlow(RecordViewMode.Working)
+
+	override fun getSelectedTermId(viewMode: RecordViewMode): String? = null
+
+	override fun setSelectedTermId(viewMode: RecordViewMode, termId: String) = Unit
+
+	override fun getRecordViewMode(): RecordViewMode = RecordViewMode.Working
+
+	override fun setRecordViewMode(viewMode: RecordViewMode) = Unit
+}
+
+private class FakeIdentifierRepository : IdentifierRepository {
+	private var nextId = 0
+
+	override fun generateRandomIdentifier(): String {
+		nextId += 1
+		return "mutation-$nextId"
+	}
+}
+
+private class InMemoryMutationEnvelopeStore(
+	initialMutations: List<MutationEnvelope<String, AcademicRecordMutation>> = emptyList()
+) : MutationEnvelopeStore<String, AcademicRecordMutation> {
+	private val state = MutableStateFlow(initialMutations)
+
+	override fun observePendingMutations(
+		scopeKey: String
+	): Flow<List<MutationEnvelope<String, AcademicRecordMutation>>> {
+		return state.map { mutations ->
+			mutations.filter { mutation ->
+				mutation.scopeKey == scopeKey && mutation.status == PendingMutationStatus.Pending
+			}
+		}
+	}
+
+	override suspend fun getPendingMutations(
+		scopeKey: String
+	): List<MutationEnvelope<String, AcademicRecordMutation>> {
+		return state.value.filter { mutation ->
+			mutation.scopeKey == scopeKey && mutation.status == PendingMutationStatus.Pending
+		}
+	}
+
+	override suspend fun getPendingMutation(
+		scopeKey: String,
+		mutationId: String
+	): MutationEnvelope<String, AcademicRecordMutation>? {
+		return state.value.firstOrNull { mutation ->
+			mutation.scopeKey == scopeKey && mutation.mutationId == mutationId
+		}
+	}
+
+	override suspend fun replacePendingMutation(
+		mutation: MutationEnvelope<String, AcademicRecordMutation>
+	) {
+		state.value = state.value
+			.filterNot { pending -> pending.replaceKey == mutation.replaceKey }
+			.plus(mutation)
+	}
+
+	override suspend fun savePendingMutation(
+		mutation: MutationEnvelope<String, AcademicRecordMutation>
+	) {
+		state.value = state.value
+			.filterNot { pending -> pending.mutationId == mutation.mutationId }
+			.plus(mutation)
+	}
+
+	override suspend fun deletePendingMutation(
+		scopeKey: String,
+		mutationId: String
+	) {
+		state.value = state.value.filterNot { mutation ->
+			mutation.scopeKey == scopeKey && mutation.mutationId == mutationId
+		}
+	}
+}

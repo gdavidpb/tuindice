@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
+import com.gdavidpb.tuindice.record.data.source.api.mapper.buildDeleteOverlayMutationRequest
 import com.gdavidpb.tuindice.record.data.source.api.mapper.buildAcademicUpsertAttemptOverrideRequest
 import com.gdavidpb.tuindice.record.data.source.api.mapper.toVersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.source.api.mapper.toAddSyntheticTermRequest
@@ -29,31 +30,71 @@ class AcademicRecordApiDataSource(
 	override suspend fun upsertAttemptOverride(
 		attemptId: String,
 		score: AttemptScore?,
-		outcome: AttemptOutcome?
+		outcome: AttemptOutcome?,
+		mutationId: String,
+		expectedRevision: Long
 	): VersionedAcademicRecord {
 		return ktorClient.put("record/v3/overlay/attempts/$attemptId") {
-			setBody(buildAcademicUpsertAttemptOverrideRequest(score = score, outcome = outcome))
+			setBody(
+				buildAcademicUpsertAttemptOverrideRequest(
+					score = score,
+					outcome = outcome,
+					mutationId = mutationId,
+					expectedRevision = expectedRevision
+				)
+			)
 		}
 			.body<AcademicRecordResponse>()
 			.toVersionedAcademicRecord()
 	}
 
-	override suspend fun deleteAttemptOverride(attemptId: String): VersionedAcademicRecord {
-		return ktorClient.delete("record/v3/overlay/attempts/$attemptId")
+	override suspend fun deleteAttemptOverride(
+		attemptId: String,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord {
+		return ktorClient.delete("record/v3/overlay/attempts/$attemptId") {
+			setBody(
+				buildDeleteOverlayMutationRequest(
+					mutationId = mutationId,
+					expectedRevision = expectedRevision
+				)
+			)
+		}
 			.body<AcademicRecordResponse>()
 			.toVersionedAcademicRecord()
 	}
 
-	override suspend fun addSyntheticTerm(command: AcademicRecordMutation.AddSyntheticTerm): VersionedAcademicRecord {
+	override suspend fun addSyntheticTerm(
+		command: AcademicRecordMutation.AddSyntheticTerm,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord {
 		return ktorClient.post("record/v3/overlay/terms") {
-			setBody(command.toAddSyntheticTermRequest())
+			setBody(
+				command.toAddSyntheticTermRequest(
+					mutationId = mutationId,
+					expectedRevision = expectedRevision
+				)
+			)
 		}
 			.body<AcademicRecordResponse>()
 			.toVersionedAcademicRecord()
 	}
 
-	override suspend fun deleteSyntheticTerm(termId: String): VersionedAcademicRecord {
-		return ktorClient.delete("record/v3/overlay/terms/$termId")
+	override suspend fun deleteSyntheticTerm(
+		termId: String,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord {
+		return ktorClient.delete("record/v3/overlay/terms/$termId") {
+			setBody(
+				buildDeleteOverlayMutationRequest(
+					mutationId = mutationId,
+					expectedRevision = expectedRevision
+				)
+			)
+		}
 			.body<AcademicRecordResponse>()
 			.toVersionedAcademicRecord()
 	}

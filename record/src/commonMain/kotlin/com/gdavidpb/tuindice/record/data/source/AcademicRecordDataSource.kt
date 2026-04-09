@@ -77,7 +77,6 @@ class AcademicRecordDataSource(
 
 		if (!commit) return
 
-		val mutationVersion = mutationEngine.beginMutation(replaceKey = "attempt:$attemptId")
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
 			mutationId = identifierRepository.generateRandomIdentifier(),
 			scopeKey = RECORD_MUTATION_SCOPE,
@@ -92,15 +91,7 @@ class AcademicRecordDataSource(
 			updatedAt = currentTimeMillis(),
 			lastError = null
 		)
-		mutationEngine.rememberMutationVersion(
-			mutationId = mutation.mutationId,
-			version = mutationVersion
-		)
-		mutationEngine.submit(
-			mutation = mutation,
-			syncSpec = mutationSyncSpec,
-			propagateTerminalErrors = true
-		)
+		submitTrackedMutation(mutation = mutation)
 	}
 
 	override suspend fun deleteAttemptOverride(attemptId: String) {
@@ -117,12 +108,7 @@ class AcademicRecordDataSource(
 			updatedAt = currentTimeMillis(),
 			lastError = null
 		)
-		mutationEngine.beginMutation(replaceKey = mutation.command.replaceKey)
-		mutationEngine.submit(
-			mutation = mutation,
-			syncSpec = mutationSyncSpec,
-			propagateTerminalErrors = true
-		)
+		submitTrackedMutation(mutation = mutation)
 	}
 
 	override suspend fun addSyntheticTerm(command: AcademicRecordMutation.AddSyntheticTerm) {
@@ -139,12 +125,7 @@ class AcademicRecordDataSource(
 			updatedAt = currentTimeMillis(),
 			lastError = null
 		)
-		mutationEngine.beginMutation(replaceKey = command.replaceKey)
-		mutationEngine.submit(
-			mutation = mutation,
-			syncSpec = mutationSyncSpec,
-			propagateTerminalErrors = true
-		)
+		submitTrackedMutation(mutation = mutation)
 	}
 
 	override suspend fun deleteSyntheticTerm(termId: String) {
@@ -161,12 +142,7 @@ class AcademicRecordDataSource(
 			updatedAt = currentTimeMillis(),
 			lastError = null
 		)
-		mutationEngine.beginMutation(replaceKey = mutation.command.replaceKey)
-		mutationEngine.submit(
-			mutation = mutation,
-			syncSpec = mutationSyncSpec,
-			propagateTerminalErrors = true
-		)
+		submitTrackedMutation(mutation = mutation)
 	}
 
 	private suspend fun refreshRemoteSnapshot(): VersionedAcademicRecord {
@@ -176,5 +152,20 @@ class AcademicRecordDataSource(
 			localDataSource.saveAcademicRecord(remoteRecord)
 		}
 		return remoteRecord
+	}
+
+	private suspend fun submitTrackedMutation(
+		mutation: MutationEnvelope<String, AcademicRecordMutation>
+	) {
+		val mutationVersion = mutationEngine.beginMutation(replaceKey = mutation.command.replaceKey)
+		mutationEngine.rememberMutationVersion(
+			mutationId = mutation.mutationId,
+			version = mutationVersion
+		)
+		mutationEngine.submit(
+			mutation = mutation,
+			syncSpec = mutationSyncSpec,
+			propagateTerminalErrors = true
+		)
 	}
 }

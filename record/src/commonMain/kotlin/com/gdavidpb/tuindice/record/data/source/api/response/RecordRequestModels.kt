@@ -9,7 +9,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class UpsertAttemptOverrideRequest(
 	@SerialName("score") val score: AttemptScore? = null,
-	@SerialName("outcome") val outcome: AttemptOutcome? = null
+	@SerialName("outcome") val outcome: AttemptOutcome? = null,
+	@SerialName("mutation_id") val mutationId: String,
+	@SerialName("expected_revision") val expectedRevision: Long
 )
 
 @Serializable
@@ -17,7 +19,15 @@ data class AddSyntheticTermRequest(
 	@SerialName("label") val label: String,
 	@SerialName("start_at") val startAt: Long,
 	@SerialName("end_at") val endAt: Long,
-	@SerialName("attempts") val attempts: List<SyntheticAttemptRequest>
+	@SerialName("attempts") val attempts: List<SyntheticAttemptRequest>,
+	@SerialName("mutation_id") val mutationId: String,
+	@SerialName("expected_revision") val expectedRevision: Long
+)
+
+@Serializable
+data class DeleteOverlayMutationRequest(
+	@SerialName("mutation_id") val mutationId: String,
+	@SerialName("expected_revision") val expectedRevision: Long
 )
 
 @Serializable

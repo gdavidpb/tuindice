@@ -85,6 +85,68 @@ class StoreBackedMutationEngineTest {
 	}
 
 	@Test
+	fun submit_whenReplacedBySameReplaceKey_suppressesStaleFailure() = runTest {
+		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
+		val engine = createEngine(store, this)
+		val firstSendStarted = CompletableDeferred<Unit>()
+		val releaseFirstFailure = CompletableDeferred<Unit>()
+		val confirmedValues = mutableListOf<Int>()
+		val sentValues = mutableListOf<Int>()
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+			override suspend fun send(
+				mutation: MutationEnvelope<String, TestMutation>
+			): TestAck {
+				sentValues += mutation.command.value
+				if (mutation.command.value == 10) {
+					firstSendStarted.complete(Unit)
+					releaseFirstFailure.await()
+					throw TestTerminalFailure()
+				}
+				return TestAck(mutation.mutationId, mutation.command.value)
+			}
+
+			override suspend fun confirm(
+				mutation: MutationEnvelope<String, TestMutation>,
+				ack: TestAck
+			) {
+				confirmedValues += ack.value
+			}
+		}
+
+		val firstMutation = testMutationEnvelope(
+			mutationId = "mutation-1",
+			value = 10,
+			replaceKey = "subject:1"
+		)
+		val firstVersion = engine.beginMutation(replaceKey = firstMutation.replaceKey)
+		engine.rememberMutationVersion(firstMutation.mutationId, firstVersion)
+		val firstJob = launch {
+			engine.submit(firstMutation, syncSpec)
+		}
+
+		firstSendStarted.await()
+		val secondMutation = testMutationEnvelope(
+			mutationId = "mutation-2",
+			value = 20,
+			replaceKey = "subject:1"
+		)
+		val secondVersion = engine.beginMutation(replaceKey = secondMutation.replaceKey)
+		engine.rememberMutationVersion(secondMutation.mutationId, secondVersion)
+		val secondJob = launch {
+			engine.submit(secondMutation, syncSpec)
+		}
+		yield()
+
+		releaseFirstFailure.complete(Unit)
+		firstJob.join()
+		secondJob.join()
+
+		assertEquals(listOf(10, 20), sentValues)
+		assertEquals(listOf(20), confirmedValues)
+		assertEquals(emptyList(), store.getPendingMutations("record"))
+	}
+
+	@Test
 	fun submit_whenRebaseChangesRevision_retriesWithUpdatedPrecondition() = runTest {
 		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
 		val engine = createEngine(store, this)
@@ -362,3 +424,5 @@ private data class TestAck(
 )
 
 private class TestPreconditionFailure : RuntimeException("precondition failed")
+
+private class TestTerminalFailure : RuntimeException("terminal failure")

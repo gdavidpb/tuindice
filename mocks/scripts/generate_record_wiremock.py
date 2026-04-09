@@ -239,7 +239,112 @@ def build_put_mappings(target_dir: Path, base_state: dict, max_revision: int) ->
 		)
 
 
-def build_delete_mappings(target_dir: Path) -> None:
+def build_delete_attempt_mappings(target_dir: Path, base_state: dict, max_revision: int) -> None:
+	mutable_attempts = [
+		attempt
+		for term in base_state["terms"]
+		for attempt in term["attempts"]
+		if attempt.get("mutable")
+	]
+
+	for attempt in mutable_attempts:
+		url_path = f"/record/v3/overlay/attempts/{attempt['id']}"
+		base_revision = attempt["revision"]
+		grading_mode = attempt.get("grading_mode", "numeric")
+		base_grade = attempt.get("grade", 0)
+		base_status = attempt.get("status", "pending")
+
+		if grading_mode == "qualitative_pass_fail":
+			base_state_name = scenario_attempt_status_state(base_revision + 1, base_status)
+			write_mapping(
+				target_dir,
+				f"delete-{attempt['id'].lower()}-started.json",
+				{
+					"priority": SUCCESS_PRIORITY,
+					"scenarioName": attempt["scenario"],
+					"requiredScenarioState": "Started",
+					"newScenarioState": base_state_name,
+					"request": {
+						"method": "DELETE",
+						"urlPath": url_path
+					},
+					"response": response(
+						status=200,
+						body=RECORD_BODY,
+						delay_ms=DELETE_DELAY_MS
+					)
+				}
+			)
+
+			for current_revision in range(base_revision + 1, max_revision + 1):
+				next_revision = min(current_revision + 1, max_revision)
+				for current_outcome in QUALITATIVE_OUTCOMES:
+					write_mapping(
+						target_dir,
+						f"delete-{attempt['id'].lower()}-r{current_revision}-{current_outcome}.json",
+						{
+							"priority": SUCCESS_PRIORITY,
+							"scenarioName": attempt["scenario"],
+							"requiredScenarioState": scenario_attempt_status_state(current_revision, current_outcome),
+							"newScenarioState": scenario_attempt_status_state(next_revision, base_status),
+							"request": {
+								"method": "DELETE",
+								"urlPath": url_path
+							},
+							"response": response(
+								status=200,
+								body=RECORD_BODY,
+								delay_ms=DELETE_DELAY_MS
+							)
+						}
+					)
+		else:
+			base_state_name = scenario_attempt_grade_state(base_revision + 1, base_grade)
+			write_mapping(
+				target_dir,
+				f"delete-{attempt['id'].lower()}-started.json",
+				{
+					"priority": SUCCESS_PRIORITY,
+					"scenarioName": attempt["scenario"],
+					"requiredScenarioState": "Started",
+					"newScenarioState": base_state_name,
+					"request": {
+						"method": "DELETE",
+						"urlPath": url_path
+					},
+					"response": response(
+						status=200,
+						body=RECORD_BODY,
+						delay_ms=DELETE_DELAY_MS
+					)
+				}
+			)
+
+			for current_revision in range(base_revision + 1, max_revision + 1):
+				next_revision = min(current_revision + 1, max_revision)
+				for current_grade in range(MIN_GRADE, MAX_GRADE + 1):
+					write_mapping(
+						target_dir,
+						f"delete-{attempt['id'].lower()}-r{current_revision}-g{current_grade}.json",
+						{
+							"priority": SUCCESS_PRIORITY,
+							"scenarioName": attempt["scenario"],
+							"requiredScenarioState": scenario_attempt_grade_state(current_revision, current_grade),
+							"newScenarioState": scenario_attempt_grade_state(next_revision, base_grade),
+							"request": {
+								"method": "DELETE",
+								"urlPath": url_path
+							},
+							"response": response(
+								status=200,
+								body=RECORD_BODY,
+								delay_ms=DELETE_DELAY_MS
+							)
+						}
+					)
+
+
+def build_delete_term_mappings(target_dir: Path) -> None:
 	for term_id, scenario_name, deleted_state in (
 		(ADDED_TERM_ID, ADDED_TERM_SCENARIO, ADDED_TERM_DELETED_STATE),
 	):
@@ -349,7 +454,8 @@ def main() -> None:
 	record_mappings_dir = runtime_root / "mappings" / "record"
 	build_get_mapping(record_mappings_dir)
 	build_put_mappings(record_mappings_dir, base_state, max_revision=max(args.max_revision, 2))
-	build_delete_mappings(record_mappings_dir)
+	build_delete_attempt_mappings(record_mappings_dir, base_state, max_revision=max(args.max_revision, 2))
+	build_delete_term_mappings(record_mappings_dir)
 	build_post_mappings(record_mappings_dir)
 
 

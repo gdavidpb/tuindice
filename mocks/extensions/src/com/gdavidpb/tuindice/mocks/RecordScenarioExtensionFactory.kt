@@ -243,8 +243,13 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 						)
 					}
 				}
+			val resolvedAttemptRevision = terms
+				.flatMap(TermModel::attempts)
+				.maxOfOrNull(AttemptModel::revision)
+				?: 0L
 			val revision = maxOf(
 				terms.maxOfOrNull(TermModel::revision) ?: 0L,
+				resolvedAttemptRevision,
 				attemptOverrides.maxOfOrNull { override -> override.getValue("updated_at") as Long } ?: 0L
 			)
 

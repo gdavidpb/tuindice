@@ -26,22 +26,40 @@ class AcademicRecordMutationSyncSpec(
 	override suspend fun send(
 		mutation: MutationEnvelope<String, AcademicRecordMutation>
 	): VersionedAcademicRecord {
+		val expectedRevision = requireNotNull(mutation.expectedRevision) {
+			"Record mutations require an expected revision."
+		}
+
 		return when (val command = mutation.command) {
 			is AcademicRecordMutation.UpsertAttemptOverride ->
 				remoteDataSource.upsertAttemptOverride(
 					attemptId = command.attemptId,
 					score = command.score,
-					outcome = command.outcome
+					outcome = command.outcome,
+					mutationId = mutation.mutationId,
+					expectedRevision = expectedRevision
 				)
 
 			is AcademicRecordMutation.DeleteAttemptOverride ->
-				remoteDataSource.deleteAttemptOverride(command.attemptId)
+				remoteDataSource.deleteAttemptOverride(
+					attemptId = command.attemptId,
+					mutationId = mutation.mutationId,
+					expectedRevision = expectedRevision
+				)
 
 			is AcademicRecordMutation.AddSyntheticTerm ->
-				remoteDataSource.addSyntheticTerm(command)
+				remoteDataSource.addSyntheticTerm(
+					command = command,
+					mutationId = mutation.mutationId,
+					expectedRevision = expectedRevision
+				)
 
 			is AcademicRecordMutation.DeleteSyntheticTerm ->
-				remoteDataSource.deleteSyntheticTerm(command.termId)
+				remoteDataSource.deleteSyntheticTerm(
+					termId = command.termId,
+					mutationId = mutation.mutationId,
+					expectedRevision = expectedRevision
+				)
 		}
 	}
 
