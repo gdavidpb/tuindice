@@ -56,4 +56,7 @@ abstract class PendingMutationDao : UpsertDao<PendingMutationEntity>() {
 			"AND ${PendingMutationTable.REPLACE_KEY} = :replaceKey"
 	)
 	abstract suspend fun deletePendingMutationsByReplaceKey(storeId: String, replaceKey: String): Int
+
+	@Query("DELETE FROM ${PendingMutationTable.TABLE_NAME}")
+	abstract suspend fun deleteAll(): Int
 }

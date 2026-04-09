@@ -2,8 +2,10 @@ package com.gdavidpb.tuindice.record.di
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.persistence.data.room.RoomMutationEnvelopeStore
+import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
+import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
 import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository
@@ -64,7 +66,8 @@ val recordModule = module {
 
 	single<MutationEnvelopeStore<String, AcademicRecordMutation>>(named(RECORD_MUTATION_STORE_QUALIFIER)) {
 		RoomMutationEnvelopeStore(
-			room = get(),
+			pendingMutationDao = get<PendingMutationDao>(),
+			transactionRunner = get<PersistenceTransactionRunner>(),
 			storeId = RECORD_MUTATION_STORE_ID,
 			scopeKeySerializer = String.serializer(),
 			commandSerializer = AcademicRecordMutation.serializer()
@@ -91,7 +94,15 @@ val recordModule = module {
 
 	/* Data sources */
 
-	single<AcademicRecordLocalDataRepository> { AcademicRecordRoomDataSource(room = get()) }
+	single<AcademicRecordLocalDataRepository> {
+		AcademicRecordRoomDataSource(
+			academicRecordDao = get(),
+			academicTermDao = get(),
+			academicAttemptDao = get(),
+			academicAttemptOverrideDao = get(),
+			transactionRunner = get()
+		)
+	}
 	singleOf(::LocalSettingsDataSource) { bind<RecordSettingsDataRepository>() }
 	singleOf(::AcademicRecordApiDataSource) { bind<AcademicRecordRemoteDataRepository>() }
 

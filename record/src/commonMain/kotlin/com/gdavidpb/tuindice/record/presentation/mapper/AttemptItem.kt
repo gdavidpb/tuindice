@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.base.domain.model.subject.GradingMode
 import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.base.ui.style.SubjectColorGenerator
-import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
+import com.gdavidpb.tuindice.academiccore.domain.model.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.presentation.model.AttemptItem
 
 @Composable

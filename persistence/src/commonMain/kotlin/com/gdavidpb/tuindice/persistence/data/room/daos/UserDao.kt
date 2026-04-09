@@ -20,4 +20,7 @@ abstract class UserDao : UpsertDao<UserEntity>() {
 	abstract suspend fun updateProfilePicture(
 		url: String
 	)
+
+	@Query("DELETE FROM ${UserTable.TABLE_NAME}")
+	abstract suspend fun deleteAll()
 }

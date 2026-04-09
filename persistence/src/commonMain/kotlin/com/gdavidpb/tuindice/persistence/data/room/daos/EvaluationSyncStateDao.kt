@@ -21,4 +21,7 @@ abstract class EvaluationSyncStateDao : UpsertDao<EvaluationSyncStateEntity>() {
 			"LIMIT 1"
 	)
 	abstract suspend fun getSyncState(key: String = EvaluationSyncStateTable.DEFAULT_KEY): EvaluationSyncStateEntity?
+
+	@Query("DELETE FROM ${EvaluationSyncStateTable.TABLE_NAME}")
+	abstract suspend fun deleteAll()
 }

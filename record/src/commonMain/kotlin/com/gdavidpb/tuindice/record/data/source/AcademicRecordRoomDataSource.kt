@@ -8,9 +8,12 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
-import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
+import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptOverrideDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicRecordDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicRecordEntity
-import com.gdavidpb.tuindice.persistence.data.room.withImmediateTransaction
+import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
@@ -21,16 +24,20 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 class AcademicRecordRoomDataSource(
-	private val room: TuIndiceDatabase
+	private val academicRecordDao: AcademicRecordDao,
+	private val academicTermDao: AcademicTermDao,
+	private val academicAttemptDao: AcademicAttemptDao,
+	private val academicAttemptOverrideDao: AcademicAttemptOverrideDao,
+	private val transactionRunner: PersistenceTransactionRunner
 ) : AcademicRecordLocalDataRepository {
 	private val writeMutex = Mutex()
 
 	override fun observeAcademicRecordFlow(): Flow<AcademicRecord?> {
 		return combine(
-			room.academicRecords.observeRecordFlow(),
-			room.academicTerms.observeTermsFlow(),
-			room.academicAttempts.observeAttemptsFlow(),
-			room.academicAttemptOverrides.observeOverridesFlow()
+			academicRecordDao.observeRecordFlow(),
+			academicTermDao.observeTermsFlow(),
+			academicAttemptDao.observeAttemptsFlow(),
+			academicAttemptOverrideDao.observeOverridesFlow()
 		) { recordEntity, terms, attempts, overrides ->
 			val persistedRecord = recordEntity ?: return@combine null
 
@@ -47,7 +54,7 @@ class AcademicRecordRoomDataSource(
 	}
 
 	override suspend fun getRecordRevision(): Long? {
-		return room.academicRecords.getRecord()?.revisionValue()
+		return academicRecordDao.getRecord()?.revisionValue()
 	}
 
 	override suspend fun saveAcademicRecord(record: VersionedAcademicRecord) {
@@ -144,22 +151,22 @@ class AcademicRecordRoomDataSource(
 	}
 
 	private suspend fun persistVersionedRecord(record: VersionedAcademicRecord) {
-		room.withImmediateTransaction {
-			room.academicAttemptOverrides.deleteAll()
-			room.academicAttempts.deleteAll()
-			room.academicTerms.deleteAll()
-			room.academicRecords.deleteAll()
-			room.academicRecords.upsertEntity(
+		transactionRunner.immediate {
+			academicAttemptOverrideDao.deleteAll()
+			academicAttemptDao.deleteAll()
+			academicTermDao.deleteAll()
+			academicRecordDao.deleteAll()
+			academicRecordDao.upsertEntity(
 				AcademicRecordEntity(
 					id = record.record.id,
 					revision = record.revision,
 					updatedAt = currentTimeMillis()
 				)
 			)
-			room.academicTerms.upsertEntities(record.record.terms.map { term ->
+			academicTermDao.upsertEntities(record.record.terms.map { term ->
 				term.toAcademicTermEntity()
 			})
-			room.academicAttempts.upsertEntities(record.record.terms.flatMap { term ->
+			academicAttemptDao.upsertEntities(record.record.terms.flatMap { term ->
 				term.attempts.mapIndexed { index, attempt ->
 					attempt.toAcademicAttemptEntity(
 						termId = term.id,
@@ -168,7 +175,7 @@ class AcademicRecordRoomDataSource(
 				}
 			})
 			if (record.record.attemptOverrides.isNotEmpty()) {
-				room.academicAttemptOverrides.upsertEntities(record.record.attemptOverrides.map { override ->
+				academicAttemptOverrideDao.upsertEntities(record.record.attemptOverrides.map { override ->
 					override.toAcademicAttemptOverrideEntity()
 				})
 			}

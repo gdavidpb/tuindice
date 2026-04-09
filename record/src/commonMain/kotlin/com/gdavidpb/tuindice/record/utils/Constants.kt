@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.record.utils
 
-import com.gdavidpb.tuindice.persistence.utils.MAX_SUBJECT_GRADE
-import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
+import com.gdavidpb.tuindice.academiccore.domain.model.MAX_SUBJECT_GRADE
+import com.gdavidpb.tuindice.academiccore.domain.model.MIN_SUBJECT_GRADE
 import kotlin.time.Duration.Companion.days
 
 object Ranges {

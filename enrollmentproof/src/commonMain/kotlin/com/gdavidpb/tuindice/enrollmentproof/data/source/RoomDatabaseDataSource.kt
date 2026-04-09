@@ -1,15 +1,15 @@
 package com.gdavidpb.tuindice.enrollmentproof.data.source
 
 import com.gdavidpb.tuindice.enrollmentproof.data.repository.DatabaseDataRepository
-import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
+import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 
 private const val OFFICIAL_CURRENT_TERM_KIND = "OFFICIAL_CURRENT"
 
 class RoomDatabaseDataSource(
-	private val room: TuIndiceDatabase
+	private val academicTermDao: AcademicTermDao
 ) : DatabaseDataRepository {
 	override suspend fun getCurrentQuarterName(): String? {
-		return room.academicTerms
+		return academicTermDao
 			.getTerms()
 			.firstOrNull { term -> isOfficialCurrentTermKind(term.kind) }
 			?.label

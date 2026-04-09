@@ -51,9 +51,10 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.Uncheck
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import com.gdavidpb.tuindice.persistence.data.room.RoomMutationEnvelopeStore
+import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
-import com.russhwolf.settings.Settings
+import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -116,7 +117,8 @@ val evaluationsModule = module {
 	singleOf(::VisibleEvaluationsStateResolver)
 	single<MutationEnvelopeStore<String, EvaluationMutation>>(named(EVALUATIONS_MUTATION_STORE_QUALIFIER)) {
 		RoomMutationEnvelopeStore(
-			room = get(),
+			pendingMutationDao = get<PendingMutationDao>(),
+			transactionRunner = get<PersistenceTransactionRunner>(),
 			storeId = EVALUATIONS_MUTATION_STORE_ID,
 			scopeKeySerializer = String.serializer(),
 			commandSerializer = EvaluationMutation.serializer()
@@ -143,7 +145,11 @@ val evaluationsModule = module {
 	factoryOf(::KtorEvaluationsApiDataSource) { bind<EvaluationsApiDataRepository>() }
 	single<DatabaseDataRepository> {
 		RoomDatabaseDataSource(
-			room = get(),
+			evaluationDao = get(),
+			evaluationSyncStateDao = get(),
+			academicTermDao = get(),
+			academicAttemptDao = get(),
+			transactionRunner = get(),
 			mutationEngine = get(named(EVALUATIONS_MUTATION_ENGINE_QUALIFIER)),
 			visibleEvaluationsStateResolver = get()
 		)

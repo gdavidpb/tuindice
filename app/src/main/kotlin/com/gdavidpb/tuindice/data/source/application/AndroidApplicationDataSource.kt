@@ -10,7 +10,7 @@ import androidx.core.net.toUri
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
-import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
+import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceMaintenanceRepository
 import eu.anifantakis.lib.ksafe.KSafe
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.path
@@ -18,7 +18,7 @@ import java.io.File
 
 class AndroidApplicationDataSource(
 	private val context: Context,
-	private val room: TuIndiceDatabase,
+	private val persistenceMaintenanceRepository: PersistenceMaintenanceRepository,
 	private val settingsRepository: SettingsRepository,
 	private val kSafe: KSafe,
 	private val proofOfPossessionCapability: AndroidProofOfPossessionCapability
@@ -39,7 +39,7 @@ class AndroidApplicationDataSource(
 	}
 
 	override suspend fun clearData() {
-		room.clearAllTables()
+		persistenceMaintenanceRepository.clearAll()
 
 		proofOfPossessionCapability.invalidateProofOfPossessionKeyId()
 		settingsRepository.clear()

@@ -2,8 +2,8 @@ package com.gdavidpb.tuindice.record.ui.model
 
 import com.gdavidpb.tuindice.base.domain.model.subject.GradingMode
 import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
-import com.gdavidpb.tuindice.persistence.utils.MAX_SUBJECT_GRADE
-import com.gdavidpb.tuindice.persistence.utils.MIN_SUBJECT_GRADE
+import com.gdavidpb.tuindice.academiccore.domain.model.MAX_SUBJECT_GRADE
+import com.gdavidpb.tuindice.academiccore.domain.model.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.presentation.model.AttemptItem
 
 enum class AttemptItemBadge {

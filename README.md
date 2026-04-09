@@ -9,7 +9,7 @@ host Android en `app` y un host iOS en `iosApp`.
 
 - `base`: contratos compartidos, helpers base, logging, errores, repositorios de infraestructura y piezas UI
   reutilizables.
-- `persistence`: Room KMP y acceso a base de datos compartida.
+- `persistence`: schema Room compartido, DAOs/entities públicas, outbox genérico e infraestructura de storage.
 - `about`: información de app, enlaces y soporte.
 - `login`: autenticación, sesión y actualización de credenciales.
 - `summary`: resumen del perfil y foto de perfil.
@@ -178,8 +178,11 @@ Reglas:
 - Cada plataforma aporta un `PlatformKoinBootstrap`.
 - No crear `*AndroidModule` o `*IosModule` por feature.
 - Los bindings específicos de plataforma de una feature viven en el módulo de plataforma correspondiente.
-- `persistence` expone helpers/factories; el registro de storage por plataforma se invoca desde `androidPlatformModule`
-  e `iosPlatformModule`.
+- `persistence` expone el schema Room, sus DAOs/entities públicos, el runtime genérico de mutaciones diferidas y
+  capacidades transversales de storage como transacciones y maintenance.
+- Las features no reciben `TuIndiceDatabase`; consumen DAOs específicos, entities/projections públicas y contratos
+  de infraestructura expuestos por `persistence`.
+- El registro del database por plataforma se invoca desde `androidPlatformModule` e `iosPlatformModule`.
 
 ## Convenciones de Koin
 

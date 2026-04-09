@@ -14,11 +14,14 @@ import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
 import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
 import com.gdavidpb.tuindice.evaluations.data.resolver.VisibleEvaluationsStateResolver
-import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
+import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationSyncStateDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationSyncStateEntity
-import com.gdavidpb.tuindice.persistence.data.room.withImmediateTransaction
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
+import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -28,7 +31,11 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 class RoomDatabaseDataSource(
-	private val room: TuIndiceDatabase,
+	private val evaluationDao: EvaluationDao,
+	private val evaluationSyncStateDao: EvaluationSyncStateDao,
+	private val academicTermDao: AcademicTermDao,
+	private val academicAttemptDao: AcademicAttemptDao,
+	private val transactionRunner: PersistenceTransactionRunner,
 	private val mutationEngine: StoreBackedMutationEngine<String, EvaluationMutation, LocalEvaluationsSnapshot, List<LocalEvaluation>, EvaluationMutationAck>,
 	private val visibleEvaluationsStateResolver: VisibleEvaluationsStateResolver
 ) : DatabaseDataRepository {
@@ -39,8 +46,8 @@ class RoomDatabaseDataSource(
 
 	override fun observeEvaluationsFlow(): Flow<List<LocalEvaluation>> {
 		val confirmedFlow = combine(
-			room.evaluations.observeEvaluationsFlow(),
-			room.evaluationSyncState.observeSyncState()
+			evaluationDao.observeEvaluationsFlow(),
+			evaluationSyncStateDao.observeSyncState()
 		) { evaluations, syncState ->
 			LocalEvaluationsSnapshot(
 				anchorRevision = syncState?.anchorRevision ?: 0L,
@@ -76,12 +83,12 @@ class RoomDatabaseDataSource(
 	}
 
 	override suspend fun getAvailableSubjects(): List<LocalSubject> {
-		val openTermIds = room.academicTerms
+		val openTermIds = academicTermDao
 			.getTerms()
 			.filter { term -> isEditableTermKind(term.kind) }
 			.mapTo(hashSetOf()) { term -> term.id }
 
-		return room.academicAttempts
+		return academicAttemptDao
 			.getAttempts()
 			.asSequence()
 			.filter { attempt -> attempt.termId in openTermIds }
@@ -146,9 +153,9 @@ class RoomDatabaseDataSource(
 	override suspend fun confirmRemovedEvaluation(eid: String, anchorRevision: Long) {
 		writeMutex.withLock {
 			val currentSnapshot = getConfirmedSnapshot()
-			room.withImmediateTransaction {
-				room.evaluations.deleteEvaluation(eid)
-				room.evaluationSyncState.upsertEntity(
+			transactionRunner.immediate {
+				evaluationDao.deleteEvaluation(eid)
+				evaluationSyncStateDao.upsertEntity(
 					EvaluationSyncStateEntity(anchorRevision = anchorRevision)
 				)
 			}
@@ -163,7 +170,7 @@ class RoomDatabaseDataSource(
 	override suspend fun removeConfirmedEvaluation(eid: String) {
 		writeMutex.withLock {
 			val currentSnapshot = getConfirmedSnapshot()
-			room.evaluations.deleteEvaluation(eid)
+			evaluationDao.deleteEvaluation(eid)
 			inMemoryConfirmedSnapshot = currentSnapshot.copy(
 				evaluations = currentSnapshot.evaluations.filterNot { evaluation -> evaluation.id == eid }
 			)
@@ -180,10 +187,10 @@ class RoomDatabaseDataSource(
 	}
 
 	private suspend fun loadSnapshotFromRoom(): LocalEvaluationsSnapshot {
-		val evaluations = room.evaluations.observeEvaluationsFlow()
+		val evaluations = evaluationDao.observeEvaluationsFlow()
 			.map { items -> items.map { item -> item.toLocalEvaluation() } }
 		return LocalEvaluationsSnapshot(
-			anchorRevision = room.evaluationSyncState.getSyncState()?.anchorRevision ?: 0L,
+			anchorRevision = evaluationSyncStateDao.getSyncState()?.anchorRevision ?: 0L,
 			evaluations = evaluations.first()
 		).also { snapshot ->
 			inMemoryConfirmedSnapshot = snapshot
@@ -196,12 +203,12 @@ class RoomDatabaseDataSource(
 	) {
 		val entities = snapshot.evaluations.map { evaluation -> evaluation.toEvaluationEntity() }
 
-		room.withImmediateTransaction {
+		transactionRunner.immediate {
 			if (replaceAll) {
-				room.evaluations.deleteAll()
+				evaluationDao.deleteAll()
 			}
-			room.evaluations.upsertEntities(entities)
-			room.evaluationSyncState.upsertEntity(
+			evaluationDao.upsertEntities(entities)
+			evaluationSyncStateDao.upsertEntity(
 				EvaluationSyncStateEntity(anchorRevision = snapshot.anchorRevision)
 			)
 		}
