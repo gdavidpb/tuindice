@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
 import com.gdavidpb.tuindice.record.data.source.api.mapper.attemptSelectionToOverridePayload
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.domain.model.filterByViewMode
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
 import kotlinx.coroutines.channels.Channel
@@ -123,7 +124,10 @@ class RecordViewModel(
 
 	private suspend fun publishContent(record: AcademicRecord) {
 		val viewMode = currentViewMode.value
-		val projection = record.projectionFor(viewMode)
+		val activeProjection = record.projectionFor(viewMode)
+		val projection = activeProjection.copy(
+			terms = activeProjection.terms.filterByViewMode(viewMode)
+		)
 		if (projection.terms.isEmpty()) {
 			_state.value = Record.State.Empty
 			return

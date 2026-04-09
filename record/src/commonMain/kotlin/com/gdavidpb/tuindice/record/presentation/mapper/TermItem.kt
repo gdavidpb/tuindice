@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.TermProjection
 import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialCurrent
 import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialHistorical
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
+import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.presentation.model.TermMetricDelta
@@ -26,10 +27,12 @@ private const val DOWN_DELTA_SYMBOL = "▼"
 
 @Composable
 fun List<TermProjection>.toTermItemList(
+	viewMode: RecordViewMode,
 	texts: RecordMapperTexts,
 	highlightColor: Color
 ) = mapIndexed { index, term ->
 	term.toTermItem(
+		viewMode = viewMode,
 		texts = texts,
 		highlightColor = highlightColor,
 		previousTerm = getOrNull(index + 1)
@@ -38,6 +41,7 @@ fun List<TermProjection>.toTermItemList(
 
 @Composable
 fun TermProjection.toTermItem(
+	viewMode: RecordViewMode,
 	texts: RecordMapperTexts,
 	highlightColor: Color,
 	previousTerm: TermProjection? = null
@@ -84,7 +88,7 @@ fun TermProjection.toTermItem(
 		attempts = attempts.map { attempt ->
 			attempt.toAttemptItem(
 				termId = id,
-				isReadOnly = isAttemptReadOnly(),
+				isReadOnly = isAttemptReadOnly(viewMode),
 				texts = texts
 			)
 		}
@@ -99,8 +103,8 @@ internal fun TermProjection.canDeleteTerm(): Boolean {
 	return kind.isSynthetic
 }
 
-internal fun TermProjection.isAttemptReadOnly(): Boolean {
-	return kind.isOfficialHistorical
+internal fun TermProjection.isAttemptReadOnly(viewMode: RecordViewMode): Boolean {
+	return (viewMode == RecordViewMode.Official) || kind.isOfficialHistorical
 }
 
 private fun Float.toTermMetricDelta(): TermMetricDelta {

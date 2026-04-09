@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.domain.model.filterByViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
 import com.gdavidpb.tuindice.record.presentation.mapper.toTermItemList
@@ -82,7 +83,9 @@ fun RecordContentView(
 
 	val activeProjection = state.record.activeProjection(state.viewMode)
 	val terms = activeProjection.terms
+		.filterByViewMode(state.viewMode)
 		.toTermItemList(
+			viewMode = state.viewMode,
 			texts = texts,
 			highlightColor = MaterialTheme.colorScheme.primary
 		)

@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.domain.model.filterByViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.model.RecordRouteViewState
 import com.gdavidpb.tuindice.record.presentation.model.RecordTopBarViewModeState
@@ -79,6 +80,7 @@ fun RecordRoute(
 private fun Record.State.toRouteViewState(): ViewState {
 	val isEnrollmentProofVisible = when (this) {
 		is Record.State.Content -> record.activeProjection(viewMode)
+			.let { projection -> projection.copy(terms = projection.terms.filterByViewMode(viewMode)) }
 			.terms
 			.any { term ->
 				term.id == selectedTermId && term.kind.isOfficialCurrent
