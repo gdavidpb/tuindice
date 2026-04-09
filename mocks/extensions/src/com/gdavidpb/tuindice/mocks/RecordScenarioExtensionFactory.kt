@@ -324,15 +324,17 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			var cumulativeCredits = 0L
 
 			for (term in ascending) {
-				var termCredits = 0L
+				var termAverageCredits = 0L
+				var termDisplayedCredits = 0L
 				var termWeighted = 0L
 
 				for (attempt in term.attempts) {
-					termCredits += attempt.numericCreditsContribution().toLong()
+					termAverageCredits += attempt.numericCreditsContribution().toLong()
+					termDisplayedCredits += attempt.displayedPeriodCreditsContribution().toLong()
 					termWeighted += attempt.numericWeightedContribution()
 				}
 
-				val termGrade = computeAverage(termWeighted, termCredits)
+				val termGrade = computeAverage(termWeighted, termAverageCredits)
 				val sortedAttempts = term.attempts.sortedByDescending(AttemptModel::id)
 
 				for (attempt in sortedAttempts) {
@@ -351,7 +353,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				recomputedAscending += term.copyWith(
 					grade = termGrade,
 					gradeSum = computeAverage(cumulativeWeighted, cumulativeCredits),
-					credits = termCredits.toInt(),
+					credits = termDisplayedCredits.toInt(),
 					creditsSum = cumulativeCredits.toInt(),
 					revision = term.revision,
 					attempts = term.attempts.toList(),
@@ -381,7 +383,8 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 
 			val recomputedAscending = ascending.map { term ->
 				var termWeighted = 0L
-				var termCredits = 0L
+				var termAverageCredits = 0L
+				var termDisplayedCredits = 0L
 
 				val attempts = term.attempts.map { attempt ->
 					val simulationStatus = when {
@@ -391,7 +394,8 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 					}
 
 					termWeighted += attempt.numericWeightedContribution()
-					termCredits += attempt.numericCreditsContribution().toLong()
+					termAverageCredits += attempt.numericCreditsContribution().toLong()
+					termDisplayedCredits += attempt.displayedPeriodCreditsContribution().toLong()
 
 					attempt.copy(simulationStatus = simulationStatus)
 				}
@@ -421,9 +425,9 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 					)
 				} else {
 					term.copy(
-						simulationGrade = computeAverage(termWeighted, termCredits),
+						simulationGrade = computeAverage(termWeighted, termAverageCredits),
 						simulationGradeSum = computeAverage(cumulativeWeighted, cumulativeCredits),
-						simulationCredits = termCredits.toInt(),
+						simulationCredits = termDisplayedCredits.toInt(),
 						simulationCreditsSum = cumulativeCredits.toInt(),
 						attempts = attempts
 					)
@@ -753,6 +757,12 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 
 		fun numericCreditsContribution(): Int =
 			if (countsTowardQuarterNumericAverage()) credits else 0
+
+		fun displayedPeriodCreditsContribution(): Int =
+			when {
+				gradingMode == "qualitative_pass_fail" -> if (resolvedOutcome() != "retired") credits else 0
+				else -> numericCreditsContribution()
+			}
 
 		fun numericWeightedContribution(): Long =
 			if (countsTowardQuarterNumericAverage()) grade.toLong() * credits.toLong() else 0L

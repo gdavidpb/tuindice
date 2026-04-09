@@ -58,11 +58,14 @@ object RecordProjectionEngine {
 		var cumulativeCredits = 0L
 
 		effectiveTermsAscending.forEach { termState ->
+			val periodAverageCredits = termState.attempts.sumOf { attempt ->
+				if (attempt.countsTowardPeriodAverage) attempt.attempt.credits else 0
+			}
+			val periodDisplayedCredits = termState.attempts.sumOf { attempt ->
+				if (attempt.countsTowardDisplayedPeriodCredits) attempt.attempt.credits else 0
+			}
 			val periodWeighted = termState.attempts.sumOf { attempt ->
 				if (attempt.countsTowardPeriodAverage) attempt.numericWeightedContribution() else 0L
-			}
-			val periodCredits = termState.attempts.sumOf { attempt ->
-				if (attempt.countsTowardPeriodAverage) attempt.attempt.credits else 0
 			}
 
 			termState.attempts.forEach { attempt ->
@@ -130,13 +133,13 @@ object RecordProjectionEngine {
 					kind = termState.term.kind,
 					periodAverage = computeAverage(
 						weighted = periodWeighted,
-						credits = periodCredits.toLong()
+						credits = periodAverageCredits.toLong()
 					),
 					cumulativeAverage = computeAverage(
 						weighted = cumulativeWeighted,
 						credits = cumulativeCredits
 					),
-					periodCredits = periodCredits,
+					periodCredits = periodDisplayedCredits,
 					cumulativeCredits = cumulativeCredits.toInt(),
 					attempts = attemptProjections
 				)
@@ -183,6 +186,10 @@ object RecordProjectionEngine {
 			countsTowardPeriodAverage = countsTowardPeriodAverage(
 				gradingMode = attempt.gradingMode,
 				score = score,
+				outcome = resolvedOutcome
+			),
+			countsTowardDisplayedPeriodCredits = countsTowardDisplayedPeriodCredits(
+				gradingMode = attempt.gradingMode,
 				outcome = resolvedOutcome
 			),
 			countsTowardCumulativeAverage = countsTowardCumulativeAverage(
@@ -253,6 +260,20 @@ object RecordProjectionEngine {
 				AttemptOutcome.UNREPORTED
 			) &&
 			numericValue > 0
+	}
+
+	private fun countsTowardDisplayedPeriodCredits(
+		gradingMode: AttemptGradingMode,
+		outcome: AttemptOutcome
+	): Boolean {
+		return when (gradingMode) {
+			AttemptGradingMode.NUMERIC -> outcome !in setOf(
+				AttemptOutcome.PENDING,
+				AttemptOutcome.RETIRED
+			)
+
+			AttemptGradingMode.QUALITATIVE_PASS_FAIL -> outcome != AttemptOutcome.RETIRED
+		}
 	}
 
 	private fun countsTowardRetakeTimeline(
@@ -345,6 +366,7 @@ object RecordProjectionEngine {
 		val outcome: AttemptOutcome,
 		val badge: AttemptBadge,
 		val countsTowardPeriodAverage: Boolean,
+		val countsTowardDisplayedPeriodCredits: Boolean,
 		val countsTowardCumulativeAverage: Boolean,
 		val approvalEvent: Boolean,
 		val countsTowardRetakeTimeline: Boolean

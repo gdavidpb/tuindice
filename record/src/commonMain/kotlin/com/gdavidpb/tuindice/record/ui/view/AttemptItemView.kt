@@ -37,7 +37,6 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.attempt_approved
 import tuindice.record.generated.resources.attempt_failed
-import tuindice.record.generated.resources.attempt_pending
 import tuindice.record.generated.resources.attempt_retired
 import tuindice.record.generated.resources.attempt_unreported
 import tuindice.record.generated.resources.attempt_without_effect
@@ -214,7 +213,7 @@ fun AttemptItemView(
 		}
 
 		if (!item.isReadOnly && isQualitative) {
-			val selectedStatus = item.status ?: SubjectStatus.NORMAL
+			val selectedStatus = item.status
 
 			FlowRow(
 				modifier = Modifier
@@ -223,13 +222,6 @@ fun AttemptItemView(
 				horizontalArrangement = Arrangement.spacedBy(8.dp),
 				verticalArrangement = Arrangement.spacedBy(8.dp)
 			) {
-				QualitativeStatusOption(
-					attemptId = item.attemptId,
-					label = stringResource(Res.string.attempt_pending),
-					status = SubjectStatus.NORMAL,
-					selectedStatus = selectedStatus,
-					onSelected = { status -> onGradeChange(null, status, true) }
-				)
 				QualitativeStatusOption(
 					attemptId = item.attemptId,
 					label = stringResource(Res.string.attempt_approved),
@@ -261,7 +253,7 @@ private fun QualitativeStatusOption(
 	attemptId: String,
 	label: String,
 	status: SubjectStatus,
-	selectedStatus: SubjectStatus,
+	selectedStatus: SubjectStatus?,
 	onSelected: (SubjectStatus) -> Unit
 ) {
 	FilterChip(

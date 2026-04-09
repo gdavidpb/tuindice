@@ -173,6 +173,11 @@ class AttemptModel:
 	def numeric_credits_contribution(self) -> int:
 		return self.credits if self.counts_toward_quarter_numeric_average() else 0
 
+	def displayed_period_credits_contribution(self) -> int:
+		if self.grading_mode == "qualitative_pass_fail":
+			return self.credits if self.resolved_outcome() != "retired" else 0
+		return self.numeric_credits_contribution()
+
 	def numeric_weighted_contribution(self) -> int:
 		return self.grade * self.credits if self.counts_toward_quarter_numeric_average() else 0
 
@@ -336,7 +341,8 @@ def recompute_metrics(terms: list[dict[str, object]]) -> None:
 	for term in ascending:
 		attempts: list[AttemptModel] = term["attempts"]  # type: ignore[assignment]
 		term_weighted = sum(attempt.numeric_weighted_contribution() for attempt in attempts)
-		term_credits = sum(attempt.numeric_credits_contribution() for attempt in attempts)
+		term_average_credits = sum(attempt.numeric_credits_contribution() for attempt in attempts)
+		term_credits = sum(attempt.displayed_period_credits_contribution() for attempt in attempts)
 
 		for attempt in sorted(attempts, key=lambda item: item.id, reverse=True):
 			if not attempt.counts_toward_retake_timeline():
@@ -348,7 +354,7 @@ def recompute_metrics(terms: list[dict[str, object]]) -> None:
 			cumulative_weighted += state.effective_weighted() - previous_weighted
 			cumulative_credits += state.effective_credits() - previous_credits
 
-		term["grade"] = compute_average(term_weighted, term_credits)
+		term["grade"] = compute_average(term_weighted, term_average_credits)
 		term["credits"] = term_credits
 		term["grade_sum"] = compute_average(cumulative_weighted, cumulative_credits)
 		term["credits_sum"] = cumulative_credits
