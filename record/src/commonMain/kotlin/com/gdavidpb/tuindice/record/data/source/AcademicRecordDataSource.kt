@@ -1,7 +1,10 @@
 package com.gdavidpb.tuindice.record.data.source
 
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
@@ -145,11 +148,13 @@ class AcademicRecordDataSource(
 		submitTrackedMutation(mutation = mutation)
 	}
 
-	private suspend fun refreshRemoteSnapshot(): VersionedAcademicRecord {
+	private suspend fun refreshRemoteSnapshot(
+		preserveMutation: AcademicRecordMutation? = null
+	): VersionedAcademicRecord {
 		val snapshotVersion = mutationEngine.currentMutationVersion()
 		val remoteRecord = remoteDataSource.getAcademicRecord()
 		if (snapshotVersion == mutationEngine.currentMutationVersion()) {
-			localDataSource.saveAcademicRecord(remoteRecord)
+			localDataSource.saveAcademicRecord(remoteRecord.reapplying(preserveMutation))
 		}
 		return remoteRecord
 	}
@@ -166,6 +171,68 @@ class AcademicRecordDataSource(
 			mutation = mutation,
 			syncSpec = mutationSyncSpec,
 			propagateTerminalErrors = true
+		)
+	}
+
+	private fun VersionedAcademicRecord.reapplying(
+		mutation: AcademicRecordMutation?
+	): VersionedAcademicRecord {
+		return if (mutation == null) {
+			this
+		} else {
+			copy(record = record.reapplying(mutation))
+		}
+	}
+
+	private fun AcademicRecord.reapplying(
+		mutation: AcademicRecordMutation
+	): AcademicRecord {
+		return when (mutation) {
+			is AcademicRecordMutation.UpsertAttemptOverride ->
+				copy(
+					attemptOverrides = attemptOverrides
+						.filterNot { override -> override.attemptId == mutation.attemptId } +
+						AttemptOverride(
+							attemptId = mutation.attemptId,
+							score = mutation.score,
+							outcome = mutation.outcome,
+							updatedAtMillis = currentTimeMillis()
+						)
+				)
+
+			is AcademicRecordMutation.DeleteAttemptOverride ->
+				copy(
+					attemptOverrides = attemptOverrides.filterNot { override ->
+						override.attemptId == mutation.attemptId
+					}
+				)
+
+			is AcademicRecordMutation.AddSyntheticTerm ->
+				copy(
+					terms = normalizeTerms(
+						terms.filterNot { term -> term.id == mutation.termId } + mutation.toAcademicTerm()
+					)
+				)
+
+			is AcademicRecordMutation.DeleteSyntheticTerm -> {
+				val removedAttemptIds = terms.firstOrNull { term -> term.id == mutation.termId }
+					?.attempts
+					?.map(AcademicAttempt::id)
+					?.toSet()
+					.orEmpty()
+				copy(
+					terms = terms.filterNot { term -> term.id == mutation.termId },
+					attemptOverrides = attemptOverrides.filterNot { override ->
+						override.attemptId in removedAttemptIds
+					}
+				)
+			}
+		}
+	}
+
+	private fun normalizeTerms(terms: List<AcademicTerm>): List<AcademicTerm> {
+		return terms.sortedWith(
+			compareBy(AcademicTerm::startAtMillis, AcademicTerm::endAtMillis, AcademicTerm::id)
 		)
 	}
 }

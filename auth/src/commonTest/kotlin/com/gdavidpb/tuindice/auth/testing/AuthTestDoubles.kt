@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.auth.testing
 
 import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
+import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.IssueTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
@@ -278,7 +279,7 @@ class FakeAuthApiDataSource(
 	override suspend fun reissueTokens(
 		usbId: String,
 		password: String,
-		attestedFlow: com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow,
+		attestedFlow: AttestedTokenFlow,
 		attestation: Attestation
 	): IssueTokens {
 		reissueCalls += ReissueTokensCall(

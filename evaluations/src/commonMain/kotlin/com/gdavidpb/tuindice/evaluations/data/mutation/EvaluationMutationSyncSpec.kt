@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.data.mutation
 
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.base.utils.extension.isPreconditionFailed
@@ -237,13 +238,13 @@ class EvaluationMutationSyncSpec(
 		command: EvaluationMutation.Update
 	): Boolean {
 		val resolvedScheduleMode = command.scheduleMode ?: if (command.date != null) {
-			com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode.DATED
+			EvaluationScheduleMode.DATED
 		} else {
 			scheduleMode
 		}
 		val resolvedDate = when (resolvedScheduleMode) {
-			com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode.CONTINUOUS -> null
-			com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode.DATED -> command.date ?: date
+			EvaluationScheduleMode.CONTINUOUS -> null
+			EvaluationScheduleMode.DATED -> command.date ?: date
 		}
 
 		return scheduleMode == resolvedScheduleMode &&

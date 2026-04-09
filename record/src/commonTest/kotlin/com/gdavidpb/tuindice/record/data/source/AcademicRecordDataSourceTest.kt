@@ -32,6 +32,113 @@ import kotlin.test.assertEquals
 
 class AcademicRecordDataSourceTest {
 	@Test
+	fun upsertAttemptOverride_whenSupersededRevisionFails_rebasesWithoutRestoringOldGrade() = runTest {
+		val attemptId = "PB5611Q2026A"
+		val initialRecord = AcademicRecord(
+			id = "record-1",
+			terms = listOf(
+				AcademicTerm(
+					id = "term-1",
+					label = "2026-1",
+					startAtMillis = 1L,
+					endAtMillis = 2L,
+					kind = TermKind.OFFICIAL_CURRENT,
+					attempts = listOf(
+						AcademicAttempt(
+							id = attemptId,
+							subjectCode = "PB5611",
+							subjectName = "Probabilidad",
+							credits = 10,
+							officialScore = AttemptScore.numeric(3),
+							officialOutcome = AttemptOutcome.APPROVED
+						)
+					)
+				)
+			),
+			attemptOverrides = emptyList()
+		)
+		val staleRemoteRecord = initialRecord.copy(
+			attemptOverrides = listOf(
+				AttemptOverride(
+					attemptId = attemptId,
+					score = AttemptScore.numeric(4),
+					updatedAtMillis = 2L
+				)
+			)
+		)
+		val latestRemoteRecord = initialRecord.copy(
+			attemptOverrides = listOf(
+				AttemptOverride(
+					attemptId = attemptId,
+					score = AttemptScore.numeric(5),
+					updatedAtMillis = 3L
+				)
+			)
+		)
+		val localDataSource = FakeAcademicRecordLocalDataRepository(
+			record = VersionedAcademicRecord(
+				revision = 2L,
+				record = initialRecord
+			)
+		)
+		val remoteDataSource = RebasingAcademicRecordRemoteDataRepository(
+			staleResponse = VersionedAcademicRecord(
+				revision = 3L,
+				record = staleRemoteRecord
+			),
+			latestResponse = VersionedAcademicRecord(
+				revision = 4L,
+				record = latestRemoteRecord
+			)
+		)
+		val dataSource = AcademicRecordDataSource(
+			localDataSource = localDataSource,
+			remoteDataSource = remoteDataSource,
+			settingsDataSource = FakeRecordSettingsDataRepository(),
+			mutationEngine = createMutationEngine(this),
+			identifierRepository = FakeIdentifierRepository()
+		)
+
+		val firstUpsertJob = async {
+			dataSource.upsertAttemptOverride(
+				attemptId = attemptId,
+				score = AttemptScore.numeric(4),
+				outcome = null,
+				commit = true
+			)
+		}
+		remoteDataSource.firstUpsertStarted.await()
+
+		val secondUpsertJob = async {
+			dataSource.upsertAttemptOverride(
+				attemptId = attemptId,
+				score = AttemptScore.numeric(5),
+				outcome = null,
+				commit = true
+			)
+		}
+
+		remoteDataSource.releaseFirstUpsert.complete(Unit)
+
+		firstUpsertJob.await()
+		secondUpsertJob.await()
+
+		assertEquals(listOf("mutation-1", "mutation-2", "mutation-2"), remoteDataSource.upsertAttemptMutationIds)
+		assertEquals(listOf(2L, 2L, 3L), remoteDataSource.upsertAttemptExpectedRevisions)
+		assertEquals(listOf(4, 5, 5, 5), localDataSource.overrideGradeTimeline(attemptId).filterNotNull())
+		assertEquals(
+			listOf(
+				AttemptOverride(
+					attemptId = attemptId,
+					score = AttemptScore.numeric(5),
+					updatedAtMillis = 3L
+				)
+			),
+			localDataSource.getAcademicRecord().attemptOverrides
+		)
+	}
+
+	@Test
 	fun deleteAttemptOverride_whenSupersededByLaterUpsert_suppressesStaleFailure_and_keepsLatestOverride() = runTest {
 		val attemptId = "PB5611Q2026A"
 		val initialRecord = AcademicRecord(
@@ -143,6 +250,7 @@ private class FakeAcademicRecordLocalDataRepository(
 	record: VersionedAcademicRecord
 ) : AcademicRecordLocalDataRepository {
 	private val recordState = MutableStateFlow(record.record)
+	private val stateHistory = mutableListOf(record.record)
 	private var revision = record.revision
 
 	override fun observeAcademicRecordFlow(): Flow<AcademicRecord?> = recordState
@@ -154,6 +262,7 @@ private class FakeAcademicRecordLocalDataRepository(
 	override suspend fun saveAcademicRecord(record: VersionedAcademicRecord) {
 		revision = record.revision
 		recordState.value = record.record
+		stateHistory += record.record
 	}
 
 	override suspend fun upsertAttemptOverride(
@@ -173,6 +282,7 @@ private class FakeAcademicRecordLocalDataRepository(
 				)
 		)
 		recordState.value = updated
+		stateHistory += updated
 		return updated
 	}
 
@@ -183,6 +293,7 @@ private class FakeAcademicRecordLocalDataRepository(
 			}
 		)
 		recordState.value = updated
+		stateHistory += updated
 		return updated
 	}
 
@@ -208,6 +319,7 @@ private class FakeAcademicRecordLocalDataRepository(
 			)
 		)
 		recordState.value = updated
+		stateHistory += updated
 		return updated
 	}
 
@@ -216,7 +328,16 @@ private class FakeAcademicRecordLocalDataRepository(
 			terms = recordState.value.terms.filterNot { term -> term.id == termId }
 		)
 		recordState.value = updated
+		stateHistory += updated
 		return updated
+	}
+
+	fun overrideGradeTimeline(attemptId: String): List<Int?> {
+		return stateHistory.map { record ->
+			record.attemptOverrides.firstOrNull { override ->
+				override.attemptId == attemptId
+			}?.score?.numericValue
+		}
 	}
 }
 
@@ -279,6 +400,66 @@ private class ControlledAcademicRecordRemoteDataRepository(
 		mutationId: String,
 		expectedRevision: Long
 	): VersionedAcademicRecord = upsertResponse
+}
+
+private class RebasingAcademicRecordRemoteDataRepository(
+	private val staleResponse: VersionedAcademicRecord,
+	private val latestResponse: VersionedAcademicRecord
+) : AcademicRecordRemoteDataRepository {
+	val firstUpsertStarted = CompletableDeferred<Unit>()
+	val releaseFirstUpsert = CompletableDeferred<Unit>()
+
+	val upsertAttemptMutationIds = mutableListOf<String>()
+	val upsertAttemptExpectedRevisions = mutableListOf<Long>()
+
+	private var upsertAttemptCalls = 0
+
+	override suspend fun getAcademicRecord(): VersionedAcademicRecord = staleResponse
+
+	override suspend fun upsertAttemptOverride(
+		attemptId: String,
+		score: AttemptScore?,
+		outcome: AttemptOutcome?,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord {
+		upsertAttemptCalls += 1
+		upsertAttemptMutationIds += mutationId
+		upsertAttemptExpectedRevisions += expectedRevision
+
+		return when (upsertAttemptCalls) {
+			1 -> {
+				firstUpsertStarted.complete(Unit)
+				releaseFirstUpsert.await()
+				staleResponse
+			}
+
+			2 -> throw clientRequestException(
+				statusCode = HttpStatusCode.PreconditionFailed,
+				path = "/record/v3/overlay/attempts/$attemptId"
+			)
+
+			else -> latestResponse
+		}
+	}
+
+	override suspend fun deleteAttemptOverride(
+		attemptId: String,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord = latestResponse
+
+	override suspend fun addSyntheticTerm(
+		command: AcademicRecordMutation.AddSyntheticTerm,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord = latestResponse
+
+	override suspend fun deleteSyntheticTerm(
+		termId: String,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord = latestResponse
 }
 
 private class FakeRecordSettingsDataRepository : RecordSettingsDataRepository {

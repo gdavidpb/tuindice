@@ -12,6 +12,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.domain.model.subject.GradingMode
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 
@@ -58,7 +59,7 @@ fun SelectedTermView(
 
 			AttemptCardItemView(
 				item = attempt,
-				gradeState = gradeState.takeIf { attempt.gradingMode == com.gdavidpb.tuindice.base.domain.model.subject.GradingMode.NUMERIC },
+				gradeState = gradeState.takeIf { attempt.gradingMode == GradingMode.NUMERIC },
 				onGradeChange = { newGrade, newStatus, isSelected ->
 					onAttemptSelectionChange(
 						attempt.termId,

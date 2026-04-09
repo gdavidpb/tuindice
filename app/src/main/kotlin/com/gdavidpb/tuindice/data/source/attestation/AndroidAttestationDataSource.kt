@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.data.source.attestation
 import com.gdavidpb.tuindice.base.data.model.CreateAttestationPreparationSessionRequest
 import com.gdavidpb.tuindice.base.data.model.toRequestAuthorizationOrNull
 import com.gdavidpb.tuindice.base.data.model.AttestationPreparationRequiredResponse
+import com.gdavidpb.tuindice.base.data.model.AttestationProofOfPossessionRequest
 import com.gdavidpb.tuindice.base.data.model.CompleteAttestationPreparationRequest
 import com.gdavidpb.tuindice.base.data.model.CreateAttestationSessionRequest
 import com.gdavidpb.tuindice.base.data.model.CreateAttestationSessionResponse
@@ -21,6 +22,7 @@ import com.gdavidpb.tuindice.base.utils.extension.isForbidden
 import com.gdavidpb.tuindice.base.utils.extension.isPreconditionRequired
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationProviderDataRepository
 import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
+import com.gdavidpb.tuindice.platform.android.model.ProviderAttestation
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
@@ -246,7 +248,7 @@ class AndroidAttestationDataSource(
 	private suspend fun requirePlayIntegrityAttestation(
 		bindingHash: String,
 		evidenceMode: AttestationEvidenceMode
-	): com.gdavidpb.tuindice.platform.android.model.ProviderAttestation {
+	): ProviderAttestation {
 		val providerAttestation = providerDataSource.getAttestation(
 			bindingHash = bindingHash,
 			evidenceMode = evidenceMode
@@ -264,7 +266,7 @@ class AndroidAttestationDataSource(
 		bindingHash: String,
 		keyId: String,
 		requireKeyAttestation: Boolean
-	): com.gdavidpb.tuindice.base.data.model.AttestationProofOfPossessionRequest? {
+	): AttestationProofOfPossessionRequest? {
 		return session.proofOfPossessionMode?.let {
 			runCatching {
 				proofOfPossessionCapability.createProofOfPossession(

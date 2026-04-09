@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.data.mutation
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
@@ -8,6 +9,7 @@ import com.gdavidpb.tuindice.base.utils.extension.isPreconditionFailed
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureKind
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureResolution
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationSyncSpec
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
@@ -15,7 +17,7 @@ import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepo
 class AcademicRecordMutationSyncSpec(
 	private val localDataSource: AcademicRecordLocalDataRepository,
 	private val remoteDataSource: AcademicRecordRemoteDataRepository,
-	private val refreshRemoteSnapshot: suspend () -> VersionedAcademicRecord
+	private val refreshRemoteSnapshot: suspend (AcademicRecordMutation?) -> VersionedAcademicRecord
 ) : MutationSyncSpec<String, AcademicRecordMutation, AcademicRecord, AcademicRecord, VersionedAcademicRecord> {
 	override val maxRebaseAttempts: Int = 1
 
@@ -86,16 +88,126 @@ class AcademicRecordMutationSyncSpec(
 		mutation: MutationEnvelope<String, AcademicRecordMutation>,
 		throwable: Throwable
 	): MutationFailureResolution<String, AcademicRecordMutation> {
+		return when (val command = mutation.command) {
+			is AcademicRecordMutation.UpsertAttemptOverride ->
+				resolveUpsertAttemptOverrideFailure(
+					mutation = mutation,
+					command = command,
+					throwable = throwable
+				)
+
+			is AcademicRecordMutation.DeleteAttemptOverride ->
+				resolveDeleteAttemptOverrideFailure(
+					mutation = mutation,
+					command = command,
+					throwable = throwable
+				)
+
+			is AcademicRecordMutation.AddSyntheticTerm,
+			is AcademicRecordMutation.DeleteSyntheticTerm ->
+				resolveGenericRecordFailure(
+					mutation = mutation,
+					throwable = throwable
+				)
+		}
+	}
+
+	private suspend fun resolveUpsertAttemptOverrideFailure(
+		mutation: MutationEnvelope<String, AcademicRecordMutation>,
+		command: AcademicRecordMutation.UpsertAttemptOverride,
+		throwable: Throwable
+	): MutationFailureResolution<String, AcademicRecordMutation> {
 		return when (classifyError(mutation, throwable)) {
 			MutationFailureKind.Conflict,
-			MutationFailureKind.PreconditionFailed,
+			MutationFailureKind.PreconditionFailed -> {
+				val refreshedSnapshot = refreshRemoteSnapshot(mutation.command)
+				val remoteOverride = refreshedSnapshot.record.attemptOverrides.firstOrNull { override ->
+					override.attemptId == command.attemptId
+				}
+
+				if (remoteOverride.matches(command)) {
+					MutationFailureResolution.Drop()
+				} else {
+					MutationFailureResolution.Retry(
+						mutation.copy(
+							precondition = MutationPrecondition.Revision(refreshedSnapshot.revision)
+						)
+					)
+				}
+			}
+
 			MutationFailureKind.NotFound -> {
-				refreshRemoteSnapshot()
+				refreshRemoteSnapshot(null)
 				MutationFailureResolution.Drop(propagate = true)
 			}
 
 			MutationFailureKind.Terminal ->
 				MutationFailureResolution.Fail()
 		}
+	}
+
+	private suspend fun resolveDeleteAttemptOverrideFailure(
+		mutation: MutationEnvelope<String, AcademicRecordMutation>,
+		command: AcademicRecordMutation.DeleteAttemptOverride,
+		throwable: Throwable
+	): MutationFailureResolution<String, AcademicRecordMutation> {
+		return when (classifyError(mutation, throwable)) {
+			MutationFailureKind.Conflict,
+			MutationFailureKind.PreconditionFailed -> {
+				val refreshedSnapshot = refreshRemoteSnapshot(mutation.command)
+				val remoteOverride = refreshedSnapshot.record.attemptOverrides.firstOrNull { override ->
+					override.attemptId == command.attemptId
+				}
+
+				if (remoteOverride == null) {
+					MutationFailureResolution.Drop()
+				} else {
+					MutationFailureResolution.Retry(
+						mutation.copy(
+							precondition = MutationPrecondition.Revision(refreshedSnapshot.revision)
+						)
+					)
+				}
+			}
+
+			MutationFailureKind.NotFound -> {
+				refreshRemoteSnapshot(null)
+				MutationFailureResolution.Drop()
+			}
+
+			MutationFailureKind.Terminal ->
+				MutationFailureResolution.Fail()
+		}
+	}
+
+	private suspend fun resolveGenericRecordFailure(
+		mutation: MutationEnvelope<String, AcademicRecordMutation>,
+		throwable: Throwable
+	): MutationFailureResolution<String, AcademicRecordMutation> {
+		return when (classifyError(mutation, throwable)) {
+			MutationFailureKind.Conflict,
+			MutationFailureKind.PreconditionFailed -> {
+				val refreshedSnapshot = refreshRemoteSnapshot(mutation.command)
+				MutationFailureResolution.Retry(
+					mutation.copy(
+						precondition = MutationPrecondition.Revision(refreshedSnapshot.revision)
+					)
+				)
+			}
+
+			MutationFailureKind.NotFound -> {
+				refreshRemoteSnapshot(null)
+				MutationFailureResolution.Drop(propagate = true)
+			}
+
+			MutationFailureKind.Terminal ->
+				MutationFailureResolution.Fail()
+		}
+	}
+
+	private fun AttemptOverride?.matches(
+		command: AcademicRecordMutation.UpsertAttemptOverride
+	): Boolean {
+		return this?.score == command.score && this?.outcome == command.outcome
 	}
 }

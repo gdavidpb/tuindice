@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.di
 
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
 import com.gdavidpb.tuindice.evaluations.data.source.EvaluationDataSource
 import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataRepository
@@ -120,7 +122,7 @@ val evaluationsModule = module {
 			commandSerializer = EvaluationMutation.serializer()
 		)
 	}
-	single<StoreBackedMutationEngine<String, EvaluationMutation, com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot, List<com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation>, EvaluationMutationAck>>(named(EVALUATIONS_MUTATION_ENGINE_QUALIFIER)) {
+	single<StoreBackedMutationEngine<String, EvaluationMutation, LocalEvaluationsSnapshot, List<LocalEvaluation>, EvaluationMutationAck>>(named(EVALUATIONS_MUTATION_ENGINE_QUALIFIER)) {
 		StoreBackedMutationEngine(
 			storeId = EVALUATIONS_MUTATION_STORE_ID,
 			outboxStore = get(named(EVALUATIONS_MUTATION_STORE_QUALIFIER))

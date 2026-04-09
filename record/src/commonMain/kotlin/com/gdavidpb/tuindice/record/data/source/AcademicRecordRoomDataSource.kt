@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
+import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicRecordEntity
 import com.gdavidpb.tuindice.persistence.data.room.withImmediateTransaction
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
@@ -149,7 +150,7 @@ class AcademicRecordRoomDataSource(
 			room.academicTerms.deleteAll()
 			room.academicRecords.deleteAll()
 			room.academicRecords.upsertEntity(
-				com.gdavidpb.tuindice.persistence.data.room.entity.AcademicRecordEntity(
+				AcademicRecordEntity(
 					id = record.record.id,
 					revision = record.revision,
 					updatedAt = currentTimeMillis()

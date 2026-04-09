@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptBadge
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.base.domain.model.subject.GradingMode
 import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.base.ui.style.SubjectColorGenerator
@@ -39,7 +40,7 @@ fun AttemptProjection.toAttemptItem(
 					(resolvedStatus == SubjectStatus.UNREPORTED)
 				) &&
 			(resolvedStatus != SubjectStatus.RETIRED) &&
-			(score !is com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore.Empty || resolvedStatus == SubjectStatus.UNREPORTED)
+			(score !is AttemptScore.Empty || resolvedStatus == SubjectStatus.UNREPORTED)
 		)
 			texts.termAttemptGrade(numericGrade)
 		else
