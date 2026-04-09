@@ -1,15 +1,16 @@
 package com.gdavidpb.tuindice.presentation.navigation
 
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.window.DialogProperties
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.toRoute
 import com.gdavidpb.tuindice.base.ui.dialog.ExternalResourceDialog
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLifecycle
 import com.gdavidpb.tuindice.presentation.route.BrowserRoute
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import org.jetbrains.compose.resources.stringResource
@@ -21,6 +22,7 @@ import tuindice.maincore.generated.resources.dialog_title_warning_external
 import tuindice.maincore.generated.resources.open
 
 fun NavGraphBuilder.browserNavigation(
+	navController: NavHostController,
 	onNavigateToExternalResourceDialog: (url: String) -> Unit,
 	onNavigateToExternalResource: (url: String) -> Unit,
 	onDismissRequest: () -> Unit,
@@ -39,9 +41,11 @@ fun NavGraphBuilder.browserNavigation(
 		val viewModel = koinViewModel<BrowserViewModel>(viewModelStoreOwner = backStackEntry)
 		val viewState by viewModel.state.collectAsStateWithLifecycle()
 
-		LaunchedEffect(viewState) {
-			onViewStateChanged(viewState)
-		}
+		navController.CollectCurrentEntryValueWithLifecycle(
+			backStackEntry = backStackEntry,
+			value = viewState,
+			onValue = onViewStateChanged
+		)
 
 		BrowserRoute(
 			title = args.title,

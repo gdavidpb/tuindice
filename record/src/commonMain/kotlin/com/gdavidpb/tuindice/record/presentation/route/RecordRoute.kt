@@ -21,16 +21,11 @@ import com.gdavidpb.tuindice.record.ui.screen.RecordScreen
 fun RecordRoute(
 	onNavigateToUpdatePassword: () -> Unit,
 	onTopBarViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
-	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: RecordViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 	val selectedTermId = (viewState as? Record.State.Content)?.selectedTermId
-
-	LaunchedEffect(viewState) {
-		onViewStateChanged(viewState.toRouteViewState())
-	}
 
 	DisposableEffect(viewModel) {
 		onTopBarViewModeChangeAvailable(viewModel::setViewModeAction)
@@ -75,7 +70,7 @@ fun RecordRoute(
 	)
 }
 
-private fun Record.State.toRouteViewState(): ViewState {
+internal fun Record.State.toRouteViewState(): ViewState {
 	val isEnrollmentProofVisible = when (this) {
 		is Record.State.Content -> record.filteredProjectionFor(viewMode)
 			.terms

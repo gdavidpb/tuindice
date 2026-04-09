@@ -56,6 +56,7 @@ fun TuIndiceNavHost(
 		)
 
 		authNavigation(
+			navController = navController,
 			onNavigateToSignIn = {
 				navController.navigate(AuthDestination.NavGraph) {
 					launchSingleTop = true
@@ -92,6 +93,7 @@ fun TuIndiceNavHost(
 		)
 
 		recordNavigation(
+			navController = navController,
 			onNavigateToUpdatePassword = {
 				navController.navigate(AuthDestination.UpdatePasswordDialog)
 			},
@@ -134,6 +136,7 @@ fun TuIndiceNavHost(
 		)
 
 		aboutNavigation(
+			navController = navController,
 			onNavigateToBrowser = { title, url ->
 				navController.navigate(BrowserDestination.Browser(title = title, url = url))
 			},
@@ -149,6 +152,7 @@ fun TuIndiceNavHost(
 		)
 
 		browserNavigation(
+			navController = navController,
 			onNavigateToExternalResourceDialog = { url ->
 				navController.navigate(BrowserDestination.ExternalResourceDialog(url = url))
 			},

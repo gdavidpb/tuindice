@@ -1,16 +1,22 @@
 package com.gdavidpb.tuindice.record.presentation.navigation
 
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
+import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLifecycle
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.route.RecordRoute
+import com.gdavidpb.tuindice.record.presentation.route.toRouteViewState
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import org.koin.compose.viewmodel.koinViewModel
 
 fun NavGraphBuilder.recordNavigation(
+	navController: NavHostController,
 	onNavigateToUpdatePassword: () -> Unit,
 	onTopBarViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
@@ -19,11 +25,17 @@ fun NavGraphBuilder.recordNavigation(
 	navigation<RecordDestination.NavGraph>(startDestination = RecordDestination.Record) {
 		composable<RecordDestination.Record> { backStackEntry ->
 			val viewModel = koinViewModel<RecordViewModel>(viewModelStoreOwner = backStackEntry)
+			val viewState by viewModel.state.collectAsStateWithLifecycle()
+
+			navController.CollectCurrentEntryValueWithLifecycle(
+				backStackEntry = backStackEntry,
+				value = viewState.toRouteViewState(),
+				onValue = onViewStateChanged
+			)
 
 			RecordRoute(
 				onNavigateToUpdatePassword = onNavigateToUpdatePassword,
 				onTopBarViewModeChangeAvailable = onTopBarViewModeChangeAvailable,
-				onViewStateChanged = onViewStateChanged,
 				showSnackBar = showSnackBar,
 				viewModel = viewModel
 			)

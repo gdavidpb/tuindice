@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.evaluations.presentation.navigation
 
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
@@ -12,6 +11,7 @@ import androidx.navigation.toRoute
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectBackResultWithLifecycle
+import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.navigateBackWithResult
 import com.gdavidpb.tuindice.evaluations.presentation.route.EvaluationRoute
 import com.gdavidpb.tuindice.evaluations.presentation.route.EvaluationsRoute
@@ -38,9 +38,11 @@ fun NavGraphBuilder.evaluationsNavigation(
 			val viewModel = koinViewModel<EvaluationsViewModel>(viewModelStoreOwner = backStackEntry)
 			val viewState by viewModel.state.collectAsStateWithLifecycle()
 
-			LaunchedEffect(viewState) {
-				onViewStateChanged(viewState)
-			}
+			navController.CollectCurrentEntryValueWithLifecycle(
+				backStackEntry = backStackEntry,
+				value = viewState,
+				onValue = onViewStateChanged
+			)
 
 			navController.CollectBackResultWithLifecycle<EvaluationsBackResult>(
 				backStackEntry = backStackEntry
@@ -68,9 +70,11 @@ fun NavGraphBuilder.evaluationsNavigation(
 			val viewModel = koinViewModel<EvaluationViewModel>(viewModelStoreOwner = backStackEntry)
 			val viewState by viewModel.state.collectAsStateWithLifecycle()
 
-			LaunchedEffect(viewState) {
-				onViewStateChanged(viewState)
-			}
+			navController.CollectCurrentEntryValueWithLifecycle(
+				backStackEntry = backStackEntry,
+				value = viewState,
+				onValue = onViewStateChanged
+			)
 
 			navController.CollectBackResultWithLifecycle<EvaluationBackResult>(
 				backStackEntry = backStackEntry

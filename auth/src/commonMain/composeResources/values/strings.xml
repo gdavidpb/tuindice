@@ -18,8 +18,8 @@
 	<string name="dialog_button_update_password_confirm">Confirmar</string>
 	<string name="a11y_show_password">Mostrar contraseña</string>
 	<string name="a11y_hide_password">Ocultar contraseña</string>
-	<string name="title_terms_and_conditions">TuIndice - Términos y condiciones</string>
-	<string name="title_privacy_policy">TuIndice - Política de privacidad</string>
+	<string name="title_terms_and_conditions">Términos y condiciones</string>
+	<string name="title_privacy_policy">Política de privacidad</string>
 	<string name="error_invalid_credentials">USBID o contraseña inválida</string>
 	<string name="error_account_disabled">Cuenta inhabilitada</string>
 	<string name="error_untrusted">No pudimos verificar la seguridad del dispositivo</string>
