@@ -5,14 +5,12 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.gdavidpb.tuindice.academiccore.domain.engine.RecordProjectionEngine
 import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialCurrent
-import com.gdavidpb.tuindice.academiccore.domain.model.RecordProjection
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
-import com.gdavidpb.tuindice.record.domain.model.filterByViewMode
+import com.gdavidpb.tuindice.record.domain.model.filteredProjectionFor
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.model.RecordRouteViewState
 import com.gdavidpb.tuindice.record.presentation.model.RecordTopBarViewModeState
@@ -79,8 +77,7 @@ fun RecordRoute(
 
 private fun Record.State.toRouteViewState(): ViewState {
 	val isEnrollmentProofVisible = when (this) {
-		is Record.State.Content -> record.activeProjection(viewMode)
-			.let { projection -> projection.copy(terms = projection.terms.filterByViewMode(viewMode)) }
+		is Record.State.Content -> record.filteredProjectionFor(viewMode)
 			.terms
 			.any { term ->
 				term.id == selectedTermId && term.kind.isOfficialCurrent
@@ -107,13 +104,4 @@ private fun Record.State.toRouteViewState(): ViewState {
 			-> null
 		}
 	)
-}
-
-private fun com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord.activeProjection(
-	viewMode: RecordViewMode
-): RecordProjection {
-	return when (viewMode) {
-		RecordViewMode.Official -> RecordProjectionEngine.projectOfficial(this)
-		RecordViewMode.Working -> RecordProjectionEngine.projectWorking(this)
-	}
 }

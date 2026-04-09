@@ -8,7 +8,8 @@ import kotlinx.coroutines.flow.Flow
 
 interface AcademicRecordRepository {
 	suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord>
-	suspend fun refreshAcademicRecord()
+	suspend fun getAcademicRecord(): AcademicRecord?
+	suspend fun updateAcademicRecord()
 	suspend fun upsertAttemptOverride(
 		attemptId: String,
 		score: AttemptScore?,

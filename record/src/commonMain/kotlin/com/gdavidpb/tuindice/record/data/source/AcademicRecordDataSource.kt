@@ -37,7 +37,11 @@ class AcademicRecordDataSource(
 		return localDataSource.observeAcademicRecordFlow().filterNotNull()
 	}
 
-	override suspend fun refreshAcademicRecord() {
+	override suspend fun getAcademicRecord(): AcademicRecord? {
+		return localDataSource.getAcademicRecord()
+	}
+
+	override suspend fun updateAcademicRecord() {
 		val isOnCooldown = settingsDataSource.isGetAcademicRecordOnCooldown()
 
 		if (!isOnCooldown) {

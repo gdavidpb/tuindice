@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.record.data.source.api.mapper
+package com.gdavidpb.tuindice.record.domain.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore

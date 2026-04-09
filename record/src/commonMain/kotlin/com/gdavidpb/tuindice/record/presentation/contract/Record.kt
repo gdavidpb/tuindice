@@ -32,9 +32,13 @@ object Record {
 		data object ObserveRecord : Action()
 		data object RefreshRecord : Action()
 		class SetViewMode(val viewMode: RecordViewMode) : Action()
-		class SelectTerm(val termId: String) : Action()
+		class SelectTerm(
+			val termId: String,
+			val viewMode: RecordViewMode
+		) : Action()
 
 		class UpsertAttemptSelection(
+			val viewMode: RecordViewMode,
 			val termId: String,
 			val attemptId: String,
 			val grade: Int? = null,

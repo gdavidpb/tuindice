@@ -16,19 +16,51 @@ import com.gdavidpb.tuindice.record.data.source.LocalSettingsDataSource
 import com.gdavidpb.tuindice.record.data.source.RecordSelectionDataSource
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
+import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedTermUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.UpdateRecordUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.UpsertAttemptSelectionUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExceptionHandler
+import com.gdavidpb.tuindice.record.presentation.action.ObserveRecordActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.RefreshRecordActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.SelectRecordTermActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.SetRecordViewModeActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.UpsertAttemptSelectionActionProcessor
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
+import kotlinx.serialization.builtins.serializer
 import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import kotlinx.serialization.builtins.serializer
 
 private const val RECORD_MUTATION_STORE_QUALIFIER = "recordMutationStore"
 private const val RECORD_MUTATION_ENGINE_QUALIFIER = "recordMutationEngine"
 
 val recordModule = module {
+	/* View models */
+
 	viewModelOf(::RecordViewModel)
+
+	/* Action processor */
+
+	factoryOf(::ObserveRecordActionProcessor)
+	factoryOf(::RefreshRecordActionProcessor)
+	factoryOf(::SetRecordViewModeActionProcessor)
+	factoryOf(::SelectRecordTermActionProcessor)
+	factoryOf(::UpsertAttemptSelectionActionProcessor)
+
+	/* Use cases */
+
+	factoryOf(::ObserveRecordUseCase)
+	factoryOf(::UpdateRecordUseCase)
+	factoryOf(::SetRecordViewModeUseCase)
+	factoryOf(::SetSelectedTermUseCase)
+	factoryOf(::UpsertAttemptSelectionUseCase)
+
+	/* Repositories */
 
 	single<MutationEnvelopeStore<String, AcademicRecordMutation>>(named(RECORD_MUTATION_STORE_QUALIFIER)) {
 		RoomMutationEnvelopeStore(
@@ -57,7 +89,13 @@ val recordModule = module {
 	}
 	singleOf(::RecordSelectionDataSource) { bind<RecordSelectionRepository>() }
 
+	/* Data sources */
+
 	single<AcademicRecordLocalDataRepository> { AcademicRecordRoomDataSource(room = get()) }
 	singleOf(::LocalSettingsDataSource) { bind<RecordSettingsDataRepository>() }
 	singleOf(::AcademicRecordApiDataSource) { bind<AcademicRecordRemoteDataRepository>() }
+
+	/* Exception handlers */
+
+	factoryOf(::RecordExceptionHandler)
 }
