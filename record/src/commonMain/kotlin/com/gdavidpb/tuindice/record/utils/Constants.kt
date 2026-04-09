@@ -10,8 +10,6 @@ object Ranges {
 
 object PreferencesKeys {
 	const val COOLDOWN_GET_QUARTERS = "cooldownGetQuarters"
-	const val SELECTED_OFFICIAL_QUARTER_ID = "selectedOfficialQuarterId"
-	const val SELECTED_WORKING_QUARTER_ID = "selectedWorkingQuarterId"
 	const val COOLDOWN_GET_RECORD = "cooldownGetRecord"
 	const val SELECTED_OFFICIAL_TERM_ID = "selectedOfficialTermId"
 	const val SELECTED_WORKING_TERM_ID = "selectedWorkingTermId"
@@ -19,6 +17,5 @@ object PreferencesKeys {
 }
 
 object CooldownTimes {
-	val COOLDOWN_GET_QUARTERS = 1.days.inWholeMilliseconds
 	val COOLDOWN_GET_RECORD = 1.days.inWholeMilliseconds
 }

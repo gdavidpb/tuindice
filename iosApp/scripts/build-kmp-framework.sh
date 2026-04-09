@@ -35,13 +35,19 @@ if [[ "$BUILD_TYPE" == "Release" ]]; then
 fi
 GRADLE_JVM_ARGS="${TUINDICE_IOS_GRADLE_JVM_ARGS:-$DEFAULT_GRADLE_JVM_ARGS}"
 
-TARGET_SUFFIX="IosSimulatorArm64"
+declare -a target_suffixes=()
 if [[ "$PLATFORM" == "iphoneos" ]]; then
-	TARGET_SUFFIX="IosArm64"
-elif [[ "$ARCHS_VALUE" == *"arm64"* ]]; then
-	TARGET_SUFFIX="IosSimulatorArm64"
-elif [[ "$ARCHS_VALUE" == *"x86_64"* ]]; then
-	TARGET_SUFFIX="IosX64"
+	target_suffixes=("IosArm64")
+else
+	if [[ "$ARCHS_VALUE" == *"arm64"* ]]; then
+		target_suffixes+=("IosSimulatorArm64")
+	fi
+	if [[ "$ARCHS_VALUE" == *"x86_64"* ]]; then
+		target_suffixes+=("IosX64")
+	fi
+	if [[ ${#target_suffixes[@]} -eq 0 ]]; then
+		target_suffixes=("IosSimulatorArm64")
+	fi
 fi
 
 cd "$ROOT_DIR"
@@ -49,10 +55,14 @@ mkdir -p "$GRADLE_USER_HOME_DIR"
 export GRADLE_USER_HOME="$GRADLE_USER_HOME_DIR"
 echo "Building maincore framework and syncing Compose resources for iOS"
 declare -a gradle_args=(
-	":maincore:link${BUILD_TYPE}Framework${TARGET_SUFFIX}"
-	":maincore:syncComposeResourcesForIos"
 	"-Dorg.gradle.jvmargs=$GRADLE_JVM_ARGS"
 )
+
+for target_suffix in "${target_suffixes[@]}"; do
+	gradle_args+=(":maincore:link${BUILD_TYPE}Framework${target_suffix}")
+done
+
+gradle_args+=(":maincore:syncComposeResourcesForIos")
 
 if [[ -n "$CI_MODE" || "${TUINDICE_IOS_GRADLE_STACKTRACE:-0}" == "1" ]]; then
 	gradle_args+=("--stacktrace")
@@ -75,5 +85,5 @@ fi
 
 if [[ -n "${SCRIPT_OUTPUT_FILE_0:-}" ]]; then
 	mkdir -p "$(dirname "$SCRIPT_OUTPUT_FILE_0")"
-	echo "maincore framework linked: ${BUILD_TYPE} ${TARGET_SUFFIX}" > "$SCRIPT_OUTPUT_FILE_0"
+	echo "maincore framework linked: ${BUILD_TYPE} ${target_suffixes[*]}" > "$SCRIPT_OUTPUT_FILE_0"
 fi

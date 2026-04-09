@@ -9,7 +9,6 @@ import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.FileRepository
-import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
@@ -42,12 +41,6 @@ class RecordingBrowserRepository : BrowserRepository {
 	override fun open(url: String) {
 		lastOpenedUrl = url
 	}
-}
-
-class FakeIdentifierRepository(
-	private val identifier: String = "identifier-1"
-) : IdentifierRepository {
-	override fun generateRandomIdentifier(): String = identifier
 }
 
 class FakeNetworkRepository(

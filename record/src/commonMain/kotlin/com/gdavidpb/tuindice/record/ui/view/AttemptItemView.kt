@@ -49,24 +49,6 @@ fun AttemptItemView(
 	modifier: Modifier = Modifier,
 	item: AttemptItem,
 	gradeState: MutableIntState? = null,
-	onGradeChange: (newGrade: Int, isSelected: Boolean) -> Unit
-) {
-	AttemptItemView(
-		modifier = modifier,
-		item = item,
-		gradeState = gradeState,
-		onGradeChange = { newGrade, _, isSelected ->
-			onGradeChange(newGrade ?: item.grade, isSelected)
-		}
-	)
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun AttemptItemView(
-	modifier: Modifier = Modifier,
-	item: AttemptItem,
-	gradeState: MutableIntState? = null,
 	onGradeChange: (newGrade: Int?, newStatus: SubjectStatus?, isSelected: Boolean) -> Unit
 ) {
 	val currentGrade = gradeState?.intValue ?: item.grade

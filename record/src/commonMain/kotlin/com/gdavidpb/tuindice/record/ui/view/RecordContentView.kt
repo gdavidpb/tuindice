@@ -43,28 +43,6 @@ fun RecordContentView(
 	onAttemptSelectionChange: (
 		termId: String,
 		attemptId: String,
-		newGrade: Int,
-		isSelected: Boolean
-	) -> Unit
-) {
-	RecordContentView(
-		state = state,
-		selectedTermId = selectedTermId,
-		onSelectedTermChange = onSelectedTermChange,
-		onAttemptSelectionChange = { termId, attemptId, newGrade, _, isSelected ->
-			onAttemptSelectionChange(termId, attemptId, newGrade ?: 0, isSelected)
-		}
-	)
-}
-
-@Composable
-fun RecordContentView(
-	state: Record.State.Content,
-	selectedTermId: String?,
-	onSelectedTermChange: (termId: String) -> Unit,
-	onAttemptSelectionChange: (
-		termId: String,
-		attemptId: String,
 		newGrade: Int?,
 		newStatus: SubjectStatus?,
 		isSelected: Boolean
@@ -139,30 +117,6 @@ private fun RecordTermPagerView(
 	onAttemptSelectionChange: (
 		termId: String,
 		attemptId: String,
-		newGrade: Int,
-		isSelected: Boolean
-	) -> Unit
-) {
-	RecordTermPagerView(
-		modifier = modifier,
-		terms = terms,
-		selectedTermId = selectedTermId,
-		onSelectedTermChange = onSelectedTermChange,
-		onAttemptSelectionChange = { termId, attemptId, newGrade, _, isSelected ->
-			onAttemptSelectionChange(termId, attemptId, newGrade ?: 0, isSelected)
-		}
-	)
-}
-
-@Composable
-private fun RecordTermPagerView(
-	modifier: Modifier = Modifier,
-	terms: List<TermItem>,
-	selectedTermId: String,
-	onSelectedTermChange: (termId: String) -> Unit,
-	onAttemptSelectionChange: (
-		termId: String,
-		attemptId: String,
 		newGrade: Int?,
 		newStatus: SubjectStatus?,
 		isSelected: Boolean
@@ -219,24 +173,11 @@ private fun RecordTermPagerView(
 			state = pagerState,
 			key = { page -> termIds[page] }
 		) { page ->
-			val term = terms[page]
-
-			Column(modifier = Modifier.fillMaxSize()) {
-				TermSummaryView(
-					modifier = Modifier
-						.fillMaxWidth()
-						.testTag(RecordUiTags.SelectedTermSummary),
-					item = term
-				)
-
-				SelectedTermView(
-					modifier = Modifier
-						.fillMaxWidth()
-						.weight(1f),
-					term = term,
-					onAttemptSelectionChange = onAttemptSelectionChange
-				)
-			}
+			TermItemView(
+				modifier = Modifier.fillMaxSize(),
+				item = terms[page],
+				onAttemptSelectionChange = onAttemptSelectionChange
+			)
 		}
 	}
 }

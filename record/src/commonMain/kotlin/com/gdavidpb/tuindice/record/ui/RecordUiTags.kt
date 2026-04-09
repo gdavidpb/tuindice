@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.record.ui
 
 object RecordUiTags {
 	const val LoadingIndicator = "record_loading_indicator"
-	const val TermsList = "record_terms_list"
 	const val ContentContainer = "record_content_container"
 	const val TermSelectorRow = "record_term_selector_row"
 	const val TermPager = "record_term_pager"
@@ -18,7 +17,6 @@ object RecordUiTags {
 	const val EmptyMessage = "record_empty_message"
 	const val EmptyIllustration = "record_empty_illustration"
 
-	fun termItem(index: Int): String = "record_term_item_$index"
 	fun termChip(termId: String): String = "record_term_chip_$termId"
 	fun termCurrentChip(termId: String): String = "record_term_current_chip_$termId"
 	fun attemptItem(attemptId: String): String = "record_attempt_item_$attemptId"

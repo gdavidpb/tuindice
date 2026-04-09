@@ -12,7 +12,7 @@ internal fun List<AcademicTermEntity>.toAcademicTerms(
 ): List<AcademicTerm> {
 	val attemptsByTermId = attempts.groupBy(AcademicAttemptEntity::termId)
 	return sortedWith(
-		compareBy<AcademicTermEntity>(AcademicTermEntity::startAt, AcademicTermEntity::endAt, AcademicTermEntity::id)
+		compareBy(AcademicTermEntity::startAt, AcademicTermEntity::endAt, AcademicTermEntity::id)
 	).map { term ->
 		AcademicTerm(
 			id = term.id,
@@ -22,7 +22,7 @@ internal fun List<AcademicTermEntity>.toAcademicTerms(
 			kind = TermKind.valueOf(term.kind),
 			attempts = attemptsByTermId[term.id].orEmpty()
 				.sortedWith(
-					compareBy<AcademicAttemptEntity>(AcademicAttemptEntity::positionInTerm, AcademicAttemptEntity::id)
+					compareBy(AcademicAttemptEntity::positionInTerm, AcademicAttemptEntity::id)
 				)
 				.map(AcademicAttemptEntity::toAcademicAttempt)
 		)

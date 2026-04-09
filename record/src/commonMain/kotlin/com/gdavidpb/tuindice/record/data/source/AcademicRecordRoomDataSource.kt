@@ -176,7 +176,7 @@ class AcademicRecordRoomDataSource(
 
 	private fun normalizeTerms(terms: List<AcademicTerm>): List<AcademicTerm> {
 		return terms.sortedWith(
-			compareBy<AcademicTerm>(AcademicTerm::startAtMillis, AcademicTerm::endAtMillis, AcademicTerm::id)
+			compareBy(AcademicTerm::startAtMillis, AcademicTerm::endAtMillis, AcademicTerm::id)
 		)
 	}
 }

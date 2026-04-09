@@ -27,30 +27,6 @@ fun RecordScreen(
 	onAttemptSelectionChange: (
 		termId: String,
 		attemptId: String,
-		newGrade: Int,
-		isSelected: Boolean
-	) -> Unit
-) {
-	RecordScreen(
-		state = state,
-		selectedTermId = selectedTermId,
-		onSelectedTermChange = onSelectedTermChange,
-		onRetryClick = onRetryClick,
-		onAttemptSelectionChange = { termId, attemptId, newGrade, _, isSelected ->
-			onAttemptSelectionChange(termId, attemptId, newGrade ?: 0, isSelected)
-		}
-	)
-}
-
-@Composable
-fun RecordScreen(
-	state: Record.State,
-	selectedTermId: String?,
-	onSelectedTermChange: (termId: String) -> Unit,
-	onRetryClick: () -> Unit,
-	onAttemptSelectionChange: (
-		termId: String,
-		attemptId: String,
 		newGrade: Int?,
 		newStatus: SubjectStatus?,
 		isSelected: Boolean
