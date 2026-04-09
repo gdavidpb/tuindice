@@ -4,13 +4,10 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class AttemptSource {
-	@SerialName("dst_record")
-	DST_RECORD,
+enum class AttemptBadge {
+	@SerialName("none")
+	NONE,
 
-	@SerialName("dst_enrollment")
-	DST_ENROLLMENT,
-
-	@SerialName("local")
-	LOCAL
+	@SerialName("without_effect")
+	WITHOUT_EFFECT
 }

@@ -53,11 +53,10 @@ private fun termProjection(
 	label = "Term",
 	startAtMillis = 1_000L,
 	endAtMillis = 2_000L,
-	order = 0,
 	kind = kind,
-	grade = 0.0,
-	gradeSum = 0.0,
-	credits = 0,
-	creditsSum = 0,
+	periodAverage = 0.0,
+	cumulativeAverage = 0.0,
+	periodCredits = 0,
+	cumulativeCredits = 0,
 	attempts = emptyList()
 )

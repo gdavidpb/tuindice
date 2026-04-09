@@ -4,9 +4,9 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.base.domain.model.subject.GradingMode
 import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.evaluations.data.model.LocalSubject
-import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptProjectionEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptEntity
 
-fun AcademicAttemptProjectionEntity.toLocalSubject() = LocalSubject(
+fun AcademicAttemptEntity.toLocalSubject() = LocalSubject(
 	id = id,
 	termId = termId,
 	code = subjectCode,

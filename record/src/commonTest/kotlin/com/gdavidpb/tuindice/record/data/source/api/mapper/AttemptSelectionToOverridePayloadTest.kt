@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.record.data.source.api.mapper
 
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
-import com.gdavidpb.tuindice.academiccore.domain.model.OfficialOutcome
 import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -16,7 +16,7 @@ class AttemptSelectionToOverridePayloadTest {
 		)
 
 		assertEquals(AttemptScore.numeric(4), score)
-		assertEquals(OfficialOutcome.PENDING, outcome)
+		assertEquals(AttemptOutcome.PENDING, outcome)
 	}
 
 	@Test

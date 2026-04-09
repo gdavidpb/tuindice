@@ -43,15 +43,15 @@ fun TermProjection.toTermItem(
 	previousTerm: TermProjection? = null
 ): TermItem {
 	val animatedGrade = animateFloatAsState(
-		targetValue = grade.toFloat(),
+		targetValue = periodAverage.toFloat(),
 		label = "animatedTermGrade"
 	)
 	val animatedGradeSum = animateFloatAsState(
-		targetValue = gradeSum.toFloat(),
+		targetValue = cumulativeAverage.toFloat(),
 		label = "animatedTermGradeSum"
 	)
 	val animatedCredits = animateIntAsState(
-		targetValue = credits,
+		targetValue = periodCredits,
 		label = "animatedTermCredits"
 	)
 	val isCurrent = isCurrentTerm()
@@ -65,24 +65,25 @@ fun TermProjection.toTermItem(
 			.termGrade(animatedGrade.value)
 			.annotatedTermValue(highlightColor),
 		gradeDelta = previousTerm?.takeIf { shouldShowDeltas }?.let { older ->
-			(animatedGrade.value - older.grade.toFloat()).toTermMetricDelta()
+			(animatedGrade.value - older.periodAverage.toFloat()).toTermMetricDelta()
 		},
 		gradeSumText = texts
 			.termGradeSum(animatedGradeSum.value)
 			.annotatedTermValue(highlightColor),
 		gradeSumDelta = previousTerm?.takeIf { shouldShowDeltas }?.let { older ->
-			(animatedGradeSum.value - older.gradeSum.toFloat()).toTermMetricDelta()
+			(animatedGradeSum.value - older.cumulativeAverage.toFloat()).toTermMetricDelta()
 		},
 		creditsText = texts
 			.termCredits(animatedCredits.value)
 			.annotatedTermValue(highlightColor),
 		creditsDelta = previousTerm?.takeIf { shouldShowDeltas }?.let { older ->
-			(animatedCredits.value - older.credits).toCreditsTermMetricDelta()
+			(animatedCredits.value - older.periodCredits).toCreditsTermMetricDelta()
 		},
 		isCurrent = isCurrent,
 		canDelete = canDelete,
 		attempts = attempts.map { attempt ->
 			attempt.toAttemptItem(
+				termId = id,
 				isReadOnly = isAttemptReadOnly(),
 				texts = texts
 			)

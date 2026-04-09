@@ -9,5 +9,4 @@ object AcademicAttemptOverrideTable {
 	const val SCORE_SYMBOLIC_VALUE = "score_symbolic_value"
 	const val OUTCOME = "outcome"
 	const val UPDATED_AT = "updated_at"
-	const val COMMITTED = "is_committed"
 }

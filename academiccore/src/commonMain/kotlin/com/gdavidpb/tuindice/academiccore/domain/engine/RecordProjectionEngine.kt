@@ -3,67 +3,52 @@ package com.gdavidpb.tuindice.academiccore.domain.engine
 import com.gdavidpb.tuindice.academiccore.domain.model.*
 import kotlin.math.abs
 
-private const val DEFAULT_SIMULATION_NUMERIC_GRADE = 5
+private const val DEFAULT_WORKING_NUMERIC_GRADE = 5
 private const val MIN_APPROVED_GRADE = 3
 
-object AcademicProjectionEngine {
-	fun reproject(record: AcademicRecord): AcademicRecord {
-		val officialProjection = project(
-			viewMode = ProjectionViewMode.OFFICIAL,
-			terms = record.officialSnapshot.terms,
-			overlay = AcademicOverlay()
-		)
-		val simulationProjection = project(
-			viewMode = ProjectionViewMode.SIMULATION,
-			terms = record.officialSnapshot.terms + record.localOverlay.syntheticTerms,
-			overlay = record.localOverlay,
-			officialProjectionByTermId = officialProjection.terms.associateBy(TermProjection::id)
-		)
-
-		return record.copy(
-			officialProjection = officialProjection,
-			simulationProjection = simulationProjection,
-			summary = RecordSummary(
-				official = AcademicSummaryEngine.summarize(officialProjection),
-				simulation = AcademicSummaryEngine.summarize(simulationProjection)
-			)
+object RecordProjectionEngine {
+	fun projectOfficial(record: AcademicRecord): RecordProjection {
+		return project(
+			terms = record.terms.filterNot { term -> term.kind.isSynthetic },
+			attemptOverrides = emptyMap(),
+			officialProjectionByTermId = emptyMap(),
+			includeWorkingBehavior = false
 		)
 	}
 
-	fun project(
-		viewMode: ProjectionViewMode,
-		terms: List<AcademicTerm>,
-		overlay: AcademicOverlay,
-		officialProjectionByTermId: Map<String, TermProjection> = emptyMap()
-	): RecordProjection {
-		if (terms.isEmpty()) {
-			return RecordProjection(
-				viewMode = viewMode,
-				terms = emptyList()
-			)
-		}
+	fun projectWorking(record: AcademicRecord): RecordProjection {
+		val officialProjection = projectOfficial(record)
 
-		val overridesByAttemptId = overlay.attemptOverrides.associateBy(AttemptOverride::attemptId)
+		return project(
+			terms = record.terms,
+			attemptOverrides = record.attemptOverrides.associateBy(AttemptOverride::attemptId),
+			officialProjectionByTermId = officialProjection.terms.associateBy(TermProjection::id),
+			includeWorkingBehavior = true
+		)
+	}
+
+	private fun project(
+		terms: List<AcademicTerm>,
+		attemptOverrides: Map<String, AttemptOverride>,
+		officialProjectionByTermId: Map<String, TermProjection>,
+		includeWorkingBehavior: Boolean
+	): RecordProjection {
+		if (terms.isEmpty()) return RecordProjection()
+
 		val termsAscending = terms.sortedWith(
-			compareBy<AcademicTerm> { it.startAtMillis }
-				.thenByDescending { it.id }
+			compareBy<AcademicTerm>(AcademicTerm::startAtMillis, AcademicTerm::endAtMillis, AcademicTerm::id)
 		)
 		val effectiveTermsAscending = termsAscending.map { term ->
 			EffectiveTermState(
 				term = term,
-				attempts = term.attempts
-					.sortedWith(
-						compareBy<AcademicAttempt> { it.sequenceInTerm }
-							.thenByDescending { it.id }
+				attempts = term.attempts.map { attempt ->
+					resolveEffectiveAttempt(
+						attempt = attempt,
+						termKind = term.kind,
+						attemptOverride = attemptOverrides[attempt.id],
+						includeWorkingBehavior = includeWorkingBehavior
 					)
-					.map { attempt ->
-						resolveEffectiveAttempt(
-							attempt = attempt,
-							termKind = term.kind,
-							override = overridesByAttemptId[attempt.id],
-							viewMode = viewMode
-						)
-					}
+				}
 			)
 		}
 		val excludedAttemptIds = resolveExcludedAttemptIds(effectiveTermsAscending)
@@ -73,11 +58,11 @@ object AcademicProjectionEngine {
 		var cumulativeCredits = 0L
 
 		effectiveTermsAscending.forEach { termState ->
-			val termWeighted = termState.attempts.sumOf { attempt ->
-				if (attempt.countsTowardTermAverage) attempt.numericWeightedContribution() else 0L
+			val periodWeighted = termState.attempts.sumOf { attempt ->
+				if (attempt.countsTowardPeriodAverage) attempt.numericWeightedContribution() else 0L
 			}
-			val termCredits = termState.attempts.sumOf { attempt ->
-				if (attempt.countsTowardTermAverage) attempt.attempt.credits else 0
+			val periodCredits = termState.attempts.sumOf { attempt ->
+				if (attempt.countsTowardPeriodAverage) attempt.attempt.credits else 0
 			}
 
 			termState.attempts.forEach { attempt ->
@@ -100,36 +85,26 @@ object AcademicProjectionEngine {
 			}
 
 			val officialTermProjection = officialProjectionByTermId[termState.term.id]
-			val useFrozenOfficialMetrics =
-				viewMode == ProjectionViewMode.SIMULATION &&
-					termState.term.kind.isOfficialHistorical &&
-					officialTermProjection != null
+			val useFrozenOfficialMetrics = includeWorkingBehavior &&
+				termState.term.kind.isOfficialHistorical &&
+				officialTermProjection != null
 
 			val attemptProjections = termState.attempts.map { attempt ->
 				val badge = when {
-					attempt.badge == HistoricalBadge.WITHOUT_EFFECT -> HistoricalBadge.WITHOUT_EFFECT
-					viewMode == ProjectionViewMode.SIMULATION && attempt.attempt.id in excludedAttemptIds ->
-						HistoricalBadge.WITHOUT_EFFECT
-
-					else -> HistoricalBadge.NONE
+					attempt.badge == AttemptBadge.WITHOUT_EFFECT -> AttemptBadge.WITHOUT_EFFECT
+					includeWorkingBehavior && attempt.attempt.id in excludedAttemptIds -> AttemptBadge.WITHOUT_EFFECT
+					else -> AttemptBadge.NONE
 				}
 
 				AttemptProjection(
 					id = attempt.attempt.id,
-					termId = attempt.attempt.termId,
 					subjectCode = attempt.attempt.subjectCode,
 					subjectName = attempt.attempt.subjectName,
 					credits = attempt.attempt.credits,
-					sequenceInTerm = attempt.attempt.sequenceInTerm,
 					gradingMode = attempt.attempt.gradingMode,
-					rawGradeToken = attempt.attempt.rawGradeToken,
-					rawObservationText = attempt.attempt.rawObservationText,
 					score = attempt.score,
 					outcome = attempt.outcome,
-					badge = badge,
-					countsTowardTermAverage = attempt.countsTowardTermAverage,
-					countsTowardCumulativeAverage = attempt.countsTowardCumulativeAverage &&
-						attempt.attempt.id !in excludedAttemptIds
+					badge = badge
 				)
 			}
 
@@ -139,12 +114,11 @@ object AcademicProjectionEngine {
 					label = termState.term.label,
 					startAtMillis = termState.term.startAtMillis,
 					endAtMillis = termState.term.endAtMillis,
-					order = termState.term.order,
 					kind = termState.term.kind,
-					grade = officialTermProjection.grade,
-					gradeSum = officialTermProjection.gradeSum,
-					credits = officialTermProjection.credits,
-					creditsSum = officialTermProjection.creditsSum,
+					periodAverage = officialTermProjection.periodAverage,
+					cumulativeAverage = officialTermProjection.cumulativeAverage,
+					periodCredits = officialTermProjection.periodCredits,
+					cumulativeCredits = officialTermProjection.cumulativeCredits,
 					attempts = attemptProjections
 				)
 			} else {
@@ -153,19 +127,23 @@ object AcademicProjectionEngine {
 					label = termState.term.label,
 					startAtMillis = termState.term.startAtMillis,
 					endAtMillis = termState.term.endAtMillis,
-					order = termState.term.order,
 					kind = termState.term.kind,
-					grade = computeAverage(termWeighted, termCredits.toLong()),
-					gradeSum = computeAverage(cumulativeWeighted, cumulativeCredits),
-					credits = termCredits,
-					creditsSum = cumulativeCredits.toInt(),
+					periodAverage = computeAverage(
+						weighted = periodWeighted,
+						credits = periodCredits.toLong()
+					),
+					cumulativeAverage = computeAverage(
+						weighted = cumulativeWeighted,
+						credits = cumulativeCredits
+					),
+					periodCredits = periodCredits,
+					cumulativeCredits = cumulativeCredits.toInt(),
 					attempts = attemptProjections
 				)
 			}
 		}
 
 		return RecordProjection(
-			viewMode = viewMode,
 			terms = projectionsAscending.asReversed()
 		)
 	}
@@ -173,84 +151,106 @@ object AcademicProjectionEngine {
 	private fun resolveEffectiveAttempt(
 		attempt: AcademicAttempt,
 		termKind: TermKind,
-		override: AttemptOverride?,
-		viewMode: ProjectionViewMode
+		attemptOverride: AttemptOverride?,
+		includeWorkingBehavior: Boolean
 	): EffectiveAttemptState {
 		val score = when {
-			viewMode == ProjectionViewMode.SIMULATION && override?.score != null -> override.score
-			viewMode == ProjectionViewMode.SIMULATION &&
+			includeWorkingBehavior && attemptOverride?.score != null -> attemptOverride.score
+			includeWorkingBehavior &&
 				termKind.isEditable &&
 				attempt.gradingMode == AttemptGradingMode.NUMERIC &&
-				attempt.officialOutcome == OfficialOutcome.PENDING &&
-				attempt.officialScore.kind == AttemptScoreKind.EMPTY ->
-				AttemptScore.numeric(DEFAULT_SIMULATION_NUMERIC_GRADE)
+				attempt.officialOutcome == AttemptOutcome.PENDING &&
+				attempt.officialScore is AttemptScore.Empty ->
+				AttemptScore.numeric(DEFAULT_WORKING_NUMERIC_GRADE)
 
 			else -> attempt.officialScore
 		}
-		val preferredOutcome = when {
-			viewMode == ProjectionViewMode.SIMULATION && override?.outcome != null -> override.outcome
+		val baseOutcome = when {
+			includeWorkingBehavior && attemptOverride?.outcome != null -> attemptOverride.outcome
 			else -> attempt.officialOutcome
 		}
-		val outcome = resolveOutcome(attempt.gradingMode, score, preferredOutcome)
+		val resolvedOutcome = resolveOutcome(
+			gradingMode = attempt.gradingMode,
+			score = score,
+			preferredOutcome = baseOutcome
+		)
 
 		return EffectiveAttemptState(
 			attempt = attempt,
 			score = score,
-			outcome = outcome,
+			outcome = resolvedOutcome,
 			badge = attempt.officialBadge,
-			countsTowardTermAverage = countsTowardTermAverage(attempt.gradingMode, score, outcome),
-			countsTowardCumulativeAverage = countsTowardCumulativeAverage(attempt.gradingMode, score, outcome),
-			approvalEvent = outcome == OfficialOutcome.APPROVED,
-			countsTowardRetakeTimeline = countsTowardRetakeTimeline(attempt.gradingMode, score, outcome)
+			countsTowardPeriodAverage = countsTowardPeriodAverage(
+				gradingMode = attempt.gradingMode,
+				score = score,
+				outcome = resolvedOutcome
+			),
+			countsTowardCumulativeAverage = countsTowardCumulativeAverage(
+				gradingMode = attempt.gradingMode,
+				score = score,
+				outcome = resolvedOutcome
+			),
+			approvalEvent = resolvedOutcome == AttemptOutcome.APPROVED,
+			countsTowardRetakeTimeline = countsTowardRetakeTimeline(
+				gradingMode = attempt.gradingMode,
+				score = score,
+				outcome = resolvedOutcome
+			)
 		)
 	}
 
 	private fun resolveOutcome(
 		gradingMode: AttemptGradingMode,
 		score: AttemptScore,
-		preferredOutcome: OfficialOutcome
-	): OfficialOutcome {
-		if (preferredOutcome != OfficialOutcome.PENDING) return preferredOutcome
+		preferredOutcome: AttemptOutcome
+	): AttemptOutcome {
+		if (preferredOutcome != AttemptOutcome.PENDING) return preferredOutcome
 
 		return when (gradingMode) {
 			AttemptGradingMode.NUMERIC -> when (score.numericValue ?: 0) {
-				in Int.MIN_VALUE until 1 -> OfficialOutcome.PENDING
-				in 1 until MIN_APPROVED_GRADE -> OfficialOutcome.FAILED
-				else -> OfficialOutcome.APPROVED
+				in Int.MIN_VALUE until 1 -> AttemptOutcome.PENDING
+				in 1 until MIN_APPROVED_GRADE -> AttemptOutcome.FAILED
+				else -> AttemptOutcome.APPROVED
 			}
 
 			AttemptGradingMode.QUALITATIVE_PASS_FAIL -> when (score.symbolicValue?.trim()?.uppercase()) {
-				"A" -> OfficialOutcome.APPROVED
-				"R" -> OfficialOutcome.RETIRED
-				else -> OfficialOutcome.PENDING
+				"A" -> AttemptOutcome.APPROVED
+				"R" -> AttemptOutcome.RETIRED
+				else -> AttemptOutcome.PENDING
 			}
 		}
 	}
 
-	private fun countsTowardTermAverage(
+	private fun countsTowardPeriodAverage(
 		gradingMode: AttemptGradingMode,
 		score: AttemptScore,
-		outcome: OfficialOutcome
-	): Boolean {
-		val numericValue = score.numericValue ?: 0
-
-		return gradingMode == AttemptGradingMode.NUMERIC &&
-			outcome !in setOf(OfficialOutcome.PENDING, OfficialOutcome.RETIRED) &&
-			(numericValue > 0 || outcome == OfficialOutcome.UNREPORTED)
-	}
-
-	private fun countsTowardCumulativeAverage(
-		gradingMode: AttemptGradingMode,
-		score: AttemptScore,
-		outcome: OfficialOutcome
+		outcome: AttemptOutcome
 	): Boolean {
 		val numericValue = score.numericValue ?: 0
 
 		return gradingMode == AttemptGradingMode.NUMERIC &&
 			outcome !in setOf(
-				OfficialOutcome.PENDING,
-				OfficialOutcome.RETIRED,
-				OfficialOutcome.UNREPORTED
+				AttemptOutcome.PENDING,
+				AttemptOutcome.RETIRED
+			) &&
+			(
+				numericValue > 0 ||
+					outcome == AttemptOutcome.UNREPORTED
+				)
+	}
+
+	private fun countsTowardCumulativeAverage(
+		gradingMode: AttemptGradingMode,
+		score: AttemptScore,
+		outcome: AttemptOutcome
+	): Boolean {
+		val numericValue = score.numericValue ?: 0
+
+		return gradingMode == AttemptGradingMode.NUMERIC &&
+			outcome !in setOf(
+				AttemptOutcome.PENDING,
+				AttemptOutcome.RETIRED,
+				AttemptOutcome.UNREPORTED
 			) &&
 			numericValue > 0
 	}
@@ -258,11 +258,15 @@ object AcademicProjectionEngine {
 	private fun countsTowardRetakeTimeline(
 		gradingMode: AttemptGradingMode,
 		score: AttemptScore,
-		outcome: OfficialOutcome
+		outcome: AttemptOutcome
 	): Boolean {
-		return countsTowardCumulativeAverage(gradingMode, score, outcome) || (
+		return countsTowardCumulativeAverage(
+			gradingMode = gradingMode,
+			score = score,
+			outcome = outcome
+		) || (
 			gradingMode == AttemptGradingMode.QUALITATIVE_PASS_FAIL &&
-				outcome in setOf(OfficialOutcome.APPROVED, OfficialOutcome.FAILED)
+				outcome in setOf(AttemptOutcome.APPROVED, AttemptOutcome.FAILED)
 			)
 	}
 
@@ -273,12 +277,14 @@ object AcademicProjectionEngine {
 			term.attempts.forEach { attempt ->
 				if (!attempt.countsTowardRetakeTimeline) return@forEach
 
-				states.getOrPut(attempt.attempt.subjectCode, ::ExclusionCodeState).add(
-					SubjectAttempt(
-						attemptId = attempt.attempt.id,
-						approvalEvent = attempt.approvalEvent
+				states
+					.getOrPut(attempt.attempt.subjectCode, ::ExclusionCodeState)
+					.add(
+						SubjectAttempt(
+							attemptId = attempt.attempt.id,
+							approvalEvent = attempt.approvalEvent
+						)
 					)
-				)
 			}
 		}
 
@@ -295,10 +301,18 @@ object AcademicProjectionEngine {
 	}
 
 	private fun computeAverage(weighted: Long, credits: Long): Double {
-		return truncateScaledDivision(weighted, credits, decimals = 4)
+		return truncateScaledDivision(
+			numerator = weighted,
+			denominator = credits,
+			decimals = 4
+		)
 	}
 
-	private fun truncateScaledDivision(numerator: Long, denominator: Long, decimals: Int): Double {
+	private fun truncateScaledDivision(
+		numerator: Long,
+		denominator: Long,
+		decimals: Int
+	): Double {
 		if (denominator == 0L) return 0.0
 		if (decimals <= 0) return (numerator / denominator).toDouble()
 
@@ -312,7 +326,11 @@ object AcademicProjectionEngine {
 
 	private fun decimalScale(decimals: Int): Long {
 		var scale = 1L
-		repeat(decimals) { scale *= 10L }
+
+		repeat(decimals) {
+			scale *= 10L
+		}
+
 		return scale
 	}
 
@@ -324,9 +342,9 @@ object AcademicProjectionEngine {
 	private data class EffectiveAttemptState(
 		val attempt: AcademicAttempt,
 		val score: AttemptScore,
-		val outcome: OfficialOutcome,
-		val badge: HistoricalBadge,
-		val countsTowardTermAverage: Boolean,
+		val outcome: AttemptOutcome,
+		val badge: AttemptBadge,
+		val countsTowardPeriodAverage: Boolean,
 		val countsTowardCumulativeAverage: Boolean,
 		val approvalEvent: Boolean,
 		val countsTowardRetakeTimeline: Boolean

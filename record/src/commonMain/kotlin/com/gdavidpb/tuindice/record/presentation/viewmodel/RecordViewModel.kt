@@ -2,8 +2,9 @@ package com.gdavidpb.tuindice.record.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gdavidpb.tuindice.academiccore.domain.engine.RecordProjectionEngine
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
-import com.gdavidpb.tuindice.academiccore.domain.model.OfficialOutcome
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.RecordProjection
 import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.base.utils.extension.isConnection
@@ -33,9 +34,9 @@ class RecordViewModel(
 	private val recordSelectionRepository: RecordSelectionRepository
 ) : ViewModel() {
 	private val effectChannel = Channel<Record.Effect>(Channel.BUFFERED)
-	private val currentViewMode = MutableStateFlow(RecordViewMode.Simulation)
+	private val currentViewMode = MutableStateFlow(RecordViewMode.Working)
 	private val selectedOfficialTermId = MutableStateFlow<String?>(null)
-	private val selectedSimulationTermId = MutableStateFlow<String?>(null)
+	private val selectedWorkingTermId = MutableStateFlow<String?>(null)
 	private var currentRecord: AcademicRecord? = null
 
 	private val _state = MutableStateFlow<Record.State>(Record.State.Loading)
@@ -46,7 +47,7 @@ class RecordViewModel(
 		viewModelScope.launch {
 			currentViewMode.value = recordSelectionRepository.getRecordViewMode()
 			selectedOfficialTermId.value = recordSelectionRepository.getSelectedTermId(RecordViewMode.Official)
-			selectedSimulationTermId.value = recordSelectionRepository.getSelectedTermId(RecordViewMode.Simulation)
+			selectedWorkingTermId.value = recordSelectionRepository.getSelectedTermId(RecordViewMode.Working)
 			academicRecordRepository.observeAcademicRecordFlow().collect { record ->
 				currentRecord = record
 				publishContent(record)
@@ -75,7 +76,7 @@ class RecordViewModel(
 		viewModelScope.launch {
 			when (currentViewMode.value) {
 				RecordViewMode.Official -> selectedOfficialTermId.value = termId
-				RecordViewMode.Simulation -> selectedSimulationTermId.value = termId
+				RecordViewMode.Working -> selectedWorkingTermId.value = termId
 			}
 			recordSelectionRepository.setSelectedTermId(currentViewMode.value, termId)
 			currentRecord?.let { record -> publishContent(record) }
@@ -152,7 +153,7 @@ class RecordViewModel(
 			recordSelectionRepository.setSelectedTermId(viewMode, selectedTermId)
 			when (viewMode) {
 				RecordViewMode.Official -> selectedOfficialTermId.value = selectedTermId
-				RecordViewMode.Simulation -> selectedSimulationTermId.value = selectedTermId
+				RecordViewMode.Working -> selectedWorkingTermId.value = selectedTermId
 			}
 		}
 
@@ -162,31 +163,30 @@ class RecordViewModel(
 	private fun currentSelectedTermId(viewMode: RecordViewMode): String? {
 		return when (viewMode) {
 			RecordViewMode.Official -> selectedOfficialTermId.value
-			RecordViewMode.Simulation -> selectedSimulationTermId.value
+			RecordViewMode.Working -> selectedWorkingTermId.value
 		}
 	}
 
 	private fun RecordViewMode.other(): RecordViewMode {
 		return when (this) {
-			RecordViewMode.Official -> RecordViewMode.Simulation
-			RecordViewMode.Simulation -> RecordViewMode.Official
+			RecordViewMode.Official -> RecordViewMode.Working
+			RecordViewMode.Working -> RecordViewMode.Official
 		}
 	}
 
 	private fun AcademicRecord.projectionFor(viewMode: RecordViewMode): RecordProjection {
 		return when (viewMode) {
-			RecordViewMode.Official -> officialProjection
-			RecordViewMode.Simulation -> simulationProjection
+			RecordViewMode.Official -> RecordProjectionEngine.projectOfficial(this)
+			RecordViewMode.Working -> RecordProjectionEngine.projectWorking(this)
 		}
 	}
 
 	private fun shouldClearOverride(
 		attemptId: String,
 		score: com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore?,
-		outcome: OfficialOutcome?
+		outcome: AttemptOutcome?
 	): Boolean {
 		val officialAttempt = currentRecord
-			?.officialSnapshot
 			?.terms
 			?.flatMap { term -> term.attempts }
 			?.firstOrNull { attempt -> attempt.id == attemptId }

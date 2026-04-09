@@ -27,14 +27,10 @@ data class AcademicAttemptEntity(
 	val subjectName: String,
 	@ColumnInfo(name = AcademicAttemptTable.CREDITS)
 	val credits: Int,
-	@ColumnInfo(name = AcademicAttemptTable.SEQUENCE_IN_TERM)
-	val sequenceInTerm: Int,
+	@ColumnInfo(name = AcademicAttemptTable.POSITION_IN_TERM)
+	val positionInTerm: Int,
 	@ColumnInfo(name = AcademicAttemptTable.GRADING_MODE)
 	val gradingMode: String,
-	@ColumnInfo(name = AcademicAttemptTable.RAW_GRADE_TOKEN)
-	val rawGradeToken: String,
-	@ColumnInfo(name = AcademicAttemptTable.RAW_OBSERVATION_TEXT)
-	val rawObservationText: String,
 	@ColumnInfo(name = AcademicAttemptTable.SCORE_KIND)
 	val scoreKind: String,
 	@ColumnInfo(name = AcademicAttemptTable.SCORE_NUMERIC_VALUE)
@@ -44,7 +40,5 @@ data class AcademicAttemptEntity(
 	@ColumnInfo(name = AcademicAttemptTable.OFFICIAL_OUTCOME)
 	val officialOutcome: String,
 	@ColumnInfo(name = AcademicAttemptTable.OFFICIAL_BADGE)
-	val officialBadge: String,
-	@ColumnInfo(name = AcademicAttemptTable.SOURCE)
-	val source: String
+	val officialBadge: String
 )

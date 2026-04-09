@@ -25,7 +25,5 @@ data class AcademicAttemptOverrideEntity(
 	@ColumnInfo(name = AcademicAttemptOverrideTable.OUTCOME)
 	val outcome: String? = null,
 	@ColumnInfo(name = AcademicAttemptOverrideTable.UPDATED_AT)
-	val updatedAt: Long,
-	@ColumnInfo(name = AcademicAttemptOverrideTable.COMMITTED)
-	val committed: Boolean
+	val updatedAt: Long
 )

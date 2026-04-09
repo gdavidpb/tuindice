@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.data.mutation
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
+import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.base.utils.extension.isPreconditionFailed
@@ -14,8 +15,8 @@ import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepo
 class AcademicRecordMutationSyncSpec(
 	private val localDataSource: AcademicRecordLocalDataRepository,
 	private val remoteDataSource: AcademicRecordRemoteDataRepository,
-	private val refreshRemoteSnapshot: suspend () -> AcademicRecord
-) : MutationSyncSpec<String, AcademicRecordMutation, AcademicRecord, AcademicRecord, AcademicRecord> {
+	private val refreshRemoteSnapshot: suspend () -> VersionedAcademicRecord
+) : MutationSyncSpec<String, AcademicRecordMutation, AcademicRecord, AcademicRecord, VersionedAcademicRecord> {
 	override val maxRebaseAttempts: Int = 1
 
 	override fun deletePendingBeforeConfirm(
@@ -24,7 +25,7 @@ class AcademicRecordMutationSyncSpec(
 
 	override suspend fun send(
 		mutation: MutationEnvelope<String, AcademicRecordMutation>
-	): AcademicRecord {
+	): VersionedAcademicRecord {
 		return when (val command = mutation.command) {
 			is AcademicRecordMutation.UpsertAttemptOverride ->
 				remoteDataSource.upsertAttemptOverride(
@@ -46,7 +47,7 @@ class AcademicRecordMutationSyncSpec(
 
 	override suspend fun confirm(
 		mutation: MutationEnvelope<String, AcademicRecordMutation>,
-		ack: AcademicRecord
+		ack: VersionedAcademicRecord
 	) {
 		localDataSource.saveAcademicRecord(ack)
 	}

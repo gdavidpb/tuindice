@@ -44,7 +44,7 @@ fun RecordViewModeInfoDialog(
 private fun recordViewModeInfoTitle(mode: RecordViewMode): String {
 	return when (mode) {
 		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_banner_official)
-		RecordViewMode.Simulation -> stringResource(Res.string.record_view_mode_banner_projection)
+		RecordViewMode.Working -> stringResource(Res.string.record_view_mode_banner_projection)
 	}
 }
 
@@ -52,6 +52,6 @@ private fun recordViewModeInfoTitle(mode: RecordViewMode): String {
 private fun recordViewModeInfoMessage(mode: RecordViewMode): String {
 	return when (mode) {
 		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_info_message_official)
-		RecordViewMode.Simulation -> stringResource(Res.string.record_view_mode_info_message_projection)
+		RecordViewMode.Working -> stringResource(Res.string.record_view_mode_info_message_projection)
 	}
 }

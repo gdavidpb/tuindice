@@ -69,8 +69,8 @@ fun RecordTopBarViewModeSwitchView(
 
 private fun RecordViewMode.otherMode(): RecordViewMode {
 	return when (this) {
-		RecordViewMode.Official -> RecordViewMode.Simulation
-		RecordViewMode.Simulation -> RecordViewMode.Official
+		RecordViewMode.Official -> RecordViewMode.Working
+		RecordViewMode.Working -> RecordViewMode.Official
 	}
 }
 
@@ -78,7 +78,7 @@ private fun RecordViewMode.otherMode(): RecordViewMode {
 fun recordViewModeLabel(mode: RecordViewMode): String {
 	return when (mode) {
 		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_official)
-		RecordViewMode.Simulation -> stringResource(Res.string.record_view_mode_projection)
+		RecordViewMode.Working -> stringResource(Res.string.record_view_mode_projection)
 	}
 }
 
@@ -86,7 +86,7 @@ fun recordViewModeLabel(mode: RecordViewMode): String {
 fun recordViewModeToggleDescription(mode: RecordViewMode): String {
 	return when (mode) {
 		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_toggle_to_official)
-		RecordViewMode.Simulation -> stringResource(Res.string.record_view_mode_toggle_to_projection)
+		RecordViewMode.Working -> stringResource(Res.string.record_view_mode_toggle_to_projection)
 	}
 }
 
@@ -98,7 +98,7 @@ fun recordViewModeIcon(
 		RecordViewMode.Official ->
 			if (isPrimary) Icons.AutoMirrored.Filled.FactCheck else Icons.AutoMirrored.Outlined.FactCheck
 
-		RecordViewMode.Simulation ->
+		RecordViewMode.Working ->
 			if (isPrimary) Icons.Filled.Calculate else Icons.Outlined.Calculate
 	}
 }

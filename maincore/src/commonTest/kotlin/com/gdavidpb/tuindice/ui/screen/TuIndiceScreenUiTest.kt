@@ -181,7 +181,7 @@ class TuIndiceScreenUiTest {
 					topBarTitle = "Record",
 					isTopBarVisible = true,
 					recordTopBarViewModeState = RecordTopBarViewModeState(
-						selectedMode = RecordViewMode.Simulation
+						selectedMode = RecordViewMode.Working
 					)
 				),
 				onRetryStartUp = {},
@@ -218,7 +218,7 @@ class TuIndiceScreenUiTest {
 					topBarTitle = "Record",
 					isTopBarVisible = true,
 					recordTopBarViewModeState = RecordTopBarViewModeState(
-						selectedMode = RecordViewMode.Simulation
+						selectedMode = RecordViewMode.Working
 					)
 				),
 				onRetryStartUp = {},
@@ -256,7 +256,7 @@ class TuIndiceScreenUiTest {
 						topBarTitle = "Record",
 						isTopBarVisible = true,
 						recordTopBarViewModeState = RecordTopBarViewModeState(
-							selectedMode = RecordViewMode.Simulation
+							selectedMode = RecordViewMode.Working
 						)
 					)
 				)
@@ -320,7 +320,7 @@ class TuIndiceScreenUiTest {
 					topBarTitle = "Record",
 					isTopBarVisible = true,
 					recordTopBarViewModeState = RecordTopBarViewModeState(
-						selectedMode = RecordViewMode.Simulation
+						selectedMode = RecordViewMode.Working
 					)
 				),
 				onRetryStartUp = {},
@@ -495,7 +495,7 @@ class TuIndiceScreenUiTest {
 						isTopBarVisible = true,
 						topBarConfig = TopBarConfig.Record,
 						recordTopBarViewModeState = RecordTopBarViewModeState(
-							selectedMode = RecordViewMode.Simulation
+							selectedMode = RecordViewMode.Working
 						)
 					),
 					onRetryStartUp = {},

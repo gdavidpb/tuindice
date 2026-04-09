@@ -1,8 +1,9 @@
 package com.gdavidpb.tuindice.record.data.source
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
-import com.gdavidpb.tuindice.academiccore.domain.model.OfficialOutcome
+import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
@@ -23,7 +24,7 @@ class AcademicRecordDataSource(
 	private val localDataSource: AcademicRecordLocalDataRepository,
 	private val remoteDataSource: AcademicRecordRemoteDataRepository,
 	private val settingsDataSource: RecordSettingsDataRepository,
-	private val mutationEngine: StoreBackedMutationEngine<String, AcademicRecordMutation, AcademicRecord, AcademicRecord, AcademicRecord>,
+	private val mutationEngine: StoreBackedMutationEngine<String, AcademicRecordMutation, AcademicRecord, AcademicRecord, VersionedAcademicRecord>,
 	private val identifierRepository: IdentifierRepository
 ) : AcademicRecordRepository {
 	private val mutationSyncSpec = AcademicRecordMutationSyncSpec(
@@ -58,10 +59,11 @@ class AcademicRecordDataSource(
 	override suspend fun upsertAttemptOverride(
 		attemptId: String,
 		score: AttemptScore?,
-		outcome: OfficialOutcome?,
+		outcome: AttemptOutcome?,
 		commit: Boolean
 	) {
 		val current = localDataSource.getAcademicRecord() ?: return
+		val currentRevision = localDataSource.getRecordRevision() ?: return
 		localDataSource.upsertAttemptOverride(
 			attemptId = attemptId,
 			score = score,
@@ -80,7 +82,7 @@ class AcademicRecordDataSource(
 				score = score,
 				outcome = outcome
 			),
-			precondition = MutationPrecondition.Revision(current.revision),
+			precondition = MutationPrecondition.Revision(currentRevision),
 			status = PendingMutationStatus.Pending,
 			createdAt = currentTimeMillis(),
 			updatedAt = currentTimeMillis(),
@@ -99,12 +101,13 @@ class AcademicRecordDataSource(
 
 	override suspend fun deleteAttemptOverride(attemptId: String) {
 		val current = localDataSource.getAcademicRecord() ?: return
+		val currentRevision = localDataSource.getRecordRevision() ?: return
 		localDataSource.deleteAttemptOverride(attemptId)
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
 			mutationId = identifierRepository.generateRandomIdentifier(),
 			scopeKey = RECORD_MUTATION_SCOPE,
 			command = AcademicRecordMutation.DeleteAttemptOverride(attemptId),
-			precondition = MutationPrecondition.Revision(current.revision),
+			precondition = MutationPrecondition.Revision(currentRevision),
 			status = PendingMutationStatus.Pending,
 			createdAt = currentTimeMillis(),
 			updatedAt = currentTimeMillis(),
@@ -120,12 +123,13 @@ class AcademicRecordDataSource(
 
 	override suspend fun addSyntheticTerm(command: AcademicRecordMutation.AddSyntheticTerm) {
 		val current = localDataSource.getAcademicRecord() ?: return
+		val currentRevision = localDataSource.getRecordRevision() ?: return
 		localDataSource.addSyntheticTerm(command)
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
 			mutationId = identifierRepository.generateRandomIdentifier(),
 			scopeKey = RECORD_MUTATION_SCOPE,
 			command = command,
-			precondition = MutationPrecondition.Revision(current.revision),
+			precondition = MutationPrecondition.Revision(currentRevision),
 			status = PendingMutationStatus.Pending,
 			createdAt = currentTimeMillis(),
 			updatedAt = currentTimeMillis(),
@@ -141,12 +145,13 @@ class AcademicRecordDataSource(
 
 	override suspend fun deleteSyntheticTerm(termId: String) {
 		val current = localDataSource.getAcademicRecord() ?: return
+		val currentRevision = localDataSource.getRecordRevision() ?: return
 		localDataSource.deleteSyntheticTerm(termId)
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
 			mutationId = identifierRepository.generateRandomIdentifier(),
 			scopeKey = RECORD_MUTATION_SCOPE,
 			command = AcademicRecordMutation.DeleteSyntheticTerm(termId),
-			precondition = MutationPrecondition.Revision(current.revision),
+			precondition = MutationPrecondition.Revision(currentRevision),
 			status = PendingMutationStatus.Pending,
 			createdAt = currentTimeMillis(),
 			updatedAt = currentTimeMillis(),
@@ -160,7 +165,7 @@ class AcademicRecordDataSource(
 		)
 	}
 
-	private suspend fun refreshRemoteSnapshot(): AcademicRecord {
+	private suspend fun refreshRemoteSnapshot(): VersionedAcademicRecord {
 		val snapshotVersion = mutationEngine.currentMutationVersion()
 		val remoteRecord = remoteDataSource.getAcademicRecord()
 		if (snapshotVersion == mutationEngine.currentMutationVersion()) {

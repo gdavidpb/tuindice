@@ -9,11 +9,10 @@ data class TermProjection(
 	val label: String,
 	@SerialName("start_at") val startAtMillis: Long,
 	@SerialName("end_at") val endAtMillis: Long,
-	val order: Int,
 	@SerialName("term_kind") val kind: TermKind,
-	val grade: Double,
-	@SerialName("grade_sum") val gradeSum: Double,
-	val credits: Int,
-	@SerialName("credits_sum") val creditsSum: Int,
+	@SerialName("period_average") val periodAverage: Double,
+	@SerialName("cumulative_average") val cumulativeAverage: Double,
+	@SerialName("period_credits") val periodCredits: Int,
+	@SerialName("cumulative_credits") val cumulativeCredits: Int,
 	val attempts: List<AttemptProjection> = emptyList()
 )

@@ -98,7 +98,7 @@ fun RecordTopBarViewModeBannerView(
 private fun recordViewModeBannerText(mode: RecordViewMode): String {
 	return when (mode) {
 		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_banner_official)
-		RecordViewMode.Simulation -> stringResource(Res.string.record_view_mode_banner_projection)
+		RecordViewMode.Working -> stringResource(Res.string.record_view_mode_banner_projection)
 	}
 }
 
@@ -111,7 +111,7 @@ fun recordViewModeBannerColors(mode: RecordViewMode): RecordViewModeBannerColors
 				contentColor = MaterialTheme.colorScheme.onPrimaryContainer
 			)
 
-		RecordViewMode.Simulation ->
+		RecordViewMode.Working ->
 			RecordViewModeBannerColors(
 				containerColor = MaterialTheme.colorScheme.tertiaryContainer,
 				contentColor = MaterialTheme.colorScheme.onTertiaryContainer

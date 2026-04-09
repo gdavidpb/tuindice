@@ -28,7 +28,6 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 private const val CURRENT_ACADEMIC_RECORD_ID = "self"
-private const val OFFICIAL_VIEW_MODE = "official"
 
 class RoomDatabaseDataSource(
 	private val room: TuIndiceDatabase,
@@ -79,13 +78,13 @@ class RoomDatabaseDataSource(
 	}
 
 	override suspend fun getAvailableSubjects(): List<LocalSubject> {
-		val openTermIds = room.academicTermProjections
-			.getTerms(CURRENT_ACADEMIC_RECORD_ID, OFFICIAL_VIEW_MODE)
+		val openTermIds = room.academicTerms
+			.getTerms(CURRENT_ACADEMIC_RECORD_ID)
 			.filter { term -> isEditableTermKind(term.kind) }
 			.mapTo(hashSetOf()) { term -> term.id }
 
-		return room.academicAttemptProjections
-			.getAttempts(CURRENT_ACADEMIC_RECORD_ID, OFFICIAL_VIEW_MODE)
+		return room.academicAttempts
+			.getAttempts(CURRENT_ACADEMIC_RECORD_ID)
 			.asSequence()
 			.filter { attempt -> attempt.termId in openTermIds }
 			.filter { attempt -> attempt.gradingMode == "NUMERIC" }

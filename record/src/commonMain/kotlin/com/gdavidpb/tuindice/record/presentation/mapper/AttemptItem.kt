@@ -3,10 +3,9 @@ package com.gdavidpb.tuindice.record.presentation.mapper
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptBadge
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection
-import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScoreKind
-import com.gdavidpb.tuindice.academiccore.domain.model.HistoricalBadge
-import com.gdavidpb.tuindice.academiccore.domain.model.OfficialOutcome
 import com.gdavidpb.tuindice.base.domain.model.subject.GradingMode
 import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import com.gdavidpb.tuindice.base.ui.style.SubjectColorGenerator
@@ -15,6 +14,7 @@ import com.gdavidpb.tuindice.record.presentation.model.AttemptItem
 
 @Composable
 fun AttemptProjection.toAttemptItem(
+	termId: String,
 	isReadOnly: Boolean,
 	texts: RecordMapperTexts
 ): AttemptItem = remember(subjectCode) { SubjectColorGenerator.fromCode(subjectCode) }.let { subjectColors ->
@@ -39,7 +39,7 @@ fun AttemptProjection.toAttemptItem(
 					(resolvedStatus == SubjectStatus.UNREPORTED)
 				) &&
 			(resolvedStatus != SubjectStatus.RETIRED) &&
-			(score.kind != AttemptScoreKind.EMPTY || resolvedStatus == SubjectStatus.UNREPORTED)
+			(score !is com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore.Empty || resolvedStatus == SubjectStatus.UNREPORTED)
 		)
 			texts.termAttemptGrade(numericGrade)
 		else
@@ -52,15 +52,15 @@ fun AttemptProjection.toAttemptItem(
 }
 
 private fun AttemptProjection.toUiStatus(): SubjectStatus? {
-	if (badge == HistoricalBadge.WITHOUT_EFFECT) {
+	if (badge == AttemptBadge.WITHOUT_EFFECT) {
 		return SubjectStatus.WITHOUT_EFFECT
 	}
 
 	return when (outcome) {
-		OfficialOutcome.PENDING -> null
-		OfficialOutcome.APPROVED -> SubjectStatus.APPROVED
-		OfficialOutcome.FAILED -> SubjectStatus.FAILED
-		OfficialOutcome.RETIRED -> SubjectStatus.RETIRED
-		OfficialOutcome.UNREPORTED -> SubjectStatus.UNREPORTED
+		AttemptOutcome.PENDING -> null
+		AttemptOutcome.APPROVED -> SubjectStatus.APPROVED
+		AttemptOutcome.FAILED -> SubjectStatus.FAILED
+		AttemptOutcome.RETIRED -> SubjectStatus.RETIRED
+		AttemptOutcome.UNREPORTED -> SubjectStatus.UNREPORTED
 	}
 }

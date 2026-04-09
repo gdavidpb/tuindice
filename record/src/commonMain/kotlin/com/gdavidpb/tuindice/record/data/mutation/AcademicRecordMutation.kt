@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.record.data.mutation
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
-import com.gdavidpb.tuindice.academiccore.domain.model.OfficialOutcome
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -17,7 +17,7 @@ sealed interface AcademicRecordMutation : OutboxMutation {
 	data class UpsertAttemptOverride(
 		val attemptId: String,
 		val score: AttemptScore? = null,
-		val outcome: OfficialOutcome? = null
+		val outcome: AttemptOutcome? = null
 	) : AcademicRecordMutation {
 		override val entityType: String = "record:upsert_attempt_override"
 		override val entityId: String = attemptId
@@ -51,7 +51,7 @@ sealed interface AcademicRecordMutation : OutboxMutation {
 			val credits: Int,
 			val gradingMode: AttemptGradingMode,
 			val score: AttemptScore? = null,
-			val outcome: OfficialOutcome? = null
+			val outcome: AttemptOutcome? = null
 		)
 
 		override val entityType: String = "record:add_synthetic_term"

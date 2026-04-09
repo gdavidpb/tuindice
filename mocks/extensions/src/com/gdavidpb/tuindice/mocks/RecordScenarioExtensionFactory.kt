@@ -42,15 +42,16 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				latestRequestedAddedTerm = requestedTerm
 			}
 
-			val terms = recompute(
-				resolveVisibleTerms(
-					scenarioStates = scenarioStates,
-					addedTermOverride = latestRequestedAddedTerm
-				)
+			val terms = resolveVisibleTerms(
+				scenarioStates = scenarioStates,
+				addedTermOverride = latestRequestedAddedTerm
 			).sortedWith(DESCENDING_TERM_ORDER)
 
 			return linkedMapOf(
-				"record" to buildRecordModel(terms)
+				"record" to buildRecordModel(
+					terms = terms,
+					scenarioStates = scenarioStates
+				)
 			)
 		}
 
@@ -127,7 +128,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 
 			for (baseTerm in baseState.terms) {
 				if (!isVisible(baseTerm, scenarioStates)) continue
-				terms += resolveTerm(baseTerm, scenarioStates)
+				terms += baseTerm
 			}
 
 			val addedTerm = addedTermOverride ?: baseState.addedTerm
@@ -181,7 +182,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			scenarioStates: Map<String, String>
 		): TermModel? {
 			val pathSegments = pathSegments(request)
-			if (pathSegments != listOf("record", "v1", "overlay", "terms")) return null
+			if (pathSegments != listOf("record", "v3", "overlay", "terms")) return null
 
 			val requestBody = request.bodyAsString
 				.takeIf { body -> body.isNotBlank() }
@@ -198,13 +199,19 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			val resolvedTerm = resolveAddedTerm(baseState.addedTerm, scenarioStates)
 			val attempts = attemptsNode.mapIndexed { index, node ->
 				val code = node.path("subject_code").asText(baseState.addedTerm.attempts.firstOrNull()?.code ?: "MOCK101")
+				val scoreNode = node.path("score")
+				val numericScore = if (scoreNode.path("type").asText() == "numeric") {
+					scoreNode.path("value").asInt(0)
+				} else {
+					0
+				}
 				AttemptModel(
 					id = "$code-${resolvedTerm.id}-${index + 1}",
 					termId = resolvedTerm.id,
 					code = code,
 					name = node.path("subject_name").asText("MOCK $code"),
 					credits = node.path("credits").asInt(DEFAULT_ADDED_ATTEMPT_CREDITS),
-					grade = node.path("score").path("numeric_value").asInt(0),
+					grade = numericScore,
 					gradingMode = node.path("grading_mode").asText("numeric"),
 					mutable = false,
 					scenario = null,
@@ -222,20 +229,48 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			)
 		}
 
-		private fun buildRecordModel(terms: List<TermModel>): Map<String, Any> {
-			val revision = terms.maxOfOrNull(TermModel::revision) ?: 0L
+		private fun buildRecordModel(
+			terms: List<TermModel>,
+			scenarioStates: Map<String, String>
+		): Map<String, Any> {
+			val visibleTermIds = terms.mapTo(linkedSetOf(), TermModel::id)
+			val attemptOverrides = baseState.terms
+				.filter { term -> term.id in visibleTermIds }
+				.flatMap { term ->
+					term.attempts.mapNotNull { baseAttempt ->
+						baseAttempt.toAttemptOverrideModel(
+							resolved = resolveAttempt(baseAttempt, scenarioStates)
+						)
+					}
+				}
+			val revision = maxOf(
+				terms.maxOfOrNull(TermModel::revision) ?: 0L,
+				attemptOverrides.maxOfOrNull { override -> override.getValue("updated_at") as Long } ?: 0L
+			)
 
 			return linkedMapOf(
-				"id" to "mock-record",
 				"revision" to revision,
-				"official_projection" to linkedMapOf(
-					"terms" to terms.map(TermModel::toOfficialProjectionModel)
-				),
-				"simulation_projection" to linkedMapOf(
-					"terms" to terms.map(TermModel::toSimulationProjectionModel)
+				"record" to linkedMapOf(
+					"id" to "mock-record",
+					"profile" to mockProfileModel(),
+					"terms" to terms.map(TermModel::toRecordTermModel),
+					"attempt_overrides" to attemptOverrides
 				)
 			)
 		}
+
+		private fun mockProfileModel(): Map<String, Any> =
+			linkedMapOf(
+				"user_id" to "mock-user",
+				"identity_card_number" to 12345678,
+				"usb_id" to "00000000",
+				"email" to "mock@tuindice.app",
+				"first_names" to "Mock",
+				"last_names" to "User",
+				"career_name" to "Ingenieria Civil Electronica",
+				"career_code" to 12039,
+				"scholarship" to false
+			)
 
 		private fun resolveAttempt(baseAttempt: AttemptModel, scenarioStates: Map<String, String>): AttemptModel {
 			val scenario = baseAttempt.scenario
@@ -504,6 +539,16 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 		fun toSimulationProjectionModel(): Map<String, Any> =
 			toProjectionModel(simulation = true)
 
+		fun toRecordTermModel(): Map<String, Any> =
+			linkedMapOf(
+				"id" to id,
+				"label" to name,
+				"start_at" to startDate,
+				"end_at" to endDate,
+				"term_kind" to kind,
+				"attempts" to attempts.map(AttemptModel::toRecordAttemptModel)
+			)
+
 		private fun toProjectionModel(simulation: Boolean): Map<String, Any> =
 			linkedMapOf<String, Any>(
 				"id" to id,
@@ -610,6 +655,67 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 				else -> "pending"
 			}
 		}
+
+		fun toRecordAttemptModel(): Map<String, Any> =
+			linkedMapOf<String, Any>(
+				"id" to id,
+				"subject_code" to code,
+				"subject_name" to name,
+				"credits" to credits,
+				"grading_mode" to gradingMode,
+				"official_score" to officialScoreModel(),
+				"official_outcome" to canonicalOutcomeValue(status),
+				"official_badge" to canonicalBadgeValue(status),
+			)
+
+		fun toAttemptOverrideModel(resolved: AttemptModel): Map<String, Any>? {
+			val score = when {
+				gradingMode != "numeric" -> null
+				resolved.grade != grade -> linkedMapOf<String, Any>(
+					"type" to "numeric",
+					"value" to resolved.grade
+				)
+				else -> null
+			}
+			val normalizedStatus = status ?: "normal"
+			val normalizedResolvedStatus = resolved.status ?: "normal"
+			val outcome = when {
+				normalizedResolvedStatus != normalizedStatus -> canonicalOutcomeValue(resolved.status)
+				else -> null
+			}
+
+			if ((score == null) && (outcome == null)) return null
+
+			return linkedMapOf<String, Any>(
+				"attempt_id" to id,
+				"updated_at" to resolved.revision,
+			).also { model ->
+				score?.let { model["score"] = it }
+				outcome?.let { model["outcome"] = it }
+			}
+		}
+
+		private fun officialScoreModel(): Map<String, Any> =
+			when {
+				gradingMode != "numeric" -> linkedMapOf("type" to "empty")
+				grade > 0 -> linkedMapOf<String, Any>(
+					"type" to "numeric",
+					"value" to grade
+				)
+				else -> linkedMapOf("type" to "empty")
+			}
+
+		private fun canonicalOutcomeValue(sourceStatus: String?): String =
+			when (sourceStatus ?: "normal") {
+				"approved" -> "approved"
+				"failed" -> "failed"
+				"retired" -> "retired"
+				"unreported" -> "unreported"
+				else -> "pending"
+			}
+
+		private fun canonicalBadgeValue(sourceStatus: String?): String =
+			if (sourceStatus == "without_effect") "without_effect" else "none"
 
 		fun resolvedOutcome(): String {
 			return when (status ?: "normal") {

@@ -5,6 +5,7 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gdavidpb.tuindice.academiccore.domain.engine.RecordProjectionEngine
 import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialCurrent
 import com.gdavidpb.tuindice.academiccore.domain.model.RecordProjection
 import com.gdavidpb.tuindice.base.presentation.ViewState
@@ -110,7 +111,7 @@ private fun com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord.activ
 	viewMode: RecordViewMode
 ): RecordProjection {
 	return when (viewMode) {
-		RecordViewMode.Official -> officialProjection
-		RecordViewMode.Simulation -> simulationProjection
+		RecordViewMode.Official -> RecordProjectionEngine.projectOfficial(this)
+		RecordViewMode.Working -> RecordProjectionEngine.projectWorking(this)
 	}
 }

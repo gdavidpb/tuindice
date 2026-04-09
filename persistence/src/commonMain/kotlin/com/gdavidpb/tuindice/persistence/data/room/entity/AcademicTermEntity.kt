@@ -22,12 +22,6 @@ data class AcademicTermEntity(
 	val startAt: Long,
 	@ColumnInfo(name = AcademicTermTable.END_AT)
 	val endAt: Long,
-	@ColumnInfo(name = AcademicTermTable.ORDER)
-	val order: Int,
 	@ColumnInfo(name = AcademicTermTable.TERM_KIND)
-	val kind: String,
-	@ColumnInfo(name = AcademicTermTable.SOURCE_REPORTED_PERIOD_AVERAGE)
-	val sourceReportedPeriodAverage: Double? = null,
-	@ColumnInfo(name = AcademicTermTable.SOURCE_REPORTED_CUMULATIVE_AVERAGE)
-	val sourceReportedCumulativeAverage: Double? = null
+	val kind: String
 )

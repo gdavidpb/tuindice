@@ -99,6 +99,17 @@ ADDED_TERM_TEMPLATE = {
 		}
 	],
 }
+PROFILE_TEMPLATE = {
+	"user_id": "mock-user",
+	"identity_card_number": 12345678,
+	"usb_id": "00000000",
+	"email": "mock@tuindice.app",
+	"first_names": "Mock",
+	"last_names": "User",
+	"career_name": "Ingenieria Civil Electronica",
+	"career_code": 12039,
+	"scholarship": False,
+}
 EVALUATION_TYPE_SEQUENCE = (0, 10, 12, 9)
 
 
@@ -434,6 +445,7 @@ def build_record_state(primary_terms: list[ParsedTerm], projected_terms: list[Pa
 		return payload
 
 	return {
+		"profile": PROFILE_TEMPLATE,
 		"added_term": added_term,
 		"terms": [serialize_term(term) for term in terms_desc],
 	}

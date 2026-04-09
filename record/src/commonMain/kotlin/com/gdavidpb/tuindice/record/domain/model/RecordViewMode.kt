@@ -4,12 +4,12 @@ enum class RecordViewMode(
 	val storageValue: String
 ) {
 	Official("official"),
-	Simulation("simulation");
+	Working("working");
 
 	companion object {
 		fun fromStorageValue(value: String?): RecordViewMode {
 			return entries.firstOrNull { mode -> mode.storageValue == value }
-				?: Simulation
+				?: Working
 		}
 	}
 }

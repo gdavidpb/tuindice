@@ -26,7 +26,7 @@ class LocalSettingsDataSource(
 		return settings.getStringOrNull(
 			when (viewMode) {
 				RecordViewMode.Official -> PreferencesKeys.SELECTED_OFFICIAL_TERM_ID
-				RecordViewMode.Simulation -> PreferencesKeys.SELECTED_SIMULATION_TERM_ID
+				RecordViewMode.Working -> PreferencesKeys.SELECTED_WORKING_TERM_ID
 			}
 		)
 	}
@@ -35,7 +35,7 @@ class LocalSettingsDataSource(
 		settings.putString(
 			when (viewMode) {
 				RecordViewMode.Official -> PreferencesKeys.SELECTED_OFFICIAL_TERM_ID
-				RecordViewMode.Simulation -> PreferencesKeys.SELECTED_SIMULATION_TERM_ID
+				RecordViewMode.Working -> PreferencesKeys.SELECTED_WORKING_TERM_ID
 			},
 			termId
 		)

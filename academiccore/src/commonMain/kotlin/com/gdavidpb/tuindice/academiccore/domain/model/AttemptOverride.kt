@@ -7,6 +7,10 @@ import kotlinx.serialization.Serializable
 data class AttemptOverride(
 	@SerialName("attempt_id") val attemptId: String,
 	val score: AttemptScore? = null,
-	val outcome: OfficialOutcome? = null,
+	val outcome: AttemptOutcome? = null,
 	@SerialName("updated_at") val updatedAtMillis: Long
-)
+) {
+	init {
+		require(score != null || outcome != null) { "AttemptOverride requires a score or outcome." }
+	}
+}
