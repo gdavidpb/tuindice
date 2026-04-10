@@ -2,12 +2,12 @@ package com.gdavidpb.tuindice.evaluations.presentation.contract
 
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
+import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationGradeSectionItem
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationSubjectPickerItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationAttemptPickerItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
 
 object Evaluation {
@@ -22,8 +22,8 @@ object Evaluation {
 				else
 					"Agregar evaluación",
 			override val isTopBarVisible: Boolean = true,
-			val subjectItems: List<EvaluationSubjectPickerItem> = emptyList(),
-			val selectedSubject: Subject? = null,
+			val attemptItems: List<EvaluationAttemptPickerItem> = emptyList(),
+			val selectedAttempt: EditableAttemptDescriptor? = null,
 			val type: EvaluationType? = null,
 			val typeItems: List<EvaluationTypePickerItem> = emptyList(),
 			val scheduleMode: EvaluationScheduleMode = EvaluationScheduleMode.CONTINUOUS,
@@ -44,14 +44,14 @@ object Evaluation {
 	}
 
 	sealed class Action : ViewAction() {
-		data object LoadAvailableSubjects : Action()
+		data object LoadAvailableAttempts : Action()
 
 		class LoadEvaluation(
 			val evaluationId: String
 		) : Action()
 
-		class SetSubject(
-			val subject: Subject?
+		class SetAttempt(
+			val attempt: EditableAttemptDescriptor?
 		) : Action()
 
 		class SetType(
@@ -80,7 +80,7 @@ object Evaluation {
 		) : Action()
 
 		class ClickAddEvaluation(
-			val subject: Subject?,
+			val attempt: EditableAttemptDescriptor?,
 			val type: EvaluationType?,
 			val scheduleMode: EvaluationScheduleMode,
 			val date: Long?,
@@ -90,7 +90,7 @@ object Evaluation {
 
 		class ClickEditEvaluation(
 			val evaluationId: String,
-			val subject: Subject?,
+			val attempt: EditableAttemptDescriptor?,
 			val type: EvaluationType?,
 			val scheduleMode: EvaluationScheduleMode,
 			val date: Long?,

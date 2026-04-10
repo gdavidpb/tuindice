@@ -7,16 +7,16 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
-import com.gdavidpb.tuindice.base.ui.style.SubjectColorGenerator
+import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
+import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationStateFilter
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation as EvaluationContract
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.asIcon
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationAttemptPickerItems
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationFilterGroupItemList
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationSubjectPickerItemList
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationTypePickerItemList
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationGradeSectionItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
@@ -27,7 +27,7 @@ private const val PENDING_DATE = 1_900_000_000_000L
 private const val COMPLETED_DATE = 1_700_000_000_000L
 private const val FIXTURE_GROUP_TITLE = "Esta semana"
 
-fun uiSubjects(): List<Subject> = listOf(
+fun uiSubjects(): List<EditableAttemptDescriptor> = listOf(
 	DEFAULT_EVALUATION_SUBJECT,
 	SECOND_EVALUATION_SUBJECT
 )
@@ -49,16 +49,16 @@ fun uiAvailableFilters(): List<EvaluationFilter> = listOf(
 fun evaluationContentState(
 	isOverdue: Boolean = false
 ): EvaluationContract.State.Content {
-	val selectedSubject = DEFAULT_EVALUATION_SUBJECT
+	val selectedAttempt = DEFAULT_EVALUATION_SUBJECT
 	val type = EvaluationType.QUIZ
 	val grade = if (isOverdue) 18.5 else null
 	val maxGrade = 20.0
 
 	return EvaluationContract.State.Content(
-		subjectItems = uiSubjects().toEvaluationSubjectPickerItemList(
-			selectedSubject = selectedSubject
+		attemptItems = uiSubjects().toEvaluationAttemptPickerItems(
+			selectedAttempt = selectedAttempt
 		),
-		selectedSubject = selectedSubject,
+		selectedAttempt = selectedAttempt,
 		type = type,
 		typeItems = EvaluationType.entries.toEvaluationTypePickerItemList(
 			selectedType = type,
@@ -103,7 +103,7 @@ fun evaluationItemFixture(
 	isClickable: Boolean = true,
 	isOverdue: Boolean = false
 ): EvaluationItem {
-	val subjectColors = SubjectColorGenerator.fromCode(DEFAULT_EVALUATION_SUBJECT.code)
+	val subjectColors = CourseCodeColorGenerator.fromCode(DEFAULT_EVALUATION_SUBJECT.code)
 
 	return EvaluationItem(
 		evaluationId = evaluationId,
@@ -178,7 +178,7 @@ private fun List<Evaluation>.toFixtureEvaluationGroups(): List<EvaluationsGroupI
 }
 
 private fun Evaluation.toFixtureEvaluationItem(): EvaluationItem {
-	val subjectColors = SubjectColorGenerator.fromCode(subjectCode)
+	val subjectColors = CourseCodeColorGenerator.fromCode(subjectCode)
 	val currentGrade = grade
 
 	return EvaluationItem(

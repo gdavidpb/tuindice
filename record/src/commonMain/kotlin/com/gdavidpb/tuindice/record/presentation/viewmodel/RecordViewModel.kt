@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.record.presentation.viewmodel
 
-import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
@@ -46,7 +46,7 @@ class RecordViewModel(
 		termId: String,
 		attemptId: String,
 		grade: Int? = null,
-		status: SubjectStatus? = null,
+		outcome: AttemptOutcome? = null,
 		commit: Boolean
 	) {
 		val currentViewMode = (state.value as? Record.State.Content)?.viewMode ?: return
@@ -57,7 +57,7 @@ class RecordViewModel(
 				termId = termId,
 				attemptId = attemptId,
 				grade = grade,
-				status = status,
+				outcome = outcome,
 				commit = commit
 			)
 		)

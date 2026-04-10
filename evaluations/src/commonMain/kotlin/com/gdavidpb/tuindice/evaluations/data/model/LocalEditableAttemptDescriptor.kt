@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.evaluations.data.model
 
-import com.gdavidpb.tuindice.base.domain.model.subject.GradingMode
+import com.gdavidpb.tuindice.base.domain.model.GradingMode
 
-data class LocalSubject(
+data class LocalEditableAttemptDescriptor(
 	val id: String,
 	val termId: String,
 	val code: String,

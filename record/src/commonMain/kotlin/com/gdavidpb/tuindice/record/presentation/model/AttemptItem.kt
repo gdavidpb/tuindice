@@ -1,15 +1,17 @@
 package com.gdavidpb.tuindice.record.presentation.model
 
 import androidx.compose.ui.graphics.Color
-import com.gdavidpb.tuindice.base.domain.model.subject.GradingMode
-import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptBadge
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
+import com.gdavidpb.tuindice.base.domain.model.GradingMode
 
 data class AttemptItem(
 	val attemptId: String,
 	val termId: String,
 	val grade: Int,
 	val gradingMode: GradingMode = GradingMode.NUMERIC,
-	val status: SubjectStatus? = null,
+	val outcome: AttemptOutcome? = null,
+	val badge: AttemptBadge = AttemptBadge.NONE,
 	val codeText: String,
 	val nameText: String,
 	val gradeText: String,

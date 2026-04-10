@@ -15,8 +15,8 @@ import com.gdavidpb.tuindice.evaluations.data.source.RoomDatabaseDataSource
 import com.gdavidpb.tuindice.evaluations.data.resolver.VisibleEvaluationsStateResolver
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableSubjectsUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableAttemptsUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
@@ -29,14 +29,14 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateE
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.AddEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.EditEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadAvailableSubjectsActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadAvailableAttemptsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.PickGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.PickMaxGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetDateActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetMaxGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetSubjectActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetAttemptActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetTypeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.CheckEvaluationFilterActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.ClearEvaluationFiltersActionProcessor
@@ -74,13 +74,13 @@ val evaluationsModule = module {
 
 	/* Action processor */
 
-	factoryOf(::LoadAvailableSubjectsActionProcessor)
+	factoryOf(::LoadAvailableAttemptsActionProcessor)
 	factoryOf(::LoadEvaluationActionProcessor)
 	factoryOf(::AddEvaluationActionProcessor)
 	factoryOf(::EditEvaluationActionProcessor)
 	factoryOf(::PickGradeActionProcessor)
 	factoryOf(::PickMaxGradeActionProcessor)
-	factoryOf(::SetSubjectActionProcessor)
+	factoryOf(::SetAttemptActionProcessor)
 	factoryOf(::SetTypeActionProcessor)
 	factoryOf(::SetDateActionProcessor)
 	factoryOf(::SetGradeActionProcessor)
@@ -99,14 +99,14 @@ val evaluationsModule = module {
 
 	/* Use cases */
 
-	factoryOf(::GetEvaluationAndAvailableSubjectsUseCase)
+	factoryOf(::GetEvaluationAndAvailableAttemptsUseCase)
 	factoryOf(::GetEvaluationsUseCase)
 	factoryOf(::UpdateEvaluationsUseCase)
 	factoryOf(::GetEvaluationUseCase)
 	factoryOf(::UpdateEvaluationUseCase)
 	factoryOf(::RemoveEvaluationUseCase)
 	factoryOf(::AddEvaluationUseCase)
-	factoryOf(::GetAvailableSubjectsUseCase)
+	factoryOf(::GetAvailableAttemptsUseCase)
 
 	/* Validators */
 

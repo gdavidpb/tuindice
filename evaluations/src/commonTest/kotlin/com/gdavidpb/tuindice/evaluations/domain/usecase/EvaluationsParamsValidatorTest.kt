@@ -17,12 +17,12 @@ class EvaluationsParamsValidatorTest {
 	}
 
 	@Test
-	fun addEvaluationParamsValidator_rejectsMissingSubjectId() {
+	fun addEvaluationParamsValidator_rejectsMissingAttemptId() {
 		val exception = assertFailsWith<AddEvaluationIllegalArgumentException> {
 			AddEvaluationParamsValidator().validate(validParams(attemptId = null))
 		}
 
-		assertEquals(AddEvaluationUseCaseError.SubjectMissed, exception.error)
+		assertEquals(AddEvaluationUseCaseError.AttemptMissed, exception.error)
 	}
 
 	@Test

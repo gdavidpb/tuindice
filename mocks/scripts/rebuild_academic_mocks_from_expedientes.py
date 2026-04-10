@@ -80,17 +80,17 @@ PROJECTED_TERM_SCHEDULE = (
 	},
 )
 ADDED_TERM_TEMPLATE = {
-	"id": "MOCK-ADDED-QUARTER",
+	"id": "MOCK-ADDED-TERM",
 	"name": "Term Added",
 	"start_date": 1809140400000,
 	"end_date": 1817002800000,
 	"kind": "synthetic",
 	"revision": 1,
-	"presence_scenario": "record-term-MOCK-ADDED-QUARTER",
+	"presence_scenario": "record-term-MOCK-ADDED-TERM",
 	"attempts": [
 		{
-			"id": "MOCK101-MOCK-ADDED-QUARTER",
-			"term_id": "MOCK-ADDED-QUARTER",
+			"id": "MOCK101-MOCK-ADDED-TERM",
+			"term_id": "MOCK-ADDED-TERM",
 			"code": "MOCK101",
 			"name": "MOCK SUBJECT",
 			"credits": 4,
@@ -144,52 +144,6 @@ class AttemptModel:
 	status: str | None = None
 	revision: int = 1
 
-	def resolved_outcome(self) -> str:
-		status = self.status or "normal"
-		if status in {"unreported", "approved", "failed", "retired", "without_effect"}:
-			return status
-		if self.grading_mode == "qualitative_pass_fail":
-			return "normal"
-		if self.grade >= 3:
-			return "approved"
-		if self.grade > 0:
-			return "failed"
-		return "normal"
-
-	def counts_toward_quarter_numeric_average(self) -> bool:
-		return (
-			self.grading_mode == "numeric"
-			and self.resolved_outcome() not in {"normal", "retired"}
-			and (self.grade > 0 or self.resolved_outcome() == "unreported")
-		)
-
-	def counts_toward_numeric_average(self) -> bool:
-		return (
-			self.grading_mode == "numeric"
-			and self.resolved_outcome() not in {"normal", "retired", "without_effect", "unreported"}
-			and self.grade > 0
-		)
-
-	def numeric_credits_contribution(self) -> int:
-		return self.credits if self.counts_toward_quarter_numeric_average() else 0
-
-	def displayed_period_credits_contribution(self) -> int:
-		if self.grading_mode == "qualitative_pass_fail":
-			return self.credits if self.resolved_outcome() != "retired" else 0
-		return self.numeric_credits_contribution()
-
-	def numeric_weighted_contribution(self) -> int:
-		return self.grade * self.credits if self.counts_toward_quarter_numeric_average() else 0
-
-	def is_approval_event(self) -> bool:
-		return self.resolved_outcome() == "approved"
-
-	def is_resolved_qualitative_outcome(self) -> bool:
-		return self.grading_mode == "qualitative_pass_fail" and self.resolved_outcome() in {"approved", "failed"}
-
-	def counts_toward_retake_timeline(self) -> bool:
-		return self.counts_toward_numeric_average() or self.is_resolved_qualitative_outcome()
-
 	def to_json(self) -> dict[str, object]:
 		payload: dict[str, object] = {
 			"id": self.id,
@@ -209,44 +163,6 @@ class AttemptModel:
 		if self.status is not None:
 			payload["status"] = self.status
 		return payload
-
-
-@dataclass
-class CodeAttempt:
-	grade: int
-	credits: int
-	approved: bool
-
-	def weighted(self) -> int:
-		return self.grade * self.credits
-
-
-class CodeState:
-	def __init__(self) -> None:
-		self.latest: CodeAttempt | None = None
-		self.second: CodeAttempt | None = None
-		self.weighted_sum = 0
-		self.credits_sum = 0
-
-	def add(self, attempt: CodeAttempt) -> None:
-		self.second = self.latest
-		self.latest = attempt
-		self.weighted_sum += attempt.weighted()
-		self.credits_sum += attempt.credits
-
-	def effective_weighted(self) -> int:
-		if self.latest is None:
-			return 0
-		if self.second is None:
-			return self.weighted_sum
-		return self.weighted_sum - (self.second.weighted() if self.latest.approved else 0)
-
-	def effective_credits(self) -> int:
-		if self.latest is None:
-			return 0
-		if self.second is None:
-			return self.credits_sum
-		return self.credits_sum - (self.second.credits if self.latest.approved else 0)
 
 
 def read_terms_from_html(path: Path) -> list[ParsedTerm]:
@@ -328,38 +244,6 @@ def build_attempt(course: ParsedCourse, term_id: str, mutable: bool) -> AttemptM
 	return AttemptModel(grade=grade, **base_kwargs)
 
 
-def compute_average(weighted: int, credits: int) -> float:
-	return round(weighted / credits, 4) if credits else 0.0
-
-
-def recompute_metrics(terms: list[dict[str, object]]) -> None:
-	ascending = sorted(terms, key=lambda term: (int(term["start_date"]), str(term["id"])))
-	code_states: dict[str, CodeState] = {}
-	cumulative_weighted = 0
-	cumulative_credits = 0
-
-	for term in ascending:
-		attempts: list[AttemptModel] = term["attempts"]  # type: ignore[assignment]
-		term_weighted = sum(attempt.numeric_weighted_contribution() for attempt in attempts)
-		term_average_credits = sum(attempt.numeric_credits_contribution() for attempt in attempts)
-		term_credits = sum(attempt.displayed_period_credits_contribution() for attempt in attempts)
-
-		for attempt in sorted(attempts, key=lambda item: item.id, reverse=True):
-			if not attempt.counts_toward_retake_timeline():
-				continue
-			state = code_states.setdefault(attempt.code, CodeState())
-			previous_weighted = state.effective_weighted()
-			previous_credits = state.effective_credits()
-			state.add(CodeAttempt(attempt.grade, attempt.credits, attempt.is_approval_event()))
-			cumulative_weighted += state.effective_weighted() - previous_weighted
-			cumulative_credits += state.effective_credits() - previous_credits
-
-		term["grade"] = compute_average(term_weighted, term_average_credits)
-		term["credits"] = term_credits
-		term["grade_sum"] = compute_average(cumulative_weighted, cumulative_credits)
-		term["credits_sum"] = cumulative_credits
-
-
 def assign_historical_term_ids(terms: list[ParsedTerm]) -> dict[str, tuple[str, int, int]]:
 	metadata = []
 	for term in terms:
@@ -419,17 +303,8 @@ def build_record_state(primary_terms: list[ParsedTerm], projected_terms: list[Pa
 			}
 		)
 
-	recompute_metrics(terms)
 	terms_desc = sorted(terms, key=lambda term: (int(term["start_date"]), str(term["id"])), reverse=True)
-	latest_term = max(terms, key=lambda term: int(term["start_date"]))
-
-	added_term = {
-		**ADDED_TERM_TEMPLATE,
-		"grade": 0.0,
-		"grade_sum": latest_term["grade_sum"],
-		"credits": 0,
-		"credits_sum": latest_term["credits_sum"],
-	}
+	added_term = dict(ADDED_TERM_TEMPLATE)
 
 	def serialize_term(term: dict[str, object]) -> dict[str, object]:
 		payload: dict[str, object] = {
@@ -437,10 +312,6 @@ def build_record_state(primary_terms: list[ParsedTerm], projected_terms: list[Pa
 			"name": term["name"],
 			"start_date": term["start_date"],
 			"end_date": term["end_date"],
-			"grade": term["grade"],
-			"grade_sum": term["grade_sum"],
-			"credits": term["credits"],
-			"credits_sum": term["credits_sum"],
 			"kind": term["kind"],
 			"revision": term["revision"],
 			"attempts": [attempt.to_json() for attempt in term["attempts"]],  # type: ignore[index]

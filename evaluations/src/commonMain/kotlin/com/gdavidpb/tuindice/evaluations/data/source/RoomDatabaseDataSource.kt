@@ -2,13 +2,13 @@ package com.gdavidpb.tuindice.evaluations.data.source
 
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.academiccore.domain.model.isEditable
-import com.gdavidpb.tuindice.base.domain.model.subject.GradingMode
+import com.gdavidpb.tuindice.base.domain.model.GradingMode
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationEntity
+import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
-import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalSubject
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
-import com.gdavidpb.tuindice.evaluations.data.model.LocalSubject
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOPE
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
@@ -87,7 +87,7 @@ class RoomDatabaseDataSource(
 		return inMemoryConfirmedSnapshot ?: loadSnapshotFromRoom()
 	}
 
-	override suspend fun getAvailableSubjects(): List<LocalSubject> {
+	override suspend fun getAvailableAttempts(): List<LocalEditableAttemptDescriptor> {
 		val openTermIds = academicTermDao
 			.getTerms()
 			.filter { term -> isEditableTermKind(term.kind) }
@@ -98,9 +98,9 @@ class RoomDatabaseDataSource(
 			.asSequence()
 			.filter { attempt -> attempt.termId in openTermIds }
 			.filter { attempt -> attempt.gradingMode == "NUMERIC" }
-			.map { attempt -> attempt.toLocalSubject() }
-			.filter { subject -> subject.gradingMode == GradingMode.NUMERIC }
-			.sortedBy(LocalSubject::code)
+			.map { attempt -> attempt.toLocalEditableAttemptDescriptor() }
+			.filter { attempt -> attempt.gradingMode == GradingMode.NUMERIC }
+			.sortedBy(LocalEditableAttemptDescriptor::code)
 			.toList()
 	}
 

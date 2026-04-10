@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
-import com.gdavidpb.tuindice.base.ui.style.SubjectColorGenerator
+import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 
@@ -36,7 +36,7 @@ fun List<Evaluation>.toEvaluationItemList(
 fun Evaluation.toEvaluationItem(
 	ordinal: Int,
 	mapping: EvaluationItemMapping
-) = SubjectColorGenerator.fromCode(subjectCode).let { subjectColors ->
+) = CourseCodeColorGenerator.fromCode(subjectCode).let { subjectColors ->
 	EvaluationItem(
 		evaluationId = id,
 		grade = grade,

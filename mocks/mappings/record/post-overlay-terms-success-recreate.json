@@ -1,6 +1,6 @@
 {
   "priority": 1,
-  "scenarioName": "record-term-MOCK-ADDED-QUARTER",
+  "scenarioName": "record-term-MOCK-ADDED-TERM",
   "requiredScenarioState": "DELETED_R2",
   "newScenarioState": "ADDED_R1",
   "request": {

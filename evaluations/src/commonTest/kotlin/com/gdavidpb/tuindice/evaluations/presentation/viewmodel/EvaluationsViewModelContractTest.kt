@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationSubjectFilter
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationCourseFilter
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
@@ -29,7 +29,7 @@ class EvaluationsViewModelContractTest {
 			flow = viewModel.state,
 			testScheduler = testScheduler
 		)
-		val filter = EvaluationSubjectFilter(DEFAULT_EVALUATION_SUBJECT.code)
+		val filter = EvaluationCourseFilter(DEFAULT_EVALUATION_SUBJECT.code)
 
 		try {
 			viewModel.state.test {

@@ -33,8 +33,8 @@ class GetEvaluationsUseCase(
 			.then(compareBy(Evaluation::state))
 
 	override suspend fun executeOnBackground(params: Flow<List<EvaluationFilter>>): Flow<GetEvaluations> {
-		val availableSubjects = evaluationRepository.getAvailableSubjects()
-		if (availableSubjects.isEmpty()) return flowOf(GetEvaluations.NoSubjects)
+		val availableAttempts = evaluationRepository.getAvailableAttempts()
+		if (availableAttempts.isEmpty()) return flowOf(GetEvaluations.NoAttempts)
 
 		return params.flatMapLatest { activeFilters ->
 			combine(

@@ -6,12 +6,11 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
-import com.gdavidpb.tuindice.evaluations.data.model.LocalSubject
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
@@ -21,6 +20,7 @@ import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_STOR
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
 import com.gdavidpb.tuindice.evaluations.domain.mapper.toEvaluation
+import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
@@ -39,7 +39,7 @@ private const val PAST_EVALUATION_DATE = 1_700_000_000_000L
 private const val FUTURE_EVALUATION_DATE = 1_900_000_000_000L
 const val DEFAULT_EVALUATIONS_ANCHOR_REVISION = 10L
 
-val DEFAULT_EVALUATION_SUBJECT = Subject(
+val DEFAULT_EVALUATION_SUBJECT = EditableAttemptDescriptor(
 	id = "subject-1",
 	termId = "quarter-1",
 	code = "INF-101",
@@ -48,7 +48,7 @@ val DEFAULT_EVALUATION_SUBJECT = Subject(
 	grade = 70
 )
 
-val SECOND_EVALUATION_SUBJECT = Subject(
+val SECOND_EVALUATION_SUBJECT = EditableAttemptDescriptor(
 	id = "subject-2",
 	termId = "quarter-1",
 	code = "MAT-101",
@@ -57,7 +57,7 @@ val SECOND_EVALUATION_SUBJECT = Subject(
 	grade = 65
 )
 
-val DEFAULT_LOCAL_EVALUATION_SUBJECT = LocalSubject(
+val DEFAULT_LOCAL_EVALUATION_SUBJECT = LocalEditableAttemptDescriptor(
 	id = DEFAULT_EVALUATION_SUBJECT.id,
 	termId = DEFAULT_EVALUATION_SUBJECT.termId,
 	code = DEFAULT_EVALUATION_SUBJECT.code,
@@ -66,7 +66,7 @@ val DEFAULT_LOCAL_EVALUATION_SUBJECT = LocalSubject(
 	grade = DEFAULT_EVALUATION_SUBJECT.grade
 )
 
-val SECOND_LOCAL_EVALUATION_SUBJECT = LocalSubject(
+val SECOND_LOCAL_EVALUATION_SUBJECT = LocalEditableAttemptDescriptor(
 	id = SECOND_EVALUATION_SUBJECT.id,
 	termId = SECOND_EVALUATION_SUBJECT.termId,
 	code = SECOND_EVALUATION_SUBJECT.code,
@@ -172,7 +172,7 @@ class RecordingEvaluationRepository(
 	private val removeThrowable: Throwable? = null,
 	private val refreshThrowable: Throwable? = null,
 	private val hasSyncedEvaluationsFlow: Flow<Boolean> = flowOf(true),
-	private val availableSubjects: List<Subject> = listOf(
+	private val availableSubjects: List<EditableAttemptDescriptor> = listOf(
 		DEFAULT_EVALUATION_SUBJECT,
 		SECOND_EVALUATION_SUBJECT
 	)
@@ -244,7 +244,7 @@ class RecordingEvaluationRepository(
 		}
 	}
 
-	override suspend fun getAvailableSubjects(): List<Subject> = availableSubjects
+	override suspend fun getAvailableAttempts(): List<EditableAttemptDescriptor> = availableSubjects
 }
 
 class FakeDatabaseDataSource(
@@ -255,7 +255,7 @@ class FakeDatabaseDataSource(
 			DEFAULT_LOCAL_COMPLETED_EVALUATION
 		)
 	),
-	private val availableSubjects: List<LocalSubject> = listOf(
+	private val availableSubjects: List<LocalEditableAttemptDescriptor> = listOf(
 		DEFAULT_LOCAL_EVALUATION_SUBJECT,
 		SECOND_LOCAL_EVALUATION_SUBJECT
 	)
@@ -280,7 +280,7 @@ class FakeDatabaseDataSource(
 
 	override suspend fun getConfirmedSnapshot(): LocalEvaluationsSnapshot = snapshotState.value
 
-	override suspend fun getAvailableSubjects(): List<LocalSubject> = availableSubjects
+	override suspend fun getAvailableAttempts(): List<LocalEditableAttemptDescriptor> = availableSubjects
 
 	override suspend fun confirmAddedEvaluation(evaluation: LocalEvaluation, anchorRevision: Long): LocalEvaluation {
 		addedEvaluations += anchorRevision to evaluation

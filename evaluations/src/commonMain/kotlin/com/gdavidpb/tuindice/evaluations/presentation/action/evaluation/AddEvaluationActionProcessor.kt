@@ -52,7 +52,7 @@ class AddEvaluationActionProcessor(
 							is AddEvaluationUseCaseError.AlreadyExists ->
 								getString(Res.string.snack_evaluation_already_exists)
 
-							is AddEvaluationUseCaseError.SubjectMissed ->
+							is AddEvaluationUseCaseError.AttemptMissed ->
 								getString(Res.string.error_evaluation_subject_missed)
 
 							is AddEvaluationUseCaseError.TypeMissed ->

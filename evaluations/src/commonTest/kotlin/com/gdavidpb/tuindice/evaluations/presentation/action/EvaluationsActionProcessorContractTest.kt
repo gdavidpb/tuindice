@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.action
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableSubjectsUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEvaluationsActionProcessor
@@ -112,7 +112,7 @@ class EvaluationsActionProcessorContractTest {
 	}
 
 	@Test
-	fun loadEvaluationsActionProcessor_reducesStateToNoSubjects_withoutReportingError() = runTest {
+	fun loadEvaluationsActionProcessor_reducesStateToNoAttempts_withoutReportingError() = runTest {
 		val reportingRepository = RecordingReportingRepository()
 		val processor = LoadEvaluationsActionProcessor(
 			getEvaluationsUseCase = GetEvaluationsUseCase(
@@ -129,7 +129,7 @@ class EvaluationsActionProcessorContractTest {
 			sideEffect = {}
 		).test {
 			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Empty))
-			assertEquals(Evaluations.State.NoSubjects, awaitItem()(Evaluations.State.Loading))
+			assertEquals(Evaluations.State.NoAttempts, awaitItem()(Evaluations.State.Loading))
 
 			awaitComplete()
 		}
@@ -140,7 +140,7 @@ class EvaluationsActionProcessorContractTest {
 	@Test
 	fun loadEvaluationActionProcessor_reducesStateToEditableContent() = runTest {
 		val processor = LoadEvaluationActionProcessor(
-			getEvaluationAndAvailableSubjectsUseCase = GetEvaluationAndAvailableSubjectsUseCase(
+			getEvaluationAndAvailableAttemptsUseCase = GetEvaluationAndAvailableAttemptsUseCase(
 				RecordingEvaluationRepository(
 					initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION),
 					availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT)
@@ -158,9 +158,9 @@ class EvaluationsActionProcessorContractTest {
 
 			val content = assertIs<Evaluation.State.Content>(awaitItem()(Evaluation.State.Loading))
 			assertEquals(DEFAULT_PENDING_EVALUATION.id, content.evaluationId)
-			assertEquals(DEFAULT_EVALUATION_SUBJECT, content.selectedSubject)
+			assertEquals(DEFAULT_EVALUATION_SUBJECT, content.selectedAttempt)
 			assertEquals(DEFAULT_PENDING_EVALUATION.maxGrade, content.maxGrade)
-			assertTrue(content.subjectItems.any { item -> item.subject == DEFAULT_EVALUATION_SUBJECT && item.isSelected })
+			assertTrue(content.attemptItems.any { item -> item.attempt == DEFAULT_EVALUATION_SUBJECT && item.isSelected })
 			assertTrue(content.typeItems.any(EvaluationTypePickerItem::isSelected))
 
 			awaitComplete()
@@ -173,7 +173,7 @@ class EvaluationsActionProcessorContractTest {
 	fun loadEvaluationActionProcessor_selectsSubjectById_whenSubjectCodeDiffers() = runTest {
 		val availableSubject = DEFAULT_EVALUATION_SUBJECT.copy(code = "INF-101-A")
 		val processor = LoadEvaluationActionProcessor(
-			getEvaluationAndAvailableSubjectsUseCase = GetEvaluationAndAvailableSubjectsUseCase(
+			getEvaluationAndAvailableAttemptsUseCase = GetEvaluationAndAvailableAttemptsUseCase(
 				RecordingEvaluationRepository(
 					initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION),
 					availableSubjects = listOf(availableSubject, SECOND_EVALUATION_SUBJECT)
@@ -189,8 +189,8 @@ class EvaluationsActionProcessorContractTest {
 			assertEquals(Evaluation.State.Loading, awaitItem()(Evaluation.State.Failed))
 
 			val content = assertIs<Evaluation.State.Content>(awaitItem()(Evaluation.State.Loading))
-			assertEquals(availableSubject, content.selectedSubject)
-			assertTrue(content.subjectItems.any { item -> item.subject == availableSubject && item.isSelected })
+			assertEquals(availableSubject, content.selectedAttempt)
+			assertTrue(content.attemptItems.any { item -> item.attempt == availableSubject && item.isSelected })
 
 			awaitComplete()
 		}

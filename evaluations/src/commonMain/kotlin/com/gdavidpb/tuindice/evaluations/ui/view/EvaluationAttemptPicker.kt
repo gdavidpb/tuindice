@@ -19,16 +19,16 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationSubjectPickerItem
+import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationAttemptPickerItem
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 
 @Composable
-fun EvaluationSubjectPicker(
+fun EvaluationAttemptPicker(
 	modifier: Modifier = Modifier,
 	enabled: Boolean = true,
-	items: List<EvaluationSubjectPickerItem>,
-	onSubjectChange: (subject: Subject?) -> Unit
+	items: List<EvaluationAttemptPickerItem>,
+	onAttemptChange: (attempt: EditableAttemptDescriptor?) -> Unit
 ) {
 	FlowRow(
 		modifier = modifier
@@ -40,13 +40,13 @@ fun EvaluationSubjectPicker(
 	) {
 		items.forEach { item ->
 			AnimatedVisibility(
-				visible = item.isVisible,
-				enter = fadeIn() + expandHorizontally(animationSpec = spring()),
-				exit = fadeOut() + shrinkHorizontally(animationSpec = spring())
+					visible = item.isVisible,
+					enter = fadeIn() + expandHorizontally(animationSpec = spring()),
+					exit = fadeOut() + shrinkHorizontally(animationSpec = spring())
 			) {
 				FilterChip(
 					modifier = Modifier.testTag(
-						EvaluationsUiTags.evaluationSubjectChip(item.subject.id)
+						EvaluationsUiTags.evaluationSubjectChip(item.attempt.id)
 					),
 					selected = item.isSelected,
 					enabled = enabled,
@@ -60,9 +60,9 @@ fun EvaluationSubjectPicker(
 					),
 					onClick = {
 						if (item.isSelected) {
-							onSubjectChange(null)
+							onAttemptChange(null)
 						} else {
-							onSubjectChange(item.subject)
+							onAttemptChange(item.attempt)
 						}
 					},
 					label = {

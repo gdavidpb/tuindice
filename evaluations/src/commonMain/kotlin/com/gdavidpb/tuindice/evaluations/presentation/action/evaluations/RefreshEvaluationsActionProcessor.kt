@@ -31,7 +31,7 @@ class RefreshEvaluationsActionProcessor(
 							Evaluations.State.Empty,
 							Evaluations.State.Failed,
 							Evaluations.State.Loading,
-							Evaluations.State.NoSubjects,
+							Evaluations.State.NoAttempts,
 							-> Evaluations.State.Loading
 						}
 					}
@@ -66,7 +66,7 @@ class RefreshEvaluationsActionProcessor(
 							Evaluations.State.Empty,
 							Evaluations.State.Failed,
 							Evaluations.State.Loading,
-							Evaluations.State.NoSubjects,
+							Evaluations.State.NoAttempts,
 							-> Evaluations.State.Failed
 						}
 					}

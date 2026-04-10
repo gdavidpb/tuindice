@@ -6,8 +6,8 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationCourseFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationStateFilter
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationSubjectFilter
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.EvaluationDateTextMapping
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.getLabel
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationDateGroup
@@ -57,7 +57,7 @@ fun List<Evaluation>.computeAvailableFilters(
 	val subjectsFilters =
 		map { evaluation -> evaluation.subjectCode }
 			.distinct()
-			.map { subject -> EvaluationSubjectFilter(subject) }
+			.map { subjectCode -> EvaluationCourseFilter(subjectCode) }
 
 	val datesFilters =
 		map { evaluation -> evaluation.toEvaluationDateGroup() }

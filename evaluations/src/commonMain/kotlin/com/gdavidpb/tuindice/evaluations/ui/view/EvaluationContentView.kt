@@ -24,8 +24,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
+import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import org.jetbrains.compose.resources.stringResource
@@ -38,13 +38,13 @@ import tuindice.evaluations.generated.resources.label_add_evaluation_type
 fun EvaluationContentView(
 	modifier: Modifier = Modifier,
 	state: Evaluation.State.Content,
-	onSubjectChange: (subject: Subject?) -> Unit,
+	onAttemptChange: (attempt: EditableAttemptDescriptor?) -> Unit,
 	onTypeChange: (type: EvaluationType?) -> Unit,
 	onDateChange: (date: Long?) -> Unit,
 	onGradeClick: (grade: Double?, maxGrade: Double?) -> Unit,
 	onMaxGradeClick: (grade: Double?) -> Unit,
 	onDoneClick: (
-		subject: Subject?,
+		attempt: EditableAttemptDescriptor?,
 		type: EvaluationType?,
 		scheduleMode: EvaluationScheduleMode,
 		date: Long?,
@@ -75,9 +75,9 @@ fun EvaluationContentView(
 				fontWeight = FontWeight.Medium
 			)
 
-			EvaluationSubjectPicker(
-				items = state.subjectItems,
-				onSubjectChange = onSubjectChange
+			EvaluationAttemptPicker(
+				items = state.attemptItems,
+				onAttemptChange = onAttemptChange
 			)
 
 			Text(
@@ -188,7 +188,7 @@ fun EvaluationContentView(
 			containerColor = MaterialTheme.colorScheme.primary,
 			onClick = {
 				onDoneClick(
-					state.selectedSubject,
+					state.selectedAttempt,
 					state.type,
 					state.scheduleMode,
 					state.date,

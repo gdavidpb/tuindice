@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.record.ui.screen
 
 import androidx.compose.runtime.Composable
-import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.record.presentation.contract.Record
@@ -28,7 +28,7 @@ fun RecordScreen(
 		termId: String,
 		attemptId: String,
 		newGrade: Int?,
-		newStatus: SubjectStatus?,
+		newOutcome: AttemptOutcome?,
 		isSelected: Boolean
 	) -> Unit
 ) {

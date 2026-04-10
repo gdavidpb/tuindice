@@ -25,8 +25,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.base.domain.model.subject.GradingMode
-import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
+import com.gdavidpb.tuindice.base.domain.model.GradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.MAX_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.presentation.model.AttemptItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -48,7 +48,7 @@ fun AttemptItemView(
 	modifier: Modifier = Modifier,
 	item: AttemptItem,
 	gradeState: MutableIntState? = null,
-	onGradeChange: (newGrade: Int?, newStatus: SubjectStatus?, isSelected: Boolean) -> Unit
+	onGradeChange: (newGrade: Int?, newOutcome: AttemptOutcome?, isSelected: Boolean) -> Unit
 ) {
 	val currentGrade = gradeState?.intValue ?: item.grade
 	val display = remember(item, currentGrade) {
@@ -213,7 +213,7 @@ fun AttemptItemView(
 		}
 
 		if (!item.isReadOnly && isQualitative) {
-			val selectedStatus = item.status
+			val selectedOutcome = item.outcome
 
 			FlowRow(
 				modifier = Modifier
@@ -225,23 +225,23 @@ fun AttemptItemView(
 				QualitativeStatusOption(
 					attemptId = item.attemptId,
 					label = stringResource(Res.string.attempt_approved),
-					status = SubjectStatus.APPROVED,
-					selectedStatus = selectedStatus,
-					onSelected = { status -> onGradeChange(null, status, true) }
+					outcome = AttemptOutcome.APPROVED,
+					selectedOutcome = selectedOutcome,
+					onSelected = { outcome -> onGradeChange(null, outcome, true) }
 				)
 				QualitativeStatusOption(
 					attemptId = item.attemptId,
 					label = stringResource(Res.string.attempt_failed),
-					status = SubjectStatus.FAILED,
-					selectedStatus = selectedStatus,
-					onSelected = { status -> onGradeChange(null, status, true) }
+					outcome = AttemptOutcome.FAILED,
+					selectedOutcome = selectedOutcome,
+					onSelected = { outcome -> onGradeChange(null, outcome, true) }
 				)
 				QualitativeStatusOption(
 					attemptId = item.attemptId,
 					label = stringResource(Res.string.attempt_retired),
-					status = SubjectStatus.RETIRED,
-					selectedStatus = selectedStatus,
-					onSelected = { status -> onGradeChange(null, status, true) }
+					outcome = AttemptOutcome.RETIRED,
+					selectedOutcome = selectedOutcome,
+					onSelected = { outcome -> onGradeChange(null, outcome, true) }
 				)
 			}
 		}
@@ -252,14 +252,14 @@ fun AttemptItemView(
 private fun QualitativeStatusOption(
 	attemptId: String,
 	label: String,
-	status: SubjectStatus,
-	selectedStatus: SubjectStatus?,
-	onSelected: (SubjectStatus) -> Unit
+	outcome: AttemptOutcome,
+	selectedOutcome: AttemptOutcome?,
+	onSelected: (AttemptOutcome) -> Unit
 ) {
 	FilterChip(
-		modifier = Modifier.testTag(RecordUiTags.attemptStatusOption(attemptId, status.value)),
-		selected = status == selectedStatus,
-		onClick = { onSelected(status) },
+		modifier = Modifier.testTag(RecordUiTags.attemptStatusOption(attemptId, outcome.name.lowercase())),
+		selected = outcome == selectedOutcome,
+		onClick = { onSelected(outcome) },
 		label = { Text(text = label) },
 		colors = FilterChipDefaults.filterChipColors()
 	)

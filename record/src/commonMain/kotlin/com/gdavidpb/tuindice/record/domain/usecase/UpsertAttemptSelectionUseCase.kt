@@ -22,7 +22,7 @@ class UpsertAttemptSelectionUseCase(
 	override suspend fun executeOnBackground(params: UpsertAttemptSelectionParams): Flow<Unit> {
 		val (score, outcome) = attemptSelectionToOverridePayload(
 			grade = params.grade,
-			status = params.status
+			outcome = params.outcome
 		)
 
 		if (params.commit && shouldClearOverride(

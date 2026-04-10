@@ -1,10 +1,10 @@
 package com.gdavidpb.tuindice.evaluations.presentation.model
 
 import androidx.compose.ui.graphics.Color
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
+import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 
-data class EvaluationSubjectPickerItem(
-	val subject: Subject,
+data class EvaluationAttemptPickerItem(
+	val attempt: EditableAttemptDescriptor,
 	val labelText: String,
 	val isSelected: Boolean,
 	val isVisible: Boolean,

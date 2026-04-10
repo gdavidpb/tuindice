@@ -4,8 +4,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.lerp
 import kotlin.math.abs
 
-object SubjectColorGenerator {
-	data class SubjectColors(
+object CourseCodeColorGenerator {
+	data class CourseColors(
 		val color: Color,
 		val containerColor: Color
 	)
@@ -13,7 +13,7 @@ object SubjectColorGenerator {
 	private val twoLettersPattern = Regex("^([A-Z]{2})(\\d{4})$")
 	private val threeLettersPattern = Regex("^([A-Z]{3})(\\d{3})$")
 
-	fun fromCode(code: String): SubjectColors {
+	fun fromCode(code: String): CourseColors {
 		val normalized = code.uppercase().trim()
 		val match = twoLettersPattern.matchEntire(normalized)
 			?: threeLettersPattern.matchEntire(normalized)
@@ -31,7 +31,7 @@ object SubjectColorGenerator {
 			Color.Black
 		}
 
-		return SubjectColors(
+		return CourseColors(
 			color = codeColor.brightness(amount = -0.25f),
 			containerColor = codeColor.brightness(amount = 0.50f)
 		)

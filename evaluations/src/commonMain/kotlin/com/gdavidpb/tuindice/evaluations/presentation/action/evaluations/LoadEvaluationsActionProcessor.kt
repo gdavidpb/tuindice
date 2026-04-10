@@ -41,7 +41,7 @@ class LoadEvaluationsActionProcessor(
 
 					is UseCaseState.Data -> suspend { current: Evaluations.State ->
 						when (val evaluations = useCaseState.value) {
-							GetEvaluations.NoSubjects -> Evaluations.State.NoSubjects
+							GetEvaluations.NoAttempts -> Evaluations.State.NoAttempts
 
 							is GetEvaluations.Content -> {
 								val pendingLabel = getString(Res.string.label_state_pending)

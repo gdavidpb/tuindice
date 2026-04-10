@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.record.presentation.contract
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
-import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
@@ -42,7 +42,7 @@ object Record {
 			val termId: String,
 			val attemptId: String,
 			val grade: Int? = null,
-			val status: SubjectStatus? = null,
+			val outcome: AttemptOutcome? = null,
 			val commit: Boolean
 		) : Action()
 	}

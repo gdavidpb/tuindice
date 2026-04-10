@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.domain.repository
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
+import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
@@ -16,5 +16,5 @@ interface EvaluationRepository {
 	suspend fun updateEvaluation(update: EvaluationUpdate)
 	suspend fun removeEvaluation(remove: EvaluationRemove)
 
-	suspend fun getAvailableSubjects(): List<Subject>
+	suspend fun getAvailableAttempts(): List<EditableAttemptDescriptor>
 }

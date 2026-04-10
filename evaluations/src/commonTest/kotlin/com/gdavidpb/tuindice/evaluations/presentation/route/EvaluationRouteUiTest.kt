@@ -6,22 +6,22 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableSubjectsUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableAttemptsUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.AddEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.EditEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadAvailableSubjectsActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadAvailableAttemptsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.PickGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.PickMaxGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetDateActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetMaxGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetSubjectActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetAttemptActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetTypeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
@@ -158,7 +158,7 @@ class EvaluationRouteUiTest {
 
 		runOnIdle {
 			viewModel.clickAddEvaluationAction(
-				subject = DEFAULT_EVALUATION_SUBJECT,
+				attempt = DEFAULT_EVALUATION_SUBJECT,
 				type = DEFAULT_PENDING_EVALUATION.type,
 				scheduleMode = DEFAULT_PENDING_EVALUATION.scheduleMode,
 				date = DEFAULT_PENDING_EVALUATION.date,
@@ -227,7 +227,7 @@ class EvaluationRouteUiTest {
 		runOnIdle {
 			viewModel.clickEditEvaluationAction(
 				evaluationId = DEFAULT_PENDING_EVALUATION.id,
-				subject = DEFAULT_EVALUATION_SUBJECT,
+				attempt = DEFAULT_EVALUATION_SUBJECT,
 				type = DEFAULT_PENDING_EVALUATION.type,
 				scheduleMode = DEFAULT_PENDING_EVALUATION.scheduleMode,
 				date = DEFAULT_PENDING_EVALUATION.date,
@@ -366,7 +366,7 @@ class EvaluationRouteUiTest {
 
 		runOnIdle {
 			viewModel.clickAddEvaluationAction(
-				subject = DEFAULT_EVALUATION_SUBJECT,
+				attempt = DEFAULT_EVALUATION_SUBJECT,
 				type = DEFAULT_PENDING_EVALUATION.type,
 				scheduleMode = DEFAULT_PENDING_EVALUATION.scheduleMode,
 				date = DEFAULT_PENDING_EVALUATION.date,
@@ -389,14 +389,14 @@ class EvaluationRouteUiTest {
 		)
 
 		return EvaluationViewModel(
-			loadAvailableSubjectsActionProcessor = LoadAvailableSubjectsActionProcessor(
-				getAvailableSubjectsUseCase = GetAvailableSubjectsUseCase(
+			loadAvailableAttemptsActionProcessor = LoadAvailableAttemptsActionProcessor(
+				getAvailableAttemptsUseCase = GetAvailableAttemptsUseCase(
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository()
 				)
 			),
 			loadEvaluationActionProcessor = LoadEvaluationActionProcessor(
-				getEvaluationAndAvailableSubjectsUseCase = GetEvaluationAndAvailableSubjectsUseCase(
+				getEvaluationAndAvailableAttemptsUseCase = GetEvaluationAndAvailableAttemptsUseCase(
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository()
 				)
@@ -419,7 +419,7 @@ class EvaluationRouteUiTest {
 			),
 			pickGradeActionProcessor = PickGradeActionProcessor(),
 			pickMaxGradeActionProcessor = PickMaxGradeActionProcessor(),
-			setSubjectActionProcessor = SetSubjectActionProcessor(),
+			setAttemptActionProcessor = SetAttemptActionProcessor(),
 			setTypeActionProcessor = SetTypeActionProcessor(),
 			setDateActionProcessor = SetDateActionProcessor(),
 			setGradeActionProcessor = SetGradeActionProcessor(),

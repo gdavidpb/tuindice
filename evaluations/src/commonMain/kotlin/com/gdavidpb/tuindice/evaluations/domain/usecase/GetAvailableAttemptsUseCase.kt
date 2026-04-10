@@ -1,20 +1,20 @@
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
+import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
-class GetAvailableSubjectsUseCase(
+class GetAvailableAttemptsUseCase(
 	private val evaluationRepository: EvaluationRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, List<Subject>, Nothing>(reportingRepository = reportingRepository) {
-	override suspend fun executeOnBackground(params: Unit): Flow<List<Subject>> {
-		val availableSubjects = evaluationRepository
-			.getAvailableSubjects()
+) : FlowUseCase<Unit, List<EditableAttemptDescriptor>, Nothing>(reportingRepository = reportingRepository) {
+	override suspend fun executeOnBackground(params: Unit): Flow<List<EditableAttemptDescriptor>> {
+		val availableAttempts = evaluationRepository
+			.getAvailableAttempts()
 
-		return flowOf(availableSubjects)
+		return flowOf(availableAttempts)
 	}
 }

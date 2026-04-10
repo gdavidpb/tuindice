@@ -7,8 +7,8 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.runtime.mutableStateOf
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationSubjectPickerItemList
+import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationAttemptPickerItems
 import com.gdavidpb.tuindice.evaluations.testing.uiSubjects
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -21,14 +21,14 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalTestApi::class)
 class EvaluationSubjectPickerUiTest {
 	@Test
-	fun when_noSubjectIsSelected_then_subjectChipTapped_invokesSelectionCallback() = runTuIndiceUiTest {
+	fun when_noAttemptIsSelected_then_attemptChipTapped_invokesSelectionCallback() = runTuIndiceUiTest {
 		val subjects = uiSubjects()
-		var selectedSubject: Subject? = null
+		var selectedAttempt: EditableAttemptDescriptor? = null
 
 		setTuIndiceTestContent {
-			EvaluationSubjectPicker(
-				items = subjects.toEvaluationSubjectPickerItemList(selectedSubject = null),
-				onSubjectChange = { subject -> selectedSubject = subject }
+			EvaluationAttemptPicker(
+				items = subjects.toEvaluationAttemptPickerItems(selectedAttempt = null),
+				onAttemptChange = { attempt -> selectedAttempt = attempt }
 			)
 		}
 
@@ -40,20 +40,20 @@ class EvaluationSubjectPickerUiTest {
 			EvaluationsUiTags.evaluationSubjectChip(subjects[1].id)
 		).performClick()
 
-		assertEquals(subjects[1], selectedSubject)
+		assertEquals(subjects[1], selectedAttempt)
 	}
 
 	@Test
-	fun when_selectedSubjectChipTapped_then_pickerClearsSelection_andShowsAllSubjects() = runTuIndiceUiTest {
+	fun when_selectedAttemptChipTapped_then_pickerClearsSelection_andShowsAllAttempts() = runTuIndiceUiTest {
 		val subjects = uiSubjects()
-		val selectedSubjectState = mutableStateOf<Subject?>(subjects.first())
+		val selectedAttemptState = mutableStateOf<EditableAttemptDescriptor?>(subjects.first())
 
 		setTuIndiceTestContent {
-			EvaluationSubjectPicker(
-				items = subjects.toEvaluationSubjectPickerItemList(
-					selectedSubject = selectedSubjectState.value
+			EvaluationAttemptPicker(
+				items = subjects.toEvaluationAttemptPickerItems(
+					selectedAttempt = selectedAttemptState.value
 				),
-				onSubjectChange = { subject -> selectedSubjectState.value = subject }
+				onAttemptChange = { attempt -> selectedAttemptState.value = attempt }
 			)
 		}
 
@@ -64,7 +64,7 @@ class EvaluationSubjectPickerUiTest {
 			EvaluationsUiTags.evaluationSubjectChip(subjects[0].id)
 		).performClick()
 
-		assertEquals(null, selectedSubjectState.value)
+		assertEquals(null, selectedAttemptState.value)
 		assertNodeVisible(EvaluationsUiTags.evaluationSubjectChip(subjects[0].id))
 		assertNodeVisible(EvaluationsUiTags.evaluationSubjectChip(subjects[1].id))
 	}
@@ -72,13 +72,13 @@ class EvaluationSubjectPickerUiTest {
 	@Test
 	fun when_pickerIsDisabled_then_tappingChipDoesNotInvokeCallback() = runTuIndiceUiTest {
 		val subjects = uiSubjects()
-		var selectedSubject: Subject? = null
+		var selectedAttempt: EditableAttemptDescriptor? = null
 
 		setTuIndiceTestContent {
-			EvaluationSubjectPicker(
+			EvaluationAttemptPicker(
 				enabled = false,
-				items = subjects.toEvaluationSubjectPickerItemList(selectedSubject = null),
-				onSubjectChange = { subject -> selectedSubject = subject }
+				items = subjects.toEvaluationAttemptPickerItems(selectedAttempt = null),
+				onAttemptChange = { attempt -> selectedAttempt = attempt }
 			)
 		}
 
@@ -86,25 +86,25 @@ class EvaluationSubjectPickerUiTest {
 			EvaluationsUiTags.evaluationSubjectChip(subjects[1].id)
 		).performClick()
 
-		assertEquals(null, selectedSubject)
+		assertEquals(null, selectedAttempt)
 	}
 
 	@Test
-	fun when_selectedSubjectChangesExternally_then_pickerCollapsesToTheNewSelection() = runTuIndiceUiTest {
+	fun when_selectedAttemptChangesExternally_then_pickerCollapsesToTheNewSelection() = runTuIndiceUiTest {
 		val subjects = uiSubjects()
-		val selectedSubjectState = mutableStateOf<Subject?>(null)
+		val selectedAttemptState = mutableStateOf<EditableAttemptDescriptor?>(null)
 
 		setTuIndiceTestContent {
-			EvaluationSubjectPicker(
-				items = subjects.toEvaluationSubjectPickerItemList(
-					selectedSubject = selectedSubjectState.value
+			EvaluationAttemptPicker(
+				items = subjects.toEvaluationAttemptPickerItems(
+					selectedAttempt = selectedAttemptState.value
 				),
-				onSubjectChange = {}
+				onAttemptChange = {}
 			)
 		}
 
 		runOnIdle {
-			selectedSubjectState.value = subjects[1]
+			selectedAttemptState.value = subjects[1]
 		}
 
 		assertNodeHidden(EvaluationsUiTags.evaluationSubjectChip(subjects[0].id))

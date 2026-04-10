@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.record.ui.view
 
-import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
@@ -9,6 +8,7 @@ import androidx.compose.runtime.MutableIntState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.record.presentation.model.AttemptItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 
@@ -17,7 +17,7 @@ fun AttemptCardItemView(
 	modifier: Modifier = Modifier,
 	item: AttemptItem,
 	gradeState: MutableIntState? = null,
-	onGradeChange: (newGrade: Int?, newStatus: SubjectStatus?, isSelected: Boolean) -> Unit
+	onGradeChange: (newGrade: Int?, newOutcome: AttemptOutcome?, isSelected: Boolean) -> Unit
 ) {
 	ElevatedCard(
 		modifier = modifier

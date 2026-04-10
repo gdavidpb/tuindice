@@ -20,7 +20,7 @@ class EvaluationScreenUiTest {
 		setTuIndiceTestContent {
 			EvaluationScreen(
 				state = Evaluation.State.Loading,
-				onSubjectChange = {},
+				onAttemptChange = {},
 				onTypeChange = {},
 				onDateChange = {},
 				onGradeClick = { _, _ -> },
@@ -38,7 +38,7 @@ class EvaluationScreenUiTest {
 		setTuIndiceTestContent {
 			EvaluationScreen(
 				state = evaluationContentState(),
-				onSubjectChange = {},
+				onAttemptChange = {},
 				onTypeChange = {},
 				onDateChange = {},
 				onGradeClick = { _, _ -> },
@@ -58,7 +58,7 @@ class EvaluationScreenUiTest {
 		setTuIndiceTestContent {
 			EvaluationScreen(
 				state = Evaluation.State.Failed,
-				onSubjectChange = {},
+				onAttemptChange = {},
 				onTypeChange = {},
 				onDateChange = {},
 				onGradeClick = { _, _ -> },

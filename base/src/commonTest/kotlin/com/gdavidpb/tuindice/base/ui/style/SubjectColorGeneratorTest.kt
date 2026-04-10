@@ -5,10 +5,10 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-class SubjectColorGeneratorTest {
+class CourseCodeColorGeneratorTest {
 	@Test
 	fun when_codeHasTwoLettersAndFourDigits_then_returnsNonBlackColorPair() {
-		val subjectColors = SubjectColorGenerator.fromCode("FS1113")
+		val subjectColors = CourseCodeColorGenerator.fromCode("FS1113")
 
 		assertTrue(subjectColors.color != Color.Black)
 		assertTrue(subjectColors.containerColor != subjectColors.color)
@@ -16,7 +16,7 @@ class SubjectColorGeneratorTest {
 
 	@Test
 	fun when_codeHasThreeLettersAndThreeDigits_then_returnsNonBlackColorPair() {
-		val subjectColors = SubjectColorGenerator.fromCode("CSA211")
+		val subjectColors = CourseCodeColorGenerator.fromCode("CSA211")
 
 		assertTrue(subjectColors.color != Color.Black)
 		assertTrue(subjectColors.containerColor != subjectColors.color)
@@ -24,8 +24,8 @@ class SubjectColorGeneratorTest {
 
 	@Test
 	fun when_codeDoesNotMatchSupportedFormats_then_usesBlackAsCodeColor() {
-		assertEquals(Color.Black, SubjectColorGenerator.fromCode("A1").color)
-		assertEquals(Color.Black, SubjectColorGenerator.fromCode("INF-101").color)
-		assertEquals(Color.Black, SubjectColorGenerator.fromCode("ABCD12").color)
+		assertEquals(Color.Black, CourseCodeColorGenerator.fromCode("A1").color)
+		assertEquals(Color.Black, CourseCodeColorGenerator.fromCode("INF-101").color)
+		assertEquals(Color.Black, CourseCodeColorGenerator.fromCode("ABCD12").color)
 	}
 }

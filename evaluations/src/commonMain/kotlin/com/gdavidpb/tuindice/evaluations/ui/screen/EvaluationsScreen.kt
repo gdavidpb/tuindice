@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsContentView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsEmptyView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsFailedView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsLoadingView
-import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsNoSubjectsView
+import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsNoAttemptsView
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.button_add_evaluation
@@ -62,8 +62,8 @@ fun EvaluationsScreen(
 					}
 				)
 
-			is Evaluations.State.NoSubjects ->
-				EvaluationsNoSubjectsView(
+			is Evaluations.State.NoAttempts ->
+				EvaluationsNoAttemptsView(
 					title = stringResource(Res.string.title_no_subjects_evaluations),
 					message = stringResource(Res.string.message_no_subjects_evaluations),
 					headerContent = {

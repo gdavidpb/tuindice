@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationSubjectFilter
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationCourseFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.GetEvaluationParams
 import com.gdavidpb.tuindice.evaluations.testing.*
@@ -15,7 +15,7 @@ import kotlin.test.assertTrue
 class EvaluationsUseCaseContractTest {
 	@Test
 	fun getEvaluationsUseCase_emitsSortedAndFilteredEvaluations() = runTest {
-		val filter = EvaluationSubjectFilter(DEFAULT_EVALUATION_SUBJECT.code)
+		val filter = EvaluationCourseFilter(DEFAULT_EVALUATION_SUBJECT.code)
 		val useCase = GetEvaluationsUseCase(
 			evaluationRepository = RecordingEvaluationRepository(
 				evaluationsFlow = flowOf(
@@ -45,7 +45,7 @@ class EvaluationsUseCaseContractTest {
 	}
 
 	@Test
-	fun getEvaluationsUseCase_returnsNoSubjectsState_whenFeatureHasNoSubjects() = runTest {
+	fun getEvaluationsUseCase_returnsNoAttemptsState_whenFeatureHasNoAttempts() = runTest {
 		val reportingRepository = RecordingReportingRepository()
 		val useCase = GetEvaluationsUseCase(
 			evaluationRepository = RecordingEvaluationRepository(
@@ -57,19 +57,19 @@ class EvaluationsUseCaseContractTest {
 		)
 
 		useCase.execute(flowOf(emptyList())).test {
-			assertEquals(GetEvaluations.NoSubjects, awaitLoadingThenData(this))
+			assertEquals(GetEvaluations.NoAttempts, awaitLoadingThenData(this))
 			assertTrue(reportingRepository.exceptions.isEmpty())
 			awaitComplete()
 		}
 	}
 
 	@Test
-	fun getEvaluationAndAvailableSubjectsUseCase_emitsEvaluationAndSubjects() = runTest {
+	fun getEvaluationAndAvailableAttemptsUseCase_emitsEvaluationAndAttempts() = runTest {
 		val repository = RecordingEvaluationRepository(
 			initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION),
 			availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT)
 		)
-		val useCase = GetEvaluationAndAvailableSubjectsUseCase(
+		val useCase = GetEvaluationAndAvailableAttemptsUseCase(
 			evaluationRepository = repository,
 			reportingRepository = RecordingReportingRepository()
 		)
@@ -79,7 +79,7 @@ class EvaluationsUseCaseContractTest {
 			assertEquals(DEFAULT_PENDING_EVALUATION, result.evaluation)
 			assertEquals(
 				listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT),
-				result.availableSubjects
+				result.availableAttempts
 			)
 			awaitComplete()
 		}

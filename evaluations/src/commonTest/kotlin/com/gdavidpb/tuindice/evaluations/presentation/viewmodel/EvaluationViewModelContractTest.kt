@@ -2,22 +2,22 @@ package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableSubjectsUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableSubjectsUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableAttemptsUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.AddEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.EditEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadAvailableSubjectsActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadAvailableAttemptsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.PickGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.PickMaxGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetDateActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetMaxGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetSubjectActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetAttemptActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetTypeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
@@ -34,7 +34,7 @@ import kotlin.test.assertIs
 class EvaluationViewModelContractTest {
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-	fun publicActions_loadSubjects_updateSelection_andEmitGradePickerEffect() = runTest {
+	fun publicActions_loadAttempts_updateSelection_andEmitGradePickerEffect() = runTest {
 		val viewModel = createViewModel()
 		val stateCollector = backgroundScope.launchStateCollector(
 			flow = viewModel.state,
@@ -45,22 +45,22 @@ class EvaluationViewModelContractTest {
 			viewModel.state.test {
 				assertEquals(Evaluation.State.Loading, awaitItem())
 
-				viewModel.loadAvailableSubjectsAction()
+				viewModel.loadAvailableAttemptsAction()
 				val content = assertIs<Evaluation.State.Content>(awaitItem())
 				assertEquals(
 					listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT),
-					content.subjectItems.map { item -> item.subject }
+					content.attemptItems.map { item -> item.attempt }
 				)
 
-				viewModel.setSubjectAction(SECOND_EVALUATION_SUBJECT)
+				viewModel.setAttemptAction(SECOND_EVALUATION_SUBJECT)
 				val selected = assertIs<Evaluation.State.Content>(awaitItem())
-				assertEquals(SECOND_EVALUATION_SUBJECT, selected.selectedSubject)
-				assertEquals(1, selected.subjectItems.count { item -> item.isSelected })
+				assertEquals(SECOND_EVALUATION_SUBJECT, selected.selectedAttempt)
+				assertEquals(1, selected.attemptItems.count { item -> item.isSelected })
 
-				viewModel.setSubjectAction(null)
+				viewModel.setAttemptAction(null)
 				val cleared = assertIs<Evaluation.State.Content>(awaitItem())
-				assertEquals(null, cleared.selectedSubject)
-				assertEquals(0, cleared.subjectItems.count { item -> item.isSelected })
+				assertEquals(null, cleared.selectedAttempt)
+				assertEquals(0, cleared.attemptItems.count { item -> item.isSelected })
 
 				cancelAndIgnoreRemainingEvents()
 			}
@@ -84,14 +84,14 @@ class EvaluationViewModelContractTest {
 		)
 
 		return EvaluationViewModel(
-			loadAvailableSubjectsActionProcessor = LoadAvailableSubjectsActionProcessor(
-				getAvailableSubjectsUseCase = GetAvailableSubjectsUseCase(
+			loadAvailableAttemptsActionProcessor = LoadAvailableAttemptsActionProcessor(
+				getAvailableAttemptsUseCase = GetAvailableAttemptsUseCase(
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository()
 				)
 			),
 			loadEvaluationActionProcessor = LoadEvaluationActionProcessor(
-				getEvaluationAndAvailableSubjectsUseCase = GetEvaluationAndAvailableSubjectsUseCase(
+				getEvaluationAndAvailableAttemptsUseCase = GetEvaluationAndAvailableAttemptsUseCase(
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository()
 				)
@@ -114,7 +114,7 @@ class EvaluationViewModelContractTest {
 			),
 			pickGradeActionProcessor = PickGradeActionProcessor(),
 			pickMaxGradeActionProcessor = PickMaxGradeActionProcessor(),
-			setSubjectActionProcessor = SetSubjectActionProcessor(),
+			setAttemptActionProcessor = SetAttemptActionProcessor(),
 			setTypeActionProcessor = SetTypeActionProcessor(),
 			setDateActionProcessor = SetDateActionProcessor(),
 			setGradeActionProcessor = SetGradeActionProcessor(),

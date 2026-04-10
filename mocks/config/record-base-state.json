@@ -11,16 +11,16 @@
     "scholarship": false
   },
   "added_term": {
-    "id": "MOCK-ADDED-QUARTER",
+    "id": "MOCK-ADDED-TERM",
     "name": "Term Added",
     "start_date": 1809140400000,
     "end_date": 1817002800000,
     "revision": 1,
-    "presence_scenario": "record-term-MOCK-ADDED-QUARTER",
+    "presence_scenario": "record-term-MOCK-ADDED-TERM",
     "attempts": [
       {
-        "id": "MOCK101-MOCK-ADDED-QUARTER",
-        "term_id": "MOCK-ADDED-QUARTER",
+        "id": "MOCK101-MOCK-ADDED-TERM",
+        "term_id": "MOCK-ADDED-TERM",
         "code": "MOCK101",
         "name": "MOCK SUBJECT",
         "credits": 4,
@@ -28,10 +28,6 @@
         "revision": 1
       }
     ],
-    "grade": 0.0,
-    "grade_sum": 3.419,
-    "credits": 0,
-    "credits_sum": 253,
     "kind": "synthetic"
   },
   "terms": [
@@ -40,10 +36,6 @@
       "name": "Septiembre - Diciembre 2026",
       "start_date": 1788235200000,
       "end_date": 1798686000000,
-      "grade": 0.0,
-      "grade_sum": 3.419,
-      "credits": 0,
-      "credits_sum": 253,
       "revision": 11,
       "attempts": [
         {
@@ -67,10 +59,6 @@
       "name": "Abril - Julio 2026",
       "start_date": 1775012400000,
       "end_date": 1785470400000,
-      "grade": 5.0,
-      "grade_sum": 3.5451,
-      "credits": 13,
-      "credits_sum": 244,
       "revision": 10,
       "attempts": [
         {
@@ -126,10 +114,6 @@
       "name": "Enero - Marzo 2026",
       "start_date": 1767236400000,
       "end_date": 1774926000000,
-      "grade": 5.0,
-      "grade_sum": 3.4632,
-      "credits": 6,
-      "credits_sum": 231,
       "revision": 9,
       "attempts": [
         {
@@ -162,10 +146,6 @@
       "name": "Septiembre - Diciembre 2025",
       "start_date": 1756699200000,
       "end_date": 1767150000000,
-      "grade": 1.4545,
-      "grade_sum": 3.4222,
-      "credits": 11,
-      "credits_sum": 225,
       "revision": 1,
       "attempts": [
         {
@@ -206,10 +186,6 @@
       "name": "Abril - Julio 2025",
       "start_date": 1743476400000,
       "end_date": 1753934400000,
-      "grade": 0.0,
-      "grade_sum": 3.4747,
-      "credits": 0,
-      "credits_sum": 217,
       "revision": 1,
       "attempts": [
         {
@@ -231,10 +207,6 @@
       "name": "Enero - Marzo 2025",
       "start_date": 1735700400000,
       "end_date": 1743390000000,
-      "grade": 3.25,
-      "grade_sum": 3.5234,
-      "credits": 16,
-      "credits_sum": 214,
       "revision": 1,
       "attempts": [
         {
@@ -291,10 +263,6 @@
       "name": "Septiembre - Diciembre 2024",
       "start_date": 1725163200000,
       "end_date": 1735614000000,
-      "grade": 3.0,
-      "grade_sum": 3.5455,
-      "credits": 13,
-      "credits_sum": 198,
       "revision": 1,
       "attempts": [
         {
@@ -352,10 +320,6 @@
       "name": "Julio - Agosto 2024",
       "start_date": 1719806400000,
       "end_date": 1725076800000,
-      "grade": 0.0,
-      "grade_sum": 3.6429,
-      "credits": 3,
-      "credits_sum": 182,
       "revision": 1,
       "attempts": [
         {
@@ -376,10 +340,6 @@
       "name": "Abril - Julio 2024",
       "start_date": 1711940400000,
       "end_date": 1722398400000,
-      "grade": 3.2941,
-      "grade_sum": 3.6429,
-      "credits": 17,
-      "credits_sum": 182,
       "revision": 1,
       "attempts": [
         {
@@ -436,10 +396,6 @@
       "name": "Enero - Marzo 2024",
       "start_date": 1704078000000,
       "end_date": 1711854000000,
-      "grade": 3.0,
-      "grade_sum": 3.6391,
-      "credits": 15,
-      "credits_sum": 169,
       "revision": 1,
       "attempts": [
         {
@@ -486,10 +442,6 @@
       "name": "Septiembre - Diciembre 2023",
       "start_date": 1693540800000,
       "end_date": 1703991600000,
-      "grade": 2.25,
-      "grade_sum": 3.6173,
-      "credits": 16,
-      "credits_sum": 162,
       "revision": 1,
       "attempts": [
         {
@@ -539,10 +491,6 @@
       "name": "Abril - Julio 2023",
       "start_date": 1680318000000,
       "end_date": 1690776000000,
-      "grade": 3.5455,
-      "grade_sum": 3.6329,
-      "credits": 11,
-      "credits_sum": 158,
       "revision": 1,
       "attempts": [
         {
@@ -590,10 +538,6 @@
       "name": "Enero - Marzo 2023",
       "start_date": 1672542000000,
       "end_date": 1680231600000,
-      "grade": 2.75,
-      "grade_sum": 3.6395,
-      "credits": 16,
-      "credits_sum": 147,
       "revision": 1,
       "attempts": [
         {
@@ -652,10 +596,6 @@
       "name": "Septiembre - Diciembre 2022",
       "start_date": 1662004800000,
       "end_date": 1672455600000,
-      "grade": 2.875,
-      "grade_sum": 3.7481,
-      "credits": 16,
-      "credits_sum": 131,
       "revision": 1,
       "attempts": [
         {
@@ -714,10 +654,6 @@
       "name": "Abril - Julio 2022",
       "start_date": 1648782000000,
       "end_date": 1659240000000,
-      "grade": 3.1429,
-      "grade_sum": 3.7623,
-      "credits": 14,
-      "credits_sum": 122,
       "revision": 1,
       "attempts": [
         {
@@ -765,10 +701,6 @@
       "name": "Enero - Marzo 2022",
       "start_date": 1641006000000,
       "end_date": 1648695600000,
-      "grade": 3.1429,
-      "grade_sum": 3.7768,
-      "credits": 14,
-      "credits_sum": 112,
       "revision": 1,
       "attempts": [
         {
@@ -826,10 +758,6 @@
       "name": "Septiembre - Diciembre 2021",
       "start_date": 1630468800000,
       "end_date": 1640919600000,
-      "grade": 3.5,
-      "grade_sum": 3.7941,
-      "credits": 12,
-      "credits_sum": 102,
       "revision": 1,
       "attempts": [
         {
@@ -877,10 +805,6 @@
       "name": "Abril - Julio 2021",
       "start_date": 1617246000000,
       "end_date": 1627704000000,
-      "grade": 3.8,
-      "grade_sum": 3.7742,
-      "credits": 10,
-      "credits_sum": 93,
       "revision": 1,
       "attempts": [
         {
@@ -918,10 +842,6 @@
       "name": "Enero - Marzo 2021",
       "start_date": 1609470000000,
       "end_date": 1617159600000,
-      "grade": 3.0,
-      "grade_sum": 3.7711,
-      "credits": 3,
-      "credits_sum": 83,
       "revision": 1,
       "attempts": [
         {
@@ -941,10 +861,6 @@
       "name": "Enero - Marzo 2020",
       "start_date": 1577847600000,
       "end_date": 1585623600000,
-      "grade": 3.7273,
-      "grade_sum": 3.8,
-      "credits": 11,
-      "credits_sum": 80,
       "revision": 1,
       "attempts": [
         {
@@ -1001,10 +917,6 @@
       "name": "Septiembre - Diciembre 2019",
       "start_date": 1567310400000,
       "end_date": 1577761200000,
-      "grade": 2.125,
-      "grade_sum": 3.8116,
-      "credits": 8,
-      "credits_sum": 69,
       "revision": 1,
       "attempts": [
         {
@@ -1054,10 +966,6 @@
       "name": "Enero - Marzo 2019",
       "start_date": 1546311600000,
       "end_date": 1554001200000,
-      "grade": 3.0,
-      "grade_sum": 3.806,
-      "credits": 10,
-      "credits_sum": 67,
       "revision": 1,
       "attempts": [
         {
@@ -1096,10 +1004,6 @@
       "name": "Septiembre - Diciembre 2018",
       "start_date": 1535770800000,
       "end_date": 1546225200000,
-      "grade": 2.3,
-      "grade_sum": 3.5672,
-      "credits": 10,
-      "credits_sum": 67,
       "revision": 1,
       "attempts": [
         {
@@ -1139,10 +1043,6 @@
       "name": "Julio - Agosto 2018",
       "start_date": 1530417600000,
       "end_date": 1535684400000,
-      "grade": 0.0,
-      "grade_sum": 3.5938,
-      "credits": 0,
-      "credits_sum": 64,
       "revision": 1,
       "attempts": [
         {
@@ -1163,10 +1063,6 @@
       "name": "Abril - Julio 2018",
       "start_date": 1522551600000,
       "end_date": 1533009600000,
-      "grade": 0.0,
-      "grade_sum": 3.5938,
-      "credits": 0,
-      "credits_sum": 64,
       "revision": 1,
       "attempts": [
         {
@@ -1217,10 +1113,6 @@
       "name": "Enero - Marzo 2018",
       "start_date": 1514775600000,
       "end_date": 1522465200000,
-      "grade": 2.7333,
-      "grade_sum": 3.5938,
-      "credits": 15,
-      "credits_sum": 64,
       "revision": 1,
       "attempts": [
         {
@@ -1278,10 +1170,6 @@
       "name": "Septiembre - Diciembre 2017",
       "start_date": 1504234800000,
       "end_date": 1514689200000,
-      "grade": 2.8462,
-      "grade_sum": 3.8571,
-      "credits": 13,
-      "credits_sum": 49,
       "revision": 1,
       "attempts": [
         {
@@ -1330,10 +1218,6 @@
       "name": "Julio - Agosto 2017",
       "start_date": 1498881600000,
       "end_date": 1504148400000,
-      "grade": 4.0,
-      "grade_sum": 4.0513,
-      "credits": 3,
-      "credits_sum": 39,
       "revision": 1,
       "attempts": [
         {
@@ -1353,10 +1237,6 @@
       "name": "Enero - Marzo 2017",
       "start_date": 1483239600000,
       "end_date": 1490929200000,
-      "grade": 3.0,
-      "grade_sum": 3.8974,
-      "credits": 16,
-      "credits_sum": 39,
       "revision": 1,
       "attempts": [
         {
@@ -1414,10 +1294,6 @@
       "name": "Septiembre - Diciembre 2016",
       "start_date": 1472698800000,
       "end_date": 1483153200000,
-      "grade": 3.75,
-      "grade_sum": 4.0,
-      "credits": 16,
-      "credits_sum": 29,
       "revision": 1,
       "attempts": [
         {
@@ -1474,10 +1350,6 @@
       "name": "Julio - Agosto 2016",
       "start_date": 1467345600000,
       "end_date": 1472612400000,
-      "grade": 2.0,
-      "grade_sum": 4.3077,
-      "credits": 4,
-      "credits_sum": 13,
       "revision": 1,
       "attempts": [
         {
@@ -1498,10 +1370,6 @@
       "name": "Abril - Julio 2016",
       "start_date": 1459479600000,
       "end_date": 1469937600000,
-      "grade": 4.3077,
-      "grade_sum": 4.3077,
-      "credits": 13,
-      "credits_sum": 13,
       "revision": 1,
       "attempts": [
         {

@@ -14,11 +14,11 @@ import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
-class EvaluationsNoSubjectsViewUiTest {
+class EvaluationsNoAttemptsViewUiTest {
 	@Test
-	fun when_rendered_then_displaysNoSubjectsMessage() = runTuIndiceUiTest {
+	fun when_rendered_then_displaysNoAttemptsMessage() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			EvaluationsNoSubjectsView(
+			EvaluationsNoAttemptsView(
 				title = "Sin materias",
 				message = "No se encontraron materias disponibles"
 			)
@@ -33,7 +33,7 @@ class EvaluationsNoSubjectsViewUiTest {
 	@Test
 	fun when_headerContentProvided_then_rendersHeaderContainer() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			EvaluationsNoSubjectsView(
+			EvaluationsNoAttemptsView(
 				title = "Sin materias",
 				message = "No se encontraron materias disponibles",
 				headerContent = {

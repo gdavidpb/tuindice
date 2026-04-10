@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.evaluations.domain.model
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 
 sealed interface GetEvaluations {
-	data object NoSubjects : GetEvaluations
+	data object NoAttempts : GetEvaluations
 
 	data class Content(
 		val originalEvaluations: List<Evaluation>,

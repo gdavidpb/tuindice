@@ -5,7 +5,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
+import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.testing.evaluationContentState
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -19,7 +19,7 @@ import kotlin.test.assertNotNull
 @OptIn(ExperimentalTestApi::class)
 class EvaluationContentViewUiTest {
 	private data class DonePayload(
-		val subject: Subject?,
+		val attempt: EditableAttemptDescriptor?,
 		val type: EvaluationType?,
 		val scheduleMode: EvaluationScheduleMode,
 		val date: Long?,
@@ -36,13 +36,13 @@ class EvaluationContentViewUiTest {
 		setTuIndiceTestContent {
 			EvaluationContentView(
 				state = state,
-				onSubjectChange = {},
+				onAttemptChange = {},
 				onTypeChange = {},
 				onDateChange = {},
 				onGradeClick = { _, _ -> },
 				onMaxGradeClick = { _ -> maxGradeClicks++ },
-				onDoneClick = { subject, type, scheduleMode, date, grade, maxGrade ->
-					donePayload = DonePayload(subject, type, scheduleMode, date, grade, maxGrade)
+				onDoneClick = { attempt, type, scheduleMode, date, grade, maxGrade ->
+					donePayload = DonePayload(attempt, type, scheduleMode, date, grade, maxGrade)
 				}
 			)
 		}
@@ -60,7 +60,7 @@ class EvaluationContentViewUiTest {
 
 		assertEquals(1, maxGradeClicks)
 		assertNotNull(payload)
-		assertEquals(state.selectedSubject, payload.subject)
+		assertEquals(state.selectedAttempt, payload.attempt)
 		assertEquals(state.type, payload.type)
 		assertEquals(state.scheduleMode, payload.scheduleMode)
 		assertEquals(state.date, payload.date)
@@ -77,7 +77,7 @@ class EvaluationContentViewUiTest {
 		setTuIndiceTestContent {
 			EvaluationContentView(
 				state = state,
-				onSubjectChange = {},
+				onAttemptChange = {},
 				onTypeChange = {},
 				onDateChange = {},
 				onGradeClick = { grade, maxGrade ->

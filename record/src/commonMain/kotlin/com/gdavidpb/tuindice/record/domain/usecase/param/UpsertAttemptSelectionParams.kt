@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.record.domain.usecase.param
 
-import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 
 data class UpsertAttemptSelectionParams(
@@ -8,6 +8,6 @@ data class UpsertAttemptSelectionParams(
 	val termId: String,
 	val attemptId: String,
 	val grade: Int?,
-	val status: SubjectStatus?,
+	val outcome: AttemptOutcome?,
 	val commit: Boolean
 )

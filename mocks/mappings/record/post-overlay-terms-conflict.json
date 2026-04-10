@@ -1,6 +1,6 @@
 {
   "priority": 5,
-  "scenarioName": "record-term-MOCK-ADDED-QUARTER",
+  "scenarioName": "record-term-MOCK-ADDED-TERM",
   "requiredScenarioState": "ADDED_R1",
   "request": {
     "method": "POST",

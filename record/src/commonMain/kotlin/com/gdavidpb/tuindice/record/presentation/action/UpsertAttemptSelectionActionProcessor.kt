@@ -22,7 +22,7 @@ class UpsertAttemptSelectionActionProcessor(
 				termId = action.termId,
 				attemptId = action.attemptId,
 				grade = action.grade,
-				status = action.status,
+				outcome = action.outcome,
 				commit = action.commit
 			)
 		).map { useCaseState ->

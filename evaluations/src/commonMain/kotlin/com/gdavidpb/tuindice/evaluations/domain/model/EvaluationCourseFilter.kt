@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.evaluations.domain.model
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 
-class EvaluationSubjectFilter(
+class EvaluationCourseFilter(
 	private val subjectCode: String
 ) : EvaluationFilter {
 	override fun getLabel(): String {
@@ -15,7 +15,7 @@ class EvaluationSubjectFilter(
 
 	override fun equals(other: Any?): Boolean {
 		if (this === other) return true
-		if (other !is EvaluationSubjectFilter) return false
+		if (other !is EvaluationCourseFilter) return false
 
 		return subjectCode == other.subjectCode
 	}

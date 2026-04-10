@@ -2,13 +2,12 @@ package com.gdavidpb.tuindice.evaluations.data.source
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluation
+import com.gdavidpb.tuindice.evaluations.data.mapper.toEditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
-import com.gdavidpb.tuindice.evaluations.data.mapper.toSubject
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
@@ -20,6 +19,7 @@ import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
 import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataRepository
 import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataRepository
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
+import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
@@ -157,10 +157,10 @@ class EvaluationDataSource(
 		)
 	}
 
-	override suspend fun getAvailableSubjects(): List<Subject> {
-		return databaseDataSource.getAvailableSubjects()
-			.map { subject -> subject.toSubject() }
-			.sortedBy(Subject::code)
+	override suspend fun getAvailableAttempts(): List<EditableAttemptDescriptor> {
+		return databaseDataSource.getAvailableAttempts()
+			.map { attempt -> attempt.toEditableAttemptDescriptor() }
+			.sortedBy(EditableAttemptDescriptor::code)
 	}
 
 	private suspend fun refreshRemoteSnapshot(): RemoteEvaluationsSnapshot {

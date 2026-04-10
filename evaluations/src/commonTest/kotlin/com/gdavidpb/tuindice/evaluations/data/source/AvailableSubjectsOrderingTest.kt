@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.data.source
 
-import com.gdavidpb.tuindice.evaluations.data.model.LocalSubject
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEditableAttemptDescriptor
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -13,11 +13,11 @@ class AvailableSubjectsOrderingTest {
 			localSubject(id = "subject-3", code = "QUI1000")
 		)
 
-		val sortedSubjects = subjects.sortedBy(LocalSubject::code)
+		val sortedSubjects = subjects.sortedBy(LocalEditableAttemptDescriptor::code)
 
 		assertEquals(
 			listOf("BIO0140", "MAT2205", "QUI1000"),
-			sortedSubjects.map(LocalSubject::code)
+			sortedSubjects.map(LocalEditableAttemptDescriptor::code)
 		)
 	}
 }
@@ -25,7 +25,7 @@ class AvailableSubjectsOrderingTest {
 private fun localSubject(
 	id: String,
 	code: String
-) = LocalSubject(
+) = LocalEditableAttemptDescriptor(
 	id = id,
 	termId = "quarter-1",
 	code = code,

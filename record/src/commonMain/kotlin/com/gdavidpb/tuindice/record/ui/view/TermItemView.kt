@@ -6,7 +6,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 
@@ -18,7 +18,7 @@ fun TermItemView(
 		termId: String,
 		attemptId: String,
 		newGrade: Int?,
-		newStatus: SubjectStatus?,
+		newOutcome: AttemptOutcome?,
 		isSelected: Boolean
 	) -> Unit
 ) {

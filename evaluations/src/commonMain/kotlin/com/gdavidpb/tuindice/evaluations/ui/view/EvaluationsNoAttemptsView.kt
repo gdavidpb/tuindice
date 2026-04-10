@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.base.ui.view.EmptyView
 
 @Composable
-fun EvaluationsNoSubjectsView(
+fun EvaluationsNoAttemptsView(
 	title: String,
 	message: String,
 	headerContent: @Composable () -> Unit = {}

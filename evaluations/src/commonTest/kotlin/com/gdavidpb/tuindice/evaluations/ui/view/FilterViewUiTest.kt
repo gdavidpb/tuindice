@@ -4,7 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationStateFilter
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationSubjectFilter
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationCourseFilter
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationFilterChipItem
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -62,7 +62,7 @@ class FilterViewUiTest {
 
 	@Test
 	fun when_subjectFilterChipTapped_then_emitsUncheckedState() = runTuIndiceUiTest {
-		val subjectFilter = EvaluationSubjectFilter(subjectCode = "INF-101")
+		val subjectFilter = EvaluationCourseFilter(subjectCode = "INF-101")
 		val selectedEvents = mutableListOf<Pair<String, Boolean>>()
 
 		setTuIndiceTestContent {

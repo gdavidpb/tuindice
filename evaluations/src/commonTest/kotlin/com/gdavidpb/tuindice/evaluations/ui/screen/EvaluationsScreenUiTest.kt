@@ -96,10 +96,10 @@ class EvaluationsScreenUiTest {
 	}
 
 	@Test
-	fun when_stateIsNoSubjects_then_displaysEmptyContainerWithoutActionButton() = runTuIndiceUiTest {
+	fun when_stateIsNoAttempts_then_displaysEmptyContainerWithoutActionButton() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			EvaluationsScreen(
-				state = Evaluations.State.NoSubjects,
+				state = Evaluations.State.NoAttempts,
 				onAddEvaluationClick = {},
 				onEvaluationClick = {},
 				onEvaluationEdit = {},

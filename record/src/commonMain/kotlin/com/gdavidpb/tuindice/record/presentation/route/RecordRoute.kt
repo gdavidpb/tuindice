@@ -58,12 +58,12 @@ fun RecordRoute(
 			}
 		},
 		onRetryClick = viewModel::refreshRecordAction,
-		onAttemptSelectionChange = { termId, attemptId, grade, status, isSelected ->
+		onAttemptSelectionChange = { termId, attemptId, grade, outcome, isSelected ->
 			viewModel.upsertAttemptSelectionAction(
 				termId = termId,
 				attemptId = attemptId,
 				grade = grade,
-				status = status,
+				outcome = outcome,
 				commit = isSelected
 			)
 		}

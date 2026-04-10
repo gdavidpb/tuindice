@@ -44,7 +44,7 @@ class UpsertAttemptSelectionUseCaseTest {
 				termId = "term-1",
 				attemptId = "attempt-1",
 				grade = 4,
-				status = null,
+				outcome = null,
 				commit = false
 			)
 		).single()
@@ -84,7 +84,7 @@ class UpsertAttemptSelectionUseCaseTest {
 				termId = "term-1",
 				attemptId = "attempt-1",
 				grade = 4,
-				status = null,
+				outcome = null,
 				commit = true
 			)
 		).single()

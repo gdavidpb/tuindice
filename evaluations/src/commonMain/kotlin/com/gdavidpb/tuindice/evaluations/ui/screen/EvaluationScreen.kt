@@ -3,10 +3,10 @@ package com.gdavidpb.tuindice.evaluations.ui.screen
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.base.domain.model.subject.Subject
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
+import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationContentView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationFailedView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationLoadingView
@@ -19,13 +19,13 @@ import tuindice.evaluations.generated.resources.view_error_title
 @Composable
 fun EvaluationScreen(
 	state: Evaluation.State,
-	onSubjectChange: (subject: Subject?) -> Unit,
+	onAttemptChange: (attempt: EditableAttemptDescriptor?) -> Unit,
 	onTypeChange: (type: EvaluationType?) -> Unit,
 	onDateChange: (date: Long?) -> Unit,
 	onGradeClick: (grade: Double?, maxGrade: Double?) -> Unit,
 	onMaxGradeClick: (grade: Double?) -> Unit,
 	onDoneClick: (
-		subject: Subject?,
+		attempt: EditableAttemptDescriptor?,
 		type: EvaluationType?,
 		scheduleMode: EvaluationScheduleMode,
 		date: Long?,
@@ -44,7 +44,7 @@ fun EvaluationScreen(
 			is Evaluation.State.Content ->
 				EvaluationContentView(
 					state = targetState,
-					onSubjectChange = onSubjectChange,
+					onAttemptChange = onAttemptChange,
 					onTypeChange = onTypeChange,
 					onDateChange = onDateChange,
 					onGradeClick = onGradeClick,

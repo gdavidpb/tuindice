@@ -44,22 +44,22 @@ fun EvaluationRoute(
 
 	LaunchedEffect(Unit) {
 		if (evaluationId == null)
-			viewModel.loadAvailableSubjectsAction()
+			viewModel.loadAvailableAttemptsAction()
 		else
 			viewModel.loadEvaluationAction(evaluationId)
 	}
 
 	EvaluationScreen(
 		state = viewState,
-		onSubjectChange = viewModel::setSubjectAction,
+		onAttemptChange = viewModel::setAttemptAction,
 		onTypeChange = viewModel::setTypeAction,
 		onDateChange = viewModel::setDateAction,
 		onGradeClick = viewModel::clickGradeAction,
 		onMaxGradeClick = viewModel::clickMaxGradeAction,
-		onDoneClick = { subject, type, scheduleMode, date, grade, maxGrade ->
+		onDoneClick = { attempt, type, scheduleMode, date, grade, maxGrade ->
 			if (evaluationId == null) {
 				viewModel.clickAddEvaluationAction(
-					subject = subject,
+					attempt = attempt,
 					type = type,
 					scheduleMode = scheduleMode,
 					date = date,
@@ -69,7 +69,7 @@ fun EvaluationRoute(
 			} else {
 				viewModel.clickEditEvaluationAction(
 					evaluationId = evaluationId,
-					subject = subject,
+					attempt = attempt,
 					type = type,
 					scheduleMode = scheduleMode,
 					date = date,
@@ -80,7 +80,7 @@ fun EvaluationRoute(
 		},
 		onRetryClick = {
 			if (evaluationId == null)
-				viewModel.loadAvailableSubjectsAction()
+				viewModel.loadAvailableAttemptsAction()
 			else
 				viewModel.loadEvaluationAction(evaluationId)
 		}

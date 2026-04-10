@@ -14,7 +14,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.record.domain.model.filteredProjectionFor
@@ -42,7 +42,7 @@ fun RecordContentView(
 		termId: String,
 		attemptId: String,
 		newGrade: Int?,
-		newStatus: SubjectStatus?,
+		newOutcome: AttemptOutcome?,
 		isSelected: Boolean
 	) -> Unit
 ) {
@@ -117,7 +117,7 @@ private fun RecordTermPagerView(
 		termId: String,
 		attemptId: String,
 		newGrade: Int?,
-		newStatus: SubjectStatus?,
+		newOutcome: AttemptOutcome?,
 		isSelected: Boolean
 	) -> Unit
 ) {

@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
-import com.gdavidpb.tuindice.base.ui.style.SubjectColorGenerator
+import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationSubjectFilter
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationCourseFilter
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationFilterChipItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationFilterGroupItem
 
@@ -27,8 +27,8 @@ fun EvaluationFilter.toEvaluationFilterChipItem(
 	isChecked: Boolean
 ): EvaluationFilterChipItem {
 	return when (this) {
-		is EvaluationSubjectFilter ->
-			SubjectColorGenerator.fromCode(getLabel()).let { subjectColors ->
+		is EvaluationCourseFilter ->
+			CourseCodeColorGenerator.fromCode(getLabel()).let { subjectColors ->
 				EvaluationFilterChipItem(
 					filter = this,
 					labelText = getLabel(),

@@ -1,7 +1,8 @@
 package com.gdavidpb.tuindice.record.ui.model
 
-import com.gdavidpb.tuindice.base.domain.model.subject.GradingMode
-import com.gdavidpb.tuindice.base.domain.model.subject.SubjectStatus
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptBadge
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
+import com.gdavidpb.tuindice.base.domain.model.GradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.MAX_SUBJECT_GRADE
 import com.gdavidpb.tuindice.academiccore.domain.model.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.presentation.model.AttemptItem
@@ -20,15 +21,13 @@ data class AttemptItemDisplay(
 )
 
 fun AttemptItem.toAttemptItemDisplay(currentGrade: Int): AttemptItemDisplay {
-	val explicitStatus = status
-		?.takeUnless { itemStatus -> itemStatus == SubjectStatus.NORMAL }
 	val isQualitative = gradingMode == GradingMode.QUALITATIVE_PASS_FAIL
 	val displayBadge = when {
-		explicitStatus == SubjectStatus.UNREPORTED -> AttemptItemBadge.UNREPORTED
-		isQualitative && (explicitStatus == SubjectStatus.APPROVED) -> AttemptItemBadge.APPROVED
-		isQualitative && (explicitStatus == SubjectStatus.FAILED) -> AttemptItemBadge.FAILED
-		explicitStatus == SubjectStatus.RETIRED -> AttemptItemBadge.RETIRED
-		explicitStatus == SubjectStatus.WITHOUT_EFFECT -> AttemptItemBadge.WITHOUT_EFFECT
+		badge == AttemptBadge.WITHOUT_EFFECT -> AttemptItemBadge.WITHOUT_EFFECT
+		outcome == AttemptOutcome.UNREPORTED -> AttemptItemBadge.UNREPORTED
+		isQualitative && (outcome == AttemptOutcome.APPROVED) -> AttemptItemBadge.APPROVED
+		isQualitative && (outcome == AttemptOutcome.FAILED) -> AttemptItemBadge.FAILED
+		outcome == AttemptOutcome.RETIRED -> AttemptItemBadge.RETIRED
 		!isQualitative && (currentGrade == MIN_SUBJECT_GRADE) -> AttemptItemBadge.RETIRED
 		else -> null
 	}

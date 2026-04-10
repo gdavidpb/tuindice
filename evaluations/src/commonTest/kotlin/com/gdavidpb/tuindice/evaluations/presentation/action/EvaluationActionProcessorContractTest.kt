@@ -51,7 +51,7 @@ class EvaluationActionProcessorContractTest {
 
 		processor.process(
 			action = Evaluation.Action.ClickAddEvaluation(
-				subject = DEFAULT_EVALUATION_SUBJECT,
+				attempt = DEFAULT_EVALUATION_SUBJECT,
 				type = EvaluationType.QUIZ,
 				scheduleMode = EvaluationScheduleMode.DATED,
 				date = initialState.date,
@@ -90,7 +90,7 @@ class EvaluationActionProcessorContractTest {
 		processor.process(
 			action = Evaluation.Action.ClickEditEvaluation(
 				evaluationId = DEFAULT_PENDING_EVALUATION.id,
-				subject = DEFAULT_EVALUATION_SUBJECT,
+				attempt = DEFAULT_EVALUATION_SUBJECT,
 				type = EvaluationType.QUIZ,
 				scheduleMode = EvaluationScheduleMode.DATED,
 				date = initialState.date,
@@ -126,7 +126,7 @@ class EvaluationActionProcessorContractTest {
 		processor.process(
 			action = Evaluation.Action.ClickEditEvaluation(
 				evaluationId = DEFAULT_PENDING_EVALUATION.id,
-				subject = DEFAULT_EVALUATION_SUBJECT,
+				attempt = DEFAULT_EVALUATION_SUBJECT,
 				type = EvaluationType.QUIZ,
 				scheduleMode = EvaluationScheduleMode.DATED,
 				date = initialState.date,
