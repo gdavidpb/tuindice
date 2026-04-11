@@ -1,14 +1,5 @@
 package com.gdavidpb.tuindice.ui.screen
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.shrinkVertically
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -60,10 +51,11 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
+import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
-import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorView
@@ -79,7 +71,7 @@ import com.gdavidpb.tuindice.record.ui.dialog.RecordViewModeInfoDialog
 import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeBannerView
 import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeSwitchView
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
-import kotlinx.coroutines.delay
+import com.gdavidpb.tuindice.ui.view.TopBarBannerHost
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -133,6 +125,16 @@ fun TuIndiceScreen(
 	val isRecordViewModeInfoDialogVisible = remember {
 		mutableStateOf(false)
 	}
+	val topBarBannerBehavior = remember {
+		mutableStateOf<TopBarBannerBehavior?>(null)
+	}
+	val topBarBannerRequestKey = remember {
+		mutableIntStateOf(0)
+	}
+	val showTopBarBanner: (TopBarBannerBehavior) -> Unit = { behavior ->
+		topBarBannerBehavior.value = behavior
+		topBarBannerRequestKey.intValue += 1
+	}
 
 	LaunchedEffect(
 		shellState.isTopBarVisible,
@@ -157,41 +159,11 @@ fun TuIndiceScreen(
 		topBar = {
 			if (shellState.isTopBarVisible) {
 				val recordTopBarViewModeState = shellState.recordTopBarViewModeState
-				val isRecordTopBarViewModeBannerVisible = remember {
-					mutableStateOf(false)
-				}
-				val recordTopBarViewModeBannerAutoHideTrigger = remember {
-					mutableIntStateOf(0)
-				}
 				val topBarContainerColor = MaterialTheme.colorScheme.surface
 				val topBarContentColor = MaterialTheme.colorScheme.onSurface
 				val onRecordTopBarViewModeSelected =
 					if (onRecordViewModeChange == null) null
-					else { mode: RecordViewMode ->
-						isRecordTopBarViewModeBannerVisible.value = true
-						recordTopBarViewModeBannerAutoHideTrigger.intValue += 1
-						onRecordViewModeChange(mode)
-					}
-
-				LaunchedEffect(recordTopBarViewModeState?.selectedMode) {
-					if (recordTopBarViewModeState == null) {
-						isRecordTopBarViewModeBannerVisible.value = false
-						return@LaunchedEffect
-					}
-
-					isRecordTopBarViewModeBannerVisible.value = true
-					recordTopBarViewModeBannerAutoHideTrigger.intValue += 1
-				}
-
-				LaunchedEffect(
-					recordTopBarViewModeState != null,
-					recordTopBarViewModeBannerAutoHideTrigger.intValue
-				) {
-					if (recordTopBarViewModeState == null) return@LaunchedEffect
-
-					delay(RECORD_TOP_BAR_VIEW_MODE_BANNER_AUTO_HIDE_MILLIS)
-					isRecordTopBarViewModeBannerVisible.value = false
-				}
+					else { mode: RecordViewMode -> onRecordViewModeChange(mode) }
 
 				Column(
 					modifier = Modifier.fillMaxWidth()
@@ -268,46 +240,11 @@ fun TuIndiceScreen(
 						)
 					}
 
-					AnimatedVisibility(
+					TopBarBannerHost(
 						modifier = Modifier.fillMaxWidth(),
-						visible = recordTopBarViewModeState != null &&
-							isRecordTopBarViewModeBannerVisible.value,
-						enter = expandVertically(
-							expandFrom = Alignment.Top,
-							animationSpec = tween(
-								durationMillis = RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS,
-								easing = FastOutSlowInEasing
-							)
-						) + slideInVertically(
-							animationSpec = tween(
-								durationMillis = RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS,
-								easing = FastOutSlowInEasing
-							),
-							initialOffsetY = { -it / 2 }
-						) + fadeIn(
-							animationSpec = tween(
-								durationMillis = RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS,
-								easing = FastOutSlowInEasing
-							)
-						),
-						exit = shrinkVertically(
-							shrinkTowards = Alignment.Top,
-							animationSpec = tween(
-								durationMillis = RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS,
-								easing = FastOutSlowInEasing
-							)
-						) + slideOutVertically(
-							animationSpec = tween(
-								durationMillis = RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS,
-								easing = FastOutSlowInEasing
-							),
-							targetOffsetY = { -it / 2 }
-						) + fadeOut(
-							animationSpec = tween(
-								durationMillis = RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS,
-								easing = FastOutSlowInEasing
-							)
-						)
+						isContentAvailable = recordTopBarViewModeState != null,
+						requestKey = topBarBannerRequestKey.intValue,
+						behavior = topBarBannerBehavior.value
 					) {
 						if (recordTopBarViewModeState != null) {
 							RecordTopBarViewModeBannerView(
@@ -381,6 +318,7 @@ fun TuIndiceScreen(
 			isCameraAvailable = isCameraAvailable,
 			onNavigateToExternalResource = onNavigateToExternalResource,
 			onRecordViewModeChangeAvailable = onRecordViewModeChangeAvailable,
+			showTopBarBanner = showTopBarBanner,
 			onViewStateChanged = onViewStateChanged,
 			showSnackBar = showSnackBar,
 			dismissSnackBar = dismissSnackBar
@@ -400,9 +338,6 @@ fun TuIndiceScreen(
 		)
 	}
 }
-
-private const val RECORD_TOP_BAR_VIEW_MODE_BANNER_ANIMATION_MILLIS = 350
-private const val RECORD_TOP_BAR_VIEW_MODE_BANNER_AUTO_HIDE_MILLIS = 5_000L
 private fun TopBarAction.getIcon(): ImageVector {
 	return when (this) {
 		is TopBarAction.SignOutAction ->

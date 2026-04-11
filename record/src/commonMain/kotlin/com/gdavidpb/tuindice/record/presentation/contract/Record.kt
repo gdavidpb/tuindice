@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 
@@ -50,5 +51,9 @@ object Record {
 	sealed class Effect : ViewEffect() {
 		data object NavigateToOutdatedCredentials : Effect()
 		class ShowSnackBar(val message: String) : Effect()
+		class ShowTopBarBanner(
+			val viewMode: RecordViewMode,
+			val behavior: TopBarBannerBehavior
+		) : Effect()
 	}
 }

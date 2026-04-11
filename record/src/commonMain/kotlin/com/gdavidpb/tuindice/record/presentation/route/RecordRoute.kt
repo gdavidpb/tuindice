@@ -4,10 +4,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialCurrent
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
+import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.filteredProjectionFor
@@ -21,11 +24,15 @@ import com.gdavidpb.tuindice.record.ui.screen.RecordScreen
 fun RecordRoute(
 	onNavigateToUpdatePassword: () -> Unit,
 	onTopBarViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
+	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: RecordViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 	val selectedTermId = (viewState as? Record.State.Content)?.selectedTermId
+	val pendingTopBarBanner = remember {
+		mutableStateOf<Record.Effect.ShowTopBarBanner?>(null)
+	}
 
 	DisposableEffect(viewModel) {
 		onTopBarViewModeChangeAvailable(viewModel::setViewModeAction)
@@ -42,11 +49,24 @@ fun RecordRoute(
 
 			is Record.Effect.ShowSnackBar ->
 				showSnackBar(SnackBarMessage(message = effect.message))
+
+			is Record.Effect.ShowTopBarBanner ->
+				pendingTopBarBanner.value = effect
 		}
 	}
 
 	LaunchedEffect(Unit) {
 		viewModel.refreshRecordAction()
+	}
+
+	LaunchedEffect(viewState, pendingTopBarBanner.value) {
+		val currentBanner = pendingTopBarBanner.value ?: return@LaunchedEffect
+		val currentViewMode = (viewState as? Record.State.Content)?.viewMode ?: return@LaunchedEffect
+
+		if (currentViewMode != currentBanner.viewMode) return@LaunchedEffect
+
+		showTopBarBanner(currentBanner.behavior)
+		pendingTopBarBanner.value = null
 	}
 
 	RecordScreen(

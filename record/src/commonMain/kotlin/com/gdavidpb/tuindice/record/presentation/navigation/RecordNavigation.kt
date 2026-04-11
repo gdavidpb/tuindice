@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
+import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
 import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLifecycle
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.route.RecordRoute
@@ -19,6 +20,7 @@ fun NavGraphBuilder.recordNavigation(
 	navController: NavHostController,
 	onNavigateToUpdatePassword: () -> Unit,
 	onTopBarViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
+	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
@@ -36,6 +38,7 @@ fun NavGraphBuilder.recordNavigation(
 			RecordRoute(
 				onNavigateToUpdatePassword = onNavigateToUpdatePassword,
 				onTopBarViewModeChangeAvailable = onTopBarViewModeChangeAvailable,
+				showTopBarBanner = showTopBarBanner,
 				showSnackBar = showSnackBar,
 				viewModel = viewModel
 			)

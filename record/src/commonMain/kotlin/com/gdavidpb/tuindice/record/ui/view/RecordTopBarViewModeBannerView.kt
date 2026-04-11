@@ -13,8 +13,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,7 +20,6 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
-import com.gdavidpb.tuindice.record.ui.dialog.RecordViewModeInfoDialog
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.record_view_mode_banner_official
@@ -32,14 +29,10 @@ import tuindice.record.generated.resources.record_view_mode_info_button_descript
 @Composable
 fun RecordTopBarViewModeBannerView(
 	selectedMode: RecordViewMode,
-	onInfoClick: (() -> Unit)? = null,
+	onInfoClick: () -> Unit,
 	modifier: Modifier = Modifier
 ) {
 	val colors = recordViewModeBannerColors(selectedMode)
-	val isInfoDialogVisible = remember { mutableStateOf(false) }
-	val onInfoButtonClick = onInfoClick ?: {
-		isInfoDialogVisible.value = true
-	}
 
 	Box(
 		modifier = modifier
@@ -74,7 +67,7 @@ fun RecordTopBarViewModeBannerView(
 			modifier = Modifier
 				.align(Alignment.CenterEnd)
 				.testTag(RecordUiTags.TopBarViewModeInfoButton),
-			onClick = onInfoButtonClick
+			onClick = onInfoClick
 		) {
 			Icon(
 				imageVector = Icons.Outlined.Info,
@@ -82,15 +75,6 @@ fun RecordTopBarViewModeBannerView(
 				tint = colors.contentColor
 			)
 		}
-	}
-
-	if (onInfoClick == null && isInfoDialogVisible.value) {
-		RecordViewModeInfoDialog(
-			selectedMode = selectedMode,
-			onDismissRequest = {
-				isInfoDialogVisible.value = false
-			}
-		)
 	}
 }
 
