@@ -9,8 +9,14 @@
 	<string name="link_privacy_policy">Política de privacidad</string>
 	<string name="dialog_title_sign_out">Atención</string>
 	<string name="dialog_message_sign_out">¿Estás seguro de que deseas cerrar sesión?</string>
+	<string name="dialog_message_sign_out_pending">Tienes %1$d cambios pendientes de sincronización. Intentaremos enviarlos antes de cerrar sesión.</string>
+	<string name="dialog_message_sign_out_flush_failed">No pudimos enviar %1$d cambios pendientes. Puedes reintentar o cerrar sesión igualmente.</string>
+	<string name="dialog_message_sign_out_outdated_credentials">No pudimos enviar %1$d cambios pendientes porque tu contraseña necesita actualizarse. Puedes actualizarla ahora o cerrar sesión igualmente.</string>
 	<string name="dialog_button_sign_out">Cerrar sesión</string>
+	<string name="dialog_button_sign_out_and_sync">Enviar y cerrar sesión</string>
+	<string name="dialog_button_sign_out_anyway">Cerrar igualmente</string>
 	<string name="dialog_button_cancel">Cancelar</string>
+	<string name="dialog_button_retry">Reintentar</string>
 	<string name="dialog_title_update_password">Tu contraseña ha cambiado</string>
 	<string name="dialog_title_updating_password">Estamos actualizando tu contraseña…</string>
 	<string name="dialog_message_update_password">Confirma tu contraseña para seguir disfrutando de TuIndice.</string>
@@ -32,4 +38,5 @@
 	<string name="snack_update_password_failed">No pudimos actualizar tu contraseña. Intenta nuevamente</string>
 	<string name="snack_password_updated">Contraseña actualizada</string>
 	<string name="snack_default_error">¡Ha ocurrido un error!</string>
+	<string name="dialog_button_update_password">Actualizar contraseña</string>
 </resources>

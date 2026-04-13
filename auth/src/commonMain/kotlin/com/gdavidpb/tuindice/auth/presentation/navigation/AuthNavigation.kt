@@ -53,6 +53,9 @@ fun NavGraphBuilder.authNavigation(
 
 			SignOutRoute(
 				onNavigateToSignIn = onNavigateToSignIn,
+				onNavigateToUpdatePassword = {
+					navController.navigate(AuthDestination.UpdatePasswordDialog)
+				},
 				onDismissRequest = onDismissRequest,
 				showSnackBar = showSnackBar,
 				viewModel = viewModel

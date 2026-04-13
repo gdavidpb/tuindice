@@ -10,6 +10,7 @@ interface AcademicRecordRepository {
 	suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord>
 	suspend fun getAcademicRecord(): AcademicRecord?
 	suspend fun updateAcademicRecord()
+	suspend fun drainPendingMutations()
 	suspend fun upsertAttemptOverride(
 		attemptId: String,
 		score: AttemptScore?,

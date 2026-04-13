@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.testkit.base.repository
 
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
+import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
 import com.gdavidpb.tuindice.base.domain.model.MainSection
+import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
@@ -10,6 +12,7 @@ import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.FileRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
@@ -277,5 +280,25 @@ class FakeSyncStatusRepository(
 	override suspend fun reset() {
 		syncStatus.value = SyncStatus.Healthy
 		resetCalls++
+	}
+}
+
+class FakePendingChangesRepository(
+	var pendingChanges: PendingChanges = PendingChanges.Empty,
+	var flushResult: FlushPendingChangesResult = FlushPendingChangesResult.Success
+) : PendingChangesRepository {
+	var getPendingChangesCalls = 0
+		private set
+	var flushCalls = 0
+		private set
+
+	override suspend fun getPendingChanges(): PendingChanges {
+		getPendingChangesCalls++
+		return pendingChanges
+	}
+
+	override suspend fun flushPendingChanges(): FlushPendingChangesResult {
+		flushCalls++
+		return flushResult
 	}
 }

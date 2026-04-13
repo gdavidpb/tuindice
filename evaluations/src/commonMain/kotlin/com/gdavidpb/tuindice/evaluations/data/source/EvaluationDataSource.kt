@@ -70,6 +70,14 @@ class EvaluationDataSource(
 		)
 	}
 
+	override suspend fun drainPendingMutations() {
+		mutationEngine.drain(
+			scopeKey = EVALUATIONS_MUTATION_SCOPE,
+			syncSpec = mutationSyncSpec,
+			propagateTerminalErrors = false
+		)
+	}
+
 	override suspend fun getEvaluation(eid: String): Evaluation? {
 		return databaseDataSource.getEvaluation(eid)?.toEvaluation()
 	}

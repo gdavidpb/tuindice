@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.auth.domain.usecase
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
+import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
+import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
@@ -21,6 +23,7 @@ import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenError
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.test.runTest
@@ -183,5 +186,51 @@ class AuthUseCaseContractTest {
 		assertEquals(SyncStatus.OutdatedCredentials, syncStatusRepository.getSyncStatus())
 		assertEquals(false, applicationRepository.cleared)
 		assertEquals(revokeThrowable, reportingRepository.exceptions.single())
+	}
+
+	@Test
+	fun confirmSignOutUseCase_emitsPendingChanges_whenLocalChangesExist() = runTest {
+		val pendingChanges = PendingChanges(
+			totalCount = 2,
+			recordCount = 1,
+			evaluationsCount = 1,
+			hasFailedMutations = false
+		)
+		val authRepository = RecordingAuthRepository()
+		val useCase = ConfirmSignOutUseCase(
+			pendingChangesRepository = FakePendingChangesRepository(pendingChanges = pendingChanges),
+			reportingRepository = RecordingReportingRepository()
+		)
+
+		useCase.execute(Unit).test {
+			assertEquals(pendingChanges, awaitLoadingThenData(this))
+			awaitComplete()
+		}
+
+		assertEquals(0, authRepository.revokeTokensCalls)
+	}
+
+	@Test
+	fun flushPendingChangesUseCase_emitsPendingRemaining_whenPendingChangesRemain() = runTest {
+		val pendingChanges = PendingChanges(
+			totalCount = 3,
+			recordCount = 2,
+			evaluationsCount = 1,
+			hasFailedMutations = true
+		)
+		val useCase = FlushPendingChangesUseCase(
+			pendingChangesRepository = FakePendingChangesRepository(
+				flushResult = FlushPendingChangesResult.PendingRemaining(pendingChanges)
+			),
+			reportingRepository = RecordingReportingRepository()
+		)
+
+		useCase.execute(Unit).test {
+			assertEquals(
+				FlushPendingChangesResult.PendingRemaining(pendingChanges),
+				awaitLoadingThenData(this)
+			)
+			awaitComplete()
+		}
 	}
 }

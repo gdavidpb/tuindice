@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.record.presentation.action
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
+import com.gdavidpb.tuindice.record.domain.usecase.error.RecordUseCaseError
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateRecordUseCase
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import kotlinx.coroutines.flow.Flow
@@ -36,14 +37,13 @@ class RefreshRecordActionProcessor(
 
 					is UseCaseState.Error ->
 						suspend { state: Record.State ->
-							sendRecordErrorEffect(
-								error = useCaseState.error,
-								sideEffect = sideEffect
-							)
+							if (useCaseState.error == RecordUseCaseError.Unauthorized) {
+								sideEffect(Record.Effect.NavigateToOutdatedCredentials)
+							}
 
 							when (state) {
 								is Record.State.Content -> state
-								Record.State.Empty,
+								Record.State.Empty -> state
 								Record.State.Failed,
 								Record.State.Loading,
 								-> Record.State.Failed

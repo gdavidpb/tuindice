@@ -9,13 +9,6 @@ import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onStart
-import org.jetbrains.compose.resources.getString
-import tuindice.summary.generated.resources.Res
-import tuindice.summary.generated.resources.snack_default_error
-import tuindice.summary.generated.resources.snack_network_unavailable
-import tuindice.summary.generated.resources.snack_no_service
-import tuindice.summary.generated.resources.snack_service_unavailable
-import tuindice.summary.generated.resources.snack_timeout
 
 class RefreshSummaryActionProcessor(
 	private val updateUserUseCase: UpdateUserUseCase
@@ -43,65 +36,22 @@ class RefreshSummaryActionProcessor(
 						}
 					}
 
-					is UseCaseState.Error -> when (val error = useCaseState.error) {
-						is UpdateUserUseCaseError.NoConnection ->
-							suspend { _: Summary.State ->
-								val message = if (error.isNetworkAvailable)
-									getString(Res.string.snack_service_unavailable)
-								else
-									getString(Res.string.snack_network_unavailable)
-
-								sideEffect(
-									Summary.Effect.ShowSnackBar(
-										message = message
-									)
-								)
-
-								Summary.State.Failed()
-							}
-
-						is UpdateUserUseCaseError.Timeout ->
-							suspend { _: Summary.State ->
-								val message = getString(Res.string.snack_timeout)
-
-								sideEffect(
-									Summary.Effect.ShowSnackBar(
-										message = message
-									)
-								)
-
-								Summary.State.Failed()
-							}
-
+					is UseCaseState.Error -> when (useCaseState.error) {
+						is UpdateUserUseCaseError.NoConnection,
+						is UpdateUserUseCaseError.Timeout,
 						is UpdateUserUseCaseError.Unavailable,
-						UpdateUserUseCaseError.NotFound ->
-							suspend { state: Summary.State ->
-								val message = getString(Res.string.snack_no_service)
-
-								sideEffect(
-									Summary.Effect.ShowSnackBar(
-										message = message
-									)
-								)
-
-								if (state is Summary.State.Content)
+						UpdateUserUseCaseError.NotFound,
+						null,
+						-> suspend { state: Summary.State ->
+							when (state) {
+								is Summary.State.Content ->
 									state.copy(isUserRefreshing = false)
-								else
-									Summary.State.Failed()
+
+								is Summary.State.Loading,
+								is Summary.State.Failed,
+								-> Summary.State.Failed()
 							}
-
-						else ->
-							suspend { _: Summary.State ->
-								val message = getString(Res.string.snack_default_error)
-
-								sideEffect(
-									Summary.Effect.ShowSnackBar(
-										message = message
-									)
-								)
-
-								Summary.State.Failed()
-							}
+						}
 					}
 				}
 			}

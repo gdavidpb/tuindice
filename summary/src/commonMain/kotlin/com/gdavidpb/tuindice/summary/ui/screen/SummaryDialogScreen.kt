@@ -10,15 +10,10 @@ import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.dialog_button_cancel
 import tuindice.summary.generated.resources.dialog_button_close
 import tuindice.summary.generated.resources.dialog_button_remove
-import tuindice.summary.generated.resources.dialog_button_understood
 import tuindice.summary.generated.resources.dialog_button_update_password
 import tuindice.summary.generated.resources.dialog_message_remove_profile_picture
-import tuindice.summary.generated.resources.dialog_message_sync_failed
-import tuindice.summary.generated.resources.dialog_message_sync_unavailable
 import tuindice.summary.generated.resources.dialog_message_sync_outdated_credentials
 import tuindice.summary.generated.resources.dialog_title_remove_profile_picture
-import tuindice.summary.generated.resources.dialog_title_sync_failed
-import tuindice.summary.generated.resources.dialog_title_sync_unavailable
 import tuindice.summary.generated.resources.dialog_title_sync_outdated_credentials
 import tuindice.summary.generated.resources.menu_pick_profile_picture
 import tuindice.summary.generated.resources.menu_remove_profile_picture
@@ -49,21 +44,9 @@ fun SyncStatusInfoContentDialog(
 	when (syncStatus) {
 		SyncStatus.Healthy -> Unit
 
-		SyncStatus.Unavailable -> SyncStatusInfoDialog(
-			titleText = stringResource(Res.string.dialog_title_sync_unavailable),
-			messageText = stringResource(Res.string.dialog_message_sync_unavailable),
-			confirmText = stringResource(Res.string.dialog_button_understood),
-			onConfirmClick = {},
-			onDismissRequest = onDismissRequest
-		)
-
-		SyncStatus.Failed -> SyncStatusInfoDialog(
-			titleText = stringResource(Res.string.dialog_title_sync_failed),
-			messageText = stringResource(Res.string.dialog_message_sync_failed),
-			confirmText = stringResource(Res.string.dialog_button_understood),
-			onConfirmClick = {},
-			onDismissRequest = onDismissRequest
-		)
+		SyncStatus.Unavailable,
+		SyncStatus.Failed,
+		-> Unit
 
 		SyncStatus.OutdatedCredentials -> SyncStatusInfoDialog(
 			titleText = stringResource(Res.string.dialog_title_sync_outdated_credentials),

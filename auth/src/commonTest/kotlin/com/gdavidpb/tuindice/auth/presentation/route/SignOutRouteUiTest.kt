@@ -3,12 +3,20 @@ package com.gdavidpb.tuindice.auth.presentation.route
 import androidx.compose.ui.test.ExperimentalTestApi
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
+import com.gdavidpb.tuindice.auth.domain.usecase.ConfirmSignOutUseCase
+import com.gdavidpb.tuindice.auth.domain.usecase.FlushPendingChangesUseCase
+import com.gdavidpb.tuindice.auth.domain.usecase.LoadPendingChangesUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.SignOutUseCase
-import com.gdavidpb.tuindice.auth.presentation.action.SignOutActionProcessor
+import com.gdavidpb.tuindice.auth.presentation.action.ConfirmSignOutActionProcessor
+import com.gdavidpb.tuindice.auth.presentation.action.FlushAndSignOutActionProcessor
+import com.gdavidpb.tuindice.auth.presentation.action.ForceSignOutActionProcessor
+import com.gdavidpb.tuindice.auth.presentation.action.LoadPendingChangesActionProcessor
+import com.gdavidpb.tuindice.auth.presentation.action.OpenUpdatePasswordActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignOutViewModel
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
@@ -30,6 +38,7 @@ class SignOutRouteUiTest {
 		setTuIndiceTestContent {
 			SignOutRoute(
 				onNavigateToSignIn = { navigateCalls++ },
+				onNavigateToUpdatePassword = {},
 				onDismissRequest = {},
 				showSnackBar = { message -> snackBarMessages += message },
 				viewModel = viewModel
@@ -57,6 +66,7 @@ class SignOutRouteUiTest {
 		setTuIndiceTestContent {
 			SignOutRoute(
 				onNavigateToSignIn = { navigateCalls++ },
+				onNavigateToUpdatePassword = {},
 				onDismissRequest = {},
 				showSnackBar = { message -> snackBarMessages += message },
 				viewModel = viewModel
@@ -91,17 +101,44 @@ class SignOutRouteUiTest {
 			RecordingApplicationRepository()
 		}
 
+		val pendingChangesRepository = FakePendingChangesRepository()
+		val reportingRepository = RecordingReportingRepository()
+		val authRepository = RecordingAuthRepository()
+		val attestationRepository = FakeAttestationRepository()
+		val sessionRepository = FakeSessionRepository()
+		val syncStatusRepository = FakeSyncStatusRepository()
 		val signOutUseCase = SignOutUseCase(
-			authRepository = RecordingAuthRepository(),
-			attestationRepository = FakeAttestationRepository(),
-			sessionRepository = FakeSessionRepository(),
+			authRepository = authRepository,
+			attestationRepository = attestationRepository,
+			sessionRepository = sessionRepository,
 			applicationRepository = applicationRepository,
-			syncStatusRepository = FakeSyncStatusRepository(),
-			reportingRepository = RecordingReportingRepository()
+			syncStatusRepository = syncStatusRepository,
+			reportingRepository = reportingRepository
 		)
 
 		return SignOutViewModel(
-			signOutActionProcessor = SignOutActionProcessor(signOutUseCase)
+			loadPendingChangesActionProcessor = LoadPendingChangesActionProcessor(
+				LoadPendingChangesUseCase(
+					pendingChangesRepository = pendingChangesRepository,
+					reportingRepository = reportingRepository
+				)
+			),
+			confirmSignOutActionProcessor = ConfirmSignOutActionProcessor(
+				ConfirmSignOutUseCase(
+					pendingChangesRepository = pendingChangesRepository,
+					reportingRepository = reportingRepository
+				),
+				signOutUseCase = signOutUseCase
+			),
+			flushAndSignOutActionProcessor = FlushAndSignOutActionProcessor(
+				FlushPendingChangesUseCase(
+					pendingChangesRepository = pendingChangesRepository,
+					reportingRepository = reportingRepository
+				),
+				signOutUseCase = signOutUseCase
+			),
+			forceSignOutActionProcessor = ForceSignOutActionProcessor(signOutUseCase),
+			openUpdatePasswordActionProcessor = OpenUpdatePasswordActionProcessor()
 		)
 	}
 }

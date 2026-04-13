@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.summary.ui.screen
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.assertIsNotEnabled
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
@@ -89,7 +90,7 @@ class SummaryScreenUiTest {
 	}
 
 	@Test
-	fun when_failedStatusIconTapped_then_displaysSyncStatusBottomSheet() = runTuIndiceUiTest {
+	fun when_failedStatusIconIsVisible_then_itStaysDisabled() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryScreen(
 				state = summaryContentState(),
@@ -100,16 +101,11 @@ class SummaryScreenUiTest {
 			)
 		}
 
-		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
-
-		assertNodeVisible(BaseUiTags.ConfirmationDialogSheet)
-		assertNodeVisible(BaseUiTags.ConfirmationDialogTitle)
-		assertNodeVisible(SummaryUiTags.SyncStatusMessage)
-		assertNodeVisible(BaseUiTags.ConfirmationDialogPositiveButton)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
 	}
 
 	@Test
-	fun when_unavailableStatusIconTapped_then_displaysSyncStatusBottomSheet() = runTuIndiceUiTest {
+	fun when_unavailableStatusIconIsVisible_then_itStaysDisabled() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryScreen(
 				state = summaryContentState(),
@@ -120,12 +116,7 @@ class SummaryScreenUiTest {
 			)
 		}
 
-		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
-
-		assertNodeVisible(BaseUiTags.ConfirmationDialogSheet)
-		assertNodeVisible(BaseUiTags.ConfirmationDialogTitle)
-		assertNodeVisible(SummaryUiTags.SyncStatusMessage)
-		assertNodeVisible(BaseUiTags.ConfirmationDialogPositiveButton)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
 	}
 
 	@Test

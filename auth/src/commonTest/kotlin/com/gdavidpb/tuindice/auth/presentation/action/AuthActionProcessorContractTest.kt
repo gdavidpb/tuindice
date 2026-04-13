@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.auth.presentation.action
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.base.domain.model.PendingChanges
+import com.gdavidpb.tuindice.auth.domain.usecase.ConfirmSignOutUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.UpdatePasswordUseCase
@@ -18,6 +20,7 @@ import com.gdavidpb.tuindice.auth.testing.RecordingApplicationRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
@@ -112,15 +115,25 @@ class AuthActionProcessorContractTest {
 	}
 
 	@Test
-	fun signOutActionProcessor_emitsLoggingOutMutation_thenNavigatesToSignIn() = runTest {
-			val processor = SignOutActionProcessor(
-				signOutUseCase = SignOutUseCase(
-					authRepository = RecordingAuthRepository(),
-					attestationRepository = FakeAttestationRepository(),
-					sessionRepository = FakeSessionRepository(),
-					applicationRepository = RecordingApplicationRepository(),
-					syncStatusRepository = FakeSyncStatusRepository(),
-					reportingRepository = RecordingReportingRepository()
+	fun confirmSignOutActionProcessor_emitsLoggingOutMutation_thenNavigatesToSignIn() = runTest {
+		val authRepository = RecordingAuthRepository()
+		val attestationRepository = FakeAttestationRepository()
+		val sessionRepository = FakeSessionRepository()
+		val applicationRepository = RecordingApplicationRepository()
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val reportingRepository = RecordingReportingRepository()
+		val processor = ConfirmSignOutActionProcessor(
+			confirmSignOutUseCase = ConfirmSignOutUseCase(
+				pendingChangesRepository = FakePendingChangesRepository(),
+				reportingRepository = reportingRepository
+			),
+			signOutUseCase = SignOutUseCase(
+				authRepository = authRepository,
+				attestationRepository = attestationRepository,
+				sessionRepository = sessionRepository,
+				applicationRepository = applicationRepository,
+				syncStatusRepository = syncStatusRepository,
+				reportingRepository = reportingRepository
 			)
 		)
 		val effects = mutableListOf<SignOut.Effect>()
@@ -129,13 +142,52 @@ class AuthActionProcessorContractTest {
 			action = SignOut.Action.ConfirmSignOut,
 			sideEffect = effects::add
 		).test {
-			val loggingOut = awaitItem()(SignOut.State.Idle)
-			assertEquals(SignOut.State.LoggingOut, loggingOut)
+			val loggingOut = awaitItem()(SignOut.State.Plain)
+			assertEquals(SignOut.State.LoggingOut(), loggingOut)
+			assertEquals(loggingOut, awaitItem()(loggingOut))
 			assertEquals(loggingOut, awaitItem()(loggingOut))
 			awaitComplete()
 		}
 
 		assertIs<SignOut.Effect.NavigateToSignIn>(effects.single())
+	}
+
+	@Test
+	fun confirmSignOutActionProcessor_promptsPendingState_beforeLogout_whenLocalChangesExist() = runTest {
+		val pendingChanges = PendingChanges(
+			totalCount = 2,
+			recordCount = 1,
+			evaluationsCount = 1,
+			hasFailedMutations = false
+		)
+		val processor = ConfirmSignOutActionProcessor(
+			confirmSignOutUseCase = ConfirmSignOutUseCase(
+				pendingChangesRepository = FakePendingChangesRepository(pendingChanges = pendingChanges),
+				reportingRepository = RecordingReportingRepository()
+			),
+			signOutUseCase = SignOutUseCase(
+				authRepository = RecordingAuthRepository(),
+				attestationRepository = FakeAttestationRepository(),
+				sessionRepository = FakeSessionRepository(),
+				applicationRepository = RecordingApplicationRepository(),
+				syncStatusRepository = FakeSyncStatusRepository(),
+				reportingRepository = RecordingReportingRepository()
+			)
+		)
+		val effects = mutableListOf<SignOut.Effect>()
+
+		processor.process(
+			action = SignOut.Action.ConfirmSignOut,
+			sideEffect = effects::add
+		).test {
+			val loggingOut = awaitItem()(SignOut.State.Plain)
+			assertEquals(SignOut.State.LoggingOut(), loggingOut)
+			val pending = awaitItem()(loggingOut)
+			assertEquals(SignOut.State.Pending(pendingChanges), pending)
+			awaitComplete()
+		}
+
+		assertEquals(emptyList(), effects)
 	}
 
 	@Test

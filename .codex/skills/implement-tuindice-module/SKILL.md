@@ -72,6 +72,10 @@ Implement module work by copying the nearest existing module pattern instead of 
 - Do not create `*DataRepository` for single-origin repositories. If there is only one concrete origin, keep that implementation in `data/source` and have it implement the domain `Repository` directly.
 - In `commonModule`, default shared runtime services and infrastructure repositories to `single`; use `factory` only when the object is intentionally transient or has no shared identity/state.
 - `ViewModel` classes extend `BaseViewModel` and delegate work to `ActionProcessor` classes.
+- Each `ActionProcessor` must own exactly one action subtype. Do not branch on `action` inside an `ActionProcessor`; dispatch from the `ViewModel`'s `processAction(...)` and keep each processor focused on a single `Action` class/object.
+- Use `*Params` types only when a single use case actually needs input data. Do not use a sealed/object `Params` type to multiplex unrelated operations through one use case; split those flows into separate use cases instead.
+- When a user flow has preparatory steps plus a final side effect, keep the final side effect in its own dedicated use case named after that final user action, and let presentation orchestrate when to call it.
+- Do not hide that final side effect behind a shared helper like `perform*()` or inside preparatory use cases. Preparatory use cases should validate state, read pending work, or flush prerequisites; the processor may then invoke the final `*UseCase` explicitly.
 - For repository-backed feature state, prefer the `summary` and `record` split:
   - `Observe*UseCase` reads local state only
   - `Update*UseCase` refreshes and persists explicitly

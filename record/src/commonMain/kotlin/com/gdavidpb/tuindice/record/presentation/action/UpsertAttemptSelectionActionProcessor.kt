@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.record.presentation.action
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
+import com.gdavidpb.tuindice.record.domain.usecase.error.RecordUseCaseError
 import com.gdavidpb.tuindice.record.domain.usecase.UpsertAttemptSelectionUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.param.UpsertAttemptSelectionParams
 import com.gdavidpb.tuindice.record.presentation.contract.Record
@@ -29,10 +30,9 @@ class UpsertAttemptSelectionActionProcessor(
 			when (useCaseState) {
 				is UseCaseState.Error ->
 					suspend { state: Record.State ->
-						sendRecordErrorEffect(
-							error = useCaseState.error,
-							sideEffect = sideEffect
-						)
+						if (useCaseState.error == RecordUseCaseError.Unauthorized) {
+							sideEffect(Record.Effect.NavigateToOutdatedCredentials)
+						}
 						state
 					}
 

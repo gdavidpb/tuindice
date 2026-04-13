@@ -39,6 +39,8 @@ private class StubAcademicRecordRepository : AcademicRecordRepository {
 
 	override suspend fun updateAcademicRecord() = Unit
 
+	override suspend fun drainPendingMutations() = Unit
+
 	override suspend fun upsertAttemptOverride(
 		attemptId: String,
 		score: AttemptScore?,

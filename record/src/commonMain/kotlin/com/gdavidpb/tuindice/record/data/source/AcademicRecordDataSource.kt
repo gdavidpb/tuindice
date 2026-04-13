@@ -63,6 +63,14 @@ class AcademicRecordDataSource(
 		)
 	}
 
+	override suspend fun drainPendingMutations() {
+		mutationEngine.drain(
+			scopeKey = RECORD_MUTATION_SCOPE,
+			syncSpec = mutationSyncSpec,
+			propagateTerminalErrors = false
+		)
+	}
+
 	override suspend fun upsertAttemptOverride(
 		attemptId: String,
 		score: AttemptScore?,
@@ -176,7 +184,7 @@ class AcademicRecordDataSource(
 		mutationEngine.submit(
 			mutation = mutation,
 			syncSpec = mutationSyncSpec,
-			propagateTerminalErrors = true
+			propagateTerminalErrors = false
 		)
 	}
 

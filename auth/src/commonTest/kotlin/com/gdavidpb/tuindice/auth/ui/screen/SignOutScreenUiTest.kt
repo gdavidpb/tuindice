@@ -20,8 +20,9 @@ class SignOutScreenUiTest {
 
 		setTuIndiceTestContent {
 			SignOutScreen(
-				state = SignOut.State.Idle,
+				state = SignOut.State.Plain,
 				onConfirmClick = { confirmClicks++ },
+				onSecondaryClick = {},
 				onDismissRequest = {}
 			)
 		}
@@ -38,8 +39,9 @@ class SignOutScreenUiTest {
 
 		setTuIndiceTestContent {
 			SignOutScreen(
-				state = SignOut.State.Idle,
+				state = SignOut.State.Plain,
 				onConfirmClick = {},
+				onSecondaryClick = {},
 				onDismissRequest = { dismissCalls++ }
 			)
 		}

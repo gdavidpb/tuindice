@@ -114,7 +114,7 @@ class SummaryContentViewUiTest {
 	}
 
 	@Test
-	fun when_syncHasFailed_then_statusIconTapInvokesCallbackAndLastUpdateRemainsVisible() = runTuIndiceUiTest {
+	fun when_syncHasFailed_then_statusIconRemainsDisabledAndLastUpdateRemainsVisible() = runTuIndiceUiTest {
 		val contentState = summaryContentState()
 		var statusIconClicks = 0
 
@@ -130,14 +130,13 @@ class SummaryContentViewUiTest {
 
 		assertNodeVisible(SummaryUiTags.StatusRow)
 		assertNodeVisible(SummaryUiTags.StatusIconButton)
-		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
 		onNodeWithText(contentState.lastUpdate).assertIsDisplayed()
-		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
-		assertEquals(1, statusIconClicks)
+		assertEquals(0, statusIconClicks)
 	}
 
 	@Test
-	fun when_syncIsUnavailable_then_statusIconTapInvokesCallbackAndLastUpdateRemainsVisible() = runTuIndiceUiTest {
+	fun when_syncIsUnavailable_then_statusIconRemainsDisabledAndLastUpdateRemainsVisible() = runTuIndiceUiTest {
 		val contentState = summaryContentState()
 		var statusIconClicks = 0
 
@@ -153,10 +152,9 @@ class SummaryContentViewUiTest {
 
 		assertNodeVisible(SummaryUiTags.StatusRow)
 		assertNodeVisible(SummaryUiTags.StatusIconButton)
-		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
 		onNodeWithText(contentState.lastUpdate).assertIsDisplayed()
-		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
-		assertEquals(1, statusIconClicks)
+		assertEquals(0, statusIconClicks)
 	}
 
 	@Test

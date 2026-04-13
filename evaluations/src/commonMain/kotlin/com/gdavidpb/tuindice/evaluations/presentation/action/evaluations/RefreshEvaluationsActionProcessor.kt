@@ -8,12 +8,6 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.error.UpdateEvaluationsU
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
-import org.jetbrains.compose.resources.getString
-import tuindice.evaluations.generated.resources.Res
-import tuindice.evaluations.generated.resources.snack_default_error
-import tuindice.evaluations.generated.resources.snack_network_unavailable
-import tuindice.evaluations.generated.resources.snack_service_unavailable
-import tuindice.evaluations.generated.resources.snack_timeout
 
 class RefreshEvaluationsActionProcessor(
 	private val updateEvaluationsUseCase: UpdateEvaluationsUseCase
@@ -39,34 +33,12 @@ class RefreshEvaluationsActionProcessor(
 					is UseCaseState.Data -> null
 
 					is UseCaseState.Error -> suspend { current: Evaluations.State ->
-						val message = when (val error = state.error) {
-							is UpdateEvaluationsUseCaseError.NoConnection ->
-								if (error.isNetworkAvailable) {
-									getString(Res.string.snack_service_unavailable)
-								} else {
-									getString(Res.string.snack_network_unavailable)
-								}
-
-							is UpdateEvaluationsUseCaseError.Timeout ->
-								getString(Res.string.snack_timeout)
-
-							is UpdateEvaluationsUseCaseError.Unavailable ->
-								getString(Res.string.snack_service_unavailable)
-
-							else ->
-								getString(Res.string.snack_default_error)
-						}
-
-						sideEffect(
-							Evaluations.Effect.ShowSnackBar(message = message)
-						)
-
 						when (current) {
 							is Evaluations.State.Content -> current
-							Evaluations.State.Empty,
+							Evaluations.State.Empty -> current
+							Evaluations.State.NoAttempts -> current
 							Evaluations.State.Failed,
 							Evaluations.State.Loading,
-							Evaluations.State.NoAttempts,
 							-> Evaluations.State.Failed
 						}
 					}

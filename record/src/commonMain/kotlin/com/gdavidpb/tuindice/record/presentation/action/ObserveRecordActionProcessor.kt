@@ -39,12 +39,14 @@ class ObserveRecordActionProcessor(
 						}
 
 					is UseCaseState.Error ->
-						suspend { _: Record.State ->
-							sendRecordErrorEffect(
-								error = null,
-								sideEffect = sideEffect
-							)
-							Record.State.Failed
+						suspend { state: Record.State ->
+							when (state) {
+								is Record.State.Content -> state
+								Record.State.Empty -> state
+								Record.State.Failed,
+								Record.State.Loading,
+								-> Record.State.Failed
+							}
 						}
 				}
 			}

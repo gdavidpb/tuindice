@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.auth.presentation.route
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
@@ -12,6 +13,7 @@ import com.gdavidpb.tuindice.auth.ui.screen.SignOutScreen
 @Composable
 fun SignOutRoute(
 	onNavigateToSignIn: () -> Unit,
+	onNavigateToUpdatePassword: () -> Unit,
 	onDismissRequest: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: SignOutViewModel
@@ -23,6 +25,9 @@ fun SignOutRoute(
 			is SignOut.Effect.NavigateToSignIn ->
 				onNavigateToSignIn()
 
+			is SignOut.Effect.NavigateToUpdatePassword ->
+				onNavigateToUpdatePassword()
+
 			is SignOut.Effect.ShowSnackBar ->
 				showSnackBar(
 					SnackBarMessage(
@@ -32,9 +37,14 @@ fun SignOutRoute(
 		}
 	}
 
+	LaunchedEffect(Unit) {
+		viewModel.loadPendingChangesAction()
+	}
+
 	SignOutScreen(
 		state = viewState,
 		onConfirmClick = viewModel::signOutAction,
+		onSecondaryClick = viewModel::forceSignOutAction,
 		onDismissRequest = onDismissRequest
 	)
 }

@@ -5,7 +5,6 @@ import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationItemMapping
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationDateTextMapping
@@ -19,10 +18,6 @@ import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.label_state_completed
 import tuindice.evaluations.generated.resources.label_state_not_grade
 import tuindice.evaluations.generated.resources.label_state_pending
-import tuindice.evaluations.generated.resources.snack_default_error
-import tuindice.evaluations.generated.resources.snack_network_unavailable
-import tuindice.evaluations.generated.resources.snack_service_unavailable
-import tuindice.evaluations.generated.resources.snack_timeout
 
 class LoadEvaluationsActionProcessor(
 	private val getEvaluationsUseCase: GetEvaluationsUseCase
@@ -82,31 +77,15 @@ class LoadEvaluationsActionProcessor(
 						}
 					}
 
-					is UseCaseState.Error -> suspend { _: Evaluations.State ->
-						val message = when (val error = useCaseState.error) {
-							is EvaluationsUseCaseError.NoConnection ->
-								if (error.isNetworkAvailable)
-									getString(Res.string.snack_service_unavailable)
-								else
-									getString(Res.string.snack_network_unavailable)
-
-							is EvaluationsUseCaseError.Timeout ->
-								getString(Res.string.snack_timeout)
-
-							is EvaluationsUseCaseError.Unavailable ->
-								getString(Res.string.snack_service_unavailable)
-
-							else ->
-								getString(Res.string.snack_default_error)
+					is UseCaseState.Error -> suspend { current: Evaluations.State ->
+						when (current) {
+							is Evaluations.State.Content -> current
+							Evaluations.State.Empty -> current
+							Evaluations.State.NoAttempts -> current
+							Evaluations.State.Failed,
+							Evaluations.State.Loading,
+							-> Evaluations.State.Failed
 						}
-
-						sideEffect(
-							Evaluations.Effect.ShowSnackBar(
-								message = message
-							)
-						)
-
-						Evaluations.State.Failed
 					}
 				}
 			}

@@ -4,6 +4,9 @@ import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
 import com.gdavidpb.tuindice.auth.data.source.AuthDataSource
 import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.auth.domain.usecase.ConfirmSignOutUseCase
+import com.gdavidpb.tuindice.auth.domain.usecase.FlushPendingChangesUseCase
+import com.gdavidpb.tuindice.auth.domain.usecase.LoadPendingChangesUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.UpdatePasswordUseCase
@@ -11,13 +14,17 @@ import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptio
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.UpdatePasswordParamsValidator
+import com.gdavidpb.tuindice.auth.presentation.action.ConfirmSignOutActionProcessor
+import com.gdavidpb.tuindice.auth.presentation.action.FlushAndSignOutActionProcessor
+import com.gdavidpb.tuindice.auth.presentation.action.ForceSignOutActionProcessor
+import com.gdavidpb.tuindice.auth.presentation.action.LoadPendingChangesActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.OpenPrivacyPolicyActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.OpenTermsAndConditionsActionProcessor
+import com.gdavidpb.tuindice.auth.presentation.action.OpenUpdatePasswordActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.SetPasswordActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.SetUpdatePasswordActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.SetUsbIdActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.SignInActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.SignOutActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.TogglePasswordVisibilityActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.ToggleUpdatePasswordVisibilityActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.UpdatePasswordActionProcessor
@@ -44,13 +51,20 @@ val authModule = module {
 	factoryOf(::TogglePasswordVisibilityActionProcessor)
 	factoryOf(::OpenTermsAndConditionsActionProcessor)
 	factoryOf(::OpenPrivacyPolicyActionProcessor)
-	factoryOf(::SignOutActionProcessor)
+	factoryOf(::LoadPendingChangesActionProcessor)
+	factoryOf(::ConfirmSignOutActionProcessor)
+	factoryOf(::FlushAndSignOutActionProcessor)
+	factoryOf(::ForceSignOutActionProcessor)
+	factoryOf(::OpenUpdatePasswordActionProcessor)
 	factoryOf(::SetUpdatePasswordActionProcessor)
 	factoryOf(::ToggleUpdatePasswordVisibilityActionProcessor)
 	factoryOf(::UpdatePasswordActionProcessor)
 
 	/* Use cases */
 
+	factoryOf(::LoadPendingChangesUseCase)
+	factoryOf(::ConfirmSignOutUseCase)
+	factoryOf(::FlushPendingChangesUseCase)
 	factoryOf(::SignInUseCase)
 	factoryOf(::SignOutUseCase)
 	factoryOf(::UpdatePasswordUseCase)

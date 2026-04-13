@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
+import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
@@ -22,6 +23,7 @@ import com.gdavidpb.tuindice.data.repository.messaging.MessagingRemoteDataReposi
 import com.gdavidpb.tuindice.data.source.messaging.MessagingApiDataSource
 import com.gdavidpb.tuindice.data.source.messaging.MessagingSettingsDataSource
 import com.gdavidpb.tuindice.data.source.credentials.CredentialsDataSource
+import com.gdavidpb.tuindice.data.source.pending.PendingChangesDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncDataSource
 import com.gdavidpb.tuindice.data.repository.sync.SyncRemoteDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepository
@@ -51,6 +53,7 @@ val commonModule = module {
 	singleOf(::MessagingDataSource) { bind<MessagingRepository>() }
 
 	singleOf(::CredentialsDataSource) { bind<CredentialsRepository>() }
+	singleOf(::PendingChangesDataSource) { bind<PendingChangesRepository>() }
 	singleOf(::SyncSettingsDataSource) { bind<SyncSettingsLocalDataRepository>() }
 	singleOf(::SyncStatusSettingsDataSource) { bind<SyncStatusRepository>() }
 	singleOf(::SyncApiDataSource) { bind<SyncRemoteDataRepository>() }

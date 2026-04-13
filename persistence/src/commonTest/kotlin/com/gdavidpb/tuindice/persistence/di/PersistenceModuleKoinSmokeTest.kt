@@ -152,6 +152,11 @@ private class FakeTuIndiceDatabase : TuIndiceDatabase() {
 			scopeKey: String
 		): List<PendingMutationEntity> = emptyList()
 
+		override suspend fun getMutations(
+			storeId: String,
+			scopeKey: String
+		): List<PendingMutationEntity> = emptyList()
+
 		override suspend fun getPendingMutation(
 			storeId: String,
 			scopeKey: String,
@@ -169,6 +174,13 @@ private class FakeTuIndiceDatabase : TuIndiceDatabase() {
 		override suspend fun deletePendingMutationsByReplaceKey(
 			storeId: String,
 			replaceKey: String
+		): Int = 0
+
+		override suspend fun retryFailedMutations(
+			storeId: String,
+			scopeKey: String,
+			status: String,
+			updatedAt: Long
 		): Int = 0
 
 		override suspend fun deleteAll(): Int = 0

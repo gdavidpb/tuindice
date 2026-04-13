@@ -193,6 +193,8 @@ class RecordingEvaluationRepository(
 		refreshThrowable?.let { throw it }
 	}
 
+	override suspend fun drainPendingMutations() = Unit
+
 	override suspend fun getEvaluation(eid: String): Evaluation? {
 		return evaluationsState.value.firstOrNull { evaluation -> evaluation.id == eid }
 	}

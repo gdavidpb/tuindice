@@ -11,6 +11,7 @@ interface EvaluationRepository {
 	suspend fun observeEvaluationsFlow(): Flow<List<Evaluation>>
 	suspend fun observeHasSyncedEvaluationsFlow(): Flow<Boolean>
 	suspend fun updateEvaluations()
+	suspend fun drainPendingMutations()
 	suspend fun getEvaluation(eid: String): Evaluation?
 	suspend fun addEvaluation(add: EvaluationAdd)
 	suspend fun updateEvaluation(update: EvaluationUpdate)

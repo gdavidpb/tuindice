@@ -331,7 +331,7 @@ class EvaluationsRouteUiTest {
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			evaluationsFlowCalls > 0 && snackBars.isNotEmpty()
+			evaluationsFlowCalls > 0
 		}
 
 		onNodeWithTag(BaseUiTags.ErrorViewRetryButton).performClick()
@@ -341,7 +341,7 @@ class EvaluationsRouteUiTest {
 		}
 
 		assertTrue(evaluationsFlowCalls >= 2)
-		assertTrue(snackBars.isNotEmpty())
+		assertTrue(snackBars.isEmpty())
 	}
 
 	private fun createViewModel(

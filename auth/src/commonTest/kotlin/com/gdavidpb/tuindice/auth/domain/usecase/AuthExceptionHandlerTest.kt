@@ -20,7 +20,7 @@ class AuthExceptionHandlerTest {
 			networkRepository = FakeNetworkRepository(isAvailable = true)
 		).parseException(throwable)
 
-		assertEquals(SignInUseCaseError.InvalidCredentials, actual)
+		assertEquals(SignInUseCaseError.AuthenticationFailed, actual)
 	}
 
 	@Test
