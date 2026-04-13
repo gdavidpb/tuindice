@@ -12,8 +12,8 @@
 		A1B2C3D4E5F60708090A1022 /* TuIndiceAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A1012 /* TuIndiceAppDelegate.swift */; };
 		A1B2C3D4E5F60708090A1023 /* TuIndicePlatformBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A1013 /* TuIndicePlatformBridge.swift */; };
 		A1B2C3D4E5F60708090A1024 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A101A /* Assets.xcassets */; };
-		C1A74271B3D64A39AFD7B771 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C93D7335D55E44CDB9259626 /* GoogleService-Info.plist */; };
 		B27FFE1B4776D0780E777F67 /* Pods_TuIndiceHost.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 5FC9705D4B235589FC86BD3D /* Pods_TuIndiceHost.framework */; };
+		C1A74271B3D64A39AFD7B771 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = C93D7335D55E44CDB9259626 /* GoogleService-Info.plist */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -30,8 +30,8 @@
 		A1B2C3D4E5F60708090A1018 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		A1B2C3D4E5F60708090A1019 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		A1B2C3D4E5F60708090A101A /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
-		C93D7335D55E44CDB9259626 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 		AF1BDC0EEC885E12D192C018 /* Pods-TuIndiceHost.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-TuIndiceHost.release.xcconfig"; path = "Target Support Files/Pods-TuIndiceHost/Pods-TuIndiceHost.release.xcconfig"; sourceTree = "<group>"; };
+		C93D7335D55E44CDB9259626 /* GoogleService-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -58,7 +58,7 @@
 		A1B2C3D4E5F60708090A1070 = {
 			isa = PBXGroup;
 			children = (
-				A1B2C3D4E5F60708090A1072 /* Sources/TuIndiceHost */,
+				A1B2C3D4E5F60708090A1072 /* TuIndiceHost */,
 				A1B2C3D4E5F60708090A1073 /* Resources */,
 				A1B2C3D4E5F60708090A1074 /* Config */,
 				A1B2C3D4E5F60708090A1075 /* scripts */,
@@ -76,7 +76,7 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		A1B2C3D4E5F60708090A1072 /* Sources/TuIndiceHost */ = {
+		A1B2C3D4E5F60708090A1072 /* TuIndiceHost */ = {
 			isa = PBXGroup;
 			children = (
 				A1B2C3D4E5F60708090A1010 /* TuIndiceApp.swift */,
@@ -201,18 +201,34 @@
 			inputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-TuIndiceHost/Pods-TuIndiceHost-resources-${CONFIGURATION}-input-files.xcfilelist",
 			);
-			inputPaths = (
-			);
 			name = "[CP] Copy Pods Resources";
 			outputFileListPaths = (
 				"${PODS_ROOT}/Target Support Files/Pods-TuIndiceHost/Pods-TuIndiceHost-resources-${CONFIGURATION}-output-files.xcfilelist",
-			);
-			outputPaths = (
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-TuIndiceHost/Pods-TuIndiceHost-resources.sh\"\n";
 			showEnvVarsInLog = 0;
+		};
+		A1B2C3D4E5F60708090A1033 /* Build KMP Framework */ = {
+			isa = PBXShellScriptBuildPhase;
+			alwaysOutOfDate = 1;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+			);
+			name = "Build KMP Framework";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/maincore-framework-${CONFIGURATION}-${PLATFORM_NAME}-${ARCHS}.stamp",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/scripts/build-kmp-framework.sh\"\n";
 		};
 		C7A1D7A89F2C4E2EB7D945A1 /* Crashlytics Run */ = {
 			isa = PBXShellScriptBuildPhase;
@@ -237,26 +253,6 @@
 			shellPath = /bin/sh;
 			shellScript = "\"${PODS_ROOT}/FirebaseCrashlytics/run\"\n";
 			showEnvVarsInLog = 0;
-		};
-		A1B2C3D4E5F60708090A1033 /* Build KMP Framework */ = {
-			isa = PBXShellScriptBuildPhase;
-			alwaysOutOfDate = 1;
-			buildActionMask = 2147483647;
-			files = (
-			);
-			inputFileListPaths = (
-			);
-			inputPaths = (
-			);
-			name = "Build KMP Framework";
-			outputFileListPaths = (
-			);
-			outputPaths = (
-				"$(DERIVED_FILE_DIR)/maincore-framework-${CONFIGURATION}-${PLATFORM_NAME}-${ARCHS}.stamp",
-			);
-			runOnlyForDeploymentPostprocessing = 0;
-			shellPath = /bin/sh;
-			shellScript = "\"${SRCROOT}/scripts/build-kmp-framework.sh\"\n";
 		};
 		FE466F57FAC6DC1BCE6C38F1 /* [CP] Check Pods Manifest.lock */ = {
 			isa = PBXShellScriptBuildPhase;

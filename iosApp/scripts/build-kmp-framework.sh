@@ -6,14 +6,34 @@ CONFIGURATION_NAME="${CONFIGURATION:-Debug}"
 PLATFORM="${PLATFORM_NAME:-iphonesimulator}"
 ARCHS_VALUE="${ARCHS:-arm64}"
 CI_MODE="${CI:-}"
+LOCAL_GRADLE_USER_HOME_DIR="$ROOT_DIR/.gradle-local"
+DEFAULT_GRADLE_USER_HOME_DIR="${HOME:-}/.gradle"
+GRADLE_DIST_NAME="$(
+	sed -n 's/^distributionUrl=.*\/\(gradle-[^\/]*\)\.zip$/\1/p' \
+		"$ROOT_DIR/gradle/wrapper/gradle-wrapper.properties" | head -n 1
+)"
 
 if [[ -n "${GRADLE_USER_HOME:-}" ]]; then
 	GRADLE_USER_HOME_DIR="$GRADLE_USER_HOME"
-elif [[ -d "${HOME:-}/.gradle" && -w "${HOME:-}/.gradle" ]]; then
-	GRADLE_USER_HOME_DIR="${HOME}/.gradle"
 else
-	GRADLE_USER_HOME_DIR="$ROOT_DIR/.gradle-local"
+	GRADLE_USER_HOME_DIR="$LOCAL_GRADLE_USER_HOME_DIR"
 fi
+
+prime_local_gradle_wrapper_dist() {
+	[[ "$GRADLE_USER_HOME_DIR" == "$LOCAL_GRADLE_USER_HOME_DIR" ]] || return
+	[[ -n "$GRADLE_DIST_NAME" ]] || return
+
+	local source_dist_dir="$DEFAULT_GRADLE_USER_HOME_DIR/wrapper/dists/$GRADLE_DIST_NAME"
+	local target_dist_dir="$GRADLE_USER_HOME_DIR/wrapper/dists/$GRADLE_DIST_NAME"
+	local target_ok_marker="$target_dist_dir"/*/"$GRADLE_DIST_NAME.zip.ok"
+	local target_unpacked_dir="$target_dist_dir"/*/gradle-*
+
+	[[ -d "$source_dist_dir" ]] || return
+	compgen -G "$target_ok_marker" >/dev/null && compgen -G "$target_unpacked_dir" >/dev/null && return
+
+	mkdir -p "$target_dist_dir"
+	cp -R "$source_dist_dir"/. "$target_dist_dir"/
+}
 
 # Xcode script phases may run without JAVA_HOME; Gradle/Kotlin toolchain needs it.
 if [[ -z "${JAVA_HOME:-}" ]]; then
@@ -52,10 +72,12 @@ fi
 
 cd "$ROOT_DIR"
 mkdir -p "$GRADLE_USER_HOME_DIR"
+prime_local_gradle_wrapper_dist
 export GRADLE_USER_HOME="$GRADLE_USER_HOME_DIR"
 echo "Building maincore framework and syncing Compose resources for iOS"
 declare -a gradle_args=(
 	"-Dorg.gradle.jvmargs=$GRADLE_JVM_ARGS"
+	"--no-configuration-cache"
 )
 
 for target_suffix in "${target_suffixes[@]}"; do
