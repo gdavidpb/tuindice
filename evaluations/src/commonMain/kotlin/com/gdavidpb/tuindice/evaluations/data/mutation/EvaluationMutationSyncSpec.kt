@@ -117,13 +117,13 @@ class EvaluationMutationSyncSpec(
 		command: EvaluationMutation.Add,
 		throwable: Throwable
 	): MutationFailureResolution<String, EvaluationMutation> {
-		val snapshot = refreshRemoteSnapshot()
-		val remoteMatch = snapshot.evaluations.firstOrNull { evaluation ->
-			evaluation.referenceId == command.referenceId
-		}
-
 		return when (classifyError(mutation, throwable)) {
 			MutationFailureKind.Conflict -> {
+				val snapshot = refreshRemoteSnapshotSafely() ?: return MutationFailureResolution.Fail()
+				val remoteMatch = snapshot.evaluations.firstOrNull { evaluation ->
+					evaluation.referenceId == command.referenceId
+				}
+
 				if (remoteMatch != null) {
 					MutationFailureResolution.Drop()
 				} else {
@@ -137,6 +137,11 @@ class EvaluationMutationSyncSpec(
 
 			MutationFailureKind.PreconditionFailed,
 			MutationFailureKind.NotFound -> {
+				val snapshot = refreshRemoteSnapshotSafely() ?: return MutationFailureResolution.Fail()
+				val remoteMatch = snapshot.evaluations.firstOrNull { evaluation ->
+					evaluation.referenceId == command.referenceId
+				}
+
 				if (remoteMatch != null) {
 					MutationFailureResolution.Drop()
 				} else {
@@ -157,7 +162,8 @@ class EvaluationMutationSyncSpec(
 		return when (classifyError(mutation, throwable)) {
 			MutationFailureKind.Conflict,
 			MutationFailureKind.PreconditionFailed -> {
-				val remoteEvaluation = refreshRemoteSnapshot().evaluations
+				val snapshot = refreshRemoteSnapshotSafely() ?: return MutationFailureResolution.Fail()
+				val remoteEvaluation = snapshot.evaluations
 					.firstOrNull { evaluation -> evaluation.id == command.evaluationId }
 
 				when {
@@ -178,7 +184,7 @@ class EvaluationMutationSyncSpec(
 
 			MutationFailureKind.NotFound -> {
 				databaseDataSource.removeConfirmedEvaluation(command.evaluationId)
-				refreshRemoteSnapshot()
+				refreshRemoteSnapshotSafely() ?: return MutationFailureResolution.Fail()
 				MutationFailureResolution.Drop(propagate = true)
 			}
 
@@ -194,7 +200,8 @@ class EvaluationMutationSyncSpec(
 	): MutationFailureResolution<String, EvaluationMutation> {
 		return when (classifyError(mutation, throwable)) {
 			MutationFailureKind.Conflict -> {
-				val remoteEvaluation = refreshRemoteSnapshot().evaluations
+				val snapshot = refreshRemoteSnapshotSafely() ?: return MutationFailureResolution.Fail()
+				val remoteEvaluation = snapshot.evaluations
 					.firstOrNull { evaluation -> evaluation.id == command.evaluationId }
 
 				if (remoteEvaluation == null) {
@@ -203,16 +210,15 @@ class EvaluationMutationSyncSpec(
 				} else {
 					MutationFailureResolution.Retry(
 						mutation.copy(
-							precondition = MutationPrecondition.Revision(
-								refreshRemoteSnapshot().anchorRevision
-							)
+							precondition = MutationPrecondition.Revision(snapshot.anchorRevision)
 						)
 					)
 				}
 			}
 
 			MutationFailureKind.PreconditionFailed -> {
-				val remoteEvaluation = refreshRemoteSnapshot().evaluations
+				val snapshot = refreshRemoteSnapshotSafely() ?: return MutationFailureResolution.Fail()
+				val remoteEvaluation = snapshot.evaluations
 					.firstOrNull { evaluation -> evaluation.id == command.evaluationId }
 
 				if (remoteEvaluation == null) {
@@ -225,7 +231,7 @@ class EvaluationMutationSyncSpec(
 
 			MutationFailureKind.NotFound -> {
 				databaseDataSource.removeConfirmedEvaluation(command.evaluationId)
-				refreshRemoteSnapshot()
+				refreshRemoteSnapshotSafely() ?: return MutationFailureResolution.Fail()
 				MutationFailureResolution.Drop(propagate = true)
 			}
 
@@ -252,5 +258,9 @@ class EvaluationMutationSyncSpec(
 			maxGrade == (command.maxGrade ?: maxGrade) &&
 			date == resolvedDate &&
 			type == (command.type ?: type)
+	}
+
+	private suspend fun refreshRemoteSnapshotSafely(): RemoteEvaluationsSnapshot? {
+		return runCatching { refreshRemoteSnapshot() }.getOrNull()
 	}
 }

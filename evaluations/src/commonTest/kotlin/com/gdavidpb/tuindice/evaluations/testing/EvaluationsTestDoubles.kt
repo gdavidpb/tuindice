@@ -360,6 +360,7 @@ class FakeEvaluationsApiDataSource(
 	),
 	private val addResult: RemoteEvaluation? = null,
 	private val updateResult: RemoteEvaluation? = null,
+	private val getEvaluationsThrowable: Throwable? = null,
 	private val addThrowable: Throwable? = null,
 	private val updateThrowable: Throwable? = null,
 	private val removeThrowable: Throwable? = null
@@ -371,6 +372,7 @@ class FakeEvaluationsApiDataSource(
 
 	override suspend fun getEvaluations(): RemoteEvaluationsSnapshot {
 		getEvaluationsCalls++
+		getEvaluationsThrowable?.let { throw it }
 		return snapshot
 	}
 
