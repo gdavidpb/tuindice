@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.evaluations.data.source
 
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -16,4 +18,107 @@ class RoomDatabaseDataSourceTermKindTest {
 	fun isEditableTermKind_returnsFalse_forHistoricalOfficialTerms() {
 		assertFalse(RoomDatabaseDataSource.isEditableTermKind(TermKind.OFFICIAL_HISTORICAL.name))
 	}
+
+	@Test
+	fun selectCurrentEditableTermId_prefersTermActiveOnCurrentDate() {
+		val terms = listOf(
+			academicTerm(
+				id = "Q2026A",
+				startAt = 1_767_236_400_000L,
+				endAt = 1_774_926_000_000L,
+				kind = TermKind.OFFICIAL_CURRENT.name
+			),
+			academicTerm(
+				id = "Q2026B",
+				startAt = 1_775_012_400_000L,
+				endAt = 1_785_470_400_000L,
+				kind = TermKind.SYNTHETIC.name
+			),
+			academicTerm(
+				id = "Q2026C",
+				startAt = 1_788_235_200_000L,
+				endAt = 1_798_686_000_000L,
+				kind = TermKind.SYNTHETIC.name
+			)
+		)
+
+		assertEquals(
+			"Q2026B",
+			RoomDatabaseDataSource.selectCurrentEditableTermId(
+				terms = terms,
+				nowMillis = 1_776_124_800_000L
+			)
+		)
+	}
+
+	@Test
+	fun selectCurrentEditableTermId_fallsBackToLatestStartedEditableTerm_whenNoTermIsCurrentlyActive() {
+		val terms = listOf(
+			academicTerm(
+				id = "Q2026A",
+				startAt = 1_767_236_400_000L,
+				endAt = 1_774_926_000_000L,
+				kind = TermKind.OFFICIAL_CURRENT.name
+			),
+			academicTerm(
+				id = "Q2026B",
+				startAt = 1_775_012_400_000L,
+				endAt = 1_785_470_400_000L,
+				kind = TermKind.SYNTHETIC.name
+			),
+			academicTerm(
+				id = "Q2026C",
+				startAt = 1_788_235_200_000L,
+				endAt = 1_798_686_000_000L,
+				kind = TermKind.SYNTHETIC.name
+			)
+		)
+
+		assertEquals(
+			"Q2026B",
+			RoomDatabaseDataSource.selectCurrentEditableTermId(
+				terms = terms,
+				nowMillis = 1_787_000_000_000L
+			)
+		)
+	}
+
+	@Test
+	fun selectCurrentEditableTermId_ignoresHistoricalTerms_whenChoosingFallback() {
+		val terms = listOf(
+			academicTerm(
+				id = "Q2025C",
+				startAt = 1_756_699_200_000L,
+				endAt = 1_767_150_000_000L,
+				kind = TermKind.OFFICIAL_HISTORICAL.name
+			),
+			academicTerm(
+				id = "Q2026B",
+				startAt = 1_775_012_400_000L,
+				endAt = 1_785_470_400_000L,
+				kind = TermKind.SYNTHETIC.name
+			)
+		)
+
+		assertEquals(
+			"Q2026B",
+			RoomDatabaseDataSource.selectCurrentEditableTermId(
+				terms = terms,
+				nowMillis = 1_774_000_000_000L
+			)
+		)
+	}
 }
+
+private fun academicTerm(
+	id: String,
+	startAt: Long,
+	endAt: Long,
+	kind: String
+) = AcademicTermEntity(
+	id = id,
+	label = id,
+	startAt = startAt,
+	endAt = endAt,
+	kind = kind
+)

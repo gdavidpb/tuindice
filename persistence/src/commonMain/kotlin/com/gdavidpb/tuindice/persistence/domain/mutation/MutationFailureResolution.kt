@@ -7,6 +7,10 @@ sealed class MutationFailureResolution<ScopeKey, Command : OutboxMutation> {
 		val mutation: MutationEnvelope<ScopeKey, Command>
 	) : MutationFailureResolution<ScopeKey, Command>()
 
+	data class Defer<ScopeKey, Command : OutboxMutation>(
+		val lastError: String? = null
+	) : MutationFailureResolution<ScopeKey, Command>()
+
 	data class Drop<ScopeKey, Command : OutboxMutation>(
 		val propagate: Boolean = false
 	) : MutationFailureResolution<ScopeKey, Command>()

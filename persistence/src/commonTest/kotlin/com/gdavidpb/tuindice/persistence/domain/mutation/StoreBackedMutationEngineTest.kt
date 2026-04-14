@@ -274,6 +274,45 @@ class StoreBackedMutationEngineTest {
 	}
 
 	@Test
+	fun submit_whenFailureIsDeferred_keepsMutationPending() = runTest {
+		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
+		val engine = createEngine(store, this)
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+			override suspend fun send(
+				mutation: MutationEnvelope<String, TestMutation>
+			): TestAck {
+				throw TestTerminalFailure()
+			}
+
+			override suspend fun confirm(
+				mutation: MutationEnvelope<String, TestMutation>,
+				ack: TestAck
+			) = Unit
+
+			override suspend fun resolveFailure(
+				mutation: MutationEnvelope<String, TestMutation>,
+				throwable: Throwable
+			): MutationFailureResolution<String, TestMutation> {
+				return MutationFailureResolution.Defer()
+			}
+		}
+
+		engine.submit(
+			mutation = testMutationEnvelope(
+				mutationId = "mutation-1",
+				value = 45
+			),
+			syncSpec = syncSpec,
+			propagateTerminalErrors = true
+		)
+
+		val pendingMutation = requireNotNull(store.getPendingMutation("record", "mutation-1"))
+		assertEquals(PendingMutationStatus.Pending, pendingMutation.status)
+		assertEquals(listOf(pendingMutation), store.getPendingMutations("record"))
+		assertIs<String>(pendingMutation.lastError)
+	}
+
+	@Test
 	fun submitInBackground_enqueuesImmediately_and_confirmsAfterAck() = runTest {
 		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
 		val engine = createEngine(store, this)

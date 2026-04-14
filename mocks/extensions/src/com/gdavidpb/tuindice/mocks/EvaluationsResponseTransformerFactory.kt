@@ -49,6 +49,7 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 				val evaluations = root.get("evaluations").map(::parseEvaluation)
 				return RuntimeState(
 					anchorRevision = anchorRevision,
+					defaultTermId = evaluations.firstOrNull()?.termId ?: DEFAULT_TERM_ID,
 					evaluationsById = LinkedHashMap(evaluations.associateBy { it.id }),
 				)
 			} catch (exception: Exception) {
@@ -134,6 +135,8 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 
 			val attemptId = root.path("attempt_id").takeIf { it.isTextual }?.asText()
 				?: return jsonResponse(400, mapOf("error" to "invalid_payload"), ERROR_DELAY_MS)
+			val termId = root.path("term_id").takeIf { it.isTextual }?.asText()?.takeIf(String::isNotBlank)
+				?: inferTermId(attemptId)
 			val scheduleMode = root.path("schedule_mode").takeIf { it.isTextual }?.asText()
 				?: return jsonResponse(400, mapOf("error" to "invalid_payload"), ERROR_DELAY_MS)
 			val type = root.path("type").takeIf { it.canConvertToInt() }?.asInt()
@@ -148,7 +151,7 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 			val evaluation = EvaluationModel(
 				id = realId,
 				referenceId = referenceId,
-				termId = inferTermId(attemptId),
+				termId = termId,
 				attemptId = attemptId,
 				subjectCode = inferSubjectCode(attemptId),
 				type = type,
@@ -302,13 +305,14 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 			SUBJECT_CODE_PATTERN.find(attemptId)?.groupValues?.getOrNull(1) ?: attemptId
 
 		private fun inferTermId(attemptId: String): String =
-			SUBJECT_CODE_PATTERN.find(attemptId)?.groupValues?.getOrNull(2) ?: DEFAULT_TERM_ID
+			SUBJECT_CODE_PATTERN.find(attemptId)?.groupValues?.getOrNull(2) ?: state.defaultTermId
 
 		private fun generateEvaluationId(referenceId: String): String =
 			"EV" + referenceId.filter(Char::isLetterOrDigit).uppercase().ifBlank { "NEWID" }
 
 		private data class RuntimeState(
 			var anchorRevision: Long,
+			val defaultTermId: String,
 			val evaluationsById: LinkedHashMap<String, EvaluationModel>,
 			val mutationResults: MutableMap<String, Map<String, Any?>> = linkedMapOf(),
 		)

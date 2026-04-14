@@ -30,11 +30,9 @@ class RemoveEvaluationActionProcessor(
 					}
 
 					is UseCaseState.Data -> suspend { state: Evaluations.State ->
-						val successMessage = getString(Res.string.snack_evaluation_removed)
-
 						sideEffect(
 							Evaluations.Effect.ShowSnackBar(
-								message = successMessage
+								message = getString(Res.string.snack_evaluation_removed)
 							)
 						)
 

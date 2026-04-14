@@ -56,7 +56,7 @@ PROJECTED_TERM_SCHEDULE = (
 		"name": "Enero - Marzo 2026",
 		"start_date": 1767236400000,
 		"end_date": 1774926000000,
-		"kind": "official_current",
+		"kind": "official_historical",
 		"revision": 9,
 		"presence_scenario": None,
 	},
@@ -65,7 +65,7 @@ PROJECTED_TERM_SCHEDULE = (
 		"name": "Abril - Julio 2026",
 		"start_date": 1775012400000,
 		"end_date": 1785470400000,
-		"kind": "synthetic",
+		"kind": "official_current",
 		"revision": 10,
 		"presence_scenario": "record-term-Q2026B",
 	},
@@ -328,40 +328,99 @@ def build_record_state(primary_terms: list[ParsedTerm], projected_terms: list[Pa
 	}
 
 
-def build_evaluations_state(record_state: dict[str, object]) -> dict[str, object]:
-	current_term = next(
-		term for term in record_state["terms"]  # type: ignore[index]
-		if term["id"] == "Q2026A"
-	)
-	current_attempts = [
-		attempt
-		for attempt in current_term["attempts"]
-		if attempt.get("grading_mode", "numeric") == "numeric"
-	]
+def clamp_datetime(target: datetime, minimum: datetime, maximum: datetime) -> datetime:
+	if maximum < minimum:
+		maximum = minimum
+	return min(max(target, minimum), maximum)
 
+
+def select_current_evaluations_term(record_state: dict[str, object]) -> dict[str, object]:
+	now_millis = int(datetime.now(tz=TIMEZONE).timestamp() * 1000)
+	candidate_terms = [
+		term
+		for term in record_state["terms"]  # type: ignore[index]
+		if term["kind"] != "official_historical"
+		and any(
+			attempt.get("grading_mode", "numeric") == "numeric"
+			for attempt in term["attempts"]
+		)
+	]
+	if not candidate_terms:
+		raise ValueError("No editable term with numeric attempts was found for evaluations")
+
+	active_terms = [
+		term for term in candidate_terms
+		if int(term["start_date"]) <= now_millis <= int(term["end_date"])
+	]
+	if active_terms:
+		return max(active_terms, key=lambda term: (int(term["start_date"]), str(term["id"])))
+
+	started_terms = [
+		term for term in candidate_terms
+		if int(term["start_date"]) <= now_millis
+	]
+	if started_terms:
+		return max(started_terms, key=lambda term: (int(term["start_date"]), str(term["id"])))
+
+	return min(candidate_terms, key=lambda term: (int(term["start_date"]), str(term["id"])))
+
+
+def build_sample_evaluation_date(current_term: dict[str, object], offset_days: int) -> int:
+	term_start = datetime.fromtimestamp(current_term["start_date"] / 1000, tz=TIMEZONE)
+	term_end = datetime.fromtimestamp(current_term["end_date"] / 1000, tz=TIMEZONE)
+	now = datetime.now(tz=TIMEZONE).replace(hour=12, minute=0, second=0, microsecond=0)
+
+	date = clamp_datetime(
+		target=now + timedelta(days=offset_days),
+		minimum=(term_start + timedelta(days=7)).replace(hour=12, minute=0, second=0, microsecond=0),
+		maximum=(term_end - timedelta(days=7)).replace(hour=12, minute=0, second=0, microsecond=0),
+	)
+	return int(date.timestamp() * 1000)
+
+
+def build_evaluations_state(record_state: dict[str, object]) -> dict[str, object]:
+	current_term = select_current_evaluations_term(record_state)
+	current_attempts = sorted(
+		[
+			attempt
+			for attempt in current_term["attempts"]
+			if attempt.get("grading_mode", "numeric") == "numeric"
+		],
+		key=lambda attempt: (str(attempt["code"]), str(attempt["id"])),
+	)
+	if not current_attempts:
+		raise ValueError("Expected at least one numeric attempt in the current editable term")
+
+	term_suffix = str(current_term["id"])[-1]
+	patterns = (
+		{"offset_days": -5, "grade": 82.0},
+		{"offset_days": 10, "grade": None},
+		{"offset_days": -1, "grade": None},
+		{"offset_days": -2, "grade": 67.0},
+	)
 	evaluations = []
-	base_date = datetime.fromtimestamp(current_term["start_date"] / 1000, tz=TIMEZONE)
 	for index, attempt in enumerate(current_attempts, start=1):
-		evaluation_date = base_date + timedelta(days=14 + (index * 14))
+		pattern = patterns[(index - 1) % len(patterns)]
+		grade = pattern["grade"]
 		evaluations.append(
 			{
-				"id": f"EV{attempt['code']}A1",
-				"reference_id": f"EV{attempt['code']}A1",
-				"term_id": "Q2026A",
+				"id": f"EV{attempt['code']}{term_suffix}1",
+				"reference_id": f"EV{attempt['code']}{term_suffix}1",
+				"term_id": current_term["id"],
 				"attempt_id": attempt["id"],
 				"subject_code": attempt["code"],
 				"type": EVALUATION_TYPE_SEQUENCE[(index - 1) % len(EVALUATION_TYPE_SEQUENCE)],
 				"schedule_mode": "dated",
-				"grade": 18.0 if index == 1 else None,
-				"max_grade": 20.0,
-				"date": int(evaluation_date.timestamp() * 1000),
-				"is_done": index == 1,
+				"grade": grade,
+				"max_grade": 100.0,
+				"date": build_sample_evaluation_date(current_term, offset_days=pattern["offset_days"]),
+				"is_done": grade is not None,
 				"revision": 1,
 			}
 		)
 
 	return {
-		"anchor_revision": 10,
+		"anchor_revision": int(current_term["revision"]),
 		"evaluations": evaluations,
 	}
 

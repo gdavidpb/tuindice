@@ -20,11 +20,14 @@ import com.gdavidpb.tuindice.evaluations.testing.FakeSettingsDataSource
 import com.gdavidpb.tuindice.evaluations.testing.createEvaluationsMutationEngine
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class EvaluationRepositoryContractTest {
 	@Test
 	fun updateEvaluations_refreshesLocalCache_whenCooldownIsDisabled() = runTest {
@@ -237,5 +240,32 @@ class EvaluationRepositoryContractTest {
 		assertTrue(pendingRemove.command is EvaluationMutation.Remove)
 		assertEquals(MutationPrecondition.Revision(DEFAULT_EVALUATIONS_ANCHOR_REVISION), pendingRemove.precondition)
 		assertTrue(evaluationsApiDataSource.removeCalls.isEmpty())
+	}
+
+	@Test
+	fun removeEvaluation_whenRequestFailsOffline_keepsPendingRemoveQueued() = runTest {
+		val pendingMutationStore = FakeMutationEnvelopeStore<String, EvaluationMutation>()
+		val repository = EvaluationDataSource(
+			databaseDataSource = FakeDatabaseDataSource(),
+			evaluationsApiDataSource = FakeEvaluationsApiDataSource(
+				removeThrowable = IllegalStateException("Could not connect to the server.")
+			),
+			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+			mutationEngine = createEvaluationsMutationEngine(
+				store = pendingMutationStore,
+				coroutineScope = backgroundScope
+			),
+			identifierRepository = FakeIdentifierRepository("mutation-5")
+		)
+
+		repository.removeEvaluation(EvaluationRemove(id = "evaluation-1"))
+		advanceUntilIdle()
+
+		val pendingRemove = pendingMutationStore
+			.getPendingMutations(EVALUATIONS_MUTATION_SCOPE)
+			.single()
+		assertTrue(pendingRemove.command is EvaluationMutation.Remove)
+		assertEquals("mutation-5", pendingRemove.mutationId)
+		assertEquals(PendingMutationStatus.Pending, pendingRemove.status)
 	}
 }

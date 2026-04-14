@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.data.mutation
 
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.base.utils.extension.isPreconditionFailed
@@ -100,6 +101,10 @@ class EvaluationMutationSyncSpec(
 		mutation: MutationEnvelope<String, EvaluationMutation>,
 		throwable: Throwable
 	): MutationFailureResolution<String, EvaluationMutation> {
+		if (throwable.isConnection()) {
+			return MutationFailureResolution.Defer()
+		}
+
 		return when (val command = mutation.command) {
 			is EvaluationMutation.Add ->
 				resolveAddFailure(mutation, command, throwable)

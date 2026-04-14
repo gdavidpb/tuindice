@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.evaluations.data.mutation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
+import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_LOCAL_PENDING_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATIONS_ANCHOR_REVISION
 import com.gdavidpb.tuindice.evaluations.testing.FakeDatabaseDataSource
@@ -17,7 +18,7 @@ import kotlin.test.assertIs
 
 class EvaluationMutationSyncSpecTest {
 	@Test
-	fun resolveAddFailure_whenRequestFailsOffline_doesNotAttemptSnapshotRefresh() = runTest {
+	fun resolveAddFailure_whenRequestFailsOffline_defersMutation_withoutSnapshotRefresh() = runTest {
 		val offlineError = IllegalStateException("Could not connect to the server.")
 		val evaluationsApiDataSource = FakeEvaluationsApiDataSource(
 			getEvaluationsThrowable = offlineError
@@ -52,7 +53,39 @@ class EvaluationMutationSyncSpecTest {
 			throwable = offlineError
 		)
 
-		assertIs<MutationFailureResolution.Fail<String, EvaluationMutation>>(resolution)
+		assertIs<MutationFailureResolution.Defer<String, EvaluationMutation>>(resolution)
+		assertEquals(0, evaluationsApiDataSource.getEvaluationsCalls)
+	}
+
+	@Test
+	fun resolveRemoveFailure_whenRequestFailsOffline_defersMutation_withoutSnapshotRefresh() = runTest {
+		val offlineError = IllegalStateException("Could not connect to the server.")
+		val evaluationsApiDataSource = FakeEvaluationsApiDataSource(
+			getEvaluationsThrowable = offlineError
+		)
+		val syncSpec = EvaluationMutationSyncSpec(
+			databaseDataSource = FakeDatabaseDataSource(),
+			evaluationsApiDataSource = evaluationsApiDataSource,
+			refreshRemoteSnapshot = evaluationsApiDataSource::getEvaluations
+		)
+
+		val resolution = syncSpec.resolveFailure(
+			mutation = MutationEnvelope(
+				mutationId = "mutation-2",
+				scopeKey = EVALUATIONS_MUTATION_SCOPE,
+				command = EvaluationMutation.Remove(
+					evaluationId = DEFAULT_LOCAL_PENDING_EVALUATION.id
+				),
+				precondition = MutationPrecondition.Revision(DEFAULT_EVALUATIONS_ANCHOR_REVISION),
+				status = PendingMutationStatus.Pending,
+				createdAt = 1L,
+				updatedAt = 1L,
+				lastError = null
+			),
+			throwable = offlineError
+		)
+
+		assertIs<MutationFailureResolution.Defer<String, EvaluationMutation>>(resolution)
 		assertEquals(0, evaluationsApiDataSource.getEvaluationsCalls)
 	}
 }

@@ -334,6 +334,11 @@ class EvaluationsRouteUiTest {
 			evaluationsFlowCalls > 0
 		}
 
+		waitUntil(timeoutMillis = 2_000) {
+			onAllNodesWithTag(BaseUiTags.ErrorViewRetryButton)
+				.fetchSemanticsNodes().isNotEmpty()
+		}
+
 		onNodeWithTag(BaseUiTags.ErrorViewRetryButton).performClick()
 
 		waitUntil(timeoutMillis = 2_000) {

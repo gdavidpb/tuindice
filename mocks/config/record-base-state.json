@@ -107,7 +107,7 @@
         }
       ],
       "presence_scenario": "record-term-Q2026B",
-      "kind": "synthetic"
+      "kind": "official_current"
     },
     {
       "id": "Q2026A",
@@ -139,7 +139,7 @@
           "scenario": "record-attempt-PB5611Q2026A"
         }
       ],
-      "kind": "official_current"
+      "kind": "official_historical"
     },
     {
       "id": "Q2025C",

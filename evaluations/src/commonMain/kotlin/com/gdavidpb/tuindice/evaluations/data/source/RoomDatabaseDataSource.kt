@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.data.source
 
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.academiccore.domain.model.isEditable
+import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.base.domain.model.GradingMode
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationEntity
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEditableAttemptDescriptor
@@ -18,6 +19,7 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationSyncStateDao
+import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationSyncStateEntity
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
@@ -88,15 +90,15 @@ class RoomDatabaseDataSource(
 	}
 
 	override suspend fun getAvailableAttempts(): List<LocalEditableAttemptDescriptor> {
-		val openTermIds = academicTermDao
-			.getTerms()
-			.filter { term -> isEditableTermKind(term.kind) }
-			.mapTo(hashSetOf()) { term -> term.id }
+		val currentEditableTermId = selectCurrentEditableTermId(
+			terms = academicTermDao.getTerms(),
+			nowMillis = currentTimeMillis()
+		) ?: return emptyList()
 
 		return academicAttemptDao
 			.getAttempts()
 			.asSequence()
-			.filter { attempt -> attempt.termId in openTermIds }
+			.filter { attempt -> attempt.termId == currentEditableTermId }
 			.filter { attempt -> attempt.gradingMode == "NUMERIC" }
 			.map { attempt -> attempt.toLocalEditableAttemptDescriptor() }
 			.filter { attempt -> attempt.gradingMode == GradingMode.NUMERIC }
@@ -232,6 +234,31 @@ class RoomDatabaseDataSource(
 	internal companion object {
 		fun isEditableTermKind(kind: String): Boolean {
 			return TermKind.valueOf(kind).isEditable
+		}
+
+		fun selectCurrentEditableTermId(
+			terms: List<AcademicTermEntity>,
+			nowMillis: Long
+		): String? {
+			val editableTerms = terms.filter { term -> isEditableTermKind(term.kind) }
+			if (editableTerms.isEmpty()) return null
+
+			val termComparator = compareBy(
+				AcademicTermEntity::startAt,
+				AcademicTermEntity::id
+			)
+
+			return editableTerms
+				.filter { term -> term.startAt <= nowMillis && nowMillis <= term.endAt }
+				.maxWithOrNull(termComparator)
+				?.id
+				?: editableTerms
+					.filter { term -> term.startAt <= nowMillis }
+					.maxWithOrNull(termComparator)
+					?.id
+				?: editableTerms
+					.minWithOrNull(termComparator)
+					?.id
 		}
 	}
 }
