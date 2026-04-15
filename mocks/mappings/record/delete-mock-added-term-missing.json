@@ -4,7 +4,7 @@
   "requiredScenarioState": "DELETED_R2",
   "request": {
     "method": "DELETE",
-    "urlPath": "/record/v3/overlay/terms/MOCK-ADDED-TERM"
+    "urlPath": "/record/v4/overlay/terms/MOCK-ADDED-TERM"
   },
   "response": {
     "status": 404,

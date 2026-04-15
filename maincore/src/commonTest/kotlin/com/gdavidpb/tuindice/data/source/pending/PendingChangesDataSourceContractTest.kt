@@ -141,7 +141,9 @@ private class FakePendingMutationDao(
 	}
 
 	override suspend fun upsertEntities(entities: List<PendingMutationEntity>) {
-		entities.forEach(::upsertEntity)
+		for (entity in entities) {
+			upsertEntity(entity)
+		}
 	}
 
 	override fun observePendingMutations(
@@ -219,20 +221,19 @@ private class FakePendingMutationDao(
 	): Int {
 		operations += "retry:$scopeKey"
 		var retried = 0
-		mutations.replaceAll { mutation ->
+		for (index in mutations.indices) {
+			val mutation = mutations[index]
 			if (
 				mutation.storeId == storeId &&
 				mutation.scopeKey == scopeKey &&
 				mutation.status == PendingMutationStatus.Failed.name
 			) {
 				retried++
-				mutation.copy(
+				mutations[index] = mutation.copy(
 					status = status,
 					updatedAt = updatedAt,
 					lastError = null
 				)
-			} else {
-				mutation
 			}
 		}
 		return retried

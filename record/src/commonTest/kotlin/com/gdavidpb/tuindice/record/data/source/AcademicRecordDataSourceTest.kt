@@ -40,7 +40,6 @@ class AcademicRecordDataSourceTest {
 			terms = listOf(
 				AcademicTerm(
 					id = "term-1",
-					label = "2026-1",
 					startAtMillis = 1L,
 					endAtMillis = 2L,
 					kind = TermKind.OFFICIAL_CURRENT,
@@ -159,7 +158,6 @@ class AcademicRecordDataSourceTest {
 			terms = listOf(
 				AcademicTerm(
 					id = "term-1",
-					label = "2026-1",
 					startAtMillis = 1L,
 					endAtMillis = 2L,
 					kind = TermKind.OFFICIAL_CURRENT,
@@ -266,7 +264,6 @@ class AcademicRecordDataSourceTest {
 			terms = listOf(
 				AcademicTerm(
 					id = "term-1",
-					label = "2026-1",
 					startAtMillis = 1L,
 					endAtMillis = 2L,
 					kind = TermKind.OFFICIAL_CURRENT,
@@ -421,7 +418,6 @@ private class FakeAcademicRecordLocalDataRepository(
 		val updated = recordState.value.copy(
 			terms = recordState.value.terms.filterNot { term -> term.id == command.termId } + AcademicTerm(
 				id = command.termId,
-				label = command.label,
 				startAtMillis = command.startAtMillis,
 				endAtMillis = command.endAtMillis,
 				kind = TermKind.SYNTHETIC,
@@ -505,7 +501,7 @@ private class ControlledAcademicRecordRemoteDataRepository(
 		releaseDeleteFailure.await()
 		throw clientRequestException(
 			statusCode = HttpStatusCode.NotFound,
-			path = "/record/v3/overlay/attempts/$attemptId"
+			path = "/record/v4/overlay/attempts/$attemptId"
 		)
 	}
 
@@ -556,7 +552,7 @@ private class RebasingAcademicRecordRemoteDataRepository(
 
 			2 -> throw clientRequestException(
 				statusCode = HttpStatusCode.PreconditionFailed,
-				path = "/record/v3/overlay/attempts/$attemptId"
+				path = "/record/v4/overlay/attempts/$attemptId"
 			)
 
 			else -> latestResponse

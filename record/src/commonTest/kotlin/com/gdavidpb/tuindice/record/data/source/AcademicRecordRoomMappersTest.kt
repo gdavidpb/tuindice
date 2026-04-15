@@ -16,7 +16,6 @@ class AcademicRecordRoomMappersTest {
 	fun academicTerm_roundTripsThroughRoomEntity_withTermKind() {
 		val term = AcademicTerm(
 			id = "term-1",
-			label = "Enero - Marzo 2026",
 			startAtMillis = 1_000L,
 			endAtMillis = 2_000L,
 			kind = TermKind.OFFICIAL_CURRENT
@@ -33,7 +32,6 @@ class AcademicRecordRoomMappersTest {
 	fun academicAttempt_roundTripsThroughRoomEntities_preservingPositionOrderAndStatus() {
 		val term = AcademicTerm(
 			id = "term-1",
-			label = "Synthetic Term",
 			startAtMillis = 1_000L,
 			endAtMillis = 2_000L,
 			kind = TermKind.SYNTHETIC

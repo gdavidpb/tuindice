@@ -5,7 +5,7 @@
   "newScenarioState": "REV_2_STATUS_RETIRED",
   "request": {
     "method": "PUT",
-    "urlPath": "/record/v3/overlay/attempts/EP5406Q2026C",
+    "urlPath": "/record/v4/overlay/attempts/EP5406Q2026C",
     "bodyPatterns": [
       {
         "matchesJsonPath": "$[?(@.outcome == 'retired')]"

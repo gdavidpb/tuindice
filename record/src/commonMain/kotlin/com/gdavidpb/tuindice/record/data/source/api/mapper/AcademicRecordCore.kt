@@ -36,7 +36,6 @@ internal fun AcademicRecordMutation.AddSyntheticTerm.toAddSyntheticTermRequest(
 	expectedRevision: Long
 ): AddSyntheticTermRequest {
 	return AddSyntheticTermRequest(
-		label = label,
 		startAt = startAtMillis,
 		endAt = endAtMillis,
 		attempts = attempts.map { attempt ->

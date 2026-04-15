@@ -92,7 +92,7 @@ def build_get_mapping(target_dir: Path) -> None:
 				"priority": SUCCESS_PRIORITY,
 				"request": {
 					"method": "GET",
-					"urlPath": "/record/v3"
+					"urlPath": "/record/v4"
 				},
 			"response": response(
 				status=200,
@@ -112,7 +112,7 @@ def build_put_mappings(target_dir: Path, base_state: dict, max_revision: int) ->
 	]
 
 	for attempt in mutable_attempts:
-		url_path = f"/record/v3/overlay/attempts/{attempt['id']}"
+		url_path = f"/record/v4/overlay/attempts/{attempt['id']}"
 		base_revision = attempt["revision"]
 		grading_mode = attempt.get("grading_mode", "numeric")
 
@@ -248,7 +248,7 @@ def build_delete_attempt_mappings(target_dir: Path, base_state: dict, max_revisi
 	]
 
 	for attempt in mutable_attempts:
-		url_path = f"/record/v3/overlay/attempts/{attempt['id']}"
+		url_path = f"/record/v4/overlay/attempts/{attempt['id']}"
 		base_revision = attempt["revision"]
 		grading_mode = attempt.get("grading_mode", "numeric")
 		base_grade = attempt.get("grade", 0)
@@ -358,7 +358,7 @@ def build_delete_term_mappings(target_dir: Path) -> None:
 				"newScenarioState": deleted_state,
 				"request": {
 					"method": "DELETE",
-					"urlPath": f"/record/v3/overlay/terms/{term_id}"
+					"urlPath": f"/record/v4/overlay/terms/{term_id}"
 				},
 				"response": response(
 					status=200,
@@ -376,7 +376,7 @@ def build_delete_term_mappings(target_dir: Path) -> None:
 				"requiredScenarioState": deleted_state,
 				"request": {
 					"method": "DELETE",
-					"urlPath": f"/record/v3/overlay/terms/{term_id}"
+					"urlPath": f"/record/v4/overlay/terms/{term_id}"
 				},
 				"response": response(
 					status=404,
@@ -390,9 +390,8 @@ def build_delete_term_mappings(target_dir: Path) -> None:
 def build_post_mappings(target_dir: Path) -> None:
 	shared_request = {
 		"method": "POST",
-		"urlPath": "/record/v3/overlay/terms",
+		"urlPath": "/record/v4/overlay/terms",
 		"bodyPatterns": [
-			matches_json_path_exists("$.label"),
 			matches_json_path_exists("$.start_at"),
 			matches_json_path_exists("$.end_at"),
 			matches_json_path_exists("$.attempts"),

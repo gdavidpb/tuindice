@@ -114,7 +114,6 @@ object RecordProjectionEngine {
 			projectionsAscending += if (useFrozenOfficialMetrics) {
 				TermProjection(
 					id = termState.term.id,
-					label = termState.term.label,
 					startAtMillis = termState.term.startAtMillis,
 					endAtMillis = termState.term.endAtMillis,
 					kind = termState.term.kind,
@@ -127,7 +126,6 @@ object RecordProjectionEngine {
 			} else {
 				TermProjection(
 					id = termState.term.id,
-					label = termState.term.label,
 					startAtMillis = termState.term.startAtMillis,
 					endAtMillis = termState.term.endAtMillis,
 					kind = termState.term.kind,

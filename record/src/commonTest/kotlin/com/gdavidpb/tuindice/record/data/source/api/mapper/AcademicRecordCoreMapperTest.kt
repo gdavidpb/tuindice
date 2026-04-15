@@ -30,7 +30,6 @@ class AcademicRecordCoreMapperTest {
 			terms = listOf(
 				AcademicTerm(
 					id = "term-1",
-					label = "Abril - Julio 2026",
 					startAtMillis = 1_710_000_000_000L,
 					endAtMillis = 1_720_000_000_000L,
 					kind = TermKind.OFFICIAL_CURRENT,
@@ -86,7 +85,6 @@ class AcademicRecordCoreMapperTest {
 	fun addSyntheticTermRequest_includesMutationMetadata() {
 		val request = AcademicRecordMutation.AddSyntheticTerm(
 			termId = "term-1",
-			label = "2026-Especial",
 			startAtMillis = 1L,
 			endAtMillis = 2L,
 			attempts = listOf(
@@ -105,7 +103,6 @@ class AcademicRecordCoreMapperTest {
 			expectedRevision = 8L
 		)
 
-		assertEquals("2026-Especial", request.label)
 		assertEquals("mutation-2", request.mutationId)
 		assertEquals(8L, request.expectedRevision)
 		assertEquals("MAT101", request.attempts.first().subjectCode)

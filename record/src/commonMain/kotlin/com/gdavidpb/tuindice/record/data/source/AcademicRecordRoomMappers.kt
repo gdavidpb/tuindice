@@ -16,7 +16,6 @@ internal fun List<AcademicTermEntity>.toAcademicTerms(
 	).map { term ->
 		AcademicTerm(
 			id = term.id,
-			label = term.label,
 			startAtMillis = term.startAt,
 			endAtMillis = term.endAt,
 			kind = TermKind.valueOf(term.kind),
@@ -34,7 +33,6 @@ internal fun AcademicRecordEntity.revisionValue(): Long = revision
 internal fun AcademicTerm.toAcademicTermEntity(): AcademicTermEntity {
 	return AcademicTermEntity(
 		id = id,
-		label = label,
 		startAt = startAtMillis,
 		endAt = endAtMillis,
 		kind = kind.name
@@ -107,7 +105,6 @@ internal fun AcademicAttemptOverrideEntity.toAttemptOverride(): AttemptOverride 
 internal fun AcademicRecordMutation.AddSyntheticTerm.toAcademicTerm(): AcademicTerm {
 	return AcademicTerm(
 		id = termId,
-		label = label,
 		startAtMillis = startAtMillis,
 		endAtMillis = endAtMillis,
 		kind = TermKind.SYNTHETIC,

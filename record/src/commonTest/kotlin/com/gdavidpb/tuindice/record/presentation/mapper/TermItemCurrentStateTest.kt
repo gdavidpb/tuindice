@@ -85,7 +85,6 @@ private fun termProjection(
 	kind: TermKind
 ) = TermProjection(
 	id = id,
-	label = "Term",
 	startAtMillis = 1_000L,
 	endAtMillis = 2_000L,
 	kind = kind,

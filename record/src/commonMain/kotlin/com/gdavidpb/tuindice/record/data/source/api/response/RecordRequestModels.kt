@@ -16,7 +16,6 @@ data class UpsertAttemptOverrideRequest(
 
 @Serializable
 data class AddSyntheticTermRequest(
-	@SerialName("label") val label: String,
 	@SerialName("start_at") val startAt: Long,
 	@SerialName("end_at") val endAt: Long,
 	@SerialName("attempts") val attempts: List<SyntheticAttemptRequest>,

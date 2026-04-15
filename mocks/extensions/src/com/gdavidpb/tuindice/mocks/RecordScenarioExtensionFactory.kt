@@ -12,6 +12,8 @@ import com.github.tomakehurst.wiremock.http.Request
 import com.github.tomakehurst.wiremock.stubbing.Scenario
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent
 import com.github.tomakehurst.wiremock.stubbing.StubMapping
+import java.time.Instant
+import java.time.ZoneOffset
 import java.util.regex.Pattern
 import wiremock.com.fasterxml.jackson.databind.JsonNode
 import wiremock.com.fasterxml.jackson.databind.ObjectMapper
@@ -165,7 +167,7 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			scenarioStates: Map<String, String>,
 		): TermModel? {
 			val pathSegments = pathSegments(request)
-			if (pathSegments != listOf("record", "v3", "overlay", "terms")) return null
+			if (pathSegments != listOf("record", "v4", "overlay", "terms")) return null
 
 			val requestBody = request.bodyAsString
 				.takeIf { body -> body.isNotBlank() }
@@ -173,11 +175,13 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			val root = runCatching { objectMapper.readTree(requestBody) }
 				.getOrNull()
 				?: return null
-			if (!root.hasNonNull("label") || !root.hasNonNull("start_at") || !root.hasNonNull("end_at")) return null
+			if (!root.hasNonNull("start_at") || !root.hasNonNull("end_at")) return null
 
 			val attemptsNode = root.get("attempts")
 				?: return null
 			if (!attemptsNode.isArray || attemptsNode.size() == 0) return null
+			val startAt = root.get("start_at").asLong()
+			val endAt = root.get("end_at").asLong()
 
 			val resolvedTerm = resolveAddedTerm(baseState.addedTerm, scenarioStates)
 			val attempts = attemptsNode.mapIndexed { index, node ->
@@ -204,11 +208,29 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 			}
 
 			return resolvedTerm.copy(
-				name = root.get("label").asText(),
-				startDate = root.get("start_at").asLong(),
-				endDate = root.get("end_at").asLong(),
+				name = formatTermName(startAtMillis = startAt, endAtMillis = endAt),
+				startDate = startAt,
+				endDate = endAt,
 				attempts = attempts,
 			)
+		}
+
+		private fun formatTermName(startAtMillis: Long, endAtMillis: Long): String {
+			val startDate = Instant.ofEpochMilli(startAtMillis).atZone(ZoneOffset.UTC).toLocalDate()
+			val endDate = Instant.ofEpochMilli(endAtMillis).atZone(ZoneOffset.UTC).toLocalDate()
+			val startMonth = SPANISH_MONTH_NAMES[startDate.monthValue - 1]
+			val endMonth = SPANISH_MONTH_NAMES[endDate.monthValue - 1]
+
+			return when {
+				startDate.year == endDate.year && startDate.month == endDate.month ->
+					"$startMonth ${startDate.year}"
+
+				startDate.year == endDate.year ->
+					"$startMonth - $endMonth ${startDate.year}"
+
+				else ->
+					"$startMonth ${startDate.year} - $endMonth ${endDate.year}"
+			}
 		}
 
 		private fun buildRecordModel(
@@ -437,6 +459,20 @@ class RecordScenarioExtensionFactory : ExtensionFactory {
 		private val ATTEMPT_STATUS_STATE_PATTERN = Pattern.compile("^REV_(\\d+)_STATUS_([A-Z_]+)$")
 		private val PRESENT_STATE_PATTERN = Pattern.compile("^ADDED_R(\\d+)$")
 		private val DELETED_STATE_PATTERN = Pattern.compile("^DELETED_R(\\d+)$")
+		private val SPANISH_MONTH_NAMES = listOf(
+			"Enero",
+			"Febrero",
+			"Marzo",
+			"Abril",
+			"Mayo",
+			"Junio",
+			"Julio",
+			"Agosto",
+			"Septiembre",
+			"Octubre",
+			"Noviembre",
+			"Diciembre",
+		)
 		private val DESCENDING_TERM_ORDER = compareByDescending<TermModel> { it.startDate }
 			.thenBy { it.id }
 	}

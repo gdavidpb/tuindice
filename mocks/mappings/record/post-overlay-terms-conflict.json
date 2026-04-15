@@ -4,11 +4,8 @@
   "requiredScenarioState": "ADDED_R1",
   "request": {
     "method": "POST",
-    "urlPath": "/record/v3/overlay/terms",
+    "urlPath": "/record/v4/overlay/terms",
     "bodyPatterns": [
-      {
-        "matchesJsonPath": "$.label"
-      },
       {
         "matchesJsonPath": "$.start_at"
       },

@@ -6,7 +6,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class AcademicTerm(
 	val id: String,
-	val label: String,
 	@SerialName("start_at") val startAtMillis: Long,
 	@SerialName("end_at") val endAtMillis: Long,
 	@SerialName("term_kind") val kind: TermKind,

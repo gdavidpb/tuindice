@@ -2,7 +2,7 @@
   "priority": 1,
   "request": {
     "method": "GET",
-    "urlPath": "/record/v3"
+    "urlPath": "/record/v4"
   },
   "response": {
     "status": 200,

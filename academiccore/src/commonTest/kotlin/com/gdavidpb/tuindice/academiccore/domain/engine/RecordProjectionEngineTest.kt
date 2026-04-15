@@ -63,7 +63,6 @@ private fun projectSingleTerm(vararg attempts: AcademicAttempt) = RecordProjecti
 		terms = listOf(
 			AcademicTerm(
 				id = "term-1",
-				label = "2026-3",
 				startAtMillis = 1L,
 				endAtMillis = 2L,
 				kind = TermKind.OFFICIAL_CURRENT,

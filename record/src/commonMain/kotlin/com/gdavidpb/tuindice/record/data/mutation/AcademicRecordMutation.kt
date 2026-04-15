@@ -38,7 +38,6 @@ sealed interface AcademicRecordMutation : OutboxMutation {
 	@SerialName("add_synthetic_term")
 	data class AddSyntheticTerm(
 		val termId: String,
-		val label: String,
 		val startAtMillis: Long,
 		val endAtMillis: Long,
 		val attempts: List<SyntheticAttemptSeed>

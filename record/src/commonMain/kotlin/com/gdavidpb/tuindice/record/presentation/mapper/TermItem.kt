@@ -13,8 +13,9 @@ import com.gdavidpb.tuindice.academiccore.domain.model.TermProjection
 import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialCurrent
 import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialHistorical
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
-import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.base.utils.extension.academicTermShortDisplayName
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
+import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.presentation.model.TermMetricDelta
 import com.gdavidpb.tuindice.record.presentation.model.TermMetricDeltaTone
@@ -64,7 +65,10 @@ fun TermProjection.toTermItem(
 
 	return TermItem(
 		termId = id,
-		shortNameText = label.toTermShortName(),
+		shortNameText = academicTermShortDisplayName(
+			startAtMillis = startAtMillis,
+			endAtMillis = endAtMillis
+		),
 		gradeText = texts
 			.termGrade(animatedGrade.value)
 			.annotatedTermValue(highlightColor),
@@ -161,23 +165,4 @@ fun String.annotatedTermValue(highlightColor: Color) = buildAnnotatedString {
 	}
 
 	append(" $after")
-}
-
-private fun String.toTermShortName(): String {
-	return listOf(
-		"Enero" to "Ene.",
-		"Febrero" to "Feb.",
-		"Marzo" to "Mar.",
-		"Abril" to "Abr.",
-		"Mayo" to "May.",
-		"Junio" to "Jun.",
-		"Julio" to "Jul.",
-		"Agosto" to "Ago.",
-		"Septiembre" to "Sep.",
-		"Octubre" to "Oct.",
-		"Noviembre" to "Nov.",
-		"Diciembre" to "Dic."
-	).fold(this) { label, (fullMonth, shortMonth) ->
-		label.replace(fullMonth, shortMonth)
-	}
 }

@@ -117,7 +117,6 @@ private fun academicTerm(
 	kind: String
 ) = AcademicTermEntity(
 	id = id,
-	label = id,
 	startAt = startAt,
 	endAt = endAt,
 	kind = kind

@@ -64,7 +64,7 @@ class SyncRepositoryContractTest {
 		val remoteDataSource = FakeSyncRemoteDataSource(
 			throwable = clientRequestException(
 				statusCode = HttpStatusCode.Conflict,
-				path = "/record/v3/sync"
+				path = "/record/v4/sync"
 			)
 		)
 		val repository = SyncDataSource(
@@ -91,7 +91,7 @@ class SyncRepositoryContractTest {
 		val remoteDataSource = FakeSyncRemoteDataSource(
 			throwable = clientRequestException(
 				statusCode = HttpStatusCode.ServiceUnavailable,
-				path = "/record/v3/sync"
+				path = "/record/v4/sync"
 			)
 		)
 		val repository = SyncDataSource(
@@ -116,7 +116,7 @@ class SyncRepositoryContractTest {
 		val remoteDataSource = FakeSyncRemoteDataSource(
 			throwable = clientRequestException(
 				statusCode = HttpStatusCode.FailedDependency,
-				path = "/record/v3/sync"
+				path = "/record/v4/sync"
 			)
 		)
 		val repository = SyncDataSource(
@@ -141,7 +141,7 @@ class SyncRepositoryContractTest {
 		val remoteDataSource = FakeSyncRemoteDataSource(
 			throwable = clientRequestException(
 				statusCode = HttpStatusCode.InternalServerError,
-				path = "/record/v3/sync"
+				path = "/record/v4/sync"
 			)
 		)
 		val repository = SyncDataSource(

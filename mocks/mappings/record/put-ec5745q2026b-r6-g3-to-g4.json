@@ -5,7 +5,7 @@
   "newScenarioState": "REV_7_GRADE_4",
   "request": {
     "method": "PUT",
-    "urlPath": "/record/v3/overlay/attempts/EC5745Q2026B",
+    "urlPath": "/record/v4/overlay/attempts/EC5745Q2026B",
     "bodyPatterns": [
       {
         "matchesJsonPath": "$[?(@.score.value == 4)]"

@@ -116,7 +116,6 @@ class UpsertAttemptSelectionUseCaseTest {
 			terms = listOf(
 				AcademicTerm(
 					id = "term-1",
-					label = "2026-1",
 					startAtMillis = 1L,
 					endAtMillis = 2L,
 					kind = TermKind.OFFICIAL_CURRENT,
