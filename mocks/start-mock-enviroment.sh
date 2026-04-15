@@ -8,24 +8,17 @@ generated_root="${WIREMOCK_GENERATED_ROOT:-/tmp/tuindice-wiremock}"
 runtime_dir="${WIREMOCK_RUNTIME_DIR:-${generated_root}/runtime}"
 extension_build_dir="${WIREMOCK_EXTENSION_BUILD_DIR:-${generated_root}/build/mocks-extension}"
 extension_source_dir="${script_dir}/extensions/src"
-generator_script="${script_dir}/scripts/generate_record_wiremock.py"
 kotlinc_bin="${KOTLINC_BIN:-kotlinc}"
 kotlin_bin="${KOTLIN_BIN:-kotlin}"
 port="${PORT:-8080}"
-max_revision="${WIREMOCK_RECORD_MAX_REVISION:-20}"
 wiremock_main_class="wiremock.Run"
 extension_factory_classes=(
-	"com.gdavidpb.tuindice.mocks.RecordScenarioExtensionFactory"
+	"com.gdavidpb.tuindice.mocks.RecordResponseTransformerFactory"
 	"com.gdavidpb.tuindice.mocks.EvaluationsResponseTransformerFactory"
 )
 
 if [ ! -f "${wiremock_jar}" ]; then
 	echo "Missing ${wiremock_jar} in ${script_dir}." >&2
-	exit 1
-fi
-
-if [ ! -f "${generator_script}" ]; then
-	echo "Missing generator script at ${generator_script}." >&2
 	exit 1
 fi
 
@@ -44,10 +37,12 @@ if ! command -v "${kotlin_bin}" >/dev/null 2>&1; then
 	exit 1
 fi
 
-python3 "${generator_script}" \
-	--source-root "${script_dir}" \
-	--runtime-root "${runtime_dir}" \
-	--max-revision "${max_revision}"
+rm -rf "${runtime_dir}"
+mkdir -p "${runtime_dir}"
+cp -R "${script_dir}/__files" "${runtime_dir}/__files"
+cp -R "${script_dir}/config" "${runtime_dir}/config"
+cp -R "${script_dir}/config" "${runtime_dir}/__files/config"
+cp -R "${script_dir}/mappings" "${runtime_dir}/mappings"
 
 rm -rf "${extension_build_dir}"
 mkdir -p "${extension_build_dir}"
@@ -76,5 +71,4 @@ mkdir -p "${extension_build_dir}/META-INF/services"
 	"${wiremock_main_class}" \
 	--root-dir "${runtime_dir}" \
 	--port "${port}" \
-	--verbose \
-	--local-response-templating
+	--verbose

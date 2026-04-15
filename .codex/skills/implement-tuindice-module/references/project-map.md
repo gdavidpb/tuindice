@@ -47,9 +47,13 @@ If you create a new shared module, inspect `build.gradle.kts` and extend any roo
 ## Mock Environment Map
 
 - `mocks/mappings/<feature-or-domain>/`
-  - WireMock request matchers and inline stub responses grouped by backend area
+  - WireMock request matchers grouped by backend area; dynamic domains can stay intentionally small and delegate behavior to transformers
 - `mocks/__files/<feature-or-domain>/`
   - larger JSON bodies referenced from mappings via `bodyFileName`
+- `mocks/config/*.json`
+  - declarative base-state inputs consumed by the stateful mock runtime
+- `mocks/extensions/src/`
+  - Kotlin WireMock extensions and response transformers for stateful behavior
 - `mocks/start-mock-enviroment.sh`
   - starts the local WireMock server used by the app mock environment
 
