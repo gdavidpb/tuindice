@@ -33,8 +33,8 @@ import kotlin.test.assertEquals
 class AcademicRecordDataSourceTest {
 	@Test
 	fun upsertAttemptOverride_whenEarlierAckArrivesAfterNewerTap_keepsLaterPendingOverrideVisible() = runTest {
-		val firstAttemptId = "PB5611Q2026A"
-		val secondAttemptId = "MA1001Q2026A"
+		val firstAttemptId = "11111111111111111111111111111111"
+		val secondAttemptId = "22222222222222222222222222222222"
 		val initialRecord = AcademicRecord(
 			id = "record-1",
 			terms = listOf(
@@ -152,7 +152,7 @@ class AcademicRecordDataSourceTest {
 
 	@Test
 	fun upsertAttemptOverride_whenSupersededRevisionFails_rebasesWithoutRestoringOldGrade() = runTest {
-		val attemptId = "PB5611Q2026A"
+		val attemptId = "33333333333333333333333333333333"
 		val initialRecord = AcademicRecord(
 			id = "record-1",
 			terms = listOf(
@@ -258,7 +258,7 @@ class AcademicRecordDataSourceTest {
 
 	@Test
 	fun deleteAttemptOverride_whenSupersededByLaterUpsert_suppressesStaleFailure_and_keepsLatestOverride() = runTest {
-		val attemptId = "PB5611Q2026A"
+		val attemptId = "44444444444444444444444444444444"
 		val initialRecord = AcademicRecord(
 			id = "record-1",
 			terms = listOf(

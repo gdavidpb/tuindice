@@ -2,10 +2,10 @@
   "anchor_revision": 10,
   "evaluations": [
     {
-      "id": "EVEAD212B1",
-      "reference_id": "EVEAD212B1",
-      "term_id": "Q2026B",
-      "attempt_id": "EAD212Q2026B",
+      "id": "5296f0e3370b0bca1aaee94e559d0634",
+      "reference_id": "dc8bfba76d0beeff3473794314f6795b",
+      "term_id": "16593cab7844efb52ab904ce28f11dde",
+      "attempt_id": "7d775857cc402928157f2a5b0b2fa5d6",
       "subject_code": "EAD212",
       "type": 0,
       "schedule_mode": "dated",
@@ -16,10 +16,10 @@
       "revision": 1
     },
     {
-      "id": "EVEC5344B1",
-      "reference_id": "EVEC5344B1",
-      "term_id": "Q2026B",
-      "attempt_id": "EC5344Q2026B",
+      "id": "ce3077559bd9b50cdb34f9b4a9bd3f7f",
+      "reference_id": "5176a1581f74b4faf558625beee43334",
+      "term_id": "16593cab7844efb52ab904ce28f11dde",
+      "attempt_id": "003ea6613e10a30340bba4408761b5ae",
       "subject_code": "EC5344",
       "type": 10,
       "schedule_mode": "dated",
@@ -30,10 +30,10 @@
       "revision": 1
     },
     {
-      "id": "EVEC5745B1",
-      "reference_id": "EVEC5745B1",
-      "term_id": "Q2026B",
-      "attempt_id": "EC5745Q2026B",
+      "id": "bc7404d0ef43e4bd325fce42aa51f5e6",
+      "reference_id": "57f4fccd048e358e3a3da85622161d5e",
+      "term_id": "16593cab7844efb52ab904ce28f11dde",
+      "attempt_id": "e8fba9c7287215c7b7c350916dbc2fbf",
       "subject_code": "EC5745",
       "type": 12,
       "schedule_mode": "dated",
@@ -44,10 +44,10 @@
       "revision": 1
     },
     {
-      "id": "EVPS5315B1",
-      "reference_id": "EVPS5315B1",
-      "term_id": "Q2026B",
-      "attempt_id": "PS5315Q2026B",
+      "id": "0c6d8abd4aef059c32c68dee5c6f0aea",
+      "reference_id": "e9d83073a12bdb5c83a4f0a2d1ef0424",
+      "term_id": "16593cab7844efb52ab904ce28f11dde",
+      "attempt_id": "9305628a8b79a1c02a2fce2c959c8171",
       "subject_code": "PS5315",
       "type": 9,
       "schedule_mode": "dated",

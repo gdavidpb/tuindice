@@ -1,13 +1,16 @@
 package com.gdavidpb.tuindice.base.data.source
 
-
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
-import kotlin.uuid.ExperimentalUuidApi
-import kotlin.uuid.Uuid
+import kotlin.random.Random
 
-@OptIn(ExperimentalUuidApi::class)
 class UUIDIdentifierDataSource : IdentifierRepository {
 	override fun generateRandomIdentifier(): String {
-		return Uuid.random().toString()
+		val bytes = Random.nextBytes(16)
+
+		return buildString(bytes.size * 2) {
+			bytes.forEach { byte ->
+				append("%02x".format(byte))
+			}
+		}
 	}
 }

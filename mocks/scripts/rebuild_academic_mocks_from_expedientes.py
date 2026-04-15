@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import calendar
+import hashlib
 import html
 import json
 import re
@@ -50,9 +51,15 @@ MONTHS = {
 	"NOVIEMBRE": 11,
 	"DICIEMBRE": 12,
 }
+
+
+def mock_hex_id(*parts: str) -> str:
+	return hashlib.sha256("::".join(parts).encode("utf-8")).hexdigest()[:32]
+
+
 PROJECTED_TERM_SCHEDULE = (
 	{
-		"id": "Q2026A",
+		"id": mock_hex_id("projected_term", "2026A"),
 		"name": "Enero - Marzo 2026",
 		"start_date": 1767236400000,
 		"end_date": 1774926000000,
@@ -61,16 +68,16 @@ PROJECTED_TERM_SCHEDULE = (
 		"presence_scenario": None,
 	},
 	{
-		"id": "Q2026B",
+		"id": mock_hex_id("projected_term", "2026B"),
 		"name": "Abril - Julio 2026",
 		"start_date": 1775012400000,
 		"end_date": 1785470400000,
 		"kind": "official_current",
 		"revision": 10,
-		"presence_scenario": "record-term-Q2026B",
+		"presence_scenario": f"record-term-{mock_hex_id('projected_term', '2026B')}",
 	},
 	{
-		"id": "Q2026C",
+		"id": mock_hex_id("projected_term", "2026C"),
 		"name": "Septiembre - Diciembre 2026",
 		"start_date": 1788235200000,
 		"end_date": 1798686000000,
@@ -80,17 +87,17 @@ PROJECTED_TERM_SCHEDULE = (
 	},
 )
 ADDED_TERM_TEMPLATE = {
-	"id": "MOCK-ADDED-TERM",
+	"id": mock_hex_id("added_term", "MOCK-ADDED-TERM"),
 	"name": "Term Added",
 	"start_date": 1809140400000,
 	"end_date": 1817002800000,
 	"kind": "synthetic",
 	"revision": 1,
-	"presence_scenario": "record-term-MOCK-ADDED-TERM",
+	"presence_scenario": f"record-term-{mock_hex_id('added_term', 'MOCK-ADDED-TERM')}",
 	"attempts": [
 		{
-			"id": "MOCK101-MOCK-ADDED-TERM",
-			"term_id": "MOCK-ADDED-TERM",
+			"id": mock_hex_id("attempt", mock_hex_id("added_term", "MOCK-ADDED-TERM"), "MOCK101"),
+			"term_id": mock_hex_id("added_term", "MOCK-ADDED-TERM"),
 			"code": "MOCK101",
 			"name": "MOCK SUBJECT",
 			"credits": 4,
@@ -219,14 +226,15 @@ def titleize_term_label(label: str) -> str:
 
 
 def build_attempt(course: ParsedCourse, term_id: str, mutable: bool) -> AttemptModel:
+	attempt_id = mock_hex_id("attempt", term_id, course.code)
 	base_kwargs = {
-		"id": f"{course.code}{term_id}",
+		"id": attempt_id,
 		"term_id": term_id,
 		"code": course.code,
 		"name": course.name,
 		"credits": course.credits,
 		"mutable": mutable,
-		"scenario": f"record-attempt-{course.code}{term_id}" if mutable else None,
+		"scenario": f"record-attempt-{attempt_id}" if mutable else None,
 		"revision": 1,
 	}
 	if course.grade_text == "R":
@@ -258,7 +266,11 @@ def assign_historical_term_ids(terms: list[ParsedTerm]) -> dict[str, tuple[str, 
 	for start_date, end_date, year, label in sorted(metadata, key=lambda item: item[0]):
 		letter = chr(ord("A") + len(letters_by_year[year]))
 		letters_by_year[year].append(letter)
-		assignments[label] = (f"Q{year}{letter}", start_date, end_date)
+		assignments[label] = (
+			mock_hex_id("historical_term", str(year), letter, str(start_date), str(end_date)),
+			start_date,
+			end_date,
+		)
 	return assignments
 
 
@@ -391,7 +403,6 @@ def build_evaluations_state(record_state: dict[str, object]) -> dict[str, object
 	if not current_attempts:
 		raise ValueError("Expected at least one numeric attempt in the current editable term")
 
-	term_suffix = str(current_term["id"])[-1]
 	patterns = (
 		{"offset_days": -5, "grade": 82.0},
 		{"offset_days": 10, "grade": None},
@@ -402,10 +413,11 @@ def build_evaluations_state(record_state: dict[str, object]) -> dict[str, object
 	for index, attempt in enumerate(current_attempts, start=1):
 		pattern = patterns[(index - 1) % len(patterns)]
 		grade = pattern["grade"]
+		evaluation_id = mock_hex_id("evaluation", str(attempt["id"]))
 		evaluations.append(
 			{
-				"id": f"EV{attempt['code']}{term_suffix}1",
-				"reference_id": f"EV{attempt['code']}{term_suffix}1",
+				"id": evaluation_id,
+				"reference_id": evaluation_id,
 				"term_id": current_term["id"],
 				"attempt_id": attempt["id"],
 				"subject_code": attempt["code"],

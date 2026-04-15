@@ -11,6 +11,7 @@ import com.github.tomakehurst.wiremock.http.RequestMethod
 import com.github.tomakehurst.wiremock.http.ResponseDefinition
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent
 import java.util.LinkedHashMap
+import java.security.MessageDigest
 import wiremock.com.fasterxml.jackson.databind.JsonNode
 import wiremock.com.fasterxml.jackson.databind.ObjectMapper
 
@@ -51,10 +52,40 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 					anchorRevision = anchorRevision,
 					defaultTermId = evaluations.firstOrNull()?.termId ?: DEFAULT_TERM_ID,
 					evaluationsById = LinkedHashMap(evaluations.associateBy { it.id }),
+					attemptMetadataById = readAttemptMetadata(fileSource),
 				)
 			} catch (exception: Exception) {
 				throw IllegalStateException("Unable to load evaluations base state for WireMock", exception)
 			}
+		}
+
+		private fun readAttemptMetadata(fileSource: FileSource): LinkedHashMap<String, AttemptMetadata> {
+			val configFile: TextFile = fileSource.child(CONFIG_DIRECTORY).getTextFileNamed(RECORD_SETTINGS_FILENAME)
+			val root = objectMapper.readTree(configFile.readContentsAsString())
+			val metadata = LinkedHashMap<String, AttemptMetadata>()
+			val termNodes = buildList {
+				root.path("added_term")
+					.takeIf { !it.isMissingNode && !it.isNull }
+					?.let(::add)
+				root.path("terms")
+					.takeIf(JsonNode::isArray)
+					?.forEach(::add)
+			}
+
+			termNodes.forEach { term ->
+				val termId = term.path("id").asText(DEFAULT_TERM_ID)
+				term.path("attempts").forEach { attempt ->
+					val attemptId = attempt.path("id").asText()
+					if (attemptId.isNotBlank()) {
+						metadata[attemptId] = AttemptMetadata(
+							subjectCode = attempt.path("code").asText(attemptId),
+							termId = attempt.path("term_id").asText(termId)
+						)
+					}
+				}
+			}
+
+			return metadata
 		}
 
 		private fun parseEvaluation(node: JsonNode): EvaluationModel =
@@ -302,19 +333,28 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 			)
 
 		private fun inferSubjectCode(attemptId: String): String =
-			SUBJECT_CODE_PATTERN.find(attemptId)?.groupValues?.getOrNull(1) ?: attemptId
+			state.attemptMetadataById[attemptId]?.subjectCode ?: attemptId
 
 		private fun inferTermId(attemptId: String): String =
-			SUBJECT_CODE_PATTERN.find(attemptId)?.groupValues?.getOrNull(2) ?: state.defaultTermId
+			state.attemptMetadataById[attemptId]?.termId ?: state.defaultTermId
 
 		private fun generateEvaluationId(referenceId: String): String =
-			"EV" + referenceId.filter(Char::isLetterOrDigit).uppercase().ifBlank { "NEWID" }
+			MessageDigest.getInstance("SHA-256")
+				.digest(referenceId.toByteArray())
+				.joinToString(separator = "") { byte -> "%02x".format(byte) }
+				take(32)
 
 		private data class RuntimeState(
 			var anchorRevision: Long,
 			val defaultTermId: String,
 			val evaluationsById: LinkedHashMap<String, EvaluationModel>,
+			val attemptMetadataById: LinkedHashMap<String, AttemptMetadata>,
 			val mutationResults: MutableMap<String, Map<String, Any?>> = linkedMapOf(),
+		)
+
+		private data class AttemptMetadata(
+			val subjectCode: String,
+			val termId: String,
 		)
 
 		private data class EvaluationModel(
@@ -336,13 +376,13 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 		private companion object {
 			private const val CONFIG_DIRECTORY = "config"
 			private const val SETTINGS_FILENAME = "evaluations-base-state.json"
+			private const val RECORD_SETTINGS_FILENAME = "record-base-state.json"
 			private const val GET_DELAY_MS = 3000
 			private const val POST_DELAY_MS = 1500
 			private const val PATCH_DELAY_MS = 1500
 			private const val DELETE_DELAY_MS = 1500
 			private const val ERROR_DELAY_MS = 1000
-			private const val DEFAULT_TERM_ID = "Q2026A"
-			private val SUBJECT_CODE_PATTERN = Regex("^(.+?)(Q\\d{4}[A-Z])$")
+			private const val DEFAULT_TERM_ID = "00000000000000000000000000000000"
 		}
 	}
 }
