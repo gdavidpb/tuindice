@@ -8,13 +8,12 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 
-fun <ScopeKey, Command : OutboxMutation> PendingMutationEntity.toMutationEnvelope(
-	scopeKeySerializer: KSerializer<ScopeKey>,
+fun <Command : OutboxMutation> PendingMutationEntity.toMutationEnvelope(
 	commandSerializer: KSerializer<Command>,
 	json: Json
-) = MutationEnvelope(
+) = MutationEnvelope<String, Command>(
 	mutationId = mutationId,
-	scopeKey = json.decodeFromString(scopeKeySerializer, scopeKey),
+	scopeKey = scopeKey,
 	command = json.decodeFromString(commandSerializer, payload),
 	precondition = when (preconditionType) {
 		"none" -> MutationPrecondition.None
@@ -27,15 +26,14 @@ fun <ScopeKey, Command : OutboxMutation> PendingMutationEntity.toMutationEnvelop
 	replaceKey = replaceKey
 )
 
-fun <ScopeKey, Command : OutboxMutation> MutationEnvelope<ScopeKey, Command>.toPendingMutationEntity(
+fun <Command : OutboxMutation> MutationEnvelope<String, Command>.toPendingMutationEntity(
 	storeId: String,
-	scopeKeySerializer: KSerializer<ScopeKey>,
 	commandSerializer: KSerializer<Command>,
 	json: Json
 ) = PendingMutationEntity(
 	mutationId = mutationId,
 	storeId = storeId,
-	scopeKey = json.encodeToString(scopeKeySerializer, scopeKey),
+	scopeKey = scopeKey,
 	entityType = entityType,
 	entityId = entityId,
 	replaceKey = replaceKey,

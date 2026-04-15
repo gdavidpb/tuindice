@@ -285,7 +285,8 @@ class FakeSyncStatusRepository(
 
 class FakePendingChangesRepository(
 	var pendingChanges: PendingChanges = PendingChanges.Empty,
-	var flushResult: FlushPendingChangesResult = FlushPendingChangesResult.Success
+	var flushResult: FlushPendingChangesResult = FlushPendingChangesResult.Success,
+	var getPendingChangesThrowable: Throwable? = null
 ) : PendingChangesRepository {
 	var getPendingChangesCalls = 0
 		private set
@@ -294,6 +295,7 @@ class FakePendingChangesRepository(
 
 	override suspend fun getPendingChanges(): PendingChanges {
 		getPendingChangesCalls++
+		getPendingChangesThrowable?.let { throw it }
 		return pendingChanges
 	}
 

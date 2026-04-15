@@ -7,6 +7,8 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.dialog
 import androidx.navigation.navigation
+import androidx.navigation.toRoute
+import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLifecycle
@@ -49,9 +51,16 @@ fun NavGraphBuilder.authNavigation(
 		}
 
 		dialog<AuthDestination.SignOutDialog> { backStackEntry ->
+			val args = backStackEntry.toRoute<AuthDestination.SignOutDialog>()
 			val viewModel = koinViewModel<SignOutViewModel>(viewModelStoreOwner = backStackEntry)
 
 			SignOutRoute(
+				initialPendingChanges = PendingChanges(
+					totalCount = args.totalCount,
+					recordCount = args.recordCount,
+					evaluationsCount = args.evaluationsCount,
+					hasFailedMutations = args.hasFailedMutations
+				),
 				onNavigateToSignIn = onNavigateToSignIn,
 				onNavigateToUpdatePassword = {
 					navController.navigate(AuthDestination.UpdatePasswordDialog)

@@ -7,4 +7,5 @@
 	<string name="open">Abrir</string>
 	<string name="cancel">Cancelar</string>
 	<string name="exit">Salir</string>
+	<string name="snack_pending_changes_unavailable">No pudimos revisar tus cambios pendientes. Intenta nuevamente.</string>
 </resources>

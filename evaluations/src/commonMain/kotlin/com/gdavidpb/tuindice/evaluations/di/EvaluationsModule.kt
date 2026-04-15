@@ -61,7 +61,6 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
-import kotlinx.serialization.builtins.serializer
 
 private const val EVALUATIONS_MUTATION_STORE_QUALIFIER = "evaluationsMutationStore"
 private const val EVALUATIONS_MUTATION_ENGINE_QUALIFIER = "evaluationsMutationEngine"
@@ -120,7 +119,6 @@ val evaluationsModule = module {
 			pendingMutationDao = get<PendingMutationDao>(),
 			transactionRunner = get<PersistenceTransactionRunner>(),
 			storeId = EVALUATIONS_MUTATION_STORE_ID,
-			scopeKeySerializer = String.serializer(),
 			commandSerializer = EvaluationMutation.serializer()
 		)
 	}

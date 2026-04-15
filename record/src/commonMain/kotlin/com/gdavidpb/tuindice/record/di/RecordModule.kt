@@ -30,7 +30,6 @@ import com.gdavidpb.tuindice.record.presentation.action.SelectRecordTermActionPr
 import com.gdavidpb.tuindice.record.presentation.action.SetRecordViewModeActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.UpsertAttemptSelectionActionProcessor
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
-import kotlinx.serialization.builtins.serializer
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
@@ -69,7 +68,6 @@ val recordModule = module {
 			pendingMutationDao = get<PendingMutationDao>(),
 			transactionRunner = get<PersistenceTransactionRunner>(),
 			storeId = RECORD_MUTATION_STORE_ID,
-			scopeKeySerializer = String.serializer(),
 			commandSerializer = AcademicRecordMutation.serializer()
 		)
 	}

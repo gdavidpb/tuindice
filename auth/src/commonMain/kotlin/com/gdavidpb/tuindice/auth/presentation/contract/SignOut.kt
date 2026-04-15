@@ -25,7 +25,9 @@ object SignOut {
 	}
 
 	sealed class Action : ViewAction() {
-		data object LoadPendingChanges : Action()
+		data class Initialize(
+			val pendingChanges: PendingChanges
+		) : Action()
 		data object ConfirmSignOut : Action()
 		data class FlushAndSignOut(
 			val pendingChanges: PendingChanges

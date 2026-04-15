@@ -1,21 +1,23 @@
 package com.gdavidpb.tuindice.auth.presentation.route
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.auth.domain.usecase.ConfirmSignOutUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.FlushPendingChangesUseCase
-import com.gdavidpb.tuindice.auth.domain.usecase.LoadPendingChangesUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.auth.presentation.action.ConfirmSignOutActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.FlushAndSignOutActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.ForceSignOutActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.LoadPendingChangesActionProcessor
+import com.gdavidpb.tuindice.auth.presentation.action.InitializeSignOutActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.OpenUpdatePasswordActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignOutViewModel
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
@@ -37,6 +39,7 @@ class SignOutRouteUiTest {
 
 		setTuIndiceTestContent {
 			SignOutRoute(
+				initialPendingChanges = PendingChanges.Empty,
 				onNavigateToSignIn = { navigateCalls++ },
 				onNavigateToUpdatePassword = {},
 				onDismissRequest = {},
@@ -65,6 +68,7 @@ class SignOutRouteUiTest {
 
 		setTuIndiceTestContent {
 			SignOutRoute(
+				initialPendingChanges = PendingChanges.Empty,
 				onNavigateToSignIn = { navigateCalls++ },
 				onNavigateToUpdatePassword = {},
 				onDismissRequest = {},
@@ -84,6 +88,31 @@ class SignOutRouteUiTest {
 		assertEquals(0, navigateCalls)
 		assertEquals(1, snackBarMessages.size)
 		assertTrue(snackBarMessages.first().message.isNotBlank())
+	}
+
+	@Test
+	fun when_routeStartsWithPendingChanges_then_rendersPendingMessageImmediately() = runTuIndiceUiTest {
+		val pendingChanges = PendingChanges(
+			totalCount = 4,
+			recordCount = 4,
+			evaluationsCount = 0,
+			hasFailedMutations = true
+		)
+		val viewModel = createSignOutViewModel()
+
+		setTuIndiceTestContent {
+			SignOutRoute(
+				initialPendingChanges = pendingChanges,
+				onNavigateToSignIn = {},
+				onNavigateToUpdatePassword = {},
+				onDismissRequest = {},
+				showSnackBar = {},
+				viewModel = viewModel
+			)
+		}
+
+		onNodeWithText("Tienes 4 cambios pendientes", substring = true)
+			.assertExists()
 	}
 
 	private fun createSignOutViewModel(
@@ -117,12 +146,7 @@ class SignOutRouteUiTest {
 		)
 
 		return SignOutViewModel(
-			loadPendingChangesActionProcessor = LoadPendingChangesActionProcessor(
-				LoadPendingChangesUseCase(
-					pendingChangesRepository = pendingChangesRepository,
-					reportingRepository = reportingRepository
-				)
-			),
+			initializeSignOutActionProcessor = InitializeSignOutActionProcessor(),
 			confirmSignOutActionProcessor = ConfirmSignOutActionProcessor(
 				ConfirmSignOutUseCase(
 					pendingChangesRepository = pendingChangesRepository,

@@ -11,23 +11,21 @@ import kotlinx.coroutines.flow.map
 import kotlinx.serialization.KSerializer
 import kotlinx.serialization.json.Json
 
-class RoomMutationEnvelopeStore<ScopeKey, Command : OutboxMutation>(
+class RoomMutationEnvelopeStore<Command : OutboxMutation>(
 	private val pendingMutationDao: PendingMutationDao,
 	private val transactionRunner: PersistenceTransactionRunner,
 	private val storeId: String,
-	private val scopeKeySerializer: KSerializer<ScopeKey>,
 	private val commandSerializer: KSerializer<Command>,
 	private val json: Json = Json
-) : MutationEnvelopeStore<ScopeKey, Command> {
+) : MutationEnvelopeStore<String, Command> {
 	override fun observePendingMutations(
-		scopeKey: ScopeKey
+		scopeKey: String
 	) = pendingMutationDao.observePendingMutations(
 		storeId = storeId,
-		scopeKey = json.encodeToString(scopeKeySerializer, scopeKey)
+		scopeKey = scopeKey
 	).map { entities ->
 		entities.map { entity ->
 			entity.toMutationEnvelope(
-				scopeKeySerializer = scopeKeySerializer,
 				commandSerializer = commandSerializer,
 				json = json
 			)
@@ -35,14 +33,13 @@ class RoomMutationEnvelopeStore<ScopeKey, Command : OutboxMutation>(
 	}
 
 	override suspend fun getPendingMutations(
-		scopeKey: ScopeKey
-	): List<MutationEnvelope<ScopeKey, Command>> {
+		scopeKey: String
+	): List<MutationEnvelope<String, Command>> {
 		return pendingMutationDao.getPendingMutations(
 			storeId = storeId,
-			scopeKey = json.encodeToString(scopeKeySerializer, scopeKey)
+			scopeKey = scopeKey
 		).map { entity ->
 			entity.toMutationEnvelope(
-				scopeKeySerializer = scopeKeySerializer,
 				commandSerializer = commandSerializer,
 				json = json
 			)
@@ -50,22 +47,21 @@ class RoomMutationEnvelopeStore<ScopeKey, Command : OutboxMutation>(
 	}
 
 	override suspend fun getPendingMutation(
-		scopeKey: ScopeKey,
+		scopeKey: String,
 		mutationId: String
-	): MutationEnvelope<ScopeKey, Command>? {
+	): MutationEnvelope<String, Command>? {
 		return pendingMutationDao.getPendingMutation(
 			storeId = storeId,
-			scopeKey = json.encodeToString(scopeKeySerializer, scopeKey),
+			scopeKey = scopeKey,
 			mutationId = mutationId
 		)?.toMutationEnvelope(
-			scopeKeySerializer = scopeKeySerializer,
 			commandSerializer = commandSerializer,
 			json = json
 		)
 	}
 
 	override suspend fun replacePendingMutation(
-		mutation: MutationEnvelope<ScopeKey, Command>
+		mutation: MutationEnvelope<String, Command>
 	) {
 		transactionRunner.immediate {
 			pendingMutationDao.deletePendingMutationsByReplaceKey(
@@ -75,7 +71,6 @@ class RoomMutationEnvelopeStore<ScopeKey, Command : OutboxMutation>(
 			pendingMutationDao.upsertEntity(
 				mutation.toPendingMutationEntity(
 					storeId = storeId,
-					scopeKeySerializer = scopeKeySerializer,
 					commandSerializer = commandSerializer,
 					json = json
 				)
@@ -84,12 +79,11 @@ class RoomMutationEnvelopeStore<ScopeKey, Command : OutboxMutation>(
 	}
 
 	override suspend fun savePendingMutation(
-		mutation: MutationEnvelope<ScopeKey, Command>
+		mutation: MutationEnvelope<String, Command>
 	) {
 		pendingMutationDao.upsertEntity(
 			mutation.toPendingMutationEntity(
 				storeId = storeId,
-				scopeKeySerializer = scopeKeySerializer,
 				commandSerializer = commandSerializer,
 				json = json
 			)
@@ -97,12 +91,12 @@ class RoomMutationEnvelopeStore<ScopeKey, Command : OutboxMutation>(
 	}
 
 	override suspend fun deletePendingMutation(
-		scopeKey: ScopeKey,
+		scopeKey: String,
 		mutationId: String
 	) {
 		pendingMutationDao.deletePendingMutation(
 			storeId = storeId,
-			scopeKey = json.encodeToString(scopeKeySerializer, scopeKey),
+			scopeKey = scopeKey,
 			mutationId = mutationId
 		)
 	}

@@ -5,7 +5,6 @@ import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import kotlinx.serialization.Serializable
-import kotlinx.serialization.builtins.serializer
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -23,12 +22,10 @@ class MutationEnvelopeMapperTest {
 		val restored = envelope
 			.toPendingMutationEntity(
 				storeId = "record",
-				scopeKeySerializer = String.serializer(),
 				commandSerializer = TestMutation.serializer(),
 				json = json
 			)
 			.toMutationEnvelope(
-				scopeKeySerializer = String.serializer(),
 				commandSerializer = TestMutation.serializer(),
 				json = json
 			)
@@ -46,12 +43,10 @@ class MutationEnvelopeMapperTest {
 		val restored = envelope
 			.toPendingMutationEntity(
 				storeId = "record",
-				scopeKeySerializer = String.serializer(),
 				commandSerializer = TestMutation.serializer(),
 				json = json
 			)
 			.toMutationEnvelope(
-				scopeKeySerializer = String.serializer(),
 				commandSerializer = TestMutation.serializer(),
 				json = json
 			)

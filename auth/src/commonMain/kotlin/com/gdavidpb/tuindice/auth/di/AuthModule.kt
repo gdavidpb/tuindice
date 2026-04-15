@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.auth.domain.usecase.ConfirmSignOutUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.FlushPendingChangesUseCase
-import com.gdavidpb.tuindice.auth.domain.usecase.LoadPendingChangesUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.SignOutUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.UpdatePasswordUseCase
@@ -17,7 +16,7 @@ import com.gdavidpb.tuindice.auth.domain.usecase.validator.UpdatePasswordParamsV
 import com.gdavidpb.tuindice.auth.presentation.action.ConfirmSignOutActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.FlushAndSignOutActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.ForceSignOutActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.LoadPendingChangesActionProcessor
+import com.gdavidpb.tuindice.auth.presentation.action.InitializeSignOutActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.OpenPrivacyPolicyActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.OpenTermsAndConditionsActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.OpenUpdatePasswordActionProcessor
@@ -51,7 +50,7 @@ val authModule = module {
 	factoryOf(::TogglePasswordVisibilityActionProcessor)
 	factoryOf(::OpenTermsAndConditionsActionProcessor)
 	factoryOf(::OpenPrivacyPolicyActionProcessor)
-	factoryOf(::LoadPendingChangesActionProcessor)
+	factoryOf(::InitializeSignOutActionProcessor)
 	factoryOf(::ConfirmSignOutActionProcessor)
 	factoryOf(::FlushAndSignOutActionProcessor)
 	factoryOf(::ForceSignOutActionProcessor)
@@ -62,7 +61,6 @@ val authModule = module {
 
 	/* Use cases */
 
-	factoryOf(::LoadPendingChangesUseCase)
 	factoryOf(::ConfirmSignOutUseCase)
 	factoryOf(::FlushPendingChangesUseCase)
 	factoryOf(::SignInUseCase)

@@ -17,10 +17,12 @@ import androidx.navigation.compose.rememberNavController
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
+import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
+import com.gdavidpb.tuindice.base.logging.appLogger
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
@@ -33,11 +35,17 @@ import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
+import org.jetbrains.compose.resources.stringResource
+import tuindice.maincore.generated.resources.Res
+import tuindice.maincore.generated.resources.snack_pending_changes_unavailable
+
+private val logger = appLogger(tag = "SignOut")
 
 @Composable
 fun TuIndiceAppHostRoute(
@@ -45,6 +53,7 @@ fun TuIndiceAppHostRoute(
 	isSwipeBackNavigationEnabled: Boolean = false,
 	browserRepository: BrowserRepository = koinInject(),
 	deviceInfoRepository: DeviceInfoRepository = koinInject(),
+	pendingChangesRepository: PendingChangesRepository = koinInject(),
 	sessionInvalidationRepository: SessionInvalidationRepository = koinInject(),
 	syncStatusRepository: SyncStatusRepository = koinInject(),
 	reviewRepository: ReviewRepository = koinInject(),
@@ -78,6 +87,7 @@ fun TuIndiceAppHostRoute(
 	val dismissSnackBar: () -> Unit = {
 		snackbarHostState.currentSnackbarData?.dismiss()
 	}
+	val pendingChangesUnavailableMessage = stringResource(Res.string.snack_pending_changes_unavailable)
 
 	LaunchedEffect(Unit) {
 		yield()
@@ -126,6 +136,9 @@ fun TuIndiceAppHostRoute(
 		val shellState = remember {
 			mutableStateOf(MainShellState())
 		}
+		val isPreparingSignOut = remember {
+			mutableStateOf(false)
+		}
 		val onRecordViewModeChange = remember {
 			mutableStateOf<((RecordViewMode) -> Unit)?>(null)
 		}
@@ -163,7 +176,39 @@ fun TuIndiceAppHostRoute(
 			onAction = { action ->
 				when (action) {
 					is TopBarAction.SignOutAction ->
-						navController.navigate(AuthDestination.SignOutDialog)
+						if (!isPreparingSignOut.value) {
+							coroutineScope.launch {
+								try {
+									isPreparingSignOut.value = true
+									val pendingChanges = try {
+										pendingChangesRepository.getPendingChanges()
+									} catch (throwable: Throwable) {
+										if (throwable is CancellationException) throw throwable
+
+										logger.e(throwable) {
+											"Failed to resolve pending changes before opening sign-out dialog."
+										}
+										showSnackBar(
+											SnackBarMessage(
+												message = pendingChangesUnavailableMessage
+											)
+										)
+										return@launch
+									}
+
+									navController.navigate(
+										AuthDestination.SignOutDialog(
+											totalCount = pendingChanges.totalCount,
+											recordCount = pendingChanges.recordCount,
+											evaluationsCount = pendingChanges.evaluationsCount,
+											hasFailedMutations = pendingChanges.hasFailedMutations
+										)
+									)
+								} finally {
+									isPreparingSignOut.value = false
+								}
+							}
+						}
 
 					is TopBarAction.FetchEnrollmentProofAction ->
 						navController.navigate(EnrollmentProofDestination.EnrollmentProofDialog)

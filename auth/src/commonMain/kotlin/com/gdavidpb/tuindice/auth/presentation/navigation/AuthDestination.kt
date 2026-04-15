@@ -12,7 +12,12 @@ sealed class AuthDestination : Destination() {
 	data object SignIn : AuthDestination()
 
 	@Serializable
-	data object SignOutDialog : AuthDestination()
+	data class SignOutDialog(
+		val totalCount: Int,
+		val recordCount: Int,
+		val evaluationsCount: Int,
+		val hasFailedMutations: Boolean
+	) : AuthDestination()
 
 	@Serializable
 	data object UpdatePasswordDialog : AuthDestination()
