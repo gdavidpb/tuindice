@@ -9,8 +9,14 @@ class UUIDIdentifierDataSource : IdentifierRepository {
 
 		return buildString(bytes.size * 2) {
 			bytes.forEach { byte ->
-				append("%02x".format(byte))
+				val value = byte.toInt() and 0xFF
+				append(HEX_DIGITS[value ushr 4])
+				append(HEX_DIGITS[value and 0x0F])
 			}
 		}
+	}
+
+	private companion object {
+		const val HEX_DIGITS = "0123456789abcdef"
 	}
 }

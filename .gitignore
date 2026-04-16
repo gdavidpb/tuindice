@@ -14,3 +14,4 @@ GoogleService-Info.plist
 /mocks/.build/
 /mocks/.runtime/
 /mocks/.runtime-check/
+/iosApp/.build/
