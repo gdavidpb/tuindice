@@ -36,7 +36,7 @@ object RecordProjectionEngine {
 		if (terms.isEmpty()) return RecordProjection()
 
 		val termsAscending = terms.sortedWith(
-			compareBy<AcademicTerm>(AcademicTerm::startAtMillis, AcademicTerm::endAtMillis, AcademicTerm::id)
+			compareBy(AcademicTerm::startAtMillis, AcademicTerm::endAtMillis, AcademicTerm::id)
 		)
 		val effectiveTermsAscending = termsAscending.map { term ->
 			EffectiveTermState(
