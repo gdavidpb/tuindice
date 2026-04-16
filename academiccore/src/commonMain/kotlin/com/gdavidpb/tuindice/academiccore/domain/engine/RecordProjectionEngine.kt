@@ -51,13 +51,14 @@ object RecordProjectionEngine {
 				}
 			)
 		}
-		val excludedAttemptIds = resolveExcludedAttemptIds(effectiveTermsAscending)
+		val visibleTermsAscending = filterObsoleteSyntheticAttempts(effectiveTermsAscending)
+		val excludedAttemptIds = resolveExcludedAttemptIds(visibleTermsAscending)
 		val projectionsAscending = mutableListOf<TermProjection>()
 		val codeStates = hashMapOf<String, EffectiveCodeState>()
 		var cumulativeWeighted = 0L
 		var cumulativeCredits = 0L
 
-		effectiveTermsAscending.forEach { termState ->
+		visibleTermsAscending.forEach { termState ->
 			val periodAverageCredits = termState.attempts.sumOf { attempt ->
 				if (attempt.countsTowardPeriodAverage) attempt.attempt.credits else 0
 			}
@@ -311,6 +312,26 @@ object RecordProjectionEngine {
 			states.values.forEach { state ->
 				state.previousAttemptIdWithoutEffect()?.let(::add)
 			}
+		}
+	}
+
+	private fun filterObsoleteSyntheticAttempts(
+		termsAscending: List<EffectiveTermState>
+	): List<EffectiveTermState> {
+		val approvedSubjectCodes = hashSetOf<String>()
+
+		return termsAscending.map { termState ->
+			val visibleAttempts = termState.attempts.filter { attempt ->
+				!termState.term.kind.isSynthetic || attempt.attempt.subjectCode !in approvedSubjectCodes
+			}
+
+			visibleAttempts.forEach { attempt ->
+				if (attempt.approvalEvent) {
+					approvedSubjectCodes += attempt.attempt.subjectCode
+				}
+			}
+
+			termState.copy(attempts = visibleAttempts)
 		}
 	}
 
