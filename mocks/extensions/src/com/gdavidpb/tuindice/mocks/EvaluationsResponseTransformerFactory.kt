@@ -342,7 +342,7 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 			MessageDigest.getInstance("SHA-256")
 				.digest(referenceId.toByteArray())
 				.joinToString(separator = "") { byte -> "%02x".format(byte) }
-				take(32)
+				.take(32)
 
 		private data class RuntimeState(
 			var anchorRevision: Long,
