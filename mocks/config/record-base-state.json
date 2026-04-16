@@ -64,13 +64,15 @@
         {
           "id": "7d775857cc402928157f2a5b0b2fa5d6",
           "term_id": "16593cab7844efb52ab904ce28f11dde",
-          "code": "EAD212",
-          "name": "DESARROLLO SUSTENTABLE",
-          "credits": 3,
-          "grade": 5,
+          "code": "EP5406",
+          "name": "PROYECTO DE GRADO A DEDICACION EXCLUSIVA",
+          "credits": 9,
+          "grade": 0,
           "revision": 1,
+          "grading_mode": "qualitative_pass_fail",
           "mutable": true,
-          "scenario": "record-attempt-7d775857cc402928157f2a5b0b2fa5d6"
+          "scenario": "record-attempt-7d775857cc402928157f2a5b0b2fa5d6",
+          "status": "failed"
         },
         {
           "id": "003ea6613e10a30340bba4408761b5ae",

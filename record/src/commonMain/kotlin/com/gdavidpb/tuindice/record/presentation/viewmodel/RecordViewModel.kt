@@ -43,18 +43,13 @@ class RecordViewModel(
 	}
 
 	fun upsertAttemptSelectionAction(
-		termId: String,
 		attemptId: String,
 		grade: Int? = null,
 		outcome: AttemptOutcome? = null,
 		commit: Boolean
 	) {
-		val currentViewMode = (state.value as? Record.State.Content)?.viewMode ?: return
-
 		sendAction(
 			Record.Action.UpsertAttemptSelection(
-				viewMode = currentViewMode,
-				termId = termId,
 				attemptId = attemptId,
 				grade = grade,
 				outcome = outcome,

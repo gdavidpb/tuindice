@@ -39,8 +39,6 @@ object Record {
 		) : Action()
 
 		class UpsertAttemptSelection(
-			val viewMode: RecordViewMode,
-			val termId: String,
 			val attemptId: String,
 			val grade: Int? = null,
 			val outcome: AttemptOutcome? = null,

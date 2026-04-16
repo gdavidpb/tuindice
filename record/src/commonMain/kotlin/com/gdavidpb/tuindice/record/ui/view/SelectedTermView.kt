@@ -21,7 +21,6 @@ fun SelectedTermView(
 	modifier: Modifier = Modifier,
 	term: TermItem,
 	onAttemptSelectionChange: (
-		termId: String,
 		attemptId: String,
 		newGrade: Int?,
 		newOutcome: AttemptOutcome?,
@@ -62,7 +61,6 @@ fun SelectedTermView(
 				gradeState = gradeState.takeIf { attempt.gradingMode == GradingMode.NUMERIC },
 				onGradeChange = { newGrade, newOutcome, isSelected ->
 					onAttemptSelectionChange(
-						attempt.termId,
 						attempt.attemptId,
 						newGrade,
 						newOutcome,

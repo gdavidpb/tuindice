@@ -25,7 +25,6 @@ fun RecordScreen(
 	onSelectedTermChange: (termId: String) -> Unit,
 	onRetryClick: () -> Unit,
 	onAttemptSelectionChange: (
-		termId: String,
 		attemptId: String,
 		newGrade: Int?,
 		newOutcome: AttemptOutcome?,

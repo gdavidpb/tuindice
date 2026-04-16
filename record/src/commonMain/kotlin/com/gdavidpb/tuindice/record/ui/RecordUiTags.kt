@@ -23,5 +23,6 @@ object RecordUiTags {
 	fun attemptCard(attemptId: String): String = "record_attempt_card_$attemptId"
 	fun attemptGradeSlider(attemptId: String): String = "record_attempt_grade_slider_$attemptId"
 	fun attemptStatusChip(attemptId: String): String = "record_attempt_status_chip_$attemptId"
+	fun attemptStatusSelector(attemptId: String): String = "record_attempt_status_selector_$attemptId"
 	fun attemptStatusOption(attemptId: String, status: String): String = "record_attempt_status_option_${attemptId}_$status"
 }

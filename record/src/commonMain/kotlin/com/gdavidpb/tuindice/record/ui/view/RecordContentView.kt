@@ -39,7 +39,6 @@ fun RecordContentView(
 	selectedTermId: String?,
 	onSelectedTermChange: (termId: String) -> Unit,
 	onAttemptSelectionChange: (
-		termId: String,
 		attemptId: String,
 		newGrade: Int?,
 		newOutcome: AttemptOutcome?,
@@ -114,7 +113,6 @@ private fun RecordTermPagerView(
 	selectedTermId: String,
 	onSelectedTermChange: (termId: String) -> Unit,
 	onAttemptSelectionChange: (
-		termId: String,
 		attemptId: String,
 		newGrade: Int?,
 		newOutcome: AttemptOutcome?,

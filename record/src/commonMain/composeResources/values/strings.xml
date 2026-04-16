@@ -35,6 +35,7 @@
     <string name="attempt_failed">Reprobada</string>
 	<string name="attempt_retired">Retirada</string>
 	<string name="attempt_without_effect">Sin efecto</string>
+	<string name="attempt_status_selector_placeholder">Seleccionar</string>
 	<string name="snack_service_unavailable">Servicio no disponible</string>
 	<string name="snack_network_unavailable">Comprueba tu conexión</string>
 	<string name="snack_timeout">Tiempo de espera agotado</string>

@@ -91,7 +91,6 @@ fun TermProjection.toTermItem(
 		canDelete = canDelete,
 		attempts = attempts.map { attempt ->
 			attempt.toAttemptItem(
-				termId = id,
 				isReadOnly = isAttemptReadOnly(viewMode),
 				texts = texts
 			)

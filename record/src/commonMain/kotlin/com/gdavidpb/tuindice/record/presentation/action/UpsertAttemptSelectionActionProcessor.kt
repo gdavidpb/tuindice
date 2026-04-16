@@ -19,8 +19,6 @@ class UpsertAttemptSelectionActionProcessor(
 	): Flow<Mutation<Record.State>> {
 		return upsertAttemptSelectionUseCase.execute(
 			UpsertAttemptSelectionParams(
-				viewMode = action.viewMode,
-				termId = action.termId,
 				attemptId = action.attemptId,
 				grade = action.grade,
 				outcome = action.outcome,

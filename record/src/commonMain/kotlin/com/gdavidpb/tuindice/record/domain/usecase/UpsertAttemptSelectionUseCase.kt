@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.record.domain.mapper.attemptSelectionToOverridePayload
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
-import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
 import com.gdavidpb.tuindice.record.domain.usecase.error.RecordUseCaseError
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExceptionHandler
 import com.gdavidpb.tuindice.record.domain.usecase.param.UpsertAttemptSelectionParams
@@ -15,7 +14,6 @@ import kotlinx.coroutines.flow.flowOf
 
 class UpsertAttemptSelectionUseCase(
 	private val academicRecordRepository: AcademicRecordRepository,
-	private val recordSelectionRepository: RecordSelectionRepository,
 	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: RecordExceptionHandler
 ) : FlowUseCase<UpsertAttemptSelectionParams, Unit, RecordUseCaseError>(reportingRepository = reportingRepository) {
@@ -40,11 +38,6 @@ class UpsertAttemptSelectionUseCase(
 				commit = params.commit
 			)
 		}
-
-		recordSelectionRepository.setSelectedTermId(
-			viewMode = params.viewMode,
-			termId = params.termId
-		)
 
 		return flowOf(Unit)
 	}

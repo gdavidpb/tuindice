@@ -15,7 +15,6 @@ fun TermItemView(
 	modifier: Modifier = Modifier,
 	item: TermItem,
 	onAttemptSelectionChange: (
-		termId: String,
 		attemptId: String,
 		newGrade: Int?,
 		newOutcome: AttemptOutcome?,

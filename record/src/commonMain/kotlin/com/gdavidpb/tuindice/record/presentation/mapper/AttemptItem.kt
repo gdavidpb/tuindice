@@ -14,7 +14,6 @@ import com.gdavidpb.tuindice.record.presentation.model.AttemptItem
 
 @Composable
 fun AttemptProjection.toAttemptItem(
-	termId: String,
 	isReadOnly: Boolean,
 	texts: RecordMapperTexts
 ): AttemptItem = remember(subjectCode) { CourseCodeColorGenerator.fromCode(subjectCode) }.let { subjectColors ->
@@ -23,7 +22,6 @@ fun AttemptProjection.toAttemptItem(
 
 	AttemptItem(
 		attemptId = id,
-		termId = termId,
 		grade = numericGrade,
 		gradingMode = when (gradingMode) {
 			AttemptGradingMode.NUMERIC -> GradingMode.NUMERIC
