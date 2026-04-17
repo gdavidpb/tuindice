@@ -47,6 +47,7 @@ kermit = "2.1.0"
 multiplatform-settings = "1.3.0"
 ksafe = "1.7.1"
 skiko = "0.9.37.4"
+vico = "3.0.3"
 
 [libraries]
 # Room
@@ -150,6 +151,8 @@ kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }
 multiplatform-settings = { module = "com.russhwolf:multiplatform-settings", version.ref = "multiplatform-settings" }
 ksafe = { module = "eu.anifantakis:ksafe", version.ref = "ksafe" }
 skiko = { module = "org.jetbrains.skiko:skiko", version.ref = "skiko" }
+vico-compose = { module = "com.patrykandpatrick.vico:compose", version.ref = "vico" }
+vico-compose-m3 = { module = "com.patrykandpatrick.vico:compose-m3", version.ref = "vico" }
 
 # Coil
 coil3-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coil3" }

@@ -22,6 +22,7 @@ fun AttemptProjection.toAttemptItem(
 
 	AttemptItem(
 		attemptId = id,
+		subjectCode = subjectCode,
 		grade = numericGrade,
 		gradingMode = when (gradingMode) {
 			AttemptGradingMode.NUMERIC -> GradingMode.NUMERIC

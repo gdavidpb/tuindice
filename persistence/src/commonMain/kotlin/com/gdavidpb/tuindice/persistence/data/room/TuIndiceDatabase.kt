@@ -14,9 +14,13 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.*
 		AcademicAttemptOverrideEntity::class,
 		EvaluationEntity::class,
 		EvaluationSyncStateEntity::class,
-		PendingMutationEntity::class
+		PendingMutationEntity::class,
+		SubjectDetailEntity::class,
+		SubjectStatsSegmentEntity::class,
+		SubjectStatsGradeBinEntity::class,
+		SubjectStatsAttemptBinEntity::class
 	],
-	version = 20,
+	version = 21,
 	exportSchema = false
 )
 @ConstructedBy(TuIndiceDatabaseConstructor::class)
@@ -30,6 +34,10 @@ abstract class TuIndiceDatabase : RoomDatabase() {
 	abstract val evaluations: EvaluationDao
 	abstract val evaluationSyncState: EvaluationSyncStateDao
 	abstract val pendingMutations: PendingMutationDao
+	abstract val subjectDetails: SubjectDetailDao
+	abstract val subjectStatsSegments: SubjectStatsSegmentDao
+	abstract val subjectStatsGradeBins: SubjectStatsGradeBinDao
+	abstract val subjectStatsAttemptBins: SubjectStatsAttemptBinDao
 }
 
 @Suppress("KotlinNoActualForExpect")

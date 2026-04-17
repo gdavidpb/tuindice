@@ -138,6 +138,7 @@ dependencies {
 	implementation(project(":record"))
 	implementation(project(":enrollmentproof"))
 	implementation(project(":evaluations"))
+	implementation(project(":subjects"))
 }
 
 tasks.configureEach {

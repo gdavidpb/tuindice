@@ -17,6 +17,7 @@ fun AttemptCardItemView(
 	modifier: Modifier = Modifier,
 	item: AttemptItem,
 	gradeState: MutableIntState? = null,
+	onSubjectClick: (subjectCode: String) -> Unit = {},
 	onGradeChange: (newGrade: Int?, newOutcome: AttemptOutcome?, isSelected: Boolean) -> Unit
 ) {
 	ElevatedCard(
@@ -31,6 +32,7 @@ fun AttemptCardItemView(
 		AttemptItemView(
 			item = item,
 			gradeState = gradeState,
+			onSubjectClick = onSubjectClick,
 			onGradeChange = onGradeChange
 		)
 	}

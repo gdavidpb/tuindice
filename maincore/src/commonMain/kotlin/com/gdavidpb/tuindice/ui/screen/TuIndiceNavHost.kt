@@ -22,6 +22,8 @@ import com.gdavidpb.tuindice.presentation.navigation.browserNavigation
 import com.gdavidpb.tuindice.presentation.navigation.mainNavigation
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.navigation.recordNavigation
+import com.gdavidpb.tuindice.subjects.presentation.navigation.SubjectsDestination
+import com.gdavidpb.tuindice.subjects.presentation.navigation.subjectsNavigation
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryNavigation
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
@@ -99,6 +101,9 @@ fun TuIndiceNavHost(
 			onNavigateToUpdatePassword = {
 				navController.navigate(AuthDestination.UpdatePasswordDialog)
 			},
+			onNavigateToSubjectDetail = { subjectCode ->
+				navController.navigate(SubjectsDestination.SubjectDetail(subjectCode = subjectCode))
+			},
 			onTopBarViewModeChangeAvailable = onRecordViewModeChangeAvailable,
 			showTopBarBanner = showTopBarBanner,
 			onViewStateChanged = onViewStateChanged,
@@ -152,6 +157,10 @@ fun TuIndiceNavHost(
 			},
 			onDismissRequest = { navController.navigateUp() },
 			showSnackBar = showSnackBar
+		)
+
+		subjectsNavigation(
+			onDismissRequest = { navController.navigateUp() }
 		)
 
 		browserNavigation(

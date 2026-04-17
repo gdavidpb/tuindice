@@ -13,6 +13,9 @@ import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.source.DebugSummaryRemoteDataSource
 import com.gdavidpb.tuindice.summary.data.source.FileKitDebugProfilePictureStorageDataSource
 import com.gdavidpb.tuindice.summary.data.source.SummaryApiDataSource
+import com.gdavidpb.tuindice.subjects.data.repository.SubjectStatsApiDataRepository
+import com.gdavidpb.tuindice.subjects.data.source.DebugSubjectsApiDataSource
+import com.gdavidpb.tuindice.subjects.data.source.KtorSubjectsApiDataSource
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.dsl.module
@@ -30,6 +33,13 @@ val androidDebugVariantModule = module {
 		DebugSummaryRemoteDataSource(
 			apiRemoteDataSource = get<SummaryApiDataSource>(),
 			debugProfilePictureStorageDataSource = get()
+		)
+	}
+
+	factory<SubjectStatsApiDataRepository> {
+		DebugSubjectsApiDataSource(
+			apiDataSource = get<KtorSubjectsApiDataSource>(),
+			json = get()
 		)
 	}
 

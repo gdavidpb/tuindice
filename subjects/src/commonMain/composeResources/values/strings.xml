@@ -1,0 +1,9 @@
+<resources>
+    <string name="subjects_title_my_career">Tu carrera</string>
+    <string name="subjects_title_general">General</string>
+    <string name="subjects_message_no_data">Aún no contamos con información suficiente para esta materia.</string>
+    <string name="subjects_message_no_data_body">Cuando haya más historial académico disponible, podrás ver estadísticas y tendencias desde aquí.</string>
+    <string name="subjects_title_failed">No pudimos cargar esta materia.</string>
+    <string name="subjects_message_retry">Reintentar</string>
+    <string name="subjects_action_close">Cerrar</string>
+</resources>

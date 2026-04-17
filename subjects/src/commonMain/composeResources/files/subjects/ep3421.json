@@ -1,0 +1,54 @@
+{
+  "id": "EP3421",
+  "name": "Proyecto de Ingenieria de Software",
+  "credits": 8,
+  "grading_mode": "qualitative_pass_fail",
+  "generated_at": 1763340000000,
+  "expires_at": 1765932000000,
+  "career_segment": {
+    "sample_students": 25,
+    "closed_attempts": 29,
+    "numeric_latest_students": 0,
+    "latest_approved_count": 18,
+    "latest_failed_count": 4,
+    "latest_retired_count": 2,
+    "latest_unreported_count": 1,
+    "first_attempt_pass_rate": 0.56,
+    "eventual_pass_rate": 0.72,
+    "retake_rate": 0.16,
+    "avg_attempts_to_pass": 1.3,
+    "median_attempts_to_pass": 1.0,
+    "first_closed_term_start_at": 1704067200000,
+    "last_closed_term_start_at": 1759276800000,
+    "latest_grade_bins": [],
+    "all_grade_bins": [],
+    "attempts_to_pass_bins": [
+      { "bucket": "1", "count": 12 },
+      { "bucket": "2", "count": 4 },
+      { "bucket": "3_plus", "count": 2 }
+    ]
+  },
+  "global_segment": {
+    "sample_students": 112,
+    "closed_attempts": 134,
+    "numeric_latest_students": 0,
+    "latest_approved_count": 74,
+    "latest_failed_count": 19,
+    "latest_retired_count": 10,
+    "latest_unreported_count": 9,
+    "first_attempt_pass_rate": 0.49,
+    "eventual_pass_rate": 0.66,
+    "retake_rate": 0.21,
+    "avg_attempts_to_pass": 1.4,
+    "median_attempts_to_pass": 1.0,
+    "first_closed_term_start_at": 1672531200000,
+    "last_closed_term_start_at": 1759276800000,
+    "latest_grade_bins": [],
+    "all_grade_bins": [],
+    "attempts_to_pass_bins": [
+      { "bucket": "1", "count": 49 },
+      { "bucket": "2", "count": 18 },
+      { "bucket": "3_plus", "count": 7 }
+    ]
+  }
+}

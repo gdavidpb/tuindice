@@ -42,6 +42,7 @@ kotlin {
 				implementation(project(":record"))
 				implementation(project(":evaluations"))
 				implementation(project(":enrollmentproof"))
+				implementation(project(":subjects"))
 				implementation(libs.koin.compose)
 				implementation(libs.koin.core)
 				implementation(libs.koin.core.viewmodel)

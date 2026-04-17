@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.domain.model.GradingMode
 
 data class AttemptItem(
 	val attemptId: String,
+	val subjectCode: String,
 	val grade: Int,
 	val gradingMode: GradingMode = GradingMode.NUMERIC,
 	val outcome: AttemptOutcome? = null,

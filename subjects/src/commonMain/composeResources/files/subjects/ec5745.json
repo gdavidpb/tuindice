@@ -1,0 +1,84 @@
+{
+  "id": "EC5745",
+  "name": "Senales y Sistemas",
+  "credits": 6,
+  "grading_mode": "numeric",
+  "generated_at": 1763340000000,
+  "expires_at": 1765932000000,
+  "career_segment": {
+    "sample_students": 61,
+    "closed_attempts": 92,
+    "numeric_latest_students": 61,
+    "latest_approved_count": 38,
+    "latest_failed_count": 18,
+    "latest_retired_count": 3,
+    "latest_unreported_count": 2,
+    "average_grade": 3.2,
+    "median_grade": 3.0,
+    "stddev_grade": 0.9,
+    "first_attempt_pass_rate": 0.43,
+    "eventual_pass_rate": 0.68,
+    "retake_rate": 0.37,
+    "avg_attempts_to_pass": 1.7,
+    "median_attempts_to_pass": 2.0,
+    "first_closed_term_start_at": 1696118400000,
+    "last_closed_term_start_at": 1759276800000,
+    "latest_grade_bins": [
+      { "grade": 1, "count": 6 },
+      { "grade": 2, "count": 12 },
+      { "grade": 3, "count": 20 },
+      { "grade": 4, "count": 17 },
+      { "grade": 5, "count": 6 }
+    ],
+    "all_grade_bins": [
+      { "grade": 1, "count": 11 },
+      { "grade": 2, "count": 20 },
+      { "grade": 3, "count": 28 },
+      { "grade": 4, "count": 23 },
+      { "grade": 5, "count": 10 }
+    ],
+    "attempts_to_pass_bins": [
+      { "bucket": "1", "count": 18 },
+      { "bucket": "2", "count": 14 },
+      { "bucket": "3_plus", "count": 6 }
+    ]
+  },
+  "global_segment": {
+    "sample_students": 304,
+    "closed_attempts": 496,
+    "numeric_latest_students": 304,
+    "latest_approved_count": 208,
+    "latest_failed_count": 72,
+    "latest_retired_count": 14,
+    "latest_unreported_count": 10,
+    "average_grade": 3.3,
+    "median_grade": 3.0,
+    "stddev_grade": 1.0,
+    "first_attempt_pass_rate": 0.46,
+    "eventual_pass_rate": 0.74,
+    "retake_rate": 0.41,
+    "avg_attempts_to_pass": 1.8,
+    "median_attempts_to_pass": 2.0,
+    "first_closed_term_start_at": 1672531200000,
+    "last_closed_term_start_at": 1759276800000,
+    "latest_grade_bins": [
+      { "grade": 1, "count": 25 },
+      { "grade": 2, "count": 51 },
+      { "grade": 3, "count": 95 },
+      { "grade": 4, "count": 89 },
+      { "grade": 5, "count": 44 }
+    ],
+    "all_grade_bins": [
+      { "grade": 1, "count": 46 },
+      { "grade": 2, "count": 89 },
+      { "grade": 3, "count": 156 },
+      { "grade": 4, "count": 139 },
+      { "grade": 5, "count": 66 }
+    ],
+    "attempts_to_pass_bins": [
+      { "bucket": "1", "count": 96 },
+      { "bucket": "2", "count": 77 },
+      { "bucket": "3_plus", "count": 35 }
+    ]
+  }
+}

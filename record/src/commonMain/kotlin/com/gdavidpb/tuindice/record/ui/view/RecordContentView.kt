@@ -38,6 +38,7 @@ fun RecordContentView(
 	state: Record.State.Content,
 	selectedTermId: String?,
 	onSelectedTermChange: (termId: String) -> Unit,
+	onSubjectClick: (subjectCode: String) -> Unit,
 	onAttemptSelectionChange: (
 		attemptId: String,
 		newGrade: Int?,
@@ -100,6 +101,7 @@ fun RecordContentView(
 				terms = terms,
 				selectedTermId = effectiveSelectedTermId,
 				onSelectedTermChange = onSelectedTermChange,
+				onSubjectClick = onSubjectClick,
 				onAttemptSelectionChange = onAttemptSelectionChange
 			)
 		}
@@ -112,6 +114,7 @@ private fun RecordTermPagerView(
 	terms: List<TermItem>,
 	selectedTermId: String,
 	onSelectedTermChange: (termId: String) -> Unit,
+	onSubjectClick: (subjectCode: String) -> Unit,
 	onAttemptSelectionChange: (
 		attemptId: String,
 		newGrade: Int?,
@@ -173,6 +176,7 @@ private fun RecordTermPagerView(
 			TermItemView(
 				modifier = Modifier.fillMaxSize(),
 				item = terms[page],
+				onSubjectClick = onSubjectClick,
 				onAttemptSelectionChange = onAttemptSelectionChange
 			)
 		}

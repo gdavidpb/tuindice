@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.record.ui.screen.RecordScreen
 @Composable
 fun RecordRoute(
 	onNavigateToUpdatePassword: () -> Unit,
+	onNavigateToSubjectDetail: (subjectCode: String) -> Unit,
 	onTopBarViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
@@ -77,6 +78,7 @@ fun RecordRoute(
 				viewModel.selectTermAction(termId)
 			}
 		},
+		onSubjectClick = onNavigateToSubjectDetail,
 		onRetryClick = viewModel::refreshRecordAction,
 		onAttemptSelectionChange = { attemptId, grade, outcome, isSelected ->
 			viewModel.upsertAttemptSelectionAction(

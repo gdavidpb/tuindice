@@ -21,6 +21,7 @@ object RecordUiTags {
 	fun termCurrentChip(termId: String): String = "record_term_current_chip_$termId"
 	fun attemptItem(attemptId: String): String = "record_attempt_item_$attemptId"
 	fun attemptCard(attemptId: String): String = "record_attempt_card_$attemptId"
+	fun attemptSubjectChip(attemptId: String): String = "record_attempt_subject_chip_$attemptId"
 	fun attemptGradeSlider(attemptId: String): String = "record_attempt_grade_slider_$attemptId"
 	fun attemptStatusChip(attemptId: String): String = "record_attempt_status_chip_$attemptId"
 	fun attemptStatusSelector(attemptId: String): String = "record_attempt_status_selector_$attemptId"

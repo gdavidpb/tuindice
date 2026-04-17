@@ -53,6 +53,7 @@ fun AttemptItemView(
 	modifier: Modifier = Modifier,
 	item: AttemptItem,
 	gradeState: MutableIntState? = null,
+	onSubjectClick: (subjectCode: String) -> Unit = {},
 	onGradeChange: (newGrade: Int?, newOutcome: AttemptOutcome?, isSelected: Boolean) -> Unit
 ) {
 	val currentGrade = gradeState?.intValue ?: item.grade
@@ -227,10 +228,12 @@ fun AttemptItemView(
 		) {
 			Text(
 				modifier = Modifier
+					.testTag(RecordUiTags.attemptSubjectChip(item.attemptId))
 					.background(
 						color = item.codeContainerColor,
 						shape = RoundedCornerShape(8.dp)
 					)
+					.clickable { onSubjectClick(item.subjectCode) }
 					.padding(vertical = 5.dp, horizontal = 10.dp),
 				text = item.codeText,
 				color = item.codeColor,

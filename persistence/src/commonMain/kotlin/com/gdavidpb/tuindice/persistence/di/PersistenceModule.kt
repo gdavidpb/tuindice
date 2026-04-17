@@ -8,6 +8,10 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationSyncStateDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectDetailDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsAttemptBinDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsGradeBinDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsSegmentDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.UserDao
 import com.gdavidpb.tuindice.persistence.data.source.RoomPersistenceMaintenanceDataSource
 import com.gdavidpb.tuindice.persistence.data.source.RoomPersistenceTransactionRunner
@@ -26,6 +30,10 @@ val persistenceModule = module {
 	single<EvaluationDao> { get<TuIndiceDatabase>().evaluations }
 	single<EvaluationSyncStateDao> { get<TuIndiceDatabase>().evaluationSyncState }
 	single<PendingMutationDao> { get<TuIndiceDatabase>().pendingMutations }
+	single<SubjectDetailDao> { get<TuIndiceDatabase>().subjectDetails }
+	single<SubjectStatsSegmentDao> { get<TuIndiceDatabase>().subjectStatsSegments }
+	single<SubjectStatsGradeBinDao> { get<TuIndiceDatabase>().subjectStatsGradeBins }
+	single<SubjectStatsAttemptBinDao> { get<TuIndiceDatabase>().subjectStatsAttemptBins }
 
 	singleOf(::RoomPersistenceTransactionRunner) { bind<PersistenceTransactionRunner>() }
 	singleOf(::RoomPersistenceMaintenanceDataSource) { bind<PersistenceMaintenanceRepository>() }
