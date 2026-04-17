@@ -46,10 +46,8 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 			try {
 				val configFile: TextFile = fileSource.child(CONFIG_DIRECTORY).getTextFileNamed(SETTINGS_FILENAME)
 				val root = objectMapper.readTree(configFile.readContentsAsString())
-				val anchorRevision = root.get("anchor_revision").asLong()
 				val evaluations = root.get("evaluations").map(::parseEvaluation)
 				return RuntimeState(
-					anchorRevision = anchorRevision,
 					defaultTermId = evaluations.firstOrNull()?.termId ?: DEFAULT_TERM_ID,
 					evaluationsById = LinkedHashMap(evaluations.associateBy { it.id }),
 					attemptMetadataById = readAttemptMetadata(fileSource),
@@ -105,25 +103,24 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 			)
 
 		private fun isListRequest(request: com.github.tomakehurst.wiremock.http.Request, pathSegments: List<String>): Boolean =
-			request.method == RequestMethod.GET && pathSegments == listOf("evaluations", "v2")
+			request.method == RequestMethod.GET && pathSegments == listOf("evaluations", "v3")
 
 		private fun isSingleGetRequest(request: com.github.tomakehurst.wiremock.http.Request, pathSegments: List<String>): Boolean =
-			request.method == RequestMethod.GET && pathSegments.size == 3 && pathSegments[0] == "evaluations" && pathSegments[1] == "v2"
+			request.method == RequestMethod.GET && pathSegments.size == 3 && pathSegments[0] == "evaluations" && pathSegments[1] == "v3"
 
 		private fun isPostRequest(request: com.github.tomakehurst.wiremock.http.Request, pathSegments: List<String>): Boolean =
-			request.method == RequestMethod.POST && pathSegments == listOf("evaluations", "v2")
+			request.method == RequestMethod.POST && pathSegments == listOf("evaluations", "v3")
 
 		private fun isPatchRequest(request: com.github.tomakehurst.wiremock.http.Request, pathSegments: List<String>): Boolean =
-			request.method == RequestMethod.PATCH && pathSegments.size == 3 && pathSegments[0] == "evaluations" && pathSegments[1] == "v2"
+			request.method == RequestMethod.PATCH && pathSegments.size == 3 && pathSegments[0] == "evaluations" && pathSegments[1] == "v3"
 
 		private fun isDeleteRequest(request: com.github.tomakehurst.wiremock.http.Request, pathSegments: List<String>): Boolean =
-			request.method == RequestMethod.DELETE && pathSegments.size == 3 && pathSegments[0] == "evaluations" && pathSegments[1] == "v2"
+			request.method == RequestMethod.DELETE && pathSegments.size == 3 && pathSegments[0] == "evaluations" && pathSegments[1] == "v3"
 
 		private fun listResponse(): ResponseDefinition =
 			jsonResponse(
 				200,
 				mapOf(
-					"anchor_revision" to state.anchorRevision,
 					"evaluations" to activeEvaluations().map { it.toTemplateModel() },
 				),
 				GET_DELAY_MS,
@@ -136,7 +133,6 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 			return jsonResponse(
 				200,
 				mapOf(
-					"anchor_revision" to state.anchorRevision,
 					"evaluation" to evaluation.toTemplateModel(),
 				),
 				GET_DELAY_MS,
@@ -149,19 +145,13 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 				?: return jsonResponse(400, mapOf("error" to "invalid_payload"), ERROR_DELAY_MS)
 			val referenceId = root.path("reference_id").takeIf { it.isTextual }?.asText()
 				?: return jsonResponse(400, mapOf("error" to "invalid_payload"), ERROR_DELAY_MS)
-			val expectedRevision = root.path("expected_revision").takeIf { it.canConvertToLong() }?.asLong()
-				?: return jsonResponse(400, mapOf("error" to "invalid_payload"), ERROR_DELAY_MS)
 
 			state.mutationResults[mutationId]?.let { cachedResponse ->
 				return jsonResponse(200, cachedResponse, POST_DELAY_MS)
 			}
 
 			if (state.evaluationsById.values.any { it.referenceId == referenceId }) {
-				return jsonResponse(412, mapOf("error" to "duplicate_reference_id"), ERROR_DELAY_MS)
-			}
-
-			if (expectedRevision != state.anchorRevision) {
-				return jsonResponse(409, mapOf("error" to "anchor_revision_conflict"), ERROR_DELAY_MS)
+				return jsonResponse(409, mapOf("error" to "duplicate_reference_id"), ERROR_DELAY_MS)
 			}
 
 			val attemptId = root.path("attempt_id").takeIf { it.isTextual }?.asText()
@@ -194,7 +184,6 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 				revision = 1L,
 			)
 
-			state.anchorRevision += 1
 			state.evaluationsById[realId] = evaluation
 			val responseBody = buildMutationResponse(mutationId, evaluation)
 			state.mutationResults[mutationId] = responseBody
@@ -241,7 +230,6 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 			}
 
 			evaluation.revision += 1
-			state.anchorRevision += 1
 			val responseBody = buildMutationResponse(mutationId, evaluation)
 			state.mutationResults[mutationId] = responseBody
 			return jsonResponse(200, responseBody, PATCH_DELAY_MS)
@@ -263,12 +251,11 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 			val evaluation = activeEvaluationById(evaluationId)
 				?: return jsonResponse(404, mapOf("error" to "evaluation_not_found"), ERROR_DELAY_MS)
 
-			if (expectedRevision != state.anchorRevision) {
-				return jsonResponse(409, mapOf("error" to "anchor_revision_conflict"), ERROR_DELAY_MS)
+			if (expectedRevision != evaluation.revision) {
+				return jsonResponse(409, mapOf("error" to "revision_conflict"), ERROR_DELAY_MS)
 			}
 
 			evaluation.deleted = true
-			state.anchorRevision += 1
 			val responseBody = buildDeleteResponse(mutationId, evaluation.id)
 			state.mutationResults[mutationId] = responseBody
 			return jsonResponse(200, responseBody, DELETE_DELAY_MS)
@@ -297,14 +284,12 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 		private fun buildMutationResponse(mutationId: String, evaluation: EvaluationModel): Map<String, Any?> =
 			linkedMapOf(
 				"mutation_id" to mutationId,
-				"anchor_revision" to state.anchorRevision,
 				"evaluation_patch" to evaluation.toTemplateModel(),
 			)
 
 		private fun buildDeleteResponse(mutationId: String, removedEvaluationId: String): Map<String, Any?> =
 			linkedMapOf(
 				"mutation_id" to mutationId,
-				"anchor_revision" to state.anchorRevision,
 				"removed_evaluation_id" to removedEvaluationId,
 			)
 
@@ -345,7 +330,6 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 				.take(32)
 
 		private data class RuntimeState(
-			var anchorRevision: Long,
 			val defaultTermId: String,
 			val evaluationsById: LinkedHashMap<String, EvaluationModel>,
 			val attemptMetadataById: LinkedHashMap<String, AttemptMetadata>,

@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.data.model
 
 data class LocalEvaluationsSnapshot(
-	val anchorRevision: Long,
+	val hasSynced: Boolean,
 	val evaluations: List<LocalEvaluation>
 )

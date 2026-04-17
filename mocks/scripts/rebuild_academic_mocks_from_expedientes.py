@@ -432,7 +432,6 @@ def build_evaluations_state(record_state: dict[str, object]) -> dict[str, object
 		)
 
 	return {
-		"anchor_revision": int(current_term["revision"]),
 		"evaluations": evaluations,
 	}
 

@@ -52,7 +52,7 @@ class RoomDatabaseDataSource(
 			evaluationSyncStateDao.observeSyncState()
 		) { evaluations, syncState ->
 			LocalEvaluationsSnapshot(
-				anchorRevision = syncState?.anchorRevision ?: 0L,
+				hasSynced = syncState?.hasSynced == true,
 				evaluations = evaluations.map { evaluation -> evaluation.toLocalEvaluation() }
 			)
 		}.onEach { snapshot ->
@@ -74,7 +74,7 @@ class RoomDatabaseDataSource(
 
 	override fun observeHasSyncedEvaluationsFlow(): Flow<Boolean> {
 		return evaluationSyncStateDao.observeSyncState()
-			.map { syncState -> syncState != null }
+			.map { syncState -> syncState?.hasSynced == true }
 	}
 
 	override suspend fun getEvaluation(eid: String): LocalEvaluation? {
@@ -107,8 +107,7 @@ class RoomDatabaseDataSource(
 	}
 
 	override suspend fun confirmAddedEvaluation(
-		evaluation: LocalEvaluation,
-		anchorRevision: Long
+		evaluation: LocalEvaluation
 	): LocalEvaluation {
 		writeMutex.withLock {
 			val currentSnapshot = getConfirmedSnapshot()
@@ -119,7 +118,7 @@ class RoomDatabaseDataSource(
 
 			persistConfirmedSnapshot(
 				snapshot = currentSnapshot.copy(
-					anchorRevision = anchorRevision,
+					hasSynced = true,
 					evaluations = mergedEvaluations
 				),
 				replaceAll = false
@@ -130,8 +129,7 @@ class RoomDatabaseDataSource(
 	}
 
 	override suspend fun confirmUpdatedEvaluation(
-		evaluation: LocalEvaluation,
-		anchorRevision: Long
+		evaluation: LocalEvaluation
 	): LocalEvaluation {
 		writeMutex.withLock {
 			val currentSnapshot = getConfirmedSnapshot()
@@ -147,7 +145,7 @@ class RoomDatabaseDataSource(
 
 			persistConfirmedSnapshot(
 				snapshot = currentSnapshot.copy(
-					anchorRevision = anchorRevision,
+					hasSynced = true,
 					evaluations = mergedEvaluations
 				),
 				replaceAll = false
@@ -157,18 +155,18 @@ class RoomDatabaseDataSource(
 		return evaluation
 	}
 
-	override suspend fun confirmRemovedEvaluation(eid: String, anchorRevision: Long) {
+	override suspend fun confirmRemovedEvaluation(eid: String) {
 		writeMutex.withLock {
 			val currentSnapshot = getConfirmedSnapshot()
 			transactionRunner.immediate {
 				evaluationDao.deleteEvaluation(eid)
 				evaluationSyncStateDao.upsertEntity(
-					EvaluationSyncStateEntity(anchorRevision = anchorRevision)
+					EvaluationSyncStateEntity(hasSynced = true)
 				)
 			}
 
 			inMemoryConfirmedSnapshot = currentSnapshot.copy(
-				anchorRevision = anchorRevision,
+				hasSynced = true,
 				evaluations = currentSnapshot.evaluations.filterNot { evaluation -> evaluation.id == eid }
 			)
 		}
@@ -197,7 +195,7 @@ class RoomDatabaseDataSource(
 		val evaluations = evaluationDao.observeEvaluationsFlow()
 			.map { items -> items.map { item -> item.toLocalEvaluation() } }
 		return LocalEvaluationsSnapshot(
-			anchorRevision = evaluationSyncStateDao.getSyncState()?.anchorRevision ?: 0L,
+			hasSynced = evaluationSyncStateDao.getSyncState()?.hasSynced == true,
 			evaluations = evaluations.first()
 		).also { snapshot ->
 			inMemoryConfirmedSnapshot = snapshot
@@ -216,7 +214,7 @@ class RoomDatabaseDataSource(
 			}
 			evaluationDao.upsertEntities(entities)
 			evaluationSyncStateDao.upsertEntity(
-				EvaluationSyncStateEntity(anchorRevision = snapshot.anchorRevision)
+				EvaluationSyncStateEntity(hasSynced = snapshot.hasSynced)
 			)
 		}
 

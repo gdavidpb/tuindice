@@ -37,7 +37,7 @@ import kotlinx.coroutines.flow.map
 
 private const val PAST_EVALUATION_DATE = 1_700_000_000_000L
 private const val FUTURE_EVALUATION_DATE = 1_900_000_000_000L
-const val DEFAULT_EVALUATIONS_ANCHOR_REVISION = 10L
+const val DEFAULT_HAS_SYNCED_EVALUATIONS = true
 
 val DEFAULT_EVALUATION_SUBJECT = EditableAttemptDescriptor(
 	id = "subject-1",
@@ -251,7 +251,7 @@ class RecordingEvaluationRepository(
 
 class FakeDatabaseDataSource(
 	initialSnapshot: LocalEvaluationsSnapshot = LocalEvaluationsSnapshot(
-		anchorRevision = DEFAULT_EVALUATIONS_ANCHOR_REVISION,
+		hasSynced = DEFAULT_HAS_SYNCED_EVALUATIONS,
 		evaluations = listOf(
 			DEFAULT_LOCAL_PENDING_EVALUATION,
 			DEFAULT_LOCAL_COMPLETED_EVALUATION
@@ -263,12 +263,12 @@ class FakeDatabaseDataSource(
 	)
 ) : DatabaseDataRepository {
 	private val snapshotState = MutableStateFlow(initialSnapshot)
-	private val hasSyncedEvaluationsState = MutableStateFlow(initialSnapshot.anchorRevision != 0L)
+	private val hasSyncedEvaluationsState = MutableStateFlow(initialSnapshot.hasSynced)
 
 	val savedSnapshots = mutableListOf<LocalEvaluationsSnapshot>()
-	val addedEvaluations = mutableListOf<Pair<Long, LocalEvaluation>>()
-	val updatedEvaluations = mutableListOf<Pair<Long, LocalEvaluation>>()
-	val removedEvaluations = mutableListOf<Pair<Long?, String>>()
+	val addedEvaluations = mutableListOf<LocalEvaluation>()
+	val updatedEvaluations = mutableListOf<LocalEvaluation>()
+	val removedEvaluations = mutableListOf<String>()
 
 	override fun observeEvaluationsFlow(): Flow<List<LocalEvaluation>> {
 		return snapshotState.map { snapshot -> snapshot.evaluations }
@@ -284,11 +284,11 @@ class FakeDatabaseDataSource(
 
 	override suspend fun getAvailableAttempts(): List<LocalEditableAttemptDescriptor> = availableSubjects
 
-	override suspend fun confirmAddedEvaluation(evaluation: LocalEvaluation, anchorRevision: Long): LocalEvaluation {
-		addedEvaluations += anchorRevision to evaluation
+	override suspend fun confirmAddedEvaluation(evaluation: LocalEvaluation): LocalEvaluation {
+		addedEvaluations += evaluation
 		hasSyncedEvaluationsState.value = true
 		snapshotState.value = snapshotState.value.copy(
-			anchorRevision = anchorRevision,
+			hasSynced = true,
 			evaluations = snapshotState.value.evaluations
 				.filterNot { current ->
 					current.id == evaluation.id || current.referenceId == evaluation.referenceId
@@ -297,11 +297,11 @@ class FakeDatabaseDataSource(
 		return evaluation
 	}
 
-	override suspend fun confirmUpdatedEvaluation(evaluation: LocalEvaluation, anchorRevision: Long): LocalEvaluation {
-		updatedEvaluations += anchorRevision to evaluation
+	override suspend fun confirmUpdatedEvaluation(evaluation: LocalEvaluation): LocalEvaluation {
+		updatedEvaluations += evaluation
 		hasSyncedEvaluationsState.value = true
 		snapshotState.value = snapshotState.value.copy(
-			anchorRevision = anchorRevision,
+			hasSynced = true,
 			evaluations = snapshotState.value.evaluations.map { current ->
 				if (current.id == evaluation.id) evaluation else current
 			}
@@ -309,17 +309,17 @@ class FakeDatabaseDataSource(
 		return evaluation
 	}
 
-	override suspend fun confirmRemovedEvaluation(eid: String, anchorRevision: Long) {
-		removedEvaluations += anchorRevision to eid
+	override suspend fun confirmRemovedEvaluation(eid: String) {
+		removedEvaluations += eid
 		hasSyncedEvaluationsState.value = true
 		snapshotState.value = snapshotState.value.copy(
-			anchorRevision = anchorRevision,
+			hasSynced = true,
 			evaluations = snapshotState.value.evaluations.filterNot { evaluation -> evaluation.id == eid }
 		)
 	}
 
 	override suspend fun removeConfirmedEvaluation(eid: String) {
-		removedEvaluations += null to eid
+		removedEvaluations += eid
 		snapshotState.value = snapshotState.value.copy(
 			evaluations = snapshotState.value.evaluations.filterNot { evaluation -> evaluation.id == eid }
 		)
@@ -334,8 +334,7 @@ class FakeDatabaseDataSource(
 
 data class AddEvaluationRemoteCall(
 	val add: EvaluationMutation.Add,
-	val mutationId: String,
-	val expectedRevision: Long
+	val mutationId: String
 )
 
 data class UpdateEvaluationRemoteCall(
@@ -352,7 +351,6 @@ data class RemoveEvaluationRemoteCall(
 
 class FakeEvaluationsApiDataSource(
 	private val snapshot: RemoteEvaluationsSnapshot = RemoteEvaluationsSnapshot(
-		anchorRevision = DEFAULT_EVALUATIONS_ANCHOR_REVISION,
 		evaluations = listOf(
 			DEFAULT_REMOTE_PENDING_EVALUATION,
 			DEFAULT_REMOTE_COMPLETED_EVALUATION
@@ -382,11 +380,10 @@ class FakeEvaluationsApiDataSource(
 
 	override suspend fun addEvaluation(
 		add: EvaluationMutation.Add,
-		mutationId: String,
-		expectedRevision: Long
+		mutationId: String
 	): EvaluationMutationAck.Add {
 		addThrowable?.let { throw it }
-		addCalls += AddEvaluationRemoteCall(add, mutationId, expectedRevision)
+		addCalls += AddEvaluationRemoteCall(add, mutationId)
 		val created = addResult ?: RemoteEvaluation(
 			id = "real-${add.referenceId}",
 			referenceId = add.referenceId,
@@ -403,7 +400,6 @@ class FakeEvaluationsApiDataSource(
 		)
 		return EvaluationMutationAck.Add(
 			mutationId = mutationId,
-			anchorRevision = snapshot.anchorRevision + 1L,
 			evaluation = created
 		)
 	}
@@ -427,7 +423,6 @@ class FakeEvaluationsApiDataSource(
 		)
 		return EvaluationMutationAck.Update(
 			mutationId = mutationId,
-			anchorRevision = snapshot.anchorRevision + 1L,
 			evaluation = saved
 		)
 	}
@@ -441,7 +436,6 @@ class FakeEvaluationsApiDataSource(
 		removeCalls += RemoveEvaluationRemoteCall(eid, mutationId, expectedRevision)
 		return EvaluationMutationAck.Remove(
 			mutationId = mutationId,
-			anchorRevision = snapshot.anchorRevision + 1L,
 			removedEvaluationId = eid
 		)
 	}

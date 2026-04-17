@@ -32,13 +32,11 @@ fun EvaluationResponse.toRemoteEvaluation() = RemoteEvaluation(
 )
 
 fun GetEvaluationsResponse.toRemoteEvaluationsSnapshot() = RemoteEvaluationsSnapshot(
-	anchorRevision = anchorRevision,
 	evaluations = evaluations.map { evaluation -> evaluation.toRemoteEvaluation() }
 )
 
 fun EvaluationMutation.Add.toAddEvaluationRequest(
-	mutationId: String,
-	expectedRevision: Long
+	mutationId: String
 ) = AddEvaluationRequest(
 	referenceId = referenceId,
 	attemptId = attemptId,
@@ -49,8 +47,7 @@ fun EvaluationMutation.Add.toAddEvaluationRequest(
 	date = date,
 	type = type,
 	isDone = (grade != null),
-	mutationId = mutationId,
-	expectedRevision = expectedRevision
+	mutationId = mutationId
 )
 
 fun EvaluationMutation.Update.toUpdateEvaluationRequest(
@@ -69,19 +66,16 @@ fun EvaluationMutation.Update.toUpdateEvaluationRequest(
 
 fun AddEvaluationResponse.toMutationAck() = EvaluationMutationAck.Add(
 	mutationId = mutationId,
-	anchorRevision = anchorRevision,
 	evaluation = evaluationPatch.toRemoteEvaluation()
 )
 
 fun UpdateEvaluationResponse.toMutationAck() = EvaluationMutationAck.Update(
 	mutationId = mutationId,
-	anchorRevision = anchorRevision,
 	evaluation = evaluationPatch.toRemoteEvaluation()
 )
 
 fun DeleteEvaluationResponse.toMutationAck() = EvaluationMutationAck.Remove(
 	mutationId = mutationId,
-	anchorRevision = anchorRevision,
 	removedEvaluationId = removedEvaluationId
 )
 

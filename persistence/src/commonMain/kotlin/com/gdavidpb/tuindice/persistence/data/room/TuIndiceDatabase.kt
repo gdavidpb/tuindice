@@ -16,7 +16,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.*
 		EvaluationSyncStateEntity::class,
 		PendingMutationEntity::class
 	],
-	version = 19,
+	version = 20,
 	exportSchema = false
 )
 @ConstructedBy(TuIndiceDatabaseConstructor::class)

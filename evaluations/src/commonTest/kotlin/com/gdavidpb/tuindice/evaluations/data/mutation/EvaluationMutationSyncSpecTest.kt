@@ -5,7 +5,6 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_LOCAL_PENDING_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
-import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATIONS_ANCHOR_REVISION
 import com.gdavidpb.tuindice.evaluations.testing.FakeDatabaseDataSource
 import com.gdavidpb.tuindice.evaluations.testing.FakeEvaluationsApiDataSource
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
@@ -44,7 +43,7 @@ class EvaluationMutationSyncSpecTest {
 					date = 1_900_000_000_000L,
 					type = EvaluationType.QUIZ.ordinal
 				),
-				precondition = MutationPrecondition.Revision(DEFAULT_EVALUATIONS_ANCHOR_REVISION),
+				precondition = MutationPrecondition.None,
 				status = PendingMutationStatus.Pending,
 				createdAt = 1L,
 				updatedAt = 1L,
@@ -76,7 +75,7 @@ class EvaluationMutationSyncSpecTest {
 				command = EvaluationMutation.Remove(
 					evaluationId = DEFAULT_LOCAL_PENDING_EVALUATION.id
 				),
-				precondition = MutationPrecondition.Revision(DEFAULT_EVALUATIONS_ANCHOR_REVISION),
+				precondition = MutationPrecondition.Revision(DEFAULT_LOCAL_PENDING_EVALUATION.revision),
 				status = PendingMutationStatus.Pending,
 				createdAt = 1L,
 				updatedAt = 1L,

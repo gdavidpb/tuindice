@@ -10,6 +10,6 @@ data class EvaluationSyncStateEntity(
 	@PrimaryKey
 	@ColumnInfo(name = EvaluationSyncStateTable.KEY)
 	val key: String = EvaluationSyncStateTable.DEFAULT_KEY,
-	@ColumnInfo(name = EvaluationSyncStateTable.ANCHOR_REVISION)
-	val anchorRevision: Long
+	@ColumnInfo(name = EvaluationSyncStateTable.HAS_SYNCED)
+	val hasSynced: Boolean
 )

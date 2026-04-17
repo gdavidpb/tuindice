@@ -15,6 +15,5 @@ data class AddEvaluationRequest(
 	@SerialName("date") val date: Long?,
 	@SerialName("type") val type: Int,
 	@SerialName("is_done") val isDone: Boolean,
-	@SerialName("mutation_id") val mutationId: String,
-	@SerialName("expected_revision") val expectedRevision: Long
+	@SerialName("mutation_id") val mutationId: String
 )

@@ -94,8 +94,7 @@ class EvaluationDataSource(
 				maxGrade = add.maxGrade,
 				date = add.date,
 				type = add.type.ordinal
-			),
-			expectedRevision = databaseDataSource.getConfirmedSnapshot().anchorRevision
+			)
 		)
 		val mutationVersion = mutationEngine.beginMutation(replaceKey = mutation.replaceKey)
 		mutationEngine.rememberMutationVersion(mutation.mutationId, mutationVersion)
@@ -111,8 +110,7 @@ class EvaluationDataSource(
 		if (pendingAdd != null) {
 			val rewrittenAdd = (pendingAdd.command as EvaluationMutation.Add).apply(update)
 			val mutation = buildPendingAddMutation(
-				command = rewrittenAdd,
-				expectedRevision = databaseDataSource.getConfirmedSnapshot().anchorRevision
+				command = rewrittenAdd
 			)
 			val mutationVersion = mutationEngine.beginMutation(replaceKey = mutation.replaceKey)
 			mutationEngine.rememberMutationVersion(mutation.mutationId, mutationVersion)
@@ -154,7 +152,7 @@ class EvaluationDataSource(
 			?: return
 		val mutation = buildPendingRemoveMutation(
 			evaluationId = evaluation.id,
-			expectedRevision = databaseDataSource.getConfirmedSnapshot().anchorRevision
+			expectedRevision = evaluation.revision
 		)
 		val mutationVersion = mutationEngine.beginMutation(replaceKey = mutation.replaceKey)
 		mutationEngine.rememberMutationVersion(mutation.mutationId, mutationVersion)
@@ -191,15 +189,14 @@ class EvaluationDataSource(
 	}
 
 	private fun buildPendingAddMutation(
-		command: EvaluationMutation.Add,
-		expectedRevision: Long
+		command: EvaluationMutation.Add
 	): MutationEnvelope<String, EvaluationMutation> {
 		val now = currentTimeMillis()
 		return MutationEnvelope(
 			mutationId = identifierRepository.generateRandomIdentifier(),
 			scopeKey = EVALUATIONS_MUTATION_SCOPE,
 			command = command,
-			precondition = MutationPrecondition.Revision(expectedRevision),
+			precondition = MutationPrecondition.None,
 			status = PendingMutationStatus.Pending,
 			createdAt = now,
 			updatedAt = now,
@@ -250,7 +247,7 @@ class EvaluationDataSource(
 	}
 
 	private fun RemoteEvaluationsSnapshot.toLocalSnapshot() = LocalEvaluationsSnapshot(
-		anchorRevision = anchorRevision,
+		hasSynced = true,
 		evaluations = evaluations.map { evaluation -> evaluation.toLocalEvaluation() }
 	)
 

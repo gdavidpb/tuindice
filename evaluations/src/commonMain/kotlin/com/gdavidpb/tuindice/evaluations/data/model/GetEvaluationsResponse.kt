@@ -5,6 +5,5 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class GetEvaluationsResponse(
-	@SerialName("anchor_revision") val anchorRevision: Long,
 	@SerialName("evaluations") val evaluations: List<EvaluationResponse>
 )

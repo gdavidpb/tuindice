@@ -30,14 +30,14 @@ class KtorEvaluationsApiDataSource(
 	private val ktorClient: HttpClient
 ) : EvaluationsApiDataRepository {
 	override suspend fun getEvaluations(): RemoteEvaluationsSnapshot {
-		return ktorClient.get("evaluations/v2")
+		return ktorClient.get("evaluations/v3")
 			.body<GetEvaluationsResponse>()
 			.toRemoteEvaluationsSnapshot()
 	}
 
 	override suspend fun getEvaluation(eid: String): RemoteEvaluation? {
 		return runCatching {
-			ktorClient.get("evaluations/v2") {
+			ktorClient.get("evaluations/v3") {
 				url { appendPathSegments(eid) }
 			}
 				.body<GetEvaluationResponse>()
@@ -54,14 +54,12 @@ class KtorEvaluationsApiDataSource(
 
 	override suspend fun addEvaluation(
 		add: EvaluationMutation.Add,
-		mutationId: String,
-		expectedRevision: Long
+		mutationId: String
 	): EvaluationMutationAck.Add {
-		return ktorClient.post("evaluations/v2") {
+		return ktorClient.post("evaluations/v3") {
 			setBody(
 				add.toAddEvaluationRequest(
-					mutationId = mutationId,
-					expectedRevision = expectedRevision
+					mutationId = mutationId
 				)
 			)
 		}
@@ -74,7 +72,7 @@ class KtorEvaluationsApiDataSource(
 		mutationId: String,
 		expectedRevision: Long
 	): EvaluationMutationAck.Update {
-		return ktorClient.patch("evaluations/v2/${update.evaluationId}") {
+		return ktorClient.patch("evaluations/v3/${update.evaluationId}") {
 			setBody(
 				update.toUpdateEvaluationRequest(
 					mutationId = mutationId,
@@ -91,7 +89,7 @@ class KtorEvaluationsApiDataSource(
 		mutationId: String,
 		expectedRevision: Long
 	): EvaluationMutationAck.Remove {
-		return ktorClient.delete("evaluations/v2/$eid") {
+		return ktorClient.delete("evaluations/v3/$eid") {
 			setBody(
 				DeleteEvaluationRequest(
 					mutationId = mutationId,

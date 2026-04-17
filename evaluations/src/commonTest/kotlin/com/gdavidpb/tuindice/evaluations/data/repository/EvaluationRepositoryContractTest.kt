@@ -11,7 +11,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
-import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATIONS_ANCHOR_REVISION
+import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_LOCAL_PENDING_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.FakeDatabaseDataSource
 import com.gdavidpb.tuindice.evaluations.testing.FakeEvaluationsApiDataSource
 import com.gdavidpb.tuindice.evaluations.testing.FakeIdentifierRepository
@@ -102,7 +102,7 @@ class EvaluationRepositoryContractTest {
 						date = 1_900_000_000_000L,
 						type = EvaluationType.QUIZ.ordinal
 					),
-					precondition = MutationPrecondition.Revision(DEFAULT_EVALUATIONS_ANCHOR_REVISION),
+					precondition = MutationPrecondition.None,
 					status = PendingMutationStatus.Pending,
 					createdAt = currentTimeMillis(),
 					updatedAt = currentTimeMillis(),
@@ -160,7 +160,7 @@ class EvaluationRepositoryContractTest {
 						date = 1_900_000_000_000L,
 						type = EvaluationType.QUIZ.ordinal
 					),
-					precondition = MutationPrecondition.Revision(DEFAULT_EVALUATIONS_ANCHOR_REVISION),
+					precondition = MutationPrecondition.None,
 					status = PendingMutationStatus.Pending,
 					createdAt = currentTimeMillis(),
 					updatedAt = currentTimeMillis(),
@@ -238,7 +238,7 @@ class EvaluationRepositoryContractTest {
 			.getPendingMutations(EVALUATIONS_MUTATION_SCOPE)
 			.single()
 		assertTrue(pendingRemove.command is EvaluationMutation.Remove)
-		assertEquals(MutationPrecondition.Revision(DEFAULT_EVALUATIONS_ANCHOR_REVISION), pendingRemove.precondition)
+		assertEquals(MutationPrecondition.Revision(DEFAULT_LOCAL_PENDING_EVALUATION.revision), pendingRemove.precondition)
 		assertTrue(evaluationsApiDataSource.removeCalls.isEmpty())
 	}
 

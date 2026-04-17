@@ -11,8 +11,7 @@ interface EvaluationsApiDataRepository {
 	suspend fun getEvaluation(eid: String): RemoteEvaluation?
 	suspend fun addEvaluation(
 		add: EvaluationMutation.Add,
-		mutationId: String,
-		expectedRevision: Long
+		mutationId: String
 	): EvaluationMutationAck.Add
 	suspend fun updateEvaluation(
 		update: EvaluationMutation.Update,

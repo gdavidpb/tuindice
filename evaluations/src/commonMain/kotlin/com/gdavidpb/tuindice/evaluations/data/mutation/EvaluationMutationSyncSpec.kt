@@ -31,9 +31,7 @@ class EvaluationMutationSyncSpec(
 			is EvaluationMutation.Add ->
 				evaluationsApiDataSource.addEvaluation(
 					add = command,
-					mutationId = mutation.mutationId,
-					expectedRevision = mutation.expectedRevision
-						?: error("Add evaluation requires anchor revision.")
+					mutationId = mutation.mutationId
 				)
 
 			is EvaluationMutation.Update ->
@@ -49,7 +47,7 @@ class EvaluationMutationSyncSpec(
 					eid = command.evaluationId,
 					mutationId = mutation.mutationId,
 					expectedRevision = mutation.expectedRevision
-						?: error("Remove evaluation requires anchor revision.")
+						?: error("Remove evaluation requires revision.")
 				)
 		}
 	}
@@ -62,24 +60,21 @@ class EvaluationMutationSyncSpec(
 			is EvaluationMutationAck.Add -> {
 				if (ack.mutationId != mutation.mutationId) return
 				databaseDataSource.confirmAddedEvaluation(
-					evaluation = ack.evaluation.toLocalEvaluation(),
-					anchorRevision = ack.anchorRevision
+					evaluation = ack.evaluation.toLocalEvaluation()
 				)
 			}
 
 			is EvaluationMutationAck.Update -> {
 				if (ack.mutationId != mutation.mutationId) return
 				databaseDataSource.confirmUpdatedEvaluation(
-					evaluation = ack.evaluation.toLocalEvaluation(),
-					anchorRevision = ack.anchorRevision
+					evaluation = ack.evaluation.toLocalEvaluation()
 				)
 			}
 
 			is EvaluationMutationAck.Remove -> {
 				if (ack.mutationId != mutation.mutationId) return
 				databaseDataSource.confirmRemovedEvaluation(
-					eid = ack.removedEvaluationId,
-					anchorRevision = ack.anchorRevision
+					eid = ack.removedEvaluationId
 				)
 			}
 		}
@@ -134,7 +129,7 @@ class EvaluationMutationSyncSpec(
 				} else {
 					MutationFailureResolution.Retry(
 						mutation.copy(
-							precondition = MutationPrecondition.Revision(snapshot.anchorRevision)
+							precondition = MutationPrecondition.None
 						)
 					)
 				}
@@ -215,7 +210,7 @@ class EvaluationMutationSyncSpec(
 				} else {
 					MutationFailureResolution.Retry(
 						mutation.copy(
-							precondition = MutationPrecondition.Revision(snapshot.anchorRevision)
+							precondition = MutationPrecondition.Revision(remoteEvaluation.revision)
 						)
 					)
 				}

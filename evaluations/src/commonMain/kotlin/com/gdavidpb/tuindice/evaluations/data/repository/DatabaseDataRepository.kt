@@ -11,9 +11,9 @@ interface DatabaseDataRepository {
 	suspend fun getEvaluation(eid: String): LocalEvaluation?
 	suspend fun getConfirmedSnapshot(): LocalEvaluationsSnapshot
 	suspend fun getAvailableAttempts(): List<LocalEditableAttemptDescriptor>
-	suspend fun confirmAddedEvaluation(evaluation: LocalEvaluation, anchorRevision: Long): LocalEvaluation
-	suspend fun confirmUpdatedEvaluation(evaluation: LocalEvaluation, anchorRevision: Long): LocalEvaluation
-	suspend fun confirmRemovedEvaluation(eid: String, anchorRevision: Long)
+	suspend fun confirmAddedEvaluation(evaluation: LocalEvaluation): LocalEvaluation
+	suspend fun confirmUpdatedEvaluation(evaluation: LocalEvaluation): LocalEvaluation
+	suspend fun confirmRemovedEvaluation(eid: String)
 	suspend fun removeConfirmedEvaluation(eid: String)
 	suspend fun saveConfirmedSnapshot(snapshot: LocalEvaluationsSnapshot)
 }
