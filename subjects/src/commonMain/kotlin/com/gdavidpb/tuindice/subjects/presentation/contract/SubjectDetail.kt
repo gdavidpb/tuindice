@@ -7,7 +7,10 @@ import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail as SubjectDetai
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
 
 object SubjectDetail {
-	sealed class State : ViewState() {
+	sealed class State(
+		override val topBarTitle: String = "Sobre esta materia",
+		override val isTopBarVisible: Boolean = true
+	) : ViewState() {
 		data object Loading : State()
 
 		data class Content(

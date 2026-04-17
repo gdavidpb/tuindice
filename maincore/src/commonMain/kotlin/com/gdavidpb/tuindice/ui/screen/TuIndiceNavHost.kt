@@ -160,6 +160,8 @@ fun TuIndiceNavHost(
 		)
 
 		subjectsNavigation(
+			navController = navController,
+			onViewStateChanged = onViewStateChanged,
 			onDismissRequest = { navController.navigateUp() }
 		)
 

@@ -5,7 +5,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.subjects.presentation.viewmodel.SubjectDetailViewModel
-import com.gdavidpb.tuindice.subjects.ui.dialog.SubjectDetailDialog
+import com.gdavidpb.tuindice.subjects.ui.screen.SubjectDetailScreen
 import org.jetbrains.compose.resources.stringResource
 import tuindice.subjects.generated.resources.Res
 import tuindice.subjects.generated.resources.subjects_action_close
@@ -28,7 +28,7 @@ fun SubjectDetailRoute(
 		viewModel.loadSubjectDetailAction(subjectCode)
 	}
 
-	SubjectDetailDialog(
+	SubjectDetailScreen(
 		state = viewState,
 		careerTabText = stringResource(Res.string.subjects_title_my_career),
 		globalTabText = stringResource(Res.string.subjects_title_general),
