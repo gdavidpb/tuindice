@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.subjects.ui.view
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -22,11 +21,14 @@ import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail as SubjectDetai
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectGradeBin
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectStatsSegment
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
+import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
 import com.patrykandpatrick.vico.compose.cartesian.axis.VerticalAxis
 import com.patrykandpatrick.vico.compose.cartesian.data.CartesianChartModelProducer
+import com.patrykandpatrick.vico.compose.cartesian.data.CartesianValueFormatter
 import com.patrykandpatrick.vico.compose.cartesian.data.columnSeries
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
+import kotlin.math.roundToInt
 
 @Composable
 fun SubjectDetailChartsView(
@@ -35,7 +37,7 @@ fun SubjectDetailChartsView(
 ) {
 	if (detail.gradingMode == GradingMode.QUALITATIVE_PASS_FAIL) {
 		SubjectDetailChartCard(
-			title = "Outcomes más recientes",
+			title = "Distribución de resultado",
 			values = listOf(
 				segment.latestApprovedCount,
 				segment.latestFailedCount,
@@ -72,6 +74,11 @@ private fun SubjectDetailChartCard(
 	labels: List<String>
 ) {
 	val modelProducer = remember { CartesianChartModelProducer() }
+	val bottomAxisValueFormatter = remember(labels) {
+		CartesianValueFormatter { _, value, _ ->
+			labels[value.roundToInt().coerceIn(labels.indices)]
+		}
+	}
 
 	LaunchedEffect(values) {
 		modelProducer.runTransaction {
@@ -98,7 +105,13 @@ private fun SubjectDetailChartCard(
 				CartesianChartHost(
 					chart = rememberCartesianChart(
 						rememberColumnCartesianLayer(),
-						startAxis = VerticalAxis.rememberStart()
+						startAxis = VerticalAxis.rememberStart(),
+						bottomAxis = HorizontalAxis.rememberBottom(
+							valueFormatter = bottomAxisValueFormatter,
+							line = null,
+							tick = null,
+							guideline = null
+						)
 					),
 					modelProducer = modelProducer,
 					modifier = Modifier
@@ -114,19 +127,6 @@ private fun SubjectDetailChartCard(
 				) {
 					Text(
 						text = "Sin datos suficientes",
-						color = MaterialTheme.colorScheme.onSurfaceVariant
-					)
-				}
-			}
-
-			Row(
-				modifier = Modifier.fillMaxWidth(),
-				horizontalArrangement = Arrangement.SpaceBetween
-			) {
-				labels.forEach { label ->
-					Text(
-						text = label,
-						style = MaterialTheme.typography.labelMedium,
 						color = MaterialTheme.colorScheme.onSurfaceVariant
 					)
 				}

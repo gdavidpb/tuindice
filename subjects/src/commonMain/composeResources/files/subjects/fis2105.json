@@ -6,13 +6,13 @@
   "generated_at": 1763340000000,
   "expires_at": 1765932000000,
   "career_segment": {
-    "sample_students": 49,
-    "closed_attempts": 71,
-    "numeric_latest_students": 49,
-    "latest_approved_count": 29,
-    "latest_failed_count": 15,
-    "latest_retired_count": 3,
-    "latest_unreported_count": 2,
+    "sample_students": 1960,
+    "closed_attempts": 2840,
+    "numeric_latest_students": 1960,
+    "latest_approved_count": 1160,
+    "latest_failed_count": 600,
+    "latest_retired_count": 120,
+    "latest_unreported_count": 80,
     "average_grade": 3.0,
     "median_grade": 3.0,
     "stddev_grade": 1.0,
@@ -24,33 +24,72 @@
     "first_closed_term_start_at": 1704067200000,
     "last_closed_term_start_at": 1759276800000,
     "latest_grade_bins": [
-      { "grade": 1, "count": 7 },
-      { "grade": 2, "count": 8 },
-      { "grade": 3, "count": 14 },
-      { "grade": 4, "count": 13 },
-      { "grade": 5, "count": 7 }
+      {
+        "grade": 1,
+        "count": 280
+      },
+      {
+        "grade": 2,
+        "count": 320
+      },
+      {
+        "grade": 3,
+        "count": 560
+      },
+      {
+        "grade": 4,
+        "count": 520
+      },
+      {
+        "grade": 5,
+        "count": 280
+      }
     ],
     "all_grade_bins": [
-      { "grade": 1, "count": 10 },
-      { "grade": 2, "count": 14 },
-      { "grade": 3, "count": 19 },
-      { "grade": 4, "count": 17 },
-      { "grade": 5, "count": 11 }
+      {
+        "grade": 1,
+        "count": 400
+      },
+      {
+        "grade": 2,
+        "count": 560
+      },
+      {
+        "grade": 3,
+        "count": 760
+      },
+      {
+        "grade": 4,
+        "count": 680
+      },
+      {
+        "grade": 5,
+        "count": 440
+      }
     ],
     "attempts_to_pass_bins": [
-      { "bucket": "1", "count": 11 },
-      { "bucket": "2", "count": 12 },
-      { "bucket": "3_plus", "count": 6 }
+      {
+        "bucket": "1",
+        "count": 440
+      },
+      {
+        "bucket": "2",
+        "count": 480
+      },
+      {
+        "bucket": "3_plus",
+        "count": 240
+      }
     ]
   },
   "global_segment": {
-    "sample_students": 186,
-    "closed_attempts": 279,
-    "numeric_latest_students": 186,
-    "latest_approved_count": 111,
-    "latest_failed_count": 51,
-    "latest_retired_count": 13,
-    "latest_unreported_count": 11,
+    "sample_students": 7440,
+    "closed_attempts": 11160,
+    "numeric_latest_students": 7440,
+    "latest_approved_count": 4440,
+    "latest_failed_count": 2040,
+    "latest_retired_count": 520,
+    "latest_unreported_count": 440,
     "average_grade": 3.1,
     "median_grade": 3.0,
     "stddev_grade": 1.0,
@@ -62,23 +101,62 @@
     "first_closed_term_start_at": 1672531200000,
     "last_closed_term_start_at": 1759276800000,
     "latest_grade_bins": [
-      { "grade": 1, "count": 27 },
-      { "grade": 2, "count": 31 },
-      { "grade": 3, "count": 49 },
-      { "grade": 4, "count": 48 },
-      { "grade": 5, "count": 31 }
+      {
+        "grade": 1,
+        "count": 1080
+      },
+      {
+        "grade": 2,
+        "count": 1240
+      },
+      {
+        "grade": 3,
+        "count": 1960
+      },
+      {
+        "grade": 4,
+        "count": 1920
+      },
+      {
+        "grade": 5,
+        "count": 1240
+      }
     ],
     "all_grade_bins": [
-      { "grade": 1, "count": 39 },
-      { "grade": 2, "count": 47 },
-      { "grade": 3, "count": 67 },
-      { "grade": 4, "count": 73 },
-      { "grade": 5, "count": 53 }
+      {
+        "grade": 1,
+        "count": 1560
+      },
+      {
+        "grade": 2,
+        "count": 1880
+      },
+      {
+        "grade": 3,
+        "count": 2680
+      },
+      {
+        "grade": 4,
+        "count": 2920
+      },
+      {
+        "grade": 5,
+        "count": 2120
+      }
     ],
     "attempts_to_pass_bins": [
-      { "bucket": "1", "count": 43 },
-      { "bucket": "2", "count": 45 },
-      { "bucket": "3_plus", "count": 23 }
+      {
+        "bucket": "1",
+        "count": 1720
+      },
+      {
+        "bucket": "2",
+        "count": 1800
+      },
+      {
+        "bucket": "3_plus",
+        "count": 920
+      }
     ]
   }
 }

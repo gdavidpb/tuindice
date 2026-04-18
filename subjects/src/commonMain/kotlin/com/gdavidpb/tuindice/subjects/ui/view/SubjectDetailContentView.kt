@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
+import com.gdavidpb.tuindice.subjects.presentation.mapper.toCompactCountText
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail as SubjectDetailModel
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectStatsSegment
@@ -22,6 +23,9 @@ import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
+import org.jetbrains.compose.resources.stringResource
+import tuindice.subjects.generated.resources.Res
+import tuindice.subjects.generated.resources.subjects_segment_summary
 
 @Composable
 fun SubjectDetailContentView(
@@ -60,7 +64,11 @@ fun SubjectDetailContentView(
 		}
 
 		Text(
-			text = "${segment.sampleStudents} estudiantes, ${segment.closedAttempts} intentos cerrados",
+			text = stringResource(
+				Res.string.subjects_segment_summary,
+				segment.sampleStudents.toCompactCountText(),
+				segment.closedAttempts.toCompactCountText()
+			),
 			style = MaterialTheme.typography.bodyMedium,
 			color = MaterialTheme.colorScheme.onSurfaceVariant
 		)
