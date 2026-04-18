@@ -15,4 +15,7 @@ abstract class SubjectStatsAttemptBinDao : UpsertDao<SubjectStatsAttemptBinEntit
 
 	@Query("DELETE FROM ${SubjectStatsAttemptBinTable.TABLE_NAME} WHERE ${SubjectStatsAttemptBinTable.SUBJECT_CODE} = :subjectCode")
 	abstract suspend fun deleteBySubjectCode(subjectCode: String): Int
+
+	@Query("DELETE FROM ${SubjectStatsAttemptBinTable.TABLE_NAME}")
+	abstract suspend fun deleteAll(): Int
 }

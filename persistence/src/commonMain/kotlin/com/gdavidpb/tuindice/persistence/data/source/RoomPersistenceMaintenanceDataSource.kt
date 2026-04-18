@@ -7,6 +7,10 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationSyncStateDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectDetailDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsAttemptBinDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsGradeBinDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsSegmentDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.UserDao
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceMaintenanceRepository
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
@@ -20,6 +24,10 @@ class RoomPersistenceMaintenanceDataSource(
 	private val evaluationDao: EvaluationDao,
 	private val evaluationSyncStateDao: EvaluationSyncStateDao,
 	private val pendingMutationDao: PendingMutationDao,
+	private val subjectDetailDao: SubjectDetailDao,
+	private val subjectStatsSegmentDao: SubjectStatsSegmentDao,
+	private val subjectStatsGradeBinDao: SubjectStatsGradeBinDao,
+	private val subjectStatsAttemptBinDao: SubjectStatsAttemptBinDao,
 	private val transactionRunner: PersistenceTransactionRunner
 ) : PersistenceMaintenanceRepository {
 	override suspend fun clearAll() {
@@ -31,6 +39,10 @@ class RoomPersistenceMaintenanceDataSource(
 			academicAttemptDao.deleteAll()
 			academicTermDao.deleteAll()
 			academicRecordDao.deleteAll()
+			subjectStatsAttemptBinDao.deleteAll()
+			subjectStatsGradeBinDao.deleteAll()
+			subjectStatsSegmentDao.deleteAll()
+			subjectDetailDao.deleteAll()
 			userDao.deleteAll()
 		}
 	}

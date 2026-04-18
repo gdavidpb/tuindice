@@ -9,6 +9,10 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationSyncStateDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectDetailDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsAttemptBinDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsGradeBinDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsSegmentDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.UserDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptOverrideEntity
@@ -17,6 +21,10 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationSyncStateEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.PendingMutationEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectDetailEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsAttemptBinEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsGradeBinEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsSegmentEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.UserEntity
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceMaintenanceRepository
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
@@ -44,6 +52,10 @@ class PersistenceModuleKoinSmokeTest {
 			EvaluationDao::class,
 			EvaluationSyncStateDao::class,
 			PendingMutationDao::class,
+			SubjectDetailDao::class,
+			SubjectStatsSegmentDao::class,
+			SubjectStatsGradeBinDao::class,
+			SubjectStatsAttemptBinDao::class,
 			PersistenceTransactionRunner::class,
 			PersistenceMaintenanceRepository::class
 		)
@@ -190,6 +202,54 @@ private class FakeTuIndiceDatabase : TuIndiceDatabase() {
 		override suspend fun upsertEntities(entities: List<PendingMutationEntity>) = Unit
 	}
 
+	override val subjectDetails: SubjectDetailDao = object : SubjectDetailDao() {
+		override suspend fun getSubjectDetail(subjectCode: String): SubjectDetailEntity? = null
+
+		override suspend fun deleteBySubjectCode(subjectCode: String): Int = 0
+
+		override suspend fun deleteAll(): Int = 0
+
+		override suspend fun upsertEntity(entity: SubjectDetailEntity) = Unit
+
+		override suspend fun upsertEntities(entities: List<SubjectDetailEntity>) = Unit
+	}
+
+	override val subjectStatsSegments: SubjectStatsSegmentDao = object : SubjectStatsSegmentDao() {
+		override suspend fun getSubjectSegments(subjectCode: String): List<SubjectStatsSegmentEntity> = emptyList()
+
+		override suspend fun deleteBySubjectCode(subjectCode: String): Int = 0
+
+		override suspend fun deleteAll(): Int = 0
+
+		override suspend fun upsertEntity(entity: SubjectStatsSegmentEntity) = Unit
+
+		override suspend fun upsertEntities(entities: List<SubjectStatsSegmentEntity>) = Unit
+	}
+
+	override val subjectStatsGradeBins: SubjectStatsGradeBinDao = object : SubjectStatsGradeBinDao() {
+		override suspend fun getSubjectGradeBins(subjectCode: String): List<SubjectStatsGradeBinEntity> = emptyList()
+
+		override suspend fun deleteBySubjectCode(subjectCode: String): Int = 0
+
+		override suspend fun deleteAll(): Int = 0
+
+		override suspend fun upsertEntity(entity: SubjectStatsGradeBinEntity) = Unit
+
+		override suspend fun upsertEntities(entities: List<SubjectStatsGradeBinEntity>) = Unit
+	}
+
+	override val subjectStatsAttemptBins: SubjectStatsAttemptBinDao = object : SubjectStatsAttemptBinDao() {
+		override suspend fun getSubjectAttemptBins(subjectCode: String): List<SubjectStatsAttemptBinEntity> = emptyList()
+
+		override suspend fun deleteBySubjectCode(subjectCode: String): Int = 0
+
+		override suspend fun deleteAll(): Int = 0
+
+		override suspend fun upsertEntity(entity: SubjectStatsAttemptBinEntity) = Unit
+
+		override suspend fun upsertEntities(entities: List<SubjectStatsAttemptBinEntity>) = Unit
+	}
+
 	override fun createInvalidationTracker(): InvalidationTracker {
 		return InvalidationTracker(
 			database = this,
@@ -202,7 +262,11 @@ private class FakeTuIndiceDatabase : TuIndiceDatabase() {
 			"academic_attempt_override",
 			"evaluations",
 			"evaluation_sync_state",
-			"pending_mutations"
+			"pending_mutations",
+			"subject_detail",
+			"subject_stats_segment",
+			"subject_stats_grade_bin",
+			"subject_stats_attempt_bin"
 		)
 	}
 }

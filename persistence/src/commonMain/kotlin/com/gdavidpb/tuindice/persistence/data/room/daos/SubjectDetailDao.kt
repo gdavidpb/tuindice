@@ -15,4 +15,7 @@ abstract class SubjectDetailDao : UpsertDao<SubjectDetailEntity>() {
 
 	@Query("DELETE FROM ${SubjectDetailTable.TABLE_NAME} WHERE ${SubjectDetailTable.SUBJECT_CODE} = :subjectCode")
 	abstract suspend fun deleteBySubjectCode(subjectCode: String): Int
+
+	@Query("DELETE FROM ${SubjectDetailTable.TABLE_NAME}")
+	abstract suspend fun deleteAll(): Int
 }

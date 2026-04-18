@@ -15,4 +15,7 @@ abstract class SubjectStatsSegmentDao : UpsertDao<SubjectStatsSegmentEntity>() {
 
 	@Query("DELETE FROM ${SubjectStatsSegmentTable.TABLE_NAME} WHERE ${SubjectStatsSegmentTable.SUBJECT_CODE} = :subjectCode")
 	abstract suspend fun deleteBySubjectCode(subjectCode: String): Int
+
+	@Query("DELETE FROM ${SubjectStatsSegmentTable.TABLE_NAME}")
+	abstract suspend fun deleteAll(): Int
 }
