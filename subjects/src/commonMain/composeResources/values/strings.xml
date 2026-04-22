@@ -1,7 +1,21 @@
 <resources>
     <string name="subjects_title_my_career">Tu carrera</string>
     <string name="subjects_title_general">General</string>
-    <string name="subjects_segment_summary">%1$s estudiantes, %2$s veces cursada</string>
+    <string name="subjects_segment_students_tooltip_line_1">Cantidad de estudiantes</string>
+    <string name="subjects_segment_students_tooltip_line_2">que cursaron esta materia</string>
+    <string name="subjects_segment_students_content_description">%1$s estudiantes que cursaron esta materia</string>
+    <string name="subjects_segment_attempts_tooltip_line_1">Cantidad de veces</string>
+    <string name="subjects_segment_attempts_tooltip_line_2">que fue cursada esta materia</string>
+    <string name="subjects_segment_attempts_content_description">%1$s veces que fue cursada esta materia</string>
+    <string name="subjects_kpi_difficulty">Score de dificultad</string>
+    <string name="subjects_kpi_first_attempt">Primer intento</string>
+    <string name="subjects_kpi_approval">Aprobación</string>
+    <string name="subjects_kpi_failure">Reprobación</string>
+    <string name="subjects_kpi_withdrawal">Retiro</string>
+    <string name="subjects_chart_grade_distribution">Distribución de nota</string>
+    <string name="subjects_chart_outcome_distribution">Distribución de resultado</string>
+    <string name="subjects_chart_attempts_to_pass">Intentos para aprobar</string>
+    <string name="subjects_chart_no_data">Sin datos suficientes</string>
     <string name="subjects_message_no_data">Aún no contamos con información suficiente para esta materia.</string>
     <string name="subjects_message_no_data_body">Cuando haya más historial académico disponible, podrás ver estadísticas y tendencias desde aquí.</string>
     <string name="subjects_title_failed">No pudimos cargar esta materia.</string>

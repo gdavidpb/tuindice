@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.subjects.data.source.SubjectStatsDataSource
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectAttemptBin
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetailResult
+import com.gdavidpb.tuindice.subjects.domain.model.SubjectDifficultyBand
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectGradeBin
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectStatsSegment
 import kotlinx.coroutines.test.runTest
@@ -124,10 +125,14 @@ private fun readySubjectDetail(
 				medianGrade = 4.0,
 				stddevGrade = 0.8,
 				firstAttemptPassRate = 0.55,
-				eventualPassRate = 0.72,
+				approvalRate = 0.72,
+				latestFailureRate = 0.22,
+				latestWithdrawalRate = 0.06,
 				retakeRate = 0.33,
 				avgAttemptsToPass = 1.4,
 				medianAttemptsToPass = 1.0,
+				difficultyScore = 41,
+				difficultyBand = SubjectDifficultyBand.MEDIUM,
 				firstClosedTermStartAt = 1672444800000,
 				lastClosedTermStartAt = 1704067200000,
 				latestGradeBins = listOf(

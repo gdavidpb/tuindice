@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.subjects.data.model.SubjectStatsSegmentResponse
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectAttemptBin
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetailResult
+import com.gdavidpb.tuindice.subjects.domain.model.SubjectDifficultyBand
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectGradeBin
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectStatsSegment
 
@@ -216,10 +217,14 @@ private fun SubjectStatsSegmentResponse.toDomain(): SubjectStatsSegment {
 		medianGrade = medianGrade,
 		stddevGrade = stddevGrade,
 		firstAttemptPassRate = firstAttemptPassRate,
-		eventualPassRate = eventualPassRate,
+		approvalRate = approvalRate,
+		latestFailureRate = latestFailureRate,
+		latestWithdrawalRate = latestWithdrawalRate,
 		retakeRate = retakeRate,
 		avgAttemptsToPass = avgAttemptsToPass,
 		medianAttemptsToPass = medianAttemptsToPass,
+		difficultyScore = difficultyScore,
+		difficultyBand = difficultyBand,
 		firstClosedTermStartAt = firstClosedTermStartAt,
 		lastClosedTermStartAt = lastClosedTermStartAt,
 		latestGradeBins = latestGradeBins.map(SubjectGradeBinResponse::toDomain),
@@ -252,10 +257,14 @@ private fun SubjectStatsSegment.toEntity(
 		medianGrade = medianGrade,
 		stddevGrade = stddevGrade,
 		firstAttemptPassRate = firstAttemptPassRate,
-		eventualPassRate = eventualPassRate,
+		approvalRate = approvalRate,
+		latestFailureRate = latestFailureRate,
+		latestWithdrawalRate = latestWithdrawalRate,
 		retakeRate = retakeRate,
 		avgAttemptsToPass = avgAttemptsToPass,
 		medianAttemptsToPass = medianAttemptsToPass,
+		difficultyScore = difficultyScore,
+		difficultyBand = difficultyBand?.name,
 		firstClosedTermStartAt = firstClosedTermStartAt,
 		lastClosedTermStartAt = lastClosedTermStartAt
 	)
@@ -277,10 +286,14 @@ private fun SubjectStatsSegmentEntity.toDomain(
 		medianGrade = medianGrade,
 		stddevGrade = stddevGrade,
 		firstAttemptPassRate = firstAttemptPassRate,
-		eventualPassRate = eventualPassRate,
+		approvalRate = approvalRate,
+		latestFailureRate = latestFailureRate,
+		latestWithdrawalRate = latestWithdrawalRate,
 		retakeRate = retakeRate,
 		avgAttemptsToPass = avgAttemptsToPass,
 		medianAttemptsToPass = medianAttemptsToPass,
+		difficultyScore = difficultyScore,
+		difficultyBand = difficultyBand?.let(SubjectDifficultyBand::valueOf),
 		firstClosedTermStartAt = firstClosedTermStartAt,
 		lastClosedTermStartAt = lastClosedTermStartAt,
 		latestGradeBins = gradeBins.filter { bin ->

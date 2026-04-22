@@ -33,10 +33,14 @@ data class SubjectStatsSegmentEntity(
 	@ColumnInfo(name = SubjectStatsSegmentTable.MEDIAN_GRADE) val medianGrade: Double? = null,
 	@ColumnInfo(name = SubjectStatsSegmentTable.STDDEV_GRADE) val stddevGrade: Double? = null,
 	@ColumnInfo(name = SubjectStatsSegmentTable.FIRST_ATTEMPT_PASS_RATE) val firstAttemptPassRate: Double? = null,
-	@ColumnInfo(name = SubjectStatsSegmentTable.EVENTUAL_PASS_RATE) val eventualPassRate: Double? = null,
+	@ColumnInfo(name = SubjectStatsSegmentTable.APPROVAL_RATE) val approvalRate: Double? = null,
+	@ColumnInfo(name = SubjectStatsSegmentTable.LATEST_FAILURE_RATE) val latestFailureRate: Double? = null,
+	@ColumnInfo(name = SubjectStatsSegmentTable.LATEST_WITHDRAWAL_RATE) val latestWithdrawalRate: Double? = null,
 	@ColumnInfo(name = SubjectStatsSegmentTable.RETAKE_RATE) val retakeRate: Double? = null,
 	@ColumnInfo(name = SubjectStatsSegmentTable.AVG_ATTEMPTS_TO_PASS) val avgAttemptsToPass: Double? = null,
 	@ColumnInfo(name = SubjectStatsSegmentTable.MEDIAN_ATTEMPTS_TO_PASS) val medianAttemptsToPass: Double? = null,
+	@ColumnInfo(name = SubjectStatsSegmentTable.DIFFICULTY_SCORE) val difficultyScore: Int? = null,
+	@ColumnInfo(name = SubjectStatsSegmentTable.DIFFICULTY_BAND) val difficultyBand: String? = null,
 	@ColumnInfo(name = SubjectStatsSegmentTable.FIRST_CLOSED_TERM_START_AT) val firstClosedTermStartAt: Long? = null,
 	@ColumnInfo(name = SubjectStatsSegmentTable.LAST_CLOSED_TERM_START_AT) val lastClosedTermStartAt: Long? = null
 )

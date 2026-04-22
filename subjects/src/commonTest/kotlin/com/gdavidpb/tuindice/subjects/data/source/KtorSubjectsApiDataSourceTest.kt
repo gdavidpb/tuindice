@@ -51,10 +51,14 @@ class KtorSubjectsApiDataSourceTest {
 						    "median_grade": 4.0,
 						    "stddev_grade": 0.8,
 						    "first_attempt_pass_rate": 0.55,
-						    "eventual_pass_rate": 0.72,
+						    "approval_rate": 0.72,
+						    "latest_failure_rate": 0.22,
+						    "latest_withdrawal_rate": 0.06,
 						    "retake_rate": 0.33,
 						    "avg_attempts_to_pass": 1.4,
 						    "median_attempts_to_pass": 1.0,
+						    "difficulty_score": 41,
+						    "difficulty_band": "medium",
 						    "first_closed_term_start_at": 1672444800000,
 						    "last_closed_term_start_at": 1704067200000,
 						    "latest_grade_bins": [{"grade": 1, "count": 1}, {"grade": 5, "count": 3}],
@@ -82,6 +86,8 @@ class KtorSubjectsApiDataSourceTest {
 		assertEquals("MAT101", ready.detail.id)
 		assertEquals("Calculo I", ready.detail.name)
 		assertEquals(18, ready.detail.careerSegment?.sampleStudents)
+		assertEquals(0.72, ready.detail.careerSegment?.approvalRate)
+		assertEquals(41, ready.detail.careerSegment?.difficultyScore)
 		assertEquals(null, ready.detail.globalSegment)
 	}
 

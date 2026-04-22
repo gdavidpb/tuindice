@@ -20,7 +20,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.*
 		SubjectStatsGradeBinEntity::class,
 		SubjectStatsAttemptBinEntity::class
 	],
-	version = 21,
+	version = 22,
 	exportSchema = false
 )
 @ConstructedBy(TuIndiceDatabaseConstructor::class)

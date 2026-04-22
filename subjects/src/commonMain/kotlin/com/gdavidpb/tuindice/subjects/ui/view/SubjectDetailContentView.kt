@@ -23,9 +23,6 @@ import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
 import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
-import org.jetbrains.compose.resources.stringResource
-import tuindice.subjects.generated.resources.Res
-import tuindice.subjects.generated.resources.subjects_segment_summary
 
 @Composable
 fun SubjectDetailContentView(
@@ -63,14 +60,9 @@ fun SubjectDetailContentView(
 			)
 		}
 
-		Text(
-			text = stringResource(
-				Res.string.subjects_segment_summary,
-				segment.sampleStudents.toCompactCountText(),
-				segment.closedAttempts.toCompactCountText()
-			),
-			style = MaterialTheme.typography.bodyMedium,
-			color = MaterialTheme.colorScheme.onSurfaceVariant
+		SubjectDetailSegmentSummaryView(
+			studentsText = segment.sampleStudents.toCompactCountText(),
+			attemptsText = segment.closedAttempts.toCompactCountText()
 		)
 
 		SubjectDetailKpiRowView(

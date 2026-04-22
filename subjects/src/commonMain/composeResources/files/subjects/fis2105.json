@@ -17,10 +17,14 @@
     "median_grade": 3.0,
     "stddev_grade": 1.0,
     "first_attempt_pass_rate": 0.36,
-    "eventual_pass_rate": 0.61,
+    "approval_rate": 0.61,
+    "latest_failure_rate": 0.3061,
+    "latest_withdrawal_rate": 0.0612,
     "retake_rate": 0.34,
     "avg_attempts_to_pass": 1.9,
     "median_attempts_to_pass": 2.0,
+    "difficulty_score": 49,
+    "difficulty_band": "medium",
     "first_closed_term_start_at": 1704067200000,
     "last_closed_term_start_at": 1759276800000,
     "latest_grade_bins": [
@@ -38,11 +42,11 @@
       },
       {
         "grade": 4,
-        "count": 520
+        "count": 560
       },
       {
         "grade": 5,
-        "count": 280
+        "count": 240
       }
     ],
     "all_grade_bins": [
@@ -94,10 +98,14 @@
     "median_grade": 3.0,
     "stddev_grade": 1.0,
     "first_attempt_pass_rate": 0.39,
-    "eventual_pass_rate": 0.66,
+    "approval_rate": 0.66,
+    "latest_failure_rate": 0.2742,
+    "latest_withdrawal_rate": 0.0699,
     "retake_rate": 0.31,
     "avg_attempts_to_pass": 1.8,
     "median_attempts_to_pass": 2.0,
+    "difficulty_score": 45,
+    "difficulty_band": "medium",
     "first_closed_term_start_at": 1672531200000,
     "last_closed_term_start_at": 1759276800000,
     "latest_grade_bins": [
@@ -115,11 +123,11 @@
       },
       {
         "grade": 4,
-        "count": 1920
+        "count": 1960
       },
       {
         "grade": 5,
-        "count": 1240
+        "count": 1200
       }
     ],
     "all_grade_bins": [
