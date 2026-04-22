@@ -20,9 +20,10 @@ import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail as SubjectDetai
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectStatsSegment
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
-import kotlinx.datetime.Instant
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.number
 import kotlinx.datetime.toLocalDateTime
+import kotlin.time.Instant
 
 @Composable
 fun SubjectDetailContentView(
@@ -97,5 +98,5 @@ private fun Long.toDateText(): String {
 	val localDate = Instant.fromEpochMilliseconds(this)
 		.toLocalDateTime(TimeZone.currentSystemDefault())
 		.date
-	return "${localDate.dayOfMonth}/${localDate.monthNumber}/${localDate.year}"
+	return "${localDate.day}/${localDate.month.number}/${localDate.year}"
 }
