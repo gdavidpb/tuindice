@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="dialog_message_enrollment_downloading">Obteniendo comprobante…</string>
+	<string name="dialog_button_enrollment_cancel">Cancelar</string>
 </resources>

@@ -6,6 +6,7 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.platform.testTag
@@ -25,6 +26,7 @@ class EnrollmentProofFetchingSheetUiTest {
 
 		setTuIndiceTestContent {
 			EnrollmentProofFetchingSheet(
+				cancelText = "Cancelar",
 				messageText = "Descargando constancia de inscripcion...",
 				onDismissRequest = { dismissCalls++ },
 				loadingContent = {
@@ -36,9 +38,11 @@ class EnrollmentProofFetchingSheetUiTest {
 		assertNodeVisible(EnrollmentProofUiTags.FetchingSheet)
 		assertNodeVisible(EnrollmentProofUiTags.FetchingLoadingContainer)
 		assertNodeVisible(EnrollmentProofUiTags.FetchingMessage)
+		assertNodeVisible(EnrollmentProofUiTags.FetchingCancelButton)
 		onNodeWithTag(EnrollmentProofUiTags.FetchingSheet).assertIsDisplayed()
 		onNodeWithText("Cargando").assertIsDisplayed()
 		onNodeWithText("Descargando constancia de inscripcion...").assertIsDisplayed()
+		onNodeWithText("Cancelar").assertIsDisplayed()
 		assertEquals(0, dismissCalls)
 	}
 
@@ -46,6 +50,7 @@ class EnrollmentProofFetchingSheetUiTest {
 	fun when_customLoadingComposableProvided_then_rendersCustomLoadingNode() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			EnrollmentProofFetchingSheet(
+				cancelText = "Cancelar",
 				messageText = "Descargando...",
 				onDismissRequest = {},
 				loadingContent = {
@@ -60,5 +65,25 @@ class EnrollmentProofFetchingSheetUiTest {
 
 		assertNodeVisible("enrollment_custom_loading")
 		assertNodeVisible(EnrollmentProofUiTags.FetchingMessage)
+	}
+
+	@Test
+	fun when_cancelButtonClicked_then_invokesDismissRequest() = runTuIndiceUiTest {
+		var dismissCalls = 0
+
+		setTuIndiceTestContent {
+			EnrollmentProofFetchingSheet(
+				cancelText = "Cancelar",
+				messageText = "Descargando...",
+				onDismissRequest = { dismissCalls++ },
+				loadingContent = {
+					Text(text = "Cargando")
+				}
+			)
+		}
+
+		onNodeWithTag(EnrollmentProofUiTags.FetchingCancelButton).performClick()
+
+		assertEquals(1, dismissCalls)
 	}
 }

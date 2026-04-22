@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.enrollmentproof.ui.view
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.onNodeWithText
 import com.gdavidpb.tuindice.enrollmentproof.ui.EnrollmentProofUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -21,7 +23,9 @@ class EnrollmentProofFetchingViewUiTest {
 		assertNodeVisible(EnrollmentProofUiTags.FetchingSheet)
 		assertNodeVisible(EnrollmentProofUiTags.FetchingLoadingContainer)
 		assertNodeVisible(EnrollmentProofUiTags.FetchingLottie)
+		assertNodeVisible(EnrollmentProofUiTags.FetchingCancelButton)
 		onNodeWithText("Obteniendo comprobante…").assertIsDisplayed()
+		onNodeWithText("Cancelar").assertIsDisplayed()
 	}
 
 	@Test
@@ -36,5 +40,20 @@ class EnrollmentProofFetchingViewUiTest {
 
 		assertNodeVisible(EnrollmentProofUiTags.FetchingSheet)
 		assertEquals(0, dismissCalls)
+	}
+
+	@Test
+	fun when_cancelButtonClicked_then_invokesDismissRequest() = runTuIndiceUiTest {
+		var dismissCalls = 0
+
+		setTuIndiceTestContent {
+			EnrollmentProofFetchingView(
+				onDismissRequest = { dismissCalls++ }
+			)
+		}
+
+		onNodeWithTag(EnrollmentProofUiTags.FetchingCancelButton).performClick()
+
+		assertEquals(1, dismissCalls)
 	}
 }
