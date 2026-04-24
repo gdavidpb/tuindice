@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.subjects.ui.view
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -17,6 +18,7 @@ import androidx.compose.material3.TooltipBox
 import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -25,6 +27,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import tuindice.subjects.generated.resources.Res
@@ -95,6 +98,9 @@ private fun SubjectDetailSummaryMetric(
 	tooltipLine2: StringResource,
 	icon: @Composable () -> Unit
 ) {
+	val tooltipState = rememberTooltipState(isPersistent = true)
+	val tooltipScope = rememberCoroutineScope()
+
 	TooltipBox(
 		positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
 			TooltipAnchorPosition.Above
@@ -111,11 +117,22 @@ private fun SubjectDetailSummaryMetric(
 				}
 			}
 		},
-		state = rememberTooltipState()
+		state = tooltipState,
+		onDismissRequest = tooltipState::dismiss,
+		enableUserInput = false
 	) {
 		Row(
 			modifier = Modifier
 				.testTag(testTag)
+				.clickable {
+					if (tooltipState.isVisible) {
+						tooltipState.dismiss()
+					} else {
+						tooltipScope.launch {
+							tooltipState.show()
+						}
+					}
+				}
 				.semantics(mergeDescendants = true) {
 					this.contentDescription = contentDescription
 				},
