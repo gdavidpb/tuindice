@@ -90,6 +90,7 @@ class AttemptItemViewUiTest {
 		badge: AttemptBadge = AttemptBadge.NONE
 	) = AttemptItem(
 		attemptId = "attempt-1",
+		subjectCode = "EP5406",
 		grade = 0,
 		gradingMode = GradingMode.QUALITATIVE_PASS_FAIL,
 		outcome = outcome,

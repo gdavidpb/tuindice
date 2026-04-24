@@ -41,7 +41,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -67,7 +66,6 @@ import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.model.BottomBarConfig
 import com.gdavidpb.tuindice.presentation.model.MainShellState
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
-import com.gdavidpb.tuindice.record.ui.dialog.RecordViewModeInfoDialog
 import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeBannerView
 import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeSwitchView
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
@@ -122,9 +120,6 @@ fun TuIndiceScreen(
 
 	val contentState = state
 	val canNavigateBack = navController.canNavigateBackFromCurrentDestination()
-	val isRecordViewModeInfoDialogVisible = remember {
-		mutableStateOf(false)
-	}
 	val topBarBannerBehavior = remember {
 		mutableStateOf<TopBarBannerBehavior?>(null)
 	}
@@ -134,15 +129,6 @@ fun TuIndiceScreen(
 	val showTopBarBanner: (TopBarBannerBehavior) -> Unit = { behavior ->
 		topBarBannerBehavior.value = behavior
 		topBarBannerRequestKey.intValue += 1
-	}
-
-	LaunchedEffect(
-		shellState.isTopBarVisible,
-		shellState.recordTopBarViewModeState?.selectedMode
-	) {
-		if (!shellState.isTopBarVisible || shellState.recordTopBarViewModeState == null) {
-			isRecordViewModeInfoDialogVisible.value = false
-		}
 	}
 
 	val bottomBarConfigs = remember {
@@ -248,10 +234,7 @@ fun TuIndiceScreen(
 					) {
 						if (recordTopBarViewModeState != null) {
 							RecordTopBarViewModeBannerView(
-								selectedMode = recordTopBarViewModeState.selectedMode,
-								onInfoClick = {
-									isRecordViewModeInfoDialogVisible.value = true
-								}
+								selectedMode = recordTopBarViewModeState.selectedMode
 							)
 						}
 					}
@@ -322,19 +305,6 @@ fun TuIndiceScreen(
 			onViewStateChanged = onViewStateChanged,
 			showSnackBar = showSnackBar,
 			dismissSnackBar = dismissSnackBar
-		)
-	}
-
-	if (
-		shellState.isTopBarVisible &&
-		shellState.recordTopBarViewModeState != null &&
-		isRecordViewModeInfoDialogVisible.value
-	) {
-		RecordViewModeInfoDialog(
-			selectedMode = shellState.recordTopBarViewModeState.selectedMode,
-			onDismissRequest = {
-				isRecordViewModeInfoDialogVisible.value = false
-			}
 		)
 	}
 }

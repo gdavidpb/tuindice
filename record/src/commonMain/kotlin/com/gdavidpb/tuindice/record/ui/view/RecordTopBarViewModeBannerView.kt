@@ -8,11 +8,19 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -20,19 +28,28 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.record_view_mode_banner_official
 import tuindice.record.generated.resources.record_view_mode_banner_projection
 import tuindice.record.generated.resources.record_view_mode_info_button_description
+import tuindice.record.generated.resources.record_view_mode_info_message_official
+import tuindice.record.generated.resources.record_view_mode_info_message_projection
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecordTopBarViewModeBannerView(
 	selectedMode: RecordViewMode,
-	onInfoClick: () -> Unit,
 	modifier: Modifier = Modifier
 ) {
 	val colors = recordViewModeBannerColors(selectedMode)
+	val tooltipState = rememberTooltipState(isPersistent = true)
+	val tooltipScope = rememberCoroutineScope()
+
+	LaunchedEffect(selectedMode) {
+		tooltipState.dismiss()
+	}
 
 	Box(
 		modifier = modifier
@@ -63,17 +80,46 @@ fun RecordTopBarViewModeBannerView(
 			)
 		}
 
-		IconButton(
-			modifier = Modifier
-				.align(Alignment.CenterEnd)
-				.testTag(RecordUiTags.TopBarViewModeInfoButton),
-			onClick = onInfoClick
+		Box(
+			modifier = Modifier.align(Alignment.CenterEnd),
 		) {
-			Icon(
-				imageVector = Icons.Outlined.Info,
-				contentDescription = stringResource(Res.string.record_view_mode_info_button_description),
-				tint = colors.contentColor
-			)
+			TooltipBox(
+				positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
+					TooltipAnchorPosition.Below
+				),
+				tooltip = {
+					PlainTooltip(
+						caretShape = TooltipDefaults.caretShape()
+					) {
+						Text(
+							modifier = Modifier.testTag(RecordUiTags.ViewModeInfoMessage),
+							text = recordViewModeInfoMessage(selectedMode)
+						)
+					}
+				},
+				state = tooltipState,
+				onDismissRequest = tooltipState::dismiss,
+				enableUserInput = false
+			) {
+				IconButton(
+					modifier = Modifier.testTag(RecordUiTags.TopBarViewModeInfoButton),
+					onClick = {
+						if (tooltipState.isVisible) {
+							tooltipState.dismiss()
+						} else {
+							tooltipScope.launch {
+								tooltipState.show()
+							}
+						}
+					}
+				) {
+					Icon(
+						imageVector = Icons.Outlined.Info,
+						contentDescription = stringResource(Res.string.record_view_mode_info_button_description),
+						tint = colors.contentColor
+					)
+				}
+			}
 		}
 	}
 }
@@ -107,3 +153,11 @@ data class RecordViewModeBannerColors(
 	val containerColor: Color,
 	val contentColor: Color
 )
+
+@Composable
+private fun recordViewModeInfoMessage(mode: RecordViewMode): String {
+	return when (mode) {
+		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_info_message_official)
+		RecordViewMode.Working -> stringResource(Res.string.record_view_mode_info_message_projection)
+	}
+}
