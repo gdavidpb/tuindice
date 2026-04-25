@@ -110,13 +110,13 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 		}
 
 		private fun isGetRequest(request: com.github.tomakehurst.wiremock.http.Request, pathSegments: List<String>): Boolean =
-			request.method == RequestMethod.GET && pathSegments == listOf("record", "v4")
+			request.method == RequestMethod.GET && pathSegments == listOf("record", "v5")
 
 		private fun isPutAttemptRequest(request: com.github.tomakehurst.wiremock.http.Request, pathSegments: List<String>): Boolean =
 			request.method == RequestMethod.PUT &&
 				pathSegments.size == 5 &&
 				pathSegments[0] == "record" &&
-				pathSegments[1] == "v4" &&
+				pathSegments[1] == "v5" &&
 				pathSegments[2] == "overlay" &&
 				pathSegments[3] == "attempts"
 
@@ -124,18 +124,18 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			request.method == RequestMethod.DELETE &&
 				pathSegments.size == 5 &&
 				pathSegments[0] == "record" &&
-				pathSegments[1] == "v4" &&
+				pathSegments[1] == "v5" &&
 				pathSegments[2] == "overlay" &&
 				pathSegments[3] == "attempts"
 
 		private fun isPostTermRequest(request: com.github.tomakehurst.wiremock.http.Request, pathSegments: List<String>): Boolean =
-			request.method == RequestMethod.POST && pathSegments == listOf("record", "v4", "overlay", "terms")
+			request.method == RequestMethod.POST && pathSegments == listOf("record", "v5", "overlay", "terms")
 
 		private fun isDeleteTermRequest(request: com.github.tomakehurst.wiremock.http.Request, pathSegments: List<String>): Boolean =
 			request.method == RequestMethod.DELETE &&
 				pathSegments.size == 5 &&
 				pathSegments[0] == "record" &&
-				pathSegments[1] == "v4" &&
+				pathSegments[1] == "v5" &&
 				pathSegments[2] == "overlay" &&
 				pathSegments[3] == "terms"
 
