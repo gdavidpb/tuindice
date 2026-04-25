@@ -5,7 +5,9 @@ import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepositor
 import com.russhwolf.settings.Settings
 import kotlin.time.Duration.Companion.days
 import com.gdavidpb.tuindice.evaluations.utils.PreferencesKeys as EvaluationsPreferencesKeys
+import com.gdavidpb.tuindice.record.utils.CooldownTimes as RecordCooldownTimes
 import com.gdavidpb.tuindice.record.utils.PreferencesKeys as RecordPreferencesKeys
+import com.gdavidpb.tuindice.summary.utils.CooldownTimes as SummaryCooldownTimes
 import com.gdavidpb.tuindice.summary.utils.PreferencesKeys as SummaryPreferencesKeys
 
 class SyncSettingsDataSource(
@@ -23,9 +25,20 @@ class SyncSettingsDataSource(
 		settings.putLong(PreferencesKeys.COOLDOWN_SYNC, cooldownTime)
 	}
 
-	override suspend fun clearFeatureCooldowns() {
-		settings.remove(SummaryPreferencesKeys.COOLDOWN_GET_USER)
-		settings.remove(RecordPreferencesKeys.COOLDOWN_GET_QUARTERS)
+	override suspend fun setSyncedFeatureCooldowns() {
+		val now = currentTimeMillis()
+
+		settings.putLong(
+			SummaryPreferencesKeys.COOLDOWN_GET_USER,
+			now + SummaryCooldownTimes.COOLDOWN_GET_USER
+		)
+		settings.putLong(
+			RecordPreferencesKeys.COOLDOWN_GET_RECORD,
+			now + RecordCooldownTimes.COOLDOWN_GET_RECORD
+		)
+	}
+
+	override suspend fun clearStaleFeatureCooldowns() {
 		settings.remove(EvaluationsPreferencesKeys.COOLDOWN_GET_EVALUATIONS)
 	}
 

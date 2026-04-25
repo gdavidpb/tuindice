@@ -21,6 +21,7 @@ import tuindice.summary.generated.resources.summary_failed_title
 fun SummaryScreen(
 	state: Summary.State,
 	syncStatus: SyncStatus,
+	isSyncing: Boolean = false,
 	onRetryClick: () -> Unit,
 	onEditProfilePictureClick: () -> Unit,
 	onUpdatePasswordClick: () -> Unit
@@ -47,6 +48,7 @@ fun SummaryScreen(
 				SummaryContentView(
 					state = targetState,
 					syncStatus = syncStatus,
+					isSyncing = isSyncing,
 					summaryItems = rememberSummaryItems(
 						state = targetState
 					),

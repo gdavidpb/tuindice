@@ -188,7 +188,6 @@ class TuIndiceAppHostRouteUiTest {
 						}
 					}
 					single<SessionRepository> { FakeSessionRepository() }
-					single<SyncRepository> { FakeSyncRepository() }
 					single<ApplicationRepository> { RecordingApplicationRepository() }
 					single<MessagingRepository> {
 						object : MessagingRepository {
@@ -372,7 +371,6 @@ class TuIndiceAppHostRouteUiTest {
 					}
 					single<SessionInvalidationRepository> { sessionInvalidationRepository }
 					single<SessionRepository> { FakeSessionRepository() }
-					single<SyncRepository> { FakeSyncRepository() }
 					single<MessagingRepository> {
 						object : MessagingRepository {
 							override suspend fun subscribe() = Unit
@@ -476,7 +474,6 @@ class TuIndiceAppHostRouteUiTest {
 					}
 					single<SessionInvalidationRepository> { sessionInvalidationRepository }
 					single<SessionRepository> { FakeSessionRepository() }
-					single<SyncRepository> { FakeSyncRepository() }
 					single<MessagingRepository> {
 						object : MessagingRepository {
 							override suspend fun subscribe() = Unit
@@ -539,6 +536,7 @@ class TuIndiceAppHostRouteUiTest {
 	) = module {
 		factory { createSummaryViewModel() }
 		single<PendingChangesRepository> { FakePendingChangesRepository() }
+		single<SyncRepository> { FakeSyncRepository() }
 		single<SyncStatusRepository> { syncStatusRepository }
 	}
 }

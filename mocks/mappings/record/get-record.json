@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/record/v4"
+    "urlPath": "/record/v5"
   },
   "response": {
     "transformers": [

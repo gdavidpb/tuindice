@@ -31,6 +31,8 @@ import com.gdavidpb.tuindice.data.source.sync.SyncApiDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncSettingsDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncStatusSettingsDataSource
 import com.gdavidpb.tuindice.data.source.settings.MultiplatformSettingsDataSource
+import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
+import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
@@ -67,11 +69,15 @@ private fun createAppSettings(settingsFactory: Settings.Factory): Settings {
 private fun createSyncRepository(
 	settingsDataSource: SyncSettingsLocalDataRepository,
 	syncStatusRepository: SyncStatusRepository,
-	remoteDataSource: SyncRemoteDataRepository
+	remoteDataSource: SyncRemoteDataRepository,
+	recordLocalDataSource: AcademicRecordLocalDataRepository,
+	userLocalDataSource: LocalDataRepository
 ): SyncRepository {
 	return SyncDataSource(
 		settingsDataSource = settingsDataSource,
 		syncStatusRepository = syncStatusRepository,
-		remoteDataSource = remoteDataSource
+		remoteDataSource = remoteDataSource,
+		recordLocalDataSource = recordLocalDataSource,
+		userLocalDataSource = userLocalDataSource
 	)
 }

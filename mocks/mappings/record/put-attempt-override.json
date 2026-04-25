@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "PUT",
-    "urlPathPattern": "/record/v4/overlay/attempts/[^/]+"
+    "urlPathPattern": "/record/v5/overlay/attempts/[^/]+"
   },
   "response": {
     "transformers": [

@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/record/v4/overlay/terms"
+    "urlPath": "/record/v5/overlay/terms"
   },
   "response": {
     "transformers": [

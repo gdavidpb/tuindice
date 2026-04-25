@@ -501,7 +501,7 @@ private class ControlledAcademicRecordRemoteDataRepository(
 		releaseDeleteFailure.await()
 		throw clientRequestException(
 			statusCode = HttpStatusCode.NotFound,
-			path = "/record/v4/overlay/attempts/$attemptId"
+			path = "/record/v5/overlay/attempts/$attemptId"
 		)
 	}
 
@@ -552,7 +552,7 @@ private class RebasingAcademicRecordRemoteDataRepository(
 
 			2 -> throw clientRequestException(
 				statusCode = HttpStatusCode.PreconditionFailed,
-				path = "/record/v4/overlay/attempts/$attemptId"
+				path = "/record/v5/overlay/attempts/$attemptId"
 			)
 
 			else -> latestResponse

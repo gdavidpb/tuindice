@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "DELETE",
-    "urlPathPattern": "/record/v4/overlay/terms/[^/]+"
+    "urlPathPattern": "/record/v5/overlay/terms/[^/]+"
   },
   "response": {
     "transformers": [

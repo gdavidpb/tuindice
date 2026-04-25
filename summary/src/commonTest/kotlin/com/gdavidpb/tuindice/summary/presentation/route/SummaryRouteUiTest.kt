@@ -32,6 +32,7 @@ import com.gdavidpb.tuindice.summary.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -71,7 +72,8 @@ class SummaryRouteUiTest {
 					shownSnackBars += message
 				},
 				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository
+				syncStatusRepository = syncStatusRepository,
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -103,7 +105,8 @@ class SummaryRouteUiTest {
 					shownSnackBars += message
 				},
 				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository
+				syncStatusRepository = syncStatusRepository,
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -141,7 +144,8 @@ class SummaryRouteUiTest {
 					shownSnackBars += message
 				},
 				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository
+				syncStatusRepository = syncStatusRepository,
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -175,7 +179,8 @@ class SummaryRouteUiTest {
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
 				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository
+				syncStatusRepository = syncStatusRepository,
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -213,7 +218,8 @@ class SummaryRouteUiTest {
 				},
 				showSnackBar = {},
 				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository
+				syncStatusRepository = syncStatusRepository,
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -250,7 +256,8 @@ class SummaryRouteUiTest {
 					shownSnackBars += message
 				},
 				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository
+				syncStatusRepository = syncStatusRepository,
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -290,7 +297,8 @@ class SummaryRouteUiTest {
 					shownSnackBars += message
 				},
 				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository
+				syncStatusRepository = syncStatusRepository,
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -323,7 +331,8 @@ class SummaryRouteUiTest {
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
 				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository
+				syncStatusRepository = syncStatusRepository,
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -363,7 +372,8 @@ class SummaryRouteUiTest {
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
 				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository
+				syncStatusRepository = syncStatusRepository,
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -396,7 +406,8 @@ class SummaryRouteUiTest {
 					shownSnackBars += message
 				},
 				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository
+				syncStatusRepository = syncStatusRepository,
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -428,7 +439,8 @@ class SummaryRouteUiTest {
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
 				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository
+				syncStatusRepository = syncStatusRepository,
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -463,7 +475,8 @@ class SummaryRouteUiTest {
 					shownSnackBars += message
 				},
 				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository
+				syncStatusRepository = syncStatusRepository,
+				syncRepository = FakeSyncRepository()
 			)
 		}
 

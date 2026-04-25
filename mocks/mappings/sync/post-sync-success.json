@@ -1,13 +1,14 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/record/v4/sync"
+    "urlPath": "/record/v5/sync"
   },
   "response": {
     "status": 200,
     "headers": {
       "Content-Type": "application/json"
     },
+    "bodyFileName": "sync/post-sync-success.json",
     "fixedDelayMilliseconds": 1000
   }
 }

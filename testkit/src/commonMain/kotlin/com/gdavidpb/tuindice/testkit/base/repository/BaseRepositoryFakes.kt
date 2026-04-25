@@ -26,6 +26,7 @@ import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 
 class FakeAppEnvironmentRepository(
 	private val appEnvironment: AppEnvironment = AppEnvironment(
@@ -235,6 +236,8 @@ class FakeSyncRepository : SyncRepository {
 	override fun scheduleSync(password: String) {
 		scheduledSyncCalls += password
 	}
+
+	override fun observeSyncInProgress(): Flow<Boolean> = flowOf(false)
 }
 
 class FakeCredentialsRepository(

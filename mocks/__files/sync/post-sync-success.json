@@ -1,0 +1,69 @@
+{
+  "record": {
+    "revision": 12,
+    "record": {
+      "id": "0IQZf2qtYZOTwutEX38qvBY5H8l2",
+      "profile": {
+        "user_id": "0IQZf2qtYZOTwutEX38qvBY5H8l2",
+        "identity_card_number": 12345678,
+        "usb_id": "11-11111",
+        "email": "11-11111@usb.ve",
+        "first_names": "Luis",
+        "last_names": "Perez",
+        "career_name": "Ingenieria de Computacion",
+        "career_code": 800,
+        "scholarship": false
+      },
+      "terms": [
+        {
+          "id": "sync-term-current",
+          "start_at": 1775012400000,
+          "end_at": 1785470400000,
+          "term_kind": "official_current",
+          "attempts": [
+            {
+              "id": "sync-attempt-ci2611",
+              "subject_code": "CI2611",
+              "subject_name": "Algoritmos y Estructuras I",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "approved",
+              "official_badge": "none"
+            }
+          ]
+        }
+      ],
+      "attempt_overrides": []
+    }
+  },
+  "user": {
+    "id": "0IQZf2qtYZOTwutEX38qvBY5H8l2",
+    "c_id": 12345678,
+    "usb_id": "11-11111",
+    "email": "11-11111@usb.ve",
+    "full_name": "Luis Perez",
+    "first_names": "Luis",
+    "last_names": "Perez",
+    "picture_url": "https://picsum.photos/200",
+    "career_name": "Ingenieria de Computacion",
+    "career_code": 800,
+    "scholarship": false,
+    "grade": 4.35,
+    "enrolled_subjects": 26,
+    "enrolled_credits": 88,
+    "approved_subjects": 24,
+    "approved_credits": 82,
+    "approved_relation": 0.91,
+    "retired_subjects": 1,
+    "retired_credits": 3,
+    "retired_relation": 0.03,
+    "failed_subjects": 2,
+    "failed_credits": 7,
+    "failed_relation": 0.06,
+    "last_update": 1777010400000
+  }
+}

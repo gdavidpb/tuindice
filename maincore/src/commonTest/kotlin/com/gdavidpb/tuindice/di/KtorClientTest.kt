@@ -91,13 +91,13 @@ class KtorClientTest {
 		}
 
 		try {
-			client.get("https://api.tuindice.app/record/v4/sync")
+			client.get("https://api.tuindice.app/record/v5/sync")
 
 			sessionRepository.setSessionId("session-new")
 			sessionRepository.setAccessToken("access-new")
 			sessionRepository.setRefreshToken("refresh-new")
 
-			client.get("https://api.tuindice.app/record/v4/sync")
+			client.get("https://api.tuindice.app/record/v5/sync")
 		} finally {
 			client.close()
 		}

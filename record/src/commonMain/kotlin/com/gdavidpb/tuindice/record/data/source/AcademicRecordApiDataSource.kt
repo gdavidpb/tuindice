@@ -22,7 +22,7 @@ class AcademicRecordApiDataSource(
 	private val ktorClient: HttpClient
 ) : AcademicRecordRemoteDataRepository {
 	override suspend fun getAcademicRecord(): VersionedAcademicRecord {
-		return ktorClient.get("record/v4")
+		return ktorClient.get("record/v5")
 			.body<AcademicRecordResponse>()
 			.toVersionedAcademicRecord()
 	}
@@ -34,7 +34,7 @@ class AcademicRecordApiDataSource(
 		mutationId: String,
 		expectedRevision: Long
 	): VersionedAcademicRecord {
-		return ktorClient.put("record/v4/overlay/attempts/$attemptId") {
+		return ktorClient.put("record/v5/overlay/attempts/$attemptId") {
 			setBody(
 				buildAcademicUpsertAttemptOverrideRequest(
 					score = score,
@@ -53,7 +53,7 @@ class AcademicRecordApiDataSource(
 		mutationId: String,
 		expectedRevision: Long
 	): VersionedAcademicRecord {
-		return ktorClient.delete("record/v4/overlay/attempts/$attemptId") {
+		return ktorClient.delete("record/v5/overlay/attempts/$attemptId") {
 			setBody(
 				buildDeleteOverlayMutationRequest(
 					mutationId = mutationId,
@@ -70,7 +70,7 @@ class AcademicRecordApiDataSource(
 		mutationId: String,
 		expectedRevision: Long
 	): VersionedAcademicRecord {
-		return ktorClient.post("record/v4/overlay/terms") {
+		return ktorClient.post("record/v5/overlay/terms") {
 			setBody(
 				command.toAddSyntheticTermRequest(
 					mutationId = mutationId,
@@ -87,7 +87,7 @@ class AcademicRecordApiDataSource(
 		mutationId: String,
 		expectedRevision: Long
 	): VersionedAcademicRecord {
-		return ktorClient.delete("record/v4/overlay/terms/$termId") {
+		return ktorClient.delete("record/v5/overlay/terms/$termId") {
 			setBody(
 				buildDeleteOverlayMutationRequest(
 					mutationId = mutationId,

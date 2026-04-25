@@ -1,5 +1,11 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -13,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -26,6 +33,7 @@ import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 fun SummaryContentView(
 	state: Summary.State.Content,
 	syncStatus: SyncStatus,
+	isSyncing: Boolean = false,
 	summaryItems: List<SummaryItem>,
 	onEditProfilePictureClick: () -> Unit,
 	onStatusIconClick: () -> Unit
@@ -46,6 +54,24 @@ fun SummaryContentView(
 		-> MaterialTheme.colorScheme.onSurfaceVariant
 	}
 	val canOpenStatusDetails = syncStatus == SyncStatus.OutdatedCredentials
+	val syncRotation = if (isSyncing) {
+		val syncTransition = rememberInfiniteTransition(label = "SummarySyncIconTransition")
+
+		syncTransition.animateFloat(
+			initialValue = 0f,
+			targetValue = 360f,
+			animationSpec = infiniteRepeatable(
+				animation = tween(
+					durationMillis = 900,
+					easing = LinearEasing
+				),
+				repeatMode = RepeatMode.Restart
+			),
+			label = "SummarySyncIconRotation"
+		).value
+	} else {
+		0f
+	}
 
 	Column(
 		modifier = Modifier
@@ -97,6 +123,13 @@ fun SummaryContentView(
 				Icon(
 					modifier = Modifier
 						.size(20.dp)
+						.then(
+							if (isSyncing) {
+								Modifier.rotate(syncRotation)
+							} else {
+								Modifier
+							}
+						)
 						.testTag(SummaryUiTags.StatusIcon),
 					imageVector = statusIcon,
 					tint = statusTint,

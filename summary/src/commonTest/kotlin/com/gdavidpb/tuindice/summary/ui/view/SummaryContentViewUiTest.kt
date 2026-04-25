@@ -114,6 +114,28 @@ class SummaryContentViewUiTest {
 	}
 
 	@Test
+	fun when_syncIsRunning_then_statusIconRemainsVisibleBesideLastUpdate() = runTuIndiceUiTest {
+		val contentState = summaryContentState()
+
+		setTuIndiceTestContent {
+			SummaryContentView(
+				state = contentState,
+				syncStatus = SyncStatus.Healthy,
+				isSyncing = true,
+				summaryItems = summaryItemsFor(contentState),
+				onEditProfilePictureClick = {},
+				onStatusIconClick = {}
+			)
+		}
+
+		onNodeWithTag(
+			SummaryUiTags.StatusIcon,
+			useUnmergedTree = true
+		).assertIsDisplayed()
+		onNodeWithText(contentState.lastUpdate).assertIsDisplayed()
+	}
+
+	@Test
 	fun when_syncHasFailed_then_statusIconRemainsDisabledAndLastUpdateRemainsVisible() = runTuIndiceUiTest {
 		val contentState = summaryContentState()
 		var statusIconClicks = 0
