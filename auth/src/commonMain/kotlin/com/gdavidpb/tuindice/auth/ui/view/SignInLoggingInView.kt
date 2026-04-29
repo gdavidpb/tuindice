@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.Image
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -12,9 +11,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
-import org.jetbrains.compose.resources.painterResource
-import tuindice.auth.generated.resources.Res
-import tuindice.auth.generated.resources.ic_launcher
+import com.gdavidpb.tuindice.base.ui.view.AppLogoView
 
 @Composable
 fun SignInLoggingInView(state: SignIn.State.LoggingIn) {
@@ -25,9 +22,8 @@ fun SignInLoggingInView(state: SignIn.State.LoggingIn) {
 		horizontalAlignment = Alignment.CenterHorizontally,
 		verticalArrangement = Arrangement.Center
 	) {
-		Image(
+		AppLogoView(
 			modifier = Modifier.padding(vertical = 32.dp),
-			painter = painterResource(Res.drawable.ic_launcher),
 			contentDescription = null
 		)
 

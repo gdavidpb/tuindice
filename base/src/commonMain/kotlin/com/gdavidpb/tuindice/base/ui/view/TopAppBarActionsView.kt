@@ -7,11 +7,11 @@ import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.Row
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 
 @Composable
 fun TopAppBarActionsView(

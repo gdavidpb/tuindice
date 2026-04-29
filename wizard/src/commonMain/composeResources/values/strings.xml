@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="wizard_back">Atrás</string>
+	<string name="wizard_skip">Omitir</string>
+	<string name="wizard_next">Siguiente</string>
+	<string name="wizard_start">Comenzar recorrido</string>
+	<string name="wizard_done">Listo</string>
+	<string name="wizard_progress">Paso %1$d de %2$d</string>
+
+	<string name="wizard_welcome_title">Bienvenido a TuIndice</string>
+	<string name="wizard_welcome_message">Te mostraremos un **recorrido rápido** para que conozcas la app antes de empezar.</string>
+	<string name="wizard_welcome_privacy">Nada de esto cambia **tus datos**. Puedes **omitir el recorrido** si prefieres ir directo a la app.</string>
+	<string name="wizard_welcome_summary">Verás el **resumen**, tus **materias**, **evaluaciones**, **estadísticas** y **comprobantes** con ejemplos.</string>
+	<string name="wizard_summary_title">Resumen académico</string>
+	<string name="wizard_summary_message">Este es tu punto de partida: aquí ves tu **promedio**, **materias cursadas**, **créditos** y cuándo se sincronizó tu información por última vez.</string>
+	<string name="wizard_record_title">Notas del trimestre</string>
+	<string name="wizard_record_message">Este bloque resume el **trimestre seleccionado**: **nota del trimestre**, **nota acumulada** y **cantidad de créditos**. Las variaciones muestran cómo cambiaron desde el trimestre anterior.</string>
+	<string name="wizard_record_actions_title">Acciones del trimestre</string>
+	<string name="wizard_record_actions_message">El **botón de modo** alterna entre **Modo Universidad** y **Modo Proyección**. Universidad muestra las notas oficiales; Proyección te deja simular cambios. Cuando selecciones el **trimestre actual**, verás el **botón de comprobante** para descargarlo.</string>
+	<string name="wizard_record_subject_entry_title">Abrir estadísticas de materia</string>
+	<string name="wizard_record_subject_entry_message">Puedes tocar el **código** de cualquier **materia** para abrir sus **estadísticas** y revisar su **desempeño histórico**.</string>
+	<string name="wizard_subject_title">Estadísticas de materia</string>
+	<string name="wizard_subject_message">Arriba ves el **nombre de la materia**, su **código** y **UC**. Las pestañas comparan **tu carrera** con el **panorama general**; debajo aparecen la **muestra de estudiantes e intentos**, más indicadores de **dificultad**, **aprobación**, **reprobación**, **retiros** y **primer intento**.</string>
+	<string name="wizard_subject_charts_title">Gráficos de materia</string>
+	<string name="wizard_subject_charts_message">Los **gráficos** resumen cómo se distribuyeron las **notas** y cuántos **intentos** necesitaron otros estudiantes para aprobar. Úsalos como **contexto**: no predicen tu resultado, pero ayudan a entender la **dificultad histórica** de la materia.</string>
+	<string name="wizard_subject_tab_career">Tu carrera</string>
+	<string name="wizard_subject_tab_global">General</string>
+	<string name="wizard_subject_unavailable_title">Sin datos suficientes</string>
+	<string name="wizard_subject_unavailable_body">Cuando haya más historial académico disponible, podrás ver estadísticas y tendencias desde aquí.</string>
+	<string name="wizard_subject_failed_title">No pudimos cargar esta materia.</string>
+	<string name="wizard_subject_retry">Reintentar</string>
+	<string name="wizard_subject_close">Cerrar</string>
+	<string name="wizard_evaluations_title">Evaluaciones</string>
+	<string name="wizard_evaluations_message">En **Evaluaciones** organizas lo **pendiente**, lo **completado** y lo que aún no tiene **nota**. Puedes filtrar por **estado**, **materia** y **fecha** para encontrar rápido lo importante.</string>
+	<string name="wizard_evaluation_form_title">Nueva evaluación</string>
+	<string name="wizard_evaluation_form_message">Al crear una **evaluación** eliges la **materia**, el **tipo**, la **fecha** y la **nota máxima** para mantener tu calendario académico al día.</string>
+	<string name="wizard_about_title">Ayuda e información</string>
+	<string name="wizard_about_message">En **Acerca de** encuentras **soporte**, **privacidad**, **términos** e **información** de la app cuando necesites ayuda o quieras revisar detalles.</string>
+
+	<string name="wizard_focus_record">Notas del trimestre</string>
+	<string name="wizard_focus_record_actions">Botones superiores</string>
+	<string name="wizard_focus_record_subject_entry">Códigos de materia</string>
+	<string name="wizard_focus_evaluations">Filtros y evaluaciones</string>
+</resources>

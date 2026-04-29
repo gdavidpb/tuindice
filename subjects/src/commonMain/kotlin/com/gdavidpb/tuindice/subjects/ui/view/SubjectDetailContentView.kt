@@ -11,8 +11,15 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.subjects.presentation.mapper.toCompactCountText
@@ -31,15 +38,45 @@ fun SubjectDetailContentView(
 	selectedTab: SubjectSegmentTab,
 	careerTabText: String,
 	globalTabText: String,
-	onTabSelected: (SubjectSegmentTab) -> Unit
+	onTabSelected: (SubjectSegmentTab) -> Unit,
+	scrollEnabled: Boolean = true,
+	initialScrollOffset: Dp = 0.dp,
+	onChartsVisibilityChange: (Boolean) -> Unit = {}
 ) {
 	val segment = detail.resolveSegment(selectedTab) ?: return
+	val density = LocalDensity.current
+	val initialScrollOffsetPx = with(density) {
+		initialScrollOffset.roundToPx()
+	}
+	val chartsEnterThresholdPx = with(density) { 420.dp.roundToPx() }
+	val chartsExitThresholdPx = with(density) { 320.dp.roundToPx() }
+	val scrollState = rememberScrollState(initial = initialScrollOffsetPx)
+	var areChartsVisible by remember(initialScrollOffsetPx) {
+		mutableStateOf(initialScrollOffsetPx >= chartsEnterThresholdPx)
+	}
+
+	LaunchedEffect(initialScrollOffsetPx) {
+		scrollState.scrollTo(initialScrollOffsetPx)
+	}
+
+	LaunchedEffect(scrollState.value) {
+		val nextChartsVisible = when {
+			areChartsVisible && scrollState.value <= chartsExitThresholdPx -> false
+			!areChartsVisible && scrollState.value >= chartsEnterThresholdPx -> true
+			else -> areChartsVisible
+		}
+
+		if (nextChartsVisible != areChartsVisible) {
+			areChartsVisible = nextChartsVisible
+			onChartsVisibilityChange(nextChartsVisible)
+		}
+	}
 
 	Column(
 		modifier = Modifier
 			.testTag(SubjectsUiTags.Content)
 			.fillMaxSize()
-			.verticalScroll(rememberScrollState())
+			.verticalScroll(scrollState, enabled = scrollEnabled)
 			.padding(
 				start = 20.dp,
 				top = InternalScreenDefaults.TopBarSpacing + 8.dp,

@@ -8,5 +8,8 @@ interface SettingsRepository {
 	suspend fun getLastMainSection(): MainSection
 	suspend fun setLastMainSection(section: MainSection)
 
+	suspend fun isWizardCompleted(): Boolean
+	suspend fun setWizardCompleted()
+
 	suspend fun clear()
 }

@@ -4,13 +4,15 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.record.presentation.model.RecordRouteViewState
 import com.gdavidpb.tuindice.record.presentation.model.RecordTopBarViewModeState
+import com.gdavidpb.tuindice.wizard.presentation.model.WizardRouteViewState
 
 data class MainShellState(
 	val topBarTitle: String = "",
 	val topBarConfig: TopBarConfig? = null,
 	val isTopBarVisible: Boolean = false,
 	val isBottomBarVisible: Boolean = false,
-	val recordTopBarViewModeState: RecordTopBarViewModeState? = null
+	val recordTopBarViewModeState: RecordTopBarViewModeState? = null,
+	val showsTopBarBackButton: Boolean = true
 )
 
 fun ViewState.toMainShellState(): MainShellState = MainShellState(
@@ -18,5 +20,10 @@ fun ViewState.toMainShellState(): MainShellState = MainShellState(
 	topBarConfig = topBarConfig,
 	isTopBarVisible = isTopBarVisible,
 	isBottomBarVisible = isBottomBarVisible,
-	recordTopBarViewModeState = (this as? RecordRouteViewState)?.topBarViewModeState
+	showsTopBarBackButton = this !is WizardRouteViewState,
+	recordTopBarViewModeState = when (this) {
+		is RecordRouteViewState -> topBarViewModeState
+		is WizardRouteViewState -> topBarViewModeState
+		else -> null
+	}
 )

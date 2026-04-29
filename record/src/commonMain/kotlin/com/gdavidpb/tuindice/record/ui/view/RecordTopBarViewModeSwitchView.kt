@@ -38,7 +38,8 @@ fun RecordTopBarViewModeSwitchView(
 	val colors = recordViewModeBannerColors(selectedMode)
 
 	Box(
-		modifier = modifier.testTag(RecordUiTags.TopBarViewModeSwitch)
+		modifier = modifier
+			.testTag(RecordUiTags.TopBarViewModeSwitch)
 	) {
 		FilledTonalIconButton(
 			modifier = Modifier

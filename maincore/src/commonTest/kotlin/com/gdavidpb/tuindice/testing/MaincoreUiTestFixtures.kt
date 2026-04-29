@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.presentation.action.browser.OpenExternalResourceAct
 import com.gdavidpb.tuindice.presentation.action.browser.SetLoadingActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.RequestReviewActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.RequestUpdateActionProcessor
+import com.gdavidpb.tuindice.presentation.action.main.RequestWizardStartActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.SetLastMainSectionActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.StartUpActionProcessor
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
@@ -43,6 +44,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeUpdateRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.wizard.domain.usecase.ShouldStartWizardUseCase
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.flowOf
 
@@ -135,6 +137,13 @@ fun createMainViewModel(
 		setLastMainSectionActionProcessor = SetLastMainSectionActionProcessor(
 			setLastMainSectionUseCase = SetLastMainSectionUseCase(
 				settingsRepository = settingsRepository,
+				reportingRepository = reportingRepository
+			)
+		),
+		requestWizardStartActionProcessor = RequestWizardStartActionProcessor(
+			shouldStartWizardUseCase = ShouldStartWizardUseCase(
+				settingsRepository = settingsRepository,
+				sessionRepository = sessionRepository,
 				reportingRepository = reportingRepository
 			)
 		)

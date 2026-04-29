@@ -168,7 +168,8 @@ class FakeSessionInvalidationRepository : SessionInvalidationRepository {
 
 class FakeSettingsRepository(
 	private val reviewSuggested: Boolean = false,
-	private var lastMainSection: MainSection = MainSection.SUMMARY
+	private var lastMainSection: MainSection = MainSection.SUMMARY,
+	private var wizardCompleted: Boolean = true
 ) : SettingsRepository {
 	var cleared = false
 		private set
@@ -179,6 +180,12 @@ class FakeSettingsRepository(
 
 	override suspend fun setLastMainSection(section: MainSection) {
 		lastMainSection = section
+	}
+
+	override suspend fun isWizardCompleted(): Boolean = wizardCompleted
+
+	override suspend fun setWizardCompleted() {
+		wizardCompleted = true
 	}
 
 	override suspend fun clear() {

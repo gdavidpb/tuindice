@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.Image
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,9 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import com.gdavidpb.tuindice.auth.utils.extension.isUsbId
-import org.jetbrains.compose.resources.painterResource
-import tuindice.auth.generated.resources.Res
-import tuindice.auth.generated.resources.ic_launcher
+import com.gdavidpb.tuindice.base.ui.view.AppLogoView
 
 @Composable
 fun SignInIdleView(
@@ -57,9 +54,8 @@ fun SignInIdleView(
 		horizontalAlignment = Alignment.CenterHorizontally,
 		verticalArrangement = Arrangement.Center
 	) {
-		Image(
+		AppLogoView(
 			modifier = Modifier.padding(vertical = 32.dp),
-			painter = painterResource(Res.drawable.ic_launcher),
 			contentDescription = null
 		)
 

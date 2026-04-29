@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.presentation.action.main.RequestReviewActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.RequestUpdateActionProcessor
+import com.gdavidpb.tuindice.presentation.action.main.RequestWizardStartActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.SetLastMainSectionActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.StartUpActionProcessor
 import com.gdavidpb.tuindice.presentation.contract.Main
@@ -15,7 +16,8 @@ class MainViewModel(
 	private val startUpActionProcessor: StartUpActionProcessor,
 	private val requestReviewActionProcessor: RequestReviewActionProcessor,
 	private val requestUpdateActionProcessor: RequestUpdateActionProcessor,
-	private val setLastMainSectionActionProcessor: SetLastMainSectionActionProcessor
+	private val setLastMainSectionActionProcessor: SetLastMainSectionActionProcessor,
+	private val requestWizardStartActionProcessor: RequestWizardStartActionProcessor
 ) : BaseViewModel<Main.State, Main.Action, Main.Effect>(
 	initialState = Main.State.Starting,
 	initialAction = Main.Action.StartUp
@@ -35,6 +37,9 @@ class MainViewModel(
 	fun checkUpdateAction() =
 		sendAction(Main.Action.RequestUpdateCheck)
 
+	fun requestWizardStartAction() =
+		sendAction(Main.Action.RequestWizardStart)
+
 	override suspend fun processAction(
 		action: Main.Action,
 		sideEffect: (Main.Effect) -> Unit
@@ -51,6 +56,9 @@ class MainViewModel(
 
 			is Main.Action.SetLastMainSection ->
 				setLastMainSectionActionProcessor.process(action, sideEffect)
+
+			is Main.Action.RequestWizardStart ->
+				requestWizardStartActionProcessor.process(action, sideEffect)
 		}
 	}
 }

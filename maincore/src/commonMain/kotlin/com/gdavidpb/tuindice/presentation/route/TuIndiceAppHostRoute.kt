@@ -13,6 +13,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
@@ -26,15 +27,18 @@ import com.gdavidpb.tuindice.base.logging.appLogger
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
-import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofDestination
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
+import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofDestination
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.model.MainShellState
 import com.gdavidpb.tuindice.presentation.model.toMainShellState
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
+import com.gdavidpb.tuindice.wizard.presentation.model.WizardTopBarActionBus
+import com.gdavidpb.tuindice.wizard.presentation.navigation.WizardDestination
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -58,6 +62,7 @@ fun TuIndiceAppHostRoute(
 	syncStatusRepository: SyncStatusRepository = koinInject(),
 	reviewRepository: ReviewRepository = koinInject(),
 	updateRepository: UpdateRepository = koinInject(),
+	wizardTopBarActionBus: WizardTopBarActionBus = koinInject(),
 	viewModel: MainViewModel = koinViewModel<MainViewModel>()
 ) {
 	val lifecycleOwner = LocalLifecycleOwner.current
@@ -125,6 +130,11 @@ fun TuIndiceAppHostRoute(
 		onNavigateToGooglePlayServicesUnavailableDialog = {
 			navController.navigate(MainDestination.GooglePlayServicesUnavailableDialog)
 		},
+		onNavigateToWizard = {
+			navController.navigate(WizardDestination.NavGraph) {
+				launchSingleTop = true
+			}
+		},
 		onRequestReviewFlow = {
 			reviewRepository.launchReview()
 		},
@@ -166,6 +176,12 @@ fun TuIndiceAppHostRoute(
 			}
 		}
 
+		LaunchedEffect(state, shellState.value.isBottomBarVisible) {
+			if (state is Main.State.Content && shellState.value.isBottomBarVisible) {
+				viewModel.requestWizardStartAction()
+			}
+		}
+
 		TuIndiceScreen(
 			state = state,
 			shellState = shellState.value,
@@ -174,44 +190,48 @@ fun TuIndiceAppHostRoute(
 			isSwipeBackNavigationEnabled = isSwipeBackNavigationEnabled,
 			snackbarHostState = snackbarHostState,
 			onAction = { action ->
-				when (action) {
-					is TopBarAction.SignOutAction ->
-						if (!isPreparingSignOut.value) {
-							coroutineScope.launch {
-								try {
-									isPreparingSignOut.value = true
-									val pendingChanges = try {
-										pendingChangesRepository.getPendingChanges()
-									} catch (throwable: Throwable) {
-										if (throwable is CancellationException) throw throwable
+				if (navController.isCurrentDestination(WizardDestination.NavGraph)) {
+					wizardTopBarActionBus.dispatch(action)
+				} else {
+					when (action) {
+						is TopBarAction.SignOutAction ->
+							if (!isPreparingSignOut.value) {
+								coroutineScope.launch {
+									try {
+										isPreparingSignOut.value = true
+										val pendingChanges = try {
+											pendingChangesRepository.getPendingChanges()
+										} catch (throwable: Throwable) {
+											if (throwable is CancellationException) throw throwable
 
-										logger.e(throwable) {
-											"Failed to resolve pending changes before opening sign-out dialog."
+											logger.e(throwable) {
+												"Failed to resolve pending changes before opening sign-out dialog."
+											}
+											showSnackBar(
+												SnackBarMessage(
+													message = pendingChangesUnavailableMessage
+												)
+											)
+											return@launch
 										}
-										showSnackBar(
-											SnackBarMessage(
-												message = pendingChangesUnavailableMessage
+
+										navController.navigate(
+											AuthDestination.SignOutDialog(
+												totalCount = pendingChanges.totalCount,
+												recordCount = pendingChanges.recordCount,
+												evaluationsCount = pendingChanges.evaluationsCount,
+												hasFailedMutations = pendingChanges.hasFailedMutations
 											)
 										)
-										return@launch
+									} finally {
+										isPreparingSignOut.value = false
 									}
-
-									navController.navigate(
-										AuthDestination.SignOutDialog(
-											totalCount = pendingChanges.totalCount,
-											recordCount = pendingChanges.recordCount,
-											evaluationsCount = pendingChanges.evaluationsCount,
-											hasFailedMutations = pendingChanges.hasFailedMutations
-										)
-									)
-								} finally {
-									isPreparingSignOut.value = false
 								}
 							}
-						}
 
-					is TopBarAction.FetchEnrollmentProofAction ->
-						navController.navigate(EnrollmentProofDestination.EnrollmentProofDialog)
+						is TopBarAction.FetchEnrollmentProofAction ->
+							navController.navigate(EnrollmentProofDestination.EnrollmentProofDialog)
+					}
 				}
 			},
 			onRecordViewModeChange = onRecordViewModeChange.value,
@@ -238,6 +258,14 @@ fun TuIndiceAppHostRoute(
 			onNavigateToExternalResource = browserRepository::open,
 			onRecordViewModeChangeAvailable = { callback ->
 				onRecordViewModeChange.value = callback
+			},
+			onWizardFinished = {
+				navController.navigate(SummaryDestination.NavGraph) {
+					launchSingleTop = true
+					popUpTo(WizardDestination.NavGraph) {
+						inclusive = true
+					}
+				}
 			},
 			onViewStateChanged = { viewState ->
 				shellState.value = viewState.toMainShellState()

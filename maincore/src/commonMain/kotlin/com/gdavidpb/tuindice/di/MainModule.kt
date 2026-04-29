@@ -27,6 +27,7 @@ val mainModule = module {
 	factoryOf(::RequestReviewActionProcessor)
 	factoryOf(::RequestUpdateActionProcessor)
 	factoryOf(::SetLastMainSectionActionProcessor)
+	factoryOf(::RequestWizardStartActionProcessor)
 
 	factoryOf(::NavigateToActionProcessor)
 	factoryOf(::SetLoadingActionProcessor)

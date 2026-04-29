@@ -54,6 +54,7 @@ import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import com.gdavidpb.tuindice.wizard.presentation.model.WizardTopBarActionBus
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import org.koin.core.context.startKoin
@@ -538,5 +539,6 @@ class TuIndiceAppHostRouteUiTest {
 		single<PendingChangesRepository> { FakePendingChangesRepository() }
 		single<SyncRepository> { FakeSyncRepository() }
 		single<SyncStatusRepository> { syncStatusRepository }
+		single { WizardTopBarActionBus() }
 	}
 }

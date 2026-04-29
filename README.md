@@ -16,6 +16,8 @@ host Android en `app` y un host iOS en `iosApp`.
 - `record`: historial académico y cálculos de índice.
 - `evaluations`: evaluaciones, filtros, picker de fecha y picker de nota.
 - `enrollmentproof`: constancia de inscripción y apertura de archivos.
+- `subjects`: estadísticas y detalle histórico de una materia.
+- `wizard`: onboarding inicial con flujo sintético que reutiliza pantallas reales de la app.
 - `maincore`: navegación compartida, bootstrap común de Koin y superficie principal de la app.
 - `app`: host Android.
 - `iosApp`: host iOS.
@@ -58,6 +60,9 @@ Dependencias actuales:
 - `record`: depende de `:base`, `:persistence`.
 - `enrollmentproof`: depende de `:base`, `:persistence`.
 - `evaluations`: depende de `:base`, `:persistence`, `:record`.
+- `subjects`: depende de `:base`.
+- `wizard`: depende de `:base`, `:academiccore`, `:summary`, `:record`, `:evaluations`, `:subjects`, `:about`
+  y `:enrollmentproof`.
 - `maincore`: depende de `:base`, `:persistence` y todas las features.
 - `app`: host Android; ensambla `maincore`.
 
@@ -65,6 +70,8 @@ Acuerdo de límites:
 
 - No agregar nuevas dependencias feature -> feature.
 - La excepción `evaluations -> record` se considera legado controlado.
+- La excepción `wizard -> features` es intencional: `wizard` no es un feature normal, sino un orquestador de
+  experiencia inicial que reutiliza pantallas reales con datos sintéticos.
 - Cualquier nueva excepción requiere acuerdo explícito antes de implementarse.
 
 ## Capas por feature
@@ -137,7 +144,7 @@ Reglas:
 - Los modelos de dominio viven en `domain/model`.
 - Los mapeos puramente de dominio pueden vivir en `domain/mapper`.
 - Las interfaces de dominio viven en `domain/repository` y usan sufijo `Repository`.
-- Los contratos internos de la capa `data` viven en `data/repository` y usan sufijo `DataRepository` sólo cuando
+- Los contratos internos de la capa `data` viven en `data/repository` y usan sufijo `DataRepository` solo cuando
   representan una abstracción interna real sobre múltiples orígenes dentro de la capa `data`.
 - Los modelos internos de la capa `data` viven en `data/model`.
 - Los mapeos de persistencia, red y adaptación interna viven en `data/mapper`.
@@ -146,7 +153,7 @@ Reglas:
 - Un `*DataSource` puede implementar directamente un contrato de `domain/repository`.
 - Un `*DataSource` puede implementar un `*DataRepository` cuando es uno de los orígenes concretos detrás de una
   coordinación multi-origen.
-- No crear `*DataRepository` triviales que sólo extienden un `*Repository` de dominio sin agregar una abstracción interna.
+- No crear `*DataRepository` triviales que solo extienden un `*Repository` de dominio sin agregar una abstracción interna.
 - No crear `*DataRepository` para repositorios de un solo origen.
 - `data/repository` no debe contener DTOs, modelos remotos, mutaciones, resolvers ni clases concretas.
 - Los helpers y modelos auxiliares deben vivir en paquetes explícitos como `data/model`, `data/mutation`,

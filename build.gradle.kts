@@ -53,7 +53,11 @@ tasks.register("verifySharedCompilation") {
 		":record:compileAndroidMain",
 		":record:compileKotlinIosSimulatorArm64",
 		":summary:compileAndroidMain",
-		":summary:compileKotlinIosSimulatorArm64"
+		":summary:compileKotlinIosSimulatorArm64",
+		":subjects:compileAndroidMain",
+		":subjects:compileKotlinIosSimulatorArm64",
+		":wizard:compileAndroidMain",
+		":wizard:compileKotlinIosSimulatorArm64"
 	)
 }
 
@@ -70,6 +74,8 @@ tasks.register("verifySharedTests") {
 		":auth:iosX64Test",
 		":record:iosX64Test",
 		":summary:iosX64Test",
+		":subjects:iosX64Test",
+		":wizard:iosX64Test",
 		":maincore:iosX64Test"
 	)
 }
@@ -82,8 +88,10 @@ private val commonUiModules = listOf(
 	"auth",
 	"maincore",
 	"record",
+	"subjects",
 	"summary",
-	"testkit"
+	"testkit",
+	"wizard"
 )
 
 tasks.register<Exec>("refreshCommonUiMatrix") {

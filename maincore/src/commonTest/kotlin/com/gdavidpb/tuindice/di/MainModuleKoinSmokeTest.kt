@@ -22,6 +22,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepositor
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReviewRepository
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
+import com.gdavidpb.tuindice.wizard.di.wizardModule
 import kotlin.test.Test
 import org.koin.dsl.module
 
@@ -29,6 +30,7 @@ class MainModuleKoinSmokeTest {
 	@Test
 	fun resolvesMainViewModels() = withKoinSmokeTest(
 		mainModule,
+		wizardModule,
 		module {
 			single<SessionRepository> { FakeSessionRepository() }
 			single<SettingsRepository> { FakeSettingsRepository() }

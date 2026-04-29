@@ -88,6 +88,7 @@ fun TuIndiceScreen(
 	onConfirmExitClick: () -> Unit,
 	isCameraAvailable: Boolean,
 	onNavigateToExternalResource: (url: String) -> Unit,
+	onWizardFinished: () -> Unit = {},
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	dismissSnackBar: () -> Unit = {}
@@ -120,6 +121,7 @@ fun TuIndiceScreen(
 
 	val contentState = state
 	val canNavigateBack = navController.canNavigateBackFromCurrentDestination()
+	val shouldShowTopBarBackButton = canNavigateBack && shellState.showsTopBarBackButton
 	val topBarBannerBehavior = remember {
 		mutableStateOf<TopBarBannerBehavior?>(null)
 	}
@@ -140,174 +142,179 @@ fun TuIndiceScreen(
 		)
 	}
 
-	Scaffold(
-		snackbarHost = { SnackbarHost(snackbarHostState) },
-		topBar = {
-			if (shellState.isTopBarVisible) {
-				val recordTopBarViewModeState = shellState.recordTopBarViewModeState
-				val topBarContainerColor = MaterialTheme.colorScheme.surface
-				val topBarContentColor = MaterialTheme.colorScheme.onSurface
-				val onRecordTopBarViewModeSelected =
-					if (onRecordViewModeChange == null) null
-					else { mode: RecordViewMode -> onRecordViewModeChange(mode) }
+	Box(modifier = Modifier.fillMaxSize()) {
+		Scaffold(
+			snackbarHost = { SnackbarHost(snackbarHostState) },
+			topBar = {
+				if (shellState.isTopBarVisible) {
+					val recordTopBarViewModeState = shellState.recordTopBarViewModeState
+					val topBarContainerColor = MaterialTheme.colorScheme.surface
+					val topBarContentColor = MaterialTheme.colorScheme.onSurface
+					val onRecordTopBarViewModeSelected =
+						if (onRecordViewModeChange == null) null
+						else { mode: RecordViewMode -> onRecordViewModeChange(mode) }
 
-				Column(
-					modifier = Modifier.fillMaxWidth()
-				) {
-					Box(
-						modifier = Modifier
-							.fillMaxWidth()
-							.background(topBarContainerColor)
-							.windowInsetsPadding(
-								WindowInsets.statusBars.only(WindowInsetsSides.Top)
-							)
+					Column(
+						modifier = Modifier.fillMaxWidth()
 					) {
-						TopAppBar(
-							expandedHeight = InternalScreenDefaults.TopBarHeight,
-							windowInsets = WindowInsets(left = 0, top = 0, right = 0, bottom = 0),
-							title = {
-								TopAppBarAnimatedTitleView(
-									title = shellState.topBarTitle,
-									modifier = Modifier.offset(
-										y = InternalScreenDefaults.TopBarContentVerticalOffset
-									)
+						Box(
+							modifier = Modifier
+								.fillMaxWidth()
+								.background(topBarContainerColor)
+								.windowInsetsPadding(
+									WindowInsets.statusBars.only(WindowInsetsSides.Top)
 								)
-							},
-							actions = {
-								Row(
-									modifier = Modifier.offset(
-										y = InternalScreenDefaults.TopBarContentVerticalOffset
-									),
-									verticalAlignment = Alignment.CenterVertically
-								) {
-									if (
-										recordTopBarViewModeState != null &&
-										onRecordTopBarViewModeSelected != null
+						) {
+							TopAppBar(
+								expandedHeight = InternalScreenDefaults.TopBarHeight,
+								windowInsets = WindowInsets(left = 0, top = 0, right = 0, bottom = 0),
+								title = {
+									TopAppBarAnimatedTitleView(
+										title = shellState.topBarTitle,
+										modifier = Modifier.offset(
+											y = InternalScreenDefaults.TopBarContentVerticalOffset
+										)
+									)
+								},
+								actions = {
+									Row(
+										modifier = Modifier.offset(
+											y = InternalScreenDefaults.TopBarContentVerticalOffset
+										),
+										verticalAlignment = Alignment.CenterVertically
 									) {
-										RecordTopBarViewModeSwitchView(
-											selectedMode = recordTopBarViewModeState.selectedMode,
-											onModeSelected = onRecordTopBarViewModeSelected
+										if (
+											recordTopBarViewModeState != null &&
+											onRecordTopBarViewModeSelected != null
+										) {
+											RecordTopBarViewModeSwitchView(
+												selectedMode = recordTopBarViewModeState.selectedMode,
+												onModeSelected = onRecordTopBarViewModeSelected
+											)
+										}
+
+										TopAppBarActionsView(
+											topBarConfig = shellState.topBarConfig,
+											onAction = onAction,
+											actionIconContent = { action ->
+												Icon(
+													imageVector = action.getIcon(),
+													contentDescription = null
+												)
+											}
 										)
 									}
-
-									TopAppBarActionsView(
-										topBarConfig = shellState.topBarConfig,
-										onAction = onAction,
-										actionIconContent = { action ->
+								},
+								navigationIcon = {
+									if (shouldShowTopBarBackButton) {
+										IconButton(
+											modifier = Modifier
+												.offset(y = InternalScreenDefaults.TopBarContentVerticalOffset)
+												.testTag(MaincoreUiTags.TuIndiceTopBarBackButton),
+											onClick = onNavigateBack
+										) {
 											Icon(
-												imageVector = action.getIcon(),
+												imageVector = Icons.AutoMirrored.Filled.ArrowBack,
 												contentDescription = null
 											)
 										}
-									)
-								}
-							},
-							navigationIcon = {
-								if (canNavigateBack) {
-									IconButton(
-										modifier = Modifier
-											.offset(y = InternalScreenDefaults.TopBarContentVerticalOffset)
-											.testTag(MaincoreUiTags.TuIndiceTopBarBackButton),
-										onClick = onNavigateBack
-									) {
-										Icon(
-											imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-											contentDescription = null
-										)
 									}
-								}
-							},
-							colors = TopAppBarDefaults.topAppBarColors(
-								containerColor = topBarContainerColor,
-								titleContentColor = topBarContentColor,
-								navigationIconContentColor = topBarContentColor,
-								actionIconContentColor = topBarContentColor
+								},
+								colors = TopAppBarDefaults.topAppBarColors(
+									containerColor = topBarContainerColor,
+									titleContentColor = topBarContentColor,
+									navigationIconContentColor = topBarContentColor,
+									actionIconContentColor = topBarContentColor
+								)
 							)
-						)
-					}
+						}
 
-					TopBarBannerHost(
-						modifier = Modifier.fillMaxWidth(),
-						isContentAvailable = recordTopBarViewModeState != null,
-						requestKey = topBarBannerRequestKey.intValue,
-						behavior = topBarBannerBehavior.value
-					) {
-						if (recordTopBarViewModeState != null) {
-							RecordTopBarViewModeBannerView(
-								selectedMode = recordTopBarViewModeState.selectedMode
-							)
+						TopBarBannerHost(
+							modifier = Modifier.fillMaxWidth(),
+							isContentAvailable = recordTopBarViewModeState != null,
+							requestKey = topBarBannerRequestKey.intValue,
+							behavior = topBarBannerBehavior.value
+						) {
+							if (recordTopBarViewModeState != null) {
+								RecordTopBarViewModeBannerView(
+									selectedMode = recordTopBarViewModeState.selectedMode
+								)
+							}
 						}
 					}
 				}
-			}
-		},
-		bottomBar = {
-			if (shellState.isBottomBarVisible) {
-				val bottomBarContainerColor = MaterialTheme.colorScheme.onSecondary
+			},
+			bottomBar = {
+				if (shellState.isBottomBarVisible) {
+					val bottomBarContainerColor = MaterialTheme.colorScheme.onSecondary
 
-				Box(
-					modifier = Modifier
-						.fillMaxWidth()
-						.background(bottomBarContainerColor)
-						.windowInsetsPadding(
-							WindowInsets.navigationBars.only(WindowInsetsSides.Bottom)
-						)
-						.testTag(MaincoreUiTags.TuIndiceBottomBar)
-				) {
-					NavigationBar(
+					Box(
 						modifier = Modifier
 							.fillMaxWidth()
-							.height(InternalScreenDefaults.BottomBarHeight),
-						containerColor = bottomBarContainerColor,
-						tonalElevation = 0.dp,
-						windowInsets = WindowInsets(left = 0, top = 0, right = 0, bottom = 0)
-					) {
-						bottomBarConfigs.forEach { bottomBarConfig ->
-							val isNavigationBarItemSelected = navController
-								.isCurrentDestination(destination = bottomBarConfig.destination)
-
-							val navigationBarItemIcon =
-								bottomBarIcon(
-									config = bottomBarConfig,
-									selected = isNavigationBarItemSelected
-								)
-
-							NavigationBarItem(
-								modifier = Modifier.testTag(bottomBarItemTag(bottomBarConfig)),
-								icon = {
-									Icon(
-										imageVector = navigationBarItemIcon,
-										contentDescription = null
-									)
-								},
-								colors = NavigationBarItemDefaults.colors(
-									indicatorColor = MaterialTheme.colorScheme.secondaryContainer
-								),
-								selected = isNavigationBarItemSelected,
-								onClick = { onNavigateTo(bottomBarConfig.destination) }
+							.background(bottomBarContainerColor)
+							.windowInsetsPadding(
+								WindowInsets.navigationBars.only(WindowInsetsSides.Bottom)
 							)
+							.testTag(MaincoreUiTags.TuIndiceBottomBar)
+					) {
+						NavigationBar(
+							modifier = Modifier
+								.fillMaxWidth()
+								.height(InternalScreenDefaults.BottomBarHeight),
+							containerColor = bottomBarContainerColor,
+							tonalElevation = 0.dp,
+							windowInsets = WindowInsets(left = 0, top = 0, right = 0, bottom = 0)
+						) {
+							bottomBarConfigs.forEach { bottomBarConfig ->
+								val isNavigationBarItemSelected = navController
+									.isCurrentDestination(destination = bottomBarConfig.destination)
+
+								val navigationBarItemIcon =
+									bottomBarIcon(
+										config = bottomBarConfig,
+										selected = isNavigationBarItemSelected
+									)
+
+								NavigationBarItem(
+									modifier = Modifier.testTag(bottomBarItemTag(bottomBarConfig)),
+									icon = {
+										Icon(
+											imageVector = navigationBarItemIcon,
+											contentDescription = null
+										)
+									},
+									colors = NavigationBarItemDefaults.colors(
+										indicatorColor = MaterialTheme.colorScheme.secondaryContainer
+									),
+									selected = isNavigationBarItemSelected,
+									onClick = { onNavigateTo(bottomBarConfig.destination) }
+								)
+							}
 						}
 					}
 				}
 			}
+		) { innerPadding ->
+			TuIndiceNavHost(
+				navController = navController,
+				startDestination = contentState.startDestination,
+				isSwipeBackNavigationEnabled = isSwipeBackNavigationEnabled,
+				modifier = Modifier.padding(innerPadding),
+				onConfirmExitClick = onConfirmExitClick,
+				isCameraAvailable = isCameraAvailable,
+				onNavigateToExternalResource = onNavigateToExternalResource,
+				onRecordViewModeChangeAvailable = onRecordViewModeChangeAvailable,
+				onWizardFinished = onWizardFinished,
+				showTopBarBanner = showTopBarBanner,
+				onViewStateChanged = onViewStateChanged,
+				showSnackBar = showSnackBar,
+				dismissSnackBar = dismissSnackBar
+			)
 		}
-	) { innerPadding ->
-		TuIndiceNavHost(
-			navController = navController,
-			startDestination = contentState.startDestination,
-			isSwipeBackNavigationEnabled = isSwipeBackNavigationEnabled,
-			modifier = Modifier.padding(innerPadding),
-			onConfirmExitClick = onConfirmExitClick,
-			isCameraAvailable = isCameraAvailable,
-			onNavigateToExternalResource = onNavigateToExternalResource,
-			onRecordViewModeChangeAvailable = onRecordViewModeChangeAvailable,
-			showTopBarBanner = showTopBarBanner,
-			onViewStateChanged = onViewStateChanged,
-			showSnackBar = showSnackBar,
-			dismissSnackBar = dismissSnackBar
-		)
+
 	}
 }
+
 private fun TopBarAction.getIcon(): ImageVector {
 	return when (this) {
 		is TopBarAction.SignOutAction ->

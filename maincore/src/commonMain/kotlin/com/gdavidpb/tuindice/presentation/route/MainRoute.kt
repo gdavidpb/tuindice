@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 @Composable
 fun MainRoute(
 	onNavigateToGooglePlayServicesUnavailableDialog: () -> Unit,
+	onNavigateToWizard: () -> Unit = {},
 	onRequestReviewFlow: suspend () -> Unit,
 	onRequestUpdateFlow: suspend (UpdateAction) -> Unit,
 	viewModel: MainViewModel,
@@ -28,6 +29,9 @@ fun MainRoute(
 
 			is Main.Effect.TriggerReviewFlow ->
 				onRequestReviewFlow()
+
+			is Main.Effect.NavigateToWizard ->
+				onNavigateToWizard()
 		}
 	}
 

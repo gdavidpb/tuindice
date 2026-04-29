@@ -28,6 +28,7 @@ import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryNavigation
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.ui.navigation.edgeSwipeBackNavigation
+import com.gdavidpb.tuindice.wizard.presentation.navigation.wizardNavigation
 
 @Composable
 fun TuIndiceNavHost(
@@ -39,6 +40,7 @@ fun TuIndiceNavHost(
 	isCameraAvailable: Boolean,
 	onNavigateToExternalResource: (url: String) -> Unit,
 	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
+	onWizardFinished: () -> Unit = {},
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
@@ -108,6 +110,12 @@ fun TuIndiceNavHost(
 			showTopBarBanner = showTopBarBanner,
 			onViewStateChanged = onViewStateChanged,
 			showSnackBar = showSnackBar
+		)
+
+		wizardNavigation(
+			onFinishWizard = onWizardFinished,
+			onTopBarViewModeChangeAvailable = onRecordViewModeChangeAvailable,
+			onViewStateChanged = onViewStateChanged
 		)
 
 		evaluationsNavigation(

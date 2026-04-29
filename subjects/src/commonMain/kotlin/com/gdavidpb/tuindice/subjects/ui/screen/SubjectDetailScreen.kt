@@ -3,6 +3,8 @@ package com.gdavidpb.tuindice.subjects.ui.screen
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectDetail
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
@@ -22,7 +24,10 @@ fun SubjectDetailScreen(
 	closeText: String,
 	onRetryClick: () -> Unit,
 	onTabSelected: (SubjectSegmentTab) -> Unit,
-	onDismissRequest: () -> Unit
+	onDismissRequest: () -> Unit,
+	scrollEnabled: Boolean = true,
+	initialScrollOffset: Dp = 0.dp,
+	onChartsVisibilityChange: (Boolean) -> Unit = {}
 ) {
 	when (state) {
 		SubjectDetail.State.Loading ->
@@ -34,7 +39,10 @@ fun SubjectDetailScreen(
 				selectedTab = state.selectedTab,
 				careerTabText = careerTabText,
 				globalTabText = globalTabText,
-				onTabSelected = onTabSelected
+				onTabSelected = onTabSelected,
+				scrollEnabled = scrollEnabled,
+				initialScrollOffset = initialScrollOffset,
+				onChartsVisibilityChange = onChartsVisibilityChange
 			)
 
 		is SubjectDetail.State.Unavailable ->

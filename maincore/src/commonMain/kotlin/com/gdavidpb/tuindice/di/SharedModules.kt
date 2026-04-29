@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.persistence.di.persistenceModule
 import com.gdavidpb.tuindice.record.di.recordModule
 import com.gdavidpb.tuindice.subjects.di.subjectsModule
 import com.gdavidpb.tuindice.summary.di.summaryModule
+import com.gdavidpb.tuindice.wizard.di.wizardModule
 import org.koin.core.module.Module
 
 fun featureModules(): List<Module> {
@@ -19,7 +20,8 @@ fun featureModules(): List<Module> {
 		recordModule,
 		evaluationsModule,
 		subjectsModule,
-		enrollmentProofModule
+		enrollmentProofModule,
+		wizardModule
 	)
 }
 

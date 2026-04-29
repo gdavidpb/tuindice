@@ -15,5 +15,6 @@ include(
 	":record",
 	":enrollmentproof",
 	":evaluations",
-	":subjects"
+	":subjects",
+	":wizard"
 )

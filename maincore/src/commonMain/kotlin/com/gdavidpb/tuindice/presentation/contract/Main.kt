@@ -12,7 +12,8 @@ object Main {
 		data object Starting : State()
 
 		data class Content(
-			val startDestination: Destination
+			val startDestination: Destination,
+			val wizardStartRequested: Boolean = false
 		) : State()
 
 		data object Failed : State()
@@ -23,11 +24,13 @@ object Main {
 		data object RequestReview : Action()
 		data object RequestUpdateCheck : Action()
 		class SetLastMainSection(val section: MainSection) : Action()
+		data object RequestWizardStart : Action()
 	}
 
 	sealed class Effect : ViewEffect() {
 		object NavigateToGooglePlayServicesUnavailableDialog : Effect()
 		data object TriggerReviewFlow : Effect()
 		class TriggerUpdateFlow(val action: UpdateAction) : Effect()
+		data object NavigateToWizard : Effect()
 	}
 }

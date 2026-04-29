@@ -31,9 +31,21 @@ class MultiplatformSettingsDataSource(
 		return counter == value
 	}
 
+	override suspend fun isWizardCompleted(): Boolean {
+		return settings.getBooleanOrNull(WIZARD_COMPLETED_KEY)
+			?: settings.getBooleanOrNull(LEGACY_GUIDED_TOUR_COMPLETED_KEY)
+			?: false
+	}
+
+	override suspend fun setWizardCompleted() {
+		settings.putBoolean(WIZARD_COMPLETED_KEY, true)
+	}
+
 	override suspend fun clear() {
 		settings.clear()
 	}
 }
 
 private const val LAST_MAIN_SECTION_KEY = "lastDestination"
+private const val WIZARD_COMPLETED_KEY = "wizardCompleted"
+private const val LEGACY_GUIDED_TOUR_COMPLETED_KEY = "guidedTourCompleted"
