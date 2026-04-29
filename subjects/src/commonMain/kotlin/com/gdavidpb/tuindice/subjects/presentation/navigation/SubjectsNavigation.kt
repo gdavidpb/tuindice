@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLifecycle
+import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectDetail
 import com.gdavidpb.tuindice.subjects.presentation.route.SubjectDetailRoute
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -25,7 +26,7 @@ fun NavGraphBuilder.subjectsNavigation(
 
 		navController.CollectCurrentEntryValueWithLifecycle(
 			backStackEntry = backStackEntry,
-			value = viewState,
+			value = viewState.resolveNavigationViewState(subjectCode = args.subjectCode),
 			onValue = onViewStateChanged
 		)
 
@@ -34,5 +35,20 @@ fun NavGraphBuilder.subjectsNavigation(
 			viewModel = viewModel,
 			onDismissRequest = onDismissRequest
 		)
+	}
+}
+
+private fun SubjectDetail.State.resolveNavigationViewState(subjectCode: String): ViewState {
+	return when (this) {
+		SubjectDetail.State.Loading ->
+			object : ViewState(
+				topBarTitle = "Sobre $subjectCode",
+				isTopBarVisible = true
+			) {}
+
+		is SubjectDetail.State.Content,
+		is SubjectDetail.State.Failed,
+		is SubjectDetail.State.Unavailable,
+		-> this
 	}
 }

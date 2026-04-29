@@ -9,7 +9,7 @@ import kotlin.test.assertTrue
 
 class SubjectDetailStateTest {
 	@Test
-	fun content_exposesStaticTopBarTitle() {
+	fun content_exposesSubjectCodeTopBarTitle() {
 		val state = SubjectDetail.State.Content(
 			detail = SubjectDetailModel(
 				id = "MAT101",
@@ -22,13 +22,13 @@ class SubjectDetailStateTest {
 			selectedTab = SubjectSegmentTab.CAREER
 		)
 
-		assertEquals("Sobre esta materia", state.topBarTitle)
+		assertEquals("Sobre MAT101", state.topBarTitle)
 		assertTrue(state.isTopBarVisible)
 	}
 
 	@Test
-	fun loading_exposesStaticTopBarTitle() {
-		assertEquals("Sobre esta materia", SubjectDetail.State.Loading.topBarTitle)
+	fun loading_exposesEmptyTopBarTitle() {
+		assertEquals("", SubjectDetail.State.Loading.topBarTitle)
 		assertTrue(SubjectDetail.State.Loading.isTopBarVisible)
 	}
 }

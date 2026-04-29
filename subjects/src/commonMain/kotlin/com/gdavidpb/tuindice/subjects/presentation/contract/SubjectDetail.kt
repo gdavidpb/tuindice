@@ -8,23 +8,23 @@ import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
 
 object SubjectDetail {
 	sealed class State(
-		override val topBarTitle: String = "Sobre esta materia",
+		override val topBarTitle: String,
 		override val isTopBarVisible: Boolean = true
 	) : ViewState() {
-		data object Loading : State()
+		data object Loading : State(topBarTitle = "")
 
 		data class Content(
 			val detail: SubjectDetailModel,
 			val selectedTab: SubjectSegmentTab
-		) : State()
+		) : State(topBarTitle = detail.id.toSubjectDetailTopBarTitle())
 
 		data class Unavailable(
 			val subjectCode: String
-		) : State()
+		) : State(topBarTitle = subjectCode.toSubjectDetailTopBarTitle())
 
 		data class Failed(
 			val subjectCode: String
-		) : State()
+		) : State(topBarTitle = subjectCode.toSubjectDetailTopBarTitle())
 	}
 
 	sealed class Action : ViewAction() {
@@ -43,3 +43,5 @@ object SubjectDetail {
 
 	sealed class Effect : ViewEffect()
 }
+
+private fun String.toSubjectDetailTopBarTitle(): String = "Sobre $this"

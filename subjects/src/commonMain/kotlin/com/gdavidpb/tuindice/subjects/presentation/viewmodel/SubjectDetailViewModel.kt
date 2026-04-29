@@ -13,11 +13,7 @@ class SubjectDetailViewModel(
 	private val loadSubjectDetailActionProcessor: LoadSubjectDetailActionProcessor,
 	private val refreshSubjectDetailActionProcessor: RefreshSubjectDetailActionProcessor,
 	private val selectSubjectSegmentTabActionProcessor: SelectSubjectSegmentTabActionProcessor
-) : BaseViewModel<
-		SubjectDetail.State,
-		SubjectDetail.Action,
-		SubjectDetail.Effect
-		>(initialState = SubjectDetail.State.Loading) {
+) : BaseViewModel<SubjectDetail.State, SubjectDetail.Action, SubjectDetail.Effect>(initialState = SubjectDetail.State.Loading) {
 
 	fun loadSubjectDetailAction(subjectCode: String) {
 		sendAction(SubjectDetail.Action.LoadSubjectDetail(subjectCode = subjectCode))

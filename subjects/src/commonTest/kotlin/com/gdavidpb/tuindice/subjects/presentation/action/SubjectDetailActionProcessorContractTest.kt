@@ -44,6 +44,7 @@ class SubjectDetailActionProcessorContractTest {
 
 		val contentState = assertIs<SubjectDetail.State.Content>(state)
 		assertEquals("MAT101", contentState.detail.id)
+		assertEquals("Sobre MAT101", contentState.topBarTitle)
 		assertEquals(SubjectSegmentTab.CAREER, contentState.selectedTab)
 		assertEquals(listOf("MAT101" to false), repository.calls)
 	}
@@ -70,6 +71,7 @@ class SubjectDetailActionProcessorContractTest {
 
 		val unavailableState = assertIs<SubjectDetail.State.Unavailable>(state)
 		assertEquals("MAT404", unavailableState.subjectCode)
+		assertEquals("Sobre MAT404", unavailableState.topBarTitle)
 		assertEquals(listOf("MAT404" to false), repository.calls)
 	}
 
@@ -99,7 +101,10 @@ class SubjectDetailActionProcessorContractTest {
 				sideEffect = {}
 			)
 		)
-		assertIs<SubjectDetail.State.Failed>(failedState)
+		assertEquals(
+			"Sobre MAT101",
+			assertIs<SubjectDetail.State.Failed>(failedState).topBarTitle
+		)
 
 		val recoveredState = reduceState(
 			initialState = failedState,
