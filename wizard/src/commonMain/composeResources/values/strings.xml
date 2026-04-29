@@ -13,8 +13,8 @@
 	<string name="wizard_welcome_summary">Verás el **resumen**, tus **materias**, **evaluaciones**, **estadísticas** y **comprobantes** con ejemplos.</string>
 	<string name="wizard_summary_title">Resumen académico</string>
 	<string name="wizard_summary_message">Este es tu punto de partida: aquí ves tu **promedio**, **materias cursadas**, **créditos** y cuándo se sincronizó tu información por última vez.</string>
-	<string name="wizard_record_title">Notas del trimestre</string>
-	<string name="wizard_record_message">Este bloque resume el **trimestre seleccionado**: **nota del trimestre**, **nota acumulada** y **cantidad de créditos**. Las variaciones muestran cómo cambiaron desde el trimestre anterior.</string>
+	<string name="wizard_record_title">Índices del trimestre</string>
+	<string name="wizard_record_message">Este bloque resume el **trimestre seleccionado**: **índice del trimestre**, **índice acumulado** y **cantidad de créditos**. Las variaciones muestran cómo cambiaron desde el trimestre anterior.</string>
 	<string name="wizard_record_actions_title">Acciones del trimestre</string>
 	<string name="wizard_record_actions_message">El **botón de modo** alterna entre **Modo Universidad** y **Modo Proyección**. Universidad muestra las notas oficiales; Proyección te deja simular cambios. Cuando selecciones el **trimestre actual**, verás el **botón de comprobante** para descargarlo.</string>
 	<string name="wizard_record_subject_entry_title">Abrir estadísticas de materia</string>
@@ -37,7 +37,7 @@
 	<string name="wizard_about_title">Ayuda e información</string>
 	<string name="wizard_about_message">En **Acerca de** encuentras **soporte**, **privacidad**, **términos** e **información** de la app cuando necesites ayuda o quieras revisar detalles.</string>
 
-	<string name="wizard_focus_record">Notas del trimestre</string>
+	<string name="wizard_focus_record">Índices del trimestre</string>
 	<string name="wizard_focus_record_actions">Botones superiores</string>
 	<string name="wizard_focus_record_subject_entry">Códigos de materia</string>
 	<string name="wizard_focus_evaluations">Filtros y evaluaciones</string>

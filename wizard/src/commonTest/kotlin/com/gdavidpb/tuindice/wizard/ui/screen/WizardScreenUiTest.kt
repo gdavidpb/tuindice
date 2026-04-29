@@ -87,10 +87,10 @@ class WizardScreenUiTest {
 			)
 		}
 
-		onAllNodesWithText("Notas del trimestre").assertCountEquals(2)
+		onAllNodesWithText("Índices del trimestre").assertCountEquals(2)
 		onNodeWithText("Paso 3 de 9").assertExists()
 		onNodeWithText(
-			"Este bloque resume el trimestre seleccionado: nota del trimestre, nota acumulada y cantidad de créditos.",
+			"Este bloque resume el trimestre seleccionado: índice del trimestre, índice acumulado y cantidad de créditos.",
 			substring = true
 		).assertExists()
 		assertNodeVisible(WizardUiTags.FocusOverlay)
