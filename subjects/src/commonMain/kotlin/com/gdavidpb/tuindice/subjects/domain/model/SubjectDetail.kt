@@ -4,9 +4,9 @@ import com.gdavidpb.tuindice.base.domain.model.GradingMode
 
 data class SubjectDetail(
 	val id: String,
-	val name: String? = null,
-	val credits: Int? = null,
-	val gradingMode: GradingMode? = null,
+	val name: String,
+	val credits: Int,
+	val gradingMode: GradingMode,
 	val generatedAt: Long,
 	val expiresAt: Long,
 	val careerSegment: SubjectStatsSegment? = null,

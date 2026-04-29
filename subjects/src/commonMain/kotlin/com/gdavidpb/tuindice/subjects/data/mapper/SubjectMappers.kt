@@ -46,7 +46,7 @@ fun SubjectDetailResult.toSubjectDetailEntity(): SubjectDetailEntity {
 				subjectCode = detail.id,
 				name = detail.name,
 				credits = detail.credits,
-				gradingMode = detail.gradingMode?.name,
+				gradingMode = detail.gradingMode.name,
 				cacheStatus = CACHE_STATUS_READY,
 				generatedAt = detail.generatedAt,
 				expiresAt = detail.expiresAt
@@ -189,13 +189,16 @@ fun SubjectDetailEntity.toSubjectDetailResult(
 		?.toDomain(gradeBins = gradeBins, attemptBins = attemptBins)
 
 	if (careerSegment == null && globalSegment == null) return null
+	val resolvedName = name ?: return null
+	val resolvedCredits = credits ?: return null
+	val resolvedGradingMode = gradingMode ?: return null
 
 	return SubjectDetailResult.Ready(
 		detail = SubjectDetail(
 			id = subjectCode,
-			name = name,
-			credits = credits,
-			gradingMode = gradingMode?.let(GradingMode::valueOf),
+			name = resolvedName,
+			credits = resolvedCredits,
+			gradingMode = GradingMode.valueOf(resolvedGradingMode),
 			generatedAt = generatedAt,
 			expiresAt = expiresAt,
 			careerSegment = careerSegment,

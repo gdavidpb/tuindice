@@ -28,7 +28,7 @@ fun SubjectDetailHeaderView(
 		verticalArrangement = Arrangement.spacedBy(10.dp)
 	) {
 		Text(
-			text = detail.name ?: detail.id,
+			text = detail.name,
 			style = MaterialTheme.typography.headlineSmall,
 			fontWeight = FontWeight.SemiBold
 		)
@@ -50,13 +50,11 @@ fun SubjectDetailHeaderView(
 				fontWeight = FontWeight.SemiBold
 			)
 
-			detail.credits?.let { credits ->
-				Text(
-					text = "$credits UC",
-					style = MaterialTheme.typography.bodyMedium,
-					color = MaterialTheme.colorScheme.onSurfaceVariant
-				)
-			}
+			Text(
+				text = "${detail.credits} UC",
+				style = MaterialTheme.typography.bodyMedium,
+				color = MaterialTheme.colorScheme.onSurfaceVariant
+			)
 
 			if (detail.gradingMode == GradingMode.QUALITATIVE_PASS_FAIL) {
 				Text(
