@@ -1,15 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="record_loading_title">Informe académico</string>
-	<string name="record_loading_message">Cargando…</string>
-	<string name="record_failed_title">Informe académico</string>
-	<string name="record_failed_message">No se pudo cargar.</string>
+	<string name="record_loading_message">Cargando...</string>
+	<string name="record_failed_title">No pudimos cargar tu historial</string>
+	<string name="record_failed_message">Intenta de nuevo en unos segundos.</string>
 	<string name="record_failed_retry">Reintentar</string>
-	<string name="record_empty_title">Informe académico</string>
-	<string name="record_empty_message">Sin periodos disponibles.</string>
-	<string name="record_empty_illustration_message">¡Parece que alguien es nuevo por acá!\nTuIndice te da la bienvenida a La Simón\n¡Mucho éxito!</string>
-	<string name="record_app_name">TuIndice</string>
-	<string name="record_app_uni">La Simón</string>
+	<string name="record_empty_title">Preparando tu historial</string>
+	<string name="record_empty_message">Cuando tengas periodos académicos disponibles, los verás aquí.</string>
 	<string name="record_view_mode_official">Universidad</string>
 	<string name="record_view_mode_projection">Proyección</string>
 	<string name="record_view_mode_toggle">Cambiar modo de vista</string>

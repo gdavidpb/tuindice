@@ -19,8 +19,8 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun IllustratedMessageView(
 	modifier: Modifier = Modifier,
-	title: String? = null,
-	message: String? = null,
+	title: String,
+	message: String,
 	actionLabel: String? = null,
 	onActionClick: () -> Unit = {},
 	horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally,
@@ -29,20 +29,18 @@ fun IllustratedMessageView(
 	messageTestTag: String? = null,
 	actionTestTag: String? = null,
 	titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
-	messageStyle: TextStyle = MaterialTheme.typography.bodyMedium,
+	messageStyle: TextStyle = MaterialTheme.typography.bodyLarge,
 	titleTextAlign: TextAlign = TextAlign.Center,
 	messageTextAlign: TextAlign = TextAlign.Center,
 	headerContent: @Composable ColumnScope.() -> Unit = {},
 	messageContent: @Composable ColumnScope.() -> Unit = {
-		if (message != null) {
-			Text(
-				modifier = (if (messageTestTag != null) Modifier.testTag(messageTestTag) else Modifier)
-					.padding(vertical = 16.dp),
-				text = message,
-				textAlign = messageTextAlign,
-				style = messageStyle
-			)
-		}
+		Text(
+			modifier = (if (messageTestTag != null) Modifier.testTag(messageTestTag) else Modifier)
+				.padding(vertical = 16.dp),
+			text = message,
+			textAlign = messageTextAlign,
+			style = messageStyle
+		)
 	}
 ) {
 	Column(
@@ -52,15 +50,13 @@ fun IllustratedMessageView(
 	) {
 		headerContent()
 
-		if (title != null) {
-			Text(
-				modifier = if (titleTestTag != null) Modifier.testTag(titleTestTag) else Modifier,
-				text = title,
-				textAlign = titleTextAlign,
-				style = titleStyle,
-				fontWeight = FontWeight.Medium
-			)
-		}
+		Text(
+			modifier = if (titleTestTag != null) Modifier.testTag(titleTestTag) else Modifier,
+			text = title,
+			textAlign = titleTextAlign,
+			style = titleStyle,
+			fontWeight = FontWeight.Medium
+		)
 
 		messageContent()
 

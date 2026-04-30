@@ -14,6 +14,7 @@ object RecordUiTags {
 	const val ViewModeInfoMessage = "record_view_mode_info_message"
 
 	const val EmptyContainer = "record_empty_container"
+	const val EmptyTitle = "record_empty_title"
 	const val EmptyMessage = "record_empty_message"
 	const val EmptyIllustration = "record_empty_illustration"
 

@@ -23,9 +23,12 @@ fun SubjectDetailScreen(
 	state: SubjectDetail.State,
 	careerTabText: String,
 	globalTabText: String,
+	loadingTitle: String,
+	loadingMessage: String,
 	unavailableTitle: String,
 	unavailableBody: String,
 	failedTitle: String,
+	failedMessage: String,
 	retryText: String,
 	closeText: String,
 	onRetryClick: () -> Unit,
@@ -42,7 +45,10 @@ fun SubjectDetailScreen(
 	) {
 		when (state) {
 			SubjectDetail.State.Loading ->
-				SubjectDetailLoadingView()
+				SubjectDetailLoadingView(
+					title = loadingTitle,
+					message = loadingMessage
+				)
 
 			is SubjectDetail.State.Content ->
 				SubjectDetailContentView(
@@ -70,7 +76,7 @@ fun SubjectDetailScreen(
 				SubjectDetailMessageView(
 					modifier = Modifier.testTag(SubjectsUiTags.Failed),
 					title = failedTitle,
-					body = state.subjectCode,
+					body = failedMessage,
 					actionText = retryText,
 					onActionClick = onRetryClick,
 					actionTestTag = SubjectsUiTags.Retry,

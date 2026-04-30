@@ -25,9 +25,12 @@
 	<string name="wizard_subject_charts_message">Los **gráficos** resumen cómo se distribuyeron las **notas** y cuántos **intentos** necesitaron otros estudiantes para aprobar. Úsalos como **contexto**: no predicen tu resultado, pero ayudan a entender la **dificultad histórica** de la materia.</string>
 	<string name="wizard_subject_tab_career">Tu carrera</string>
 	<string name="wizard_subject_tab_global">General</string>
+	<string name="wizard_subject_title_loading_stats">Calculando estadísticas</string>
+	<string name="wizard_subject_loading_stats">Estamos cruzando notas, intentos y tendencias de esta materia...</string>
 	<string name="wizard_subject_unavailable_title">Sin datos suficientes</string>
 	<string name="wizard_subject_unavailable_body">Cuando haya más historial académico disponible, podrás ver estadísticas y tendencias desde aquí.</string>
-	<string name="wizard_subject_failed_title">No pudimos cargar esta materia.</string>
+	<string name="wizard_subject_failed_title">No pudimos calcular estadísticas</string>
+	<string name="wizard_subject_failed_body">Intenta de nuevo para consultar los datos de esta materia.</string>
 	<string name="wizard_subject_retry">Reintentar</string>
 	<string name="wizard_subject_close">Cerrar</string>
 	<string name="wizard_evaluations_title">Evaluaciones</string>

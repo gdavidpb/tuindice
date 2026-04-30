@@ -9,11 +9,14 @@ import com.gdavidpb.tuindice.subjects.ui.screen.SubjectDetailScreen
 import org.jetbrains.compose.resources.stringResource
 import tuindice.subjects.generated.resources.Res
 import tuindice.subjects.generated.resources.subjects_action_close
+import tuindice.subjects.generated.resources.subjects_message_loading_stats
+import tuindice.subjects.generated.resources.subjects_message_failed
 import tuindice.subjects.generated.resources.subjects_message_no_data
 import tuindice.subjects.generated.resources.subjects_message_no_data_body
 import tuindice.subjects.generated.resources.subjects_message_retry
 import tuindice.subjects.generated.resources.subjects_title_failed
 import tuindice.subjects.generated.resources.subjects_title_general
+import tuindice.subjects.generated.resources.subjects_title_loading_stats
 import tuindice.subjects.generated.resources.subjects_title_my_career
 
 @Composable
@@ -32,9 +35,12 @@ fun SubjectDetailRoute(
 		state = viewState,
 		careerTabText = stringResource(Res.string.subjects_title_my_career),
 		globalTabText = stringResource(Res.string.subjects_title_general),
+		loadingTitle = stringResource(Res.string.subjects_title_loading_stats),
+		loadingMessage = stringResource(Res.string.subjects_message_loading_stats),
 		unavailableTitle = stringResource(Res.string.subjects_message_no_data),
 		unavailableBody = stringResource(Res.string.subjects_message_no_data_body),
 		failedTitle = stringResource(Res.string.subjects_title_failed),
+		failedMessage = stringResource(Res.string.subjects_message_failed, subjectCode),
 		retryText = stringResource(Res.string.subjects_message_retry),
 		closeText = stringResource(Res.string.subjects_action_close),
 		onRetryClick = { viewModel.refreshSubjectDetailAction(subjectCode) },

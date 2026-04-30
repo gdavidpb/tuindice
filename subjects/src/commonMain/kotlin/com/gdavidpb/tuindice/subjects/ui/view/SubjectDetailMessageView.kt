@@ -32,6 +32,7 @@ fun SubjectDetailMessageView(
 				bottom = 24.dp
 			),
 		title = title,
+		message = body,
 		actionLabel = actionText,
 		onActionClick = onActionClick,
 		actionTestTag = actionTestTag,

@@ -11,9 +11,8 @@ import com.gdavidpb.tuindice.record.ui.view.RecordFailedView
 import com.gdavidpb.tuindice.record.ui.view.RecordLoadingView
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
-import tuindice.record.generated.resources.record_app_name
-import tuindice.record.generated.resources.record_app_uni
-import tuindice.record.generated.resources.record_empty_illustration_message
+import tuindice.record.generated.resources.record_empty_message
+import tuindice.record.generated.resources.record_empty_title
 import tuindice.record.generated.resources.record_failed_message
 import tuindice.record.generated.resources.record_failed_retry
 import tuindice.record.generated.resources.record_failed_title
@@ -61,11 +60,8 @@ fun RecordScreen(
 
 			is Record.State.Empty ->
 				RecordEmptyView(
-					message = stringResource(Res.string.record_empty_illustration_message),
-					highlightedParts = listOf(
-						stringResource(Res.string.record_app_name),
-						stringResource(Res.string.record_app_uni)
-					)
+					title = stringResource(Res.string.record_empty_title),
+					message = stringResource(Res.string.record_empty_message)
 				)
 		}
 	}

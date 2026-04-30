@@ -107,8 +107,8 @@ fun TuIndiceScreen(
 
 		is Main.State.Failed -> {
 			ErrorView(
-				title = "Inicio",
-				message = "No se pudo iniciar la app.",
+				title = "No pudimos iniciar la app",
+				message = "Intenta de nuevo en unos segundos.",
 				retryText = "Reintentar",
 				onRetryClick = onRetryStartUp,
 				headerContent = { ErrorStateAnimationView() }

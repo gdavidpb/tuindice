@@ -35,10 +35,13 @@ import com.gdavidpb.tuindice.wizard.ui.view.WizardWelcomeView
 import org.jetbrains.compose.resources.stringResource
 import tuindice.wizard.generated.resources.Res
 import tuindice.wizard.generated.resources.wizard_subject_close
+import tuindice.wizard.generated.resources.wizard_subject_failed_body
 import tuindice.wizard.generated.resources.wizard_subject_failed_title
+import tuindice.wizard.generated.resources.wizard_subject_loading_stats
 import tuindice.wizard.generated.resources.wizard_subject_retry
 import tuindice.wizard.generated.resources.wizard_subject_tab_career
 import tuindice.wizard.generated.resources.wizard_subject_tab_global
+import tuindice.wizard.generated.resources.wizard_subject_title_loading_stats
 import tuindice.wizard.generated.resources.wizard_subject_unavailable_body
 import tuindice.wizard.generated.resources.wizard_subject_unavailable_title
 
@@ -151,9 +154,12 @@ private fun WizardStepContent(
 				state = sampleSubjectDetailState(selectedTab = state.selectedSubjectTab),
 				careerTabText = stringResource(Res.string.wizard_subject_tab_career),
 				globalTabText = stringResource(Res.string.wizard_subject_tab_global),
+				loadingTitle = stringResource(Res.string.wizard_subject_title_loading_stats),
+				loadingMessage = stringResource(Res.string.wizard_subject_loading_stats),
 				unavailableTitle = stringResource(Res.string.wizard_subject_unavailable_title),
 				unavailableBody = stringResource(Res.string.wizard_subject_unavailable_body),
 				failedTitle = stringResource(Res.string.wizard_subject_failed_title),
+				failedMessage = stringResource(Res.string.wizard_subject_failed_body),
 				retryText = stringResource(Res.string.wizard_subject_retry),
 				closeText = stringResource(Res.string.wizard_subject_close),
 				onRetryClick = {},

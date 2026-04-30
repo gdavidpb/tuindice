@@ -16,9 +16,12 @@
     <string name="subjects_chart_outcome_distribution">Distribución de resultado</string>
     <string name="subjects_chart_attempts_to_pass">Intentos para aprobar</string>
     <string name="subjects_chart_no_data">Sin datos suficientes</string>
-    <string name="subjects_message_no_data">Aún no contamos con información suficiente para esta materia.</string>
+    <string name="subjects_title_loading_stats">Calculando estadísticas</string>
+    <string name="subjects_message_loading_stats">Estamos cruzando notas, intentos y tendencias de esta materia...</string>
+    <string name="subjects_message_no_data">Sin datos suficientes</string>
     <string name="subjects_message_no_data_body">Cuando haya más historial académico disponible, podrás ver estadísticas y tendencias desde aquí.</string>
-    <string name="subjects_title_failed">No pudimos cargar esta materia.</string>
+    <string name="subjects_title_failed">No pudimos calcular estadísticas</string>
+    <string name="subjects_message_failed">Intenta de nuevo para consultar los datos de %1$s.</string>
     <string name="subjects_message_retry">Reintentar</string>
     <string name="subjects_action_close">Cerrar</string>
 </resources>
