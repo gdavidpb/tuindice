@@ -28,6 +28,9 @@ class RefreshSummaryActionProcessor(
 							is Summary.State.Content ->
 								state.copy(isUserRefreshing = false)
 
+							Summary.State.Idle ->
+								state
+
 							is Summary.State.Loading ->
 								state.copy(isUserRefreshing = false)
 
@@ -47,6 +50,7 @@ class RefreshSummaryActionProcessor(
 								is Summary.State.Content ->
 									state.copy(isUserRefreshing = false)
 
+								Summary.State.Idle,
 								is Summary.State.Loading,
 								is Summary.State.Failed,
 								-> Summary.State.Failed()
@@ -61,6 +65,9 @@ class RefreshSummaryActionProcessor(
 						when (state) {
 							is Summary.State.Content ->
 								state.copy(isUserRefreshing = true)
+
+							Summary.State.Idle ->
+								Summary.State.Loading(isUserRefreshing = true)
 
 							is Summary.State.Loading ->
 								state.copy(isUserRefreshing = true)

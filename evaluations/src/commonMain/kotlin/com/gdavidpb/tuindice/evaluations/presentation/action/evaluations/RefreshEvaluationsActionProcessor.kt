@@ -24,6 +24,7 @@ class RefreshEvaluationsActionProcessor(
 							is Evaluations.State.Content -> current
 							Evaluations.State.Empty,
 							Evaluations.State.Failed,
+							Evaluations.State.Idle,
 							Evaluations.State.Loading,
 							Evaluations.State.NoAttempts,
 							-> Evaluations.State.Loading
@@ -38,6 +39,7 @@ class RefreshEvaluationsActionProcessor(
 							Evaluations.State.Empty -> current
 							Evaluations.State.NoAttempts -> current
 							Evaluations.State.Failed,
+							Evaluations.State.Idle,
 							Evaluations.State.Loading,
 							-> Evaluations.State.Failed
 						}

@@ -33,7 +33,7 @@ class EvaluationsViewModelContractTest {
 
 		try {
 			viewModel.state.test {
-				assertEquals(Evaluations.State.Loading, awaitItem())
+				assertEquals(Evaluations.State.Idle, awaitItem())
 
 				viewModel.loadEvaluationsAction()
 				val content = assertIs<Evaluations.State.Content>(awaitItem())

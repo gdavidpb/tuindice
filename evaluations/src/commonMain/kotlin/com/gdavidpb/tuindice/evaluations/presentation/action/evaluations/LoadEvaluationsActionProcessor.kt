@@ -12,7 +12,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationFilterG
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationItemList
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeAvailableFilters
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import org.jetbrains.compose.resources.getString
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.label_state_completed
@@ -28,11 +28,9 @@ class LoadEvaluationsActionProcessor(
 		sideEffect: (Evaluations.Effect) -> Unit
 	): Flow<Mutation<Evaluations.State>> {
 		return getEvaluationsUseCase.execute(params = action.activeFilters)
-			.map { useCaseState ->
+			.mapNotNull { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading -> suspend { _ ->
-						Evaluations.State.Loading
-					}
+					is UseCaseState.Loading -> null
 
 					is UseCaseState.Data -> suspend { current: Evaluations.State ->
 						when (val evaluations = useCaseState.value) {
@@ -83,6 +81,7 @@ class LoadEvaluationsActionProcessor(
 							Evaluations.State.Empty -> current
 							Evaluations.State.NoAttempts -> current
 							Evaluations.State.Failed,
+							Evaluations.State.Idle,
 							Evaluations.State.Loading,
 							-> Evaluations.State.Failed
 						}

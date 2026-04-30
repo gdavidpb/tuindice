@@ -19,7 +19,7 @@ class RecordViewModel(
 	private val selectRecordTermActionProcessor: SelectRecordTermActionProcessor,
 	private val upsertAttemptSelectionActionProcessor: UpsertAttemptSelectionActionProcessor
 ) : BaseViewModel<Record.State, Record.Action, Record.Effect>(
-	initialState = Record.State.Loading,
+	initialState = Record.State.Idle,
 	initialAction = Record.Action.ObserveRecord
 ) {
 

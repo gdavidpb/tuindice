@@ -14,6 +14,8 @@ object Summary {
 		override val isBottomBarVisible: Boolean = true,
 		open val isUserRefreshing: Boolean = false
 	) : ViewState() {
+		data object Idle : State()
+
 		data class Loading(
 			override val isUserRefreshing: Boolean = false
 		) : State(isUserRefreshing = isUserRefreshing)

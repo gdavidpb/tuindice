@@ -37,9 +37,11 @@ Implement module work by copying the nearest existing module pattern instead of 
    - iOS platform bindings in `maincore/src/iosMain/.../IosPlatformModule.kt`
 6. When a feature exposes repository-backed screen data, separate local observation from remote refresh:
    - repository interfaces should expose an `observe*Flow()` read path and an explicit `update*()` refresh path
+   - if the local read is one-shot cached data instead of an observable flow, expose a local/fresh read such as `getFresh*()` separately from a remote refresh such as `refresh*()`
    - observe use cases should read local flows only
    - update use cases should fetch or recompute and then persist back into the local state
    - `ViewModel` initial actions should usually start observation, while `Route` triggers the first refresh with `LaunchedEffect`
+   - initial screen state should be neutral (`Idle`) when local data can arrive immediately; full-screen `Loading` should be emitted only by a remote refresh path, or by an observed synced-status branch that is explicitly waiting for remote data
 7. When a change alters an HTTP contract consumed by the app, update the local WireMock fixtures in the same change:
    - request and response mappings live under `mocks/mappings/<feature-or-domain>/`
    - referenced response bodies live under `mocks/__files/<feature-or-domain>/`
@@ -81,6 +83,9 @@ Implement module work by copying the nearest existing module pattern instead of 
   - `Update*UseCase` refreshes and persists explicitly
   - `Observe*ActionProcessor` owns screen state reduction from the observed flow
   - `Refresh*ActionProcessor` owns startup/retry refresh and error messaging
+  - `Observe*ActionProcessor` should ignore `UseCaseState.Loading` from local reads; do not show a full-screen loading illustration for a fast local cache read
+  - use an `Idle` state for initial UI when the route immediately dispatches observation plus refresh; render `Idle` as no content and let refresh decide whether to move to `Loading`
+  - when data uses freshness/expiry instead of a continuously observed local flow, follow `subjects`: local `getFresh*()` returns cached data or null, remote `refresh*()` fetches and persists, and the load use case emits an explicit remote-loading domain signal before calling refresh
 - Preserve the composable boundary:
   - `Navigation` injects or resolves `ViewModel` instances with `koinViewModel(...)`
   - `Route` observes `state` and `effect`, triggers initial actions with `LaunchedEffect`, and passes plain state/callbacks to `Screen`

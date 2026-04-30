@@ -25,6 +25,7 @@ class RefreshRecordActionProcessor(
 								is Record.State.Content -> state
 								Record.State.Empty,
 								Record.State.Failed,
+								Record.State.Idle,
 								Record.State.Loading,
 								-> Record.State.Loading
 							}
@@ -45,6 +46,7 @@ class RefreshRecordActionProcessor(
 								is Record.State.Content -> state
 								Record.State.Empty -> state
 								Record.State.Failed,
+								Record.State.Idle,
 								Record.State.Loading,
 								-> Record.State.Failed
 							}

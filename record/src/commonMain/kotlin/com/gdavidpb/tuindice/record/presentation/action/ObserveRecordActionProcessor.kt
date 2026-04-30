@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 
 class ObserveRecordActionProcessor(
 	private val observeRecordUseCase: ObserveRecordUseCase
@@ -16,12 +16,9 @@ class ObserveRecordActionProcessor(
 		sideEffect: (Record.Effect) -> Unit
 	): Flow<Mutation<Record.State>> {
 		return observeRecordUseCase.execute(Unit)
-			.map { useCaseState ->
+			.mapNotNull { useCaseState ->
 				when (useCaseState) {
-					is UseCaseState.Loading ->
-						suspend { _: Record.State ->
-							Record.State.Loading
-						}
+					is UseCaseState.Loading -> null
 
 					is UseCaseState.Data ->
 						suspend { _: Record.State ->
@@ -44,6 +41,7 @@ class ObserveRecordActionProcessor(
 								is Record.State.Content -> state
 								Record.State.Empty -> state
 								Record.State.Failed,
+								Record.State.Idle,
 								Record.State.Loading,
 								-> Record.State.Failed
 							}

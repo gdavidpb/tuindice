@@ -58,6 +58,7 @@ class ObserveSummaryActionProcessor(
 				is UseCaseState.Error -> suspend { state: Summary.State ->
 					when (state) {
 						is Summary.State.Content -> state.copy(isUserRefreshing = false)
+						Summary.State.Idle,
 						is Summary.State.Loading,
 						is Summary.State.Failed,
 						-> Summary.State.Failed(isUserRefreshing = state.isUserRefreshing)

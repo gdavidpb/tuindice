@@ -38,6 +38,8 @@ fun EvaluationsScreen(
 		targetState = state
 	) { targetState ->
 		when (targetState) {
+			is Evaluations.State.Idle -> Unit
+
 			is Evaluations.State.Loading ->
 				EvaluationsLoadingView()
 

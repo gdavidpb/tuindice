@@ -33,7 +33,7 @@ class EvaluationsViewModel(
 	private val setEvaluationGradeActionProcessor: SetEvaluationGradeActionProcessor,
 	private val openEvaluationActionProcessor: OpenEvaluationActionProcessor,
 	private val removeEvaluationActionProcessor: RemoveEvaluationActionProcessor
-) : BaseViewModel<Evaluations.State, Evaluations.Action, Evaluations.Effect>(initialState = Evaluations.State.Loading) {
+) : BaseViewModel<Evaluations.State, Evaluations.Action, Evaluations.Effect>(initialState = Evaluations.State.Idle) {
 
 	private val activeFilters = state
 		.filterIsInstance<Evaluations.State.Content>()

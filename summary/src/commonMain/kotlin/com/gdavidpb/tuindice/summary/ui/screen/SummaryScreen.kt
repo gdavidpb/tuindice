@@ -30,6 +30,8 @@ fun SummaryScreen(
 
 	SealedCrossfade(targetState = state) { targetState ->
 		when (targetState) {
+			Summary.State.Idle -> Unit
+
 			is Summary.State.Loading ->
 				SummaryLoadingView()
 

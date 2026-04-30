@@ -97,8 +97,9 @@ internal fun Record.State.toRouteViewState(): ViewState {
 			.terms
 			.any { term ->
 				term.id == selectedTermId && term.kind.isOfficialCurrent
-			}
+		}
 
+		Record.State.Idle,
 		Record.State.Empty,
 		Record.State.Failed,
 		Record.State.Loading,
@@ -114,6 +115,7 @@ internal fun Record.State.toRouteViewState(): ViewState {
 			is Record.State.Content ->
 				RecordTopBarViewModeState(selectedMode = viewMode)
 
+			Record.State.Idle,
 			Record.State.Empty,
 			Record.State.Failed,
 			Record.State.Loading,

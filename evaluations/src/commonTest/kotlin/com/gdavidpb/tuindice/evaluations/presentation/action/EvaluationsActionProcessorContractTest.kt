@@ -47,9 +47,7 @@ class EvaluationsActionProcessorContractTest {
 			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
 			sideEffect = effects::add
 		).test {
-			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Empty))
-
-			val content = assertIs<Evaluations.State.Content>(awaitItem()(Evaluations.State.Loading))
+			val content = assertIs<Evaluations.State.Content>(awaitItem()(Evaluations.State.Idle))
 			assertEquals(2, content.evaluationGroups.flatMap { group -> group.items }.size)
 			assertTrue(
 				content.filterGroups
@@ -80,8 +78,7 @@ class EvaluationsActionProcessorContractTest {
 			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
 			sideEffect = {}
 		).test {
-			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Empty))
-			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Loading))
+			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Idle))
 
 			awaitComplete()
 		}
@@ -104,8 +101,7 @@ class EvaluationsActionProcessorContractTest {
 			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
 			sideEffect = {}
 		).test {
-			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Empty))
-			assertEquals(Evaluations.State.Empty, awaitItem()(Evaluations.State.Loading))
+			assertEquals(Evaluations.State.Empty, awaitItem()(Evaluations.State.Idle))
 
 			awaitComplete()
 		}
@@ -128,8 +124,7 @@ class EvaluationsActionProcessorContractTest {
 			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
 			sideEffect = {}
 		).test {
-			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Empty))
-			assertEquals(Evaluations.State.NoAttempts, awaitItem()(Evaluations.State.Loading))
+			assertEquals(Evaluations.State.NoAttempts, awaitItem()(Evaluations.State.Idle))
 
 			awaitComplete()
 		}

@@ -24,7 +24,7 @@ class SummaryViewModel(
 	private val removeProfilePictureActionProcessor: RemoveProfilePictureActionProcessor,
 	private val openProfilePictureSettingsActionProcessor: OpenProfilePictureSettingsActionProcessor
 ) : BaseViewModel<Summary.State, Summary.Action, Summary.Effect>(
-	initialState = Summary.State.Loading(),
+	initialState = Summary.State.Idle,
 	initialAction = Summary.Action.ObserveSummary
 ) {
 

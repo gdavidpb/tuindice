@@ -35,6 +35,8 @@ fun RecordScreen(
 		targetState = state
 	) { targetState ->
 		when (targetState) {
+			is Record.State.Idle -> Unit
+
 			is Record.State.Loading ->
 				RecordLoadingView()
 

@@ -14,6 +14,8 @@ object Evaluations {
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = true
 	) : ViewState() {
+		data object Idle : State()
+
 		data object Loading : State()
 
 		data class Content(
