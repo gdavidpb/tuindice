@@ -14,8 +14,11 @@ import com.gdavidpb.tuindice.summary.data.source.DebugSummaryRemoteDataSource
 import com.gdavidpb.tuindice.summary.data.source.FileKitDebugProfilePictureStorageDataSource
 import com.gdavidpb.tuindice.summary.data.source.SummaryApiDataSource
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectStatsApiDataRepository
+import com.gdavidpb.tuindice.subjects.data.repository.SubjectStatsLocalDataRepository
+import com.gdavidpb.tuindice.subjects.data.source.DebugSubjectStatsLocalDataSource
 import com.gdavidpb.tuindice.subjects.data.source.DebugSubjectsApiDataSource
 import com.gdavidpb.tuindice.subjects.data.source.KtorSubjectsApiDataSource
+import com.gdavidpb.tuindice.subjects.data.source.SubjectStatsRoomDataSource
 import org.koin.dsl.module
 
 private const val IOS_DEBUG_SUMMARY_SOURCE = "ios-debug-summary"
@@ -41,6 +44,12 @@ val iosDebugVariantModule = module {
 		DebugSubjectsApiDataSource(
 			apiDataSource = get<KtorSubjectsApiDataSource>(),
 			json = get()
+		)
+	}
+
+	factory<SubjectStatsLocalDataRepository> {
+		DebugSubjectStatsLocalDataSource(
+			localDataSource = get<SubjectStatsRoomDataSource>()
 		)
 	}
 

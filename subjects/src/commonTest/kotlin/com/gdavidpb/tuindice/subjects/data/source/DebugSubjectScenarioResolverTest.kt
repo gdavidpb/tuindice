@@ -38,6 +38,11 @@ class DebugSubjectScenarioResolverTest {
 	}
 
 	@Test
+	fun resolve_returnsNullForRemoteMockRecordSubjects() {
+		assertNull(DebugSubjectScenarioResolver.resolve("EC5751"))
+	}
+
+	@Test
 	fun resolve_infersQualitativeScenarioForRecordSubjects() {
 		val resolved = assertNotNull(DebugSubjectScenarioResolver.resolve("EP5406"))
 

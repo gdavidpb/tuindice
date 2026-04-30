@@ -1,0 +1,14 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/subjects/v1/EC5751-NODATA"
+  },
+  "response": {
+    "status": 404,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "subjects/get-subject-stats-slow-unavailable.json",
+    "fixedDelayMilliseconds": 10000
+  }
+}

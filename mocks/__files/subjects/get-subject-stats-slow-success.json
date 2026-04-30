@@ -1,0 +1,170 @@
+{
+  "id": "EC5751",
+  "name": "REDES DE COMPUTADORAS I",
+  "credits": 3,
+  "grading_mode": "numeric",
+  "generated_at": 1763340000000,
+  "expires_at": 1765932000000,
+  "career_segment": {
+    "sample_students": 38,
+    "closed_attempts": 54,
+    "numeric_latest_students": 38,
+    "latest_approved_count": 24,
+    "latest_failed_count": 9,
+    "latest_retired_count": 3,
+    "latest_unreported_count": 2,
+    "average_grade": 3.4,
+    "median_grade": 3.0,
+    "stddev_grade": 0.8,
+    "first_attempt_pass_rate": 0.5,
+    "approval_rate": 0.67,
+    "latest_failure_rate": 0.24,
+    "latest_withdrawal_rate": 0.08,
+    "retake_rate": 0.28,
+    "avg_attempts_to_pass": 1.5,
+    "median_attempts_to_pass": 1.0,
+    "difficulty_score": 44,
+    "difficulty_band": "medium",
+    "first_closed_term_start_at": 1696118400000,
+    "last_closed_term_start_at": 1759276800000,
+    "latest_grade_bins": [
+      {
+        "grade": 1,
+        "count": 2
+      },
+      {
+        "grade": 2,
+        "count": 7
+      },
+      {
+        "grade": 3,
+        "count": 13
+      },
+      {
+        "grade": 4,
+        "count": 11
+      },
+      {
+        "grade": 5,
+        "count": 5
+      }
+    ],
+    "all_grade_bins": [
+      {
+        "grade": 1,
+        "count": 4
+      },
+      {
+        "grade": 2,
+        "count": 10
+      },
+      {
+        "grade": 3,
+        "count": 18
+      },
+      {
+        "grade": 4,
+        "count": 15
+      },
+      {
+        "grade": 5,
+        "count": 7
+      }
+    ],
+    "attempts_to_pass_bins": [
+      {
+        "bucket": "1",
+        "count": 16
+      },
+      {
+        "bucket": "2",
+        "count": 6
+      },
+      {
+        "bucket": "3_plus",
+        "count": 2
+      }
+    ]
+  },
+  "global_segment": {
+    "sample_students": 214,
+    "closed_attempts": 306,
+    "numeric_latest_students": 214,
+    "latest_approved_count": 142,
+    "latest_failed_count": 46,
+    "latest_retired_count": 16,
+    "latest_unreported_count": 10,
+    "average_grade": 3.5,
+    "median_grade": 4.0,
+    "stddev_grade": 0.9,
+    "first_attempt_pass_rate": 0.54,
+    "approval_rate": 0.7,
+    "latest_failure_rate": 0.21,
+    "latest_withdrawal_rate": 0.07,
+    "retake_rate": 0.31,
+    "avg_attempts_to_pass": 1.6,
+    "median_attempts_to_pass": 1.0,
+    "difficulty_score": 42,
+    "difficulty_band": "medium",
+    "first_closed_term_start_at": 1672531200000,
+    "last_closed_term_start_at": 1759276800000,
+    "latest_grade_bins": [
+      {
+        "grade": 1,
+        "count": 10
+      },
+      {
+        "grade": 2,
+        "count": 36
+      },
+      {
+        "grade": 3,
+        "count": 72
+      },
+      {
+        "grade": 4,
+        "count": 64
+      },
+      {
+        "grade": 5,
+        "count": 32
+      }
+    ],
+    "all_grade_bins": [
+      {
+        "grade": 1,
+        "count": 18
+      },
+      {
+        "grade": 2,
+        "count": 54
+      },
+      {
+        "grade": 3,
+        "count": 102
+      },
+      {
+        "grade": 4,
+        "count": 88
+      },
+      {
+        "grade": 5,
+        "count": 44
+      }
+    ],
+    "attempts_to_pass_bins": [
+      {
+        "bucket": "1",
+        "count": 82
+      },
+      {
+        "bucket": "2",
+        "count": 42
+      },
+      {
+        "bucket": "3_plus",
+        "count": 18
+      }
+    ]
+  }
+}

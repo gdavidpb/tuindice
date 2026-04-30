@@ -118,6 +118,8 @@ internal object DebugSubjectScenarioResolver {
 
 	fun resolve(subjectCode: String): Resolution? {
 		val normalizedSubjectCode = normalize(subjectCode)
+		if (DebugSubjectRemoteMockCodes.matches(normalizedSubjectCode)) return null
+
 		recordSubjects[normalizedSubjectCode]?.let { metadata ->
 			return Resolution(
 				scenario = metadata.toScenario(),
