@@ -14,12 +14,14 @@ import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 @Composable
 fun EvaluationFilterView(
 	groups: List<EvaluationFilterGroupItem>,
-	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit
+	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
+	scrollEnabled: Boolean = true
 ) {
 	LazyColumn(
 		modifier = Modifier
 			.padding(horizontal = 12.dp)
-			.testTag(EvaluationsUiTags.EvaluationsFiltersContainer)
+			.testTag(EvaluationsUiTags.EvaluationsFiltersContainer),
+		userScrollEnabled = scrollEnabled
 	) {
 		items(
 			items = groups

@@ -147,11 +147,6 @@ internal fun WizardGuideBar(
 					modifier = Modifier
 						.widthIn(min = 132.dp)
 						.testTag(WizardUiTags.PrimaryButton),
-					contentPadding = PaddingValues(
-						start = 14.dp,
-						end = 14.dp,
-						top = 6.dp
-					),
 					onClick = if (state.isLastStep) onFinish else onNext
 				) {
 					Text(

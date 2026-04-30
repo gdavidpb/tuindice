@@ -27,6 +27,7 @@ import com.gdavidpb.tuindice.wizard.ui.WizardUiTags
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import tuindice.wizard.generated.resources.Res
+import tuindice.wizard.generated.resources.wizard_focus_evaluation_swipe
 import tuindice.wizard.generated.resources.wizard_focus_evaluations
 import tuindice.wizard.generated.resources.wizard_focus_record
 import tuindice.wizard.generated.resources.wizard_focus_record_actions
@@ -197,6 +198,15 @@ private fun WizardStepId.focusOverlaySpec(): WizardFocusOverlaySpec? {
 			widthFraction = 1f,
 			height = 140.dp,
 			horizontalPadding = 8.dp
+		)
+		WizardStepId.EvaluationSwipe -> WizardFocusOverlaySpec(
+			label = Res.string.wizard_focus_evaluation_swipe,
+			alignment = Alignment.TopCenter,
+			labelAlignment = Alignment.TopEnd,
+			widthFraction = 1f,
+			height = 156.dp,
+			horizontalPadding = 16.dp,
+			topPadding = 214.dp
 		)
 		WizardStepId.EvaluationForm -> null
 		WizardStepId.About -> null

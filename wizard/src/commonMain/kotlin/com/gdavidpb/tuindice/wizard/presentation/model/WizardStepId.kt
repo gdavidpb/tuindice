@@ -9,6 +9,7 @@ enum class WizardStepId {
 	SubjectDetail,
 	SubjectCharts,
 	Evaluations,
+	EvaluationSwipe,
 	EvaluationForm,
 	About
 }

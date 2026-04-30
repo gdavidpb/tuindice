@@ -116,7 +116,6 @@ private fun WizardStepContent(
 	val isSubjectStep = state.currentStep.id == WizardStepId.SubjectDetail
 		|| state.currentStep.id == WizardStepId.SubjectCharts
 	val isSubjectChartsStep = state.currentStep.id == WizardStepId.SubjectCharts
-
 	when (state.currentStep.id) {
 		WizardStepId.Welcome ->
 			Unit
@@ -165,7 +164,8 @@ private fun WizardStepContent(
 				onChartsVisibilityChange = if (isSubjectStep) onSubjectChartsVisibilityChange else ({})
 			)
 
-		WizardStepId.Evaluations ->
+		WizardStepId.Evaluations,
+		WizardStepId.EvaluationSwipe ->
 			EvaluationsScreen(
 				state = sampleEvaluationsState(),
 				onAddEvaluationClick = onOpenEvaluationForm,
@@ -174,7 +174,8 @@ private fun WizardStepContent(
 				onEvaluationDelete = {},
 				onFilterCheckedChange = { _: EvaluationFilter, _: Boolean -> },
 				onClearFiltersClick = {},
-				onRetryClick = {}
+				onRetryClick = {},
+				scrollEnabled = false
 			)
 
 		WizardStepId.EvaluationForm ->

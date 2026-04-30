@@ -38,7 +38,8 @@ fun EvaluationsContentView(
 	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
 	onEvaluationClick: (evaluationId: String) -> Unit,
 	onEvaluationEdit: (evaluationId: String) -> Unit,
-	onEvaluationDelete: (evaluationId: String) -> Unit
+	onEvaluationDelete: (evaluationId: String) -> Unit,
+	scrollEnabled: Boolean = true
 ) {
 	val lazyColumState = rememberLazyListState()
 
@@ -47,23 +48,25 @@ fun EvaluationsContentView(
 			.testTag(EvaluationsUiTags.EvaluationsContentContainer)
 			.fillMaxSize()
 	) {
-			Column(
-				modifier = Modifier
-					.fillMaxSize()
-					.padding(top = InternalScreenDefaults.TopBarSpacing)
-			) {
-				EvaluationFilterView(
-					groups = state.filterGroups,
-					onFilterCheckedChange = onFilterCheckedChange
-				)
+		Column(
+			modifier = Modifier
+				.fillMaxSize()
+				.padding(top = InternalScreenDefaults.TopBarSpacing)
+		) {
+			EvaluationFilterView(
+				groups = state.filterGroups,
+				onFilterCheckedChange = onFilterCheckedChange,
+				scrollEnabled = scrollEnabled
+			)
 
-				if (state.evaluationGroups.isNotEmpty()) {
-					EvaluationsView(
+			if (state.evaluationGroups.isNotEmpty()) {
+				EvaluationsView(
 					lazyListState = lazyColumState,
 					evaluations = state.evaluationGroups,
 					onEvaluationClick = onEvaluationClick,
 					onEvaluationEdit = onEvaluationEdit,
-					onEvaluationDelete = onEvaluationDelete
+					onEvaluationDelete = onEvaluationDelete,
+					scrollEnabled = scrollEnabled
 				)
 			} else {
 				EvaluationsEmptyMatchView(
@@ -80,7 +83,7 @@ fun EvaluationsContentView(
 			modifier = Modifier
 				.align(Alignment.BottomEnd)
 				.padding(24.dp),
-			visible = !lazyColumState.isScrollInProgress,
+			visible = !scrollEnabled || !lazyColumState.isScrollInProgress,
 			enter = fadeIn(),
 			exit = fadeOut()
 		) {

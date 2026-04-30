@@ -21,11 +21,13 @@ fun EvaluationsView(
 	evaluations: List<EvaluationsGroupItem>,
 	onEvaluationClick: (evaluationId: String) -> Unit,
 	onEvaluationEdit: (evaluationId: String) -> Unit,
-	onEvaluationDelete: (evaluationId: String) -> Unit
+	onEvaluationDelete: (evaluationId: String) -> Unit,
+	scrollEnabled: Boolean = true
 ) {
 	LazyColumn(
 		modifier = Modifier.testTag(EvaluationsUiTags.EvaluationsList),
-		state = lazyListState
+		state = lazyListState,
+		userScrollEnabled = scrollEnabled
 	) {
 		evaluations.forEach { (title, items) ->
 			stickyHeader {

@@ -6,6 +6,8 @@ import tuindice.wizard.generated.resources.wizard_about_message
 import tuindice.wizard.generated.resources.wizard_about_title
 import tuindice.wizard.generated.resources.wizard_evaluation_form_message
 import tuindice.wizard.generated.resources.wizard_evaluation_form_title
+import tuindice.wizard.generated.resources.wizard_evaluation_swipe_message
+import tuindice.wizard.generated.resources.wizard_evaluation_swipe_title
 import tuindice.wizard.generated.resources.wizard_evaluations_message
 import tuindice.wizard.generated.resources.wizard_evaluations_title
 import tuindice.wizard.generated.resources.wizard_record_message
@@ -77,6 +79,12 @@ fun defaultWizardSteps(): List<WizardStep> = listOf(
 		id = WizardStepId.Evaluations,
 		title = Res.string.wizard_evaluations_title,
 		message = Res.string.wizard_evaluations_message,
+		topBarTitle = "Evaluaciones"
+	),
+	WizardStep(
+		id = WizardStepId.EvaluationSwipe,
+		title = Res.string.wizard_evaluation_swipe_title,
+		message = Res.string.wizard_evaluation_swipe_message,
 		topBarTitle = "Evaluaciones"
 	),
 	WizardStep(

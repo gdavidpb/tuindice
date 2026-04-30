@@ -31,7 +31,8 @@ fun EvaluationsScreen(
 	onEvaluationDelete: (evaluationId: String) -> Unit,
 	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
 	onClearFiltersClick: () -> Unit,
-	onRetryClick: () -> Unit
+	onRetryClick: () -> Unit,
+	scrollEnabled: Boolean = true
 ) {
 	SealedCrossfade(
 		targetState = state
@@ -48,7 +49,8 @@ fun EvaluationsScreen(
 					onFilterCheckedChange = onFilterCheckedChange,
 					onEvaluationClick = onEvaluationClick,
 					onEvaluationEdit = onEvaluationEdit,
-					onEvaluationDelete = onEvaluationDelete
+					onEvaluationDelete = onEvaluationDelete,
+					scrollEnabled = scrollEnabled
 				)
 
 			is Evaluations.State.Failed ->
