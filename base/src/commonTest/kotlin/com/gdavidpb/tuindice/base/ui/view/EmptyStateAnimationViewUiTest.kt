@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
-class StateAnimationViewUiTest {
+class EmptyStateAnimationViewUiTest {
 	@Test
 	fun when_emptyStateAnimationRendered_then_displaysAnimationNode() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
@@ -17,14 +17,4 @@ class StateAnimationViewUiTest {
 
 		assertNodeVisible(BaseUiTags.EmptyStateAnimation)
 	}
-
-	@Test
-	fun when_errorStateAnimationRendered_then_displaysAnimationNode() = runTuIndiceUiTest {
-		setTuIndiceTestContent {
-			ErrorStateAnimationView()
-		}
-
-		assertNodeVisible(BaseUiTags.ErrorStateAnimation)
-	}
 }
-

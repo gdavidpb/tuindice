@@ -31,6 +31,7 @@ object BaseUiTags {
 	const val WheelPickerList = "base_wheel_picker_list"
 	const val EmptyStateAnimation = "base_empty_state_animation"
 	const val ErrorStateAnimation = "base_error_state_animation"
+	const val StatsLoadingAnimation = "base_stats_loading_animation"
 
 	fun topBarActionButton(action: TopBarAction): String =
 		"base_top_app_bar_action_${action.action}"
@@ -41,4 +42,3 @@ object BaseUiTags {
 	fun wheelPickerItem(index: Int): String =
 		"base_wheel_picker_item_$index"
 }
-

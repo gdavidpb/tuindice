@@ -1,14 +1,16 @@
 package com.gdavidpb.tuindice.subjects.ui.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.background
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
+import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectDetail
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
@@ -60,7 +62,8 @@ fun SubjectDetailScreen(
 					title = unavailableTitle,
 					body = unavailableBody,
 					actionText = closeText,
-					onActionClick = onDismissRequest
+					onActionClick = onDismissRequest,
+					headerContent = { EmptyStateAnimationView() }
 				)
 
 			is SubjectDetail.State.Failed ->
@@ -70,7 +73,8 @@ fun SubjectDetailScreen(
 					body = state.subjectCode,
 					actionText = retryText,
 					onActionClick = onRetryClick,
-					actionTestTag = SubjectsUiTags.Retry
+					actionTestTag = SubjectsUiTags.Retry,
+					headerContent = { ErrorStateAnimationView() }
 				)
 		}
 	}

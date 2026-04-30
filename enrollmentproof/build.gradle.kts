@@ -31,7 +31,6 @@ kotlin {
 				implementation(libs.koin.core.viewmodel)
 				implementation(libs.koin.compose.viewmodel)
 				implementation(libs.components.resources)
-				implementation(libs.compottie)
 				implementation(libs.filekit.core)
 			}
 		}
