@@ -11,6 +11,8 @@ object SubjectDetail {
 		override val topBarTitle: String,
 		override val isTopBarVisible: Boolean = true
 	) : ViewState() {
+		data object Idle : State(topBarTitle = "")
+
 		data object Loading : State(topBarTitle = "")
 
 		data class Content(

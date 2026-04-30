@@ -3,8 +3,7 @@ package com.gdavidpb.tuindice.subjects.domain.repository
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetailResult
 
 interface SubjectStatsRepository {
-	suspend fun getSubjectDetail(
-		subjectCode: String,
-		forceRefresh: Boolean = false
-	): SubjectDetailResult
+	suspend fun getFreshSubjectDetail(subjectCode: String): SubjectDetailResult?
+
+	suspend fun refreshSubjectDetail(subjectCode: String): SubjectDetailResult
 }

@@ -27,6 +27,12 @@ class SubjectDetailStateTest {
 	}
 
 	@Test
+	fun idle_exposesEmptyTopBarTitle() {
+		assertEquals("", SubjectDetail.State.Idle.topBarTitle)
+		assertTrue(SubjectDetail.State.Idle.isTopBarVisible)
+	}
+
+	@Test
 	fun loading_exposesEmptyTopBarTitle() {
 		assertEquals("", SubjectDetail.State.Loading.topBarTitle)
 		assertTrue(SubjectDetail.State.Loading.isTopBarVisible)

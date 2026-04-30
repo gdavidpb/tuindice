@@ -22,6 +22,7 @@ class SelectSubjectSegmentTabActionProcessor : ActionProcessor<
 						state.copy(selectedTab = action.tab)
 
 					is SubjectDetail.State.Failed,
+					SubjectDetail.State.Idle,
 					SubjectDetail.State.Loading,
 					is SubjectDetail.State.Unavailable,
 					-> state

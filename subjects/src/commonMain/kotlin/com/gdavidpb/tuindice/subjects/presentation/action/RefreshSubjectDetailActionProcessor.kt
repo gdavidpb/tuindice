@@ -30,6 +30,7 @@ class RefreshSubjectDetailActionProcessor(
 								is SubjectDetail.State.Content -> state
 								is SubjectDetail.State.Unavailable -> state
 								is SubjectDetail.State.Failed,
+								SubjectDetail.State.Idle,
 								SubjectDetail.State.Loading,
 								-> SubjectDetail.State.Loading
 							}
@@ -46,6 +47,7 @@ class RefreshSubjectDetailActionProcessor(
 								is SubjectDetail.State.Content -> state
 								is SubjectDetail.State.Unavailable -> state
 								is SubjectDetail.State.Failed,
+								SubjectDetail.State.Idle,
 								SubjectDetail.State.Loading,
 								-> SubjectDetail.State.Failed(subjectCode = action.subjectCode)
 							}

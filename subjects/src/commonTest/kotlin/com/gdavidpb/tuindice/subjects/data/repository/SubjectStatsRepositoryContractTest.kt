@@ -15,7 +15,7 @@ import kotlin.test.assertFailsWith
 
 class SubjectStatsRepositoryContractTest {
 	@Test
-	fun getSubjectDetail_returnsFreshLocalCacheWithoutCallingApi() = runTest {
+	fun getFreshSubjectDetail_returnsFreshLocalCacheWithoutCallingApi() = runTest {
 		val cached = readySubjectDetail(expiresAt = Long.MAX_VALUE)
 		val local = FakeLocalDataRepository(initial = cached)
 		val api = FakeApiDataRepository(
@@ -26,7 +26,7 @@ class SubjectStatsRepositoryContractTest {
 		)
 		val repository = SubjectStatsDataSource(localDataSource = local, apiDataSource = api)
 
-		val result = repository.getSubjectDetail(subjectCode = "MAT101", forceRefresh = false)
+		val result = repository.getFreshSubjectDetail(subjectCode = "MAT101")
 
 		assertEquals(cached, result)
 		assertEquals(emptyList(), api.subjectCodes)
@@ -34,14 +34,33 @@ class SubjectStatsRepositoryContractTest {
 	}
 
 	@Test
-	fun getSubjectDetail_refreshesExpiredCacheAndPersistsRemoteResult() = runTest {
+	fun getFreshSubjectDetail_returnsNullWhenLocalCacheIsExpired() = runTest {
+		val expired = readySubjectDetail(expiresAt = 1L)
+		val local = FakeLocalDataRepository(initial = expired)
+		val api = FakeApiDataRepository(
+			nextResult = readySubjectDetail(
+				subjectCode = "REMOTE",
+				expiresAt = Long.MAX_VALUE
+			)
+		)
+		val repository = SubjectStatsDataSource(localDataSource = local, apiDataSource = api)
+
+		val result = repository.getFreshSubjectDetail(subjectCode = "MAT101")
+
+		assertEquals(null, result)
+		assertEquals(emptyList(), api.subjectCodes)
+		assertEquals(emptyList(), local.savedResults)
+	}
+
+	@Test
+	fun refreshSubjectDetail_persistsRemoteResult() = runTest {
 		val expired = readySubjectDetail(expiresAt = 1L)
 		val remote = readySubjectDetail(subjectCode = "MAT101", expiresAt = Long.MAX_VALUE)
 		val local = FakeLocalDataRepository(initial = expired)
 		val api = FakeApiDataRepository(nextResult = remote)
 		val repository = SubjectStatsDataSource(localDataSource = local, apiDataSource = api)
 
-		val result = repository.getSubjectDetail(subjectCode = "MAT101", forceRefresh = false)
+		val result = repository.refreshSubjectDetail(subjectCode = "MAT101")
 
 		assertEquals(remote, result)
 		assertEquals(listOf("MAT101"), api.subjectCodes)
@@ -49,13 +68,13 @@ class SubjectStatsRepositoryContractTest {
 	}
 
 	@Test
-	fun getSubjectDetail_fallsBackToCachedValueWhenRemoteRefreshFails() = runTest {
+	fun refreshSubjectDetail_fallsBackToCachedValueWhenRemoteRefreshFails() = runTest {
 		val expired = readySubjectDetail(expiresAt = 1L)
 		val local = FakeLocalDataRepository(initial = expired)
 		val api = FakeApiDataRepository(nextThrowable = IllegalStateException("boom"))
 		val repository = SubjectStatsDataSource(localDataSource = local, apiDataSource = api)
 
-		val result = repository.getSubjectDetail(subjectCode = "MAT101", forceRefresh = false)
+		val result = repository.refreshSubjectDetail(subjectCode = "MAT101")
 
 		assertEquals(expired, result)
 		assertEquals(listOf("MAT101"), api.subjectCodes)
@@ -63,13 +82,13 @@ class SubjectStatsRepositoryContractTest {
 	}
 
 	@Test
-	fun getSubjectDetail_throwsWhenRemoteFailsAndNoCacheExists() = runTest {
+	fun refreshSubjectDetail_throwsWhenRemoteFailsAndNoCacheExists() = runTest {
 		val local = FakeLocalDataRepository(initial = null)
 		val api = FakeApiDataRepository(nextThrowable = IllegalStateException("boom"))
 		val repository = SubjectStatsDataSource(localDataSource = local, apiDataSource = api)
 
 		assertFailsWith<IllegalStateException> {
-			repository.getSubjectDetail(subjectCode = "MAT101", forceRefresh = false)
+			repository.refreshSubjectDetail(subjectCode = "MAT101")
 		}
 	}
 

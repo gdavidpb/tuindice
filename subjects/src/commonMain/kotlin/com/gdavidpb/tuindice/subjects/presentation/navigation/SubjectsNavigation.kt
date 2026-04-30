@@ -40,6 +40,7 @@ fun NavGraphBuilder.subjectsNavigation(
 
 private fun SubjectDetail.State.resolveNavigationViewState(subjectCode: String): ViewState {
 	return when (this) {
+		SubjectDetail.State.Idle,
 		SubjectDetail.State.Loading ->
 			object : ViewState(
 				topBarTitle = "Sobre $subjectCode",

@@ -24,10 +24,11 @@ class SubjectsModuleKoinSmokeTest {
 }
 
 private class FakeSubjectStatsRepository : SubjectStatsRepository {
-	override suspend fun getSubjectDetail(
-		subjectCode: String,
-		forceRefresh: Boolean
-	): SubjectDetailResult {
+	override suspend fun getFreshSubjectDetail(subjectCode: String): SubjectDetailResult? {
+		error("This smoke test should not execute repository calls.")
+	}
+
+	override suspend fun refreshSubjectDetail(subjectCode: String): SubjectDetailResult {
 		error("This smoke test should not execute repository calls.")
 	}
 }

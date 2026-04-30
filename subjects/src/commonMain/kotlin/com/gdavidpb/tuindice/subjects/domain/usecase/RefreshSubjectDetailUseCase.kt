@@ -14,10 +14,7 @@ class RefreshSubjectDetailUseCase(
 ) : FlowUseCase<SubjectDetailParams, SubjectDetailResult, Nothing>(reportingRepository = reportingRepository) {
 	override suspend fun executeOnBackground(params: SubjectDetailParams): Flow<SubjectDetailResult> {
 		return flowOf(
-			subjectStatsRepository.getSubjectDetail(
-				subjectCode = params.subjectCode,
-				forceRefresh = true
-			)
+			subjectStatsRepository.refreshSubjectDetail(subjectCode = params.subjectCode)
 		)
 	}
 }

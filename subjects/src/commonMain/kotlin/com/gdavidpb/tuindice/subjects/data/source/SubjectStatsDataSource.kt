@@ -10,16 +10,16 @@ class SubjectStatsDataSource(
 	private val localDataSource: SubjectStatsLocalDataRepository,
 	private val apiDataSource: SubjectStatsApiDataRepository
 ) : SubjectStatsRepository {
-	override suspend fun getSubjectDetail(
-		subjectCode: String,
-		forceRefresh: Boolean
-	): SubjectDetailResult {
+	override suspend fun getFreshSubjectDetail(subjectCode: String): SubjectDetailResult? {
 		val cached = localDataSource.getSubjectDetail(subjectCode)
 		val now = currentTimeMillis()
 
-		if (!forceRefresh && cached?.isFresh(now) == true) {
-			return cached
-		}
+		return cached?.takeIf { result -> result.isFresh(now) }
+	}
+
+	override suspend fun refreshSubjectDetail(subjectCode: String): SubjectDetailResult {
+		val cached = localDataSource.getSubjectDetail(subjectCode)
+		val now = currentTimeMillis()
 
 		return runCatching {
 			apiDataSource.getSubjectDetail(subjectCode).also { result ->

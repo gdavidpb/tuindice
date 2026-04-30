@@ -44,6 +44,8 @@ fun SubjectDetailScreen(
 			.background(MaterialTheme.colorScheme.background)
 	) {
 		when (state) {
+			SubjectDetail.State.Idle -> Unit
+
 			SubjectDetail.State.Loading ->
 				SubjectDetailLoadingView(
 					title = loadingTitle,

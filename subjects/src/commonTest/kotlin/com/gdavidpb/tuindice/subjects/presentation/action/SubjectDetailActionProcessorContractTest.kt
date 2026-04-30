@@ -23,6 +23,61 @@ import kotlinx.coroutines.test.runTest
 
 class SubjectDetailActionProcessorContractTest {
 	@Test
+	fun loadSubjectDetail_usesFreshLocalDataWithoutShowingLoadingRemote() = runTest {
+		val cached = readySubjectDetail(expiresAt = Long.MAX_VALUE)
+		val repository = RecordingSubjectStatsRepository(
+			freshResult = cached,
+			results = emptyList()
+		)
+		val processor = LoadSubjectDetailActionProcessor(
+			loadSubjectDetailUseCase = LoadSubjectDetailUseCase(
+				subjectStatsRepository = repository,
+				reportingRepository = RecordingReportingRepository()
+			)
+		)
+
+		val states = collectStates(
+			initialState = SubjectDetail.State.Idle,
+			mutations = processor.process(
+				action = SubjectDetail.Action.LoadSubjectDetail(subjectCode = "MAT101"),
+				sideEffect = {}
+			)
+		)
+
+		assertEquals(1, states.size)
+		assertIs<SubjectDetail.State.Content>(states.single())
+		assertEquals(listOf("MAT101"), repository.freshCalls)
+		assertEquals(emptyList(), repository.refreshCalls)
+	}
+
+	@Test
+	fun loadSubjectDetail_showsLoadingWhenRemoteRefreshIsNeeded() = runTest {
+		val repository = RecordingSubjectStatsRepository(
+			results = listOf(readySubjectDetail(expiresAt = Long.MAX_VALUE))
+		)
+		val processor = LoadSubjectDetailActionProcessor(
+			loadSubjectDetailUseCase = LoadSubjectDetailUseCase(
+				subjectStatsRepository = repository,
+				reportingRepository = RecordingReportingRepository()
+			)
+		)
+
+		val states = collectStates(
+			initialState = SubjectDetail.State.Idle,
+			mutations = processor.process(
+				action = SubjectDetail.Action.LoadSubjectDetail(subjectCode = "MAT101"),
+				sideEffect = {}
+			)
+		)
+
+		assertEquals(2, states.size)
+		assertEquals(SubjectDetail.State.Loading, states.first())
+		assertIs<SubjectDetail.State.Content>(states.last())
+		assertEquals(listOf("MAT101"), repository.freshCalls)
+		assertEquals(listOf("MAT101"), repository.refreshCalls)
+	}
+
+	@Test
 	fun loadSubjectDetail_reducesStateToCareerContentWhenCareerSegmentExists() = runTest {
 		val repository = RecordingSubjectStatsRepository(
 			results = listOf(readySubjectDetail(expiresAt = Long.MAX_VALUE))
@@ -46,7 +101,8 @@ class SubjectDetailActionProcessorContractTest {
 		assertEquals("MAT101", contentState.detail.id)
 		assertEquals("Sobre MAT101", contentState.topBarTitle)
 		assertEquals(SubjectSegmentTab.CAREER, contentState.selectedTab)
-		assertEquals(listOf("MAT101" to false), repository.calls)
+		assertEquals(listOf("MAT101"), repository.freshCalls)
+		assertEquals(listOf("MAT101"), repository.refreshCalls)
 	}
 
 	@Test
@@ -72,7 +128,8 @@ class SubjectDetailActionProcessorContractTest {
 		val unavailableState = assertIs<SubjectDetail.State.Unavailable>(state)
 		assertEquals("MAT404", unavailableState.subjectCode)
 		assertEquals("Sobre MAT404", unavailableState.topBarTitle)
-		assertEquals(listOf("MAT404" to false), repository.calls)
+		assertEquals(listOf("MAT404"), repository.freshCalls)
+		assertEquals(listOf("MAT404"), repository.refreshCalls)
 	}
 
 	@Test
@@ -114,27 +171,26 @@ class SubjectDetailActionProcessorContractTest {
 			)
 		)
 		assertIs<SubjectDetail.State.Content>(recoveredState)
-		assertEquals(
-			listOf(
-				"MAT101" to false,
-				"MAT101" to true
-			),
-			repository.calls
-		)
+		assertEquals(listOf("MAT101"), repository.freshCalls)
+		assertEquals(listOf("MAT101", "MAT101"), repository.refreshCalls)
 	}
 }
 
 private class RecordingSubjectStatsRepository(
+	private val freshResult: SubjectDetailResult? = null,
 	results: List<Any>
 ) : SubjectStatsRepository {
 	private val queue = ArrayDeque(results)
-	val calls = mutableListOf<Pair<String, Boolean>>()
+	val freshCalls = mutableListOf<String>()
+	val refreshCalls = mutableListOf<String>()
 
-	override suspend fun getSubjectDetail(
-		subjectCode: String,
-		forceRefresh: Boolean
-	): SubjectDetailResult {
-		calls += subjectCode to forceRefresh
+	override suspend fun getFreshSubjectDetail(subjectCode: String): SubjectDetailResult? {
+		freshCalls += subjectCode
+		return freshResult
+	}
+
+	override suspend fun refreshSubjectDetail(subjectCode: String): SubjectDetailResult {
+		refreshCalls += subjectCode
 		return when (val next = queue.removeFirst()) {
 			is Throwable -> throw next
 			is SubjectDetailResult -> next
@@ -143,14 +199,26 @@ private class RecordingSubjectStatsRepository(
 	}
 }
 
+private suspend fun collectStates(
+	initialState: SubjectDetail.State,
+	mutations: Flow<Mutation<SubjectDetail.State>>
+): List<SubjectDetail.State> {
+	var currentState = initialState
+	return mutations.toList().map { mutation ->
+		mutation(currentState).also { nextState ->
+			currentState = nextState
+		}
+	}
+}
+
 private suspend fun reduceState(
 	initialState: SubjectDetail.State,
 	mutations: Flow<Mutation<SubjectDetail.State>>
 ): SubjectDetail.State {
-	return mutations.toList()
-		.fold(initialState) { currentState, mutation ->
-			mutation(currentState)
-		}
+	return collectStates(
+		initialState = initialState,
+		mutations = mutations
+	).last()
 }
 
 private fun readySubjectDetail(
