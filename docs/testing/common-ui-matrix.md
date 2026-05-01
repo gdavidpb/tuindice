@@ -55,7 +55,7 @@ _Generado automáticamente el 2026-03-05 20:11:41 -03_
 | `enrollmentproof/src/commonMain/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/dialog/EnrollmentProofFetchingSheet.kt`      |           2 | `enrollmentproof/src/commonTest/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/dialog/EnrollmentProofFetchingSheetUiTest.kt`      |           2 | 🟩 Cumple umbral (2) |
 | `enrollmentproof/src/commonMain/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/screen/EnrollmentProofScreen.kt`             |           1 | `enrollmentproof/src/commonTest/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/screen/EnrollmentProofScreenUiTest.kt`             |           2 | 🟩 Cumple umbral (2) |
 | `enrollmentproof/src/commonMain/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/view/EnrollmentProofFetchingView.kt`         |           1 | `enrollmentproof/src/commonTest/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/view/EnrollmentProofFetchingViewUiTest.kt`         |           2 | 🟩 Cumple umbral (2) |
-| `enrollmentproof/src/commonMain/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/view/EnrollmentProofLottieLoadingContent.kt` |           1 | `enrollmentproof/src/commonTest/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/view/EnrollmentProofLottieLoadingContentUiTest.kt` |           2 | 🟩 Cumple umbral (2) |
+| `enrollmentproof/src/commonMain/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/view/EnrollmentProofLoadingView.kt`       |           1 | `enrollmentproof/src/commonTest/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/view/EnrollmentProofLoadingViewUiTest.kt`       |           2 | 🟩 Cumple umbral (2) |
 
 ### `evaluations`
 
@@ -160,4 +160,3 @@ _Generado automáticamente el 2026-03-05 20:11:41 -03_
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryFailedView.kt`                        |           2 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryFailedViewUiTest.kt`                        |           2 | 🟩 Cumple umbral (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryItems.kt`                             |           1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryItemsUiTest.kt`                             |           2 | 🟩 Cumple umbral (2) |
 | `summary/src/commonMain/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryLoadingView.kt`                       |           1 | `summary/src/commonTest/kotlin/com/gdavidpb/tuindice/summary/ui/view/SummaryLoadingViewUiTest.kt`                       |           2 | 🟩 Cumple umbral (2) |
-

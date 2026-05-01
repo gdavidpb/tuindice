@@ -12,7 +12,7 @@ import tuindice.enrollmentproof.generated.resources.Res
 
 @OptIn(ExperimentalResourceApi::class)
 @Composable
-fun EnrollmentProofLottieLoadingContent(
+fun EnrollmentProofLoadingView(
 	modifier: Modifier = Modifier
 ) {
 	LottieResourceAnimationView(

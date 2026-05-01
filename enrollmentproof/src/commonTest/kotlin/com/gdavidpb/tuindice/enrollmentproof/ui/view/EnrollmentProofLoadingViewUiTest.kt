@@ -10,20 +10,20 @@ import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
 
 @OptIn(ExperimentalTestApi::class)
-class EnrollmentProofLottieLoadingContentUiTest {
+class EnrollmentProofLoadingViewUiTest {
 	@Test
-	fun when_lottieLoadingContentRendered_then_displaysLottieNode() = runTuIndiceUiTest {
+	fun when_loadingViewRendered_then_displaysLottieNode() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			EnrollmentProofLottieLoadingContent()
+			EnrollmentProofLoadingView()
 		}
 
 		assertNodeVisible(EnrollmentProofUiTags.FetchingLottie)
 	}
 
 	@Test
-	fun when_lottieLoadingContentRendered_then_displaysSingleLottieNode() = runTuIndiceUiTest {
+	fun when_loadingViewRendered_then_displaysSingleLottieNode() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			EnrollmentProofLottieLoadingContent()
+			EnrollmentProofLoadingView()
 		}
 
 		onAllNodesWithTag(EnrollmentProofUiTags.FetchingLottie).assertCountEquals(1)

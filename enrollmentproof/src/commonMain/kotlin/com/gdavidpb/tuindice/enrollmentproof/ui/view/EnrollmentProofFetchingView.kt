@@ -16,7 +16,7 @@ fun EnrollmentProofFetchingView(
 		messageText = stringResource(Res.string.dialog_message_enrollment_downloading),
 		onDismissRequest = onDismissRequest,
 		loadingContent = {
-			EnrollmentProofLottieLoadingContent()
+			EnrollmentProofLoadingView()
 		}
 	)
 }
