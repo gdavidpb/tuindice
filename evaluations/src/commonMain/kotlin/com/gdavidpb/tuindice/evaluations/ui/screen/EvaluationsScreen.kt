@@ -26,13 +26,14 @@ import tuindice.evaluations.generated.resources.view_error_title
 fun EvaluationsScreen(
 	state: Evaluations.State,
 	onAddEvaluationClick: () -> Unit,
-	onEvaluationClick: (evaluationId: String) -> Unit,
+	onEvaluationClick: (evaluationId: String, evaluationName: String) -> Unit,
 	onEvaluationEdit: (evaluationId: String) -> Unit,
 	onEvaluationDelete: (evaluationId: String) -> Unit,
 	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
 	onClearFiltersClick: () -> Unit,
 	onRetryClick: () -> Unit,
-	scrollEnabled: Boolean = true
+	scrollEnabled: Boolean = true,
+	openActionsEvaluationId: String? = null
 ) {
 	SealedCrossfade(
 		targetState = state
@@ -52,7 +53,8 @@ fun EvaluationsScreen(
 					onEvaluationClick = onEvaluationClick,
 					onEvaluationEdit = onEvaluationEdit,
 					onEvaluationDelete = onEvaluationDelete,
-					scrollEnabled = scrollEnabled
+					scrollEnabled = scrollEnabled,
+					openActionsEvaluationId = openActionsEvaluationId
 				)
 
 			is Evaluations.State.Failed ->

@@ -5,7 +5,7 @@
 	<string name="record_failed_title">No pudimos cargar tu historial</string>
 	<string name="record_failed_message">Intenta de nuevo en unos segundos.</string>
 	<string name="record_failed_retry">Reintentar</string>
-	<string name="record_empty_title">Preparando tu historial</string>
+	<string name="record_empty_title">Informe académico</string>
 	<string name="record_empty_message">Cuando tengas periodos académicos disponibles, los verás aquí.</string>
 	<string name="record_view_mode_official">Universidad</string>
 	<string name="record_view_mode_projection">Proyección</string>

@@ -49,6 +49,7 @@ import tuindice.evaluations.generated.resources.evaluation_report
 import tuindice.evaluations.generated.resources.evaluation_test
 import tuindice.evaluations.generated.resources.evaluation_workshop
 import tuindice.evaluations.generated.resources.evaluation_written_work
+import tuindice.evaluations.generated.resources.label_evaluation_assign_grade
 
 data class EvaluationItemMapping(
 	val evaluationName: (type: EvaluationType, ordinal: Int) -> String,
@@ -56,6 +57,7 @@ data class EvaluationItemMapping(
 	val gradesCompleted: (grade: Double?, maxGrade: Double) -> String,
 	val gradesPending: (maxGrade: Double) -> String,
 	val gradesOverdue: (maxGrade: Double) -> String,
+	val gradeAction: (grade: Double?) -> String,
 	val typeIcon: (type: EvaluationType) -> ImageVector,
 	val dateIcon: (state: EvaluationState) -> ImageVector,
 	val gradesIcon: (state: EvaluationState) -> ImageVector,
@@ -72,6 +74,7 @@ fun rememberEvaluationItemMapping(): EvaluationItemMapping {
 	val evaluationGradePattern = stringResource(Res.string.evaluation_grade)
 	val evaluationPendingGradePattern = stringResource(Res.string.evaluation_pending_grade)
 	val evaluationNotGradePattern = stringResource(Res.string.evaluation_not_grade)
+	val evaluationAssignGradeLabel = stringResource(Res.string.label_evaluation_assign_grade)
 	val typeLabels = rememberEvaluationTypeLabels()
 
 	return remember(
@@ -80,6 +83,7 @@ fun rememberEvaluationItemMapping(): EvaluationItemMapping {
 		evaluationGradePattern,
 		evaluationPendingGradePattern,
 		evaluationNotGradePattern,
+		evaluationAssignGradeLabel,
 		typeLabels
 	) {
 		buildEvaluationItemMapping(
@@ -88,6 +92,7 @@ fun rememberEvaluationItemMapping(): EvaluationItemMapping {
 			evaluationGradePattern = evaluationGradePattern,
 			evaluationPendingGradePattern = evaluationPendingGradePattern,
 			evaluationNotGradePattern = evaluationNotGradePattern,
+			evaluationAssignGradeLabel = evaluationAssignGradeLabel,
 			typeLabels = typeLabels
 		)
 	}
@@ -100,6 +105,7 @@ suspend fun getEvaluationItemMapping(): EvaluationItemMapping {
 		evaluationGradePattern = getString(Res.string.evaluation_grade),
 		evaluationPendingGradePattern = getString(Res.string.evaluation_pending_grade),
 		evaluationNotGradePattern = getString(Res.string.evaluation_not_grade),
+		evaluationAssignGradeLabel = getString(Res.string.label_evaluation_assign_grade),
 		typeLabels = getEvaluationTypeLabels()
 	)
 }
@@ -110,6 +116,7 @@ private fun buildEvaluationItemMapping(
 	evaluationGradePattern: String,
 	evaluationPendingGradePattern: String,
 	evaluationNotGradePattern: String,
+	evaluationAssignGradeLabel: String,
 	typeLabels: Map<EvaluationType, String>
 ): EvaluationItemMapping {
 	return EvaluationItemMapping(
@@ -131,6 +138,9 @@ private fun buildEvaluationItemMapping(
 		gradesOverdue = { maxGrade ->
 			evaluationNotGradePattern
 				.replace("%1${'$'}.2f", maxGrade.formatGrade(decimals = 2))
+		},
+		gradeAction = { grade ->
+			grade?.formatGrade(decimals = 2) ?: evaluationAssignGradeLabel
 		},
 		typeIcon = { type -> type.asIcon() },
 		dateIcon = { state ->

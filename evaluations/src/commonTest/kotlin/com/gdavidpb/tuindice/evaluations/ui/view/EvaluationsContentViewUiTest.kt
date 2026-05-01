@@ -36,7 +36,7 @@ class EvaluationsContentViewUiTest {
 				onFilterCheckedChange = { filter, checked ->
 					selectedEvents += filter to checked
 				},
-				onEvaluationClick = {},
+				onEvaluationClick = { _, _ -> },
 				onEvaluationEdit = {},
 				onEvaluationDelete = {}
 			)
@@ -69,7 +69,7 @@ class EvaluationsContentViewUiTest {
 				onAddEvaluationClick = {},
 				onClearFiltersClick = {},
 				onFilterCheckedChange = { _, _ -> },
-				onEvaluationClick = {},
+				onEvaluationClick = { _, _ -> },
 				onEvaluationEdit = {},
 				onEvaluationDelete = {}
 			)
@@ -93,7 +93,7 @@ class EvaluationsContentViewUiTest {
 				onAddEvaluationClick = {},
 				onClearFiltersClick = {},
 				onFilterCheckedChange = { _, _ -> },
-				onEvaluationClick = {},
+				onEvaluationClick = { _, _ -> },
 				onEvaluationEdit = {},
 				onEvaluationDelete = {}
 			)
@@ -120,7 +120,7 @@ class EvaluationsContentViewUiTest {
 				onAddEvaluationClick = { addClicks++ },
 				onClearFiltersClick = { clearClicks++ },
 				onFilterCheckedChange = { _, _ -> },
-				onEvaluationClick = {},
+				onEvaluationClick = { _, _ -> },
 				onEvaluationEdit = {},
 				onEvaluationDelete = {}
 			)

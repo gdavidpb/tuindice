@@ -45,6 +45,7 @@
 	<string name="label_evaluation_date">Elige una fecha</string>
 	<string name="label_evaluation_no_date">Evaluación continua</string>
 	<string name="label_evaluation_assign_today">Asignar hoy</string>
+	<string name="label_evaluation_assign_grade">Asignar</string>
 	<string name="label_evaluation_no_date_short">Sin fecha</string>
 	<string name="label_evaluation_swipe_delete">Eliminar</string>
 	<string name="label_evaluation_swipe_edit">Editar</string>

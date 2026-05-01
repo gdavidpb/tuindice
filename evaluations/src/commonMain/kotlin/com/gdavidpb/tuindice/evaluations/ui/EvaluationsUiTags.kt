@@ -26,7 +26,8 @@ object EvaluationsUiTags {
 	const val EvaluationTypePickerRow = "evaluation_type_picker_row"
 	const val EvaluationGradeChip = "evaluation_grade_chip"
 	const val EvaluationMaxGradeChip = "evaluation_max_grade_chip"
-	const val EvaluationOverdueIndicator = "evaluation_overdue_indicator"
+	const val EvaluationTypeLeadingIcon = "evaluation_type_leading_icon"
+	const val EvaluationGradeActionButton = "evaluation_grade_action_button"
 	const val EvaluationLoadingIndicator = "evaluation_loading_indicator"
 	const val EvaluationGradeWheelPicker = "evaluation_grade_wheel_picker"
 	const val EvaluationGradeWheelSelectedFrame = "evaluation_grade_wheel_selected_frame"
@@ -34,6 +35,8 @@ object EvaluationsUiTags {
 	const val EvaluationDialogConfirmButton = "evaluation_dialog_confirm_button"
 	const val EvaluationDialogDismissButton = "evaluation_dialog_dismiss_button"
 	const val EvaluationSwipeToDismissContainer = "evaluation_swipe_to_dismiss_container"
+	const val EvaluationSwipeEditAction = "evaluation_swipe_edit_action"
+	const val EvaluationSwipeDeleteAction = "evaluation_swipe_delete_action"
 
 	fun filterChip(label: String): String =
 		"evaluations_filter_chip_${label.toTagSuffix()}"

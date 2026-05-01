@@ -77,6 +77,7 @@ class EvaluationDialogScreenUiTest {
 	fun when_evaluationGradePickerContentDialogRendered_then_showsDialog() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			EvaluationGradePickerContentDialog(
+				evaluationName = "Quiz #1",
 				selectedGrade = 16.0,
 				maxGrade = 20.0,
 				onGradeChange = {},

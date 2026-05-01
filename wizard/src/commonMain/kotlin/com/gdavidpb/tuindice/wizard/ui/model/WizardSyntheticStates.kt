@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.GradingMode
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
+import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationCourseFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateFilter
@@ -384,6 +385,7 @@ private fun sampleEvaluationItem(
 		dateText = dateText,
 		dateIcon = if (state == EvaluationState.COMPLETED) Icons.Outlined.EventAvailable else Icons.Outlined.Event,
 		gradesText = gradesText,
+		gradeActionText = grade?.formatGrade(decimals = 2) ?: "Asignar",
 		gradesIcon = if (state == EvaluationState.COMPLETED)
 			Icons.Outlined.AssignmentTurnedIn
 		else

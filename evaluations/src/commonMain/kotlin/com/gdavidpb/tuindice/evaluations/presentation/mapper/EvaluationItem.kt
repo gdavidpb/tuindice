@@ -60,6 +60,7 @@ fun Evaluation.toEvaluationItem(
 			EvaluationState.OVERDUE ->
 				mapping.gradesOverdue(maxGrade)
 		},
+		gradeActionText = mapping.gradeAction(grade),
 		gradesIcon = mapping.gradesIcon(state),
 		isOverdue = (state == EvaluationState.OVERDUE),
 		isClickable = (state != EvaluationState.PENDING)

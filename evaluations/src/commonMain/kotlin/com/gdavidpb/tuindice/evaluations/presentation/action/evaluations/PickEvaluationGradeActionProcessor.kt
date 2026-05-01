@@ -34,6 +34,7 @@ class PickEvaluationGradeActionProcessor(
 							sideEffect(
 								Evaluations.Effect.NavigateToGradePickerDialog(
 									evaluationId = evaluation.id,
+									evaluationName = action.evaluationName,
 									grade = evaluation.grade ?: 0.0,
 									maxGrade = evaluation.maxGrade
 								)

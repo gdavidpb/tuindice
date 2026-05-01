@@ -126,10 +126,11 @@ fun TuIndiceNavHost(
 			onNavigateToEvaluation = { evaluationId ->
 				navController.navigate(EvaluationsDestination.Evaluation(evaluationId = evaluationId))
 			},
-			onNavigateToEvaluationGradePickerDialog = { evaluationId, grade, maxGrade ->
+			onNavigateToEvaluationGradePickerDialog = { evaluationId, evaluationName, grade, maxGrade ->
 				navController.navigate(
 					EvaluationsDestination.EvaluationGradePickerDialog(
 						evaluationId = evaluationId,
+						evaluationName = evaluationName,
 						grade = grade,
 						maxGrade = maxGrade
 					)

@@ -30,6 +30,7 @@ sealed class EvaluationsDestination : Destination() {
 	@Serializable
 	data class EvaluationGradePickerDialog(
 		val evaluationId: String,
+		val evaluationName: String,
 		val grade: Double,
 		val maxGrade: Double
 	) : EvaluationsDestination()

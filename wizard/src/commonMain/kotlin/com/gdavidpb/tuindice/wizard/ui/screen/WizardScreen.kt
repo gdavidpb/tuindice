@@ -175,13 +175,17 @@ private fun WizardStepContent(
 			EvaluationsScreen(
 				state = sampleEvaluationsState(),
 				onAddEvaluationClick = onOpenEvaluationForm,
-				onEvaluationClick = {},
+				onEvaluationClick = { _, _ -> },
 				onEvaluationEdit = {},
 				onEvaluationDelete = {},
 				onFilterCheckedChange = { _: EvaluationFilter, _: Boolean -> },
 				onClearFiltersClick = {},
 				onRetryClick = {},
-				scrollEnabled = false
+				scrollEnabled = false,
+				openActionsEvaluationId = if (state.currentStep.id == WizardStepId.EvaluationSwipe)
+					"evaluation_2"
+				else
+					null
 			)
 
 		WizardStepId.EvaluationForm ->

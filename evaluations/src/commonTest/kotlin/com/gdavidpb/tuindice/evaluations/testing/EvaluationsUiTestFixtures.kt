@@ -123,6 +123,7 @@ fun evaluationItemFixture(
 		dateText = if (isOverdue) "Vencida" else "Manana",
 		dateIcon = Icons.Outlined.Event,
 		gradesText = if (isOverdue) "Sin nota / 20,00" else "17,50 / 20,00",
+		gradeActionText = if (isOverdue) "Asignar" else "17,50",
 		gradesIcon = Icons.Outlined.AssignmentTurnedIn,
 		isOverdue = isOverdue,
 		isClickable = isClickable
@@ -203,6 +204,7 @@ private fun Evaluation.toFixtureEvaluationItem(): EvaluationItem {
 		} else {
 			"Pendiente / ${maxGrade.formatGrade(decimals = 2)}"
 		},
+		gradeActionText = currentGrade?.formatGrade(decimals = 2) ?: "Asignar",
 		gradesIcon = Icons.Outlined.AssignmentTurnedIn,
 		isOverdue = (state == EvaluationState.OVERDUE),
 		isClickable = (state != EvaluationState.PENDING)

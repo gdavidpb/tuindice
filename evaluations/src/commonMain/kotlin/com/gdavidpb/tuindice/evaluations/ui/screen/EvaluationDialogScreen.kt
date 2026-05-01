@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.ui.screen
 
 import androidx.compose.runtime.Composable
+import com.gdavidpb.tuindice.evaluations.ui.dialog.GradePickerBottomSheet
 import com.gdavidpb.tuindice.evaluations.ui.dialog.GradePickerDialog
 import com.gdavidpb.tuindice.evaluations.ui.model.EvaluationGradeWheelPickerDefaults
 import org.jetbrains.compose.resources.stringResource
@@ -47,14 +48,16 @@ fun MaxGradePickerContentDialog(
 
 @Composable
 fun EvaluationGradePickerContentDialog(
+	evaluationName: String,
 	selectedGrade: Double?,
 	maxGrade: Double,
 	onGradeChange: (grade: Double) -> Unit,
 	onDismissRequest: () -> Unit,
 	dismissOnConfirm: Boolean = true
 ) {
-	GradePickerDialog(
+	GradePickerBottomSheet(
 		title = stringResource(Res.string.dialog_title_edit_evaluation_grade),
+		contextText = evaluationName,
 		acceptText = stringResource(Res.string.accept),
 		cancelText = stringResource(Res.string.cancel),
 		selectedGrade = selectedGrade ?: maxGrade,

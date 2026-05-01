@@ -69,8 +69,8 @@ class EvaluationsViewModel(
 	fun removeEvaluationAction(evaluationId: String) =
 		sendAction(Evaluations.Action.RemoveEvaluation(evaluationId))
 
-	fun showEvaluationGradeDialogAction(evaluationId: String) =
-		sendAction(Evaluations.Action.ShowEvaluationGradeDialog(evaluationId))
+	fun showEvaluationGradeDialogAction(evaluationId: String, evaluationName: String = "") =
+		sendAction(Evaluations.Action.ShowEvaluationGradeDialog(evaluationId, evaluationName))
 
 	fun setEvaluationGradeAction(evaluationId: String, grade: Double) =
 		sendAction(Evaluations.Action.SetEvaluationGrade(evaluationId, grade))

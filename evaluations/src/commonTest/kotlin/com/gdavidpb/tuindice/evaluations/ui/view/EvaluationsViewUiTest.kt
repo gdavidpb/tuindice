@@ -15,15 +15,19 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalTestApi::class)
 class EvaluationsViewUiTest {
 	@Test
-	fun when_itemTapped_then_invokesEvaluationClickCallback() = runTuIndiceUiTest {
+	fun when_gradeButtonTapped_then_invokesEvaluationClickCallback() = runTuIndiceUiTest {
 		val groups = evaluationsGroupItemsFixture()
 		var clickedEvaluationId: String? = null
+		var clickedEvaluationName: String? = null
 
 		setTuIndiceTestContent {
 			EvaluationsView(
 				lazyListState = rememberLazyListState(),
 				evaluations = groups,
-				onEvaluationClick = { evaluationId -> clickedEvaluationId = evaluationId },
+				onEvaluationClick = { evaluationId, evaluationName ->
+					clickedEvaluationId = evaluationId
+					clickedEvaluationName = evaluationName
+				},
 				onEvaluationEdit = {},
 				onEvaluationDelete = {}
 			)
@@ -35,13 +39,14 @@ class EvaluationsViewUiTest {
 		assertNodeVisible(EvaluationsUiTags.evaluationItemCard(item.evaluationId))
 		assertNodeVisible(EvaluationsUiTags.evaluationHeader(groups.first().title))
 
-		onNodeWithTag(EvaluationsUiTags.evaluationItemCard(item.evaluationId)).performClick()
+		onNodeWithTag(EvaluationsUiTags.EvaluationGradeActionButton).performClick()
 
 		assertEquals(item.evaluationId, clickedEvaluationId)
+		assertEquals(item.nameText, clickedEvaluationName)
 	}
 
 	@Test
-	fun when_itemIsNotClickable_then_tapDoesNotInvokeEvaluationCallback() = runTuIndiceUiTest {
+	fun when_itemIsNotClickable_then_gradeButtonTapDoesNotInvokeEvaluationCallback() = runTuIndiceUiTest {
 		val sourceGroups = evaluationsGroupItemsFixture()
 		val disabledItem = sourceGroups.first().items.first().copy(
 			evaluationId = "evaluation-item-disabled",
@@ -56,13 +61,13 @@ class EvaluationsViewUiTest {
 			EvaluationsView(
 				lazyListState = rememberLazyListState(),
 				evaluations = groups,
-				onEvaluationClick = { evaluationId -> clickedEvaluationId = evaluationId },
+				onEvaluationClick = { evaluationId, _ -> clickedEvaluationId = evaluationId },
 				onEvaluationEdit = {},
 				onEvaluationDelete = {}
 			)
 		}
 
-		onNodeWithTag(EvaluationsUiTags.evaluationItemCard(disabledItem.evaluationId)).performClick()
+		onNodeWithTag(EvaluationsUiTags.EvaluationGradeActionButton).performClick()
 
 		assertEquals(null, clickedEvaluationId)
 	}
