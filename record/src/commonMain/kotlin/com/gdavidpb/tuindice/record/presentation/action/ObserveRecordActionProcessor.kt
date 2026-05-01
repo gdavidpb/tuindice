@@ -21,11 +21,15 @@ class ObserveRecordActionProcessor(
 					is UseCaseState.Loading -> null
 
 					is UseCaseState.Data ->
-						suspend { _: Record.State ->
+						suspend { current: Record.State ->
 							val record = useCaseState.value
 
 							if (record.selectedTermId == null) {
-								Record.State.Empty
+								when {
+									record.hasSyncedRecord -> Record.State.Empty
+									current is Record.State.Failed -> current
+									else -> Record.State.Loading
+								}
 							} else {
 								Record.State.Content(
 									viewMode = record.viewMode,

@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.record.domain.usecase.param.UpsertAttemptSelectionP
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.single
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -138,6 +139,8 @@ private class FakeAcademicRecordRepository(
 	val deletedAttemptIds = mutableListOf<String>()
 
 	override suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord> = emptyFlow()
+
+	override suspend fun observeHasSyncedRecordFlow(): Flow<Boolean> = emptyFlow()
 
 	override suspend fun getAcademicRecord(): AcademicRecord? = record
 

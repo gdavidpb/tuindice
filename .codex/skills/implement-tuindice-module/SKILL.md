@@ -40,6 +40,8 @@ Implement module work by copying the nearest existing module pattern instead of 
    - if the local read is one-shot cached data instead of an observable flow, expose a local/fresh read such as `getFresh*()` separately from a remote refresh such as `refresh*()`
    - observe use cases should read local flows only
    - update use cases should fetch or recompute and then persist back into the local state
+   - when an empty local snapshot is ambiguous before the first remote response, persist a local `hasSynced*` flag with the confirmed snapshot and expose it as `observeHasSynced*Flow()` from the repository
+   - use the persisted `hasSynced*` flag, not transient global sync progress, to distinguish initial loading from a real empty state: local content wins; empty plus `hasSynced=false` stays `Loading`; empty plus `hasSynced=true` becomes `Empty`
    - `ViewModel` initial actions should usually start observation, while `Route` triggers the first refresh with `LaunchedEffect`
    - initial screen state should be neutral (`Idle`) when local data can arrive immediately; full-screen `Loading` should be emitted only by a remote refresh path, or by an observed synced-status branch that is explicitly waiting for remote data
 7. When a change alters an HTTP contract consumed by the app, update the local WireMock fixtures in the same change:
@@ -81,6 +83,9 @@ Implement module work by copying the nearest existing module pattern instead of 
 - For repository-backed feature state, prefer the `summary` and `record` split:
   - `Observe*UseCase` reads local state only
   - `Update*UseCase` refreshes and persists explicitly
+  - if absence of local data is ambiguous before the first completed remote refresh, persist a feature-owned sync-state row such as `EvaluationSyncStateEntity` or `AcademicRecordSyncStateEntity`, expose it as `observeHasSynced*Flow()`, and include it in the observed domain/presentation model
+  - reducers should mirror `evaluations` and `record`: when observed content exists, show `Content`; when no content exists and `hasSynced*` is true, show `Empty`; when no content exists and `hasSynced*` is false, keep `Failed` if already failed, otherwise show `Loading`
+  - do not use `SyncRepository.observeSyncInProgress()` to decide whether an empty local snapshot is real; that flow is transient and can miss the pre-sync or failed-first-sync state
   - `Observe*ActionProcessor` owns screen state reduction from the observed flow
   - `Refresh*ActionProcessor` owns startup/retry refresh and error messaging
   - `Observe*ActionProcessor` should ignore `UseCaseState.Loading` from local reads; do not show a full-screen loading illustration for a fast local cache read

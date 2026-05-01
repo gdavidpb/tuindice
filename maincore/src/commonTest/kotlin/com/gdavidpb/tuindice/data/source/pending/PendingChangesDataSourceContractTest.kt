@@ -257,6 +257,8 @@ private class FakeAcademicRecordRepository(
 ) : AcademicRecordRepository {
 	override suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord> = emptyFlow()
 
+	override suspend fun observeHasSyncedRecordFlow(): Flow<Boolean> = flowOf(false)
+
 	override suspend fun getAcademicRecord(): AcademicRecord? = null
 
 	override suspend fun updateAcademicRecord() = Unit

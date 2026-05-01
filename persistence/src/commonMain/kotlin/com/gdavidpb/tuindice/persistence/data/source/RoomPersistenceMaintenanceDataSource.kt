@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.persistence.data.source
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptOverrideDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicRecordDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicRecordSyncStateDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationSyncStateDao
@@ -18,6 +19,7 @@ import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactio
 class RoomPersistenceMaintenanceDataSource(
 	private val userDao: UserDao,
 	private val academicRecordDao: AcademicRecordDao,
+	private val academicRecordSyncStateDao: AcademicRecordSyncStateDao,
 	private val academicTermDao: AcademicTermDao,
 	private val academicAttemptDao: AcademicAttemptDao,
 	private val academicAttemptOverrideDao: AcademicAttemptOverrideDao,
@@ -38,6 +40,7 @@ class RoomPersistenceMaintenanceDataSource(
 			academicAttemptOverrideDao.deleteAll()
 			academicAttemptDao.deleteAll()
 			academicTermDao.deleteAll()
+			academicRecordSyncStateDao.deleteAll()
 			academicRecordDao.deleteAll()
 			subjectStatsAttemptBinDao.deleteAll()
 			subjectStatsGradeBinDao.deleteAll()

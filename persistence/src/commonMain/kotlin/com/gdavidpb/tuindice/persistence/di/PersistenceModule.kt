@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptOverrideDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicRecordDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicRecordSyncStateDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationSyncStateDao
@@ -27,6 +28,7 @@ val persistenceModule = module {
 	single<AcademicTermDao> { get<TuIndiceDatabase>().academicTerms }
 	single<AcademicAttemptDao> { get<TuIndiceDatabase>().academicAttempts }
 	single<AcademicAttemptOverrideDao> { get<TuIndiceDatabase>().academicAttemptOverrides }
+	single<AcademicRecordSyncStateDao> { get<TuIndiceDatabase>().academicRecordSyncState }
 	single<EvaluationDao> { get<TuIndiceDatabase>().evaluations }
 	single<EvaluationSyncStateDao> { get<TuIndiceDatabase>().evaluationSyncState }
 	single<PendingMutationDao> { get<TuIndiceDatabase>().pendingMutations }

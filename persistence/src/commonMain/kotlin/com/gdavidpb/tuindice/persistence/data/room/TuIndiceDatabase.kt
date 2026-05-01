@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.*
 		AcademicTermEntity::class,
 		AcademicAttemptEntity::class,
 		AcademicAttemptOverrideEntity::class,
+		AcademicRecordSyncStateEntity::class,
 		EvaluationEntity::class,
 		EvaluationSyncStateEntity::class,
 		PendingMutationEntity::class,
@@ -20,7 +21,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.*
 		SubjectStatsGradeBinEntity::class,
 		SubjectStatsAttemptBinEntity::class
 	],
-	version = 22,
+	version = 23,
 	exportSchema = false
 )
 @ConstructedBy(TuIndiceDatabaseConstructor::class)
@@ -31,6 +32,7 @@ abstract class TuIndiceDatabase : RoomDatabase() {
 	abstract val academicTerms: AcademicTermDao
 	abstract val academicAttempts: AcademicAttemptDao
 	abstract val academicAttemptOverrides: AcademicAttemptOverrideDao
+	abstract val academicRecordSyncState: AcademicRecordSyncStateDao
 	abstract val evaluations: EvaluationDao
 	abstract val evaluationSyncState: EvaluationSyncStateDao
 	abstract val pendingMutations: PendingMutationDao

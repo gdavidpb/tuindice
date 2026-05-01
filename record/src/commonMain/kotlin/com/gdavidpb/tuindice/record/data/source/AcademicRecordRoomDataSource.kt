@@ -11,8 +11,10 @@ import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptOverrideDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicRecordDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicRecordSyncStateDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicRecordEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicRecordSyncStateEntity
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
@@ -20,11 +22,13 @@ import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepos
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 class AcademicRecordRoomDataSource(
 	private val academicRecordDao: AcademicRecordDao,
+	private val academicRecordSyncStateDao: AcademicRecordSyncStateDao,
 	private val academicTermDao: AcademicTermDao,
 	private val academicAttemptDao: AcademicAttemptDao,
 	private val academicAttemptOverrideDao: AcademicAttemptOverrideDao,
@@ -47,6 +51,11 @@ class AcademicRecordRoomDataSource(
 				attemptOverrides = overrides.map { override -> override.toAttemptOverride() }
 			)
 		}
+	}
+
+	override fun observeHasSyncedRecordFlow(): Flow<Boolean> {
+		return academicRecordSyncStateDao.observeSyncState()
+			.map { syncState -> syncState?.hasSynced == true }
 	}
 
 	override suspend fun getAcademicRecord(): AcademicRecord? {
@@ -162,6 +171,9 @@ class AcademicRecordRoomDataSource(
 					revision = record.revision,
 					updatedAt = currentTimeMillis()
 				)
+			)
+			academicRecordSyncStateDao.upsertEntity(
+				AcademicRecordSyncStateEntity(hasSynced = true)
 			)
 			academicTermDao.upsertEntities(record.record.terms.map { term ->
 				term.toAcademicTermEntity()

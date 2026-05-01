@@ -332,6 +332,8 @@ private class FakeAcademicRecordLocalDataRepository : AcademicRecordLocalDataRep
 
 	override fun observeAcademicRecordFlow(): Flow<AcademicRecord?> = flowOf(savedRecords.lastOrNull()?.record)
 
+	override fun observeHasSyncedRecordFlow(): Flow<Boolean> = flowOf(savedRecords.isNotEmpty())
+
 	override suspend fun getAcademicRecord(): AcademicRecord? = savedRecords.lastOrNull()?.record
 
 	override suspend fun getRecordRevision(): Long? = savedRecords.lastOrNull()?.revision

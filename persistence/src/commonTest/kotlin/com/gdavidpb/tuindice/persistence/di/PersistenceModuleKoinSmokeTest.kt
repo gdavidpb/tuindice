@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptOverrideDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicRecordDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicRecordSyncStateDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationSyncStateDao
@@ -17,6 +18,7 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.UserDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptOverrideEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicRecordEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicRecordSyncStateEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationSyncStateEntity
@@ -49,6 +51,7 @@ class PersistenceModuleKoinSmokeTest {
 			AcademicTermDao::class,
 			AcademicAttemptDao::class,
 			AcademicAttemptOverrideDao::class,
+			AcademicRecordSyncStateDao::class,
 			EvaluationDao::class,
 			EvaluationSyncStateDao::class,
 			PendingMutationDao::class,
@@ -123,6 +126,18 @@ private class FakeTuIndiceDatabase : TuIndiceDatabase() {
 		override suspend fun upsertEntity(entity: AcademicAttemptOverrideEntity) = Unit
 
 		override suspend fun upsertEntities(entities: List<AcademicAttemptOverrideEntity>) = Unit
+	}
+
+	override val academicRecordSyncState: AcademicRecordSyncStateDao = object : AcademicRecordSyncStateDao() {
+		override fun observeSyncState(key: String): Flow<AcademicRecordSyncStateEntity?> = emptyFlow()
+
+		override suspend fun getSyncState(key: String): AcademicRecordSyncStateEntity? = null
+
+		override suspend fun deleteAll() = Unit
+
+		override suspend fun upsertEntity(entity: AcademicRecordSyncStateEntity) = Unit
+
+		override suspend fun upsertEntities(entities: List<AcademicRecordSyncStateEntity>) = Unit
 	}
 
 	override val evaluations: EvaluationDao = object : EvaluationDao() {
@@ -260,6 +275,7 @@ private class FakeTuIndiceDatabase : TuIndiceDatabase() {
 			"academic_term",
 			"academic_attempt",
 			"academic_attempt_override",
+			"academic_record_sync_state",
 			"evaluations",
 			"evaluation_sync_state",
 			"pending_mutations",

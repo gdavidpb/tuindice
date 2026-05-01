@@ -25,6 +25,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -371,6 +372,8 @@ private class FakeAcademicRecordLocalDataRepository(
 	private var revision = record.revision
 
 	override fun observeAcademicRecordFlow(): Flow<AcademicRecord?> = recordState
+
+	override fun observeHasSyncedRecordFlow(): Flow<Boolean> = flowOf(true)
 
 	override suspend fun getAcademicRecord(): AcademicRecord = recordState.value
 

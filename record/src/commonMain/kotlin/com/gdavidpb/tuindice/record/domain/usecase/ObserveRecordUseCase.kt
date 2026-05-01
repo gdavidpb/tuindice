@@ -21,8 +21,9 @@ class ObserveRecordUseCase(
 			academicRecordRepository.observeAcademicRecordFlow(),
 			recordSelectionRepository.observeRecordViewMode(),
 			recordSelectionRepository.observeSelectedTermId(RecordViewMode.Official),
-			recordSelectionRepository.observeSelectedTermId(RecordViewMode.Working)
-		) { record, viewMode, selectedOfficialTermId, selectedWorkingTermId ->
+			recordSelectionRepository.observeSelectedTermId(RecordViewMode.Working),
+			academicRecordRepository.observeHasSyncedRecordFlow()
+		) { record, viewMode, selectedOfficialTermId, selectedWorkingTermId, hasSyncedRecord ->
 			val visibleTermIds = record.filteredProjectionFor(viewMode)
 				.terms
 				.map { term -> term.id }
@@ -49,7 +50,8 @@ class ObserveRecordUseCase(
 			ObservedRecord(
 				record = record,
 				viewMode = viewMode,
-				selectedTermId = selectedTermId
+				selectedTermId = selectedTermId,
+				hasSyncedRecord = hasSyncedRecord
 			)
 		}
 	}

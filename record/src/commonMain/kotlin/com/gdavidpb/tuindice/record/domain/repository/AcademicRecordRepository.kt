@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface AcademicRecordRepository {
 	suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord>
+	suspend fun observeHasSyncedRecordFlow(): Flow<Boolean>
 	suspend fun getAcademicRecord(): AcademicRecord?
 	suspend fun updateAcademicRecord()
 	suspend fun drainPendingMutations()

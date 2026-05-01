@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.persistence.data.source
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptOverrideDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicRecordDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicRecordSyncStateDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationSyncStateDao
@@ -15,6 +16,7 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.UserDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptOverrideEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicRecordEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicRecordSyncStateEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationSyncStateEntity
@@ -38,6 +40,7 @@ class RoomPersistenceMaintenanceDataSourceTest {
 		val dataSource = RoomPersistenceMaintenanceDataSource(
 			userDao = RecordingUserDao(calls),
 			academicRecordDao = RecordingAcademicRecordDao(calls),
+			academicRecordSyncStateDao = RecordingAcademicRecordSyncStateDao(calls),
 			academicTermDao = RecordingAcademicTermDao(calls),
 			academicAttemptDao = RecordingAcademicAttemptDao(calls),
 			academicAttemptOverrideDao = RecordingAcademicAttemptOverrideDao(calls),
@@ -62,6 +65,7 @@ class RoomPersistenceMaintenanceDataSourceTest {
 				"academic_attempt_override",
 				"academic_attempt",
 				"academic_term",
+				"academic_record_sync_state",
 				"academic_record",
 				"subject_stats_attempt_bin",
 				"subject_stats_grade_bin",
@@ -116,6 +120,22 @@ private class RecordingAcademicRecordDao(
 	override suspend fun upsertEntity(entity: AcademicRecordEntity) = Unit
 
 	override suspend fun upsertEntities(entities: List<AcademicRecordEntity>) = Unit
+}
+
+private class RecordingAcademicRecordSyncStateDao(
+	private val calls: MutableList<String>
+) : AcademicRecordSyncStateDao() {
+	override fun observeSyncState(key: String): Flow<AcademicRecordSyncStateEntity?> = emptyFlow()
+
+	override suspend fun getSyncState(key: String): AcademicRecordSyncStateEntity? = null
+
+	override suspend fun deleteAll() {
+		calls += "academic_record_sync_state"
+	}
+
+	override suspend fun upsertEntity(entity: AcademicRecordSyncStateEntity) = Unit
+
+	override suspend fun upsertEntities(entities: List<AcademicRecordSyncStateEntity>) = Unit
 }
 
 private class RecordingAcademicTermDao(

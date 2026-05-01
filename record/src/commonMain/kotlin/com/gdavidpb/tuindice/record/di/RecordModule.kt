@@ -95,6 +95,7 @@ val recordModule = module {
 	single<AcademicRecordLocalDataRepository> {
 		AcademicRecordRoomDataSource(
 			academicRecordDao = get(),
+			academicRecordSyncStateDao = get(),
 			academicTermDao = get(),
 			academicAttemptDao = get(),
 			academicAttemptOverrideDao = get(),

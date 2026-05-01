@@ -40,6 +40,10 @@ class AcademicRecordDataSource(
 		return localDataSource.observeAcademicRecordFlow().filterNotNull()
 	}
 
+	override suspend fun observeHasSyncedRecordFlow(): Flow<Boolean> {
+		return localDataSource.observeHasSyncedRecordFlow()
+	}
+
 	override suspend fun getAcademicRecord(): AcademicRecord? {
 		return localDataSource.getAcademicRecord()
 	}
