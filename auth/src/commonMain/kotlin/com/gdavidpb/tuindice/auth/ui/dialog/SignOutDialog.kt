@@ -71,59 +71,145 @@ fun SignOutDialog(
 				style = MaterialTheme.typography.bodyLarge
 			)
 
-			Row(
+			SignOutDialogActions(
 				modifier = Modifier
 					.fillMaxWidth()
 					.padding(vertical = 24.dp),
+				confirmText = confirmText,
+				secondaryText = secondaryText,
+				cancelText = cancelText,
+				isLoggingOut = isLoggingOut,
+				onConfirmClick = onConfirmClick,
+				onSecondaryClick = onSecondaryClick,
+				onDismissRequest = onDismissRequest
+			)
+		}
+	}
+}
+
+@Composable
+private fun SignOutDialogActions(
+	modifier: Modifier = Modifier,
+	confirmText: String,
+	secondaryText: String?,
+	cancelText: String,
+	isLoggingOut: Boolean,
+	onConfirmClick: () -> Unit,
+	onSecondaryClick: () -> Unit,
+	onDismissRequest: () -> Unit
+) {
+	if (secondaryText == null) {
+		Row(
+			modifier = modifier,
+			horizontalArrangement = Arrangement.End
+		) {
+			CancelButton(
+				text = cancelText,
+				enabled = !isLoggingOut,
+				onClick = onDismissRequest
+			)
+
+			ConfirmButton(
+				text = confirmText,
+				isLoggingOut = isLoggingOut,
+				onClick = onConfirmClick
+			)
+		}
+	} else {
+		Column(
+			modifier = modifier,
+			horizontalAlignment = Alignment.End
+		) {
+			ConfirmButton(
+				modifier = Modifier.fillMaxWidth(),
+				text = confirmText,
+				isLoggingOut = isLoggingOut,
+				onClick = onConfirmClick
+			)
+
+			Row(
+				modifier = Modifier.padding(top = 8.dp),
 				horizontalArrangement = Arrangement.End
 			) {
-				OutlinedButton(
-					modifier = Modifier.testTag(BaseUiTags.ConfirmationDialogNegativeButton),
-					onClick = onDismissRequest,
-					border = null,
-					enabled = !isLoggingOut
-				) {
-					Text(text = cancelText)
-				}
+				CancelButton(
+					text = cancelText,
+					enabled = !isLoggingOut,
+					onClick = onDismissRequest
+				)
 
-				if (secondaryText != null) {
-					OutlinedButton(
-						modifier = Modifier.testTag(AuthUiTags.SignOutSecondaryButton),
-						onClick = onSecondaryClick,
-						border = null,
-						enabled = !isLoggingOut
-					) {
-						Text(text = secondaryText)
-					}
-				}
+				SecondaryButton(
+					text = secondaryText,
+					enabled = !isLoggingOut,
+					onClick = onSecondaryClick
+				)
+			}
+		}
+	}
+}
 
-				Button(
-					modifier = Modifier.testTag(BaseUiTags.ConfirmationDialogPositiveButton),
-					onClick = onConfirmClick,
-					enabled = !isLoggingOut
-				) {
-					Box(
-						contentAlignment = Alignment.Center
-					) {
-						Text(
-							text = confirmText,
-							color = if (isLoggingOut) {
-								Color.Transparent
-							} else {
-								Color.Unspecified
-							}
-						)
+@Composable
+private fun CancelButton(
+	text: String,
+	enabled: Boolean,
+	onClick: () -> Unit
+) {
+	OutlinedButton(
+		modifier = Modifier.testTag(BaseUiTags.ConfirmationDialogNegativeButton),
+		onClick = onClick,
+		border = null,
+		enabled = enabled
+	) {
+		Text(text = text)
+	}
+}
 
-						if (isLoggingOut) {
-							CircularProgressIndicator(
-								modifier = Modifier
-									.testTag(BaseUiTags.ConfirmationDialogPositiveLoading)
-									.size(18.dp),
-								color = Color.White
-							)
-						}
-					}
+@Composable
+private fun SecondaryButton(
+	text: String,
+	enabled: Boolean,
+	onClick: () -> Unit
+) {
+	OutlinedButton(
+		modifier = Modifier.testTag(AuthUiTags.SignOutSecondaryButton),
+		onClick = onClick,
+		border = null,
+		enabled = enabled
+	) {
+		Text(text = text)
+	}
+}
+
+@Composable
+private fun ConfirmButton(
+	modifier: Modifier = Modifier,
+	text: String,
+	isLoggingOut: Boolean,
+	onClick: () -> Unit
+) {
+	Button(
+		modifier = modifier.testTag(BaseUiTags.ConfirmationDialogPositiveButton),
+		onClick = onClick,
+		enabled = !isLoggingOut
+	) {
+		Box(
+			contentAlignment = Alignment.Center
+		) {
+			Text(
+				text = text,
+				color = if (isLoggingOut) {
+					Color.Transparent
+				} else {
+					Color.Unspecified
 				}
+			)
+
+			if (isLoggingOut) {
+				CircularProgressIndicator(
+					modifier = Modifier
+						.testTag(BaseUiTags.ConfirmationDialogPositiveLoading)
+						.size(18.dp),
+					color = Color.White
+				)
 			}
 		}
 	}

@@ -16,6 +16,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -40,7 +41,9 @@ fun EvaluationsContentView(
 	onEvaluationEdit: (evaluationId: String) -> Unit,
 	onEvaluationDelete: (evaluationId: String) -> Unit,
 	scrollEnabled: Boolean = true,
-	openActionsEvaluationId: String? = null
+	openActionsEvaluationId: String? = null,
+	focusEvaluationId: String? = null,
+	onFocusEvaluationBoundsChange: (Rect?) -> Unit = {}
 ) {
 	val lazyColumState = rememberLazyListState()
 
@@ -68,7 +71,9 @@ fun EvaluationsContentView(
 					onEvaluationEdit = onEvaluationEdit,
 					onEvaluationDelete = onEvaluationDelete,
 					scrollEnabled = scrollEnabled,
-					openActionsEvaluationId = openActionsEvaluationId
+					openActionsEvaluationId = openActionsEvaluationId,
+					focusEvaluationId = focusEvaluationId,
+					onFocusEvaluationBoundsChange = onFocusEvaluationBoundsChange
 				)
 			} else {
 				EvaluationsEmptyMatchView(

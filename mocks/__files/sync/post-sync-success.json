@@ -1,37 +1,1730 @@
 {
   "record": {
-    "revision": 12,
+    "revision": 11,
     "record": {
-      "id": "0IQZf2qtYZOTwutEX38qvBY5H8l2",
+      "id": "mock-record",
       "profile": {
-        "user_id": "0IQZf2qtYZOTwutEX38qvBY5H8l2",
+        "user_id": "mock-user",
         "identity_card_number": 12345678,
-        "usb_id": "11-11111",
-        "email": "11-11111@usb.ve",
-        "first_names": "Luis",
-        "last_names": "Perez",
-        "career_name": "Ingenieria de Computacion",
-        "career_code": 800,
+        "usb_id": "00000000",
+        "email": "mock@tuindice.app",
+        "first_names": "Mock",
+        "last_names": "User",
+        "career_name": "Ingenieria Civil Electronica",
+        "career_code": 12039,
         "scholarship": false
       },
       "terms": [
         {
-          "id": "sync-term-current",
+          "id": "a51ba900419c65c06191a5635852a05c",
+          "label": "Septiembre - Diciembre 2026",
+          "start_at": 1788235200000,
+          "end_at": 1798686000000,
+          "term_kind": "synthetic",
+          "attempts": [
+            {
+              "id": "c0cd59963fadd9fc081ff3db7779c06e",
+              "subject_code": "EP5406",
+              "subject_name": "PROYECTO DE GRADO A DEDICACION EXCLUSIVA",
+              "credits": 9,
+              "grading_mode": "qualitative_pass_fail",
+              "official_score": {
+                "type": "empty"
+              },
+              "official_outcome": "approved",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "16593cab7844efb52ab904ce28f11dde",
+          "label": "Abril - Julio 2026",
           "start_at": 1775012400000,
           "end_at": 1785470400000,
           "term_kind": "official_current",
           "attempts": [
             {
-              "id": "sync-attempt-ci2611",
-              "subject_code": "CI2611",
-              "subject_name": "Algoritmos y Estructuras I",
+              "id": "7d775857cc402928157f2a5b0b2fa5d6",
+              "subject_code": "EP5406",
+              "subject_name": "PROYECTO DE GRADO A DEDICACION EXCLUSIVA",
+              "credits": 9,
+              "grading_mode": "qualitative_pass_fail",
+              "official_score": {
+                "type": "empty"
+              },
+              "official_outcome": "failed",
+              "official_badge": "none"
+            },
+            {
+              "id": "003ea6613e10a30340bba4408761b5ae",
+              "subject_code": "EC5344",
+              "subject_name": "RADIACION Y ANTENAS",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "e8fba9c7287215c7b7c350916dbc2fbf",
+              "subject_code": "EC5745",
+              "subject_name": "PROCESAMIENTO CONCURRENTE ASINCRONO",
               "credits": 4,
               "grading_mode": "numeric",
               "official_score": {
                 "type": "numeric",
                 "value": 5
               },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "9305628a8b79a1c02a2fce2c959c8171",
+              "subject_code": "PS5315",
+              "subject_name": "LOGICA Y CONTROLADORES PROGRAMABLES",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "8c4a29abdc3a6d73f2b5cf7dce351aec",
+          "label": "Enero - Marzo 2026",
+          "start_at": 1767236400000,
+          "end_at": 1774926000000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "0855de9b33adfc0bf31024f8d09472d9",
+              "subject_code": "EC5333",
+              "subject_name": "INT. A LAS MICROONDAS Y SUS APLICACIONES",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "6e016e0a93cc84fbb28950f220705be1",
+              "subject_code": "PB5611",
+              "subject_name": "INTRODUCCION A LA BIOINGENIERIA",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "9e23bfa17ef437989cc564be247f40c0",
+          "label": "Septiembre - Diciembre 2025",
+          "start_at": 1756699200000,
+          "end_at": 1767150000000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "ffdf43d1b7443d5ee47bd96139f6c680",
+              "subject_code": "EC5751",
+              "subject_name": "REDES DE COMPUTADORAS I",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "empty"
+              },
+              "official_outcome": "unreported",
+              "official_badge": "none"
+            },
+            {
+              "id": "8af8d6a08ba866df9d0533c5f2f92f75",
+              "subject_code": "EC5811",
+              "subject_name": "FUNDAMENTOS DE MECATRONICA I",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "failed",
+              "official_badge": "none"
+            },
+            {
+              "id": "2ebdc65297b244d902e9d134b0c55140",
+              "subject_code": "PS2323",
+              "subject_name": "SISTEMAS DE CONTROL II",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "failed",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "661230019bcb5cab43597af6ae4481a3",
+          "label": "Abril - Julio 2025",
+          "start_at": 1743476400000,
+          "end_at": 1753934400000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "3c08c27d47625db7bd269c59ccfb8787",
+              "subject_code": "EP3206",
+              "subject_name": "PROYECTO DE  GRADO III",
+              "credits": 3,
+              "grading_mode": "qualitative_pass_fail",
+              "official_score": {
+                "type": "empty"
+              },
               "official_outcome": "approved",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "98aa8bb5521ede72f73cd1d2318fa785",
+          "label": "Enero - Marzo 2025",
+          "start_at": 1735700400000,
+          "end_at": 1743390000000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "838d0aed27220edc5f9f72b1c76b4e2b",
+              "subject_code": "CE3422",
+              "subject_name": "EL EMPRENDEDOR Y EL DESARROLLO DE NUEVOS NEGOCIOS",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "69a19126bcf9a588d89f8a86f7c70cce",
+              "subject_code": "EP5801",
+              "subject_name": "TÓPICOS ESPECIALES I",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "841db21a1e72db78c0c4b60f756cd999",
+              "subject_code": "PBG214",
+              "subject_name": "NUTRICION, ACTIVIDAD FISICA Y CONTRO, DE PESO",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "2b65e36092bdb4c887773f3bf5f52696",
+              "subject_code": "PS2323",
+              "subject_name": "SISTEMAS DE CONTROL II",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 1
+              },
+              "official_outcome": "failed",
+              "official_badge": "none"
+            },
+            {
+              "id": "9e71dd05ecda23268005017778fec81d",
+              "subject_code": "PS4326",
+              "subject_name": "SISTEMAS  PARA LA AUTOMATIZACION INDUSTRIAL",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "850d8cc56643e84f732720a5b3119da8",
+          "label": "Septiembre - Diciembre 2024",
+          "start_at": 1725163200000,
+          "end_at": 1735614000000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "05f08cb3f153be4658e058d365823c59",
+              "subject_code": "CE3114",
+              "subject_name": "ECONOMIA DE LA EMPRESA",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "489819f29b7184b4e8bf825681387d9d",
+              "subject_code": "CSB312",
+              "subject_name": "POL.ESTRA.ERA NUC.",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "d29c1264abe43043c8c1271d216afecb",
+              "subject_code": "EC4432",
+              "subject_name": "COMUNICACIONES MOVILES",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "c874772b09f7661c205c5265db76b11f",
+              "subject_code": "EC4434",
+              "subject_name": "FUNDAMENTOS DE RADIOCOMUNICACIONES",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "1eead6acf6de140ca909d75e1a0116fb",
+              "subject_code": "EP2206",
+              "subject_name": "PROYECTO DE GRADO II",
+              "credits": 3,
+              "grading_mode": "qualitative_pass_fail",
+              "official_score": {
+                "type": "empty"
+              },
+              "official_outcome": "approved",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "6c10f42ab9f7747245a0af9fd96e4744",
+          "label": "Julio - Agosto 2024",
+          "start_at": 1719806400000,
+          "end_at": 1725076800000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "c6c8c8ef08816023771362a9d8686dab",
+              "subject_code": "EP1206",
+              "subject_name": "PROYECTO DE GRADO I",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "empty"
+              },
+              "official_outcome": "unreported",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "7c83f512d6c51a0a8fef20d811e2989c",
+          "label": "Abril - Julio 2024",
+          "start_at": 1711940400000,
+          "end_at": 1722398400000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "39369fba5b5a1d08a11c8067c01e176a",
+              "subject_code": "CE3122",
+              "subject_name": "EVALUACION DE PROYECTOS",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "a68eeacbb2c2b187ecceb8320c18a78b",
+              "subject_code": "EC2322",
+              "subject_name": "TEORIA DE ONDAS",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "20e3ab4af3438cc288f33c2c9bff3366",
+              "subject_code": "EC3173",
+              "subject_name": "DISPOSITIVOS ELECTRONICOS",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "b0b3982bbbc197f8e5385aa30e1158d4",
+              "subject_code": "EC4434",
+              "subject_name": "FUNDAMENTOS DE RADIOCOMUNICACIONES",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "pending",
+              "official_badge": "without_effect"
+            },
+            {
+              "id": "6ceb4573312a8f94d76696a7dfe9de37",
+              "subject_code": "PS2322",
+              "subject_name": "SISTEMAS DE CONTROL I",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "349c4c43488cc23b06d0a846683ed99a",
+          "label": "Enero - Marzo 2024",
+          "start_at": 1704078000000,
+          "end_at": 1711854000000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "1b32719e5d16f950e7c85a013a66e640",
+              "subject_code": "EC1311",
+              "subject_name": "TEORIA ELECTROMAGNETICA",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "a39df6c845f745dc67357c215483293a",
+              "subject_code": "EC3423",
+              "subject_name": "COMUNICACIONES II",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "92de618f9effc67cd31d50600a9f9d3a",
+              "subject_code": "EC4179",
+              "subject_name": "ELECTRONICA DE SIST.ADQUISICION, PROCESAM Y CONTROL AMBIENT",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "357c7914814465f85291d7ca74614d0e",
+              "subject_code": "MA3111",
+              "subject_name": "MATEMATICAS VII",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "8968c87538682817eadd10498b4d274f",
+          "label": "Septiembre - Diciembre 2023",
+          "start_at": 1693540800000,
+          "end_at": 1703991600000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "a4417f2f588d2dc93f11b7c34dc15050",
+              "subject_code": "EC1311",
+              "subject_name": "TEORIA ELECTROMAGNETICA",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "pending",
+              "official_badge": "without_effect"
+            },
+            {
+              "id": "dfa97156cf84290057f0de8ab87b5379",
+              "subject_code": "EC3423",
+              "subject_name": "COMUNICACIONES II",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "pending",
+              "official_badge": "without_effect"
+            },
+            {
+              "id": "6f903f0366bc4c2c4b2178840527b39d",
+              "subject_code": "EC3883",
+              "subject_name": "LABORATORIO DE PROYECTOS III",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "973a46f7f9947af1af5dc4e1fc0d6a46",
+              "subject_code": "PS2322",
+              "subject_name": "SISTEMAS DE CONTROL I",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "pending",
+              "official_badge": "without_effect"
+            }
+          ]
+        },
+        {
+          "id": "9489ad150f9fee690f4446bcb76dc69f",
+          "label": "Abril - Julio 2023",
+          "start_at": 1680318000000,
+          "end_at": 1690776000000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "e85c305023d25c0ff8722e61dc767fe5",
+              "subject_code": "CE3122",
+              "subject_name": "EVALUACION DE PROYECTOS",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "empty"
+              },
+              "official_outcome": "retired",
+              "official_badge": "none"
+            },
+            {
+              "id": "c08f0ca4e0982c677d3653b1ac216409",
+              "subject_code": "CE3419",
+              "subject_name": "INTRODUCCION A LA GERENCIA",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "d36650063b23aa0b552a5d7c305908b3",
+              "subject_code": "EC3882",
+              "subject_name": "LABORATORIO DE PROYECTOS II",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "b103fd3a410ce87c5c0d25903c1a2cc1",
+              "subject_code": "MA2113",
+              "subject_name": "MATEMATICAS VI",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "9ea26ac974cbf86093da826182742102",
+          "label": "Enero - Marzo 2023",
+          "start_at": 1672542000000,
+          "end_at": 1680231600000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "fd14930bb67e8dcc9d138cac5602bdd7",
+              "subject_code": "EC1311",
+              "subject_name": "TEORIA ELECTROMAGNETICA",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "failed",
+              "official_badge": "none"
+            },
+            {
+              "id": "4e2a2c8d5a4db1e80caa97450cb0fb25",
+              "subject_code": "EC1421",
+              "subject_name": "SEÑALES Y SISTEMAS",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "f4b4a2fc217f8368d15bfeb9f2ebe997",
+              "subject_code": "EC3423",
+              "subject_name": "COMUNICACIONES II",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "failed",
+              "official_badge": "none"
+            },
+            {
+              "id": "00480db92791f897fca120d57f56ea22",
+              "subject_code": "EC3881",
+              "subject_name": "LABORATORIO DE PROYECTOS I",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "e6d56542733e6d057a1f1d64d8d1823c",
+              "subject_code": "PS2322",
+              "subject_name": "SISTEMAS DE CONTROL I",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "empty"
+              },
+              "official_outcome": "retired",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "48d0f004db4f6e3110ce131d5ae33e51",
+          "label": "Septiembre - Diciembre 2022",
+          "start_at": 1662004800000,
+          "end_at": 1672455600000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "bca59930af658f2e4f8bf4ae37941fc7",
+              "subject_code": "EC1311",
+              "subject_name": "TEORIA ELECTROMAGNETICA",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "empty"
+              },
+              "official_outcome": "retired",
+              "official_badge": "none"
+            },
+            {
+              "id": "a5121bbac313a3f3dfea1ca2ed6a2785",
+              "subject_code": "EC2422",
+              "subject_name": "COMUNICACIONES I",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "b693276009e874d56d8b9390cebc5519",
+              "subject_code": "EC3731",
+              "subject_name": "ARQUITECTURA DEL COMPUTADOR II",
+              "credits": 5,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "a1e67e55900048facc90bb858f22b9fd",
+              "subject_code": "EC4179",
+              "subject_name": "ELECTRONICA DE SIST.ADQUISICION, PROCESAM Y CONTROL AMBIENT",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "pending",
+              "official_badge": "without_effect"
+            },
+            {
+              "id": "ea09c8b00d2c6a29d33daf956e77634a",
+              "subject_code": "MA2113",
+              "subject_name": "MATEMATICAS VI",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "pending",
+              "official_badge": "without_effect"
+            }
+          ]
+        },
+        {
+          "id": "dde2f2ba25197d0eb62af8139d5e600f",
+          "label": "Abril - Julio 2022",
+          "start_at": 1648782000000,
+          "end_at": 1659240000000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "a3f45d326cdabdf6614455c1db33d9fa",
+              "subject_code": "EC1421",
+              "subject_name": "SEÑALES Y SISTEMAS",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "pending",
+              "official_badge": "without_effect"
+            },
+            {
+              "id": "c76d4278ce4c1ebe0bc4839f9ad74a5a",
+              "subject_code": "EC3179",
+              "subject_name": "ELECTRONICA DE LOS SIST. DE ADQUISICION,PROCESAMIENTO Y CONT",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "ed60ded9b2a20be0155d8b74e4c18409",
+              "subject_code": "FLX445",
+              "subject_name": "QUE ES LA VERDAD?",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "c743c862fd2b6fd53717f128b10433fb",
+              "subject_code": "MA2112",
+              "subject_name": "MATEMATICAS V",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "69c1dc7d3b7bc0e8d131dd0765f6e5df",
+          "label": "Enero - Marzo 2022",
+          "start_at": 1641006000000,
+          "end_at": 1648695600000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "380e0a78c735341847b5d10c7b48b56c",
+              "subject_code": "CI2126",
+              "subject_name": "COMPUTACION II",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "c251d4c5852368c2b3f81d12e4972832",
+              "subject_code": "EC1311",
+              "subject_name": "TEORIA ELECTROMAGNETICA",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "empty"
+              },
+              "official_outcome": "retired",
+              "official_badge": "none"
+            },
+            {
+              "id": "b6eeb1b9df51a259bc66eb507f2fc73b",
+              "subject_code": "EC2178",
+              "subject_name": "CIRCUITOS ELECTRONICOS II",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "1e5e33ea2d658a12f307e46bfc08fa38",
+              "subject_code": "EC2721",
+              "subject_name": "ARQUITECTURA DEL COMPUTADOR I",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "bb28e981552deb42a5739c31f81aa03d",
+              "subject_code": "MA2112",
+              "subject_name": "MATEMATICAS V",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "pending",
+              "official_badge": "without_effect"
+            }
+          ]
+        },
+        {
+          "id": "e8be795e3cf34a85aa010a78e39b9aa5",
+          "label": "Septiembre - Diciembre 2021",
+          "start_at": 1630468800000,
+          "end_at": 1640919600000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "3900dba5cb2a06989630af4e2a98dd57",
+              "subject_code": "CI2126",
+              "subject_name": "COMPUTACION II",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "pending",
+              "official_badge": "without_effect"
+            },
+            {
+              "id": "1d18fc84bfab1b3fcc77028706aa3580",
+              "subject_code": "EC1723",
+              "subject_name": "CIRCUITOS DIGITALES",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "30cce4fbbe50d4565a1508f49919a59f",
+              "subject_code": "FS2213",
+              "subject_name": "FISICA V",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "eabc8930c1b88f8ec34ec565086e7a08",
+              "subject_code": "PS2315",
+              "subject_name": "SISTEMAS",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "48de870c9e3ae3bee1c5bc4fd253c792",
+          "label": "Abril - Julio 2021",
+          "start_at": 1617246000000,
+          "end_at": 1627704000000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "387a80d8dbca2eca3fea82d74adb2ce2",
+              "subject_code": "CI2125",
+              "subject_name": "COMPUTACION I",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "fa60e4f8cc7a3841a57fbb182bf9258f",
+              "subject_code": "EC1177",
+              "subject_name": "CIRCUITOS ELECTRONICOS I",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "e1ab65890549db9c7c65fac65818bacb",
+              "subject_code": "FS2212",
+              "subject_name": "FISICA IV",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "136fde9476bdeeda2f92813f33db6e91",
+          "label": "Enero - Marzo 2021",
+          "start_at": 1609470000000,
+          "end_at": 1617159600000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "63eb93760124f737d75f43b8f6adfce0",
+              "subject_code": "EC2272",
+              "subject_name": "ANALISIS DE CIRCUITOS ELECTRICOS II",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "05379dbc0b435ee582502e54a6398b6f",
+          "label": "Enero - Marzo 2020",
+          "start_at": 1577847600000,
+          "end_at": 1585623600000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "ff0c726590770fe3512fd1ac31f59225",
+              "subject_code": "CE2562",
+              "subject_name": "GERENCIA ESTRATEGICA DE PROYECTOS",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "0c7ffc1cfd765a79ff1be98180c6afad",
+              "subject_code": "CI2125",
+              "subject_name": "COMPUTACION I",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "empty"
+              },
+              "official_outcome": "retired",
+              "official_badge": "none"
+            },
+            {
+              "id": "202743254cd093bc2e7c3ef57385ed14",
+              "subject_code": "CO3121",
+              "subject_name": "FUNDAMENTOS DE PROBABILIDADES PARA INGENIEROS",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "c8a51d170427c022d42b48e3fcd75dc6",
+              "subject_code": "EAD215",
+              "subject_name": "EL SISTEMA DE PARQUES NAC.VENEZOLANOS",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "8e4038c655349b0b856a9d32340decec",
+              "subject_code": "FS2282",
+              "subject_name": "LABORATORIO BASICO DE FISICA  III",
+              "credits": 2,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "2988aa7274f5acc0c966f2982fb643f8",
+          "label": "Septiembre - Diciembre 2019",
+          "start_at": 1567310400000,
+          "end_at": 1577761200000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "ff04dc8aa1851a3155b46f52ca36f229",
+              "subject_code": "EC1281",
+              "subject_name": "LABORATORIO DE  MEDICIONES  ELECTRICAS",
+              "credits": 2,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "20e2fa77defebb79cf04d6974e5b6eed",
+              "subject_code": "EC2272",
+              "subject_name": "ANALISIS DE CIRCUITOS ELECTRICOS II",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 1
+              },
+              "official_outcome": "pending",
+              "official_badge": "without_effect"
+            },
+            {
+              "id": "ca4165d2ec46ee5bfc46d5b673244425",
+              "subject_code": "FS2212",
+              "subject_name": "FISICA IV",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "pending",
+              "official_badge": "without_effect"
+            },
+            {
+              "id": "9957aad6b66739d793e9d7a6c4a243e5",
+              "subject_code": "MA2112",
+              "subject_name": "MATEMATICAS V",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "empty"
+              },
+              "official_outcome": "retired",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "131711c8733881dbde7f3e74a824beaa",
+          "label": "Enero - Marzo 2019",
+          "start_at": 1546311600000,
+          "end_at": 1554001200000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "e1a0f433822a89da230f3d0ca2aa8102",
+              "subject_code": "CI2125",
+              "subject_name": "COMPUTACION I",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 1
+              },
+              "official_outcome": "pending",
+              "official_badge": "without_effect"
+            },
+            {
+              "id": "0677692ff1d5527e1157ace771fee3c5",
+              "subject_code": "FS2211",
+              "subject_name": "FISICA III",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "eaa824c6a37b8eaffa53eff0e62c1edd",
+              "subject_code": "MA2115",
+              "subject_name": "MATEMATICAS IV",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "cd97d9276eee0e9a087eef725676f433",
+          "label": "Septiembre - Diciembre 2018",
+          "start_at": 1535770800000,
+          "end_at": 1546225200000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "20f3fea96e7a4965c31e004f415dff1e",
+              "subject_code": "EAD213",
+              "subject_name": "APROVECHAMIENTO: AMBIENTES TERRESTRES",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "22c6ee51876b9f95cf14f599b4494469",
+              "subject_code": "FS2211",
+              "subject_name": "FISICA III",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "pending",
+              "official_badge": "without_effect"
+            },
+            {
+              "id": "469907126185d4fa4b01f4ce1b0904c4",
+              "subject_code": "MA2115",
+              "subject_name": "MATEMATICAS IV",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "pending",
+              "official_badge": "without_effect"
+            }
+          ]
+        },
+        {
+          "id": "19c01f5a5c037ccf96a65fc04b8ffa0d",
+          "label": "Julio - Agosto 2018",
+          "start_at": 1530417600000,
+          "end_at": 1535684400000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "fc17cfcde1d32beb617d8ac737c9a302",
+              "subject_code": "MA2115",
+              "subject_name": "MATEMATICAS IV",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "empty"
+              },
+              "official_outcome": "retired",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "efe0ff9d63b67f9eb86fd6c27ab3cf77",
+          "label": "Abril - Julio 2018",
+          "start_at": 1522551600000,
+          "end_at": 1533009600000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "a948f645e23b8f2d3d5cbaab846b2e74",
+              "subject_code": "CI2125",
+              "subject_name": "COMPUTACION I",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "empty"
+              },
+              "official_outcome": "retired",
+              "official_badge": "none"
+            },
+            {
+              "id": "999f63f5c0d3e7d08ff6bce27ff82b07",
+              "subject_code": "EAD228",
+              "subject_name": "ASTROBIOLOGÍA",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "empty"
+              },
+              "official_outcome": "retired",
+              "official_badge": "none"
+            },
+            {
+              "id": "566308fb9a27e1dd5b117c5a01ec282f",
+              "subject_code": "EC1281",
+              "subject_name": "LABORATORIO DE  MEDICIONES  ELECTRICAS",
+              "credits": 2,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "empty"
+              },
+              "official_outcome": "retired",
+              "official_badge": "none"
+            },
+            {
+              "id": "103ac78026f370b88d3e4b694f0ab14d",
+              "subject_code": "EC2272",
+              "subject_name": "ANALISIS DE CIRCUITOS ELECTRICOS II",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "empty"
+              },
+              "official_outcome": "retired",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "aa18e6dcc1b73a560f0b4b87436efb7a",
+          "label": "Enero - Marzo 2018",
+          "start_at": 1514775600000,
+          "end_at": 1522465200000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "73f9ebee1465cc747cf858ce9e13e3eb",
+              "subject_code": "BCB218",
+              "subject_name": "LAS MOLÉCULAS DE LA VIDA",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "f2bdd907e1b814d301edcf1a53f7c3f7",
+              "subject_code": "EC1251",
+              "subject_name": "ANALISIS DE CIRCUITOS ELECTRICOS I",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "ece5c389745eeb12e485ea2f32f098cb",
+              "subject_code": "FS2181",
+              "subject_name": "LABORATORIO BASICO DE FISICA I",
+              "credits": 2,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "9751bc7ed61b7dd8b17e0540cde28a6f",
+              "subject_code": "FS2211",
+              "subject_name": "FISICA III",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 1
+              },
+              "official_outcome": "failed",
+              "official_badge": "none"
+            },
+            {
+              "id": "4fe3a98131082eef5db4a4c358403a0b",
+              "subject_code": "MA2115",
+              "subject_name": "MATEMATICAS IV",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "failed",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "4f9409d26c99f1474957d27c966b6993",
+          "label": "Septiembre - Diciembre 2017",
+          "start_at": 1504234800000,
+          "end_at": 1514689200000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "10917156667e5cd66d0d4591ef3e24c7",
+              "subject_code": "CSA213",
+              "subject_name": "VENEZUELA ANTE EL SIGLO XXI: EL CUERPO POLITICO Y SU PRESENC",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "60bcb30631bebeea045a976af5dddc89",
+              "subject_code": "EC1251",
+              "subject_name": "ANALISIS DE CIRCUITOS ELECTRICOS I",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "pending",
+              "official_badge": "without_effect"
+            },
+            {
+              "id": "59256edfe6a31f4b3c4548a18011cf7e",
+              "subject_code": "FS1112",
+              "subject_name": "FISICA.II",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "72445a599e291ecb1e48bc5fb610bf29",
+              "subject_code": "MA2115",
+              "subject_name": "MATEMATICAS IV",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 1
+              },
+              "official_outcome": "failed",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "60b62cf19daf94d624b8042ac838fa35",
+          "label": "Julio - Agosto 2017",
+          "start_at": 1498881600000,
+          "end_at": 1504148400000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "07fcddf2427efe7c9691dd50b4389822",
+              "subject_code": "FS1111",
+              "subject_name": "FISICA I",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "0a7979e2b2d59727831d75f9c618ee9c",
+          "label": "Enero - Marzo 2017",
+          "start_at": 1483239600000,
+          "end_at": 1490929200000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "22f70a159c47e9394646f09b1998900e",
+              "subject_code": "CSA213",
+              "subject_name": "VENEZUELA ANTE EL SIGLO XXI: EL CUERPO POLITICO Y SU PRESENC",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "pending",
+              "official_badge": "without_effect"
+            },
+            {
+              "id": "948a87034071b4c3bb82c3911df10b48",
+              "subject_code": "FS1111",
+              "subject_name": "FISICA I",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "pending",
+              "official_badge": "without_effect"
+            },
+            {
+              "id": "0acd9144aae339daab078e6451359f05",
+              "subject_code": "ID1113",
+              "subject_name": "INGLES",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "54822fe6131bed60df5a9c0411bf9c1b",
+              "subject_code": "LLA113",
+              "subject_name": "LENGUAJE",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "1a740157f931851afdf56faa2c7fb57f",
+              "subject_code": "MA1116",
+              "subject_name": "MATEMATICAS 3",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "f4d92f7a8b9b9c82f97212fe46fb7052",
+          "label": "Septiembre - Diciembre 2016",
+          "start_at": 1472698800000,
+          "end_at": 1483153200000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "91379d25f11358c5292a478589a0ffd3",
+              "subject_code": "CSA212",
+              "subject_name": "VENEZUELA ANTE EL SIGLO XXI: ECONOMIA Y SOCIEDAD",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "4a95f0f66bcd783f66c029f146a23a26",
+              "subject_code": "FS1111",
+              "subject_name": "FISICA I",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "failed",
+              "official_badge": "none"
+            },
+            {
+              "id": "853beeef9285c08f1f352cfeb60814f2",
+              "subject_code": "ID1112",
+              "subject_name": "INGLES",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "a18d016d7e853acb4e16ee1f51840702",
+              "subject_code": "LLA112",
+              "subject_name": "LENGUAJE",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "1472a70975691c89c6c8cdfcf7aede64",
+              "subject_code": "MA1112",
+              "subject_name": "MATEMATICAS II",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "c0cd240c15c56a4e26a958c3af727e90",
+          "label": "Julio - Agosto 2016",
+          "start_at": 1467345600000,
+          "end_at": 1472612400000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "9ff6205fa74719d01c48f2f77ec006f2",
+              "subject_code": "MA1112",
+              "subject_name": "MATEMATICAS II",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "official_outcome": "pending",
+              "official_badge": "without_effect"
+            }
+          ]
+        },
+        {
+          "id": "8530ae4e674ec4a5f351c24696fb2887",
+          "label": "Abril - Julio 2016",
+          "start_at": 1459479600000,
+          "end_at": 1469937600000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "19911eec87b95ea97a8e30e10bc3a849",
+              "subject_code": "CSA211",
+              "subject_name": "VENEZUELA ANTE EL SIGLO XXI: CULTURA Y SOCIEDAD",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "778fab38d37e04203e734330f98a3cef",
+              "subject_code": "ID1111",
+              "subject_name": "INGLÉS",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "ad4dc93e8f2f1d078edf940af5843dac",
+              "subject_code": "LLA111",
+              "subject_name": "LENGUAJE I",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "1586e13c18c17de084d3e3cabd1b3d58",
+              "subject_code": "MA1111",
+              "subject_name": "MATEMATICAS I",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "pending",
               "official_badge": "none"
             }
           ]

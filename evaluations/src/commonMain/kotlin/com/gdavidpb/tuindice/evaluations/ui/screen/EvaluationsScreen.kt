@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.ui.screen
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Rect
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
@@ -33,7 +34,9 @@ fun EvaluationsScreen(
 	onClearFiltersClick: () -> Unit,
 	onRetryClick: () -> Unit,
 	scrollEnabled: Boolean = true,
-	openActionsEvaluationId: String? = null
+	openActionsEvaluationId: String? = null,
+	focusEvaluationId: String? = null,
+	onFocusEvaluationBoundsChange: (Rect?) -> Unit = {}
 ) {
 	SealedCrossfade(
 		targetState = state
@@ -54,7 +57,9 @@ fun EvaluationsScreen(
 					onEvaluationEdit = onEvaluationEdit,
 					onEvaluationDelete = onEvaluationDelete,
 					scrollEnabled = scrollEnabled,
-					openActionsEvaluationId = openActionsEvaluationId
+					openActionsEvaluationId = openActionsEvaluationId,
+					focusEvaluationId = focusEvaluationId,
+					onFocusEvaluationBoundsChange = onFocusEvaluationBoundsChange
 				)
 
 			is Evaluations.State.Failed ->

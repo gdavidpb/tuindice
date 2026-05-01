@@ -4,6 +4,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.geometry.Rect
+import androidx.compose.ui.layout.boundsInRoot
+import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
@@ -17,7 +20,9 @@ fun EvaluationsView(
 	onEvaluationEdit: (evaluationId: String) -> Unit,
 	onEvaluationDelete: (evaluationId: String) -> Unit,
 	scrollEnabled: Boolean = true,
-	openActionsEvaluationId: String? = null
+	openActionsEvaluationId: String? = null,
+	focusEvaluationId: String? = null,
+	onFocusEvaluationBoundsChange: (Rect?) -> Unit = {}
 ) {
 	LazyColumn(
 		modifier = Modifier.testTag(EvaluationsUiTags.EvaluationsList),
@@ -34,6 +39,13 @@ fun EvaluationsView(
 				key = { evaluation -> evaluation.evaluationId }
 			) { evaluation ->
 				EvaluationSwipeToDismiss(
+					modifier = if (evaluation.evaluationId == focusEvaluationId) {
+						Modifier.onGloballyPositioned { coordinates ->
+							onFocusEvaluationBoundsChange(coordinates.boundsInRoot())
+						}
+					} else {
+						Modifier
+					},
 					initiallyOpen = evaluation.evaluationId == openActionsEvaluationId,
 					onEdit = { onEvaluationEdit(evaluation.evaluationId) },
 					onDelete = { onEvaluationDelete(evaluation.evaluationId) }

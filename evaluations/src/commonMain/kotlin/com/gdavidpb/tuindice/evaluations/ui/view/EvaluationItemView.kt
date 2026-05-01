@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
@@ -42,6 +43,17 @@ fun EvaluationItemView(
 		EvaluationHighlightTone.Error -> MaterialTheme.colorScheme.error
 		else -> MaterialTheme.colorScheme.onSurfaceVariant
 	}
+	val gradeButtonColors = if (item.isOverdue) {
+		ButtonDefaults.filledTonalButtonColors(
+			containerColor = Color(0xFFFFDAD6),
+			contentColor = Color(0xFF410002)
+		)
+	} else {
+		ButtonDefaults.filledTonalButtonColors(
+			containerColor = MaterialTheme.colorScheme.primaryContainer,
+			contentColor = MaterialTheme.colorScheme.onPrimaryContainer
+		)
+	}
 
 	ElevatedCard(
 		modifier = modifier
@@ -58,56 +70,69 @@ fun EvaluationItemView(
 				.fillMaxWidth()
 				.padding(16.dp)
 		) {
-			Row(
-				modifier = Modifier.fillMaxWidth(),
-				verticalAlignment = Alignment.Top
-			) {
-				Box(
-					modifier = Modifier
-						.testTag(EvaluationsUiTags.EvaluationTypeLeadingIcon)
-						.size(44.dp)
-						.background(
-							color = MaterialTheme.colorScheme.secondaryContainer,
-							shape = RoundedCornerShape(12.dp)
-						),
-					contentAlignment = Alignment.Center
+			Column {
+				Row(
+					modifier = Modifier.fillMaxWidth(),
+					verticalAlignment = Alignment.Top
 				) {
-					Icon(
-						modifier = Modifier.size(24.dp),
-						imageVector = item.typeIcon,
-						tint = MaterialTheme.colorScheme.onSecondaryContainer,
-						contentDescription = null
-					)
-				}
-
-				Spacer(modifier = Modifier.width(12.dp))
-
-				Column(
-					modifier = Modifier.weight(1f)
-				) {
-					Text(
-						modifier = Modifier.fillMaxWidth(),
-						text = item.nameText,
-						maxLines = 1,
-						overflow = TextOverflow.Ellipsis,
-						color = MaterialTheme.colorScheme.onBackground,
-						style = MaterialTheme.typography.titleMedium,
-						fontWeight = FontWeight.SemiBold
-					)
-
-					Row(
+					Box(
 						modifier = Modifier
-							.fillMaxWidth()
-							.padding(top = 8.dp),
-						verticalAlignment = Alignment.CenterVertically
+							.testTag(EvaluationsUiTags.EvaluationTypeLeadingIcon)
+							.size(44.dp)
+							.background(
+								color = MaterialTheme.colorScheme.secondaryContainer,
+								shape = RoundedCornerShape(12.dp)
+							),
+						contentAlignment = Alignment.Center
 					) {
-						SubjectCodeChip(
-							subjectCode = item.subjectCodeText,
-							containerColor = item.subjectCodeContainerColor,
-							contentColor = item.subjectCodeColor
+						Icon(
+							modifier = Modifier.size(24.dp),
+							imageVector = item.typeIcon,
+							tint = MaterialTheme.colorScheme.onSecondaryContainer,
+							contentDescription = null
 						)
 					}
 
+					Spacer(modifier = Modifier.width(12.dp))
+
+					Column(
+						modifier = Modifier.weight(1f)
+					) {
+						Text(
+							modifier = Modifier.fillMaxWidth(),
+							text = item.nameText,
+							maxLines = 1,
+							overflow = TextOverflow.Ellipsis,
+							color = MaterialTheme.colorScheme.onBackground,
+							style = MaterialTheme.typography.titleMedium,
+							fontWeight = FontWeight.SemiBold
+						)
+
+						Row(
+							modifier = Modifier
+								.fillMaxWidth()
+								.padding(top = 8.dp),
+							verticalAlignment = Alignment.CenterVertically
+						) {
+							SubjectCodeChip(
+								subjectCode = item.subjectCodeText,
+								containerColor = item.subjectCodeContainerColor,
+								contentColor = item.subjectCodeColor
+							)
+						}
+					}
+
+					EvaluationGradeActionButton(
+						modifier = Modifier.testTag(EvaluationsUiTags.EvaluationGradeActionButton),
+						text = item.gradeActionText,
+						colors = gradeButtonColors,
+						onClick = onGradeClick
+					)
+				}
+
+				Box(
+					modifier = Modifier.padding(start = 56.dp)
+				) {
 					EvaluationMetadataRow(
 						modifier = Modifier.padding(top = 12.dp),
 						dateIcon = item.dateIcon,
@@ -116,24 +141,25 @@ fun EvaluationItemView(
 						color = metadataColor
 					)
 				}
-
-				Column(
-					horizontalAlignment = Alignment.End
-				) {
-					FilledTonalButton(
-						modifier = Modifier.testTag(EvaluationsUiTags.EvaluationGradeActionButton),
-						onClick = onGradeClick,
-						colors = ButtonDefaults.filledTonalButtonColors(
-							containerColor = MaterialTheme.colorScheme.primaryContainer,
-							contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-						),
-						contentPadding = ButtonDefaults.TextButtonContentPadding
-					) {
-						Text(text = item.gradeActionText)
-					}
-				}
 			}
 		}
+	}
+}
+
+@Composable
+private fun EvaluationGradeActionButton(
+	modifier: Modifier = Modifier,
+	text: String,
+	colors: ButtonColors,
+	onClick: () -> Unit
+) {
+	FilledTonalButton(
+		modifier = modifier,
+		onClick = onClick,
+		colors = colors,
+		contentPadding = ButtonDefaults.TextButtonContentPadding
+	) {
+		Text(text = text)
 	}
 }
 
@@ -160,7 +186,7 @@ private fun EvaluationMetadataRow(
 			modifier = Modifier.padding(start = 6.dp),
 			text = dateText,
 			maxLines = 1,
-			overflow = TextOverflow.Ellipsis,
+			softWrap = false,
 			color = color,
 			style = MaterialTheme.typography.bodyMedium
 		)
@@ -173,10 +199,9 @@ private fun EvaluationMetadataRow(
 		)
 
 		Text(
-			modifier = Modifier.weight(1f),
 			text = typeText,
 			maxLines = 1,
-			overflow = TextOverflow.Ellipsis,
+			softWrap = false,
 			color = color,
 			style = MaterialTheme.typography.bodyMedium
 		)

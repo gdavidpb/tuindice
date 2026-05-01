@@ -4,7 +4,11 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
@@ -73,6 +77,14 @@ fun WizardScreen(
 		return
 	}
 
+	val focusTargetBounds = remember {
+		mutableStateOf<Rect?>(null)
+	}
+
+	LaunchedEffect(state.currentStep.id) {
+		focusTargetBounds.value = null
+	}
+
 	Column(
 		modifier = modifier
 			.fillMaxSize()
@@ -89,10 +101,14 @@ fun WizardScreen(
 				onOpenEvaluationForm = onOpenEvaluationForm,
 				onSubjectTabSelected = onSubjectTabSelected,
 				onSelectedTermChange = onSelectedTermChange,
-				onSubjectChartsVisibilityChange = onSubjectChartsVisibilityChange
+				onSubjectChartsVisibilityChange = onSubjectChartsVisibilityChange,
+				onEvaluationFocusTargetBoundsChange = { bounds ->
+					focusTargetBounds.value = bounds
+				}
 			)
 			WizardFocusOverlay(
 				stepId = state.currentStep.id,
+				targetBoundsInRoot = focusTargetBounds.value,
 				modifier = Modifier.fillMaxSize()
 			)
 		}
@@ -114,7 +130,8 @@ private fun WizardStepContent(
 	onOpenEvaluationForm: () -> Unit,
 	onSubjectTabSelected: (SubjectSegmentTab) -> Unit,
 	onSelectedTermChange: (String) -> Unit,
-	onSubjectChartsVisibilityChange: (Boolean) -> Unit
+	onSubjectChartsVisibilityChange: (Boolean) -> Unit,
+	onEvaluationFocusTargetBoundsChange: (Rect?) -> Unit
 ) {
 	val isSubjectStep = state.currentStep.id == WizardStepId.SubjectDetail
 		|| state.currentStep.id == WizardStepId.SubjectCharts
@@ -171,7 +188,13 @@ private fun WizardStepContent(
 			)
 
 		WizardStepId.Evaluations,
-		WizardStepId.EvaluationSwipe ->
+		WizardStepId.EvaluationSwipe -> {
+			val focusedEvaluationId = if (state.currentStep.id == WizardStepId.EvaluationSwipe) {
+				"evaluation_2"
+			} else {
+				null
+			}
+
 			EvaluationsScreen(
 				state = sampleEvaluationsState(),
 				onAddEvaluationClick = onOpenEvaluationForm,
@@ -182,11 +205,11 @@ private fun WizardStepContent(
 				onClearFiltersClick = {},
 				onRetryClick = {},
 				scrollEnabled = false,
-				openActionsEvaluationId = if (state.currentStep.id == WizardStepId.EvaluationSwipe)
-					"evaluation_2"
-				else
-					null
+				openActionsEvaluationId = focusedEvaluationId,
+				focusEvaluationId = focusedEvaluationId,
+				onFocusEvaluationBoundsChange = onEvaluationFocusTargetBoundsChange
 			)
+		}
 
 		WizardStepId.EvaluationForm ->
 			EvaluationScreen(

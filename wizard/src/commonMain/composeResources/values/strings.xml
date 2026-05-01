@@ -36,7 +36,7 @@
 	<string name="wizard_evaluations_title">Evaluaciones</string>
 	<string name="wizard_evaluations_message">En **Evaluaciones** organizas lo **pendiente**, lo **completado** y lo que aún no tiene **nota** del **trimestre actual**, si existe. Puedes filtrar por **estado**, **materia** y **fecha** para encontrar rápido lo importante.</string>
 	<string name="wizard_evaluation_swipe_title">Editar o eliminar evaluaciones</string>
-	<string name="wizard_evaluation_swipe_message">Toca la **tarjeta** o haz **swipe hacia la izquierda** para abrir las acciones. Desde ahí puedes **editar** o **eliminar** una evaluación; toca la tarjeta o desliza de vuelta para cerrar.</string>
+	<string name="wizard_evaluation_swipe_message">Toca **Asignar** o la **nota** para establecer la calificación. Toca la **tarjeta** o haz **swipe hacia la izquierda** para abrir las acciones y desde ahí **editar** o **eliminar** la evaluación.</string>
 	<string name="wizard_evaluation_form_title">Nueva evaluación</string>
 	<string name="wizard_evaluation_form_message">Al crear una **evaluación** eliges la **materia**, el **tipo**, la **fecha** y la **nota máxima** para mantener tu calendario académico al día.</string>
 	<string name="wizard_about_title">Ayuda e información</string>
@@ -46,5 +46,5 @@
 	<string name="wizard_focus_record_actions">Botones superiores</string>
 	<string name="wizard_focus_record_subject_entry">Códigos de materia</string>
 	<string name="wizard_focus_evaluations">Filtros y evaluaciones</string>
-	<string name="wizard_focus_evaluation_swipe">Acciones de evaluación</string>
+	<string name="wizard_focus_evaluation_swipe">Asignar nota</string>
 </resources>
