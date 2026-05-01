@@ -109,6 +109,42 @@ class ObserveRecordActionProcessorContractTest {
 		}
 	}
 
+	@Test
+	fun process_reducesToContent_whenOfficialModeHasCurrentTerm() = runTest {
+		val processor = processor(
+			record = AcademicRecord(
+				id = "record",
+				terms = listOf(
+					AcademicTerm(
+						id = "current-term",
+						startAtMillis = 1L,
+						endAtMillis = 2L,
+						kind = TermKind.OFFICIAL_CURRENT,
+						attempts = listOf(
+							AcademicAttempt(
+								id = "attempt",
+								subjectCode = "MAT101",
+								subjectName = "Matematica",
+								credits = 4
+							)
+						)
+					)
+				)
+			),
+			hasSyncedRecord = true
+		)
+
+		processor.process(
+			action = Record.Action.ObserveRecord,
+			sideEffect = {}
+		).test {
+			val content = assertIs<Record.State.Content>(awaitItem()(Record.State.Idle))
+			assertEquals("current-term", content.selectedTermId)
+
+			awaitComplete()
+		}
+	}
+
 	private fun processor(
 		record: AcademicRecord,
 		hasSyncedRecord: Boolean

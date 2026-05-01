@@ -34,7 +34,9 @@ fun RecordEmptyView(
 		verticalArrangement = Arrangement.Center,
 		headerContent = {
 			Image(
-				modifier = Modifier.testTag(RecordUiTags.EmptyIllustration),
+				modifier = Modifier
+					.testTag(RecordUiTags.EmptyIllustration)
+					.padding(bottom = 32.dp),
 				painter = painterResource(Res.drawable.il_record_empty),
 				contentDescription = null
 			)

@@ -55,14 +55,14 @@ class TermItemCurrentStateTest {
 	}
 
 	@Test
-	fun filterByViewMode_returnsOnlyHistoricalTerms_inOfficialMode() {
+	fun filterByViewMode_returnsOnlyOfficialTerms_inOfficialMode() {
 		val visibleTerms = listOf(
 			termProjection(id = "historical", kind = TermKind.OFFICIAL_HISTORICAL),
 			termProjection(id = "current", kind = TermKind.OFFICIAL_CURRENT),
 			termProjection(id = "synthetic", kind = TermKind.SYNTHETIC)
 		).filterByViewMode(RecordViewMode.Official)
 
-		assertEquals(listOf("historical"), visibleTerms.map(TermProjection::id))
+		assertEquals(listOf("historical", "current"), visibleTerms.map(TermProjection::id))
 	}
 
 	@Test

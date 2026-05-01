@@ -4,12 +4,13 @@ import com.gdavidpb.tuindice.academiccore.domain.engine.RecordProjectionEngine
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.RecordProjection
 import com.gdavidpb.tuindice.academiccore.domain.model.TermProjection
+import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialCurrent
 import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialHistorical
 
 fun List<TermProjection>.filterByViewMode(viewMode: RecordViewMode): List<TermProjection> {
 	return filter { term ->
 		when (viewMode) {
-			RecordViewMode.Official -> term.kind.isOfficialHistorical
+			RecordViewMode.Official -> term.kind.isOfficialHistorical || term.kind.isOfficialCurrent
 			RecordViewMode.Working -> true
 		}
 	}
