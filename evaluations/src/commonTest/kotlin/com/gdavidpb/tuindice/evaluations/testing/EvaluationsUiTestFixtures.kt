@@ -101,7 +101,8 @@ fun evaluationsContentState(
 fun evaluationItemFixture(
 	evaluationId: String = "evaluation-item-1",
 	isClickable: Boolean = true,
-	isOverdue: Boolean = false
+	isOverdue: Boolean = false,
+	showsGradeAction: Boolean = true
 ): EvaluationItem {
 	val subjectColors = CourseCodeColorGenerator.fromCode(DEFAULT_EVALUATION_SUBJECT.code)
 
@@ -123,7 +124,8 @@ fun evaluationItemFixture(
 		dateText = if (isOverdue) "Vencida" else "Manana",
 		dateIcon = Icons.Outlined.Event,
 		gradesText = if (isOverdue) "Sin nota / 20,00" else "17,50 / 20,00",
-		gradeActionText = if (isOverdue) "Asignar" else "17,50",
+		gradeActionText = if (isOverdue) "Sin nota" else "17,50",
+		showsGradeAction = showsGradeAction,
 		gradesIcon = Icons.Outlined.AssignmentTurnedIn,
 		isOverdue = isOverdue,
 		isClickable = isClickable
@@ -204,7 +206,8 @@ private fun Evaluation.toFixtureEvaluationItem(): EvaluationItem {
 		} else {
 			"Pendiente / ${maxGrade.formatGrade(decimals = 2)}"
 		},
-		gradeActionText = currentGrade?.formatGrade(decimals = 2) ?: "Asignar",
+		gradeActionText = currentGrade?.formatGrade(decimals = 2) ?: "Sin nota",
+		showsGradeAction = (state != EvaluationState.PENDING),
 		gradesIcon = Icons.Outlined.AssignmentTurnedIn,
 		isOverdue = (state == EvaluationState.OVERDUE),
 		isClickable = (state != EvaluationState.PENDING)

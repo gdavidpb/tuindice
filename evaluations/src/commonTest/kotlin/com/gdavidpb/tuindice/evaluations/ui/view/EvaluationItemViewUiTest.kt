@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.evaluations.testing.evaluationItemFixture
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -37,6 +38,17 @@ class EvaluationItemViewUiTest {
 			useUnmergedTree = true
 		).assertIsDisplayed()
 		assertNodeVisible(EvaluationsUiTags.EvaluationGradeActionButton)
+	}
+
+	@Test
+	fun when_gradeActionHidden_then_doesNotDisplayGradeButton() = runTuIndiceUiTest {
+		val item = evaluationItemFixture(showsGradeAction = false)
+
+		setTuIndiceTestContent {
+			EvaluationItemView(item = item)
+		}
+
+		assertNodeHidden(EvaluationsUiTags.EvaluationGradeActionButton)
 	}
 
 	@Test

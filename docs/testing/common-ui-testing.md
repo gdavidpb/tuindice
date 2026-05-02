@@ -69,7 +69,7 @@ Para routes/screens:
 ## Gates Mínimos por Modulo Tocado
 
 ```bash
-./gradlew :<module>:compileTestKotlinIosX64 :<module>:iosSimulatorArm64Test
+./gradlew :<module>:compileTestKotlinIosSimulatorArm64 :<module>:iosSimulatorArm64Test
 ```
 
 Gate agregado del proyecto:

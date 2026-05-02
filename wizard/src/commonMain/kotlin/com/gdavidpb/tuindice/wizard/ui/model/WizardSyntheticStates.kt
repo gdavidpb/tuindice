@@ -385,7 +385,8 @@ private fun sampleEvaluationItem(
 		dateText = dateText,
 		dateIcon = if (state == EvaluationState.COMPLETED) Icons.Outlined.EventAvailable else Icons.Outlined.Event,
 		gradesText = gradesText,
-		gradeActionText = grade?.formatGrade(decimals = 2) ?: "Asignar",
+		gradeActionText = grade?.formatGrade(decimals = 2) ?: "Sin nota",
+		showsGradeAction = state != EvaluationState.PENDING,
 		gradesIcon = if (state == EvaluationState.COMPLETED)
 			Icons.Outlined.AssignmentTurnedIn
 		else

@@ -10,7 +10,6 @@ TARGETED_DEVICE_FAMILY = 1,2
 OTHER_LDFLAGS = $(inherited) -framework maincore
 FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*] = $(inherited) $(SRCROOT)/../maincore/build/bin/iosArm64/releaseFramework
 FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64] = $(inherited) $(SRCROOT)/../maincore/build/bin/iosSimulatorArm64/releaseFramework
-FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*][arch=x86_64] = $(inherited) $(SRCROOT)/../maincore/build/bin/iosX64/releaseFramework
 TUINDICE_API_BASE_URL = https:/$()/api.tuindice.app/
 TUINDICE_PRIVACY_POLICY_URL = https:/$()/tuindice.app/privacy_policy.html
 TUINDICE_TERMS_AND_CONDITIONS_URL = https:/$()/tuindice.app/terms_and_conditions.html

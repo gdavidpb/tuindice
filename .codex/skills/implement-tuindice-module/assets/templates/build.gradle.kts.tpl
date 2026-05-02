@@ -17,7 +17,6 @@ kotlin {
 			enable = true
 		}
 $ANDROID_DEVICE_TEST_SETUP_BLOCK	}
-	iosX64()
 	iosArm64()
 	iosSimulatorArm64()
 

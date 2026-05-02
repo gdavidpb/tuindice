@@ -122,12 +122,14 @@ fun EvaluationItemView(
 						}
 					}
 
-					EvaluationGradeActionButton(
-						modifier = Modifier.testTag(EvaluationsUiTags.EvaluationGradeActionButton),
-						text = item.gradeActionText,
-						colors = gradeButtonColors,
-						onClick = onGradeClick
-					)
+					if (item.showsGradeAction) {
+						EvaluationGradeActionButton(
+							modifier = Modifier.testTag(EvaluationsUiTags.EvaluationGradeActionButton),
+							text = item.gradeActionText,
+							colors = gradeButtonColors,
+							onClick = onGradeClick
+						)
+					}
 				}
 
 				Box(

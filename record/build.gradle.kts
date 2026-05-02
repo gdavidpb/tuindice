@@ -20,7 +20,6 @@ kotlin {
 			instrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 		}
 	}
-	iosX64()
 	iosArm64()
 	iosSimulatorArm64()
 

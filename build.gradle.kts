@@ -63,20 +63,20 @@ tasks.register("verifySharedCompilation") {
 
 tasks.register("verifySharedTests") {
 	group = "verification"
-	description = "Runs shared tests on iOS x64 where available in CI/dev machines."
+	description = "Runs shared tests on iOS simulator arm64 where available in CI/dev machines."
 
 	dependsOn(
-		":about:iosX64Test",
-		":base:iosX64Test",
-		":testkit:iosX64Test",
-		":enrollmentproof:iosX64Test",
-		":evaluations:iosX64Test",
-		":auth:iosX64Test",
-		":record:iosX64Test",
-		":summary:iosX64Test",
-		":subjects:iosX64Test",
-		":wizard:iosX64Test",
-		":maincore:iosX64Test"
+		":about:iosSimulatorArm64Test",
+		":base:iosSimulatorArm64Test",
+		":testkit:iosSimulatorArm64Test",
+		":enrollmentproof:iosSimulatorArm64Test",
+		":evaluations:iosSimulatorArm64Test",
+		":auth:iosSimulatorArm64Test",
+		":record:iosSimulatorArm64Test",
+		":summary:iosSimulatorArm64Test",
+		":subjects:iosSimulatorArm64Test",
+		":wizard:iosSimulatorArm64Test",
+		":maincore:iosSimulatorArm64Test"
 	)
 }
 
@@ -108,10 +108,10 @@ tasks.register<Exec>("verifyCommonUiTestDensity") {
 
 tasks.register("verifyCommonUiCompilationGate") {
 	group = "verification"
-	description = "Compiles common UI tests for iOS x64 in all shared modules."
+	description = "Compiles common UI tests for iOS simulator arm64 in all shared modules."
 	dependsOn(
 		commonUiModules.map { moduleName ->
-			":$moduleName:compileTestKotlinIosX64"
+			":$moduleName:compileTestKotlinIosSimulatorArm64"
 		}
 	)
 }

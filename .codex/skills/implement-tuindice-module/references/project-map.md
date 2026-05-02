@@ -71,7 +71,6 @@ Typical shared UI feature module pattern:
   - `alias(libs.plugins.kotlin.serialization)` when needed
 - targets:
   - `android { namespace; compileSdk = 36; minSdk = 24; androidResources { enable = true } }`
-  - `iosX64()`
   - `iosArm64()`
   - `iosSimulatorArm64()`
 - source sets:
