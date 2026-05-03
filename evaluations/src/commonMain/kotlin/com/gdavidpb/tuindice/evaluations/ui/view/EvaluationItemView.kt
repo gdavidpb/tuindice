@@ -45,8 +45,8 @@ fun EvaluationItemView(
 	}
 	val gradeButtonColors = if (item.isOverdue) {
 		ButtonDefaults.filledTonalButtonColors(
-			containerColor = Color(0xFFFFDAD6),
-			contentColor = Color(0xFF410002)
+			containerColor = MaterialTheme.colorScheme.errorContainer,
+			contentColor = MaterialTheme.colorScheme.onErrorContainer
 		)
 	} else {
 		ButtonDefaults.filledTonalButtonColors(

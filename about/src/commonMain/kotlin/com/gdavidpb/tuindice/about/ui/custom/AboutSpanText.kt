@@ -15,9 +15,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
 
 @Composable
-fun AboutSpanText(
-	text: String
-) {
+fun AboutSpanText(text: String) {
 	val annotatedString = buildAnnotatedString {
 		val title = text.substringBefore("\n")
 		val content = text.substringAfter(
