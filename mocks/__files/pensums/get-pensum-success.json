@@ -1,0 +1,67 @@
+{
+  "selection": {
+    "pensum_id": "computacion-2019-degree-project",
+    "career_code": 15,
+    "career_name": "Computación",
+    "year": 2019,
+    "modality_id": "degree_project",
+    "modality_name": "Proyecto de Grado",
+    "inferred": true
+  },
+  "available_pensums": [
+    {"id": "15-2014", "career_code": 15, "career_name": "Computación", "year": 2014},
+    {"id": "15-2016", "career_code": 15, "career_name": "Computación", "year": 2016},
+    {"id": "15-2017", "career_code": 15, "career_name": "Computación", "year": 2017},
+    {"id": "15-2018", "career_code": 15, "career_name": "Computación", "year": 2018},
+    {"id": "15-2019", "career_code": 15, "career_name": "Computación", "year": 2019}
+  ],
+  "available_modalities": [
+    {"id": "degree_project", "name": "Proyecto de Grado", "is_default": true},
+    {"id": "project_de", "name": "Proyecto DE", "is_default": false},
+    {"id": "long_internship", "name": "Pasantía Larga", "is_default": false}
+  ],
+  "pensum": {
+    "id": "computacion-2019-degree-project",
+    "career_code": 15,
+    "career_name": "Computación",
+    "year": 2019,
+    "modality_id": "degree_project",
+    "modality_name": "Proyecto de Grado",
+    "total_credits": 170,
+    "canvas": {"width": 1280.0, "height": 1600.0},
+    "terms": [
+      {"id": "T1", "label": "T1", "x": 0.0, "width": 180.0},
+      {"id": "T2", "label": "T2", "x": 180.0, "width": 180.0},
+      {"id": "T3", "label": "T3", "x": 360.0, "width": 180.0},
+      {"id": "T4", "label": "T4", "x": 540.0, "width": 180.0},
+      {"id": "T5", "label": "T5", "x": 720.0, "width": 180.0},
+      {"id": "T6", "label": "T6", "x": 900.0, "width": 180.0}
+    ],
+    "nodes": [
+      {"id":"ma1111","node_type":"COURSE","display_code":"MA1111","subject_code":"MA1111","name":"Calculo I","credits":5,"category":"BASIC","term_id":"T1","x":28.0,"y":300.0,"width":160.0,"height":120.0,"fulfillment_rules":[]},
+      {"id":"fs1111","node_type":"COURSE","display_code":"FS1111","subject_code":"FS1111","name":"Fisica I","credits":4,"category":"BASIC","term_id":"T1","x":28.0,"y":560.0,"width":160.0,"height":120.0,"fulfillment_rules":[]},
+      {"id":"el3310","node_type":"COURSE","display_code":"EL3310","subject_code":"EL3310","name":"Electronica I","credits":4,"category":"PROFESSIONAL","term_id":"T1","x":28.0,"y":820.0,"width":160.0,"height":120.0,"fulfillment_rules":[]},
+      {"id":"ma2112","node_type":"COURSE","display_code":"MA2112","subject_code":"MA2112","name":"Calculo III","credits":5,"category":"BASIC","term_id":"T2","x":220.0,"y":310.0,"width":160.0,"height":120.0,"fulfillment_rules":[]},
+      {"id":"ec2211","node_type":"COURSE","display_code":"EC2211","subject_code":"EC2211","name":"Circuitos I","credits":4,"category":"PROFESSIONAL","term_id":"T2","x":220.0,"y":660.0,"width":160.0,"height":120.0,"fulfillment_rules":[]},
+      {"id":"ec5344","node_type":"COURSE","display_code":"EC5344","subject_code":"EC5344","name":"Radiacion y Antenas","credits":3,"category":"PROFESSIONAL","term_id":"T3","x":420.0,"y":560.0,"width":180.0,"height":140.0,"fulfillment_rules":[]},
+      {"id":"ec4422","node_type":"COURSE","display_code":"EC4422","subject_code":"EC4422","name":"Comunicaciones Digitales","credits":4,"category":"PROFESSIONAL","term_id":"T4","x":620.0,"y":820.0,"width":160.0,"height":120.0,"fulfillment_rules":[]},
+      {"id":"ec5745","node_type":"COURSE","display_code":"EC5745","subject_code":"EC5745","name":"Procesamiento Concurrente","credits":4,"category":"PROFESSIONAL","term_id":"T4","x":700.0,"y":560.0,"width":160.0,"height":120.0,"fulfillment_rules":[]},
+      {"id":"ep5406","node_type":"COURSE","display_code":"EP5406","subject_code":"EP5406","name":"Proyecto de Grado A","credits":9,"category":"MODALITY","term_id":"T5","x":820.0,"y":820.0,"width":160.0,"height":120.0,"fulfillment_rules":[]},
+      {"id":"ps5315","node_type":"COURSE","display_code":"PS5315","subject_code":"PS5315","name":"Logica y Controladores","credits":3,"category":"PROFESSIONAL","term_id":"T5","x":900.0,"y":560.0,"width":160.0,"height":120.0,"fulfillment_rules":[]},
+      {"id":"pr4101","node_type":"COURSE","display_code":"PR4101","subject_code":"PR4101","name":"Practica Profesional","credits":6,"category":"MODALITY","term_id":"T6","x":1080.0,"y":820.0,"width":160.0,"height":120.0,"fulfillment_rules":[]}
+    ],
+    "edges": [
+      {"id":"ma1111-ma2112","from_node_id":"ma1111","to_node_id":"ma2112","relationship_type":"REQUIREMENT","points":[{"x":188.0,"y":360.0},{"x":220.0,"y":360.0}]},
+      {"id":"fs1111-ec2211","from_node_id":"fs1111","to_node_id":"ec2211","relationship_type":"REQUIREMENT","points":[{"x":188.0,"y":620.0},{"x":220.0,"y":720.0}]},
+      {"id":"el3310-ec2211","from_node_id":"el3310","to_node_id":"ec2211","relationship_type":"REQUIREMENT","points":[{"x":188.0,"y":880.0},{"x":205.0,"y":880.0},{"x":205.0,"y":720.0},{"x":220.0,"y":720.0}]},
+      {"id":"ma2112-ec5344","from_node_id":"ma2112","to_node_id":"ec5344","relationship_type":"REQUIREMENT","points":[{"x":380.0,"y":370.0},{"x":400.0,"y":370.0},{"x":400.0,"y":630.0},{"x":420.0,"y":630.0}]},
+      {"id":"ec2211-ec5344","from_node_id":"ec2211","to_node_id":"ec5344","relationship_type":"REQUIREMENT","points":[{"x":380.0,"y":720.0},{"x":420.0,"y":650.0}]},
+      {"id":"ec5344-ec4422","from_node_id":"ec5344","to_node_id":"ec4422","relationship_type":"REQUIREMENT","points":[{"x":510.0,"y":700.0},{"x":510.0,"y":880.0},{"x":620.0,"y":880.0}]},
+      {"id":"ec5344-ec5745","from_node_id":"ec5344","to_node_id":"ec5745","relationship_type":"REQUIREMENT","points":[{"x":600.0,"y":630.0},{"x":700.0,"y":630.0}]},
+      {"id":"ec5745-ep5406","from_node_id":"ec5745","to_node_id":"ep5406","relationship_type":"REQUIREMENT","points":[{"x":860.0,"y":620.0},{"x":885.0,"y":620.0},{"x":885.0,"y":820.0}]},
+      {"id":"ec5745-ps5315","from_node_id":"ec5745","to_node_id":"ps5315","relationship_type":"REQUIREMENT","points":[{"x":860.0,"y":620.0},{"x":900.0,"y":620.0}]},
+      {"id":"ec4422-ep5406","from_node_id":"ec4422","to_node_id":"ep5406","relationship_type":"REQUIREMENT","points":[{"x":780.0,"y":880.0},{"x":820.0,"y":880.0}]},
+      {"id":"ep5406-pr4101","from_node_id":"ep5406","to_node_id":"pr4101","relationship_type":"REQUIREMENT","points":[{"x":980.0,"y":880.0},{"x":1080.0,"y":880.0}]}
+    ]
+  }
+}

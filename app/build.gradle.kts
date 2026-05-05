@@ -140,6 +140,7 @@ dependencies {
 	implementation(project(":evaluations"))
 	implementation(project(":subjects"))
 	implementation(project(":wizard"))
+	implementation(project(":pensum"))
 }
 
 tasks.configureEach {

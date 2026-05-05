@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.presentation.model
 import com.gdavidpb.tuindice.about.presentation.navigation.AboutDestination
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
+import com.gdavidpb.tuindice.pensum.presentation.navigation.PensumDestination
 import com.gdavidpb.tuindice.record.presentation.navigation.RecordDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 
@@ -15,6 +16,10 @@ sealed class BottomBarConfig(
 
 	data object Record : BottomBarConfig(
 		destination = RecordDestination.NavGraph
+	)
+
+	data object Pensum : BottomBarConfig(
+		destination = PensumDestination.NavGraph
 	)
 
 	data object Evaluations : BottomBarConfig(

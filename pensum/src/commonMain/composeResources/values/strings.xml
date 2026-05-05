@@ -1,0 +1,15 @@
+<resources>
+	<string name="pensum_loading_message">Cargando pensum...</string>
+	<string name="pensum_failed_title">No pudimos cargar el pensum</string>
+	<string name="pensum_failed_message">Intenta de nuevo en unos segundos.</string>
+	<string name="pensum_failed_retry">Reintentar</string>
+	<string name="pensum_selector_placeholder">Pensum</string>
+	<string name="pensum_modality_placeholder">Modalidad</string>
+	<string name="pensum_progress_label">avance</string>
+	<string name="pensum_zoom_in">Acercar</string>
+	<string name="pensum_zoom_out">Alejar</string>
+	<string name="snack_default_error">Ocurrió un error inesperado.</string>
+	<string name="snack_network_unavailable">Revisa tu conexión e intenta de nuevo.</string>
+	<string name="snack_service_unavailable">El servicio no está disponible.</string>
+	<string name="snack_timeout">La solicitud tardó demasiado.</string>
+</resources>

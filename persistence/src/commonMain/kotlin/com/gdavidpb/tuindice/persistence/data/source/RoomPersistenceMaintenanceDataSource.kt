@@ -8,6 +8,8 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationSyncStateDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.PensumSelectionDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectDetailDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsAttemptBinDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsGradeBinDao
@@ -30,6 +32,8 @@ class RoomPersistenceMaintenanceDataSource(
 	private val subjectStatsSegmentDao: SubjectStatsSegmentDao,
 	private val subjectStatsGradeBinDao: SubjectStatsGradeBinDao,
 	private val subjectStatsAttemptBinDao: SubjectStatsAttemptBinDao,
+	private val pensumCacheDao: PensumCacheDao,
+	private val pensumSelectionDao: PensumSelectionDao,
 	private val transactionRunner: PersistenceTransactionRunner
 ) : PersistenceMaintenanceRepository {
 	override suspend fun clearAll() {
@@ -46,6 +50,8 @@ class RoomPersistenceMaintenanceDataSource(
 			subjectStatsGradeBinDao.deleteAll()
 			subjectStatsSegmentDao.deleteAll()
 			subjectDetailDao.deleteAll()
+			pensumSelectionDao.deleteAll()
+			pensumCacheDao.deleteAll()
 			userDao.deleteAll()
 		}
 	}

@@ -10,4 +10,8 @@ sealed class TopBarAction(
 	data object FetchEnrollmentProofAction : TopBarAction(
 		action = "enrollment_proof"
 	)
+
+	data object SearchPensumAction : TopBarAction(
+		action = "search_pensum"
+	)
 }

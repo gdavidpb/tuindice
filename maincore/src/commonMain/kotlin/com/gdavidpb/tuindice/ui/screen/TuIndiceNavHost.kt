@@ -26,6 +26,7 @@ import com.gdavidpb.tuindice.subjects.presentation.navigation.SubjectsDestinatio
 import com.gdavidpb.tuindice.subjects.presentation.navigation.subjectsNavigation
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.summaryNavigation
+import com.gdavidpb.tuindice.pensum.presentation.navigation.pensumNavigation
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.ui.navigation.edgeSwipeBackNavigation
 import com.gdavidpb.tuindice.wizard.presentation.navigation.wizardNavigation
@@ -172,6 +173,12 @@ fun TuIndiceNavHost(
 			navController = navController,
 			onViewStateChanged = onViewStateChanged,
 			onDismissRequest = { navController.navigateUp() }
+		)
+
+		pensumNavigation(
+			navController = navController,
+			onViewStateChanged = onViewStateChanged,
+			showSnackBar = showSnackBar
 		)
 
 		browserNavigation(

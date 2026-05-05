@@ -11,6 +11,7 @@ object MaincoreUiTags {
 	const val TuIndiceBottomBar = "maincore_tuindice_bottom_bar"
 	const val TuIndiceBottomBarSummaryItem = "maincore_tuindice_bottom_bar_summary_item"
 	const val TuIndiceBottomBarRecordItem = "maincore_tuindice_bottom_bar_record_item"
+	const val TuIndiceBottomBarPensumItem = "maincore_tuindice_bottom_bar_pensum_item"
 	const val TuIndiceBottomBarEvaluationsItem = "maincore_tuindice_bottom_bar_evaluations_item"
 	const val TuIndiceBottomBarAboutItem = "maincore_tuindice_bottom_bar_about_item"
 	const val TuIndiceNavHost = "maincore_tuindice_nav_host"

@@ -8,6 +8,8 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationSyncStateDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.PensumSelectionDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectDetailDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsAttemptBinDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsGradeBinDao
@@ -21,6 +23,8 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationSyncStateEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.PendingMutationEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.PensumCacheEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.PensumSelectionEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectDetailEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsAttemptBinEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsGradeBinEntity
@@ -51,6 +55,8 @@ class RoomPersistenceMaintenanceDataSourceTest {
 			subjectStatsSegmentDao = RecordingSubjectStatsSegmentDao(calls),
 			subjectStatsGradeBinDao = RecordingSubjectStatsGradeBinDao(calls),
 			subjectStatsAttemptBinDao = RecordingSubjectStatsAttemptBinDao(calls),
+			pensumCacheDao = RecordingPensumCacheDao(calls),
+			pensumSelectionDao = RecordingPensumSelectionDao(calls),
 			transactionRunner = RecordingTransactionRunner(calls)
 		)
 
@@ -71,12 +77,54 @@ class RoomPersistenceMaintenanceDataSourceTest {
 				"subject_stats_grade_bin",
 				"subject_stats_segment",
 				"subject_detail",
+				"pensum_selection",
+				"pensum_cache",
 				"users",
 				"transaction:end"
 			),
 			calls
 		)
 	}
+}
+
+private class RecordingPensumCacheDao(
+	private val calls: MutableList<String>
+) : PensumCacheDao() {
+	override fun observePensum(cacheKey: String): Flow<PensumCacheEntity?> = emptyFlow()
+
+	override suspend fun getPensum(cacheKey: String): PensumCacheEntity? = null
+
+	override suspend fun getPensum(
+		careerCode: Int,
+		year: Int,
+		modalityId: String
+	): PensumCacheEntity? = null
+
+	override suspend fun deleteAll(): Int {
+		calls += "pensum_cache"
+		return 0
+	}
+
+	override suspend fun upsertEntity(entity: PensumCacheEntity) = Unit
+
+	override suspend fun upsertEntities(entities: List<PensumCacheEntity>) = Unit
+}
+
+private class RecordingPensumSelectionDao(
+	private val calls: MutableList<String>
+) : PensumSelectionDao() {
+	override fun observeSelection(id: String): Flow<PensumSelectionEntity?> = emptyFlow()
+
+	override suspend fun getSelection(id: String): PensumSelectionEntity? = null
+
+	override suspend fun deleteAll(): Int {
+		calls += "pensum_selection"
+		return 0
+	}
+
+	override suspend fun upsertEntity(entity: PensumSelectionEntity) = Unit
+
+	override suspend fun upsertEntities(entities: List<PensumSelectionEntity>) = Unit
 }
 
 private class RecordingTransactionRunner(

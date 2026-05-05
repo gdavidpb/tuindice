@@ -43,6 +43,7 @@ kotlin {
 				implementation(project(":enrollmentproof"))
 				implementation(project(":subjects"))
 				implementation(project(":wizard"))
+				implementation(project(":pensum"))
 				implementation(libs.koin.compose)
 				implementation(libs.koin.core)
 				implementation(libs.koin.core.viewmodel)

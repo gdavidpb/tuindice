@@ -6,12 +6,14 @@ import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.domain.model.StartUpTarget
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
+import com.gdavidpb.tuindice.pensum.presentation.navigation.PensumDestination
 import com.gdavidpb.tuindice.record.presentation.navigation.RecordDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 
 fun Destination.toMainSectionOrNull(): MainSection? = when (this) {
 	is SummaryDestination.NavGraph -> MainSection.SUMMARY
 	is RecordDestination.NavGraph -> MainSection.RECORD
+	is PensumDestination.NavGraph -> MainSection.PENSUM
 	is EvaluationsDestination.NavGraph -> MainSection.EVALUATIONS
 	is AboutDestination.NavGraph -> MainSection.ABOUT
 	else -> null
@@ -20,6 +22,7 @@ fun Destination.toMainSectionOrNull(): MainSection? = when (this) {
 fun MainSection.toDestination(): Destination = when (this) {
 	MainSection.SUMMARY -> SummaryDestination.NavGraph
 	MainSection.RECORD -> RecordDestination.NavGraph
+	MainSection.PENSUM -> PensumDestination.NavGraph
 	MainSection.EVALUATIONS -> EvaluationsDestination.NavGraph
 	MainSection.ABOUT -> AboutDestination.NavGraph
 }

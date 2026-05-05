@@ -1,0 +1,40 @@
+package com.gdavidpb.tuindice.pensum.presentation.contract
+
+import com.gdavidpb.tuindice.base.presentation.ViewAction
+import com.gdavidpb.tuindice.base.presentation.ViewEffect
+import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
+
+object Pensum {
+	sealed class State(
+		override val topBarTitle: String = "Pensum",
+		override val topBarConfig: TopBarConfig = TopBarConfig.Pensum,
+		override val isTopBarVisible: Boolean = true,
+		override val isBottomBarVisible: Boolean = true
+	) : ViewState() {
+		data object Loading : State()
+
+		data class Content(
+			val model: PensumScreenModel
+		) : State()
+
+		data object Failed : State()
+	}
+
+	sealed class Action : ViewAction() {
+		data object ObservePensum : Action()
+		data object RefreshPensum : Action()
+		class SelectPensum(
+			val careerCode: Int,
+			val year: Int
+		) : Action()
+		class SelectModality(
+			val modalityId: String
+		) : Action()
+	}
+
+	sealed class Effect : ViewEffect() {
+		class ShowSnackBar(val message: String) : Effect()
+	}
+}

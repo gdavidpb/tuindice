@@ -1,0 +1,77 @@
+package com.gdavidpb.tuindice.pensum.presentation.model
+
+import com.gdavidpb.tuindice.base.ui.view.DropdownMenuItem
+import com.gdavidpb.tuindice.pensum.domain.model.PensumNodeStatus
+import com.gdavidpb.tuindice.pensum.domain.model.PensumRelationshipType
+
+data class PensumScreenModel(
+	val selection: Selection,
+	val pensumOptions: List<PensumOptionItem>,
+	val modalityOptions: List<ModalityItem>,
+	val progressPercent: Int,
+	val approvedCredits: Int,
+	val totalCredits: Int,
+	val canvas: Canvas,
+	val terms: List<Term>,
+	val nodes: List<Node>,
+	val edges: List<Edge>
+) {
+	data class Selection(
+		val careerCode: Int,
+		val year: Int,
+		val modalityId: String
+	)
+
+	data class PensumOptionItem(
+		val id: String,
+		val careerCode: Int,
+		val careerName: String,
+		val year: Int,
+		override val text: String
+	) : DropdownMenuItem
+
+	data class ModalityItem(
+		val id: String,
+		val name: String,
+		val isDefault: Boolean,
+		override val text: String
+	) : DropdownMenuItem
+
+	data class Canvas(
+		val width: Double,
+		val height: Double
+	)
+
+	data class Term(
+		val id: String,
+		val label: String,
+		val x: Double,
+		val width: Double
+	)
+
+	data class Node(
+		val id: String,
+		val displayCode: String,
+		val name: String,
+		val credits: Int,
+		val termId: String,
+		val x: Double,
+		val y: Double,
+		val width: Double,
+		val height: Double,
+		val status: PensumNodeStatus
+	)
+
+	data class Edge(
+		val id: String,
+		val fromNodeId: String,
+		val toNodeId: String,
+		val relationshipType: PensumRelationshipType,
+		val points: List<Point>
+	)
+
+	data class Point(
+		val x: Double,
+		val y: Double
+	)
+}

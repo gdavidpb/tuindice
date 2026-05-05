@@ -13,7 +13,6 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
@@ -231,6 +230,8 @@ fun TuIndiceAppHostRoute(
 
 						is TopBarAction.FetchEnrollmentProofAction ->
 							navController.navigate(EnrollmentProofDestination.EnrollmentProofDialog)
+
+						is TopBarAction.SearchPensumAction -> Unit
 					}
 				}
 			},

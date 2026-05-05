@@ -20,13 +20,16 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material.icons.automirrored.outlined.Article
 import androidx.compose.material.icons.automirrored.outlined.Logout
+import androidx.compose.material.icons.filled.AccountTree
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.outlined.AccountTree
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.FindInPage
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -137,6 +140,7 @@ fun TuIndiceScreen(
 		listOf(
 			BottomBarConfig.Summary,
 			BottomBarConfig.Record,
+			BottomBarConfig.Pensum,
 			BottomBarConfig.Evaluations,
 			BottomBarConfig.About
 		)
@@ -321,6 +325,8 @@ private fun TopBarAction.getIcon(): ImageVector {
 			Icons.AutoMirrored.Outlined.Logout
 		is TopBarAction.FetchEnrollmentProofAction ->
 			Icons.Outlined.FindInPage
+		is TopBarAction.SearchPensumAction ->
+			Icons.Outlined.Search
 	}
 }
 
@@ -332,6 +338,8 @@ private fun bottomBarIcon(
 		if (selected) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder
 	BottomBarConfig.Record ->
 		if (selected) Icons.AutoMirrored.Filled.Article else Icons.AutoMirrored.Outlined.Article
+	BottomBarConfig.Pensum ->
+		if (selected) Icons.Filled.AccountTree else Icons.Outlined.AccountTree
 	BottomBarConfig.Evaluations ->
 		if (selected) Icons.Filled.DateRange else Icons.Outlined.DateRange
 	BottomBarConfig.About ->
@@ -341,6 +349,7 @@ private fun bottomBarIcon(
 private fun bottomBarItemTag(config: BottomBarConfig): String = when (config) {
 	BottomBarConfig.Summary -> MaincoreUiTags.TuIndiceBottomBarSummaryItem
 	BottomBarConfig.Record -> MaincoreUiTags.TuIndiceBottomBarRecordItem
+	BottomBarConfig.Pensum -> MaincoreUiTags.TuIndiceBottomBarPensumItem
 	BottomBarConfig.Evaluations -> MaincoreUiTags.TuIndiceBottomBarEvaluationsItem
 	BottomBarConfig.About -> MaincoreUiTags.TuIndiceBottomBarAboutItem
 }

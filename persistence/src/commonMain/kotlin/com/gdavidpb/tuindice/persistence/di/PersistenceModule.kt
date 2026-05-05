@@ -9,6 +9,8 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationSyncStateDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.PensumSelectionDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectDetailDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsAttemptBinDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsGradeBinDao
@@ -36,6 +38,8 @@ val persistenceModule = module {
 	single<SubjectStatsSegmentDao> { get<TuIndiceDatabase>().subjectStatsSegments }
 	single<SubjectStatsGradeBinDao> { get<TuIndiceDatabase>().subjectStatsGradeBins }
 	single<SubjectStatsAttemptBinDao> { get<TuIndiceDatabase>().subjectStatsAttemptBins }
+	single<PensumCacheDao> { get<TuIndiceDatabase>().pensumCache }
+	single<PensumSelectionDao> { get<TuIndiceDatabase>().pensumSelection }
 
 	singleOf(::RoomPersistenceTransactionRunner) { bind<PersistenceTransactionRunner>() }
 	singleOf(::RoomPersistenceMaintenanceDataSource) { bind<PersistenceMaintenanceRepository>() }

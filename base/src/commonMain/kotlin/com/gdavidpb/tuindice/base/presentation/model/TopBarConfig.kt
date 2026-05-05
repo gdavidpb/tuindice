@@ -14,4 +14,10 @@ sealed class TopBarConfig(
 			TopBarAction.FetchEnrollmentProofAction
 		)
 	)
+
+	data object Pensum : TopBarConfig(
+		actions = listOf(
+			TopBarAction.SearchPensumAction
+		)
+	)
 }
