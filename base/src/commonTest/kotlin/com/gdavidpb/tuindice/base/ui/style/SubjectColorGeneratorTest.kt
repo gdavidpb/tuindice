@@ -28,4 +28,11 @@ class CourseCodeColorGeneratorTest {
 		assertEquals(Color.Black, CourseCodeColorGenerator.fromCode("INF-101").color)
 		assertEquals(Color.Black, CourseCodeColorGenerator.fromCode("ABCD12").color)
 	}
+
+	@Test
+	fun when_codeDoesNotMatchSupportedFormats_then_nullableGeneratorReturnsNull() {
+		assertEquals(null, CourseCodeColorGenerator.fromCodeOrNull("EA1"))
+		assertEquals(null, CourseCodeColorGenerator.fromCodeOrNull("EG4"))
+		assertEquals(null, CourseCodeColorGenerator.fromCodeOrNull("EL1"))
+	}
 }

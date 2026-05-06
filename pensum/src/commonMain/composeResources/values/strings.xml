@@ -6,6 +6,12 @@
 	<string name="pensum_selector_placeholder">Pensum</string>
 	<string name="pensum_modality_placeholder">Modalidad</string>
 	<string name="pensum_progress_label">avance</string>
+	<string name="pensum_selection_title">Cambiar pensum</string>
+	<string name="pensum_selection_current">%1$s · Pensum %2$d · %3$s</string>
+	<string name="pensum_selection_version">Versión del pensum</string>
+	<string name="pensum_selection_modality">Modalidad</string>
+	<string name="pensum_selection_apply">Aplicar</string>
+	<string name="pensum_selection_cancel">Cancelar</string>
 	<string name="pensum_zoom_in">Acercar</string>
 	<string name="pensum_zoom_out">Alejar</string>
 	<string name="snack_default_error">Ocurrió un error inesperado.</string>

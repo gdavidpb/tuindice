@@ -127,6 +127,26 @@ class PensumRoomDataSource(
 		}
 	}
 
+	override suspend fun selectSelection(careerCode: Int, year: Int, modalityId: String) {
+		writeMutex.withLock {
+			val cacheKey = pensumCacheDao.getPensum(
+				careerCode = careerCode,
+				year = year,
+				modalityId = modalityId
+			)?.cacheKey
+			pensumSelectionDao.upsertEntity(
+				PensumSelectionEntity(
+					id = PensumSelectionTable.DEFAULT_ID,
+					careerCode = careerCode,
+					year = year,
+					modalityId = modalityId,
+					cacheKey = cacheKey,
+					updatedAt = currentTimeMillis()
+				)
+			)
+		}
+	}
+
 	private fun PensumCacheEntity.toResponse(): GetPensumResponse {
 		return json.decodeFromString(payloadJson)
 	}

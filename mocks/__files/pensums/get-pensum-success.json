@@ -1,7 +1,7 @@
 {
   "selection": {
     "pensum_id": "computacion-2019-degree-project",
-    "career_code": 15,
+    "career_code": 800,
     "career_name": "Computación",
     "year": 2019,
     "modality_id": "degree_project",
@@ -9,59 +9,2216 @@
     "inferred": true
   },
   "available_pensums": [
-    {"id": "15-2014", "career_code": 15, "career_name": "Computación", "year": 2014},
-    {"id": "15-2016", "career_code": 15, "career_name": "Computación", "year": 2016},
-    {"id": "15-2017", "career_code": 15, "career_name": "Computación", "year": 2017},
-    {"id": "15-2018", "career_code": 15, "career_name": "Computación", "year": 2018},
-    {"id": "15-2019", "career_code": 15, "career_name": "Computación", "year": 2019}
+    {
+      "id": "800-2014",
+      "career_code": 800,
+      "career_name": "Computación",
+      "year": 2014
+    },
+    {
+      "id": "800-2016",
+      "career_code": 800,
+      "career_name": "Computación",
+      "year": 2016
+    },
+    {
+      "id": "800-2017",
+      "career_code": 800,
+      "career_name": "Computación",
+      "year": 2017
+    },
+    {
+      "id": "800-2018",
+      "career_code": 800,
+      "career_name": "Computación",
+      "year": 2018
+    },
+    {
+      "id": "800-2019",
+      "career_code": 800,
+      "career_name": "Computación",
+      "year": 2019
+    }
   ],
   "available_modalities": [
-    {"id": "degree_project", "name": "Proyecto de Grado", "is_default": true},
-    {"id": "project_de", "name": "Proyecto DE", "is_default": false},
-    {"id": "long_internship", "name": "Pasantía Larga", "is_default": false}
+    {
+      "id": "degree_project",
+      "name": "Proyecto de Grado",
+      "is_default": true
+    },
+    {
+      "id": "project_de",
+      "name": "Proyecto DE",
+      "is_default": false
+    },
+    {
+      "id": "long_internship",
+      "name": "Pasantía Larga",
+      "is_default": false
+    }
   ],
   "pensum": {
     "id": "computacion-2019-degree-project",
-    "career_code": 15,
+    "career_code": 800,
     "career_name": "Computación",
     "year": 2019,
     "modality_id": "degree_project",
     "modality_name": "Proyecto de Grado",
-    "total_credits": 170,
-    "canvas": {"width": 1280.0, "height": 1600.0},
+    "total_credits": 205,
+    "canvas": {
+      "width": 3872.0,
+      "height": 1040.0
+    },
     "terms": [
-      {"id": "T1", "label": "T1", "x": 0.0, "width": 180.0},
-      {"id": "T2", "label": "T2", "x": 180.0, "width": 180.0},
-      {"id": "T3", "label": "T3", "x": 360.0, "width": 180.0},
-      {"id": "T4", "label": "T4", "x": 540.0, "width": 180.0},
-      {"id": "T5", "label": "T5", "x": 720.0, "width": 180.0},
-      {"id": "T6", "label": "T6", "x": 900.0, "width": 180.0}
+      {
+        "id": "T1",
+        "label": "T1",
+        "x": 0.0,
+        "width": 220.0
+      },
+      {
+        "id": "T2",
+        "label": "T2",
+        "x": 220.0,
+        "width": 220.0
+      },
+      {
+        "id": "T3",
+        "label": "T3",
+        "x": 440.0,
+        "width": 220.0
+      },
+      {
+        "id": "T4",
+        "label": "T4",
+        "x": 660.0,
+        "width": 220.0
+      },
+      {
+        "id": "T5",
+        "label": "T5",
+        "x": 880.0,
+        "width": 220.0
+      },
+      {
+        "id": "T6",
+        "label": "T6",
+        "x": 1100.0,
+        "width": 220.0
+      },
+      {
+        "id": "T7",
+        "label": "T7",
+        "x": 1320.0,
+        "width": 220.0
+      },
+      {
+        "id": "T8",
+        "label": "T8",
+        "x": 1540.0,
+        "width": 220.0
+      },
+      {
+        "id": "T9",
+        "label": "T9",
+        "x": 1760.0,
+        "width": 220.0
+      },
+      {
+        "id": "PI",
+        "label": "PI",
+        "x": 1980.0,
+        "width": 220.0
+      },
+      {
+        "id": "T10",
+        "label": "T10",
+        "x": 2200.0,
+        "width": 220.0
+      },
+      {
+        "id": "T11",
+        "label": "T11",
+        "x": 2420.0,
+        "width": 220.0
+      },
+      {
+        "id": "T12",
+        "label": "T12",
+        "x": 2640.0,
+        "width": 220.0
+      },
+      {
+        "id": "T13",
+        "label": "T13",
+        "x": 2860.0,
+        "width": 220.0
+      },
+      {
+        "id": "T14",
+        "label": "T14",
+        "x": 3080.0,
+        "width": 220.0
+      },
+      {
+        "id": "T15",
+        "label": "T15",
+        "x": 3300.0,
+        "width": 220.0
+      }
     ],
     "nodes": [
-      {"id":"ma1111","node_type":"COURSE","display_code":"MA1111","subject_code":"MA1111","name":"Calculo I","credits":5,"category":"BASIC","term_id":"T1","x":28.0,"y":300.0,"width":160.0,"height":120.0,"fulfillment_rules":[]},
-      {"id":"fs1111","node_type":"COURSE","display_code":"FS1111","subject_code":"FS1111","name":"Fisica I","credits":4,"category":"BASIC","term_id":"T1","x":28.0,"y":560.0,"width":160.0,"height":120.0,"fulfillment_rules":[]},
-      {"id":"el3310","node_type":"COURSE","display_code":"EL3310","subject_code":"EL3310","name":"Electronica I","credits":4,"category":"PROFESSIONAL","term_id":"T1","x":28.0,"y":820.0,"width":160.0,"height":120.0,"fulfillment_rules":[]},
-      {"id":"ma2112","node_type":"COURSE","display_code":"MA2112","subject_code":"MA2112","name":"Calculo III","credits":5,"category":"BASIC","term_id":"T2","x":220.0,"y":310.0,"width":160.0,"height":120.0,"fulfillment_rules":[]},
-      {"id":"ec2211","node_type":"COURSE","display_code":"EC2211","subject_code":"EC2211","name":"Circuitos I","credits":4,"category":"PROFESSIONAL","term_id":"T2","x":220.0,"y":660.0,"width":160.0,"height":120.0,"fulfillment_rules":[]},
-      {"id":"ec5344","node_type":"COURSE","display_code":"EC5344","subject_code":"EC5344","name":"Radiacion y Antenas","credits":3,"category":"PROFESSIONAL","term_id":"T3","x":420.0,"y":560.0,"width":180.0,"height":140.0,"fulfillment_rules":[]},
-      {"id":"ec4422","node_type":"COURSE","display_code":"EC4422","subject_code":"EC4422","name":"Comunicaciones Digitales","credits":4,"category":"PROFESSIONAL","term_id":"T4","x":620.0,"y":820.0,"width":160.0,"height":120.0,"fulfillment_rules":[]},
-      {"id":"ec5745","node_type":"COURSE","display_code":"EC5745","subject_code":"EC5745","name":"Procesamiento Concurrente","credits":4,"category":"PROFESSIONAL","term_id":"T4","x":700.0,"y":560.0,"width":160.0,"height":120.0,"fulfillment_rules":[]},
-      {"id":"ep5406","node_type":"COURSE","display_code":"EP5406","subject_code":"EP5406","name":"Proyecto de Grado A","credits":9,"category":"MODALITY","term_id":"T5","x":820.0,"y":820.0,"width":160.0,"height":120.0,"fulfillment_rules":[]},
-      {"id":"ps5315","node_type":"COURSE","display_code":"PS5315","subject_code":"PS5315","name":"Logica y Controladores","credits":3,"category":"PROFESSIONAL","term_id":"T5","x":900.0,"y":560.0,"width":160.0,"height":120.0,"fulfillment_rules":[]},
-      {"id":"pr4101","node_type":"COURSE","display_code":"PR4101","subject_code":"PR4101","name":"Practica Profesional","credits":6,"category":"MODALITY","term_id":"T6","x":1080.0,"y":820.0,"width":160.0,"height":120.0,"fulfillment_rules":[]}
+      {
+        "id": "ma1111",
+        "node_type": "COURSE",
+        "display_code": "MA1111",
+        "subject_code": "MA1111",
+        "name": "Matemáticas I",
+        "credits": 4,
+        "category": "BASIC_SCIENCES",
+        "term_id": "T1",
+        "x": 30.0,
+        "y": 120.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "lla111",
+        "node_type": "COURSE",
+        "display_code": "LLA111",
+        "subject_code": "LLA111",
+        "name": "Lenguaje I",
+        "credits": 3,
+        "category": "GENERAL_STUDIES",
+        "term_id": "T1",
+        "x": 30.0,
+        "y": 292.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "csa211",
+        "node_type": "COURSE",
+        "display_code": "CSA211",
+        "subject_code": "CSA211",
+        "name": "Venezuela ante el Siglo XXI I",
+        "credits": 3,
+        "category": "GENERAL_STUDIES",
+        "term_id": "T1",
+        "x": 30.0,
+        "y": 464.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "id1111",
+        "node_type": "COURSE",
+        "display_code": "ID1111",
+        "subject_code": "ID1111",
+        "name": "Inglés I",
+        "credits": 3,
+        "category": "LANGUAGE",
+        "term_id": "T1",
+        "x": 30.0,
+        "y": 636.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "fs1111",
+        "node_type": "COURSE",
+        "display_code": "FS1111",
+        "subject_code": "FS1111",
+        "name": "Física I",
+        "credits": 3,
+        "category": "BASIC_SCIENCES",
+        "term_id": "T1",
+        "x": 30.0,
+        "y": 808.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ma1112",
+        "node_type": "COURSE",
+        "display_code": "MA1112",
+        "subject_code": "MA1112",
+        "name": "Matemáticas II",
+        "credits": 4,
+        "category": "BASIC_SCIENCES",
+        "term_id": "T2",
+        "x": 250.0,
+        "y": 120.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "lla112",
+        "node_type": "COURSE",
+        "display_code": "LLA112",
+        "subject_code": "LLA112",
+        "name": "Lenguaje II",
+        "credits": 3,
+        "category": "GENERAL_STUDIES",
+        "term_id": "T2",
+        "x": 250.0,
+        "y": 292.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "csa212",
+        "node_type": "COURSE",
+        "display_code": "CSA212",
+        "subject_code": "CSA212",
+        "name": "Venezuela ante el Siglo XXI II",
+        "credits": 3,
+        "category": "GENERAL_STUDIES",
+        "term_id": "T2",
+        "x": 250.0,
+        "y": 464.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "id1112",
+        "node_type": "COURSE",
+        "display_code": "ID1112",
+        "subject_code": "ID1112",
+        "name": "Inglés II",
+        "credits": 3,
+        "category": "LANGUAGE",
+        "term_id": "T2",
+        "x": 250.0,
+        "y": 636.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "fs1112",
+        "node_type": "COURSE",
+        "display_code": "FS1112",
+        "subject_code": "FS1112",
+        "name": "Física II",
+        "credits": 3,
+        "category": "BASIC_SCIENCES",
+        "term_id": "T2",
+        "x": 250.0,
+        "y": 808.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ma1116",
+        "node_type": "COURSE",
+        "display_code": "MA1116",
+        "subject_code": "MA1116",
+        "name": "Matemáticas III",
+        "credits": 4,
+        "category": "BASIC_SCIENCES",
+        "term_id": "T3",
+        "x": 470.0,
+        "y": 120.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "lla113",
+        "node_type": "COURSE",
+        "display_code": "LLA113",
+        "subject_code": "LLA113",
+        "name": "Lenguaje III",
+        "credits": 3,
+        "category": "GENERAL_STUDIES",
+        "term_id": "T3",
+        "x": 470.0,
+        "y": 292.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "csa213",
+        "node_type": "COURSE",
+        "display_code": "CSA213",
+        "subject_code": "CSA213",
+        "name": "Venezuela ante el Siglo XXI III",
+        "credits": 3,
+        "category": "GENERAL_STUDIES",
+        "term_id": "T3",
+        "x": 470.0,
+        "y": 464.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "id1113",
+        "node_type": "COURSE",
+        "display_code": "ID1113",
+        "subject_code": "ID1113",
+        "name": "Inglés III",
+        "credits": 3,
+        "category": "LANGUAGE",
+        "term_id": "T3",
+        "x": 470.0,
+        "y": 636.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ma2115",
+        "node_type": "COURSE",
+        "display_code": "MA2115",
+        "subject_code": "MA2115",
+        "name": "Matemáticas IV",
+        "credits": 4,
+        "category": "BASIC_SCIENCES",
+        "term_id": "T4",
+        "x": 690.0,
+        "y": 120.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ci2511",
+        "node_type": "COURSE",
+        "display_code": "CI2511",
+        "subject_code": "CI2511",
+        "name": "Lógica Simbólica",
+        "credits": 4,
+        "category": "COMPUTING",
+        "term_id": "T4",
+        "x": 690.0,
+        "y": 292.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ci2525",
+        "node_type": "COURSE",
+        "display_code": "CI2525",
+        "subject_code": "CI2525",
+        "name": "Estructuras Discretas I",
+        "credits": 4,
+        "category": "COMPUTING",
+        "term_id": "T4",
+        "x": 690.0,
+        "y": 464.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "eg1",
+        "node_type": "SLOT",
+        "display_code": "EG1",
+        "subject_code": null,
+        "name": "Estudio General I",
+        "credits": 3,
+        "category": "GENERAL_STUDIES",
+        "term_id": "T4",
+        "x": 690.0,
+        "y": 636.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": [
+          {
+            "id": "eg1-exact",
+            "rule_type": "SUBJECT_CODES",
+            "subject_codes": [
+              "EG1111"
+            ],
+            "subject_code_prefixes": [],
+            "min_credits": 3,
+            "min_subjects": 1
+          }
+        ]
+      },
+      {
+        "id": "ma2112",
+        "node_type": "COURSE",
+        "display_code": "MA2112",
+        "subject_code": "MA2112",
+        "name": "Matemáticas V",
+        "credits": 4,
+        "category": "BASIC_SCIENCES",
+        "term_id": "T5",
+        "x": 910.0,
+        "y": 120.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ci2611",
+        "node_type": "COURSE",
+        "display_code": "CI2611",
+        "subject_code": "CI2611",
+        "name": "Algoritmos y Estructuras I",
+        "credits": 3,
+        "category": "COMPUTING",
+        "term_id": "T5",
+        "x": 910.0,
+        "y": 292.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ci2691",
+        "node_type": "COURSE",
+        "display_code": "CI2691",
+        "subject_code": "CI2691",
+        "name": "Lab. de Algoritmos y Estructuras I",
+        "credits": 2,
+        "category": "COMPUTING",
+        "term_id": "T5",
+        "x": 910.0,
+        "y": 464.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ci2526",
+        "node_type": "COURSE",
+        "display_code": "CI2526",
+        "subject_code": "CI2526",
+        "name": "Estructuras Discretas II",
+        "credits": 4,
+        "category": "COMPUTING",
+        "term_id": "T5",
+        "x": 910.0,
+        "y": 636.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ci2527",
+        "node_type": "COURSE",
+        "display_code": "CI2527",
+        "subject_code": "CI2527",
+        "name": "Estructuras Discretas III",
+        "credits": 4,
+        "category": "COMPUTING",
+        "term_id": "T5",
+        "x": 910.0,
+        "y": 808.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "co3211",
+        "node_type": "COURSE",
+        "display_code": "CO3211",
+        "subject_code": "CO3211",
+        "name": "Cálculo Numérico",
+        "credits": 4,
+        "category": "BASIC_SCIENCES",
+        "term_id": "T6",
+        "x": 1130.0,
+        "y": 120.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ci2612",
+        "node_type": "COURSE",
+        "display_code": "CI2612",
+        "subject_code": "CI2612",
+        "name": "Algoritmos y Estructuras II",
+        "credits": 3,
+        "category": "COMPUTING",
+        "term_id": "T6",
+        "x": 1130.0,
+        "y": 292.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ci2692",
+        "node_type": "COURSE",
+        "display_code": "CI2692",
+        "subject_code": "CI2692",
+        "name": "Lab. de Algoritmos y Estructuras II",
+        "credits": 2,
+        "category": "COMPUTING",
+        "term_id": "T6",
+        "x": 1130.0,
+        "y": 464.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "eg2",
+        "node_type": "SLOT",
+        "display_code": "EG2",
+        "subject_code": null,
+        "name": "Estudio General II",
+        "credits": 3,
+        "category": "GENERAL_STUDIES",
+        "term_id": "T6",
+        "x": 1130.0,
+        "y": 636.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": [
+          {
+            "id": "eg2-exact",
+            "rule_type": "SUBJECT_CODES",
+            "subject_codes": [
+              "EG1112"
+            ],
+            "subject_code_prefixes": [],
+            "min_credits": 3,
+            "min_subjects": 1
+          }
+        ]
+      },
+      {
+        "id": "co3121",
+        "node_type": "COURSE",
+        "display_code": "CO3121",
+        "subject_code": "CO3121",
+        "name": "Fund. Probabilidades para Ingenieros",
+        "credits": 4,
+        "category": "BASIC_SCIENCES",
+        "term_id": "T7",
+        "x": 1350.0,
+        "y": 120.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ci3815",
+        "node_type": "COURSE",
+        "display_code": "CI3815",
+        "subject_code": "CI3815",
+        "name": "Organización del Computador",
+        "credits": 5,
+        "category": "COMPUTING",
+        "term_id": "T7",
+        "x": 1350.0,
+        "y": 292.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ci2613",
+        "node_type": "COURSE",
+        "display_code": "CI2613",
+        "subject_code": "CI2613",
+        "name": "Algoritmos y Estructuras III",
+        "credits": 3,
+        "category": "COMPUTING",
+        "term_id": "T7",
+        "x": 1350.0,
+        "y": 464.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ci2693",
+        "node_type": "COURSE",
+        "display_code": "CI2693",
+        "subject_code": "CI2693",
+        "name": "Lab. de Algoritmos y Estructuras III",
+        "credits": 2,
+        "category": "COMPUTING",
+        "term_id": "T7",
+        "x": 1350.0,
+        "y": 636.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "co3321",
+        "node_type": "COURSE",
+        "display_code": "CO3321",
+        "subject_code": "CO3321",
+        "name": "Estadística para Ingenieros",
+        "credits": 4,
+        "category": "BASIC_SCIENCES",
+        "term_id": "T8",
+        "x": 1570.0,
+        "y": 120.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ci3825",
+        "node_type": "COURSE",
+        "display_code": "CI3825",
+        "subject_code": "CI3825",
+        "name": "Sistemas de Operación",
+        "credits": 5,
+        "category": "COMPUTING",
+        "term_id": "T8",
+        "x": 1570.0,
+        "y": 292.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ci3311",
+        "node_type": "COURSE",
+        "display_code": "CI3311",
+        "subject_code": "CI3311",
+        "name": "Sistemas de Base de Datos I",
+        "credits": 3,
+        "category": "COMPUTING",
+        "term_id": "T8",
+        "x": 1570.0,
+        "y": 464.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ci3391",
+        "node_type": "COURSE",
+        "display_code": "CI3391",
+        "subject_code": "CI3391",
+        "name": "Lab. de Sistemas de Base de Datos I",
+        "credits": 2,
+        "category": "COMPUTING",
+        "term_id": "T8",
+        "x": 1570.0,
+        "y": 636.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ps1115",
+        "node_type": "COURSE",
+        "display_code": "PS1115",
+        "subject_code": "PS1115",
+        "name": "Sistemas de Información I",
+        "credits": 4,
+        "category": "COMPUTING",
+        "term_id": "T9",
+        "x": 1790.0,
+        "y": 120.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ci3715",
+        "node_type": "COURSE",
+        "display_code": "CI3715",
+        "subject_code": "CI3715",
+        "name": "Ingeniería de Software",
+        "credits": 5,
+        "category": "COMPUTING",
+        "term_id": "T9",
+        "x": 1790.0,
+        "y": 292.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ci3725",
+        "node_type": "COURSE",
+        "display_code": "CI3725",
+        "subject_code": "CI3725",
+        "name": "Traductores e Intérpretes",
+        "credits": 5,
+        "category": "COMPUTING",
+        "term_id": "T9",
+        "x": 1790.0,
+        "y": 464.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "eg3",
+        "node_type": "SLOT",
+        "display_code": "EG3",
+        "subject_code": null,
+        "name": "Estudios Generales III",
+        "credits": 3,
+        "category": "GENERAL_STUDIES",
+        "term_id": "T9",
+        "x": 1790.0,
+        "y": 636.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": [
+          {
+            "id": "eg3-exact",
+            "rule_type": "SUBJECT_CODES",
+            "subject_codes": [
+              "EG1113"
+            ],
+            "subject_code_prefixes": [],
+            "min_credits": 3,
+            "min_subjects": 1
+          }
+        ]
+      },
+      {
+        "id": "ep1420",
+        "node_type": "COURSE",
+        "display_code": "EP1420",
+        "subject_code": "EP1420",
+        "name": "Cursos en Cooperación I",
+        "credits": 3,
+        "category": "INTERNSHIP",
+        "term_id": "PI",
+        "x": 2010.0,
+        "y": 120.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ps1111",
+        "node_type": "COURSE",
+        "display_code": "PS1111",
+        "subject_code": "PS1111",
+        "name": "Modelos Lineales I",
+        "credits": 4,
+        "category": "BASIC_SCIENCES",
+        "term_id": "T10",
+        "x": 2230.0,
+        "y": 120.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ci4835",
+        "node_type": "COURSE",
+        "display_code": "CI4835",
+        "subject_code": "CI4835",
+        "name": "Redes de Computadoras",
+        "credits": 5,
+        "category": "COMPUTING",
+        "term_id": "T10",
+        "x": 2230.0,
+        "y": 292.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ci3641",
+        "node_type": "COURSE",
+        "display_code": "CI3641",
+        "subject_code": "CI3641",
+        "name": "Lenguaje de Programación",
+        "credits": 3,
+        "category": "COMPUTING",
+        "term_id": "T10",
+        "x": 2230.0,
+        "y": 464.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ci3661",
+        "node_type": "COURSE",
+        "display_code": "CI3661",
+        "subject_code": "CI3661",
+        "name": "Lab. de Lenguajes de Programación",
+        "credits": 2,
+        "category": "COMPUTING",
+        "term_id": "T10",
+        "x": 2230.0,
+        "y": 636.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ci4325",
+        "node_type": "COURSE",
+        "display_code": "CI4325",
+        "subject_code": "CI4325",
+        "name": "Interfaces con el Usuario",
+        "credits": 5,
+        "category": "COMPUTING",
+        "term_id": "T11",
+        "x": 2450.0,
+        "y": 120.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ea1",
+        "node_type": "SLOT",
+        "display_code": "EA1",
+        "subject_code": null,
+        "name": "Electiva de Área I",
+        "credits": 4,
+        "category": "AREA_ELECTIVE",
+        "term_id": "T11",
+        "x": 2450.0,
+        "y": 292.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": [
+          {
+            "id": "ea1-exact",
+            "rule_type": "SUBJECT_CODES",
+            "subject_codes": [
+              "CI4210"
+            ],
+            "subject_code_prefixes": [],
+            "min_credits": 4,
+            "min_subjects": 1
+          }
+        ]
+      },
+      {
+        "id": "ea2",
+        "node_type": "SLOT",
+        "display_code": "EA2",
+        "subject_code": null,
+        "name": "Electiva de Área II",
+        "credits": 4,
+        "category": "AREA_ELECTIVE",
+        "term_id": "T11",
+        "x": 2450.0,
+        "y": 464.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": [
+          {
+            "id": "ea2-exact",
+            "rule_type": "SUBJECT_CODES",
+            "subject_codes": [
+              "CI4311"
+            ],
+            "subject_code_prefixes": [],
+            "min_credits": 4,
+            "min_subjects": 1
+          }
+        ]
+      },
+      {
+        "id": "eg4",
+        "node_type": "SLOT",
+        "display_code": "EG4",
+        "subject_code": null,
+        "name": "Estudio General IV",
+        "credits": 3,
+        "category": "GENERAL_STUDIES",
+        "term_id": "T11",
+        "x": 2450.0,
+        "y": 636.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": [
+          {
+            "id": "eg4-exact",
+            "rule_type": "SUBJECT_CODES",
+            "subject_codes": [
+              "EG1114"
+            ],
+            "subject_code_prefixes": [],
+            "min_credits": 3,
+            "min_subjects": 1
+          }
+        ]
+      },
+      {
+        "id": "ea3",
+        "node_type": "SLOT",
+        "display_code": "EA3",
+        "subject_code": null,
+        "name": "Electiva de Área III",
+        "credits": 4,
+        "category": "AREA_ELECTIVE",
+        "term_id": "T12",
+        "x": 2670.0,
+        "y": 120.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": [
+          {
+            "id": "ea3-exact",
+            "rule_type": "SUBJECT_CODES",
+            "subject_codes": [
+              "DA3311"
+            ],
+            "subject_code_prefixes": [],
+            "min_credits": 4,
+            "min_subjects": 1
+          }
+        ]
+      },
+      {
+        "id": "ea4",
+        "node_type": "SLOT",
+        "display_code": "EA4",
+        "subject_code": null,
+        "name": "Electiva de Área IV",
+        "credits": 4,
+        "category": "AREA_ELECTIVE",
+        "term_id": "T12",
+        "x": 2670.0,
+        "y": 292.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": [
+          {
+            "id": "ea4-exact",
+            "rule_type": "SUBJECT_CODES",
+            "subject_codes": [
+              "DA2563"
+            ],
+            "subject_code_prefixes": [],
+            "min_credits": 4,
+            "min_subjects": 1
+          }
+        ]
+      },
+      {
+        "id": "eg5",
+        "node_type": "SLOT",
+        "display_code": "EG5",
+        "subject_code": null,
+        "name": "Estudio General V",
+        "credits": 3,
+        "category": "GENERAL_STUDIES",
+        "term_id": "T12",
+        "x": 2670.0,
+        "y": 464.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": [
+          {
+            "id": "eg5-exact",
+            "rule_type": "SUBJECT_CODES",
+            "subject_codes": [
+              "EG1115"
+            ],
+            "subject_code_prefixes": [],
+            "min_credits": 3,
+            "min_subjects": 1
+          }
+        ]
+      },
+      {
+        "id": "ep1308",
+        "node_type": "COURSE",
+        "display_code": "EP1308",
+        "subject_code": "EP1308",
+        "name": "Proyecto de Grado I",
+        "credits": 3,
+        "category": "DEGREE_PROJECT",
+        "term_id": "T13",
+        "x": 2890.0,
+        "y": 120.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ep5855",
+        "node_type": "COURSE",
+        "display_code": "EP5855",
+        "subject_code": "EP5855",
+        "name": "Tópicos en Ingeniería de Computación I",
+        "credits": 4,
+        "category": "DEGREE_PROJECT",
+        "term_id": "T13",
+        "x": 2890.0,
+        "y": 292.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "el1",
+        "node_type": "SLOT",
+        "display_code": "EL1",
+        "subject_code": null,
+        "name": "Electiva Libre I",
+        "credits": 3,
+        "category": "FREE_ELECTIVE",
+        "term_id": "T13",
+        "x": 2890.0,
+        "y": 464.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": [
+          {
+            "id": "el1-exact",
+            "rule_type": "SUBJECT_CODES",
+            "subject_codes": [
+              "EL1111"
+            ],
+            "subject_code_prefixes": [],
+            "min_credits": 3,
+            "min_subjects": 1
+          }
+        ]
+      },
+      {
+        "id": "ep2308",
+        "node_type": "COURSE",
+        "display_code": "EP2308",
+        "subject_code": "EP2308",
+        "name": "Proyecto de Grado II",
+        "credits": 3,
+        "category": "DEGREE_PROJECT",
+        "term_id": "T14",
+        "x": 3110.0,
+        "y": 120.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "ep5856",
+        "node_type": "COURSE",
+        "display_code": "EP5856",
+        "subject_code": "EP5856",
+        "name": "Tópicos en Ingeniería de Computación II",
+        "credits": 4,
+        "category": "DEGREE_PROJECT",
+        "term_id": "T14",
+        "x": 3110.0,
+        "y": 292.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "el2",
+        "node_type": "SLOT",
+        "display_code": "EL2",
+        "subject_code": null,
+        "name": "Electiva Libre II",
+        "credits": 4,
+        "category": "FREE_ELECTIVE",
+        "term_id": "T14",
+        "x": 3110.0,
+        "y": 464.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": [
+          {
+            "id": "el2-exact",
+            "rule_type": "SUBJECT_CODES",
+            "subject_codes": [
+              "EL1112"
+            ],
+            "subject_code_prefixes": [],
+            "min_credits": 4,
+            "min_subjects": 1
+          }
+        ]
+      },
+      {
+        "id": "ep3308",
+        "node_type": "COURSE",
+        "display_code": "EP3308",
+        "subject_code": "EP3308",
+        "name": "Proyecto de Grado III",
+        "credits": 3,
+        "category": "DEGREE_PROJECT",
+        "term_id": "T15",
+        "x": 3330.0,
+        "y": 120.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
+        "id": "el3",
+        "node_type": "SLOT",
+        "display_code": "EL3",
+        "subject_code": null,
+        "name": "Electiva Libre III",
+        "credits": 3,
+        "category": "FREE_ELECTIVE",
+        "term_id": "T15",
+        "x": 3330.0,
+        "y": 292.0,
+        "width": 172.0,
+        "height": 120.0,
+        "fulfillment_rules": [
+          {
+            "id": "el3-exact",
+            "rule_type": "SUBJECT_CODES",
+            "subject_codes": [
+              "EL1113"
+            ],
+            "subject_code_prefixes": [],
+            "min_credits": 3,
+            "min_subjects": 1
+          }
+        ]
+      }
     ],
     "edges": [
-      {"id":"ma1111-ma2112","from_node_id":"ma1111","to_node_id":"ma2112","relationship_type":"REQUIREMENT","points":[{"x":188.0,"y":360.0},{"x":220.0,"y":360.0}]},
-      {"id":"fs1111-ec2211","from_node_id":"fs1111","to_node_id":"ec2211","relationship_type":"REQUIREMENT","points":[{"x":188.0,"y":620.0},{"x":220.0,"y":720.0}]},
-      {"id":"el3310-ec2211","from_node_id":"el3310","to_node_id":"ec2211","relationship_type":"REQUIREMENT","points":[{"x":188.0,"y":880.0},{"x":205.0,"y":880.0},{"x":205.0,"y":720.0},{"x":220.0,"y":720.0}]},
-      {"id":"ma2112-ec5344","from_node_id":"ma2112","to_node_id":"ec5344","relationship_type":"REQUIREMENT","points":[{"x":380.0,"y":370.0},{"x":400.0,"y":370.0},{"x":400.0,"y":630.0},{"x":420.0,"y":630.0}]},
-      {"id":"ec2211-ec5344","from_node_id":"ec2211","to_node_id":"ec5344","relationship_type":"REQUIREMENT","points":[{"x":380.0,"y":720.0},{"x":420.0,"y":650.0}]},
-      {"id":"ec5344-ec4422","from_node_id":"ec5344","to_node_id":"ec4422","relationship_type":"REQUIREMENT","points":[{"x":510.0,"y":700.0},{"x":510.0,"y":880.0},{"x":620.0,"y":880.0}]},
-      {"id":"ec5344-ec5745","from_node_id":"ec5344","to_node_id":"ec5745","relationship_type":"REQUIREMENT","points":[{"x":600.0,"y":630.0},{"x":700.0,"y":630.0}]},
-      {"id":"ec5745-ep5406","from_node_id":"ec5745","to_node_id":"ep5406","relationship_type":"REQUIREMENT","points":[{"x":860.0,"y":620.0},{"x":885.0,"y":620.0},{"x":885.0,"y":820.0}]},
-      {"id":"ec5745-ps5315","from_node_id":"ec5745","to_node_id":"ps5315","relationship_type":"REQUIREMENT","points":[{"x":860.0,"y":620.0},{"x":900.0,"y":620.0}]},
-      {"id":"ec4422-ep5406","from_node_id":"ec4422","to_node_id":"ep5406","relationship_type":"REQUIREMENT","points":[{"x":780.0,"y":880.0},{"x":820.0,"y":880.0}]},
-      {"id":"ep5406-pr4101","from_node_id":"ep5406","to_node_id":"pr4101","relationship_type":"REQUIREMENT","points":[{"x":980.0,"y":880.0},{"x":1080.0,"y":880.0}]}
+      {
+        "id": "ma1111-ma1112",
+        "from_node_id": "ma1111",
+        "to_node_id": "ma1112",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 202.0,
+            "y": 180.0
+          },
+          {
+            "x": 226.0,
+            "y": 180.0
+          },
+          {
+            "x": 226.0,
+            "y": 180.0
+          },
+          {
+            "x": 250.0,
+            "y": 180.0
+          }
+        ]
+      },
+      {
+        "id": "ma1112-ma1116",
+        "from_node_id": "ma1112",
+        "to_node_id": "ma1116",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 422.0,
+            "y": 180.0
+          },
+          {
+            "x": 446.0,
+            "y": 180.0
+          },
+          {
+            "x": 446.0,
+            "y": 180.0
+          },
+          {
+            "x": 470.0,
+            "y": 180.0
+          }
+        ]
+      },
+      {
+        "id": "ma1116-ma2115",
+        "from_node_id": "ma1116",
+        "to_node_id": "ma2115",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 642.0,
+            "y": 180.0
+          },
+          {
+            "x": 666.0,
+            "y": 180.0
+          },
+          {
+            "x": 666.0,
+            "y": 180.0
+          },
+          {
+            "x": 690.0,
+            "y": 180.0
+          }
+        ]
+      },
+      {
+        "id": "ma1116-ma2112",
+        "from_node_id": "ma1116",
+        "to_node_id": "ma2112",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 642.0,
+            "y": 180.0
+          },
+          {
+            "x": 776.0,
+            "y": 180.0
+          },
+          {
+            "x": 776.0,
+            "y": 180.0
+          },
+          {
+            "x": 910.0,
+            "y": 180.0
+          }
+        ]
+      },
+      {
+        "id": "ma2112-co3211",
+        "from_node_id": "ma2112",
+        "to_node_id": "co3211",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 1082.0,
+            "y": 180.0
+          },
+          {
+            "x": 1106.0,
+            "y": 180.0
+          },
+          {
+            "x": 1106.0,
+            "y": 180.0
+          },
+          {
+            "x": 1130.0,
+            "y": 180.0
+          }
+        ]
+      },
+      {
+        "id": "ma2115-co3121",
+        "from_node_id": "ma2115",
+        "to_node_id": "co3121",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 862.0,
+            "y": 180.0
+          },
+          {
+            "x": 1106.0,
+            "y": 180.0
+          },
+          {
+            "x": 1106.0,
+            "y": 192.0
+          },
+          {
+            "x": 1350.0,
+            "y": 192.0
+          }
+        ]
+      },
+      {
+        "id": "co3121-co3321",
+        "from_node_id": "co3121",
+        "to_node_id": "co3321",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 1522.0,
+            "y": 192.0
+          },
+          {
+            "x": 1546.0,
+            "y": 192.0
+          },
+          {
+            "x": 1546.0,
+            "y": 192.0
+          },
+          {
+            "x": 1570.0,
+            "y": 192.0
+          }
+        ]
+      },
+      {
+        "id": "co3321-ps1111",
+        "from_node_id": "co3321",
+        "to_node_id": "ps1111",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 1742.0,
+            "y": 192.0
+          },
+          {
+            "x": 1986.0,
+            "y": 192.0
+          },
+          {
+            "x": 1986.0,
+            "y": 180.0
+          },
+          {
+            "x": 2230.0,
+            "y": 180.0
+          }
+        ]
+      },
+      {
+        "id": "fs1111-fs1112",
+        "from_node_id": "fs1111",
+        "to_node_id": "fs1112",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 202.0,
+            "y": 868.0
+          },
+          {
+            "x": 226.0,
+            "y": 868.0
+          },
+          {
+            "x": 226.0,
+            "y": 868.0
+          },
+          {
+            "x": 250.0,
+            "y": 868.0
+          }
+        ]
+      },
+      {
+        "id": "lla111-lla112",
+        "from_node_id": "lla111",
+        "to_node_id": "lla112",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 202.0,
+            "y": 352.0
+          },
+          {
+            "x": 226.0,
+            "y": 352.0
+          },
+          {
+            "x": 226.0,
+            "y": 352.0
+          },
+          {
+            "x": 250.0,
+            "y": 352.0
+          }
+        ]
+      },
+      {
+        "id": "lla112-lla113",
+        "from_node_id": "lla112",
+        "to_node_id": "lla113",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 422.0,
+            "y": 352.0
+          },
+          {
+            "x": 446.0,
+            "y": 352.0
+          },
+          {
+            "x": 446.0,
+            "y": 352.0
+          },
+          {
+            "x": 470.0,
+            "y": 352.0
+          }
+        ]
+      },
+      {
+        "id": "csa211-csa212",
+        "from_node_id": "csa211",
+        "to_node_id": "csa212",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 202.0,
+            "y": 536.0
+          },
+          {
+            "x": 226.0,
+            "y": 536.0
+          },
+          {
+            "x": 226.0,
+            "y": 536.0
+          },
+          {
+            "x": 250.0,
+            "y": 536.0
+          }
+        ]
+      },
+      {
+        "id": "csa212-csa213",
+        "from_node_id": "csa212",
+        "to_node_id": "csa213",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 422.0,
+            "y": 536.0
+          },
+          {
+            "x": 446.0,
+            "y": 536.0
+          },
+          {
+            "x": 446.0,
+            "y": 536.0
+          },
+          {
+            "x": 470.0,
+            "y": 536.0
+          }
+        ]
+      },
+      {
+        "id": "id1111-id1112",
+        "from_node_id": "id1111",
+        "to_node_id": "id1112",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 202.0,
+            "y": 696.0
+          },
+          {
+            "x": 226.0,
+            "y": 696.0
+          },
+          {
+            "x": 226.0,
+            "y": 696.0
+          },
+          {
+            "x": 250.0,
+            "y": 696.0
+          }
+        ]
+      },
+      {
+        "id": "id1112-id1113",
+        "from_node_id": "id1112",
+        "to_node_id": "id1113",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 422.0,
+            "y": 696.0
+          },
+          {
+            "x": 446.0,
+            "y": 696.0
+          },
+          {
+            "x": 446.0,
+            "y": 696.0
+          },
+          {
+            "x": 470.0,
+            "y": 696.0
+          }
+        ]
+      },
+      {
+        "id": "ci2511-ci2525",
+        "from_node_id": "ci2511",
+        "to_node_id": "ci2525",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 862.0,
+            "y": 352.0
+          },
+          {
+            "x": 776.0,
+            "y": 352.0
+          },
+          {
+            "x": 776.0,
+            "y": 536.0
+          },
+          {
+            "x": 690.0,
+            "y": 536.0
+          }
+        ]
+      },
+      {
+        "id": "ci2525-ci2526",
+        "from_node_id": "ci2525",
+        "to_node_id": "ci2526",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 862.0,
+            "y": 536.0
+          },
+          {
+            "x": 886.0,
+            "y": 536.0
+          },
+          {
+            "x": 886.0,
+            "y": 708.0
+          },
+          {
+            "x": 910.0,
+            "y": 708.0
+          }
+        ]
+      },
+      {
+        "id": "ci2526-ci2527",
+        "from_node_id": "ci2526",
+        "to_node_id": "ci2527",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 1082.0,
+            "y": 708.0
+          },
+          {
+            "x": 996.0,
+            "y": 708.0
+          },
+          {
+            "x": 996.0,
+            "y": 880.0
+          },
+          {
+            "x": 910.0,
+            "y": 880.0
+          }
+        ]
+      },
+      {
+        "id": "ci2527-co3121",
+        "from_node_id": "ci2527",
+        "to_node_id": "co3121",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 1082.0,
+            "y": 880.0
+          },
+          {
+            "x": 1216.0,
+            "y": 880.0
+          },
+          {
+            "x": 1216.0,
+            "y": 192.0
+          },
+          {
+            "x": 1350.0,
+            "y": 192.0
+          }
+        ]
+      },
+      {
+        "id": "ci2611-ci2612",
+        "from_node_id": "ci2611",
+        "to_node_id": "ci2612",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 1082.0,
+            "y": 364.0
+          },
+          {
+            "x": 1106.0,
+            "y": 364.0
+          },
+          {
+            "x": 1106.0,
+            "y": 364.0
+          },
+          {
+            "x": 1130.0,
+            "y": 364.0
+          }
+        ]
+      },
+      {
+        "id": "ci2612-ci2613",
+        "from_node_id": "ci2612",
+        "to_node_id": "ci2613",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 1302.0,
+            "y": 364.0
+          },
+          {
+            "x": 1326.0,
+            "y": 364.0
+          },
+          {
+            "x": 1326.0,
+            "y": 536.0
+          },
+          {
+            "x": 1350.0,
+            "y": 536.0
+          }
+        ]
+      },
+      {
+        "id": "ci2611-ci2691",
+        "from_node_id": "ci2611",
+        "to_node_id": "ci2691",
+        "relationship_type": "COREQUISITE",
+        "points": [
+          {
+            "x": 1082.0,
+            "y": 364.0
+          },
+          {
+            "x": 996.0,
+            "y": 364.0
+          },
+          {
+            "x": 996.0,
+            "y": 536.0
+          },
+          {
+            "x": 910.0,
+            "y": 536.0
+          }
+        ]
+      },
+      {
+        "id": "ci2612-ci2692",
+        "from_node_id": "ci2612",
+        "to_node_id": "ci2692",
+        "relationship_type": "COREQUISITE",
+        "points": [
+          {
+            "x": 1302.0,
+            "y": 364.0
+          },
+          {
+            "x": 1216.0,
+            "y": 364.0
+          },
+          {
+            "x": 1216.0,
+            "y": 536.0
+          },
+          {
+            "x": 1130.0,
+            "y": 536.0
+          }
+        ]
+      },
+      {
+        "id": "ci2613-ci2693",
+        "from_node_id": "ci2613",
+        "to_node_id": "ci2693",
+        "relationship_type": "COREQUISITE",
+        "points": [
+          {
+            "x": 1522.0,
+            "y": 536.0
+          },
+          {
+            "x": 1436.0,
+            "y": 536.0
+          },
+          {
+            "x": 1436.0,
+            "y": 708.0
+          },
+          {
+            "x": 1350.0,
+            "y": 708.0
+          }
+        ]
+      },
+      {
+        "id": "ci2612-ci3815",
+        "from_node_id": "ci2612",
+        "to_node_id": "ci3815",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 1302.0,
+            "y": 364.0
+          },
+          {
+            "x": 1326.0,
+            "y": 364.0
+          },
+          {
+            "x": 1326.0,
+            "y": 364.0
+          },
+          {
+            "x": 1350.0,
+            "y": 364.0
+          }
+        ]
+      },
+      {
+        "id": "ci3815-ci3825",
+        "from_node_id": "ci3815",
+        "to_node_id": "ci3825",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 1522.0,
+            "y": 364.0
+          },
+          {
+            "x": 1546.0,
+            "y": 364.0
+          },
+          {
+            "x": 1546.0,
+            "y": 364.0
+          },
+          {
+            "x": 1570.0,
+            "y": 364.0
+          }
+        ]
+      },
+      {
+        "id": "ci2612-ci3311",
+        "from_node_id": "ci2612",
+        "to_node_id": "ci3311",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 1302.0,
+            "y": 364.0
+          },
+          {
+            "x": 1436.0,
+            "y": 364.0
+          },
+          {
+            "x": 1436.0,
+            "y": 536.0
+          },
+          {
+            "x": 1570.0,
+            "y": 536.0
+          }
+        ]
+      },
+      {
+        "id": "ci3311-ci3391",
+        "from_node_id": "ci3311",
+        "to_node_id": "ci3391",
+        "relationship_type": "COREQUISITE",
+        "points": [
+          {
+            "x": 1742.0,
+            "y": 536.0
+          },
+          {
+            "x": 1656.0,
+            "y": 536.0
+          },
+          {
+            "x": 1656.0,
+            "y": 708.0
+          },
+          {
+            "x": 1570.0,
+            "y": 708.0
+          }
+        ]
+      },
+      {
+        "id": "ci3311-ci4325",
+        "from_node_id": "ci3311",
+        "to_node_id": "ci4325",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 1742.0,
+            "y": 536.0
+          },
+          {
+            "x": 2096.0,
+            "y": 536.0
+          },
+          {
+            "x": 2096.0,
+            "y": 192.0
+          },
+          {
+            "x": 2450.0,
+            "y": 192.0
+          }
+        ]
+      },
+      {
+        "id": "ci2613-ps1115",
+        "from_node_id": "ci2613",
+        "to_node_id": "ps1115",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 1522.0,
+            "y": 536.0
+          },
+          {
+            "x": 1656.0,
+            "y": 536.0
+          },
+          {
+            "x": 1656.0,
+            "y": 192.0
+          },
+          {
+            "x": 1790.0,
+            "y": 192.0
+          }
+        ]
+      },
+      {
+        "id": "ci2613-ci3715",
+        "from_node_id": "ci2613",
+        "to_node_id": "ci3715",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 1522.0,
+            "y": 536.0
+          },
+          {
+            "x": 1656.0,
+            "y": 536.0
+          },
+          {
+            "x": 1656.0,
+            "y": 364.0
+          },
+          {
+            "x": 1790.0,
+            "y": 364.0
+          }
+        ]
+      },
+      {
+        "id": "ci3715-ci3725",
+        "from_node_id": "ci3715",
+        "to_node_id": "ci3725",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 1962.0,
+            "y": 364.0
+          },
+          {
+            "x": 1876.0,
+            "y": 364.0
+          },
+          {
+            "x": 1876.0,
+            "y": 536.0
+          },
+          {
+            "x": 1790.0,
+            "y": 536.0
+          }
+        ]
+      },
+      {
+        "id": "ci3825-ci4835",
+        "from_node_id": "ci3825",
+        "to_node_id": "ci4835",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 1742.0,
+            "y": 364.0
+          },
+          {
+            "x": 1986.0,
+            "y": 364.0
+          },
+          {
+            "x": 1986.0,
+            "y": 364.0
+          },
+          {
+            "x": 2230.0,
+            "y": 364.0
+          }
+        ]
+      },
+      {
+        "id": "ci3725-ci3641",
+        "from_node_id": "ci3725",
+        "to_node_id": "ci3641",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 1962.0,
+            "y": 536.0
+          },
+          {
+            "x": 2096.0,
+            "y": 536.0
+          },
+          {
+            "x": 2096.0,
+            "y": 536.0
+          },
+          {
+            "x": 2230.0,
+            "y": 536.0
+          }
+        ]
+      },
+      {
+        "id": "ci3641-ci3661",
+        "from_node_id": "ci3641",
+        "to_node_id": "ci3661",
+        "relationship_type": "COREQUISITE",
+        "points": [
+          {
+            "x": 2402.0,
+            "y": 536.0
+          },
+          {
+            "x": 2316.0,
+            "y": 536.0
+          },
+          {
+            "x": 2316.0,
+            "y": 708.0
+          },
+          {
+            "x": 2230.0,
+            "y": 708.0
+          }
+        ]
+      },
+      {
+        "id": "ci2693-ep1420",
+        "from_node_id": "ci2693",
+        "to_node_id": "ep1420",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 1522.0,
+            "y": 708.0
+          },
+          {
+            "x": 1766.0,
+            "y": 708.0
+          },
+          {
+            "x": 1766.0,
+            "y": 192.0
+          },
+          {
+            "x": 2010.0,
+            "y": 192.0
+          }
+        ]
+      },
+      {
+        "id": "ci4325-ea3",
+        "from_node_id": "ci4325",
+        "to_node_id": "ea3",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 2622.0,
+            "y": 192.0
+          },
+          {
+            "x": 2646.0,
+            "y": 192.0
+          },
+          {
+            "x": 2646.0,
+            "y": 192.0
+          },
+          {
+            "x": 2670.0,
+            "y": 192.0
+          }
+        ]
+      },
+      {
+        "id": "ci4325-ea4",
+        "from_node_id": "ci4325",
+        "to_node_id": "ea4",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 2622.0,
+            "y": 192.0
+          },
+          {
+            "x": 2646.0,
+            "y": 192.0
+          },
+          {
+            "x": 2646.0,
+            "y": 364.0
+          },
+          {
+            "x": 2670.0,
+            "y": 364.0
+          }
+        ]
+      },
+      {
+        "id": "ea3-ep1308",
+        "from_node_id": "ea3",
+        "to_node_id": "ep1308",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 2842.0,
+            "y": 192.0
+          },
+          {
+            "x": 2866.0,
+            "y": 192.0
+          },
+          {
+            "x": 2866.0,
+            "y": 192.0
+          },
+          {
+            "x": 2890.0,
+            "y": 192.0
+          }
+        ]
+      },
+      {
+        "id": "ep1308-ep2308",
+        "from_node_id": "ep1308",
+        "to_node_id": "ep2308",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 3062.0,
+            "y": 192.0
+          },
+          {
+            "x": 3086.0,
+            "y": 192.0
+          },
+          {
+            "x": 3086.0,
+            "y": 192.0
+          },
+          {
+            "x": 3110.0,
+            "y": 192.0
+          }
+        ]
+      },
+      {
+        "id": "ep2308-ep3308",
+        "from_node_id": "ep2308",
+        "to_node_id": "ep3308",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 3282.0,
+            "y": 192.0
+          },
+          {
+            "x": 3306.0,
+            "y": 192.0
+          },
+          {
+            "x": 3306.0,
+            "y": 192.0
+          },
+          {
+            "x": 3330.0,
+            "y": 192.0
+          }
+        ]
+      },
+      {
+        "id": "ep5855-ep5856",
+        "from_node_id": "ep5855",
+        "to_node_id": "ep5856",
+        "relationship_type": "REQUIREMENT",
+        "points": [
+          {
+            "x": 3062.0,
+            "y": 364.0
+          },
+          {
+            "x": 3086.0,
+            "y": 364.0
+          },
+          {
+            "x": 3086.0,
+            "y": 364.0
+          },
+          {
+            "x": 3110.0,
+            "y": 364.0
+          }
+        ]
+      },
+      {
+        "id": "ep1308-ep5855",
+        "from_node_id": "ep1308",
+        "to_node_id": "ep5855",
+        "relationship_type": "COREQUISITE",
+        "points": [
+          {
+            "x": 3062.0,
+            "y": 192.0
+          },
+          {
+            "x": 2976.0,
+            "y": 192.0
+          },
+          {
+            "x": 2976.0,
+            "y": 364.0
+          },
+          {
+            "x": 2890.0,
+            "y": 364.0
+          }
+        ]
+      }
     ]
   }
 }

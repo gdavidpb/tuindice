@@ -28,6 +28,7 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofDestination
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.model.MainShellState
 import com.gdavidpb.tuindice.presentation.model.toMainShellState
@@ -62,6 +63,7 @@ fun TuIndiceAppHostRoute(
 	reviewRepository: ReviewRepository = koinInject(),
 	updateRepository: UpdateRepository = koinInject(),
 	wizardTopBarActionBus: WizardTopBarActionBus = koinInject(),
+	pensumTopBarActionBus: PensumTopBarActionBus = koinInject(),
 	viewModel: MainViewModel = koinViewModel<MainViewModel>()
 ) {
 	val lifecycleOwner = LocalLifecycleOwner.current
@@ -232,6 +234,9 @@ fun TuIndiceAppHostRoute(
 							navController.navigate(EnrollmentProofDestination.EnrollmentProofDialog)
 
 						is TopBarAction.SearchPensumAction -> Unit
+
+						is TopBarAction.ChangePensumAction ->
+							pensumTopBarActionBus.dispatch(action)
 					}
 				}
 			},

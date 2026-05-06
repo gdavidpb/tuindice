@@ -8,4 +8,5 @@ interface PensumRepository {
 	suspend fun refreshPensum()
 	suspend fun selectPensum(careerCode: Int, year: Int)
 	suspend fun selectModality(modalityId: String)
+	suspend fun selectSelection(careerCode: Int, year: Int, modalityId: String)
 }

@@ -55,4 +55,13 @@ class PensumDataSource(
 		localDataRepository.selectModality(modalityId)
 		refreshPensum()
 	}
+
+	override suspend fun selectSelection(careerCode: Int, year: Int, modalityId: String) {
+		localDataRepository.selectSelection(
+			careerCode = careerCode,
+			year = year,
+			modalityId = modalityId
+		)
+		refreshPensum()
+	}
 }

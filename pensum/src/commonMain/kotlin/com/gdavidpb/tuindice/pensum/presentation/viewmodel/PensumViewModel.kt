@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.pensum.presentation.action.ObservePensumActionProce
 import com.gdavidpb.tuindice.pensum.presentation.action.RefreshPensumActionProcessor
 import com.gdavidpb.tuindice.pensum.presentation.action.SelectPensumActionProcessor
 import com.gdavidpb.tuindice.pensum.presentation.action.SelectPensumModalityActionProcessor
+import com.gdavidpb.tuindice.pensum.presentation.action.SelectPensumSelectionActionProcessor
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
 import kotlinx.coroutines.flow.Flow
 
@@ -13,7 +14,8 @@ class PensumViewModel(
 	private val observePensumActionProcessor: ObservePensumActionProcessor,
 	private val refreshPensumActionProcessor: RefreshPensumActionProcessor,
 	private val selectPensumActionProcessor: SelectPensumActionProcessor,
-	private val selectPensumModalityActionProcessor: SelectPensumModalityActionProcessor
+	private val selectPensumModalityActionProcessor: SelectPensumModalityActionProcessor,
+	private val selectPensumSelectionActionProcessor: SelectPensumSelectionActionProcessor
 ) : BaseViewModel<Pensum.State, Pensum.Action, Pensum.Effect>(
 	initialState = Pensum.State.Loading,
 	initialAction = Pensum.Action.ObservePensum
@@ -30,6 +32,16 @@ class PensumViewModel(
 		sendAction(Pensum.Action.SelectModality(modalityId = modalityId))
 	}
 
+	fun selectSelectionAction(careerCode: Int, year: Int, modalityId: String) {
+		sendAction(
+			Pensum.Action.SelectSelection(
+				careerCode = careerCode,
+				year = year,
+				modalityId = modalityId
+			)
+		)
+	}
+
 	override suspend fun processAction(
 		action: Pensum.Action,
 		sideEffect: (Pensum.Effect) -> Unit
@@ -39,6 +51,7 @@ class PensumViewModel(
 			is Pensum.Action.RefreshPensum -> refreshPensumActionProcessor.process(action, sideEffect)
 			is Pensum.Action.SelectPensum -> selectPensumActionProcessor.process(action, sideEffect)
 			is Pensum.Action.SelectModality -> selectPensumModalityActionProcessor.process(action, sideEffect)
+			is Pensum.Action.SelectSelection -> selectPensumSelectionActionProcessor.process(action, sideEffect)
 		}
 	}
 }

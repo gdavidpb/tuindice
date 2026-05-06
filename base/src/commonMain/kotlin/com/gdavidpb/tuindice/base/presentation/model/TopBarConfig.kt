@@ -17,7 +17,8 @@ sealed class TopBarConfig(
 
 	data object Pensum : TopBarConfig(
 		actions = listOf(
-			TopBarAction.SearchPensumAction
+			TopBarAction.SearchPensumAction,
+			TopBarAction.ChangePensumAction
 		)
 	)
 }

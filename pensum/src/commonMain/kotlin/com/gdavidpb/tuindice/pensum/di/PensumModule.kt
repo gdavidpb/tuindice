@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.pensum.domain.engine.PensumStatusEngine
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
+import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.UpdatePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.exceptionhandler.UpdatePensumExceptionHandler
@@ -16,6 +17,8 @@ import com.gdavidpb.tuindice.pensum.presentation.action.ObservePensumActionProce
 import com.gdavidpb.tuindice.pensum.presentation.action.RefreshPensumActionProcessor
 import com.gdavidpb.tuindice.pensum.presentation.action.SelectPensumActionProcessor
 import com.gdavidpb.tuindice.pensum.presentation.action.SelectPensumModalityActionProcessor
+import com.gdavidpb.tuindice.pensum.presentation.action.SelectPensumSelectionActionProcessor
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
 import com.gdavidpb.tuindice.pensum.presentation.viewmodel.PensumViewModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
@@ -30,11 +33,13 @@ val pensumModule = module {
 	factoryOf(::RefreshPensumActionProcessor)
 	factoryOf(::SelectPensumActionProcessor)
 	factoryOf(::SelectPensumModalityActionProcessor)
+	factoryOf(::SelectPensumSelectionActionProcessor)
 
 	factoryOf(::ObservePensumUseCase)
 	factoryOf(::UpdatePensumUseCase)
 	factoryOf(::SelectPensumUseCase)
 	factoryOf(::SelectPensumModalityUseCase)
+	factoryOf(::SelectPensumSelectionUseCase)
 
 	singleOf(::PensumStatusEngine)
 	singleOf(::KtorPensumApiDataSource) { bind<PensumRemoteDataRepository>() }
@@ -42,4 +47,5 @@ val pensumModule = module {
 	singleOf(::PensumDataSource) { bind<PensumRepository>() }
 
 	factoryOf(::UpdatePensumExceptionHandler)
+	singleOf(::PensumTopBarActionBus)
 }

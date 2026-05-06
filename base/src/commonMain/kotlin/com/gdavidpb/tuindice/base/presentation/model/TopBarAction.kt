@@ -14,4 +14,8 @@ sealed class TopBarAction(
 	data object SearchPensumAction : TopBarAction(
 		action = "search_pensum"
 	)
+
+	data object ChangePensumAction : TopBarAction(
+		action = "change_pensum"
+	)
 }

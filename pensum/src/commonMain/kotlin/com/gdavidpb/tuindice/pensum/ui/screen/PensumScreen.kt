@@ -5,7 +5,9 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTransformGestures
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -19,6 +21,8 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -26,15 +30,22 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Remove
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clipToBounds
@@ -54,12 +65,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.base.ui.view.DropdownMenuTextField
+import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
+import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 import com.gdavidpb.tuindice.base.utils.extension.DecelerateEasing
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorView
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.pensum.domain.model.PensumNodeStatus
+import com.gdavidpb.tuindice.pensum.domain.model.PensumRelationshipType
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
@@ -77,9 +90,13 @@ import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_failed_message
 import tuindice.pensum.generated.resources.pensum_failed_retry
 import tuindice.pensum.generated.resources.pensum_failed_title
-import tuindice.pensum.generated.resources.pensum_modality_placeholder
+import tuindice.pensum.generated.resources.pensum_selection_apply
+import tuindice.pensum.generated.resources.pensum_selection_cancel
+import tuindice.pensum.generated.resources.pensum_selection_current
+import tuindice.pensum.generated.resources.pensum_selection_modality
+import tuindice.pensum.generated.resources.pensum_selection_title
+import tuindice.pensum.generated.resources.pensum_selection_version
 import tuindice.pensum.generated.resources.pensum_progress_label
-import tuindice.pensum.generated.resources.pensum_selector_placeholder
 import tuindice.pensum.generated.resources.pensum_zoom_in
 import tuindice.pensum.generated.resources.pensum_zoom_out
 
@@ -90,6 +107,7 @@ private val Approved = Color(0xFF8FE38C)
 private val Current = Color(0xFFFFC400)
 private val Available = Color(0xFF8A8F94)
 private val Blocked = Color(0xFF686B70)
+private val Selected = Color(0xFFF7F7F7)
 private val TextPrimary = Color(0xFFF7F7F7)
 private val TextSecondary = Color(0xFF9C9EA3)
 
@@ -103,25 +121,27 @@ private val CanvasPanMargin = 36.dp
 private val MinimapWidth = 156.dp
 private val MinimapHeight = 104.dp
 private val GraphControlsGap = 6.dp
-private val EdgeEndpointGap = 14.dp
+private val EdgeEndpointGap = 0.dp
 private val EdgeCornerRadius = 14.dp
-private val EdgeRerouteSpacing = 52.dp
+private val EdgeRerouteSpacing = 32.dp
 private val ArrowHeadLength = 12.dp
 
 @Composable
 fun PensumScreen(
 	state: Pensum.State,
 	onRetryClick: () -> Unit,
-	onPensumSelected: (PensumScreenModel.PensumOptionItem) -> Unit,
-	onModalitySelected: (PensumScreenModel.ModalityItem) -> Unit
+	showSelectionSheet: Boolean,
+	onSelectionSheetDismiss: () -> Unit,
+	onSelectionApplied: (PensumScreenModel.PensumOptionItem, PensumScreenModel.ModalityItem) -> Unit
 ) {
 	SealedCrossfade(targetState = state) { targetState ->
 		when (targetState) {
 			is Pensum.State.Loading -> PensumLoadingView()
 			is Pensum.State.Content -> PensumContentView(
 				model = targetState.model,
-				onPensumSelected = onPensumSelected,
-				onModalitySelected = onModalitySelected
+				showSelectionSheet = showSelectionSheet,
+				onSelectionSheetDismiss = onSelectionSheetDismiss,
+				onSelectionApplied = onSelectionApplied
 			)
 			is Pensum.State.Failed -> ErrorView(
 				title = stringResource(Res.string.pensum_failed_title),
@@ -148,8 +168,9 @@ private fun PensumLoadingView() {
 @Composable
 private fun PensumContentView(
 	model: PensumScreenModel,
-	onPensumSelected: (PensumScreenModel.PensumOptionItem) -> Unit,
-	onModalitySelected: (PensumScreenModel.ModalityItem) -> Unit
+	showSelectionSheet: Boolean,
+	onSelectionSheetDismiss: () -> Unit,
+	onSelectionApplied: (PensumScreenModel.PensumOptionItem, PensumScreenModel.ModalityItem) -> Unit
 ) {
 	Column(
 		modifier = Modifier
@@ -157,77 +178,79 @@ private fun PensumContentView(
 			.background(ScreenBackground)
 			.testTag(PensumUiTags.PensumScreen)
 	) {
-		PensumSelectorRow(
-			model = model,
-			onPensumSelected = onPensumSelected,
-			onModalitySelected = onModalitySelected
-		)
+		PensumSummaryRow(model = model)
 		PensumGraphCanvas(
 			model = model,
 			modifier = Modifier.weight(1f)
 		)
 	}
+
+	if (showSelectionSheet) {
+		PensumSelectionBottomSheet(
+			model = model,
+			onSelectionApplied = onSelectionApplied,
+			onDismissRequest = onSelectionSheetDismiss
+		)
+	}
 }
 
 @Composable
-private fun PensumSelectorRow(
-	model: PensumScreenModel,
-	onPensumSelected: (PensumScreenModel.PensumOptionItem) -> Unit,
-	onModalitySelected: (PensumScreenModel.ModalityItem) -> Unit
-) {
+private fun PensumSummaryRow(model: PensumScreenModel) {
 	val selectedPensum = model.pensumOptions.firstOrNull { item ->
 		item.careerCode == model.selection.careerCode && item.year == model.selection.year
 	}
 	val selectedModality = model.modalityOptions.firstOrNull { item -> item.id == model.selection.modalityId }
+	val contextText = listOfNotNull(
+		selectedPensum?.let { item -> "${item.careerName} ${item.year}" },
+		selectedModality?.name
+	).joinToString(separator = " · ")
 
-	Column(
+	Row(
 		modifier = Modifier
 			.fillMaxWidth()
 			.background(ScreenBackground)
 			.padding(horizontal = 16.dp, vertical = 10.dp),
-		verticalArrangement = Arrangement.spacedBy(10.dp)
+		verticalAlignment = Alignment.CenterVertically,
+		horizontalArrangement = Arrangement.spacedBy(10.dp)
 	) {
-		Row(
-			modifier = Modifier.fillMaxWidth(),
-			horizontalArrangement = Arrangement.spacedBy(10.dp),
-			verticalAlignment = Alignment.CenterVertically
+		ProgressRing(percent = model.progressPercent)
+		Column(
+			modifier = Modifier.weight(1f),
+			verticalArrangement = Arrangement.spacedBy(2.dp)
 		) {
-			DropdownMenuTextField(
-				modifier = Modifier
-					.weight(1f)
-					.testTag(PensumUiTags.PensumSelector),
-				items = model.pensumOptions,
-				selectedItem = selectedPensum,
-				onItemSelected = onPensumSelected,
-				placeholder = { Text(stringResource(Res.string.pensum_selector_placeholder)) }
-			)
-			DropdownMenuTextField(
-				modifier = Modifier
-					.weight(1f)
-					.testTag(PensumUiTags.ModalitySelector),
-				items = model.modalityOptions,
-				selectedItem = selectedModality,
-				onItemSelected = onModalitySelected,
-				placeholder = { Text(stringResource(Res.string.pensum_modality_placeholder)) }
-			)
-		}
-		Row(
-			verticalAlignment = Alignment.CenterVertically,
-			horizontalArrangement = Arrangement.spacedBy(10.dp)
-		) {
-			ProgressRing(percent = model.progressPercent)
 			Text(
 				text = "${model.progressPercent}% ${stringResource(Res.string.pensum_progress_label)}",
 				style = MaterialTheme.typography.titleMedium,
 				fontWeight = FontWeight.SemiBold,
-				color = TextPrimary
+				color = TextPrimary,
+				maxLines = 1,
+				overflow = TextOverflow.Ellipsis
 			)
 			Text(
 				text = "${model.approvedCredits}/${model.totalCredits} UC",
 				style = MaterialTheme.typography.bodyMedium,
-				color = TextSecondary
+				color = TextSecondary,
+				maxLines = 1,
+				overflow = TextOverflow.Ellipsis
 			)
 		}
+	}
+
+	if (contextText.isNotBlank()) {
+		Text(
+			modifier = Modifier
+				.fillMaxWidth()
+				.background(ScreenBackground)
+				.padding(start = 16.dp, end = 16.dp, bottom = 10.dp)
+				.background(PanelBackground, RoundedCornerShape(50))
+				.border(1.dp, PanelBorder, RoundedCornerShape(50))
+				.padding(horizontal = 10.dp, vertical = 6.dp),
+			text = contextText,
+			style = MaterialTheme.typography.labelMedium,
+			color = TextSecondary,
+			maxLines = 1,
+			overflow = TextOverflow.Ellipsis
+		)
 	}
 }
 
@@ -242,6 +265,156 @@ private fun ProgressRing(percent: Int) {
 			useCenter = false,
 			style = Stroke(width = 4.dp.toPx(), cap = StrokeCap.Round)
 		)
+	}
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun PensumSelectionBottomSheet(
+	model: PensumScreenModel,
+	onSelectionApplied: (PensumScreenModel.PensumOptionItem, PensumScreenModel.ModalityItem) -> Unit,
+	onDismissRequest: () -> Unit
+) {
+	val currentPensum = model.selectedPensumOption() ?: model.pensumOptions.firstOrNull()
+	val currentModality = model.selectedModality() ?: model.modalityOptions.firstOrNull()
+	if (currentPensum == null || currentModality == null) return
+
+	val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+	val selectedPensumState = remember(currentPensum.id) {
+		mutableStateOf(currentPensum)
+	}
+	val selectedModalityState = remember(currentModality.id) {
+		mutableStateOf(currentModality)
+	}
+	val currentSelectionText = stringResource(
+		Res.string.pensum_selection_current,
+		currentPensum.careerName,
+		currentPensum.year,
+		currentModality.name
+	)
+
+	ConfirmationDialog(
+		sheetState = sheetState,
+		titleText = stringResource(Res.string.pensum_selection_title),
+		positiveText = stringResource(Res.string.pensum_selection_apply),
+		negativeText = stringResource(Res.string.pensum_selection_cancel),
+		onPositiveClick = {
+			val selectedPensum = selectedPensumState.value
+			val selectedModality = selectedModalityState.value
+			val isSelectionChanged =
+				selectedPensum.careerCode != model.selection.careerCode ||
+					selectedPensum.year != model.selection.year ||
+					selectedModality.id != model.selection.modalityId
+
+			if (isSelectionChanged) {
+				onSelectionApplied(selectedPensum, selectedModality)
+			}
+		},
+		onDismissRequest = onDismissRequest
+	) {
+		Column(
+			modifier = Modifier.fillMaxWidth(),
+			verticalArrangement = Arrangement.spacedBy(16.dp)
+		) {
+			Text(
+				text = currentSelectionText,
+				style = MaterialTheme.typography.bodyMedium,
+				color = MaterialTheme.colorScheme.onSurfaceVariant
+			)
+
+			Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+				Text(
+					text = stringResource(Res.string.pensum_selection_version),
+					style = MaterialTheme.typography.titleSmall,
+					fontWeight = FontWeight.SemiBold
+				)
+				LazyRow(
+					horizontalArrangement = Arrangement.spacedBy(8.dp)
+				) {
+					items(
+						items = model.pensumOptions,
+						key = PensumScreenModel.PensumOptionItem::id
+					) { item ->
+						FilterChip(
+							selected = item.id == selectedPensumState.value.id,
+							onClick = { selectedPensumState.value = item },
+							label = {
+								Text(
+									text = item.year.toString(),
+									maxLines = 1
+								)
+							},
+							colors = FilterChipDefaults.filterChipColors(
+								selectedContainerColor = Current.copy(alpha = 0.18f),
+								selectedLabelColor = MaterialTheme.colorScheme.onSurface
+							)
+						)
+					}
+				}
+			}
+
+			Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+				Text(
+					text = stringResource(Res.string.pensum_selection_modality),
+					style = MaterialTheme.typography.titleSmall,
+					fontWeight = FontWeight.SemiBold
+				)
+				model.modalityOptions.forEach { modality ->
+					PensumModalityOptionRow(
+						modality = modality,
+						isSelected = modality.id == selectedModalityState.value.id,
+						onClick = { selectedModalityState.value = modality }
+					)
+				}
+			}
+		}
+	}
+}
+
+@Composable
+private fun PensumModalityOptionRow(
+	modality: PensumScreenModel.ModalityItem,
+	isSelected: Boolean,
+	onClick: () -> Unit
+) {
+	Surface(
+		modifier = Modifier
+			.fillMaxWidth()
+			.clickable(onClick = onClick),
+		shape = RoundedCornerShape(8.dp),
+		color = if (isSelected)
+			MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.28f)
+		else
+			MaterialTheme.colorScheme.surface,
+		border = androidx.compose.foundation.BorderStroke(
+			width = 1.dp,
+			color = if (isSelected)
+				MaterialTheme.colorScheme.primary
+			else
+				MaterialTheme.colorScheme.outlineVariant
+		)
+	) {
+		Row(
+			modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+			verticalAlignment = Alignment.CenterVertically,
+			horizontalArrangement = Arrangement.spacedBy(12.dp)
+		) {
+			Text(
+				modifier = Modifier.weight(1f),
+				text = modality.name,
+				style = MaterialTheme.typography.bodyLarge,
+				fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+				maxLines = 1,
+				overflow = TextOverflow.Ellipsis
+			)
+			if (isSelected) {
+				Icon(
+					imageVector = Icons.Filled.Check,
+					contentDescription = null,
+					tint = MaterialTheme.colorScheme.primary
+				)
+			}
+		}
 	}
 }
 
@@ -273,6 +446,10 @@ private fun PensumGraphCanvas(
 		)
 		val panMarginPx = with(density) { CanvasPanMargin.toPx() }
 		val graphKey = "${model.selection.careerCode}-${model.selection.year}-${model.selection.modalityId}"
+		var selectedNodeId by remember(graphKey) { mutableStateOf<String?>(null) }
+		val selectedRequirementEdgeIds = remember(model.edges, selectedNodeId) {
+			model.requirementEdgeIdsTo(selectedNodeId)
+		}
 
 		LaunchedEffect(graphKey, viewportSizePx, canvasSizePx, panMarginPx) {
 			scale.snapTo(InitialCanvasZoom)
@@ -383,8 +560,18 @@ private fun PensumGraphCanvas(
 				}
 				.size(model.canvas.width.dp, model.canvas.height.dp)
 		) {
-			Canvas(modifier = Modifier.fillMaxSize()) {
-				drawCanvasBackground(model, density.density)
+			Canvas(
+				modifier = Modifier
+					.fillMaxSize()
+					.pointerInput(graphKey) {
+						detectTapGestures(onTap = { selectedNodeId = null })
+					}
+			) {
+				drawCanvasBackground(
+					model = model,
+					density = density.density,
+					selectedRequirementEdgeIds = selectedRequirementEdgeIds
+				)
 			}
 			model.terms.forEach { term ->
 				Text(
@@ -401,9 +588,13 @@ private fun PensumGraphCanvas(
 			model.nodes.forEach { node ->
 				PensumNodeCard(
 					node = node,
+					isSelected = node.id == selectedNodeId,
 					modifier = Modifier
 						.offset(x = node.x.dp, y = node.y.dp)
 						.size(width = node.width.dp, height = node.height.dp)
+						.clickable {
+							selectedNodeId = if (selectedNodeId == node.id) null else node.id
+						}
 						.testTag(PensumUiTags.node(node.id))
 				)
 			}
@@ -421,6 +612,7 @@ private fun PensumGraphCanvas(
 				scale = scale.value,
 				offset = Offset(offsetX.value, offsetY.value),
 				viewportSizePx = viewportSizePx,
+				selectedRequirementEdgeIds = selectedRequirementEdgeIds,
 				densityScale = density.density
 			)
 			ZoomControls(
@@ -431,7 +623,11 @@ private fun PensumGraphCanvas(
 	}
 }
 
-private fun DrawScope.drawCanvasBackground(model: PensumScreenModel, density: Float) {
+private fun DrawScope.drawCanvasBackground(
+	model: PensumScreenModel,
+	density: Float,
+	selectedRequirementEdgeIds: Set<String>
+) {
 	val widthPx = model.canvas.width.toFloat() * density
 	val heightPx = model.canvas.height.toFloat() * density
 	drawRoundRect(
@@ -460,21 +656,26 @@ private fun DrawScope.drawCanvasBackground(model: PensumScreenModel, density: Fl
 		cornerRadius = androidx.compose.ui.geometry.CornerRadius(12.dp.toPx(), 12.dp.toPx()),
 		style = Stroke(width = 1.dp.toPx())
 	)
-	model.edges.forEach { edge -> drawPensumEdge(edge, model, density) }
+	model.edges.forEach { edge ->
+		if (edge.id !in selectedRequirementEdgeIds) {
+			drawPensumEdge(edge, model, density, isHighlighted = false)
+		}
+	}
+	model.edges.forEach { edge ->
+		if (edge.id in selectedRequirementEdgeIds) {
+			drawPensumEdge(edge, model, density, isHighlighted = true)
+		}
+	}
 }
 
 private fun DrawScope.drawPensumEdge(
 	edge: PensumScreenModel.Edge,
 	model: PensumScreenModel,
-	density: Float
+	density: Float,
+	isHighlighted: Boolean
 ) {
 	if (edge.points.size < 2) return
-	val fromStatus = model.nodes.firstOrNull { node -> node.id == edge.fromNodeId }?.status
-	val toStatus = model.nodes.firstOrNull { node -> node.id == edge.toNodeId }?.status
-	val color = if (fromStatus == PensumNodeStatus.APPROVED && toStatus != PensumNodeStatus.BLOCKED)
-		Current
-	else
-		Available
+	val color = if (isHighlighted) Current else Available
 	val points = model.edgeRoute(
 		edge = edge,
 		endpointGap = EdgeEndpointGap.toPx() / density,
@@ -516,28 +717,38 @@ private fun DrawScope.drawArrowHead(start: Offset, end: Offset, color: Color) {
 @Composable
 private fun PensumNodeCard(
 	node: PensumScreenModel.Node,
+	isSelected: Boolean,
 	modifier: Modifier = Modifier
 ) {
 	val colors = node.status.colors()
+	val chipColors = remember(node.displayCode, colors.chip, colors.chipText) {
+		node.displayCode.toPensumChipColors(
+			fallbackContainer = colors.chip,
+			fallbackContent = colors.chipText
+		)
+	}
 	Surface(
 		modifier = modifier,
 		shape = RoundedCornerShape(8.dp),
 		color = colors.container,
-		border = androidx.compose.foundation.BorderStroke(1.2.dp, colors.border),
-		shadowElevation = if (node.status == PensumNodeStatus.CURRENT) 8.dp else 0.dp
+		border = androidx.compose.foundation.BorderStroke(
+			width = if (isSelected) 2.2.dp else 1.2.dp,
+			color = if (isSelected) Selected else colors.border
+		),
+		shadowElevation = if (isSelected || node.status == PensumNodeStatus.CURRENT) 8.dp else 0.dp
 	) {
 		Box(modifier = Modifier.fillMaxSize().padding(10.dp)) {
 			Column(
-				modifier = Modifier.align(Alignment.CenterStart)
+				modifier = Modifier.align(Alignment.TopStart)
 			) {
 				Text(
 					modifier = Modifier
-						.background(colors.chip, RoundedCornerShape(6.dp))
+						.background(chipColors.container, RoundedCornerShape(6.dp))
 						.padding(horizontal = 8.dp, vertical = 4.dp),
 					text = node.displayCode,
 					style = MaterialTheme.typography.labelLarge,
 					fontWeight = FontWeight.SemiBold,
-					color = colors.chipText,
+					color = chipColors.content,
 					maxLines = 1,
 					overflow = TextOverflow.Ellipsis
 				)
@@ -584,6 +795,7 @@ private fun PensumMinimap(
 	scale: Float,
 	offset: Offset,
 	viewportSizePx: Size,
+	selectedRequirementEdgeIds: Set<String>,
 	densityScale: Float,
 	modifier: Modifier = Modifier
 ) {
@@ -598,13 +810,14 @@ private fun PensumMinimap(
 		val sx = size.width / model.canvas.width.toFloat()
 		val sy = size.height / model.canvas.height.toFloat()
 		model.edges.forEach { edge ->
+			val color = if (edge.id in selectedRequirementEdgeIds) Current.copy(alpha = 0.9f) else Available.copy(alpha = 0.55f)
 			model.edgeRoute(
 				edge = edge,
 				endpointGap = EdgeEndpointGap.value,
 				rerouteSpacing = EdgeRerouteSpacing.value
 			).zipWithNext().forEach { (start, end) ->
 				drawLine(
-					color = Available.copy(alpha = 0.55f),
+					color = color,
 					start = Offset(start.x * sx, start.y * sy),
 					end = Offset(end.x * sx, end.y * sy),
 					strokeWidth = 2f
@@ -694,6 +907,38 @@ private fun Offset.zoomedAround(
 	return this + (anchor - this) * (1f - scaleChange)
 }
 
+private fun PensumScreenModel.selectedPensumOption(): PensumScreenModel.PensumOptionItem? {
+	return pensumOptions.firstOrNull { item ->
+		item.careerCode == selection.careerCode && item.year == selection.year
+	}
+}
+
+private fun PensumScreenModel.selectedModality(): PensumScreenModel.ModalityItem? {
+	return modalityOptions.firstOrNull { item -> item.id == selection.modalityId }
+}
+
+private fun PensumScreenModel.requirementEdgeIdsTo(nodeId: String?): Set<String> {
+	if (nodeId == null) return emptySet()
+
+	val incomingRequirementEdges = edges
+		.filter { edge -> edge.relationshipType == PensumRelationshipType.REQUIREMENT }
+		.groupBy { edge -> edge.toNodeId }
+	val selectedEdgeIds = mutableSetOf<String>()
+	val visitedNodeIds = mutableSetOf<String>()
+
+	fun collectRequirements(targetNodeId: String) {
+		if (!visitedNodeIds.add(targetNodeId)) return
+
+		incomingRequirementEdges[targetNodeId].orEmpty().forEach { edge ->
+			selectedEdgeIds += edge.id
+			collectRequirements(edge.fromNodeId)
+		}
+	}
+
+	collectRequirements(nodeId)
+	return selectedEdgeIds
+}
+
 private fun PensumScreenModel.edgeRoute(
 	edge: PensumScreenModel.Edge,
 	endpointGap: Float,
@@ -722,7 +967,7 @@ private fun PensumScreenModel.edgeRoute(
 			y = if (direction > 0f) to.y.toFloat() - endpointGap else to.bottom + endpointGap
 		)
 		val routeGap = (end.y - start.y) * direction
-		val turnY = if (routeGap >= rerouteSpacing) {
+		val turnY = if (routeGap >= 0f) {
 			(start.y + end.y) / 2f
 		} else if (direction > 0f) {
 			max(from.bottom, to.bottom) + rerouteSpacing
@@ -750,7 +995,7 @@ private fun PensumScreenModel.edgeRoute(
 			y = toCenter.y
 		)
 		val routeGap = (end.x - start.x) * direction
-		val turnX = if (routeGap >= rerouteSpacing) {
+		val turnX = if (routeGap >= 0f) {
 			(start.x + end.x) / 2f
 		} else if (direction > 0f) {
 			max(from.right, to.right) + rerouteSpacing
@@ -895,6 +1140,20 @@ private data class NodeColors(
 	val text: Color,
 	val secondaryText: Color
 )
+
+private data class PensumChipColors(
+	val container: Color,
+	val content: Color
+)
+
+private fun String.toPensumChipColors(
+	fallbackContainer: Color,
+	fallbackContent: Color
+): PensumChipColors {
+	return CourseCodeColorGenerator.fromCodeOrNull(this)
+		?.let { PensumChipColors(container = it.containerColor, content = it.color) }
+		?: PensumChipColors(container = fallbackContainer, content = fallbackContent)
+}
 
 private fun PensumNodeStatus.colors(): NodeColors {
 	return when (this) {

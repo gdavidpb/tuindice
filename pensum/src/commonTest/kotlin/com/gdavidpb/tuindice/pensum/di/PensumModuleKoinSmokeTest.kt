@@ -32,6 +32,7 @@ private class FakePensumRepository : PensumRepository {
 	override suspend fun refreshPensum() = Unit
 	override suspend fun selectPensum(careerCode: Int, year: Int) = Unit
 	override suspend fun selectModality(modalityId: String) = Unit
+	override suspend fun selectSelection(careerCode: Int, year: Int, modalityId: String) = Unit
 }
 
 private class FakeNetworkRepository : NetworkRepository {

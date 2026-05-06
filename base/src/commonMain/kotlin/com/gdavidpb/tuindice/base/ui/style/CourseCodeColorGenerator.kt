@@ -14,22 +14,27 @@ object CourseCodeColorGenerator {
 	private val threeLettersPattern = Regex("^([A-Z]{3})(\\d{3})$")
 
 	fun fromCode(code: String): CourseColors {
+		return fromCodeOrNull(code) ?: CourseColors(
+			color = Color.Black,
+			containerColor = Color.Black.brightness(amount = 0.50f)
+		)
+	}
+
+	fun fromCodeOrNull(code: String): CourseColors? {
 		val normalized = code.uppercase().trim()
 		val match = twoLettersPattern.matchEntire(normalized)
 			?: threeLettersPattern.matchEntire(normalized)
 
-		val codeColor = if (match != null) {
-			val letters = match.groupValues[1]
-			val digits = match.groupValues[2]
+		if (match == null) return null
 
-			val hue = lettersToHue(letters)
-			val saturation = digitsToSaturation(digits)
-			val lightness = digitsToLightness(digits)
+		val letters = match.groupValues[1]
+		val digits = match.groupValues[2]
 
-			hslToColor(hue, saturation, lightness)
-		} else {
-			Color.Black
-		}
+		val hue = lettersToHue(letters)
+		val saturation = digitsToSaturation(digits)
+		val lightness = digitsToLightness(digits)
+
+		val codeColor = hslToColor(hue, saturation, lightness)
 
 		return CourseColors(
 			color = codeColor.brightness(amount = -0.25f),

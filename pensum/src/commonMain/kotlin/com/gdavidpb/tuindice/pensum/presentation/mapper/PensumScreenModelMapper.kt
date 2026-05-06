@@ -7,6 +7,9 @@ import kotlin.math.roundToInt
 
 private const val DisplayTermWidth = 240.0
 private const val DisplayCanvasRightPadding = 32.0
+private const val DisplayNodeSingleLineMinHeight = 120.0
+private const val DisplayNodeMultiLineMinHeight = 144.0
+private const val DisplayNodeSingleLineNameLimit = 18
 
 fun ObservedPensum.toScreenModel(): PensumScreenModel {
 	val displayTerms = pensum.terms.mapIndexed { index, term ->
@@ -33,7 +36,7 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 			x = x,
 			y = node.y,
 			width = node.width,
-			height = node.height,
+			height = maxOf(node.height, node.name.minimumDisplayHeight()),
 			status = nodeStatuses[node.id] ?: PensumNodeStatus.BLOCKED
 		)
 	}
@@ -90,3 +93,11 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 }
 
 private fun Double?.orZero(): Double = this ?: 0.0
+
+private fun String.minimumDisplayHeight(): Double {
+	return if (length > DisplayNodeSingleLineNameLimit) {
+		DisplayNodeMultiLineMinHeight
+	} else {
+		DisplayNodeSingleLineMinHeight
+	}
+}

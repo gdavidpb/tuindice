@@ -32,6 +32,11 @@ object Pensum {
 		class SelectModality(
 			val modalityId: String
 		) : Action()
+		class SelectSelection(
+			val careerCode: Int,
+			val year: Int,
+			val modalityId: String
+		) : Action()
 	}
 
 	sealed class Effect : ViewEffect() {
