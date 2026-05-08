@@ -24,4 +24,11 @@
     <string name="subjects_message_failed">Intenta de nuevo para consultar los datos de %1$s.</string>
     <string name="subjects_message_retry">Reintentar</string>
     <string name="subjects_action_close">Cerrar</string>
+    <string name="subjects_search_placeholder">Código o nombre de materia</string>
+    <string name="subjects_search_initial">Busca por código o nombre</string>
+    <string name="subjects_search_results">%1$d resultados para "%2$s"</string>
+    <string name="subjects_search_no_results">No encontramos materias para "%1$s"</string>
+    <string name="subjects_search_error">No pudimos buscar materias. Intenta de nuevo.</string>
+    <string name="subjects_search_clear_content_description">Limpiar búsqueda</string>
+    <string name="subjects_search_result_content_description">Abrir estadísticas de %1$s</string>
 </resources>

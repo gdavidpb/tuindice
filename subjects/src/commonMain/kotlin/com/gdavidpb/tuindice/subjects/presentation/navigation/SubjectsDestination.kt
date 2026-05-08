@@ -6,6 +6,9 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed class SubjectsDestination : Destination() {
 	@Serializable
+	data object SubjectSearch : SubjectsDestination()
+
+	@Serializable
 	data class SubjectDetail(
 		val subjectCode: String
 	) : SubjectsDestination()

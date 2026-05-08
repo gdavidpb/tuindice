@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationSyncStateDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumSelectionDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectCatalogCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectDetailDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsAttemptBinDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsGradeBinDao
@@ -31,6 +32,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationSyncStateEnt
 import com.gdavidpb.tuindice.persistence.data.room.entity.PendingMutationEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.PensumCacheEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.PensumSelectionEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectDetailEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsAttemptBinEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsGradeBinEntity
@@ -48,6 +50,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.UserEntity
 		EvaluationEntity::class,
 		EvaluationSyncStateEntity::class,
 		PendingMutationEntity::class,
+		SubjectCatalogCacheEntity::class,
 		SubjectDetailEntity::class,
 		SubjectStatsSegmentEntity::class,
 		SubjectStatsGradeBinEntity::class,
@@ -55,7 +58,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.UserEntity
 		PensumCacheEntity::class,
 		PensumSelectionEntity::class
 	],
-	version = 24,
+	version = 25,
 	exportSchema = false
 )
 @ConstructedBy(TuIndiceDatabaseConstructor::class)
@@ -70,6 +73,7 @@ abstract class TuIndiceDatabase : RoomDatabase() {
 	abstract val evaluations: EvaluationDao
 	abstract val evaluationSyncState: EvaluationSyncStateDao
 	abstract val pendingMutations: PendingMutationDao
+	abstract val subjectCatalogCache: SubjectCatalogCacheDao
 	abstract val subjectDetails: SubjectDetailDao
 	abstract val subjectStatsSegments: SubjectStatsSegmentDao
 	abstract val subjectStatsGradeBins: SubjectStatsGradeBinDao

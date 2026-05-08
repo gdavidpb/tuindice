@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.subjects.data.source
 
 import com.gdavidpb.tuindice.base.domain.model.GradingMode
+import com.gdavidpb.tuindice.persistence.data.room.mapper.SubjectCatalogSearchNormalizer
 
 internal object DebugSubjectScenarioResolver {
 	data class Resolution(
@@ -70,9 +71,10 @@ internal object DebugSubjectScenarioResolver {
 		subject("EC3882", "LABORATORIO DE PROYECTOS II", 4),
 		subject("EC3883", "LABORATORIO DE PROYECTOS III", 4),
 		subject("EC4179", "ELECTRONICA DE SIST.ADQUISICION, PROCESAM Y CONTROL AMBIENT", 3),
-		subject("EC4432", "COMUNICACIONES MOVILES", 3),
-		subject("EC4434", "FUNDAMENTOS DE RADIOCOMUNICACIONES", 4),
-		subject("EC5333", "INT. A LAS MICROONDAS Y SUS APLICACIONES", 3),
+			subject("EC4432", "COMUNICACIONES MOVILES", 3),
+			subject("EC4434", "FUNDAMENTOS DE RADIOCOMUNICACIONES", 4),
+			subject("EC5201", "SISTEMAS DE COMUNICACIONES", 3),
+			subject("EC5333", "INT. A LAS MICROONDAS Y SUS APLICACIONES", 3),
 		subject("EC5344", "RADIACION Y ANTENAS", 3),
 		subject("EC5745", "PROCESAMIENTO CONCURRENTE ASINCRONO", 4),
 		subject("EC5751", "REDES DE COMPUTADORAS I", 3),
@@ -81,8 +83,9 @@ internal object DebugSubjectScenarioResolver {
 		subject("EP2206", "PROYECTO DE GRADO II", 3, gradingMode = GradingMode.QUALITATIVE_PASS_FAIL),
 		subject("EP3206", "PROYECTO DE  GRADO III", 3, gradingMode = GradingMode.QUALITATIVE_PASS_FAIL),
 		subject("EP5406", "PROYECTO DE GRADO A DEDICACION EXCLUSIVA", 9, gradingMode = GradingMode.QUALITATIVE_PASS_FAIL),
-		subject("EP5801", "TÓPICOS ESPECIALES I", 3),
-		subject("FLX445", "QUE ES LA VERDAD?", 3),
+			subject("EP5801", "TÓPICOS ESPECIALES I", 3),
+			subject("EL3104", "CAMPOS ELECTROMAGNÉTICOS", 3),
+			subject("FLX445", "QUE ES LA VERDAD?", 3),
 		subject("FS1111", "FISICA I", 3),
 		subject("FS1112", "FISICA.II", 3),
 		subject("FS2181", "LABORATORIO BASICO DE FISICA I", 2),
@@ -191,6 +194,30 @@ internal object DebugSubjectScenarioResolver {
 		return aliases[normalizedSubjectCode]?.let { scenario ->
 			Resolution(scenario = scenario)
 		}
+	}
+
+	fun search(query: String, limit: Int): List<SubjectMetadata> {
+		val normalizedQuery = SubjectCatalogSearchNormalizer.normalize(query)
+		if (normalizedQuery.length < 2) return emptyList()
+
+		return recordSubjects.values
+			.filter { metadata ->
+				SubjectCatalogSearchNormalizer.normalize(metadata.code).contains(normalizedQuery) ||
+					SubjectCatalogSearchNormalizer.normalize(metadata.name).contains(normalizedQuery)
+			}
+			.sortedWith(
+				compareBy<SubjectMetadata> { metadata ->
+					val normalizedCode = SubjectCatalogSearchNormalizer.normalize(metadata.code)
+					val normalizedName = SubjectCatalogSearchNormalizer.normalize(metadata.name)
+					when {
+						normalizedCode == normalizedQuery -> 0
+						normalizedCode.startsWith(normalizedQuery) -> 1
+						normalizedName.startsWith(normalizedQuery) -> 2
+						else -> 3
+					}
+				}.thenBy(SubjectMetadata::code)
+			)
+			.take(limit.coerceAtMost(50))
 	}
 
 	private fun SubjectMetadata.toScenario(): DebugSubjectScenario {

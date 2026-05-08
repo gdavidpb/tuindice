@@ -12,10 +12,13 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumSelectionDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectCatalogCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.PensumCacheEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.PensumSelectionEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity
+import com.gdavidpb.tuindice.persistence.data.room.mapper.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.persistence.data.room.schema.PensumSelectionTable
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -32,6 +35,7 @@ import kotlinx.serialization.json.Json
 class PensumRoomDataSource(
 	private val pensumCacheDao: PensumCacheDao,
 	private val pensumSelectionDao: PensumSelectionDao,
+	private val subjectCatalogCacheDao: SubjectCatalogCacheDao,
 	private val academicTermDao: AcademicTermDao,
 	private val academicAttemptDao: AcademicAttemptDao,
 	private val transactionRunner: PersistenceTransactionRunner,
@@ -75,7 +79,12 @@ class PensumRoomDataSource(
 		writeMutex.withLock {
 			transactionRunner.immediate {
 				val cacheKey = response.cacheKey()
+				val now = currentTimeMillis()
 				pensumCacheDao.upsertEntity(response.toCacheEntity(cacheKey))
+				val subjectCatalog = response.toSubjectCatalogCacheEntities(updatedAt = now)
+				if (subjectCatalog.isNotEmpty()) {
+					subjectCatalogCacheDao.upsertEntities(subjectCatalog)
+				}
 				pensumSelectionDao.upsertEntity(
 					PensumSelectionEntity(
 						id = PensumSelectionTable.DEFAULT_ID,
@@ -83,7 +92,7 @@ class PensumRoomDataSource(
 						year = response.selection.year,
 						modalityId = response.selection.modalityId,
 						cacheKey = cacheKey,
-						updatedAt = currentTimeMillis()
+						updatedAt = now
 					)
 				)
 			}
@@ -162,6 +171,28 @@ class PensumRoomDataSource(
 		)
 	}
 
+	private fun GetPensumResponse.toSubjectCatalogCacheEntities(updatedAt: Long): List<SubjectCatalogCacheEntity> {
+		return pensum.nodes
+			.mapNotNull { node ->
+				val subjectCode = node.subjectCode
+					?.trim()
+					?.uppercase()
+					?.takeIf(RealSubjectCodeRegex::matches)
+					?: return@mapNotNull null
+
+				SubjectCatalogCacheEntity(
+					subjectCode = subjectCode,
+					name = node.name,
+					credits = node.credits,
+					gradingMode = null,
+					normalizedCode = SubjectCatalogSearchNormalizer.normalize(subjectCode),
+					normalizedName = SubjectCatalogSearchNormalizer.normalize(node.name),
+					updatedAt = updatedAt
+				)
+			}
+			.distinctBy(SubjectCatalogCacheEntity::subjectCode)
+	}
+
 	private fun List<AcademicTermEntity>.toAcademicSnapshot(
 		attempts: List<AcademicAttemptEntity>
 	): AcademicPensumSnapshot {
@@ -179,3 +210,5 @@ class PensumRoomDataSource(
 		)
 	}
 }
+
+private val RealSubjectCodeRegex = Regex("^([A-Z]{2}\\d{4}|[A-Z]{3}\\d{3})$")

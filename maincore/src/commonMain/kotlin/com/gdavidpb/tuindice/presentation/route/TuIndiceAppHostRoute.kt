@@ -35,6 +35,7 @@ import com.gdavidpb.tuindice.presentation.model.toMainShellState
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.subjects.presentation.navigation.SubjectsDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
 import com.gdavidpb.tuindice.wizard.presentation.model.WizardTopBarActionBus
@@ -234,7 +235,8 @@ fun TuIndiceAppHostRoute(
 						is TopBarAction.FetchEnrollmentProofAction ->
 							navController.navigate(EnrollmentProofDestination.EnrollmentProofDialog)
 
-						is TopBarAction.SearchPensumAction -> Unit
+						is TopBarAction.SearchPensumAction ->
+							navController.navigate(SubjectsDestination.SubjectSearch)
 
 						is TopBarAction.ChangePensumAction ->
 							pensumTopBarActionBus.dispatch(action)

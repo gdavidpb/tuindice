@@ -3,8 +3,10 @@ package com.gdavidpb.tuindice.subjects.data.source
 import com.gdavidpb.tuindice.subjects.data.mapper.toSubjectDetailResult
 import com.gdavidpb.tuindice.subjects.data.model.GetSubjectStatsResponse
 import com.gdavidpb.tuindice.subjects.data.model.SubjectStatsUnavailableResponse
+import com.gdavidpb.tuindice.subjects.data.repository.SubjectCatalogRemoteDataRepository
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectStatsApiDataRepository
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetailResult
+import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchResult
 import kotlinx.serialization.json.Json
 import org.jetbrains.compose.resources.ExperimentalResourceApi
 import tuindice.subjects.generated.resources.Res
@@ -12,7 +14,7 @@ import tuindice.subjects.generated.resources.Res
 class DebugSubjectsApiDataSource(
 	private val apiDataSource: KtorSubjectsApiDataSource,
 	private val json: Json
-) : SubjectStatsApiDataRepository {
+) : SubjectStatsApiDataRepository, SubjectCatalogRemoteDataRepository {
 	@OptIn(ExperimentalResourceApi::class)
 	override suspend fun getSubjectDetail(subjectCode: String): SubjectDetailResult {
 		val normalizedSubjectCode = DebugSubjectScenarioResolver.normalize(subjectCode)
@@ -52,5 +54,20 @@ class DebugSubjectsApiDataSource(
 
 			DebugSubjectScenario.ERROR -> throw IllegalStateException("Debug subjects network error.")
 		}
+	}
+
+	override suspend fun searchSubjects(
+		query: String,
+		limit: Int
+	): List<SubjectSearchResult> {
+		return DebugSubjectScenarioResolver.search(query = query, limit = limit)
+			.map { metadata ->
+				SubjectSearchResult(
+					subjectCode = metadata.code,
+					name = metadata.name,
+					credits = metadata.credits,
+					gradingMode = metadata.gradingMode
+				)
+			}
 	}
 }

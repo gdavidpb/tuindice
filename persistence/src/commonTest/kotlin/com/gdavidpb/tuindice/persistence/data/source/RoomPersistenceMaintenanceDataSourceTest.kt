@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationSyncStateDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumSelectionDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectCatalogCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectDetailDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsAttemptBinDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsGradeBinDao
@@ -25,6 +26,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationSyncStateEnt
 import com.gdavidpb.tuindice.persistence.data.room.entity.PendingMutationEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.PensumCacheEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.PensumSelectionEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectDetailEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsAttemptBinEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsGradeBinEntity
@@ -51,6 +53,7 @@ class RoomPersistenceMaintenanceDataSourceTest {
 			evaluationDao = RecordingEvaluationDao(calls),
 			evaluationSyncStateDao = RecordingEvaluationSyncStateDao(calls),
 			pendingMutationDao = RecordingPendingMutationDao(calls),
+			subjectCatalogCacheDao = RecordingSubjectCatalogCacheDao(calls),
 			subjectDetailDao = RecordingSubjectDetailDao(calls),
 			subjectStatsSegmentDao = RecordingSubjectStatsSegmentDao(calls),
 			subjectStatsGradeBinDao = RecordingSubjectStatsGradeBinDao(calls),
@@ -77,6 +80,7 @@ class RoomPersistenceMaintenanceDataSourceTest {
 				"subject_stats_grade_bin",
 				"subject_stats_segment",
 				"subject_detail",
+				"subject_catalog_cache",
 				"pensum_selection",
 				"pensum_cache",
 				"users",
@@ -342,6 +346,24 @@ private class RecordingSubjectDetailDao(
 	override suspend fun upsertEntity(entity: SubjectDetailEntity) = Unit
 
 	override suspend fun upsertEntities(entities: List<SubjectDetailEntity>) = Unit
+}
+
+private class RecordingSubjectCatalogCacheDao(
+	private val calls: MutableList<String>
+) : SubjectCatalogCacheDao() {
+	override fun observeSearch(
+		normalizedQuery: String,
+		limit: Int
+	): Flow<List<SubjectCatalogCacheEntity>> = emptyFlow()
+
+	override suspend fun deleteAll(): Int {
+		calls += "subject_catalog_cache"
+		return 0
+	}
+
+	override suspend fun upsertEntity(entity: SubjectCatalogCacheEntity) = Unit
+
+	override suspend fun upsertEntities(entities: List<SubjectCatalogCacheEntity>) = Unit
 }
 
 private class RecordingSubjectStatsSegmentDao(

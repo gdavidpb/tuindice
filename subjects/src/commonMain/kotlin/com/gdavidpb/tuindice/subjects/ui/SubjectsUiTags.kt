@@ -13,4 +13,9 @@ object SubjectsUiTags {
 	const val GlobalTab = "subjects_global_tab"
 	const val SegmentStudentsMetric = "subjects_segment_students_metric"
 	const val SegmentAttemptsMetric = "subjects_segment_attempts_metric"
+	const val SearchScreen = "subjects_search_screen"
+	const val SearchTextField = "subjects_search_text_field"
+	const val SearchClear = "subjects_search_clear"
+	const val SearchRetry = "subjects_search_retry"
+	fun searchResult(subjectCode: String): String = "subjects_search_result_$subjectCode"
 }

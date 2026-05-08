@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationSyncStateDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumSelectionDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectCatalogCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectDetailDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsAttemptBinDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsGradeBinDao
@@ -27,6 +28,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationSyncStateEnt
 import com.gdavidpb.tuindice.persistence.data.room.entity.PendingMutationEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.PensumCacheEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.PensumSelectionEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectDetailEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsAttemptBinEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsGradeBinEntity
@@ -59,6 +61,7 @@ class PersistenceModuleKoinSmokeTest {
 			EvaluationDao::class,
 			EvaluationSyncStateDao::class,
 			PendingMutationDao::class,
+			SubjectCatalogCacheDao::class,
 			SubjectDetailDao::class,
 			SubjectStatsSegmentDao::class,
 			SubjectStatsGradeBinDao::class,
@@ -271,6 +274,18 @@ private class FakeTuIndiceDatabase : TuIndiceDatabase() {
 		override suspend fun upsertEntities(entities: List<SubjectStatsAttemptBinEntity>) = Unit
 	}
 
+	override val subjectCatalogCache: SubjectCatalogCacheDao = object : SubjectCatalogCacheDao() {
+		override fun observeSearch(
+			normalizedQuery: String,
+			limit: Int
+		): Flow<List<SubjectCatalogCacheEntity>> = emptyFlow()
+
+		override suspend fun deleteAll(): Int = 0
+
+		override suspend fun upsertEntity(entity: SubjectCatalogCacheEntity) = Unit
+
+		override suspend fun upsertEntities(entities: List<SubjectCatalogCacheEntity>) = Unit
+	}
 
 	override val pensumCache: PensumCacheDao = object : PensumCacheDao() {
 		override fun observePensum(cacheKey: String): Flow<PensumCacheEntity?> = emptyFlow()
@@ -316,6 +331,7 @@ private class FakeTuIndiceDatabase : TuIndiceDatabase() {
 			"evaluations",
 			"evaluation_sync_state",
 			"pending_mutations",
+			"subject_catalog_cache",
 			"subject_detail",
 			"subject_stats_segment",
 			"subject_stats_grade_bin",

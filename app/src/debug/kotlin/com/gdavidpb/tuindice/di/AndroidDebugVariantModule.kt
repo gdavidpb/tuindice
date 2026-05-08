@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.source.DebugSummaryRemoteDataSource
 import com.gdavidpb.tuindice.summary.data.source.FileKitDebugProfilePictureStorageDataSource
 import com.gdavidpb.tuindice.summary.data.source.SummaryApiDataSource
+import com.gdavidpb.tuindice.subjects.data.repository.SubjectCatalogRemoteDataRepository
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectStatsApiDataRepository
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectStatsLocalDataRepository
 import com.gdavidpb.tuindice.subjects.data.source.DebugSubjectStatsLocalDataSource
@@ -40,6 +41,13 @@ val androidDebugVariantModule = module {
 	}
 
 	factory<SubjectStatsApiDataRepository> {
+		DebugSubjectsApiDataSource(
+			apiDataSource = get<KtorSubjectsApiDataSource>(),
+			json = get()
+		)
+	}
+
+	factory<SubjectCatalogRemoteDataRepository> {
 		DebugSubjectsApiDataSource(
 			apiDataSource = get<KtorSubjectsApiDataSource>(),
 			json = get()

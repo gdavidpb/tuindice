@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLifecycle
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectDetail
 import com.gdavidpb.tuindice.subjects.presentation.route.SubjectDetailRoute
+import com.gdavidpb.tuindice.subjects.presentation.route.SubjectSearchRoute
 import org.koin.compose.viewmodel.koinViewModel
 
 fun NavGraphBuilder.subjectsNavigation(
@@ -17,6 +18,26 @@ fun NavGraphBuilder.subjectsNavigation(
 	onViewStateChanged: (ViewState) -> Unit,
 	onDismissRequest: () -> Unit
 ) {
+	composable<SubjectsDestination.SubjectSearch> { backStackEntry ->
+		val viewModel = koinViewModel<com.gdavidpb.tuindice.subjects.presentation.viewmodel.SubjectSearchViewModel>(
+			viewModelStoreOwner = backStackEntry
+		)
+		val viewState by viewModel.state.collectAsStateWithLifecycle()
+
+		navController.CollectCurrentEntryValueWithLifecycle(
+			backStackEntry = backStackEntry,
+			value = viewState,
+			onValue = onViewStateChanged
+		)
+
+		SubjectSearchRoute(
+			viewModel = viewModel,
+			onSubjectClick = { subjectCode ->
+				navController.navigate(SubjectsDestination.SubjectDetail(subjectCode = subjectCode))
+			}
+		)
+	}
+
 	composable<SubjectsDestination.SubjectDetail> { backStackEntry ->
 		val args = backStackEntry.toRoute<SubjectsDestination.SubjectDetail>()
 		val viewModel = koinViewModel<com.gdavidpb.tuindice.subjects.presentation.viewmodel.SubjectDetailViewModel>(

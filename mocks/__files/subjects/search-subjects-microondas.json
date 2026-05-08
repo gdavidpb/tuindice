@@ -1,0 +1,23 @@
+{
+  "query": "microondas",
+  "results": [
+    {
+      "subject_code": "EC5333",
+      "name": "INT. A LAS MICROONDAS Y SUS APLICACIONES",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "EL3104",
+      "name": "Campos Electromagnéticos",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "EC5201",
+      "name": "Sistemas de Comunicaciones",
+      "credits": 3,
+      "grading_mode": "numeric"
+    }
+  ]
+}

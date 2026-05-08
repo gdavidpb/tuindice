@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationSyncStateDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumSelectionDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectCatalogCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectDetailDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsAttemptBinDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsGradeBinDao
@@ -28,6 +29,7 @@ class RoomPersistenceMaintenanceDataSource(
 	private val evaluationDao: EvaluationDao,
 	private val evaluationSyncStateDao: EvaluationSyncStateDao,
 	private val pendingMutationDao: PendingMutationDao,
+	private val subjectCatalogCacheDao: SubjectCatalogCacheDao,
 	private val subjectDetailDao: SubjectDetailDao,
 	private val subjectStatsSegmentDao: SubjectStatsSegmentDao,
 	private val subjectStatsGradeBinDao: SubjectStatsGradeBinDao,
@@ -50,6 +52,7 @@ class RoomPersistenceMaintenanceDataSource(
 			subjectStatsGradeBinDao.deleteAll()
 			subjectStatsSegmentDao.deleteAll()
 			subjectDetailDao.deleteAll()
+			subjectCatalogCacheDao.deleteAll()
 			pensumSelectionDao.deleteAll()
 			pensumCacheDao.deleteAll()
 			userDao.deleteAll()

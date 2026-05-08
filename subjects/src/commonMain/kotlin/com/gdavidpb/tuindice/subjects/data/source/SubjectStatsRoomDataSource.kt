@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.subjects.data.source
 
+import com.gdavidpb.tuindice.base.utils.currentTimeMillis
+import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectCatalogCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectDetailDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsAttemptBinDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsGradeBinDao
@@ -8,14 +10,17 @@ import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactio
 import com.gdavidpb.tuindice.subjects.data.mapper.toAttemptBinEntities
 import com.gdavidpb.tuindice.subjects.data.mapper.toGradeBinEntities
 import com.gdavidpb.tuindice.subjects.data.mapper.toSegmentEntities
+import com.gdavidpb.tuindice.subjects.data.mapper.toSubjectCatalogCacheEntity
 import com.gdavidpb.tuindice.subjects.data.mapper.toSubjectDetailEntity
 import com.gdavidpb.tuindice.subjects.data.mapper.toSubjectDetailResult
+import com.gdavidpb.tuindice.subjects.data.mapper.toSubjectSearchResult
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectStatsLocalDataRepository
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetailResult
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 class SubjectStatsRoomDataSource(
+	private val subjectCatalogCacheDao: SubjectCatalogCacheDao,
 	private val subjectDetailDao: SubjectDetailDao,
 	private val subjectStatsSegmentDao: SubjectStatsSegmentDao,
 	private val subjectStatsGradeBinDao: SubjectStatsGradeBinDao,
@@ -55,6 +60,11 @@ class SubjectStatsRoomDataSource(
 				subjectStatsAttemptBinDao.deleteBySubjectCode(subjectCode)
 
 				if (result is SubjectDetailResult.Ready) {
+					subjectCatalogCacheDao.upsertEntity(
+						result.detail.toSubjectSearchResult().toSubjectCatalogCacheEntity(
+							updatedAt = currentTimeMillis()
+						)
+					)
 					subjectStatsSegmentDao.upsertEntities(result.detail.toSegmentEntities())
 					subjectStatsGradeBinDao.upsertEntities(result.detail.toGradeBinEntities())
 					subjectStatsAttemptBinDao.upsertEntities(result.detail.toAttemptBinEntities())

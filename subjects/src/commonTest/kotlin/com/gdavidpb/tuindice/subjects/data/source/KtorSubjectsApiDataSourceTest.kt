@@ -144,4 +144,52 @@ class KtorSubjectsApiDataSourceTest {
 		assertEquals("MAT404", unavailable.subjectCode)
 		assertTrue(unavailable.expiresAt > 0)
 	}
+
+	@Test
+	fun searchSubjects_parsesResultsAndUsesExpectedRequest() = runTest {
+		var capturedPath: String? = null
+		var capturedQuery: String? = null
+		var capturedLimit: String? = null
+		val client = HttpClient(
+			engine = MockEngine { request ->
+				capturedPath = request.url.encodedPath
+				capturedQuery = request.url.parameters["query"]
+				capturedLimit = request.url.parameters["limit"]
+				respond(
+					content = """
+						{
+						  "query": "microondas",
+						  "results": [
+						    {
+						      "subject_code": "EC5333",
+						      "name": "INT. A LAS MICROONDAS Y SUS APLICACIONES",
+						      "credits": 3,
+						      "grading_mode": "numeric"
+						    }
+						  ]
+						}
+					""".trimIndent(),
+					status = HttpStatusCode.OK,
+					headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+				)
+			}
+		) {
+			expectSuccess = true
+			install(ContentNegotiation) {
+				json()
+			}
+		}
+
+		val result = KtorSubjectsApiDataSource(client, sharedJson).searchSubjects(
+			query = "microondas",
+			limit = 20
+		)
+
+		assertEquals("/subjects/v1/search", capturedPath)
+		assertEquals("microondas", capturedQuery)
+		assertEquals("20", capturedLimit)
+		assertEquals(1, result.size)
+		assertEquals("EC5333", result.first().subjectCode)
+		assertEquals(3, result.first().credits)
+	}
 }
