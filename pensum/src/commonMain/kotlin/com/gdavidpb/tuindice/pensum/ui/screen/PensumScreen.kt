@@ -450,6 +450,12 @@ private fun PensumGraphCanvas(
 		val selectedRequirementEdgeIds = remember(model.edges, selectedNodeId) {
 			model.requirementEdgeIdsTo(selectedNodeId)
 		}
+		val selectedRequirementNodeIds = remember(model.edges, selectedNodeId, selectedRequirementEdgeIds) {
+			model.requirementNodeIdsIn(
+				selectedNodeId = selectedNodeId,
+				selectedRequirementEdgeIds = selectedRequirementEdgeIds
+			)
+		}
 
 		LaunchedEffect(graphKey, viewportSizePx, canvasSizePx, panMarginPx) {
 			scale.snapTo(InitialCanvasZoom)
@@ -589,6 +595,7 @@ private fun PensumGraphCanvas(
 				PensumNodeCard(
 					node = node,
 					isSelected = node.id == selectedNodeId,
+					isRequirementHighlighted = node.id in selectedRequirementNodeIds,
 					modifier = Modifier
 						.offset(x = node.x.dp, y = node.y.dp)
 						.size(width = node.width.dp, height = node.height.dp)
@@ -675,7 +682,8 @@ private fun DrawScope.drawPensumEdge(
 	isHighlighted: Boolean
 ) {
 	if (edge.points.size < 2) return
-	val color = if (isHighlighted) Current else Available
+	val color = if (isHighlighted) Selected else Available
+	val strokeWidth = if (isHighlighted) 4.dp else 2.dp
 	val points = model.edgeRoute(
 		edge = edge,
 		endpointGap = EdgeEndpointGap.toPx() / density,
@@ -686,7 +694,7 @@ private fun DrawScope.drawPensumEdge(
 		path = points.toRoundedOrthogonalPath(cornerRadius = EdgeCornerRadius.toPx()),
 		color = color,
 		style = Stroke(
-			width = 2.dp.toPx(),
+			width = strokeWidth.toPx(),
 			cap = StrokeCap.Round
 		)
 	)
@@ -718,9 +726,11 @@ private fun DrawScope.drawArrowHead(start: Offset, end: Offset, color: Color) {
 private fun PensumNodeCard(
 	node: PensumScreenModel.Node,
 	isSelected: Boolean,
+	isRequirementHighlighted: Boolean,
 	modifier: Modifier = Modifier
 ) {
 	val colors = node.status.colors()
+	val isHighlighted = isSelected || isRequirementHighlighted
 	val chipColors = remember(node.displayCode, colors.chip, colors.chipText) {
 		node.displayCode.toPensumChipColors(
 			fallbackContainer = colors.chip,
@@ -732,8 +742,8 @@ private fun PensumNodeCard(
 		shape = RoundedCornerShape(8.dp),
 		color = colors.container,
 		border = androidx.compose.foundation.BorderStroke(
-			width = if (isSelected) 2.2.dp else 1.2.dp,
-			color = if (isSelected) Selected else colors.border
+			width = if (isHighlighted) 2.2.dp else 1.2.dp,
+			color = if (isHighlighted) Selected else colors.border
 		),
 		shadowElevation = if (isSelected || node.status == PensumNodeStatus.CURRENT) 8.dp else 0.dp
 	) {
@@ -810,7 +820,8 @@ private fun PensumMinimap(
 		val sx = size.width / model.canvas.width.toFloat()
 		val sy = size.height / model.canvas.height.toFloat()
 		model.edges.forEach { edge ->
-			val color = if (edge.id in selectedRequirementEdgeIds) Current.copy(alpha = 0.9f) else Available.copy(alpha = 0.55f)
+			val color = if (edge.id in selectedRequirementEdgeIds) Selected.copy(alpha = 0.9f) else Available.copy(alpha = 0.55f)
+			val strokeWidth = if (edge.id in selectedRequirementEdgeIds) 4f else 2f
 			model.edgeRoute(
 				edge = edge,
 				endpointGap = EdgeEndpointGap.value,
@@ -820,7 +831,7 @@ private fun PensumMinimap(
 					color = color,
 					start = Offset(start.x * sx, start.y * sy),
 					end = Offset(end.x * sx, end.y * sy),
-					strokeWidth = 2f
+					strokeWidth = strokeWidth
 				)
 			}
 		}
@@ -937,6 +948,23 @@ private fun PensumScreenModel.requirementEdgeIdsTo(nodeId: String?): Set<String>
 
 	collectRequirements(nodeId)
 	return selectedEdgeIds
+}
+
+private fun PensumScreenModel.requirementNodeIdsIn(
+	selectedNodeId: String?,
+	selectedRequirementEdgeIds: Set<String>
+): Set<String> {
+	if (selectedNodeId == null) return emptySet()
+
+	return buildSet {
+		add(selectedNodeId)
+		edges.forEach { edge ->
+			if (edge.id in selectedRequirementEdgeIds) {
+				add(edge.fromNodeId)
+				add(edge.toNodeId)
+			}
+		}
+	}
 }
 
 private fun PensumScreenModel.edgeRoute(
