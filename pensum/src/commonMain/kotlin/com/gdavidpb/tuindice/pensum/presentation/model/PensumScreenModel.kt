@@ -52,6 +52,7 @@ data class PensumScreenModel(
 	data class Node(
 		val id: String,
 		val displayCode: String,
+		val subjectCode: String?,
 		val name: String,
 		val credits: Int,
 		val termId: String,
@@ -59,7 +60,8 @@ data class PensumScreenModel(
 		val y: Double,
 		val width: Double,
 		val height: Double,
-		val status: PensumNodeStatus
+		val status: PensumNodeStatus,
+		val hasSubjectStatsAction: Boolean
 	)
 
 	data class Edge(

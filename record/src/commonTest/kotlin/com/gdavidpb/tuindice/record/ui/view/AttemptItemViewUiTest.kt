@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.record.ui.view
 
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertHasNoClickAction
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.onNodeWithTag
@@ -18,7 +20,21 @@ import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@OptIn(ExperimentalTestApi::class)
 class AttemptItemViewUiTest {
+	@Test
+	fun when_subjectChipIsRendered_then_itDoesNotOpenSubjectStats() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			AttemptItemView(
+				item = qualitativeAttemptItem(outcome = AttemptOutcome.APPROVED),
+				onGradeChange = { _, _, _ -> }
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.attemptSubjectChip("attempt-1"))
+			.assertHasNoClickAction()
+	}
+
 	@Test
 	fun when_qualitativeAttemptIsEditable_then_selectorMovesToHeaderAndDispatchesSelection() = runTuIndiceUiTest {
 		var selectedOutcome: AttemptOutcome? = null

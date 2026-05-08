@@ -153,8 +153,7 @@ private fun WizardStepContent(
 			)
 
 		WizardStepId.Record,
-		WizardStepId.RecordActions,
-		WizardStepId.RecordSubjectEntry ->
+		WizardStepId.RecordActions ->
 			RecordScreen(
 				state = sampleRecordState(
 					viewMode = state.recordViewMode,
@@ -162,7 +161,6 @@ private fun WizardStepContent(
 				),
 				selectedTermId = state.selectedTermId,
 				onSelectedTermChange = onSelectedTermChange,
-				onSubjectClick = { onOpenSubjectDetail() },
 				onRetryClick = {},
 				onAttemptSelectionChange = emptyAttemptSelectionHandler()
 			)
@@ -189,12 +187,18 @@ private fun WizardStepContent(
 				onChartsVisibilityChange = if (isSubjectStep) onSubjectChartsVisibilityChange else ({})
 			)
 
+		WizardStepId.RecordSubjectEntry,
 		WizardStepId.Pensum ->
 			PensumScreen(
 				state = samplePensumState(),
 				onRetryClick = {},
 				showSelectionSheet = false,
 				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {
+					if (state.currentStep.id == WizardStepId.RecordSubjectEntry) {
+						onOpenSubjectDetail()
+					}
+				},
 				onSelectionApplied = { _, _ -> }
 			)
 

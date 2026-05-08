@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.pensum.ui.screen.PensumScreen
 fun PensumRoute(
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	topBarActionBus: PensumTopBarActionBus,
+	onNavigateToSubjectDetail: (subjectCode: String) -> Unit,
 	viewModel: PensumViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
@@ -48,6 +49,7 @@ fun PensumRoute(
 		onSelectionSheetDismiss = {
 			showSelectionSheet.value = false
 		},
+		onSubjectStatsClick = onNavigateToSubjectDetail,
 		onSelectionApplied = { item, modality ->
 			viewModel.selectSelectionAction(
 				careerCode = item.careerCode,

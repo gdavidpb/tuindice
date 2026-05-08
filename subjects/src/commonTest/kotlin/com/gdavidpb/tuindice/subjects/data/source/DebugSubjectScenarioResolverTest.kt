@@ -38,6 +38,17 @@ class DebugSubjectScenarioResolverTest {
 	}
 
 	@Test
+	fun resolve_infersMetadataForCurrentRecordSubjects() {
+		val resolved = assertNotNull(DebugSubjectScenarioResolver.resolve("CI4325"))
+
+		assertEquals(DebugSubjectScenario.EC5745, resolved.scenario)
+		assertEquals("CI4325", resolved.metadata?.code)
+		assertEquals("INTERFACES CON EL USUARIO", resolved.metadata?.name)
+		assertEquals(5, resolved.metadata?.credits)
+		assertEquals(GradingMode.NUMERIC, resolved.metadata?.gradingMode)
+	}
+
+	@Test
 	fun resolve_returnsNullForRemoteMockRecordSubjects() {
 		assertNull(DebugSubjectScenarioResolver.resolve("EC5751"))
 	}
@@ -49,6 +60,16 @@ class DebugSubjectScenarioResolverTest {
 		assertEquals(DebugSubjectScenario.EP3421, resolved.scenario)
 		assertEquals("EP5406", resolved.metadata?.code)
 		assertEquals(9, resolved.metadata?.credits)
+		assertEquals(GradingMode.QUALITATIVE_PASS_FAIL, resolved.metadata?.gradingMode)
+	}
+
+	@Test
+	fun resolve_infersQualitativeScenarioForCurrentRecordSubjects() {
+		val resolved = assertNotNull(DebugSubjectScenarioResolver.resolve("EP1308"))
+
+		assertEquals(DebugSubjectScenario.EP3421, resolved.scenario)
+		assertEquals("EP1308", resolved.metadata?.code)
+		assertEquals(3, resolved.metadata?.credits)
 		assertEquals(GradingMode.QUALITATIVE_PASS_FAIL, resolved.metadata?.gradingMode)
 	}
 

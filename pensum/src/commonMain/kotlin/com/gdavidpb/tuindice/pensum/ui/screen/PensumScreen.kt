@@ -29,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilterChip
@@ -101,6 +102,7 @@ import tuindice.pensum.generated.resources.pensum_selection_modality
 import tuindice.pensum.generated.resources.pensum_selection_title
 import tuindice.pensum.generated.resources.pensum_selection_version
 import tuindice.pensum.generated.resources.pensum_progress_label
+import tuindice.pensum.generated.resources.pensum_subject_stats_content_description
 import tuindice.pensum.generated.resources.pensum_zoom_in
 import tuindice.pensum.generated.resources.pensum_zoom_out
 
@@ -136,6 +138,7 @@ fun PensumScreen(
 	onRetryClick: () -> Unit,
 	showSelectionSheet: Boolean,
 	onSelectionSheetDismiss: () -> Unit,
+	onSubjectStatsClick: (subjectCode: String) -> Unit,
 	onSelectionApplied: (PensumScreenModel.PensumOptionItem, PensumScreenModel.ModalityItem) -> Unit
 ) {
 	SealedCrossfade(targetState = state) { targetState ->
@@ -146,6 +149,7 @@ fun PensumScreen(
 				model = targetState.model,
 				showSelectionSheet = showSelectionSheet,
 				onSelectionSheetDismiss = onSelectionSheetDismiss,
+				onSubjectStatsClick = onSubjectStatsClick,
 				onSelectionApplied = onSelectionApplied
 			)
 			is Pensum.State.Failed -> ErrorView(
@@ -190,6 +194,7 @@ private fun PensumContentView(
 	model: PensumScreenModel,
 	showSelectionSheet: Boolean,
 	onSelectionSheetDismiss: () -> Unit,
+	onSubjectStatsClick: (subjectCode: String) -> Unit,
 	onSelectionApplied: (PensumScreenModel.PensumOptionItem, PensumScreenModel.ModalityItem) -> Unit
 ) {
 	Column(
@@ -201,6 +206,7 @@ private fun PensumContentView(
 		PensumSummaryRow(model = model)
 		PensumGraphCanvas(
 			model = model,
+			onSubjectStatsClick = onSubjectStatsClick,
 			modifier = Modifier.weight(1f)
 		)
 	}
@@ -441,6 +447,7 @@ private fun PensumModalityOptionRow(
 @Composable
 private fun PensumGraphCanvas(
 	model: PensumScreenModel,
+	onSubjectStatsClick: (subjectCode: String) -> Unit,
 	modifier: Modifier = Modifier
 ) {
 	val density = LocalDensity.current
@@ -616,6 +623,7 @@ private fun PensumGraphCanvas(
 					node = node,
 					isSelected = node.id == selectedNodeId,
 					isRequirementHighlighted = node.id in selectedRequirementNodeIds,
+					onSubjectStatsClick = onSubjectStatsClick,
 					modifier = Modifier
 						.offset(x = node.x.dp, y = node.y.dp)
 						.size(width = node.width.dp, height = node.height.dp)
@@ -747,10 +755,12 @@ private fun PensumNodeCard(
 	node: PensumScreenModel.Node,
 	isSelected: Boolean,
 	isRequirementHighlighted: Boolean,
+	onSubjectStatsClick: (subjectCode: String) -> Unit,
 	modifier: Modifier = Modifier
 ) {
 	val colors = node.status.colors()
 	val isHighlighted = isSelected || isRequirementHighlighted
+	val subjectCode = node.subjectCode
 	val chipColors = remember(node.displayCode, colors.chip, colors.chipText) {
 		node.displayCode.toPensumChipColors(
 			fallbackContainer = colors.chip,
@@ -812,6 +822,25 @@ private fun PensumNodeCard(
 						contentDescription = null,
 						tint = Approved,
 						modifier = Modifier.size(16.dp)
+					)
+				}
+			}
+			if (node.hasSubjectStatsAction && subjectCode != null) {
+				IconButton(
+					modifier = Modifier
+						.align(Alignment.BottomEnd)
+						.size(32.dp)
+						.testTag(PensumUiTags.nodeSubjectStatsButton(node.id)),
+					onClick = { onSubjectStatsClick(subjectCode) }
+				) {
+					Icon(
+						imageVector = Icons.Outlined.BarChart,
+						contentDescription = stringResource(
+							Res.string.pensum_subject_stats_content_description,
+							subjectCode
+						),
+						tint = colors.secondaryText,
+						modifier = Modifier.size(20.dp)
 					)
 				}
 			}

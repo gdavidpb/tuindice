@@ -61,9 +61,8 @@ fun defaultWizardSteps(): List<WizardStep> = listOf(
 		id = WizardStepId.RecordSubjectEntry,
 		title = Res.string.wizard_record_subject_entry_title,
 		message = Res.string.wizard_record_subject_entry_message,
-		topBarTitle = "Informe Académico",
-		topBarConfig = TopBarConfig.Record,
-		showsRecordViewMode = true
+		topBarTitle = "Pensum",
+		topBarConfig = TopBarConfig.Pensum
 	),
 	WizardStep(
 		id = WizardStepId.SubjectDetail,

@@ -17,8 +17,8 @@
 	<string name="wizard_record_message">Este bloque resume el **trimestre seleccionado**: **índice del trimestre**, **índice acumulado** y **cantidad de créditos**. Las variaciones muestran cómo cambiaron desde el trimestre anterior.</string>
 	<string name="wizard_record_actions_title">Acciones del trimestre</string>
 	<string name="wizard_record_actions_message">El **botón de modo** alterna entre **Modo Universidad** y **Modo Proyección**. Universidad muestra las notas oficiales; Proyección te deja simular cambios. Cuando selecciones el **trimestre actual**, verás el **botón de comprobante** para descargarlo.</string>
-	<string name="wizard_record_subject_entry_title">Abrir estadísticas de materia</string>
-	<string name="wizard_record_subject_entry_message">Puedes tocar el **código** de cualquier **materia** para abrir sus **estadísticas** y revisar su **desempeño histórico**.</string>
+	<string name="wizard_record_subject_entry_title">Estadísticas desde pensum</string>
+	<string name="wizard_record_subject_entry_message">En **Pensum**, toca el **botón de estadísticas** de una **materia** para abrir su **desempeño histórico**.</string>
 	<string name="wizard_subject_title">Estadísticas de materia</string>
 	<string name="wizard_subject_message">Arriba ves el **nombre de la materia**, su **código** y **UC**. Las pestañas comparan **tu carrera** con el **panorama general**; debajo aparecen la **muestra de estudiantes e intentos**, más indicadores de **dificultad**, **aprobación**, **reprobación**, **retiros** y **primer intento**.</string>
 	<string name="wizard_subject_charts_title">Gráficos de materia</string>
@@ -46,7 +46,7 @@
 
 	<string name="wizard_focus_record">Índices del trimestre</string>
 	<string name="wizard_focus_record_actions">Botones superiores</string>
-	<string name="wizard_focus_record_subject_entry">Códigos de materia</string>
+	<string name="wizard_focus_record_subject_entry">Botón de estadísticas</string>
 	<string name="wizard_focus_evaluations">Filtros y evaluaciones</string>
 	<string name="wizard_focus_evaluation_swipe">Sin nota</string>
 </resources>

@@ -16,6 +16,7 @@
 	<string name="pensum_selection_cancel">Cancelar</string>
 	<string name="pensum_zoom_in">Acercar</string>
 	<string name="pensum_zoom_out">Alejar</string>
+	<string name="pensum_subject_stats_content_description">Ver estadísticas de %1$s</string>
 	<string name="snack_default_error">Ocurrió un error inesperado.</string>
 	<string name="snack_network_unavailable">Revisa tu conexión e intenta de nuevo.</string>
 	<string name="snack_service_unavailable">El servicio no está disponible.</string>

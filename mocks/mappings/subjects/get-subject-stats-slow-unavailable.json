@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/subjects/v1/EC5751-NODATA"
+    "urlPath": "/subjects/v1/CI4325-NODATA"
   },
   "response": {
     "status": 404,

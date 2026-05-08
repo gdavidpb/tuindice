@@ -104,9 +104,6 @@ fun TuIndiceNavHost(
 			onNavigateToUpdatePassword = {
 				navController.navigate(AuthDestination.UpdatePasswordDialog)
 			},
-			onNavigateToSubjectDetail = { subjectCode ->
-				navController.navigate(SubjectsDestination.SubjectDetail(subjectCode = subjectCode))
-			},
 			onTopBarViewModeChangeAvailable = onRecordViewModeChangeAvailable,
 			showTopBarBanner = showTopBarBanner,
 			onViewStateChanged = onViewStateChanged,
@@ -178,6 +175,9 @@ fun TuIndiceNavHost(
 		pensumNavigation(
 			navController = navController,
 			onViewStateChanged = onViewStateChanged,
+			onNavigateToSubjectDetail = { subjectCode ->
+				navController.navigate(SubjectsDestination.SubjectDetail(subjectCode = subjectCode))
+			},
 			showSnackBar = showSnackBar
 		)
 

@@ -18,6 +18,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun NavGraphBuilder.pensumNavigation(
 	navController: NavHostController,
 	onViewStateChanged: (ViewState) -> Unit,
+	onNavigateToSubjectDetail: (subjectCode: String) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
 	navigation<PensumDestination.NavGraph>(startDestination = PensumDestination.Pensum) {
@@ -35,6 +36,7 @@ fun NavGraphBuilder.pensumNavigation(
 			PensumRoute(
 				showSnackBar = showSnackBar,
 				topBarActionBus = topBarActionBus,
+				onNavigateToSubjectDetail = onNavigateToSubjectDetail,
 				viewModel = viewModel
 			)
 		}

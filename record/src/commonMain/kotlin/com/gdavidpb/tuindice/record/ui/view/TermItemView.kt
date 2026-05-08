@@ -14,7 +14,6 @@ import com.gdavidpb.tuindice.record.ui.RecordUiTags
 fun TermItemView(
 	modifier: Modifier = Modifier,
 	item: TermItem,
-	onSubjectClick: (subjectCode: String) -> Unit,
 	onAttemptSelectionChange: (
 		attemptId: String,
 		newGrade: Int?,
@@ -35,7 +34,6 @@ fun TermItemView(
 					.fillMaxWidth()
 					.weight(1f),
 				term = item,
-				onSubjectClick = onSubjectClick,
 				onAttemptSelectionChange = onAttemptSelectionChange
 			)
 	}

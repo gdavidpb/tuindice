@@ -206,6 +206,7 @@ private fun pensumNode(
 ) = PensumScreenModel.Node(
 	id = id,
 	displayCode = code,
+	subjectCode = code,
 	name = name,
 	credits = credits,
 	termId = termId,
@@ -213,7 +214,8 @@ private fun pensumNode(
 	y = y,
 	width = 220.0,
 	height = 148.0,
-	status = status
+	status = status,
+	hasSubjectStatsAction = true
 )
 
 private fun pensumRequirementEdge(

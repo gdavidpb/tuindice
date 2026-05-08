@@ -20,7 +20,6 @@ import com.gdavidpb.tuindice.record.ui.RecordUiTags
 fun SelectedTermView(
 	modifier: Modifier = Modifier,
 	term: TermItem,
-	onSubjectClick: (subjectCode: String) -> Unit,
 	onAttemptSelectionChange: (
 		attemptId: String,
 		newGrade: Int?,
@@ -60,7 +59,6 @@ fun SelectedTermView(
 			AttemptCardItemView(
 				item = attempt,
 				gradeState = gradeState.takeIf { attempt.gradingMode == GradingMode.NUMERIC },
-				onSubjectClick = onSubjectClick,
 				onGradeChange = { newGrade, newOutcome, isSelected ->
 					onAttemptSelectionChange(
 						attempt.attemptId,

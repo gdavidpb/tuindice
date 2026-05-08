@@ -9,4 +9,5 @@ object PensumUiTags {
 	const val ZoomOut = "pensum_zoom_out"
 	const val Minimap = "pensum_minimap"
 	fun node(id: String): String = "pensum_node_$id"
+	fun nodeSubjectStatsButton(id: String): String = "pensum_node_subject_stats_button_$id"
 }

@@ -30,6 +30,7 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 		PensumScreenModel.Node(
 			id = node.id,
 			displayCode = node.displayCode,
+			subjectCode = node.subjectCode,
 			name = node.name,
 			credits = node.credits,
 			termId = node.termId,
@@ -37,7 +38,8 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 			y = node.y,
 			width = node.width,
 			height = maxOf(node.height, node.name.minimumDisplayHeight()),
-			status = nodeStatuses[node.id] ?: PensumNodeStatus.BLOCKED
+			status = nodeStatuses[node.id] ?: PensumNodeStatus.BLOCKED,
+			hasSubjectStatsAction = node.subjectCode.hasSubjectStatsAction(displayCode = node.displayCode)
 		)
 	}
 	val displayCanvasWidth = maxOf(
@@ -101,3 +103,14 @@ private fun String.minimumDisplayHeight(): Double {
 		DisplayNodeSingleLineMinHeight
 	}
 }
+
+private fun String?.hasSubjectStatsAction(displayCode: String): Boolean {
+	val normalizedSubjectCode = this?.trim()?.uppercase() ?: return false
+	val normalizedDisplayCode = displayCode.trim().uppercase()
+
+	return normalizedSubjectCode.isNotBlank() &&
+		!WildcardSubjectCodeRegex.matches(normalizedSubjectCode) &&
+		!WildcardSubjectCodeRegex.matches(normalizedDisplayCode)
+}
+
+private val WildcardSubjectCodeRegex = Regex("^[A-Z]{2}\\d{1,2}$")

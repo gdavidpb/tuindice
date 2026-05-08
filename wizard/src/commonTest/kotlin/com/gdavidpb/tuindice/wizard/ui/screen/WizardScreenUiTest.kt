@@ -130,6 +130,8 @@ class WizardScreenUiTest {
 
 	@Test
 	fun when_recordSubjectEntryStepIsRendered_then_explainsHowToOpenStats() = runTuIndiceUiTest {
+		var didOpenSubjectDetail = false
+
 		setTuIndiceTestContent {
 			WizardScreen(
 				state = Wizard.State.Content(currentIndex = 4),
@@ -137,7 +139,7 @@ class WizardScreenUiTest {
 				onSkip = {},
 				onNext = {},
 				onFinish = {},
-				onOpenSubjectDetail = {},
+				onOpenSubjectDetail = { didOpenSubjectDetail = true },
 				onOpenEvaluationForm = {},
 				onSubjectTabSelected = {},
 				onSelectedTermChange = {},
@@ -145,12 +147,15 @@ class WizardScreenUiTest {
 			)
 		}
 
-		onNodeWithText("Abrir estadísticas de materia").assertExists()
+		onNodeWithText("Estadísticas desde pensum").assertExists()
 		onNodeWithText("Paso 4 de 11").assertExists()
 		onNodeWithText(
-			"Puedes tocar el código de cualquier materia para abrir sus estadísticas",
+			"En Pensum, toca el botón de estadísticas de una materia",
 			substring = true
 		).assertExists()
+		assertNodeVisible(PensumUiTags.PensumScreen)
+		onNodeWithTag(PensumUiTags.nodeSubjectStatsButton("ma1111")).performClick()
+		assertEquals(true, didOpenSubjectDetail)
 		onAllNodesWithTag(WizardUiTags.FocusOverlay).assertCountEquals(0)
 	}
 

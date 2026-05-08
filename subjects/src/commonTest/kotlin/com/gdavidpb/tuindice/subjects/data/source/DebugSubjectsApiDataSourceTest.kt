@@ -48,6 +48,30 @@ class DebugSubjectsApiDataSourceTest {
 	}
 
 	@Test
+	fun getSubjectDetail_overridesScenarioMetadataForCurrentRecordSubjects() = runTest {
+		val client = HttpClient(
+			engine = MockEngine {
+				error("Debug subject should resolve from local resources before hitting the API")
+			}
+		) {
+			expectSuccess = true
+			install(ContentNegotiation) {
+				json()
+			}
+		}
+
+		val result = DebugSubjectsApiDataSource(
+			apiDataSource = KtorSubjectsApiDataSource(client, sharedJson),
+			json = sharedJson
+		).getSubjectDetail("CI4325")
+
+		val ready = assertIs<SubjectDetailResult.Ready>(result)
+		assertEquals("CI4325", ready.detail.id)
+		assertEquals("INTERFACES CON EL USUARIO", ready.detail.name)
+		assertEquals(5, ready.detail.credits)
+	}
+
+	@Test
 	fun getSubjectDetail_fallsBackToApiDataSourceForUnknownCodes() = runTest {
 		val client = HttpClient(
 			engine = MockEngine { _ ->
