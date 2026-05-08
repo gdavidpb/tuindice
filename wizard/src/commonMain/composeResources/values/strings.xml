@@ -10,7 +10,7 @@
 	<string name="wizard_welcome_title">Bienvenido a TuIndice</string>
 	<string name="wizard_welcome_message">Te mostraremos un **recorrido rápido** para que conozcas la app antes de empezar.</string>
 	<string name="wizard_welcome_privacy">Nada de esto cambia **tus datos**. Puedes **omitir el recorrido** si prefieres ir directo a la app.</string>
-	<string name="wizard_welcome_summary">Verás el **resumen**, tus **materias**, **evaluaciones**, **estadísticas** y **comprobantes** con ejemplos.</string>
+	<string name="wizard_welcome_summary">Verás el **resumen**, tu **informe académico**, el **pensum**, las **evaluaciones**, **estadísticas** y **comprobantes** con ejemplos.</string>
 	<string name="wizard_summary_title">Resumen académico</string>
 	<string name="wizard_summary_message">Este es tu punto de partida: aquí ves tu **promedio**, **materias cursadas**, **créditos** y cuándo se sincronizó tu información por última vez.</string>
 	<string name="wizard_record_title">Índices del trimestre</string>
@@ -23,6 +23,8 @@
 	<string name="wizard_subject_message">Arriba ves el **nombre de la materia**, su **código** y **UC**. Las pestañas comparan **tu carrera** con el **panorama general**; debajo aparecen la **muestra de estudiantes e intentos**, más indicadores de **dificultad**, **aprobación**, **reprobación**, **retiros** y **primer intento**.</string>
 	<string name="wizard_subject_charts_title">Gráficos de materia</string>
 	<string name="wizard_subject_charts_message">Los **gráficos** resumen cómo se distribuyeron las **notas** y cuántos **intentos** necesitaron otros estudiantes para aprobar. Úsalos como **contexto**: no predicen tu resultado, pero ayudan a entender la **dificultad histórica** de la materia.</string>
+	<string name="wizard_pensum_title">Pensum y avance</string>
+	<string name="wizard_pensum_message">En **Pensum** ves **tu pensum** como un **mapa de materias** con **avance**, **créditos** y **requisitos**. Muévete y haz **zoom**. Arriba tienes **buscar materia** y **cambiar pensum** para elegir su **versión** y **modalidad**.</string>
 	<string name="wizard_subject_tab_career">Tu carrera</string>
 	<string name="wizard_subject_tab_global">General</string>
 	<string name="wizard_subject_title_loading_stats">Calculando estadísticas</string>

@@ -10,6 +10,8 @@ import tuindice.wizard.generated.resources.wizard_evaluation_swipe_message
 import tuindice.wizard.generated.resources.wizard_evaluation_swipe_title
 import tuindice.wizard.generated.resources.wizard_evaluations_message
 import tuindice.wizard.generated.resources.wizard_evaluations_title
+import tuindice.wizard.generated.resources.wizard_pensum_message
+import tuindice.wizard.generated.resources.wizard_pensum_title
 import tuindice.wizard.generated.resources.wizard_record_message
 import tuindice.wizard.generated.resources.wizard_record_actions_message
 import tuindice.wizard.generated.resources.wizard_record_actions_title
@@ -74,6 +76,13 @@ fun defaultWizardSteps(): List<WizardStep> = listOf(
 		title = Res.string.wizard_subject_charts_title,
 		message = Res.string.wizard_subject_charts_message,
 		topBarTitle = "Sobre esta materia"
+	),
+	WizardStep(
+		id = WizardStepId.Pensum,
+		title = Res.string.wizard_pensum_title,
+		message = Res.string.wizard_pensum_message,
+		topBarTitle = "Pensum",
+		topBarConfig = TopBarConfig.Pensum
 	),
 	WizardStep(
 		id = WizardStepId.Evaluations,

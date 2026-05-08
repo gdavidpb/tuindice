@@ -28,6 +28,7 @@ kotlin {
 				implementation(project(":record"))
 				implementation(project(":evaluations"))
 				implementation(project(":subjects"))
+				implementation(project(":pensum"))
 				implementation(project(":about"))
 				implementation(project(":enrollmentproof"))
 				implementation(libs.navigation.compose)

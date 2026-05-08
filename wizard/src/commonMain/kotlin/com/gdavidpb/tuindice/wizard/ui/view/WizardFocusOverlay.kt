@@ -277,6 +277,7 @@ private fun WizardStepId.focusOverlaySpec(): WizardFocusOverlaySpec? {
 		WizardStepId.RecordSubjectEntry -> null
 		WizardStepId.SubjectDetail -> null
 		WizardStepId.SubjectCharts -> null
+		WizardStepId.Pensum -> null
 		WizardStepId.Evaluations -> WizardFocusOverlaySpec(
 			label = Res.string.wizard_focus_evaluations,
 			alignment = Alignment.TopCenter,

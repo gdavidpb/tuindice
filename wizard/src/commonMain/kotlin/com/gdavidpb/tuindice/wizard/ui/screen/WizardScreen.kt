@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationScreen
 import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationsScreen
+import com.gdavidpb.tuindice.pensum.ui.screen.PensumScreen
 import com.gdavidpb.tuindice.record.ui.screen.RecordScreen
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
 import com.gdavidpb.tuindice.subjects.ui.screen.SubjectDetailScreen
@@ -30,6 +31,7 @@ import com.gdavidpb.tuindice.wizard.ui.WizardUiTags
 import com.gdavidpb.tuindice.wizard.ui.model.sampleAboutState
 import com.gdavidpb.tuindice.wizard.ui.model.sampleEvaluationFormState
 import com.gdavidpb.tuindice.wizard.ui.model.sampleEvaluationsState
+import com.gdavidpb.tuindice.wizard.ui.model.samplePensumState
 import com.gdavidpb.tuindice.wizard.ui.model.sampleRecordState
 import com.gdavidpb.tuindice.wizard.ui.model.sampleSubjectDetailState
 import com.gdavidpb.tuindice.wizard.ui.model.sampleSummaryState
@@ -185,6 +187,15 @@ private fun WizardStepContent(
 				scrollEnabled = true,
 				initialScrollOffset = if (isSubjectChartsStep) 540.dp else 0.dp,
 				onChartsVisibilityChange = if (isSubjectStep) onSubjectChartsVisibilityChange else ({})
+			)
+
+		WizardStepId.Pensum ->
+			PensumScreen(
+				state = samplePensumState(),
+				onRetryClick = {},
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSelectionApplied = { _, _ -> }
 			)
 
 		WizardStepId.Evaluations,

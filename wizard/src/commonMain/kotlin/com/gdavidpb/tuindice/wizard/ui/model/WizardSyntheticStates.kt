@@ -37,6 +37,10 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightT
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
+import com.gdavidpb.tuindice.pensum.domain.model.PensumNodeStatus
+import com.gdavidpb.tuindice.pensum.domain.model.PensumRelationshipType
+import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectAttemptBin
@@ -108,6 +112,122 @@ internal fun sampleSubjectDetailState(
 		)
 	),
 	selectedTab = selectedTab
+)
+
+internal fun samplePensumState() = Pensum.State.Content(
+	model = PensumScreenModel(
+		selection = PensumScreenModel.Selection(
+			careerCode = 15,
+			year = 2019,
+			modalityId = "degree_project"
+		),
+		pensumOptions = listOf(
+			pensumOption(year = 2014),
+			pensumOption(year = 2017),
+			pensumOption(year = 2019)
+		),
+		modalityOptions = listOf(
+			PensumScreenModel.ModalityItem(
+				id = "degree_project",
+				name = "Proyecto de Grado",
+				isDefault = true,
+				text = "Proyecto de Grado"
+			),
+			PensumScreenModel.ModalityItem(
+				id = "project_de",
+				name = "Proyecto DE",
+				isDefault = false,
+				text = "Proyecto DE"
+			),
+			PensumScreenModel.ModalityItem(
+				id = "long_internship",
+				name = "Pasantía Larga",
+				isDefault = false,
+				text = "Pasantía Larga"
+			)
+		),
+		progressPercent = 75,
+		approvedCredits = 153,
+		totalCredits = 205,
+		canvas = PensumScreenModel.Canvas(width = 1800.0, height = 1340.0),
+		terms = (1..6).map { term ->
+			PensumScreenModel.Term(
+				id = "T$term",
+				label = "T$term",
+				x = ((term - 1) * 300).toDouble(),
+				width = 300.0
+			)
+		},
+		nodes = listOf(
+			pensumNode("ma1111", "MA1111", "Matemáticas I", 4, "T1", 40.0, 150.0, PensumNodeStatus.APPROVED),
+			pensumNode("lla111", "LLA111", "Lenguaje I", 3, "T1", 40.0, 350.0, PensumNodeStatus.APPROVED),
+			pensumNode("csa211", "CSA211", "Venezuela ante el Siglo XXI I", 3, "T1", 40.0, 550.0, PensumNodeStatus.APPROVED),
+			pensumNode("id1111", "ID1111", "Inglés I", 3, "T1", 40.0, 780.0, PensumNodeStatus.APPROVED),
+			pensumNode("ma1112", "MA1112", "Matemáticas II", 4, "T2", 340.0, 150.0, PensumNodeStatus.APPROVED),
+			pensumNode("lla112", "LLA112", "Lenguaje II", 3, "T2", 340.0, 350.0, PensumNodeStatus.APPROVED),
+			pensumNode("ci2611", "CI2611", "Algoritmos y Estructuras I", 4, "T2", 340.0, 550.0, PensumNodeStatus.APPROVED),
+			pensumNode("id1112", "ID1112", "Inglés II", 3, "T2", 340.0, 780.0, PensumNodeStatus.APPROVED),
+			pensumNode("ma1113", "MA1113", "Matemáticas III", 4, "T3", 640.0, 150.0, PensumNodeStatus.APPROVED),
+			pensumNode("ci3611", "CI3611", "Algoritmos y Estructuras II", 4, "T3", 640.0, 550.0, PensumNodeStatus.CURRENT),
+			pensumNode("ec5344", "EC5344", "Sistemas Digitales", 4, "T4", 940.0, 350.0, PensumNodeStatus.AVAILABLE),
+			pensumNode("ci4325", "CI4325", "Interfaces con el Usuario", 5, "T4", 940.0, 550.0, PensumNodeStatus.CURRENT),
+			pensumNode("ea1", "EA1", "Electiva de Área I", 4, "T5", 1240.0, 350.0, PensumNodeStatus.AVAILABLE),
+			pensumNode("ep5406", "EP5406", "Proyecto de Grado A", 9, "T5", 1240.0, 550.0, PensumNodeStatus.BLOCKED)
+		),
+		edges = listOf(
+			pensumRequirementEdge("ma1111", "ma1112"),
+			pensumRequirementEdge("ma1112", "ma1113"),
+			pensumRequirementEdge("lla111", "lla112"),
+			pensumRequirementEdge("ci2611", "ci3611"),
+			pensumRequirementEdge("ci3611", "ci4325"),
+			pensumRequirementEdge("ci4325", "ep5406"),
+			pensumRequirementEdge("ec5344", "ep5406")
+		)
+	)
+)
+
+private fun pensumOption(year: Int) = PensumScreenModel.PensumOptionItem(
+	id = "computacion-$year",
+	careerCode = 15,
+	careerName = "Computación",
+	year = year,
+	text = "$year - Computación"
+)
+
+private fun pensumNode(
+	id: String,
+	code: String,
+	name: String,
+	credits: Int,
+	termId: String,
+	x: Double,
+	y: Double,
+	status: PensumNodeStatus
+) = PensumScreenModel.Node(
+	id = id,
+	displayCode = code,
+	name = name,
+	credits = credits,
+	termId = termId,
+	x = x,
+	y = y,
+	width = 220.0,
+	height = 148.0,
+	status = status
+)
+
+private fun pensumRequirementEdge(
+	fromNodeId: String,
+	toNodeId: String
+) = PensumScreenModel.Edge(
+	id = "${fromNodeId}_to_$toNodeId",
+	fromNodeId = fromNodeId,
+	toNodeId = toNodeId,
+	relationshipType = PensumRelationshipType.REQUIREMENT,
+	points = listOf(
+		PensumScreenModel.Point(x = 0.0, y = 0.0),
+		PensumScreenModel.Point(x = 1.0, y = 1.0)
+	)
 )
 
 private fun sampleEvaluationFilters() = listOf(
