@@ -168,10 +168,6 @@ tasks.register<Exec>("verifyIosHostBuildDebug") {
 		.contains("Mac", ignoreCase = true)
 	val runHostBuild = System.getenv("TUINDICE_IOS_HOST_BUILD") == "1"
 
-	if (isMacHost && runHostBuild) {
-		dependsOn(":maincore:linkDebugFrameworkIosSimulatorArm64")
-	}
-
 	onlyIf {
 		isMacHost && runHostBuild
 	}
@@ -191,10 +187,6 @@ tasks.register<Exec>("verifyIosHostBuildRelease") {
 	val isMacHost = System.getProperty("os.name")
 		.contains("Mac", ignoreCase = true)
 	val runHostBuild = System.getenv("TUINDICE_IOS_HOST_BUILD") == "1"
-
-	if (isMacHost && runHostBuild) {
-		dependsOn(":maincore:linkReleaseFrameworkIosSimulatorArm64")
-	}
 
 	onlyIf {
 		isMacHost && runHostBuild
@@ -216,10 +208,6 @@ tasks.register<Exec>("verifyIosHostBuildDeviceRelease") {
 		.contains("Mac", ignoreCase = true)
 	val runHostBuild = System.getenv("TUINDICE_IOS_HOST_BUILD") == "1"
 	val runHostDeviceE2E = System.getenv("TUINDICE_IOS_HOST_E2E") == "1"
-
-	if (isMacHost && runHostBuild && runHostDeviceE2E) {
-		dependsOn(":maincore:linkReleaseFrameworkIosArm64")
-	}
 
 	onlyIf {
 		isMacHost && runHostBuild && runHostDeviceE2E
