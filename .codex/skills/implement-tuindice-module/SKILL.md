@@ -14,6 +14,7 @@ Implement module work by copying the nearest existing module pattern instead of 
 - Load [references/project-map.md](references/project-map.md) when you need the current architecture, module roles, integration points, or configuration rules.
 - Load [references/module-recipes.md](references/module-recipes.md) when you need the concrete checklist for creating or modifying a module.
 - Load [references/scaffolding.md](references/scaffolding.md) when you want to bootstrap a new module or render boilerplate for individual architecture components.
+- Load [references/pensum-layout.md](references/pensum-layout.md) when updating pensum fixtures, importer output, Mongo seed data, or frontend mocks that include graph node positions and edge routes.
 - Use the closest existing module as a template:
   - `summary` for a feature with dialog destinations plus typed back results for lifecycle-sensitive platform effects
   - `evaluations` for a feature with multiple screens and dialog destinations that dispatch directly into the parent `ViewModel`

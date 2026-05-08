@@ -54,7 +54,7 @@
     "modality_name": "Proyecto de Grado",
     "total_credits": 205,
     "canvas": {
-      "width": 3428.0,
+      "width": 3728.0,
       "height": 1120.0
     },
     "terms": [
@@ -62,91 +62,91 @@
         "id": "T1",
         "label": "T1",
         "x": 0.0,
-        "width": 220.0
+        "width": 240.0
       },
       {
         "id": "T2",
         "label": "T2",
-        "x": 220.0,
-        "width": 220.0
+        "x": 240.0,
+        "width": 240.0
       },
       {
         "id": "T3",
         "label": "T3",
-        "x": 440.0,
-        "width": 220.0
+        "x": 480.0,
+        "width": 240.0
       },
       {
         "id": "T4",
         "label": "T4",
-        "x": 660.0,
-        "width": 220.0
+        "x": 720.0,
+        "width": 240.0
       },
       {
         "id": "T5",
         "label": "T5",
-        "x": 880.0,
-        "width": 220.0
+        "x": 960.0,
+        "width": 240.0
       },
       {
         "id": "T6",
         "label": "T6",
-        "x": 1100.0,
-        "width": 220.0
+        "x": 1200.0,
+        "width": 240.0
       },
       {
         "id": "T7",
         "label": "T7",
-        "x": 1320.0,
-        "width": 220.0
+        "x": 1440.0,
+        "width": 240.0
       },
       {
         "id": "T8",
         "label": "T8",
-        "x": 1540.0,
-        "width": 220.0
+        "x": 1680.0,
+        "width": 240.0
       },
       {
         "id": "T9",
         "label": "T9",
-        "x": 1760.0,
-        "width": 220.0
+        "x": 1920.0,
+        "width": 240.0
       },
       {
         "id": "T10",
         "label": "T10",
-        "x": 1980.0,
-        "width": 220.0
+        "x": 2160.0,
+        "width": 240.0
       },
       {
         "id": "T11",
         "label": "T11",
-        "x": 2200.0,
-        "width": 220.0
+        "x": 2400.0,
+        "width": 240.0
       },
       {
         "id": "T12",
         "label": "T12",
-        "x": 2420.0,
-        "width": 220.0
+        "x": 2640.0,
+        "width": 240.0
       },
       {
         "id": "T13",
         "label": "T13",
-        "x": 2640.0,
-        "width": 220.0
+        "x": 2880.0,
+        "width": 240.0
       },
       {
         "id": "T14",
         "label": "T14",
-        "x": 2860.0,
-        "width": 220.0
+        "x": 3120.0,
+        "width": 240.0
       },
       {
         "id": "T15",
         "label": "T15",
-        "x": 3080.0,
-        "width": 220.0
+        "x": 3360.0,
+        "width": 240.0
       }
     ],
     "nodes": [
@@ -159,7 +159,7 @@
         "credits": 4,
         "category": "BASIC_SCIENCES",
         "term_id": "T1",
-        "x": 0.0,
+        "x": 34.0,
         "y": 120.0,
         "width": 172.0,
         "height": 120.0,
@@ -174,7 +174,7 @@
         "credits": 3,
         "category": "LANGUAGE",
         "term_id": "T1",
-        "x": 0.0,
+        "x": 34.0,
         "y": 292.0,
         "width": 172.0,
         "height": 120.0,
@@ -189,7 +189,7 @@
         "credits": 3,
         "category": "GENERAL_STUDIES",
         "term_id": "T1",
-        "x": 0.0,
+        "x": 34.0,
         "y": 464.0,
         "width": 172.0,
         "height": 120.0,
@@ -204,7 +204,7 @@
         "credits": 3,
         "category": "GENERAL_STUDIES",
         "term_id": "T1",
-        "x": 0.0,
+        "x": 34.0,
         "y": 636.0,
         "width": 172.0,
         "height": 144.0,
@@ -219,7 +219,7 @@
         "credits": 4,
         "category": "BASIC_SCIENCES",
         "term_id": "T2",
-        "x": 0.0,
+        "x": 274.0,
         "y": 120.0,
         "width": 172.0,
         "height": 120.0,
@@ -234,7 +234,7 @@
         "credits": 3,
         "category": "BASIC_SCIENCES",
         "term_id": "T2",
-        "x": 0.0,
+        "x": 274.0,
         "y": 292.0,
         "width": 172.0,
         "height": 120.0,
@@ -249,7 +249,7 @@
         "credits": 3,
         "category": "LANGUAGE",
         "term_id": "T2",
-        "x": 0.0,
+        "x": 274.0,
         "y": 464.0,
         "width": 172.0,
         "height": 120.0,
@@ -264,7 +264,7 @@
         "credits": 3,
         "category": "GENERAL_STUDIES",
         "term_id": "T2",
-        "x": 0.0,
+        "x": 274.0,
         "y": 636.0,
         "width": 172.0,
         "height": 120.0,
@@ -279,7 +279,7 @@
         "credits": 3,
         "category": "GENERAL_STUDIES",
         "term_id": "T2",
-        "x": 0.0,
+        "x": 274.0,
         "y": 808.0,
         "width": 172.0,
         "height": 144.0,
@@ -294,7 +294,7 @@
         "credits": 4,
         "category": "BASIC_SCIENCES",
         "term_id": "T3",
-        "x": 0.0,
+        "x": 514.0,
         "y": 120.0,
         "width": 172.0,
         "height": 120.0,
@@ -309,7 +309,7 @@
         "credits": 3,
         "category": "BASIC_SCIENCES",
         "term_id": "T3",
-        "x": 0.0,
+        "x": 514.0,
         "y": 292.0,
         "width": 172.0,
         "height": 120.0,
@@ -324,7 +324,7 @@
         "credits": 3,
         "category": "LANGUAGE",
         "term_id": "T3",
-        "x": 0.0,
+        "x": 514.0,
         "y": 464.0,
         "width": 172.0,
         "height": 120.0,
@@ -339,7 +339,7 @@
         "credits": 3,
         "category": "GENERAL_STUDIES",
         "term_id": "T3",
-        "x": 0.0,
+        "x": 514.0,
         "y": 636.0,
         "width": 172.0,
         "height": 120.0,
@@ -354,7 +354,7 @@
         "credits": 3,
         "category": "GENERAL_STUDIES",
         "term_id": "T3",
-        "x": 0.0,
+        "x": 514.0,
         "y": 808.0,
         "width": 172.0,
         "height": 144.0,
@@ -369,7 +369,7 @@
         "credits": 4,
         "category": "BASIC_SCIENCES",
         "term_id": "T4",
-        "x": 0.0,
+        "x": 754.0,
         "y": 120.0,
         "width": 172.0,
         "height": 120.0,
@@ -384,7 +384,7 @@
         "credits": 4,
         "category": "COMPUTING",
         "term_id": "T4",
-        "x": 0.0,
+        "x": 754.0,
         "y": 292.0,
         "width": 172.0,
         "height": 120.0,
@@ -399,7 +399,7 @@
         "credits": 4,
         "category": "COMPUTING",
         "term_id": "T4",
-        "x": 0.0,
+        "x": 754.0,
         "y": 464.0,
         "width": 172.0,
         "height": 144.0,
@@ -414,7 +414,7 @@
         "credits": 3,
         "category": "GENERAL_STUDIES",
         "term_id": "T4",
-        "x": 0.0,
+        "x": 754.0,
         "y": 636.0,
         "width": 172.0,
         "height": 120.0,
@@ -440,7 +440,7 @@
         "credits": 4,
         "category": "BASIC_SCIENCES",
         "term_id": "T5",
-        "x": 0.0,
+        "x": 994.0,
         "y": 120.0,
         "width": 172.0,
         "height": 120.0,
@@ -455,7 +455,7 @@
         "credits": 3,
         "category": "COMPUTING",
         "term_id": "T5",
-        "x": 0.0,
+        "x": 994.0,
         "y": 292.0,
         "width": 172.0,
         "height": 144.0,
@@ -470,7 +470,7 @@
         "credits": 2,
         "category": "COMPUTING",
         "term_id": "T5",
-        "x": 0.0,
+        "x": 994.0,
         "y": 464.0,
         "width": 172.0,
         "height": 144.0,
@@ -485,7 +485,7 @@
         "credits": 4,
         "category": "COMPUTING",
         "term_id": "T5",
-        "x": 0.0,
+        "x": 994.0,
         "y": 636.0,
         "width": 172.0,
         "height": 144.0,
@@ -500,7 +500,7 @@
         "credits": 4,
         "category": "BASIC_SCIENCES",
         "term_id": "T6",
-        "x": 0.0,
+        "x": 1234.0,
         "y": 120.0,
         "width": 172.0,
         "height": 120.0,
@@ -515,7 +515,7 @@
         "credits": 3,
         "category": "COMPUTING",
         "term_id": "T6",
-        "x": 0.0,
+        "x": 1234.0,
         "y": 292.0,
         "width": 172.0,
         "height": 144.0,
@@ -530,7 +530,7 @@
         "credits": 2,
         "category": "COMPUTING",
         "term_id": "T6",
-        "x": 0.0,
+        "x": 1234.0,
         "y": 464.0,
         "width": 172.0,
         "height": 144.0,
@@ -545,7 +545,7 @@
         "credits": 4,
         "category": "COMPUTING",
         "term_id": "T6",
-        "x": 0.0,
+        "x": 1234.0,
         "y": 636.0,
         "width": 172.0,
         "height": 144.0,
@@ -560,7 +560,7 @@
         "credits": 3,
         "category": "BASIC_SCIENCES",
         "term_id": "T7",
-        "x": 0.0,
+        "x": 1474.0,
         "y": 120.0,
         "width": 172.0,
         "height": 144.0,
@@ -575,7 +575,7 @@
         "credits": 5,
         "category": "COMPUTING",
         "term_id": "T7",
-        "x": 0.0,
+        "x": 1474.0,
         "y": 292.0,
         "width": 172.0,
         "height": 144.0,
@@ -590,7 +590,7 @@
         "credits": 3,
         "category": "COMPUTING",
         "term_id": "T7",
-        "x": 0.0,
+        "x": 1474.0,
         "y": 464.0,
         "width": 172.0,
         "height": 144.0,
@@ -605,7 +605,7 @@
         "credits": 2,
         "category": "COMPUTING",
         "term_id": "T7",
-        "x": 0.0,
+        "x": 1474.0,
         "y": 636.0,
         "width": 172.0,
         "height": 144.0,
@@ -620,7 +620,7 @@
         "credits": 3,
         "category": "GENERAL_STUDIES",
         "term_id": "T7",
-        "x": 0.0,
+        "x": 1474.0,
         "y": 808.0,
         "width": 172.0,
         "height": 120.0,
@@ -646,7 +646,7 @@
         "credits": 4,
         "category": "BASIC_SCIENCES",
         "term_id": "T8",
-        "x": 0.0,
+        "x": 1714.0,
         "y": 120.0,
         "width": 172.0,
         "height": 120.0,
@@ -661,7 +661,7 @@
         "credits": 5,
         "category": "COMPUTING",
         "term_id": "T8",
-        "x": 0.0,
+        "x": 1714.0,
         "y": 292.0,
         "width": 172.0,
         "height": 144.0,
@@ -676,7 +676,7 @@
         "credits": 3,
         "category": "COMPUTING",
         "term_id": "T8",
-        "x": 0.0,
+        "x": 1714.0,
         "y": 464.0,
         "width": 172.0,
         "height": 144.0,
@@ -691,7 +691,7 @@
         "credits": 2,
         "category": "COMPUTING",
         "term_id": "T8",
-        "x": 0.0,
+        "x": 1714.0,
         "y": 636.0,
         "width": 172.0,
         "height": 144.0,
@@ -706,7 +706,7 @@
         "credits": 4,
         "category": "COMPUTING",
         "term_id": "T9",
-        "x": 0.0,
+        "x": 1954.0,
         "y": 120.0,
         "width": 172.0,
         "height": 144.0,
@@ -721,7 +721,7 @@
         "credits": 5,
         "category": "COMPUTING",
         "term_id": "T9",
-        "x": 0.0,
+        "x": 1954.0,
         "y": 292.0,
         "width": 172.0,
         "height": 144.0,
@@ -736,7 +736,7 @@
         "credits": 5,
         "category": "COMPUTING",
         "term_id": "T9",
-        "x": 0.0,
+        "x": 1954.0,
         "y": 464.0,
         "width": 172.0,
         "height": 144.0,
@@ -751,7 +751,7 @@
         "credits": 4,
         "category": "BASIC_SCIENCES",
         "term_id": "T10",
-        "x": 0.0,
+        "x": 2194.0,
         "y": 120.0,
         "width": 172.0,
         "height": 120.0,
@@ -766,7 +766,7 @@
         "credits": 5,
         "category": "COMPUTING",
         "term_id": "T10",
-        "x": 0.0,
+        "x": 2194.0,
         "y": 292.0,
         "width": 172.0,
         "height": 144.0,
@@ -781,7 +781,7 @@
         "credits": 3,
         "category": "COMPUTING",
         "term_id": "T10",
-        "x": 0.0,
+        "x": 2194.0,
         "y": 464.0,
         "width": 172.0,
         "height": 144.0,
@@ -796,7 +796,7 @@
         "credits": 2,
         "category": "COMPUTING",
         "term_id": "T10",
-        "x": 0.0,
+        "x": 2194.0,
         "y": 636.0,
         "width": 172.0,
         "height": 144.0,
@@ -811,7 +811,7 @@
         "credits": 5,
         "category": "COMPUTING",
         "term_id": "T11",
-        "x": 0.0,
+        "x": 2434.0,
         "y": 120.0,
         "width": 172.0,
         "height": 144.0,
@@ -826,7 +826,7 @@
         "credits": 4,
         "category": "AREA_ELECTIVE",
         "term_id": "T11",
-        "x": 0.0,
+        "x": 2434.0,
         "y": 292.0,
         "width": 172.0,
         "height": 120.0,
@@ -852,7 +852,7 @@
         "credits": 3,
         "category": "GENERAL_STUDIES",
         "term_id": "T11",
-        "x": 0.0,
+        "x": 2434.0,
         "y": 464.0,
         "width": 172.0,
         "height": 144.0,
@@ -878,7 +878,7 @@
         "credits": 4,
         "category": "AREA_ELECTIVE",
         "term_id": "T12",
-        "x": 0.0,
+        "x": 2674.0,
         "y": 120.0,
         "width": 172.0,
         "height": 144.0,
@@ -904,7 +904,7 @@
         "credits": 4,
         "category": "AREA_ELECTIVE",
         "term_id": "T12",
-        "x": 0.0,
+        "x": 2674.0,
         "y": 292.0,
         "width": 172.0,
         "height": 144.0,
@@ -930,7 +930,7 @@
         "credits": 3,
         "category": "GENERAL_STUDIES",
         "term_id": "T12",
-        "x": 0.0,
+        "x": 2674.0,
         "y": 464.0,
         "width": 172.0,
         "height": 120.0,
@@ -956,7 +956,7 @@
         "credits": 3,
         "category": "DEGREE_PROJECT",
         "term_id": "T13",
-        "x": 0.0,
+        "x": 2914.0,
         "y": 120.0,
         "width": 172.0,
         "height": 144.0,
@@ -971,7 +971,7 @@
         "credits": 4,
         "category": "DEGREE_PROJECT",
         "term_id": "T13",
-        "x": 0.0,
+        "x": 2914.0,
         "y": 292.0,
         "width": 172.0,
         "height": 144.0,
@@ -986,7 +986,7 @@
         "credits": 3,
         "category": "FREE_ELECTIVE",
         "term_id": "T13",
-        "x": 0.0,
+        "x": 2914.0,
         "y": 464.0,
         "width": 172.0,
         "height": 120.0,
@@ -1012,7 +1012,7 @@
         "credits": 4,
         "category": "AREA_ELECTIVE",
         "term_id": "T13",
-        "x": 0.0,
+        "x": 2914.0,
         "y": 636.0,
         "width": 172.0,
         "height": 144.0,
@@ -1038,7 +1038,7 @@
         "credits": 3,
         "category": "DEGREE_PROJECT",
         "term_id": "T14",
-        "x": 0.0,
+        "x": 3154.0,
         "y": 120.0,
         "width": 172.0,
         "height": 144.0,
@@ -1053,7 +1053,7 @@
         "credits": 4,
         "category": "DEGREE_PROJECT",
         "term_id": "T14",
-        "x": 0.0,
+        "x": 3154.0,
         "y": 292.0,
         "width": 172.0,
         "height": 144.0,
@@ -1068,7 +1068,7 @@
         "credits": 4,
         "category": "FREE_ELECTIVE",
         "term_id": "T14",
-        "x": 0.0,
+        "x": 3154.0,
         "y": 464.0,
         "width": 172.0,
         "height": 120.0,
@@ -1094,7 +1094,7 @@
         "credits": 3,
         "category": "GENERAL_STUDIES",
         "term_id": "T14",
-        "x": 0.0,
+        "x": 3154.0,
         "y": 636.0,
         "width": 172.0,
         "height": 120.0,
@@ -1120,7 +1120,7 @@
         "credits": 3,
         "category": "DEGREE_PROJECT",
         "term_id": "T15",
-        "x": 0.0,
+        "x": 3394.0,
         "y": 120.0,
         "width": 172.0,
         "height": 144.0,
@@ -1135,7 +1135,7 @@
         "credits": 4,
         "category": "FREE_ELECTIVE",
         "term_id": "T15",
-        "x": 0.0,
+        "x": 3394.0,
         "y": 292.0,
         "width": 172.0,
         "height": 120.0,
@@ -1161,7 +1161,7 @@
         "credits": 3,
         "category": "GENERAL_STUDIES",
         "term_id": "T15",
-        "x": 0.0,
+        "x": 3394.0,
         "y": 464.0,
         "width": 172.0,
         "height": 120.0,
@@ -1187,11 +1187,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 206.0,
             "y": 180.0
           },
           {
-            "x": 0.0,
+            "x": 274.0,
             "y": 180.0
           }
         ]
@@ -1203,11 +1203,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 206.0,
             "y": 180.0
           },
           {
-            "x": 0.0,
+            "x": 240.0,
+            "y": 180.0
+          },
+          {
+            "x": 240.0,
+            "y": 352.0
+          },
+          {
+            "x": 274.0,
             "y": 352.0
           }
         ]
@@ -1219,11 +1227,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 446.0,
             "y": 180.0
           },
           {
-            "x": 0.0,
+            "x": 514.0,
             "y": 180.0
           }
         ]
@@ -1235,11 +1243,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 446.0,
             "y": 180.0
           },
           {
-            "x": 0.0,
+            "x": 480.0,
+            "y": 180.0
+          },
+          {
+            "x": 480.0,
+            "y": 352.0
+          },
+          {
+            "x": 514.0,
             "y": 352.0
           }
         ]
@@ -1251,11 +1267,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 446.0,
             "y": 352.0
           },
           {
-            "x": 0.0,
+            "x": 514.0,
             "y": 352.0
           }
         ]
@@ -1267,11 +1283,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 206.0,
             "y": 352.0
           },
           {
-            "x": 0.0,
+            "x": 240.0,
+            "y": 352.0
+          },
+          {
+            "x": 240.0,
+            "y": 524.0
+          },
+          {
+            "x": 274.0,
             "y": 524.0
           }
         ]
@@ -1283,11 +1307,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 446.0,
             "y": 524.0
           },
           {
-            "x": 0.0,
+            "x": 514.0,
             "y": 524.0
           }
         ]
@@ -1299,11 +1323,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 206.0,
             "y": 524.0
           },
           {
-            "x": 0.0,
+            "x": 240.0,
+            "y": 524.0
+          },
+          {
+            "x": 240.0,
+            "y": 696.0
+          },
+          {
+            "x": 274.0,
             "y": 696.0
           }
         ]
@@ -1315,11 +1347,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 446.0,
             "y": 696.0
           },
           {
-            "x": 0.0,
+            "x": 514.0,
             "y": 696.0
           }
         ]
@@ -1331,11 +1363,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 206.0,
             "y": 708.0
           },
           {
-            "x": 0.0,
+            "x": 240.0,
+            "y": 708.0
+          },
+          {
+            "x": 240.0,
+            "y": 880.0
+          },
+          {
+            "x": 274.0,
             "y": 880.0
           }
         ]
@@ -1347,11 +1387,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 446.0,
             "y": 880.0
           },
           {
-            "x": 0.0,
+            "x": 514.0,
             "y": 880.0
           }
         ]
@@ -1363,11 +1403,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 686.0,
             "y": 180.0
           },
           {
-            "x": 0.0,
+            "x": 754.0,
             "y": 180.0
           }
         ]
@@ -1379,11 +1419,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 446.0,
             "y": 180.0
           },
           {
-            "x": 0.0,
+            "x": 600.0,
+            "y": 180.0
+          },
+          {
+            "x": 600.0,
+            "y": 352.0
+          },
+          {
+            "x": 754.0,
             "y": 352.0
           }
         ]
@@ -1395,12 +1443,20 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
-            "y": 180.0
+            "x": 600.0,
+            "y": 240.0
           },
           {
-            "x": 0.0,
-            "y": 536.0
+            "x": 600.0,
+            "y": 352.0
+          },
+          {
+            "x": 840.0,
+            "y": 352.0
+          },
+          {
+            "x": 840.0,
+            "y": 464.0
           }
         ]
       },
@@ -1411,11 +1467,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 926.0,
             "y": 180.0
           },
           {
-            "x": 0.0,
+            "x": 994.0,
             "y": 180.0
           }
         ]
@@ -1427,11 +1483,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 926.0,
             "y": 352.0
           },
           {
-            "x": 0.0,
+            "x": 960.0,
+            "y": 352.0
+          },
+          {
+            "x": 960.0,
+            "y": 364.0
+          },
+          {
+            "x": 994.0,
             "y": 364.0
           }
         ]
@@ -1443,11 +1507,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 926.0,
             "y": 352.0
           },
           {
-            "x": 0.0,
+            "x": 960.0,
+            "y": 352.0
+          },
+          {
+            "x": 960.0,
+            "y": 536.0
+          },
+          {
+            "x": 994.0,
             "y": 536.0
           }
         ]
@@ -1459,12 +1531,12 @@
         "relationship_type": "COREQUISITE",
         "points": [
           {
-            "x": 172.0,
-            "y": 364.0
+            "x": 1080.0,
+            "y": 436.0
           },
           {
-            "x": 0.0,
-            "y": 536.0
+            "x": 1080.0,
+            "y": 464.0
           }
         ]
       },
@@ -1475,12 +1547,12 @@
         "relationship_type": "COREQUISITE",
         "points": [
           {
-            "x": 172.0,
-            "y": 536.0
+            "x": 1080.0,
+            "y": 464.0
           },
           {
-            "x": 0.0,
-            "y": 364.0
+            "x": 1080.0,
+            "y": 436.0
           }
         ]
       },
@@ -1491,11 +1563,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 926.0,
             "y": 536.0
           },
           {
-            "x": 0.0,
+            "x": 960.0,
+            "y": 536.0
+          },
+          {
+            "x": 960.0,
+            "y": 708.0
+          },
+          {
+            "x": 994.0,
             "y": 708.0
           }
         ]
@@ -1507,12 +1587,20 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
-            "y": 352.0
+            "x": 840.0,
+            "y": 412.0
           },
           {
-            "x": 0.0,
-            "y": 708.0
+            "x": 840.0,
+            "y": 524.0
+          },
+          {
+            "x": 1080.0,
+            "y": 524.0
+          },
+          {
+            "x": 1080.0,
+            "y": 636.0
           }
         ]
       },
@@ -1523,11 +1611,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 926.0,
             "y": 180.0
           },
           {
-            "x": 0.0,
+            "x": 1234.0,
             "y": 180.0
           }
         ]
@@ -1539,12 +1627,20 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
-            "y": 536.0
+            "x": 1080.0,
+            "y": 464.0
           },
           {
-            "x": 0.0,
-            "y": 180.0
+            "x": 1080.0,
+            "y": 352.0
+          },
+          {
+            "x": 1320.0,
+            "y": 352.0
+          },
+          {
+            "x": 1320.0,
+            "y": 240.0
           }
         ]
       },
@@ -1555,11 +1651,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1166.0,
             "y": 364.0
           },
           {
-            "x": 0.0,
+            "x": 1234.0,
             "y": 364.0
           }
         ]
@@ -1571,11 +1667,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 926.0,
             "y": 536.0
           },
           {
-            "x": 0.0,
+            "x": 1080.0,
+            "y": 536.0
+          },
+          {
+            "x": 1080.0,
+            "y": 364.0
+          },
+          {
+            "x": 1234.0,
             "y": 364.0
           }
         ]
@@ -1587,11 +1691,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1166.0,
             "y": 536.0
           },
           {
-            "x": 0.0,
+            "x": 1200.0,
+            "y": 536.0
+          },
+          {
+            "x": 1200.0,
+            "y": 364.0
+          },
+          {
+            "x": 1234.0,
             "y": 364.0
           }
         ]
@@ -1603,11 +1715,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1166.0,
             "y": 536.0
           },
           {
-            "x": 0.0,
+            "x": 1234.0,
             "y": 536.0
           }
         ]
@@ -1619,11 +1731,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1166.0,
             "y": 364.0
           },
           {
-            "x": 0.0,
+            "x": 1200.0,
+            "y": 364.0
+          },
+          {
+            "x": 1200.0,
+            "y": 536.0
+          },
+          {
+            "x": 1234.0,
             "y": 536.0
           }
         ]
@@ -1635,12 +1755,12 @@
         "relationship_type": "COREQUISITE",
         "points": [
           {
-            "x": 172.0,
-            "y": 364.0
+            "x": 1320.0,
+            "y": 436.0
           },
           {
-            "x": 0.0,
-            "y": 536.0
+            "x": 1320.0,
+            "y": 464.0
           }
         ]
       },
@@ -1651,12 +1771,12 @@
         "relationship_type": "COREQUISITE",
         "points": [
           {
-            "x": 172.0,
-            "y": 536.0
+            "x": 1320.0,
+            "y": 464.0
           },
           {
-            "x": 0.0,
-            "y": 364.0
+            "x": 1320.0,
+            "y": 436.0
           }
         ]
       },
@@ -1667,11 +1787,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1166.0,
             "y": 708.0
           },
           {
-            "x": 0.0,
+            "x": 1234.0,
             "y": 708.0
           }
         ]
@@ -1683,11 +1803,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1166.0,
             "y": 180.0
           },
           {
-            "x": 0.0,
+            "x": 1320.0,
+            "y": 180.0
+          },
+          {
+            "x": 1320.0,
+            "y": 192.0
+          },
+          {
+            "x": 1474.0,
             "y": 192.0
           }
         ]
@@ -1699,11 +1827,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1406.0,
             "y": 364.0
           },
           {
-            "x": 0.0,
+            "x": 1474.0,
             "y": 364.0
           }
         ]
@@ -1715,11 +1843,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1406.0,
             "y": 364.0
           },
           {
-            "x": 0.0,
+            "x": 1440.0,
+            "y": 364.0
+          },
+          {
+            "x": 1440.0,
+            "y": 536.0
+          },
+          {
+            "x": 1474.0,
             "y": 536.0
           }
         ]
@@ -1731,11 +1867,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1166.0,
             "y": 708.0
           },
           {
-            "x": 0.0,
+            "x": 1320.0,
+            "y": 708.0
+          },
+          {
+            "x": 1320.0,
+            "y": 536.0
+          },
+          {
+            "x": 1474.0,
             "y": 536.0
           }
         ]
@@ -1747,11 +1891,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1406.0,
             "y": 536.0
           },
           {
-            "x": 0.0,
+            "x": 1440.0,
+            "y": 536.0
+          },
+          {
+            "x": 1440.0,
+            "y": 708.0
+          },
+          {
+            "x": 1474.0,
             "y": 708.0
           }
         ]
@@ -1763,12 +1915,12 @@
         "relationship_type": "COREQUISITE",
         "points": [
           {
-            "x": 172.0,
-            "y": 536.0
+            "x": 1560.0,
+            "y": 608.0
           },
           {
-            "x": 0.0,
-            "y": 708.0
+            "x": 1560.0,
+            "y": 636.0
           }
         ]
       },
@@ -1779,12 +1931,12 @@
         "relationship_type": "COREQUISITE",
         "points": [
           {
-            "x": 172.0,
-            "y": 708.0
+            "x": 1560.0,
+            "y": 636.0
           },
           {
-            "x": 0.0,
-            "y": 536.0
+            "x": 1560.0,
+            "y": 608.0
           }
         ]
       },
@@ -1795,11 +1947,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1646.0,
             "y": 192.0
           },
           {
-            "x": 0.0,
+            "x": 1680.0,
+            "y": 192.0
+          },
+          {
+            "x": 1680.0,
+            "y": 180.0
+          },
+          {
+            "x": 1714.0,
             "y": 180.0
           }
         ]
@@ -1811,11 +1971,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1646.0,
             "y": 364.0
           },
           {
-            "x": 0.0,
+            "x": 1714.0,
             "y": 364.0
           }
         ]
@@ -1827,11 +1987,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1646.0,
             "y": 536.0
           },
           {
-            "x": 0.0,
+            "x": 1714.0,
             "y": 536.0
           }
         ]
@@ -1843,11 +2003,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1646.0,
             "y": 708.0
           },
           {
-            "x": 0.0,
+            "x": 1714.0,
             "y": 708.0
           }
         ]
@@ -1859,12 +2019,12 @@
         "relationship_type": "COREQUISITE",
         "points": [
           {
-            "x": 172.0,
-            "y": 536.0
+            "x": 1800.0,
+            "y": 608.0
           },
           {
-            "x": 0.0,
-            "y": 708.0
+            "x": 1800.0,
+            "y": 636.0
           }
         ]
       },
@@ -1875,12 +2035,12 @@
         "relationship_type": "COREQUISITE",
         "points": [
           {
-            "x": 172.0,
-            "y": 708.0
+            "x": 1800.0,
+            "y": 636.0
           },
           {
-            "x": 0.0,
-            "y": 536.0
+            "x": 1800.0,
+            "y": 608.0
           }
         ]
       },
@@ -1891,12 +2051,20 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
-            "y": 536.0
+            "x": 1800.0,
+            "y": 464.0
           },
           {
-            "x": 0.0,
-            "y": 192.0
+            "x": 1800.0,
+            "y": 364.0
+          },
+          {
+            "x": 2040.0,
+            "y": 364.0
+          },
+          {
+            "x": 2040.0,
+            "y": 264.0
           }
         ]
       },
@@ -1907,11 +2075,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1886.0,
             "y": 536.0
           },
           {
-            "x": 0.0,
+            "x": 1920.0,
+            "y": 536.0
+          },
+          {
+            "x": 1920.0,
+            "y": 364.0
+          },
+          {
+            "x": 1954.0,
             "y": 364.0
           }
         ]
@@ -1923,12 +2099,20 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
-            "y": 708.0
+            "x": 1800.0,
+            "y": 636.0
           },
           {
-            "x": 0.0,
-            "y": 364.0
+            "x": 1800.0,
+            "y": 536.0
+          },
+          {
+            "x": 2040.0,
+            "y": 536.0
+          },
+          {
+            "x": 2040.0,
+            "y": 436.0
           }
         ]
       },
@@ -1939,11 +2123,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1406.0,
             "y": 708.0
           },
           {
-            "x": 0.0,
+            "x": 1680.0,
+            "y": 708.0
+          },
+          {
+            "x": 1680.0,
+            "y": 536.0
+          },
+          {
+            "x": 1954.0,
             "y": 536.0
           }
         ]
@@ -1955,11 +2147,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1646.0,
             "y": 536.0
           },
           {
-            "x": 0.0,
+            "x": 1954.0,
             "y": 536.0
           }
         ]
@@ -1971,11 +2163,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1406.0,
             "y": 180.0
           },
           {
-            "x": 0.0,
+            "x": 2194.0,
             "y": 180.0
           }
         ]
@@ -1987,11 +2179,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1886.0,
             "y": 364.0
           },
           {
-            "x": 0.0,
+            "x": 2194.0,
             "y": 364.0
           }
         ]
@@ -2003,11 +2195,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1646.0,
             "y": 536.0
           },
           {
-            "x": 0.0,
+            "x": 2194.0,
             "y": 536.0
           }
         ]
@@ -2019,11 +2211,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1646.0,
             "y": 364.0
           },
           {
-            "x": 0.0,
+            "x": 1920.0,
+            "y": 364.0
+          },
+          {
+            "x": 1920.0,
+            "y": 536.0
+          },
+          {
+            "x": 2194.0,
             "y": 536.0
           }
         ]
@@ -2035,11 +2235,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1646.0,
             "y": 708.0
           },
           {
-            "x": 0.0,
+            "x": 2194.0,
             "y": 708.0
           }
         ]
@@ -2051,12 +2251,12 @@
         "relationship_type": "COREQUISITE",
         "points": [
           {
-            "x": 172.0,
-            "y": 536.0
+            "x": 2280.0,
+            "y": 608.0
           },
           {
-            "x": 0.0,
-            "y": 708.0
+            "x": 2280.0,
+            "y": 636.0
           }
         ]
       },
@@ -2067,12 +2267,12 @@
         "relationship_type": "COREQUISITE",
         "points": [
           {
-            "x": 172.0,
-            "y": 708.0
+            "x": 2280.0,
+            "y": 636.0
           },
           {
-            "x": 0.0,
-            "y": 536.0
+            "x": 2280.0,
+            "y": 608.0
           }
         ]
       },
@@ -2083,11 +2283,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 1886.0,
             "y": 364.0
           },
           {
-            "x": 0.0,
+            "x": 2160.0,
+            "y": 364.0
+          },
+          {
+            "x": 2160.0,
+            "y": 192.0
+          },
+          {
+            "x": 2434.0,
             "y": 192.0
           }
         ]
@@ -2099,11 +2307,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 2126.0,
             "y": 364.0
           },
           {
-            "x": 0.0,
+            "x": 2520.0,
+            "y": 364.0
+          },
+          {
+            "x": 2520.0,
+            "y": 192.0
+          },
+          {
+            "x": 2914.0,
             "y": 192.0
           }
         ]
@@ -2115,11 +2331,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 2126.0,
             "y": 536.0
           },
           {
-            "x": 0.0,
+            "x": 2520.0,
+            "y": 536.0
+          },
+          {
+            "x": 2520.0,
+            "y": 192.0
+          },
+          {
+            "x": 2914.0,
             "y": 192.0
           }
         ]
@@ -2131,11 +2355,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 2126.0,
             "y": 192.0
           },
           {
-            "x": 0.0,
+            "x": 2914.0,
             "y": 192.0
           }
         ]
@@ -2147,11 +2371,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 3086.0,
             "y": 192.0
           },
           {
-            "x": 0.0,
+            "x": 3154.0,
             "y": 192.0
           }
         ]
@@ -2163,11 +2387,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 3086.0,
             "y": 364.0
           },
           {
-            "x": 0.0,
+            "x": 3120.0,
+            "y": 364.0
+          },
+          {
+            "x": 3120.0,
+            "y": 192.0
+          },
+          {
+            "x": 3154.0,
             "y": 192.0
           }
         ]
@@ -2179,11 +2411,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 3086.0,
             "y": 364.0
           },
           {
-            "x": 0.0,
+            "x": 3154.0,
             "y": 364.0
           }
         ]
@@ -2195,11 +2427,11 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 3326.0,
             "y": 192.0
           },
           {
-            "x": 0.0,
+            "x": 3394.0,
             "y": 192.0
           }
         ]
@@ -2211,11 +2443,19 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 172.0,
+            "x": 3326.0,
             "y": 364.0
           },
           {
-            "x": 0.0,
+            "x": 3360.0,
+            "y": 364.0
+          },
+          {
+            "x": 3360.0,
+            "y": 192.0
+          },
+          {
+            "x": 3394.0,
             "y": 192.0
           }
         ]
