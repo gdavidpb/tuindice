@@ -10,7 +10,7 @@ plugins {
 kotlin {
 	android {
 		namespace = "com.gdavidpb.tuindice.record"
-		compileSdk = 36
+		compileSdk = 37
 		minSdk = 24
 
 		androidResources {

@@ -7,7 +7,7 @@ plugins {
 kotlin {
 	android {
 		namespace = "com.gdavidpb.tuindice.academiccore"
-		compileSdk = 36
+		compileSdk = 37
 		minSdk = 24
 	}
 	iosArm64()

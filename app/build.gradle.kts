@@ -21,7 +21,7 @@ val hasReleaseSigningConfig = listOf(
 ).all { !it.isNullOrBlank() }
 
 extensions.configure<ApplicationExtension> {
-	compileSdk = 36
+	compileSdk = 37
 
 	compileOptions {
 		sourceCompatibility = JavaVersion.VERSION_21

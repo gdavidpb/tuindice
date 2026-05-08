@@ -8,7 +8,7 @@ plugins {
 kotlin {
 	android {
 		namespace = "com.gdavidpb.tuindice.testkit"
-		compileSdk = 36
+		compileSdk = 37
 		minSdk = 24
 	}
 
