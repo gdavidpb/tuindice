@@ -23,6 +23,7 @@ object Main {
 		data object StartUp : Action()
 		data object RequestReview : Action()
 		data object RequestUpdateCheck : Action()
+		data object RequestSync : Action()
 		class SetLastMainSection(val section: MainSection) : Action()
 		data object RequestWizardStart : Action()
 	}

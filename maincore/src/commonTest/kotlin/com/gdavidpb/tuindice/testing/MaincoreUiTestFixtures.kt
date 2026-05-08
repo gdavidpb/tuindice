@@ -2,10 +2,13 @@ package com.gdavidpb.tuindice.testing
 
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.User
+import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
+import com.gdavidpb.tuindice.domain.usecase.ScheduleSyncUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastMainSectionUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
@@ -13,6 +16,7 @@ import com.gdavidpb.tuindice.presentation.action.browser.NavigateToActionProcess
 import com.gdavidpb.tuindice.presentation.action.browser.OpenExternalResourceActionProcessor
 import com.gdavidpb.tuindice.presentation.action.browser.SetLoadingActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.RequestReviewActionProcessor
+import com.gdavidpb.tuindice.presentation.action.main.RequestSyncActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.RequestUpdateActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.RequestWizardStartActionProcessor
 import com.gdavidpb.tuindice.presentation.action.main.SetLastMainSectionActionProcessor
@@ -37,10 +41,12 @@ import com.gdavidpb.tuindice.summary.presentation.action.RemoveProfilePictureAct
 import com.gdavidpb.tuindice.summary.presentation.action.TakeProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.UploadProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
+import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeUpdateRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -105,6 +111,8 @@ fun createMainViewModel(
 		lastMainSection = MainSection.SUMMARY
 	),
 	configRepository: FakeConfigRepository = FakeConfigRepository(),
+	credentialsRepository: CredentialsRepository = FakeCredentialsRepository(),
+	syncRepository: SyncRepository = FakeSyncRepository(),
 	updateRepository: FakeUpdateRepository = FakeUpdateRepository(),
 	applicationRepository: RecordingApplicationRepository = RecordingApplicationRepository(),
 	reportingRepository: RecordingReportingRepository = RecordingReportingRepository()
@@ -124,6 +132,14 @@ fun createMainViewModel(
 			requestReviewUseCase = RequestReviewUseCase(
 				settingsRepository = settingsRepository,
 				configRepository = configRepository,
+				reportingRepository = reportingRepository
+			)
+		),
+		requestSyncActionProcessor = RequestSyncActionProcessor(
+			scheduleSyncUseCase = ScheduleSyncUseCase(
+				sessionRepository = sessionRepository,
+				credentialsRepository = credentialsRepository,
+				syncRepository = syncRepository,
 				reportingRepository = reportingRepository
 			)
 		),

@@ -103,6 +103,7 @@ fun TuIndiceAppHostRoute(
 	LaunchedEffect(lifecycleOwner) {
 		lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
 			viewModel.checkUpdateAction()
+			viewModel.requestSyncAction()
 		}
 	}
 

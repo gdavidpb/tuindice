@@ -57,6 +57,7 @@ import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import com.gdavidpb.tuindice.wizard.presentation.model.WizardTopBarActionBus
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 import org.koin.core.context.startKoin
 import org.koin.core.context.stopKoin
@@ -95,6 +96,44 @@ class TuIndiceAppHostRouteUiTest {
 
 			assertNodeVisible(MaincoreUiTags.TuIndiceNavHost)
 			assertTrue(reviewRepository.launchCalls > 0)
+		} finally {
+			stopKoin()
+		}
+	}
+
+	@Test
+	fun when_hostRouteResumes_withStoredPassword_then_requestsSync() = runTuIndiceUiTest {
+		val syncRepository = FakeSyncRepository()
+		val syncStatusRepository = FakeSyncStatusRepository()
+
+		stopKoin()
+		startKoin {
+			modules(hostRouteNavigationModule(syncStatusRepository))
+		}
+
+		try {
+			setTuIndiceTestContent {
+				TuIndiceAppHostRoute(
+					onConfirmExitClick = {},
+					isSwipeBackNavigationEnabled = false,
+					browserRepository = RecordingBrowserRepository(),
+					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
+					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
+					syncStatusRepository = syncStatusRepository,
+					reviewRepository = RecordingReviewRepository(),
+					updateRepository = FakeUpdateRepository(),
+					viewModel = createMainViewModel(
+						credentialsRepository = FakeCredentialsRepository(password = "secret123"),
+						syncRepository = syncRepository
+					)
+				)
+			}
+
+			waitUntil(timeoutMillis = 2_000) {
+				syncRepository.scheduledSyncCalls.isNotEmpty()
+			}
+
+			assertEquals(listOf("secret123"), syncRepository.scheduledSyncCalls)
 		} finally {
 			stopKoin()
 		}
