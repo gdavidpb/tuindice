@@ -31,6 +31,7 @@ class ObservePensumActionProcessor(
 						} else {
 							when (state) {
 								is Pensum.State.Content -> state
+								Pensum.State.Empty -> Pensum.State.Empty
 								Pensum.State.Failed,
 								Pensum.State.Loading,
 								-> Pensum.State.Loading

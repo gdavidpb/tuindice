@@ -1,5 +1,7 @@
 <resources>
 	<string name="pensum_loading_message">Cargando pensum...</string>
+	<string name="pensum_empty_title">Aún no tenemos tu pensum</string>
+	<string name="pensum_empty_message">Todavía no tenemos el pensum de tu carrera, pero pronto estará disponible.</string>
 	<string name="pensum_failed_title">No pudimos cargar el pensum</string>
 	<string name="pensum_failed_message">Intenta de nuevo en unos segundos.</string>
 	<string name="pensum_failed_retry">Reintentar</string>

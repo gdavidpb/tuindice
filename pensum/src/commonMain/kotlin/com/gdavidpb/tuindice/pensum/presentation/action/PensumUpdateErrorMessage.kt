@@ -10,6 +10,9 @@ import tuindice.pensum.generated.resources.snack_timeout
 
 internal suspend fun UpdatePensumUseCaseError?.toSnackBarMessage(): String {
 	return when (this) {
+		UpdatePensumUseCaseError.NotFound ->
+			getString(Res.string.snack_default_error)
+
 		is UpdatePensumUseCaseError.NoConnection ->
 			if (isNetworkAvailable)
 				getString(Res.string.snack_service_unavailable)

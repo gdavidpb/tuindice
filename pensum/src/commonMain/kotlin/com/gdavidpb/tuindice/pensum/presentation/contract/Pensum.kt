@@ -15,6 +15,8 @@ object Pensum {
 	) : ViewState() {
 		data object Loading : State()
 
+		data object Empty : State()
+
 		data class Content(
 			val model: PensumScreenModel
 		) : State()

@@ -68,6 +68,8 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 import com.gdavidpb.tuindice.base.utils.extension.DecelerateEasing
+import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
+import com.gdavidpb.tuindice.base.ui.view.EmptyView
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorView
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
@@ -87,6 +89,8 @@ import kotlin.math.sqrt
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
+import tuindice.pensum.generated.resources.pensum_empty_message
+import tuindice.pensum.generated.resources.pensum_empty_title
 import tuindice.pensum.generated.resources.pensum_failed_message
 import tuindice.pensum.generated.resources.pensum_failed_retry
 import tuindice.pensum.generated.resources.pensum_failed_title
@@ -137,6 +141,7 @@ fun PensumScreen(
 	SealedCrossfade(targetState = state) { targetState ->
 		when (targetState) {
 			is Pensum.State.Loading -> PensumLoadingView()
+			is Pensum.State.Empty -> PensumEmptyView()
 			is Pensum.State.Content -> PensumContentView(
 				model = targetState.model,
 				showSelectionSheet = showSelectionSheet,
@@ -151,6 +156,21 @@ fun PensumScreen(
 				headerContent = { ErrorStateAnimationView() }
 			)
 		}
+	}
+}
+
+@Composable
+private fun PensumEmptyView() {
+	Box(
+		modifier = Modifier
+			.fillMaxSize()
+			.background(ScreenBackground)
+	) {
+		EmptyView(
+			title = stringResource(Res.string.pensum_empty_title),
+			message = stringResource(Res.string.pensum_empty_message),
+			headerContent = { EmptyStateAnimationView() }
+		)
 	}
 }
 
