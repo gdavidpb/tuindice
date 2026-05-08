@@ -1,5 +1,0 @@
-<resources>
-	<!-- CanvasView / NetworkView -->
-	<dimen name="size_node_radius">8dp</dimen>
-	<dimen name="size_node_connection_width">2dp</dimen>
-</resources>
