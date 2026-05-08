@@ -1,12 +1,12 @@
 {
   "selection": {
-    "pensum_id": "computacion-2019-degree-project",
+    "pensum_id": "computacion-2017-degree-project",
     "career_code": 800,
     "career_name": "Computación",
-    "year": 2019,
+    "year": 2017,
     "modality_id": "degree_project",
     "modality_name": "Proyecto de Grado",
-    "inferred": true
+    "inferred": false
   },
   "available_pensums": [
     {
@@ -46,10 +46,10 @@
     }
   ],
   "pensum": {
-    "id": "computacion-2019-degree-project",
+    "id": "computacion-2017-degree-project",
     "career_code": 800,
     "career_name": "Computación",
-    "year": 2019,
+    "year": 2017,
     "modality_id": "degree_project",
     "modality_name": "Proyecto de Grado",
     "total_credits": 205,

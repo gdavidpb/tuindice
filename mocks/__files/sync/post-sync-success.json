@@ -1,6 +1,6 @@
 {
   "record": {
-    "revision": 16,
+    "revision": 15,
     "record": {
       "id": "mock-record",
       "profile": {
@@ -16,14 +16,14 @@
       },
       "terms": [
         {
-          "id": "e72019e1142a123a80a7e6fd85868305",
-          "label": "Septiembre - Diciembre 2027",
-          "start_at": 1820188800000,
-          "end_at": 1829088000000,
+          "id": "10d5736b45980572756948095e5d1a1a",
+          "label": "Abril - Julio 2027",
+          "start_at": 1807502400000,
+          "end_at": 1816315200000,
           "term_kind": "synthetic",
           "attempts": [
             {
-              "id": "9d9ef3dbc3abc05003ad1bdc38cb4a4f",
+              "id": "aea1f0ed9bc405cb898b394d14d01152",
               "subject_code": "EP3308",
               "subject_name": "Proyecto de Grado III",
               "credits": 3,
@@ -35,13 +35,27 @@
               "official_badge": "none"
             },
             {
-              "id": "dff677ea0c915c136221bd4a1ab26f4e",
-              "subject_code": "EL1113",
-              "subject_name": "Gestión de Tecnología",
+              "id": "31f9bbfaa5abffd54aec6acdd5d7ff41",
+              "subject_code": "CI4852",
+              "subject_name": "Tópicos Especiales en Computación",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "43022ce5ccded1416f0ad4f8a99c940c",
+              "subject_code": "EG1116",
+              "subject_name": "Cultura y Tecnología",
               "credits": 3,
               "grading_mode": "numeric",
               "official_score": {
-                "type": "empty"
+                "type": "numeric",
+                "value": 3
               },
               "official_outcome": "pending",
               "official_badge": "none"
@@ -49,14 +63,14 @@
           ]
         },
         {
-          "id": "f39c6561bde6e7370bf588f21a1f7268",
-          "label": "Abril - Julio 2027",
-          "start_at": 1807488000000,
-          "end_at": 1816387200000,
+          "id": "b2e11a6acad9069628eecb03be8f6106",
+          "label": "Enero - Marzo 2027",
+          "start_at": 1799636400000,
+          "end_at": 1806030000000,
           "term_kind": "synthetic",
           "attempts": [
             {
-              "id": "ab0a2214ba31091fc1a3ce921d8eea3c",
+              "id": "72ff7d10021d6a586138b20dc239601a",
               "subject_code": "EP2308",
               "subject_name": "Proyecto de Grado II",
               "credits": 3,
@@ -64,13 +78,13 @@
               "official_score": {
                 "type": "empty"
               },
-              "official_outcome": "failed",
+              "official_outcome": "pending",
               "official_badge": "none"
             },
             {
-              "id": "17929e4787bb1cb74793638e9d9205f7",
+              "id": "55da92c0a2e5ee477224c32de5b6bb8f",
               "subject_code": "EP5856",
-              "subject_name": "Tópicos en Ingeniería de Computación II",
+              "subject_name": "Tópicos Especiales en Ingeniería de Computación II",
               "credits": 4,
               "grading_mode": "numeric",
               "official_score": {
@@ -81,14 +95,27 @@
               "official_badge": "none"
             },
             {
-              "id": "54f9400de107f944a1a1522e543347e8",
-              "subject_code": "EL1112",
+              "id": "975f255e08d349725125ee0129286844",
+              "subject_code": "CI4251",
               "subject_name": "Tópicos Especiales en Informática",
               "credits": 4,
               "grading_mode": "numeric",
               "official_score": {
                 "type": "numeric",
-                "value": 4
+                "value": 3
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "770b2a6404c74a198449e07788324e91",
+              "subject_code": "EG1115",
+              "subject_name": "Ambiente y Desarrollo",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
               },
               "official_outcome": "pending",
               "official_badge": "none"
@@ -96,14 +123,14 @@
           ]
         },
         {
-          "id": "9001696000a14c044dfb86dc4e621153",
-          "label": "Enero - Marzo 2027",
-          "start_at": 1799625600000,
-          "end_at": 1806105600000,
+          "id": "e597e91d613078d1a13ca288cfc833df",
+          "label": "Septiembre - Diciembre 2026",
+          "start_at": 1788750000000,
+          "end_at": 1797562800000,
           "term_kind": "synthetic",
           "attempts": [
             {
-              "id": "98000a40b91bed339566f33090b0763f",
+              "id": "e775256b3902c15c27b7067d7ad0e9ba",
               "subject_code": "EP1308",
               "subject_name": "Proyecto de Grado I",
               "credits": 3,
@@ -115,9 +142,9 @@
               "official_badge": "none"
             },
             {
-              "id": "b7704adf0ddcd1fc54161990d7154cdd",
+              "id": "c2dffe54651385f2125450829e4f8385",
               "subject_code": "EP5855",
-              "subject_name": "Tópicos en Ingeniería de Computación I",
+              "subject_name": "Tópicos Especiales en Ingeniería de Computación I",
               "credits": 4,
               "grading_mode": "numeric",
               "official_score": {
@@ -128,14 +155,27 @@
               "official_badge": "none"
             },
             {
-              "id": "dba6704691395e48b01cf4b62c216d2f",
-              "subject_code": "EL1111",
+              "id": "4706bc3d03b0618988fcecc80aabafed",
+              "subject_code": "CE3114",
               "subject_name": "Economía de la Empresa",
               "credits": 3,
               "grading_mode": "numeric",
               "official_score": {
                 "type": "numeric",
-                "value": 3
+                "value": 4
+              },
+              "official_outcome": "pending",
+              "official_badge": "none"
+            },
+            {
+              "id": "db14fa6c9dc4343e47933f0457321e04",
+              "subject_code": "CI5832",
+              "subject_name": "Redes II",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
               },
               "official_outcome": "pending",
               "official_badge": "none"
@@ -143,16 +183,16 @@
           ]
         },
         {
-          "id": "9ef5a2ce583eea59ae978c442e309808",
-          "label": "Septiembre - Diciembre 2026",
-          "start_at": 1788739200000,
-          "end_at": 1797638400000,
-          "term_kind": "synthetic",
+          "id": "d377155d39da686f412622aaca9074cd",
+          "label": "Abril - Julio 2026",
+          "start_at": 1776052800000,
+          "end_at": 1784865600000,
+          "term_kind": "official_current",
           "attempts": [
             {
-              "id": "230433af4031698e502d93f74e85b1c7",
-              "subject_code": "DA3311",
-              "subject_name": "Desarrollo de Aplicaciones Web",
+              "id": "e21f0d7e481d13d19f328d6818ce4d77",
+              "subject_code": "CI5311",
+              "subject_name": "Paradigmas en Modelaje de Base de Datos I",
               "credits": 4,
               "grading_mode": "numeric",
               "official_score": {
@@ -163,9 +203,9 @@
               "official_badge": "none"
             },
             {
-              "id": "4289d71d76399ee7e160ad5549712554",
-              "subject_code": "DA2563",
-              "subject_name": "Diseño de Algoritmos",
+              "id": "722cc2cc935e0aefdc73f9ebf9d2f1b6",
+              "subject_code": "CI5437",
+              "subject_name": "Inteligencia Artificial I",
               "credits": 4,
               "grading_mode": "numeric",
               "official_score": {
@@ -176,13 +216,14 @@
               "official_badge": "none"
             },
             {
-              "id": "aacec8af5701daaac94047262a5a5520",
-              "subject_code": "EG1115",
-              "subject_name": "Ambiente y Desarrollo",
+              "id": "f47ff0fa7342cdaec37d9e9cff489ebd",
+              "subject_code": "EG1114",
+              "subject_name": "Pensamiento Crítico",
               "credits": 3,
               "grading_mode": "numeric",
               "official_score": {
-                "type": "empty"
+                "type": "numeric",
+                "value": 5
               },
               "official_outcome": "pending",
               "official_badge": "none"
@@ -190,14 +231,14 @@
           ]
         },
         {
-          "id": "c9cb59672ecb17a3df74074af402bfaf",
-          "label": "Abril - Julio 2026",
-          "start_at": 1775433600000,
-          "end_at": 1784332800000,
-          "term_kind": "official_current",
+          "id": "01c705af6984b336fc2aed20576ec543",
+          "label": "Enero - Marzo 2026",
+          "start_at": 1768186800000,
+          "end_at": 1774580400000,
+          "term_kind": "official_historical",
           "attempts": [
             {
-              "id": "67ba793eb110a80840d72c315d8554b7",
+              "id": "8322eaae7602f4749aef5691b9724af2",
               "subject_code": "CI4325",
               "subject_name": "Interfaces con el Usuario",
               "credits": 5,
@@ -210,7 +251,33 @@
               "official_badge": "none"
             },
             {
-              "id": "6e2bfb9a527da9eff2700f1cbe47b07d",
+              "id": "30f096dec1f3dc3a411fb9cd275c907f",
+              "subject_code": "CI4712",
+              "subject_name": "Ingeniería de Software II",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "approved",
+              "official_badge": "none"
+            },
+            {
+              "id": "e92523ad096d93a2e908cb17ff81dfd9",
+              "subject_code": "EG1113",
+              "subject_name": "Arte y Cultura Contemporánea",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "approved",
+              "official_badge": "none"
+            },
+            {
+              "id": "f62bc5a8fb80508bd3e1319731993e8b",
               "subject_code": "CI4210",
               "subject_name": "Minería de Datos",
               "credits": 4,
@@ -221,43 +288,18 @@
               },
               "official_outcome": "failed",
               "official_badge": "none"
-            },
-            {
-              "id": "a9dacb658b442430ee1a5f9aeec46804",
-              "subject_code": "CI4311",
-              "subject_name": "Sistemas de Bases de Datos II",
-              "credits": 4,
-              "grading_mode": "numeric",
-              "official_score": {
-                "type": "numeric",
-                "value": 3
-              },
-              "official_outcome": "pending",
-              "official_badge": "none"
-            },
-            {
-              "id": "2fb1f1ba731495baf92e95a70684149e",
-              "subject_code": "EG1114",
-              "subject_name": "Pensamiento Crítico",
-              "credits": 3,
-              "grading_mode": "numeric",
-              "official_score": {
-                "type": "empty"
-              },
-              "official_outcome": "pending",
-              "official_badge": "none"
             }
           ]
         },
         {
-          "id": "5020bdf82c0d7db7a62ece5442a125a5",
+          "id": "47f5aaff77822ce6f0fd6615b208eab9",
           "label": "Septiembre - Diciembre 2024",
-          "start_at": 1725235200000,
-          "end_at": 1734134400000,
+          "start_at": 1725249600000,
+          "end_at": 1734058800000,
           "term_kind": "official_historical",
           "attempts": [
             {
-              "id": "904568f2a93503b94b9cbe4c93210397",
+              "id": "a58cbb2abf51baa65d16c82e0d302cdc",
               "subject_code": "PS1111",
               "subject_name": "Modelos Lineales I",
               "credits": 4,
@@ -270,7 +312,7 @@
               "official_badge": "none"
             },
             {
-              "id": "d7ee059395d467643fa4c2e4f65ee2b5",
+              "id": "59980058ca8250320d5b2ffe553af59d",
               "subject_code": "CI4835",
               "subject_name": "Redes de Computadoras",
               "credits": 5,
@@ -283,9 +325,9 @@
               "official_badge": "none"
             },
             {
-              "id": "19c4f78f5277e736c211cf99e30b30cc",
+              "id": "160969422698d2bb19df6d3e828aa13d",
               "subject_code": "CI3641",
-              "subject_name": "Lenguaje de Programación",
+              "subject_name": "Lenguajes de Programación",
               "credits": 3,
               "grading_mode": "numeric",
               "official_score": {
@@ -296,9 +338,9 @@
               "official_badge": "none"
             },
             {
-              "id": "388329b63def80ce0bae3e5fb627e06a",
+              "id": "cfcf9b9b33838e84f12c12da546b2915",
               "subject_code": "CI3661",
-              "subject_name": "Lab. de Lenguajes de Programación",
+              "subject_name": "Laboratorio de Lenguajes de Programación",
               "credits": 2,
               "grading_mode": "numeric",
               "official_score": {
@@ -311,35 +353,14 @@
           ]
         },
         {
-          "id": "f780b809950e771087a8e09ccff00216",
-          "label": "Agosto 2024",
-          "start_at": 1722816000000,
-          "end_at": 1725062400000,
-          "term_kind": "official_historical",
-          "attempts": [
-            {
-              "id": "9462b91faaffa8e31b49c748be8ac47f",
-              "subject_code": "EP1420",
-              "subject_name": "Cursos en Cooperación I",
-              "credits": 3,
-              "grading_mode": "qualitative_pass_fail",
-              "official_score": {
-                "type": "empty"
-              },
-              "official_outcome": "unreported",
-              "official_badge": "none"
-            }
-          ]
-        },
-        {
-          "id": "882d2404abb17de1781c71a6a6b4f667",
+          "id": "387af2b5460eb43705ecc69c42dd1b4b",
           "label": "Abril - Julio 2024",
-          "start_at": 1713139200000,
-          "end_at": 1722038400000,
+          "start_at": 1713153600000,
+          "end_at": 1721966400000,
           "term_kind": "official_historical",
           "attempts": [
             {
-              "id": "16cd6b046cb53d4bb607c9d80ab183df",
+              "id": "cb4993d6fcfbdadd89f083e7e03ed528",
               "subject_code": "PS1115",
               "subject_name": "Sistemas de Información I",
               "credits": 4,
@@ -352,9 +373,9 @@
               "official_badge": "none"
             },
             {
-              "id": "89040261148e9dcd4cd8b0eda52b70e5",
+              "id": "8897501b9d971a16175374f1c6d5797e",
               "subject_code": "CI3715",
-              "subject_name": "Ingeniería de Software",
+              "subject_name": "Ingeniería de Software I",
               "credits": 5,
               "grading_mode": "numeric",
               "official_score": {
@@ -365,9 +386,9 @@
               "official_badge": "none"
             },
             {
-              "id": "0ff78b593d5dc738bf5016c9021f5d2d",
+              "id": "8997e5a28eb44184499a086688344e1a",
               "subject_code": "CI3725",
-              "subject_name": "Traductores e Intérpretes",
+              "subject_name": "Traductores e Interpretadores",
               "credits": 5,
               "grading_mode": "numeric",
               "official_score": {
@@ -376,33 +397,20 @@
               },
               "official_outcome": "approved",
               "official_badge": "none"
-            },
-            {
-              "id": "34ab6861981bbffca2f7af8b1725c47d",
-              "subject_code": "EG1113",
-              "subject_name": "Arte y Cultura Contemporánea",
-              "credits": 3,
-              "grading_mode": "numeric",
-              "official_score": {
-                "type": "numeric",
-                "value": 4
-              },
-              "official_outcome": "approved",
-              "official_badge": "none"
             }
           ]
         },
         {
-          "id": "978aa9cb4248d2f064fbff794e84be24",
+          "id": "0502b034a34bbb4cb22f04ec0cbe4239",
           "label": "Enero - Marzo 2024",
-          "start_at": 1704672000000,
-          "end_at": 1711152000000,
+          "start_at": 1704682800000,
+          "end_at": 1711076400000,
           "term_kind": "official_historical",
           "attempts": [
             {
-              "id": "f3fb8f250129f6163e080651dbbf945b",
+              "id": "8e74fe9cf229c7c0ac0af1ef0d955e43",
               "subject_code": "CO3321",
-              "subject_name": "Estadística para Ingenieros",
+              "subject_name": "Estadística",
               "credits": 4,
               "grading_mode": "numeric",
               "official_score": {
@@ -413,9 +421,9 @@
               "official_badge": "none"
             },
             {
-              "id": "2571457bf695224962ee8f7650a5b9f1",
+              "id": "e4df6797cac68e8b2425acb76e9435e4",
               "subject_code": "CI3825",
-              "subject_name": "Sistemas de Operación",
+              "subject_name": "Sistemas de Operación I",
               "credits": 5,
               "grading_mode": "numeric",
               "official_score": {
@@ -426,7 +434,7 @@
               "official_badge": "none"
             },
             {
-              "id": "30d3f9a94f37757a68e5912c87c39c2d",
+              "id": "62a5a5c3de6a5aa07bf80b8ba0afe3dc",
               "subject_code": "CI3311",
               "subject_name": "Sistemas de Base de Datos I",
               "credits": 3,
@@ -439,9 +447,9 @@
               "official_badge": "none"
             },
             {
-              "id": "73be59c48bc93a559c5cd2c503ec2a2b",
+              "id": "8cfd65777a682c1c69e1012ecb2ed694",
               "subject_code": "CI3391",
-              "subject_name": "Lab. de Sistemas de Base de Datos I",
+              "subject_name": "Laboratorio de Sistemas de Base de Datos I",
               "credits": 2,
               "grading_mode": "numeric",
               "official_score": {
@@ -454,17 +462,17 @@
           ]
         },
         {
-          "id": "5b7008b3afdb7d7f97a743dfa98912b0",
+          "id": "8956d1e5b10dfeab8f07cb076332237e",
           "label": "Septiembre - Diciembre 2023",
-          "start_at": 1693785600000,
-          "end_at": 1702684800000,
+          "start_at": 1693796400000,
+          "end_at": 1702609200000,
           "term_kind": "official_historical",
           "attempts": [
             {
-              "id": "0914848df6fbf86dae5d7e9526af66df",
+              "id": "ef6ace7a6bb389d2d21e24517e142390",
               "subject_code": "CO3121",
-              "subject_name": "Fund. Probabilidades para Ingenieros",
-              "credits": 4,
+              "subject_name": "Fundamentos de Probabilidades para Ingenieros",
+              "credits": 3,
               "grading_mode": "numeric",
               "official_score": {
                 "type": "numeric",
@@ -474,7 +482,7 @@
               "official_badge": "none"
             },
             {
-              "id": "513b909e76bebca87277f72380db9bd5",
+              "id": "c68114cc302075d3aa98a4f351eecac0",
               "subject_code": "CI3815",
               "subject_name": "Organización del Computador",
               "credits": 5,
@@ -487,7 +495,7 @@
               "official_badge": "none"
             },
             {
-              "id": "45e6f3dceb5b0aef2cc1d9210de447e0",
+              "id": "44fe8c3f68090e1745c416ac4f399d32",
               "subject_code": "CI2613",
               "subject_name": "Algoritmos y Estructuras III",
               "credits": 3,
@@ -500,9 +508,9 @@
               "official_badge": "none"
             },
             {
-              "id": "3f04f5bbc4cfa112fad939e27a5658e2",
+              "id": "227b9ab25c976b4968e7cb5a306a13ad",
               "subject_code": "CI2693",
-              "subject_name": "Lab. de Algoritmos y Estructuras III",
+              "subject_name": "Laboratorio de Algoritmos y Estructuras III",
               "credits": 2,
               "grading_mode": "numeric",
               "official_score": {
@@ -511,18 +519,31 @@
               },
               "official_outcome": "approved",
               "official_badge": "none"
+            },
+            {
+              "id": "94524fe65e9b3a60f889da48bce51776",
+              "subject_code": "EG1112",
+              "subject_name": "Ética y Sociedad",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "approved",
+              "official_badge": "none"
             }
           ]
         },
         {
-          "id": "a5bd14fccc5d0cc1b5318d366bbd573d",
+          "id": "1df5fcc6bb38d2259624eddaa8071eb5",
           "label": "Abril - Julio 2023",
-          "start_at": 1681689600000,
-          "end_at": 1690588800000,
+          "start_at": 1681704000000,
+          "end_at": 1690516800000,
           "term_kind": "official_historical",
           "attempts": [
             {
-              "id": "73865a15fcea8bfd2182c7b2764c1635",
+              "id": "6b3680997ab84c5cd5d045524f859122",
               "subject_code": "CO3211",
               "subject_name": "Cálculo Numérico",
               "credits": 4,
@@ -535,7 +556,7 @@
               "official_badge": "none"
             },
             {
-              "id": "5e036a4ca7400c69ed926d106b67b55a",
+              "id": "ba21adf7e8b4590a0dc2d31b6e9db371",
               "subject_code": "CI2612",
               "subject_name": "Algoritmos y Estructuras II",
               "credits": 3,
@@ -548,9 +569,9 @@
               "official_badge": "none"
             },
             {
-              "id": "b32e96de514a3c4c2072c921a5342200",
+              "id": "5331f1a15b968086757c352c283d2c58",
               "subject_code": "CI2692",
-              "subject_name": "Lab. de Algoritmos y Estructuras II",
+              "subject_name": "Laboratorio de Algoritmos y Estructuras II",
               "credits": 2,
               "grading_mode": "numeric",
               "official_score": {
@@ -561,81 +582,7 @@
               "official_badge": "none"
             },
             {
-              "id": "3abe79b39cfa73c2033dc753740fc454",
-              "subject_code": "EG1112",
-              "subject_name": "Ética y Sociedad",
-              "credits": 3,
-              "grading_mode": "numeric",
-              "official_score": {
-                "type": "numeric",
-                "value": 3
-              },
-              "official_outcome": "approved",
-              "official_badge": "none"
-            }
-          ]
-        },
-        {
-          "id": "960178ddc6385b8dc4f2f3ed1649e09a",
-          "label": "Enero - Marzo 2023",
-          "start_at": 1673222400000,
-          "end_at": 1679702400000,
-          "term_kind": "official_historical",
-          "attempts": [
-            {
-              "id": "1abfd399146f47f2eba157b05ce35829",
-              "subject_code": "MA2112",
-              "subject_name": "Matemáticas V",
-              "credits": 4,
-              "grading_mode": "numeric",
-              "official_score": {
-                "type": "numeric",
-                "value": 4
-              },
-              "official_outcome": "approved",
-              "official_badge": "none"
-            },
-            {
-              "id": "ee215d3db1c3258be82d258c0395a32e",
-              "subject_code": "CI2611",
-              "subject_name": "Algoritmos y Estructuras I",
-              "credits": 3,
-              "grading_mode": "numeric",
-              "official_score": {
-                "type": "numeric",
-                "value": 3
-              },
-              "official_outcome": "approved",
-              "official_badge": "none"
-            },
-            {
-              "id": "c89cd07ee0d3e1a4f9619d0f3eabebcc",
-              "subject_code": "CI2691",
-              "subject_name": "Lab. de Algoritmos y Estructuras I",
-              "credits": 2,
-              "grading_mode": "numeric",
-              "official_score": {
-                "type": "numeric",
-                "value": 4
-              },
-              "official_outcome": "approved",
-              "official_badge": "none"
-            },
-            {
-              "id": "269a7fa34a2f6970a7891808cd418b25",
-              "subject_code": "CI2526",
-              "subject_name": "Estructuras Discretas II",
-              "credits": 4,
-              "grading_mode": "numeric",
-              "official_score": {
-                "type": "numeric",
-                "value": 5
-              },
-              "official_outcome": "approved",
-              "official_badge": "none"
-            },
-            {
-              "id": "eb82ba44f73156e934481c0e7c904f38",
+              "id": "d02dd95251432f492c08a6808ba23ab2",
               "subject_code": "CI2527",
               "subject_name": "Estructuras Discretas III",
               "credits": 4,
@@ -650,14 +597,75 @@
           ]
         },
         {
-          "id": "faba7d06eb197c6e36e07dd25e12de7e",
-          "label": "Septiembre - Diciembre 2022",
-          "start_at": 1662336000000,
-          "end_at": 1671235200000,
+          "id": "0b36879f48a1a6b60b017a49b48fc939",
+          "label": "Enero - Marzo 2023",
+          "start_at": 1673233200000,
+          "end_at": 1679626800000,
           "term_kind": "official_historical",
           "attempts": [
             {
-              "id": "ef1923083030dd32f0a995f501890e23",
+              "id": "b013a46288420c2424ddeca625ca0006",
+              "subject_code": "MA2112",
+              "subject_name": "Matemáticas V",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "approved",
+              "official_badge": "none"
+            },
+            {
+              "id": "316944f19031f592ac0abdb8bb82a81e",
+              "subject_code": "CI2611",
+              "subject_name": "Algoritmos y Estructuras I",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "approved",
+              "official_badge": "none"
+            },
+            {
+              "id": "ed19673b3f77942522db09f55ceeb824",
+              "subject_code": "CI2691",
+              "subject_name": "Laboratorio de Algoritmos y Estructuras I",
+              "credits": 2,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "approved",
+              "official_badge": "none"
+            },
+            {
+              "id": "2eb8af079514141fa56b45307fca979c",
+              "subject_code": "CI2526",
+              "subject_name": "Estructuras Discretas II",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "approved",
+              "official_badge": "none"
+            }
+          ]
+        },
+        {
+          "id": "34eafe92bae79ca0db9f1d4a4585d8a0",
+          "label": "Septiembre - Diciembre 2022",
+          "start_at": 1662350400000,
+          "end_at": 1671159600000,
+          "term_kind": "official_historical",
+          "attempts": [
+            {
+              "id": "57227aa89938829ce1719272898c9eaf",
               "subject_code": "MA2115",
               "subject_name": "Matemáticas IV",
               "credits": 4,
@@ -670,7 +678,7 @@
               "official_badge": "none"
             },
             {
-              "id": "bd047519e3a1393587edc0045c74a4ca",
+              "id": "b0dc254a2293b8aa4bb4a0a71c19a29a",
               "subject_code": "CI2511",
               "subject_name": "Lógica Simbólica",
               "credits": 4,
@@ -683,20 +691,7 @@
               "official_badge": "none"
             },
             {
-              "id": "e15c8f1c4e79d2ee7fe1db15d9fbf9ae",
-              "subject_code": "CI2525",
-              "subject_name": "Estructuras Discretas I",
-              "credits": 4,
-              "grading_mode": "numeric",
-              "official_score": {
-                "type": "numeric",
-                "value": 2
-              },
-              "official_outcome": "failed",
-              "official_badge": "none"
-            },
-            {
-              "id": "e79ec10c07087e156d24d2bdcf472b29",
+              "id": "cda990080d1da0bd55c0bad9f54ff417",
               "subject_code": "CI2525",
               "subject_name": "Estructuras Discretas I",
               "credits": 4,
@@ -709,7 +704,7 @@
               "official_badge": "none"
             },
             {
-              "id": "1f2ccaafaa0403dc06a1e7345758697f",
+              "id": "4d7230947aa5f4dac300eead475c0a17",
               "subject_code": "EG1111",
               "subject_name": "Historia de la Ciencia",
               "credits": 3,
@@ -724,14 +719,14 @@
           ]
         },
         {
-          "id": "2b596408319ed37b8360957fc78db9d7",
+          "id": "bd6da09d8453fbca2c12fa40d225d81d",
           "label": "Abril - Julio 2022",
-          "start_at": 1650240000000,
-          "end_at": 1659139200000,
+          "start_at": 1650254400000,
+          "end_at": 1659067200000,
           "term_kind": "official_historical",
           "attempts": [
             {
-              "id": "e5dde8f179331ce5cb0723a34f58c2f8",
+              "id": "635bdf3bcb7a5ca56b9412979c85d363",
               "subject_code": "MA1116",
               "subject_name": "Matemáticas III",
               "credits": 4,
@@ -744,7 +739,33 @@
               "official_badge": "none"
             },
             {
-              "id": "eed2bf9b28d774cfb207b3e0e74194ce",
+              "id": "0cdd95630a75e2c1da2d5fde024f2533",
+              "subject_code": "FS1112",
+              "subject_name": "Física II",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 3
+              },
+              "official_outcome": "approved",
+              "official_badge": "none"
+            },
+            {
+              "id": "8d9c3fecb21cc9e36f71b99c23a580d4",
+              "subject_code": "ID1113",
+              "subject_name": "Inglés III",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
+              },
+              "official_outcome": "approved",
+              "official_badge": "none"
+            },
+            {
+              "id": "95b38e1a7884422da7ab0eae97fdc101",
               "subject_code": "LLA113",
               "subject_name": "Lenguaje III",
               "credits": 3,
@@ -757,22 +778,9 @@
               "official_badge": "none"
             },
             {
-              "id": "f6b5c17edcdd65837e0318ef80b4ac5d",
+              "id": "6a1fd04e9ede83a0be8ae3e27f196842",
               "subject_code": "CSA213",
               "subject_name": "Venezuela ante el Siglo XXI III",
-              "credits": 3,
-              "grading_mode": "numeric",
-              "official_score": {
-                "type": "numeric",
-                "value": 4
-              },
-              "official_outcome": "approved",
-              "official_badge": "none"
-            },
-            {
-              "id": "ccd4fb9ed78e5a58d0adf8585eb6c474",
-              "subject_code": "ID1113",
-              "subject_name": "Inglés III",
               "credits": 3,
               "grading_mode": "numeric",
               "official_score": {
@@ -785,14 +793,14 @@
           ]
         },
         {
-          "id": "57ccff5cde54d7031e8a3587c25b8882",
+          "id": "5c4c7f7f46fbddc68151ed4c96279780",
           "label": "Enero - Marzo 2022",
-          "start_at": 1641772800000,
-          "end_at": 1648252800000,
+          "start_at": 1641783600000,
+          "end_at": 1648177200000,
           "term_kind": "official_historical",
           "attempts": [
             {
-              "id": "e400e318e1eecbaa3afe282bd55273d9",
+              "id": "c22ebec9c645c7b7d321df06b03e472f",
               "subject_code": "MA1112",
               "subject_name": "Matemáticas II",
               "credits": 4,
@@ -805,22 +813,9 @@
               "official_badge": "none"
             },
             {
-              "id": "628600438de74befa945ea7690537b9c",
-              "subject_code": "LLA112",
-              "subject_name": "Lenguaje II",
-              "credits": 3,
-              "grading_mode": "numeric",
-              "official_score": {
-                "type": "numeric",
-                "value": 5
-              },
-              "official_outcome": "approved",
-              "official_badge": "none"
-            },
-            {
-              "id": "1b73bb09c34ef5daa46d36fd38f9dade",
-              "subject_code": "CSA212",
-              "subject_name": "Venezuela ante el Siglo XXI II",
+              "id": "2c9cdf19fa779ab87b498fb202a64448",
+              "subject_code": "FS1111",
+              "subject_name": "Física I",
               "credits": 3,
               "grading_mode": "numeric",
               "official_score": {
@@ -831,7 +826,7 @@
               "official_badge": "none"
             },
             {
-              "id": "46a3f72db6741d14e0f24dac5c8c8959",
+              "id": "803ef2ba2c7d1d88e6291a6ee4265079",
               "subject_code": "ID1112",
               "subject_name": "Inglés II",
               "credits": 3,
@@ -844,9 +839,22 @@
               "official_badge": "none"
             },
             {
-              "id": "99813c504722d51c9aebfa23f510c848",
-              "subject_code": "FS1112",
-              "subject_name": "Física II",
+              "id": "c403078085b27635d8339ba181f53507",
+              "subject_code": "LLA112",
+              "subject_name": "Lenguaje II",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 5
+              },
+              "official_outcome": "approved",
+              "official_badge": "none"
+            },
+            {
+              "id": "aa2adf23daacae4c285217b9552e2622",
+              "subject_code": "CSA212",
+              "subject_name": "Venezuela ante el Siglo XXI II",
               "credits": 3,
               "grading_mode": "numeric",
               "official_score": {
@@ -859,14 +867,14 @@
           ]
         },
         {
-          "id": "ac47f105d945836856ebd14d0fd8fb79",
+          "id": "cbcb1fb7bf5dbe9f5dce767ee14ebc4c",
           "label": "Septiembre - Diciembre 2021",
-          "start_at": 1630454400000,
-          "end_at": 1639785600000,
+          "start_at": 1630468800000,
+          "end_at": 1639710000000,
           "term_kind": "official_historical",
           "attempts": [
             {
-              "id": "7de8cc43107797202bde03ed62d788be",
+              "id": "bb0e01db5441efc66a27f1bb839043e3",
               "subject_code": "MA1111",
               "subject_name": "Matemáticas I",
               "credits": 4,
@@ -879,33 +887,7 @@
               "official_badge": "none"
             },
             {
-              "id": "b9e7044adc00e7ba562bbb71a20324b1",
-              "subject_code": "LLA111",
-              "subject_name": "Lenguaje I",
-              "credits": 3,
-              "grading_mode": "numeric",
-              "official_score": {
-                "type": "numeric",
-                "value": 4
-              },
-              "official_outcome": "approved",
-              "official_badge": "none"
-            },
-            {
-              "id": "c3678164c7e22cefaddf9803e4dd3a06",
-              "subject_code": "CSA211",
-              "subject_name": "Venezuela ante el Siglo XXI I",
-              "credits": 3,
-              "grading_mode": "numeric",
-              "official_score": {
-                "type": "numeric",
-                "value": 4
-              },
-              "official_outcome": "approved",
-              "official_badge": "none"
-            },
-            {
-              "id": "04b4a432d55b44ba0b552ef3f0c93f39",
+              "id": "5ece780aaad5f91df610cd9ecd29004a",
               "subject_code": "ID1111",
               "subject_name": "Inglés I",
               "credits": 3,
@@ -918,14 +900,27 @@
               "official_badge": "none"
             },
             {
-              "id": "fe8957fb3d930613fd8ac3f35d8ba3df",
-              "subject_code": "FS1111",
-              "subject_name": "Física I",
+              "id": "3d7a027ca193168fd7e49a267b2b0cd0",
+              "subject_code": "LLA111",
+              "subject_name": "Lenguaje I",
               "credits": 3,
               "grading_mode": "numeric",
               "official_score": {
                 "type": "numeric",
-                "value": 3
+                "value": 4
+              },
+              "official_outcome": "approved",
+              "official_badge": "none"
+            },
+            {
+              "id": "f0e4468a50e10b3bec536feb54c96506",
+              "subject_code": "CSA211",
+              "subject_name": "Venezuela ante el Siglo XXI I",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "official_score": {
+                "type": "numeric",
+                "value": 4
               },
               "official_outcome": "approved",
               "official_badge": "none"
@@ -948,18 +943,18 @@
     "career_name": "Ingeniería de Computación",
     "career_code": 800,
     "scholarship": false,
-    "grade": 4.196,
-    "enrolled_subjects": 4,
-    "enrolled_credits": 16,
-    "approved_subjects": 44,
-    "approved_credits": 153,
-    "approved_relation": 0.96,
+    "grade": 4.175,
+    "enrolled_subjects": 3,
+    "enrolled_credits": 11,
+    "approved_subjects": 45,
+    "approved_credits": 156,
+    "approved_relation": 0.98,
     "retired_subjects": 0,
     "retired_credits": 0,
     "retired_relation": 0.0,
-    "failed_subjects": 2,
-    "failed_credits": 8,
-    "failed_relation": 0.04,
-    "last_update": 1777852800000
+    "failed_subjects": 1,
+    "failed_credits": 4,
+    "failed_relation": 0.02,
+    "last_update": 1778126400000
   }
 }

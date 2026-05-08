@@ -1,0 +1,22 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPath": "/pensums/v1",
+    "queryParameters": {
+      "year": {
+        "equalTo": "2019"
+      },
+      "modality_id": {
+        "equalTo": "degree_project"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "pensums/get-pensum-2019-degree_project.json"
+  }
+}

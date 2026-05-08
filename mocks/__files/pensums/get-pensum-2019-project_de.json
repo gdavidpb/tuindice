@@ -1,12 +1,12 @@
 {
   "selection": {
-    "pensum_id": "computacion-2019-degree-project",
+    "pensum_id": "computacion-2019-project-de",
     "career_code": 800,
     "career_name": "Computación",
     "year": 2019,
-    "modality_id": "degree_project",
-    "modality_name": "Proyecto de Grado",
-    "inferred": true
+    "modality_id": "project_de",
+    "modality_name": "Proyecto DE",
+    "inferred": false
   },
   "available_pensums": [
     {
@@ -46,15 +46,15 @@
     }
   ],
   "pensum": {
-    "id": "computacion-2019-degree-project",
+    "id": "computacion-2019-project-de",
     "career_code": 800,
     "career_name": "Computación",
     "year": 2019,
-    "modality_id": "degree_project",
-    "modality_name": "Proyecto de Grado",
+    "modality_id": "project_de",
+    "modality_name": "Proyecto DE",
     "total_credits": 205,
     "canvas": {
-      "width": 3428.0,
+      "width": 3648.0,
       "height": 1120.0
     },
     "terms": [
@@ -113,39 +113,45 @@
         "width": 220.0
       },
       {
+        "id": "PI",
+        "label": "PI",
+        "x": 1980.0,
+        "width": 220.0
+      },
+      {
         "id": "T10",
         "label": "T10",
-        "x": 1980.0,
+        "x": 2200.0,
         "width": 220.0
       },
       {
         "id": "T11",
         "label": "T11",
-        "x": 2200.0,
+        "x": 2420.0,
         "width": 220.0
       },
       {
         "id": "T12",
         "label": "T12",
-        "x": 2420.0,
+        "x": 2640.0,
         "width": 220.0
       },
       {
         "id": "T13",
         "label": "T13",
-        "x": 2640.0,
+        "x": 2860.0,
         "width": 220.0
       },
       {
         "id": "T14",
         "label": "T14",
-        "x": 2860.0,
+        "x": 3080.0,
         "width": 220.0
       },
       {
         "id": "T15",
         "label": "T15",
-        "x": 3080.0,
+        "x": 3300.0,
         "width": 220.0
       }
     ],
@@ -803,6 +809,21 @@
         "fulfillment_rules": []
       },
       {
+        "id": "ep1420",
+        "node_type": "COURSE",
+        "display_code": "EP1420",
+        "subject_code": "EP1420",
+        "name": "Cursos en Cooperación I",
+        "credits": 3,
+        "category": "INTERNSHIP",
+        "term_id": "PI",
+        "x": 0.0,
+        "y": 120.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": []
+      },
+      {
         "id": "ci4325",
         "node_type": "COURSE",
         "display_code": "CI4325",
@@ -844,32 +865,6 @@
         ]
       },
       {
-        "id": "eg3",
-        "node_type": "SLOT",
-        "display_code": "EG3",
-        "subject_code": null,
-        "name": "Estudio General III",
-        "credits": 3,
-        "category": "GENERAL_STUDIES",
-        "term_id": "T11",
-        "x": 0.0,
-        "y": 464.0,
-        "width": 172.0,
-        "height": 144.0,
-        "fulfillment_rules": [
-          {
-            "id": "eg3-exact",
-            "rule_type": "SUBJECT_CODES",
-            "subject_codes": [
-              "EG1113"
-            ],
-            "subject_code_prefixes": [],
-            "min_credits": 3,
-            "min_subjects": 1
-          }
-        ]
-      },
-      {
         "id": "ea2",
         "node_type": "SLOT",
         "display_code": "EA2",
@@ -877,9 +872,9 @@
         "name": "Electiva de Área II",
         "credits": 4,
         "category": "AREA_ELECTIVE",
-        "term_id": "T12",
+        "term_id": "T11",
         "x": 0.0,
-        "y": 120.0,
+        "y": 464.0,
         "width": 172.0,
         "height": 144.0,
         "fulfillment_rules": [
@@ -896,6 +891,32 @@
         ]
       },
       {
+        "id": "eg3",
+        "node_type": "SLOT",
+        "display_code": "EG3",
+        "subject_code": null,
+        "name": "Estudio General III",
+        "credits": 3,
+        "category": "GENERAL_STUDIES",
+        "term_id": "T11",
+        "x": 0.0,
+        "y": 636.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": [
+          {
+            "id": "eg3-exact",
+            "rule_type": "SUBJECT_CODES",
+            "subject_codes": [
+              "EG1113"
+            ],
+            "subject_code_prefixes": [],
+            "min_credits": 3,
+            "min_subjects": 1
+          }
+        ]
+      },
+      {
         "id": "ea3",
         "node_type": "SLOT",
         "display_code": "EA3",
@@ -905,7 +926,7 @@
         "category": "AREA_ELECTIVE",
         "term_id": "T12",
         "x": 0.0,
-        "y": 292.0,
+        "y": 120.0,
         "width": 172.0,
         "height": 144.0,
         "fulfillment_rules": [
@@ -914,6 +935,32 @@
             "rule_type": "SUBJECT_CODES",
             "subject_codes": [
               "CI5437"
+            ],
+            "subject_code_prefixes": [],
+            "min_credits": 4,
+            "min_subjects": 1
+          }
+        ]
+      },
+      {
+        "id": "ea4",
+        "node_type": "SLOT",
+        "display_code": "EA4",
+        "subject_code": null,
+        "name": "Electiva de Área IV",
+        "credits": 4,
+        "category": "AREA_ELECTIVE",
+        "term_id": "T12",
+        "x": 0.0,
+        "y": 292.0,
+        "width": 172.0,
+        "height": 144.0,
+        "fulfillment_rules": [
+          {
+            "id": "ea4-exact",
+            "rule_type": "SUBJECT_CODES",
+            "subject_codes": [
+              "CI5832"
             ],
             "subject_code_prefixes": [],
             "min_credits": 4,
@@ -948,12 +995,12 @@
         ]
       },
       {
-        "id": "ep1308",
+        "id": "ep5408",
         "node_type": "COURSE",
-        "display_code": "EP1308",
-        "subject_code": "EP1308",
-        "name": "Proyecto de Grado I",
-        "credits": 3,
+        "display_code": "EP5408",
+        "subject_code": "EP5408",
+        "name": "Proyecto de Grado a Dedicación Exclusiva",
+        "credits": 9,
         "category": "DEGREE_PROJECT",
         "term_id": "T13",
         "x": 0.0,
@@ -963,65 +1010,24 @@
         "fulfillment_rules": []
       },
       {
-        "id": "ep5855",
-        "node_type": "COURSE",
-        "display_code": "EP5855",
-        "subject_code": "EP5855",
-        "name": "Tópicos Especiales en Ingeniería de Computación I",
-        "credits": 4,
-        "category": "DEGREE_PROJECT",
-        "term_id": "T13",
-        "x": 0.0,
-        "y": 292.0,
-        "width": 172.0,
-        "height": 144.0,
-        "fulfillment_rules": []
-      },
-      {
-        "id": "el1",
+        "id": "ea5",
         "node_type": "SLOT",
-        "display_code": "EL1",
+        "display_code": "EA5",
         "subject_code": null,
-        "name": "Electiva Libre I",
-        "credits": 3,
-        "category": "FREE_ELECTIVE",
-        "term_id": "T13",
+        "name": "Electiva de Área V",
+        "credits": 4,
+        "category": "AREA_ELECTIVE",
+        "term_id": "T14",
         "x": 0.0,
-        "y": 464.0,
+        "y": 120.0,
         "width": 172.0,
         "height": 120.0,
         "fulfillment_rules": [
           {
-            "id": "el1-exact",
+            "id": "ea5-exact",
             "rule_type": "SUBJECT_CODES",
             "subject_codes": [
-              "CE3114"
-            ],
-            "subject_code_prefixes": [],
-            "min_credits": 3,
-            "min_subjects": 1
-          }
-        ]
-      },
-      {
-        "id": "ea4",
-        "node_type": "SLOT",
-        "display_code": "EA4",
-        "subject_code": null,
-        "name": "Electiva de Área IV",
-        "credits": 4,
-        "category": "AREA_ELECTIVE",
-        "term_id": "T13",
-        "x": 0.0,
-        "y": 636.0,
-        "width": 172.0,
-        "height": 144.0,
-        "fulfillment_rules": [
-          {
-            "id": "ea4-exact",
-            "rule_type": "SUBJECT_CODES",
-            "subject_codes": [
-              "CI5832"
+              "CI4321"
             ],
             "subject_code_prefixes": [],
             "min_credits": 4,
@@ -1030,54 +1036,24 @@
         ]
       },
       {
-        "id": "ep2308",
-        "node_type": "COURSE",
-        "display_code": "EP2308",
-        "subject_code": "EP2308",
-        "name": "Proyecto de Grado II",
-        "credits": 3,
-        "category": "DEGREE_PROJECT",
-        "term_id": "T14",
-        "x": 0.0,
-        "y": 120.0,
-        "width": 172.0,
-        "height": 144.0,
-        "fulfillment_rules": []
-      },
-      {
-        "id": "ep5856",
-        "node_type": "COURSE",
-        "display_code": "EP5856",
-        "subject_code": "EP5856",
-        "name": "Tópicos Especiales en Ingeniería de Computación II",
-        "credits": 4,
-        "category": "DEGREE_PROJECT",
-        "term_id": "T14",
-        "x": 0.0,
-        "y": 292.0,
-        "width": 172.0,
-        "height": 144.0,
-        "fulfillment_rules": []
-      },
-      {
-        "id": "el2",
+        "id": "el1",
         "node_type": "SLOT",
-        "display_code": "EL2",
+        "display_code": "EL1",
         "subject_code": null,
-        "name": "Electiva Libre II",
+        "name": "Electiva Libre I",
         "credits": 4,
         "category": "FREE_ELECTIVE",
         "term_id": "T14",
         "x": 0.0,
-        "y": 464.0,
+        "y": 292.0,
         "width": 172.0,
         "height": 120.0,
         "fulfillment_rules": [
           {
-            "id": "el2-exact",
+            "id": "el1-exact",
             "rule_type": "SUBJECT_CODES",
             "subject_codes": [
-              "CI4251"
+              "CE3114"
             ],
             "subject_code_prefixes": [],
             "min_credits": 4,
@@ -1095,7 +1071,7 @@
         "category": "GENERAL_STUDIES",
         "term_id": "T14",
         "x": 0.0,
-        "y": 636.0,
+        "y": 464.0,
         "width": 172.0,
         "height": 120.0,
         "fulfillment_rules": [
@@ -1112,26 +1088,37 @@
         ]
       },
       {
-        "id": "ep3308",
-        "node_type": "COURSE",
-        "display_code": "EP3308",
-        "subject_code": "EP3308",
-        "name": "Proyecto de Grado III",
-        "credits": 3,
-        "category": "DEGREE_PROJECT",
+        "id": "ea6",
+        "node_type": "SLOT",
+        "display_code": "EA6",
+        "subject_code": null,
+        "name": "Electiva de Área VI",
+        "credits": 4,
+        "category": "AREA_ELECTIVE",
         "term_id": "T15",
         "x": 0.0,
         "y": 120.0,
         "width": 172.0,
         "height": 144.0,
-        "fulfillment_rules": []
+        "fulfillment_rules": [
+          {
+            "id": "ea6-exact",
+            "rule_type": "SUBJECT_CODES",
+            "subject_codes": [
+              "CI5651"
+            ],
+            "subject_code_prefixes": [],
+            "min_credits": 4,
+            "min_subjects": 1
+          }
+        ]
       },
       {
-        "id": "el3",
+        "id": "el2",
         "node_type": "SLOT",
-        "display_code": "EL3",
+        "display_code": "EL2",
         "subject_code": null,
-        "name": "Electiva Libre III",
+        "name": "Electiva Libre II",
         "credits": 4,
         "category": "FREE_ELECTIVE",
         "term_id": "T15",
@@ -1141,10 +1128,10 @@
         "height": 120.0,
         "fulfillment_rules": [
           {
-            "id": "el3-exact",
+            "id": "el2-exact",
             "rule_type": "SUBJECT_CODES",
             "subject_codes": [
-              "CI4852"
+              "CI4251"
             ],
             "subject_code_prefixes": [],
             "min_credits": 4,
@@ -2093,9 +2080,9 @@
         ]
       },
       {
-        "id": "ci3715-ep1308",
+        "id": "ci3715-ep1420",
         "from_node_id": "ci3715",
-        "to_node_id": "ep1308",
+        "to_node_id": "ep1420",
         "relationship_type": "REQUIREMENT",
         "points": [
           {
@@ -2109,25 +2096,9 @@
         ]
       },
       {
-        "id": "ci3725-ep1308",
-        "from_node_id": "ci3725",
-        "to_node_id": "ep1308",
-        "relationship_type": "REQUIREMENT",
-        "points": [
-          {
-            "x": 172.0,
-            "y": 536.0
-          },
-          {
-            "x": 0.0,
-            "y": 192.0
-          }
-        ]
-      },
-      {
-        "id": "ps1115-ep1308",
-        "from_node_id": "ps1115",
-        "to_node_id": "ep1308",
+        "id": "ep1420-ep5408",
+        "from_node_id": "ep1420",
+        "to_node_id": "ep5408",
         "relationship_type": "REQUIREMENT",
         "points": [
           {
@@ -2141,78 +2112,14 @@
         ]
       },
       {
-        "id": "ep1308-ep2308",
-        "from_node_id": "ep1308",
-        "to_node_id": "ep2308",
+        "id": "ci4325-ep5408",
+        "from_node_id": "ci4325",
+        "to_node_id": "ep5408",
         "relationship_type": "REQUIREMENT",
         "points": [
           {
             "x": 172.0,
             "y": 192.0
-          },
-          {
-            "x": 0.0,
-            "y": 192.0
-          }
-        ]
-      },
-      {
-        "id": "ep5855-ep2308",
-        "from_node_id": "ep5855",
-        "to_node_id": "ep2308",
-        "relationship_type": "REQUIREMENT",
-        "points": [
-          {
-            "x": 172.0,
-            "y": 364.0
-          },
-          {
-            "x": 0.0,
-            "y": 192.0
-          }
-        ]
-      },
-      {
-        "id": "ep5855-ep5856",
-        "from_node_id": "ep5855",
-        "to_node_id": "ep5856",
-        "relationship_type": "REQUIREMENT",
-        "points": [
-          {
-            "x": 172.0,
-            "y": 364.0
-          },
-          {
-            "x": 0.0,
-            "y": 364.0
-          }
-        ]
-      },
-      {
-        "id": "ep2308-ep3308",
-        "from_node_id": "ep2308",
-        "to_node_id": "ep3308",
-        "relationship_type": "REQUIREMENT",
-        "points": [
-          {
-            "x": 172.0,
-            "y": 192.0
-          },
-          {
-            "x": 0.0,
-            "y": 192.0
-          }
-        ]
-      },
-      {
-        "id": "ep5856-ep3308",
-        "from_node_id": "ep5856",
-        "to_node_id": "ep3308",
-        "relationship_type": "REQUIREMENT",
-        "points": [
-          {
-            "x": 172.0,
-            "y": 364.0
           },
           {
             "x": 0.0,
