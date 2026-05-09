@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOPE
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.source.EvaluationDataSource
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
@@ -47,6 +48,51 @@ class EvaluationRepositoryContractTest {
 		assertEquals(1, evaluationsApiDataSource.getEvaluationsCalls)
 		assertEquals(1, databaseDataSource.savedSnapshots.size)
 		assertTrue(settingsDataSource.cooldownMarked)
+	}
+
+	@Test
+	fun updateEvaluations_ignoresCooldown_whenEvaluationsHaveNeverSynced() = runTest {
+		val databaseDataSource = FakeDatabaseDataSource(
+			initialSnapshot = LocalEvaluationsSnapshot(
+				hasSynced = false,
+				evaluations = emptyList()
+			)
+		)
+		val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
+		val settingsDataSource = FakeSettingsDataSource(onCooldown = true)
+		val repository = EvaluationDataSource(
+			databaseDataSource = databaseDataSource,
+			evaluationsApiDataSource = evaluationsApiDataSource,
+			settingsDataSource = settingsDataSource,
+			mutationEngine = createEvaluationsMutationEngine(),
+			identifierRepository = FakeIdentifierRepository()
+		)
+
+		repository.updateEvaluations()
+
+		assertEquals(1, evaluationsApiDataSource.getEvaluationsCalls)
+		assertEquals(1, databaseDataSource.savedSnapshots.size)
+		assertTrue(settingsDataSource.cooldownMarked)
+	}
+
+	@Test
+	fun updateEvaluations_respectsCooldown_whenEvaluationsHaveSynced() = runTest {
+		val databaseDataSource = FakeDatabaseDataSource()
+		val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
+		val settingsDataSource = FakeSettingsDataSource(onCooldown = true)
+		val repository = EvaluationDataSource(
+			databaseDataSource = databaseDataSource,
+			evaluationsApiDataSource = evaluationsApiDataSource,
+			settingsDataSource = settingsDataSource,
+			mutationEngine = createEvaluationsMutationEngine(),
+			identifierRepository = FakeIdentifierRepository()
+		)
+
+		repository.updateEvaluations()
+
+		assertEquals(0, evaluationsApiDataSource.getEvaluationsCalls)
+		assertTrue(databaseDataSource.savedSnapshots.isEmpty())
+		assertEquals(false, settingsDataSource.cooldownMarked)
 	}
 
 	@Test

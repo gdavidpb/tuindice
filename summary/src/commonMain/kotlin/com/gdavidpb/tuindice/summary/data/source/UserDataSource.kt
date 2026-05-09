@@ -32,7 +32,8 @@ class UserDataSource(
 	}
 
 	override suspend fun updateUser() {
-		if (settingsDataSource.isGetUserOnCooldown()) return
+		val currentUser = localDataSource.getUserFlow().first()
+		if (currentUser != null && settingsDataSource.isGetUserOnCooldown()) return
 
 		val remoteUser = remoteDataSource.getUser()
 

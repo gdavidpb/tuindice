@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import com.gdavidpb.tuindice.wizard.presentation.contract.Wizard
+import com.gdavidpb.tuindice.wizard.presentation.model.WizardStepId
 import com.gdavidpb.tuindice.wizard.ui.WizardUiTags
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -46,7 +47,7 @@ class WizardScreenUiTest {
 	fun when_summaryStepIsRendered_then_showsRealSummaryAndGuideBar() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			WizardScreen(
-				state = Wizard.State.Content(currentIndex = 1),
+				state = Wizard.State.Content().goTo(WizardStepId.Summary),
 				onBack = {},
 				onSkip = {},
 				onNext = {},
@@ -64,7 +65,7 @@ class WizardScreenUiTest {
 		onNodeWithText("Última actualización: 28 de abril 2026").assertExists()
 		onAllNodesWithText("Sincronizado hace 2 min").assertCountEquals(0)
 		onNodeWithText("Resumen académico").assertExists()
-		onNodeWithText("Paso 1 de 11").assertExists()
+		onNodeWithText("Paso 1 de 10").assertExists()
 		assertNodeVisible(WizardUiTags.BackButton)
 		assertNodeVisible(WizardUiTags.SkipButton)
 		assertNodeVisible(WizardUiTags.PrimaryButton)
@@ -75,7 +76,7 @@ class WizardScreenUiTest {
 	fun when_recordStepIsRendered_then_focusesTermGrades() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			WizardScreen(
-				state = Wizard.State.Content(currentIndex = 3),
+				state = Wizard.State.Content().goTo(WizardStepId.Record),
 				onBack = {},
 				onSkip = {},
 				onNext = {},
@@ -89,7 +90,7 @@ class WizardScreenUiTest {
 		}
 
 		onAllNodesWithText("Índices del trimestre").assertCountEquals(2)
-		onNodeWithText("Paso 3 de 11").assertExists()
+		onNodeWithText("Paso 2 de 10").assertExists()
 		onNodeWithText(
 			"Este bloque resume el trimestre seleccionado: índice del trimestre, índice acumulado y cantidad de créditos.",
 			substring = true
@@ -101,7 +102,7 @@ class WizardScreenUiTest {
 	fun when_recordActionsStepIsRendered_then_explainsTopButtons() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			WizardScreen(
-				state = Wizard.State.Content(currentIndex = 2),
+				state = Wizard.State.Content().goTo(WizardStepId.RecordActions),
 				onBack = {},
 				onSkip = {},
 				onNext = {},
@@ -115,7 +116,7 @@ class WizardScreenUiTest {
 		}
 
 		onNodeWithText("Acciones del trimestre").assertExists()
-		onNodeWithText("Paso 2 de 11").assertExists()
+		onNodeWithText("Paso 3 de 10").assertExists()
 		onNodeWithText("Botones superiores").assertExists()
 		onNodeWithText(
 			"El botón de modo alterna entre Modo Universidad y Modo Proyección.",
@@ -129,12 +130,12 @@ class WizardScreenUiTest {
 	}
 
 	@Test
-	fun when_recordSubjectEntryStepIsRendered_then_explainsHowToOpenStats() = runTuIndiceUiTest {
+	fun when_pensumStepIsRendered_then_showsGraphProgressAndOpensStats() = runTuIndiceUiTest {
 		var didOpenSubjectDetail = false
 
 		setTuIndiceTestContent {
 			WizardScreen(
-				state = Wizard.State.Content(currentIndex = 4),
+				state = Wizard.State.Content().goTo(WizardStepId.Pensum),
 				onBack = {},
 				onSkip = {},
 				onNext = {},
@@ -147,13 +148,20 @@ class WizardScreenUiTest {
 			)
 		}
 
-		onNodeWithText("Estadísticas desde pensum").assertExists()
-		onNodeWithText("Paso 4 de 11").assertExists()
+		onNodeWithText("Pensum y avance").assertExists()
+		onNodeWithText("Paso 4 de 10").assertExists()
+		onNodeWithText("75% avance").assertExists()
+		onNodeWithText("Computación 2019 · Proyecto de Grado").assertExists()
 		onNodeWithText(
-			"En Pensum, toca el botón de estadísticas de una materia",
+			"Puedes ver tu pensum como un mapa de materias",
+			substring = true
+		).assertExists()
+		onNodeWithText(
+			"Toca el botón de estadísticas de una materia",
 			substring = true
 		).assertExists()
 		assertNodeVisible(PensumUiTags.PensumScreen)
+		onNodeWithTag(PensumUiTags.node("ci4325")).assertExists()
 		onNodeWithTag(PensumUiTags.nodeSubjectStatsButton("ma1111")).performClick()
 		assertEquals(true, didOpenSubjectDetail)
 		onAllNodesWithTag(WizardUiTags.FocusOverlay).assertCountEquals(0)
@@ -163,7 +171,7 @@ class WizardScreenUiTest {
 	fun when_subjectDetailStepIsRendered_then_explainsHeaderAndIndicators() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			WizardScreen(
-				state = Wizard.State.Content(currentIndex = 5),
+				state = Wizard.State.Content().goTo(WizardStepId.SubjectDetail),
 				onBack = {},
 				onSkip = {},
 				onNext = {},
@@ -177,7 +185,7 @@ class WizardScreenUiTest {
 		}
 
 		onNodeWithText("Estadísticas de materia").assertExists()
-		onNodeWithText("Paso 5 de 11").assertExists()
+		onNodeWithText("Paso 5 de 10").assertExists()
 		onNodeWithText("Algoritmos y Estructuras I").assertExists()
 		onNodeWithText(
 			"Arriba ves el nombre de la materia, su código y UC.",
@@ -194,7 +202,7 @@ class WizardScreenUiTest {
 	fun when_subjectChartsStepIsRendered_then_explainsCharts() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			WizardScreen(
-				state = Wizard.State.Content(currentIndex = 6),
+				state = Wizard.State.Content().goTo(WizardStepId.SubjectCharts),
 				onBack = {},
 				onSkip = {},
 				onNext = {},
@@ -208,7 +216,7 @@ class WizardScreenUiTest {
 		}
 
 		onNodeWithText("Gráficos de materia").assertExists()
-		onNodeWithText("Paso 6 de 11").assertExists()
+		onNodeWithText("Paso 6 de 10").assertExists()
 		onNodeWithText("Distribución de nota").assertExists()
 		onNodeWithText("Intentos para aprobar").assertExists()
 		onNodeWithText(
@@ -219,36 +227,10 @@ class WizardScreenUiTest {
 	}
 
 	@Test
-	fun when_pensumStepIsRendered_then_showsPensumGraphAndProgress() = runTuIndiceUiTest {
-		setTuIndiceTestContent {
-			WizardScreen(
-				state = Wizard.State.Content(currentIndex = 7),
-				onBack = {},
-				onSkip = {},
-				onNext = {},
-				onFinish = {},
-				onOpenSubjectDetail = {},
-				onOpenEvaluationForm = {},
-				onSubjectTabSelected = {},
-				onSelectedTermChange = {},
-				onSubjectChartsVisibilityChange = {}
-			)
-		}
-
-		onNodeWithText("Pensum y avance").assertExists()
-		onNodeWithText("Paso 7 de 11").assertExists()
-		onNodeWithText("75% avance").assertExists()
-		onNodeWithText("Computación 2019 · Proyecto de Grado").assertExists()
-		assertNodeVisible(PensumUiTags.PensumScreen)
-		onNodeWithTag(PensumUiTags.node("ci4325")).assertExists()
-		onAllNodesWithTag(WizardUiTags.FocusOverlay).assertCountEquals(0)
-	}
-
-	@Test
 	fun when_evaluationsStepIsRendered_then_showsStateSubjectAndDateFilters() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			WizardScreen(
-				state = Wizard.State.Content(currentIndex = 8),
+				state = Wizard.State.Content().goTo(WizardStepId.Evaluations),
 				onBack = {},
 				onSkip = {},
 				onNext = {},
@@ -262,7 +244,7 @@ class WizardScreenUiTest {
 		}
 
 		onNodeWithText("Evaluaciones").assertExists()
-		onNodeWithText("Paso 8 de 11").assertExists()
+		onNodeWithText("Paso 7 de 10").assertExists()
 		onNodeWithTag(EvaluationsUiTags.filterChip("Pendientes")).assertExists()
 		onNodeWithTag(EvaluationsUiTags.filterChip("CI2611")).assertExists()
 		onNodeWithTag(EvaluationsUiTags.filterChip("Mañana")).assertExists()
@@ -277,7 +259,7 @@ class WizardScreenUiTest {
 	fun when_aboutStepIsRendered_then_hasNoFocusOverlay() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			WizardScreen(
-				state = Wizard.State.Content(currentIndex = 11),
+				state = Wizard.State.Content().goTo(WizardStepId.About),
 				onBack = {},
 				onSkip = {},
 				onNext = {},
@@ -291,7 +273,7 @@ class WizardScreenUiTest {
 		}
 
 		onNodeWithText("Ayuda e información").assertExists()
-		onNodeWithText("Paso 11 de 11").assertExists()
+		onNodeWithText("Paso 10 de 10").assertExists()
 		onAllNodesWithTag(WizardUiTags.FocusOverlay).assertCountEquals(0)
 	}
 
@@ -302,7 +284,7 @@ class WizardScreenUiTest {
 
 		setTuIndiceTestContent {
 			WizardScreen(
-				state = Wizard.State.Content(currentIndex = 1),
+				state = Wizard.State.Content().goTo(WizardStepId.Summary),
 				onBack = {},
 				onSkip = {},
 				onNext = { nextCalls++ },

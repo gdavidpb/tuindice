@@ -15,8 +15,6 @@ import tuindice.wizard.generated.resources.wizard_pensum_title
 import tuindice.wizard.generated.resources.wizard_record_message
 import tuindice.wizard.generated.resources.wizard_record_actions_message
 import tuindice.wizard.generated.resources.wizard_record_actions_title
-import tuindice.wizard.generated.resources.wizard_record_subject_entry_message
-import tuindice.wizard.generated.resources.wizard_record_subject_entry_title
 import tuindice.wizard.generated.resources.wizard_record_title
 import tuindice.wizard.generated.resources.wizard_subject_charts_message
 import tuindice.wizard.generated.resources.wizard_subject_charts_title
@@ -27,6 +25,7 @@ import tuindice.wizard.generated.resources.wizard_summary_title
 import tuindice.wizard.generated.resources.wizard_welcome_message
 import tuindice.wizard.generated.resources.wizard_welcome_title
 
+// Keep this sequence aligned with the bottom bar sections: Summary, Record, Pensum, Evaluations, About.
 fun defaultWizardSteps(): List<WizardStep> = listOf(
 	WizardStep(
 		id = WizardStepId.Welcome,
@@ -42,14 +41,6 @@ fun defaultWizardSteps(): List<WizardStep> = listOf(
 		topBarConfig = TopBarConfig.Summary
 	),
 	WizardStep(
-		id = WizardStepId.RecordActions,
-		title = Res.string.wizard_record_actions_title,
-		message = Res.string.wizard_record_actions_message,
-		topBarTitle = "Informe Académico",
-		topBarConfig = TopBarConfig.Record,
-		showsRecordViewMode = true
-	),
-	WizardStep(
 		id = WizardStepId.Record,
 		title = Res.string.wizard_record_title,
 		message = Res.string.wizard_record_message,
@@ -58,9 +49,17 @@ fun defaultWizardSteps(): List<WizardStep> = listOf(
 		showsRecordViewMode = true
 	),
 	WizardStep(
-		id = WizardStepId.RecordSubjectEntry,
-		title = Res.string.wizard_record_subject_entry_title,
-		message = Res.string.wizard_record_subject_entry_message,
+		id = WizardStepId.RecordActions,
+		title = Res.string.wizard_record_actions_title,
+		message = Res.string.wizard_record_actions_message,
+		topBarTitle = "Informe Académico",
+		topBarConfig = TopBarConfig.Record,
+		showsRecordViewMode = true
+	),
+	WizardStep(
+		id = WizardStepId.Pensum,
+		title = Res.string.wizard_pensum_title,
+		message = Res.string.wizard_pensum_message,
 		topBarTitle = "Pensum",
 		topBarConfig = TopBarConfig.Pensum
 	),
@@ -75,13 +74,6 @@ fun defaultWizardSteps(): List<WizardStep> = listOf(
 		title = Res.string.wizard_subject_charts_title,
 		message = Res.string.wizard_subject_charts_message,
 		topBarTitle = "Sobre esta materia"
-	),
-	WizardStep(
-		id = WizardStepId.Pensum,
-		title = Res.string.wizard_pensum_title,
-		message = Res.string.wizard_pensum_message,
-		topBarTitle = "Pensum",
-		topBarConfig = TopBarConfig.Pensum
 	),
 	WizardStep(
 		id = WizardStepId.Evaluations,

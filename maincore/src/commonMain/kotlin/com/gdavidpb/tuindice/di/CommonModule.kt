@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.data.source.cache.CoreCacheStateDataSource
 import com.gdavidpb.tuindice.data.source.messaging.MessagingDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.MessagingLocalDataRepository
 import com.gdavidpb.tuindice.data.repository.messaging.MessagingRemoteDataRepository
@@ -31,6 +32,7 @@ import com.gdavidpb.tuindice.data.source.sync.SyncApiDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncSettingsDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncStatusSettingsDataSource
 import com.gdavidpb.tuindice.data.source.settings.MultiplatformSettingsDataSource
+import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import com.russhwolf.settings.Settings
@@ -59,6 +61,7 @@ val commonModule = module {
 	singleOf(::SyncSettingsDataSource) { bind<SyncSettingsLocalDataRepository>() }
 	singleOf(::SyncStatusSettingsDataSource) { bind<SyncStatusRepository>() }
 	singleOf(::SyncApiDataSource) { bind<SyncRemoteDataRepository>() }
+	singleOf(::CoreCacheStateDataSource) { bind<CoreCacheStateRepository>() }
 	singleOf(::createSyncRepository)
 }
 

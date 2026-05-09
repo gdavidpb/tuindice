@@ -187,18 +187,13 @@ private fun WizardStepContent(
 				onChartsVisibilityChange = if (isSubjectStep) onSubjectChartsVisibilityChange else ({})
 			)
 
-		WizardStepId.RecordSubjectEntry,
 		WizardStepId.Pensum ->
 			PensumScreen(
 				state = samplePensumState(),
 				onRetryClick = {},
 				showSelectionSheet = false,
 				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {
-					if (state.currentStep.id == WizardStepId.RecordSubjectEntry) {
-						onOpenSubjectDetail()
-					}
-				},
+				onSubjectStatsClick = { onOpenSubjectDetail() },
 				onSelectionApplied = { _, _ -> }
 			)
 

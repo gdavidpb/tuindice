@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.Flow
 interface AcademicRecordLocalDataRepository {
 	fun observeAcademicRecordFlow(): Flow<AcademicRecord?>
 	fun observeHasSyncedRecordFlow(): Flow<Boolean>
+	suspend fun hasAcademicRecord(): Boolean
 	suspend fun getAcademicRecord(): AcademicRecord?
 	suspend fun getRecordRevision(): Long?
 	suspend fun saveAcademicRecord(record: VersionedAcademicRecord)

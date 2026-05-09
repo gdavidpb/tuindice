@@ -22,6 +22,7 @@ import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.first
 
 class AcademicRecordDataSource(
 	private val localDataSource: AcademicRecordLocalDataRepository,
@@ -50,8 +51,10 @@ class AcademicRecordDataSource(
 
 	override suspend fun updateAcademicRecord() {
 		val isOnCooldown = settingsDataSource.isGetAcademicRecordOnCooldown()
+		val hasUsableLocalRecord = localDataSource.hasAcademicRecord() &&
+				localDataSource.observeHasSyncedRecordFlow().first()
 
-		if (!isOnCooldown) {
+		if (!isOnCooldown || !hasUsableLocalRecord) {
 			val snapshotVersion = mutationEngine.currentMutationVersion()
 			val remoteRecord = remoteDataSource.getAcademicRecord()
 			if (snapshotVersion == mutationEngine.currentMutationVersion()) {

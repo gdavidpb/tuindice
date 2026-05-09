@@ -62,6 +62,10 @@ class AcademicRecordRoomDataSource(
 		return observeAcademicRecordFlow().first()
 	}
 
+	override suspend fun hasAcademicRecord(): Boolean {
+		return academicRecordDao.getRecord() != null
+	}
+
 	override suspend fun getRecordRevision(): Long? {
 		return academicRecordDao.getRecord()?.revisionValue()
 	}

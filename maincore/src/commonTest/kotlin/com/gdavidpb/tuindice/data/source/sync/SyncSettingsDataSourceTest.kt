@@ -5,19 +5,37 @@ import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
+import com.gdavidpb.tuindice.evaluations.utils.PreferencesKeys as EvaluationsPreferencesKeys
 import com.gdavidpb.tuindice.record.utils.PreferencesKeys as RecordPreferencesKeys
 import com.gdavidpb.tuindice.summary.utils.PreferencesKeys as SummaryPreferencesKeys
 
 class SyncSettingsDataSourceTest {
 	@Test
-	fun setSyncedFeatureCooldowns_marksSummaryCooldown_withoutMarkingRecordCooldown() = runTest {
+	fun setSyncedFeatureCooldowns_marksSummaryAndRecordCooldowns() = runTest {
 		val settings = FakeSettings()
 		val dataSource = SyncSettingsDataSource(settings)
 
 		dataSource.setSyncedFeatureCooldowns()
 
 		assertTrue(settings.hasKey(SummaryPreferencesKeys.COOLDOWN_GET_USER))
+		assertTrue(settings.hasKey(RecordPreferencesKeys.COOLDOWN_GET_RECORD))
+		assertFalse(settings.hasKey(EvaluationsPreferencesKeys.COOLDOWN_GET_EVALUATIONS))
+	}
+
+	@Test
+	fun clearRecoveryCooldowns_removesGlobalAndFeatureCooldowns() = runTest {
+		val settings = FakeSettings()
+		val dataSource = SyncSettingsDataSource(settings)
+		dataSource.setSyncOnCooldown()
+		dataSource.setSyncedFeatureCooldowns()
+		settings.putLong(EvaluationsPreferencesKeys.COOLDOWN_GET_EVALUATIONS, Long.MAX_VALUE)
+
+		dataSource.clearRecoveryCooldowns()
+
+		assertFalse(dataSource.isSyncOnCooldown())
+		assertFalse(settings.hasKey(SummaryPreferencesKeys.COOLDOWN_GET_USER))
 		assertFalse(settings.hasKey(RecordPreferencesKeys.COOLDOWN_GET_RECORD))
+		assertFalse(settings.hasKey(EvaluationsPreferencesKeys.COOLDOWN_GET_EVALUATIONS))
 	}
 }
 

@@ -33,6 +33,79 @@ import kotlin.test.assertEquals
 
 class AcademicRecordDataSourceTest {
 	@Test
+	fun updateAcademicRecord_ignoresCooldown_whenLocalRecordIsMissing() = runTest {
+		val remoteRecord = defaultVersionedRecord()
+		val localDataSource = FakeAcademicRecordLocalDataRepository(
+			record = null,
+			hasSyncedRecord = true
+		)
+		val remoteDataSource = ControlledAcademicRecordRemoteDataRepository(upsertResponse = remoteRecord)
+		val settingsDataSource = FakeRecordSettingsDataRepository(onCooldown = true)
+		val dataSource = AcademicRecordDataSource(
+			localDataSource = localDataSource,
+			remoteDataSource = remoteDataSource,
+			settingsDataSource = settingsDataSource,
+			mutationEngine = createMutationEngine(this),
+			identifierRepository = FakeIdentifierRepository()
+		)
+
+		dataSource.updateAcademicRecord()
+
+		assertEquals(1, remoteDataSource.getRecordCalls)
+		assertEquals(listOf(remoteRecord), localDataSource.savedRecords)
+		assertEquals(true, settingsDataSource.cooldownMarked)
+	}
+
+	@Test
+	fun updateAcademicRecord_ignoresCooldown_whenRecordHasNeverSynced() = runTest {
+		val remoteRecord = defaultVersionedRecord(revision = 2L)
+		val localDataSource = FakeAcademicRecordLocalDataRepository(
+			record = defaultVersionedRecord(),
+			hasSyncedRecord = false
+		)
+		val remoteDataSource = ControlledAcademicRecordRemoteDataRepository(upsertResponse = remoteRecord)
+		val settingsDataSource = FakeRecordSettingsDataRepository(onCooldown = true)
+		val dataSource = AcademicRecordDataSource(
+			localDataSource = localDataSource,
+			remoteDataSource = remoteDataSource,
+			settingsDataSource = settingsDataSource,
+			mutationEngine = createMutationEngine(this),
+			identifierRepository = FakeIdentifierRepository()
+		)
+
+		dataSource.updateAcademicRecord()
+
+		assertEquals(1, remoteDataSource.getRecordCalls)
+		assertEquals(listOf(remoteRecord), localDataSource.savedRecords)
+		assertEquals(true, settingsDataSource.cooldownMarked)
+	}
+
+	@Test
+	fun updateAcademicRecord_respectsCooldown_whenLocalRecordIsUsable() = runTest {
+		val localDataSource = FakeAcademicRecordLocalDataRepository(
+			record = defaultVersionedRecord(),
+			hasSyncedRecord = true
+		)
+		val remoteDataSource = ControlledAcademicRecordRemoteDataRepository(
+			upsertResponse = defaultVersionedRecord(revision = 2L)
+		)
+		val settingsDataSource = FakeRecordSettingsDataRepository(onCooldown = true)
+		val dataSource = AcademicRecordDataSource(
+			localDataSource = localDataSource,
+			remoteDataSource = remoteDataSource,
+			settingsDataSource = settingsDataSource,
+			mutationEngine = createMutationEngine(this),
+			identifierRepository = FakeIdentifierRepository()
+		)
+
+		dataSource.updateAcademicRecord()
+
+		assertEquals(0, remoteDataSource.getRecordCalls)
+		assertEquals(emptyList(), localDataSource.savedRecords)
+		assertEquals(false, settingsDataSource.cooldownMarked)
+	}
+
+	@Test
 	fun upsertAttemptOverride_whenEarlierAckArrivesAfterNewerTap_keepsLaterPendingOverrideVisible() = runTest {
 		val firstAttemptId = "11111111111111111111111111111111"
 		val secondAttemptId = "22222222222222222222222222222222"
@@ -147,7 +220,7 @@ class AcademicRecordDataSourceTest {
 					updatedAtMillis = 3L
 				)
 			),
-			localDataSource.getAcademicRecord().attemptOverrides
+			requireNotNull(localDataSource.getAcademicRecord()).attemptOverrides
 		)
 	}
 
@@ -253,7 +326,7 @@ class AcademicRecordDataSourceTest {
 					updatedAtMillis = 3L
 				)
 			),
-			localDataSource.getAcademicRecord().attemptOverrides
+			requireNotNull(localDataSource.getAcademicRecord()).attemptOverrides
 		)
 	}
 
@@ -351,10 +424,17 @@ class AcademicRecordDataSourceTest {
 					updatedAtMillis = 2L
 				)
 			),
-			localDataSource.getAcademicRecord().attemptOverrides
+			requireNotNull(localDataSource.getAcademicRecord()).attemptOverrides
 		)
 	}
 }
+
+private fun defaultVersionedRecord(
+	revision: Long = 1L
+) = VersionedAcademicRecord(
+	revision = revision,
+	record = AcademicRecord(id = "record-1")
+)
 
 private fun createMutationEngine(
 	coroutineScope: CoroutineScope
@@ -365,24 +445,31 @@ private fun createMutationEngine(
 )
 
 private class FakeAcademicRecordLocalDataRepository(
-	record: VersionedAcademicRecord
+	record: VersionedAcademicRecord?,
+	private val hasSyncedRecord: Boolean = true
 ) : AcademicRecordLocalDataRepository {
-	private val recordState = MutableStateFlow(record.record)
-	private val stateHistory = mutableListOf(record.record)
-	private var revision = record.revision
+	private val recordState = MutableStateFlow(record?.record)
+	private val stateHistory = mutableListOf<AcademicRecord>().apply {
+		record?.record?.let(::add)
+	}
+	private var revision = record?.revision
+	val savedRecords = mutableListOf<VersionedAcademicRecord>()
 
 	override fun observeAcademicRecordFlow(): Flow<AcademicRecord?> = recordState
 
-	override fun observeHasSyncedRecordFlow(): Flow<Boolean> = flowOf(true)
+	override fun observeHasSyncedRecordFlow(): Flow<Boolean> = flowOf(hasSyncedRecord)
 
-	override suspend fun getAcademicRecord(): AcademicRecord = recordState.value
+	override suspend fun hasAcademicRecord(): Boolean = recordState.value != null
 
-	override suspend fun getRecordRevision(): Long = revision
+	override suspend fun getAcademicRecord(): AcademicRecord? = recordState.value
+
+	override suspend fun getRecordRevision(): Long? = revision
 
 	override suspend fun saveAcademicRecord(record: VersionedAcademicRecord) {
 		revision = record.revision
 		recordState.value = record.record
 		stateHistory += record.record
+		savedRecords += record
 	}
 
 	override suspend fun upsertAttemptOverride(
@@ -391,8 +478,9 @@ private class FakeAcademicRecordLocalDataRepository(
 		outcome: AttemptOutcome?,
 		committed: Boolean
 	): AcademicRecord {
-		val updated = recordState.value.copy(
-			attemptOverrides = recordState.value.attemptOverrides
+		val current = requireNotNull(recordState.value)
+		val updated = current.copy(
+			attemptOverrides = current.attemptOverrides
 				.filterNot { override -> override.attemptId == attemptId } +
 				AttemptOverride(
 					attemptId = attemptId,
@@ -407,8 +495,9 @@ private class FakeAcademicRecordLocalDataRepository(
 	}
 
 	override suspend fun deleteAttemptOverride(attemptId: String): AcademicRecord {
-		val updated = recordState.value.copy(
-			attemptOverrides = recordState.value.attemptOverrides.filterNot { override ->
+		val current = requireNotNull(recordState.value)
+		val updated = current.copy(
+			attemptOverrides = current.attemptOverrides.filterNot { override ->
 				override.attemptId == attemptId
 			}
 		)
@@ -418,8 +507,9 @@ private class FakeAcademicRecordLocalDataRepository(
 	}
 
 	override suspend fun addSyntheticTerm(command: AcademicRecordMutation.AddSyntheticTerm): AcademicRecord {
-		val updated = recordState.value.copy(
-			terms = recordState.value.terms.filterNot { term -> term.id == command.termId } + AcademicTerm(
+		val current = requireNotNull(recordState.value)
+		val updated = current.copy(
+			terms = current.terms.filterNot { term -> term.id == command.termId } + AcademicTerm(
 				id = command.termId,
 				startAtMillis = command.startAtMillis,
 				endAtMillis = command.endAtMillis,
@@ -443,8 +533,9 @@ private class FakeAcademicRecordLocalDataRepository(
 	}
 
 	override suspend fun deleteSyntheticTerm(termId: String): AcademicRecord {
-		val updated = recordState.value.copy(
-			terms = recordState.value.terms.filterNot { term -> term.id == termId }
+		val current = requireNotNull(recordState.value)
+		val updated = current.copy(
+			terms = current.terms.filterNot { term -> term.id == termId }
 		)
 		recordState.value = updated
 		stateHistory += updated
@@ -630,10 +721,16 @@ private class DelayedSequentialUpsertAcademicRecordRemoteDataRepository(
 	): VersionedAcademicRecord = secondResponse
 }
 
-private class FakeRecordSettingsDataRepository : RecordSettingsDataRepository {
-	override suspend fun isGetAcademicRecordOnCooldown(): Boolean = false
+private class FakeRecordSettingsDataRepository(
+	private val onCooldown: Boolean = false
+) : RecordSettingsDataRepository {
+	var cooldownMarked = false
 
-	override suspend fun setGetAcademicRecordOnCooldown() = Unit
+	override suspend fun isGetAcademicRecordOnCooldown(): Boolean = onCooldown
+
+	override suspend fun setGetAcademicRecordOnCooldown() {
+		cooldownMarked = true
+	}
 
 	override fun observeSelectedTermId(viewMode: RecordViewMode): Flow<String?> = MutableStateFlow(null)
 

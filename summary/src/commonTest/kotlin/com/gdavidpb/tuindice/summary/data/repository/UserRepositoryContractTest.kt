@@ -93,6 +93,26 @@ class UserRepositoryContractTest {
 	}
 
 	@Test
+	fun updateUser_ignoresCooldown_whenLocalUserIsMissing() = runTest {
+		val localDataSource = FakeLocalDataSource(initialUser = null)
+		val remoteDataSource = FakeRemoteDataSource(user = DEFAULT_SUMMARY_USER)
+		val settingsDataSource = FakeSettingsDataSource(onCooldown = true)
+		val repository = UserDataSource(
+			localDataSource = localDataSource,
+			remoteDataSource = remoteDataSource,
+			settingsDataSource = settingsDataSource,
+			profilePictureInputDataSource = FakeProfilePictureInputDataSource(),
+			pictureEncoderDataSource = FakePictureEncoderDataSource()
+		)
+
+		repository.updateUser()
+
+		assertEquals(listOf(DEFAULT_SUMMARY_USER), localDataSource.savedUsers)
+		assertEquals(1, remoteDataSource.getUserCalls)
+		assertTrue(settingsDataSource.cooldownMarked)
+	}
+
+	@Test
 	fun uploadProfilePicture_encodesFile_savesLocalUrl_andReturnsRemotePicture() = runTest {
 		val localDataSource = FakeLocalDataSource()
 		val remoteDataSource = FakeRemoteDataSource(profilePicture = DEFAULT_SUMMARY_PROFILE_PICTURE)

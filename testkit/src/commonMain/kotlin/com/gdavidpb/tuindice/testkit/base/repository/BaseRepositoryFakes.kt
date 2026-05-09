@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
+import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
@@ -239,9 +240,11 @@ class FakeUpdateRepository(
 
 class FakeSyncRepository : SyncRepository {
 	val scheduledSyncCalls = mutableListOf<String>()
+	val scheduledSyncPolicies = mutableListOf<SyncPolicy>()
 
-	override fun scheduleSync(password: String) {
+	override fun scheduleSync(password: String, policy: SyncPolicy) {
 		scheduledSyncCalls += password
+		scheduledSyncPolicies += policy
 	}
 
 	override fun observeSyncInProgress(): Flow<Boolean> = flowOf(false)

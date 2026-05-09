@@ -11,8 +11,10 @@ import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
+import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
+import com.gdavidpb.tuindice.testing.FakeCoreCacheStateRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
@@ -45,6 +47,7 @@ class MainModuleKoinSmokeTest {
 			single<NetworkRepository> { FakeNetworkRepository() }
 			single<ReviewRepository> { RecordingReviewRepository() }
 			single<SyncRepository> { FakeSyncRepository() }
+			single<CoreCacheStateRepository> { FakeCoreCacheStateRepository() }
 			single<UpdateRepository> { FakeUpdateRepository() }
 			single<BrowserRepository> { RecordingBrowserRepository() }
 		}

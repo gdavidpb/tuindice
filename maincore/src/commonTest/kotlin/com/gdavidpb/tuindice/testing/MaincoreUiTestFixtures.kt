@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.domain.usecase.ScheduleSyncUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastMainSectionUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
+import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
 import com.gdavidpb.tuindice.presentation.action.browser.NavigateToActionProcessor
 import com.gdavidpb.tuindice.presentation.action.browser.OpenExternalResourceActionProcessor
 import com.gdavidpb.tuindice.presentation.action.browser.SetLoadingActionProcessor
@@ -113,6 +114,7 @@ fun createMainViewModel(
 	configRepository: FakeConfigRepository = FakeConfigRepository(),
 	credentialsRepository: CredentialsRepository = FakeCredentialsRepository(),
 	syncRepository: SyncRepository = FakeSyncRepository(),
+	coreCacheStateRepository: CoreCacheStateRepository = FakeCoreCacheStateRepository(),
 	updateRepository: FakeUpdateRepository = FakeUpdateRepository(),
 	applicationRepository: RecordingApplicationRepository = RecordingApplicationRepository(),
 	reportingRepository: RecordingReportingRepository = RecordingReportingRepository()
@@ -140,6 +142,7 @@ fun createMainViewModel(
 				sessionRepository = sessionRepository,
 				credentialsRepository = credentialsRepository,
 				syncRepository = syncRepository,
+				coreCacheStateRepository = coreCacheStateRepository,
 				reportingRepository = reportingRepository
 			)
 		),
@@ -164,6 +167,12 @@ fun createMainViewModel(
 			)
 		)
 	)
+}
+
+class FakeCoreCacheStateRepository(
+	private val requiresBaseRehydration: Boolean = false
+) : CoreCacheStateRepository {
+	override suspend fun requiresBaseRehydration(): Boolean = requiresBaseRehydration
 }
 
 class FakeDeviceInfoRepository(

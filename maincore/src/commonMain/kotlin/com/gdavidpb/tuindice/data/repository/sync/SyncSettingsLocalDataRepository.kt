@@ -6,4 +6,5 @@ interface SyncSettingsLocalDataRepository {
 	suspend fun setSyncOnCooldown()
 	suspend fun setSyncedFeatureCooldowns()
 	suspend fun clearStaleFeatureCooldowns()
+	suspend fun clearRecoveryCooldowns()
 }

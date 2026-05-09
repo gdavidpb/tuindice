@@ -27,6 +27,7 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
 class EvaluationDataSource(
@@ -53,8 +54,9 @@ class EvaluationDataSource(
 
 	override suspend fun updateEvaluations() {
 		val isOnCooldown = settingsDataSource.isGetEvaluationsOnCooldown()
+		val hasSyncedEvaluations = databaseDataSource.observeHasSyncedEvaluationsFlow().first()
 
-		if (!isOnCooldown) {
+		if (!isOnCooldown || !hasSyncedEvaluations) {
 			val snapshotVersion = mutationEngine.currentMutationVersion()
 			val remoteSnapshot = evaluationsApiDataSource.getEvaluations()
 			if (snapshotVersion == mutationEngine.currentMutationVersion()) {

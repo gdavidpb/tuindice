@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.data.source.sync
 
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
@@ -35,7 +36,7 @@ class SyncDataSource(
 
 	override fun observeSyncInProgress(): Flow<Boolean> = syncInProgress.asStateFlow()
 
-	override fun scheduleSync(password: String) {
+	override fun scheduleSync(password: String, policy: SyncPolicy) {
 		syncScope.launch {
 			runCatching {
 				syncMutex.withLock {
@@ -44,7 +45,10 @@ class SyncDataSource(
 
 					val isOnCooldown = settingsDataSource.isSyncOnCooldown()
 
-					if (isOnCooldown) return@withLock
+					if (isOnCooldown && policy == SyncPolicy.RespectCooldown) return@withLock
+					if (policy == SyncPolicy.ForceRefresh) {
+						settingsDataSource.clearRecoveryCooldowns()
+					}
 
 					val syncResult = try {
 						syncInProgress.value = true

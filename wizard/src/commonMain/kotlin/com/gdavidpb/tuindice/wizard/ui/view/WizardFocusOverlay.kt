@@ -40,7 +40,6 @@ import tuindice.wizard.generated.resources.wizard_focus_evaluation_swipe
 import tuindice.wizard.generated.resources.wizard_focus_evaluations
 import tuindice.wizard.generated.resources.wizard_focus_record
 import tuindice.wizard.generated.resources.wizard_focus_record_actions
-import tuindice.wizard.generated.resources.wizard_focus_record_subject_entry
 
 @Composable
 internal fun WizardFocusOverlay(
@@ -274,7 +273,6 @@ private fun WizardStepId.focusOverlaySpec(): WizardFocusOverlaySpec? {
 			height = 152.dp
 		)
 		WizardStepId.RecordActions -> null
-		WizardStepId.RecordSubjectEntry -> null
 		WizardStepId.SubjectDetail -> null
 		WizardStepId.SubjectCharts -> null
 		WizardStepId.Pensum -> null

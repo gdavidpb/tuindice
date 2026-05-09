@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.subjects.ui.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -51,7 +50,6 @@ import tuindice.subjects.generated.resources.Res
 import tuindice.subjects.generated.resources.subjects_message_retry
 import tuindice.subjects.generated.resources.subjects_search_clear_content_description
 import tuindice.subjects.generated.resources.subjects_search_error
-import tuindice.subjects.generated.resources.subjects_search_initial
 import tuindice.subjects.generated.resources.subjects_search_no_results
 import tuindice.subjects.generated.resources.subjects_search_placeholder
 import tuindice.subjects.generated.resources.subjects_search_result_content_description
@@ -89,7 +87,7 @@ fun SubjectSearchScreen(
 
 		when {
 			state.query.trim().length < 2 ->
-				SubjectSearchMessage(text = stringResource(Res.string.subjects_search_initial))
+				Unit
 
 			state.hasRemoteError ->
 				SubjectSearchError(
@@ -123,11 +121,13 @@ private fun SubjectSearchTextField(
 		onValueChange = onQueryChange,
 		singleLine = true,
 		shape = RoundedCornerShape(16.dp),
-		textStyle = MaterialTheme.typography.headlineSmall,
+		textStyle = MaterialTheme.typography.titleLarge,
 		placeholder = {
 			Text(
 				text = stringResource(Res.string.subjects_search_placeholder),
-				style = MaterialTheme.typography.headlineSmall
+				style = MaterialTheme.typography.titleLarge,
+				maxLines = 1,
+				overflow = TextOverflow.Ellipsis
 			)
 		},
 		leadingIcon = {
@@ -267,20 +267,6 @@ private fun SubjectSearchResultCard(
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
 			)
 		}
-	}
-}
-
-@Composable
-private fun SubjectSearchMessage(text: String) {
-	Box(
-		modifier = Modifier.fillMaxWidth(),
-		contentAlignment = Alignment.Center
-	) {
-		Text(
-			text = text,
-			style = MaterialTheme.typography.titleMedium,
-			color = MaterialTheme.colorScheme.onSurfaceVariant
-		)
 	}
 }
 

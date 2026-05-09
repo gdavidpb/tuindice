@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicProfile
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
@@ -49,7 +50,7 @@ class SyncRepositoryContractTest {
 			dispatcher = StandardTestDispatcher(testScheduler)
 		)
 
-		repository.scheduleSync(password = "secret123")
+		repository.scheduleSync(password = "secret123", policy = SyncPolicy.RespectCooldown)
 		advanceUntilIdle()
 
 		assertEquals(listOf("secret123"), remoteDataSource.syncPasswords)
@@ -80,7 +81,7 @@ class SyncRepositoryContractTest {
 				.take(1)
 				.toList(emissions)
 		}
-		repository.scheduleSync(password = "new-secret")
+		repository.scheduleSync(password = "new-secret", policy = SyncPolicy.RespectCooldown)
 		advanceUntilIdle()
 
 		assertEquals(listOf(false), emissions)
@@ -104,7 +105,7 @@ class SyncRepositoryContractTest {
 		}
 		assertEquals(false, repository.observeSyncInProgress().first())
 
-		repository.scheduleSync(password = "stored-secret")
+		repository.scheduleSync(password = "stored-secret", policy = SyncPolicy.RespectCooldown)
 		advanceUntilIdle()
 
 		assertEquals(true, observedDuringRemoteCall)
@@ -132,7 +133,7 @@ class SyncRepositoryContractTest {
 			dispatcher = StandardTestDispatcher(testScheduler)
 		)
 
-		repository.scheduleSync(password = "stored-secret")
+		repository.scheduleSync(password = "stored-secret", policy = SyncPolicy.RespectCooldown)
 		advanceUntilIdle()
 
 		assertEquals(listOf("stored-secret"), remoteDataSource.syncPasswords)
@@ -160,7 +161,7 @@ class SyncRepositoryContractTest {
 			dispatcher = StandardTestDispatcher(testScheduler)
 		)
 
-		repository.scheduleSync(password = "new-secret")
+		repository.scheduleSync(password = "new-secret", policy = SyncPolicy.RespectCooldown)
 		advanceUntilIdle()
 
 		assertEquals(listOf("new-secret"), remoteDataSource.syncPasswords)
@@ -185,7 +186,7 @@ class SyncRepositoryContractTest {
 			dispatcher = StandardTestDispatcher(testScheduler)
 		)
 
-		repository.scheduleSync(password = "new-secret")
+		repository.scheduleSync(password = "new-secret", policy = SyncPolicy.RespectCooldown)
 		advanceUntilIdle()
 
 		assertEquals(listOf("new-secret"), remoteDataSource.syncPasswords)
@@ -210,7 +211,7 @@ class SyncRepositoryContractTest {
 			dispatcher = StandardTestDispatcher(testScheduler)
 		)
 
-		repository.scheduleSync(password = "new-secret")
+		repository.scheduleSync(password = "new-secret", policy = SyncPolicy.RespectCooldown)
 		advanceUntilIdle()
 
 		assertEquals(listOf("new-secret"), remoteDataSource.syncPasswords)
@@ -230,10 +231,55 @@ class SyncRepositoryContractTest {
 			dispatcher = StandardTestDispatcher(testScheduler)
 		)
 
-		repository.scheduleSync(password = "new-secret")
+		repository.scheduleSync(password = "new-secret", policy = SyncPolicy.RespectCooldown)
 		advanceUntilIdle()
 
 		assertEquals(emptyList(), remoteDataSource.syncPasswords)
+		assertEquals(false, settingsDataSource.cooldownMarked)
+	}
+
+	@Test
+	fun scheduleSync_forceRefresh_callsApiAndClearsRecoveryCooldowns_whenOnCooldown() = runTest {
+		val events = mutableListOf<String>()
+		val settingsDataSource = FakeSyncSettingsLocalDataSource(
+			onCooldown = true,
+			events = events
+		)
+		val remoteDataSource = FakeSyncRemoteDataSource(events = events)
+		val repository = createRepository(
+			settingsDataSource = settingsDataSource,
+			syncStatusRepository = FakeSyncStatusRepository(),
+			remoteDataSource = remoteDataSource,
+			dispatcher = StandardTestDispatcher(testScheduler)
+		)
+
+		repository.scheduleSync(password = "recovery-secret", policy = SyncPolicy.ForceRefresh)
+		advanceUntilIdle()
+
+		assertEquals(listOf("recovery-secret"), remoteDataSource.syncPasswords)
+		assertEquals(true, settingsDataSource.recoveryCooldownsCleared)
+		assertEquals(true, settingsDataSource.cooldownMarked)
+		assertEquals(true, settingsDataSource.syncedFeatureCooldownsMarked)
+		assertEquals(true, settingsDataSource.staleFeatureCooldownsCleared)
+		assertEquals(listOf("clear_recovery", "sync"), events)
+	}
+
+	@Test
+	fun scheduleSync_forceRefresh_skipsApiWhenSyncStatusIsOutdatedCredentials() = runTest {
+		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = true)
+		val remoteDataSource = FakeSyncRemoteDataSource()
+		val repository = createRepository(
+			settingsDataSource = settingsDataSource,
+			syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials),
+			remoteDataSource = remoteDataSource,
+			dispatcher = StandardTestDispatcher(testScheduler)
+		)
+
+		repository.scheduleSync(password = "recovery-secret", policy = SyncPolicy.ForceRefresh)
+		advanceUntilIdle()
+
+		assertEquals(emptyList(), remoteDataSource.syncPasswords)
+		assertEquals(false, settingsDataSource.recoveryCooldownsCleared)
 		assertEquals(false, settingsDataSource.cooldownMarked)
 	}
 
@@ -257,11 +303,13 @@ class SyncRepositoryContractTest {
 }
 
 private class FakeSyncSettingsLocalDataSource(
-	private val onCooldown: Boolean
+	private val onCooldown: Boolean,
+	private val events: MutableList<String> = mutableListOf()
 ) : SyncSettingsLocalDataRepository {
 	var cooldownMarked = false
 	var syncedFeatureCooldownsMarked = false
 	var staleFeatureCooldownsCleared = false
+	var recoveryCooldownsCleared = false
 
 	override suspend fun isSyncOnCooldown(): Boolean = onCooldown
 
@@ -275,6 +323,11 @@ private class FakeSyncSettingsLocalDataSource(
 
 	override suspend fun clearStaleFeatureCooldowns() {
 		staleFeatureCooldownsCleared = true
+	}
+
+	override suspend fun clearRecoveryCooldowns() {
+		recoveryCooldownsCleared = true
+		events += "clear_recovery"
 	}
 }
 
@@ -304,7 +357,8 @@ private class FakeSyncRemoteDataSource(
 		user = DEFAULT_USER
 	),
 	private val throwable: Throwable? = null,
-	private val blockUntilCompleted: Boolean = false
+	private val blockUntilCompleted: Boolean = false,
+	private val events: MutableList<String> = mutableListOf()
 ) : SyncRemoteDataRepository {
 	private val releaseSync = CompletableDeferred<Unit>()
 	var onSyncStarted: suspend () -> Unit = {}
@@ -312,6 +366,7 @@ private class FakeSyncRemoteDataSource(
 
 	override suspend fun sync(password: String): SyncResult {
 		syncPasswords += password
+		events += "sync"
 		onSyncStarted()
 
 		if (blockUntilCompleted) {
@@ -333,6 +388,8 @@ private class FakeAcademicRecordLocalDataRepository : AcademicRecordLocalDataRep
 	override fun observeAcademicRecordFlow(): Flow<AcademicRecord?> = flowOf(savedRecords.lastOrNull()?.record)
 
 	override fun observeHasSyncedRecordFlow(): Flow<Boolean> = flowOf(savedRecords.isNotEmpty())
+
+	override suspend fun hasAcademicRecord(): Boolean = savedRecords.isNotEmpty()
 
 	override suspend fun getAcademicRecord(): AcademicRecord? = savedRecords.lastOrNull()?.record
 

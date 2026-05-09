@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.wizard.presentation.contract.CURRENT_TERM_ID
 import com.gdavidpb.tuindice.wizard.presentation.contract.HISTORICAL_TERM_ID
 import com.gdavidpb.tuindice.wizard.presentation.contract.Wizard
 import com.gdavidpb.tuindice.wizard.presentation.model.WizardStepId
+import com.gdavidpb.tuindice.wizard.presentation.model.defaultWizardSteps
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.test.runTest
@@ -26,8 +27,28 @@ class WizardActionProcessorContractTest {
 
 		assertEquals(WizardStepId.Welcome, state.currentStep.id)
 		assertEquals(1, state.currentProgress)
-		assertEquals(11, state.totalProgress)
+		assertEquals(10, state.totalProgress)
 		assertTrue(state.isWelcomeStep)
+	}
+
+	@Test
+	fun defaultSteps_followBottomBarSectionsWithLogicalSubsteps() {
+		assertContentEquals(
+			listOf(
+				WizardStepId.Welcome,
+				WizardStepId.Summary,
+				WizardStepId.Record,
+				WizardStepId.RecordActions,
+				WizardStepId.Pensum,
+				WizardStepId.SubjectDetail,
+				WizardStepId.SubjectCharts,
+				WizardStepId.Evaluations,
+				WizardStepId.EvaluationSwipe,
+				WizardStepId.EvaluationForm,
+				WizardStepId.About
+			),
+			defaultWizardSteps().map { step -> step.id }
+		)
 	}
 
 	@Test
@@ -79,7 +100,7 @@ class WizardActionProcessorContractTest {
 	@Test
 	fun consumeTopBarAction_consumesEnrollmentProofWithoutNavigationOrEffect() = runTest {
 		val effects = mutableListOf<Wizard.Effect>()
-		val initialState = Wizard.State.Content(currentIndex = 2)
+		val initialState = Wizard.State.Content().goTo(WizardStepId.RecordActions)
 		val state = reduce(
 			initialState = initialState,
 			mutations = ConsumeTopBarWizardActionProcessor()
