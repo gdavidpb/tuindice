@@ -8,18 +8,20 @@ import io.github.vinceglb.filekit.exists
 import io.github.vinceglb.filekit.filesDir
 import io.github.vinceglb.filekit.write
 import org.jetbrains.skia.EncodedImageFormat
+import org.jetbrains.skia.Image
 import org.jetbrains.skia.Surface
 import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
+import kotlin.test.assertTrue
 
 class FileKitSkiaPictureEncoderDataSourceTest {
 	private val dataSource = FileKitSkiaPictureEncoderDataSource()
 
 	@Test
-	fun encode_throwsWhenDecodedImageHasPositiveDimensions() = runTest {
+	fun encode_encodesJpegWhenDecodedImageHasPositiveDimensions() = runTest {
 		val inputFile = createInputFile(
 			prefix = "valid",
 			extension = "png",
@@ -27,18 +29,23 @@ class FileKitSkiaPictureEncoderDataSourceTest {
 		)
 
 		try {
-			val exception = assertFailsWith<IllegalStateException> {
-				dataSource.encodePicture(file = inputFile)
-			}
+			val encodedImage = dataSource.encodePicture(file = inputFile)
 
-			assertEquals("Decoded image dimensions must be positive.", exception.message)
+			assertEquals("image/jpeg", encodedImage.mimeType)
+			assertTrue(encodedImage.content.isNotEmpty())
+			assertTrue(encodedImage.content.size <= 1_048_576)
+			assertEncodedImageDimensions(
+				content = encodedImage.content,
+				expectedWidth = 128,
+				expectedHeight = 128
+			)
 		} finally {
 			deleteInputFileIfExists(inputFile)
 		}
 	}
 
 	@Test
-	fun encode_throwsBeforeResizeWhenDecodedImageHasPositiveDimensions() = runTest {
+	fun encode_resizesBeforeEncodingWhenImageExceedsMaxDimension() = runTest {
 		val inputFile = createInputFile(
 			prefix = "large",
 			extension = "png",
@@ -46,11 +53,16 @@ class FileKitSkiaPictureEncoderDataSourceTest {
 		)
 
 		try {
-			val exception = assertFailsWith<IllegalStateException> {
-				dataSource.encodePicture(file = inputFile)
-			}
+			val encodedImage = dataSource.encodePicture(file = inputFile)
 
-			assertEquals("Decoded image dimensions must be positive.", exception.message)
+			assertEquals("image/jpeg", encodedImage.mimeType)
+			assertTrue(encodedImage.content.isNotEmpty())
+			assertTrue(encodedImage.content.size <= 1_048_576)
+			assertEncodedImageDimensions(
+				content = encodedImage.content,
+				expectedWidth = 1024,
+				expectedHeight = 512
+			)
 		} finally {
 			deleteInputFileIfExists(inputFile)
 		}
@@ -70,6 +82,21 @@ class FileKitSkiaPictureEncoderDataSourceTest {
 			}
 		} finally {
 			deleteInputFileIfExists(inputFile)
+		}
+	}
+
+	private fun assertEncodedImageDimensions(
+		content: ByteArray,
+		expectedWidth: Int,
+		expectedHeight: Int
+	) {
+		val decodedImage = Image.makeFromEncoded(content)
+
+		try {
+			assertEquals(expectedWidth, decodedImage.width)
+			assertEquals(expectedHeight, decodedImage.height)
+		} finally {
+			decodedImage.close()
 		}
 	}
 

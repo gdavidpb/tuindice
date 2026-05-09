@@ -9,6 +9,13 @@ import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.onStart
+import org.jetbrains.compose.resources.getString
+import tuindice.summary.generated.resources.Res
+import tuindice.summary.generated.resources.snack_default_error
+import tuindice.summary.generated.resources.snack_network_unavailable
+import tuindice.summary.generated.resources.snack_no_service
+import tuindice.summary.generated.resources.snack_service_unavailable
+import tuindice.summary.generated.resources.snack_timeout
 
 class RefreshSummaryActionProcessor(
 	private val updateUserUseCase: UpdateUserUseCase
@@ -39,13 +46,34 @@ class RefreshSummaryActionProcessor(
 						}
 					}
 
-					is UseCaseState.Error -> when (useCaseState.error) {
-						is UpdateUserUseCaseError.NoConnection,
-						is UpdateUserUseCaseError.Timeout,
-						is UpdateUserUseCaseError.Unavailable,
-						UpdateUserUseCaseError.NotFound,
-						null,
-						-> suspend { state: Summary.State ->
+					is UseCaseState.Error -> {
+						suspend { state: Summary.State ->
+							val message = when (val error = useCaseState.error) {
+								is UpdateUserUseCaseError.NoConnection ->
+									if (error.isNetworkAvailable)
+										getString(Res.string.snack_service_unavailable)
+									else
+										getString(Res.string.snack_network_unavailable)
+
+								UpdateUserUseCaseError.Timeout ->
+									getString(Res.string.snack_timeout)
+
+								UpdateUserUseCaseError.Unavailable ->
+									getString(Res.string.snack_service_unavailable)
+
+								UpdateUserUseCaseError.NotFound ->
+									getString(Res.string.snack_no_service)
+
+								null ->
+									getString(Res.string.snack_default_error)
+							}
+
+							sideEffect(
+								Summary.Effect.ShowSnackBar(
+									message = message
+								)
+							)
+
 							when (state) {
 								is Summary.State.Content ->
 									state.copy(isUserRefreshing = false)

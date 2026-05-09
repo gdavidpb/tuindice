@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 import org.jetbrains.compose.resources.getString
 import tuindice.summary.generated.resources.Res
+import tuindice.summary.generated.resources.snack_default_error
 import tuindice.summary.generated.resources.text_sync_healthy
 
 class ObserveSummaryActionProcessor(
@@ -56,6 +57,12 @@ class ObserveSummaryActionProcessor(
 				}
 
 				is UseCaseState.Error -> suspend { state: Summary.State ->
+					sideEffect(
+						Summary.Effect.ShowSnackBar(
+							message = getString(Res.string.snack_default_error)
+						)
+					)
+
 					when (state) {
 						is Summary.State.Content -> state.copy(isUserRefreshing = false)
 						Summary.State.Idle,
