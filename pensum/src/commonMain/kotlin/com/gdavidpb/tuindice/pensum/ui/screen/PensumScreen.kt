@@ -85,6 +85,7 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.math.sqrt
 import kotlinx.coroutines.launch
@@ -122,6 +123,7 @@ private const val MaxCanvasZoom = 2.25f
 private const val InitialCanvasZoom = 0.74f
 private const val ZoomButtonStep = 0.18f
 private const val ZoomAnimationMillis = 220
+private const val SummaryAnimationMillis = 700
 private val InitialCanvasOffset = 18.dp
 private val CanvasPanMargin = 36.dp
 private val MinimapWidth = 156.dp
@@ -230,6 +232,39 @@ private fun PensumSummaryRow(model: PensumScreenModel) {
 		selectedPensum?.let { item -> "${item.careerName} ${item.year}" },
 		selectedModality?.name
 	).joinToString(separator = " · ")
+	val progress = remember { Animatable(0f) }
+	val approvedCredits = remember { Animatable(0f) }
+	val totalCredits = remember { Animatable(0f) }
+	val targetProgress = model.progressPercent.coerceIn(0, 100) / 100f
+	val summaryAnimationSpec = tween<Float>(
+		durationMillis = SummaryAnimationMillis,
+		easing = DecelerateEasing
+	)
+
+	LaunchedEffect(
+		model.progressPercent,
+		model.approvedCredits,
+		model.totalCredits
+	) {
+		launch {
+			progress.animateTo(
+				targetValue = targetProgress,
+				animationSpec = summaryAnimationSpec
+			)
+		}
+		launch {
+			approvedCredits.animateTo(
+				targetValue = model.approvedCredits.toFloat(),
+				animationSpec = summaryAnimationSpec
+			)
+		}
+		launch {
+			totalCredits.animateTo(
+				targetValue = model.totalCredits.toFloat(),
+				animationSpec = summaryAnimationSpec
+			)
+		}
+	}
 
 	Row(
 		modifier = Modifier
@@ -239,13 +274,13 @@ private fun PensumSummaryRow(model: PensumScreenModel) {
 		verticalAlignment = Alignment.CenterVertically,
 		horizontalArrangement = Arrangement.spacedBy(10.dp)
 	) {
-		ProgressRing(percent = model.progressPercent)
+		ProgressRing(progress = progress.value)
 		Column(
 			modifier = Modifier.weight(1f),
 			verticalArrangement = Arrangement.spacedBy(2.dp)
 		) {
 			Text(
-				text = "${model.progressPercent}% ${stringResource(Res.string.pensum_progress_label)}",
+				text = "${(progress.value * 100).roundToInt()}% ${stringResource(Res.string.pensum_progress_label)}",
 				style = MaterialTheme.typography.titleMedium,
 				fontWeight = FontWeight.SemiBold,
 				color = TextPrimary,
@@ -253,7 +288,7 @@ private fun PensumSummaryRow(model: PensumScreenModel) {
 				overflow = TextOverflow.Ellipsis
 			)
 			Text(
-				text = "${model.approvedCredits}/${model.totalCredits} UC",
+				text = "${approvedCredits.value.roundToInt()}/${totalCredits.value.roundToInt()} UC",
 				style = MaterialTheme.typography.bodyMedium,
 				color = TextSecondary,
 				maxLines = 1,
@@ -281,13 +316,13 @@ private fun PensumSummaryRow(model: PensumScreenModel) {
 }
 
 @Composable
-private fun ProgressRing(percent: Int) {
+private fun ProgressRing(progress: Float) {
 	Canvas(modifier = Modifier.size(24.dp)) {
 		drawCircle(color = PanelBorder, style = Stroke(width = 4.dp.toPx()))
 		drawArc(
 			color = Approved,
 			startAngle = -90f,
-			sweepAngle = 360f * percent / 100f,
+			sweepAngle = 360f * progress.coerceIn(0f, 1f),
 			useCenter = false,
 			style = Stroke(width = 4.dp.toPx(), cap = StrokeCap.Round)
 		)
