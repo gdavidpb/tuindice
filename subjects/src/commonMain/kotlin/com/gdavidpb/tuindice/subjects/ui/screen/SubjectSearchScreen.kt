@@ -121,11 +121,11 @@ private fun SubjectSearchTextField(
 		onValueChange = onQueryChange,
 		singleLine = true,
 		shape = RoundedCornerShape(16.dp),
-		textStyle = MaterialTheme.typography.titleLarge,
+		textStyle = MaterialTheme.typography.bodyLarge,
 		placeholder = {
 			Text(
 				text = stringResource(Res.string.subjects_search_placeholder),
-				style = MaterialTheme.typography.titleLarge,
+				style = MaterialTheme.typography.bodyLarge,
 				maxLines = 1,
 				overflow = TextOverflow.Ellipsis
 			)
@@ -233,7 +233,7 @@ private fun SubjectSearchResultCard(
 					.background(codeColors.containerColor, RoundedCornerShape(10.dp))
 					.padding(horizontal = 12.dp, vertical = 8.dp),
 				text = item.subjectCode,
-				style = MaterialTheme.typography.titleMedium,
+				style = MaterialTheme.typography.bodyMedium,
 				fontWeight = FontWeight.Bold,
 				color = codeColors.color,
 				maxLines = 1
@@ -245,7 +245,7 @@ private fun SubjectSearchResultCard(
 			) {
 				Text(
 					text = item.name,
-					style = MaterialTheme.typography.titleMedium,
+					style = MaterialTheme.typography.bodyLarge,
 					fontWeight = FontWeight.Bold,
 					color = MaterialTheme.colorScheme.onSurface,
 					maxLines = 2,
@@ -254,7 +254,7 @@ private fun SubjectSearchResultCard(
 				Spacer(modifier = Modifier.height(8.dp))
 				Text(
 					text = item.creditsText,
-					style = MaterialTheme.typography.bodyLarge,
+					style = MaterialTheme.typography.bodyMedium,
 					color = MaterialTheme.colorScheme.onSurfaceVariant
 				)
 			}
