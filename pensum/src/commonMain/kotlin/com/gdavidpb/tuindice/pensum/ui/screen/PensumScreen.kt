@@ -36,11 +36,13 @@ import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -143,24 +145,33 @@ fun PensumScreen(
 	onSubjectStatsClick: (subjectCode: String) -> Unit,
 	onSelectionApplied: (PensumScreenModel.PensumOptionItem, PensumScreenModel.ModalityItem) -> Unit
 ) {
-	SealedCrossfade(targetState = state) { targetState ->
-		when (targetState) {
-			is Pensum.State.Loading -> PensumLoadingView()
-			is Pensum.State.Empty -> PensumEmptyView()
-			is Pensum.State.Content -> PensumContentView(
-				model = targetState.model,
-				showSelectionSheet = showSelectionSheet,
-				onSelectionSheetDismiss = onSelectionSheetDismiss,
-				onSubjectStatsClick = onSubjectStatsClick,
-				onSelectionApplied = onSelectionApplied
-			)
-			is Pensum.State.Failed -> ErrorView(
-				title = stringResource(Res.string.pensum_failed_title),
-				message = stringResource(Res.string.pensum_failed_message),
-				retryText = stringResource(Res.string.pensum_failed_retry),
-				onRetryClick = onRetryClick,
-				headerContent = { ErrorStateAnimationView() }
-			)
+	Box(
+		modifier = Modifier
+			.fillMaxSize()
+			.background(ScreenBackground)
+	) {
+		CompositionLocalProvider(LocalContentColor provides TextPrimary) {
+			SealedCrossfade(targetState = state) { targetState ->
+				when (targetState) {
+					is Pensum.State.Loading -> PensumLoadingView()
+					is Pensum.State.Empty -> PensumEmptyView()
+					is Pensum.State.Content -> PensumContentView(
+						model = targetState.model,
+						showSelectionSheet = showSelectionSheet,
+						onSelectionSheetDismiss = onSelectionSheetDismiss,
+						onSubjectStatsClick = onSubjectStatsClick,
+						onSelectionApplied = onSelectionApplied
+					)
+					is Pensum.State.Failed ->
+						ErrorView(
+							title = stringResource(Res.string.pensum_failed_title),
+							message = stringResource(Res.string.pensum_failed_message),
+							retryText = stringResource(Res.string.pensum_failed_retry),
+							onRetryClick = onRetryClick,
+							headerContent = { ErrorStateAnimationView() }
+						)
+				}
+			}
 		}
 	}
 }

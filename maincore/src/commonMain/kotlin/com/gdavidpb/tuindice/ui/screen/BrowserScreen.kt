@@ -1,8 +1,11 @@
 package com.gdavidpb.tuindice.ui.screen
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -30,27 +33,33 @@ fun BrowserScreen(
 	onExternalResourceClick: (url: String) -> Unit,
 	renderer: BrowserScreenRenderer = koinInject()
 ) {
-	if (state !is Browser.State.Content) return
-
-	Column(
+	Box(
 		modifier = Modifier
-			.testTag(MaincoreUiTags.BrowserContainer)
 			.fillMaxSize()
+			.background(MaterialTheme.colorScheme.background)
 	) {
-		if (state.isLoading) {
-			LinearProgressIndicator(
-				modifier = Modifier
-					.testTag(MaincoreUiTags.BrowserLoadingIndicator)
-					.fillMaxWidth()
+		if (state !is Browser.State.Content) return@Box
+
+		Column(
+			modifier = Modifier
+				.testTag(MaincoreUiTags.BrowserContainer)
+				.fillMaxSize()
+		) {
+			if (state.isLoading) {
+				LinearProgressIndicator(
+					modifier = Modifier
+						.testTag(MaincoreUiTags.BrowserLoadingIndicator)
+						.fillMaxWidth()
+				)
+			}
+
+			renderer.Render(
+				url = state.url,
+				modifier = Modifier.fillMaxSize(),
+				onPageStarted = onPageStarted,
+				onPageFinished = onPageFinished,
+				onExternalResourceClick = onExternalResourceClick
 			)
 		}
-
-		renderer.Render(
-			url = state.url,
-			modifier = Modifier.fillMaxSize(),
-			onPageStarted = onPageStarted,
-			onPageFinished = onPageFinished,
-			onExternalResourceClick = onExternalResourceClick
-		)
 	}
 }

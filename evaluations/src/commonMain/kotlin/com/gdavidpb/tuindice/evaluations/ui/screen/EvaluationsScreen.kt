@@ -1,6 +1,11 @@
 package com.gdavidpb.tuindice.evaluations.ui.screen
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
@@ -38,60 +43,66 @@ fun EvaluationsScreen(
 	focusEvaluationId: String? = null,
 	onFocusEvaluationBoundsChange: (Rect?) -> Unit = {}
 ) {
-	SealedCrossfade(
-		targetState = state
-	) { targetState ->
-		when (targetState) {
-			is Evaluations.State.Idle -> Unit
+	Box(
+		modifier = Modifier
+			.fillMaxSize()
+			.background(MaterialTheme.colorScheme.background)
+	) {
+		SealedCrossfade(
+			targetState = state
+		) { targetState ->
+			when (targetState) {
+				is Evaluations.State.Idle -> Unit
 
-			is Evaluations.State.Loading ->
-				EvaluationsLoadingView()
+				is Evaluations.State.Loading ->
+					EvaluationsLoadingView()
 
-			is Evaluations.State.Content ->
-				EvaluationsContentView(
-					state = targetState,
-					onAddEvaluationClick = onAddEvaluationClick,
-					onClearFiltersClick = onClearFiltersClick,
-					onFilterCheckedChange = onFilterCheckedChange,
-					onEvaluationClick = onEvaluationClick,
-					onEvaluationEdit = onEvaluationEdit,
-					onEvaluationDelete = onEvaluationDelete,
-					scrollEnabled = scrollEnabled,
-					openActionsEvaluationId = openActionsEvaluationId,
-					focusEvaluationId = focusEvaluationId,
-					onFocusEvaluationBoundsChange = onFocusEvaluationBoundsChange
-				)
+				is Evaluations.State.Content ->
+					EvaluationsContentView(
+						state = targetState,
+						onAddEvaluationClick = onAddEvaluationClick,
+						onClearFiltersClick = onClearFiltersClick,
+						onFilterCheckedChange = onFilterCheckedChange,
+						onEvaluationClick = onEvaluationClick,
+						onEvaluationEdit = onEvaluationEdit,
+						onEvaluationDelete = onEvaluationDelete,
+						scrollEnabled = scrollEnabled,
+						openActionsEvaluationId = openActionsEvaluationId,
+						focusEvaluationId = focusEvaluationId,
+						onFocusEvaluationBoundsChange = onFocusEvaluationBoundsChange
+					)
 
-			is Evaluations.State.Failed ->
-				EvaluationsFailedView(
-					title = stringResource(Res.string.view_error_title),
-					message = stringResource(Res.string.view_error_message),
-					retryText = stringResource(Res.string.view_error_retry),
-					onRetryClick = onRetryClick,
-					headerContent = {
-						ErrorStateAnimationView()
-					}
-				)
+				is Evaluations.State.Failed ->
+					EvaluationsFailedView(
+						title = stringResource(Res.string.view_error_title),
+						message = stringResource(Res.string.view_error_message),
+						retryText = stringResource(Res.string.view_error_retry),
+						onRetryClick = onRetryClick,
+						headerContent = {
+							ErrorStateAnimationView()
+						}
+					)
 
-			is Evaluations.State.NoAttempts ->
-				EvaluationsNoAttemptsView(
-					title = stringResource(Res.string.title_no_subjects_evaluations),
-					message = stringResource(Res.string.message_no_subjects_evaluations),
-					headerContent = {
-						EmptyStateAnimationView()
-					}
-				)
+				is Evaluations.State.NoAttempts ->
+					EvaluationsNoAttemptsView(
+						title = stringResource(Res.string.title_no_subjects_evaluations),
+						message = stringResource(Res.string.message_no_subjects_evaluations),
+						headerContent = {
+							EmptyStateAnimationView()
+						}
+					)
 
-			is Evaluations.State.Empty ->
-				EvaluationsEmptyView(
-					title = stringResource(Res.string.title_empty_evaluations),
-					message = stringResource(Res.string.message_empty_evaluations),
-					actionLabel = stringResource(Res.string.button_add_evaluation),
-					onAddEvaluationClick = onAddEvaluationClick,
-					headerContent = {
-						EmptyStateAnimationView()
-					}
-				)
+				is Evaluations.State.Empty ->
+					EvaluationsEmptyView(
+						title = stringResource(Res.string.title_empty_evaluations),
+						message = stringResource(Res.string.message_empty_evaluations),
+						actionLabel = stringResource(Res.string.button_add_evaluation),
+						onAddEvaluationClick = onAddEvaluationClick,
+						headerContent = {
+							EmptyStateAnimationView()
+						}
+					)
+			}
 		}
 	}
 }

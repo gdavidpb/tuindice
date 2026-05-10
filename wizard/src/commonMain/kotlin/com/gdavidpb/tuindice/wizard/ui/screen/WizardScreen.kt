@@ -1,8 +1,10 @@
 package com.gdavidpb.tuindice.wizard.ui.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -65,13 +67,14 @@ fun WizardScreen(
 	onSubjectChartsVisibilityChange: (Boolean) -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	if (state.isWelcomeStep) {
-		Box(
-			modifier = modifier
-				.fillMaxSize()
-				.testTag(WizardUiTags.Screen)
-		) {
-			WizardWelcomeView(
+		if (state.isWelcomeStep) {
+			Box(
+				modifier = modifier
+					.fillMaxSize()
+					.background(MaterialTheme.colorScheme.background)
+					.testTag(WizardUiTags.Screen)
+			) {
+				WizardWelcomeView(
 				onStart = onNext,
 				onSkip = onSkip
 			)
@@ -90,6 +93,7 @@ fun WizardScreen(
 	Column(
 		modifier = modifier
 			.fillMaxSize()
+			.background(MaterialTheme.colorScheme.background)
 			.testTag(WizardUiTags.Screen)
 	) {
 		Box(

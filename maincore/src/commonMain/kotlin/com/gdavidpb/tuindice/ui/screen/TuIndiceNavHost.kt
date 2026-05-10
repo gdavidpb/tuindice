@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.ui.screen
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -50,13 +52,15 @@ fun TuIndiceNavHost(
 	val canNavigateBack = navController.canNavigateBackFromCurrentDestination()
 
 	NavHost(
-		navController = navController,
-		startDestination = startDestination,
-		modifier = modifier.edgeSwipeBackNavigation(
-			enabled = isSwipeBackNavigationEnabled && canNavigateBack,
-			onBack = { navController.navigateUp() }
-		).testTag(MaincoreUiTags.TuIndiceNavHost)
-	) {
+			navController = navController,
+			startDestination = startDestination,
+			modifier = modifier.edgeSwipeBackNavigation(
+				enabled = isSwipeBackNavigationEnabled && canNavigateBack,
+				onBack = { navController.navigateUp() }
+			)
+				.background(MaterialTheme.colorScheme.background)
+				.testTag(MaincoreUiTags.TuIndiceNavHost)
+		) {
 		mainNavigation(
 			onConfirmExitClick = onConfirmExitClick,
 			onDismissRequest = { navController.navigateUp() }

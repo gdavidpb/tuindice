@@ -1,8 +1,13 @@
 package com.gdavidpb.tuindice.summary.ui.screen
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
@@ -28,38 +33,44 @@ fun SummaryScreen(
 ) {
 	val displayedSyncStatusDetails = remember { mutableStateOf<SyncStatus?>(null) }
 
-	SealedCrossfade(targetState = state) { targetState ->
-		when (targetState) {
-			Summary.State.Idle -> Unit
+	Box(
+		modifier = Modifier
+			.fillMaxSize()
+			.background(MaterialTheme.colorScheme.background)
+	) {
+		SealedCrossfade(targetState = state) { targetState ->
+			when (targetState) {
+				Summary.State.Idle -> Unit
 
-			is Summary.State.Loading ->
-				SummaryLoadingView()
+				is Summary.State.Loading ->
+					SummaryLoadingView()
 
-			is Summary.State.Failed ->
-				SummaryFailedView(
-					title = stringResource(Res.string.summary_failed_title),
-					message = stringResource(Res.string.summary_failed_message),
-					retryText = stringResource(Res.string.summary_failed_retry),
-					onRetryClick = onRetryClick,
-					headerContent = {
-						ErrorStateAnimationView()
-					}
-				)
+				is Summary.State.Failed ->
+					SummaryFailedView(
+						title = stringResource(Res.string.summary_failed_title),
+						message = stringResource(Res.string.summary_failed_message),
+						retryText = stringResource(Res.string.summary_failed_retry),
+						onRetryClick = onRetryClick,
+						headerContent = {
+							ErrorStateAnimationView()
+						}
+					)
 
-			is Summary.State.Content ->
-				SummaryContentView(
-					state = targetState,
-					syncStatus = syncStatus,
-					isSyncing = isSyncing,
-					summaryItems = rememberSummaryItems(
-						state = targetState
-					),
-					onEditProfilePictureClick = onEditProfilePictureClick,
-					onStatusIconClick = {
-						if (syncStatus != SyncStatus.Healthy)
-							displayedSyncStatusDetails.value = syncStatus
-					}
-				)
+				is Summary.State.Content ->
+					SummaryContentView(
+						state = targetState,
+						syncStatus = syncStatus,
+						isSyncing = isSyncing,
+						summaryItems = rememberSummaryItems(
+							state = targetState
+						),
+						onEditProfilePictureClick = onEditProfilePictureClick,
+						onStatusIconClick = {
+							if (syncStatus != SyncStatus.Healthy)
+								displayedSyncStatusDetails.value = syncStatus
+						}
+					)
+			}
 		}
 	}
 

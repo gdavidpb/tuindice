@@ -1,6 +1,11 @@
 package com.gdavidpb.tuindice.record.ui.screen
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
@@ -30,39 +35,45 @@ fun RecordScreen(
 		isSelected: Boolean
 	) -> Unit
 ) {
-	SealedCrossfade(
-		targetState = state
-	) { targetState ->
-		when (targetState) {
-			is Record.State.Idle -> Unit
+	Box(
+		modifier = Modifier
+			.fillMaxSize()
+			.background(MaterialTheme.colorScheme.background)
+	) {
+		SealedCrossfade(
+			targetState = state
+		) { targetState ->
+			when (targetState) {
+				is Record.State.Idle -> Unit
 
-			is Record.State.Loading ->
-				RecordLoadingView()
+				is Record.State.Loading ->
+					RecordLoadingView()
 
-			is Record.State.Content ->
-				RecordContentView(
-					state = targetState,
-					selectedTermId = selectedTermId,
-					onSelectedTermChange = onSelectedTermChange,
-					onAttemptSelectionChange = onAttemptSelectionChange
-				)
+				is Record.State.Content ->
+					RecordContentView(
+						state = targetState,
+						selectedTermId = selectedTermId,
+						onSelectedTermChange = onSelectedTermChange,
+						onAttemptSelectionChange = onAttemptSelectionChange
+					)
 
-			is Record.State.Failed ->
-				RecordFailedView(
-					title = stringResource(Res.string.record_failed_title),
-					message = stringResource(Res.string.record_failed_message),
-					retryText = stringResource(Res.string.record_failed_retry),
-					onRetryClick = onRetryClick,
-					headerContent = {
-						ErrorStateAnimationView()
-					}
-				)
+				is Record.State.Failed ->
+					RecordFailedView(
+						title = stringResource(Res.string.record_failed_title),
+						message = stringResource(Res.string.record_failed_message),
+						retryText = stringResource(Res.string.record_failed_retry),
+						onRetryClick = onRetryClick,
+						headerContent = {
+							ErrorStateAnimationView()
+						}
+					)
 
-			is Record.State.Empty ->
-				RecordEmptyView(
-					title = stringResource(Res.string.record_empty_title),
-					message = stringResource(Res.string.record_empty_message)
-				)
+				is Record.State.Empty ->
+					RecordEmptyView(
+						title = stringResource(Res.string.record_empty_title),
+						message = stringResource(Res.string.record_empty_message)
+					)
+			}
 		}
 	}
 }

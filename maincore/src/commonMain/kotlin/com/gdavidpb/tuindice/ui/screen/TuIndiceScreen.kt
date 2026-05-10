@@ -147,10 +147,15 @@ fun TuIndiceScreen(
 		)
 	}
 
-	Box(modifier = Modifier.fillMaxSize()) {
-		Scaffold(
-			snackbarHost = { SnackbarHost(snackbarHostState) },
-			topBar = {
+		Box(
+			modifier = Modifier
+				.fillMaxSize()
+				.background(MaterialTheme.colorScheme.background)
+		) {
+			Scaffold(
+				containerColor = MaterialTheme.colorScheme.background,
+				snackbarHost = { SnackbarHost(snackbarHostState) },
+				topBar = {
 				if (shellState.isTopBarVisible) {
 					val recordTopBarViewModeState = shellState.recordTopBarViewModeState
 					val topBarContainerColor = MaterialTheme.colorScheme.surface

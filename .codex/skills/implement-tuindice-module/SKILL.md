@@ -96,6 +96,7 @@ Implement module work by copying the nearest existing module pattern instead of 
   - `Navigation` injects or resolves `ViewModel` instances with `koinViewModel(...)`
   - `Route` observes `state` and `effect`, triggers initial actions with `LaunchedEffect`, and passes plain state/callbacks to `Screen`
   - `Screen` stays stateless with respect to DI
+- Every non-dialog destination `Screen` must paint an opaque full-screen root background, usually `Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)` or a feature-specific color such as Pensum's `ScreenBackground`. Cover all `Idle`, `Loading`, `Empty`, `Failed`, and `Content` branches, including `SealedCrossfade` wrappers; do not rely on parent `Scaffold`, `NavHost`, or child state views to hide the previous destination during edge-swipe back navigation.
 - Prefer feature dialogs as navigation destinations instead of rendering them from the feature state. Keep state-driven dialogs only for small widget-local popups when promoting them to navigation would add unnecessary ceremony.
 - Choose one dialog-result pattern deliberately:
   - If the dialog only needs to mutate the parent screen state, resolve the parent/shared `ViewModel` from the dialog destination and dispatch the action directly, as in `evaluations`.
