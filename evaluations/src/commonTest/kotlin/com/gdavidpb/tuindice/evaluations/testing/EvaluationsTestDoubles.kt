@@ -4,9 +4,11 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
+import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
+import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEditableAttemptDescriptor
@@ -32,12 +34,26 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngi
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
 private const val PAST_EVALUATION_DATE = 1_700_000_000_000L
 private const val FUTURE_EVALUATION_DATE = 1_900_000_000_000L
 const val DEFAULT_HAS_SYNCED_EVALUATIONS = true
+
+class ReadyRecordDataPrerequisiteRepository(
+	private val states: Flow<RecordDataPrerequisiteState> = flowOf(
+		RecordDataPrerequisiteState(
+			isReady = true,
+			hasFailed = false
+		)
+	)
+) : RecordDataPrerequisiteRepository {
+	override fun observeRecordDataPrerequisiteFlow(): Flow<RecordDataPrerequisiteState> = states
+
+	override suspend fun isRecordDataReady(): Boolean = states.first().isReady
+}
 
 val DEFAULT_EVALUATION_SUBJECT = EditableAttemptDescriptor(
 	id = "subject-1",

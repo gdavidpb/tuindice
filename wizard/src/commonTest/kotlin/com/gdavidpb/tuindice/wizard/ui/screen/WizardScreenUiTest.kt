@@ -120,11 +120,11 @@ class WizardScreenUiTest {
 		onNodeWithText("Paso 3 de 11").assertExists()
 		onNodeWithText("Botones superiores").assertExists()
 		onNodeWithText(
-			"El botón de modo alterna entre Universidad y Proyección.",
+			"El botón de modo alterna entre Universidad y Proyección",
 			substring = true
 		).assertExists()
 		onNodeWithText(
-			"En Proyección aparece el botón + para crear un trimestre futuro",
+			"En Proyección, usa el botón + para planificar un trimestre futuro",
 			substring = true
 		).assertExists()
 		assertNodeVisible(WizardUiTags.FocusOverlay)
@@ -147,15 +147,19 @@ class WizardScreenUiTest {
 			)
 		}
 
-		onNodeWithText("Crear trimestres de proyección").assertExists()
+		onNodeWithText("Planificar trimestre").assertExists()
 		onNodeWithText("Paso 4 de 11").assertExists()
 		onNodeWithText("Jul - Ago 2026").assertExists()
 		onNodeWithText("0 materias seleccionadas").assertExists()
-		onNodeWithText("Sugeridas").assertExists()
+		onNodeWithText("Sugeridas por tu pensum").assertExists()
 		onNodeWithText("EP1308").assertExists()
 		onNodeWithText("EP5855").assertExists()
 		onNodeWithText(
 			"Aquí eliges el periodo, agregas materias sugeridas",
+			substring = true
+		).assertExists()
+		onNodeWithText(
+			"Al guardar, queda como proyección y no cambia tu historial oficial.",
 			substring = true
 		).assertExists()
 		assertNodeVisible(RecordUiTags.CreateSyntheticTermScreen)

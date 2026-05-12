@@ -76,11 +76,12 @@ class EvaluationsViewModelContractTest {
 
 		return EvaluationsViewModel(
 			loadEvaluationsActionProcessor = LoadEvaluationsActionProcessor(
-				getEvaluationsUseCase = GetEvaluationsUseCase(
-					evaluationRepository = repository,
-					reportingRepository = RecordingReportingRepository()
-				)
-			),
+					getEvaluationsUseCase = GetEvaluationsUseCase(
+						evaluationRepository = repository,
+						recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+						reportingRepository = RecordingReportingRepository()
+					)
+				),
 			refreshEvaluationsActionProcessor = RefreshEvaluationsActionProcessor(
 				updateEvaluationsUseCase = UpdateEvaluationsUseCase(
 					evaluationRepository = repository,

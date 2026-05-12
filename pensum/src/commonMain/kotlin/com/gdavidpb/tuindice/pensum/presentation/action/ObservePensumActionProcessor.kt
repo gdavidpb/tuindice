@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.pensum.presentation.action
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
+import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
 import com.gdavidpb.tuindice.pensum.presentation.mapper.toScreenModel
@@ -25,16 +26,26 @@ class ObservePensumActionProcessor(
 					is UseCaseState.Loading -> null
 
 					is UseCaseState.Data -> suspend { state: Pensum.State ->
-						val observedPensum = useCaseState.value
-						if (observedPensum != null) {
-							Pensum.State.Content(model = observedPensum.toScreenModel())
-						} else {
-							when (state) {
-								is Pensum.State.Content -> state
+						when (val observation = useCaseState.value) {
+							is PensumObservation.Content ->
+								Pensum.State.Content(model = observation.pensum.toScreenModel())
+
+							PensumObservation.Missing,
+							PensumObservation.WaitingForRecordData,
+							-> when (state) {
 								Pensum.State.Empty -> Pensum.State.Empty
+								is Pensum.State.Content,
 								Pensum.State.Failed,
 								Pensum.State.Loading,
 								-> Pensum.State.Loading
+							}
+
+							PensumObservation.RecordDataUnavailable -> when (state) {
+								Pensum.State.Empty -> Pensum.State.Empty
+								is Pensum.State.Content,
+								Pensum.State.Failed,
+								Pensum.State.Loading,
+								-> Pensum.State.Failed
 							}
 						}
 					}

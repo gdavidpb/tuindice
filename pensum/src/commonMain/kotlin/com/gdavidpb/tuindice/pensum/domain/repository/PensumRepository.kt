@@ -1,10 +1,10 @@
 package com.gdavidpb.tuindice.pensum.domain.repository
 
-import com.gdavidpb.tuindice.pensum.domain.model.ObservedPensum
+import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
 import kotlinx.coroutines.flow.Flow
 
 interface PensumRepository {
-	fun observePensumFlow(): Flow<ObservedPensum?>
+	fun observePensumFlow(): Flow<PensumObservation>
 	suspend fun refreshPensum()
 	suspend fun selectPensum(careerCode: Int, year: Int)
 	suspend fun selectModality(modalityId: String)

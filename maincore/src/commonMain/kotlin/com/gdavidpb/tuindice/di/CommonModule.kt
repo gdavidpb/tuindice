@@ -13,11 +13,13 @@ import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
+import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.data.source.cache.CoreCacheStateDataSource
+import com.gdavidpb.tuindice.data.source.prerequisite.RecordDataPrerequisiteDataSource
 import com.gdavidpb.tuindice.data.source.messaging.MessagingDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.MessagingLocalDataRepository
 import com.gdavidpb.tuindice.data.repository.messaging.MessagingRemoteDataRepository
@@ -62,6 +64,7 @@ val commonModule = module {
 	singleOf(::SyncStatusSettingsDataSource) { bind<SyncStatusRepository>() }
 	singleOf(::SyncApiDataSource) { bind<SyncRemoteDataRepository>() }
 	singleOf(::CoreCacheStateDataSource) { bind<CoreCacheStateRepository>() }
+	singleOf(::RecordDataPrerequisiteDataSource) { bind<RecordDataPrerequisiteRepository>() }
 	singleOf(::createSyncRepository)
 }
 

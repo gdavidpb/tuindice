@@ -1,11 +1,13 @@
 package com.gdavidpb.tuindice.evaluations.di
 
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
+import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import com.gdavidpb.tuindice.evaluations.testing.FakeIdentifierRepository
+import com.gdavidpb.tuindice.evaluations.testing.ReadyRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
@@ -20,6 +22,7 @@ class EvaluationsModuleKoinSmokeTest {
 		module {
 			single<EvaluationRepository> { RecordingEvaluationRepository() }
 			single<IdentifierRepository> { FakeIdentifierRepository() }
+			single<RecordDataPrerequisiteRepository> { ReadyRecordDataPrerequisiteRepository() }
 			single<ReportingRepository> { RecordingReportingRepository() }
 		}
 	) {

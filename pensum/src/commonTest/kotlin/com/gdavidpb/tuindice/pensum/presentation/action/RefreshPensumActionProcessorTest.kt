@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.pensum.presentation.action
 
-import com.gdavidpb.tuindice.pensum.domain.model.ObservedPensum
+import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
 import com.gdavidpb.tuindice.pensum.domain.usecase.UpdatePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.exceptionhandler.UpdatePensumExceptionHandler
@@ -49,7 +49,7 @@ class RefreshPensumActionProcessorTest {
 private class ThrowingPensumRepository(
 	private val throwable: Throwable
 ) : PensumRepository {
-	override fun observePensumFlow(): Flow<ObservedPensum?> = emptyFlow()
+	override fun observePensumFlow(): Flow<PensumObservation> = emptyFlow()
 
 	override suspend fun refreshPensum() {
 		throw throwable

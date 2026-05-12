@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.action
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadEvaluationActionProcessor
@@ -11,6 +12,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePicker
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
+import com.gdavidpb.tuindice.evaluations.testing.ReadyRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
@@ -37,8 +39,9 @@ class EvaluationsActionProcessorContractTest {
 						DEFAULT_PENDING_EVALUATION,
 						DEFAULT_COMPLETED_EVALUATION
 					)
-				),
-				reportingRepository = RecordingReportingRepository()
+					),
+					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+					reportingRepository = RecordingReportingRepository()
 			)
 		)
 		val effects = mutableListOf<Evaluations.Effect>()
@@ -69,8 +72,9 @@ class EvaluationsActionProcessorContractTest {
 					evaluationsFlow = flowOf(emptyList()),
 					hasSyncedEvaluationsFlow = flowOf(false),
 					availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
-				),
-				reportingRepository = RecordingReportingRepository()
+					),
+					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+					reportingRepository = RecordingReportingRepository()
 			)
 		)
 
@@ -92,8 +96,9 @@ class EvaluationsActionProcessorContractTest {
 					evaluationsFlow = flowOf(emptyList()),
 					hasSyncedEvaluationsFlow = flowOf(true),
 					availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
-				),
-				reportingRepository = RecordingReportingRepository()
+					),
+					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+					reportingRepository = RecordingReportingRepository()
 			)
 		)
 
@@ -115,8 +120,9 @@ class EvaluationsActionProcessorContractTest {
 				evaluationRepository = RecordingEvaluationRepository(
 					evaluationsFlow = flowOf(emptyList()),
 					availableSubjects = emptyList()
-				),
-				reportingRepository = reportingRepository
+					),
+					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+					reportingRepository = reportingRepository
 			)
 		)
 
@@ -130,6 +136,53 @@ class EvaluationsActionProcessorContractTest {
 		}
 
 		assertTrue(reportingRepository.exceptions.isEmpty())
+	}
+
+	@Test
+	fun loadEvaluationsActionProcessor_keepsLoading_whenRecordDataIsNotReady() = runTest {
+		val processor = LoadEvaluationsActionProcessor(
+			getEvaluationsUseCase = GetEvaluationsUseCase(
+				evaluationRepository = RecordingEvaluationRepository(
+					evaluationsFlow = flowOf(emptyList()),
+					availableSubjects = emptyList()
+				),
+				recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(
+					states = flowOf(RecordDataPrerequisiteState(isReady = false, hasFailed = false))
+				),
+				reportingRepository = RecordingReportingRepository()
+			)
+		)
+
+		processor.process(
+			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
+			sideEffect = {}
+		).test {
+			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Idle))
+
+			awaitComplete()
+		}
+	}
+
+	@Test
+	fun loadEvaluationsActionProcessor_reducesStateToFailed_whenRecordDataFailed() = runTest {
+		val processor = LoadEvaluationsActionProcessor(
+			getEvaluationsUseCase = GetEvaluationsUseCase(
+				evaluationRepository = RecordingEvaluationRepository(),
+				recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(
+					states = flowOf(RecordDataPrerequisiteState(isReady = false, hasFailed = true))
+				),
+				reportingRepository = RecordingReportingRepository()
+			)
+		)
+
+		processor.process(
+			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
+			sideEffect = {}
+		).test {
+			assertEquals(Evaluations.State.Failed, awaitItem()(Evaluations.State.Idle))
+
+			awaitComplete()
+		}
 	}
 
 	@Test

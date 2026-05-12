@@ -29,6 +29,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewM
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
+import com.gdavidpb.tuindice.evaluations.testing.ReadyRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
@@ -369,11 +370,12 @@ class EvaluationsRouteUiTest {
 
 		return EvaluationsViewModel(
 			loadEvaluationsActionProcessor = LoadEvaluationsActionProcessor(
-				getEvaluationsUseCase = GetEvaluationsUseCase(
-					evaluationRepository = repository,
-					reportingRepository = RecordingReportingRepository()
-				)
-			),
+					getEvaluationsUseCase = GetEvaluationsUseCase(
+						evaluationRepository = repository,
+						recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+						reportingRepository = RecordingReportingRepository()
+					)
+				),
 			refreshEvaluationsActionProcessor = RefreshEvaluationsActionProcessor(
 				updateEvaluationsUseCase = UpdateEvaluationsUseCase(
 					evaluationRepository = repository,

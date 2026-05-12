@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
@@ -18,6 +19,7 @@ import kotlin.math.sign
 @OptIn(ExperimentalCoroutinesApi::class)
 class GetEvaluationsUseCase(
 	private val evaluationRepository: EvaluationRepository,
+	private val recordDataPrerequisiteRepository: RecordDataPrerequisiteRepository,
 	override val reportingRepository: ReportingRepository
 ) : FlowUseCase<Flow<List<EvaluationFilter>>, GetEvaluations, EvaluationsUseCaseError>(reportingRepository = reportingRepository) {
 
@@ -33,6 +35,18 @@ class GetEvaluationsUseCase(
 			.then(compareBy(Evaluation::state))
 
 	override suspend fun executeOnBackground(params: Flow<List<EvaluationFilter>>): Flow<GetEvaluations> {
+		return recordDataPrerequisiteRepository
+			.observeRecordDataPrerequisiteFlow()
+			.flatMapLatest { prerequisite ->
+				when {
+					prerequisite.hasFailed -> flowOf(GetEvaluations.RecordDataUnavailable)
+					!prerequisite.isReady -> flowOf(GetEvaluations.WaitingForRecordData)
+					else -> observeReadyEvaluations(params)
+				}
+			}
+	}
+
+	private suspend fun observeReadyEvaluations(params: Flow<List<EvaluationFilter>>): Flow<GetEvaluations> {
 		val availableAttempts = evaluationRepository.getAvailableAttempts()
 		if (availableAttempts.isEmpty()) return flowOf(GetEvaluations.NoAttempts)
 

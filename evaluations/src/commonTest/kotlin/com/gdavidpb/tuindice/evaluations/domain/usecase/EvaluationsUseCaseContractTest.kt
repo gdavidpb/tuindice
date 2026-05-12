@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationCourseFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.GetEvaluationParams
@@ -29,6 +30,7 @@ class EvaluationsUseCaseContractTest {
 					DEFAULT_COMPLETED_EVALUATION
 				)
 			),
+			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 			reportingRepository = RecordingReportingRepository()
 		)
 
@@ -53,12 +55,49 @@ class EvaluationsUseCaseContractTest {
 				initialEvaluations = emptyList(),
 				availableSubjects = emptyList()
 			),
+			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 			reportingRepository = reportingRepository
 		)
 
 		useCase.execute(flowOf(emptyList())).test {
 			assertEquals(GetEvaluations.NoAttempts, awaitLoadingThenData(this))
 			assertTrue(reportingRepository.exceptions.isEmpty())
+			awaitComplete()
+		}
+	}
+
+	@Test
+	fun getEvaluationsUseCase_waitsForRecordData_beforeCheckingAttempts() = runTest {
+		val useCase = GetEvaluationsUseCase(
+			evaluationRepository = RecordingEvaluationRepository(
+				evaluationsFlow = flowOf(emptyList()),
+				initialEvaluations = emptyList(),
+				availableSubjects = emptyList()
+			),
+			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(
+				states = flowOf(RecordDataPrerequisiteState(isReady = false, hasFailed = false))
+			),
+			reportingRepository = RecordingReportingRepository()
+		)
+
+		useCase.execute(flowOf(emptyList())).test {
+			assertEquals(GetEvaluations.WaitingForRecordData, awaitLoadingThenData(this))
+			awaitComplete()
+		}
+	}
+
+	@Test
+	fun getEvaluationsUseCase_reportsRecordUnavailable_whenPrerequisiteFailed() = runTest {
+		val useCase = GetEvaluationsUseCase(
+			evaluationRepository = RecordingEvaluationRepository(),
+			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(
+				states = flowOf(RecordDataPrerequisiteState(isReady = false, hasFailed = true))
+			),
+			reportingRepository = RecordingReportingRepository()
+		)
+
+		useCase.execute(flowOf(emptyList())).test {
+			assertEquals(GetEvaluations.RecordDataUnavailable, awaitLoadingThenData(this))
 			awaitComplete()
 		}
 	}

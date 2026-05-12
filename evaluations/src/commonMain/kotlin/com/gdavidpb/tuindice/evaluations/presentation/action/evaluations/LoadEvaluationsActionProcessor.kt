@@ -34,6 +34,15 @@ class LoadEvaluationsActionProcessor(
 
 					is UseCaseState.Data -> suspend { current: Evaluations.State ->
 						when (val evaluations = useCaseState.value) {
+							GetEvaluations.WaitingForRecordData ->
+								when (current) {
+									is Evaluations.State.Failed -> current
+									else -> Evaluations.State.Loading
+								}
+
+							GetEvaluations.RecordDataUnavailable ->
+								Evaluations.State.Failed
+
 							GetEvaluations.NoAttempts -> Evaluations.State.NoAttempts
 
 							is GetEvaluations.Content -> {
