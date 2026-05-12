@@ -147,11 +147,24 @@ class ObserveCreateSyntheticTermActionProcessor(
 				if (subjects.isEmpty()) {
 					flowOf(
 						suspend { state: CreateSyntheticTerm.State ->
-							state.copy(loadPreview = null)
+							state.copy(
+								loadPreview = null,
+								isLoadingLoadPreview = false,
+								hasLoadPreviewError = false
+							)
 						}
 					)
 				} else {
 					flow {
+						emit(
+							suspend { state: CreateSyntheticTerm.State ->
+								state.copy(
+									loadPreview = null,
+									isLoadingLoadPreview = true,
+									hasLoadPreviewError = false
+								)
+							}
+						)
 						delay(LoadPreviewDebounceMillis.milliseconds)
 						loadSyntheticTermPreviewUseCase.execute(
 							LoadSyntheticTermPreviewParams(
@@ -163,7 +176,9 @@ class ObserveCreateSyntheticTermActionProcessor(
 									emit(
 										suspend { state: CreateSyntheticTerm.State ->
 											state.copy(
-												loadPreview = useCaseState.value.takeIf { preview -> preview.available }
+												loadPreview = useCaseState.value,
+												isLoadingLoadPreview = false,
+												hasLoadPreviewError = false
 											)
 										}
 									)
@@ -171,7 +186,11 @@ class ObserveCreateSyntheticTermActionProcessor(
 								is UseCaseState.Error ->
 									emit(
 										suspend { state: CreateSyntheticTerm.State ->
-											state.copy(loadPreview = null)
+											state.copy(
+												loadPreview = null,
+												isLoadingLoadPreview = false,
+												hasLoadPreviewError = true
+											)
 										}
 									)
 

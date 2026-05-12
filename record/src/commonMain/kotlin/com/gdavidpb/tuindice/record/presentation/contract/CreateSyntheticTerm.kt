@@ -20,6 +20,8 @@ object CreateSyntheticTerm {
 		val suggestedSubjects: List<SyntheticTermSubject> = emptyList(),
 		val searchResults: List<SyntheticTermSubject> = emptyList(),
 		val loadPreview: SyntheticTermLoadPreview? = null,
+		val isLoadingLoadPreview: Boolean = false,
+		val hasLoadPreviewError: Boolean = false,
 		val isRefreshingSearch: Boolean = false,
 		val hasSearchError: Boolean = false,
 		val isCreating: Boolean = false

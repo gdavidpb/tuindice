@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.ui.view
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
@@ -52,6 +53,7 @@ class EvaluationContentViewUiTest {
 		assertNodeHidden(EvaluationsUiTags.EvaluationGradeChip)
 		assertNodeVisible(EvaluationsUiTags.EvaluationMaxGradeChip)
 		assertNodeVisible(EvaluationsUiTags.EvaluationDoneFab)
+		onNodeWithText("Agregar evaluación").assertExists()
 
 		onNodeWithTag(EvaluationsUiTags.EvaluationMaxGradeChip).performClick()
 		onNodeWithTag(EvaluationsUiTags.EvaluationDoneFab).performClick()
@@ -66,6 +68,24 @@ class EvaluationContentViewUiTest {
 		assertEquals(state.date, payload.date)
 		assertEquals(state.grade, payload.grade)
 		assertEquals(state.maxGrade, payload.maxGrade)
+	}
+
+	@Test
+	fun when_stateIsEditMode_then_doneButtonShowsSaveCopy() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			EvaluationContentView(
+				state = evaluationContentState(isOverdue = false).copy(evaluationId = "evaluation_1"),
+				onAttemptChange = {},
+				onTypeChange = {},
+				onDateChange = {},
+				onGradeClick = { _, _ -> },
+				onMaxGradeClick = {},
+				onDoneClick = { _, _, _, _, _, _ -> }
+			)
+		}
+
+		assertNodeVisible(EvaluationsUiTags.EvaluationDoneFab)
+		onNodeWithText("Guardar cambios").assertExists()
 	}
 
 	@Test

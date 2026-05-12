@@ -6,13 +6,13 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Done
-import androidx.compose.material3.FloatingActionButton
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Button
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,6 +30,8 @@ import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
+import tuindice.evaluations.generated.resources.button_add_evaluation
+import tuindice.evaluations.generated.resources.button_save_evaluation_changes
 import tuindice.evaluations.generated.resources.label_add_evaluation_date
 import tuindice.evaluations.generated.resources.label_add_evaluation_subject
 import tuindice.evaluations.generated.resources.label_add_evaluation_type
@@ -180,12 +182,14 @@ fun EvaluationContentView(
 				}
 		}
 
-		FloatingActionButton(
+		Button(
 			modifier = Modifier
 				.testTag(EvaluationsUiTags.EvaluationDoneFab)
 				.align(Alignment.BottomEnd)
-				.padding(24.dp),
-			containerColor = MaterialTheme.colorScheme.primary,
+				.padding(24.dp)
+				.height(52.dp)
+				.widthIn(min = 168.dp),
+			shape = RoundedCornerShape(999.dp),
 			onClick = {
 				onDoneClick(
 					state.selectedAttempt,
@@ -197,9 +201,11 @@ fun EvaluationContentView(
 				)
 			}
 		) {
-			Icon(
-				imageVector = Icons.Outlined.Done,
-				contentDescription = null
+			Text(
+				text = if (state.evaluationId == null)
+					stringResource(Res.string.button_add_evaluation)
+				else
+					stringResource(Res.string.button_save_evaluation_changes)
 			)
 		}
 	}

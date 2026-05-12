@@ -11,6 +11,7 @@
 	<string name="title_empty_match_evaluations">Sin resultados</string>
 	<string name="message_empty_match_evaluations">Ajusta los filtros o la búsqueda para encontrar otras evaluaciones.</string>
 	<string name="button_add_evaluation">Agregar evaluación</string>
+	<string name="button_save_evaluation_changes">Guardar cambios</string>
 
 	<string name="view_error_title">No pudimos cargar la información</string>
 	<string name="view_error_message">Intenta de nuevo en unos segundos.</string>
