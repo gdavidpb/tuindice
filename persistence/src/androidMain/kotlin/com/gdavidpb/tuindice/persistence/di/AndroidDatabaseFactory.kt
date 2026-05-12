@@ -13,7 +13,7 @@ fun createAndroidDatabase(
 	}
 
 	return Room.databaseBuilder(context, TuIndiceDatabase::class.java, name)
-		.fallbackToDestructiveMigrationFrom(true)
+		.fallbackToDestructiveMigration(true)
 		.build()
 }
 

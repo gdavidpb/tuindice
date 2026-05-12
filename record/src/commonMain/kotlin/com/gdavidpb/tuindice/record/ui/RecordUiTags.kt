@@ -17,6 +17,7 @@ object RecordUiTags {
 	const val CreateSyntheticTermPeriodSelector = "record_create_synthetic_term_period_selector"
 	const val CreateSyntheticTermSearchField = "record_create_synthetic_term_search_field"
 	const val CreateSyntheticTermSubmitButton = "record_create_synthetic_term_submit_button"
+	const val CreateSyntheticTermTakenSubjectsToggle = "record_create_synthetic_term_taken_subjects_toggle"
 
 	const val EmptyContainer = "record_empty_container"
 	const val EmptyTitle = "record_empty_title"

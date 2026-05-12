@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.persistence.data.room.mapper.SubjectCatalogSearchNormalizer
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermPreviewUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermCreationUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RefreshSyntheticTermSubjectSearchUseCase
@@ -14,6 +15,7 @@ import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -139,12 +141,22 @@ class ObserveCreateSyntheticTermActionProcessor(
 	private fun observeLoadPreview(
 		action: CreateSyntheticTerm.Action.Observe
 	): Flow<Mutation<CreateSyntheticTerm.State>> {
-		return action.selectedSubjectsFlow
+		return combine(
+			action.selectedSubjectsFlow,
+			action.selectedPeriodKeyFlow
+		) { subjects, termKey ->
+			LoadPreviewSelection(
+				termKey = termKey,
+				subjects = subjects,
+				subjectCodes = subjects.map { subject -> subject.subjectCode }
+			)
+		}
 			.distinctUntilChanged { old, new ->
-				old.map { subject -> subject.subjectCode } == new.map { subject -> subject.subjectCode }
+				old.termKey == new.termKey && old.subjectCodes == new.subjectCodes
 			}
-			.flatMapLatest { subjects ->
-				if (subjects.isEmpty()) {
+			.flatMapLatest { selection ->
+				val termKey = selection.termKey
+				if (termKey == null || selection.subjects.isEmpty()) {
 					flowOf(
 						suspend { state: CreateSyntheticTerm.State ->
 							state.copy(
@@ -168,7 +180,8 @@ class ObserveCreateSyntheticTermActionProcessor(
 						delay(LoadPreviewDebounceMillis.milliseconds)
 						loadSyntheticTermPreviewUseCase.execute(
 							LoadSyntheticTermPreviewParams(
-								subjectCodes = subjects.map { subject -> subject.subjectCode }
+								termKey = termKey,
+								subjectCodes = selection.subjectCodes
 							)
 						).collect { useCaseState ->
 							when (useCaseState) {
@@ -202,6 +215,12 @@ class ObserveCreateSyntheticTermActionProcessor(
 			}
 	}
 }
+
+private data class LoadPreviewSelection(
+	val termKey: String?,
+	val subjects: List<SyntheticTermSubject>,
+	val subjectCodes: List<String>
+)
 
 private const val MinimumSearchQueryLength = 2
 private const val SearchDebounceMillis = 300L

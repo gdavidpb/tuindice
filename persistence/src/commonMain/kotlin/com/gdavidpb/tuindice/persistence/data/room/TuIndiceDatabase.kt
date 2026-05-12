@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectDetailDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsAttemptBinDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsGradeBinDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsSegmentDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SyntheticTermLoadPreviewCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.UserDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptOverrideEntity
@@ -37,6 +38,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectDetailEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsAttemptBinEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsGradeBinEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsSegmentEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.SyntheticTermLoadPreviewCacheEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.UserEntity
 
 @Database(
@@ -56,9 +58,10 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.UserEntity
 		SubjectStatsGradeBinEntity::class,
 		SubjectStatsAttemptBinEntity::class,
 		PensumCacheEntity::class,
-		PensumSelectionEntity::class
+		PensumSelectionEntity::class,
+		SyntheticTermLoadPreviewCacheEntity::class
 	],
-	version = 26,
+	version = 27,
 	exportSchema = false
 )
 @ConstructedBy(TuIndiceDatabaseConstructor::class)
@@ -80,6 +83,7 @@ abstract class TuIndiceDatabase : RoomDatabase() {
 	abstract val subjectStatsAttemptBins: SubjectStatsAttemptBinDao
 	abstract val pensumCache: PensumCacheDao
 	abstract val pensumSelection: PensumSelectionDao
+	abstract val syntheticTermLoadPreviewCache: SyntheticTermLoadPreviewCacheDao
 }
 
 @Suppress("KotlinNoActualForExpect")

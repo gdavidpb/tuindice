@@ -47,6 +47,8 @@
 	<string name="create_term_search_placeholder">Buscar materia</string>
 	<string name="create_term_selected_title">Materias del trimestre</string>
 	<string name="create_term_search_results">%1$d resultados</string>
+	<string name="create_term_show_taken_subjects">Mostrar %1$d ya cursadas</string>
+	<string name="create_term_hide_taken_subjects">Ocultar %1$d ya cursadas</string>
 	<string name="create_term_suggested_title">Sugeridas por tu pensum</string>
 	<string name="create_term_no_suggestions">No hay materias sugeridas disponibles.</string>
 	<string name="create_term_search_error">No pudimos actualizar la búsqueda. Mostramos lo disponible en cache.</string>

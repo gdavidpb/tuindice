@@ -43,7 +43,9 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -74,11 +76,13 @@ import tuindice.record.generated.resources.create_term_load_placeholder
 import tuindice.record.generated.resources.create_term_load_unavailable
 import tuindice.record.generated.resources.create_term_no_suggestions
 import tuindice.record.generated.resources.create_term_period_placeholder
+import tuindice.record.generated.resources.create_term_hide_taken_subjects
 import tuindice.record.generated.resources.create_term_search_error
 import tuindice.record.generated.resources.create_term_search_placeholder
 import tuindice.record.generated.resources.create_term_search_results
 import tuindice.record.generated.resources.create_term_selected_count
 import tuindice.record.generated.resources.create_term_selected_title
+import tuindice.record.generated.resources.create_term_show_taken_subjects
 import tuindice.record.generated.resources.create_term_suggested_title
 import tuindice.record.generated.resources.create_term_subject_already_planned
 import tuindice.record.generated.resources.create_term_subject_already_taken
@@ -99,6 +103,22 @@ fun CreateSyntheticTermScreen(
 	modifier: Modifier = Modifier
 ) {
 	val focusRequester = remember { FocusRequester() }
+	val showTakenSearchResults = remember { mutableStateOf(false) }
+
+	LaunchedEffect(state.query) {
+		showTakenSearchResults.value = false
+	}
+
+	val takenSearchResultsCount = state.searchResults.count { subject ->
+		subject.availability == SyntheticTermSubjectAvailability.ALREADY_TAKEN
+	}
+	val displayedSearchResults = if (showTakenSearchResults.value) {
+		state.searchResults
+	} else {
+		state.searchResults.filterNot { subject ->
+			subject.availability == SyntheticTermSubjectAvailability.ALREADY_TAKEN
+		}
+	}
 
 	Box(
 		modifier = modifier
@@ -141,13 +161,24 @@ fun CreateSyntheticTermScreen(
 			when {
 				state.query.trim().length >= 2 -> {
 					item {
-						SectionTitle(
-							text = stringResource(
-								Res.string.create_term_search_results,
-								state.searchResults.size
-							),
-							isRefreshing = state.isRefreshingSearch
-						)
+						Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+							SectionTitle(
+								text = stringResource(
+									Res.string.create_term_search_results,
+									displayedSearchResults.size
+								),
+								isRefreshing = state.isRefreshingSearch
+							)
+							if (takenSearchResultsCount > 0) {
+								AlreadyTakenSearchResultsToggle(
+									count = takenSearchResultsCount,
+									isExpanded = showTakenSearchResults.value,
+									onClick = {
+										showTakenSearchResults.value = !showTakenSearchResults.value
+									}
+								)
+							}
+						}
 					}
 
 					if (state.hasSearchError) {
@@ -161,7 +192,7 @@ fun CreateSyntheticTermScreen(
 					}
 
 					items(
-						items = state.searchResults,
+						items = displayedSearchResults,
 						key = SyntheticTermSubject::subjectCode
 					) { subject ->
 						CreateTermSelectedSubjectCard(
@@ -229,6 +260,42 @@ fun CreateSyntheticTermScreen(
 			onCreateClick = onCreateClick,
 			modifier = Modifier.align(Alignment.BottomCenter)
 		)
+	}
+}
+
+@Composable
+private fun AlreadyTakenSearchResultsToggle(
+	count: Int,
+	isExpanded: Boolean,
+	onClick: () -> Unit
+) {
+	TextButton(
+		modifier = Modifier
+			.fillMaxWidth()
+			.testTag(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle),
+		onClick = onClick,
+		contentPadding = PaddingValues(horizontal = 0.dp, vertical = 0.dp)
+	) {
+		Row(
+			modifier = Modifier.fillMaxWidth(),
+			horizontalArrangement = Arrangement.Start,
+			verticalAlignment = Alignment.CenterVertically
+		) {
+			Text(
+				text = stringResource(
+					if (isExpanded)
+						Res.string.create_term_hide_taken_subjects
+					else
+						Res.string.create_term_show_taken_subjects,
+					count
+				),
+				style = MaterialTheme.typography.bodyMedium,
+				fontWeight = FontWeight.SemiBold,
+				color = MaterialTheme.colorScheme.onSurfaceVariant,
+				maxLines = 1,
+				overflow = TextOverflow.Ellipsis
+			)
+		}
 	}
 }
 

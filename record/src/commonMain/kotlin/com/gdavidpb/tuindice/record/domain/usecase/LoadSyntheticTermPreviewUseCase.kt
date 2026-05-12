@@ -18,6 +18,11 @@ class LoadSyntheticTermPreviewUseCase(
 	reportingRepository = reportingRepository
 ) {
 	override suspend fun executeOnBackground(params: LoadSyntheticTermPreviewParams): Flow<SyntheticTermLoadPreview> {
-		return flowOf(repository.loadSyntheticTermPreview(params.subjectCodes))
+		return flowOf(
+			repository.loadSyntheticTermPreview(
+				termKey = params.termKey,
+				subjectCodes = params.subjectCodes
+			)
+		)
 	}
 }

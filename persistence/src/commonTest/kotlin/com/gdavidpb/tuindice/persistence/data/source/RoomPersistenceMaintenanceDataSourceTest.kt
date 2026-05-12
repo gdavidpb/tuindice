@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectDetailDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsAttemptBinDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsGradeBinDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsSegmentDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SyntheticTermLoadPreviewCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.UserDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptOverrideEntity
@@ -31,6 +32,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectDetailEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsAttemptBinEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsGradeBinEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsSegmentEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.SyntheticTermLoadPreviewCacheEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.UserEntity
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
 import kotlinx.coroutines.flow.Flow
@@ -60,6 +62,7 @@ class RoomPersistenceMaintenanceDataSourceTest {
 			subjectStatsAttemptBinDao = RecordingSubjectStatsAttemptBinDao(calls),
 			pensumCacheDao = RecordingPensumCacheDao(calls),
 			pensumSelectionDao = RecordingPensumSelectionDao(calls),
+			syntheticTermLoadPreviewCacheDao = RecordingSyntheticTermLoadPreviewCacheDao(calls),
 			transactionRunner = RecordingTransactionRunner(calls)
 		)
 
@@ -81,6 +84,7 @@ class RoomPersistenceMaintenanceDataSourceTest {
 				"subject_stats_segment",
 				"subject_detail",
 				"subject_catalog_cache",
+				"synthetic_term_load_preview_cache",
 				"pensum_selection",
 				"pensum_cache",
 				"users",
@@ -129,6 +133,28 @@ private class RecordingPensumSelectionDao(
 	override suspend fun upsertEntity(entity: PensumSelectionEntity) = Unit
 
 	override suspend fun upsertEntities(entities: List<PensumSelectionEntity>) = Unit
+}
+
+private class RecordingSyntheticTermLoadPreviewCacheDao(
+	private val calls: MutableList<String>
+) : SyntheticTermLoadPreviewCacheDao() {
+	override suspend fun getByCacheKey(cacheKey: String): SyntheticTermLoadPreviewCacheEntity? = null
+
+	override suspend fun getFresh(
+		cacheKey: String,
+		now: Long
+	): SyntheticTermLoadPreviewCacheEntity? = null
+
+	override suspend fun deleteExpired(now: Long): Int = 0
+
+	override suspend fun deleteAll(): Int {
+		calls += "synthetic_term_load_preview_cache"
+		return 0
+	}
+
+	override suspend fun upsertEntity(entity: SyntheticTermLoadPreviewCacheEntity) = Unit
+
+	override suspend fun upsertEntities(entities: List<SyntheticTermLoadPreviewCacheEntity>) = Unit
 }
 
 private class RecordingTransactionRunner(

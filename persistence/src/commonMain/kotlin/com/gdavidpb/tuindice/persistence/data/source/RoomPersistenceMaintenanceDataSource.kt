@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectDetailDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsAttemptBinDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsGradeBinDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsSegmentDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SyntheticTermLoadPreviewCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.UserDao
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceMaintenanceRepository
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
@@ -36,6 +37,7 @@ class RoomPersistenceMaintenanceDataSource(
 	private val subjectStatsAttemptBinDao: SubjectStatsAttemptBinDao,
 	private val pensumCacheDao: PensumCacheDao,
 	private val pensumSelectionDao: PensumSelectionDao,
+	private val syntheticTermLoadPreviewCacheDao: SyntheticTermLoadPreviewCacheDao,
 	private val transactionRunner: PersistenceTransactionRunner
 ) : PersistenceMaintenanceRepository {
 	override suspend fun clearAll() {
@@ -53,6 +55,7 @@ class RoomPersistenceMaintenanceDataSource(
 			subjectStatsSegmentDao.deleteAll()
 			subjectDetailDao.deleteAll()
 			subjectCatalogCacheDao.deleteAll()
+			syntheticTermLoadPreviewCacheDao.deleteAll()
 			pensumSelectionDao.deleteAll()
 			pensumCacheDao.deleteAll()
 			userDao.deleteAll()

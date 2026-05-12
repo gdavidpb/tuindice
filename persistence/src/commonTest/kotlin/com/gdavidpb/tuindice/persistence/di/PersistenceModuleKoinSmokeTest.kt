@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectDetailDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsAttemptBinDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsGradeBinDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsSegmentDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SyntheticTermLoadPreviewCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.UserDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptOverrideEntity
@@ -33,6 +34,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectDetailEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsAttemptBinEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsGradeBinEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsSegmentEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.SyntheticTermLoadPreviewCacheEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.UserEntity
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceMaintenanceRepository
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
@@ -68,6 +70,7 @@ class PersistenceModuleKoinSmokeTest {
 			SubjectStatsAttemptBinDao::class,
 			PensumCacheDao::class,
 			PensumSelectionDao::class,
+			SyntheticTermLoadPreviewCacheDao::class,
 			PersistenceTransactionRunner::class,
 			PersistenceMaintenanceRepository::class
 		)
@@ -317,6 +320,24 @@ private class FakeTuIndiceDatabase : TuIndiceDatabase() {
 		override suspend fun upsertEntities(entities: List<PensumSelectionEntity>) = Unit
 	}
 
+	override val syntheticTermLoadPreviewCache: SyntheticTermLoadPreviewCacheDao =
+		object : SyntheticTermLoadPreviewCacheDao() {
+			override suspend fun getByCacheKey(cacheKey: String): SyntheticTermLoadPreviewCacheEntity? = null
+
+			override suspend fun getFresh(
+				cacheKey: String,
+				now: Long
+			): SyntheticTermLoadPreviewCacheEntity? = null
+
+			override suspend fun deleteExpired(now: Long): Int = 0
+
+			override suspend fun deleteAll(): Int = 0
+
+			override suspend fun upsertEntity(entity: SyntheticTermLoadPreviewCacheEntity) = Unit
+
+			override suspend fun upsertEntities(entities: List<SyntheticTermLoadPreviewCacheEntity>) = Unit
+		}
+
 	override fun createInvalidationTracker(): InvalidationTracker {
 		return InvalidationTracker(
 			database = this,
@@ -337,7 +358,8 @@ private class FakeTuIndiceDatabase : TuIndiceDatabase() {
 			"subject_stats_grade_bin",
 			"subject_stats_attempt_bin",
 			"pensum_cache",
-			"pensum_selection"
+			"pensum_selection",
+			"synthetic_term_load_preview_cache"
 		)
 	}
 }
