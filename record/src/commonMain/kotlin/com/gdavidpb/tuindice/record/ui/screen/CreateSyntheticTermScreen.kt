@@ -193,7 +193,7 @@ fun CreateSyntheticTermScreen(
 
 					items(
 						items = displayedSearchResults,
-						key = SyntheticTermSubject::subjectCode
+						key = { subject -> SearchResultSubjectKeyPrefix + subject.subjectCode }
 					) { subject ->
 						CreateTermSelectedSubjectCard(
 							subject = subject,
@@ -223,7 +223,7 @@ fun CreateSyntheticTermScreen(
 							) {
 								items(
 									items = state.suggestedSubjects,
-									key = SyntheticTermSubject::subjectCode
+									key = { subject -> SuggestedSubjectKeyPrefix + subject.subjectCode }
 								) { subject ->
 									CreateTermSuggestedSubjectCard(
 										subject = subject,
@@ -243,7 +243,7 @@ fun CreateSyntheticTermScreen(
 				}
 				items(
 					items = state.selectedSubjects,
-					key = SyntheticTermSubject::subjectCode
+					key = { subject -> SelectedSubjectKeyPrefix + subject.subjectCode }
 				) { subject ->
 					CreateTermSelectedSubjectCard(
 						subject = subject,
@@ -897,3 +897,6 @@ private val SuccessColor = Color(0xFF91EE9A)
 private val LightLoadColor = Color(0xFF8CCBFF)
 private val ManageableLoadColor = Color(0xFF7DE7C6)
 private val WarningColor = Color(0xFFFFC400)
+private const val SearchResultSubjectKeyPrefix = "search:"
+private const val SuggestedSubjectKeyPrefix = "suggested:"
+private const val SelectedSubjectKeyPrefix = "selected:"

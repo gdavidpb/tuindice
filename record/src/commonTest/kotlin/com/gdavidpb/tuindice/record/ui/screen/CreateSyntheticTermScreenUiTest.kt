@@ -56,4 +56,35 @@ class CreateSyntheticTermScreenUiTest {
 		onNodeWithText("Matemáticas II").assertIsDisplayed()
 		onNodeWithText("Ocultar 1 ya cursadas").assertIsDisplayed()
 	}
+
+	@Test
+	fun when_selectedSubjectIsStillInSearchResults_then_screenKeepsUniqueLazyKeys() = runTuIndiceUiTest {
+		val selectedSubject = SyntheticTermSubject(
+			subjectCode = "MA1111",
+			name = "Matemáticas I",
+			credits = 4
+		)
+
+		setTuIndiceTestContent {
+			CreateSyntheticTermScreen(
+				state = CreateSyntheticTerm.State(
+					query = "ma",
+					searchResults = listOf(
+						selectedSubject.copy(
+							availability = SyntheticTermSubjectAvailability.SELECTED
+						)
+					),
+					selectedSubjects = listOf(selectedSubject)
+				),
+				onQueryChange = {},
+				onClearQueryClick = {},
+				onPeriodSelected = {},
+				onSubjectAdd = {},
+				onSubjectRemove = {},
+				onCreateClick = {}
+			)
+		}
+
+		onAllNodesWithText("Matemáticas I").assertCountEquals(2)
+	}
 }
