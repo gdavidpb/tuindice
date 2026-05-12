@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicProfile
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
@@ -43,6 +44,9 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumRelationshipType
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
+import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectAttemptBin
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail
@@ -85,6 +89,37 @@ internal fun sampleRecordState(
 	viewMode = viewMode,
 	record = sampleAcademicRecord(),
 	selectedTermId = selectedTermId
+)
+
+internal fun sampleCreateSyntheticTermState() = CreateSyntheticTerm.State(
+	periodOptions = listOf(
+		SyntheticTermPeriodOption(
+			periodYear = 2026,
+			periodCode = AcademicTermPeriod.JUL_AUG
+		),
+		SyntheticTermPeriodOption(
+			periodYear = 2026,
+			periodCode = AcademicTermPeriod.SEP_DEC
+		),
+		SyntheticTermPeriodOption(
+			periodYear = 2027,
+			periodCode = AcademicTermPeriod.JAN_MAR
+		)
+	),
+	selectedPeriod = SyntheticTermPeriodOption(
+		periodYear = 2026,
+		periodCode = AcademicTermPeriod.JUL_AUG
+	),
+	suggestedSubjects = listOf(
+		syntheticTermSubject(
+			code = "EP1308",
+			name = "Organización y Sistemas"
+		),
+		syntheticTermSubject(
+			code = "EP5855",
+			name = "Innovación y Emprendimiento"
+		)
+	)
 )
 
 internal fun sampleSubjectDetailState(
@@ -420,6 +455,17 @@ private fun currentAttempt(
 	credits = credits,
 	officialScore = AttemptScore.empty(),
 	officialOutcome = AttemptOutcome.PENDING
+)
+
+private fun syntheticTermSubject(
+	code: String,
+	name: String,
+	credits: Int = 3
+) = SyntheticTermSubject(
+	subjectCode = code,
+	name = name,
+	credits = credits,
+	gradingMode = AttemptGradingMode.NUMERIC
 )
 
 private fun sampleSubjectSegment(

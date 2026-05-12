@@ -62,9 +62,7 @@ fun defaultWizardSteps(): List<WizardStep> = listOf(
 		id = WizardStepId.CreateSyntheticTerm,
 		title = Res.string.wizard_synthetic_term_title,
 		message = Res.string.wizard_synthetic_term_message,
-		topBarTitle = "Informe Académico",
-		topBarConfig = TopBarConfig.Record,
-		showsRecordViewMode = true
+		topBarTitle = "Crear trimestre"
 	),
 	WizardStep(
 		id = WizardStepId.Pensum,

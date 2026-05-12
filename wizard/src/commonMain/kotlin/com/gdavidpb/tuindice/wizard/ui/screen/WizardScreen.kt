@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationScreen
 import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationsScreen
 import com.gdavidpb.tuindice.pensum.ui.screen.PensumScreen
+import com.gdavidpb.tuindice.record.ui.screen.CreateSyntheticTermScreen
 import com.gdavidpb.tuindice.record.ui.screen.RecordScreen
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
 import com.gdavidpb.tuindice.subjects.ui.screen.SubjectDetailScreen
@@ -31,6 +32,7 @@ import com.gdavidpb.tuindice.wizard.presentation.contract.Wizard
 import com.gdavidpb.tuindice.wizard.presentation.model.WizardStepId
 import com.gdavidpb.tuindice.wizard.ui.WizardUiTags
 import com.gdavidpb.tuindice.wizard.ui.model.sampleAboutState
+import com.gdavidpb.tuindice.wizard.ui.model.sampleCreateSyntheticTermState
 import com.gdavidpb.tuindice.wizard.ui.model.sampleEvaluationFormState
 import com.gdavidpb.tuindice.wizard.ui.model.sampleEvaluationsState
 import com.gdavidpb.tuindice.wizard.ui.model.samplePensumState
@@ -157,8 +159,7 @@ private fun WizardStepContent(
 			)
 
 		WizardStepId.Record,
-		WizardStepId.RecordActions,
-		WizardStepId.CreateSyntheticTerm ->
+		WizardStepId.RecordActions ->
 			RecordScreen(
 				state = sampleRecordState(
 					viewMode = state.recordViewMode,
@@ -169,6 +170,17 @@ private fun WizardStepContent(
 				onRetryClick = {},
 				onAttemptSelectionChange = emptyAttemptSelectionHandler(),
 				onCreateSyntheticTermClick = {}
+			)
+
+		WizardStepId.CreateSyntheticTerm ->
+			CreateSyntheticTermScreen(
+				state = sampleCreateSyntheticTermState(),
+				onQueryChange = {},
+				onClearQueryClick = {},
+				onPeriodSelected = {},
+				onSubjectAdd = {},
+				onSubjectRemove = {},
+				onCreateClick = {}
 			)
 
 		WizardStepId.SubjectDetail,

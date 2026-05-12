@@ -9,6 +9,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -65,7 +66,7 @@ class WizardScreenUiTest {
 		onNodeWithText("Última actualización: 28 de abril 2026").assertExists()
 		onAllNodesWithText("Sincronizado hace 2 min").assertCountEquals(0)
 		onNodeWithText("Resumen académico").assertExists()
-		onNodeWithText("Paso 1 de 10").assertExists()
+		onNodeWithText("Paso 1 de 11").assertExists()
 		assertNodeVisible(WizardUiTags.BackButton)
 		assertNodeVisible(WizardUiTags.SkipButton)
 		assertNodeVisible(WizardUiTags.PrimaryButton)
@@ -90,7 +91,7 @@ class WizardScreenUiTest {
 		}
 
 		onAllNodesWithText("Índices del trimestre").assertCountEquals(2)
-		onNodeWithText("Paso 2 de 10").assertExists()
+		onNodeWithText("Paso 2 de 11").assertExists()
 		onNodeWithText(
 			"Este bloque resume el trimestre seleccionado: índice del trimestre, índice acumulado y cantidad de créditos.",
 			substring = true
@@ -116,17 +117,49 @@ class WizardScreenUiTest {
 		}
 
 		onNodeWithText("Acciones del trimestre").assertExists()
-		onNodeWithText("Paso 3 de 10").assertExists()
+		onNodeWithText("Paso 3 de 11").assertExists()
 		onNodeWithText("Botones superiores").assertExists()
 		onNodeWithText(
-			"El botón de modo alterna entre Modo Universidad y Modo Proyección.",
+			"El botón de modo alterna entre Universidad y Proyección.",
 			substring = true
 		).assertExists()
 		onNodeWithText(
-			"Cuando selecciones el trimestre actual, verás el botón de comprobante para descargarlo.",
+			"En Proyección aparece el botón + para crear un trimestre futuro",
 			substring = true
 		).assertExists()
 		assertNodeVisible(WizardUiTags.FocusOverlay)
+	}
+
+	@Test
+	fun when_createSyntheticTermStepIsRendered_then_showsCreationScreenContext() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			WizardScreen(
+				state = Wizard.State.Content().goTo(WizardStepId.CreateSyntheticTerm),
+				onBack = {},
+				onSkip = {},
+				onNext = {},
+				onFinish = {},
+				onOpenSubjectDetail = {},
+				onOpenEvaluationForm = {},
+				onSubjectTabSelected = {},
+				onSelectedTermChange = {},
+				onSubjectChartsVisibilityChange = {}
+			)
+		}
+
+		onNodeWithText("Crear trimestres de proyección").assertExists()
+		onNodeWithText("Paso 4 de 11").assertExists()
+		onNodeWithText("Jul - Ago 2026").assertExists()
+		onNodeWithText("0 materias seleccionadas").assertExists()
+		onNodeWithText("Sugeridas").assertExists()
+		onNodeWithText("EP1308").assertExists()
+		onNodeWithText("EP5855").assertExists()
+		onNodeWithText(
+			"Aquí eliges el periodo, agregas materias sugeridas",
+			substring = true
+		).assertExists()
+		assertNodeVisible(RecordUiTags.CreateSyntheticTermScreen)
+		onAllNodesWithTag(WizardUiTags.FocusOverlay).assertCountEquals(0)
 	}
 
 	@Test
@@ -149,7 +182,7 @@ class WizardScreenUiTest {
 		}
 
 		onNodeWithText("Pensum y avance").assertExists()
-		onNodeWithText("Paso 4 de 10").assertExists()
+		onNodeWithText("Paso 5 de 11").assertExists()
 		onNodeWithText("75% avance").assertExists()
 		onNodeWithText("Computación 2019 · Proyecto de Grado").assertExists()
 		onNodeWithText(
@@ -185,7 +218,7 @@ class WizardScreenUiTest {
 		}
 
 		onNodeWithText("Estadísticas de materia").assertExists()
-		onNodeWithText("Paso 5 de 10").assertExists()
+		onNodeWithText("Paso 6 de 11").assertExists()
 		onNodeWithText("Algoritmos y Estructuras I").assertExists()
 		onNodeWithText(
 			"Arriba ves el nombre de la materia, su código y UC.",
@@ -216,7 +249,7 @@ class WizardScreenUiTest {
 		}
 
 		onNodeWithText("Gráficos de materia").assertExists()
-		onNodeWithText("Paso 6 de 10").assertExists()
+		onNodeWithText("Paso 7 de 11").assertExists()
 		onNodeWithText("Distribución de nota").assertExists()
 		onNodeWithText("Intentos para aprobar").assertExists()
 		onNodeWithText(
@@ -244,7 +277,7 @@ class WizardScreenUiTest {
 		}
 
 		onNodeWithText("Evaluaciones").assertExists()
-		onNodeWithText("Paso 7 de 10").assertExists()
+		onNodeWithText("Paso 8 de 11").assertExists()
 		onNodeWithTag(EvaluationsUiTags.filterChip("Pendientes")).assertExists()
 		onNodeWithTag(EvaluationsUiTags.filterChip("CI2611")).assertExists()
 		onNodeWithTag(EvaluationsUiTags.filterChip("Mañana")).assertExists()
@@ -273,7 +306,7 @@ class WizardScreenUiTest {
 		}
 
 		onNodeWithText("Ayuda e información").assertExists()
-		onNodeWithText("Paso 10 de 10").assertExists()
+		onNodeWithText("Paso 11 de 11").assertExists()
 		onAllNodesWithTag(WizardUiTags.FocusOverlay).assertCountEquals(0)
 	}
 

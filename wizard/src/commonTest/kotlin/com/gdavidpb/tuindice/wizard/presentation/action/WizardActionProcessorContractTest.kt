@@ -27,7 +27,7 @@ class WizardActionProcessorContractTest {
 
 		assertEquals(WizardStepId.Welcome, state.currentStep.id)
 		assertEquals(1, state.currentProgress)
-		assertEquals(10, state.totalProgress)
+		assertEquals(11, state.totalProgress)
 		assertTrue(state.isWelcomeStep)
 	}
 
@@ -39,6 +39,7 @@ class WizardActionProcessorContractTest {
 				WizardStepId.Summary,
 				WizardStepId.Record,
 				WizardStepId.RecordActions,
+				WizardStepId.CreateSyntheticTerm,
 				WizardStepId.Pensum,
 				WizardStepId.SubjectDetail,
 				WizardStepId.SubjectCharts,
