@@ -9,6 +9,7 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -43,7 +44,8 @@ fun RecordContentView(
 		newGrade: Int?,
 		newOutcome: AttemptOutcome?,
 		isSelected: Boolean
-	) -> Unit
+	) -> Unit,
+	onScrollInProgressChange: (Boolean) -> Unit = {}
 ) {
 	val termGradeDiffPattern = stringResource(Res.string.term_grade_diff_pattern)
 	val termGradeSumPattern = stringResource(Res.string.term_grade_sum_pattern)
@@ -100,7 +102,8 @@ fun RecordContentView(
 				terms = terms,
 				selectedTermId = effectiveSelectedTermId,
 				onSelectedTermChange = onSelectedTermChange,
-				onAttemptSelectionChange = onAttemptSelectionChange
+				onAttemptSelectionChange = onAttemptSelectionChange,
+				onScrollInProgressChange = onScrollInProgressChange
 			)
 		}
 	}
@@ -117,7 +120,8 @@ private fun RecordTermPagerView(
 		newGrade: Int?,
 		newOutcome: AttemptOutcome?,
 		isSelected: Boolean
-	) -> Unit
+	) -> Unit,
+	onScrollInProgressChange: (Boolean) -> Unit
 ) {
 	val termIds = remember(terms) {
 		terms.map { term -> term.termId }
@@ -129,6 +133,7 @@ private fun RecordTermPagerView(
 		initialPage = selectedTermIndex,
 		pageCount = { terms.size }
 	)
+	val listScrollInProgress = remember { mutableStateOf(false) }
 
 	LaunchedEffect(termIds, selectedTermIndex) {
 		if (pagerState.currentPage != selectedTermIndex) {
@@ -147,6 +152,12 @@ private fun RecordTermPagerView(
 					onSelectedTermChange(termId)
 				}
 			}
+	}
+
+	LaunchedEffect(pagerState, listScrollInProgress) {
+		snapshotFlow { pagerState.isScrollInProgress || listScrollInProgress.value }
+			.distinctUntilChanged()
+			.collect(onScrollInProgressChange)
 	}
 
 	Column(modifier = modifier) {
@@ -173,7 +184,10 @@ private fun RecordTermPagerView(
 			TermItemView(
 				modifier = Modifier.fillMaxSize(),
 				item = terms[page],
-				onAttemptSelectionChange = onAttemptSelectionChange
+				onAttemptSelectionChange = onAttemptSelectionChange,
+				onScrollInProgressChange = { isScrollInProgress ->
+					listScrollInProgress.value = isScrollInProgress
+				}
 			)
 		}
 	}

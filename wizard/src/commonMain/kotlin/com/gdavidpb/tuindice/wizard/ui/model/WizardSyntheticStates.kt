@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicProfile
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
@@ -53,13 +54,11 @@ import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.wizard.presentation.contract.CURRENT_TERM_ID
 import com.gdavidpb.tuindice.wizard.presentation.contract.HISTORICAL_TERM_ID
 
-private const val CURRENT_TERM_START = 1_775_001_600_000L
-private const val CURRENT_TERM_END = 1_785_456_000_000L
-private const val HISTORICAL_TERM_START = 1_759_276_800_000L
 private const val HISTORICAL_TERM_END = 1_766_102_400_000L
 private const val SAMPLE_DATE = 1_776_902_400_000L
 private const val SAMPLE_CAREER_NAME = "Ingeniería de Computación"
 private const val SAMPLE_LAST_UPDATE_TEXT = "Última actualización: 28 de abril 2026"
+private const val SAMPLE_PENSUM_TOP_SHIFT = 66.0
 
 internal fun sampleSummaryState() = Summary.State.Content(
 	name = "Andrea Pérez",
@@ -149,7 +148,7 @@ internal fun samplePensumState() = Pensum.State.Content(
 		progressPercent = 75,
 		approvedCredits = 153,
 		totalCredits = 205,
-		canvas = PensumScreenModel.Canvas(width = 1800.0, height = 1340.0),
+		canvas = PensumScreenModel.Canvas(width = 1800.0, height = 1340.0 - SAMPLE_PENSUM_TOP_SHIFT),
 		terms = (1..6).map { term ->
 			PensumScreenModel.Term(
 				id = "T$term",
@@ -211,7 +210,7 @@ private fun pensumNode(
 	credits = credits,
 	termId = termId,
 	x = x,
-	y = y,
+	y = (y - SAMPLE_PENSUM_TOP_SHIFT).coerceAtLeast(0.0),
 	width = 220.0,
 	height = 148.0,
 	status = status,
@@ -372,8 +371,8 @@ private fun sampleAcademicRecord() = AcademicRecord(
 	terms = listOf(
 		AcademicTerm(
 			id = HISTORICAL_TERM_ID,
-			startAtMillis = HISTORICAL_TERM_START,
-			endAtMillis = HISTORICAL_TERM_END,
+			periodYear = 2025,
+			periodCode = AcademicTermPeriod.SEP_DEC,
 			kind = TermKind.OFFICIAL_HISTORICAL,
 			attempts = listOf(
 				approvedAttempt("MA1111", "Matemáticas I", 5, 4),
@@ -383,8 +382,8 @@ private fun sampleAcademicRecord() = AcademicRecord(
 		),
 		AcademicTerm(
 			id = CURRENT_TERM_ID,
-			startAtMillis = CURRENT_TERM_START,
-			endAtMillis = CURRENT_TERM_END,
+			periodYear = 2026,
+			periodCode = AcademicTermPeriod.JAN_MAR,
 			kind = TermKind.OFFICIAL_CURRENT,
 			attempts = listOf(
 				currentAttempt("CI2611", "Algoritmos y Estructuras I", 4),

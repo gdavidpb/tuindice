@@ -10,8 +10,6 @@ import com.github.tomakehurst.wiremock.extension.WireMockServices
 import com.github.tomakehurst.wiremock.http.RequestMethod
 import com.github.tomakehurst.wiremock.http.ResponseDefinition
 import com.github.tomakehurst.wiremock.stubbing.ServeEvent
-import java.time.Instant
-import java.time.ZoneOffset
 import wiremock.com.fasterxml.jackson.databind.JsonNode
 import wiremock.com.fasterxml.jackson.databind.ObjectMapper
 
@@ -39,6 +37,7 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 				isGetRequest(request, pathSegments) -> getResponse()
 				isPutAttemptRequest(request, pathSegments) -> putAttemptResponse(request, pathSegments[4])
 				isDeleteAttemptRequest(request, pathSegments) -> deleteAttemptResponse(request, pathSegments[4])
+				isLoadPreviewRequest(request, pathSegments) -> loadPreviewResponse(request)
 				isPostTermRequest(request, pathSegments) -> postTermResponse(request)
 				isDeleteTermRequest(request, pathSegments) -> deleteTermResponse(request, pathSegments[4])
 				else -> jsonResponse(404, mapOf("error" to "record_endpoint_not_found"), ERROR_DELAY_MS)
@@ -77,10 +76,13 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 
 		private fun parseTerm(node: JsonNode): TermModel =
 			TermModel(
-				id = node.get("id").asText(),
-				name = node.get("name").asText(),
-				startDate = node.get("start_date").asLong(),
-				endDate = node.get("end_date").asLong(),
+				id = node.path("id").takeIf(JsonNode::isTextual)?.asText()
+					?: node.get("term_key").asText(),
+				periodYear = node.get("period_year").asInt(),
+				periodCode = node.get("period_code").asText(),
+				termKey = node.get("term_key").asText(),
+				termOrder = node.get("term_order").asInt(),
+				periodLabel = node.get("period_label").asText(),
 				kind = node.get("kind").asText(),
 				revision = node.get("revision").asLong(),
 				attempts = node.get("attempts").map(::parseAttempt),
@@ -130,6 +132,10 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 
 		private fun isPostTermRequest(request: com.github.tomakehurst.wiremock.http.Request, pathSegments: List<String>): Boolean =
 			request.method == RequestMethod.POST && pathSegments == listOf("record", "v5", "overlay", "terms")
+
+		private fun isLoadPreviewRequest(request: com.github.tomakehurst.wiremock.http.Request, pathSegments: List<String>): Boolean =
+			request.method == RequestMethod.POST &&
+				pathSegments == listOf("record", "v5", "overlay", "terms", "load-preview")
 
 		private fun isDeleteTermRequest(request: com.github.tomakehurst.wiremock.http.Request, pathSegments: List<String>): Boolean =
 			request.method == RequestMethod.DELETE &&
@@ -236,22 +242,25 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 				return jsonResponse(412, mapOf("error" to "term_already_exists"), ERROR_DELAY_MS)
 			}
 
-			val startAt = root.path("start_at").takeIf { it.canConvertToLong() }?.asLong()
+			val periodYear = root.path("period_year").takeIf { it.canConvertToInt() }?.asInt()
 				?: return invalidPayload()
-			val endAt = root.path("end_at").takeIf { it.canConvertToLong() }?.asLong()
+			val periodCode = root.path("period_code").takeIf(JsonNode::isTextual)?.asText()
+				?.takeIf(PERIODS_BY_CODE::containsKey)
 				?: return invalidPayload()
-			val attemptsNode = root.get("attempts")
+			val subjectCodes = root.get("subject_codes")
 				?.takeIf(JsonNode::isArray)
 				?.takeIf { it.size() > 0 }
+				?.mapNotNull { node -> node.takeIf(JsonNode::isTextual)?.asText()?.trim()?.takeIf(String::isNotBlank) }
 				?: return invalidPayload()
+			if (subjectCodes.distinct().size != subjectCodes.size) return invalidPayload()
 
 			val nextRevision = state.recordRevision + 1
 			val addedTerm = buildSyntheticTerm(
-				startAt = startAt,
-				endAt = endAt,
-				attemptsNode = attemptsNode,
+				periodYear = periodYear,
+				periodCode = periodCode,
+				subjectCodes = subjectCodes,
 				revision = nextRevision,
-			) ?: return invalidPayload()
+			)
 
 			state.recordRevision = nextRevision
 			state.addedTerm = addedTerm
@@ -261,9 +270,62 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			return jsonResponse(200, responseBody, POST_DELAY_MS)
 		}
 
+		private fun loadPreviewResponse(request: com.github.tomakehurst.wiremock.http.Request): ResponseDefinition {
+			val root = parseBody(request) ?: return invalidPayload()
+			val subjectCodes = root.get("subject_codes")
+				?.takeIf(JsonNode::isArray)
+				?.mapNotNull { node -> node.takeIf(JsonNode::isTextual)?.asText()?.trim()?.takeIf(String::isNotBlank) }
+				.orEmpty()
+			if (subjectCodes.isEmpty()) {
+				return jsonResponse(
+					status = 200,
+					body = mapOf(
+						"available" to false,
+						"reason" to "insufficient_subjects",
+					),
+					delayMs = GET_DELAY_MS,
+				)
+			}
+
+			val credits = subjectCodes.sumOf { code -> catalogAttempt(code)?.credits ?: DEFAULT_ADDED_ATTEMPT_CREDITS }
+			val weightedDifficulty = subjectCodes.mapIndexed { index, _ -> 58.0 + (index * 4.0) }.average()
+			val loadIndex = credits * (1 + weightedDifficulty / 100)
+			val baselineLoadIndex = 16.0
+			val ratio = loadIndex / baselineLoadIndex
+			val band = when {
+				ratio <= 0.75 -> "LIGHT"
+				ratio <= 0.95 -> "MANAGEABLE"
+				ratio <= 1.10 -> "NORMAL"
+				ratio <= 1.30 -> "DEMANDING"
+				else -> "VERY_DEMANDING"
+			}
+			val label = when (band) {
+				"LIGHT" -> "Ligera"
+				"MANAGEABLE" -> "Manejable"
+				"NORMAL" -> "Normal"
+				"DEMANDING" -> "Exigente"
+				else -> "Muy exigente"
+			}
+
+			return jsonResponse(
+				status = 200,
+				body = linkedMapOf(
+					"available" to true,
+					"band" to band,
+					"label" to label,
+					"credits" to credits,
+					"weighted_difficulty" to weightedDifficulty,
+					"load_index" to loadIndex,
+					"baseline_load_index" to baselineLoadIndex,
+					"effective_terms" to 5,
+				),
+				delayMs = GET_DELAY_MS,
+			)
+		}
+
 		private fun deleteTermResponse(
 			request: com.github.tomakehurst.wiremock.http.Request,
-			termId: String,
+			termKey: String,
 		): ResponseDefinition {
 			val root = parseBody(request) ?: return invalidPayload()
 			val mutationId = root.path("mutation_id").takeIf { it.isTextual }?.asText()
@@ -280,7 +342,7 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			}
 
 			val addedTerm = state.addedTerm
-				?.takeIf { term -> term.id == termId }
+				?.takeIf { term -> term.termKey == termKey }
 				?: return jsonResponse(404, mapOf("error" to "term_not_found"), ERROR_DELAY_MS)
 
 			state.recordRevision += 1
@@ -293,47 +355,46 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 		}
 
 		private fun buildSyntheticTerm(
-			startAt: Long,
-			endAt: Long,
-			attemptsNode: JsonNode,
+			periodYear: Int,
+			periodCode: String,
+			subjectCodes: List<String>,
 			revision: Long,
-		): TermModel? {
-			val template = baseState.addedTermTemplate
-			val attempts = attemptsNode.mapIndexed { index, node ->
-				val subjectCode = node.path("subject_code").takeIf(JsonNode::isTextual)?.asText()?.trim().orEmpty()
-				if (subjectCode.isBlank()) return null
-
-				val gradingMode = node.path("grading_mode").takeIf(JsonNode::isTextual)?.asText()?.trim().orEmpty()
-					.ifBlank { NUMERIC_GRADING_MODE }
-				val score = node.get("score")?.let(::parseScore) ?: if (node.has("score")) return null else null
-				val outcome = node.get("outcome")?.let(::parseOutcome) ?: if (node.has("outcome")) return null else null
-
+		): TermModel {
+			val period = requireNotNull(PERIODS_BY_CODE[periodCode])
+			val termKey = "$periodYear-$periodCode"
+			val attempts = subjectCodes.mapIndexed { index, subjectCode ->
+				val catalogAttempt = catalogAttempt(subjectCode)
 				AttemptModel(
-					id = "$subjectCode-${template.id}-${index + 1}",
-					termId = template.id,
+					id = "$termKey-$subjectCode-${index + 1}",
+					termId = termKey,
 					code = subjectCode,
-					name = node.path("subject_name").takeIf(JsonNode::isTextual)?.asText()?.trim().orEmpty()
-						.ifBlank { "MOCK $subjectCode" },
-					credits = node.path("credits").takeIf { value -> value.canConvertToInt() }?.asInt()
-						?: DEFAULT_ADDED_ATTEMPT_CREDITS,
-					gradingMode = gradingMode,
-					officialScore = score ?: ScoreModel.empty(),
-					officialOutcome = outcome ?: PENDING_OUTCOME,
+					name = catalogAttempt?.name ?: "MOCK $subjectCode",
+					credits = catalogAttempt?.credits ?: DEFAULT_ADDED_ATTEMPT_CREDITS,
+					gradingMode = catalogAttempt?.gradingMode ?: NUMERIC_GRADING_MODE,
+					officialScore = ScoreModel.empty(),
+					officialOutcome = PENDING_OUTCOME,
 					officialBadge = NONE_BADGE,
 					mutable = true,
 				)
 			}
 
 			return TermModel(
-				id = template.id,
-				name = formatTermName(startAtMillis = startAt, endAtMillis = endAt),
-				startDate = startAt,
-				endDate = endAt,
-				kind = template.kind,
+				id = termKey,
+				periodYear = periodYear,
+				periodCode = periodCode,
+				termKey = termKey,
+				termOrder = periodYear * 10 + period.sequence,
+				periodLabel = "${period.labelPrefix} $periodYear",
+				kind = baseState.addedTermTemplate.kind,
 				revision = revision,
 				attempts = attempts,
 			)
 		}
+
+		private fun catalogAttempt(subjectCode: String): AttemptModel? =
+			baseState.terms.asSequence()
+				.flatMap { term -> term.attempts.asSequence() }
+				.firstOrNull { attempt -> attempt.code.equals(subjectCode, ignoreCase = true) }
 
 		private fun editableAttemptById(attemptId: String): AttemptModel? =
 			visibleTerms()
@@ -405,24 +466,6 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 
 		private fun invalidPayload(): ResponseDefinition =
 			jsonResponse(400, mapOf("error" to "invalid_payload"), ERROR_DELAY_MS)
-
-		private fun formatTermName(startAtMillis: Long, endAtMillis: Long): String {
-			val startDate = Instant.ofEpochMilli(startAtMillis).atZone(ZoneOffset.UTC).toLocalDate()
-			val endDate = Instant.ofEpochMilli(endAtMillis).atZone(ZoneOffset.UTC).toLocalDate()
-			val startMonth = SPANISH_MONTH_NAMES[startDate.monthValue - 1]
-			val endMonth = SPANISH_MONTH_NAMES[endDate.monthValue - 1]
-
-			return when {
-				startDate.year == endDate.year && startDate.month == endDate.month ->
-					"$startMonth ${startDate.year}"
-
-				startDate.year == endDate.year ->
-					"$startMonth - $endMonth ${startDate.year}"
-
-				else ->
-					"$startMonth ${startDate.year} - $endMonth ${endDate.year}"
-			}
-		}
 
 		private fun pathSegments(request: com.github.tomakehurst.wiremock.http.Request): List<String> =
 			request.url
@@ -497,9 +540,11 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 
 		private data class TermModel(
 			val id: String,
-			val name: String,
-			val startDate: Long,
-			val endDate: Long,
+			val periodYear: Int,
+			val periodCode: String,
+			val termKey: String,
+			val termOrder: Int,
+			val periodLabel: String,
 			val kind: String,
 			val revision: Long,
 			val attempts: List<AttemptModel>,
@@ -507,11 +552,13 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			fun toRecordTermModel(): Map<String, Any> =
 				linkedMapOf(
 					"id" to id,
-					"label" to name,
-					"start_at" to startDate,
-					"end_at" to endDate,
+					"period_year" to periodYear,
+					"period_code" to periodCode,
 					"term_kind" to kind,
 					"attempts" to attempts.map(AttemptModel::toRecordAttemptModel),
+					"term_key" to termKey,
+					"term_order" to termOrder,
+					"period_label" to periodLabel,
 				)
 		}
 
@@ -615,6 +662,17 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			private const val UNREPORTED_OUTCOME = "unreported"
 			private const val NONE_BADGE = "none"
 			private const val WITHOUT_EFFECT_BADGE = "without_effect"
+			private data class PeriodModel(
+				val code: String,
+				val sequence: Int,
+				val labelPrefix: String,
+			)
+			private val PERIODS_BY_CODE = listOf(
+				PeriodModel(code = "JAN_MAR", sequence = 1, labelPrefix = "Enero - Marzo"),
+				PeriodModel(code = "APR_JUL", sequence = 2, labelPrefix = "Abril - Julio"),
+				PeriodModel(code = "JUL_AUG", sequence = 3, labelPrefix = "Julio - Agosto"),
+				PeriodModel(code = "SEP_DEC", sequence = 4, labelPrefix = "Septiembre - Diciembre"),
+			).associateBy(PeriodModel::code)
 			private val VALID_OUTCOMES = setOf(
 				PENDING_OUTCOME,
 				APPROVED_OUTCOME,
@@ -622,21 +680,7 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 				RETIRED_OUTCOME,
 				UNREPORTED_OUTCOME,
 			)
-			private val SPANISH_MONTH_NAMES = listOf(
-				"Enero",
-				"Febrero",
-				"Marzo",
-				"Abril",
-				"Mayo",
-				"Junio",
-				"Julio",
-				"Agosto",
-				"Septiembre",
-				"Octubre",
-				"Noviembre",
-				"Diciembre",
-			)
-			private val DESCENDING_TERM_ORDER = compareByDescending<TermModel> { it.startDate }
+			private val DESCENDING_TERM_ORDER = compareByDescending<TermModel> { it.termOrder }
 				.thenBy { it.id }
 		}
 	}

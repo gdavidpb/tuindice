@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.record.domain.usecase
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
@@ -98,8 +99,8 @@ class UpsertAttemptSelectionUseCaseTest {
 			terms = listOf(
 				AcademicTerm(
 					id = "term-1",
-					startAtMillis = 1L,
-					endAtMillis = 2L,
+					periodYear = 2026,
+					periodCode = AcademicTermPeriod.JAN_MAR,
 					kind = TermKind.OFFICIAL_CURRENT,
 					attempts = listOf(
 						AcademicAttempt(

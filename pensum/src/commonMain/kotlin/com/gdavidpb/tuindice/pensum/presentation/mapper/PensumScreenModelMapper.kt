@@ -7,11 +7,17 @@ import kotlin.math.roundToInt
 
 private const val DisplayTermWidth = 240.0
 private const val DisplayCanvasRightPadding = 32.0
+private const val DisplayCanvasBottomPadding = 48.0
+private const val DisplayFirstNodeTop = 84.0
 private const val DisplayNodeSingleLineMinHeight = 120.0
 private const val DisplayNodeMultiLineMinHeight = 144.0
 private const val DisplayNodeSingleLineNameLimit = 18
 
 fun ObservedPensum.toScreenModel(): PensumScreenModel {
+	val contentTopShift = pensum.nodes
+		.minOfOrNull { node -> node.y }
+		?.let { minY -> (minY - DisplayFirstNodeTop).coerceAtLeast(0.0) }
+		.orZero()
 	val displayTerms = pensum.terms.mapIndexed { index, term ->
 		PensumScreenModel.Term(
 			id = term.id,
@@ -35,7 +41,7 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 			credits = node.credits,
 			termId = node.termId,
 			x = x,
-			y = node.y,
+			y = (node.y - contentTopShift).coerceAtLeast(0.0),
 			width = node.width,
 			height = maxOf(node.height, node.name.minimumDisplayHeight()),
 			status = nodeStatuses[node.id] ?: PensumNodeStatus.BLOCKED,
@@ -45,6 +51,10 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 	val displayCanvasWidth = maxOf(
 		pensum.canvas.width,
 		displayTerms.maxOfOrNull { term -> term.x + term.width }.orZero() + DisplayCanvasRightPadding
+	)
+	val displayCanvasHeight = maxOf(
+		pensum.canvas.height - contentTopShift,
+		displayNodes.maxOfOrNull { node -> node.y + node.height }.orZero() + DisplayCanvasBottomPadding
 	)
 
 	return PensumScreenModel(
@@ -78,7 +88,7 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 		totalCredits = pensum.totalCredits,
 		canvas = PensumScreenModel.Canvas(
 			width = displayCanvasWidth,
-			height = pensum.canvas.height
+			height = displayCanvasHeight
 		),
 		terms = displayTerms,
 		nodes = displayNodes,
@@ -88,7 +98,12 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 				fromNodeId = edge.fromNodeId,
 				toNodeId = edge.toNodeId,
 				relationshipType = edge.relationshipType,
-				points = edge.points.map { point -> PensumScreenModel.Point(x = point.x, y = point.y) }
+				points = edge.points.map { point ->
+					PensumScreenModel.Point(
+						x = point.x,
+						y = (point.y - contentTopShift).coerceAtLeast(0.0)
+					)
+				}
 			)
 		}
 	)

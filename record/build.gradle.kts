@@ -35,6 +35,7 @@ kotlin {
 				implementation(libs.koin.compose.viewmodel)
 				implementation(libs.components.resources)
 				implementation(libs.kotlinx.datetime)
+				implementation(libs.kotlinx.serialization.json)
 				implementation(libs.material.icons.extended)
 			}
 		}

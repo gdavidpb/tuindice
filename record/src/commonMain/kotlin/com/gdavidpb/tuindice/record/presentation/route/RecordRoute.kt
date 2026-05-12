@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.record.ui.screen.RecordScreen
 @Composable
 fun RecordRoute(
 	onNavigateToUpdatePassword: () -> Unit,
+	onNavigateToCreateSyntheticTerm: () -> Unit,
 	onTopBarViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
@@ -85,7 +86,8 @@ fun RecordRoute(
 				outcome = outcome,
 				commit = isSelected
 			)
-		}
+		},
+		onCreateSyntheticTermClick = onNavigateToCreateSyntheticTerm
 	)
 }
 

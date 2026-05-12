@@ -13,7 +13,6 @@ import com.gdavidpb.tuindice.academiccore.domain.model.TermProjection
 import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialCurrent
 import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialHistorical
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
-import com.gdavidpb.tuindice.base.utils.extension.academicTermShortDisplayName
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
@@ -65,10 +64,7 @@ fun TermProjection.toTermItem(
 
 	return TermItem(
 		termId = id,
-		shortNameText = academicTermShortDisplayName(
-			startAtMillis = startAtMillis,
-			endAtMillis = endAtMillis
-		),
+		shortNameText = "${periodCode.shortLabel} $periodYear",
 		gradeText = texts
 			.termGrade(animatedGrade.value)
 			.annotatedTermValue(highlightColor),

@@ -8,10 +8,10 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 abstract class AcademicTermDao : UpsertDao<AcademicTermEntity>() {
-	@Query("SELECT * FROM ${AcademicTermTable.TABLE_NAME} ORDER BY ${AcademicTermTable.START_AT} DESC, ${AcademicTermTable.ID} ASC")
+	@Query("SELECT * FROM ${AcademicTermTable.TABLE_NAME} ORDER BY ${AcademicTermTable.TERM_ORDER} DESC, ${AcademicTermTable.ID} ASC")
 	abstract fun observeTermsFlow(): Flow<List<AcademicTermEntity>>
 
-	@Query("SELECT * FROM ${AcademicTermTable.TABLE_NAME} ORDER BY ${AcademicTermTable.START_AT} DESC, ${AcademicTermTable.ID} ASC")
+	@Query("SELECT * FROM ${AcademicTermTable.TABLE_NAME} ORDER BY ${AcademicTermTable.TERM_ORDER} DESC, ${AcademicTermTable.ID} ASC")
 	abstract suspend fun getTerms(): List<AcademicTermEntity>
 
 	@Query("DELETE FROM ${AcademicTermTable.TABLE_NAME}")

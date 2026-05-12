@@ -12,6 +12,11 @@ object RecordUiTags {
 	const val TopBarViewModeBanner = "record_top_bar_view_mode_banner"
 	const val TopBarViewModeInfoButton = "record_top_bar_view_mode_info_button"
 	const val ViewModeInfoMessage = "record_view_mode_info_message"
+	const val CreateSyntheticTermFab = "record_create_synthetic_term_fab"
+	const val CreateSyntheticTermScreen = "record_create_synthetic_term_screen"
+	const val CreateSyntheticTermPeriodSelector = "record_create_synthetic_term_period_selector"
+	const val CreateSyntheticTermSearchField = "record_create_synthetic_term_search_field"
+	const val CreateSyntheticTermSubmitButton = "record_create_synthetic_term_submit_button"
 
 	const val EmptyContainer = "record_empty_container"
 	const val EmptyTitle = "record_empty_title"
@@ -27,4 +32,5 @@ object RecordUiTags {
 	fun attemptStatusChip(attemptId: String): String = "record_attempt_status_chip_$attemptId"
 	fun attemptStatusSelector(attemptId: String): String = "record_attempt_status_selector_$attemptId"
 	fun attemptStatusOption(attemptId: String, status: String): String = "record_attempt_status_option_${attemptId}_$status"
+	fun createSyntheticTermSubject(subjectCode: String): String = "record_create_synthetic_term_subject_$subjectCode"
 }

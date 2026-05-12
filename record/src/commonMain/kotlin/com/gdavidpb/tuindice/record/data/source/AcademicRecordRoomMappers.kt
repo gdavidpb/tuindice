@@ -12,13 +12,16 @@ internal fun List<AcademicTermEntity>.toAcademicTerms(
 ): List<AcademicTerm> {
 	val attemptsByTermId = attempts.groupBy(AcademicAttemptEntity::termId)
 	return sortedWith(
-		compareBy(AcademicTermEntity::startAt, AcademicTermEntity::endAt, AcademicTermEntity::id)
+		compareBy(AcademicTermEntity::termOrder, AcademicTermEntity::id)
 	).map { term ->
 		AcademicTerm(
 			id = term.id,
-			startAtMillis = term.startAt,
-			endAtMillis = term.endAt,
+			periodYear = term.periodYear,
+			periodCode = AcademicTermPeriod.valueOf(term.periodCode),
 			kind = TermKind.valueOf(term.kind),
+			termKey = term.termKey,
+			termOrder = term.termOrder,
+			periodLabel = term.periodLabel,
 			attempts = attemptsByTermId[term.id].orEmpty()
 				.sortedWith(
 					compareBy(AcademicAttemptEntity::positionInTerm, AcademicAttemptEntity::id)
@@ -33,8 +36,11 @@ internal fun AcademicRecordEntity.revisionValue(): Long = revision
 internal fun AcademicTerm.toAcademicTermEntity(): AcademicTermEntity {
 	return AcademicTermEntity(
 		id = id,
-		startAt = startAtMillis,
-		endAt = endAtMillis,
+		periodYear = periodYear,
+		periodCode = periodCode.name,
+		termKey = termKey,
+		termOrder = termOrder,
+		periodLabel = periodLabel,
 		kind = kind.name
 	)
 }
@@ -105,8 +111,8 @@ internal fun AcademicAttemptOverrideEntity.toAttemptOverride(): AttemptOverride 
 internal fun AcademicRecordMutation.AddSyntheticTerm.toAcademicTerm(): AcademicTerm {
 	return AcademicTerm(
 		id = termId,
-		startAtMillis = startAtMillis,
-		endAtMillis = endAtMillis,
+		periodYear = periodYear,
+		periodCode = periodCode,
 		kind = TermKind.SYNTHETIC,
 		attempts = attempts.map { attempt ->
 			AcademicAttempt(

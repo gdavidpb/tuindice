@@ -17,9 +17,6 @@
       "terms": [
         {
           "id": "10d5736b45980572756948095e5d1a1a",
-          "label": "Abril - Julio 2027",
-          "start_at": 1807502400000,
-          "end_at": 1816315200000,
           "term_kind": "synthetic",
           "attempts": [
             {
@@ -60,13 +57,15 @@
               "official_outcome": "pending",
               "official_badge": "none"
             }
-          ]
+          ],
+          "period_year": 2027,
+          "period_code": "APR_JUL",
+          "term_key": "2027-APR_JUL",
+          "term_order": 20272,
+          "period_label": "Abril - Julio 2027"
         },
         {
           "id": "b2e11a6acad9069628eecb03be8f6106",
-          "label": "Enero - Marzo 2027",
-          "start_at": 1799636400000,
-          "end_at": 1806030000000,
           "term_kind": "synthetic",
           "attempts": [
             {
@@ -120,13 +119,15 @@
               "official_outcome": "pending",
               "official_badge": "none"
             }
-          ]
+          ],
+          "period_year": 2027,
+          "period_code": "JAN_MAR",
+          "term_key": "2027-JAN_MAR",
+          "term_order": 20271,
+          "period_label": "Enero - Marzo 2027"
         },
         {
           "id": "e597e91d613078d1a13ca288cfc833df",
-          "label": "Septiembre - Diciembre 2026",
-          "start_at": 1788750000000,
-          "end_at": 1797562800000,
           "term_kind": "synthetic",
           "attempts": [
             {
@@ -180,13 +181,15 @@
               "official_outcome": "pending",
               "official_badge": "none"
             }
-          ]
+          ],
+          "period_year": 2026,
+          "period_code": "SEP_DEC",
+          "term_key": "2026-SEP_DEC",
+          "term_order": 20264,
+          "period_label": "Septiembre - Diciembre 2026"
         },
         {
           "id": "d377155d39da686f412622aaca9074cd",
-          "label": "Abril - Julio 2026",
-          "start_at": 1776052800000,
-          "end_at": 1784865600000,
           "term_kind": "official_current",
           "attempts": [
             {
@@ -228,13 +231,15 @@
               "official_outcome": "pending",
               "official_badge": "none"
             }
-          ]
+          ],
+          "period_year": 2026,
+          "period_code": "APR_JUL",
+          "term_key": "2026-APR_JUL",
+          "term_order": 20262,
+          "period_label": "Abril - Julio 2026"
         },
         {
           "id": "01c705af6984b336fc2aed20576ec543",
-          "label": "Enero - Marzo 2026",
-          "start_at": 1768186800000,
-          "end_at": 1774580400000,
           "term_kind": "official_historical",
           "attempts": [
             {
@@ -289,13 +294,15 @@
               "official_outcome": "failed",
               "official_badge": "none"
             }
-          ]
+          ],
+          "period_year": 2026,
+          "period_code": "JAN_MAR",
+          "term_key": "2026-JAN_MAR",
+          "term_order": 20261,
+          "period_label": "Enero - Marzo 2026"
         },
         {
           "id": "47f5aaff77822ce6f0fd6615b208eab9",
-          "label": "Septiembre - Diciembre 2024",
-          "start_at": 1725249600000,
-          "end_at": 1734058800000,
           "term_kind": "official_historical",
           "attempts": [
             {
@@ -350,13 +357,15 @@
               "official_outcome": "approved",
               "official_badge": "none"
             }
-          ]
+          ],
+          "period_year": 2024,
+          "period_code": "SEP_DEC",
+          "term_key": "2024-SEP_DEC",
+          "term_order": 20244,
+          "period_label": "Septiembre - Diciembre 2024"
         },
         {
           "id": "387af2b5460eb43705ecc69c42dd1b4b",
-          "label": "Abril - Julio 2024",
-          "start_at": 1713153600000,
-          "end_at": 1721966400000,
           "term_kind": "official_historical",
           "attempts": [
             {
@@ -398,13 +407,15 @@
               "official_outcome": "approved",
               "official_badge": "none"
             }
-          ]
+          ],
+          "period_year": 2024,
+          "period_code": "APR_JUL",
+          "term_key": "2024-APR_JUL",
+          "term_order": 20242,
+          "period_label": "Abril - Julio 2024"
         },
         {
           "id": "0502b034a34bbb4cb22f04ec0cbe4239",
-          "label": "Enero - Marzo 2024",
-          "start_at": 1704682800000,
-          "end_at": 1711076400000,
           "term_kind": "official_historical",
           "attempts": [
             {
@@ -459,13 +470,15 @@
               "official_outcome": "approved",
               "official_badge": "none"
             }
-          ]
+          ],
+          "period_year": 2024,
+          "period_code": "JAN_MAR",
+          "term_key": "2024-JAN_MAR",
+          "term_order": 20241,
+          "period_label": "Enero - Marzo 2024"
         },
         {
           "id": "8956d1e5b10dfeab8f07cb076332237e",
-          "label": "Septiembre - Diciembre 2023",
-          "start_at": 1693796400000,
-          "end_at": 1702609200000,
           "term_kind": "official_historical",
           "attempts": [
             {
@@ -533,13 +546,15 @@
               "official_outcome": "approved",
               "official_badge": "none"
             }
-          ]
+          ],
+          "period_year": 2023,
+          "period_code": "SEP_DEC",
+          "term_key": "2023-SEP_DEC",
+          "term_order": 20234,
+          "period_label": "Septiembre - Diciembre 2023"
         },
         {
           "id": "1df5fcc6bb38d2259624eddaa8071eb5",
-          "label": "Abril - Julio 2023",
-          "start_at": 1681704000000,
-          "end_at": 1690516800000,
           "term_kind": "official_historical",
           "attempts": [
             {
@@ -594,13 +609,15 @@
               "official_outcome": "approved",
               "official_badge": "none"
             }
-          ]
+          ],
+          "period_year": 2023,
+          "period_code": "APR_JUL",
+          "term_key": "2023-APR_JUL",
+          "term_order": 20232,
+          "period_label": "Abril - Julio 2023"
         },
         {
           "id": "0b36879f48a1a6b60b017a49b48fc939",
-          "label": "Enero - Marzo 2023",
-          "start_at": 1673233200000,
-          "end_at": 1679626800000,
           "term_kind": "official_historical",
           "attempts": [
             {
@@ -655,13 +672,15 @@
               "official_outcome": "approved",
               "official_badge": "none"
             }
-          ]
+          ],
+          "period_year": 2023,
+          "period_code": "JAN_MAR",
+          "term_key": "2023-JAN_MAR",
+          "term_order": 20231,
+          "period_label": "Enero - Marzo 2023"
         },
         {
           "id": "34eafe92bae79ca0db9f1d4a4585d8a0",
-          "label": "Septiembre - Diciembre 2022",
-          "start_at": 1662350400000,
-          "end_at": 1671159600000,
           "term_kind": "official_historical",
           "attempts": [
             {
@@ -716,13 +735,15 @@
               "official_outcome": "approved",
               "official_badge": "none"
             }
-          ]
+          ],
+          "period_year": 2022,
+          "period_code": "SEP_DEC",
+          "term_key": "2022-SEP_DEC",
+          "term_order": 20224,
+          "period_label": "Septiembre - Diciembre 2022"
         },
         {
           "id": "bd6da09d8453fbca2c12fa40d225d81d",
-          "label": "Abril - Julio 2022",
-          "start_at": 1650254400000,
-          "end_at": 1659067200000,
           "term_kind": "official_historical",
           "attempts": [
             {
@@ -790,13 +811,15 @@
               "official_outcome": "approved",
               "official_badge": "none"
             }
-          ]
+          ],
+          "period_year": 2022,
+          "period_code": "APR_JUL",
+          "term_key": "2022-APR_JUL",
+          "term_order": 20222,
+          "period_label": "Abril - Julio 2022"
         },
         {
           "id": "5c4c7f7f46fbddc68151ed4c96279780",
-          "label": "Enero - Marzo 2022",
-          "start_at": 1641783600000,
-          "end_at": 1648177200000,
           "term_kind": "official_historical",
           "attempts": [
             {
@@ -864,13 +887,15 @@
               "official_outcome": "approved",
               "official_badge": "none"
             }
-          ]
+          ],
+          "period_year": 2022,
+          "period_code": "JAN_MAR",
+          "term_key": "2022-JAN_MAR",
+          "term_order": 20221,
+          "period_label": "Enero - Marzo 2022"
         },
         {
           "id": "cbcb1fb7bf5dbe9f5dce767ee14ebc4c",
-          "label": "Septiembre - Diciembre 2021",
-          "start_at": 1630468800000,
-          "end_at": 1639710000000,
           "term_kind": "official_historical",
           "attempts": [
             {
@@ -925,7 +950,12 @@
               "official_outcome": "approved",
               "official_badge": "none"
             }
-          ]
+          ],
+          "period_year": 2021,
+          "period_code": "SEP_DEC",
+          "term_key": "2021-SEP_DEC",
+          "term_order": 20214,
+          "period_label": "Septiembre - Diciembre 2021"
         }
       ],
       "attempt_overrides": []
@@ -951,7 +981,7 @@
     "approved_relation": 0.98,
     "retired_subjects": 0,
     "retired_credits": 0,
-    "retired_relation": 0.0,
+    "retired_relation": 0,
     "failed_subjects": 1,
     "failed_credits": 4,
     "failed_relation": 0.02,

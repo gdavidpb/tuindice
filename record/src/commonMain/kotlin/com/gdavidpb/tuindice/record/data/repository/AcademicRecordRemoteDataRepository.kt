@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview
 
 interface AcademicRecordRemoteDataRepository {
 	suspend fun getAcademicRecord(): VersionedAcademicRecord
@@ -29,4 +30,7 @@ interface AcademicRecordRemoteDataRepository {
 		mutationId: String,
 		expectedRevision: Long
 	): VersionedAcademicRecord
+	suspend fun loadSyntheticTermPreview(subjectCodes: List<String>): SyntheticTermLoadPreview {
+		error("Synthetic term load preview is not implemented by this repository.")
+	}
 }

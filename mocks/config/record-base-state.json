@@ -12,16 +12,13 @@
   },
   "added_term": {
     "id": "5af5b3a8690f82304c3eb1daf16f6a6b",
-    "name": "Term Added",
-    "start_date": 1820199600000,
-    "end_date": 1829012400000,
     "kind": "synthetic",
     "revision": 1,
     "presence_scenario": "record-term-5af5b3a8690f82304c3eb1daf16f6a6b",
     "attempts": [
       {
         "id": "47f1dfdfdaeedf320e59d2978ce47588",
-        "term_id": "5af5b3a8690f82304c3eb1daf16f6a6b",
+        "term_id": "2028-JAN_MAR",
         "code": "MOCK101",
         "name": "MOCK SUBJECT",
         "credits": 4,
@@ -31,20 +28,22 @@
         "mutable": true,
         "scenario": "record-attempt-47f1dfdfdaeedf320e59d2978ce47588"
       }
-    ]
+    ],
+    "period_year": 2028,
+    "period_code": "JAN_MAR",
+    "term_key": "2028-JAN_MAR",
+    "term_order": 20281,
+    "period_label": "Enero - Marzo 2028"
   },
   "terms": [
     {
       "id": "10d5736b45980572756948095e5d1a1a",
-      "name": "Abril - Julio 2027",
-      "start_date": 1807502400000,
-      "end_date": 1816315200000,
       "kind": "synthetic",
       "revision": 15,
       "attempts": [
         {
           "id": "aea1f0ed9bc405cb898b394d14d01152",
-          "term_id": "10d5736b45980572756948095e5d1a1a",
+          "term_id": "2027-APR_JUL",
           "code": "EP3308",
           "name": "Proyecto de Grado III",
           "credits": 3,
@@ -57,7 +56,7 @@
         },
         {
           "id": "31f9bbfaa5abffd54aec6acdd5d7ff41",
-          "term_id": "10d5736b45980572756948095e5d1a1a",
+          "term_id": "2027-APR_JUL",
           "code": "CI4852",
           "name": "Tópicos Especiales en Computación",
           "credits": 4,
@@ -69,7 +68,7 @@
         },
         {
           "id": "43022ce5ccded1416f0ad4f8a99c940c",
-          "term_id": "10d5736b45980572756948095e5d1a1a",
+          "term_id": "2027-APR_JUL",
           "code": "EG1116",
           "name": "Cultura y Tecnología",
           "credits": 3,
@@ -80,19 +79,21 @@
           "scenario": "record-attempt-43022ce5ccded1416f0ad4f8a99c940c"
         }
       ],
-      "presence_scenario": "record-term-10d5736b45980572756948095e5d1a1a"
+      "presence_scenario": "record-term-10d5736b45980572756948095e5d1a1a",
+      "period_year": 2027,
+      "period_code": "APR_JUL",
+      "term_key": "2027-APR_JUL",
+      "term_order": 20272,
+      "period_label": "Abril - Julio 2027"
     },
     {
       "id": "b2e11a6acad9069628eecb03be8f6106",
-      "name": "Enero - Marzo 2027",
-      "start_date": 1799636400000,
-      "end_date": 1806030000000,
       "kind": "synthetic",
       "revision": 14,
       "attempts": [
         {
           "id": "72ff7d10021d6a586138b20dc239601a",
-          "term_id": "b2e11a6acad9069628eecb03be8f6106",
+          "term_id": "2027-JAN_MAR",
           "code": "EP2308",
           "name": "Proyecto de Grado II",
           "credits": 3,
@@ -105,7 +106,7 @@
         },
         {
           "id": "55da92c0a2e5ee477224c32de5b6bb8f",
-          "term_id": "b2e11a6acad9069628eecb03be8f6106",
+          "term_id": "2027-JAN_MAR",
           "code": "EP5856",
           "name": "Tópicos Especiales en Ingeniería de Computación II",
           "credits": 4,
@@ -117,7 +118,7 @@
         },
         {
           "id": "975f255e08d349725125ee0129286844",
-          "term_id": "b2e11a6acad9069628eecb03be8f6106",
+          "term_id": "2027-JAN_MAR",
           "code": "CI4251",
           "name": "Tópicos Especiales en Informática",
           "credits": 4,
@@ -129,7 +130,7 @@
         },
         {
           "id": "770b2a6404c74a198449e07788324e91",
-          "term_id": "b2e11a6acad9069628eecb03be8f6106",
+          "term_id": "2027-JAN_MAR",
           "code": "EG1115",
           "name": "Ambiente y Desarrollo",
           "credits": 3,
@@ -140,19 +141,21 @@
           "scenario": "record-attempt-770b2a6404c74a198449e07788324e91"
         }
       ],
-      "presence_scenario": "record-term-b2e11a6acad9069628eecb03be8f6106"
+      "presence_scenario": "record-term-b2e11a6acad9069628eecb03be8f6106",
+      "period_year": 2027,
+      "period_code": "JAN_MAR",
+      "term_key": "2027-JAN_MAR",
+      "term_order": 20271,
+      "period_label": "Enero - Marzo 2027"
     },
     {
       "id": "e597e91d613078d1a13ca288cfc833df",
-      "name": "Septiembre - Diciembre 2026",
-      "start_date": 1788750000000,
-      "end_date": 1797562800000,
       "kind": "synthetic",
       "revision": 13,
       "attempts": [
         {
           "id": "e775256b3902c15c27b7067d7ad0e9ba",
-          "term_id": "e597e91d613078d1a13ca288cfc833df",
+          "term_id": "2026-SEP_DEC",
           "code": "EP1308",
           "name": "Proyecto de Grado I",
           "credits": 3,
@@ -165,7 +168,7 @@
         },
         {
           "id": "c2dffe54651385f2125450829e4f8385",
-          "term_id": "e597e91d613078d1a13ca288cfc833df",
+          "term_id": "2026-SEP_DEC",
           "code": "EP5855",
           "name": "Tópicos Especiales en Ingeniería de Computación I",
           "credits": 4,
@@ -177,7 +180,7 @@
         },
         {
           "id": "4706bc3d03b0618988fcecc80aabafed",
-          "term_id": "e597e91d613078d1a13ca288cfc833df",
+          "term_id": "2026-SEP_DEC",
           "code": "CE3114",
           "name": "Economía de la Empresa",
           "credits": 3,
@@ -189,7 +192,7 @@
         },
         {
           "id": "db14fa6c9dc4343e47933f0457321e04",
-          "term_id": "e597e91d613078d1a13ca288cfc833df",
+          "term_id": "2026-SEP_DEC",
           "code": "CI5832",
           "name": "Redes II",
           "credits": 4,
@@ -200,19 +203,21 @@
           "scenario": "record-attempt-db14fa6c9dc4343e47933f0457321e04"
         }
       ],
-      "presence_scenario": "record-term-e597e91d613078d1a13ca288cfc833df"
+      "presence_scenario": "record-term-e597e91d613078d1a13ca288cfc833df",
+      "period_year": 2026,
+      "period_code": "SEP_DEC",
+      "term_key": "2026-SEP_DEC",
+      "term_order": 20264,
+      "period_label": "Septiembre - Diciembre 2026"
     },
     {
       "id": "d377155d39da686f412622aaca9074cd",
-      "name": "Abril - Julio 2026",
-      "start_date": 1776052800000,
-      "end_date": 1784865600000,
       "kind": "official_current",
       "revision": 12,
       "attempts": [
         {
           "id": "e21f0d7e481d13d19f328d6818ce4d77",
-          "term_id": "d377155d39da686f412622aaca9074cd",
+          "term_id": "2026-APR_JUL",
           "code": "CI5311",
           "name": "Paradigmas en Modelaje de Base de Datos I",
           "credits": 4,
@@ -224,7 +229,7 @@
         },
         {
           "id": "722cc2cc935e0aefdc73f9ebf9d2f1b6",
-          "term_id": "d377155d39da686f412622aaca9074cd",
+          "term_id": "2026-APR_JUL",
           "code": "CI5437",
           "name": "Inteligencia Artificial I",
           "credits": 4,
@@ -236,7 +241,7 @@
         },
         {
           "id": "f47ff0fa7342cdaec37d9e9cff489ebd",
-          "term_id": "d377155d39da686f412622aaca9074cd",
+          "term_id": "2026-APR_JUL",
           "code": "EG1114",
           "name": "Pensamiento Crítico",
           "credits": 3,
@@ -247,19 +252,21 @@
           "scenario": "record-attempt-f47ff0fa7342cdaec37d9e9cff489ebd"
         }
       ],
-      "presence_scenario": "record-term-d377155d39da686f412622aaca9074cd"
+      "presence_scenario": "record-term-d377155d39da686f412622aaca9074cd",
+      "period_year": 2026,
+      "period_code": "APR_JUL",
+      "term_key": "2026-APR_JUL",
+      "term_order": 20262,
+      "period_label": "Abril - Julio 2026"
     },
     {
       "id": "01c705af6984b336fc2aed20576ec543",
-      "name": "Enero - Marzo 2026",
-      "start_date": 1768186800000,
-      "end_date": 1774580400000,
       "kind": "official_historical",
       "revision": 11,
       "attempts": [
         {
           "id": "8322eaae7602f4749aef5691b9724af2",
-          "term_id": "01c705af6984b336fc2aed20576ec543",
+          "term_id": "2026-JAN_MAR",
           "code": "CI4325",
           "name": "Interfaces con el Usuario",
           "credits": 5,
@@ -269,7 +276,7 @@
         },
         {
           "id": "30f096dec1f3dc3a411fb9cd275c907f",
-          "term_id": "01c705af6984b336fc2aed20576ec543",
+          "term_id": "2026-JAN_MAR",
           "code": "CI4712",
           "name": "Ingeniería de Software II",
           "credits": 4,
@@ -279,7 +286,7 @@
         },
         {
           "id": "e92523ad096d93a2e908cb17ff81dfd9",
-          "term_id": "01c705af6984b336fc2aed20576ec543",
+          "term_id": "2026-JAN_MAR",
           "code": "EG1113",
           "name": "Arte y Cultura Contemporánea",
           "credits": 3,
@@ -289,7 +296,7 @@
         },
         {
           "id": "f62bc5a8fb80508bd3e1319731993e8b",
-          "term_id": "01c705af6984b336fc2aed20576ec543",
+          "term_id": "2026-JAN_MAR",
           "code": "CI4210",
           "name": "Minería de Datos",
           "credits": 4,
@@ -297,19 +304,21 @@
           "revision": 1,
           "status": "failed"
         }
-      ]
+      ],
+      "period_year": 2026,
+      "period_code": "JAN_MAR",
+      "term_key": "2026-JAN_MAR",
+      "term_order": 20261,
+      "period_label": "Enero - Marzo 2026"
     },
     {
       "id": "47f5aaff77822ce6f0fd6615b208eab9",
-      "name": "Septiembre - Diciembre 2024",
-      "start_date": 1725249600000,
-      "end_date": 1734058800000,
       "kind": "official_historical",
       "revision": 10,
       "attempts": [
         {
           "id": "a58cbb2abf51baa65d16c82e0d302cdc",
-          "term_id": "47f5aaff77822ce6f0fd6615b208eab9",
+          "term_id": "2024-SEP_DEC",
           "code": "PS1111",
           "name": "Modelos Lineales I",
           "credits": 4,
@@ -319,7 +328,7 @@
         },
         {
           "id": "59980058ca8250320d5b2ffe553af59d",
-          "term_id": "47f5aaff77822ce6f0fd6615b208eab9",
+          "term_id": "2024-SEP_DEC",
           "code": "CI4835",
           "name": "Redes de Computadoras",
           "credits": 5,
@@ -329,7 +338,7 @@
         },
         {
           "id": "160969422698d2bb19df6d3e828aa13d",
-          "term_id": "47f5aaff77822ce6f0fd6615b208eab9",
+          "term_id": "2024-SEP_DEC",
           "code": "CI3641",
           "name": "Lenguajes de Programación",
           "credits": 3,
@@ -339,7 +348,7 @@
         },
         {
           "id": "cfcf9b9b33838e84f12c12da546b2915",
-          "term_id": "47f5aaff77822ce6f0fd6615b208eab9",
+          "term_id": "2024-SEP_DEC",
           "code": "CI3661",
           "name": "Laboratorio de Lenguajes de Programación",
           "credits": 2,
@@ -347,19 +356,21 @@
           "revision": 1,
           "status": "approved"
         }
-      ]
+      ],
+      "period_year": 2024,
+      "period_code": "SEP_DEC",
+      "term_key": "2024-SEP_DEC",
+      "term_order": 20244,
+      "period_label": "Septiembre - Diciembre 2024"
     },
     {
       "id": "387af2b5460eb43705ecc69c42dd1b4b",
-      "name": "Abril - Julio 2024",
-      "start_date": 1713153600000,
-      "end_date": 1721966400000,
       "kind": "official_historical",
       "revision": 9,
       "attempts": [
         {
           "id": "cb4993d6fcfbdadd89f083e7e03ed528",
-          "term_id": "387af2b5460eb43705ecc69c42dd1b4b",
+          "term_id": "2024-APR_JUL",
           "code": "PS1115",
           "name": "Sistemas de Información I",
           "credits": 4,
@@ -369,7 +380,7 @@
         },
         {
           "id": "8897501b9d971a16175374f1c6d5797e",
-          "term_id": "387af2b5460eb43705ecc69c42dd1b4b",
+          "term_id": "2024-APR_JUL",
           "code": "CI3715",
           "name": "Ingeniería de Software I",
           "credits": 5,
@@ -379,7 +390,7 @@
         },
         {
           "id": "8997e5a28eb44184499a086688344e1a",
-          "term_id": "387af2b5460eb43705ecc69c42dd1b4b",
+          "term_id": "2024-APR_JUL",
           "code": "CI3725",
           "name": "Traductores e Interpretadores",
           "credits": 5,
@@ -387,19 +398,21 @@
           "revision": 1,
           "status": "approved"
         }
-      ]
+      ],
+      "period_year": 2024,
+      "period_code": "APR_JUL",
+      "term_key": "2024-APR_JUL",
+      "term_order": 20242,
+      "period_label": "Abril - Julio 2024"
     },
     {
       "id": "0502b034a34bbb4cb22f04ec0cbe4239",
-      "name": "Enero - Marzo 2024",
-      "start_date": 1704682800000,
-      "end_date": 1711076400000,
       "kind": "official_historical",
       "revision": 8,
       "attempts": [
         {
           "id": "8e74fe9cf229c7c0ac0af1ef0d955e43",
-          "term_id": "0502b034a34bbb4cb22f04ec0cbe4239",
+          "term_id": "2024-JAN_MAR",
           "code": "CO3321",
           "name": "Estadística",
           "credits": 4,
@@ -409,7 +422,7 @@
         },
         {
           "id": "e4df6797cac68e8b2425acb76e9435e4",
-          "term_id": "0502b034a34bbb4cb22f04ec0cbe4239",
+          "term_id": "2024-JAN_MAR",
           "code": "CI3825",
           "name": "Sistemas de Operación I",
           "credits": 5,
@@ -419,7 +432,7 @@
         },
         {
           "id": "62a5a5c3de6a5aa07bf80b8ba0afe3dc",
-          "term_id": "0502b034a34bbb4cb22f04ec0cbe4239",
+          "term_id": "2024-JAN_MAR",
           "code": "CI3311",
           "name": "Sistemas de Base de Datos I",
           "credits": 3,
@@ -429,7 +442,7 @@
         },
         {
           "id": "8cfd65777a682c1c69e1012ecb2ed694",
-          "term_id": "0502b034a34bbb4cb22f04ec0cbe4239",
+          "term_id": "2024-JAN_MAR",
           "code": "CI3391",
           "name": "Laboratorio de Sistemas de Base de Datos I",
           "credits": 2,
@@ -437,19 +450,21 @@
           "revision": 1,
           "status": "approved"
         }
-      ]
+      ],
+      "period_year": 2024,
+      "period_code": "JAN_MAR",
+      "term_key": "2024-JAN_MAR",
+      "term_order": 20241,
+      "period_label": "Enero - Marzo 2024"
     },
     {
       "id": "8956d1e5b10dfeab8f07cb076332237e",
-      "name": "Septiembre - Diciembre 2023",
-      "start_date": 1693796400000,
-      "end_date": 1702609200000,
       "kind": "official_historical",
       "revision": 7,
       "attempts": [
         {
           "id": "ef6ace7a6bb389d2d21e24517e142390",
-          "term_id": "8956d1e5b10dfeab8f07cb076332237e",
+          "term_id": "2023-SEP_DEC",
           "code": "CO3121",
           "name": "Fundamentos de Probabilidades para Ingenieros",
           "credits": 3,
@@ -459,7 +474,7 @@
         },
         {
           "id": "c68114cc302075d3aa98a4f351eecac0",
-          "term_id": "8956d1e5b10dfeab8f07cb076332237e",
+          "term_id": "2023-SEP_DEC",
           "code": "CI3815",
           "name": "Organización del Computador",
           "credits": 5,
@@ -469,7 +484,7 @@
         },
         {
           "id": "44fe8c3f68090e1745c416ac4f399d32",
-          "term_id": "8956d1e5b10dfeab8f07cb076332237e",
+          "term_id": "2023-SEP_DEC",
           "code": "CI2613",
           "name": "Algoritmos y Estructuras III",
           "credits": 3,
@@ -479,7 +494,7 @@
         },
         {
           "id": "227b9ab25c976b4968e7cb5a306a13ad",
-          "term_id": "8956d1e5b10dfeab8f07cb076332237e",
+          "term_id": "2023-SEP_DEC",
           "code": "CI2693",
           "name": "Laboratorio de Algoritmos y Estructuras III",
           "credits": 2,
@@ -489,7 +504,7 @@
         },
         {
           "id": "94524fe65e9b3a60f889da48bce51776",
-          "term_id": "8956d1e5b10dfeab8f07cb076332237e",
+          "term_id": "2023-SEP_DEC",
           "code": "EG1112",
           "name": "Ética y Sociedad",
           "credits": 3,
@@ -497,19 +512,21 @@
           "revision": 1,
           "status": "approved"
         }
-      ]
+      ],
+      "period_year": 2023,
+      "period_code": "SEP_DEC",
+      "term_key": "2023-SEP_DEC",
+      "term_order": 20234,
+      "period_label": "Septiembre - Diciembre 2023"
     },
     {
       "id": "1df5fcc6bb38d2259624eddaa8071eb5",
-      "name": "Abril - Julio 2023",
-      "start_date": 1681704000000,
-      "end_date": 1690516800000,
       "kind": "official_historical",
       "revision": 6,
       "attempts": [
         {
           "id": "6b3680997ab84c5cd5d045524f859122",
-          "term_id": "1df5fcc6bb38d2259624eddaa8071eb5",
+          "term_id": "2023-APR_JUL",
           "code": "CO3211",
           "name": "Cálculo Numérico",
           "credits": 4,
@@ -519,7 +536,7 @@
         },
         {
           "id": "ba21adf7e8b4590a0dc2d31b6e9db371",
-          "term_id": "1df5fcc6bb38d2259624eddaa8071eb5",
+          "term_id": "2023-APR_JUL",
           "code": "CI2612",
           "name": "Algoritmos y Estructuras II",
           "credits": 3,
@@ -529,7 +546,7 @@
         },
         {
           "id": "5331f1a15b968086757c352c283d2c58",
-          "term_id": "1df5fcc6bb38d2259624eddaa8071eb5",
+          "term_id": "2023-APR_JUL",
           "code": "CI2692",
           "name": "Laboratorio de Algoritmos y Estructuras II",
           "credits": 2,
@@ -539,7 +556,7 @@
         },
         {
           "id": "d02dd95251432f492c08a6808ba23ab2",
-          "term_id": "1df5fcc6bb38d2259624eddaa8071eb5",
+          "term_id": "2023-APR_JUL",
           "code": "CI2527",
           "name": "Estructuras Discretas III",
           "credits": 4,
@@ -547,19 +564,21 @@
           "revision": 1,
           "status": "approved"
         }
-      ]
+      ],
+      "period_year": 2023,
+      "period_code": "APR_JUL",
+      "term_key": "2023-APR_JUL",
+      "term_order": 20232,
+      "period_label": "Abril - Julio 2023"
     },
     {
       "id": "0b36879f48a1a6b60b017a49b48fc939",
-      "name": "Enero - Marzo 2023",
-      "start_date": 1673233200000,
-      "end_date": 1679626800000,
       "kind": "official_historical",
       "revision": 5,
       "attempts": [
         {
           "id": "b013a46288420c2424ddeca625ca0006",
-          "term_id": "0b36879f48a1a6b60b017a49b48fc939",
+          "term_id": "2023-JAN_MAR",
           "code": "MA2112",
           "name": "Matemáticas V",
           "credits": 4,
@@ -569,7 +588,7 @@
         },
         {
           "id": "316944f19031f592ac0abdb8bb82a81e",
-          "term_id": "0b36879f48a1a6b60b017a49b48fc939",
+          "term_id": "2023-JAN_MAR",
           "code": "CI2611",
           "name": "Algoritmos y Estructuras I",
           "credits": 3,
@@ -579,7 +598,7 @@
         },
         {
           "id": "ed19673b3f77942522db09f55ceeb824",
-          "term_id": "0b36879f48a1a6b60b017a49b48fc939",
+          "term_id": "2023-JAN_MAR",
           "code": "CI2691",
           "name": "Laboratorio de Algoritmos y Estructuras I",
           "credits": 2,
@@ -589,7 +608,7 @@
         },
         {
           "id": "2eb8af079514141fa56b45307fca979c",
-          "term_id": "0b36879f48a1a6b60b017a49b48fc939",
+          "term_id": "2023-JAN_MAR",
           "code": "CI2526",
           "name": "Estructuras Discretas II",
           "credits": 4,
@@ -597,19 +616,21 @@
           "revision": 1,
           "status": "approved"
         }
-      ]
+      ],
+      "period_year": 2023,
+      "period_code": "JAN_MAR",
+      "term_key": "2023-JAN_MAR",
+      "term_order": 20231,
+      "period_label": "Enero - Marzo 2023"
     },
     {
       "id": "34eafe92bae79ca0db9f1d4a4585d8a0",
-      "name": "Septiembre - Diciembre 2022",
-      "start_date": 1662350400000,
-      "end_date": 1671159600000,
       "kind": "official_historical",
       "revision": 4,
       "attempts": [
         {
           "id": "57227aa89938829ce1719272898c9eaf",
-          "term_id": "34eafe92bae79ca0db9f1d4a4585d8a0",
+          "term_id": "2022-SEP_DEC",
           "code": "MA2115",
           "name": "Matemáticas IV",
           "credits": 4,
@@ -619,7 +640,7 @@
         },
         {
           "id": "b0dc254a2293b8aa4bb4a0a71c19a29a",
-          "term_id": "34eafe92bae79ca0db9f1d4a4585d8a0",
+          "term_id": "2022-SEP_DEC",
           "code": "CI2511",
           "name": "Lógica Simbólica",
           "credits": 4,
@@ -629,7 +650,7 @@
         },
         {
           "id": "cda990080d1da0bd55c0bad9f54ff417",
-          "term_id": "34eafe92bae79ca0db9f1d4a4585d8a0",
+          "term_id": "2022-SEP_DEC",
           "code": "CI2525",
           "name": "Estructuras Discretas I",
           "credits": 4,
@@ -639,7 +660,7 @@
         },
         {
           "id": "4d7230947aa5f4dac300eead475c0a17",
-          "term_id": "34eafe92bae79ca0db9f1d4a4585d8a0",
+          "term_id": "2022-SEP_DEC",
           "code": "EG1111",
           "name": "Historia de la Ciencia",
           "credits": 3,
@@ -647,19 +668,21 @@
           "revision": 1,
           "status": "approved"
         }
-      ]
+      ],
+      "period_year": 2022,
+      "period_code": "SEP_DEC",
+      "term_key": "2022-SEP_DEC",
+      "term_order": 20224,
+      "period_label": "Septiembre - Diciembre 2022"
     },
     {
       "id": "bd6da09d8453fbca2c12fa40d225d81d",
-      "name": "Abril - Julio 2022",
-      "start_date": 1650254400000,
-      "end_date": 1659067200000,
       "kind": "official_historical",
       "revision": 3,
       "attempts": [
         {
           "id": "635bdf3bcb7a5ca56b9412979c85d363",
-          "term_id": "bd6da09d8453fbca2c12fa40d225d81d",
+          "term_id": "2022-APR_JUL",
           "code": "MA1116",
           "name": "Matemáticas III",
           "credits": 4,
@@ -669,7 +692,7 @@
         },
         {
           "id": "0cdd95630a75e2c1da2d5fde024f2533",
-          "term_id": "bd6da09d8453fbca2c12fa40d225d81d",
+          "term_id": "2022-APR_JUL",
           "code": "FS1112",
           "name": "Física II",
           "credits": 3,
@@ -679,7 +702,7 @@
         },
         {
           "id": "8d9c3fecb21cc9e36f71b99c23a580d4",
-          "term_id": "bd6da09d8453fbca2c12fa40d225d81d",
+          "term_id": "2022-APR_JUL",
           "code": "ID1113",
           "name": "Inglés III",
           "credits": 3,
@@ -689,7 +712,7 @@
         },
         {
           "id": "95b38e1a7884422da7ab0eae97fdc101",
-          "term_id": "bd6da09d8453fbca2c12fa40d225d81d",
+          "term_id": "2022-APR_JUL",
           "code": "LLA113",
           "name": "Lenguaje III",
           "credits": 3,
@@ -699,7 +722,7 @@
         },
         {
           "id": "6a1fd04e9ede83a0be8ae3e27f196842",
-          "term_id": "bd6da09d8453fbca2c12fa40d225d81d",
+          "term_id": "2022-APR_JUL",
           "code": "CSA213",
           "name": "Venezuela ante el Siglo XXI III",
           "credits": 3,
@@ -707,19 +730,21 @@
           "revision": 1,
           "status": "approved"
         }
-      ]
+      ],
+      "period_year": 2022,
+      "period_code": "APR_JUL",
+      "term_key": "2022-APR_JUL",
+      "term_order": 20222,
+      "period_label": "Abril - Julio 2022"
     },
     {
       "id": "5c4c7f7f46fbddc68151ed4c96279780",
-      "name": "Enero - Marzo 2022",
-      "start_date": 1641783600000,
-      "end_date": 1648177200000,
       "kind": "official_historical",
       "revision": 2,
       "attempts": [
         {
           "id": "c22ebec9c645c7b7d321df06b03e472f",
-          "term_id": "5c4c7f7f46fbddc68151ed4c96279780",
+          "term_id": "2022-JAN_MAR",
           "code": "MA1112",
           "name": "Matemáticas II",
           "credits": 4,
@@ -729,7 +754,7 @@
         },
         {
           "id": "2c9cdf19fa779ab87b498fb202a64448",
-          "term_id": "5c4c7f7f46fbddc68151ed4c96279780",
+          "term_id": "2022-JAN_MAR",
           "code": "FS1111",
           "name": "Física I",
           "credits": 3,
@@ -739,7 +764,7 @@
         },
         {
           "id": "803ef2ba2c7d1d88e6291a6ee4265079",
-          "term_id": "5c4c7f7f46fbddc68151ed4c96279780",
+          "term_id": "2022-JAN_MAR",
           "code": "ID1112",
           "name": "Inglés II",
           "credits": 3,
@@ -749,7 +774,7 @@
         },
         {
           "id": "c403078085b27635d8339ba181f53507",
-          "term_id": "5c4c7f7f46fbddc68151ed4c96279780",
+          "term_id": "2022-JAN_MAR",
           "code": "LLA112",
           "name": "Lenguaje II",
           "credits": 3,
@@ -759,7 +784,7 @@
         },
         {
           "id": "aa2adf23daacae4c285217b9552e2622",
-          "term_id": "5c4c7f7f46fbddc68151ed4c96279780",
+          "term_id": "2022-JAN_MAR",
           "code": "CSA212",
           "name": "Venezuela ante el Siglo XXI II",
           "credits": 3,
@@ -767,19 +792,21 @@
           "revision": 1,
           "status": "approved"
         }
-      ]
+      ],
+      "period_year": 2022,
+      "period_code": "JAN_MAR",
+      "term_key": "2022-JAN_MAR",
+      "term_order": 20221,
+      "period_label": "Enero - Marzo 2022"
     },
     {
       "id": "cbcb1fb7bf5dbe9f5dce767ee14ebc4c",
-      "name": "Septiembre - Diciembre 2021",
-      "start_date": 1630468800000,
-      "end_date": 1639710000000,
       "kind": "official_historical",
       "revision": 1,
       "attempts": [
         {
           "id": "bb0e01db5441efc66a27f1bb839043e3",
-          "term_id": "cbcb1fb7bf5dbe9f5dce767ee14ebc4c",
+          "term_id": "2021-SEP_DEC",
           "code": "MA1111",
           "name": "Matemáticas I",
           "credits": 4,
@@ -789,7 +816,7 @@
         },
         {
           "id": "5ece780aaad5f91df610cd9ecd29004a",
-          "term_id": "cbcb1fb7bf5dbe9f5dce767ee14ebc4c",
+          "term_id": "2021-SEP_DEC",
           "code": "ID1111",
           "name": "Inglés I",
           "credits": 3,
@@ -799,7 +826,7 @@
         },
         {
           "id": "3d7a027ca193168fd7e49a267b2b0cd0",
-          "term_id": "cbcb1fb7bf5dbe9f5dce767ee14ebc4c",
+          "term_id": "2021-SEP_DEC",
           "code": "LLA111",
           "name": "Lenguaje I",
           "credits": 3,
@@ -809,7 +836,7 @@
         },
         {
           "id": "f0e4468a50e10b3bec536feb54c96506",
-          "term_id": "cbcb1fb7bf5dbe9f5dce767ee14ebc4c",
+          "term_id": "2021-SEP_DEC",
           "code": "CSA211",
           "name": "Venezuela ante el Siglo XXI I",
           "credits": 3,
@@ -817,7 +844,12 @@
           "revision": 1,
           "status": "approved"
         }
-      ]
+      ],
+      "period_year": 2021,
+      "period_code": "SEP_DEC",
+      "term_key": "2021-SEP_DEC",
+      "term_order": 20214,
+      "period_label": "Septiembre - Diciembre 2021"
     }
   ]
 }

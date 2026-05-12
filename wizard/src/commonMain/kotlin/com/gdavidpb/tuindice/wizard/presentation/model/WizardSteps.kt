@@ -16,6 +16,8 @@ import tuindice.wizard.generated.resources.wizard_record_message
 import tuindice.wizard.generated.resources.wizard_record_actions_message
 import tuindice.wizard.generated.resources.wizard_record_actions_title
 import tuindice.wizard.generated.resources.wizard_record_title
+import tuindice.wizard.generated.resources.wizard_synthetic_term_message
+import tuindice.wizard.generated.resources.wizard_synthetic_term_title
 import tuindice.wizard.generated.resources.wizard_subject_charts_message
 import tuindice.wizard.generated.resources.wizard_subject_charts_title
 import tuindice.wizard.generated.resources.wizard_subject_message
@@ -52,6 +54,14 @@ fun defaultWizardSteps(): List<WizardStep> = listOf(
 		id = WizardStepId.RecordActions,
 		title = Res.string.wizard_record_actions_title,
 		message = Res.string.wizard_record_actions_message,
+		topBarTitle = "Informe Académico",
+		topBarConfig = TopBarConfig.Record,
+		showsRecordViewMode = true
+	),
+	WizardStep(
+		id = WizardStepId.CreateSyntheticTerm,
+		title = Res.string.wizard_synthetic_term_title,
+		message = Res.string.wizard_synthetic_term_message,
 		topBarTitle = "Informe Académico",
 		topBarConfig = TopBarConfig.Record,
 		showsRecordViewMode = true

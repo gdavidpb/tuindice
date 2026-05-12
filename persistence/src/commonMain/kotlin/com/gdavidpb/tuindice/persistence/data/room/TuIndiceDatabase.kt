@@ -58,7 +58,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.UserEntity
 		PensumCacheEntity::class,
 		PensumSelectionEntity::class
 	],
-	version = 25,
+	version = 26,
 	exportSchema = false
 )
 @ConstructedBy(TuIndiceDatabaseConstructor::class)

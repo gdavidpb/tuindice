@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.enrollmentproof.data.source
 
-import com.gdavidpb.tuindice.base.utils.extension.academicTermDisplayName
 import com.gdavidpb.tuindice.enrollmentproof.data.repository.DatabaseDataRepository
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 
@@ -13,12 +12,7 @@ class RoomDatabaseDataSource(
 		return academicTermDao
 			.getTerms()
 			.firstOrNull { term -> isOfficialCurrentTermKind(term.kind) }
-			?.let { term ->
-				academicTermDisplayName(
-					startAtMillis = term.startAt,
-					endAtMillis = term.endAt
-				)
-			}
+			?.periodLabel
 	}
 
 	internal companion object {

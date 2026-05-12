@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
@@ -81,8 +82,8 @@ class ObserveRecordActionProcessorContractTest {
 				terms = listOf(
 					AcademicTerm(
 						id = "term",
-						startAtMillis = 1L,
-						endAtMillis = 2L,
+						periodYear = 2026,
+						periodCode = AcademicTermPeriod.JAN_MAR,
 						kind = TermKind.OFFICIAL_HISTORICAL,
 						attempts = listOf(
 							AcademicAttempt(
@@ -117,8 +118,8 @@ class ObserveRecordActionProcessorContractTest {
 				terms = listOf(
 					AcademicTerm(
 						id = "current-term",
-						startAtMillis = 1L,
-						endAtMillis = 2L,
+						periodYear = 2026,
+						periodCode = AcademicTermPeriod.APR_JUL,
 						kind = TermKind.OFFICIAL_CURRENT,
 						attempts = listOf(
 							AcademicAttempt(

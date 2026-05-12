@@ -10,4 +10,7 @@ sealed class RecordDestination : Destination() {
 
 	@Serializable
 	data object Record : RecordDestination()
+
+	@Serializable
+	data object CreateSyntheticTerm : RecordDestination()
 }

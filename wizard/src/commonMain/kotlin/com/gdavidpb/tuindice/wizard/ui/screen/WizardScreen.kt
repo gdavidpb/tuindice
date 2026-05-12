@@ -157,7 +157,8 @@ private fun WizardStepContent(
 			)
 
 		WizardStepId.Record,
-		WizardStepId.RecordActions ->
+		WizardStepId.RecordActions,
+		WizardStepId.CreateSyntheticTerm ->
 			RecordScreen(
 				state = sampleRecordState(
 					viewMode = state.recordViewMode,
@@ -166,7 +167,8 @@ private fun WizardStepContent(
 				selectedTermId = state.selectedTermId,
 				onSelectedTermChange = onSelectedTermChange,
 				onRetryClick = {},
-				onAttemptSelectionChange = emptyAttemptSelectionHandler()
+				onAttemptSelectionChange = emptyAttemptSelectionHandler(),
+				onCreateSyntheticTermClick = {}
 			)
 
 		WizardStepId.SubjectDetail,

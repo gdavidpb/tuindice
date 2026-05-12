@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.presentation.mapper
 
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.academiccore.domain.model.TermProjection
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
@@ -85,8 +86,11 @@ private fun termProjection(
 	kind: TermKind
 ) = TermProjection(
 	id = id,
-	startAtMillis = 1_000L,
-	endAtMillis = 2_000L,
+	periodYear = 2026,
+	periodCode = AcademicTermPeriod.JAN_MAR,
+	termKey = "2026-JAN_MAR",
+	termOrder = 20261,
+	periodLabel = "Enero - Marzo 2026",
 	kind = kind,
 	periodAverage = 0.0,
 	cumulativeAverage = 0.0,

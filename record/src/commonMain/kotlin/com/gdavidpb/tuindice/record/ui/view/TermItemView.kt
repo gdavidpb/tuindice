@@ -19,7 +19,8 @@ fun TermItemView(
 		newGrade: Int?,
 		newOutcome: AttemptOutcome?,
 		isSelected: Boolean
-	) -> Unit
+	) -> Unit,
+	onScrollInProgressChange: (Boolean) -> Unit = {}
 ) {
 	Column(modifier = modifier.fillMaxSize()) {
 		TermSummaryView(
@@ -29,12 +30,13 @@ fun TermItemView(
 			item = item
 		)
 
-			SelectedTermView(
-				modifier = Modifier
-					.fillMaxWidth()
-					.weight(1f),
-				term = item,
-				onAttemptSelectionChange = onAttemptSelectionChange
-			)
+		SelectedTermView(
+			modifier = Modifier
+				.fillMaxWidth()
+				.weight(1f),
+			term = item,
+			onAttemptSelectionChange = onAttemptSelectionChange,
+			onScrollInProgressChange = onScrollInProgressChange
+		)
 	}
 }

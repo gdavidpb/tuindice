@@ -35,9 +35,7 @@ object RecordProjectionEngine {
 	): RecordProjection {
 		if (terms.isEmpty()) return RecordProjection()
 
-		val termsAscending = terms.sortedWith(
-			compareBy(AcademicTerm::startAtMillis, AcademicTerm::endAtMillis, AcademicTerm::id)
-		)
+		val termsAscending = terms.sortedWith(compareBy(AcademicTerm::termOrder, AcademicTerm::id))
 		val effectiveTermsAscending = termsAscending.map { term ->
 			EffectiveTermState(
 				term = term,
@@ -115,8 +113,11 @@ object RecordProjectionEngine {
 			projectionsAscending += if (useFrozenOfficialMetrics) {
 				TermProjection(
 					id = termState.term.id,
-					startAtMillis = termState.term.startAtMillis,
-					endAtMillis = termState.term.endAtMillis,
+					periodYear = termState.term.periodYear,
+					periodCode = termState.term.periodCode,
+					termKey = termState.term.termKey,
+					termOrder = termState.term.termOrder,
+					periodLabel = termState.term.periodLabel,
 					kind = termState.term.kind,
 					periodAverage = officialTermProjection.periodAverage,
 					cumulativeAverage = officialTermProjection.cumulativeAverage,
@@ -127,8 +128,11 @@ object RecordProjectionEngine {
 			} else {
 				TermProjection(
 					id = termState.term.id,
-					startAtMillis = termState.term.startAtMillis,
-					endAtMillis = termState.term.endAtMillis,
+					periodYear = termState.term.periodYear,
+					periodCode = termState.term.periodCode,
+					termKey = termState.term.termKey,
+					termOrder = termState.term.termOrder,
+					periodLabel = termState.term.periodLabel,
 					kind = termState.term.kind,
 					periodAverage = computeAverage(
 						weighted = periodWeighted,

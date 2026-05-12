@@ -236,24 +236,21 @@ class RoomDatabaseDataSource(
 
 		fun selectCurrentEditableTermId(
 			terms: List<AcademicTermEntity>,
+			@Suppress("UNUSED_PARAMETER")
 			nowMillis: Long
 		): String? {
 			val editableTerms = terms.filter { term -> isEditableTermKind(term.kind) }
 			if (editableTerms.isEmpty()) return null
 
 			val termComparator = compareBy(
-				AcademicTermEntity::startAt,
+				AcademicTermEntity::termOrder,
 				AcademicTermEntity::id
 			)
 
 			return editableTerms
-				.filter { term -> term.startAt <= nowMillis && nowMillis <= term.endAt }
+				.filter { term -> TermKind.valueOf(term.kind) == TermKind.OFFICIAL_CURRENT }
 				.maxWithOrNull(termComparator)
 				?.id
-				?: editableTerms
-					.filter { term -> term.startAt <= nowMillis }
-					.maxWithOrNull(termComparator)
-					?.id
 				?: editableTerms
 					.minWithOrNull(termComparator)
 					?.id

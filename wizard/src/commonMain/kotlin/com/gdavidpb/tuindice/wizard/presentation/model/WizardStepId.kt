@@ -5,6 +5,7 @@ enum class WizardStepId {
 	Summary,
 	Record,
 	RecordActions,
+	CreateSyntheticTerm,
 	Pensum,
 	SubjectDetail,
 	SubjectCharts,

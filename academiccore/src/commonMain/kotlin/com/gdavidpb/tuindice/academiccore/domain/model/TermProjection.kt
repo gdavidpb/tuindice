@@ -6,8 +6,11 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class TermProjection(
 	val id: String,
-	@SerialName("start_at") val startAtMillis: Long,
-	@SerialName("end_at") val endAtMillis: Long,
+	@SerialName("period_year") val periodYear: Int,
+	@SerialName("period_code") val periodCode: AcademicTermPeriod,
+	@SerialName("term_key") val termKey: String,
+	@SerialName("term_order") val termOrder: Int,
+	@SerialName("period_label") val periodLabel: String,
 	@SerialName("term_kind") val kind: TermKind,
 	@SerialName("period_average") val periodAverage: Double,
 	@SerialName("cumulative_average") val cumulativeAverage: Double,

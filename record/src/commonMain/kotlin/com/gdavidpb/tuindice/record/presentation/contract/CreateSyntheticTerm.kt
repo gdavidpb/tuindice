@@ -1,0 +1,49 @@
+package com.gdavidpb.tuindice.record.presentation.contract
+
+import com.gdavidpb.tuindice.base.presentation.ViewAction
+import com.gdavidpb.tuindice.base.presentation.ViewEffect
+import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
+import kotlinx.coroutines.flow.StateFlow
+
+object CreateSyntheticTerm {
+	data class State(
+		override val topBarTitle: String = "Crear trimestre",
+		override val isTopBarVisible: Boolean = true,
+		override val isBottomBarVisible: Boolean = false,
+		val query: String = "",
+		val periodOptions: List<SyntheticTermPeriodOption> = emptyList(),
+		val selectedPeriod: SyntheticTermPeriodOption? = null,
+		val selectedSubjects: List<SyntheticTermSubject> = emptyList(),
+		val suggestedSubjects: List<SyntheticTermSubject> = emptyList(),
+		val searchResults: List<SyntheticTermSubject> = emptyList(),
+		val loadPreview: SyntheticTermLoadPreview? = null,
+		val isRefreshingSearch: Boolean = false,
+		val hasSearchError: Boolean = false,
+		val isCreating: Boolean = false
+	) : ViewState() {
+		val canCreate: Boolean
+			get() = selectedPeriod != null && selectedSubjects.isNotEmpty() && !isCreating
+	}
+
+	sealed class Action : ViewAction() {
+		data class Observe(
+			val queryFlow: StateFlow<String>,
+			val selectedSubjectsFlow: StateFlow<List<SyntheticTermSubject>>,
+			val selectedPeriodKeyFlow: StateFlow<String?>
+		) : Action()
+
+		data class UpdateQuery(val query: String) : Action()
+		data class CreateTerm(
+			val period: SyntheticTermPeriodOption,
+			val subjects: List<SyntheticTermSubject>
+		) : Action()
+	}
+
+	sealed class Effect : ViewEffect() {
+		data object NavigateBack : Effect()
+		data class ShowSnackBar(val message: String) : Effect()
+	}
+}

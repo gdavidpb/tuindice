@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.record.data.mutation
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
@@ -38,8 +39,8 @@ sealed interface AcademicRecordMutation : OutboxMutation {
 	@SerialName("add_synthetic_term")
 	data class AddSyntheticTerm(
 		val termId: String,
-		val startAtMillis: Long,
-		val endAtMillis: Long,
+		val periodYear: Int,
+		val periodCode: AcademicTermPeriod,
 		val attempts: List<SyntheticAttemptSeed>
 	) : AcademicRecordMutation {
 		@Serializable

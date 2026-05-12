@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicProfile
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptBadge
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
@@ -30,8 +31,8 @@ class AcademicRecordCoreMapperTest {
 			terms = listOf(
 				AcademicTerm(
 					id = "term-1",
-					startAtMillis = 1_710_000_000_000L,
-					endAtMillis = 1_720_000_000_000L,
+					periodYear = 2024,
+					periodCode = AcademicTermPeriod.JAN_MAR,
 					kind = TermKind.OFFICIAL_CURRENT,
 					attempts = listOf(
 						AcademicAttempt(
@@ -85,8 +86,8 @@ class AcademicRecordCoreMapperTest {
 	fun addSyntheticTermRequest_includesMutationMetadata() {
 		val request = AcademicRecordMutation.AddSyntheticTerm(
 			termId = "term-1",
-			startAtMillis = 1L,
-			endAtMillis = 2L,
+			periodYear = 2027,
+			periodCode = AcademicTermPeriod.JUL_AUG,
 			attempts = listOf(
 				AcademicRecordMutation.AddSyntheticTerm.SyntheticAttemptSeed(
 					attemptId = "attempt-1",
@@ -105,7 +106,9 @@ class AcademicRecordCoreMapperTest {
 
 		assertEquals("mutation-2", request.mutationId)
 		assertEquals(8L, request.expectedRevision)
-		assertEquals("MAT101", request.attempts.first().subjectCode)
+		assertEquals(2027, request.periodYear)
+		assertEquals(AcademicTermPeriod.JUL_AUG, request.periodCode)
+		assertEquals(listOf("MAT101"), request.subjectCodes)
 	}
 
 	@Test

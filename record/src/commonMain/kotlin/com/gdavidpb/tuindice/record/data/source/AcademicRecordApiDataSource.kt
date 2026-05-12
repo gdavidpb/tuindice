@@ -9,7 +9,11 @@ import com.gdavidpb.tuindice.record.data.source.api.mapper.buildDeleteOverlayMut
 import com.gdavidpb.tuindice.record.data.source.api.mapper.buildAcademicUpsertAttemptOverrideRequest
 import com.gdavidpb.tuindice.record.data.source.api.mapper.toVersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.source.api.mapper.toAddSyntheticTermRequest
+import com.gdavidpb.tuindice.record.data.source.api.mapper.toSyntheticTermLoadPreview
 import com.gdavidpb.tuindice.record.data.source.api.response.AcademicRecordResponse
+import com.gdavidpb.tuindice.record.data.source.api.response.LoadSyntheticTermPreviewRequest
+import com.gdavidpb.tuindice.record.data.source.api.response.SyntheticTermLoadPreviewResponse
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
@@ -97,5 +101,13 @@ class AcademicRecordApiDataSource(
 		}
 			.body<AcademicRecordResponse>()
 			.toVersionedAcademicRecord()
+	}
+
+	override suspend fun loadSyntheticTermPreview(subjectCodes: List<String>): SyntheticTermLoadPreview {
+		return ktorClient.post("record/v5/overlay/terms/load-preview") {
+			setBody(LoadSyntheticTermPreviewRequest(subjectCodes = subjectCodes))
+		}
+			.body<SyntheticTermLoadPreviewResponse>()
+			.toSyntheticTermLoadPreview()
 	}
 }

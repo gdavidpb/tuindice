@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.record.data.source
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptBadge
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
@@ -16,8 +17,8 @@ class AcademicRecordRoomMappersTest {
 	fun academicTerm_roundTripsThroughRoomEntity_withTermKind() {
 		val term = AcademicTerm(
 			id = "term-1",
-			startAtMillis = 1_000L,
-			endAtMillis = 2_000L,
+			periodYear = 2026,
+			periodCode = AcademicTermPeriod.JAN_MAR,
 			kind = TermKind.OFFICIAL_CURRENT
 		)
 
@@ -32,8 +33,8 @@ class AcademicRecordRoomMappersTest {
 	fun academicAttempt_roundTripsThroughRoomEntities_preservingPositionOrderAndStatus() {
 		val term = AcademicTerm(
 			id = "term-1",
-			startAtMillis = 1_000L,
-			endAtMillis = 2_000L,
+			periodYear = 2026,
+			periodCode = AcademicTermPeriod.APR_JUL,
 			kind = TermKind.SYNTHETIC
 		)
 		val laterAttempt = AcademicAttempt(

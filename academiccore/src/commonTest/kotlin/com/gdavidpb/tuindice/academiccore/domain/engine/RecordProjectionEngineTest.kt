@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.academiccore.domain.engine
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptBadge
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
@@ -190,9 +191,12 @@ private fun term(
 	attempts: List<AcademicAttempt>
 ) = AcademicTerm(
 	id = id,
-	startAtMillis = startAtMillis,
-	endAtMillis = endAtMillis,
+	periodYear = 2020 + startAtMillis.toInt(),
+	periodCode = AcademicTermPeriod.JAN_MAR,
 	kind = kind,
+	termKey = id,
+	termOrder = startAtMillis.toInt(),
+	periodLabel = id,
 	attempts = attempts
 )
 

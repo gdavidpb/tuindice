@@ -5,9 +5,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
@@ -15,6 +17,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.base.domain.model.GradingMode
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 fun SelectedTermView(
@@ -25,7 +28,8 @@ fun SelectedTermView(
 		newGrade: Int?,
 		newOutcome: AttemptOutcome?,
 		isSelected: Boolean
-	) -> Unit
+	) -> Unit,
+	onScrollInProgressChange: (Boolean) -> Unit = {}
 ) {
 	val lazyListState = rememberLazyListState()
 	val gradeStates = remember(
@@ -41,6 +45,18 @@ fun SelectedTermView(
 
 	LaunchedEffect(term.termId) {
 		lazyListState.scrollToItem(0)
+	}
+
+	LaunchedEffect(lazyListState) {
+		snapshotFlow { lazyListState.isScrollInProgress }
+			.distinctUntilChanged()
+			.collect(onScrollInProgressChange)
+	}
+
+	DisposableEffect(Unit) {
+		onDispose {
+			onScrollInProgressChange(false)
+		}
 	}
 
 	LazyColumn(

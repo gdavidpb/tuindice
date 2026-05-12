@@ -16,19 +16,31 @@ import com.gdavidpb.tuindice.record.data.source.AcademicRecordDataSource
 import com.gdavidpb.tuindice.record.data.source.AcademicRecordRoomDataSource
 import com.gdavidpb.tuindice.record.data.source.LocalSettingsDataSource
 import com.gdavidpb.tuindice.record.data.source.RecordSelectionDataSource
+import com.gdavidpb.tuindice.record.data.source.SyntheticTermCreationDataSource
+import com.gdavidpb.tuindice.record.data.source.SyntheticTermLoadPreviewDataSource
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
+import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermCreationRepository
+import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermLoadPreviewRepository
+import com.gdavidpb.tuindice.record.domain.usecase.CreateSyntheticTermUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermPreviewUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermCreationUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.RefreshSyntheticTermSubjectSearchUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpsertAttemptSelectionUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExceptionHandler
+import com.gdavidpb.tuindice.record.presentation.action.CreateSyntheticTermActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.ObserveRecordActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.ObserveCreateSyntheticTermActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.RefreshRecordActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SelectRecordTermActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SetRecordViewModeActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.UpdateCreateSyntheticTermQueryActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.UpsertAttemptSelectionActionProcessor
+import com.gdavidpb.tuindice.record.presentation.viewmodel.CreateSyntheticTermViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
@@ -44,6 +56,7 @@ val recordModule = module {
 	/* View models */
 
 	viewModelOf(::RecordViewModel)
+	viewModelOf(::CreateSyntheticTermViewModel)
 
 	/* Action processor */
 
@@ -52,6 +65,9 @@ val recordModule = module {
 	factoryOf(::SetRecordViewModeActionProcessor)
 	factoryOf(::SelectRecordTermActionProcessor)
 	factoryOf(::UpsertAttemptSelectionActionProcessor)
+	factoryOf(::ObserveCreateSyntheticTermActionProcessor)
+	factoryOf(::UpdateCreateSyntheticTermQueryActionProcessor)
+	factoryOf(::CreateSyntheticTermActionProcessor)
 
 	/* Use cases */
 
@@ -60,6 +76,10 @@ val recordModule = module {
 	factoryOf(::SetRecordViewModeUseCase)
 	factoryOf(::SetSelectedTermUseCase)
 	factoryOf(::UpsertAttemptSelectionUseCase)
+	factoryOf(::ObserveSyntheticTermCreationUseCase)
+	factoryOf(::RefreshSyntheticTermSubjectSearchUseCase)
+	factoryOf(::LoadSyntheticTermPreviewUseCase)
+	factoryOf(::CreateSyntheticTermUseCase)
 
 	/* Repositories */
 
@@ -89,6 +109,8 @@ val recordModule = module {
 		)
 	}
 	singleOf(::RecordSelectionDataSource) { bind<RecordSelectionRepository>() }
+	singleOf(::SyntheticTermCreationDataSource) { bind<SyntheticTermCreationRepository>() }
+	singleOf(::SyntheticTermLoadPreviewDataSource) { bind<SyntheticTermLoadPreviewRepository>() }
 
 	/* Data sources */
 

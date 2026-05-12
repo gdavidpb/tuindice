@@ -273,6 +273,7 @@ private fun WizardStepId.focusOverlaySpec(): WizardFocusOverlaySpec? {
 			height = 152.dp
 		)
 		WizardStepId.RecordActions -> null
+		WizardStepId.CreateSyntheticTerm -> null
 		WizardStepId.SubjectDetail -> null
 		WizardStepId.SubjectCharts -> null
 		WizardStepId.Pensum -> null
