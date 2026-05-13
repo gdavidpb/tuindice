@@ -4,9 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
@@ -102,23 +100,24 @@ fun CreateSyntheticTermScreen(
 			modifier = Modifier
 				.fillMaxSize()
 				.padding(horizontal = 20.dp),
-			contentPadding = PaddingValues(bottom = 116.dp),
+			contentPadding = PaddingValues(
+				top = InternalScreenDefaults.TopBarSpacing,
+				bottom = 116.dp
+			),
 			verticalArrangement = Arrangement.spacedBy(20.dp)
 		) {
-			item {
-				Spacer(modifier = Modifier.height(InternalScreenDefaults.TopBarSpacing))
-			}
-
-			item {
-				CreateTermPeriodRow(
-					selectedPeriod = state.selectedPeriod,
-					periodOptions = state.periodOptions,
-					loadPreview = state.loadPreview,
-					hasSelectedSubjects = state.selectedSubjects.isNotEmpty(),
-					isLoadingLoadPreview = state.isLoadingLoadPreview,
-					hasLoadPreviewError = state.hasLoadPreviewError,
-					onPeriodSelected = onPeriodSelected
-				)
+			state.selectedPeriod?.let { selectedPeriod ->
+				item {
+					CreateTermPeriodRow(
+						selectedPeriod = selectedPeriod,
+						periodOptions = state.periodOptions,
+						loadPreview = state.loadPreview,
+						hasSelectedSubjects = state.selectedSubjects.isNotEmpty(),
+						isLoadingLoadPreview = state.isLoadingLoadPreview,
+						hasLoadPreviewError = state.hasLoadPreviewError,
+						onPeriodSelected = onPeriodSelected
+					)
+				}
 			}
 
 			if (state.selectedSubjects.isNotEmpty()) {

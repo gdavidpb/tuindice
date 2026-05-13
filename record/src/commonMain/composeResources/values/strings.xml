@@ -38,8 +38,9 @@
 	<string name="snack_record_not_found">No pudimos actualizar la nota porque el informe cambió</string>
 	<string name="snack_record_read_only">No puedes editar notas de un semestre de solo lectura</string>
 	<string name="snack_default_error">¡Ha ocurrido un error!</string>
-	<string name="create_term_period_placeholder">Selecciona trimestre</string>
-	<string name="create_term_load_placeholder">Carga</string>
+	<string name="create_term_period_label">Trimestre</string>
+	<string name="create_term_load_label">Carga</string>
+	<string name="create_term_load_placeholder">Sin materias</string>
 	<string name="create_term_load_loading">Calculando</string>
 	<string name="create_term_load_unavailable">Sin datos</string>
 	<string name="create_term_selected_count">%1$d materias seleccionadas</string>

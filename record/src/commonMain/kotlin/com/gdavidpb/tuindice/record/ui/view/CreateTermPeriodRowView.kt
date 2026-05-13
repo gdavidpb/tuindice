@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.record.ui.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -15,6 +16,7 @@ import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,14 +32,15 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
-import tuindice.record.generated.resources.create_term_period_placeholder
+import tuindice.record.generated.resources.create_term_load_label
+import tuindice.record.generated.resources.create_term_period_label
 
 private val TermDropdownMaxHeight = 280.dp
 private val TermControlHeight = 48.dp
 
 @Composable
 internal fun CreateTermPeriodRow(
-	selectedPeriod: SyntheticTermPeriodOption?,
+	selectedPeriod: SyntheticTermPeriodOption,
 	periodOptions: List<SyntheticTermPeriodOption>,
 	loadPreview: SyntheticTermLoadPreview?,
 	hasSelectedSubjects: Boolean,
@@ -48,65 +51,84 @@ internal fun CreateTermPeriodRow(
 	Row(
 		modifier = Modifier.fillMaxWidth(),
 		horizontalArrangement = Arrangement.spacedBy(12.dp),
-		verticalAlignment = Alignment.CenterVertically
+		verticalAlignment = Alignment.Top
 	) {
 		val expanded = remember { mutableStateOf(false) }
-		Box(modifier = Modifier.weight(1f)) {
-			OutlinedButton(
-				modifier = Modifier
-					.fillMaxWidth()
-					.height(TermControlHeight)
-					.testTag(RecordUiTags.CreateSyntheticTermPeriodSelector),
-				onClick = { expanded.value = true },
-				shape = RoundedCornerShape(14.dp),
-				contentPadding = PaddingValues(start = 12.dp, end = 12.dp)
-			) {
-				Row(
-					modifier = Modifier.fillMaxWidth(),
-					verticalAlignment = Alignment.CenterVertically
+		Column(
+			modifier = Modifier.weight(1f),
+			verticalArrangement = Arrangement.spacedBy(6.dp)
+		) {
+			CreateTermControlLabel(text = stringResource(Res.string.create_term_period_label))
+			Box {
+				OutlinedButton(
+					modifier = Modifier
+						.fillMaxWidth()
+						.height(TermControlHeight)
+						.testTag(RecordUiTags.CreateSyntheticTermPeriodSelector),
+					onClick = { expanded.value = true },
+					shape = RoundedCornerShape(14.dp),
+					contentPadding = PaddingValues(start = 12.dp, end = 12.dp)
 				) {
-					Icon(
-						modifier = Modifier.padding(end = 8.dp),
-						imageVector = Icons.Outlined.CalendarToday,
-						contentDescription = null
-					)
-					Text(
-						modifier = Modifier.weight(1f),
-						text = selectedPeriod?.label
-							?: stringResource(Res.string.create_term_period_placeholder),
-						maxLines = 1,
-						overflow = TextOverflow.Ellipsis
-					)
-					Icon(
-						imageVector = Icons.Outlined.ArrowDropDown,
-						contentDescription = null
-					)
+					Row(
+						modifier = Modifier.fillMaxWidth(),
+						verticalAlignment = Alignment.CenterVertically
+					) {
+						Icon(
+							modifier = Modifier.padding(end = 8.dp),
+							imageVector = Icons.Outlined.CalendarToday,
+							contentDescription = null
+						)
+						Text(
+							modifier = Modifier.weight(1f),
+							text = selectedPeriod.label,
+							maxLines = 1,
+							overflow = TextOverflow.Ellipsis
+						)
+						Icon(
+							imageVector = Icons.Outlined.ArrowDropDown,
+							contentDescription = null
+						)
+					}
 				}
-			}
 
-			DropdownMenu(
-				modifier = Modifier.heightIn(max = TermDropdownMaxHeight),
-				expanded = expanded.value,
-				onDismissRequest = { expanded.value = false }
-			) {
-				periodOptions.forEach { option ->
-					DropdownMenuItem(
-						text = { Text(text = option.label) },
-						onClick = {
-							expanded.value = false
-							onPeriodSelected(option.termKey)
-						}
-					)
+				DropdownMenu(
+					modifier = Modifier.heightIn(max = TermDropdownMaxHeight),
+					expanded = expanded.value,
+					onDismissRequest = { expanded.value = false }
+				) {
+					periodOptions.forEach { option ->
+						DropdownMenuItem(
+							text = { Text(text = option.label) },
+							onClick = {
+								expanded.value = false
+								onPeriodSelected(option.termKey)
+							}
+						)
+					}
 				}
 			}
 		}
 
-		CreateTermLoadChip(
-			modifier = Modifier.height(TermControlHeight),
-			loadPreview = loadPreview,
-			hasSelectedSubjects = hasSelectedSubjects,
-			isLoading = isLoadingLoadPreview,
-			hasError = hasLoadPreviewError
-		)
+		Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+			CreateTermControlLabel(text = stringResource(Res.string.create_term_load_label))
+			CreateTermLoadChip(
+				modifier = Modifier.height(TermControlHeight),
+				loadPreview = loadPreview,
+				hasSelectedSubjects = hasSelectedSubjects,
+				isLoading = isLoadingLoadPreview,
+				hasError = hasLoadPreviewError
+			)
+		}
 	}
+}
+
+@Composable
+private fun CreateTermControlLabel(text: String) {
+	Text(
+		text = text,
+		style = MaterialTheme.typography.labelMedium,
+		color = MaterialTheme.colorScheme.onSurfaceVariant,
+		maxLines = 1,
+		overflow = TextOverflow.Ellipsis
+	)
 }
