@@ -2,17 +2,19 @@ package com.gdavidpb.tuindice.record.ui.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.heightIn
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.ArrowDropDown
+import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +33,7 @@ import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.create_term_period_placeholder
 
 private val TermDropdownMaxHeight = 280.dp
+private val TermControlHeight = 48.dp
 
 @Composable
 internal fun CreateTermPeriodRow(
@@ -52,23 +55,33 @@ internal fun CreateTermPeriodRow(
 			OutlinedButton(
 				modifier = Modifier
 					.fillMaxWidth()
-					.height(56.dp)
+					.height(TermControlHeight)
 					.testTag(RecordUiTags.CreateSyntheticTermPeriodSelector),
 				onClick = { expanded.value = true },
-				shape = RoundedCornerShape(14.dp)
+				shape = RoundedCornerShape(14.dp),
+				contentPadding = PaddingValues(start = 12.dp, end = 12.dp)
 			) {
-				Text(
-					modifier = Modifier.weight(1f),
-					text = selectedPeriod?.label
-						?: stringResource(Res.string.create_term_period_placeholder),
-					style = MaterialTheme.typography.bodyLarge,
-					maxLines = 1,
-					overflow = TextOverflow.Ellipsis
-				)
-				Icon(
-					imageVector = Icons.Outlined.ArrowDropDown,
-					contentDescription = null
-				)
+				Row(
+					modifier = Modifier.fillMaxWidth(),
+					verticalAlignment = Alignment.CenterVertically
+				) {
+					Icon(
+						modifier = Modifier.padding(end = 8.dp),
+						imageVector = Icons.Outlined.CalendarToday,
+						contentDescription = null
+					)
+					Text(
+						modifier = Modifier.weight(1f),
+						text = selectedPeriod?.label
+							?: stringResource(Res.string.create_term_period_placeholder),
+						maxLines = 1,
+						overflow = TextOverflow.Ellipsis
+					)
+					Icon(
+						imageVector = Icons.Outlined.ArrowDropDown,
+						contentDescription = null
+					)
+				}
 			}
 
 			DropdownMenu(
@@ -89,6 +102,7 @@ internal fun CreateTermPeriodRow(
 		}
 
 		CreateTermLoadChip(
+			modifier = Modifier.height(TermControlHeight),
 			loadPreview = loadPreview,
 			hasSelectedSubjects = hasSelectedSubjects,
 			isLoading = isLoadingLoadPreview,

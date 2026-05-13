@@ -20,7 +20,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadBand
@@ -29,17 +28,18 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.create_term_load_loading
 import tuindice.record.generated.resources.create_term_load_placeholder
-import tuindice.record.generated.resources.create_term_load_prefix
 import tuindice.record.generated.resources.create_term_load_unavailable
 
-private val LoadChipWidth = 176.dp
+private val LoadChipWidth = 148.dp
+private val LoadChipDefaultHeight = 48.dp
 
 @Composable
 internal fun CreateTermLoadChip(
 	loadPreview: SyntheticTermLoadPreview?,
 	hasSelectedSubjects: Boolean,
 	isLoading: Boolean,
-	hasError: Boolean
+	hasError: Boolean,
+	modifier: Modifier = Modifier.height(LoadChipDefaultHeight)
 ) {
 	val status = when {
 		isLoading -> LoadChipStatus.Loading
@@ -53,9 +53,8 @@ internal fun CreateTermLoadChip(
 	val label = status.label()
 
 	Surface(
-		modifier = Modifier
-			.width(LoadChipWidth)
-			.height(40.dp),
+		modifier = modifier
+			.width(LoadChipWidth),
 		shape = RoundedCornerShape(12.dp),
 		color = color.copy(alpha = 0.12f),
 		border = BorderStroke(
@@ -86,8 +85,7 @@ internal fun CreateTermLoadChip(
 			Text(
 				modifier = Modifier.weight(1f),
 				text = label,
-				style = MaterialTheme.typography.labelMedium,
-				fontWeight = FontWeight.SemiBold,
+				style = MaterialTheme.typography.labelLarge,
 				color = color,
 				maxLines = 1,
 				overflow = TextOverflow.Ellipsis
@@ -113,7 +111,7 @@ private fun LoadChipStatus.label(): String {
 		LoadChipStatus.Unavailable ->
 			stringResource(Res.string.create_term_load_unavailable)
 		is LoadChipStatus.Available ->
-			stringResource(Res.string.create_term_load_prefix, band.label.lowercase())
+			band.label
 	}
 }
 
