@@ -161,24 +161,13 @@ fun CreateSyntheticTermScreen(
 			when {
 				state.query.trim().length >= 2 -> {
 					item {
-						Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-							SectionTitle(
-								text = stringResource(
-									Res.string.create_term_search_results,
-									displayedSearchResults.size
-								),
-								isRefreshing = state.isRefreshingSearch
-							)
-							if (takenSearchResultsCount > 0) {
-								AlreadyTakenSearchResultsToggle(
-									count = takenSearchResultsCount,
-									isExpanded = showTakenSearchResults.value,
-									onClick = {
-										showTakenSearchResults.value = !showTakenSearchResults.value
-									}
-								)
-							}
-						}
+						SectionTitle(
+							text = stringResource(
+								Res.string.create_term_search_results,
+								displayedSearchResults.size
+							),
+							isRefreshing = state.isRefreshingSearch
+						)
 					}
 
 					if (state.hasSearchError) {
@@ -252,6 +241,21 @@ fun CreateSyntheticTermScreen(
 					)
 				}
 			}
+
+			if (
+				state.query.trim().length >= 2 &&
+				takenSearchResultsCount > 0
+			) {
+				item {
+					AlreadyTakenSearchResultsToggle(
+						count = takenSearchResultsCount,
+						isExpanded = showTakenSearchResults.value,
+						onClick = {
+							showTakenSearchResults.value = !showTakenSearchResults.value
+						}
+					)
+				}
+			}
 		}
 
 		CreateTermSubmitBar(
@@ -291,7 +295,7 @@ private fun AlreadyTakenSearchResultsToggle(
 				),
 				style = MaterialTheme.typography.bodyMedium,
 				fontWeight = FontWeight.SemiBold,
-				color = MaterialTheme.colorScheme.onSurfaceVariant,
+				color = MaterialTheme.colorScheme.primary,
 				maxLines = 1,
 				overflow = TextOverflow.Ellipsis
 			)
