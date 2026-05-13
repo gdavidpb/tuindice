@@ -13,9 +13,37 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 
 class EvaluationMutationSyncSpecTest {
+	@Test
+	fun deletePendingBeforeConfirm_keepsOptimisticStateVisibleUntilLocalConfirmation() = runTest {
+		val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
+		val syncSpec = EvaluationMutationSyncSpec(
+			databaseDataSource = FakeDatabaseDataSource(),
+			evaluationsApiDataSource = evaluationsApiDataSource,
+			refreshRemoteSnapshot = evaluationsApiDataSource::getEvaluations
+		)
+
+		val shouldDeleteBeforeConfirm = syncSpec.deletePendingBeforeConfirm(
+			mutation = MutationEnvelope(
+				mutationId = "mutation-0",
+				scopeKey = EVALUATIONS_MUTATION_SCOPE,
+				command = EvaluationMutation.Remove(
+					evaluationId = DEFAULT_LOCAL_PENDING_EVALUATION.id
+				),
+				precondition = MutationPrecondition.Revision(DEFAULT_LOCAL_PENDING_EVALUATION.revision),
+				status = PendingMutationStatus.Pending,
+				createdAt = 1L,
+				updatedAt = 1L,
+				lastError = null
+			)
+		)
+
+		assertFalse(shouldDeleteBeforeConfirm)
+	}
+
 	@Test
 	fun resolveAddFailure_whenRequestFailsOffline_defersMutation_withoutSnapshotRefresh() = runTest {
 		val offlineError = IllegalStateException("Could not connect to the server.")

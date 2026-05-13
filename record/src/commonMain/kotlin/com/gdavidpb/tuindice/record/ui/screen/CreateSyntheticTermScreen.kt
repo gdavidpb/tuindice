@@ -41,6 +41,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -67,8 +70,10 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
+import tuindice.record.generated.resources.create_term_add_subjects_title
 import tuindice.record.generated.resources.create_term_button
 import tuindice.record.generated.resources.create_term_load_loading
 import tuindice.record.generated.resources.create_term_load_prefix
@@ -80,9 +85,11 @@ import tuindice.record.generated.resources.create_term_hide_taken_subjects
 import tuindice.record.generated.resources.create_term_search_error
 import tuindice.record.generated.resources.create_term_search_placeholder
 import tuindice.record.generated.resources.create_term_search_results
+import tuindice.record.generated.resources.create_term_search_tab
 import tuindice.record.generated.resources.create_term_selected_count
 import tuindice.record.generated.resources.create_term_selected_title
 import tuindice.record.generated.resources.create_term_show_taken_subjects
+import tuindice.record.generated.resources.create_term_suggested_tab
 import tuindice.record.generated.resources.create_term_suggested_title
 import tuindice.record.generated.resources.create_term_subject_already_planned
 import tuindice.record.generated.resources.create_term_subject_already_taken
@@ -103,19 +110,36 @@ fun CreateSyntheticTermScreen(
 	modifier: Modifier = Modifier
 ) {
 	val focusRequester = remember { FocusRequester() }
+	val selectedAddSubjectTab = remember { mutableStateOf(CreateTermAddSubjectTab.Suggested) }
 	val showTakenSearchResults = remember { mutableStateOf(false) }
+	val selectedSubjectCodes = remember(state.selectedSubjects) {
+		state.selectedSubjects.map(SyntheticTermSubject::subjectCode).toSet()
+	}
+	val displayedSuggestedSubjects = state.suggestedSubjects.filterNot { subject ->
+		subject.subjectCode in selectedSubjectCodes
+	}
+	val searchResultsWithoutSelectedSubjects = state.searchResults.filterNot { subject ->
+		subject.subjectCode in selectedSubjectCodes
+	}
+	val isSearchQueryReady = state.query.trim().length >= MinimumSearchQueryLength
 
 	LaunchedEffect(state.query) {
 		showTakenSearchResults.value = false
 	}
 
-	val takenSearchResultsCount = state.searchResults.count { subject ->
+	LaunchedEffect(selectedAddSubjectTab.value) {
+		if (selectedAddSubjectTab.value == CreateTermAddSubjectTab.Search) {
+			focusRequester.requestFocus()
+		}
+	}
+
+	val takenSearchResultsCount = searchResultsWithoutSelectedSubjects.count { subject ->
 		subject.availability == SyntheticTermSubjectAvailability.ALREADY_TAKEN
 	}
 	val displayedSearchResults = if (showTakenSearchResults.value) {
-		state.searchResults
+		searchResultsWithoutSelectedSubjects
 	} else {
-		state.searchResults.filterNot { subject ->
+		searchResultsWithoutSelectedSubjects.filterNot { subject ->
 			subject.availability == SyntheticTermSubjectAvailability.ALREADY_TAKEN
 		}
 	}
@@ -149,55 +173,43 @@ fun CreateSyntheticTermScreen(
 				)
 			}
 
+			if (state.selectedSubjects.isNotEmpty()) {
+				item {
+					SectionTitle(text = stringResource(Res.string.create_term_selected_title))
+				}
+				items(
+					items = state.selectedSubjects,
+					key = { subject -> SelectedSubjectKeyPrefix + subject.subjectCode }
+				) { subject ->
+					CreateTermSelectedSubjectCard(
+						modifier = Modifier.animateItem(
+							fadeInSpec = null,
+							fadeOutSpec = null
+						),
+						subject = subject,
+						action = SubjectCardAction.Remove,
+						onClick = { onSubjectRemove(subject.subjectCode) }
+					)
+				}
+			}
+
 			item {
-				CreateTermSearchField(
-					query = state.query,
-					focusRequester = focusRequester,
-					onQueryChange = onQueryChange,
-					onClearQueryClick = onClearQueryClick
+				SectionTitle(text = stringResource(Res.string.create_term_add_subjects_title))
+			}
+
+			item {
+				CreateTermAddSubjectTabs(
+					selectedTab = selectedAddSubjectTab.value,
+					onTabSelected = { tab -> selectedAddSubjectTab.value = tab }
 				)
 			}
 
-			when {
-				state.query.trim().length >= 2 -> {
-					item {
-						SectionTitle(
-							text = stringResource(
-								Res.string.create_term_search_results,
-								displayedSearchResults.size
-							),
-							isRefreshing = state.isRefreshingSearch
-						)
-					}
-
-					if (state.hasSearchError) {
-						item {
-							Text(
-								text = stringResource(Res.string.create_term_search_error),
-								style = MaterialTheme.typography.bodyMedium,
-								color = MaterialTheme.colorScheme.error
-							)
-						}
-					}
-
-					items(
-						items = displayedSearchResults,
-						key = { subject -> SearchResultSubjectKeyPrefix + subject.subjectCode }
-					) { subject ->
-						CreateTermSelectedSubjectCard(
-							subject = subject,
-							action = SubjectCardAction.Add,
-							enabled = subject.canAdd,
-							onClick = { onSubjectAdd(subject) }
-						)
-					}
-				}
-
-				else -> {
+			when (selectedAddSubjectTab.value) {
+				CreateTermAddSubjectTab.Suggested -> {
 					item {
 						SectionTitle(text = stringResource(Res.string.create_term_suggested_title))
 					}
-					if (state.suggestedSubjects.isEmpty()) {
+					if (displayedSuggestedSubjects.isEmpty()) {
 						item {
 							Text(
 								text = stringResource(Res.string.create_term_no_suggestions),
@@ -211,10 +223,14 @@ fun CreateSyntheticTermScreen(
 								horizontalArrangement = Arrangement.spacedBy(12.dp)
 							) {
 								items(
-									items = state.suggestedSubjects,
+									items = displayedSuggestedSubjects,
 									key = { subject -> SuggestedSubjectKeyPrefix + subject.subjectCode }
 								) { subject ->
 									CreateTermSuggestedSubjectCard(
+										modifier = Modifier.animateItem(
+											fadeInSpec = null,
+											fadeOutSpec = null
+										),
 										subject = subject,
 										enabled = subject.canAdd,
 										onClick = { onSubjectAdd(subject) }
@@ -224,26 +240,60 @@ fun CreateSyntheticTermScreen(
 						}
 					}
 				}
-			}
 
-			if (state.selectedSubjects.isNotEmpty()) {
-				item {
-					SectionTitle(text = stringResource(Res.string.create_term_selected_title))
-				}
-				items(
-					items = state.selectedSubjects,
-					key = { subject -> SelectedSubjectKeyPrefix + subject.subjectCode }
-				) { subject ->
-					CreateTermSelectedSubjectCard(
-						subject = subject,
-						action = SubjectCardAction.Remove,
-						onClick = { onSubjectRemove(subject.subjectCode) }
-					)
+				CreateTermAddSubjectTab.Search -> {
+					item {
+						CreateTermSearchField(
+							query = state.query,
+							focusRequester = focusRequester,
+							onQueryChange = onQueryChange,
+							onClearQueryClick = onClearQueryClick
+						)
+					}
+
+					if (isSearchQueryReady) {
+						item {
+							SectionTitle(
+								text = stringResource(
+									Res.string.create_term_search_results,
+									displayedSearchResults.size
+								),
+								isRefreshing = state.isRefreshingSearch
+							)
+						}
+
+						if (state.hasSearchError) {
+							item {
+								Text(
+									text = stringResource(Res.string.create_term_search_error),
+									style = MaterialTheme.typography.bodyMedium,
+									color = MaterialTheme.colorScheme.error
+								)
+							}
+						}
+
+						items(
+							items = displayedSearchResults,
+							key = { subject -> SearchResultSubjectKeyPrefix + subject.subjectCode }
+						) { subject ->
+							CreateTermSelectedSubjectCard(
+								modifier = Modifier.animateItem(
+									fadeInSpec = null,
+									fadeOutSpec = null
+								),
+								subject = subject,
+								action = SubjectCardAction.Add,
+								enabled = subject.canAdd,
+								onClick = { onSubjectAdd(subject) }
+							)
+						}
+					}
 				}
 			}
 
 			if (
-				state.query.trim().length >= 2 &&
+				selectedAddSubjectTab.value == CreateTermAddSubjectTab.Search &&
+				isSearchQueryReady &&
 				takenSearchResultsCount > 0
 			) {
 				item {
@@ -264,6 +314,41 @@ fun CreateSyntheticTermScreen(
 			onCreateClick = onCreateClick,
 			modifier = Modifier.align(Alignment.BottomCenter)
 		)
+	}
+}
+
+@Composable
+private fun CreateTermAddSubjectTabs(
+	selectedTab: CreateTermAddSubjectTab,
+	onTabSelected: (CreateTermAddSubjectTab) -> Unit
+) {
+	val tabs = CreateTermAddSubjectTab.entries
+	val colors = SegmentedButtonDefaults.colors(
+		activeContainerColor = MaterialTheme.colorScheme.primary,
+		activeContentColor = MaterialTheme.colorScheme.onPrimary,
+		activeBorderColor = MaterialTheme.colorScheme.primary,
+		inactiveContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.48f),
+		inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
+		inactiveBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f)
+	)
+
+	SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {
+		tabs.forEachIndexed { index, tab ->
+			SegmentedButton(
+				modifier = Modifier.testTag(tab.testTag),
+				selected = selectedTab == tab,
+				onClick = { onTabSelected(tab) },
+				shape = SegmentedButtonDefaults.itemShape(index = index, count = tabs.size),
+				colors = colors,
+				icon = {}
+			) {
+				Text(
+					text = stringResource(tab.labelResource),
+					maxLines = 1,
+					overflow = TextOverflow.Ellipsis
+				)
+			}
+		}
 	}
 }
 
@@ -561,10 +646,11 @@ private fun SectionTitle(
 private fun CreateTermSuggestedSubjectCard(
 	subject: SyntheticTermSubject,
 	enabled: Boolean,
-	onClick: () -> Unit
+	onClick: () -> Unit,
+	modifier: Modifier = Modifier
 ) {
 	Surface(
-		modifier = Modifier
+		modifier = modifier
 			.width(144.dp)
 			.height(166.dp)
 			.testTag(RecordUiTags.createSyntheticTermSubject(subject.subjectCode)),
@@ -622,10 +708,11 @@ private fun CreateTermSelectedSubjectCard(
 	subject: SyntheticTermSubject,
 	action: SubjectCardAction,
 	enabled: Boolean = true,
-	onClick: () -> Unit
+	onClick: () -> Unit,
+	modifier: Modifier = Modifier
 ) {
 	Surface(
-		modifier = Modifier
+		modifier = modifier
 			.fillMaxWidth()
 			.testTag(RecordUiTags.createSyntheticTermSubject(subject.subjectCode)),
 		shape = RoundedCornerShape(14.dp),
@@ -895,12 +982,27 @@ private enum class SubjectCardAction {
 	Remove
 }
 
+private enum class CreateTermAddSubjectTab(
+	val labelResource: StringResource,
+	val testTag: String
+) {
+	Suggested(
+		labelResource = Res.string.create_term_suggested_tab,
+		testTag = RecordUiTags.CreateSyntheticTermSuggestedTab
+	),
+	Search(
+		labelResource = Res.string.create_term_search_tab,
+		testTag = RecordUiTags.CreateSyntheticTermSearchTab
+	)
+}
+
 private val TermDropdownMaxHeight = 280.dp
 private val LoadChipWidth = 176.dp
 private val SuccessColor = Color(0xFF91EE9A)
 private val LightLoadColor = Color(0xFF8CCBFF)
 private val ManageableLoadColor = Color(0xFF7DE7C6)
 private val WarningColor = Color(0xFFFFC400)
+private const val MinimumSearchQueryLength = 2
 private const val SearchResultSubjectKeyPrefix = "search:"
 private const val SuggestedSubjectKeyPrefix = "suggested:"
 private const val SelectedSubjectKeyPrefix = "selected:"

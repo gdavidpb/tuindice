@@ -24,6 +24,10 @@ class EvaluationMutationSyncSpec(
 ) : MutationSyncSpec<String, EvaluationMutation, LocalEvaluationsSnapshot, List<com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation>, EvaluationMutationAck> {
 	override val maxRebaseAttempts: Int = 3
 
+	override fun deletePendingBeforeConfirm(
+		mutation: MutationEnvelope<String, EvaluationMutation>
+	): Boolean = false
+
 	override suspend fun send(
 		mutation: MutationEnvelope<String, EvaluationMutation>
 	): EvaluationMutationAck {

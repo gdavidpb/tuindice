@@ -30,7 +30,9 @@ fun EvaluationsView(
 		userScrollEnabled = scrollEnabled
 	) {
 		evaluations.forEach { (title, items) ->
-			stickyHeader {
+			stickyHeader(
+				key = "header:$title"
+			) {
 				EvaluationHeaderView(label = title)
 			}
 
@@ -38,20 +40,24 @@ fun EvaluationsView(
 				items = items,
 				key = { evaluation -> evaluation.evaluationId }
 			) { evaluation ->
+				val itemModifier = if (evaluation.evaluationId == focusEvaluationId) {
+					Modifier.onGloballyPositioned { coordinates ->
+						onFocusEvaluationBoundsChange(coordinates.boundsInRoot())
+					}
+				} else {
+					Modifier
+				}
+
 				EvaluationSwipeToDismiss(
-					modifier = if (evaluation.evaluationId == focusEvaluationId) {
-						Modifier.onGloballyPositioned { coordinates ->
-							onFocusEvaluationBoundsChange(coordinates.boundsInRoot())
-						}
-					} else {
-						Modifier
-					},
+					modifier = itemModifier.animateItem(
+						fadeInSpec = null,
+						fadeOutSpec = null
+					),
 					initiallyOpen = evaluation.evaluationId == openActionsEvaluationId,
 					onEdit = { onEvaluationEdit(evaluation.evaluationId) },
 					onDelete = { onEvaluationDelete(evaluation.evaluationId) }
 				) { onActionsClick ->
 					EvaluationItemView(
-						modifier = Modifier.animateItem(),
 						item = evaluation,
 						onGradeClick = {
 							if (evaluation.isClickable) {
