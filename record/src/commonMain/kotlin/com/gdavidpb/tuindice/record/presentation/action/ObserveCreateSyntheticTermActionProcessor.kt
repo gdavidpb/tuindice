@@ -15,7 +15,6 @@ import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
@@ -141,16 +140,29 @@ class ObserveCreateSyntheticTermActionProcessor(
 	private fun observeLoadPreview(
 		action: CreateSyntheticTerm.Action.Observe
 	): Flow<Mutation<CreateSyntheticTerm.State>> {
-		return combine(
-			action.selectedSubjectsFlow,
-			action.selectedPeriodKeyFlow
-		) { subjects, termKey ->
-			LoadPreviewSelection(
-				termKey = termKey,
-				subjects = subjects,
-				subjectCodes = subjects.map { subject -> subject.subjectCode }
+		return observeSyntheticTermCreationUseCase.execute(
+			ObserveSyntheticTermCreationParams(
+				queryFlow = action.queryFlow,
+				selectedSubjectsFlow = action.selectedSubjectsFlow,
+				selectedPeriodKeyFlow = action.selectedPeriodKeyFlow
 			)
-		}
+		)
+			.mapNotNull { useCaseState ->
+				when (useCaseState) {
+					is UseCaseState.Data -> {
+						val snapshot = useCaseState.value
+						LoadPreviewSelection(
+							termKey = snapshot.selectedPeriod?.termKey,
+							subjects = snapshot.selectedSubjects,
+							subjectCodes = snapshot.selectedSubjects.map { subject -> subject.subjectCode }
+						)
+					}
+
+					is UseCaseState.Loading,
+					is UseCaseState.Error,
+					-> null
+				}
+			}
 			.distinctUntilChanged { old, new ->
 				old.termKey == new.termKey && old.subjectCodes == new.subjectCodes
 			}
