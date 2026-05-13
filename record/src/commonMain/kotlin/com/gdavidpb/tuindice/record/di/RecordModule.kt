@@ -6,11 +6,11 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
+import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
+import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
 import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository
-import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
-import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.record.data.source.AcademicRecordApiDataSource
 import com.gdavidpb.tuindice.record.data.source.AcademicRecordDataSource
 import com.gdavidpb.tuindice.record.data.source.AcademicRecordRoomDataSource
@@ -33,8 +33,8 @@ import com.gdavidpb.tuindice.record.domain.usecase.UpdateRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpsertAttemptSelectionUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExceptionHandler
 import com.gdavidpb.tuindice.record.presentation.action.CreateSyntheticTermActionProcessor
-import com.gdavidpb.tuindice.record.presentation.action.ObserveRecordActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.ObserveCreateSyntheticTermActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.ObserveRecordActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.RefreshRecordActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SelectRecordTermActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SetRecordViewModeActionProcessor
@@ -83,7 +83,11 @@ val recordModule = module {
 
 	/* Repositories */
 
-	single<MutationEnvelopeStore<String, AcademicRecordMutation>>(named(RECORD_MUTATION_STORE_QUALIFIER)) {
+	single<MutationEnvelopeStore<String, AcademicRecordMutation>>(
+		named(
+			RECORD_MUTATION_STORE_QUALIFIER
+		)
+	) {
 		RoomMutationEnvelopeStore(
 			pendingMutationDao = get<PendingMutationDao>(),
 			transactionRunner = get<PersistenceTransactionRunner>(),
@@ -114,18 +118,9 @@ val recordModule = module {
 
 	/* Data sources */
 
-	single<AcademicRecordLocalDataRepository> {
-		AcademicRecordRoomDataSource(
-			academicRecordDao = get(),
-			academicRecordSyncStateDao = get(),
-			academicTermDao = get(),
-			academicAttemptDao = get(),
-			academicAttemptOverrideDao = get(),
-			transactionRunner = get()
-		)
-	}
 	singleOf(::LocalSettingsDataSource) { bind<RecordSettingsDataRepository>() }
 	singleOf(::AcademicRecordApiDataSource) { bind<AcademicRecordRemoteDataRepository>() }
+	singleOf(::AcademicRecordRoomDataSource) { bind<AcademicRecordLocalDataRepository>() }
 
 	/* Exception handlers */
 
