@@ -96,6 +96,11 @@ Implement module work by copying the nearest existing module pattern instead of 
   - `Navigation` injects or resolves `ViewModel` instances with `koinViewModel(...)`
   - `Route` observes `state` and `effect`, triggers initial actions with `LaunchedEffect`, and passes plain state/callbacks to `Screen`
   - `Screen` stays stateless with respect to DI
+- Keep `Screen` files focused on orchestration, not component catalogs:
+  - `Screen` may own screen-local state, derived filtering, list assembly, and callback wiring
+  - Move visual leaf components and repeated screen sections into `ui/view`, usually one top-level `internal` composable per file named after the component
+  - Move UI-only enums or small display helper types shared by multiple view files into `ui/model`; keep helper types private in the view file when only one component uses them
+  - Do not leave large groups of private composables inside a `Screen` file once they represent independent UI components
 - Every non-dialog destination `Screen` must paint an opaque full-screen root background, usually `Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)` or a feature-specific color such as Pensum's `ScreenBackground`. Cover all `Idle`, `Loading`, `Empty`, `Failed`, and `Content` branches, including `SealedCrossfade` wrappers; do not rely on parent `Scaffold`, `NavHost`, or child state views to hide the previous destination during edge-swipe back navigation.
 - Prefer feature dialogs as navigation destinations instead of rendering them from the feature state. Keep state-driven dialogs only for small widget-local popups when promoting them to navigation would add unnecessary ceremony.
 - Choose one dialog-result pattern deliberately:
