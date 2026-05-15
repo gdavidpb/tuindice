@@ -7,7 +7,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialCurrent
+import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
@@ -93,11 +93,12 @@ fun RecordRoute(
 
 internal fun Record.State.toRouteViewState(): ViewState {
 	val isEnrollmentProofVisible = when (this) {
-		is Record.State.Content -> record.filteredProjectionFor(viewMode)
-			.terms
-			.any { term ->
-				term.id == selectedTermId && term.kind.isOfficialCurrent
-		}
+		is Record.State.Content -> viewMode == RecordViewMode.Projection &&
+			record.filteredProjectionFor(viewMode)
+				.terms
+				.any { term ->
+					term.id == selectedTermId && term.kind.isCurrent
+				}
 
 		Record.State.Idle,
 		Record.State.Empty,

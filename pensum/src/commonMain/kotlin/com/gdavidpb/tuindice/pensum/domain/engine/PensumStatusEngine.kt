@@ -17,7 +17,7 @@ class PensumStatusEngine {
 		val approvedAttempts = academicSnapshot.attempts
 			.filter { attempt -> attempt.outcome == AttemptOutcome.APPROVED }
 		val currentAttempts = academicSnapshot.attempts
-			.filter { attempt -> attempt.termKind == TermKind.OFFICIAL_CURRENT }
+			.filter { attempt -> attempt.termKind == TermKind.CURRENT }
 		val approvedSubjectCodes = approvedAttempts.map { attempt -> attempt.subjectCode }.toSet()
 		val currentSubjectCodes = currentAttempts.map { attempt -> attempt.subjectCode }.toSet()
 

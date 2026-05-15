@@ -22,9 +22,9 @@ import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
-import tuindice.record.generated.resources.record_view_mode_official
+import tuindice.record.generated.resources.record_view_mode_historical
 import tuindice.record.generated.resources.record_view_mode_projection
-import tuindice.record.generated.resources.record_view_mode_toggle_to_official
+import tuindice.record.generated.resources.record_view_mode_toggle_to_historical
 import tuindice.record.generated.resources.record_view_mode_toggle_to_projection
 
 @Composable
@@ -70,24 +70,24 @@ fun RecordTopBarViewModeSwitchView(
 
 private fun RecordViewMode.otherMode(): RecordViewMode {
 	return when (this) {
-		RecordViewMode.Official -> RecordViewMode.Working
-		RecordViewMode.Working -> RecordViewMode.Official
+		RecordViewMode.Historical -> RecordViewMode.Projection
+		RecordViewMode.Projection -> RecordViewMode.Historical
 	}
 }
 
 @Composable
 fun recordViewModeLabel(mode: RecordViewMode): String {
 	return when (mode) {
-		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_official)
-		RecordViewMode.Working -> stringResource(Res.string.record_view_mode_projection)
+		RecordViewMode.Historical -> stringResource(Res.string.record_view_mode_historical)
+		RecordViewMode.Projection -> stringResource(Res.string.record_view_mode_projection)
 	}
 }
 
 @Composable
 fun recordViewModeToggleDescription(mode: RecordViewMode): String {
 	return when (mode) {
-		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_toggle_to_official)
-		RecordViewMode.Working -> stringResource(Res.string.record_view_mode_toggle_to_projection)
+		RecordViewMode.Historical -> stringResource(Res.string.record_view_mode_toggle_to_historical)
+		RecordViewMode.Projection -> stringResource(Res.string.record_view_mode_toggle_to_projection)
 	}
 }
 
@@ -96,10 +96,10 @@ fun recordViewModeIcon(
 	isPrimary: Boolean
 ): ImageVector {
 	return when (mode) {
-		RecordViewMode.Official ->
+		RecordViewMode.Historical ->
 			if (isPrimary) Icons.AutoMirrored.Filled.FactCheck else Icons.AutoMirrored.Outlined.FactCheck
 
-		RecordViewMode.Working ->
+		RecordViewMode.Projection ->
 			if (isPrimary) Icons.Filled.Calculate else Icons.Outlined.Calculate
 	}
 }

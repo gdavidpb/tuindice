@@ -29,7 +29,7 @@ class SetRecordViewModeActionProcessorContractTest {
 		val mutations = mutableListOf<suspend (Record.State) -> Record.State>()
 
 		processor.process(
-			action = Record.Action.SetViewMode(RecordViewMode.Official),
+			action = Record.Action.SetViewMode(RecordViewMode.Historical),
 			sideEffect = effects::add
 		).collect { mutation ->
 			mutations += mutation
@@ -41,17 +41,17 @@ class SetRecordViewModeActionProcessorContractTest {
 		}
 
 		assertEquals(Record.State.Loading, finalState)
-		assertContentEquals(listOf(RecordViewMode.Official), repository.setViewModes)
+		assertContentEquals(listOf(RecordViewMode.Historical), repository.setViewModes)
 
 		val effect = assertIs<Record.Effect.ShowTopBarBanner>(effects.single())
-		assertEquals(RecordViewMode.Official, effect.viewMode)
+		assertEquals(RecordViewMode.Historical, effect.viewMode)
 		assertEquals(TopBarBannerBehavior.AutoDismiss(millis = 5_000L), effect.behavior)
 	}
 }
 
 private class RecordingRecordSelectionRepository : RecordSelectionRepository {
 	val setViewModes = mutableListOf<RecordViewMode>()
-	private val currentViewMode = MutableStateFlow(RecordViewMode.Working)
+	private val currentViewMode = MutableStateFlow(RecordViewMode.Projection)
 	private val selectedTermId = MutableStateFlow<String?>(null)
 
 	override fun observeSelectedTermId(viewMode: RecordViewMode): Flow<String?> = selectedTermId

@@ -12,11 +12,11 @@ import kotlinx.coroutines.flow.MutableStateFlow
 class LocalSettingsDataSource(
 	private val settings: Settings
 ) : RecordSettingsDataRepository {
-	private val officialSelectedTermId = MutableStateFlow(
-		settings.getStringOrNull(PreferencesKeys.SELECTED_OFFICIAL_TERM_ID)
+	private val historicalSelectedTermId = MutableStateFlow(
+		settings.getStringOrNull(PreferencesKeys.SELECTED_HISTORICAL_TERM_ID)
 	)
-	private val workingSelectedTermId = MutableStateFlow(
-		settings.getStringOrNull(PreferencesKeys.SELECTED_WORKING_TERM_ID)
+	private val projectionSelectedTermId = MutableStateFlow(
+		settings.getStringOrNull(PreferencesKeys.SELECTED_PROJECTION_TERM_ID)
 	)
 	private val recordViewMode = MutableStateFlow(
 		RecordViewMode.fromStorageValue(
@@ -38,8 +38,8 @@ class LocalSettingsDataSource(
 
 	override fun observeSelectedTermId(viewMode: RecordViewMode): Flow<String?> {
 		return when (viewMode) {
-			RecordViewMode.Official -> officialSelectedTermId
-			RecordViewMode.Working -> workingSelectedTermId
+			RecordViewMode.Historical -> historicalSelectedTermId
+			RecordViewMode.Projection -> projectionSelectedTermId
 		}
 	}
 
@@ -49,22 +49,22 @@ class LocalSettingsDataSource(
 
 	override fun getSelectedTermId(viewMode: RecordViewMode): String? {
 		return when (viewMode) {
-			RecordViewMode.Official -> officialSelectedTermId.value
-			RecordViewMode.Working -> workingSelectedTermId.value
+			RecordViewMode.Historical -> historicalSelectedTermId.value
+			RecordViewMode.Projection -> projectionSelectedTermId.value
 		}
 	}
 
 	override fun setSelectedTermId(viewMode: RecordViewMode, termId: String) {
 		settings.putString(
 			when (viewMode) {
-				RecordViewMode.Official -> PreferencesKeys.SELECTED_OFFICIAL_TERM_ID
-				RecordViewMode.Working -> PreferencesKeys.SELECTED_WORKING_TERM_ID
+				RecordViewMode.Historical -> PreferencesKeys.SELECTED_HISTORICAL_TERM_ID
+				RecordViewMode.Projection -> PreferencesKeys.SELECTED_PROJECTION_TERM_ID
 			},
 			termId
 		)
 		when (viewMode) {
-			RecordViewMode.Official -> officialSelectedTermId.value = termId
-			RecordViewMode.Working -> workingSelectedTermId.value = termId
+			RecordViewMode.Historical -> historicalSelectedTermId.value = termId
+			RecordViewMode.Projection -> projectionSelectedTermId.value = termId
 		}
 	}
 

@@ -33,7 +33,7 @@ class AcademicRecordCoreMapperTest {
 					id = "term-1",
 					periodYear = 2024,
 					periodCode = AcademicTermPeriod.JAN_MAR,
-					kind = TermKind.OFFICIAL_CURRENT,
+					kind = TermKind.CURRENT,
 					attempts = listOf(
 						AcademicAttempt(
 							id = "attempt-1",
@@ -41,9 +41,9 @@ class AcademicRecordCoreMapperTest {
 							subjectName = "Calculo",
 							credits = 4,
 							gradingMode = AttemptGradingMode.NUMERIC,
-							officialScore = AttemptScore.numeric(5),
-							officialOutcome = AttemptOutcome.APPROVED,
-							officialBadge = AttemptBadge.NONE
+							academicScore = AttemptScore.numeric(5),
+							academicOutcome = AttemptOutcome.APPROVED,
+							academicBadge = AttemptBadge.NONE
 						)
 					)
 				)

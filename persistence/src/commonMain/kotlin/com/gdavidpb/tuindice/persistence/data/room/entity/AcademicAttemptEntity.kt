@@ -25,6 +25,6 @@ data class AcademicAttemptEntity(
 	@ColumnInfo(name = AcademicAttemptTable.SCORE_KIND) val scoreKind: String,
 	@ColumnInfo(name = AcademicAttemptTable.SCORE_NUMERIC_VALUE) val scoreNumericValue: Int? = null,
 	@ColumnInfo(name = AcademicAttemptTable.SCORE_SYMBOLIC_VALUE) val scoreSymbolicValue: String? = null,
-	@ColumnInfo(name = AcademicAttemptTable.OFFICIAL_OUTCOME) val officialOutcome: String,
-	@ColumnInfo(name = AcademicAttemptTable.OFFICIAL_BADGE) val officialBadge: String
+	@ColumnInfo(name = AcademicAttemptTable.ACADEMIC_OUTCOME) val academicOutcome: String,
+	@ColumnInfo(name = AcademicAttemptTable.ACADEMIC_BADGE) val academicBadge: String
 )

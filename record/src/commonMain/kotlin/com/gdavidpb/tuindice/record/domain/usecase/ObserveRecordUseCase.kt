@@ -20,10 +20,10 @@ class ObserveRecordUseCase(
 		return combine(
 			academicRecordRepository.observeAcademicRecordFlow(),
 			recordSelectionRepository.observeRecordViewMode(),
-			recordSelectionRepository.observeSelectedTermId(RecordViewMode.Official),
-			recordSelectionRepository.observeSelectedTermId(RecordViewMode.Working),
+			recordSelectionRepository.observeSelectedTermId(RecordViewMode.Historical),
+			recordSelectionRepository.observeSelectedTermId(RecordViewMode.Projection),
 			academicRecordRepository.observeHasSyncedRecordFlow()
-		) { record, viewMode, selectedOfficialTermId, selectedWorkingTermId, hasSyncedRecord ->
+		) { record, viewMode, selectedHistoricalTermId, selectedProjectionTermId, hasSyncedRecord ->
 			val visibleTermIds = record.filteredProjectionFor(viewMode)
 				.terms
 				.map { term -> term.id }
@@ -31,14 +31,14 @@ class ObserveRecordUseCase(
 			val selectedTermId = resolveSelectedTermId(
 				viewMode = viewMode,
 				visibleTermIds = visibleTermIds,
-				selectedOfficialTermId = selectedOfficialTermId,
-				selectedWorkingTermId = selectedWorkingTermId
+				selectedHistoricalTermId = selectedHistoricalTermId,
+				selectedProjectionTermId = selectedProjectionTermId
 			)
 
 			if ((selectedTermId != null) && (selectedTermId != currentSelectedTermId(
 					viewMode = viewMode,
-					selectedOfficialTermId = selectedOfficialTermId,
-					selectedWorkingTermId = selectedWorkingTermId
+					selectedHistoricalTermId = selectedHistoricalTermId,
+					selectedProjectionTermId = selectedProjectionTermId
 				))
 			) {
 				recordSelectionRepository.setSelectedTermId(
@@ -59,20 +59,20 @@ class ObserveRecordUseCase(
 	private fun resolveSelectedTermId(
 		viewMode: RecordViewMode,
 		visibleTermIds: List<String>,
-		selectedOfficialTermId: String?,
-		selectedWorkingTermId: String?
+		selectedHistoricalTermId: String?,
+		selectedProjectionTermId: String?
 	): String? {
 		if (visibleTermIds.isEmpty()) return null
 
 		val currentSelected = currentSelectedTermId(
 			viewMode = viewMode,
-			selectedOfficialTermId = selectedOfficialTermId,
-			selectedWorkingTermId = selectedWorkingTermId
+			selectedHistoricalTermId = selectedHistoricalTermId,
+			selectedProjectionTermId = selectedProjectionTermId
 		)
 		val mirroredSelected = currentSelectedTermId(
 			viewMode = viewMode.other(),
-			selectedOfficialTermId = selectedOfficialTermId,
-			selectedWorkingTermId = selectedWorkingTermId
+			selectedHistoricalTermId = selectedHistoricalTermId,
+			selectedProjectionTermId = selectedProjectionTermId
 		)
 
 		return listOfNotNull(currentSelected, mirroredSelected)
@@ -82,12 +82,12 @@ class ObserveRecordUseCase(
 
 	private fun currentSelectedTermId(
 		viewMode: RecordViewMode,
-		selectedOfficialTermId: String?,
-		selectedWorkingTermId: String?
+		selectedHistoricalTermId: String?,
+		selectedProjectionTermId: String?
 	): String? {
 		return when (viewMode) {
-			RecordViewMode.Official -> selectedOfficialTermId
-			RecordViewMode.Working -> selectedWorkingTermId
+			RecordViewMode.Historical -> selectedHistoricalTermId
+			RecordViewMode.Projection -> selectedProjectionTermId
 		}
 	}
 }

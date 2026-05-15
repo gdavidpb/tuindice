@@ -10,22 +10,22 @@ import kotlin.test.assertTrue
 class RoomDatabaseDataSourceTermKindTest {
 	@Test
 	fun isEditableTermKind_returnsTrue_forCurrentAndSyntheticTerms() {
-		assertTrue(RoomDatabaseDataSource.isEditableTermKind(TermKind.OFFICIAL_CURRENT.name))
+		assertTrue(RoomDatabaseDataSource.isEditableTermKind(TermKind.CURRENT.name))
 		assertTrue(RoomDatabaseDataSource.isEditableTermKind(TermKind.SYNTHETIC.name))
 	}
 
 	@Test
-	fun isEditableTermKind_returnsFalse_forHistoricalOfficialTerms() {
-		assertFalse(RoomDatabaseDataSource.isEditableTermKind(TermKind.OFFICIAL_HISTORICAL.name))
+	fun isEditableTermKind_returnsFalse_forHistoricalHistoricalTerms() {
+		assertFalse(RoomDatabaseDataSource.isEditableTermKind(TermKind.HISTORICAL.name))
 	}
 
 	@Test
-	fun selectCurrentEditableTermId_prefersOfficialCurrentTerm() {
+	fun selectCurrentEditableTermId_prefersCurrentTerm() {
 		val terms = listOf(
 			academicTerm(
 				id = "11111111111111111111111111111111",
 				termOrder = 20261,
-				kind = TermKind.OFFICIAL_CURRENT.name
+				kind = TermKind.CURRENT.name
 			),
 			academicTerm(
 				id = "22222222222222222222222222222222",
@@ -49,12 +49,12 @@ class RoomDatabaseDataSourceTermKindTest {
 	}
 
 	@Test
-	fun selectCurrentEditableTermId_fallsBackToEarliestEditableTerm_whenNoOfficialCurrentExists() {
+	fun selectCurrentEditableTermId_fallsBackToEarliestEditableTerm_whenNoCurrentExists() {
 		val terms = listOf(
 			academicTerm(
 				id = "11111111111111111111111111111111",
 				termOrder = 20261,
-				kind = TermKind.OFFICIAL_HISTORICAL.name
+				kind = TermKind.HISTORICAL.name
 			),
 			academicTerm(
 				id = "22222222222222222222222222222222",
@@ -83,7 +83,7 @@ class RoomDatabaseDataSourceTermKindTest {
 			academicTerm(
 				id = "44444444444444444444444444444444",
 				termOrder = 20261,
-				kind = TermKind.OFFICIAL_HISTORICAL.name
+				kind = TermKind.HISTORICAL.name
 			),
 			academicTerm(
 				id = "22222222222222222222222222222222",

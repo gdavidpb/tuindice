@@ -15,7 +15,7 @@ import kotlin.test.assertEquals
 
 class RecordProjectionEngineTest {
 	@Test
-	fun projectWorking_countsPendingQualitativeCreditsInPeriodCredits_withoutAffectingAverage() {
+	fun projectProjection_countsPendingQualitativeCreditsInPeriodCredits_withoutAffectingAverage() {
 		val projection = projectSingleTerm(
 			attempt(
 				id = "qualitative-pending",
@@ -37,7 +37,7 @@ class RecordProjectionEngineTest {
 	}
 
 	@Test
-	fun projectWorking_excludesRetiredQualitativeCreditsFromPeriodCredits() {
+	fun projectProjection_excludesRetiredQualitativeCreditsFromPeriodCredits() {
 		val projection = projectSingleTerm(
 			attempt(
 				id = "qualitative-retired",
@@ -60,18 +60,18 @@ class RecordProjectionEngineTest {
 	}
 
 	@Test
-	fun projectWorking_keepsEmptySyntheticTermOnceEarlierAttemptIsApprovedByOverride() {
-		val projection = RecordProjectionEngine.projectWorking(
+	fun projectProjection_keepsEmptySyntheticTermOnceEarlierAttemptIsApprovedByOverride() {
+		val projection = RecordProjectionEngine.projectProjection(
 			record(
 				terms = listOf(
 					term(
 						id = "apr-jul-2026",
 						startAtMillis = 1L,
 						endAtMillis = 2L,
-						kind = TermKind.OFFICIAL_CURRENT,
+						kind = TermKind.CURRENT,
 						attempts = listOf(
 							attempt(
-								id = "ep5406-official",
+								id = "ep5406-academic",
 								subjectCode = "EP5406",
 								credits = 9,
 								gradingMode = AttemptGradingMode.QUALITATIVE_PASS_FAIL,
@@ -97,7 +97,7 @@ class RecordProjectionEngineTest {
 				),
 				attemptOverrides = listOf(
 					AttemptOverride(
-						attemptId = "ep5406-official",
+						attemptId = "ep5406-academic",
 						outcome = AttemptOutcome.APPROVED,
 						updatedAtMillis = 10L
 					)
@@ -112,8 +112,8 @@ class RecordProjectionEngineTest {
 	}
 
 	@Test
-	fun projectWorking_omitsOnlyObsoleteSyntheticAttemptsWhenTermStillHasOtherSubjects() {
-		val projection = RecordProjectionEngine.projectWorking(
+	fun projectProjection_omitsOnlyObsoleteSyntheticAttemptsWhenTermStillHasOtherSubjects() {
+		val projection = RecordProjectionEngine.projectProjection(
 			record(
 				terms = listOf(
 					term(
@@ -160,14 +160,14 @@ class RecordProjectionEngineTest {
 	}
 }
 
-private fun projectSingleTerm(vararg attempts: AcademicAttempt) = RecordProjectionEngine.projectWorking(
+private fun projectSingleTerm(vararg attempts: AcademicAttempt) = RecordProjectionEngine.projectProjection(
 	record(
 		terms = listOf(
 			term(
 				id = "term-1",
 				startAtMillis = 1L,
 				endAtMillis = 2L,
-				kind = TermKind.OFFICIAL_CURRENT,
+				kind = TermKind.CURRENT,
 				attempts = attempts.toList()
 			)
 		)
@@ -213,6 +213,6 @@ private fun attempt(
 	subjectName = id,
 	credits = credits,
 	gradingMode = gradingMode,
-	officialScore = score,
-	officialOutcome = outcome
+	academicScore = score,
+	academicOutcome = outcome
 )

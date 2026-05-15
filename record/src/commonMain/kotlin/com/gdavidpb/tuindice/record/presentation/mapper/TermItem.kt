@@ -10,8 +10,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import com.gdavidpb.tuindice.academiccore.domain.model.TermProjection
-import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialCurrent
-import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialHistorical
+import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
+import com.gdavidpb.tuindice.academiccore.domain.model.isHistorical
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
@@ -95,7 +95,7 @@ fun TermProjection.toTermItem(
 }
 
 internal fun TermProjection.isCurrentTerm(): Boolean {
-	return kind.isOfficialCurrent
+	return kind.isCurrent
 }
 
 internal fun TermProjection.canDeleteTerm(): Boolean {
@@ -103,7 +103,7 @@ internal fun TermProjection.canDeleteTerm(): Boolean {
 }
 
 internal fun TermProjection.isAttemptReadOnly(viewMode: RecordViewMode): Boolean {
-	return (viewMode == RecordViewMode.Official) || kind.isOfficialHistorical
+	return (viewMode == RecordViewMode.Historical) || kind.isHistorical
 }
 
 private fun Float.toTermMetricDelta(): TermMetricDelta {

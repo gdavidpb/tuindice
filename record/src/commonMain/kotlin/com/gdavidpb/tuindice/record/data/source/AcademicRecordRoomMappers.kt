@@ -57,11 +57,11 @@ internal fun AcademicAttempt.toAcademicAttemptEntity(
 		credits = credits,
 		positionInTerm = positionInTerm,
 		gradingMode = gradingMode.name,
-		scoreKind = officialScore.storageType,
-		scoreNumericValue = officialScore.numericValue,
-		scoreSymbolicValue = officialScore.symbolicValue,
-		officialOutcome = officialOutcome.name,
-		officialBadge = officialBadge.name
+		scoreKind = academicScore.storageType,
+		scoreNumericValue = academicScore.numericValue,
+		scoreSymbolicValue = academicScore.symbolicValue,
+		academicOutcome = academicOutcome.name,
+		academicBadge = academicBadge.name
 	)
 }
 
@@ -83,13 +83,13 @@ internal fun AcademicAttemptEntity.toAcademicAttempt(): AcademicAttempt {
 		subjectName = subjectName,
 		credits = credits,
 		gradingMode = AttemptGradingMode.valueOf(gradingMode),
-		officialScore = scoreFromStorage(
+		academicScore = scoreFromStorage(
 			type = scoreKind,
 			numericValue = scoreNumericValue,
 			symbolicValue = scoreSymbolicValue
 		),
-		officialOutcome = AttemptOutcome.valueOf(officialOutcome),
-		officialBadge = AttemptBadge.valueOf(officialBadge)
+		academicOutcome = AttemptOutcome.valueOf(academicOutcome),
+		academicBadge = AttemptBadge.valueOf(academicBadge)
 	)
 }
 
@@ -121,9 +121,9 @@ internal fun AcademicRecordMutation.AddSyntheticTerm.toAcademicTerm(): AcademicT
 				subjectName = attempt.subjectName,
 				credits = attempt.credits,
 				gradingMode = attempt.gradingMode,
-				officialScore = attempt.score ?: AttemptScore.empty(),
-				officialOutcome = attempt.outcome ?: AttemptOutcome.PENDING,
-				officialBadge = AttemptBadge.NONE
+				academicScore = attempt.score ?: AttemptScore.empty(),
+				academicOutcome = attempt.outcome ?: AttemptOutcome.PENDING,
+				academicBadge = AttemptBadge.NONE
 			)
 		}
 	)

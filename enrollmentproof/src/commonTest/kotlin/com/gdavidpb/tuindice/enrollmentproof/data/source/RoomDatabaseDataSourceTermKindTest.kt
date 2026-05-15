@@ -6,9 +6,9 @@ import kotlin.test.assertTrue
 
 class RoomDatabaseDataSourceTermKindTest {
 	@Test
-	fun isOfficialCurrentTermKind_returnsTrue_onlyForOfficialCurrentTerms() {
-		assertTrue(RoomDatabaseDataSource.isOfficialCurrentTermKind("OFFICIAL_CURRENT"))
-		assertFalse(RoomDatabaseDataSource.isOfficialCurrentTermKind("OFFICIAL_HISTORICAL"))
-		assertFalse(RoomDatabaseDataSource.isOfficialCurrentTermKind("SYNTHETIC"))
+	fun isCurrentTermKind_returnsTrue_onlyForCurrentTerms() {
+		assertTrue(RoomDatabaseDataSource.isCurrentTermKind("CURRENT"))
+		assertFalse(RoomDatabaseDataSource.isCurrentTermKind("HISTORICAL"))
+		assertFalse(RoomDatabaseDataSource.isCurrentTermKind("SYNTHETIC"))
 	}
 }

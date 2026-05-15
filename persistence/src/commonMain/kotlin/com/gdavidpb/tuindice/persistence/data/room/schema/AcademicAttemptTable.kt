@@ -12,6 +12,6 @@ object AcademicAttemptTable {
 	const val SCORE_KIND = "score_kind"
 	const val SCORE_NUMERIC_VALUE = "score_numeric_value"
 	const val SCORE_SYMBOLIC_VALUE = "score_symbolic_value"
-	const val OFFICIAL_OUTCOME = "official_outcome"
-	const val OFFICIAL_BADGE = "official_badge"
+	const val ACADEMIC_OUTCOME = "academic_outcome"
+	const val ACADEMIC_BADGE = "academic_badge"
 }

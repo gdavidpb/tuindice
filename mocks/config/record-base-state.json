@@ -38,7 +38,7 @@
   "terms": [
     {
       "id": "d377155d39da686f412622aaca9074cd",
-      "kind": "official_current",
+      "kind": "current",
       "revision": 12,
       "attempts": [
         {
@@ -87,7 +87,7 @@
     },
     {
       "id": "01c705af6984b336fc2aed20576ec543",
-      "kind": "official_historical",
+      "kind": "historical",
       "revision": 11,
       "attempts": [
         {
@@ -139,7 +139,7 @@
     },
     {
       "id": "47f5aaff77822ce6f0fd6615b208eab9",
-      "kind": "official_historical",
+      "kind": "historical",
       "revision": 10,
       "attempts": [
         {
@@ -191,7 +191,7 @@
     },
     {
       "id": "387af2b5460eb43705ecc69c42dd1b4b",
-      "kind": "official_historical",
+      "kind": "historical",
       "revision": 9,
       "attempts": [
         {
@@ -233,7 +233,7 @@
     },
     {
       "id": "0502b034a34bbb4cb22f04ec0cbe4239",
-      "kind": "official_historical",
+      "kind": "historical",
       "revision": 8,
       "attempts": [
         {
@@ -285,7 +285,7 @@
     },
     {
       "id": "8956d1e5b10dfeab8f07cb076332237e",
-      "kind": "official_historical",
+      "kind": "historical",
       "revision": 7,
       "attempts": [
         {
@@ -347,7 +347,7 @@
     },
     {
       "id": "1df5fcc6bb38d2259624eddaa8071eb5",
-      "kind": "official_historical",
+      "kind": "historical",
       "revision": 6,
       "attempts": [
         {
@@ -399,7 +399,7 @@
     },
     {
       "id": "0b36879f48a1a6b60b017a49b48fc939",
-      "kind": "official_historical",
+      "kind": "historical",
       "revision": 5,
       "attempts": [
         {
@@ -451,7 +451,7 @@
     },
     {
       "id": "34eafe92bae79ca0db9f1d4a4585d8a0",
-      "kind": "official_historical",
+      "kind": "historical",
       "revision": 4,
       "attempts": [
         {
@@ -503,7 +503,7 @@
     },
     {
       "id": "bd6da09d8453fbca2c12fa40d225d81d",
-      "kind": "official_historical",
+      "kind": "historical",
       "revision": 3,
       "attempts": [
         {
@@ -565,7 +565,7 @@
     },
     {
       "id": "5c4c7f7f46fbddc68151ed4c96279780",
-      "kind": "official_historical",
+      "kind": "historical",
       "revision": 2,
       "attempts": [
         {
@@ -627,7 +627,7 @@
     },
     {
       "id": "cbcb1fb7bf5dbe9f5dce767ee14ebc4c",
-      "kind": "official_historical",
+      "kind": "historical",
       "revision": 1,
       "attempts": [
         {

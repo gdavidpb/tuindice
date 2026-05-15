@@ -20,7 +20,7 @@ object Wizard {
 			val steps: List<WizardStep> = defaultWizardSteps(),
 			val currentIndex: Int = 0,
 			val selectedSubjectTab: SubjectSegmentTab = SubjectSegmentTab.CAREER,
-			val recordViewMode: RecordViewMode = RecordViewMode.Working,
+			val recordViewMode: RecordViewMode = RecordViewMode.Projection,
 			val selectedTermId: String = CURRENT_TERM_ID
 		) : State(), WizardRouteViewState {
 			val currentStep: WizardStep

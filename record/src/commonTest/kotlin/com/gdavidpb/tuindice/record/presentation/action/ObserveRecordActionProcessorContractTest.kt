@@ -84,7 +84,7 @@ class ObserveRecordActionProcessorContractTest {
 						id = "term",
 						periodYear = 2026,
 						periodCode = AcademicTermPeriod.JAN_MAR,
-						kind = TermKind.OFFICIAL_HISTORICAL,
+						kind = TermKind.HISTORICAL,
 						attempts = listOf(
 							AcademicAttempt(
 								id = "attempt",
@@ -111,7 +111,7 @@ class ObserveRecordActionProcessorContractTest {
 	}
 
 	@Test
-	fun process_reducesToContent_whenOfficialModeHasCurrentTerm() = runTest {
+	fun process_reducesToContent_whenProjectionModeHasCurrentTerm() = runTest {
 		val processor = processor(
 			record = AcademicRecord(
 				id = "record",
@@ -120,7 +120,7 @@ class ObserveRecordActionProcessorContractTest {
 						id = "current-term",
 						periodYear = 2026,
 						periodCode = AcademicTermPeriod.APR_JUL,
-						kind = TermKind.OFFICIAL_CURRENT,
+						kind = TermKind.CURRENT,
 						attempts = listOf(
 							AcademicAttempt(
 								id = "attempt",
@@ -132,7 +132,8 @@ class ObserveRecordActionProcessorContractTest {
 					)
 				)
 			),
-			hasSyncedRecord = true
+			hasSyncedRecord = true,
+			viewMode = RecordViewMode.Projection
 		)
 
 		processor.process(
@@ -148,7 +149,8 @@ class ObserveRecordActionProcessorContractTest {
 
 	private fun processor(
 		record: AcademicRecord,
-		hasSyncedRecord: Boolean
+		hasSyncedRecord: Boolean,
+		viewMode: RecordViewMode = RecordViewMode.Historical
 	): ObserveRecordActionProcessor {
 		return ObserveRecordActionProcessor(
 			observeRecordUseCase = ObserveRecordUseCase(
@@ -156,7 +158,7 @@ class ObserveRecordActionProcessorContractTest {
 					record = record,
 					hasSyncedRecord = hasSyncedRecord
 				),
-				recordSelectionRepository = StubRecordSelectionRepository(),
+				recordSelectionRepository = StubRecordSelectionRepository(viewMode),
 				reportingRepository = RecordingReportingRepository()
 			)
 		)
@@ -191,16 +193,18 @@ private class StubAcademicRecordRepository(
 	override suspend fun deleteSyntheticTerm(termId: String) = Unit
 }
 
-private class StubRecordSelectionRepository : RecordSelectionRepository {
+private class StubRecordSelectionRepository(
+	private val viewMode: RecordViewMode
+) : RecordSelectionRepository {
 	override fun observeSelectedTermId(viewMode: RecordViewMode): Flow<String?> = flowOf(null)
 
-	override fun observeRecordViewMode(): Flow<RecordViewMode> = flowOf(RecordViewMode.Official)
+	override fun observeRecordViewMode(): Flow<RecordViewMode> = flowOf(viewMode)
 
 	override suspend fun getSelectedTermId(viewMode: RecordViewMode): String? = null
 
 	override suspend fun setSelectedTermId(viewMode: RecordViewMode, termId: String) = Unit
 
-	override suspend fun getRecordViewMode(): RecordViewMode = RecordViewMode.Official
+	override suspend fun getRecordViewMode(): RecordViewMode = viewMode
 
 	override suspend fun setRecordViewMode(viewMode: RecordViewMode) = Unit
 }

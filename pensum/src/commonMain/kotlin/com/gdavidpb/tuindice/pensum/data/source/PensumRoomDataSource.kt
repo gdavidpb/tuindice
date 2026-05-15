@@ -204,7 +204,7 @@ class PensumRoomDataSource(
 					subjectCode = attempt.subjectCode,
 					credits = attempt.credits,
 					termKind = TermKind.valueOf(term.kind),
-					outcome = AttemptOutcome.valueOf(attempt.officialOutcome)
+					outcome = AttemptOutcome.valueOf(attempt.academicOutcome)
 				)
 			}
 		)

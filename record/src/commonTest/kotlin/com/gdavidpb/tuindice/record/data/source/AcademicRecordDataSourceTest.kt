@@ -117,23 +117,23 @@ class AcademicRecordDataSourceTest {
 					id = "term-1",
 					periodYear = 2026,
 					periodCode = AcademicTermPeriod.JAN_MAR,
-					kind = TermKind.OFFICIAL_CURRENT,
+					kind = TermKind.CURRENT,
 					attempts = listOf(
 						AcademicAttempt(
 							id = firstAttemptId,
 							subjectCode = "PB5611",
 							subjectName = "Probabilidad",
 							credits = 10,
-							officialScore = AttemptScore.numeric(3),
-							officialOutcome = AttemptOutcome.APPROVED
+							academicScore = AttemptScore.numeric(3),
+							academicOutcome = AttemptOutcome.APPROVED
 						),
 						AcademicAttempt(
 							id = secondAttemptId,
 							subjectCode = "MA1001",
 							subjectName = "Calculo",
 							credits = 10,
-							officialScore = AttemptScore.numeric(3),
-							officialOutcome = AttemptOutcome.APPROVED
+							academicScore = AttemptScore.numeric(3),
+							academicOutcome = AttemptOutcome.APPROVED
 						)
 					)
 				)
@@ -235,15 +235,15 @@ class AcademicRecordDataSourceTest {
 					id = "term-1",
 					periodYear = 2026,
 					periodCode = AcademicTermPeriod.JAN_MAR,
-					kind = TermKind.OFFICIAL_CURRENT,
+					kind = TermKind.CURRENT,
 					attempts = listOf(
 						AcademicAttempt(
 							id = attemptId,
 							subjectCode = "PB5611",
 							subjectName = "Probabilidad",
 							credits = 10,
-							officialScore = AttemptScore.numeric(3),
-							officialOutcome = AttemptOutcome.APPROVED
+							academicScore = AttemptScore.numeric(3),
+							academicOutcome = AttemptOutcome.APPROVED
 						)
 					)
 				)
@@ -341,15 +341,15 @@ class AcademicRecordDataSourceTest {
 					id = "term-1",
 					periodYear = 2026,
 					periodCode = AcademicTermPeriod.JAN_MAR,
-					kind = TermKind.OFFICIAL_CURRENT,
+					kind = TermKind.CURRENT,
 					attempts = listOf(
 						AcademicAttempt(
 							id = attemptId,
 							subjectCode = "PB5611",
 							subjectName = "Probabilidad",
 							credits = 10,
-							officialScore = AttemptScore.numeric(3),
-							officialOutcome = AttemptOutcome.FAILED
+							academicScore = AttemptScore.numeric(3),
+							academicOutcome = AttemptOutcome.FAILED
 						)
 					)
 				)
@@ -522,8 +522,8 @@ private class FakeAcademicRecordLocalDataRepository(
 						subjectName = attempt.subjectName,
 						credits = attempt.credits,
 						gradingMode = attempt.gradingMode,
-						officialScore = attempt.score ?: AttemptScore.empty(),
-						officialOutcome = attempt.outcome ?: AttemptOutcome.PENDING
+						academicScore = attempt.score ?: AttemptScore.empty(),
+						academicOutcome = attempt.outcome ?: AttemptOutcome.PENDING
 					)
 				}
 			)
@@ -735,13 +735,13 @@ private class FakeRecordSettingsDataRepository(
 
 	override fun observeSelectedTermId(viewMode: RecordViewMode): Flow<String?> = MutableStateFlow(null)
 
-	override fun observeRecordViewMode(): Flow<RecordViewMode> = MutableStateFlow(RecordViewMode.Working)
+	override fun observeRecordViewMode(): Flow<RecordViewMode> = MutableStateFlow(RecordViewMode.Projection)
 
 	override fun getSelectedTermId(viewMode: RecordViewMode): String? = null
 
 	override fun setSelectedTermId(viewMode: RecordViewMode, termId: String) = Unit
 
-	override fun getRecordViewMode(): RecordViewMode = RecordViewMode.Working
+	override fun getRecordViewMode(): RecordViewMode = RecordViewMode.Projection
 
 	override fun setRecordViewMode(viewMode: RecordViewMode) = Unit
 }

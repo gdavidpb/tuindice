@@ -19,8 +19,8 @@ class PensumStatusEngineTest {
 			pensum = samplePensum(),
 			academicSnapshot = AcademicPensumSnapshot(
 				attempts = listOf(
-					attempt("MA1111", TermKind.OFFICIAL_HISTORICAL, AttemptOutcome.APPROVED),
-					attempt("MA2112", TermKind.OFFICIAL_CURRENT, AttemptOutcome.PENDING)
+					attempt("MA1111", TermKind.HISTORICAL, AttemptOutcome.APPROVED),
+					attempt("MA2112", TermKind.CURRENT, AttemptOutcome.PENDING)
 				)
 			)
 		)
@@ -61,7 +61,7 @@ class PensumStatusEngineTest {
 		val result = engine.resolve(
 			pensum = samplePensum(nodes = listOf(slot), edges = emptyList()),
 			academicSnapshot = AcademicPensumSnapshot(
-				attempts = listOf(attempt("EG1111", TermKind.OFFICIAL_HISTORICAL, AttemptOutcome.APPROVED, credits = 3))
+				attempts = listOf(attempt("EG1111", TermKind.HISTORICAL, AttemptOutcome.APPROVED, credits = 3))
 			)
 		)
 

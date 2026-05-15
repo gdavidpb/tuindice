@@ -248,7 +248,7 @@ class RoomDatabaseDataSource(
 			)
 
 			return editableTerms
-				.filter { term -> TermKind.valueOf(term.kind) == TermKind.OFFICIAL_CURRENT }
+				.filter { term -> TermKind.valueOf(term.kind) == TermKind.CURRENT }
 				.maxWithOrNull(termComparator)
 				?.id
 				?: editableTerms

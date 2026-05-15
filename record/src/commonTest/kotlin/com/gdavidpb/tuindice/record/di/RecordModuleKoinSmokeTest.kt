@@ -60,13 +60,13 @@ private class StubAcademicRecordRepository : AcademicRecordRepository {
 private class StubRecordSelectionRepository : RecordSelectionRepository {
 	override fun observeSelectedTermId(viewMode: RecordViewMode): Flow<String?> = flowOf(null)
 
-	override fun observeRecordViewMode(): Flow<RecordViewMode> = flowOf(RecordViewMode.Working)
+	override fun observeRecordViewMode(): Flow<RecordViewMode> = flowOf(RecordViewMode.Projection)
 
 	override suspend fun getSelectedTermId(viewMode: RecordViewMode): String? = null
 
 	override suspend fun setSelectedTermId(viewMode: RecordViewMode, termId: String) = Unit
 
-	override suspend fun getRecordViewMode(): RecordViewMode = RecordViewMode.Working
+	override suspend fun getRecordViewMode(): RecordViewMode = RecordViewMode.Projection
 
 	override suspend fun setRecordViewMode(viewMode: RecordViewMode) = Unit
 }

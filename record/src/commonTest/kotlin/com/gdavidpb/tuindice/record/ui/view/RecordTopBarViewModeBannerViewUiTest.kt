@@ -19,13 +19,13 @@ class RecordTopBarViewModeBannerViewUiTest {
 	fun when_infoButtonTapped_then_showsBriefProjectionTooltip() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			RecordTopBarViewModeBannerView(
-				selectedMode = RecordViewMode.Working
+				selectedMode = RecordViewMode.Projection
 			)
 		}
 
 		onNodeWithTag(RecordUiTags.TopBarViewModeInfoButton).performClick()
 
-		onNodeWithText("Simula cambios en tus notas. No modifica el historial oficial.")
+		onNodeWithText("Incluye el trimestre actual y tus simulaciones. No modifica el historial académico.")
 			.assertIsDisplayed()
 	}
 
@@ -36,13 +36,13 @@ class RecordTopBarViewModeBannerViewUiTest {
 		setTuIndiceTestContent {
 			if (isBannerVisible.value) {
 				RecordTopBarViewModeBannerView(
-					selectedMode = RecordViewMode.Official
+					selectedMode = RecordViewMode.Historical
 				)
 			}
 		}
 
 		onNodeWithTag(RecordUiTags.TopBarViewModeInfoButton).performClick()
-		onNodeWithText("Notas registradas por la universidad. Solo lectura.")
+		onNodeWithText("Trimestres cerrados registrados en tu historial académico. Solo lectura.")
 			.assertIsDisplayed()
 
 		runOnIdle {

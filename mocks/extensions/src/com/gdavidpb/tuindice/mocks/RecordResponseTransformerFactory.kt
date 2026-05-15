@@ -98,15 +98,15 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 				name = node.get("name").asText(),
 				credits = node.get("credits").asInt(),
 				gradingMode = gradingMode,
-				officialScore = when {
+				academicScore = when {
 					gradingMode != NUMERIC_GRADING_MODE -> ScoreModel.empty()
 					node.path("grade").canConvertToInt() && node.path("grade").asInt() > 0 ->
 						ScoreModel.numeric(node.path("grade").asInt())
 
 					else -> ScoreModel.empty()
 				},
-				officialOutcome = canonicalOutcomeValue(status),
-				officialBadge = canonicalBadgeValue(status),
+				academicOutcome = canonicalOutcomeValue(status),
+				academicBadge = canonicalBadgeValue(status),
 				mutable = node.path("mutable").asBoolean(false),
 			)
 		}
@@ -371,9 +371,9 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 					name = catalogAttempt?.name ?: "MOCK $subjectCode",
 					credits = catalogAttempt?.credits ?: DEFAULT_ADDED_ATTEMPT_CREDITS,
 					gradingMode = catalogAttempt?.gradingMode ?: NUMERIC_GRADING_MODE,
-					officialScore = ScoreModel.empty(),
-					officialOutcome = PENDING_OUTCOME,
-					officialBadge = NONE_BADGE,
+					academicScore = ScoreModel.empty(),
+					academicOutcome = PENDING_OUTCOME,
+					academicBadge = NONE_BADGE,
 					mutable = true,
 				)
 			}
@@ -569,9 +569,9 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			val name: String,
 			val credits: Int,
 			val gradingMode: String,
-			val officialScore: ScoreModel,
-			val officialOutcome: String,
-			val officialBadge: String,
+			val academicScore: ScoreModel,
+			val academicOutcome: String,
+			val academicBadge: String,
 			val mutable: Boolean,
 		) {
 			fun toRecordAttemptModel(): Map<String, Any> =
@@ -581,9 +581,9 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 					"subject_name" to name,
 					"credits" to credits,
 					"grading_mode" to gradingMode,
-					"official_score" to officialScore.toJson(),
-					"official_outcome" to officialOutcome,
-					"official_badge" to officialBadge,
+					"academic_score" to academicScore.toJson(),
+					"academic_outcome" to academicOutcome,
+					"academic_badge" to academicBadge,
 				)
 		}
 

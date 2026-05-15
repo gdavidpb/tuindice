@@ -3,35 +3,35 @@ package com.gdavidpb.tuindice.academiccore.domain.engine
 import com.gdavidpb.tuindice.academiccore.domain.model.*
 import kotlin.math.abs
 
-private const val DEFAULT_WORKING_NUMERIC_GRADE = 5
+private const val DEFAULT_PROJECTION_NUMERIC_GRADE = 5
 private const val MIN_APPROVED_GRADE = 3
 
 object RecordProjectionEngine {
-	fun projectOfficial(record: AcademicRecord): RecordProjection {
+	fun projectAcademic(record: AcademicRecord): RecordProjection {
 		return project(
 			terms = record.terms.filterNot { term -> term.kind.isSynthetic },
 			attemptOverrides = emptyMap(),
-			officialProjectionByTermId = emptyMap(),
-			includeWorkingBehavior = false
+			academicProjectionByTermId = emptyMap(),
+			includeProjectionBehavior = false
 		)
 	}
 
-	fun projectWorking(record: AcademicRecord): RecordProjection {
-		val officialProjection = projectOfficial(record)
+	fun projectProjection(record: AcademicRecord): RecordProjection {
+		val academicProjection = projectAcademic(record)
 
 		return project(
 			terms = record.terms,
 			attemptOverrides = record.attemptOverrides.associateBy(AttemptOverride::attemptId),
-			officialProjectionByTermId = officialProjection.terms.associateBy(TermProjection::id),
-			includeWorkingBehavior = true
+			academicProjectionByTermId = academicProjection.terms.associateBy(TermProjection::id),
+			includeProjectionBehavior = true
 		)
 	}
 
 	private fun project(
 		terms: List<AcademicTerm>,
 		attemptOverrides: Map<String, AttemptOverride>,
-		officialProjectionByTermId: Map<String, TermProjection>,
-		includeWorkingBehavior: Boolean
+		academicProjectionByTermId: Map<String, TermProjection>,
+		includeProjectionBehavior: Boolean
 	): RecordProjection {
 		if (terms.isEmpty()) return RecordProjection()
 
@@ -44,7 +44,7 @@ object RecordProjectionEngine {
 						attempt = attempt,
 						termKind = term.kind,
 						attemptOverride = attemptOverrides[attempt.id],
-						includeWorkingBehavior = includeWorkingBehavior
+						includeProjectionBehavior = includeProjectionBehavior
 					)
 				}
 			)
@@ -86,15 +86,15 @@ object RecordProjectionEngine {
 				cumulativeCredits += state.effectiveCredits - previousCredits
 			}
 
-			val officialTermProjection = officialProjectionByTermId[termState.term.id]
-			val useFrozenOfficialMetrics = includeWorkingBehavior &&
-				termState.term.kind.isOfficialHistorical &&
-				officialTermProjection != null
+			val academicTermProjection = academicProjectionByTermId[termState.term.id]
+			val useFrozenAcademicMetrics = includeProjectionBehavior &&
+				termState.term.kind.isHistorical &&
+				academicTermProjection != null
 
 			val attemptProjections = termState.attempts.map { attempt ->
 				val badge = when {
 					attempt.badge == AttemptBadge.WITHOUT_EFFECT -> AttemptBadge.WITHOUT_EFFECT
-					includeWorkingBehavior && attempt.attempt.id in excludedAttemptIds -> AttemptBadge.WITHOUT_EFFECT
+					includeProjectionBehavior && attempt.attempt.id in excludedAttemptIds -> AttemptBadge.WITHOUT_EFFECT
 					else -> AttemptBadge.NONE
 				}
 
@@ -110,7 +110,7 @@ object RecordProjectionEngine {
 				)
 			}
 
-			projectionsAscending += if (useFrozenOfficialMetrics) {
+			projectionsAscending += if (useFrozenAcademicMetrics) {
 				TermProjection(
 					id = termState.term.id,
 					periodYear = termState.term.periodYear,
@@ -119,10 +119,10 @@ object RecordProjectionEngine {
 					termOrder = termState.term.termOrder,
 					periodLabel = termState.term.periodLabel,
 					kind = termState.term.kind,
-					periodAverage = officialTermProjection.periodAverage,
-					cumulativeAverage = officialTermProjection.cumulativeAverage,
-					periodCredits = officialTermProjection.periodCredits,
-					cumulativeCredits = officialTermProjection.cumulativeCredits,
+					periodAverage = academicTermProjection.periodAverage,
+					cumulativeAverage = academicTermProjection.cumulativeAverage,
+					periodCredits = academicTermProjection.periodCredits,
+					cumulativeCredits = academicTermProjection.cumulativeCredits,
 					attempts = attemptProjections
 				)
 			} else {
@@ -158,22 +158,22 @@ object RecordProjectionEngine {
 		attempt: AcademicAttempt,
 		termKind: TermKind,
 		attemptOverride: AttemptOverride?,
-		includeWorkingBehavior: Boolean
+		includeProjectionBehavior: Boolean
 	): EffectiveAttemptState {
 		val score = when {
-			includeWorkingBehavior && attemptOverride?.score != null -> attemptOverride.score
-			includeWorkingBehavior &&
+			includeProjectionBehavior && attemptOverride?.score != null -> attemptOverride.score
+			includeProjectionBehavior &&
 				termKind.isEditable &&
 				attempt.gradingMode == AttemptGradingMode.NUMERIC &&
-				attempt.officialOutcome == AttemptOutcome.PENDING &&
-				attempt.officialScore is AttemptScore.Empty ->
-				AttemptScore.numeric(DEFAULT_WORKING_NUMERIC_GRADE)
+				attempt.academicOutcome == AttemptOutcome.PENDING &&
+				attempt.academicScore is AttemptScore.Empty ->
+				AttemptScore.numeric(DEFAULT_PROJECTION_NUMERIC_GRADE)
 
-			else -> attempt.officialScore
+			else -> attempt.academicScore
 		}
 		val baseOutcome = when {
-			includeWorkingBehavior && attemptOverride?.outcome != null -> attemptOverride.outcome
-			else -> attempt.officialOutcome
+			includeProjectionBehavior && attemptOverride?.outcome != null -> attemptOverride.outcome
+			else -> attempt.academicOutcome
 		}
 		val resolvedOutcome = resolveOutcome(
 			gradingMode = attempt.gradingMode,
@@ -185,7 +185,7 @@ object RecordProjectionEngine {
 			attempt = attempt,
 			score = score,
 			outcome = resolvedOutcome,
-			badge = attempt.officialBadge,
+			badge = attempt.academicBadge,
 			countsTowardPeriodAverage = countsTowardPeriodAverage(
 				gradingMode = attempt.gradingMode,
 				score = score,

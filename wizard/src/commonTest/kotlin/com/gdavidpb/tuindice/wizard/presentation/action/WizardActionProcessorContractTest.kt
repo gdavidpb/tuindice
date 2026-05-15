@@ -121,21 +121,21 @@ class WizardActionProcessorContractTest {
 	@Test
 	fun setRecordViewMode_updatesSyntheticModeAndSelectedTerm() = runTest {
 		val effects = mutableListOf<Wizard.Effect>()
-		val official = reduce(
+		val historical = reduce(
 			initialState = Wizard.State.Content(),
 			mutations = SetRecordViewModeWizardActionProcessor()
-				.process(Wizard.Action.SetRecordViewMode(RecordViewMode.Official), effects::add)
+				.process(Wizard.Action.SetRecordViewMode(RecordViewMode.Historical), effects::add)
 		) as Wizard.State.Content
-		val working = reduce(
-			initialState = official,
+		val projection = reduce(
+			initialState = historical,
 			mutations = SetRecordViewModeWizardActionProcessor()
-				.process(Wizard.Action.SetRecordViewMode(RecordViewMode.Working), effects::add)
+				.process(Wizard.Action.SetRecordViewMode(RecordViewMode.Projection), effects::add)
 		) as Wizard.State.Content
 
-		assertEquals(RecordViewMode.Official, official.recordViewMode)
-		assertEquals(HISTORICAL_TERM_ID, official.selectedTermId)
-		assertEquals(RecordViewMode.Working, working.recordViewMode)
-		assertEquals(CURRENT_TERM_ID, working.selectedTermId)
+		assertEquals(RecordViewMode.Historical, historical.recordViewMode)
+		assertEquals(HISTORICAL_TERM_ID, historical.selectedTermId)
+		assertEquals(RecordViewMode.Projection, projection.recordViewMode)
+		assertEquals(CURRENT_TERM_ID, projection.selectedTermId)
 		assertContentEquals(emptyList(), effects)
 	}
 

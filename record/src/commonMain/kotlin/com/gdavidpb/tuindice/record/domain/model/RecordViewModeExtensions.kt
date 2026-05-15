@@ -4,29 +4,29 @@ import com.gdavidpb.tuindice.academiccore.domain.engine.RecordProjectionEngine
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.RecordProjection
 import com.gdavidpb.tuindice.academiccore.domain.model.TermProjection
-import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialCurrent
-import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialHistorical
+import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
+import com.gdavidpb.tuindice.academiccore.domain.model.isHistorical
 
 fun List<TermProjection>.filterByViewMode(viewMode: RecordViewMode): List<TermProjection> {
 	return filter { term ->
 		when (viewMode) {
-			RecordViewMode.Official -> term.kind.isOfficialHistorical || term.kind.isOfficialCurrent
-			RecordViewMode.Working -> true
+			RecordViewMode.Historical -> term.kind.isHistorical
+			RecordViewMode.Projection -> true
 		}
 	}
 }
 
 fun RecordViewMode.other(): RecordViewMode {
 	return when (this) {
-		RecordViewMode.Official -> RecordViewMode.Working
-		RecordViewMode.Working -> RecordViewMode.Official
+		RecordViewMode.Historical -> RecordViewMode.Projection
+		RecordViewMode.Projection -> RecordViewMode.Historical
 	}
 }
 
 fun AcademicRecord.projectionFor(viewMode: RecordViewMode): RecordProjection {
 	return when (viewMode) {
-		RecordViewMode.Official -> RecordProjectionEngine.projectOfficial(this)
-		RecordViewMode.Working -> RecordProjectionEngine.projectWorking(this)
+		RecordViewMode.Historical -> RecordProjectionEngine.projectAcademic(this)
+		RecordViewMode.Projection -> RecordProjectionEngine.projectProjection(this)
 	}
 }
 

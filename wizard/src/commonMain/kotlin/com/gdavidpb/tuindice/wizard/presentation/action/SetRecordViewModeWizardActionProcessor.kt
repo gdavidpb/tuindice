@@ -23,8 +23,8 @@ class SetRecordViewModeWizardActionProcessor :
 				content.copy(
 					recordViewMode = action.viewMode,
 					selectedTermId = when (action.viewMode) {
-						RecordViewMode.Official -> HISTORICAL_TERM_ID
-						RecordViewMode.Working -> CURRENT_TERM_ID
+						RecordViewMode.Historical -> HISTORICAL_TERM_ID
+						RecordViewMode.Projection -> CURRENT_TERM_ID
 					}
 				)
 			}

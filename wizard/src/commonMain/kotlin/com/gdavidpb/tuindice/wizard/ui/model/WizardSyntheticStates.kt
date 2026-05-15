@@ -447,7 +447,7 @@ private fun sampleAcademicRecord() = AcademicRecord(
 			id = HISTORICAL_TERM_ID,
 			periodYear = 2025,
 			periodCode = AcademicTermPeriod.SEP_DEC,
-			kind = TermKind.OFFICIAL_HISTORICAL,
+			kind = TermKind.HISTORICAL,
 			attempts = listOf(
 				approvedAttempt("MA1111", "Matemáticas I", 5, 4),
 				approvedAttempt("FS1111", "Física I", 4, 3),
@@ -458,7 +458,7 @@ private fun sampleAcademicRecord() = AcademicRecord(
 			id = CURRENT_TERM_ID,
 			periodYear = 2026,
 			periodCode = AcademicTermPeriod.JAN_MAR,
-			kind = TermKind.OFFICIAL_CURRENT,
+			kind = TermKind.CURRENT,
 			attempts = listOf(
 				currentAttempt("CI2611", "Algoritmos y Estructuras I", 4),
 				currentAttempt("EC5344", "Sistemas Digitales", 4),
@@ -479,8 +479,8 @@ private fun approvedAttempt(
 	subjectCode = code,
 	subjectName = name,
 	credits = credits,
-	officialScore = AttemptScore.numeric(score),
-	officialOutcome = AttemptOutcome.APPROVED
+	academicScore = AttemptScore.numeric(score),
+	academicOutcome = AttemptOutcome.APPROVED
 )
 
 private fun currentAttempt(
@@ -492,8 +492,8 @@ private fun currentAttempt(
 	subjectCode = code,
 	subjectName = name,
 	credits = credits,
-	officialScore = AttemptScore.empty(),
-	officialOutcome = AttemptOutcome.PENDING
+	academicScore = AttemptScore.empty(),
+	academicOutcome = AttemptOutcome.PENDING
 )
 
 private fun syntheticTermSubject(

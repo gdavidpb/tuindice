@@ -19,7 +19,7 @@ class AcademicRecordRoomMappersTest {
 			id = "term-1",
 			periodYear = 2026,
 			periodCode = AcademicTermPeriod.JAN_MAR,
-			kind = TermKind.OFFICIAL_CURRENT
+			kind = TermKind.CURRENT
 		)
 
 		val roundTrip = listOf(term.toAcademicTermEntity())
@@ -43,9 +43,9 @@ class AcademicRecordRoomMappersTest {
 			subjectName = "Ecuaciones Diferenciales",
 			credits = 5,
 			gradingMode = AttemptGradingMode.NUMERIC,
-			officialScore = AttemptScore.numeric(5),
-			officialOutcome = AttemptOutcome.APPROVED,
-			officialBadge = AttemptBadge.NONE
+			academicScore = AttemptScore.numeric(5),
+			academicOutcome = AttemptOutcome.APPROVED,
+			academicBadge = AttemptBadge.NONE
 		)
 		val earlierAttempt = AcademicAttempt(
 			id = "attempt-1",
@@ -53,9 +53,9 @@ class AcademicRecordRoomMappersTest {
 			subjectName = "Algebra",
 			credits = 4,
 			gradingMode = AttemptGradingMode.QUALITATIVE_PASS_FAIL,
-			officialScore = AttemptScore.symbolic("A"),
-			officialOutcome = AttemptOutcome.APPROVED,
-			officialBadge = AttemptBadge.WITHOUT_EFFECT
+			academicScore = AttemptScore.symbolic("A"),
+			academicOutcome = AttemptOutcome.APPROVED,
+			academicBadge = AttemptBadge.WITHOUT_EFFECT
 		)
 
 		val roundTrip = listOf(term.toAcademicTermEntity())

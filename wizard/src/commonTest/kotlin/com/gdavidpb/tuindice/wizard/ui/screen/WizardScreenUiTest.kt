@@ -120,7 +120,7 @@ class WizardScreenUiTest {
 		onNodeWithText("Paso 3 de 11").assertExists()
 		onNodeWithText("Botones superiores").assertExists()
 		onNodeWithText(
-			"El botón de modo alterna entre Universidad y Proyección",
+			"El botón de modo alterna entre Histórico y Proyección",
 			substring = true
 		).assertExists()
 		onNodeWithText(
@@ -159,7 +159,7 @@ class WizardScreenUiTest {
 			substring = true
 		).assertExists()
 		onNodeWithText(
-			"Al guardar, queda como proyección y no cambia tu historial oficial.",
+			"Al guardar, queda como proyección y no cambia tu historial académico.",
 			substring = true
 		).assertExists()
 		assertNodeVisible(RecordUiTags.CreateSyntheticTermScreen)

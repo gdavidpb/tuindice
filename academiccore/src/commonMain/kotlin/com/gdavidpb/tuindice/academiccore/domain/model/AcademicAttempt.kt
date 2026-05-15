@@ -10,7 +10,7 @@ data class AcademicAttempt(
 	@SerialName("subject_name") val subjectName: String,
 	val credits: Int,
 	@SerialName("grading_mode") val gradingMode: AttemptGradingMode = AttemptGradingMode.NUMERIC,
-	@SerialName("official_score") val officialScore: AttemptScore = AttemptScore.empty(),
-	@SerialName("official_outcome") val officialOutcome: AttemptOutcome = AttemptOutcome.PENDING,
-	@SerialName("official_badge") val officialBadge: AttemptBadge = AttemptBadge.NONE
+	@SerialName("academic_score") val academicScore: AttemptScore = AttemptScore.empty(),
+	@SerialName("academic_outcome") val academicOutcome: AttemptOutcome = AttemptOutcome.PENDING,
+	@SerialName("academic_badge") val academicBadge: AttemptBadge = AttemptBadge.NONE
 )

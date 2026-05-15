@@ -5,24 +5,24 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 enum class TermKind {
-	@SerialName("official_historical")
-	OFFICIAL_HISTORICAL,
+	@SerialName("historical")
+	HISTORICAL,
 
-	@SerialName("official_current")
-	OFFICIAL_CURRENT,
+	@SerialName("current")
+	CURRENT,
 
 	@SerialName("synthetic")
 	SYNTHETIC
 }
 
-val TermKind.isOfficialHistorical: Boolean
-	get() = this == TermKind.OFFICIAL_HISTORICAL
+val TermKind.isHistorical: Boolean
+	get() = this == TermKind.HISTORICAL
 
-val TermKind.isOfficialCurrent: Boolean
-	get() = this == TermKind.OFFICIAL_CURRENT
+val TermKind.isCurrent: Boolean
+	get() = this == TermKind.CURRENT
 
 val TermKind.isSynthetic: Boolean
 	get() = this == TermKind.SYNTHETIC
 
 val TermKind.isEditable: Boolean
-	get() = this != TermKind.OFFICIAL_HISTORICAL
+	get() = this != TermKind.HISTORICAL

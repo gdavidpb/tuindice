@@ -31,10 +31,10 @@ import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
-import tuindice.record.generated.resources.record_view_mode_banner_official
+import tuindice.record.generated.resources.record_view_mode_banner_historical
 import tuindice.record.generated.resources.record_view_mode_banner_projection
 import tuindice.record.generated.resources.record_view_mode_info_button_description
-import tuindice.record.generated.resources.record_view_mode_info_message_official
+import tuindice.record.generated.resources.record_view_mode_info_message_historical
 import tuindice.record.generated.resources.record_view_mode_info_message_projection
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -45,12 +45,12 @@ fun RecordTopBarViewModeBannerView(
 ) {
 	val colors = recordViewModeBannerColors(selectedMode)
 	val bannerText = when (selectedMode) {
-		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_banner_official)
-		RecordViewMode.Working -> stringResource(Res.string.record_view_mode_banner_projection)
+		RecordViewMode.Historical -> stringResource(Res.string.record_view_mode_banner_historical)
+		RecordViewMode.Projection -> stringResource(Res.string.record_view_mode_banner_projection)
 	}
 	val infoMessageText = when (selectedMode) {
-		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_info_message_official)
-		RecordViewMode.Working -> stringResource(Res.string.record_view_mode_info_message_projection)
+		RecordViewMode.Historical -> stringResource(Res.string.record_view_mode_info_message_historical)
+		RecordViewMode.Projection -> stringResource(Res.string.record_view_mode_info_message_projection)
 	}
 	val tooltipState = rememberTooltipState(isPersistent = true)
 	val tooltipScope = rememberCoroutineScope()
@@ -135,13 +135,13 @@ fun RecordTopBarViewModeBannerView(
 @Composable
 fun recordViewModeBannerColors(mode: RecordViewMode): RecordViewModeBannerColors {
 	return when (mode) {
-		RecordViewMode.Official ->
+		RecordViewMode.Historical ->
 			RecordViewModeBannerColors(
 				containerColor = MaterialTheme.colorScheme.primaryContainer,
 				contentColor = MaterialTheme.colorScheme.onPrimaryContainer
 			)
 
-		RecordViewMode.Working ->
+		RecordViewMode.Projection ->
 			RecordViewModeBannerColors(
 				containerColor = MaterialTheme.colorScheme.tertiaryContainer,
 				contentColor = MaterialTheme.colorScheme.onTertiaryContainer

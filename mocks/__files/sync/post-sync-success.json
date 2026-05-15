@@ -17,7 +17,7 @@
       "terms": [
         {
           "id": "d377155d39da686f412622aaca9074cd",
-          "term_kind": "official_current",
+          "term_kind": "current",
           "attempts": [
             {
               "id": "e21f0d7e481d13d19f328d6818ce4d77",
@@ -25,12 +25,12 @@
               "subject_name": "Paradigmas en Modelaje de Base de Datos I",
               "credits": 4,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "pending",
-              "official_badge": "none"
+              "academic_outcome": "pending",
+              "academic_badge": "none"
             },
             {
               "id": "722cc2cc935e0aefdc73f9ebf9d2f1b6",
@@ -38,12 +38,12 @@
               "subject_name": "Inteligencia Artificial I",
               "credits": 4,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 3
               },
-              "official_outcome": "pending",
-              "official_badge": "none"
+              "academic_outcome": "pending",
+              "academic_badge": "none"
             },
             {
               "id": "f47ff0fa7342cdaec37d9e9cff489ebd",
@@ -51,12 +51,12 @@
               "subject_name": "Pensamiento Crítico",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 5
               },
-              "official_outcome": "pending",
-              "official_badge": "none"
+              "academic_outcome": "pending",
+              "academic_badge": "none"
             }
           ],
           "period_year": 2026,
@@ -67,7 +67,7 @@
         },
         {
           "id": "01c705af6984b336fc2aed20576ec543",
-          "term_kind": "official_historical",
+          "term_kind": "historical",
           "attempts": [
             {
               "id": "8322eaae7602f4749aef5691b9724af2",
@@ -75,12 +75,12 @@
               "subject_name": "Interfaces con el Usuario",
               "credits": 5,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "30f096dec1f3dc3a411fb9cd275c907f",
@@ -88,12 +88,12 @@
               "subject_name": "Ingeniería de Software II",
               "credits": 4,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "e92523ad096d93a2e908cb17ff81dfd9",
@@ -101,12 +101,12 @@
               "subject_name": "Arte y Cultura Contemporánea",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 5
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "f62bc5a8fb80508bd3e1319731993e8b",
@@ -114,12 +114,12 @@
               "subject_name": "Minería de Datos",
               "credits": 4,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 2
               },
-              "official_outcome": "failed",
-              "official_badge": "none"
+              "academic_outcome": "failed",
+              "academic_badge": "none"
             }
           ],
           "period_year": 2026,
@@ -130,7 +130,7 @@
         },
         {
           "id": "47f5aaff77822ce6f0fd6615b208eab9",
-          "term_kind": "official_historical",
+          "term_kind": "historical",
           "attempts": [
             {
               "id": "a58cbb2abf51baa65d16c82e0d302cdc",
@@ -138,12 +138,12 @@
               "subject_name": "Modelos Lineales I",
               "credits": 4,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 5
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "59980058ca8250320d5b2ffe553af59d",
@@ -151,12 +151,12 @@
               "subject_name": "Redes de Computadoras",
               "credits": 5,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "160969422698d2bb19df6d3e828aa13d",
@@ -164,12 +164,12 @@
               "subject_name": "Lenguajes de Programación",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 3
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "cfcf9b9b33838e84f12c12da546b2915",
@@ -177,12 +177,12 @@
               "subject_name": "Laboratorio de Lenguajes de Programación",
               "credits": 2,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             }
           ],
           "period_year": 2024,
@@ -193,7 +193,7 @@
         },
         {
           "id": "387af2b5460eb43705ecc69c42dd1b4b",
-          "term_kind": "official_historical",
+          "term_kind": "historical",
           "attempts": [
             {
               "id": "cb4993d6fcfbdadd89f083e7e03ed528",
@@ -201,12 +201,12 @@
               "subject_name": "Sistemas de Información I",
               "credits": 4,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "8897501b9d971a16175374f1c6d5797e",
@@ -214,12 +214,12 @@
               "subject_name": "Ingeniería de Software I",
               "credits": 5,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 5
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "8997e5a28eb44184499a086688344e1a",
@@ -227,12 +227,12 @@
               "subject_name": "Traductores e Interpretadores",
               "credits": 5,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 3
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             }
           ],
           "period_year": 2024,
@@ -243,7 +243,7 @@
         },
         {
           "id": "0502b034a34bbb4cb22f04ec0cbe4239",
-          "term_kind": "official_historical",
+          "term_kind": "historical",
           "attempts": [
             {
               "id": "8e74fe9cf229c7c0ac0af1ef0d955e43",
@@ -251,12 +251,12 @@
               "subject_name": "Estadística",
               "credits": 4,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "e4df6797cac68e8b2425acb76e9435e4",
@@ -264,12 +264,12 @@
               "subject_name": "Sistemas de Operación I",
               "credits": 5,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 5
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "62a5a5c3de6a5aa07bf80b8ba0afe3dc",
@@ -277,12 +277,12 @@
               "subject_name": "Sistemas de Base de Datos I",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 5
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "8cfd65777a682c1c69e1012ecb2ed694",
@@ -290,12 +290,12 @@
               "subject_name": "Laboratorio de Sistemas de Base de Datos I",
               "credits": 2,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             }
           ],
           "period_year": 2024,
@@ -306,7 +306,7 @@
         },
         {
           "id": "8956d1e5b10dfeab8f07cb076332237e",
-          "term_kind": "official_historical",
+          "term_kind": "historical",
           "attempts": [
             {
               "id": "ef6ace7a6bb389d2d21e24517e142390",
@@ -314,12 +314,12 @@
               "subject_name": "Fundamentos de Probabilidades para Ingenieros",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "c68114cc302075d3aa98a4f351eecac0",
@@ -327,12 +327,12 @@
               "subject_name": "Organización del Computador",
               "credits": 5,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 5
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "44fe8c3f68090e1745c416ac4f399d32",
@@ -340,12 +340,12 @@
               "subject_name": "Algoritmos y Estructuras III",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "227b9ab25c976b4968e7cb5a306a13ad",
@@ -353,12 +353,12 @@
               "subject_name": "Laboratorio de Algoritmos y Estructuras III",
               "credits": 2,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 3
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "94524fe65e9b3a60f889da48bce51776",
@@ -366,12 +366,12 @@
               "subject_name": "Ética y Sociedad",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             }
           ],
           "period_year": 2023,
@@ -382,7 +382,7 @@
         },
         {
           "id": "1df5fcc6bb38d2259624eddaa8071eb5",
-          "term_kind": "official_historical",
+          "term_kind": "historical",
           "attempts": [
             {
               "id": "6b3680997ab84c5cd5d045524f859122",
@@ -390,12 +390,12 @@
               "subject_name": "Cálculo Numérico",
               "credits": 4,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "ba21adf7e8b4590a0dc2d31b6e9db371",
@@ -403,12 +403,12 @@
               "subject_name": "Algoritmos y Estructuras II",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "5331f1a15b968086757c352c283d2c58",
@@ -416,12 +416,12 @@
               "subject_name": "Laboratorio de Algoritmos y Estructuras II",
               "credits": 2,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 5
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "d02dd95251432f492c08a6808ba23ab2",
@@ -429,12 +429,12 @@
               "subject_name": "Estructuras Discretas III",
               "credits": 4,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 5
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             }
           ],
           "period_year": 2023,
@@ -445,7 +445,7 @@
         },
         {
           "id": "0b36879f48a1a6b60b017a49b48fc939",
-          "term_kind": "official_historical",
+          "term_kind": "historical",
           "attempts": [
             {
               "id": "b013a46288420c2424ddeca625ca0006",
@@ -453,12 +453,12 @@
               "subject_name": "Matemáticas V",
               "credits": 4,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "316944f19031f592ac0abdb8bb82a81e",
@@ -466,12 +466,12 @@
               "subject_name": "Algoritmos y Estructuras I",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 3
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "ed19673b3f77942522db09f55ceeb824",
@@ -479,12 +479,12 @@
               "subject_name": "Laboratorio de Algoritmos y Estructuras I",
               "credits": 2,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "2eb8af079514141fa56b45307fca979c",
@@ -492,12 +492,12 @@
               "subject_name": "Estructuras Discretas II",
               "credits": 4,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 5
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             }
           ],
           "period_year": 2023,
@@ -508,7 +508,7 @@
         },
         {
           "id": "34eafe92bae79ca0db9f1d4a4585d8a0",
-          "term_kind": "official_historical",
+          "term_kind": "historical",
           "attempts": [
             {
               "id": "57227aa89938829ce1719272898c9eaf",
@@ -516,12 +516,12 @@
               "subject_name": "Matemáticas IV",
               "credits": 4,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 5
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "b0dc254a2293b8aa4bb4a0a71c19a29a",
@@ -529,12 +529,12 @@
               "subject_name": "Lógica Simbólica",
               "credits": 4,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 3
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "cda990080d1da0bd55c0bad9f54ff417",
@@ -542,12 +542,12 @@
               "subject_name": "Estructuras Discretas I",
               "credits": 4,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "4d7230947aa5f4dac300eead475c0a17",
@@ -555,12 +555,12 @@
               "subject_name": "Historia de la Ciencia",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 5
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             }
           ],
           "period_year": 2022,
@@ -571,7 +571,7 @@
         },
         {
           "id": "bd6da09d8453fbca2c12fa40d225d81d",
-          "term_kind": "official_historical",
+          "term_kind": "historical",
           "attempts": [
             {
               "id": "635bdf3bcb7a5ca56b9412979c85d363",
@@ -579,12 +579,12 @@
               "subject_name": "Matemáticas III",
               "credits": 4,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 5
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "0cdd95630a75e2c1da2d5fde024f2533",
@@ -592,12 +592,12 @@
               "subject_name": "Física II",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 3
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "8d9c3fecb21cc9e36f71b99c23a580d4",
@@ -605,12 +605,12 @@
               "subject_name": "Inglés III",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "95b38e1a7884422da7ab0eae97fdc101",
@@ -618,12 +618,12 @@
               "subject_name": "Lenguaje III",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 5
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "6a1fd04e9ede83a0be8ae3e27f196842",
@@ -631,12 +631,12 @@
               "subject_name": "Venezuela ante el Siglo XXI III",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             }
           ],
           "period_year": 2022,
@@ -647,7 +647,7 @@
         },
         {
           "id": "5c4c7f7f46fbddc68151ed4c96279780",
-          "term_kind": "official_historical",
+          "term_kind": "historical",
           "attempts": [
             {
               "id": "c22ebec9c645c7b7d321df06b03e472f",
@@ -655,12 +655,12 @@
               "subject_name": "Matemáticas II",
               "credits": 4,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "2c9cdf19fa779ab87b498fb202a64448",
@@ -668,12 +668,12 @@
               "subject_name": "Física I",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "803ef2ba2c7d1d88e6291a6ee4265079",
@@ -681,12 +681,12 @@
               "subject_name": "Inglés II",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 3
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "c403078085b27635d8339ba181f53507",
@@ -694,12 +694,12 @@
               "subject_name": "Lenguaje II",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 5
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "aa2adf23daacae4c285217b9552e2622",
@@ -707,12 +707,12 @@
               "subject_name": "Venezuela ante el Siglo XXI II",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             }
           ],
           "period_year": 2022,
@@ -723,7 +723,7 @@
         },
         {
           "id": "cbcb1fb7bf5dbe9f5dce767ee14ebc4c",
-          "term_kind": "official_historical",
+          "term_kind": "historical",
           "attempts": [
             {
               "id": "bb0e01db5441efc66a27f1bb839043e3",
@@ -731,12 +731,12 @@
               "subject_name": "Matemáticas I",
               "credits": 4,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 5
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "5ece780aaad5f91df610cd9ecd29004a",
@@ -744,12 +744,12 @@
               "subject_name": "Inglés I",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 5
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "3d7a027ca193168fd7e49a267b2b0cd0",
@@ -757,12 +757,12 @@
               "subject_name": "Lenguaje I",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             },
             {
               "id": "f0e4468a50e10b3bec536feb54c96506",
@@ -770,12 +770,12 @@
               "subject_name": "Venezuela ante el Siglo XXI I",
               "credits": 3,
               "grading_mode": "numeric",
-              "official_score": {
+              "academic_score": {
                 "type": "numeric",
                 "value": 4
               },
-              "official_outcome": "approved",
-              "official_badge": "none"
+              "academic_outcome": "approved",
+              "academic_badge": "none"
             }
           ],
           "period_year": 2021,

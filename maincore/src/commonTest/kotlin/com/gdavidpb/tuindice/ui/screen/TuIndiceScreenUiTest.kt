@@ -177,7 +177,7 @@ class TuIndiceScreenUiTest {
 					topBarTitle = "Record",
 					isTopBarVisible = true,
 					recordTopBarViewModeState = RecordTopBarViewModeState(
-						selectedMode = RecordViewMode.Working
+						selectedMode = RecordViewMode.Projection
 					)
 				),
 				onRetryStartUp = {},
@@ -344,7 +344,7 @@ class TuIndiceScreenUiTest {
 						isTopBarVisible = true,
 						topBarConfig = TopBarConfig.Record,
 						recordTopBarViewModeState = RecordTopBarViewModeState(
-							selectedMode = RecordViewMode.Working
+							selectedMode = RecordViewMode.Projection
 						)
 					),
 					onRetryStartUp = {},
@@ -370,7 +370,7 @@ class TuIndiceScreenUiTest {
 			onNodeWithTag(RecordUiTags.TopBarViewModeButton).performClick()
 
 			assertContentEquals(
-				expected = listOf(RecordViewMode.Official),
+				expected = listOf(RecordViewMode.Historical),
 				actual = selectedModes
 			)
 			assertContentEquals(emptyList(), actions)

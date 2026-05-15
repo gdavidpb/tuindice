@@ -102,7 +102,7 @@ fun RecordScreen(
 				.align(Alignment.BottomEnd)
 				.padding(24.dp),
 			visible = state is Record.State.Content &&
-				state.viewMode == RecordViewMode.Working &&
+				state.viewMode == RecordViewMode.Projection &&
 				!contentScrollInProgress.value,
 			enter = fadeIn(),
 			exit = fadeOut()

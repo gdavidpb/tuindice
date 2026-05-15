@@ -24,10 +24,10 @@ import kotlin.test.assertEquals
 
 class UpsertAttemptSelectionUseCaseTest {
 	@Test
-	fun when_previewReturnsToOfficialValue_then_itKeepsUsingPreviewUpsertInsteadOfDeletingOverride() = runTest {
+	fun when_previewReturnsToAcademicValue_then_itKeepsUsingPreviewUpsertInsteadOfDeletingOverride() = runTest {
 		val repository = FakeAcademicRecordRepository(
 			record = academicRecordWithExistingOverride(
-				officialScore = 4,
+				academicScore = 4,
 				overrideScore = 5
 			)
 		)
@@ -57,10 +57,10 @@ class UpsertAttemptSelectionUseCaseTest {
 	}
 
 	@Test
-	fun when_commitReturnsToOfficialValue_then_itDeletesOverride() = runTest {
+	fun when_commitReturnsToAcademicValue_then_itDeletesOverride() = runTest {
 		val repository = FakeAcademicRecordRepository(
 			record = academicRecordWithExistingOverride(
-				officialScore = 4,
+				academicScore = 4,
 				overrideScore = 5
 			)
 		)
@@ -91,7 +91,7 @@ class UpsertAttemptSelectionUseCaseTest {
 	}
 
 	private fun academicRecordWithExistingOverride(
-		officialScore: Int,
+		academicScore: Int,
 		overrideScore: Int
 	): AcademicRecord {
 		return AcademicRecord(
@@ -101,15 +101,15 @@ class UpsertAttemptSelectionUseCaseTest {
 					id = "term-1",
 					periodYear = 2026,
 					periodCode = AcademicTermPeriod.JAN_MAR,
-					kind = TermKind.OFFICIAL_CURRENT,
+					kind = TermKind.CURRENT,
 					attempts = listOf(
 						AcademicAttempt(
 							id = "attempt-1",
 							subjectCode = "PB5611",
 							subjectName = "Probabilidad",
 							credits = 10,
-							officialScore = AttemptScore.numeric(officialScore),
-							officialOutcome = AttemptOutcome.APPROVED
+							academicScore = AttemptScore.numeric(academicScore),
+							academicOutcome = AttemptOutcome.APPROVED
 						)
 					)
 				)

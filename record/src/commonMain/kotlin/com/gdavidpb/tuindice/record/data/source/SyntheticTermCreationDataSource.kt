@@ -9,8 +9,8 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
-import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialCurrent
-import com.gdavidpb.tuindice.academiccore.domain.model.isOfficialHistorical
+import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
+import com.gdavidpb.tuindice.academiccore.domain.model.isHistorical
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
 import com.gdavidpb.tuindice.base.domain.model.GradingMode
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
@@ -228,11 +228,11 @@ class SyntheticTermCreationDataSource(
 			terms.forEach { term ->
 				term.attempts.forEach { attempt ->
 					val availability = when {
-						term.kind.isOfficialHistorical ->
+						term.kind.isHistorical ->
 							SyntheticTermSubjectAvailability.ALREADY_TAKEN
 						term.kind.isSynthetic ->
 							SyntheticTermSubjectAvailability.ALREADY_PLANNED
-						term.kind.isOfficialCurrent && attempt.officialOutcome == AttemptOutcome.APPROVED ->
+						term.kind.isCurrent && attempt.academicOutcome == AttemptOutcome.APPROVED ->
 							SyntheticTermSubjectAvailability.ALREADY_TAKEN
 						else ->
 							null
@@ -268,11 +268,11 @@ class SyntheticTermCreationDataSource(
 		val courseNodes = nodes.filter { node -> node.nodeType == NodeTypeCourse }
 		val approvedSubjects = terms
 			.flatMap(AcademicTerm::attempts)
-			.filter { attempt -> attempt.officialOutcome == AttemptOutcome.APPROVED }
+			.filter { attempt -> attempt.academicOutcome == AttemptOutcome.APPROVED }
 			.map { attempt -> attempt.subjectCode.uppercase() }
 			.toSet()
 		val currentSubjects = terms
-			.filter { term -> term.kind.isOfficialCurrent }
+			.filter { term -> term.kind.isCurrent }
 			.flatMap(AcademicTerm::attempts)
 			.map { attempt -> attempt.subjectCode.uppercase() }
 			.toSet()

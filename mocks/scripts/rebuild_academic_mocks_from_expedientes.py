@@ -63,7 +63,7 @@ PROJECTED_TERM_SCHEDULE = (
 		"name": "Enero - Marzo 2026",
 		"start_date": 1767236400000,
 		"end_date": 1774926000000,
-		"kind": "official_historical",
+		"kind": "historical",
 		"revision": 9,
 		"presence_scenario": None,
 	},
@@ -72,7 +72,7 @@ PROJECTED_TERM_SCHEDULE = (
 		"name": "Abril - Julio 2026",
 		"start_date": 1775012400000,
 		"end_date": 1785470400000,
-		"kind": "official_current",
+		"kind": "current",
 		"revision": 10,
 		"presence_scenario": f"record-term-{mock_hex_id('projected_term', '2026B')}",
 	},
@@ -287,7 +287,7 @@ def build_record_state(primary_terms: list[ParsedTerm], projected_terms: list[Pa
 				"name": titleize_term_label(term.label),
 				"start_date": start_date,
 				"end_date": end_date,
-				"kind": "official_historical",
+				"kind": "historical",
 				"revision": 1,
 				"presence_scenario": None,
 				"attempts": [build_attempt(course, term_id, mutable=False) for course in term.courses],
@@ -351,7 +351,7 @@ def select_current_evaluations_term(record_state: dict[str, object]) -> dict[str
 	candidate_terms = [
 		term
 		for term in record_state["terms"]  # type: ignore[index]
-		if term["kind"] != "official_historical"
+		if term["kind"] != "historical"
 		and any(
 			attempt.get("grading_mode", "numeric") == "numeric"
 			for attempt in term["attempts"]

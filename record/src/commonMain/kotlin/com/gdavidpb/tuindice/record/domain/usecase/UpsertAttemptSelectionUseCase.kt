@@ -47,13 +47,13 @@ class UpsertAttemptSelectionUseCase(
 		score: AttemptScore?,
 		outcome: AttemptOutcome?
 	): Boolean {
-		val officialAttempt = academicRecordRepository.getAcademicRecord()
+		val academicAttempt = academicRecordRepository.getAcademicRecord()
 			?.terms
 			?.flatMap { term -> term.attempts }
 			?.firstOrNull { attempt -> attempt.id == attemptId }
 			?: return false
 
-		return officialAttempt.officialScore == score &&
-			officialAttempt.officialOutcome == (outcome ?: officialAttempt.officialOutcome)
+		return academicAttempt.academicScore == score &&
+			academicAttempt.academicOutcome == (outcome ?: academicAttempt.academicOutcome)
 	}
 }
