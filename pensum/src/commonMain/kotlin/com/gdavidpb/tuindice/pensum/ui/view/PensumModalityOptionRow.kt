@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -52,13 +53,14 @@ fun PensumModalityOptionRow(
 			Text(
 				modifier = Modifier.weight(1f),
 				text = modality.name,
-				style = MaterialTheme.typography.bodyLarge,
-				fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Medium,
+				style = MaterialTheme.typography.bodyMedium,
+				fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
 				maxLines = 1,
 				overflow = TextOverflow.Ellipsis
 			)
 			if (isSelected) {
 				Icon(
+					modifier = Modifier.size(20.dp),
 					imageVector = Icons.Filled.Check,
 					contentDescription = null,
 					tint = MaterialTheme.colorScheme.primary
