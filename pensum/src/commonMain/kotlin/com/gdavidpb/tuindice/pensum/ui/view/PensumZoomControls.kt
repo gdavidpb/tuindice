@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.pensum.ui.screen
+package com.gdavidpb.tuindice.pensum.ui.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,7 +25,7 @@ import tuindice.pensum.generated.resources.pensum_zoom_in
 import tuindice.pensum.generated.resources.pensum_zoom_out
 
 @Composable
-internal fun ZoomControls(
+fun PensumZoomControls(
 	onZoomIn: () -> Unit,
 	onZoomOut: () -> Unit,
 	modifier: Modifier = Modifier

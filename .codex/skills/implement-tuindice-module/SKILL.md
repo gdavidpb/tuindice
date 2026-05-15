@@ -98,7 +98,10 @@ Implement module work by copying the nearest existing module pattern instead of 
   - `Screen` stays stateless with respect to DI
 - Keep `Screen` files focused on orchestration, not component catalogs:
   - `Screen` may own screen-local state, derived filtering, list assembly, and callback wiring
-  - Move visual leaf components and repeated screen sections into `ui/view`, usually one top-level `internal` composable per file named after the component
+  - Place each graphical Compose component in exactly one file named after its top-level composable
+  - Keep destination screens in `ui/screen`, reusable or screen-owned views in `ui/view`, and dialog or bottom-sheet components in `ui/dialog`
+  - Expose `Screen`, `View`, and `Dialog` composables as public top-level declarations; do not use `internal` or `private` for those component entry points
+  - Do not group multiple Compose components in one file. If a component needs another visual child component, extract that child into its own file in the matching UI package
   - Move UI-only enums or small display helper types shared by multiple view files into `ui/model`; keep helper types private in the view file when only one component uses them
   - Do not leave large groups of private composables inside a `Screen` file once they represent independent UI components
 - Every non-dialog destination `Screen` must paint an opaque full-screen root background, usually `Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)` or a feature-specific color such as Pensum's `ScreenBackground`. Cover all `Idle`, `Loading`, `Empty`, `Failed`, and `Content` branches, including `SealedCrossfade` wrappers; do not rely on parent `Scaffold`, `NavHost`, or child state views to hide the previous destination during edge-swipe back navigation.

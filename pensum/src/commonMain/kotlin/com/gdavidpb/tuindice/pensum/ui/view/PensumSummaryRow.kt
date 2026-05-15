@@ -1,8 +1,7 @@
-package com.gdavidpb.tuindice.pensum.ui.screen
+package com.gdavidpb.tuindice.pensum.ui.view
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -10,7 +9,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -19,8 +17,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -33,7 +29,7 @@ import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_progress_label
 
 @Composable
-internal fun PensumSummaryRow(model: PensumScreenModel) {
+fun PensumSummaryRow(model: PensumScreenModel) {
 	val selectedPensum = model.pensumOptions.firstOrNull { item ->
 		item.careerCode == model.selection.careerCode && item.year == model.selection.year
 	}
@@ -84,7 +80,7 @@ internal fun PensumSummaryRow(model: PensumScreenModel) {
 		verticalAlignment = Alignment.CenterVertically,
 		horizontalArrangement = Arrangement.spacedBy(10.dp)
 	) {
-		ProgressRing(progress = progress.value)
+		PensumProgressRing(progress = progress.value)
 		Column(
 			modifier = Modifier.weight(1f),
 			verticalArrangement = Arrangement.spacedBy(2.dp)
@@ -121,20 +117,6 @@ internal fun PensumSummaryRow(model: PensumScreenModel) {
 			color = TextSecondary,
 			maxLines = 1,
 			overflow = TextOverflow.Ellipsis
-		)
-	}
-}
-
-@Composable
-private fun ProgressRing(progress: Float) {
-	Canvas(modifier = Modifier.size(24.dp)) {
-		drawCircle(color = PanelBorder, style = Stroke(width = 4.dp.toPx()))
-		drawArc(
-			color = Approved,
-			startAngle = -90f,
-			sweepAngle = 360f * progress.coerceIn(0f, 1f),
-			useCenter = false,
-			style = Stroke(width = 4.dp.toPx(), cap = StrokeCap.Round)
 		)
 	}
 }
