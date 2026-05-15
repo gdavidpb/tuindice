@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.subjects.data.source
 
 import com.gdavidpb.tuindice.base.domain.model.GradingMode
-import com.gdavidpb.tuindice.persistence.data.room.mapper.SubjectCatalogSearchNormalizer
+import com.gdavidpb.tuindice.base.domain.utils.SubjectCatalogSearchNormalizer
 
 internal object DebugSubjectScenarioResolver {
 	data class Resolution(

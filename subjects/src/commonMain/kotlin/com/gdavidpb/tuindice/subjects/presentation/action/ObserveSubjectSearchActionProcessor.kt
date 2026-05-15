@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.subjects.presentation.action
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
-import com.gdavidpb.tuindice.persistence.data.room.mapper.SubjectCatalogSearchNormalizer
+import com.gdavidpb.tuindice.base.domain.utils.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.subjects.domain.usecase.ObserveSubjectSearchUseCase
 import com.gdavidpb.tuindice.subjects.domain.usecase.RefreshSubjectSearchUseCase
 import com.gdavidpb.tuindice.subjects.domain.usecase.param.SubjectSearchParams

@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.about.di
 
-import com.gdavidpb.tuindice.about.data.repository.StoreUrlDataRepository
 import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
+import com.gdavidpb.tuindice.about.domain.repository.StoreUrlRepository
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
@@ -27,7 +27,7 @@ class AboutModuleKoinSmokeTest {
 			single<AppEnvironmentRepository> { FakeAppEnvironmentRepository() }
 			single<BrowserRepository> { RecordingBrowserRepository() }
 			single<ConfigRepository> { FakeConfigRepository() }
-			single<StoreUrlDataRepository> { FakeStoreUrlDataSource() }
+			single<StoreUrlRepository> { FakeStoreUrlDataSource() }
 			single<ReportingRepository> { RecordingReportingRepository() }
 		}
 	) {

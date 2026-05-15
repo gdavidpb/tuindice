@@ -36,6 +36,8 @@ tasks.register("verifySharedCompilation") {
 	dependsOn(
 		":about:compileAndroidMain",
 		":about:compileKotlinIosSimulatorArm64",
+		":academiccore:compileAndroidMain",
+		":academiccore:compileKotlinIosSimulatorArm64",
 		":base:compileAndroidMain",
 		":base:compileKotlinIosSimulatorArm64",
 		":testkit:compileAndroidMain",
@@ -69,6 +71,7 @@ tasks.register("verifySharedTests") {
 
 	dependsOn(
 		":about:iosSimulatorArm64Test",
+		":academiccore:iosSimulatorArm64Test",
 		":base:iosSimulatorArm64Test",
 		":testkit:iosSimulatorArm64Test",
 		":enrollmentproof:iosSimulatorArm64Test",

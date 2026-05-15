@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.persistence.data.room.mapper
+package com.gdavidpb.tuindice.base.domain.utils
 
 object SubjectCatalogSearchNormalizer {
 	private val whitespaceRegex = Regex("\\s+")

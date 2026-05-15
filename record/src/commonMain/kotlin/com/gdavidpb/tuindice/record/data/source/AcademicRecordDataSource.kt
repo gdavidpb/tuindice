@@ -19,6 +19,7 @@ import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_SCOPE
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
 import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
@@ -129,14 +130,15 @@ class AcademicRecordDataSource(
 		submitTrackedMutation(mutation = mutation)
 	}
 
-	override suspend fun addSyntheticTerm(command: AcademicRecordMutation.AddSyntheticTerm) {
+	override suspend fun addSyntheticTerm(command: SyntheticTermCreationCommand) {
 		localDataSource.getAcademicRecord() ?: return
 		val currentRevision = localDataSource.getRecordRevision() ?: return
-		localDataSource.addSyntheticTerm(command)
+		val mutationCommand = command.toMutation()
+		localDataSource.addSyntheticTerm(mutationCommand)
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
 			mutationId = identifierRepository.generateRandomIdentifier(),
 			scopeKey = RECORD_MUTATION_SCOPE,
-			command = command,
+			command = mutationCommand,
 			precondition = MutationPrecondition.Revision(currentRevision),
 			status = PendingMutationStatus.Pending,
 			createdAt = currentTimeMillis(),
@@ -257,6 +259,25 @@ class AcademicRecordDataSource(
 	private fun normalizeTerms(terms: List<AcademicTerm>): List<AcademicTerm> {
 		return terms.sortedWith(
 			compareBy(AcademicTerm::termOrder, AcademicTerm::id)
+		)
+	}
+
+	private fun SyntheticTermCreationCommand.toMutation(): AcademicRecordMutation.AddSyntheticTerm {
+		return AcademicRecordMutation.AddSyntheticTerm(
+			termId = termId,
+			periodYear = periodYear,
+			periodCode = periodCode,
+			attempts = attempts.map { attempt ->
+				AcademicRecordMutation.AddSyntheticTerm.SyntheticAttemptSeed(
+					attemptId = attempt.attemptId,
+					subjectCode = attempt.subjectCode,
+					subjectName = attempt.subjectName,
+					credits = attempt.credits,
+					gradingMode = attempt.gradingMode,
+					score = attempt.score,
+					outcome = attempt.outcome
+				)
+			}
 		)
 	}
 }

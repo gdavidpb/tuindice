@@ -5,7 +5,7 @@ import androidx.core.content.getSystemService
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.about.data.repository.AppInfoDataRepository
 import com.gdavidpb.tuindice.about.data.repository.EnvironmentDataRepository
-import com.gdavidpb.tuindice.about.data.repository.StoreUrlDataRepository
+import com.gdavidpb.tuindice.about.domain.repository.StoreUrlRepository
 import com.gdavidpb.tuindice.about.data.source.AndroidAppInfoDataSource
 import com.gdavidpb.tuindice.about.data.source.AndroidEnvironmentDataSource
 import com.gdavidpb.tuindice.about.data.source.AndroidShareTextHandler
@@ -172,7 +172,7 @@ private fun Module.registerAndroidPlatformServices() {
 private fun Module.registerAndroidFeaturePlatformBindings() {
 	factoryOf(::AndroidEnvironmentDataSource) { bind<EnvironmentDataRepository>() }
 	factoryOf(::AndroidAppInfoDataSource) { bind<AppInfoDataRepository>() }
-	factoryOf(::AndroidStoreUrlDataSource) { bind<StoreUrlDataRepository>() }
+	factoryOf(::AndroidStoreUrlDataSource) { bind<StoreUrlRepository>() }
 	factoryOf(::AndroidShareTextHandler) { bind<ShareTextHandler>() }
 	singleOf(::AndroidProfilePictureInputDataSource) { bind<ProfilePictureInputDataRepository>() }
 }

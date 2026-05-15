@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.about.testing
 
 import com.gdavidpb.tuindice.about.data.repository.AppInfoDataRepository
 import com.gdavidpb.tuindice.about.data.repository.EnvironmentDataRepository
-import com.gdavidpb.tuindice.about.data.repository.StoreUrlDataRepository
+import com.gdavidpb.tuindice.about.domain.repository.StoreUrlRepository
 import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
 
 const val CURRENT_APP_VERSION_NAME = "5.8"
@@ -32,6 +32,6 @@ class FakeAppInfoDataSource(
 
 class FakeStoreUrlDataSource(
 	private val storeUrl: String = "market://details?id=com.gdavidpb.tuindice"
-) : StoreUrlDataRepository {
+) : StoreUrlRepository {
 	override fun getStoreUrl(): String = storeUrl
 }

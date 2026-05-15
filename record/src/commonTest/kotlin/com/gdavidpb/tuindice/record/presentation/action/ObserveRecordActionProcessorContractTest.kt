@@ -8,8 +8,8 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
-import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
@@ -186,7 +186,7 @@ private class StubAcademicRecordRepository(
 
 	override suspend fun deleteAttemptOverride(attemptId: String) = Unit
 
-	override suspend fun addSyntheticTerm(command: AcademicRecordMutation.AddSyntheticTerm) = Unit
+	override suspend fun addSyntheticTerm(command: SyntheticTermCreationCommand) = Unit
 
 	override suspend fun deleteSyntheticTerm(termId: String) = Unit
 }

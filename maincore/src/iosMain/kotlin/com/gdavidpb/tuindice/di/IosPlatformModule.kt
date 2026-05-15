@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.about.data.repository.AppInfoDataRepository
 import com.gdavidpb.tuindice.about.data.repository.EnvironmentDataRepository
-import com.gdavidpb.tuindice.about.data.repository.StoreUrlDataRepository
+import com.gdavidpb.tuindice.about.domain.repository.StoreUrlRepository
 import com.gdavidpb.tuindice.about.data.source.IosAppInfoDataSource
 import com.gdavidpb.tuindice.about.data.source.IosEnvironmentDataSource
 import com.gdavidpb.tuindice.about.data.source.IosShareTextHandler
@@ -124,7 +124,7 @@ private fun Module.registerIosPlatformServices() {
 private fun Module.registerIosFeaturePlatformBindings() {
 	factoryOf(::IosEnvironmentDataSource) { bind<EnvironmentDataRepository>() }
 	factoryOf(::IosAppInfoDataSource) { bind<AppInfoDataRepository>() }
-	factoryOf(::IosStoreUrlDataSource) { bind<StoreUrlDataRepository>() }
+	factoryOf(::IosStoreUrlDataSource) { bind<StoreUrlRepository>() }
 	factoryOf(::IosShareTextHandler) { bind<ShareTextHandler>() }
 	singleOf(::IosProfilePictureInputDataSource) { bind<ProfilePictureInputDataRepository>() }
 }

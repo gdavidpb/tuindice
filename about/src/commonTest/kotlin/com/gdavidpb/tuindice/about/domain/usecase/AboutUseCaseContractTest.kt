@@ -53,7 +53,7 @@ class AboutUseCaseContractTest {
 	@Test
 	fun openStoreUseCase_emitsResolvedStoreUrl() = runTest {
 		val useCase = OpenStoreUseCase(
-			storeUrlDataSource = FakeStoreUrlDataSource(
+			storeUrlRepository = FakeStoreUrlDataSource(
 				storeUrl = "itms-apps://apps.apple.com/app/id123"
 			),
 			reportingRepository = RecordingReportingRepository()

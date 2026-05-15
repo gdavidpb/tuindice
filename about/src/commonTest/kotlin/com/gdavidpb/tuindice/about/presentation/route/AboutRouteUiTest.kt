@@ -10,7 +10,7 @@ import androidx.compose.ui.platform.LocalUriHandler
 import androidx.compose.ui.platform.UriHandler
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollToNode
-import com.gdavidpb.tuindice.about.data.repository.StoreUrlDataRepository
+import com.gdavidpb.tuindice.about.domain.repository.StoreUrlRepository
 import com.gdavidpb.tuindice.about.domain.model.AboutLinks
 import com.gdavidpb.tuindice.about.domain.repository.AboutRepository
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
@@ -585,7 +585,7 @@ class AboutRouteUiTest {
 		val aboutRepository = object : AboutRepository {
 			override suspend fun getVersionDescription(): String = "1.2.3"
 		}
-		val storeUrlDataSource = object : StoreUrlDataRepository {
+		val storeUrlRepository = object : StoreUrlRepository {
 			override fun getStoreUrl(): String = "https://store.tuindice.test"
 		}
 
@@ -598,7 +598,7 @@ class AboutRouteUiTest {
 			reportingRepository = RecordingReportingRepository()
 		)
 		val openStoreUseCase = OpenStoreUseCase(
-			storeUrlDataSource = storeUrlDataSource,
+			storeUrlRepository = storeUrlRepository,
 			reportingRepository = RecordingReportingRepository()
 		)
 		val browserRepository = RecordingBrowserRepository()

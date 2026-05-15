@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
-import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.usecase.error.RecordUseCaseError
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExceptionHandler
@@ -21,12 +21,12 @@ class CreateSyntheticTermUseCase(
 ) {
 	override suspend fun executeOnBackground(params: CreateSyntheticTermParams): Flow<Unit> {
 		repository.addSyntheticTerm(
-			AcademicRecordMutation.AddSyntheticTerm(
+			SyntheticTermCreationCommand(
 				termId = params.period.termKey,
 				periodYear = params.period.periodYear,
 				periodCode = params.period.periodCode,
 				attempts = params.subjects.map { subject ->
-					AcademicRecordMutation.AddSyntheticTerm.SyntheticAttemptSeed(
+					SyntheticTermCreationCommand.SyntheticAttemptSeed(
 						attemptId = "${params.period.termKey}-${subject.subjectCode}",
 						subjectCode = subject.subjectCode,
 						subjectName = subject.name,

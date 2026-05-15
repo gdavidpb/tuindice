@@ -18,7 +18,7 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumSelectionDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectCatalogCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity
-import com.gdavidpb.tuindice.persistence.data.room.mapper.SubjectCatalogSearchNormalizer
+import com.gdavidpb.tuindice.base.domain.utils.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.record.data.model.CreateSyntheticTermPensumCacheResponse
 import com.gdavidpb.tuindice.record.data.model.CreateSyntheticTermSubjectSearchResponse
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationSnapshot

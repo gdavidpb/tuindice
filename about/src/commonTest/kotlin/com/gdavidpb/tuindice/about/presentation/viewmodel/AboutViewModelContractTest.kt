@@ -125,7 +125,7 @@ class AboutViewModelContractTest {
 			shareAppActionProcessor = ShareAppActionProcessor(),
 			rateOnStoreActionProcessor = RateOnStoreActionProcessor(
 				openStoreUseCase = OpenStoreUseCase(
-					storeUrlDataSource = FakeStoreUrlDataSource(),
+					storeUrlRepository = FakeStoreUrlDataSource(),
 					reportingRepository = RecordingReportingRepository()
 				)
 			),

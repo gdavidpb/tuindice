@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.record.domain.repository
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
-import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import kotlinx.coroutines.flow.Flow
 
 interface AcademicRecordRepository {
@@ -19,6 +19,6 @@ interface AcademicRecordRepository {
 		commit: Boolean
 	)
 	suspend fun deleteAttemptOverride(attemptId: String)
-	suspend fun addSyntheticTerm(command: AcademicRecordMutation.AddSyntheticTerm)
+	suspend fun addSyntheticTerm(command: SyntheticTermCreationCommand)
 	suspend fun deleteSyntheticTerm(termId: String)
 }

@@ -51,7 +51,7 @@ class AboutActionProcessorContractTest {
 	}
 
 	@Test
-		fun openTermsAndConditionsActionProcessor_emitsNavigateToBrowserEffect() = runTest {
+	fun openTermsAndConditionsActionProcessor_emitsNavigateToBrowserEffect() = runTest {
 		val processor = OpenTermsAndConditionsActionProcessor(
 			appEnvironmentRepository = FakeAppEnvironmentRepository()
 		)
@@ -66,12 +66,12 @@ class AboutActionProcessorContractTest {
 		assertEquals(initialState, finalState)
 
 		val effect = assertIs<About.Effect.NavigateToBrowser>(effects.single())
-		assertEquals("TuIndice - Términos y condiciones", effect.title)
+		assertEquals("Términos y condiciones", effect.title)
 		assertEquals("https://tuindice.app/terms", effect.url)
 	}
 
 	@Test
-		fun openPrivacyPolicyActionProcessor_emitsNavigateToBrowserEffect() = runTest {
+	fun openPrivacyPolicyActionProcessor_emitsNavigateToBrowserEffect() = runTest {
 		val processor = OpenPrivacyPolicyActionProcessor(
 			appEnvironmentRepository = FakeAppEnvironmentRepository()
 		)
@@ -86,7 +86,7 @@ class AboutActionProcessorContractTest {
 		assertEquals(initialState, finalState)
 
 		val effect = assertIs<About.Effect.NavigateToBrowser>(effects.single())
-		assertEquals("TuIndice - Política de privacidad", effect.title)
+		assertEquals("Política de privacidad", effect.title)
 		assertEquals("https://tuindice.app/privacy", effect.url)
 	}
 
@@ -119,7 +119,7 @@ class AboutActionProcessorContractTest {
 	fun rateOnStoreActionProcessor_emitsOpenUriEffect() = runTest {
 		val processor = RateOnStoreActionProcessor(
 			openStoreUseCase = OpenStoreUseCase(
-				storeUrlDataSource = FakeStoreUrlDataSource(
+				storeUrlRepository = FakeStoreUrlDataSource(
 					storeUrl = "market://details?id=com.gdavidpb.tuindice"
 				),
 				reportingRepository = RecordingReportingRepository()

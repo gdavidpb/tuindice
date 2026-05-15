@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.subjects.data.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.GradingMode
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity
-import com.gdavidpb.tuindice.persistence.data.room.mapper.SubjectCatalogSearchNormalizer
+import com.gdavidpb.tuindice.base.domain.utils.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.subjects.data.model.SearchSubjectsResponse
 import com.gdavidpb.tuindice.subjects.data.model.SubjectSearchResultResponse
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail
