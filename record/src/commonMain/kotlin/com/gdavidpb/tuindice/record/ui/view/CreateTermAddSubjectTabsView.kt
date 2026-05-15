@@ -14,7 +14,7 @@ import com.gdavidpb.tuindice.record.ui.model.CreateTermAddSubjectTab
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-internal fun CreateTermAddSubjectTabs(
+fun CreateTermAddSubjectTabs(
 	selectedTab: CreateTermAddSubjectTab,
 	onTabSelected: (CreateTermAddSubjectTab) -> Unit
 ) {

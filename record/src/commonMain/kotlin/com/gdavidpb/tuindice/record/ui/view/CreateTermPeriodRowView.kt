@@ -39,7 +39,7 @@ private val TermDropdownMaxHeight = 280.dp
 private val TermControlHeight = 48.dp
 
 @Composable
-internal fun CreateTermPeriodRow(
+fun CreateTermPeriodRow(
 	selectedPeriod: SyntheticTermPeriodOption,
 	periodOptions: List<SyntheticTermPeriodOption>,
 	loadPreview: SyntheticTermLoadPreview?,
@@ -120,15 +120,4 @@ internal fun CreateTermPeriodRow(
 			)
 		}
 	}
-}
-
-@Composable
-private fun CreateTermControlLabel(text: String) {
-	Text(
-		text = text,
-		style = MaterialTheme.typography.labelMedium,
-		color = MaterialTheme.colorScheme.onSurfaceVariant,
-		maxLines = 1,
-		overflow = TextOverflow.Ellipsis
-	)
 }

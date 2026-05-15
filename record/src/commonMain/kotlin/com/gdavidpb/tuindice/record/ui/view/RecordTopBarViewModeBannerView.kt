@@ -44,6 +44,14 @@ fun RecordTopBarViewModeBannerView(
 	modifier: Modifier = Modifier
 ) {
 	val colors = recordViewModeBannerColors(selectedMode)
+	val bannerText = when (selectedMode) {
+		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_banner_official)
+		RecordViewMode.Working -> stringResource(Res.string.record_view_mode_banner_projection)
+	}
+	val infoMessageText = when (selectedMode) {
+		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_info_message_official)
+		RecordViewMode.Working -> stringResource(Res.string.record_view_mode_info_message_projection)
+	}
 	val tooltipState = rememberTooltipState(isPersistent = true)
 	val tooltipScope = rememberCoroutineScope()
 
@@ -73,7 +81,7 @@ fun RecordTopBarViewModeBannerView(
 				tint = colors.contentColor
 			)
 			Text(
-				text = recordViewModeBannerText(selectedMode),
+				text = bannerText,
 				modifier = Modifier.padding(start = 8.dp),
 				color = colors.contentColor,
 				style = MaterialTheme.typography.labelLarge
@@ -93,7 +101,7 @@ fun RecordTopBarViewModeBannerView(
 					) {
 						Text(
 							modifier = Modifier.testTag(RecordUiTags.ViewModeInfoMessage),
-							text = recordViewModeInfoMessage(selectedMode)
+							text = infoMessageText
 						)
 					}
 				},
@@ -125,14 +133,6 @@ fun RecordTopBarViewModeBannerView(
 }
 
 @Composable
-private fun recordViewModeBannerText(mode: RecordViewMode): String {
-	return when (mode) {
-		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_banner_official)
-		RecordViewMode.Working -> stringResource(Res.string.record_view_mode_banner_projection)
-	}
-}
-
-@Composable
 fun recordViewModeBannerColors(mode: RecordViewMode): RecordViewModeBannerColors {
 	return when (mode) {
 		RecordViewMode.Official ->
@@ -153,11 +153,3 @@ data class RecordViewModeBannerColors(
 	val containerColor: Color,
 	val contentColor: Color
 )
-
-@Composable
-private fun recordViewModeInfoMessage(mode: RecordViewMode): String {
-	return when (mode) {
-		RecordViewMode.Official -> stringResource(Res.string.record_view_mode_info_message_official)
-		RecordViewMode.Working -> stringResource(Res.string.record_view_mode_info_message_projection)
-	}
-}

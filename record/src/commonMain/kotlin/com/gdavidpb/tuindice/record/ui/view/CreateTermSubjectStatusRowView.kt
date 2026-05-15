@@ -28,14 +28,20 @@ import tuindice.record.generated.resources.create_term_subject_requirement_pendi
 import tuindice.record.generated.resources.create_term_subject_selected
 
 @Composable
-internal fun CreateTermSubjectStatusRow(
+fun CreateTermSubjectStatusRow(
 	subject: SyntheticTermSubject,
 	availableText: String,
 	availableIcon: CreateTermSubjectStatusIcon
 ) {
+	val onSurfaceVariantColor = MaterialTheme.colorScheme.onSurfaceVariant
 	val status = subject.status(
 		availableText = availableText,
-		availableIcon = availableIcon
+		availableIcon = availableIcon,
+		selectedText = stringResource(Res.string.create_term_subject_selected),
+		alreadyTakenText = stringResource(Res.string.create_term_subject_already_taken),
+		alreadyPlannedText = stringResource(Res.string.create_term_subject_already_planned),
+		unavailableText = stringResource(Res.string.create_term_subject_requirement_pending),
+		onSurfaceVariantColor = onSurfaceVariantColor
 	)
 	Row(
 		horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -75,10 +81,14 @@ internal fun CreateTermSubjectStatusRow(
 	}
 }
 
-@Composable
 private fun SyntheticTermSubject.status(
 	availableText: String,
-	availableIcon: CreateTermSubjectStatusIcon
+	availableIcon: CreateTermSubjectStatusIcon,
+	selectedText: String,
+	alreadyTakenText: String,
+	alreadyPlannedText: String,
+	unavailableText: String,
+	onSurfaceVariantColor: Color
 ): SubjectStatus {
 	return when (availability) {
 		SyntheticTermSubjectAvailability.AVAILABLE ->
@@ -90,28 +100,28 @@ private fun SyntheticTermSubject.status(
 
 		SyntheticTermSubjectAvailability.SELECTED ->
 			SubjectStatus(
-				text = stringResource(Res.string.create_term_subject_selected),
-				color = MaterialTheme.colorScheme.onSurfaceVariant,
+				text = selectedText,
+				color = onSurfaceVariantColor,
 				icon = CreateTermSubjectStatusIcon.Dot
 			)
 
 		SyntheticTermSubjectAvailability.ALREADY_TAKEN ->
 			SubjectStatus(
-				text = stringResource(Res.string.create_term_subject_already_taken),
-				color = MaterialTheme.colorScheme.onSurfaceVariant,
+				text = alreadyTakenText,
+				color = onSurfaceVariantColor,
 				icon = CreateTermSubjectStatusIcon.Dot
 			)
 
 		SyntheticTermSubjectAvailability.ALREADY_PLANNED ->
 			SubjectStatus(
-				text = stringResource(Res.string.create_term_subject_already_planned),
-				color = MaterialTheme.colorScheme.onSurfaceVariant,
+				text = alreadyPlannedText,
+				color = onSurfaceVariantColor,
 				icon = CreateTermSubjectStatusIcon.Dot
 			)
 
 		SyntheticTermSubjectAvailability.UNAVAILABLE ->
 			SubjectStatus(
-				text = stringResource(Res.string.create_term_subject_requirement_pending),
+				text = unavailableText,
 				color = CreateTermWarningColor,
 				icon = CreateTermSubjectStatusIcon.Clock
 			)

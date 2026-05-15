@@ -40,7 +40,7 @@ import tuindice.wizard.generated.resources.wizard_welcome_summary
 import tuindice.wizard.generated.resources.wizard_welcome_title
 
 @Composable
-internal fun WizardWelcomeView(
+fun WizardWelcomeView(
 	onStart: () -> Unit,
 	onSkip: () -> Unit,
 	modifier: Modifier = Modifier

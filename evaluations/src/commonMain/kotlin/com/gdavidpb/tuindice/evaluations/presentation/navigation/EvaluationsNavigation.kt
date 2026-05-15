@@ -17,9 +17,9 @@ import com.gdavidpb.tuindice.evaluations.presentation.route.EvaluationRoute
 import com.gdavidpb.tuindice.evaluations.presentation.route.EvaluationsRoute
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
-import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationGradePickerContentDialog
-import com.gdavidpb.tuindice.evaluations.ui.screen.GradePickerContentDialog
-import com.gdavidpb.tuindice.evaluations.ui.screen.MaxGradePickerContentDialog
+import com.gdavidpb.tuindice.evaluations.ui.dialog.EvaluationGradePickerContentDialog
+import com.gdavidpb.tuindice.evaluations.ui.dialog.GradePickerContentDialog
+import com.gdavidpb.tuindice.evaluations.ui.dialog.MaxGradePickerContentDialog
 import org.koin.compose.viewmodel.koinViewModel
 
 fun NavGraphBuilder.evaluationsNavigation(

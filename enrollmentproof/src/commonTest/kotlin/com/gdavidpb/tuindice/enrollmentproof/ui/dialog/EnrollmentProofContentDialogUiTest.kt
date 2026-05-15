@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.enrollmentproof.ui.screen
+package com.gdavidpb.tuindice.enrollmentproof.ui.dialog
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
@@ -10,11 +10,11 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
-class EnrollmentProofScreenUiTest {
+class EnrollmentProofContentDialogUiTest {
 	@Test
 	fun when_stateIsFetching_then_displaysFetchingView() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			EnrollmentProofScreen(
+			EnrollmentProofContentDialog(
 				state = Enrollment.State.Fetching,
 				onDismissRequest = {}
 			)
@@ -28,7 +28,7 @@ class EnrollmentProofScreenUiTest {
 		var dismissCalls = 0
 
 		setTuIndiceTestContent {
-			EnrollmentProofScreen(
+			EnrollmentProofContentDialog(
 				state = Enrollment.State.Fetching,
 				onDismissRequest = { dismissCalls++ }
 			)

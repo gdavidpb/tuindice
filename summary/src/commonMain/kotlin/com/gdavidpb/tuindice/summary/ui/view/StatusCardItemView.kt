@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.summary.ui.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ElevatedCard
@@ -11,13 +10,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryEntry
@@ -95,32 +91,4 @@ fun StatusCardItemView(
 			}
 		}
 	}
-}
-
-@Composable
-fun RowScope.DistributionView(
-	label: String,
-	weight: Float,
-	color: Color
-) {
-	val heightPx = with(LocalDensity.current) { 6.dp.toPx() }
-	val radiusPx = with(LocalDensity.current) { 8.dp.toPx() }
-
-	Text(
-		modifier = Modifier
-			.weight(weight)
-			.drawWithContent {
-				drawRoundRect(
-					color = color,
-					size = Size(size.width, heightPx),
-					cornerRadius = CornerRadius(radiusPx)
-				)
-
-				translate(top = heightPx * 1.5f) {
-					this@drawWithContent.drawContent()
-				}
-			},
-		text = label,
-		textAlign = TextAlign.Center
-	)
 }

@@ -1,8 +1,7 @@
-package com.gdavidpb.tuindice.auth.ui.screen
+package com.gdavidpb.tuindice.auth.ui.dialog
 
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.auth.presentation.contract.UpdatePassword
-import com.gdavidpb.tuindice.auth.ui.dialog.UpdatePasswordDialog
 import org.jetbrains.compose.resources.stringResource
 import tuindice.auth.generated.resources.Res
 import tuindice.auth.generated.resources.app_name
@@ -14,7 +13,7 @@ import tuindice.auth.generated.resources.dialog_title_updating_password
 import tuindice.auth.generated.resources.hint_password
 
 @Composable
-fun UpdatePasswordScreen(
+fun UpdatePasswordContentDialog(
 	state: UpdatePassword.State,
 	onPasswordChange: (String) -> Unit,
 	onPasswordVisibilityToggle: () -> Unit,

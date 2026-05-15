@@ -6,7 +6,7 @@ import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.create_term_search_tab
 import tuindice.record.generated.resources.create_term_suggested_tab
 
-internal enum class CreateTermAddSubjectTab(
+enum class CreateTermAddSubjectTab(
 	val labelResource: StringResource,
 	val testTag: String
 ) {

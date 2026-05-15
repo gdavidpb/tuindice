@@ -1,12 +1,10 @@
 package com.gdavidpb.tuindice.wizard.ui.view
 
-import androidx.compose.runtime.Composable
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 
-@Composable
 internal fun String.toWizardAnnotatedText(): AnnotatedString {
 	return buildAnnotatedString {
 		appendWithBoldMarkers(this@toWizardAnnotatedText)

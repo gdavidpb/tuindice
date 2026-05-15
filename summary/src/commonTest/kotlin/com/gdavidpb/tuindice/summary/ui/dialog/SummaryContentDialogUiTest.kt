@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.summary.ui.screen
+package com.gdavidpb.tuindice.summary.ui.dialog
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
@@ -15,7 +15,7 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
-class SummaryDialogScreenUiTest {
+class SummaryContentDialogUiTest {
 	@Test
 	fun when_removeConfirmationAccepted_then_invokesConfirmCallback() = runTuIndiceUiTest {
 		var confirmClicks = 0

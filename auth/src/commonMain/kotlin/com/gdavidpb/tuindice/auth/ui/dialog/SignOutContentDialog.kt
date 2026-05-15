@@ -1,24 +1,23 @@
-package com.gdavidpb.tuindice.auth.ui.screen
+package com.gdavidpb.tuindice.auth.ui.dialog
 
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.auth.presentation.contract.SignOut
-import com.gdavidpb.tuindice.auth.ui.dialog.SignOutDialog
 import org.jetbrains.compose.resources.stringResource
 import tuindice.auth.generated.resources.Res
 import tuindice.auth.generated.resources.dialog_button_cancel
 import tuindice.auth.generated.resources.dialog_button_retry
-import tuindice.auth.generated.resources.dialog_button_sign_out_anyway
-import tuindice.auth.generated.resources.dialog_button_sign_out_and_sync
 import tuindice.auth.generated.resources.dialog_button_sign_out
+import tuindice.auth.generated.resources.dialog_button_sign_out_and_sync
+import tuindice.auth.generated.resources.dialog_button_sign_out_anyway
 import tuindice.auth.generated.resources.dialog_button_update_password
+import tuindice.auth.generated.resources.dialog_message_sign_out
 import tuindice.auth.generated.resources.dialog_message_sign_out_flush_failed
 import tuindice.auth.generated.resources.dialog_message_sign_out_outdated_credentials
 import tuindice.auth.generated.resources.dialog_message_sign_out_pending
-import tuindice.auth.generated.resources.dialog_message_sign_out
 import tuindice.auth.generated.resources.dialog_title_sign_out
 
 @Composable
-fun SignOutScreen(
+fun SignOutContentDialog(
 	state: SignOut.State,
 	onConfirmClick: () -> Unit,
 	onSecondaryClick: () -> Unit,

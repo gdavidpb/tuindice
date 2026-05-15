@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.evaluations.ui.screen
+package com.gdavidpb.tuindice.evaluations.ui.dialog
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
@@ -11,7 +11,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
-class EvaluationDialogScreenUiTest {
+class EvaluationContentDialogUiTest {
 	@Test
 	fun when_gradePickerContentDialogConfirmed_then_emitsSelectedGrade() = runTuIndiceUiTest {
 		var selectedGrade: Double? = null

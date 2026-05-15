@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.auth.presentation.contract.SignOut
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignOutViewModel
-import com.gdavidpb.tuindice.auth.ui.screen.SignOutScreen
+import com.gdavidpb.tuindice.auth.ui.dialog.SignOutContentDialog
 
 @Composable
 fun SignOutRoute(
@@ -44,7 +44,7 @@ fun SignOutRoute(
 		viewModel.initializeAction(initialPendingChanges)
 	}
 
-	SignOutScreen(
+	SignOutContentDialog(
 		state = screenState,
 		onConfirmClick = {
 			viewModel.signOutAction(resolvedPendingChanges = initialPendingChanges)

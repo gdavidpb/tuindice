@@ -1,15 +1,9 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
-import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
@@ -172,51 +166,6 @@ fun SummaryContentView(
 	}
 }
 
-@Composable
-private fun AnimatedSyncStatusText(
-	text: String,
-	modifier: Modifier = Modifier
-) {
-	AnimatedContent(
-		targetState = text,
-		transitionSpec = {
-			val enter = fadeIn(
-				animationSpec = tween(
-					durationMillis = SYNC_STATUS_TEXT_ANIMATION_DURATION_MILLIS,
-					easing = FastOutSlowInEasing
-				)
-			) + slideInVertically(
-				animationSpec = tween(
-					durationMillis = SYNC_STATUS_TEXT_ANIMATION_DURATION_MILLIS,
-					easing = FastOutSlowInEasing
-				),
-				initialOffsetY = { height -> height / 3 }
-			)
-			val exit = fadeOut(
-				animationSpec = tween(
-					durationMillis = SYNC_STATUS_TEXT_ANIMATION_DURATION_MILLIS,
-					easing = FastOutSlowInEasing
-				)
-			) + slideOutVertically(
-				animationSpec = tween(
-					durationMillis = SYNC_STATUS_TEXT_ANIMATION_DURATION_MILLIS,
-					easing = FastOutSlowInEasing
-				),
-				targetOffsetY = { height -> -height / 3 }
-			)
-
-			enter togetherWith exit
-		},
-		label = "SummarySyncStatusTextAnimatedContent"
-	) { targetText ->
-		Text(
-			modifier = modifier.testTag(SummaryUiTags.StatusText),
-			text = targetText,
-			style = MaterialTheme.typography.bodyMedium
-		)
-	}
-}
-
 private fun nextSyncIconStopRotation(currentRotation: Float): Float {
 	val nextTurn = ceil((-currentRotation / SYNC_ICON_FULL_ROTATION_DEGREES).toDouble()).toFloat()
 	return -nextTurn * SYNC_ICON_FULL_ROTATION_DEGREES
@@ -234,4 +183,4 @@ private fun syncIconStopDurationMillis(remainingDegrees: Float): Int {
 private const val SYNC_ICON_ROTATION_DURATION_MILLIS = 900
 private const val SYNC_ICON_MIN_STOP_DURATION_MILLIS = 180
 private const val SYNC_ICON_FULL_ROTATION_DEGREES = 360f
-private const val SYNC_STATUS_TEXT_ANIMATION_DURATION_MILLIS = 220
+internal const val SYNC_STATUS_TEXT_ANIMATION_DURATION_MILLIS = 220

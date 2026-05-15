@@ -21,7 +21,7 @@ import tuindice.record.generated.resources.create_term_hide_taken_subjects
 import tuindice.record.generated.resources.create_term_show_taken_subjects
 
 @Composable
-internal fun AlreadyTakenSearchResultsToggle(
+fun AlreadyTakenSearchResultsToggle(
 	count: Int,
 	isExpanded: Boolean,
 	onClick: () -> Unit

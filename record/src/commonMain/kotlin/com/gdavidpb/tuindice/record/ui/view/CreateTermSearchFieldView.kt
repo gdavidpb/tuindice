@@ -27,7 +27,7 @@ import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.create_term_search_placeholder
 
 @Composable
-internal fun CreateTermSearchField(
+fun CreateTermSearchField(
 	query: String,
 	focusRequester: FocusRequester,
 	onQueryChange: (String) -> Unit,

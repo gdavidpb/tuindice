@@ -15,8 +15,8 @@ import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLi
 import com.gdavidpb.tuindice.base.utils.extension.navigateBackWithResult
 import com.gdavidpb.tuindice.summary.presentation.route.SummaryRoute
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
-import com.gdavidpb.tuindice.summary.ui.screen.ProfilePictureSettingsContentDialog
-import com.gdavidpb.tuindice.summary.ui.screen.RemoveProfilePictureConfirmationContentDialog
+import com.gdavidpb.tuindice.summary.ui.dialog.ProfilePictureSettingsContentDialog
+import com.gdavidpb.tuindice.summary.ui.dialog.RemoveProfilePictureConfirmationContentDialog
 import org.koin.compose.viewmodel.koinViewModel
 
 fun NavGraphBuilder.summaryNavigation(

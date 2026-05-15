@@ -34,7 +34,7 @@ private val LoadChipWidth = 148.dp
 private val LoadChipDefaultHeight = 48.dp
 
 @Composable
-internal fun CreateTermLoadChip(
+fun CreateTermLoadChip(
 	loadPreview: SyntheticTermLoadPreview?,
 	hasSelectedSubjects: Boolean,
 	isLoading: Boolean,
@@ -49,8 +49,17 @@ internal fun CreateTermLoadChip(
 		loadPreview?.band != null -> LoadChipStatus.Available(loadPreview.band)
 		else -> LoadChipStatus.Unavailable
 	}
-	val color = status.color()
-	val label = status.label()
+	val color = status.color(
+		outlineColor = MaterialTheme.colorScheme.outline,
+		primaryColor = MaterialTheme.colorScheme.primary,
+		onSurfaceVariantColor = MaterialTheme.colorScheme.onSurfaceVariant,
+		errorColor = MaterialTheme.colorScheme.error
+	)
+	val label = status.label(
+		placeholderText = stringResource(Res.string.create_term_load_placeholder),
+		loadingText = stringResource(Res.string.create_term_load_loading),
+		unavailableText = stringResource(Res.string.create_term_load_unavailable)
+	)
 
 	Surface(
 		modifier = modifier
@@ -101,31 +110,38 @@ private sealed class LoadChipStatus {
 	data class Available(val band: SyntheticTermLoadBand) : LoadChipStatus()
 }
 
-@Composable
-private fun LoadChipStatus.label(): String {
+private fun LoadChipStatus.label(
+	placeholderText: String,
+	loadingText: String,
+	unavailableText: String
+): String {
 	return when (this) {
 		LoadChipStatus.Placeholder ->
-			stringResource(Res.string.create_term_load_placeholder)
+			placeholderText
 		LoadChipStatus.Loading ->
-			stringResource(Res.string.create_term_load_loading)
+			loadingText
 		LoadChipStatus.Unavailable ->
-			stringResource(Res.string.create_term_load_unavailable)
+			unavailableText
 		is LoadChipStatus.Available ->
 			band.label
 	}
 }
 
-@Composable
-private fun LoadChipStatus.color(): Color {
+private fun LoadChipStatus.color(
+	outlineColor: Color,
+	primaryColor: Color,
+	onSurfaceVariantColor: Color,
+	errorColor: Color
+): Color {
 	return when (this) {
 		LoadChipStatus.Placeholder ->
-			MaterialTheme.colorScheme.outline
+			outlineColor
 
 		LoadChipStatus.Loading ->
-			MaterialTheme.colorScheme.primary
+			primaryColor
 
 		LoadChipStatus.Unavailable ->
-			MaterialTheme.colorScheme.onSurfaceVariant
+			onSurfaceVariantColor
 
 		is LoadChipStatus.Available ->
 			when (band) {
@@ -142,7 +158,7 @@ private fun LoadChipStatus.color(): Color {
 					CreateTermWarningColor
 
 				SyntheticTermLoadBand.VERY_DEMANDING ->
-					MaterialTheme.colorScheme.error
+					errorColor
 			}
 	}
 }

@@ -7,23 +7,18 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ElevatedCard
-import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -146,88 +141,4 @@ fun EvaluationItemView(
 			}
 		}
 	}
-}
-
-@Composable
-private fun EvaluationGradeActionButton(
-	modifier: Modifier = Modifier,
-	text: String,
-	colors: ButtonColors,
-	onClick: () -> Unit
-) {
-	FilledTonalButton(
-		modifier = modifier,
-		onClick = onClick,
-		colors = colors,
-		contentPadding = ButtonDefaults.TextButtonContentPadding
-	) {
-		Text(text = text)
-	}
-}
-
-@Composable
-private fun EvaluationMetadataRow(
-	modifier: Modifier = Modifier,
-	dateIcon: ImageVector,
-	dateText: String,
-	typeText: String,
-	color: Color
-) {
-	Row(
-		modifier = modifier.fillMaxWidth(),
-		verticalAlignment = Alignment.CenterVertically
-	) {
-		Icon(
-			modifier = Modifier.size(16.dp),
-			imageVector = dateIcon,
-			tint = color,
-			contentDescription = null
-		)
-
-		Text(
-			modifier = Modifier.padding(start = 6.dp),
-			text = dateText,
-			maxLines = 1,
-			softWrap = false,
-			color = color,
-			style = MaterialTheme.typography.bodyMedium
-		)
-
-		Text(
-			modifier = Modifier.padding(horizontal = 6.dp),
-			text = "•",
-			color = color,
-			style = MaterialTheme.typography.bodyMedium
-		)
-
-		Text(
-			text = typeText,
-			maxLines = 1,
-			softWrap = false,
-			color = color,
-			style = MaterialTheme.typography.bodyMedium
-		)
-	}
-}
-
-@Composable
-private fun SubjectCodeChip(
-	modifier: Modifier = Modifier,
-	subjectCode: String,
-	containerColor: Color,
-	contentColor: Color
-) {
-	Text(
-		modifier = modifier
-			.heightIn(min = 28.dp)
-			.background(
-				color = containerColor,
-				shape = RoundedCornerShape(8.dp)
-			)
-			.padding(vertical = 5.dp, horizontal = 10.dp),
-		text = subjectCode,
-		color = contentColor,
-		fontWeight = FontWeight.SemiBold,
-		style = MaterialTheme.typography.labelLarge
-	)
 }

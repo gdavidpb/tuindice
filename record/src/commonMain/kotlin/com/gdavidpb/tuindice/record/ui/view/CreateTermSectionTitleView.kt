@@ -14,7 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal fun CreateTermSectionTitle(
+fun CreateTermSectionTitle(
 	text: String,
 	isRefreshing: Boolean = false
 ) {

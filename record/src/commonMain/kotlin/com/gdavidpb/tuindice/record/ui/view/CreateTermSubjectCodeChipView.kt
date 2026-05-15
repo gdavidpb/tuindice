@@ -13,7 +13,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 
 @Composable
-internal fun CreateTermSubjectCodeChip(subjectCode: String) {
+fun CreateTermSubjectCodeChip(subjectCode: String) {
 	val codeColors = remember(subjectCode) {
 		CourseCodeColorGenerator.fromCode(subjectCode)
 	}

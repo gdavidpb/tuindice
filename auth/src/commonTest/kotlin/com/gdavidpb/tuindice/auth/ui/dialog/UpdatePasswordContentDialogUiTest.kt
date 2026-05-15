@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.auth.ui.screen
+package com.gdavidpb.tuindice.auth.ui.dialog
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
@@ -13,13 +13,13 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
-class UpdatePasswordScreenUiTest {
+class UpdatePasswordContentDialogUiTest {
 	@Test
 	fun when_idleStateAndConfirmTapped_then_invokesConfirmCallback() = runTuIndiceUiTest {
 		var confirmedPassword = ""
 
 		setTuIndiceTestContent {
-			UpdatePasswordScreen(
+			UpdatePasswordContentDialog(
 				state = UpdatePassword.State.Idle(password = "abcd"),
 				onPasswordChange = {},
 				onPasswordVisibilityToggle = {},
@@ -35,7 +35,7 @@ class UpdatePasswordScreenUiTest {
 	@Test
 	fun when_updatingState_then_displaysUpdatingIndicator() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			UpdatePasswordScreen(
+			UpdatePasswordContentDialog(
 				state = UpdatePassword.State.Updating(password = "abcd"),
 				onPasswordChange = {},
 				onPasswordVisibilityToggle = {},
@@ -52,7 +52,7 @@ class UpdatePasswordScreenUiTest {
 		var dismissCalls = 0
 
 		setTuIndiceTestContent {
-			UpdatePasswordScreen(
+			UpdatePasswordContentDialog(
 				state = UpdatePassword.State.Idle(password = "abcd"),
 				onPasswordChange = {},
 				onPasswordVisibilityToggle = {},

@@ -37,7 +37,7 @@ import tuindice.wizard.generated.resources.wizard_progress
 import tuindice.wizard.generated.resources.wizard_skip
 
 @Composable
-internal fun WizardGuideBar(
+fun WizardGuideBar(
 	state: Wizard.State.Content,
 	onBack: () -> Unit,
 	onSkip: () -> Unit,

@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.auth.presentation.contract.UpdatePassword
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.UpdatePasswordViewModel
-import com.gdavidpb.tuindice.auth.ui.screen.UpdatePasswordScreen
+import com.gdavidpb.tuindice.auth.ui.dialog.UpdatePasswordContentDialog
 
 @Composable
 fun UpdatePasswordRoute(
@@ -29,7 +29,7 @@ fun UpdatePasswordRoute(
 		}
 	}
 
-	UpdatePasswordScreen(
+	UpdatePasswordContentDialog(
 		state = viewState,
 		onPasswordChange = viewModel::setPasswordAction,
 		onPasswordVisibilityToggle = viewModel::togglePasswordVisibilityAction,

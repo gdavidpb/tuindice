@@ -26,7 +26,7 @@ import tuindice.record.generated.resources.create_term_button
 import tuindice.record.generated.resources.create_term_selected_count
 
 @Composable
-internal fun CreateTermSubmitBar(
+fun CreateTermSubmitBar(
 	selectedCount: Int,
 	canCreate: Boolean,
 	onCreateClick: () -> Unit,

@@ -16,7 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.record.ui.model.CreateTermSubjectCardAction
 
 @Composable
-internal fun CreateTermSubjectActionButton(
+fun CreateTermSubjectActionButton(
 	action: CreateTermSubjectCardAction,
 	enabled: Boolean,
 	onClick: () -> Unit

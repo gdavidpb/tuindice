@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -17,7 +16,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.subjects.presentation.mapper.toCompactCountText
@@ -31,8 +29,6 @@ import com.patrykandpatrick.vico.compose.cartesian.decoration.Decoration
 import com.patrykandpatrick.vico.compose.cartesian.layer.ColumnCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.layer.rememberColumnCartesianLayer
 import com.patrykandpatrick.vico.compose.cartesian.rememberCartesianChart
-import com.patrykandpatrick.vico.compose.common.Fill
-import com.patrykandpatrick.vico.compose.common.component.LineComponent
 import kotlin.math.roundToInt
 import org.jetbrains.compose.resources.stringResource
 import tuindice.subjects.generated.resources.Res
@@ -91,7 +87,7 @@ fun SubjectDetailBarChartCard(
 					CartesianChartHost(
 						chart = rememberCartesianChart(
 							rememberColumnCartesianLayer(
-								columnProvider = columnProvider ?: rememberDefaultColumnProvider()
+								columnProvider = columnProvider ?: rememberSubjectDetailBarChartColumnProvider()
 							),
 							startAxis = VerticalAxis.rememberStart(
 								valueFormatter = startAxisValueFormatter
@@ -123,19 +119,5 @@ fun SubjectDetailBarChartCard(
 				}
 			}
 		}
-	}
-}
-
-@Composable
-private fun rememberDefaultColumnProvider(): ColumnCartesianLayer.ColumnProvider {
-	val baseColumn = remember {
-		LineComponent(
-			fill = Fill(Color(0xFF4A8DFF)),
-			thickness = 24.dp,
-			shape = RoundedCornerShape(10.dp)
-		)
-	}
-	return remember(baseColumn) {
-		ColumnCartesianLayer.ColumnProvider.series(baseColumn)
 	}
 }

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.auth.ui.screen
+package com.gdavidpb.tuindice.auth.ui.dialog
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
@@ -13,13 +13,13 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
-class SignOutScreenUiTest {
+class SignOutContentDialogUiTest {
 	@Test
 	fun when_confirmTapped_then_callsConfirmCallback() = runTuIndiceUiTest {
 		var confirmClicks = 0
 
 		setTuIndiceTestContent {
-			SignOutScreen(
+			SignOutContentDialog(
 				state = SignOut.State.Plain,
 				onConfirmClick = { confirmClicks++ },
 				onSecondaryClick = {},
@@ -38,7 +38,7 @@ class SignOutScreenUiTest {
 		var dismissCalls = 0
 
 		setTuIndiceTestContent {
-			SignOutScreen(
+			SignOutContentDialog(
 				state = SignOut.State.Plain,
 				onConfirmClick = {},
 				onSecondaryClick = {},

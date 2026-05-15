@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
 import com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel.EnrollmentProofViewModel
-import com.gdavidpb.tuindice.enrollmentproof.ui.screen.EnrollmentProofScreen
+import com.gdavidpb.tuindice.enrollmentproof.ui.dialog.EnrollmentProofContentDialog
 
 @Composable
 fun EnrollmentProofRoute(
@@ -37,7 +37,7 @@ fun EnrollmentProofRoute(
 		}
 	}
 
-	EnrollmentProofScreen(
+	EnrollmentProofContentDialog(
 		state = viewState,
 		onDismissRequest = onDismissRequest
 	)

@@ -29,7 +29,7 @@ import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.create_term_subject_available
 
 @Composable
-internal fun CreateTermSuggestedSubjectCard(
+fun CreateTermSuggestedSubjectCard(
 	subject: SyntheticTermSubject,
 	enabled: Boolean,
 	onClick: () -> Unit,
