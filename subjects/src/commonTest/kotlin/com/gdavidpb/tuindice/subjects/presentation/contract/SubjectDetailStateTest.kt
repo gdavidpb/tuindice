@@ -1,8 +1,7 @@
 package com.gdavidpb.tuindice.subjects.presentation.contract
 
-import com.gdavidpb.tuindice.base.domain.model.GradingMode
-import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail as SubjectDetailModel
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
+import com.gdavidpb.tuindice.subjects.presentation.model.SubjectDetailItem
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -11,15 +10,18 @@ class SubjectDetailStateTest {
 	@Test
 	fun content_exposesSubjectCodeTopBarTitle() {
 		val state = SubjectDetail.State.Content(
-			detail = SubjectDetailModel(
+			detail = SubjectDetailItem(
 				id = "MAT101",
 				name = "Calculo I",
-				credits = 5,
-				gradingMode = GradingMode.NUMERIC,
-				generatedAt = 1710000000000,
-				expiresAt = 1712592000000
-			),
-			selectedTab = SubjectSegmentTab.CAREER
+				creditsText = "5 UC",
+				gradingModeText = null,
+				generatedAtText = "Actualizado 9/3/2024",
+				selectedTab = SubjectSegmentTab.CAREER,
+				hasSegmentTabs = false,
+				chartMode = SubjectDetailItem.ChartMode.NUMERIC_GRADES,
+				careerSegment = null,
+				globalSegment = null
+			)
 		)
 
 		assertEquals("Sobre MAT101", state.topBarTitle)

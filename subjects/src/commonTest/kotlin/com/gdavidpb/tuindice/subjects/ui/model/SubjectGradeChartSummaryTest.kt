@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.subjects.ui.model
 
-import com.gdavidpb.tuindice.subjects.domain.model.SubjectGradeBin
+import com.gdavidpb.tuindice.subjects.presentation.model.SubjectDetailItem
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -10,11 +10,11 @@ class SubjectGradeChartSummaryTest {
 	fun from_resolvesMultimodalDistribution() {
 		val summary = SubjectGradeChartSummary.from(
 			latestGradeBins = listOf(
-				SubjectGradeBin(grade = 1, count = 12),
-				SubjectGradeBin(grade = 2, count = 28),
-				SubjectGradeBin(grade = 3, count = 42),
-				SubjectGradeBin(grade = 4, count = 42),
-				SubjectGradeBin(grade = 5, count = 10)
+				SubjectDetailItem.GradeBinItem(grade = 1, count = 12),
+				SubjectDetailItem.GradeBinItem(grade = 2, count = 28),
+				SubjectDetailItem.GradeBinItem(grade = 3, count = 42),
+				SubjectDetailItem.GradeBinItem(grade = 4, count = 42),
+				SubjectDetailItem.GradeBinItem(grade = 5, count = 10)
 			),
 			medianGrade = 3.0,
 			stddevGrade = 0.9
@@ -30,8 +30,8 @@ class SubjectGradeChartSummaryTest {
 	fun from_clampsStddevRangeToSupportedGradeDomain() {
 		val summary = SubjectGradeChartSummary.from(
 			latestGradeBins = listOf(
-				SubjectGradeBin(grade = 1, count = 4),
-				SubjectGradeBin(grade = 5, count = 8)
+				SubjectDetailItem.GradeBinItem(grade = 1, count = 4),
+				SubjectDetailItem.GradeBinItem(grade = 5, count = 8)
 			),
 			medianGrade = 4.8,
 			stddevGrade = 1.4
@@ -45,8 +45,8 @@ class SubjectGradeChartSummaryTest {
 	fun from_ignoresEmptyOrZeroDistributionsForMode() {
 		val summary = SubjectGradeChartSummary.from(
 			latestGradeBins = listOf(
-				SubjectGradeBin(grade = 1, count = 0),
-				SubjectGradeBin(grade = 2, count = 0)
+				SubjectDetailItem.GradeBinItem(grade = 1, count = 0),
+				SubjectDetailItem.GradeBinItem(grade = 2, count = 0)
 			),
 			medianGrade = null,
 			stddevGrade = null

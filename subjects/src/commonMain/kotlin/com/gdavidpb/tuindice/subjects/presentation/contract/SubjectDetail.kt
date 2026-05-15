@@ -3,8 +3,8 @@ package com.gdavidpb.tuindice.subjects.presentation.contract
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
-import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail as SubjectDetailModel
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
+import com.gdavidpb.tuindice.subjects.presentation.model.SubjectDetailItem
 
 object SubjectDetail {
 	sealed class State(
@@ -16,8 +16,7 @@ object SubjectDetail {
 		data object Loading : State(topBarTitle = "")
 
 		data class Content(
-			val detail: SubjectDetailModel,
-			val selectedTab: SubjectSegmentTab
+			val detail: SubjectDetailItem
 		) : State(topBarTitle = detail.id.toSubjectDetailTopBarTitle())
 
 		data class Unavailable(

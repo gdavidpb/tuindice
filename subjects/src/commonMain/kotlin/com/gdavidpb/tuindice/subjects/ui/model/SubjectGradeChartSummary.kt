@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.subjects.ui.model
 
-import com.gdavidpb.tuindice.subjects.domain.model.SubjectGradeBin
+import com.gdavidpb.tuindice.subjects.presentation.model.SubjectDetailItem
 import kotlin.math.roundToInt
 
 data class SubjectGradeChartSummary(
@@ -20,7 +20,7 @@ data class SubjectGradeChartSummary(
 		private const val MAX_GRADE = 5.0
 
 		fun from(
-			latestGradeBins: List<SubjectGradeBin>,
+			latestGradeBins: List<SubjectDetailItem.GradeBinItem>,
 			medianGrade: Double?,
 			stddevGrade: Double?
 		): SubjectGradeChartSummary {
@@ -52,12 +52,12 @@ data class SubjectGradeChartSummary(
 	}
 }
 
-private fun List<SubjectGradeBin>.resolveModalGrades(): List<Int> {
-	val maxCount = maxOfOrNull(SubjectGradeBin::count)
+private fun List<SubjectDetailItem.GradeBinItem>.resolveModalGrades(): List<Int> {
+	val maxCount = maxOfOrNull(SubjectDetailItem.GradeBinItem::count)
 		?.takeIf { count -> count > 0 }
 		?: return emptyList()
 	return filter { bin -> bin.count == maxCount }
-		.map(SubjectGradeBin::grade)
+		.map(SubjectDetailItem.GradeBinItem::grade)
 		.sorted()
 }
 

@@ -4,7 +4,6 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
-import com.gdavidpb.tuindice.pensum.domain.model.PensumNodeStatus
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -109,7 +108,9 @@ private fun samplePensumModel(): PensumScreenModel {
 				y = 72.0,
 				width = 190.0,
 				height = 144.0,
-				status = PensumNodeStatus.AVAILABLE,
+				visualStyle = availableNodeVisualStyle(),
+				isCurrent = false,
+				isApproved = false,
 				hasSubjectStatsAction = true
 			),
 			PensumScreenModel.Node(
@@ -123,10 +124,23 @@ private fun samplePensumModel(): PensumScreenModel {
 				y = 240.0,
 				width = 190.0,
 				height = 144.0,
-				status = PensumNodeStatus.AVAILABLE,
+				visualStyle = availableNodeVisualStyle(),
+				isCurrent = false,
+				isApproved = false,
 				hasSubjectStatsAction = false
 			)
 		),
 		edges = emptyList()
+	)
+}
+
+private fun availableNodeVisualStyle(): PensumScreenModel.NodeVisualStyle {
+	return PensumScreenModel.NodeVisualStyle(
+		containerArgb = 0xFF171819,
+		borderArgb = 0xFF8A8F94,
+		chipArgb = 0xFFEBDDA3,
+		chipTextArgb = 0xFF534500,
+		textArgb = 0xFFF7F7F7,
+		secondaryTextArgb = 0xFF9C9EA3
 	)
 }

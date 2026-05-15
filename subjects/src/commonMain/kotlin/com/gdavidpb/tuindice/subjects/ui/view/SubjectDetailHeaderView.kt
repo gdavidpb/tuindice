@@ -14,13 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.base.domain.model.GradingMode
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
-import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail as SubjectDetailModel
+import com.gdavidpb.tuindice.subjects.presentation.model.SubjectDetailItem
 
 @Composable
 fun SubjectDetailHeaderView(
-	detail: SubjectDetailModel
+	detail: SubjectDetailItem
 ) {
 	val colors = remember(detail.id) { CourseCodeColorGenerator.fromCode(detail.id) }
 
@@ -51,14 +50,14 @@ fun SubjectDetailHeaderView(
 			)
 
 			Text(
-				text = "${detail.credits} UC",
+				text = detail.creditsText,
 				style = MaterialTheme.typography.bodyMedium,
 				color = MaterialTheme.colorScheme.onSurfaceVariant
 			)
 
-			if (detail.gradingMode == GradingMode.QUALITATIVE_PASS_FAIL) {
+			if (detail.gradingModeText != null) {
 				Text(
-					text = "Cualitativa",
+					text = detail.gradingModeText,
 					style = MaterialTheme.typography.bodyMedium,
 					color = MaterialTheme.colorScheme.onSurfaceVariant
 				)

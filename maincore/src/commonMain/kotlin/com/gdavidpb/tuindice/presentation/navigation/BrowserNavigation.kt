@@ -13,7 +13,9 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLifecycle
 import com.gdavidpb.tuindice.presentation.route.BrowserRoute
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
+import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import org.jetbrains.compose.resources.stringResource
+import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
 import tuindice.maincore.generated.resources.Res
 import tuindice.maincore.generated.resources.cancel
@@ -39,6 +41,7 @@ fun NavGraphBuilder.browserNavigation(
 	) { backStackEntry ->
 		val args = backStackEntry.toRoute<BrowserDestination.Browser>()
 		val viewModel = koinViewModel<BrowserViewModel>(viewModelStoreOwner = backStackEntry)
+		val renderer = koinInject<BrowserScreenRenderer>()
 		val viewState by viewModel.state.collectAsStateWithLifecycle()
 
 		navController.CollectCurrentEntryValueWithLifecycle(
@@ -51,7 +54,8 @@ fun NavGraphBuilder.browserNavigation(
 			title = args.title,
 			url = args.url,
 			onNavigateToExternalResourceDialog = onNavigateToExternalResourceDialog,
-			viewModel = viewModel
+			viewModel = viewModel,
+			renderer = renderer
 		)
 	}
 

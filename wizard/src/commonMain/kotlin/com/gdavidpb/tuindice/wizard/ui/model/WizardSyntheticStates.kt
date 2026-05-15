@@ -21,7 +21,6 @@ import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.base.domain.model.GradingMode
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
@@ -39,8 +38,6 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightT
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
-import com.gdavidpb.tuindice.pensum.domain.model.PensumNodeStatus
-import com.gdavidpb.tuindice.pensum.domain.model.PensumRelationshipType
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
@@ -48,17 +45,12 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
 import com.gdavidpb.tuindice.record.presentation.contract.Record
-import com.gdavidpb.tuindice.subjects.domain.model.SubjectAttemptBin
-import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail
-import com.gdavidpb.tuindice.subjects.domain.model.SubjectDifficultyBand
-import com.gdavidpb.tuindice.subjects.domain.model.SubjectGradeBin
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
-import com.gdavidpb.tuindice.subjects.domain.model.SubjectStatsSegment
+import com.gdavidpb.tuindice.subjects.presentation.model.SubjectDetailItem
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.wizard.presentation.contract.CURRENT_TERM_ID
 import com.gdavidpb.tuindice.wizard.presentation.contract.HISTORICAL_TERM_ID
 
-private const val HISTORICAL_TERM_END = 1_766_102_400_000L
 private const val SAMPLE_DATE = 1_776_902_400_000L
 private const val SAMPLE_CAREER_NAME = "Ingeniería de Computación"
 private const val SAMPLE_LAST_UPDATE_TEXT = "Última actualización: 28 de abril 2026"
@@ -125,13 +117,15 @@ internal fun sampleCreateSyntheticTermState() = CreateSyntheticTerm.State(
 internal fun sampleSubjectDetailState(
 	selectedTab: SubjectSegmentTab
 ) = com.gdavidpb.tuindice.subjects.presentation.contract.SubjectDetail.State.Content(
-	detail = SubjectDetail(
+	detail = SubjectDetailItem(
 		id = "CI2611",
 		name = "Algoritmos y Estructuras I",
-		credits = 4,
-		gradingMode = GradingMode.NUMERIC,
-		generatedAt = SAMPLE_DATE,
-		expiresAt = SAMPLE_DATE + 604_800_000L,
+		creditsText = "4 UC",
+		gradingModeText = null,
+		generatedAtText = "Actualizado 28/4/2026",
+		selectedTab = selectedTab,
+		hasSegmentTabs = true,
+		chartMode = SubjectDetailItem.ChartMode.NUMERIC_GRADES,
 		careerSegment = sampleSubjectSegment(
 			students = 842,
 			attempts = 1_180,
@@ -144,8 +138,7 @@ internal fun sampleSubjectDetailState(
 			approvalRate = 0.69,
 			difficultyScore = 71
 		)
-	),
-	selectedTab = selectedTab
+	)
 )
 
 internal fun samplePensumState() = Pensum.State.Content(
@@ -193,20 +186,20 @@ internal fun samplePensumState() = Pensum.State.Content(
 			)
 		},
 		nodes = listOf(
-			pensumNode("ma1111", "MA1111", "Matemáticas I", 4, "T1", 40.0, 150.0, PensumNodeStatus.APPROVED),
-			pensumNode("lla111", "LLA111", "Lenguaje I", 3, "T1", 40.0, 350.0, PensumNodeStatus.APPROVED),
-			pensumNode("csa211", "CSA211", "Venezuela ante el Siglo XXI I", 3, "T1", 40.0, 550.0, PensumNodeStatus.APPROVED),
-			pensumNode("id1111", "ID1111", "Inglés I", 3, "T1", 40.0, 780.0, PensumNodeStatus.APPROVED),
-			pensumNode("ma1112", "MA1112", "Matemáticas II", 4, "T2", 340.0, 150.0, PensumNodeStatus.APPROVED),
-			pensumNode("lla112", "LLA112", "Lenguaje II", 3, "T2", 340.0, 350.0, PensumNodeStatus.APPROVED),
-			pensumNode("ci2611", "CI2611", "Algoritmos y Estructuras I", 4, "T2", 340.0, 550.0, PensumNodeStatus.APPROVED),
-			pensumNode("id1112", "ID1112", "Inglés II", 3, "T2", 340.0, 780.0, PensumNodeStatus.APPROVED),
-			pensumNode("ma1113", "MA1113", "Matemáticas III", 4, "T3", 640.0, 150.0, PensumNodeStatus.APPROVED),
-			pensumNode("ci3611", "CI3611", "Algoritmos y Estructuras II", 4, "T3", 640.0, 550.0, PensumNodeStatus.CURRENT),
-			pensumNode("ec5344", "EC5344", "Sistemas Digitales", 4, "T4", 940.0, 350.0, PensumNodeStatus.AVAILABLE),
-			pensumNode("ci4325", "CI4325", "Interfaces con el Usuario", 5, "T4", 940.0, 550.0, PensumNodeStatus.CURRENT),
-			pensumNode("ea1", "EA1", "Electiva de Área I", 4, "T5", 1240.0, 350.0, PensumNodeStatus.AVAILABLE),
-			pensumNode("ep5406", "EP5406", "Proyecto de Grado A", 9, "T5", 1240.0, 550.0, PensumNodeStatus.BLOCKED)
+			pensumNode("ma1111", "MA1111", "Matemáticas I", 4, "T1", 40.0, 150.0, PensumSampleNodeState.APPROVED),
+			pensumNode("lla111", "LLA111", "Lenguaje I", 3, "T1", 40.0, 350.0, PensumSampleNodeState.APPROVED),
+			pensumNode("csa211", "CSA211", "Venezuela ante el Siglo XXI I", 3, "T1", 40.0, 550.0, PensumSampleNodeState.APPROVED),
+			pensumNode("id1111", "ID1111", "Inglés I", 3, "T1", 40.0, 780.0, PensumSampleNodeState.APPROVED),
+			pensumNode("ma1112", "MA1112", "Matemáticas II", 4, "T2", 340.0, 150.0, PensumSampleNodeState.APPROVED),
+			pensumNode("lla112", "LLA112", "Lenguaje II", 3, "T2", 340.0, 350.0, PensumSampleNodeState.APPROVED),
+			pensumNode("ci2611", "CI2611", "Algoritmos y Estructuras I", 4, "T2", 340.0, 550.0, PensumSampleNodeState.APPROVED),
+			pensumNode("id1112", "ID1112", "Inglés II", 3, "T2", 340.0, 780.0, PensumSampleNodeState.APPROVED),
+			pensumNode("ma1113", "MA1113", "Matemáticas III", 4, "T3", 640.0, 150.0, PensumSampleNodeState.APPROVED),
+			pensumNode("ci3611", "CI3611", "Algoritmos y Estructuras II", 4, "T3", 640.0, 550.0, PensumSampleNodeState.CURRENT),
+			pensumNode("ec5344", "EC5344", "Sistemas Digitales", 4, "T4", 940.0, 350.0, PensumSampleNodeState.AVAILABLE),
+			pensumNode("ci4325", "CI4325", "Interfaces con el Usuario", 5, "T4", 940.0, 550.0, PensumSampleNodeState.CURRENT),
+			pensumNode("ea1", "EA1", "Electiva de Área I", 4, "T5", 1240.0, 350.0, PensumSampleNodeState.AVAILABLE),
+			pensumNode("ep5406", "EP5406", "Proyecto de Grado A", 9, "T5", 1240.0, 550.0, PensumSampleNodeState.BLOCKED)
 		),
 		edges = listOf(
 			pensumRequirementEdge("ma1111", "ma1112"),
@@ -236,7 +229,7 @@ private fun pensumNode(
 	termId: String,
 	x: Double,
 	y: Double,
-	status: PensumNodeStatus
+	state: PensumSampleNodeState
 ) = PensumScreenModel.Node(
 	id = id,
 	displayCode = code,
@@ -248,7 +241,9 @@ private fun pensumNode(
 	y = (y - SAMPLE_PENSUM_TOP_SHIFT).coerceAtLeast(0.0),
 	width = 220.0,
 	height = 148.0,
-	status = status,
+	visualStyle = state.toVisualStyle(),
+	isCurrent = state == PensumSampleNodeState.CURRENT,
+	isApproved = state == PensumSampleNodeState.APPROVED,
 	hasSubjectStatsAction = true
 )
 
@@ -259,12 +254,56 @@ private fun pensumRequirementEdge(
 	id = "${fromNodeId}_to_$toNodeId",
 	fromNodeId = fromNodeId,
 	toNodeId = toNodeId,
-	relationshipType = PensumRelationshipType.REQUIREMENT,
+	relationshipType = PensumScreenModel.RelationshipType.REQUIREMENT,
 	points = listOf(
 		PensumScreenModel.Point(x = 0.0, y = 0.0),
 		PensumScreenModel.Point(x = 1.0, y = 1.0)
 	)
 )
+
+private enum class PensumSampleNodeState {
+	APPROVED,
+	CURRENT,
+	AVAILABLE,
+	BLOCKED
+}
+
+private fun PensumSampleNodeState.toVisualStyle(): PensumScreenModel.NodeVisualStyle {
+	return when (this) {
+		PensumSampleNodeState.APPROVED -> PensumScreenModel.NodeVisualStyle(
+			containerArgb = 0xFF171819,
+			borderArgb = 0xFF8FE38C,
+			chipArgb = 0xFFB8F4A8,
+			chipTextArgb = 0xFF1D5B25,
+			textArgb = 0xFFF7F7F7,
+			secondaryTextArgb = 0xFF9C9EA3
+		)
+		PensumSampleNodeState.CURRENT -> PensumScreenModel.NodeVisualStyle(
+			containerArgb = 0xFF171819,
+			borderArgb = 0xFFFFC400,
+			chipArgb = 0xFFF7E6A6,
+			chipTextArgb = 0xFF5A4A00,
+			textArgb = 0xFFF7F7F7,
+			secondaryTextArgb = 0xFF9C9EA3
+		)
+		PensumSampleNodeState.AVAILABLE -> PensumScreenModel.NodeVisualStyle(
+			containerArgb = 0xFF171819,
+			borderArgb = 0xFF8A8F94,
+			chipArgb = 0xFFEBDDA3,
+			chipTextArgb = 0xFF534500,
+			textArgb = 0xFFF7F7F7,
+			secondaryTextArgb = 0xFF9C9EA3
+		)
+		PensumSampleNodeState.BLOCKED -> PensumScreenModel.NodeVisualStyle(
+			containerArgb = 0xFF242628,
+			borderArgb = 0xFF686B70,
+			chipArgb = 0xFFB7B8BA,
+			chipTextArgb = 0xFF383A3D,
+			textArgb = 0xFFC7C8CA,
+			secondaryTextArgb = 0xFF8A8C90
+		)
+	}
+}
 
 private fun sampleEvaluationFilters() = listOf(
 	EvaluationStateFilter(
@@ -473,46 +512,32 @@ private fun sampleSubjectSegment(
 	attempts: Int,
 	approvalRate: Double,
 	difficultyScore: Int
-) = SubjectStatsSegment(
-	sampleStudents = students,
-	closedAttempts = attempts,
-	numericLatestStudents = students - 36,
+) = SubjectDetailItem.SegmentItem(
+	studentsText = students.toString(),
+	attemptsText = attempts.toString(),
+	difficultyScoreText = "$difficultyScore/100",
+	difficultyBandText = "Alta",
+	firstAttemptPassRateText = "61%",
+	approvalRateText = "${(approvalRate * 100).toInt()}%",
+	failureRateText = "18%",
+	withdrawalRateText = "7%",
 	latestApprovedCount = (students * approvalRate).toInt(),
 	latestFailedCount = (students * 0.18).toInt(),
 	latestRetiredCount = (students * 0.07).toInt(),
 	latestUnreportedCount = (students * 0.03).toInt(),
-	averageGrade = 3.72,
 	medianGrade = 4.0,
 	stddevGrade = 0.84,
-	firstAttemptPassRate = 0.61,
-	approvalRate = approvalRate,
-	latestFailureRate = 0.18,
-	latestWithdrawalRate = 0.07,
-	retakeRate = 0.24,
-	avgAttemptsToPass = 1.34,
-	medianAttemptsToPass = 1.0,
-	difficultyScore = difficultyScore,
-	difficultyBand = SubjectDifficultyBand.HIGH,
-	firstClosedTermStartAt = 1_672_531_200_000L,
-	lastClosedTermStartAt = HISTORICAL_TERM_END,
 	latestGradeBins = listOf(
-		SubjectGradeBin(1, 24),
-		SubjectGradeBin(2, 58),
-		SubjectGradeBin(3, 220),
-		SubjectGradeBin(4, 310),
-		SubjectGradeBin(5, 185)
-	),
-	allGradeBins = listOf(
-		SubjectGradeBin(1, 88),
-		SubjectGradeBin(2, 142),
-		SubjectGradeBin(3, 410),
-		SubjectGradeBin(4, 520),
-		SubjectGradeBin(5, 275)
+		SubjectDetailItem.GradeBinItem(1, 24),
+		SubjectDetailItem.GradeBinItem(2, 58),
+		SubjectDetailItem.GradeBinItem(3, 220),
+		SubjectDetailItem.GradeBinItem(4, 310),
+		SubjectDetailItem.GradeBinItem(5, 185)
 	),
 	attemptsToPassBins = listOf(
-		SubjectAttemptBin("1", 640),
-		SubjectAttemptBin("2", 210),
-		SubjectAttemptBin("3+", 82)
+		SubjectDetailItem.AttemptBinItem("1", 640),
+		SubjectDetailItem.AttemptBinItem("2", 210),
+		SubjectDetailItem.AttemptBinItem("3_plus", 82)
 	)
 )
 

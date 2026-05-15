@@ -20,12 +20,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.base.domain.model.GradingMode
-import com.gdavidpb.tuindice.subjects.domain.model.SubjectGradeBin
-import com.gdavidpb.tuindice.subjects.domain.model.SubjectStatsSegment
 import com.gdavidpb.tuindice.subjects.presentation.mapper.toCompactCountText
+import com.gdavidpb.tuindice.subjects.presentation.model.SubjectDetailItem
 import com.gdavidpb.tuindice.subjects.ui.model.SubjectGradeChartSummary
-import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail as SubjectDetailModel
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
 import com.patrykandpatrick.vico.compose.cartesian.CartesianDrawingContext
 import com.patrykandpatrick.vico.compose.cartesian.axis.HorizontalAxis
@@ -51,10 +48,10 @@ import tuindice.subjects.generated.resources.subjects_chart_outcome_distribution
 
 @Composable
 fun SubjectDetailChartsView(
-	detail: SubjectDetailModel,
-	segment: SubjectStatsSegment
+	detail: SubjectDetailItem,
+	segment: SubjectDetailItem.SegmentItem
 ) {
-	if (detail.gradingMode == GradingMode.QUALITATIVE_PASS_FAIL) {
+	if (detail.chartMode == SubjectDetailItem.ChartMode.QUALITATIVE_OUTCOMES) {
 		SubjectDetailBarChartCard(
 			title = stringResource(Res.string.subjects_chart_outcome_distribution),
 			xValues = listOf(1, 2, 3, 4),
@@ -99,11 +96,11 @@ fun SubjectDetailChartsView(
 
 @Composable
 private fun SubjectDetailNumericGradeChartCard(
-	segment: SubjectStatsSegment
+	segment: SubjectDetailItem.SegmentItem
 ) {
 	val gradeBins = remember(segment.latestGradeBins) {
 		(1..5).map { grade ->
-			SubjectGradeBin(
+			SubjectDetailItem.GradeBinItem(
 				grade = grade,
 				count = segment.latestGradeBins.firstOrNull { bin -> bin.grade == grade }?.count ?: 0
 			)
@@ -185,8 +182,8 @@ private fun SubjectDetailNumericGradeChartCard(
 	}
 	SubjectDetailBarChartCard(
 		title = stringResource(Res.string.subjects_chart_grade_distribution),
-		xValues = gradeBins.map(SubjectGradeBin::grade),
-		values = gradeBins.map(SubjectGradeBin::count),
+		xValues = gradeBins.map(SubjectDetailItem.GradeBinItem::grade),
+		values = gradeBins.map(SubjectDetailItem.GradeBinItem::count),
 		labelForX = { xValue -> xValue.toString() },
 		columnProvider = columnProvider,
 		decorations = listOfNotNull(bandDecoration, medianDecoration)

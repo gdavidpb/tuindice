@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.pensum.presentation.mapper
 
 import com.gdavidpb.tuindice.pensum.domain.model.ObservedPensum
 import com.gdavidpb.tuindice.pensum.domain.model.PensumNodeStatus
+import com.gdavidpb.tuindice.pensum.domain.model.PensumRelationshipType
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import kotlin.math.roundToInt
 
@@ -32,6 +33,7 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 		val x = term?.let { displayTerm ->
 			displayTerm.x + (displayTerm.width - node.width) / 2.0
 		} ?: node.x
+		val status = nodeStatuses[node.id] ?: PensumNodeStatus.BLOCKED
 
 		PensumScreenModel.Node(
 			id = node.id,
@@ -44,7 +46,9 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 			y = (node.y - contentTopShift).coerceAtLeast(0.0),
 			width = node.width,
 			height = maxOf(node.height, node.name.minimumDisplayHeight()),
-			status = nodeStatuses[node.id] ?: PensumNodeStatus.BLOCKED,
+			visualStyle = status.toVisualStyle(),
+			isCurrent = status == PensumNodeStatus.CURRENT,
+			isApproved = status == PensumNodeStatus.APPROVED,
 			hasSubjectStatsAction = node.subjectCode.hasSubjectStatsAction(displayCode = node.displayCode)
 		)
 	}
@@ -97,7 +101,7 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 				id = edge.id,
 				fromNodeId = edge.fromNodeId,
 				toNodeId = edge.toNodeId,
-				relationshipType = edge.relationshipType,
+				relationshipType = edge.relationshipType.toScreenRelationshipType(),
 				points = edge.points.map { point ->
 					PensumScreenModel.Point(
 						x = point.x,
@@ -129,3 +133,47 @@ private fun String?.hasSubjectStatsAction(displayCode: String): Boolean {
 }
 
 private val WildcardSubjectCodeRegex = Regex("^[A-Z]{2}\\d{1,2}$")
+
+private fun PensumRelationshipType.toScreenRelationshipType(): PensumScreenModel.RelationshipType {
+	return when (this) {
+		PensumRelationshipType.REQUIREMENT -> PensumScreenModel.RelationshipType.REQUIREMENT
+		PensumRelationshipType.COREQUISITE -> PensumScreenModel.RelationshipType.COREQUISITE
+	}
+}
+
+private fun PensumNodeStatus.toVisualStyle(): PensumScreenModel.NodeVisualStyle {
+	return when (this) {
+		PensumNodeStatus.APPROVED -> PensumScreenModel.NodeVisualStyle(
+			containerArgb = 0xFF171819,
+			borderArgb = 0xFF8FE38C,
+			chipArgb = 0xFFB8F4A8,
+			chipTextArgb = 0xFF1D5B25,
+			textArgb = 0xFFF7F7F7,
+			secondaryTextArgb = 0xFF9C9EA3
+		)
+		PensumNodeStatus.CURRENT -> PensumScreenModel.NodeVisualStyle(
+			containerArgb = 0xFF171819,
+			borderArgb = 0xFFFFC400,
+			chipArgb = 0xFFF7E6A6,
+			chipTextArgb = 0xFF5A4A00,
+			textArgb = 0xFFF7F7F7,
+			secondaryTextArgb = 0xFF9C9EA3
+		)
+		PensumNodeStatus.AVAILABLE -> PensumScreenModel.NodeVisualStyle(
+			containerArgb = 0xFF171819,
+			borderArgb = 0xFF8A8F94,
+			chipArgb = 0xFFEBDDA3,
+			chipTextArgb = 0xFF534500,
+			textArgb = 0xFFF7F7F7,
+			secondaryTextArgb = 0xFF9C9EA3
+		)
+		PensumNodeStatus.BLOCKED -> PensumScreenModel.NodeVisualStyle(
+			containerArgb = 0xFF242628,
+			borderArgb = 0xFF686B70,
+			chipArgb = 0xFFB7B8BA,
+			chipTextArgb = 0xFF383A3D,
+			textArgb = 0xFFC7C8CA,
+			secondaryTextArgb = 0xFF8A8C90
+		)
+	}
+}

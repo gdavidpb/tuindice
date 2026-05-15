@@ -55,7 +55,6 @@ fun SubjectDetailScreen(
 			is SubjectDetail.State.Content ->
 				SubjectDetailContentView(
 					detail = state.detail,
-					selectedTab = state.selectedTab,
 					careerTabText = careerTabText,
 					globalTabText = globalTabText,
 					onTabSelected = onTabSelected,

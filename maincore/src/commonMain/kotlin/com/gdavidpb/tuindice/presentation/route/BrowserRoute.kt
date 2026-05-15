@@ -8,13 +8,15 @@ import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.presentation.contract.Browser
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.ui.screen.BrowserScreen
+import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 
 @Composable
 fun BrowserRoute(
 	title: String,
 	url: String,
 	onNavigateToExternalResourceDialog: (url: String) -> Unit,
-	viewModel: BrowserViewModel
+	viewModel: BrowserViewModel,
+	renderer: BrowserScreenRenderer
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 
@@ -36,6 +38,7 @@ fun BrowserRoute(
 		state = viewState,
 		onPageStarted = viewModel::showLoadingAction,
 		onPageFinished = viewModel::hideLoadingAction,
-		onExternalResourceClick = viewModel::openExternalResourceAction
+		onExternalResourceClick = viewModel::openExternalResourceAction,
+		renderer = renderer
 	)
 }

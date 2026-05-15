@@ -1,8 +1,6 @@
 package com.gdavidpb.tuindice.pensum.presentation.model
 
 import com.gdavidpb.tuindice.base.ui.view.DropdownMenuItem
-import com.gdavidpb.tuindice.pensum.domain.model.PensumNodeStatus
-import com.gdavidpb.tuindice.pensum.domain.model.PensumRelationshipType
 
 data class PensumScreenModel(
 	val selection: Selection,
@@ -60,7 +58,9 @@ data class PensumScreenModel(
 		val y: Double,
 		val width: Double,
 		val height: Double,
-		val status: PensumNodeStatus,
+		val visualStyle: NodeVisualStyle,
+		val isCurrent: Boolean,
+		val isApproved: Boolean,
 		val hasSubjectStatsAction: Boolean
 	)
 
@@ -68,7 +68,7 @@ data class PensumScreenModel(
 		val id: String,
 		val fromNodeId: String,
 		val toNodeId: String,
-		val relationshipType: PensumRelationshipType,
+		val relationshipType: RelationshipType,
 		val points: List<Point>
 	)
 
@@ -76,4 +76,18 @@ data class PensumScreenModel(
 		val x: Double,
 		val y: Double
 	)
+
+	data class NodeVisualStyle(
+		val containerArgb: Long,
+		val borderArgb: Long,
+		val chipArgb: Long,
+		val chipTextArgb: Long,
+		val textArgb: Long,
+		val secondaryTextArgb: Long
+	)
+
+	enum class RelationshipType {
+		REQUIREMENT,
+		COREQUISITE
+	}
 }

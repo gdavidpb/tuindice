@@ -100,7 +100,7 @@ class SubjectDetailActionProcessorContractTest {
 		val contentState = assertIs<SubjectDetail.State.Content>(state)
 		assertEquals("MAT101", contentState.detail.id)
 		assertEquals("Sobre MAT101", contentState.topBarTitle)
-		assertEquals(SubjectSegmentTab.CAREER, contentState.selectedTab)
+		assertEquals(SubjectSegmentTab.CAREER, contentState.detail.selectedTab)
 		assertEquals(listOf("MAT101"), repository.freshCalls)
 		assertEquals(listOf("MAT101"), repository.refreshCalls)
 	}

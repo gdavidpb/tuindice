@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.presentation.contract.Browser
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
-import org.koin.compose.koinInject
 import androidx.compose.ui.platform.testTag
 
 interface BrowserScreenRenderer {
@@ -31,7 +30,7 @@ fun BrowserScreen(
 	onPageStarted: () -> Unit,
 	onPageFinished: () -> Unit,
 	onExternalResourceClick: (url: String) -> Unit,
-	renderer: BrowserScreenRenderer = koinInject()
+	renderer: BrowserScreenRenderer
 ) {
 	Box(
 		modifier = Modifier

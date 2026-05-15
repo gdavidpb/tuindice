@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.subjects.presentation.action
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectDetail
+import com.gdavidpb.tuindice.subjects.presentation.mapper.withSelectedTab
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -19,7 +20,7 @@ class SelectSubjectSegmentTabActionProcessor : ActionProcessor<
 			suspend { state: SubjectDetail.State ->
 				when (state) {
 					is SubjectDetail.State.Content ->
-						state.copy(selectedTab = action.tab)
+						state.copy(detail = state.detail.withSelectedTab(action.tab))
 
 					is SubjectDetail.State.Failed,
 					SubjectDetail.State.Idle,

@@ -16,9 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.subjects.domain.model.SubjectDifficultyBand
-import com.gdavidpb.tuindice.subjects.domain.model.SubjectStatsSegment
-import kotlin.math.roundToInt
+import com.gdavidpb.tuindice.subjects.presentation.model.SubjectDetailItem
 import org.jetbrains.compose.resources.stringResource
 import tuindice.subjects.generated.resources.Res
 import tuindice.subjects.generated.resources.subjects_kpi_approval
@@ -29,7 +27,7 @@ import tuindice.subjects.generated.resources.subjects_kpi_withdrawal
 
 @Composable
 fun SubjectDetailKpiRowView(
-	segment: SubjectStatsSegment
+	segment: SubjectDetailItem.SegmentItem
 ) {
 	Column(
 		verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -45,15 +43,15 @@ fun SubjectDetailKpiRowView(
 					.weight(1.15f)
 					.fillMaxHeight(),
 				title = stringResource(Res.string.subjects_kpi_difficulty),
-				value = segment.difficultyScore.toScoreText(),
-				supporting = segment.difficultyBand.toDisplayText()
+				value = segment.difficultyScoreText,
+				supporting = segment.difficultyBandText
 			)
 			SubjectDetailStandardKpiCard(
 				modifier = Modifier
 					.weight(0.85f)
 					.fillMaxHeight(),
 				title = stringResource(Res.string.subjects_kpi_first_attempt),
-				value = segment.firstAttemptPassRate.toPercentText()
+				value = segment.firstAttemptPassRateText
 			)
 		}
 
@@ -64,17 +62,17 @@ fun SubjectDetailKpiRowView(
 			SubjectDetailStandardKpiCard(
 				modifier = Modifier.weight(1f),
 				title = stringResource(Res.string.subjects_kpi_approval),
-				value = segment.approvalRate.toPercentText()
+				value = segment.approvalRateText
 			)
 			SubjectDetailStandardKpiCard(
 				modifier = Modifier.weight(1f),
 				title = stringResource(Res.string.subjects_kpi_failure),
-				value = segment.latestFailureRate.toPercentText()
+				value = segment.failureRateText
 			)
 			SubjectDetailStandardKpiCard(
 				modifier = Modifier.weight(1f),
 				title = stringResource(Res.string.subjects_kpi_withdrawal),
-				value = segment.latestWithdrawalRate.toPercentText()
+				value = segment.withdrawalRateText
 			)
 		}
 	}
@@ -147,23 +145,5 @@ private fun SubjectDetailStandardKpiCard(
 				color = MaterialTheme.colorScheme.onSecondaryContainer
 			)
 		}
-	}
-}
-
-private fun Double?.toPercentText(): String {
-	return if (this == null) "--" else "${(this * 100).roundToInt()}%"
-}
-
-private fun Int?.toScoreText(): String {
-	return if (this == null) "--" else "$this/100"
-}
-
-private fun SubjectDifficultyBand?.toDisplayText(): String {
-	return when (this) {
-		SubjectDifficultyBand.LOW -> "Baja"
-		SubjectDifficultyBand.MEDIUM -> "Media"
-		SubjectDifficultyBand.HIGH -> "Alta"
-		SubjectDifficultyBand.VERY_HIGH -> "Muy alta"
-		null -> "--"
 	}
 }

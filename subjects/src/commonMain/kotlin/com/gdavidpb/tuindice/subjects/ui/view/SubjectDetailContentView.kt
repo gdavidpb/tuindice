@@ -22,20 +22,13 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
-import com.gdavidpb.tuindice.subjects.presentation.mapper.toCompactCountText
-import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail as SubjectDetailModel
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
-import com.gdavidpb.tuindice.subjects.domain.model.SubjectStatsSegment
+import com.gdavidpb.tuindice.subjects.presentation.model.SubjectDetailItem
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.number
-import kotlinx.datetime.toLocalDateTime
-import kotlin.time.Instant
 
 @Composable
 fun SubjectDetailContentView(
-	detail: SubjectDetailModel,
-	selectedTab: SubjectSegmentTab,
+	detail: SubjectDetailItem,
 	careerTabText: String,
 	globalTabText: String,
 	onTabSelected: (SubjectSegmentTab) -> Unit,
@@ -43,7 +36,7 @@ fun SubjectDetailContentView(
 	initialScrollOffset: Dp = 0.dp,
 	onChartsVisibilityChange: (Boolean) -> Unit = {}
 ) {
-	val segment = detail.resolveSegment(selectedTab) ?: return
+	val segment = detail.selectedSegment ?: return
 	val density = LocalDensity.current
 	val initialScrollOffsetPx = with(density) {
 		initialScrollOffset.roundToPx()
@@ -89,9 +82,9 @@ fun SubjectDetailContentView(
 			detail = detail
 		)
 
-		if (detail.careerSegment != null && detail.globalSegment != null) {
+		if (detail.hasSegmentTabs) {
 			SubjectDetailSegmentTabsView(
-				selectedTab = selectedTab,
+				selectedTab = detail.selectedTab,
 				careerTabText = careerTabText,
 				globalTabText = globalTabText,
 				onTabSelected = onTabSelected
@@ -99,8 +92,8 @@ fun SubjectDetailContentView(
 		}
 
 		SubjectDetailSegmentSummaryView(
-			studentsText = segment.sampleStudents.toCompactCountText(),
-			attemptsText = segment.closedAttempts.toCompactCountText()
+			studentsText = segment.studentsText,
+			attemptsText = segment.attemptsText
 		)
 
 		SubjectDetailKpiRowView(
@@ -113,27 +106,11 @@ fun SubjectDetailContentView(
 		)
 
 		Text(
-			text = "Actualizado ${detail.generatedAt.toDateText()}",
+			text = detail.generatedAtText,
 			style = MaterialTheme.typography.bodySmall,
 			color = MaterialTheme.colorScheme.onSurfaceVariant
 		)
 
 		Spacer(modifier = Modifier.height(8.dp))
 	}
-}
-
-private fun SubjectDetailModel.resolveSegment(
-	selectedTab: SubjectSegmentTab
-): SubjectStatsSegment? {
-	return when (selectedTab) {
-		SubjectSegmentTab.CAREER -> careerSegment ?: globalSegment
-		SubjectSegmentTab.GLOBAL -> globalSegment ?: careerSegment
-	}
-}
-
-private fun Long.toDateText(): String {
-	val localDate = Instant.fromEpochMilliseconds(this)
-		.toLocalDateTime(TimeZone.currentSystemDefault())
-		.date
-	return "${localDate.day}/${localDate.month.number}/${localDate.year}"
 }

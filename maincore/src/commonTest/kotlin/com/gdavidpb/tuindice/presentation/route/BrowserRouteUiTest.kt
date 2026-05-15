@@ -50,7 +50,8 @@ class BrowserRouteUiTest {
 					onNavigateToExternalResourceDialog = { url ->
 						externalDialogUrl = url
 					},
-					viewModel = viewModel
+					viewModel = viewModel,
+					renderer = FakeBrowserRenderer
 				)
 			}
 
@@ -93,7 +94,8 @@ class BrowserRouteUiTest {
 					onNavigateToExternalResourceDialog = { url ->
 						externalDialogUrl = url
 					},
-					viewModel = viewModel
+					viewModel = viewModel,
+					renderer = FakeBrowserRenderer
 				)
 			}
 
@@ -120,31 +122,30 @@ class BrowserRouteUiTest {
 	fun when_rendererSignalsPageStart_then_routeShowsBrowserLoadingIndicator() = runTuIndiceUiTest {
 		val viewModel = createBrowserViewModel()
 		var pageStartedCalls = 0
+		val renderer = object : BrowserScreenRenderer {
+			@Composable
+			override fun Render(
+				url: String,
+				modifier: Modifier,
+				onPageStarted: () -> Unit,
+				onPageFinished: () -> Unit,
+				onExternalResourceClick: (url: String) -> Unit
+			) {
+				LaunchedEffect(url) {
+					pageStartedCalls++
+					onPageStarted()
+				}
+
+				Text(text = "Browser route loading: $url")
+			}
+		}
 
 		stopKoin()
 
 		startKoin {
 			modules(
 				module {
-					single<BrowserScreenRenderer> {
-						object : BrowserScreenRenderer {
-							@Composable
-							override fun Render(
-								url: String,
-								modifier: Modifier,
-								onPageStarted: () -> Unit,
-								onPageFinished: () -> Unit,
-								onExternalResourceClick: (url: String) -> Unit
-							) {
-								LaunchedEffect(url) {
-									pageStartedCalls++
-									onPageStarted()
-								}
-
-								Text(text = "Browser route loading: $url")
-							}
-						}
-					}
+					single<BrowserScreenRenderer> { renderer }
 				}
 			)
 		}
@@ -155,7 +156,8 @@ class BrowserRouteUiTest {
 					title = "Ayuda",
 					url = "https://tuindice.app/help",
 					onNavigateToExternalResourceDialog = {},
-					viewModel = viewModel
+					viewModel = viewModel,
+					renderer = renderer
 				)
 			}
 
@@ -172,31 +174,30 @@ class BrowserRouteUiTest {
 	@Test
 	fun when_rendererSignalsPageFinished_then_routeHidesBrowserLoadingIndicator() = runTuIndiceUiTest {
 		val viewModel = createBrowserViewModel()
+		val renderer = object : BrowserScreenRenderer {
+			@Composable
+			override fun Render(
+				url: String,
+				modifier: Modifier,
+				onPageStarted: () -> Unit,
+				onPageFinished: () -> Unit,
+				onExternalResourceClick: (url: String) -> Unit
+			) {
+				Button(onClick = onPageStarted) {
+					Text(text = "Iniciar carga")
+				}
+				Button(onClick = onPageFinished) {
+					Text(text = "Finalizar carga")
+				}
+			}
+		}
 
 		stopKoin()
 
 		startKoin {
 			modules(
 				module {
-					single<BrowserScreenRenderer> {
-						object : BrowserScreenRenderer {
-							@Composable
-							override fun Render(
-								url: String,
-								modifier: Modifier,
-								onPageStarted: () -> Unit,
-								onPageFinished: () -> Unit,
-								onExternalResourceClick: (url: String) -> Unit
-							) {
-								Button(onClick = onPageStarted) {
-									Text(text = "Iniciar carga")
-								}
-								Button(onClick = onPageFinished) {
-									Text(text = "Finalizar carga")
-								}
-							}
-						}
-					}
+					single<BrowserScreenRenderer> { renderer }
 				}
 			)
 		}
@@ -207,7 +208,8 @@ class BrowserRouteUiTest {
 					title = "Privacidad",
 					url = "https://tuindice.app/privacy",
 					onNavigateToExternalResourceDialog = {},
-					viewModel = viewModel
+					viewModel = viewModel,
+					renderer = renderer
 				)
 			}
 
@@ -236,29 +238,28 @@ class BrowserRouteUiTest {
 	fun when_rendererRequestsExternalResource_then_routeNavigatesToExternalDialog() = runTuIndiceUiTest {
 		val viewModel = createBrowserViewModel()
 		var externalDialogUrl = ""
+		val renderer = object : BrowserScreenRenderer {
+			@Composable
+			override fun Render(
+				url: String,
+				modifier: Modifier,
+				onPageStarted: () -> Unit,
+				onPageFinished: () -> Unit,
+				onExternalResourceClick: (url: String) -> Unit
+			) {
+				LaunchedEffect(url) {
+					onExternalResourceClick("https://externo.tuindice.app/trigger")
+				}
+				Text(text = "Browser route callback: $url")
+			}
+		}
 
 		stopKoin()
 
 		startKoin {
 			modules(
 				module {
-					single<BrowserScreenRenderer> {
-						object : BrowserScreenRenderer {
-							@Composable
-							override fun Render(
-								url: String,
-								modifier: Modifier,
-								onPageStarted: () -> Unit,
-								onPageFinished: () -> Unit,
-								onExternalResourceClick: (url: String) -> Unit
-							) {
-								LaunchedEffect(url) {
-									onExternalResourceClick("https://externo.tuindice.app/trigger")
-								}
-								Text(text = "Browser route callback: $url")
-							}
-						}
-					}
+					single<BrowserScreenRenderer> { renderer }
 				}
 			)
 		}
@@ -271,7 +272,8 @@ class BrowserRouteUiTest {
 					onNavigateToExternalResourceDialog = { url ->
 						externalDialogUrl = url
 					},
-					viewModel = viewModel
+					viewModel = viewModel,
+					renderer = renderer
 				)
 			}
 
@@ -289,30 +291,29 @@ class BrowserRouteUiTest {
 	fun when_externalResourceIsRequestedFromRendererAfterTap_then_routeNavigatesToExternalDialog() = runTuIndiceUiTest {
 		val viewModel = createBrowserViewModel()
 		var externalDialogUrl = ""
+		val renderer = object : BrowserScreenRenderer {
+			@Composable
+			override fun Render(
+				url: String,
+				modifier: Modifier,
+				onPageStarted: () -> Unit,
+				onPageFinished: () -> Unit,
+				onExternalResourceClick: (url: String) -> Unit
+			) {
+				Button(
+					onClick = { onExternalResourceClick("https://externo.tuindice.app/tap") }
+				) {
+					Text(text = "Abrir recurso externo")
+				}
+			}
+		}
 
 		stopKoin()
 
 		startKoin {
 			modules(
 				module {
-					single<BrowserScreenRenderer> {
-						object : BrowserScreenRenderer {
-							@Composable
-							override fun Render(
-								url: String,
-								modifier: Modifier,
-								onPageStarted: () -> Unit,
-								onPageFinished: () -> Unit,
-								onExternalResourceClick: (url: String) -> Unit
-							) {
-								Button(
-									onClick = { onExternalResourceClick("https://externo.tuindice.app/tap") }
-								) {
-									Text(text = "Abrir recurso externo")
-								}
-							}
-						}
-					}
+					single<BrowserScreenRenderer> { renderer }
 				}
 			)
 		}
@@ -325,7 +326,8 @@ class BrowserRouteUiTest {
 					onNavigateToExternalResourceDialog = { url ->
 						externalDialogUrl = url
 					},
-					viewModel = viewModel
+					viewModel = viewModel,
+					renderer = renderer
 					)
 				}
 
