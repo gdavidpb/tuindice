@@ -85,12 +85,13 @@ class PensumRoomDataSource(
 				if (subjectCatalog.isNotEmpty()) {
 					subjectCatalogCacheDao.upsertEntities(subjectCatalog)
 				}
+				val selectedPensum = response.selectedPensum()
 				pensumSelectionDao.upsertEntity(
 					PensumSelectionEntity(
 						id = PensumSelectionTable.DEFAULT_ID,
-						careerCode = response.selection.careerCode,
-						year = response.selection.year,
-						modalityId = response.selection.modalityId,
+						careerCode = selectedPensum.careerCode,
+						year = selectedPensum.year,
+						modalityId = selectedPensum.modalityId,
 						cacheKey = cacheKey,
 						updatedAt = now
 					)
@@ -161,18 +162,20 @@ class PensumRoomDataSource(
 	}
 
 	private fun GetPensumResponse.toCacheEntity(cacheKey: String): PensumCacheEntity {
+		val pensum = selectedPensum()
 		return PensumCacheEntity(
 			cacheKey = cacheKey,
-			careerCode = selection.careerCode,
-			year = selection.year,
-			modalityId = selection.modalityId,
+			careerCode = pensum.careerCode,
+			year = pensum.year,
+			modalityId = pensum.modalityId,
 			payloadJson = json.encodeToString(this),
 			updatedAt = currentTimeMillis()
 		)
 	}
 
 	private fun GetPensumResponse.toSubjectCatalogCacheEntities(updatedAt: Long): List<SubjectCatalogCacheEntity> {
-		return pensum.nodes
+		return pensums
+			.flatMap { pensum -> pensum.nodes }
 			.mapNotNull { node ->
 				val subjectCode = node.subjectCode
 					?.trim()
@@ -191,6 +194,12 @@ class PensumRoomDataSource(
 				)
 			}
 			.distinctBy(SubjectCatalogCacheEntity::subjectCode)
+	}
+
+	private fun GetPensumResponse.selectedPensum(): GetPensumResponse.Pensum {
+		return pensums.firstOrNull { pensum -> pensum.id == selectedPensumId }
+			?: pensums.firstOrNull()
+			?: error("Pensum response contains no pensums.")
 	}
 
 	private fun List<AcademicTermEntity>.toAcademicSnapshot(

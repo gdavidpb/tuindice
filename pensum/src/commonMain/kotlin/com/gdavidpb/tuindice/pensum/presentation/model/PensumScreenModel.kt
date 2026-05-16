@@ -25,6 +25,7 @@ data class PensumScreenModel(
 		val careerCode: Int,
 		val careerName: String,
 		val year: Int,
+		val modalityOptions: List<ModalityItem>,
 		override val text: String
 	) : DropdownMenuItem
 

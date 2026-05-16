@@ -5,37 +5,10 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class GetPensumResponse(
-	@SerialName("selection") val selection: Selection,
-	@SerialName("available_pensums") val availablePensums: List<PensumOption>,
-	@SerialName("available_modalities") val availableModalities: List<Modality>,
-	@SerialName("pensum") val pensum: Pensum
+	@SerialName("selected_pensum_id") val selectedPensumId: String,
+	@SerialName("inferred") val inferred: Boolean,
+	@SerialName("pensums") val pensums: List<Pensum>
 ) {
-	@Serializable
-	data class Selection(
-		@SerialName("pensum_id") val pensumId: String,
-		@SerialName("career_code") val careerCode: Int,
-		@SerialName("career_name") val careerName: String,
-		@SerialName("year") val year: Int,
-		@SerialName("modality_id") val modalityId: String,
-		@SerialName("modality_name") val modalityName: String,
-		@SerialName("inferred") val inferred: Boolean
-	)
-
-	@Serializable
-	data class PensumOption(
-		@SerialName("id") val id: String,
-		@SerialName("career_code") val careerCode: Int,
-		@SerialName("career_name") val careerName: String,
-		@SerialName("year") val year: Int
-	)
-
-	@Serializable
-	data class Modality(
-		@SerialName("id") val id: String,
-		@SerialName("name") val name: String,
-		@SerialName("is_default") val isDefault: Boolean
-	)
-
 	@Serializable
 	data class Pensum(
 		@SerialName("id") val id: String,

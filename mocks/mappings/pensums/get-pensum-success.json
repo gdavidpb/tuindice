@@ -1,8 +1,7 @@
 {
-  "priority": 10,
   "request": {
     "method": "GET",
-    "urlPath": "/pensums/v1"
+    "urlPath": "/pensums/v2"
   },
   "response": {
     "status": 200,

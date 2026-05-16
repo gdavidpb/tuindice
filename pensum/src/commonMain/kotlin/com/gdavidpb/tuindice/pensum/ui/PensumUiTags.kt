@@ -8,6 +8,7 @@ object PensumUiTags {
 	const val ZoomIn = "pensum_zoom_in"
 	const val ZoomOut = "pensum_zoom_out"
 	const val Minimap = "pensum_minimap"
+	fun versionOption(careerCode: Int, year: Int): String = "pensum_version_option_${careerCode}_$year"
 	fun node(id: String): String = "pensum_node_$id"
 	fun nodeSubjectStatsButton(id: String): String = "pensum_node_subject_stats_button_$id"
 }

@@ -9,56 +9,79 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumRelationshipType
 import com.gdavidpb.tuindice.pensum.domain.model.PensumSelection
 
 fun GetPensumResponse.cacheKey(): String {
-	return "${selection.careerCode}-${selection.year}-${selection.modalityId}"
+	val pensum = selectedPensum()
+	return "${pensum.careerCode}-${pensum.year}-${pensum.modalityId}"
 }
 
 fun GetPensumResponse.toSelection(): PensumSelection {
+	val pensum = selectedPensum()
 	return PensumSelection(
-		pensumId = selection.pensumId,
-		careerCode = selection.careerCode,
-		careerName = selection.careerName,
-		year = selection.year,
-		modalityId = selection.modalityId,
-		modalityName = selection.modalityName,
-		inferred = selection.inferred
-	)
-}
-
-fun GetPensumResponse.toAvailablePensums(): List<PensumOption> {
-	return availablePensums.map { option ->
-		PensumOption(
-			id = option.id,
-			careerCode = option.careerCode,
-			careerName = option.careerName,
-			year = option.year
-		)
-	}
-}
-
-fun GetPensumResponse.toAvailableModalities(): List<PensumModality> {
-	return availableModalities.map { modality ->
-		PensumModality(
-			id = modality.id,
-			name = modality.name,
-			isDefault = modality.isDefault
-		)
-	}
-}
-
-fun GetPensumResponse.toGraph(): PensumGraph {
-	return PensumGraph(
-		id = pensum.id,
+		pensumId = pensum.id,
 		careerCode = pensum.careerCode,
 		careerName = pensum.careerName,
 		year = pensum.year,
 		modalityId = pensum.modalityId,
 		modalityName = pensum.modalityName,
-		totalCredits = pensum.totalCredits,
+		inferred = inferred
+	)
+}
+
+fun GetPensumResponse.toAvailablePensums(): List<PensumOption> {
+	return pensums
+		.groupBy { pensum -> pensum.careerCode to pensum.year }
+		.values
+		.map { group ->
+			val pensum = group.first()
+			PensumOption(
+				id = "${pensum.careerCode}-${pensum.year}",
+				careerCode = pensum.careerCode,
+				careerName = pensum.careerName,
+				year = pensum.year
+			)
+		}
+		.sortedWith(compareBy(PensumOption::year, PensumOption::careerName))
+}
+
+fun GetPensumResponse.toAvailableModalities(): List<PensumModality> {
+	val selectedPensum = selectedPensum()
+	return pensums
+		.filter { pensum ->
+			pensum.careerCode == selectedPensum.careerCode &&
+				pensum.year == selectedPensum.year
+		}
+		.map { pensum ->
+			PensumModality(
+				id = pensum.modalityId,
+				name = pensum.modalityName,
+				isDefault = pensum.id == selectedPensum.id
+			)
+		}
+		.distinctBy(PensumModality::id)
+		.sortedWith(compareByDescending<PensumModality>(PensumModality::isDefault).thenBy(PensumModality::name))
+}
+
+fun GetPensumResponse.toGraph(): PensumGraph {
+	return selectedPensum().toGraph()
+}
+
+fun GetPensumResponse.toGraphs(): List<PensumGraph> {
+	return pensums.map { pensum -> pensum.toGraph() }
+}
+
+private fun GetPensumResponse.Pensum.toGraph(): PensumGraph {
+	return PensumGraph(
+		id = id,
+		careerCode = careerCode,
+		careerName = careerName,
+		year = year,
+		modalityId = modalityId,
+		modalityName = modalityName,
+		totalCredits = totalCredits,
 		canvas = PensumGraph.Canvas(
-			width = pensum.canvas.width,
-			height = pensum.canvas.height
+			width = canvas.width,
+			height = canvas.height
 		),
-		terms = pensum.terms.map { term ->
+		terms = terms.map { term ->
 			PensumGraph.Term(
 				id = term.id,
 				label = term.label,
@@ -66,7 +89,7 @@ fun GetPensumResponse.toGraph(): PensumGraph {
 				width = term.width
 			)
 		},
-		nodes = pensum.nodes.map { node ->
+		nodes = nodes.map { node ->
 			PensumGraph.Node(
 				id = node.id,
 				nodeType = node.nodeType.toNodeType(),
@@ -92,7 +115,7 @@ fun GetPensumResponse.toGraph(): PensumGraph {
 				}
 			)
 		},
-		edges = pensum.edges.map { edge ->
+		edges = edges.map { edge ->
 			PensumGraph.Edge(
 				id = edge.id,
 				fromNodeId = edge.fromNodeId,
@@ -102,6 +125,12 @@ fun GetPensumResponse.toGraph(): PensumGraph {
 			)
 		}
 	)
+}
+
+private fun GetPensumResponse.selectedPensum(): GetPensumResponse.Pensum {
+	return pensums.firstOrNull { pensum -> pensum.id == selectedPensumId }
+		?: pensums.firstOrNull()
+		?: error("Pensum response contains no pensums.")
 }
 
 private fun String.toNodeType(): PensumNodeType {

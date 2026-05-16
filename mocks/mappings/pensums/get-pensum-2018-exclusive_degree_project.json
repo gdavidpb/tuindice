@@ -4,10 +4,10 @@
     "urlPath": "/pensums/v2",
     "queryParameters": {
       "year": {
-        "equalTo": "2017"
+        "equalTo": "2018"
       },
       "modality_id": {
-        "equalTo": "degree_project"
+        "equalTo": "exclusive_degree_project"
       }
     }
   },
@@ -16,6 +16,6 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "bodyFileName": "pensums/get-pensum-2017-degree_project.json"
+    "bodyFileName": "pensums/get-pensum-2018-exclusive_degree_project.json"
   }
 }

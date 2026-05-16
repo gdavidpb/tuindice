@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.pensum.presentation.mapper
 
 import com.gdavidpb.tuindice.pensum.domain.model.ObservedPensum
+import com.gdavidpb.tuindice.pensum.domain.model.PensumGraph
 import com.gdavidpb.tuindice.pensum.domain.model.PensumNodeStatus
 import com.gdavidpb.tuindice.pensum.domain.model.PensumRelationshipType
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
@@ -60,6 +61,24 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 		pensum.canvas.height - contentTopShift,
 		displayNodes.maxOfOrNull { node -> node.y + node.height }.orZero() + DisplayCanvasBottomPadding
 	)
+	val pensumOptions = pensums
+		.groupBy { graph -> graph.careerCode to graph.year }
+		.values
+		.map { group ->
+			val representative = group.first()
+			PensumScreenModel.PensumOptionItem(
+				id = "${representative.careerCode}-${representative.year}",
+				careerCode = representative.careerCode,
+				careerName = representative.careerName,
+				year = representative.year,
+				modalityOptions = group.toModalityItems(selectedPensumId = selection.pensumId),
+				text = "${representative.year} - ${representative.careerName}"
+			)
+		}
+		.sortedWith(compareBy(PensumScreenModel.PensumOptionItem::year, PensumScreenModel.PensumOptionItem::careerName))
+	val selectedOption = pensumOptions.firstOrNull { option ->
+		option.careerCode == selection.careerCode && option.year == selection.year
+	}
 
 	return PensumScreenModel(
 		selection = PensumScreenModel.Selection(
@@ -67,23 +86,8 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 			year = selection.year,
 			modalityId = selection.modalityId
 		),
-		pensumOptions = availablePensums.map { option ->
-			PensumScreenModel.PensumOptionItem(
-				id = option.id,
-				careerCode = option.careerCode,
-				careerName = option.careerName,
-				year = option.year,
-				text = "${option.year} - ${option.careerName}"
-			)
-		},
-		modalityOptions = availableModalities.map { modality ->
-			PensumScreenModel.ModalityItem(
-				id = modality.id,
-				name = modality.name,
-				isDefault = modality.isDefault,
-				text = modality.name
-			)
-		},
+		pensumOptions = pensumOptions,
+		modalityOptions = selectedOption?.modalityOptions.orEmpty(),
 		progressPercent = if (pensum.totalCredits == 0)
 			0
 		else
@@ -111,6 +115,19 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 			)
 		}
 	)
+}
+
+private fun List<PensumGraph>.toModalityItems(selectedPensumId: String): List<PensumScreenModel.ModalityItem> {
+	return map { graph ->
+		PensumScreenModel.ModalityItem(
+			id = graph.modalityId,
+			name = graph.modalityName,
+			isDefault = graph.id == selectedPensumId,
+			text = graph.modalityName
+		)
+	}
+		.distinctBy(PensumScreenModel.ModalityItem::id)
+		.sortedWith(compareByDescending<PensumScreenModel.ModalityItem>(PensumScreenModel.ModalityItem::isDefault).thenBy(PensumScreenModel.ModalityItem::name))
 }
 
 private fun Double?.orZero(): Double = this ?: 0.0

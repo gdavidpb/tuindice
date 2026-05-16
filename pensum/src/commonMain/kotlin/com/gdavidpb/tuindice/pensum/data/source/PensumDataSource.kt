@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteReposi
 import com.gdavidpb.tuindice.pensum.data.mapper.toAvailableModalities
 import com.gdavidpb.tuindice.pensum.data.mapper.toAvailablePensums
 import com.gdavidpb.tuindice.pensum.data.mapper.toGraph
+import com.gdavidpb.tuindice.pensum.data.mapper.toGraphs
 import com.gdavidpb.tuindice.pensum.data.mapper.toSelection
 import com.gdavidpb.tuindice.pensum.data.repository.PensumLocalDataRepository
 import com.gdavidpb.tuindice.pensum.data.repository.PensumRemoteDataRepository
@@ -34,6 +35,7 @@ class PensumDataSource(
 
 			checkNotNull(response)
 			val graph = response.toGraph()
+			val graphs = response.toGraphs()
 			val progress = pensumStatusEngine.resolve(
 				pensum = graph,
 				academicSnapshot = academicSnapshot
@@ -45,6 +47,7 @@ class PensumDataSource(
 					availablePensums = response.toAvailablePensums(),
 					availableModalities = response.toAvailableModalities(),
 					pensum = graph,
+					pensums = graphs,
 					approvedCredits = progress.approvedCredits,
 					nodeStatuses = progress.nodeStatuses
 				)

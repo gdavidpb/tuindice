@@ -6,8 +6,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -34,14 +37,14 @@ fun PensumSummaryRow(model: PensumScreenModel) {
 		item.careerCode == model.selection.careerCode && item.year == model.selection.year
 	}
 	val selectedModality = model.modalityOptions.firstOrNull { item -> item.id == model.selection.modalityId }
-	val contextText = listOfNotNull(
-		selectedPensum?.let { item -> "${item.careerName} ${item.year}" },
-		selectedModality?.name
-	).joinToString(separator = " · ")
+	val pensumTitle = selectedPensum?.careerName.orEmpty()
+	val modalityName = selectedModality?.name.orEmpty()
+	val hasPensumContext = pensumTitle.isNotBlank() || modalityName.isNotBlank()
 	val progress = remember { Animatable(0f) }
 	val approvedCredits = remember { Animatable(0f) }
 	val totalCredits = remember { Animatable(0f) }
 	val targetProgress = model.progressPercent.coerceIn(0, 100) / 100f
+	val summaryShape = RoundedCornerShape(18.dp)
 	val summaryAnimationSpec = tween<Float>(
 		durationMillis = SummaryAnimationMillis,
 		easing = DecelerateEasing
@@ -76,47 +79,73 @@ fun PensumSummaryRow(model: PensumScreenModel) {
 		modifier = Modifier
 			.fillMaxWidth()
 			.background(ScreenBackground)
-			.padding(horizontal = 16.dp, vertical = 10.dp),
+			.padding(horizontal = 16.dp, vertical = 10.dp)
+			.height(IntrinsicSize.Min),
 		verticalAlignment = Alignment.CenterVertically,
 		horizontalArrangement = Arrangement.spacedBy(10.dp)
 	) {
-		PensumProgressRing(progress = progress.value)
-		Column(
-			modifier = Modifier.weight(1f),
-			verticalArrangement = Arrangement.spacedBy(2.dp)
-		) {
-			Text(
-				text = "${(progress.value * 100).roundToInt()}% ${stringResource(Res.string.pensum_progress_label)}",
-				style = MaterialTheme.typography.titleMedium,
-				fontWeight = FontWeight.SemiBold,
-				color = TextPrimary,
-				maxLines = 1,
-				overflow = TextOverflow.Ellipsis
-			)
-			Text(
-				text = "${approvedCredits.value.roundToInt()}/${totalCredits.value.roundToInt()} UC",
-				style = MaterialTheme.typography.bodyMedium,
-				color = TextSecondary,
-				maxLines = 1,
-				overflow = TextOverflow.Ellipsis
-			)
-		}
-	}
-
-	if (contextText.isNotBlank()) {
-		Text(
+		Row(
 			modifier = Modifier
-				.fillMaxWidth()
-				.background(ScreenBackground)
-				.padding(start = 16.dp, end = 16.dp, bottom = 10.dp)
-				.background(PanelBackground, RoundedCornerShape(50))
-				.border(1.dp, PanelBorder, RoundedCornerShape(50))
-				.padding(horizontal = 10.dp, vertical = 6.dp),
-			text = contextText,
-			style = MaterialTheme.typography.labelMedium,
-			color = TextSecondary,
-			maxLines = 1,
-			overflow = TextOverflow.Ellipsis
-		)
+				.weight(if (hasPensumContext) 0.95f else 1f)
+				.fillMaxHeight()
+				.background(PanelBackground, summaryShape)
+				.border(1.dp, PanelBorder, summaryShape)
+				.padding(horizontal = 12.dp, vertical = 10.dp),
+			verticalAlignment = Alignment.CenterVertically,
+			horizontalArrangement = Arrangement.spacedBy(10.dp)
+		) {
+			PensumProgressRing(progress = progress.value)
+			Column(
+				modifier = Modifier.weight(1f),
+				verticalArrangement = Arrangement.spacedBy(2.dp)
+			) {
+				Text(
+					text = "${(progress.value * 100).roundToInt()}% ${stringResource(Res.string.pensum_progress_label)}",
+					style = MaterialTheme.typography.titleMedium,
+					fontWeight = FontWeight.SemiBold,
+					color = TextPrimary,
+					maxLines = 1,
+					overflow = TextOverflow.Ellipsis
+				)
+				Text(
+					text = "${approvedCredits.value.roundToInt()}/${totalCredits.value.roundToInt()} UC",
+					style = MaterialTheme.typography.bodyMedium,
+					color = TextSecondary,
+					maxLines = 1,
+					overflow = TextOverflow.Ellipsis
+				)
+			}
+		}
+		if (hasPensumContext) {
+			Column(
+				modifier = Modifier
+					.weight(1.05f)
+					.fillMaxHeight()
+					.background(PanelBackground, summaryShape)
+					.border(1.dp, PanelBorder, summaryShape)
+					.padding(horizontal = 12.dp, vertical = 10.dp),
+				verticalArrangement = Arrangement.Center
+			) {
+				if (pensumTitle.isNotBlank()) {
+					Text(
+						text = pensumTitle,
+						style = MaterialTheme.typography.labelLarge,
+						fontWeight = FontWeight.SemiBold,
+						color = TextPrimary,
+						maxLines = 1,
+						overflow = TextOverflow.Ellipsis
+					)
+				}
+				if (modalityName.isNotBlank()) {
+					Text(
+						text = modalityName,
+						style = MaterialTheme.typography.labelMedium,
+						color = TextSecondary,
+						maxLines = 1,
+						overflow = TextOverflow.Ellipsis
+					)
+				}
+			}
+		}
 	}
 }

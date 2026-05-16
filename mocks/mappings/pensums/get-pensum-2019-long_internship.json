@@ -1,8 +1,7 @@
 {
-  "priority": 1,
   "request": {
     "method": "GET",
-    "urlPath": "/pensums/v1",
+    "urlPath": "/pensums/v2",
     "queryParameters": {
       "year": {
         "equalTo": "2019"

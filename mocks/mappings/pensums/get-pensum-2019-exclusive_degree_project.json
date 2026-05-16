@@ -1,14 +1,13 @@
 {
-  "priority": 1,
   "request": {
     "method": "GET",
-    "urlPath": "/pensums/v1",
+    "urlPath": "/pensums/v2",
     "queryParameters": {
       "year": {
-        "equalTo": "2014"
+        "equalTo": "2019"
       },
       "modality_id": {
-        "equalTo": "long_internship"
+        "equalTo": "exclusive_degree_project"
       }
     }
   },
@@ -17,6 +16,6 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "bodyFileName": "pensums/get-pensum-2014-long_internship.json"
+    "bodyFileName": "pensums/get-pensum-2019-exclusive_degree_project.json"
   }
 }

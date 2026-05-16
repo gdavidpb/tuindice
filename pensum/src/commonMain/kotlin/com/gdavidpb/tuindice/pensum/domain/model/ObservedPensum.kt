@@ -5,6 +5,7 @@ data class ObservedPensum(
 	val availablePensums: List<PensumOption>,
 	val availableModalities: List<PensumModality>,
 	val pensum: PensumGraph,
+	val pensums: List<PensumGraph>,
 	val approvedCredits: Int,
 	val nodeStatuses: Map<String, PensumNodeStatus>
 )

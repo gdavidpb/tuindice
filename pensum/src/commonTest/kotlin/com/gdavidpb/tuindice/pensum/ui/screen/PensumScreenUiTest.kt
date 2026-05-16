@@ -1,7 +1,10 @@
 package com.gdavidpb.tuindice.pensum.ui.screen
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsNotSelected
+import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -72,6 +75,24 @@ class PensumScreenUiTest {
 
 		assertNodeHidden(PensumUiTags.nodeSubjectStatsButton("ea1"))
 	}
+
+	@Test
+	fun when_selectionSheetOpens_then_marksSelectedCareerYear() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = Pensum.State.Content(model = samplePensumModelWithVisibleBasicCycle()),
+				onRetryClick = {},
+				showSelectionSheet = true,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		onNodeWithText("2019 - Computación").assertExists()
+		onNodeWithTag(PensumUiTags.versionOption(careerCode = 800, year = 2019)).assertIsSelected()
+		onNodeWithTag(PensumUiTags.versionOption(careerCode = 0, year = 2019)).assertIsNotSelected()
+	}
 }
 
 private fun samplePensumModel(): PensumScreenModel {
@@ -87,6 +108,7 @@ private fun samplePensumModel(): PensumScreenModel {
 				careerCode = 15,
 				careerName = "Computación",
 				year = 2019,
+				modalityOptions = emptyList(),
 				text = "2019 - Computación"
 			)
 		),
@@ -131,6 +153,57 @@ private fun samplePensumModel(): PensumScreenModel {
 			)
 		),
 		edges = emptyList()
+	)
+}
+
+private fun samplePensumModelWithVisibleBasicCycle(): PensumScreenModel {
+	val modalities = listOf(
+		PensumScreenModel.ModalityItem(
+			id = "degree_project",
+			name = "Proyecto de Grado",
+			isDefault = true,
+			text = "Proyecto de Grado"
+		),
+		PensumScreenModel.ModalityItem(
+			id = "long_internship",
+			name = "Pasantía Larga",
+			isDefault = false,
+			text = "Pasantía Larga"
+		)
+	)
+
+	return samplePensumModel().copy(
+		selection = PensumScreenModel.Selection(
+			careerCode = 800,
+			year = 2019,
+			modalityId = "degree_project"
+		),
+		pensumOptions = listOf(
+			PensumScreenModel.PensumOptionItem(
+				id = "0-2019",
+				careerCode = 0,
+				careerName = "Ciclo Básico",
+				year = 2019,
+				modalityOptions = listOf(
+					PensumScreenModel.ModalityItem(
+						id = "plan_comun",
+						name = "Plan común",
+						isDefault = true,
+						text = "Plan común"
+					)
+				),
+				text = "2019 - Ciclo Básico"
+			),
+			PensumScreenModel.PensumOptionItem(
+				id = "800-2019",
+				careerCode = 800,
+				careerName = "Computación",
+				year = 2019,
+				modalityOptions = modalities,
+				text = "2019 - Computación"
+			)
+		),
+		modalityOptions = modalities
 	)
 }
 

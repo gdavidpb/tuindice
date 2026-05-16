@@ -144,35 +144,17 @@ internal fun sampleSubjectDetailState(
 internal fun samplePensumState() = Pensum.State.Content(
 	model = PensumScreenModel(
 		selection = PensumScreenModel.Selection(
-			careerCode = 15,
+			careerCode = 800,
 			year = 2019,
 			modalityId = "degree_project"
 		),
 		pensumOptions = listOf(
-			pensumOption(year = 2014),
+			pensumOption(year = 2016),
 			pensumOption(year = 2017),
+			pensumOption(year = 2018),
 			pensumOption(year = 2019)
 		),
-		modalityOptions = listOf(
-			PensumScreenModel.ModalityItem(
-				id = "degree_project",
-				name = "Proyecto de Grado",
-				isDefault = true,
-				text = "Proyecto de Grado"
-			),
-			PensumScreenModel.ModalityItem(
-				id = "project_de",
-				name = "Proyecto DE",
-				isDefault = false,
-				text = "Proyecto DE"
-			),
-			PensumScreenModel.ModalityItem(
-				id = "long_internship",
-				name = "Pasantía Larga",
-				isDefault = false,
-				text = "Pasantía Larga"
-			)
-		),
+		modalityOptions = sampleModalityOptions(),
 		progressPercent = 75,
 		approvedCredits = 153,
 		totalCredits = 205,
@@ -214,11 +196,33 @@ internal fun samplePensumState() = Pensum.State.Content(
 )
 
 private fun pensumOption(year: Int) = PensumScreenModel.PensumOptionItem(
-	id = "computacion-$year",
-	careerCode = 15,
+	id = "800-$year",
+	careerCode = 800,
 	careerName = "Computación",
 	year = year,
+	modalityOptions = sampleModalityOptions(),
 	text = "$year - Computación"
+)
+
+private fun sampleModalityOptions() = listOf(
+	PensumScreenModel.ModalityItem(
+		id = "degree_project",
+		name = "Proyecto de Grado",
+		isDefault = true,
+		text = "Proyecto de Grado"
+	),
+	PensumScreenModel.ModalityItem(
+		id = "exclusive_degree_project",
+		name = "Proyecto de Grado a Dedicación Exclusiva",
+		isDefault = false,
+		text = "Proyecto de Grado a Dedicación Exclusiva"
+	),
+	PensumScreenModel.ModalityItem(
+		id = "long_internship",
+		name = "Pasantía Larga",
+		isDefault = false,
+		text = "Pasantía Larga"
+	)
 )
 
 private fun pensumNode(
