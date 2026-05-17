@@ -29,7 +29,6 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_selection_apply
 import tuindice.pensum.generated.resources.pensum_selection_cancel
-import tuindice.pensum.generated.resources.pensum_selection_current
 import tuindice.pensum.generated.resources.pensum_selection_modality
 import tuindice.pensum.generated.resources.pensum_selection_title
 import tuindice.pensum.generated.resources.pensum_selection_version
@@ -57,12 +56,6 @@ fun PensumSelectionBottomSheet(
 	}
 	val versionListState = rememberLazyListState(
 		initialFirstVisibleItemIndex = selectedPensumIndex.coerceAtLeast(0)
-	)
-	val currentSelectionText = stringResource(
-		Res.string.pensum_selection_current,
-		currentPensum.careerName,
-		currentPensum.year,
-		currentModality.name
 	)
 
 	LaunchedEffect(currentPensum.careerCode, currentPensum.year, model.pensumOptions.size) {
@@ -94,12 +87,6 @@ fun PensumSelectionBottomSheet(
 			modifier = Modifier.fillMaxWidth(),
 			verticalArrangement = Arrangement.spacedBy(16.dp)
 		) {
-			Text(
-				text = currentSelectionText,
-				style = MaterialTheme.typography.bodyMedium,
-				color = MaterialTheme.colorScheme.onSurfaceVariant
-			)
-
 			Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
 				Text(
 					text = stringResource(Res.string.pensum_selection_version),
