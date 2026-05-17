@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="top_bar_tuindice">TuIndice</string>
 	<string name="app_name">TuIndice</string>
 	<string name="button_sign_in">Iniciar sesión</string>
 	<string name="label_policies">Al usar la aplicación, aceptas los\nTérminos y condiciones y Política de privacidad</string>

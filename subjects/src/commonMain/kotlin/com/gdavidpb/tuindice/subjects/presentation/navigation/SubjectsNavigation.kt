@@ -7,11 +7,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLifecycle
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectDetail
 import com.gdavidpb.tuindice.subjects.presentation.route.SubjectDetailRoute
 import com.gdavidpb.tuindice.subjects.presentation.route.SubjectSearchRoute
 import org.koin.compose.viewmodel.koinViewModel
+import tuindice.subjects.generated.resources.Res
+import tuindice.subjects.generated.resources.top_bar_subject_detail
 
 fun NavGraphBuilder.subjectsNavigation(
 	navController: NavHostController,
@@ -64,7 +67,10 @@ private fun SubjectDetail.State.resolveNavigationViewState(subjectCode: String):
 		SubjectDetail.State.Idle,
 		SubjectDetail.State.Loading ->
 			object : ViewState(
-				topBarTitle = "Sobre $subjectCode",
+				topBarTitle = UiText.Resource(
+					resource = Res.string.top_bar_subject_detail,
+					args = listOf(subjectCode)
+				),
 				isTopBarVisible = true
 			) {}
 

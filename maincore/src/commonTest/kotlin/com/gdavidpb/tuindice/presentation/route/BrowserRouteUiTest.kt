@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.presentation.contract.Browser
 import com.gdavidpb.tuindice.testing.createBrowserViewModel
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -58,12 +59,12 @@ class BrowserRouteUiTest {
 			waitUntil(timeoutMillis = 2_000) {
 				val state = viewModel.state.value
 				state is Browser.State.Content &&
-					state.topBarTitle == "Politicas" &&
+					state.topBarTitle == UiText.Raw("Politicas") &&
 					state.url == "https://tuindice.app/privacy"
 			}
 
 			val contentState = assertIs<Browser.State.Content>(viewModel.state.value)
-			assertEquals("Politicas", contentState.topBarTitle)
+			assertEquals(UiText.Raw("Politicas"), contentState.topBarTitle)
 			assertEquals("https://tuindice.app/privacy", contentState.url)
 			assertEquals("", externalDialogUrl)
 		} finally {

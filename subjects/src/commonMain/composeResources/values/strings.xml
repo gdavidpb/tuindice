@@ -1,4 +1,16 @@
 <resources>
+    <string name="top_bar_subject_search">Buscar materia</string>
+    <string name="top_bar_subject_detail">Sobre %1$s</string>
+    <string name="subjects_grading_qualitative">Cualitativa</string>
+    <string name="subjects_generated_at">Actualizado %1$s</string>
+    <string name="subjects_credits_pattern">%1$d UC</string>
+    <string name="subjects_metric_empty">--</string>
+    <string name="subjects_percent_pattern">%1$d%%</string>
+    <string name="subjects_score_pattern">%1$d/100</string>
+    <string name="subjects_difficulty_low">Baja</string>
+    <string name="subjects_difficulty_medium">Media</string>
+    <string name="subjects_difficulty_high">Alta</string>
+    <string name="subjects_difficulty_very_high">Muy alta</string>
     <string name="subjects_title_my_career">Tu carrera</string>
     <string name="subjects_title_general">General</string>
     <string name="subjects_segment_students_tooltip_line_1">Cantidad de estudiantes</string>

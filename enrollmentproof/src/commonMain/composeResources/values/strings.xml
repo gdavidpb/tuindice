@@ -2,4 +2,10 @@
 <resources>
 	<string name="dialog_message_enrollment_downloading">Obteniendo comprobante…</string>
 	<string name="dialog_button_enrollment_cancel">Cancelar</string>
+	<string name="error_service_unavailable">Servicio no disponible</string>
+	<string name="error_network_unavailable">Comprueba tu conexión</string>
+	<string name="error_enrollment_not_found">Comprobante no disponible</string>
+	<string name="error_enrollment_unsupported">Archivo no soportado ;(</string>
+	<string name="error_timeout">Tiempo de espera agotado</string>
+	<string name="error_default">¡Ha ocurrido un error!</string>
 </resources>

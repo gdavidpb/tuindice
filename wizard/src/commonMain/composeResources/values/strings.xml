@@ -6,6 +6,14 @@
 	<string name="wizard_start">Comenzar recorrido</string>
 	<string name="wizard_done">Listo</string>
 	<string name="wizard_progress">Paso %1$d de %2$d</string>
+	<string name="top_bar_wizard_summary">Resumen</string>
+	<string name="top_bar_wizard_record">Informe Académico</string>
+	<string name="top_bar_wizard_create_synthetic_term">Crear trimestre</string>
+	<string name="top_bar_wizard_pensum">Pensum</string>
+	<string name="top_bar_wizard_subject_detail">Sobre esta materia</string>
+	<string name="top_bar_wizard_evaluations">Evaluaciones</string>
+	<string name="top_bar_wizard_add_evaluation">Agregar evaluación</string>
+	<string name="top_bar_wizard_about">Acerca de</string>
 
 	<string name="wizard_welcome_title">Bienvenido a TuIndice</string>
 	<string name="wizard_welcome_message">Te mostraremos un **recorrido rápido** para que conozcas la app antes de empezar.</string>

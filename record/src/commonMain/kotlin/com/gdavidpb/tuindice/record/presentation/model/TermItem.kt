@@ -15,15 +15,3 @@ data class TermItem(
 	val canDelete: Boolean,
 	val attempts: List<AttemptItem>
 )
-
-data class TermMetricDelta(
-	val text: String,
-	val tone: TermMetricDeltaTone
-)
-
-enum class TermMetricDeltaTone {
-	Positive,
-	Negative,
-	Neutral,
-	Informational
-}

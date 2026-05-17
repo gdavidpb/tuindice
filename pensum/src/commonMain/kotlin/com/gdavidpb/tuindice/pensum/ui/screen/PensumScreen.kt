@@ -40,6 +40,7 @@ fun PensumScreen(
 		CompositionLocalProvider(LocalContentColor provides TextPrimary) {
 			SealedCrossfade(targetState = state) { targetState ->
 				when (targetState) {
+					is Pensum.State.Idle -> Unit
 					is Pensum.State.Loading -> PensumLoadingView()
 					is Pensum.State.Empty -> PensumEmptyView()
 					is Pensum.State.Content -> PensumContentView(

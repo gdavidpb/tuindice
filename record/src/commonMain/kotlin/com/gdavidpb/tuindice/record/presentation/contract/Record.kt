@@ -7,11 +7,14 @@ import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import tuindice.record.generated.resources.Res
+import tuindice.record.generated.resources.top_bar_record
 
 object Record {
 	sealed class State(
-		override val topBarTitle: String = "Informe Académico",
+		override val topBarTitle: UiText = UiText.Resource(Res.string.top_bar_record),
 		override val topBarConfig: TopBarConfig = TopBarConfig.Record,
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = true

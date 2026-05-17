@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<string name="top_bar_record">Informe Académico</string>
+	<string name="top_bar_create_synthetic_term">Crear trimestre</string>
 	<string name="record_loading_title">Informe académico</string>
 	<string name="record_loading_message">Cargando...</string>
 	<string name="record_failed_title">No pudimos cargar tu historial</string>

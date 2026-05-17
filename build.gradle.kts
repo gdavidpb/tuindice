@@ -77,6 +77,7 @@ tasks.register("verifySharedTests") {
 		":enrollmentproof:iosSimulatorArm64Test",
 		":evaluations:iosSimulatorArm64Test",
 		":auth:iosSimulatorArm64Test",
+		":persistence:iosSimulatorArm64Test",
 		":record:iosSimulatorArm64Test",
 		":summary:iosSimulatorArm64Test",
 		":subjects:iosSimulatorArm64Test",

@@ -1,7 +1,16 @@
 package com.gdavidpb.tuindice.wizard.presentation.model
 
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import tuindice.wizard.generated.resources.Res
+import tuindice.wizard.generated.resources.top_bar_wizard_about
+import tuindice.wizard.generated.resources.top_bar_wizard_add_evaluation
+import tuindice.wizard.generated.resources.top_bar_wizard_create_synthetic_term
+import tuindice.wizard.generated.resources.top_bar_wizard_evaluations
+import tuindice.wizard.generated.resources.top_bar_wizard_pensum
+import tuindice.wizard.generated.resources.top_bar_wizard_record
+import tuindice.wizard.generated.resources.top_bar_wizard_subject_detail
+import tuindice.wizard.generated.resources.top_bar_wizard_summary
 import tuindice.wizard.generated.resources.wizard_about_message
 import tuindice.wizard.generated.resources.wizard_about_title
 import tuindice.wizard.generated.resources.wizard_evaluation_form_message
@@ -33,20 +42,20 @@ fun defaultWizardSteps(): List<WizardStep> = listOf(
 		id = WizardStepId.Welcome,
 		title = Res.string.wizard_welcome_title,
 		message = Res.string.wizard_welcome_message,
-		topBarTitle = ""
+		topBarTitle = UiText.Empty
 	),
 	WizardStep(
 		id = WizardStepId.Summary,
 		title = Res.string.wizard_summary_title,
 		message = Res.string.wizard_summary_message,
-		topBarTitle = "Resumen",
+		topBarTitle = UiText.Resource(Res.string.top_bar_wizard_summary),
 		topBarConfig = TopBarConfig.Summary
 	),
 	WizardStep(
 		id = WizardStepId.Record,
 		title = Res.string.wizard_record_title,
 		message = Res.string.wizard_record_message,
-		topBarTitle = "Informe Académico",
+		topBarTitle = UiText.Resource(Res.string.top_bar_wizard_record),
 		topBarConfig = TopBarConfig.Record,
 		showsRecordViewMode = true
 	),
@@ -54,7 +63,7 @@ fun defaultWizardSteps(): List<WizardStep> = listOf(
 		id = WizardStepId.RecordActions,
 		title = Res.string.wizard_record_actions_title,
 		message = Res.string.wizard_record_actions_message,
-		topBarTitle = "Informe Académico",
+		topBarTitle = UiText.Resource(Res.string.top_bar_wizard_record),
 		topBarConfig = TopBarConfig.Record,
 		showsRecordViewMode = true
 	),
@@ -62,55 +71,49 @@ fun defaultWizardSteps(): List<WizardStep> = listOf(
 		id = WizardStepId.CreateSyntheticTerm,
 		title = Res.string.wizard_synthetic_term_title,
 		message = Res.string.wizard_synthetic_term_message,
-		topBarTitle = "Crear trimestre"
+		topBarTitle = UiText.Resource(Res.string.top_bar_wizard_create_synthetic_term)
 	),
 	WizardStep(
 		id = WizardStepId.Pensum,
 		title = Res.string.wizard_pensum_title,
 		message = Res.string.wizard_pensum_message,
-		topBarTitle = "Pensum",
+		topBarTitle = UiText.Resource(Res.string.top_bar_wizard_pensum),
 		topBarConfig = TopBarConfig.Pensum
 	),
 	WizardStep(
 		id = WizardStepId.SubjectDetail,
 		title = Res.string.wizard_subject_title,
 		message = Res.string.wizard_subject_message,
-		topBarTitle = "Sobre esta materia"
+		topBarTitle = UiText.Resource(Res.string.top_bar_wizard_subject_detail)
 	),
 	WizardStep(
 		id = WizardStepId.SubjectCharts,
 		title = Res.string.wizard_subject_charts_title,
 		message = Res.string.wizard_subject_charts_message,
-		topBarTitle = "Sobre esta materia"
+		topBarTitle = UiText.Resource(Res.string.top_bar_wizard_subject_detail)
 	),
 	WizardStep(
 		id = WizardStepId.Evaluations,
 		title = Res.string.wizard_evaluations_title,
 		message = Res.string.wizard_evaluations_message,
-		topBarTitle = "Evaluaciones"
+		topBarTitle = UiText.Resource(Res.string.top_bar_wizard_evaluations)
 	),
 	WizardStep(
 		id = WizardStepId.EvaluationSwipe,
 		title = Res.string.wizard_evaluation_swipe_title,
 		message = Res.string.wizard_evaluation_swipe_message,
-		topBarTitle = "Evaluaciones"
+		topBarTitle = UiText.Resource(Res.string.top_bar_wizard_evaluations)
 	),
 	WizardStep(
 		id = WizardStepId.EvaluationForm,
 		title = Res.string.wizard_evaluation_form_title,
 		message = Res.string.wizard_evaluation_form_message,
-		topBarTitle = "Agregar evaluación"
+		topBarTitle = UiText.Resource(Res.string.top_bar_wizard_add_evaluation)
 	),
 	WizardStep(
 		id = WizardStepId.About,
 		title = Res.string.wizard_about_title,
 		message = Res.string.wizard_about_message,
-		topBarTitle = "Acerca de"
+		topBarTitle = UiText.Resource(Res.string.top_bar_wizard_about)
 	)
 )
-
-fun List<WizardStep>.indexOfStep(stepId: WizardStepId): Int {
-	return indexOfFirst { step -> step.id == stepId }
-		.takeIf { index -> index >= 0 }
-		?: 0
-}

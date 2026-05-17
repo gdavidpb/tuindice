@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.presentation.action.browser
 
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.presentation.contract.Browser
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
@@ -15,7 +16,7 @@ class NavigateToActionProcessor
 	): Flow<Mutation<Browser.State>> {
 		return flowOf { _ ->
 			Browser.State.Content(
-				topBarTitle = action.title,
+				topBarTitle = UiText.Raw(action.title),
 				url = action.url,
 				isLoading = true
 			)

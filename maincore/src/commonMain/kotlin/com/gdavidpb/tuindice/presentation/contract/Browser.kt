@@ -3,13 +3,14 @@ package com.gdavidpb.tuindice.presentation.contract
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 
 object Browser {
 	sealed class State : ViewState() {
 		data object Idle : State()
 
 		data class Content(
-			override val topBarTitle: String,
+			override val topBarTitle: UiText,
 			override val isTopBarVisible: Boolean = true,
 			val url: String,
 			val isLoading: Boolean

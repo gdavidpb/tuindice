@@ -3,17 +3,20 @@ package com.gdavidpb.tuindice.subjects.presentation.contract
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
 import com.gdavidpb.tuindice.subjects.presentation.model.SubjectDetailItem
+import tuindice.subjects.generated.resources.Res
+import tuindice.subjects.generated.resources.top_bar_subject_detail
 
 object SubjectDetail {
 	sealed class State(
-		override val topBarTitle: String,
+		override val topBarTitle: UiText,
 		override val isTopBarVisible: Boolean = true
 	) : ViewState() {
-		data object Idle : State(topBarTitle = "")
+		data object Idle : State(topBarTitle = UiText.Empty)
 
-		data object Loading : State(topBarTitle = "")
+		data object Loading : State(topBarTitle = UiText.Empty)
 
 		data class Content(
 			val detail: SubjectDetailItem
@@ -45,4 +48,6 @@ object SubjectDetail {
 	sealed class Effect : ViewEffect()
 }
 
-private fun String.toSubjectDetailTopBarTitle(): String = "Sobre $this"
+private fun String.toSubjectDetailTopBarTitle(): UiText {
+	return UiText.Resource(Res.string.top_bar_subject_detail, args = listOf(this))
+}

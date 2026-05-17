@@ -38,6 +38,7 @@ internal fun Pensum.State.loadingOrContent(): Pensum.State = when (this) {
 	is Pensum.State.Content -> this
 	Pensum.State.Empty,
 	Pensum.State.Failed,
+	Pensum.State.Idle,
 	Pensum.State.Loading,
 	-> Pensum.State.Loading
 }
@@ -46,6 +47,7 @@ internal fun Pensum.State.failedOrContent(): Pensum.State = when (this) {
 	is Pensum.State.Content -> this
 	Pensum.State.Empty,
 	Pensum.State.Failed,
+	Pensum.State.Idle,
 	Pensum.State.Loading,
 	-> Pensum.State.Failed
 }

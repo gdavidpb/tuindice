@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<string name="top_bar_summary">Resumen</string>
     <string name="summary_loading_title">Resumen</string>
     <string name="summary_loading_message">Cargando...</string>
     <string name="summary_failed_title">No pudimos cargar el resumen</string>

@@ -3,14 +3,17 @@ package com.gdavidpb.tuindice.record.presentation.contract
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import kotlinx.coroutines.flow.StateFlow
+import tuindice.record.generated.resources.Res
+import tuindice.record.generated.resources.top_bar_create_synthetic_term
 
 object CreateSyntheticTerm {
 	data class State(
-		override val topBarTitle: String = "Crear trimestre",
+		override val topBarTitle: UiText = UiText.Resource(Res.string.top_bar_create_synthetic_term),
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = false,
 		val query: String = "",

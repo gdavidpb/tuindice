@@ -2,6 +2,8 @@
 <resources>
 	<string name="screen_title_evaluations">Evaluaciones</string>
 	<string name="screen_title_evaluation">Evaluación</string>
+	<string name="top_bar_add_evaluation">Agregar evaluación</string>
+	<string name="top_bar_edit_evaluation">Modificar evaluación</string>
 	<string name="state_message_loading">Cargando...</string>
 
 	<string name="title_empty_evaluations">Organizando evaluaciones</string>

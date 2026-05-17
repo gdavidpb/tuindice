@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.wizard.presentation.contract
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
@@ -44,7 +45,7 @@ object Wizard {
 			private val progressOffset: Int
 				get() = if (steps.firstOrNull()?.id == WizardStepId.Welcome) 1 else 0
 
-			override val topBarTitle: String
+			override val topBarTitle: UiText
 				get() = currentStep.topBarTitle
 
 			override val topBarConfig: TopBarConfig?
@@ -94,6 +95,3 @@ object Wizard {
 		data object FinishWizard : Effect()
 	}
 }
-
-const val CURRENT_TERM_ID = "2026-2"
-const val HISTORICAL_TERM_ID = "2025-3"

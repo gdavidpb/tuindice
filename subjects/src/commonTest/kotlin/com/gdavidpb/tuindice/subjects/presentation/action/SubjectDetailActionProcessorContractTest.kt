@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.subjects.presentation.action
 
 import com.gdavidpb.tuindice.base.domain.model.GradingMode
 import com.gdavidpb.tuindice.base.presentation.Mutation
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectAttemptBin
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail as SubjectDetailModel
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetailResult
@@ -20,6 +21,8 @@ import kotlin.test.assertIs
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
+import tuindice.subjects.generated.resources.Res
+import tuindice.subjects.generated.resources.top_bar_subject_detail
 
 class SubjectDetailActionProcessorContractTest {
 	@Test
@@ -99,7 +102,10 @@ class SubjectDetailActionProcessorContractTest {
 
 		val contentState = assertIs<SubjectDetail.State.Content>(state)
 		assertEquals("MAT101", contentState.detail.id)
-		assertEquals("Sobre MAT101", contentState.topBarTitle)
+		assertEquals(
+			UiText.Resource(Res.string.top_bar_subject_detail, args = listOf("MAT101")),
+			contentState.topBarTitle
+		)
 		assertEquals(SubjectSegmentTab.CAREER, contentState.detail.selectedTab)
 		assertEquals(listOf("MAT101"), repository.freshCalls)
 		assertEquals(listOf("MAT101"), repository.refreshCalls)
@@ -127,7 +133,10 @@ class SubjectDetailActionProcessorContractTest {
 
 		val unavailableState = assertIs<SubjectDetail.State.Unavailable>(state)
 		assertEquals("MAT404", unavailableState.subjectCode)
-		assertEquals("Sobre MAT404", unavailableState.topBarTitle)
+		assertEquals(
+			UiText.Resource(Res.string.top_bar_subject_detail, args = listOf("MAT404")),
+			unavailableState.topBarTitle
+		)
 		assertEquals(listOf("MAT404"), repository.freshCalls)
 		assertEquals(listOf("MAT404"), repository.refreshCalls)
 	}
@@ -159,7 +168,7 @@ class SubjectDetailActionProcessorContractTest {
 			)
 		)
 		assertEquals(
-			"Sobre MAT101",
+			UiText.Resource(Res.string.top_bar_subject_detail, args = listOf("MAT101")),
 			assertIs<SubjectDetail.State.Failed>(failedState).topBarTitle
 		)
 

@@ -36,7 +36,7 @@ kotlin {
 				api(libs.multiplatform.settings)
 				api(libs.ksafe)
 
-				implementation(libs.components.resources)
+				api(libs.components.resources)
 				implementation(libs.kotlinx.datetime)
 				implementation(libs.kotlinx.serialization.json)
 				implementation(libs.koin.core)

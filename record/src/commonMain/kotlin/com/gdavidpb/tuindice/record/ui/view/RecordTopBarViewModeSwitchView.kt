@@ -2,17 +2,11 @@ package com.gdavidpb.tuindice.record.ui.view
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.FactCheck
-import androidx.compose.material.icons.automirrored.outlined.FactCheck
-import androidx.compose.material.icons.filled.Calculate
-import androidx.compose.material.icons.outlined.Calculate
 import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
@@ -76,7 +70,7 @@ private fun RecordViewMode.otherMode(): RecordViewMode {
 }
 
 @Composable
-fun recordViewModeLabel(mode: RecordViewMode): String {
+private fun recordViewModeLabel(mode: RecordViewMode): String {
 	return when (mode) {
 		RecordViewMode.Historical -> stringResource(Res.string.record_view_mode_historical)
 		RecordViewMode.Projection -> stringResource(Res.string.record_view_mode_projection)
@@ -84,22 +78,9 @@ fun recordViewModeLabel(mode: RecordViewMode): String {
 }
 
 @Composable
-fun recordViewModeToggleDescription(mode: RecordViewMode): String {
+private fun recordViewModeToggleDescription(mode: RecordViewMode): String {
 	return when (mode) {
 		RecordViewMode.Historical -> stringResource(Res.string.record_view_mode_toggle_to_historical)
 		RecordViewMode.Projection -> stringResource(Res.string.record_view_mode_toggle_to_projection)
-	}
-}
-
-fun recordViewModeIcon(
-	mode: RecordViewMode,
-	isPrimary: Boolean
-): ImageVector {
-	return when (mode) {
-		RecordViewMode.Historical ->
-			if (isPrimary) Icons.AutoMirrored.Filled.FactCheck else Icons.AutoMirrored.Outlined.FactCheck
-
-		RecordViewMode.Projection ->
-			if (isPrimary) Icons.Filled.Calculate else Icons.Outlined.Calculate
 	}
 }

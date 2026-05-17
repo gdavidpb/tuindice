@@ -6,6 +6,7 @@
 - `iosApp`: Swift host app and Xcode project. Boots the shared `maincore` framework and passes iOS runtime capabilities.
 - `maincore`: shared app assembler. Owns shared Koin bootstrap, feature registration, shared navigation host, and shared host UI.
 - `base`: shared contracts, base repositories, MVI primitives, reusable UI, logging, common helpers, and networking foundations.
+- `academiccore`: shared academic-domain model and projection engine used by academic features.
 - `persistence`: shared Room database, DAOs, entities, and platform database factories.
 - `testkit`: shared test doubles and helpers for Koin, coroutines, flows, and Compose UI tests.
 - Feature modules:
@@ -15,21 +16,29 @@
   - `record`
   - `evaluations`
   - `enrollmentproof`
+  - `subjects`
+  - `pensum`
+  - `wizard`
 
 ## Current Module Dependency Rules
 
 - `base`: no project dependencies.
+- `academiccore`: no project dependencies.
 - `persistence`: depends on `:base`.
 - `about`: depends on `:base`.
 - `auth`: depends on `:base`.
 - `summary`: depends on `:base`, `:persistence`.
-- `record`: depends on `:base`, `:persistence`.
+- `record`: depends on `:academiccore`, `:base`, `:persistence`.
 - `enrollmentproof`: depends on `:base`, `:persistence`.
-- `evaluations`: depends on `:base`, `:persistence`, and legacy `:record`.
+- `evaluations`: depends on `:academiccore`, `:base`, `:persistence`.
+- `subjects`: depends on `:base`, `:persistence`.
+- `pensum`: depends on `:academiccore`, `:base`, `:persistence`.
+- `wizard`: depends on `:academiccore`, `:base`, `:summary`, `:record`, `:evaluations`, `:subjects`, `:pensum`, `:about`, and `:enrollmentproof`.
 - `maincore`: depends on `:base`, `:persistence`, and every feature module.
 - `app`: depends on `:base`, `:maincore`, `:persistence`, and every feature module used by the Android host.
 
 Default rule: features should point to shared infrastructure, not to each other.
+Current intentional exception: `wizard -> features`, because `wizard` is an onboarding orchestrator that reuses real screens with synthetic state.
 
 ## Root Files That Define The Architecture
 
@@ -82,6 +91,7 @@ Typical shared UI feature module pattern:
 Exceptions:
 
 - `persistence` does not use Compose, adds KSP and Room compiler wiring.
+- `academiccore` is pure shared domain and does not use Compose.
 - `base` is also shared UI/infrastructure and exports many shared APIs.
 - `maincore` produces the iOS framework binary and assembles all features.
 - `app` is a plain Android application module, not a KMP module.
@@ -148,6 +158,9 @@ Feature navigation lives inside each feature module, for example:
 - `record/.../presentation/navigation/RecordNavigation.kt`
 - `evaluations/.../presentation/navigation/EvaluationsNavigation.kt`
 - `auth/.../presentation/navigation/AuthNavigation.kt`
+- `pensum/.../presentation/navigation/PensumNavigation.kt`
+- `subjects/.../presentation/navigation/SubjectsNavigation.kt`
+- `wizard/.../presentation/navigation/WizardNavigation.kt`
 
 Shared integration lives in:
 

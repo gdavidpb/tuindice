@@ -11,6 +11,7 @@ import androidx.compose.ui.test.performClick
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.gdavidpb.tuindice.about.presentation.navigation.AboutDestination
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
@@ -561,7 +562,7 @@ class TuIndiceScreenUiTest {
 		isBottomBarVisible: Boolean = false,
 		recordTopBarViewModeState: RecordTopBarViewModeState? = null
 	): MainShellState = MainShellState(
-		topBarTitle = topBarTitle,
+		topBarTitle = if (topBarTitle.isBlank()) UiText.Empty else UiText.Raw(topBarTitle),
 		topBarConfig = topBarConfig,
 		isTopBarVisible = isTopBarVisible,
 		isBottomBarVisible = isBottomBarVisible,

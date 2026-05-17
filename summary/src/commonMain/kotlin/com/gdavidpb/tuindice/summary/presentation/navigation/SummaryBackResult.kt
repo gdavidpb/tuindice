@@ -13,9 +13,3 @@ sealed class ProfilePictureSettingsResult {
 	@Serializable
 	data object Remove : ProfilePictureSettingsResult()
 }
-
-@Serializable
-sealed class RemoveProfilePictureConfirmationResult {
-	@Serializable
-	data object Confirmed : RemoveProfilePictureConfirmationResult()
-}

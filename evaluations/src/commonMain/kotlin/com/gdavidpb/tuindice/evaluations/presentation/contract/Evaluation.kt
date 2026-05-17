@@ -6,9 +6,13 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationGradeSectionItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationAttemptPickerItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
+import tuindice.evaluations.generated.resources.Res
+import tuindice.evaluations.generated.resources.top_bar_add_evaluation
+import tuindice.evaluations.generated.resources.top_bar_edit_evaluation
 
 object Evaluation {
 	sealed class State : ViewState() {
@@ -16,11 +20,11 @@ object Evaluation {
 
 		data class Content(
 			val evaluationId: String? = null,
-			override val topBarTitle: String =
+			override val topBarTitle: UiText =
 				if (evaluationId != null)
-					"Modificar evaluación"
+					UiText.Resource(Res.string.top_bar_edit_evaluation)
 				else
-					"Agregar evaluación",
+					UiText.Resource(Res.string.top_bar_add_evaluation),
 			override val isTopBarVisible: Boolean = true,
 			val attemptItems: List<EvaluationAttemptPickerItem> = emptyList(),
 			val selectedAttempt: EditableAttemptDescriptor? = null,

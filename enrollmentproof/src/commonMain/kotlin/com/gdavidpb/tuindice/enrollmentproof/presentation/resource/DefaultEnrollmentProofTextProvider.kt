@@ -1,15 +1,30 @@
 package com.gdavidpb.tuindice.enrollmentproof.presentation.resource
 
+import org.jetbrains.compose.resources.getString
+import tuindice.enrollmentproof.generated.resources.Res
+import tuindice.enrollmentproof.generated.resources.error_default
+import tuindice.enrollmentproof.generated.resources.error_enrollment_not_found
+import tuindice.enrollmentproof.generated.resources.error_enrollment_unsupported
+import tuindice.enrollmentproof.generated.resources.error_network_unavailable
+import tuindice.enrollmentproof.generated.resources.error_service_unavailable
+import tuindice.enrollmentproof.generated.resources.error_timeout
+
 class DefaultEnrollmentProofTextProvider : EnrollmentProofTextProvider {
-	override fun serviceUnavailable(): String = "Servicio no disponible"
+	override suspend fun serviceUnavailable(): String =
+		getString(Res.string.error_service_unavailable)
 
-	override fun networkUnavailable(): String = "Comprueba tu conexión"
+	override suspend fun networkUnavailable(): String =
+		getString(Res.string.error_network_unavailable)
 
-	override fun enrollmentNotFound(): String = "Comprobante no disponible"
+	override suspend fun enrollmentNotFound(): String =
+		getString(Res.string.error_enrollment_not_found)
 
-	override fun enrollmentUnsupported(): String = "Archivo no soportado ;("
+	override suspend fun enrollmentUnsupported(): String =
+		getString(Res.string.error_enrollment_unsupported)
 
-	override fun timeout(): String = "Tiempo de espera agotado"
+	override suspend fun timeout(): String =
+		getString(Res.string.error_timeout)
 
-	override fun defaultError(): String = "¡Ha ocurrido un error!"
+	override suspend fun defaultError(): String =
+		getString(Res.string.error_default)
 }

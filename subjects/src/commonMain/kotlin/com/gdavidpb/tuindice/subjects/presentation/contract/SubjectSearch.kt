@@ -3,12 +3,15 @@ package com.gdavidpb.tuindice.subjects.presentation.contract
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.subjects.presentation.model.SubjectSearchResultItem
 import kotlinx.coroutines.flow.StateFlow
+import tuindice.subjects.generated.resources.Res
+import tuindice.subjects.generated.resources.top_bar_subject_search
 
 object SubjectSearch {
 	data class State(
-		override val topBarTitle: String = "Buscar materia",
+		override val topBarTitle: UiText = UiText.Resource(Res.string.top_bar_subject_search),
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = false,
 		val query: String = "",

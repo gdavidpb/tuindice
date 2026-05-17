@@ -133,17 +133,17 @@ class RecordingReportingRepository : ReportingRepository {
 }
 
 class FakeEnrollmentProofTextProvider : EnrollmentProofTextProvider {
-	override fun serviceUnavailable(): String = "Servicio no disponible"
+	override suspend fun serviceUnavailable(): String = "Servicio no disponible"
 
-	override fun networkUnavailable(): String = "Comprueba tu conexión"
+	override suspend fun networkUnavailable(): String = "Comprueba tu conexión"
 
-	override fun enrollmentNotFound(): String = "Comprobante no disponible"
+	override suspend fun enrollmentNotFound(): String = "Comprobante no disponible"
 
-	override fun enrollmentUnsupported(): String = "Archivo no soportado ;("
+	override suspend fun enrollmentUnsupported(): String = "Archivo no soportado ;("
 
-	override fun timeout(): String = "Tiempo de espera agotado"
+	override suspend fun timeout(): String = "Tiempo de espera agotado"
 
-	override fun defaultError(): String = "¡Ha ocurrido un error!"
+	override suspend fun defaultError(): String = "¡Ha ocurrido un error!"
 }
 
 @OptIn(InternalAPI::class)

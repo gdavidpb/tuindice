@@ -3,14 +3,17 @@ package com.gdavidpb.tuindice.evaluations.presentation.contract
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationFilterGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import kotlinx.coroutines.flow.Flow
+import tuindice.evaluations.generated.resources.Res
+import tuindice.evaluations.generated.resources.screen_title_evaluations
 
 object Evaluations {
 	sealed class State(
-		override val topBarTitle: String = "Evaluaciones",
+		override val topBarTitle: UiText = UiText.Resource(Res.string.screen_title_evaluations),
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = true
 	) : ViewState() {

@@ -4,11 +4,14 @@ import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import io.github.vinceglb.filekit.PlatformFile
+import tuindice.summary.generated.resources.Res
+import tuindice.summary.generated.resources.top_bar_summary
 
 object Summary {
 	sealed class State(
-		override val topBarTitle: String = "Resumen",
+		override val topBarTitle: UiText = UiText.Resource(Res.string.top_bar_summary),
 		override val topBarConfig: TopBarConfig = TopBarConfig.Summary,
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = true,

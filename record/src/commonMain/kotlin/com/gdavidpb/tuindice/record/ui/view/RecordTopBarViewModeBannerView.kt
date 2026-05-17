@@ -23,7 +23,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
@@ -131,25 +130,3 @@ fun RecordTopBarViewModeBannerView(
 		}
 	}
 }
-
-@Composable
-fun recordViewModeBannerColors(mode: RecordViewMode): RecordViewModeBannerColors {
-	return when (mode) {
-		RecordViewMode.Historical ->
-			RecordViewModeBannerColors(
-				containerColor = MaterialTheme.colorScheme.primaryContainer,
-				contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-			)
-
-		RecordViewMode.Projection ->
-			RecordViewModeBannerColors(
-				containerColor = MaterialTheme.colorScheme.tertiaryContainer,
-				contentColor = MaterialTheme.colorScheme.onTertiaryContainer
-			)
-	}
-}
-
-data class RecordViewModeBannerColors(
-	val containerColor: Color,
-	val contentColor: Color
-)

@@ -27,24 +27,26 @@ class ObservePensumActionProcessor(
 
 					is UseCaseState.Data -> suspend { state: Pensum.State ->
 						when (val observation = useCaseState.value) {
-							is PensumObservation.Content ->
-								Pensum.State.Content(model = observation.pensum.toScreenModel())
+								is PensumObservation.Content ->
+									Pensum.State.Content(model = observation.pensum.toScreenModel())
 
-							PensumObservation.Missing,
-							PensumObservation.WaitingForRecordData,
-							-> when (state) {
-								Pensum.State.Empty -> Pensum.State.Empty
-								is Pensum.State.Content,
-								Pensum.State.Failed,
-								Pensum.State.Loading,
+								PensumObservation.Missing,
+								PensumObservation.WaitingForRecordData,
+								-> when (state) {
+									Pensum.State.Empty -> Pensum.State.Empty
+									Pensum.State.Idle,
+									is Pensum.State.Content,
+									Pensum.State.Failed,
+									Pensum.State.Loading,
 								-> Pensum.State.Loading
 							}
 
-							PensumObservation.RecordDataUnavailable -> when (state) {
-								Pensum.State.Empty -> Pensum.State.Empty
-								is Pensum.State.Content,
-								Pensum.State.Failed,
-								Pensum.State.Loading,
+								PensumObservation.RecordDataUnavailable -> when (state) {
+									Pensum.State.Empty -> Pensum.State.Empty
+									Pensum.State.Idle,
+									is Pensum.State.Content,
+									Pensum.State.Failed,
+									Pensum.State.Loading,
 								-> Pensum.State.Failed
 							}
 						}

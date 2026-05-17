@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<string name="top_bar_about">Acerca de</string>
     <string name="app_name">TuIndice</string>
     <string name="about_version">Versión\n%1$s</string>
     <string name="about_license">Creative Commons\nBY-NC 4.0</string>

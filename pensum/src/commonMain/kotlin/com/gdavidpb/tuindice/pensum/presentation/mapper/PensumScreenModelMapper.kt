@@ -14,6 +14,7 @@ private const val DisplayFirstNodeTop = 84.0
 private const val DisplayNodeSingleLineMinHeight = 120.0
 private const val DisplayNodeMultiLineMinHeight = 144.0
 private const val DisplayNodeSingleLineNameLimit = 18
+private const val DisplayNodeVerticalGap = 16.0
 
 fun ObservedPensum.toScreenModel(): PensumScreenModel {
 	val contentTopShift = pensum.nodes
@@ -29,30 +30,32 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 		)
 	}
 	val displayTermsById = displayTerms.associateBy(PensumScreenModel.Term::id)
-	val displayNodes = pensum.nodes.map { node ->
-		val term = displayTermsById[node.termId]
-		val x = term?.let { displayTerm ->
-			displayTerm.x + (displayTerm.width - node.width) / 2.0
-		} ?: node.x
-		val status = nodeStatuses[node.id] ?: PensumNodeStatus.BLOCKED
+	val displayNodes = pensum.nodes
+		.map { node ->
+			val term = displayTermsById[node.termId]
+			val x = term?.let { displayTerm ->
+				displayTerm.x + (displayTerm.width - node.width) / 2.0
+			} ?: node.x
+			val status = nodeStatuses[node.id] ?: PensumNodeStatus.BLOCKED
 
-		PensumScreenModel.Node(
-			id = node.id,
-			displayCode = node.displayCode,
-			subjectCode = node.subjectCode,
-			name = node.name,
-			credits = node.credits,
-			termId = node.termId,
-			x = x,
-			y = (node.y - contentTopShift).coerceAtLeast(0.0),
-			width = node.width,
-			height = maxOf(node.height, node.name.minimumDisplayHeight()),
-			visualStyle = status.toVisualStyle(),
-			isCurrent = status == PensumNodeStatus.CURRENT,
-			isApproved = status == PensumNodeStatus.APPROVED,
-			hasSubjectStatsAction = node.subjectCode.hasSubjectStatsAction(displayCode = node.displayCode)
-		)
-	}
+			PensumScreenModel.Node(
+				id = node.id,
+				displayCode = node.displayCode,
+				subjectCode = node.subjectCode,
+				name = node.name,
+				credits = node.credits,
+				termId = node.termId,
+				x = x,
+				y = (node.y - contentTopShift).coerceAtLeast(0.0),
+				width = node.width,
+				height = maxOf(node.height, node.name.minimumDisplayHeight()),
+				visualStyle = status.toVisualStyle(),
+				isCurrent = status == PensumNodeStatus.CURRENT,
+				isApproved = status == PensumNodeStatus.APPROVED,
+				hasSubjectStatsAction = node.subjectCode.hasSubjectStatsAction(displayCode = node.displayCode)
+			)
+		}
+		.withMinimumVerticalSpacing()
 	val displayCanvasWidth = maxOf(
 		pensum.canvas.width,
 		displayTerms.maxOfOrNull { term -> term.x + term.width }.orZero() + DisplayCanvasRightPadding
@@ -137,6 +140,26 @@ private fun String.minimumDisplayHeight(): Double {
 		DisplayNodeMultiLineMinHeight
 	} else {
 		DisplayNodeSingleLineMinHeight
+	}
+}
+
+private fun List<PensumScreenModel.Node>.withMinimumVerticalSpacing(): List<PensumScreenModel.Node> {
+	val spacedNodeYById = groupBy(PensumScreenModel.Node::termId)
+		.values
+		.flatMap { termNodes ->
+			var nextAvailableY = 0.0
+			termNodes
+				.sortedWith(compareBy<PensumScreenModel.Node> { node -> node.y }.thenBy { node -> node.x })
+				.map { node ->
+					val y = maxOf(node.y, nextAvailableY)
+					nextAvailableY = y + node.height + DisplayNodeVerticalGap
+					node.id to y
+				}
+		}
+		.toMap()
+
+	return map { node ->
+		node.copy(y = spacedNodeYById[node.id] ?: node.y)
 	}
 }
 

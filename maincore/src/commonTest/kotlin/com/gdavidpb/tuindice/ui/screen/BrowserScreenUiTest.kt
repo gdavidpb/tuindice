@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.presentation.contract.Browser
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -23,7 +24,7 @@ class BrowserScreenUiTest {
 		setTuIndiceTestContent {
 			BrowserScreen(
 				state = Browser.State.Content(
-					topBarTitle = "Navegador",
+					topBarTitle = UiText.Raw("Navegador"),
 					url = "https://tuindice.app/privacy",
 					isLoading = false
 				),
@@ -43,7 +44,7 @@ class BrowserScreenUiTest {
 		setTuIndiceTestContent {
 			BrowserScreen(
 				state = Browser.State.Content(
-					topBarTitle = "Navegador",
+					topBarTitle = UiText.Raw("Navegador"),
 					url = "https://tuindice.app/terms",
 					isLoading = true
 				),
@@ -78,7 +79,7 @@ class BrowserScreenUiTest {
 		setTuIndiceTestContent {
 			BrowserScreen(
 				state = Browser.State.Content(
-					topBarTitle = "Navegador",
+					topBarTitle = UiText.Raw("Navegador"),
 					url = "https://tuindice.app/help",
 					isLoading = false
 				),
@@ -121,7 +122,7 @@ class BrowserScreenUiTest {
 		setTuIndiceTestContent {
 			BrowserScreen(
 				state = Browser.State.Content(
-					topBarTitle = "Navegador",
+					topBarTitle = UiText.Raw("Navegador"),
 					url = "https://tuindice.app/privacy",
 					isLoading = false
 				),

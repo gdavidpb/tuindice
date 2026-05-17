@@ -3,10 +3,13 @@ package com.gdavidpb.tuindice.about.presentation.contract
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.UiText
+import tuindice.about.generated.resources.Res
+import tuindice.about.generated.resources.top_bar_about
 
 object About {
 	sealed class State(
-		override val topBarTitle: String = "Acerca de",
+		override val topBarTitle: UiText = UiText.Resource(Res.string.top_bar_about),
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = true
 	) : ViewState() {

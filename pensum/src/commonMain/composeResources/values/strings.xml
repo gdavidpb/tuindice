@@ -1,4 +1,5 @@
 <resources>
+	<string name="top_bar_pensum">Pensum</string>
 	<string name="pensum_loading_message">Cargando pensum...</string>
 	<string name="pensum_empty_title">Aún no tenemos tu pensum</string>
 	<string name="pensum_empty_message">Todavía no tenemos el pensum de tu carrera, pero pronto estará disponible.</string>

@@ -58,6 +58,7 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
@@ -74,6 +75,11 @@ import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeBannerView
 import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeSwitchView
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.ui.view.TopBarBannerHost
+import org.jetbrains.compose.resources.stringResource
+import tuindice.maincore.generated.resources.Res
+import tuindice.maincore.generated.resources.main_start_failed_message
+import tuindice.maincore.generated.resources.main_start_failed_retry
+import tuindice.maincore.generated.resources.main_start_failed_title
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -111,9 +117,9 @@ fun TuIndiceScreen(
 
 		is Main.State.Failed -> {
 			ErrorView(
-				title = "No pudimos iniciar la app",
-				message = "Intenta de nuevo en unos segundos.",
-				retryText = "Reintentar",
+				title = stringResource(Res.string.main_start_failed_title),
+				message = stringResource(Res.string.main_start_failed_message),
+				retryText = stringResource(Res.string.main_start_failed_retry),
 				onRetryClick = onRetryStartUp,
 				headerContent = { ErrorStateAnimationView() }
 			)
@@ -180,7 +186,7 @@ fun TuIndiceScreen(
 								windowInsets = WindowInsets(left = 0, top = 0, right = 0, bottom = 0),
 								title = {
 									TopAppBarAnimatedTitleView(
-										title = shellState.topBarTitle,
+										title = shellState.topBarTitle.asString(),
 										modifier = Modifier.offset(
 											y = InternalScreenDefaults.TopBarContentVerticalOffset
 										)

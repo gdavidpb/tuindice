@@ -17,7 +17,7 @@ class PensumViewModel(
 	private val selectPensumModalityActionProcessor: SelectPensumModalityActionProcessor,
 	private val selectPensumSelectionActionProcessor: SelectPensumSelectionActionProcessor
 ) : BaseViewModel<Pensum.State, Pensum.Action, Pensum.Effect>(
-	initialState = Pensum.State.Loading,
+	initialState = Pensum.State.Idle,
 	initialAction = Pensum.Action.ObservePensum
 ) {
 	fun refreshPensumAction() {

@@ -9,14 +9,16 @@ host Android en `app` y un host iOS en `iosApp`.
 
 - `base`: contratos compartidos, helpers base, logging, errores, repositorios de infraestructura y piezas UI
   reutilizables.
+- `academiccore`: modelos académicos compartidos y motor de proyección de historial.
 - `persistence`: schema Room compartido, DAOs/entities públicas, outbox genérico e infraestructura de storage.
 - `about`: información de app, enlaces y soporte.
-- `login`: autenticación, sesión y actualización de credenciales.
+- `auth`: autenticación, sesión y actualización de credenciales.
 - `summary`: resumen del perfil y foto de perfil.
 - `record`: historial académico y cálculos de índice.
 - `evaluations`: evaluaciones, filtros, picker de fecha y picker de nota.
 - `enrollmentproof`: constancia de inscripción y apertura de archivos.
 - `subjects`: estadísticas y detalle histórico de una materia.
+- `pensum`: mapa de pensum, avance, selección de modalidad y búsqueda de estadísticas por materia.
 - `wizard`: onboarding inicial con flujo sintético que reutiliza pantallas reales de la app.
 - `maincore`: navegación compartida, bootstrap común de Koin y superficie principal de la app.
 - `app`: host Android.
@@ -53,23 +55,24 @@ Regla general:
 Dependencias actuales:
 
 - `base`: sin dependencias de proyecto.
+- `academiccore`: sin dependencias de proyecto.
 - `persistence`: depende de `:base`.
 - `about`: depende de `:base`.
-- `login`: depende de `:base`.
+- `auth`: depende de `:base`.
 - `summary`: depende de `:base`, `:persistence`.
-- `record`: depende de `:base`, `:persistence`.
+- `record`: depende de `:academiccore`, `:base`, `:persistence`.
 - `enrollmentproof`: depende de `:base`, `:persistence`.
-- `evaluations`: depende de `:base`, `:persistence`, `:record`.
-- `subjects`: depende de `:base`.
+- `evaluations`: depende de `:academiccore`, `:base`, `:persistence`.
+- `subjects`: depende de `:base`, `:persistence`.
+- `pensum`: depende de `:academiccore`, `:base`, `:persistence`.
 - `wizard`: depende de `:base`, `:academiccore`, `:summary`, `:record`, `:evaluations`, `:subjects`, `:about`
-  y `:enrollmentproof`.
+  `:pensum` y `:enrollmentproof`.
 - `maincore`: depende de `:base`, `:persistence` y todas las features.
 - `app`: host Android; ensambla `maincore`.
 
 Acuerdo de límites:
 
 - No agregar nuevas dependencias feature -> feature.
-- La excepción `evaluations -> record` se considera legado controlado.
 - La excepción `wizard -> features` es intencional: `wizard` no es un feature normal, sino un orquestador de
   experiencia inicial que reutiliza pantallas reales con datos sintéticos.
 - Cualquier nueva excepción requiere acuerdo explícito antes de implementarse.
@@ -196,7 +199,7 @@ Reglas:
 ### Naming
 
 - Infra compartida en `commonMain`: `commonModule`.
-- Módulos de feature: `mainModule`, `loginModule`, `aboutModule`, etc.
+- Módulos de feature: `mainModule`, `authModule`, `aboutModule`, etc.
 - Wiring de plataforma: `androidPlatformModule` e `iosPlatformModule`.
 
 ### Archivos
@@ -233,12 +236,13 @@ No permitido en `commonMain`:
 - imports `java.*` salvo donde el source set lo permita y no sea común.
 - `BuildConfig`.
 - `InputStream`, `OutputStream`, `Reader`, `Writer`.
-- `koinViewModel` o `koinNavViewModel`.
+- imports o DSL de ViewModel de `org.koin.androidx.*`.
 
 Reglas adicionales:
 
 - La navegación compartida vive en `commonMain`.
 - No usar DSL Android de ViewModel dentro de source sets KMP.
+- En navegación compartida, resolver ViewModels con el helper KMP `org.koin.compose.viewmodel.koinViewModel(...)`.
 - Usar `composeResources` para recursos visibles de UI.
 - Evitar `expect/actual` salvo casos muy justificados.
 
