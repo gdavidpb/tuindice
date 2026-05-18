@@ -9,5 +9,6 @@
       "Content-Type": "application/json"
     },
     "bodyFileName": "pensums/get-pensum-success.json"
-  }
+  },
+  "priority": 10
 }

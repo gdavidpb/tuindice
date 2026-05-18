@@ -1,16 +1,17 @@
 {
+  "priority": 1,
   "request": {
     "method": "GET",
     "urlPath": "/pensums/v3",
     "queryParameters": {
       "career_code": {
-        "equalTo": "800"
+        "equalTo": "0"
       },
       "year": {
-        "equalTo": "2017"
+        "equalTo": "2016"
       },
       "modality_id": {
-        "equalTo": "exclusive_degree_project"
+        "equalTo": "plan_con_geometria"
       }
     }
   },
@@ -19,7 +20,6 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "bodyFileName": "pensums/get-pensum-2017-exclusive_degree_project.json"
-  },
-  "priority": 1
+    "bodyFileName": "pensums/get-pensum-2016-plan_con_geometria.json"
+  }
 }

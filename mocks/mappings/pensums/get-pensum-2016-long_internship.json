@@ -3,6 +3,9 @@
     "method": "GET",
     "urlPath": "/pensums/v3",
     "queryParameters": {
+      "career_code": {
+        "equalTo": "800"
+      },
       "year": {
         "equalTo": "2016"
       },
@@ -17,5 +20,6 @@
       "Content-Type": "application/json"
     },
     "bodyFileName": "pensums/get-pensum-2016-long_internship.json"
-  }
+  },
+  "priority": 1
 }

@@ -3,6 +3,9 @@
     "method": "GET",
     "urlPath": "/pensums/v3",
     "queryParameters": {
+      "career_code": {
+        "equalTo": "800"
+      },
       "year": {
         "equalTo": "2019"
       },
@@ -17,5 +20,6 @@
       "Content-Type": "application/json"
     },
     "bodyFileName": "pensums/get-pensum-2019-degree_project.json"
-  }
+  },
+  "priority": 1
 }
