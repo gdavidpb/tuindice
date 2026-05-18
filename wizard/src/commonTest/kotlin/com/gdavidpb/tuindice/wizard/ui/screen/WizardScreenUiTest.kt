@@ -188,7 +188,7 @@ class WizardScreenUiTest {
 		onNodeWithText("Pensum y avance").assertExists()
 		onNodeWithText("Paso 5 de 11").assertExists()
 		onNodeWithText("75% avance").assertExists()
-		onNodeWithText("Computación").assertExists()
+		onAllNodesWithText("2019").assertCountEquals(1)
 		onNodeWithText("Proyecto de Grado").assertExists()
 		onNodeWithText(
 			"Puedes ver tu pensum como un mapa de materias",

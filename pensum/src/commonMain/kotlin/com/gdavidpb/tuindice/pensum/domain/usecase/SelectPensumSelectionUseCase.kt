@@ -17,7 +17,6 @@ class SelectPensumSelectionUseCase(
 	override suspend fun executeOnBackground(params: SelectPensumSelectionParams): Flow<Unit> {
 		return flow {
 			pensumRepository.selectSelection(
-				careerCode = params.careerCode,
 				year = params.year,
 				modalityId = params.modalityId
 			)

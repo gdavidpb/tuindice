@@ -10,7 +10,7 @@ interface PensumLocalDataRepository {
 	fun observeAcademicSnapshotFlow(): Flow<AcademicPensumSnapshot>
 	suspend fun getSelectionParams(): PensumSelectionParams
 	suspend fun savePensumResponse(response: GetPensumResponse)
-	suspend fun selectPensum(careerCode: Int, year: Int)
+	suspend fun selectPensum(year: Int)
 	suspend fun selectModality(modalityId: String)
-	suspend fun selectSelection(careerCode: Int, year: Int, modalityId: String)
+	suspend fun selectSelection(year: Int, modalityId: String)
 }

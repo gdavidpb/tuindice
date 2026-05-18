@@ -24,13 +24,11 @@ abstract class PensumCacheDao : UpsertDao<PensumCacheEntity>() {
 
 	@Query(
 		"SELECT * FROM ${PensumCacheTable.TABLE_NAME} " +
-			"WHERE ${PensumCacheTable.CAREER_CODE} = :careerCode " +
-			"AND ${PensumCacheTable.YEAR} = :year " +
+			"WHERE ${PensumCacheTable.YEAR} = :year " +
 			"AND ${PensumCacheTable.MODALITY_ID} = :modalityId " +
 			"LIMIT 1"
 	)
 	abstract suspend fun getPensum(
-		careerCode: Int,
 		year: Int,
 		modalityId: String
 	): PensumCacheEntity?

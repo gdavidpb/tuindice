@@ -97,10 +97,10 @@ class PensumScreenUiTest {
 	}
 
 	@Test
-	fun when_selectionSheetOpens_then_marksSelectedCareerYear() = runTuIndiceUiTest {
+	fun when_selectionSheetOpens_then_marksSelectedYearWithoutBasicCycle() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			PensumScreen(
-				state = Pensum.State.Content(model = samplePensumModelWithVisibleBasicCycle()),
+				state = Pensum.State.Content(model = samplePensumModelWithSelectableYears()),
 				onRetryClick = {},
 				showSelectionSheet = true,
 				onSelectionSheetDismiss = {},
@@ -109,27 +109,27 @@ class PensumScreenUiTest {
 			)
 		}
 
-		onNodeWithText("2019 - Computación").assertExists()
-		onNodeWithTag(PensumUiTags.versionOption(careerCode = 800, year = 2019)).assertIsSelected()
-		onNodeWithTag(PensumUiTags.versionOption(careerCode = 0, year = 2019)).assertIsNotSelected()
+		onAllNodesWithText("Ciclo Básico").assertCountEquals(0)
+		onNodeWithText("Carrera").assertExists()
+		onNodeWithText("Ingenieria de Computacion").assertExists()
+		onNodeWithTag(PensumUiTags.versionOption(year = 2019)).assertIsSelected()
+		onNodeWithTag(PensumUiTags.versionOption(year = 2018)).assertIsNotSelected()
 	}
 }
 
 private fun samplePensumModel(): PensumScreenModel {
 	return PensumScreenModel(
+		careerName = "Ingenieria de Computacion",
 		selection = PensumScreenModel.Selection(
-			careerCode = 15,
 			year = 2019,
 			modalityId = "degree_project"
 		),
 		pensumOptions = listOf(
 			PensumScreenModel.PensumOptionItem(
 				id = "computacion-2019",
-				careerCode = 15,
-				careerName = "Computación",
 				year = 2019,
 				modalityOptions = emptyList(),
-				text = "2019 - Computación"
+				text = "2019"
 			)
 		),
 		modalityOptions = emptyList(),
@@ -208,7 +208,7 @@ private fun samplePensumModel(): PensumScreenModel {
 	)
 }
 
-private fun samplePensumModelWithVisibleBasicCycle(): PensumScreenModel {
+private fun samplePensumModelWithSelectableYears(): PensumScreenModel {
 	val modalities = listOf(
 		PensumScreenModel.ModalityItem(
 			id = "degree_project",
@@ -226,33 +226,28 @@ private fun samplePensumModelWithVisibleBasicCycle(): PensumScreenModel {
 
 	return samplePensumModel().copy(
 		selection = PensumScreenModel.Selection(
-			careerCode = 800,
 			year = 2019,
 			modalityId = "degree_project"
 		),
 		pensumOptions = listOf(
 			PensumScreenModel.PensumOptionItem(
-				id = "0-2019",
-				careerCode = 0,
-				careerName = "Ciclo Básico",
-				year = 2019,
+				id = "2018",
+				year = 2018,
 				modalityOptions = listOf(
 					PensumScreenModel.ModalityItem(
-						id = "plan_comun",
-						name = "Plan común",
+						id = "degree_project",
+						name = "Proyecto de Grado",
 						isDefault = true,
-						text = "Plan común"
+						text = "Proyecto de Grado"
 					)
 				),
-				text = "2019 - Ciclo Básico"
+				text = "2018"
 			),
 			PensumScreenModel.PensumOptionItem(
-				id = "800-2019",
-				careerCode = 800,
-				careerName = "Computación",
+				id = "2019",
 				year = 2019,
 				modalityOptions = modalities,
-				text = "2019 - Computación"
+				text = "2019"
 			)
 		),
 		modalityOptions = modalities

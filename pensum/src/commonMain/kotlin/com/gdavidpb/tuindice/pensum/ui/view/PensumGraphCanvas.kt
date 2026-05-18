@@ -80,7 +80,7 @@ fun PensumGraphCanvas(
 			height = with(density) { model.canvas.height.dp.toPx() }
 		)
 		val panMarginPx = with(density) { CanvasPanMargin.toPx() }
-		val graphKey = "${model.selection.careerCode}-${model.selection.year}-${model.selection.modalityId}"
+		val graphKey = "${model.selection.year}-${model.selection.modalityId}"
 		var selectedNodeId by remember(graphKey) { mutableStateOf<String?>(null) }
 		val selectedRequirementEdgeIds = remember(model.edges, selectedNodeId) {
 			model.requirementEdgeIdsTo(selectedNodeId)

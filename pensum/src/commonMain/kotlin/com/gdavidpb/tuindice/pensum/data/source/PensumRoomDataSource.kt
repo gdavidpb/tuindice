@@ -69,7 +69,6 @@ class PensumRoomDataSource(
 	override suspend fun getSelectionParams(): PensumSelectionParams {
 		val selection = pensumSelectionDao.getSelection() ?: return PensumSelectionParams()
 		return PensumSelectionParams(
-			careerCode = selection.careerCode,
 			year = selection.year,
 			modalityId = selection.modalityId
 		)
@@ -89,7 +88,6 @@ class PensumRoomDataSource(
 				pensumSelectionDao.upsertEntity(
 					PensumSelectionEntity(
 						id = PensumSelectionTable.DEFAULT_ID,
-						careerCode = selectedPensum.careerCode,
 						year = selectedPensum.year,
 						modalityId = selectedPensum.modalityId,
 						cacheKey = cacheKey,
@@ -100,12 +98,11 @@ class PensumRoomDataSource(
 		}
 	}
 
-	override suspend fun selectPensum(careerCode: Int, year: Int) {
+	override suspend fun selectPensum(year: Int) {
 		writeMutex.withLock {
 			pensumSelectionDao.upsertEntity(
 				PensumSelectionEntity(
 					id = PensumSelectionTable.DEFAULT_ID,
-					careerCode = careerCode,
 					year = year,
 					modalityId = null,
 					cacheKey = null,
@@ -118,14 +115,11 @@ class PensumRoomDataSource(
 	override suspend fun selectModality(modalityId: String) {
 		writeMutex.withLock {
 			val currentSelection = pensumSelectionDao.getSelection() ?: return@withLock
-			val cacheKey = currentSelection.careerCode?.let { careerCode ->
-				currentSelection.year?.let { year ->
-					pensumCacheDao.getPensum(
-						careerCode = careerCode,
-						year = year,
-						modalityId = modalityId
-					)?.cacheKey
-				}
+			val cacheKey = currentSelection.year?.let { year ->
+				pensumCacheDao.getPensum(
+					year = year,
+					modalityId = modalityId
+				)?.cacheKey
 			}
 			pensumSelectionDao.upsertEntity(
 				currentSelection.copy(
@@ -137,17 +131,15 @@ class PensumRoomDataSource(
 		}
 	}
 
-	override suspend fun selectSelection(careerCode: Int, year: Int, modalityId: String) {
+	override suspend fun selectSelection(year: Int, modalityId: String) {
 		writeMutex.withLock {
 			val cacheKey = pensumCacheDao.getPensum(
-				careerCode = careerCode,
 				year = year,
 				modalityId = modalityId
 			)?.cacheKey
 			pensumSelectionDao.upsertEntity(
 				PensumSelectionEntity(
 					id = PensumSelectionTable.DEFAULT_ID,
-					careerCode = careerCode,
 					year = year,
 					modalityId = modalityId,
 					cacheKey = cacheKey,
@@ -165,7 +157,6 @@ class PensumRoomDataSource(
 		val pensum = selectedPensum()
 		return PensumCacheEntity(
 			cacheKey = cacheKey,
-			careerCode = pensum.careerCode,
 			year = pensum.year,
 			modalityId = pensum.modalityId,
 			payloadJson = json.encodeToString(this),

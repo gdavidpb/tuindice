@@ -30,6 +30,7 @@ class PensumScreenModelMapperTest {
 		val model = observedPensum(nodes = listOf(firstNode, secondNode)).toScreenModel()
 		val nodesById = model.nodes.associateBy { node -> node.id }
 
+		assertEquals("Ingenieria de Computacion", model.careerName)
 		assertEquals(84.0, nodesById.getValue("ma1111").y)
 		assertEquals(220.0, nodesById.getValue("id1111").y)
 		assertTrue(model.canvas.height >= 388.0)
@@ -39,8 +40,6 @@ class PensumScreenModelMapperTest {
 private fun observedPensum(nodes: List<PensumGraph.Node>): ObservedPensum {
 	val graph = PensumGraph(
 		id = "computacion-2019-degree-project",
-		careerCode = 800,
-		careerName = "Computacion",
 		year = 2019,
 		modalityId = "degree_project",
 		modalityName = "Proyecto de Grado",
@@ -58,10 +57,9 @@ private fun observedPensum(nodes: List<PensumGraph.Node>): ObservedPensum {
 		edges = emptyList()
 	)
 	return ObservedPensum(
+		careerName = "Ingenieria de Computacion",
 		selection = PensumSelection(
 			pensumId = graph.id,
-			careerCode = graph.careerCode,
-			careerName = graph.careerName,
 			year = graph.year,
 			modalityId = graph.modalityId,
 			modalityName = graph.modalityName,
@@ -70,8 +68,6 @@ private fun observedPensum(nodes: List<PensumGraph.Node>): ObservedPensum {
 		availablePensums = listOf(
 			PensumOption(
 				id = graph.id,
-				careerCode = graph.careerCode,
-				careerName = graph.careerName,
 				year = graph.year
 			)
 		),

@@ -59,27 +59,25 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 			PensumDisplayLayoutDefaults.CanvasBottomPadding
 	)
 	val pensumOptions = pensums
-		.groupBy { graph -> graph.careerCode to graph.year }
+		.groupBy(PensumGraph::year)
 		.values
 		.map { group ->
 			val representative = group.first()
 			PensumScreenModel.PensumOptionItem(
-				id = "${representative.careerCode}-${representative.year}",
-				careerCode = representative.careerCode,
-				careerName = representative.careerName,
+				id = representative.year.toString(),
 				year = representative.year,
 				modalityOptions = group.toModalityItems(selectedPensumId = selection.pensumId),
-				text = "${representative.year} - ${representative.careerName}"
+				text = representative.year.toString()
 			)
 		}
-		.sortedWith(compareBy(PensumScreenModel.PensumOptionItem::year, PensumScreenModel.PensumOptionItem::careerName))
+		.sortedBy(PensumScreenModel.PensumOptionItem::year)
 	val selectedOption = pensumOptions.firstOrNull { option ->
-		option.careerCode == selection.careerCode && option.year == selection.year
+		option.year == selection.year
 	}
 
 	return PensumScreenModel(
+		careerName = careerName,
 		selection = PensumScreenModel.Selection(
-			careerCode = selection.careerCode,
 			year = selection.year,
 			modalityId = selection.modalityId
 		),

@@ -52,7 +52,6 @@ fun PensumRoute(
 		onSubjectStatsClick = onNavigateToSubjectDetail,
 		onSelectionApplied = { item, modality ->
 			viewModel.selectSelectionAction(
-				careerCode = item.careerCode,
 				year = item.year,
 				modalityId = modality.id
 			)

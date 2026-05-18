@@ -2,8 +2,6 @@ package com.gdavidpb.tuindice.pensum.domain.model
 
 data class PensumGraph(
 	val id: String,
-	val careerCode: Int,
-	val careerName: String,
 	val year: Int,
 	val modalityId: String,
 	val modalityName: String,

@@ -33,14 +33,12 @@ object Pensum {
 		data object ObservePensum : Action()
 		data object RefreshPensum : Action()
 		class SelectPensum(
-			val careerCode: Int,
 			val year: Int
 		) : Action()
 		class SelectModality(
 			val modalityId: String
 		) : Action()
 		class SelectSelection(
-			val careerCode: Int,
 			val year: Int,
 			val modalityId: String
 		) : Action()

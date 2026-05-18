@@ -25,7 +25,7 @@ class RefreshPensumActionProcessorTest {
 				pensumRepository = ThrowingPensumRepository(
 					throwable = clientRequestException(
 						statusCode = HttpStatusCode.NotFound,
-						path = "/pensums/v3"
+						path = "/pensums/v4"
 					)
 				),
 				reportingRepository = RecordingReportingRepository(),
@@ -55,9 +55,9 @@ private class ThrowingPensumRepository(
 		throw throwable
 	}
 
-	override suspend fun selectPensum(careerCode: Int, year: Int) = Unit
+	override suspend fun selectPensum(year: Int) = Unit
 
 	override suspend fun selectModality(modalityId: String) = Unit
 
-	override suspend fun selectSelection(careerCode: Int, year: Int, modalityId: String) = Unit
+	override suspend fun selectSelection(year: Int, modalityId: String) = Unit
 }

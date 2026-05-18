@@ -1,11 +1,8 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/pensums/v3",
+    "urlPath": "/pensums/v4",
     "queryParameters": {
-      "career_code": {
-        "equalTo": "800"
-      },
       "year": {
         "equalTo": "2017"
       },

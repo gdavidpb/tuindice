@@ -19,7 +19,6 @@ class SelectPensumSelectionActionProcessor(
 	): Flow<Mutation<Pensum.State>> {
 		return selectPensumSelectionUseCase.execute(
 			SelectPensumSelectionParams(
-				careerCode = action.careerCode,
 				year = action.year,
 				modalityId = action.modalityId
 			)

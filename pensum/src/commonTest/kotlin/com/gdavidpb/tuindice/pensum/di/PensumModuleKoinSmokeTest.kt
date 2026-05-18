@@ -34,9 +34,9 @@ class PensumModuleKoinSmokeTest {
 private class FakePensumRepository : PensumRepository {
 	override fun observePensumFlow(): Flow<PensumObservation> = emptyFlow()
 	override suspend fun refreshPensum() = Unit
-	override suspend fun selectPensum(careerCode: Int, year: Int) = Unit
+	override suspend fun selectPensum(year: Int) = Unit
 	override suspend fun selectModality(modalityId: String) = Unit
-	override suspend fun selectSelection(careerCode: Int, year: Int, modalityId: String) = Unit
+	override suspend fun selectSelection(year: Int, modalityId: String) = Unit
 }
 
 private class FakeRecordDataPrerequisiteRepository : RecordDataPrerequisiteRepository {

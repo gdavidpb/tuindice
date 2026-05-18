@@ -9,7 +9,6 @@ import com.gdavidpb.tuindice.persistence.data.room.schema.PensumSelectionTable
 data class PensumSelectionEntity(
 	@PrimaryKey
 	@ColumnInfo(name = PensumSelectionTable.ID) val id: String = PensumSelectionTable.DEFAULT_ID,
-	@ColumnInfo(name = PensumSelectionTable.CAREER_CODE) val careerCode: Int? = null,
 	@ColumnInfo(name = PensumSelectionTable.YEAR) val year: Int? = null,
 	@ColumnInfo(name = PensumSelectionTable.MODALITY_ID) val modalityId: String? = null,
 	@ColumnInfo(name = PensumSelectionTable.CACHE_KEY) val cacheKey: String? = null,

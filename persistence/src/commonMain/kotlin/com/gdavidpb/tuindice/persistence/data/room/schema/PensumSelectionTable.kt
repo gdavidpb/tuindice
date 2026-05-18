@@ -4,7 +4,6 @@ object PensumSelectionTable {
 	const val TABLE_NAME = "pensum_selection"
 	const val DEFAULT_ID = "default"
 	const val ID = "id"
-	const val CAREER_CODE = "career_code"
 	const val YEAR = "year"
 	const val MODALITY_ID = "modality_id"
 	const val CACHE_KEY = "cache_key"

@@ -84,8 +84,6 @@ class PensumStatusEngineTest {
 	): PensumGraph {
 		return PensumGraph(
 			id = "computacion-2019",
-			careerCode = 15,
-			careerName = "Computacion",
 			year = 2019,
 			modalityId = "degree_project",
 			modalityName = "Proyecto de Grado",

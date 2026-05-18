@@ -1,4327 +1,10 @@
 {
+  "career_name": "Ingenieria de Computacion",
   "selected_pensum_id": "0800-2017-long_internship",
   "inferred": false,
   "pensums": [
     {
-      "id": "0000-2016-plan_comun",
-      "career_code": 0,
-      "career_name": "Ciclo Básico",
-      "year": 2016,
-      "modality_id": "plan_comun",
-      "modality_name": "Plan común",
-      "total_credits": 45,
-      "canvas": {
-        "width": 660.0,
-        "height": 760.0
-      },
-      "terms": [
-        {
-          "id": "T1",
-          "label": "Primer trimestre",
-          "x": 0.0,
-          "width": 200.0
-        },
-        {
-          "id": "T2",
-          "label": "Segundo trimestre",
-          "x": 220.0,
-          "width": 200.0
-        },
-        {
-          "id": "T3",
-          "label": "Tercer trimestre",
-          "x": 440.0,
-          "width": 200.0
-        }
-      ],
-      "nodes": [
-        {
-          "id": "0000-2016-plan_comun-t1-math1-ma1111",
-          "node_type": "COURSE",
-          "display_code": "MA1111",
-          "subject_code": "MA1111",
-          "name": "Matemáticas I",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_comun-t1-math1-ma1121",
-          "node_type": "COURSE",
-          "display_code": "MA1121",
-          "subject_code": "MA1121",
-          "name": "Matemáticas I",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_comun-t1-id1111",
-          "node_type": "COURSE",
-          "display_code": "ID1111",
-          "subject_code": "ID1111",
-          "name": "Inglés I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_comun-t1-lla111",
-          "node_type": "COURSE",
-          "display_code": "LLA111",
-          "subject_code": "LLA111",
-          "name": "Lenguaje I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_comun-t1-csa211",
-          "node_type": "COURSE",
-          "display_code": "CSA211",
-          "subject_code": "CSA211",
-          "name": "Venezuela ante el Siglo XXI I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_comun-t2-math2-ma1112",
-          "node_type": "COURSE",
-          "display_code": "MA1112",
-          "subject_code": "MA1112",
-          "name": "Matemáticas II",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_comun-t2-math2-ma1122",
-          "node_type": "COURSE",
-          "display_code": "MA1122",
-          "subject_code": "MA1122",
-          "name": "Matemáticas II",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_comun-t2-fs1111",
-          "node_type": "COURSE",
-          "display_code": "FS1111",
-          "subject_code": "FS1111",
-          "name": "Física I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_comun-t2-id1112",
-          "node_type": "COURSE",
-          "display_code": "ID1112",
-          "subject_code": "ID1112",
-          "name": "Inglés II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_comun-t2-lla112",
-          "node_type": "COURSE",
-          "display_code": "LLA112",
-          "subject_code": "LLA112",
-          "name": "Lenguaje II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_comun-t2-csa212",
-          "node_type": "COURSE",
-          "display_code": "CSA212",
-          "subject_code": "CSA212",
-          "name": "Venezuela ante el Siglo XXI II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 560.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_comun-t3-math3-ma1116",
-          "node_type": "COURSE",
-          "display_code": "MA1116",
-          "subject_code": "MA1116",
-          "name": "Matemáticas III",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_comun-t3-math3-ma1123",
-          "node_type": "COURSE",
-          "display_code": "MA1123",
-          "subject_code": "MA1123",
-          "name": "Matemáticas III",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_comun-t3-fs1112",
-          "node_type": "COURSE",
-          "display_code": "FS1112",
-          "subject_code": "FS1112",
-          "name": "Fisica II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_comun-t3-id1113",
-          "node_type": "COURSE",
-          "display_code": "ID1113",
-          "subject_code": "ID1113",
-          "name": "Inglés III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_comun-t3-lla113",
-          "node_type": "COURSE",
-          "display_code": "LLA113",
-          "subject_code": "LLA113",
-          "name": "Lenguaje III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_comun-t3-csa213",
-          "node_type": "COURSE",
-          "display_code": "CSA213",
-          "subject_code": "CSA213",
-          "name": "Venezuela ante el Siglo XXI III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 560.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        }
-      ],
-      "edges": [
-        {
-          "id": "0000-2016-plan_comun-requirement-csa211-csa212",
-          "from_node_id": "0000-2016-plan_comun-t1-csa211",
-          "to_node_id": "0000-2016-plan_comun-t2-csa212",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 488.0
-            },
-            {
-              "x": 240.0,
-              "y": 608.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_comun-requirement-csa212-csa213",
-          "from_node_id": "0000-2016-plan_comun-t2-csa212",
-          "to_node_id": "0000-2016-plan_comun-t3-csa213",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 608.0
-            },
-            {
-              "x": 460.0,
-              "y": 608.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_comun-requirement-fs1111-fs1112",
-          "from_node_id": "0000-2016-plan_comun-t2-fs1111",
-          "to_node_id": "0000-2016-plan_comun-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 248.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_comun-requirement-id1111-id1112",
-          "from_node_id": "0000-2016-plan_comun-t1-id1111",
-          "to_node_id": "0000-2016-plan_comun-t2-id1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 248.0
-            },
-            {
-              "x": 240.0,
-              "y": 368.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_comun-requirement-id1112-id1113",
-          "from_node_id": "0000-2016-plan_comun-t2-id1112",
-          "to_node_id": "0000-2016-plan_comun-t3-id1113",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 368.0
-            },
-            {
-              "x": 460.0,
-              "y": 368.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_comun-requirement-lla111-lla112",
-          "from_node_id": "0000-2016-plan_comun-t1-lla111",
-          "to_node_id": "0000-2016-plan_comun-t2-lla112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 368.0
-            },
-            {
-              "x": 240.0,
-              "y": 488.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_comun-requirement-lla112-lla113",
-          "from_node_id": "0000-2016-plan_comun-t2-lla112",
-          "to_node_id": "0000-2016-plan_comun-t3-lla113",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 488.0
-            },
-            {
-              "x": 460.0,
-              "y": 488.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_comun-requirement-math1-fs1111-ma1111",
-          "from_node_id": "0000-2016-plan_comun-t1-math1-ma1111",
-          "to_node_id": "0000-2016-plan_comun-t2-fs1111",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_comun-requirement-math1-fs1111-ma1121",
-          "from_node_id": "0000-2016-plan_comun-t1-math1-ma1121",
-          "to_node_id": "0000-2016-plan_comun-t2-fs1111",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_comun-requirement-math1-math2-ma1111-ma1112",
-          "from_node_id": "0000-2016-plan_comun-t1-math1-ma1111",
-          "to_node_id": "0000-2016-plan_comun-t2-math2-ma1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_comun-requirement-math1-math2-ma1121-ma1122",
-          "from_node_id": "0000-2016-plan_comun-t1-math1-ma1121",
-          "to_node_id": "0000-2016-plan_comun-t2-math2-ma1122",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_comun-requirement-math2-fs1112-ma1112",
-          "from_node_id": "0000-2016-plan_comun-t2-math2-ma1112",
-          "to_node_id": "0000-2016-plan_comun-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_comun-requirement-math2-fs1112-ma1122",
-          "from_node_id": "0000-2016-plan_comun-t2-math2-ma1122",
-          "to_node_id": "0000-2016-plan_comun-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_comun-requirement-math2-math3-ma1112-ma1116",
-          "from_node_id": "0000-2016-plan_comun-t2-math2-ma1112",
-          "to_node_id": "0000-2016-plan_comun-t3-math3-ma1116",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_comun-requirement-math2-math3-ma1122-ma1123",
-          "from_node_id": "0000-2016-plan_comun-t2-math2-ma1122",
-          "to_node_id": "0000-2016-plan_comun-t3-math3-ma1123",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 128.0
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "0000-2016-plan_con_geometria",
-      "career_code": 0,
-      "career_name": "Ciclo Básico",
-      "year": 2016,
-      "modality_id": "plan_con_geometria",
-      "modality_name": "Plan con Geometría",
-      "total_credits": 47,
-      "canvas": {
-        "width": 660.0,
-        "height": 880.0
-      },
-      "terms": [
-        {
-          "id": "T1",
-          "label": "Primer trimestre",
-          "x": 0.0,
-          "width": 200.0
-        },
-        {
-          "id": "T2",
-          "label": "Segundo trimestre",
-          "x": 220.0,
-          "width": 200.0
-        },
-        {
-          "id": "T3",
-          "label": "Tercer trimestre",
-          "x": 440.0,
-          "width": 200.0
-        }
-      ],
-      "nodes": [
-        {
-          "id": "0000-2016-plan_con_geometria-t1-math1-ma1111",
-          "node_type": "COURSE",
-          "display_code": "MA1111",
-          "subject_code": "MA1111",
-          "name": "Matemáticas I",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-t1-math1-ma1121",
-          "node_type": "COURSE",
-          "display_code": "MA1121",
-          "subject_code": "MA1121",
-          "name": "Matemáticas I",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-t1-id1111",
-          "node_type": "COURSE",
-          "display_code": "ID1111",
-          "subject_code": "ID1111",
-          "name": "Inglés I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-t1-lla111",
-          "node_type": "COURSE",
-          "display_code": "LLA111",
-          "subject_code": "LLA111",
-          "name": "Lenguaje I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-t1-csa211",
-          "node_type": "COURSE",
-          "display_code": "CSA211",
-          "subject_code": "CSA211",
-          "name": "Venezuela ante el Siglo XXI I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-t1-ma1511",
-          "node_type": "COURSE",
-          "display_code": "MA1511",
-          "subject_code": "MA1511",
-          "name": "Curso de Geometria",
-          "credits": 2,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 560.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-t2-math2-ma1112",
-          "node_type": "COURSE",
-          "display_code": "MA1112",
-          "subject_code": "MA1112",
-          "name": "Matemáticas II",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-t2-math2-ma1122",
-          "node_type": "COURSE",
-          "display_code": "MA1122",
-          "subject_code": "MA1122",
-          "name": "Matemáticas II",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-t2-fs1111",
-          "node_type": "COURSE",
-          "display_code": "FS1111",
-          "subject_code": "FS1111",
-          "name": "Física I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-t2-id1112",
-          "node_type": "COURSE",
-          "display_code": "ID1112",
-          "subject_code": "ID1112",
-          "name": "Inglés II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-t2-lla112",
-          "node_type": "COURSE",
-          "display_code": "LLA112",
-          "subject_code": "LLA112",
-          "name": "Lenguaje II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-t2-csa212",
-          "node_type": "COURSE",
-          "display_code": "CSA212",
-          "subject_code": "CSA212",
-          "name": "Venezuela ante el Siglo XXI II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 560.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-t3-math3-ma1116",
-          "node_type": "COURSE",
-          "display_code": "MA1116",
-          "subject_code": "MA1116",
-          "name": "Matemáticas III",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-t3-math3-ma1123",
-          "node_type": "COURSE",
-          "display_code": "MA1123",
-          "subject_code": "MA1123",
-          "name": "Matemáticas III",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-t3-fs1112",
-          "node_type": "COURSE",
-          "display_code": "FS1112",
-          "subject_code": "FS1112",
-          "name": "Fisica II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-t3-id1113",
-          "node_type": "COURSE",
-          "display_code": "ID1113",
-          "subject_code": "ID1113",
-          "name": "Inglés III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-t3-lla113",
-          "node_type": "COURSE",
-          "display_code": "LLA113",
-          "subject_code": "LLA113",
-          "name": "Lenguaje III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-t3-csa213",
-          "node_type": "COURSE",
-          "display_code": "CSA213",
-          "subject_code": "CSA213",
-          "name": "Venezuela ante el Siglo XXI III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 560.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        }
-      ],
-      "edges": [
-        {
-          "id": "0000-2016-plan_con_geometria-requirement-csa211-csa212",
-          "from_node_id": "0000-2016-plan_con_geometria-t1-csa211",
-          "to_node_id": "0000-2016-plan_con_geometria-t2-csa212",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 488.0
-            },
-            {
-              "x": 240.0,
-              "y": 608.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-requirement-csa212-csa213",
-          "from_node_id": "0000-2016-plan_con_geometria-t2-csa212",
-          "to_node_id": "0000-2016-plan_con_geometria-t3-csa213",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 608.0
-            },
-            {
-              "x": 460.0,
-              "y": 608.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-requirement-fs1111-fs1112",
-          "from_node_id": "0000-2016-plan_con_geometria-t2-fs1111",
-          "to_node_id": "0000-2016-plan_con_geometria-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 248.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-requirement-id1111-id1112",
-          "from_node_id": "0000-2016-plan_con_geometria-t1-id1111",
-          "to_node_id": "0000-2016-plan_con_geometria-t2-id1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 248.0
-            },
-            {
-              "x": 240.0,
-              "y": 368.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-requirement-id1112-id1113",
-          "from_node_id": "0000-2016-plan_con_geometria-t2-id1112",
-          "to_node_id": "0000-2016-plan_con_geometria-t3-id1113",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 368.0
-            },
-            {
-              "x": 460.0,
-              "y": 368.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-requirement-lla111-lla112",
-          "from_node_id": "0000-2016-plan_con_geometria-t1-lla111",
-          "to_node_id": "0000-2016-plan_con_geometria-t2-lla112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 368.0
-            },
-            {
-              "x": 240.0,
-              "y": 488.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-requirement-lla112-lla113",
-          "from_node_id": "0000-2016-plan_con_geometria-t2-lla112",
-          "to_node_id": "0000-2016-plan_con_geometria-t3-lla113",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 488.0
-            },
-            {
-              "x": 460.0,
-              "y": 488.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-requirement-math1-fs1111-ma1111",
-          "from_node_id": "0000-2016-plan_con_geometria-t1-math1-ma1111",
-          "to_node_id": "0000-2016-plan_con_geometria-t2-fs1111",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-requirement-math1-fs1111-ma1121",
-          "from_node_id": "0000-2016-plan_con_geometria-t1-math1-ma1121",
-          "to_node_id": "0000-2016-plan_con_geometria-t2-fs1111",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-requirement-math1-math2-ma1111-ma1112",
-          "from_node_id": "0000-2016-plan_con_geometria-t1-math1-ma1111",
-          "to_node_id": "0000-2016-plan_con_geometria-t2-math2-ma1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-requirement-math1-math2-ma1121-ma1122",
-          "from_node_id": "0000-2016-plan_con_geometria-t1-math1-ma1121",
-          "to_node_id": "0000-2016-plan_con_geometria-t2-math2-ma1122",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-requirement-math2-fs1112-ma1112",
-          "from_node_id": "0000-2016-plan_con_geometria-t2-math2-ma1112",
-          "to_node_id": "0000-2016-plan_con_geometria-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-requirement-math2-fs1112-ma1122",
-          "from_node_id": "0000-2016-plan_con_geometria-t2-math2-ma1122",
-          "to_node_id": "0000-2016-plan_con_geometria-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-requirement-math2-math3-ma1112-ma1116",
-          "from_node_id": "0000-2016-plan_con_geometria-t2-math2-ma1112",
-          "to_node_id": "0000-2016-plan_con_geometria-t3-math3-ma1116",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2016-plan_con_geometria-requirement-math2-math3-ma1122-ma1123",
-          "from_node_id": "0000-2016-plan_con_geometria-t2-math2-ma1122",
-          "to_node_id": "0000-2016-plan_con_geometria-t3-math3-ma1123",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 128.0
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "0000-2017-plan_comun",
-      "career_code": 0,
-      "career_name": "Ciclo Básico",
-      "year": 2017,
-      "modality_id": "plan_comun",
-      "modality_name": "Plan común",
-      "total_credits": 45,
-      "canvas": {
-        "width": 660.0,
-        "height": 760.0
-      },
-      "terms": [
-        {
-          "id": "T1",
-          "label": "Primer trimestre",
-          "x": 0.0,
-          "width": 200.0
-        },
-        {
-          "id": "T2",
-          "label": "Segundo trimestre",
-          "x": 220.0,
-          "width": 200.0
-        },
-        {
-          "id": "T3",
-          "label": "Tercer trimestre",
-          "x": 440.0,
-          "width": 200.0
-        }
-      ],
-      "nodes": [
-        {
-          "id": "0000-2017-plan_comun-t1-math1-ma1111",
-          "node_type": "COURSE",
-          "display_code": "MA1111",
-          "subject_code": "MA1111",
-          "name": "Matemáticas I",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_comun-t1-math1-ma1121",
-          "node_type": "COURSE",
-          "display_code": "MA1121",
-          "subject_code": "MA1121",
-          "name": "Matemáticas I",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_comun-t1-id1111",
-          "node_type": "COURSE",
-          "display_code": "ID1111",
-          "subject_code": "ID1111",
-          "name": "Inglés I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_comun-t1-lla111",
-          "node_type": "COURSE",
-          "display_code": "LLA111",
-          "subject_code": "LLA111",
-          "name": "Lenguaje I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_comun-t1-csa211",
-          "node_type": "COURSE",
-          "display_code": "CSA211",
-          "subject_code": "CSA211",
-          "name": "Venezuela ante el Siglo XXI I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_comun-t2-math2-ma1112",
-          "node_type": "COURSE",
-          "display_code": "MA1112",
-          "subject_code": "MA1112",
-          "name": "Matemáticas II",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_comun-t2-math2-ma1122",
-          "node_type": "COURSE",
-          "display_code": "MA1122",
-          "subject_code": "MA1122",
-          "name": "Matemáticas II",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_comun-t2-fs1111",
-          "node_type": "COURSE",
-          "display_code": "FS1111",
-          "subject_code": "FS1111",
-          "name": "Física I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_comun-t2-id1112",
-          "node_type": "COURSE",
-          "display_code": "ID1112",
-          "subject_code": "ID1112",
-          "name": "Inglés II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_comun-t2-lla112",
-          "node_type": "COURSE",
-          "display_code": "LLA112",
-          "subject_code": "LLA112",
-          "name": "Lenguaje II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_comun-t2-csa212",
-          "node_type": "COURSE",
-          "display_code": "CSA212",
-          "subject_code": "CSA212",
-          "name": "Venezuela ante el Siglo XXI II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 560.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_comun-t3-math3-ma1116",
-          "node_type": "COURSE",
-          "display_code": "MA1116",
-          "subject_code": "MA1116",
-          "name": "Matemáticas III",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_comun-t3-math3-ma1123",
-          "node_type": "COURSE",
-          "display_code": "MA1123",
-          "subject_code": "MA1123",
-          "name": "Matemáticas III",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_comun-t3-fs1112",
-          "node_type": "COURSE",
-          "display_code": "FS1112",
-          "subject_code": "FS1112",
-          "name": "Fisica II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_comun-t3-id1113",
-          "node_type": "COURSE",
-          "display_code": "ID1113",
-          "subject_code": "ID1113",
-          "name": "Inglés III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_comun-t3-lla113",
-          "node_type": "COURSE",
-          "display_code": "LLA113",
-          "subject_code": "LLA113",
-          "name": "Lenguaje III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_comun-t3-csa213",
-          "node_type": "COURSE",
-          "display_code": "CSA213",
-          "subject_code": "CSA213",
-          "name": "Venezuela ante el Siglo XXI III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 560.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        }
-      ],
-      "edges": [
-        {
-          "id": "0000-2017-plan_comun-requirement-csa211-csa212",
-          "from_node_id": "0000-2017-plan_comun-t1-csa211",
-          "to_node_id": "0000-2017-plan_comun-t2-csa212",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 488.0
-            },
-            {
-              "x": 240.0,
-              "y": 608.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_comun-requirement-csa212-csa213",
-          "from_node_id": "0000-2017-plan_comun-t2-csa212",
-          "to_node_id": "0000-2017-plan_comun-t3-csa213",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 608.0
-            },
-            {
-              "x": 460.0,
-              "y": 608.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_comun-requirement-fs1111-fs1112",
-          "from_node_id": "0000-2017-plan_comun-t2-fs1111",
-          "to_node_id": "0000-2017-plan_comun-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 248.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_comun-requirement-id1111-id1112",
-          "from_node_id": "0000-2017-plan_comun-t1-id1111",
-          "to_node_id": "0000-2017-plan_comun-t2-id1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 248.0
-            },
-            {
-              "x": 240.0,
-              "y": 368.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_comun-requirement-id1112-id1113",
-          "from_node_id": "0000-2017-plan_comun-t2-id1112",
-          "to_node_id": "0000-2017-plan_comun-t3-id1113",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 368.0
-            },
-            {
-              "x": 460.0,
-              "y": 368.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_comun-requirement-lla111-lla112",
-          "from_node_id": "0000-2017-plan_comun-t1-lla111",
-          "to_node_id": "0000-2017-plan_comun-t2-lla112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 368.0
-            },
-            {
-              "x": 240.0,
-              "y": 488.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_comun-requirement-lla112-lla113",
-          "from_node_id": "0000-2017-plan_comun-t2-lla112",
-          "to_node_id": "0000-2017-plan_comun-t3-lla113",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 488.0
-            },
-            {
-              "x": 460.0,
-              "y": 488.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_comun-requirement-math1-fs1111-ma1111",
-          "from_node_id": "0000-2017-plan_comun-t1-math1-ma1111",
-          "to_node_id": "0000-2017-plan_comun-t2-fs1111",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_comun-requirement-math1-fs1111-ma1121",
-          "from_node_id": "0000-2017-plan_comun-t1-math1-ma1121",
-          "to_node_id": "0000-2017-plan_comun-t2-fs1111",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_comun-requirement-math1-math2-ma1111-ma1112",
-          "from_node_id": "0000-2017-plan_comun-t1-math1-ma1111",
-          "to_node_id": "0000-2017-plan_comun-t2-math2-ma1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_comun-requirement-math1-math2-ma1121-ma1122",
-          "from_node_id": "0000-2017-plan_comun-t1-math1-ma1121",
-          "to_node_id": "0000-2017-plan_comun-t2-math2-ma1122",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_comun-requirement-math2-fs1112-ma1112",
-          "from_node_id": "0000-2017-plan_comun-t2-math2-ma1112",
-          "to_node_id": "0000-2017-plan_comun-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_comun-requirement-math2-fs1112-ma1122",
-          "from_node_id": "0000-2017-plan_comun-t2-math2-ma1122",
-          "to_node_id": "0000-2017-plan_comun-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_comun-requirement-math2-math3-ma1112-ma1116",
-          "from_node_id": "0000-2017-plan_comun-t2-math2-ma1112",
-          "to_node_id": "0000-2017-plan_comun-t3-math3-ma1116",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_comun-requirement-math2-math3-ma1122-ma1123",
-          "from_node_id": "0000-2017-plan_comun-t2-math2-ma1122",
-          "to_node_id": "0000-2017-plan_comun-t3-math3-ma1123",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 128.0
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "0000-2017-plan_con_geometria",
-      "career_code": 0,
-      "career_name": "Ciclo Básico",
-      "year": 2017,
-      "modality_id": "plan_con_geometria",
-      "modality_name": "Plan con Geometría",
-      "total_credits": 47,
-      "canvas": {
-        "width": 660.0,
-        "height": 880.0
-      },
-      "terms": [
-        {
-          "id": "T1",
-          "label": "Primer trimestre",
-          "x": 0.0,
-          "width": 200.0
-        },
-        {
-          "id": "T2",
-          "label": "Segundo trimestre",
-          "x": 220.0,
-          "width": 200.0
-        },
-        {
-          "id": "T3",
-          "label": "Tercer trimestre",
-          "x": 440.0,
-          "width": 200.0
-        }
-      ],
-      "nodes": [
-        {
-          "id": "0000-2017-plan_con_geometria-t1-math1-ma1111",
-          "node_type": "COURSE",
-          "display_code": "MA1111",
-          "subject_code": "MA1111",
-          "name": "Matemáticas I",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-t1-math1-ma1121",
-          "node_type": "COURSE",
-          "display_code": "MA1121",
-          "subject_code": "MA1121",
-          "name": "Matemáticas I",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-t1-id1111",
-          "node_type": "COURSE",
-          "display_code": "ID1111",
-          "subject_code": "ID1111",
-          "name": "Inglés I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-t1-lla111",
-          "node_type": "COURSE",
-          "display_code": "LLA111",
-          "subject_code": "LLA111",
-          "name": "Lenguaje I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-t1-csa211",
-          "node_type": "COURSE",
-          "display_code": "CSA211",
-          "subject_code": "CSA211",
-          "name": "Venezuela ante el Siglo XXI I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-t1-ma1511",
-          "node_type": "COURSE",
-          "display_code": "MA1511",
-          "subject_code": "MA1511",
-          "name": "Curso de Geometria",
-          "credits": 2,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 560.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-t2-math2-ma1112",
-          "node_type": "COURSE",
-          "display_code": "MA1112",
-          "subject_code": "MA1112",
-          "name": "Matemáticas II",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-t2-math2-ma1122",
-          "node_type": "COURSE",
-          "display_code": "MA1122",
-          "subject_code": "MA1122",
-          "name": "Matemáticas II",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-t2-fs1111",
-          "node_type": "COURSE",
-          "display_code": "FS1111",
-          "subject_code": "FS1111",
-          "name": "Física I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-t2-id1112",
-          "node_type": "COURSE",
-          "display_code": "ID1112",
-          "subject_code": "ID1112",
-          "name": "Inglés II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-t2-lla112",
-          "node_type": "COURSE",
-          "display_code": "LLA112",
-          "subject_code": "LLA112",
-          "name": "Lenguaje II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-t2-csa212",
-          "node_type": "COURSE",
-          "display_code": "CSA212",
-          "subject_code": "CSA212",
-          "name": "Venezuela ante el Siglo XXI II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 560.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-t3-math3-ma1116",
-          "node_type": "COURSE",
-          "display_code": "MA1116",
-          "subject_code": "MA1116",
-          "name": "Matemáticas III",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-t3-math3-ma1123",
-          "node_type": "COURSE",
-          "display_code": "MA1123",
-          "subject_code": "MA1123",
-          "name": "Matemáticas III",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-t3-fs1112",
-          "node_type": "COURSE",
-          "display_code": "FS1112",
-          "subject_code": "FS1112",
-          "name": "Fisica II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-t3-id1113",
-          "node_type": "COURSE",
-          "display_code": "ID1113",
-          "subject_code": "ID1113",
-          "name": "Inglés III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-t3-lla113",
-          "node_type": "COURSE",
-          "display_code": "LLA113",
-          "subject_code": "LLA113",
-          "name": "Lenguaje III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-t3-csa213",
-          "node_type": "COURSE",
-          "display_code": "CSA213",
-          "subject_code": "CSA213",
-          "name": "Venezuela ante el Siglo XXI III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 560.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        }
-      ],
-      "edges": [
-        {
-          "id": "0000-2017-plan_con_geometria-requirement-csa211-csa212",
-          "from_node_id": "0000-2017-plan_con_geometria-t1-csa211",
-          "to_node_id": "0000-2017-plan_con_geometria-t2-csa212",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 488.0
-            },
-            {
-              "x": 240.0,
-              "y": 608.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-requirement-csa212-csa213",
-          "from_node_id": "0000-2017-plan_con_geometria-t2-csa212",
-          "to_node_id": "0000-2017-plan_con_geometria-t3-csa213",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 608.0
-            },
-            {
-              "x": 460.0,
-              "y": 608.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-requirement-fs1111-fs1112",
-          "from_node_id": "0000-2017-plan_con_geometria-t2-fs1111",
-          "to_node_id": "0000-2017-plan_con_geometria-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 248.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-requirement-id1111-id1112",
-          "from_node_id": "0000-2017-plan_con_geometria-t1-id1111",
-          "to_node_id": "0000-2017-plan_con_geometria-t2-id1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 248.0
-            },
-            {
-              "x": 240.0,
-              "y": 368.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-requirement-id1112-id1113",
-          "from_node_id": "0000-2017-plan_con_geometria-t2-id1112",
-          "to_node_id": "0000-2017-plan_con_geometria-t3-id1113",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 368.0
-            },
-            {
-              "x": 460.0,
-              "y": 368.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-requirement-lla111-lla112",
-          "from_node_id": "0000-2017-plan_con_geometria-t1-lla111",
-          "to_node_id": "0000-2017-plan_con_geometria-t2-lla112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 368.0
-            },
-            {
-              "x": 240.0,
-              "y": 488.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-requirement-lla112-lla113",
-          "from_node_id": "0000-2017-plan_con_geometria-t2-lla112",
-          "to_node_id": "0000-2017-plan_con_geometria-t3-lla113",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 488.0
-            },
-            {
-              "x": 460.0,
-              "y": 488.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-requirement-math1-fs1111-ma1111",
-          "from_node_id": "0000-2017-plan_con_geometria-t1-math1-ma1111",
-          "to_node_id": "0000-2017-plan_con_geometria-t2-fs1111",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-requirement-math1-fs1111-ma1121",
-          "from_node_id": "0000-2017-plan_con_geometria-t1-math1-ma1121",
-          "to_node_id": "0000-2017-plan_con_geometria-t2-fs1111",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-requirement-math1-math2-ma1111-ma1112",
-          "from_node_id": "0000-2017-plan_con_geometria-t1-math1-ma1111",
-          "to_node_id": "0000-2017-plan_con_geometria-t2-math2-ma1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-requirement-math1-math2-ma1121-ma1122",
-          "from_node_id": "0000-2017-plan_con_geometria-t1-math1-ma1121",
-          "to_node_id": "0000-2017-plan_con_geometria-t2-math2-ma1122",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-requirement-math2-fs1112-ma1112",
-          "from_node_id": "0000-2017-plan_con_geometria-t2-math2-ma1112",
-          "to_node_id": "0000-2017-plan_con_geometria-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-requirement-math2-fs1112-ma1122",
-          "from_node_id": "0000-2017-plan_con_geometria-t2-math2-ma1122",
-          "to_node_id": "0000-2017-plan_con_geometria-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-requirement-math2-math3-ma1112-ma1116",
-          "from_node_id": "0000-2017-plan_con_geometria-t2-math2-ma1112",
-          "to_node_id": "0000-2017-plan_con_geometria-t3-math3-ma1116",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2017-plan_con_geometria-requirement-math2-math3-ma1122-ma1123",
-          "from_node_id": "0000-2017-plan_con_geometria-t2-math2-ma1122",
-          "to_node_id": "0000-2017-plan_con_geometria-t3-math3-ma1123",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 128.0
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "0000-2018-plan_comun",
-      "career_code": 0,
-      "career_name": "Ciclo Básico",
-      "year": 2018,
-      "modality_id": "plan_comun",
-      "modality_name": "Plan común",
-      "total_credits": 45,
-      "canvas": {
-        "width": 660.0,
-        "height": 760.0
-      },
-      "terms": [
-        {
-          "id": "T1",
-          "label": "Primer trimestre",
-          "x": 0.0,
-          "width": 200.0
-        },
-        {
-          "id": "T2",
-          "label": "Segundo trimestre",
-          "x": 220.0,
-          "width": 200.0
-        },
-        {
-          "id": "T3",
-          "label": "Tercer trimestre",
-          "x": 440.0,
-          "width": 200.0
-        }
-      ],
-      "nodes": [
-        {
-          "id": "0000-2018-plan_comun-t1-math1-ma1111",
-          "node_type": "COURSE",
-          "display_code": "MA1111",
-          "subject_code": "MA1111",
-          "name": "Matemáticas I",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_comun-t1-math1-ma1121",
-          "node_type": "COURSE",
-          "display_code": "MA1121",
-          "subject_code": "MA1121",
-          "name": "Matemáticas I",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_comun-t1-id1111",
-          "node_type": "COURSE",
-          "display_code": "ID1111",
-          "subject_code": "ID1111",
-          "name": "Inglés I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_comun-t1-lla111",
-          "node_type": "COURSE",
-          "display_code": "LLA111",
-          "subject_code": "LLA111",
-          "name": "Lenguaje I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_comun-t1-csa211",
-          "node_type": "COURSE",
-          "display_code": "CSA211",
-          "subject_code": "CSA211",
-          "name": "Venezuela ante el Siglo XXI I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_comun-t2-math2-ma1112",
-          "node_type": "COURSE",
-          "display_code": "MA1112",
-          "subject_code": "MA1112",
-          "name": "Matemáticas II",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_comun-t2-math2-ma1122",
-          "node_type": "COURSE",
-          "display_code": "MA1122",
-          "subject_code": "MA1122",
-          "name": "Matemáticas II",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_comun-t2-fs1111",
-          "node_type": "COURSE",
-          "display_code": "FS1111",
-          "subject_code": "FS1111",
-          "name": "Física I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_comun-t2-id1112",
-          "node_type": "COURSE",
-          "display_code": "ID1112",
-          "subject_code": "ID1112",
-          "name": "Inglés II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_comun-t2-lla112",
-          "node_type": "COURSE",
-          "display_code": "LLA112",
-          "subject_code": "LLA112",
-          "name": "Lenguaje II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_comun-t2-csa212",
-          "node_type": "COURSE",
-          "display_code": "CSA212",
-          "subject_code": "CSA212",
-          "name": "Venezuela ante el Siglo XXI II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 560.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_comun-t3-math3-ma1116",
-          "node_type": "COURSE",
-          "display_code": "MA1116",
-          "subject_code": "MA1116",
-          "name": "Matemáticas III",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_comun-t3-math3-ma1123",
-          "node_type": "COURSE",
-          "display_code": "MA1123",
-          "subject_code": "MA1123",
-          "name": "Matemáticas III",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_comun-t3-fs1112",
-          "node_type": "COURSE",
-          "display_code": "FS1112",
-          "subject_code": "FS1112",
-          "name": "Fisica II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_comun-t3-id1113",
-          "node_type": "COURSE",
-          "display_code": "ID1113",
-          "subject_code": "ID1113",
-          "name": "Inglés III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_comun-t3-lla113",
-          "node_type": "COURSE",
-          "display_code": "LLA113",
-          "subject_code": "LLA113",
-          "name": "Lenguaje III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_comun-t3-csa213",
-          "node_type": "COURSE",
-          "display_code": "CSA213",
-          "subject_code": "CSA213",
-          "name": "Venezuela ante el Siglo XXI III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 560.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        }
-      ],
-      "edges": [
-        {
-          "id": "0000-2018-plan_comun-requirement-csa211-csa212",
-          "from_node_id": "0000-2018-plan_comun-t1-csa211",
-          "to_node_id": "0000-2018-plan_comun-t2-csa212",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 488.0
-            },
-            {
-              "x": 240.0,
-              "y": 608.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_comun-requirement-csa212-csa213",
-          "from_node_id": "0000-2018-plan_comun-t2-csa212",
-          "to_node_id": "0000-2018-plan_comun-t3-csa213",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 608.0
-            },
-            {
-              "x": 460.0,
-              "y": 608.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_comun-requirement-fs1111-fs1112",
-          "from_node_id": "0000-2018-plan_comun-t2-fs1111",
-          "to_node_id": "0000-2018-plan_comun-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 248.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_comun-requirement-id1111-id1112",
-          "from_node_id": "0000-2018-plan_comun-t1-id1111",
-          "to_node_id": "0000-2018-plan_comun-t2-id1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 248.0
-            },
-            {
-              "x": 240.0,
-              "y": 368.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_comun-requirement-id1112-id1113",
-          "from_node_id": "0000-2018-plan_comun-t2-id1112",
-          "to_node_id": "0000-2018-plan_comun-t3-id1113",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 368.0
-            },
-            {
-              "x": 460.0,
-              "y": 368.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_comun-requirement-lla111-lla112",
-          "from_node_id": "0000-2018-plan_comun-t1-lla111",
-          "to_node_id": "0000-2018-plan_comun-t2-lla112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 368.0
-            },
-            {
-              "x": 240.0,
-              "y": 488.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_comun-requirement-lla112-lla113",
-          "from_node_id": "0000-2018-plan_comun-t2-lla112",
-          "to_node_id": "0000-2018-plan_comun-t3-lla113",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 488.0
-            },
-            {
-              "x": 460.0,
-              "y": 488.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_comun-requirement-math1-fs1111-ma1111",
-          "from_node_id": "0000-2018-plan_comun-t1-math1-ma1111",
-          "to_node_id": "0000-2018-plan_comun-t2-fs1111",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_comun-requirement-math1-fs1111-ma1121",
-          "from_node_id": "0000-2018-plan_comun-t1-math1-ma1121",
-          "to_node_id": "0000-2018-plan_comun-t2-fs1111",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_comun-requirement-math1-math2-ma1111-ma1112",
-          "from_node_id": "0000-2018-plan_comun-t1-math1-ma1111",
-          "to_node_id": "0000-2018-plan_comun-t2-math2-ma1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_comun-requirement-math1-math2-ma1121-ma1122",
-          "from_node_id": "0000-2018-plan_comun-t1-math1-ma1121",
-          "to_node_id": "0000-2018-plan_comun-t2-math2-ma1122",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_comun-requirement-math2-fs1112-ma1112",
-          "from_node_id": "0000-2018-plan_comun-t2-math2-ma1112",
-          "to_node_id": "0000-2018-plan_comun-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_comun-requirement-math2-fs1112-ma1122",
-          "from_node_id": "0000-2018-plan_comun-t2-math2-ma1122",
-          "to_node_id": "0000-2018-plan_comun-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_comun-requirement-math2-math3-ma1112-ma1116",
-          "from_node_id": "0000-2018-plan_comun-t2-math2-ma1112",
-          "to_node_id": "0000-2018-plan_comun-t3-math3-ma1116",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_comun-requirement-math2-math3-ma1122-ma1123",
-          "from_node_id": "0000-2018-plan_comun-t2-math2-ma1122",
-          "to_node_id": "0000-2018-plan_comun-t3-math3-ma1123",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 128.0
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "0000-2018-plan_con_geometria",
-      "career_code": 0,
-      "career_name": "Ciclo Básico",
-      "year": 2018,
-      "modality_id": "plan_con_geometria",
-      "modality_name": "Plan con Geometría",
-      "total_credits": 47,
-      "canvas": {
-        "width": 660.0,
-        "height": 880.0
-      },
-      "terms": [
-        {
-          "id": "T1",
-          "label": "Primer trimestre",
-          "x": 0.0,
-          "width": 200.0
-        },
-        {
-          "id": "T2",
-          "label": "Segundo trimestre",
-          "x": 220.0,
-          "width": 200.0
-        },
-        {
-          "id": "T3",
-          "label": "Tercer trimestre",
-          "x": 440.0,
-          "width": 200.0
-        }
-      ],
-      "nodes": [
-        {
-          "id": "0000-2018-plan_con_geometria-t1-math1-ma1111",
-          "node_type": "COURSE",
-          "display_code": "MA1111",
-          "subject_code": "MA1111",
-          "name": "Matemáticas I",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-t1-math1-ma1121",
-          "node_type": "COURSE",
-          "display_code": "MA1121",
-          "subject_code": "MA1121",
-          "name": "Matemáticas I",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-t1-id1111",
-          "node_type": "COURSE",
-          "display_code": "ID1111",
-          "subject_code": "ID1111",
-          "name": "Inglés I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-t1-lla111",
-          "node_type": "COURSE",
-          "display_code": "LLA111",
-          "subject_code": "LLA111",
-          "name": "Lenguaje I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-t1-csa211",
-          "node_type": "COURSE",
-          "display_code": "CSA211",
-          "subject_code": "CSA211",
-          "name": "Venezuela ante el Siglo XXI I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-t1-ma1511",
-          "node_type": "COURSE",
-          "display_code": "MA1511",
-          "subject_code": "MA1511",
-          "name": "Curso de Geometria",
-          "credits": 2,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 560.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-t2-math2-ma1112",
-          "node_type": "COURSE",
-          "display_code": "MA1112",
-          "subject_code": "MA1112",
-          "name": "Matemáticas II",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-t2-math2-ma1122",
-          "node_type": "COURSE",
-          "display_code": "MA1122",
-          "subject_code": "MA1122",
-          "name": "Matemáticas II",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-t2-fs1111",
-          "node_type": "COURSE",
-          "display_code": "FS1111",
-          "subject_code": "FS1111",
-          "name": "Física I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-t2-id1112",
-          "node_type": "COURSE",
-          "display_code": "ID1112",
-          "subject_code": "ID1112",
-          "name": "Inglés II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-t2-lla112",
-          "node_type": "COURSE",
-          "display_code": "LLA112",
-          "subject_code": "LLA112",
-          "name": "Lenguaje II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-t2-csa212",
-          "node_type": "COURSE",
-          "display_code": "CSA212",
-          "subject_code": "CSA212",
-          "name": "Venezuela ante el Siglo XXI II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 560.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-t3-math3-ma1116",
-          "node_type": "COURSE",
-          "display_code": "MA1116",
-          "subject_code": "MA1116",
-          "name": "Matemáticas III",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-t3-math3-ma1123",
-          "node_type": "COURSE",
-          "display_code": "MA1123",
-          "subject_code": "MA1123",
-          "name": "Matemáticas III",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-t3-fs1112",
-          "node_type": "COURSE",
-          "display_code": "FS1112",
-          "subject_code": "FS1112",
-          "name": "Fisica II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-t3-id1113",
-          "node_type": "COURSE",
-          "display_code": "ID1113",
-          "subject_code": "ID1113",
-          "name": "Inglés III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-t3-lla113",
-          "node_type": "COURSE",
-          "display_code": "LLA113",
-          "subject_code": "LLA113",
-          "name": "Lenguaje III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-t3-csa213",
-          "node_type": "COURSE",
-          "display_code": "CSA213",
-          "subject_code": "CSA213",
-          "name": "Venezuela ante el Siglo XXI III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 560.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        }
-      ],
-      "edges": [
-        {
-          "id": "0000-2018-plan_con_geometria-requirement-csa211-csa212",
-          "from_node_id": "0000-2018-plan_con_geometria-t1-csa211",
-          "to_node_id": "0000-2018-plan_con_geometria-t2-csa212",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 488.0
-            },
-            {
-              "x": 240.0,
-              "y": 608.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-requirement-csa212-csa213",
-          "from_node_id": "0000-2018-plan_con_geometria-t2-csa212",
-          "to_node_id": "0000-2018-plan_con_geometria-t3-csa213",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 608.0
-            },
-            {
-              "x": 460.0,
-              "y": 608.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-requirement-fs1111-fs1112",
-          "from_node_id": "0000-2018-plan_con_geometria-t2-fs1111",
-          "to_node_id": "0000-2018-plan_con_geometria-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 248.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-requirement-id1111-id1112",
-          "from_node_id": "0000-2018-plan_con_geometria-t1-id1111",
-          "to_node_id": "0000-2018-plan_con_geometria-t2-id1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 248.0
-            },
-            {
-              "x": 240.0,
-              "y": 368.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-requirement-id1112-id1113",
-          "from_node_id": "0000-2018-plan_con_geometria-t2-id1112",
-          "to_node_id": "0000-2018-plan_con_geometria-t3-id1113",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 368.0
-            },
-            {
-              "x": 460.0,
-              "y": 368.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-requirement-lla111-lla112",
-          "from_node_id": "0000-2018-plan_con_geometria-t1-lla111",
-          "to_node_id": "0000-2018-plan_con_geometria-t2-lla112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 368.0
-            },
-            {
-              "x": 240.0,
-              "y": 488.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-requirement-lla112-lla113",
-          "from_node_id": "0000-2018-plan_con_geometria-t2-lla112",
-          "to_node_id": "0000-2018-plan_con_geometria-t3-lla113",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 488.0
-            },
-            {
-              "x": 460.0,
-              "y": 488.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-requirement-math1-fs1111-ma1111",
-          "from_node_id": "0000-2018-plan_con_geometria-t1-math1-ma1111",
-          "to_node_id": "0000-2018-plan_con_geometria-t2-fs1111",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-requirement-math1-fs1111-ma1121",
-          "from_node_id": "0000-2018-plan_con_geometria-t1-math1-ma1121",
-          "to_node_id": "0000-2018-plan_con_geometria-t2-fs1111",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-requirement-math1-math2-ma1111-ma1112",
-          "from_node_id": "0000-2018-plan_con_geometria-t1-math1-ma1111",
-          "to_node_id": "0000-2018-plan_con_geometria-t2-math2-ma1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-requirement-math1-math2-ma1121-ma1122",
-          "from_node_id": "0000-2018-plan_con_geometria-t1-math1-ma1121",
-          "to_node_id": "0000-2018-plan_con_geometria-t2-math2-ma1122",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-requirement-math2-fs1112-ma1112",
-          "from_node_id": "0000-2018-plan_con_geometria-t2-math2-ma1112",
-          "to_node_id": "0000-2018-plan_con_geometria-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-requirement-math2-fs1112-ma1122",
-          "from_node_id": "0000-2018-plan_con_geometria-t2-math2-ma1122",
-          "to_node_id": "0000-2018-plan_con_geometria-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-requirement-math2-math3-ma1112-ma1116",
-          "from_node_id": "0000-2018-plan_con_geometria-t2-math2-ma1112",
-          "to_node_id": "0000-2018-plan_con_geometria-t3-math3-ma1116",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2018-plan_con_geometria-requirement-math2-math3-ma1122-ma1123",
-          "from_node_id": "0000-2018-plan_con_geometria-t2-math2-ma1122",
-          "to_node_id": "0000-2018-plan_con_geometria-t3-math3-ma1123",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 128.0
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "0000-2019-plan_comun",
-      "career_code": 0,
-      "career_name": "Ciclo Básico",
-      "year": 2019,
-      "modality_id": "plan_comun",
-      "modality_name": "Plan común",
-      "total_credits": 45,
-      "canvas": {
-        "width": 660.0,
-        "height": 760.0
-      },
-      "terms": [
-        {
-          "id": "T1",
-          "label": "Primer trimestre",
-          "x": 0.0,
-          "width": 200.0
-        },
-        {
-          "id": "T2",
-          "label": "Segundo trimestre",
-          "x": 220.0,
-          "width": 200.0
-        },
-        {
-          "id": "T3",
-          "label": "Tercer trimestre",
-          "x": 440.0,
-          "width": 200.0
-        }
-      ],
-      "nodes": [
-        {
-          "id": "0000-2019-plan_comun-t1-math1-ma1111",
-          "node_type": "COURSE",
-          "display_code": "MA1111",
-          "subject_code": "MA1111",
-          "name": "Matemáticas I",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_comun-t1-math1-ma1121",
-          "node_type": "COURSE",
-          "display_code": "MA1121",
-          "subject_code": "MA1121",
-          "name": "Matemáticas I",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_comun-t1-id1111",
-          "node_type": "COURSE",
-          "display_code": "ID1111",
-          "subject_code": "ID1111",
-          "name": "Inglés I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_comun-t1-lla111",
-          "node_type": "COURSE",
-          "display_code": "LLA111",
-          "subject_code": "LLA111",
-          "name": "Lenguaje I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_comun-t1-csa211",
-          "node_type": "COURSE",
-          "display_code": "CSA211",
-          "subject_code": "CSA211",
-          "name": "Venezuela ante el Siglo XXI I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_comun-t2-math2-ma1112",
-          "node_type": "COURSE",
-          "display_code": "MA1112",
-          "subject_code": "MA1112",
-          "name": "Matemáticas II",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_comun-t2-math2-ma1122",
-          "node_type": "COURSE",
-          "display_code": "MA1122",
-          "subject_code": "MA1122",
-          "name": "Matemáticas II",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_comun-t2-fs1111",
-          "node_type": "COURSE",
-          "display_code": "FS1111",
-          "subject_code": "FS1111",
-          "name": "Física I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_comun-t2-id1112",
-          "node_type": "COURSE",
-          "display_code": "ID1112",
-          "subject_code": "ID1112",
-          "name": "Inglés II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_comun-t2-lla112",
-          "node_type": "COURSE",
-          "display_code": "LLA112",
-          "subject_code": "LLA112",
-          "name": "Lenguaje II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_comun-t2-csa212",
-          "node_type": "COURSE",
-          "display_code": "CSA212",
-          "subject_code": "CSA212",
-          "name": "Venezuela ante el Siglo XXI II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 560.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_comun-t3-math3-ma1116",
-          "node_type": "COURSE",
-          "display_code": "MA1116",
-          "subject_code": "MA1116",
-          "name": "Matemáticas III",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_comun-t3-math3-ma1123",
-          "node_type": "COURSE",
-          "display_code": "MA1123",
-          "subject_code": "MA1123",
-          "name": "Matemáticas III",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_comun-t3-fs1112",
-          "node_type": "COURSE",
-          "display_code": "FS1112",
-          "subject_code": "FS1112",
-          "name": "Fisica II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_comun-t3-id1113",
-          "node_type": "COURSE",
-          "display_code": "ID1113",
-          "subject_code": "ID1113",
-          "name": "Inglés III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_comun-t3-lla113",
-          "node_type": "COURSE",
-          "display_code": "LLA113",
-          "subject_code": "LLA113",
-          "name": "Lenguaje III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_comun-t3-csa213",
-          "node_type": "COURSE",
-          "display_code": "CSA213",
-          "subject_code": "CSA213",
-          "name": "Venezuela ante el Siglo XXI III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 560.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        }
-      ],
-      "edges": [
-        {
-          "id": "0000-2019-plan_comun-requirement-csa211-csa212",
-          "from_node_id": "0000-2019-plan_comun-t1-csa211",
-          "to_node_id": "0000-2019-plan_comun-t2-csa212",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 488.0
-            },
-            {
-              "x": 240.0,
-              "y": 608.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_comun-requirement-csa212-csa213",
-          "from_node_id": "0000-2019-plan_comun-t2-csa212",
-          "to_node_id": "0000-2019-plan_comun-t3-csa213",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 608.0
-            },
-            {
-              "x": 460.0,
-              "y": 608.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_comun-requirement-fs1111-fs1112",
-          "from_node_id": "0000-2019-plan_comun-t2-fs1111",
-          "to_node_id": "0000-2019-plan_comun-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 248.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_comun-requirement-id1111-id1112",
-          "from_node_id": "0000-2019-plan_comun-t1-id1111",
-          "to_node_id": "0000-2019-plan_comun-t2-id1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 248.0
-            },
-            {
-              "x": 240.0,
-              "y": 368.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_comun-requirement-id1112-id1113",
-          "from_node_id": "0000-2019-plan_comun-t2-id1112",
-          "to_node_id": "0000-2019-plan_comun-t3-id1113",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 368.0
-            },
-            {
-              "x": 460.0,
-              "y": 368.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_comun-requirement-lla111-lla112",
-          "from_node_id": "0000-2019-plan_comun-t1-lla111",
-          "to_node_id": "0000-2019-plan_comun-t2-lla112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 368.0
-            },
-            {
-              "x": 240.0,
-              "y": 488.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_comun-requirement-lla112-lla113",
-          "from_node_id": "0000-2019-plan_comun-t2-lla112",
-          "to_node_id": "0000-2019-plan_comun-t3-lla113",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 488.0
-            },
-            {
-              "x": 460.0,
-              "y": 488.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_comun-requirement-math1-fs1111-ma1111",
-          "from_node_id": "0000-2019-plan_comun-t1-math1-ma1111",
-          "to_node_id": "0000-2019-plan_comun-t2-fs1111",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_comun-requirement-math1-fs1111-ma1121",
-          "from_node_id": "0000-2019-plan_comun-t1-math1-ma1121",
-          "to_node_id": "0000-2019-plan_comun-t2-fs1111",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_comun-requirement-math1-math2-ma1111-ma1112",
-          "from_node_id": "0000-2019-plan_comun-t1-math1-ma1111",
-          "to_node_id": "0000-2019-plan_comun-t2-math2-ma1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_comun-requirement-math1-math2-ma1121-ma1122",
-          "from_node_id": "0000-2019-plan_comun-t1-math1-ma1121",
-          "to_node_id": "0000-2019-plan_comun-t2-math2-ma1122",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_comun-requirement-math2-fs1112-ma1112",
-          "from_node_id": "0000-2019-plan_comun-t2-math2-ma1112",
-          "to_node_id": "0000-2019-plan_comun-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_comun-requirement-math2-fs1112-ma1122",
-          "from_node_id": "0000-2019-plan_comun-t2-math2-ma1122",
-          "to_node_id": "0000-2019-plan_comun-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_comun-requirement-math2-math3-ma1112-ma1116",
-          "from_node_id": "0000-2019-plan_comun-t2-math2-ma1112",
-          "to_node_id": "0000-2019-plan_comun-t3-math3-ma1116",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_comun-requirement-math2-math3-ma1122-ma1123",
-          "from_node_id": "0000-2019-plan_comun-t2-math2-ma1122",
-          "to_node_id": "0000-2019-plan_comun-t3-math3-ma1123",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 128.0
-            }
-          ]
-        }
-      ]
-    },
-    {
-      "id": "0000-2019-plan_con_geometria",
-      "career_code": 0,
-      "career_name": "Ciclo Básico",
-      "year": 2019,
-      "modality_id": "plan_con_geometria",
-      "modality_name": "Plan con Geometría",
-      "total_credits": 47,
-      "canvas": {
-        "width": 660.0,
-        "height": 880.0
-      },
-      "terms": [
-        {
-          "id": "T1",
-          "label": "Primer trimestre",
-          "x": 0.0,
-          "width": 200.0
-        },
-        {
-          "id": "T2",
-          "label": "Segundo trimestre",
-          "x": 220.0,
-          "width": 200.0
-        },
-        {
-          "id": "T3",
-          "label": "Tercer trimestre",
-          "x": 440.0,
-          "width": 200.0
-        }
-      ],
-      "nodes": [
-        {
-          "id": "0000-2019-plan_con_geometria-t1-math1-ma1111",
-          "node_type": "COURSE",
-          "display_code": "MA1111",
-          "subject_code": "MA1111",
-          "name": "Matemáticas I",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-t1-math1-ma1121",
-          "node_type": "COURSE",
-          "display_code": "MA1121",
-          "subject_code": "MA1121",
-          "name": "Matemáticas I",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-t1-id1111",
-          "node_type": "COURSE",
-          "display_code": "ID1111",
-          "subject_code": "ID1111",
-          "name": "Inglés I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-t1-lla111",
-          "node_type": "COURSE",
-          "display_code": "LLA111",
-          "subject_code": "LLA111",
-          "name": "Lenguaje I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-t1-csa211",
-          "node_type": "COURSE",
-          "display_code": "CSA211",
-          "subject_code": "CSA211",
-          "name": "Venezuela ante el Siglo XXI I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-t1-ma1511",
-          "node_type": "COURSE",
-          "display_code": "MA1511",
-          "subject_code": "MA1511",
-          "name": "Curso de Geometria",
-          "credits": 2,
-          "category": "BASIC",
-          "term_id": "T1",
-          "x": 20.0,
-          "y": 560.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-t2-math2-ma1112",
-          "node_type": "COURSE",
-          "display_code": "MA1112",
-          "subject_code": "MA1112",
-          "name": "Matemáticas II",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-t2-math2-ma1122",
-          "node_type": "COURSE",
-          "display_code": "MA1122",
-          "subject_code": "MA1122",
-          "name": "Matemáticas II",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-t2-fs1111",
-          "node_type": "COURSE",
-          "display_code": "FS1111",
-          "subject_code": "FS1111",
-          "name": "Física I",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-t2-id1112",
-          "node_type": "COURSE",
-          "display_code": "ID1112",
-          "subject_code": "ID1112",
-          "name": "Inglés II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-t2-lla112",
-          "node_type": "COURSE",
-          "display_code": "LLA112",
-          "subject_code": "LLA112",
-          "name": "Lenguaje II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-t2-csa212",
-          "node_type": "COURSE",
-          "display_code": "CSA212",
-          "subject_code": "CSA212",
-          "name": "Venezuela ante el Siglo XXI II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T2",
-          "x": 240.0,
-          "y": 560.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-t3-math3-ma1116",
-          "node_type": "COURSE",
-          "display_code": "MA1116",
-          "subject_code": "MA1116",
-          "name": "Matemáticas III",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 80.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-t3-math3-ma1123",
-          "node_type": "COURSE",
-          "display_code": "MA1123",
-          "subject_code": "MA1123",
-          "name": "Matemáticas III",
-          "credits": 4,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 188.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-t3-fs1112",
-          "node_type": "COURSE",
-          "display_code": "FS1112",
-          "subject_code": "FS1112",
-          "name": "Fisica II",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 200.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-t3-id1113",
-          "node_type": "COURSE",
-          "display_code": "ID1113",
-          "subject_code": "ID1113",
-          "name": "Inglés III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 320.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-t3-lla113",
-          "node_type": "COURSE",
-          "display_code": "LLA113",
-          "subject_code": "LLA113",
-          "name": "Lenguaje III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 440.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-t3-csa213",
-          "node_type": "COURSE",
-          "display_code": "CSA213",
-          "subject_code": "CSA213",
-          "name": "Venezuela ante el Siglo XXI III",
-          "credits": 3,
-          "category": "BASIC",
-          "term_id": "T3",
-          "x": 460.0,
-          "y": 560.0,
-          "width": 160.0,
-          "height": 96.0,
-          "fulfillment_rules": []
-        }
-      ],
-      "edges": [
-        {
-          "id": "0000-2019-plan_con_geometria-requirement-csa211-csa212",
-          "from_node_id": "0000-2019-plan_con_geometria-t1-csa211",
-          "to_node_id": "0000-2019-plan_con_geometria-t2-csa212",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 488.0
-            },
-            {
-              "x": 240.0,
-              "y": 608.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-requirement-csa212-csa213",
-          "from_node_id": "0000-2019-plan_con_geometria-t2-csa212",
-          "to_node_id": "0000-2019-plan_con_geometria-t3-csa213",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 608.0
-            },
-            {
-              "x": 460.0,
-              "y": 608.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-requirement-fs1111-fs1112",
-          "from_node_id": "0000-2019-plan_con_geometria-t2-fs1111",
-          "to_node_id": "0000-2019-plan_con_geometria-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 248.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-requirement-id1111-id1112",
-          "from_node_id": "0000-2019-plan_con_geometria-t1-id1111",
-          "to_node_id": "0000-2019-plan_con_geometria-t2-id1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 248.0
-            },
-            {
-              "x": 240.0,
-              "y": 368.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-requirement-id1112-id1113",
-          "from_node_id": "0000-2019-plan_con_geometria-t2-id1112",
-          "to_node_id": "0000-2019-plan_con_geometria-t3-id1113",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 368.0
-            },
-            {
-              "x": 460.0,
-              "y": 368.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-requirement-lla111-lla112",
-          "from_node_id": "0000-2019-plan_con_geometria-t1-lla111",
-          "to_node_id": "0000-2019-plan_con_geometria-t2-lla112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 368.0
-            },
-            {
-              "x": 240.0,
-              "y": 488.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-requirement-lla112-lla113",
-          "from_node_id": "0000-2019-plan_con_geometria-t2-lla112",
-          "to_node_id": "0000-2019-plan_con_geometria-t3-lla113",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 488.0
-            },
-            {
-              "x": 460.0,
-              "y": 488.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-requirement-math1-fs1111-ma1111",
-          "from_node_id": "0000-2019-plan_con_geometria-t1-math1-ma1111",
-          "to_node_id": "0000-2019-plan_con_geometria-t2-fs1111",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-requirement-math1-fs1111-ma1121",
-          "from_node_id": "0000-2019-plan_con_geometria-t1-math1-ma1121",
-          "to_node_id": "0000-2019-plan_con_geometria-t2-fs1111",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-requirement-math1-math2-ma1111-ma1112",
-          "from_node_id": "0000-2019-plan_con_geometria-t1-math1-ma1111",
-          "to_node_id": "0000-2019-plan_con_geometria-t2-math2-ma1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-requirement-math1-math2-ma1121-ma1122",
-          "from_node_id": "0000-2019-plan_con_geometria-t1-math1-ma1121",
-          "to_node_id": "0000-2019-plan_con_geometria-t2-math2-ma1122",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 180.0,
-              "y": 128.0
-            },
-            {
-              "x": 240.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-requirement-math2-fs1112-ma1112",
-          "from_node_id": "0000-2019-plan_con_geometria-t2-math2-ma1112",
-          "to_node_id": "0000-2019-plan_con_geometria-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-requirement-math2-fs1112-ma1122",
-          "from_node_id": "0000-2019-plan_con_geometria-t2-math2-ma1122",
-          "to_node_id": "0000-2019-plan_con_geometria-t3-fs1112",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 248.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-requirement-math2-math3-ma1112-ma1116",
-          "from_node_id": "0000-2019-plan_con_geometria-t2-math2-ma1112",
-          "to_node_id": "0000-2019-plan_con_geometria-t3-math3-ma1116",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 128.0
-            }
-          ]
-        },
-        {
-          "id": "0000-2019-plan_con_geometria-requirement-math2-math3-ma1122-ma1123",
-          "from_node_id": "0000-2019-plan_con_geometria-t2-math2-ma1122",
-          "to_node_id": "0000-2019-plan_con_geometria-t3-math3-ma1123",
-          "relationship_type": "REQUIREMENT",
-          "points": [
-            {
-              "x": 400.0,
-              "y": 128.0
-            },
-            {
-              "x": 460.0,
-              "y": 128.0
-            }
-          ]
-        }
-      ]
-    },
-    {
       "id": "0800-2016-degree_project",
-      "career_code": 800,
-      "career_name": "Ingenieria de Computacion",
       "year": 2016,
       "modality_id": "degree_project",
       "modality_name": "Proyecto de Grado",
@@ -4741,7 +424,9 @@
               "id": "0800-2016-degree_project-t4-eg-t4-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -4945,7 +630,9 @@
               "id": "0800-2016-degree_project-t7-eg-t7-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -5211,7 +898,9 @@
               "id": "0800-2016-degree_project-t11-eg-t11-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -5359,7 +1048,9 @@
               "id": "0800-2016-degree_project-t12-eg-t12-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -5575,7 +1266,9 @@
               "id": "0800-2016-degree_project-t14-eg-t14-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -5649,7 +1342,9 @@
               "id": "0800-2016-degree_project-t15-eg-t15-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -6797,8 +2492,6 @@
     },
     {
       "id": "0800-2016-long_internship",
-      "career_code": 800,
-      "career_name": "Ingenieria de Computacion",
       "year": 2016,
       "modality_id": "long_internship",
       "modality_name": "Pasantia Larga",
@@ -7224,7 +2917,9 @@
               "id": "0800-2016-long_internship-t4-eg-t4-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -7428,7 +3123,9 @@
               "id": "0800-2016-long_internship-t7-eg-t7-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -7771,7 +3468,9 @@
               "id": "0800-2016-long_internship-t11-eg-t11-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -7919,7 +3618,9 @@
               "id": "0800-2016-long_internship-t12-eg-t12-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -8055,7 +3756,9 @@
               "id": "0800-2016-long_internship-t14-eg-t14-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -8176,7 +3879,9 @@
               "id": "0800-2016-long_internship-t15-eg-t15-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -9244,8 +4949,6 @@
     },
     {
       "id": "0800-2016-exclusive_degree_project",
-      "career_code": 800,
-      "career_name": "Ingenieria de Computacion",
       "year": 2016,
       "modality_id": "exclusive_degree_project",
       "modality_name": "Proyecto de Grado a Dedicacion Exclusiva",
@@ -9671,7 +5374,9 @@
               "id": "0800-2016-exclusive_degree_project-t4-eg-t4-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -9875,7 +5580,9 @@
               "id": "0800-2016-exclusive_degree_project-t7-eg-t7-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -10218,7 +5925,9 @@
               "id": "0800-2016-exclusive_degree_project-t11-eg-t11-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -10366,7 +6075,9 @@
               "id": "0800-2016-exclusive_degree_project-t12-eg-t12-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -10502,7 +6213,9 @@
               "id": "0800-2016-exclusive_degree_project-t14-eg-t14-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -10623,7 +6336,9 @@
               "id": "0800-2016-exclusive_degree_project-t15-eg-t15-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -11691,8 +7406,6 @@
     },
     {
       "id": "0800-2017-degree_project",
-      "career_code": 800,
-      "career_name": "Ingenieria de Computacion",
       "year": 2017,
       "modality_id": "degree_project",
       "modality_name": "Proyecto de Grado",
@@ -12112,7 +7825,9 @@
               "id": "0800-2017-degree_project-t4-eg-t4-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -12316,7 +8031,9 @@
               "id": "0800-2017-degree_project-t7-eg-t7-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -12582,7 +8299,9 @@
               "id": "0800-2017-degree_project-t11-eg-t11-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -12730,7 +8449,9 @@
               "id": "0800-2017-degree_project-t12-eg-t12-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -12946,7 +8667,9 @@
               "id": "0800-2017-degree_project-t14-eg-t14-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -13020,7 +8743,9 @@
               "id": "0800-2017-degree_project-t15-eg-t15-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -14168,8 +9893,6 @@
     },
     {
       "id": "0800-2017-long_internship",
-      "career_code": 800,
-      "career_name": "Ingenieria de Computacion",
       "year": 2017,
       "modality_id": "long_internship",
       "modality_name": "Pasantia Larga",
@@ -14595,7 +10318,9 @@
               "id": "0800-2017-long_internship-t4-eg-t4-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -14799,7 +10524,9 @@
               "id": "0800-2017-long_internship-t7-eg-t7-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -15142,7 +10869,9 @@
               "id": "0800-2017-long_internship-t11-eg-t11-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -15290,7 +11019,9 @@
               "id": "0800-2017-long_internship-t12-eg-t12-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -15426,7 +11157,9 @@
               "id": "0800-2017-long_internship-t14-eg-t14-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -15547,7 +11280,9 @@
               "id": "0800-2017-long_internship-t15-eg-t15-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -16615,8 +12350,6 @@
     },
     {
       "id": "0800-2017-exclusive_degree_project",
-      "career_code": 800,
-      "career_name": "Ingenieria de Computacion",
       "year": 2017,
       "modality_id": "exclusive_degree_project",
       "modality_name": "Proyecto de Grado a Dedicacion Exclusiva",
@@ -17042,7 +12775,9 @@
               "id": "0800-2017-exclusive_degree_project-t4-eg-t4-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -17246,7 +12981,9 @@
               "id": "0800-2017-exclusive_degree_project-t7-eg-t7-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -17589,7 +13326,9 @@
               "id": "0800-2017-exclusive_degree_project-t11-eg-t11-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -17737,7 +13476,9 @@
               "id": "0800-2017-exclusive_degree_project-t12-eg-t12-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -17873,7 +13614,9 @@
               "id": "0800-2017-exclusive_degree_project-t14-eg-t14-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -17994,7 +13737,9 @@
               "id": "0800-2017-exclusive_degree_project-t15-eg-t15-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -19062,8 +14807,6 @@
     },
     {
       "id": "0800-2018-degree_project",
-      "career_code": 800,
-      "career_name": "Ingenieria de Computacion",
       "year": 2018,
       "modality_id": "degree_project",
       "modality_name": "Proyecto de Grado",
@@ -19483,7 +15226,9 @@
               "id": "0800-2018-degree_project-t4-eg-t4-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -19687,7 +15432,9 @@
               "id": "0800-2018-degree_project-t7-eg-t7-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -19953,7 +15700,9 @@
               "id": "0800-2018-degree_project-t11-eg-t11-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -20101,7 +15850,9 @@
               "id": "0800-2018-degree_project-t12-eg-t12-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -20317,7 +16068,9 @@
               "id": "0800-2018-degree_project-t14-eg-t14-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -20391,7 +16144,9 @@
               "id": "0800-2018-degree_project-t15-eg-t15-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -21539,8 +17294,6 @@
     },
     {
       "id": "0800-2018-long_internship",
-      "career_code": 800,
-      "career_name": "Ingenieria de Computacion",
       "year": 2018,
       "modality_id": "long_internship",
       "modality_name": "Pasantia Larga",
@@ -21966,7 +17719,9 @@
               "id": "0800-2018-long_internship-t4-eg-t4-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -22170,7 +17925,9 @@
               "id": "0800-2018-long_internship-t7-eg-t7-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -22513,7 +18270,9 @@
               "id": "0800-2018-long_internship-t11-eg-t11-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -22661,7 +18420,9 @@
               "id": "0800-2018-long_internship-t12-eg-t12-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -22797,7 +18558,9 @@
               "id": "0800-2018-long_internship-t14-eg-t14-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -22918,7 +18681,9 @@
               "id": "0800-2018-long_internship-t15-eg-t15-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -23986,8 +19751,6 @@
     },
     {
       "id": "0800-2018-exclusive_degree_project",
-      "career_code": 800,
-      "career_name": "Ingenieria de Computacion",
       "year": 2018,
       "modality_id": "exclusive_degree_project",
       "modality_name": "Proyecto de Grado a Dedicacion Exclusiva",
@@ -24413,7 +20176,9 @@
               "id": "0800-2018-exclusive_degree_project-t4-eg-t4-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -24617,7 +20382,9 @@
               "id": "0800-2018-exclusive_degree_project-t7-eg-t7-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -24960,7 +20727,9 @@
               "id": "0800-2018-exclusive_degree_project-t11-eg-t11-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -25108,7 +20877,9 @@
               "id": "0800-2018-exclusive_degree_project-t12-eg-t12-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -25244,7 +21015,9 @@
               "id": "0800-2018-exclusive_degree_project-t14-eg-t14-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -25365,7 +21138,9 @@
               "id": "0800-2018-exclusive_degree_project-t15-eg-t15-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -26433,8 +22208,6 @@
     },
     {
       "id": "0800-2019-degree_project",
-      "career_code": 800,
-      "career_name": "Ingenieria de Computacion",
       "year": 2019,
       "modality_id": "degree_project",
       "modality_name": "Proyecto de Grado",
@@ -26854,7 +22627,9 @@
               "id": "0800-2019-degree_project-t4-eg-t4-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -27058,7 +22833,9 @@
               "id": "0800-2019-degree_project-t7-eg-t7-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -27324,7 +23101,9 @@
               "id": "0800-2019-degree_project-t11-eg-t11-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -27472,7 +23251,9 @@
               "id": "0800-2019-degree_project-t12-eg-t12-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -27688,7 +23469,9 @@
               "id": "0800-2019-degree_project-t14-eg-t14-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -27762,7 +23545,9 @@
               "id": "0800-2019-degree_project-t15-eg-t15-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -28910,8 +24695,6 @@
     },
     {
       "id": "0800-2019-long_internship",
-      "career_code": 800,
-      "career_name": "Ingenieria de Computacion",
       "year": 2019,
       "modality_id": "long_internship",
       "modality_name": "Pasantia Larga",
@@ -29337,7 +25120,9 @@
               "id": "0800-2019-long_internship-t4-eg-t4-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -29541,7 +25326,9 @@
               "id": "0800-2019-long_internship-t7-eg-t7-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -29884,7 +25671,9 @@
               "id": "0800-2019-long_internship-t11-eg-t11-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -30032,7 +25821,9 @@
               "id": "0800-2019-long_internship-t12-eg-t12-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -30168,7 +25959,9 @@
               "id": "0800-2019-long_internship-t14-eg-t14-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -30289,7 +26082,9 @@
               "id": "0800-2019-long_internship-t15-eg-t15-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -31357,8 +27152,6 @@
     },
     {
       "id": "0800-2019-exclusive_degree_project",
-      "career_code": 800,
-      "career_name": "Ingenieria de Computacion",
       "year": 2019,
       "modality_id": "exclusive_degree_project",
       "modality_name": "Proyecto de Grado a Dedicacion Exclusiva",
@@ -31784,7 +27577,9 @@
               "id": "0800-2019-exclusive_degree_project-t4-eg-t4-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -31988,7 +27783,9 @@
               "id": "0800-2019-exclusive_degree_project-t7-eg-t7-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -32331,7 +28128,9 @@
               "id": "0800-2019-exclusive_degree_project-t11-eg-t11-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -32479,7 +28278,9 @@
               "id": "0800-2019-exclusive_degree_project-t12-eg-t12-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -32615,7 +28416,9 @@
               "id": "0800-2019-exclusive_degree_project-t14-eg-t14-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }
@@ -32736,7 +28539,9 @@
               "id": "0800-2019-exclusive_degree_project-t15-eg-t15-rule",
               "rule_type": "SUBJECT_PREFIX",
               "subject_codes": [],
-              "subject_code_prefixes": ["EG"],
+              "subject_code_prefixes": [
+                "EG"
+              ],
               "min_credits": 3,
               "min_subjects": 1
             }

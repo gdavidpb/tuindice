@@ -9,13 +9,12 @@ import com.gdavidpb.tuindice.persistence.data.room.schema.PensumCacheTable
 @Entity(
 	tableName = PensumCacheTable.TABLE_NAME,
 	indices = [
-		Index(value = [PensumCacheTable.CAREER_CODE, PensumCacheTable.YEAR, PensumCacheTable.MODALITY_ID])
+		Index(value = [PensumCacheTable.YEAR, PensumCacheTable.MODALITY_ID])
 	]
 )
 data class PensumCacheEntity(
 	@PrimaryKey
 	@ColumnInfo(name = PensumCacheTable.CACHE_KEY) val cacheKey: String,
-	@ColumnInfo(name = PensumCacheTable.CAREER_CODE) val careerCode: Int,
 	@ColumnInfo(name = PensumCacheTable.YEAR) val year: Int,
 	@ColumnInfo(name = PensumCacheTable.MODALITY_ID) val modalityId: String,
 	@ColumnInfo(name = PensumCacheTable.PAYLOAD_JSON) val payloadJson: String,

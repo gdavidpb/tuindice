@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class GetPensumResponse(
+	@SerialName("career_name") val careerName: String,
 	@SerialName("selected_pensum_id") val selectedPensumId: String,
 	@SerialName("inferred") val inferred: Boolean,
 	@SerialName("pensums") val pensums: List<Pensum>
@@ -12,8 +13,6 @@ data class GetPensumResponse(
 	@Serializable
 	data class Pensum(
 		@SerialName("id") val id: String,
-		@SerialName("career_code") val careerCode: Int,
-		@SerialName("career_name") val careerName: String,
 		@SerialName("year") val year: Int,
 		@SerialName("modality_id") val modalityId: String,
 		@SerialName("modality_name") val modalityName: String,

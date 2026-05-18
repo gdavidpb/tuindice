@@ -43,6 +43,7 @@ class PensumDataSource(
 
 			PensumObservation.Content(
 				pensum = ObservedPensum(
+					careerName = response.careerName,
 					selection = response.toSelection(),
 					availablePensums = response.toAvailablePensums(),
 					availableModalities = response.toAvailableModalities(),
@@ -61,8 +62,8 @@ class PensumDataSource(
 		)
 	}
 
-	override suspend fun selectPensum(careerCode: Int, year: Int) {
-		localDataRepository.selectPensum(careerCode = careerCode, year = year)
+	override suspend fun selectPensum(year: Int) {
+		localDataRepository.selectPensum(year = year)
 		refreshPensum()
 	}
 
@@ -71,9 +72,8 @@ class PensumDataSource(
 		refreshPensum()
 	}
 
-	override suspend fun selectSelection(careerCode: Int, year: Int, modalityId: String) {
+	override suspend fun selectSelection(year: Int, modalityId: String) {
 		localDataRepository.selectSelection(
-			careerCode = careerCode,
 			year = year,
 			modalityId = modalityId
 		)

@@ -29,6 +29,7 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_selection_apply
 import tuindice.pensum.generated.resources.pensum_selection_cancel
+import tuindice.pensum.generated.resources.pensum_selection_career
 import tuindice.pensum.generated.resources.pensum_selection_modality
 import tuindice.pensum.generated.resources.pensum_selection_title
 import tuindice.pensum.generated.resources.pensum_selection_version
@@ -58,7 +59,7 @@ fun PensumSelectionBottomSheet(
 		initialFirstVisibleItemIndex = selectedPensumIndex.coerceAtLeast(0)
 	)
 
-	LaunchedEffect(currentPensum.careerCode, currentPensum.year, model.pensumOptions.size) {
+	LaunchedEffect(currentPensum.year, model.pensumOptions.size) {
 		if (selectedPensumIndex >= 0) {
 			versionListState.scrollToItem(selectedPensumIndex)
 		}
@@ -73,8 +74,7 @@ fun PensumSelectionBottomSheet(
 			val selectedPensum = selectedPensumState.value
 			val selectedModality = selectedModalityState.value
 			val isSelectionChanged =
-				selectedPensum.careerCode != model.selection.careerCode ||
-					selectedPensum.year != model.selection.year ||
+				selectedPensum.year != model.selection.year ||
 					selectedModality.id != model.selection.modalityId
 
 			if (isSelectionChanged) {
@@ -87,6 +87,21 @@ fun PensumSelectionBottomSheet(
 			modifier = Modifier.fillMaxWidth(),
 			verticalArrangement = Arrangement.spacedBy(16.dp)
 		) {
+			if (model.careerName.isNotBlank()) {
+				Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+					Text(
+						text = stringResource(Res.string.pensum_selection_career),
+						style = MaterialTheme.typography.titleSmall,
+						fontWeight = FontWeight.SemiBold
+					)
+					Text(
+						text = model.careerName,
+						style = MaterialTheme.typography.bodyMedium,
+						color = MaterialTheme.colorScheme.onSurfaceVariant
+					)
+				}
+			}
+
 			Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
 				Text(
 					text = stringResource(Res.string.pensum_selection_version),
@@ -102,7 +117,7 @@ fun PensumSelectionBottomSheet(
 						key = PensumScreenModel.PensumOptionItem::id
 					) { item ->
 						FilterChip(
-							modifier = Modifier.testTag(PensumUiTags.versionOption(item.careerCode, item.year)),
+							modifier = Modifier.testTag(PensumUiTags.versionOption(item.year)),
 							selected = item.hasSameAcademicIdentity(selectedPensumState.value),
 							onClick = {
 								selectedPensumState.value = item
@@ -145,12 +160,12 @@ fun PensumSelectionBottomSheet(
 private fun PensumScreenModel.PensumOptionItem.hasSameAcademicIdentity(
 	other: PensumScreenModel.PensumOptionItem
 ): Boolean {
-	return careerCode == other.careerCode && year == other.year
+	return year == other.year
 }
 
 private fun PensumScreenModel.selectedPensumOption(): PensumScreenModel.PensumOptionItem? {
 	return pensumOptions.firstOrNull { option ->
-		option.careerCode == selection.careerCode && option.year == selection.year
+		option.year == selection.year
 	}
 }
 

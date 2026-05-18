@@ -34,10 +34,10 @@ import tuindice.pensum.generated.resources.pensum_progress_label
 @Composable
 fun PensumSummaryRow(model: PensumScreenModel) {
 	val selectedPensum = model.pensumOptions.firstOrNull { item ->
-		item.careerCode == model.selection.careerCode && item.year == model.selection.year
+		item.year == model.selection.year
 	}
 	val selectedModality = model.modalityOptions.firstOrNull { item -> item.id == model.selection.modalityId }
-	val pensumTitle = selectedPensum?.careerName.orEmpty()
+	val pensumTitle = selectedPensum?.year?.toString().orEmpty()
 	val modalityName = selectedModality?.name.orEmpty()
 	val hasPensumContext = pensumTitle.isNotBlank() || modalityName.isNotBlank()
 	val progress = remember { Animatable(0f) }
@@ -45,6 +45,7 @@ fun PensumSummaryRow(model: PensumScreenModel) {
 	val totalCredits = remember { Animatable(0f) }
 	val targetProgress = model.progressPercent.coerceIn(0, 100) / 100f
 	val summaryShape = RoundedCornerShape(18.dp)
+	val summaryTextStyle = MaterialTheme.typography.bodyMedium
 	val summaryAnimationSpec = tween<Float>(
 		durationMillis = SummaryAnimationMillis,
 		easing = DecelerateEasing
@@ -101,15 +102,15 @@ fun PensumSummaryRow(model: PensumScreenModel) {
 			) {
 				Text(
 					text = "${(progress.value * 100).roundToInt()}% ${stringResource(Res.string.pensum_progress_label)}",
-					style = MaterialTheme.typography.titleMedium,
+					style = summaryTextStyle,
 					fontWeight = FontWeight.SemiBold,
 					color = TextPrimary,
 					maxLines = 1,
 					overflow = TextOverflow.Ellipsis
 				)
 				Text(
-					text = "${approvedCredits.value.roundToInt()}/${totalCredits.value.roundToInt()} UC",
-					style = MaterialTheme.typography.bodyMedium,
+					text = "${approvedCredits.value.roundToInt()} / ${totalCredits.value.roundToInt()} UC",
+					style = summaryTextStyle,
 					color = TextSecondary,
 					maxLines = 1,
 					overflow = TextOverflow.Ellipsis
@@ -129,7 +130,7 @@ fun PensumSummaryRow(model: PensumScreenModel) {
 				if (pensumTitle.isNotBlank()) {
 					Text(
 						text = pensumTitle,
-						style = MaterialTheme.typography.labelLarge,
+						style = summaryTextStyle,
 						fontWeight = FontWeight.SemiBold,
 						color = TextPrimary,
 						maxLines = 1,
@@ -139,7 +140,7 @@ fun PensumSummaryRow(model: PensumScreenModel) {
 				if (modalityName.isNotBlank()) {
 					Text(
 						text = modalityName,
-						style = MaterialTheme.typography.labelMedium,
+						style = summaryTextStyle,
 						color = TextSecondary,
 						maxLines = 1,
 						overflow = TextOverflow.Ellipsis

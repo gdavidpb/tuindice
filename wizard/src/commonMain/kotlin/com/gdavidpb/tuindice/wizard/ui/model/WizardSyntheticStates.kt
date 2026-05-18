@@ -156,8 +156,8 @@ internal fun samplePensumState(): Pensum.State.Content {
 
 	return Pensum.State.Content(
 		model = PensumScreenModel(
+			careerName = SAMPLE_CAREER_NAME,
 			selection = PensumScreenModel.Selection(
-				careerCode = 800,
 				year = 2019,
 				modalityId = "degree_project"
 			),
@@ -272,12 +272,10 @@ private fun PensumSampleNodeSpec.toPensumNode(
 )
 
 private fun pensumOption(year: Int) = PensumScreenModel.PensumOptionItem(
-	id = "800-$year",
-	careerCode = 800,
-	careerName = "Computación",
+	id = year.toString(),
 	year = year,
 	modalityOptions = sampleModalityOptions(),
-	text = "$year - Computación"
+	text = year.toString()
 )
 
 private fun sampleModalityOptions() = listOf(

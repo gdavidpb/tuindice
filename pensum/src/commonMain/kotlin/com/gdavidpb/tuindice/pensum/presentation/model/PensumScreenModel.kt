@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.pensum.presentation.model
 import com.gdavidpb.tuindice.base.ui.view.DropdownMenuItem
 
 data class PensumScreenModel(
+	val careerName: String,
 	val selection: Selection,
 	val pensumOptions: List<PensumOptionItem>,
 	val modalityOptions: List<ModalityItem>,
@@ -15,15 +16,12 @@ data class PensumScreenModel(
 	val edges: List<Edge>
 ) {
 	data class Selection(
-		val careerCode: Int,
 		val year: Int,
 		val modalityId: String
 	)
 
 	data class PensumOptionItem(
 		val id: String,
-		val careerCode: Int,
-		val careerName: String,
 		val year: Int,
 		val modalityOptions: List<ModalityItem>,
 		override val text: String

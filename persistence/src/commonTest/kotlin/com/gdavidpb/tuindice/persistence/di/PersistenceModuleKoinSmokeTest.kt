@@ -296,7 +296,6 @@ private class FakeTuIndiceDatabase : TuIndiceDatabase() {
 		override suspend fun getPensum(cacheKey: String): PensumCacheEntity? = null
 
 		override suspend fun getPensum(
-			careerCode: Int,
 			year: Int,
 			modalityId: String
 		): PensumCacheEntity? = null

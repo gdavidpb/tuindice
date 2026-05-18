@@ -10,15 +10,13 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumSelection
 
 fun GetPensumResponse.cacheKey(): String {
 	val pensum = selectedPensum()
-	return "${pensum.careerCode}-${pensum.year}-${pensum.modalityId}"
+	return "${pensum.year}-${pensum.modalityId}"
 }
 
 fun GetPensumResponse.toSelection(): PensumSelection {
 	val pensum = selectedPensum()
 	return PensumSelection(
 		pensumId = pensum.id,
-		careerCode = pensum.careerCode,
-		careerName = pensum.careerName,
 		year = pensum.year,
 		modalityId = pensum.modalityId,
 		modalityName = pensum.modalityName,
@@ -28,26 +26,23 @@ fun GetPensumResponse.toSelection(): PensumSelection {
 
 fun GetPensumResponse.toAvailablePensums(): List<PensumOption> {
 	return pensums
-		.groupBy { pensum -> pensum.careerCode to pensum.year }
+		.groupBy { pensum -> pensum.year }
 		.values
 		.map { group ->
 			val pensum = group.first()
 			PensumOption(
-				id = "${pensum.careerCode}-${pensum.year}",
-				careerCode = pensum.careerCode,
-				careerName = pensum.careerName,
+				id = pensum.year.toString(),
 				year = pensum.year
 			)
 		}
-		.sortedWith(compareBy(PensumOption::year, PensumOption::careerName))
+		.sortedBy(PensumOption::year)
 }
 
 fun GetPensumResponse.toAvailableModalities(): List<PensumModality> {
 	val selectedPensum = selectedPensum()
 	return pensums
 		.filter { pensum ->
-			pensum.careerCode == selectedPensum.careerCode &&
-				pensum.year == selectedPensum.year
+			pensum.year == selectedPensum.year
 		}
 		.map { pensum ->
 			PensumModality(
@@ -71,8 +66,6 @@ fun GetPensumResponse.toGraphs(): List<PensumGraph> {
 private fun GetPensumResponse.Pensum.toGraph(): PensumGraph {
 	return PensumGraph(
 		id = id,
-		careerCode = careerCode,
-		careerName = careerName,
 		year = year,
 		modalityId = modalityId,
 		modalityName = modalityName,

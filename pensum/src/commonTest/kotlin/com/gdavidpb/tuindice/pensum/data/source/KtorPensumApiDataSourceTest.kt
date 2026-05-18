@@ -36,14 +36,14 @@ class KtorPensumApiDataSourceTest {
 
 		val result = KtorPensumApiDataSource(client).getPensum(
 			PensumSelectionParams(
-				careerCode = 800,
 				year = 2019,
 				modalityId = "degree_project"
 			)
 		)
 
-		assertEquals("/pensums/v3", capturedPath)
-		assertEquals("career_code=800&year=2019&modality_id=degree_project", capturedQuery)
+		assertEquals("/pensums/v4", capturedPath)
+		assertEquals("year=2019&modality_id=degree_project", capturedQuery)
+		assertEquals("Ingenieria de Computacion", result.careerName)
 		assertEquals("0800-2019-degree_project", result.selectedPensumId)
 		assertEquals("EC5344", result.pensums.first().nodes.first().displayCode)
 	}
@@ -51,13 +51,12 @@ class KtorPensumApiDataSourceTest {
 
 private val sampleResponse = """
 {
+  "career_name": "Ingenieria de Computacion",
   "selected_pensum_id": "0800-2019-degree_project",
   "inferred": false,
   "pensums": [
     {
       "id": "0800-2019-degree_project",
-      "career_code": 800,
-      "career_name": "Computacion",
       "year": 2019,
       "modality_id": "degree_project",
       "modality_name": "Proyecto de Grado",

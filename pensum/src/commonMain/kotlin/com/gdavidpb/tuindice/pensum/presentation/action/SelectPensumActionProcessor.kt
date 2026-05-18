@@ -19,7 +19,6 @@ class SelectPensumActionProcessor(
 	): Flow<Mutation<Pensum.State>> {
 		return selectPensumUseCase.execute(
 			SelectPensumParams(
-				careerCode = action.careerCode,
 				year = action.year
 			)
 		).mapNotNull { useCaseState ->

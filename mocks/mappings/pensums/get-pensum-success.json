@@ -1,7 +1,7 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/pensums/v3"
+    "urlPath": "/pensums/v4"
   },
   "response": {
     "status": 200,
