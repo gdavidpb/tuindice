@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.subjects.data.source
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.subjects.data.mapper.toSubjectSearchResults
 import com.gdavidpb.tuindice.subjects.data.mapper.toSubjectDetailResult
-import com.gdavidpb.tuindice.subjects.data.model.GetSubjectStatsResponse
+import com.gdavidpb.tuindice.subjects.data.model.GetSubjectResponse
 import com.gdavidpb.tuindice.subjects.data.model.SearchSubjectsResponse
 import com.gdavidpb.tuindice.subjects.data.model.SubjectStatsUnavailableResponse
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectCatalogRemoteDataRepository
@@ -30,7 +30,7 @@ class KtorSubjectsApiDataSource(
 			ktorClient.get("subjects/v1") {
 				url { appendPathSegments(subjectCode) }
 			}
-				.body<GetSubjectStatsResponse>()
+				.body<GetSubjectResponse>()
 				.toSubjectDetailResult()
 		}.getOrElse { throwable ->
 			val clientException = throwable as? ClientRequestException

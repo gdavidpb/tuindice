@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class UserResponse(
+data class GetUserResponse(
 	@SerialName("id") val id: String,
 	@SerialName("c_id") val cid: Int,
 	@SerialName("usb_id") val usbId: String,

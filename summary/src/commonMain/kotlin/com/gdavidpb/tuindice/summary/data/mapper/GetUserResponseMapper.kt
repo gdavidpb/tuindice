@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.summary.data.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.User
-import com.gdavidpb.tuindice.summary.data.model.UserResponse
+import com.gdavidpb.tuindice.summary.data.model.GetUserResponse
 
-fun UserResponse.toUser() = User(
+fun GetUserResponse.toUser() = User(
 	id = id,
 	cid = cid.toString(),
 	usbId = usbId,

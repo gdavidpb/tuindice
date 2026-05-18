@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.subjects.data.source
 
 import com.gdavidpb.tuindice.subjects.data.mapper.toSubjectDetailResult
-import com.gdavidpb.tuindice.subjects.data.model.GetSubjectStatsResponse
+import com.gdavidpb.tuindice.subjects.data.model.GetSubjectResponse
 import com.gdavidpb.tuindice.subjects.data.model.SubjectStatsUnavailableResponse
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectCatalogRemoteDataRepository
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectStatsApiDataRepository
@@ -31,7 +31,7 @@ class DebugSubjectsApiDataSource(
 			DebugSubjectScenario.EL2001,
 			DebugSubjectScenario.EP3421,
 			DebugSubjectScenario.QUI100,
-			-> json.decodeFromString<GetSubjectStatsResponse>(
+			-> json.decodeFromString<GetSubjectResponse>(
 				Res.readBytes(requireNotNull(resolution.scenario.resourcePath)).decodeToString()
 			).let { response ->
 				response.copy(

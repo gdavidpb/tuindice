@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectDetailEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsAttemptBinEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsGradeBinEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsSegmentEntity
-import com.gdavidpb.tuindice.subjects.data.model.GetSubjectStatsResponse
+import com.gdavidpb.tuindice.subjects.data.model.GetSubjectResponse
 import com.gdavidpb.tuindice.subjects.data.model.SubjectAttemptBinResponse
 import com.gdavidpb.tuindice.subjects.data.model.SubjectGradeBinResponse
 import com.gdavidpb.tuindice.subjects.data.model.SubjectStatsSegmentResponse
@@ -24,7 +24,7 @@ internal const val SEGMENT_STATUS_READY = "READY"
 internal const val SERIES_LATEST = "LATEST"
 internal const val SERIES_ALL = "ALL"
 
-fun GetSubjectStatsResponse.toSubjectDetailResult(): SubjectDetailResult {
+fun GetSubjectResponse.toSubjectDetailResult(): SubjectDetailResult {
 	return SubjectDetailResult.Ready(
 		detail = SubjectDetail(
 			id = id,

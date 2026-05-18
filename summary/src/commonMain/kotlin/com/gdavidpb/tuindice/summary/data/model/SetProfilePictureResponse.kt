@@ -4,6 +4,6 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class ProfilePictureResponse(
+data class SetProfilePictureResponse(
 	@SerialName("url") val url: String
 )

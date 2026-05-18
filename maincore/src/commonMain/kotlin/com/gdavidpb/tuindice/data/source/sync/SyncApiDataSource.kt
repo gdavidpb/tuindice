@@ -3,8 +3,8 @@ package com.gdavidpb.tuindice.data.source.sync
 import com.gdavidpb.tuindice.data.repository.sync.SyncRemoteDataRepository
 import com.gdavidpb.tuindice.data.model.SyncResult
 import com.gdavidpb.tuindice.data.source.sync.api.mapper.toSyncResult
-import com.gdavidpb.tuindice.data.source.sync.api.request.SyncRequest
-import com.gdavidpb.tuindice.data.source.sync.api.response.SyncResponse
+import com.gdavidpb.tuindice.data.source.sync.api.request.SyncRecordRequest
+import com.gdavidpb.tuindice.data.source.sync.api.response.SyncRecordResponse
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.post
@@ -16,12 +16,12 @@ class SyncApiDataSource(
 	override suspend fun sync(password: String): SyncResult {
 		return ktorClient.post("record/v5/sync") {
 			setBody(
-				SyncRequest(
+				SyncRecordRequest(
 					password = password
 				)
 			)
 		}
-			.body<SyncResponse>()
+			.body<SyncRecordResponse>()
 			.toSyncResult()
 	}
 }

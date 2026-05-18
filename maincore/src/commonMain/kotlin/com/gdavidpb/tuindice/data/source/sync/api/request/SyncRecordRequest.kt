@@ -4,7 +4,7 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class SyncRequest(
+data class SyncRecordRequest(
 	@SerialName("password")
 	val password: String
 )

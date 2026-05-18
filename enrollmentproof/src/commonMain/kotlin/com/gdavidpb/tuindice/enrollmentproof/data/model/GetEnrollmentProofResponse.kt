@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 
-data class EnrollmentProofResponse(
+data class GetEnrollmentProofResponse(
 	@SerialName("name") val name: String,
 	@SerialName("content") val content: String
 )

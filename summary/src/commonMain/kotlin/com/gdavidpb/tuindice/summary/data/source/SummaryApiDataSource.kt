@@ -4,8 +4,8 @@ import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.mapper.toProfilePicture
 import com.gdavidpb.tuindice.summary.data.mapper.toUser
-import com.gdavidpb.tuindice.summary.data.model.UserResponse
-import com.gdavidpb.tuindice.summary.data.model.ProfilePictureResponse
+import com.gdavidpb.tuindice.summary.data.model.GetUserResponse
+import com.gdavidpb.tuindice.summary.data.model.SetProfilePictureResponse
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
@@ -23,7 +23,7 @@ class SummaryApiDataSource(
 ) : RemoteDataRepository {
 	override suspend fun getUser(): User {
 		return ktorClient.get("users/v1")
-			.body<UserResponse>()
+			.body<GetUserResponse>()
 			.toUser()
 	}
 
@@ -33,7 +33,7 @@ class SummaryApiDataSource(
 			header(HttpHeaders.ContentLength, content.size.toString())
 			setBody(content)
 		}
-			.body<ProfilePictureResponse>()
+			.body<SetProfilePictureResponse>()
 			.toProfilePicture()
 	}
 

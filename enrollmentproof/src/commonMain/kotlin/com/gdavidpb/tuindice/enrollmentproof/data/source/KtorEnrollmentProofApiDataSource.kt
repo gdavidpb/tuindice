@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.enrollmentproof.data.source
 
-import com.gdavidpb.tuindice.enrollmentproof.data.model.EnrollmentProofResponse
+import com.gdavidpb.tuindice.enrollmentproof.data.model.GetEnrollmentProofResponse
 import com.gdavidpb.tuindice.enrollmentproof.data.model.FetchEnrollmentProofRequest
 import com.gdavidpb.tuindice.enrollmentproof.data.repository.EnrollmentProofApiDataRepository
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
@@ -17,7 +17,7 @@ class KtorEnrollmentProofApiDataSource(
 			setBody(
 				FetchEnrollmentProofRequest(password = password)
 			)
-		}.body<EnrollmentProofResponse>()
+		}.body<GetEnrollmentProofResponse>()
 
 		return EnrollmentProof(
 			source = response.name,
