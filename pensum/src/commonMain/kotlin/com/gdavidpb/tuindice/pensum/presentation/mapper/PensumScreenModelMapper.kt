@@ -122,7 +122,6 @@ private fun List<PensumGraph>.toModalityItems(selectedPensumId: String): List<Pe
 		)
 	}
 		.distinctBy(PensumScreenModel.ModalityItem::id)
-		.sortedWith(compareByDescending<PensumScreenModel.ModalityItem>(PensumScreenModel.ModalityItem::isDefault).thenBy(PensumScreenModel.ModalityItem::name))
 }
 
 private fun Double?.orZero(): Double = this ?: 0.0

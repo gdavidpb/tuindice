@@ -9,6 +9,7 @@
 	<string name="pensum_selector_placeholder">Pensum</string>
 	<string name="pensum_modality_placeholder">Modalidad</string>
 	<string name="pensum_progress_label">avance</string>
+	<string name="pensum_summary_pensum_label">Pensum</string>
 	<string name="pensum_selection_title">Cambiar pensum</string>
 	<string name="pensum_selection_current">%1$s · Pensum %2$d · %3$s</string>
 	<string name="pensum_selection_career">Carrera</string>

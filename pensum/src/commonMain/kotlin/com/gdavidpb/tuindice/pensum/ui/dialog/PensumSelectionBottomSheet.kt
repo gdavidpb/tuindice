@@ -49,8 +49,8 @@ fun PensumSelectionBottomSheet(
 	val selectedPensumState = remember(currentPensum.id) {
 		mutableStateOf(currentPensum)
 	}
-	val selectedModalityState = remember(currentModality.id) {
-		mutableStateOf(currentModality)
+	val selectedModalityIdState = remember(currentPensum.id, currentModality.id) {
+		mutableStateOf(currentModality.id)
 	}
 	val selectedPensumIndex = model.pensumOptions.indexOfFirst { option ->
 		option.hasSameAcademicIdentity(currentPensum)
@@ -72,7 +72,9 @@ fun PensumSelectionBottomSheet(
 		negativeText = stringResource(Res.string.pensum_selection_cancel),
 		onPositiveClick = {
 			val selectedPensum = selectedPensumState.value
-			val selectedModality = selectedModalityState.value
+			val selectedModality = checkNotNull(selectedPensum.selectedModality(selectedModalityIdState.value)) {
+				"Expected selected modality to exist in the selected pensum."
+			}
 			val isSelectionChanged =
 				selectedPensum.year != model.selection.year ||
 					selectedModality.id != model.selection.modalityId
@@ -121,8 +123,10 @@ fun PensumSelectionBottomSheet(
 							selected = item.hasSameAcademicIdentity(selectedPensumState.value),
 							onClick = {
 								selectedPensumState.value = item
-								selectedModalityState.value = item.selectedModality(selectedModalityState.value.id)
-									?: item.modalityOptions.first()
+								selectedModalityIdState.value = (
+									item.selectedModality(selectedModalityIdState.value)
+										?: item.modalityOptions.first()
+									).id
 							},
 							label = {
 								Text(
@@ -147,9 +151,10 @@ fun PensumSelectionBottomSheet(
 				)
 				selectedPensumState.value.modalityOptions.forEach { modality ->
 					PensumModalityOptionRow(
+						modifier = Modifier.testTag(PensumUiTags.modalityOption(modality.id)),
 						modality = modality,
-						isSelected = modality.id == selectedModalityState.value.id,
-						onClick = { selectedModalityState.value = modality }
+						isSelected = modality.id == selectedModalityIdState.value,
+						onClick = { selectedModalityIdState.value = modality.id }
 					)
 				}
 			}

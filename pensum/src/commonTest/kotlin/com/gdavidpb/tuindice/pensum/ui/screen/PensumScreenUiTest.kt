@@ -42,6 +42,23 @@ class PensumScreenUiTest {
 	}
 
 	@Test
+	fun when_contentIsDisplayed_then_summaryShowsCareerAndPensumContext() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = Pensum.State.Content(model = samplePensumModelWithSelectableYears()),
+				onRetryClick = {},
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		onNodeWithText("Ingenieria de Computacion").assertExists()
+		onNodeWithText("Pensum 2019 · Proyecto de Grado").assertExists()
+	}
+
+	@Test
 	fun when_nodeIsRealSubject_then_statsButtonNavigatesWithSubjectCode() = runTuIndiceUiTest {
 		var selectedSubjectCode: String? = null
 
@@ -111,9 +128,11 @@ class PensumScreenUiTest {
 
 		onAllNodesWithText("Ciclo Básico").assertCountEquals(0)
 		onNodeWithText("Carrera").assertExists()
-		onNodeWithText("Ingenieria de Computacion").assertExists()
+		onAllNodesWithText("Ingenieria de Computacion").assertCountEquals(2)
 		onNodeWithTag(PensumUiTags.versionOption(year = 2019)).assertIsSelected()
 		onNodeWithTag(PensumUiTags.versionOption(year = 2018)).assertIsNotSelected()
+		onNodeWithTag(PensumUiTags.modalityOption("degree_project")).assertIsSelected()
+		onNodeWithTag(PensumUiTags.modalityOption("long_internship")).assertIsNotSelected()
 	}
 }
 

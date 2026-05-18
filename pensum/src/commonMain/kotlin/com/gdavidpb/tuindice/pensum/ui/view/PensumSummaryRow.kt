@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -30,6 +31,7 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_progress_label
+import tuindice.pensum.generated.resources.pensum_summary_pensum_label
 
 @Composable
 fun PensumSummaryRow(model: PensumScreenModel) {
@@ -37,9 +39,21 @@ fun PensumSummaryRow(model: PensumScreenModel) {
 		item.year == model.selection.year
 	}
 	val selectedModality = model.modalityOptions.firstOrNull { item -> item.id == model.selection.modalityId }
-	val pensumTitle = selectedPensum?.year?.toString().orEmpty()
-	val modalityName = selectedModality?.name.orEmpty()
-	val hasPensumContext = pensumTitle.isNotBlank() || modalityName.isNotBlank()
+	val progressLabel = stringResource(Res.string.pensum_progress_label)
+	val pensumLabel = stringResource(Res.string.pensum_summary_pensum_label)
+	val pensumContext = listOfNotNull(
+		selectedPensum?.year?.let { year -> "$pensumLabel $year" },
+		selectedModality?.name?.takeIf(String::isNotBlank)
+	).joinToString(separator = " · ")
+	val contextTitle = model.careerName.ifBlank {
+		selectedPensum?.year?.toString().orEmpty()
+	}
+	val contextSubtitle = if (model.careerName.isNotBlank()) {
+		pensumContext
+	} else {
+		selectedModality?.name.orEmpty()
+	}
+	val hasPensumContext = contextTitle.isNotBlank() || contextSubtitle.isNotBlank()
 	val progress = remember { Animatable(0f) }
 	val approvedCredits = remember { Animatable(0f) }
 	val totalCredits = remember { Animatable(0f) }
@@ -87,7 +101,7 @@ fun PensumSummaryRow(model: PensumScreenModel) {
 	) {
 		Row(
 			modifier = Modifier
-				.weight(if (hasPensumContext) 0.95f else 1f)
+				.then(if (hasPensumContext) Modifier.width(ProgressSummaryWidth) else Modifier.weight(1f))
 				.fillMaxHeight()
 				.background(PanelBackground, summaryShape)
 				.border(1.dp, PanelBorder, summaryShape)
@@ -97,11 +111,10 @@ fun PensumSummaryRow(model: PensumScreenModel) {
 		) {
 			PensumProgressRing(progress = progress.value)
 			Column(
-				modifier = Modifier.weight(1f),
 				verticalArrangement = Arrangement.spacedBy(2.dp)
 			) {
 				Text(
-					text = "${(progress.value * 100).roundToInt()}% ${stringResource(Res.string.pensum_progress_label)}",
+					text = "${(progress.value * 100).roundToInt()}% $progressLabel",
 					style = summaryTextStyle,
 					fontWeight = FontWeight.SemiBold,
 					color = TextPrimary,
@@ -120,16 +133,16 @@ fun PensumSummaryRow(model: PensumScreenModel) {
 		if (hasPensumContext) {
 			Column(
 				modifier = Modifier
-					.weight(1.05f)
+					.weight(1f)
 					.fillMaxHeight()
 					.background(PanelBackground, summaryShape)
 					.border(1.dp, PanelBorder, summaryShape)
 					.padding(horizontal = 12.dp, vertical = 10.dp),
 				verticalArrangement = Arrangement.Center
 			) {
-				if (pensumTitle.isNotBlank()) {
+				if (contextTitle.isNotBlank()) {
 					Text(
-						text = pensumTitle,
+						text = contextTitle,
 						style = summaryTextStyle,
 						fontWeight = FontWeight.SemiBold,
 						color = TextPrimary,
@@ -137,9 +150,9 @@ fun PensumSummaryRow(model: PensumScreenModel) {
 						overflow = TextOverflow.Ellipsis
 					)
 				}
-				if (modalityName.isNotBlank()) {
+				if (contextSubtitle.isNotBlank()) {
 					Text(
-						text = modalityName,
+						text = contextSubtitle,
 						style = summaryTextStyle,
 						color = TextSecondary,
 						maxLines = 1,
@@ -150,3 +163,5 @@ fun PensumSummaryRow(model: PensumScreenModel) {
 		}
 	}
 }
+
+private val ProgressSummaryWidth = 156.dp

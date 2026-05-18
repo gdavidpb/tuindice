@@ -35,14 +35,87 @@ class PensumScreenModelMapperTest {
 		assertEquals(220.0, nodesById.getValue("id1111").y)
 		assertTrue(model.canvas.height >= 388.0)
 	}
+
+	@Test
+	fun when_selectedModalityIsNotFirst_then_displayModelKeepsBackendModalityOrder() {
+		val longInternship = graph(
+			id = "computacion-2019-long-internship",
+			modalityId = "long_internship",
+			modalityName = "Pasantia Larga"
+		)
+		val degreeProject = graph(
+			id = "computacion-2019-degree-project",
+			modalityId = "degree_project",
+			modalityName = "Proyecto de Grado"
+		)
+		val exclusiveDegreeProject = graph(
+			id = "computacion-2019-exclusive-degree-project",
+			modalityId = "exclusive_degree_project",
+			modalityName = "Proyecto de Grado Exclusivo"
+		)
+
+		val model = observedPensum(
+			pensum = degreeProject,
+			pensums = listOf(longInternship, degreeProject, exclusiveDegreeProject),
+			nodes = emptyList()
+		).toScreenModel()
+
+		assertEquals(
+			listOf("long_internship", "degree_project", "exclusive_degree_project"),
+			model.modalityOptions.map { modality -> modality.id }
+		)
+		assertEquals(
+			listOf(false, true, false),
+			model.modalityOptions.map { modality -> modality.isDefault }
+		)
+	}
 }
 
-private fun observedPensum(nodes: List<PensumGraph.Node>): ObservedPensum {
-	val graph = PensumGraph(
-		id = "computacion-2019-degree-project",
+private fun observedPensum(
+	nodes: List<PensumGraph.Node>,
+	pensum: PensumGraph = graph(nodes = nodes),
+	pensums: List<PensumGraph> = listOf(pensum)
+): ObservedPensum {
+	return ObservedPensum(
+		careerName = "Ingenieria de Computacion",
+		selection = PensumSelection(
+			pensumId = pensum.id,
+			year = pensum.year,
+			modalityId = pensum.modalityId,
+			modalityName = pensum.modalityName,
+			inferred = false
+		),
+		availablePensums = listOf(
+			PensumOption(
+				id = pensum.id,
+				year = pensum.year
+			)
+		),
+		availableModalities = listOf(
+			PensumModality(
+				id = pensum.modalityId,
+				name = pensum.modalityName,
+				isDefault = true
+			)
+		),
+		pensum = pensum,
+		pensums = pensums,
+		approvedCredits = 0,
+		nodeStatuses = nodes.associate { node -> node.id to PensumNodeStatus.AVAILABLE }
+	)
+}
+
+private fun graph(
+	id: String = "computacion-2019-degree-project",
+	modalityId: String = "degree_project",
+	modalityName: String = "Proyecto de Grado",
+	nodes: List<PensumGraph.Node> = emptyList()
+): PensumGraph {
+	return PensumGraph(
+		id = id,
 		year = 2019,
-		modalityId = "degree_project",
-		modalityName = "Proyecto de Grado",
+		modalityId = modalityId,
+		modalityName = modalityName,
 		totalCredits = 8,
 		canvas = PensumGraph.Canvas(width = 520.0, height = 320.0),
 		terms = listOf(
@@ -55,33 +128,6 @@ private fun observedPensum(nodes: List<PensumGraph.Node>): ObservedPensum {
 		),
 		nodes = nodes,
 		edges = emptyList()
-	)
-	return ObservedPensum(
-		careerName = "Ingenieria de Computacion",
-		selection = PensumSelection(
-			pensumId = graph.id,
-			year = graph.year,
-			modalityId = graph.modalityId,
-			modalityName = graph.modalityName,
-			inferred = false
-		),
-		availablePensums = listOf(
-			PensumOption(
-				id = graph.id,
-				year = graph.year
-			)
-		),
-		availableModalities = listOf(
-			PensumModality(
-				id = graph.modalityId,
-				name = graph.modalityName,
-				isDefault = true
-			)
-		),
-		pensum = graph,
-		pensums = listOf(graph),
-		approvedCredits = 0,
-		nodeStatuses = nodes.associate { node -> node.id to PensumNodeStatus.AVAILABLE }
 	)
 }
 

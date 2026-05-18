@@ -52,7 +52,6 @@ fun GetPensumResponse.toAvailableModalities(): List<PensumModality> {
 			)
 		}
 		.distinctBy(PensumModality::id)
-		.sortedWith(compareByDescending<PensumModality>(PensumModality::isDefault).thenBy(PensumModality::name))
 }
 
 fun GetPensumResponse.toGraph(): PensumGraph {
