@@ -1,8 +1,10 @@
 package com.gdavidpb.tuindice.pensum.ui.screen
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -77,7 +79,7 @@ class PensumScreenUiTest {
 	}
 
 	@Test
-	fun when_nodeHasMultipleDisplayCodes_then_displaysSeparateCodeChips() = runTuIndiceUiTest {
+	fun when_equivalentCodesAreSeparateNodes_then_displaysSeparateCards() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModel()),
@@ -91,6 +93,7 @@ class PensumScreenUiTest {
 
 		onNodeWithText("MA1111").assertExists()
 		onNodeWithText("MA1121").assertExists()
+		onAllNodesWithText("Matemáticas I").assertCountEquals(2)
 	}
 
 	@Test
@@ -138,7 +141,7 @@ private fun samplePensumModel(): PensumScreenModel {
 		nodes = listOf(
 			PensumScreenModel.Node(
 				id = "ci4325",
-				displayCodes = listOf("CI4325"),
+				displayCode = "CI4325",
 				subjectCode = "CI4325",
 				name = "Interfaces con el Usuario",
 				credits = 5,
@@ -154,7 +157,7 @@ private fun samplePensumModel(): PensumScreenModel {
 			),
 			PensumScreenModel.Node(
 				id = "ea1",
-				displayCodes = listOf("EA1"),
+				displayCode = "EA1",
 				subjectCode = null,
 				name = "Electiva de Área I",
 				credits = 4,
@@ -169,14 +172,30 @@ private fun samplePensumModel(): PensumScreenModel {
 				hasSubjectStatsAction = false
 			),
 			PensumScreenModel.Node(
-				id = "math1",
-				displayCodes = listOf("MA1111", "MA1121"),
-				subjectCode = null,
+				id = "math1-ma1111",
+				displayCode = "MA1111",
+				subjectCode = "MA1111",
 				name = "Matemáticas I",
 				credits = 4,
 				termId = "T1",
 				x = 24.0,
 				y = 408.0,
+				width = 190.0,
+				height = 120.0,
+				visualStyle = availableNodeVisualStyle(),
+				isCurrent = false,
+				isApproved = false,
+				hasSubjectStatsAction = false
+			),
+			PensumScreenModel.Node(
+				id = "math1-ma1121",
+				displayCode = "MA1121",
+				subjectCode = "MA1121",
+				name = "Matemáticas I",
+				credits = 4,
+				termId = "T1",
+				x = 24.0,
+				y = 552.0,
 				width = 190.0,
 				height = 120.0,
 				visualStyle = availableNodeVisualStyle(),

@@ -18,8 +18,9 @@ class AndroidBrowserScreenRenderer : BrowserScreenRenderer {
 		onExternalResourceClick: (url: String) -> Unit
 	) {
 		val context = LocalContext.current
-		val webView = remember(context) {
+		val webView = remember(context, url) {
 			context.createBrowserWebView(
+				initialUrl = url,
 				onPageStarted = onPageStarted,
 				onPageFinished = onPageFinished,
 				onExternalPageRequested = onExternalResourceClick
@@ -36,7 +37,7 @@ class AndroidBrowserScreenRenderer : BrowserScreenRenderer {
 		AndroidView(
 			factory = { webView },
 			update = { browserWebView ->
-				if (browserWebView.url != url) {
+				if (shouldLoadBrowserUrl(currentUrl = browserWebView.url, targetUrl = url)) {
 					browserWebView.loadUrl(url)
 				}
 			},

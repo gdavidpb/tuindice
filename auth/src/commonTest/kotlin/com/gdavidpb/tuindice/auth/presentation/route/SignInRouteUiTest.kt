@@ -292,6 +292,7 @@ class SignInRouteUiTest {
 							apiBaseUrl = "https://api.tuindice.test/",
 							privacyPolicyUrl = privacyPolicyUrl,
 							termsAndConditionsUrl = termsAndConditionsUrl,
+							supportUrl = "https://tuindice.test/support",
 							debug = true
 						)
 					)
@@ -302,6 +303,7 @@ class SignInRouteUiTest {
 							apiBaseUrl = "https://api.tuindice.test/",
 							privacyPolicyUrl = privacyPolicyUrl,
 							termsAndConditionsUrl = termsAndConditionsUrl,
+							supportUrl = "https://tuindice.test/support",
 							debug = true
 						)
 					)

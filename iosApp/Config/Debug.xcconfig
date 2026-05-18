@@ -13,8 +13,9 @@ OTHER_LDFLAGS = $(inherited) -framework maincore
 FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*] = $(inherited) $(SRCROOT)/../maincore/build/bin/iosArm64/debugFramework
 FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64] = $(inherited) $(SRCROOT)/../maincore/build/bin/iosSimulatorArm64/debugFramework
 TUINDICE_API_BASE_URL = http:/$()/localhost:8080/
-TUINDICE_PRIVACY_POLICY_URL = https:/$()/tuindice.app/privacy_policy.html
-TUINDICE_TERMS_AND_CONDITIONS_URL = https:/$()/tuindice.app/terms_and_conditions.html
+TUINDICE_PRIVACY_POLICY_URL = https:/$()/tuindice.app/privacy_policy_v6_0.html
+TUINDICE_TERMS_AND_CONDITIONS_URL = https:/$()/tuindice.app/terms_and_conditions_v6_0.html
+TUINDICE_SUPPORT_URL = https:/$()/tuindice.app/support_v6_0.html
 TUINDICE_DEBUG = YES
 APS_ENVIRONMENT = development
 APP_ATTEST_ENVIRONMENT = development

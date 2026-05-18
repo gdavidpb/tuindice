@@ -49,6 +49,7 @@ fun AboutRoute(
 		onDstClick = { viewModel.openUrlAction(AboutLinks.DST) },
 		onTermsAndConditionsClick = viewModel::openTermsAndConditionsAction,
 		onPrivacyPolicyClick = viewModel::openPrivacyPolicyAction,
+		onSupportClick = viewModel::openSupportAction,
 		onShareAppClick = viewModel::shareAppAction,
 		onRateOnPlayStoreClick = viewModel::rateOnPlayStoreAction,
 		onContactDeveloperClick = viewModel::contactDeveloperAction,

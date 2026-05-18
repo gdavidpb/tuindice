@@ -105,7 +105,7 @@ class SignInViewModelContractTest {
 
 				viewModel.openTermsAndConditionsAction()
 				val browserEffect = assertIs<SignIn.Effect.NavigateToBrowser>(awaitItem())
-				assertEquals("https://tuindice.app/terms", browserEffect.url)
+				assertEquals("https://tuindice.app/terms_and_conditions_v6_0.html", browserEffect.url)
 
 				viewModel.signInAction(VALID_USB_ID, "secret123")
 				assertIs<SignIn.Effect.NavigateToSummary>(awaitItem())

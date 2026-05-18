@@ -9,6 +9,7 @@ object AboutUiTags {
 	const val OpenCreativeCommons = "about_open_creative_commons"
 	const val OpenTerms = "about_open_terms"
 	const val OpenPrivacy = "about_open_privacy"
+	const val OpenSupport = "about_open_support"
 	const val OpenX = "about_open_x"
 	const val ShareApp = "about_share_app"
 	const val RateOnStore = "about_rate_on_store"

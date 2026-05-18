@@ -40,6 +40,7 @@ import tuindice.about.generated.resources.about_privacy_policy
 import tuindice.about.generated.resources.about_rate
 import tuindice.about.generated.resources.about_share
 import tuindice.about.generated.resources.about_source_code
+import tuindice.about.generated.resources.about_support
 import tuindice.about.generated.resources.about_terms_and_conditions
 import tuindice.about.generated.resources.about_version
 import tuindice.about.generated.resources.about_x
@@ -68,6 +69,7 @@ fun AboutContentView(
 	onDstClick: () -> Unit,
 	onTermsAndConditionsClick: () -> Unit,
 	onPrivacyPolicyClick: () -> Unit,
+	onSupportClick: () -> Unit,
 	onShareAppClick: () -> Unit,
 	onRateOnPlayStoreClick: () -> Unit,
 	onContactDeveloperClick: () -> Unit,
@@ -108,6 +110,13 @@ fun AboutContentView(
 				testTag = AboutUiTags.OpenPrivacy,
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
 			) { onPrivacyPolicyClick() }
+
+			AboutItem(
+				icon = rememberVectorPainter(Icons.Outlined.Email),
+				text = stringResource(Res.string.about_support),
+				testTag = AboutUiTags.OpenSupport,
+				tint = MaterialTheme.colorScheme.onSurfaceVariant
+			) { onSupportClick() }
 
 			AboutItem(
 				icon = painterResource(Res.drawable.ic_x),

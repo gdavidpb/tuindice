@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
 import com.gdavidpb.tuindice.about.presentation.action.ContactDeveloperActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.LoadVersionActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.OpenPrivacyPolicyActionProcessor
+import com.gdavidpb.tuindice.about.presentation.action.OpenSupportActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.OpenTermsAndConditionsActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.OpenUrlActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.RateOnStoreActionProcessor
@@ -257,6 +258,71 @@ class AboutRouteUiTest {
 		}
 
 		assertEquals(expectedPrivacyUrl, navigatedUrl)
+	}
+
+	@Test
+	fun when_supportActionTriggered_then_navigatesToBrowserSupportUrl() = runTuIndiceUiTest {
+		val expectedSupportUrl = "https://tuindice.test/support_v6_0.html"
+		val fixture = createAboutViewModel(
+			termsAndConditionsUrl = "https://tuindice.test/terms",
+			supportUrl = expectedSupportUrl
+		)
+		var navigatedUrl = ""
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(
+				LocalShareTextHandler provides { _, _ -> }
+			) {
+				AboutRoute(
+					onNavigateToBrowser = { _, url ->
+						navigatedUrl = url
+					},
+					viewModel = fixture.viewModel
+				)
+			}
+		}
+
+		runOnIdle {
+			fixture.viewModel.openSupportAction()
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			navigatedUrl.isNotEmpty()
+		}
+
+		assertEquals(expectedSupportUrl, navigatedUrl)
+	}
+
+	@Test
+	fun when_supportItemTapped_then_navigatesToBrowserSupportUrl() = runTuIndiceUiTest {
+		val expectedSupportUrl = "https://tuindice.test/support_v6_0.html"
+		val fixture = createAboutViewModel(
+			termsAndConditionsUrl = "https://tuindice.test/terms",
+			supportUrl = expectedSupportUrl
+		)
+		var navigatedUrl = ""
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(
+				LocalShareTextHandler provides { _, _ -> }
+			) {
+				AboutRoute(
+					onNavigateToBrowser = { _, url ->
+						navigatedUrl = url
+					},
+					viewModel = fixture.viewModel
+				)
+			}
+		}
+
+		waitUntilNodeExists(AboutUiTags.OpenSupport)
+		onNodeWithTag(AboutUiTags.OpenSupport).performClick()
+
+		waitUntil(timeoutMillis = 2_000) {
+			navigatedUrl.isNotEmpty()
+		}
+
+		assertEquals(expectedSupportUrl, navigatedUrl)
 	}
 
 	@Test
@@ -572,13 +638,15 @@ class AboutRouteUiTest {
 	}
 
 	private fun createAboutViewModel(
-		termsAndConditionsUrl: String
+		termsAndConditionsUrl: String,
+		supportUrl: String = "https://tuindice.test/support"
 	): AboutRouteFixture {
 		val appEnvironmentRepository = FakeAppEnvironmentRepository(
 			appEnvironment = AppEnvironment(
 				apiBaseUrl = "https://api.tuindice.test",
 				privacyPolicyUrl = "https://tuindice.test/privacy",
 				termsAndConditionsUrl = termsAndConditionsUrl,
+				supportUrl = supportUrl,
 				debug = true
 			)
 		)
@@ -615,6 +683,9 @@ class AboutRouteUiTest {
 					appEnvironmentRepository = appEnvironmentRepository
 				),
 				openPrivacyPolicyActionProcessor = OpenPrivacyPolicyActionProcessor(
+					appEnvironmentRepository = appEnvironmentRepository
+				),
+				openSupportActionProcessor = OpenSupportActionProcessor(
 					appEnvironmentRepository = appEnvironmentRepository
 				),
 				shareAppActionProcessor = ShareAppActionProcessor(),

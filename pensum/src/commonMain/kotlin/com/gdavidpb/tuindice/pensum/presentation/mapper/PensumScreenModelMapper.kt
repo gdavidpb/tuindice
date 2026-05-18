@@ -32,7 +32,7 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 
 			PensumScreenModel.Node(
 				id = node.id,
-				displayCodes = node.displayCodes,
+				displayCode = node.displayCode,
 				subjectCode = node.subjectCode,
 				name = node.name,
 				credits = node.credits,
@@ -44,7 +44,7 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 				visualStyle = status.toVisualStyle(),
 				isCurrent = status == PensumNodeStatus.CURRENT,
 				isApproved = status == PensumNodeStatus.APPROVED,
-				hasSubjectStatsAction = node.subjectCode.hasSubjectStatsAction(displayCodes = node.displayCodes)
+				hasSubjectStatsAction = node.subjectCode.hasSubjectStatsAction(displayCode = node.displayCode)
 			)
 		}
 		.withMinimumVerticalSpacing()
@@ -157,13 +157,13 @@ private fun List<PensumScreenModel.Node>.withMinimumVerticalSpacing(): List<Pens
 	}
 }
 
-private fun String?.hasSubjectStatsAction(displayCodes: List<String>): Boolean {
+private fun String?.hasSubjectStatsAction(displayCode: String): Boolean {
 	val normalizedSubjectCode = this?.trim()?.uppercase() ?: return false
-	val normalizedDisplayCodes = displayCodes.map { code -> code.trim().uppercase() }
+	val normalizedDisplayCode = displayCode.trim().uppercase()
 
 	return normalizedSubjectCode.isNotBlank() &&
 		!WildcardSubjectCodeRegex.matches(normalizedSubjectCode) &&
-		normalizedDisplayCodes.none(WildcardSubjectCodeRegex::matches)
+		!WildcardSubjectCodeRegex.matches(normalizedDisplayCode)
 }
 
 private val WildcardSubjectCodeRegex = Regex("^[A-Z]{2}\\d{1,2}$")

@@ -256,7 +256,7 @@ private fun PensumSampleNodeSpec.toPensumNode(
 	height: Double
 ) = PensumScreenModel.Node(
 	id = id,
-	displayCodes = listOf(code),
+	displayCode = code,
 	subjectCode = code,
 	name = name,
 	credits = credits,

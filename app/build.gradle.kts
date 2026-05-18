@@ -71,12 +71,17 @@ extensions.configure<ApplicationExtension> {
 			buildConfigField(
 				"String",
 				"URL_PRIVACY_POLICY",
-				"\"https://tuindice.app/privacy_policy.html\""
+				"\"https://tuindice.app/privacy_policy_v6_0.html\""
 			)
 			buildConfigField(
 				"String",
 				"URL_TERMS_AND_CONDITIONS",
-				"\"https://tuindice.app/terms_and_conditions.html\""
+				"\"https://tuindice.app/terms_and_conditions_v6_0.html\""
+			)
+			buildConfigField(
+				"String",
+				"URL_SUPPORT",
+				"\"https://tuindice.app/support_v6_0.html\""
 			)
 		}
 		getByName("release") {
@@ -87,12 +92,17 @@ extensions.configure<ApplicationExtension> {
 			buildConfigField(
 				"String",
 				"URL_PRIVACY_POLICY",
-				"\"https://tuindice.app/privacy_policy.html\""
+				"\"https://tuindice.app/privacy_policy_v6_0.html\""
 			)
 			buildConfigField(
 				"String",
 				"URL_TERMS_AND_CONDITIONS",
-				"\"https://tuindice.app/terms_and_conditions.html\""
+				"\"https://tuindice.app/terms_and_conditions_v6_0.html\""
+			)
+			buildConfigField(
+				"String",
+				"URL_SUPPORT",
+				"\"https://tuindice.app/support_v6_0.html\""
 			)
 
 			if (hasReleaseSigningConfig) {

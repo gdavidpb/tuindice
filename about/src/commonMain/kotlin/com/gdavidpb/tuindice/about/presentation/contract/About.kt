@@ -23,6 +23,7 @@ object About {
 		data object LoadVersion : Action()
 		data object OpenTermsAndConditions : Action()
 		data object OpenPrivacyPolicy : Action()
+		data object OpenSupport : Action()
 		data class OpenUrl(val url: String) : Action()
 		data object RateOnStore : Action()
 		data object ReportBug : Action()

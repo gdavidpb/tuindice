@@ -25,11 +25,15 @@ enum TuIndiceAppBootstrap {
         apiBaseUrl: resolvedApiBaseUrl(defaultValue: defaultApiBaseUrl),
         privacyPolicyUrl: bundleString(
             for: "TUINDICE_PRIVACY_POLICY_URL",
-            defaultValue: "https://tuindice.app/privacy_policy.html"
+            defaultValue: "https://tuindice.app/privacy_policy_v6_0.html"
         ),
         termsAndConditionsUrl: bundleString(
             for: "TUINDICE_TERMS_AND_CONDITIONS_URL",
-            defaultValue: "https://tuindice.app/terms_and_conditions.html"
+            defaultValue: "https://tuindice.app/terms_and_conditions_v6_0.html"
+        ),
+        supportUrl: bundleString(
+            for: "TUINDICE_SUPPORT_URL",
+            defaultValue: "https://tuindice.app/support_v6_0.html"
         ),
         debug: bundleBoolean(for: "TUINDICE_DEBUG", defaultValue: false),
         buildVariant: buildVariant

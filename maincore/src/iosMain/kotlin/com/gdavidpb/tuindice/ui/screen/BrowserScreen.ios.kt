@@ -50,7 +50,7 @@ class IosBrowserScreenRenderer : BrowserScreenRenderer {
 			update = { browserWebView ->
 				browserWebView.setNavigationDelegate(navigationDelegate)
 
-				if (browserWebView.URL?.absoluteString != url) {
+				if (shouldLoadBrowserUrl(currentUrl = browserWebView.URL?.absoluteString, targetUrl = url)) {
 					val targetUrl = NSURL.URLWithString(url) ?: return@UIKitView
 					val request = NSURLRequest.requestWithURL(targetUrl)
 					browserWebView.loadRequest(request)

@@ -11,6 +11,7 @@ fun IosAppHostConfig.toIOSContext(): IOSContext {
 			apiBaseUrl = apiBaseUrl,
 			privacyPolicyUrl = privacyPolicyUrl,
 			termsAndConditionsUrl = termsAndConditionsUrl,
+			supportUrl = supportUrl,
 			debug = debug
 		),
 		configValues = iosDefaultConfigValues(buildVariant)

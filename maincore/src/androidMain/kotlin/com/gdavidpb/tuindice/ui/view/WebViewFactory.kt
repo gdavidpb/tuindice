@@ -7,9 +7,11 @@ import android.webkit.WebChromeClient
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
+import com.gdavidpb.tuindice.ui.screen.shouldOpenExternalResource
 
 @SuppressLint("SetJavaScriptEnabled")
 fun Context.createBrowserWebView(
+	initialUrl: String,
 	onPageStarted: () -> Unit,
 	onPageFinished: () -> Unit,
 	onExternalPageRequested: (url: String) -> Unit
@@ -31,8 +33,18 @@ fun Context.createBrowserWebView(
 				view: WebView,
 				request: WebResourceRequest
 			): Boolean {
-				onExternalPageRequested("${request.url}")
-				return true
+				val requestedUrl = "${request.url}"
+				val shouldOpenExternal = shouldOpenExternalResource(
+					initialUrl = initialUrl,
+					currentUrl = view.url,
+					requestedUrl = requestedUrl
+				)
+
+				if (shouldOpenExternal) {
+					onExternalPageRequested(requestedUrl)
+				}
+
+				return shouldOpenExternal
 			}
 		}
 	}

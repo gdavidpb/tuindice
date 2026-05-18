@@ -175,6 +175,7 @@ fun WizardStepContent(
 				onDstClick = {},
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {},
+				onSupportClick = {},
 				onShareAppClick = {},
 				onRateOnPlayStoreClick = {},
 				onContactDeveloperClick = {},

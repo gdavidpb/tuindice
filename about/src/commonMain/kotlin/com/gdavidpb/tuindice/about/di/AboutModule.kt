@@ -35,6 +35,7 @@ val aboutModule = module {
 	factoryOf(::ContactDeveloperActionProcessor)
 	factoryOf(::OpenTermsAndConditionsActionProcessor)
 	factoryOf(::OpenPrivacyPolicyActionProcessor)
+	factoryOf(::OpenSupportActionProcessor)
 	factoryOf(::ShareAppActionProcessor)
 	factoryOf(::RateOnStoreActionProcessor)
 	factoryOf(::ReportBugActionProcessor)

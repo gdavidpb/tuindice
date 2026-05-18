@@ -32,6 +32,7 @@ class AboutScreenUiTest {
 				onDstClick = {},
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {},
+				onSupportClick = {},
 				onShareAppClick = {},
 				onRateOnPlayStoreClick = {},
 				onContactDeveloperClick = {},
@@ -58,6 +59,7 @@ class AboutScreenUiTest {
 				onDstClick = {},
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {},
+				onSupportClick = {},
 				onShareAppClick = {},
 				onRateOnPlayStoreClick = {},
 				onContactDeveloperClick = {},
@@ -81,6 +83,7 @@ class AboutScreenUiTest {
 		var dstClicks = 0
 		var termsClicks = 0
 		var privacyClicks = 0
+		var supportClicks = 0
 		var shareClicks = 0
 		var rateClicks = 0
 		var contactClicks = 0
@@ -100,6 +103,7 @@ class AboutScreenUiTest {
 				onDstClick = { dstClicks++ },
 				onTermsAndConditionsClick = { termsClicks++ },
 				onPrivacyPolicyClick = { privacyClicks++ },
+				onSupportClick = { supportClicks++ },
 				onShareAppClick = { shareClicks++ },
 				onRateOnPlayStoreClick = { rateClicks++ },
 				onContactDeveloperClick = { contactClicks++ },
@@ -110,6 +114,7 @@ class AboutScreenUiTest {
 		onNodeWithTag(AboutUiTags.OpenCreativeCommons).performClick()
 		onNodeWithTag(AboutUiTags.OpenTerms).performClick()
 		onNodeWithTag(AboutUiTags.OpenPrivacy).performClick()
+		onNodeWithTag(AboutUiTags.OpenSupport).performClick()
 		onNodeWithTag(AboutUiTags.OpenX).performClick()
 		onNodeWithTag(AboutUiTags.ShareApp).performClick()
 		onNodeWithTag(AboutUiTags.RateOnStore).performClick()
@@ -153,6 +158,7 @@ class AboutScreenUiTest {
 		assertEquals(1, dstClicks)
 		assertEquals(1, termsClicks)
 		assertEquals(1, privacyClicks)
+		assertEquals(1, supportClicks)
 		assertEquals(1, shareClicks)
 		assertEquals(1, rateClicks)
 		assertEquals(1, contactClicks)

@@ -6,8 +6,10 @@
     <string name="about_license">Creative Commons\nBY-NC 4.0</string>
     <string name="about_terms_and_conditions">Términos y condiciones\nConoce las condiciones del servicio</string>
     <string name="about_privacy_policy">Política de privacidad\nConoce como manejamos tus datos</string>
+    <string name="about_support">Soporte\nAyuda y canales oficiales</string>
     <string name="label_terms_and_conditions">Términos y condiciones</string>
     <string name="label_privacy_policy">Política de privacidad</string>
+    <string name="label_support">Soporte</string>
     <string name="about_x">@TuIndice\n¡Síguenos en X y enterate de todo!</string>
     <string name="about_share">Compartir\nInvita a un amigo a descargar la aplicación</string>
     <string name="about_share_message">Descarga TuIndice y administra tus notas de forma simple.&#10;Google Play: https://play.google.com/store/apps/details?id=com.gdavidpb.tuindice&#10;App Store: https://apps.apple.com/app/id6760307454</string>

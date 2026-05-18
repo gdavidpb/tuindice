@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
 import com.gdavidpb.tuindice.about.presentation.action.ContactDeveloperActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.LoadVersionActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.OpenPrivacyPolicyActionProcessor
+import com.gdavidpb.tuindice.about.presentation.action.OpenSupportActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.OpenTermsAndConditionsActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.OpenUrlActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.RateOnStoreActionProcessor
@@ -60,7 +61,14 @@ class AboutViewModelContractTest {
 			viewModel.effect.test {
 				viewModel.openTermsAndConditionsAction()
 				val termsEffect = assertIs<About.Effect.NavigateToBrowser>(awaitItem())
-				assertEquals("https://tuindice.app/terms", termsEffect.url)
+				assertEquals("https://tuindice.app/terms_and_conditions_v6_0.html", termsEffect.url)
+				cancelAndIgnoreRemainingEvents()
+			}
+
+			viewModel.effect.test {
+				viewModel.openSupportAction()
+				val supportEffect = assertIs<About.Effect.NavigateToBrowser>(awaitItem())
+				assertEquals("https://tuindice.app/support_v6_0.html", supportEffect.url)
 				cancelAndIgnoreRemainingEvents()
 			}
 
@@ -120,6 +128,9 @@ class AboutViewModelContractTest {
 				appEnvironmentRepository = FakeAppEnvironmentRepository()
 			),
 			openPrivacyPolicyActionProcessor = OpenPrivacyPolicyActionProcessor(
+				appEnvironmentRepository = FakeAppEnvironmentRepository()
+			),
+			openSupportActionProcessor = OpenSupportActionProcessor(
 				appEnvironmentRepository = FakeAppEnvironmentRepository()
 			),
 			shareAppActionProcessor = ShareAppActionProcessor(),

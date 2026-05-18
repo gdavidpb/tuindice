@@ -36,6 +36,8 @@
 	<string>$(TUINDICE_PRIVACY_POLICY_URL)</string>
 	<key>TUINDICE_TERMS_AND_CONDITIONS_URL</key>
 	<string>$(TUINDICE_TERMS_AND_CONDITIONS_URL)</string>
+	<key>TUINDICE_SUPPORT_URL</key>
+	<string>$(TUINDICE_SUPPORT_URL)</string>
 	<key>UIBackgroundModes</key>
 	<array>
 		<string>remote-notification</string>

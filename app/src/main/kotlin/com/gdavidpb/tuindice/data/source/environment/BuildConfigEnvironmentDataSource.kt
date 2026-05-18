@@ -10,6 +10,7 @@ class BuildConfigEnvironmentDataSource : AppEnvironmentRepository {
 			apiBaseUrl = BuildConfig.URL_API,
 			privacyPolicyUrl = BuildConfig.URL_PRIVACY_POLICY,
 			termsAndConditionsUrl = BuildConfig.URL_TERMS_AND_CONDITIONS,
+			supportUrl = BuildConfig.URL_SUPPORT,
 			debug = BuildConfig.DEBUG
 		)
 	}

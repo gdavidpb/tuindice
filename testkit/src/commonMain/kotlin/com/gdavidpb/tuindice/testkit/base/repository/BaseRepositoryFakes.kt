@@ -32,8 +32,9 @@ import kotlinx.coroutines.flow.flowOf
 class FakeAppEnvironmentRepository(
 	private val appEnvironment: AppEnvironment = AppEnvironment(
 		apiBaseUrl = "https://api.tuindice.app/",
-		privacyPolicyUrl = "https://tuindice.app/privacy",
-		termsAndConditionsUrl = "https://tuindice.app/terms",
+		privacyPolicyUrl = "https://tuindice.app/privacy_policy_v6_0.html",
+		termsAndConditionsUrl = "https://tuindice.app/terms_and_conditions_v6_0.html",
+		supportUrl = "https://tuindice.app/support_v6_0.html",
 		debug = false
 	)
 ) : AppEnvironmentRepository {

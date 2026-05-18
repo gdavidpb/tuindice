@@ -16,13 +16,13 @@ class PensumScreenModelMapperTest {
 	fun when_nodesTouchInSameTerm_then_displayModelAddsVerticalGap() {
 		val firstNode = course(
 			id = "ma1111",
-			displayCodes = listOf("MA1111"),
+			displayCode = "MA1111",
 			y = 84.0,
 			height = 120.0
 		)
 		val secondNode = course(
 			id = "id1111",
-			displayCodes = listOf("ID1111"),
+			displayCode = "ID1111",
 			y = 204.0,
 			height = 120.0
 		)
@@ -91,16 +91,16 @@ private fun observedPensum(nodes: List<PensumGraph.Node>): ObservedPensum {
 
 private fun course(
 	id: String,
-	displayCodes: List<String>,
+	displayCode: String,
 	y: Double,
 	height: Double
 ): PensumGraph.Node {
 	return PensumGraph.Node(
 		id = id,
 		nodeType = PensumNodeType.COURSE,
-		displayCodes = displayCodes,
-		subjectCode = displayCodes.first(),
-		name = displayCodes.first(),
+		displayCode = displayCode,
+		subjectCode = displayCode,
+		name = displayCode,
 		credits = 4,
 		category = "BASIC",
 		termId = "T1",

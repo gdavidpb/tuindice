@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.About
+import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.about.testing.CURRENT_PRODUCTION_VERSION_TEXT
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
@@ -67,7 +68,7 @@ class AboutActionProcessorContractTest {
 
 		val effect = assertIs<About.Effect.NavigateToBrowser>(effects.single())
 		assertEquals("Términos y condiciones", effect.title)
-		assertEquals("https://tuindice.app/terms", effect.url)
+		assertEquals("https://tuindice.app/terms_and_conditions_v6_0.html", effect.url)
 	}
 
 	@Test
@@ -87,7 +88,35 @@ class AboutActionProcessorContractTest {
 
 		val effect = assertIs<About.Effect.NavigateToBrowser>(effects.single())
 		assertEquals("Política de privacidad", effect.title)
-		assertEquals("https://tuindice.app/privacy", effect.url)
+		assertEquals("https://tuindice.app/privacy_policy_v6_0.html", effect.url)
+	}
+
+	@Test
+	fun openSupportActionProcessor_emitsNavigateToBrowserEffect() = runTest {
+		val processor = OpenSupportActionProcessor(
+			appEnvironmentRepository = FakeAppEnvironmentRepository(
+				appEnvironment = AppEnvironment(
+					apiBaseUrl = "https://api.tuindice.test/",
+					privacyPolicyUrl = "https://tuindice.test/privacy",
+					termsAndConditionsUrl = "https://tuindice.test/terms",
+					supportUrl = "https://tuindice.test/support_v6_0.html",
+					debug = true
+				)
+			)
+		)
+		val effects = mutableListOf<About.Effect>()
+		val initialState = About.State.Content(versionText = CURRENT_PRODUCTION_VERSION_TEXT)
+
+		val finalState = processor.process(
+			action = About.Action.OpenSupport,
+			sideEffect = effects::add
+		).toList().reduceMutations(initialState)
+
+		assertEquals(initialState, finalState)
+
+		val effect = assertIs<About.Effect.NavigateToBrowser>(effects.single())
+		assertEquals("Soporte", effect.title)
+		assertEquals("https://tuindice.test/support_v6_0.html", effect.url)
 	}
 
 	@Test

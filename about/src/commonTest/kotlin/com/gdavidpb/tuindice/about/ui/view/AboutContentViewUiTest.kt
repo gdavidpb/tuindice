@@ -22,6 +22,7 @@ class AboutContentViewUiTest {
 		var creativeCommonsClicks = 0
 		var termsClicks = 0
 		var privacyClicks = 0
+		var supportClicks = 0
 		var xClicks = 0
 		var shareClicks = 0
 		var rateClicks = 0
@@ -40,6 +41,7 @@ class AboutContentViewUiTest {
 				onDstClick = {},
 				onTermsAndConditionsClick = { termsClicks++ },
 				onPrivacyPolicyClick = { privacyClicks++ },
+				onSupportClick = { supportClicks++ },
 				onShareAppClick = { shareClicks++ },
 				onRateOnPlayStoreClick = { rateClicks++ },
 				onContactDeveloperClick = {},
@@ -50,6 +52,7 @@ class AboutContentViewUiTest {
 		assertNodeVisible(AboutUiTags.OpenCreativeCommons)
 		assertNodeVisible(AboutUiTags.OpenTerms)
 		assertNodeVisible(AboutUiTags.OpenPrivacy)
+		assertNodeVisible(AboutUiTags.OpenSupport)
 		assertNodeVisible(AboutUiTags.OpenX)
 		assertNodeVisible(AboutUiTags.ShareApp)
 		assertNodeVisible(AboutUiTags.RateOnStore)
@@ -57,6 +60,7 @@ class AboutContentViewUiTest {
 		onNodeWithTag(AboutUiTags.OpenCreativeCommons).performClick()
 		onNodeWithTag(AboutUiTags.OpenTerms).performClick()
 		onNodeWithTag(AboutUiTags.OpenPrivacy).performClick()
+		onNodeWithTag(AboutUiTags.OpenSupport).performClick()
 		onNodeWithTag(AboutUiTags.OpenX).performClick()
 		onNodeWithTag(AboutUiTags.ShareApp).performClick()
 		onNodeWithTag(AboutUiTags.RateOnStore).performClick()
@@ -64,6 +68,7 @@ class AboutContentViewUiTest {
 		assertEquals(1, creativeCommonsClicks)
 		assertEquals(1, termsClicks)
 		assertEquals(1, privacyClicks)
+		assertEquals(1, supportClicks)
 		assertEquals(1, xClicks)
 		assertEquals(1, shareClicks)
 		assertEquals(1, rateClicks)
@@ -95,6 +100,7 @@ class AboutContentViewUiTest {
 				onDstClick = { dstClicks++ },
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {},
+				onSupportClick = {},
 				onShareAppClick = {},
 				onRateOnPlayStoreClick = {},
 				onContactDeveloperClick = { contactClicks++ },
@@ -165,6 +171,7 @@ class AboutContentViewUiTest {
 				onDstClick = {},
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {},
+				onSupportClick = {},
 				onShareAppClick = {},
 				onRateOnPlayStoreClick = {},
 				onContactDeveloperClick = {},

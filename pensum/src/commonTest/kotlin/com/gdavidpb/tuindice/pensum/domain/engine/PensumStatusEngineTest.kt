@@ -37,7 +37,7 @@ class PensumStatusEngineTest {
 		val slot = PensumGraph.Node(
 			id = "eg-slot",
 			nodeType = PensumNodeType.SLOT,
-			displayCodes = listOf("EG"),
+			displayCode = "EG",
 			subjectCode = null,
 			name = "Estudios Generales",
 			credits = 3,
@@ -101,7 +101,7 @@ class PensumStatusEngineTest {
 		return PensumGraph.Node(
 			id = id,
 			nodeType = PensumNodeType.COURSE,
-			displayCodes = listOf(code),
+			displayCode = code,
 			subjectCode = code,
 			name = name,
 			credits = credits,

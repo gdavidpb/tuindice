@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.about.presentation.viewmodel
 import com.gdavidpb.tuindice.about.presentation.action.ContactDeveloperActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.LoadVersionActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.OpenPrivacyPolicyActionProcessor
+import com.gdavidpb.tuindice.about.presentation.action.OpenSupportActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.OpenTermsAndConditionsActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.OpenUrlActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.RateOnStoreActionProcessor
@@ -18,6 +19,7 @@ class AboutViewModel(
 	private val contactDeveloperActionProcessor: ContactDeveloperActionProcessor,
 	private val openTermsAndConditionsActionProcessor: OpenTermsAndConditionsActionProcessor,
 	private val openPrivacyPolicyActionProcessor: OpenPrivacyPolicyActionProcessor,
+	private val openSupportActionProcessor: OpenSupportActionProcessor,
 	private val shareAppActionProcessor: ShareAppActionProcessor,
 	private val rateOnStoreActionProcessor: RateOnStoreActionProcessor,
 	private val reportBugActionProcessor: ReportBugActionProcessor,
@@ -31,6 +33,9 @@ class AboutViewModel(
 
 	fun openPrivacyPolicyAction() =
 		sendAction(About.Action.OpenPrivacyPolicy)
+
+	fun openSupportAction() =
+		sendAction(About.Action.OpenSupport)
 
 	fun shareAppAction() =
 		sendAction(About.Action.ShareApp)
@@ -60,6 +65,9 @@ class AboutViewModel(
 
 			is About.Action.OpenPrivacyPolicy ->
 				openPrivacyPolicyActionProcessor.process(action, sideEffect)
+
+			is About.Action.OpenSupport ->
+				openSupportActionProcessor.process(action, sideEffect)
 
 			is About.Action.OpenTermsAndConditions ->
 				openTermsAndConditionsActionProcessor.process(action, sideEffect)

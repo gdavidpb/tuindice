@@ -7,6 +7,7 @@ data class IosAppHostConfig(
 	val apiBaseUrl: String,
 	val privacyPolicyUrl: String,
 	val termsAndConditionsUrl: String,
+	val supportUrl: String,
 	val debug: Boolean,
 	val buildVariant: IosBuildVariant
 )
