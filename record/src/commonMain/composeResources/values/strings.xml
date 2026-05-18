@@ -14,7 +14,7 @@
 	<string name="record_view_mode_toggle">Cambiar modo de vista</string>
 	<string name="record_view_mode_toggle_to_historical">Cambiar a Histórico</string>
 	<string name="record_view_mode_toggle_to_projection">Cambiar a Proyección</string>
-	<string name="record_view_mode_banner_historical">Modo histórico</string>
+	<string name="record_view_mode_banner_historical">Modo Histórico</string>
 	<string name="record_view_mode_banner_projection">Modo Proyección</string>
 	<string name="record_view_mode_info_button_description">Información sobre este modo de vista</string>
 	<string name="record_view_mode_info_message_historical">Trimestres cerrados registrados en tu historial académico. Solo lectura.</string>
