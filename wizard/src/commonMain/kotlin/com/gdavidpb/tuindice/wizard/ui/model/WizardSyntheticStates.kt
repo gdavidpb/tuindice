@@ -39,6 +39,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumDisplayLayoutDefaults
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
@@ -54,7 +55,8 @@ import com.gdavidpb.tuindice.wizard.presentation.contract.HISTORICAL_TERM_ID
 private const val SAMPLE_DATE = 1_776_902_400_000L
 private const val SAMPLE_CAREER_NAME = "Ingeniería de Computación"
 private const val SAMPLE_LAST_UPDATE_TEXT = "Última actualización: 28 de abril 2026"
-private const val SAMPLE_PENSUM_TOP_SHIFT = 66.0
+private const val SAMPLE_PENSUM_TERM_COUNT = 6
+private const val SAMPLE_PENSUM_NODE_WIDTH = 160.0
 
 internal fun sampleSummaryState() = Summary.State.Content(
 	name = "Andrea Pérez",
@@ -141,58 +143,132 @@ internal fun sampleSubjectDetailState(
 	)
 )
 
-internal fun samplePensumState() = Pensum.State.Content(
-	model = PensumScreenModel(
-		selection = PensumScreenModel.Selection(
-			careerCode = 800,
-			year = 2019,
-			modalityId = "degree_project"
-		),
-		pensumOptions = listOf(
-			pensumOption(year = 2016),
-			pensumOption(year = 2017),
-			pensumOption(year = 2018),
-			pensumOption(year = 2019)
-		),
-		modalityOptions = sampleModalityOptions(),
-		progressPercent = 75,
-		approvedCredits = 153,
-		totalCredits = 205,
-		canvas = PensumScreenModel.Canvas(width = 1800.0, height = 1340.0 - SAMPLE_PENSUM_TOP_SHIFT),
-		terms = (1..6).map { term ->
-			PensumScreenModel.Term(
-				id = "T$term",
-				label = "T$term",
-				x = ((term - 1) * 300).toDouble(),
-				width = 300.0
+internal fun samplePensumState(): Pensum.State.Content {
+	val terms = (1..SAMPLE_PENSUM_TERM_COUNT).map { term ->
+		PensumScreenModel.Term(
+			id = "T$term",
+			label = "T$term",
+			x = samplePensumTermX(term),
+			width = PensumDisplayLayoutDefaults.TermWidth
+		)
+	}
+	val nodes = samplePensumNodes()
+
+	return Pensum.State.Content(
+		model = PensumScreenModel(
+			selection = PensumScreenModel.Selection(
+				careerCode = 800,
+				year = 2019,
+				modalityId = "degree_project"
+			),
+			pensumOptions = listOf(
+				pensumOption(year = 2016),
+				pensumOption(year = 2017),
+				pensumOption(year = 2018),
+				pensumOption(year = 2019)
+			),
+			modalityOptions = sampleModalityOptions(),
+			progressPercent = 75,
+			approvedCredits = 153,
+			totalCredits = 205,
+			canvas = samplePensumCanvas(terms = terms, nodes = nodes),
+			terms = terms,
+			nodes = nodes,
+			edges = listOf(
+				pensumRequirementEdge("ma1111", "ma1112"),
+				pensumRequirementEdge("ma1112", "ma1113"),
+				pensumRequirementEdge("lla111", "lla112"),
+				pensumRequirementEdge("ci2611", "ci3611"),
+				pensumRequirementEdge("ci3611", "ci4325"),
+				pensumRequirementEdge("ci4325", "ep5406"),
+				pensumRequirementEdge("ec5344", "ep5406")
 			)
-		},
-		nodes = listOf(
-			pensumNode("ma1111", "MA1111", "Matemáticas I", 4, "T1", 40.0, 150.0, PensumSampleNodeState.APPROVED),
-			pensumNode("lla111", "LLA111", "Lenguaje I", 3, "T1", 40.0, 350.0, PensumSampleNodeState.APPROVED),
-			pensumNode("csa211", "CSA211", "Venezuela ante el Siglo XXI I", 3, "T1", 40.0, 550.0, PensumSampleNodeState.APPROVED),
-			pensumNode("id1111", "ID1111", "Inglés I", 3, "T1", 40.0, 780.0, PensumSampleNodeState.APPROVED),
-			pensumNode("ma1112", "MA1112", "Matemáticas II", 4, "T2", 340.0, 150.0, PensumSampleNodeState.APPROVED),
-			pensumNode("lla112", "LLA112", "Lenguaje II", 3, "T2", 340.0, 350.0, PensumSampleNodeState.APPROVED),
-			pensumNode("ci2611", "CI2611", "Algoritmos y Estructuras I", 4, "T2", 340.0, 550.0, PensumSampleNodeState.APPROVED),
-			pensumNode("id1112", "ID1112", "Inglés II", 3, "T2", 340.0, 780.0, PensumSampleNodeState.APPROVED),
-			pensumNode("ma1113", "MA1113", "Matemáticas III", 4, "T3", 640.0, 150.0, PensumSampleNodeState.APPROVED),
-			pensumNode("ci3611", "CI3611", "Algoritmos y Estructuras II", 4, "T3", 640.0, 550.0, PensumSampleNodeState.CURRENT),
-			pensumNode("ec5344", "EC5344", "Sistemas Digitales", 4, "T4", 940.0, 350.0, PensumSampleNodeState.AVAILABLE),
-			pensumNode("ci4325", "CI4325", "Interfaces con el Usuario", 5, "T4", 940.0, 550.0, PensumSampleNodeState.CURRENT),
-			pensumNode("ea1", "EA1", "Electiva de Área I", 4, "T5", 1240.0, 350.0, PensumSampleNodeState.AVAILABLE),
-			pensumNode("ep5406", "EP5406", "Proyecto de Grado A", 9, "T5", 1240.0, 550.0, PensumSampleNodeState.BLOCKED)
-		),
-		edges = listOf(
-			pensumRequirementEdge("ma1111", "ma1112"),
-			pensumRequirementEdge("ma1112", "ma1113"),
-			pensumRequirementEdge("lla111", "lla112"),
-			pensumRequirementEdge("ci2611", "ci3611"),
-			pensumRequirementEdge("ci3611", "ci4325"),
-			pensumRequirementEdge("ci4325", "ep5406"),
-			pensumRequirementEdge("ec5344", "ep5406")
 		)
 	)
+}
+
+private fun samplePensumNodes(): List<PensumScreenModel.Node> {
+	val nextYByTerm = mutableMapOf<Int, Double>()
+	return listOf(
+		PensumSampleNodeSpec("ma1111", "MA1111", "Matemáticas I", 4, 1, PensumSampleNodeState.APPROVED),
+		PensumSampleNodeSpec("lla111", "LLA111", "Lenguaje I", 3, 1, PensumSampleNodeState.APPROVED),
+		PensumSampleNodeSpec("csa211", "CSA211", "Venezuela ante el Siglo XXI I", 3, 1, PensumSampleNodeState.APPROVED),
+		PensumSampleNodeSpec("id1111", "ID1111", "Inglés I", 3, 1, PensumSampleNodeState.APPROVED),
+		PensumSampleNodeSpec("ma1112", "MA1112", "Matemáticas II", 4, 2, PensumSampleNodeState.APPROVED),
+		PensumSampleNodeSpec("lla112", "LLA112", "Lenguaje II", 3, 2, PensumSampleNodeState.APPROVED),
+		PensumSampleNodeSpec("ci2611", "CI2611", "Algoritmos y Estructuras I", 4, 2, PensumSampleNodeState.APPROVED),
+		PensumSampleNodeSpec("id1112", "ID1112", "Inglés II", 3, 2, PensumSampleNodeState.APPROVED),
+		PensumSampleNodeSpec("ma1113", "MA1113", "Matemáticas III", 4, 3, PensumSampleNodeState.APPROVED),
+		PensumSampleNodeSpec("ci3611", "CI3611", "Algoritmos y Estructuras II", 4, 3, PensumSampleNodeState.CURRENT),
+		PensumSampleNodeSpec("ec5344", "EC5344", "Sistemas Digitales", 4, 4, PensumSampleNodeState.AVAILABLE),
+		PensumSampleNodeSpec("ci4325", "CI4325", "Interfaces con el Usuario", 5, 4, PensumSampleNodeState.CURRENT),
+		PensumSampleNodeSpec("ea1", "EA1", "Electiva de Área I", 4, 5, PensumSampleNodeState.AVAILABLE),
+		PensumSampleNodeSpec("ep5406", "EP5406", "Proyecto de Grado A", 9, 5, PensumSampleNodeState.BLOCKED)
+	).map { spec ->
+		val height = spec.name.samplePensumNodeHeight()
+		val y = nextYByTerm.getOrPut(spec.term) { PensumDisplayLayoutDefaults.FirstNodeTop }
+		nextYByTerm[spec.term] = y + height + PensumDisplayLayoutDefaults.NodeVerticalGap
+		spec.toPensumNode(y = y, height = height)
+	}
+}
+
+private fun samplePensumCanvas(
+	terms: List<PensumScreenModel.Term>,
+	nodes: List<PensumScreenModel.Node>
+): PensumScreenModel.Canvas {
+	val width = terms.maxOfOrNull { term -> term.x + term.width }.orZero() +
+		PensumDisplayLayoutDefaults.CanvasRightPadding
+	val height = nodes.maxOfOrNull { node -> node.y + node.height }.orZero() +
+		PensumDisplayLayoutDefaults.CanvasBottomPadding
+
+	return PensumScreenModel.Canvas(width = width, height = height)
+}
+
+private fun samplePensumTermX(term: Int): Double {
+	return (term - 1) * PensumDisplayLayoutDefaults.TermWidth
+}
+
+private fun samplePensumNodeX(term: Int): Double {
+	return samplePensumTermX(term) + (PensumDisplayLayoutDefaults.TermWidth - SAMPLE_PENSUM_NODE_WIDTH) / 2.0
+}
+
+private fun String.samplePensumNodeHeight(): Double {
+	return if (length > PensumDisplayLayoutDefaults.NodeSingleLineNameLimit) {
+		PensumDisplayLayoutDefaults.NodeMultiLineMinHeight
+	} else {
+		PensumDisplayLayoutDefaults.NodeSingleLineMinHeight
+	}
+}
+
+private fun Double?.orZero(): Double = this ?: 0.0
+
+private data class PensumSampleNodeSpec(
+	val id: String,
+	val code: String,
+	val name: String,
+	val credits: Int,
+	val term: Int,
+	val state: PensumSampleNodeState
+)
+
+private fun PensumSampleNodeSpec.toPensumNode(
+	y: Double,
+	height: Double
+) = PensumScreenModel.Node(
+	id = id,
+	displayCodes = listOf(code),
+	subjectCode = code,
+	name = name,
+	credits = credits,
+	termId = "T$term",
+	x = samplePensumNodeX(term),
+	y = y,
+	width = SAMPLE_PENSUM_NODE_WIDTH,
+	height = height,
+	visualStyle = state.toVisualStyle(),
+	isCurrent = state == PensumSampleNodeState.CURRENT,
+	isApproved = state == PensumSampleNodeState.APPROVED,
+	hasSubjectStatsAction = true
 )
 
 private fun pensumOption(year: Int) = PensumScreenModel.PensumOptionItem(
@@ -223,32 +299,6 @@ private fun sampleModalityOptions() = listOf(
 		isDefault = false,
 		text = "Pasantía Larga"
 	)
-)
-
-private fun pensumNode(
-	id: String,
-	code: String,
-	name: String,
-	credits: Int,
-	termId: String,
-	x: Double,
-	y: Double,
-	state: PensumSampleNodeState
-) = PensumScreenModel.Node(
-	id = id,
-	displayCode = code,
-	subjectCode = code,
-	name = name,
-	credits = credits,
-	termId = termId,
-	x = x,
-	y = (y - SAMPLE_PENSUM_TOP_SHIFT).coerceAtLeast(0.0),
-	width = 220.0,
-	height = 148.0,
-	visualStyle = state.toVisualStyle(),
-	isCurrent = state == PensumSampleNodeState.CURRENT,
-	isApproved = state == PensumSampleNodeState.APPROVED,
-	hasSubjectStatsAction = true
 )
 
 private fun pensumRequirementEdge(

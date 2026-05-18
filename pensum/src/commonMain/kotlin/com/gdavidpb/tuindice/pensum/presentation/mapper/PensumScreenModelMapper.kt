@@ -4,29 +4,21 @@ import com.gdavidpb.tuindice.pensum.domain.model.ObservedPensum
 import com.gdavidpb.tuindice.pensum.domain.model.PensumGraph
 import com.gdavidpb.tuindice.pensum.domain.model.PensumNodeStatus
 import com.gdavidpb.tuindice.pensum.domain.model.PensumRelationshipType
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumDisplayLayoutDefaults
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import kotlin.math.roundToInt
-
-private const val DisplayTermWidth = 240.0
-private const val DisplayCanvasRightPadding = 32.0
-private const val DisplayCanvasBottomPadding = 48.0
-private const val DisplayFirstNodeTop = 84.0
-private const val DisplayNodeSingleLineMinHeight = 120.0
-private const val DisplayNodeMultiLineMinHeight = 144.0
-private const val DisplayNodeSingleLineNameLimit = 18
-private const val DisplayNodeVerticalGap = 16.0
 
 fun ObservedPensum.toScreenModel(): PensumScreenModel {
 	val contentTopShift = pensum.nodes
 		.minOfOrNull { node -> node.y }
-		?.let { minY -> (minY - DisplayFirstNodeTop).coerceAtLeast(0.0) }
+		?.let { minY -> (minY - PensumDisplayLayoutDefaults.FirstNodeTop).coerceAtLeast(0.0) }
 		.orZero()
 	val displayTerms = pensum.terms.mapIndexed { index, term ->
 		PensumScreenModel.Term(
 			id = term.id,
 			label = term.label,
-			x = index * DisplayTermWidth,
-			width = DisplayTermWidth
+			x = index * PensumDisplayLayoutDefaults.TermWidth,
+			width = PensumDisplayLayoutDefaults.TermWidth
 		)
 	}
 	val displayTermsById = displayTerms.associateBy(PensumScreenModel.Term::id)
@@ -40,7 +32,7 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 
 			PensumScreenModel.Node(
 				id = node.id,
-				displayCode = node.displayCode,
+				displayCodes = node.displayCodes,
 				subjectCode = node.subjectCode,
 				name = node.name,
 				credits = node.credits,
@@ -52,17 +44,19 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 				visualStyle = status.toVisualStyle(),
 				isCurrent = status == PensumNodeStatus.CURRENT,
 				isApproved = status == PensumNodeStatus.APPROVED,
-				hasSubjectStatsAction = node.subjectCode.hasSubjectStatsAction(displayCode = node.displayCode)
+				hasSubjectStatsAction = node.subjectCode.hasSubjectStatsAction(displayCodes = node.displayCodes)
 			)
 		}
 		.withMinimumVerticalSpacing()
 	val displayCanvasWidth = maxOf(
 		pensum.canvas.width,
-		displayTerms.maxOfOrNull { term -> term.x + term.width }.orZero() + DisplayCanvasRightPadding
+		displayTerms.maxOfOrNull { term -> term.x + term.width }.orZero() +
+			PensumDisplayLayoutDefaults.CanvasRightPadding
 	)
 	val displayCanvasHeight = maxOf(
 		pensum.canvas.height - contentTopShift,
-		displayNodes.maxOfOrNull { node -> node.y + node.height }.orZero() + DisplayCanvasBottomPadding
+		displayNodes.maxOfOrNull { node -> node.y + node.height }.orZero() +
+			PensumDisplayLayoutDefaults.CanvasBottomPadding
 	)
 	val pensumOptions = pensums
 		.groupBy { graph -> graph.careerCode to graph.year }
@@ -136,10 +130,10 @@ private fun List<PensumGraph>.toModalityItems(selectedPensumId: String): List<Pe
 private fun Double?.orZero(): Double = this ?: 0.0
 
 private fun String.minimumDisplayHeight(): Double {
-	return if (length > DisplayNodeSingleLineNameLimit) {
-		DisplayNodeMultiLineMinHeight
+	return if (length > PensumDisplayLayoutDefaults.NodeSingleLineNameLimit) {
+		PensumDisplayLayoutDefaults.NodeMultiLineMinHeight
 	} else {
-		DisplayNodeSingleLineMinHeight
+		PensumDisplayLayoutDefaults.NodeSingleLineMinHeight
 	}
 }
 
@@ -152,7 +146,7 @@ private fun List<PensumScreenModel.Node>.withMinimumVerticalSpacing(): List<Pens
 				.sortedWith(compareBy<PensumScreenModel.Node> { node -> node.y }.thenBy { node -> node.x })
 				.map { node ->
 					val y = maxOf(node.y, nextAvailableY)
-					nextAvailableY = y + node.height + DisplayNodeVerticalGap
+					nextAvailableY = y + node.height + PensumDisplayLayoutDefaults.NodeVerticalGap
 					node.id to y
 				}
 		}
@@ -163,13 +157,13 @@ private fun List<PensumScreenModel.Node>.withMinimumVerticalSpacing(): List<Pens
 	}
 }
 
-private fun String?.hasSubjectStatsAction(displayCode: String): Boolean {
+private fun String?.hasSubjectStatsAction(displayCodes: List<String>): Boolean {
 	val normalizedSubjectCode = this?.trim()?.uppercase() ?: return false
-	val normalizedDisplayCode = displayCode.trim().uppercase()
+	val normalizedDisplayCodes = displayCodes.map { code -> code.trim().uppercase() }
 
 	return normalizedSubjectCode.isNotBlank() &&
 		!WildcardSubjectCodeRegex.matches(normalizedSubjectCode) &&
-		!WildcardSubjectCodeRegex.matches(normalizedDisplayCode)
+		normalizedDisplayCodes.none(WildcardSubjectCodeRegex::matches)
 }
 
 private val WildcardSubjectCodeRegex = Regex("^[A-Z]{2}\\d{1,2}$")

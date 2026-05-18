@@ -93,7 +93,7 @@ private fun GetPensumResponse.Pensum.toGraph(): PensumGraph {
 			PensumGraph.Node(
 				id = node.id,
 				nodeType = node.nodeType.toNodeType(),
-				displayCode = node.displayCode,
+				displayCodes = node.displayCodes,
 				subjectCode = node.subjectCode,
 				name = node.name,
 				credits = node.credits,

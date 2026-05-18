@@ -50,7 +50,7 @@ data class PensumScreenModel(
 
 	data class Node(
 		val id: String,
-		val displayCode: String,
+		val displayCodes: List<String>,
 		val subjectCode: String?,
 		val name: String,
 		val credits: Int,

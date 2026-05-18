@@ -3,13 +3,16 @@ package com.gdavidpb.tuindice.pensum.ui.view
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -45,11 +48,13 @@ fun PensumNodeCard(
 	val colors = node.visualStyle.toNodeColors()
 	val isHighlighted = isSelected || isRequirementHighlighted
 	val subjectCode = node.subjectCode
-	val chipColors = remember(node.displayCode, colors.chip, colors.chipText) {
-		node.displayCode.toPensumChipColors(
-			fallbackContainer = colors.chip,
-			fallbackContent = colors.chipText
-		)
+	val chipItems = remember(node.displayCodes, colors.chip, colors.chipText) {
+		node.displayCodes.map { code ->
+			code to code.toPensumChipColors(
+				fallbackContainer = colors.chip,
+				fallbackContent = colors.chipText
+			)
+		}
 	}
 	Surface(
 		modifier = modifier,
@@ -65,17 +70,25 @@ fun PensumNodeCard(
 			Column(
 				modifier = Modifier.align(Alignment.TopStart)
 			) {
-				Text(
-					modifier = Modifier
-						.background(chipColors.container, RoundedCornerShape(6.dp))
-						.padding(horizontal = 8.dp, vertical = 4.dp),
-					text = node.displayCode,
-					style = MaterialTheme.typography.labelLarge,
-					fontWeight = FontWeight.SemiBold,
-					color = chipColors.content,
-					maxLines = 1,
-					overflow = TextOverflow.Ellipsis
-				)
+				Row(
+					modifier = Modifier.padding(end = if (node.isApproved) 28.dp else 0.dp),
+					horizontalArrangement = Arrangement.spacedBy(4.dp)
+				) {
+					chipItems.forEach { (code, chipColors) ->
+						Text(
+							modifier = Modifier
+								.widthIn(max = if (chipItems.size > 1) 54.dp else 112.dp)
+								.background(chipColors.container, RoundedCornerShape(6.dp))
+								.padding(horizontal = 6.dp, vertical = 4.dp),
+							text = code,
+							style = MaterialTheme.typography.labelMedium,
+							fontWeight = FontWeight.SemiBold,
+							color = chipColors.content,
+							maxLines = 1,
+							overflow = TextOverflow.Ellipsis
+						)
+					}
+				}
 				Spacer(modifier = Modifier.height(10.dp))
 				Text(
 					text = node.name,

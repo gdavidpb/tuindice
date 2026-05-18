@@ -12,7 +12,7 @@ class KtorPensumApiDataSource(
 	private val ktorClient: HttpClient
 ) : PensumRemoteDataRepository {
 	override suspend fun getPensum(selection: PensumSelectionParams): GetPensumResponse {
-		return ktorClient.get("pensums/v2") {
+		return ktorClient.get("pensums/v3") {
 			selection.careerCode?.let { careerCode -> parameter("career_code", careerCode) }
 			selection.year?.let { year -> parameter("year", year) }
 			selection.modalityId?.let { modalityId -> parameter("modality_id", modalityId) }

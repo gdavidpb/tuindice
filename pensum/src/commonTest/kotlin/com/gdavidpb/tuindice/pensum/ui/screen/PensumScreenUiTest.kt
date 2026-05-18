@@ -77,6 +77,23 @@ class PensumScreenUiTest {
 	}
 
 	@Test
+	fun when_nodeHasMultipleDisplayCodes_then_displaysSeparateCodeChips() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = Pensum.State.Content(model = samplePensumModel()),
+				onRetryClick = {},
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		onNodeWithText("MA1111").assertExists()
+		onNodeWithText("MA1121").assertExists()
+	}
+
+	@Test
 	fun when_selectionSheetOpens_then_marksSelectedCareerYear() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			PensumScreen(
@@ -116,12 +133,12 @@ private fun samplePensumModel(): PensumScreenModel {
 		progressPercent = 0,
 		approvedCredits = 0,
 		totalCredits = 8,
-		canvas = PensumScreenModel.Canvas(width = 520.0, height = 520.0),
+		canvas = PensumScreenModel.Canvas(width = 520.0, height = 700.0),
 		terms = listOf(PensumScreenModel.Term(id = "T1", label = "T1", x = 0.0, width = 240.0)),
 		nodes = listOf(
 			PensumScreenModel.Node(
 				id = "ci4325",
-				displayCode = "CI4325",
+				displayCodes = listOf("CI4325"),
 				subjectCode = "CI4325",
 				name = "Interfaces con el Usuario",
 				credits = 5,
@@ -137,7 +154,7 @@ private fun samplePensumModel(): PensumScreenModel {
 			),
 			PensumScreenModel.Node(
 				id = "ea1",
-				displayCode = "EA1",
+				displayCodes = listOf("EA1"),
 				subjectCode = null,
 				name = "Electiva de Área I",
 				credits = 4,
@@ -146,6 +163,22 @@ private fun samplePensumModel(): PensumScreenModel {
 				y = 240.0,
 				width = 190.0,
 				height = 144.0,
+				visualStyle = availableNodeVisualStyle(),
+				isCurrent = false,
+				isApproved = false,
+				hasSubjectStatsAction = false
+			),
+			PensumScreenModel.Node(
+				id = "math1",
+				displayCodes = listOf("MA1111", "MA1121"),
+				subjectCode = null,
+				name = "Matemáticas I",
+				credits = 4,
+				termId = "T1",
+				x = 24.0,
+				y = 408.0,
+				width = 190.0,
+				height = 120.0,
 				visualStyle = availableNodeVisualStyle(),
 				isCurrent = false,
 				isApproved = false,

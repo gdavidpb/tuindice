@@ -25,7 +25,7 @@ class RefreshPensumActionProcessorTest {
 				pensumRepository = ThrowingPensumRepository(
 					throwable = clientRequestException(
 						statusCode = HttpStatusCode.NotFound,
-						path = "/pensums/v2"
+						path = "/pensums/v3"
 					)
 				),
 				reportingRepository = RecordingReportingRepository(),

@@ -42,10 +42,10 @@ class KtorPensumApiDataSourceTest {
 			)
 		)
 
-		assertEquals("/pensums/v2", capturedPath)
+		assertEquals("/pensums/v3", capturedPath)
 		assertEquals("career_code=800&year=2019&modality_id=degree_project", capturedQuery)
 		assertEquals("0800-2019-degree_project", result.selectedPensumId)
-		assertEquals("EC5344", result.pensums.first().nodes.first().displayCode)
+		assertEquals(listOf("EC5344"), result.pensums.first().nodes.first().displayCodes)
 	}
 }
 
@@ -64,7 +64,7 @@ private val sampleResponse = """
       "total_credits": 170,
       "canvas": {"width": 1200.0, "height": 900.0},
       "terms": [{"id":"T1","label":"T1","x":0.0,"width":200.0}],
-      "nodes": [{"id":"ec5344","node_type":"COURSE","display_code":"EC5344","subject_code":"EC5344","name":"Radiacion y Antenas","credits":3,"category":"PROFESSIONAL","term_id":"T1","x":40.0,"y":80.0,"width":160.0,"height":120.0,"fulfillment_rules":[]}],
+      "nodes": [{"id":"ec5344","node_type":"COURSE","display_codes":["EC5344"],"subject_code":"EC5344","name":"Radiacion y Antenas","credits":3,"category":"PROFESSIONAL","term_id":"T1","x":40.0,"y":80.0,"width":160.0,"height":120.0,"fulfillment_rules":[]}],
       "edges": []
     }
   ]

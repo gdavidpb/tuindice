@@ -42,7 +42,7 @@ data class GetPensumResponse(
 	data class Node(
 		@SerialName("id") val id: String,
 		@SerialName("node_type") val nodeType: String,
-		@SerialName("display_code") val displayCode: String,
+		@SerialName("display_codes") val displayCodes: List<String>,
 		@SerialName("subject_code") val subjectCode: String? = null,
 		@SerialName("name") val name: String,
 		@SerialName("credits") val credits: Int,

@@ -28,7 +28,7 @@ data class PensumGraph(
 	data class Node(
 		val id: String,
 		val nodeType: PensumNodeType,
-		val displayCode: String,
+		val displayCodes: List<String>,
 		val subjectCode: String?,
 		val name: String,
 		val credits: Int,
