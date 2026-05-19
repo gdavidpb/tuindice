@@ -268,7 +268,9 @@ private fun PensumSampleNodeSpec.toPensumNode(
 	visualStyle = state.toVisualStyle(),
 	isCurrent = state == PensumSampleNodeState.CURRENT,
 	isApproved = state == PensumSampleNodeState.APPROVED,
-	hasSubjectStatsAction = true
+	hasSubjectStatsAction = true,
+	subjectStatsCode = code,
+	fulfilledSubject = null
 )
 
 private fun pensumOption(year: Int) = PensumScreenModel.PensumOptionItem(
