@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -117,6 +118,8 @@ class SummaryContentViewUiTest {
 	fun when_syncIsRunning_then_statusIconRemainsVisibleBesideLastUpdate() = runTuIndiceUiTest {
 		val contentState = summaryContentState()
 
+		mainClock.autoAdvance = false
+
 		setTuIndiceTestContent {
 			SummaryContentView(
 				state = contentState,
@@ -136,7 +139,7 @@ class SummaryContentViewUiTest {
 	}
 
 	@Test
-	fun when_syncHasFailed_then_statusIconRemainsDisabledAndLastUpdateRemainsVisible() = runTuIndiceUiTest {
+	fun when_syncHasFailed_then_statusShowsErrorAndCanOpenDetails() = runTuIndiceUiTest {
 		val contentState = summaryContentState()
 		var statusIconClicks = 0
 
@@ -152,13 +155,16 @@ class SummaryContentViewUiTest {
 
 		assertNodeVisible(SummaryUiTags.StatusRow)
 		assertNodeVisible(SummaryUiTags.StatusIconButton)
-		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
-		onNodeWithText(contentState.lastUpdate).assertIsDisplayed()
-		assertEquals(0, statusIconClicks)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
+		onNodeWithTag(SummaryUiTags.StatusText).assertTextContains(
+			"No pudimos sincronizar tus datos. ${contentState.lastUpdate}"
+		)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+		assertEquals(1, statusIconClicks)
 	}
 
 	@Test
-	fun when_syncIsUnavailable_then_statusIconRemainsDisabledAndLastUpdateRemainsVisible() = runTuIndiceUiTest {
+	fun when_syncIsUnavailable_then_statusShowsUnavailableAndCanOpenDetails() = runTuIndiceUiTest {
 		val contentState = summaryContentState()
 		var statusIconClicks = 0
 
@@ -174,13 +180,16 @@ class SummaryContentViewUiTest {
 
 		assertNodeVisible(SummaryUiTags.StatusRow)
 		assertNodeVisible(SummaryUiTags.StatusIconButton)
-		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
-		onNodeWithText(contentState.lastUpdate).assertIsDisplayed()
-		assertEquals(0, statusIconClicks)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
+		onNodeWithTag(SummaryUiTags.StatusText).assertTextContains(
+			"Servicios no disponibles. ${contentState.lastUpdate}"
+		)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+		assertEquals(1, statusIconClicks)
 	}
 
 	@Test
-	fun when_syncStatusIsOutdatedCredentials_then_statusIconTapInvokesCallbackAndLastUpdateRemainsVisible() = runTuIndiceUiTest {
+	fun when_syncStatusIsOutdatedCredentials_then_statusIconTapInvokesCallbackAndShowsPasswordText() = runTuIndiceUiTest {
 		val contentState = summaryContentState()
 		var statusIconClicks = 0
 
@@ -197,7 +206,9 @@ class SummaryContentViewUiTest {
 		assertNodeVisible(SummaryUiTags.StatusRow)
 		assertNodeVisible(SummaryUiTags.StatusIconButton)
 		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
-		onNodeWithText(contentState.lastUpdate).assertIsDisplayed()
+		onNodeWithTag(SummaryUiTags.StatusText).assertTextContains(
+			"Actualiza tu contraseña para volver a sincronizar tus datos."
+		)
 		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
 		assertEquals(1, statusIconClicks)
 	}

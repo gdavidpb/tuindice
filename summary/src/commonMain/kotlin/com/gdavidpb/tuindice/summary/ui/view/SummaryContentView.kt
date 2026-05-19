@@ -28,6 +28,11 @@ import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import org.jetbrains.compose.resources.stringResource
+import tuindice.summary.generated.resources.Res
+import tuindice.summary.generated.resources.text_sync_failed
+import tuindice.summary.generated.resources.text_sync_outdated_credentials
+import tuindice.summary.generated.resources.text_sync_unavailable
 import kotlin.math.abs
 import kotlin.math.ceil
 
@@ -43,19 +48,25 @@ fun SummaryContentView(
 	val isProfilePictureInteractionEnabled = !state.isUserRefreshing
 	val statusIcon = when (syncStatus) {
 		SyncStatus.Healthy -> Icons.Outlined.Sync
-		SyncStatus.OutdatedCredentials -> Icons.Outlined.SyncProblem
 		SyncStatus.Unavailable,
 		SyncStatus.Failed,
-		-> Icons.Outlined.Sync
+		SyncStatus.OutdatedCredentials,
+		-> Icons.Outlined.SyncProblem
 	}
 	val statusTint = when (syncStatus) {
 		SyncStatus.Healthy -> MaterialTheme.colorScheme.onSurfaceVariant
-		SyncStatus.OutdatedCredentials -> MaterialTheme.colorScheme.error
 		SyncStatus.Unavailable,
 		SyncStatus.Failed,
-		-> MaterialTheme.colorScheme.onSurfaceVariant
+		SyncStatus.OutdatedCredentials,
+		-> MaterialTheme.colorScheme.error
 	}
-	val canOpenStatusDetails = syncStatus == SyncStatus.OutdatedCredentials
+	val canOpenStatusDetails = syncStatus != SyncStatus.Healthy
+	val statusText = when (syncStatus) {
+		SyncStatus.Healthy -> state.lastUpdate
+		SyncStatus.Unavailable -> stringResource(Res.string.text_sync_unavailable, state.lastUpdate)
+		SyncStatus.Failed -> stringResource(Res.string.text_sync_failed, state.lastUpdate)
+		SyncStatus.OutdatedCredentials -> stringResource(Res.string.text_sync_outdated_credentials)
+	}
 	val syncRotation = remember { Animatable(0f) }
 
 	LaunchedEffect(isSyncing) {
@@ -122,6 +133,7 @@ fun SummaryContentView(
 		Row(
 			modifier = Modifier
 				.testTag(SummaryUiTags.StatusRow)
+				.padding(horizontal = 16.dp)
 				.padding(bottom = 8.dp)
 				.fillMaxWidth(),
 			horizontalArrangement = Arrangement.Center,
@@ -148,7 +160,8 @@ fun SummaryContentView(
 			Spacer(modifier = Modifier.width(4.dp))
 
 			AnimatedSyncStatusText(
-				text = state.lastUpdate,
+				modifier = Modifier.weight(1f, fill = false),
+				text = statusText,
 			)
 		}
 

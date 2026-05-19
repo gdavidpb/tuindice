@@ -13,6 +13,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.style.TextAlign
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 
 @Composable
@@ -21,6 +22,7 @@ fun AnimatedSyncStatusText(
 	modifier: Modifier = Modifier
 ) {
 	AnimatedContent(
+		modifier = modifier,
 		targetState = text,
 		transitionSpec = {
 			val enter = fadeIn(
@@ -53,9 +55,10 @@ fun AnimatedSyncStatusText(
 		label = "SummarySyncStatusTextAnimatedContent"
 	) { targetText ->
 		Text(
-			modifier = modifier.testTag(SummaryUiTags.StatusText),
+			modifier = Modifier.testTag(SummaryUiTags.StatusText),
 			text = targetText,
-			style = MaterialTheme.typography.bodyMedium
+			style = MaterialTheme.typography.bodyMedium,
+			textAlign = TextAlign.Center
 		)
 	}
 }

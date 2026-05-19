@@ -1,9 +1,10 @@
 package com.gdavidpb.tuindice.summary.ui.screen
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.assertIsNotEnabled
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
@@ -90,7 +91,7 @@ class SummaryScreenUiTest {
 	}
 
 	@Test
-	fun when_failedStatusIconIsVisible_then_itStaysDisabled() = runTuIndiceUiTest {
+	fun when_failedStatusIconTapped_then_showsFailedSyncDialog() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryScreen(
 				state = summaryContentState(),
@@ -101,11 +102,16 @@ class SummaryScreenUiTest {
 			)
 		}
 
-		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+
+		onNodeWithText("No pudimos sincronizar con la universidad").assertExists()
+		assertNodeVisible(SummaryUiTags.SyncStatusMessage)
+		assertNodeVisible(BaseUiTags.ConfirmationDialogPositiveButton)
 	}
 
 	@Test
-	fun when_unavailableStatusIconIsVisible_then_itStaysDisabled() = runTuIndiceUiTest {
+	fun when_unavailableStatusIconTapped_then_showsUnavailableSyncDialog() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryScreen(
 				state = summaryContentState(),
@@ -116,7 +122,12 @@ class SummaryScreenUiTest {
 			)
 		}
 
-		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+
+		onNodeWithText("Servicios de la universidad no disponibles").assertExists()
+		assertNodeVisible(SummaryUiTags.SyncStatusMessage)
+		assertNodeVisible(BaseUiTags.ConfirmationDialogPositiveButton)
 	}
 
 	@Test
