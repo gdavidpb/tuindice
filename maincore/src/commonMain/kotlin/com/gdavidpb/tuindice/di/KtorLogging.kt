@@ -4,12 +4,6 @@ import com.gdavidpb.tuindice.base.logging.appLogger
 import io.ktor.client.plugins.logging.Logger as KtorLogger
 import io.ktor.http.encodeURLQueryComponent
 import io.ktor.http.parseQueryString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonArray
-import kotlinx.serialization.json.JsonElement
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import kotlinx.serialization.json.jsonObject
 
 private const val HTTP_CLIENT_LOG_TAG = "HttpClient"
 private const val REDACTED_LOG_VALUE = "***"
@@ -29,32 +23,37 @@ internal fun redactSensitiveKtorLogMessage(message: String): String {
 }
 
 private object KtorLogSanitizer {
-	private val json = Json {
-		ignoreUnknownKeys = true
-		isLenient = true
-	}
-
-	private val sensitiveFieldNames = setOf(
+	private val sensitiveTokenFieldNames = listOf(
 		"access_token",
 		"accessToken",
 		"refresh_token",
 		"refreshToken"
-	).map(String::lowercase).toSet()
-
-	private val quotedTokenFieldRegex = Regex(
-		pattern = """(?i)(["'](?:access_token|refresh_token|accessToken|refreshToken)["']\s*:\s*["'])([^"']*)(["'])"""
 	)
 
-	private val fallbackExpressions = listOf(
-		"(?<=access_token=)[^&\\s]+".toRegex(RegexOption.IGNORE_CASE),
-		"(?<=accessToken=)[^&\\s]+".toRegex(RegexOption.IGNORE_CASE),
-		"(?<=refresh_token=)[^&\\s]+".toRegex(RegexOption.IGNORE_CASE),
-		"(?<=refreshToken=)[^&\\s]+".toRegex(RegexOption.IGNORE_CASE),
-		"(?<=Authorization: Bearer )[^\r\n]+".toRegex(RegexOption.IGNORE_CASE)
-	)
+	private val sensitiveFieldNames = sensitiveTokenFieldNames
+		.map(String::lowercase)
+		.toSet()
+
+	private val jsonRedactionRules = sensitiveTokenFieldNames
+		.map(::jsonTokenFieldRule)
+
+	private val fallbackRedactionRules = buildList {
+		addAll(jsonRedactionRules)
+		addAll(sensitiveTokenFieldNames.map(::queryTokenFieldRule))
+		add(
+			SensitiveRedactionRule(
+				marker = "Authorization: Bearer ",
+				expression = "(?<=Authorization: Bearer )[^\r\n]+".toRegex(RegexOption.IGNORE_CASE)
+			)
+		)
+	}
 
 	fun sanitize(message: String): String {
 		if (message.isBlank()) {
+			return message
+		}
+
+		if (!message.containsSensitiveTokenMarker()) {
 			return message
 		}
 
@@ -63,10 +62,9 @@ private object KtorLogSanitizer {
 		return message
 			.lines()
 			.joinToString(separator = "\n") { line ->
-				line.sanitizeWholeLine()
+				if (line.containsSensitiveTokenMarker()) line.sanitizeWholeLine() else line
 			}
-			.replaceSensitiveMatch(quotedTokenFieldRegex, valueGroup = 2)
-			.replaceAll(fallbackExpressions)
+			.applySensitiveRules(fallbackRedactionRules)
 	}
 
 	private fun String.sanitizeWholeLine(): String {
@@ -79,39 +77,11 @@ private object KtorLogSanitizer {
 	private fun sanitizeJsonText(text: String): String? {
 		val trimmed = text.trim()
 
-		if (!trimmed.startsWith("{") && !trimmed.startsWith("[")) {
+		if (!trimmed.looksLikeJsonText()) {
 			return null
 		}
 
-		val element = runCatching { json.parseToJsonElement(trimmed) }.getOrNull() ?: return null
-
-		return json.encodeToString(
-			JsonElement.serializer(),
-			sanitizeJsonElement(element)
-		)
-	}
-
-	private fun sanitizeJsonElement(element: JsonElement): JsonElement {
-		return when (element) {
-			is JsonArray ->
-				JsonArray(
-					element.map { item ->
-						sanitizeJsonElement(item)
-					}
-				)
-
-			is JsonObject ->
-				JsonObject(
-					element.jsonObject.mapValues { (name, value) ->
-						if (name.lowercase() in sensitiveFieldNames)
-							JsonPrimitive(REDACTED_LOG_VALUE)
-						else
-							sanitizeJsonElement(value)
-					}
-				)
-
-			else -> element
-		}
+		return trimmed.applySensitiveRules(jsonRedactionRules)
 	}
 
 	private fun sanitizeFormText(text: String): String? {
@@ -147,7 +117,16 @@ private object KtorLogSanitizer {
 			!startsWith("http://") &&
 			!startsWith("https://")
 	}
+
+	private fun String.containsSensitiveTokenMarker(): Boolean {
+		return fallbackRedactionRules.any { rule ->
+			contains(rule.marker, ignoreCase = true)
+		}
+	}
 }
+
+private fun String.looksLikeJsonText(): Boolean =
+	startsWith("{") || startsWith("[")
 
 private fun String.replaceSensitiveMatch(regex: Regex, valueGroup: Int): String {
 	return regex.replace(this) { match ->
@@ -157,5 +136,40 @@ private fun String.replaceSensitiveMatch(regex: Regex, valueGroup: Int): String 
 	}
 }
 
-private fun String.replaceAll(expressions: List<Regex>, replacement: String = REDACTED_LOG_VALUE): String =
-	expressions.fold(this) { acc, regex -> acc.replace(regex, replacement) }
+private fun String.applySensitiveRules(
+	rules: List<SensitiveRedactionRule>,
+	replacement: String = REDACTED_LOG_VALUE
+): String {
+	return rules.fold(this) { current, rule ->
+		if (rule.valueGroup == null) {
+			current.replace(rule.expression, replacement)
+		} else {
+			current.replaceSensitiveMatch(rule.expression, valueGroup = rule.valueGroup)
+		}
+	}
+}
+
+private fun jsonTokenFieldRule(fieldName: String): SensitiveRedactionRule {
+	val escapedFieldName = Regex.escape(fieldName)
+
+	return SensitiveRedactionRule(
+		marker = fieldName,
+		expression = """(?i)(["']$escapedFieldName["']\s*:\s*["'])([^"']*)(["'])""".toRegex(),
+		valueGroup = 2
+	)
+}
+
+private fun queryTokenFieldRule(fieldName: String): SensitiveRedactionRule {
+	val escapedFieldName = Regex.escape(fieldName)
+
+	return SensitiveRedactionRule(
+		marker = "$fieldName=",
+		expression = "(?<=$escapedFieldName=)[^&\\s]+".toRegex(RegexOption.IGNORE_CASE)
+	)
+}
+
+private data class SensitiveRedactionRule(
+	val marker: String,
+	val expression: Regex,
+	val valueGroup: Int? = null
+)

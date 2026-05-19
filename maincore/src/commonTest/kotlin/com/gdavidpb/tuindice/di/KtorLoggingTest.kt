@@ -82,4 +82,50 @@ class KtorLoggingTest {
 
 		assertEquals("Authorization: Bearer ***", redacted)
 	}
+
+	@Test
+	fun redactSensitiveKtorLogMessage_leavesLargeJsonBodiesWithoutSensitiveKeysUntouched() {
+		val body = buildString {
+			append("""{"pensums":[""")
+			repeat(17_000) { append("a") }
+			append("]}")
+		}
+
+		val redacted = redactSensitiveKtorLogMessage(body)
+
+		assertEquals(body, redacted)
+	}
+
+	@Test
+	fun redactSensitiveKtorLogMessage_redactsLargeJsonBodiesOnlyWhenSensitiveKeysArePresent() {
+		val body = buildString {
+			append("{\"items\":[")
+			repeat(17_000) { append("\"value\",") }
+			append("""],"access_token":"access-token"}""")
+		}
+
+		val redacted = redactSensitiveKtorLogMessage(body)
+
+		assertTrue(redacted.contains(""""access_token":"***""""))
+		assertFalse(redacted.contains("access-token"))
+	}
+
+	@Test
+	fun redactSensitiveKtorLogMessage_doesNotInspectLargeJsonBodyLineWhenOnlyMetadataNeedsRedaction() {
+		val message = buildString {
+			appendLine("RESPONSE https://api.tuindice.app/pensums/v4?access_token=query-access")
+			appendLine("BODY START")
+			append("{\"pensums\":[")
+			repeat(17_000) { append("x") }
+			append("]}")
+			appendLine()
+			append("BODY END")
+		}
+
+		val redacted = redactSensitiveKtorLogMessage(message)
+
+		assertTrue(redacted.contains("access_token=***"))
+		assertTrue(redacted.contains("\"pensums\""))
+		assertFalse(redacted.contains("query-access"))
+	}
 }
