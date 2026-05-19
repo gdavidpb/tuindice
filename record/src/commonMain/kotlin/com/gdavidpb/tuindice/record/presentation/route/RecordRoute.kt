@@ -24,6 +24,7 @@ import com.gdavidpb.tuindice.record.ui.screen.RecordScreen
 fun RecordRoute(
 	onNavigateToUpdatePassword: () -> Unit,
 	onNavigateToCreateSyntheticTerm: () -> Unit,
+	onNavigateToUpdateSyntheticTerm: (termId: String) -> Unit,
 	onTopBarViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
@@ -87,7 +88,8 @@ fun RecordRoute(
 				commit = isSelected
 			)
 		},
-		onCreateSyntheticTermClick = onNavigateToCreateSyntheticTerm
+		onCreateSyntheticTermClick = onNavigateToCreateSyntheticTerm,
+		onUpdateSyntheticTermClick = onNavigateToUpdateSyntheticTerm
 	)
 }
 

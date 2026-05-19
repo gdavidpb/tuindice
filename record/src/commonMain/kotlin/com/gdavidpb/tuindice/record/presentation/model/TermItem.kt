@@ -13,5 +13,6 @@ data class TermItem(
 	val creditsDelta: TermMetricDelta?,
 	val isCurrent: Boolean,
 	val canDelete: Boolean,
+	val canEdit: Boolean,
 	val attempts: List<AttemptItem>
 )

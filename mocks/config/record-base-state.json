@@ -37,6 +37,43 @@
   },
   "terms": [
     {
+      "id": "synthetic-2026-jul-aug-degree-project",
+      "kind": "synthetic",
+      "revision": 13,
+      "attempts": [
+        {
+          "id": "synthetic-2026-jul-aug-ep1308",
+          "term_id": "2026-JUL_AUG",
+          "code": "EP1308",
+          "name": "Proyecto de Grado I",
+          "credits": 3,
+          "grade": 0,
+          "grading_mode": "qualitative_pass_fail",
+          "revision": 13,
+          "status": "pending",
+          "mutable": true
+        },
+        {
+          "id": "synthetic-2026-jul-aug-ep5855",
+          "term_id": "2026-JUL_AUG",
+          "code": "EP5855",
+          "name": "Tópicos Especiales en Ingeniería de Computación I",
+          "credits": 4,
+          "grade": 0,
+          "grading_mode": "numeric",
+          "revision": 13,
+          "status": "pending",
+          "mutable": true
+        }
+      ],
+      "presence_scenario": "record-term-synthetic-2026-jul-aug-degree-project",
+      "period_year": 2026,
+      "period_code": "JUL_AUG",
+      "term_key": "2026-JUL_AUG",
+      "term_order": 20263,
+      "period_label": "Julio - Agosto 2026"
+    },
+    {
       "id": "d377155d39da686f412622aaca9074cd",
       "kind": "current",
       "revision": 12,

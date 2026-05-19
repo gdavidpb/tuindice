@@ -60,6 +60,32 @@ sealed interface AcademicRecordMutation : OutboxMutation {
 	}
 
 	@Serializable
+	@SerialName("update_synthetic_term")
+	data class UpdateSyntheticTerm(
+		val targetTermId: String,
+		val targetTermKey: String,
+		val termId: String,
+		val periodYear: Int,
+		val periodCode: AcademicTermPeriod,
+		val attempts: List<SyntheticAttemptSeed>
+	) : AcademicRecordMutation {
+		@Serializable
+		data class SyntheticAttemptSeed(
+			val attemptId: String,
+			val subjectCode: String,
+			val subjectName: String,
+			val credits: Int,
+			val gradingMode: AttemptGradingMode,
+			val score: AttemptScore? = null,
+			val outcome: AttemptOutcome? = null
+		)
+
+		override val entityType: String = "record:update_synthetic_term"
+		override val entityId: String = targetTermId
+		override val replaceKey: String = "term:$targetTermId"
+	}
+
+	@Serializable
 	@SerialName("delete_synthetic_term")
 	data class DeleteSyntheticTerm(
 		val termId: String

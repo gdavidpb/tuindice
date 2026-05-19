@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.record.data.source.api.response.AcademicRecordRespo
 import com.gdavidpb.tuindice.record.data.source.api.response.AddSyntheticTermRequest
 import com.gdavidpb.tuindice.record.data.source.api.response.DeleteOverlayMutationRequest
 import com.gdavidpb.tuindice.record.data.source.api.response.SyntheticTermLoadPreviewResponse
+import com.gdavidpb.tuindice.record.data.source.api.response.UpdateSyntheticTermRequest
 import com.gdavidpb.tuindice.record.data.source.api.response.UpsertAttemptOverrideRequest
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadBand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview
@@ -38,6 +39,19 @@ internal fun AcademicRecordMutation.AddSyntheticTerm.toAddSyntheticTermRequest(
 	expectedRevision: Long
 ): AddSyntheticTermRequest {
 	return AddSyntheticTermRequest(
+		periodYear = periodYear,
+		periodCode = periodCode,
+		subjectCodes = attempts.map { attempt -> attempt.subjectCode },
+		mutationId = mutationId,
+		expectedRevision = expectedRevision
+	)
+}
+
+internal fun AcademicRecordMutation.UpdateSyntheticTerm.toUpdateSyntheticTermRequest(
+	mutationId: String,
+	expectedRevision: Long
+): UpdateSyntheticTermRequest {
+	return UpdateSyntheticTermRequest(
 		periodYear = periodYear,
 		periodCode = periodCode,
 		subjectCodes = attempts.map { attempt -> attempt.subjectCode },

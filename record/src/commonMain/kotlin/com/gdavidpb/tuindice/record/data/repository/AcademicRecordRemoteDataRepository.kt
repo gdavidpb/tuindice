@@ -25,6 +25,11 @@ interface AcademicRecordRemoteDataRepository {
 		mutationId: String,
 		expectedRevision: Long
 	): VersionedAcademicRecord
+	suspend fun updateSyntheticTerm(
+		command: AcademicRecordMutation.UpdateSyntheticTerm,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord
 	suspend fun deleteSyntheticTerm(
 		termId: String,
 		mutationId: String,

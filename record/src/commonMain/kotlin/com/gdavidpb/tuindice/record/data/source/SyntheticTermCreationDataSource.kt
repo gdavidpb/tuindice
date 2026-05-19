@@ -59,29 +59,45 @@ class SyntheticTermCreationDataSource(
 	override fun observeSnapshot(
 		queryFlow: StateFlow<String>,
 		selectedSubjectsFlow: StateFlow<List<SyntheticTermSubject>>,
-		selectedPeriodKeyFlow: StateFlow<String?>
+		selectedPeriodKeyFlow: StateFlow<String?>,
+		editingTermIdFlow: StateFlow<String?>,
+		editingTermKeyFlow: StateFlow<String?>
 	): Flow<SyntheticTermCreationSnapshot> {
 		val recordFlow = observeRecord()
 		val pensumFlow = observePensum()
 		val searchFlow = observeLocalSearch(queryFlow)
+		val selectionFlow = combine(
+			selectedSubjectsFlow,
+			selectedPeriodKeyFlow,
+			editingTermIdFlow,
+			editingTermKeyFlow
+		) { selectedSubjects, selectedPeriodKey, editingTermId, editingTermKey ->
+			FormSelectionState(
+				selectedSubjects = selectedSubjects,
+				selectedPeriodKey = selectedPeriodKey,
+				editingTermId = editingTermId,
+				editingTermKey = editingTermKey
+			)
+		}
 
 		return combine(
 			recordFlow,
 			pensumFlow,
 			searchFlow,
-			selectedSubjectsFlow,
-			selectedPeriodKeyFlow
-		) { record, pensum, searchResults, selectedSubjects, selectedPeriodKey ->
-			val periodOptions = record.periodOptions()
-			val selectedPeriod = periodOptions.firstOrNull { option -> option.termKey == selectedPeriodKey }
+			selectionFlow
+		) { record, pensum, searchResults, selection ->
+			val periodOptions = record.periodOptions(editingTermId = selection.editingTermId)
+			val selectedPeriod = periodOptions.firstOrNull { option -> option.termKey == selection.selectedPeriodKey }
 				?: periodOptions.firstOrNull()
-			val selectedCodes = selectedSubjects.map(SyntheticTermSubject::subjectCode).toSet()
-			val availabilityBySubjectCode = record.availabilityBySubjectCode()
+			val selectedCodes = selection.selectedSubjects.map(SyntheticTermSubject::subjectCode).toSet()
+			val availabilityBySubjectCode = record.availabilityBySubjectCode(editingTermId = selection.editingTermId)
 
 			SyntheticTermCreationSnapshot(
+				editingTermId = selection.editingTermId,
+				editingTermKey = selection.editingTermKey,
 				periodOptions = periodOptions,
 				selectedPeriod = selectedPeriod,
-				selectedSubjects = selectedSubjects,
+				selectedSubjects = selection.selectedSubjects,
 				suggestedSubjects = record.suggestedSubjects(
 					pensum = pensum,
 					selectedCodes = selectedCodes,
@@ -184,8 +200,16 @@ class SyntheticTermCreationDataSource(
 			}
 	}
 
-	private fun AcademicRecord.periodOptions(): List<SyntheticTermPeriodOption> {
-		val maxExistingOrder = terms.maxOfOrNull(AcademicTerm::termOrder)
+	private fun AcademicRecord.periodOptions(editingTermId: String?): List<SyntheticTermPeriodOption> {
+		val editingTerm = terms.firstOrNull { term ->
+			term.id == editingTermId && term.kind.isSynthetic
+		}
+		val baselineTerms = if (editingTerm == null) {
+			terms
+		} else {
+			terms.filterNot { term -> term.id == editingTerm.id }
+		}
+		val maxExistingOrder = baselineTerms.maxOfOrNull(AcademicTerm::termOrder)
 			?: currentAcademicTermOrder()
 		val options = mutableListOf<SyntheticTermPeriodOption>()
 		var year = maxExistingOrder / 10
@@ -206,7 +230,15 @@ class SyntheticTermCreationDataSource(
 			)
 		}
 
-		return options
+		val editingOption = editingTerm?.let { term ->
+			SyntheticTermPeriodOption(
+				periodYear = term.periodYear,
+				periodCode = term.periodCode
+			)
+		}
+
+		return (listOfNotNull(editingOption) + options)
+			.distinctBy(SyntheticTermPeriodOption::termKey)
 	}
 
 	private fun currentAcademicTermOrder(): Int {
@@ -223,10 +255,10 @@ class SyntheticTermCreationDataSource(
 		}
 	}
 
-	private fun AcademicRecord.availabilityBySubjectCode(): Map<String, SyntheticTermSubjectAvailability> {
-		return buildMap {
-			terms.forEach { term ->
-				term.attempts.forEach { attempt ->
+		private fun AcademicRecord.availabilityBySubjectCode(editingTermId: String?): Map<String, SyntheticTermSubjectAvailability> {
+			return buildMap {
+				terms.filterNot { term -> term.id == editingTermId }.forEach { term ->
+					term.attempts.forEach { attempt ->
 					val availability = when {
 						term.kind.isHistorical ->
 							SyntheticTermSubjectAvailability.ALREADY_TAKEN
@@ -238,18 +270,25 @@ class SyntheticTermCreationDataSource(
 							null
 					}
 
-					if (availability != null) {
-						putWithPriority(
-							key = attempt.subjectCode.uppercase(),
-							availability = availability
-						)
+						if (availability != null) {
+							putWithPriority(
+								key = attempt.subjectCode.uppercase(),
+								availability = availability
+							)
+						}
 					}
 				}
 			}
 		}
-	}
 
-	private fun MutableMap<String, SyntheticTermSubjectAvailability>.putWithPriority(
+		private data class FormSelectionState(
+			val selectedSubjects: List<SyntheticTermSubject>,
+			val selectedPeriodKey: String?,
+			val editingTermId: String?,
+			val editingTermKey: String?
+		)
+
+		private fun MutableMap<String, SyntheticTermSubjectAvailability>.putWithPriority(
 		key: String,
 		availability: SyntheticTermSubjectAvailability
 	) {

@@ -6,6 +6,7 @@ import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
+import androidx.navigation.toRoute
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
@@ -41,7 +42,10 @@ fun NavGraphBuilder.recordNavigation(
 			RecordRoute(
 				onNavigateToUpdatePassword = onNavigateToUpdatePassword,
 				onNavigateToCreateSyntheticTerm = {
-					navController.navigate(RecordDestination.CreateSyntheticTerm)
+					navController.navigate(RecordDestination.CreateSyntheticTerm())
+				},
+				onNavigateToUpdateSyntheticTerm = { termId ->
+					navController.navigate(RecordDestination.CreateSyntheticTerm(termId = termId))
 				},
 				onTopBarViewModeChangeAvailable = onTopBarViewModeChangeAvailable,
 				showTopBarBanner = showTopBarBanner,
@@ -51,6 +55,7 @@ fun NavGraphBuilder.recordNavigation(
 		}
 
 		composable<RecordDestination.CreateSyntheticTerm> { backStackEntry ->
+			val args = backStackEntry.toRoute<RecordDestination.CreateSyntheticTerm>()
 			val viewModel = koinViewModel<CreateSyntheticTermViewModel>(viewModelStoreOwner = backStackEntry)
 			val viewState by viewModel.state.collectAsStateWithLifecycle()
 
@@ -61,6 +66,7 @@ fun NavGraphBuilder.recordNavigation(
 			)
 
 			CreateSyntheticTermRoute(
+				termId = args.termId,
 				viewModel = viewModel,
 				onBack = { navController.navigateUp() },
 				showSnackBar = showSnackBar

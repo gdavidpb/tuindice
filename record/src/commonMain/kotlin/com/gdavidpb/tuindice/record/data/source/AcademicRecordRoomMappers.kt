@@ -129,6 +129,27 @@ internal fun AcademicRecordMutation.AddSyntheticTerm.toAcademicTerm(): AcademicT
 	)
 }
 
+internal fun AcademicRecordMutation.UpdateSyntheticTerm.toAcademicTerm(): AcademicTerm {
+	return AcademicTerm(
+		id = termId,
+		periodYear = periodYear,
+		periodCode = periodCode,
+		kind = TermKind.SYNTHETIC,
+		attempts = attempts.map { attempt ->
+			AcademicAttempt(
+				id = attempt.attemptId,
+				subjectCode = attempt.subjectCode,
+				subjectName = attempt.subjectName,
+				credits = attempt.credits,
+				gradingMode = attempt.gradingMode,
+				academicScore = attempt.score ?: AttemptScore.empty(),
+				academicOutcome = attempt.outcome ?: AttemptOutcome.PENDING,
+				academicBadge = AttemptBadge.NONE
+			)
+		}
+	)
+}
+
 private val AttemptScore.storageType: String
 	get() = when (this) {
 		AttemptScore.Empty -> "EMPTY"

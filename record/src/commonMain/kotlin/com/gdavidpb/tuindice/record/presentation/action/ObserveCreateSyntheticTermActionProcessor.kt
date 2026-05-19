@@ -51,13 +51,17 @@ class ObserveCreateSyntheticTermActionProcessor(
 			ObserveSyntheticTermCreationParams(
 				queryFlow = action.queryFlow,
 				selectedSubjectsFlow = action.selectedSubjectsFlow,
-				selectedPeriodKeyFlow = action.selectedPeriodKeyFlow
+				selectedPeriodKeyFlow = action.selectedPeriodKeyFlow,
+				editingTermIdFlow = action.editingTermIdFlow,
+				editingTermKeyFlow = action.editingTermKeyFlow
 			)
 		).mapNotNull { useCaseState ->
 			when (useCaseState) {
 				is UseCaseState.Data ->
 					suspend { state: CreateSyntheticTerm.State ->
 						state.copy(
+							editingTermId = useCaseState.value.editingTermId,
+							editingTermKey = useCaseState.value.editingTermKey,
 							periodOptions = useCaseState.value.periodOptions,
 							selectedPeriod = useCaseState.value.selectedPeriod,
 							selectedSubjects = useCaseState.value.selectedSubjects,
@@ -144,7 +148,9 @@ class ObserveCreateSyntheticTermActionProcessor(
 			ObserveSyntheticTermCreationParams(
 				queryFlow = action.queryFlow,
 				selectedSubjectsFlow = action.selectedSubjectsFlow,
-				selectedPeriodKeyFlow = action.selectedPeriodKeyFlow
+				selectedPeriodKeyFlow = action.selectedPeriodKeyFlow,
+				editingTermIdFlow = action.editingTermIdFlow,
+				editingTermKeyFlow = action.editingTermKeyFlow
 			)
 		)
 			.mapNotNull { useCaseState ->

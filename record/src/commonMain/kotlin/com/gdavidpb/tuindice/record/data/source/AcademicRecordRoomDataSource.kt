@@ -140,6 +140,37 @@ class AcademicRecordRoomDataSource(
 		}
 	}
 
+	override suspend fun updateSyntheticTerm(command: AcademicRecordMutation.UpdateSyntheticTerm): AcademicRecord? {
+		return writeMutex.withLock {
+			val current = getAcademicRecord() ?: return@withLock null
+			val targetTerm = current.terms.firstOrNull { term ->
+				(term.id == command.targetTermId || term.termKey == command.targetTermKey) && term.kind.isSynthetic
+			} ?: return@withLock current
+			val updatedTerms = normalizeTerms(
+				current.terms.filterNot { term ->
+					term.id == targetTerm.id || term.termKey == targetTerm.termKey
+				} + command.toAcademicTerm()
+			)
+			val availableAttemptIds = updatedTerms
+				.flatMap(AcademicTerm::attempts)
+				.map(AcademicAttempt::id)
+				.toSet()
+			val updated = current.copy(
+				terms = updatedTerms,
+				attemptOverrides = current.attemptOverrides.filter { override ->
+					override.attemptId in availableAttemptIds
+				}
+			)
+			persistVersionedRecord(
+				VersionedAcademicRecord(
+					revision = getRecordRevision() ?: 0L,
+					record = updated
+				)
+			)
+			updated
+		}
+	}
+
 	override suspend fun deleteSyntheticTerm(termId: String): AcademicRecord? {
 		return writeMutex.withLock {
 			val current = getAcademicRecord() ?: return@withLock null

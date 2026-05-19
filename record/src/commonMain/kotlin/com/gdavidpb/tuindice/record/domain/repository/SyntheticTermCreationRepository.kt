@@ -9,7 +9,9 @@ interface SyntheticTermCreationRepository {
 	fun observeSnapshot(
 		queryFlow: StateFlow<String>,
 		selectedSubjectsFlow: StateFlow<List<SyntheticTermSubject>>,
-		selectedPeriodKeyFlow: StateFlow<String?>
+		selectedPeriodKeyFlow: StateFlow<String?>,
+		editingTermIdFlow: StateFlow<String?>,
+		editingTermKeyFlow: StateFlow<String?>
 	): Flow<SyntheticTermCreationSnapshot>
 
 	suspend fun refreshSearch(query: String)

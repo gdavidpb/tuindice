@@ -19,7 +19,9 @@ class ObserveSyntheticTermCreationUseCase(
 		return repository.observeSnapshot(
 			queryFlow = params.queryFlow,
 			selectedSubjectsFlow = params.selectedSubjectsFlow,
-			selectedPeriodKeyFlow = params.selectedPeriodKeyFlow
+			selectedPeriodKeyFlow = params.selectedPeriodKeyFlow,
+			editingTermIdFlow = params.editingTermIdFlow,
+			editingTermKeyFlow = params.editingTermKeyFlow
 		)
 	}
 }

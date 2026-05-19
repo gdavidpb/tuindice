@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.presentation.route
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
@@ -11,11 +12,16 @@ import com.gdavidpb.tuindice.record.ui.screen.CreateSyntheticTermScreen
 
 @Composable
 fun CreateSyntheticTermRoute(
+	termId: String?,
 	viewModel: CreateSyntheticTermViewModel,
 	onBack: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
+
+	LaunchedEffect(termId) {
+		viewModel.configureAction(termId)
+	}
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {

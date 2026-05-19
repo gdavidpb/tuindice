@@ -22,5 +22,6 @@ interface AcademicRecordLocalDataRepository {
 	): AcademicRecord?
 	suspend fun deleteAttemptOverride(attemptId: String): AcademicRecord?
 	suspend fun addSyntheticTerm(command: AcademicRecordMutation.AddSyntheticTerm): AcademicRecord?
+	suspend fun updateSyntheticTerm(command: AcademicRecordMutation.UpdateSyntheticTerm): AcademicRecord?
 	suspend fun deleteSyntheticTerm(termId: String): AcademicRecord?
 }

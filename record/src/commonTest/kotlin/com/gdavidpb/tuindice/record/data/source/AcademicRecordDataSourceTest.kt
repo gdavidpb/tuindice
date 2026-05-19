@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
@@ -19,6 +20,7 @@ import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepos
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
 import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CompletableDeferred
@@ -428,6 +430,114 @@ class AcademicRecordDataSourceTest {
 			requireNotNull(localDataSource.getAcademicRecord()).attemptOverrides
 		)
 	}
+
+	@Test
+	fun updateSyntheticTerm_appliesLocalChange_andSubmitsPatchMutation() = runTest {
+		val retainedAttemptId = "retained-attempt"
+		val removedAttemptId = "removed-attempt"
+		val initialRecord = AcademicRecord(
+			id = "record-1",
+			terms = listOf(
+				AcademicTerm(
+					id = "2026-JUL_AUG",
+					periodYear = 2026,
+					periodCode = AcademicTermPeriod.JUL_AUG,
+					kind = TermKind.SYNTHETIC,
+					attempts = listOf(
+						AcademicAttempt(
+							id = retainedAttemptId,
+							subjectCode = "MA1111",
+							subjectName = "Matematicas I",
+							credits = 4,
+							gradingMode = AttemptGradingMode.NUMERIC
+						),
+						AcademicAttempt(
+							id = removedAttemptId,
+							subjectCode = "FS1111",
+							subjectName = "Fisica I",
+							credits = 4,
+							gradingMode = AttemptGradingMode.NUMERIC
+						)
+					)
+				)
+			),
+			attemptOverrides = listOf(
+				AttemptOverride(
+					attemptId = removedAttemptId,
+					score = AttemptScore.numeric(5),
+					updatedAtMillis = 1L
+				)
+			)
+		)
+		val updatedRecord = initialRecord.copy(
+			terms = listOf(
+				AcademicTerm(
+					id = "2026-JUL_AUG",
+					periodYear = 2026,
+					periodCode = AcademicTermPeriod.JUL_AUG,
+					kind = TermKind.SYNTHETIC,
+					attempts = listOf(
+						AcademicAttempt(
+							id = retainedAttemptId,
+							subjectCode = "MA1111",
+							subjectName = "Matematicas I",
+							credits = 4,
+							gradingMode = AttemptGradingMode.NUMERIC
+						)
+					)
+				)
+			),
+			attemptOverrides = emptyList()
+		)
+		val localDataSource = FakeAcademicRecordLocalDataRepository(
+			record = VersionedAcademicRecord(
+				revision = 12L,
+				record = initialRecord
+			)
+		)
+		val remoteDataSource = ControlledAcademicRecordRemoteDataRepository(
+			upsertResponse = VersionedAcademicRecord(
+				revision = 13L,
+				record = updatedRecord
+			)
+		)
+		val dataSource = AcademicRecordDataSource(
+			localDataSource = localDataSource,
+			remoteDataSource = remoteDataSource,
+			settingsDataSource = FakeRecordSettingsDataRepository(),
+			mutationEngine = createMutationEngine(this),
+			identifierRepository = FakeIdentifierRepository()
+		)
+
+		dataSource.updateSyntheticTerm(
+			SyntheticTermUpdateCommand(
+				targetTermId = "2026-JUL_AUG",
+				targetTermKey = "2026-JUL_AUG",
+				termId = "2026-JUL_AUG",
+				periodYear = 2026,
+				periodCode = AcademicTermPeriod.JUL_AUG,
+				attempts = listOf(
+					SyntheticTermUpdateCommand.SyntheticAttemptSeed(
+						attemptId = retainedAttemptId,
+						subjectCode = "MA1111",
+						subjectName = "Matematicas I",
+						credits = 4,
+						gradingMode = AttemptGradingMode.NUMERIC,
+						score = AttemptScore.empty(),
+						outcome = AttemptOutcome.PENDING
+					)
+				)
+			)
+		)
+
+		assertEquals(1, remoteDataSource.updateSyntheticTermCalls)
+		assertEquals(listOf("mutation-1"), remoteDataSource.updateSyntheticTermMutationIds)
+		assertEquals(listOf(12L), remoteDataSource.updateSyntheticTermExpectedRevisions)
+		assertEquals(listOf("MA1111"), remoteDataSource.updateSyntheticTermCommands.single().attempts.map { attempt ->
+			attempt.subjectCode
+		})
+		assertEquals(updatedRecord, requireNotNull(localDataSource.getAcademicRecord()))
+	}
 }
 
 private fun defaultVersionedRecord(
@@ -533,6 +643,26 @@ private class FakeAcademicRecordLocalDataRepository(
 		return updated
 	}
 
+	override suspend fun updateSyntheticTerm(command: AcademicRecordMutation.UpdateSyntheticTerm): AcademicRecord {
+		val current = requireNotNull(recordState.value)
+		val updatedTerms = current.terms.filterNot { term ->
+			term.id == command.targetTermId || term.termKey == command.targetTermKey
+		} + command.toAcademicTerm()
+		val availableAttemptIds = updatedTerms
+			.flatMap(AcademicTerm::attempts)
+			.map(AcademicAttempt::id)
+			.toSet()
+		val updated = current.copy(
+			terms = updatedTerms.sortedWith(compareBy(AcademicTerm::termOrder, AcademicTerm::id)),
+			attemptOverrides = current.attemptOverrides.filter { override ->
+				override.attemptId in availableAttemptIds
+			}
+		)
+		recordState.value = updated
+		stateHistory += updated
+		return updated
+	}
+
 	override suspend fun deleteSyntheticTerm(termId: String): AcademicRecord {
 		val current = requireNotNull(recordState.value)
 		val updated = current.copy(
@@ -561,10 +691,14 @@ private class ControlledAcademicRecordRemoteDataRepository(
 	var getRecordCalls = 0
 	var upsertAttemptCalls = 0
 	var deleteAttemptCalls = 0
+	var updateSyntheticTermCalls = 0
 	val upsertAttemptMutationIds = mutableListOf<String>()
 	val upsertAttemptExpectedRevisions = mutableListOf<Long>()
 	val deleteAttemptMutationIds = mutableListOf<String>()
 	val deleteAttemptExpectedRevisions = mutableListOf<Long>()
+	val updateSyntheticTermMutationIds = mutableListOf<String>()
+	val updateSyntheticTermExpectedRevisions = mutableListOf<Long>()
+	val updateSyntheticTermCommands = mutableListOf<AcademicRecordMutation.UpdateSyntheticTerm>()
 
 	override suspend fun getAcademicRecord(): VersionedAcademicRecord {
 		getRecordCalls += 1
@@ -605,6 +739,18 @@ private class ControlledAcademicRecordRemoteDataRepository(
 		mutationId: String,
 		expectedRevision: Long
 	): VersionedAcademicRecord = upsertResponse
+
+	override suspend fun updateSyntheticTerm(
+		command: AcademicRecordMutation.UpdateSyntheticTerm,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord {
+		updateSyntheticTermCalls += 1
+		updateSyntheticTermCommands += command
+		updateSyntheticTermMutationIds += mutationId
+		updateSyntheticTermExpectedRevisions += expectedRevision
+		return upsertResponse
+	}
 
 	override suspend fun deleteSyntheticTerm(
 		termId: String,
@@ -666,6 +812,12 @@ private class RebasingAcademicRecordRemoteDataRepository(
 		expectedRevision: Long
 	): VersionedAcademicRecord = latestResponse
 
+	override suspend fun updateSyntheticTerm(
+		command: AcademicRecordMutation.UpdateSyntheticTerm,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord = latestResponse
+
 	override suspend fun deleteSyntheticTerm(
 		termId: String,
 		mutationId: String,
@@ -711,6 +863,12 @@ private class DelayedSequentialUpsertAcademicRecordRemoteDataRepository(
 
 	override suspend fun addSyntheticTerm(
 		command: AcademicRecordMutation.AddSyntheticTerm,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord = secondResponse
+
+	override suspend fun updateSyntheticTerm(
+		command: AcademicRecordMutation.UpdateSyntheticTerm,
 		mutationId: String,
 		expectedRevision: Long
 	): VersionedAcademicRecord = secondResponse

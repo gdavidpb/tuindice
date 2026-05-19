@@ -51,7 +51,9 @@ class ObserveCreateSyntheticTermActionProcessorTest {
 			action = CreateSyntheticTerm.Action.Observe(
 				queryFlow = MutableStateFlow(""),
 				selectedSubjectsFlow = selectedSubjectsFlow,
-				selectedPeriodKeyFlow = selectedPeriodKeyFlow
+				selectedPeriodKeyFlow = selectedPeriodKeyFlow,
+				editingTermIdFlow = MutableStateFlow(null),
+				editingTermKeyFlow = MutableStateFlow(null)
 			),
 			sideEffect = {}
 		).test {
@@ -111,7 +113,9 @@ private class FakeSyntheticTermCreationRepository(
 	override fun observeSnapshot(
 		queryFlow: StateFlow<String>,
 		selectedSubjectsFlow: StateFlow<List<SyntheticTermSubject>>,
-		selectedPeriodKeyFlow: StateFlow<String?>
+		selectedPeriodKeyFlow: StateFlow<String?>,
+		editingTermIdFlow: StateFlow<String?>,
+		editingTermKeyFlow: StateFlow<String?>
 	): Flow<SyntheticTermCreationSnapshot> {
 		return combine(
 			selectedSubjectsFlow,

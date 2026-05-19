@@ -85,6 +85,7 @@ fun TermProjection.toTermItem(
 		},
 		isCurrent = isCurrent,
 		canDelete = canDelete,
+		canEdit = canEditTerm(viewMode),
 		attempts = attempts.map { attempt ->
 			attempt.toAttemptItem(
 				isReadOnly = isAttemptReadOnly(viewMode),
@@ -100,6 +101,10 @@ internal fun TermProjection.isCurrentTerm(): Boolean {
 
 internal fun TermProjection.canDeleteTerm(): Boolean {
 	return kind.isSynthetic
+}
+
+internal fun TermProjection.canEditTerm(viewMode: RecordViewMode): Boolean {
+	return viewMode == RecordViewMode.Projection && kind.isSynthetic
 }
 
 internal fun TermProjection.isAttemptReadOnly(viewMode: RecordViewMode): Boolean {

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -15,6 +16,10 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Edit
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -33,15 +38,20 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import org.jetbrains.compose.resources.stringResource
+import tuindice.record.generated.resources.Res
+import tuindice.record.generated.resources.label_edit_synthetic_term
 
 @Composable
 fun TermSelectorView(
 	modifier: Modifier = Modifier,
 	terms: List<TermItem>,
 	selectedTermId: String?,
-	onTermSelected: (termId: String) -> Unit
+	onTermSelected: (termId: String) -> Unit,
+	onEditTermClick: (termId: String) -> Unit
 ) {
 	val lazyListState = rememberLazyListState()
+	val editDescription = stringResource(Res.string.label_edit_synthetic_term)
 
 	LaunchedEffect(
 		terms.map { term -> term.termId },
@@ -102,11 +112,13 @@ fun TermSelectorView(
 						.testTag(RecordUiTags.termChip(term.termId)),
 					contentAlignment = Alignment.Center
 				) {
-					Box(
-						contentAlignment = Alignment.Center
+					Row(
+						modifier = Modifier.fillMaxWidth(),
+						horizontalArrangement = Arrangement.Center,
+						verticalAlignment = Alignment.CenterVertically
 					) {
 						Text(
-							modifier = Modifier.padding(end = if (term.isCurrent) 14.dp else 0.dp),
+							modifier = Modifier.weight(1f, fill = false),
 							text = term.shortNameText,
 							style = MaterialTheme.typography.titleLarge,
 							fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium,
@@ -123,13 +135,27 @@ fun TermSelectorView(
 						if (term.isCurrent) {
 							Box(
 								modifier = Modifier
-									.align(Alignment.CenterEnd)
 									.padding(start = 8.dp)
 									.size(8.dp)
 									.clip(CircleShape)
 									.background(MaterialTheme.colorScheme.primary)
 									.testTag(RecordUiTags.termCurrentChip(term.termId))
 							)
+						}
+
+						if (isSelected && term.canEdit) {
+							IconButton(
+								modifier = Modifier
+									.padding(start = 4.dp)
+									.size(40.dp)
+									.testTag(RecordUiTags.EditSyntheticTermButton),
+								onClick = { onEditTermClick(term.termId) }
+							) {
+								Icon(
+									imageVector = Icons.Outlined.Edit,
+									contentDescription = editDescription
+								)
+							}
 						}
 					}
 				}

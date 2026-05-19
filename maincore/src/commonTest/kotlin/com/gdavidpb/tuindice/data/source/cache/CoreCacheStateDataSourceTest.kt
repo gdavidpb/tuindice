@@ -103,6 +103,8 @@ private class FakeAcademicRecordLocalDataRepository(
 
 	override suspend fun addSyntheticTerm(command: AcademicRecordMutation.AddSyntheticTerm): AcademicRecord? = null
 
+	override suspend fun updateSyntheticTerm(command: AcademicRecordMutation.UpdateSyntheticTerm): AcademicRecord? = null
+
 	override suspend fun deleteSyntheticTerm(termId: String): AcademicRecord? = null
 }
 

@@ -55,6 +55,13 @@ class AcademicRecordMutationSyncSpec(
 					expectedRevision = expectedRevision
 				)
 
+			is AcademicRecordMutation.UpdateSyntheticTerm ->
+				remoteDataSource.updateSyntheticTerm(
+					command = command,
+					mutationId = mutation.mutationId,
+					expectedRevision = expectedRevision
+				)
+
 			is AcademicRecordMutation.DeleteSyntheticTerm ->
 				remoteDataSource.deleteSyntheticTerm(
 					termId = command.termId,
@@ -103,6 +110,7 @@ class AcademicRecordMutationSyncSpec(
 				)
 
 			is AcademicRecordMutation.AddSyntheticTerm,
+			is AcademicRecordMutation.UpdateSyntheticTerm,
 			is AcademicRecordMutation.DeleteSyntheticTerm ->
 				resolveGenericRecordFailure(
 					mutation = mutation,

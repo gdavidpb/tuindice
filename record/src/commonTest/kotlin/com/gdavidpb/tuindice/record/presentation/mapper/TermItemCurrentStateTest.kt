@@ -37,6 +37,14 @@ class TermItemCurrentStateTest {
 	}
 
 	@Test
+	fun canEditTerm_returnsTrue_onlyForSyntheticTermsInProjectionMode() {
+		assertTrue(termProjection(kind = TermKind.SYNTHETIC).canEditTerm(RecordViewMode.Projection))
+		assertFalse(termProjection(kind = TermKind.SYNTHETIC).canEditTerm(RecordViewMode.Historical))
+		assertFalse(termProjection(kind = TermKind.CURRENT).canEditTerm(RecordViewMode.Projection))
+		assertFalse(termProjection(kind = TermKind.HISTORICAL).canEditTerm(RecordViewMode.Projection))
+	}
+
+	@Test
 	fun isAttemptReadOnly_returnsTrue_forHistoricalTerms() {
 		val term = termProjection(kind = TermKind.HISTORICAL)
 

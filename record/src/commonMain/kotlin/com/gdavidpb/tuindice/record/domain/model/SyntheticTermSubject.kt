@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.record.domain.model
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 
 data class SyntheticTermSubject(
+	val attemptId: String? = null,
 	val subjectCode: String,
 	val name: String,
 	val credits: Int,

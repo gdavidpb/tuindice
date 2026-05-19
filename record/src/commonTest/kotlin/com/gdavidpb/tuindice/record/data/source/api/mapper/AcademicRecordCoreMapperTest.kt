@@ -112,6 +112,37 @@ class AcademicRecordCoreMapperTest {
 	}
 
 	@Test
+	fun updateSyntheticTermRequest_includesMutationMetadata() {
+		val request = AcademicRecordMutation.UpdateSyntheticTerm(
+			targetTermId = "2027-JUL_AUG",
+			targetTermKey = "2027-JUL_AUG",
+			termId = "2027-SEP_DEC",
+			periodYear = 2027,
+			periodCode = AcademicTermPeriod.SEP_DEC,
+			attempts = listOf(
+				AcademicRecordMutation.UpdateSyntheticTerm.SyntheticAttemptSeed(
+					attemptId = "attempt-1",
+					subjectCode = "MAT101",
+					subjectName = "Calculo I",
+					credits = 4,
+					gradingMode = AttemptGradingMode.NUMERIC,
+					score = AttemptScore.empty(),
+					outcome = AttemptOutcome.PENDING
+				)
+			)
+		).toUpdateSyntheticTermRequest(
+			mutationId = "mutation-4",
+			expectedRevision = 10L
+		)
+
+		assertEquals("mutation-4", request.mutationId)
+		assertEquals(10L, request.expectedRevision)
+		assertEquals(2027, request.periodYear)
+		assertEquals(AcademicTermPeriod.SEP_DEC, request.periodCode)
+		assertEquals(listOf("MAT101"), request.subjectCodes)
+	}
+
+	@Test
 	fun buildDeleteOverlayMutationRequest_preservesMutationMetadata() {
 		val request = buildDeleteOverlayMutationRequest(
 			mutationId = "mutation-3",

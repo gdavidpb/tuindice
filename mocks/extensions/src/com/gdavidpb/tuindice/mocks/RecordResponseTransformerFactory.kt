@@ -22,7 +22,8 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 		private val lock = Any()
 		private val baseState: BaseState = readBaseState(services.files)
 		private val state = RuntimeState(
-			recordRevision = initialRevision(baseState)
+			recordRevision = initialRevision(baseState),
+			terms = baseState.terms.toMutableList()
 		)
 
 		override fun getName(): String = "record-response-transformer"
@@ -39,6 +40,7 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 				isDeleteAttemptRequest(request, pathSegments) -> deleteAttemptResponse(request, pathSegments[4])
 				isLoadPreviewRequest(request, pathSegments) -> loadPreviewResponse(request)
 				isPostTermRequest(request, pathSegments) -> postTermResponse(request)
+				isPatchTermRequest(request, pathSegments) -> patchTermResponse(request, pathSegments[4])
 				isDeleteTermRequest(request, pathSegments) -> deleteTermResponse(request, pathSegments[4])
 				else -> jsonResponse(404, mapOf("error" to "record_endpoint_not_found"), ERROR_DELAY_MS)
 			}
@@ -132,6 +134,14 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 
 		private fun isPostTermRequest(request: com.github.tomakehurst.wiremock.http.Request, pathSegments: List<String>): Boolean =
 			request.method == RequestMethod.POST && pathSegments == listOf("record", "v5", "overlay", "terms")
+
+		private fun isPatchTermRequest(request: com.github.tomakehurst.wiremock.http.Request, pathSegments: List<String>): Boolean =
+			request.method == RequestMethod.PATCH &&
+				pathSegments.size == 5 &&
+				pathSegments[0] == "record" &&
+				pathSegments[1] == "v5" &&
+				pathSegments[2] == "overlay" &&
+				pathSegments[3] == "terms"
 
 		private fun isLoadPreviewRequest(request: com.github.tomakehurst.wiremock.http.Request, pathSegments: List<String>): Boolean =
 			request.method == RequestMethod.POST &&
@@ -247,6 +257,10 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			val periodCode = root.path("period_code").takeIf(JsonNode::isTextual)?.asText()
 				?.takeIf(PERIODS_BY_CODE::containsKey)
 				?: return invalidPayload()
+			val termKey = "$periodYear-$periodCode"
+			if (visibleTerms().any { term -> term.termKey == termKey }) {
+				return jsonResponse(412, mapOf("error" to "term_already_exists"), ERROR_DELAY_MS)
+			}
 			val subjectCodes = root.get("subject_codes")
 				?.takeIf(JsonNode::isArray)
 				?.takeIf { it.size() > 0 }
@@ -268,6 +282,67 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			val responseBody = buildRecordResponse()
 			state.mutationResults[mutationId] = responseBody
 			return jsonResponse(200, responseBody, POST_DELAY_MS)
+		}
+
+		private fun patchTermResponse(
+			request: com.github.tomakehurst.wiremock.http.Request,
+			termKey: String,
+		): ResponseDefinition {
+			val root = parseBody(request) ?: return invalidPayload()
+			val mutationId = root.path("mutation_id").takeIf { it.isTextual }?.asText()
+				?: return invalidPayload()
+			val expectedRevision = root.path("expected_revision").takeIf { it.canConvertToLong() }?.asLong()
+				?: return invalidPayload()
+
+			state.mutationResults[mutationId]?.let { cachedResponse ->
+				return jsonResponse(200, cachedResponse, PATCH_DELAY_MS)
+			}
+
+			if (expectedRevision != state.recordRevision) {
+				return jsonResponse(412, mapOf("error" to "precondition_failed"), ERROR_DELAY_MS)
+			}
+
+			val targetTerm = visibleTerms().firstOrNull { term ->
+				term.termKey == termKey && term.kind == SYNTHETIC_TERM_KIND
+			}
+				?: return jsonResponse(404, mapOf("error" to "term_not_found"), ERROR_DELAY_MS)
+			val periodYear = root.path("period_year").takeIf { it.canConvertToInt() }?.asInt()
+				?: return invalidPayload()
+			val periodCode = root.path("period_code").takeIf(JsonNode::isTextual)?.asText()
+				?.takeIf(PERIODS_BY_CODE::containsKey)
+				?: return invalidPayload()
+			val subjectCodes = root.get("subject_codes")
+				?.takeIf(JsonNode::isArray)
+				?.takeIf { it.size() > 0 }
+				?.mapNotNull { node -> node.takeIf(JsonNode::isTextual)?.asText()?.trim()?.takeIf(String::isNotBlank) }
+				?: return invalidPayload()
+			if (subjectCodes.distinct().size != subjectCodes.size) return invalidPayload()
+
+			val updatedTermKey = "$periodYear-$periodCode"
+			val duplicatedTerm = visibleTerms().any { term ->
+				term.termKey == updatedTermKey && term.termKey != targetTerm.termKey
+			}
+			if (duplicatedTerm) {
+				return jsonResponse(412, mapOf("error" to "term_already_exists"), ERROR_DELAY_MS)
+			}
+
+			val nextRevision = state.recordRevision + 1
+			val updatedTerm = buildSyntheticTerm(
+				periodYear = periodYear,
+				periodCode = periodCode,
+				subjectCodes = subjectCodes,
+				revision = nextRevision,
+			)
+
+			state.recordRevision = nextRevision
+			replaceSyntheticTerm(targetTerm = targetTerm, updatedTerm = updatedTerm)
+			val updatedAttemptIds = updatedTerm.attempts.map(AttemptModel::id).toSet()
+			val removedTargetAttemptIds = targetTerm.attempts.map(AttemptModel::id).toSet() - updatedAttemptIds
+			state.overridesByAttemptId.keys.removeAll(removedTargetAttemptIds)
+
+			val responseBody = buildRecordResponse()
+			state.mutationResults[mutationId] = responseBody
+			return jsonResponse(200, responseBody, PATCH_DELAY_MS)
 		}
 
 		private fun loadPreviewResponse(request: com.github.tomakehurst.wiremock.http.Request): ResponseDefinition {
@@ -392,7 +467,7 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 		}
 
 		private fun catalogAttempt(subjectCode: String): AttemptModel? =
-			baseState.terms.asSequence()
+			visibleTerms().asSequence()
 				.flatMap { term -> term.attempts.asSequence() }
 				.firstOrNull { attempt -> attempt.code.equals(subjectCode, ignoreCase = true) }
 
@@ -402,8 +477,20 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 				.flatMap { term -> term.attempts.asSequence() }
 				.firstOrNull { attempt -> attempt.id == attemptId && attempt.mutable }
 
+		private fun replaceSyntheticTerm(targetTerm: TermModel, updatedTerm: TermModel) {
+			if (state.addedTerm?.termKey == targetTerm.termKey) {
+				state.addedTerm = updatedTerm
+				return
+			}
+
+			val targetIndex = state.terms.indexOfFirst { term -> term.termKey == targetTerm.termKey }
+			if (targetIndex >= 0) {
+				state.terms[targetIndex] = updatedTerm
+			}
+		}
+
 		private fun visibleTerms(): List<TermModel> =
-			(baseState.terms + listOfNotNull(state.addedTerm))
+			(state.terms + listOfNotNull(state.addedTerm))
 				.sortedWith(DESCENDING_TERM_ORDER)
 
 		private fun buildRecordResponse(): Map<String, Any> {
@@ -502,6 +589,7 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 
 		private data class RuntimeState(
 			var recordRevision: Long,
+			val terms: MutableList<TermModel>,
 			var addedTerm: TermModel? = null,
 			val overridesByAttemptId: LinkedHashMap<String, AttemptOverrideState> = linkedMapOf(),
 			val mutationResults: MutableMap<String, Map<String, Any>> = linkedMapOf(),
@@ -645,6 +733,7 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			private const val PUT_DELAY_MS = 1500
 			private const val DELETE_DELAY_MS = 1000
 			private const val POST_DELAY_MS = 1200
+			private const val PATCH_DELAY_MS = 1200
 			private const val ERROR_DELAY_MS = 1000
 			private const val DEFAULT_ADDED_ATTEMPT_CREDITS = 4
 			private const val MIN_NUMERIC_SCORE = 0
@@ -655,6 +744,7 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			private const val NUMERIC_GRADING_MODE = "numeric"
 			private const val QUALITATIVE_GRADING_MODE = "qualitative_pass_fail"
 			private const val NORMAL_STATUS = "normal"
+			private const val SYNTHETIC_TERM_KIND = "synthetic"
 			private const val PENDING_OUTCOME = "pending"
 			private const val APPROVED_OUTCOME = "approved"
 			private const val FAILED_OUTCOME = "failed"

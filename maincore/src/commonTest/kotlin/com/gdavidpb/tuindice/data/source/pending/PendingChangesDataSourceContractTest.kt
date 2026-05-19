@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.PendingMutationEntity
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_SCOPE
 import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
@@ -277,6 +278,8 @@ private class FakeAcademicRecordRepository(
 	override suspend fun deleteAttemptOverride(attemptId: String) = Unit
 
 	override suspend fun addSyntheticTerm(command: SyntheticTermCreationCommand) = Unit
+
+	override suspend fun updateSyntheticTerm(command: SyntheticTermUpdateCommand) = Unit
 
 	override suspend fun deleteSyntheticTerm(termId: String) = Unit
 }

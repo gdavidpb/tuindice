@@ -49,7 +49,8 @@ fun RecordScreen(
 		newOutcome: AttemptOutcome?,
 		isSelected: Boolean
 	) -> Unit,
-	onCreateSyntheticTermClick: () -> Unit
+	onCreateSyntheticTermClick: () -> Unit,
+	onUpdateSyntheticTermClick: (termId: String) -> Unit = {}
 ) {
 	val contentScrollInProgress = remember { mutableStateOf(false) }
 
@@ -73,6 +74,7 @@ fun RecordScreen(
 						selectedTermId = selectedTermId,
 						onSelectedTermChange = onSelectedTermChange,
 						onAttemptSelectionChange = onAttemptSelectionChange,
+						onUpdateSyntheticTermClick = onUpdateSyntheticTermClick,
 						onScrollInProgressChange = { isScrollInProgress ->
 							contentScrollInProgress.value = isScrollInProgress
 						}

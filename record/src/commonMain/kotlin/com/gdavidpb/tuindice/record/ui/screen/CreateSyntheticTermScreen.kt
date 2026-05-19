@@ -258,6 +258,7 @@ fun CreateSyntheticTermScreen(
 		CreateTermSubmitBar(
 			selectedCount = state.selectedSubjects.size,
 			canCreate = state.canCreate,
+			isEditing = state.isEditing,
 			onCreateClick = onCreateClick,
 			modifier = Modifier.align(Alignment.BottomCenter)
 		)

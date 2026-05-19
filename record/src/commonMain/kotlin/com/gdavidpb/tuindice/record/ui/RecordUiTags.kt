@@ -13,6 +13,7 @@ object RecordUiTags {
 	const val TopBarViewModeInfoButton = "record_top_bar_view_mode_info_button"
 	const val ViewModeInfoMessage = "record_view_mode_info_message"
 	const val CreateSyntheticTermFab = "record_create_synthetic_term_fab"
+	const val EditSyntheticTermButton = "record_edit_synthetic_term_button"
 	const val CreateSyntheticTermScreen = "record_create_synthetic_term_screen"
 	const val CreateSyntheticTermPeriodSelector = "record_create_synthetic_term_period_selector"
 	const val CreateSyntheticTermSearchField = "record_create_synthetic_term_search_field"

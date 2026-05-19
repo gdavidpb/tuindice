@@ -24,12 +24,14 @@ import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermCreationRepos
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermLoadPreviewRepository
 import com.gdavidpb.tuindice.record.domain.usecase.CreateSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermPreviewUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermEditSeedUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermCreationUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RefreshSyntheticTermSubjectSearchUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateRecordUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.UpdateSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpsertAttemptSelectionUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExceptionHandler
 import com.gdavidpb.tuindice.record.presentation.action.CreateSyntheticTermActionProcessor
@@ -80,6 +82,8 @@ val recordModule = module {
 	factoryOf(::RefreshSyntheticTermSubjectSearchUseCase)
 	factoryOf(::LoadSyntheticTermPreviewUseCase)
 	factoryOf(::CreateSyntheticTermUseCase)
+	factoryOf(::UpdateSyntheticTermUseCase)
+	factoryOf(::LoadSyntheticTermEditSeedUseCase)
 
 	/* Repositories */
 

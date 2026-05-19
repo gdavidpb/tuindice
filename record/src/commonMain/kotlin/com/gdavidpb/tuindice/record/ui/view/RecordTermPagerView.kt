@@ -32,6 +32,7 @@ fun RecordTermPagerView(
 		newOutcome: AttemptOutcome?,
 		isSelected: Boolean
 	) -> Unit,
+	onUpdateSyntheticTermClick: (termId: String) -> Unit,
 	onScrollInProgressChange: (Boolean) -> Unit
 ) {
 	val termIds = remember(terms) {
@@ -81,7 +82,8 @@ fun RecordTermPagerView(
 				),
 			terms = terms,
 			selectedTermId = termIds.getOrNull(pagerState.currentPage) ?: selectedTermId,
-			onTermSelected = onSelectedTermChange
+			onTermSelected = onSelectedTermChange,
+			onEditTermClick = onUpdateSyntheticTermClick
 		)
 
 		HorizontalPager(

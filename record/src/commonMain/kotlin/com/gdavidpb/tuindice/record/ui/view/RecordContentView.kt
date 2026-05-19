@@ -45,6 +45,7 @@ fun RecordContentView(
 		newOutcome: AttemptOutcome?,
 		isSelected: Boolean
 	) -> Unit,
+	onUpdateSyntheticTermClick: (termId: String) -> Unit,
 	onScrollInProgressChange: (Boolean) -> Unit = {}
 ) {
 	val termGradeDiffPattern = stringResource(Res.string.term_grade_diff_pattern)
@@ -103,6 +104,7 @@ fun RecordContentView(
 				selectedTermId = effectiveSelectedTermId,
 				onSelectedTermChange = onSelectedTermChange,
 				onAttemptSelectionChange = onAttemptSelectionChange,
+				onUpdateSyntheticTermClick = onUpdateSyntheticTermClick,
 				onScrollInProgressChange = onScrollInProgressChange
 			)
 		}

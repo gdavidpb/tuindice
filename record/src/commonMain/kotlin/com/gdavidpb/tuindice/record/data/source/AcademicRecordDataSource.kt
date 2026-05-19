@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepos
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
 import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
@@ -148,6 +149,24 @@ class AcademicRecordDataSource(
 		submitTrackedMutation(mutation = mutation)
 	}
 
+	override suspend fun updateSyntheticTerm(command: SyntheticTermUpdateCommand) {
+		localDataSource.getAcademicRecord() ?: return
+		val currentRevision = localDataSource.getRecordRevision() ?: return
+		val mutationCommand = command.toMutation()
+		localDataSource.updateSyntheticTerm(mutationCommand)
+		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
+			mutationId = identifierRepository.generateRandomIdentifier(),
+			scopeKey = RECORD_MUTATION_SCOPE,
+			command = mutationCommand,
+			precondition = MutationPrecondition.Revision(currentRevision),
+			status = PendingMutationStatus.Pending,
+			createdAt = currentTimeMillis(),
+			updatedAt = currentTimeMillis(),
+			lastError = null
+		)
+		submitTrackedMutation(mutation = mutation)
+	}
+
 	override suspend fun deleteSyntheticTerm(termId: String) {
 		localDataSource.getAcademicRecord() ?: return
 		val currentRevision = localDataSource.getRecordRevision() ?: return
@@ -240,6 +259,25 @@ class AcademicRecordDataSource(
 					)
 				)
 
+			is AcademicRecordMutation.UpdateSyntheticTerm -> {
+				val updatedTerms = normalizeTerms(
+					terms.filterNot { term ->
+						term.id == mutation.targetTermId || term.termKey == mutation.targetTermKey
+					} + mutation.toAcademicTerm()
+				)
+				val availableAttemptIds = updatedTerms
+					.flatMap(AcademicTerm::attempts)
+					.map(AcademicAttempt::id)
+					.toSet()
+
+				copy(
+					terms = updatedTerms,
+					attemptOverrides = attemptOverrides.filter { override ->
+						override.attemptId in availableAttemptIds
+					}
+				)
+			}
+
 			is AcademicRecordMutation.DeleteSyntheticTerm -> {
 				val removedAttemptIds = terms.firstOrNull { term -> term.id == mutation.termId }
 					?.attempts
@@ -269,6 +307,27 @@ class AcademicRecordDataSource(
 			periodCode = periodCode,
 			attempts = attempts.map { attempt ->
 				AcademicRecordMutation.AddSyntheticTerm.SyntheticAttemptSeed(
+					attemptId = attempt.attemptId,
+					subjectCode = attempt.subjectCode,
+					subjectName = attempt.subjectName,
+					credits = attempt.credits,
+					gradingMode = attempt.gradingMode,
+					score = attempt.score,
+					outcome = attempt.outcome
+				)
+			}
+		)
+	}
+
+	private fun SyntheticTermUpdateCommand.toMutation(): AcademicRecordMutation.UpdateSyntheticTerm {
+		return AcademicRecordMutation.UpdateSyntheticTerm(
+			targetTermId = targetTermId,
+			targetTermKey = targetTermKey,
+			termId = termId,
+			periodYear = periodYear,
+			periodCode = periodCode,
+			attempts = attempts.map { attempt ->
+				AcademicRecordMutation.UpdateSyntheticTerm.SyntheticAttemptSeed(
 					attemptId = attempt.attemptId,
 					subjectCode = attempt.subjectCode,
 					subjectName = attempt.subjectName,

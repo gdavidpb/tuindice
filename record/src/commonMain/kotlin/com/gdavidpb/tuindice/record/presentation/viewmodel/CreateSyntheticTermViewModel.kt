@@ -1,34 +1,68 @@
 package com.gdavidpb.tuindice.record.presentation.viewmodel
 
+import androidx.lifecycle.viewModelScope
+import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
+import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermEditSeedUseCase
 import com.gdavidpb.tuindice.record.presentation.action.CreateSyntheticTermActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.ObserveCreateSyntheticTermActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.UpdateCreateSyntheticTermQueryActionProcessor
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.launch
 
 class CreateSyntheticTermViewModel(
 	private val observeCreateSyntheticTermActionProcessor: ObserveCreateSyntheticTermActionProcessor,
 	private val updateCreateSyntheticTermQueryActionProcessor: UpdateCreateSyntheticTermQueryActionProcessor,
-	private val createSyntheticTermActionProcessor: CreateSyntheticTermActionProcessor
+	private val createSyntheticTermActionProcessor: CreateSyntheticTermActionProcessor,
+	private val loadSyntheticTermEditSeedUseCase: LoadSyntheticTermEditSeedUseCase
 ) : BaseViewModel<CreateSyntheticTerm.State, CreateSyntheticTerm.Action, CreateSyntheticTerm.Effect>(
 	initialState = CreateSyntheticTerm.State()
 ) {
 	private val queryFlow = MutableStateFlow("")
 	private val selectedSubjectsFlow = MutableStateFlow<List<SyntheticTermSubject>>(emptyList())
 	private val selectedPeriodKeyFlow = MutableStateFlow<String?>(null)
+	private val editingTermIdFlow = MutableStateFlow<String?>(null)
+	private val editingTermKeyFlow = MutableStateFlow<String?>(null)
+	private var configuredTermId: String? = null
 
 	init {
 		sendAction(
 			CreateSyntheticTerm.Action.Observe(
 				queryFlow = queryFlow,
 				selectedSubjectsFlow = selectedSubjectsFlow,
-				selectedPeriodKeyFlow = selectedPeriodKeyFlow
+				selectedPeriodKeyFlow = selectedPeriodKeyFlow,
+				editingTermIdFlow = editingTermIdFlow,
+				editingTermKeyFlow = editingTermKeyFlow
 			)
 		)
+	}
+
+	fun configureAction(termId: String?) {
+		if (configuredTermId == termId) return
+		configuredTermId = termId
+		if (termId == null) {
+			editingTermIdFlow.value = null
+			editingTermKeyFlow.value = null
+			selectedPeriodKeyFlow.value = null
+			selectedSubjectsFlow.value = emptyList()
+			return
+		}
+
+		viewModelScope.launch {
+			loadSyntheticTermEditSeedUseCase.execute(termId).collect { useCaseState ->
+				if (useCaseState is UseCaseState.Data) {
+					val seed = useCaseState.value
+					selectedPeriodKeyFlow.value = seed.period.termKey
+					selectedSubjectsFlow.value = seed.subjects
+					editingTermKeyFlow.value = seed.termKey
+					editingTermIdFlow.value = seed.termId
+				}
+			}
+		}
 	}
 
 	fun updateQueryAction(query: String) {
@@ -64,6 +98,8 @@ class CreateSyntheticTermViewModel(
 
 		sendAction(
 			CreateSyntheticTerm.Action.CreateTerm(
+				editingTermId = currentState.editingTermId,
+				editingTermKey = currentState.editingTermKey,
 				period = period,
 				subjects = subjects
 			)

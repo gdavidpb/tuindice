@@ -23,12 +23,14 @@ import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.create_term_button
+import tuindice.record.generated.resources.edit_term_button
 import tuindice.record.generated.resources.create_term_selected_count
 
 @Composable
 fun CreateTermSubmitBar(
 	selectedCount: Int,
 	canCreate: Boolean,
+	isEditing: Boolean,
 	onCreateClick: () -> Unit,
 	modifier: Modifier = Modifier
 ) {
@@ -68,7 +70,9 @@ fun CreateTermSubmitBar(
 				shape = RoundedCornerShape(999.dp)
 			) {
 				Text(
-					text = stringResource(Res.string.create_term_button),
+					text = stringResource(
+						if (isEditing) Res.string.edit_term_button else Res.string.create_term_button
+					),
 					maxLines = 1,
 					overflow = TextOverflow.Ellipsis
 				)

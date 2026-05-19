@@ -10,10 +10,17 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import kotlinx.coroutines.flow.StateFlow
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.top_bar_create_synthetic_term
+import tuindice.record.generated.resources.top_bar_edit_synthetic_term
 
 object CreateSyntheticTerm {
 	data class State(
-		override val topBarTitle: UiText = UiText.Resource(Res.string.top_bar_create_synthetic_term),
+		val editingTermId: String? = null,
+		val editingTermKey: String? = null,
+		override val topBarTitle: UiText =
+			if (editingTermId == null)
+				UiText.Resource(Res.string.top_bar_create_synthetic_term)
+			else
+				UiText.Resource(Res.string.top_bar_edit_synthetic_term),
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = false,
 		val query: String = "",
@@ -31,17 +38,24 @@ object CreateSyntheticTerm {
 	) : ViewState() {
 		val canCreate: Boolean
 			get() = selectedPeriod != null && selectedSubjects.isNotEmpty() && !isCreating
+
+		val isEditing: Boolean
+			get() = editingTermId != null
 	}
 
 	sealed class Action : ViewAction() {
 		data class Observe(
 			val queryFlow: StateFlow<String>,
 			val selectedSubjectsFlow: StateFlow<List<SyntheticTermSubject>>,
-			val selectedPeriodKeyFlow: StateFlow<String?>
+			val selectedPeriodKeyFlow: StateFlow<String?>,
+			val editingTermIdFlow: StateFlow<String?>,
+			val editingTermKeyFlow: StateFlow<String?>
 		) : Action()
 
 		data class UpdateQuery(val query: String) : Action()
 		data class CreateTerm(
+			val editingTermId: String?,
+			val editingTermKey: String?,
 			val period: SyntheticTermPeriodOption,
 			val subjects: List<SyntheticTermSubject>
 		) : Action()

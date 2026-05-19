@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.record.data.source.api.mapper.buildAcademicUpsertAt
 import com.gdavidpb.tuindice.record.data.source.api.mapper.toVersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.source.api.mapper.toAddSyntheticTermRequest
 import com.gdavidpb.tuindice.record.data.source.api.mapper.toSyntheticTermLoadPreview
+import com.gdavidpb.tuindice.record.data.source.api.mapper.toUpdateSyntheticTermRequest
 import com.gdavidpb.tuindice.record.data.source.api.response.AcademicRecordResponse
 import com.gdavidpb.tuindice.record.data.source.api.response.LoadSyntheticTermPreviewRequest
 import com.gdavidpb.tuindice.record.data.source.api.response.SyntheticTermLoadPreviewResponse
@@ -18,6 +19,7 @@ import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.delete
 import io.ktor.client.request.get
+import io.ktor.client.request.patch
 import io.ktor.client.request.post
 import io.ktor.client.request.put
 import io.ktor.client.request.setBody
@@ -94,6 +96,23 @@ class AcademicRecordApiDataSource(
 		return ktorClient.delete("record/v5/overlay/terms/$termId") {
 			setBody(
 				buildDeleteOverlayMutationRequest(
+					mutationId = mutationId,
+					expectedRevision = expectedRevision
+				)
+			)
+		}
+			.body<AcademicRecordResponse>()
+			.toVersionedAcademicRecord()
+	}
+
+	override suspend fun updateSyntheticTerm(
+		command: AcademicRecordMutation.UpdateSyntheticTerm,
+		mutationId: String,
+		expectedRevision: Long
+	): VersionedAcademicRecord {
+		return ktorClient.patch("record/v5/overlay/terms/${command.targetTermKey}") {
+			setBody(
+				command.toUpdateSyntheticTermRequest(
 					mutationId = mutationId,
 					expectedRevision = expectedRevision
 				)
