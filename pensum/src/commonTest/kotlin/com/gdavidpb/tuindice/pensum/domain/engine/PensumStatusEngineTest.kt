@@ -33,11 +33,11 @@ class PensumStatusEngineTest {
 	}
 
 	@Test
-	fun resolvesSlotsFromFulfillmentRules() {
+	fun doesNotResolveSlotsFromFulfillmentRules() {
 		val slot = PensumGraph.Node(
 			id = "area-slot",
 			nodeType = PensumNodeType.SLOT,
-			displayCode = "AREA",
+			displayCode = "EA",
 			subjectCode = null,
 			name = "Electiva de Area",
 			credits = 3,
@@ -61,12 +61,15 @@ class PensumStatusEngineTest {
 		val result = engine.resolve(
 			pensum = samplePensum(nodes = listOf(slot), edges = emptyList()),
 			academicSnapshot = AcademicPensumSnapshot(
-				attempts = listOf(attempt("OP1111", TermKind.HISTORICAL, AttemptOutcome.APPROVED, credits = 3))
+				attempts = listOf(
+					attempt("OP1111", TermKind.HISTORICAL, AttemptOutcome.APPROVED, credits = 3),
+					attempt("OP2222", TermKind.CURRENT, AttemptOutcome.PENDING, credits = 3)
+				)
 			)
 		)
 
-		assertEquals(PensumNodeStatus.APPROVED, result.nodeStatuses["area-slot"])
-		assertEquals(3, result.approvedCredits)
+		assertEquals(PensumNodeStatus.AVAILABLE, result.nodeStatuses["area-slot"])
+		assertEquals(0, result.approvedCredits)
 	}
 
 	@Test
