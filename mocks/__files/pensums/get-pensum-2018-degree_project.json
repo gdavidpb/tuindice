@@ -799,7 +799,7 @@
         {
           "id": "0800-2016-degree_project-t11-area-t11-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -876,7 +876,7 @@
         {
           "id": "0800-2016-degree_project-t12-area-t12-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -938,7 +938,7 @@
         {
           "id": "0800-2016-degree_project-t12-area-t12-2",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -1060,7 +1060,7 @@
         {
           "id": "0800-2016-degree_project-t13-area-t13",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -3181,7 +3181,7 @@
         {
           "id": "0800-2016-long_internship-t11-area-t11-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -3243,7 +3243,7 @@
         {
           "id": "0800-2016-long_internship-t11-area-t11-2",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -3320,7 +3320,7 @@
         {
           "id": "0800-2016-long_internship-t12-area-t12-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -3382,7 +3382,7 @@
         {
           "id": "0800-2016-long_internship-t12-area-t12-2",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -3474,7 +3474,7 @@
         {
           "id": "0800-2016-long_internship-t14-area-t14",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -3566,7 +3566,7 @@
         {
           "id": "0800-2016-long_internship-t15-area-t15",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -5532,7 +5532,7 @@
         {
           "id": "0800-2016-exclusive_degree_project-t11-area-t11-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -5594,7 +5594,7 @@
         {
           "id": "0800-2016-exclusive_degree_project-t11-area-t11-2",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -5671,7 +5671,7 @@
         {
           "id": "0800-2016-exclusive_degree_project-t12-area-t12-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -5733,7 +5733,7 @@
         {
           "id": "0800-2016-exclusive_degree_project-t12-area-t12-2",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -5825,7 +5825,7 @@
         {
           "id": "0800-2016-exclusive_degree_project-t14-area-t14",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -5917,7 +5917,7 @@
         {
           "id": "0800-2016-exclusive_degree_project-t15-area-t15",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -7862,7 +7862,7 @@
         {
           "id": "0800-2017-degree_project-t11-area-t11-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -7939,7 +7939,7 @@
         {
           "id": "0800-2017-degree_project-t12-area-t12-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -8001,7 +8001,7 @@
         {
           "id": "0800-2017-degree_project-t12-area-t12-2",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -8123,7 +8123,7 @@
         {
           "id": "0800-2017-degree_project-t13-area-t13",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -10244,7 +10244,7 @@
         {
           "id": "0800-2017-long_internship-t11-area-t11-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -10306,7 +10306,7 @@
         {
           "id": "0800-2017-long_internship-t11-area-t11-2",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -10383,7 +10383,7 @@
         {
           "id": "0800-2017-long_internship-t12-area-t12-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -10445,7 +10445,7 @@
         {
           "id": "0800-2017-long_internship-t12-area-t12-2",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -10537,7 +10537,7 @@
         {
           "id": "0800-2017-long_internship-t14-area-t14",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -10629,7 +10629,7 @@
         {
           "id": "0800-2017-long_internship-t15-area-t15",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -12595,7 +12595,7 @@
         {
           "id": "0800-2017-exclusive_degree_project-t11-area-t11-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -12657,7 +12657,7 @@
         {
           "id": "0800-2017-exclusive_degree_project-t11-area-t11-2",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -12734,7 +12734,7 @@
         {
           "id": "0800-2017-exclusive_degree_project-t12-area-t12-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -12796,7 +12796,7 @@
         {
           "id": "0800-2017-exclusive_degree_project-t12-area-t12-2",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -12888,7 +12888,7 @@
         {
           "id": "0800-2017-exclusive_degree_project-t14-area-t14",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -12980,7 +12980,7 @@
         {
           "id": "0800-2017-exclusive_degree_project-t15-area-t15",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -14925,7 +14925,7 @@
         {
           "id": "0800-2018-degree_project-t11-area-t11-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -15002,7 +15002,7 @@
         {
           "id": "0800-2018-degree_project-t12-area-t12-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -15064,7 +15064,7 @@
         {
           "id": "0800-2018-degree_project-t12-area-t12-2",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -15186,7 +15186,7 @@
         {
           "id": "0800-2018-degree_project-t13-area-t13",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -17307,7 +17307,7 @@
         {
           "id": "0800-2018-long_internship-t11-area-t11-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -17369,7 +17369,7 @@
         {
           "id": "0800-2018-long_internship-t11-area-t11-2",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -17446,7 +17446,7 @@
         {
           "id": "0800-2018-long_internship-t12-area-t12-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -17508,7 +17508,7 @@
         {
           "id": "0800-2018-long_internship-t12-area-t12-2",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -17600,7 +17600,7 @@
         {
           "id": "0800-2018-long_internship-t14-area-t14",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -17692,7 +17692,7 @@
         {
           "id": "0800-2018-long_internship-t15-area-t15",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -19658,7 +19658,7 @@
         {
           "id": "0800-2018-exclusive_degree_project-t11-area-t11-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -19720,7 +19720,7 @@
         {
           "id": "0800-2018-exclusive_degree_project-t11-area-t11-2",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -19797,7 +19797,7 @@
         {
           "id": "0800-2018-exclusive_degree_project-t12-area-t12-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -19859,7 +19859,7 @@
         {
           "id": "0800-2018-exclusive_degree_project-t12-area-t12-2",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -19951,7 +19951,7 @@
         {
           "id": "0800-2018-exclusive_degree_project-t14-area-t14",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -20043,7 +20043,7 @@
         {
           "id": "0800-2018-exclusive_degree_project-t15-area-t15",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -21988,7 +21988,7 @@
         {
           "id": "0800-2019-degree_project-t11-area-t11-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -22065,7 +22065,7 @@
         {
           "id": "0800-2019-degree_project-t12-area-t12-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -22127,7 +22127,7 @@
         {
           "id": "0800-2019-degree_project-t12-area-t12-2",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -22249,7 +22249,7 @@
         {
           "id": "0800-2019-degree_project-t13-area-t13",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -24370,7 +24370,7 @@
         {
           "id": "0800-2019-long_internship-t11-area-t11-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -24432,7 +24432,7 @@
         {
           "id": "0800-2019-long_internship-t11-area-t11-2",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -24509,7 +24509,7 @@
         {
           "id": "0800-2019-long_internship-t12-area-t12-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -24571,7 +24571,7 @@
         {
           "id": "0800-2019-long_internship-t12-area-t12-2",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -24663,7 +24663,7 @@
         {
           "id": "0800-2019-long_internship-t14-area-t14",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -24755,7 +24755,7 @@
         {
           "id": "0800-2019-long_internship-t15-area-t15",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -26721,7 +26721,7 @@
         {
           "id": "0800-2019-exclusive_degree_project-t11-area-t11-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -26783,7 +26783,7 @@
         {
           "id": "0800-2019-exclusive_degree_project-t11-area-t11-2",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -26860,7 +26860,7 @@
         {
           "id": "0800-2019-exclusive_degree_project-t12-area-t12-1",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -26922,7 +26922,7 @@
         {
           "id": "0800-2019-exclusive_degree_project-t12-area-t12-2",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -27014,7 +27014,7 @@
         {
           "id": "0800-2019-exclusive_degree_project-t14-area-t14",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
@@ -27106,7 +27106,7 @@
         {
           "id": "0800-2019-exclusive_degree_project-t15-area-t15",
           "node_type": "SLOT",
-          "display_code": "AREA",
+          "display_code": "EA",
           "subject_code": null,
           "name": "Electiva de Area",
           "credits": 4,
