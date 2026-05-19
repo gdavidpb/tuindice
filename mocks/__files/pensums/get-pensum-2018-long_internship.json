@@ -419,18 +419,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-degree_project-t4-eg-t4-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-degree_project-t5-ma2112",
@@ -625,18 +614,7 @@
           "y": 560.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-degree_project-t7-eg-t7-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-degree_project-t8-co3321",
@@ -893,18 +871,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-degree_project-t11-eg-t11-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-degree_project-t12-area-t12-1",
@@ -1043,18 +1010,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-degree_project-t12-eg-t12-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-degree_project-t13-ep1308",
@@ -1099,27 +1055,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-degree_project-t13-free-t13-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-degree_project-t13-area-t13",
@@ -1226,27 +1162,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-degree_project-t14-free-t14-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-degree_project-t14-eg-t14",
@@ -1261,18 +1177,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-degree_project-t14-eg-t14-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-degree_project-t15-ep3308",
@@ -1302,27 +1207,7 @@
           "y": 200.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-degree_project-t15-free-t15-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-degree_project-t15-eg-t15",
@@ -1337,18 +1222,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-degree_project-t15-eg-t15-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         }
       ],
       "edges": [
@@ -2912,18 +2786,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-long_internship-t4-eg-t4-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-long_internship-t5-ma2112",
@@ -3118,18 +2981,7 @@
           "y": 560.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-long_internship-t7-eg-t7-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-long_internship-t8-co3321",
@@ -3463,18 +3315,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-long_internship-t11-eg-t11-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-long_internship-t12-area-t12-1",
@@ -3613,18 +3454,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-long_internship-t12-eg-t12-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-long_internship-t13-ep3420",
@@ -3716,27 +3546,7 @@
           "y": 200.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-long_internship-t14-free-t14-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-long_internship-t14-eg-t14",
@@ -3751,18 +3561,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-long_internship-t14-eg-t14-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-long_internship-t15-area-t15",
@@ -3839,27 +3638,7 @@
           "y": 200.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-long_internship-t15-free-t15-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-long_internship-t15-eg-t15",
@@ -3874,18 +3653,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-long_internship-t15-eg-t15-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         }
       ],
       "edges": [
@@ -5369,18 +5137,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-exclusive_degree_project-t4-eg-t4-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-exclusive_degree_project-t5-ma2112",
@@ -5575,18 +5332,7 @@
           "y": 560.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-exclusive_degree_project-t7-eg-t7-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-exclusive_degree_project-t8-co3321",
@@ -5920,18 +5666,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-exclusive_degree_project-t11-eg-t11-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-exclusive_degree_project-t12-area-t12-1",
@@ -6070,18 +5805,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-exclusive_degree_project-t12-eg-t12-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-exclusive_degree_project-t13-ep5408",
@@ -6173,27 +5897,7 @@
           "y": 200.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-exclusive_degree_project-t14-free-t14-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-exclusive_degree_project-t14-eg-t14",
@@ -6208,18 +5912,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-exclusive_degree_project-t14-eg-t14-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-exclusive_degree_project-t15-area-t15",
@@ -6296,27 +5989,7 @@
           "y": 200.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-exclusive_degree_project-t15-free-t15-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2016-exclusive_degree_project-t15-eg-t15",
@@ -6331,18 +6004,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2016-exclusive_degree_project-t15-eg-t15-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         }
       ],
       "edges": [
@@ -7820,18 +7482,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-degree_project-t4-eg-t4-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-degree_project-t5-ma2112",
@@ -8026,18 +7677,7 @@
           "y": 560.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-degree_project-t7-eg-t7-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-degree_project-t8-co3321",
@@ -8294,18 +7934,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-degree_project-t11-eg-t11-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-degree_project-t12-area-t12-1",
@@ -8444,18 +8073,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-degree_project-t12-eg-t12-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-degree_project-t13-ep1308",
@@ -8500,27 +8118,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-degree_project-t13-free-t13-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-degree_project-t13-area-t13",
@@ -8627,27 +8225,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-degree_project-t14-free-t14-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-degree_project-t14-eg-t14",
@@ -8662,18 +8240,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-degree_project-t14-eg-t14-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-degree_project-t15-ep3308",
@@ -8703,27 +8270,7 @@
           "y": 200.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-degree_project-t15-free-t15-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-degree_project-t15-eg-t15",
@@ -8738,18 +8285,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-degree_project-t15-eg-t15-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         }
       ],
       "edges": [
@@ -10313,18 +9849,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-long_internship-t4-eg-t4-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-long_internship-t5-ma2112",
@@ -10519,18 +10044,7 @@
           "y": 560.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-long_internship-t7-eg-t7-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-long_internship-t8-co3321",
@@ -10864,18 +10378,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-long_internship-t11-eg-t11-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-long_internship-t12-area-t12-1",
@@ -11014,18 +10517,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-long_internship-t12-eg-t12-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-long_internship-t13-ep3420",
@@ -11117,27 +10609,7 @@
           "y": 200.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-long_internship-t14-free-t14-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-long_internship-t14-eg-t14",
@@ -11152,18 +10624,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-long_internship-t14-eg-t14-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-long_internship-t15-area-t15",
@@ -11240,27 +10701,7 @@
           "y": 200.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-long_internship-t15-free-t15-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-long_internship-t15-eg-t15",
@@ -11275,18 +10716,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-long_internship-t15-eg-t15-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         }
       ],
       "edges": [
@@ -12770,18 +12200,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-exclusive_degree_project-t4-eg-t4-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-exclusive_degree_project-t5-ma2112",
@@ -12976,18 +12395,7 @@
           "y": 560.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-exclusive_degree_project-t7-eg-t7-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-exclusive_degree_project-t8-co3321",
@@ -13321,18 +12729,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-exclusive_degree_project-t11-eg-t11-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-exclusive_degree_project-t12-area-t12-1",
@@ -13471,18 +12868,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-exclusive_degree_project-t12-eg-t12-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-exclusive_degree_project-t13-ep5408",
@@ -13574,27 +12960,7 @@
           "y": 200.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-exclusive_degree_project-t14-free-t14-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-exclusive_degree_project-t14-eg-t14",
@@ -13609,18 +12975,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-exclusive_degree_project-t14-eg-t14-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-exclusive_degree_project-t15-area-t15",
@@ -13697,27 +13052,7 @@
           "y": 200.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-exclusive_degree_project-t15-free-t15-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2017-exclusive_degree_project-t15-eg-t15",
@@ -13732,18 +13067,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2017-exclusive_degree_project-t15-eg-t15-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         }
       ],
       "edges": [
@@ -15221,18 +14545,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-degree_project-t4-eg-t4-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-degree_project-t5-ma2112",
@@ -15427,18 +14740,7 @@
           "y": 560.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-degree_project-t7-eg-t7-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-degree_project-t8-co3321",
@@ -15695,18 +14997,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-degree_project-t11-eg-t11-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-degree_project-t12-area-t12-1",
@@ -15845,18 +15136,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-degree_project-t12-eg-t12-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-degree_project-t13-ep1308",
@@ -15901,27 +15181,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-degree_project-t13-free-t13-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-degree_project-t13-area-t13",
@@ -16028,27 +15288,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-degree_project-t14-free-t14-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-degree_project-t14-eg-t14",
@@ -16063,18 +15303,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-degree_project-t14-eg-t14-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-degree_project-t15-ep3308",
@@ -16104,27 +15333,7 @@
           "y": 200.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-degree_project-t15-free-t15-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-degree_project-t15-eg-t15",
@@ -16139,18 +15348,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-degree_project-t15-eg-t15-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         }
       ],
       "edges": [
@@ -17714,18 +16912,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-long_internship-t4-eg-t4-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-long_internship-t5-ma2112",
@@ -17920,18 +17107,7 @@
           "y": 560.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-long_internship-t7-eg-t7-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-long_internship-t8-co3321",
@@ -18265,18 +17441,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-long_internship-t11-eg-t11-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-long_internship-t12-area-t12-1",
@@ -18415,18 +17580,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-long_internship-t12-eg-t12-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-long_internship-t13-ep3420",
@@ -18518,27 +17672,7 @@
           "y": 200.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-long_internship-t14-free-t14-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-long_internship-t14-eg-t14",
@@ -18553,18 +17687,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-long_internship-t14-eg-t14-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-long_internship-t15-area-t15",
@@ -18641,27 +17764,7 @@
           "y": 200.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-long_internship-t15-free-t15-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-long_internship-t15-eg-t15",
@@ -18676,18 +17779,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-long_internship-t15-eg-t15-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         }
       ],
       "edges": [
@@ -20171,18 +19263,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-exclusive_degree_project-t4-eg-t4-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-exclusive_degree_project-t5-ma2112",
@@ -20377,18 +19458,7 @@
           "y": 560.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-exclusive_degree_project-t7-eg-t7-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-exclusive_degree_project-t8-co3321",
@@ -20722,18 +19792,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-exclusive_degree_project-t11-eg-t11-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-exclusive_degree_project-t12-area-t12-1",
@@ -20872,18 +19931,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-exclusive_degree_project-t12-eg-t12-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-exclusive_degree_project-t13-ep5408",
@@ -20975,27 +20023,7 @@
           "y": 200.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-exclusive_degree_project-t14-free-t14-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-exclusive_degree_project-t14-eg-t14",
@@ -21010,18 +20038,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-exclusive_degree_project-t14-eg-t14-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-exclusive_degree_project-t15-area-t15",
@@ -21098,27 +20115,7 @@
           "y": 200.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-exclusive_degree_project-t15-free-t15-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2018-exclusive_degree_project-t15-eg-t15",
@@ -21133,18 +20130,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2018-exclusive_degree_project-t15-eg-t15-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         }
       ],
       "edges": [
@@ -22622,18 +21608,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-degree_project-t4-eg-t4-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-degree_project-t5-ma2112",
@@ -22828,18 +21803,7 @@
           "y": 560.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-degree_project-t7-eg-t7-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-degree_project-t8-co3321",
@@ -23096,18 +22060,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-degree_project-t11-eg-t11-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-degree_project-t12-area-t12-1",
@@ -23246,18 +22199,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-degree_project-t12-eg-t12-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-degree_project-t13-ep1308",
@@ -23302,27 +22244,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-degree_project-t13-free-t13-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-degree_project-t13-area-t13",
@@ -23429,27 +22351,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-degree_project-t14-free-t14-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-degree_project-t14-eg-t14",
@@ -23464,18 +22366,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-degree_project-t14-eg-t14-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-degree_project-t15-ep3308",
@@ -23505,27 +22396,7 @@
           "y": 200.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-degree_project-t15-free-t15-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-degree_project-t15-eg-t15",
@@ -23540,18 +22411,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-degree_project-t15-eg-t15-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         }
       ],
       "edges": [
@@ -25115,18 +23975,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-long_internship-t4-eg-t4-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-long_internship-t5-ma2112",
@@ -25321,18 +24170,7 @@
           "y": 560.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-long_internship-t7-eg-t7-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-long_internship-t8-co3321",
@@ -25666,18 +24504,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-long_internship-t11-eg-t11-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-long_internship-t12-area-t12-1",
@@ -25816,18 +24643,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-long_internship-t12-eg-t12-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-long_internship-t13-ep3420",
@@ -25919,27 +24735,7 @@
           "y": 200.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-long_internship-t14-free-t14-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-long_internship-t14-eg-t14",
@@ -25954,18 +24750,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-long_internship-t14-eg-t14-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-long_internship-t15-area-t15",
@@ -26042,27 +24827,7 @@
           "y": 200.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-long_internship-t15-free-t15-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-long_internship-t15-eg-t15",
@@ -26077,18 +24842,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-long_internship-t15-eg-t15-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         }
       ],
       "edges": [
@@ -27572,18 +26326,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-exclusive_degree_project-t4-eg-t4-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-exclusive_degree_project-t5-ma2112",
@@ -27778,18 +26521,7 @@
           "y": 560.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-exclusive_degree_project-t7-eg-t7-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-exclusive_degree_project-t8-co3321",
@@ -28123,18 +26855,7 @@
           "y": 440.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-exclusive_degree_project-t11-eg-t11-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-exclusive_degree_project-t12-area-t12-1",
@@ -28273,18 +26994,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-exclusive_degree_project-t12-eg-t12-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-exclusive_degree_project-t13-ep5408",
@@ -28376,27 +27086,7 @@
           "y": 200.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-exclusive_degree_project-t14-free-t14-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-exclusive_degree_project-t14-eg-t14",
@@ -28411,18 +27101,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-exclusive_degree_project-t14-eg-t14-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-exclusive_degree_project-t15-area-t15",
@@ -28499,27 +27178,7 @@
           "y": 200.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-exclusive_degree_project-t15-free-t15-rule",
-              "rule_type": "GENERIC_ELECTIVE",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "CE",
-                "CI",
-                "CO",
-                "CS",
-                "EP",
-                "FS",
-                "ID",
-                "MA",
-                "PB",
-                "PS"
-              ],
-              "min_credits": 4,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         },
         {
           "id": "0800-2019-exclusive_degree_project-t15-eg-t15",
@@ -28534,18 +27193,7 @@
           "y": 320.0,
           "width": 160.0,
           "height": 96.0,
-          "fulfillment_rules": [
-            {
-              "id": "0800-2019-exclusive_degree_project-t15-eg-t15-rule",
-              "rule_type": "SUBJECT_PREFIX",
-              "subject_codes": [],
-              "subject_code_prefixes": [
-                "EG"
-              ],
-              "min_credits": 3,
-              "min_subjects": 1
-            }
-          ]
+          "fulfillment_rules": []
         }
       ],
       "edges": [
