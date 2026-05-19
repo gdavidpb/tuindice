@@ -43,7 +43,8 @@ fun PensumNodeCard(
 ) {
 	val colors = node.visualStyle.toNodeColors()
 	val isHighlighted = isSelected || isRequirementHighlighted
-	val subjectCode = node.subjectCode
+	val subjectStatsCode = node.subjectStatsCode
+	val fulfilledSubject = node.fulfilledSubject
 	val chipColors = node.displayCode.toPensumChipColors(
 		fallbackContainer = colors.chip,
 		fallbackContent = colors.chipText
@@ -75,8 +76,19 @@ fun PensumNodeCard(
 					overflow = TextOverflow.Ellipsis
 				)
 				Spacer(modifier = Modifier.height(10.dp))
+				if (fulfilledSubject != null) {
+					Text(
+						text = fulfilledSubject.code,
+						style = MaterialTheme.typography.labelMedium,
+						fontWeight = FontWeight.SemiBold,
+						color = colors.secondaryText,
+						maxLines = 1,
+						overflow = TextOverflow.Ellipsis
+					)
+					Spacer(modifier = Modifier.height(4.dp))
+				}
 				Text(
-					text = node.name,
+					text = fulfilledSubject?.name ?: node.name,
 					style = MaterialTheme.typography.bodyMedium,
 					fontWeight = if (node.isCurrent) FontWeight.Bold else FontWeight.Medium,
 					color = colors.text,
@@ -107,19 +119,19 @@ fun PensumNodeCard(
 					)
 				}
 			}
-			if (node.hasSubjectStatsAction && subjectCode != null) {
+			if (node.hasSubjectStatsAction && subjectStatsCode != null) {
 				IconButton(
 					modifier = Modifier
 						.align(Alignment.BottomEnd)
 						.size(32.dp)
 						.testTag(PensumUiTags.nodeSubjectStatsButton(node.id)),
-					onClick = { onSubjectStatsClick(subjectCode) }
+					onClick = { onSubjectStatsClick(subjectStatsCode) }
 				) {
 					Icon(
 						imageVector = Icons.Outlined.BarChart,
 						contentDescription = stringResource(
 							Res.string.pensum_subject_stats_content_description,
-							subjectCode
+							subjectStatsCode
 						),
 						tint = colors.secondaryText,
 						modifier = Modifier.size(20.dp)

@@ -8,5 +8,6 @@ data class ObservedPensum(
 	val pensum: PensumGraph,
 	val pensums: List<PensumGraph>,
 	val approvedCredits: Int,
-	val nodeStatuses: Map<String, PensumNodeStatus>
+	val nodeStatuses: Map<String, PensumNodeStatus>,
+	val nodeFulfillments: Map<String, PensumProgress.NodeFulfillment>
 )

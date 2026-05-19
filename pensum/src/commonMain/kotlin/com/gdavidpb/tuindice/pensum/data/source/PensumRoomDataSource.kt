@@ -201,8 +201,12 @@ class PensumRoomDataSource(
 			attempts = attempts.mapNotNull { attempt ->
 				val term = termsById[attempt.termId] ?: return@mapNotNull null
 				AcademicPensumSnapshot.Attempt(
+					id = attempt.id,
 					subjectCode = attempt.subjectCode,
+					subjectName = attempt.subjectName,
 					credits = attempt.credits,
+					termOrder = term.termOrder,
+					positionInTerm = attempt.positionInTerm,
 					termKind = TermKind.valueOf(term.kind),
 					outcome = AttemptOutcome.valueOf(attempt.academicOutcome)
 				)

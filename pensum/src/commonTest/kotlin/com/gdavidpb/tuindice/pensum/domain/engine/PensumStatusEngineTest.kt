@@ -33,7 +33,7 @@ class PensumStatusEngineTest {
 	}
 
 	@Test
-	fun doesNotResolveSlotsFromFulfillmentRules() {
+	fun resolvesApprovedSlotFromExplicitFulfillmentRule() {
 		val slot = PensumGraph.Node(
 			id = "area-slot",
 			nodeType = PensumNodeType.SLOT,
@@ -62,24 +62,20 @@ class PensumStatusEngineTest {
 			pensum = samplePensum(nodes = listOf(slot), edges = emptyList()),
 			academicSnapshot = AcademicPensumSnapshot(
 				attempts = listOf(
-					attempt("OP1111", TermKind.HISTORICAL, AttemptOutcome.APPROVED, credits = 3),
+					attempt("OP1111", TermKind.HISTORICAL, AttemptOutcome.APPROVED, credits = 3, name = "Topicos de Area"),
 					attempt("OP2222", TermKind.CURRENT, AttemptOutcome.PENDING, credits = 3)
 				)
 			)
 		)
 
-		assertEquals(PensumNodeStatus.AVAILABLE, result.nodeStatuses["area-slot"])
-		assertEquals(0, result.approvedCredits)
+		assertEquals(PensumNodeStatus.APPROVED, result.nodeStatuses["area-slot"])
+		assertEquals("OP1111", result.nodeFulfillments.getValue("area-slot").subjectCode)
+		assertEquals("Topicos de Area", result.nodeFulfillments.getValue("area-slot").subjectName)
+		assertEquals(3, result.approvedCredits)
 	}
 
 	@Test
-	fun doesNotResolveElectiveOrGeneralStudiesSlotsAsApprovedOrCurrent() {
-		val electiveSlot = slot(
-			id = "el-slot",
-			displayCode = "EL",
-			category = "FREE_ELECTIVE",
-			prefixes = listOf("MA")
-		)
+	fun resolvesCurrentSlotWithoutAddingApprovedCredits() {
 		val generalStudiesSlot = slot(
 			id = "eg-slot",
 			displayCode = "EG",
@@ -87,17 +83,105 @@ class PensumStatusEngineTest {
 			prefixes = listOf("EG")
 		)
 		val result = engine.resolve(
-			pensum = samplePensum(nodes = listOf(electiveSlot, generalStudiesSlot), edges = emptyList()),
+			pensum = samplePensum(nodes = listOf(generalStudiesSlot), edges = emptyList()),
 			academicSnapshot = AcademicPensumSnapshot(
 				attempts = listOf(
-					attempt("MA1111", TermKind.HISTORICAL, AttemptOutcome.APPROVED, credits = 5),
-					attempt("EG1111", TermKind.CURRENT, AttemptOutcome.PENDING, credits = 3)
+					attempt("EG1111", TermKind.CURRENT, AttemptOutcome.PENDING, credits = 3, name = "Estudio General")
 				)
 			)
 		)
 
+		assertEquals(PensumNodeStatus.CURRENT, result.nodeStatuses["eg-slot"])
+		assertEquals("EG1111", result.nodeFulfillments.getValue("eg-slot").subjectCode)
+		assertEquals(0, result.approvedCredits)
+	}
+
+	@Test
+	fun doesNotFulfillSlotsWithFixedCoursesFromSamePensum() {
+		val fixedCourse = course("ma1111", "MA1111", "Calculo I", credits = 5)
+		val electiveSlot = slot(
+			id = "el-slot",
+			displayCode = "EL",
+			category = "FREE_ELECTIVE",
+			prefixes = listOf("MA")
+		)
+		val result = engine.resolve(
+			pensum = samplePensum(nodes = listOf(fixedCourse, electiveSlot), edges = emptyList()),
+			academicSnapshot = AcademicPensumSnapshot(
+				attempts = listOf(
+					attempt("MA1111", TermKind.HISTORICAL, AttemptOutcome.APPROVED, credits = 5)
+				)
+			)
+		)
+
+		assertEquals(PensumNodeStatus.APPROVED, result.nodeStatuses["ma1111"])
 		assertEquals(PensumNodeStatus.AVAILABLE, result.nodeStatuses["el-slot"])
-		assertEquals(PensumNodeStatus.AVAILABLE, result.nodeStatuses["eg-slot"])
+		assertEquals(false, result.nodeFulfillments.containsKey("el-slot"))
+		assertEquals(5, result.approvedCredits)
+	}
+
+	@Test
+	fun assignsEquivalentSlotsChronologicallyByPensumOrder() {
+		val firstSlot = slot(
+			id = "eg-slot-1",
+			displayCode = "EG",
+			category = "GENERAL_STUDIES",
+			prefixes = listOf("EG")
+		)
+		val secondSlot = slot(
+			id = "eg-slot-2",
+			displayCode = "EG",
+			category = "GENERAL_STUDIES",
+			prefixes = listOf("EG")
+		)
+		val result = engine.resolve(
+			pensum = samplePensum(nodes = listOf(firstSlot, secondSlot), edges = emptyList()),
+			academicSnapshot = AcademicPensumSnapshot(
+				attempts = listOf(
+					attempt(
+						code = "EG2222",
+						termKind = TermKind.HISTORICAL,
+						outcome = AttemptOutcome.APPROVED,
+						credits = 3,
+						termOrder = 20202
+					),
+					attempt(
+						code = "EG1111",
+						termKind = TermKind.HISTORICAL,
+						outcome = AttemptOutcome.APPROVED,
+						credits = 3,
+						termOrder = 20201
+					)
+				)
+			)
+		)
+
+		assertEquals(PensumNodeStatus.APPROVED, result.nodeStatuses["eg-slot-1"])
+		assertEquals(PensumNodeStatus.APPROVED, result.nodeStatuses["eg-slot-2"])
+		assertEquals("EG1111", result.nodeFulfillments.getValue("eg-slot-1").subjectCode)
+		assertEquals("EG2222", result.nodeFulfillments.getValue("eg-slot-2").subjectCode)
+		assertEquals(6, result.approvedCredits)
+	}
+
+	@Test
+	fun doesNotResolveSlotWithoutExplicitRule() {
+		val affineSlot = slot(
+			id = "af-slot",
+			displayCode = "AF",
+			category = "FREE_ELECTIVE",
+			prefixes = emptyList()
+		).copy(fulfillmentRules = emptyList())
+		val result = engine.resolve(
+			pensum = samplePensum(nodes = listOf(affineSlot), edges = emptyList()),
+			academicSnapshot = AcademicPensumSnapshot(
+				attempts = listOf(
+					attempt("MA3322", TermKind.HISTORICAL, AttemptOutcome.APPROVED, credits = 3)
+				)
+			)
+		)
+
+		assertEquals(PensumNodeStatus.AVAILABLE, result.nodeStatuses["af-slot"])
+		assertEquals(false, result.nodeFulfillments.containsKey("af-slot"))
 		assertEquals(0, result.approvedCredits)
 	}
 
@@ -196,11 +280,18 @@ class PensumStatusEngineTest {
 		code: String,
 		termKind: TermKind,
 		outcome: AttemptOutcome,
-		credits: Int = 5
+		credits: Int = 5,
+		name: String = code,
+		termOrder: Int = 20201,
+		positionInTerm: Int = 0
 	): AcademicPensumSnapshot.Attempt {
 		return AcademicPensumSnapshot.Attempt(
+			id = "$termOrder-$positionInTerm-$code",
 			subjectCode = code,
+			subjectName = name,
 			credits = credits,
+			termOrder = termOrder,
+			positionInTerm = positionInTerm,
 			termKind = termKind,
 			outcome = outcome
 		)

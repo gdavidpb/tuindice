@@ -50,7 +50,8 @@ class PensumDataSource(
 					pensum = graph,
 					pensums = graphs,
 					approvedCredits = progress.approvedCredits,
-					nodeStatuses = progress.nodeStatuses
+					nodeStatuses = progress.nodeStatuses,
+					nodeFulfillments = progress.nodeFulfillments
 				)
 			)
 		}

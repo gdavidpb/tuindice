@@ -60,7 +60,14 @@ data class PensumScreenModel(
 		val visualStyle: NodeVisualStyle,
 		val isCurrent: Boolean,
 		val isApproved: Boolean,
-		val hasSubjectStatsAction: Boolean
+		val hasSubjectStatsAction: Boolean,
+		val subjectStatsCode: String?,
+		val fulfilledSubject: FulfilledSubject?
+	)
+
+	data class FulfilledSubject(
+		val code: String,
+		val name: String
 	)
 
 	data class Edge(

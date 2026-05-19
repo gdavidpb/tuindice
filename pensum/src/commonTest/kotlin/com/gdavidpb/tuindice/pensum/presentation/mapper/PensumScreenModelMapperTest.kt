@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumModality
 import com.gdavidpb.tuindice.pensum.domain.model.PensumNodeStatus
 import com.gdavidpb.tuindice.pensum.domain.model.PensumNodeType
 import com.gdavidpb.tuindice.pensum.domain.model.PensumOption
+import com.gdavidpb.tuindice.pensum.domain.model.PensumProgress
 import com.gdavidpb.tuindice.pensum.domain.model.PensumSelection
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -69,12 +70,49 @@ class PensumScreenModelMapperTest {
 			model.modalityOptions.map { modality -> modality.isDefault }
 		)
 	}
+
+	@Test
+	fun when_slotHasFulfillment_then_displayModelExposesFilledSubjectForCardAndStats() {
+		val slot = PensumGraph.Node(
+			id = "eg-slot",
+			nodeType = PensumNodeType.SLOT,
+			displayCode = "EG",
+			subjectCode = null,
+			name = "Estudios Generales",
+			credits = 3,
+			category = "GENERAL_STUDIES",
+			termId = "T1",
+			x = 40.0,
+			y = 84.0,
+			width = 160.0,
+			height = 120.0,
+			fulfillmentRules = emptyList()
+		)
+
+		val model = observedPensum(
+			nodes = listOf(slot),
+			nodeFulfillments = mapOf(
+				"eg-slot" to PensumProgress.NodeFulfillment(
+					subjectCode = "EG1111",
+					subjectName = "Sociedad y Cultura"
+				)
+			)
+		).toScreenModel()
+		val node = model.nodes.single()
+
+		assertEquals("EG", node.displayCode)
+		assertEquals("EG1111", node.fulfilledSubject?.code)
+		assertEquals("Sociedad y Cultura", node.fulfilledSubject?.name)
+		assertEquals("EG1111", node.subjectStatsCode)
+		assertEquals(true, node.hasSubjectStatsAction)
+	}
 }
 
 private fun observedPensum(
 	nodes: List<PensumGraph.Node>,
 	pensum: PensumGraph = graph(nodes = nodes),
-	pensums: List<PensumGraph> = listOf(pensum)
+	pensums: List<PensumGraph> = listOf(pensum),
+	nodeFulfillments: Map<String, PensumProgress.NodeFulfillment> = emptyMap()
 ): ObservedPensum {
 	return ObservedPensum(
 		careerName = "Ingenieria de Computacion",
@@ -101,7 +139,8 @@ private fun observedPensum(
 		pensum = pensum,
 		pensums = pensums,
 		approvedCredits = 0,
-		nodeStatuses = nodes.associate { node -> node.id to PensumNodeStatus.AVAILABLE }
+		nodeStatuses = nodes.associate { node -> node.id to PensumNodeStatus.AVAILABLE },
+		nodeFulfillments = nodeFulfillments
 	)
 }
 

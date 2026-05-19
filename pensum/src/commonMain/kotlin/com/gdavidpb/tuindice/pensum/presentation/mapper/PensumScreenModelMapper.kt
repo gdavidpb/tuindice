@@ -29,6 +29,13 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 				displayTerm.x + (displayTerm.width - node.width) / 2.0
 			} ?: node.x
 			val status = nodeStatuses[node.id] ?: PensumNodeStatus.BLOCKED
+			val fulfillment = nodeFulfillments[node.id]
+			val subjectStatsCode = fulfillment?.subjectCode ?: node.subjectCode
+			val displayName = fulfillment?.subjectName ?: node.name
+			val minimumNodeHeight = maxOf(
+				displayName.minimumDisplayHeight(),
+				if (fulfillment != null) PensumDisplayLayoutDefaults.NodeMultiLineMinHeight else 0.0
+			)
 
 			PensumScreenModel.Node(
 				id = node.id,
@@ -40,11 +47,18 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 				x = x,
 				y = (node.y - contentTopShift).coerceAtLeast(0.0),
 				width = node.width,
-				height = maxOf(node.height, node.name.minimumDisplayHeight()),
+				height = maxOf(node.height, minimumNodeHeight),
 				visualStyle = status.toVisualStyle(),
 				isCurrent = status == PensumNodeStatus.CURRENT,
 				isApproved = status == PensumNodeStatus.APPROVED,
-				hasSubjectStatsAction = node.subjectCode.hasSubjectStatsAction(displayCode = node.displayCode)
+				hasSubjectStatsAction = subjectStatsCode.hasSubjectStatsAction(displayCode = subjectStatsCode.orEmpty()),
+				subjectStatsCode = subjectStatsCode,
+				fulfilledSubject = fulfillment?.let { fulfilled ->
+					PensumScreenModel.FulfilledSubject(
+						code = fulfilled.subjectCode,
+						name = fulfilled.subjectName
+					)
+				}
 			)
 		}
 		.withMinimumVerticalSpacing()

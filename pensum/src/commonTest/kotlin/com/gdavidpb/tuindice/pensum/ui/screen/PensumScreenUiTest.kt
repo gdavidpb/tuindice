@@ -172,7 +172,9 @@ private fun samplePensumModel(): PensumScreenModel {
 				visualStyle = availableNodeVisualStyle(),
 				isCurrent = false,
 				isApproved = false,
-				hasSubjectStatsAction = true
+				hasSubjectStatsAction = true,
+				subjectStatsCode = "CI4325",
+				fulfilledSubject = null
 			),
 			PensumScreenModel.Node(
 				id = "ea1",
@@ -188,7 +190,9 @@ private fun samplePensumModel(): PensumScreenModel {
 				visualStyle = availableNodeVisualStyle(),
 				isCurrent = false,
 				isApproved = false,
-				hasSubjectStatsAction = false
+				hasSubjectStatsAction = false,
+				subjectStatsCode = null,
+				fulfilledSubject = null
 			),
 			PensumScreenModel.Node(
 				id = "math1-ma1111",
@@ -204,7 +208,9 @@ private fun samplePensumModel(): PensumScreenModel {
 				visualStyle = availableNodeVisualStyle(),
 				isCurrent = false,
 				isApproved = false,
-				hasSubjectStatsAction = false
+				hasSubjectStatsAction = false,
+				subjectStatsCode = null,
+				fulfilledSubject = null
 			),
 			PensumScreenModel.Node(
 				id = "math1-ma1121",
@@ -220,7 +226,9 @@ private fun samplePensumModel(): PensumScreenModel {
 				visualStyle = availableNodeVisualStyle(),
 				isCurrent = false,
 				isApproved = false,
-				hasSubjectStatsAction = false
+				hasSubjectStatsAction = false,
+				subjectStatsCode = null,
+				fulfilledSubject = null
 			)
 		),
 		edges = emptyList()
