@@ -139,7 +139,7 @@ class SummaryContentViewUiTest {
 	}
 
 	@Test
-	fun when_syncHasFailed_then_statusShowsErrorAndCanOpenDetails() = runTuIndiceUiTest {
+	fun when_syncHasFailed_then_statusKeepsLastUpdateAndCanOpenDetails() = runTuIndiceUiTest {
 		val contentState = summaryContentState()
 		var statusIconClicks = 0
 
@@ -156,15 +156,13 @@ class SummaryContentViewUiTest {
 		assertNodeVisible(SummaryUiTags.StatusRow)
 		assertNodeVisible(SummaryUiTags.StatusIconButton)
 		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
-		onNodeWithTag(SummaryUiTags.StatusText).assertTextContains(
-			"No pudimos sincronizar tus datos. ${contentState.lastUpdate}"
-		)
+		onNodeWithTag(SummaryUiTags.StatusText).assertTextContains(contentState.lastUpdate)
 		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
 		assertEquals(1, statusIconClicks)
 	}
 
 	@Test
-	fun when_syncIsUnavailable_then_statusShowsUnavailableAndCanOpenDetails() = runTuIndiceUiTest {
+	fun when_syncIsUnavailable_then_statusKeepsLastUpdateAndCanOpenDetails() = runTuIndiceUiTest {
 		val contentState = summaryContentState()
 		var statusIconClicks = 0
 
@@ -181,15 +179,13 @@ class SummaryContentViewUiTest {
 		assertNodeVisible(SummaryUiTags.StatusRow)
 		assertNodeVisible(SummaryUiTags.StatusIconButton)
 		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
-		onNodeWithTag(SummaryUiTags.StatusText).assertTextContains(
-			"Servicios no disponibles. ${contentState.lastUpdate}"
-		)
+		onNodeWithTag(SummaryUiTags.StatusText).assertTextContains(contentState.lastUpdate)
 		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
 		assertEquals(1, statusIconClicks)
 	}
 
 	@Test
-	fun when_syncStatusIsOutdatedCredentials_then_statusIconTapInvokesCallbackAndShowsPasswordText() = runTuIndiceUiTest {
+	fun when_syncStatusIsOutdatedCredentials_then_statusKeepsLastUpdateAndCanOpenDetails() = runTuIndiceUiTest {
 		val contentState = summaryContentState()
 		var statusIconClicks = 0
 
@@ -206,9 +202,7 @@ class SummaryContentViewUiTest {
 		assertNodeVisible(SummaryUiTags.StatusRow)
 		assertNodeVisible(SummaryUiTags.StatusIconButton)
 		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
-		onNodeWithTag(SummaryUiTags.StatusText).assertTextContains(
-			"Actualiza tu contraseña para volver a sincronizar tus datos."
-		)
+		onNodeWithTag(SummaryUiTags.StatusText).assertTextContains(contentState.lastUpdate)
 		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
 		assertEquals(1, statusIconClicks)
 	}

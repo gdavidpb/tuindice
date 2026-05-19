@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
+import com.gdavidpb.tuindice.testkit.ktor.serverResponseException
 import io.ktor.http.HttpStatusCode
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -149,7 +150,7 @@ class SyncRepositoryContractTest {
 		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
 		val syncStatusRepository = FakeSyncStatusRepository()
 		val remoteDataSource = FakeSyncRemoteDataSource(
-			throwable = clientRequestException(
+			throwable = serverResponseException(
 				statusCode = HttpStatusCode.ServiceUnavailable,
 				path = "/record/v5/sync"
 			)
@@ -199,7 +200,7 @@ class SyncRepositoryContractTest {
 		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
 		val syncStatusRepository = FakeSyncStatusRepository()
 		val remoteDataSource = FakeSyncRemoteDataSource(
-			throwable = clientRequestException(
+			throwable = serverResponseException(
 				statusCode = HttpStatusCode.InternalServerError,
 				path = "/record/v5/sync"
 			)

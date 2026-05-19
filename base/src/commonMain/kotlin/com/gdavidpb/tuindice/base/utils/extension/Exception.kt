@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
-import io.ktor.client.plugins.ClientRequestException
+import io.ktor.client.plugins.ResponseException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.TimeoutCancellationException
 
@@ -61,62 +61,62 @@ private val connectionMessageFragments = setOf(
 )
 
 fun Throwable.isUnavailable() = when (this) {
-	is ClientRequestException -> response.status == HttpStatusCode.ServiceUnavailable
+	is ResponseException -> response.status == HttpStatusCode.ServiceUnavailable
 	else -> false
 }
 
 fun Throwable.isFailedDependency() = when (this) {
-	is ClientRequestException -> response.status == HttpStatusCode.FailedDependency
+	is ResponseException -> response.status == HttpStatusCode.FailedDependency
 	else -> false
 }
 
 fun Throwable.isTooManyRequests() = when (this) {
-	is ClientRequestException -> response.status == HttpStatusCode.TooManyRequests
+	is ResponseException -> response.status == HttpStatusCode.TooManyRequests
 	else -> false
 }
 
 fun Throwable.isForbidden() = when (this) {
-	is ClientRequestException -> response.status == HttpStatusCode.Forbidden
+	is ResponseException -> response.status == HttpStatusCode.Forbidden
 	else -> false
 }
 
 fun Throwable.isLocked() = when (this) {
-	is ClientRequestException -> response.status == HttpStatusCode.Locked
+	is ResponseException -> response.status == HttpStatusCode.Locked
 	else -> false
 }
 
 fun Throwable.isConflict() = when (this) {
-	is ClientRequestException -> response.status == HttpStatusCode.Conflict
+	is ResponseException -> response.status == HttpStatusCode.Conflict
 	else -> false
 }
 
 fun Throwable.isUnauthorized() = when (this) {
-	is ClientRequestException -> response.status == HttpStatusCode.Unauthorized
+	is ResponseException -> response.status == HttpStatusCode.Unauthorized
 	else -> false
 }
 
 fun Throwable.isNotFound() = when (this) {
-	is ClientRequestException -> response.status == HttpStatusCode.NotFound
+	is ResponseException -> response.status == HttpStatusCode.NotFound
 	else -> false
 }
 
 fun Throwable.isPreconditionFailed() = when (this) {
-	is ClientRequestException -> response.status == HttpStatusCode.PreconditionFailed
+	is ResponseException -> response.status == HttpStatusCode.PreconditionFailed
 	else -> false
 }
 
 fun Throwable.isPreconditionRequired() = when (this) {
-	is ClientRequestException -> response.status.value == 428
+	is ResponseException -> response.status.value == 428
 	else -> false
 }
 
 fun Throwable.isPayloadTooLarge() = when (this) {
-	is ClientRequestException -> response.status == HttpStatusCode.PayloadTooLarge
+	is ResponseException -> response.status == HttpStatusCode.PayloadTooLarge
 	else -> false
 }
 
 fun Throwable.isUnsupportedMediaType() = when (this) {
-	is ClientRequestException -> response.status == HttpStatusCode.UnsupportedMediaType
+	is ResponseException -> response.status == HttpStatusCode.UnsupportedMediaType
 	else -> false
 }
 

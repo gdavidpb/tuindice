@@ -28,11 +28,6 @@ import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
-import org.jetbrains.compose.resources.stringResource
-import tuindice.summary.generated.resources.Res
-import tuindice.summary.generated.resources.text_sync_failed
-import tuindice.summary.generated.resources.text_sync_outdated_credentials
-import tuindice.summary.generated.resources.text_sync_unavailable
 import kotlin.math.abs
 import kotlin.math.ceil
 
@@ -61,12 +56,7 @@ fun SummaryContentView(
 		-> MaterialTheme.colorScheme.error
 	}
 	val canOpenStatusDetails = syncStatus != SyncStatus.Healthy
-	val statusText = when (syncStatus) {
-		SyncStatus.Healthy -> state.lastUpdate
-		SyncStatus.Unavailable -> stringResource(Res.string.text_sync_unavailable, state.lastUpdate)
-		SyncStatus.Failed -> stringResource(Res.string.text_sync_failed, state.lastUpdate)
-		SyncStatus.OutdatedCredentials -> stringResource(Res.string.text_sync_outdated_credentials)
-	}
+	val statusText = state.lastUpdate
 	val syncRotation = remember { Animatable(0f) }
 
 	LaunchedEffect(isSyncing) {
