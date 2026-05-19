@@ -54,6 +54,8 @@ class PensumStatusEngine {
 		approvedAttempts: List<AcademicPensumSnapshot.Attempt>,
 		approvedSubjectCodes: Set<String>
 	): Boolean {
+		if (hasDeferredCompletionStatus()) return false
+
 		return when (nodeType) {
 			PensumNodeType.COURSE -> subjectCode != null && subjectCode in approvedSubjectCodes
 			PensumNodeType.SLOT -> fulfillmentRules.any { rule -> rule.isFulfilledBy(approvedAttempts) }
@@ -64,10 +66,21 @@ class PensumStatusEngine {
 		currentAttempts: List<AcademicPensumSnapshot.Attempt>,
 		currentSubjectCodes: Set<String>
 	): Boolean {
+		if (hasDeferredCompletionStatus()) return false
+
 		return when (nodeType) {
 			PensumNodeType.COURSE -> subjectCode != null && subjectCode in currentSubjectCodes
 			PensumNodeType.SLOT -> fulfillmentRules.any { rule -> rule.isFulfilledBy(currentAttempts) }
 		}
+	}
+
+	private fun PensumGraph.Node.hasDeferredCompletionStatus(): Boolean {
+		if (nodeType != PensumNodeType.SLOT) return false
+
+		val normalizedDisplayCode = displayCode.trim().uppercase()
+		val normalizedCategory = category.trim().uppercase()
+		return normalizedDisplayCode in DeferredCompletionDisplayCodes ||
+			normalizedCategory in DeferredCompletionCategories
 	}
 
 	private fun PensumGraph.Node.isAvailable(
@@ -98,5 +111,10 @@ class PensumStatusEngine {
 
 	private fun PensumGraph.FulfillmentRule.matches(subjectCode: String): Boolean {
 		return subjectCode in subjectCodes || subjectCodePrefixes.any { prefix -> subjectCode.startsWith(prefix) }
+	}
+
+	private companion object {
+		val DeferredCompletionDisplayCodes = setOf("EL", "EG")
+		val DeferredCompletionCategories = setOf("FREE_ELECTIVE", "GENERAL_STUDIES")
 	}
 }

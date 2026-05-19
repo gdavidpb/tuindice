@@ -35,13 +35,13 @@ class PensumStatusEngineTest {
 	@Test
 	fun resolvesSlotsFromFulfillmentRules() {
 		val slot = PensumGraph.Node(
-			id = "eg-slot",
+			id = "area-slot",
 			nodeType = PensumNodeType.SLOT,
-			displayCode = "EG",
+			displayCode = "AREA",
 			subjectCode = null,
-			name = "Estudios Generales",
+			name = "Electiva de Area",
 			credits = 3,
-			category = "GENERAL_STUDIES",
+			category = "AREA_ELECTIVE",
 			termId = "T1",
 			x = 0.0,
 			y = 0.0,
@@ -52,7 +52,7 @@ class PensumStatusEngineTest {
 					id = "rule",
 					ruleType = "SUBJECT_PREFIX",
 					subjectCodes = emptyList(),
-					subjectCodePrefixes = listOf("EG"),
+					subjectCodePrefixes = listOf("OP"),
 					minCredits = 3,
 					minSubjects = 1
 				)
@@ -61,12 +61,41 @@ class PensumStatusEngineTest {
 		val result = engine.resolve(
 			pensum = samplePensum(nodes = listOf(slot), edges = emptyList()),
 			academicSnapshot = AcademicPensumSnapshot(
-				attempts = listOf(attempt("EG1111", TermKind.HISTORICAL, AttemptOutcome.APPROVED, credits = 3))
+				attempts = listOf(attempt("OP1111", TermKind.HISTORICAL, AttemptOutcome.APPROVED, credits = 3))
 			)
 		)
 
-		assertEquals(PensumNodeStatus.APPROVED, result.nodeStatuses["eg-slot"])
+		assertEquals(PensumNodeStatus.APPROVED, result.nodeStatuses["area-slot"])
 		assertEquals(3, result.approvedCredits)
+	}
+
+	@Test
+	fun doesNotResolveElectiveOrGeneralStudiesSlotsAsApprovedOrCurrent() {
+		val electiveSlot = slot(
+			id = "el-slot",
+			displayCode = "EL",
+			category = "FREE_ELECTIVE",
+			prefixes = listOf("MA")
+		)
+		val generalStudiesSlot = slot(
+			id = "eg-slot",
+			displayCode = "EG",
+			category = "GENERAL_STUDIES",
+			prefixes = listOf("EG")
+		)
+		val result = engine.resolve(
+			pensum = samplePensum(nodes = listOf(electiveSlot, generalStudiesSlot), edges = emptyList()),
+			academicSnapshot = AcademicPensumSnapshot(
+				attempts = listOf(
+					attempt("MA1111", TermKind.HISTORICAL, AttemptOutcome.APPROVED, credits = 5),
+					attempt("EG1111", TermKind.CURRENT, AttemptOutcome.PENDING, credits = 3)
+				)
+			)
+		)
+
+		assertEquals(PensumNodeStatus.AVAILABLE, result.nodeStatuses["el-slot"])
+		assertEquals(PensumNodeStatus.AVAILABLE, result.nodeStatuses["eg-slot"])
+		assertEquals(0, result.approvedCredits)
 	}
 
 	private fun samplePensum(
@@ -110,6 +139,39 @@ class PensumStatusEngineTest {
 			width = 120.0,
 			height = 90.0,
 			fulfillmentRules = emptyList()
+		)
+	}
+
+	private fun slot(
+		id: String,
+		displayCode: String,
+		category: String,
+		prefixes: List<String>,
+		credits: Int = 3
+	): PensumGraph.Node {
+		return PensumGraph.Node(
+			id = id,
+			nodeType = PensumNodeType.SLOT,
+			displayCode = displayCode,
+			subjectCode = null,
+			name = displayCode,
+			credits = credits,
+			category = category,
+			termId = "T1",
+			x = 0.0,
+			y = 0.0,
+			width = 120.0,
+			height = 90.0,
+			fulfillmentRules = listOf(
+				PensumGraph.FulfillmentRule(
+					id = "$id-rule",
+					ruleType = "SUBJECT_PREFIX",
+					subjectCodes = emptyList(),
+					subjectCodePrefixes = prefixes,
+					minCredits = credits,
+					minSubjects = 1
+				)
+			)
 		)
 	}
 
