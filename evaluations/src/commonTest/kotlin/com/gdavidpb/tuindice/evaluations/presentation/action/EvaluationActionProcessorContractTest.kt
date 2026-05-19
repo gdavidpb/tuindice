@@ -60,7 +60,7 @@ class EvaluationActionProcessorContractTest {
 			),
 			sideEffect = effects::add
 		).test {
-			assertEquals(initialState, awaitItem()(initialState))
+			assertEquals(initialState.copy(isSubmitting = true), awaitItem()(initialState))
 			assertEquals(initialState, awaitItem()(initialState))
 			awaitComplete()
 		}
@@ -99,7 +99,7 @@ class EvaluationActionProcessorContractTest {
 			),
 			sideEffect = effects::add
 		).test {
-			assertEquals(initialState, awaitItem()(initialState))
+			assertEquals(initialState.copy(isSubmitting = true), awaitItem()(initialState))
 			assertEquals(initialState, awaitItem()(initialState))
 			awaitComplete()
 		}
@@ -135,7 +135,7 @@ class EvaluationActionProcessorContractTest {
 			),
 			sideEffect = {}
 		).test {
-			assertEquals(initialState, awaitItem()(initialState))
+			assertEquals(initialState.copy(isSubmitting = true), awaitItem()(initialState))
 			assertEquals(initialState, awaitItem()(initialState))
 			awaitComplete()
 		}

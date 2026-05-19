@@ -53,14 +53,59 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 				val profile = parseProfile(root.get("profile"))
 				val terms = root.get("terms").map(::parseTerm)
 				val addedTermTemplate = parseTerm(root.get("added_term"))
+				val subjectCatalog = readSubjectCatalog(fileSource)
 				return BaseState(
 					profile = profile,
 					terms = terms,
 					addedTermTemplate = addedTermTemplate,
+					subjectCatalog = subjectCatalog,
 				)
 			} catch (exception: Exception) {
 				throw IllegalStateException("Unable to load record base state for WireMock", exception)
 			}
+		}
+
+		private fun readSubjectCatalog(fileSource: FileSource): Map<String, SubjectCatalogModel> =
+			runCatching {
+				val catalogFile = fileSource.child(SUBJECTS_DIRECTORY).getTextFileNamed(SUBJECTS_CATALOG_FILENAME)
+				val root = objectMapper.readTree(catalogFile.readContentsAsString())
+				root.path("results")
+					.takeIf(JsonNode::isArray)
+					?.mapNotNull(::parseSubjectCatalogEntry)
+					?.associateBy { subject -> subject.code.uppercase() }
+					.orEmpty()
+			}.getOrDefault(emptyMap())
+
+		private fun parseSubjectCatalogEntry(node: JsonNode): SubjectCatalogModel? {
+			val code = node.path("subject_code")
+				.takeIf(JsonNode::isTextual)
+				?.asText()
+				?.trim()
+				?.takeIf(String::isNotBlank)
+				?.uppercase()
+				?: return null
+			val name = node.path("name")
+				.takeIf(JsonNode::isTextual)
+				?.asText()
+				?.trim()
+				?.takeIf(String::isNotBlank)
+				?: return null
+			val credits = node.path("credits")
+				.takeIf { it.canConvertToInt() }
+				?.asInt()
+				?: DEFAULT_ADDED_ATTEMPT_CREDITS
+			val gradingMode = node.path("grading_mode")
+				.takeIf(JsonNode::isTextual)
+				?.asText()
+				?.trim()
+				?.takeIf(String::isNotBlank)
+				?: NUMERIC_GRADING_MODE
+			return SubjectCatalogModel(
+				code = code,
+				name = name,
+				credits = credits,
+				gradingMode = gradingMode,
+			)
 		}
 
 		private fun parseProfile(node: JsonNode): ProfileModel =
@@ -362,7 +407,7 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 				)
 			}
 
-			val credits = subjectCodes.sumOf { code -> catalogAttempt(code)?.credits ?: DEFAULT_ADDED_ATTEMPT_CREDITS }
+			val credits = subjectCodes.sumOf { code -> catalogSubject(code)?.credits ?: DEFAULT_ADDED_ATTEMPT_CREDITS }
 			val weightedDifficulty = subjectCodes.mapIndexed { index, _ -> 58.0 + (index * 4.0) }.average()
 			val loadIndex = credits * (1 + weightedDifficulty / 100)
 			val baselineLoadIndex = 16.0
@@ -438,14 +483,14 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			val period = requireNotNull(PERIODS_BY_CODE[periodCode])
 			val termKey = "$periodYear-$periodCode"
 			val attempts = subjectCodes.mapIndexed { index, subjectCode ->
-				val catalogAttempt = catalogAttempt(subjectCode)
+				val catalogSubject = catalogSubject(subjectCode)
 				AttemptModel(
 					id = "$termKey-$subjectCode-${index + 1}",
 					termId = termKey,
 					code = subjectCode,
-					name = catalogAttempt?.name ?: "MOCK $subjectCode",
-					credits = catalogAttempt?.credits ?: DEFAULT_ADDED_ATTEMPT_CREDITS,
-					gradingMode = catalogAttempt?.gradingMode ?: NUMERIC_GRADING_MODE,
+					name = catalogSubject?.name ?: "MOCK $subjectCode",
+					credits = catalogSubject?.credits ?: DEFAULT_ADDED_ATTEMPT_CREDITS,
+					gradingMode = catalogSubject?.gradingMode ?: NUMERIC_GRADING_MODE,
 					academicScore = ScoreModel.empty(),
 					academicOutcome = PENDING_OUTCOME,
 					academicBadge = NONE_BADGE,
@@ -466,10 +511,22 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			)
 		}
 
-		private fun catalogAttempt(subjectCode: String): AttemptModel? =
-			visibleTerms().asSequence()
-				.flatMap { term -> term.attempts.asSequence() }
-				.firstOrNull { attempt -> attempt.code.equals(subjectCode, ignoreCase = true) }
+		private fun catalogSubject(subjectCode: String): SubjectCatalogModel? {
+			val normalizedCode = subjectCode.uppercase()
+			return baseState.subjectCatalog[normalizedCode]
+				?: visibleTerms().asSequence()
+					.flatMap { term -> term.attempts.asSequence() }
+					.firstOrNull { attempt -> attempt.code.equals(subjectCode, ignoreCase = true) }
+					?.toSubjectCatalogModel()
+		}
+
+		private fun AttemptModel.toSubjectCatalogModel(): SubjectCatalogModel =
+			SubjectCatalogModel(
+				code = code.uppercase(),
+				name = name,
+				credits = credits,
+				gradingMode = gradingMode,
+			)
 
 		private fun editableAttemptById(attemptId: String): AttemptModel? =
 			visibleTerms()
@@ -599,6 +656,14 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			val profile: ProfileModel,
 			val terms: List<TermModel>,
 			val addedTermTemplate: TermModel,
+			val subjectCatalog: Map<String, SubjectCatalogModel>,
+		)
+
+		private data class SubjectCatalogModel(
+			val code: String,
+			val name: String,
+			val credits: Int,
+			val gradingMode: String,
 		)
 
 		private data class ProfileModel(
@@ -728,6 +793,8 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 		private companion object {
 			private const val CONFIG_DIRECTORY = "config"
 			private const val CONFIG_FILENAME = "record-base-state.json"
+			private const val SUBJECTS_DIRECTORY = "subjects"
+			private const val SUBJECTS_CATALOG_FILENAME = "search-subjects-catalog.json"
 			private const val RECORD_ID = "mock-record"
 			private const val GET_DELAY_MS = 3000
 			private const val PUT_DELAY_MS = 1500

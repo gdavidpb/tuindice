@@ -11,6 +11,7 @@ object EvaluationsUiTags {
 
 	const val EvaluationContentContainer = "evaluation_content_container"
 	const val EvaluationDoneFab = "evaluation_done_fab"
+	const val EvaluationDoneProgress = "evaluation_done_progress"
 	const val EvaluationDatePicker = "evaluation_date_picker"
 	const val EvaluationDateSelectButton = "evaluation_date_select_button"
 	const val EvaluationDateNoDateButton = "evaluation_date_no_date_button"

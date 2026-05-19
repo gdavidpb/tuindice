@@ -8,11 +8,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.InputChip
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -190,6 +192,7 @@ fun EvaluationContentView(
 				.height(52.dp)
 				.widthIn(min = 168.dp),
 			shape = RoundedCornerShape(999.dp),
+			enabled = state.canSubmit,
 			onClick = {
 				onDoneClick(
 					state.selectedAttempt,
@@ -201,12 +204,22 @@ fun EvaluationContentView(
 				)
 			}
 		) {
-			Text(
-				text = if (state.evaluationId == null)
-					stringResource(Res.string.button_add_evaluation)
-				else
-					stringResource(Res.string.button_save_evaluation_changes)
-			)
+			if (state.isSubmitting) {
+				CircularProgressIndicator(
+					modifier = Modifier
+						.testTag(EvaluationsUiTags.EvaluationDoneProgress)
+						.size(20.dp),
+					color = MaterialTheme.colorScheme.onSurfaceVariant,
+					strokeWidth = 2.dp
+				)
+			} else {
+				Text(
+					text = if (state.evaluationId == null)
+						stringResource(Res.string.button_add_evaluation)
+					else
+						stringResource(Res.string.button_save_evaluation_changes)
+				)
+			}
 		}
 	}
 }

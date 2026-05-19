@@ -30,7 +30,10 @@ class AddEvaluationActionProcessor(
 			.map { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> suspend { state ->
-						state
+						if (state is Evaluation.State.Content)
+							state.copy(isSubmitting = true)
+						else
+							state
 					}
 
 					is UseCaseState.Data -> suspend { state ->
@@ -44,7 +47,10 @@ class AddEvaluationActionProcessor(
 							Evaluation.Effect.NavigateToEvaluations
 						)
 
-						state
+						if (state is Evaluation.State.Content)
+							state.copy(isSubmitting = false)
+						else
+							state
 					}
 
 					is UseCaseState.Error -> suspend { state: Evaluation.State ->
@@ -71,7 +77,10 @@ class AddEvaluationActionProcessor(
 							)
 						)
 
-						state
+						if (state is Evaluation.State.Content)
+							state.copy(isSubmitting = false)
+						else
+							state
 					}
 				}
 			}

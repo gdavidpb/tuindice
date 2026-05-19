@@ -34,10 +34,10 @@ object CreateSyntheticTerm {
 		val hasLoadPreviewError: Boolean = false,
 		val isRefreshingSearch: Boolean = false,
 		val hasSearchError: Boolean = false,
-		val isCreating: Boolean = false
+		val isSubmitting: Boolean = false
 	) : ViewState() {
-		val canCreate: Boolean
-			get() = selectedPeriod != null && selectedSubjects.isNotEmpty() && !isCreating
+		val canSubmit: Boolean
+			get() = selectedPeriod != null && selectedSubjects.isNotEmpty() && !isSubmitting
 
 		val isEditing: Boolean
 			get() = editingTermId != null

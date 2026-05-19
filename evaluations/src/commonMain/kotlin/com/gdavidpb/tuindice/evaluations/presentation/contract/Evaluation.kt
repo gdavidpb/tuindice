@@ -35,6 +35,7 @@ object Evaluation {
 			val isOverdue: Boolean = false,
 			val grade: Double? = null,
 			val maxGrade: Double? = null,
+			val isSubmitting: Boolean = false,
 			val gradeSection: EvaluationGradeSectionItem = EvaluationGradeSectionItem(
 				maxGradeTitleText = "",
 				overdueTitleText = "",
@@ -42,7 +43,10 @@ object Evaluation {
 				maxGradeText = "",
 				showsGradeChip = false
 			)
-		) : State()
+		) : State() {
+			val canSubmit: Boolean
+				get() = !isSubmitting
+		}
 
 		data object Failed : State()
 	}

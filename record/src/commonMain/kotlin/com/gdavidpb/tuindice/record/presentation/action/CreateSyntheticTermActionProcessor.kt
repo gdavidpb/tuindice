@@ -40,14 +40,14 @@ class CreateSyntheticTermActionProcessor(
 					is UseCaseState.Loading ->
 						emit(
 							suspend { state: CreateSyntheticTerm.State ->
-								state.copy(isCreating = true)
+								state.copy(isSubmitting = true)
 							}
 						)
 
 					is UseCaseState.Data -> {
 						emit(
 							suspend { state: CreateSyntheticTerm.State ->
-								state.copy(isCreating = false)
+								state.copy(isSubmitting = false)
 							}
 						)
 						sideEffect(CreateSyntheticTerm.Effect.NavigateBack)
@@ -56,7 +56,7 @@ class CreateSyntheticTermActionProcessor(
 					is UseCaseState.Error ->
 						emit(
 							suspend { state: CreateSyntheticTerm.State ->
-								state.copy(isCreating = false)
+								state.copy(isSubmitting = false)
 							}
 						)
 				}

@@ -3,11 +3,14 @@ package com.gdavidpb.tuindice.record.ui.screen
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
@@ -179,5 +182,36 @@ class CreateSyntheticTermScreenUiTest {
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchTab).performClick()
 
 		onNodeWithText("0 resultados").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_stateIsSubmitting_then_submitButtonShowsProgressAndIsDisabled() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateSyntheticTermScreen(
+				state = CreateSyntheticTerm.State(
+					selectedPeriod = SyntheticTermPeriodOption(
+						periodYear = 2027,
+						periodCode = AcademicTermPeriod.JUL_AUG
+					),
+					selectedSubjects = listOf(
+						SyntheticTermSubject(
+							subjectCode = "MA1111",
+							name = "Matemáticas I",
+							credits = 4
+						)
+					),
+					isSubmitting = true
+				),
+				onQueryChange = {},
+				onClearQueryClick = {},
+				onPeriodSelected = {},
+				onSubjectAdd = {},
+				onSubjectRemove = {},
+				onCreateClick = {}
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSubmitProgress).assertIsDisplayed()
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSubmitButton).assertIsNotEnabled()
 	}
 }

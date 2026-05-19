@@ -6,10 +6,12 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -29,8 +31,9 @@ import tuindice.record.generated.resources.create_term_selected_count
 @Composable
 fun CreateTermSubmitBar(
 	selectedCount: Int,
-	canCreate: Boolean,
+	canSubmit: Boolean,
 	isEditing: Boolean,
+	isSubmitting: Boolean,
 	onCreateClick: () -> Unit,
 	modifier: Modifier = Modifier
 ) {
@@ -65,17 +68,27 @@ fun CreateTermSubmitBar(
 					.width(162.dp)
 					.height(52.dp)
 					.testTag(RecordUiTags.CreateSyntheticTermSubmitButton),
-				enabled = canCreate,
+				enabled = canSubmit,
 				onClick = onCreateClick,
 				shape = RoundedCornerShape(999.dp)
 			) {
-				Text(
-					text = stringResource(
-						if (isEditing) Res.string.edit_term_button else Res.string.create_term_button
-					),
-					maxLines = 1,
-					overflow = TextOverflow.Ellipsis
-				)
+				if (isSubmitting) {
+					CircularProgressIndicator(
+						modifier = Modifier
+							.testTag(RecordUiTags.CreateSyntheticTermSubmitProgress)
+							.size(20.dp),
+						color = MaterialTheme.colorScheme.onSurfaceVariant,
+						strokeWidth = 2.dp
+					)
+				} else {
+					Text(
+						text = stringResource(
+							if (isEditing) Res.string.edit_term_button else Res.string.create_term_button
+						),
+						maxLines = 1,
+						overflow = TextOverflow.Ellipsis
+					)
+				}
 			}
 		}
 	}

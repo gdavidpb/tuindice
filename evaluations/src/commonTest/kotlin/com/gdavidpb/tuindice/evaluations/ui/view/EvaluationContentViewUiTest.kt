@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -86,6 +87,29 @@ class EvaluationContentViewUiTest {
 
 		assertNodeVisible(EvaluationsUiTags.EvaluationDoneFab)
 		onNodeWithText("Guardar cambios").assertExists()
+	}
+
+	@Test
+	fun when_stateIsSaving_then_doneButtonShowsProgressAndIsDisabled() = runTuIndiceUiTest {
+		var doneClicks = 0
+
+		setTuIndiceTestContent {
+			EvaluationContentView(
+				state = evaluationContentState(isOverdue = false).copy(isSubmitting = true),
+				onAttemptChange = {},
+				onTypeChange = {},
+				onDateChange = {},
+				onGradeClick = { _, _ -> },
+				onMaxGradeClick = {},
+				onDoneClick = { _, _, _, _, _, _ -> doneClicks++ }
+			)
+		}
+
+		assertNodeVisible(EvaluationsUiTags.EvaluationDoneProgress)
+		onNodeWithTag(EvaluationsUiTags.EvaluationDoneFab)
+			.assertIsNotEnabled()
+
+		assertEquals(0, doneClicks)
 	}
 
 	@Test

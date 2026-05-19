@@ -27,7 +27,10 @@ class EditEvaluationActionProcessor(
 			.map { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> suspend { state ->
-						state
+						if (state is Evaluation.State.Content)
+							state.copy(isSubmitting = true)
+						else
+							state
 					}
 
 					is UseCaseState.Data -> suspend { state: Evaluation.State ->
@@ -43,7 +46,10 @@ class EditEvaluationActionProcessor(
 							Evaluation.Effect.NavigateToEvaluations
 						)
 
-						state
+						if (state is Evaluation.State.Content)
+							state.copy(isSubmitting = false)
+						else
+							state
 					}
 
 					is UseCaseState.Error -> suspend { state: Evaluation.State ->
@@ -64,7 +70,10 @@ class EditEvaluationActionProcessor(
 						if (useCaseState.error is UpdateEvaluationUseCaseError.NotFound)
 							sideEffect(Evaluation.Effect.NavigateToEvaluations)
 
-						state
+						if (state is Evaluation.State.Content)
+							state.copy(isSubmitting = false)
+						else
+							state
 					}
 				}
 			}
