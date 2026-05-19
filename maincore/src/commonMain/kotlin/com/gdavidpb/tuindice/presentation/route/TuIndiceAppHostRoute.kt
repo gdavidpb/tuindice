@@ -49,6 +49,7 @@ import org.koin.compose.viewmodel.koinViewModel
 import org.jetbrains.compose.resources.stringResource
 import tuindice.maincore.generated.resources.Res
 import tuindice.maincore.generated.resources.snack_pending_changes_unavailable
+import tuindice.maincore.generated.resources.snack_session_invalidated
 
 private val logger = appLogger(tag = "SignOut")
 
@@ -95,6 +96,7 @@ fun TuIndiceAppHostRoute(
 		snackbarHostState.currentSnackbarData?.dismiss()
 	}
 	val pendingChangesUnavailableMessage = stringResource(Res.string.snack_pending_changes_unavailable)
+	val sessionInvalidatedMessage = stringResource(Res.string.snack_session_invalidated)
 
 	LaunchedEffect(Unit) {
 		yield()
@@ -108,7 +110,7 @@ fun TuIndiceAppHostRoute(
 		}
 	}
 
-	LaunchedEffect(lifecycleOwner, sessionInvalidationRepository) {
+	LaunchedEffect(lifecycleOwner, sessionInvalidationRepository, sessionInvalidatedMessage) {
 		lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
 			sessionInvalidationRepository.observeSessionInvalidation().collect {
 				yield()
@@ -125,6 +127,11 @@ fun TuIndiceAppHostRoute(
 						inclusive = true
 					}
 				}
+				showSnackBar(
+					SnackBarMessage(
+						message = sessionInvalidatedMessage
+					)
+				)
 			}
 		}
 	}

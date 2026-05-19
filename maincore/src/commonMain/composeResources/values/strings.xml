@@ -10,5 +10,6 @@
 	<string name="main_start_failed_title">No pudimos iniciar la app</string>
 	<string name="main_start_failed_message">Intenta de nuevo en unos segundos.</string>
 	<string name="main_start_failed_retry">Reintentar</string>
+	<string name="snack_session_invalidated">Inicia sesión nuevamente</string>
 	<string name="snack_pending_changes_unavailable">No pudimos revisar tus cambios pendientes. Intenta nuevamente.</string>
 </resources>

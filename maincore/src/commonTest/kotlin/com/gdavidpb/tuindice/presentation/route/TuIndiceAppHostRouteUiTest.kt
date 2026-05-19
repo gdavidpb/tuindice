@@ -567,6 +567,10 @@ class TuIndiceAppHostRouteUiTest {
 			}
 
 			assertNodeVisible(AuthUiTags.PasswordTextField)
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithText("Inicia sesión nuevamente").fetchSemanticsNodes().isNotEmpty()
+			}
+			onNodeWithText("Inicia sesión nuevamente").assertExists()
 		} finally {
 			stopKoin()
 		}
