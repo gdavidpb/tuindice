@@ -139,6 +139,36 @@ class SummaryContentViewUiTest {
 	}
 
 	@Test
+	fun when_syncIsRunningWithHealthyStatus_then_statusIconUsesLoadingRotation() {
+		assertEquals(
+			expected = -180f,
+			actual = syncStatusIconRotation(
+				syncStatus = SyncStatus.Healthy,
+				isSyncing = true,
+				currentRotation = -180f
+			)
+		)
+	}
+
+	@Test
+	fun when_syncStatusIsNotHealthy_then_statusIconDoesNotUseLoadingRotation() {
+		listOf(
+			SyncStatus.Failed,
+			SyncStatus.Unavailable,
+			SyncStatus.OutdatedCredentials
+		).forEach { syncStatus ->
+			assertEquals(
+				expected = 0f,
+				actual = syncStatusIconRotation(
+					syncStatus = syncStatus,
+					isSyncing = true,
+					currentRotation = -180f
+				)
+			)
+		}
+	}
+
+	@Test
 	fun when_syncHasFailed_then_statusKeepsLastUpdateAndCanOpenDetails() = runTuIndiceUiTest {
 		val contentState = summaryContentState()
 		var statusIconClicks = 0

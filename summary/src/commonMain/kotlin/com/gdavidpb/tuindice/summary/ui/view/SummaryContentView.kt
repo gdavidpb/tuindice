@@ -58,9 +58,10 @@ fun SummaryContentView(
 	val canOpenStatusDetails = syncStatus != SyncStatus.Healthy
 	val statusText = state.lastUpdate
 	val syncRotation = remember { Animatable(0f) }
+	val isSyncIconRotating = isSyncing && syncStatus == SyncStatus.Healthy
 
-	LaunchedEffect(isSyncing) {
-		if (isSyncing) {
+	LaunchedEffect(isSyncIconRotating) {
+		if (isSyncIconRotating) {
 			while (true) {
 				syncRotation.animateTo(
 					targetValue = syncRotation.value - SYNC_ICON_FULL_ROTATION_DEGREES,
@@ -87,6 +88,11 @@ fun SummaryContentView(
 			syncRotation.snapTo(0f)
 		}
 	}
+	val statusIconRotation = syncStatusIconRotation(
+		syncStatus = syncStatus,
+		isSyncing = isSyncing,
+		currentRotation = syncRotation.value
+	)
 
 	Column(
 		modifier = Modifier
@@ -139,7 +145,7 @@ fun SummaryContentView(
 				Icon(
 					modifier = Modifier
 						.size(20.dp)
-						.rotate(syncRotation.value)
+						.rotate(statusIconRotation)
 						.testTag(SummaryUiTags.StatusIcon),
 					imageVector = statusIcon,
 					tint = statusTint,
@@ -167,6 +173,14 @@ fun SummaryContentView(
 			}
 		}
 	}
+}
+
+internal fun syncStatusIconRotation(
+	syncStatus: SyncStatus,
+	isSyncing: Boolean,
+	currentRotation: Float
+): Float {
+	return if (isSyncing && syncStatus == SyncStatus.Healthy) currentRotation else 0f
 }
 
 private fun nextSyncIconStopRotation(currentRotation: Float): Float {
