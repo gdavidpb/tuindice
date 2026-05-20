@@ -63,7 +63,7 @@ fun GradeTextView(
 				fontWeight = FontWeight.Light
 			)
 		) {
-			append("/$maxGradeText")
+			append(" / $maxGradeText")
 		}
 	}
 
