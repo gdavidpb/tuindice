@@ -569,7 +569,7 @@ private fun sampleSubjectSegment(
 ) = SubjectDetailItem.SegmentItem(
 	studentsText = students.toString(),
 	attemptsText = attempts.toString(),
-	difficultyScoreText = "$difficultyScore/100",
+	difficultyScoreText = "$difficultyScore / 100",
 	difficultyBandText = "Alta",
 	firstAttemptPassRateText = "61%",
 	approvalRateText = "${(approvalRate * 100).toInt()}%",

@@ -6,7 +6,7 @@
     <string name="subjects_credits_pattern">%1$d UC</string>
     <string name="subjects_metric_empty">--</string>
     <string name="subjects_percent_pattern">%1$d%%</string>
-    <string name="subjects_score_pattern">%1$d/100</string>
+    <string name="subjects_score_pattern">%1$d / 100</string>
     <string name="subjects_difficulty_low">Baja</string>
     <string name="subjects_difficulty_medium">Media</string>
     <string name="subjects_difficulty_high">Alta</string>

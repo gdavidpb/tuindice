@@ -24,6 +24,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -60,9 +61,13 @@ fun PensumGraphCanvas(
 ) {
 	val density = LocalDensity.current
 	val coroutineScope = rememberCoroutineScope()
-	val scale = remember { Animatable(InitialCanvasZoom) }
-	val offsetX = remember { Animatable(0f) }
-	val offsetY = remember { Animatable(0f) }
+	val graphKey = "${model.selection.year}-${model.selection.modalityId}"
+	var savedScale by rememberSaveable(graphKey) { mutableStateOf<Float?>(null) }
+	var savedOffsetX by rememberSaveable(graphKey) { mutableStateOf<Float?>(null) }
+	var savedOffsetY by rememberSaveable(graphKey) { mutableStateOf<Float?>(null) }
+	val scale = remember(graphKey) { Animatable(savedScale ?: InitialCanvasZoom) }
+	val offsetX = remember(graphKey) { Animatable(savedOffsetX ?: 0f) }
+	val offsetY = remember(graphKey) { Animatable(savedOffsetY ?: 0f) }
 
 	BoxWithConstraints(
 		modifier = modifier
@@ -80,7 +85,6 @@ fun PensumGraphCanvas(
 			height = with(density) { model.canvas.height.dp.toPx() }
 		)
 		val panMarginPx = with(density) { CanvasPanMargin.toPx() }
-		val graphKey = "${model.selection.year}-${model.selection.modalityId}"
 		var selectedNodeId by remember(graphKey) { mutableStateOf<String?>(null) }
 		val selectedRequirementEdgeIds = remember(model.edges, selectedNodeId) {
 			model.requirementEdgeIdsTo(selectedNodeId)
@@ -92,20 +96,39 @@ fun PensumGraphCanvas(
 			)
 		}
 
+		fun saveCanvasViewport(scaleValue: Float, offset: Offset) {
+			savedScale = scaleValue
+			savedOffsetX = offset.x
+			savedOffsetY = offset.y
+		}
+
 		LaunchedEffect(graphKey, viewportSizePx, canvasSizePx, panMarginPx) {
-			scale.snapTo(InitialCanvasZoom)
-			val initialOffset = constrainCanvasOffset(
-				offset = Offset(
+			val restoredScale = savedScale?.coerceIn(MinCanvasZoom, MaxCanvasZoom) ?: InitialCanvasZoom
+			val restoredOffset = if (savedOffsetX != null && savedOffsetY != null) {
+				Offset(
+					x = checkNotNull(savedOffsetX),
+					y = checkNotNull(savedOffsetY)
+				)
+			} else {
+				Offset(
 					x = with(density) { InitialCanvasOffset.toPx() },
 					y = with(density) { InitialCanvasOffset.toPx() }
-				),
-				scale = scale.value,
+				)
+			}
+			val constrainedOffset = constrainCanvasOffset(
+				offset = restoredOffset,
+				scale = restoredScale,
 				canvasSizePx = canvasSizePx,
 				viewportSizePx = viewportSizePx,
 				panMarginPx = panMarginPx
 			)
-			offsetX.snapTo(initialOffset.x)
-			offsetY.snapTo(initialOffset.y)
+			scale.snapTo(restoredScale)
+			offsetX.snapTo(constrainedOffset.x)
+			offsetY.snapTo(constrainedOffset.y)
+			saveCanvasViewport(
+				scaleValue = restoredScale,
+				offset = constrainedOffset
+			)
 		}
 
 		fun zoomTo(targetScale: Float) {
@@ -159,6 +182,10 @@ fun PensumGraphCanvas(
 						)
 					)
 				}
+				saveCanvasViewport(
+					scaleValue = newScale,
+					offset = targetOffset
+				)
 			}
 		}
 
@@ -189,6 +216,10 @@ fun PensumGraphCanvas(
 							scale.snapTo(newScale)
 							offsetX.snapTo(nextOffset.x)
 							offsetY.snapTo(nextOffset.y)
+							saveCanvasViewport(
+								scaleValue = newScale,
+								offset = nextOffset
+							)
 						}
 					}
 				}
