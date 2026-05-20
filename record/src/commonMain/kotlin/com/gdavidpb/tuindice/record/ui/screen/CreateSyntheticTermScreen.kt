@@ -5,19 +5,23 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
@@ -43,6 +47,7 @@ import tuindice.record.generated.resources.create_term_search_error
 import tuindice.record.generated.resources.create_term_search_results
 import tuindice.record.generated.resources.create_term_selected_title
 import tuindice.record.generated.resources.create_term_suggested_title
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 fun CreateSyntheticTermScreen(
@@ -56,6 +61,8 @@ fun CreateSyntheticTermScreen(
 	modifier: Modifier = Modifier
 ) {
 	val focusRequester = remember { FocusRequester() }
+	val focusManager = LocalFocusManager.current
+	val lazyListState = rememberLazyListState()
 	val selectedAddSubjectTab = remember { mutableStateOf(CreateTermAddSubjectTab.Suggested) }
 	val showTakenSearchResults = remember { mutableStateOf(false) }
 	val selectedSubjectCodes = remember(state.selectedSubjects) {
@@ -79,6 +86,20 @@ fun CreateSyntheticTermScreen(
 		}
 	}
 
+	fun dismissKeyboard() {
+		focusManager.clearFocus()
+	}
+
+	LaunchedEffect(lazyListState) {
+		snapshotFlow { lazyListState.isScrollInProgress }
+			.distinctUntilChanged()
+			.collect { isScrollInProgress ->
+				if (isScrollInProgress) {
+					dismissKeyboard()
+				}
+			}
+	}
+
 	val takenSearchResultsCount = searchResultsWithoutSelectedSubjects.count { subject ->
 		subject.availability == SyntheticTermSubjectAvailability.ALREADY_TAKEN
 	}
@@ -99,7 +120,9 @@ fun CreateSyntheticTermScreen(
 		LazyColumn(
 			modifier = Modifier
 				.fillMaxSize()
-				.padding(horizontal = 20.dp),
+				.padding(horizontal = 20.dp)
+				.imePadding(),
+			state = lazyListState,
 			contentPadding = PaddingValues(
 				top = InternalScreenDefaults.TopBarSpacing,
 				bottom = 116.dp
@@ -194,7 +217,8 @@ fun CreateSyntheticTermScreen(
 							query = state.query,
 							focusRequester = focusRequester,
 							onQueryChange = onQueryChange,
-							onClearQueryClick = onClearQueryClick
+							onClearQueryClick = onClearQueryClick,
+							onSearch = ::dismissKeyboard
 						)
 					}
 
@@ -231,7 +255,10 @@ fun CreateSyntheticTermScreen(
 								subject = subject,
 								action = CreateTermSubjectCardAction.Add,
 								enabled = subject.canAdd,
-								onClick = { onSubjectAdd(subject) }
+								onClick = {
+									dismissKeyboard()
+									onSubjectAdd(subject)
+								}
 							)
 						}
 					}
@@ -261,7 +288,9 @@ fun CreateSyntheticTermScreen(
 			isEditing = state.isEditing,
 			isSubmitting = state.isSubmitting,
 			onCreateClick = onCreateClick,
-			modifier = Modifier.align(Alignment.BottomCenter)
+			modifier = Modifier
+				.align(Alignment.BottomCenter)
+				.imePadding()
 		)
 	}
 }

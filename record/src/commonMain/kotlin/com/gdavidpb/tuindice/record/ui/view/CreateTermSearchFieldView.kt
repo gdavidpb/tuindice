@@ -31,7 +31,8 @@ fun CreateTermSearchField(
 	query: String,
 	focusRequester: FocusRequester,
 	onQueryChange: (String) -> Unit,
-	onClearQueryClick: () -> Unit
+	onClearQueryClick: () -> Unit,
+	onSearch: () -> Unit
 ) {
 	OutlinedTextField(
 		modifier = Modifier
@@ -68,7 +69,7 @@ fun CreateTermSearchField(
 			}
 		},
 		keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
-		keyboardActions = KeyboardActions(onSearch = {}),
+		keyboardActions = KeyboardActions(onSearch = { onSearch() }),
 		colors = OutlinedTextFieldDefaults.colors(
 			focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.48f),
 			unfocusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.48f)

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -12,6 +13,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectSearch
@@ -30,9 +32,14 @@ fun SubjectSearchScreen(
 	modifier: Modifier = Modifier
 ) {
 	val focusRequester = remember { FocusRequester() }
+	val focusManager = LocalFocusManager.current
 
 	LaunchedEffect(Unit) {
 		focusRequester.requestFocus()
+	}
+
+	fun dismissKeyboard() {
+		focusManager.clearFocus()
 	}
 
 	Column(
@@ -46,7 +53,8 @@ fun SubjectSearchScreen(
 			query = state.query,
 			focusRequester = focusRequester,
 			onQueryChange = onQueryChange,
-			onClearClick = onClearClick
+			onClearClick = onClearClick,
+			onSearch = ::dismissKeyboard
 		)
 		Spacer(modifier = Modifier.height(28.dp))
 
@@ -64,7 +72,14 @@ fun SubjectSearchScreen(
 					query = state.query,
 					results = state.results,
 					isRefreshing = state.isRefreshing,
-					onSubjectClick = onSubjectClick
+					onSubjectClick = { subjectCode ->
+						dismissKeyboard()
+						onSubjectClick(subjectCode)
+					},
+					onResultsInteraction = ::dismissKeyboard,
+					modifier = Modifier
+						.weight(1f)
+						.imePadding()
 				)
 		}
 	}
