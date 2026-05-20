@@ -53,6 +53,7 @@ class PensumStatusEngineTest {
 					ruleType = "SUBJECT_PREFIX",
 					subjectCodes = emptyList(),
 					subjectCodePrefixes = listOf("OP"),
+					slotEligibilityKind = null,
 					minCredits = 3,
 					minSubjects = 1
 				)
@@ -185,6 +186,40 @@ class PensumStatusEngineTest {
 		assertEquals(0, result.approvedCredits)
 	}
 
+	@Test
+	fun doesNotResolveGenericElectiveRulesEvenWhenPrefixesArePresent() {
+		val genericSlot = slot(
+			id = "generic-slot",
+			displayCode = "EL",
+			category = "FREE_ELECTIVE",
+			prefixes = listOf("CI")
+		).copy(
+			fulfillmentRules = listOf(
+				PensumGraph.FulfillmentRule(
+					id = "generic-rule",
+					ruleType = "GENERIC_ELECTIVE",
+					subjectCodes = emptyList(),
+					subjectCodePrefixes = listOf("CI"),
+					slotEligibilityKind = null,
+					minCredits = 3,
+					minSubjects = 1
+				)
+			)
+		)
+		val result = engine.resolve(
+			pensum = samplePensum(nodes = listOf(genericSlot), edges = emptyList()),
+			academicSnapshot = AcademicPensumSnapshot(
+				attempts = listOf(
+					attempt("CI4321", TermKind.HISTORICAL, AttemptOutcome.APPROVED, credits = 3)
+				)
+			)
+		)
+
+		assertEquals(PensumNodeStatus.AVAILABLE, result.nodeStatuses["generic-slot"])
+		assertEquals(false, result.nodeFulfillments.containsKey("generic-slot"))
+		assertEquals(0, result.approvedCredits)
+	}
+
 	private fun samplePensum(
 		nodes: List<PensumGraph.Node> = listOf(
 			course("ma1111", "MA1111", "Calculo I", credits = 5),
@@ -255,6 +290,7 @@ class PensumStatusEngineTest {
 					ruleType = "SUBJECT_PREFIX",
 					subjectCodes = emptyList(),
 					subjectCodePrefixes = prefixes,
+					slotEligibilityKind = null,
 					minCredits = credits,
 					minSubjects = 1
 				)

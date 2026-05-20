@@ -101,6 +101,7 @@ private fun GetPensumResponse.Pensum.toGraph(): PensumGraph {
 						ruleType = rule.ruleType,
 						subjectCodes = rule.subjectCodes,
 						subjectCodePrefixes = rule.subjectCodePrefixes,
+						slotEligibilityKind = rule.slotEligibilityKind,
 						minCredits = rule.minCredits,
 						minSubjects = rule.minSubjects
 					)

@@ -111,6 +111,7 @@ class PensumStatusEngine {
 	private fun PensumGraph.FulfillmentRule.matchesAttempt(
 		attempt: AcademicPensumSnapshot.Attempt
 	): Boolean {
+		if (ruleType == "GENERIC_ELECTIVE") return false
 		if (minSubjects != null && minSubjects > 1) return false
 		if (minCredits != null && attempt.credits < minCredits) return false
 

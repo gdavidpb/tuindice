@@ -60,6 +60,7 @@ data class GetPensumResponse(
 		@SerialName("rule_type") val ruleType: String,
 		@SerialName("subject_codes") val subjectCodes: List<String> = emptyList(),
 		@SerialName("subject_code_prefixes") val subjectCodePrefixes: List<String> = emptyList(),
+		@SerialName("slot_eligibility_kind") val slotEligibilityKind: String? = null,
 		@SerialName("min_credits") val minCredits: Int? = null,
 		@SerialName("min_subjects") val minSubjects: Int? = null
 	)

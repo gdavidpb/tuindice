@@ -44,6 +44,7 @@ data class PensumGraph(
 		val ruleType: String,
 		val subjectCodes: List<String>,
 		val subjectCodePrefixes: List<String>,
+		val slotEligibilityKind: String?,
 		val minCredits: Int?,
 		val minSubjects: Int?
 	)
