@@ -47,7 +47,34 @@ while IFS= read -r selector; do
 	fi
 done < "${CRITICAL_SELECTORS}"
 
-if [[ "${missing_catalog_entries}" == "1" || "${missing_flow_files}" == "1" || "${missing_selectors}" == "1" ]]; then
+invalid_auth_usb_id_inputs=0
+while IFS= read -r auth_flow; do
+	awk -v file="${auth_flow#"${REPO_ROOT}/"}" '
+		/id:[[:space:]]*auth_usb_id_text_field/ {
+			expectUsbIdInput = 1
+			next
+		}
+		expectUsbIdInput && /^[[:space:]]*-[[:space:]]*inputText:/ {
+			value = $0
+			sub(/^[^"]*"/, "", value)
+			sub(/".*$/, "", value)
+			if (value !~ /^([0-9]{7}|[0-9]{2}-[0-9]{5})$/) {
+				printf "Auth flow writes invalid USBID %s in %s\n", value, file > "/dev/stderr"
+				exit 42
+			}
+			expectUsbIdInput = 0
+		}
+	' "${auth_flow}" || {
+		status=$?
+		if [[ "${status}" == "42" ]]; then
+			invalid_auth_usb_id_inputs=1
+		else
+			exit "${status}"
+		fi
+	}
+done < <(find "${FLOWS_ROOT}/auth" -name '*.yaml' -type f | sort)
+
+if [[ "${missing_catalog_entries}" == "1" || "${missing_flow_files}" == "1" || "${missing_selectors}" == "1" || "${invalid_auth_usb_id_inputs}" == "1" ]]; then
 	exit 1
 fi
 

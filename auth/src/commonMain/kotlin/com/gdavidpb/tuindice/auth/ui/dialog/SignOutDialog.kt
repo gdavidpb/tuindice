@@ -20,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.auth.presentation.contract.SignOut
@@ -43,7 +45,9 @@ fun SignOutDialog(
 	val isLoggingOut = state is SignOut.State.LoggingOut
 
 	ModalBottomSheet(
-		modifier = Modifier.testTag(BaseUiTags.ConfirmationDialogSheet),
+		modifier = Modifier
+			.semantics { testTagsAsResourceId = true }
+			.testTag(BaseUiTags.ConfirmationDialogSheet),
 		sheetState = sheetState,
 		onDismissRequest = {
 			if (!isLoggingOut) {

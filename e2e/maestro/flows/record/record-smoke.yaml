@@ -14,3 +14,11 @@ appId: com.gdavidpb.tuindice.debug
     id: record_top_bar_view_mode_switch
 - assertVisible:
     id: record_top_bar_view_mode_banner
+- tapOn:
+    id: record_top_bar_view_mode_switch
+- tapOn:
+    id: record_term_current_chip_.*
+- extendedWaitUntil:
+    visible:
+      id: base_top_app_bar_action_enrollment_proof
+    timeout: 10000

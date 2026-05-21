@@ -10,11 +10,7 @@ appId: com.gdavidpb.tuindice.debug
     id: summary_grade_text
 - assertVisible:
     id: summary_items_list
-- tapOn:
-    id: summary_status_icon_button
-- extendedWaitUntil:
-    visible:
-      id: summary_sync_status_message
-    timeout: 10000
-- tapOn:
-    id: base_confirmation_dialog_positive_button
+- assertVisible:
+    id: summary_status_row
+- assertVisible:
+    id: summary_status_text

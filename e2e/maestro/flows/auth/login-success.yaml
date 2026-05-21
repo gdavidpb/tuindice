@@ -4,7 +4,7 @@ appId: com.gdavidpb.tuindice.debug
     id: auth_usb_id_text_field
 - tapOn:
     id: auth_usb_id_text_field
-- inputText: "111111"
+- inputText: "1111111"
 - tapOn:
     id: auth_password_text_field
 - inputText: "123456"

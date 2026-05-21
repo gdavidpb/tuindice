@@ -11,6 +11,12 @@ Rules:
 - If a Maestro flow needs a new backend state, add a mapping under `mocks/mappings/<domain>/` and referenced bodies under `mocks/__files/<domain>/`.
 - Record the new fixture dependency in `flow-catalog.yaml`.
 
+Auth fixture contract:
+
+- The canonical successful local login is raw USBID digits `1111111`, displayed/formatted by the app as `11-11111`, with password `123456`.
+- Invalid credential flows must still enter a syntactically valid USBID, for example raw digits `0000000`, and vary the password or backend fixture to trigger the unauthorized path.
+- Do not use short USBID values in Maestro flows; the app requires the formatted shape `NN-NNNNN`.
+
 Current local backend entrypoint:
 
 ```bash

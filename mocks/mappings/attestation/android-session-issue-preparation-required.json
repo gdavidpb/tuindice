@@ -1,6 +1,7 @@
 {
   "scenarioName": "android-attestation-preparation",
-  "requiredScenarioState": "Prepared",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "PreparationRequired",
   "priority": 1,
   "request": {
     "method": "POST",
@@ -23,16 +24,13 @@
     ]
   },
   "response": {
-    "status": 200,
+    "status": 428,
     "headers": {
       "Content-Type": "application/json"
     },
     "jsonBody": {
-      "session_id": "mock-attestation-session-android-exchange",
-      "challenge": "mock-attestation-challenge-android",
-      "expires_at": 2524608000000,
-      "evidence_mode": "play_integrity_classic",
-      "proof_of_possession_mode": "android_keystore"
+      "code": "attestation_not_prepared",
+      "required_preparation_code": "bootstrap"
     },
     "fixedDelayMilliseconds": 250
   }

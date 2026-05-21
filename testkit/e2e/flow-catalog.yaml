@@ -73,8 +73,8 @@ flows:
     status: active
     primary_selectors:
       - summary_content_container
-      - summary_status_icon_button
-      - summary_sync_status_message
+      - summary_status_row
+      - summary_status_text
   - id: record-smoke
     path: e2e/maestro/flows/record/record-smoke.yaml
     module: record
@@ -92,8 +92,6 @@ flows:
     status: active
     primary_selectors:
       - base_top_app_bar_action_enrollment_proof
-      - enrollment_fetching_sheet
-      - enrollment_fetching_cancel_button
   - id: pensum-smoke
     path: e2e/maestro/flows/pensum/pensum-smoke.yaml
     module: pensum

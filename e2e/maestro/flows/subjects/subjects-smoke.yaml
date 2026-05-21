@@ -8,6 +8,7 @@ appId: com.gdavidpb.tuindice.debug
     timeout: 20000
 - tapOn:
     id: base_top_app_bar_action_search_pensum
+- hideKeyboard
 - extendedWaitUntil:
     visible:
       id: subjects_search_screen
@@ -26,6 +27,13 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: subjects_content
     timeout: 20000
+- tapOn:
+    id: maincore_tuindice_top_bar_back_button
+- hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: subjects_search_screen
+    timeout: 10000
 - tapOn:
     id: maincore_tuindice_top_bar_back_button
 - extendedWaitUntil:

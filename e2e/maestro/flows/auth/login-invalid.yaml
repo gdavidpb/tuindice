@@ -3,7 +3,7 @@ appId: com.gdavidpb.tuindice.debug
 - runFlow: ../_shared/launch-clean.yaml
 - tapOn:
     id: auth_usb_id_text_field
-- inputText: "000000"
+- inputText: "0000000"
 - tapOn:
     id: auth_password_text_field
 - inputText: "bad-password"

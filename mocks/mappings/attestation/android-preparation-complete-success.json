@@ -1,4 +1,7 @@
 {
+  "scenarioName": "android-attestation-preparation",
+  "requiredScenarioState": "PreparationRequired",
+  "newScenarioState": "Prepared",
   "request": {
     "method": "POST",
     "urlPath": "/attestation/v4/preparations/complete",
