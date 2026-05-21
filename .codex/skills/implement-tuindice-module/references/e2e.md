@@ -55,7 +55,7 @@
 - For Android local E2E, run `./gradlew e2eMaestroAndroid` when Maestro CLI, an Android device/emulator, and `adb` are available.
 - For iOS local E2E, run `./gradlew e2eMaestroIos` when Maestro CLI, macOS/Xcode tooling, and a booted simulator are available.
 - For both platforms, run `./gradlew e2eMaestroLocal`; outside macOS, iOS should only be required in strict mode.
-- For MVI action coverage changes, run `./gradlew verifyE2eContract` and the relevant `e2eMaestroMvi*` task.
+- For MVI action coverage changes, run `./gradlew verifyE2eContract` and the relevant unified platform task: `./gradlew e2eMaestroAndroid` or `./gradlew e2eMaestroIos`.
 - Platform edge placeholders are verified by `./gradlew e2ePlatformAndroid` and `./gradlew e2ePlatformIos` until concrete tests are added.
 
 ## Local Backend And Debug URLs

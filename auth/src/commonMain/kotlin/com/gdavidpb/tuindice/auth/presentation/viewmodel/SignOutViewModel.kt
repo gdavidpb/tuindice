@@ -55,6 +55,9 @@ class SignOutViewModel(
 		)
 	}
 
+	fun retryFlushAndSignOutAction(pendingChanges: PendingChanges) =
+		sendAction(SignOut.Action.FlushAndSignOut(pendingChanges))
+
 	override suspend fun processAction(
 		action: SignOut.Action,
 		sideEffect: (SignOut.Effect) -> Unit

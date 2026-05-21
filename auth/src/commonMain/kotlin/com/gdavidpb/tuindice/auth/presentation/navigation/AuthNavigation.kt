@@ -11,7 +11,9 @@ import androidx.navigation.toRoute
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
+import com.gdavidpb.tuindice.base.utils.extension.CollectBackResultWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLifecycle
+import com.gdavidpb.tuindice.base.utils.extension.navigateBackWithResult
 import com.gdavidpb.tuindice.auth.presentation.route.SignInRoute
 import com.gdavidpb.tuindice.auth.presentation.route.SignOutRoute
 import com.gdavidpb.tuindice.auth.presentation.route.UpdatePasswordRoute
@@ -53,14 +55,25 @@ fun NavGraphBuilder.authNavigation(
 		dialog<AuthDestination.SignOutDialog> { backStackEntry ->
 			val args = backStackEntry.toRoute<AuthDestination.SignOutDialog>()
 			val viewModel = koinViewModel<SignOutViewModel>(viewModelStoreOwner = backStackEntry)
+			val pendingChanges = PendingChanges(
+				totalCount = args.totalCount,
+				recordCount = args.recordCount,
+				evaluationsCount = args.evaluationsCount,
+				hasFailedMutations = args.hasFailedMutations
+			)
+
+			navController.CollectBackResultWithLifecycle<UpdatePasswordBackResult>(
+				backStackEntry = backStackEntry,
+				awaitFrame = true
+			) { result ->
+				when (result) {
+					UpdatePasswordBackResult.PasswordUpdated ->
+						viewModel.retryFlushAndSignOutAction(pendingChanges)
+				}
+			}
 
 			SignOutRoute(
-				initialPendingChanges = PendingChanges(
-					totalCount = args.totalCount,
-					recordCount = args.recordCount,
-					evaluationsCount = args.evaluationsCount,
-					hasFailedMutations = args.hasFailedMutations
-				),
+				initialPendingChanges = pendingChanges,
 				onNavigateToSignIn = onNavigateToSignIn,
 				onNavigateToUpdatePassword = {
 					navController.navigate(AuthDestination.UpdatePasswordDialog)
@@ -76,6 +89,14 @@ fun NavGraphBuilder.authNavigation(
 
 			UpdatePasswordRoute(
 				onDismissRequest = onDismissRequest,
+				onPasswordUpdated = {
+					if (!navController.navigateBackWithResult<UpdatePasswordBackResult>(
+							UpdatePasswordBackResult.PasswordUpdated
+						)
+					) {
+						navController.navigateUp()
+					}
+				},
 				showSnackBar = showSnackBar,
 				viewModel = viewModel
 			)

@@ -40,14 +40,16 @@ class UpdatePasswordRouteUiTest {
 	)
 
 	@Test
-	fun when_updatePasswordActionSucceeds_then_showsSnackBarAndDismisses() = runTuIndiceUiTest {
+	fun when_updatePasswordActionSucceeds_then_showsSnackBarAndReportsPasswordUpdated() = runTuIndiceUiTest {
 		val fixture = createUpdatePasswordViewModel()
 		var dismissCalls = 0
+		var passwordUpdatedCalls = 0
 		val snackBarMessages = mutableListOf<SnackBarMessage>()
 
 		setTuIndiceTestContent {
 			UpdatePasswordRoute(
 				onDismissRequest = { dismissCalls++ },
+				onPasswordUpdated = { passwordUpdatedCalls++ },
 				showSnackBar = { message -> snackBarMessages += message },
 				viewModel = fixture.viewModel
 			)
@@ -58,22 +60,25 @@ class UpdatePasswordRouteUiTest {
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			snackBarMessages.isNotEmpty() && dismissCalls > 0
+			snackBarMessages.isNotEmpty() && passwordUpdatedCalls > 0
 		}
 
 		assertEquals(1, snackBarMessages.size)
-		assertEquals(1, dismissCalls)
+		assertEquals(0, dismissCalls)
+		assertEquals(1, passwordUpdatedCalls)
 	}
 
 	@Test
-	fun when_passwordTypedAndConfirmTapped_then_updatesPasswordAndDismisses() = runTuIndiceUiTest {
+	fun when_passwordTypedAndConfirmTapped_then_updatesPasswordAndReportsPasswordUpdated() = runTuIndiceUiTest {
 		val fixture = createUpdatePasswordViewModel()
 		var dismissCalls = 0
+		var passwordUpdatedCalls = 0
 		val snackBarMessages = mutableListOf<SnackBarMessage>()
 
 		setTuIndiceTestContent {
 			UpdatePasswordRoute(
 				onDismissRequest = { dismissCalls++ },
+				onPasswordUpdated = { passwordUpdatedCalls++ },
 				showSnackBar = { message -> snackBarMessages += message },
 				viewModel = fixture.viewModel
 			)
@@ -83,13 +88,16 @@ class UpdatePasswordRouteUiTest {
 		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
-			snackBarMessages.isNotEmpty() && dismissCalls > 0 && fixture.authRepository.reissueTokensCalls.isNotEmpty()
+			snackBarMessages.isNotEmpty() &&
+				passwordUpdatedCalls > 0 &&
+				fixture.authRepository.reissueTokensCalls.isNotEmpty()
 		}
 
 		val call = fixture.authRepository.reissueTokensCalls.first()
 		assertEquals("12-34567", call.usbId)
 		assertEquals("nueva-clave-segura", call.password)
-		assertEquals(1, dismissCalls)
+		assertEquals(0, dismissCalls)
+		assertEquals(1, passwordUpdatedCalls)
 		assertEquals(1, snackBarMessages.size)
 	}
 
@@ -100,6 +108,7 @@ class UpdatePasswordRouteUiTest {
 		setTuIndiceTestContent {
 			UpdatePasswordRoute(
 				onDismissRequest = {},
+				onPasswordUpdated = {},
 				showSnackBar = {},
 				viewModel = fixture.viewModel
 			)
@@ -121,6 +130,7 @@ class UpdatePasswordRouteUiTest {
 		setTuIndiceTestContent {
 			UpdatePasswordRoute(
 				onDismissRequest = { dismissCalls++ },
+				onPasswordUpdated = {},
 				showSnackBar = { message -> snackBarMessages += message },
 				viewModel = fixture.viewModel
 			)

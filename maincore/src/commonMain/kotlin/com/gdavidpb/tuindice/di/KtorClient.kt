@@ -127,6 +127,11 @@ internal fun AuthConfig.installSharedBearerAuth(
 	credentialsRepositoryProvider: () -> CredentialsRepository,
 	syncRepositoryProvider: () -> SyncRepository
 ) {
+	reAuthorizeOnResponse { response ->
+		response.status == HttpStatusCode.Unauthorized &&
+				response.call.request.url.encodedPath.shouldSendBearerAuth()
+	}
+
 	bearer {
 		sendWithoutRequest { request ->
 			request.url.encodedPath.shouldSendBearerAuth()
@@ -208,10 +213,12 @@ internal fun AuthConfig.installSharedBearerAuth(
 	}
 }
 
-private fun String.shouldSendBearerAuth(): Boolean {
-	return !startsWith("/auth/v2/token/refresh") &&
-			!startsWith("/auth/v2/token/revoke") &&
-			!startsWith("/attestation/v4/")
+internal fun String.shouldSendBearerAuth(): Boolean {
+	val normalizedPath = trimStart('/')
+	return !normalizedPath.startsWith("auth/v1/token") &&
+			!normalizedPath.startsWith("auth/v2/token/refresh") &&
+			!normalizedPath.startsWith("auth/v2/token/revoke") &&
+			!normalizedPath.startsWith("attestation/v4/")
 }
 
 internal fun Throwable.isSessionInvalidatingRefreshFailure(): Boolean {

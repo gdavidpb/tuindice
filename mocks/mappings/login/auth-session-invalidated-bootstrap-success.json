@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-session-invalidated-login",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "BootstrapIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic NjYtNjY2NjY6ZXhwaXJlZC1wYXNz"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "expired-session-user",
+      "usb_id": "66-66666",
+      "access_token": "bootstrap.mock.expired.session.token",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

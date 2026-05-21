@@ -28,7 +28,7 @@ import kotlin.test.assertIs
 class UpdatePasswordViewModelContractTest {
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-	fun publicActions_updatePasswordState_andEmitSuccessSnackBar() = runTest {
+	fun publicActions_updatePasswordState_andEmitPasswordUpdatedEffect() = runTest {
 		val viewModel = UpdatePasswordViewModel(
 			setUpdatePasswordActionProcessor = SetUpdatePasswordActionProcessor(),
 			toggleUpdatePasswordVisibilityActionProcessor = ToggleUpdatePasswordVisibilityActionProcessor(),
@@ -78,7 +78,7 @@ class UpdatePasswordViewModelContractTest {
 
 			viewModel.effect.test {
 				viewModel.signInAction("new-secret")
-				val effect = assertIs<UpdatePassword.Effect.ShowSnackBar>(awaitItem())
+				val effect = assertIs<UpdatePassword.Effect.PasswordUpdated>(awaitItem())
 				assertEquals(getString(Res.string.snack_password_updated), effect.message)
 
 				cancelAndIgnoreRemainingEvents()

@@ -1,0 +1,19 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/token/refresh",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.refresh_token == 'expired.session.mock.refresh')]"
+      }
+    ]
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

@@ -1,8 +1,17 @@
 appId: com.gdavidpb.tuindice.debug
-name: TuIndice MVI action E2E suite
+name: TuIndice local certification E2E suite
 ---
 - runFlow: ../auth/login-password-toggle.yaml
+- runFlow: ../auth/terms-privacy-from-login.yaml
 - runFlow: ../auth/login-invalid.yaml
+- runFlow: ../auth/login-disabled.yaml
+- runFlow: ../auth/login-retry-after-unavailable.yaml
+- runFlow: ../auth/update-password.yaml
+- runFlow: ../auth/update-password-failure.yaml
+- runFlow: ../auth/session-invalidated.yaml
+- runFlow: ../auth/sign-out-cancel.yaml
+- runFlow: ../auth/pending-sign-out.yaml
+- runFlow: ../auth/pending-sign-out-flush-success.yaml
 - runFlow: ../_shared/launch-clean.yaml
 - runFlow: ../auth/login-success.yaml
 - runFlow: ../wizard/wizard-smoke.yaml

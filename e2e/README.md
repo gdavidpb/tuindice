@@ -13,12 +13,18 @@ Run the local contract validator before adding new flows:
 ./gradlew verifyE2eContract
 ```
 
-Run Maestro locally:
+Run Maestro locally by platform:
 
 ```bash
 ./gradlew e2eMaestroAndroid
 ./gradlew e2eMaestroIos
+```
+
+Run every locally available platform with the optional aggregate task:
+
+```bash
 ./gradlew e2eMaestroLocal
 ```
 
 The suite uses the WireMock runtime under `mocks/` and does not install external tools.
+By default, the Gradle tasks run `e2e/maestro/flows/suites/local-certification-suite.yaml`.

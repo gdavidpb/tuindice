@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.auth.ui.view
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -41,10 +42,14 @@ fun SignInIdleView(
 	signInButtonText: String
 ) {
 	val isSignInEnabled = state.usbId.isUsbId() && state.password.isNotEmpty()
-
-	val links = mapOf(
-		termsAndConditionsText to onTermsAndConditionsClick,
-		privacyPolicyText to onPrivacyPolicyClick
+	val policyIntroText = policiesText.substringBefore(termsAndConditionsText).trimEnd()
+	val policyTextStyle = TextStyle(
+		textAlign = TextAlign.Center,
+		color = MaterialTheme.colorScheme.onBackground
+	) + MaterialTheme.typography.bodyMedium
+	val policyLinkStyle = policyTextStyle + SpanStyle(
+		color = MaterialTheme.colorScheme.surfaceTint,
+		textDecoration = TextDecoration.Underline
 	)
 
 	Column(
@@ -100,17 +105,34 @@ fun SignInIdleView(
 			Text(text = signInButtonText)
 		}
 
-		LinkText(
-			text = policiesText,
-			style = TextStyle(
-				textAlign = TextAlign.Center,
-				color = MaterialTheme.colorScheme.onBackground
-			) + MaterialTheme.typography.bodyMedium,
-			linkStyle = SpanStyle(
-				color = MaterialTheme.colorScheme.surfaceTint,
-				textDecoration = TextDecoration.Underline
-			),
-			links = links
-		)
+		Column(
+			horizontalAlignment = Alignment.CenterHorizontally
+		) {
+			Text(
+				text = policyIntroText,
+				style = policyTextStyle
+			)
+
+			Text(
+				modifier = Modifier
+					.testTag(AuthUiTags.TermsAndConditionsLink)
+					.clickable(onClick = onTermsAndConditionsClick),
+				text = termsAndConditionsText,
+				style = policyLinkStyle
+			)
+
+			Text(
+				text = "y",
+				style = policyTextStyle
+			)
+
+			Text(
+				modifier = Modifier
+					.testTag(AuthUiTags.PrivacyPolicyLink)
+					.clickable(onClick = onPrivacyPolicyClick),
+				text = privacyPolicyText,
+				style = policyLinkStyle
+			)
+		}
 	}
 }

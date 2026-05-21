@@ -44,7 +44,7 @@ class UpdatePasswordActionProcessor(
 						val successMessage = getString(Res.string.snack_password_updated)
 
 						sideEffect(
-							UpdatePassword.Effect.ShowSnackBar(
+							UpdatePassword.Effect.PasswordUpdated(
 								message = successMessage
 							)
 						)

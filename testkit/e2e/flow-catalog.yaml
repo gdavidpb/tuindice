@@ -33,18 +33,26 @@ flows:
       - evaluations
       - about
       - sign-out
-  - id: mvi-action-suite
-    path: e2e/maestro/flows/suites/mvi-action-suite.yaml
+  - id: local-certification-suite
+    path: e2e/maestro/flows/suites/local-certification-suite.yaml
     module: all
     type: suite
     platforms: [android, ios]
     status: active
-    variant: mvi-action-certification
+    variant: local-certification
     fixture_state: wiremock-local
     actions_covered:
       - auth.SignIn.SetUsbId
       - auth.SignIn.SetPassword
       - auth.SignIn.ClickSignIn
+      - auth.SignIn.ClickTermsAndConditions
+      - auth.SignIn.ClickPrivacyPolicy
+      - auth.SignOut.FlushAndSignOut
+      - auth.SignOut.ForceSignOut
+      - auth.SignOut.OpenUpdatePassword
+      - auth.UpdatePassword.SetPassword
+      - auth.UpdatePassword.TogglePasswordVisibility
+      - auth.UpdatePassword.ClickSignIn
       - wizard.Wizard.Advance
       - wizard.Wizard.Dismiss
       - summary.Summary.RefreshSummary
@@ -94,6 +102,21 @@ flows:
     primary_selectors:
       - auth_password_text_field
       - auth_password_toggle
+  - id: auth-terms-privacy-from-login
+    path: e2e/maestro/flows/auth/terms-privacy-from-login.yaml
+    module: auth
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: terms-privacy-from-login
+    fixture_state: static
+    actions_covered:
+      - auth.SignIn.ClickTermsAndConditions
+      - auth.SignIn.ClickPrivacyPolicy
+    primary_selectors:
+      - auth_terms_and_conditions_link
+      - auth_privacy_policy_link
+      - maincore_browser_container
   - id: auth-login-invalid
     path: e2e/maestro/flows/auth/login-invalid.yaml
     module: auth
@@ -109,6 +132,125 @@ flows:
     primary_selectors:
       - auth_sign_in_idle_container
       - auth_sign_in_button
+  - id: auth-login-disabled
+    path: e2e/maestro/flows/auth/login-disabled.yaml
+    module: auth
+    type: error-path
+    platforms: [android, ios]
+    status: active
+    variant: disabled-account
+    fixture_state: auth-disabled
+    actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
+    primary_selectors:
+      - auth_sign_in_idle_container
+      - auth_sign_in_button
+      - base_snackbar_container
+      - base_snackbar_message
+  - id: auth-login-retry-after-unavailable
+    path: e2e/maestro/flows/auth/login-retry-after-unavailable.yaml
+    module: auth
+    type: error-path
+    platforms: [android, ios]
+    status: active
+    variant: connection-retry
+    fixture_state: auth-unavailable-then-success
+    actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
+    primary_selectors:
+      - auth_sign_in_idle_container
+      - auth_sign_in_button
+      - base_snackbar_action_button
+      - base_snackbar_message
+  - id: auth-update-password
+    path: e2e/maestro/flows/auth/update-password.yaml
+    module: auth
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: update-password-from-outdated-sign-out
+    fixture_state: auth-outdated-credentials
+    actions_covered:
+      - auth.SignOut.OpenUpdatePassword
+      - auth.UpdatePassword.SetPassword
+      - auth.UpdatePassword.TogglePasswordVisibility
+      - auth.UpdatePassword.ClickSignIn
+    primary_selectors:
+      - auth_update_password_idle_container
+      - auth_password_text_field
+      - auth_password_toggle
+      - base_confirmation_dialog_positive_button
+      - base_confirmation_dialog_negative_button
+  - id: auth-update-password-failure
+    path: e2e/maestro/flows/auth/update-password-failure.yaml
+    module: auth
+    type: error-path
+    platforms: [android, ios]
+    status: active
+    variant: update-password-invalid-credentials
+    fixture_state: auth-outdated-credentials-update-password-failure
+    actions_covered:
+      - auth.SignOut.OpenUpdatePassword
+      - auth.UpdatePassword.SetPassword
+      - auth.UpdatePassword.ClickSignIn
+    primary_selectors:
+      - auth_update_password_idle_container
+      - auth_password_text_field
+      - base_confirmation_dialog_positive_button
+      - auth_sign_out_secondary_button
+  - id: auth-session-invalidated
+    path: e2e/maestro/flows/auth/session-invalidated.yaml
+    module: auth
+    type: error-path
+    platforms: [android, ios]
+    status: active
+    variant: invalidated-session
+    fixture_state: auth-session-invalidated
+    actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
+    primary_selectors:
+      - auth_sign_in_button
+      - auth_usb_id_text_field
+      - base_snackbar_container
+  - id: auth-pending-sign-out
+    path: e2e/maestro/flows/auth/pending-sign-out.yaml
+    module: auth
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: pending-flush-failure-force
+    fixture_state: pending-evaluation-mutation
+    actions_covered:
+      - auth.SignOut.ConfirmSignOut
+      - auth.SignOut.FlushAndSignOut
+      - auth.SignOut.ForceSignOut
+    primary_selectors:
+      - base_top_app_bar_action_sign_out
+      - auth_sign_out_message_text
+      - base_confirmation_dialog_positive_button
+      - auth_sign_out_secondary_button
+  - id: auth-pending-sign-out-flush-success
+    path: e2e/maestro/flows/auth/pending-sign-out-flush-success.yaml
+    module: auth
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: pending-flush-success
+    fixture_state: pending-evaluation-mutation-flush-success
+    actions_covered:
+      - auth.SignOut.ConfirmSignOut
+      - auth.SignOut.FlushAndSignOut
+    primary_selectors:
+      - base_top_app_bar_action_sign_out
+      - auth_sign_out_message_text
+      - base_confirmation_dialog_positive_button
+      - auth_usb_id_text_field
   - id: auth-sign-out
     path: e2e/maestro/flows/auth/sign-out.yaml
     module: auth
@@ -122,6 +264,22 @@ flows:
     primary_selectors:
       - base_top_app_bar_action_sign_out
       - auth_sign_out_message_text
+      - base_confirmation_dialog_positive_button
+  - id: auth-sign-out-cancel
+    path: e2e/maestro/flows/auth/sign-out-cancel.yaml
+    module: auth
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: sign-out-cancel
+    fixture_state: auth-sign-out-cancel
+    actions_covered:
+      - auth.SignOut.ConfirmSignOut
+    primary_selectors:
+      - base_top_app_bar_action_sign_out
+      - auth_sign_out_message_text
+      - base_confirmation_dialog_negative_button
+      - summary_content_container
   - id: wizard-smoke
     path: e2e/maestro/flows/wizard/wizard-smoke.yaml
     module: wizard
@@ -294,7 +452,7 @@ module_rollout:
     next_flows: [snackbar, browser-dialog, back-stack, bottom-bar-state]
   auth:
     status: active
-    next_flows: [update-password, session-invalidated, retry-after-network-error]
+    next_flows: []
   summary:
     status: active
     next_flows: [profile-picture-pick, profile-picture-remove, outdated-credentials]

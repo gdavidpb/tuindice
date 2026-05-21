@@ -10,11 +10,13 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationReposit
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
+import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondOk
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.request.get
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.headersOf
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -39,6 +41,16 @@ class KtorClientTest {
 		assertTrue(clientRequestException(HttpStatusCode.Forbidden).isSessionInvalidatingRefreshFailure())
 		assertTrue(clientRequestException(HttpStatusCode.Locked).isSessionInvalidatingRefreshFailure())
 		assertFalse(clientRequestException(HttpStatusCode.ServiceUnavailable).isSessionInvalidatingRefreshFailure())
+	}
+
+	@Test
+	fun shouldSendBearerAuth_excludesAuthAndAttestationEndpoints_withOrWithoutLeadingSlash() {
+		assertFalse("/auth/v1/token".shouldSendBearerAuth())
+		assertFalse("auth/v1/token".shouldSendBearerAuth())
+		assertFalse("/auth/v2/token/refresh".shouldSendBearerAuth())
+		assertFalse("auth/v2/token/revoke".shouldSendBearerAuth())
+		assertFalse("/attestation/v4/sessions".shouldSendBearerAuth())
+		assertTrue("/record/v5".shouldSendBearerAuth())
 	}
 
 	@Test
@@ -106,6 +118,92 @@ class KtorClientTest {
 			listOf("Bearer access-old", "Bearer access-new"),
 			authorizationHeaders
 		)
+	}
+
+	@Test
+	fun installSharedBearerAuth_doesNotAttachBearerToIssueTokenEndpoint() = runTest {
+		val sessionRepository = FakeSessionRepository(
+			sessionId = "session-id",
+			accessToken = "access-token",
+			refreshToken = "refresh-token"
+		)
+		val authorizationHeadersByPath = mutableMapOf<String, String?>()
+		val client = HttpClient(
+			MockEngine { request ->
+				authorizationHeadersByPath[request.url.encodedPath] =
+					request.headers[HttpHeaders.Authorization]
+				respondOk()
+			}
+		) {
+			install(Auth) {
+				installSharedBearerAuth(
+					sessionRepository = sessionRepository,
+					applicationRepository = RecordingApplicationRepository(),
+					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
+					syncStatusRepository = FakeSyncStatusRepository(),
+					attestationRepositoryProvider = { error("unused in this test") },
+					authRepositoryProvider = { error("unused in this test") },
+					credentialsRepositoryProvider = { FakeCredentialsRepository() },
+					syncRepositoryProvider = { FakeSyncRepository() }
+				)
+			}
+		}
+
+		try {
+			client.get("https://api.tuindice.app/auth/v1/token")
+			client.get("https://api.tuindice.app/record/v5")
+		} finally {
+			client.close()
+		}
+
+		assertEquals(null, authorizationHeadersByPath["/auth/v1/token"])
+		assertEquals("Bearer access-token", authorizationHeadersByPath["/record/v5"])
+	}
+
+	@Test
+	fun installSharedBearerAuth_doesNotReauthorizeIssueTokenEndpoint() = runTest {
+		val sessionRepository = FakeSessionRepository(
+			sessionId = "session-id",
+			accessToken = "access-token",
+			refreshToken = "refresh-token"
+		)
+		var tokenRequestCount = 0
+		val client = HttpClient(
+			MockEngine { request ->
+				if (request.url.encodedPath == "/auth/v1/token") {
+					tokenRequestCount++
+					respond(
+						content = "",
+						status = HttpStatusCode.Unauthorized,
+						headers = headersOf(HttpHeaders.WWWAuthenticate, "Bearer")
+					)
+				} else {
+					respondOk()
+				}
+			}
+		) {
+			install(Auth) {
+				installSharedBearerAuth(
+					sessionRepository = sessionRepository,
+					applicationRepository = RecordingApplicationRepository(),
+					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
+					syncStatusRepository = FakeSyncStatusRepository(),
+					attestationRepositoryProvider = { error("unused in this test") },
+					authRepositoryProvider = { error("unused in this test") },
+					credentialsRepositoryProvider = { FakeCredentialsRepository() },
+					syncRepositoryProvider = { FakeSyncRepository() }
+				)
+			}
+		}
+
+		val response = try {
+			client.get("https://api.tuindice.app/auth/v1/token")
+		} finally {
+			client.close()
+		}
+
+		assertEquals(HttpStatusCode.Unauthorized, response.status)
+		assertEquals(1, tokenRequestCount)
 	}
 }
 

@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.auth.ui.dialog.UpdatePasswordContentDialog
 @Composable
 fun UpdatePasswordRoute(
 	onDismissRequest: () -> Unit,
+	onPasswordUpdated: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: UpdatePasswordViewModel
 ) {
@@ -22,6 +23,11 @@ fun UpdatePasswordRoute(
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {
+			is UpdatePassword.Effect.PasswordUpdated -> {
+				showSnackBar(SnackBarMessage(message = effect.message))
+				onPasswordUpdated()
+			}
+
 			is UpdatePassword.Effect.ShowSnackBar -> {
 				showSnackBar(SnackBarMessage(message = effect.message))
 				onDismissRequest()

@@ -1,0 +1,27 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "POST",
+    "urlPath": "/attestation/v4/sessions",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer bootstrap.mock.expired.session.token"
+      }
+    },
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.platform == 'Android')]"
+      },
+      {
+        "matchesJsonPath": "$[?(@.operation_code == 'auth.exchange')]"
+      }
+    ]
+  },
+  "response": {
+    "status": 401,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

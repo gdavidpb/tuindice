@@ -1,0 +1,21 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- tapOn:
+    id: auth_usb_id_text_field
+- inputText: "6666666"
+- tapOn:
+    id: auth_password_text_field
+- inputText: "expired-pass"
+- tapOn:
+    id: auth_sign_in_idle_container
+- tapOn:
+    id: auth_sign_in_button
+- extendedWaitUntil:
+    visible:
+      id: base_snackbar_container
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: auth_usb_id_text_field
+    timeout: 10000

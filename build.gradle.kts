@@ -153,40 +153,19 @@ tasks.register<Exec>("verifyE2eContract") {
 
 tasks.register<Exec>("e2eMaestroAndroid") {
 	group = "verification"
-	description = "Builds the Android debug app and runs local Maestro E2E flows against WireMock."
+	description = "Builds the Android debug app and runs the local Maestro E2E certification suite against WireMock."
 	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-android.sh")
 }
 
 tasks.register<Exec>("e2eMaestroIos") {
 	group = "verification"
-	description = "Builds the iOS debug host and runs local Maestro E2E flows against WireMock."
+	description = "Builds the iOS debug host and runs the local Maestro E2E certification suite against WireMock."
 	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-ios.sh")
 }
 
 tasks.register<Exec>("e2eMaestroLocal") {
 	group = "verification"
-	description = "Runs local Maestro E2E flows on every locally available platform."
-	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-local.sh")
-}
-
-tasks.register<Exec>("e2eMaestroMviAndroid") {
-	group = "verification"
-	description = "Builds the Android debug app and runs the MVI action Maestro E2E suite against WireMock."
-	environment("E2E_MAESTRO_SUITE", "${rootDir}/e2e/maestro/flows/suites/mvi-action-suite.yaml")
-	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-android.sh")
-}
-
-tasks.register<Exec>("e2eMaestroMviIos") {
-	group = "verification"
-	description = "Builds the iOS debug host and runs the MVI action Maestro E2E suite against WireMock."
-	environment("E2E_MAESTRO_SUITE", "${rootDir}/e2e/maestro/flows/suites/mvi-action-suite.yaml")
-	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-ios.sh")
-}
-
-tasks.register<Exec>("e2eMaestroMviLocal") {
-	group = "verification"
-	description = "Runs the MVI action Maestro E2E suite on every locally available platform."
-	environment("E2E_MAESTRO_SUITE", "${rootDir}/e2e/maestro/flows/suites/mvi-action-suite.yaml")
+	description = "Runs the local Maestro E2E certification suite on every locally available platform."
 	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-local.sh")
 }
 

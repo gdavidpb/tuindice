@@ -4,7 +4,7 @@
     "urlPath": "/attestation/v4/sessions",
     "bodyPatterns": [
       {
-        "matchesJsonPath": "$[?(@.authorization.session_id =~ /auth-session-.+/)]"
+        "matchesJsonPath": "$[?(@.authorization.session_id =~ /auth-.+/)]"
       },
       {
         "matchesJsonPath": "$.authorization.refresh_token"
@@ -29,8 +29,7 @@
       "session_id": "mock-attestation-session-android-session-auth",
       "challenge": "mock-attestation-challenge-android-session-auth",
       "expires_at": 2524608000000,
-      "evidence_mode": "play_integrity_standard",
-      "proof_of_possession_mode": "android_keystore"
+      "evidence_mode": "play_integrity_standard"
     },
     "fixedDelayMilliseconds": 250
   }

@@ -1,6 +1,7 @@
 appId: com.gdavidpb.tuindice.debug
 ---
 - launchApp:
+    stopApp: true
     clearState: true
 - extendedWaitUntil:
     visible:

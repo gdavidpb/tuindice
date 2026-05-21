@@ -81,7 +81,7 @@ class AuthActionProcessorContractTest {
 	}
 
 	@Test
-	fun updatePasswordActionProcessor_emitsUpdatingMutation_thenShowsSuccessSnackBar() = runTest {
+	fun updatePasswordActionProcessor_emitsUpdatingMutation_thenReportsPasswordUpdated() = runTest {
 		val processor = UpdatePasswordActionProcessor(
 			updatePasswordUseCase = UpdatePasswordUseCase(
 				authRepository = RecordingAuthRepository(),
@@ -110,7 +110,7 @@ class AuthActionProcessorContractTest {
 			awaitComplete()
 		}
 
-		val effect = assertIs<UpdatePassword.Effect.ShowSnackBar>(effects.single())
+		val effect = assertIs<UpdatePassword.Effect.PasswordUpdated>(effects.single())
 		assertEquals(getString(Res.string.snack_password_updated), effect.message)
 	}
 

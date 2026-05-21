@@ -20,12 +20,6 @@
       },
       {
         "matchesJsonPath": "$.key_id"
-      },
-      {
-        "matchesJsonPath": "$.proof_of_possession.signature"
-      },
-      {
-        "matchesJsonPath": "$.proof_of_possession.public_key"
       }
     ]
   },

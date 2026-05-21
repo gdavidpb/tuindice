@@ -1,0 +1,24 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "POST",
+    "urlPath": "/evaluations/v3",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer (eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\\.(exchange|refresh|reissued)\\.mock\\.access|update\\.password\\.mock\\.access|update\\.password\\.failure\\.mock\\.access)"
+      }
+    },
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.type == 0 && @.date == null)]"
+      }
+    ]
+  },
+  "response": {
+    "status": 503,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

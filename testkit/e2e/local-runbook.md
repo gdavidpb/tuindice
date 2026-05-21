@@ -8,16 +8,18 @@ Prerequisites:
 - iOS: macOS, `xcrun`, a booted iOS simulator, CocoaPods dependencies already available when needed, and Maestro.
 - WireMock dependencies already present in `mocks/`.
 
-Commands:
+Platform execution commands:
 
 ```bash
 ./gradlew verifyE2eContract
 ./gradlew e2eMaestroAndroid
 ./gradlew e2eMaestroIos
+```
+
+Optional aggregate command:
+
+```bash
 ./gradlew e2eMaestroLocal
-./gradlew e2eMaestroMviAndroid
-./gradlew e2eMaestroMviIos
-./gradlew e2eMaestroMviLocal
 ```
 
 Useful environment variables:
@@ -26,7 +28,7 @@ Useful environment variables:
 - `E2E_ANDROID_API_BASE_URL`: defaults to `http://127.0.0.1:8080/`.
 - `TUINDICE_API_BASE_URL`: alternative Android debug API base URL input.
 - `E2E_IOS_DEVICE_ID`: defaults to `booted`.
-- `E2E_MAESTRO_SUITE`: defaults to `e2e/maestro/flows/smoke/local-suite.yaml`; the MVI Gradle tasks override it.
+- `E2E_MAESTRO_SUITE`: defaults to `e2e/maestro/flows/suites/local-certification-suite.yaml`; override it only for ad-hoc debugging.
 - `E2E_STRICT_IOS=1`: makes `e2eMaestroLocal` fail when iOS cannot run.
 - `E2E_REPORT_DIR`: defaults to `build/e2e`.
 

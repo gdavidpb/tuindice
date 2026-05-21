@@ -28,8 +28,7 @@
       "session_id": "mock-attestation-session-android-reissue",
       "challenge": "mock-attestation-challenge-android",
       "expires_at": 2524608000000,
-      "evidence_mode": "play_integrity_classic",
-      "proof_of_possession_mode": "android_keystore"
+      "evidence_mode": "play_integrity_classic"
     },
     "fixedDelayMilliseconds": 250
   }

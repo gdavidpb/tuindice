@@ -85,13 +85,13 @@ actions:
     classification: user
     variants: [internal-browser]
     selector: auth_terms_and_conditions_link
-    flow: e2e/maestro/flows/auth/login-success.yaml
+    flow: e2e/maestro/flows/auth/terms-privacy-from-login.yaml
     fixture_state: static
   - id: auth.SignIn.ClickPrivacyPolicy
     classification: user
     variants: [internal-browser]
     selector: auth_privacy_policy_link
-    flow: e2e/maestro/flows/auth/login-success.yaml
+    flow: e2e/maestro/flows/auth/terms-privacy-from-login.yaml
     fixture_state: static
 
   - id: auth.SignOut.Initialize
@@ -107,38 +107,38 @@ actions:
     classification: user
     variants: [pending-success, pending-failed, outdated-credentials]
     selector: base_confirmation_dialog_positive_button
-    flow: e2e/maestro/flows/auth/sign-out.yaml
-    fixture_state: sync-success
+    flow: e2e/maestro/flows/auth/pending-sign-out.yaml
+    fixture_state: pending-evaluation-mutation
   - id: auth.SignOut.ForceSignOut
     classification: user
     variants: [force-after-flush-failed, force-after-outdated-credentials]
     selector: auth_sign_out_secondary_button
-    flow: e2e/maestro/flows/auth/sign-out.yaml
-    fixture_state: auth-revoke-success
+    flow: e2e/maestro/flows/auth/pending-sign-out.yaml
+    fixture_state: pending-evaluation-mutation
   - id: auth.SignOut.OpenUpdatePassword
     classification: user
     variants: [outdated-credentials]
-    selector: auth_sign_out_secondary_button
-    flow: e2e/maestro/flows/auth/sign-out.yaml
-    fixture_state: update-password
+    selector: base_confirmation_dialog_positive_button
+    flow: e2e/maestro/flows/auth/update-password.yaml
+    fixture_state: auth-outdated-credentials
 
   - id: auth.UpdatePassword.SetPassword
     classification: user
     variants: [typed, empty]
     selector: auth_password_text_field
-    flow: e2e/maestro/flows/auth/sign-out.yaml
+    flow: e2e/maestro/flows/auth/update-password.yaml
     fixture_state: update-password
   - id: auth.UpdatePassword.TogglePasswordVisibility
     classification: user
     variants: [show, hide]
     selector: auth_password_toggle
-    flow: e2e/maestro/flows/auth/sign-out.yaml
+    flow: e2e/maestro/flows/auth/update-password.yaml
     fixture_state: update-password
   - id: auth.UpdatePassword.ClickSignIn
     classification: user
     variants: [success, failure]
-    selector: auth_sign_in_button
-    flow: e2e/maestro/flows/auth/sign-out.yaml
+    selector: base_confirmation_dialog_positive_button
+    flow: e2e/maestro/flows/auth/update-password.yaml
     fixture_state: update-password
 
   - id: enrollmentproof.Enrollment.FetchEnrollmentProof
@@ -306,7 +306,7 @@ actions:
     classification: user
     variants: [summary, record, pensum, evaluations, about]
     selector: maincore_tuindice_bottom_bar
-    flow: e2e/maestro/flows/smoke/local-suite.yaml
+    flow: e2e/maestro/flows/suites/local-certification-suite.yaml
     fixture_state: static
   - id: maincore.Main.RequestWizardStart
     classification: user

@@ -40,8 +40,11 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
@@ -60,6 +63,7 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorView
@@ -160,7 +164,28 @@ fun TuIndiceScreen(
 		) {
 			Scaffold(
 				containerColor = MaterialTheme.colorScheme.background,
-				snackbarHost = { SnackbarHost(snackbarHostState) },
+				snackbarHost = {
+					SnackbarHost(snackbarHostState) { snackbarData ->
+						Snackbar(
+							modifier = Modifier.testTag(BaseUiTags.SnackbarContainer),
+							action = snackbarData.visuals.actionLabel?.let { actionLabel ->
+								{
+									TextButton(
+										modifier = Modifier.testTag(BaseUiTags.SnackbarActionButton),
+										onClick = snackbarData::performAction
+									) {
+										Text(text = actionLabel)
+									}
+								}
+							}
+						) {
+							Text(
+								modifier = Modifier.testTag(BaseUiTags.SnackbarMessage),
+								text = snackbarData.visuals.message
+							)
+						}
+					}
+				},
 				topBar = {
 				if (shellState.isTopBarVisible) {
 					val recordTopBarViewModeState = shellState.recordTopBarViewModeState

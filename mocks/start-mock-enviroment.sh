@@ -66,7 +66,7 @@ mkdir -p "${extension_build_dir}/META-INF/services"
 	done
 } > "${extension_build_dir}/META-INF/services/com.github.tomakehurst.wiremock.extension.ExtensionFactory"
 
-"${kotlin_bin}" \
+exec "${kotlin_bin}" \
 	-cp "${wiremock_jar}:${extension_build_dir}" \
 	"${wiremock_main_class}" \
 	--root-dir "${runtime_dir}" \

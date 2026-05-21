@@ -27,6 +27,9 @@ object BaseUiTags {
 	const val ConfirmationDialogEntry = "base_confirmation_dialog_entry"
 	const val ExternalResourceMessage = "base_external_resource_message"
 	const val ExternalResourceUrl = "base_external_resource_url"
+	const val SnackbarContainer = "base_snackbar_container"
+	const val SnackbarMessage = "base_snackbar_message"
+	const val SnackbarActionButton = "base_snackbar_action_button"
 
 	const val WheelPickerList = "base_wheel_picker_list"
 	const val EmptyStateAnimation = "base_empty_state_animation"
