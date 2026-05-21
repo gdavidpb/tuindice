@@ -15,6 +15,9 @@ name: TuIndice local certification E2E suite
 - runFlow: ../_shared/launch-clean.yaml
 - runFlow: ../auth/login-success.yaml
 - runFlow: ../wizard/wizard-smoke.yaml
+- runFlow: ../maincore/bottom-bar-state.yaml
+- runFlow: ../maincore/back-stack.yaml
+- runFlow: ../maincore/browser-external-dialog.yaml
 - runFlow: ../summary/summary-smoke.yaml
 - runFlow: ../record/record-smoke.yaml
 - runFlow: ../enrollmentproof/enrollmentproof-smoke.yaml

@@ -278,8 +278,9 @@ actions:
     classification: platform-edge
     variants: [cancel, confirm]
     selector: base_external_resource_message
-    flow: e2e/maestro/flows/about/about-smoke.yaml
-    platform_edge: external browser handoff requires host/system assertion
+    flow: e2e/maestro/flows/maincore/browser-external-dialog.yaml
+    fixture_state: local-browser-pages
+    platform_edge: confirm/open handoff requires UI Automator/XCUITest host assertion
 
   - id: maincore.Main.StartUp
     classification: internal
@@ -306,7 +307,7 @@ actions:
     classification: user
     variants: [summary, record, pensum, evaluations, about]
     selector: maincore_tuindice_bottom_bar
-    flow: e2e/maestro/flows/suites/local-certification-suite.yaml
+    flow: e2e/maestro/flows/maincore/bottom-bar-state.yaml
     fixture_state: static
   - id: maincore.Main.RequestWizardStart
     classification: user

@@ -87,6 +87,20 @@ if [[ -n "$DERIVED_DATA_PATH" ]]; then
 	)
 fi
 
+append_optional_build_setting() {
+	local setting_name="$1"
+	local setting_value="${!setting_name:-}"
+
+	if [[ -n "$setting_value" ]]; then
+		xcodebuild_args+=("$setting_name=$setting_value")
+	fi
+}
+
+append_optional_build_setting TUINDICE_API_BASE_URL
+append_optional_build_setting TUINDICE_PRIVACY_POLICY_URL
+append_optional_build_setting TUINDICE_TERMS_AND_CONDITIONS_URL
+append_optional_build_setting TUINDICE_SUPPORT_URL
+
 if [[ "$IOS_PLATFORM" == "simulator" ]]; then
 	DEFAULT_CODE_SIGNING_ALLOWED="NO"
 else

@@ -15,11 +15,19 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: base_snackbar_action_button
     timeout: 20000
+- assertVisible:
+    id: base_snackbar_container
+- assertVisible:
+    id: base_snackbar_message
 - tapOn:
     id: base_snackbar_action_button
 - extendedWaitUntil:
     visible:
       id: base_snackbar_action_button
     timeout: 20000
+- assertVisible:
+    id: base_snackbar_container
+- assertVisible:
+    id: base_snackbar_message
 - assertVisible:
     id: auth_sign_in_idle_container

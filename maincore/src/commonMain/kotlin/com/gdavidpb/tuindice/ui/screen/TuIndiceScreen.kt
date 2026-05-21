@@ -320,6 +320,9 @@ fun TuIndiceScreen(
 									modifier = Modifier.testTag(bottomBarItemTag(bottomBarConfig)),
 									icon = {
 										Icon(
+											modifier = if (isNavigationBarItemSelected)
+												Modifier.testTag(bottomBarSelectedItemTag(bottomBarConfig))
+											else Modifier,
 											imageVector = navigationBarItemIcon,
 											contentDescription = null
 										)
@@ -391,4 +394,12 @@ private fun bottomBarItemTag(config: BottomBarConfig): String = when (config) {
 	BottomBarConfig.Pensum -> MaincoreUiTags.TuIndiceBottomBarPensumItem
 	BottomBarConfig.Evaluations -> MaincoreUiTags.TuIndiceBottomBarEvaluationsItem
 	BottomBarConfig.About -> MaincoreUiTags.TuIndiceBottomBarAboutItem
+}
+
+private fun bottomBarSelectedItemTag(config: BottomBarConfig): String = when (config) {
+	BottomBarConfig.Summary -> MaincoreUiTags.TuIndiceBottomBarSummaryItemSelected
+	BottomBarConfig.Record -> MaincoreUiTags.TuIndiceBottomBarRecordItemSelected
+	BottomBarConfig.Pensum -> MaincoreUiTags.TuIndiceBottomBarPensumItemSelected
+	BottomBarConfig.Evaluations -> MaincoreUiTags.TuIndiceBottomBarEvaluationsItemSelected
+	BottomBarConfig.About -> MaincoreUiTags.TuIndiceBottomBarAboutItemSelected
 }

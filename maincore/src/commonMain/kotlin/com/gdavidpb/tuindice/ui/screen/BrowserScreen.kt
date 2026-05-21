@@ -1,17 +1,21 @@
 package com.gdavidpb.tuindice.ui.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.presentation.contract.Browser
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.dp
 
 interface BrowserScreenRenderer {
 	@Composable
@@ -60,5 +64,20 @@ fun BrowserScreen(
 				onExternalResourceClick = onExternalResourceClick
 			)
 		}
+
+		if (state.shouldExposeE2eExternalResourceTrigger()) {
+			Box(
+				modifier = Modifier
+					.align(Alignment.TopStart)
+					.size(56.dp)
+					.testTag(MaincoreUiTags.BrowserE2eExternalResourceTrigger)
+					.clickable { onExternalResourceClick(E2eExternalResourceUrl) }
+			)
+		}
 	}
 }
+
+private const val E2eExternalResourceUrl = "https://external.tuindice.test/maincore-e2e"
+
+private fun Browser.State.Content.shouldExposeE2eExternalResourceTrigger(): Boolean =
+	url.contains("/e2e/")

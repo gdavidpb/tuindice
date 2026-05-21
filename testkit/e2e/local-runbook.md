@@ -26,6 +26,9 @@ Useful environment variables:
 
 - `E2E_WIREMOCK_PORT`: defaults to `8080`.
 - `E2E_ANDROID_API_BASE_URL`: defaults to `http://127.0.0.1:8080/`.
+- `E2E_ANDROID_WEB_BASE_URL`: defaults to `http://127.0.0.1:8080`; used for local legal/browser pages.
+- `E2E_IOS_API_BASE_URL`: defaults to `http://localhost:8080/`.
+- `E2E_IOS_WEB_BASE_URL`: defaults to `http://localhost:8080`; used for local legal/browser pages.
 - `TUINDICE_API_BASE_URL`: alternative Android debug API base URL input.
 - `E2E_IOS_DEVICE_ID`: defaults to `booted`.
 - `E2E_MAESTRO_SUITE`: defaults to `e2e/maestro/flows/suites/local-certification-suite.yaml`; override it only for ad-hoc debugging.

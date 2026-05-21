@@ -6,7 +6,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.presentation.contract.Browser
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
@@ -36,6 +38,7 @@ class BrowserScreenUiTest {
 		}
 
 		assertNodeVisible(MaincoreUiTags.BrowserContainer)
+		assertNodeHidden(MaincoreUiTags.BrowserE2eExternalResourceTrigger)
 		onNodeWithText("Render URL: https://tuindice.app/privacy").assertIsDisplayed()
 	}
 
@@ -142,6 +145,30 @@ class BrowserScreenUiTest {
 		assertEquals(1, pageStartedCalls)
 		assertEquals(1, pageFinishedCalls)
 		assertEquals("https://externo.tuindice.app", externalResourceUrl)
+	}
+
+	@Test
+	fun when_browserLoadsLocalE2ePage_then_exposesExternalResourceTrigger() = runTuIndiceUiTest {
+		var externalResourceUrl = ""
+
+		setTuIndiceTestContent {
+			BrowserScreen(
+				state = Browser.State.Content(
+					topBarTitle = UiText.Raw("Navegador"),
+					url = "http://127.0.0.1:8080/e2e/privacy.html",
+					isLoading = true
+				),
+				onPageStarted = {},
+				onPageFinished = {},
+				onExternalResourceClick = { url -> externalResourceUrl = url },
+				renderer = FakeBrowserRenderer
+			)
+		}
+
+		assertNodeVisible(MaincoreUiTags.BrowserE2eExternalResourceTrigger)
+		onNodeWithTag(MaincoreUiTags.BrowserE2eExternalResourceTrigger).performClick()
+
+		assertEquals("https://external.tuindice.test/maincore-e2e", externalResourceUrl)
 	}
 
 	private data object FakeBrowserRenderer : BrowserScreenRenderer {

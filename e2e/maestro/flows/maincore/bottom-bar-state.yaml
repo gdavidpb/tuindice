@@ -1,0 +1,50 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- tapOn:
+    id: maincore_tuindice_bottom_bar_summary_item
+- extendedWaitUntil:
+    visible:
+      id: summary_content_container
+    timeout: 20000
+- assertVisible:
+    id: maincore_tuindice_bottom_bar_summary_item_selected
+- tapOn:
+    id: maincore_tuindice_bottom_bar_record_item
+- extendedWaitUntil:
+    visible:
+      id: record_content_container
+    timeout: 30000
+- assertVisible:
+    id: maincore_tuindice_bottom_bar_record_item_selected
+- tapOn:
+    id: maincore_tuindice_bottom_bar_pensum_item
+- extendedWaitUntil:
+    visible:
+      id: pensum_screen
+    timeout: 20000
+- assertVisible:
+    id: maincore_tuindice_bottom_bar_pensum_item_selected
+- tapOn:
+    id: maincore_tuindice_bottom_bar_evaluations_item
+- extendedWaitUntil:
+    visible:
+      id: evaluations_content_container
+    timeout: 20000
+- assertVisible:
+    id: maincore_tuindice_bottom_bar_evaluations_item_selected
+- tapOn:
+    id: maincore_tuindice_bottom_bar_about_item
+- extendedWaitUntil:
+    visible:
+      id: about_content_container
+    timeout: 20000
+- assertVisible:
+    id: maincore_tuindice_bottom_bar_about_item_selected
+- tapOn:
+    id: maincore_tuindice_bottom_bar_summary_item
+- extendedWaitUntil:
+    visible:
+      id: summary_content_container
+    timeout: 20000
+- assertVisible:
+    id: maincore_tuindice_bottom_bar_summary_item_selected

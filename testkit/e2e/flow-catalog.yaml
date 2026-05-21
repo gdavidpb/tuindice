@@ -53,6 +53,9 @@ flows:
       - auth.UpdatePassword.SetPassword
       - auth.UpdatePassword.TogglePasswordVisibility
       - auth.UpdatePassword.ClickSignIn
+      - maincore.Main.SetLastMainSection
+      - maincore.Browser.NavigateTo
+      - maincore.Browser.OpenExternalResource
       - wizard.Wizard.Advance
       - wizard.Wizard.Dismiss
       - summary.Summary.RefreshSummary
@@ -72,6 +75,69 @@ flows:
     variant: clean-launch
     fixture_state: reset-app-state
     primary_selectors: [auth_usb_id_text_field]
+  - id: maincore-snackbar-retry
+    path: e2e/maestro/flows/auth/login-retry-after-unavailable.yaml
+    module: maincore
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: snackbar-action-retry
+    fixture_state: auth-unavailable-then-success
+    actions_covered:
+      - auth.SignIn.ClickSignIn
+    primary_selectors:
+      - base_snackbar_container
+      - base_snackbar_message
+      - base_snackbar_action_button
+  - id: maincore-bottom-bar-state
+    path: e2e/maestro/flows/maincore/bottom-bar-state.yaml
+    module: maincore
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: bottom-bar-state
+    fixture_state: authenticated-content
+    actions_covered:
+      - maincore.Main.SetLastMainSection
+    primary_selectors:
+      - maincore_tuindice_bottom_bar_summary_item_selected
+      - maincore_tuindice_bottom_bar_record_item_selected
+      - maincore_tuindice_bottom_bar_pensum_item_selected
+      - maincore_tuindice_bottom_bar_evaluations_item_selected
+      - maincore_tuindice_bottom_bar_about_item_selected
+  - id: maincore-back-stack
+    path: e2e/maestro/flows/maincore/back-stack.yaml
+    module: maincore
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: back-stack-top-bar
+    fixture_state: authenticated-content
+    actions_covered:
+      - maincore.Browser.NavigateTo
+    primary_selectors:
+      - maincore_tuindice_top_bar_back_button
+      - maincore_browser_container
+      - subjects_search_screen
+  - id: maincore-browser-external-dialog
+    path: e2e/maestro/flows/maincore/browser-external-dialog.yaml
+    module: maincore
+    type: platform-edge-trigger
+    platforms: [android, ios]
+    status: active
+    variant: external-resource-dialog-cancel
+    fixture_state: local-browser-pages
+    platform_edge: confirm/open handoff remains assigned to UI Automator/XCUITest.
+    actions_covered:
+      - about.About.OpenPrivacyPolicy
+      - maincore.Browser.NavigateTo
+      - maincore.Browser.OpenExternalResource
+    primary_selectors:
+      - about_open_privacy
+      - maincore_browser_container
+      - maincore_browser_e2e_external_resource_trigger
+      - base_external_resource_message
+      - base_external_resource_url
   - id: auth-login-success
     path: e2e/maestro/flows/auth/login-success.yaml
     module: auth
@@ -420,7 +486,7 @@ flows:
     platform_edge: External/system surfaces remain assigned to platform-specific suites.
     actions_covered:
       - about.About.OpenPrivacyPolicy
-      - maincore.Browser.OpenExternalResource
+      - maincore.Browser.NavigateTo
     primary_selectors:
       - about_content_container
       - about_open_privacy
@@ -449,7 +515,7 @@ module_rollout:
     next_flows: [contract-validation]
   maincore:
     status: active
-    next_flows: [snackbar, browser-dialog, back-stack, bottom-bar-state]
+    next_flows: []
   auth:
     status: active
     next_flows: []

@@ -22,6 +22,15 @@ val hasReleaseSigningConfig = listOf(
 val debugApiBaseUrl = providers.gradleProperty("tuindice.apiBaseUrl")
 	.orElse(providers.environmentVariable("TUINDICE_API_BASE_URL"))
 	.orElse("http://0.0.0.0:8080/")
+val debugPrivacyPolicyUrl = providers.gradleProperty("tuindice.privacyPolicyUrl")
+	.orElse(providers.environmentVariable("TUINDICE_PRIVACY_POLICY_URL"))
+	.orElse("https://tuindice.app/privacy_policy_v6_0.html")
+val debugTermsAndConditionsUrl = providers.gradleProperty("tuindice.termsAndConditionsUrl")
+	.orElse(providers.environmentVariable("TUINDICE_TERMS_AND_CONDITIONS_URL"))
+	.orElse("https://tuindice.app/terms_and_conditions_v6_0.html")
+val debugSupportUrl = providers.gradleProperty("tuindice.supportUrl")
+	.orElse(providers.environmentVariable("TUINDICE_SUPPORT_URL"))
+	.orElse("https://tuindice.app/support_v6_0.html")
 
 fun String.toBuildConfigString(): String =
 	"\"" + replace("\\", "\\\\").replace("\"", "\\\"") + "\""
@@ -77,17 +86,17 @@ extensions.configure<ApplicationExtension> {
 			buildConfigField(
 				"String",
 				"URL_PRIVACY_POLICY",
-				"\"https://tuindice.app/privacy_policy_v6_0.html\""
+				debugPrivacyPolicyUrl.get().toBuildConfigString()
 			)
 			buildConfigField(
 				"String",
 				"URL_TERMS_AND_CONDITIONS",
-				"\"https://tuindice.app/terms_and_conditions_v6_0.html\""
+				debugTermsAndConditionsUrl.get().toBuildConfigString()
 			)
 			buildConfigField(
 				"String",
 				"URL_SUPPORT",
-				"\"https://tuindice.app/support_v6_0.html\""
+				debugSupportUrl.get().toBuildConfigString()
 			)
 		}
 		getByName("release") {
