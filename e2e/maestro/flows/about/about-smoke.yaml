@@ -1,0 +1,22 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- tapOn:
+    id: maincore_tuindice_bottom_bar_about_item
+- extendedWaitUntil:
+    visible:
+      id: about_content_container
+    timeout: 20000
+- assertVisible:
+    id: about_open_privacy
+- tapOn:
+    id: about_open_privacy
+- extendedWaitUntil:
+    visible:
+      id: maincore_browser_container
+    timeout: 15000
+- tapOn:
+    id: maincore_tuindice_top_bar_back_button
+- extendedWaitUntil:
+    visible:
+      id: about_content_container
+    timeout: 10000

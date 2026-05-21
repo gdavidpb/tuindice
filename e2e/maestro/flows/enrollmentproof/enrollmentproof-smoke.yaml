@@ -1,0 +1,20 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- tapOn:
+    id: maincore_tuindice_bottom_bar_record_item
+- extendedWaitUntil:
+    visible:
+      id: record_content_container
+    timeout: 20000
+- tapOn:
+    id: base_top_app_bar_action_enrollment_proof
+- extendedWaitUntil:
+    visible:
+      id: enrollment_fetching_sheet
+    timeout: 10000
+- tapOn:
+    id: enrollment_fetching_cancel_button
+- extendedWaitUntil:
+    visible:
+      id: record_content_container
+    timeout: 10000

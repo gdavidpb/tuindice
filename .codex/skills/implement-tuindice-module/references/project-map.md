@@ -68,6 +68,26 @@ If you create a new shared module, inspect `build.gradle.kts` and extend any roo
 
 If an app-facing HTTP contract changes, update the relevant mock mappings and referenced JSON bodies in the same change so the mock environment does not drift from the real client contract.
 
+## Local E2E Map
+
+- `e2e/maestro/flows/`
+  - executable Maestro flows grouped by module, with `_shared/` for reusable setup, reset, login, and navigation helpers
+- `e2e/scripts/`
+  - local build, reset, WireMock startup, and Maestro runner scripts for Android and iOS
+- `e2e/platform/android/`
+  - Android-only edge tests or instructions for Compose/Espresso/UI Automator cases Maestro cannot cover stably
+- `e2e/platform/ios/`
+  - iOS-only edge tests or instructions for XCUITest cases Maestro cannot cover stably
+- `testkit/e2e/`
+  - reusable E2E contract: flow catalog, selector policy, fixture contract, local runbook, critical selector list, and validator
+
+Rules that matter:
+
+- Maestro is the default local E2E runner for app flows on Android and iOS.
+- Platform-specific UI tests are reserved for system/host/technology edges, not duplicate happy paths.
+- Update `testkit/e2e/flow-catalog.yaml` and the affected flow when a user-visible module flow changes.
+- Keep local E2E compatible with future Firebase Test Lab by producing stable artifacts from root scripts, but do not add `gcloud` commands in the local-only phase.
+
 ## KMP Build Conventions
 
 Typical shared UI feature module pattern:
@@ -214,6 +234,15 @@ Feature module smoke tests:
 Shared helpers:
 
 - `testkit/src/commonMain/kotlin/com/gdavidpb/tuindice/testkit/koin/KoinSmokeTestUtils.kt`
+
+E2E contract and local runners:
+
+- `./gradlew verifyE2eContract`
+- `./gradlew e2eMaestroAndroid`
+- `./gradlew e2eMaestroIos`
+- `./gradlew e2eMaestroLocal`
+- `./gradlew e2ePlatformAndroid`
+- `./gradlew e2ePlatformIos`
 
 Shared bootstrap smoke tests:
 

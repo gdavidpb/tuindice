@@ -1,0 +1,8 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: auth_usb_id_text_field
+    timeout: 20000

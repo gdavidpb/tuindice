@@ -1,0 +1,14 @@
+appId: com.gdavidpb.tuindice.debug
+name: TuIndice local E2E smoke suite
+---
+- runFlow: ../_shared/launch-clean.yaml
+- runFlow: ../auth/login-success.yaml
+- runFlow: ../wizard/wizard-smoke.yaml
+- runFlow: ../summary/summary-smoke.yaml
+- runFlow: ../record/record-smoke.yaml
+- runFlow: ../enrollmentproof/enrollmentproof-smoke.yaml
+- runFlow: ../pensum/pensum-smoke.yaml
+- runFlow: ../subjects/subjects-smoke.yaml
+- runFlow: ../evaluations/evaluations-smoke.yaml
+- runFlow: ../about/about-smoke.yaml
+- runFlow: ../auth/sign-out.yaml

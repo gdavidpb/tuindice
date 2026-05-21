@@ -1,0 +1,26 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- tapOn:
+    id: maincore_tuindice_bottom_bar_evaluations_item
+- extendedWaitUntil:
+    visible:
+      id: evaluations_content_container
+    timeout: 30000
+- assertVisible:
+    id: evaluations_filter_row
+- tapOn:
+    id: evaluations_add_fab
+- extendedWaitUntil:
+    visible:
+      id: evaluation_content_container
+    timeout: 15000
+- assertVisible:
+    id: evaluation_subject_picker_row
+- assertVisible:
+    id: evaluation_type_picker_row
+- tapOn:
+    id: maincore_tuindice_top_bar_back_button
+- extendedWaitUntil:
+    visible:
+      id: evaluations_content_container
+    timeout: 10000

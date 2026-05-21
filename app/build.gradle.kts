@@ -19,6 +19,12 @@ val hasReleaseSigningConfig = listOf(
 	releaseKeyStorePath,
 	releaseKeyStorePassword
 ).all { !it.isNullOrBlank() }
+val debugApiBaseUrl = providers.gradleProperty("tuindice.apiBaseUrl")
+	.orElse(providers.environmentVariable("TUINDICE_API_BASE_URL"))
+	.orElse("http://0.0.0.0:8080/")
+
+fun String.toBuildConfigString(): String =
+	"\"" + replace("\\", "\\\\").replace("\"", "\\\"") + "\""
 
 extensions.configure<ApplicationExtension> {
 	compileSdk = 37
@@ -67,7 +73,7 @@ extensions.configure<ApplicationExtension> {
 			isMinifyEnabled = false
 			applicationIdSuffix = ".debug"
 
-			buildConfigField("String", "URL_API", "\"http://0.0.0.0:8080/\"")
+			buildConfigField("String", "URL_API", debugApiBaseUrl.get().toBuildConfigString())
 			buildConfigField(
 				"String",
 				"URL_PRIVACY_POLICY",

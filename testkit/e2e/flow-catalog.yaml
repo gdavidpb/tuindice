@@ -1,0 +1,181 @@
+version: 1
+suite: local-e2e
+default_app_id: com.gdavidpb.tuindice.debug
+backend: wiremock-local
+flows:
+  - id: smoke-local-suite
+    path: e2e/maestro/flows/smoke/local-suite.yaml
+    module: all
+    type: suite
+    platforms: [android, ios]
+    status: active
+    covers:
+      - login
+      - wizard
+      - summary
+      - record
+      - enrollmentproof
+      - pensum
+      - subjects
+      - evaluations
+      - about
+      - sign-out
+  - id: shared-launch-clean
+    path: e2e/maestro/flows/_shared/launch-clean.yaml
+    module: shared
+    type: setup
+    platforms: [android, ios]
+    status: active
+    primary_selectors: [auth_usb_id_text_field]
+  - id: auth-login-success
+    path: e2e/maestro/flows/auth/login-success.yaml
+    module: auth
+    type: happy-path
+    platforms: [android, ios]
+    status: active
+    primary_selectors:
+      - auth_usb_id_text_field
+      - auth_password_text_field
+      - auth_sign_in_button
+  - id: auth-login-invalid
+    path: e2e/maestro/flows/auth/login-invalid.yaml
+    module: auth
+    type: error-path
+    platforms: [android, ios]
+    status: active
+    primary_selectors:
+      - auth_sign_in_idle_container
+      - auth_sign_in_button
+  - id: auth-sign-out
+    path: e2e/maestro/flows/auth/sign-out.yaml
+    module: auth
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    primary_selectors:
+      - base_top_app_bar_action_sign_out
+      - auth_sign_out_message_text
+  - id: wizard-smoke
+    path: e2e/maestro/flows/wizard/wizard-smoke.yaml
+    module: wizard
+    type: smoke
+    platforms: [android, ios]
+    status: active
+    primary_selectors:
+      - wizard_welcome_screen
+      - wizard_primary_button
+      - wizard_skip_button
+  - id: summary-smoke
+    path: e2e/maestro/flows/summary/summary-smoke.yaml
+    module: summary
+    type: smoke
+    platforms: [android, ios]
+    status: active
+    primary_selectors:
+      - summary_content_container
+      - summary_status_icon_button
+      - summary_sync_status_message
+  - id: record-smoke
+    path: e2e/maestro/flows/record/record-smoke.yaml
+    module: record
+    type: smoke
+    platforms: [android, ios]
+    status: active
+    primary_selectors:
+      - record_content_container
+      - record_top_bar_view_mode_switch
+  - id: enrollmentproof-smoke
+    path: e2e/maestro/flows/enrollmentproof/enrollmentproof-smoke.yaml
+    module: enrollmentproof
+    type: smoke
+    platforms: [android, ios]
+    status: active
+    primary_selectors:
+      - base_top_app_bar_action_enrollment_proof
+      - enrollment_fetching_sheet
+      - enrollment_fetching_cancel_button
+  - id: pensum-smoke
+    path: e2e/maestro/flows/pensum/pensum-smoke.yaml
+    module: pensum
+    type: smoke
+    platforms: [android, ios]
+    status: active
+    primary_selectors:
+      - pensum_screen
+      - pensum_canvas
+      - pensum_zoom_in
+      - pensum_zoom_out
+  - id: subjects-smoke
+    path: e2e/maestro/flows/subjects/subjects-smoke.yaml
+    module: subjects
+    type: smoke
+    platforms: [android, ios]
+    status: active
+    primary_selectors:
+      - subjects_search_screen
+      - subjects_search_text_field
+      - subjects_search_result_EC5333
+      - subjects_content
+  - id: evaluations-smoke
+    path: e2e/maestro/flows/evaluations/evaluations-smoke.yaml
+    module: evaluations
+    type: smoke
+    platforms: [android, ios]
+    status: active
+    primary_selectors:
+      - evaluations_content_container
+      - evaluations_add_fab
+      - evaluation_content_container
+  - id: about-smoke
+    path: e2e/maestro/flows/about/about-smoke.yaml
+    module: about
+    type: smoke
+    platforms: [android, ios]
+    status: active
+    primary_selectors:
+      - about_content_container
+      - about_open_privacy
+      - maincore_browser_container
+module_rollout:
+  testkit:
+    status: active
+    next_flows: [contract-validation]
+  maincore:
+    status: active
+    next_flows: [snackbar, browser-dialog, back-stack, bottom-bar-state]
+  auth:
+    status: active
+    next_flows: [update-password, session-invalidated, retry-after-network-error]
+  summary:
+    status: active
+    next_flows: [profile-picture-pick, profile-picture-remove, outdated-credentials]
+  record:
+    status: active
+    next_flows: [term-selection, grade-edit, status-edit, synthetic-term-create-edit-delete]
+  pensum:
+    status: active
+    next_flows: [version-selection, modality-selection, node-detail, subject-detail-navigation]
+  subjects:
+    status: active
+    next_flows: [career-tab, global-tab, unavailable, failed-retry]
+  evaluations:
+    status: active
+    next_flows: [filters, create, edit, date-picker, grade-picker, swipe-delete]
+  enrollmentproof:
+    status: active
+    next_flows: [success-file-open, outdated-credentials, error]
+  wizard:
+    status: active
+    next_flows: [next-back, focus-overlay, finish]
+  about:
+    status: active
+    next_flows: [external-resource-dialog, support, share, rate]
+platform_edge_cases:
+  android:
+    status: planned
+    runner: e2ePlatformAndroid
+    tools: [compose, espresso, ui-automator]
+  ios:
+    status: planned
+    runner: e2ePlatformIos
+    tools: [xcuitest]

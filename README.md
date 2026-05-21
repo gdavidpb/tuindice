@@ -23,7 +23,7 @@ host Android en `app` y un host iOS en `iosApp`.
 - `maincore`: navegación compartida, bootstrap común de Koin y superficie principal de la app.
 - `app`: host Android.
 - `iosApp`: host iOS.
-- `testkit`: helpers y dobles compartidos para pruebas.
+- `testkit`: helpers, dobles compartidos y contrato reutilizable para pruebas.
 
 ## Estado actual del proyecto
 
@@ -286,6 +286,27 @@ Objetivo:
 - validar el wiring mínimo de cada módulo,
 - y cubrir el arranque real de iOS para detectar regresiones host/plataforma.
 
+## Patron de E2E local
+
+La suite E2E ejecutable vive en `e2e/` y prioriza Maestro para flujos cross-platform. Los casos Android o iOS que
+dependen de detalles de plataforma se registran como suites especificas bajo `e2e/platform/android` o
+`e2e/platform/ios`.
+
+En `testkit/e2e` vive el contrato de implementacion:
+
+- `flow-catalog.yaml`: inventario de flows, modulos, plataformas y siguientes escenarios.
+- `selector-policy.md`: reglas para usar `Modifier.testTag` como selector estable.
+- `fixture-contract.md`: reglas de uso de WireMock como backend local de QA.
+- `local-runbook.md`: comandos y variables para ejecucion local.
+- `validate-e2e-contract.sh`: validador de catalogo y selectors criticos.
+
+Reglas:
+
+- Los flows Maestro usan `id` sobre tags estables definidos por cada modulo.
+- Android debug expone `testTag` como resource id para runners black-box.
+- La suite local usa WireMock desde `mocks/`; no llama servicios productivos.
+- Firebase Test Lab queda fuera de esta capa local y debe agregarse con runners separados cuando corresponda.
+
 ## Checklist para cambios nuevos
 
 - Se respeta separación `presentation/domain/data/di`.
@@ -297,6 +318,7 @@ Objetivo:
 - Koin se registra en el módulo correcto.
 - Los textos visibles van a recursos comunes.
 - Si agregas o cambias wiring de Koin, agregas o actualizas el smoke test del modulo afectado.
+- Si agregas un flujo E2E, actualizas `testkit/e2e/flow-catalog.yaml` y ejecutas `verifyE2eContract`.
 - Ejecutas las verificaciones necesarias antes de cerrar el cambio.
 
 ## Verificaciones útiles
@@ -308,6 +330,8 @@ Ejemplos de comandos usados habitualmente:
 ./gradlew --continue --console=plain :maincore:linkDebugFrameworkIosSimulatorArm64
 ./gradlew --continue --console=plain :evaluations:allTests
 ./gradlew --continue --console=plain :maincore:iosSimulatorArm64Test --tests '*IosAppKoinSmokeTest*'
+./gradlew --continue --console=plain verifyE2eContract
+./gradlew --continue --console=plain e2eMaestroAndroid
 ```
 
 ## Política de evolución

@@ -1,0 +1,16 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- tapOn:
+    id: maincore_tuindice_bottom_bar_record_item
+- extendedWaitUntil:
+    visible:
+      id: record_content_container
+    timeout: 30000
+- assertVisible:
+    id: record_term_selector_row
+- assertVisible:
+    id: record_attempts_list
+- tapOn:
+    id: record_top_bar_view_mode_switch
+- assertVisible:
+    id: record_top_bar_view_mode_banner

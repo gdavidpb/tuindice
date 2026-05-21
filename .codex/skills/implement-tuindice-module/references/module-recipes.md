@@ -44,6 +44,11 @@ If the request does not fit one of those buckets, pause and explain why before i
      - use `base/.../NavigationResult.kt` when the dialog must return an intent to the previous destination and that destination must run a lifecycle-sensitive side effect after the dialog closes
    - when using `NavigationResult`, create a dedicated `@Serializable` result type per flow instead of raw primitives; for sealed results, send them with the base generic type so the writer and collector share the same key
 8. Validate with targeted compilation plus the feature smoke test and the smallest relevant contract/UI tests.
+9. If the feature change affects a user-visible flow, selector, navigation path, or mock-backed state, update local E2E:
+   - `testkit/e2e/flow-catalog.yaml`
+   - `e2e/maestro/flows/<module>/`
+   - `testkit/e2e/critical-selectors.txt` when selectors are added, renamed, or removed
+   - `mocks/` when the covered backend contract changes
 
 ## 3. Create A New KMP Feature Module
 
@@ -146,7 +151,27 @@ Work in `iosApp` when the change affects:
 
 When an iOS capability changes, keep the existing `IOSContext` / host-capability pattern instead of introducing ad hoc globals.
 
-## 6. Root-Level Files Commonly Forgotten
+## 6. Modify Frontend E2E Coverage
+
+Use [e2e.md](e2e.md) as the detailed policy.
+
+1. Start from `testkit/e2e/flow-catalog.yaml` and identify the affected module flow.
+2. Prefer Maestro flows under `e2e/maestro/flows/<module>/` for app-level behavior.
+3. Use shared helpers from `e2e/maestro/flows/_shared/` for launch/reset/login/navigation instead of repeating setup in every flow.
+4. Keep selectors stable:
+   - add or preserve `Modifier.testTag` for critical controls
+   - update `testkit/e2e/critical-selectors.txt` for selectors that must not disappear silently
+   - avoid selectors based only on mutable text unless the text itself is the assertion
+5. Keep the local backend deterministic:
+   - use WireMock scenarios and reset scripts for stateful flows
+   - update `mocks/mappings/` and `mocks/__files/` when the app-facing HTTP contract changes
+6. Assign edge cases to platform-specific suites only when Maestro cannot observe the result stably:
+   - Android Compose internals or intents: Compose/Espresso
+   - Android system surfaces: UI Automator
+   - iOS host/system surfaces: XCUITest
+7. Validate with `./gradlew verifyE2eContract` first; run platform E2E only when the required local device/simulator and Maestro CLI are available.
+
+## 7. Root-Level Files Commonly Forgotten
 
 These files are easy to miss when adding or widening a module:
 
@@ -160,10 +185,13 @@ These files are easy to miss when adding or widening a module:
 - `maincore/.../TuIndiceNavHost.kt`
 - `maincore/.../BottomBarConfig.kt`
 - `maincore/.../TuIndiceScreen.kt`
+- `testkit/e2e/flow-catalog.yaml`
+- `testkit/e2e/critical-selectors.txt`
+- `e2e/maestro/flows/<module>/`
 
 Treat that as a checklist, not a guarantee that every file must change.
 
-## 7. Validation Matrix
+## 8. Validation Matrix
 
 Use the smallest truthful set:
 
@@ -178,6 +206,12 @@ Use the smallest truthful set:
 - Shared UI or navigation change:
   - focused module tests
   - `verifyCommonUiGate` only when the change is broad enough to justify it
+- E2E contract, selector, catalog, or flow change:
+  - `verifyE2eContract`
+- Android local E2E change:
+  - `e2eMaestroAndroid` when Maestro CLI and a device/emulator are available
+- iOS local E2E change:
+  - `e2eMaestroIos` when Maestro CLI and a booted simulator are available
 - Root shared-module change:
   - `verifySharedCompilation`
   - `verifySharedTests` when relevant
@@ -186,7 +220,7 @@ Use the smallest truthful set:
 
 Report any gaps explicitly.
 
-## 8. Stop Conditions
+## 9. Stop Conditions
 
 Pause and call out the issue before implementing if the requested change would:
 

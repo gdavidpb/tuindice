@@ -145,6 +145,42 @@ tasks.register("verifyCommonUiGate") {
 	)
 }
 
+tasks.register<Exec>("verifyE2eContract") {
+	group = "verification"
+	description = "Validates the local E2E flow catalog and critical selector coverage."
+	commandLine("bash", "${rootDir}/testkit/e2e/validate-e2e-contract.sh")
+}
+
+tasks.register<Exec>("e2eMaestroAndroid") {
+	group = "verification"
+	description = "Builds the Android debug app and runs local Maestro E2E flows against WireMock."
+	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-android.sh")
+}
+
+tasks.register<Exec>("e2eMaestroIos") {
+	group = "verification"
+	description = "Builds the iOS debug host and runs local Maestro E2E flows against WireMock."
+	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-ios.sh")
+}
+
+tasks.register<Exec>("e2eMaestroLocal") {
+	group = "verification"
+	description = "Runs local Maestro E2E flows on every locally available platform."
+	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-local.sh")
+}
+
+tasks.register<Exec>("e2ePlatformAndroid") {
+	group = "verification"
+	description = "Runs Android-only E2E edge suites when registered."
+	commandLine("bash", "${rootDir}/e2e/scripts/run-platform-android.sh")
+}
+
+tasks.register<Exec>("e2ePlatformIos") {
+	group = "verification"
+	description = "Runs iOS-only E2E edge suites when registered."
+	commandLine("bash", "${rootDir}/e2e/scripts/run-platform-ios.sh")
+}
+
 tasks.register<Exec>("verifyIosHostTypecheck") {
 	group = "verification"
 	description = "Type-checks iOS host Swift sources against linked maincore.framework."

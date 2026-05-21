@@ -1,6 +1,6 @@
 ---
 name: implement-tuindice-module
-description: Create or modify Kotlin Multiplatform modules in this `tuindice` app repository. Use when adding a new feature or shared module, changing an existing module's architecture, Gradle setup, Koin wiring, navigation, platform bindings, root verification tasks, or smoke tests for modules such as `base`, `persistence`, `maincore`, `app`, `auth`, `about`, `summary`, `record`, `evaluations`, `enrollmentproof`, and `testkit`.
+description: Create or modify Kotlin Multiplatform modules and app frontend flows in this `tuindice` app repository. Use when adding a new feature or shared module, changing an existing module's architecture, Gradle setup, Koin wiring, navigation, platform bindings, root verification tasks, smoke tests, or local E2E coverage with Maestro/XCUITest/Compose/Espresso/UI Automator for modules such as `base`, `persistence`, `maincore`, `app`, `auth`, `about`, `summary`, `record`, `evaluations`, `enrollmentproof`, `subjects`, `pensum`, `wizard`, and `testkit`.
 ---
 
 # Implement TuIndice Module
@@ -15,6 +15,7 @@ Implement module work by copying the nearest existing module pattern instead of 
 - Load [references/module-recipes.md](references/module-recipes.md) when you need the concrete checklist for creating or modifying a module.
 - Load [references/scaffolding.md](references/scaffolding.md) when you want to bootstrap a new module or render boilerplate for individual architecture components.
 - Load [references/pensum-layout.md](references/pensum-layout.md) when updating pensum fixtures, importer output, Mongo seed data, or frontend mocks that include graph node positions and edge routes.
+- Load [references/e2e.md](references/e2e.md) when a change affects user-visible flows, navigation, selectors, local mock behavior, app host startup/reset, or module acceptance coverage.
 - Use the closest existing module as a template:
   - `summary` for a feature with dialog destinations plus typed back results for lifecycle-sensitive platform effects
   - `evaluations` for a feature with multiple screens and dialog destinations that dispatch directly into the parent `ViewModel`
@@ -49,12 +50,14 @@ Implement module work by copying the nearest existing module pattern instead of 
    - request and response mappings live under `mocks/mappings/<feature-or-domain>/`
    - referenced response bodies live under `mocks/__files/<feature-or-domain>/`
    - keep fixture payloads aligned with the current request shape, response shape, and status codes
+   - update E2E fixture assumptions or scenario reset expectations when the contract is covered by a local flow
 8. Keep the UI boundary explicit:
    - `Navigation` resolves the `ViewModel`
    - `Route` bridges `state/effect` and lifecycle to the pure `Screen`
    - `Screen` stays free of Koin and business wiring
 9. Update smoke tests and focused contract/UI tests when constructor wiring or public entry points change.
-10. Run the smallest truthful verification set and report anything left unverified.
+10. For user-visible flow changes, update the E2E catalog and Maestro flow for the affected module unless the change is intentionally not covered yet; document platform-specific edge cases instead of duplicating them in Maestro.
+11. Run the smallest truthful verification set and report anything left unverified.
 
 ## Non-Negotiable Project Rules
 
@@ -156,6 +159,7 @@ Implement module work by copying the nearest existing module pattern instead of 
 - For feature DI changes, run the module smoke test.
 - For shared bootstrap changes, run the relevant `maincore` smoke tests and the iOS bootstrap smoke test when applicable.
 - For navigation or shared UI work, run focused module tests or the shared UI gate if the change is broad.
+- For user-visible flow or selector changes, run `./gradlew verifyE2eContract`; run `./gradlew e2eMaestroAndroid` or `./gradlew e2eMaestroIos` when the local device/simulator and Maestro CLI are available.
 - When a new shared module is added, also update and run the relevant root verification tasks listed in [references/project-map.md](references/project-map.md).
 - Never claim checks you did not run.
 
@@ -164,3 +168,4 @@ Implement module work by copying the nearest existing module pattern instead of 
 - [references/project-map.md](references/project-map.md): architecture, dependency rules, integration points, and root file map.
 - [references/module-recipes.md](references/module-recipes.md): concrete recipes for feature, infrastructure, and host-module changes.
 - [references/scaffolding.md](references/scaffolding.md): scaffolding workflow, template catalog, and explicit `ViewModel` plus `Route` patterns.
+- [references/e2e.md](references/e2e.md): local E2E architecture, selector policy, module rollout, platform-specific test boundaries, and validation commands.
