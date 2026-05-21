@@ -98,6 +98,7 @@ fun CreateTermPeriodRow(
 				) {
 					periodOptions.forEach { option ->
 						DropdownMenuItem(
+							modifier = Modifier.testTag(RecordUiTags.createSyntheticTermPeriodOption(option.termKey)),
 							text = { Text(text = option.label) },
 							onClick = {
 								expanded.value = false

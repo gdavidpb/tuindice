@@ -4,6 +4,7 @@ appId: com.gdavidpb.tuindice.debug
 - tapOn:
     id: auth_usb_id_text_field
 - inputText: "3333333"
+- inputText: "3"
 - tapOn:
     id: auth_password_text_field
 - inputText: "retry-pass"

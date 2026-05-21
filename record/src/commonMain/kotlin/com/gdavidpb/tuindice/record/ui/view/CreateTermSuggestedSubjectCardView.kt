@@ -61,7 +61,11 @@ fun CreateTermSuggestedSubjectCard(
 				CreateTermSubjectActionButton(
 					action = CreateTermSubjectCardAction.Add,
 					enabled = enabled,
-					onClick = onClick
+					onClick = onClick,
+					testTag = RecordUiTags.createSyntheticTermSubjectAction(
+						subjectCode = subject.subjectCode,
+						action = CreateTermSubjectCardAction.Add.name.lowercase()
+					)
 				)
 			}
 			Spacer(modifier = Modifier.height(18.dp))

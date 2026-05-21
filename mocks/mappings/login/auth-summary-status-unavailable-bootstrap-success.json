@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-summary-status-unavailable-login",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "BootstrapIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic ODgtODg4ODg6c3VtbWFyeS11bmF2YWlsYWJsZS1wYXNz"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "summary-status-unavailable-user",
+      "usb_id": "88-88888",
+      "access_token": "bootstrap.mock.summary.status.unavailable.token",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

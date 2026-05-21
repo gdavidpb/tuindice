@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.record.ui.model.CreateTermSubjectCardAction
 
@@ -19,8 +20,17 @@ import com.gdavidpb.tuindice.record.ui.model.CreateTermSubjectCardAction
 fun CreateTermSubjectActionButton(
 	action: CreateTermSubjectCardAction,
 	enabled: Boolean,
-	onClick: () -> Unit
+	onClick: () -> Unit,
+	testTag: String? = null
 ) {
+	val buttonModifier = if (testTag == null) {
+		Modifier.size(38.dp)
+	} else {
+		Modifier
+			.size(38.dp)
+			.testTag(testTag)
+	}
+
 	Surface(
 		shape = RoundedCornerShape(10.dp),
 		color = MaterialTheme.colorScheme.surface.copy(alpha = 0.48f),
@@ -30,7 +40,7 @@ fun CreateTermSubjectActionButton(
 		)
 	) {
 		IconButton(
-			modifier = Modifier.size(38.dp),
+			modifier = buttonModifier,
 			enabled = enabled,
 			onClick = onClick
 		) {

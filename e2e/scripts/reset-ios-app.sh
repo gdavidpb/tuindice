@@ -11,5 +11,6 @@ fi
 require_command xcrun
 
 log "Resetting iOS bundle ${E2E_IOS_BUNDLE_ID} on ${E2E_IOS_DEVICE_ID}."
+disable_ios_keyboard_helpers
 xcrun simctl terminate "${E2E_IOS_DEVICE_ID}" "${E2E_IOS_BUNDLE_ID}" >/dev/null 2>&1 || true
 xcrun simctl uninstall "${E2E_IOS_DEVICE_ID}" "${E2E_IOS_BUNDLE_ID}" >/dev/null 2>&1 || true

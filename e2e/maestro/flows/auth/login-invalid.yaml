@@ -4,6 +4,7 @@ appId: com.gdavidpb.tuindice.debug
 - tapOn:
     id: auth_usb_id_text_field
 - inputText: "0000000"
+- inputText: "0"
 - tapOn:
     id: auth_password_text_field
 - inputText: "bad-password"

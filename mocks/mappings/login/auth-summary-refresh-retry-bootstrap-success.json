@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-summary-refresh-retry-login",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "BootstrapIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic OTktOTk5OTk6c3VtbWFyeS1yZXRyeS1wYXNz"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "summary-refresh-retry-user",
+      "usb_id": "99-99999",
+      "access_token": "bootstrap.mock.summary.refresh.retry.token",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

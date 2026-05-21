@@ -16,6 +16,7 @@ E2E_IOS_WEB_BASE_URL="${E2E_IOS_WEB_BASE_URL:-http://localhost:${E2E_WIREMOCK_PO
 E2E_IOS_DERIVED_DATA="${E2E_IOS_DERIVED_DATA:-${E2E_TMP_DIR}/ios-derived-data}"
 E2E_IOS_DEVICE_ID="${E2E_IOS_DEVICE_ID:-booted}"
 E2E_MAESTRO_SUITE="${E2E_MAESTRO_SUITE:-${REPO_ROOT}/e2e/maestro/flows/suites/local-certification-suite.yaml}"
+E2E_DISABLE_KEYBOARD_HELPERS="${E2E_DISABLE_KEYBOARD_HELPERS:-1}"
 
 log() {
 	printf '[tuindice-e2e] %s\n' "$*"
@@ -60,4 +61,31 @@ reset_wiremock() {
 		--request POST "${E2E_WIREMOCK_URL}/__admin/scenarios/reset"
 	curl --fail --silent --output /dev/null \
 		--request DELETE "${E2E_WIREMOCK_URL}/__admin/requests"
+}
+
+disable_android_keyboard_helpers() {
+	if [[ "${E2E_DISABLE_KEYBOARD_HELPERS}" != "1" ]]; then
+		return 0
+	fi
+
+	log "Disabling Android keyboard helpers for deterministic text input."
+	adb shell settings put secure spell_checker_enabled 0 >/dev/null 2>&1 || true
+	adb shell settings put secure selected_spell_checker "" >/dev/null 2>&1 || true
+	adb shell settings put secure autofill_service null >/dev/null 2>&1 || true
+	adb shell settings put secure show_ime_with_hard_keyboard 0 >/dev/null 2>&1 || true
+	adb shell cmd autofill disable >/dev/null 2>&1 || true
+}
+
+disable_ios_keyboard_helpers() {
+	if [[ "${E2E_DISABLE_KEYBOARD_HELPERS}" != "1" ]]; then
+		return 0
+	fi
+
+	log "Disabling iOS simulator keyboard helpers for deterministic text input."
+	xcrun simctl spawn "${E2E_IOS_DEVICE_ID}" defaults write -g KeyboardAutocorrection -bool NO >/dev/null 2>&1 || true
+	xcrun simctl spawn "${E2E_IOS_DEVICE_ID}" defaults write -g KeyboardPrediction -bool NO >/dev/null 2>&1 || true
+	xcrun simctl spawn "${E2E_IOS_DEVICE_ID}" defaults write -g KeyboardShowPrediction -bool NO >/dev/null 2>&1 || true
+	xcrun simctl spawn "${E2E_IOS_DEVICE_ID}" defaults write -g NSAutomaticSpellingCorrectionEnabled -bool NO >/dev/null 2>&1 || true
+	xcrun simctl spawn "${E2E_IOS_DEVICE_ID}" defaults write -g NSAutomaticTextCompletionEnabled -bool NO >/dev/null 2>&1 || true
+	xcrun simctl spawn "${E2E_IOS_DEVICE_ID}" defaults write -g NSUseSpellCheckerForCompletions -bool NO >/dev/null 2>&1 || true
 }

@@ -59,7 +59,17 @@ flows:
       - wizard.Wizard.Advance
       - wizard.Wizard.Dismiss
       - summary.Summary.RefreshSummary
+      - summary.Summary.OpenProfilePictureSettings
+      - summary.Summary.RemoveProfilePicture
+      - summary.Summary.ConfirmRemoveProfilePicture
+      - summary.Summary.UploadProfilePicture
+      - summary.Summary.PickProfilePicture
+      - summary.Summary.TakeProfilePicture
+      - record.CreateSyntheticTerm.UpdateQuery
+      - record.CreateSyntheticTerm.CreateTerm
+      - record.Record.SelectTerm
       - record.Record.SetViewMode
+      - record.Record.UpsertAttemptSelection
       - enrollmentproof.Enrollment.FetchEnrollmentProof
       - pensum.Pensum.RefreshPensum
       - subjects.SubjectSearch.UpdateQuery
@@ -135,7 +145,6 @@ flows:
     primary_selectors:
       - about_open_privacy
       - maincore_browser_container
-      - maincore_browser_e2e_external_resource_trigger
       - base_external_resource_message
       - base_external_resource_url
   - id: auth-login-success
@@ -376,6 +385,73 @@ flows:
       - summary_content_container
       - summary_status_row
       - summary_status_text
+  - id: summary-refresh-retry
+    path: e2e/maestro/flows/summary/summary-refresh-retry.yaml
+    module: summary
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: refresh-failed-retry-success
+    fixture_state: summary-refresh-retry
+    actions_covered:
+      - summary.Summary.RefreshSummary
+    primary_selectors:
+      - base_error_view_container
+      - base_error_view_retry_button
+      - summary_content_container
+  - id: summary-status-dialog
+    path: e2e/maestro/flows/summary/summary-status-dialog.yaml
+    module: summary
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: sync-status-unavailable-dialog
+    fixture_state: summary-sync-unavailable
+    actions_covered:
+      - summary.Summary.RefreshSummary
+    primary_selectors:
+      - summary_status_icon_button
+      - summary_sync_status_message
+      - base_confirmation_dialog_positive_button
+  - id: summary-profile-picture
+    path: e2e/maestro/flows/summary/summary-profile-picture.yaml
+    module: summary
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: profile-settings-remove
+    fixture_state: profile-picture-lifecycle
+    platform_edge: Pick/take actions are asserted as visible triggers; native picker/camera/upload handoff remains assigned to UI Automator/XCUITest.
+    actions_covered:
+      - summary.Summary.OpenProfilePictureSettings
+      - summary.Summary.PickProfilePicture
+      - summary.Summary.TakeProfilePicture
+      - summary.Summary.RemoveProfilePicture
+      - summary.Summary.ConfirmRemoveProfilePicture
+    primary_selectors:
+      - summary_profile_picture_edit_button
+      - summary_profile_picture_pick_action
+      - summary_profile_picture_take_action
+      - summary_profile_picture_remove_action
+      - summary_remove_profile_picture_message
+      - base_confirmation_dialog_negative_button
+      - base_confirmation_dialog_positive_button
+  - id: summary-outdated-credentials
+    path: e2e/maestro/flows/summary/summary-outdated-credentials.yaml
+    module: summary
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: refresh-outdated-credentials-status-dialog
+    fixture_state: summary-sync-outdated-credentials
+    actions_covered:
+      - summary.Summary.RefreshSummary
+    primary_selectors:
+      - summary_content_container
+      - summary_status_icon_button
+      - summary_sync_status_message
+      - base_confirmation_dialog_positive_button
+      - auth_update_password_idle_container
   - id: record-smoke
     path: e2e/maestro/flows/record/record-smoke.yaml
     module: record
@@ -389,6 +465,84 @@ flows:
     primary_selectors:
       - record_content_container
       - record_top_bar_view_mode_switch
+  - id: record-term-selection
+    path: e2e/maestro/flows/record/record-term-selection.yaml
+    module: record
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: projection-current-historical-selection
+    fixture_state: record-success
+    actions_covered:
+      - record.Record.SelectTerm
+      - record.Record.SetViewMode
+    primary_selectors:
+      - record_term_selector_row
+      - record_term_chip_synthetic-2026-jul-aug-degree-project
+      - record_term_chip_d377155d39da686f412622aaca9074cd
+      - record_attempt_item_synthetic-2026-jul-aug-ep1308
+      - record_attempt_item_8322eaae7602f4749aef5691b9724af2
+      - record_attempt_item_e21f0d7e481d13d19f328d6818ce4d77
+      - record_edit_synthetic_term_button
+  - id: record-attempt-overrides
+    path: e2e/maestro/flows/record/record-attempt-overrides.yaml
+    module: record
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: grade-status-override-clear
+    fixture_state: attempt-override-success
+    actions_covered:
+      - record.Record.SelectTerm
+      - record.Record.UpsertAttemptSelection
+    primary_selectors:
+      - record_attempt_grade_slider_e21f0d7e481d13d19f328d6818ce4d77
+      - record_attempt_grade_value_e21f0d7e481d13d19f328d6818ce4d77_5
+      - record_attempt_grade_value_e21f0d7e481d13d19f328d6818ce4d77_4
+      - record_attempt_status_selector_synthetic-2026-jul-aug-ep1308
+      - record_attempt_status_option_synthetic-2026-jul-aug-ep1308_approved
+      - record_attempt_status_value_synthetic-2026-jul-aug-ep1308_approved
+  - id: record-synthetic-term-search-empty
+    path: e2e/maestro/flows/record/record-synthetic-term-search-empty.yaml
+    module: record
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: synthetic-term-search-no-results
+    fixture_state: synthetic-term-search
+    actions_covered:
+      - record.CreateSyntheticTerm.UpdateQuery
+    primary_selectors:
+      - record_create_synthetic_term_fab
+      - record_create_synthetic_term_screen
+      - record_create_synthetic_term_search_field
+      - record_create_synthetic_term_search_results_title
+  - id: record-synthetic-term-lifecycle
+    path: e2e/maestro/flows/record/record-synthetic-term-lifecycle.yaml
+    module: record
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: synthetic-term-create-edit-search-clear
+    fixture_state: synthetic-term-success
+    platform_edge: Synthetic term delete exists in the data layer but has no current user-facing MVI Action or UI control, so it is not an executable E2E action yet.
+    actions_covered:
+      - record.CreateSyntheticTerm.UpdateQuery
+      - record.CreateSyntheticTerm.CreateTerm
+      - record.Record.SelectTerm
+    primary_selectors:
+      - record_create_synthetic_term_fab
+      - record_create_synthetic_term_screen
+      - record_create_synthetic_term_search_field
+      - record_create_synthetic_term_search_clear_button
+      - record_create_synthetic_term_search_results_title
+      - record_create_synthetic_term_subject_EC5201_add_button
+      - record_create_synthetic_term_subject_EC5201_remove_button
+      - record_create_synthetic_term_subject_EC5333_add_button
+      - record_create_synthetic_term_subject_EC5333_remove_button
+      - record_create_synthetic_term_submit_button
+      - record_attempt_item_2026-SEP_DEC-EC5201-1
+      - record_attempt_item_2026-SEP_DEC-EC5333-2
   - id: enrollmentproof-smoke
     path: e2e/maestro/flows/enrollmentproof/enrollmentproof-smoke.yaml
     module: enrollmentproof
@@ -431,7 +585,7 @@ flows:
     primary_selectors:
       - subjects_search_screen
       - subjects_search_text_field
-      - subjects_search_result_CI4210
+      - subjects_search_result_CI4325
       - subjects_content
   - id: evaluations-smoke
     path: e2e/maestro/flows/evaluations/evaluations-smoke.yaml
@@ -521,10 +675,10 @@ module_rollout:
     next_flows: []
   summary:
     status: active
-    next_flows: [profile-picture-pick, profile-picture-remove, outdated-credentials]
+    next_flows: []
   record:
     status: active
-    next_flows: [term-selection, grade-edit, status-edit, synthetic-term-create-edit-delete]
+    next_flows: [refresh-failed-retry]
   pensum:
     status: active
     next_flows: [version-selection, modality-selection, node-detail, subject-detail-navigation]

@@ -19,6 +19,8 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardCapitalization
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
@@ -72,7 +74,12 @@ fun SubjectSearchTextField(
 				}
 			}
 		},
-		keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+		keyboardOptions = KeyboardOptions(
+			capitalization = KeyboardCapitalization.None,
+			autoCorrectEnabled = false,
+			keyboardType = KeyboardType.Ascii,
+			imeAction = ImeAction.Search
+		),
 		keyboardActions = KeyboardActions(onSearch = { onSearch() }),
 		colors = OutlinedTextFieldDefaults.colors(
 			focusedContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.48f),

@@ -114,6 +114,7 @@ fun PasswordTextField(
 			PasswordVisualTransformation()
 		},
 		keyboardOptions = KeyboardOptions(
+			autoCorrectEnabled = false,
 			imeAction = imeAction,
 			keyboardType = KeyboardType.Password
 		),

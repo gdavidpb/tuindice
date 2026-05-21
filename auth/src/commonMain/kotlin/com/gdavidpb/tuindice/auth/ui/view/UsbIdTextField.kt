@@ -102,6 +102,7 @@ fun UsbIdTextField(
 			)
 		},
 		keyboardOptions = KeyboardOptions(
+			autoCorrectEnabled = false,
 			imeAction = ImeAction.Next,
 			keyboardType = KeyboardType.Number
 		),

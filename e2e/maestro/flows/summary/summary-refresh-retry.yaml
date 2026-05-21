@@ -1,0 +1,35 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- tapOn:
+    id: auth_usb_id_text_field
+- inputText: "9999999"
+- inputText: "9"
+- tapOn:
+    id: auth_password_text_field
+- inputText: "summary-retry-pass"
+- tapOn:
+    id: auth_sign_in_idle_container
+- tapOn:
+    id: auth_sign_in_button
+- extendedWaitUntil:
+    visible:
+      id: wizard_welcome_screen
+    timeout: 30000
+- tapOn:
+    id: wizard_skip_button
+- extendedWaitUntil:
+    visible:
+      id: base_error_view_container
+    timeout: 30000
+- tapOn:
+    id: base_error_view_retry_button
+    waitUntilVisible: true
+- extendedWaitUntil:
+    visible:
+      id: summary_content_container
+    timeout: 30000
+- assertVisible:
+    id: summary_status_row
+- assertVisible:
+    id: summary_items_list

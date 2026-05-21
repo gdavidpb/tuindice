@@ -16,10 +16,11 @@ import androidx.compose.ui.unit.dp
 @Composable
 fun CreateTermSectionTitle(
 	text: String,
-	isRefreshing: Boolean = false
+	isRefreshing: Boolean = false,
+	modifier: Modifier = Modifier
 ) {
 	Row(
-		modifier = Modifier.fillMaxWidth(),
+		modifier = modifier.fillMaxWidth(),
 		horizontalArrangement = Arrangement.SpaceBetween,
 		verticalAlignment = Alignment.CenterVertically
 	) {

@@ -34,6 +34,7 @@ Useful environment variables:
 - `E2E_MAESTRO_SUITE`: defaults to `e2e/maestro/flows/suites/local-certification-suite.yaml`; override it only for ad-hoc debugging.
 - `E2E_STRICT_IOS=1`: makes `e2eMaestroLocal` fail when iOS cannot run.
 - `E2E_REPORT_DIR`: defaults to `build/e2e`.
+- `E2E_DISABLE_KEYBOARD_HELPERS`: defaults to `1`; reset scripts best-effort disable spellcheck, autofill, autocorrection, and prediction helpers that can surface keyboard recommendation popups during Maestro input.
 
 Execution order:
 

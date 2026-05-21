@@ -17,6 +17,8 @@ object RecordUiTags {
 	const val CreateSyntheticTermScreen = "record_create_synthetic_term_screen"
 	const val CreateSyntheticTermPeriodSelector = "record_create_synthetic_term_period_selector"
 	const val CreateSyntheticTermSearchField = "record_create_synthetic_term_search_field"
+	const val CreateSyntheticTermSearchClearButton = "record_create_synthetic_term_search_clear_button"
+	const val CreateSyntheticTermSearchResultsTitle = "record_create_synthetic_term_search_results_title"
 	const val CreateSyntheticTermSubmitButton = "record_create_synthetic_term_submit_button"
 	const val CreateSyntheticTermSubmitProgress = "record_create_synthetic_term_submit_progress"
 	const val CreateSyntheticTermTakenSubjectsToggle = "record_create_synthetic_term_taken_subjects_toggle"
@@ -34,8 +36,14 @@ object RecordUiTags {
 	fun attemptCard(attemptId: String): String = "record_attempt_card_$attemptId"
 	fun attemptSubjectChip(attemptId: String): String = "record_attempt_subject_chip_$attemptId"
 	fun attemptGradeSlider(attemptId: String): String = "record_attempt_grade_slider_$attemptId"
+	fun attemptGradeValue(attemptId: String, grade: Int): String = "record_attempt_grade_value_${attemptId}_$grade"
 	fun attemptStatusChip(attemptId: String): String = "record_attempt_status_chip_$attemptId"
 	fun attemptStatusSelector(attemptId: String): String = "record_attempt_status_selector_$attemptId"
 	fun attemptStatusOption(attemptId: String, status: String): String = "record_attempt_status_option_${attemptId}_$status"
+	fun attemptStatusValue(attemptId: String, status: String): String = "record_attempt_status_value_${attemptId}_$status"
 	fun createSyntheticTermSubject(subjectCode: String): String = "record_create_synthetic_term_subject_$subjectCode"
+	fun createSyntheticTermSubjectAction(subjectCode: String, action: String): String =
+		"record_create_synthetic_term_subject_${subjectCode}_${action}_button"
+
+	fun createSyntheticTermPeriodOption(termKey: String): String = "record_create_synthetic_term_period_option_$termKey"
 }

@@ -49,6 +49,14 @@ fun QualitativeStatusSelector(
 			verticalAlignment = Alignment.CenterVertically
 		) {
 			AttemptStatusBadge(
+				modifier = selectedItem?.let { item ->
+					Modifier.testTag(
+						RecordUiTags.attemptStatusValue(
+							attemptId = attemptId,
+							status = item.outcome.name.lowercase()
+						)
+					)
+				} ?: Modifier,
 				text = selectedItem?.label ?: placeholderText,
 				contentColor = if (selectedItem == null) {
 					MaterialTheme.colorScheme.onSurfaceVariant

@@ -351,13 +351,13 @@ actions:
     classification: user
     variants: [search, clear, no-results]
     selector: record_create_synthetic_term_search_field
-    flow: e2e/maestro/flows/record/record-smoke.yaml
+    flow: e2e/maestro/flows/record/record-synthetic-term-lifecycle.yaml
     fixture_state: synthetic-term-search
   - id: record.CreateSyntheticTerm.CreateTerm
     classification: user
     variants: [create-success, edit-success, empty-subjects-disabled]
     selector: record_create_synthetic_term_submit_button
-    flow: e2e/maestro/flows/record/record-smoke.yaml
+    flow: e2e/maestro/flows/record/record-synthetic-term-lifecycle.yaml
     fixture_state: synthetic-term-success
 
   - id: record.Record.ObserveRecord
@@ -365,7 +365,7 @@ actions:
     reason: screen bootstrap
   - id: record.Record.RefreshRecord
     classification: user
-    variants: [success, empty, failed-retry]
+    variants: [success]
     selector: base_error_view_retry_button
     flow: e2e/maestro/flows/record/record-smoke.yaml
     fixture_state: record-success
@@ -373,19 +373,19 @@ actions:
     classification: user
     variants: [historical, projection]
     selector: record_top_bar_view_mode_switch
-    flow: e2e/maestro/flows/record/record-smoke.yaml
+    flow: e2e/maestro/flows/record/record-term-selection.yaml
     fixture_state: record-success
   - id: record.Record.SelectTerm
     classification: user
     variants: [current, historical, synthetic]
     selector: record_term_selector_row
-    flow: e2e/maestro/flows/record/record-smoke.yaml
+    flow: e2e/maestro/flows/record/record-term-selection.yaml
     fixture_state: record-success
   - id: record.Record.UpsertAttemptSelection
     classification: user
-    variants: [grade-draft, grade-commit, status-draft, status-commit, delete-override]
+    variants: [grade-draft, grade-commit, status-commit, delete-override]
     selector: record_attempts_list
-    flow: e2e/maestro/flows/record/record-smoke.yaml
+    flow: e2e/maestro/flows/record/record-attempt-overrides.yaml
     fixture_state: attempt-override-success
 
   - id: subjects.SubjectDetail.LoadSubjectDetail
@@ -427,44 +427,45 @@ actions:
     classification: user
     variants: [success, failed-retry, conflict-after-content]
     selector: summary_status_row
-    flow: e2e/maestro/flows/summary/summary-smoke.yaml
-    fixture_state: summary-success
+    flow: e2e/maestro/flows/summary/summary-refresh-retry.yaml
+    fixture_state: summary-refresh-retry
   - id: summary.Summary.TakeProfilePicture
     classification: platform-edge
     variants: [camera]
     selector: summary_profile_picture_take_action
-    flow: e2e/maestro/flows/summary/summary-smoke.yaml
+    flow: e2e/maestro/flows/summary/summary-profile-picture.yaml
     platform_edge: camera picker requires UI Automator/XCUITest
   - id: summary.Summary.PickProfilePicture
     classification: platform-edge
     variants: [photo-picker]
     selector: summary_profile_picture_pick_action
-    flow: e2e/maestro/flows/summary/summary-smoke.yaml
+    flow: e2e/maestro/flows/summary/summary-profile-picture.yaml
     platform_edge: photo picker requires UI Automator/XCUITest
   - id: summary.Summary.UploadProfilePicture
-    classification: user
+    classification: platform-edge
     variants: [success, not-image, too-large, generic-error]
-    selector: summary_profile_picture_edit_button
-    flow: e2e/maestro/flows/summary/summary-smoke.yaml
-    fixture_state: profile-picture-upload
+    selector: summary_profile_picture_pick_action
+    flow: e2e/maestro/flows/summary/summary-profile-picture.yaml
+    platform_edge: Upload requires a native picker/camera file source; Maestro covers the visible triggers, while file selection and upload variants belong in UI Automator/XCUITest or a debug-only host adapter.
   - id: summary.Summary.OpenProfilePictureSettings
     classification: user
     variants: [with-picture, without-picture, disabled-while-refreshing]
     selector: summary_profile_picture_edit_button
-    flow: e2e/maestro/flows/summary/summary-smoke.yaml
-    fixture_state: summary-success
+    flow: e2e/maestro/flows/summary/summary-profile-picture.yaml
+    fixture_state: profile-picture-lifecycle
   - id: summary.Summary.RemoveProfilePicture
     classification: user
     variants: [cancel, confirm-dialog]
     selector: summary_profile_picture_remove_action
-    flow: e2e/maestro/flows/summary/summary-smoke.yaml
+    flow: e2e/maestro/flows/summary/summary-profile-picture.yaml
     fixture_state: profile-picture-present
   - id: summary.Summary.ConfirmRemoveProfilePicture
     classification: user
-    variants: [success, not-found, outdated-credentials]
+    variants: [success, cancel, not-found-platform-edge, outdated-credentials-platform-edge]
     selector: base_confirmation_dialog_positive_button
-    flow: e2e/maestro/flows/summary/summary-smoke.yaml
+    flow: e2e/maestro/flows/summary/summary-profile-picture.yaml
     fixture_state: profile-picture-delete
+    platform_edge: not-found and outdated-credentials delete variants require dedicated backend states not yet stable in Maestro.
 
   - id: wizard.Wizard.Advance
     classification: user

@@ -225,6 +225,7 @@ fun CreateSyntheticTermScreen(
 					if (isSearchQueryReady) {
 						item {
 							CreateTermSectionTitle(
+								modifier = Modifier.testTag(RecordUiTags.CreateSyntheticTermSearchResultsTitle),
 								text = stringResource(
 									Res.string.create_term_search_results,
 									displayedSearchResults.size

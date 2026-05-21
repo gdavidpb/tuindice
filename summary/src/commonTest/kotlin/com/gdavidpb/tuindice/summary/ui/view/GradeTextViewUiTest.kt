@@ -24,7 +24,7 @@ class GradeTextViewUiTest {
 		advanceAnimationsBy(1_000)
 
 		assertNodeVisible(SummaryUiTags.GradeText)
-		onNodeWithTag(SummaryUiTags.GradeText).assertTextContains("4.2500/5.0")
+		onNodeWithTag(SummaryUiTags.GradeText).assertTextContains("4.2500 / 5.0")
 	}
 
 	@Test
@@ -39,6 +39,6 @@ class GradeTextViewUiTest {
 		advanceAnimationsBy(1_000)
 
 		assertNodeVisible(SummaryUiTags.GradeText)
-		onNodeWithTag(SummaryUiTags.GradeText).assertTextContains("8.5000/10.0")
+		onNodeWithTag(SummaryUiTags.GradeText).assertTextContains("8.5000 / 10.0")
 	}
 }

@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.ui
 object MaincoreUiTags {
 	const val BrowserContainer = "maincore_browser_container"
 	const val BrowserLoadingIndicator = "maincore_browser_loading_indicator"
-	const val BrowserE2eExternalResourceTrigger = "maincore_browser_e2e_external_resource_trigger"
 
 	const val GooglePlayServicesMessage = "maincore_google_play_services_message"
 

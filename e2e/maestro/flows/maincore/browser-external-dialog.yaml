@@ -12,8 +12,17 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: maincore_browser_container
     timeout: 15000
-- tapOn:
-    id: maincore_browser_e2e_external_resource_trigger
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - tapOn: "Abrir enlace externo"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          point: "50%,28%"
 - extendedWaitUntil:
     visible:
       id: base_external_resource_message

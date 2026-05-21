@@ -35,14 +35,13 @@ appId: com.gdavidpb.tuindice.debug
     when:
       platform: iOS
     commands:
-      - inputText: "m"
-      - inputText: "i"
+      - inputText: "CI4325"
       - extendedWaitUntil:
           visible:
-            id: subjects_search_result_CI4210
+            id: subjects_search_result_CI4325
           timeout: 15000
       - tapOn:
-          id: subjects_search_result_CI4210
+          id: subjects_search_result_CI4325
       - extendedWaitUntil:
           visible:
             id: subjects_content

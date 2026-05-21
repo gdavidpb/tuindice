@@ -149,6 +149,12 @@ fun AttemptItemView(
 								)
 								if (display.gradeText.isNotBlank()) {
 									Text(
+										modifier = Modifier.testTag(
+											RecordUiTags.attemptGradeValue(
+												attemptId = item.attemptId,
+												grade = currentGrade
+											)
+										),
 										text = display.gradeText,
 										fontWeight = FontWeight.SemiBold,
 										style = MaterialTheme.typography.titleMedium
@@ -196,6 +202,12 @@ fun AttemptItemView(
 								)
 								if (display.gradeText.isNotBlank()) {
 									Text(
+										modifier = Modifier.testTag(
+											RecordUiTags.attemptGradeValue(
+												attemptId = item.attemptId,
+												grade = currentGrade
+											)
+										),
 										text = display.gradeText,
 										fontWeight = FontWeight.SemiBold,
 										style = MaterialTheme.typography.titleMedium
@@ -207,6 +219,12 @@ fun AttemptItemView(
 						null -> {
 							if (display.gradeText.isNotBlank()) {
 								Text(
+									modifier = Modifier.testTag(
+										RecordUiTags.attemptGradeValue(
+											attemptId = item.attemptId,
+											grade = currentGrade
+										)
+									),
 									text = display.gradeText,
 									fontWeight = FontWeight.SemiBold,
 									style = MaterialTheme.typography.titleMedium

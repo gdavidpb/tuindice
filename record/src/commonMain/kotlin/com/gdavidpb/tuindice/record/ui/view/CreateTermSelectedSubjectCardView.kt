@@ -86,7 +86,11 @@ fun CreateTermSelectedSubjectCard(
 				CreateTermSubjectActionButton(
 					action = action,
 					enabled = enabled,
-					onClick = onClick
+					onClick = onClick,
+					testTag = RecordUiTags.createSyntheticTermSubjectAction(
+						subjectCode = subject.subjectCode,
+						action = action.name.lowercase()
+					)
 				)
 			}
 		}

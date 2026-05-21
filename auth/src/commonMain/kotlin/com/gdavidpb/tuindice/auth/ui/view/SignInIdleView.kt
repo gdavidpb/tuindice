@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.auth.ui.view
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -113,26 +114,32 @@ fun SignInIdleView(
 				style = policyTextStyle
 			)
 
-			Text(
-				modifier = Modifier
-					.testTag(AuthUiTags.TermsAndConditionsLink)
-					.clickable(onClick = onTermsAndConditionsClick),
-				text = termsAndConditionsText,
-				style = policyLinkStyle
-			)
+			Row(
+				modifier = Modifier.fillMaxWidth(),
+				horizontalArrangement = Arrangement.Center,
+				verticalAlignment = Alignment.CenterVertically
+			) {
+				Text(
+					modifier = Modifier
+						.testTag(AuthUiTags.TermsAndConditionsLink)
+						.clickable(onClick = onTermsAndConditionsClick),
+					text = termsAndConditionsText,
+					style = policyLinkStyle
+				)
 
-			Text(
-				text = "y",
-				style = policyTextStyle
-			)
+				Text(
+					text = " y ",
+					style = policyTextStyle
+				)
 
-			Text(
-				modifier = Modifier
-					.testTag(AuthUiTags.PrivacyPolicyLink)
-					.clickable(onClick = onPrivacyPolicyClick),
-				text = privacyPolicyText,
-				style = policyLinkStyle
-			)
+				Text(
+					modifier = Modifier
+						.testTag(AuthUiTags.PrivacyPolicyLink)
+						.clickable(onClick = onPrivacyPolicyClick),
+					text = privacyPolicyText,
+					style = policyLinkStyle
+				)
+			}
 		}
 	}
 }
