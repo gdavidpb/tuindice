@@ -26,7 +26,8 @@ fun UpdatePasswordIdleView(
 	onConfirmClick: (password: String) -> Unit,
 	appNameText: String,
 	messageText: String,
-	passwordLabelText: String
+	passwordLabelText: String,
+	enabled: Boolean = true
 ) {
 	val annotatedString = remember {
 		buildAnnotatedString {
@@ -60,12 +61,13 @@ fun UpdatePasswordIdleView(
 			labelText = passwordLabelText,
 			password = state.password,
 			isPasswordVisible = state.isPasswordVisible,
+			enabled = enabled,
 			onPasswordChange = onPasswordChange,
 			onPasswordVisibilityToggle = onPasswordVisibilityToggle,
 			error = state.error,
 			imeAction = ImeAction.Done,
 			keyboardActions = KeyboardActions(onDone = {
-				if (state.password.isNotEmpty())
+				if (enabled && state.password.isNotEmpty())
 					onConfirmClick(state.password)
 			})
 		)

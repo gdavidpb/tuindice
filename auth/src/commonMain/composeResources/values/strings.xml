@@ -19,7 +19,6 @@
 	<string name="dialog_button_cancel">Cancelar</string>
 	<string name="dialog_button_retry">Reintentar</string>
 	<string name="dialog_title_update_password">Tu contraseña ha cambiado</string>
-	<string name="dialog_title_updating_password">Estamos actualizando tu contraseña…</string>
 	<string name="dialog_message_update_password">Confirma tu contraseña para seguir disfrutando de TuIndice.</string>
 	<string name="dialog_button_update_password_later">Más tarde</string>
 	<string name="dialog_button_update_password_confirm">Confirmar</string>

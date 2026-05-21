@@ -6,6 +6,7 @@ import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.auth.presentation.contract.UpdatePassword
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.testkit.ui.assertNodeDisabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -33,7 +34,7 @@ class UpdatePasswordContentDialogUiTest {
 	}
 
 	@Test
-	fun when_updatingState_then_displaysUpdatingIndicator() = runTuIndiceUiTest {
+	fun when_updatingState_then_displaysButtonLoadingAndDisablesPasswordField() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			UpdatePasswordContentDialog(
 				state = UpdatePassword.State.Updating(password = "abcd"),
@@ -44,7 +45,10 @@ class UpdatePasswordContentDialogUiTest {
 			)
 		}
 
-		assertNodeVisible(AuthUiTags.UpdatePasswordUpdatingIndicator)
+		assertNodeVisible(AuthUiTags.UpdatePasswordIdleContainer)
+		assertNodeVisible(BaseUiTags.ConfirmationDialogPositiveLoading)
+		assertNodeDisabled(AuthUiTags.PasswordTextField)
+		assertNodeDisabled(BaseUiTags.ConfirmationDialogPositiveButton)
 	}
 
 	@Test

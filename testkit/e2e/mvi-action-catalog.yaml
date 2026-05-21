@@ -136,7 +136,7 @@ actions:
     fixture_state: update-password
   - id: auth.UpdatePassword.ClickSignIn
     classification: user
-    variants: [success, failure]
+    variants: [success, failure, loading-disabled]
     selector: base_confirmation_dialog_positive_button
     flow: e2e/maestro/flows/auth/update-password.yaml
     fixture_state: update-password

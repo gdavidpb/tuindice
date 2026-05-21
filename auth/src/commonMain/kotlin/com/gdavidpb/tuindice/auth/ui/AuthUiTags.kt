@@ -12,7 +12,6 @@ object AuthUiTags {
 	const val RandomFlipperText = "auth_random_flipper_text"
 	const val AnimatedPatternBackground = "auth_animated_pattern_background"
 	const val UpdatePasswordIdleContainer = "auth_update_password_idle_container"
-	const val UpdatePasswordUpdatingIndicator = "auth_update_password_updating_indicator"
 	const val SignOutMessageText = "auth_sign_out_message_text"
 	const val SignOutSecondaryButton = "auth_sign_out_secondary_button"
 }

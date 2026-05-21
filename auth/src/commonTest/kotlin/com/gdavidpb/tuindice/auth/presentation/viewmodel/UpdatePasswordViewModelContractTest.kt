@@ -72,6 +72,7 @@ class UpdatePasswordViewModelContractTest {
 				viewModel.signInAction("new-secret")
 				val updating = assertIs<UpdatePassword.State.Updating>(awaitItem())
 				assertEquals("new-secret", updating.password)
+				assertEquals(true, updating.isPasswordVisible)
 
 				cancelAndIgnoreRemainingEvents()
 			}

@@ -22,7 +22,6 @@ class UpdatePasswordDialogUiTest {
 			UpdatePasswordDialog(
 				state = UpdatePassword.State.Idle(password = ""),
 				titleText = "Actualizar clave",
-				updatingTitleText = "Actualizando clave",
 				confirmText = "Actualizar",
 				laterText = "Luego",
 				appNameText = "TuIndice",
@@ -46,7 +45,6 @@ class UpdatePasswordDialogUiTest {
 			UpdatePasswordDialog(
 				state = UpdatePassword.State.Idle(password = "1234"),
 				titleText = "Actualizar clave",
-				updatingTitleText = "Actualizando clave",
 				confirmText = "Actualizar",
 				laterText = "Luego",
 				appNameText = "TuIndice",
@@ -66,12 +64,11 @@ class UpdatePasswordDialogUiTest {
 	}
 
 	@Test
-	fun when_updatingState_then_displaysProgressContent() = runTuIndiceUiTest {
+	fun when_updatingState_then_displaysButtonLoadingAndDisablesFormActions() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			UpdatePasswordDialog(
-				state = UpdatePassword.State.Updating(password = "1234"),
+				state = UpdatePassword.State.Updating(password = "1234", isPasswordVisible = true),
 				titleText = "Actualizar clave",
-				updatingTitleText = "Actualizando clave",
 				confirmText = "Actualizar",
 				laterText = "Luego",
 				appNameText = "TuIndice",
@@ -84,7 +81,10 @@ class UpdatePasswordDialogUiTest {
 			)
 		}
 
-		assertNodeVisible(AuthUiTags.UpdatePasswordUpdatingIndicator)
+		assertNodeVisible(AuthUiTags.UpdatePasswordIdleContainer)
+		assertNodeVisible(BaseUiTags.ConfirmationDialogPositiveLoading)
+		assertNodeDisabled(AuthUiTags.PasswordTextField)
+		assertNodeDisabled(AuthUiTags.PasswordToggle)
 		assertNodeDisabled(BaseUiTags.ConfirmationDialogPositiveButton)
 		assertNodeDisabled(BaseUiTags.ConfirmationDialogNegativeButton)
 	}

@@ -34,6 +34,7 @@ fun PasswordTextField(
 	labelText: String,
 	password: String,
 	isPasswordVisible: Boolean = false,
+	enabled: Boolean = true,
 	onPasswordChange: (password: String) -> Unit,
 	onPasswordVisibilityToggle: () -> Unit = {},
 	error: String? = null,
@@ -68,6 +69,7 @@ fun PasswordTextField(
 	OutlinedTextField(
 		modifier = modifier.testTag(AuthUiTags.PasswordTextField),
 		value = passwordField.value,
+		enabled = enabled,
 		onValueChange = { newValue ->
 			val previousText = passwordField.value.text
 
@@ -79,11 +81,11 @@ fun PasswordTextField(
 			}
 		},
 		isError = supportingText.value != null,
-			supportingText = {
-				val text = supportingText.value
+		supportingText = {
+			val text = supportingText.value
 
-				if (text != null) Text(text)
-			},
+			if (text != null) Text(text)
+		},
 		label = { Text(text = labelText) },
 		leadingIcon = {
 			Icon(
@@ -94,7 +96,8 @@ fun PasswordTextField(
 		trailingIcon = {
 			IconButton(
 				modifier = Modifier.testTag(AuthUiTags.PasswordToggle),
-				onClick = onPasswordVisibilityToggle
+				onClick = onPasswordVisibilityToggle,
+				enabled = enabled
 			) {
 				Icon(
 					imageVector = if (isPasswordVisible)

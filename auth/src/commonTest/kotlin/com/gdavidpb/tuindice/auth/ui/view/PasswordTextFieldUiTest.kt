@@ -11,6 +11,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.testkit.ui.assertNodeDisabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -83,5 +84,22 @@ class PasswordTextFieldUiTest {
 		}
 
 		onNodeWithTag(AuthUiTags.PasswordTextField).assertTextContains("nueva-clave")
+	}
+
+	@Test
+	fun when_passwordFieldIsDisabled_then_disablesInputAndVisibilityToggle() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PasswordTextField(
+				labelText = "Clave",
+				password = "secreto",
+				isPasswordVisible = true,
+				enabled = false,
+				onPasswordChange = {},
+				onPasswordVisibilityToggle = {}
+			)
+		}
+
+		assertNodeDisabled(AuthUiTags.PasswordTextField)
+		assertNodeDisabled(AuthUiTags.PasswordToggle)
 	}
 }

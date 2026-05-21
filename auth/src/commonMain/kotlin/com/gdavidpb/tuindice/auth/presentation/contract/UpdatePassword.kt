@@ -12,7 +12,10 @@ object UpdatePassword {
 			val error: String? = null,
 		) : State()
 
-		data class Updating(val password: String) : State()
+		data class Updating(
+			val password: String,
+			val isPasswordVisible: Boolean = false,
+		) : State()
 	}
 
 	sealed class Action : ViewAction() {

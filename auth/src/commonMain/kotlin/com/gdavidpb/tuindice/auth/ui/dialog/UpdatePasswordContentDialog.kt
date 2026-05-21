@@ -9,7 +9,6 @@ import tuindice.auth.generated.resources.dialog_button_update_password_confirm
 import tuindice.auth.generated.resources.dialog_button_update_password_later
 import tuindice.auth.generated.resources.dialog_message_update_password
 import tuindice.auth.generated.resources.dialog_title_update_password
-import tuindice.auth.generated.resources.dialog_title_updating_password
 import tuindice.auth.generated.resources.hint_password
 
 @Composable
@@ -23,7 +22,6 @@ fun UpdatePasswordContentDialog(
 	UpdatePasswordDialog(
 		state = state,
 		titleText = stringResource(Res.string.dialog_title_update_password),
-		updatingTitleText = stringResource(Res.string.dialog_title_updating_password),
 		confirmText = stringResource(Res.string.dialog_button_update_password_confirm),
 		laterText = stringResource(Res.string.dialog_button_update_password_later),
 		appNameText = stringResource(Res.string.app_name),

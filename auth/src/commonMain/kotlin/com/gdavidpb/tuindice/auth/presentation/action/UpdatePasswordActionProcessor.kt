@@ -34,7 +34,8 @@ class UpdatePasswordActionProcessor(
 					is UseCaseState.Loading -> suspend { state ->
 						if (state is UpdatePassword.State.Idle)
 							UpdatePassword.State.Updating(
-								password = action.password
+								password = action.password,
+								isPasswordVisible = state.isPasswordVisible
 							)
 						else
 							state

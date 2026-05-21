@@ -259,6 +259,7 @@ flows:
       - auth_password_text_field
       - auth_password_toggle
       - base_confirmation_dialog_positive_button
+      - base_confirmation_dialog_positive_loading
       - base_confirmation_dialog_negative_button
   - id: auth-update-password-failure
     path: e2e/maestro/flows/auth/update-password-failure.yaml

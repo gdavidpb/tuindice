@@ -98,7 +98,10 @@ class AuthActionProcessorContractTest {
 			)
 		)
 		val effects = mutableListOf<UpdatePassword.Effect>()
-		val initialState = UpdatePassword.State.Idle(password = "new-secret")
+		val initialState = UpdatePassword.State.Idle(
+			password = "new-secret",
+			isPasswordVisible = true
+		)
 
 		processor.process(
 			action = UpdatePassword.Action.ClickSignIn(password = "new-secret"),
@@ -106,6 +109,7 @@ class AuthActionProcessorContractTest {
 		).test {
 			val updating = assertIs<UpdatePassword.State.Updating>(awaitItem()(initialState))
 			assertEquals("new-secret", updating.password)
+			assertEquals(true, updating.isPasswordVisible)
 			assertEquals(updating, awaitItem()(updating))
 			awaitComplete()
 		}
