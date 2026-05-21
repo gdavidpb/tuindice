@@ -22,9 +22,24 @@ Optional aggregate command:
 ./gradlew e2eMaestroLocal
 ```
 
+Parallel Android/iOS execution is supported when each platform gets its own WireMock port, temp directory, and report directory:
+
+```bash
+E2E_WIREMOCK_PORT=18081 \
+E2E_TMP_DIR=/tmp/tuindice-e2e-android \
+E2E_REPORT_DIR=build/e2e/android \
+./gradlew e2eMaestroAndroid
+
+E2E_WIREMOCK_PORT=18082 \
+E2E_TMP_DIR=/tmp/tuindice-e2e-ios \
+E2E_REPORT_DIR=build/e2e/ios \
+./gradlew e2eMaestroIos
+```
+
 Useful environment variables:
 
 - `E2E_WIREMOCK_PORT`: defaults to `8080`.
+- `E2E_TMP_DIR`: defaults to `/tmp/tuindice-e2e`; use a unique value per platform when running in parallel.
 - `E2E_ANDROID_API_BASE_URL`: defaults to `http://127.0.0.1:8080/`.
 - `E2E_ANDROID_WEB_BASE_URL`: defaults to `http://127.0.0.1:8080`; used for local legal/browser pages.
 - `E2E_IOS_API_BASE_URL`: defaults to `http://localhost:8080/`.

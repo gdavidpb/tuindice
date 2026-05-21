@@ -76,6 +76,24 @@ flows:
       - evaluations.Evaluations.AddEvaluation
       - about.About.OpenPrivacyPolicy
       - auth.SignOut.ConfirmSignOut
+  - id: pensum-suite
+    path: e2e/maestro/flows/suites/pensum-suite.yaml
+    module: pensum
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: pensum-certification
+    fixture_state: pensum-local-certification
+    actions_covered:
+      - pensum.Pensum.RefreshPensum
+      - pensum.Pensum.SelectSelection
+    covers:
+      - refresh-not-found
+      - refresh-failed-retry
+      - version-modality-selection
+      - zoom
+      - node-selection
+      - subject-detail-navigation
   - id: shared-launch-clean
     path: e2e/maestro/flows/_shared/launch-clean.yaml
     module: shared
@@ -572,6 +590,70 @@ flows:
       - pensum_canvas
       - pensum_zoom_in
       - pensum_zoom_out
+  - id: pensum-refresh-not-found
+    path: e2e/maestro/flows/pensum/pensum-refresh-not-found.yaml
+    module: pensum
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: refresh-not-found-empty
+    fixture_state: pensum-not-found
+    actions_covered:
+      - pensum.Pensum.RefreshPensum
+    primary_selectors:
+      - maincore_tuindice_bottom_bar_pensum_item
+      - base_empty_view_container
+      - base_empty_view_title
+      - base_empty_view_message
+  - id: pensum-refresh-failed-retry
+    path: e2e/maestro/flows/pensum/pensum-refresh-failed-retry.yaml
+    module: pensum
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: refresh-failed-retry-success
+    fixture_state: pensum-unavailable-then-success
+    actions_covered:
+      - pensum.Pensum.RefreshPensum
+    primary_selectors:
+      - maincore_tuindice_bottom_bar_pensum_item
+      - base_error_view_container
+      - base_error_view_retry_button
+      - pensum_screen
+      - pensum_canvas
+  - id: pensum-selection
+    path: e2e/maestro/flows/pensum/pensum-selection.yaml
+    module: pensum
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: version-and-modality-selection
+    fixture_state: pensum-versions-modalities
+    actions_covered:
+      - pensum.Pensum.SelectSelection
+    primary_selectors:
+      - base_top_app_bar_action_change_pensum
+      - base_confirmation_dialog_sheet
+      - pensum_version_option_2018
+      - pensum_modality_option_long_internship
+      - base_confirmation_dialog_positive_button
+      - pensum_node_0800-2018-long_internship-t1-math1-ma1111
+  - id: pensum-node-detail
+    path: e2e/maestro/flows/pensum/pensum-node-detail.yaml
+    module: pensum
+    type: navigation
+    platforms: [android, ios]
+    status: active
+    variant: node-stats-subject-detail
+    fixture_state: pensum-success-subject-detail
+    actions_covered:
+      - subjects.SubjectDetail.SelectSubjectSegmentTab
+    primary_selectors:
+      - pensum_node_0800-2019-degree_project-t1-math1-ma1111
+      - pensum_node_subject_stats_button_0800-2019-degree_project-t1-math1-ma1111
+      - subjects_content
+      - subjects_segment_students_metric
+      - subjects_segment_attempts_metric
   - id: subjects-smoke
     path: e2e/maestro/flows/subjects/subjects-smoke.yaml
     module: subjects

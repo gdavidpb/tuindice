@@ -323,26 +323,20 @@ actions:
     classification: user
     variants: [success, not-found, failed-retry]
     selector: base_error_view_retry_button
-    flow: e2e/maestro/flows/pensum/pensum-smoke.yaml
-    fixture_state: pensum-success
+    flow: e2e/maestro/flows/pensum/pensum-refresh-failed-retry.yaml
+    fixture_state: pensum-unavailable-then-success
   - id: pensum.Pensum.SelectPensum
-    classification: user
-    variants: [2016, 2017, 2018, 2019]
-    selector: pensum_selector
-    flow: e2e/maestro/flows/pensum/pensum-smoke.yaml
-    fixture_state: pensum-versions
+    classification: internal
+    reason: current bottom sheet keeps version as local UI state and dispatches SelectSelection on apply
   - id: pensum.Pensum.SelectModality
-    classification: user
-    variants: [degree_project, exclusive_degree_project, long_internship]
-    selector: pensum_modality_selector
-    flow: e2e/maestro/flows/pensum/pensum-smoke.yaml
-    fixture_state: pensum-modalities
+    classification: internal
+    reason: current bottom sheet keeps modality as local UI state and dispatches SelectSelection on apply
   - id: pensum.Pensum.SelectSelection
     classification: user
     variants: [version-and-modality]
-    selector: pensum_selector
-    flow: e2e/maestro/flows/pensum/pensum-smoke.yaml
-    fixture_state: pensum-versions
+    selector: base_top_app_bar_action_change_pensum
+    flow: e2e/maestro/flows/pensum/pensum-selection.yaml
+    fixture_state: pensum-versions-modalities
 
   - id: record.CreateSyntheticTerm.Observe
     classification: internal

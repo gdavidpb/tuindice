@@ -1,0 +1,33 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-pensum-retry-login",
+  "requiredScenarioState": "BootstrapIssued",
+  "newScenarioState": "TokensIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/token/exchange",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer bootstrap.mock.pensum.retry.token"
+      },
+      "X-Attestation-Token": {
+        "matches": "attestation\\.mock\\.proof\\.(android|ios)"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "pensum-retry-user",
+      "usb_id": "77-77777",
+      "session_id": "pensum-retry-session",
+      "access_token": "pensum.retry.mock.access",
+      "refresh_token": "pensum.retry.mock.refresh",
+      "expires_in": 3600
+    },
+    "fixedDelayMilliseconds": 1000
+  }
+}

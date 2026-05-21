@@ -1,0 +1,33 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-pensum-not-found-login",
+  "requiredScenarioState": "BootstrapIssued",
+  "newScenarioState": "TokensIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/token/exchange",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer bootstrap.mock.pensum.notfound.token"
+      },
+      "X-Attestation-Token": {
+        "matches": "attestation\\.mock\\.proof\\.(android|ios)"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "pensum-not-found-user",
+      "usb_id": "66-66666",
+      "session_id": "pensum-not-found-session",
+      "access_token": "pensum.notfound.mock.access",
+      "refresh_token": "pensum.notfound.mock.refresh",
+      "expires_in": 3600
+    },
+    "fixedDelayMilliseconds": 1000
+  }
+}

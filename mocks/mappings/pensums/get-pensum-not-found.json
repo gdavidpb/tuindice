@@ -1,0 +1,19 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPath": "/pensums/v4",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer pensum.notfound.mock.access"
+      }
+    }
+  },
+  "response": {
+    "status": 404,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}
