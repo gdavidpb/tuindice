@@ -24,6 +24,16 @@ fi
 log "Installing ${APP_PATH} on ${E2E_IOS_DEVICE_ID}."
 xcrun simctl install "${E2E_IOS_DEVICE_ID}" "${APP_PATH}"
 
+MAESTRO_IOS_DEVICE_ID="${E2E_IOS_DEVICE_ID}"
+if [[ "${MAESTRO_IOS_DEVICE_ID}" == "booted" ]]; then
+	MAESTRO_IOS_DEVICE_ID="$(xcrun simctl list devices booted | awk -F'[()]' '/Booted/ { print $2; exit }')"
+fi
+
+if [[ -z "${MAESTRO_IOS_DEVICE_ID}" ]]; then
+	printf 'Unable to resolve a booted iOS simulator for Maestro.\n' >&2
+	exit 1
+fi
+
 mkdir -p "${E2E_REPORT_DIR}"
-log "Running Maestro iOS suite ${E2E_MAESTRO_SUITE}."
-maestro test "${E2E_MAESTRO_SUITE}" | tee "${E2E_REPORT_DIR}/maestro-ios.log"
+log "Running Maestro iOS suite ${E2E_MAESTRO_SUITE} on ${MAESTRO_IOS_DEVICE_ID}."
+maestro --device "${MAESTRO_IOS_DEVICE_ID}" test "${E2E_MAESTRO_SUITE}" | tee "${E2E_REPORT_DIR}/maestro-ios.log"

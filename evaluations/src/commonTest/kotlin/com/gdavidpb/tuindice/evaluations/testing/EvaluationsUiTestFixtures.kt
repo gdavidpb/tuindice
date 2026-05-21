@@ -47,12 +47,12 @@ fun uiAvailableFilters(): List<EvaluationFilter> = listOf(
 )
 
 fun evaluationContentState(
-	isOverdue: Boolean = false
+	isOverdue: Boolean = false,
+	grade: Double? = if (isOverdue) 18.5 else null,
+	maxGrade: Double? = 20.0
 ): EvaluationContract.State.Content {
 	val selectedAttempt = DEFAULT_EVALUATION_SUBJECT
 	val type = EvaluationType.QUIZ
-	val grade = if (isOverdue) 18.5 else null
-	val maxGrade = 20.0
 
 	return EvaluationContract.State.Content(
 		attemptItems = uiSubjects().toEvaluationAttemptPickerItems(
@@ -166,7 +166,7 @@ private fun uiGradeSection(
 	overdueTitleText = "Notas",
 	gradeText = (grade ?: 0.0).formatGrade(decimals = 2),
 	maxGradeText = (maxGrade ?: 0.0).formatGrade(decimals = 2),
-	showsGradeChip = isOverdue
+	showsGradeChip = isOverdue && maxGrade != null && maxGrade > 0.0
 )
 
 private fun List<Evaluation>.toFixtureEvaluationGroups(): List<EvaluationsGroupItem> {

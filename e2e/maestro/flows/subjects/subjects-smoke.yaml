@@ -8,28 +8,51 @@ appId: com.gdavidpb.tuindice.debug
     timeout: 20000
 - tapOn:
     id: base_top_app_bar_action_search_pensum
-- hideKeyboard
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard
 - extendedWaitUntil:
     visible:
       id: subjects_search_screen
     timeout: 10000
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          id: subjects_search_screen
 - tapOn:
     id: subjects_search_text_field
-- inputText: "microondas"
-- hideKeyboard
-- extendedWaitUntil:
-    visible:
-      id: subjects_search_result_EC5333
-    timeout: 15000
-- tapOn:
-    id: subjects_search_result_EC5333
-- extendedWaitUntil:
-    visible:
-      id: subjects_content
-    timeout: 20000
-- tapOn:
-    id: maincore_tuindice_top_bar_back_button
-- hideKeyboard
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - inputText: "m"
+      - hideKeyboard
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - inputText: "m"
+      - inputText: "i"
+      - extendedWaitUntil:
+          visible:
+            id: subjects_search_result_CI4210
+          timeout: 15000
+      - tapOn:
+          id: subjects_search_result_CI4210
+      - extendedWaitUntil:
+          visible:
+            id: subjects_content
+          timeout: 20000
+      - tapOn:
+          id: maincore_tuindice_top_bar_back_button
+      - extendedWaitUntil:
+          visible:
+            id: subjects_search_screen
+          timeout: 10000
 - extendedWaitUntil:
     visible:
       id: subjects_search_screen

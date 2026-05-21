@@ -14,6 +14,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import com.gdavidpb.tuindice.evaluations.presentation.extension.*
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsShortDayOfWeekAndDate
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -41,6 +42,7 @@ fun EvaluationDatePicker(
 
 	if (isPickerDialogOpen.value) {
 		AlertDialog(
+			modifier = Modifier.exposeTestTagsAsResourceId(),
 			onDismissRequest = {
 				resetDialogState()
 				isPickerDialogOpen.value = false

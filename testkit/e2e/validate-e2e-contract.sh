@@ -4,6 +4,7 @@ set -euo pipefail
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(cd "${SCRIPT_DIR}/../.." && pwd)"
 CATALOG="${SCRIPT_DIR}/flow-catalog.yaml"
+MVI_ACTION_CATALOG="${SCRIPT_DIR}/mvi-action-catalog.yaml"
 CRITICAL_SELECTORS="${SCRIPT_DIR}/critical-selectors.txt"
 FLOWS_ROOT="${REPO_ROOT}/e2e/maestro/flows"
 
@@ -14,6 +15,11 @@ fi
 
 if [[ ! -d "${FLOWS_ROOT}" ]]; then
 	printf 'Missing Maestro flows root: %s\n' "${FLOWS_ROOT}" >&2
+	exit 1
+fi
+
+if [[ ! -f "${MVI_ACTION_CATALOG}" ]]; then
+	printf 'Missing MVI action catalog: %s\n' "${MVI_ACTION_CATALOG}" >&2
 	exit 1
 fi
 
@@ -36,6 +42,129 @@ while IFS= read -r catalog_path; do
 		missing_flow_files=1
 	fi
 done < <(printf '%s\n' "${catalog_paths}")
+
+mvi_contract_actions="$(mktemp)"
+mvi_catalog_entries="$(mktemp)"
+mvi_catalog_actions="$(mktemp)"
+trap 'rm -f "${mvi_contract_actions}" "${mvi_catalog_entries}" "${mvi_catalog_actions}"' EXIT
+
+while IFS= read -r contract_file; do
+	relative_path="${contract_file#"${REPO_ROOT}/"}"
+	module_name="${relative_path%%/src/*}"
+	contract_name="$(basename "${contract_file}" .kt)"
+
+	awk -v action_prefix="${module_name}.${contract_name}." '
+		function countChar(value, char, pos, total) {
+			total = 0
+			for (pos = 1; pos <= length(value); pos++) {
+				if (substr(value, pos, 1) == char) {
+					total++
+				}
+			}
+			return total
+		}
+		/^[[:space:]]*sealed[[:space:]]+(class|interface)[[:space:]]+Action([[:space:]]|:|\{|$)/ {
+			inAction = 1
+			depth = countChar($0, "{") - countChar($0, "}")
+			next
+		}
+		inAction == 1 {
+			line = $0
+			sub(/\/\/.*/, "", line)
+			candidate = line
+			sub(/^[[:space:]]*/, "", candidate)
+			if (candidate ~ /^(data[[:space:]]+)?(object|class)[[:space:]]+[A-Za-z_][A-Za-z0-9_]*/) {
+				sub(/^data[[:space:]]+/, "", candidate)
+				sub(/^(object|class)[[:space:]]+/, "", candidate)
+				sub(/[^A-Za-z0-9_].*/, "", candidate)
+				print action_prefix candidate
+			}
+			depth += countChar(line, "{") - countChar(line, "}")
+			if (depth <= 0) {
+				inAction = 0
+			}
+		}
+	' "${contract_file}"
+done < <(find "${REPO_ROOT}" -path '*/src/commonMain/kotlin/*/presentation/contract/*.kt' -type f | sort) \
+	| sort -u > "${mvi_contract_actions}"
+
+awk '
+	/^[[:space:]]*-[[:space:]]*id:/ {
+		if (id != "") {
+			print id "|" classification "|" flow "|" platformEdge
+		}
+		id = $3
+		classification = ""
+		flow = ""
+		platformEdge = ""
+		next
+	}
+	/^[[:space:]]*classification:/ {
+		classification = $2
+		next
+	}
+	/^[[:space:]]*flow:/ {
+		flow = $2
+		next
+	}
+	/^[[:space:]]*platform_edge:/ {
+		platformEdge = $0
+		sub(/^[[:space:]]*platform_edge:[[:space:]]*/, "", platformEdge)
+		next
+	}
+	END {
+		if (id != "") {
+			print id "|" classification "|" flow "|" platformEdge
+		}
+	}
+' "${MVI_ACTION_CATALOG}" > "${mvi_catalog_entries}"
+
+cut -d '|' -f 1 "${mvi_catalog_entries}" | sort -u > "${mvi_catalog_actions}"
+
+missing_mvi_actions=0
+while IFS= read -r action_id; do
+	[[ -z "${action_id}" ]] && continue
+	printf 'MVI Action missing from catalog: %s\n' "${action_id}" >&2
+	missing_mvi_actions=1
+done < <(comm -23 "${mvi_contract_actions}" "${mvi_catalog_actions}")
+
+unknown_mvi_actions=0
+while IFS= read -r action_id; do
+	[[ -z "${action_id}" ]] && continue
+	printf 'MVI catalog references unknown Action: %s\n' "${action_id}" >&2
+	unknown_mvi_actions=1
+done < <(comm -13 "${mvi_contract_actions}" "${mvi_catalog_actions}")
+
+invalid_mvi_entries=0
+while IFS='|' read -r action_id classification flow_path platform_edge; do
+	if [[ -z "${action_id}" ]]; then
+		continue
+	fi
+
+	case "${classification}" in
+		user|internal|platform-edge)
+			;;
+		*)
+			printf 'MVI Action has invalid classification: %s (%s)\n' "${action_id}" "${classification}" >&2
+			invalid_mvi_entries=1
+			;;
+	esac
+
+	if [[ "${classification}" == "user" && -z "${flow_path}" && -z "${platform_edge}" ]]; then
+		printf 'User MVI Action has no flow or platform edge: %s\n' "${action_id}" >&2
+		invalid_mvi_entries=1
+	fi
+
+	if [[ "${classification}" == "platform-edge" && -z "${platform_edge}" ]]; then
+		printf 'Platform-edge MVI Action lacks platform_edge rationale: %s\n' "${action_id}" >&2
+		invalid_mvi_entries=1
+	fi
+
+	if [[ -n "${flow_path}" && ! -f "${REPO_ROOT}/${flow_path}" ]]; then
+		printf 'MVI Action references missing flow: %s -> %s\n' "${action_id}" "${flow_path}" >&2
+		invalid_mvi_entries=1
+	fi
+done < "${mvi_catalog_entries}"
 
 missing_selectors=0
 while IFS= read -r selector; do
@@ -74,7 +203,7 @@ while IFS= read -r auth_flow; do
 	}
 done < <(find "${FLOWS_ROOT}/auth" -name '*.yaml' -type f | sort)
 
-if [[ "${missing_catalog_entries}" == "1" || "${missing_flow_files}" == "1" || "${missing_selectors}" == "1" || "${invalid_auth_usb_id_inputs}" == "1" ]]; then
+if [[ "${missing_catalog_entries}" == "1" || "${missing_flow_files}" == "1" || "${missing_mvi_actions}" == "1" || "${unknown_mvi_actions}" == "1" || "${invalid_mvi_entries}" == "1" || "${missing_selectors}" == "1" || "${invalid_auth_usb_id_inputs}" == "1" ]]; then
 	exit 1
 fi
 

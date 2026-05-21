@@ -54,7 +54,7 @@ class EvaluationContentDialogUiTest {
 	}
 
 	@Test
-	fun when_maxGradePickerContentDialogHasNullGrade_then_confirmEmitsMinimumGrade() = runTuIndiceUiTest {
+	fun when_maxGradePickerContentDialogHasNullGrade_then_confirmEmitsDefaultMaxGrade() = runTuIndiceUiTest {
 		var selectedGrade: Double? = null
 
 		setTuIndiceTestContent {
@@ -70,7 +70,27 @@ class EvaluationContentDialogUiTest {
 		assertNodeVisible(EvaluationsUiTags.EvaluationDialogConfirmButton)
 		onNodeWithTag(EvaluationsUiTags.EvaluationDialogConfirmButton).performClick()
 
-		assertEquals(0.0, selectedGrade)
+		assertEquals(100.0, selectedGrade)
+	}
+
+	@Test
+	fun when_maxGradePickerContentDialogHasZeroGrade_then_confirmEmitsDefaultMaxGrade() = runTuIndiceUiTest {
+		var selectedGrade: Double? = null
+
+		setTuIndiceTestContent {
+			MaxGradePickerContentDialog(
+				selectedGrade = 0.0,
+				onGradeChange = { grade ->
+					selectedGrade = grade
+				},
+				onDismissRequest = {}
+			)
+		}
+
+		assertNodeVisible(EvaluationsUiTags.EvaluationDialogConfirmButton)
+		onNodeWithTag(EvaluationsUiTags.EvaluationDialogConfirmButton).performClick()
+
+		assertEquals(100.0, selectedGrade)
 	}
 
 	@Test

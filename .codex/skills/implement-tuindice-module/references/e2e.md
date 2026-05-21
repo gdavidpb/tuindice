@@ -19,6 +19,7 @@
 - `e2e/platform/android/`: Android-specific edge tests or instructions.
 - `e2e/platform/ios/`: iOS-specific edge tests or instructions.
 - `testkit/e2e/flow-catalog.yaml`: source of truth for module coverage and platform-edge assignment.
+- `testkit/e2e/mvi-action-catalog.yaml`: source of truth mapping MVI Action declarations to required E2E coverage.
 - `testkit/e2e/critical-selectors.txt`: selectors that must stay available for stable E2E.
 - `testkit/e2e/validate-e2e-contract.sh`: validates catalog entries, flow files, and critical selectors.
 - `testkit/e2e/selector-policy.md`, `fixture-contract.md`, and `local-runbook.md`: reusable QA policy.
@@ -26,6 +27,7 @@
 ## Frontend Change Rules
 
 - When adding or changing a user-visible flow, update `testkit/e2e/flow-catalog.yaml` in the same change.
+- When changing a presentation `Action` in `commonMain`, update `testkit/e2e/mvi-action-catalog.yaml` and either map user-visible coverage or document why it is internal/platform-edge.
 - Add or adjust a Maestro flow under `e2e/maestro/flows/<module>/` for happy path, critical interactions, navigation entry/exit, and empty/failed/retry states when applicable.
 - Prefer stable selectors based on Compose `Modifier.testTag`; avoid text-only selectors for dynamic, translated, formatted, or duplicated labels.
 - Keep Android test tags visible to Maestro through `testTagsAsResourceId` in the Android host.
@@ -53,6 +55,7 @@
 - For Android local E2E, run `./gradlew e2eMaestroAndroid` when Maestro CLI, an Android device/emulator, and `adb` are available.
 - For iOS local E2E, run `./gradlew e2eMaestroIos` when Maestro CLI, macOS/Xcode tooling, and a booted simulator are available.
 - For both platforms, run `./gradlew e2eMaestroLocal`; outside macOS, iOS should only be required in strict mode.
+- For MVI action coverage changes, run `./gradlew verifyE2eContract` and the relevant `e2eMaestroMvi*` task.
 - Platform edge placeholders are verified by `./gradlew e2ePlatformAndroid` and `./gradlew e2ePlatformIos` until concrete tests are added.
 
 ## Local Backend And Debug URLs

@@ -143,4 +143,37 @@ class EvaluationContentViewUiTest {
 		assertEquals(state.grade to state.maxGrade, gradePayload)
 		assertEquals(state.maxGrade, maxGradePayload)
 	}
+
+	@Test
+	fun when_stateIsOverdueWithoutSelectedMaxGrade_then_onlyMaxGradeChipIsVisible() = runTuIndiceUiTest {
+		val state = evaluationContentState(
+			isOverdue = true,
+			grade = null,
+			maxGrade = 0.0
+		)
+		var gradeClicks = 0
+		var maxGradePayload: Double? = null
+
+		setTuIndiceTestContent {
+			EvaluationContentView(
+				state = state,
+				onAttemptChange = {},
+				onTypeChange = {},
+				onDateChange = {},
+				onGradeClick = { _, _ -> gradeClicks++ },
+				onMaxGradeClick = { maxGrade ->
+					maxGradePayload = maxGrade
+				},
+				onDoneClick = { _, _, _, _, _, _ -> }
+			)
+		}
+
+		assertNodeHidden(EvaluationsUiTags.EvaluationGradeChip)
+		assertNodeVisible(EvaluationsUiTags.EvaluationMaxGradeChip)
+
+		onNodeWithTag(EvaluationsUiTags.EvaluationMaxGradeChip).performClick()
+
+		assertEquals(0, gradeClicks)
+		assertEquals(state.maxGrade, maxGradePayload)
+	}
 }

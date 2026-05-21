@@ -20,13 +20,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.semantics.testTagsAsResourceId
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.auth.presentation.contract.SignOut
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,7 +45,7 @@ fun SignOutDialog(
 
 	ModalBottomSheet(
 		modifier = Modifier
-			.semantics { testTagsAsResourceId = true }
+			.exposeTestTagsAsResourceId()
 			.testTag(BaseUiTags.ConfirmationDialogSheet),
 		sheetState = sheetState,
 		onDismissRequest = {

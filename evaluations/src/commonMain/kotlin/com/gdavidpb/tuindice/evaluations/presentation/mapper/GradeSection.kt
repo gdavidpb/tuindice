@@ -29,7 +29,7 @@ fun EvaluationGradeSectionItem.updated(
 	return copy(
 		gradeText = (grade ?: 0.0).formatGrade(decimals = 2),
 		maxGradeText = (maxGrade ?: 0.0).formatGrade(decimals = 2),
-		showsGradeChip = isOverdue
+		showsGradeChip = shouldShowGradeChip(isOverdue, maxGrade)
 	)
 }
 
@@ -45,6 +45,12 @@ private fun createEvaluationGradeSectionItem(
 		overdueTitleText = overdueTitleText,
 		gradeText = (grade ?: 0.0).formatGrade(decimals = 2),
 		maxGradeText = (maxGrade ?: 0.0).formatGrade(decimals = 2),
-		showsGradeChip = isOverdue
+		showsGradeChip = shouldShowGradeChip(isOverdue, maxGrade)
 	)
 }
+
+private fun shouldShowGradeChip(
+	isOverdue: Boolean,
+	maxGrade: Double?
+): Boolean =
+	isOverdue && maxGrade != null && maxGrade > 0.0

@@ -169,6 +169,27 @@ tasks.register<Exec>("e2eMaestroLocal") {
 	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-local.sh")
 }
 
+tasks.register<Exec>("e2eMaestroMviAndroid") {
+	group = "verification"
+	description = "Builds the Android debug app and runs the MVI action Maestro E2E suite against WireMock."
+	environment("E2E_MAESTRO_SUITE", "${rootDir}/e2e/maestro/flows/suites/mvi-action-suite.yaml")
+	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-android.sh")
+}
+
+tasks.register<Exec>("e2eMaestroMviIos") {
+	group = "verification"
+	description = "Builds the iOS debug host and runs the MVI action Maestro E2E suite against WireMock."
+	environment("E2E_MAESTRO_SUITE", "${rootDir}/e2e/maestro/flows/suites/mvi-action-suite.yaml")
+	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-ios.sh")
+}
+
+tasks.register<Exec>("e2eMaestroMviLocal") {
+	group = "verification"
+	description = "Runs the MVI action Maestro E2E suite on every locally available platform."
+	environment("E2E_MAESTRO_SUITE", "${rootDir}/e2e/maestro/flows/suites/mvi-action-suite.yaml")
+	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-local.sh")
+}
+
 tasks.register<Exec>("e2ePlatformAndroid") {
 	group = "verification"
 	description = "Runs Android-only E2E edge suites when registered."

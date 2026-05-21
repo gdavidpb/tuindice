@@ -17,6 +17,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.evaluations.ui.model.MIN_EVALUATION_GRADE
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationGradeWheelPicker
@@ -40,11 +41,13 @@ fun GradePickerBottomSheet(
 	}
 
 	ModalBottomSheet(
+		modifier = Modifier.exposeTestTagsAsResourceId(),
 		sheetState = sheetState,
 		onDismissRequest = onDismissRequest
 	) {
 		Column(
 			modifier = Modifier
+				.exposeTestTagsAsResourceId()
 				.fillMaxWidth()
 				.padding(horizontal = 24.dp)
 		) {

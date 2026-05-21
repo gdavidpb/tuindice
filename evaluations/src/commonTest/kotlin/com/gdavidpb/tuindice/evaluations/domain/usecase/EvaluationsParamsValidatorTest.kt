@@ -35,6 +35,15 @@ class EvaluationsParamsValidatorTest {
 	}
 
 	@Test
+	fun addEvaluationParamsValidator_rejectsZeroMaxGrade() {
+		val exception = assertFailsWith<AddEvaluationIllegalArgumentException> {
+			AddEvaluationParamsValidator().validate(validParams(maxGrade = 0.0))
+		}
+
+		assertEquals(AddEvaluationUseCaseError.MaxGradeMissed, exception.error)
+	}
+
+	@Test
 	fun addEvaluationParamsValidator_rejectsMissingType() {
 		val exception = assertFailsWith<AddEvaluationIllegalArgumentException> {
 			AddEvaluationParamsValidator().validate(validParams(type = null))

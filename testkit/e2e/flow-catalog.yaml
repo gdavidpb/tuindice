@@ -9,6 +9,19 @@ flows:
     type: suite
     platforms: [android, ios]
     status: active
+    variant: smoke
+    fixture_state: wiremock-local
+    actions_covered:
+      - auth.SignIn.ClickSignIn
+      - wizard.Wizard.Dismiss
+      - summary.Summary.RefreshSummary
+      - record.Record.SetViewMode
+      - enrollmentproof.Enrollment.FetchEnrollmentProof
+      - pensum.Pensum.RefreshPensum
+      - subjects.SubjectSearch.UpdateQuery
+      - evaluations.Evaluations.AddEvaluation
+      - about.About.OpenPrivacyPolicy
+      - auth.SignOut.ConfirmSignOut
     covers:
       - login
       - wizard
@@ -20,12 +33,36 @@ flows:
       - evaluations
       - about
       - sign-out
+  - id: mvi-action-suite
+    path: e2e/maestro/flows/suites/mvi-action-suite.yaml
+    module: all
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: mvi-action-certification
+    fixture_state: wiremock-local
+    actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
+      - wizard.Wizard.Advance
+      - wizard.Wizard.Dismiss
+      - summary.Summary.RefreshSummary
+      - record.Record.SetViewMode
+      - enrollmentproof.Enrollment.FetchEnrollmentProof
+      - pensum.Pensum.RefreshPensum
+      - subjects.SubjectSearch.UpdateQuery
+      - evaluations.Evaluations.AddEvaluation
+      - about.About.OpenPrivacyPolicy
+      - auth.SignOut.ConfirmSignOut
   - id: shared-launch-clean
     path: e2e/maestro/flows/_shared/launch-clean.yaml
     module: shared
     type: setup
     platforms: [android, ios]
     status: active
+    variant: clean-launch
+    fixture_state: reset-app-state
     primary_selectors: [auth_usb_id_text_field]
   - id: auth-login-success
     path: e2e/maestro/flows/auth/login-success.yaml
@@ -33,16 +70,42 @@ flows:
     type: happy-path
     platforms: [android, ios]
     status: active
+    variant: success
+    fixture_state: auth-success
+    actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
     primary_selectors:
       - auth_usb_id_text_field
       - auth_password_text_field
       - auth_sign_in_button
+  - id: auth-login-password-toggle
+    path: e2e/maestro/flows/auth/login-password-toggle.yaml
+    module: auth
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: password-toggle
+    fixture_state: static
+    actions_covered:
+      - auth.SignIn.SetPassword
+      - auth.SignIn.TogglePasswordVisibility
+    primary_selectors:
+      - auth_password_text_field
+      - auth_password_toggle
   - id: auth-login-invalid
     path: e2e/maestro/flows/auth/login-invalid.yaml
     module: auth
     type: error-path
     platforms: [android, ios]
     status: active
+    variant: invalid-credentials
+    fixture_state: auth-invalid
+    actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
     primary_selectors:
       - auth_sign_in_idle_container
       - auth_sign_in_button
@@ -52,6 +115,10 @@ flows:
     type: interaction
     platforms: [android, ios]
     status: active
+    variant: sign-out
+    fixture_state: auth-revoke-success
+    actions_covered:
+      - auth.SignOut.ConfirmSignOut
     primary_selectors:
       - base_top_app_bar_action_sign_out
       - auth_sign_out_message_text
@@ -61,6 +128,11 @@ flows:
     type: smoke
     platforms: [android, ios]
     status: active
+    variant: welcome-skip
+    fixture_state: first-launch
+    actions_covered:
+      - wizard.Wizard.Advance
+      - wizard.Wizard.Dismiss
     primary_selectors:
       - wizard_welcome_screen
       - wizard_primary_button
@@ -71,6 +143,11 @@ flows:
     type: smoke
     platforms: [android, ios]
     status: active
+    variant: content-status
+    fixture_state: summary-success
+    actions_covered:
+      - summary.Summary.RefreshSummary
+      - summary.Summary.OpenProfilePictureSettings
     primary_selectors:
       - summary_content_container
       - summary_status_row
@@ -81,6 +158,10 @@ flows:
     type: smoke
     platforms: [android, ios]
     status: active
+    variant: content-view-mode
+    fixture_state: record-success
+    actions_covered:
+      - record.Record.SetViewMode
     primary_selectors:
       - record_content_container
       - record_top_bar_view_mode_switch
@@ -90,6 +171,11 @@ flows:
     type: smoke
     platforms: [android, ios]
     status: active
+    variant: top-bar-trigger
+    fixture_state: enrollment-proof-success
+    platform_edge: PDF/file opener requires UI Automator/XCUITest for host assertion.
+    actions_covered:
+      - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
       - base_top_app_bar_action_enrollment_proof
   - id: pensum-smoke
@@ -98,6 +184,10 @@ flows:
     type: smoke
     platforms: [android, ios]
     status: active
+    variant: canvas-zoom
+    fixture_state: pensum-success
+    actions_covered:
+      - pensum.Pensum.RefreshPensum
     primary_selectors:
       - pensum_screen
       - pensum_canvas
@@ -109,10 +199,15 @@ flows:
     type: smoke
     platforms: [android, ios]
     status: active
+    variant: search-detail
+    fixture_state: subject-search-success
+    actions_covered:
+      - subjects.SubjectSearch.UpdateQuery
+      - subjects.SubjectDetail.SelectSubjectSegmentTab
     primary_selectors:
       - subjects_search_screen
       - subjects_search_text_field
-      - subjects_search_result_EC5333
+      - subjects_search_result_CI4210
       - subjects_content
   - id: evaluations-smoke
     path: e2e/maestro/flows/evaluations/evaluations-smoke.yaml
@@ -120,19 +215,75 @@ flows:
     type: smoke
     platforms: [android, ios]
     status: active
+    variant: create-form-entry
+    fixture_state: evaluations-content
+    actions_covered:
+      - evaluations.Evaluations.AddEvaluation
+      - evaluations.Evaluation.SetAttempt
+      - evaluations.Evaluation.SetType
     primary_selectors:
       - evaluations_content_container
       - evaluations_add_fab
       - evaluation_content_container
+  - id: evaluations-filters-and-form
+    path: e2e/maestro/flows/evaluations/evaluations-filters-and-form.yaml
+    module: evaluations
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: filters-and-form-inputs
+    fixture_state: evaluations-content
+    actions_covered:
+      - evaluations.Evaluations.CheckEvaluationFilter
+      - evaluations.Evaluations.UncheckEvaluationFilter
+      - evaluations.Evaluations.ClearEvaluationFilters
+      - evaluations.Evaluation.SetAttempt
+      - evaluations.Evaluation.SetType
+      - evaluations.Evaluation.SetDate
+      - evaluations.Evaluation.SetMaxGrade
+      - evaluations.Evaluation.ClickGrade
+      - evaluations.Evaluation.ClickMaxGrade
+    primary_selectors:
+      - evaluations_filter_chip_ci5311
+      - evaluations_clear_filters_fab
+      - evaluation_subject_chip_e21f0d7e481d13d19f328d6818ce4d77
+      - evaluation_type_chip_test
+      - evaluation_date_select_button
+      - evaluation_max_grade_chip
+      - evaluation_grade_chip
   - id: about-smoke
     path: e2e/maestro/flows/about/about-smoke.yaml
     module: about
     type: smoke
     platforms: [android, ios]
     status: active
+    variant: internal-browser
+    fixture_state: static
+    platform_edge: External/system surfaces remain assigned to platform-specific suites.
+    actions_covered:
+      - about.About.OpenPrivacyPolicy
+      - maincore.Browser.OpenExternalResource
     primary_selectors:
       - about_content_container
       - about_open_privacy
+      - maincore_browser_container
+  - id: about-internal-browser-links
+    path: e2e/maestro/flows/about/internal-browser-links.yaml
+    module: about
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: internal-browser-links
+    fixture_state: static
+    actions_covered:
+      - about.About.OpenTermsAndConditions
+      - about.About.OpenPrivacyPolicy
+      - about.About.OpenSupport
+      - maincore.Browser.NavigateTo
+    primary_selectors:
+      - about_open_terms
+      - about_open_privacy
+      - about_open_support
       - maincore_browser_container
 module_rollout:
   testkit:

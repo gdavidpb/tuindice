@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateE
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.AddEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.EditEvaluationActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetMaxGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
@@ -30,6 +31,25 @@ import kotlin.test.assertIs
 import kotlin.test.assertNull
 
 class EvaluationActionProcessorContractTest {
+	@Test
+	fun setMaxGradeActionProcessor_clearsMaxGradeWhenSelectedValueIsZero() = runTest {
+		val processor = SetMaxGradeActionProcessor()
+		val initialState = evaluationContentState(isOverdue = true)
+
+		processor.process(
+			action = Evaluation.Action.SetMaxGrade(0.0),
+			sideEffect = {}
+		).test {
+			val content = assertIs<Evaluation.State.Content>(awaitItem()(initialState))
+
+			assertEquals(null, content.grade)
+			assertEquals(null, content.maxGrade)
+			assertEquals(false, content.gradeSection.showsGradeChip)
+
+			awaitComplete()
+		}
+	}
+
 	@Test
 	fun addEvaluationActionProcessor_keepsFormAndShowsAlreadyExistsMessage() = runTest {
 		val processor = AddEvaluationActionProcessor(

@@ -11,7 +11,7 @@ class AddEvaluationParamsValidator : ParamsValidator<AddEvaluationParams> {
 			throw AddEvaluationIllegalArgumentException(AddEvaluationUseCaseError.AttemptMissed)
 		}
 
-		require(params.maxGrade != null) {
+		require(params.maxGrade != null && params.maxGrade > 0.0) {
 			throw AddEvaluationIllegalArgumentException(AddEvaluationUseCaseError.MaxGradeMissed)
 		}
 

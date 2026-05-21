@@ -20,15 +20,16 @@ class SetMaxGradeActionProcessor
 	): Flow<Mutation<Evaluation.State>> {
 		return flowOf { state ->
 			if (state is Evaluation.State.Content) {
-				val grade = min(state.grade ?: MIN_EVALUATION_GRADE, action.maxGrade)
+				val maxGrade = action.maxGrade.takeIf { it > MIN_EVALUATION_GRADE }
+				val grade = maxGrade?.let { min(state.grade ?: MIN_EVALUATION_GRADE, it) }
 
 				state.copy(
 					grade = grade,
-					maxGrade = action.maxGrade,
+					maxGrade = maxGrade,
 					gradeSection = state.gradeSection.updated(
 						isOverdue = state.isOverdue,
 						grade = grade,
-						maxGrade = action.maxGrade
+						maxGrade = maxGrade
 					)
 				)
 			}

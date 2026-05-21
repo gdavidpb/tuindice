@@ -36,6 +36,7 @@ import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
@@ -106,20 +107,16 @@ class EvaluationRouteUiTest {
 	}
 
 	@Test
-	fun when_gradeActionTriggeredWithNullValues_then_navigatesToGradeDialogWithNullPayload() = runTuIndiceUiTest {
+	fun when_gradeActionTriggeredWithoutMaxGrade_then_doesNotNavigateToGradeDialog() = runTuIndiceUiTest {
 		val viewModel = createViewModel()
 		var gradeDialogRequested = false
-		var requestedGrade: Double? = 0.0
-		var requestedMaxGrade: Double? = 0.0
 
 		setTuIndiceTestContent {
 			EvaluationRoute(
 				evaluationId = null,
 				onNavigateToEvaluations = {},
-				onNavigateToGradePickerDialog = { grade, maxGrade ->
+				onNavigateToGradePickerDialog = { _, _ ->
 					gradeDialogRequested = true
-					requestedGrade = grade
-					requestedMaxGrade = maxGrade
 				},
 				onNavigateToMaxGradePickerDialog = {},
 				showSnackBar = {},
@@ -131,12 +128,9 @@ class EvaluationRouteUiTest {
 			viewModel.clickGradeAction(grade = null, maxGrade = null)
 		}
 
-		waitUntil(timeoutMillis = 2_000) {
-			gradeDialogRequested
-		}
+		waitForIdle()
 
-		assertEquals(null, requestedGrade)
-		assertEquals(null, requestedMaxGrade)
+		assertFalse(gradeDialogRequested)
 	}
 
 	@Test

@@ -7,7 +7,8 @@ appId: com.gdavidpb.tuindice.debug
 - tapOn:
     id: auth_password_text_field
 - inputText: "bad-password"
-- hideKeyboard
+- tapOn:
+    id: auth_sign_in_idle_container
 - tapOn:
     id: auth_sign_in_button
 - extendedWaitUntil:

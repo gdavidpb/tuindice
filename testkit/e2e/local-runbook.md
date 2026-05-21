@@ -15,6 +15,9 @@ Commands:
 ./gradlew e2eMaestroAndroid
 ./gradlew e2eMaestroIos
 ./gradlew e2eMaestroLocal
+./gradlew e2eMaestroMviAndroid
+./gradlew e2eMaestroMviIos
+./gradlew e2eMaestroMviLocal
 ```
 
 Useful environment variables:
@@ -23,6 +26,7 @@ Useful environment variables:
 - `E2E_ANDROID_API_BASE_URL`: defaults to `http://127.0.0.1:8080/`.
 - `TUINDICE_API_BASE_URL`: alternative Android debug API base URL input.
 - `E2E_IOS_DEVICE_ID`: defaults to `booted`.
+- `E2E_MAESTRO_SUITE`: defaults to `e2e/maestro/flows/smoke/local-suite.yaml`; the MVI Gradle tasks override it.
 - `E2E_STRICT_IOS=1`: makes `e2eMaestroLocal` fail when iOS cannot run.
 - `E2E_REPORT_DIR`: defaults to `build/e2e`.
 
@@ -33,5 +37,12 @@ Execution order:
 3. Build the debug app.
 4. Reset app state.
 5. Install and run the Maestro suite.
+
+MVI action coverage:
+
+- `testkit/e2e/mvi-action-catalog.yaml` maps every `presentation/contract/*.kt` Action to `user`, `internal`, or `platform-edge`.
+- `user` actions must declare a Maestro flow or an explicit platform edge assignment.
+- `internal` actions are lifecycle, observation, loading, bootstrap, or renderer callback actions and do not require direct black-box coverage.
+- `platform-edge` actions still require a Maestro trigger when stable, plus a platform-edge rationale for future UI Automator/XCUITest coverage.
 
 Do not add Firebase Test Lab behavior here yet. Future cloud execution should reuse the same flows and add a separate runner layer.
