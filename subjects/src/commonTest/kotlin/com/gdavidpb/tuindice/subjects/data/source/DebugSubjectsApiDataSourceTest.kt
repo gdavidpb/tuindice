@@ -14,6 +14,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 
 class DebugSubjectsApiDataSourceTest {
@@ -132,5 +133,31 @@ class DebugSubjectsApiDataSourceTest {
 		assertEquals("USB0001", ready.detail.id)
 		assertEquals("Materia externa", ready.detail.name)
 		assertEquals(2, ready.detail.credits)
+	}
+
+	@Test
+	fun searchSubjects_failsOnceForDebugRetryQuery() = runTest {
+		val client = HttpClient(
+			engine = MockEngine {
+				error("Debug subject search should resolve from local metadata")
+			}
+		) {
+			expectSuccess = true
+			install(ContentNegotiation) {
+				json()
+			}
+		}
+		val dataSource = DebugSubjectsApiDataSource(
+			apiDataSource = KtorSubjectsApiDataSource(client, sharedJson),
+			json = sharedJson
+		)
+
+		assertFailsWith<IllegalStateException> {
+			dataSource.searchSubjects(query = "rx", limit = 20)
+		}
+
+		val results = dataSource.searchSubjects(query = "rx", limit = 20)
+
+		assertEquals("RX", results.single().subjectCode)
 	}
 }

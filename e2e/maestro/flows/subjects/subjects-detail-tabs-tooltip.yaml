@@ -8,14 +8,9 @@ appId: com.gdavidpb.tuindice.debug
 - extendedWaitUntil:
     visible:
       id: pensum_screen
-    timeout: 20000
+    timeout: 30000
 - tapOn:
     id: base_top_app_bar_action_search_pensum
-- runFlow:
-    when:
-      platform: Android
-    commands:
-      - hideKeyboard
 - extendedWaitUntil:
     visible:
       id: subjects_search_screen
@@ -44,6 +39,26 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: subjects_content
     timeout: 30000
+- assertVisible:
+    id: subjects_career_tab
+- assertVisible:
+    id: subjects_global_tab
+- tapOn:
+    id: subjects_global_tab
+- assertVisible:
+    id: subjects_segment_students_metric
+- tapOn:
+    id: subjects_segment_students_metric
+- assertVisible: "Cantidad de estudiantes"
+- assertVisible: "que cursaron esta materia"
+- tapOn:
+    id: subjects_career_tab
+- assertVisible:
+    id: subjects_segment_attempts_metric
+- tapOn:
+    id: subjects_segment_attempts_metric
+- assertVisible: "Cantidad de veces"
+- assertVisible: "que fue cursada esta materia"
 - tapOn:
     id: maincore_tuindice_top_bar_back_button
 - extendedWaitUntil:

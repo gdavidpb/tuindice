@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -77,9 +76,7 @@ fun SubjectSearchScreen(
 						onSubjectClick(subjectCode)
 					},
 					onResultsInteraction = ::dismissKeyboard,
-					modifier = Modifier
-						.weight(1f)
-						.imePadding()
+					modifier = Modifier.weight(1f)
 				)
 		}
 	}

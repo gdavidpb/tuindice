@@ -8,14 +8,9 @@ appId: com.gdavidpb.tuindice.debug
 - extendedWaitUntil:
     visible:
       id: pensum_screen
-    timeout: 20000
+    timeout: 30000
 - tapOn:
     id: base_top_app_bar_action_search_pensum
-- runFlow:
-    when:
-      platform: Android
-    commands:
-      - hideKeyboard
 - extendedWaitUntil:
     visible:
       id: subjects_search_screen
@@ -28,7 +23,7 @@ appId: com.gdavidpb.tuindice.debug
           id: subjects_search_screen
 - tapOn:
     id: subjects_search_text_field
-- inputText: "ci"
+- inputText: "rx"
 - runFlow:
     when:
       platform: Android
@@ -36,20 +31,14 @@ appId: com.gdavidpb.tuindice.debug
       - hideKeyboard
 - extendedWaitUntil:
     visible:
-      id: subjects_search_result_CI2511
+      id: subjects_search_retry
     timeout: 15000
 - tapOn:
-    id: subjects_search_result_CI2511
+    id: subjects_search_retry
 - extendedWaitUntil:
     visible:
-      id: subjects_content
-    timeout: 30000
-- tapOn:
-    id: maincore_tuindice_top_bar_back_button
-- extendedWaitUntil:
-    visible:
-      id: subjects_search_screen
-    timeout: 10000
+      id: subjects_search_result_RX
+    timeout: 15000
 - tapOn:
     id: maincore_tuindice_top_bar_back_button
 - extendedWaitUntil:

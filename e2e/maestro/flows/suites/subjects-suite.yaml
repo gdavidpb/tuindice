@@ -1,0 +1,9 @@
+appId: com.gdavidpb.tuindice.debug
+name: TuIndice subjects E2E suite
+---
+- runFlow: ../subjects/subjects-smoke.yaml
+- runFlow: ../subjects/subjects-search-query-clear.yaml
+- runFlow: ../subjects/subjects-search-failed-retry.yaml
+- runFlow: ../subjects/subjects-detail-tabs-tooltip.yaml
+- runFlow: ../subjects/subjects-detail-unavailable.yaml
+- runFlow: ../subjects/subjects-detail-failed-retry.yaml

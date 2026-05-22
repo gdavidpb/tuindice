@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.subjects.data.model.GetSubjectResponse
 import com.gdavidpb.tuindice.subjects.data.model.SubjectStatsUnavailableResponse
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectCatalogRemoteDataRepository
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectStatsApiDataRepository
+import com.gdavidpb.tuindice.base.domain.utils.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetailResult
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchResult
 import kotlinx.serialization.json.Json
@@ -15,6 +16,8 @@ class DebugSubjectsApiDataSource(
 	private val apiDataSource: KtorSubjectsApiDataSource,
 	private val json: Json
 ) : SubjectStatsApiDataRepository, SubjectCatalogRemoteDataRepository {
+	private val failedSearchQueries = mutableSetOf<String>()
+
 	@OptIn(ExperimentalResourceApi::class)
 	override suspend fun getSubjectDetail(subjectCode: String): SubjectDetailResult {
 		val normalizedSubjectCode = DebugSubjectScenarioResolver.normalize(subjectCode)
@@ -60,6 +63,11 @@ class DebugSubjectsApiDataSource(
 		query: String,
 		limit: Int
 	): List<SubjectSearchResult> {
+		val normalizedQuery = SubjectCatalogSearchNormalizer.normalize(query)
+		if (normalizedQuery == TransientSearchFailureQuery && failedSearchQueries.add(normalizedQuery)) {
+			throw IllegalStateException("Debug subjects search network error.")
+		}
+
 		return DebugSubjectScenarioResolver.search(query = query, limit = limit)
 			.map { metadata ->
 				SubjectSearchResult(
@@ -69,5 +77,9 @@ class DebugSubjectsApiDataSource(
 					gradingMode = metadata.gradingMode
 				)
 			}
+	}
+
+	private companion object {
+		const val TransientSearchFailureQuery = "RX"
 	}
 }

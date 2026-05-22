@@ -389,13 +389,13 @@ actions:
     classification: user
     variants: [success, unavailable, failed-retry]
     selector: subjects_retry
-    flow: e2e/maestro/flows/subjects/subjects-smoke.yaml
-    fixture_state: subject-detail-success
+    flow: e2e/maestro/flows/subjects/subjects-detail-failed-retry.yaml
+    fixture_state: subject-detail-unavailable-then-success
   - id: subjects.SubjectDetail.SelectSubjectSegmentTab
     classification: user
-    variants: [career, global]
+    variants: [career, global, metric-tooltip]
     selector: subjects_career_tab
-    flow: e2e/maestro/flows/subjects/subjects-smoke.yaml
+    flow: e2e/maestro/flows/subjects/subjects-detail-tabs-tooltip.yaml
     fixture_state: subject-detail-success
 
   - id: subjects.SubjectSearch.ObserveSubjectSearch
@@ -405,14 +405,14 @@ actions:
     classification: user
     variants: [short-query, success, clear]
     selector: subjects_search_text_field
-    flow: e2e/maestro/flows/subjects/subjects-smoke.yaml
+    flow: e2e/maestro/flows/subjects/subjects-search-query-clear.yaml
     fixture_state: subject-search-success
   - id: subjects.SubjectSearch.Retry
     classification: user
     variants: [failed-retry]
     selector: subjects_search_retry
-    flow: e2e/maestro/flows/subjects/subjects-smoke.yaml
-    fixture_state: subject-search-failed
+    flow: e2e/maestro/flows/subjects/subjects-search-failed-retry.yaml
+    fixture_state: subject-search-debug-fail-once
 
   - id: summary.Summary.ObserveSummary
     classification: internal

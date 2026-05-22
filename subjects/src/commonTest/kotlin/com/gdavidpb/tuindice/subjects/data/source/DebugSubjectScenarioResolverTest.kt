@@ -51,6 +51,8 @@ class DebugSubjectScenarioResolverTest {
 	@Test
 	fun resolve_returnsNullForRemoteMockRecordSubjects() {
 		assertNull(DebugSubjectScenarioResolver.resolve("EC5751"))
+		assertNull(DebugSubjectScenarioResolver.resolve("QA"))
+		assertNull(DebugSubjectScenarioResolver.resolve("QB"))
 	}
 
 	@Test

@@ -173,7 +173,10 @@ internal object DebugSubjectScenarioResolver {
 		subject("MA2112", "MATEMÁTICAS V", 4),
 		subject("MA2115", "MATEMÁTICAS IV", 4),
 		subject("PS1111", "MODELOS LINEALES I", 4),
-		subject("PS1115", "SISTEMAS DE INFORMACIÓN I", 4)
+		subject("PS1115", "SISTEMAS DE INFORMACIÓN I", 4),
+		subject("QA", "REMOTE UNAVAILABLE SUBJECT", 3),
+		subject("QB", "REMOTE RETRY SUBJECT", 3),
+		subject("RX", "DEBUG RETRY SUBJECT", 3)
 	).associateBy(SubjectMetadata::code)
 
 	fun normalize(subjectCode: String): String {

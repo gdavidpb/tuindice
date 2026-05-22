@@ -1,0 +1,15 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPath": "/subjects/v1/QA"
+  },
+  "response": {
+    "status": 404,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "subjects/get-subject-stats-qa-unavailable.json",
+    "fixedDelayMilliseconds": 1000
+  }
+}

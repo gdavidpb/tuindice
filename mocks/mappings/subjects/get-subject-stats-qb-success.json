@@ -1,0 +1,17 @@
+{
+  "priority": 1,
+  "scenarioName": "subjects-detail-qb-failed-retry",
+  "requiredScenarioState": "FirstFailure",
+  "request": {
+    "method": "GET",
+    "urlPath": "/subjects/v1/QB"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "subjects/get-subject-stats-slow-success.json",
+    "fixedDelayMilliseconds": 1000
+  }
+}

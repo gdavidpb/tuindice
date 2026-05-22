@@ -33,7 +33,7 @@ name: TuIndice local certification E2E suite
 - runFlow: ../record/record-synthetic-term-search-empty.yaml
 - runFlow: ../record/record-synthetic-term-lifecycle.yaml
 - runFlow: pensum-suite.yaml
-- runFlow: ../subjects/subjects-smoke.yaml
+- runFlow: subjects-suite.yaml
 - runFlow: ../evaluations/evaluations-smoke.yaml
 - runFlow: ../evaluations/evaluations-filters-and-form.yaml
 - runFlow: ../about/about-smoke.yaml

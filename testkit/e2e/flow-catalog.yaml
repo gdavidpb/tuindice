@@ -664,11 +664,106 @@ flows:
     fixture_state: subject-search-success
     actions_covered:
       - subjects.SubjectSearch.UpdateQuery
+      - subjects.SubjectDetail.RefreshSubjectDetail
+    primary_selectors:
+      - subjects_search_screen
+      - subjects_search_text_field
+      - subjects_search_result_CI2511
+      - subjects_content
+  - id: subjects-suite
+    path: e2e/maestro/flows/suites/subjects-suite.yaml
+    module: subjects
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: exhaustive-local
+    fixture_state: subjects-suite
+    actions_covered:
+      - subjects.SubjectSearch.UpdateQuery
+      - subjects.SubjectSearch.Retry
+      - subjects.SubjectDetail.RefreshSubjectDetail
       - subjects.SubjectDetail.SelectSubjectSegmentTab
     primary_selectors:
       - subjects_search_screen
       - subjects_search_text_field
-      - subjects_search_result_CI4325
+      - subjects_search_result_CI2511
+      - subjects_content
+      - subjects_retry
+      - subjects_search_retry
+  - id: subjects-search-query-clear
+    path: e2e/maestro/flows/subjects/subjects-search-query-clear.yaml
+    module: subjects
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: short-query-success-clear
+    fixture_state: subject-search-success
+    actions_covered:
+      - subjects.SubjectSearch.UpdateQuery
+    primary_selectors:
+      - subjects_search_screen
+      - subjects_search_text_field
+      - subjects_search_result_CI2511
+      - subjects_search_clear
+  - id: subjects-search-failed-retry
+    path: e2e/maestro/flows/subjects/subjects-search-failed-retry.yaml
+    module: subjects
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: failed-retry
+    fixture_state: subject-search-debug-fail-once
+    actions_covered:
+      - subjects.SubjectSearch.Retry
+    primary_selectors:
+      - subjects_search_screen
+      - subjects_search_text_field
+      - subjects_search_retry
+      - subjects_search_result_RX
+  - id: subjects-detail-tabs-tooltip
+    path: e2e/maestro/flows/subjects/subjects-detail-tabs-tooltip.yaml
+    module: subjects
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: career-global-tabs-and-tooltips
+    fixture_state: subject-detail-success
+    actions_covered:
+      - subjects.SubjectDetail.SelectSubjectSegmentTab
+    primary_selectors:
+      - subjects_search_result_CI2511
+      - subjects_content
+      - subjects_career_tab
+      - subjects_global_tab
+      - subjects_segment_students_metric
+      - subjects_segment_attempts_metric
+  - id: subjects-detail-unavailable
+    path: e2e/maestro/flows/subjects/subjects-detail-unavailable.yaml
+    module: subjects
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: unavailable
+    fixture_state: subject-detail-unavailable
+    actions_covered:
+      - subjects.SubjectDetail.RefreshSubjectDetail
+    primary_selectors:
+      - subjects_search_result_QA
+      - subjects_unavailable
+  - id: subjects-detail-failed-retry
+    path: e2e/maestro/flows/subjects/subjects-detail-failed-retry.yaml
+    module: subjects
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: failed-retry
+    fixture_state: subject-detail-unavailable-then-success
+    actions_covered:
+      - subjects.SubjectDetail.RefreshSubjectDetail
+    primary_selectors:
+      - subjects_search_result_QB
+      - subjects_failed
+      - subjects_retry
       - subjects_content
   - id: evaluations-smoke
     path: e2e/maestro/flows/evaluations/evaluations-smoke.yaml
