@@ -1,0 +1,44 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- tapOn:
+    id: auth_usb_id_text_field
+- inputText: "8888888"
+- inputText: "8"
+- tapOn:
+    id: auth_password_text_field
+- inputText: "summary-unavailable-pass"
+- tapOn:
+    id: auth_sign_in_idle_container
+- tapOn:
+    id: auth_sign_in_button
+- extendedWaitUntil:
+    visible:
+      id: wizard_welcome_screen
+    timeout: 30000
+- tapOn:
+    id: wizard_skip_button
+- extendedWaitUntil:
+    visible:
+      id: summary_content_container
+    timeout: 40000
+- tapOn:
+    id: maincore_tuindice_bottom_bar_record_item
+- extendedWaitUntil:
+    visible:
+      id: record_content_container
+    timeout: 30000
+- tapOn:
+    id: record_term_current_chip_.*
+- extendedWaitUntil:
+    visible:
+      id: base_top_app_bar_action_enrollment_proof
+    timeout: 10000
+- tapOn:
+    id: base_top_app_bar_action_enrollment_proof
+- extendedWaitUntil:
+    visible:
+      id: base_snackbar_container
+    timeout: 20000
+- assertVisible:
+    id: record_content_container

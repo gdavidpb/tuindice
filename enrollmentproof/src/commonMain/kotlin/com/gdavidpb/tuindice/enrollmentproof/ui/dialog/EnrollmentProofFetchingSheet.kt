@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import com.gdavidpb.tuindice.enrollmentproof.ui.EnrollmentProofUiTags
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -35,7 +36,9 @@ fun EnrollmentProofFetchingSheet(
 	)
 
 	ModalBottomSheet(
-		modifier = Modifier.testTag(EnrollmentProofUiTags.FetchingSheet),
+		modifier = Modifier
+			.exposeTestTagsAsResourceId()
+			.testTag(EnrollmentProofUiTags.FetchingSheet),
 		sheetState = nonDismissSheetState,
 		onDismissRequest = onDismissRequest,
 		properties = ModalBottomSheetProperties(shouldDismissOnBackPress = false)

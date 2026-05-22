@@ -70,6 +70,10 @@ record_delete_synthetic_term_message
 record_attempt_item_2026-SEP_DEC-EC5201-1
 record_attempt_item_2026-SEP_DEC-EC5333-2
 base_top_app_bar_action_enrollment_proof
+enrollment_fetching_sheet
+enrollment_fetching_loading_container
+enrollment_fetching_message
+enrollment_fetching_cancel_button
 base_top_app_bar_action_change_pensum
 pensum_screen
 pensum_canvas

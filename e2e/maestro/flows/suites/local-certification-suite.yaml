@@ -28,7 +28,7 @@ name: TuIndice local certification E2E suite
 - runFlow: ../wizard/wizard-smoke.yaml
 - runFlow: ../record/record-smoke.yaml
 - runFlow: ../record/record-term-selection.yaml
-- runFlow: ../enrollmentproof/enrollmentproof-smoke.yaml
+- runFlow: enrollmentproof-suite.yaml
 - runFlow: ../record/record-attempt-overrides.yaml
 - runFlow: ../record/record-synthetic-term-search-empty.yaml
 - runFlow: ../record/record-synthetic-term-lifecycle.yaml

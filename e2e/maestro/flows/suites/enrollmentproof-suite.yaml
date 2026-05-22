@@ -1,0 +1,8 @@
+appId: com.gdavidpb.tuindice.debug
+name: TuIndice enrollment proof E2E suite
+---
+- runFlow: ../enrollmentproof/enrollmentproof-smoke.yaml
+- runFlow: ../enrollmentproof/enrollmentproof-fetching-cancel.yaml
+- runFlow: ../enrollmentproof/enrollmentproof-error-unavailable.yaml
+- runFlow: ../enrollmentproof/enrollmentproof-not-found.yaml
+- runFlow: ../enrollmentproof/enrollmentproof-outdated-credentials.yaml

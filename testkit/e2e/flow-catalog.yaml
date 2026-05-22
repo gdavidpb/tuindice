@@ -585,6 +585,79 @@ flows:
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
       - base_top_app_bar_action_enrollment_proof
+      - record_content_container
+  - id: enrollmentproof-suite
+    path: e2e/maestro/flows/suites/enrollmentproof-suite.yaml
+    module: enrollmentproof
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: exhaustive-local
+    fixture_state: enrollment-proof-suite
+    platform_edge: PDF/file opener and unsupported-file host assertions remain assigned to UI Automator/XCUITest.
+    actions_covered:
+      - enrollmentproof.Enrollment.FetchEnrollmentProof
+    primary_selectors:
+      - base_top_app_bar_action_enrollment_proof
+      - enrollment_fetching_sheet
+      - enrollment_fetching_cancel_button
+      - base_snackbar_container
+      - auth_update_password_idle_container
+  - id: enrollmentproof-fetching-cancel
+    path: e2e/maestro/flows/enrollmentproof/enrollmentproof-fetching-cancel.yaml
+    module: enrollmentproof
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: fetching-cancel
+    fixture_state: enrollment-proof-success
+    actions_covered:
+      - enrollmentproof.Enrollment.FetchEnrollmentProof
+    primary_selectors:
+      - base_top_app_bar_action_enrollment_proof
+      - enrollment_fetching_sheet
+      - enrollment_fetching_loading_container
+      - enrollment_fetching_message
+      - enrollment_fetching_cancel_button
+  - id: enrollmentproof-error-unavailable
+    path: e2e/maestro/flows/enrollmentproof/enrollmentproof-error-unavailable.yaml
+    module: enrollmentproof
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: unavailable-snackbar
+    fixture_state: enrollment-proof-unavailable
+    actions_covered:
+      - enrollmentproof.Enrollment.FetchEnrollmentProof
+    primary_selectors:
+      - base_top_app_bar_action_enrollment_proof
+      - base_snackbar_container
+  - id: enrollmentproof-not-found
+    path: e2e/maestro/flows/enrollmentproof/enrollmentproof-not-found.yaml
+    module: enrollmentproof
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: not-found-snackbar
+    fixture_state: enrollment-proof-not-found
+    actions_covered:
+      - enrollmentproof.Enrollment.FetchEnrollmentProof
+    primary_selectors:
+      - base_top_app_bar_action_enrollment_proof
+      - base_snackbar_container
+  - id: enrollmentproof-outdated-credentials
+    path: e2e/maestro/flows/enrollmentproof/enrollmentproof-outdated-credentials.yaml
+    module: enrollmentproof
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: outdated-credentials
+    fixture_state: enrollment-proof-outdated-credentials
+    actions_covered:
+      - enrollmentproof.Enrollment.FetchEnrollmentProof
+    primary_selectors:
+      - base_top_app_bar_action_enrollment_proof
+      - auth_update_password_idle_container
   - id: pensum-smoke
     path: e2e/maestro/flows/pensum/pensum-smoke.yaml
     module: pensum
@@ -1000,7 +1073,7 @@ module_rollout:
     next_flows: []
   enrollmentproof:
     status: active
-    next_flows: [success-file-open, outdated-credentials, error]
+    next_flows: []
   wizard:
     status: active
     next_flows: [next-back, focus-overlay, finish]

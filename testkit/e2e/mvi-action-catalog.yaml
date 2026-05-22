@@ -145,9 +145,9 @@ actions:
     classification: user
     variants: [trigger, fetching-cancel, success-file-open, no-connection, timeout, unavailable, not-found, unsupported-file, outdated-credentials]
     selector: base_top_app_bar_action_enrollment_proof
-    flow: e2e/maestro/flows/enrollmentproof/enrollmentproof-smoke.yaml
-    fixture_state: enrollment-proof-success
-    platform_edge: file opener success requires UI Automator/XCUITest
+    flow: e2e/maestro/flows/suites/enrollmentproof-suite.yaml
+    fixture_state: enrollment-proof-suite
+    platform_edge: file opener success and unsupported-file host assertions require UI Automator/XCUITest
 
   - id: evaluations.Evaluation.LoadAvailableAttempts
     classification: internal
