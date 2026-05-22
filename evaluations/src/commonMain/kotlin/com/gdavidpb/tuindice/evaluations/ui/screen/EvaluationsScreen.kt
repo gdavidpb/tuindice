@@ -32,7 +32,7 @@ import tuindice.evaluations.generated.resources.view_error_title
 fun EvaluationsScreen(
 	state: Evaluations.State,
 	onAddEvaluationClick: () -> Unit,
-	onEvaluationClick: (evaluationId: String, evaluationName: String) -> Unit,
+	onEvaluationClick: (evaluationId: String, evaluationName: String, subjectCode: String) -> Unit,
 	onEvaluationEdit: (evaluationId: String) -> Unit,
 	onEvaluationDelete: (evaluationId: String) -> Unit,
 	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,

@@ -14,8 +14,8 @@ import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationScreen
 fun EvaluationRoute(
 	evaluationId: String?,
 	onNavigateToEvaluations: () -> Unit,
-	onNavigateToGradePickerDialog: (grade: Double?, maxGrade: Double?) -> Unit,
-	onNavigateToMaxGradePickerDialog: (maxGrade: Double?) -> Unit,
+	onNavigateToGradePickerDialog: (evaluationName: String, subjectCode: String, grade: Double?, maxGrade: Double?) -> Unit,
+	onNavigateToMaxGradePickerDialog: (evaluationName: String, subjectCode: String, maxGrade: Double?) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: EvaluationViewModel
 ) {
@@ -28,12 +28,16 @@ fun EvaluationRoute(
 
 			is Evaluation.Effect.NavigateToGradePickerDialog ->
 				onNavigateToGradePickerDialog(
+					effect.evaluationName,
+					effect.subjectCode,
 					effect.grade,
 					effect.maxGrade
 				)
 
 			is Evaluation.Effect.NavigateToMaxGradePickerDialog ->
 				onNavigateToMaxGradePickerDialog(
+					effect.evaluationName,
+					effect.subjectCode,
 					effect.maxGrade
 				)
 

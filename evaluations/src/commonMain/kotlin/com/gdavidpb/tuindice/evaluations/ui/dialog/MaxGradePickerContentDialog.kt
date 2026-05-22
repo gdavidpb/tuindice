@@ -13,6 +13,8 @@ private const val MIN_SELECTABLE_MAX_GRADE = 0.25
 
 @Composable
 fun MaxGradePickerContentDialog(
+	evaluationName: String,
+	subjectCode: String,
 	selectedGrade: Double?,
 	onGradeChange: (grade: Double) -> Unit,
 	onDismissRequest: () -> Unit,
@@ -20,6 +22,8 @@ fun MaxGradePickerContentDialog(
 ) {
 	GradePickerDialog(
 		title = stringResource(Res.string.dialog_title_add_evaluation_max_grade),
+		evaluationName = evaluationName,
+		subjectCode = subjectCode,
 		acceptText = stringResource(Res.string.accept),
 		cancelText = stringResource(Res.string.cancel),
 		selectedGrade = selectedGrade?.takeIf { it > 0.0 } ?: MAX_EVALUATION_GRADE,

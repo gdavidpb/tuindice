@@ -16,18 +16,20 @@ import kotlin.test.assertEquals
 class EvaluationsViewUiTest {
 	@Test
 	fun when_gradeButtonTapped_then_invokesEvaluationClickCallback() = runTuIndiceUiTest {
-		val groups = evaluationsGroupItemsFixture()
-		var clickedEvaluationId: String? = null
-		var clickedEvaluationName: String? = null
+			val groups = evaluationsGroupItemsFixture()
+			var clickedEvaluationId: String? = null
+			var clickedEvaluationName: String? = null
+			var clickedSubjectCode: String? = null
 
 		setTuIndiceTestContent {
 			EvaluationsView(
 				lazyListState = rememberLazyListState(),
 				evaluations = groups,
-				onEvaluationClick = { evaluationId, evaluationName ->
-					clickedEvaluationId = evaluationId
-					clickedEvaluationName = evaluationName
-				},
+					onEvaluationClick = { evaluationId, evaluationName, subjectCode ->
+						clickedEvaluationId = evaluationId
+						clickedEvaluationName = evaluationName
+						clickedSubjectCode = subjectCode
+					},
 				onEvaluationEdit = {},
 				onEvaluationDelete = {}
 			)
@@ -41,8 +43,9 @@ class EvaluationsViewUiTest {
 
 		onNodeWithTag(EvaluationsUiTags.EvaluationGradeActionButton).performClick()
 
-		assertEquals(item.evaluationId, clickedEvaluationId)
-		assertEquals(item.nameText, clickedEvaluationName)
+			assertEquals(item.evaluationId, clickedEvaluationId)
+			assertEquals(item.nameText, clickedEvaluationName)
+			assertEquals(item.subjectCodeText, clickedSubjectCode)
 	}
 
 	@Test
@@ -61,7 +64,7 @@ class EvaluationsViewUiTest {
 			EvaluationsView(
 				lazyListState = rememberLazyListState(),
 				evaluations = groups,
-				onEvaluationClick = { evaluationId, _ -> clickedEvaluationId = evaluationId },
+				onEvaluationClick = { evaluationId, _, _ -> clickedEvaluationId = evaluationId },
 				onEvaluationEdit = {},
 				onEvaluationDelete = {}
 			)

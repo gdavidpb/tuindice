@@ -26,9 +26,9 @@ fun NavGraphBuilder.evaluationsNavigation(
 	navController: NavHostController,
 	onNavigateToAddEvaluation: () -> Unit,
 	onNavigateToEvaluation: (evaluationId: String) -> Unit,
-	onNavigateToEvaluationGradePickerDialog: (evaluationId: String, evaluationName: String, grade: Double, maxGrade: Double) -> Unit,
-	onNavigateToGradePickerDialog: (grade: Double?, maxGrade: Double?) -> Unit,
-	onNavigateToMaxGradePickerDialog: (maxGrade: Double?) -> Unit,
+	onNavigateToEvaluationGradePickerDialog: (evaluationId: String, evaluationName: String, subjectCode: String, grade: Double, maxGrade: Double) -> Unit,
+	onNavigateToGradePickerDialog: (evaluationName: String, subjectCode: String, grade: Double?, maxGrade: Double?) -> Unit,
+	onNavigateToMaxGradePickerDialog: (evaluationName: String, subjectCode: String, maxGrade: Double?) -> Unit,
 	onNavigateToEvaluations: () -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
@@ -102,6 +102,8 @@ fun NavGraphBuilder.evaluationsNavigation(
 			val args = backStackEntry.toRoute<EvaluationsDestination.GradePickerDialog>()
 
 			GradePickerContentDialog(
+				evaluationName = args.evaluationName,
+				subjectCode = args.subjectCode,
 				selectedGrade = args.grade,
 				maxGrade = args.maxGrade,
 				onGradeChange = { grade ->
@@ -118,6 +120,8 @@ fun NavGraphBuilder.evaluationsNavigation(
 			val args = backStackEntry.toRoute<EvaluationsDestination.MaxGradePickerDialog>()
 
 			MaxGradePickerContentDialog(
+				evaluationName = args.evaluationName,
+				subjectCode = args.subjectCode,
 				selectedGrade = args.grade,
 				onGradeChange = { grade ->
 					navController.navigateBackWithResult<EvaluationBackResult>(
@@ -134,6 +138,7 @@ fun NavGraphBuilder.evaluationsNavigation(
 
 			EvaluationGradePickerContentDialog(
 				evaluationName = args.evaluationName,
+				subjectCode = args.subjectCode,
 				selectedGrade = args.grade,
 				maxGrade = args.maxGrade,
 				onGradeChange = { grade ->

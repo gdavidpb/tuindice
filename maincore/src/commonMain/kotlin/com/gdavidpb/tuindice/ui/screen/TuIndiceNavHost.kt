@@ -128,27 +128,36 @@ fun TuIndiceNavHost(
 			onNavigateToEvaluation = { evaluationId ->
 				navController.navigate(EvaluationsDestination.Evaluation(evaluationId = evaluationId))
 			},
-			onNavigateToEvaluationGradePickerDialog = { evaluationId, evaluationName, grade, maxGrade ->
-				navController.navigate(
-					EvaluationsDestination.EvaluationGradePickerDialog(
-						evaluationId = evaluationId,
-						evaluationName = evaluationName,
-						grade = grade,
-						maxGrade = maxGrade
+				onNavigateToEvaluationGradePickerDialog = { evaluationId, evaluationName, subjectCode, grade, maxGrade ->
+					navController.navigate(
+						EvaluationsDestination.EvaluationGradePickerDialog(
+							evaluationId = evaluationId,
+							evaluationName = evaluationName,
+							subjectCode = subjectCode,
+							grade = grade,
+							maxGrade = maxGrade
+						)
 					)
-				)
-			},
-			onNavigateToGradePickerDialog = { grade, maxGrade ->
-				navController.navigate(
-					EvaluationsDestination.GradePickerDialog(
-						grade = grade,
-						maxGrade = maxGrade
+				},
+				onNavigateToGradePickerDialog = { evaluationName, subjectCode, grade, maxGrade ->
+					navController.navigate(
+						EvaluationsDestination.GradePickerDialog(
+							evaluationName = evaluationName,
+							subjectCode = subjectCode,
+							grade = grade,
+							maxGrade = maxGrade
+						)
 					)
-				)
-			},
-			onNavigateToMaxGradePickerDialog = { maxGrade ->
-				navController.navigate(EvaluationsDestination.MaxGradePickerDialog(grade = maxGrade))
-			},
+				},
+				onNavigateToMaxGradePickerDialog = { evaluationName, subjectCode, maxGrade ->
+					navController.navigate(
+						EvaluationsDestination.MaxGradePickerDialog(
+							evaluationName = evaluationName,
+							subjectCode = subjectCode,
+							grade = maxGrade
+						)
+					)
+				},
 			onNavigateToEvaluations = { navController.navigate(EvaluationsDestination.Evaluations) },
 			onViewStateChanged = onViewStateChanged,
 			showSnackBar = showSnackBar

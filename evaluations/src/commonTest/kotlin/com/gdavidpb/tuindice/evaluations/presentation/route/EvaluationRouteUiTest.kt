@@ -51,8 +51,8 @@ class EvaluationRouteUiTest {
 			EvaluationRoute(
 				evaluationId = null,
 				onNavigateToEvaluations = {},
-				onNavigateToGradePickerDialog = { _, _ -> },
-				onNavigateToMaxGradePickerDialog = { maxGrade ->
+				onNavigateToGradePickerDialog = { _, _, _, _ -> },
+				onNavigateToMaxGradePickerDialog = { _, _, maxGrade ->
 					requestedMaxGrade = maxGrade
 				},
 				showSnackBar = { message ->
@@ -63,7 +63,7 @@ class EvaluationRouteUiTest {
 		}
 
 		runOnIdle {
-			viewModel.clickMaxGradeAction(20.0)
+			viewModel.clickMaxGradeAction("Parcial 1", DEFAULT_EVALUATION_SUBJECT.code, 20.0)
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
@@ -77,6 +77,8 @@ class EvaluationRouteUiTest {
 	@Test
 	fun when_gradeActionTriggered_then_navigatesToGradeDialog() = runTuIndiceUiTest {
 		val viewModel = createViewModel()
+		var requestedEvaluationName = ""
+		var requestedSubjectCode = ""
 		var requestedGrade: Double? = null
 		var requestedMaxGrade: Double? = null
 
@@ -84,24 +86,28 @@ class EvaluationRouteUiTest {
 			EvaluationRoute(
 				evaluationId = null,
 				onNavigateToEvaluations = {},
-				onNavigateToGradePickerDialog = { grade, maxGrade ->
+				onNavigateToGradePickerDialog = { evaluationName, subjectCode, grade, maxGrade ->
+					requestedEvaluationName = evaluationName
+					requestedSubjectCode = subjectCode
 					requestedGrade = grade
 					requestedMaxGrade = maxGrade
 				},
-				onNavigateToMaxGradePickerDialog = {},
+				onNavigateToMaxGradePickerDialog = { _, _, _ -> },
 				showSnackBar = {},
 				viewModel = viewModel
 			)
 		}
 
 		runOnIdle {
-			viewModel.clickGradeAction(17.5, 20.0)
+			viewModel.clickGradeAction("Parcial 1", DEFAULT_EVALUATION_SUBJECT.code, 17.5, 20.0)
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
 			requestedGrade != null && requestedMaxGrade != null
 		}
 
+		assertEquals("Parcial 1", requestedEvaluationName)
+		assertEquals(DEFAULT_EVALUATION_SUBJECT.code, requestedSubjectCode)
 		assertEquals(17.5, requestedGrade)
 		assertEquals(20.0, requestedMaxGrade)
 	}
@@ -115,17 +121,22 @@ class EvaluationRouteUiTest {
 			EvaluationRoute(
 				evaluationId = null,
 				onNavigateToEvaluations = {},
-				onNavigateToGradePickerDialog = { _, _ ->
-					gradeDialogRequested = true
-				},
-				onNavigateToMaxGradePickerDialog = {},
+					onNavigateToGradePickerDialog = { _, _, _, _ ->
+						gradeDialogRequested = true
+					},
+					onNavigateToMaxGradePickerDialog = { _, _, _ -> },
 				showSnackBar = {},
 				viewModel = viewModel
 			)
 		}
 
 		runOnIdle {
-			viewModel.clickGradeAction(grade = null, maxGrade = null)
+			viewModel.clickGradeAction(
+				evaluationName = "Parcial 1",
+				subjectCode = DEFAULT_EVALUATION_SUBJECT.code,
+				grade = null,
+				maxGrade = null
+			)
 		}
 
 		waitForIdle()
@@ -143,8 +154,8 @@ class EvaluationRouteUiTest {
 			EvaluationRoute(
 				evaluationId = null,
 				onNavigateToEvaluations = { navigateCalls++ },
-				onNavigateToGradePickerDialog = { _, _ -> },
-				onNavigateToMaxGradePickerDialog = {},
+					onNavigateToGradePickerDialog = { _, _, _, _ -> },
+					onNavigateToMaxGradePickerDialog = { _, _, _ -> },
 				showSnackBar = { message -> snackBars += message },
 				viewModel = viewModel
 			)
@@ -179,8 +190,8 @@ class EvaluationRouteUiTest {
 			EvaluationRoute(
 				evaluationId = null,
 				onNavigateToEvaluations = { navigateCalls++ },
-				onNavigateToGradePickerDialog = { _, _ -> },
-				onNavigateToMaxGradePickerDialog = {},
+					onNavigateToGradePickerDialog = { _, _, _, _ -> },
+					onNavigateToMaxGradePickerDialog = { _, _, _ -> },
 				showSnackBar = { message -> snackBars += message },
 				viewModel = viewModel
 			)
@@ -211,8 +222,8 @@ class EvaluationRouteUiTest {
 			EvaluationRoute(
 				evaluationId = DEFAULT_PENDING_EVALUATION.id,
 				onNavigateToEvaluations = { navigateCalls++ },
-				onNavigateToGradePickerDialog = { _, _ -> },
-				onNavigateToMaxGradePickerDialog = {},
+					onNavigateToGradePickerDialog = { _, _, _, _ -> },
+					onNavigateToMaxGradePickerDialog = { _, _, _ -> },
 				showSnackBar = { message -> snackBars += message },
 				viewModel = viewModel
 			)
@@ -248,8 +259,8 @@ class EvaluationRouteUiTest {
 			EvaluationRoute(
 				evaluationId = DEFAULT_PENDING_EVALUATION.id,
 				onNavigateToEvaluations = { navigateCalls++ },
-				onNavigateToGradePickerDialog = { _, _ -> },
-				onNavigateToMaxGradePickerDialog = {},
+					onNavigateToGradePickerDialog = { _, _, _, _ -> },
+					onNavigateToMaxGradePickerDialog = { _, _, _ -> },
 				showSnackBar = { message -> snackBars += message },
 				viewModel = viewModel
 			)
@@ -273,17 +284,21 @@ class EvaluationRouteUiTest {
 	@Test
 	fun when_maxGradeChipTappedFromUiInEditMode_then_navigatesToMaxGradeDialogWithCurrentValue() = runTuIndiceUiTest {
 		val viewModel = createViewModel()
+		var requestedEvaluationName = ""
+		var requestedSubjectCode = ""
 		var requestedMaxGrade: Double? = null
 		val snackBars = mutableListOf<SnackBarMessage>()
 
-		setTuIndiceTestContent {
-			EvaluationRoute(
-				evaluationId = DEFAULT_PENDING_EVALUATION.id,
-				onNavigateToEvaluations = {},
-				onNavigateToGradePickerDialog = { _, _ -> },
-				onNavigateToMaxGradePickerDialog = { maxGrade ->
-					requestedMaxGrade = maxGrade
-				},
+			setTuIndiceTestContent {
+				EvaluationRoute(
+					evaluationId = DEFAULT_PENDING_EVALUATION.id,
+					onNavigateToEvaluations = {},
+					onNavigateToGradePickerDialog = { _, _, _, _ -> },
+					onNavigateToMaxGradePickerDialog = { evaluationName, subjectCode, maxGrade ->
+						requestedEvaluationName = evaluationName
+						requestedSubjectCode = subjectCode
+						requestedMaxGrade = maxGrade
+					},
 				showSnackBar = { message ->
 					snackBars += message
 				},
@@ -302,25 +317,31 @@ class EvaluationRouteUiTest {
 			requestedMaxGrade != null
 		}
 
-		assertEquals(DEFAULT_PENDING_EVALUATION.maxGrade, requestedMaxGrade)
+			assertEquals("Quiz 1", requestedEvaluationName)
+			assertEquals(DEFAULT_EVALUATION_SUBJECT.code, requestedSubjectCode)
+			assertEquals(DEFAULT_PENDING_EVALUATION.maxGrade, requestedMaxGrade)
 		assertTrue(snackBars.isEmpty())
 	}
 
 	@Test
 	fun when_gradeChipTappedFromUiForOverdueEvaluation_then_navigatesToGradeDialogWithCurrentValues() = runTuIndiceUiTest {
 		val viewModel = createViewModel()
+		var requestedEvaluationName = ""
+		var requestedSubjectCode = ""
 		var requestedGrade: Double? = null
 		var requestedMaxGrade: Double? = null
 
-		setTuIndiceTestContent {
-			EvaluationRoute(
-				evaluationId = DEFAULT_COMPLETED_EVALUATION.id,
-				onNavigateToEvaluations = {},
-				onNavigateToGradePickerDialog = { grade, maxGrade ->
-					requestedGrade = grade
-					requestedMaxGrade = maxGrade
-				},
-				onNavigateToMaxGradePickerDialog = {},
+			setTuIndiceTestContent {
+				EvaluationRoute(
+					evaluationId = DEFAULT_COMPLETED_EVALUATION.id,
+					onNavigateToEvaluations = {},
+					onNavigateToGradePickerDialog = { evaluationName, subjectCode, grade, maxGrade ->
+						requestedEvaluationName = evaluationName
+						requestedSubjectCode = subjectCode
+						requestedGrade = grade
+						requestedMaxGrade = maxGrade
+					},
+					onNavigateToMaxGradePickerDialog = { _, _, _ -> },
 				showSnackBar = {},
 				viewModel = viewModel
 			)
@@ -337,7 +358,9 @@ class EvaluationRouteUiTest {
 			requestedGrade != null && requestedMaxGrade != null
 		}
 
-		assertEquals(DEFAULT_COMPLETED_EVALUATION.grade, requestedGrade)
+			assertEquals("Parcial 1", requestedEvaluationName)
+			assertEquals(SECOND_EVALUATION_SUBJECT.code, requestedSubjectCode)
+			assertEquals(DEFAULT_COMPLETED_EVALUATION.grade, requestedGrade)
 		assertEquals(DEFAULT_COMPLETED_EVALUATION.maxGrade, requestedMaxGrade)
 	}
 
@@ -351,8 +374,8 @@ class EvaluationRouteUiTest {
 			EvaluationRoute(
 				evaluationId = null,
 				onNavigateToEvaluations = { navigateCalls++ },
-				onNavigateToGradePickerDialog = { _, _ -> },
-				onNavigateToMaxGradePickerDialog = {},
+					onNavigateToGradePickerDialog = { _, _, _, _ -> },
+					onNavigateToMaxGradePickerDialog = { _, _, _ -> },
 				showSnackBar = { message -> snackBars += message },
 				viewModel = viewModel
 			)

@@ -8,6 +8,7 @@ import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
+import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.evaluationContentState
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -37,12 +38,12 @@ class EvaluationContentViewUiTest {
 
 		setTuIndiceTestContent {
 			EvaluationContentView(
-				state = state,
-				onAttemptChange = {},
-				onTypeChange = {},
-				onDateChange = {},
-				onGradeClick = { _, _ -> },
-				onMaxGradeClick = { _ -> maxGradeClicks++ },
+					state = state,
+					onAttemptChange = {},
+					onTypeChange = {},
+					onDateChange = {},
+					onGradeClick = { _, _, _, _ -> },
+					onMaxGradeClick = { _, _, _ -> maxGradeClicks++ },
 				onDoneClick = { attempt, type, scheduleMode, date, grade, maxGrade ->
 					donePayload = DonePayload(attempt, type, scheduleMode, date, grade, maxGrade)
 				}
@@ -75,12 +76,12 @@ class EvaluationContentViewUiTest {
 	fun when_stateIsEditMode_then_doneButtonShowsSaveCopy() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			EvaluationContentView(
-				state = evaluationContentState(isOverdue = false).copy(evaluationId = "evaluation_1"),
-				onAttemptChange = {},
-				onTypeChange = {},
-				onDateChange = {},
-				onGradeClick = { _, _ -> },
-				onMaxGradeClick = {},
+					state = evaluationContentState(isOverdue = false).copy(evaluationId = "evaluation_1"),
+					onAttemptChange = {},
+					onTypeChange = {},
+					onDateChange = {},
+					onGradeClick = { _, _, _, _ -> },
+					onMaxGradeClick = { _, _, _ -> },
 				onDoneClick = { _, _, _, _, _, _ -> }
 			)
 		}
@@ -95,12 +96,12 @@ class EvaluationContentViewUiTest {
 
 		setTuIndiceTestContent {
 			EvaluationContentView(
-				state = evaluationContentState(isOverdue = false).copy(isSubmitting = true),
-				onAttemptChange = {},
-				onTypeChange = {},
-				onDateChange = {},
-				onGradeClick = { _, _ -> },
-				onMaxGradeClick = {},
+					state = evaluationContentState(isOverdue = false).copy(isSubmitting = true),
+					onAttemptChange = {},
+					onTypeChange = {},
+					onDateChange = {},
+					onGradeClick = { _, _, _, _ -> },
+					onMaxGradeClick = { _, _, _ -> },
 				onDoneClick = { _, _, _, _, _, _ -> doneClicks++ }
 			)
 		}
@@ -113,23 +114,31 @@ class EvaluationContentViewUiTest {
 	}
 
 	@Test
-	fun when_stateIsOverdue_then_gradeAndMaxGradeChipsDispatchCurrentValues() = runTuIndiceUiTest {
-		val state = evaluationContentState(isOverdue = true)
-		var gradePayload: Pair<Double?, Double?>? = null
-		var maxGradePayload: Double? = null
+		fun when_stateIsOverdue_then_gradeAndMaxGradeChipsDispatchCurrentValues() = runTuIndiceUiTest {
+			val state = evaluationContentState(isOverdue = true)
+			var gradeEvaluationName = ""
+			var gradeSubjectCode = ""
+			var gradePayload: Pair<Double?, Double?>? = null
+			var maxGradeEvaluationName = ""
+			var maxGradeSubjectCode = ""
+			var maxGradePayload: Double? = null
 
 		setTuIndiceTestContent {
 			EvaluationContentView(
 				state = state,
-				onAttemptChange = {},
-				onTypeChange = {},
-				onDateChange = {},
-				onGradeClick = { grade, maxGrade ->
-					gradePayload = grade to maxGrade
-				},
-				onMaxGradeClick = { maxGrade ->
-					maxGradePayload = maxGrade
-				},
+					onAttemptChange = {},
+					onTypeChange = {},
+					onDateChange = {},
+					onGradeClick = { evaluationName, subjectCode, grade, maxGrade ->
+						gradeEvaluationName = evaluationName
+						gradeSubjectCode = subjectCode
+						gradePayload = grade to maxGrade
+					},
+					onMaxGradeClick = { evaluationName, subjectCode, maxGrade ->
+						maxGradeEvaluationName = evaluationName
+						maxGradeSubjectCode = subjectCode
+						maxGradePayload = maxGrade
+					},
 				onDoneClick = { _, _, _, _, _, _ -> }
 			)
 		}
@@ -140,8 +149,12 @@ class EvaluationContentViewUiTest {
 		onNodeWithTag(EvaluationsUiTags.EvaluationGradeChip).performClick()
 		onNodeWithTag(EvaluationsUiTags.EvaluationMaxGradeChip).performClick()
 
-		assertEquals(state.grade to state.maxGrade, gradePayload)
-		assertEquals(state.maxGrade, maxGradePayload)
+			assertEquals("Quiz 1", gradeEvaluationName)
+			assertEquals(DEFAULT_EVALUATION_SUBJECT.code, gradeSubjectCode)
+			assertEquals(state.grade to state.maxGrade, gradePayload)
+			assertEquals("Quiz 1", maxGradeEvaluationName)
+			assertEquals(DEFAULT_EVALUATION_SUBJECT.code, maxGradeSubjectCode)
+			assertEquals(state.maxGrade, maxGradePayload)
 	}
 
 	@Test
@@ -156,14 +169,14 @@ class EvaluationContentViewUiTest {
 
 		setTuIndiceTestContent {
 			EvaluationContentView(
-				state = state,
-				onAttemptChange = {},
-				onTypeChange = {},
-				onDateChange = {},
-				onGradeClick = { _, _ -> gradeClicks++ },
-				onMaxGradeClick = { maxGrade ->
-					maxGradePayload = maxGrade
-				},
+					state = state,
+					onAttemptChange = {},
+					onTypeChange = {},
+					onDateChange = {},
+					onGradeClick = { _, _, _, _ -> gradeClicks++ },
+					onMaxGradeClick = { _, _, maxGrade ->
+						maxGradePayload = maxGrade
+					},
 				onDoneClick = { _, _, _, _, _, _ -> }
 			)
 		}

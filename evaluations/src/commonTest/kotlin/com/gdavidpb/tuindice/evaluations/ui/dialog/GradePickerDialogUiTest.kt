@@ -3,9 +3,10 @@ package com.gdavidpb.tuindice.evaluations.ui.dialog
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.gdavidpb.tuindice.evaluations.ui.model.MIN_EVALUATION_GRADE
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.evaluations.ui.model.MIN_EVALUATION_GRADE
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -22,6 +23,8 @@ class GradePickerDialogUiTest {
 		setTuIndiceTestContent {
 			GradePickerDialog(
 				title = "Nota maxima",
+				evaluationName = "Parcial 1",
+				subjectCode = "MA1111",
 				acceptText = "Aceptar",
 				cancelText = "Cancelar",
 				selectedGrade = 18.75,
@@ -46,6 +49,28 @@ class GradePickerDialogUiTest {
 	}
 
 	@Test
+	fun when_subtitleProvided_then_showsSubtitle() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			GradePickerDialog(
+				title = "Modificar nota",
+				evaluationName = "Parcial 1",
+				subjectCode = "MA1111",
+				acceptText = "Aceptar",
+				cancelText = "Cancelar",
+				selectedGrade = 18.75,
+				gradeRange = 0.0..20.0,
+				onGradeChange = {},
+				onDismissRequest = {}
+			)
+		}
+
+		assertNodeVisible(EvaluationsUiTags.EvaluationDialogSubtitle)
+		assertNodeVisible(EvaluationsUiTags.EvaluationDialogSubjectCodeChip)
+		onNodeWithText("Parcial 1").assertExists()
+		onNodeWithText("MA1111").assertExists()
+	}
+
+	@Test
 	fun when_cancelTapped_then_dismissesWithoutChangingGrade() = runTuIndiceUiTest {
 		var changedGrade: Double? = null
 		var dismissCalls = 0
@@ -53,6 +78,8 @@ class GradePickerDialogUiTest {
 		setTuIndiceTestContent {
 			GradePickerDialog(
 				title = "Nota maxima",
+				evaluationName = "Parcial 1",
+				subjectCode = "MA1111",
 				acceptText = "Aceptar",
 				cancelText = "Cancelar",
 				selectedGrade = 18.75,
@@ -80,6 +107,8 @@ class GradePickerDialogUiTest {
 		setTuIndiceTestContent {
 			GradePickerDialog(
 				title = "Nota maxima",
+				evaluationName = "Parcial 1",
+				subjectCode = "MA1111",
 				acceptText = "Aceptar",
 				cancelText = "Cancelar",
 				selectedGrade = null,
@@ -107,6 +136,8 @@ class GradePickerDialogUiTest {
 		setTuIndiceTestContent {
 			GradePickerDialog(
 				title = "Nota maxima",
+				evaluationName = "Parcial 1",
+				subjectCode = "MA1111",
 				acceptText = "Aceptar",
 				cancelText = "Cancelar",
 				selectedGrade = selectedGradeState.value,
@@ -135,6 +166,8 @@ class GradePickerDialogUiTest {
 		setTuIndiceTestContent {
 			GradePickerDialog(
 				title = "Nota maxima",
+				evaluationName = "Parcial 1",
+				subjectCode = "MA1111",
 				acceptText = "Aceptar",
 				cancelText = "Cancelar",
 				selectedGrade = 18.75,

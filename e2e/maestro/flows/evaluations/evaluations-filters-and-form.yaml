@@ -89,6 +89,10 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: evaluation_dialog_title
     timeout: 10000
+- assertVisible:
+    id: evaluation_dialog_subtitle
+- assertVisible:
+    id: evaluation_dialog_subject_code_chip
 - tapOn:
     id: evaluation_dialog_confirm_button
 - extendedWaitUntil:
@@ -101,6 +105,10 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: evaluation_dialog_title
     timeout: 10000
+- assertVisible:
+    id: evaluation_dialog_subtitle
+- assertVisible:
+    id: evaluation_dialog_subject_code_chip
 - assertVisible:
     id: evaluation_grade_wheel_picker
 - tapOn:

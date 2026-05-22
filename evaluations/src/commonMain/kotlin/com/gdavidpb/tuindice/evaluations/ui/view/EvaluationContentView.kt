@@ -34,6 +34,7 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.button_add_evaluation
 import tuindice.evaluations.generated.resources.button_save_evaluation_changes
+import tuindice.evaluations.generated.resources.evaluation_name
 import tuindice.evaluations.generated.resources.label_add_evaluation_date
 import tuindice.evaluations.generated.resources.label_add_evaluation_subject
 import tuindice.evaluations.generated.resources.label_add_evaluation_type
@@ -45,8 +46,8 @@ fun EvaluationContentView(
 	onAttemptChange: (attempt: EditableAttemptDescriptor?) -> Unit,
 	onTypeChange: (type: EvaluationType?) -> Unit,
 	onDateChange: (date: Long?) -> Unit,
-	onGradeClick: (grade: Double?, maxGrade: Double?) -> Unit,
-	onMaxGradeClick: (grade: Double?) -> Unit,
+	onGradeClick: (evaluationName: String, subjectCode: String, grade: Double?, maxGrade: Double?) -> Unit,
+	onMaxGradeClick: (evaluationName: String, subjectCode: String, grade: Double?) -> Unit,
 	onDoneClick: (
 		attempt: EditableAttemptDescriptor?,
 		type: EvaluationType?,
@@ -56,6 +57,14 @@ fun EvaluationContentView(
 		maxGrade: Double?
 	) -> Unit
 ) {
+	val selectedTypeLabel = state.typeItems.firstOrNull { item -> item.isSelected }?.labelText.orEmpty()
+	val dialogEvaluationName = if (selectedTypeLabel.isBlank()) {
+		""
+	} else {
+		stringResource(Res.string.evaluation_name, selectedTypeLabel, 1)
+	}
+	val dialogSubjectCode = state.selectedAttempt?.code.orEmpty()
+
 	Box(
 		modifier = Modifier
 			.testTag(EvaluationsUiTags.EvaluationContentContainer)
@@ -131,7 +140,7 @@ fun EvaluationContentView(
 					modifier = Modifier.testTag(EvaluationsUiTags.EvaluationMaxGradeChip),
 					selected = false,
 					onClick = {
-						onMaxGradeClick(state.maxGrade)
+						onMaxGradeClick(dialogEvaluationName, dialogSubjectCode, state.maxGrade)
 					},
 					label = {
 						Text(
@@ -142,23 +151,23 @@ fun EvaluationContentView(
 				)
 			}
 
-				AnimatedVisibility(visible = state.gradeSection.showsGradeChip) {
-					Row(
-						verticalAlignment = Alignment.CenterVertically
-					) {
-						InputChip(
-							modifier = Modifier.testTag(EvaluationsUiTags.EvaluationGradeChip),
-							selected = false,
-							onClick = {
-								onGradeClick(state.grade, state.maxGrade)
-							},
-							label = {
-								Text(
-									text = state.gradeSection.gradeText,
-									style = MaterialTheme.typography.titleMedium
-								)
-							}
-						)
+			AnimatedVisibility(visible = state.gradeSection.showsGradeChip) {
+				Row(
+					verticalAlignment = Alignment.CenterVertically
+				) {
+					InputChip(
+						modifier = Modifier.testTag(EvaluationsUiTags.EvaluationGradeChip),
+						selected = false,
+						onClick = {
+							onGradeClick(dialogEvaluationName, dialogSubjectCode, state.grade, state.maxGrade)
+						},
+						label = {
+							Text(
+								text = state.gradeSection.gradeText,
+								style = MaterialTheme.typography.titleMedium
+							)
+						}
+					)
 
 					Text(
 						modifier = Modifier
@@ -167,21 +176,21 @@ fun EvaluationContentView(
 						style = MaterialTheme.typography.titleLarge
 					)
 
-						InputChip(
-							modifier = Modifier.testTag(EvaluationsUiTags.EvaluationMaxGradeChip),
-							selected = false,
-							onClick = {
-								onMaxGradeClick(state.maxGrade)
-							},
-							label = {
-								Text(
-									text = state.gradeSection.maxGradeText,
-									style = MaterialTheme.typography.titleMedium
-								)
-							}
-						)
-					}
+					InputChip(
+						modifier = Modifier.testTag(EvaluationsUiTags.EvaluationMaxGradeChip),
+						selected = false,
+						onClick = {
+							onMaxGradeClick(dialogEvaluationName, dialogSubjectCode, state.maxGrade)
+						},
+						label = {
+							Text(
+								text = state.gradeSection.maxGradeText,
+								style = MaterialTheme.typography.titleMedium
+							)
+						}
+					)
 				}
+			}
 		}
 
 		Button(

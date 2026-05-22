@@ -56,7 +56,7 @@ class EvaluationsRouteUiTest {
 					addNavigationCalls++
 				},
 				onNavigateToEvaluation = {},
-				onNavigateToEvaluationGradePickerDialog = { _, _, _, _ -> },
+				onNavigateToEvaluationGradePickerDialog = { _, _, _, _, _ -> },
 				showSnackBar = { message ->
 					snackBars += message
 				},
@@ -88,7 +88,7 @@ class EvaluationsRouteUiTest {
 					addNavigationCalls++
 				},
 				onNavigateToEvaluation = {},
-				onNavigateToEvaluationGradePickerDialog = { _, _, _, _ -> },
+				onNavigateToEvaluationGradePickerDialog = { _, _, _, _, _ -> },
 				showSnackBar = { message ->
 					snackBars += message
 				},
@@ -122,7 +122,7 @@ class EvaluationsRouteUiTest {
 				onNavigateToEvaluation = { evaluationId ->
 					navigatedEvaluationId = evaluationId
 				},
-				onNavigateToEvaluationGradePickerDialog = { _, _, _, _ -> },
+				onNavigateToEvaluationGradePickerDialog = { _, _, _, _, _ -> },
 				showSnackBar = {},
 				viewModel = viewModel
 			)
@@ -141,64 +141,70 @@ class EvaluationsRouteUiTest {
 
 	@Test
 	fun when_showEvaluationGradeDialogActionTriggered_then_navigatesToGradePickerDialog() = runTuIndiceUiTest {
-		val viewModel = createViewModel()
-		var requestedEvaluationId = ""
-		var requestedEvaluationName = ""
-		var requestedGrade: Double? = null
-		var requestedMaxGrade: Double? = null
+			val viewModel = createViewModel()
+			var requestedEvaluationId = ""
+			var requestedEvaluationName = ""
+			var requestedSubjectCode = ""
+			var requestedGrade: Double? = null
+			var requestedMaxGrade: Double? = null
 
 		setTuIndiceTestContent {
 			EvaluationsRoute(
 				onNavigateToAddEvaluation = {},
 				onNavigateToEvaluation = {},
-				onNavigateToEvaluationGradePickerDialog = { evaluationId, evaluationName, grade, maxGrade ->
-					requestedEvaluationId = evaluationId
-					requestedEvaluationName = evaluationName
-					requestedGrade = grade
-					requestedMaxGrade = maxGrade
-				},
+					onNavigateToEvaluationGradePickerDialog = { evaluationId, evaluationName, subjectCode, grade, maxGrade ->
+						requestedEvaluationId = evaluationId
+						requestedEvaluationName = evaluationName
+						requestedSubjectCode = subjectCode
+						requestedGrade = grade
+						requestedMaxGrade = maxGrade
+					},
 				showSnackBar = {},
 				viewModel = viewModel
 			)
 		}
 
 		runOnIdle {
-			viewModel.showEvaluationGradeDialogAction(
-				evaluationId = DEFAULT_COMPLETED_EVALUATION.id,
-				evaluationName = "Parcial 1"
-			)
-		}
+				viewModel.showEvaluationGradeDialogAction(
+					evaluationId = DEFAULT_COMPLETED_EVALUATION.id,
+					evaluationName = "Parcial 1",
+					subjectCode = SECOND_EVALUATION_SUBJECT.code
+				)
+			}
 
 		waitUntil(timeoutMillis = 2_000) {
 			requestedEvaluationId.isNotEmpty() &&
 				requestedGrade != null &&
 				requestedMaxGrade != null
-		}
+			}
 
-		assertEquals(DEFAULT_COMPLETED_EVALUATION.id, requestedEvaluationId)
-		assertEquals("Parcial 1", requestedEvaluationName)
-		assertEquals(DEFAULT_COMPLETED_EVALUATION.grade, requestedGrade)
+			assertEquals(DEFAULT_COMPLETED_EVALUATION.id, requestedEvaluationId)
+			assertEquals("Parcial 1", requestedEvaluationName)
+			assertEquals(SECOND_EVALUATION_SUBJECT.code, requestedSubjectCode)
+			assertEquals(DEFAULT_COMPLETED_EVALUATION.grade, requestedGrade)
 		assertEquals(DEFAULT_COMPLETED_EVALUATION.maxGrade, requestedMaxGrade)
 	}
 
 	@Test
 	fun when_completedEvaluationGradeButtonTapped_then_navigatesToGradePickerDialog() = runTuIndiceUiTest {
-		val viewModel = createViewModel()
-		var requestedEvaluationId = ""
-		var requestedEvaluationName = ""
-		var requestedGrade: Double? = null
-		var requestedMaxGrade: Double? = null
+			val viewModel = createViewModel()
+			var requestedEvaluationId = ""
+			var requestedEvaluationName = ""
+			var requestedSubjectCode = ""
+			var requestedGrade: Double? = null
+			var requestedMaxGrade: Double? = null
 
 		setTuIndiceTestContent {
 			EvaluationsRoute(
 				onNavigateToAddEvaluation = {},
 				onNavigateToEvaluation = {},
-				onNavigateToEvaluationGradePickerDialog = { evaluationId, evaluationName, grade, maxGrade ->
-					requestedEvaluationId = evaluationId
-					requestedEvaluationName = evaluationName
-					requestedGrade = grade
-					requestedMaxGrade = maxGrade
-				},
+					onNavigateToEvaluationGradePickerDialog = { evaluationId, evaluationName, subjectCode, grade, maxGrade ->
+						requestedEvaluationId = evaluationId
+						requestedEvaluationName = evaluationName
+						requestedSubjectCode = subjectCode
+						requestedGrade = grade
+						requestedMaxGrade = maxGrade
+					},
 				showSnackBar = {},
 				viewModel = viewModel
 			)
@@ -218,9 +224,10 @@ class EvaluationsRouteUiTest {
 				requestedMaxGrade != null
 		}
 
-		assertEquals(DEFAULT_COMPLETED_EVALUATION.id, requestedEvaluationId)
-		assertTrue(requestedEvaluationName.isNotBlank())
-		assertEquals(DEFAULT_COMPLETED_EVALUATION.grade, requestedGrade)
+			assertEquals(DEFAULT_COMPLETED_EVALUATION.id, requestedEvaluationId)
+			assertEquals("Parcial 1", requestedEvaluationName)
+			assertEquals(SECOND_EVALUATION_SUBJECT.code, requestedSubjectCode)
+			assertEquals(DEFAULT_COMPLETED_EVALUATION.grade, requestedGrade)
 		assertEquals(DEFAULT_COMPLETED_EVALUATION.maxGrade, requestedMaxGrade)
 	}
 
@@ -234,7 +241,7 @@ class EvaluationsRouteUiTest {
 			EvaluationsRoute(
 				onNavigateToAddEvaluation = {},
 				onNavigateToEvaluation = {},
-				onNavigateToEvaluationGradePickerDialog = { _, _, _, _ ->
+				onNavigateToEvaluationGradePickerDialog = { _, _, _, _, _ ->
 					gradeNavigationCalls++
 				},
 				showSnackBar = { message ->
@@ -244,9 +251,13 @@ class EvaluationsRouteUiTest {
 			)
 		}
 
-		runOnIdle {
-			viewModel.showEvaluationGradeDialogAction("missing-evaluation-id")
-		}
+			runOnIdle {
+				viewModel.showEvaluationGradeDialogAction(
+					evaluationId = "missing-evaluation-id",
+					evaluationName = "Parcial 1",
+					subjectCode = SECOND_EVALUATION_SUBJECT.code
+				)
+			}
 
 		waitUntil(timeoutMillis = 2_000) {
 			snackBars.isNotEmpty()
@@ -265,7 +276,7 @@ class EvaluationsRouteUiTest {
 			EvaluationsRoute(
 				onNavigateToAddEvaluation = {},
 				onNavigateToEvaluation = {},
-				onNavigateToEvaluationGradePickerDialog = { _, _, _, _ -> },
+				onNavigateToEvaluationGradePickerDialog = { _, _, _, _, _ -> },
 				showSnackBar = { message ->
 					snackBars += message
 				},
@@ -296,7 +307,7 @@ class EvaluationsRouteUiTest {
 			EvaluationsRoute(
 				onNavigateToAddEvaluation = { addNavigationCalls++ },
 				onNavigateToEvaluation = { editNavigationCalls++ },
-				onNavigateToEvaluationGradePickerDialog = { _, _, _, _ ->
+				onNavigateToEvaluationGradePickerDialog = { _, _, _, _, _ ->
 					gradeNavigationCalls++
 				},
 				showSnackBar = { message ->
@@ -332,7 +343,7 @@ class EvaluationsRouteUiTest {
 			EvaluationsRoute(
 				onNavigateToAddEvaluation = {},
 				onNavigateToEvaluation = {},
-				onNavigateToEvaluationGradePickerDialog = { _, _, _, _ -> },
+				onNavigateToEvaluationGradePickerDialog = { _, _, _, _, _ -> },
 				showSnackBar = { message ->
 					snackBars += message
 				},

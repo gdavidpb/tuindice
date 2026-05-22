@@ -136,7 +136,7 @@ fun WizardStepContent(
 			EvaluationsScreen(
 				state = sampleEvaluationsState(),
 				onAddEvaluationClick = onOpenEvaluationForm,
-				onEvaluationClick = { _, _ -> },
+				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
 				onEvaluationDelete = {},
 				onFilterCheckedChange = { _: EvaluationFilter, _: Boolean -> },
@@ -151,13 +151,13 @@ fun WizardStepContent(
 
 		WizardStepId.EvaluationForm ->
 			EvaluationScreen(
-				state = sampleEvaluationFormState(),
-				onAttemptChange = { _: EditableAttemptDescriptor? -> },
-				onTypeChange = { _: EvaluationType? -> },
-				onDateChange = { _: Long? -> },
-				onGradeClick = { _: Double?, _: Double? -> },
-				onMaxGradeClick = { _: Double? -> },
-				onDoneClick = emptyEvaluationDoneHandler(),
+					state = sampleEvaluationFormState(),
+					onAttemptChange = { _: EditableAttemptDescriptor? -> },
+					onTypeChange = { _: EvaluationType? -> },
+					onDateChange = { _: Long? -> },
+					onGradeClick = { _: String, _: String, _: Double?, _: Double? -> },
+					onMaxGradeClick = { _: String, _: String, _: Double? -> },
+					onDoneClick = emptyEvaluationDoneHandler(),
 				onRetryClick = {}
 			)
 

@@ -16,7 +16,7 @@ import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 fun EvaluationsView(
 	lazyListState: LazyListState,
 	evaluations: List<EvaluationsGroupItem>,
-	onEvaluationClick: (evaluationId: String, evaluationName: String) -> Unit,
+	onEvaluationClick: (evaluationId: String, evaluationName: String, subjectCode: String) -> Unit,
 	onEvaluationEdit: (evaluationId: String) -> Unit,
 	onEvaluationDelete: (evaluationId: String) -> Unit,
 	scrollEnabled: Boolean = true,
@@ -61,7 +61,11 @@ fun EvaluationsView(
 						item = evaluation,
 						onGradeClick = {
 							if (evaluation.isClickable) {
-								onEvaluationClick(evaluation.evaluationId, evaluation.nameText)
+								onEvaluationClick(
+									evaluation.evaluationId,
+									evaluation.nameText,
+									evaluation.subjectCodeText
+								)
 							}
 						},
 						onCardClick = onActionsClick

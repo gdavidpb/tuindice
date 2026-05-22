@@ -15,6 +15,8 @@ class PickGradeActionProcessor
 		if (action.maxGrade != null && action.maxGrade > 0.0) {
 			sideEffect(
 				Evaluation.Effect.NavigateToGradePickerDialog(
+					evaluationName = action.evaluationName,
+					subjectCode = action.subjectCode,
 					grade = action.grade,
 					maxGrade = action.maxGrade
 				)

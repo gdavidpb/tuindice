@@ -18,12 +18,16 @@ sealed class EvaluationsDestination : Destination() {
 
 	@Serializable
 	data class GradePickerDialog(
+		val evaluationName: String,
+		val subjectCode: String,
 		val grade: Double?,
 		val maxGrade: Double?
 	) : EvaluationsDestination()
 
 	@Serializable
 	data class MaxGradePickerDialog(
+		val evaluationName: String,
+		val subjectCode: String,
 		val grade: Double?
 	) : EvaluationsDestination()
 
@@ -31,6 +35,7 @@ sealed class EvaluationsDestination : Destination() {
 	data class EvaluationGradePickerDialog(
 		val evaluationId: String,
 		val evaluationName: String,
+		val subjectCode: String,
 		val grade: Double,
 		val maxGrade: Double
 	) : EvaluationsDestination()

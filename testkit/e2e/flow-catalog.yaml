@@ -814,6 +814,8 @@ flows:
       - evaluation_date_select_button
       - evaluation_max_grade_chip
       - evaluation_grade_chip
+      - evaluation_dialog_subtitle
+      - evaluation_dialog_subject_code_chip
       - evaluation_grade_wheel_picker
   - id: evaluations-suite
     path: e2e/maestro/flows/suites/evaluations-suite.yaml
@@ -863,6 +865,8 @@ flows:
     primary_selectors:
       - evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
       - evaluation_grade_action_button
+      - evaluation_dialog_subtitle
+      - evaluation_dialog_subject_code_chip
       - evaluation_grade_wheel_picker
       - evaluation_dialog_dismiss_button
       - evaluation_dialog_confirm_button
@@ -894,6 +898,8 @@ flows:
       - evaluation_calendar_day_cell_15
       - evaluation_max_grade_chip
       - evaluation_grade_chip
+      - evaluation_dialog_subtitle
+      - evaluation_dialog_subject_code_chip
       - evaluation_done_fab
       - base_snackbar_container
   - id: evaluations-edit-submit

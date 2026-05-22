@@ -92,11 +92,11 @@ class EvaluationViewModel(
 		)
 	)
 
-	fun clickGradeAction(grade: Double?, maxGrade: Double?) =
-		sendAction(Evaluation.Action.ClickGrade(grade, maxGrade))
+	fun clickGradeAction(evaluationName: String, subjectCode: String, grade: Double?, maxGrade: Double?) =
+		sendAction(Evaluation.Action.ClickGrade(evaluationName, subjectCode, grade, maxGrade))
 
-	fun clickMaxGradeAction(maxGrade: Double?) =
-		sendAction(Evaluation.Action.ClickMaxGrade(maxGrade))
+	fun clickMaxGradeAction(evaluationName: String, subjectCode: String, maxGrade: Double?) =
+		sendAction(Evaluation.Action.ClickMaxGrade(evaluationName, subjectCode, maxGrade))
 
 	override suspend fun processAction(
 		action: Evaluation.Action,

@@ -14,7 +14,7 @@ import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationsScreen
 fun EvaluationsRoute(
 	onNavigateToAddEvaluation: () -> Unit,
 	onNavigateToEvaluation: (evaluationId: String) -> Unit,
-	onNavigateToEvaluationGradePickerDialog: (evaluationId: String, evaluationName: String, grade: Double, maxGrade: Double) -> Unit,
+	onNavigateToEvaluationGradePickerDialog: (evaluationId: String, evaluationName: String, subjectCode: String, grade: Double, maxGrade: Double) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: EvaluationsViewModel
 ) {
@@ -34,6 +34,7 @@ fun EvaluationsRoute(
 				onNavigateToEvaluationGradePickerDialog(
 					effect.evaluationId,
 					effect.evaluationName,
+					effect.subjectCode,
 					effect.grade,
 					effect.maxGrade
 				)

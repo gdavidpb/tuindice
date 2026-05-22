@@ -21,7 +21,7 @@ class EvaluationsScreenUiTest {
 			EvaluationsScreen(
 				state = Evaluations.State.Loading,
 				onAddEvaluationClick = {},
-				onEvaluationClick = { _, _ -> },
+				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
 				onEvaluationDelete = {},
 				onFilterCheckedChange = { _, _ -> },
@@ -39,7 +39,7 @@ class EvaluationsScreenUiTest {
 			EvaluationsScreen(
 				state = evaluationsContentState(),
 				onAddEvaluationClick = {},
-				onEvaluationClick = { _, _ -> },
+				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
 				onEvaluationDelete = {},
 				onFilterCheckedChange = { _, _ -> },
@@ -59,7 +59,7 @@ class EvaluationsScreenUiTest {
 			EvaluationsScreen(
 				state = Evaluations.State.Failed,
 				onAddEvaluationClick = {},
-				onEvaluationClick = { _, _ -> },
+				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
 				onEvaluationDelete = {},
 				onFilterCheckedChange = { _, _ -> },
@@ -81,7 +81,7 @@ class EvaluationsScreenUiTest {
 			EvaluationsScreen(
 				state = Evaluations.State.Empty,
 				onAddEvaluationClick = { addClicks++ },
-				onEvaluationClick = { _, _ -> },
+				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
 				onEvaluationDelete = {},
 				onFilterCheckedChange = { _, _ -> },
@@ -101,7 +101,7 @@ class EvaluationsScreenUiTest {
 			EvaluationsScreen(
 				state = Evaluations.State.NoAttempts,
 				onAddEvaluationClick = {},
-				onEvaluationClick = { _, _ -> },
+				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
 				onEvaluationDelete = {},
 				onFilterCheckedChange = { _, _ -> },

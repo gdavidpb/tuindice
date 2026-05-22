@@ -18,6 +18,8 @@ class EvaluationContentDialogUiTest {
 
 		setTuIndiceTestContent {
 			GradePickerContentDialog(
+				evaluationName = "Parcial 1",
+				subjectCode = "MA1111",
 				selectedGrade = 15.5,
 				maxGrade = 20.0,
 				onGradeChange = { grade ->
@@ -39,6 +41,8 @@ class EvaluationContentDialogUiTest {
 
 		setTuIndiceTestContent {
 			MaxGradePickerContentDialog(
+				evaluationName = "Parcial 1",
+				subjectCode = "MA1111",
 				selectedGrade = 20.0,
 				onGradeChange = { grade ->
 					selectedGrade = grade
@@ -59,6 +63,8 @@ class EvaluationContentDialogUiTest {
 
 		setTuIndiceTestContent {
 			MaxGradePickerContentDialog(
+				evaluationName = "Parcial 1",
+				subjectCode = "MA1111",
 				selectedGrade = null,
 				onGradeChange = { grade ->
 					selectedGrade = grade
@@ -79,6 +85,8 @@ class EvaluationContentDialogUiTest {
 
 		setTuIndiceTestContent {
 			MaxGradePickerContentDialog(
+				evaluationName = "Parcial 1",
+				subjectCode = "MA1111",
 				selectedGrade = 0.0,
 				onGradeChange = { grade ->
 					selectedGrade = grade
@@ -97,7 +105,8 @@ class EvaluationContentDialogUiTest {
 	fun when_evaluationGradePickerContentDialogRendered_then_showsDialog() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			EvaluationGradePickerContentDialog(
-				evaluationName = "Quiz #1",
+				evaluationName = "Parcial 1",
+				subjectCode = "MA1111",
 				selectedGrade = 16.0,
 				maxGrade = 20.0,
 				onGradeChange = {},
@@ -106,6 +115,8 @@ class EvaluationContentDialogUiTest {
 		}
 
 		assertNodeVisible(EvaluationsUiTags.EvaluationDialogTitle)
+		assertNodeVisible(EvaluationsUiTags.EvaluationDialogSubtitle)
+		assertNodeVisible(EvaluationsUiTags.EvaluationDialogSubjectCodeChip)
 		assertNodeVisible(EvaluationsUiTags.EvaluationDialogConfirmButton)
 		assertNodeVisible(EvaluationsUiTags.EvaluationDialogDismissButton)
 	}

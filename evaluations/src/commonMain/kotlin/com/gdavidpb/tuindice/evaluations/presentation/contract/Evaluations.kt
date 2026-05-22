@@ -58,7 +58,8 @@ object Evaluations {
 
 		class ShowEvaluationGradeDialog(
 			val evaluationId: String,
-			val evaluationName: String
+			val evaluationName: String,
+			val subjectCode: String
 		) : Action()
 
 		class SetEvaluationGrade(
@@ -85,6 +86,7 @@ object Evaluations {
 		class NavigateToGradePickerDialog(
 			val evaluationId: String,
 			val evaluationName: String,
+			val subjectCode: String,
 			val grade: Double,
 			val maxGrade: Double
 		) : Effect()

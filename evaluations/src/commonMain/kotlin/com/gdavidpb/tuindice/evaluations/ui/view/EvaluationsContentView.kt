@@ -37,7 +37,7 @@ fun EvaluationsContentView(
 	onAddEvaluationClick: () -> Unit,
 	onClearFiltersClick: () -> Unit,
 	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
-	onEvaluationClick: (evaluationId: String, evaluationName: String) -> Unit,
+	onEvaluationClick: (evaluationId: String, evaluationName: String, subjectCode: String) -> Unit,
 	onEvaluationEdit: (evaluationId: String) -> Unit,
 	onEvaluationDelete: (evaluationId: String) -> Unit,
 	scrollEnabled: Boolean = true,

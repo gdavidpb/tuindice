@@ -79,11 +79,15 @@ object Evaluation {
 		) : Action()
 
 		class ClickGrade(
+			val evaluationName: String,
+			val subjectCode: String,
 			val grade: Double?,
 			val maxGrade: Double?
 		) : Action()
 
 		class ClickMaxGrade(
+			val evaluationName: String,
+			val subjectCode: String,
 			val maxGrade: Double?
 		) : Action()
 
@@ -111,11 +115,15 @@ object Evaluation {
 		data object NavigateToEvaluations : Effect()
 
 		class NavigateToGradePickerDialog(
+			val evaluationName: String,
+			val subjectCode: String,
 			val grade: Double?,
 			val maxGrade: Double?
 		) : Effect()
 
 		class NavigateToMaxGradePickerDialog(
+			val evaluationName: String,
+			val subjectCode: String,
 			val maxGrade: Double?
 		) : Effect()
 

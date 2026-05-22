@@ -63,12 +63,19 @@ class EvaluationViewModelContractTest {
 				assertEquals(0, cleared.attemptItems.count { item -> item.isSelected })
 
 				cancelAndIgnoreRemainingEvents()
-			}
+				}
 
-			viewModel.effect.test {
-				viewModel.clickGradeAction(grade = 15.0, maxGrade = 100.0)
-				val effect = assertIs<Evaluation.Effect.NavigateToGradePickerDialog>(awaitItem())
-				assertEquals(15.0, effect.grade)
+				viewModel.effect.test {
+					viewModel.clickGradeAction(
+						evaluationName = "Parcial 1",
+						subjectCode = SECOND_EVALUATION_SUBJECT.code,
+						grade = 15.0,
+						maxGrade = 100.0
+					)
+					val effect = assertIs<Evaluation.Effect.NavigateToGradePickerDialog>(awaitItem())
+					assertEquals("Parcial 1", effect.evaluationName)
+					assertEquals(SECOND_EVALUATION_SUBJECT.code, effect.subjectCode)
+					assertEquals(15.0, effect.grade)
 				assertEquals(100.0, effect.maxGrade)
 
 				cancelAndIgnoreRemainingEvents()

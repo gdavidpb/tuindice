@@ -33,6 +33,8 @@ object EvaluationsUiTags {
 	const val EvaluationGradeWheelPicker = "evaluation_grade_wheel_picker"
 	const val EvaluationGradeWheelSelectedFrame = "evaluation_grade_wheel_selected_frame"
 	const val EvaluationDialogTitle = "evaluation_dialog_title"
+	const val EvaluationDialogSubtitle = "evaluation_dialog_subtitle"
+	const val EvaluationDialogSubjectCodeChip = "evaluation_dialog_subject_code_chip"
 	const val EvaluationDialogConfirmButton = "evaluation_dialog_confirm_button"
 	const val EvaluationDialogDismissButton = "evaluation_dialog_dismiss_button"
 	const val EvaluationSwipeToDismissContainer = "evaluation_swipe_to_dismiss_container"

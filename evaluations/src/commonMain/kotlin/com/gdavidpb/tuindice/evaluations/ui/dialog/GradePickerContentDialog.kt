@@ -11,6 +11,8 @@ import tuindice.evaluations.generated.resources.dialog_title_add_evaluation_grad
 
 @Composable
 fun GradePickerContentDialog(
+	evaluationName: String,
+	subjectCode: String,
 	selectedGrade: Double?,
 	maxGrade: Double?,
 	onGradeChange: (grade: Double) -> Unit,
@@ -19,6 +21,8 @@ fun GradePickerContentDialog(
 ) {
 	GradePickerDialog(
 		title = stringResource(Res.string.dialog_title_add_evaluation_grade),
+		evaluationName = evaluationName,
+		subjectCode = subjectCode,
 		acceptText = stringResource(Res.string.accept),
 		cancelText = stringResource(Res.string.cancel),
 		selectedGrade = selectedGrade ?: maxGrade ?: MIN_EVALUATION_GRADE,
