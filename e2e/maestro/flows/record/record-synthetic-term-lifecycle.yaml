@@ -141,3 +141,27 @@ appId: com.gdavidpb.tuindice.debug
           visible:
             id: record_attempt_item_2026-SEP_DEC-EC5201-1
           timeout: 15000
+- tapOn:
+    id: record_term_chip_2026-SEP_DEC
+- extendedWaitUntil:
+    visible:
+      id: record_delete_synthetic_term_button
+    timeout: 10000
+- tapOn:
+    id: record_delete_synthetic_term_button
+- extendedWaitUntil:
+    visible:
+      id: base_confirmation_dialog_sheet
+    timeout: 10000
+- assertVisible:
+    id: record_delete_synthetic_term_message
+- tapOn:
+    id: base_confirmation_dialog_positive_button
+- extendedWaitUntil:
+    visible:
+      id: base_snackbar_container
+    timeout: 15000
+- extendedWaitUntil:
+    notVisible:
+      id: record_attempt_item_2026-SEP_DEC-EC5201-1
+    timeout: 15000

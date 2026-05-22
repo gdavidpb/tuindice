@@ -16,10 +16,6 @@ import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Edit
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -38,20 +34,15 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
-import org.jetbrains.compose.resources.stringResource
-import tuindice.record.generated.resources.Res
-import tuindice.record.generated.resources.label_edit_synthetic_term
 
 @Composable
 fun TermSelectorView(
 	modifier: Modifier = Modifier,
 	terms: List<TermItem>,
 	selectedTermId: String?,
-	onTermSelected: (termId: String) -> Unit,
-	onEditTermClick: (termId: String) -> Unit
+	onTermSelected: (termId: String) -> Unit
 ) {
 	val lazyListState = rememberLazyListState()
-	val editDescription = stringResource(Res.string.label_edit_synthetic_term)
 
 	LaunchedEffect(
 		terms.map { term -> term.termId },
@@ -71,7 +62,7 @@ fun TermSelectorView(
 			.fillMaxWidth()
 			.testTag(RecordUiTags.TermSelectorRow)
 	) {
-		val itemWidth = maxWidth * 0.56f
+		val itemWidth = maxWidth * 0.5f
 		val sidePeekPadding = (maxWidth - itemWidth) / 2
 
 		LazyRow(
@@ -141,21 +132,6 @@ fun TermSelectorView(
 									.background(MaterialTheme.colorScheme.primary)
 									.testTag(RecordUiTags.termCurrentChip(term.termId))
 							)
-						}
-
-						if (isSelected && term.canEdit) {
-							IconButton(
-								modifier = Modifier
-									.padding(start = 4.dp)
-									.size(40.dp)
-									.testTag(RecordUiTags.EditSyntheticTermButton),
-								onClick = { onEditTermClick(term.termId) }
-							) {
-								Icon(
-									imageVector = Icons.Outlined.Edit,
-									contentDescription = editDescription
-								)
-							}
 						}
 					}
 				}

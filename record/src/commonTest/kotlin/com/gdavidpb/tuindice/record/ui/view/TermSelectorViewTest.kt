@@ -17,88 +17,59 @@ import kotlin.test.assertEquals
 @OptIn(ExperimentalTestApi::class)
 class TermSelectorViewTest {
 	@Test
-	fun when_selectedTermCanEdit_then_editButtonIsShownAndClickable() = runTuIndiceUiTest {
-		var clickedTermId: String? = null
+	fun when_termTapped_then_invokesSelection() = runTuIndiceUiTest {
 		var selectedTermId: String? = null
-		val editableTerm = termItem(
-			termId = "2027-JUL_AUG",
-			shortNameText = "Jul - Ago 2027",
-			canEdit = true
-		)
 
 		setTuIndiceTestContent {
 			TermSelectorView(
 				terms = listOf(
 					termItem(
 						termId = "2027-APR_JUL",
-						shortNameText = "Abr - Jul 2027",
-						canEdit = false
-					),
-					editableTerm
-				),
-				selectedTermId = editableTerm.termId,
-				onTermSelected = { selectedTermId = it },
-				onEditTermClick = { clickedTermId = it }
-			)
-		}
-
-		onNodeWithTag(RecordUiTags.EditSyntheticTermButton)
-			.assertIsDisplayed()
-			.performClick()
-
-		assertEquals(editableTerm.termId, clickedTermId)
-		assertEquals(null, selectedTermId)
-	}
-
-	@Test
-	fun when_selectedTermCannotEdit_then_editButtonIsHidden() = runTuIndiceUiTest {
-		setTuIndiceTestContent {
-			TermSelectorView(
-				terms = listOf(
-					termItem(
-						termId = "2027-JUL_AUG",
-						shortNameText = "Jul - Ago 2027",
-						canEdit = false
-					)
-				),
-				selectedTermId = "2027-JUL_AUG",
-				onTermSelected = {},
-				onEditTermClick = {}
-			)
-		}
-
-		onAllNodesWithTag(RecordUiTags.EditSyntheticTermButton).assertCountEquals(0)
-	}
-
-	@Test
-	fun when_editableTermIsNotSelected_then_editButtonIsHidden() = runTuIndiceUiTest {
-		setTuIndiceTestContent {
-			TermSelectorView(
-				terms = listOf(
-					termItem(
-						termId = "2027-APR_JUL",
-						shortNameText = "Abr - Jul 2027",
-						canEdit = false
+						shortNameText = "Abr - Jul 2027"
 					),
 					termItem(
 						termId = "2027-JUL_AUG",
-						shortNameText = "Jul - Ago 2027",
-						canEdit = true
+						shortNameText = "Jul - Ago 2027"
 					)
 				),
 				selectedTermId = "2027-APR_JUL",
-				onTermSelected = {},
-				onEditTermClick = {}
+				onTermSelected = { selectedTermId = it }
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.termChip("2027-JUL_AUG"))
+			.assertIsDisplayed()
+			.performClick()
+
+		assertEquals("2027-JUL_AUG", selectedTermId)
+	}
+
+	@Test
+	fun when_termHasSyntheticActions_then_selectorDoesNotRenderActionButtons() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			TermSelectorView(
+				terms = listOf(
+					termItem(
+						termId = "2027-JUL_AUG",
+						shortNameText = "Jul - Ago 2027",
+						canEdit = true,
+						canDelete = true
+					)
+				),
+				selectedTermId = "2027-JUL_AUG",
+				onTermSelected = {}
 			)
 		}
 
 		onAllNodesWithTag(RecordUiTags.EditSyntheticTermButton).assertCountEquals(0)
+		onAllNodesWithTag(RecordUiTags.DeleteSyntheticTermButton).assertCountEquals(0)
 	}
 
 	private fun termItem(
 		termId: String,
 		shortNameText: String,
-		canEdit: Boolean
+		canEdit: Boolean = false,
+		canDelete: Boolean = false
 	): TermItem {
 		return TermItem(
 			termId = termId,
@@ -110,7 +81,7 @@ class TermSelectorViewTest {
 			creditsText = AnnotatedString("0"),
 			creditsDelta = null,
 			isCurrent = false,
-			canDelete = canEdit,
+			canDelete = canDelete,
 			canEdit = canEdit,
 			attempts = emptyList()
 		)

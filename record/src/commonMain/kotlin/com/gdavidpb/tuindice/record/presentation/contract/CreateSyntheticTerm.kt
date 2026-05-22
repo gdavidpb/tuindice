@@ -16,11 +16,6 @@ object CreateSyntheticTerm {
 	data class State(
 		val editingTermId: String? = null,
 		val editingTermKey: String? = null,
-		override val topBarTitle: UiText =
-			if (editingTermId == null)
-				UiText.Resource(Res.string.top_bar_create_synthetic_term)
-			else
-				UiText.Resource(Res.string.top_bar_edit_synthetic_term),
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = false,
 		val query: String = "",
@@ -38,6 +33,13 @@ object CreateSyntheticTerm {
 	) : ViewState() {
 		val canSubmit: Boolean
 			get() = selectedPeriod != null && selectedSubjects.isNotEmpty() && !isSubmitting
+
+		override val topBarTitle: UiText
+			get() = if (editingTermId == null) {
+				UiText.Resource(Res.string.top_bar_create_synthetic_term)
+			} else {
+				UiText.Resource(Res.string.top_bar_edit_synthetic_term)
+			}
 
 		val isEditing: Boolean
 			get() = editingTermId != null

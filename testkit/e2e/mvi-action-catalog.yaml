@@ -381,6 +381,12 @@ actions:
     selector: record_attempts_list
     flow: e2e/maestro/flows/record/record-attempt-overrides.yaml
     fixture_state: attempt-override-success
+  - id: record.Record.DeleteSyntheticTerm
+    classification: user
+    variants: [delete-success]
+    selector: record_delete_synthetic_term_button
+    flow: e2e/maestro/flows/record/record-synthetic-term-lifecycle.yaml
+    fixture_state: synthetic-term-success
 
   - id: subjects.SubjectDetail.LoadSubjectDetail
     classification: internal

@@ -15,4 +15,9 @@ sealed class RecordDestination : Destination() {
 	data class CreateSyntheticTerm(
 		val termId: String? = null
 	) : RecordDestination()
+
+	@Serializable
+	data class DeleteSyntheticTermConfirmationDialog(
+		val termId: String
+	) : RecordDestination()
 }

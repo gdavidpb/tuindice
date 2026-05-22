@@ -49,6 +49,8 @@ object Record {
 			val outcome: AttemptOutcome? = null,
 			val commit: Boolean
 		) : Action()
+
+		class DeleteSyntheticTerm(val termId: String) : Action()
 	}
 
 	sealed class Effect : ViewEffect() {

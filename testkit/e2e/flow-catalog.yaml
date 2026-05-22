@@ -548,14 +548,16 @@ flows:
     type: interaction
     platforms: [android, ios]
     status: active
-    variant: synthetic-term-create-edit-search-clear
+    variant: synthetic-term-create-edit-delete-search-clear
     fixture_state: synthetic-term-success
-    platform_edge: Synthetic term delete exists in the data layer but has no current user-facing MVI Action or UI control, so it is not an executable E2E action yet.
     actions_covered:
       - record.CreateSyntheticTerm.UpdateQuery
       - record.CreateSyntheticTerm.CreateTerm
       - record.Record.SelectTerm
+      - record.Record.DeleteSyntheticTerm
     primary_selectors:
+      - base_confirmation_dialog_sheet
+      - base_confirmation_dialog_positive_button
       - record_create_synthetic_term_fab
       - record_create_synthetic_term_screen
       - record_create_synthetic_term_search_field
@@ -566,6 +568,8 @@ flows:
       - record_create_synthetic_term_subject_EC5333_add_button
       - record_create_synthetic_term_subject_EC5333_remove_button
       - record_create_synthetic_term_submit_button
+      - record_delete_synthetic_term_button
+      - record_delete_synthetic_term_message
       - record_attempt_item_2026-SEP_DEC-EC5201-1
       - record_attempt_item_2026-SEP_DEC-EC5333-2
   - id: enrollmentproof-smoke

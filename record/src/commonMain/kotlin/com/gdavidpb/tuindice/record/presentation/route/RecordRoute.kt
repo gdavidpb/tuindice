@@ -25,6 +25,7 @@ fun RecordRoute(
 	onNavigateToUpdatePassword: () -> Unit,
 	onNavigateToCreateSyntheticTerm: () -> Unit,
 	onNavigateToUpdateSyntheticTerm: (termId: String) -> Unit,
+	onNavigateToDeleteSyntheticTermConfirmation: (termId: String) -> Unit,
 	onTopBarViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
@@ -89,7 +90,8 @@ fun RecordRoute(
 			)
 		},
 		onCreateSyntheticTermClick = onNavigateToCreateSyntheticTerm,
-		onUpdateSyntheticTermClick = onNavigateToUpdateSyntheticTerm
+		onUpdateSyntheticTermClick = onNavigateToUpdateSyntheticTerm,
+		onDeleteSyntheticTermClick = onNavigateToDeleteSyntheticTermConfirmation
 	)
 }
 

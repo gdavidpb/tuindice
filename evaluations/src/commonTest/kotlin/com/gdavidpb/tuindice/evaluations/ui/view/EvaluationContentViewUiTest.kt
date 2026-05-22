@@ -55,7 +55,7 @@ class EvaluationContentViewUiTest {
 		assertNodeHidden(EvaluationsUiTags.EvaluationGradeChip)
 		assertNodeVisible(EvaluationsUiTags.EvaluationMaxGradeChip)
 		assertNodeVisible(EvaluationsUiTags.EvaluationDoneFab)
-		onNodeWithText("Agregar evaluación").assertExists()
+		onNodeWithText("Crear").assertExists()
 
 		onNodeWithTag(EvaluationsUiTags.EvaluationMaxGradeChip).performClick()
 		onNodeWithTag(EvaluationsUiTags.EvaluationDoneFab).performClick()
@@ -73,7 +73,7 @@ class EvaluationContentViewUiTest {
 	}
 
 	@Test
-	fun when_stateIsEditMode_then_doneButtonShowsSaveCopy() = runTuIndiceUiTest {
+	fun when_stateIsEditMode_then_doneButtonShowsModifyCopy() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			EvaluationContentView(
 					state = evaluationContentState(isOverdue = false).copy(evaluationId = "evaluation_1"),
@@ -87,7 +87,7 @@ class EvaluationContentViewUiTest {
 		}
 
 		assertNodeVisible(EvaluationsUiTags.EvaluationDoneFab)
-		onNodeWithText("Guardar cambios").assertExists()
+		onNodeWithText("Modificar").assertExists()
 	}
 
 	@Test

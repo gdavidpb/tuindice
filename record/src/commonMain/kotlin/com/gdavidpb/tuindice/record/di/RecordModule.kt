@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermCreationRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermLoadPreviewRepository
 import com.gdavidpb.tuindice.record.domain.usecase.CreateSyntheticTermUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermPreviewUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermEditSeedUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
@@ -35,6 +36,7 @@ import com.gdavidpb.tuindice.record.domain.usecase.UpdateSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpsertAttemptSelectionUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExceptionHandler
 import com.gdavidpb.tuindice.record.presentation.action.CreateSyntheticTermActionProcessor
+import com.gdavidpb.tuindice.record.presentation.action.DeleteSyntheticTermActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.ObserveCreateSyntheticTermActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.ObserveRecordActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.RefreshRecordActionProcessor
@@ -67,6 +69,7 @@ val recordModule = module {
 	factoryOf(::SetRecordViewModeActionProcessor)
 	factoryOf(::SelectRecordTermActionProcessor)
 	factoryOf(::UpsertAttemptSelectionActionProcessor)
+	factoryOf(::DeleteSyntheticTermActionProcessor)
 	factoryOf(::ObserveCreateSyntheticTermActionProcessor)
 	factoryOf(::UpdateCreateSyntheticTermQueryActionProcessor)
 	factoryOf(::CreateSyntheticTermActionProcessor)
@@ -78,6 +81,7 @@ val recordModule = module {
 	factoryOf(::SetRecordViewModeUseCase)
 	factoryOf(::SetSelectedTermUseCase)
 	factoryOf(::UpsertAttemptSelectionUseCase)
+	factoryOf(::DeleteSyntheticTermUseCase)
 	factoryOf(::ObserveSyntheticTermCreationUseCase)
 	factoryOf(::RefreshSyntheticTermSubjectSearchUseCase)
 	factoryOf(::LoadSyntheticTermPreviewUseCase)

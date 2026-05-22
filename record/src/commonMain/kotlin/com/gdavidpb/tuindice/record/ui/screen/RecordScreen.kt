@@ -5,6 +5,7 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -20,15 +21,18 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
+import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.domain.model.filteredProjectionFor
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.view.RecordContentView
 import com.gdavidpb.tuindice.record.ui.view.RecordEmptyView
 import com.gdavidpb.tuindice.record.ui.view.RecordFailedView
 import com.gdavidpb.tuindice.record.ui.view.RecordLoadingView
+import com.gdavidpb.tuindice.record.ui.view.RecordSyntheticTermActionsView
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.record_empty_message
@@ -50,9 +54,20 @@ fun RecordScreen(
 		isSelected: Boolean
 	) -> Unit,
 	onCreateSyntheticTermClick: () -> Unit,
-	onUpdateSyntheticTermClick: (termId: String) -> Unit = {}
+	onUpdateSyntheticTermClick: (termId: String) -> Unit = {},
+	onDeleteSyntheticTermClick: (termId: String) -> Unit = {}
 ) {
 	val contentScrollInProgress = remember { mutableStateOf(false) }
+	val contentState = state as? Record.State.Content
+	val selectedTermIdValue = selectedTermId ?: contentState?.selectedTermId
+	val selectedSyntheticTerm = contentState
+		?.takeIf { content -> content.viewMode == RecordViewMode.Projection }
+		?.record
+		?.filteredProjectionFor(RecordViewMode.Projection)
+		?.terms
+		?.firstOrNull { term ->
+			term.id == selectedTermIdValue && term.kind.isSynthetic
+		}
 
 	Box(
 		modifier = Modifier
@@ -74,7 +89,6 @@ fun RecordScreen(
 						selectedTermId = selectedTermId,
 						onSelectedTermChange = onSelectedTermChange,
 						onAttemptSelectionChange = onAttemptSelectionChange,
-						onUpdateSyntheticTermClick = onUpdateSyntheticTermClick,
 						onScrollInProgressChange = { isScrollInProgress ->
 							contentScrollInProgress.value = isScrollInProgress
 						}
@@ -109,15 +123,25 @@ fun RecordScreen(
 			enter = fadeIn(),
 			exit = fadeOut()
 		) {
-			FloatingActionButton(
-				modifier = Modifier.testTag(RecordUiTags.CreateSyntheticTermFab),
-				containerColor = MaterialTheme.colorScheme.primary,
-				onClick = onCreateSyntheticTermClick
-			) {
-				Icon(
-					imageVector = Icons.Outlined.Add,
-					contentDescription = null
-				)
+			Column(horizontalAlignment = Alignment.End) {
+				selectedSyntheticTerm?.let { term ->
+					RecordSyntheticTermActionsView(
+						termId = term.id,
+						onEditClick = onUpdateSyntheticTermClick,
+						onDeleteClick = onDeleteSyntheticTermClick
+					)
+				}
+
+				FloatingActionButton(
+					modifier = Modifier.testTag(RecordUiTags.CreateSyntheticTermFab),
+					containerColor = MaterialTheme.colorScheme.primary,
+					onClick = onCreateSyntheticTermClick
+				) {
+					Icon(
+						imageVector = Icons.Outlined.Add,
+						contentDescription = null
+					)
+				}
 			}
 		}
 	}

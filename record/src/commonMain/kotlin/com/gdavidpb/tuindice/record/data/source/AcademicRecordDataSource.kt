@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
@@ -168,9 +169,12 @@ class AcademicRecordDataSource(
 	}
 
 	override suspend fun deleteSyntheticTerm(termId: String) {
-		localDataSource.getAcademicRecord() ?: return
+		val localRecord = localDataSource.getAcademicRecord() ?: return
+		localRecord.terms.firstOrNull { term ->
+			term.id == termId && term.kind.isSynthetic
+		} ?: return
 		val currentRevision = localDataSource.getRecordRevision() ?: return
-		localDataSource.deleteSyntheticTerm(termId)
+		localDataSource.deleteSyntheticTerm(termId) ?: return
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
 			mutationId = identifierRepository.generateRandomIdentifier(),
 			scopeKey = RECORD_MUTATION_SCOPE,

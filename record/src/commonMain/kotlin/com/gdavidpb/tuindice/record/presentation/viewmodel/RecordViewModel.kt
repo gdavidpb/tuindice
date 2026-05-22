@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.presentation.action.DeleteSyntheticTermActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.ObserveRecordActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.RefreshRecordActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SelectRecordTermActionProcessor
@@ -17,7 +18,8 @@ class RecordViewModel(
 	private val refreshRecordActionProcessor: RefreshRecordActionProcessor,
 	private val setRecordViewModeActionProcessor: SetRecordViewModeActionProcessor,
 	private val selectRecordTermActionProcessor: SelectRecordTermActionProcessor,
-	private val upsertAttemptSelectionActionProcessor: UpsertAttemptSelectionActionProcessor
+	private val upsertAttemptSelectionActionProcessor: UpsertAttemptSelectionActionProcessor,
+	private val deleteSyntheticTermActionProcessor: DeleteSyntheticTermActionProcessor
 ) : BaseViewModel<Record.State, Record.Action, Record.Effect>(
 	initialState = Record.State.Idle,
 	initialAction = Record.Action.ObserveRecord
@@ -58,6 +60,10 @@ class RecordViewModel(
 		)
 	}
 
+	fun deleteSyntheticTermAction(termId: String) {
+		sendAction(Record.Action.DeleteSyntheticTerm(termId))
+	}
+
 	override suspend fun processAction(
 		action: Record.Action,
 		sideEffect: (Record.Effect) -> Unit
@@ -77,6 +83,9 @@ class RecordViewModel(
 
 			is Record.Action.UpsertAttemptSelection ->
 				upsertAttemptSelectionActionProcessor.process(action, sideEffect)
+
+			is Record.Action.DeleteSyntheticTerm ->
+				deleteSyntheticTermActionProcessor.process(action, sideEffect)
 		}
 	}
 }

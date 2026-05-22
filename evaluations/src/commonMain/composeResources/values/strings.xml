@@ -2,7 +2,7 @@
 <resources>
 	<string name="screen_title_evaluations">Evaluaciones</string>
 	<string name="screen_title_evaluation">Evaluación</string>
-	<string name="top_bar_add_evaluation">Agregar evaluación</string>
+	<string name="top_bar_add_evaluation">Crear evaluación</string>
 	<string name="top_bar_edit_evaluation">Modificar evaluación</string>
 	<string name="state_message_loading">Cargando...</string>
 
@@ -12,8 +12,8 @@
 	<string name="message_no_subjects_evaluations">Cuando tengas un trimestre activo, podrás agregar evaluaciones desde aquí.</string>
 	<string name="title_empty_match_evaluations">Sin resultados</string>
 	<string name="message_empty_match_evaluations">Ajusta los filtros o la búsqueda para encontrar otras evaluaciones.</string>
-	<string name="button_add_evaluation">Agregar evaluación</string>
-	<string name="button_save_evaluation_changes">Guardar cambios</string>
+	<string name="button_add_evaluation">Crear</string>
+	<string name="button_save_evaluation_changes">Modificar</string>
 
 	<string name="view_error_title">No pudimos cargar la información</string>
 	<string name="view_error_message">Intenta de nuevo en unos segundos.</string>

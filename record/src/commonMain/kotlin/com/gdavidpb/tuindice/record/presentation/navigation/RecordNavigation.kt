@@ -5,12 +5,15 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavGraphBuilder
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.dialog
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
+import com.gdavidpb.tuindice.base.utils.extension.CollectBackResultWithLifecycle
 import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLifecycle
+import com.gdavidpb.tuindice.base.utils.extension.navigateBackWithResult
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
 import com.gdavidpb.tuindice.record.presentation.route.CreateSyntheticTermRoute
@@ -18,6 +21,7 @@ import com.gdavidpb.tuindice.record.presentation.route.RecordRoute
 import com.gdavidpb.tuindice.record.presentation.route.toRouteViewState
 import com.gdavidpb.tuindice.record.presentation.viewmodel.CreateSyntheticTermViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
+import com.gdavidpb.tuindice.record.ui.dialog.DeleteSyntheticTermConfirmationContentDialog
 import org.koin.compose.viewmodel.koinViewModel
 
 fun NavGraphBuilder.recordNavigation(
@@ -39,6 +43,15 @@ fun NavGraphBuilder.recordNavigation(
 				onValue = onViewStateChanged
 			)
 
+			navController.CollectBackResultWithLifecycle<DeleteSyntheticTermConfirmationResult>(
+				backStackEntry = backStackEntry
+			) { result ->
+				when (result) {
+					is DeleteSyntheticTermConfirmationResult.Confirmed ->
+						viewModel.deleteSyntheticTermAction(result.termId)
+				}
+			}
+
 			RecordRoute(
 				onNavigateToUpdatePassword = onNavigateToUpdatePassword,
 				onNavigateToCreateSyntheticTerm = {
@@ -46,6 +59,11 @@ fun NavGraphBuilder.recordNavigation(
 				},
 				onNavigateToUpdateSyntheticTerm = { termId ->
 					navController.navigate(RecordDestination.CreateSyntheticTerm(termId = termId))
+				},
+				onNavigateToDeleteSyntheticTermConfirmation = { termId ->
+					navController.navigate(
+						RecordDestination.DeleteSyntheticTermConfirmationDialog(termId = termId)
+					)
 				},
 				onTopBarViewModeChangeAvailable = onTopBarViewModeChangeAvailable,
 				showTopBarBanner = showTopBarBanner,
@@ -70,6 +88,19 @@ fun NavGraphBuilder.recordNavigation(
 				viewModel = viewModel,
 				onBack = { navController.navigateUp() },
 				showSnackBar = showSnackBar
+			)
+		}
+
+		dialog<RecordDestination.DeleteSyntheticTermConfirmationDialog> { backStackEntry ->
+			val args = backStackEntry.toRoute<RecordDestination.DeleteSyntheticTermConfirmationDialog>()
+
+			DeleteSyntheticTermConfirmationContentDialog(
+				onConfirmClick = {
+					navController.navigateBackWithResult<DeleteSyntheticTermConfirmationResult>(
+						DeleteSyntheticTermConfirmationResult.Confirmed(args.termId)
+					)
+				},
+				onDismissRequest = { navController.navigateUp() }
 			)
 		}
 	}
