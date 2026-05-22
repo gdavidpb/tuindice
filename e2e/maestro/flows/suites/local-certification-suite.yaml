@@ -12,6 +12,7 @@ name: TuIndice local certification E2E suite
 - runFlow: ../auth/sign-out-cancel.yaml
 - runFlow: ../auth/pending-sign-out.yaml
 - runFlow: ../auth/pending-sign-out-flush-success.yaml
+- runFlow: wizard-suite.yaml
 - runFlow: ../_shared/launch-clean.yaml
 - runFlow: ../auth/login-success.yaml
 - runFlow: ../wizard/wizard-smoke.yaml
@@ -23,15 +24,8 @@ name: TuIndice local certification E2E suite
 - runFlow: ../summary/summary-status-dialog.yaml
 - runFlow: ../summary/summary-profile-picture.yaml
 - runFlow: ../summary/summary-outdated-credentials.yaml
-- runFlow: ../_shared/launch-clean.yaml
-- runFlow: ../auth/login-success.yaml
-- runFlow: ../wizard/wizard-smoke.yaml
-- runFlow: ../record/record-smoke.yaml
-- runFlow: ../record/record-term-selection.yaml
+- runFlow: record-suite.yaml
 - runFlow: enrollmentproof-suite.yaml
-- runFlow: ../record/record-attempt-overrides.yaml
-- runFlow: ../record/record-synthetic-term-search-empty.yaml
-- runFlow: ../record/record-synthetic-term-lifecycle.yaml
 - runFlow: pensum-suite.yaml
 - runFlow: subjects-suite.yaml
 - runFlow: evaluations-suite.yaml

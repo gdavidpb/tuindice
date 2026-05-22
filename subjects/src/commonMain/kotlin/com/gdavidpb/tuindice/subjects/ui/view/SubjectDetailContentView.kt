@@ -41,8 +41,8 @@ fun SubjectDetailContentView(
 	val initialScrollOffsetPx = with(density) {
 		initialScrollOffset.roundToPx()
 	}
-	val chartsEnterThresholdPx = with(density) { 420.dp.roundToPx() }
-	val chartsExitThresholdPx = with(density) { 320.dp.roundToPx() }
+	val chartsEnterThresholdPx = with(density) { 220.dp.roundToPx() }
+	val chartsExitThresholdPx = with(density) { 160.dp.roundToPx() }
 	val scrollState = rememberScrollState(initial = initialScrollOffsetPx)
 	var areChartsVisible by remember(initialScrollOffsetPx) {
 		mutableStateOf(initialScrollOffsetPx >= chartsEnterThresholdPx)
@@ -52,10 +52,18 @@ fun SubjectDetailContentView(
 		scrollState.scrollTo(initialScrollOffsetPx)
 	}
 
-	LaunchedEffect(scrollState.value) {
+	LaunchedEffect(scrollState.value, scrollState.maxValue) {
+		val dynamicEnterThresholdPx = minOf(
+			chartsEnterThresholdPx,
+			((scrollState.maxValue * 4) / 5).coerceAtLeast(1)
+		)
+		val dynamicExitThresholdPx = minOf(
+			chartsExitThresholdPx,
+			((dynamicEnterThresholdPx * 7) / 10).coerceAtLeast(0)
+		)
 		val nextChartsVisible = when {
-			areChartsVisible && scrollState.value <= chartsExitThresholdPx -> false
-			!areChartsVisible && scrollState.value >= chartsEnterThresholdPx -> true
+			areChartsVisible && scrollState.value <= dynamicExitThresholdPx -> false
+			!areChartsVisible && scrollState.value >= dynamicEnterThresholdPx -> true
 			else -> areChartsVisible
 		}
 
@@ -106,6 +114,7 @@ fun SubjectDetailContentView(
 		)
 
 		Text(
+			modifier = Modifier.testTag(SubjectsUiTags.GeneratedAt),
 			text = detail.generatedAtText,
 			style = MaterialTheme.typography.bodySmall,
 			color = MaterialTheme.colorScheme.onSurfaceVariant

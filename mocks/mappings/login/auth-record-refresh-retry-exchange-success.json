@@ -1,0 +1,33 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-record-refresh-retry-login",
+  "requiredScenarioState": "BootstrapIssued",
+  "newScenarioState": "TokensIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/token/exchange",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer bootstrap.mock.record.refresh.retry.token"
+      },
+      "X-Attestation-Token": {
+        "matches": "attestation\\.mock\\.proof\\.(android|ios)"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "record-refresh-retry-user",
+      "usb_id": "88-88888",
+      "session_id": "record-refresh-retry-session",
+      "access_token": "record.refresh.retry.mock.access",
+      "refresh_token": "record.refresh.retry.mock.refresh",
+      "expires_in": 3600
+    },
+    "fixedDelayMilliseconds": 1000
+  }
+}

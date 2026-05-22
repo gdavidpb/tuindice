@@ -360,10 +360,10 @@ actions:
     reason: screen bootstrap
   - id: record.Record.RefreshRecord
     classification: user
-    variants: [success]
+    variants: [success, failed-retry]
     selector: base_error_view_retry_button
-    flow: e2e/maestro/flows/record/record-smoke.yaml
-    fixture_state: record-success
+    flow: e2e/maestro/flows/record/record-refresh-retry.yaml
+    fixture_state: record-refresh-retry
   - id: record.Record.SetViewMode
     classification: user
     variants: [historical, projection]
@@ -470,15 +470,15 @@ actions:
 
   - id: wizard.Wizard.Advance
     classification: user
-    variants: [next-step]
+    variants: [next-step, step-sequence]
     selector: wizard_primary_button
-    flow: e2e/maestro/flows/wizard/wizard-smoke.yaml
+    flow: e2e/maestro/flows/wizard/wizard-navigation-focus.yaml
     fixture_state: first-launch
   - id: wizard.Wizard.Back
     classification: user
     variants: [previous-step]
     selector: wizard_back_button
-    flow: e2e/maestro/flows/wizard/wizard-smoke.yaml
+    flow: e2e/maestro/flows/wizard/wizard-navigation-focus.yaml
     fixture_state: first-launch
   - id: wizard.Wizard.Dismiss
     classification: user
@@ -490,47 +490,47 @@ actions:
     classification: user
     variants: [finish]
     selector: wizard_primary_button
-    flow: e2e/maestro/flows/wizard/wizard-smoke.yaml
+    flow: e2e/maestro/flows/wizard/wizard-finish.yaml
     fixture_state: first-launch
   - id: wizard.Wizard.OpenSubjectDetail
     classification: user
     variants: [guided-subject-detail]
-    selector: subjects_content
-    flow: e2e/maestro/flows/wizard/wizard-smoke.yaml
+    selector: pensum_node_subject_stats_button_ma1111
+    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
     fixture_state: first-launch
   - id: wizard.Wizard.OpenEvaluationForm
     classification: user
     variants: [guided-evaluation-form]
-    selector: evaluation_content_container
-    flow: e2e/maestro/flows/wizard/wizard-smoke.yaml
+    selector: evaluations_add_fab
+    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
     fixture_state: first-launch
   - id: wizard.Wizard.ConsumeTopBarAction
     classification: user
     variants: [enrollment-proof-consumed]
     selector: base_top_app_bar_action_enrollment_proof
-    flow: e2e/maestro/flows/wizard/wizard-smoke.yaml
+    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
     fixture_state: first-launch
   - id: wizard.Wizard.SelectSubjectTab
     classification: user
     variants: [career, global]
     selector: subjects_global_tab
-    flow: e2e/maestro/flows/wizard/wizard-smoke.yaml
+    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
     fixture_state: first-launch
   - id: wizard.Wizard.SetRecordViewMode
     classification: user
     variants: [historical, projection]
     selector: record_top_bar_view_mode_switch
-    flow: e2e/maestro/flows/wizard/wizard-smoke.yaml
+    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
     fixture_state: first-launch
   - id: wizard.Wizard.SelectTerm
     classification: user
     variants: [guided-term]
-    selector: record_term_selector_row
-    flow: e2e/maestro/flows/wizard/wizard-smoke.yaml
+    selector: record_term_chip_2024-3
+    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
     fixture_state: first-launch
   - id: wizard.Wizard.SetSubjectChartsVisible
     classification: user
     variants: [show, hide]
-    selector: wizard_focus_overlay
-    flow: e2e/maestro/flows/wizard/wizard-smoke.yaml
+    selector: subjects_charts
+    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
     fixture_state: first-launch

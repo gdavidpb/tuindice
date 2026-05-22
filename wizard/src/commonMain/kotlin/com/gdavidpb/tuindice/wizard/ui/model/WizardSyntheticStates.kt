@@ -498,6 +498,16 @@ private fun sampleAcademicRecord() = AcademicRecord(
 	),
 	terms = listOf(
 		AcademicTerm(
+			id = "2024-3",
+			periodYear = 2024,
+			periodCode = AcademicTermPeriod.SEP_DEC,
+			kind = TermKind.HISTORICAL,
+			attempts = listOf(
+				approvedAttempt("CI2511", "Lógica Simbólica", 4, 4),
+				approvedAttempt("ID1111", "Inglés I", 3, 5)
+			)
+		),
+		AcademicTerm(
 			id = HISTORICAL_TERM_ID,
 			periodYear = 2025,
 			periodCode = AcademicTermPeriod.SEP_DEC,

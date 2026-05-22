@@ -63,7 +63,16 @@ flows:
       - maincore.Browser.NavigateTo
       - maincore.Browser.OpenExternalResource
       - wizard.Wizard.Advance
+      - wizard.Wizard.Back
       - wizard.Wizard.Dismiss
+      - wizard.Wizard.Finish
+      - wizard.Wizard.OpenSubjectDetail
+      - wizard.Wizard.OpenEvaluationForm
+      - wizard.Wizard.ConsumeTopBarAction
+      - wizard.Wizard.SelectSubjectTab
+      - wizard.Wizard.SetRecordViewMode
+      - wizard.Wizard.SelectTerm
+      - wizard.Wizard.SetSubjectChartsVisible
       - summary.Summary.RefreshSummary
       - summary.Summary.OpenProfilePictureSettings
       - summary.Summary.RemoveProfilePicture
@@ -389,12 +398,116 @@ flows:
     variant: welcome-skip
     fixture_state: first-launch
     actions_covered:
-      - wizard.Wizard.Advance
       - wizard.Wizard.Dismiss
     primary_selectors:
       - wizard_welcome_screen
       - wizard_primary_button
       - wizard_skip_button
+  - id: wizard-navigation-focus
+    path: e2e/maestro/flows/wizard/wizard-navigation-focus.yaml
+    module: wizard
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: next-back-focus-overlay
+    fixture_state: first-launch
+    actions_covered:
+      - wizard.Wizard.Advance
+      - wizard.Wizard.Back
+    primary_selectors:
+      - wizard_screen
+      - wizard_guide_bar
+      - wizard_primary_button
+      - wizard_back_button
+      - wizard_progress_text
+      - wizard_focus_overlay
+      - wizard_focus_label
+      - wizard_current_step_summary
+      - wizard_current_step_record
+      - wizard_current_step_record_actions
+  - id: wizard-guided-actions
+    path: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
+    module: wizard
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: record-pensum-subject-evaluation-guidance
+    fixture_state: first-launch
+    actions_covered:
+      - wizard.Wizard.Advance
+      - wizard.Wizard.OpenSubjectDetail
+      - wizard.Wizard.OpenEvaluationForm
+      - wizard.Wizard.ConsumeTopBarAction
+      - wizard.Wizard.SelectSubjectTab
+      - wizard.Wizard.SetRecordViewMode
+      - wizard.Wizard.SelectTerm
+      - wizard.Wizard.SetSubjectChartsVisible
+    primary_selectors:
+      - record_top_bar_view_mode_switch
+      - record_term_chip_2025-3
+      - record_term_chip_2024-3
+      - base_top_app_bar_action_enrollment_proof
+      - pensum_node_ma1111
+      - pensum_node_subject_stats_button_ma1111
+      - subjects_global_tab
+      - subjects_charts
+      - subjects_generated_at
+      - evaluations_add_fab
+      - evaluation_content_container
+  - id: wizard-finish
+    path: e2e/maestro/flows/wizard/wizard-finish.yaml
+    module: wizard
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: complete-wizard
+    fixture_state: first-launch
+    actions_covered:
+      - wizard.Wizard.Advance
+      - wizard.Wizard.Finish
+    primary_selectors:
+      - wizard_primary_button
+      - wizard_current_step_summary
+      - wizard_current_step_record
+      - wizard_current_step_record_actions
+      - wizard_current_step_create_synthetic_term
+      - wizard_current_step_pensum
+      - wizard_current_step_subject_detail
+      - wizard_current_step_subject_charts
+      - wizard_current_step_evaluations
+      - wizard_current_step_evaluation_swipe
+      - wizard_current_step_evaluation_form
+      - wizard_current_step_about
+      - summary_content_container
+  - id: wizard-suite
+    path: e2e/maestro/flows/suites/wizard-suite.yaml
+    module: wizard
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: exhaustive-local
+    fixture_state: wizard-suite
+    actions_covered:
+      - wizard.Wizard.Advance
+      - wizard.Wizard.Back
+      - wizard.Wizard.Dismiss
+      - wizard.Wizard.Finish
+      - wizard.Wizard.OpenSubjectDetail
+      - wizard.Wizard.OpenEvaluationForm
+      - wizard.Wizard.ConsumeTopBarAction
+      - wizard.Wizard.SelectSubjectTab
+      - wizard.Wizard.SetRecordViewMode
+      - wizard.Wizard.SelectTerm
+      - wizard.Wizard.SetSubjectChartsVisible
+    primary_selectors:
+      - wizard_welcome_screen
+      - wizard_primary_button
+      - wizard_back_button
+      - wizard_focus_overlay
+      - record_top_bar_view_mode_switch
+      - pensum_node_subject_stats_button_ma1111
+      - subjects_charts
+      - evaluations_add_fab
   - id: summary-smoke
     path: e2e/maestro/flows/summary/summary-smoke.yaml
     module: summary
@@ -486,10 +599,27 @@ flows:
     variant: content-view-mode
     fixture_state: record-success
     actions_covered:
+      - record.Record.RefreshRecord
       - record.Record.SetViewMode
     primary_selectors:
       - record_content_container
       - record_top_bar_view_mode_switch
+  - id: record-refresh-retry
+    path: e2e/maestro/flows/record/record-refresh-retry.yaml
+    module: record
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: failed-retry
+    fixture_state: record-refresh-retry
+    actions_covered:
+      - record.Record.RefreshRecord
+    primary_selectors:
+      - base_error_view_container
+      - base_error_view_retry_button
+      - record_content_container
+      - record_term_selector_row
+      - record_attempts_list
   - id: record-term-selection
     path: e2e/maestro/flows/record/record-term-selection.yaml
     module: record
@@ -572,6 +702,30 @@ flows:
       - record_delete_synthetic_term_message
       - record_attempt_item_2026-SEP_DEC-EC5201-1
       - record_attempt_item_2026-SEP_DEC-EC5333-2
+  - id: record-suite
+    path: e2e/maestro/flows/suites/record-suite.yaml
+    module: record
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: exhaustive-local
+    fixture_state: record-suite
+    actions_covered:
+      - record.CreateSyntheticTerm.UpdateQuery
+      - record.CreateSyntheticTerm.CreateTerm
+      - record.Record.RefreshRecord
+      - record.Record.SetViewMode
+      - record.Record.SelectTerm
+      - record.Record.UpsertAttemptSelection
+      - record.Record.DeleteSyntheticTerm
+    primary_selectors:
+      - base_error_view_retry_button
+      - record_content_container
+      - record_term_selector_row
+      - record_top_bar_view_mode_switch
+      - record_attempts_list
+      - record_create_synthetic_term_fab
+      - record_delete_synthetic_term_button
   - id: enrollmentproof-smoke
     path: e2e/maestro/flows/enrollmentproof/enrollmentproof-smoke.yaml
     module: enrollmentproof
@@ -1125,13 +1279,13 @@ module_rollout:
     next_flows: []
   record:
     status: active
-    next_flows: [refresh-failed-retry]
+    next_flows: []
   pensum:
     status: active
-    next_flows: [version-selection, modality-selection, node-detail, subject-detail-navigation]
+    next_flows: []
   subjects:
     status: active
-    next_flows: [career-tab, global-tab, unavailable, failed-retry]
+    next_flows: []
   evaluations:
     status: active
     next_flows: []
@@ -1140,7 +1294,7 @@ module_rollout:
     next_flows: []
   wizard:
     status: active
-    next_flows: [next-back, focus-overlay, finish]
+    next_flows: []
   about:
     status: active
     next_flows: []

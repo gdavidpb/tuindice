@@ -82,7 +82,9 @@ fun WizardGuideBar(
 				horizontalArrangement = Arrangement.spacedBy(12.dp)
 			) {
 				Text(
-					modifier = Modifier.weight(1f),
+					modifier = Modifier
+						.weight(1f)
+						.testTag(WizardUiTags.currentStep(step.id)),
 					text = stringResource(step.title),
 					style = MaterialTheme.typography.titleMedium,
 					fontWeight = FontWeight.SemiBold,
