@@ -1046,6 +1046,70 @@ flows:
       - about_open_privacy
       - about_open_support
       - maincore_browser_container
+  - id: about-external-url-links
+    path: e2e/maestro/flows/about/external-url-links.yaml
+    module: about
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: external-url-links
+    fixture_state: static
+    platform_edge: Direct external browser hand-off is triggered by Maestro; host/system assertions remain assigned to UI Automator/XCUITest.
+    actions_covered:
+      - about.About.OpenUrl
+    primary_selectors:
+      - about_open_creative_commons
+      - about_open_x
+      - about_open_github
+      - about_open_kotlin
+      - about_open_dst
+  - id: about-platform-edge-triggers
+    path: e2e/maestro/flows/about/platform-edge-triggers.yaml
+    module: about
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: platform-edge-triggers
+    fixture_state: static
+    platform_edge: Store, mail composer, and share sheet result assertions remain assigned to UI Automator/XCUITest.
+    actions_covered:
+      - about.About.ShareApp
+      - about.About.RateOnStore
+      - about.About.ContactDeveloper
+      - about.About.ReportBug
+    primary_selectors:
+      - about_share_app
+      - about_rate_on_store
+      - about_contact_developer
+      - about_report_bug
+  - id: about-suite
+    path: e2e/maestro/flows/suites/about-suite.yaml
+    module: about
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: exhaustive-local
+    fixture_state: static
+    platform_edge: External/system surfaces are triggered by Maestro and asserted in platform-specific suites.
+    actions_covered:
+      - about.About.OpenTermsAndConditions
+      - about.About.OpenPrivacyPolicy
+      - about.About.OpenSupport
+      - about.About.OpenUrl
+      - about.About.ShareApp
+      - about.About.RateOnStore
+      - about.About.ContactDeveloper
+      - about.About.ReportBug
+    primary_selectors:
+      - about_content_container
+      - about_open_terms
+      - about_open_privacy
+      - about_open_support
+      - about_open_github
+      - about_share_app
+      - about_rate_on_store
+      - about_contact_developer
+      - about_report_bug
 module_rollout:
   testkit:
     status: active
@@ -1079,7 +1143,7 @@ module_rollout:
     next_flows: [next-back, focus-overlay, finish]
   about:
     status: active
-    next_flows: [external-resource-dialog, support, share, rate]
+    next_flows: []
 platform_edge_cases:
   android:
     status: planned

@@ -133,4 +133,13 @@ about_content_container
 about_open_terms
 about_open_privacy
 about_open_support
+about_open_creative_commons
+about_open_x
+about_share_app
+about_rate_on_store
+about_open_github
+about_contact_developer
+about_report_bug
+about_open_kotlin
+about_open_dst
 base_top_app_bar_action_sign_out

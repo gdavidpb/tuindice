@@ -12,49 +12,50 @@ actions:
     classification: user
     variants: [internal-browser]
     selector: about_open_terms
-    flow: e2e/maestro/flows/about/internal-browser-links.yaml
+    flow: e2e/maestro/flows/suites/about-suite.yaml
     fixture_state: static
   - id: about.About.OpenPrivacyPolicy
     classification: user
     variants: [internal-browser]
     selector: about_open_privacy
-    flow: e2e/maestro/flows/about/internal-browser-links.yaml
+    flow: e2e/maestro/flows/suites/about-suite.yaml
     fixture_state: static
   - id: about.About.OpenSupport
     classification: user
     variants: [internal-browser]
     selector: about_open_support
-    flow: e2e/maestro/flows/about/internal-browser-links.yaml
+    flow: e2e/maestro/flows/suites/about-suite.yaml
     fixture_state: static
   - id: about.About.OpenUrl
     classification: user
-    variants: [dependency-link, social-link, repository-link]
+    variants: [license-link, social-link, repository-link, dependency-link, special-thanks-link]
     selector: about_open_github
-    flow: e2e/maestro/flows/about/about-smoke.yaml
+    flow: e2e/maestro/flows/suites/about-suite.yaml
     fixture_state: static
+    platform_edge: direct external URL hand-off requires host/system assertion
   - id: about.About.RateOnStore
     classification: platform-edge
     variants: [store-intent]
     selector: about_rate_on_store
-    flow: e2e/maestro/flows/about/about-smoke.yaml
+    flow: e2e/maestro/flows/suites/about-suite.yaml
     platform_edge: store intent requires host/system assertion
   - id: about.About.ReportBug
     classification: platform-edge
     variants: [mail-or-browser-intent]
     selector: about_report_bug
-    flow: e2e/maestro/flows/about/about-smoke.yaml
+    flow: e2e/maestro/flows/suites/about-suite.yaml
     platform_edge: external composer/browser requires host/system assertion
   - id: about.About.ContactDeveloper
     classification: platform-edge
     variants: [mail-intent]
     selector: about_contact_developer
-    flow: e2e/maestro/flows/about/about-smoke.yaml
+    flow: e2e/maestro/flows/suites/about-suite.yaml
     platform_edge: mail composer requires host/system assertion
   - id: about.About.ShareApp
     classification: platform-edge
     variants: [share-sheet]
     selector: about_share_app
-    flow: e2e/maestro/flows/about/about-smoke.yaml
+    flow: e2e/maestro/flows/suites/about-suite.yaml
     platform_edge: share sheet requires UI Automator/XCUITest
 
   - id: auth.SignIn.SetUsbId

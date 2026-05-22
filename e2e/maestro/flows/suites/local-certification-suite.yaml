@@ -35,6 +35,5 @@ name: TuIndice local certification E2E suite
 - runFlow: pensum-suite.yaml
 - runFlow: subjects-suite.yaml
 - runFlow: evaluations-suite.yaml
-- runFlow: ../about/about-smoke.yaml
-- runFlow: ../about/internal-browser-links.yaml
+- runFlow: about-suite.yaml
 - runFlow: ../auth/sign-out.yaml
