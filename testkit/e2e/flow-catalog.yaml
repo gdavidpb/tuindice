@@ -20,6 +20,12 @@ flows:
       - pensum.Pensum.RefreshPensum
       - subjects.SubjectSearch.UpdateQuery
       - evaluations.Evaluations.AddEvaluation
+      - evaluations.Evaluations.ShowEvaluationGradeDialog
+      - evaluations.Evaluations.SetEvaluationGrade
+      - evaluations.Evaluations.EditEvaluation
+      - evaluations.Evaluations.RemoveEvaluation
+      - evaluations.Evaluation.ClickAddEvaluation
+      - evaluations.Evaluation.ClickEditEvaluation
       - about.About.OpenPrivacyPolicy
       - auth.SignOut.ConfirmSignOut
     covers:
@@ -775,12 +781,12 @@ flows:
     fixture_state: evaluations-content
     actions_covered:
       - evaluations.Evaluations.AddEvaluation
-      - evaluations.Evaluation.SetAttempt
-      - evaluations.Evaluation.SetType
     primary_selectors:
       - evaluations_content_container
+      - evaluations_list
       - evaluations_add_fab
       - evaluation_content_container
+      - evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
   - id: evaluations-filters-and-form
     path: e2e/maestro/flows/evaluations/evaluations-filters-and-form.yaml
     module: evaluations
@@ -796,6 +802,7 @@ flows:
       - evaluations.Evaluation.SetAttempt
       - evaluations.Evaluation.SetType
       - evaluations.Evaluation.SetDate
+      - evaluations.Evaluation.SetGrade
       - evaluations.Evaluation.SetMaxGrade
       - evaluations.Evaluation.ClickGrade
       - evaluations.Evaluation.ClickMaxGrade
@@ -807,6 +814,121 @@ flows:
       - evaluation_date_select_button
       - evaluation_max_grade_chip
       - evaluation_grade_chip
+      - evaluation_grade_wheel_picker
+  - id: evaluations-suite
+    path: e2e/maestro/flows/suites/evaluations-suite.yaml
+    module: evaluations
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: exhaustive-local
+    fixture_state: evaluations-suite
+    actions_covered:
+      - evaluations.Evaluations.AddEvaluation
+      - evaluations.Evaluations.CheckEvaluationFilter
+      - evaluations.Evaluations.UncheckEvaluationFilter
+      - evaluations.Evaluations.ClearEvaluationFilters
+      - evaluations.Evaluations.ShowEvaluationGradeDialog
+      - evaluations.Evaluations.SetEvaluationGrade
+      - evaluations.Evaluations.EditEvaluation
+      - evaluations.Evaluations.RemoveEvaluation
+      - evaluations.Evaluation.SetAttempt
+      - evaluations.Evaluation.SetType
+      - evaluations.Evaluation.SetDate
+      - evaluations.Evaluation.SetGrade
+      - evaluations.Evaluation.SetMaxGrade
+      - evaluations.Evaluation.ClickGrade
+      - evaluations.Evaluation.ClickMaxGrade
+      - evaluations.Evaluation.ClickAddEvaluation
+      - evaluations.Evaluation.ClickEditEvaluation
+    primary_selectors:
+      - evaluations_content_container
+      - evaluations_filter_chip_ci5311
+      - evaluations_clear_filters_fab
+      - evaluation_grade_action_button
+      - evaluation_done_fab
+      - evaluation_swipe_edit_action
+      - evaluation_swipe_delete_action
+  - id: evaluations-grade-from-list
+    path: e2e/maestro/flows/evaluations/evaluations-grade-from-list.yaml
+    module: evaluations
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: list-grade-dialog-cancel-confirm
+    fixture_state: patch-evaluations-success
+    actions_covered:
+      - evaluations.Evaluations.ShowEvaluationGradeDialog
+      - evaluations.Evaluations.SetEvaluationGrade
+    primary_selectors:
+      - evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
+      - evaluation_grade_action_button
+      - evaluation_grade_wheel_picker
+      - evaluation_dialog_dismiss_button
+      - evaluation_dialog_confirm_button
+      - base_snackbar_container
+  - id: evaluations-add-submit
+    path: e2e/maestro/flows/evaluations/evaluations-add-submit.yaml
+    module: evaluations
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: create-submit-date-grade
+    fixture_state: post-evaluations-success
+    actions_covered:
+      - evaluations.Evaluations.AddEvaluation
+      - evaluations.Evaluation.SetAttempt
+      - evaluations.Evaluation.SetType
+      - evaluations.Evaluation.SetDate
+      - evaluations.Evaluation.SetMaxGrade
+      - evaluations.Evaluation.SetGrade
+      - evaluations.Evaluation.ClickGrade
+      - evaluations.Evaluation.ClickMaxGrade
+      - evaluations.Evaluation.ClickAddEvaluation
+    primary_selectors:
+      - evaluations_add_fab
+      - evaluation_content_container
+      - evaluation_subject_chip_e21f0d7e481d13d19f328d6818ce4d77
+      - evaluation_type_chip_test
+      - evaluation_date_select_button
+      - evaluation_calendar_day_cell_15
+      - evaluation_max_grade_chip
+      - evaluation_grade_chip
+      - evaluation_done_fab
+      - base_snackbar_container
+  - id: evaluations-edit-submit
+    path: e2e/maestro/flows/evaluations/evaluations-edit-submit.yaml
+    module: evaluations
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: swipe-edit-submit
+    fixture_state: patch-evaluations-success
+    actions_covered:
+      - evaluations.Evaluations.EditEvaluation
+      - evaluations.Evaluation.ClickEditEvaluation
+    primary_selectors:
+      - evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
+      - evaluation_swipe_to_dismiss_container
+      - evaluation_swipe_edit_action
+      - evaluation_content_container
+      - evaluation_done_fab
+      - base_snackbar_container
+  - id: evaluations-swipe-delete
+    path: e2e/maestro/flows/evaluations/evaluations-swipe-delete.yaml
+    module: evaluations
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: swipe-delete
+    fixture_state: delete-evaluations-success
+    actions_covered:
+      - evaluations.Evaluations.RemoveEvaluation
+    primary_selectors:
+      - evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
+      - evaluation_swipe_to_dismiss_container
+      - evaluation_swipe_delete_action
+      - base_snackbar_container
   - id: about-smoke
     path: e2e/maestro/flows/about/about-smoke.yaml
     module: about
@@ -865,7 +987,7 @@ module_rollout:
     next_flows: [career-tab, global-tab, unavailable, failed-retry]
   evaluations:
     status: active
-    next_flows: [filters, create, edit, date-picker, grade-picker, swipe-delete]
+    next_flows: []
   enrollmentproof:
     status: active
     next_flows: [success-file-open, outdated-credentials, error]

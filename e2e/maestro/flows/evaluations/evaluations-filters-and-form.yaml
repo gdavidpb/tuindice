@@ -1,5 +1,8 @@
 appId: com.gdavidpb.tuindice.debug
 ---
+- runFlow: ../_shared/launch-clean.yaml
+- runFlow: ../auth/login-success.yaml
+- runFlow: ../wizard/wizard-smoke.yaml
 - tapOn:
     id: maincore_tuindice_bottom_bar_evaluations_item
 - extendedWaitUntil:
@@ -78,6 +81,8 @@ appId: com.gdavidpb.tuindice.debug
     id: evaluation_date_dialog_accept_button
 - assertVisible:
     id: evaluation_date_picker
+- assertNotVisible:
+    id: evaluation_grade_chip
 - tapOn:
     id: evaluation_max_grade_chip
 - extendedWaitUntil:
@@ -96,8 +101,10 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: evaluation_dialog_title
     timeout: 10000
+- assertVisible:
+    id: evaluation_grade_wheel_picker
 - tapOn:
-    id: evaluation_dialog_dismiss_button
+    id: evaluation_dialog_confirm_button
 - tapOn:
     id: evaluation_date_no_date_button
 - tapOn:

@@ -10,24 +10,28 @@ appId: com.gdavidpb.tuindice.debug
       id: evaluations_content_container
     timeout: 30000
 - assertVisible:
-    id: evaluations_filter_row
-- assertVisible:
-    id: evaluations_list
-- assertVisible:
     id: evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
-- tapOn:
-    id: evaluations_add_fab
+- swipe:
+    direction: LEFT
+    duration: 600
+- runFlow:
+    when:
+      notVisible:
+        id: evaluation_swipe_delete_action
+    commands:
+      - tapOn:
+          id: evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
 - extendedWaitUntil:
     visible:
-      id: evaluation_content_container
+      id: evaluation_swipe_delete_action
+    timeout: 10000
+- assertVisible:
+    id: evaluation_swipe_to_dismiss_container
+- tapOn:
+    id: evaluation_swipe_delete_action
+- extendedWaitUntil:
+    visible:
+      id: base_snackbar_container
     timeout: 15000
 - assertVisible:
-    id: evaluation_subject_picker_row
-- assertVisible:
-    id: evaluation_type_picker_row
-- tapOn:
-    id: maincore_tuindice_top_bar_back_button
-- extendedWaitUntil:
-    visible:
-      id: evaluations_content_container
-    timeout: 10000
+    id: evaluations_content_container

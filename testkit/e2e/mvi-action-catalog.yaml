@@ -177,7 +177,7 @@ actions:
     classification: user
     variants: [wheel-change, min-bound, max-bound]
     selector: evaluation_grade_wheel_picker
-    flow: e2e/maestro/flows/evaluations/evaluations-smoke.yaml
+    flow: e2e/maestro/flows/evaluations/evaluations-filters-and-form.yaml
     fixture_state: evaluations-content
   - id: evaluations.Evaluation.SetMaxGrade
     classification: user
@@ -201,13 +201,13 @@ actions:
     classification: user
     variants: [success, missing-attempt, missing-type, missing-max-grade, already-exists]
     selector: evaluation_done_fab
-    flow: e2e/maestro/flows/evaluations/evaluations-smoke.yaml
+    flow: e2e/maestro/flows/evaluations/evaluations-add-submit.yaml
     fixture_state: post-evaluations-success
   - id: evaluations.Evaluation.ClickEditEvaluation
     classification: user
     variants: [success, not-found]
     selector: evaluation_done_fab
-    flow: e2e/maestro/flows/evaluations/evaluations-smoke.yaml
+    flow: e2e/maestro/flows/evaluations/evaluations-edit-submit.yaml
     fixture_state: patch-evaluations-success
 
   - id: evaluations.Evaluations.LoadEvaluations
@@ -247,25 +247,25 @@ actions:
     classification: user
     variants: [open, cancel]
     selector: evaluation_grade_action_button
-    flow: e2e/maestro/flows/evaluations/evaluations-smoke.yaml
+    flow: e2e/maestro/flows/evaluations/evaluations-grade-from-list.yaml
     fixture_state: evaluations-content
   - id: evaluations.Evaluations.SetEvaluationGrade
     classification: user
     variants: [confirm-grade]
     selector: evaluation_dialog_confirm_button
-    flow: e2e/maestro/flows/evaluations/evaluations-smoke.yaml
+    flow: e2e/maestro/flows/evaluations/evaluations-grade-from-list.yaml
     fixture_state: patch-evaluations-success
   - id: evaluations.Evaluations.EditEvaluation
     classification: user
     variants: [swipe-edit, card-edit]
     selector: evaluation_swipe_edit_action
-    flow: e2e/maestro/flows/evaluations/evaluations-smoke.yaml
+    flow: e2e/maestro/flows/evaluations/evaluations-edit-submit.yaml
     fixture_state: evaluations-content
   - id: evaluations.Evaluations.RemoveEvaluation
     classification: user
     variants: [swipe-delete, not-found]
     selector: evaluation_swipe_delete_action
-    flow: e2e/maestro/flows/evaluations/evaluations-smoke.yaml
+    flow: e2e/maestro/flows/evaluations/evaluations-swipe-delete.yaml
     fixture_state: delete-evaluations-success
 
   - id: maincore.Browser.NavigateTo

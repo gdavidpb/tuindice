@@ -1,0 +1,9 @@
+appId: com.gdavidpb.tuindice.debug
+name: TuIndice evaluations E2E suite
+---
+- runFlow: ../evaluations/evaluations-smoke.yaml
+- runFlow: ../evaluations/evaluations-filters-and-form.yaml
+- runFlow: ../evaluations/evaluations-grade-from-list.yaml
+- runFlow: ../evaluations/evaluations-edit-submit.yaml
+- runFlow: ../evaluations/evaluations-swipe-delete.yaml
+- runFlow: ../evaluations/evaluations-add-submit.yaml
