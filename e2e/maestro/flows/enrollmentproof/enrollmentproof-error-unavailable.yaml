@@ -3,11 +3,10 @@ appId: com.gdavidpb.tuindice.debug
 - runFlow: ../_shared/launch-clean.yaml
 - tapOn:
     id: auth_usb_id_text_field
-- inputText: "8888888"
-- inputText: "8"
+- inputText: "2222222"
 - tapOn:
     id: auth_password_text_field
-- inputText: "summary-unavailable-pass"
+- inputText: "enrollment-unavailable-pass"
 - tapOn:
     id: auth_sign_in_idle_container
 - tapOn:

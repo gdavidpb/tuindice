@@ -1,0 +1,33 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-enrollment-not-found-login",
+  "requiredScenarioState": "BootstrapIssued",
+  "newScenarioState": "TokensIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/token/exchange",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer bootstrap.mock.enrollment.notfound.token"
+      },
+      "X-Attestation-Token": {
+        "matches": "attestation\\.mock\\.proof\\.(android|ios)"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "enrollment-not-found-user",
+      "usb_id": "23-45678",
+      "session_id": "enrollment-not-found-session",
+      "access_token": "enrollment.notfound.mock.access",
+      "refresh_token": "enrollment.notfound.mock.refresh",
+      "expires_in": 3600
+    },
+    "fixedDelayMilliseconds": 1000
+  }
+}

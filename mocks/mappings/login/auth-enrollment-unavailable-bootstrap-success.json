@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-enrollment-unavailable-login",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "BootstrapIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic MjItMjIyMjI6ZW5yb2xsbWVudC11bmF2YWlsYWJsZS1wYXNz"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "enrollment-unavailable-user",
+      "usb_id": "22-22222",
+      "access_token": "bootstrap.mock.enrollment.unavailable.token",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

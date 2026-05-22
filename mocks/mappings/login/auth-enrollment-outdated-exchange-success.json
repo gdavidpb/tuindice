@@ -1,0 +1,33 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-enrollment-outdated-login",
+  "requiredScenarioState": "BootstrapIssued",
+  "newScenarioState": "TokensIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/token/exchange",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer bootstrap.mock.enrollment.outdated.token"
+      },
+      "X-Attestation-Token": {
+        "matches": "attestation\\.mock\\.proof\\.(android|ios)"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "enrollment-outdated-user",
+      "usb_id": "33-33333",
+      "session_id": "enrollment-outdated-session",
+      "access_token": "enrollment.outdated.mock.access",
+      "refresh_token": "enrollment.outdated.mock.refresh",
+      "expires_in": 3600
+    },
+    "fixedDelayMilliseconds": 1000
+  }
+}

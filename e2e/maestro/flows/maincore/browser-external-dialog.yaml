@@ -16,7 +16,8 @@ appId: com.gdavidpb.tuindice.debug
     when:
       platform: Android
     commands:
-      - tapOn: "Abrir enlace externo"
+      - tapOn:
+          point: "50%,25%"
 - runFlow:
     when:
       platform: iOS
