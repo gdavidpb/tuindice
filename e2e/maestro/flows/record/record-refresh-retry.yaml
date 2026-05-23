@@ -9,19 +9,12 @@ appId: com.gdavidpb.tuindice.debug
     id: auth_password_text_field
 - inputText: "record-retry-pass"
 - tapOn:
-    id: auth_sign_in_idle_container
+    id: auth_keyboard_dismiss_area
 - runFlow:
     when:
       platform: Android
     commands:
       - hideKeyboard
-- runFlow:
-    when:
-      platform: iOS
-    commands:
-      - swipe:
-          direction: DOWN
-          duration: 600
 - tapOn:
     id: auth_sign_in_button
 - extendedWaitUntil:

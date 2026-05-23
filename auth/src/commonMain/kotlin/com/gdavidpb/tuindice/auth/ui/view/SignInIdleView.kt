@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.auth.ui.view
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,8 +14,10 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
@@ -42,6 +46,7 @@ fun SignInIdleView(
 	passwordLabelText: String,
 	signInButtonText: String
 ) {
+	val focusManager = LocalFocusManager.current
 	val isSignInEnabled = state.usbId.isUsbId() && state.password.isNotEmpty()
 	val policyIntroText = policiesText.substringBefore(termsAndConditionsText).trimEnd()
 	val policyTextStyle = TextStyle(
@@ -60,10 +65,18 @@ fun SignInIdleView(
 		horizontalAlignment = Alignment.CenterHorizontally,
 		verticalArrangement = Arrangement.Center
 	) {
-		AppLogoView(
-			modifier = Modifier.padding(vertical = 32.dp),
-			contentDescription = null
-		)
+		Box(
+			modifier = Modifier
+				.testTag(AuthUiTags.KeyboardDismissArea)
+				.clickable(
+					interactionSource = remember { MutableInteractionSource() },
+					indication = null,
+					onClick = { focusManager.clearFocus(force = true) }
+				)
+				.padding(vertical = 32.dp)
+		) {
+			AppLogoView(contentDescription = null)
+		}
 
 		UsbIdTextField(
 			modifier = Modifier

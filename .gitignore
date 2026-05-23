@@ -9,6 +9,7 @@
 *.iml
 .DS_Store
 .externalNativeBuild
+xcuserdata/
 /scripts/
 GoogleService-Info.plist
 /mocks/.build/

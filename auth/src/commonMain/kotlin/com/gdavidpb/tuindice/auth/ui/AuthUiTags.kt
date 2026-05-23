@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.auth.ui
 
 object AuthUiTags {
 	const val SignInIdleContainer = "auth_sign_in_idle_container"
+	const val KeyboardDismissArea = "auth_keyboard_dismiss_area"
 	const val SignInLoggingInContainer = "auth_sign_in_logging_in_container"
 	const val SignInButton = "auth_sign_in_button"
 	const val UsbIdTextField = "auth_usb_id_text_field"
