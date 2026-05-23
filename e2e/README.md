@@ -34,6 +34,12 @@ Run commit-bound E2E evidence for release certification:
 ./gradlew e2eMaestroEvidenceLocal
 ```
 
+`e2eMaestroEvidenceLocal` runs Android and iOS in parallel when both local
+toolchains are available, prefixes live output with `[android]` and `[ios]`,
+and isolates WireMock plus temporary files per platform. Override the default
+ports or temporary roots with `E2E_ANDROID_WIREMOCK_PORT`,
+`E2E_IOS_WIREMOCK_PORT`, `E2E_ANDROID_TMP_DIR`, and `E2E_IOS_TMP_DIR`.
+
 Evidence is written to `build/e2e/certifications/<sha>/<platform>/<suite>/`.
 Set `E2E_PUBLISH_GITHUB_STATUS=1` to publish the required commit status, for example
 `local-e2e/android/auth-suite`.
