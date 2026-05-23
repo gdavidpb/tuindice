@@ -31,6 +31,23 @@ require_command() {
 	fi
 }
 
+capture_streamed_last_line() {
+	local result_variable="$1"
+	local output_file="$2"
+	shift 2
+
+	mkdir -p "$(dirname "${output_file}")"
+	set +e
+	"$@" 2>&1 | tee "${output_file}"
+	local command_status="${PIPESTATUS[0]}"
+	set -e
+	if [[ "${command_status}" != "0" ]]; then
+		return "${command_status}"
+	fi
+
+	printf -v "${result_variable}" '%s' "$(tail -n 1 "${output_file}")"
+}
+
 is_macos() {
 	[[ "$(uname -s)" == "Darwin" ]]
 }

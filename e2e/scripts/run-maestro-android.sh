@@ -9,7 +9,10 @@ require_command maestro
 "${SCRIPT_DIR}/start-wiremock.sh"
 reset_wiremock
 
-APK_PATH="$("${SCRIPT_DIR}/build-android-debug.sh" | tail -n 1)"
+capture_streamed_last_line \
+	APK_PATH \
+	"${E2E_TMP_DIR}/android-build-output.log" \
+	"${SCRIPT_DIR}/build-android-debug.sh"
 if [[ ! -f "${APK_PATH}" ]]; then
 	printf 'Android APK not found: %s\n' "${APK_PATH}" >&2
 	exit 1

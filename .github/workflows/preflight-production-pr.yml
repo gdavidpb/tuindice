@@ -11,11 +11,11 @@ concurrency:
 
 permissions:
   contents: read
-  statuses: read
+  statuses: write
 
 jobs:
-  preflight:
-    name: Android and release preflight
+  android-preflight:
+    name: Android preflight
     runs-on: ubuntu-latest
     timeout-minutes: 45
 
@@ -93,6 +93,7 @@ jobs:
           E2E_IOS_CONTEXTS_FILE: ${{ steps.changes.outputs.e2e_ios_contexts_file }}
           REQUIRES_E2E_CERTIFICATION: ${{ steps.changes.outputs.requires_e2e_certification }}
           HAS_RELEVANT_CHANGES: ${{ steps.changes.outputs.has_relevant_changes }}
+          E2E_REUSE_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           set -euo pipefail
           bash ./.github/scripts/preflight-production.sh
@@ -109,7 +110,7 @@ jobs:
 
   ios-preflight:
     name: iOS preflight
-    runs-on: macos-latest
+    runs-on: macos-26
     timeout-minutes: 60
 
     steps:
@@ -118,6 +119,12 @@ jobs:
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+
+      - name: Set up Xcode
+        run: |
+          set -euo pipefail
+          sudo xcode-select -s /Applications/Xcode_26.5.app/Contents/Developer
+          xcodebuild -version
 
       - name: Detect changed app pieces
         id: changes
@@ -177,14 +184,14 @@ jobs:
     name: preflight-production-pr
     runs-on: ubuntu-latest
     needs:
-      - preflight
+      - android-preflight
       - ios-preflight
     if: always()
     steps:
       - name: Verify preflight jobs
         run: |
           set -euo pipefail
-          android_result="${{ needs.preflight.result }}"
+          android_result="${{ needs.android-preflight.result }}"
           ios_result="${{ needs.ios-preflight.result }}"
           echo "Android preflight result: ${android_result}"
           echo "iOS preflight result: ${ios_result}"

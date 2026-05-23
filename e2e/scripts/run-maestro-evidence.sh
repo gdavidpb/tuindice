@@ -14,7 +14,9 @@ require_command jq
 
 COMMIT_SHA="${E2E_COMMIT_SHA:-$(git -C "${REPO_ROOT}" rev-parse HEAD)}"
 SUITE_ID="$(basename "${E2E_MAESTRO_SUITE}" .yaml)"
+E2E_FINGERPRINT="$("${SCRIPT_DIR}/e2e-fingerprint.sh" "${PLATFORM}" "${SUITE_ID}" "${COMMIT_SHA}")"
 CERTIFICATION_DIR="${E2E_CERTIFICATION_DIR:-${REPO_ROOT}/build/e2e/certifications/${COMMIT_SHA}/${PLATFORM}/${SUITE_ID}}"
+FINGERPRINT_CERTIFICATION_DIR="${REPO_ROOT}/build/e2e/certifications/by-fingerprint/${E2E_FINGERPRINT}/${PLATFORM}/${SUITE_ID}"
 STATUS_CONTEXT="local-e2e/${PLATFORM}/${SUITE_ID}"
 MANIFEST_FILE="${CERTIFICATION_DIR}/manifest.json"
 LOG_FILE="${CERTIFICATION_DIR}/maestro.log"
@@ -68,6 +70,7 @@ ios_build_number="$(awk -F= '$1 == "iosBuildNumber" { print $2 }' "${REPO_ROOT}/
 
 jq -n \
 	--arg commitSha "${COMMIT_SHA}" \
+	--arg e2eFingerprint "${E2E_FINGERPRINT}" \
 	--arg platform "${PLATFORM}" \
 	--arg suite "${SUITE_ID}" \
 	--arg suitePath "${E2E_MAESTRO_SUITE}" \
@@ -80,12 +83,14 @@ jq -n \
 	--arg junitReport "${REPORT_FILE}" \
 	--arg testOutputDir "${TEST_OUTPUT_DIR}" \
 	--arg debugOutputDir "${DEBUG_OUTPUT_DIR}" \
+	--arg fingerprintCertificationDir "${FINGERPRINT_CERTIFICATION_DIR}" \
 	--arg deviceInfo "${device_info}" \
 	--arg versionName "${version_name}" \
 	--arg androidVersionCode "${android_version_code}" \
 	--arg iosBuildNumber "${ios_build_number}" \
 	'{
 		commitSha: $commitSha,
+		e2eFingerprint: $e2eFingerprint,
 		platform: $platform,
 		suite: $suite,
 		suitePath: $suitePath,
@@ -98,6 +103,7 @@ jq -n \
 		junitReport: $junitReport,
 		testOutputDir: $testOutputDir,
 		debugOutputDir: $debugOutputDir,
+		fingerprintCertificationDir: $fingerprintCertificationDir,
 		deviceInfo: $deviceInfo,
 		appVersion: {
 			versionName: $versionName,
@@ -106,11 +112,16 @@ jq -n \
 		}
 	}' >"${MANIFEST_FILE}"
 
+if [[ "${CERTIFICATION_DIR}" != "${FINGERPRINT_CERTIFICATION_DIR}" ]]; then
+	mkdir -p "${FINGERPRINT_CERTIFICATION_DIR}"
+	cp -R "${CERTIFICATION_DIR}/." "${FINGERPRINT_CERTIFICATION_DIR}/"
+fi
+
 publish_state="success"
-publish_description="Local E2E ${SUITE_ID} passed for ${COMMIT_SHA:0:7}."
+publish_description="Local E2E ${SUITE_ID} passed for ${COMMIT_SHA:0:7} fp ${E2E_FINGERPRINT:0:12}."
 if [[ "$status" != "0" ]]; then
 	publish_state="failure"
-	publish_description="Local E2E ${SUITE_ID} failed for ${COMMIT_SHA:0:7}."
+	publish_description="Local E2E ${SUITE_ID} failed for ${COMMIT_SHA:0:7} fp ${E2E_FINGERPRINT:0:12}."
 fi
 
 if [[ "${E2E_PUBLISH_GITHUB_STATUS:-0}" == "1" ]]; then

@@ -22,7 +22,7 @@ env:
 jobs:
   deploy:
     name: Deploy production drafts
-    runs-on: macos-latest
+    runs-on: macos-26
     environment: production
     timeout-minutes: 120
 
@@ -32,6 +32,12 @@ jobs:
         with:
           ref: ${{ github.sha }}
           fetch-depth: 0
+
+      - name: Set up Xcode
+        run: |
+          set -euo pipefail
+          sudo xcode-select -s /Applications/Xcode_26.5.app/Contents/Developer
+          xcodebuild -version
 
       - name: Set up Java
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1

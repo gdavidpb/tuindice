@@ -14,7 +14,10 @@ require_command xcrun
 "${SCRIPT_DIR}/start-wiremock.sh"
 reset_wiremock
 
-APP_PATH="$("${SCRIPT_DIR}/build-ios-debug.sh" | tail -n 1)"
+capture_streamed_last_line \
+	APP_PATH \
+	"${E2E_TMP_DIR}/ios-build-output.log" \
+	"${SCRIPT_DIR}/build-ios-debug.sh"
 if [[ ! -d "${APP_PATH}" ]]; then
 	printf 'iOS app bundle not found: %s\n' "${APP_PATH}" >&2
 	exit 1

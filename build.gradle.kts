@@ -1,3 +1,6 @@
+import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
+import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
+
 plugins {
 	alias(libs.plugins.compose.compiler) apply false
 }
@@ -22,6 +25,24 @@ allprojects {
 		google()
 		mavenCentral()
 		maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+	}
+}
+
+private val iosDeploymentTarget = "16.0"
+private val iosKotlinNativeTargetNames = setOf("iosArm64", "iosSimulatorArm64", "iosX64")
+private val iosMinVersionCompilerArg = "-Xoverride-konan-properties=minVersion.ios=$iosDeploymentTarget"
+
+subprojects {
+	plugins.withId("org.jetbrains.kotlin.multiplatform") {
+		extensions.configure<KotlinMultiplatformExtension>("kotlin") {
+			targets.withType<KotlinNativeTarget>().configureEach {
+				if (name in iosKotlinNativeTargetNames) {
+					binaries.configureEach {
+						freeCompilerArgs += iosMinVersionCompilerArg
+					}
+				}
+			}
+		}
 	}
 }
 
