@@ -100,6 +100,7 @@ append_optional_build_setting TUINDICE_API_BASE_URL
 append_optional_build_setting TUINDICE_PRIVACY_POLICY_URL
 append_optional_build_setting TUINDICE_TERMS_AND_CONDITIONS_URL
 append_optional_build_setting TUINDICE_SUPPORT_URL
+append_optional_build_setting SKIP_FRAMEWORK_BUILD
 
 if [[ "$IOS_PLATFORM" == "simulator" ]]; then
 	DEFAULT_CODE_SIGNING_ALLOWED="NO"

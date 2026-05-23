@@ -170,9 +170,19 @@ jobs:
         if: steps.changes.outputs.ios_tasks != ''
         env:
           TUINDICE_IOS_HOST_BUILD: "1"
+          PLATFORM_NAME: iphonesimulator
+          ARCHS: arm64
+          BUILT_PRODUCTS_DIR: ${{ github.workspace }}/iosApp/.build/ios-host-release/Build/Products/Release-iphonesimulator
+          UNLOCALIZED_RESOURCES_FOLDER_PATH: TuIndiceHost.app
         run: |
           set -euo pipefail
-          ./gradlew --continue --console=plain --max-workers=2 ${{ steps.changes.outputs.ios_tasks }}
+          ./gradlew \
+            --continue \
+            --console=plain \
+            --max-workers=2 \
+            -Pcompose.ios.resources.platform=iphonesimulator \
+            -Pcompose.ios.resources.archs=arm64 \
+            ${{ steps.changes.outputs.ios_tasks }}
 
       - name: Skip iOS preflight when there are no iOS tasks
         if: steps.changes.outputs.ios_tasks == ''

@@ -71,6 +71,22 @@ else
 fi
 
 cd "$ROOT_DIR"
+
+write_script_output_stamp() {
+	local stamp="$1"
+
+	if [[ -n "${SCRIPT_OUTPUT_FILE_0:-}" ]]; then
+		mkdir -p "$(dirname "$SCRIPT_OUTPUT_FILE_0")"
+		echo "$stamp" > "$SCRIPT_OUTPUT_FILE_0"
+	fi
+}
+
+if [[ "${SKIP_FRAMEWORK_BUILD:-0}" == "1" ]]; then
+	echo "Skipping maincore framework build; Gradle task already linked it."
+	write_script_output_stamp "maincore framework build skipped: ${BUILD_TYPE} ${target_suffixes[*]}"
+	exit 0
+fi
+
 mkdir -p "$GRADLE_USER_HOME_DIR"
 prime_local_gradle_wrapper_dist
 export GRADLE_USER_HOME="$GRADLE_USER_HOME_DIR"
@@ -105,7 +121,4 @@ fi
 
 ./gradlew "${gradle_args[@]}"
 
-if [[ -n "${SCRIPT_OUTPUT_FILE_0:-}" ]]; then
-	mkdir -p "$(dirname "$SCRIPT_OUTPUT_FILE_0")"
-	echo "maincore framework linked: ${BUILD_TYPE} ${target_suffixes[*]}" > "$SCRIPT_OUTPUT_FILE_0"
-fi
+write_script_output_stamp "maincore framework linked: ${BUILD_TYPE} ${target_suffixes[*]}"

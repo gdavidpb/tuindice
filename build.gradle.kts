@@ -31,6 +31,17 @@ allprojects {
 private val iosDeploymentTarget = "16.0"
 private val iosKotlinNativeTargetNames = setOf("iosArm64", "iosSimulatorArm64", "iosX64")
 private val iosMinVersionCompilerArg = "-Xoverride-konan-properties=minVersion.ios=$iosDeploymentTarget"
+private val iosXcodeResourceEnvironmentNames = listOf(
+	"ARCHS",
+	"BUILT_PRODUCTS_DIR",
+	"PLATFORM_NAME",
+	"UNLOCALIZED_RESOURCES_FOLDER_PATH"
+)
+
+private fun hasIosXcodeResourceEnvironment(): Boolean =
+	iosXcodeResourceEnvironmentNames.all { name ->
+		!System.getenv(name).isNullOrBlank()
+	}
 
 subprojects {
 	plugins.withId("org.jetbrains.kotlin.multiplatform") {
@@ -252,6 +263,11 @@ tasks.register<Exec>("verifyIosHostBuildDebug") {
 	val isMacHost = System.getProperty("os.name")
 		.contains("Mac", ignoreCase = true)
 	val runHostBuild = System.getenv("TUINDICE_IOS_HOST_BUILD") == "1"
+	val canPrebuildFramework = hasIosXcodeResourceEnvironment()
+
+	if (isMacHost && runHostBuild && canPrebuildFramework) {
+		dependsOn(":maincore:linkDebugFrameworkIosSimulatorArm64", ":maincore:syncComposeResourcesForIos")
+	}
 
 	onlyIf {
 		isMacHost && runHostBuild
@@ -259,6 +275,9 @@ tasks.register<Exec>("verifyIosHostBuildDebug") {
 
 	environment("CONFIGURATION", "Debug")
 	environment("DERIVED_DATA_PATH", "${rootDir}/iosApp/.build/ios-host-debug")
+	if (canPrebuildFramework) {
+		environment("SKIP_FRAMEWORK_BUILD", "1")
+	}
 	if (System.getenv("TUINDICE_IOS_HOST_REQUIRE_SIMULATOR") == "1") {
 		environment("REQUIRE_SIMULATOR", "1")
 	}
@@ -272,6 +291,11 @@ tasks.register<Exec>("verifyIosHostBuildRelease") {
 	val isMacHost = System.getProperty("os.name")
 		.contains("Mac", ignoreCase = true)
 	val runHostBuild = System.getenv("TUINDICE_IOS_HOST_BUILD") == "1"
+	val canPrebuildFramework = hasIosXcodeResourceEnvironment()
+
+	if (isMacHost && runHostBuild && canPrebuildFramework) {
+		dependsOn(":maincore:linkReleaseFrameworkIosSimulatorArm64", ":maincore:syncComposeResourcesForIos")
+	}
 
 	onlyIf {
 		isMacHost && runHostBuild
@@ -279,6 +303,9 @@ tasks.register<Exec>("verifyIosHostBuildRelease") {
 
 	environment("CONFIGURATION", "Release")
 	environment("DERIVED_DATA_PATH", "${rootDir}/iosApp/.build/ios-host-release")
+	if (canPrebuildFramework) {
+		environment("SKIP_FRAMEWORK_BUILD", "1")
+	}
 	if (System.getenv("TUINDICE_IOS_HOST_REQUIRE_SIMULATOR") == "1") {
 		environment("REQUIRE_SIMULATOR", "1")
 	}

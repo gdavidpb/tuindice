@@ -1,9 +1,12 @@
 package com.gdavidpb.tuindice.ui.screen
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
@@ -180,7 +183,19 @@ class BrowserScreenUiTest {
 			onPageFinished: () -> Unit,
 			onExternalResourceClick: (url: String) -> Unit
 		) {
-			Text(text = "Render URL: $url")
+			Column(modifier = modifier) {
+				Text(text = "Render URL: $url")
+				if (url.endsWith("/e2e/privacy.html")) {
+					TextButton(
+						modifier = Modifier.testTag(MaincoreUiTags.BrowserE2eExternalResourceTrigger),
+						onClick = {
+							onExternalResourceClick("https://external.tuindice.test/maincore-e2e")
+						}
+					) {
+						Text(text = "Abrir enlace externo")
+					}
+				}
+			}
 		}
 	}
 }
