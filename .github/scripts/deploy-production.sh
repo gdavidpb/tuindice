@@ -35,33 +35,6 @@ resolve_deploy_diff_base_sha() {
 	printf '%s\n' "$before_sha"
 }
 
-decode_base64_to_file() {
-	local value="$1"
-	local target_file="$2"
-
-	mkdir -p "$(dirname "$target_file")"
-	if base64 --help 2>/dev/null | grep -q -- '--decode'; then
-		printf '%s' "$value" | base64 --decode >"$target_file"
-	else
-		printf '%s' "$value" | base64 -D >"$target_file"
-	fi
-}
-
-prepare_android_signing() {
-	if [[ -n "${ANDROID_RELEASE_KEYSTORE_BASE64:-}" ]]; then
-		export TU_INDICE_KEY_STORE_PATH="${RUNNER_TEMP:-/tmp}/tuindice-release.jks"
-		decode_base64_to_file "$ANDROID_RELEASE_KEYSTORE_BASE64" "$TU_INDICE_KEY_STORE_PATH"
-	fi
-
-	if [[ -z "${TU_INDICE_KEY_STORE_PATH:-}" ]]; then
-		die "TU_INDICE_KEY_STORE_PATH or ANDROID_RELEASE_KEYSTORE_BASE64 is required for production deploy."
-	fi
-
-	[[ -n "${TU_INDICE_KEY_ALIAS:-}" ]] || die "TU_INDICE_KEY_ALIAS is required for production deploy."
-	[[ -n "${TU_INDICE_KEY_PASSWORD:-}" ]] || die "TU_INDICE_KEY_PASSWORD is required for production deploy."
-	[[ -n "${TU_INDICE_KEY_STORE_PASSWORD:-}" ]] || die "TU_INDICE_KEY_STORE_PASSWORD is required for production deploy."
-}
-
 create_release_tag() {
 	local existing_target
 
@@ -97,7 +70,8 @@ SKIP_E2E_STATUS_CHECK=1 \
 	bash "${SCRIPT_DIR}/preflight-production.sh"
 
 REQUIRE_FIREBASE_CONFIGS=1 bash "${SCRIPT_DIR}/materialize-firebase-configs.sh"
-prepare_android_signing
+export TU_INDICE_KEY_STORE_PATH="${TU_INDICE_KEY_STORE_PATH:-${RUNNER_TEMP:-/tmp}/tuindice-release.jks}"
+bash "${SCRIPT_DIR}/materialize-android-signing.sh"
 
 info "Building signed Android App Bundle."
 ./gradlew --console=plain :app:bundleRelease

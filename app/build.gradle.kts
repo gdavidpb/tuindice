@@ -185,8 +185,15 @@ dependencies {
 tasks.configureEach {
 	val isDebugGoogleServicesTask = name.contains("GoogleServices") && name.contains("Debug")
 	val isDebugCrashlyticsTask = name.contains("Crashlytics") && name.contains("Debug")
+	val isReleaseCrashlyticsMappingUploadTask = name == "uploadCrashlyticsMappingFileRelease"
+	val uploadReleaseCrashlyticsMapping =
+		providers.environmentVariable("TUINDICE_UPLOAD_CRASHLYTICS_MAPPING").orNull == "1"
 
-	if (isDebugGoogleServicesTask || isDebugCrashlyticsTask) {
+	if (
+		isDebugGoogleServicesTask ||
+		isDebugCrashlyticsTask ||
+		(isReleaseCrashlyticsMappingUploadTask && !uploadReleaseCrashlyticsMapping)
+	) {
 		enabled = false
 	}
 }

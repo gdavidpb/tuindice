@@ -89,6 +89,7 @@ El deploy construye artefactos firmados y publica drafts:
 
 - Google Play: AAB firmado, draft en track `production`.
 - Apple: archive Release y upload a App Store Connect/TestFlight, sin submit a review.
+- Crashlytics: el mapping file se sube solo en deploy real con `TUINDICE_UPLOAD_CRASHLYTICS_MAPPING=1`.
 - Tag: `app-<versionName>` anotado al SHA de `production`, creado solo después de ambos uploads.
 
 Dry-run local o en CI:

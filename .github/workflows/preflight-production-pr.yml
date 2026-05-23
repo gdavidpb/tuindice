@@ -72,6 +72,17 @@ jobs:
           set -euo pipefail
           REQUIRE_FIREBASE_CONFIGS=1 bash ./.github/scripts/materialize-firebase-configs.sh
 
+      - name: Materialize Android release signing
+        if: contains(steps.changes.outputs.android_tasks, ':app:bundleRelease')
+        env:
+          ANDROID_RELEASE_KEYSTORE_BASE64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_BASE64 }}
+          TU_INDICE_KEY_ALIAS: ${{ secrets.TU_INDICE_KEY_ALIAS }}
+          TU_INDICE_KEY_PASSWORD: ${{ secrets.TU_INDICE_KEY_PASSWORD }}
+          TU_INDICE_KEY_STORE_PASSWORD: ${{ secrets.TU_INDICE_KEY_STORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          bash ./.github/scripts/materialize-android-signing.sh
+
       - name: Run release preflight checks
         if: steps.changes.outputs.has_relevant_changes == 'true'
         env:
@@ -88,6 +99,10 @@ jobs:
 
       - name: Run focused Android checks
         if: steps.changes.outputs.android_tasks != ''
+        env:
+          TU_INDICE_KEY_ALIAS: ${{ secrets.TU_INDICE_KEY_ALIAS }}
+          TU_INDICE_KEY_PASSWORD: ${{ secrets.TU_INDICE_KEY_PASSWORD }}
+          TU_INDICE_KEY_STORE_PASSWORD: ${{ secrets.TU_INDICE_KEY_STORE_PASSWORD }}
         run: |
           set -euo pipefail
           ./gradlew --continue --console=plain --max-workers=2 ${{ steps.changes.outputs.android_tasks }}
