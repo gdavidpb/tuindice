@@ -16,6 +16,13 @@ appId: com.gdavidpb.tuindice.debug
       platform: Android
     commands:
       - hideKeyboard
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - swipe:
+          direction: DOWN
+          duration: 600
 - tapOn:
     id: auth_sign_in_button
 - extendedWaitUntil:
