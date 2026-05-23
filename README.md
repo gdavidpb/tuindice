@@ -5,6 +5,14 @@ Aplicación multiplataforma Kotlin para Android e iOS.
 El proyecto está organizado como KMP con una sola base común para arquitectura, recursos, DI y tests compartidos, más un
 host Android en `app` y un host iOS en `iosApp`.
 
+## Pipeline de release
+
+El flujo de release usa PRs `feat/* -> production`, preflight obligatorio y deploy automático solo en `push` a
+`production`. La versión única de Android/iOS vive en `gradle/app-version.properties` y se valida con
+`./gradlew verifyAppVersionSync`.
+
+Ver la configuración completa en `docs/release-pipeline.md`.
+
 ## Módulos del workspace
 
 - `base`: contratos compartidos, helpers base, logging, errores, repositorios de infraestructura y piezas UI

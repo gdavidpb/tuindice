@@ -1,4 +1,5 @@
 #include? "../Pods/Target Support Files/Pods-TuIndiceHost/Pods-TuIndiceHost.release.xcconfig"
+#include "Version.xcconfig"
 
 PRODUCT_BUNDLE_IDENTIFIER = com.gdavidpb.tuindice
 PRODUCT_NAME = TuIndiceHost

@@ -151,6 +151,12 @@ tasks.register<Exec>("verifyE2eContract") {
 	commandLine("bash", "${rootDir}/testkit/e2e/validate-e2e-contract.sh")
 }
 
+tasks.register<Exec>("verifyAppVersionSync") {
+	group = "verification"
+	description = "Validates Android and iOS app versions against the shared app version properties."
+	commandLine("bash", "${rootDir}/.github/scripts/validate-app-version.sh")
+}
+
 tasks.register<Exec>("e2eMaestroAndroid") {
 	group = "verification"
 	description = "Builds the Android debug app and runs the local Maestro E2E certification suite against WireMock."
@@ -167,6 +173,24 @@ tasks.register<Exec>("e2eMaestroLocal") {
 	group = "verification"
 	description = "Runs the local Maestro E2E certification suite on every locally available platform."
 	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-local.sh")
+}
+
+tasks.register<Exec>("e2eMaestroEvidenceAndroid") {
+	group = "verification"
+	description = "Runs Android Maestro E2E and writes commit-bound evidence logs and metadata."
+	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-evidence.sh", "android")
+}
+
+tasks.register<Exec>("e2eMaestroEvidenceIos") {
+	group = "verification"
+	description = "Runs iOS Maestro E2E and writes commit-bound evidence logs and metadata."
+	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-evidence.sh", "ios")
+}
+
+tasks.register<Exec>("e2eMaestroEvidenceLocal") {
+	group = "verification"
+	description = "Runs local Maestro E2E evidence on every locally available platform."
+	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-evidence-local.sh")
 }
 
 tasks.register<Exec>("e2ePlatformAndroid") {

@@ -26,5 +26,17 @@ Run every locally available platform with the optional aggregate task:
 ./gradlew e2eMaestroLocal
 ```
 
+Run commit-bound E2E evidence for release certification:
+
+```bash
+./gradlew e2eMaestroEvidenceAndroid
+./gradlew e2eMaestroEvidenceIos
+./gradlew e2eMaestroEvidenceLocal
+```
+
+Evidence is written to `build/e2e/certifications/<sha>/<platform>/<suite>/`.
+Set `E2E_PUBLISH_GITHUB_STATUS=1` to publish the required commit status, for example
+`local-e2e/android/auth-suite`.
+
 The suite uses the WireMock runtime under `mocks/` and does not install external tools.
 By default, the Gradle tasks run `e2e/maestro/flows/suites/local-certification-suite.yaml`.

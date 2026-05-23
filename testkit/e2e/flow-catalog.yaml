@@ -91,6 +91,47 @@ flows:
       - evaluations.Evaluations.AddEvaluation
       - about.About.OpenPrivacyPolicy
       - auth.SignOut.ConfirmSignOut
+  - id: auth-suite
+    path: e2e/maestro/flows/suites/auth-suite.yaml
+    module: auth
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: auth-certification
+    fixture_state: auth-local-certification
+    covers:
+      - login
+      - update-password
+      - sign-out
+      - session-invalidated
+      - pending-sign-out
+  - id: maincore-suite
+    path: e2e/maestro/flows/suites/maincore-suite.yaml
+    module: maincore
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: maincore-certification
+    fixture_state: authenticated-content
+    covers:
+      - bottom-bar
+      - back-stack
+      - internal-browser
+      - external-resource-dialog
+  - id: summary-suite
+    path: e2e/maestro/flows/suites/summary-suite.yaml
+    module: summary
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: summary-certification
+    fixture_state: summary-local-certification
+    covers:
+      - smoke
+      - refresh-retry
+      - status-dialog
+      - profile-picture
+      - outdated-credentials
   - id: pensum-suite
     path: e2e/maestro/flows/suites/pensum-suite.yaml
     module: pensum

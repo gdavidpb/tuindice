@@ -1,4 +1,5 @@
 import com.android.build.api.dsl.ApplicationExtension
+import java.util.Properties
 
 plugins {
 	id("com.android.application")
@@ -19,6 +20,19 @@ val hasReleaseSigningConfig = listOf(
 	releaseKeyStorePath,
 	releaseKeyStorePassword
 ).all { !it.isNullOrBlank() }
+val appVersionPropertiesFile = rootProject.file("gradle/app-version.properties")
+val appVersionProperties = Properties().apply {
+	check(appVersionPropertiesFile.isFile) {
+		"Missing app version properties file: ${appVersionPropertiesFile.absolutePath}"
+	}
+	appVersionPropertiesFile.inputStream().use(::load)
+}
+fun appVersionProperty(name: String): String =
+	checkNotNull(appVersionProperties.getProperty(name)?.trim()?.takeIf { it.isNotEmpty() }) {
+		"Missing app version property '$name' in ${appVersionPropertiesFile.absolutePath}"
+	}
+val appVersionName = appVersionProperty("versionName")
+val androidVersionCode = appVersionProperty("androidVersionCode").toInt()
 val debugApiBaseUrl = providers.gradleProperty("tuindice.apiBaseUrl")
 	.orElse(providers.environmentVariable("TUINDICE_API_BASE_URL"))
 	.orElse("http://0.0.0.0:8080/")
@@ -53,8 +67,8 @@ extensions.configure<ApplicationExtension> {
 		applicationId = "com.gdavidpb.tuindice"
 		minSdk = 24
 		targetSdk = 36
-		versionCode = 38
-		versionName = "6.0"
+		versionCode = androidVersionCode
+		versionName = appVersionName
 		testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
 		buildConfigField("long", "PLAY_INTEGRITY_CLOUD_PROJECT_NUMBER", "375954751920L")
 	}

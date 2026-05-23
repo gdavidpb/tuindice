@@ -1,0 +1,305 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=.github/scripts/common.sh
+source "${SCRIPT_DIR}/common.sh"
+
+BEFORE_SHA="${1:-${GIT_BEFORE_SHA:-}}"
+AFTER_SHA="${2:-${GIT_AFTER_SHA:-${GITHUB_SHA:-HEAD}}}"
+STATE_DIR="${STATE_DIR:-$(mktemp -d "${RUNNER_TEMP:-/tmp}/tuindice-changes.XXXXXX")}"
+
+CHANGED_FILES_FILE="${CHANGED_FILES_FILE:-${STATE_DIR}/changed-files.txt}"
+IMPACTED_MODULES_FILE="${IMPACTED_MODULES_FILE:-${STATE_DIR}/impacted-modules.txt}"
+RELEASE_IMPACTED_MODULES_FILE="${RELEASE_IMPACTED_MODULES_FILE:-${STATE_DIR}/release-impacted-modules.txt}"
+MISSING_VERSION_BUMP_FILE="${MISSING_VERSION_BUMP_FILE:-${STATE_DIR}/missing-version-bump.txt}"
+ANDROID_TASKS_FILE="${ANDROID_TASKS_FILE:-${STATE_DIR}/android-gradle-tasks.txt}"
+IOS_TASKS_FILE="${IOS_TASKS_FILE:-${STATE_DIR}/ios-gradle-tasks.txt}"
+E2E_SUITES_FILE="${E2E_SUITES_FILE:-${STATE_DIR}/e2e-suites.txt}"
+E2E_ANDROID_CONTEXTS_FILE="${E2E_ANDROID_CONTEXTS_FILE:-${STATE_DIR}/e2e-android-contexts.txt}"
+E2E_IOS_CONTEXTS_FILE="${E2E_IOS_CONTEXTS_FILE:-${STATE_DIR}/e2e-ios-contexts.txt}"
+
+mkdir -p "$STATE_DIR"
+: >"$CHANGED_FILES_FILE"
+: >"$IMPACTED_MODULES_FILE"
+: >"$RELEASE_IMPACTED_MODULES_FILE"
+: >"$MISSING_VERSION_BUMP_FILE"
+: >"$ANDROID_TASKS_FILE"
+: >"$IOS_TASKS_FILE"
+: >"$E2E_SUITES_FILE"
+: >"$E2E_ANDROID_CONTEXTS_FILE"
+: >"$E2E_IOS_CONTEXTS_FILE"
+
+APP_VERSION_TOUCHED=false
+APP_VERSION_CHANGED=false
+CI_CONFIG_TOUCHED=false
+E2E_CONTRACT_TOUCHED=false
+HAS_RELEVANT_CHANGES=false
+HAS_RELEASE_IMPACT=false
+REQUIRES_E2E_CERTIFICATION=false
+PROCESSED_RUNTIME_MODULES=$'\n'
+PROCESSED_E2E_SUITES=$'\n'
+
+value_seen_in_newline_set() {
+	local set_value="$1"
+	local value="$2"
+
+	[[ "$set_value" == *$'\n'"${value}"$'\n'* ]]
+}
+
+mark_runtime_module_processed() {
+	local module="$1"
+
+	PROCESSED_RUNTIME_MODULES="${PROCESSED_RUNTIME_MODULES}${module}"$'\n'
+}
+
+append_e2e_suite() {
+	local suite="$1"
+
+	if [[ -n "$suite" ]] && ! value_seen_in_newline_set "$PROCESSED_E2E_SUITES" "$suite"; then
+		PROCESSED_E2E_SUITES="${PROCESSED_E2E_SUITES}${suite}"$'\n'
+		append_unique_line "$E2E_SUITES_FILE" "$suite"
+	fi
+}
+
+append_runtime_module() {
+	local module="$1"
+
+	if value_seen_in_newline_set "$PROCESSED_RUNTIME_MODULES" "$module"; then
+		return 0
+	fi
+
+	mark_runtime_module_processed "$module"
+	append_module_closure "$module" "$IMPACTED_MODULES_FILE"
+	if module_is_runtime "$module"; then
+		append_module_closure "$module" "$RELEASE_IMPACTED_MODULES_FILE"
+	fi
+}
+
+mark_e2e_suite_for_module() {
+	local module="$1"
+	local suite
+
+	suite="$(module_e2e_suite "$module" || true)"
+	if [[ -n "$suite" ]]; then
+		append_e2e_suite "$suite"
+	fi
+}
+
+classify_changed_file() {
+	local file="$1"
+	local top_level="${file%%/*}"
+	local suite_name
+
+	case "$file" in
+		.DS_Store|*/.DS_Store)
+			return 0
+			;;
+		.github/workflows/*|.github/scripts/*|.github/actions/*)
+			CI_CONFIG_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			return 0
+			;;
+		"$(app_version_file)")
+			APP_VERSION_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			return 0
+			;;
+		AGENTS.md|README.md|LICENSE|docs/*|.codex/*)
+			return 0
+			;;
+		e2e/maestro/flows/suites/*-suite.yaml)
+			E2E_CONTRACT_TOUCHED=true
+			REQUIRES_E2E_CERTIFICATION=true
+			HAS_RELEVANT_CHANGES=true
+			suite_name="$(basename "$file" .yaml)"
+			append_e2e_suite "$suite_name"
+			return 0
+			;;
+		e2e/maestro/flows/*/*|testkit/e2e/*|mocks/*)
+			E2E_CONTRACT_TOUCHED=true
+			REQUIRES_E2E_CERTIFICATION=true
+			HAS_RELEVANT_CHANGES=true
+			case "$file" in
+				e2e/maestro/flows/auth/*) append_e2e_suite auth-suite ;;
+				e2e/maestro/flows/about/*) append_e2e_suite about-suite ;;
+				e2e/maestro/flows/enrollmentproof/*) append_e2e_suite enrollmentproof-suite ;;
+				e2e/maestro/flows/evaluations/*) append_e2e_suite evaluations-suite ;;
+				e2e/maestro/flows/maincore/*) append_e2e_suite maincore-suite ;;
+				e2e/maestro/flows/pensum/*) append_e2e_suite pensum-suite ;;
+				e2e/maestro/flows/record/*) append_e2e_suite record-suite ;;
+				e2e/maestro/flows/subjects/*) append_e2e_suite subjects-suite ;;
+				e2e/maestro/flows/summary/*) append_e2e_suite summary-suite ;;
+				e2e/maestro/flows/wizard/*) append_e2e_suite wizard-suite ;;
+				*) append_e2e_suite local-certification-suite ;;
+			esac
+			return 0
+			;;
+		settings.gradle.kts|build.gradle.kts|gradle.properties|gradlew|gradlew.bat|gradle/*)
+			while IFS= read -r module; do
+				append_runtime_module "$module"
+			done < <(kmp_modules)
+			append_runtime_module app
+			append_runtime_module iosApp
+			HAS_RELEVANT_CHANGES=true
+			HAS_RELEASE_IMPACT=true
+			REQUIRES_E2E_CERTIFICATION=true
+			append_e2e_suite local-certification-suite
+			return 0
+			;;
+		iosApp/*)
+			append_runtime_module iosApp
+			HAS_RELEVANT_CHANGES=true
+			HAS_RELEASE_IMPACT=true
+			REQUIRES_E2E_CERTIFICATION=true
+			append_e2e_suite local-certification-suite
+			return 0
+			;;
+		app/*)
+			append_runtime_module app
+			HAS_RELEVANT_CHANGES=true
+			HAS_RELEASE_IMPACT=true
+			REQUIRES_E2E_CERTIFICATION=true
+			append_e2e_suite local-certification-suite
+			return 0
+			;;
+	esac
+
+	if module_is_kmp "$top_level"; then
+		append_runtime_module "$top_level"
+		HAS_RELEVANT_CHANGES=true
+
+		if module_is_runtime "$top_level"; then
+			HAS_RELEASE_IMPACT=true
+			case "$file" in
+				"$top_level/src/commonMain/"*|"$top_level/src/androidMain/"*|"$top_level/src/iosMain/"*|"$top_level/build.gradle.kts")
+					REQUIRES_E2E_CERTIFICATION=true
+					if [[ "$top_level" == "base" || "$top_level" == "persistence" || "$top_level" == "academiccore" || "$top_level" == "maincore" ]]; then
+						append_e2e_suite local-certification-suite
+					else
+						mark_e2e_suite_for_module "$top_level"
+					fi
+					;;
+			esac
+		fi
+	fi
+}
+
+changed_files_between_refs "$BEFORE_SHA" "$AFTER_SHA" >"$CHANGED_FILES_FILE"
+
+while IFS= read -r changed_file; do
+	[[ -n "$changed_file" ]] || continue
+	classify_changed_file "$changed_file"
+done <"$CHANGED_FILES_FILE"
+
+if [[ "$APP_VERSION_TOUCHED" == "true" ]]; then
+	base_version="$(get_app_version_property_at_git_ref versionName "$BEFORE_SHA")"
+	head_version="$(get_app_version_property_at_git_ref versionName "$AFTER_SHA")"
+	base_android_code="$(get_app_version_property_at_git_ref androidVersionCode "$BEFORE_SHA")"
+	head_android_code="$(get_app_version_property_at_git_ref androidVersionCode "$AFTER_SHA")"
+	base_ios_build="$(get_app_version_property_at_git_ref iosBuildNumber "$BEFORE_SHA")"
+	head_ios_build="$(get_app_version_property_at_git_ref iosBuildNumber "$AFTER_SHA")"
+
+	if [[ "$base_version" != "$head_version" || "$base_android_code" != "$head_android_code" || "$base_ios_build" != "$head_ios_build" ]]; then
+		APP_VERSION_CHANGED=true
+	fi
+fi
+
+if [[ "$HAS_RELEASE_IMPACT" == "true" && "$APP_VERSION_CHANGED" != "true" ]]; then
+	append_unique_line "$MISSING_VERSION_BUMP_FILE" app
+fi
+
+if [[ "$APP_VERSION_CHANGED" == "true" ]]; then
+	HAS_RELEVANT_CHANGES=true
+fi
+
+sort_file_if_present "$IMPACTED_MODULES_FILE"
+sort_file_if_present "$RELEASE_IMPACTED_MODULES_FILE"
+sort_file_if_present "$MISSING_VERSION_BUMP_FILE"
+sort_file_if_present "$E2E_SUITES_FILE"
+
+while IFS= read -r module; do
+	[[ -n "$module" ]] || continue
+	case "$module" in
+		app)
+			append_unique_line "$ANDROID_TASKS_FILE" ":app:testDebugUnitTest"
+			if [[ "$HAS_RELEASE_IMPACT" == "true" || "$APP_VERSION_CHANGED" == "true" ]]; then
+				append_unique_line "$ANDROID_TASKS_FILE" ":app:bundleRelease"
+			fi
+			;;
+		iosApp)
+			append_unique_line "$IOS_TASKS_FILE" "verifyIosHostTypecheck"
+			if [[ "$HAS_RELEASE_IMPACT" == "true" || "$APP_VERSION_CHANGED" == "true" ]]; then
+				append_unique_line "$IOS_TASKS_FILE" "verifyIosHostBuildRelease"
+			fi
+			;;
+		*)
+			if module_is_kmp "$module"; then
+				append_unique_line "$ANDROID_TASKS_FILE" ":${module}:compileAndroidMain"
+				append_unique_line "$IOS_TASKS_FILE" ":${module}:compileKotlinIosSimulatorArm64"
+				if [[ "$module" != "testkit" ]]; then
+					append_unique_line "$IOS_TASKS_FILE" ":${module}:iosSimulatorArm64Test"
+				fi
+			fi
+			;;
+	esac
+done <"$IMPACTED_MODULES_FILE"
+
+if [[ "$E2E_CONTRACT_TOUCHED" == "true" ]]; then
+	append_unique_line "$ANDROID_TASKS_FILE" "verifyE2eContract"
+fi
+
+if [[ "$CI_CONFIG_TOUCHED" == "true" ]]; then
+	append_unique_line "$ANDROID_TASKS_FILE" "verifyAppVersionSync"
+fi
+
+sort_file_if_present "$ANDROID_TASKS_FILE"
+sort_file_if_present "$IOS_TASKS_FILE"
+
+while IFS= read -r suite; do
+	[[ -n "$suite" ]] || continue
+	append_unique_line "$E2E_ANDROID_CONTEXTS_FILE" "local-e2e/android/${suite}"
+	append_unique_line "$E2E_IOS_CONTEXTS_FILE" "local-e2e/ios/${suite}"
+done <"$E2E_SUITES_FILE"
+
+sort_file_if_present "$E2E_ANDROID_CONTEXTS_FILE"
+sort_file_if_present "$E2E_IOS_CONTEXTS_FILE"
+
+info "Impacted modules: $(file_to_csv "$IMPACTED_MODULES_FILE" || true)"
+info "Release impacted modules: $(file_to_csv "$RELEASE_IMPACTED_MODULES_FILE" || true)"
+info "App version touched: ${APP_VERSION_TOUCHED}"
+info "App version changed: ${APP_VERSION_CHANGED}"
+info "Missing version bump: $(file_to_csv "$MISSING_VERSION_BUMP_FILE" || true)"
+info "CI/CD configuration touched: ${CI_CONFIG_TOUCHED}"
+info "E2E suites requiring local certification: $(file_to_csv "$E2E_SUITES_FILE" || true)"
+info "Android Gradle tasks: $(file_to_space_list "$ANDROID_TASKS_FILE" || true)"
+info "iOS Gradle tasks: $(file_to_space_list "$IOS_TASKS_FILE" || true)"
+
+if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+	{
+		printf 'state_dir=%s\n' "$STATE_DIR"
+		printf 'changed_files_file=%s\n' "$CHANGED_FILES_FILE"
+		printf 'impacted_modules_file=%s\n' "$IMPACTED_MODULES_FILE"
+		printf 'impacted_modules_csv=%s\n' "$(file_to_csv "$IMPACTED_MODULES_FILE" || true)"
+		printf 'release_impacted_modules_file=%s\n' "$RELEASE_IMPACTED_MODULES_FILE"
+		printf 'release_impacted_modules_csv=%s\n' "$(file_to_csv "$RELEASE_IMPACTED_MODULES_FILE" || true)"
+		printf 'missing_version_bump_file=%s\n' "$MISSING_VERSION_BUMP_FILE"
+		printf 'missing_version_bump_csv=%s\n' "$(file_to_csv "$MISSING_VERSION_BUMP_FILE" || true)"
+		printf 'android_tasks=%s\n' "$(file_to_space_list "$ANDROID_TASKS_FILE" || true)"
+		printf 'ios_tasks=%s\n' "$(file_to_space_list "$IOS_TASKS_FILE" || true)"
+		printf 'android_tasks_file=%s\n' "$ANDROID_TASKS_FILE"
+		printf 'ios_tasks_file=%s\n' "$IOS_TASKS_FILE"
+		printf 'app_version_touched=%s\n' "$APP_VERSION_TOUCHED"
+		printf 'app_version_changed=%s\n' "$APP_VERSION_CHANGED"
+		printf 'ci_config_touched=%s\n' "$CI_CONFIG_TOUCHED"
+		printf 'e2e_contract_touched=%s\n' "$E2E_CONTRACT_TOUCHED"
+		printf 'requires_e2e_certification=%s\n' "$REQUIRES_E2E_CERTIFICATION"
+		printf 'e2e_suites_file=%s\n' "$E2E_SUITES_FILE"
+		printf 'e2e_suites_csv=%s\n' "$(file_to_csv "$E2E_SUITES_FILE" || true)"
+		printf 'e2e_android_contexts_file=%s\n' "$E2E_ANDROID_CONTEXTS_FILE"
+		printf 'e2e_ios_contexts_file=%s\n' "$E2E_IOS_CONTEXTS_FILE"
+		printf 'has_relevant_changes=%s\n' "$HAS_RELEVANT_CHANGES"
+		printf 'has_release_impact=%s\n' "$HAS_RELEASE_IMPACT"
+	} >>"$GITHUB_OUTPUT"
+fi
