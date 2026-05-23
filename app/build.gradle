@@ -6,6 +6,23 @@ apply plugin: "kotlin-kapt"
 apply plugin: "com.google.gms.google-services"
 apply plugin: "com.google.firebase.crashlytics"
 
+def appVersionPropertiesFile = rootProject.file("gradle/app-version.properties")
+def appVersionProperties = new Properties()
+if (!appVersionPropertiesFile.isFile()) {
+    throw new GradleException("Missing ${appVersionPropertiesFile}.")
+}
+appVersionPropertiesFile.withInputStream { appVersionProperties.load(it) }
+
+def appVersionName = appVersionProperties.getProperty("versionName")?.trim()
+def androidVersionCodeValue = appVersionProperties.getProperty("androidVersionCode")?.trim()
+if (!appVersionName) {
+    throw new GradleException("Missing versionName in ${appVersionPropertiesFile}.")
+}
+if (!(androidVersionCodeValue ==~ /[1-9][0-9]*/)) {
+    throw new GradleException("androidVersionCode in ${appVersionPropertiesFile} must be a positive integer.")
+}
+def androidVersionCode = androidVersionCodeValue.toInteger()
+
 android {
     namespace "com.gdavidpb.tuindice"
 
@@ -16,8 +33,8 @@ android {
         vectorDrawables.useSupportLibrary = true
         minSdkVersion 21
         targetSdkVersion 34
-        versionCode 37
-        versionName "5.9.1"
+        versionCode androidVersionCode
+        versionName appVersionName
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
@@ -27,9 +44,12 @@ android {
 
     signingConfigs {
         release {
+            def tuIndiceKeyStorePath = System.getenv("TU_INDICE_KEY_STORE_PATH")
             keyAlias System.getenv("TU_INDICE_KEY_ALIAS")
             keyPassword System.getenv("TU_INDICE_KEY_PASSWORD")
-            storeFile file("${System.getenv("TU_INDICE_KEY_STORE_PATH")}")
+            if (tuIndiceKeyStorePath) {
+                storeFile file(tuIndiceKeyStorePath)
+            }
             storePassword System.getenv("TU_INDICE_KEY_STORE_PASSWORD")
         }
     }
@@ -72,6 +92,10 @@ android {
             minifyEnabled true
 
             signingConfig signingConfigs.release
+
+            firebaseCrashlytics {
+                mappingFileUploadEnabled System.getenv("TUINDICE_UPLOAD_CRASHLYTICS_MAPPING") == "1"
+            }
 
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
 

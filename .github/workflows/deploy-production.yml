@@ -1,0 +1,72 @@
+name: Deploy production
+
+on:
+  push:
+    branches:
+      - production
+
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+  id-token: write
+
+env:
+  GCP_PROJECT: tu-indice-usb
+  ANDROID_PACKAGE_NAME: com.gdavidpb.tuindice
+  GOOGLE_PLAY_TRACK: production
+
+jobs:
+  deploy:
+    name: Deploy Android production draft
+    runs-on: ubuntu-latest
+    environment: production
+    timeout-minutes: 75
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@017a9effdb900e5b5b2fddfb590a105619dca3c3 # v4.4.2
+
+      - name: Configure git identity for release tags
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Authenticate to Google Cloud for Play publishing
+        id: google-auth
+        uses: google-github-actions/auth@ba79af03959ebeac9769e648f473a284504d9193 # v2.1.10
+        with:
+          workload_identity_provider: ${{ secrets.GCP_WORKLOAD_IDENTITY_PROVIDER }}
+          service_account: ${{ secrets.GCP_PLAY_PUBLISHER_SERVICE_ACCOUNT }}
+          project_id: ${{ env.GCP_PROJECT }}
+          token_format: access_token
+          access_token_scopes: https://www.googleapis.com/auth/androidpublisher
+
+      - name: Deploy Android production draft
+        env:
+          TARGET_GIT_SHA: ${{ github.sha }}
+          ANDROID_PUBLISHER_ACCESS_TOKEN: ${{ steps.google-auth.outputs.access_token }}
+          ANDROID_GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON_BASE64 }}
+          ANDROID_RELEASE_KEYSTORE_BASE64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_BASE64 }}
+          TU_INDICE_KEY_ALIAS: ${{ secrets.TU_INDICE_KEY_ALIAS }}
+          TU_INDICE_KEY_PASSWORD: ${{ secrets.TU_INDICE_KEY_PASSWORD }}
+          TU_INDICE_KEY_STORE_PASSWORD: ${{ secrets.TU_INDICE_KEY_STORE_PASSWORD }}
+          TUINDICE_UPLOAD_CRASHLYTICS_MAPPING: "1"
+        run: |
+          set -euo pipefail
+          bash ./.github/scripts/deploy-production.sh
