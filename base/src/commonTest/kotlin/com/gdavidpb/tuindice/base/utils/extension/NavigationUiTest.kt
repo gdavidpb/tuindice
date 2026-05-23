@@ -14,6 +14,43 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 class NavigationUiTest {
 	@Test
+	fun when_collectValueWithLifecycleStartsResumedAndActive_then_collectsInitialAndUpdatedValue() = runTuIndiceUiTest {
+		val lifecycleOwner = TestLifecycleOwner()
+		val value = mutableStateOf(TestValue(label = "record"))
+		val collectedValues = mutableListOf<TestValue>()
+
+		setTuIndiceTestContent {
+			CollectValueWithLifecycle(
+				value = value.value,
+				lifecycle = lifecycleOwner.lifecycle
+			) { collectedValue ->
+				collectedValues += collectedValue
+			}
+		}
+
+		runOnIdle {
+			lifecycleOwner.handleEvent(Lifecycle.Event.ON_CREATE)
+			lifecycleOwner.handleEvent(Lifecycle.Event.ON_START)
+			lifecycleOwner.handleEvent(Lifecycle.Event.ON_RESUME)
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			collectedValues == listOf(TestValue(label = "record"))
+		}
+
+		runOnIdle {
+			value.value = TestValue(label = "summary")
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			collectedValues == listOf(
+				TestValue(label = "record"),
+				TestValue(label = "summary")
+			)
+		}
+	}
+
+	@Test
 	fun when_collectValueWithLifecycleRequiresActiveResumedEntry_then_defersAndReplaysLatestValue() = runTuIndiceUiTest {
 		val lifecycleOwner = TestLifecycleOwner()
 		val isActive = mutableStateOf(false)

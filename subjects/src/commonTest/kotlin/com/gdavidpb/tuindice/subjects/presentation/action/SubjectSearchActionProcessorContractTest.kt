@@ -80,10 +80,13 @@ class SubjectSearchActionProcessorContractTest {
 				.collect { mutation -> state = mutation(state) }
 		}
 
+		runCurrent()
 		queryFlow.value = "mi"
+		runCurrent()
 		advanceTimeBy(SubjectSearchDebounceMillis / 2)
 		queryFlow.value = "micro"
-		advanceTimeBy(SubjectSearchDebounceMillis + 1)
+		runCurrent()
+		advanceTimeBy(SubjectSearchDebounceMillis)
 		runCurrent()
 
 		assertEquals(listOf(SubjectSearchParams(query = "micro", limit = SubjectSearchLimit)), repository.refreshCalls)

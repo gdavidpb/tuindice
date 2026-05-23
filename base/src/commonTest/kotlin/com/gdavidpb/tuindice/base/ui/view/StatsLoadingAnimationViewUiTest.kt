@@ -17,4 +17,13 @@ class StatsLoadingAnimationViewUiTest {
 
 		assertNodeVisible(BaseUiTags.StatsLoadingAnimation)
 	}
+
+	@Test
+	fun when_statsLoadingAnimationRenderedWithHighDensity_then_displaysAnimationNode() = runTuIndiceUiTest {
+		setTuIndiceTestContent(density = 2f) {
+			StatsLoadingAnimationView()
+		}
+
+		assertNodeVisible(BaseUiTags.StatsLoadingAnimation)
+	}
 }

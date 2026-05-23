@@ -88,6 +88,50 @@ class TopBarBannerHostUiTest {
 
 		assertNodeVisible(TestBannerTag)
 	}
+
+	@Test
+	fun when_contentBecomesUnavailable_then_hidesVisibleBanner() = runTuIndiceUiTest {
+		lateinit var requestBanner: (TopBarBannerBehavior) -> Unit
+		lateinit var setContentAvailable: (Boolean) -> Unit
+
+		setTuIndiceTestContent {
+			val behavior = remember { mutableStateOf<TopBarBannerBehavior?>(null) }
+			val isContentAvailable = remember { mutableStateOf(true) }
+			val requestKey = remember { mutableIntStateOf(0) }
+			requestBanner = { nextBehavior ->
+				behavior.value = nextBehavior
+				requestKey.intValue += 1
+			}
+			setContentAvailable = { nextValue ->
+				isContentAvailable.value = nextValue
+			}
+
+			TopBarBannerHost(
+				isContentAvailable = isContentAvailable.value,
+				requestKey = requestKey.intValue,
+				behavior = behavior.value
+			) {
+				Text(
+					text = "Banner",
+					modifier = Modifier.testTag(TestBannerTag)
+				)
+			}
+		}
+
+		runOnIdle {
+			requestBanner(TopBarBannerBehavior.Persistent)
+		}
+		advanceAnimationsBy(millis = 400)
+
+		assertNodeVisible(TestBannerTag)
+
+		runOnIdle {
+			setContentAvailable(false)
+		}
+		advanceAnimationsBy(millis = 400)
+
+		assertNodeHidden(TestBannerTag)
+	}
 }
 
 private const val TestBannerTag = "top_bar_banner_host_test_banner"

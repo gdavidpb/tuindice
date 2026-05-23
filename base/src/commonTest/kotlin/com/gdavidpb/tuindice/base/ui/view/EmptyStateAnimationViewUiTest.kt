@@ -17,4 +17,13 @@ class EmptyStateAnimationViewUiTest {
 
 		assertNodeVisible(BaseUiTags.EmptyStateAnimation)
 	}
+
+	@Test
+	fun when_emptyStateAnimationRenderedWithHighDensity_then_displaysAnimationNode() = runTuIndiceUiTest {
+		setTuIndiceTestContent(density = 2f) {
+			EmptyStateAnimationView()
+		}
+
+		assertNodeVisible(BaseUiTags.EmptyStateAnimation)
+	}
 }

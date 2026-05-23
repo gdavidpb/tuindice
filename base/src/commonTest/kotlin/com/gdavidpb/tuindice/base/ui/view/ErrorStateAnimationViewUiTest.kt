@@ -17,4 +17,13 @@ class ErrorStateAnimationViewUiTest {
 
 		assertNodeVisible(BaseUiTags.ErrorStateAnimation)
 	}
+
+	@Test
+	fun when_errorStateAnimationRenderedWithHighDensity_then_displaysAnimationNode() = runTuIndiceUiTest {
+		setTuIndiceTestContent(density = 2f) {
+			ErrorStateAnimationView()
+		}
+
+		assertNodeVisible(BaseUiTags.ErrorStateAnimation)
+	}
 }

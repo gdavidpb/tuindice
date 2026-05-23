@@ -10,7 +10,9 @@
 .DS_Store
 .externalNativeBuild
 xcuserdata/
-/scripts/
+/scripts/*
+!/scripts/generate-common-ui-matrix.sh
+!/scripts/verify-common-ui-test-density.sh
 GoogleService-Info.plist
 /mocks/.build/
 /mocks/.runtime/

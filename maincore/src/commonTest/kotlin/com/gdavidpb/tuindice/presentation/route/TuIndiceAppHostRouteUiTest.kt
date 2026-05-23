@@ -93,6 +93,11 @@ class TuIndiceAppHostRouteUiTest {
 			waitUntil(timeoutMillis = 2_000) {
 				reviewRepository.launchCalls > 0
 			}
+			waitUntil(timeoutMillis = 2_000) {
+				onAllNodesWithTag(MaincoreUiTags.TuIndiceNavHost)
+					.fetchSemanticsNodes()
+					.isNotEmpty()
+			}
 
 			assertNodeVisible(MaincoreUiTags.TuIndiceNavHost)
 			assertTrue(reviewRepository.launchCalls > 0)
