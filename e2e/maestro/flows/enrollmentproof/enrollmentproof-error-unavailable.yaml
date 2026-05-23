@@ -9,6 +9,7 @@ appId: com.gdavidpb.tuindice.debug
 - inputText: "enrollment-unavailable-pass"
 - tapOn:
     id: auth_sign_in_idle_container
+- hideKeyboard
 - tapOn:
     id: auth_sign_in_button
 - extendedWaitUntil:

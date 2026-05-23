@@ -11,6 +11,7 @@ appId: com.gdavidpb.tuindice.debug
 - inputText: "123456"
 - tapOn:
     id: auth_sign_in_idle_container
+- hideKeyboard
 - tapOn:
     id: auth_sign_in_button
 - extendedWaitUntil:
