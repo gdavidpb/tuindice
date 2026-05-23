@@ -10,7 +10,7 @@ fi
 
 require_command xcrun
 
-"${REPO_ROOT}/.github/scripts/materialize-firebase-configs.sh"
+bash "${REPO_ROOT}/.github/scripts/materialize-firebase-configs.sh"
 
 GOOGLE_SERVICE_INFO="${REPO_ROOT}/iosApp/Resources/GoogleService-Info.plist"
 if [[ ! -s "${GOOGLE_SERVICE_INFO}" ]]; then
