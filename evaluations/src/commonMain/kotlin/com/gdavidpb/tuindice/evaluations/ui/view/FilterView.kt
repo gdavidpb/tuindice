@@ -31,7 +31,8 @@ fun FilterView(
 	) {
 		itemsIndexed(
 			items = items,
-			key = { _, item -> item.labelText }
+			key = { _, item -> item.labelText },
+			contentType = { _, _ -> EvaluationFilterChipContentType }
 		) { _, item ->
 			FilterChip(
 				modifier = Modifier.testTag(EvaluationsUiTags.filterChip(item.labelText)),
@@ -78,3 +79,5 @@ fun FilterView(
 		}
 	}
 }
+
+private const val EvaluationFilterChipContentType = "evaluation_filter_chip"

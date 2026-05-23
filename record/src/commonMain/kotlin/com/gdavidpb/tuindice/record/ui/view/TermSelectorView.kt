@@ -74,7 +74,8 @@ fun TermSelectorView(
 		) {
 			items(
 				items = terms,
-				key = { term -> term.termId }
+				key = { term -> term.termId },
+				contentType = { TermSelectorItemContentType }
 			) { term ->
 				val isSelected = term.termId == selectedTermId
 				val scale by animateFloatAsState(
@@ -139,3 +140,5 @@ fun TermSelectorView(
 		}
 	}
 }
+
+private const val TermSelectorItemContentType = "term_selector_item"

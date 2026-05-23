@@ -24,7 +24,9 @@ fun EvaluationFilterView(
 		userScrollEnabled = scrollEnabled
 	) {
 		items(
-			items = groups
+			items = groups,
+			key = ::evaluationFilterGroupKey,
+			contentType = { EvaluationFilterGroupContentType }
 		) { item ->
 			FilterView(
 				items = item.items,
@@ -35,3 +37,9 @@ fun EvaluationFilterView(
 		}
 	}
 }
+
+private fun evaluationFilterGroupKey(item: EvaluationFilterGroupItem): String {
+	return item.items.joinToString(separator = "|") { chip -> chip.labelText }
+}
+
+private const val EvaluationFilterGroupContentType = "evaluation_filter_group"

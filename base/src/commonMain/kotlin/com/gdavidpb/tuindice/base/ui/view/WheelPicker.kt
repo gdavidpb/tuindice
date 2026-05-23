@@ -83,7 +83,8 @@ fun WheelPicker(
 	) {
 		items(
 			count = count,
-			key = { item -> item }
+			key = { item -> item },
+			contentType = { WheelPickerItemContentType }
 		) { counter ->
 			Box(
 				modifier = Modifier
@@ -102,3 +103,5 @@ fun WheelPicker(
 		}
 	}
 }
+
+private const val WheelPickerItemContentType = "wheel_picker_item"

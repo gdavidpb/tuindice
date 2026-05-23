@@ -164,7 +164,11 @@ fun SummaryContentView(
 		LazyColumn(
 			modifier = Modifier.testTag(SummaryUiTags.ItemsList)
 		) {
-			itemsIndexed(items = summaryItems) { index, item ->
+			itemsIndexed(
+				items = summaryItems,
+				key = { _, item -> item.header },
+				contentType = { _, _ -> SummaryItemContentType }
+			) { index, item ->
 				StatusCardItemView(
 					modifier = Modifier.testTag(SummaryUiTags.statusCard(index)),
 					header = item.header,
@@ -200,4 +204,5 @@ private fun syncIconStopDurationMillis(remainingDegrees: Float): Int {
 private const val SYNC_ICON_ROTATION_DURATION_MILLIS = 900
 private const val SYNC_ICON_MIN_STOP_DURATION_MILLIS = 180
 private const val SYNC_ICON_FULL_ROTATION_DEGREES = 360f
+private const val SummaryItemContentType = "summary_item"
 internal const val SYNC_STATUS_TEXT_ANIMATION_DURATION_MILLIS = 220

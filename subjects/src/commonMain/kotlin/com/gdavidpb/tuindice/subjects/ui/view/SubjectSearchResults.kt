@@ -71,7 +71,8 @@ fun SubjectSearchResults(
 		) {
 			items(
 				items = results,
-				key = SubjectSearchResultItem::subjectCode
+				key = SubjectSearchResultItem::subjectCode,
+				contentType = { SubjectSearchResultContentType }
 			) { item ->
 				SubjectSearchResultCard(
 					item = item,
@@ -81,3 +82,5 @@ fun SubjectSearchResults(
 		}
 	}
 }
+
+private const val SubjectSearchResultContentType = "subject_search_result"

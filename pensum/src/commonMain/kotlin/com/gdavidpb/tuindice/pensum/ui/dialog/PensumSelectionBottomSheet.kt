@@ -116,7 +116,8 @@ fun PensumSelectionBottomSheet(
 				) {
 					items(
 						items = model.pensumOptions,
-						key = PensumScreenModel.PensumOptionItem::id
+						key = PensumScreenModel.PensumOptionItem::id,
+						contentType = { PensumVersionOptionContentType }
 					) { item ->
 						FilterChip(
 							modifier = Modifier.testTag(PensumUiTags.versionOption(item.year)),
@@ -161,6 +162,8 @@ fun PensumSelectionBottomSheet(
 		}
 	}
 }
+
+private const val PensumVersionOptionContentType = "pensum_version_option"
 
 private fun PensumScreenModel.PensumOptionItem.hasSameAcademicIdentity(
 	other: PensumScreenModel.PensumOptionItem

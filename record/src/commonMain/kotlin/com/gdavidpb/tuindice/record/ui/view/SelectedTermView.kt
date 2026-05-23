@@ -66,7 +66,8 @@ fun SelectedTermView(
 	) {
 		items(
 			items = term.attempts,
-			key = { attempt -> attempt.attemptId }
+			key = { attempt -> attempt.attemptId },
+			contentType = { SelectedTermAttemptContentType }
 		) { attempt ->
 			val gradeState = gradeStates.getOrPut(attempt.attemptId) {
 				mutableIntStateOf(attempt.grade)
@@ -87,3 +88,5 @@ fun SelectedTermView(
 		}
 	}
 }
+
+private const val SelectedTermAttemptContentType = "selected_term_attempt"

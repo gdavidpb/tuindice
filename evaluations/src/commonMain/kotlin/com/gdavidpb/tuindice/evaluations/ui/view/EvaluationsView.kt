@@ -38,7 +38,8 @@ fun EvaluationsView(
 
 			items(
 				items = items,
-				key = { evaluation -> evaluation.evaluationId }
+				key = { evaluation -> evaluation.evaluationId },
+				contentType = { EvaluationItemContentType }
 			) { evaluation ->
 				val itemModifier = if (evaluation.evaluationId == focusEvaluationId) {
 					Modifier.onGloballyPositioned { coordinates ->
@@ -75,3 +76,5 @@ fun EvaluationsView(
 		}
 	}
 }
+
+private const val EvaluationItemContentType = "evaluation_item"

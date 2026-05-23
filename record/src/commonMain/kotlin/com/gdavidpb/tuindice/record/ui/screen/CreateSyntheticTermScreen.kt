@@ -149,7 +149,8 @@ fun CreateSyntheticTermScreen(
 				}
 				items(
 					items = state.selectedSubjects,
-					key = { subject -> SelectedSubjectKeyPrefix + subject.subjectCode }
+					key = { subject -> SelectedSubjectKeyPrefix + subject.subjectCode },
+					contentType = { CreateTermSelectedSubjectContentType }
 				) { subject ->
 					CreateTermSelectedSubjectCard(
 						modifier = Modifier.animateItem(
@@ -194,7 +195,8 @@ fun CreateSyntheticTermScreen(
 							) {
 								items(
 									items = displayedSuggestedSubjects,
-									key = { subject -> SuggestedSubjectKeyPrefix + subject.subjectCode }
+									key = { subject -> SuggestedSubjectKeyPrefix + subject.subjectCode },
+									contentType = { CreateTermSuggestedSubjectContentType }
 								) { subject ->
 									CreateTermSuggestedSubjectCard(
 										modifier = Modifier.animateItem(
@@ -246,7 +248,8 @@ fun CreateSyntheticTermScreen(
 
 						items(
 							items = displayedSearchResults,
-							key = { subject -> SearchResultSubjectKeyPrefix + subject.subjectCode }
+							key = { subject -> SearchResultSubjectKeyPrefix + subject.subjectCode },
+							contentType = { CreateTermSearchResultContentType }
 						) { subject ->
 							CreateTermSelectedSubjectCard(
 								modifier = Modifier.animateItem(
@@ -300,3 +303,6 @@ private const val MinimumSearchQueryLength = 2
 private const val SearchResultSubjectKeyPrefix = "search:"
 private const val SuggestedSubjectKeyPrefix = "suggested:"
 private const val SelectedSubjectKeyPrefix = "selected:"
+private const val CreateTermSelectedSubjectContentType = "create_term_selected_subject"
+private const val CreateTermSuggestedSubjectContentType = "create_term_suggested_subject"
+private const val CreateTermSearchResultContentType = "create_term_search_result"
