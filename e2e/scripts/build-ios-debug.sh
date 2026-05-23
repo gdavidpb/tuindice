@@ -10,6 +10,44 @@ fi
 
 require_command xcrun
 
+"${REPO_ROOT}/.github/scripts/materialize-firebase-configs.sh"
+
+GOOGLE_SERVICE_INFO="${REPO_ROOT}/iosApp/Resources/GoogleService-Info.plist"
+if [[ ! -s "${GOOGLE_SERVICE_INFO}" ]]; then
+	log "Creating placeholder iOS Firebase configuration for debug build."
+	mkdir -p "$(dirname "${GOOGLE_SERVICE_INFO}")"
+	cat >"${GOOGLE_SERVICE_INFO}" <<'PLIST'
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>API_KEY</key>
+	<string>AIzaSyDebugOnlyPlaceholder</string>
+	<key>BUNDLE_ID</key>
+	<string>com.gdavidpb.tuindice.ios.debug</string>
+	<key>GCM_SENDER_ID</key>
+	<string>000000000000</string>
+	<key>GOOGLE_APP_ID</key>
+	<string>1:000000000000:ios:0000000000000000000000</string>
+	<key>IS_ADS_ENABLED</key>
+	<false/>
+	<key>IS_ANALYTICS_ENABLED</key>
+	<false/>
+	<key>IS_APPINVITE_ENABLED</key>
+	<false/>
+	<key>IS_GCM_ENABLED</key>
+	<false/>
+	<key>IS_SIGNIN_ENABLED</key>
+	<false/>
+	<key>PROJECT_ID</key>
+	<string>tu-indice-usb</string>
+	<key>STORAGE_BUCKET</key>
+	<string>tu-indice-usb.appspot.com</string>
+</dict>
+</plist>
+PLIST
+fi
+
 log "Linking shared iOS simulator framework."
 "${REPO_ROOT}/gradlew" --console=plain :maincore:linkDebugFrameworkIosSimulatorArm64
 
