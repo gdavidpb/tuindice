@@ -39,3 +39,9 @@ allprojects {
 tasks.register("clean", Delete) {
     delete rootProject.buildDir
 }
+
+tasks.register("verifyAppVersionSync", Exec) {
+    group = "verification"
+    description = "Validates that Android release metadata reads from gradle/app-version.properties."
+    commandLine "bash", "${rootDir}/.github/scripts/validate-app-version.sh"
+}

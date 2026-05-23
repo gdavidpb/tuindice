@@ -1,0 +1,89 @@
+#!/usr/bin/env bash
+set -euo pipefail
+IFS=$'\n\t'
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=.github/scripts/common.sh
+source "${SCRIPT_DIR}/common.sh"
+
+require_tool git
+require_tool jq
+
+TARGET_GIT_SHA="${TARGET_GIT_SHA:-${GITHUB_SHA:-$(git rev-parse HEAD)}}"
+DEPLOY_DIFF_BASE_SHA="${DEPLOY_DIFF_BASE_SHA:-}"
+STATE_DIR="${STATE_DIR:-$(mktemp -d "${RUNNER_TEMP:-/tmp}/tuindice-deploy.XXXXXX")}"
+DRY_RUN="${DRY_RUN:-0}"
+VERSION_NAME="$(get_app_version_name)"
+TAG_NAME="$(app_tag_name "$VERSION_NAME")"
+
+resolve_deploy_diff_base_sha() {
+	local before_sha="${DEPLOY_DIFF_BASE_SHA:-}"
+
+	if [[ -n "$before_sha" ]]; then
+		printf '%s\n' "$before_sha"
+		return
+	fi
+
+	if [[ -n "${GITHUB_EVENT_PATH:-}" && -f "${GITHUB_EVENT_PATH:-}" ]]; then
+		before_sha="$(jq -r '.before // empty' "$GITHUB_EVENT_PATH")"
+	fi
+
+	if is_zero_sha "$before_sha"; then
+		before_sha="$(git rev-parse "${TARGET_GIT_SHA}^" 2>/dev/null || true)"
+	fi
+
+	printf '%s\n' "$before_sha"
+}
+
+create_release_tag() {
+	local existing_target
+
+	existing_target="$(existing_tag_target "$TAG_NAME" || true)"
+	if [[ -n "$existing_target" ]]; then
+		if [[ "$existing_target" == "$TARGET_GIT_SHA" ]]; then
+			info "Release tag ${TAG_NAME} already exists on ${TARGET_GIT_SHA}."
+			return 0
+		fi
+		die "Release tag ${TAG_NAME} already exists at ${existing_target}. Bump $(app_version_file) before deploying."
+	fi
+
+	info "Creating release tag ${TAG_NAME} on ${TARGET_GIT_SHA}."
+	git tag -a "$TAG_NAME" "$TARGET_GIT_SHA" -m "TuIndice app ${VERSION_NAME}"
+	git push origin "refs/tags/${TAG_NAME}"
+}
+
+BEFORE_SHA="$(resolve_deploy_diff_base_sha)"
+[[ -n "$BEFORE_SHA" ]] || die "Unable to resolve previous production SHA."
+
+DETECT_STATE_DIR="${STATE_DIR}/detect"
+mkdir -p "$DETECT_STATE_DIR"
+
+STATE_DIR="$DETECT_STATE_DIR" bash "${SCRIPT_DIR}/detect-changed-app.sh" "$BEFORE_SHA" "$TARGET_GIT_SHA"
+
+ANDROID_TASKS_FILE="${DETECT_STATE_DIR}/android-gradle-tasks.txt"
+if ! grep -Fx ":app:bundleRelease" "$ANDROID_TASKS_FILE" >/dev/null 2>&1; then
+	info "No release-impacting Android changes detected. Skipping production draft deploy."
+	exit 0
+fi
+
+MISSING_VERSION_BUMP_FILE="${DETECT_STATE_DIR}/missing-version-bump.txt" \
+HAS_RELEVANT_CHANGES="true" \
+TARGET_GIT_SHA="$TARGET_GIT_SHA" \
+	bash "${SCRIPT_DIR}/preflight-production.sh"
+
+REQUIRE_FIREBASE_CONFIGS=1 bash "${SCRIPT_DIR}/materialize-firebase-configs.sh"
+export TU_INDICE_KEY_STORE_PATH="${TU_INDICE_KEY_STORE_PATH:-${RUNNER_TEMP:-/tmp}/tuindice-release.jks}"
+bash "${SCRIPT_DIR}/materialize-android-signing.sh"
+
+info "Building signed Android App Bundle."
+./gradlew --console=plain :app:bundleRelease
+
+if [[ "$DRY_RUN" == "1" ]]; then
+	info "DRY_RUN=1: skipping Google Play upload and release tag creation."
+	exit 0
+fi
+
+bash "${SCRIPT_DIR}/publish-google-play-draft.sh"
+create_release_tag
+
+info "Production deploy completed for ${VERSION_NAME} (${TAG_NAME})."
