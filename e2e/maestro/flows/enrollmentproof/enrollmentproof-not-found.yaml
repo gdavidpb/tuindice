@@ -9,7 +9,11 @@ appId: com.gdavidpb.tuindice.debug
 - inputText: "enrollment-not-found-pass"
 - tapOn:
     id: auth_sign_in_idle_container
-- hideKeyboard
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard
 - tapOn:
     id: auth_sign_in_button
 - extendedWaitUntil:
