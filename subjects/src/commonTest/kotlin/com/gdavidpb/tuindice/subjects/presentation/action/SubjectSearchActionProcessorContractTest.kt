@@ -12,12 +12,14 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepositor
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.fail
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
@@ -84,8 +86,11 @@ class SubjectSearchActionProcessorContractTest {
 		queryFlow.value = "mi"
 		runCurrent()
 		advanceTimeBy(SubjectSearchDebounceMillis / 2)
+		runCurrent()
+		assertEquals(emptyList(), repository.refreshCalls)
 		queryFlow.value = "micro"
 		runCurrent()
+		advanceUntil { repository.refreshCalls.size == 1 && state.query == "micro" }
 		advanceTimeBy(SubjectSearchDebounceMillis)
 		runCurrent()
 
@@ -171,6 +176,27 @@ private suspend fun reduceState(
 private suspend fun waitUntil(condition: () -> Boolean) {
 	withTimeout(2_000) {
 		while (!condition()) yield()
+	}
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+private fun TestScope.advanceUntil(
+	timeoutMillis: Long = 2_000,
+	stepMillis: Long = 10,
+	condition: () -> Boolean
+) {
+	var elapsedMillis = 0L
+	while (!condition() && elapsedMillis <= timeoutMillis) {
+		runCurrent()
+		if (condition()) return
+
+		advanceTimeBy(stepMillis)
+		elapsedMillis += stepMillis
+	}
+	runCurrent()
+
+	if (!condition()) {
+		fail("Condition was not met within ${timeoutMillis}ms of virtual test time.")
 	}
 }
 
