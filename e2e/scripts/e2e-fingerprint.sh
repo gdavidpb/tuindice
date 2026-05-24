@@ -25,7 +25,9 @@ declare -a fingerprint_pathspecs=(
 	"gradle/libs.versions.toml"
 	"gradle/wrapper/gradle-wrapper.properties"
 	"app/build.gradle.kts"
-	"app/src"
+	"app/src/main"
+	"app/src/debug"
+	"app/src/release"
 	"iosApp/Config"
 	"iosApp/Podfile"
 	"iosApp/Podfile.lock"
@@ -38,9 +40,18 @@ declare -a fingerprint_pathspecs=(
 	"testkit/e2e"
 )
 
-while IFS= read -r module; do
+append_kmp_runtime_pathspecs() {
+	local module="$1"
+	local source_set
+
 	fingerprint_pathspecs+=("${module}/build.gradle.kts")
-	fingerprint_pathspecs+=("${module}/src")
+	for source_set in commonMain androidMain iosMain appleMain nativeMain iosArm64Main iosSimulatorArm64Main iosX64Main; do
+		fingerprint_pathspecs+=("${module}/src/${source_set}")
+	done
+}
+
+while IFS= read -r module; do
+	append_kmp_runtime_pathspecs "$module"
 done <<'MODULES'
 about
 academiccore
@@ -54,7 +65,6 @@ persistence
 record
 subjects
 summary
-testkit
 wizard
 MODULES
 
@@ -64,7 +74,7 @@ if ! command -v shasum >/dev/null 2>&1; then
 fi
 
 {
-	printf 'tuindice-e2e-fingerprint-v1\n'
+	printf 'tuindice-e2e-fingerprint-v2\n'
 	printf 'platform=%s\n' "$PLATFORM"
 	printf 'suite=%s\n' "$SUITE_ID"
 	git -C "$REPO_ROOT" ls-tree -r "$GIT_REF" -- "${fingerprint_pathspecs[@]}" | LC_ALL=C sort

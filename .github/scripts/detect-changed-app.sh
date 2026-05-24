@@ -77,6 +77,62 @@ append_runtime_module() {
 	fi
 }
 
+append_changed_test_module() {
+	local module="$1"
+
+	append_unique_line "$IMPACTED_MODULES_FILE" "$module"
+}
+
+is_app_test_source_file() {
+	local file="$1"
+
+	case "$file" in
+		app/src/test/*|app/src/androidTest/*)
+			return 0
+			;;
+	esac
+
+	return 1
+}
+
+is_ios_app_test_source_file() {
+	local file="$1"
+
+	case "$file" in
+		iosApp/Tests/*|iosApp/*Tests/*)
+			return 0
+			;;
+	esac
+
+	return 1
+}
+
+is_kmp_test_source_file() {
+	local module="$1"
+	local file="$2"
+
+	case "$file" in
+		"$module/src/"*Test/*|"$module/src/test/"*)
+			return 0
+			;;
+	esac
+
+	return 1
+}
+
+is_kmp_runtime_source_or_build_file() {
+	local module="$1"
+	local file="$2"
+
+	case "$file" in
+		"$module/build.gradle.kts"|"$module/src/commonMain/"*|"$module/src/androidMain/"*|"$module/src/iosMain/"*|"$module/src/appleMain/"*|"$module/src/nativeMain/"*|"$module/src/iosArm64Main/"*|"$module/src/iosSimulatorArm64Main/"*|"$module/src/iosX64Main/"*)
+			return 0
+			;;
+	esac
+
+	return 1
+}
+
 mark_e2e_suite_for_module() {
 	local module="$1"
 	local suite
@@ -149,6 +205,12 @@ classify_changed_file() {
 			return 0
 			;;
 		iosApp/*)
+			if is_ios_app_test_source_file "$file"; then
+				append_changed_test_module iosApp
+				HAS_RELEVANT_CHANGES=true
+				return 0
+			fi
+
 			append_runtime_module iosApp
 			HAS_RELEVANT_CHANGES=true
 			HAS_RELEASE_IMPACT=true
@@ -157,6 +219,12 @@ classify_changed_file() {
 			return 0
 			;;
 		app/*)
+			if is_app_test_source_file "$file"; then
+				append_changed_test_module app
+				HAS_RELEVANT_CHANGES=true
+				return 0
+			fi
+
 			append_runtime_module app
 			HAS_RELEVANT_CHANGES=true
 			HAS_RELEASE_IMPACT=true
@@ -167,21 +235,25 @@ classify_changed_file() {
 	esac
 
 	if module_is_kmp "$top_level"; then
-		append_runtime_module "$top_level"
 		HAS_RELEVANT_CHANGES=true
+
+		if is_kmp_test_source_file "$top_level" "$file"; then
+			append_changed_test_module "$top_level"
+			return 0
+		fi
+
+		append_runtime_module "$top_level"
 
 		if module_is_runtime "$top_level"; then
 			HAS_RELEASE_IMPACT=true
-			case "$file" in
-				"$top_level/src/commonMain/"*|"$top_level/src/androidMain/"*|"$top_level/src/iosMain/"*|"$top_level/build.gradle.kts")
-					REQUIRES_E2E_CERTIFICATION=true
-					if [[ "$top_level" == "base" || "$top_level" == "persistence" || "$top_level" == "academiccore" || "$top_level" == "maincore" ]]; then
-						append_e2e_suite local-certification-suite
-					else
-						mark_e2e_suite_for_module "$top_level"
-					fi
-					;;
-			esac
+			if is_kmp_runtime_source_or_build_file "$top_level" "$file"; then
+				REQUIRES_E2E_CERTIFICATION=true
+				if [[ "$top_level" == "base" || "$top_level" == "persistence" || "$top_level" == "academiccore" || "$top_level" == "maincore" ]]; then
+					append_e2e_suite local-certification-suite
+				else
+					mark_e2e_suite_for_module "$top_level"
+				fi
+			fi
 		fi
 	fi
 }
