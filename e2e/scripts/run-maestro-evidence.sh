@@ -13,6 +13,7 @@ require_command git
 require_command jq
 
 COMMIT_SHA="${E2E_COMMIT_SHA:-$(git -C "${REPO_ROOT}" rev-parse HEAD)}"
+COMMIT_SHA="$(git -C "${REPO_ROOT}" rev-parse "${COMMIT_SHA}^{commit}")"
 SUITE_ID="$(basename "${E2E_MAESTRO_SUITE}" .yaml)"
 E2E_FINGERPRINT="$("${SCRIPT_DIR}/e2e-fingerprint.sh" "${PLATFORM}" "${SUITE_ID}" "${COMMIT_SHA}")"
 CERTIFICATION_DIR="${E2E_CERTIFICATION_DIR:-${REPO_ROOT}/build/e2e/certifications/${COMMIT_SHA}/${PLATFORM}/${SUITE_ID}}"
@@ -25,6 +26,139 @@ TEST_OUTPUT_DIR="${CERTIFICATION_DIR}/maestro-output"
 DEBUG_OUTPUT_DIR="${CERTIFICATION_DIR}/maestro-debug"
 
 mkdir -p "${CERTIFICATION_DIR}" "${TEST_OUTPUT_DIR}" "${DEBUG_OUTPUT_DIR}"
+
+publish_mode_is_disabled() {
+	case "${E2E_PUBLISH_GITHUB_STATUS:-auto}" in
+		0|false|False|FALSE|no|No|NO|off|Off|OFF|never|Never|NEVER)
+			return 0
+			;;
+	esac
+
+	return 1
+}
+
+publish_mode_is_required() {
+	case "${E2E_PUBLISH_GITHUB_STATUS:-auto}" in
+		1|true|True|TRUE|yes|Yes|YES|on|On|ON|always|Always|ALWAYS)
+			return 0
+			;;
+	esac
+
+	return 1
+}
+
+validate_publish_mode() {
+	case "${E2E_PUBLISH_GITHUB_STATUS:-auto}" in
+		0|false|False|FALSE|no|No|NO|off|Off|OFF|never|Never|NEVER|\
+		1|true|True|TRUE|yes|Yes|YES|on|On|ON|always|Always|ALWAYS|\
+		auto|Auto|AUTO|"")
+			return 0
+			;;
+	esac
+
+	printf 'Unsupported E2E_PUBLISH_GITHUB_STATUS value: %s\n' "${E2E_PUBLISH_GITHUB_STATUS}" >&2
+	exit 1
+}
+
+github_status_publishing_available() {
+	if publish_mode_is_disabled; then
+		log "Skipping GitHub commit status publishing because E2E_PUBLISH_GITHUB_STATUS=${E2E_PUBLISH_GITHUB_STATUS}."
+		return 1
+	fi
+
+	if ! command -v gh >/dev/null 2>&1; then
+		if publish_mode_is_required; then
+			printf 'Missing required command: gh\n' >&2
+			exit 1
+		fi
+		log "Skipping GitHub commit status publishing because gh is unavailable."
+		return 1
+	fi
+
+	if ! gh auth status >/dev/null 2>&1; then
+		if publish_mode_is_required; then
+			printf 'GitHub CLI is not authenticated; run gh auth login before publishing E2E statuses.\n' >&2
+			exit 1
+		fi
+		log "Skipping GitHub commit status publishing because gh is not authenticated."
+		return 1
+	fi
+
+	if [[ -n "$(git -C "${REPO_ROOT}" status --porcelain --untracked-files=all)" ]]; then
+		if publish_mode_is_required; then
+			printf 'Working tree has uncommitted changes; commit or stash them before publishing E2E statuses.\n' >&2
+			exit 1
+		fi
+		log "Skipping GitHub commit status publishing because the working tree has uncommitted changes."
+		return 1
+	fi
+
+	if [[ "${E2E_ALLOW_NON_HEAD_COMMIT_STATUS:-0}" != "1" && "$(git -C "${REPO_ROOT}" rev-parse HEAD)" != "${COMMIT_SHA}" ]]; then
+		if publish_mode_is_required; then
+			printf 'Refusing to publish E2E statuses for non-HEAD commit %s.\n' "${COMMIT_SHA}" >&2
+			exit 1
+		fi
+		log "Skipping GitHub commit status publishing because ${COMMIT_SHA} is not the current HEAD."
+		return 1
+	fi
+
+	if ! gh api "repos/{owner}/{repo}/commits/${COMMIT_SHA}" >/dev/null 2>&1; then
+		if publish_mode_is_required; then
+			printf 'Commit %s is not available through GitHub API for this repository.\n' "${COMMIT_SHA}" >&2
+			exit 1
+		fi
+		log "Skipping GitHub commit status publishing because ${COMMIT_SHA} is not available on GitHub yet."
+		return 1
+	fi
+
+	return 0
+}
+
+covered_status_contexts() {
+	local include_covered="${1:-1}"
+	local suite
+
+	if [[ "${include_covered}" != "1" || "${SUITE_ID}" != "local-certification-suite" || "${E2E_PUBLISH_COVERED_SUITE_STATUSES:-1}" != "1" ]]; then
+		printf '%s\n' "${STATUS_CONTEXT}"
+		return 0
+	fi
+
+	for suite in \
+		local-certification-suite \
+		about-suite \
+		auth-suite \
+		enrollmentproof-suite \
+		evaluations-suite \
+		maincore-suite \
+		pensum-suite \
+		record-suite \
+		subjects-suite \
+		summary-suite \
+		wizard-suite; do
+		printf 'local-e2e/%s/%s\n' "${PLATFORM}" "${suite}"
+	done
+}
+
+publish_github_statuses() {
+	local state="$1"
+	local description="$2"
+	local include_covered="${3:-1}"
+	local context
+
+	while IFS= read -r context; do
+		[[ -n "${context}" ]] || continue
+		log "Publishing GitHub commit status ${context}=${state}."
+		gh api \
+			-X POST \
+			"repos/{owner}/{repo}/statuses/${COMMIT_SHA}" \
+			-f state="${state}" \
+			-f context="${context}" \
+			-f description="${description}" \
+			>/dev/null
+	done < <(covered_status_contexts "${include_covered}")
+}
+
+validate_publish_mode
 
 export E2E_REPORT_DIR="${CERTIFICATION_DIR}"
 export E2E_MAESTRO_LOG_FILE="${LOG_FILE}"
@@ -124,15 +258,16 @@ if [[ "$status" != "0" ]]; then
 	publish_description="Local E2E ${SUITE_ID} failed for ${COMMIT_SHA:0:7} fp ${E2E_FINGERPRINT:0:12}."
 fi
 
-if [[ "${E2E_PUBLISH_GITHUB_STATUS:-0}" == "1" ]]; then
-	require_command gh
-	log "Publishing GitHub commit status ${STATUS_CONTEXT}=${publish_state}."
-	gh api \
-		-X POST \
-		"repos/{owner}/{repo}/statuses/${COMMIT_SHA}" \
-		-f state="${publish_state}" \
-		-f context="${STATUS_CONTEXT}" \
-		-f description="${publish_description}"
+if [[ "$status" == "0" ]]; then
+	if github_status_publishing_available; then
+		publish_github_statuses "${publish_state}" "${publish_description}" 1
+	fi
+elif [[ "${E2E_PUBLISH_FAILURE_STATUS:-0}" == "1" ]]; then
+	if github_status_publishing_available; then
+		publish_github_statuses "${publish_state}" "${publish_description}" 0
+	fi
+else
+	log "Skipping GitHub failure status publishing. Set E2E_PUBLISH_FAILURE_STATUS=1 to publish failed local E2E runs."
 fi
 
 log "E2E evidence manifest: ${MANIFEST_FILE}"

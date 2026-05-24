@@ -209,19 +209,19 @@ tasks.register<Exec>("e2eMaestroLocal") {
 
 tasks.register<Exec>("e2eMaestroEvidenceAndroid") {
 	group = "verification"
-	description = "Runs Android Maestro E2E and writes commit-bound evidence logs and metadata."
+	description = "Runs Android Maestro E2E and writes/publishes commit-bound evidence logs and metadata."
 	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-evidence.sh", "android")
 }
 
 tasks.register<Exec>("e2eMaestroEvidenceIos") {
 	group = "verification"
-	description = "Runs iOS Maestro E2E and writes commit-bound evidence logs and metadata."
+	description = "Runs iOS Maestro E2E and writes/publishes commit-bound evidence logs and metadata."
 	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-evidence.sh", "ios")
 }
 
 tasks.register<Exec>("e2eMaestroEvidenceLocal") {
 	group = "verification"
-	description = "Runs local Maestro E2E evidence on every locally available platform."
+	description = "Runs local Maestro E2E evidence on every locally available platform and publishes passing statuses when possible."
 	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-evidence-local.sh")
 }
 

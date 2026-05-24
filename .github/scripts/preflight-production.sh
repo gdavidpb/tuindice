@@ -65,6 +65,15 @@ status_context_succeeded_at_sha() {
 	[[ "$state" == "success" ]]
 }
 
+status_context_succeeded_at_sha_quiet() {
+	local sha="$1"
+	local context="$2"
+	local state
+
+	state="$(github_commit_status_state_at_sha "$sha" "$context" 2>/dev/null || true)"
+	[[ "$state" == "success" ]]
+}
+
 status_context_succeeded() {
 	local context="$1"
 	status_context_succeeded_at_sha "$TARGET_GIT_SHA" "$context"
@@ -133,7 +142,7 @@ reuse_successful_status_for_context() {
 	current_fingerprint="$(e2e_fingerprint "$TARGET_GIT_SHA" "$platform" "$suite")"
 	while IFS= read -r candidate_sha; do
 		[[ -n "$candidate_sha" ]] || continue
-		if ! status_context_succeeded_at_sha "$candidate_sha" "$context"; then
+		if ! status_context_succeeded_at_sha_quiet "$candidate_sha" "$context"; then
 			continue
 		fi
 
@@ -167,12 +176,12 @@ verify_contexts_file() {
 			continue
 		fi
 
-		if reuse_successful_status_for_context "$context" "$platform"; then
+		if [[ "$context" != "$fallback_context" ]] && status_context_succeeded "$fallback_context"; then
+			info "Found successful aggregate E2E status for ${context}: ${fallback_context}"
 			continue
 		fi
 
-		if [[ "$context" != "$fallback_context" ]] && status_context_succeeded "$fallback_context"; then
-			info "Found successful aggregate E2E status for ${context}: ${fallback_context}"
+		if reuse_successful_status_for_context "$context" "$platform"; then
 			continue
 		fi
 
