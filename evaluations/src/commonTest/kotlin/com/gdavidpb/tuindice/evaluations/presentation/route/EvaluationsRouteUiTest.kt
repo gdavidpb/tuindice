@@ -334,6 +334,7 @@ class EvaluationsRouteUiTest {
 					evaluationsFlowCalls++
 					throw IllegalStateException("boom")
 				},
+				refreshThrowable = IllegalStateException("refresh boom"),
 				availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT)
 			)
 		)
