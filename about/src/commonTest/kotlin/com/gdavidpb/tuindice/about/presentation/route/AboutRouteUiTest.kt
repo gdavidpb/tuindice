@@ -613,16 +613,18 @@ class AboutRouteUiTest {
 		expectedLinksByTag.forEach { (tag, expectedLink) ->
 			onNodeWithTag(AboutUiTags.ContentContainer)
 				.performScrollToNode(hasTestTag(tag))
+			waitForIdle()
 			waitUntilNodeExists(tag = tag)
 			onNodeWithTag(tag).performClick()
 
 			waitUntil(timeoutMillis = 2_000) {
-				fixture.browserRepository.lastOpenedUrl == expectedLink
+				fixture.browserRepository.openedUrls.value.lastOrNull() == expectedLink
 			}
 
-			assertEquals(expectedLink, fixture.browserRepository.lastOpenedUrl)
+			assertEquals(expectedLink, fixture.browserRepository.openedUrls.value.lastOrNull())
 		}
 
+		assertEquals(expectedLinksByTag.map { (_, link) -> link }, fixture.browserRepository.openedUrls.value)
 		assertEquals(0, navigateCalls)
 		assertEquals(0, openUriCalls)
 		assertEquals(0, shareCalls)

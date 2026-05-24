@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.update
 
 class FakeAppEnvironmentRepository(
 	private val appEnvironment: AppEnvironment = AppEnvironment(
@@ -43,9 +44,11 @@ class FakeAppEnvironmentRepository(
 
 class RecordingBrowserRepository : BrowserRepository {
 	var lastOpenedUrl: String? = null
+	val openedUrls = MutableStateFlow<List<String>>(emptyList())
 
 	override fun open(url: String) {
 		lastOpenedUrl = url
+		openedUrls.update { urls -> urls + url }
 	}
 }
 

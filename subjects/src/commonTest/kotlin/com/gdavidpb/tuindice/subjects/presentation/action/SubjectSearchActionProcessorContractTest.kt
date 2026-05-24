@@ -90,8 +90,10 @@ class SubjectSearchActionProcessorContractTest {
 		assertEquals(emptyList(), repository.refreshCalls)
 		queryFlow.value = "micro"
 		runCurrent()
-		advanceUntil { repository.refreshCalls.size == 1 && state.query == "micro" }
-		advanceTimeBy(SubjectSearchDebounceMillis)
+		advanceTimeBy(SubjectSearchDebounceMillis - 1)
+		runCurrent()
+		assertEquals(emptyList(), repository.refreshCalls)
+		advanceTimeBy(1)
 		runCurrent()
 
 		assertEquals(listOf(SubjectSearchParams(query = "micro", limit = SubjectSearchLimit)), repository.refreshCalls)
