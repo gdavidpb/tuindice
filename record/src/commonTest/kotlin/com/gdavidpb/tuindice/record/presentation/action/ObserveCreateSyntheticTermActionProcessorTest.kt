@@ -63,7 +63,10 @@ class ObserveCreateSyntheticTermActionProcessorTest {
 
 			selectedSubjectsFlow.value = listOf(selectedSubject)
 
-			while (state.loadPreview?.band != SyntheticTermLoadBand.NORMAL) {
+			while (
+				state.selectedSubjects != listOf(selectedSubject) ||
+				state.loadPreview?.band != SyntheticTermLoadBand.NORMAL
+			) {
 				state = awaitItem()(state)
 			}
 
