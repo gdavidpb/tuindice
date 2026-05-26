@@ -611,9 +611,9 @@
           "code": "MA1112",
           "name": "Matemáticas II",
           "credits": 4,
-          "grade": 4,
+          "grade": 0,
           "revision": 1,
-          "status": "approved"
+          "status": "retired"
         },
         {
           "id": "2c9cdf19fa779ab87b498fb202a64448",
@@ -676,6 +676,16 @@
           "grade": 5,
           "revision": 1,
           "status": "approved"
+        },
+        {
+          "id": "2d9edaf132ab76c4a58347379657a3da",
+          "term_id": "2021-SEP_DEC",
+          "code": "MA1121",
+          "name": "Matemáticas I Honor",
+          "credits": 4,
+          "grade": 2,
+          "revision": 1,
+          "status": "failed"
         },
         {
           "id": "5ece780aaad5f91df610cd9ecd29004a",

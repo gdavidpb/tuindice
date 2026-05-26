@@ -266,7 +266,7 @@ class SyntheticTermCreationDataSource(
 			terms.filterNot { term -> term.id == editingTermId }.forEach { term ->
 				term.attempts.forEach { attempt ->
 					val availability = when {
-						term.kind.isHistorical ->
+						term.kind.isHistorical && attempt.academicOutcome == AttemptOutcome.APPROVED ->
 							SyntheticTermSubjectAvailability.ALREADY_TAKEN
 						term.kind.isSynthetic ->
 							SyntheticTermSubjectAvailability.ALREADY_PLANNED

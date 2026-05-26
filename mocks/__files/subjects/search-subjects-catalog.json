@@ -278,6 +278,12 @@
       "grading_mode": "numeric"
     },
     {
+      "subject_code": "MA1121",
+      "name": "Matemáticas I Honor",
+      "credits": 4,
+      "grading_mode": "numeric"
+    },
+    {
       "subject_code": "MA1112",
       "name": "Matemáticas II",
       "credits": 4,

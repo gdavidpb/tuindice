@@ -138,6 +138,60 @@ class SyntheticTermCreationDataSourceTest {
 	}
 
 	@Test
+	fun observeSnapshot_resolvesFailedAndRetiredHistoricalSearchResultsFromPensumAvailability() = runTest {
+		val dataSource = dataSource(
+			record = AcademicRecord(
+				id = "record",
+				terms = listOf(
+					academicTerm(
+						id = "historical",
+						kind = TermKind.HISTORICAL,
+						attempts = listOf(
+							academicAttempt(subjectCode = "MA1111", outcome = AttemptOutcome.APPROVED),
+							academicAttempt(subjectCode = "MA1112", outcome = AttemptOutcome.RETIRED),
+							academicAttempt(subjectCode = "MA1121", outcome = AttemptOutcome.FAILED),
+							academicAttempt(subjectCode = "MA1116", outcome = AttemptOutcome.APPROVED)
+						)
+					)
+				)
+			),
+			pensumPayloadJson = pensumPayload(
+				nodes = listOf(
+					pensumNode(id = "ma1111", subjectCode = "MA1111", name = "Matemáticas I"),
+					pensumNode(id = "ma1112", subjectCode = "MA1112", name = "Matemáticas II"),
+					pensumNode(id = "ma1121", subjectCode = "MA1121", name = "Matemáticas I Honor"),
+					pensumNode(id = "ma1116", subjectCode = "MA1116", name = "Matemáticas III")
+				),
+				edges = listOf(
+					pensumEdge(fromNodeId = "ma1111", toNodeId = "ma1112", relationshipType = "REQUIREMENT")
+				)
+			),
+			searchEntities = listOf(
+				subjectCatalogEntity(subjectCode = "MA1112", name = "Matemáticas II"),
+				subjectCatalogEntity(subjectCode = "MA1121", name = "Matemáticas I Honor"),
+				subjectCatalogEntity(subjectCode = "MA1116", name = "Matemáticas III")
+			)
+		)
+
+		val snapshot = dataSource.observeSnapshot(
+			queryFlow = MutableStateFlow("matematicas"),
+			selectedSubjectsFlow = MutableStateFlow(emptyList()),
+			selectedPeriodKeyFlow = MutableStateFlow(null),
+			editingTermIdFlow = MutableStateFlow(null),
+			editingTermKeyFlow = MutableStateFlow(null)
+		).first()
+
+		assertEquals(
+			listOf(
+				"MA1112" to SyntheticTermSubjectAvailability.AVAILABLE,
+				"MA1121" to SyntheticTermSubjectAvailability.AVAILABLE,
+				"MA1116" to SyntheticTermSubjectAvailability.ALREADY_TAKEN
+			),
+			snapshot.searchResults.map { subject -> subject.subjectCode to subject.availability }
+		)
+	}
+
+	@Test
 	fun observeSnapshot_marksSearchResultNotInPensum_whenSubjectIsOnlyInCatalog() = runTest {
 		val dataSource = dataSource(
 			record = academicRecord(
@@ -165,6 +219,50 @@ class SyntheticTermCreationDataSourceTest {
 		val result = snapshot.searchResults.single()
 		assertEquals(SyntheticTermSubjectAvailability.NOT_IN_PENSUM, result.availability)
 		assertTrue(result.canAdd)
+	}
+
+	@Test
+	fun observeSnapshot_suggestsFailedAndRetiredHistoricalSubjects_whenPensumRequirementsAreMet() = runTest {
+		val dataSource = dataSource(
+			record = AcademicRecord(
+				id = "record",
+				terms = listOf(
+					academicTerm(
+						id = "historical",
+						kind = TermKind.HISTORICAL,
+						attempts = listOf(
+							academicAttempt(subjectCode = "MA1111", outcome = AttemptOutcome.APPROVED),
+							academicAttempt(subjectCode = "MA1112", outcome = AttemptOutcome.RETIRED),
+							academicAttempt(subjectCode = "MA1121", outcome = AttemptOutcome.FAILED)
+						)
+					)
+				)
+			),
+			pensumPayloadJson = pensumPayload(
+				nodes = listOf(
+					pensumNode(id = "ma1111", subjectCode = "MA1111", name = "Matemáticas I"),
+					pensumNode(id = "ma1112", subjectCode = "MA1112", name = "Matemáticas II"),
+					pensumNode(id = "ma1121", subjectCode = "MA1121", name = "Matemáticas I Honor")
+				),
+				edges = listOf(
+					pensumEdge(fromNodeId = "ma1111", toNodeId = "ma1112", relationshipType = "REQUIREMENT")
+				)
+			),
+			searchEntities = emptyList()
+		)
+
+		val snapshot = dataSource.observeSnapshot(
+			queryFlow = MutableStateFlow(""),
+			selectedSubjectsFlow = MutableStateFlow(emptyList()),
+			selectedPeriodKeyFlow = MutableStateFlow(null),
+			editingTermIdFlow = MutableStateFlow(null),
+			editingTermKeyFlow = MutableStateFlow(null)
+		).first()
+
+		assertEquals(
+			listOf("MA1112", "MA1121"),
+			snapshot.suggestedSubjects.map { subject -> subject.subjectCode }
+		)
 	}
 
 	@Test
