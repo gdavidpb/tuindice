@@ -203,7 +203,10 @@ while IFS= read -r auth_flow; do
 	}
 done < <(find "${FLOWS_ROOT}/auth" -name '*.yaml' -type f | sort)
 
-if [[ "${missing_catalog_entries}" == "1" || "${missing_flow_files}" == "1" || "${missing_mvi_actions}" == "1" || "${unknown_mvi_actions}" == "1" || "${invalid_mvi_entries}" == "1" || "${missing_selectors}" == "1" || "${invalid_auth_usb_id_inputs}" == "1" ]]; then
+record_search_fixture_mismatches=0
+bash "${SCRIPT_DIR}/validate-record-search-fixtures.sh" || record_search_fixture_mismatches=1
+
+if [[ "${missing_catalog_entries}" == "1" || "${missing_flow_files}" == "1" || "${missing_mvi_actions}" == "1" || "${unknown_mvi_actions}" == "1" || "${invalid_mvi_entries}" == "1" || "${missing_selectors}" == "1" || "${invalid_auth_usb_id_inputs}" == "1" || "${record_search_fixture_mismatches}" == "1" ]]; then
 	exit 1
 fi
 

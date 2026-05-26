@@ -8,7 +8,8 @@ data class SyntheticTermSubject(
 	val name: String,
 	val credits: Int,
 	val gradingMode: AttemptGradingMode = AttemptGradingMode.NUMERIC,
-	val availability: SyntheticTermSubjectAvailability = SyntheticTermSubjectAvailability.AVAILABLE
+	val availability: SyntheticTermSubjectAvailability = SyntheticTermSubjectAvailability.AVAILABLE,
+	val availabilityDetail: SyntheticTermSubjectAvailabilityDetail? = null
 ) {
 	val creditsText: String = "$credits UC"
 	val canAdd: Boolean = availability == SyntheticTermSubjectAvailability.AVAILABLE ||

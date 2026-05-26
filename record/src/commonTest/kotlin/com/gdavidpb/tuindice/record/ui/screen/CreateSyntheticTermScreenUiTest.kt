@@ -283,12 +283,6 @@ class CreateSyntheticTermScreenUiTest {
 					selectedAddSubjectTab = CreateTermAddSubjectTab.Search,
 					searchResults = listOf(
 						SyntheticTermSubject(
-							subjectCode = "EP1420",
-							name = "Prioridad disponible del pensum",
-							credits = 4,
-							availability = SyntheticTermSubjectAvailability.AVAILABLE
-						),
-						SyntheticTermSubject(
 							subjectCode = "EP1308",
 							name = "Prioridad planificada del pensum",
 							credits = 4,
@@ -303,6 +297,12 @@ class CreateSyntheticTermScreenUiTest {
 						SyntheticTermSubject(
 							subjectCode = "AA1001",
 							name = "Prioridad fuera del pensum alfa",
+							credits = 4,
+							availability = SyntheticTermSubjectAvailability.NOT_IN_PENSUM
+						),
+						SyntheticTermSubject(
+							subjectCode = "AB1001",
+							name = "Prioridad fuera del pensum beta",
 							credits = 4,
 							availability = SyntheticTermSubjectAvailability.NOT_IN_PENSUM
 						)
@@ -320,10 +320,10 @@ class CreateSyntheticTermScreenUiTest {
 
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchTab).performClick()
 
-		assertVisibleSearchResult(index = 0, subjectCode = "EP1420")
-		assertVisibleSearchResult(index = 1, subjectCode = "EP1308")
-		assertVisibleSearchResult(index = 2, subjectCode = "EP2308")
-		assertVisibleSearchResult(index = 3, subjectCode = "AA1001")
+		assertVisibleSearchResult(index = 0, subjectCode = "EP1308")
+		assertVisibleSearchResult(index = 1, subjectCode = "EP2308")
+		assertVisibleSearchResult(index = 2, subjectCode = "AA1001")
+		assertVisibleSearchResult(index = 3, subjectCode = "AB1001")
 		onAllNodesWithTag(
 			RecordUiTags.createSyntheticTermSearchResult(index = 0, subjectCode = "AA1001")
 		).assertCountEquals(0)

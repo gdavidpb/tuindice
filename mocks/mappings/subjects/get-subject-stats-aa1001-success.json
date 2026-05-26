@@ -1,0 +1,15 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPath": "/subjects/v1/AA1001"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "subjects/get-subject-stats-slow-success.json",
+    "fixedDelayMilliseconds": 500
+  }
+}

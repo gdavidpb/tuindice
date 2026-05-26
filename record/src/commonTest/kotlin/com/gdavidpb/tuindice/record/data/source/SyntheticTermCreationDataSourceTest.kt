@@ -89,6 +89,7 @@ class SyntheticTermCreationDataSourceTest {
 			editingTermIdFlow = MutableStateFlow(null),
 			editingTermKeyFlow = MutableStateFlow(null)
 		).first()
+		val resultsByCode = snapshot.searchResults.associateBy { subject -> subject.subjectCode }
 
 		assertEquals(
 			listOf(
@@ -101,6 +102,9 @@ class SyntheticTermCreationDataSourceTest {
 			),
 			snapshot.searchResults.map { subject -> subject.subjectCode to subject.availability }
 		)
+		assertEquals("Ene - Mar 2025", resultsByCode.getValue("CC1001").availabilityDetail?.termLabel)
+		assertEquals("Ene - Mar 2025", resultsByCode.getValue("DD1001").availabilityDetail?.termLabel)
+		assertEquals(listOf("FF1001"), resultsByCode.getValue("EE1001").availabilityDetail?.missingSubjectCodes)
 	}
 
 	@Test
@@ -133,6 +137,7 @@ class SyntheticTermCreationDataSourceTest {
 
 		val result = snapshot.searchResults.single()
 		assertEquals(SyntheticTermSubjectAvailability.UNAVAILABLE, result.availability)
+		assertEquals(listOf("MA1112"), result.availabilityDetail?.missingSubjectCodes)
 		assertTrue(result.canAdd)
 	}
 
@@ -148,8 +153,7 @@ class SyntheticTermCreationDataSourceTest {
 						attempts = listOf(
 							academicAttempt(subjectCode = "MA1111", outcome = AttemptOutcome.APPROVED),
 							academicAttempt(subjectCode = "MA1112", outcome = AttemptOutcome.RETIRED),
-							academicAttempt(subjectCode = "MA1121", outcome = AttemptOutcome.FAILED),
-							academicAttempt(subjectCode = "MA1116", outcome = AttemptOutcome.APPROVED)
+							academicAttempt(subjectCode = "MA1121", outcome = AttemptOutcome.FAILED)
 						)
 					)
 				)
@@ -166,9 +170,9 @@ class SyntheticTermCreationDataSourceTest {
 				)
 			),
 			searchEntities = listOf(
+				subjectCatalogEntity(subjectCode = "MA1111", name = "Matemáticas I"),
 				subjectCatalogEntity(subjectCode = "MA1112", name = "Matemáticas II"),
-				subjectCatalogEntity(subjectCode = "MA1121", name = "Matemáticas I Honor"),
-				subjectCatalogEntity(subjectCode = "MA1116", name = "Matemáticas III")
+				subjectCatalogEntity(subjectCode = "MA1121", name = "Matemáticas I Honor")
 			)
 		)
 
@@ -184,10 +188,12 @@ class SyntheticTermCreationDataSourceTest {
 			listOf(
 				"MA1112" to SyntheticTermSubjectAvailability.AVAILABLE,
 				"MA1121" to SyntheticTermSubjectAvailability.AVAILABLE,
-				"MA1116" to SyntheticTermSubjectAvailability.ALREADY_TAKEN
+				"MA1111" to SyntheticTermSubjectAvailability.ALREADY_TAKEN
 			),
 			snapshot.searchResults.map { subject -> subject.subjectCode to subject.availability }
 		)
+		assertTrue(snapshot.searchResults.first { subject -> subject.subjectCode == "MA1112" }.canAdd)
+		assertTrue(snapshot.searchResults.first { subject -> subject.subjectCode == "MA1121" }.canAdd)
 	}
 
 	@Test
@@ -357,6 +363,7 @@ class SyntheticTermCreationDataSourceTest {
 
 		val result = snapshot.searchResults.single()
 		assertEquals(SyntheticTermSubjectAvailability.UNAVAILABLE, result.availability)
+		assertEquals(listOf("EP1308", "EP5855"), result.availabilityDetail?.missingSubjectCodes)
 		assertTrue(result.canAdd)
 	}
 
@@ -377,7 +384,6 @@ class SyntheticTermCreationDataSourceTest {
 			),
 			pensumPayloadJson = pensumPayload(
 				nodes = listOf(
-					pensumNode(id = "ep1420", subjectCode = "EP1420", name = "Prioridad disponible del pensum"),
 					pensumNode(id = "ep1308", subjectCode = "EP1308", name = "Prioridad planificada del pensum"),
 					pensumNode(id = "ma1112", subjectCode = "MA1112", name = "Prioridad requisito faltante"),
 					pensumNode(id = "ep2308", subjectCode = "EP2308", name = "Prioridad bloqueada del pensum")
@@ -390,7 +396,6 @@ class SyntheticTermCreationDataSourceTest {
 				subjectCatalogEntity(subjectCode = "AA1001", name = "Prioridad fuera del pensum alfa"),
 				subjectCatalogEntity(subjectCode = "AB1001", name = "Prioridad fuera del pensum beta"),
 				subjectCatalogEntity(subjectCode = "EP2308", name = "Prioridad bloqueada del pensum"),
-				subjectCatalogEntity(subjectCode = "EP1420", name = "Prioridad disponible del pensum"),
 				subjectCatalogEntity(subjectCode = "EP1308", name = "Prioridad planificada del pensum")
 			)
 		)
@@ -405,7 +410,6 @@ class SyntheticTermCreationDataSourceTest {
 
 		assertEquals(
 			listOf(
-				"EP1420" to SyntheticTermSubjectAvailability.AVAILABLE,
 				"EP1308" to SyntheticTermSubjectAvailability.ALREADY_PLANNED,
 				"EP2308" to SyntheticTermSubjectAvailability.UNAVAILABLE,
 				"AA1001" to SyntheticTermSubjectAvailability.NOT_IN_PENSUM,

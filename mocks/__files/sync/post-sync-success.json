@@ -691,10 +691,9 @@
               "credits": 4,
               "grading_mode": "numeric",
               "academic_score": {
-                "type": "numeric",
-                "value": 4
+                "type": "empty"
               },
-              "academic_outcome": "approved",
+              "academic_outcome": "retired",
               "academic_badge": "none"
             },
             {
@@ -771,6 +770,19 @@
                 "value": 5
               },
               "academic_outcome": "approved",
+              "academic_badge": "none"
+            },
+            {
+              "id": "2d9edaf132ab76c4a58347379657a3da",
+              "subject_code": "MA1121",
+              "subject_name": "Matemáticas I Honor",
+              "credits": 4,
+              "grading_mode": "numeric",
+              "academic_score": {
+                "type": "numeric",
+                "value": 2
+              },
+              "academic_outcome": "failed",
               "academic_badge": "none"
             },
             {

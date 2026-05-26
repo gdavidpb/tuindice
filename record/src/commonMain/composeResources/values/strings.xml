@@ -68,6 +68,9 @@
 	<string name="create_term_subject_already_taken">Ya cursada</string>
 	<string name="create_term_subject_already_planned">Ya planificada</string>
 	<string name="create_term_subject_unavailable">No disponible</string>
+	<string name="create_term_subject_tooltip_already_taken">Cursada en %1$s</string>
+	<string name="create_term_subject_tooltip_already_planned">Planificada en %1$s</string>
+	<string name="create_term_subject_tooltip_unavailable">Faltan requisitos: %1$s</string>
 	<string name="create_term_subject_stats_content_description">Ver estadísticas de %1$s</string>
 	<string name="label_edit_synthetic_term">Modificar trimestre</string>
 	<string name="label_delete_synthetic_term">Eliminar trimestre</string>

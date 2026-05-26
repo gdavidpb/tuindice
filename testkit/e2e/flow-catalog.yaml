@@ -719,7 +719,7 @@ flows:
     type: interaction
     platforms: [android, ios]
     status: active
-    variant: synthetic-term-search-availability-states-pensum-priority-stats-back-state
+    variant: synthetic-term-search-priority-order-unavailable-addability-tooltips-stats-back-state
     fixture_state: synthetic-term-search
     actions_covered:
       - record.CreateSyntheticTerm.UpdateQuery
@@ -728,16 +728,19 @@ flows:
       - record_create_synthetic_term_screen
       - record_create_synthetic_term_search_field
       - maincore_tuindice_top_bar_back_button
-      - record_create_synthetic_term_search_result_0_subject_MA1112
-      - record_create_synthetic_term_search_result_1_subject_EP1308
-      - record_create_synthetic_term_search_result_2_subject_EP2308
-      - record_create_synthetic_term_search_result_3_subject_AA1001
+      - record_create_synthetic_term_search_result_0_subject_EP1308
+      - record_create_synthetic_term_search_result_1_subject_EP2308
+      - record_create_synthetic_term_search_result_2_subject_AA1001
+      - record_create_synthetic_term_search_result_3_subject_AB1001
       - record_create_synthetic_term_subject_AA1001_status_not_in_pensum
       - record_create_synthetic_term_subject_AA1001_stats_button
+      - record_create_synthetic_term_search_result_0_subject_MA1112
+      - record_create_synthetic_term_search_result_1_subject_MA1121
       - record_create_synthetic_term_subject_MA1112_status_available
       - record_create_synthetic_term_subject_MA1112_add_button
-      - record_create_synthetic_term_subject_MA1112_remove_button
-      - record_create_synthetic_term_subject_MA1112_stats_button
+      - record_create_synthetic_term_subject_MA1121_status_available
+      - record_create_synthetic_term_subject_MA1121_add_button
+      - record_create_synthetic_term_search_result_0_subject_MA1111
       - subjects_content
       - record_create_synthetic_term_subject_EP1308_status_already_planned
       - record_create_synthetic_term_subject_EP1308_stats_button

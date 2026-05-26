@@ -51,6 +51,9 @@ object RecordUiTags {
 	fun createSyntheticTermSubjectStatus(subjectCode: String, status: String): String =
 		"record_create_synthetic_term_subject_${subjectCode}_status_$status"
 
+	fun createSyntheticTermSubjectStatusTooltip(subjectCode: String): String =
+		"record_create_synthetic_term_subject_${subjectCode}_status_tooltip"
+
 	fun createSyntheticTermSubjectAction(subjectCode: String, action: String): String =
 		"record_create_synthetic_term_subject_${subjectCode}_${action}_button"
 

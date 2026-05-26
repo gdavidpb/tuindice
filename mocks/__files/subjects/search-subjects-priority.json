@@ -20,12 +20,6 @@
       "grading_mode": "qualitative_pass_fail"
     },
     {
-      "subject_code": "MA1112",
-      "name": "Prioridad disponible del pensum",
-      "credits": 4,
-      "grading_mode": "numeric"
-    },
-    {
       "subject_code": "EP1308",
       "name": "Prioridad planificada del pensum",
       "credits": 3,

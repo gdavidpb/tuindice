@@ -2,13 +2,11 @@
 
 package com.gdavidpb.tuindice.record.data.source
 
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
-import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
 import com.gdavidpb.tuindice.academiccore.domain.model.isHistorical
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
@@ -25,6 +23,7 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationSnapshot
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailabilityDetail
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermCreationRepository
 import io.ktor.client.HttpClient
@@ -228,7 +227,7 @@ class SyntheticTermCreationDataSource(
 				year += 1
 			}
 
-			val period = AcademicTermPeriod.values()
+			val period = AcademicTermPeriod.entries
 				.first { value -> value.sequence == sequence }
 			options += SyntheticTermPeriodOption(
 				periodYear = year,
@@ -261,7 +260,7 @@ class SyntheticTermCreationDataSource(
 		}
 	}
 
-	private fun AcademicRecord.availabilityBySubjectCode(editingTermId: String?): Map<String, SyntheticTermSubjectAvailability> {
+	private fun AcademicRecord.availabilityBySubjectCode(editingTermId: String?): Map<String, SubjectAvailabilityResolution> {
 		return buildMap {
 			terms.filterNot { term -> term.id == editingTermId }.forEach { term ->
 				term.attempts.forEach { attempt ->
@@ -279,7 +278,12 @@ class SyntheticTermCreationDataSource(
 					if (availability != null) {
 						putWithPriority(
 							key = attempt.subjectCode.uppercase(),
-							availability = availability
+							resolution = SubjectAvailabilityResolution(
+								availability = availability,
+								detail = SyntheticTermSubjectAvailabilityDetail(
+									termLabel = term.shortLabel
+								)
+							)
 						)
 					}
 				}
@@ -294,21 +298,26 @@ class SyntheticTermCreationDataSource(
 		val editingTermKey: String?
 	)
 
-	private fun MutableMap<String, SyntheticTermSubjectAvailability>.putWithPriority(
+	private data class SubjectAvailabilityResolution(
+		val availability: SyntheticTermSubjectAvailability,
+		val detail: SyntheticTermSubjectAvailabilityDetail? = null
+	)
+
+	private fun MutableMap<String, SubjectAvailabilityResolution>.putWithPriority(
 		key: String,
-		availability: SyntheticTermSubjectAvailability
+		resolution: SubjectAvailabilityResolution
 	) {
 		val current = this[key]
-		if (current == null || availability.searchOrder < current.searchOrder) {
-			this[key] = availability
+		if (current == null || resolution.availability.searchOrder < current.availability.searchOrder) {
+			this[key] = resolution
 		}
 	}
 
 	private fun AcademicRecord.suggestedSubjects(
 		pensum: CreateSyntheticTermPensumCacheResponse?,
 		selectedCodes: Set<String>,
-		availabilityBySubjectCode: Map<String, SyntheticTermSubjectAvailability>,
-		pensumAvailabilityBySubjectCode: Map<String, SyntheticTermSubjectAvailability>
+		availabilityBySubjectCode: Map<String, SubjectAvailabilityResolution>,
+		pensumAvailabilityBySubjectCode: Map<String, SubjectAvailabilityResolution>
 	): List<SyntheticTermSubject> {
 		val nodes = pensum?.pensum?.nodes.orEmpty()
 		val courseNodes = nodes.filter { node -> node.nodeType == NodeTypeCourse }
@@ -322,7 +331,7 @@ class SyntheticTermCreationDataSource(
 					?.takeIf(RealSubjectCodeRegex::matches)
 					?: return@mapNotNull null
 				if (subjectCode in selectedCodes || subjectCode in availabilityBySubjectCode) return@mapNotNull null
-				if (pensumAvailabilityBySubjectCode[subjectCode] != SyntheticTermSubjectAvailability.AVAILABLE) {
+				if (pensumAvailabilityBySubjectCode[subjectCode]?.availability != SyntheticTermSubjectAvailability.AVAILABLE) {
 					return@mapNotNull null
 				}
 
@@ -340,12 +349,13 @@ class SyntheticTermCreationDataSource(
 
 	private fun AcademicRecord.pensumAvailabilityBySubjectCode(
 		pensum: CreateSyntheticTermPensumCacheResponse?
-	): Map<String, SyntheticTermSubjectAvailability> {
+	): Map<String, SubjectAvailabilityResolution> {
 		val courseNodes = pensum?.pensum?.nodes
 			.orEmpty()
 			.filter { node -> node.nodeType == NodeTypeCourse }
 		val edges = pensum?.pensum?.edges.orEmpty()
 		if (courseNodes.isEmpty()) return emptyMap()
+		val courseNodeById = courseNodes.associateBy { node -> node.id }
 
 		val approvedSubjects = terms
 			.flatMap(AcademicTerm::attempts)
@@ -372,29 +382,64 @@ class SyntheticTermCreationDataSource(
 				?.uppercase()
 				?.takeIf(RealSubjectCodeRegex::matches)
 				?: return@mapNotNull null
-			val availability = if (node.isAvailable(edges, approvedNodeIds, currentNodeIds)) {
-				SyntheticTermSubjectAvailability.AVAILABLE
+			val missingSubjectCodes = node.missingRequirementCodes(
+				edges = edges,
+				courseNodeById = courseNodeById,
+				approvedNodeIds = approvedNodeIds,
+				currentNodeIds = currentNodeIds
+			)
+			val resolution = if (missingSubjectCodes.isEmpty()) {
+				SubjectAvailabilityResolution(
+					availability = SyntheticTermSubjectAvailability.AVAILABLE
+				)
 			} else {
-				SyntheticTermSubjectAvailability.UNAVAILABLE
+				SubjectAvailabilityResolution(
+					availability = SyntheticTermSubjectAvailability.UNAVAILABLE,
+					detail = SyntheticTermSubjectAvailabilityDetail(
+						missingSubjectCodes = missingSubjectCodes
+					)
+				)
 			}
 
-			subjectCode to availability
+			subjectCode to resolution
 		}.toMap()
 	}
 
-	private fun CreateSyntheticTermPensumCacheResponse.Node.isAvailable(
+	private fun CreateSyntheticTermPensumCacheResponse.Node.missingRequirementCodes(
 		edges: List<CreateSyntheticTermPensumCacheResponse.Edge>,
+		courseNodeById: Map<String, CreateSyntheticTermPensumCacheResponse.Node>,
+		approvedNodeIds: Set<String>,
+		currentNodeIds: Set<String>
+	): List<String> {
+		return edges
+			.asSequence()
+			.filter { edge -> edge.toNodeId == id }
+			.filterNot { edge ->
+				edge.isSatisfied(
+					approvedNodeIds = approvedNodeIds,
+					currentNodeIds = currentNodeIds
+				)
+			}
+			.mapNotNull { edge ->
+				courseNodeById[edge.fromNodeId]
+					?.subjectCode
+					?.trim()
+					?.uppercase()
+					?.takeIf(RealSubjectCodeRegex::matches)
+			}
+			.distinct()
+			.sorted()
+			.toList()
+	}
+
+	private fun CreateSyntheticTermPensumCacheResponse.Edge.isSatisfied(
 		approvedNodeIds: Set<String>,
 		currentNodeIds: Set<String>
 	): Boolean {
-		return edges
-			.filter { edge -> edge.toNodeId == id }
-			.all { edge ->
-				when (edge.relationshipType) {
-					"COREQUISITE" -> edge.fromNodeId in approvedNodeIds || edge.fromNodeId in currentNodeIds
-					else -> edge.fromNodeId in approvedNodeIds
-				}
-			}
+		return when (relationshipType) {
+			"COREQUISITE" -> fromNodeId in approvedNodeIds || fromNodeId in currentNodeIds
+			else -> fromNodeId in approvedNodeIds
+		}
 	}
 
 	private fun SubjectCatalogCacheEntity.toSyntheticTermSubject(): SyntheticTermSubject {
@@ -415,16 +460,21 @@ class SyntheticTermCreationDataSource(
 
 	private fun SyntheticTermSubject.withAvailability(
 		selectedCodes: Set<String>,
-		availabilityBySubjectCode: Map<String, SyntheticTermSubjectAvailability>,
-		pensumAvailabilityBySubjectCode: Map<String, SyntheticTermSubjectAvailability>
+		availabilityBySubjectCode: Map<String, SubjectAvailabilityResolution>,
+		pensumAvailabilityBySubjectCode: Map<String, SubjectAvailabilityResolution>
 	): SyntheticTermSubject {
+		val resolution = when {
+			subjectCode in selectedCodes ->
+				SubjectAvailabilityResolution(availability = SyntheticTermSubjectAvailability.SELECTED)
+			availabilityBySubjectCode[subjectCode] != null ->
+				availabilityBySubjectCode.getValue(subjectCode)
+			else -> pensumAvailabilityBySubjectCode[subjectCode]
+				?: SubjectAvailabilityResolution(availability = SyntheticTermSubjectAvailability.NOT_IN_PENSUM)
+		}
+
 		return copy(
-			availability = when {
-				subjectCode in selectedCodes -> SyntheticTermSubjectAvailability.SELECTED
-				availabilityBySubjectCode[subjectCode] != null -> availabilityBySubjectCode.getValue(subjectCode)
-				else -> pensumAvailabilityBySubjectCode[subjectCode]
-					?: SyntheticTermSubjectAvailability.NOT_IN_PENSUM
-			}
+			availability = resolution.availability,
+			availabilityDetail = resolution.detail
 		)
 	}
 
@@ -438,6 +488,9 @@ class SyntheticTermCreationDataSource(
 			SyntheticTermSubjectAvailability.UNAVAILABLE -> 5
 		}
 }
+
+private val AcademicTerm.shortLabel: String
+	get() = "${periodCode.shortLabel} $periodYear"
 
 private const val MinimumSearchQueryLength = 2
 private const val SearchLimit = 20
