@@ -30,7 +30,6 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class SyntheticTermCreationDataSourceTest {
@@ -134,7 +133,7 @@ class SyntheticTermCreationDataSourceTest {
 
 		val result = snapshot.searchResults.single()
 		assertEquals(SyntheticTermSubjectAvailability.UNAVAILABLE, result.availability)
-		assertFalse(result.canAdd)
+		assertTrue(result.canAdd)
 	}
 
 	@Test
@@ -358,7 +357,7 @@ class SyntheticTermCreationDataSourceTest {
 
 		val result = snapshot.searchResults.single()
 		assertEquals(SyntheticTermSubjectAvailability.UNAVAILABLE, result.availability)
-		assertFalse(result.canAdd)
+		assertTrue(result.canAdd)
 	}
 
 	@Test

@@ -245,12 +245,12 @@ class CreateSyntheticTermScreenUiTest {
 		).assertCountEquals(0)
 		assertVisibleStatus("EE1001", SyntheticTermSubjectAvailability.UNAVAILABLE)
 		assertVisibleStatsButton("EE1001")
-		onAllNodesWithTag(
+		onNodeWithTag(
 			RecordUiTags.createSyntheticTermSubjectAction(
 				subjectCode = "EE1001",
 				action = CreateTermSubjectCardAction.Add.name.lowercase()
 			)
-		).assertCountEquals(0)
+		).assertIsDisplayed()
 		assertVisibleStatus("FF1001", SyntheticTermSubjectAvailability.NOT_IN_PENSUM)
 		assertVisibleStatsButton("FF1001")
 		onNodeWithTag(

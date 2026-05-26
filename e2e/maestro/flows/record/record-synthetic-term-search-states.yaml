@@ -131,7 +131,7 @@ appId: com.gdavidpb.tuindice.debug
     timeout: 20000
 - assertVisible:
     id: record_create_synthetic_term_subject_EP2308_stats_button
-- assertNotVisible:
+- assertVisible:
     id: record_create_synthetic_term_subject_EP2308_add_button
 - scrollUntilVisible:
     element:
