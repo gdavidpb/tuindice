@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.record.presentation.action.CreateSyntheticTermActio
 import com.gdavidpb.tuindice.record.presentation.action.ObserveCreateSyntheticTermActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.UpdateCreateSyntheticTermQueryActionProcessor
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
+import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -23,6 +24,7 @@ class CreateSyntheticTermViewModel(
 	initialState = CreateSyntheticTerm.State()
 ) {
 	private val queryFlow = MutableStateFlow("")
+	private val selectedAddSubjectTabFlow = MutableStateFlow(CreateTermAddSubjectTab.Suggested)
 	private val selectedSubjectsFlow = MutableStateFlow<List<SyntheticTermSubject>>(emptyList())
 	private val selectedPeriodKeyFlow = MutableStateFlow<String?>(null)
 	private val editingTermIdFlow = MutableStateFlow<String?>(null)
@@ -33,6 +35,7 @@ class CreateSyntheticTermViewModel(
 		sendAction(
 			CreateSyntheticTerm.Action.Observe(
 				queryFlow = queryFlow,
+				selectedAddSubjectTabFlow = selectedAddSubjectTabFlow,
 				selectedSubjectsFlow = selectedSubjectsFlow,
 				selectedPeriodKeyFlow = selectedPeriodKeyFlow,
 				editingTermIdFlow = editingTermIdFlow,
@@ -65,13 +68,31 @@ class CreateSyntheticTermViewModel(
 		}
 	}
 
-	fun updateQueryAction(query: String) {
+	fun updateQueryAction(
+		query: String,
+		selectionStart: Int = query.length,
+		selectionEnd: Int = query.length
+	) {
 		queryFlow.value = query
-		sendAction(CreateSyntheticTerm.Action.UpdateQuery(query = query))
+		sendAction(
+			CreateSyntheticTerm.Action.UpdateQuery(
+				query = query,
+				selectionStart = selectionStart,
+				selectionEnd = selectionEnd
+			)
+		)
 	}
 
 	fun clearQueryAction() {
-		updateQueryAction("")
+		updateQueryAction(
+			query = "",
+			selectionStart = 0,
+			selectionEnd = 0
+		)
+	}
+
+	fun selectAddSubjectTabAction(tab: CreateTermAddSubjectTab) {
+		selectedAddSubjectTabFlow.value = tab
 	}
 
 	fun selectPeriodAction(termKey: String) {

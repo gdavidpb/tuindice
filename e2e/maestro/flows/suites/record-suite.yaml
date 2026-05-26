@@ -9,4 +9,5 @@ name: TuIndice record E2E suite
 - runFlow: ../record/record-term-selection.yaml
 - runFlow: ../record/record-attempt-overrides.yaml
 - runFlow: ../record/record-synthetic-term-search-empty.yaml
+- runFlow: ../record/record-synthetic-term-search-states.yaml
 - runFlow: ../record/record-synthetic-term-lifecycle.yaml

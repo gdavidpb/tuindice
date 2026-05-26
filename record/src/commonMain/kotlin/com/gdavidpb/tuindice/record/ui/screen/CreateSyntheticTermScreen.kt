@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -23,13 +25,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.text.TextRange
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
+import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
-import com.gdavidpb.tuindice.record.ui.model.CreateTermAddSubjectTab
 import com.gdavidpb.tuindice.record.ui.model.CreateTermSubjectCardAction
 import com.gdavidpb.tuindice.record.ui.view.AlreadyTakenSearchResultsToggle
 import com.gdavidpb.tuindice.record.ui.view.CreateTermAddSubjectTabs
@@ -39,6 +43,7 @@ import com.gdavidpb.tuindice.record.ui.view.CreateTermSectionTitle
 import com.gdavidpb.tuindice.record.ui.view.CreateTermSelectedSubjectCard
 import com.gdavidpb.tuindice.record.ui.view.CreateTermSubmitBar
 import com.gdavidpb.tuindice.record.ui.view.CreateTermSuggestedSubjectCard
+import kotlinx.coroutines.flow.distinctUntilChanged
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.create_term_add_subjects_title
@@ -47,24 +52,31 @@ import tuindice.record.generated.resources.create_term_search_error
 import tuindice.record.generated.resources.create_term_search_results
 import tuindice.record.generated.resources.create_term_selected_title
 import tuindice.record.generated.resources.create_term_suggested_title
-import kotlinx.coroutines.flow.distinctUntilChanged
 
 @Composable
 fun CreateSyntheticTermScreen(
 	state: CreateSyntheticTerm.State,
-	onQueryChange: (String) -> Unit,
+	onQueryChange: (String, Int, Int) -> Unit,
 	onClearQueryClick: () -> Unit,
 	onPeriodSelected: (String) -> Unit,
+	onAddSubjectTabSelected: (CreateTermAddSubjectTab) -> Unit,
 	onSubjectAdd: (SyntheticTermSubject) -> Unit,
 	onSubjectRemove: (String) -> Unit,
+	onSubjectStatsClick: (String) -> Unit = {},
 	onCreateClick: () -> Unit,
 	modifier: Modifier = Modifier
 ) {
 	val focusRequester = remember { FocusRequester() }
 	val focusManager = LocalFocusManager.current
 	val lazyListState = rememberLazyListState()
-	val selectedAddSubjectTab = remember { mutableStateOf(CreateTermAddSubjectTab.Suggested) }
 	val showTakenSearchResults = remember { mutableStateOf(false) }
+	val searchFieldValue = TextFieldValue(
+		text = state.query,
+		selection = TextRange(
+			start = state.querySelectionStart.coerceIn(0, state.query.length),
+			end = state.querySelectionEnd.coerceIn(0, state.query.length)
+		)
+	)
 	val selectedSubjectCodes = remember(state.selectedSubjects) {
 		state.selectedSubjects.map(SyntheticTermSubject::subjectCode).toSet()
 	}
@@ -80,8 +92,8 @@ fun CreateSyntheticTermScreen(
 		showTakenSearchResults.value = false
 	}
 
-	LaunchedEffect(selectedAddSubjectTab.value) {
-		if (selectedAddSubjectTab.value == CreateTermAddSubjectTab.Search) {
+	LaunchedEffect(state.selectedAddSubjectTab) {
+		if (state.selectedAddSubjectTab == CreateTermAddSubjectTab.Search) {
 			focusRequester.requestFocus()
 		}
 	}
@@ -121,7 +133,8 @@ fun CreateSyntheticTermScreen(
 			modifier = Modifier
 				.fillMaxSize()
 				.padding(horizontal = 20.dp)
-				.imePadding(),
+				.imePadding()
+				.testTag(RecordUiTags.CreateSyntheticTermContentList),
 			state = lazyListState,
 			contentPadding = PaddingValues(
 				top = InternalScreenDefaults.TopBarSpacing,
@@ -170,12 +183,12 @@ fun CreateSyntheticTermScreen(
 
 			item {
 				CreateTermAddSubjectTabs(
-					selectedTab = selectedAddSubjectTab.value,
-					onTabSelected = { tab -> selectedAddSubjectTab.value = tab }
+					selectedTab = state.selectedAddSubjectTab,
+					onTabSelected = onAddSubjectTabSelected
 				)
 			}
 
-			when (selectedAddSubjectTab.value) {
+			when (state.selectedAddSubjectTab) {
 				CreateTermAddSubjectTab.Suggested -> {
 					item {
 						CreateTermSectionTitle(text = stringResource(Res.string.create_term_suggested_title))
@@ -216,9 +229,15 @@ fun CreateSyntheticTermScreen(
 				CreateTermAddSubjectTab.Search -> {
 					item {
 						CreateTermSearchField(
-							query = state.query,
+							query = searchFieldValue,
 							focusRequester = focusRequester,
-							onQueryChange = onQueryChange,
+							onQueryChange = { value ->
+								onQueryChange(
+									value.text,
+									value.selection.start,
+									value.selection.end
+								)
+							},
 							onClearQueryClick = onClearQueryClick,
 							onSearch = ::dismissKeyboard
 						)
@@ -246,31 +265,45 @@ fun CreateSyntheticTermScreen(
 							}
 						}
 
-						items(
+						itemsIndexed(
 							items = displayedSearchResults,
-							key = { subject -> SearchResultSubjectKeyPrefix + subject.subjectCode },
-							contentType = { CreateTermSearchResultContentType }
-						) { subject ->
-							CreateTermSelectedSubjectCard(
+							key = { _, subject -> SearchResultSubjectKeyPrefix + subject.subjectCode },
+							contentType = { _, _ -> CreateTermSearchResultContentType }
+						) { index, subject ->
+							Box(
 								modifier = Modifier.animateItem(
 									fadeInSpec = null,
 									fadeOutSpec = null
-								),
-								subject = subject,
-								action = CreateTermSubjectCardAction.Add,
-								enabled = subject.canAdd,
-								onClick = {
-									dismissKeyboard()
-									onSubjectAdd(subject)
-								}
-							)
+								)
+									.fillMaxWidth()
+									.testTag(
+										RecordUiTags.createSyntheticTermSearchResult(
+											index = index,
+											subjectCode = subject.subjectCode
+										)
+									)
+							) {
+								CreateTermSelectedSubjectCard(
+									subject = subject,
+									action = CreateTermSubjectCardAction.Add,
+									enabled = subject.canAdd,
+									onClick = {
+										dismissKeyboard()
+										onSubjectAdd(subject)
+									},
+									onStatsClick = { subjectCode ->
+										dismissKeyboard()
+										onSubjectStatsClick(subjectCode)
+									}
+								)
+							}
 						}
 					}
 				}
 			}
 
 			if (
-				selectedAddSubjectTab.value == CreateTermAddSubjectTab.Search &&
+				state.selectedAddSubjectTab == CreateTermAddSubjectTab.Search &&
 				isSearchQueryReady &&
 				takenSearchResultsCount > 0
 			) {

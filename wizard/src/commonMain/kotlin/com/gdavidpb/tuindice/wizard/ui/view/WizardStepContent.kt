@@ -85,9 +85,10 @@ fun WizardStepContent(
 		WizardStepId.CreateSyntheticTerm ->
 			CreateSyntheticTermScreen(
 				state = sampleCreateSyntheticTermState(),
-				onQueryChange = {},
+				onQueryChange = { _, _, _ -> },
 				onClearQueryClick = {},
 				onPeriodSelected = {},
+				onAddSubjectTabSelected = {},
 				onSubjectAdd = {},
 				onSubjectRemove = {},
 				onCreateClick = {}

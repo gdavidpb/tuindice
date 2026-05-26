@@ -10,8 +10,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
-import com.gdavidpb.tuindice.record.ui.model.CreateTermAddSubjectTab
+import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
+import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.resources.StringResource
+import tuindice.record.generated.resources.Res
+import tuindice.record.generated.resources.create_term_search_tab
+import tuindice.record.generated.resources.create_term_suggested_tab
 
 @Composable
 fun CreateTermAddSubjectTabs(
@@ -47,3 +52,15 @@ fun CreateTermAddSubjectTabs(
 		}
 	}
 }
+
+private val CreateTermAddSubjectTab.labelResource: StringResource
+	get() = when (this) {
+		CreateTermAddSubjectTab.Suggested -> Res.string.create_term_suggested_tab
+		CreateTermAddSubjectTab.Search -> Res.string.create_term_search_tab
+	}
+
+private val CreateTermAddSubjectTab.testTag: String
+	get() = when (this) {
+		CreateTermAddSubjectTab.Suggested -> RecordUiTags.CreateSyntheticTermSuggestedTab
+		CreateTermAddSubjectTab.Search -> RecordUiTags.CreateSyntheticTermSearchTab
+	}

@@ -108,6 +108,9 @@ fun TuIndiceNavHost(
 			onNavigateToUpdatePassword = {
 				navController.navigate(AuthDestination.UpdatePasswordDialog)
 			},
+			onNavigateToSubjectDetail = { subjectCode ->
+				navController.navigate(SubjectsDestination.SubjectDetail(subjectCode = subjectCode))
+			},
 			onTopBarViewModeChangeAvailable = onRecordViewModeChangeAvailable,
 			showTopBarBanner = showTopBarBanner,
 			onViewStateChanged = onViewStateChanged,

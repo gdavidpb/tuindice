@@ -9,10 +9,12 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.ChevronRight
+import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -87,14 +89,22 @@ fun SubjectSearchResultCard(
 					color = MaterialTheme.colorScheme.onSurfaceVariant
 				)
 			}
-			Icon(
-				imageVector = Icons.Outlined.ChevronRight,
-				contentDescription = stringResource(
-					Res.string.subjects_search_result_content_description,
-					item.subjectCode
-				),
-				tint = MaterialTheme.colorScheme.onSurfaceVariant
-			)
+			IconButton(
+				modifier = Modifier
+					.size(40.dp)
+					.testTag(SubjectsUiTags.searchResultStatsButton(item.subjectCode)),
+				onClick = onClick
+			) {
+				Icon(
+					modifier = Modifier.size(22.dp),
+					imageVector = Icons.Outlined.BarChart,
+					contentDescription = stringResource(
+						Res.string.subjects_search_result_content_description,
+						item.subjectCode
+					),
+					tint = MaterialTheme.colorScheme.onSurfaceVariant
+				)
+			}
 		}
 	}
 }

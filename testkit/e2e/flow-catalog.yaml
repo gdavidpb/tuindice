@@ -713,6 +713,39 @@ flows:
       - record_create_synthetic_term_screen
       - record_create_synthetic_term_search_field
       - record_create_synthetic_term_search_results_title
+  - id: record-synthetic-term-search-states
+    path: e2e/maestro/flows/record/record-synthetic-term-search-states.yaml
+    module: record
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: synthetic-term-search-availability-states-pensum-priority-stats-back-state
+    fixture_state: synthetic-term-search
+    actions_covered:
+      - record.CreateSyntheticTerm.UpdateQuery
+    primary_selectors:
+      - record_create_synthetic_term_fab
+      - record_create_synthetic_term_screen
+      - record_create_synthetic_term_search_field
+      - maincore_tuindice_top_bar_back_button
+      - record_create_synthetic_term_search_result_0_subject_EP1420
+      - record_create_synthetic_term_search_result_1_subject_EP1308
+      - record_create_synthetic_term_search_result_2_subject_EP2308
+      - record_create_synthetic_term_search_result_3_subject_AA1001
+      - record_create_synthetic_term_subject_AA1001_status_not_in_pensum
+      - record_create_synthetic_term_subject_AA1001_stats_button
+      - record_create_synthetic_term_subject_EP1420_status_available
+      - record_create_synthetic_term_subject_EP1420_add_button
+      - record_create_synthetic_term_subject_EP1420_remove_button
+      - record_create_synthetic_term_subject_EP1420_stats_button
+      - subjects_content
+      - record_create_synthetic_term_subject_EP1308_status_already_planned
+      - record_create_synthetic_term_subject_EP1308_stats_button
+      - record_create_synthetic_term_subject_EP2308_status_unavailable
+      - record_create_synthetic_term_subject_EP2308_stats_button
+      - record_create_synthetic_term_taken_subjects_toggle
+      - record_create_synthetic_term_subject_MA1111_status_already_taken
+      - record_create_synthetic_term_subject_MA1111_stats_button
   - id: record-synthetic-term-lifecycle
     path: e2e/maestro/flows/record/record-synthetic-term-lifecycle.yaml
     module: record
@@ -947,6 +980,7 @@ flows:
       - subjects_search_screen
       - subjects_search_text_field
       - subjects_search_result_CI2511
+      - subjects_search_result_stats_CI2511
       - subjects_content
   - id: subjects-suite
     path: e2e/maestro/flows/suites/subjects-suite.yaml

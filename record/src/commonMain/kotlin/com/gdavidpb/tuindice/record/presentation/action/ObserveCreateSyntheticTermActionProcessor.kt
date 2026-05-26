@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
 import kotlin.time.Duration.Companion.milliseconds
@@ -38,10 +39,22 @@ class ObserveCreateSyntheticTermActionProcessor(
 		sideEffect: (CreateSyntheticTerm.Effect) -> Unit
 	): Flow<Mutation<CreateSyntheticTerm.State>> {
 		return merge(
+			observeSelectedAddSubjectTab(action),
 			observeSnapshot(action),
 			refreshSearch(action),
 			observeLoadPreview(action)
 		)
+	}
+
+	private fun observeSelectedAddSubjectTab(
+		action: CreateSyntheticTerm.Action.Observe
+	): Flow<Mutation<CreateSyntheticTerm.State>> {
+		return action.selectedAddSubjectTabFlow
+			.map { selectedAddSubjectTab ->
+				suspend { state: CreateSyntheticTerm.State ->
+					state.copy(selectedAddSubjectTab = selectedAddSubjectTab)
+				}
+			}
 	}
 
 	private fun observeSnapshot(

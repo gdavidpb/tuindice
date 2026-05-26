@@ -16,14 +16,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
+import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.create_term_subject_already_planned
 import tuindice.record.generated.resources.create_term_subject_already_taken
+import tuindice.record.generated.resources.create_term_subject_not_in_pensum
 import tuindice.record.generated.resources.create_term_subject_requirement_pending
 import tuindice.record.generated.resources.create_term_subject_selected
 
@@ -40,6 +43,7 @@ fun CreateTermSubjectStatusRow(
 		selectedText = stringResource(Res.string.create_term_subject_selected),
 		alreadyTakenText = stringResource(Res.string.create_term_subject_already_taken),
 		alreadyPlannedText = stringResource(Res.string.create_term_subject_already_planned),
+		notInPensumText = stringResource(Res.string.create_term_subject_not_in_pensum),
 		unavailableText = stringResource(Res.string.create_term_subject_requirement_pending),
 		onSurfaceVariantColor = onSurfaceVariantColor
 	)
@@ -72,6 +76,12 @@ fun CreateTermSubjectStatusRow(
 				)
 		}
 		Text(
+			modifier = Modifier.testTag(
+				RecordUiTags.createSyntheticTermSubjectStatus(
+					subjectCode = subject.subjectCode,
+					status = subject.availability.name.lowercase()
+				)
+			),
 			text = status.text,
 			style = MaterialTheme.typography.bodySmall,
 			color = status.color,
@@ -87,6 +97,7 @@ private fun SyntheticTermSubject.status(
 	selectedText: String,
 	alreadyTakenText: String,
 	alreadyPlannedText: String,
+	notInPensumText: String,
 	unavailableText: String,
 	onSurfaceVariantColor: Color
 ): SubjectStatus {
@@ -96,6 +107,13 @@ private fun SyntheticTermSubject.status(
 				text = availableText,
 				color = CreateTermSuccessColor,
 				icon = availableIcon
+			)
+
+		SyntheticTermSubjectAvailability.NOT_IN_PENSUM ->
+			SubjectStatus(
+				text = notInPensumText,
+				color = onSurfaceVariantColor,
+				icon = CreateTermSubjectStatusIcon.Dot
 			)
 
 		SyntheticTermSubjectAvailability.SELECTED ->

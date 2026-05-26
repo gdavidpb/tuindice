@@ -20,4 +20,5 @@ object SubjectsUiTags {
 	const val SearchClear = "subjects_search_clear"
 	const val SearchRetry = "subjects_search_retry"
 	fun searchResult(subjectCode: String): String = "subjects_search_result_$subjectCode"
+	fun searchResultStatsButton(subjectCode: String): String = "subjects_search_result_stats_$subjectCode"
 }

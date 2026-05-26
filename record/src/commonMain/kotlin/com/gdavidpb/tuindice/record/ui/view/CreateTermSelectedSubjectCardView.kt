@@ -32,6 +32,7 @@ fun CreateTermSelectedSubjectCard(
 	action: CreateTermSubjectCardAction,
 	enabled: Boolean = true,
 	onClick: () -> Unit,
+	onStatsClick: ((String) -> Unit)? = null,
 	modifier: Modifier = Modifier
 ) {
 	Surface(
@@ -82,16 +83,29 @@ fun CreateTermSelectedSubjectCard(
 					availableIcon = CreateTermSubjectStatusIcon.Check
 				)
 			}
-			if (action == CreateTermSubjectCardAction.Remove || enabled) {
-				CreateTermSubjectActionButton(
-					action = action,
-					enabled = enabled,
-					onClick = onClick,
-					testTag = RecordUiTags.createSyntheticTermSubjectAction(
-						subjectCode = subject.subjectCode,
-						action = action.name.lowercase()
-					)
-				)
+			if (action == CreateTermSubjectCardAction.Remove || enabled || onStatsClick != null) {
+				Column(
+					horizontalAlignment = Alignment.CenterHorizontally,
+					verticalArrangement = Arrangement.spacedBy(8.dp)
+				) {
+					if (action == CreateTermSubjectCardAction.Remove || enabled) {
+						CreateTermSubjectActionButton(
+							action = action,
+							enabled = enabled,
+							onClick = onClick,
+							testTag = RecordUiTags.createSyntheticTermSubjectAction(
+								subjectCode = subject.subjectCode,
+								action = action.name.lowercase()
+							)
+						)
+					}
+					if (onStatsClick != null) {
+						CreateTermSubjectStatsButton(
+							subjectCode = subject.subjectCode,
+							onClick = { onStatsClick(subject.subjectCode) }
+						)
+					}
+				}
 			}
 		}
 	}

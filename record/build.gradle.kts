@@ -44,6 +44,7 @@ kotlin {
 			dependencies {
 				implementation(kotlin("test"))
 				implementation(project(":testkit"))
+				implementation(libs.ktor.client.mock)
 			}
 		}
 

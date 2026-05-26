@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermCreationU
 import com.gdavidpb.tuindice.record.domain.usecase.RefreshSyntheticTermSubjectSearchUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExceptionHandler
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
+import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -25,6 +26,48 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 
 class ObserveCreateSyntheticTermActionProcessorTest {
+	@Test
+	fun process_observesSelectedAddSubjectTabAsScreenState() = runTest {
+		val defaultPeriod = SyntheticTermPeriodOption(
+			periodYear = 2026,
+			periodCode = AcademicTermPeriod.APR_JUL
+		)
+		val creationRepository = FakeSyntheticTermCreationRepository(
+			periodOptions = listOf(defaultPeriod)
+		)
+		val selectedAddSubjectTabFlow = MutableStateFlow(CreateTermAddSubjectTab.Suggested)
+		var state = CreateSyntheticTerm.State()
+
+		processor(
+			creationRepository = creationRepository,
+			loadPreviewRepository = RecordingSyntheticTermLoadPreviewRepository()
+		).process(
+			action = CreateSyntheticTerm.Action.Observe(
+				queryFlow = MutableStateFlow(""),
+				selectedAddSubjectTabFlow = selectedAddSubjectTabFlow,
+				selectedSubjectsFlow = MutableStateFlow(emptyList()),
+				selectedPeriodKeyFlow = MutableStateFlow(null),
+				editingTermIdFlow = MutableStateFlow(null),
+				editingTermKeyFlow = MutableStateFlow(null)
+			),
+			sideEffect = {}
+		).test {
+			while (state.selectedAddSubjectTab != CreateTermAddSubjectTab.Suggested) {
+				state = awaitItem()(state)
+			}
+
+			selectedAddSubjectTabFlow.value = CreateTermAddSubjectTab.Search
+
+			while (state.selectedAddSubjectTab != CreateTermAddSubjectTab.Search) {
+				state = awaitItem()(state)
+			}
+
+			assertEquals(CreateTermAddSubjectTab.Search, state.selectedAddSubjectTab)
+
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
 	@Test
 	fun process_loadsPreviewForDefaultPeriod_whenSubjectsAreSelectedWithoutManualPeriodSelection() = runTest {
 		val defaultPeriod = SyntheticTermPeriodOption(
@@ -50,6 +93,7 @@ class ObserveCreateSyntheticTermActionProcessorTest {
 		).process(
 			action = CreateSyntheticTerm.Action.Observe(
 				queryFlow = MutableStateFlow(""),
+				selectedAddSubjectTabFlow = MutableStateFlow(CreateTermAddSubjectTab.Suggested),
 				selectedSubjectsFlow = selectedSubjectsFlow,
 				selectedPeriodKeyFlow = selectedPeriodKeyFlow,
 				editingTermIdFlow = MutableStateFlow(null),

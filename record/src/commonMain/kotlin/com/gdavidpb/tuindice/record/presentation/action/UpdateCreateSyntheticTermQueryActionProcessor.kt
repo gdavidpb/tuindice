@@ -15,11 +15,16 @@ class UpdateCreateSyntheticTermQueryActionProcessor : ActionProcessor<
 		action: CreateSyntheticTerm.Action.UpdateQuery,
 		sideEffect: (CreateSyntheticTerm.Effect) -> Unit
 	): Flow<Mutation<CreateSyntheticTerm.State>> {
+		val selectionStart = action.selectionStart.coerceIn(0, action.query.length)
+		val selectionEnd = action.selectionEnd.coerceIn(0, action.query.length)
+
 		return flowOf(
 			suspend { state ->
 				if (action.query.trim().length < 2) {
 					state.copy(
 						query = action.query,
+						querySelectionStart = selectionStart,
+						querySelectionEnd = selectionEnd,
 						searchResults = emptyList(),
 						isRefreshingSearch = false,
 						hasSearchError = false
@@ -27,6 +32,8 @@ class UpdateCreateSyntheticTermQueryActionProcessor : ActionProcessor<
 				} else {
 					state.copy(
 						query = action.query,
+						querySelectionStart = selectionStart,
+						querySelectionEnd = selectionEnd,
 						hasSearchError = false
 					)
 				}

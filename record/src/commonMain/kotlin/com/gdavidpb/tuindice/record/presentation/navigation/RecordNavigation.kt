@@ -27,6 +27,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun NavGraphBuilder.recordNavigation(
 	navController: NavHostController,
 	onNavigateToUpdatePassword: () -> Unit,
+	onNavigateToSubjectDetail: (String) -> Unit,
 	onTopBarViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
@@ -87,6 +88,7 @@ fun NavGraphBuilder.recordNavigation(
 				termId = args.termId,
 				viewModel = viewModel,
 				onBack = { navController.navigateUp() },
+				onSubjectStatsClick = onNavigateToSubjectDetail,
 				showSnackBar = showSnackBar
 			)
 		}

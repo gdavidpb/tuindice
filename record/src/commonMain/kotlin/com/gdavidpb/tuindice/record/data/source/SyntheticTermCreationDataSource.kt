@@ -91,6 +91,7 @@ class SyntheticTermCreationDataSource(
 				?: periodOptions.firstOrNull()
 			val selectedCodes = selection.selectedSubjects.map(SyntheticTermSubject::subjectCode).toSet()
 			val availabilityBySubjectCode = record.availabilityBySubjectCode(editingTermId = selection.editingTermId)
+			val pensumAvailabilityBySubjectCode = record.pensumAvailabilityBySubjectCode(pensum = pensum)
 
 			SyntheticTermCreationSnapshot(
 				editingTermId = selection.editingTermId,
@@ -101,7 +102,8 @@ class SyntheticTermCreationDataSource(
 				suggestedSubjects = record.suggestedSubjects(
 					pensum = pensum,
 					selectedCodes = selectedCodes,
-					availabilityBySubjectCode = availabilityBySubjectCode
+					availabilityBySubjectCode = availabilityBySubjectCode,
+					pensumAvailabilityBySubjectCode = pensumAvailabilityBySubjectCode
 				),
 				searchResults = searchResults
 					.mapNotNull { subject ->
@@ -109,11 +111,15 @@ class SyntheticTermCreationDataSource(
 							.takeIf { item -> RealSubjectCodeRegex.matches(item.subjectCode) }
 							?.withAvailability(
 								selectedCodes = selectedCodes,
-								availabilityBySubjectCode = availabilityBySubjectCode
+								availabilityBySubjectCode = availabilityBySubjectCode,
+								pensumAvailabilityBySubjectCode = pensumAvailabilityBySubjectCode
 							)
 					}
 					.sortedWith(
-						compareBy<SyntheticTermSubject> { subject -> subject.availability.searchOrder }
+						compareBy<SyntheticTermSubject> { subject ->
+							subject.subjectCode !in pensumAvailabilityBySubjectCode
+						}
+							.thenBy { subject -> subject.availability.searchOrder }
 							.thenBy(SyntheticTermSubject::subjectCode)
 					)
 			)
@@ -255,10 +261,10 @@ class SyntheticTermCreationDataSource(
 		}
 	}
 
-		private fun AcademicRecord.availabilityBySubjectCode(editingTermId: String?): Map<String, SyntheticTermSubjectAvailability> {
-			return buildMap {
-				terms.filterNot { term -> term.id == editingTermId }.forEach { term ->
-					term.attempts.forEach { attempt ->
+	private fun AcademicRecord.availabilityBySubjectCode(editingTermId: String?): Map<String, SyntheticTermSubjectAvailability> {
+		return buildMap {
+			terms.filterNot { term -> term.id == editingTermId }.forEach { term ->
+				term.attempts.forEach { attempt ->
 					val availability = when {
 						term.kind.isHistorical ->
 							SyntheticTermSubjectAvailability.ALREADY_TAKEN
@@ -270,25 +276,25 @@ class SyntheticTermCreationDataSource(
 							null
 					}
 
-						if (availability != null) {
-							putWithPriority(
-								key = attempt.subjectCode.uppercase(),
-								availability = availability
-							)
-						}
+					if (availability != null) {
+						putWithPriority(
+							key = attempt.subjectCode.uppercase(),
+							availability = availability
+						)
 					}
 				}
 			}
 		}
+	}
 
-		private data class FormSelectionState(
-			val selectedSubjects: List<SyntheticTermSubject>,
-			val selectedPeriodKey: String?,
-			val editingTermId: String?,
-			val editingTermKey: String?
-		)
+	private data class FormSelectionState(
+		val selectedSubjects: List<SyntheticTermSubject>,
+		val selectedPeriodKey: String?,
+		val editingTermId: String?,
+		val editingTermKey: String?
+	)
 
-		private fun MutableMap<String, SyntheticTermSubjectAvailability>.putWithPriority(
+	private fun MutableMap<String, SyntheticTermSubjectAvailability>.putWithPriority(
 		key: String,
 		availability: SyntheticTermSubjectAvailability
 	) {
@@ -301,10 +307,46 @@ class SyntheticTermCreationDataSource(
 	private fun AcademicRecord.suggestedSubjects(
 		pensum: CreateSyntheticTermPensumCacheResponse?,
 		selectedCodes: Set<String>,
-		availabilityBySubjectCode: Map<String, SyntheticTermSubjectAvailability>
+		availabilityBySubjectCode: Map<String, SyntheticTermSubjectAvailability>,
+		pensumAvailabilityBySubjectCode: Map<String, SyntheticTermSubjectAvailability>
 	): List<SyntheticTermSubject> {
 		val nodes = pensum?.pensum?.nodes.orEmpty()
 		val courseNodes = nodes.filter { node -> node.nodeType == NodeTypeCourse }
+
+		return courseNodes
+			.asSequence()
+			.mapNotNull { node ->
+				val subjectCode = node.subjectCode
+					?.trim()
+					?.uppercase()
+					?.takeIf(RealSubjectCodeRegex::matches)
+					?: return@mapNotNull null
+				if (subjectCode in selectedCodes || subjectCode in availabilityBySubjectCode) return@mapNotNull null
+				if (pensumAvailabilityBySubjectCode[subjectCode] != SyntheticTermSubjectAvailability.AVAILABLE) {
+					return@mapNotNull null
+				}
+
+				SyntheticTermSubject(
+					subjectCode = subjectCode,
+					name = node.name,
+					credits = node.credits
+				)
+			}
+			.distinctBy(SyntheticTermSubject::subjectCode)
+			.sortedWith(compareBy(SyntheticTermSubject::subjectCode))
+			.take(SuggestedSubjectLimit)
+			.toList()
+	}
+
+	private fun AcademicRecord.pensumAvailabilityBySubjectCode(
+		pensum: CreateSyntheticTermPensumCacheResponse?
+	): Map<String, SyntheticTermSubjectAvailability> {
+		val courseNodes = pensum?.pensum?.nodes
+			.orEmpty()
+			.filter { node -> node.nodeType == NodeTypeCourse }
+		val edges = pensum?.pensum?.edges.orEmpty()
+		if (courseNodes.isEmpty()) return emptyMap()
+
 		val approvedSubjects = terms
 			.flatMap(AcademicTerm::attempts)
 			.filter { attempt -> attempt.academicOutcome == AttemptOutcome.APPROVED }
@@ -324,27 +366,20 @@ class SyntheticTermCreationDataSource(
 			.map { node -> node.id }
 			.toSet()
 
-		return courseNodes
-			.asSequence()
-			.mapNotNull { node ->
-				val subjectCode = node.subjectCode
-					?.trim()
-					?.uppercase()
-					?.takeIf(RealSubjectCodeRegex::matches)
-					?: return@mapNotNull null
-				if (subjectCode in selectedCodes || subjectCode in availabilityBySubjectCode) return@mapNotNull null
-				if (!node.isAvailable(pensum?.pensum?.edges.orEmpty(), approvedNodeIds, currentNodeIds)) return@mapNotNull null
-
-				SyntheticTermSubject(
-					subjectCode = subjectCode,
-					name = node.name,
-					credits = node.credits
-				)
+		return courseNodes.mapNotNull { node ->
+			val subjectCode = node.subjectCode
+				?.trim()
+				?.uppercase()
+				?.takeIf(RealSubjectCodeRegex::matches)
+				?: return@mapNotNull null
+			val availability = if (node.isAvailable(edges, approvedNodeIds, currentNodeIds)) {
+				SyntheticTermSubjectAvailability.AVAILABLE
+			} else {
+				SyntheticTermSubjectAvailability.UNAVAILABLE
 			}
-			.distinctBy(SyntheticTermSubject::subjectCode)
-			.sortedWith(compareBy(SyntheticTermSubject::subjectCode))
-			.take(SuggestedSubjectLimit)
-			.toList()
+
+			subjectCode to availability
+		}.toMap()
 	}
 
 	private fun CreateSyntheticTermPensumCacheResponse.Node.isAvailable(
@@ -380,12 +415,15 @@ class SyntheticTermCreationDataSource(
 
 	private fun SyntheticTermSubject.withAvailability(
 		selectedCodes: Set<String>,
-		availabilityBySubjectCode: Map<String, SyntheticTermSubjectAvailability>
+		availabilityBySubjectCode: Map<String, SyntheticTermSubjectAvailability>,
+		pensumAvailabilityBySubjectCode: Map<String, SyntheticTermSubjectAvailability>
 	): SyntheticTermSubject {
 		return copy(
 			availability = when {
 				subjectCode in selectedCodes -> SyntheticTermSubjectAvailability.SELECTED
-				else -> availabilityBySubjectCode[subjectCode] ?: SyntheticTermSubjectAvailability.AVAILABLE
+				availabilityBySubjectCode[subjectCode] != null -> availabilityBySubjectCode.getValue(subjectCode)
+				else -> pensumAvailabilityBySubjectCode[subjectCode]
+					?: SyntheticTermSubjectAvailability.NOT_IN_PENSUM
 			}
 		)
 	}
@@ -393,10 +431,11 @@ class SyntheticTermCreationDataSource(
 	private val SyntheticTermSubjectAvailability.searchOrder: Int
 		get() = when (this) {
 			SyntheticTermSubjectAvailability.AVAILABLE -> 0
-			SyntheticTermSubjectAvailability.SELECTED -> 1
-			SyntheticTermSubjectAvailability.ALREADY_TAKEN -> 2
-			SyntheticTermSubjectAvailability.ALREADY_PLANNED -> 3
-			SyntheticTermSubjectAvailability.UNAVAILABLE -> 4
+			SyntheticTermSubjectAvailability.NOT_IN_PENSUM -> 1
+			SyntheticTermSubjectAvailability.SELECTED -> 2
+			SyntheticTermSubjectAvailability.ALREADY_TAKEN -> 3
+			SyntheticTermSubjectAvailability.ALREADY_PLANNED -> 4
+			SyntheticTermSubjectAvailability.UNAVAILABLE -> 5
 		}
 }
 

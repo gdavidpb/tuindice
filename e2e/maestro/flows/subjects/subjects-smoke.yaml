@@ -38,6 +38,8 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: subjects_search_result_CI2511
     timeout: 15000
+- assertVisible:
+    id: subjects_search_result_stats_CI2511
 - tapOn:
     id: subjects_search_result_CI2511
 - extendedWaitUntil:

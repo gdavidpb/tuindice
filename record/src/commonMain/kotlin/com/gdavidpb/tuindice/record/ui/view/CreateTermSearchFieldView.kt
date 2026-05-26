@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -30,9 +31,9 @@ import tuindice.record.generated.resources.create_term_search_placeholder
 
 @Composable
 fun CreateTermSearchField(
-	query: String,
+	query: TextFieldValue,
 	focusRequester: FocusRequester,
-	onQueryChange: (String) -> Unit,
+	onQueryChange: (TextFieldValue) -> Unit,
 	onClearQueryClick: () -> Unit,
 	onSearch: () -> Unit
 ) {
@@ -61,7 +62,7 @@ fun CreateTermSearchField(
 			)
 		},
 		trailingIcon = {
-			if (query.isNotEmpty()) {
+			if (query.text.isNotEmpty()) {
 				IconButton(
 					modifier = Modifier.testTag(RecordUiTags.CreateSyntheticTermSearchClearButton),
 					onClick = onClearQueryClick

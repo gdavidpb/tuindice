@@ -17,6 +17,7 @@ object RecordUiTags {
 	const val DeleteSyntheticTermButton = "record_delete_synthetic_term_button"
 	const val DeleteSyntheticTermMessage = "record_delete_synthetic_term_message"
 	const val CreateSyntheticTermScreen = "record_create_synthetic_term_screen"
+	const val CreateSyntheticTermContentList = "record_create_synthetic_term_content_list"
 	const val CreateSyntheticTermPeriodSelector = "record_create_synthetic_term_period_selector"
 	const val CreateSyntheticTermSearchField = "record_create_synthetic_term_search_field"
 	const val CreateSyntheticTermSearchClearButton = "record_create_synthetic_term_search_clear_button"
@@ -44,8 +45,17 @@ object RecordUiTags {
 	fun attemptStatusOption(attemptId: String, status: String): String = "record_attempt_status_option_${attemptId}_$status"
 	fun attemptStatusValue(attemptId: String, status: String): String = "record_attempt_status_value_${attemptId}_$status"
 	fun createSyntheticTermSubject(subjectCode: String): String = "record_create_synthetic_term_subject_$subjectCode"
+	fun createSyntheticTermSearchResult(index: Int, subjectCode: String): String =
+		"record_create_synthetic_term_search_result_${index}_subject_$subjectCode"
+
+	fun createSyntheticTermSubjectStatus(subjectCode: String, status: String): String =
+		"record_create_synthetic_term_subject_${subjectCode}_status_$status"
+
 	fun createSyntheticTermSubjectAction(subjectCode: String, action: String): String =
 		"record_create_synthetic_term_subject_${subjectCode}_${action}_button"
+
+	fun createSyntheticTermSubjectStatsButton(subjectCode: String): String =
+		"record_create_synthetic_term_subject_${subjectCode}_stats_button"
 
 	fun createSyntheticTermPeriodOption(termKey: String): String = "record_create_synthetic_term_period_option_$termKey"
 }

@@ -15,6 +15,7 @@ fun CreateSyntheticTermRoute(
 	termId: String?,
 	viewModel: CreateSyntheticTermViewModel,
 	onBack: () -> Unit,
+	onSubjectStatsClick: (String) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
@@ -38,8 +39,10 @@ fun CreateSyntheticTermRoute(
 		onQueryChange = viewModel::updateQueryAction,
 		onClearQueryClick = viewModel::clearQueryAction,
 		onPeriodSelected = viewModel::selectPeriodAction,
+		onAddSubjectTabSelected = viewModel::selectAddSubjectTabAction,
 		onSubjectAdd = viewModel::addSubjectAction,
 		onSubjectRemove = viewModel::removeSubjectAction,
+		onSubjectStatsClick = onSubjectStatsClick,
 		onCreateClick = viewModel::createTermAction
 	)
 }

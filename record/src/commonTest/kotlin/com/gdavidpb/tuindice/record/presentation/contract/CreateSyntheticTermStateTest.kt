@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.presentation.contract
 
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import tuindice.record.generated.resources.Res
@@ -21,5 +22,14 @@ class CreateSyntheticTermStateTest {
 			UiText.Resource(Res.string.top_bar_edit_synthetic_term),
 			editState.topBarTitle
 		)
+	}
+
+	@Test
+	fun searchUiState_defaultsToSuggestedTabWithEmptyCursorSelection() {
+		val state = CreateSyntheticTerm.State()
+
+		assertEquals(CreateTermAddSubjectTab.Suggested, state.selectedAddSubjectTab)
+		assertEquals(0, state.querySelectionStart)
+		assertEquals(0, state.querySelectionEnd)
 	}
 }

@@ -344,9 +344,9 @@ actions:
     reason: screen bootstrap and local state observation
   - id: record.CreateSyntheticTerm.UpdateQuery
     classification: user
-    variants: [search, clear, no-results]
+    variants: [search, clear, no-results, availability-states, pensum-priority, not-in-pensum]
     selector: record_create_synthetic_term_search_field
-    flow: e2e/maestro/flows/record/record-synthetic-term-lifecycle.yaml
+    flow: e2e/maestro/flows/suites/record-suite.yaml
     fixture_state: synthetic-term-search
   - id: record.CreateSyntheticTerm.CreateTerm
     classification: user

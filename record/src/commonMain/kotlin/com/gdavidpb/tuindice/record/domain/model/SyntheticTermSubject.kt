@@ -11,5 +11,6 @@ data class SyntheticTermSubject(
 	val availability: SyntheticTermSubjectAvailability = SyntheticTermSubjectAvailability.AVAILABLE
 ) {
 	val creditsText: String = "$credits UC"
-	val canAdd: Boolean = availability == SyntheticTermSubjectAvailability.AVAILABLE
+	val canAdd: Boolean = availability == SyntheticTermSubjectAvailability.AVAILABLE ||
+		availability == SyntheticTermSubjectAvailability.NOT_IN_PENSUM
 }

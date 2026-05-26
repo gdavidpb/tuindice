@@ -1,0 +1,20 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPath": "/subjects/v1/search",
+    "queryParameters": {
+      "query": {
+        "contains": "prioridad"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "fixedDelayMilliseconds": 250,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "subjects/search-subjects-priority.json"
+  }
+}
