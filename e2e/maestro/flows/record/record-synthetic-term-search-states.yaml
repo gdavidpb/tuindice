@@ -23,12 +23,8 @@ appId: com.gdavidpb.tuindice.debug
     timeout: 10000
 - extendedWaitUntil:
     visible:
-      id: record_create_synthetic_term_subject_MA1112_status_available
+      id: record_create_synthetic_term_subject_MA1121_status_available
     timeout: 20000
-- assertVisible:
-    id: record_create_synthetic_term_subject_MA1112_add_button
-- assertVisible:
-    id: record_create_synthetic_term_subject_MA1121_status_available
 - assertVisible:
     id: record_create_synthetic_term_subject_MA1121_add_button
 - tapOn:
@@ -58,7 +54,7 @@ appId: com.gdavidpb.tuindice.debug
 - hideKeyboard
 - extendedWaitUntil:
     visible:
-      id: record_create_synthetic_term_search_result_0_subject_EP1420
+      id: record_create_synthetic_term_search_result_0_subject_MA1112
     timeout: 20000
 - scrollUntilVisible:
     element:
@@ -83,13 +79,13 @@ appId: com.gdavidpb.tuindice.debug
     id: record_create_synthetic_term_subject_AA1001_stats_button
 - scrollUntilVisible:
     element:
-      id: record_create_synthetic_term_subject_EP1420_status_available
+      id: record_create_synthetic_term_subject_MA1112_status_available
     direction: UP
     timeout: 20000
 - assertVisible:
-    id: record_create_synthetic_term_subject_EP1420_stats_button
+    id: record_create_synthetic_term_subject_MA1112_stats_button
 - tapOn:
-    id: record_create_synthetic_term_subject_EP1420_stats_button
+    id: record_create_synthetic_term_subject_MA1112_stats_button
 - extendedWaitUntil:
     visible:
       id: subjects_content
@@ -101,22 +97,24 @@ appId: com.gdavidpb.tuindice.debug
       id: record_create_synthetic_term_search_field
     timeout: 10000
 - assertVisible:
-    id: record_create_synthetic_term_search_result_0_subject_EP1420
+    id: record_create_synthetic_term_search_result_0_subject_MA1112
 - assertVisible:
-    id: record_create_synthetic_term_subject_EP1420_stats_button
+    id: record_create_synthetic_term_subject_MA1112_stats_button
 - assertVisible:
-    id: record_create_synthetic_term_subject_EP1420_add_button
+    id: record_create_synthetic_term_subject_MA1112_add_button
 - tapOn:
-    id: record_create_synthetic_term_subject_EP1420_add_button
+    id: record_create_synthetic_term_subject_MA1112_add_button
 - assertNotVisible:
-    id: record_create_synthetic_term_subject_EP1420_add_button
+    id: record_create_synthetic_term_subject_MA1112_add_button
 - scrollUntilVisible:
     element:
-      id: record_create_synthetic_term_subject_EP1420_remove_button
+      id: record_create_synthetic_term_subject_MA1112_remove_button
     direction: UP
     timeout: 10000
 - assertVisible:
-    id: record_create_synthetic_term_subject_EP1420_remove_button
+    id: record_create_synthetic_term_subject_MA1112_remove_button
+- tapOn:
+    id: record_create_synthetic_term_subject_MA1112_remove_button
 - scrollUntilVisible:
     element:
       id: record_create_synthetic_term_subject_EP1308_status_already_planned

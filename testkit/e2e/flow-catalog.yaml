@@ -728,16 +728,16 @@ flows:
       - record_create_synthetic_term_screen
       - record_create_synthetic_term_search_field
       - maincore_tuindice_top_bar_back_button
-      - record_create_synthetic_term_search_result_0_subject_EP1420
+      - record_create_synthetic_term_search_result_0_subject_MA1112
       - record_create_synthetic_term_search_result_1_subject_EP1308
       - record_create_synthetic_term_search_result_2_subject_EP2308
       - record_create_synthetic_term_search_result_3_subject_AA1001
       - record_create_synthetic_term_subject_AA1001_status_not_in_pensum
       - record_create_synthetic_term_subject_AA1001_stats_button
-      - record_create_synthetic_term_subject_EP1420_status_available
-      - record_create_synthetic_term_subject_EP1420_add_button
-      - record_create_synthetic_term_subject_EP1420_remove_button
-      - record_create_synthetic_term_subject_EP1420_stats_button
+      - record_create_synthetic_term_subject_MA1112_status_available
+      - record_create_synthetic_term_subject_MA1112_add_button
+      - record_create_synthetic_term_subject_MA1112_remove_button
+      - record_create_synthetic_term_subject_MA1112_stats_button
       - subjects_content
       - record_create_synthetic_term_subject_EP1308_status_already_planned
       - record_create_synthetic_term_subject_EP1308_stats_button
