@@ -266,6 +266,57 @@ class SyntheticTermCreationDataSourceTest {
 	}
 
 	@Test
+	fun observeSnapshot_readsSelectedPensumFromPersistedPensumResponseCache() = runTest {
+		val dataSource = dataSource(
+			record = academicRecord(
+				approvedSubjectCodes = listOf("MA1111")
+			),
+			pensumPayloadJson = pensumResponsePayload(
+				selectedPensumId = "selected-pensum",
+				pensums = listOf(
+					pensumPayloadPensum(
+						id = "other-pensum",
+						nodes = listOf(
+							pensumNode(id = "aa1001", subjectCode = "AA1001", name = "Otra seleccion")
+						),
+						edges = emptyList()
+					),
+					pensumPayloadPensum(
+						id = "selected-pensum",
+						nodes = listOf(
+							pensumNode(id = "ma1111", subjectCode = "MA1111", name = "Matemáticas I"),
+							pensumNode(id = "ma1112", subjectCode = "MA1112", name = "Matemáticas II")
+						),
+						edges = listOf(
+							pensumEdge(fromNodeId = "ma1111", toNodeId = "ma1112", relationshipType = "REQUIREMENT")
+						)
+					)
+				)
+			),
+			searchEntities = listOf(
+				subjectCatalogEntity(subjectCode = "MA1112", name = "Matemáticas II")
+			)
+		)
+
+		val snapshot = dataSource.observeSnapshot(
+			queryFlow = MutableStateFlow("ma1112"),
+			selectedSubjectsFlow = MutableStateFlow(emptyList()),
+			selectedPeriodKeyFlow = MutableStateFlow(null),
+			editingTermIdFlow = MutableStateFlow(null),
+			editingTermKeyFlow = MutableStateFlow(null)
+		).first()
+
+		assertEquals(
+			listOf("MA1112"),
+			snapshot.suggestedSubjects.map { subject -> subject.subjectCode }
+		)
+		assertEquals(
+			SyntheticTermSubjectAvailability.AVAILABLE,
+			snapshot.searchResults.single().availability
+		)
+	}
+
+	@Test
 	fun observeSnapshot_marksProjectSubjectUnavailable_whenRequirementsAreOnlyPlanned() = runTest {
 		val dataSource = dataSource(
 			record = AcademicRecord(
@@ -570,12 +621,40 @@ private fun pensumPayload(
 	nodes: List<String>,
 	edges: List<String>
 ): String {
+	return pensumResponsePayload(
+		selectedPensumId = "test-pensum",
+		pensums = listOf(
+			pensumPayloadPensum(
+				id = "test-pensum",
+				nodes = nodes,
+				edges = edges
+			)
+		)
+	)
+}
+
+private fun pensumResponsePayload(
+	selectedPensumId: String,
+	pensums: List<String>
+): String {
 	return """
 		{
-		  "pensum": {
-		    "nodes": [${nodes.joinToString(separator = ",")}],
-		    "edges": [${edges.joinToString(separator = ",")}]
-		  }
+		  "selected_pensum_id": "$selectedPensumId",
+		  "pensums": [${pensums.joinToString(separator = ",")}]
+		}
+	""".trimIndent()
+}
+
+private fun pensumPayloadPensum(
+	id: String,
+	nodes: List<String>,
+	edges: List<String>
+): String {
+	return """
+		{
+		  "id": "$id",
+		  "nodes": [${nodes.joinToString(separator = ",")}],
+		  "edges": [${edges.joinToString(separator = ",")}]
 		}
 	""".trimIndent()
 }

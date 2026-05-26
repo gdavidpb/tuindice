@@ -5,10 +5,19 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 internal data class CreateSyntheticTermPensumCacheResponse(
-	@SerialName("pensum") val pensum: Pensum
+	@SerialName("selected_pensum_id") val selectedPensumId: String? = null,
+	@SerialName("pensums") val pensums: List<Pensum> = emptyList(),
+	@SerialName("pensum") val legacyPensum: Pensum? = null
 ) {
+	val pensum: Pensum
+		get() = legacyPensum
+			?: pensums.firstOrNull { pensum -> pensum.id == selectedPensumId }
+			?: pensums.firstOrNull()
+			?: Pensum()
+
 	@Serializable
 	internal data class Pensum(
+		@SerialName("id") val id: String? = null,
 		@SerialName("nodes") val nodes: List<Node> = emptyList(),
 		@SerialName("edges") val edges: List<Edge> = emptyList()
 	)
