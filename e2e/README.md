@@ -53,8 +53,8 @@ installed, authenticated, the working tree is clean, the certified commit is
 `HEAD`, and the commit exists on GitHub. The aggregate
 `local-certification-suite` publishes its own status plus the covered suite
 statuses, for example `local-e2e/android/auth-suite`. Set
-`E2E_PUBLISH_GITHUB_STATUS=0` for evidence-only local runs. Failed runs do not
-publish failure statuses unless `E2E_PUBLISH_FAILURE_STATUS=1` is set.
+`E2E_PUBLISH_GITHUB_STATUS=0` for evidence-only local runs. Failed runs keep
+their local evidence but never publish GitHub commit statuses.
 
 On PR preflight, if the current SHA is missing a required `local-e2e/...`
 status, CI searches previous commits in the PR. When it finds the same

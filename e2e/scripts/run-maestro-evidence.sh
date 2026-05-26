@@ -251,23 +251,14 @@ if [[ "${CERTIFICATION_DIR}" != "${FINGERPRINT_CERTIFICATION_DIR}" ]]; then
 	cp -R "${CERTIFICATION_DIR}/." "${FINGERPRINT_CERTIFICATION_DIR}/"
 fi
 
-publish_state="success"
 publish_description="Local E2E ${SUITE_ID} passed for ${COMMIT_SHA:0:7} fp ${E2E_FINGERPRINT:0:12}."
-if [[ "$status" != "0" ]]; then
-	publish_state="failure"
-	publish_description="Local E2E ${SUITE_ID} failed for ${COMMIT_SHA:0:7} fp ${E2E_FINGERPRINT:0:12}."
-fi
 
 if [[ "$status" == "0" ]]; then
 	if github_status_publishing_available; then
-		publish_github_statuses "${publish_state}" "${publish_description}" 1
-	fi
-elif [[ "${E2E_PUBLISH_FAILURE_STATUS:-0}" == "1" ]]; then
-	if github_status_publishing_available; then
-		publish_github_statuses "${publish_state}" "${publish_description}" 0
+		publish_github_statuses "success" "${publish_description}" 1
 	fi
 else
-	log "Skipping GitHub failure status publishing. Set E2E_PUBLISH_FAILURE_STATUS=1 to publish failed local E2E runs."
+	log "Skipping GitHub commit status publishing because E2E failed."
 fi
 
 log "E2E evidence manifest: ${MANIFEST_FILE}"

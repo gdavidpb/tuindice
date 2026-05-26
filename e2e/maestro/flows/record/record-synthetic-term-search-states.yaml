@@ -4,6 +4,12 @@ appId: com.gdavidpb.tuindice.debug
 - runFlow: ../auth/login-success.yaml
 - runFlow: ../wizard/wizard-smoke.yaml
 - tapOn:
+    id: maincore_tuindice_bottom_bar_pensum_item
+- extendedWaitUntil:
+    visible:
+      id: pensum_canvas
+    timeout: 30000
+- tapOn:
     id: maincore_tuindice_bottom_bar_record_item
 - extendedWaitUntil:
     visible:
