@@ -19,6 +19,7 @@ SUMMARY_FILE="${SUMMARY_FILE:-${GITHUB_STEP_SUMMARY:-${RUNNER_TEMP:-/tmp}/prefli
 TARGET_GIT_SHA="${TARGET_GIT_SHA:-${GITHUB_SHA:-$(git rev-parse HEAD)}}"
 E2E_REUSE_BASE_SHA="${E2E_REUSE_BASE_SHA:-}"
 E2E_REUSE_MAX_COMMITS="${E2E_REUSE_MAX_COMMITS:-50}"
+MISSING_E2E_STATUSES_FILE="${MISSING_E2E_STATUSES_FILE:-${RUNNER_TEMP:-/tmp}/missing-e2e-statuses.txt}"
 
 file_has_entries() {
 	local file="${1:-}"
@@ -31,6 +32,56 @@ join_file_lines_as_csv() {
 	if file_has_entries "$file"; then
 		paste -sd, "$file"
 	fi
+}
+
+evidence_task_for_platform() {
+	local platform="$1"
+
+	case "$platform" in
+		android)
+			printf 'e2eMaestroEvidenceAndroid\n'
+			;;
+		ios)
+			printf 'e2eMaestroEvidenceIos\n'
+			;;
+		*)
+			die "Unsupported E2E evidence platform '${platform}'."
+			;;
+	esac
+}
+
+record_missing_e2e_status() {
+	local platform="$1"
+	local context="$2"
+
+	printf '%s\t%s\n' "$platform" "$context" >>"$MISSING_E2E_STATUSES_FILE"
+}
+
+write_missing_e2e_guidance() {
+	local platform
+	local context
+	local task
+
+	file_has_entries "$MISSING_E2E_STATUSES_FILE" || return 0
+	sort -u "$MISSING_E2E_STATUSES_FILE" -o "$MISSING_E2E_STATUSES_FILE"
+
+	warn "Missing successful E2E statuses on ${TARGET_GIT_SHA}:"
+	while IFS=$'\t' read -r platform context; do
+		[[ -n "$platform" && -n "$context" ]] || continue
+		task="$(evidence_task_for_platform "$platform")"
+		warn " - ${context} (publish with: E2E_COMMIT_SHA=${TARGET_GIT_SHA} ./gradlew ${task})"
+	done <"$MISSING_E2E_STATUSES_FILE"
+
+	{
+		printf '\n### Missing local E2E evidence\n\n'
+		printf 'Publish every missing commit status for `%s` before rerunning preflight:\n\n' "$TARGET_GIT_SHA"
+		while IFS=$'\t' read -r platform context; do
+			[[ -n "$platform" && -n "$context" ]] || continue
+			task="$(evidence_task_for_platform "$platform")"
+			printf -- '- `%s` with `E2E_COMMIT_SHA=%s ./gradlew %s`\n' "$context" "$TARGET_GIT_SHA" "$task"
+		done <"$MISSING_E2E_STATUSES_FILE"
+		printf '\nOr run `E2E_COMMIT_SHA=%s ./gradlew e2eMaestroEvidenceLocal` to publish all required local evidence for this diff.\n' "$TARGET_GIT_SHA"
+	} >>"$SUMMARY_FILE"
 }
 
 github_commit_status_state_at_sha() {
@@ -166,6 +217,7 @@ verify_contexts_file() {
 	local platform="$2"
 	local context
 	local fallback_context="local-e2e/${platform}/local-certification-suite"
+	local missing_status=false
 
 	file_has_entries "$file" || return 0
 
@@ -190,8 +242,15 @@ verify_contexts_file() {
 			continue
 		fi
 
-		die "Missing successful E2E status '${context}' on ${TARGET_GIT_SHA}. Run the local evidence task and publish the GitHub status before merging."
+		record_missing_e2e_status "$platform" "$context"
+		missing_status=true
 	done <"$file"
+
+	if [[ "$missing_status" == "true" ]]; then
+		return 1
+	fi
+
+	return 0
 }
 
 write_summary() {
@@ -227,8 +286,14 @@ if file_has_entries "$MISSING_VERSION_BUMP_FILE"; then
 fi
 
 if [[ "${SKIP_E2E_STATUS_CHECK:-0}" != "1" && "$REQUIRES_E2E_CERTIFICATION" == "true" ]]; then
-	verify_contexts_file "$E2E_ANDROID_CONTEXTS_FILE" android
-	verify_contexts_file "$E2E_IOS_CONTEXTS_FILE" ios
+	: >"$MISSING_E2E_STATUSES_FILE"
+	e2e_status_check_failed=false
+	verify_contexts_file "$E2E_ANDROID_CONTEXTS_FILE" android || e2e_status_check_failed=true
+	verify_contexts_file "$E2E_IOS_CONTEXTS_FILE" ios || e2e_status_check_failed=true
+	if [[ "$e2e_status_check_failed" == "true" ]]; then
+		write_missing_e2e_guidance
+		die "Missing successful E2E status(es) on ${TARGET_GIT_SHA}. Publish all listed evidence statuses before rerunning preflight."
+	fi
 elif [[ "$REQUIRES_E2E_CERTIFICATION" == "true" ]]; then
 	warn "Skipping E2E commit status verification because SKIP_E2E_STATUS_CHECK=1."
 fi

@@ -512,6 +512,8 @@ info "Missing version bump: $(file_to_csv "$MISSING_VERSION_BUMP_FILE" || true)"
 info "CI/CD configuration touched: ${CI_CONFIG_TOUCHED}"
 info "E2E suites requiring local certification: $(file_to_csv "$E2E_SUITES_FILE" || true)"
 info "E2E scope: $(file_to_csv "$E2E_SCOPE_FILE" || true)"
+info "E2E Android contexts: $(file_to_csv "$E2E_ANDROID_CONTEXTS_FILE" || true)"
+info "E2E iOS contexts: $(file_to_csv "$E2E_IOS_CONTEXTS_FILE" || true)"
 info "Android Gradle tasks: $(file_to_space_list "$ANDROID_TASKS_FILE" || true)"
 info "iOS Gradle tasks: $(file_to_space_list "$IOS_TASKS_FILE" || true)"
 

@@ -122,7 +122,8 @@ jobs:
           TU_INDICE_KEY_STORE_PASSWORD: ${{ secrets.TU_INDICE_KEY_STORE_PASSWORD }}
         run: |
           set -euo pipefail
-          ./gradlew --continue --console=plain --max-workers=2 ${{ needs.shared-preflight.outputs.android_tasks }}
+          bash ./.github/scripts/run-gradle-with-retry.sh \
+            ./gradlew --continue --console=plain --max-workers=2 ${{ needs.shared-preflight.outputs.android_tasks }}
 
   ios-preflight:
     name: iOS preflight
@@ -182,7 +183,8 @@ jobs:
           UNLOCALIZED_RESOURCES_FOLDER_PATH: TuIndiceHost.app
         run: |
           set -euo pipefail
-          ./gradlew \
+          bash ./.github/scripts/run-gradle-with-retry.sh \
+            ./gradlew \
             --continue \
             --console=plain \
             --max-workers=2 \
