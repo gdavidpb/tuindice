@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.gdavidpb.tuindice.record.data.source
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
@@ -27,12 +29,49 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.Json
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class SyntheticTermCreationDataSourceTest {
+	@Test
+	fun observeSnapshot_startsPeriodOptionsAtCurrentTerm_whenLatestAcademicTermIsStale() = runTest {
+		val currentPeriod = currentSyntheticTermPeriodOption()
+		val dataSource = dataSource(
+			record = AcademicRecord(
+				id = "record",
+				terms = listOf(
+					academicTerm(
+						id = "2015-SEP_DEC",
+						kind = TermKind.HISTORICAL,
+						periodYear = 2015,
+						periodCode = AcademicTermPeriod.SEP_DEC,
+						attempts = emptyList()
+					)
+				)
+			),
+			pensumPayloadJson = pensumPayload(nodes = emptyList(), edges = emptyList()),
+			searchEntities = emptyList()
+		)
+
+		val snapshot = dataSource.observeSnapshot(
+			queryFlow = MutableStateFlow(""),
+			selectedSubjectsFlow = MutableStateFlow(emptyList()),
+			selectedPeriodKeyFlow = MutableStateFlow(null),
+			editingTermIdFlow = MutableStateFlow(null),
+			editingTermKeyFlow = MutableStateFlow(null)
+		).first()
+
+		assertEquals(20, snapshot.periodOptions.size)
+		assertEquals(currentPeriod, snapshot.periodOptions.first())
+		assertEquals(currentPeriod, snapshot.selectedPeriod)
+	}
+
 	@Test
 	fun observeSnapshot_resolvesEverySearchResultAvailabilityState() = runTest {
 		val selectedSubject = subjectCatalogEntity(
@@ -581,15 +620,34 @@ private fun academicRecord(
 private fun academicTerm(
 	id: String,
 	kind: TermKind,
+	periodYear: Int = 2025,
+	periodCode: AcademicTermPeriod = AcademicTermPeriod.JAN_MAR,
 	attempts: List<AcademicAttempt>
 ): AcademicTerm {
 	return AcademicTerm(
 		id = id,
-		periodYear = 2025,
-		periodCode = AcademicTermPeriod.JAN_MAR,
+		periodYear = periodYear,
+		periodCode = periodCode,
 		kind = kind,
 		attempts = attempts
 	)
+}
+
+private fun currentSyntheticTermPeriodOption(): com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption {
+	val dateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+	return com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption(
+		periodYear = dateTime.year,
+		periodCode = periodForMonth(dateTime.month.ordinal + 1)
+	)
+}
+
+private fun periodForMonth(month: Int): AcademicTermPeriod {
+	return when (month) {
+		in 1..3 -> AcademicTermPeriod.JAN_MAR
+		in 4..6 -> AcademicTermPeriod.APR_JUL
+		in 7..8 -> AcademicTermPeriod.JUL_AUG
+		else -> AcademicTermPeriod.SEP_DEC
+	}
 }
 
 private fun academicAttempt(

@@ -215,24 +215,27 @@ class SyntheticTermCreationDataSource(
 			terms.filterNot { term -> term.id == editingTerm.id }
 		}
 		val maxExistingOrder = baselineTerms.maxOfOrNull(AcademicTerm::termOrder)
-			?: currentAcademicTermOrder()
+		val currentOrder = currentAcademicTermOrder()
 		val options = mutableListOf<SyntheticTermPeriodOption>()
-		var year = maxExistingOrder / 10
-		var sequence = maxExistingOrder % 10
+		var year = currentOrder / 10
+		var sequence = currentOrder % 10
 
-		while (options.size < FuturePeriodCount) {
+		repeat(FuturePeriodCount) {
+			val period = AcademicTermPeriod.entries
+				.first { value -> value.sequence == sequence }
+			val option = SyntheticTermPeriodOption(
+				periodYear = year,
+				periodCode = period
+			)
+			if (maxExistingOrder?.let { latestOrder -> option.termOrder > latestOrder } != false) {
+				options += option
+			}
+
 			sequence += 1
 			if (sequence > AcademicTermPeriod.SEP_DEC.sequence) {
 				sequence = AcademicTermPeriod.JAN_MAR.sequence
 				year += 1
 			}
-
-			val period = AcademicTermPeriod.entries
-				.first { value -> value.sequence == sequence }
-			options += SyntheticTermPeriodOption(
-				periodYear = year,
-				periodCode = period
-			)
 		}
 
 		val editingOption = editingTerm?.let { term ->
