@@ -110,13 +110,13 @@ class FakeFileRepository(
 }
 
 class RecordingReportingRepository : ReportingRepository {
-	var identifier: String? = null
+	var recordedIdentifier: String? = null
 	val loggedExceptions = mutableListOf<Throwable>()
 	val loggedMessages = mutableListOf<String>()
 	val customKeys = mutableMapOf<String, Any>()
 
 	override fun setIdentifier(identifier: String) {
-		this.identifier = identifier
+		recordedIdentifier = identifier
 	}
 
 	override fun logException(throwable: Throwable) {

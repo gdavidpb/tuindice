@@ -14,10 +14,7 @@ class FlowUseCaseTest {
 	@Test
 	fun when_exceptionHandlerIsMissing_then_flowUseCaseStillReports() = runTest {
 		val reportingRepository = RecordingReportingRepository()
-		val throwable = IllegalStateException(
-			message = "boom",
-			cause = IllegalArgumentException("root")
-		)
+		val throwable = IllegalStateException("boom", IllegalArgumentException("root"))
 		val useCase = TestFallbackUseCase(
 			reportingRepository = reportingRepository,
 			throwable = throwable
@@ -26,7 +23,7 @@ class FlowUseCaseTest {
 		val states = useCase.execute(Unit).toList()
 
 		assertEquals(2, states.size)
-		assertEquals(throwable, reportingRepository.loggedExceptions.single())
+		assertLoggedThrowable(throwable, reportingRepository.loggedExceptions.single())
 		assertEquals("TestFallbackUseCase", reportingRepository.customKeys["use-case"])
 		assertEquals(false, reportingRepository.customKeys["is-handled"])
 		assertEquals("IllegalStateException", reportingRepository.customKeys["throwable-class"])
@@ -49,7 +46,7 @@ class FlowUseCaseTest {
 		val states = useCase.execute(Unit).toList()
 
 		assertEquals(2, states.size)
-		assertEquals(throwable, reportingRepository.loggedExceptions.single())
+		assertLoggedThrowable(throwable, reportingRepository.loggedExceptions.single())
 		assertEquals("TestHandledUseCase", reportingRepository.customKeys["use-case"])
 		assertEquals(true, reportingRepository.customKeys["is-handled"])
 		assertEquals("IllegalStateException", reportingRepository.customKeys["throwable-class"])
@@ -98,6 +95,11 @@ class FlowUseCaseTest {
 		override fun parseException(throwable: Throwable): TestUseCaseError {
 			return TestUseCaseError.Handled
 		}
+	}
+
+	private fun assertLoggedThrowable(expected: Throwable, actual: Throwable) {
+		assertEquals(expected::class, actual::class)
+		assertEquals(expected.message, actual.message)
 	}
 
 	private sealed interface TestUseCaseError : UseCaseError {

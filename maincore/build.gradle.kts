@@ -12,6 +12,11 @@ kotlin {
 		compileSdk = 37
 		minSdk = 24
 
+		withHostTest {
+			isIncludeAndroidResources = true
+			isReturnDefaultValues = true
+		}
+
 		androidResources {
 			enable = true
 		}
@@ -72,6 +77,7 @@ kotlin {
 		val commonTest by getting {
 			dependencies {
 				implementation(kotlin("test"))
+				implementation(project(":academiccore"))
 				implementation(project(":testkit"))
 				implementation(libs.ktor.client.mock)
 				implementation(libs.ktor.client.content.negotiation)

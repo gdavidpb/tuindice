@@ -12,6 +12,11 @@ kotlin {
 		compileSdk = 37
 		minSdk = 24
 
+		withHostTest {
+			isIncludeAndroidResources = true
+			isReturnDefaultValues = true
+		}
+
 		androidResources {
 			enable = true
 		}

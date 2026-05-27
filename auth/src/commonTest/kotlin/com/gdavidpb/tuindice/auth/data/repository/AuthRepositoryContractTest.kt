@@ -33,7 +33,7 @@ class AuthRepositoryContractTest {
 		assertEquals("", sessionRepository.getSessionId())
 		assertEquals("", sessionRepository.getAccessToken())
 		assertEquals("", sessionRepository.getRefreshToken())
-		assertEquals(null, reportingRepository.identifier)
+		assertEquals(null, reportingRepository.recordedIdentifier)
 		assertEquals(1, authDataSource.bootstrapCalls.size)
 	}
 

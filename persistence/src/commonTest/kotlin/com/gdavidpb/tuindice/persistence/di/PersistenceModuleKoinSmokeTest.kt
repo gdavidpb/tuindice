@@ -337,6 +337,8 @@ private class FakeTuIndiceDatabase : TuIndiceDatabase() {
 			override suspend fun upsertEntities(entities: List<SyntheticTermLoadPreviewCacheEntity>) = Unit
 		}
 
+	override fun clearAllTables() = Unit
+
 	override fun createInvalidationTracker(): InvalidationTracker {
 		return InvalidationTracker(
 			database = this,

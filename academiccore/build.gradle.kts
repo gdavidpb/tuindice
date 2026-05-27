@@ -9,6 +9,11 @@ kotlin {
 		namespace = "com.gdavidpb.tuindice.academiccore"
 		compileSdk = 37
 		minSdk = 24
+
+		withHostTest {
+			isIncludeAndroidResources = true
+			isReturnDefaultValues = true
+		}
 	}
 	iosArm64()
 	iosSimulatorArm64()

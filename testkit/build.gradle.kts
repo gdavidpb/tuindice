@@ -10,6 +10,11 @@ kotlin {
 		namespace = "com.gdavidpb.tuindice.testkit"
 		compileSdk = 37
 		minSdk = 24
+
+		withHostTest {
+			isIncludeAndroidResources = true
+			isReturnDefaultValues = true
+		}
 	}
 
 	iosArm64()

@@ -193,13 +193,13 @@ class FakeNetworkRepository(
 }
 
 class RecordingReportingRepository : ReportingRepository {
-	var identifier: String? = null
+	var recordedIdentifier: String? = null
 	val exceptions = mutableListOf<Throwable>()
 	val messages = mutableListOf<String>()
 	val customKeys = mutableMapOf<String, Any>()
 
 	override fun setIdentifier(identifier: String) {
-		this.identifier = identifier
+		recordedIdentifier = identifier
 	}
 
 	override fun logException(throwable: Throwable) {

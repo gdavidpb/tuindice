@@ -96,7 +96,9 @@ class SubjectSearchActionProcessorContractTest {
 		advanceTimeBy(1)
 		runCurrent()
 
-		assertEquals(listOf(SubjectSearchParams(query = "micro", limit = SubjectSearchLimit)), repository.refreshCalls)
+		assertEquals(1, repository.refreshCalls.size)
+		assertEquals("micro", repository.refreshCalls.single().query)
+		assertEquals(SubjectSearchLimit, repository.refreshCalls.single().limit)
 		assertEquals("micro", state.query)
 		job.cancelAndJoin()
 	}

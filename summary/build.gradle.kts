@@ -13,6 +13,11 @@ kotlin {
 		compileSdk = 37
 		minSdk = 24
 
+		withHostTest {
+			isIncludeAndroidResources = true
+			isReturnDefaultValues = true
+		}
+
 		androidResources {
 			enable = true
 		}
@@ -43,6 +48,7 @@ kotlin {
 			dependencies {
 				implementation(kotlin("test"))
 				implementation(project(":testkit"))
+				implementation(libs.ktor.client.mock)
 				implementation(libs.ktor.client.content.negotiation)
 				implementation(libs.ktor.serialization.kotlinx.json)
 			}

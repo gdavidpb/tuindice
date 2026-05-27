@@ -309,6 +309,9 @@ while IFS= read -r module; do
 		*)
 			if module_is_kmp "$module"; then
 				append_unique_line "$ANDROID_TASKS_FILE" ":${module}:compileAndroidMain"
+				if [[ "$module" != "testkit" ]]; then
+					append_unique_line "$ANDROID_TASKS_FILE" ":${module}:testAndroidHostTest"
+				fi
 				append_unique_line "$IOS_TASKS_FILE" ":${module}:compileKotlinIosSimulatorArm64"
 				if [[ "$module" != "testkit" ]]; then
 					append_unique_line "$IOS_TASKS_FILE" ":${module}:iosSimulatorArm64Test"

@@ -1,3 +1,4 @@
+import org.gradle.api.tasks.testing.Test
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
@@ -44,6 +45,30 @@ private fun hasIosXcodeResourceEnvironment(): Boolean =
 		!System.getenv(name).isNullOrBlank()
 	}
 
+private val androidHostTestExcludedPatterns = listOf(
+	"**/*UiTest.class",
+	"**/AboutActionProcessorContractTest.class",
+	"**/AboutViewModelContractTest.class",
+	"**/AuthActionProcessorContractTest.class",
+	"**/SignInViewModelContractTest.class",
+	"**/UpdatePasswordViewModelContractTest.class",
+	"**/EvaluationActionProcessorContractTest.class",
+	"**/EvaluationsActionProcessorContractTest.class",
+	"**/EvaluationViewModelContractTest.class",
+	"**/EvaluationsViewModelContractTest.class",
+	"**/FileKitStorageDataSourceContractTest.class",
+	"**/SyncSettingsDataSourceTest.class",
+	"**/DeleteSyntheticTermActionProcessorTest.class",
+	"**/DebugSubjectsApiDataSourceTest.class",
+	"**/SubjectDetailActionProcessorContractTest.class",
+	"**/FileKitSkiaPictureEncoderDataSourceTest.class",
+	"**/SummaryActionProcessorContractTest.class",
+	"**/SummaryUseCaseContractTest.class",
+	"**/UserRepositoryContractTest.class",
+	"**/SummaryViewModelContractTest.class",
+	"**/TermSelectorViewTest.class"
+)
+
 subprojects {
 	plugins.withId("org.jetbrains.kotlin.multiplatform") {
 		extensions.configure<KotlinMultiplatformExtension>("kotlin") {
@@ -59,6 +84,13 @@ subprojects {
 						freeCompilerArgs += "-Xoverride-konan-properties=minVersion.ios=$deploymentTarget"
 					}
 				}
+			}
+		}
+
+		tasks.withType<Test>().configureEach {
+			if (name == "testAndroidHostTest") {
+				// Android host tests use the JVM Android stub; these common tests need UI, resources, or native file/image runtime.
+				exclude(androidHostTestExcludedPatterns)
 			}
 		}
 	}
