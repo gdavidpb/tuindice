@@ -190,9 +190,15 @@ tasks.register<Exec>("verifyE2eContract") {
 	commandLine("bash", "${rootDir}/testkit/e2e/validate-e2e-contract.sh")
 }
 
+tasks.register<Exec>("syncAppVersion") {
+	group = "build setup"
+	description = "Generates iOS version settings from the shared app version properties."
+	commandLine("bash", "${rootDir}/.github/scripts/sync-app-version.sh")
+}
+
 tasks.register<Exec>("verifyAppVersionSync") {
 	group = "verification"
-	description = "Validates Android and iOS app versions against the shared app version properties."
+	description = "Synchronizes and validates Android and iOS app versions against the shared app version properties."
 	commandLine("bash", "${rootDir}/.github/scripts/validate-app-version.sh")
 }
 

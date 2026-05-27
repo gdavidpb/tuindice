@@ -295,6 +295,7 @@ write_version_xcconfig_contents() {
 	local version_name="$1"
 	local ios_build_number="$2"
 
+	printf '// Generated from %s. Do not edit directly.\n' "$(app_version_file)"
 	printf 'MARKETING_VERSION = %s\n' "$version_name"
 	printf 'CURRENT_PROJECT_VERSION = %s\n' "$ios_build_number"
 }

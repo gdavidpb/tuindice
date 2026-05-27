@@ -6,6 +6,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=.github/scripts/common.sh
 source "${SCRIPT_DIR}/common.sh"
 
+bash "${SCRIPT_DIR}/sync-app-version.sh"
+
 VERSION_NAME="$(get_app_version_name)"
 ANDROID_VERSION_CODE="$(get_android_version_code)"
 IOS_BUILD_NUMBER="$(get_ios_build_number)"

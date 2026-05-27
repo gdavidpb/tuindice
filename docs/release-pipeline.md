@@ -18,7 +18,14 @@ androidVersionCode=39
 iosBuildNumber=25
 ```
 
-Android lee estos valores desde `app/build.gradle.kts`. iOS consume `iosApp/Config/Version.xcconfig`, que debe permanecer sincronizado con la misma fuente. Valida localmente con:
+Android lee estos valores desde `app/build.gradle.kts`. iOS consume `iosApp/Config/Version.xcconfig`, pero ese
+archivo es generado y no se edita a mano. Para regenerarlo localmente:
+
+```bash
+./gradlew syncAppVersion
+```
+
+Los wrappers de build iOS, el scheme compartido de Xcode y el pipeline lo sincronizan antes de compilar o validar. Valida localmente con:
 
 ```bash
 ./gradlew verifyAppVersionSync

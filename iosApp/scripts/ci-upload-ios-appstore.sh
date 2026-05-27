@@ -76,6 +76,8 @@ if [[ -n "${APPLE_PROVISIONING_PROFILE_BASE64:-}" ]]; then
 	decode_base64_to_file "$APPLE_PROVISIONING_PROFILE_BASE64" "${PROFILE_DIR}/tuindice.mobileprovision"
 fi
 
+bash "$REPO_ROOT/.github/scripts/sync-app-version.sh"
+
 if [[ -f "$ROOT_DIR/Podfile" ]] && command -v pod >/dev/null 2>&1; then
 	if [[ ! -d "$WORKSPACE_PATH" || "${FORCE_POD_INSTALL:-0}" == "1" ]]; then
 		(cd "$ROOT_DIR" && pod install --silent)

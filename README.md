@@ -9,7 +9,7 @@ host Android en `app` y un host iOS en `iosApp`.
 
 El flujo de release usa PRs `feat/* -> production`, preflight obligatorio y deploy automático solo en `push` a
 `production`. La versión única de Android/iOS vive en `gradle/app-version.properties` y se valida con
-`./gradlew verifyAppVersionSync`.
+`./gradlew verifyAppVersionSync`. El archivo iOS `iosApp/Config/Version.xcconfig` se genera desde esa fuente.
 
 Ver la configuración completa en `docs/release-pipeline.md`.
 

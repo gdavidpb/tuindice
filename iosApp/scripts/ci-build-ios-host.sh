@@ -2,6 +2,7 @@
 set -euo pipefail
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+REPO_ROOT="$(cd "${ROOT_DIR}/.." && pwd)"
 PROJECT_PATH="$ROOT_DIR/TuIndiceHost.xcodeproj"
 WORKSPACE_PATH="$ROOT_DIR/TuIndiceHost.xcworkspace"
 SCHEME_NAME="TuIndiceHost"
@@ -45,6 +46,8 @@ if [[ "$IOS_PLATFORM" == "simulator" ]]; then
 		skip_or_fail "no available iPhone simulators."
 	fi
 fi
+
+bash "$REPO_ROOT/.github/scripts/sync-app-version.sh"
 
 if [[ -f "$ROOT_DIR/Podfile" ]] && command -v pod >/dev/null 2>&1; then
 	if [[ ! -d "$WORKSPACE_PATH" || "${FORCE_POD_INSTALL:-0}" == "1" ]]; then

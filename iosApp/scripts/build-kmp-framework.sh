@@ -72,6 +72,8 @@ fi
 
 cd "$ROOT_DIR"
 
+bash "$ROOT_DIR/.github/scripts/sync-app-version.sh"
+
 write_script_output_stamp() {
 	local stamp="$1"
 
