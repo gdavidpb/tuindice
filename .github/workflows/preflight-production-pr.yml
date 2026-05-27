@@ -127,7 +127,7 @@ jobs:
   ios-preflight:
     name: iOS preflight
     runs-on: macos-26
-    timeout-minutes: 60
+    timeout-minutes: 90
     needs:
       - shared-preflight
     if: ${{ !cancelled() && needs.shared-preflight.outputs.ios_tasks != '' }}

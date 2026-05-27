@@ -50,7 +50,7 @@ class PersistenceModuleKoinSmokeTest {
 	fun resolvesPublicPersistenceContracts() = withKoinSmokeTest(
 		persistenceModule,
 		module {
-			single<TuIndiceDatabase> { FakeTuIndiceDatabase() }
+			single<TuIndiceDatabase> { createFakeTuIndiceDatabase() }
 		}
 	) {
 		assertResolves(
@@ -77,7 +77,9 @@ class PersistenceModuleKoinSmokeTest {
 	}
 }
 
-private class FakeTuIndiceDatabase : TuIndiceDatabase() {
+internal expect fun createFakeTuIndiceDatabase(): TuIndiceDatabase
+
+internal abstract class FakeTuIndiceDatabase : TuIndiceDatabase() {
 	override val users: UserDao = object : UserDao() {
 		override fun getUserFlow(): Flow<UserEntity?> = emptyFlow()
 
@@ -336,8 +338,6 @@ private class FakeTuIndiceDatabase : TuIndiceDatabase() {
 
 			override suspend fun upsertEntities(entities: List<SyntheticTermLoadPreviewCacheEntity>) = Unit
 		}
-
-	override fun clearAllTables() = Unit
 
 	override fun createInvalidationTracker(): InvalidationTracker {
 		return InvalidationTracker(
