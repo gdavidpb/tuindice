@@ -46,7 +46,10 @@ Useful environment variables:
 - `E2E_IOS_WEB_BASE_URL`: defaults to `http://localhost:8080`; used for local legal/browser pages.
 - `TUINDICE_API_BASE_URL`: alternative Android debug API base URL input.
 - `E2E_IOS_DEVICE_ID`: defaults to `booted`.
-- `E2E_MAESTRO_SUITE`: defaults to `e2e/maestro/flows/suites/local-certification-suite.yaml`; override it only for ad-hoc debugging.
+- `E2E_BASE_SHA`: optional base ref for smart evidence scope; otherwise evidence compares the current branch to `production` or `origin/production`.
+- `E2E_HEAD_SHA`: optional head ref for smart evidence scope; otherwise evidence uses `E2E_COMMIT_SHA` or `HEAD`.
+- `E2E_SCOPE_FILE`: optional `platform,suite,reason` file to replay a previously resolved smart scope.
+- `E2E_MAESTRO_SUITE`: bypasses smart scope resolution and runs one explicit suite; use it only for ad-hoc debugging.
 - `E2E_STRICT_IOS=1`: makes `e2eMaestroLocal` fail when iOS cannot run.
 - `E2E_REPORT_DIR`: defaults to `build/e2e`.
 - `E2E_DISABLE_KEYBOARD_HELPERS`: defaults to `1`; reset scripts best-effort disable spellcheck, autofill, autocorrection, and prediction helpers that can surface keyboard recommendation popups during Maestro input.

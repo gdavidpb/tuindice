@@ -34,10 +34,18 @@ Run commit-bound E2E evidence for release certification:
 ./gradlew e2eMaestroEvidenceLocal
 ```
 
+The evidence tasks are scope-aware by default: without `E2E_MAESTRO_SUITE`
+they diff the current branch against `production` or `origin/production`, run
+only the required suite/platform pairs, and exit successfully without publishing
+anything when no E2E suite is required. Use `E2E_BASE_SHA` or `E2E_HEAD_SHA` to
+override the diff inputs, or `E2E_SCOPE_FILE` to replay a resolved
+`platform,suite,reason` scope file.
+
 `e2eMaestroEvidenceLocal` runs Android and iOS in parallel when both local
 toolchains are available, prefixes live output with `[android]` and `[ios]`,
-and isolates WireMock plus temporary files per platform. Override the default
-ports or temporary roots with `E2E_ANDROID_WIREMOCK_PORT`,
+and isolates WireMock plus temporary files per platform. It skips a platform
+when the resolved scope has no suites for it. Override the default ports or
+temporary roots with `E2E_ANDROID_WIREMOCK_PORT`,
 `E2E_IOS_WIREMOCK_PORT`, `E2E_ANDROID_TMP_DIR`, and `E2E_IOS_TMP_DIR`.
 
 Evidence is written to `build/e2e/certifications/<sha>/<platform>/<suite>/`
@@ -62,4 +70,5 @@ fingerprint with a successful status, it publishes a reused success status on
 the current SHA instead of requiring a full local E2E rerun.
 
 The suite uses the WireMock runtime under `mocks/` and does not install external tools.
-By default, the Gradle tasks run `e2e/maestro/flows/suites/local-certification-suite.yaml`.
+Set `E2E_MAESTRO_SUITE` only for ad-hoc debugging when you want to bypass smart
+scope resolution and run one explicit suite.

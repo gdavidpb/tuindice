@@ -7,6 +7,7 @@ REQUESTED_ANDROID_API_BASE_URL="${E2E_ANDROID_API_BASE_URL:-}"
 REQUESTED_ANDROID_WEB_BASE_URL="${E2E_ANDROID_WEB_BASE_URL:-}"
 REQUESTED_IOS_API_BASE_URL="${E2E_IOS_API_BASE_URL:-}"
 REQUESTED_IOS_WEB_BASE_URL="${E2E_IOS_WEB_BASE_URL:-}"
+REQUESTED_E2E_MAESTRO_SUITE="${E2E_MAESTRO_SUITE:-}"
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/common.sh"
 
@@ -62,18 +63,70 @@ run_platform_evidence() {
 	)
 }
 
+if [[ -z "${REQUESTED_E2E_MAESTRO_SUITE}" && -z "${E2E_SCOPE_FILE:-}" ]]; then
+	LOCAL_SCOPE_DIR="${E2E_SCOPE_STATE_DIR:-$(mktemp -d "${TMPDIR:-/tmp}/tuindice-e2e-local-scope.XXXXXX")}"
+	LOCAL_SCOPE_FILE="${LOCAL_SCOPE_DIR}/e2e-scope.csv"
+	mkdir -p "$LOCAL_SCOPE_DIR"
+	bash "${SCRIPT_DIR}/resolve-e2e-scope.sh" all >"$LOCAL_SCOPE_FILE"
+	export E2E_SCOPE_FILE="$LOCAL_SCOPE_FILE"
+fi
+
+platform_scope_required() {
+	local platform="$1"
+	local resolved_scope
+
+	if [[ -n "${REQUESTED_E2E_MAESTRO_SUITE}" ]]; then
+		return 0
+	fi
+
+	if ! resolved_scope="$(bash "${SCRIPT_DIR}/resolve-e2e-scope.sh" "$platform")"; then
+		return 2
+	fi
+
+	[[ -n "$resolved_scope" ]]
+}
+
+scope_status() {
+	local platform="$1"
+	local status
+
+	status=0
+	platform_scope_required "$platform" || status="$?"
+	if [[ "$status" == "0" ]]; then
+		printf 'required\n'
+		return 0
+	fi
+
+	case "$status" in
+		1)
+			printf 'not-required\n'
+			return 0
+			;;
+		*)
+			printf 'failed\n'
+			return 1
+			;;
+	esac
+}
+
 android_pid=""
 ios_pid=""
+android_scope="$(scope_status android)"
+ios_scope="$(scope_status ios)"
 
-if [[ "${E2E_SKIP_ANDROID:-0}" != "1" ]]; then
+if [[ "${E2E_SKIP_ANDROID:-0}" == "1" ]]; then
+	log "Skipping Android Maestro evidence because E2E_SKIP_ANDROID=1."
+elif [[ "$android_scope" == "required" ]]; then
 	log "Starting Android Maestro evidence in parallel on WireMock tcp:${ANDROID_WIREMOCK_PORT}."
 	run_platform_evidence android "${ANDROID_WIREMOCK_PORT}" "${ANDROID_TMP_DIR}" &
 	android_pid="$!"
 else
-	log "Skipping Android Maestro evidence because E2E_SKIP_ANDROID=1."
+	log "Skipping Android Maestro evidence because no Android E2E suites are required for this diff."
 fi
 
-if is_macos && command -v xcrun >/dev/null 2>&1; then
+if [[ "$ios_scope" != "required" ]]; then
+	log "Skipping iOS Maestro evidence because no iOS E2E suites are required for this diff."
+elif is_macos && command -v xcrun >/dev/null 2>&1; then
 	log "Starting iOS Maestro evidence in parallel on WireMock tcp:${IOS_WIREMOCK_PORT}."
 	run_platform_evidence ios "${IOS_WIREMOCK_PORT}" "${IOS_TMP_DIR}" &
 	ios_pid="$!"

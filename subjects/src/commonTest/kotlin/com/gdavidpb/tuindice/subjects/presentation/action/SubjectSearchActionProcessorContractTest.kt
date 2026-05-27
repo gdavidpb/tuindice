@@ -13,17 +13,18 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.fail
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.withTimeout
 import kotlinx.coroutines.yield
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -33,7 +34,7 @@ class SubjectSearchActionProcessorContractTest {
 		val queryFlow = MutableStateFlow("m")
 		val repository = RecordingSubjectCatalogRepository()
 		var state = SubjectSearch.State()
-		val job = launch {
+		val job = launch(start = CoroutineStart.UNDISPATCHED) {
 			createProcessor(repository = repository)
 				.process(SubjectSearch.Action.ObserveSubjectSearch(queryFlow = queryFlow)) {}
 				.collect { mutation -> state = mutation(state) }
@@ -54,7 +55,7 @@ class SubjectSearchActionProcessorContractTest {
 		val queryFlow = MutableStateFlow("micro")
 		val repository = RecordingSubjectCatalogRepository(initialLocalResults = listOf(cached))
 		var state = SubjectSearch.State()
-		val job = launch {
+		val job = launch(start = CoroutineStart.UNDISPATCHED) {
 			createProcessor(repository = repository)
 				.process(SubjectSearch.Action.ObserveSubjectSearch(queryFlow = queryFlow)) {}
 				.collect { mutation -> state = mutation(state) }
@@ -76,7 +77,7 @@ class SubjectSearchActionProcessorContractTest {
 		val queryFlow = MutableStateFlow("")
 		val repository = RecordingSubjectCatalogRepository()
 		var state = SubjectSearch.State()
-		val job = launch {
+		val job = launch(start = CoroutineStart.UNDISPATCHED) {
 			createProcessor(repository = repository)
 				.process(SubjectSearch.Action.ObserveSubjectSearch(queryFlow = queryFlow)) {}
 				.collect { mutation -> state = mutation(state) }
@@ -84,17 +85,18 @@ class SubjectSearchActionProcessorContractTest {
 
 		runCurrent()
 		queryFlow.value = "mi"
-		runCurrent()
+		waitUntil { repository.observeCalls.any { call -> call.query == "mi" } }
 		advanceTimeBy(SubjectSearchDebounceMillis / 2)
 		runCurrent()
 		assertEquals(emptyList(), repository.refreshCalls)
 		queryFlow.value = "micro"
-		runCurrent()
+		waitUntil { repository.observeCalls.any { call -> call.query == "micro" } }
 		advanceTimeBy(SubjectSearchDebounceMillis - 1)
 		runCurrent()
 		assertEquals(emptyList(), repository.refreshCalls)
 		advanceTimeBy(1)
 		runCurrent()
+		waitUntil { repository.refreshCalls.size == 1 }
 
 		assertEquals(1, repository.refreshCalls.size)
 		assertEquals("micro", repository.refreshCalls.single().query)
@@ -128,24 +130,32 @@ private class RecordingSubjectCatalogRepository(
 	initialLocalResults: List<SubjectSearchResult> = emptyList(),
 	private val refreshResponses: ArrayDeque<Any> = ArrayDeque()
 ) : SubjectCatalogRepository {
-	private val localResults = MutableStateFlow(initialLocalResults)
-	val refreshCalls = mutableListOf<SubjectSearchParams>()
+	private var localResults = initialLocalResults
+	private val observeCallState = MutableStateFlow<List<SubjectSearchParams>>(emptyList())
+	private val refreshCallState = MutableStateFlow<List<SubjectSearchParams>>(emptyList())
+	val observeCalls: List<SubjectSearchParams>
+		get() = observeCallState.value
+	val refreshCalls: List<SubjectSearchParams>
+		get() = refreshCallState.value
 
 	override fun observeSearchResults(
 		query: String,
 		limit: Int
-	): Flow<List<SubjectSearchResult>> = localResults
+	): Flow<List<SubjectSearchResult>> {
+		observeCallState.value = observeCallState.value + SubjectSearchParams(query = query, limit = limit)
+		return flowOf(localResults)
+	}
 
 	override suspend fun refreshSearchResults(
 		query: String,
 		limit: Int
 	) {
-		refreshCalls += SubjectSearchParams(query = query, limit = limit)
+		refreshCallState.value = refreshCallState.value + SubjectSearchParams(query = query, limit = limit)
 		if (refreshResponses.isEmpty()) return
 
 		when (val next = refreshResponses.removeFirst()) {
 			is Throwable -> throw next
-			is List<*> -> localResults.value = next.filterIsInstance<SubjectSearchResult>()
+			is List<*> -> localResults = next.filterIsInstance<SubjectSearchResult>()
 			else -> error("Unsupported search refresh result: $next")
 		}
 	}
@@ -177,31 +187,16 @@ private suspend fun reduceState(
 	return currentState
 }
 
-private suspend fun waitUntil(condition: () -> Boolean) {
-	withTimeout(2_000) {
-		while (!condition()) yield()
-	}
-}
-
 @OptIn(ExperimentalCoroutinesApi::class)
-private fun TestScope.advanceUntil(
-	timeoutMillis: Long = 2_000,
-	stepMillis: Long = 10,
-	condition: () -> Boolean
-) {
-	var elapsedMillis = 0L
-	while (!condition() && elapsedMillis <= timeoutMillis) {
+private suspend fun TestScope.waitUntil(condition: () -> Boolean) {
+	repeat(1_000) {
 		runCurrent()
 		if (condition()) return
-
-		advanceTimeBy(stepMillis)
-		elapsedMillis += stepMillis
+		yield()
 	}
 	runCurrent()
-
-	if (!condition()) {
-		fail("Condition was not met within ${timeoutMillis}ms of virtual test time.")
-	}
+	if (condition()) return
+	fail("Condition was not met after yielding to pending coroutines.")
 }
 
 private fun SubjectSearchResult.toItem(): com.gdavidpb.tuindice.subjects.presentation.model.SubjectSearchResultItem {

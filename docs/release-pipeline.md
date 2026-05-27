@@ -68,14 +68,11 @@ Comandos principales:
 ./gradlew e2eMaestroEvidenceLocal
 ```
 
-Para publicar los GitHub commit statuses que preflight exige:
+Por defecto estos comandos calculan el diff de la rama actual contra `production` u `origin/production`, ejecutan solo
+las suites requeridas por ese alcance y publican los GitHub commit statuses exitosos que preflight exige. Si no pueden
+resolver esa base, falla la resolucion de alcance; se puede pasar `E2E_BASE_SHA` para forzarla.
 
-```bash
-E2E_PUBLISH_GITHUB_STATUS=1 ./gradlew e2eMaestroEvidenceAndroid
-E2E_PUBLISH_GITHUB_STATUS=1 ./gradlew e2eMaestroEvidenceIos
-```
-
-Por defecto se ejecuta `local-certification-suite`. Para una suite enfocada:
+Para forzar una suite enfocada durante debugging:
 
 ```bash
 E2E_MAESTRO_SUITE="$PWD/e2e/maestro/flows/suites/auth-suite.yaml" \
