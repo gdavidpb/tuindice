@@ -7,6 +7,7 @@ INFOPLIST_FILE = Resources/Info.plist
 CODE_SIGN_ENTITLEMENTS = Resources/TuIndiceHost.entitlements
 SWIFT_VERSION = 5.9
 IPHONEOS_DEPLOYMENT_TARGET = 16.0
+IPHONEOS_DEPLOYMENT_TARGET[sdk=iphonesimulator*] = 18.5
 ARCHS[sdk=iphonesimulator*] = arm64
 TARGETED_DEVICE_FAMILY = 1,2
 OTHER_LDFLAGS = $(inherited) -framework maincore

@@ -28,9 +28,10 @@ allprojects {
 	}
 }
 
-private val iosDeploymentTarget = "16.0"
-private val iosKotlinNativeTargetNames = setOf("iosArm64", "iosSimulatorArm64", "iosX64")
-private val iosMinVersionCompilerArg = "-Xoverride-konan-properties=minVersion.ios=$iosDeploymentTarget"
+private val iosDeviceDeploymentTarget = "16.0"
+private val iosSimulatorDeploymentTarget = "18.5"
+private val iosDeviceKotlinNativeTargetNames = setOf("iosArm64")
+private val iosSimulatorKotlinNativeTargetNames = setOf("iosSimulatorArm64", "iosX64")
 private val iosXcodeResourceEnvironmentNames = listOf(
 	"ARCHS",
 	"BUILT_PRODUCTS_DIR",
@@ -47,9 +48,15 @@ subprojects {
 	plugins.withId("org.jetbrains.kotlin.multiplatform") {
 		extensions.configure<KotlinMultiplatformExtension>("kotlin") {
 			targets.withType<KotlinNativeTarget>().configureEach {
-				if (name in iosKotlinNativeTargetNames) {
+				val deploymentTarget = when (name) {
+					in iosDeviceKotlinNativeTargetNames -> iosDeviceDeploymentTarget
+					in iosSimulatorKotlinNativeTargetNames -> iosSimulatorDeploymentTarget
+					else -> null
+				}
+
+				if (deploymentTarget != null) {
 					binaries.configureEach {
-						freeCompilerArgs += iosMinVersionCompilerArg
+						freeCompilerArgs += "-Xoverride-konan-properties=minVersion.ios=$deploymentTarget"
 					}
 				}
 			}

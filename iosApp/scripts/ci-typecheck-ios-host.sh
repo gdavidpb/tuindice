@@ -63,7 +63,7 @@ if [[ "${#swift_sources[@]}" -eq 0 ]]; then
 fi
 
 xcrun --sdk iphonesimulator swiftc \
-	-target arm64-apple-ios16.0-simulator \
+	-target arm64-apple-ios18.5-simulator \
 	-F "$FRAMEWORK_DIR" \
 	-framework maincore \
 	-typecheck \

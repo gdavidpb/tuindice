@@ -60,6 +60,13 @@ final class TuIndiceAppDelegate: NSObject, UIApplicationDelegate {
             return
         }
 
+        guard isValidFirebaseOptions(options) else {
+            NSLog(
+                "Firebase disabled for this run: invalid GoogleService-Info.plist for this bundle."
+            )
+            return
+        }
+
         FirebaseApp.configure(options: options)
         TuIndiceFirebaseRuntimeState.isConfigured = true
         #endif
@@ -71,10 +78,13 @@ final class TuIndiceAppDelegate: NSObject, UIApplicationDelegate {
             return
         }
 
-        #if canImport(FirebaseMessaging)
-        if TuIndiceFirebaseRuntimeState.isConfigured {
-            Messaging.messaging().delegate = self
+        guard TuIndiceFirebaseRuntimeState.isConfigured else {
+            TuIndiceAppBootstrap.updatePushToken(nil)
+            return
         }
+
+        #if canImport(FirebaseMessaging)
+        Messaging.messaging().delegate = self
         #endif
 
         UNUserNotificationCenter.current().requestAuthorization(
@@ -85,6 +95,50 @@ final class TuIndiceAppDelegate: NSObject, UIApplicationDelegate {
             }
         }
     }
+
+    #if canImport(FirebaseCore)
+    private func isValidFirebaseOptions(_ options: FirebaseOptions) -> Bool {
+        guard
+            let bundleIdentifier = Bundle.main.bundleIdentifier,
+            options.bundleID == bundleIdentifier,
+            isValidFirebaseApiKey(options.apiKey),
+            isValidFirebaseAppID(options.googleAppID),
+            isValidFirebaseSenderID(options.gcmSenderID)
+        else {
+            return false
+        }
+
+        return true
+    }
+
+    private func isValidFirebaseApiKey(_ value: String?) -> Bool {
+        guard let value else { return false }
+        return value.hasPrefix("AIza")
+            && value.count >= 30
+            && containsPlaceholderMarker(value) == false
+    }
+
+    private func isValidFirebaseAppID(_ value: String?) -> Bool {
+        guard let value else { return false }
+        return value.range(
+            of: #"^1:[1-9][0-9]*:ios:[0-9a-fA-F]+$"#,
+            options: .regularExpression
+        ) != nil
+    }
+
+    private func isValidFirebaseSenderID(_ value: String?) -> Bool {
+        guard let value else { return false }
+        return value.allSatisfy(\.isNumber)
+            && value.allSatisfy { $0 == "0" } == false
+    }
+
+    private func containsPlaceholderMarker(_ value: String) -> Bool {
+        let normalizedValue = value.lowercased()
+        return normalizedValue.contains("placeholder")
+            || normalizedValue.contains("debugonly")
+            || normalizedValue.contains("000000")
+    }
+    #endif
 }
 
 #if canImport(FirebaseMessaging)

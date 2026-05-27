@@ -242,15 +242,21 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
     }
 
     func launchReview(completionHandler: @escaping (Error?) -> Void) {
-        guard let windowScene = UIApplication.shared.connectedScenes
-            .compactMap({ $0 as? UIWindowScene })
-            .first else {
-            completionHandler(nil)
-            return
-        }
+        Task { @MainActor in
+            guard let windowScene = UIApplication.shared.connectedScenes
+                .compactMap({ $0 as? UIWindowScene })
+                .first else {
+                completionHandler(nil)
+                return
+            }
 
-        SKStoreReviewController.requestReview(in: windowScene)
-        completionHandler(nil)
+            if #available(iOS 18.0, *) {
+                AppStore.requestReview(in: windowScene)
+            } else {
+                SKStoreReviewController.requestReview(in: windowScene)
+            }
+            completionHandler(nil)
+        }
     }
 
     func checkForUpdate(
