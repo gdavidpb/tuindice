@@ -17,6 +17,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.SpanStyle
@@ -47,6 +49,7 @@ fun SignInIdleView(
 	signInButtonText: String
 ) {
 	val focusManager = LocalFocusManager.current
+	val passwordFocusRequester = remember { FocusRequester() }
 	val isSignInEnabled = state.usbId.isUsbId() && state.password.isNotEmpty()
 	val policyIntroText = policiesText.substringBefore(termsAndConditionsText).trimEnd()
 	val policyTextStyle = TextStyle(
@@ -87,11 +90,15 @@ fun SignInIdleView(
 				),
 			labelText = usbIdLabelText,
 			usbId = state.usbId,
-			onUsbIdChange = onUsbIdChange
+			onUsbIdChange = onUsbIdChange,
+			keyboardActions = KeyboardActions(
+				onNext = { passwordFocusRequester.requestFocus() }
+			)
 		)
 
 		PasswordTextField(
 			modifier = Modifier
+				.focusRequester(passwordFocusRequester)
 				.fillMaxWidth()
 				.padding(horizontal = 32.dp),
 			labelText = passwordLabelText,

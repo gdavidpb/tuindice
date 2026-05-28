@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.di
 
+import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
+import com.gdavidpb.tuindice.auth.domain.model.IssueTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.data.source.network.AuthErrorHeaders
@@ -155,6 +157,7 @@ internal fun AuthConfig.installSharedBearerAuth(
 
 		refreshTokens {
 			val oldSessionId = sessionRepository.getSessionId()
+			val oldAccessToken = oldTokens?.accessToken ?: sessionRepository.getAccessToken()
 			val oldRefreshToken = oldTokens?.refreshToken ?: sessionRepository.getRefreshToken()
 			val attestationRepository = attestationRepositoryProvider()
 			val authRepository = authRepositoryProvider()
@@ -180,14 +183,33 @@ internal fun AuthConfig.installSharedBearerAuth(
 				)
 			)
 
-			val refreshedTokens = runCatching {
-				authRepository.refreshTokens(
+			val refreshedBearerTokens = runCatching {
+				val refreshedTokens = authRepository.refreshTokens(
 					sessionId = oldSessionId,
 					refreshToken = oldRefreshToken,
 					attestation = attestation
 				)
+
+				BearerTokens(
+					accessToken = refreshedTokens.accessToken,
+					refreshToken = refreshedTokens.refreshToken
+				)
 			}.getOrElse { throwable ->
 				if (!throwable.isSessionInvalidatingRefreshFailure()) throw throwable
+
+				if (throwable.isUnauthorized()) {
+					val reissuedTokens = tryReissueTokensAfterUnauthorizedRefresh(
+						sessionRepository = sessionRepository,
+						credentialsRepository = credentialsRepository,
+						attestationRepository = attestationRepository,
+						authRepository = authRepository,
+						oldAccessToken = oldAccessToken
+					)
+
+					if (reissuedTokens != null) {
+						return@getOrElse reissuedTokens
+					}
+				}
 
 				handleUnauthorizedTokenRefresh(
 					sessionRepository = sessionRepository,
@@ -205,12 +227,53 @@ internal fun AuthConfig.installSharedBearerAuth(
 				)
 			}
 
-			BearerTokens(
-				accessToken = refreshedTokens.accessToken,
-				refreshToken = refreshedTokens.refreshToken
-			)
+			refreshedBearerTokens
 		}
 	}
+}
+
+internal suspend fun tryReissueTokensAfterUnauthorizedRefresh(
+	sessionRepository: SessionRepository,
+	credentialsRepository: CredentialsRepository,
+	attestationRepository: AttestationRepository,
+	authRepository: AuthRepository,
+	oldAccessToken: String
+): BearerTokens? {
+	if (!credentialsRepository.hasPassword()) return null
+
+	return runCatching {
+		val usbId = sessionRepository.getUsbId()
+		val password = credentialsRepository.getPassword()
+		val flow = AttestedTokenFlow.ReissueTokens
+		val attestationPayload = IssueTokensAttestationPayload(
+			usbId = usbId,
+			password = password,
+			attestedFlow = flow.headerValue
+		)
+		val attestation = attestationRepository.attest(
+			request = AttestationRequest(
+				operationCode = flow.operationCode,
+				payloadJson = canonicalAttestationPayloadJson(
+					serializer = IssueTokensAttestationPayload.serializer(),
+					value = attestationPayload
+				),
+				authorization = AttestationAuthorization.Bearer(
+					accessToken = oldAccessToken
+				)
+			)
+		)
+
+		authRepository.reissueTokens(
+			usbId = usbId,
+			password = password,
+			attestation = attestation
+		)
+
+		BearerTokens(
+			accessToken = sessionRepository.getAccessToken(),
+			refreshToken = sessionRepository.getRefreshToken()
+		)
+	}.getOrNull()
 }
 
 internal fun String.shouldSendBearerAuth(): Boolean {
