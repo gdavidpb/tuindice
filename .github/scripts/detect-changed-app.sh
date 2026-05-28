@@ -36,6 +36,7 @@ mkdir -p "$STATE_DIR"
 APP_VERSION_TOUCHED=false
 APP_VERSION_CHANGED=false
 CI_CONFIG_TOUCHED=false
+IOS_CI_SCRIPTS_TOUCHED=false
 E2E_CONTRACT_TOUCHED=false
 HAS_RELEVANT_CHANGES=false
 HAS_RELEASE_IMPACT=false
@@ -395,6 +396,7 @@ classify_changed_file() {
 			;;
 		iosApp/scripts/*)
 			CI_CONFIG_TOUCHED=true
+			IOS_CI_SCRIPTS_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
 			return 0
 			;;
@@ -567,6 +569,7 @@ info "App version touched: ${APP_VERSION_TOUCHED}"
 info "App version changed: ${APP_VERSION_CHANGED}"
 info "Missing version bump: $(file_to_csv "$MISSING_VERSION_BUMP_FILE" || true)"
 info "CI/CD configuration touched: ${CI_CONFIG_TOUCHED}"
+info "iOS CI scripts touched: ${IOS_CI_SCRIPTS_TOUCHED}"
 info "E2E suites requiring local certification: $(file_to_csv "$E2E_SUITES_FILE" || true)"
 info "E2E scope: $(file_to_csv "$E2E_SCOPE_FILE" || true)"
 info "E2E Android contexts: $(file_to_csv "$E2E_ANDROID_CONTEXTS_FILE" || true)"
@@ -591,6 +594,7 @@ if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
 		printf 'app_version_touched=%s\n' "$APP_VERSION_TOUCHED"
 		printf 'app_version_changed=%s\n' "$APP_VERSION_CHANGED"
 		printf 'ci_config_touched=%s\n' "$CI_CONFIG_TOUCHED"
+		printf 'ios_ci_scripts_touched=%s\n' "$IOS_CI_SCRIPTS_TOUCHED"
 		printf 'e2e_contract_touched=%s\n' "$E2E_CONTRACT_TOUCHED"
 		printf 'requires_e2e_certification=%s\n' "$REQUIRES_E2E_CERTIFICATION"
 		printf 'e2e_suites_file=%s\n' "$E2E_SUITES_FILE"

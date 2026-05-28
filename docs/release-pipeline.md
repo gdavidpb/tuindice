@@ -42,6 +42,7 @@ El detector compara el PR contra el merge-base de `production` y ejecuta solo pi
 - Cambios en `base`, `persistence`, `academiccore`, `maincore`, Gradle raíz o hosts amplían el alcance.
 - Cambios runtime exigen bump de versión.
 - Cambios user-visible cubiertos por E2E exigen commit statuses locales exitosos.
+- Cambios en `iosApp/scripts/*` disparan un smoke liviano en macOS dentro de `iOS preflight`, sin compilar el host si no hay tareas iOS.
 
 Validación local del detector:
 
@@ -96,7 +97,15 @@ El deploy construye artefactos firmados y publica drafts:
 - Crashlytics: el mapping file se sube solo en deploy real con `TUINDICE_UPLOAD_CRASHLYTICS_MAPPING=1`.
 - Tag: `app-<versionName>` anotado al SHA de `production`, creado solo después de ambos uploads.
 
-Dry-run local o en CI:
+Preflight local sin secretos:
+
+```bash
+DEPLOY_DIFF_BASE_SHA="$(git merge-base production HEAD)" \
+DEPLOY_PRODUCTION_PHASE=preflight \
+bash ./.github/scripts/deploy-production.sh
+```
+
+Dry-run local o en CI, construyendo artefactos firmados pero sin publicar:
 
 ```bash
 DRY_RUN=1 bash ./.github/scripts/deploy-production.sh

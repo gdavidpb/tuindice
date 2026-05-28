@@ -156,8 +156,8 @@ check_app_store_connect_build_exists() {
 	export APP_STORE_CONNECT_KEY_ID APP_STORE_CONNECT_ISSUER_ID APP_STORE_CONNECT_API_KEY_PATH
 	APP_STORE_CONNECT_JWT="$(generate_app_store_connect_jwt)"
 
-	apps_response="$(mktemp "${RUNNER_TEMP:-/tmp}/tuindice-appstore-apps.XXXXXX.json")"
-	builds_response="$(mktemp "${RUNNER_TEMP:-/tmp}/tuindice-appstore-builds.XXXXXX.json")"
+	apps_response="$(mktemp "${RUNNER_TEMP:-/tmp}/tuindice-appstore-apps.XXXXXX")"
+	builds_response="$(mktemp "${RUNNER_TEMP:-/tmp}/tuindice-appstore-builds.XXXXXX")"
 
 	app_store_connect_get_json "${APP_STORE_CONNECT_API_ROOT}/apps?filter%5BbundleId%5D=${IOS_BUNDLE_IDENTIFIER}&limit=1" "$apps_response"
 	app_id="$(jq -r '.data[0].id // empty' "$apps_response")"

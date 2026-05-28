@@ -41,7 +41,7 @@ jobs:
           bash ./.github/scripts/deploy-production.sh
 
   deploy-android:
-    name: Deploy Android draft
+    name: Deploy Android
     runs-on: ubuntu-24.04
     needs: deploy-preflight
     environment: production
@@ -100,7 +100,7 @@ jobs:
           bash ./.github/scripts/deploy-production.sh
 
   deploy-ios:
-    name: Deploy iOS build
+    name: Deploy iOS
     runs-on: macos-26
     needs: deploy-preflight
     environment: production
