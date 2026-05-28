@@ -33,6 +33,45 @@ fi
 TMP_ROOT="${REQUESTED_TMP_DIR:-${E2E_TMP_DIR}}"
 ANDROID_TMP_DIR="${E2E_ANDROID_TMP_DIR:-${TMP_ROOT}-android}"
 IOS_TMP_DIR="${E2E_IOS_TMP_DIR:-${TMP_ROOT}-ios}"
+android_pid=""
+ios_pid=""
+
+stop_parallel_platform() {
+	local pid="$1"
+	local platform="$2"
+
+	if [[ -z "${pid}" ]] || ! kill -0 "${pid}" >/dev/null 2>&1; then
+		return 0
+	fi
+
+	log "Stopping ${platform} Maestro evidence process ${pid}."
+	kill "${pid}" >/dev/null 2>&1 || true
+	wait "${pid}" >/dev/null 2>&1 || true
+}
+
+cleanup_parallel_evidence() {
+	local status="$?"
+	trap - EXIT INT TERM
+
+	stop_parallel_platform "${android_pid}" "Android"
+	stop_parallel_platform "${ios_pid}" "iOS"
+
+	E2E_TMP_DIR="${ANDROID_TMP_DIR}" \
+	E2E_WIREMOCK_PORT="${ANDROID_WIREMOCK_PORT}" \
+	E2E_WIREMOCK_URL="http://127.0.0.1:${ANDROID_WIREMOCK_PORT}" \
+		stop_wiremock
+
+	E2E_TMP_DIR="${IOS_TMP_DIR}" \
+	E2E_WIREMOCK_PORT="${IOS_WIREMOCK_PORT}" \
+	E2E_WIREMOCK_URL="http://127.0.0.1:${IOS_WIREMOCK_PORT}" \
+		stop_wiremock
+
+	exit "${status}"
+}
+
+trap cleanup_parallel_evidence EXIT
+trap 'exit 130' INT
+trap 'exit 143' TERM
 
 run_platform_evidence() {
 	local platform="$1"
@@ -109,8 +148,6 @@ scope_status() {
 	esac
 }
 
-android_pid=""
-ios_pid=""
 android_scope="$(scope_status android)"
 ios_scope="$(scope_status ios)"
 

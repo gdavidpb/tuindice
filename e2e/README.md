@@ -90,6 +90,8 @@ E2E runners start WireMock with `E2E_WIREMOCK_DELAY_PROFILE=fast` by default,
 which rewrites generated runtime mappings to keep normal responses short and
 slow/loading fixtures bounded. Set `E2E_WIREMOCK_DELAY_PROFILE=legacy` to keep
 the checked-in fixture delays unchanged for debugging.
+Platform runners stop their owned WireMock process on success, failure, or
+interruption so the default `8080` port is not left occupied after local E2E.
 Platform runners isolate Maestro CLI runtime logs under `E2E_TMP_DIR` by
 default; set `E2E_MAESTRO_HOME` only when debugging Maestro itself.
 Set `E2E_MAESTRO_SUITE` only for ad-hoc debugging when you want to bypass smart

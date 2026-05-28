@@ -11,6 +11,7 @@ fi
 require_command maestro
 require_command xcrun
 
+register_wiremock_cleanup
 "${SCRIPT_DIR}/start-wiremock.sh"
 reset_wiremock
 
