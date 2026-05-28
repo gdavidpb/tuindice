@@ -59,7 +59,7 @@ apply_fast_delay_profile() {
 
 		delay_ms=250
 		case "${mapping_file}" in
-			*slow*|*fetching*|*enrollment-proof-success.json)
+			*slow*|*fetching*|*enrollment-proof-success.json|*auth-update-password-reissue-success.json)
 				delay_ms=2000
 				;;
 		esac

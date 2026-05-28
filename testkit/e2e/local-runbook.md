@@ -58,6 +58,7 @@ Useful environment variables:
 - `E2E_SCOPE_FILE`: optional `platform,suite,reason` file to replay a previously resolved smart scope.
 - `E2E_MAESTRO_SUITE`: bypasses smart scope resolution and runs one explicit suite; use it only for ad-hoc debugging.
 - `E2E_MAESTRO_OPTIMIZE_SETUP`: defaults to `1`; set to `0` to run source YAML without the seeded authenticated setup optimization.
+- `E2E_MAESTRO_HOME`: optional isolated home for Maestro CLI runtime logs; platform runners default it under `E2E_TMP_DIR`.
 - `E2E_WIREMOCK_DELAY_PROFILE`: defaults to `fast` in E2E runners; use `legacy` to keep checked-in WireMock delays unchanged.
 - `E2E_PROFILE_OUTPUT_DIR`: defaults to `build/e2e/profiles` for profile runs.
 - `TUINDICE_E2E_API_BASE_URL`: iOS debug runtime API URL override used by Maestro launch arguments.

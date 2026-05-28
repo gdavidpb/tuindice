@@ -39,6 +39,8 @@ fi
 
 mkdir -p "${E2E_REPORT_DIR}"
 MAESTRO_LOG_FILE="${E2E_MAESTRO_LOG_FILE:-${E2E_REPORT_DIR}/maestro-ios.log}"
+MAESTRO_HOME="${E2E_MAESTRO_HOME:-${E2E_TMP_DIR}/maestro-home/ios}"
+mkdir -p "${MAESTRO_HOME}"
 E2E_MAESTRO_SUITE="$("${SCRIPT_DIR}/prepare-maestro-suite.sh" "${E2E_MAESTRO_SUITE}")"
 declare -a maestro_args=(
 	test
@@ -58,4 +60,4 @@ fi
 maestro_args+=("${E2E_MAESTRO_SUITE}")
 
 log "Running Maestro iOS suite ${E2E_MAESTRO_SUITE} on ${MAESTRO_IOS_DEVICE_ID}."
-maestro --device "${MAESTRO_IOS_DEVICE_ID}" "${maestro_args[@]}" | tee "${MAESTRO_LOG_FILE}"
+HOME="${MAESTRO_HOME}" maestro --device "${MAESTRO_IOS_DEVICE_ID}" "${maestro_args[@]}" | tee "${MAESTRO_LOG_FILE}"
