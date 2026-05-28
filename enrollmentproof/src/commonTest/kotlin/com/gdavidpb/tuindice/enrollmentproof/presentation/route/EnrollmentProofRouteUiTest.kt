@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.enrollmentproof.presentation.route
 
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
@@ -12,6 +14,7 @@ import com.gdavidpb.tuindice.enrollmentproof.presentation.action.FetchEnrollment
 import com.gdavidpb.tuindice.enrollmentproof.presentation.resource.DefaultEnrollmentProofTextProvider
 import com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel.EnrollmentProofViewModel
 import com.gdavidpb.tuindice.enrollmentproof.testing.clientRequestException
+import com.gdavidpb.tuindice.enrollmentproof.ui.EnrollmentProofUiTags
 import com.gdavidpb.tuindice.testkit.base.repository.FakeFileRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -19,6 +22,7 @@ import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import io.ktor.http.HttpStatusCode
 import io.github.vinceglb.filekit.PlatformFile
+import kotlinx.coroutines.CompletableDeferred
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -51,6 +55,47 @@ class EnrollmentProofRouteUiTest {
 		assertEquals(0, navigateCalls)
 		assertEquals(1, dismissCalls)
 		assertEquals(0, snackBarMessages.size)
+	}
+
+	@Test
+	fun when_fetchSucceedsAfterUserDismisses_then_ignoresLateOpenEffect() = runTuIndiceUiTest {
+		val externalActions = RecordingFileOpenerRepository()
+		val enrollmentProofResult = CompletableDeferred<EnrollmentProof>()
+		val viewModel = createEnrollmentProofViewModel(
+			enrollmentProofRepository = object : EnrollmentProofRepository {
+				override suspend fun getEnrollmentProof(): EnrollmentProof =
+					enrollmentProofResult.await()
+			}
+		)
+		var navigateCalls = 0
+		var dismissCalls = 0
+		val snackBarMessages = mutableListOf<SnackBarMessage>()
+
+		setTuIndiceTestContent {
+			EnrollmentProofRoute(
+				onNavigateToUpdatePassword = { navigateCalls++ },
+				onDismissRequest = { dismissCalls++ },
+				showSnackBar = { message -> snackBarMessages += message },
+				externalActions = externalActions,
+				viewModel = viewModel
+			)
+		}
+
+		onNodeWithTag(EnrollmentProofUiTags.FetchingCancelButton).performClick()
+		assertEquals(1, dismissCalls)
+
+		enrollmentProofResult.complete(
+			EnrollmentProof(
+				source = "/tmp/enrollment-proof.pdf",
+				content = "PDF"
+			)
+		)
+		waitForIdle()
+
+		assertEquals(0, navigateCalls)
+		assertEquals(1, dismissCalls)
+		assertEquals(0, snackBarMessages.size)
+		assertEquals(null, externalActions.lastOpenedFile)
 	}
 
 	@Test
@@ -337,9 +382,10 @@ class EnrollmentProofRouteUiTest {
 	private fun createEnrollmentProofViewModel(
 		throwable: Throwable? = null,
 		canOpenFile: Boolean = true,
-		networkAvailable: Boolean = true
+		networkAvailable: Boolean = true,
+		enrollmentProofRepository: EnrollmentProofRepository? = null
 	): EnrollmentProofViewModel {
-		val enrollmentProofRepository = object : EnrollmentProofRepository {
+		val resolvedEnrollmentProofRepository = enrollmentProofRepository ?: object : EnrollmentProofRepository {
 			override suspend fun getEnrollmentProof(): EnrollmentProof {
 				throwable?.let { throw it }
 				return EnrollmentProof(
@@ -351,7 +397,7 @@ class EnrollmentProofRouteUiTest {
 
 		val useCase = FetchEnrollmentProofUseCase(
 			applicationRepository = FakeFileRepository(canOpenResult = canOpenFile),
-			enrollmentProofRepository = enrollmentProofRepository,
+			enrollmentProofRepository = resolvedEnrollmentProofRepository,
 			reportingRepository = RecordingReportingRepository(),
 			exceptionHandler = FetchEnrollmentProofExceptionHandler(
 				networkRepository = FakeNetworkRepository(isAvailable = networkAvailable)

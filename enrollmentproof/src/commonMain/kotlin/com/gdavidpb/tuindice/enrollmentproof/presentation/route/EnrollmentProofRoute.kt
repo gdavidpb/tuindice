@@ -2,6 +2,9 @@ package com.gdavidpb.tuindice.enrollmentproof.presentation.route
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
@@ -19,26 +22,34 @@ fun EnrollmentProofRoute(
 	viewModel: EnrollmentProofViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
+	var dismissed by remember { mutableStateOf(false) }
+
+	val dismiss = {
+		dismissed = true
+		onDismissRequest()
+	}
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
+		if (dismissed) return@CollectEffectWithLifecycle
+
 		when (effect) {
 			is Enrollment.Effect.NavigateToOutdatedCredentials ->
 				onNavigateToUpdatePassword()
 
 			is Enrollment.Effect.OpenEnrollmentProof -> {
 				externalActions.openFile(effect.file)
-				onDismissRequest()
+				dismiss()
 			}
 
 			is Enrollment.Effect.ShowSnackBar -> {
 				showSnackBar(SnackBarMessage(message = effect.message))
-				onDismissRequest()
+				dismiss()
 			}
 		}
 	}
 
 	EnrollmentProofContentDialog(
 		state = viewState,
-		onDismissRequest = onDismissRequest
+		onDismissRequest = dismiss
 	)
 }

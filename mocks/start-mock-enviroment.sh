@@ -60,7 +60,7 @@ apply_fast_delay_profile() {
 		delay_ms=250
 		case "${mapping_file}" in
 			*enrollment-proof-success.json)
-				delay_ms=5000
+				delay_ms=15000
 				;;
 			*slow*|*fetching*|*auth-update-password-reissue-success.json)
 				delay_ms=2000
