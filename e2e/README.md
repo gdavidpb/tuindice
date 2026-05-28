@@ -52,10 +52,12 @@ Evidence is written to `build/e2e/certifications/<sha>/<platform>/<suite>/`
 and mirrored to
 `build/e2e/certifications/by-fingerprint/<fingerprint>/<platform>/<suite>/`.
 The fingerprint is computed from functional app inputs plus Maestro flows and
-WireMock fixtures, so pipeline-only changes can reuse a previous passing
-certification for the same app behavior. Unit-test-only sources such as
-`commonTest`, `androidTest`, and `app/src/test` are intentionally excluded so
-test fixes do not invalidate E2E evidence for unchanged runtime behavior.
+WireMock fixtures, so pipeline-only changes and version-only release metadata
+can reuse a previous passing certification for the same app behavior.
+Unit-test-only sources such as `commonTest`, `androidTest`, `app/src/test`, and
+the generated `iosApp/Config/Version.xcconfig` are intentionally excluded so
+test fixes or version bumps do not invalidate E2E evidence for unchanged
+runtime behavior.
 Passing evidence publishes GitHub commit statuses automatically when `gh` is
 installed, authenticated, the working tree is clean, the certified commit is
 `HEAD`, and the commit exists on GitHub. The aggregate
