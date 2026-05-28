@@ -199,6 +199,52 @@ mark_e2e_suite_for_module() {
 	append_e2e_scope_for_module all "$module" "module-runtime"
 }
 
+append_ios_signing_config_validation() {
+	CI_CONFIG_TOUCHED=true
+	HAS_RELEVANT_CHANGES=true
+	append_unique_line "$IOS_TASKS_FILE" "verifyIosHostBuildRelease"
+	append_unique_line "$IOS_TASKS_FILE" "verifyIosHostTypecheck"
+}
+
+is_ios_signing_only_config_change() {
+	local file="$1"
+	local diff_line
+	local line
+	local trimmed
+	local key
+	local has_signing_change=false
+
+	while IFS= read -r diff_line; do
+		case "$diff_line" in
+			---*|+++*|@@*)
+				continue
+				;;
+			[+-]*)
+				line="${diff_line:1}"
+				trimmed="$(printf '%s\n' "$line" | sed -E 's/^[[:space:]]+//;s/[[:space:]]+$//')"
+
+				case "$trimmed" in
+					""|//*|/\**|\**|\*/)
+						continue
+						;;
+				esac
+
+				key="$(printf '%s\n' "$trimmed" | sed -E 's/[[:space:]]*=.*$//;s/[[:space:]]+$//')"
+				case "$key" in
+					CODE_SIGN_IDENTITY|CODE_SIGN_STYLE|DEVELOPMENT_TEAM|PROVISIONING_PROFILE|PROVISIONING_PROFILE_SPECIFIER|TUINDICE_CODE_SIGN_IDENTITY|TUINDICE_CODE_SIGN_STYLE|TUINDICE_DEVELOPMENT_TEAM|TUINDICE_PROVISIONING_PROFILE_SPECIFIER|TUINDICE_PROVISIONING_PROFILE_UUID)
+						has_signing_change=true
+						;;
+					*)
+						return 1
+						;;
+				esac
+				;;
+		esac
+	done < <(git diff --unified=0 "$BEFORE_SHA" "$AFTER_SHA" -- "$file")
+
+	[[ "$has_signing_change" == "true" ]]
+}
+
 append_e2e_scope_for_mock_path() {
 	local file="$1"
 
@@ -340,6 +386,12 @@ classify_changed_file() {
 			HAS_RELEASE_IMPACT=true
 			append_e2e_scope all local-certification-suite "root-build"
 			return 0
+			;;
+		iosApp/Config/Release.xcconfig|iosApp/TuIndiceHost.xcodeproj/project.pbxproj)
+			if is_ios_signing_only_config_change "$file"; then
+				append_ios_signing_config_validation
+				return 0
+			fi
 			;;
 		iosApp/scripts/*)
 			CI_CONFIG_TOUCHED=true
