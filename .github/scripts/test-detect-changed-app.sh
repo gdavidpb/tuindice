@@ -45,15 +45,18 @@ run_detector_fixture() {
 	local temp_dir
 	local changed_files_file
 	local output_file
+	local github_output_file
 
 	temp_dir="$(mktemp -d "${RUNNER_TEMP:-/tmp}/tuindice-detect-test.XXXXXX")"
 	changed_files_file="${temp_dir}/changed-files.txt"
 	output_file="${temp_dir}/output.log"
+	github_output_file="${temp_dir}/github-output.txt"
 	printf '%s\n' "$changed_path" >"$changed_files_file"
 
 	(
 		cd "${REPO_ROOT}"
 		STATE_DIR="${temp_dir}/state" \
+		GITHUB_OUTPUT="$github_output_file" \
 		DETECT_CHANGED_APP_CHANGED_FILES_FILE="$changed_files_file" \
 			bash ./.github/scripts/detect-changed-app.sh "$HEAD_SHA" "$HEAD_SHA"
 	) >"$output_file" 2>&1
@@ -67,6 +70,7 @@ run_detector_fixture() {
 			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyAppVersionSync" "Android tasks"
 			assert_file_empty "${temp_dir}/state/ios-gradle-tasks.txt" "iOS tasks"
+			assert_file_contains_line "$github_output_file" "ios_ci_scripts_touched=true" "GitHub output"
 			;;
 		ios-host-runtime)
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "iosApp" "impacted modules"
@@ -75,6 +79,7 @@ run_detector_fixture() {
 			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,ios-host-runtime" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" "verifyIosHostBuildRelease" "iOS tasks"
 			assert_file_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" "verifyIosHostTypecheck" "iOS tasks"
+			assert_file_contains_line "$github_output_file" "ios_ci_scripts_touched=false" "GitHub output"
 			;;
 		*)
 			printf 'Unknown detector fixture: %s\n' "$name" >&2

@@ -21,6 +21,7 @@ jobs:
     outputs:
       android_tasks: ${{ steps.changes.outputs.android_tasks }}
       ios_tasks: ${{ steps.changes.outputs.ios_tasks }}
+      ios_ci_scripts_touched: ${{ steps.changes.outputs.ios_ci_scripts_touched }}
       has_relevant_changes: ${{ steps.changes.outputs.has_relevant_changes }}
 
     steps:
@@ -131,7 +132,7 @@ jobs:
     timeout-minutes: 90
     needs:
       - shared-preflight
-    if: ${{ !cancelled() && needs.shared-preflight.result == 'success' && needs.shared-preflight.outputs.ios_tasks != '' }}
+    if: ${{ !cancelled() && needs.shared-preflight.result == 'success' && (needs.shared-preflight.outputs.ios_tasks != '' || needs.shared-preflight.outputs.ios_ci_scripts_touched == 'true') }}
 
     steps:
       - name: Check out repository
@@ -140,22 +141,32 @@ jobs:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
 
+      - name: Run iOS CI script smoke checks
+        if: needs.shared-preflight.outputs.ios_ci_scripts_touched == 'true'
+        run: |
+          set -euo pipefail
+          bash ./.github/scripts/test-appstore-connect-check.sh
+
       - name: Set up Xcode
+        if: needs.shared-preflight.outputs.ios_tasks != ''
         run: |
           set -euo pipefail
           sudo xcode-select -s /Applications/Xcode_26.5.app/Contents/Developer
           xcodebuild -version
 
       - name: Set up Java
+        if: needs.shared-preflight.outputs.ios_tasks != ''
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
         with:
           distribution: temurin
           java-version: "21"
 
       - name: Set up Gradle
+        if: needs.shared-preflight.outputs.ios_tasks != ''
         uses: gradle/actions/setup-gradle@017a9effdb900e5b5b2fddfb590a105619dca3c3 # v4.4.2
 
       - name: Install CocoaPods dependencies
+        if: needs.shared-preflight.outputs.ios_tasks != ''
         run: |
           set -euo pipefail
           if command -v pod >/dev/null 2>&1; then
@@ -175,6 +186,7 @@ jobs:
           REQUIRE_FIREBASE_CONFIGS=1 bash ./.github/scripts/materialize-firebase-configs.sh
 
       - name: Run focused iOS checks
+        if: needs.shared-preflight.outputs.ios_tasks != ''
         env:
           TUINDICE_IOS_HOST_BUILD: "1"
           PLATFORM_NAME: iphonesimulator
@@ -209,6 +221,7 @@ jobs:
           ios_result="${{ needs.ios-preflight.result }}"
           android_tasks="${{ needs.shared-preflight.outputs.android_tasks }}"
           ios_tasks="${{ needs.shared-preflight.outputs.ios_tasks }}"
+          ios_ci_scripts_touched="${{ needs.shared-preflight.outputs.ios_ci_scripts_touched }}"
           echo "Shared preflight result: ${shared_result}"
           echo "Android preflight result: ${android_result}"
           echo "iOS preflight result: ${ios_result}"
@@ -218,6 +231,6 @@ jobs:
           if [[ -n "${android_tasks}" && "${android_result}" != "success" ]]; then
             exit 1
           fi
-          if [[ -n "${ios_tasks}" && "${ios_result}" != "success" ]]; then
+          if [[ ( -n "${ios_tasks}" || "${ios_ci_scripts_touched}" == "true" ) && "${ios_result}" != "success" ]]; then
             exit 1
           fi

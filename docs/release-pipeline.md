@@ -42,6 +42,7 @@ El detector compara el PR contra el merge-base de `production` y ejecuta solo pi
 - Cambios en `base`, `persistence`, `academiccore`, `maincore`, Gradle raíz o hosts amplían el alcance.
 - Cambios runtime exigen bump de versión.
 - Cambios user-visible cubiertos por E2E exigen commit statuses locales exitosos.
+- Cambios en `iosApp/scripts/*` disparan un smoke liviano en macOS dentro de `iOS preflight`, sin compilar el host si no hay tareas iOS.
 
 Validación local del detector:
 
