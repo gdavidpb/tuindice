@@ -10,7 +10,9 @@ import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import java.net.HttpURLConnection
 import java.net.URL
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withContext
 import org.koin.core.Koin
 import org.koin.core.context.GlobalContext
 
@@ -66,7 +68,7 @@ object E2eSeedBridge {
 		settingsRepository.setLastMainSection(section)
 	}
 
-	private fun putWireMockTokensIssuedState(apiBaseUrl: String) {
+	private suspend fun putWireMockTokensIssuedState(apiBaseUrl: String) = withContext(Dispatchers.IO) {
 		val adminUrl = apiBaseUrl.trimEnd('/') +
 			"/__admin/scenarios/login-token-lifecycle/state"
 		val connection = (URL(adminUrl).openConnection() as HttpURLConnection).apply {
