@@ -1,0 +1,126 @@
+import Foundation
+
+#if canImport(maincore)
+import maincore
+#elseif canImport(Maincore)
+import Maincore
+#endif
+
+enum TuIndiceDebugRuntimeOverrides {
+    enum WebResource {
+        case privacyPolicy
+        case termsAndConditions
+        case support
+    }
+
+    static func webUrl(for resource: WebResource) -> String? {
+        #if DEBUG
+        guard let webBaseUrl = launchArgumentString(for: webBaseUrlKey) else { return nil }
+        return "\(webBaseUrl.trimmingCharacters(in: CharacterSet(charactersIn: "/")))/\(resource.path)"
+        #else
+        _ = resource
+        return nil
+        #endif
+    }
+
+    static func apiBaseUrl() -> String? {
+        #if DEBUG
+        return launchArgumentString(for: apiBaseUrlKey)
+        #else
+        return nil
+        #endif
+    }
+
+    #if canImport(maincore) || canImport(Maincore)
+    static func runStartupHooksIfNeeded(
+        appBootstrap: IosAppHostBootstrap,
+        apiBaseUrl: String
+    ) {
+        #if DEBUG
+        guard let seedState = launchArgumentString(for: seedStateKey) else { return }
+
+        guard seedState == authenticatedWizardCompleteSeed else {
+            fatalError("Unsupported debug startup hook: \(seedState)")
+        }
+
+        seedWireMockTokensIssuedState(apiBaseUrl: apiBaseUrl)
+        appBootstrap.runDebugStartupHook(
+            name: seedState,
+            mainSectionName: launchArgumentString(for: mainSectionKey) ?? "SUMMARY"
+        )
+        #else
+        _ = appBootstrap
+        _ = apiBaseUrl
+        #endif
+    }
+    #endif
+}
+
+#if DEBUG
+private extension TuIndiceDebugRuntimeOverrides {
+    static let apiBaseUrlKey = "TUINDICE_E2E_API_BASE_URL"
+    static let webBaseUrlKey = "TUINDICE_E2E_WEB_BASE_URL"
+    static let seedStateKey = "TUINDICE_E2E_SEED_STATE"
+    static let mainSectionKey = "TUINDICE_E2E_MAIN_SECTION"
+    static let authenticatedWizardCompleteSeed = "authenticatedWizardComplete"
+
+    static func launchArgumentString(for key: String) -> String? {
+        if let value = ProcessInfo.processInfo.environment[key], value.isEmpty == false {
+            return value
+        }
+
+        if let value = UserDefaults.standard.string(forKey: key), value.isEmpty == false {
+            return value
+        }
+
+        return nil
+    }
+
+    static func seedWireMockTokensIssuedState(apiBaseUrl: String) {
+        let adminUrl = "\(apiBaseUrl.trimmingCharacters(in: CharacterSet(charactersIn: "/")))/__admin/scenarios/login-token-lifecycle/state"
+        guard let url = URL(string: adminUrl) else {
+            fatalError("Invalid WireMock admin URL: \(adminUrl)")
+        }
+
+        var request = URLRequest(url: url)
+        request.httpMethod = "PUT"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        request.httpBody = #"{"state":"TokensIssued"}"#.data(using: .utf8)
+
+        let semaphore = DispatchSemaphore(value: 0)
+        var requestError: Error?
+        var responseStatusCode = 0
+
+        URLSession.shared.dataTask(with: request) { _, response, error in
+            requestError = error
+            responseStatusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
+            semaphore.signal()
+        }.resume()
+
+        guard semaphore.wait(timeout: .now() + 5) == .success else {
+            fatalError("Timed out seeding WireMock login-token-lifecycle scenario.")
+        }
+
+        if let requestError {
+            fatalError("Failed to seed WireMock login-token-lifecycle scenario: \(requestError)")
+        }
+
+        guard (200...299).contains(responseStatusCode) else {
+            fatalError("WireMock scenario seed failed with HTTP \(responseStatusCode).")
+        }
+    }
+}
+
+private extension TuIndiceDebugRuntimeOverrides.WebResource {
+    var path: String {
+        switch self {
+        case .privacyPolicy:
+            return "e2e/privacy.html"
+        case .termsAndConditions:
+            return "e2e/terms.html"
+        case .support:
+            return "e2e/support.html"
+        }
+    }
+}
+#endif

@@ -6,6 +6,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/common.sh"
 require_command adb
 require_command maestro
 
+register_wiremock_cleanup
 "${SCRIPT_DIR}/start-wiremock.sh"
 reset_wiremock
 
@@ -45,4 +46,4 @@ fi
 maestro_args+=("${E2E_MAESTRO_SUITE}")
 
 log "Running Maestro Android suite ${E2E_MAESTRO_SUITE}."
-HOME="${MAESTRO_HOME}" maestro "${maestro_args[@]}" | tee "${MAESTRO_LOG_FILE}"
+HOME="${MAESTRO_HOME}" maestro "${maestro_args[@]}" 2>&1 | tee "${MAESTRO_LOG_FILE}"

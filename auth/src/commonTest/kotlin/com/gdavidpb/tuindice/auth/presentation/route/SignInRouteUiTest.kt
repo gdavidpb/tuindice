@@ -1,8 +1,10 @@
 package com.gdavidpb.tuindice.auth.presentation.route
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsFocused
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
@@ -104,6 +106,28 @@ class SignInRouteUiTest {
 
 		assertEquals(1, summaryNavigations)
 		assertTrue(shownSnackBars.isEmpty())
+	}
+
+	@Test
+	fun when_usbIdImeNextPressed_then_focusesPasswordField() = runTuIndiceUiTest {
+		val fixture = createSignInViewModel(
+			termsAndConditionsUrl = "https://tuindice.test/terms"
+		)
+
+		setTuIndiceTestContent {
+			SignInRoute(
+				onNavigateToSummary = {},
+				onNavigateToBrowser = { _, _ -> },
+				showSnackBar = {},
+				viewModel = fixture.viewModel
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("1234567")
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performImeAction()
+		waitForIdle()
+
+		onNodeWithTag(AuthUiTags.PasswordTextField).assertIsFocused()
 	}
 
 	@Test

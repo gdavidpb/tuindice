@@ -32,6 +32,10 @@
         tools:replace="android:name">
         <activity
             android:name=".ui.activity.MainActivity"
+            tools:node="remove" />
+
+        <activity
+            android:name=".ui.activity.DebugMainActivity"
             android:exported="true"
             android:launchMode="singleInstance"
             android:screenOrientation="portrait"

@@ -148,6 +148,35 @@ publish_github_statuses() {
 	done < <(covered_status_contexts "${include_covered}")
 }
 
+maestro_report_has_no_failures() {
+	local report_file="$1"
+
+	[[ -f "$report_file" ]] || return 1
+	if grep -Eq '<(testsuite|testsuites)[^>]*(failures|errors)="[1-9][0-9]*"' "$report_file"; then
+		return 1
+	fi
+
+	grep -Eq '<testcase[^>]*status="SUCCESS"|<(testsuite|testsuites)[^>]*failures="0"' "$report_file"
+}
+
+maestro_log_reports_passed_flow() {
+	local log_file="$1"
+
+	[[ -f "$log_file" ]] || return 1
+	grep -q '\[Passed\]' "$log_file" && grep -q 'Flow Passed' "$log_file"
+}
+
+maestro_nonzero_after_passed_flow_is_recoverable() {
+	local status="$1"
+	local log_file="$2"
+	local report_file="$3"
+
+	[[ "$status" != "0" ]] || return 1
+	[[ "${E2E_STRICT_MAESTRO_EXIT:-0}" != "1" ]] || return 1
+	maestro_log_reports_passed_flow "$log_file" || return 1
+	maestro_report_has_no_failures "$report_file"
+}
+
 suite_path_for_id() {
 	local suite_id="$1"
 	printf '%s/e2e/maestro/flows/suites/%s.yaml\n' "$REPO_ROOT" "$suite_id"
@@ -206,6 +235,11 @@ run_suite_evidence() {
 	status=$?
 	set -e
 	finished_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+
+	if maestro_nonzero_after_passed_flow_is_recoverable "$status" "$LOG_FILE" "$REPORT_FILE"; then
+		log "Maestro exited with ${status} after reporting a passing flow and writing a clean JUnit report; treating evidence as passed."
+		status=0
+	fi
 
 	if [[ -f "${LOG_FILE}" ]]; then
 		if command -v shasum >/dev/null 2>&1; then

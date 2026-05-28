@@ -13,13 +13,39 @@ ANDROID_PACKAGE_NAME="${ANDROID_PACKAGE_NAME:-com.gdavidpb.tuindice}"
 GOOGLE_PLAY_TRACK="${GOOGLE_PLAY_TRACK:-production}"
 ANDROID_AAB_PATH="${ANDROID_AAB_PATH:-app/build/outputs/bundle/release/app-release.aab}"
 ACCESS_TOKEN="${ANDROID_PUBLISHER_ACCESS_TOKEN:-${GOOGLE_OAUTH_ACCESS_TOKEN:-}}"
+CHECK_ONLY="${GOOGLE_PLAY_CHECK_ONLY:-0}"
+RELEASE_EXISTS_FILE="${GOOGLE_PLAY_RELEASE_EXISTS_FILE:-}"
 VERSION_NAME="$(get_app_version_name)"
 ANDROID_VERSION_CODE="$(get_android_version_code)"
 API_ROOT="https://androidpublisher.googleapis.com/androidpublisher/v3/applications/${ANDROID_PACKAGE_NAME}"
 UPLOAD_ROOT="https://androidpublisher.googleapis.com/upload/androidpublisher/v3/applications/${ANDROID_PACKAGE_NAME}"
 
 [[ -n "$ACCESS_TOKEN" ]] || die "ANDROID_PUBLISHER_ACCESS_TOKEN or GOOGLE_OAUTH_ACCESS_TOKEN is required."
-[[ -s "$ANDROID_AAB_PATH" ]] || die "Android App Bundle not found: ${ANDROID_AAB_PATH}"
+
+write_github_output() {
+	local key="$1"
+	local value="$2"
+
+	if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+		printf '%s=%s\n' "$key" "$value" >>"$GITHUB_OUTPUT"
+	fi
+}
+
+write_release_exists_state() {
+	local exists="$1"
+	local status="${2:-}"
+
+	write_github_output "android_draft_exists" "$exists"
+	write_github_output "android_draft_status" "$status"
+
+	if [[ -n "$RELEASE_EXISTS_FILE" ]]; then
+		mkdir -p "$(dirname "$RELEASE_EXISTS_FILE")"
+		{
+			printf 'exists=%s\n' "$exists"
+			printf 'status=%s\n' "$status"
+		} >"$RELEASE_EXISTS_FILE"
+	fi
+}
 
 api_post() {
 	local url="$1"
@@ -101,12 +127,22 @@ if api_get_json "${API_ROOT}/edits/${EDIT_ID}/tracks/${GOOGLE_PLAY_TRACK}" "$TRA
 			"$TRACK_STATE"
 	)"
 	if [[ -n "$EXISTING_RELEASE_STATUS" ]]; then
+		write_release_exists_state "true" "$EXISTING_RELEASE_STATUS"
 		info "Google Play release for ${VERSION_NAME} (${ANDROID_VERSION_CODE}) already exists on track ${GOOGLE_PLAY_TRACK} with status ${EXISTING_RELEASE_STATUS}; skipping bundle upload."
 		exit 0
 	fi
 else
 	info "Google Play track ${GOOGLE_PLAY_TRACK} does not exist in edit ${EDIT_ID}; continuing with first draft upload."
 fi
+
+write_release_exists_state "false" ""
+
+if [[ "$CHECK_ONLY" == "1" ]]; then
+	info "Google Play release for ${VERSION_NAME} (${ANDROID_VERSION_CODE}) does not exist on track ${GOOGLE_PLAY_TRACK}; bundle build/upload is required."
+	exit 0
+fi
+
+[[ -s "$ANDROID_AAB_PATH" ]] || die "Android App Bundle not found: ${ANDROID_AAB_PATH}"
 
 info "Uploading ${ANDROID_AAB_PATH} to Google Play edit ${EDIT_ID}."
 UPLOADED_VERSION_CODE="$(

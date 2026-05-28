@@ -28,6 +28,7 @@ PROFILE_OUTPUT_DIR="${E2E_PROFILE_OUTPUT_DIR:-${REPO_ROOT}/build/e2e/profiles}/$
 PROFILE_LOG_DIR="${PROFILE_OUTPUT_DIR}/logs"
 mkdir -p "${PROFILE_OUTPUT_DIR}" "${PROFILE_LOG_DIR}"
 
+register_wiremock_cleanup
 "${SCRIPT_DIR}/start-wiremock.sh"
 
 case "${PLATFORM}" in
