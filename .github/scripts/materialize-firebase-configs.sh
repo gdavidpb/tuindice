@@ -70,8 +70,11 @@ if [[ -n "${IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64:-}" ]]; then
 	decode_base64_to_file "$IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64" "iosApp/Resources/GoogleService-Info.plist"
 fi
 
-if [[ "${REQUIRE_FIREBASE_CONFIGS:-0}" == "1" ]]; then
+if [[ "${REQUIRE_FIREBASE_CONFIGS:-0}" == "1" || "${REQUIRE_ANDROID_FIREBASE_CONFIG:-0}" == "1" ]]; then
 	[[ -s app/google-services.json ]] || die "Missing app/google-services.json. Provide ANDROID_GOOGLE_SERVICES_JSON_BASE64."
+fi
+
+if [[ "${REQUIRE_FIREBASE_CONFIGS:-0}" == "1" || "${REQUIRE_IOS_FIREBASE_CONFIG:-0}" == "1" ]]; then
 	[[ -s iosApp/Resources/GoogleService-Info.plist ]] || die "Missing iosApp/Resources/GoogleService-Info.plist. Provide IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64."
 	validate_ios_firebase_config "iosApp/Resources/GoogleService-Info.plist"
 fi

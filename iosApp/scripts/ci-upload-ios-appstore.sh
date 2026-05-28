@@ -4,6 +4,9 @@ IFS=$'\n\t'
 
 ROOT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 REPO_ROOT="$(cd "${ROOT_DIR}/.." && pwd)"
+# shellcheck source=.github/scripts/common.sh
+source "${REPO_ROOT}/.github/scripts/common.sh"
+
 PROJECT_PATH="$ROOT_DIR/TuIndiceHost.xcodeproj"
 WORKSPACE_PATH="$ROOT_DIR/TuIndiceHost.xcworkspace"
 SCHEME_NAME="TuIndiceHost"
@@ -21,6 +24,10 @@ PROFILE_SPECIFIER="${APPLE_PROVISIONING_PROFILE_SPECIFIER:-}"
 PROFILE_UUID="${APPLE_PROVISIONING_PROFILE_UUID:-}"
 KEYCHAIN_PATH="${APPLE_KEYCHAIN_PATH:-${RUNNER_TEMP:-/tmp}/tuindice-signing.keychain-db}"
 KEYCHAIN_PASSWORD="${APPLE_KEYCHAIN_PASSWORD:-tuindice-ci-keychain}"
+SKIP_IF_BUILD_EXISTS="${APP_STORE_CONNECT_SKIP_EXISTING_BUILD:-1}"
+APP_STORE_CONNECT_API_ROOT="${APP_STORE_CONNECT_API_ROOT:-https://api.appstoreconnect.apple.com/v1}"
+VERSION_NAME="$(get_app_version_name)"
+IOS_BUILD_NUMBER="$(get_ios_build_number)"
 
 log() {
 	printf '[tuindice-ios-upload] %s\n' "$*"
@@ -61,9 +68,102 @@ xml_escape() {
 	printf '%s' "$value"
 }
 
+generate_app_store_connect_jwt() {
+	ruby -rbase64 -rjson -ropenssl -e '
+def b64url(value)
+  Base64.urlsafe_encode64(value).delete("=")
+end
+
+key_id = ENV.fetch("APP_STORE_CONNECT_KEY_ID")
+issuer_id = ENV.fetch("APP_STORE_CONNECT_ISSUER_ID")
+key_path = ENV.fetch("APP_STORE_CONNECT_API_KEY_PATH")
+now = Time.now.to_i
+header = { alg: "ES256", kid: key_id, typ: "JWT" }
+payload = { iss: issuer_id, iat: now, exp: now + 1200, aud: "appstoreconnect-v1" }
+signing_input = "#{b64url(header.to_json)}.#{b64url(payload.to_json)}"
+key = OpenSSL::PKey.read(File.read(key_path))
+signature_der = key.dsa_sign_asn1(OpenSSL::Digest::SHA256.digest(signing_input))
+signature_sequence = OpenSSL::ASN1.decode(signature_der)
+signature_raw = signature_sequence.value.map do |integer|
+  integer.value.to_s(2).rjust(32, "\x00")[-32, 32]
+end.join
+puts "#{signing_input}.#{b64url(signature_raw)}"
+'
+}
+
+app_store_connect_get_json() {
+	local url="$1"
+	local output_file="$2"
+	local status_code
+
+	status_code="$(
+		curl --silent --show-error \
+			-X GET \
+			-H "Authorization: Bearer ${APP_STORE_CONNECT_JWT}" \
+			-H "Accept: application/json" \
+			-o "$output_file" \
+			-w '%{http_code}' \
+			"$url"
+	)"
+
+	if [[ ! "$status_code" =~ ^2 ]]; then
+		cat "$output_file" >&2 || true
+		die "App Store Connect API GET failed with HTTP ${status_code}: ${url}"
+	fi
+}
+
+skip_upload_if_build_exists() {
+	local apps_response
+	local builds_response
+	local app_id
+	local existing_build_id
+
+	if [[ "$SKIP_IF_BUILD_EXISTS" != "1" ]]; then
+		return 0
+	fi
+
+	APP_STORE_CONNECT_KEY_ID="$API_KEY_ID"
+	APP_STORE_CONNECT_ISSUER_ID="$API_ISSUER_ID"
+	APP_STORE_CONNECT_API_KEY_PATH="$API_KEY_PATH"
+	export APP_STORE_CONNECT_KEY_ID APP_STORE_CONNECT_ISSUER_ID APP_STORE_CONNECT_API_KEY_PATH
+	APP_STORE_CONNECT_JWT="$(generate_app_store_connect_jwt)"
+
+	apps_response="$(mktemp "${RUNNER_TEMP:-/tmp}/tuindice-appstore-apps.XXXXXX.json")"
+	builds_response="$(mktemp "${RUNNER_TEMP:-/tmp}/tuindice-appstore-builds.XXXXXX.json")"
+
+	app_store_connect_get_json "${APP_STORE_CONNECT_API_ROOT}/apps?filter%5BbundleId%5D=${IOS_BUNDLE_IDENTIFIER}&limit=1" "$apps_response"
+	app_id="$(jq -r '.data[0].id // empty' "$apps_response")"
+	[[ -n "$app_id" ]] || die "Unable to resolve App Store Connect app for bundle id ${IOS_BUNDLE_IDENTIFIER}."
+
+	app_store_connect_get_json "${APP_STORE_CONNECT_API_ROOT}/builds?filter%5Bapp%5D=${app_id}&filter%5Bversion%5D=${IOS_BUILD_NUMBER}&include=preReleaseVersion&limit=200" "$builds_response"
+	existing_build_id="$(
+		jq -r \
+			--arg version_name "$VERSION_NAME" \
+			'[
+				.data[]? as $build
+				| ($build.relationships.preReleaseVersion.data.id // "") as $pre_release_id
+				| select(
+					$pre_release_id != "" and
+					any(.included[]?; .type == "preReleaseVersions" and .id == $pre_release_id and .attributes.version == $version_name)
+				)
+				| $build.id
+			][0] // empty' \
+			"$builds_response"
+	)"
+
+	if [[ -n "$existing_build_id" ]]; then
+		log "App Store Connect build ${VERSION_NAME} (${IOS_BUILD_NUMBER}) already exists for ${IOS_BUNDLE_IDENTIFIER}; skipping archive and upload."
+		exit 0
+	fi
+}
+
 if [[ "$OSTYPE" != darwin* ]]; then
 	die "App Store Connect upload requires macOS."
 fi
+
+require_tool curl
+require_tool jq
+require_tool ruby
 
 if [[ -z "$API_KEY_PATH" && -n "${APP_STORE_CONNECT_API_KEY_P8_BASE64:-}" ]]; then
 	API_KEY_PATH="${RUNNER_TEMP:-/tmp}/AuthKey_${API_KEY_ID}.p8"
@@ -73,6 +173,8 @@ fi
 [[ -n "$API_KEY_PATH" && -s "$API_KEY_PATH" ]] || die "APP_STORE_CONNECT_API_KEY_PATH or APP_STORE_CONNECT_API_KEY_P8_BASE64 is required."
 [[ -n "$API_KEY_ID" ]] || die "APP_STORE_CONNECT_KEY_ID is required."
 [[ -n "$API_ISSUER_ID" ]] || die "APP_STORE_CONNECT_ISSUER_ID is required."
+
+skip_upload_if_build_exists
 
 if [[ "$CODE_SIGN_STYLE_VALUE" == "Manual" ]]; then
 	[[ -n "${APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64:-}" ]] || die "APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64 is required for manual iOS signing."
