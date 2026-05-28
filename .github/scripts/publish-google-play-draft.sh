@@ -30,6 +30,31 @@ api_post() {
 		"$url"
 }
 
+api_get_json() {
+	local url="$1"
+	local output_file="$2"
+	local status_code
+
+	status_code="$(
+		curl --silent --show-error \
+			-X GET \
+			-H "Authorization: Bearer ${ACCESS_TOKEN}" \
+			-H "Accept: application/json" \
+			-o "$output_file" \
+			-w '%{http_code}' \
+			"$url"
+	)"
+
+	if [[ "$status_code" == "404" ]]; then
+		return 1
+	fi
+
+	if [[ ! "$status_code" =~ ^2 ]]; then
+		cat "$output_file" >&2 || true
+		die "Google Play API GET failed with HTTP ${status_code}: ${url}"
+	fi
+}
+
 api_put_json() {
 	local url="$1"
 	local json_file="$2"
@@ -62,6 +87,26 @@ cleanup_edit() {
 	fi
 }
 trap cleanup_edit EXIT
+
+TRACK_STATE="$(mktemp "${RUNNER_TEMP:-/tmp}/tuindice-play-track-state.XXXXXX.json")"
+if api_get_json "${API_ROOT}/edits/${EDIT_ID}/tracks/${GOOGLE_PLAY_TRACK}" "$TRACK_STATE"; then
+	EXISTING_RELEASE_STATUS="$(
+		jq -r \
+			--arg version_code "$ANDROID_VERSION_CODE" \
+			'[
+				.releases[]?
+				| select(any(.versionCodes[]?; tostring == $version_code))
+				| (.status // "unknown")
+			][0] // empty' \
+			"$TRACK_STATE"
+	)"
+	if [[ -n "$EXISTING_RELEASE_STATUS" ]]; then
+		info "Google Play release for ${VERSION_NAME} (${ANDROID_VERSION_CODE}) already exists on track ${GOOGLE_PLAY_TRACK} with status ${EXISTING_RELEASE_STATUS}; skipping bundle upload."
+		exit 0
+	fi
+else
+	info "Google Play track ${GOOGLE_PLAY_TRACK} does not exist in edit ${EDIT_ID}; continuing with first draft upload."
+fi
 
 info "Uploading ${ANDROID_AAB_PATH} to Google Play edit ${EDIT_ID}."
 UPLOADED_VERSION_CODE="$(

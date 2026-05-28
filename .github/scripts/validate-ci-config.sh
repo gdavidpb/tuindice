@@ -24,5 +24,6 @@ done < <(
 )
 
 bash "${SCRIPT_DIR}/test-preflight-production.sh"
+bash "${SCRIPT_DIR}/test-detect-changed-app.sh"
 
 info "CI configuration syntax checks passed."
