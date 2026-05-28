@@ -341,6 +341,11 @@ classify_changed_file() {
 			append_e2e_scope all local-certification-suite "root-build"
 			return 0
 			;;
+		iosApp/scripts/*)
+			CI_CONFIG_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			return 0
+			;;
 		iosApp/*)
 			if is_ios_app_test_source_file "$file"; then
 				append_changed_test_module iosApp
