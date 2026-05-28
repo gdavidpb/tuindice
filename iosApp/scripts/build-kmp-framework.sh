@@ -20,16 +20,19 @@ else
 fi
 
 prime_local_gradle_wrapper_dist() {
-	[[ "$GRADLE_USER_HOME_DIR" == "$LOCAL_GRADLE_USER_HOME_DIR" ]] || return
-	[[ -n "$GRADLE_DIST_NAME" ]] || return
+	[[ "$GRADLE_USER_HOME_DIR" == "$LOCAL_GRADLE_USER_HOME_DIR" ]] || return 0
+	[[ -n "$GRADLE_DIST_NAME" ]] || return 0
 
 	local source_dist_dir="$DEFAULT_GRADLE_USER_HOME_DIR/wrapper/dists/$GRADLE_DIST_NAME"
 	local target_dist_dir="$GRADLE_USER_HOME_DIR/wrapper/dists/$GRADLE_DIST_NAME"
 	local target_ok_marker="$target_dist_dir"/*/"$GRADLE_DIST_NAME.zip.ok"
 	local target_unpacked_dir="$target_dist_dir"/*/gradle-*
 
-	[[ -d "$source_dist_dir" ]] || return
-	compgen -G "$target_ok_marker" >/dev/null && compgen -G "$target_unpacked_dir" >/dev/null && return
+	[[ -d "$source_dist_dir" ]] || return 0
+	if compgen -G "$target_ok_marker" >/dev/null &&
+		compgen -G "$target_unpacked_dir" >/dev/null; then
+		return 0
+	fi
 
 	mkdir -p "$target_dist_dir"
 	cp -R "$source_dist_dir"/. "$target_dist_dir"/

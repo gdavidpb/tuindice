@@ -25,6 +25,8 @@ PROFILE_UUID="${APPLE_PROVISIONING_PROFILE_UUID:-}"
 KEYCHAIN_PATH="${APPLE_KEYCHAIN_PATH:-${RUNNER_TEMP:-/tmp}/tuindice-signing.keychain-db}"
 KEYCHAIN_PASSWORD="${APPLE_KEYCHAIN_PASSWORD:-tuindice-ci-keychain}"
 SKIP_IF_BUILD_EXISTS="${APP_STORE_CONNECT_SKIP_EXISTING_BUILD:-1}"
+CHECK_ONLY="${APP_STORE_CONNECT_CHECK_ONLY:-0}"
+BUILD_EXISTS_FILE="${APP_STORE_CONNECT_BUILD_EXISTS_FILE:-}"
 APP_STORE_CONNECT_API_ROOT="${APP_STORE_CONNECT_API_ROOT:-https://api.appstoreconnect.apple.com/v1}"
 VERSION_NAME="$(get_app_version_name)"
 IOS_BUILD_NUMBER="$(get_ios_build_number)"
@@ -36,6 +38,31 @@ log() {
 die() {
 	printf '[tuindice-ios-upload] ERROR: %s\n' "$*" >&2
 	exit 1
+}
+
+write_github_output() {
+	local key="$1"
+	local value="$2"
+
+	if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+		printf '%s=%s\n' "$key" "$value" >>"$GITHUB_OUTPUT"
+	fi
+}
+
+write_build_exists_state() {
+	local exists="$1"
+	local build_id="${2:-}"
+
+	write_github_output "ios_build_exists" "$exists"
+	write_github_output "ios_existing_build_id" "$build_id"
+
+	if [[ -n "$BUILD_EXISTS_FILE" ]]; then
+		mkdir -p "$(dirname "$BUILD_EXISTS_FILE")"
+		{
+			printf 'exists=%s\n' "$exists"
+			printf 'build_id=%s\n' "$build_id"
+		} >"$BUILD_EXISTS_FILE"
+	fi
 }
 
 decode_base64_to_file() {
@@ -112,14 +139,15 @@ app_store_connect_get_json() {
 	fi
 }
 
-skip_upload_if_build_exists() {
+check_app_store_connect_build_exists() {
 	local apps_response
 	local builds_response
 	local app_id
 	local existing_build_id
 
-	if [[ "$SKIP_IF_BUILD_EXISTS" != "1" ]]; then
-		return 0
+	if [[ "$SKIP_IF_BUILD_EXISTS" != "1" && "$CHECK_ONLY" != "1" ]]; then
+		write_build_exists_state "false" ""
+		return 1
 	fi
 
 	APP_STORE_CONNECT_KEY_ID="$API_KEY_ID"
@@ -152,9 +180,14 @@ skip_upload_if_build_exists() {
 	)"
 
 	if [[ -n "$existing_build_id" ]]; then
+		write_build_exists_state "true" "$existing_build_id"
 		log "App Store Connect build ${VERSION_NAME} (${IOS_BUILD_NUMBER}) already exists for ${IOS_BUNDLE_IDENTIFIER}; skipping archive and upload."
-		exit 0
+		return 0
 	fi
+
+	write_build_exists_state "false" ""
+	log "App Store Connect build ${VERSION_NAME} (${IOS_BUILD_NUMBER}) does not exist for ${IOS_BUNDLE_IDENTIFIER}; archive/upload is required."
+	return 1
 }
 
 if [[ "$OSTYPE" != darwin* ]]; then
@@ -174,7 +207,13 @@ fi
 [[ -n "$API_KEY_ID" ]] || die "APP_STORE_CONNECT_KEY_ID is required."
 [[ -n "$API_ISSUER_ID" ]] || die "APP_STORE_CONNECT_ISSUER_ID is required."
 
-skip_upload_if_build_exists
+if check_app_store_connect_build_exists; then
+	if [[ "$CHECK_ONLY" == "1" || "$SKIP_IF_BUILD_EXISTS" == "1" ]]; then
+		exit 0
+	fi
+elif [[ "$CHECK_ONLY" == "1" ]]; then
+	exit 0
+fi
 
 if [[ "$CODE_SIGN_STYLE_VALUE" == "Manual" ]]; then
 	[[ -n "${APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64:-}" ]] || die "APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64 is required for manual iOS signing."

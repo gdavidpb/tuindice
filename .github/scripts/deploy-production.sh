@@ -73,6 +73,18 @@ run_deploy_preflight() {
 }
 
 run_android_deploy() {
+	local release_exists_file="${STATE_DIR}/android-release-exists.env"
+
+	if [[ "$DRY_RUN" != "1" ]]; then
+		GOOGLE_PLAY_CHECK_ONLY=1 \
+		GOOGLE_PLAY_RELEASE_EXISTS_FILE="$release_exists_file" \
+			bash "${SCRIPT_DIR}/publish-google-play-draft.sh"
+
+		if grep -q '^exists=true$' "$release_exists_file"; then
+			return 0
+		fi
+	fi
+
 	REQUIRE_ANDROID_FIREBASE_CONFIG=1 bash "${SCRIPT_DIR}/materialize-firebase-configs.sh"
 	export TU_INDICE_KEY_STORE_PATH="${TU_INDICE_KEY_STORE_PATH:-${RUNNER_TEMP:-/tmp}/tuindice-release.jks}"
 	bash "${SCRIPT_DIR}/materialize-android-signing.sh"
@@ -89,12 +101,21 @@ run_android_deploy() {
 }
 
 run_ios_deploy() {
-	REQUIRE_IOS_FIREBASE_CONFIG=1 bash "${SCRIPT_DIR}/materialize-firebase-configs.sh"
-
 	if [[ "$DRY_RUN" == "1" ]]; then
 		info "DRY_RUN=1: skipping App Store Connect upload."
 		return 0
 	fi
+
+	local build_exists_file="${STATE_DIR}/ios-build-exists.env"
+	APP_STORE_CONNECT_CHECK_ONLY=1 \
+	APP_STORE_CONNECT_BUILD_EXISTS_FILE="$build_exists_file" \
+		bash "${PWD}/iosApp/scripts/ci-upload-ios-appstore.sh"
+
+	if grep -q '^exists=true$' "$build_exists_file"; then
+		return 0
+	fi
+
+	REQUIRE_IOS_FIREBASE_CONFIG=1 bash "${SCRIPT_DIR}/materialize-firebase-configs.sh"
 
 	bash "${PWD}/iosApp/scripts/ci-upload-ios-appstore.sh"
 }
