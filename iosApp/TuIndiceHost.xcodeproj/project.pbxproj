@@ -9,6 +9,7 @@
 /* Begin PBXBuildFile section */
 		A1B2C3D4E5F60708090A1020 /* TuIndiceApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A1010 /* TuIndiceApp.swift */; };
 		A1B2C3D4E5F60708090A1021 /* TuIndiceAppBootstrap.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A1011 /* TuIndiceAppBootstrap.swift */; };
+		A1B2C3D4E5F60708090A1025 /* TuIndiceDebugRuntimeOverrides.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A1026 /* TuIndiceDebugRuntimeOverrides.swift */; };
 		A1B2C3D4E5F60708090A1022 /* TuIndiceAppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A1012 /* TuIndiceAppDelegate.swift */; };
 		A1B2C3D4E5F60708090A1023 /* TuIndicePlatformBridge.swift in Sources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A1013 /* TuIndicePlatformBridge.swift */; };
 		A1B2C3D4E5F60708090A1024 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = A1B2C3D4E5F60708090A101A /* Assets.xcassets */; };
@@ -21,6 +22,7 @@
 		5FC9705D4B235589FC86BD3D /* Pods_TuIndiceHost.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_TuIndiceHost.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		A1B2C3D4E5F60708090A1010 /* TuIndiceApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TuIndiceApp.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F60708090A1011 /* TuIndiceAppBootstrap.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TuIndiceAppBootstrap.swift; sourceTree = "<group>"; };
+		A1B2C3D4E5F60708090A1026 /* TuIndiceDebugRuntimeOverrides.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TuIndiceDebugRuntimeOverrides.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F60708090A1012 /* TuIndiceAppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TuIndiceAppDelegate.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F60708090A1013 /* TuIndicePlatformBridge.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TuIndicePlatformBridge.swift; sourceTree = "<group>"; };
 		A1B2C3D4E5F60708090A1014 /* TuIndiceHost.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = TuIndiceHost.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -82,6 +84,7 @@
 			children = (
 				A1B2C3D4E5F60708090A1010 /* TuIndiceApp.swift */,
 				A1B2C3D4E5F60708090A1011 /* TuIndiceAppBootstrap.swift */,
+				A1B2C3D4E5F60708090A1026 /* TuIndiceDebugRuntimeOverrides.swift */,
 				A1B2C3D4E5F60708090A1012 /* TuIndiceAppDelegate.swift */,
 				A1B2C3D4E5F60708090A1013 /* TuIndicePlatformBridge.swift */,
 			);
@@ -287,6 +290,7 @@
 			files = (
 				A1B2C3D4E5F60708090A1020 /* TuIndiceApp.swift in Sources */,
 				A1B2C3D4E5F60708090A1021 /* TuIndiceAppBootstrap.swift in Sources */,
+				A1B2C3D4E5F60708090A1025 /* TuIndiceDebugRuntimeOverrides.swift in Sources */,
 				A1B2C3D4E5F60708090A1022 /* TuIndiceAppDelegate.swift in Sources */,
 				A1B2C3D4E5F60708090A1023 /* TuIndicePlatformBridge.swift in Sources */,
 			);
