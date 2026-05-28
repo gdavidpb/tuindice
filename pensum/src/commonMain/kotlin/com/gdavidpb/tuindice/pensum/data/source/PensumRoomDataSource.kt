@@ -165,8 +165,7 @@ class PensumRoomDataSource(
 	}
 
 	private fun GetPensumResponse.toSubjectCatalogCacheEntities(updatedAt: Long): List<SubjectCatalogCacheEntity> {
-		return pensums
-			.flatMap { pensum -> pensum.nodes }
+		return pensum.nodes
 			.mapNotNull { node ->
 				val subjectCode = node.subjectCode
 					?.trim()
@@ -188,9 +187,7 @@ class PensumRoomDataSource(
 	}
 
 	private fun GetPensumResponse.selectedPensum(): GetPensumResponse.Pensum {
-		return pensums.firstOrNull { pensum -> pensum.id == selectedPensumId }
-			?: pensums.firstOrNull()
-			?: error("Pensum response contains no pensums.")
+		return pensum
 	}
 
 	private fun List<AcademicTermEntity>.toAcademicSnapshot(

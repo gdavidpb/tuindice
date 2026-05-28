@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.persistence.di
 import android.content.Context
 import androidx.room.Room
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
+import com.gdavidpb.tuindice.persistence.data.room.TuIndiceRoomMigrations
 
 fun createAndroidDatabase(
 	context: Context,
@@ -13,6 +14,7 @@ fun createAndroidDatabase(
 	}
 
 	return Room.databaseBuilder(context, TuIndiceDatabase::class.java, name)
+		.addMigrations(*TuIndiceRoomMigrations.all)
 		.fallbackToDestructiveMigration(true)
 		.build()
 }
