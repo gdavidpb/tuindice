@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/pensums/v4",
+    "queryParameters": {
+      "year": {
+        "equalTo": "2017"
+      },
+      "modality_id": {
+        "equalTo": "long_internship"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "pensums/get-pensum-2017-long_internship.json"
+  },
+  "priority": 1
+}

@@ -1,0 +1,22 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-retry-login",
+  "requiredScenarioState": "RetryAvailable",
+  "newScenarioState": "RetryFailed",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic MzMtMzMzMzM6cmV0cnktcGFzcw=="
+      }
+    }
+  },
+  "response": {
+    "status": 503,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "fixedDelayMilliseconds": 1500
+  }
+}

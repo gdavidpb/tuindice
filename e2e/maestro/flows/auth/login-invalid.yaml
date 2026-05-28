@@ -1,0 +1,18 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- tapOn:
+    id: auth_usb_id_text_field
+- inputText: "0000000"
+- inputText: "0"
+- tapOn:
+    id: auth_password_text_field
+- inputText: "bad-password"
+- tapOn:
+    id: auth_keyboard_dismiss_area
+- tapOn:
+    id: auth_sign_in_button
+- extendedWaitUntil:
+    visible:
+      id: auth_sign_in_idle_container
+    timeout: 15000

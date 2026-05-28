@@ -1,0 +1,12 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- assertVisible:
+    id: wizard_welcome_screen
+- assertVisible:
+    id: wizard_primary_button
+- tapOn:
+    id: wizard_skip_button
+- extendedWaitUntil:
+    visible:
+      id: summary_content_container
+    timeout: 30000

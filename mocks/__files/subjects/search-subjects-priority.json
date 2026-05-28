@@ -1,0 +1,29 @@
+{
+  "query": "prioridad",
+  "results": [
+    {
+      "subject_code": "AA1001",
+      "name": "Prioridad fuera del pensum alfa",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "AB1001",
+      "name": "Prioridad fuera del pensum beta",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "EP2308",
+      "name": "Prioridad bloqueada del pensum",
+      "credits": 3,
+      "grading_mode": "qualitative_pass_fail"
+    },
+    {
+      "subject_code": "EP1308",
+      "name": "Prioridad planificada del pensum",
+      "credits": 3,
+      "grading_mode": "qualitative_pass_fail"
+    }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/record/v5/overlay/terms"
+  },
+  "response": {
+    "transformers": [
+      "record-response-transformer"
+    ]
+  }
+}

@@ -1,0 +1,105 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- runFlow: ../auth/login-success.yaml
+- tapOn:
+    id: wizard_primary_button
+- extendedWaitUntil:
+    visible:
+      id: wizard_current_step_summary
+    timeout: 10000
+- tapOn:
+    id: wizard_primary_button
+- extendedWaitUntil:
+    visible:
+      id: wizard_current_step_record
+    timeout: 10000
+- tapOn:
+    id: record_top_bar_view_mode_switch
+- extendedWaitUntil:
+    visible:
+      id: record_term_chip_2025-3
+    timeout: 10000
+- tapOn:
+    id: record_term_chip_2024-3
+- extendedWaitUntil:
+    visible:
+      id: record_attempts_list
+    timeout: 10000
+- tapOn:
+    id: wizard_primary_button
+- extendedWaitUntil:
+    visible:
+      id: wizard_current_step_record_actions
+    timeout: 10000
+- assertVisible:
+    id: wizard_focus_overlay
+- tapOn:
+    id: base_top_app_bar_action_enrollment_proof
+- assertVisible:
+    id: wizard_current_step_record_actions
+- tapOn:
+    id: wizard_primary_button
+- extendedWaitUntil:
+    visible:
+      id: wizard_current_step_create_synthetic_term
+    timeout: 10000
+- tapOn:
+    id: wizard_primary_button
+- extendedWaitUntil:
+    visible:
+      id: wizard_current_step_pensum
+    timeout: 10000
+- extendedWaitUntil:
+    visible:
+      id: pensum_node_ma1111
+    timeout: 15000
+- tapOn:
+    id: pensum_node_ma1111
+- extendedWaitUntil:
+    visible:
+      id: pensum_node_subject_stats_button_ma1111
+    timeout: 10000
+- tapOn:
+    id: pensum_node_subject_stats_button_ma1111
+- extendedWaitUntil:
+    visible:
+      id: wizard_current_step_subject_detail
+    timeout: 10000
+- assertVisible:
+    id: subjects_content
+- tapOn:
+    id: subjects_global_tab
+- assertVisible:
+    id: subjects_segment_students_metric
+- scrollUntilVisible:
+    element:
+      id: subjects_charts
+    direction: DOWN
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: subjects_generated_at
+    direction: DOWN
+    centerElement: true
+    timeout: 10000
+- extendedWaitUntil:
+    visible:
+      id: wizard_current_step_subject_charts
+    timeout: 10000
+- tapOn:
+    id: wizard_primary_button
+- extendedWaitUntil:
+    visible:
+      id: wizard_current_step_evaluations
+    timeout: 10000
+- assertVisible:
+    id: wizard_focus_overlay
+- tapOn:
+    id: evaluations_add_fab
+- extendedWaitUntil:
+    visible:
+      id: wizard_current_step_evaluation_form
+    timeout: 10000
+- assertVisible:
+    id: evaluation_content_container

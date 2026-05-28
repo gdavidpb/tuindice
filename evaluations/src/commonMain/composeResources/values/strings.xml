@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="screen_title_evaluations">Evaluaciones</string>
+	<string name="screen_title_evaluation">Evaluación</string>
+	<string name="top_bar_add_evaluation">Crear evaluación</string>
+	<string name="top_bar_edit_evaluation">Modificar evaluación</string>
+	<string name="state_message_loading">Cargando...</string>
+
+	<string name="title_empty_evaluations">Organizando evaluaciones</string>
+	<string name="message_empty_evaluations">Agrega tu primera evaluación para ordenar pendientes, fechas y notas.</string>
+	<string name="title_no_subjects_evaluations">Sin trimestre en curso</string>
+	<string name="message_no_subjects_evaluations">Cuando tengas un trimestre activo, podrás agregar evaluaciones desde aquí.</string>
+	<string name="title_empty_match_evaluations">Sin resultados</string>
+	<string name="message_empty_match_evaluations">Ajusta los filtros o la búsqueda para encontrar otras evaluaciones.</string>
+	<string name="button_add_evaluation">Crear</string>
+	<string name="button_save_evaluation_changes">Modificar</string>
+
+	<string name="view_error_title">No pudimos cargar la información</string>
+	<string name="view_error_message">Intenta de nuevo en unos segundos.</string>
+	<string name="view_error_retry">Reintentar</string>
+	<string name="accept">Aceptar</string>
+	<string name="cancel">Cancelar</string>
+
+	<string name="evaluation_name">%1$s %2$d</string>
+	<string name="evaluation_grade">%1$.2f / %2$.2f</string>
+	<string name="evaluation_not_grade">Sin nota / %1$.2f</string>
+	<string name="evaluation_pending_grade">Pendiente / %1$.2f</string>
+	<string name="evaluation_title">%1$s ─ %2$s</string>
+	<string name="evaluation_test">Parcial</string>
+	<string name="evaluation_essay">Ensayo</string>
+	<string name="evaluation_attendance">Asistencia</string>
+	<string name="evaluation_interventions">Intervenciones</string>
+	<string name="evaluation_laboratory">Laboratorio</string>
+	<string name="evaluation_model">Maqueta</string>
+	<string name="evaluation_presentation">Exposición</string>
+	<string name="evaluation_project">Proyecto</string>
+	<string name="evaluation_quiz">Quiz</string>
+	<string name="evaluation_report">Informe</string>
+	<string name="evaluation_workshop">Taller</string>
+	<string name="evaluation_written_work">Trabajo escrito</string>
+	<string name="evaluation_other">Otra</string>
+
+	<string name="label_add_evaluation_subject">Materia</string>
+	<string name="label_add_evaluation_type">Tipo</string>
+	<string name="label_add_evaluation_date">Fecha</string>
+	<string name="label_add_evaluation_grades">Nota obtenida / máxima</string>
+	<string name="label_add_evaluation_max_grade">Nota máxima</string>
+	<string name="label_evaluation_date">Elige una fecha</string>
+	<string name="label_evaluation_no_date">Evaluación continua</string>
+	<string name="label_evaluation_assign_today">Asignar hoy</string>
+	<string name="label_evaluation_assign_grade">Sin nota</string>
+	<string name="label_evaluation_no_date_short">Sin fecha</string>
+	<string name="label_evaluation_swipe_delete">Eliminar</string>
+	<string name="label_evaluation_swipe_edit">Editar</string>
+	<string name="evaluation_date_today">Hoy</string>
+	<string name="evaluation_date_tomorrow">Mañana</string>
+	<string name="evaluation_date_yesterday">Ayer</string>
+	<string name="evaluation_date_past_week">El %1$s</string>
+	<string name="evaluation_date_this_week">Este %1$s</string>
+	<string name="evaluation_date_next_week">El próximo %1$s</string>
+	<string name="evaluation_date_weeks_ahead">En %1$d semanas</string>
+
+	<string name="error_evaluation_subject_missed">Debes seleccionar una materia</string>
+	<string name="error_evaluation_type_missed">Debes seleccionar un tipo</string>
+	<string name="error_evaluation_max_grade_missed">Debes asignar una nota máxima</string>
+	<string name="label_state_pending">Pendientes</string>
+	<string name="label_state_completed">Completadas</string>
+	<string name="label_state_not_grade">Sin nota</string>
+
+	<string name="dialog_title_add_evaluation_grade">Nota obtenida</string>
+	<string name="dialog_title_add_evaluation_max_grade">Nota máxima</string>
+	<string name="dialog_title_edit_evaluation_grade">Modificar nota</string>
+
+	<string name="snack_evaluation_set_grade">Nota actualizada</string>
+	<string name="snack_evaluation_added">Evaluación agregada</string>
+	<string name="snack_evaluation_already_exists">Ya existe una evaluación igual</string>
+	<string name="snack_evaluation_not_found">La evaluación ya no está disponible</string>
+	<string name="snack_evaluation_updated">Evaluación actualizada</string>
+	<string name="snack_evaluation_removed">Evaluación removida</string>
+	<string name="snack_default_error">¡Ha ocurrido un error!</string>
+	<string name="snack_service_unavailable">Servicio no disponible</string>
+	<string name="snack_network_unavailable">Comprueba tu conexión</string>
+	<string name="snack_timeout">Tiempo de espera agotado</string>
+</resources>

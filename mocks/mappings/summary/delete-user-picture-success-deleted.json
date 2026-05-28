@@ -1,0 +1,16 @@
+{
+  "scenarioName": "summary-user-picture-lifecycle",
+  "requiredScenarioState": "PictureDeleted",
+  "newScenarioState": "PictureDeleted",
+  "request": {
+    "method": "DELETE",
+    "urlPath": "/users/v1/picture"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "fixedDelayMilliseconds": 1000
+  }
+}

@@ -1,0 +1,170 @@
+package com.gdavidpb.tuindice.record.data.source
+
+import com.gdavidpb.tuindice.academiccore.domain.model.*
+import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptOverrideEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicRecordEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
+import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
+
+internal fun List<AcademicTermEntity>.toAcademicTerms(
+	attempts: List<AcademicAttemptEntity>
+): List<AcademicTerm> {
+	val attemptsByTermId = attempts.groupBy(AcademicAttemptEntity::termId)
+	return sortedWith(
+		compareBy(AcademicTermEntity::termOrder, AcademicTermEntity::id)
+	).map { term ->
+		AcademicTerm(
+			id = term.id,
+			periodYear = term.periodYear,
+			periodCode = AcademicTermPeriod.valueOf(term.periodCode),
+			kind = TermKind.valueOf(term.kind),
+			termKey = term.termKey,
+			termOrder = term.termOrder,
+			periodLabel = term.periodLabel,
+			attempts = attemptsByTermId[term.id].orEmpty()
+				.sortedWith(
+					compareBy(AcademicAttemptEntity::positionInTerm, AcademicAttemptEntity::id)
+				)
+				.map(AcademicAttemptEntity::toAcademicAttempt)
+		)
+	}
+}
+
+internal fun AcademicRecordEntity.revisionValue(): Long = revision
+
+internal fun AcademicTerm.toAcademicTermEntity(): AcademicTermEntity {
+	return AcademicTermEntity(
+		id = id,
+		periodYear = periodYear,
+		periodCode = periodCode.name,
+		termKey = termKey,
+		termOrder = termOrder,
+		periodLabel = periodLabel,
+		kind = kind.name
+	)
+}
+
+internal fun AcademicAttempt.toAcademicAttemptEntity(
+	termId: String,
+	positionInTerm: Int
+): AcademicAttemptEntity {
+	return AcademicAttemptEntity(
+		id = id,
+		termId = termId,
+		subjectCode = subjectCode,
+		subjectName = subjectName,
+		credits = credits,
+		positionInTerm = positionInTerm,
+		gradingMode = gradingMode.name,
+		scoreKind = academicScore.storageType,
+		scoreNumericValue = academicScore.numericValue,
+		scoreSymbolicValue = academicScore.symbolicValue,
+		academicOutcome = academicOutcome.name,
+		academicBadge = academicBadge.name
+	)
+}
+
+internal fun AttemptOverride.toAcademicAttemptOverrideEntity(): AcademicAttemptOverrideEntity {
+	return AcademicAttemptOverrideEntity(
+		attemptId = attemptId,
+		scoreKind = score?.storageType,
+		scoreNumericValue = score?.numericValue,
+		scoreSymbolicValue = score?.symbolicValue,
+		outcome = outcome?.name,
+		updatedAt = updatedAtMillis
+	)
+}
+
+internal fun AcademicAttemptEntity.toAcademicAttempt(): AcademicAttempt {
+	return AcademicAttempt(
+		id = id,
+		subjectCode = subjectCode,
+		subjectName = subjectName,
+		credits = credits,
+		gradingMode = AttemptGradingMode.valueOf(gradingMode),
+		academicScore = scoreFromStorage(
+			type = scoreKind,
+			numericValue = scoreNumericValue,
+			symbolicValue = scoreSymbolicValue
+		),
+		academicOutcome = AttemptOutcome.valueOf(academicOutcome),
+		academicBadge = AttemptBadge.valueOf(academicBadge)
+	)
+}
+
+internal fun AcademicAttemptOverrideEntity.toAttemptOverride(): AttemptOverride {
+	return AttemptOverride(
+		attemptId = attemptId,
+		score = scoreKind?.let { kind ->
+			scoreFromStorage(
+				type = kind,
+				numericValue = scoreNumericValue,
+				symbolicValue = scoreSymbolicValue
+			)
+		},
+		outcome = outcome?.let(AttemptOutcome::valueOf),
+		updatedAtMillis = updatedAt
+	)
+}
+
+internal fun AcademicRecordMutation.AddSyntheticTerm.toAcademicTerm(): AcademicTerm {
+	return AcademicTerm(
+		id = termId,
+		periodYear = periodYear,
+		periodCode = periodCode,
+		kind = TermKind.SYNTHETIC,
+		attempts = attempts.map { attempt ->
+			AcademicAttempt(
+				id = attempt.attemptId,
+				subjectCode = attempt.subjectCode,
+				subjectName = attempt.subjectName,
+				credits = attempt.credits,
+				gradingMode = attempt.gradingMode,
+				academicScore = attempt.score ?: AttemptScore.empty(),
+				academicOutcome = attempt.outcome ?: AttemptOutcome.PENDING,
+				academicBadge = AttemptBadge.NONE
+			)
+		}
+	)
+}
+
+internal fun AcademicRecordMutation.UpdateSyntheticTerm.toAcademicTerm(): AcademicTerm {
+	return AcademicTerm(
+		id = termId,
+		periodYear = periodYear,
+		periodCode = periodCode,
+		kind = TermKind.SYNTHETIC,
+		attempts = attempts.map { attempt ->
+			AcademicAttempt(
+				id = attempt.attemptId,
+				subjectCode = attempt.subjectCode,
+				subjectName = attempt.subjectName,
+				credits = attempt.credits,
+				gradingMode = attempt.gradingMode,
+				academicScore = attempt.score ?: AttemptScore.empty(),
+				academicOutcome = attempt.outcome ?: AttemptOutcome.PENDING,
+				academicBadge = AttemptBadge.NONE
+			)
+		}
+	)
+}
+
+private val AttemptScore.storageType: String
+	get() = when (this) {
+		AttemptScore.Empty -> "EMPTY"
+		is AttemptScore.Numeric -> "NUMERIC"
+		is AttemptScore.Symbolic -> "SYMBOLIC"
+	}
+
+private fun scoreFromStorage(
+	type: String,
+	numericValue: Int?,
+	symbolicValue: String?
+): AttemptScore {
+	return when (type) {
+		"NUMERIC" -> AttemptScore.numeric(numericValue ?: 0)
+		"SYMBOLIC" -> AttemptScore.symbolic(symbolicValue ?: "")
+		else -> AttemptScore.empty()
+	}
+}

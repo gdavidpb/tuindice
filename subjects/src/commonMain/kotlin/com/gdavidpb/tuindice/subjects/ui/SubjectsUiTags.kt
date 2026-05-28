@@ -1,0 +1,24 @@
+package com.gdavidpb.tuindice.subjects.ui
+
+object SubjectsUiTags {
+	const val Sheet = "subjects_sheet"
+	const val Loading = "subjects_loading"
+	const val LoadingTitle = "subjects_loading_title"
+	const val LoadingMessage = "subjects_loading_message"
+	const val Content = "subjects_content"
+	const val Unavailable = "subjects_unavailable"
+	const val Failed = "subjects_failed"
+	const val Retry = "subjects_retry"
+	const val CareerTab = "subjects_career_tab"
+	const val GlobalTab = "subjects_global_tab"
+	const val Charts = "subjects_charts"
+	const val GeneratedAt = "subjects_generated_at"
+	const val SegmentStudentsMetric = "subjects_segment_students_metric"
+	const val SegmentAttemptsMetric = "subjects_segment_attempts_metric"
+	const val SearchScreen = "subjects_search_screen"
+	const val SearchTextField = "subjects_search_text_field"
+	const val SearchClear = "subjects_search_clear"
+	const val SearchRetry = "subjects_search_retry"
+	fun searchResult(subjectCode: String): String = "subjects_search_result_$subjectCode"
+	fun searchResultStatsButton(subjectCode: String): String = "subjects_search_result_stats_$subjectCode"
+}

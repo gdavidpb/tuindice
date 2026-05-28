@@ -1,0 +1,89 @@
+{
+  "id": "QUI100",
+  "name": "Quimica General",
+  "credits": 4,
+  "grading_mode": "numeric",
+  "generated_at": 1763340000000,
+  "expires_at": 1765932000000,
+  "global_segment": {
+    "sample_students": 2320,
+    "closed_attempts": 2920,
+    "numeric_latest_students": 2320,
+    "latest_approved_count": 1240,
+    "latest_failed_count": 880,
+    "latest_retired_count": 120,
+    "latest_unreported_count": 80,
+    "average_grade": 2.8,
+    "median_grade": 3.0,
+    "stddev_grade": 1.0,
+    "first_attempt_pass_rate": 0.32,
+    "approval_rate": 0.53,
+    "latest_failure_rate": 0.3793,
+    "latest_withdrawal_rate": 0.0517,
+    "retake_rate": 0.35,
+    "avg_attempts_to_pass": 2.0,
+    "median_attempts_to_pass": 2.0,
+    "difficulty_score": 47,
+    "difficulty_band": "medium",
+    "first_closed_term_start_at": 1711929600000,
+    "last_closed_term_start_at": 1759276800000,
+    "latest_grade_bins": [
+      {
+        "grade": 1,
+        "count": 440
+      },
+      {
+        "grade": 2,
+        "count": 640
+      },
+      {
+        "grade": 3,
+        "count": 680
+      },
+      {
+        "grade": 4,
+        "count": 400
+      },
+      {
+        "grade": 5,
+        "count": 160
+      }
+    ],
+    "all_grade_bins": [
+      {
+        "grade": 1,
+        "count": 640
+      },
+      {
+        "grade": 2,
+        "count": 720
+      },
+      {
+        "grade": 3,
+        "count": 840
+      },
+      {
+        "grade": 4,
+        "count": 480
+      },
+      {
+        "grade": 5,
+        "count": 240
+      }
+    ],
+    "attempts_to_pass_bins": [
+      {
+        "bucket": "1",
+        "count": 480
+      },
+      {
+        "bucket": "2",
+        "count": 440
+      },
+      {
+        "bucket": "3_plus",
+        "count": 320
+      }
+    ]
+  }
+}

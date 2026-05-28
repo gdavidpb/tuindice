@@ -1,0 +1,19 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- launchApp:
+    stopApp: true
+    clearState: true
+    arguments:
+      TUINDICE_E2E_SEED_STATE: "authenticatedWizardComplete"
+      TUINDICE_E2E_MAIN_SECTION: "SUMMARY"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - launchApp:
+          stopApp: false
+          clearState: false
+- extendedWaitUntil:
+    visible:
+      id: summary_content_container
+    timeout: 30000

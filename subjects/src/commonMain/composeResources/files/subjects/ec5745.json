@@ -1,0 +1,170 @@
+{
+  "id": "EC5745",
+  "name": "PROCESAMIENTO CONCURRENTE ASINCRONO",
+  "credits": 4,
+  "grading_mode": "numeric",
+  "generated_at": 1763340000000,
+  "expires_at": 1765932000000,
+  "career_segment": {
+    "sample_students": 2440,
+    "closed_attempts": 3680,
+    "numeric_latest_students": 2440,
+    "latest_approved_count": 1520,
+    "latest_failed_count": 720,
+    "latest_retired_count": 120,
+    "latest_unreported_count": 80,
+    "average_grade": 3.2,
+    "median_grade": 3.0,
+    "stddev_grade": 0.9,
+    "first_attempt_pass_rate": 0.43,
+    "approval_rate": 0.68,
+    "latest_failure_rate": 0.2951,
+    "latest_withdrawal_rate": 0.0492,
+    "retake_rate": 0.37,
+    "avg_attempts_to_pass": 1.7,
+    "median_attempts_to_pass": 2.0,
+    "difficulty_score": 40,
+    "difficulty_band": "medium",
+    "first_closed_term_start_at": 1696118400000,
+    "last_closed_term_start_at": 1759276800000,
+    "latest_grade_bins": [
+      {
+        "grade": 1,
+        "count": 240
+      },
+      {
+        "grade": 2,
+        "count": 480
+      },
+      {
+        "grade": 3,
+        "count": 800
+      },
+      {
+        "grade": 4,
+        "count": 680
+      },
+      {
+        "grade": 5,
+        "count": 240
+      }
+    ],
+    "all_grade_bins": [
+      {
+        "grade": 1,
+        "count": 440
+      },
+      {
+        "grade": 2,
+        "count": 800
+      },
+      {
+        "grade": 3,
+        "count": 1120
+      },
+      {
+        "grade": 4,
+        "count": 920
+      },
+      {
+        "grade": 5,
+        "count": 400
+      }
+    ],
+    "attempts_to_pass_bins": [
+      {
+        "bucket": "1",
+        "count": 720
+      },
+      {
+        "bucket": "2",
+        "count": 560
+      },
+      {
+        "bucket": "3_plus",
+        "count": 240
+      }
+    ]
+  },
+  "global_segment": {
+    "sample_students": 12160,
+    "closed_attempts": 19840,
+    "numeric_latest_students": 12160,
+    "latest_approved_count": 8320,
+    "latest_failed_count": 2880,
+    "latest_retired_count": 560,
+    "latest_unreported_count": 400,
+    "average_grade": 3.3,
+    "median_grade": 3.0,
+    "stddev_grade": 1.0,
+    "first_attempt_pass_rate": 0.46,
+    "approval_rate": 0.74,
+    "latest_failure_rate": 0.2368,
+    "latest_withdrawal_rate": 0.0461,
+    "retake_rate": 0.41,
+    "avg_attempts_to_pass": 1.8,
+    "median_attempts_to_pass": 2.0,
+    "difficulty_score": 39,
+    "difficulty_band": "medium",
+    "first_closed_term_start_at": 1672531200000,
+    "last_closed_term_start_at": 1759276800000,
+    "latest_grade_bins": [
+      {
+        "grade": 1,
+        "count": 1000
+      },
+      {
+        "grade": 2,
+        "count": 2040
+      },
+      {
+        "grade": 3,
+        "count": 3800
+      },
+      {
+        "grade": 4,
+        "count": 3560
+      },
+      {
+        "grade": 5,
+        "count": 1760
+      }
+    ],
+    "all_grade_bins": [
+      {
+        "grade": 1,
+        "count": 1840
+      },
+      {
+        "grade": 2,
+        "count": 3560
+      },
+      {
+        "grade": 3,
+        "count": 6240
+      },
+      {
+        "grade": 4,
+        "count": 5560
+      },
+      {
+        "grade": 5,
+        "count": 2640
+      }
+    ],
+    "attempts_to_pass_bins": [
+      {
+        "bucket": "1",
+        "count": 3840
+      },
+      {
+        "bucket": "2",
+        "count": 3080
+      },
+      {
+        "bucket": "3_plus",
+        "count": 1400
+      }
+    ]
+  }
+}

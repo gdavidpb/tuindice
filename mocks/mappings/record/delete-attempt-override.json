@@ -1,0 +1,11 @@
+{
+  "request": {
+    "method": "DELETE",
+    "urlPathPattern": "/record/v5/overlay/attempts/[^/]+"
+  },
+  "response": {
+    "transformers": [
+      "record-response-transformer"
+    ]
+  }
+}

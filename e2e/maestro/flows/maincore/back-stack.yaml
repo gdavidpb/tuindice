@@ -1,0 +1,53 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- tapOn:
+    id: maincore_tuindice_bottom_bar_about_item
+- extendedWaitUntil:
+    visible:
+      id: about_content_container
+    timeout: 20000
+- tapOn:
+    id: about_open_terms
+- extendedWaitUntil:
+    visible:
+      id: maincore_browser_container
+    timeout: 15000
+- assertVisible:
+    id: maincore_tuindice_top_bar_back_button
+- tapOn:
+    id: maincore_tuindice_top_bar_back_button
+- extendedWaitUntil:
+    visible:
+      id: about_content_container
+    timeout: 10000
+- tapOn:
+    id: maincore_tuindice_bottom_bar_pensum_item
+- extendedWaitUntil:
+    visible:
+      id: pensum_screen
+    timeout: 20000
+- tapOn:
+    id: base_top_app_bar_action_search_pensum
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard
+- extendedWaitUntil:
+    visible:
+      id: subjects_search_screen
+    timeout: 10000
+- assertVisible:
+    id: maincore_tuindice_top_bar_back_button
+- tapOn:
+    id: maincore_tuindice_top_bar_back_button
+- extendedWaitUntil:
+    visible:
+      id: pensum_screen
+    timeout: 10000
+- tapOn:
+    id: maincore_tuindice_bottom_bar_summary_item
+- extendedWaitUntil:
+    visible:
+      id: summary_content_container
+    timeout: 20000

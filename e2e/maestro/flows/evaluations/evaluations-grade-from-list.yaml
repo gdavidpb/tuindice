@@ -1,0 +1,51 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- runFlow: ../auth/login-success.yaml
+- runFlow: ../wizard/wizard-smoke.yaml
+- tapOn:
+    id: maincore_tuindice_bottom_bar_evaluations_item
+- extendedWaitUntil:
+    visible:
+      id: evaluations_content_container
+    timeout: 30000
+- assertVisible:
+    id: evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
+- tapOn:
+    id: evaluation_grade_action_button
+- extendedWaitUntil:
+    visible:
+      id: evaluation_dialog_title
+    timeout: 10000
+- assertVisible:
+    id: evaluation_dialog_subtitle
+- assertVisible:
+    id: evaluation_dialog_subject_code_chip
+- assertVisible:
+    id: evaluation_grade_wheel_picker
+- tapOn:
+    id: evaluation_dialog_dismiss_button
+- extendedWaitUntil:
+    visible:
+      id: evaluations_content_container
+    timeout: 10000
+- tapOn:
+    id: evaluation_grade_action_button
+- extendedWaitUntil:
+    visible:
+      id: evaluation_dialog_title
+    timeout: 10000
+- assertVisible:
+    id: evaluation_dialog_subtitle
+- assertVisible:
+    id: evaluation_dialog_subject_code_chip
+- assertVisible:
+    id: evaluation_grade_wheel_picker
+- tapOn:
+    id: evaluation_dialog_confirm_button
+- extendedWaitUntil:
+    visible:
+      id: base_snackbar_container
+    timeout: 15000
+- assertVisible:
+    id: evaluations_content_container

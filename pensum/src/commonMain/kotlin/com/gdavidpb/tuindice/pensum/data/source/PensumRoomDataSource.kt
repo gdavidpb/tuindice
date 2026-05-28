@@ -1,0 +1,218 @@
+package com.gdavidpb.tuindice.pensum.data.source
+
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
+import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.base.utils.currentTimeMillis
+import com.gdavidpb.tuindice.pensum.data.mapper.cacheKey
+import com.gdavidpb.tuindice.pensum.data.model.GetPensumResponse
+import com.gdavidpb.tuindice.pensum.data.repository.PensumLocalDataRepository
+import com.gdavidpb.tuindice.pensum.domain.model.AcademicPensumSnapshot
+import com.gdavidpb.tuindice.pensum.domain.model.PensumSelectionParams
+import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.PensumSelectionDao
+import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectCatalogCacheDao
+import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.PensumCacheEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.PensumSelectionEntity
+import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity
+import com.gdavidpb.tuindice.base.domain.utils.SubjectCatalogSearchNormalizer
+import com.gdavidpb.tuindice.persistence.data.room.schema.PensumSelectionTable
+import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.Json
+
+class PensumRoomDataSource(
+	private val pensumCacheDao: PensumCacheDao,
+	private val pensumSelectionDao: PensumSelectionDao,
+	private val subjectCatalogCacheDao: SubjectCatalogCacheDao,
+	private val academicTermDao: AcademicTermDao,
+	private val academicAttemptDao: AcademicAttemptDao,
+	private val transactionRunner: PersistenceTransactionRunner,
+	private val json: Json
+) : PensumLocalDataRepository {
+	private val writeMutex = Mutex()
+
+	@OptIn(ExperimentalCoroutinesApi::class)
+	override fun observePensumResponseFlow(): Flow<GetPensumResponse?> {
+		return pensumSelectionDao.observeSelection()
+			.flatMapLatest { selection ->
+				val cacheKey = selection?.cacheKey
+				if (cacheKey == null) {
+					flowOf(null)
+				} else {
+					pensumCacheDao.observePensum(cacheKey)
+						.map { entity -> entity?.toResponse() }
+				}
+			}
+	}
+
+	override fun observeAcademicSnapshotFlow(): Flow<AcademicPensumSnapshot> {
+		return combine(
+			academicTermDao.observeTermsFlow(),
+			academicAttemptDao.observeAttemptsFlow()
+		) { terms, attempts ->
+			terms.toAcademicSnapshot(attempts)
+		}
+	}
+
+	override suspend fun getSelectionParams(): PensumSelectionParams {
+		val selection = pensumSelectionDao.getSelection() ?: return PensumSelectionParams()
+		return PensumSelectionParams(
+			year = selection.year,
+			modalityId = selection.modalityId
+		)
+	}
+
+	override suspend fun savePensumResponse(response: GetPensumResponse) {
+		writeMutex.withLock {
+			transactionRunner.immediate {
+				val cacheKey = response.cacheKey()
+				val now = currentTimeMillis()
+				pensumCacheDao.upsertEntity(response.toCacheEntity(cacheKey))
+				val subjectCatalog = response.toSubjectCatalogCacheEntities(updatedAt = now)
+				if (subjectCatalog.isNotEmpty()) {
+					subjectCatalogCacheDao.upsertEntities(subjectCatalog)
+				}
+				val selectedPensum = response.selectedPensum()
+				pensumSelectionDao.upsertEntity(
+					PensumSelectionEntity(
+						id = PensumSelectionTable.DEFAULT_ID,
+						year = selectedPensum.year,
+						modalityId = selectedPensum.modalityId,
+						cacheKey = cacheKey,
+						updatedAt = now
+					)
+				)
+			}
+		}
+	}
+
+	override suspend fun selectPensum(year: Int) {
+		writeMutex.withLock {
+			pensumSelectionDao.upsertEntity(
+				PensumSelectionEntity(
+					id = PensumSelectionTable.DEFAULT_ID,
+					year = year,
+					modalityId = null,
+					cacheKey = null,
+					updatedAt = currentTimeMillis()
+				)
+			)
+		}
+	}
+
+	override suspend fun selectModality(modalityId: String) {
+		writeMutex.withLock {
+			val currentSelection = pensumSelectionDao.getSelection() ?: return@withLock
+			val cacheKey = currentSelection.year?.let { year ->
+				pensumCacheDao.getPensum(
+					year = year,
+					modalityId = modalityId
+				)?.cacheKey
+			}
+			pensumSelectionDao.upsertEntity(
+				currentSelection.copy(
+					modalityId = modalityId,
+					cacheKey = cacheKey,
+					updatedAt = currentTimeMillis()
+				)
+			)
+		}
+	}
+
+	override suspend fun selectSelection(year: Int, modalityId: String) {
+		writeMutex.withLock {
+			val cacheKey = pensumCacheDao.getPensum(
+				year = year,
+				modalityId = modalityId
+			)?.cacheKey
+			pensumSelectionDao.upsertEntity(
+				PensumSelectionEntity(
+					id = PensumSelectionTable.DEFAULT_ID,
+					year = year,
+					modalityId = modalityId,
+					cacheKey = cacheKey,
+					updatedAt = currentTimeMillis()
+				)
+			)
+		}
+	}
+
+	private fun PensumCacheEntity.toResponse(): GetPensumResponse {
+		return json.decodeFromString(payloadJson)
+	}
+
+	private fun GetPensumResponse.toCacheEntity(cacheKey: String): PensumCacheEntity {
+		val pensum = selectedPensum()
+		return PensumCacheEntity(
+			cacheKey = cacheKey,
+			year = pensum.year,
+			modalityId = pensum.modalityId,
+			payloadJson = json.encodeToString(this),
+			updatedAt = currentTimeMillis()
+		)
+	}
+
+	private fun GetPensumResponse.toSubjectCatalogCacheEntities(updatedAt: Long): List<SubjectCatalogCacheEntity> {
+		return pensums
+			.flatMap { pensum -> pensum.nodes }
+			.mapNotNull { node ->
+				val subjectCode = node.subjectCode
+					?.trim()
+					?.uppercase()
+					?.takeIf(RealSubjectCodeRegex::matches)
+					?: return@mapNotNull null
+
+				SubjectCatalogCacheEntity(
+					subjectCode = subjectCode,
+					name = node.name,
+					credits = node.credits,
+					gradingMode = null,
+					normalizedCode = SubjectCatalogSearchNormalizer.normalize(subjectCode),
+					normalizedName = SubjectCatalogSearchNormalizer.normalize(node.name),
+					updatedAt = updatedAt
+				)
+			}
+			.distinctBy(SubjectCatalogCacheEntity::subjectCode)
+	}
+
+	private fun GetPensumResponse.selectedPensum(): GetPensumResponse.Pensum {
+		return pensums.firstOrNull { pensum -> pensum.id == selectedPensumId }
+			?: pensums.firstOrNull()
+			?: error("Pensum response contains no pensums.")
+	}
+
+	private fun List<AcademicTermEntity>.toAcademicSnapshot(
+		attempts: List<AcademicAttemptEntity>
+	): AcademicPensumSnapshot {
+		val termsById = associateBy(AcademicTermEntity::id)
+		return AcademicPensumSnapshot(
+			attempts = attempts.mapNotNull { attempt ->
+				val term = termsById[attempt.termId] ?: return@mapNotNull null
+				AcademicPensumSnapshot.Attempt(
+					id = attempt.id,
+					subjectCode = attempt.subjectCode,
+					subjectName = attempt.subjectName,
+					credits = attempt.credits,
+					termOrder = term.termOrder,
+					positionInTerm = attempt.positionInTerm,
+					termKind = TermKind.valueOf(term.kind),
+					outcome = AttemptOutcome.valueOf(attempt.academicOutcome)
+				)
+			}
+		)
+	}
+}
+
+private val RealSubjectCodeRegex = Regex("^([A-Z]{2}\\d{4}|[A-Z]{3}\\d{3})$")

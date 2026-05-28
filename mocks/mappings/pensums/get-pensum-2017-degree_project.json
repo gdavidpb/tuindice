@@ -1,0 +1,22 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/pensums/v4",
+    "queryParameters": {
+      "year": {
+        "equalTo": "2017"
+      },
+      "modality_id": {
+        "equalTo": "degree_project"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "pensums/get-pensum-2017-degree_project.json"
+  },
+  "priority": 1
+}

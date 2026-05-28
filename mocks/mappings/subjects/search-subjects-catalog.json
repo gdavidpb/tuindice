@@ -1,0 +1,15 @@
+{
+  "priority": 10,
+  "request": {
+    "method": "GET",
+    "urlPath": "/subjects/v1/search"
+  },
+  "response": {
+    "status": 200,
+    "fixedDelayMilliseconds": 250,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "subjects/search-subjects-catalog.json"
+  }
+}

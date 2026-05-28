@@ -1,0 +1,35 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- runFlow: ../auth/login-success.yaml
+- runFlow: ../wizard/wizard-smoke.yaml
+- tapOn:
+    id: maincore_tuindice_bottom_bar_pensum_item
+- extendedWaitUntil:
+    visible:
+      id: pensum_screen
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: pensum_node_0800-2019-degree_project-t1-math1-ma1111
+    timeout: 15000
+- tapOn:
+    id: pensum_node_0800-2019-degree_project-t1-math1-ma1111
+- assertVisible:
+    id: pensum_node_subject_stats_button_0800-2019-degree_project-t1-math1-ma1111
+- tapOn:
+    id: pensum_node_subject_stats_button_0800-2019-degree_project-t1-math1-ma1111
+- extendedWaitUntil:
+    visible:
+      id: subjects_content
+    timeout: 30000
+- assertVisible:
+    id: subjects_segment_students_metric
+- assertVisible:
+    id: subjects_segment_attempts_metric
+- tapOn:
+    id: maincore_tuindice_top_bar_back_button
+- extendedWaitUntil:
+    visible:
+      id: pensum_screen
+    timeout: 10000

@@ -1,0 +1,33 @@
+appId: com.gdavidpb.tuindice.debug
+name: TuIndice local certification E2E suite
+---
+- runFlow: ../auth/login-password-toggle.yaml
+- runFlow: ../auth/terms-privacy-from-login.yaml
+- runFlow: ../auth/login-invalid.yaml
+- runFlow: ../auth/login-disabled.yaml
+- runFlow: ../auth/login-retry-after-unavailable.yaml
+- runFlow: ../auth/update-password.yaml
+- runFlow: ../auth/update-password-failure.yaml
+- runFlow: ../auth/session-invalidated.yaml
+- runFlow: ../auth/sign-out-cancel.yaml
+- runFlow: ../auth/pending-sign-out.yaml
+- runFlow: ../auth/pending-sign-out-flush-success.yaml
+- runFlow: wizard-suite.yaml
+- runFlow: ../_shared/launch-clean.yaml
+- runFlow: ../auth/login-success.yaml
+- runFlow: ../wizard/wizard-smoke.yaml
+- runFlow: ../maincore/bottom-bar-state.yaml
+- runFlow: ../maincore/back-stack.yaml
+- runFlow: ../maincore/browser-external-dialog.yaml
+- runFlow: ../summary/summary-smoke.yaml
+- runFlow: ../summary/summary-refresh-retry.yaml
+- runFlow: ../summary/summary-status-dialog.yaml
+- runFlow: ../summary/summary-profile-picture.yaml
+- runFlow: ../summary/summary-outdated-credentials.yaml
+- runFlow: record-suite.yaml
+- runFlow: enrollmentproof-suite.yaml
+- runFlow: pensum-suite.yaml
+- runFlow: subjects-suite.yaml
+- runFlow: evaluations-suite.yaml
+- runFlow: about-suite.yaml
+- runFlow: ../auth/sign-out.yaml

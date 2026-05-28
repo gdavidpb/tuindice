@@ -1,0 +1,20 @@
+{
+  "priority": 1,
+  "scenarioName": "subjects-detail-qb-failed-retry",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "FirstFailure",
+  "request": {
+    "method": "GET",
+    "urlPath": "/subjects/v1/QB"
+  },
+  "response": {
+    "status": 503,
+    "fixedDelayMilliseconds": 1000,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "error": "subject detail temporarily unavailable"
+    }
+  }
+}

@@ -1,0 +1,1397 @@
+version: 1
+suite: local-e2e
+default_app_id: com.gdavidpb.tuindice.debug
+backend: wiremock-local
+flows:
+  - id: smoke-local-suite
+    path: e2e/maestro/flows/smoke/local-suite.yaml
+    module: all
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: smoke
+    fixture_state: wiremock-local
+    actions_covered:
+      - auth.SignIn.ClickSignIn
+      - wizard.Wizard.Dismiss
+      - summary.Summary.RefreshSummary
+      - record.Record.SetViewMode
+      - enrollmentproof.Enrollment.FetchEnrollmentProof
+      - pensum.Pensum.RefreshPensum
+      - subjects.SubjectSearch.UpdateQuery
+      - evaluations.Evaluations.AddEvaluation
+      - evaluations.Evaluations.ShowEvaluationGradeDialog
+      - evaluations.Evaluations.SetEvaluationGrade
+      - evaluations.Evaluations.EditEvaluation
+      - evaluations.Evaluations.RemoveEvaluation
+      - evaluations.Evaluation.ClickAddEvaluation
+      - evaluations.Evaluation.ClickEditEvaluation
+      - about.About.OpenPrivacyPolicy
+      - auth.SignOut.ConfirmSignOut
+    covers:
+      - login
+      - wizard
+      - summary
+      - record
+      - enrollmentproof
+      - pensum
+      - subjects
+      - evaluations
+      - about
+      - sign-out
+  - id: local-certification-suite
+    path: e2e/maestro/flows/suites/local-certification-suite.yaml
+    module: all
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: local-certification
+    fixture_state: wiremock-local
+    actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
+      - auth.SignIn.ClickTermsAndConditions
+      - auth.SignIn.ClickPrivacyPolicy
+      - auth.SignOut.FlushAndSignOut
+      - auth.SignOut.ForceSignOut
+      - auth.SignOut.OpenUpdatePassword
+      - auth.UpdatePassword.SetPassword
+      - auth.UpdatePassword.TogglePasswordVisibility
+      - auth.UpdatePassword.ClickSignIn
+      - maincore.Main.SetLastMainSection
+      - maincore.Browser.NavigateTo
+      - maincore.Browser.OpenExternalResource
+      - wizard.Wizard.Advance
+      - wizard.Wizard.Back
+      - wizard.Wizard.Dismiss
+      - wizard.Wizard.Finish
+      - wizard.Wizard.OpenSubjectDetail
+      - wizard.Wizard.OpenEvaluationForm
+      - wizard.Wizard.ConsumeTopBarAction
+      - wizard.Wizard.SelectSubjectTab
+      - wizard.Wizard.SetRecordViewMode
+      - wizard.Wizard.SelectTerm
+      - wizard.Wizard.SetSubjectChartsVisible
+      - summary.Summary.RefreshSummary
+      - summary.Summary.OpenProfilePictureSettings
+      - summary.Summary.RemoveProfilePicture
+      - summary.Summary.ConfirmRemoveProfilePicture
+      - summary.Summary.UploadProfilePicture
+      - summary.Summary.PickProfilePicture
+      - summary.Summary.TakeProfilePicture
+      - record.CreateSyntheticTerm.UpdateQuery
+      - record.CreateSyntheticTerm.CreateTerm
+      - record.Record.SelectTerm
+      - record.Record.SetViewMode
+      - record.Record.UpsertAttemptSelection
+      - enrollmentproof.Enrollment.FetchEnrollmentProof
+      - pensum.Pensum.RefreshPensum
+      - subjects.SubjectSearch.UpdateQuery
+      - evaluations.Evaluations.AddEvaluation
+      - about.About.OpenPrivacyPolicy
+      - auth.SignOut.ConfirmSignOut
+  - id: auth-suite
+    path: e2e/maestro/flows/suites/auth-suite.yaml
+    module: auth
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: auth-certification
+    fixture_state: auth-local-certification
+    covers:
+      - login
+      - update-password
+      - sign-out
+      - session-invalidated
+      - pending-sign-out
+  - id: maincore-suite
+    path: e2e/maestro/flows/suites/maincore-suite.yaml
+    module: maincore
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: maincore-certification
+    fixture_state: authenticated-content
+    covers:
+      - bottom-bar
+      - back-stack
+      - internal-browser
+      - external-resource-dialog
+  - id: summary-suite
+    path: e2e/maestro/flows/suites/summary-suite.yaml
+    module: summary
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: summary-certification
+    fixture_state: summary-local-certification
+    covers:
+      - smoke
+      - refresh-retry
+      - status-dialog
+      - profile-picture
+      - outdated-credentials
+  - id: pensum-suite
+    path: e2e/maestro/flows/suites/pensum-suite.yaml
+    module: pensum
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: pensum-certification
+    fixture_state: pensum-local-certification
+    actions_covered:
+      - pensum.Pensum.RefreshPensum
+      - pensum.Pensum.SelectSelection
+    covers:
+      - refresh-not-found
+      - refresh-failed-retry
+      - version-modality-selection
+      - zoom
+      - node-selection
+      - subject-detail-navigation
+  - id: shared-launch-clean
+    path: e2e/maestro/flows/_shared/launch-clean.yaml
+    module: shared
+    type: setup
+    platforms: [android, ios]
+    status: active
+    variant: clean-launch
+    fixture_state: reset-app-state
+    primary_selectors: [auth_usb_id_text_field]
+  - id: shared-launch-seeded-authenticated
+    path: e2e/maestro/flows/_shared/launch-seeded-authenticated.yaml
+    module: shared
+    type: setup
+    platforms: [android, ios]
+    status: active
+    variant: seeded-authenticated
+    fixture_state: authenticated-content
+    primary_selectors: [summary_content_container]
+  - id: maincore-snackbar-retry
+    path: e2e/maestro/flows/auth/login-retry-after-unavailable.yaml
+    module: maincore
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: snackbar-action-retry
+    fixture_state: auth-unavailable-then-success
+    actions_covered:
+      - auth.SignIn.ClickSignIn
+    primary_selectors:
+      - base_snackbar_container
+      - base_snackbar_message
+      - base_snackbar_action_button
+  - id: maincore-bottom-bar-state
+    path: e2e/maestro/flows/maincore/bottom-bar-state.yaml
+    module: maincore
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: bottom-bar-state
+    fixture_state: authenticated-content
+    actions_covered:
+      - maincore.Main.SetLastMainSection
+    primary_selectors:
+      - maincore_tuindice_bottom_bar_summary_item_selected
+      - maincore_tuindice_bottom_bar_record_item_selected
+      - maincore_tuindice_bottom_bar_pensum_item_selected
+      - maincore_tuindice_bottom_bar_evaluations_item_selected
+      - maincore_tuindice_bottom_bar_about_item_selected
+  - id: maincore-back-stack
+    path: e2e/maestro/flows/maincore/back-stack.yaml
+    module: maincore
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: back-stack-top-bar
+    fixture_state: authenticated-content
+    actions_covered:
+      - maincore.Browser.NavigateTo
+    primary_selectors:
+      - maincore_tuindice_top_bar_back_button
+      - maincore_browser_container
+      - subjects_search_screen
+  - id: maincore-browser-external-dialog
+    path: e2e/maestro/flows/maincore/browser-external-dialog.yaml
+    module: maincore
+    type: platform-edge-trigger
+    platforms: [android, ios]
+    status: active
+    variant: external-resource-dialog-cancel
+    fixture_state: local-browser-pages
+    platform_edge: confirm/open handoff remains assigned to UI Automator/XCUITest.
+    actions_covered:
+      - about.About.OpenPrivacyPolicy
+      - maincore.Browser.NavigateTo
+      - maincore.Browser.OpenExternalResource
+    primary_selectors:
+      - about_open_privacy
+      - maincore_browser_container
+      - base_external_resource_message
+      - base_external_resource_url
+  - id: auth-login-success
+    path: e2e/maestro/flows/auth/login-success.yaml
+    module: auth
+    type: happy-path
+    platforms: [android, ios]
+    status: active
+    variant: success
+    fixture_state: auth-success
+    actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
+    primary_selectors:
+      - auth_usb_id_text_field
+      - auth_password_text_field
+      - auth_sign_in_button
+  - id: auth-login-password-toggle
+    path: e2e/maestro/flows/auth/login-password-toggle.yaml
+    module: auth
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: password-toggle
+    fixture_state: static
+    actions_covered:
+      - auth.SignIn.SetPassword
+      - auth.SignIn.TogglePasswordVisibility
+    primary_selectors:
+      - auth_password_text_field
+      - auth_password_toggle
+  - id: auth-terms-privacy-from-login
+    path: e2e/maestro/flows/auth/terms-privacy-from-login.yaml
+    module: auth
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: terms-privacy-from-login
+    fixture_state: static
+    actions_covered:
+      - auth.SignIn.ClickTermsAndConditions
+      - auth.SignIn.ClickPrivacyPolicy
+    primary_selectors:
+      - auth_terms_and_conditions_link
+      - auth_privacy_policy_link
+      - maincore_browser_container
+  - id: auth-login-invalid
+    path: e2e/maestro/flows/auth/login-invalid.yaml
+    module: auth
+    type: error-path
+    platforms: [android, ios]
+    status: active
+    variant: invalid-credentials
+    fixture_state: auth-invalid
+    actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
+    primary_selectors:
+      - auth_sign_in_idle_container
+      - auth_sign_in_button
+  - id: auth-login-disabled
+    path: e2e/maestro/flows/auth/login-disabled.yaml
+    module: auth
+    type: error-path
+    platforms: [android, ios]
+    status: active
+    variant: disabled-account
+    fixture_state: auth-disabled
+    actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
+    primary_selectors:
+      - auth_sign_in_idle_container
+      - auth_sign_in_button
+      - base_snackbar_container
+      - base_snackbar_message
+  - id: auth-login-retry-after-unavailable
+    path: e2e/maestro/flows/auth/login-retry-after-unavailable.yaml
+    module: auth
+    type: error-path
+    platforms: [android, ios]
+    status: active
+    variant: connection-retry
+    fixture_state: auth-unavailable-then-success
+    actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
+    primary_selectors:
+      - auth_sign_in_idle_container
+      - auth_sign_in_button
+      - base_snackbar_action_button
+      - base_snackbar_message
+  - id: auth-update-password
+    path: e2e/maestro/flows/auth/update-password.yaml
+    module: auth
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: update-password-from-outdated-sign-out
+    fixture_state: auth-outdated-credentials
+    actions_covered:
+      - auth.SignOut.OpenUpdatePassword
+      - auth.UpdatePassword.SetPassword
+      - auth.UpdatePassword.TogglePasswordVisibility
+      - auth.UpdatePassword.ClickSignIn
+    primary_selectors:
+      - auth_update_password_idle_container
+      - auth_password_text_field
+      - auth_password_toggle
+      - base_confirmation_dialog_positive_button
+      - base_confirmation_dialog_positive_loading
+      - base_confirmation_dialog_negative_button
+  - id: auth-update-password-failure
+    path: e2e/maestro/flows/auth/update-password-failure.yaml
+    module: auth
+    type: error-path
+    platforms: [android, ios]
+    status: active
+    variant: update-password-invalid-credentials
+    fixture_state: auth-outdated-credentials-update-password-failure
+    actions_covered:
+      - auth.SignOut.OpenUpdatePassword
+      - auth.UpdatePassword.SetPassword
+      - auth.UpdatePassword.ClickSignIn
+    primary_selectors:
+      - auth_update_password_idle_container
+      - auth_password_text_field
+      - base_confirmation_dialog_positive_button
+      - auth_sign_out_secondary_button
+  - id: auth-session-invalidated
+    path: e2e/maestro/flows/auth/session-invalidated.yaml
+    module: auth
+    type: error-path
+    platforms: [android, ios]
+    status: active
+    variant: invalidated-session
+    fixture_state: auth-session-invalidated
+    actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
+    primary_selectors:
+      - auth_sign_in_button
+      - auth_usb_id_text_field
+      - base_snackbar_container
+  - id: auth-pending-sign-out
+    path: e2e/maestro/flows/auth/pending-sign-out.yaml
+    module: auth
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: pending-flush-failure-force
+    fixture_state: pending-evaluation-mutation
+    actions_covered:
+      - auth.SignOut.ConfirmSignOut
+      - auth.SignOut.FlushAndSignOut
+      - auth.SignOut.ForceSignOut
+    primary_selectors:
+      - base_top_app_bar_action_sign_out
+      - auth_sign_out_message_text
+      - base_confirmation_dialog_positive_button
+      - auth_sign_out_secondary_button
+  - id: auth-pending-sign-out-flush-success
+    path: e2e/maestro/flows/auth/pending-sign-out-flush-success.yaml
+    module: auth
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: pending-flush-success
+    fixture_state: pending-evaluation-mutation-flush-success
+    actions_covered:
+      - auth.SignOut.ConfirmSignOut
+      - auth.SignOut.FlushAndSignOut
+    primary_selectors:
+      - base_top_app_bar_action_sign_out
+      - auth_sign_out_message_text
+      - base_confirmation_dialog_positive_button
+      - auth_usb_id_text_field
+  - id: auth-sign-out
+    path: e2e/maestro/flows/auth/sign-out.yaml
+    module: auth
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: sign-out
+    fixture_state: auth-revoke-success
+    actions_covered:
+      - auth.SignOut.ConfirmSignOut
+    primary_selectors:
+      - base_top_app_bar_action_sign_out
+      - auth_sign_out_message_text
+      - base_confirmation_dialog_positive_button
+  - id: auth-sign-out-cancel
+    path: e2e/maestro/flows/auth/sign-out-cancel.yaml
+    module: auth
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: sign-out-cancel
+    fixture_state: auth-sign-out-cancel
+    actions_covered:
+      - auth.SignOut.ConfirmSignOut
+    primary_selectors:
+      - base_top_app_bar_action_sign_out
+      - auth_sign_out_message_text
+      - base_confirmation_dialog_negative_button
+      - summary_content_container
+  - id: wizard-smoke
+    path: e2e/maestro/flows/wizard/wizard-smoke.yaml
+    module: wizard
+    type: smoke
+    platforms: [android, ios]
+    status: active
+    variant: welcome-skip
+    fixture_state: first-launch
+    actions_covered:
+      - wizard.Wizard.Dismiss
+    primary_selectors:
+      - wizard_welcome_screen
+      - wizard_primary_button
+      - wizard_skip_button
+  - id: wizard-navigation-focus
+    path: e2e/maestro/flows/wizard/wizard-navigation-focus.yaml
+    module: wizard
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: next-back-focus-overlay
+    fixture_state: first-launch
+    actions_covered:
+      - wizard.Wizard.Advance
+      - wizard.Wizard.Back
+    primary_selectors:
+      - wizard_screen
+      - wizard_guide_bar
+      - wizard_primary_button
+      - wizard_back_button
+      - wizard_progress_text
+      - wizard_focus_overlay
+      - wizard_focus_label
+      - wizard_current_step_summary
+      - wizard_current_step_record
+      - wizard_current_step_record_actions
+  - id: wizard-guided-actions
+    path: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
+    module: wizard
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: record-pensum-subject-evaluation-guidance
+    fixture_state: first-launch
+    actions_covered:
+      - wizard.Wizard.Advance
+      - wizard.Wizard.OpenSubjectDetail
+      - wizard.Wizard.OpenEvaluationForm
+      - wizard.Wizard.ConsumeTopBarAction
+      - wizard.Wizard.SelectSubjectTab
+      - wizard.Wizard.SetRecordViewMode
+      - wizard.Wizard.SelectTerm
+      - wizard.Wizard.SetSubjectChartsVisible
+    primary_selectors:
+      - record_top_bar_view_mode_switch
+      - record_term_chip_2025-3
+      - record_term_chip_2024-3
+      - base_top_app_bar_action_enrollment_proof
+      - pensum_node_ma1111
+      - pensum_node_subject_stats_button_ma1111
+      - subjects_global_tab
+      - subjects_charts
+      - subjects_generated_at
+      - evaluations_add_fab
+      - evaluation_content_container
+  - id: wizard-finish
+    path: e2e/maestro/flows/wizard/wizard-finish.yaml
+    module: wizard
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: complete-wizard
+    fixture_state: first-launch
+    actions_covered:
+      - wizard.Wizard.Advance
+      - wizard.Wizard.Finish
+    primary_selectors:
+      - wizard_primary_button
+      - wizard_current_step_summary
+      - wizard_current_step_record
+      - wizard_current_step_record_actions
+      - wizard_current_step_create_synthetic_term
+      - wizard_current_step_pensum
+      - wizard_current_step_subject_detail
+      - wizard_current_step_subject_charts
+      - wizard_current_step_evaluations
+      - wizard_current_step_evaluation_swipe
+      - wizard_current_step_evaluation_form
+      - wizard_current_step_about
+      - summary_content_container
+  - id: wizard-suite
+    path: e2e/maestro/flows/suites/wizard-suite.yaml
+    module: wizard
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: exhaustive-local
+    fixture_state: wizard-suite
+    actions_covered:
+      - wizard.Wizard.Advance
+      - wizard.Wizard.Back
+      - wizard.Wizard.Dismiss
+      - wizard.Wizard.Finish
+      - wizard.Wizard.OpenSubjectDetail
+      - wizard.Wizard.OpenEvaluationForm
+      - wizard.Wizard.ConsumeTopBarAction
+      - wizard.Wizard.SelectSubjectTab
+      - wizard.Wizard.SetRecordViewMode
+      - wizard.Wizard.SelectTerm
+      - wizard.Wizard.SetSubjectChartsVisible
+    primary_selectors:
+      - wizard_welcome_screen
+      - wizard_primary_button
+      - wizard_back_button
+      - wizard_focus_overlay
+      - record_top_bar_view_mode_switch
+      - pensum_node_subject_stats_button_ma1111
+      - subjects_charts
+      - evaluations_add_fab
+  - id: summary-smoke
+    path: e2e/maestro/flows/summary/summary-smoke.yaml
+    module: summary
+    type: smoke
+    platforms: [android, ios]
+    status: active
+    variant: content-status
+    fixture_state: summary-success
+    actions_covered:
+      - summary.Summary.RefreshSummary
+      - summary.Summary.OpenProfilePictureSettings
+    primary_selectors:
+      - summary_content_container
+      - summary_status_row
+      - summary_status_text
+  - id: summary-refresh-retry
+    path: e2e/maestro/flows/summary/summary-refresh-retry.yaml
+    module: summary
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: refresh-failed-retry-success
+    fixture_state: summary-refresh-retry
+    actions_covered:
+      - summary.Summary.RefreshSummary
+    primary_selectors:
+      - base_error_view_container
+      - base_error_view_retry_button
+      - summary_content_container
+  - id: summary-status-dialog
+    path: e2e/maestro/flows/summary/summary-status-dialog.yaml
+    module: summary
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: sync-status-unavailable-dialog
+    fixture_state: summary-sync-unavailable
+    actions_covered:
+      - summary.Summary.RefreshSummary
+    primary_selectors:
+      - summary_status_icon_button
+      - summary_sync_status_message
+      - base_confirmation_dialog_positive_button
+  - id: summary-profile-picture
+    path: e2e/maestro/flows/summary/summary-profile-picture.yaml
+    module: summary
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: profile-settings-remove
+    fixture_state: profile-picture-lifecycle
+    platform_edge: Pick/take actions are asserted as visible triggers; native picker/camera/upload handoff remains assigned to UI Automator/XCUITest.
+    actions_covered:
+      - summary.Summary.OpenProfilePictureSettings
+      - summary.Summary.PickProfilePicture
+      - summary.Summary.TakeProfilePicture
+      - summary.Summary.RemoveProfilePicture
+      - summary.Summary.ConfirmRemoveProfilePicture
+    primary_selectors:
+      - summary_profile_picture_edit_button
+      - summary_profile_picture_pick_action
+      - summary_profile_picture_take_action
+      - summary_profile_picture_remove_action
+      - summary_remove_profile_picture_message
+      - base_confirmation_dialog_negative_button
+      - base_confirmation_dialog_positive_button
+  - id: summary-outdated-credentials
+    path: e2e/maestro/flows/summary/summary-outdated-credentials.yaml
+    module: summary
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: refresh-outdated-credentials-status-dialog
+    fixture_state: summary-sync-outdated-credentials
+    actions_covered:
+      - summary.Summary.RefreshSummary
+    primary_selectors:
+      - summary_content_container
+      - summary_status_icon_button
+      - summary_sync_status_message
+      - base_confirmation_dialog_positive_button
+      - auth_update_password_idle_container
+  - id: record-smoke
+    path: e2e/maestro/flows/record/record-smoke.yaml
+    module: record
+    type: smoke
+    platforms: [android, ios]
+    status: active
+    variant: content-view-mode
+    fixture_state: record-success
+    actions_covered:
+      - record.Record.RefreshRecord
+      - record.Record.SetViewMode
+    primary_selectors:
+      - record_content_container
+      - record_top_bar_view_mode_switch
+  - id: record-refresh-retry
+    path: e2e/maestro/flows/record/record-refresh-retry.yaml
+    module: record
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: failed-retry
+    fixture_state: record-refresh-retry
+    actions_covered:
+      - record.Record.RefreshRecord
+    primary_selectors:
+      - base_error_view_container
+      - base_error_view_retry_button
+      - record_content_container
+      - record_term_selector_row
+      - record_attempts_list
+  - id: record-term-selection
+    path: e2e/maestro/flows/record/record-term-selection.yaml
+    module: record
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: projection-current-historical-selection
+    fixture_state: record-success
+    actions_covered:
+      - record.Record.SelectTerm
+      - record.Record.SetViewMode
+    primary_selectors:
+      - record_term_selector_row
+      - record_term_chip_synthetic-2026-jul-aug-degree-project
+      - record_term_chip_d377155d39da686f412622aaca9074cd
+      - record_attempt_item_synthetic-2026-jul-aug-ep1308
+      - record_attempt_item_8322eaae7602f4749aef5691b9724af2
+      - record_attempt_item_e21f0d7e481d13d19f328d6818ce4d77
+      - record_edit_synthetic_term_button
+  - id: record-attempt-overrides
+    path: e2e/maestro/flows/record/record-attempt-overrides.yaml
+    module: record
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: grade-status-override-clear
+    fixture_state: attempt-override-success
+    actions_covered:
+      - record.Record.SelectTerm
+      - record.Record.UpsertAttemptSelection
+    primary_selectors:
+      - record_attempt_grade_slider_e21f0d7e481d13d19f328d6818ce4d77
+      - record_attempt_grade_value_e21f0d7e481d13d19f328d6818ce4d77_5
+      - record_attempt_grade_value_e21f0d7e481d13d19f328d6818ce4d77_4
+      - record_attempt_status_selector_synthetic-2026-jul-aug-ep1308
+      - record_attempt_status_option_synthetic-2026-jul-aug-ep1308_approved
+      - record_attempt_status_value_synthetic-2026-jul-aug-ep1308_approved
+  - id: record-synthetic-term-search-empty
+    path: e2e/maestro/flows/record/record-synthetic-term-search-empty.yaml
+    module: record
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: synthetic-term-search-no-results
+    fixture_state: synthetic-term-search
+    actions_covered:
+      - record.CreateSyntheticTerm.UpdateQuery
+    primary_selectors:
+      - record_create_synthetic_term_fab
+      - record_create_synthetic_term_screen
+      - record_create_synthetic_term_search_field
+      - record_create_synthetic_term_search_results_title
+  - id: record-synthetic-term-search-states
+    path: e2e/maestro/flows/record/record-synthetic-term-search-states.yaml
+    module: record
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: synthetic-term-search-priority-order-unavailable-addability-tooltips-stats-back-state
+    fixture_state: synthetic-term-search
+    actions_covered:
+      - record.CreateSyntheticTerm.UpdateQuery
+    primary_selectors:
+      - record_create_synthetic_term_fab
+      - record_create_synthetic_term_screen
+      - record_create_synthetic_term_search_field
+      - maincore_tuindice_top_bar_back_button
+      - record_create_synthetic_term_search_result_0_subject_EP1308
+      - record_create_synthetic_term_search_result_1_subject_EP2308
+      - record_create_synthetic_term_search_result_2_subject_AA1001
+      - record_create_synthetic_term_search_result_3_subject_AB1001
+      - record_create_synthetic_term_subject_AA1001_status_not_in_pensum
+      - record_create_synthetic_term_subject_AA1001_stats_button
+      - record_create_synthetic_term_search_result_0_subject_MA1112
+      - record_create_synthetic_term_search_result_1_subject_MA1121
+      - record_create_synthetic_term_subject_MA1112_status_available
+      - record_create_synthetic_term_subject_MA1112_add_button
+      - record_create_synthetic_term_subject_MA1121_status_available
+      - record_create_synthetic_term_subject_MA1121_add_button
+      - record_create_synthetic_term_search_result_0_subject_MA1111
+      - subjects_content
+      - record_create_synthetic_term_subject_EP1308_status_already_planned
+      - record_create_synthetic_term_subject_EP1308_stats_button
+      - record_create_synthetic_term_subject_EP2308_status_unavailable
+      - record_create_synthetic_term_subject_EP2308_stats_button
+      - record_create_synthetic_term_subject_EP2308_add_button
+      - record_create_synthetic_term_taken_subjects_toggle
+      - record_create_synthetic_term_subject_MA1111_status_already_taken
+      - record_create_synthetic_term_subject_MA1111_stats_button
+  - id: record-synthetic-term-lifecycle
+    path: e2e/maestro/flows/record/record-synthetic-term-lifecycle.yaml
+    module: record
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: synthetic-term-create-edit-delete-search-clear
+    fixture_state: synthetic-term-success
+    actions_covered:
+      - record.CreateSyntheticTerm.UpdateQuery
+      - record.CreateSyntheticTerm.CreateTerm
+      - record.Record.SelectTerm
+      - record.Record.DeleteSyntheticTerm
+    primary_selectors:
+      - base_confirmation_dialog_sheet
+      - base_confirmation_dialog_positive_button
+      - record_create_synthetic_term_fab
+      - record_create_synthetic_term_screen
+      - record_create_synthetic_term_search_field
+      - record_create_synthetic_term_search_clear_button
+      - record_create_synthetic_term_search_results_title
+      - record_create_synthetic_term_subject_EC5201_add_button
+      - record_create_synthetic_term_subject_EC5201_remove_button
+      - record_create_synthetic_term_subject_EC5333_add_button
+      - record_create_synthetic_term_subject_EC5333_remove_button
+      - record_create_synthetic_term_submit_button
+      - record_delete_synthetic_term_button
+      - record_delete_synthetic_term_message
+      - record_attempt_item_2026-SEP_DEC-EC5201-1
+      - record_attempt_item_2026-SEP_DEC-EC5333-2
+  - id: record-suite
+    path: e2e/maestro/flows/suites/record-suite.yaml
+    module: record
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: exhaustive-local
+    fixture_state: record-suite
+    actions_covered:
+      - record.CreateSyntheticTerm.UpdateQuery
+      - record.CreateSyntheticTerm.CreateTerm
+      - record.Record.RefreshRecord
+      - record.Record.SetViewMode
+      - record.Record.SelectTerm
+      - record.Record.UpsertAttemptSelection
+      - record.Record.DeleteSyntheticTerm
+    primary_selectors:
+      - base_error_view_retry_button
+      - record_content_container
+      - record_term_selector_row
+      - record_top_bar_view_mode_switch
+      - record_attempts_list
+      - record_create_synthetic_term_fab
+      - record_delete_synthetic_term_button
+  - id: enrollmentproof-smoke
+    path: e2e/maestro/flows/enrollmentproof/enrollmentproof-smoke.yaml
+    module: enrollmentproof
+    type: smoke
+    platforms: [android, ios]
+    status: active
+    variant: top-bar-trigger
+    fixture_state: enrollment-proof-success
+    platform_edge: PDF/file opener requires UI Automator/XCUITest for host assertion.
+    actions_covered:
+      - enrollmentproof.Enrollment.FetchEnrollmentProof
+    primary_selectors:
+      - base_top_app_bar_action_enrollment_proof
+      - record_content_container
+  - id: enrollmentproof-suite
+    path: e2e/maestro/flows/suites/enrollmentproof-suite.yaml
+    module: enrollmentproof
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: exhaustive-local
+    fixture_state: enrollment-proof-suite
+    platform_edge: PDF/file opener and unsupported-file host assertions remain assigned to UI Automator/XCUITest.
+    actions_covered:
+      - enrollmentproof.Enrollment.FetchEnrollmentProof
+    primary_selectors:
+      - base_top_app_bar_action_enrollment_proof
+      - enrollment_fetching_sheet
+      - enrollment_fetching_cancel_button
+      - base_snackbar_container
+      - auth_update_password_idle_container
+  - id: enrollmentproof-fetching-cancel
+    path: e2e/maestro/flows/enrollmentproof/enrollmentproof-fetching-cancel.yaml
+    module: enrollmentproof
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: fetching-cancel
+    fixture_state: enrollment-proof-success
+    actions_covered:
+      - enrollmentproof.Enrollment.FetchEnrollmentProof
+    primary_selectors:
+      - base_top_app_bar_action_enrollment_proof
+      - enrollment_fetching_sheet
+      - enrollment_fetching_loading_container
+      - enrollment_fetching_message
+      - enrollment_fetching_cancel_button
+  - id: enrollmentproof-error-unavailable
+    path: e2e/maestro/flows/enrollmentproof/enrollmentproof-error-unavailable.yaml
+    module: enrollmentproof
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: unavailable-snackbar
+    fixture_state: enrollment-proof-unavailable
+    actions_covered:
+      - enrollmentproof.Enrollment.FetchEnrollmentProof
+    primary_selectors:
+      - base_top_app_bar_action_enrollment_proof
+      - base_snackbar_container
+  - id: enrollmentproof-not-found
+    path: e2e/maestro/flows/enrollmentproof/enrollmentproof-not-found.yaml
+    module: enrollmentproof
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: not-found-snackbar
+    fixture_state: enrollment-proof-not-found
+    actions_covered:
+      - enrollmentproof.Enrollment.FetchEnrollmentProof
+    primary_selectors:
+      - base_top_app_bar_action_enrollment_proof
+      - base_snackbar_container
+  - id: enrollmentproof-outdated-credentials
+    path: e2e/maestro/flows/enrollmentproof/enrollmentproof-outdated-credentials.yaml
+    module: enrollmentproof
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: outdated-credentials
+    fixture_state: enrollment-proof-outdated-credentials
+    actions_covered:
+      - enrollmentproof.Enrollment.FetchEnrollmentProof
+    primary_selectors:
+      - base_top_app_bar_action_enrollment_proof
+      - auth_update_password_idle_container
+  - id: pensum-smoke
+    path: e2e/maestro/flows/pensum/pensum-smoke.yaml
+    module: pensum
+    type: smoke
+    platforms: [android, ios]
+    status: active
+    variant: canvas-zoom
+    fixture_state: pensum-success
+    actions_covered:
+      - pensum.Pensum.RefreshPensum
+    primary_selectors:
+      - pensum_screen
+      - pensum_canvas
+      - pensum_zoom_in
+      - pensum_zoom_out
+  - id: pensum-refresh-not-found
+    path: e2e/maestro/flows/pensum/pensum-refresh-not-found.yaml
+    module: pensum
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: refresh-not-found-empty
+    fixture_state: pensum-not-found
+    actions_covered:
+      - pensum.Pensum.RefreshPensum
+    primary_selectors:
+      - maincore_tuindice_bottom_bar_pensum_item
+      - base_empty_view_container
+      - base_empty_view_title
+      - base_empty_view_message
+  - id: pensum-refresh-failed-retry
+    path: e2e/maestro/flows/pensum/pensum-refresh-failed-retry.yaml
+    module: pensum
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: refresh-failed-retry-success
+    fixture_state: pensum-unavailable-then-success
+    actions_covered:
+      - pensum.Pensum.RefreshPensum
+    primary_selectors:
+      - maincore_tuindice_bottom_bar_pensum_item
+      - base_error_view_container
+      - base_error_view_retry_button
+      - pensum_screen
+      - pensum_canvas
+  - id: pensum-selection
+    path: e2e/maestro/flows/pensum/pensum-selection.yaml
+    module: pensum
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: version-and-modality-selection
+    fixture_state: pensum-versions-modalities
+    actions_covered:
+      - pensum.Pensum.SelectSelection
+    primary_selectors:
+      - base_top_app_bar_action_change_pensum
+      - base_confirmation_dialog_sheet
+      - pensum_version_option_2018
+      - pensum_modality_option_long_internship
+      - base_confirmation_dialog_positive_button
+      - pensum_node_0800-2018-long_internship-t1-math1-ma1111
+  - id: pensum-node-detail
+    path: e2e/maestro/flows/pensum/pensum-node-detail.yaml
+    module: pensum
+    type: navigation
+    platforms: [android, ios]
+    status: active
+    variant: node-stats-subject-detail
+    fixture_state: pensum-success-subject-detail
+    actions_covered:
+      - subjects.SubjectDetail.SelectSubjectSegmentTab
+    primary_selectors:
+      - pensum_node_0800-2019-degree_project-t1-math1-ma1111
+      - pensum_node_subject_stats_button_0800-2019-degree_project-t1-math1-ma1111
+      - subjects_content
+      - subjects_segment_students_metric
+      - subjects_segment_attempts_metric
+  - id: subjects-smoke
+    path: e2e/maestro/flows/subjects/subjects-smoke.yaml
+    module: subjects
+    type: smoke
+    platforms: [android, ios]
+    status: active
+    variant: search-detail
+    fixture_state: subject-search-success
+    actions_covered:
+      - subjects.SubjectSearch.UpdateQuery
+      - subjects.SubjectDetail.RefreshSubjectDetail
+    primary_selectors:
+      - subjects_search_screen
+      - subjects_search_text_field
+      - subjects_search_result_CI2511
+      - subjects_search_result_stats_CI2511
+      - subjects_content
+  - id: subjects-suite
+    path: e2e/maestro/flows/suites/subjects-suite.yaml
+    module: subjects
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: exhaustive-local
+    fixture_state: subjects-suite
+    actions_covered:
+      - subjects.SubjectSearch.UpdateQuery
+      - subjects.SubjectSearch.Retry
+      - subjects.SubjectDetail.RefreshSubjectDetail
+      - subjects.SubjectDetail.SelectSubjectSegmentTab
+    primary_selectors:
+      - subjects_search_screen
+      - subjects_search_text_field
+      - subjects_search_result_CI2511
+      - subjects_content
+      - subjects_retry
+      - subjects_search_retry
+  - id: subjects-search-query-clear
+    path: e2e/maestro/flows/subjects/subjects-search-query-clear.yaml
+    module: subjects
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: short-query-success-clear
+    fixture_state: subject-search-success
+    actions_covered:
+      - subjects.SubjectSearch.UpdateQuery
+    primary_selectors:
+      - subjects_search_screen
+      - subjects_search_text_field
+      - subjects_search_result_CI2511
+      - subjects_search_clear
+  - id: subjects-search-failed-retry
+    path: e2e/maestro/flows/subjects/subjects-search-failed-retry.yaml
+    module: subjects
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: failed-retry
+    fixture_state: subject-search-debug-fail-once
+    actions_covered:
+      - subjects.SubjectSearch.Retry
+    primary_selectors:
+      - subjects_search_screen
+      - subjects_search_text_field
+      - subjects_search_retry
+      - subjects_search_result_RX
+  - id: subjects-detail-tabs-tooltip
+    path: e2e/maestro/flows/subjects/subjects-detail-tabs-tooltip.yaml
+    module: subjects
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: career-global-tabs-and-tooltips
+    fixture_state: subject-detail-success
+    actions_covered:
+      - subjects.SubjectDetail.SelectSubjectSegmentTab
+    primary_selectors:
+      - subjects_search_result_CI2511
+      - subjects_content
+      - subjects_career_tab
+      - subjects_global_tab
+      - subjects_segment_students_metric
+      - subjects_segment_attempts_metric
+  - id: subjects-detail-unavailable
+    path: e2e/maestro/flows/subjects/subjects-detail-unavailable.yaml
+    module: subjects
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: unavailable
+    fixture_state: subject-detail-unavailable
+    actions_covered:
+      - subjects.SubjectDetail.RefreshSubjectDetail
+    primary_selectors:
+      - subjects_search_result_QA
+      - subjects_unavailable
+  - id: subjects-detail-failed-retry
+    path: e2e/maestro/flows/subjects/subjects-detail-failed-retry.yaml
+    module: subjects
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: failed-retry
+    fixture_state: subject-detail-unavailable-then-success
+    actions_covered:
+      - subjects.SubjectDetail.RefreshSubjectDetail
+    primary_selectors:
+      - subjects_search_result_QB
+      - subjects_failed
+      - subjects_retry
+      - subjects_content
+  - id: evaluations-smoke
+    path: e2e/maestro/flows/evaluations/evaluations-smoke.yaml
+    module: evaluations
+    type: smoke
+    platforms: [android, ios]
+    status: active
+    variant: create-form-entry
+    fixture_state: evaluations-content
+    actions_covered:
+      - evaluations.Evaluations.AddEvaluation
+    primary_selectors:
+      - evaluations_content_container
+      - evaluations_list
+      - evaluations_add_fab
+      - evaluation_content_container
+      - evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
+  - id: evaluations-filters-and-form
+    path: e2e/maestro/flows/evaluations/evaluations-filters-and-form.yaml
+    module: evaluations
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: filters-and-form-inputs
+    fixture_state: evaluations-content
+    actions_covered:
+      - evaluations.Evaluations.CheckEvaluationFilter
+      - evaluations.Evaluations.UncheckEvaluationFilter
+      - evaluations.Evaluations.ClearEvaluationFilters
+      - evaluations.Evaluation.SetAttempt
+      - evaluations.Evaluation.SetType
+      - evaluations.Evaluation.SetDate
+      - evaluations.Evaluation.SetGrade
+      - evaluations.Evaluation.SetMaxGrade
+      - evaluations.Evaluation.ClickGrade
+      - evaluations.Evaluation.ClickMaxGrade
+    primary_selectors:
+      - evaluations_filter_chip_ci5311
+      - evaluations_clear_filters_fab
+      - evaluation_subject_chip_e21f0d7e481d13d19f328d6818ce4d77
+      - evaluation_type_chip_test
+      - evaluation_date_select_button
+      - evaluation_max_grade_chip
+      - evaluation_grade_chip
+      - evaluation_dialog_subtitle
+      - evaluation_dialog_subject_code_chip
+      - evaluation_grade_wheel_picker
+  - id: evaluations-suite
+    path: e2e/maestro/flows/suites/evaluations-suite.yaml
+    module: evaluations
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: exhaustive-local
+    fixture_state: evaluations-suite
+    actions_covered:
+      - evaluations.Evaluations.AddEvaluation
+      - evaluations.Evaluations.CheckEvaluationFilter
+      - evaluations.Evaluations.UncheckEvaluationFilter
+      - evaluations.Evaluations.ClearEvaluationFilters
+      - evaluations.Evaluations.ShowEvaluationGradeDialog
+      - evaluations.Evaluations.SetEvaluationGrade
+      - evaluations.Evaluations.EditEvaluation
+      - evaluations.Evaluations.RemoveEvaluation
+      - evaluations.Evaluation.SetAttempt
+      - evaluations.Evaluation.SetType
+      - evaluations.Evaluation.SetDate
+      - evaluations.Evaluation.SetGrade
+      - evaluations.Evaluation.SetMaxGrade
+      - evaluations.Evaluation.ClickGrade
+      - evaluations.Evaluation.ClickMaxGrade
+      - evaluations.Evaluation.ClickAddEvaluation
+      - evaluations.Evaluation.ClickEditEvaluation
+    primary_selectors:
+      - evaluations_content_container
+      - evaluations_filter_chip_ci5311
+      - evaluations_clear_filters_fab
+      - evaluation_grade_action_button
+      - evaluation_done_fab
+      - evaluation_swipe_edit_action
+      - evaluation_swipe_delete_action
+  - id: evaluations-grade-from-list
+    path: e2e/maestro/flows/evaluations/evaluations-grade-from-list.yaml
+    module: evaluations
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: list-grade-dialog-cancel-confirm
+    fixture_state: patch-evaluations-success
+    actions_covered:
+      - evaluations.Evaluations.ShowEvaluationGradeDialog
+      - evaluations.Evaluations.SetEvaluationGrade
+    primary_selectors:
+      - evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
+      - evaluation_grade_action_button
+      - evaluation_dialog_subtitle
+      - evaluation_dialog_subject_code_chip
+      - evaluation_grade_wheel_picker
+      - evaluation_dialog_dismiss_button
+      - evaluation_dialog_confirm_button
+      - base_snackbar_container
+  - id: evaluations-add-submit
+    path: e2e/maestro/flows/evaluations/evaluations-add-submit.yaml
+    module: evaluations
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: create-submit-date-grade
+    fixture_state: post-evaluations-success
+    actions_covered:
+      - evaluations.Evaluations.AddEvaluation
+      - evaluations.Evaluation.SetAttempt
+      - evaluations.Evaluation.SetType
+      - evaluations.Evaluation.SetDate
+      - evaluations.Evaluation.SetMaxGrade
+      - evaluations.Evaluation.SetGrade
+      - evaluations.Evaluation.ClickGrade
+      - evaluations.Evaluation.ClickMaxGrade
+      - evaluations.Evaluation.ClickAddEvaluation
+    primary_selectors:
+      - evaluations_add_fab
+      - evaluation_content_container
+      - evaluation_subject_chip_e21f0d7e481d13d19f328d6818ce4d77
+      - evaluation_type_chip_test
+      - evaluation_date_select_button
+      - evaluation_calendar_day_cell_15
+      - evaluation_max_grade_chip
+      - evaluation_grade_chip
+      - evaluation_dialog_subtitle
+      - evaluation_dialog_subject_code_chip
+      - evaluation_done_fab
+      - base_snackbar_container
+  - id: evaluations-edit-submit
+    path: e2e/maestro/flows/evaluations/evaluations-edit-submit.yaml
+    module: evaluations
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: swipe-edit-submit
+    fixture_state: patch-evaluations-success
+    actions_covered:
+      - evaluations.Evaluations.EditEvaluation
+      - evaluations.Evaluation.ClickEditEvaluation
+    primary_selectors:
+      - evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
+      - evaluation_swipe_to_dismiss_container
+      - evaluation_swipe_edit_action
+      - evaluation_content_container
+      - evaluation_done_fab
+      - base_snackbar_container
+  - id: evaluations-swipe-delete
+    path: e2e/maestro/flows/evaluations/evaluations-swipe-delete.yaml
+    module: evaluations
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: swipe-delete
+    fixture_state: delete-evaluations-success
+    actions_covered:
+      - evaluations.Evaluations.RemoveEvaluation
+    primary_selectors:
+      - evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
+      - evaluation_swipe_to_dismiss_container
+      - evaluation_swipe_delete_action
+      - base_snackbar_container
+  - id: about-smoke
+    path: e2e/maestro/flows/about/about-smoke.yaml
+    module: about
+    type: smoke
+    platforms: [android, ios]
+    status: active
+    variant: internal-browser
+    fixture_state: static
+    platform_edge: External/system surfaces remain assigned to platform-specific suites.
+    actions_covered:
+      - about.About.OpenPrivacyPolicy
+      - maincore.Browser.NavigateTo
+    primary_selectors:
+      - about_content_container
+      - about_open_privacy
+      - maincore_browser_container
+  - id: about-internal-browser-links
+    path: e2e/maestro/flows/about/internal-browser-links.yaml
+    module: about
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: internal-browser-links
+    fixture_state: static
+    actions_covered:
+      - about.About.OpenTermsAndConditions
+      - about.About.OpenPrivacyPolicy
+      - about.About.OpenSupport
+      - maincore.Browser.NavigateTo
+    primary_selectors:
+      - about_open_terms
+      - about_open_privacy
+      - about_open_support
+      - maincore_browser_container
+  - id: about-external-url-links
+    path: e2e/maestro/flows/about/external-url-links.yaml
+    module: about
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: external-url-links
+    fixture_state: static
+    platform_edge: Direct external browser hand-off is triggered by Maestro; host/system assertions remain assigned to UI Automator/XCUITest.
+    actions_covered:
+      - about.About.OpenUrl
+    primary_selectors:
+      - about_open_creative_commons
+      - about_open_x
+      - about_open_github
+      - about_open_kotlin
+      - about_open_dst
+  - id: about-platform-edge-triggers
+    path: e2e/maestro/flows/about/platform-edge-triggers.yaml
+    module: about
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: platform-edge-triggers
+    fixture_state: static
+    platform_edge: Store, mail composer, and share sheet result assertions remain assigned to UI Automator/XCUITest.
+    actions_covered:
+      - about.About.ShareApp
+      - about.About.RateOnStore
+      - about.About.ContactDeveloper
+      - about.About.ReportBug
+    primary_selectors:
+      - about_share_app
+      - about_rate_on_store
+      - about_contact_developer
+      - about_report_bug
+  - id: about-suite
+    path: e2e/maestro/flows/suites/about-suite.yaml
+    module: about
+    type: suite
+    platforms: [android, ios]
+    status: active
+    variant: exhaustive-local
+    fixture_state: static
+    platform_edge: External/system surfaces are triggered by Maestro and asserted in platform-specific suites.
+    actions_covered:
+      - about.About.OpenTermsAndConditions
+      - about.About.OpenPrivacyPolicy
+      - about.About.OpenSupport
+      - about.About.OpenUrl
+      - about.About.ShareApp
+      - about.About.RateOnStore
+      - about.About.ContactDeveloper
+      - about.About.ReportBug
+    primary_selectors:
+      - about_content_container
+      - about_open_terms
+      - about_open_privacy
+      - about_open_support
+      - about_open_github
+      - about_share_app
+      - about_rate_on_store
+      - about_contact_developer
+      - about_report_bug
+module_rollout:
+  testkit:
+    status: active
+    next_flows: [contract-validation]
+  maincore:
+    status: active
+    next_flows: []
+  auth:
+    status: active
+    next_flows: []
+  summary:
+    status: active
+    next_flows: []
+  record:
+    status: active
+    next_flows: []
+  pensum:
+    status: active
+    next_flows: []
+  subjects:
+    status: active
+    next_flows: []
+  evaluations:
+    status: active
+    next_flows: []
+  enrollmentproof:
+    status: active
+    next_flows: []
+  wizard:
+    status: active
+    next_flows: []
+  about:
+    status: active
+    next_flows: []
+platform_edge_cases:
+  android:
+    status: planned
+    runner: e2ePlatformAndroid
+    tools: [compose, espresso, ui-automator]
+  ios:
+    status: planned
+    runner: e2ePlatformIos
+    tools: [xcuitest]

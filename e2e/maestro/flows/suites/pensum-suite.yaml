@@ -1,0 +1,8 @@
+appId: com.gdavidpb.tuindice.debug
+name: TuIndice pensum E2E suite
+---
+- runFlow: ../pensum/pensum-refresh-not-found.yaml
+- runFlow: ../pensum/pensum-refresh-failed-retry.yaml
+- runFlow: ../pensum/pensum-smoke.yaml
+- runFlow: ../pensum/pensum-selection.yaml
+- runFlow: ../pensum/pensum-node-detail.yaml

@@ -1,0 +1,11 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/record/v5"
+  },
+  "response": {
+    "transformers": [
+      "record-response-transformer"
+    ]
+  }
+}

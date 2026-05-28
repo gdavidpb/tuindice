@@ -32,17 +32,8 @@ append_unique_line() {
 	local file="$1"
 	local value="$2"
 
-	[[ -n "$value" ]] || return 0
-	if [[ ! -s "$file" ]] || ! grep -Fx "$value" "$file" >/dev/null 2>&1; then
+	if [[ -n "$value" ]]; then
 		printf '%s\n' "$value" >>"$file"
-	fi
-}
-
-sort_file_if_present() {
-	local file="$1"
-
-	if [[ -s "$file" ]]; then
-		sort -u "$file" -o "$file"
 	fi
 }
 
@@ -59,6 +50,16 @@ file_to_space_list() {
 
 	if [[ -s "$file" ]]; then
 		paste -sd' ' "$file"
+	fi
+}
+
+file_to_json_array() {
+	local file="$1"
+
+	if [[ -s "$file" ]]; then
+		jq -R -s -c 'split("\n") | map(select(length > 0))' <"$file"
+	else
+		printf '[]\n'
 	fi
 }
 
@@ -105,7 +106,6 @@ get_app_version_property_at_git_ref() {
 	local git_ref="$2"
 	local contents
 
-	[[ -n "$git_ref" ]] || return 0
 	contents="$(git show "${git_ref}:$(app_version_file)" 2>/dev/null || true)"
 	printf '%s' "$contents" | extract_property_from_stdin "$property_name"
 }
@@ -144,4 +144,158 @@ changed_files_between_refs() {
 		info "Detecting changes between ${before_sha} and ${after_sha}."
 		git diff --name-only "$before_sha" "$after_sha"
 	fi
+}
+
+kmp_modules() {
+	cat <<'EOF'
+about
+academiccore
+auth
+base
+enrollmentproof
+evaluations
+maincore
+pensum
+persistence
+record
+subjects
+summary
+testkit
+wizard
+EOF
+}
+
+runtime_modules() {
+	cat <<'EOF'
+about
+academiccore
+app
+auth
+base
+enrollmentproof
+evaluations
+iosApp
+maincore
+pensum
+persistence
+record
+subjects
+summary
+wizard
+EOF
+}
+
+feature_modules() {
+	cat <<'EOF'
+about
+auth
+enrollmentproof
+evaluations
+pensum
+record
+subjects
+summary
+wizard
+EOF
+}
+
+all_shared_runtime_modules() {
+	cat <<'EOF'
+about
+academiccore
+auth
+base
+enrollmentproof
+evaluations
+maincore
+pensum
+persistence
+record
+subjects
+summary
+wizard
+EOF
+}
+
+module_is_kmp() {
+	local module="$1"
+	kmp_modules | grep -Fx "$module" >/dev/null 2>&1
+}
+
+module_is_runtime() {
+	local module="$1"
+	runtime_modules | grep -Fx "$module" >/dev/null 2>&1
+}
+
+module_e2e_suite() {
+	local module="$1"
+
+	case "$module" in
+		about|auth|enrollmentproof|evaluations|maincore|pensum|record|subjects|summary|wizard)
+			printf '%s-suite\n' "$module"
+			;;
+	esac
+}
+
+append_module_closure() {
+	local module="$1"
+	local target_file="$2"
+	local dependency
+
+	case "$module" in
+		base)
+			while IFS= read -r dependency; do append_unique_line "$target_file" "$dependency"; done < <(all_shared_runtime_modules)
+			append_unique_line "$target_file" app
+			append_unique_line "$target_file" iosApp
+			;;
+		academiccore)
+			for dependency in academiccore record evaluations pensum wizard maincore app iosApp; do
+				append_unique_line "$target_file" "$dependency"
+			done
+			;;
+		persistence)
+			for dependency in persistence summary record evaluations enrollmentproof subjects pensum maincore app iosApp; do
+				append_unique_line "$target_file" "$dependency"
+			done
+			;;
+		testkit)
+			append_unique_line "$target_file" testkit
+			;;
+		maincore)
+			for dependency in maincore app iosApp; do
+				append_unique_line "$target_file" "$dependency"
+			done
+			;;
+		app)
+			append_unique_line "$target_file" app
+			;;
+		iosApp)
+			append_unique_line "$target_file" iosApp
+			;;
+		about|auth|enrollmentproof|evaluations|pensum|record|subjects|summary|wizard)
+			for dependency in "$module" maincore app iosApp; do
+				append_unique_line "$target_file" "$dependency"
+			done
+			;;
+		*)
+			return 0
+			;;
+	esac
+}
+
+sort_file_if_present() {
+	local file="$1"
+
+	if [[ -s "$file" ]]; then
+		sort -u "$file" -o "$file"
+	fi
+}
+
+write_version_xcconfig_contents() {
+	local version_name="$1"
+	local ios_build_number="$2"
+
+	printf '// Generated from %s. Do not edit directly.\n' "$(app_version_file)"
+	printf 'MARKETING_VERSION = %s\n' "$version_name"
+	printf 'CURRENT_PROJECT_VERSION = %s\n' "$ios_build_number"
 }

@@ -1,0 +1,25 @@
+platform :ios, '16.0'
+source 'https://cdn.cocoapods.org/'
+
+project 'TuIndiceHost.xcodeproj'
+
+use_frameworks! :linkage => :static
+inhibit_all_warnings!
+
+target 'TuIndiceHost' do
+  pod 'Firebase/CoreOnly'
+  pod 'Firebase/Messaging'
+  pod 'Firebase/RemoteConfig'
+  pod 'Firebase/Crashlytics'
+end
+
+post_install do |installer|
+  installer.pods_project.targets.each do |target|
+    target.build_configurations.each do |config|
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = '16.0'
+      config.build_settings['IPHONEOS_DEPLOYMENT_TARGET[sdk=iphonesimulator*]'] = '18.5'
+      config.build_settings['CLANG_ENABLE_EXPLICIT_MODULES'] = 'NO'
+      config.build_settings['SWIFT_ENABLE_EXPLICIT_MODULES'] = 'NO'
+    end
+  end
+end

@@ -1,0 +1,27 @@
+<resources>
+	<string name="top_bar_pensum">Pensum</string>
+	<string name="pensum_loading_message">Cargando pensum...</string>
+	<string name="pensum_empty_title">Aún no tenemos tu pensum</string>
+	<string name="pensum_empty_message">Todavía no tenemos el pensum de tu carrera, pero pronto estará disponible.</string>
+	<string name="pensum_failed_title">No pudimos cargar el pensum</string>
+	<string name="pensum_failed_message">Intenta de nuevo en unos segundos.</string>
+	<string name="pensum_failed_retry">Reintentar</string>
+	<string name="pensum_selector_placeholder">Pensum</string>
+	<string name="pensum_modality_placeholder">Modalidad</string>
+	<string name="pensum_progress_label">avance</string>
+	<string name="pensum_summary_pensum_label">Pensum</string>
+	<string name="pensum_selection_title">Cambiar pensum</string>
+	<string name="pensum_selection_current">%1$s · Pensum %2$d · %3$s</string>
+	<string name="pensum_selection_career">Carrera</string>
+	<string name="pensum_selection_version">Versión del pensum</string>
+	<string name="pensum_selection_modality">Modalidad</string>
+	<string name="pensum_selection_apply">Aplicar</string>
+	<string name="pensum_selection_cancel">Cancelar</string>
+	<string name="pensum_zoom_in">Acercar</string>
+	<string name="pensum_zoom_out">Alejar</string>
+	<string name="pensum_subject_stats_content_description">Ver estadísticas de %1$s</string>
+	<string name="snack_default_error">Ocurrió un error inesperado.</string>
+	<string name="snack_network_unavailable">Revisa tu conexión e intenta de nuevo.</string>
+	<string name="snack_service_unavailable">El servicio no está disponible.</string>
+	<string name="snack_timeout">La solicitud tardó demasiado.</string>
+</resources>

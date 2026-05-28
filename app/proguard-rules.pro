@@ -21,11 +21,16 @@
 #-renamesourcefileattribute SourceFile
 
 # Use cases rules
--keepnames class * extends com.gdavidpb.tuindice.domain.usecase.coroutines.BaseUseCase { *; }
+-keepnames class * extends com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase { *; }
 
 # Google Crypto rules
 -keep class com.google.crypto.** { *; }
 -dontwarn com.google.crypto.**
+
+# Google services rules
+-keep class com.google.android.gms.** { *; }
+-keep class com.google.android.play.core.** { *; }
+-dontwarn com.google.android.gms.common.annotation.NoNullnessRewrite
 
 # Koin rules
 -keepnames class androidx.lifecycle.ViewModel
@@ -38,60 +43,6 @@
 
 -keep class com.google.firebase.crashlytics.** { *; }
 -dontwarn com.google.firebase.crashlytics.**
-
-# Firebase rules
--keep class com.gdavidpb.tuindice.data.model.** { *; }
--keep class com.gdavidpb.tuindice.domain.model.** { *; }
--keep class com.gdavidpb.tuindice.presentation.model.** { *; }
-
-# Retrofit does reflection on generic parameters. InnerClasses is required to use Signature and
-# EnclosingMethod is required to use InnerClasses.
--keepattributes Signature, InnerClasses, EnclosingMethod
-
-# Retrofit does reflection on method and parameter annotations.
--keepattributes RuntimeVisibleAnnotations, RuntimeVisibleParameterAnnotations
-
-# Keep annotation default values (e.g., retrofit2.http.Field.encoded).
--keepattributes AnnotationDefault
-
-# Retain service method parameters when optimizing.
--keepclassmembers,allowshrinking,allowobfuscation interface * {
-    @retrofit2.http.* <methods>;
-}
-
-# Ignore annotation used for build tooling.
--dontwarn org.codehaus.mojo.animal_sniffer.IgnoreJRERequirement
-
-# Ignore JSR 305 annotations for embedding nullability information.
--dontwarn javax.annotation.**
-
-# Guarded by a NoClassDefFoundError try/catch and only used when on the classpath.
--dontwarn kotlin.Unit
-
-# Top-level functions that can only be used by Kotlin.
--dontwarn retrofit2.KotlinExtensions
--dontwarn retrofit2.KotlinExtensions$*
-
-# With R8 full mode, it sees no subtypes of Retrofit interfaces since they are created with a Proxy
-# and replaces all potential values with null. Explicitly keeping the interfaces prevents this.
--if interface * { @retrofit2.http.* <methods>; }
--keep,allowobfuscation interface <1>
-
-# Keep inherited services.
--if interface * { @retrofit2.http.* <methods>; }
--keep,allowobfuscation interface * extends <1>
-
-# With R8 full mode generic signatures are stripped for classes that are not
-# kept. Suspend functions are wrapped in continuations where the type argument
-# is used.
--keep,allowobfuscation,allowshrinking class kotlin.coroutines.Continuation
-
-# R8 full mode strips generic signatures from return types if not kept.
--if interface * { @retrofit2.http.* public *** *(...); }
--keep,allowoptimization,allowshrinking,allowobfuscation class <3>
-
-# With R8 full mode generic signatures are stripped for classes that are not kept.
--keep,allowobfuscation,allowshrinking class retrofit2.Response
 
 # Kotlin Coroutines
 
@@ -120,36 +71,8 @@
     boolean getRECOVER_STACK_TRACES() return false;
 }
 
-# BouncyCastle
--dontwarn org.bouncycastle.jsse.BCSSLParameters
--dontwarn org.bouncycastle.jsse.BCSSLSocket
--dontwarn org.bouncycastle.jsse.provider.BouncyCastleJsseProvider
+# Kotlin serializer
 
-# Conscrypt
--dontwarn org.conscrypt.Conscrypt$Version
--dontwarn org.conscrypt.Conscrypt
-
-# OpenJSSE
--dontwarn org.openjsse.javax.net.ssl.SSLParameters
--dontwarn org.openjsse.javax.net.ssl.SSLSocket
--dontwarn org.openjsse.net.ssl.OpenJSSE
-
-# GSON
--dontnote com.google.gson.**
-
-# GSON TypeAdapters are only referenced in annotations so ProGuard doesn't find their method usage
--keepclassmembers,allowobfuscation,includedescriptorclasses class * extends com.google.gson.TypeAdapter {
-    public <methods>;
-}
-
-# GSON TypeAdapterFactory is an interface, we need to keep the entire class, not just its members
--keep,allowobfuscation,includedescriptorclasses class * implements com.google.gson.TypeAdapterFactory
-
-# GSON JsonDeserializer and JsonSerializer are interfaces, we need to keep the entire class, not just its members
--keep,allowobfuscation,includedescriptorclasses class * implements com.google.gson.JsonDeserializer
--keep,allowobfuscation,includedescriptorclasses class * implements com.google.gson.JsonSerializer
-
-# Ensure that all fields annotated with SerializedName will be kept
--keepclassmembers,allowobfuscation class * {
-    @com.google.gson.annotations.SerializedName <fields>;
-}
+-dontwarn kotlinx.serialization.KSerializer
+-dontwarn kotlinx.serialization.Serializable
+-dontwarn kotlinx.serialization.internal.AbstractPolymorphicSerializer

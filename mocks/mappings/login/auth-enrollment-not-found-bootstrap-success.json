@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-enrollment-not-found-login",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "BootstrapIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic MjMtNDU2Nzg6ZW5yb2xsbWVudC1ub3QtZm91bmQtcGFzcw=="
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "enrollment-not-found-user",
+      "usb_id": "23-45678",
+      "access_token": "bootstrap.mock.enrollment.notfound.token",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

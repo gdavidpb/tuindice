@@ -7,11 +7,12 @@ on:
 
 concurrency:
   group: deploy-production
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 permissions:
   contents: write
   id-token: write
+  statuses: read
 
 env:
   GCP_PROJECT: tu-indice-usb
@@ -20,10 +21,10 @@ env:
 
 jobs:
   deploy:
-    name: Deploy Android production draft
-    runs-on: ubuntu-latest
+    name: Deploy production drafts
+    runs-on: macos-26
     environment: production
-    timeout-minutes: 75
+    timeout-minutes: 120
 
     steps:
       - name: Check out repository
@@ -32,14 +33,30 @@ jobs:
           ref: ${{ github.sha }}
           fetch-depth: 0
 
+      - name: Set up Xcode
+        run: |
+          set -euo pipefail
+          sudo xcode-select -s /Applications/Xcode_26.5.app/Contents/Developer
+          xcodebuild -version
+
       - name: Set up Java
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
 
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@017a9effdb900e5b5b2fddfb590a105619dca3c3 # v4.4.2
+
+      - name: Install CocoaPods dependencies
+        run: |
+          set -euo pipefail
+          if command -v pod >/dev/null 2>&1; then
+            (cd iosApp && pod install)
+          else
+            echo "CocoaPods is not installed on this runner." >&2
+            exit 1
+          fi
 
       - name: Configure git identity for release tags
         run: |
@@ -57,15 +74,23 @@ jobs:
           token_format: access_token
           access_token_scopes: https://www.googleapis.com/auth/androidpublisher
 
-      - name: Deploy Android production draft
+      - name: Deploy production drafts
         env:
           TARGET_GIT_SHA: ${{ github.sha }}
           ANDROID_PUBLISHER_ACCESS_TOKEN: ${{ steps.google-auth.outputs.access_token }}
           ANDROID_GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON_BASE64 }}
+          IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64: ${{ secrets.IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
           ANDROID_RELEASE_KEYSTORE_BASE64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_BASE64 }}
           TU_INDICE_KEY_ALIAS: ${{ secrets.TU_INDICE_KEY_ALIAS }}
           TU_INDICE_KEY_PASSWORD: ${{ secrets.TU_INDICE_KEY_PASSWORD }}
           TU_INDICE_KEY_STORE_PASSWORD: ${{ secrets.TU_INDICE_KEY_STORE_PASSWORD }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_P8_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8_BASE64 }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64 }}
+          APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
           TUINDICE_UPLOAD_CRASHLYTICS_MAPPING: "1"
         run: |
           set -euo pipefail

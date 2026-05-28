@@ -1,0 +1,37 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- runFlow: ../auth/login-success.yaml
+- runFlow: ../wizard/wizard-smoke.yaml
+- tapOn:
+    id: maincore_tuindice_bottom_bar_evaluations_item
+- extendedWaitUntil:
+    visible:
+      id: evaluations_content_container
+    timeout: 30000
+- assertVisible:
+    id: evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
+- swipe:
+    direction: LEFT
+    duration: 600
+- runFlow:
+    when:
+      notVisible:
+        id: evaluation_swipe_delete_action
+    commands:
+      - tapOn:
+          id: evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
+- extendedWaitUntil:
+    visible:
+      id: evaluation_swipe_delete_action
+    timeout: 10000
+- assertVisible:
+    id: evaluation_swipe_to_dismiss_container
+- tapOn:
+    id: evaluation_swipe_delete_action
+- extendedWaitUntil:
+    visible:
+      id: base_snackbar_container
+    timeout: 15000
+- assertVisible:
+    id: evaluations_content_container

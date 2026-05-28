@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-enrollment-outdated-login",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "BootstrapIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic MzMtMzMzMzM6ZW5yb2xsbWVudC1vdXRkYXRlZC1wYXNz"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "enrollment-outdated-user",
+      "usb_id": "33-33333",
+      "access_token": "bootstrap.mock.enrollment.outdated.token",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

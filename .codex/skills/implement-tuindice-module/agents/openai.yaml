@@ -1,0 +1,4 @@
+interface:
+  display_name: "Implement TuIndice Module"
+  short_description: "Crea módulos KMP, frontend y E2E local"
+  default_prompt: "Use $implement-tuindice-module to create or modify a module or frontend flow in this tuindice repository, including ViewModel, Route, navigation, Koin, smoke tests, local Maestro E2E flows, selectors, and testkit contracts when needed."

@@ -1,0 +1,17 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- runFlow: ../auth/login-success.yaml
+- runFlow: ../wizard/wizard-smoke.yaml
+- tapOn:
+    id: maincore_tuindice_bottom_bar_record_item
+- extendedWaitUntil:
+    visible:
+      id: record_content_container
+    timeout: 20000
+- tapOn:
+    id: record_term_current_chip_.*
+- extendedWaitUntil:
+    visible:
+      id: base_top_app_bar_action_enrollment_proof
+    timeout: 10000

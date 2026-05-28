@@ -1,0 +1,22 @@
+{
+  "priority": 1,
+  "scenarioName": "summary-refresh-retry",
+  "requiredScenarioState": "FailedOnce",
+  "newScenarioState": "FailedTwice",
+  "request": {
+    "method": "GET",
+    "urlPath": "/users/v1",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer summary.refresh.retry.mock.access"
+      }
+    }
+  },
+  "response": {
+    "status": 503,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

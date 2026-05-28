@@ -11,12 +11,17 @@ concurrency:
 
 permissions:
   contents: read
+  statuses: write
 
 jobs:
-  preflight:
-    name: Android release preflight
+  shared-preflight:
+    name: Shared preflight
     runs-on: ubuntu-latest
-    timeout-minutes: 45
+    timeout-minutes: 20
+    outputs:
+      android_tasks: ${{ steps.changes.outputs.android_tasks }}
+      ios_tasks: ${{ steps.changes.outputs.ios_tasks }}
+      has_relevant_changes: ${{ steps.changes.outputs.has_relevant_changes }}
 
     steps:
       - name: Check out repository
@@ -34,13 +39,7 @@ jobs:
           STATE_DIR="${RUNNER_TEMP}/tuindice-changes" \
             bash ./.github/scripts/detect-changed-app.sh "$merge_base" "${{ github.event.pull_request.head.sha }}"
 
-      - name: Validate CI/CD configuration
-        if: steps.changes.outputs.ci_config_touched == 'true'
-        run: |
-          set -euo pipefail
-          bash ./.github/scripts/validate-ci-config.sh
-
-      - name: Skip preflight when there are no relevant changes
+      - name: Skip shared preflight when there are no relevant changes
         if: steps.changes.outputs.has_relevant_changes != 'true'
         run: |
           set -euo pipefail
@@ -51,27 +50,62 @@ jobs:
             echo "- Workflow finished successfully without validations."
           } >> "$GITHUB_STEP_SUMMARY"
 
+      - name: Validate CI/CD configuration
+        if: steps.changes.outputs.ci_config_touched == 'true'
+        run: |
+          set -euo pipefail
+          bash ./.github/scripts/validate-ci-config.sh
+
+      - name: Run shared release preflight checks
+        if: steps.changes.outputs.has_relevant_changes == 'true'
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          TARGET_GIT_SHA: ${{ github.event.pull_request.head.sha }}
+          MISSING_VERSION_BUMP_FILE: ${{ steps.changes.outputs.missing_version_bump_file }}
+          E2E_ANDROID_CONTEXTS_FILE: ${{ steps.changes.outputs.e2e_android_contexts_file }}
+          E2E_IOS_CONTEXTS_FILE: ${{ steps.changes.outputs.e2e_ios_contexts_file }}
+          REQUIRES_E2E_CERTIFICATION: ${{ steps.changes.outputs.requires_e2e_certification }}
+          HAS_RELEVANT_CHANGES: ${{ steps.changes.outputs.has_relevant_changes }}
+          E2E_REUSE_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          set -euo pipefail
+          bash ./.github/scripts/preflight-production.sh
+
+  android-preflight:
+    name: Android preflight
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    needs:
+      - shared-preflight
+    if: ${{ !cancelled() && needs.shared-preflight.result == 'success' && needs.shared-preflight.outputs.android_tasks != '' }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
       - name: Set up Java
-        if: steps.changes.outputs.android_tasks != ''
         uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
         with:
           distribution: temurin
-          java-version: "17"
+          java-version: "21"
 
       - name: Set up Gradle
-        if: steps.changes.outputs.android_tasks != ''
         uses: gradle/actions/setup-gradle@017a9effdb900e5b5b2fddfb590a105619dca3c3 # v4.4.2
 
       - name: Materialize Firebase configuration
-        if: contains(steps.changes.outputs.android_tasks, ':app:bundleRelease')
+        if: contains(needs.shared-preflight.outputs.android_tasks, ':app:bundleRelease')
         env:
           ANDROID_GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON_BASE64 }}
+          IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64: ${{ secrets.IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
         run: |
           set -euo pipefail
           REQUIRE_FIREBASE_CONFIGS=1 bash ./.github/scripts/materialize-firebase-configs.sh
 
       - name: Materialize Android release signing
-        if: contains(steps.changes.outputs.android_tasks, ':app:bundleRelease')
+        if: contains(needs.shared-preflight.outputs.android_tasks, ':app:bundleRelease')
         env:
           ANDROID_RELEASE_KEYSTORE_BASE64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_BASE64 }}
           TU_INDICE_KEY_ALIAS: ${{ secrets.TU_INDICE_KEY_ALIAS }}
@@ -81,38 +115,109 @@ jobs:
           set -euo pipefail
           bash ./.github/scripts/materialize-android-signing.sh
 
-      - name: Run release preflight checks
-        if: steps.changes.outputs.has_relevant_changes == 'true'
-        env:
-          TARGET_GIT_SHA: ${{ github.event.pull_request.head.sha }}
-          MISSING_VERSION_BUMP_FILE: ${{ steps.changes.outputs.missing_version_bump_file }}
-          HAS_RELEVANT_CHANGES: ${{ steps.changes.outputs.has_relevant_changes }}
-        run: |
-          set -euo pipefail
-          bash ./.github/scripts/preflight-production.sh
-
       - name: Run focused Android checks
-        if: steps.changes.outputs.android_tasks != ''
         env:
           TU_INDICE_KEY_ALIAS: ${{ secrets.TU_INDICE_KEY_ALIAS }}
           TU_INDICE_KEY_PASSWORD: ${{ secrets.TU_INDICE_KEY_PASSWORD }}
           TU_INDICE_KEY_STORE_PASSWORD: ${{ secrets.TU_INDICE_KEY_STORE_PASSWORD }}
         run: |
           set -euo pipefail
-          ./gradlew --continue --console=plain --max-workers=2 ${{ steps.changes.outputs.android_tasks }}
+          bash ./.github/scripts/run-gradle-with-retry.sh \
+            ./gradlew --continue --console=plain --max-workers=2 ${{ needs.shared-preflight.outputs.android_tasks }}
+
+  ios-preflight:
+    name: iOS preflight
+    runs-on: macos-26
+    timeout-minutes: 90
+    needs:
+      - shared-preflight
+    if: ${{ !cancelled() && needs.shared-preflight.result == 'success' && needs.shared-preflight.outputs.ios_tasks != '' }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Set up Xcode
+        run: |
+          set -euo pipefail
+          sudo xcode-select -s /Applications/Xcode_26.5.app/Contents/Developer
+          xcodebuild -version
+
+      - name: Set up Java
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@017a9effdb900e5b5b2fddfb590a105619dca3c3 # v4.4.2
+
+      - name: Install CocoaPods dependencies
+        run: |
+          set -euo pipefail
+          if command -v pod >/dev/null 2>&1; then
+            (cd iosApp && pod install)
+          else
+            echo "CocoaPods is not installed on this runner." >&2
+            exit 1
+          fi
+
+      - name: Materialize Firebase configuration
+        if: contains(needs.shared-preflight.outputs.ios_tasks, 'verifyIosHostBuildRelease')
+        env:
+          ANDROID_GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON_BASE64 }}
+          IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64: ${{ secrets.IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
+        run: |
+          set -euo pipefail
+          REQUIRE_FIREBASE_CONFIGS=1 bash ./.github/scripts/materialize-firebase-configs.sh
+
+      - name: Run focused iOS checks
+        env:
+          TUINDICE_IOS_HOST_BUILD: "1"
+          PLATFORM_NAME: iphonesimulator
+          ARCHS: arm64
+          BUILT_PRODUCTS_DIR: ${{ github.workspace }}/iosApp/.build/ios-host-release/Build/Products/Release-iphonesimulator
+          UNLOCALIZED_RESOURCES_FOLDER_PATH: TuIndiceHost.app
+        run: |
+          set -euo pipefail
+          bash ./.github/scripts/run-gradle-with-retry.sh \
+            ./gradlew \
+            --continue \
+            --console=plain \
+            --max-workers=2 \
+            -Pcompose.ios.resources.platform=iphonesimulator \
+            -Pcompose.ios.resources.archs=arm64 \
+            ${{ needs.shared-preflight.outputs.ios_tasks }}
 
   preflight-production-pr:
     name: preflight-production-pr
     runs-on: ubuntu-latest
     needs:
-      - preflight
+      - shared-preflight
+      - android-preflight
+      - ios-preflight
     if: always()
     steps:
       - name: Verify preflight jobs
         run: |
           set -euo pipefail
-          preflight_result="${{ needs.preflight.result }}"
-          echo "Preflight result: ${preflight_result}"
-          if [[ "${preflight_result}" != "success" ]]; then
+          shared_result="${{ needs.shared-preflight.result }}"
+          android_result="${{ needs.android-preflight.result }}"
+          ios_result="${{ needs.ios-preflight.result }}"
+          android_tasks="${{ needs.shared-preflight.outputs.android_tasks }}"
+          ios_tasks="${{ needs.shared-preflight.outputs.ios_tasks }}"
+          echo "Shared preflight result: ${shared_result}"
+          echo "Android preflight result: ${android_result}"
+          echo "iOS preflight result: ${ios_result}"
+          if [[ "${shared_result}" != "success" ]]; then
+            exit 1
+          fi
+          if [[ -n "${android_tasks}" && "${android_result}" != "success" ]]; then
+            exit 1
+          fi
+          if [[ -n "${ios_tasks}" && "${ios_result}" != "success" ]]; then
             exit 1
           fi

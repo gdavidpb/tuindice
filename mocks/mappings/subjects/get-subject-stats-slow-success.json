@@ -1,0 +1,14 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/subjects/v1/CI4325"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "subjects/get-subject-stats-slow-success.json",
+    "fixedDelayMilliseconds": 10000
+  }
+}

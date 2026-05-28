@@ -1,0 +1,228 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- runFlow: ../auth/login-success.yaml
+- runFlow: ../wizard/wizard-smoke.yaml
+- tapOn:
+    id: maincore_tuindice_bottom_bar_pensum_item
+- extendedWaitUntil:
+    visible:
+      id: pensum_canvas
+    timeout: 30000
+- tapOn:
+    id: maincore_tuindice_bottom_bar_record_item
+- extendedWaitUntil:
+    visible:
+      id: record_content_container
+    timeout: 30000
+- tapOn:
+    id: record_create_synthetic_term_fab
+- extendedWaitUntil:
+    visible:
+      id: record_create_synthetic_term_screen
+    timeout: 10000
+- extendedWaitUntil:
+    visible:
+      id: record_create_synthetic_term_subject_MA1121_status_available
+    timeout: 20000
+- assertVisible:
+    id: record_create_synthetic_term_subject_MA1121_add_button
+- tapOn:
+    id: record_create_synthetic_term_search_tab
+- runFlow:
+    when:
+      visible: "Try out your stylus"
+    commands:
+      - tapOn: "Cancel"
+- extendedWaitUntil:
+    visible:
+      id: record_create_synthetic_term_search_field
+    timeout: 10000
+- retry:
+    maxRetries: 3
+    commands:
+      - tapOn:
+          id: record_create_synthetic_term_search_field
+      - eraseText: 20
+      - runFlow:
+          when:
+            platform: Android
+          commands:
+            - inputText: "prioridad"
+      - runFlow:
+          when:
+            platform: iOS
+          commands:
+            - inputText: "prioridad"
+      - hideKeyboard
+      - extendedWaitUntil:
+          visible:
+            id: record_create_synthetic_term_search_result_0_subject_EP1308
+          timeout: 20000
+- assertVisible:
+    id: record_create_synthetic_term_subject_EP1308_status_already_planned
+- tapOn:
+    id: record_create_synthetic_term_subject_EP1308_status_already_planned
+- extendedWaitUntil:
+    visible: "Planificada en Jul - Ago 2026"
+    timeout: 5000
+- tapOn:
+    id: record_create_synthetic_term_subject_EP1308_status_already_planned
+- assertVisible:
+    id: record_create_synthetic_term_subject_EP1308_stats_button
+- assertNotVisible:
+    id: record_create_synthetic_term_subject_EP1308_add_button
+- scrollUntilVisible:
+    element:
+      id: record_create_synthetic_term_search_result_1_subject_EP2308
+    direction: DOWN
+    timeout: 20000
+- assertVisible:
+    id: record_create_synthetic_term_subject_EP2308_status_unavailable
+- tapOn:
+    id: record_create_synthetic_term_subject_EP2308_status_unavailable
+- extendedWaitUntil:
+    visible: "Faltan requisitos: EP1308, EP5855"
+    timeout: 5000
+- tapOn:
+    id: record_create_synthetic_term_subject_EP2308_status_unavailable
+- assertVisible:
+    id: record_create_synthetic_term_subject_EP2308_stats_button
+- assertVisible:
+    id: record_create_synthetic_term_subject_EP2308_add_button
+- scrollUntilVisible:
+    element:
+      id: record_create_synthetic_term_search_result_2_subject_AA1001
+    direction: DOWN
+    timeout: 20000
+- assertVisible:
+    id: record_create_synthetic_term_search_result_2_subject_AA1001
+- assertVisible:
+    id: record_create_synthetic_term_subject_AA1001_status_not_in_pensum
+- assertVisible:
+    id: record_create_synthetic_term_subject_AA1001_stats_button
+- scrollUntilVisible:
+    element:
+      id: record_create_synthetic_term_subject_AA1001_stats_button
+    direction: DOWN
+    centerElement: true
+    timeout: 20000
+- tapOn:
+    id: record_create_synthetic_term_subject_AA1001_stats_button
+- extendedWaitUntil:
+    visible:
+      id: subjects_content
+    timeout: 30000
+- tapOn:
+    id: maincore_tuindice_top_bar_back_button
+- extendedWaitUntil:
+    visible:
+      id: record_create_synthetic_term_search_field
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: record_create_synthetic_term_search_result_2_subject_AA1001
+    direction: DOWN
+    timeout: 20000
+- assertVisible:
+    id: record_create_synthetic_term_subject_AA1001_status_not_in_pensum
+- assertVisible:
+    id: record_create_synthetic_term_subject_AA1001_stats_button
+- scrollUntilVisible:
+    element:
+      id: record_create_synthetic_term_search_result_3_subject_AB1001
+    direction: DOWN
+    timeout: 20000
+- assertVisible:
+    id: record_create_synthetic_term_search_result_3_subject_AB1001
+- scrollUntilVisible:
+    element:
+      id: record_create_synthetic_term_search_tab
+    direction: UP
+    timeout: 20000
+- retry:
+    maxRetries: 3
+    commands:
+      - tapOn:
+          id: record_create_synthetic_term_search_field
+      - eraseText: 20
+      - runFlow:
+          when:
+            platform: Android
+          commands:
+            - inputText: "ma"
+      - runFlow:
+          when:
+            platform: iOS
+          commands:
+            - inputText: "ma"
+      - hideKeyboard
+      - extendedWaitUntil:
+          visible:
+            id: record_create_synthetic_term_search_result_0_subject_MA1112
+          timeout: 20000
+- assertVisible:
+    id: record_create_synthetic_term_subject_MA1112_status_available
+- assertVisible:
+    id: record_create_synthetic_term_subject_MA1112_add_button
+- assertVisible:
+    id: record_create_synthetic_term_search_result_1_subject_MA1121
+- assertVisible:
+    id: record_create_synthetic_term_subject_MA1121_status_available
+- assertVisible:
+    id: record_create_synthetic_term_subject_MA1121_add_button
+- scrollUntilVisible:
+    element:
+      id: record_create_synthetic_term_search_tab
+    direction: UP
+    timeout: 20000
+- retry:
+    maxRetries: 3
+    commands:
+      - tapOn:
+          id: record_create_synthetic_term_search_field
+      - eraseText: 20
+      - runFlow:
+          when:
+            platform: Android
+          commands:
+            - inputText: "ma1111"
+      - runFlow:
+          when:
+            platform: iOS
+          commands:
+            - inputText: "ma1111"
+      - hideKeyboard
+      - extendedWaitUntil:
+          visible:
+            id: record_create_synthetic_term_taken_subjects_toggle
+          timeout: 20000
+- tapOn:
+    id: record_create_synthetic_term_taken_subjects_toggle
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - extendedWaitUntil:
+          visible:
+            id: record_create_synthetic_term_search_result_0_subject_MA1111
+          timeout: 20000
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - extendedWaitUntil:
+          visible:
+            id: record_create_synthetic_term_subject_MA1111_status_already_taken
+          timeout: 20000
+- assertVisible:
+    id: record_create_synthetic_term_subject_MA1111_status_already_taken
+- tapOn:
+    id: record_create_synthetic_term_subject_MA1111_status_already_taken
+- extendedWaitUntil:
+    visible: "Cursada en Sep - Dic 2021"
+    timeout: 5000
+- assertVisible:
+    id: record_create_synthetic_term_subject_MA1111_stats_button
+- assertNotVisible:
+    id: record_create_synthetic_term_subject_MA1111_add_button

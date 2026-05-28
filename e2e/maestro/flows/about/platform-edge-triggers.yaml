@@ -1,0 +1,119 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- runFlow: ../auth/login-success.yaml
+- runFlow: ../wizard/wizard-smoke.yaml
+- tapOn:
+    id: maincore_tuindice_bottom_bar_about_item
+- extendedWaitUntil:
+    visible:
+      id: about_content_container
+    timeout: 20000
+- scrollUntilVisible:
+    element:
+      id: about_share_app
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: about_share_app
+- runFlow:
+    when:
+      visible: "Cancel"
+    commands:
+      - tapOn: "Cancel"
+- runFlow:
+    when:
+      visible: "Close"
+    commands:
+      - tapOn: "Close"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          id: PopoverDismissRegion
+- launchApp:
+    stopApp: false
+    clearState: false
+- runFlow:
+    when:
+      visible:
+        id: maincore_browser_container
+    commands:
+      - tapOn:
+          id: maincore_tuindice_top_bar_back_button
+- tapOn:
+    id: maincore_tuindice_bottom_bar_about_item
+- extendedWaitUntil:
+    visible:
+      id: about_content_container
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: about_rate_on_store
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: about_rate_on_store
+- launchApp:
+    stopApp: false
+    clearState: false
+- runFlow:
+    when:
+      visible:
+        id: maincore_browser_container
+    commands:
+      - tapOn:
+          id: maincore_tuindice_top_bar_back_button
+- tapOn:
+    id: maincore_tuindice_bottom_bar_about_item
+- extendedWaitUntil:
+    visible:
+      id: about_content_container
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: about_contact_developer
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: about_contact_developer
+- launchApp:
+    stopApp: false
+    clearState: false
+- runFlow:
+    when:
+      visible:
+        id: maincore_browser_container
+    commands:
+      - tapOn:
+          id: maincore_tuindice_top_bar_back_button
+- tapOn:
+    id: maincore_tuindice_bottom_bar_about_item
+- extendedWaitUntil:
+    visible:
+      id: about_content_container
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: about_report_bug
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: about_report_bug
+- launchApp:
+    stopApp: false
+    clearState: false
+- runFlow:
+    when:
+      visible:
+        id: maincore_browser_container
+    commands:
+      - tapOn:
+          id: maincore_tuindice_top_bar_back_button
+- tapOn:
+    id: maincore_tuindice_bottom_bar_about_item
+- extendedWaitUntil:
+    visible:
+      id: about_content_container
+    timeout: 10000

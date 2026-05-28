@@ -1,0 +1,22 @@
+{
+  "priority": 1,
+  "scenarioName": "pensum-refresh-retry",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "FirstFailure",
+  "request": {
+    "method": "GET",
+    "urlPath": "/pensums/v4",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer pensum.retry.mock.access"
+      }
+    }
+  },
+  "response": {
+    "status": 503,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

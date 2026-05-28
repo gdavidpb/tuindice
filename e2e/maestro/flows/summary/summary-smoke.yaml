@@ -1,0 +1,16 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- tapOn:
+    id: maincore_tuindice_bottom_bar_summary_item
+- extendedWaitUntil:
+    visible:
+      id: summary_content_container
+    timeout: 20000
+- assertVisible:
+    id: summary_grade_text
+- assertVisible:
+    id: summary_items_list
+- assertVisible:
+    id: summary_status_row
+- assertVisible:
+    id: summary_status_text

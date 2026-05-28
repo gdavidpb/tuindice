@@ -1,0 +1,536 @@
+version: 1
+source: commonMain presentation contracts
+policy:
+  required_scope: visible_user_actions
+  internal_actions: lifecycle, observation, state bootstrap, route loading, renderer callbacks
+  coverage_rule: user and platform-edge actions must declare a flow or platform_edge
+actions:
+  - id: about.About.LoadVersion
+    classification: internal
+    reason: screen bootstrap
+  - id: about.About.OpenTermsAndConditions
+    classification: user
+    variants: [internal-browser]
+    selector: about_open_terms
+    flow: e2e/maestro/flows/suites/about-suite.yaml
+    fixture_state: static
+  - id: about.About.OpenPrivacyPolicy
+    classification: user
+    variants: [internal-browser]
+    selector: about_open_privacy
+    flow: e2e/maestro/flows/suites/about-suite.yaml
+    fixture_state: static
+  - id: about.About.OpenSupport
+    classification: user
+    variants: [internal-browser]
+    selector: about_open_support
+    flow: e2e/maestro/flows/suites/about-suite.yaml
+    fixture_state: static
+  - id: about.About.OpenUrl
+    classification: user
+    variants: [license-link, social-link, repository-link, dependency-link, special-thanks-link]
+    selector: about_open_github
+    flow: e2e/maestro/flows/suites/about-suite.yaml
+    fixture_state: static
+    platform_edge: direct external URL hand-off requires host/system assertion
+  - id: about.About.RateOnStore
+    classification: platform-edge
+    variants: [store-intent]
+    selector: about_rate_on_store
+    flow: e2e/maestro/flows/suites/about-suite.yaml
+    platform_edge: store intent requires host/system assertion
+  - id: about.About.ReportBug
+    classification: platform-edge
+    variants: [mail-or-browser-intent]
+    selector: about_report_bug
+    flow: e2e/maestro/flows/suites/about-suite.yaml
+    platform_edge: external composer/browser requires host/system assertion
+  - id: about.About.ContactDeveloper
+    classification: platform-edge
+    variants: [mail-intent]
+    selector: about_contact_developer
+    flow: e2e/maestro/flows/suites/about-suite.yaml
+    platform_edge: mail composer requires host/system assertion
+  - id: about.About.ShareApp
+    classification: platform-edge
+    variants: [share-sheet]
+    selector: about_share_app
+    flow: e2e/maestro/flows/suites/about-suite.yaml
+    platform_edge: share sheet requires UI Automator/XCUITest
+
+  - id: auth.SignIn.SetUsbId
+    classification: user
+    variants: [valid-format, invalid-format]
+    selector: auth_usb_id_text_field
+    flow: e2e/maestro/flows/auth/login-success.yaml
+    fixture_state: auth-success
+  - id: auth.SignIn.SetPassword
+    classification: user
+    variants: [typed, hidden, visible]
+    selector: auth_password_text_field
+    flow: e2e/maestro/flows/auth/login-success.yaml
+    fixture_state: auth-success
+  - id: auth.SignIn.TogglePasswordVisibility
+    classification: user
+    variants: [show, hide]
+    selector: auth_password_toggle
+    flow: e2e/maestro/flows/auth/login-password-toggle.yaml
+    fixture_state: static
+  - id: auth.SignIn.ClickSignIn
+    classification: user
+    variants: [success, invalid-credentials, disabled-account, connection-retry]
+    selector: auth_sign_in_button
+    flow: e2e/maestro/flows/auth/login-success.yaml
+    fixture_state: auth-success
+  - id: auth.SignIn.ClickTermsAndConditions
+    classification: user
+    variants: [internal-browser]
+    selector: auth_terms_and_conditions_link
+    flow: e2e/maestro/flows/auth/terms-privacy-from-login.yaml
+    fixture_state: static
+  - id: auth.SignIn.ClickPrivacyPolicy
+    classification: user
+    variants: [internal-browser]
+    selector: auth_privacy_policy_link
+    flow: e2e/maestro/flows/auth/terms-privacy-from-login.yaml
+    fixture_state: static
+
+  - id: auth.SignOut.Initialize
+    classification: internal
+    reason: route state bootstrap from pending changes
+  - id: auth.SignOut.ConfirmSignOut
+    classification: user
+    variants: [plain-success, pending-flush-success, flush-failure]
+    selector: base_confirmation_dialog_positive_button
+    flow: e2e/maestro/flows/auth/sign-out.yaml
+    fixture_state: auth-revoke-success
+  - id: auth.SignOut.FlushAndSignOut
+    classification: user
+    variants: [pending-success, pending-failed, outdated-credentials]
+    selector: base_confirmation_dialog_positive_button
+    flow: e2e/maestro/flows/auth/pending-sign-out.yaml
+    fixture_state: pending-evaluation-mutation
+  - id: auth.SignOut.ForceSignOut
+    classification: user
+    variants: [force-after-flush-failed, force-after-outdated-credentials]
+    selector: auth_sign_out_secondary_button
+    flow: e2e/maestro/flows/auth/pending-sign-out.yaml
+    fixture_state: pending-evaluation-mutation
+  - id: auth.SignOut.OpenUpdatePassword
+    classification: user
+    variants: [outdated-credentials]
+    selector: base_confirmation_dialog_positive_button
+    flow: e2e/maestro/flows/auth/update-password.yaml
+    fixture_state: auth-outdated-credentials
+
+  - id: auth.UpdatePassword.SetPassword
+    classification: user
+    variants: [typed, empty]
+    selector: auth_password_text_field
+    flow: e2e/maestro/flows/auth/update-password.yaml
+    fixture_state: update-password
+  - id: auth.UpdatePassword.TogglePasswordVisibility
+    classification: user
+    variants: [show, hide]
+    selector: auth_password_toggle
+    flow: e2e/maestro/flows/auth/update-password.yaml
+    fixture_state: update-password
+  - id: auth.UpdatePassword.ClickSignIn
+    classification: user
+    variants: [success, failure, loading-disabled]
+    selector: base_confirmation_dialog_positive_button
+    flow: e2e/maestro/flows/auth/update-password.yaml
+    fixture_state: update-password
+
+  - id: enrollmentproof.Enrollment.FetchEnrollmentProof
+    classification: user
+    variants: [trigger, fetching-cancel, success-file-open, no-connection, timeout, unavailable, not-found, unsupported-file, outdated-credentials]
+    selector: base_top_app_bar_action_enrollment_proof
+    flow: e2e/maestro/flows/suites/enrollmentproof-suite.yaml
+    fixture_state: enrollment-proof-suite
+    platform_edge: file opener success and unsupported-file host assertions require UI Automator/XCUITest
+
+  - id: evaluations.Evaluation.LoadAvailableAttempts
+    classification: internal
+    reason: form bootstrap
+  - id: evaluations.Evaluation.LoadEvaluation
+    classification: internal
+    reason: edit form bootstrap
+  - id: evaluations.Evaluation.SetAttempt
+    classification: user
+    variants: [select, clear]
+    selector: evaluation_subject_picker_row
+    flow: e2e/maestro/flows/evaluations/evaluations-filters-and-form.yaml
+    fixture_state: evaluations-content
+  - id: evaluations.Evaluation.SetType
+    classification: user
+    variants: [select, clear]
+    selector: evaluation_type_picker_row
+    flow: e2e/maestro/flows/evaluations/evaluations-filters-and-form.yaml
+    fixture_state: evaluations-content
+  - id: evaluations.Evaluation.SetDate
+    classification: user
+    variants: [select-date, no-date, cancel]
+    selector: evaluation_date_picker
+    flow: e2e/maestro/flows/evaluations/evaluations-filters-and-form.yaml
+    fixture_state: evaluations-content
+  - id: evaluations.Evaluation.SetGrade
+    classification: user
+    variants: [wheel-change, min-bound, max-bound]
+    selector: evaluation_grade_wheel_picker
+    flow: e2e/maestro/flows/evaluations/evaluations-filters-and-form.yaml
+    fixture_state: evaluations-content
+  - id: evaluations.Evaluation.SetMaxGrade
+    classification: user
+    variants: [wheel-change, min-bound, max-bound]
+    selector: evaluation_grade_wheel_picker
+    flow: e2e/maestro/flows/evaluations/evaluations-filters-and-form.yaml
+    fixture_state: evaluations-content
+  - id: evaluations.Evaluation.ClickGrade
+    classification: user
+    variants: [existing-grade, missing-grade]
+    selector: evaluation_grade_chip
+    flow: e2e/maestro/flows/evaluations/evaluations-filters-and-form.yaml
+    fixture_state: evaluations-content
+  - id: evaluations.Evaluation.ClickMaxGrade
+    classification: user
+    variants: [existing-max-grade, missing-max-grade]
+    selector: evaluation_max_grade_chip
+    flow: e2e/maestro/flows/evaluations/evaluations-filters-and-form.yaml
+    fixture_state: evaluations-content
+  - id: evaluations.Evaluation.ClickAddEvaluation
+    classification: user
+    variants: [success, missing-attempt, missing-type, missing-max-grade, already-exists]
+    selector: evaluation_done_fab
+    flow: e2e/maestro/flows/evaluations/evaluations-add-submit.yaml
+    fixture_state: post-evaluations-success
+  - id: evaluations.Evaluation.ClickEditEvaluation
+    classification: user
+    variants: [success, not-found]
+    selector: evaluation_done_fab
+    flow: e2e/maestro/flows/evaluations/evaluations-edit-submit.yaml
+    fixture_state: patch-evaluations-success
+
+  - id: evaluations.Evaluations.LoadEvaluations
+    classification: internal
+    reason: list bootstrap and filter observation
+  - id: evaluations.Evaluations.RefreshEvaluations
+    classification: user
+    variants: [success, failed-retry, waiting-record, no-attempts]
+    selector: base_error_view_retry_button
+    flow: e2e/maestro/flows/evaluations/evaluations-smoke.yaml
+    fixture_state: evaluations-content
+  - id: evaluations.Evaluations.CheckEvaluationFilter
+    classification: user
+    variants: [subject, state, type]
+    selector: evaluations_filter_row
+    flow: e2e/maestro/flows/evaluations/evaluations-filters-and-form.yaml
+    fixture_state: evaluations-content
+  - id: evaluations.Evaluations.UncheckEvaluationFilter
+    classification: user
+    variants: [subject, state, type]
+    selector: evaluations_filter_row
+    flow: e2e/maestro/flows/evaluations/evaluations-filters-and-form.yaml
+    fixture_state: evaluations-content
+  - id: evaluations.Evaluations.ClearEvaluationFilters
+    classification: user
+    variants: [active-filters]
+    selector: evaluations_clear_filters_fab
+    flow: e2e/maestro/flows/evaluations/evaluations-filters-and-form.yaml
+    fixture_state: evaluations-content
+  - id: evaluations.Evaluations.AddEvaluation
+    classification: user
+    variants: [fab, empty-state]
+    selector: evaluations_add_fab
+    flow: e2e/maestro/flows/evaluations/evaluations-smoke.yaml
+    fixture_state: evaluations-content
+  - id: evaluations.Evaluations.ShowEvaluationGradeDialog
+    classification: user
+    variants: [open, cancel]
+    selector: evaluation_grade_action_button
+    flow: e2e/maestro/flows/evaluations/evaluations-grade-from-list.yaml
+    fixture_state: evaluations-content
+  - id: evaluations.Evaluations.SetEvaluationGrade
+    classification: user
+    variants: [confirm-grade]
+    selector: evaluation_dialog_confirm_button
+    flow: e2e/maestro/flows/evaluations/evaluations-grade-from-list.yaml
+    fixture_state: patch-evaluations-success
+  - id: evaluations.Evaluations.EditEvaluation
+    classification: user
+    variants: [swipe-edit, card-edit]
+    selector: evaluation_swipe_edit_action
+    flow: e2e/maestro/flows/evaluations/evaluations-edit-submit.yaml
+    fixture_state: evaluations-content
+  - id: evaluations.Evaluations.RemoveEvaluation
+    classification: user
+    variants: [swipe-delete, not-found]
+    selector: evaluation_swipe_delete_action
+    flow: e2e/maestro/flows/evaluations/evaluations-swipe-delete.yaml
+    fixture_state: delete-evaluations-success
+
+  - id: maincore.Browser.NavigateTo
+    classification: internal
+    reason: route effect from link actions
+  - id: maincore.Browser.SetLoading
+    classification: internal
+    reason: renderer callback
+  - id: maincore.Browser.OpenExternalResource
+    classification: platform-edge
+    variants: [cancel, confirm]
+    selector: base_external_resource_message
+    flow: e2e/maestro/flows/maincore/browser-external-dialog.yaml
+    fixture_state: local-browser-pages
+    platform_edge: confirm/open handoff requires UI Automator/XCUITest host assertion
+
+  - id: maincore.Main.StartUp
+    classification: internal
+    reason: app bootstrap
+  - id: maincore.Main.RequestReview
+    classification: platform-edge
+    variants: [review-prompt]
+    selector: maincore_tuindice_nav_host
+    flow: e2e/maestro/flows/summary/summary-smoke.yaml
+    platform_edge: app store review prompt requires host/system assertion
+  - id: maincore.Main.RequestUpdateCheck
+    classification: platform-edge
+    variants: [update-available, no-update]
+    selector: maincore_tuindice_nav_host
+    flow: e2e/maestro/flows/summary/summary-smoke.yaml
+    platform_edge: system update prompt requires host/system assertion
+  - id: maincore.Main.RequestSync
+    classification: user
+    variants: [success, outdated-credentials, unavailable]
+    selector: summary_status_row
+    flow: e2e/maestro/flows/summary/summary-smoke.yaml
+    fixture_state: sync-success
+  - id: maincore.Main.SetLastMainSection
+    classification: user
+    variants: [summary, record, pensum, evaluations, about]
+    selector: maincore_tuindice_bottom_bar
+    flow: e2e/maestro/flows/maincore/bottom-bar-state.yaml
+    fixture_state: static
+  - id: maincore.Main.RequestWizardStart
+    classification: user
+    variants: [first-launch, manual-start]
+    selector: wizard_welcome_screen
+    flow: e2e/maestro/flows/wizard/wizard-smoke.yaml
+    fixture_state: first-launch
+
+  - id: pensum.Pensum.ObservePensum
+    classification: internal
+    reason: screen bootstrap
+  - id: pensum.Pensum.RefreshPensum
+    classification: user
+    variants: [success, not-found, failed-retry]
+    selector: base_error_view_retry_button
+    flow: e2e/maestro/flows/pensum/pensum-refresh-failed-retry.yaml
+    fixture_state: pensum-unavailable-then-success
+  - id: pensum.Pensum.SelectPensum
+    classification: internal
+    reason: current bottom sheet keeps version as local UI state and dispatches SelectSelection on apply
+  - id: pensum.Pensum.SelectModality
+    classification: internal
+    reason: current bottom sheet keeps modality as local UI state and dispatches SelectSelection on apply
+  - id: pensum.Pensum.SelectSelection
+    classification: user
+    variants: [version-and-modality]
+    selector: base_top_app_bar_action_change_pensum
+    flow: e2e/maestro/flows/pensum/pensum-selection.yaml
+    fixture_state: pensum-versions-modalities
+
+  - id: record.CreateSyntheticTerm.Observe
+    classification: internal
+    reason: screen bootstrap and local state observation
+  - id: record.CreateSyntheticTerm.UpdateQuery
+    classification: user
+    variants: [search, clear, no-results, availability-states, pensum-priority, not-in-pensum]
+    selector: record_create_synthetic_term_search_field
+    flow: e2e/maestro/flows/suites/record-suite.yaml
+    fixture_state: synthetic-term-search
+  - id: record.CreateSyntheticTerm.CreateTerm
+    classification: user
+    variants: [create-success, edit-success, empty-subjects-disabled]
+    selector: record_create_synthetic_term_submit_button
+    flow: e2e/maestro/flows/record/record-synthetic-term-lifecycle.yaml
+    fixture_state: synthetic-term-success
+
+  - id: record.Record.ObserveRecord
+    classification: internal
+    reason: screen bootstrap
+  - id: record.Record.RefreshRecord
+    classification: user
+    variants: [success, failed-retry]
+    selector: base_error_view_retry_button
+    flow: e2e/maestro/flows/record/record-refresh-retry.yaml
+    fixture_state: record-refresh-retry
+  - id: record.Record.SetViewMode
+    classification: user
+    variants: [historical, projection]
+    selector: record_top_bar_view_mode_switch
+    flow: e2e/maestro/flows/record/record-term-selection.yaml
+    fixture_state: record-success
+  - id: record.Record.SelectTerm
+    classification: user
+    variants: [current, historical, synthetic]
+    selector: record_term_selector_row
+    flow: e2e/maestro/flows/record/record-term-selection.yaml
+    fixture_state: record-success
+  - id: record.Record.UpsertAttemptSelection
+    classification: user
+    variants: [grade-draft, grade-commit, status-commit, delete-override]
+    selector: record_attempts_list
+    flow: e2e/maestro/flows/record/record-attempt-overrides.yaml
+    fixture_state: attempt-override-success
+  - id: record.Record.DeleteSyntheticTerm
+    classification: user
+    variants: [delete-success]
+    selector: record_delete_synthetic_term_button
+    flow: e2e/maestro/flows/record/record-synthetic-term-lifecycle.yaml
+    fixture_state: synthetic-term-success
+
+  - id: subjects.SubjectDetail.LoadSubjectDetail
+    classification: internal
+    reason: detail route bootstrap after user selects a subject
+  - id: subjects.SubjectDetail.RefreshSubjectDetail
+    classification: user
+    variants: [success, unavailable, failed-retry]
+    selector: subjects_retry
+    flow: e2e/maestro/flows/subjects/subjects-detail-failed-retry.yaml
+    fixture_state: subject-detail-unavailable-then-success
+  - id: subjects.SubjectDetail.SelectSubjectSegmentTab
+    classification: user
+    variants: [career, global, metric-tooltip]
+    selector: subjects_career_tab
+    flow: e2e/maestro/flows/subjects/subjects-detail-tabs-tooltip.yaml
+    fixture_state: subject-detail-success
+
+  - id: subjects.SubjectSearch.ObserveSubjectSearch
+    classification: internal
+    reason: search query observation
+  - id: subjects.SubjectSearch.UpdateQuery
+    classification: user
+    variants: [short-query, success, clear]
+    selector: subjects_search_text_field
+    flow: e2e/maestro/flows/subjects/subjects-search-query-clear.yaml
+    fixture_state: subject-search-success
+  - id: subjects.SubjectSearch.Retry
+    classification: user
+    variants: [failed-retry]
+    selector: subjects_search_retry
+    flow: e2e/maestro/flows/subjects/subjects-search-failed-retry.yaml
+    fixture_state: subject-search-debug-fail-once
+
+  - id: summary.Summary.ObserveSummary
+    classification: internal
+    reason: screen bootstrap
+  - id: summary.Summary.RefreshSummary
+    classification: user
+    variants: [success, failed-retry, conflict-after-content]
+    selector: summary_status_row
+    flow: e2e/maestro/flows/summary/summary-refresh-retry.yaml
+    fixture_state: summary-refresh-retry
+  - id: summary.Summary.TakeProfilePicture
+    classification: platform-edge
+    variants: [camera]
+    selector: summary_profile_picture_take_action
+    flow: e2e/maestro/flows/summary/summary-profile-picture.yaml
+    platform_edge: camera picker requires UI Automator/XCUITest
+  - id: summary.Summary.PickProfilePicture
+    classification: platform-edge
+    variants: [photo-picker]
+    selector: summary_profile_picture_pick_action
+    flow: e2e/maestro/flows/summary/summary-profile-picture.yaml
+    platform_edge: photo picker requires UI Automator/XCUITest
+  - id: summary.Summary.UploadProfilePicture
+    classification: platform-edge
+    variants: [success, not-image, too-large, generic-error]
+    selector: summary_profile_picture_pick_action
+    flow: e2e/maestro/flows/summary/summary-profile-picture.yaml
+    platform_edge: Upload requires a native picker/camera file source; Maestro covers the visible triggers, while file selection and upload variants belong in UI Automator/XCUITest or a debug-only host adapter.
+  - id: summary.Summary.OpenProfilePictureSettings
+    classification: user
+    variants: [with-picture, without-picture, disabled-while-refreshing]
+    selector: summary_profile_picture_edit_button
+    flow: e2e/maestro/flows/summary/summary-profile-picture.yaml
+    fixture_state: profile-picture-lifecycle
+  - id: summary.Summary.RemoveProfilePicture
+    classification: user
+    variants: [cancel, confirm-dialog]
+    selector: summary_profile_picture_remove_action
+    flow: e2e/maestro/flows/summary/summary-profile-picture.yaml
+    fixture_state: profile-picture-present
+  - id: summary.Summary.ConfirmRemoveProfilePicture
+    classification: user
+    variants: [success, cancel, not-found-platform-edge, outdated-credentials-platform-edge]
+    selector: base_confirmation_dialog_positive_button
+    flow: e2e/maestro/flows/summary/summary-profile-picture.yaml
+    fixture_state: profile-picture-delete
+    platform_edge: not-found and outdated-credentials delete variants require dedicated backend states not yet stable in Maestro.
+
+  - id: wizard.Wizard.Advance
+    classification: user
+    variants: [next-step, step-sequence]
+    selector: wizard_primary_button
+    flow: e2e/maestro/flows/wizard/wizard-navigation-focus.yaml
+    fixture_state: first-launch
+  - id: wizard.Wizard.Back
+    classification: user
+    variants: [previous-step]
+    selector: wizard_back_button
+    flow: e2e/maestro/flows/wizard/wizard-navigation-focus.yaml
+    fixture_state: first-launch
+  - id: wizard.Wizard.Dismiss
+    classification: user
+    variants: [skip]
+    selector: wizard_skip_button
+    flow: e2e/maestro/flows/wizard/wizard-smoke.yaml
+    fixture_state: first-launch
+  - id: wizard.Wizard.Finish
+    classification: user
+    variants: [finish]
+    selector: wizard_primary_button
+    flow: e2e/maestro/flows/wizard/wizard-finish.yaml
+    fixture_state: first-launch
+  - id: wizard.Wizard.OpenSubjectDetail
+    classification: user
+    variants: [guided-subject-detail]
+    selector: pensum_node_subject_stats_button_ma1111
+    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
+    fixture_state: first-launch
+  - id: wizard.Wizard.OpenEvaluationForm
+    classification: user
+    variants: [guided-evaluation-form]
+    selector: evaluations_add_fab
+    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
+    fixture_state: first-launch
+  - id: wizard.Wizard.ConsumeTopBarAction
+    classification: user
+    variants: [enrollment-proof-consumed]
+    selector: base_top_app_bar_action_enrollment_proof
+    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
+    fixture_state: first-launch
+  - id: wizard.Wizard.SelectSubjectTab
+    classification: user
+    variants: [career, global]
+    selector: subjects_global_tab
+    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
+    fixture_state: first-launch
+  - id: wizard.Wizard.SetRecordViewMode
+    classification: user
+    variants: [historical, projection]
+    selector: record_top_bar_view_mode_switch
+    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
+    fixture_state: first-launch
+  - id: wizard.Wizard.SelectTerm
+    classification: user
+    variants: [guided-term]
+    selector: record_term_chip_2024-3
+    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
+    fixture_state: first-launch
+  - id: wizard.Wizard.SetSubjectChartsVisible
+    classification: user
+    variants: [show, hide]
+    selector: subjects_charts
+    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
+    fixture_state: first-launch

@@ -1,0 +1,34 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- tapOn:
+    id: auth_usb_id_text_field
+- inputText: "3333333"
+- inputText: "3"
+- tapOn:
+    id: auth_password_text_field
+- inputText: "retry-pass"
+- tapOn:
+    id: auth_keyboard_dismiss_area
+- tapOn:
+    id: auth_sign_in_button
+- extendedWaitUntil:
+    visible:
+      id: base_snackbar_action_button
+    timeout: 20000
+- assertVisible:
+    id: base_snackbar_container
+- assertVisible:
+    id: base_snackbar_message
+- tapOn:
+    id: base_snackbar_action_button
+- extendedWaitUntil:
+    visible:
+      id: base_snackbar_action_button
+    timeout: 20000
+- assertVisible:
+    id: base_snackbar_container
+- assertVisible:
+    id: base_snackbar_message
+- assertVisible:
+    id: auth_sign_in_idle_container

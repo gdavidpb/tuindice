@@ -1,0 +1,26 @@
+{
+  "request": {
+    "method": "GET",
+    "urlPath": "/attestation/v4/.well-known/jwks.json"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "keys": [
+        {
+          "kty": "EC",
+          "alg": "ES384",
+          "use": "sig",
+          "kid": "mock-risk-proof-key",
+          "crv": "P-384",
+          "x": "mock-risk-proof-x",
+          "y": "mock-risk-proof-y"
+        }
+      ]
+    },
+    "fixedDelayMilliseconds": 100
+  }
+}

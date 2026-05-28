@@ -1,0 +1,323 @@
+{
+  "query": "",
+  "results": [
+    {
+      "subject_code": "CI2511",
+      "name": "Lógica Simbólica",
+      "credits": 4,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CI2525",
+      "name": "Estructuras Discretas I",
+      "credits": 4,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CI2526",
+      "name": "Estructuras Discretas II",
+      "credits": 4,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CI2527",
+      "name": "Estructuras Discretas III",
+      "credits": 4,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CI2611",
+      "name": "Algoritmos y Estructuras I",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CI2612",
+      "name": "Algoritmos y Estructuras II",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CI2613",
+      "name": "Algoritmos y Estructuras III",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CI2691",
+      "name": "Laboratorio de Algoritmos y Estructuras I",
+      "credits": 2,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CI2692",
+      "name": "Laboratorio de Algoritmos y Estructuras II",
+      "credits": 2,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CI2693",
+      "name": "Laboratorio de Algoritmos y Estructuras III",
+      "credits": 2,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CI3311",
+      "name": "Sistemas de Base de Datos I",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CI3391",
+      "name": "Laboratorio de Sistemas de Base de Datos I",
+      "credits": 2,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CI3641",
+      "name": "Lenguajes de Programación",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CI3661",
+      "name": "Laboratorio de Lenguajes de Programación",
+      "credits": 2,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CI3715",
+      "name": "Ingeniería de Software I",
+      "credits": 5,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CI3725",
+      "name": "Traductores e Interpretadores",
+      "credits": 5,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CI3815",
+      "name": "Organización del Computador",
+      "credits": 5,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CI3825",
+      "name": "Sistemas de Operación I",
+      "credits": 5,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CI4325",
+      "name": "Interfaces con el Usuario",
+      "credits": 5,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CI4835",
+      "name": "Redes de Computadoras",
+      "credits": 5,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CO3121",
+      "name": "Probabilidades para Ingenieros",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CO3211",
+      "name": "Cálculo Numérico",
+      "credits": 4,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CO3321",
+      "name": "Estadística",
+      "credits": 4,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CSA211",
+      "name": "Venezuela ante el Siglo XXI I",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CSA212",
+      "name": "Venezuela ante el Siglo XXI II",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CSA213",
+      "name": "Venezuela ante el Siglo XXI III",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "EC5201",
+      "name": "Sistemas de Comunicaciones",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "EC5333",
+      "name": "INT. A LAS MICROONDAS Y SUS APLICACIONES",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "EL3104",
+      "name": "Campos Electromagnéticos",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "EP1308",
+      "name": "Proyecto de Grado I",
+      "credits": 3,
+      "grading_mode": "qualitative_pass_fail"
+    },
+    {
+      "subject_code": "EP1420",
+      "name": "Cursos en Cooperación I",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "EP2308",
+      "name": "Proyecto de Grado II",
+      "credits": 3,
+      "grading_mode": "qualitative_pass_fail"
+    },
+    {
+      "subject_code": "EP3308",
+      "name": "Proyecto de Grado III",
+      "credits": 3,
+      "grading_mode": "qualitative_pass_fail"
+    },
+    {
+      "subject_code": "EP3420",
+      "name": "Pasantía Larga",
+      "credits": 9,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "EP5408",
+      "name": "Proyecto de Grado a Dedicación Exclusiva",
+      "credits": 9,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "EP5855",
+      "name": "Tópicos Especiales en Ingeniería de Computación I",
+      "credits": 4,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "EP5856",
+      "name": "Tópicos Especiales en Ingeniería de Computación II",
+      "credits": 4,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "FS1111",
+      "name": "Física I",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "FS1112",
+      "name": "Física II",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "ID1111",
+      "name": "Inglés I",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "ID1112",
+      "name": "Inglés II",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "ID1113",
+      "name": "Inglés III",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "LLA111",
+      "name": "Lenguaje I",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "LLA112",
+      "name": "Lenguaje II",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "LLA113",
+      "name": "Lenguaje III",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "MA1111",
+      "name": "Matemáticas I",
+      "credits": 4,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "MA1121",
+      "name": "Matemáticas I Honor",
+      "credits": 4,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "MA1112",
+      "name": "Matemáticas II",
+      "credits": 4,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "MA1116",
+      "name": "Matemáticas III",
+      "credits": 4,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "MA2112",
+      "name": "Matemáticas V",
+      "credits": 4,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "MA2115",
+      "name": "Matemáticas IV",
+      "credits": 4,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "PS1111",
+      "name": "Modelos Lineales I",
+      "credits": 4,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "PS1115",
+      "name": "Sistemas de Información I",
+      "credits": 4,
+      "grading_mode": "numeric"
+    }
+  ]
+}

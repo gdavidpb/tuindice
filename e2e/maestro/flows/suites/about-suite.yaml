@@ -1,0 +1,7 @@
+appId: com.gdavidpb.tuindice.debug
+name: TuIndice about E2E suite
+---
+- runFlow: ../about/about-smoke.yaml
+- runFlow: ../about/internal-browser-links.yaml
+- runFlow: ../about/external-url-links.yaml
+- runFlow: ../about/platform-edge-triggers.yaml

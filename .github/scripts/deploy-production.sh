@@ -60,15 +60,13 @@ mkdir -p "$DETECT_STATE_DIR"
 
 STATE_DIR="$DETECT_STATE_DIR" bash "${SCRIPT_DIR}/detect-changed-app.sh" "$BEFORE_SHA" "$TARGET_GIT_SHA"
 
-ANDROID_TASKS_FILE="${DETECT_STATE_DIR}/android-gradle-tasks.txt"
-if ! grep -Fx ":app:bundleRelease" "$ANDROID_TASKS_FILE" >/dev/null 2>&1; then
-	info "No release-impacting Android changes detected. Skipping production draft deploy."
-	exit 0
-fi
-
 MISSING_VERSION_BUMP_FILE="${DETECT_STATE_DIR}/missing-version-bump.txt" \
+E2E_ANDROID_CONTEXTS_FILE="${DETECT_STATE_DIR}/e2e-android-contexts.txt" \
+E2E_IOS_CONTEXTS_FILE="${DETECT_STATE_DIR}/e2e-ios-contexts.txt" \
+REQUIRES_E2E_CERTIFICATION="false" \
 HAS_RELEVANT_CHANGES="true" \
 TARGET_GIT_SHA="$TARGET_GIT_SHA" \
+SKIP_E2E_STATUS_CHECK=1 \
 	bash "${SCRIPT_DIR}/preflight-production.sh"
 
 REQUIRE_FIREBASE_CONFIGS=1 bash "${SCRIPT_DIR}/materialize-firebase-configs.sh"
@@ -79,11 +77,12 @@ info "Building signed Android App Bundle."
 ./gradlew --console=plain :app:bundleRelease
 
 if [[ "$DRY_RUN" == "1" ]]; then
-	info "DRY_RUN=1: skipping Google Play upload and release tag creation."
+	info "DRY_RUN=1: skipping Google Play and App Store Connect uploads and release tag creation."
 	exit 0
 fi
 
 bash "${SCRIPT_DIR}/publish-google-play-draft.sh"
+bash "${PWD}/iosApp/scripts/ci-upload-ios-appstore.sh"
 create_release_tag
 
 info "Production deploy completed for ${VERSION_NAME} (${TAG_NAME})."

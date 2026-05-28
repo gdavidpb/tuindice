@@ -1,0 +1,35 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/attestation/v4/sessions",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    },
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.platform == 'Android')]"
+      },
+      {
+        "matchesJsonPath": "$[?(@.operation_code == 'auth.reissue_tokens')]"
+      },
+      {
+        "matchesJsonPath": "$.key_id"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "session_id": "mock-attestation-session-android-reissue",
+      "challenge": "mock-attestation-challenge-android",
+      "expires_at": 2524608000000,
+      "evidence_mode": "play_integrity_classic"
+    },
+    "fixedDelayMilliseconds": 250
+  }
+}

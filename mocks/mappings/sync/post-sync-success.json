@@ -1,0 +1,16 @@
+{
+  "scenarioName": "login-token-lifecycle",
+  "requiredScenarioState": "TokensIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/record/v5/sync"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "sync/post-sync-success.json",
+    "fixedDelayMilliseconds": 6000
+  }
+}

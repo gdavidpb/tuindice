@@ -1,0 +1,42 @@
+{
+  "request": {
+    "method": "POST",
+    "urlPath": "/attestation/v4/tokens",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    },
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.session_id == 'mock-attestation-session-android-refresh')]"
+      },
+      {
+        "matchesJsonPath": "$.operation_code"
+      },
+      {
+        "matchesJsonPath": "$.request_hash"
+      },
+      {
+        "matchesJsonPath": "$[?(@.evidence_mode == 'play_integrity_standard')]"
+      },
+      {
+        "matchesJsonPath": "$[?(@.token =~ /android-debug-attestation:.+/)]"
+      },
+      {
+        "matchesJsonPath": "$.key_id"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "token": "attestation.mock.proof.android",
+      "expires_at": 2524608000000
+    },
+    "fixedDelayMilliseconds": 250
+  }
+}

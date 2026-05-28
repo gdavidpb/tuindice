@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-pensum-retry-login",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "BootstrapIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic NzctNzc3Nzc6cGVuc3VtLXJldHJ5LXBhc3M="
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "pensum-retry-user",
+      "usb_id": "77-77777",
+      "access_token": "bootstrap.mock.pensum.retry.token",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

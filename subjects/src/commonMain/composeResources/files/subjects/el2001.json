@@ -1,0 +1,170 @@
+{
+  "id": "EL2001",
+  "name": "Electivo de Profundizacion",
+  "credits": 4,
+  "grading_mode": "numeric",
+  "generated_at": 1763340000000,
+  "expires_at": 1765932000000,
+  "career_segment": {
+    "sample_students": 1520,
+    "closed_attempts": 1720,
+    "numeric_latest_students": 1520,
+    "latest_approved_count": 1360,
+    "latest_failed_count": 80,
+    "latest_retired_count": 40,
+    "latest_unreported_count": 40,
+    "average_grade": 4.2,
+    "median_grade": 4.0,
+    "stddev_grade": 0.6,
+    "first_attempt_pass_rate": 0.79,
+    "approval_rate": 0.89,
+    "latest_failure_rate": 0.0526,
+    "latest_withdrawal_rate": 0.0263,
+    "retake_rate": 0.11,
+    "avg_attempts_to_pass": 1.2,
+    "median_attempts_to_pass": 1.0,
+    "difficulty_score": 14,
+    "difficulty_band": "low",
+    "first_closed_term_start_at": 1711929600000,
+    "last_closed_term_start_at": 1759276800000,
+    "latest_grade_bins": [
+      {
+        "grade": 1,
+        "count": 40
+      },
+      {
+        "grade": 2,
+        "count": 80
+      },
+      {
+        "grade": 3,
+        "count": 240
+      },
+      {
+        "grade": 4,
+        "count": 680
+      },
+      {
+        "grade": 5,
+        "count": 480
+      }
+    ],
+    "all_grade_bins": [
+      {
+        "grade": 1,
+        "count": 40
+      },
+      {
+        "grade": 2,
+        "count": 120
+      },
+      {
+        "grade": 3,
+        "count": 280
+      },
+      {
+        "grade": 4,
+        "count": 760
+      },
+      {
+        "grade": 5,
+        "count": 520
+      }
+    ],
+    "attempts_to_pass_bins": [
+      {
+        "bucket": "1",
+        "count": 1080
+      },
+      {
+        "bucket": "2",
+        "count": 240
+      },
+      {
+        "bucket": "3_plus",
+        "count": 40
+      }
+    ]
+  },
+  "global_segment": {
+    "sample_students": 5640,
+    "closed_attempts": 6360,
+    "numeric_latest_students": 5640,
+    "latest_approved_count": 4960,
+    "latest_failed_count": 320,
+    "latest_retired_count": 200,
+    "latest_unreported_count": 160,
+    "average_grade": 4.1,
+    "median_grade": 4.0,
+    "stddev_grade": 0.7,
+    "first_attempt_pass_rate": 0.74,
+    "approval_rate": 0.88,
+    "latest_failure_rate": 0.0567,
+    "latest_withdrawal_rate": 0.0355,
+    "retake_rate": 0.14,
+    "avg_attempts_to_pass": 1.2,
+    "median_attempts_to_pass": 1.0,
+    "difficulty_score": 17,
+    "difficulty_band": "low",
+    "first_closed_term_start_at": 1680307200000,
+    "last_closed_term_start_at": 1759276800000,
+    "latest_grade_bins": [
+      {
+        "grade": 1,
+        "count": 120
+      },
+      {
+        "grade": 2,
+        "count": 320
+      },
+      {
+        "grade": 3,
+        "count": 1080
+      },
+      {
+        "grade": 4,
+        "count": 2440
+      },
+      {
+        "grade": 5,
+        "count": 1680
+      }
+    ],
+    "all_grade_bins": [
+      {
+        "grade": 1,
+        "count": 160
+      },
+      {
+        "grade": 2,
+        "count": 360
+      },
+      {
+        "grade": 3,
+        "count": 1240
+      },
+      {
+        "grade": 4,
+        "count": 2720
+      },
+      {
+        "grade": 5,
+        "count": 1880
+      }
+    ],
+    "attempts_to_pass_bins": [
+      {
+        "bucket": "1",
+        "count": 3680
+      },
+      {
+        "bucket": "2",
+        "count": 960
+      },
+      {
+        "bucket": "3_plus",
+        "count": 320
+      }
+    ]
+  }
+}

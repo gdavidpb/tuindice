@@ -1,0 +1,86 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- runFlow: ../auth/login-success.yaml
+- runFlow: ../wizard/wizard-smoke.yaml
+- tapOn:
+    id: maincore_tuindice_bottom_bar_about_item
+- extendedWaitUntil:
+    visible:
+      id: about_content_container
+    timeout: 20000
+- tapOn:
+    id: about_open_creative_commons
+- launchApp:
+    stopApp: false
+    clearState: false
+- tapOn:
+    id: maincore_tuindice_bottom_bar_about_item
+- extendedWaitUntil:
+    visible:
+      id: about_content_container
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: about_open_x
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: about_open_x
+- launchApp:
+    stopApp: false
+    clearState: false
+- tapOn:
+    id: maincore_tuindice_bottom_bar_about_item
+- extendedWaitUntil:
+    visible:
+      id: about_content_container
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: about_open_github
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: about_open_github
+- launchApp:
+    stopApp: false
+    clearState: false
+- tapOn:
+    id: maincore_tuindice_bottom_bar_about_item
+- extendedWaitUntil:
+    visible:
+      id: about_content_container
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: about_open_kotlin
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: about_open_kotlin
+- launchApp:
+    stopApp: false
+    clearState: false
+- tapOn:
+    id: maincore_tuindice_bottom_bar_about_item
+- extendedWaitUntil:
+    visible:
+      id: about_content_container
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: about_open_dst
+    direction: DOWN
+    timeout: 10000
+- tapOn:
+    id: about_open_dst
+- launchApp:
+    stopApp: false
+    clearState: false
+- tapOn:
+    id: maincore_tuindice_bottom_bar_about_item
+- extendedWaitUntil:
+    visible:
+      id: about_content_container
+    timeout: 10000

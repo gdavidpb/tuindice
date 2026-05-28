@@ -1,0 +1,11 @@
+{
+  "request": {
+    "method": "PUT",
+    "urlPathPattern": "/record/v5/overlay/attempts/[^/]+"
+  },
+  "response": {
+    "transformers": [
+      "record-response-transformer"
+    ]
+  }
+}

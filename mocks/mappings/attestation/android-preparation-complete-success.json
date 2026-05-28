@@ -1,0 +1,50 @@
+{
+  "scenarioName": "android-attestation-preparation",
+  "requiredScenarioState": "PreparationRequired",
+  "newScenarioState": "Prepared",
+  "request": {
+    "method": "POST",
+    "urlPath": "/attestation/v4/preparations/complete",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    },
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.session_id == 'mock-attestation-session-android-bootstrap')]"
+      },
+      {
+        "matchesJsonPath": "$[?(@.preparation_code == 'bootstrap')]"
+      },
+      {
+        "matchesJsonPath": "$.request_hash"
+      },
+      {
+        "matchesJsonPath": "$[?(@.evidence_mode == 'play_integrity_classic')]"
+      },
+      {
+        "matchesJsonPath": "$[?(@.token =~ /android-debug-attestation:.+/)]"
+      },
+      {
+        "matchesJsonPath": "$.key_id"
+      },
+      {
+        "matchesJsonPath": "$.proof_of_possession.signature"
+      },
+      {
+        "matchesJsonPath": "$.proof_of_possession.public_key"
+      },
+      {
+        "matchesJsonPath": "$.proof_of_possession.attestation_certificate_chain[0]"
+      }
+    ]
+  },
+  "response": {
+    "status": 204,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "fixedDelayMilliseconds": 250
+  }
+}

@@ -1,0 +1,29 @@
+{
+  "scenarioName": "login-token-lifecycle",
+  "requiredScenarioState": "TokensIssued",
+  "newScenarioState": "TokensRevoked",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/token/revoke",
+    "headers": {
+      "X-Attestation-Token": {
+        "matches": "attestation\\.mock\\.proof\\.(android|ios)"
+      }
+    },
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$.session_id"
+      },
+      {
+        "matchesJsonPath": "$.refresh_token"
+      }
+    ]
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

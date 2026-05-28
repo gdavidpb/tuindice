@@ -1,0 +1,47 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- runFlow: ../auth/login-success.yaml
+- runFlow: ../wizard/wizard-smoke.yaml
+- tapOn:
+    id: maincore_tuindice_bottom_bar_record_item
+- extendedWaitUntil:
+    visible:
+      id: record_content_container
+    timeout: 30000
+- tapOn:
+    id: record_term_chip_d377155d39da686f412622aaca9074cd
+- extendedWaitUntil:
+    visible:
+      id: record_attempt_grade_value_e21f0d7e481d13d19f328d6818ce4d77_4
+    timeout: 10000
+- tapOn:
+    id: record_attempt_grade_slider_e21f0d7e481d13d19f328d6818ce4d77
+    point: "95%,50%"
+    retryTapIfNoChange: true
+- extendedWaitUntil:
+    visible:
+      id: record_attempt_grade_value_e21f0d7e481d13d19f328d6818ce4d77_5
+    timeout: 10000
+- tapOn:
+    id: record_attempt_grade_slider_e21f0d7e481d13d19f328d6818ce4d77
+    point: "75%,50%"
+    retryTapIfNoChange: true
+- extendedWaitUntil:
+    visible:
+      id: record_attempt_grade_value_e21f0d7e481d13d19f328d6818ce4d77_4
+    timeout: 10000
+- tapOn:
+    id: record_term_chip_synthetic-2026-jul-aug-degree-project
+- extendedWaitUntil:
+    visible:
+      id: record_attempt_status_selector_synthetic-2026-jul-aug-ep1308
+    timeout: 10000
+- tapOn:
+    id: record_attempt_status_selector_synthetic-2026-jul-aug-ep1308
+- tapOn:
+    id: record_attempt_status_option_synthetic-2026-jul-aug-ep1308_approved
+- extendedWaitUntil:
+    visible:
+      id: record_attempt_status_value_synthetic-2026-jul-aug-ep1308_approved
+    timeout: 10000

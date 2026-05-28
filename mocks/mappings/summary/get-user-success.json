@@ -1,0 +1,16 @@
+{
+  "scenarioName": "summary-user-picture-lifecycle",
+  "requiredScenarioState": "Started",
+  "request": {
+    "method": "GET",
+    "urlPath": "/users/v1"
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "summary/get-user-started.json",
+    "fixedDelayMilliseconds": 1000
+  }
+}

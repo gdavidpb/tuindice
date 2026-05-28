@@ -1,0 +1,123 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- runFlow: ../auth/login-success.yaml
+- runFlow: ../wizard/wizard-smoke.yaml
+- tapOn:
+    id: maincore_tuindice_bottom_bar_evaluations_item
+- extendedWaitUntil:
+    visible:
+      id: evaluations_content_container
+    timeout: 20000
+- tapOn:
+    id: evaluations_filter_chip_ci5311
+- extendedWaitUntil:
+    visible:
+      id: evaluations_filter_chip_check_ci5311
+    timeout: 10000
+- assertVisible:
+    id: evaluations_clear_filters_fab
+- tapOn:
+    id: evaluations_filter_chip_ci5311
+- extendedWaitUntil:
+    notVisible:
+      id: evaluations_clear_filters_fab
+    timeout: 10000
+- tapOn:
+    id: evaluations_filter_chip_ci5311
+- extendedWaitUntil:
+    visible:
+      id: evaluations_clear_filters_fab
+    timeout: 10000
+- tapOn:
+    id: evaluations_clear_filters_fab
+- extendedWaitUntil:
+    notVisible:
+      id: evaluations_clear_filters_fab
+    timeout: 10000
+- tapOn:
+    id: evaluations_add_fab
+- extendedWaitUntil:
+    visible:
+      id: evaluation_content_container
+    timeout: 20000
+- tapOn:
+    id: evaluation_subject_chip_e21f0d7e481d13d19f328d6818ce4d77
+- assertVisible:
+    id: evaluation_subject_chip_e21f0d7e481d13d19f328d6818ce4d77
+- tapOn:
+    id: evaluation_subject_chip_e21f0d7e481d13d19f328d6818ce4d77
+- assertVisible:
+    id: evaluation_subject_picker_row
+- tapOn:
+    id: evaluation_subject_chip_e21f0d7e481d13d19f328d6818ce4d77
+- tapOn:
+    id: evaluation_type_chip_test
+- assertVisible:
+    id: evaluation_type_chip_test
+- tapOn:
+    id: evaluation_type_chip_test
+- assertVisible:
+    id: evaluation_type_picker_row
+- tapOn:
+    id: evaluation_type_chip_test
+- tapOn:
+    id: evaluation_date_select_button
+- extendedWaitUntil:
+    visible:
+      id: evaluation_date_dialog_title
+    timeout: 10000
+- tapOn:
+    id: evaluation_date_dialog_cancel_button
+- tapOn:
+    id: evaluation_date_select_button
+- extendedWaitUntil:
+    visible:
+      id: evaluation_calendar_container
+    timeout: 10000
+- tapOn:
+    id: evaluation_calendar_day_cell_15
+- tapOn:
+    id: evaluation_date_dialog_accept_button
+- assertVisible:
+    id: evaluation_date_picker
+- assertNotVisible:
+    id: evaluation_grade_chip
+- tapOn:
+    id: evaluation_max_grade_chip
+- extendedWaitUntil:
+    visible:
+      id: evaluation_dialog_title
+    timeout: 10000
+- assertVisible:
+    id: evaluation_dialog_subtitle
+- assertVisible:
+    id: evaluation_dialog_subject_code_chip
+- tapOn:
+    id: evaluation_dialog_confirm_button
+- extendedWaitUntil:
+    visible:
+      id: evaluation_grade_chip
+    timeout: 10000
+- tapOn:
+    id: evaluation_grade_chip
+- extendedWaitUntil:
+    visible:
+      id: evaluation_dialog_title
+    timeout: 10000
+- assertVisible:
+    id: evaluation_dialog_subtitle
+- assertVisible:
+    id: evaluation_dialog_subject_code_chip
+- assertVisible:
+    id: evaluation_grade_wheel_picker
+- tapOn:
+    id: evaluation_dialog_confirm_button
+- tapOn:
+    id: evaluation_date_no_date_button
+- tapOn:
+    id: maincore_tuindice_top_bar_back_button
+- extendedWaitUntil:
+    visible:
+      id: evaluations_content_container
+    timeout: 10000

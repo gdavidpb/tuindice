@@ -1,0 +1,22 @@
+#include? "../Pods/Target Support Files/Pods-TuIndiceHost/Pods-TuIndiceHost.release.xcconfig"
+#include "Version.xcconfig"
+
+PRODUCT_BUNDLE_IDENTIFIER = com.gdavidpb.tuindice
+PRODUCT_NAME = TuIndiceHost
+INFOPLIST_FILE = Resources/Info.plist
+CODE_SIGN_ENTITLEMENTS = Resources/TuIndiceHost.entitlements
+SWIFT_VERSION = 5.9
+IPHONEOS_DEPLOYMENT_TARGET = 16.0
+IPHONEOS_DEPLOYMENT_TARGET[sdk=iphonesimulator*] = 18.5
+ARCHS[sdk=iphonesimulator*] = arm64
+TARGETED_DEVICE_FAMILY = 1,2
+OTHER_LDFLAGS = $(inherited) -framework maincore
+FRAMEWORK_SEARCH_PATHS[sdk=iphoneos*] = $(inherited) $(SRCROOT)/../maincore/build/bin/iosArm64/releaseFramework
+FRAMEWORK_SEARCH_PATHS[sdk=iphonesimulator*][arch=arm64] = $(inherited) $(SRCROOT)/../maincore/build/bin/iosSimulatorArm64/releaseFramework
+TUINDICE_API_BASE_URL = https:/$()/api.tuindice.app/
+TUINDICE_PRIVACY_POLICY_URL = https:/$()/tuindice.app/privacy_policy_v6_0.html
+TUINDICE_TERMS_AND_CONDITIONS_URL = https:/$()/tuindice.app/terms_and_conditions_v6_0.html
+TUINDICE_SUPPORT_URL = https:/$()/tuindice.app/support_v6_0.html
+TUINDICE_DEBUG = NO
+APS_ENVIRONMENT = production
+APP_ATTEST_ENVIRONMENT = production

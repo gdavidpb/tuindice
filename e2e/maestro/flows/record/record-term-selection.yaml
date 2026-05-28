@@ -1,0 +1,43 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- runFlow: ../auth/login-success.yaml
+- runFlow: ../wizard/wizard-smoke.yaml
+- tapOn:
+    id: maincore_tuindice_bottom_bar_record_item
+- extendedWaitUntil:
+    visible:
+      id: record_content_container
+    timeout: 30000
+- assertVisible:
+    id: record_term_selector_row
+- assertVisible:
+    id: record_attempt_item_synthetic-2026-jul-aug-ep1308
+- assertVisible:
+    id: record_edit_synthetic_term_button
+- tapOn:
+    id: record_term_chip_d377155d39da686f412622aaca9074cd
+- extendedWaitUntil:
+    visible:
+      id: record_attempt_item_e21f0d7e481d13d19f328d6818ce4d77
+    timeout: 10000
+- assertVisible:
+    id: base_top_app_bar_action_enrollment_proof
+- tapOn:
+    id: record_top_bar_view_mode_switch
+- extendedWaitUntil:
+    visible:
+      id: record_top_bar_view_mode_banner
+    timeout: 10000
+- extendedWaitUntil:
+    visible:
+      id: record_attempt_item_8322eaae7602f4749aef5691b9724af2
+    timeout: 10000
+- tapOn:
+    id: record_top_bar_view_mode_switch
+- extendedWaitUntil:
+    visible:
+      id: record_attempt_item_e21f0d7e481d13d19f328d6818ce4d77
+    timeout: 10000
+- assertVisible:
+    id: base_top_app_bar_action_enrollment_proof
