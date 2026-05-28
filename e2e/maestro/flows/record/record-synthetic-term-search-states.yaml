@@ -101,6 +101,12 @@ appId: com.gdavidpb.tuindice.debug
     id: record_create_synthetic_term_subject_AA1001_status_not_in_pensum
 - assertVisible:
     id: record_create_synthetic_term_subject_AA1001_stats_button
+- scrollUntilVisible:
+    element:
+      id: record_create_synthetic_term_subject_AA1001_stats_button
+    direction: DOWN
+    centerElement: true
+    timeout: 20000
 - tapOn:
     id: record_create_synthetic_term_subject_AA1001_stats_button
 - extendedWaitUntil:
