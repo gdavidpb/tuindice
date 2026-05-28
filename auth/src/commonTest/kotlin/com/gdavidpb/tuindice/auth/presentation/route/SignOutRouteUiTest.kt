@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -140,6 +141,7 @@ class SignOutRouteUiTest {
 			authRepository = authRepository,
 			attestationRepository = attestationRepository,
 			sessionRepository = sessionRepository,
+			sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 			applicationRepository = applicationRepository,
 			syncStatusRepository = syncStatusRepository,
 			reportingRepository = reportingRepository

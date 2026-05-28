@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
@@ -19,6 +20,7 @@ class SignOutUseCase(
 	private val authRepository: AuthRepository,
 	private val attestationRepository: AttestationRepository,
 	private val sessionRepository: SessionRepository,
+	private val sessionInvalidationRepository: SessionInvalidationRepository,
 	private val applicationRepository: ApplicationRepository,
 	private val syncStatusRepository: SyncStatusRepository,
 	override val reportingRepository: ReportingRepository
@@ -30,6 +32,7 @@ class SignOutUseCase(
 			sessionId = sessionId,
 			refreshToken = refreshToken
 		)
+
 		val attestation = attestationRepository.attest(
 			request = AttestationRequest(
 				operationCode = ProtectedOperationCodes.AuthRevokeTokens,
@@ -44,11 +47,18 @@ class SignOutUseCase(
 			)
 		)
 
-		authRepository.revokeTokens(
-			sessionId = sessionId,
-			refreshToken = refreshToken,
-			attestation = attestation
-		)
+		sessionInvalidationRepository.markIntentionalSignOut(sessionId)
+
+		runCatching {
+			authRepository.revokeTokens(
+				sessionId = sessionId,
+				refreshToken = refreshToken,
+				attestation = attestation
+			)
+		}.onFailure { throwable ->
+			sessionInvalidationRepository.clearIntentionalSignOut(sessionId)
+			throw throwable
+		}
 
 		sessionRepository.clear()
 		applicationRepository.clearData()

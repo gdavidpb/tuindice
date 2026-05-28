@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.test.runTest
@@ -45,6 +46,7 @@ class SignOutViewModelContractTest {
 					authRepository = RecordingAuthRepository(),
 					attestationRepository = FakeAttestationRepository(),
 					sessionRepository = FakeSessionRepository(),
+					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 					applicationRepository = RecordingApplicationRepository(),
 					syncStatusRepository = FakeSyncStatusRepository(),
 					reportingRepository = RecordingReportingRepository()
@@ -61,6 +63,7 @@ class SignOutViewModelContractTest {
 					authRepository = RecordingAuthRepository(),
 					attestationRepository = FakeAttestationRepository(),
 					sessionRepository = FakeSessionRepository(),
+					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 					applicationRepository = RecordingApplicationRepository(),
 					syncStatusRepository = FakeSyncStatusRepository(),
 					reportingRepository = RecordingReportingRepository()
@@ -71,6 +74,7 @@ class SignOutViewModelContractTest {
 					authRepository = RecordingAuthRepository(),
 					attestationRepository = FakeAttestationRepository(),
 					sessionRepository = FakeSessionRepository(),
+					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 					applicationRepository = RecordingApplicationRepository(),
 					syncStatusRepository = FakeSyncStatusRepository(),
 					reportingRepository = RecordingReportingRepository()
@@ -115,6 +119,7 @@ class SignOutViewModelContractTest {
 			authRepository = RecordingAuthRepository(),
 			attestationRepository = FakeAttestationRepository(),
 			sessionRepository = FakeSessionRepository(),
+			sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 			applicationRepository = RecordingApplicationRepository(),
 			syncStatusRepository = FakeSyncStatusRepository(),
 			reportingRepository = reportingRepository
@@ -185,6 +190,7 @@ class SignOutViewModelContractTest {
 			authRepository = authRepository,
 			attestationRepository = attestationRepository,
 			sessionRepository = sessionRepository,
+			sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 			applicationRepository = applicationRepository,
 			syncStatusRepository = syncStatusRepository,
 			reportingRepository = reportingRepository

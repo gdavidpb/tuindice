@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
@@ -135,6 +136,7 @@ class AuthActionProcessorContractTest {
 				authRepository = authRepository,
 				attestationRepository = attestationRepository,
 				sessionRepository = sessionRepository,
+				sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 				applicationRepository = applicationRepository,
 				syncStatusRepository = syncStatusRepository,
 				reportingRepository = reportingRepository
@@ -173,6 +175,7 @@ class AuthActionProcessorContractTest {
 				authRepository = RecordingAuthRepository(),
 				attestationRepository = FakeAttestationRepository(),
 				sessionRepository = FakeSessionRepository(),
+				sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 				applicationRepository = RecordingApplicationRepository(),
 				syncStatusRepository = FakeSyncStatusRepository(),
 				reportingRepository = RecordingReportingRepository()

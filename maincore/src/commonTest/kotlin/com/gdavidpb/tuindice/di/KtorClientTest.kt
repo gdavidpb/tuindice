@@ -145,6 +145,28 @@ class KtorClientTest {
 	}
 
 	@Test
+	fun handleUnauthorizedTokenRefresh_suppressesInvalidation_afterIntentionalSignOut() = runTest {
+		val sessionRepository = FakeSessionRepository()
+		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
+		val applicationRepository = RecordingApplicationRepository()
+		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+		sessionInvalidationRepository.markIntentionalSignOut("session-123")
+
+		handleUnauthorizedTokenRefresh(
+			sessionRepository = sessionRepository,
+			syncStatusRepository = syncStatusRepository,
+			applicationRepository = applicationRepository,
+			sessionInvalidationRepository = sessionInvalidationRepository,
+			sessionId = "session-123"
+		)
+
+		assertTrue(sessionRepository.cleared)
+		assertEquals(1, syncStatusRepository.resetCalls)
+		assertTrue(applicationRepository.cleared)
+		assertEquals(0, sessionInvalidationRepository.invalidationCalls)
+	}
+
+	@Test
 	fun installSharedBearerAuth_usesLatestPersistedTokens_withoutRecreatingTheClient() = runTest {
 		val sessionRepository = FakeSessionRepository(
 			sessionId = "session-old",

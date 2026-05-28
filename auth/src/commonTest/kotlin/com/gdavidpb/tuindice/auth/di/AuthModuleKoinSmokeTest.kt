@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
@@ -27,6 +28,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepositor
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
@@ -44,9 +46,10 @@ class AuthModuleKoinSmokeTest {
 		module {
 			single<AuthRepository> { RecordingAuthRepository() }
 			single<MessagingRepository> { RecordingMessagingRepository() }
-			single<AttestationRepository> { FakeAttestationRepository() }
-			single<SessionRepository> { FakeSessionRepository() }
-			single<SyncRepository> { FakeSyncRepository() }
+				single<AttestationRepository> { FakeAttestationRepository() }
+				single<SessionRepository> { FakeSessionRepository() }
+				single<SessionInvalidationRepository> { FakeSessionInvalidationRepository() }
+				single<SyncRepository> { FakeSyncRepository() }
 			single<CredentialsRepository> { FakeCredentialsRepository() }
 			single<SyncStatusRepository> { FakeSyncStatusRepository() }
 			single<ApplicationRepository> { RecordingApplicationRepository() }
