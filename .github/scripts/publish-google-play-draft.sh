@@ -114,7 +114,7 @@ cleanup_edit() {
 }
 trap cleanup_edit EXIT
 
-TRACK_STATE="$(mktemp "${RUNNER_TEMP:-/tmp}/tuindice-play-track-state.XXXXXX.json")"
+TRACK_STATE="$(mktemp "${RUNNER_TEMP:-/tmp}/tuindice-play-track-state.XXXXXX")"
 if api_get_json "${API_ROOT}/edits/${EDIT_ID}/tracks/${GOOGLE_PLAY_TRACK}" "$TRACK_STATE"; then
 	EXISTING_RELEASE_STATUS="$(
 		jq -r \
@@ -159,7 +159,7 @@ UPLOADED_VERSION_CODE="$(
 [[ -n "$UPLOADED_VERSION_CODE" ]] || die "Google Play bundle upload did not return a versionCode."
 [[ "$UPLOADED_VERSION_CODE" == "$ANDROID_VERSION_CODE" ]] || die "Uploaded versionCode ${UPLOADED_VERSION_CODE} does not match $(app_version_file) androidVersionCode ${ANDROID_VERSION_CODE}."
 
-TRACK_PAYLOAD="$(mktemp "${RUNNER_TEMP:-/tmp}/tuindice-play-track.XXXXXX.json")"
+TRACK_PAYLOAD="$(mktemp "${RUNNER_TEMP:-/tmp}/tuindice-play-track.XXXXXX")"
 jq -n \
 	--arg track "$GOOGLE_PLAY_TRACK" \
 	--arg release_name "${VERSION_NAME} (${ANDROID_VERSION_CODE})" \

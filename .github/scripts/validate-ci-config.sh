@@ -8,6 +8,14 @@ source "${SCRIPT_DIR}/common.sh"
 
 require_tool bash
 
+mktemp_portability_violations="$(
+	grep -R -n -E 'mktemp [^#]*XXXXXX[[:alnum:]_.-]+' .github/scripts e2e/scripts iosApp/scripts 2>/dev/null || true
+)"
+if [[ -n "$mktemp_portability_violations" ]]; then
+	printf '%s\n' "$mktemp_portability_violations" >&2
+	die "mktemp templates must end in XXXXXX for macOS portability."
+fi
+
 while IFS= read -r script_file; do
 	[[ -n "$script_file" ]] || continue
 	info "Checking shell syntax: ${script_file}"
@@ -25,5 +33,7 @@ done < <(
 
 bash "${SCRIPT_DIR}/test-preflight-production.sh"
 bash "${SCRIPT_DIR}/test-detect-changed-app.sh"
+bash "${SCRIPT_DIR}/test-google-play-draft-check.sh"
+bash "${SCRIPT_DIR}/test-appstore-connect-check.sh"
 
 info "CI configuration syntax checks passed."
