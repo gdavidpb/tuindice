@@ -24,6 +24,7 @@ adb install -r "${APK_PATH}" >/dev/null
 
 mkdir -p "${E2E_REPORT_DIR}"
 MAESTRO_LOG_FILE="${E2E_MAESTRO_LOG_FILE:-${E2E_REPORT_DIR}/maestro-android.log}"
+E2E_MAESTRO_SUITE="$("${SCRIPT_DIR}/prepare-maestro-suite.sh" "${E2E_MAESTRO_SUITE}")"
 declare -a maestro_args=(
 	test
 )

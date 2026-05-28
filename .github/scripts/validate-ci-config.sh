@@ -23,4 +23,6 @@ done < <(
 	find .github/workflows \( -name '*.yml' -o -name '*.yaml' \) -type f 2>/dev/null | sort
 )
 
+bash "${SCRIPT_DIR}/test-preflight-production.sh"
+
 info "CI configuration syntax checks passed."

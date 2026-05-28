@@ -16,6 +16,13 @@ Platform execution commands:
 ./gradlew e2eMaestroIos
 ```
 
+Maestro profiling commands:
+
+```bash
+./gradlew e2eMaestroProfileAndroid
+./gradlew e2eMaestroProfileIos
+```
+
 Optional aggregate command:
 
 ```bash
@@ -50,6 +57,11 @@ Useful environment variables:
 - `E2E_HEAD_SHA`: optional head ref for smart evidence scope; otherwise evidence uses `E2E_COMMIT_SHA` or `HEAD`.
 - `E2E_SCOPE_FILE`: optional `platform,suite,reason` file to replay a previously resolved smart scope.
 - `E2E_MAESTRO_SUITE`: bypasses smart scope resolution and runs one explicit suite; use it only for ad-hoc debugging.
+- `E2E_MAESTRO_OPTIMIZE_SETUP`: defaults to `1`; set to `0` to run source YAML without the seeded authenticated setup optimization.
+- `E2E_WIREMOCK_DELAY_PROFILE`: defaults to `fast` in E2E runners; use `legacy` to keep checked-in WireMock delays unchanged.
+- `E2E_PROFILE_OUTPUT_DIR`: defaults to `build/e2e/profiles` for profile runs.
+- `TUINDICE_E2E_API_BASE_URL`: iOS debug runtime API URL override used by Maestro launch arguments.
+- `TUINDICE_E2E_WEB_BASE_URL`: iOS debug runtime web URL override used by Maestro launch arguments.
 - `E2E_STRICT_IOS=1`: makes `e2eMaestroLocal` fail when iOS cannot run.
 - `E2E_REPORT_DIR`: defaults to `build/e2e`.
 - `E2E_DISABLE_KEYBOARD_HELPERS`: defaults to `1`; reset scripts best-effort disable spellcheck, autofill, autocorrection, and prediction helpers that can surface keyboard recommendation popups during Maestro input.
@@ -60,7 +72,8 @@ Execution order:
 2. Reset WireMock scenarios and request journal.
 3. Build the debug app.
 4. Reset app state.
-5. Install and run the Maestro suite.
+5. Install and prepare an optimized suite copy unless disabled.
+6. Run the Maestro suite.
 
 MVI action coverage:
 

@@ -7,6 +7,7 @@ Rules:
 - Keep backend fixture changes in the same change as app contract changes.
 - Use WireMock scenarios for stateful flows such as auth lifecycle, profile picture mutation, evaluations mutation, and record mutation.
 - Every E2E flow should start from a known app state and reset WireMock scenarios before the suite.
+- The seeded authenticated launch helper may set `login-token-lifecycle` directly to `TokensIssued`; keep that scenario compatible with the canonical successful login tokens.
 - Do not call production services from local E2E.
 - If a Maestro flow needs a new backend state, add a mapping under `mocks/mappings/<domain>/` and referenced bodies under `mocks/__files/<domain>/`.
 - Record the new fixture dependency in `flow-catalog.yaml`.
@@ -33,3 +34,5 @@ PORT=8080 ./mocks/start-mock-enviroment.sh
 ```
 
 The E2E scripts wrap this command and store logs under `/tmp/tuindice-e2e`.
+They pass `WIREMOCK_DELAY_PROFILE=fast` by default through
+`E2E_WIREMOCK_DELAY_PROFILE`; use `legacy` to preserve checked-in delays.

@@ -159,6 +159,15 @@ flows:
     variant: clean-launch
     fixture_state: reset-app-state
     primary_selectors: [auth_usb_id_text_field]
+  - id: shared-launch-seeded-authenticated
+    path: e2e/maestro/flows/_shared/launch-seeded-authenticated.yaml
+    module: shared
+    type: setup
+    platforms: [android, ios]
+    status: active
+    variant: seeded-authenticated
+    fixture_state: authenticated-content
+    primary_selectors: [summary_content_container]
   - id: maincore-snackbar-retry
     path: e2e/maestro/flows/auth/login-retry-after-unavailable.yaml
     module: maincore

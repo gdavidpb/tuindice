@@ -105,6 +105,7 @@ fi
 
 log "Starting WireMock at ${E2E_WIREMOCK_URL}."
 PORT="${E2E_WIREMOCK_PORT}" \
+	WIREMOCK_DELAY_PROFILE="${E2E_WIREMOCK_DELAY_PROFILE}" \
 	WIREMOCK_GENERATED_ROOT="${WIREMOCK_GENERATED_ROOT:-${E2E_TMP_DIR}/wiremock-generated}" \
 	"${REPO_ROOT}/mocks/start-mock-enviroment.sh" \
 	> "${WIREMOCK_LOG}" 2>&1 &

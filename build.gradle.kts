@@ -270,6 +270,18 @@ tasks.register<Exec>("e2eMaestroEvidenceLocal") {
 	commandLine("bash", "${rootDir}/e2e/scripts/run-maestro-evidence-local.sh")
 }
 
+tasks.register<Exec>("e2eMaestroProfileAndroid") {
+	group = "verification"
+	description = "Profiles Android Maestro E2E targets and writes local per-target timing reports without publishing evidence statuses."
+	commandLine("bash", "${rootDir}/e2e/scripts/profile-maestro-suite.sh", "android")
+}
+
+tasks.register<Exec>("e2eMaestroProfileIos") {
+	group = "verification"
+	description = "Profiles iOS Maestro E2E targets and writes local per-target timing reports without publishing evidence statuses."
+	commandLine("bash", "${rootDir}/e2e/scripts/profile-maestro-suite.sh", "ios")
+}
+
 tasks.register<Exec>("e2ePlatformAndroid") {
 	group = "verification"
 	description = "Runs Android-only E2E edge suites when registered."

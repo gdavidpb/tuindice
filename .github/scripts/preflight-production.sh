@@ -9,6 +9,7 @@ source "${SCRIPT_DIR}/common.sh"
 
 require_tool git
 require_tool jq
+require_tool curl
 
 MISSING_VERSION_BUMP_FILE="${MISSING_VERSION_BUMP_FILE:-}"
 E2E_ANDROID_CONTEXTS_FILE="${E2E_ANDROID_CONTEXTS_FILE:-}"
@@ -19,6 +20,7 @@ SUMMARY_FILE="${SUMMARY_FILE:-${GITHUB_STEP_SUMMARY:-${RUNNER_TEMP:-/tmp}/prefli
 TARGET_GIT_SHA="${TARGET_GIT_SHA:-${GITHUB_SHA:-$(git rev-parse HEAD)}}"
 E2E_REUSE_BASE_SHA="${E2E_REUSE_BASE_SHA:-}"
 E2E_REUSE_MAX_COMMITS="${E2E_REUSE_MAX_COMMITS:-50}"
+E2E_FINGERPRINT_SCRIPT="${E2E_FINGERPRINT_SCRIPT:-${REPO_ROOT}/e2e/scripts/e2e-fingerprint.sh}"
 MISSING_E2E_STATUSES_FILE="${MISSING_E2E_STATUSES_FILE:-${RUNNER_TEMP:-/tmp}/missing-e2e-statuses.txt}"
 
 file_has_entries() {
@@ -136,19 +138,47 @@ publish_github_commit_status() {
 	local repository="${GITHUB_REPOSITORY:?GITHUB_REPOSITORY is required to publish E2E commit statuses.}"
 	local token="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
 	local api_url="${GITHUB_API_URL:-https://api.github.com}"
+	local payload
+	local response
+	local response_context
+	local response_state
 
 	[[ -n "$token" ]] || die "GITHUB_TOKEN or GH_TOKEN is required to publish reused E2E commit status '${context}'."
 
-	curl --fail --silent --show-error \
-		-X POST \
-		-H "Accept: application/vnd.github+json" \
-		-H "Authorization: Bearer ${token}" \
-		-H "X-GitHub-Api-Version: 2022-11-28" \
-		"${api_url}/repos/${repository}/statuses/${TARGET_GIT_SHA}" \
-		--data-urlencode state=success \
-		--data-urlencode "context=${context}" \
-		--data-urlencode "description=${description}" \
-		>/dev/null
+	payload="$(
+		jq -n -c \
+			--arg state "success" \
+			--arg context "$context" \
+			--arg description "$description" \
+			'{state: $state, context: $context, description: $description}'
+	)"
+
+	response="$(
+		curl --fail --silent --show-error \
+			-X POST \
+			-H "Accept: application/vnd.github+json" \
+			-H "Authorization: Bearer ${token}" \
+			-H "X-GitHub-Api-Version: 2022-11-28" \
+			-H "Content-Type: application/json" \
+			"${api_url}/repos/${repository}/statuses/${TARGET_GIT_SHA}" \
+			--data "$payload"
+	)" || return 1
+
+	response_state="$(printf '%s\n' "$response" | jq -r '.state // empty')"
+	response_context="$(printf '%s\n' "$response" | jq -r '.context // empty')"
+	[[ "$response_state" == "success" && "$response_context" == "$context" ]]
+}
+
+publish_reused_github_commit_status() {
+	local context="$1"
+	local description="$2"
+
+	if publish_github_commit_status "$context" "$description"; then
+		return 0
+	fi
+
+	warn "Could not publish reused E2E status '${context}' on ${TARGET_GIT_SHA}."
+	return 1
 }
 
 e2e_suite_from_context() {
@@ -165,7 +195,7 @@ e2e_fingerprint() {
 	local platform="$2"
 	local suite="$3"
 
-	bash "${REPO_ROOT}/e2e/scripts/e2e-fingerprint.sh" "$platform" "$suite" "$git_ref"
+	bash "${E2E_FINGERPRINT_SCRIPT}" "$platform" "$suite" "$git_ref"
 }
 
 e2e_reuse_candidate_commits() {
@@ -202,9 +232,10 @@ reuse_successful_status_for_context() {
 			continue
 		fi
 
-		publish_github_commit_status \
+		publish_reused_github_commit_status \
 			"$context" \
-			"Reused E2E ${suite} from ${candidate_sha:0:7} fp ${current_fingerprint:0:12}."
+			"Reused E2E ${suite} from ${candidate_sha:0:7} fp ${current_fingerprint:0:12}." ||
+			return 1
 		info "Reused successful E2E status ${context} from ${candidate_sha} for fingerprint ${current_fingerprint}."
 		return 0
 	done < <(e2e_reuse_candidate_commits)
