@@ -8,8 +8,12 @@ import com.gdavidpb.tuindice.about.presentation.action.OpenTermsAndConditionsAct
 import com.gdavidpb.tuindice.about.presentation.action.OpenUrlActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.RateOnStoreActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.ReportBugActionProcessor
+import com.gdavidpb.tuindice.about.presentation.action.SetAnalyticsCollectionEnabledActionProcessor
 import com.gdavidpb.tuindice.about.presentation.action.ShareAppActionProcessor
 import com.gdavidpb.tuindice.about.presentation.contract.About
+import com.gdavidpb.tuindice.base.data.source.event.InMemoryAnalyticsConsentRepository
+import com.gdavidpb.tuindice.base.domain.repository.AnalyticsConsentRepository
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import kotlinx.coroutines.flow.Flow
@@ -23,8 +27,13 @@ class AboutViewModel(
 	private val shareAppActionProcessor: ShareAppActionProcessor,
 	private val rateOnStoreActionProcessor: RateOnStoreActionProcessor,
 	private val reportBugActionProcessor: ReportBugActionProcessor,
-	private val openUrlActionProcessor: OpenUrlActionProcessor
+	private val openUrlActionProcessor: OpenUrlActionProcessor,
+	private val analyticsConsentRepository: AnalyticsConsentRepository = InMemoryAnalyticsConsentRepository(),
+	private val setAnalyticsCollectionEnabledActionProcessor: SetAnalyticsCollectionEnabledActionProcessor =
+		SetAnalyticsCollectionEnabledActionProcessor(analyticsConsentRepository),
+	override val eventPublisher: EventPublisher
 ) : BaseViewModel<About.State, About.Action, About.Effect>(
+	name = "about",
 	initialState = About.State.Idle,
 	initialAction = About.Action.LoadVersion
 ) {
@@ -51,6 +60,9 @@ class AboutViewModel(
 
 	fun openUrlAction(url: String) =
 		sendAction(About.Action.OpenUrl(url))
+
+	fun setAnalyticsCollectionEnabledAction(enabled: Boolean) =
+		sendAction(About.Action.SetAnalyticsCollectionEnabled(enabled))
 
 	override suspend fun processAction(
 		action: About.Action,
@@ -83,6 +95,9 @@ class AboutViewModel(
 
 			is About.Action.OpenUrl ->
 				openUrlActionProcessor.process(action, sideEffect)
+
+			is About.Action.SetAnalyticsCollectionEnabled ->
+				setAnalyticsCollectionEnabledActionProcessor.process(action, sideEffect)
 		}
 	}
 }

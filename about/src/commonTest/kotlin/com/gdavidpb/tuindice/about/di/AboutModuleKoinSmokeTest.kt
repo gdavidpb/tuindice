@@ -5,9 +5,13 @@ import com.gdavidpb.tuindice.about.domain.repository.StoreUrlRepository
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
+import com.gdavidpb.tuindice.base.data.source.event.InMemoryAnalyticsConsentRepository
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.repository.AnalyticsConsentRepository
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
@@ -29,6 +33,8 @@ class AboutModuleKoinSmokeTest {
 			single<ConfigRepository> { FakeConfigRepository() }
 			single<StoreUrlRepository> { FakeStoreUrlDataSource() }
 			single<ReportingRepository> { RecordingReportingRepository() }
+			single<AnalyticsConsentRepository> { InMemoryAnalyticsConsentRepository() }
+			single<EventPublisher> { NoOpEventPublisher }
 		}
 	) {
 		assertResolves(AboutViewModel::class)

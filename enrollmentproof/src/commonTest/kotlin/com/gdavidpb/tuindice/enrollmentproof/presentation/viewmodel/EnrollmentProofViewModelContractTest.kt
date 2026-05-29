@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.FetchEnrollmentProofUseCase
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.exceptionhandler.FetchEnrollmentProofExceptionHandler
 import com.gdavidpb.tuindice.enrollmentproof.presentation.action.FetchEnrollmentProofActionProcessor
@@ -37,7 +38,8 @@ class EnrollmentProofViewModelContractTest {
 					)
 				),
 				textProvider = FakeEnrollmentProofTextProvider()
-			)
+			),
+			eventPublisher = NoOpEventPublisher
 		)
 		val stateCollector = backgroundScope.launchStateCollector(
 			flow = viewModel.state,

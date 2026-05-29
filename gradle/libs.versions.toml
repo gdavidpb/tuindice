@@ -87,6 +87,7 @@ koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", ver
 
 # Firebase
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-config = { module = "com.google.firebase:firebase-config" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
@@ -168,7 +169,7 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 testing = ["junit", "wiremock"]
 testing-android = ["koin-test", "test-runner", "espresso-core"]
 androidx = ["core-ktx", "browser", "preference-ktx", "exifinterface", "datastore-preferences"]
-firebase = ["firebase-config", "firebase-messaging", "firebase-crashlytics"]
+firebase = ["firebase-analytics", "firebase-config", "firebase-messaging", "firebase-crashlytics"]
 google = ["app-update-ktx", "material", "review-ktx", "integrity"]
 compose = ["compose-ui", "compose-foundation", "compose-animation", "compose-ui-tooling", "compose-preview", "compose-activity", "compose-material3", "compose-icons", "compose-constraintlayout"]
 compose-mpp-core = ["jetbrains-compose-ui", "jetbrains-compose-foundation", "jetbrains-compose-animation", "jetbrains-compose-material3"]

@@ -1,9 +1,11 @@
 package com.gdavidpb.tuindice.pensum.di
 
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
 import com.gdavidpb.tuindice.pensum.presentation.viewmodel.PensumViewModel
@@ -25,6 +27,7 @@ class PensumModuleKoinSmokeTest {
 			single<ReportingRepository> { RecordingReportingRepository() }
 			single<NetworkRepository> { FakeNetworkRepository() }
 			single<RecordDataPrerequisiteRepository> { FakeRecordDataPrerequisiteRepository() }
+			single<EventPublisher> { NoOpEventPublisher }
 		}
 	) {
 		assertResolves(PensumViewModel::class)

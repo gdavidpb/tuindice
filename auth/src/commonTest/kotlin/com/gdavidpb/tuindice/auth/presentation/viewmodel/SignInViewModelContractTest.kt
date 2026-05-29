@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.auth.presentation.viewmodel
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
@@ -60,7 +61,8 @@ class SignInViewModelContractTest {
 			),
 			privacyPolicyActionProcessor = OpenPrivacyPolicyActionProcessor(
 				appEnvironmentRepository = FakeAppEnvironmentRepository()
-			)
+			),
+			eventPublisher = NoOpEventPublisher
 		)
 
 		val stateCollector = backgroundScope.launchStateCollector(

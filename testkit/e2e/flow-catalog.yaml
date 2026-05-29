@@ -260,6 +260,26 @@ flows:
     primary_selectors:
       - auth_password_text_field
       - auth_password_toggle
+  - id: auth-analytics-consent
+    path: e2e/maestro/flows/auth/analytics-consent.yaml
+    module: auth
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: analytics-consent
+    fixture_state: auth-success
+    actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.SetAnalyticsCollectionEnabled
+      - auth.SignIn.ClickSignIn
+    primary_selectors:
+      - auth_sign_in_idle_container
+      - auth_analytics_consent_checkbox
+      - auth_usb_id_text_field
+      - auth_password_text_field
+      - auth_sign_in_button
+      - wizard_welcome_screen
   - id: auth-terms-privacy-from-login
     path: e2e/maestro/flows/auth/terms-privacy-from-login.yaml
     module: auth
@@ -1324,6 +1344,20 @@ flows:
       - about_rate_on_store
       - about_contact_developer
       - about_report_bug
+  - id: about-analytics-consent
+    path: e2e/maestro/flows/about/analytics-consent.yaml
+    module: about
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: analytics-consent
+    fixture_state: static
+    actions_covered:
+      - about.About.SetAnalyticsCollectionEnabled
+    primary_selectors:
+      - about_content_container
+      - about_rate_on_store
+      - about_analytics_consent_toggle
   - id: about-suite
     path: e2e/maestro/flows/suites/about-suite.yaml
     module: about
@@ -1342,6 +1376,7 @@ flows:
       - about.About.RateOnStore
       - about.About.ContactDeveloper
       - about.About.ReportBug
+      - about.About.SetAnalyticsCollectionEnabled
     primary_selectors:
       - about_content_container
       - about_open_terms
@@ -1350,6 +1385,7 @@ flows:
       - about_open_github
       - about_share_app
       - about_rate_on_store
+      - about_analytics_consent_toggle
       - about_contact_developer
       - about_report_bug
 module_rollout:

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.pensum.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.pensum.presentation.action.ObservePensumActionProcessor
@@ -15,8 +16,10 @@ class PensumViewModel(
 	private val refreshPensumActionProcessor: RefreshPensumActionProcessor,
 	private val selectPensumActionProcessor: SelectPensumActionProcessor,
 	private val selectPensumModalityActionProcessor: SelectPensumModalityActionProcessor,
-	private val selectPensumSelectionActionProcessor: SelectPensumSelectionActionProcessor
+	private val selectPensumSelectionActionProcessor: SelectPensumSelectionActionProcessor,
+	override val eventPublisher: EventPublisher
 ) : BaseViewModel<Pensum.State, Pensum.Action, Pensum.Effect>(
+	name = "pensum",
 	initialState = Pensum.State.Idle,
 	initialAction = Pensum.Action.ObservePensum
 ) {

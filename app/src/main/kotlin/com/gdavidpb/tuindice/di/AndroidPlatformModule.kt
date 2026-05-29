@@ -24,6 +24,7 @@ import com.gdavidpb.tuindice.data.source.attestation.PlayIntegrityDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataRepository
 import com.gdavidpb.tuindice.data.source.messaging.FirebasePushTokenDataSource
 import com.gdavidpb.tuindice.data.source.actions.AndroidFileOpenerDataSource
+import com.gdavidpb.tuindice.data.source.analytics.FirebaseAnalyticsEventSubscriber
 import com.gdavidpb.tuindice.data.source.activity.CurrentActivityDataSource
 import com.gdavidpb.tuindice.data.source.application.AndroidApplicationDataSource
 import com.gdavidpb.tuindice.data.source.browser.AndroidBrowserDataSource
@@ -48,6 +49,7 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.integrity.IntegrityManagerFactory
 import com.google.android.play.core.integrity.StandardIntegrityManager
 import com.google.android.play.core.review.ReviewManagerFactory
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
@@ -60,6 +62,7 @@ import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository as BaseExternalActionsRepository
 
@@ -142,6 +145,16 @@ private fun Module.registerAndroidPlatformPrimitives() {
 }
 
 private fun Module.registerAndroidPlatformServices() {
+	if (!BuildConfig.DEBUG) {
+		single { FirebaseAnalytics.getInstance(androidContext()) }
+		single<EventSubscriber>(named("firebaseAnalyticsEventSubscriber")) {
+			FirebaseAnalyticsEventSubscriber(
+				firebaseAnalytics = get(),
+				analyticsConsentRepository = get()
+			)
+		}
+	}
+
 	singleOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
 	singleOf(::AndroidKeystoreProofOfPossessionCapability) { bind<AndroidProofOfPossessionCapability>() }
 	singleOf(::AndroidRemoteConfigDataSource) { bind<RemoteConfigDataRepository>() }

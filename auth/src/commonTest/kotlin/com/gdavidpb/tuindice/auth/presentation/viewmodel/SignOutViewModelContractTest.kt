@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.auth.presentation.viewmodel
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.auth.domain.usecase.ConfirmSignOutUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.FlushPendingChangesUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.SignOutUseCase
@@ -80,7 +81,8 @@ class SignOutViewModelContractTest {
 					reportingRepository = RecordingReportingRepository()
 				)
 			),
-			openUpdatePasswordActionProcessor = OpenUpdatePasswordActionProcessor()
+			openUpdatePasswordActionProcessor = OpenUpdatePasswordActionProcessor(),
+			eventPublisher = NoOpEventPublisher
 		)
 
 		val stateCollector = backgroundScope.launchStateCollector(
@@ -141,7 +143,8 @@ class SignOutViewModelContractTest {
 				signOutUseCase = signOutUseCase
 			),
 			forceSignOutActionProcessor = ForceSignOutActionProcessor(signOutUseCase),
-			openUpdatePasswordActionProcessor = OpenUpdatePasswordActionProcessor()
+			openUpdatePasswordActionProcessor = OpenUpdatePasswordActionProcessor(),
+			eventPublisher = NoOpEventPublisher
 		)
 
 		val stateCollector = backgroundScope.launchStateCollector(
@@ -212,7 +215,8 @@ class SignOutViewModelContractTest {
 				signOutUseCase = signOutUseCase
 			),
 			forceSignOutActionProcessor = ForceSignOutActionProcessor(signOutUseCase),
-			openUpdatePasswordActionProcessor = OpenUpdatePasswordActionProcessor()
+			openUpdatePasswordActionProcessor = OpenUpdatePasswordActionProcessor(),
+			eventPublisher = NoOpEventPublisher
 		)
 		val stateCollector = backgroundScope.launchStateCollector(
 			flow = viewModel.state,

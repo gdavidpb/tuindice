@@ -11,6 +11,7 @@ target 'TuIndiceHost' do
   pod 'Firebase/Messaging'
   pod 'Firebase/RemoteConfig'
   pod 'Firebase/Crashlytics'
+  pod 'Firebase/Analytics'
 end
 
 post_install do |installer|

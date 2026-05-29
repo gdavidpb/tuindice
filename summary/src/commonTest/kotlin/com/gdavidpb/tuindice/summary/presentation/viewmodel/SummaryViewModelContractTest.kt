@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.presentation.viewmodel
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
@@ -100,7 +101,8 @@ class SummaryViewModelContractTest {
 				)
 			),
 			removeProfilePictureActionProcessor = RemoveProfilePictureActionProcessor(),
-			openProfilePictureSettingsActionProcessor = OpenProfilePictureSettingsActionProcessor()
+			openProfilePictureSettingsActionProcessor = OpenProfilePictureSettingsActionProcessor(),
+			eventPublisher = NoOpEventPublisher
 		)
 	}
 }

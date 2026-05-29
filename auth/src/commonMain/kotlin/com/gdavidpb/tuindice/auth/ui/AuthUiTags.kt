@@ -8,6 +8,7 @@ object AuthUiTags {
 	const val UsbIdTextField = "auth_usb_id_text_field"
 	const val PasswordTextField = "auth_password_text_field"
 	const val PasswordToggle = "auth_password_toggle"
+	const val AnalyticsConsentCheckbox = "auth_analytics_consent_checkbox"
 	const val TermsAndConditionsLink = "auth_terms_and_conditions_link"
 	const val PrivacyPolicyLink = "auth_privacy_policy_link"
 	const val RandomFlipperText = "auth_random_flipper_text"

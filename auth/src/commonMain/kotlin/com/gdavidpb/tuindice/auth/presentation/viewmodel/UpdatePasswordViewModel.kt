@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.auth.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.auth.presentation.action.SetUpdatePasswordActionProcessor
@@ -11,8 +12,10 @@ import kotlinx.coroutines.flow.Flow
 class UpdatePasswordViewModel(
 	private val setUpdatePasswordActionProcessor: SetUpdatePasswordActionProcessor,
 	private val toggleUpdatePasswordVisibilityActionProcessor: ToggleUpdatePasswordVisibilityActionProcessor,
-	private val updatePasswordActionProcessor: UpdatePasswordActionProcessor
+	private val updatePasswordActionProcessor: UpdatePasswordActionProcessor,
+	override val eventPublisher: EventPublisher
 ) : BaseViewModel<UpdatePassword.State, UpdatePassword.Action, UpdatePassword.Effect>(
+	name = "update_password",
 	initialState = UpdatePassword.State.Idle()
 ) {
 	fun signInAction(password: String) =

@@ -8,6 +8,9 @@ import UIKit
 #if canImport(FirebaseCrashlytics)
 import FirebaseCrashlytics
 #endif
+#if canImport(FirebaseAnalytics)
+import FirebaseAnalytics
+#endif
 #if canImport(FirebaseMessaging)
 import FirebaseMessaging
 #endif
@@ -416,6 +419,24 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         #if canImport(FirebaseCrashlytics)
         guard isFirebaseConfigured else { return }
         Crashlytics.crashlytics().setUserID(identifier)
+        #endif
+    }
+
+    func setAnalyticsCollectionEnabled(enabled: Bool) {
+        #if canImport(FirebaseAnalytics)
+        guard isFirebaseConfigured else { return }
+        Analytics.setAnalyticsCollectionEnabled(enabled)
+        #endif
+    }
+
+    func logEvent(name: String, parameters: [String : String]) {
+        #if canImport(FirebaseAnalytics)
+        guard isFirebaseConfigured else { return }
+        var eventParameters: [String: Any] = [:]
+        parameters.forEach { key, value in
+            eventParameters[key] = value
+        }
+        Analytics.logEvent(name, parameters: eventParameters)
         #endif
     }
 

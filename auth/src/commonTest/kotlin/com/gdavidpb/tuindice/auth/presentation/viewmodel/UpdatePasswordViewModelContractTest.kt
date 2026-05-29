@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.auth.presentation.viewmodel
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.auth.domain.usecase.UpdatePasswordUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.UpdatePasswordParamsValidator
@@ -46,7 +47,8 @@ class UpdatePasswordViewModelContractTest {
 						networkRepository = FakeNetworkRepository(isAvailable = true)
 					)
 				)
-			)
+			),
+			eventPublisher = NoOpEventPublisher
 		)
 		val stateCollector = backgroundScope.launchStateCollector(
 			flow = viewModel.state,

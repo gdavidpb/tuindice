@@ -8,12 +8,14 @@ import com.gdavidpb.tuindice.about.data.source.IosEnvironmentDataSource
 import com.gdavidpb.tuindice.about.data.source.IosShareTextHandler
 import com.gdavidpb.tuindice.about.data.source.IosStoreUrlDataSource
 import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventSubscriber
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
 import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataRepository
+import com.gdavidpb.tuindice.data.source.analytics.IosAnalyticsEventSubscriber
 import com.gdavidpb.tuindice.data.source.attestation.IosAttestationDataSource
 import com.gdavidpb.tuindice.data.source.messaging.IosPushTokenDataSource
 import com.gdavidpb.tuindice.data.source.actions.IosFileOpenerDataSource
@@ -90,6 +92,17 @@ private fun Module.registerIosPlatformPrimitives() {
 }
 
 private fun Module.registerIosPlatformServices() {
+	single<EventSubscriber>(named("iosAnalyticsEventSubscriber")) {
+		if (get<AppEnvironmentRepository>().getEnvironment().debug) {
+			NoOpEventSubscriber
+		} else {
+			IosAnalyticsEventSubscriber(
+				observabilityCapability = get(),
+				analyticsConsentRepository = get()
+			)
+		}
+	}
+
 	singleOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
 	single<AppEnvironmentRepository> { IosAppEnvironmentDataSource(iOSContext().appEnvironment) }
 	singleOf(::IosRemoteConfigDataSource) { bind<RemoteConfigDataRepository>() }

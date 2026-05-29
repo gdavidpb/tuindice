@@ -66,6 +66,7 @@ fun SignInRoute(
 		onUsbIdChange = viewModel::setUsbIdAction,
 		onPasswordChange = viewModel::setPasswordAction,
 		onPasswordVisibilityToggle = viewModel::togglePasswordVisibilityAction,
+		onAnalyticsCollectionEnabledChange = viewModel::setAnalyticsCollectionEnabledAction,
 		onSignInClick = onSignInClick,
 		onTermsAndConditionsClick = viewModel::openTermsAndConditionsAction,
 		onPrivacyPolicyClick = viewModel::openPrivacyPolicyAction

@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.wizard.di
 
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
@@ -21,6 +23,7 @@ class WizardModuleKoinSmokeTest {
 			single<SettingsRepository> { FakeSettingsRepository() }
 			single<SessionRepository> { FakeSessionRepository() }
 			single<ReportingRepository> { RecordingReportingRepository() }
+			single<EventPublisher> { NoOpEventPublisher }
 		}
 	) {
 		assertResolves(

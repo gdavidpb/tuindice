@@ -1,8 +1,10 @@
 package com.gdavidpb.tuindice.di
 
+import com.gdavidpb.tuindice.base.data.source.event.DebugEventSubscriber
 import com.gdavidpb.tuindice.base.data.source.config.DebugRemoteConfigDataSource
 import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
 import com.gdavidpb.tuindice.base.data.source.reporting.DebugReportingDataSource
+import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.data.source.attestation.IosDebugAttestationDataSource
@@ -20,11 +22,19 @@ import com.gdavidpb.tuindice.subjects.data.source.DebugSubjectStatsLocalDataSour
 import com.gdavidpb.tuindice.subjects.data.source.DebugSubjectsApiDataSource
 import com.gdavidpb.tuindice.subjects.data.source.KtorSubjectsApiDataSource
 import com.gdavidpb.tuindice.subjects.data.source.SubjectStatsRoomDataSource
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 private const val IOS_DEBUG_SUMMARY_SOURCE = "ios-debug-summary"
 
 val iosDebugVariantModule = module {
+	single<EventSubscriber>(named("iosDebugEventSubscriber")) {
+		DebugEventSubscriber(
+			sourceName = "ios-debug",
+			analyticsConsentRepository = get()
+		)
+	}
+
 	factory<AttestationRepository> {
 		IosDebugAttestationDataSource()
 	}

@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.auth.presentation.route
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.auth.domain.usecase.ConfirmSignOutUseCase
@@ -164,7 +165,8 @@ class SignOutRouteUiTest {
 				signOutUseCase = signOutUseCase
 			),
 			forceSignOutActionProcessor = ForceSignOutActionProcessor(signOutUseCase),
-			openUpdatePasswordActionProcessor = OpenUpdatePasswordActionProcessor()
+			openUpdatePasswordActionProcessor = OpenUpdatePasswordActionProcessor(),
+			eventPublisher = NoOpEventPublisher
 		)
 	}
 }

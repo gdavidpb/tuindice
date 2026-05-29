@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.summary.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.summary.presentation.action.ConfirmRemoveProfilePictureActionProcessor
@@ -22,12 +23,13 @@ class SummaryViewModel(
 	private val uploadProfilePictureActionProcessor: UploadProfilePictureActionProcessor,
 	private val confirmRemoveProfilePictureActionProcessor: ConfirmRemoveProfilePictureActionProcessor,
 	private val removeProfilePictureActionProcessor: RemoveProfilePictureActionProcessor,
-	private val openProfilePictureSettingsActionProcessor: OpenProfilePictureSettingsActionProcessor
+	private val openProfilePictureSettingsActionProcessor: OpenProfilePictureSettingsActionProcessor,
+	override val eventPublisher: EventPublisher
 ) : BaseViewModel<Summary.State, Summary.Action, Summary.Effect>(
+	name = "summary",
 	initialState = Summary.State.Idle,
 	initialAction = Summary.Action.ObserveSummary
 ) {
-
 	fun refreshSummaryAction() =
 		sendAction(Summary.Action.RefreshSummary)
 

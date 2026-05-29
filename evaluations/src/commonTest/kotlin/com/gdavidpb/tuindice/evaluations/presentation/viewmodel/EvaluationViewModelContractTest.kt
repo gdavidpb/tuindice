@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableAttemptsUseCase
@@ -125,7 +126,8 @@ class EvaluationViewModelContractTest {
 			setTypeActionProcessor = SetTypeActionProcessor(),
 			setDateActionProcessor = SetDateActionProcessor(),
 			setGradeActionProcessor = SetGradeActionProcessor(),
-			setMaxGradeActionProcessor = SetMaxGradeActionProcessor()
+			setMaxGradeActionProcessor = SetMaxGradeActionProcessor(),
+			eventPublisher = NoOpEventPublisher
 		)
 	}
 }

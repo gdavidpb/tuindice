@@ -6,6 +6,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
@@ -331,7 +332,8 @@ class SignInRouteUiTest {
 							debug = true
 						)
 					)
-				)
+				),
+				eventPublisher = NoOpEventPublisher
 			),
 			authRepository = authRepository
 		)

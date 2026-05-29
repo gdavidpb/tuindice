@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
@@ -533,7 +534,8 @@ class SummaryRouteUiTest {
 				)
 			),
 			removeProfilePictureActionProcessor = RemoveProfilePictureActionProcessor(),
-			openProfilePictureSettingsActionProcessor = OpenProfilePictureSettingsActionProcessor()
+			openProfilePictureSettingsActionProcessor = OpenProfilePictureSettingsActionProcessor(),
+			eventPublisher = NoOpEventPublisher
 		)
 	}
 

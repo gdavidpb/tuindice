@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
@@ -30,9 +31,12 @@ class EvaluationViewModel(
 	private val setTypeActionProcessor: SetTypeActionProcessor,
 	private val setDateActionProcessor: SetDateActionProcessor,
 	private val setGradeActionProcessor: SetGradeActionProcessor,
-	private val setMaxGradeActionProcessor: SetMaxGradeActionProcessor
-) : BaseViewModel<Evaluation.State, Evaluation.Action, Evaluation.Effect>(initialState = Evaluation.State.Loading) {
-
+	private val setMaxGradeActionProcessor: SetMaxGradeActionProcessor,
+	override val eventPublisher: EventPublisher
+) : BaseViewModel<Evaluation.State, Evaluation.Action, Evaluation.Effect>(
+	name = "evaluation",
+	initialState = Evaluation.State.Loading
+) {
 	fun setAttemptAction(attempt: EditableAttemptDescriptor?) =
 		sendAction(Evaluation.Action.SetAttempt(attempt))
 

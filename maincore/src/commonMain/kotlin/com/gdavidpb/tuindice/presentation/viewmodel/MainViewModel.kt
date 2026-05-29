@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
@@ -19,12 +20,13 @@ class MainViewModel(
 	private val requestSyncActionProcessor: RequestSyncActionProcessor,
 	private val requestUpdateActionProcessor: RequestUpdateActionProcessor,
 	private val setLastMainSectionActionProcessor: SetLastMainSectionActionProcessor,
-	private val requestWizardStartActionProcessor: RequestWizardStartActionProcessor
+	private val requestWizardStartActionProcessor: RequestWizardStartActionProcessor,
+	override val eventPublisher: EventPublisher
 ) : BaseViewModel<Main.State, Main.Action, Main.Effect>(
+	name = "main",
 	initialState = Main.State.Starting,
 	initialAction = Main.Action.StartUp
 ) {
-
 	fun requestReviewAction() =
 		sendAction(Main.Action.RequestReview)
 

@@ -1,5 +1,9 @@
 package com.gdavidpb.tuindice.auth.presentation.viewmodel
 
+import com.gdavidpb.tuindice.auth.presentation.action.SetAnalyticsCollectionEnabledActionProcessor
+import com.gdavidpb.tuindice.base.data.source.event.InMemoryAnalyticsConsentRepository
+import com.gdavidpb.tuindice.base.domain.repository.AnalyticsConsentRepository
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.auth.presentation.action.OpenPrivacyPolicyActionProcessor
@@ -17,9 +21,17 @@ class SignInViewModel(
 	private val setPasswordActionProcessor: SetPasswordActionProcessor,
 	private val togglePasswordVisibilityActionProcessor: TogglePasswordVisibilityActionProcessor,
 	private val openTermsAndConditionsActionProcessor: OpenTermsAndConditionsActionProcessor,
-	private val privacyPolicyActionProcessor: OpenPrivacyPolicyActionProcessor
-) : BaseViewModel<SignIn.State, SignIn.Action, SignIn.Effect>(initialState = SignIn.State.Idle()) {
-
+	private val privacyPolicyActionProcessor: OpenPrivacyPolicyActionProcessor,
+	private val analyticsConsentRepository: AnalyticsConsentRepository = InMemoryAnalyticsConsentRepository(),
+	private val setAnalyticsCollectionEnabledActionProcessor: SetAnalyticsCollectionEnabledActionProcessor =
+		SetAnalyticsCollectionEnabledActionProcessor(analyticsConsentRepository),
+	override val eventPublisher: EventPublisher
+) : BaseViewModel<SignIn.State, SignIn.Action, SignIn.Effect>(
+	name = "sign_in",
+	initialState = SignIn.State.Idle(
+		analyticsCollectionEnabled = analyticsConsentRepository.isAnalyticsCollectionEnabled()
+	)
+) {
 	fun setUsbIdAction(usbId: String) =
 		sendAction(
 			SignIn.Action.SetUsbId(
@@ -36,6 +48,9 @@ class SignInViewModel(
 
 	fun togglePasswordVisibilityAction() =
 		sendAction(SignIn.Action.TogglePasswordVisibility)
+
+	fun setAnalyticsCollectionEnabledAction(enabled: Boolean) =
+		sendAction(SignIn.Action.SetAnalyticsCollectionEnabled(enabled))
 
 	fun signInAction(usbId: String, password: String) =
 		sendAction(
@@ -64,6 +79,9 @@ class SignInViewModel(
 
 			is SignIn.Action.TogglePasswordVisibility ->
 				togglePasswordVisibilityActionProcessor.process(action, sideEffect)
+
+			is SignIn.Action.SetAnalyticsCollectionEnabled ->
+				setAnalyticsCollectionEnabledActionProcessor.process(action, sideEffect)
 
 			is SignIn.Action.ClickSignIn ->
 				signInActionProcessor.process(action, sideEffect)

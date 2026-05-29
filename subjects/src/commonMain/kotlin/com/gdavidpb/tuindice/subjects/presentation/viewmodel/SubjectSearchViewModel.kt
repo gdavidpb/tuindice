@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.subjects.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.subjects.presentation.action.ObserveSubjectSearchActionProcessor
@@ -12,8 +13,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 class SubjectSearchViewModel(
 	private val observeSubjectSearchActionProcessor: ObserveSubjectSearchActionProcessor,
 	private val updateSubjectSearchQueryActionProcessor: UpdateSubjectSearchQueryActionProcessor,
-	private val retrySubjectSearchActionProcessor: RetrySubjectSearchActionProcessor
+	private val retrySubjectSearchActionProcessor: RetrySubjectSearchActionProcessor,
+	override val eventPublisher: EventPublisher
 ) : BaseViewModel<SubjectSearch.State, SubjectSearch.Action, SubjectSearch.Effect>(
+	name = "subject_search",
 	initialState = SubjectSearch.State()
 ) {
 	private val queryFlow = MutableStateFlow("")
