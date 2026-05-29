@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.testing
 
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
@@ -58,7 +59,8 @@ import kotlinx.coroutines.flow.flowOf
 fun createBrowserViewModel(): BrowserViewModel = BrowserViewModel(
 	navigateToActionProcessor = NavigateToActionProcessor(),
 	setLoadingActionProcessor = SetLoadingActionProcessor(),
-	openExternalResourceActionProcessor = OpenExternalResourceActionProcessor()
+	openExternalResourceActionProcessor = OpenExternalResourceActionProcessor(),
+	eventPublisher = NoOpEventPublisher
 )
 
 fun createSummaryViewModel(
@@ -101,7 +103,8 @@ fun createSummaryViewModel(
 			)
 		),
 		removeProfilePictureActionProcessor = RemoveProfilePictureActionProcessor(),
-		openProfilePictureSettingsActionProcessor = OpenProfilePictureSettingsActionProcessor()
+		openProfilePictureSettingsActionProcessor = OpenProfilePictureSettingsActionProcessor(),
+		eventPublisher = NoOpEventPublisher
 	)
 }
 
@@ -165,7 +168,8 @@ fun createMainViewModel(
 				sessionRepository = sessionRepository,
 				reportingRepository = reportingRepository
 			)
-		)
+		),
+		eventPublisher = NoOpEventPublisher
 	)
 }
 

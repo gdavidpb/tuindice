@@ -11,6 +11,7 @@ lifecycle = "2.10.0"
 coroutines = "1.11.0"
 turbine = "1.2.1"
 firebase-bom = "34.13.0"
+firebase-perf-gradle = "2.0.2"
 coil3 = "3.5.0-beta01"
 compose-bom = "2026.05.01"
 compottie = "2.2.0"
@@ -87,10 +88,13 @@ koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", ver
 
 # Firebase
 firebase-bom = { module = "com.google.firebase:firebase-bom", version.ref = "firebase-bom" }
+firebase-analytics = { module = "com.google.firebase:firebase-analytics" }
 firebase-config = { module = "com.google.firebase:firebase-config" }
 firebase-messaging = { module = "com.google.firebase:firebase-messaging" }
 firebase-crashlytics = { module = "com.google.firebase:firebase-crashlytics" }
+firebase-performance = { module = "com.google.firebase:firebase-perf" }
 firebase-crashlytics-gradle = { module = "com.google.firebase:firebase-crashlytics-gradle", version.ref = "firebase-crashlytics-gradle" }
+firebase-perf-gradle = { module = "com.google.firebase:perf-plugin", version.ref = "firebase-perf-gradle" }
 
 # Google
 app-update-ktx = { module = "com.google.android.play:app-update-ktx", version.ref = "app-update-ktx" }
@@ -168,7 +172,7 @@ kotlin-serialization = { id = "org.jetbrains.kotlin.plugin.serialization", versi
 testing = ["junit", "wiremock"]
 testing-android = ["koin-test", "test-runner", "espresso-core"]
 androidx = ["core-ktx", "browser", "preference-ktx", "exifinterface", "datastore-preferences"]
-firebase = ["firebase-config", "firebase-messaging", "firebase-crashlytics"]
+firebase = ["firebase-analytics", "firebase-config", "firebase-messaging", "firebase-crashlytics", "firebase-performance"]
 google = ["app-update-ktx", "material", "review-ktx", "integrity"]
 compose = ["compose-ui", "compose-foundation", "compose-animation", "compose-ui-tooling", "compose-preview", "compose-activity", "compose-material3", "compose-icons", "compose-constraintlayout"]
 compose-mpp-core = ["jetbrains-compose-ui", "jetbrains-compose-foundation", "jetbrains-compose-animation", "jetbrains-compose-material3"]

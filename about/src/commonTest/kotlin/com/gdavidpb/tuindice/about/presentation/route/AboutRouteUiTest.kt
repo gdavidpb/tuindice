@@ -29,6 +29,7 @@ import com.gdavidpb.tuindice.about.presentation.action.ShareAppActionProcessor
 import com.gdavidpb.tuindice.about.presentation.utils.LocalShareTextHandler
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
@@ -693,7 +694,8 @@ class AboutRouteUiTest {
 				shareAppActionProcessor = ShareAppActionProcessor(),
 				rateOnStoreActionProcessor = RateOnStoreActionProcessor(openStoreUseCase),
 				reportBugActionProcessor = ReportBugActionProcessor(sendSupportEmailUseCase),
-				openUrlActionProcessor = OpenUrlActionProcessor(openExternalUrlUseCase)
+				openUrlActionProcessor = OpenUrlActionProcessor(openExternalUrlUseCase),
+				eventPublisher = NoOpEventPublisher
 			),
 			browserRepository = browserRepository
 		)

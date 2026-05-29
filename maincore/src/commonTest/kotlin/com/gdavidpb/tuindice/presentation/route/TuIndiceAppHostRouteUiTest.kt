@@ -9,6 +9,8 @@ import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.auth.di.authModule
 import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
@@ -21,6 +23,7 @@ import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
@@ -30,6 +33,7 @@ import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepositor
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
@@ -376,7 +380,10 @@ class TuIndiceAppHostRouteUiTest {
 
 		startKoin {
 			modules(
-				hostRouteNavigationModule(syncStatusRepository),
+				hostRouteNavigationModule(
+					syncStatusRepository = syncStatusRepository,
+					sessionInvalidationRepository = sessionInvalidationRepository
+				),
 				authModule,
 				module {
 					single<AuthRepository> {
@@ -415,7 +422,6 @@ class TuIndiceAppHostRouteUiTest {
 							) = Unit
 						}
 					}
-					single<SessionInvalidationRepository> { sessionInvalidationRepository }
 					single<SessionRepository> { FakeSessionRepository() }
 					single<MessagingRepository> {
 						object : MessagingRepository {
@@ -479,7 +485,10 @@ class TuIndiceAppHostRouteUiTest {
 
 		startKoin {
 			modules(
-				hostRouteNavigationModule(syncStatusRepository),
+				hostRouteNavigationModule(
+					syncStatusRepository = syncStatusRepository,
+					sessionInvalidationRepository = sessionInvalidationRepository
+				),
 				authModule,
 				module {
 					single<AuthRepository> {
@@ -518,7 +527,6 @@ class TuIndiceAppHostRouteUiTest {
 							) = Unit
 						}
 					}
-					single<SessionInvalidationRepository> { sessionInvalidationRepository }
 					single<SessionRepository> { FakeSessionRepository() }
 					single<MessagingRepository> {
 						object : MessagingRepository {
@@ -582,12 +590,16 @@ class TuIndiceAppHostRouteUiTest {
 	}
 
 	private fun hostRouteNavigationModule(
-		syncStatusRepository: SyncStatusRepository
+		syncStatusRepository: SyncStatusRepository,
+		sessionInvalidationRepository: SessionInvalidationRepository = FakeSessionInvalidationRepository()
 	) = module {
 		factory { createSummaryViewModel() }
+		single<EventPublisher> { NoOpEventPublisher }
 		single<PendingChangesRepository> { FakePendingChangesRepository() }
+		single<SessionInvalidationRepository> { sessionInvalidationRepository }
 		single<SyncRepository> { FakeSyncRepository() }
 		single<SyncStatusRepository> { syncStatusRepository }
+		single<UsageDataConsentRepository> { InMemoryUsageDataConsentRepository() }
 		single { WizardTopBarActionBus() }
 		single { PensumTopBarActionBus() }
 	}

@@ -160,13 +160,37 @@ class FakeSessionRepository(
 
 class FakeSessionInvalidationRepository : SessionInvalidationRepository {
 	private val invalidations = MutableSharedFlow<Unit>(extraBufferCapacity = 1)
+	var intentionalSignOutSessionId: String? = null
+		private set
+	val notifiedSessionIds = mutableListOf<String?>()
 	var invalidationCalls = 0
 		private set
 
 	override fun observeSessionInvalidation(): Flow<Unit> = invalidations
 
-	override fun notifySessionInvalidated() {
+	override fun markIntentionalSignOut(sessionId: String) {
+		if (sessionId.isNotBlank()) {
+			intentionalSignOutSessionId = sessionId
+		}
+	}
+
+	override fun clearIntentionalSignOut(sessionId: String) {
+		if (intentionalSignOutSessionId == sessionId) {
+			intentionalSignOutSessionId = null
+		}
+	}
+
+	override fun notifySessionInvalidated(sessionId: String?) {
+		val shouldSuppressInvalidation =
+			intentionalSignOutSessionId != null &&
+					(sessionId.isNullOrBlank() || sessionId == intentionalSignOutSessionId)
+
+		if (shouldSuppressInvalidation) {
+			return
+		}
+
 		invalidationCalls++
+		notifiedSessionIds += sessionId
 		invalidations.tryEmit(Unit)
 	}
 }

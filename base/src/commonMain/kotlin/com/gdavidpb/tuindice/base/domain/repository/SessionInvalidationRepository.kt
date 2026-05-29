@@ -4,5 +4,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface SessionInvalidationRepository {
 	fun observeSessionInvalidation(): Flow<Unit>
-	fun notifySessionInvalidated()
+	fun markIntentionalSignOut(sessionId: String)
+	fun clearIntentionalSignOut(sessionId: String)
+	fun notifySessionInvalidated(sessionId: String? = null)
 }

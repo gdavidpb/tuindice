@@ -16,13 +16,15 @@ object SignIn {
 		data class Idle(
 			val usbId: String = "",
 			val password: String = "",
-			val isPasswordVisible: Boolean = false
+			val isPasswordVisible: Boolean = false,
+			val usageDataCollectionEnabled: Boolean = false
 		) : State()
 
 		data class LoggingIn(
 			val usbId: String,
 			val password: String,
-			val messages: List<String>
+			val messages: List<String>,
+			val usageDataCollectionEnabled: Boolean = false
 		) : State()
 	}
 
@@ -36,6 +38,10 @@ object SignIn {
 		) : Action()
 
 		data object TogglePasswordVisibility : Action()
+
+		class SetUsageDataCollectionEnabled(
+			val enabled: Boolean
+		) : Action()
 
 		class ClickSignIn(
 			val usbId: String,

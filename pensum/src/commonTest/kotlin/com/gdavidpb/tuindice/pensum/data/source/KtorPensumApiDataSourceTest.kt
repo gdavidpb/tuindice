@@ -45,7 +45,12 @@ class KtorPensumApiDataSourceTest {
 		assertEquals("year=2019&modality_id=degree_project", capturedQuery)
 		assertEquals("Ingenieria de Computacion", result.careerName)
 		assertEquals("0800-2019-degree_project", result.selectedPensumId)
-		assertEquals("EC5344", result.pensums.first().nodes.first().displayCode)
+		assertEquals(listOf(2016, 2017, 2018, 2019), result.availablePensums.map { option -> option.year })
+		assertEquals(
+			listOf("degree_project", "long_internship", "exclusive_degree_project"),
+			result.availableModalities.map { modality -> modality.id }
+		)
+		assertEquals("EC5344", result.pensum.nodes.first().displayCode)
 	}
 }
 
@@ -54,18 +59,22 @@ private val sampleResponse = """
   "career_name": "Ingenieria de Computacion",
   "selected_pensum_id": "0800-2019-degree_project",
   "inferred": false,
-  "pensums": [
-    {
-      "id": "0800-2019-degree_project",
-      "year": 2019,
-      "modality_id": "degree_project",
-      "modality_name": "Proyecto de Grado",
-      "total_credits": 170,
-      "canvas": {"width": 1200.0, "height": 900.0},
-      "terms": [{"id":"T1","label":"T1","x":0.0,"width":200.0}],
-      "nodes": [{"id":"ec5344","node_type":"COURSE","display_code":"EC5344","subject_code":"EC5344","name":"Radiacion y Antenas","credits":3,"category":"PROFESSIONAL","term_id":"T1","x":40.0,"y":80.0,"width":160.0,"height":120.0,"fulfillment_rules":[]}],
-      "edges": []
-    }
-  ]
+  "available_pensums": [{"year": 2016}, {"year": 2017}, {"year": 2018}, {"year": 2019}],
+  "available_modalities": [
+    {"id": "degree_project", "name": "Proyecto de Grado", "is_default": true},
+    {"id": "long_internship", "name": "Pasantia Larga", "is_default": false},
+    {"id": "exclusive_degree_project", "name": "Proyecto de Grado a Dedicacion Exclusiva", "is_default": false}
+  ],
+  "pensum": {
+    "id": "0800-2019-degree_project",
+    "year": 2019,
+    "modality_id": "degree_project",
+    "modality_name": "Proyecto de Grado",
+    "total_credits": 170,
+    "canvas": {"width": 1200.0, "height": 900.0},
+    "terms": [{"id":"T1","label":"T1","x":0.0,"width":200.0}],
+    "nodes": [{"id":"ec5344","node_type":"COURSE","display_code":"EC5344","subject_code":"EC5344","name":"Radiacion y Antenas","credits":3,"category":"PROFESSIONAL","term_id":"T1","x":40.0,"y":80.0,"width":160.0,"height":120.0,"fulfillment_rules":[]}],
+    "edges": []
+  }
 }
 """.trimIndent()

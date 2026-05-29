@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.pensum.presentation.mapper
 
 import com.gdavidpb.tuindice.pensum.domain.model.ObservedPensum
 import com.gdavidpb.tuindice.pensum.domain.model.PensumGraph
+import com.gdavidpb.tuindice.pensum.domain.model.PensumModality
 import com.gdavidpb.tuindice.pensum.domain.model.PensumNodeStatus
 import com.gdavidpb.tuindice.pensum.domain.model.PensumRelationshipType
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumDisplayLayoutDefaults
@@ -72,18 +73,17 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 		displayNodes.maxOfOrNull { node -> node.y + node.height }.orZero() +
 			PensumDisplayLayoutDefaults.CanvasBottomPadding
 	)
-	val pensumOptions = pensums
-		.groupBy(PensumGraph::year)
-		.values
-		.map { group ->
-			val representative = group.first()
+	val modalityItems = availableModalities.toModalityItems()
+	val pensumOptions = availablePensums
+		.map { option ->
 			PensumScreenModel.PensumOptionItem(
-				id = representative.year.toString(),
-				year = representative.year,
-				modalityOptions = group.toModalityItems(selectedPensumId = selection.pensumId),
-				text = representative.year.toString()
+				id = option.id,
+				year = option.year,
+				modalityOptions = modalityItems,
+				text = option.year.toString()
 			)
 		}
+		.distinctBy(PensumScreenModel.PensumOptionItem::year)
 		.sortedBy(PensumScreenModel.PensumOptionItem::year)
 	val selectedOption = pensumOptions.firstOrNull { option ->
 		option.year == selection.year
@@ -126,13 +126,13 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 	)
 }
 
-private fun List<PensumGraph>.toModalityItems(selectedPensumId: String): List<PensumScreenModel.ModalityItem> {
-	return map { graph ->
+private fun List<PensumModality>.toModalityItems(): List<PensumScreenModel.ModalityItem> {
+	return map { modality ->
 		PensumScreenModel.ModalityItem(
-			id = graph.modalityId,
-			name = graph.modalityName,
-			isDefault = graph.id == selectedPensumId,
-			text = graph.modalityName
+			id = modality.id,
+			name = modality.name,
+			isDefault = modality.isDefault,
+			text = modality.name
 		)
 	}
 		.distinctBy(PensumScreenModel.ModalityItem::id)

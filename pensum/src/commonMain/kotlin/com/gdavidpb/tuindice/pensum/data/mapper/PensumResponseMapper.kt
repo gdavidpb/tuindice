@@ -25,30 +25,24 @@ fun GetPensumResponse.toSelection(): PensumSelection {
 }
 
 fun GetPensumResponse.toAvailablePensums(): List<PensumOption> {
-	return pensums
-		.groupBy { pensum -> pensum.year }
-		.values
-		.map { group ->
-			val pensum = group.first()
+	return availablePensums
+		.map { option ->
 			PensumOption(
-				id = pensum.year.toString(),
-				year = pensum.year
+				id = option.year.toString(),
+				year = option.year
 			)
 		}
+		.distinctBy(PensumOption::year)
 		.sortedBy(PensumOption::year)
 }
 
 fun GetPensumResponse.toAvailableModalities(): List<PensumModality> {
-	val selectedPensum = selectedPensum()
-	return pensums
-		.filter { pensum ->
-			pensum.year == selectedPensum.year
-		}
-		.map { pensum ->
+	return availableModalities
+		.map { modality ->
 			PensumModality(
-				id = pensum.modalityId,
-				name = pensum.modalityName,
-				isDefault = pensum.id == selectedPensum.id
+				id = modality.id,
+				name = modality.name,
+				isDefault = modality.isDefault
 			)
 		}
 		.distinctBy(PensumModality::id)
@@ -59,7 +53,7 @@ fun GetPensumResponse.toGraph(): PensumGraph {
 }
 
 fun GetPensumResponse.toGraphs(): List<PensumGraph> {
-	return pensums.map { pensum -> pensum.toGraph() }
+	return listOf(selectedPensum().toGraph())
 }
 
 private fun GetPensumResponse.Pensum.toGraph(): PensumGraph {
@@ -121,9 +115,7 @@ private fun GetPensumResponse.Pensum.toGraph(): PensumGraph {
 }
 
 private fun GetPensumResponse.selectedPensum(): GetPensumResponse.Pensum {
-	return pensums.firstOrNull { pensum -> pensum.id == selectedPensumId }
-		?: pensums.firstOrNull()
-		?: error("Pensum response contains no pensums.")
+	return pensum
 }
 
 private fun String.toNodeType(): PensumNodeType {

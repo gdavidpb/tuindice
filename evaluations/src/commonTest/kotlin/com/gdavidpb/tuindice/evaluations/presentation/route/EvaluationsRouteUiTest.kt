@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
@@ -419,7 +420,8 @@ class EvaluationsRouteUiTest {
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = RemoveEvaluationExceptionHandler()
 				)
-			)
+			),
+			eventPublisher = NoOpEventPublisher
 		)
 	}
 }

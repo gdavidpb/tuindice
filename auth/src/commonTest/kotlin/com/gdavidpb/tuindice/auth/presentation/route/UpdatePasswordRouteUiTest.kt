@@ -5,6 +5,7 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
@@ -175,7 +176,8 @@ class UpdatePasswordRouteUiTest {
 			viewModel = UpdatePasswordViewModel(
 				setUpdatePasswordActionProcessor = SetUpdatePasswordActionProcessor(),
 				toggleUpdatePasswordVisibilityActionProcessor = ToggleUpdatePasswordVisibilityActionProcessor(),
-				updatePasswordActionProcessor = UpdatePasswordActionProcessor(updatePasswordUseCase)
+				updatePasswordActionProcessor = UpdatePasswordActionProcessor(updatePasswordUseCase),
+				eventPublisher = NoOpEventPublisher
 			),
 			authRepository = authRepository
 		)

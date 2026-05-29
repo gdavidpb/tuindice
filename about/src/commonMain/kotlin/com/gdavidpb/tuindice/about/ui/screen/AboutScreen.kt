@@ -28,7 +28,8 @@ fun AboutScreen(
 	onShareAppClick: () -> Unit,
 	onRateOnPlayStoreClick: () -> Unit,
 	onContactDeveloperClick: () -> Unit,
-	onReportBugClick: () -> Unit
+	onReportBugClick: () -> Unit,
+	onUsageDataCollectionEnabledChange: (enabled: Boolean) -> Unit = {}
 ) {
 	Box(
 		modifier = Modifier
@@ -57,7 +58,8 @@ fun AboutScreen(
 					onShareAppClick = onShareAppClick,
 					onRateOnPlayStoreClick = onRateOnPlayStoreClick,
 					onContactDeveloperClick = onContactDeveloperClick,
-					onReportBugClick = onReportBugClick
+					onReportBugClick = onReportBugClick,
+					onUsageDataCollectionEnabledChange = onUsageDataCollectionEnabledChange
 				)
 		}
 	}

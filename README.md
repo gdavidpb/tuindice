@@ -53,6 +53,24 @@ La regla base es simple:
 - `data` implementa acceso a datos.
 - `di` conecta dependencias sin mezclar responsabilidades.
 
+## Eventos y datos de uso
+
+La app publica eventos genericos desde el pipeline MVI sin acoplar features ni `base` a una herramienta concreta.
+`BaseViewModel` emite automaticamente `screen_view`, `app_action`, `app_state` y `app_effect`; cada `ViewModel`
+entrega su `name` al constructor base, y el `EventPublisher` global se inyecta con `override`, igual que otros puntos
+extensibles de la capa presentation.
+
+Firebase Performance no pasa por el `EventPublisher`: se sincroniza desde un `UsageDataCollectionController` de
+plataforma para activar o desactivar las metricas automaticas de rendimiento y red con el mismo consentimiento.
+
+Reglas:
+
+- La publicacion es fire-and-forget y no debe bloquear acciones, estados, efectos ni navegacion.
+- La recoleccion esta apagada por defecto y depende de `UsageDataConsentRepository`.
+- `AppEvent` es un modelo cerrado; no acepta parametros arbitrarios desde features.
+- Los eventos automaticos solo exponen parametros fijos: `source`, `screen_name`, `action`, `state` y `effect`.
+- Los subscribers reales se registran en plataforma; debug usa subscribers locales para inspeccion.
+
 ## Dependencias entre módulos
 
 Regla general:

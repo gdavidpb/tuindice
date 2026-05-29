@@ -1,6 +1,7 @@
 auth_usb_id_text_field
 auth_password_text_field
 auth_password_toggle
+auth_usage_data_consent_checkbox
 auth_terms_and_conditions_link
 auth_privacy_policy_link
 auth_sign_in_button
@@ -181,6 +182,7 @@ about_open_creative_commons
 about_open_x
 about_share_app
 about_rate_on_store
+about_usage_data_consent_toggle
 about_open_github
 about_contact_developer
 about_report_bug

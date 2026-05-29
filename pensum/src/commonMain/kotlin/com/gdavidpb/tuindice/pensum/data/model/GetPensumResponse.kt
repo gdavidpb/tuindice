@@ -8,8 +8,22 @@ data class GetPensumResponse(
 	@SerialName("career_name") val careerName: String,
 	@SerialName("selected_pensum_id") val selectedPensumId: String,
 	@SerialName("inferred") val inferred: Boolean,
-	@SerialName("pensums") val pensums: List<Pensum>
+	@SerialName("available_pensums") val availablePensums: List<AvailablePensum>,
+	@SerialName("available_modalities") val availableModalities: List<AvailableModality>,
+	@SerialName("pensum") val pensum: Pensum
 ) {
+	@Serializable
+	data class AvailablePensum(
+		@SerialName("year") val year: Int
+	)
+
+	@Serializable
+	data class AvailableModality(
+		@SerialName("id") val id: String,
+		@SerialName("name") val name: String,
+		@SerialName("is_default") val isDefault: Boolean
+	)
+
 	@Serializable
 	data class Pensum(
 		@SerialName("id") val id: String,

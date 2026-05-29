@@ -15,7 +15,8 @@ object About {
 	) : ViewState() {
 		data object Idle : State()
 		data class Content(
-			val versionText: String
+			val versionText: String,
+			val usageDataCollectionEnabled: Boolean = false
 		) : State()
 	}
 
@@ -29,6 +30,7 @@ object About {
 		data object ReportBug : Action()
 		data object ContactDeveloper : Action()
 		data object ShareApp : Action()
+		data class SetUsageDataCollectionEnabled(val enabled: Boolean) : Action()
 	}
 
 	sealed class Effect : ViewEffect() {

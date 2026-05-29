@@ -53,6 +53,7 @@ fun AboutRoute(
 		onShareAppClick = viewModel::shareAppAction,
 		onRateOnPlayStoreClick = viewModel::rateOnPlayStoreAction,
 		onContactDeveloperClick = viewModel::contactDeveloperAction,
-		onReportBugClick = viewModel::reportBugAction
+		onReportBugClick = viewModel::reportBugAction,
+		onUsageDataCollectionEnabledChange = viewModel::setUsageDataCollectionEnabledAction
 	)
 }

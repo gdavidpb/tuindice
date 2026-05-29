@@ -1,8 +1,12 @@
 package com.gdavidpb.tuindice.di
 
+import com.gdavidpb.tuindice.base.data.source.event.DebugEventSubscriber
 import com.gdavidpb.tuindice.base.data.source.config.DebugRemoteConfigDataSource
 import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
 import com.gdavidpb.tuindice.base.data.source.reporting.DebugReportingDataSource
+import com.gdavidpb.tuindice.base.data.source.usage.NoOpUsageDataCollectionController
+import com.gdavidpb.tuindice.base.domain.controller.UsageDataCollectionController
+import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.data.MockAttestationProviderDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationProviderDataRepository
@@ -22,9 +26,21 @@ import com.gdavidpb.tuindice.subjects.data.source.KtorSubjectsApiDataSource
 import com.gdavidpb.tuindice.subjects.data.source.SubjectStatsRoomDataSource
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val androidDebugVariantModule = module {
+	single<UsageDataCollectionController>(named("androidDebugUsageDataCollectionController")) {
+		NoOpUsageDataCollectionController
+	}
+
+	single<EventSubscriber>(named("androidDebugEventSubscriber")) {
+		DebugEventSubscriber(
+			sourceName = "android-debug",
+			usageDataConsentRepository = get()
+		)
+	}
+
 	factoryOf(::MockAttestationProviderDataSource) { bind<AttestationProviderDataRepository>() }
 
 	single<DebugProfilePictureStorageDataRepository> {

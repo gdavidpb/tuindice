@@ -20,6 +20,7 @@ import tuindice.auth.generated.resources.background
 import tuindice.auth.generated.resources.button_sign_in
 import tuindice.auth.generated.resources.hint_password
 import tuindice.auth.generated.resources.hint_usb_id
+import tuindice.auth.generated.resources.label_usage_data_consent
 import tuindice.auth.generated.resources.label_policies
 import tuindice.auth.generated.resources.link_privacy_policy
 import tuindice.auth.generated.resources.link_terms_and_conditions
@@ -30,6 +31,7 @@ fun SignInScreen(
 	onUsbIdChange: (usbId: String) -> Unit,
 	onPasswordChange: (password: String) -> Unit,
 	onPasswordVisibilityToggle: () -> Unit,
+	onUsageDataCollectionEnabledChange: (enabled: Boolean) -> Unit = {},
 	onSignInClick: (usbId: String, password: String) -> Unit,
 	onTermsAndConditionsClick: () -> Unit,
 	onPrivacyPolicyClick: () -> Unit
@@ -59,6 +61,7 @@ fun SignInScreen(
 						onUsbIdChange = onUsbIdChange,
 						onPasswordChange = onPasswordChange,
 						onPasswordVisibilityToggle = onPasswordVisibilityToggle,
+						onUsageDataCollectionEnabledChange = onUsageDataCollectionEnabledChange,
 						onSignInClick = onSignInClick,
 						onTermsAndConditionsClick = onTermsAndConditionsClick,
 						onPrivacyPolicyClick = onPrivacyPolicyClick,
@@ -67,6 +70,7 @@ fun SignInScreen(
 						policiesText = stringResource(Res.string.label_policies),
 						usbIdLabelText = stringResource(Res.string.hint_usb_id),
 						passwordLabelText = stringResource(Res.string.hint_password),
+						usageDataConsentText = stringResource(Res.string.label_usage_data_consent),
 						signInButtonText = stringResource(Res.string.button_sign_in)
 					)
 

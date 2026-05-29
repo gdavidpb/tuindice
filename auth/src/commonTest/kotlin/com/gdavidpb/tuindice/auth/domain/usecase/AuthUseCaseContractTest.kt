@@ -24,6 +24,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.test.runTest
@@ -120,12 +121,14 @@ class AuthUseCaseContractTest {
 		val authRepository = RecordingAuthRepository()
 		val attestationRepository = FakeAttestationRepository()
 		val sessionRepository = FakeSessionRepository()
+		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 		val applicationRepository = RecordingApplicationRepository()
 		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
 		val useCase = SignOutUseCase(
 			authRepository = authRepository,
 			attestationRepository = attestationRepository,
 			sessionRepository = sessionRepository,
+			sessionInvalidationRepository = sessionInvalidationRepository,
 			applicationRepository = applicationRepository,
 			syncStatusRepository = syncStatusRepository,
 			reportingRepository = RecordingReportingRepository()
@@ -151,6 +154,7 @@ class AuthUseCaseContractTest {
 		assertEquals(SyncStatus.Healthy, syncStatusRepository.getSyncStatus())
 		assertEquals(1, syncStatusRepository.resetCalls)
 		assertEquals(true, applicationRepository.cleared)
+		assertEquals("session-123", sessionInvalidationRepository.intentionalSignOutSessionId)
 	}
 
 	@Test
@@ -162,6 +166,7 @@ class AuthUseCaseContractTest {
 		val authRepository = RecordingAuthRepository(throwable = revokeThrowable)
 		val attestationRepository = FakeAttestationRepository()
 		val sessionRepository = FakeSessionRepository()
+		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 		val applicationRepository = RecordingApplicationRepository()
 		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
 		val reportingRepository = RecordingReportingRepository()
@@ -169,6 +174,7 @@ class AuthUseCaseContractTest {
 			authRepository = authRepository,
 			attestationRepository = attestationRepository,
 			sessionRepository = sessionRepository,
+			sessionInvalidationRepository = sessionInvalidationRepository,
 			applicationRepository = applicationRepository,
 			syncStatusRepository = syncStatusRepository,
 			reportingRepository = reportingRepository
@@ -185,6 +191,7 @@ class AuthUseCaseContractTest {
 		assertEquals(false, sessionRepository.cleared)
 		assertEquals(SyncStatus.OutdatedCredentials, syncStatusRepository.getSyncStatus())
 		assertEquals(false, applicationRepository.cleared)
+		assertEquals(null, sessionInvalidationRepository.intentionalSignOutSessionId)
 		assertEquals(revokeThrowable, reportingRepository.exceptions.single())
 	}
 

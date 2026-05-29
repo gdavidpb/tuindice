@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.presentation.action.browser.NavigateToActionProcessor
@@ -11,9 +12,12 @@ import kotlinx.coroutines.flow.Flow
 class BrowserViewModel(
 	private val navigateToActionProcessor: NavigateToActionProcessor,
 	private val setLoadingActionProcessor: SetLoadingActionProcessor,
-	private val openExternalResourceActionProcessor: OpenExternalResourceActionProcessor
-) : BaseViewModel<Browser.State, Browser.Action, Browser.Effect>(initialState = Browser.State.Idle) {
-
+	private val openExternalResourceActionProcessor: OpenExternalResourceActionProcessor,
+	override val eventPublisher: EventPublisher
+) : BaseViewModel<Browser.State, Browser.Action, Browser.Effect>(
+	name = "browser",
+	initialState = Browser.State.Idle
+) {
 	fun navigateToAction(title: String, url: String) =
 		sendAction(Browser.Action.NavigateTo(title, url))
 

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Button
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +32,7 @@ import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import com.gdavidpb.tuindice.auth.utils.extension.isUsbId
 import com.gdavidpb.tuindice.base.ui.view.AppLogoView
+import com.gdavidpb.tuindice.base.ui.view.toBoldMarkerAnnotatedText
 
 @Composable
 fun SignInIdleView(
@@ -38,6 +40,7 @@ fun SignInIdleView(
 	onUsbIdChange: (usbId: String) -> Unit,
 	onPasswordChange: (password: String) -> Unit,
 	onPasswordVisibilityToggle: () -> Unit,
+	onUsageDataCollectionEnabledChange: (enabled: Boolean) -> Unit = {},
 	onSignInClick: (usbId: String, password: String) -> Unit,
 	onTermsAndConditionsClick: () -> Unit,
 	onPrivacyPolicyClick: () -> Unit,
@@ -46,6 +49,7 @@ fun SignInIdleView(
 	policiesText: String,
 	usbIdLabelText: String,
 	passwordLabelText: String,
+	usageDataConsentText: String = "",
 	signInButtonText: String
 ) {
 	val focusManager = LocalFocusManager.current
@@ -111,6 +115,34 @@ fun SignInIdleView(
 				if (isSignInEnabled) onSignInClick(state.usbId, state.password)
 			})
 		)
+
+		Row(
+			modifier = Modifier
+				.fillMaxWidth()
+				.padding(
+					top = 12.dp,
+					start = 24.dp,
+					end = 32.dp
+				),
+			verticalAlignment = Alignment.CenterVertically
+		) {
+			Checkbox(
+				modifier = Modifier.testTag(AuthUiTags.UsageDataConsentCheckbox),
+				checked = state.usageDataCollectionEnabled,
+				onCheckedChange = onUsageDataCollectionEnabledChange
+			)
+
+			Text(
+				modifier = Modifier
+					.weight(1f)
+					.clickable {
+						onUsageDataCollectionEnabledChange(!state.usageDataCollectionEnabled)
+				},
+				text = usageDataConsentText.toBoldMarkerAnnotatedText(),
+				color = MaterialTheme.colorScheme.onBackground,
+				style = MaterialTheme.typography.bodyMedium
+			)
+		}
 
 		Button(
 			modifier = Modifier

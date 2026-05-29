@@ -6,6 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.Subject
+import androidx.compose.material.icons.outlined.AutoAwesome
 import androidx.compose.material.icons.outlined.BugReport
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Info
@@ -24,6 +25,7 @@ import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
 import com.gdavidpb.tuindice.about.ui.custom.AboutHeader
 import com.gdavidpb.tuindice.about.ui.custom.AboutItem
+import com.gdavidpb.tuindice.about.ui.custom.AboutSwitchItem
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
@@ -36,6 +38,7 @@ import tuindice.about.generated.resources.about_header_developer
 import tuindice.about.generated.resources.about_header_libs
 import tuindice.about.generated.resources.about_header_special_thanks
 import tuindice.about.generated.resources.about_license
+import tuindice.about.generated.resources.about_usage_data_consent
 import tuindice.about.generated.resources.about_privacy_policy
 import tuindice.about.generated.resources.about_rate
 import tuindice.about.generated.resources.about_share
@@ -73,7 +76,8 @@ fun AboutContentView(
 	onShareAppClick: () -> Unit,
 	onRateOnPlayStoreClick: () -> Unit,
 	onContactDeveloperClick: () -> Unit,
-	onReportBugClick: () -> Unit
+	onReportBugClick: () -> Unit,
+	onUsageDataCollectionEnabledChange: (enabled: Boolean) -> Unit = {}
 ) {
 	Column(
 		modifier = Modifier
@@ -138,6 +142,15 @@ fun AboutContentView(
 				testTag = AboutUiTags.RateOnStore,
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
 			) { onRateOnPlayStoreClick() }
+
+			AboutSwitchItem(
+				icon = rememberVectorPainter(Icons.Outlined.AutoAwesome),
+				text = stringResource(Res.string.about_usage_data_consent),
+				checked = state.usageDataCollectionEnabled,
+				onCheckedChange = onUsageDataCollectionEnabledChange,
+				testTag = AboutUiTags.UsageDataConsentToggle,
+				tint = MaterialTheme.colorScheme.onSurfaceVariant
+			)
 		}
 
 		AboutHeader(text = stringResource(Res.string.about_header_developer)) {

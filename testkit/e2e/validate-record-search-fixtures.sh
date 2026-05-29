@@ -179,13 +179,13 @@ else
 	ep2308_missing_requirements="$(
 		jq -r '
 			.selected_pensum_id as $selected |
-			.pensums[] | select(.id == $selected) as $pensum |
-			($pensum.nodes[] | select(.subject_code == "EP2308") | .id) as $ep2308NodeId |
+			([.pensums[]? | select(.id == $selected)][0] // .pensum) as $pensum |
+			($pensum.nodes[]? | select(.subject_code == "EP2308") | .id) as $ep2308NodeId |
 			[
-				$pensum.edges[]
+				$pensum.edges[]?
 				| select(.to_node_id == $ep2308NodeId and .relationship_type == "REQUIREMENT")
 				| .from_node_id as $fromNodeId
-				| $pensum.nodes[]
+				| $pensum.nodes[]?
 				| select(.id == $fromNodeId)
 				| .subject_code
 			]

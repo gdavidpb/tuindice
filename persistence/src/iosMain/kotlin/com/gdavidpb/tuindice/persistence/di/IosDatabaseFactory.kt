@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.persistence.di
 import androidx.room.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
+import com.gdavidpb.tuindice.persistence.data.room.TuIndiceRoomMigrations
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.coroutines.Dispatchers
 import platform.Foundation.NSDocumentDirectory
@@ -20,6 +21,7 @@ fun createIosDatabase(
 	return Room.databaseBuilder<TuIndiceDatabase>(
 		name = path
 	)
+		.addMigrations(*TuIndiceRoomMigrations.all)
 		.fallbackToDestructiveMigration(true)
 		.setDriver(BundledSQLiteDriver())
 		.setQueryCoroutineContext(Dispatchers.Default)

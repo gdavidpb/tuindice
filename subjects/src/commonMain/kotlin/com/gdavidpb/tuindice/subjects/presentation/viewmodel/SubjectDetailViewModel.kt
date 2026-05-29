@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.subjects.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
@@ -12,9 +13,12 @@ import kotlinx.coroutines.flow.Flow
 class SubjectDetailViewModel(
 	private val loadSubjectDetailActionProcessor: LoadSubjectDetailActionProcessor,
 	private val refreshSubjectDetailActionProcessor: RefreshSubjectDetailActionProcessor,
-	private val selectSubjectSegmentTabActionProcessor: SelectSubjectSegmentTabActionProcessor
-) : BaseViewModel<SubjectDetail.State, SubjectDetail.Action, SubjectDetail.Effect>(initialState = SubjectDetail.State.Idle) {
-
+	private val selectSubjectSegmentTabActionProcessor: SelectSubjectSegmentTabActionProcessor,
+	override val eventPublisher: EventPublisher
+) : BaseViewModel<SubjectDetail.State, SubjectDetail.Action, SubjectDetail.Effect>(
+	name = "subject_detail",
+	initialState = SubjectDetail.State.Idle
+) {
 	fun loadSubjectDetailAction(subjectCode: String) {
 		sendAction(SubjectDetail.Action.LoadSubjectDetail(subjectCode = subjectCode))
 	}

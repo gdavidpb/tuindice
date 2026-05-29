@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.auth.presentation.route
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.auth.domain.usecase.ConfirmSignOutUseCase
@@ -20,6 +21,7 @@ import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -140,6 +142,7 @@ class SignOutRouteUiTest {
 			authRepository = authRepository,
 			attestationRepository = attestationRepository,
 			sessionRepository = sessionRepository,
+			sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 			applicationRepository = applicationRepository,
 			syncStatusRepository = syncStatusRepository,
 			reportingRepository = reportingRepository
@@ -162,7 +165,8 @@ class SignOutRouteUiTest {
 				signOutUseCase = signOutUseCase
 			),
 			forceSignOutActionProcessor = ForceSignOutActionProcessor(signOutUseCase),
-			openUpdatePasswordActionProcessor = OpenUpdatePasswordActionProcessor()
+			openUpdatePasswordActionProcessor = OpenUpdatePasswordActionProcessor(),
+			eventPublisher = NoOpEventPublisher
 		)
 	}
 }

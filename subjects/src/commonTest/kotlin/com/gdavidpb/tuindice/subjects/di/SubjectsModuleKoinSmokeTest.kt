@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.subjects.di
 
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetailResult
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchResult
@@ -22,6 +24,7 @@ class SubjectsModuleKoinSmokeTest {
 		module {
 			single<SubjectStatsRepository> { FakeSubjectStatsRepository() }
 			single<ReportingRepository> { RecordingReportingRepository() }
+			single<EventPublisher> { NoOpEventPublisher }
 		}
 	) {
 		assertResolves(SubjectDetailViewModel::class)
@@ -33,6 +36,7 @@ class SubjectsModuleKoinSmokeTest {
 		module {
 			single<SubjectCatalogRepository> { FakeSubjectCatalogRepository() }
 			single<ReportingRepository> { RecordingReportingRepository() }
+			single<EventPublisher> { NoOpEventPublisher }
 		}
 	) {
 		assertResolves(SubjectSearchViewModel::class)

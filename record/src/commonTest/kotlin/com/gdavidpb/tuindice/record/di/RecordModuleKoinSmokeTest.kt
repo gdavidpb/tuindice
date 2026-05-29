@@ -3,6 +3,8 @@ package com.gdavidpb.tuindice.record.di
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
@@ -27,6 +29,7 @@ class RecordModuleKoinSmokeTest {
 			single<AcademicRecordRepository> { StubAcademicRecordRepository() }
 			single<RecordSelectionRepository> { StubRecordSelectionRepository() }
 			single<ReportingRepository> { RecordingReportingRepository() }
+			single<EventPublisher> { NoOpEventPublisher }
 		}
 	) {
 		assertResolves(RecordViewModel::class)

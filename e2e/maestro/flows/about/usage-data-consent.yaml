@@ -1,0 +1,33 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- runFlow: ../auth/login-success.yaml
+- runFlow: ../wizard/wizard-smoke.yaml
+- tapOn:
+    id: maincore_tuindice_bottom_bar_about_item
+- extendedWaitUntil:
+    visible:
+      id: about_content_container
+    timeout: 20000
+- scrollUntilVisible:
+    element:
+      id: about_rate_on_store
+    direction: DOWN
+    timeout: 10000
+- assertVisible:
+    id: about_rate_on_store
+- scrollUntilVisible:
+    element:
+      id: about_usage_data_consent_toggle
+    direction: DOWN
+    timeout: 10000
+- assertVisible:
+    id: about_usage_data_consent_toggle
+- tapOn:
+    id: about_usage_data_consent_toggle
+- assertVisible:
+    id: about_content_container
+- tapOn:
+    id: about_usage_data_consent_toggle
+- assertVisible:
+    id: about_content_container

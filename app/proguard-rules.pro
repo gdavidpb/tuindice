@@ -23,6 +23,11 @@
 # Use cases rules
 -keepnames class * extends com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase { *; }
 
+# Automatic event names derive from ViewAction/ViewState/ViewEffect subclass names.
+-keepnames class * extends com.gdavidpb.tuindice.base.presentation.ViewAction
+-keepnames class * extends com.gdavidpb.tuindice.base.presentation.ViewState
+-keepnames class * extends com.gdavidpb.tuindice.base.presentation.ViewEffect
+
 # Google Crypto rules
 -keep class com.google.crypto.** { *; }
 -dontwarn com.google.crypto.**

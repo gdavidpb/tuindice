@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.base.data.repository.*
 import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
+import com.gdavidpb.tuindice.base.domain.controller.UsageDataCollectionController
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.base.utils.extension.toFirebaseDefaultsMap
@@ -24,6 +25,7 @@ import com.gdavidpb.tuindice.data.source.attestation.PlayIntegrityDataSource
 import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataRepository
 import com.gdavidpb.tuindice.data.source.messaging.FirebasePushTokenDataSource
 import com.gdavidpb.tuindice.data.source.actions.AndroidFileOpenerDataSource
+import com.gdavidpb.tuindice.data.source.analytics.FirebaseAnalyticsEventSubscriber
 import com.gdavidpb.tuindice.data.source.activity.CurrentActivityDataSource
 import com.gdavidpb.tuindice.data.source.application.AndroidApplicationDataSource
 import com.gdavidpb.tuindice.data.source.browser.AndroidBrowserDataSource
@@ -31,6 +33,7 @@ import com.gdavidpb.tuindice.data.source.config.AndroidRemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.device.AndroidDeviceInfoDataSource
 import com.gdavidpb.tuindice.data.source.environment.BuildConfigEnvironmentDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
+import com.gdavidpb.tuindice.data.source.performance.FirebasePerformanceCollectionController
 import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSource
 import com.gdavidpb.tuindice.data.source.reporting.CrashReporterDataSource
 import com.gdavidpb.tuindice.data.source.review.PlayReviewDataSource
@@ -48,8 +51,10 @@ import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.integrity.IntegrityManagerFactory
 import com.google.android.play.core.integrity.StandardIntegrityManager
 import com.google.android.play.core.review.ReviewManagerFactory
+import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.russhwolf.settings.Settings
@@ -60,6 +65,7 @@ import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository as BaseExternalActionsRepository
 
@@ -142,6 +148,23 @@ private fun Module.registerAndroidPlatformPrimitives() {
 }
 
 private fun Module.registerAndroidPlatformServices() {
+	if (!BuildConfig.DEBUG) {
+		single { FirebaseAnalytics.getInstance(androidContext()) }
+		single { FirebasePerformance.getInstance() }
+		single<EventSubscriber>(named("firebaseAnalyticsEventSubscriber")) {
+			FirebaseAnalyticsEventSubscriber(
+				firebaseAnalytics = get(),
+				usageDataConsentRepository = get()
+			)
+		}
+		single<UsageDataCollectionController>(named("firebasePerformanceCollectionController")) {
+			FirebasePerformanceCollectionController(
+				firebasePerformance = get(),
+				usageDataConsentRepository = get()
+			)
+		}
+	}
+
 	singleOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
 	singleOf(::AndroidKeystoreProofOfPossessionCapability) { bind<AndroidProofOfPossessionCapability>() }
 	singleOf(::AndroidRemoteConfigDataSource) { bind<RemoteConfigDataRepository>() }

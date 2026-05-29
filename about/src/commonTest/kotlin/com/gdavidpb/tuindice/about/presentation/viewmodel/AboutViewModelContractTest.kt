@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.about.presentation.viewmodel
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
@@ -151,7 +152,8 @@ class AboutViewModelContractTest {
 					browserRepository = browserRepository,
 					reportingRepository = RecordingReportingRepository()
 				)
-			)
+			),
+			eventPublisher = NoOpEventPublisher
 		)
 	}
 }

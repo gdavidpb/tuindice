@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import androidx.lifecycle.viewModelScope
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
@@ -32,9 +33,12 @@ class EvaluationsViewModel(
 	private val pickEvaluationGradeActionProcessor: PickEvaluationGradeActionProcessor,
 	private val setEvaluationGradeActionProcessor: SetEvaluationGradeActionProcessor,
 	private val openEvaluationActionProcessor: OpenEvaluationActionProcessor,
-	private val removeEvaluationActionProcessor: RemoveEvaluationActionProcessor
-) : BaseViewModel<Evaluations.State, Evaluations.Action, Evaluations.Effect>(initialState = Evaluations.State.Idle) {
-
+	private val removeEvaluationActionProcessor: RemoveEvaluationActionProcessor,
+	override val eventPublisher: EventPublisher
+) : BaseViewModel<Evaluations.State, Evaluations.Action, Evaluations.Effect>(
+	name = "evaluations",
+	initialState = Evaluations.State.Idle
+) {
 	private val activeFilters = state
 		.filterIsInstance<Evaluations.State.Content>()
 		.map { content -> content.activeFilters }

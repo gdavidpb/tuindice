@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.enrollmentproof.di
 
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.FileRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
@@ -26,6 +28,7 @@ class EnrollmentProofModuleKoinSmokeTest {
 			single<NetworkRepository> { FakeNetworkRepository(isAvailable = true) }
 			single<ReportingRepository> { RecordingReportingRepository() }
 			single<EnrollmentProofTextProvider> { FakeEnrollmentProofTextProvider() }
+			single<EventPublisher> { NoOpEventPublisher }
 		}
 	) {
 		assertResolves(EnrollmentProofViewModel::class)

@@ -1,9 +1,11 @@
 package com.gdavidpb.tuindice.di
 
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
@@ -50,6 +52,7 @@ class MainModuleKoinSmokeTest {
 			single<CoreCacheStateRepository> { FakeCoreCacheStateRepository() }
 			single<UpdateRepository> { FakeUpdateRepository() }
 			single<BrowserRepository> { RecordingBrowserRepository() }
+			single<EventPublisher> { NoOpEventPublisher }
 		}
 	) {
 		assertResolves(

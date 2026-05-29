@@ -7,10 +7,16 @@ import com.gdavidpb.tuindice.base.data.source.InMemorySessionDataSource
 import com.gdavidpb.tuindice.base.data.repository.MemorySessionDataRepository
 import com.gdavidpb.tuindice.base.data.repository.PreferencesSessionDataRepository
 import com.gdavidpb.tuindice.base.data.source.SecureStoreSessionDataSource
+import com.gdavidpb.tuindice.base.data.source.usage.UsageDataConsentSettingsDataSource
+import com.gdavidpb.tuindice.base.data.source.event.BufferedEventPublisher
+import com.gdavidpb.tuindice.base.data.source.event.CompositeEventSubscriber
 import com.gdavidpb.tuindice.base.data.source.settings.APP_STORE_NAME
+import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
+import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
@@ -47,7 +53,14 @@ val commonModule = module {
 	singleOf(::createAppSettings)
 
 	singleOf(::MultiplatformSettingsDataSource) { bind<SettingsRepository>() }
+	singleOf(::UsageDataConsentSettingsDataSource) { bind<UsageDataConsentRepository>() }
 	singleOf(::ConfigDataSource) { bind<ConfigRepository>() }
+	single<EventPublisher> {
+		BufferedEventPublisher(
+			usageDataConsentRepository = get(),
+			eventSubscriber = CompositeEventSubscriber(subscribers = getAll<EventSubscriber>())
+		)
+	}
 
 	singleOf(::InMemorySessionDataSource) { bind<MemorySessionDataRepository>() }
 	singleOf(::SecureStoreSessionDataSource) { bind<PreferencesSessionDataRepository>() }

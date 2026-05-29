@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.di
 
+import com.gdavidpb.tuindice.base.domain.controller.UsageDataCollectionController
 import org.koin.core.Koin
 import org.koin.core.KoinApplication
 import org.koin.core.context.startKoin
@@ -12,7 +13,11 @@ interface PlatformKoinBootstrap {
 
 	fun variantModules(): List<Module> = emptyList()
 
-	fun afterStart(koin: Koin) = Unit
+	fun afterStart(koin: Koin) {
+		koin.getAll<UsageDataCollectionController>().forEach { controller ->
+			controller.start()
+		}
+	}
 }
 
 data class AppKoinBootstrapRequest(

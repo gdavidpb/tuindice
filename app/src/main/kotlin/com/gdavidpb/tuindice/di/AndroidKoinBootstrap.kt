@@ -57,6 +57,7 @@ class AndroidKoinBootstrap(
 	}
 
 	override fun afterStart(koin: Koin) {
+		super.afterStart(koin)
 		application.registerActivityLifecycleCallbacks(
 			CurrentActivityLifecycleCallbacks(
 				currentActivityDataSource = koin.get<CurrentActivityDataSource>()

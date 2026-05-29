@@ -20,9 +20,11 @@ import com.gdavidpb.tuindice.auth.testing.RecordingApplicationRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
@@ -35,10 +37,30 @@ import tuindice.auth.generated.resources.snack_password_updated
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 class AuthActionProcessorContractTest {
 	private companion object {
 		const val VALID_USB_ID = "20-26123"
+	}
+
+	@Test
+	fun setUsageDataCollectionEnabledActionProcessor_persistsConsentAndUpdatesIdleState() = runTest {
+		val usageDataConsentRepository = InMemoryUsageDataConsentRepository(initialValue = false)
+		val processor = SetUsageDataCollectionEnabledActionProcessor(
+			usageDataConsentRepository = usageDataConsentRepository
+		)
+
+		processor.process(
+			action = SignIn.Action.SetUsageDataCollectionEnabled(enabled = true),
+			sideEffect = {}
+		).test {
+			val state = assertIs<SignIn.State.Idle>(awaitItem()(SignIn.State.Idle()))
+			assertTrue(state.usageDataCollectionEnabled)
+			awaitComplete()
+		}
+
+		assertTrue(usageDataConsentRepository.isUsageDataCollectionEnabled())
 	}
 
 	@Test
@@ -135,6 +157,7 @@ class AuthActionProcessorContractTest {
 				authRepository = authRepository,
 				attestationRepository = attestationRepository,
 				sessionRepository = sessionRepository,
+				sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 				applicationRepository = applicationRepository,
 				syncStatusRepository = syncStatusRepository,
 				reportingRepository = reportingRepository
@@ -173,6 +196,7 @@ class AuthActionProcessorContractTest {
 				authRepository = RecordingAuthRepository(),
 				attestationRepository = FakeAttestationRepository(),
 				sessionRepository = FakeSessionRepository(),
+				sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 				applicationRepository = RecordingApplicationRepository(),
 				syncStatusRepository = FakeSyncStatusRepository(),
 				reportingRepository = RecordingReportingRepository()

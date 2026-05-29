@@ -13,9 +13,13 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
+import com.gdavidpb.tuindice.base.ui.view.appendWithBoldMarkers
 
 @Composable
-fun AboutSpanText(text: String) {
+fun AboutSpanText(
+	text: String,
+	modifier: Modifier = Modifier
+) {
 	val annotatedString = buildAnnotatedString {
 		val title = text.substringBefore("\n")
 		val content = text.substringAfter(
@@ -25,17 +29,21 @@ fun AboutSpanText(text: String) {
 
 		withStyle(
 			style = SpanStyle(fontWeight = FontWeight.Medium)
-		) { append(title) }
+		) {
+			appendWithBoldMarkers(title)
+		}
 
-		if (content.isNotEmpty())
-			append("\n$content")
+		if (content.isNotEmpty()) {
+			append("\n")
+			appendWithBoldMarkers(content)
+		}
 	}
 
 	Text(
 		text = annotatedString,
 		color = MaterialTheme.colorScheme.onSurfaceVariant,
 		style = MaterialTheme.typography.bodyMedium,
-		modifier = Modifier
+		modifier = modifier
 			.testTag(AboutUiTags.SpanText)
 			.padding(horizontal = 16.dp)
 			.fillMaxWidth()

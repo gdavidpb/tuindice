@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationCourseFilter
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
@@ -113,7 +114,8 @@ class EvaluationsViewModelContractTest {
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = RemoveEvaluationExceptionHandler()
 				)
-			)
+			),
+			eventPublisher = NoOpEventPublisher
 		)
 	}
 }

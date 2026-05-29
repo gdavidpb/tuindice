@@ -88,7 +88,8 @@ fun createSharedHttpClient(
 						sessionRepository = sessionRepository,
 						syncStatusRepository = syncStatusRepository,
 						applicationRepository = applicationRepository,
-						sessionInvalidationRepository = sessionInvalidationRepository
+						sessionInvalidationRepository = sessionInvalidationRepository,
+						sessionId = sessionRepository.getSessionId()
 					)
 				}
 			}
@@ -215,7 +216,8 @@ internal fun AuthConfig.installSharedBearerAuth(
 					sessionRepository = sessionRepository,
 					syncStatusRepository = syncStatusRepository,
 					applicationRepository = applicationRepository,
-					sessionInvalidationRepository = sessionInvalidationRepository
+					sessionInvalidationRepository = sessionInvalidationRepository,
+					sessionId = oldSessionId
 				)
 
 				return@refreshTokens null
@@ -292,10 +294,11 @@ internal suspend fun handleUnauthorizedTokenRefresh(
 	sessionRepository: SessionRepository,
 	syncStatusRepository: SyncStatusRepository,
 	applicationRepository: ApplicationRepository,
-	sessionInvalidationRepository: SessionInvalidationRepository
+	sessionInvalidationRepository: SessionInvalidationRepository,
+	sessionId: String? = null
 ) {
 	runCatching { sessionRepository.clear() }
 	runCatching { syncStatusRepository.reset() }
 	runCatching { applicationRepository.clearData() }
-	runCatching { sessionInvalidationRepository.notifySessionInvalidated() }
+	runCatching { sessionInvalidationRepository.notifySessionInvalidated(sessionId = sessionId) }
 }
