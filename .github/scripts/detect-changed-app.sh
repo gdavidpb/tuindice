@@ -35,6 +35,9 @@ mkdir -p "$STATE_DIR"
 
 APP_VERSION_TOUCHED=false
 APP_VERSION_CHANGED=false
+APP_VERSION_NAME_CHANGED=false
+ANDROID_VERSION_CODE_CHANGED=false
+IOS_BUILD_NUMBER_CHANGED=false
 CI_CONFIG_TOUCHED=false
 IOS_CI_SCRIPTS_TOUCHED=false
 E2E_CONTRACT_TOUCHED=false
@@ -204,7 +207,6 @@ append_ios_signing_config_validation() {
 	CI_CONFIG_TOUCHED=true
 	HAS_RELEVANT_CHANGES=true
 	append_unique_line "$IOS_TASKS_FILE" "verifyIosHostBuildRelease"
-	append_unique_line "$IOS_TASKS_FILE" "verifyIosHostTypecheck"
 }
 
 is_ios_signing_only_config_change() {
@@ -327,6 +329,11 @@ classify_changed_file() {
 			return 0
 			;;
 		"$(app_version_file)")
+			APP_VERSION_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			return 0
+			;;
+		iosApp/Config/Version.xcconfig)
 			APP_VERSION_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
 			return 0
@@ -470,9 +477,27 @@ if [[ "$APP_VERSION_TOUCHED" == "true" ]]; then
 	base_ios_build="$(get_app_version_property_at_git_ref iosBuildNumber "$BEFORE_SHA")"
 	head_ios_build="$(get_app_version_property_at_git_ref iosBuildNumber "$AFTER_SHA")"
 
-	if [[ "$base_version" != "$head_version" || "$base_android_code" != "$head_android_code" || "$base_ios_build" != "$head_ios_build" ]]; then
+	if [[ "$base_version" != "$head_version" ]]; then
+		APP_VERSION_NAME_CHANGED=true
+	fi
+	if [[ "$base_android_code" != "$head_android_code" ]]; then
+		ANDROID_VERSION_CODE_CHANGED=true
+	fi
+	if [[ "$base_ios_build" != "$head_ios_build" ]]; then
+		IOS_BUILD_NUMBER_CHANGED=true
+	fi
+
+	if [[ "$APP_VERSION_NAME_CHANGED" == "true" || "$ANDROID_VERSION_CODE_CHANGED" == "true" || "$IOS_BUILD_NUMBER_CHANGED" == "true" ]]; then
 		APP_VERSION_CHANGED=true
 	fi
+fi
+
+if [[ "$APP_VERSION_NAME_CHANGED" == "true" || "$ANDROID_VERSION_CODE_CHANGED" == "true" ]]; then
+	append_runtime_module app
+fi
+
+if [[ "$APP_VERSION_NAME_CHANGED" == "true" || "$IOS_BUILD_NUMBER_CHANGED" == "true" ]]; then
+	append_runtime_module iosApp
 fi
 
 if [[ "$HAS_RELEASE_IMPACT" == "true" && "$APP_VERSION_CHANGED" != "true" ]]; then
@@ -498,9 +523,10 @@ while IFS= read -r module; do
 			fi
 			;;
 		iosApp)
-			append_unique_line "$IOS_TASKS_FILE" "verifyIosHostTypecheck"
 			if [[ "$HAS_RELEASE_IMPACT" == "true" || "$APP_VERSION_CHANGED" == "true" ]]; then
 				append_unique_line "$IOS_TASKS_FILE" "verifyIosHostBuildRelease"
+			else
+				append_unique_line "$IOS_TASKS_FILE" "verifyIosHostTypecheck"
 			fi
 			;;
 		*)
