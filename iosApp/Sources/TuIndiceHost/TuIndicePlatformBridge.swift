@@ -11,6 +11,9 @@ import FirebaseCrashlytics
 #if canImport(FirebaseAnalytics)
 import FirebaseAnalytics
 #endif
+#if canImport(FirebasePerformance)
+import FirebasePerformance
+#endif
 #if canImport(FirebaseMessaging)
 import FirebaseMessaging
 #endif
@@ -422,10 +425,18 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         #endif
     }
 
-    func setAnalyticsCollectionEnabled(enabled: Bool) {
+    func setUsageDataCollectionEnabled(enabled: Bool) {
         #if canImport(FirebaseAnalytics)
         guard isFirebaseConfigured else { return }
         Analytics.setAnalyticsCollectionEnabled(enabled)
+        #endif
+    }
+
+    func setPerformanceCollectionEnabled(enabled: Bool) {
+        #if canImport(FirebasePerformance)
+        guard isFirebaseConfigured else { return }
+        Performance.sharedInstance().isInstrumentationEnabled = enabled
+        Performance.sharedInstance().isDataCollectionEnabled = enabled
         #endif
     }
 

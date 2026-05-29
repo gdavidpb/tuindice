@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.model.event.AppEvent
 import com.gdavidpb.tuindice.base.domain.model.event.EventNames
 import com.gdavidpb.tuindice.base.domain.model.event.EventParameterKeys
+import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
 import com.gdavidpb.tuindice.base.presentation.Mutation
@@ -64,7 +65,7 @@ class EventPipelineTest {
 	fun bufferedEventPublisher_doesNotSendWithoutConsent() = runTest {
 		val subscriber = RecordingEventSubscriber()
 		val publisher = BufferedEventPublisher(
-			analyticsConsentRepository = InMemoryAnalyticsConsentRepository(initialValue = false),
+			usageDataConsentRepository = InMemoryUsageDataConsentRepository(initialValue = false),
 			eventSubscriber = subscriber
 		)
 
@@ -84,7 +85,7 @@ class EventPipelineTest {
 	fun bufferedEventPublisher_sendsWithConsent() = runTest {
 		val subscriber = RecordingEventSubscriber()
 		val publisher = BufferedEventPublisher(
-			analyticsConsentRepository = InMemoryAnalyticsConsentRepository(initialValue = true),
+			usageDataConsentRepository = InMemoryUsageDataConsentRepository(initialValue = true),
 			eventSubscriber = subscriber
 		)
 		val event = AppEvent.Action(

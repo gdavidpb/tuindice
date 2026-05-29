@@ -74,7 +74,8 @@ class IosAppKoinSmokeTest {
 								},
 								observability = object : IosObservabilityCapability {
 									override fun setUserIdentifier(identifier: String) = Unit
-									override fun setAnalyticsCollectionEnabled(enabled: Boolean) = Unit
+									override fun setUsageDataCollectionEnabled(enabled: Boolean) = Unit
+									override fun setPerformanceCollectionEnabled(enabled: Boolean) = Unit
 									override fun logEvent(name: String, parameters: Map<String, String>) = Unit
 									override fun logMessage(message: String) = Unit
 									override fun logException(throwable: Throwable) = Unit

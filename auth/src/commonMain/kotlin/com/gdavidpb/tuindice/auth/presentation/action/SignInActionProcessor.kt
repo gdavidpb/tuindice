@@ -47,7 +47,7 @@ class SignInActionProcessor(
 								usbId = params.usbId,
 								password = params.password,
 								messages = loadingMessages,
-								analyticsCollectionEnabled = state.analyticsCollectionEnabled
+								usageDataCollectionEnabled = state.usageDataCollectionEnabled
 							)
 						else
 							state
@@ -116,7 +116,7 @@ class SignInActionProcessor(
 							SignIn.State.Idle(
 								usbId = state.usbId,
 								password = state.password,
-								analyticsCollectionEnabled = state.analyticsCollectionEnabled
+								usageDataCollectionEnabled = state.usageDataCollectionEnabled
 							)
 						} else
 							state

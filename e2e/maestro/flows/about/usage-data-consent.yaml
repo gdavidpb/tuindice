@@ -18,16 +18,16 @@ appId: com.gdavidpb.tuindice.debug
     id: about_rate_on_store
 - scrollUntilVisible:
     element:
-      id: about_analytics_consent_toggle
+      id: about_usage_data_consent_toggle
     direction: DOWN
     timeout: 10000
 - assertVisible:
-    id: about_analytics_consent_toggle
+    id: about_usage_data_consent_toggle
 - tapOn:
-    id: about_analytics_consent_toggle
+    id: about_usage_data_consent_toggle
 - assertVisible:
     id: about_content_container
 - tapOn:
-    id: about_analytics_consent_toggle
+    id: about_usage_data_consent_toggle
 - assertVisible:
     id: about_content_container

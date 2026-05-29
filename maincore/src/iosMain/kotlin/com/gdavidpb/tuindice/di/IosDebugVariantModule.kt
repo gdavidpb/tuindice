@@ -31,7 +31,7 @@ val iosDebugVariantModule = module {
 	single<EventSubscriber>(named("iosDebugEventSubscriber")) {
 		DebugEventSubscriber(
 			sourceName = "ios-debug",
-			analyticsConsentRepository = get()
+			usageDataConsentRepository = get()
 		)
 	}
 

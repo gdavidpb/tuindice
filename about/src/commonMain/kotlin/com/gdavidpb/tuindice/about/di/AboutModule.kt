@@ -40,5 +40,5 @@ val aboutModule = module {
 	factoryOf(::RateOnStoreActionProcessor)
 	factoryOf(::ReportBugActionProcessor)
 	factoryOf(::OpenUrlActionProcessor)
-	factoryOf(::SetAnalyticsCollectionEnabledActionProcessor)
+	factoryOf(::SetUsageDataCollectionEnabledActionProcessor)
 }

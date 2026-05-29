@@ -6,7 +6,7 @@
     <string name="about_license">Creative Commons\nBY-NC 4.0</string>
     <string name="about_terms_and_conditions">Términos y condiciones\nConoce las condiciones del servicio</string>
     <string name="about_privacy_policy">Política de privacidad\nConoce como manejamos tus datos</string>
-    <string name="about_analytics_consent">Ayudar a mejorar **TuIndice**\nCompartir datos de uso anónimos</string>
+    <string name="about_usage_data_consent">Ayudar a mejorar **TuIndice**\nCompartir datos de uso anónimos</string>
     <string name="about_support">Soporte\nAyuda y canales oficiales</string>
     <string name="label_terms_and_conditions">Términos y condiciones</string>
     <string name="label_privacy_policy">Política de privacidad</string>

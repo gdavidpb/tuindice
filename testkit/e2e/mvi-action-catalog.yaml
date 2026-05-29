@@ -57,10 +57,10 @@ actions:
     selector: about_share_app
     flow: e2e/maestro/flows/suites/about-suite.yaml
     platform_edge: share sheet requires UI Automator/XCUITest
-  - id: about.About.SetAnalyticsCollectionEnabled
+  - id: about.About.SetUsageDataCollectionEnabled
     classification: user
     variants: [enable, disable]
-    selector: about_analytics_consent_toggle
+    selector: about_usage_data_consent_toggle
     flow: e2e/maestro/flows/suites/about-suite.yaml
     fixture_state: static
 
@@ -82,11 +82,11 @@ actions:
     selector: auth_password_toggle
     flow: e2e/maestro/flows/auth/login-password-toggle.yaml
     fixture_state: static
-  - id: auth.SignIn.SetAnalyticsCollectionEnabled
+  - id: auth.SignIn.SetUsageDataCollectionEnabled
     classification: user
     variants: [enable-before-login]
-    selector: auth_analytics_consent_checkbox
-    flow: e2e/maestro/flows/auth/analytics-consent.yaml
+    selector: auth_usage_data_consent_checkbox
+    flow: e2e/maestro/flows/auth/usage-data-consent.yaml
     fixture_state: auth-success
   - id: auth.SignIn.ClickSignIn
     classification: user

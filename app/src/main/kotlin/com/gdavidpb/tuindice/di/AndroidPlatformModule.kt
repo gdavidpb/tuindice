@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.base.data.repository.*
 import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
+import com.gdavidpb.tuindice.base.domain.controller.UsageDataCollectionController
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.base.utils.extension.toFirebaseDefaultsMap
@@ -32,6 +33,7 @@ import com.gdavidpb.tuindice.data.source.config.AndroidRemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.device.AndroidDeviceInfoDataSource
 import com.gdavidpb.tuindice.data.source.environment.BuildConfigEnvironmentDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
+import com.gdavidpb.tuindice.data.source.performance.FirebasePerformanceCollectionController
 import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSource
 import com.gdavidpb.tuindice.data.source.reporting.CrashReporterDataSource
 import com.gdavidpb.tuindice.data.source.review.PlayReviewDataSource
@@ -52,6 +54,7 @@ import com.google.android.play.core.review.ReviewManagerFactory
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.crashlytics.FirebaseCrashlytics
 import com.google.firebase.messaging.FirebaseMessaging
+import com.google.firebase.perf.FirebasePerformance
 import com.google.firebase.remoteconfig.FirebaseRemoteConfig
 import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.russhwolf.settings.Settings
@@ -147,10 +150,17 @@ private fun Module.registerAndroidPlatformPrimitives() {
 private fun Module.registerAndroidPlatformServices() {
 	if (!BuildConfig.DEBUG) {
 		single { FirebaseAnalytics.getInstance(androidContext()) }
+		single { FirebasePerformance.getInstance() }
 		single<EventSubscriber>(named("firebaseAnalyticsEventSubscriber")) {
 			FirebaseAnalyticsEventSubscriber(
 				firebaseAnalytics = get(),
-				analyticsConsentRepository = get()
+				usageDataConsentRepository = get()
+			)
+		}
+		single<UsageDataCollectionController>(named("firebasePerformanceCollectionController")) {
+			FirebasePerformanceCollectionController(
+				firebasePerformance = get(),
+				usageDataConsentRepository = get()
 			)
 		}
 	}

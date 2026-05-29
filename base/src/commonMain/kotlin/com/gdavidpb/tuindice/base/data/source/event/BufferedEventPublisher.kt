@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.base.data.source.event
 
 import com.gdavidpb.tuindice.base.domain.model.event.AppEvent
-import com.gdavidpb.tuindice.base.domain.repository.AnalyticsConsentRepository
+import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
 import kotlinx.coroutines.CoroutineScope
@@ -12,7 +12,7 @@ import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.launch
 
 class BufferedEventPublisher(
-	private val analyticsConsentRepository: AnalyticsConsentRepository,
+	private val usageDataConsentRepository: UsageDataConsentRepository,
 	private val eventSubscriber: EventSubscriber,
 	bufferCapacity: Int = DEFAULT_BUFFER_CAPACITY
 ) : EventPublisher {
@@ -25,7 +25,7 @@ class BufferedEventPublisher(
 	init {
 		scope.launch {
 			for (event in events) {
-				if (!analyticsConsentRepository.isAnalyticsCollectionEnabled()) continue
+				if (!usageDataConsentRepository.isUsageDataCollectionEnabled()) continue
 
 				eventSubscriber.onEvent(event)
 			}
@@ -33,7 +33,7 @@ class BufferedEventPublisher(
 	}
 
 	override fun publish(event: AppEvent) {
-		if (!analyticsConsentRepository.isAnalyticsCollectionEnabled()) return
+		if (!usageDataConsentRepository.isUsageDataCollectionEnabled()) return
 
 		events.trySend(event)
 	}

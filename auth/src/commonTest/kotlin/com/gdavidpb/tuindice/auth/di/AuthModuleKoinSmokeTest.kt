@@ -2,9 +2,9 @@ package com.gdavidpb.tuindice.auth.di
 
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
-import com.gdavidpb.tuindice.base.data.source.event.InMemoryAnalyticsConsentRepository
+import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
-import com.gdavidpb.tuindice.base.domain.repository.AnalyticsConsentRepository
+import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
@@ -62,7 +62,7 @@ class AuthModuleKoinSmokeTest {
 			single<ConfigRepository> { FakeConfigRepository() }
 			single<AppEnvironmentRepository> { FakeAppEnvironmentRepository() }
 			single<PendingChangesRepository> { FakePendingChangesRepository() }
-			single<AnalyticsConsentRepository> { InMemoryAnalyticsConsentRepository() }
+			single<UsageDataConsentRepository> { InMemoryUsageDataConsentRepository() }
 			single<EventPublisher> { NoOpEventPublisher }
 			single {
 				HttpClient(

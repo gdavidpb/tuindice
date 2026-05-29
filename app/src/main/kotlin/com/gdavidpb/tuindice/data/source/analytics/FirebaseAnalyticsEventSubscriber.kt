@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.data.source.analytics
 
 import android.os.Bundle
 import com.gdavidpb.tuindice.base.domain.model.event.AppEvent
-import com.gdavidpb.tuindice.base.domain.repository.AnalyticsConsentRepository
+import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
 import com.google.firebase.analytics.FirebaseAnalytics
 import kotlinx.coroutines.CoroutineScope
@@ -13,16 +13,16 @@ import kotlinx.coroutines.launch
 
 class FirebaseAnalyticsEventSubscriber(
 	private val firebaseAnalytics: FirebaseAnalytics,
-	private val analyticsConsentRepository: AnalyticsConsentRepository
+	private val usageDataConsentRepository: UsageDataConsentRepository
 ) : EventSubscriber {
 	private val scope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
 
 	init {
 		firebaseAnalytics.setAnalyticsCollectionEnabled(
-			analyticsConsentRepository.isAnalyticsCollectionEnabled()
+			usageDataConsentRepository.isUsageDataCollectionEnabled()
 		)
 		scope.launch {
-			analyticsConsentRepository.analyticsCollectionEnabled.collectLatest { enabled ->
+			usageDataConsentRepository.usageDataCollectionEnabled.collectLatest { enabled ->
 				firebaseAnalytics.setAnalyticsCollectionEnabled(enabled)
 			}
 		}
@@ -31,7 +31,7 @@ class FirebaseAnalyticsEventSubscriber(
 	override val id: String = "firebase_analytics_android"
 
 	override val isEnabled: Boolean
-		get() = analyticsConsentRepository.isAnalyticsCollectionEnabled()
+		get() = usageDataConsentRepository.isUsageDataCollectionEnabled()
 
 	override fun onEvent(event: AppEvent) {
 		if (!isEnabled) return

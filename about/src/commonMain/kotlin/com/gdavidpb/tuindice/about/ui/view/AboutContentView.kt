@@ -38,7 +38,7 @@ import tuindice.about.generated.resources.about_header_developer
 import tuindice.about.generated.resources.about_header_libs
 import tuindice.about.generated.resources.about_header_special_thanks
 import tuindice.about.generated.resources.about_license
-import tuindice.about.generated.resources.about_analytics_consent
+import tuindice.about.generated.resources.about_usage_data_consent
 import tuindice.about.generated.resources.about_privacy_policy
 import tuindice.about.generated.resources.about_rate
 import tuindice.about.generated.resources.about_share
@@ -77,7 +77,7 @@ fun AboutContentView(
 	onRateOnPlayStoreClick: () -> Unit,
 	onContactDeveloperClick: () -> Unit,
 	onReportBugClick: () -> Unit,
-	onAnalyticsCollectionEnabledChange: (enabled: Boolean) -> Unit = {}
+	onUsageDataCollectionEnabledChange: (enabled: Boolean) -> Unit = {}
 ) {
 	Column(
 		modifier = Modifier
@@ -145,10 +145,10 @@ fun AboutContentView(
 
 			AboutSwitchItem(
 				icon = rememberVectorPainter(Icons.Outlined.AutoAwesome),
-				text = stringResource(Res.string.about_analytics_consent),
-				checked = state.analyticsCollectionEnabled,
-				onCheckedChange = onAnalyticsCollectionEnabledChange,
-				testTag = AboutUiTags.AnalyticsConsentToggle,
+				text = stringResource(Res.string.about_usage_data_consent),
+				checked = state.usageDataCollectionEnabled,
+				onCheckedChange = onUsageDataCollectionEnabledChange,
+				testTag = AboutUiTags.UsageDataConsentToggle,
 				tint = MaterialTheme.colorScheme.onSurfaceVariant
 			)
 		}

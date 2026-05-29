@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.about.testing.CURRENT_PRODUCTION_VERSION_TEXT
 import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
+import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
@@ -24,6 +25,24 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class AboutActionProcessorContractTest {
+	@Test
+	fun setUsageDataCollectionEnabledActionProcessor_persistsConsentAndUpdatesContentState() = runTest {
+		val usageDataConsentRepository = InMemoryUsageDataConsentRepository(initialValue = false)
+		val processor = SetUsageDataCollectionEnabledActionProcessor(
+			usageDataConsentRepository = usageDataConsentRepository
+		)
+		val initialState = About.State.Content(versionText = CURRENT_PRODUCTION_VERSION_TEXT)
+
+		val finalState = processor.process(
+			action = About.Action.SetUsageDataCollectionEnabled(enabled = true),
+			sideEffect = {}
+		).toList().reduceMutations(initialState)
+
+		val content = assertIs<About.State.Content>(finalState)
+		assertTrue(content.usageDataCollectionEnabled)
+		assertTrue(usageDataConsentRepository.isUsageDataCollectionEnabled())
+	}
+
 	@Test
 	fun loadVersionActionProcessor_reducesStateToContent() = runTest {
 		val processor = LoadVersionActionProcessor(

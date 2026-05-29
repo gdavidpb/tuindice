@@ -9,9 +9,11 @@ import com.gdavidpb.tuindice.about.data.source.IosShareTextHandler
 import com.gdavidpb.tuindice.about.data.source.IosStoreUrlDataSource
 import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventSubscriber
+import com.gdavidpb.tuindice.base.data.source.usage.NoOpUsageDataCollectionController
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
 import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
+import com.gdavidpb.tuindice.base.domain.controller.UsageDataCollectionController
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataRepository
@@ -25,6 +27,7 @@ import com.gdavidpb.tuindice.data.source.config.IosRemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.device.IosDeviceInfoDataSource
 import com.gdavidpb.tuindice.data.source.environment.IosAppEnvironmentDataSource
 import com.gdavidpb.tuindice.data.source.network.IosNetworkDataSource
+import com.gdavidpb.tuindice.data.source.performance.IosPerformanceCollectionController
 import com.gdavidpb.tuindice.data.source.reporting.IosReportingDataSource
 import com.gdavidpb.tuindice.data.source.review.IosReviewDataSource
 import com.gdavidpb.tuindice.data.source.update.IosUpdateDataSource
@@ -98,7 +101,17 @@ private fun Module.registerIosPlatformServices() {
 		} else {
 			IosAnalyticsEventSubscriber(
 				observabilityCapability = get(),
-				analyticsConsentRepository = get()
+				usageDataConsentRepository = get()
+			)
+		}
+	}
+	single<UsageDataCollectionController>(named("iosPerformanceCollectionController")) {
+		if (get<AppEnvironmentRepository>().getEnvironment().debug) {
+			NoOpUsageDataCollectionController
+		} else {
+			IosPerformanceCollectionController(
+				observabilityCapability = get(),
+				usageDataConsentRepository = get()
 			)
 		}
 	}

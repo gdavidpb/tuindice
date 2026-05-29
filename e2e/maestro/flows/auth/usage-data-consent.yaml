@@ -4,9 +4,9 @@ appId: com.gdavidpb.tuindice.debug
 - assertVisible:
     id: auth_sign_in_idle_container
 - assertVisible:
-    id: auth_analytics_consent_checkbox
+    id: auth_usage_data_consent_checkbox
 - tapOn:
-    id: auth_analytics_consent_checkbox
+    id: auth_usage_data_consent_checkbox
 - assertVisible:
     id: auth_sign_in_idle_container
 - tapOn:

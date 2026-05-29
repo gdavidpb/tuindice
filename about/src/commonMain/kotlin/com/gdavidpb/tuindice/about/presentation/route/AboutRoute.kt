@@ -54,6 +54,6 @@ fun AboutRoute(
 		onRateOnPlayStoreClick = viewModel::rateOnPlayStoreAction,
 		onContactDeveloperClick = viewModel::contactDeveloperAction,
 		onReportBugClick = viewModel::reportBugAction,
-		onAnalyticsCollectionEnabledChange = viewModel::setAnalyticsCollectionEnabledAction
+		onUsageDataCollectionEnabledChange = viewModel::setUsageDataCollectionEnabledAction
 	)
 }

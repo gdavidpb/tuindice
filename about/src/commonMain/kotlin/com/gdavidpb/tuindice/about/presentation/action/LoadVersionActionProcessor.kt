@@ -2,8 +2,8 @@ package com.gdavidpb.tuindice.about.presentation.action
 
 import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
 import com.gdavidpb.tuindice.about.presentation.contract.About
-import com.gdavidpb.tuindice.base.data.source.event.InMemoryAnalyticsConsentRepository
-import com.gdavidpb.tuindice.base.domain.repository.AnalyticsConsentRepository
+import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
+import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.map
 
 class LoadVersionActionProcessor(
 	private val loadVersionUseCase: LoadVersionUseCase,
-	private val analyticsConsentRepository: AnalyticsConsentRepository = InMemoryAnalyticsConsentRepository()
+	private val usageDataConsentRepository: UsageDataConsentRepository = InMemoryUsageDataConsentRepository()
 ) : ActionProcessor<About.State, About.Action.LoadVersion, About.Effect>() {
 	override suspend fun process(
 		action: About.Action.LoadVersion,
@@ -24,7 +24,7 @@ class LoadVersionActionProcessor(
 					is UseCaseState.Data -> suspend { _ ->
 						About.State.Content(
 							versionText = useCaseState.value,
-							analyticsCollectionEnabled = analyticsConsentRepository.isAnalyticsCollectionEnabled()
+							usageDataCollectionEnabled = usageDataConsentRepository.isUsageDataCollectionEnabled()
 						)
 					}
 

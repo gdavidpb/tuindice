@@ -40,7 +40,7 @@ fun SignInIdleView(
 	onUsbIdChange: (usbId: String) -> Unit,
 	onPasswordChange: (password: String) -> Unit,
 	onPasswordVisibilityToggle: () -> Unit,
-	onAnalyticsCollectionEnabledChange: (enabled: Boolean) -> Unit = {},
+	onUsageDataCollectionEnabledChange: (enabled: Boolean) -> Unit = {},
 	onSignInClick: (usbId: String, password: String) -> Unit,
 	onTermsAndConditionsClick: () -> Unit,
 	onPrivacyPolicyClick: () -> Unit,
@@ -49,7 +49,7 @@ fun SignInIdleView(
 	policiesText: String,
 	usbIdLabelText: String,
 	passwordLabelText: String,
-	analyticsConsentText: String = "",
+	usageDataConsentText: String = "",
 	signInButtonText: String
 ) {
 	val focusManager = LocalFocusManager.current
@@ -127,18 +127,18 @@ fun SignInIdleView(
 			verticalAlignment = Alignment.CenterVertically
 		) {
 			Checkbox(
-				modifier = Modifier.testTag(AuthUiTags.AnalyticsConsentCheckbox),
-				checked = state.analyticsCollectionEnabled,
-				onCheckedChange = onAnalyticsCollectionEnabledChange
+				modifier = Modifier.testTag(AuthUiTags.UsageDataConsentCheckbox),
+				checked = state.usageDataCollectionEnabled,
+				onCheckedChange = onUsageDataCollectionEnabledChange
 			)
 
 			Text(
 				modifier = Modifier
 					.weight(1f)
 					.clickable {
-						onAnalyticsCollectionEnabledChange(!state.analyticsCollectionEnabled)
-					},
-				text = analyticsConsentText.toBoldMarkerAnnotatedText(),
+						onUsageDataCollectionEnabledChange(!state.usageDataCollectionEnabled)
+				},
+				text = usageDataConsentText.toBoldMarkerAnnotatedText(),
 				color = MaterialTheme.colorScheme.onBackground,
 				style = MaterialTheme.typography.bodyMedium
 			)

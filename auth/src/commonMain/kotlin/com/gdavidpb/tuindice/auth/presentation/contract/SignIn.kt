@@ -17,14 +17,14 @@ object SignIn {
 			val usbId: String = "",
 			val password: String = "",
 			val isPasswordVisible: Boolean = false,
-			val analyticsCollectionEnabled: Boolean = false
+			val usageDataCollectionEnabled: Boolean = false
 		) : State()
 
 		data class LoggingIn(
 			val usbId: String,
 			val password: String,
 			val messages: List<String>,
-			val analyticsCollectionEnabled: Boolean = false
+			val usageDataCollectionEnabled: Boolean = false
 		) : State()
 	}
 
@@ -39,7 +39,7 @@ object SignIn {
 
 		data object TogglePasswordVisibility : Action()
 
-		class SetAnalyticsCollectionEnabled(
+		class SetUsageDataCollectionEnabled(
 			val enabled: Boolean
 		) : Action()
 
