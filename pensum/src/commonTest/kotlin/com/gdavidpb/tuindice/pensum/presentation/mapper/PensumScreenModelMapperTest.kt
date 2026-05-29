@@ -39,36 +39,103 @@ class PensumScreenModelMapperTest {
 
 	@Test
 	fun when_selectedModalityIsNotFirst_then_displayModelKeepsBackendModalityOrder() {
-		val longInternship = graph(
-			id = "computacion-2019-long-internship",
-			modalityId = "long_internship",
-			modalityName = "Pasantia Larga"
-		)
 		val degreeProject = graph(
 			id = "computacion-2019-degree-project",
 			modalityId = "degree_project",
 			modalityName = "Proyecto de Grado"
 		)
-		val exclusiveDegreeProject = graph(
-			id = "computacion-2019-exclusive-degree-project",
-			modalityId = "exclusive_degree_project",
-			modalityName = "Proyecto de Grado Exclusivo"
-		)
 
 		val model = observedPensum(
 			pensum = degreeProject,
-			pensums = listOf(longInternship, degreeProject, exclusiveDegreeProject),
+			availableModalities = listOf(
+				PensumModality(
+					id = "degree_project",
+					name = "Proyecto de Grado",
+					isDefault = true
+				),
+				PensumModality(
+					id = "long_internship",
+					name = "Pasantia Larga",
+					isDefault = false
+				),
+				PensumModality(
+					id = "exclusive_degree_project",
+					name = "Proyecto de Grado Exclusivo",
+					isDefault = false
+				)
+			),
 			nodes = emptyList()
 		).toScreenModel()
 
 		assertEquals(
-			listOf("long_internship", "degree_project", "exclusive_degree_project"),
+			listOf("degree_project", "long_internship", "exclusive_degree_project"),
 			model.modalityOptions.map { modality -> modality.id }
 		)
 		assertEquals(
-			listOf(false, true, false),
+			listOf(true, false, false),
 			model.modalityOptions.map { modality -> modality.isDefault }
 		)
+	}
+
+	@Test
+	fun when_readModelProvidesIndex_then_selectorUsesIndexInsteadOfSelectedGraphList() {
+		val selectedGraph = graph(
+			id = "computacion-2019-degree-project",
+			modalityId = "degree_project",
+			modalityName = "Proyecto de Grado"
+		)
+
+		val model = observedPensum(
+			pensum = selectedGraph,
+			pensums = listOf(selectedGraph),
+			availablePensums = listOf(
+				PensumOption(
+					id = "2016",
+					year = 2016
+				),
+				PensumOption(
+					id = "2017",
+					year = 2017
+				),
+				PensumOption(
+					id = "2018",
+					year = 2018
+				),
+				PensumOption(
+					id = "2019",
+					year = 2019
+				)
+			),
+			availableModalities = listOf(
+				PensumModality(
+					id = "degree_project",
+					name = "Proyecto de Grado",
+					isDefault = true
+				),
+				PensumModality(
+					id = "long_internship",
+					name = "Pasantia Larga",
+					isDefault = false
+				),
+				PensumModality(
+					id = "exclusive_degree_project",
+					name = "Proyecto de Grado Exclusivo",
+					isDefault = false
+				)
+			),
+			nodes = emptyList()
+		).toScreenModel()
+
+		assertEquals(
+			listOf(2016, 2017, 2018, 2019),
+			model.pensumOptions.map { option -> option.year }
+		)
+		model.pensumOptions.forEach { option ->
+			assertEquals(
+				listOf("degree_project", "long_internship", "exclusive_degree_project"),
+				option.modalityOptions.map { modality -> modality.id }
+			)
+		}
 	}
 
 	@Test
@@ -112,6 +179,19 @@ private fun observedPensum(
 	nodes: List<PensumGraph.Node>,
 	pensum: PensumGraph = graph(nodes = nodes),
 	pensums: List<PensumGraph> = listOf(pensum),
+	availablePensums: List<PensumOption> = listOf(
+		PensumOption(
+			id = pensum.year.toString(),
+			year = pensum.year
+		)
+	),
+	availableModalities: List<PensumModality> = listOf(
+		PensumModality(
+			id = pensum.modalityId,
+			name = pensum.modalityName,
+			isDefault = true
+		)
+	),
 	nodeFulfillments: Map<String, PensumProgress.NodeFulfillment> = emptyMap()
 ): ObservedPensum {
 	return ObservedPensum(
@@ -123,19 +203,8 @@ private fun observedPensum(
 			modalityName = pensum.modalityName,
 			inferred = false
 		),
-		availablePensums = listOf(
-			PensumOption(
-				id = pensum.id,
-				year = pensum.year
-			)
-		),
-		availableModalities = listOf(
-			PensumModality(
-				id = pensum.modalityId,
-				name = pensum.modalityName,
-				isDefault = true
-			)
-		),
+		availablePensums = availablePensums,
+		availableModalities = availableModalities,
 		pensum = pensum,
 		pensums = pensums,
 		approvedCredits = 0,

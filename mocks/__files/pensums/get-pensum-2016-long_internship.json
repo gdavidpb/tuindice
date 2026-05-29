@@ -18,14 +18,14 @@
   ],
   "available_modalities": [
     {
-      "id": "long_internship",
-      "name": "Pasantia Larga",
-      "is_default": true
-    },
-    {
       "id": "degree_project",
       "name": "Proyecto de Grado",
       "is_default": false
+    },
+    {
+      "id": "long_internship",
+      "name": "Pasantia Larga",
+      "is_default": true
     },
     {
       "id": "exclusive_degree_project",
@@ -40,105 +40,105 @@
     "modality_name": "Pasantia Larga",
     "total_credits": 205,
     "canvas": {
-      "width": 3520.0,
-      "height": 1600.0
+      "width": 3520,
+      "height": 1600
     },
     "terms": [
       {
         "id": "T1",
         "label": "Primer trimestre",
-        "x": 0.0,
-        "width": 200.0
+        "x": 0,
+        "width": 200
       },
       {
         "id": "T2",
         "label": "Segundo trimestre",
-        "x": 220.0,
-        "width": 200.0
+        "x": 220,
+        "width": 200
       },
       {
         "id": "T3",
         "label": "Tercer trimestre",
-        "x": 440.0,
-        "width": 200.0
+        "x": 440,
+        "width": 200
       },
       {
         "id": "T4",
         "label": "Cuarto trimestre",
-        "x": 660.0,
-        "width": 200.0
+        "x": 660,
+        "width": 200
       },
       {
         "id": "T5",
         "label": "Quinto trimestre",
-        "x": 880.0,
-        "width": 200.0
+        "x": 880,
+        "width": 200
       },
       {
         "id": "T6",
         "label": "Sexto trimestre",
-        "x": 1100.0,
-        "width": 200.0
+        "x": 1100,
+        "width": 200
       },
       {
         "id": "T7",
         "label": "Septimo trimestre",
-        "x": 1320.0,
-        "width": 200.0
+        "x": 1320,
+        "width": 200
       },
       {
         "id": "T8",
         "label": "Octavo trimestre",
-        "x": 1540.0,
-        "width": 200.0
+        "x": 1540,
+        "width": 200
       },
       {
         "id": "T9",
         "label": "Noveno trimestre",
-        "x": 1760.0,
-        "width": 200.0
+        "x": 1760,
+        "width": 200
       },
       {
         "id": "INTENSIVE",
         "label": "Periodo intensivo",
-        "x": 1980.0,
-        "width": 200.0
+        "x": 1980,
+        "width": 200
       },
       {
         "id": "T10",
         "label": "Decimo trimestre",
-        "x": 2200.0,
-        "width": 200.0
+        "x": 2200,
+        "width": 200
       },
       {
         "id": "T11",
         "label": "Decimo primer trimestre",
-        "x": 2420.0,
-        "width": 200.0
+        "x": 2420,
+        "width": 200
       },
       {
         "id": "T12",
         "label": "Decimo segundo trimestre",
-        "x": 2640.0,
-        "width": 200.0
+        "x": 2640,
+        "width": 200
       },
       {
         "id": "T13",
         "label": "Decimo tercer trimestre",
-        "x": 2860.0,
-        "width": 200.0
+        "x": 2860,
+        "width": 200
       },
       {
         "id": "T14",
         "label": "Decimo cuarto trimestre",
-        "x": 3080.0,
-        "width": 200.0
+        "x": 3080,
+        "width": 200
       },
       {
         "id": "T15",
         "label": "Decimo quinto trimestre",
-        "x": 3300.0,
-        "width": 200.0
+        "x": 3300,
+        "width": 200
       }
     ],
     "nodes": [
@@ -151,10 +151,10 @@
         "credits": 4,
         "category": "BASIC",
         "term_id": "T1",
-        "x": 20.0,
-        "y": 80.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 20,
+        "y": 80,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -166,10 +166,10 @@
         "credits": 4,
         "category": "BASIC",
         "term_id": "T1",
-        "x": 20.0,
-        "y": 188.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 20,
+        "y": 188,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -181,10 +181,10 @@
         "credits": 3,
         "category": "BASIC",
         "term_id": "T1",
-        "x": 20.0,
-        "y": 200.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 20,
+        "y": 200,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -196,10 +196,10 @@
         "credits": 3,
         "category": "BASIC",
         "term_id": "T1",
-        "x": 20.0,
-        "y": 320.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 20,
+        "y": 320,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -211,10 +211,10 @@
         "credits": 3,
         "category": "BASIC",
         "term_id": "T1",
-        "x": 20.0,
-        "y": 440.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 20,
+        "y": 440,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -226,10 +226,10 @@
         "credits": 4,
         "category": "BASIC",
         "term_id": "T2",
-        "x": 240.0,
-        "y": 80.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 240,
+        "y": 80,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -241,10 +241,10 @@
         "credits": 4,
         "category": "BASIC",
         "term_id": "T2",
-        "x": 240.0,
-        "y": 188.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 240,
+        "y": 188,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -256,10 +256,10 @@
         "credits": 3,
         "category": "BASIC",
         "term_id": "T2",
-        "x": 240.0,
-        "y": 200.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 240,
+        "y": 200,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -271,10 +271,10 @@
         "credits": 3,
         "category": "BASIC",
         "term_id": "T2",
-        "x": 240.0,
-        "y": 320.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 240,
+        "y": 320,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -286,10 +286,10 @@
         "credits": 3,
         "category": "BASIC",
         "term_id": "T2",
-        "x": 240.0,
-        "y": 440.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 240,
+        "y": 440,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -301,10 +301,10 @@
         "credits": 3,
         "category": "BASIC",
         "term_id": "T2",
-        "x": 240.0,
-        "y": 560.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 240,
+        "y": 560,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -316,10 +316,10 @@
         "credits": 4,
         "category": "BASIC",
         "term_id": "T3",
-        "x": 460.0,
-        "y": 80.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 460,
+        "y": 80,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -331,10 +331,10 @@
         "credits": 4,
         "category": "BASIC",
         "term_id": "T3",
-        "x": 460.0,
-        "y": 188.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 460,
+        "y": 188,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -346,10 +346,10 @@
         "credits": 3,
         "category": "BASIC",
         "term_id": "T3",
-        "x": 460.0,
-        "y": 200.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 460,
+        "y": 200,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -361,10 +361,10 @@
         "credits": 3,
         "category": "BASIC",
         "term_id": "T3",
-        "x": 460.0,
-        "y": 320.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 460,
+        "y": 320,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -376,10 +376,10 @@
         "credits": 3,
         "category": "BASIC",
         "term_id": "T3",
-        "x": 460.0,
-        "y": 440.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 460,
+        "y": 440,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -391,10 +391,10 @@
         "credits": 3,
         "category": "BASIC",
         "term_id": "T3",
-        "x": 460.0,
-        "y": 560.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 460,
+        "y": 560,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -406,10 +406,10 @@
         "credits": 4,
         "category": "BASIC",
         "term_id": "T4",
-        "x": 680.0,
-        "y": 80.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 680,
+        "y": 80,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -421,10 +421,10 @@
         "credits": 4,
         "category": "PROFESSIONAL",
         "term_id": "T4",
-        "x": 680.0,
-        "y": 200.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 680,
+        "y": 200,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -436,10 +436,10 @@
         "credits": 4,
         "category": "PROFESSIONAL",
         "term_id": "T4",
-        "x": 680.0,
-        "y": 320.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 680,
+        "y": 320,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -451,10 +451,10 @@
         "credits": 3,
         "category": "GENERAL_STUDIES",
         "term_id": "T4",
-        "x": 680.0,
-        "y": 440.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 680,
+        "y": 440,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": [
           {
             "id": "0800-2016-long_internship-t4-eg-t4-rule",
@@ -477,10 +477,10 @@
         "credits": 4,
         "category": "BASIC",
         "term_id": "T5",
-        "x": 900.0,
-        "y": 80.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 900,
+        "y": 80,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -492,10 +492,10 @@
         "credits": 3,
         "category": "PROFESSIONAL",
         "term_id": "T5",
-        "x": 900.0,
-        "y": 200.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 900,
+        "y": 200,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -507,10 +507,10 @@
         "credits": 2,
         "category": "PROFESSIONAL",
         "term_id": "T5",
-        "x": 900.0,
-        "y": 320.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 900,
+        "y": 320,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -522,10 +522,10 @@
         "credits": 4,
         "category": "PROFESSIONAL",
         "term_id": "T5",
-        "x": 900.0,
-        "y": 440.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 900,
+        "y": 440,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -537,10 +537,10 @@
         "credits": 4,
         "category": "PROFESSIONAL",
         "term_id": "T6",
-        "x": 1120.0,
-        "y": 80.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 1120,
+        "y": 80,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -552,10 +552,10 @@
         "credits": 3,
         "category": "PROFESSIONAL",
         "term_id": "T6",
-        "x": 1120.0,
-        "y": 200.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 1120,
+        "y": 200,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -567,10 +567,10 @@
         "credits": 2,
         "category": "PROFESSIONAL",
         "term_id": "T6",
-        "x": 1120.0,
-        "y": 320.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 1120,
+        "y": 320,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -582,10 +582,10 @@
         "credits": 4,
         "category": "PROFESSIONAL",
         "term_id": "T6",
-        "x": 1120.0,
-        "y": 440.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 1120,
+        "y": 440,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -597,10 +597,10 @@
         "credits": 3,
         "category": "PROFESSIONAL",
         "term_id": "T7",
-        "x": 1340.0,
-        "y": 80.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 1340,
+        "y": 80,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -612,10 +612,10 @@
         "credits": 5,
         "category": "PROFESSIONAL",
         "term_id": "T7",
-        "x": 1340.0,
-        "y": 200.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 1340,
+        "y": 200,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -627,10 +627,10 @@
         "credits": 3,
         "category": "PROFESSIONAL",
         "term_id": "T7",
-        "x": 1340.0,
-        "y": 320.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 1340,
+        "y": 320,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -642,10 +642,10 @@
         "credits": 2,
         "category": "PROFESSIONAL",
         "term_id": "T7",
-        "x": 1340.0,
-        "y": 440.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 1340,
+        "y": 440,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -657,10 +657,10 @@
         "credits": 3,
         "category": "GENERAL_STUDIES",
         "term_id": "T7",
-        "x": 1340.0,
-        "y": 560.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 1340,
+        "y": 560,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": [
           {
             "id": "0800-2016-long_internship-t7-eg-t7-rule",
@@ -683,10 +683,10 @@
         "credits": 4,
         "category": "PROFESSIONAL",
         "term_id": "T8",
-        "x": 1560.0,
-        "y": 80.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 1560,
+        "y": 80,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -698,10 +698,10 @@
         "credits": 5,
         "category": "PROFESSIONAL",
         "term_id": "T8",
-        "x": 1560.0,
-        "y": 200.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 1560,
+        "y": 200,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -713,10 +713,10 @@
         "credits": 3,
         "category": "PROFESSIONAL",
         "term_id": "T8",
-        "x": 1560.0,
-        "y": 320.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 1560,
+        "y": 320,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -728,10 +728,10 @@
         "credits": 2,
         "category": "PROFESSIONAL",
         "term_id": "T8",
-        "x": 1560.0,
-        "y": 440.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 1560,
+        "y": 440,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -743,10 +743,10 @@
         "credits": 4,
         "category": "PROFESSIONAL",
         "term_id": "T9",
-        "x": 1780.0,
-        "y": 80.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 1780,
+        "y": 80,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -758,10 +758,10 @@
         "credits": 5,
         "category": "PROFESSIONAL",
         "term_id": "T9",
-        "x": 1780.0,
-        "y": 200.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 1780,
+        "y": 200,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -773,10 +773,10 @@
         "credits": 5,
         "category": "PROFESSIONAL",
         "term_id": "T9",
-        "x": 1780.0,
-        "y": 320.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 1780,
+        "y": 320,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -788,10 +788,10 @@
         "credits": 3,
         "category": "INTERNSHIP",
         "term_id": "INTENSIVE",
-        "x": 2000.0,
-        "y": 80.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 2000,
+        "y": 80,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -803,10 +803,10 @@
         "credits": 4,
         "category": "PROFESSIONAL",
         "term_id": "T10",
-        "x": 2220.0,
-        "y": 80.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 2220,
+        "y": 80,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -818,10 +818,10 @@
         "credits": 5,
         "category": "PROFESSIONAL",
         "term_id": "T10",
-        "x": 2220.0,
-        "y": 200.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 2220,
+        "y": 200,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -833,10 +833,10 @@
         "credits": 3,
         "category": "PROFESSIONAL",
         "term_id": "T10",
-        "x": 2220.0,
-        "y": 320.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 2220,
+        "y": 320,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -848,10 +848,10 @@
         "credits": 2,
         "category": "PROFESSIONAL",
         "term_id": "T10",
-        "x": 2220.0,
-        "y": 440.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 2220,
+        "y": 440,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -863,10 +863,10 @@
         "credits": 5,
         "category": "PROFESSIONAL",
         "term_id": "T11",
-        "x": 2440.0,
-        "y": 80.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 2440,
+        "y": 80,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -878,10 +878,10 @@
         "credits": 4,
         "category": "AREA_ELECTIVE",
         "term_id": "T11",
-        "x": 2440.0,
-        "y": 200.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 2440,
+        "y": 200,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": [
           {
             "id": "0800-2016-long_internship-t11-area-t11-1-rule",
@@ -940,10 +940,10 @@
         "credits": 4,
         "category": "AREA_ELECTIVE",
         "term_id": "T11",
-        "x": 2440.0,
-        "y": 320.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 2440,
+        "y": 320,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": [
           {
             "id": "0800-2016-long_internship-t11-area-t11-2-rule",
@@ -1002,10 +1002,10 @@
         "credits": 3,
         "category": "GENERAL_STUDIES",
         "term_id": "T11",
-        "x": 2440.0,
-        "y": 440.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 2440,
+        "y": 440,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": [
           {
             "id": "0800-2016-long_internship-t11-eg-t11-rule",
@@ -1028,10 +1028,10 @@
         "credits": 4,
         "category": "AREA_ELECTIVE",
         "term_id": "T12",
-        "x": 2660.0,
-        "y": 80.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 2660,
+        "y": 80,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": [
           {
             "id": "0800-2016-long_internship-t12-area-t12-1-rule",
@@ -1090,10 +1090,10 @@
         "credits": 4,
         "category": "AREA_ELECTIVE",
         "term_id": "T12",
-        "x": 2660.0,
-        "y": 200.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 2660,
+        "y": 200,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": [
           {
             "id": "0800-2016-long_internship-t12-area-t12-2-rule",
@@ -1152,10 +1152,10 @@
         "credits": 3,
         "category": "GENERAL_STUDIES",
         "term_id": "T12",
-        "x": 2660.0,
-        "y": 320.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 2660,
+        "y": 320,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": [
           {
             "id": "0800-2016-long_internship-t12-eg-t12-rule",
@@ -1178,10 +1178,10 @@
         "credits": 9,
         "category": "INTERNSHIP",
         "term_id": "T13",
-        "x": 2880.0,
-        "y": 80.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 2880,
+        "y": 80,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": []
       },
       {
@@ -1193,10 +1193,10 @@
         "credits": 4,
         "category": "AREA_ELECTIVE",
         "term_id": "T14",
-        "x": 3100.0,
-        "y": 80.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 3100,
+        "y": 80,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": [
           {
             "id": "0800-2016-long_internship-t14-area-t14-rule",
@@ -1255,10 +1255,10 @@
         "credits": 4,
         "category": "FREE_ELECTIVE",
         "term_id": "T14",
-        "x": 3100.0,
-        "y": 200.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 3100,
+        "y": 200,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": [
           {
             "id": "0800-2016-long_internship-t14-free-t14-rule",
@@ -1318,10 +1318,10 @@
         "credits": 3,
         "category": "GENERAL_STUDIES",
         "term_id": "T14",
-        "x": 3100.0,
-        "y": 320.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 3100,
+        "y": 320,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": [
           {
             "id": "0800-2016-long_internship-t14-eg-t14-rule",
@@ -1344,10 +1344,10 @@
         "credits": 4,
         "category": "AREA_ELECTIVE",
         "term_id": "T15",
-        "x": 3320.0,
-        "y": 80.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 3320,
+        "y": 80,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": [
           {
             "id": "0800-2016-long_internship-t15-area-t15-rule",
@@ -1406,10 +1406,10 @@
         "credits": 4,
         "category": "FREE_ELECTIVE",
         "term_id": "T15",
-        "x": 3320.0,
-        "y": 200.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 3320,
+        "y": 200,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": [
           {
             "id": "0800-2016-long_internship-t15-free-t15-rule",
@@ -1469,10 +1469,10 @@
         "credits": 3,
         "category": "GENERAL_STUDIES",
         "term_id": "T15",
-        "x": 3320.0,
-        "y": 320.0,
-        "width": 160.0,
-        "height": 96.0,
+        "x": 3320,
+        "y": 320,
+        "width": 160,
+        "height": 96,
         "fulfillment_rules": [
           {
             "id": "0800-2016-long_internship-t15-eg-t15-rule",
@@ -1495,12 +1495,12 @@
         "relationship_type": "COREQUISITE",
         "points": [
           {
-            "x": 1060.0,
-            "y": 248.0
+            "x": 1060,
+            "y": 248
           },
           {
-            "x": 900.0,
-            "y": 368.0
+            "x": 900,
+            "y": 368
           }
         ]
       },
@@ -1511,12 +1511,12 @@
         "relationship_type": "COREQUISITE",
         "points": [
           {
-            "x": 1280.0,
-            "y": 248.0
+            "x": 1280,
+            "y": 248
           },
           {
-            "x": 1120.0,
-            "y": 368.0
+            "x": 1120,
+            "y": 368
           }
         ]
       },
@@ -1527,12 +1527,12 @@
         "relationship_type": "COREQUISITE",
         "points": [
           {
-            "x": 1500.0,
-            "y": 368.0
+            "x": 1500,
+            "y": 368
           },
           {
-            "x": 1340.0,
-            "y": 488.0
+            "x": 1340,
+            "y": 488
           }
         ]
       },
@@ -1543,12 +1543,12 @@
         "relationship_type": "COREQUISITE",
         "points": [
           {
-            "x": 1060.0,
-            "y": 368.0
+            "x": 1060,
+            "y": 368
           },
           {
-            "x": 900.0,
-            "y": 248.0
+            "x": 900,
+            "y": 248
           }
         ]
       },
@@ -1559,12 +1559,12 @@
         "relationship_type": "COREQUISITE",
         "points": [
           {
-            "x": 1280.0,
-            "y": 368.0
+            "x": 1280,
+            "y": 368
           },
           {
-            "x": 1120.0,
-            "y": 248.0
+            "x": 1120,
+            "y": 248
           }
         ]
       },
@@ -1575,12 +1575,12 @@
         "relationship_type": "COREQUISITE",
         "points": [
           {
-            "x": 1500.0,
-            "y": 488.0
+            "x": 1500,
+            "y": 488
           },
           {
-            "x": 1340.0,
-            "y": 368.0
+            "x": 1340,
+            "y": 368
           }
         ]
       },
@@ -1591,12 +1591,12 @@
         "relationship_type": "COREQUISITE",
         "points": [
           {
-            "x": 1720.0,
-            "y": 368.0
+            "x": 1720,
+            "y": 368
           },
           {
-            "x": 1560.0,
-            "y": 488.0
+            "x": 1560,
+            "y": 488
           }
         ]
       },
@@ -1607,12 +1607,12 @@
         "relationship_type": "COREQUISITE",
         "points": [
           {
-            "x": 1720.0,
-            "y": 488.0
+            "x": 1720,
+            "y": 488
           },
           {
-            "x": 1560.0,
-            "y": 368.0
+            "x": 1560,
+            "y": 368
           }
         ]
       },
@@ -1623,12 +1623,12 @@
         "relationship_type": "COREQUISITE",
         "points": [
           {
-            "x": 2380.0,
-            "y": 368.0
+            "x": 2380,
+            "y": 368
           },
           {
-            "x": 2220.0,
-            "y": 488.0
+            "x": 2220,
+            "y": 488
           }
         ]
       },
@@ -1639,12 +1639,12 @@
         "relationship_type": "COREQUISITE",
         "points": [
           {
-            "x": 2380.0,
-            "y": 488.0
+            "x": 2380,
+            "y": 488
           },
           {
-            "x": 2220.0,
-            "y": 368.0
+            "x": 2220,
+            "y": 368
           }
         ]
       },
@@ -1655,12 +1655,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 840.0,
-            "y": 248.0
+            "x": 840,
+            "y": 248
           },
           {
-            "x": 900.0,
-            "y": 488.0
+            "x": 900,
+            "y": 488
           }
         ]
       },
@@ -1671,12 +1671,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 840.0,
-            "y": 248.0
+            "x": 840,
+            "y": 248
           },
           {
-            "x": 900.0,
-            "y": 248.0
+            "x": 900,
+            "y": 248
           }
         ]
       },
@@ -1687,12 +1687,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 840.0,
-            "y": 248.0
+            "x": 840,
+            "y": 248
           },
           {
-            "x": 900.0,
-            "y": 368.0
+            "x": 900,
+            "y": 368
           }
         ]
       },
@@ -1703,12 +1703,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 840.0,
-            "y": 368.0
+            "x": 840,
+            "y": 368
           },
           {
-            "x": 900.0,
-            "y": 488.0
+            "x": 900,
+            "y": 488
           }
         ]
       },
@@ -1719,12 +1719,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 840.0,
-            "y": 368.0
+            "x": 840,
+            "y": 368
           },
           {
-            "x": 1120.0,
-            "y": 248.0
+            "x": 1120,
+            "y": 248
           }
         ]
       },
@@ -1735,12 +1735,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1060.0,
-            "y": 488.0
+            "x": 1060,
+            "y": 488
           },
           {
-            "x": 1120.0,
-            "y": 488.0
+            "x": 1120,
+            "y": 488
           }
         ]
       },
@@ -1751,12 +1751,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1060.0,
-            "y": 488.0
+            "x": 1060,
+            "y": 488
           },
           {
-            "x": 1340.0,
-            "y": 368.0
+            "x": 1340,
+            "y": 368
           }
         ]
       },
@@ -1767,12 +1767,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1280.0,
-            "y": 488.0
+            "x": 1280,
+            "y": 488
           },
           {
-            "x": 1780.0,
-            "y": 368.0
+            "x": 1780,
+            "y": 368
           }
         ]
       },
@@ -1783,12 +1783,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1060.0,
-            "y": 248.0
+            "x": 1060,
+            "y": 248
           },
           {
-            "x": 1120.0,
-            "y": 248.0
+            "x": 1120,
+            "y": 248
           }
         ]
       },
@@ -1799,12 +1799,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1060.0,
-            "y": 248.0
+            "x": 1060,
+            "y": 248
           },
           {
-            "x": 1120.0,
-            "y": 368.0
+            "x": 1120,
+            "y": 368
           }
         ]
       },
@@ -1815,12 +1815,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1280.0,
-            "y": 248.0
+            "x": 1280,
+            "y": 248
           },
           {
-            "x": 1340.0,
-            "y": 368.0
+            "x": 1340,
+            "y": 368
           }
         ]
       },
@@ -1831,12 +1831,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1280.0,
-            "y": 248.0
+            "x": 1280,
+            "y": 248
           },
           {
-            "x": 1340.0,
-            "y": 248.0
+            "x": 1340,
+            "y": 248
           }
         ]
       },
@@ -1847,12 +1847,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1500.0,
-            "y": 368.0
+            "x": 1500,
+            "y": 368
           },
           {
-            "x": 1560.0,
-            "y": 368.0
+            "x": 1560,
+            "y": 368
           }
         ]
       },
@@ -1863,12 +1863,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1500.0,
-            "y": 368.0
+            "x": 1500,
+            "y": 368
           },
           {
-            "x": 2220.0,
-            "y": 368.0
+            "x": 2220,
+            "y": 368
           }
         ]
       },
@@ -1879,12 +1879,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1500.0,
-            "y": 368.0
+            "x": 1500,
+            "y": 368
           },
           {
-            "x": 1780.0,
-            "y": 368.0
+            "x": 1780,
+            "y": 368
           }
         ]
       },
@@ -1895,12 +1895,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1060.0,
-            "y": 368.0
+            "x": 1060,
+            "y": 368
           },
           {
-            "x": 1120.0,
-            "y": 248.0
+            "x": 1120,
+            "y": 248
           }
         ]
       },
@@ -1911,12 +1911,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1060.0,
-            "y": 368.0
+            "x": 1060,
+            "y": 368
           },
           {
-            "x": 1120.0,
-            "y": 368.0
+            "x": 1120,
+            "y": 368
           }
         ]
       },
@@ -1927,12 +1927,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1060.0,
-            "y": 368.0
+            "x": 1060,
+            "y": 368
           },
           {
-            "x": 1120.0,
-            "y": 128.0
+            "x": 1120,
+            "y": 128
           }
         ]
       },
@@ -1943,12 +1943,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1280.0,
-            "y": 368.0
+            "x": 1280,
+            "y": 368
           },
           {
-            "x": 1340.0,
-            "y": 488.0
+            "x": 1340,
+            "y": 488
           }
         ]
       },
@@ -1959,12 +1959,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1500.0,
-            "y": 488.0
+            "x": 1500,
+            "y": 488
           },
           {
-            "x": 1560.0,
-            "y": 488.0
+            "x": 1560,
+            "y": 488
           }
         ]
       },
@@ -1975,12 +1975,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1500.0,
-            "y": 488.0
+            "x": 1500,
+            "y": 488
           },
           {
-            "x": 2220.0,
-            "y": 488.0
+            "x": 2220,
+            "y": 488
           }
         ]
       },
@@ -1991,12 +1991,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1720.0,
-            "y": 368.0
+            "x": 1720,
+            "y": 368
           },
           {
-            "x": 1780.0,
-            "y": 248.0
+            "x": 1780,
+            "y": 248
           }
         ]
       },
@@ -2007,12 +2007,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1720.0,
-            "y": 368.0
+            "x": 1720,
+            "y": 368
           },
           {
-            "x": 1780.0,
-            "y": 128.0
+            "x": 1780,
+            "y": 128
           }
         ]
       },
@@ -2023,12 +2023,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1720.0,
-            "y": 488.0
+            "x": 1720,
+            "y": 488
           },
           {
-            "x": 1780.0,
-            "y": 248.0
+            "x": 1780,
+            "y": 248
           }
         ]
       },
@@ -2039,12 +2039,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1940.0,
-            "y": 248.0
+            "x": 1940,
+            "y": 248
           },
           {
-            "x": 2000.0,
-            "y": 128.0
+            "x": 2000,
+            "y": 128
           }
         ]
       },
@@ -2055,12 +2055,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1500.0,
-            "y": 248.0
+            "x": 1500,
+            "y": 248
           },
           {
-            "x": 2220.0,
-            "y": 368.0
+            "x": 2220,
+            "y": 368
           }
         ]
       },
@@ -2071,12 +2071,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1500.0,
-            "y": 248.0
+            "x": 1500,
+            "y": 248
           },
           {
-            "x": 1560.0,
-            "y": 248.0
+            "x": 1560,
+            "y": 248
           }
         ]
       },
@@ -2087,12 +2087,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1720.0,
-            "y": 248.0
+            "x": 1720,
+            "y": 248
           },
           {
-            "x": 2440.0,
-            "y": 128.0
+            "x": 2440,
+            "y": 128
           }
         ]
       },
@@ -2103,12 +2103,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1720.0,
-            "y": 248.0
+            "x": 1720,
+            "y": 248
           },
           {
-            "x": 2220.0,
-            "y": 248.0
+            "x": 2220,
+            "y": 248
           }
         ]
       },
@@ -2119,12 +2119,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1500.0,
-            "y": 128.0
+            "x": 1500,
+            "y": 128
           },
           {
-            "x": 1560.0,
-            "y": 128.0
+            "x": 1560,
+            "y": 128
           }
         ]
       },
@@ -2135,12 +2135,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1280.0,
-            "y": 128.0
+            "x": 1280,
+            "y": 128
           },
           {
-            "x": 2220.0,
-            "y": 128.0
+            "x": 2220,
+            "y": 128
           }
         ]
       },
@@ -2151,12 +2151,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 180.0,
-            "y": 488.0
+            "x": 180,
+            "y": 488
           },
           {
-            "x": 240.0,
-            "y": 608.0
+            "x": 240,
+            "y": 608
           }
         ]
       },
@@ -2167,12 +2167,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 400.0,
-            "y": 608.0
+            "x": 400,
+            "y": 608
           },
           {
-            "x": 460.0,
-            "y": 608.0
+            "x": 460,
+            "y": 608
           }
         ]
       },
@@ -2183,12 +2183,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 2160.0,
-            "y": 128.0
+            "x": 2160,
+            "y": 128
           },
           {
-            "x": 2880.0,
-            "y": 128.0
+            "x": 2880,
+            "y": 128
           }
         ]
       },
@@ -2199,12 +2199,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 400.0,
-            "y": 248.0
+            "x": 400,
+            "y": 248
           },
           {
-            "x": 460.0,
-            "y": 248.0
+            "x": 460,
+            "y": 248
           }
         ]
       },
@@ -2215,12 +2215,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 180.0,
-            "y": 248.0
+            "x": 180,
+            "y": 248
           },
           {
-            "x": 240.0,
-            "y": 368.0
+            "x": 240,
+            "y": 368
           }
         ]
       },
@@ -2231,12 +2231,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 400.0,
-            "y": 368.0
+            "x": 400,
+            "y": 368
           },
           {
-            "x": 460.0,
-            "y": 368.0
+            "x": 460,
+            "y": 368
           }
         ]
       },
@@ -2247,12 +2247,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 180.0,
-            "y": 368.0
+            "x": 180,
+            "y": 368
           },
           {
-            "x": 240.0,
-            "y": 488.0
+            "x": 240,
+            "y": 488
           }
         ]
       },
@@ -2263,12 +2263,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 400.0,
-            "y": 488.0
+            "x": 400,
+            "y": 488
           },
           {
-            "x": 460.0,
-            "y": 488.0
+            "x": 460,
+            "y": 488
           }
         ]
       },
@@ -2279,12 +2279,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 1060.0,
-            "y": 128.0
+            "x": 1060,
+            "y": 128
           },
           {
-            "x": 1340.0,
-            "y": 128.0
+            "x": 1340,
+            "y": 128
           }
         ]
       },
@@ -2295,12 +2295,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 840.0,
-            "y": 128.0
+            "x": 840,
+            "y": 128
           },
           {
-            "x": 1120.0,
-            "y": 128.0
+            "x": 1120,
+            "y": 128
           }
         ]
       },
@@ -2311,12 +2311,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 840.0,
-            "y": 128.0
+            "x": 840,
+            "y": 128
           },
           {
-            "x": 900.0,
-            "y": 128.0
+            "x": 900,
+            "y": 128
           }
         ]
       },
@@ -2327,12 +2327,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 180.0,
-            "y": 128.0
+            "x": 180,
+            "y": 128
           },
           {
-            "x": 240.0,
-            "y": 248.0
+            "x": 240,
+            "y": 248
           }
         ]
       },
@@ -2343,12 +2343,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 180.0,
-            "y": 128.0
+            "x": 180,
+            "y": 128
           },
           {
-            "x": 240.0,
-            "y": 248.0
+            "x": 240,
+            "y": 248
           }
         ]
       },
@@ -2359,12 +2359,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 180.0,
-            "y": 128.0
+            "x": 180,
+            "y": 128
           },
           {
-            "x": 240.0,
-            "y": 128.0
+            "x": 240,
+            "y": 128
           }
         ]
       },
@@ -2375,12 +2375,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 180.0,
-            "y": 128.0
+            "x": 180,
+            "y": 128
           },
           {
-            "x": 240.0,
-            "y": 128.0
+            "x": 240,
+            "y": 128
           }
         ]
       },
@@ -2391,12 +2391,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 400.0,
-            "y": 128.0
+            "x": 400,
+            "y": 128
           },
           {
-            "x": 680.0,
-            "y": 248.0
+            "x": 680,
+            "y": 248
           }
         ]
       },
@@ -2407,12 +2407,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 400.0,
-            "y": 128.0
+            "x": 400,
+            "y": 128
           },
           {
-            "x": 680.0,
-            "y": 248.0
+            "x": 680,
+            "y": 248
           }
         ]
       },
@@ -2423,12 +2423,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 400.0,
-            "y": 128.0
+            "x": 400,
+            "y": 128
           },
           {
-            "x": 460.0,
-            "y": 248.0
+            "x": 460,
+            "y": 248
           }
         ]
       },
@@ -2439,12 +2439,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 400.0,
-            "y": 128.0
+            "x": 400,
+            "y": 128
           },
           {
-            "x": 460.0,
-            "y": 248.0
+            "x": 460,
+            "y": 248
           }
         ]
       },
@@ -2455,12 +2455,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 400.0,
-            "y": 128.0
+            "x": 400,
+            "y": 128
           },
           {
-            "x": 460.0,
-            "y": 128.0
+            "x": 460,
+            "y": 128
           }
         ]
       },
@@ -2471,12 +2471,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 400.0,
-            "y": 128.0
+            "x": 400,
+            "y": 128
           },
           {
-            "x": 460.0,
-            "y": 128.0
+            "x": 460,
+            "y": 128
           }
         ]
       },
@@ -2487,12 +2487,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 620.0,
-            "y": 128.0
+            "x": 620,
+            "y": 128
           },
           {
-            "x": 680.0,
-            "y": 368.0
+            "x": 680,
+            "y": 368
           }
         ]
       },
@@ -2503,12 +2503,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 620.0,
-            "y": 128.0
+            "x": 620,
+            "y": 128
           },
           {
-            "x": 680.0,
-            "y": 368.0
+            "x": 680,
+            "y": 368
           }
         ]
       },
@@ -2519,12 +2519,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 620.0,
-            "y": 128.0
+            "x": 620,
+            "y": 128
           },
           {
-            "x": 680.0,
-            "y": 128.0
+            "x": 680,
+            "y": 128
           }
         ]
       },
@@ -2535,12 +2535,12 @@
         "relationship_type": "REQUIREMENT",
         "points": [
           {
-            "x": 620.0,
-            "y": 128.0
+            "x": 620,
+            "y": 128
           },
           {
-            "x": 680.0,
-            "y": 128.0
+            "x": 680,
+            "y": 128
           }
         ]
       }

@@ -45,6 +45,11 @@ class KtorPensumApiDataSourceTest {
 		assertEquals("year=2019&modality_id=degree_project", capturedQuery)
 		assertEquals("Ingenieria de Computacion", result.careerName)
 		assertEquals("0800-2019-degree_project", result.selectedPensumId)
+		assertEquals(listOf(2016, 2017, 2018, 2019), result.availablePensums.map { option -> option.year })
+		assertEquals(
+			listOf("degree_project", "long_internship", "exclusive_degree_project"),
+			result.availableModalities.map { modality -> modality.id }
+		)
 		assertEquals("EC5344", result.pensum.nodes.first().displayCode)
 	}
 }
@@ -54,8 +59,12 @@ private val sampleResponse = """
   "career_name": "Ingenieria de Computacion",
   "selected_pensum_id": "0800-2019-degree_project",
   "inferred": false,
-  "available_pensums": [{"year": 2019}],
-  "available_modalities": [{"id": "degree_project", "name": "Proyecto de Grado", "is_default": true}],
+  "available_pensums": [{"year": 2016}, {"year": 2017}, {"year": 2018}, {"year": 2019}],
+  "available_modalities": [
+    {"id": "degree_project", "name": "Proyecto de Grado", "is_default": true},
+    {"id": "long_internship", "name": "Pasantia Larga", "is_default": false},
+    {"id": "exclusive_degree_project", "name": "Proyecto de Grado a Dedicacion Exclusiva", "is_default": false}
+  ],
   "pensum": {
     "id": "0800-2019-degree_project",
     "year": 2019,

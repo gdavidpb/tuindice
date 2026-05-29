@@ -14,8 +14,12 @@ object TuIndiceRoomMigrations {
 
 private object Migration30To31 : Migration(30, 31) {
 	override fun migrate(connection: SQLiteConnection) {
-		connection.execSQL("DELETE FROM ${PensumSelectionTable.TABLE_NAME}")
-		connection.execSQL("DELETE FROM ${PensumCacheTable.TABLE_NAME}")
-		connection.execSQL("DELETE FROM ${SubjectCatalogCacheTable.TABLE_NAME}")
+		connection.clearPensumDerivedTables()
 	}
+}
+
+private fun SQLiteConnection.clearPensumDerivedTables() {
+	execSQL("DELETE FROM ${PensumSelectionTable.TABLE_NAME}")
+	execSQL("DELETE FROM ${PensumCacheTable.TABLE_NAME}")
+	execSQL("DELETE FROM ${SubjectCatalogCacheTable.TABLE_NAME}")
 }

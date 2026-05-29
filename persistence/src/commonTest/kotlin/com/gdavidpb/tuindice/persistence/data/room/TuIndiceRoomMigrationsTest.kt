@@ -7,22 +7,28 @@ import kotlin.test.assertEquals
 
 class TuIndiceRoomMigrationsTest {
 	@Test
-	fun migration30To31ClearsPensumDerivedTables() {
-		val migration = TuIndiceRoomMigrations.all.single()
-		val connection = CapturingSQLiteConnection()
+	fun migrationsClearPensumDerivedTables() {
+		val migrations = TuIndiceRoomMigrations.all
 
-		migration.migrate(connection)
-
-		assertEquals(30, migration.startVersion)
-		assertEquals(31, migration.endVersion)
 		assertEquals(
-			listOf(
-				"DELETE FROM pensum_selection",
-				"DELETE FROM pensum_cache",
-				"DELETE FROM subject_catalog_cache"
-			),
-			connection.executedSql
+			listOf(30 to 31),
+			migrations.map { migration -> migration.startVersion to migration.endVersion }
 		)
+
+		migrations.forEach { migration ->
+			val connection = CapturingSQLiteConnection()
+
+			migration.migrate(connection)
+
+			assertEquals(
+				listOf(
+					"DELETE FROM pensum_selection",
+					"DELETE FROM pensum_cache",
+					"DELETE FROM subject_catalog_cache"
+				),
+				connection.executedSql
+			)
+		}
 	}
 }
 
