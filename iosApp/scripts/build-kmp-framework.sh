@@ -92,18 +92,71 @@ if [[ "${SKIP_FRAMEWORK_BUILD:-0}" == "1" ]]; then
 	exit 0
 fi
 
+BUILD_TYPE_DIR="$(printf '%s' "$BUILD_TYPE" | tr '[:upper:]' '[:lower:]')"
+
+target_name_for_suffix() {
+	local target_suffix="$1"
+
+	case "$target_suffix" in
+		IosArm64)
+			printf '%s\n' "iosArm64"
+			;;
+		IosSimulatorArm64)
+			printf '%s\n' "iosSimulatorArm64"
+			;;
+		IosX64)
+			printf '%s\n' "iosX64"
+			;;
+		*)
+			echo "Unknown iOS target suffix: $target_suffix" >&2
+			return 1
+			;;
+	esac
+}
+
+framework_binary_for_target_suffix() {
+	local target_suffix="$1"
+	local target_name
+
+	target_name="$(target_name_for_suffix "$target_suffix")"
+	printf '%s/maincore/build/bin/%s/%sFramework/maincore.framework/maincore\n' \
+		"$ROOT_DIR" "$target_name" "$BUILD_TYPE_DIR"
+}
+
+cached_frameworks_available() {
+	local target_suffix
+	local framework_binary
+	local missing=0
+
+	for target_suffix in "${target_suffixes[@]}"; do
+		framework_binary="$(framework_binary_for_target_suffix "$target_suffix")"
+		if [[ ! -f "$framework_binary" ]]; then
+			echo "Cached maincore framework is missing: $framework_binary" >&2
+			missing=1
+		fi
+	done
+
+	[[ "$missing" -eq 0 ]]
+}
+
 mkdir -p "$GRADLE_USER_HOME_DIR"
 prime_local_gradle_wrapper_dist
 export GRADLE_USER_HOME="$GRADLE_USER_HOME_DIR"
-echo "Building maincore framework and syncing Compose resources for iOS"
 declare -a gradle_args=(
 	"-Dorg.gradle.jvmargs=$GRADLE_JVM_ARGS"
 	"--no-configuration-cache"
 )
+used_cached_frameworks=0
 
-for target_suffix in "${target_suffixes[@]}"; do
-	gradle_args+=(":maincore:link${BUILD_TYPE}Framework${target_suffix}")
-done
+if [[ "${TUINDICE_IOS_USE_CACHED_FRAMEWORK:-0}" == "1" ]] && cached_frameworks_available; then
+	echo "Using cached maincore framework and syncing Compose resources for iOS"
+	used_cached_frameworks=1
+else
+	echo "Building maincore framework and syncing Compose resources for iOS"
+	for target_suffix in "${target_suffixes[@]}"; do
+		gradle_args+=(":maincore:link${BUILD_TYPE}Framework${target_suffix}")
+	done
+fi
 
 gradle_args+=(":maincore:syncComposeResourcesForIos")
 
@@ -126,4 +179,8 @@ fi
 
 ./gradlew "${gradle_args[@]}"
 
-write_script_output_stamp "maincore framework linked: ${BUILD_TYPE} ${target_suffixes[*]}"
+if [[ "$used_cached_frameworks" == "1" ]]; then
+	write_script_output_stamp "maincore framework cache used: ${BUILD_TYPE} ${target_suffixes[*]}"
+else
+	write_script_output_stamp "maincore framework linked: ${BUILD_TYPE} ${target_suffixes[*]}"
+fi
