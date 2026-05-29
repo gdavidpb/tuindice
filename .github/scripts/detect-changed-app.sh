@@ -206,7 +206,7 @@ mark_e2e_suite_for_module() {
 append_ios_signing_config_validation() {
 	CI_CONFIG_TOUCHED=true
 	HAS_RELEVANT_CHANGES=true
-	append_unique_line "$IOS_TASKS_FILE" "verifyIosHostBuildRelease"
+	append_unique_line "$IOS_TASKS_FILE" "verifyIosHostBuildDeviceRelease"
 }
 
 is_ios_signing_only_config_change() {
@@ -524,7 +524,7 @@ while IFS= read -r module; do
 			;;
 		iosApp)
 			if [[ "$HAS_RELEASE_IMPACT" == "true" || "$APP_VERSION_CHANGED" == "true" ]]; then
-				append_unique_line "$IOS_TASKS_FILE" "verifyIosHostBuildRelease"
+				append_unique_line "$IOS_TASKS_FILE" "verifyIosHostBuildDeviceRelease"
 			else
 				append_unique_line "$IOS_TASKS_FILE" "verifyIosHostTypecheck"
 			fi

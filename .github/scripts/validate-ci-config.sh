@@ -31,6 +31,12 @@ done < <(
 	find .github/workflows \( -name '*.yml' -o -name '*.yaml' \) -type f 2>/dev/null | sort
 )
 
+ios_framework_cache_hash="$(bash "${SCRIPT_DIR}/ios-framework-cache-key.sh")"
+if [[ ! "$ios_framework_cache_hash" =~ ^[0-9a-f]{64}$ ]]; then
+	die "iOS framework cache key script returned an invalid hash: ${ios_framework_cache_hash}"
+fi
+info "Validated iOS framework cache key hash."
+
 bash "${SCRIPT_DIR}/test-preflight-production.sh"
 bash "${SCRIPT_DIR}/test-detect-changed-app.sh"
 bash "${SCRIPT_DIR}/test-google-play-draft-check.sh"
