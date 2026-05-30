@@ -250,7 +250,7 @@ class SyntheticTermCreationDataSource(
 	}
 
 	private fun currentAcademicTermOrder(): Int {
-		val dateTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+		val dateTime = Clock.System.now().toLocalDateTime(TimeZone.of(AcademicCalendarTimeZoneId))
 		return dateTime.year * 10 + periodForMonth(dateTime.month.ordinal + 1).sequence
 	}
 
@@ -500,4 +500,5 @@ private const val SearchLimit = 20
 private const val FuturePeriodCount = 20
 private const val SuggestedSubjectLimit = 8
 private const val NodeTypeCourse = "COURSE"
+private const val AcademicCalendarTimeZoneId = "America/Caracas"
 private val RealSubjectCodeRegex = Regex("^([A-Z]{2}\\d{4}|[A-Z]{3}\\d{3})$")

@@ -23,6 +23,7 @@ object RecordUiTags {
 	const val CreateSyntheticTermSearchClearButton = "record_create_synthetic_term_search_clear_button"
 	const val CreateSyntheticTermSearchResultsTitle = "record_create_synthetic_term_search_results_title"
 	const val CreateSyntheticTermSubmitButton = "record_create_synthetic_term_submit_button"
+	const val CreateSyntheticTermSubmitError = "record_create_synthetic_term_submit_error"
 	const val CreateSyntheticTermSubmitProgress = "record_create_synthetic_term_submit_progress"
 	const val CreateSyntheticTermTakenSubjectsToggle = "record_create_synthetic_term_taken_subjects_toggle"
 	const val CreateSyntheticTermSuggestedTab = "record_create_synthetic_term_suggested_tab"

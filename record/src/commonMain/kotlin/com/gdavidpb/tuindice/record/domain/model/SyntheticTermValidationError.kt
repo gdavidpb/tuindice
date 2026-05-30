@@ -1,0 +1,12 @@
+package com.gdavidpb.tuindice.record.domain.model
+
+enum class SyntheticTermValidationError {
+	RECORD_UNAVAILABLE,
+	TERM_NOT_FOUND,
+	PERIOD_IN_PAST,
+	TERM_ALREADY_EXISTS,
+	TERM_MUST_BE_AFTER_LATEST,
+	DUPLICATE_SUBJECT,
+	SUBJECT_ALREADY_TAKEN,
+	SUBJECT_ALREADY_PLANNED
+}

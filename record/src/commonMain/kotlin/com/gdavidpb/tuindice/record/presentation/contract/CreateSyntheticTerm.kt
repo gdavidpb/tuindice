@@ -33,7 +33,8 @@ object CreateSyntheticTerm {
 		val hasLoadPreviewError: Boolean = false,
 		val isRefreshingSearch: Boolean = false,
 		val hasSearchError: Boolean = false,
-		val isSubmitting: Boolean = false
+		val isSubmitting: Boolean = false,
+		val submitError: UiText = UiText.Empty
 	) : ViewState() {
 		val canSubmit: Boolean
 			get() = selectedPeriod != null && selectedSubjects.isNotEmpty() && !isSubmitting

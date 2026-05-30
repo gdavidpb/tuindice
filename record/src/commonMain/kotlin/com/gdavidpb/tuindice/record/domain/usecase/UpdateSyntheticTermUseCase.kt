@@ -4,7 +4,9 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
+import com.gdavidpb.tuindice.record.domain.exception.SyntheticTermValidationException
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermValidationError
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.usecase.error.RecordUseCaseError
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExceptionHandler
@@ -22,6 +24,13 @@ class UpdateSyntheticTermUseCase(
 	override suspend fun executeOnBackground(params: CreateSyntheticTermParams): Flow<Unit> {
 		val targetTermId = requireNotNull(params.editingTermId)
 		val targetTermKey = requireNotNull(params.editingTermKey)
+		val record = repository.getAcademicRecord()
+			?: throw SyntheticTermValidationException(SyntheticTermValidationError.RECORD_UNAVAILABLE)
+		SyntheticTermCommandValidator.validate(
+			record = record,
+			params = params
+		)
+
 		val keepsTermIdentity = params.period.termKey == targetTermKey
 		val termId = if (keepsTermIdentity) targetTermId else params.period.termKey
 
