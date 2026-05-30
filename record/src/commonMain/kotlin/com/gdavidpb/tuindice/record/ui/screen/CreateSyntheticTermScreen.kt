@@ -324,6 +324,7 @@ fun CreateSyntheticTermScreen(
 			canSubmit = state.canSubmit,
 			isEditing = state.isEditing,
 			isSubmitting = state.isSubmitting,
+			submitError = state.submitError,
 			onCreateClick = onCreateClick,
 			modifier = Modifier
 				.align(Alignment.BottomCenter)

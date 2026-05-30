@@ -4,7 +4,9 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
+import com.gdavidpb.tuindice.record.domain.exception.SyntheticTermValidationException
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermValidationError
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.usecase.error.RecordUseCaseError
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExceptionHandler
@@ -20,6 +22,13 @@ class CreateSyntheticTermUseCase(
 	reportingRepository = reportingRepository
 ) {
 	override suspend fun executeOnBackground(params: CreateSyntheticTermParams): Flow<Unit> {
+		val record = repository.getAcademicRecord()
+			?: throw SyntheticTermValidationException(SyntheticTermValidationError.RECORD_UNAVAILABLE)
+		SyntheticTermCommandValidator.validate(
+			record = record,
+			params = params
+		)
+
 		val termId = params.period.termKey
 		repository.addSyntheticTerm(
 			SyntheticTermCreationCommand(
