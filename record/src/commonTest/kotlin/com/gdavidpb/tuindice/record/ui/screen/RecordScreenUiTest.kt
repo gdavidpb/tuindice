@@ -1,8 +1,13 @@
 package com.gdavidpb.tuindice.record.ui.screen
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
@@ -19,6 +24,35 @@ import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
 class RecordScreenUiTest {
+	@Test
+	fun when_attemptNameUsesMixedCase_then_recordDisplaysUppercaseName() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			RecordScreen(
+				state = contentState(
+					termKind = TermKind.SYNTHETIC,
+					attempts = listOf(
+						AcademicAttempt(
+							id = "attempt-1",
+							subjectCode = "MA1112",
+							subjectName = "Matemáticas II",
+							credits = 4
+						)
+					)
+				),
+				selectedTermId = SyntheticTermId,
+				onSelectedTermChange = {},
+				onRetryClick = {},
+				onAttemptSelectionChange = { _, _, _, _ -> },
+				onCreateSyntheticTermClick = {},
+				onUpdateSyntheticTermClick = {},
+				onDeleteSyntheticTermClick = {}
+			)
+		}
+
+		onNodeWithText("MATEMÁTICAS II").assertIsDisplayed()
+		onAllNodesWithText("Matemáticas II").assertCountEquals(0)
+	}
+
 	@Test
 	fun when_selectedTermIsSynthetic_then_overlayActionsAreShownAndClickable() = runTuIndiceUiTest {
 		var editedTermId: String? = null
@@ -76,7 +110,8 @@ class RecordScreenUiTest {
 
 	private fun contentState(
 		termId: String = SyntheticTermId,
-		termKind: TermKind
+		termKind: TermKind,
+		attempts: List<AcademicAttempt> = emptyList()
 	): Record.State.Content {
 		return Record.State.Content(
 			viewMode = RecordViewMode.Projection,
@@ -87,7 +122,8 @@ class RecordScreenUiTest {
 						id = termId,
 						periodYear = 2026,
 						periodCode = AcademicTermPeriod.SEP_DEC,
-						kind = termKind
+						kind = termKind,
+						attempts = attempts
 					)
 				)
 			),

@@ -31,7 +31,7 @@ fun AttemptProjection.toAttemptItem(
 		outcome = resolvedOutcome,
 		badge = badge,
 		codeText = subjectCode,
-		nameText = subjectName,
+		nameText = subjectName.uppercase(),
 		gradeText = if (
 			(this.gradingMode == AttemptGradingMode.NUMERIC) &&
 			(
