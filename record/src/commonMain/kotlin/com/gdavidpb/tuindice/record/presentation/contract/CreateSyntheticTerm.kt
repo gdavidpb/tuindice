@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
+import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
 import kotlinx.coroutines.flow.StateFlow
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.top_bar_create_synthetic_term
@@ -25,9 +26,9 @@ object CreateSyntheticTerm {
 		val selectedAddSubjectTab: CreateTermAddSubjectTab = CreateTermAddSubjectTab.Suggested,
 		val periodOptions: List<SyntheticTermPeriodOption> = emptyList(),
 		val selectedPeriod: SyntheticTermPeriodOption? = null,
-		val selectedSubjects: List<SyntheticTermSubject> = emptyList(),
-		val suggestedSubjects: List<SyntheticTermSubject> = emptyList(),
-		val searchResults: List<SyntheticTermSubject> = emptyList(),
+		val selectedSubjects: List<CreateTermSubjectItem> = emptyList(),
+		val suggestedSubjects: List<CreateTermSubjectItem> = emptyList(),
+		val searchResults: List<CreateTermSubjectItem> = emptyList(),
 		val loadPreview: SyntheticTermLoadPreview? = null,
 		val isLoadingLoadPreview: Boolean = false,
 		val hasLoadPreviewError: Boolean = false,

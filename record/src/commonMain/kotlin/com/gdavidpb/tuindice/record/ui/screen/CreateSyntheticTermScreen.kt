@@ -32,10 +32,10 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
-import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
+import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.CreateTermSubjectCardAction
 import com.gdavidpb.tuindice.record.ui.view.AlreadyTakenSearchResultsToggle
@@ -62,7 +62,7 @@ fun CreateSyntheticTermScreen(
 	onClearQueryClick: () -> Unit,
 	onPeriodSelected: (String) -> Unit,
 	onAddSubjectTabSelected: (CreateTermAddSubjectTab) -> Unit,
-	onSubjectAdd: (SyntheticTermSubject) -> Unit,
+	onSubjectAdd: (CreateTermSubjectItem) -> Unit,
 	onSubjectRemove: (String) -> Unit,
 	onSubjectStatsClick: (String) -> Unit = {},
 	onCreateClick: () -> Unit,
@@ -80,7 +80,7 @@ fun CreateSyntheticTermScreen(
 		)
 	)
 	val selectedSubjectCodes = remember(state.selectedSubjects) {
-		state.selectedSubjects.map(SyntheticTermSubject::subjectCode).toSet()
+		state.selectedSubjects.map(CreateTermSubjectItem::subjectCode).toSet()
 	}
 	val displayedSuggestedSubjects = state.suggestedSubjects.filterNot { subject ->
 		subject.subjectCode in selectedSubjectCodes

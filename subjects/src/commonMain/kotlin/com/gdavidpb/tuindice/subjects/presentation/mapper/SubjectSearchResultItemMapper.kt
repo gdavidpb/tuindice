@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.subjects.presentation.model.SubjectSearchResultItem
 fun SubjectSearchResult.toSubjectSearchResultItem(): SubjectSearchResultItem {
 	return SubjectSearchResultItem(
 		subjectCode = subjectCode,
-		name = name,
+		name = name.uppercase(),
 		creditsText = "$credits UC"
 	)
 }

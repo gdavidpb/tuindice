@@ -63,6 +63,7 @@ class SubjectSearchActionProcessorContractTest {
 
 		waitUntil { state.results.map { result -> result.subjectCode } == listOf("EC5333") }
 
+		assertEquals("INT. A LAS MICROONDAS Y SUS APLICACIONES", state.results.single().name)
 		assertFalse(state.isRefreshing)
 		assertEquals(emptyList(), repository.refreshCalls)
 
@@ -210,7 +211,7 @@ private fun SubjectSearchResult.toItem(): com.gdavidpb.tuindice.subjects.present
 private fun subjectSearchResult(subjectCode: String): SubjectSearchResult {
 	return SubjectSearchResult(
 		subjectCode = subjectCode,
-		name = "INT. A LAS MICROONDAS Y SUS APLICACIONES",
+		name = "Int. a las microondas y sus aplicaciones",
 		credits = 3,
 		gradingMode = GradingMode.NUMERIC
 	)

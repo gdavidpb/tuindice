@@ -19,7 +19,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
+import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.CreateTermSubjectCardAction
 import org.jetbrains.compose.resources.stringResource
@@ -28,7 +28,7 @@ import tuindice.record.generated.resources.create_term_subject_requirements_met
 
 @Composable
 fun CreateTermSelectedSubjectCard(
-	subject: SyntheticTermSubject,
+	subject: CreateTermSubjectItem,
 	action: CreateTermSubjectCardAction,
 	enabled: Boolean = true,
 	onClick: () -> Unit,
@@ -62,7 +62,7 @@ fun CreateTermSelectedSubjectCard(
 					CreateTermSubjectCodeChip(subjectCode = subject.subjectCode)
 					Text(
 						modifier = Modifier.weight(1f),
-						text = subject.name,
+						text = subject.nameText,
 						style = MaterialTheme.typography.bodyMedium,
 						fontWeight = FontWeight.Bold,
 						color = MaterialTheme.colorScheme.onSurface,

@@ -27,8 +27,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
+import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
@@ -45,7 +45,7 @@ import tuindice.record.generated.resources.create_term_subject_tooltip_unavailab
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CreateTermSubjectStatusRow(
-	subject: SyntheticTermSubject,
+	subject: CreateTermSubjectItem,
 	availableText: String,
 	availableIcon: CreateTermSubjectStatusIcon
 ) {
@@ -139,7 +139,7 @@ fun CreateTermSubjectStatusRow(
 }
 
 @Composable
-private fun SyntheticTermSubject.tooltipText(): String? {
+private fun CreateTermSubjectItem.tooltipText(): String? {
 	return when (availability) {
 		SyntheticTermSubjectAvailability.ALREADY_TAKEN ->
 			availabilityDetail?.termLabel?.let { termLabel ->
@@ -166,7 +166,7 @@ private fun SyntheticTermSubject.tooltipText(): String? {
 
 @Composable
 private fun CreateTermSubjectStatusLabel(
-	subject: SyntheticTermSubject,
+	subject: CreateTermSubjectItem,
 	status: SubjectStatus,
 	modifier: Modifier = Modifier
 ) {
@@ -185,7 +185,7 @@ private fun CreateTermSubjectStatusLabel(
 	)
 }
 
-private fun SyntheticTermSubject.status(
+private fun CreateTermSubjectItem.status(
 	availableText: String,
 	availableIcon: CreateTermSubjectStatusIcon,
 	selectedText: String,

@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermCreationU
 import com.gdavidpb.tuindice.record.domain.usecase.RefreshSyntheticTermSubjectSearchUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExceptionHandler
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
+import com.gdavidpb.tuindice.record.presentation.mapper.toCreateTermSubjectItem
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import kotlinx.coroutines.flow.Flow
@@ -108,14 +109,14 @@ class ObserveCreateSyntheticTermActionProcessorTest {
 			selectedSubjectsFlow.value = listOf(selectedSubject)
 
 			while (
-				state.selectedSubjects != listOf(selectedSubject) ||
+				state.selectedSubjects != listOf(selectedSubject.toCreateTermSubjectItem()) ||
 				state.loadPreview?.band != SyntheticTermLoadBand.NORMAL
 			) {
 				state = awaitItem()(state)
 			}
 
 			assertEquals(defaultPeriod, state.selectedPeriod)
-			assertEquals(listOf(selectedSubject), state.selectedSubjects)
+			assertEquals(listOf(selectedSubject.toCreateTermSubjectItem()), state.selectedSubjects)
 			assertFalse(state.isLoadingLoadPreview)
 			assertEquals(
 				listOf(

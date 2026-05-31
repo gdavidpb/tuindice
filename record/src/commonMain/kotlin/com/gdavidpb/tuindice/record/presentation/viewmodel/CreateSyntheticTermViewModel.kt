@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.record.presentation.action.ObserveCreateSyntheticTe
 import com.gdavidpb.tuindice.record.presentation.action.UpdateCreateSyntheticTermQueryActionProcessor
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
+import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
@@ -102,7 +103,8 @@ class CreateSyntheticTermViewModel(
 		selectedPeriodKeyFlow.value = termKey
 	}
 
-	fun addSubjectAction(subject: SyntheticTermSubject) {
+	fun addSubjectAction(subjectItem: CreateTermSubjectItem) {
+		val subject = subjectItem.subject
 		if (!subject.canAdd) return
 		val current = selectedSubjectsFlow.value
 		if (current.any { item -> item.subjectCode == subject.subjectCode }) return
@@ -117,7 +119,7 @@ class CreateSyntheticTermViewModel(
 	fun createTermAction() {
 		val currentState = state.value
 		val period = currentState.selectedPeriod ?: return
-		val subjects = currentState.selectedSubjects
+		val subjects = currentState.selectedSubjects.map { item -> item.subject }
 		if (subjects.isEmpty()) return
 
 		sendAction(
