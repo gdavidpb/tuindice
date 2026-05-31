@@ -4,13 +4,17 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermValidationError
 import com.gdavidpb.tuindice.record.domain.usecase.CreateSyntheticTermUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.error.RecordUseCaseError
 import com.gdavidpb.tuindice.record.domain.usecase.param.CreateSyntheticTermParams
+import com.gdavidpb.tuindice.record.domain.usecase.param.SetSelectedTermParams
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.flow
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.create_term_error_duplicate_subject
@@ -24,7 +28,8 @@ import tuindice.record.generated.resources.create_term_error_term_must_be_after_
 
 class CreateSyntheticTermActionProcessor(
 	private val createSyntheticTermUseCase: CreateSyntheticTermUseCase,
-	private val updateSyntheticTermUseCase: UpdateSyntheticTermUseCase
+	private val updateSyntheticTermUseCase: UpdateSyntheticTermUseCase,
+	private val setSelectedTermUseCase: SetSelectedTermUseCase
 ) : ActionProcessor<
 	CreateSyntheticTerm.State,
 	CreateSyntheticTerm.Action.CreateTerm,
@@ -60,6 +65,12 @@ class CreateSyntheticTermActionProcessor(
 						)
 
 					is UseCaseState.Data -> {
+						setSelectedTermUseCase.execute(
+							SetSelectedTermParams(
+								viewMode = RecordViewMode.Projection,
+								termId = useCaseState.value
+							)
+						).collect()
 						emit(
 							suspend { state: CreateSyntheticTerm.State ->
 								state.copy(

@@ -1,6 +1,9 @@
 package com.gdavidpb.tuindice.record.ui.screen
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -19,10 +22,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextRange
@@ -43,7 +46,6 @@ import com.gdavidpb.tuindice.record.ui.view.CreateTermSectionTitle
 import com.gdavidpb.tuindice.record.ui.view.CreateTermSelectedSubjectCard
 import com.gdavidpb.tuindice.record.ui.view.CreateTermSubmitBar
 import com.gdavidpb.tuindice.record.ui.view.CreateTermSuggestedSubjectCard
-import kotlinx.coroutines.flow.distinctUntilChanged
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.create_term_add_subjects_title
@@ -102,16 +104,6 @@ fun CreateSyntheticTermScreen(
 		focusManager.clearFocus()
 	}
 
-	LaunchedEffect(lazyListState) {
-		snapshotFlow { lazyListState.isScrollInProgress }
-			.distinctUntilChanged()
-			.collect { isScrollInProgress ->
-				if (isScrollInProgress) {
-					dismissKeyboard()
-				}
-			}
-	}
-
 	val takenSearchResultsCount = searchResultsWithoutSelectedSubjects.count { subject ->
 		subject.availability == SyntheticTermSubjectAvailability.ALREADY_TAKEN
 	}
@@ -134,6 +126,14 @@ fun CreateSyntheticTermScreen(
 				.fillMaxSize()
 				.padding(horizontal = 20.dp)
 				.imePadding()
+				.pointerInput(Unit) {
+					awaitEachGesture {
+						val down = awaitFirstDown(requireUnconsumed = false)
+						awaitTouchSlopOrCancellation(down.id) { _, _ ->
+							dismissKeyboard()
+						}
+					}
+				}
 				.testTag(RecordUiTags.CreateSyntheticTermContentList),
 			state = lazyListState,
 			contentPadding = PaddingValues(
