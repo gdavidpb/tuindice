@@ -2,9 +2,13 @@ package com.gdavidpb.tuindice.evaluations.ui.dialog
 
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
+import androidx.compose.ui.test.swipeUp
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.evaluations.ui.model.MIN_EVALUATION_GRADE
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -12,6 +16,8 @@ import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNotEquals
 
 @OptIn(ExperimentalTestApi::class)
 class GradePickerDialogUiTest {
@@ -156,6 +162,34 @@ class GradePickerDialogUiTest {
 		onNodeWithTag(EvaluationsUiTags.EvaluationDialogConfirmButton).performClick()
 
 		assertEquals(17.25, changedGrade)
+	}
+
+	@Test
+	fun when_wheelScrolledAndConfirmTappedImmediately_then_emitsScrolledGrade() = runTuIndiceUiTest {
+		var changedGrade: Double? = null
+
+		setTuIndiceTestContent {
+			GradePickerDialog(
+				title = "Nota maxima",
+				evaluationName = "Parcial 1",
+				subjectCode = "MA1111",
+				acceptText = "Aceptar",
+				cancelText = "Cancelar",
+				selectedGrade = 10.0,
+				gradeRange = 0.0..20.0,
+				onGradeChange = { grade ->
+					changedGrade = grade
+				},
+				onDismissRequest = {}
+			)
+		}
+
+		onAllNodesWithTag(BaseUiTags.WheelPickerList)[0]
+			.performTouchInput { swipeUp() }
+		onNodeWithTag(EvaluationsUiTags.EvaluationDialogConfirmButton).performClick()
+
+		assertNotNull(changedGrade)
+		assertNotEquals(10.0, changedGrade)
 	}
 
 	@Test

@@ -20,6 +20,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.Dp
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.drop
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
@@ -42,17 +43,34 @@ fun WheelPicker(
 ) {
 	val coroutineScope = rememberCoroutineScope()
 	val currentOnItemPicked by rememberUpdatedState(onItemPicked)
+	val currentItemValidator by rememberUpdatedState(itemValidator)
 	val currentIndex = remember { mutableIntStateOf(state.firstVisibleItemIndex) }
 
 	val itemHalfHeight = with(LocalDensity.current) { itemHeight.toPx() / 2 }
 
 	LaunchedEffect(state.isScrollInProgress) {
 		if (!state.isScrollInProgress && state.firstVisibleItemScrollOffset != 0) {
-			if (state.firstVisibleItemScrollOffset < itemHalfHeight)
-				state.animateScrollToItem(state.firstVisibleItemIndex)
-			else
-				state.animateScrollToItem(state.firstVisibleItemIndex + 1)
+			state.animateScrollToItem(
+				state.targetFirstVisibleItemIndex(itemHalfHeight)
+			)
 		}
+	}
+
+	LaunchedEffect(state, additionalItemCount, itemHalfHeight) {
+		snapshotFlow {
+			state.pickedItemIndex(
+				additionalItemCount = additionalItemCount,
+				itemHalfHeight = itemHalfHeight
+			)
+		}
+			.drop(1)
+			.distinctUntilChanged()
+			.collect { index ->
+				if (currentItemValidator(index)) {
+					currentIndex.intValue = index - additionalItemCount
+					currentOnItemPicked(index)
+				}
+			}
 	}
 
 	LaunchedEffect(state) {
@@ -62,11 +80,7 @@ fun WheelPicker(
 			.collect {
 				val index = state.firstVisibleItemIndex + additionalItemCount
 
-				if (itemValidator(index)) {
-					currentIndex.intValue = state.firstVisibleItemIndex
-
-					currentOnItemPicked(index)
-				} else {
+				if (!currentItemValidator(index)) {
 					state.animateScrollToItem(currentIndex.intValue)
 				}
 			}
@@ -105,3 +119,17 @@ fun WheelPicker(
 }
 
 private const val WheelPickerItemContentType = "wheel_picker_item"
+
+private fun LazyListState.targetFirstVisibleItemIndex(itemHalfHeight: Float): Int {
+	return if (firstVisibleItemScrollOffset < itemHalfHeight)
+		firstVisibleItemIndex
+	else
+		firstVisibleItemIndex + 1
+}
+
+private fun LazyListState.pickedItemIndex(
+	additionalItemCount: Int,
+	itemHalfHeight: Float
+): Int {
+	return targetFirstVisibleItemIndex(itemHalfHeight) + additionalItemCount
+}

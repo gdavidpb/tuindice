@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.data.source
 
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
-import com.gdavidpb.tuindice.academiccore.domain.model.isEditable
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.base.domain.model.GradingMode
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationEntity
@@ -90,7 +89,7 @@ class RoomDatabaseDataSource(
 	}
 
 	override suspend fun getAvailableAttempts(): List<LocalEditableAttemptDescriptor> {
-		val currentEditableTermId = selectCurrentEditableTermId(
+		val currentTermId = selectOfficialCurrentTermId(
 			terms = academicTermDao.getTerms(),
 			nowMillis = currentTimeMillis()
 		) ?: return emptyList()
@@ -98,7 +97,7 @@ class RoomDatabaseDataSource(
 		return academicAttemptDao
 			.getAttempts()
 			.asSequence()
-			.filter { attempt -> attempt.termId == currentEditableTermId }
+			.filter { attempt -> attempt.termId == currentTermId }
 			.filter { attempt -> attempt.gradingMode == "NUMERIC" }
 			.map { attempt -> attempt.toLocalEditableAttemptDescriptor() }
 			.filter { attempt -> attempt.gradingMode == GradingMode.NUMERIC }
@@ -230,30 +229,20 @@ class RoomDatabaseDataSource(
 	}
 
 	internal companion object {
-		fun isEditableTermKind(kind: String): Boolean {
-			return TermKind.valueOf(kind).isEditable
-		}
-
-		fun selectCurrentEditableTermId(
+		fun selectOfficialCurrentTermId(
 			terms: List<AcademicTermEntity>,
 			@Suppress("UNUSED_PARAMETER")
 			nowMillis: Long
 		): String? {
-			val editableTerms = terms.filter { term -> isEditableTermKind(term.kind) }
-			if (editableTerms.isEmpty()) return null
-
 			val termComparator = compareBy(
 				AcademicTermEntity::termOrder,
 				AcademicTermEntity::id
 			)
 
-			return editableTerms
+			return terms
 				.filter { term -> TermKind.valueOf(term.kind) == TermKind.CURRENT }
 				.maxWithOrNull(termComparator)
 				?.id
-				?: editableTerms
-					.minWithOrNull(termComparator)
-					?.id
 		}
 	}
 }

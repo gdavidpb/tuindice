@@ -53,8 +53,19 @@ appId: com.gdavidpb.tuindice.debug
           when:
             platform: iOS
           commands:
-            - inputText: "prioridad"
-      - hideKeyboard
+            - setClipboard: "prioridad"
+            - pasteText
+      - runFlow:
+          when:
+            platform: Android
+          commands:
+            - hideKeyboard
+      - runFlow:
+          when:
+            platform: iOS
+          commands:
+            - tapOn:
+                point: "87%,89%"
       - extendedWaitUntil:
           visible:
             id: record_create_synthetic_term_search_result_0_subject_EP1308
@@ -155,8 +166,19 @@ appId: com.gdavidpb.tuindice.debug
           when:
             platform: iOS
           commands:
-            - inputText: "ma"
-      - hideKeyboard
+            - setClipboard: "ma"
+            - pasteText
+      - runFlow:
+          when:
+            platform: Android
+          commands:
+            - hideKeyboard
+      - runFlow:
+          when:
+            platform: iOS
+          commands:
+            - tapOn:
+                point: "87%,89%"
       - extendedWaitUntil:
           visible:
             id: record_create_synthetic_term_search_result_0_subject_MA1112
@@ -191,8 +213,19 @@ appId: com.gdavidpb.tuindice.debug
           when:
             platform: iOS
           commands:
-            - inputText: "ma1111"
-      - hideKeyboard
+            - setClipboard: "ma1111"
+            - pasteText
+      - runFlow:
+          when:
+            platform: Android
+          commands:
+            - hideKeyboard
+      - runFlow:
+          when:
+            platform: iOS
+          commands:
+            - tapOn:
+                point: "87%,89%"
       - extendedWaitUntil:
           visible:
             id: record_create_synthetic_term_taken_subjects_toggle

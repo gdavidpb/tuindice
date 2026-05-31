@@ -44,9 +44,34 @@ appId: com.gdavidpb.tuindice.debug
     commands:
       - setClipboard: "ec"
       - pasteText
-- hideKeyboard
+- tapOn:
+    id: record_create_synthetic_term_search_clear_button
 - assertVisible:
     id: record_create_synthetic_term_search_field
+- tapOn:
+    id: record_create_synthetic_term_search_field
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - inputText: "ec"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - setClipboard: "ec"
+      - pasteText
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          point: "87%,89%"
 - scrollUntilVisible:
     element:
       id: record_create_synthetic_term_subject_EC5201_add_button
@@ -58,10 +83,55 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: record_create_synthetic_term_subject_EC5201_remove_button
     timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: record_create_synthetic_term_subject_EC5333_add_button
+    direction: DOWN
+    timeout: 20000
 - tapOn:
-    id: record_create_synthetic_term_search_clear_button
-- assertVisible:
-    id: record_create_synthetic_term_search_field
+    id: record_create_synthetic_term_subject_EC5333_add_button
+- extendedWaitUntil:
+    visible:
+      id: record_create_synthetic_term_subject_EC5333_remove_button
+    timeout: 10000
+- scrollUntilVisible:
+    element:
+      id: record_create_synthetic_term_search_field
+    direction: UP
+    timeout: 20000
+- retry:
+    maxRetries: 3
+    commands:
+      - tapOn:
+          id: record_create_synthetic_term_search_field
+      - eraseText: 20
+      - runFlow:
+          when:
+            platform: Android
+          commands:
+            - inputText: "ma"
+      - runFlow:
+          when:
+            platform: iOS
+          commands:
+            - setClipboard: "ma"
+            - pasteText
+      - runFlow:
+          when:
+            platform: Android
+          commands:
+            - hideKeyboard
+      - runFlow:
+          when:
+            platform: iOS
+          commands:
+            - tapOn:
+                point: "87%,89%"
+      - scrollUntilVisible:
+          element:
+            id: record_create_synthetic_term_subject_MA1112_add_button
+          direction: DOWN
+          timeout: 20000
 - assertVisible:
     id: record_create_synthetic_term_submit_button
     enabled: true
@@ -71,11 +141,13 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: record_content_container
     timeout: 30000
-- tapOn:
-    id: record_term_chip_2026-SEP_DEC
 - extendedWaitUntil:
     visible:
       id: record_attempt_item_2026-SEP_DEC-EC5201-1
+    timeout: 15000
+- extendedWaitUntil:
+    visible:
+      id: record_attempt_item_2026-SEP_DEC-EC5333-2
     timeout: 15000
 - tapOn:
     id: record_edit_synthetic_term_button
@@ -85,62 +157,79 @@ appId: com.gdavidpb.tuindice.debug
     timeout: 10000
 - assertVisible:
     id: record_create_synthetic_term_subject_EC5201_remove_button
+- assertVisible:
+    id: record_create_synthetic_term_subject_EC5333_remove_button
+- tapOn:
+    id: record_create_synthetic_term_search_tab
+- runFlow:
+    when:
+      visible: "Try out your stylus"
+    commands:
+      - tapOn: "Cancel"
 - runFlow:
     when:
       platform: Android
     commands:
-      - tapOn:
-          id: record_create_synthetic_term_search_tab
-      - runFlow:
-          when:
-            visible: "Try out your stylus"
-          commands:
-            - tapOn: "Cancel"
-      - extendedWaitUntil:
-          visible:
-            id: record_create_synthetic_term_search_field
-          timeout: 10000
-      - tapOn:
-          id: record_create_synthetic_term_search_field
-      - inputText: "ec"
       - hideKeyboard
-      - assertVisible:
-          id: record_create_synthetic_term_search_field
-      - scrollUntilVisible:
-          element:
-            id: record_create_synthetic_term_subject_EC5333_add_button
-          direction: DOWN
-          timeout: 20000
-      - tapOn:
-          id: record_create_synthetic_term_subject_EC5333_add_button
-      - extendedWaitUntil:
-          visible:
-            id: record_create_synthetic_term_subject_EC5333_remove_button
-          timeout: 10000
-      - tapOn:
-          id: record_create_synthetic_term_submit_button
-      - extendedWaitUntil:
-          visible:
-            id: record_content_container
-          timeout: 30000
-      - extendedWaitUntil:
-          visible:
-            id: record_attempt_item_2026-SEP_DEC-EC5333-2
-          timeout: 15000
-- runFlow:
-    when:
-      platform: iOS
+- scrollUntilVisible:
+    element:
+      id: record_create_synthetic_term_search_field
+    direction: DOWN
+    visibilityPercentage: 50
+    timeout: 10000
+- retry:
+    maxRetries: 3
     commands:
       - tapOn:
-          id: record_create_synthetic_term_submit_button
+          id: record_create_synthetic_term_search_field
+      - eraseText: 20
+      - runFlow:
+          when:
+            platform: Android
+          commands:
+            - inputText: "ma"
+      - runFlow:
+          when:
+            platform: iOS
+          commands:
+            - setClipboard: "ma"
+            - pasteText
+      - runFlow:
+          when:
+            platform: Android
+          commands:
+            - hideKeyboard
+      - runFlow:
+          when:
+            platform: iOS
+          commands:
+            - tapOn:
+                point: "87%,89%"
       - extendedWaitUntil:
           visible:
-            id: record_content_container
-          timeout: 30000
-      - extendedWaitUntil:
-          visible:
-            id: record_attempt_item_2026-SEP_DEC-EC5201-1
-          timeout: 15000
+            id: record_create_synthetic_term_search_results_title
+          timeout: 20000
+- scrollUntilVisible:
+    element:
+      id: record_create_synthetic_term_subject_MA1121_add_button
+    direction: DOWN
+    timeout: 20000
+- tapOn:
+    id: record_create_synthetic_term_subject_MA1121_add_button
+- extendedWaitUntil:
+    visible:
+      id: record_create_synthetic_term_subject_MA1121_remove_button
+    timeout: 10000
+- tapOn:
+    id: record_create_synthetic_term_submit_button
+- extendedWaitUntil:
+    visible:
+      id: record_content_container
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: record_attempt_item_2026-SEP_DEC-MA1121-3
+    timeout: 15000
 - tapOn:
     id: record_term_chip_2026-SEP_DEC
 - extendedWaitUntil:

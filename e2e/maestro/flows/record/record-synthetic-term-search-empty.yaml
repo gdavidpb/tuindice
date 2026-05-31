@@ -39,7 +39,17 @@ appId: com.gdavidpb.tuindice.debug
     commands:
       - setClipboard: "zz"
       - pasteText
-- hideKeyboard
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          point: "87%,89%"
 - assertVisible:
     id: record_create_synthetic_term_search_field
 - extendedWaitUntil:

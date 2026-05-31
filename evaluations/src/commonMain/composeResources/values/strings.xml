@@ -6,8 +6,8 @@
 	<string name="top_bar_edit_evaluation">Modificar evaluación</string>
 	<string name="state_message_loading">Cargando...</string>
 
-	<string name="title_empty_evaluations">Organizando evaluaciones</string>
-	<string name="message_empty_evaluations">Agrega tu primera evaluación para ordenar pendientes, fechas y notas.</string>
+	<string name="title_empty_evaluations">Empieza con una evaluación</string>
+	<string name="message_empty_evaluations">Registra el primer parcial, quiz o entrega de este trimestre.</string>
 	<string name="title_no_subjects_evaluations">Sin trimestre en curso</string>
 	<string name="message_no_subjects_evaluations">Cuando tengas un trimestre activo, podrás agregar evaluaciones desde aquí.</string>
 	<string name="title_empty_match_evaluations">Sin resultados</string>

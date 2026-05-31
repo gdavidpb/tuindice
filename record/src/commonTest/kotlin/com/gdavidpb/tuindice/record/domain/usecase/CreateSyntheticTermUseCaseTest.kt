@@ -83,7 +83,7 @@ class CreateSyntheticTermUseCaseTest {
 			.execute(createParams(subjects = listOf(syntheticSubject("MA1112"))))
 			.toList()
 
-		val errorState = assertIs<UseCaseState.Error<Unit, RecordUseCaseError>>(states.last())
+		val errorState = assertIs<UseCaseState.Error<String, RecordUseCaseError>>(states.last())
 		val error = assertIs<RecordUseCaseError.SyntheticTermValidation>(errorState.error)
 		assertEquals(SyntheticTermValidationError.SUBJECT_ALREADY_TAKEN, error.reason)
 		assertEquals(emptyList(), repository.addedTerms)
@@ -108,7 +108,7 @@ class CreateSyntheticTermUseCaseTest {
 			.execute(createParams(subjects = listOf(syntheticSubject("MA1112"))))
 			.toList()
 
-		val errorState = assertIs<UseCaseState.Error<Unit, RecordUseCaseError>>(states.last())
+		val errorState = assertIs<UseCaseState.Error<String, RecordUseCaseError>>(states.last())
 		val error = assertIs<RecordUseCaseError.SyntheticTermValidation>(errorState.error)
 		assertEquals(SyntheticTermValidationError.TERM_ALREADY_EXISTS, error.reason)
 		assertEquals(emptyList(), repository.addedTerms)
