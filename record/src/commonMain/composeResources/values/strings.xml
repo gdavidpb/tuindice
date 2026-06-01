@@ -57,6 +57,7 @@
 	<string name="create_term_load_tooltip_personal_low">Estimación basada en pocos trimestres de tu historial. Confianza baja.</string>
 	<string name="create_term_load_tooltip_career">Estimación referencial basada en estudiantes de tu carrera. Confianza media.</string>
 	<string name="create_term_load_tooltip_global">Estimación referencial basada en datos generales. Confianza baja.</string>
+	<string name="create_term_load_tooltip_available">Estimación de carga basada en los datos disponibles.</string>
 	<string name="create_term_load_tooltip_unknown_subject">No pudimos estimar la carga porque no encontramos una materia seleccionada.</string>
 	<string name="create_term_load_tooltip_missing_difficulty">No pudimos estimar la carga porque faltan datos de dificultad para una materia seleccionada.</string>
 	<string name="create_term_load_tooltip_insufficient_reference">Aún no hay datos suficientes para estimar esta carga.</string>

@@ -70,6 +70,31 @@ class CreateTermLoadInfoViewUiTest {
 			.assertIsDisplayed()
 	}
 
+	@Test
+	fun when_availableLoadHasNoConfidenceMetadata_then_showsAvailableFallbackTooltip() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateTermPeriodRow(
+				selectedPeriod = periodOption(),
+				periodOptions = listOf(periodOption()),
+				loadPreview = SyntheticTermLoadPreview(
+					available = true,
+					band = SyntheticTermLoadBand.LIGHT,
+					effectiveTerms = 5
+				),
+				hasSelectedSubjects = true,
+				isLoadingLoadPreview = false,
+				hasLoadPreviewError = false,
+				onPeriodSelected = {}
+			)
+		}
+
+		onNodeWithText("Ligera").assertIsDisplayed()
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermLoadInfoButton).performClick()
+
+		onNodeWithText("Estimación de carga basada en los datos disponibles. Se usaron 5 trimestres.")
+			.assertIsDisplayed()
+	}
+
 	private fun periodOption(): SyntheticTermPeriodOption {
 		return SyntheticTermPeriodOption(
 			periodYear = 2027,
