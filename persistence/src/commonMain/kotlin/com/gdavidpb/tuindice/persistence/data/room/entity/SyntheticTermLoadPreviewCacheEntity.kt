@@ -31,6 +31,9 @@ data class SyntheticTermLoadPreviewCacheEntity(
 	@ColumnInfo(name = SyntheticTermLoadPreviewCacheTable.LOAD_INDEX) val loadIndex: Double?,
 	@ColumnInfo(name = SyntheticTermLoadPreviewCacheTable.BASELINE_LOAD_INDEX) val baselineLoadIndex: Double?,
 	@ColumnInfo(name = SyntheticTermLoadPreviewCacheTable.EFFECTIVE_TERMS) val effectiveTerms: Int?,
+	@ColumnInfo(name = SyntheticTermLoadPreviewCacheTable.BASIS) val basis: String?,
+	@ColumnInfo(name = SyntheticTermLoadPreviewCacheTable.CONFIDENCE) val confidence: String?,
+	@ColumnInfo(name = SyntheticTermLoadPreviewCacheTable.DETAIL) val detail: String?,
 	@ColumnInfo(name = SyntheticTermLoadPreviewCacheTable.UPDATED_AT) val updatedAt: Long,
 	@ColumnInfo(name = SyntheticTermLoadPreviewCacheTable.EXPIRES_AT) val expiresAt: Long
 )

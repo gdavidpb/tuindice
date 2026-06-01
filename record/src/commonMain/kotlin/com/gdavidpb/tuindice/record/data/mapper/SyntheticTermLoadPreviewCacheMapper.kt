@@ -2,6 +2,9 @@ package com.gdavidpb.tuindice.record.data.mapper
 
 import com.gdavidpb.tuindice.persistence.data.room.entity.SyntheticTermLoadPreviewCacheEntity
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadBand
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadBasis
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadConfidence
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadDetail
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview
 
 internal fun syntheticTermLoadPreviewCacheKey(
@@ -33,6 +36,9 @@ internal fun SyntheticTermLoadPreview.toSyntheticTermLoadPreviewCacheEntity(
 		loadIndex = loadIndex,
 		baselineLoadIndex = baselineLoadIndex,
 		effectiveTerms = effectiveTerms,
+		basis = basis?.name,
+		confidence = confidence?.name,
+		detail = detail?.name,
 		updatedAt = updatedAt,
 		expiresAt = updatedAt + SyntheticTermLoadPreviewCacheTtlMillis
 	)
@@ -47,7 +53,10 @@ internal fun SyntheticTermLoadPreviewCacheEntity.toSyntheticTermLoadPreview(): S
 		weightedDifficulty = weightedDifficulty,
 		loadIndex = loadIndex,
 		baselineLoadIndex = baselineLoadIndex,
-		effectiveTerms = effectiveTerms
+		effectiveTerms = effectiveTerms,
+		basis = basis?.let { value -> runCatching { SyntheticTermLoadBasis.valueOf(value) }.getOrNull() },
+		confidence = confidence?.let { value -> runCatching { SyntheticTermLoadConfidence.valueOf(value) }.getOrNull() },
+		detail = detail?.let { value -> runCatching { SyntheticTermLoadDetail.valueOf(value) }.getOrNull() }
 	)
 }
 

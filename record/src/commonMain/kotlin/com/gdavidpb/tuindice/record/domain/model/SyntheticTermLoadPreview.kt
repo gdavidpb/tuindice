@@ -8,5 +8,8 @@ data class SyntheticTermLoadPreview(
 	val weightedDifficulty: Double? = null,
 	val loadIndex: Double? = null,
 	val baselineLoadIndex: Double? = null,
-	val effectiveTerms: Int? = null
+	val effectiveTerms: Int? = null,
+	val basis: SyntheticTermLoadBasis? = null,
+	val confidence: SyntheticTermLoadConfidence? = null,
+	val detail: SyntheticTermLoadDetail? = null
 )

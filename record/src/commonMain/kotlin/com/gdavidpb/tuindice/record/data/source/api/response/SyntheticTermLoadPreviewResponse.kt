@@ -13,5 +13,8 @@ data class SyntheticTermLoadPreviewResponse(
 	@SerialName("weighted_difficulty") val weightedDifficulty: Double? = null,
 	@SerialName("load_index") val loadIndex: Double? = null,
 	@SerialName("baseline_load_index") val baselineLoadIndex: Double? = null,
-	@SerialName("effective_terms") val effectiveTerms: Int? = null
+	@SerialName("effective_terms") val effectiveTerms: Int? = null,
+	@SerialName("basis") val basis: String? = null,
+	@SerialName("confidence") val confidence: String? = null,
+	@SerialName("detail") val detail: String? = null
 )

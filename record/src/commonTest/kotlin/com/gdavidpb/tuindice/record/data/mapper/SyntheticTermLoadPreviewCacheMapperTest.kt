@@ -1,6 +1,9 @@
 package com.gdavidpb.tuindice.record.data.mapper
 
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadBand
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadBasis
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadConfidence
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadDetail
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -44,7 +47,10 @@ class SyntheticTermLoadPreviewCacheMapperTest {
 			weightedDifficulty = 42.5,
 			loadIndex = 9.975,
 			baselineLoadIndex = 10.0,
-			effectiveTerms = 4
+			effectiveTerms = 4,
+			basis = SyntheticTermLoadBasis.PERSONAL,
+			confidence = SyntheticTermLoadConfidence.HIGH,
+			detail = SyntheticTermLoadDetail.PERSONAL_HISTORY_STRONG
 		)
 
 		val entity = preview.toSyntheticTermLoadPreviewCacheEntity(

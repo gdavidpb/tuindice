@@ -13,6 +13,9 @@ object SyntheticTermLoadPreviewCacheTable {
 	const val LOAD_INDEX = "load_index"
 	const val BASELINE_LOAD_INDEX = "baseline_load_index"
 	const val EFFECTIVE_TERMS = "effective_terms"
+	const val BASIS = "basis"
+	const val CONFIDENCE = "confidence"
+	const val DETAIL = "detail"
 	const val UPDATED_AT = "updated_at"
 	const val EXPIRES_AT = "expires_at"
 }
