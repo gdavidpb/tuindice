@@ -51,7 +51,7 @@
 	<string name="create_term_load_info_content_description">Información sobre la carga estimada</string>
 	<string name="create_term_load_tooltip_placeholder">Agrega materias para estimar la carga.</string>
 	<string name="create_term_load_tooltip_loading">Estamos calculando la carga estimada.</string>
-	<string name="create_term_load_tooltip_error">No pudimos actualizar la estimación. Mostramos lo disponible si existe.</string>
+	<string name="create_term_load_tooltip_error">No pudimos actualizar la estimación. Intenta de nuevo en unos segundos.</string>
 	<string name="create_term_load_tooltip_personal_high">Estimación basada en tu historial académico. Confianza alta.</string>
 	<string name="create_term_load_tooltip_personal_medium">Estimación basada en pocos trimestres de tu historial. Confianza media.</string>
 	<string name="create_term_load_tooltip_personal_low">Estimación basada en pocos trimestres de tu historial. Confianza baja.</string>

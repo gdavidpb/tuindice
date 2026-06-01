@@ -303,11 +303,7 @@ private fun SyntheticTermLoadPreview.unavailableTooltipMessage(): String {
 }
 
 private fun String?.toSyntheticTermLoadDetailOrNull(): SyntheticTermLoadDetail? {
-	return when (this) {
-		"INSUFFICIENT_PERSONAL_HISTORY" -> SyntheticTermLoadDetail.INSUFFICIENT_REFERENCE_DATA
-		null -> null
-		else -> runCatching { SyntheticTermLoadDetail.valueOf(this) }.getOrNull()
-	}
+	return this?.let { value -> runCatching { SyntheticTermLoadDetail.valueOf(value) }.getOrNull() }
 }
 
 private sealed class LoadChipStatus {

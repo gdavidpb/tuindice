@@ -95,6 +95,49 @@ class CreateTermLoadInfoViewUiTest {
 			.assertIsDisplayed()
 	}
 
+	@Test
+	fun when_loadPreviewHasError_then_showsRetryTooltip() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateTermPeriodRow(
+				selectedPeriod = periodOption(),
+				periodOptions = listOf(periodOption()),
+				loadPreview = null,
+				hasSelectedSubjects = true,
+				isLoadingLoadPreview = false,
+				hasLoadPreviewError = true,
+				onPeriodSelected = {}
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermLoadInfoButton).performClick()
+
+		onNodeWithText("No pudimos actualizar la estimación. Intenta de nuevo en unos segundos.")
+			.assertIsDisplayed()
+	}
+
+	@Test
+	fun when_legacyUnavailableReasonReceived_then_showsGenericUnavailableTooltip() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateTermPeriodRow(
+				selectedPeriod = periodOption(),
+				periodOptions = listOf(periodOption()),
+				loadPreview = SyntheticTermLoadPreview(
+					available = false,
+					reason = "INSUFFICIENT_PERSONAL_HISTORY"
+				),
+				hasSelectedSubjects = true,
+				isLoadingLoadPreview = false,
+				hasLoadPreviewError = false,
+				onPeriodSelected = {}
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermLoadInfoButton).performClick()
+
+		onNodeWithText("No pudimos estimar la carga con los datos disponibles.")
+			.assertIsDisplayed()
+	}
+
 	private fun periodOption(): SyntheticTermPeriodOption {
 		return SyntheticTermPeriodOption(
 			periodYear = 2027,
