@@ -91,7 +91,10 @@ case "$url" in
 		printf '{"data":[{"id":"app-1"}]}\n' >"$output_file"
 		;;
 	*/builds\?*)
-		if [[ "$mode" == "exists" ]]; then
+		if [[ "$mode" == "exists" || "$mode" == "exists-other-version" ]]; then
+			if [[ "$mode" == "exists-other-version" ]]; then
+				version_name="0.0.0"
+			fi
 			jq -n --arg version_name "$version_name" '{
 				data: [
 					{
@@ -149,5 +152,6 @@ SH
 
 run_appstore_check_fixture missing false ""
 run_appstore_check_fixture exists true build-1
+run_appstore_check_fixture exists-other-version true build-1
 
 printf 'App Store Connect check-only fixtures passed for %s (%s).\n' "$VERSION_NAME" "$IOS_BUILD_NUMBER"

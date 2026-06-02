@@ -28,7 +28,6 @@ SKIP_IF_BUILD_EXISTS="${APP_STORE_CONNECT_SKIP_EXISTING_BUILD:-1}"
 CHECK_ONLY="${APP_STORE_CONNECT_CHECK_ONLY:-0}"
 BUILD_EXISTS_FILE="${APP_STORE_CONNECT_BUILD_EXISTS_FILE:-}"
 APP_STORE_CONNECT_API_ROOT="${APP_STORE_CONNECT_API_ROOT:-https://api.appstoreconnect.apple.com/v1}"
-VERSION_NAME="$(get_app_version_name)"
 IOS_BUILD_NUMBER="$(get_ios_build_number)"
 
 log() {
@@ -166,27 +165,20 @@ check_app_store_connect_build_exists() {
 	app_store_connect_get_json "${APP_STORE_CONNECT_API_ROOT}/builds?filter%5Bapp%5D=${app_id}&filter%5Bversion%5D=${IOS_BUILD_NUMBER}&include=preReleaseVersion&limit=200" "$builds_response"
 	existing_build_id="$(
 		jq -r \
-			--arg version_name "$VERSION_NAME" \
 			'[
-				.data[]? as $build
-				| ($build.relationships.preReleaseVersion.data.id // "") as $pre_release_id
-				| select(
-					$pre_release_id != "" and
-					any(.included[]?; .type == "preReleaseVersions" and .id == $pre_release_id and .attributes.version == $version_name)
-				)
-				| $build.id
+				.data[]?.id
 			][0] // empty' \
 			"$builds_response"
 	)"
 
 	if [[ -n "$existing_build_id" ]]; then
 		write_build_exists_state "true" "$existing_build_id"
-		log "App Store Connect build ${VERSION_NAME} (${IOS_BUILD_NUMBER}) already exists for ${IOS_BUNDLE_IDENTIFIER}; skipping archive and upload."
+		log "App Store Connect build number ${IOS_BUILD_NUMBER} already exists for ${IOS_BUNDLE_IDENTIFIER}; skipping archive and upload."
 		return 0
 	fi
 
 	write_build_exists_state "false" ""
-	log "App Store Connect build ${VERSION_NAME} (${IOS_BUILD_NUMBER}) does not exist for ${IOS_BUNDLE_IDENTIFIER}; archive/upload is required."
+	log "App Store Connect build number ${IOS_BUILD_NUMBER} does not exist for ${IOS_BUNDLE_IDENTIFIER}; archive/upload is required."
 	return 1
 }
 

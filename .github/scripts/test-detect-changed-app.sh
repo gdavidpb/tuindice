@@ -55,14 +55,14 @@ assert_file_not_contains_line() {
 app_version_property() {
 	local property_name="$1"
 
-	awk -F= -v property_name="$property_name" '
+	git -C "${REPO_ROOT}" show "${HEAD_SHA}:${APP_VERSION_FILE}" \
+		| awk -F= -v property_name="$property_name" '
 		$1 == property_name {
 			value = $2
 			gsub(/^[[:space:]]+|[[:space:]]+$/, "", value)
 			print value
-			exit
 		}
-	' "${REPO_ROOT}/${APP_VERSION_FILE}"
+	'
 }
 
 increment_patch_version() {
@@ -184,7 +184,8 @@ run_detector_fixture() {
 		ios-host-runtime)
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "iosApp" "impacted modules"
 			assert_file_contains_line "${temp_dir}/state/release-impacted-modules.txt" "iosApp" "release impacted modules"
-			assert_file_contains_line "${temp_dir}/state/missing-version-bump.txt" "app" "missing version bump"
+			assert_file_contains_line "${temp_dir}/state/missing-version-bump.txt" "androidVersionCode" "missing version bump"
+			assert_file_contains_line "${temp_dir}/state/missing-version-bump.txt" "iosBuildNumber" "missing version bump"
 			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,ios-host-runtime" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS tasks"
 			assert_file_not_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" "verifyIosHostTypecheck" "iOS tasks"
@@ -216,7 +217,10 @@ run_detector_fixture() {
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":app:testDebugUnitTest" "Android tasks"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":app:bundleRelease" "Android tasks"
 			assert_file_empty "${temp_dir}/state/ios-gradle-tasks.txt" "iOS tasks"
+			assert_file_contains_line "${temp_dir}/state/missing-version-bump.txt" "iosBuildNumber" "missing version bump"
+			assert_file_not_contains_line "${temp_dir}/state/missing-version-bump.txt" "androidVersionCode" "missing version bump"
 			assert_file_contains_line "$github_output_file" "app_version_changed=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "app_release_build_numbers_changed=false" "GitHub output"
 			;;
 		ios-build-number)
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "iosApp" "impacted modules"
@@ -225,7 +229,10 @@ run_detector_fixture() {
 			assert_file_empty "${temp_dir}/state/android-gradle-tasks.txt" "Android tasks"
 			assert_file_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS tasks"
 			assert_file_not_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" "verifyIosHostTypecheck" "iOS tasks"
+			assert_file_contains_line "${temp_dir}/state/missing-version-bump.txt" "androidVersionCode" "missing version bump"
+			assert_file_not_contains_line "${temp_dir}/state/missing-version-bump.txt" "iosBuildNumber" "missing version bump"
 			assert_file_contains_line "$github_output_file" "app_version_changed=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "app_release_build_numbers_changed=false" "GitHub output"
 			;;
 		version-name)
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "app" "impacted modules"
@@ -237,7 +244,24 @@ run_detector_fixture() {
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":app:bundleRelease" "Android tasks"
 			assert_file_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS tasks"
 			assert_file_not_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" "verifyIosHostTypecheck" "iOS tasks"
+			assert_file_contains_line "${temp_dir}/state/missing-version-bump.txt" "androidVersionCode" "missing version bump"
+			assert_file_contains_line "${temp_dir}/state/missing-version-bump.txt" "iosBuildNumber" "missing version bump"
 			assert_file_contains_line "$github_output_file" "app_version_changed=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "app_release_build_numbers_changed=false" "GitHub output"
+			;;
+		release-build-numbers)
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "app" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "iosApp" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/release-impacted-modules.txt" "app" "release impacted modules"
+			assert_file_contains_line "${temp_dir}/state/release-impacted-modules.txt" "iosApp" "release impacted modules"
+			assert_file_empty "${temp_dir}/state/missing-version-bump.txt" "missing version bump"
+			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":app:testDebugUnitTest" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":app:bundleRelease" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS tasks"
+			assert_file_not_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" "verifyIosHostTypecheck" "iOS tasks"
+			assert_file_contains_line "$github_output_file" "app_version_changed=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "app_release_build_numbers_changed=true" "GitHub output"
 			;;
 		*)
 			printf 'Unknown detector fixture: %s\n' "$name" >&2
@@ -264,6 +288,13 @@ ios_build_commit="$(
 		"$current_android_version_code" \
 		"$((current_ios_build_number + 1))"
 )"
+release_build_numbers_commit="$(
+	create_app_version_commit \
+		release-build-numbers \
+		"$current_version_name" \
+		"$((current_android_version_code + 1))" \
+		"$((current_ios_build_number + 1))"
+)"
 version_name_commit="$(
 	create_app_version_commit \
 		version-name \
@@ -281,6 +312,7 @@ run_detector_fixture ios-version-xcconfig iosApp/Config/Version.xcconfig
 run_detector_fixture ios-release-signing iosApp/Config/Release.xcconfig "$HEAD_SHA" "$ios_release_signing_commit"
 run_detector_fixture android-version-code "$APP_VERSION_FILE" "$HEAD_SHA" "$android_version_commit"
 run_detector_fixture ios-build-number "$APP_VERSION_FILE" "$HEAD_SHA" "$ios_build_commit"
+run_detector_fixture release-build-numbers "$APP_VERSION_FILE" "$HEAD_SHA" "$release_build_numbers_commit"
 run_detector_fixture version-name "$APP_VERSION_FILE" "$HEAD_SHA" "$version_name_commit"
 
 printf 'Detect changed app shell fixtures passed.\n'
