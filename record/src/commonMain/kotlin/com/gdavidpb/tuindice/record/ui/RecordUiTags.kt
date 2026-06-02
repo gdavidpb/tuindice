@@ -19,6 +19,8 @@ object RecordUiTags {
 	const val CreateSyntheticTermScreen = "record_create_synthetic_term_screen"
 	const val CreateSyntheticTermContentList = "record_create_synthetic_term_content_list"
 	const val CreateSyntheticTermPeriodSelector = "record_create_synthetic_term_period_selector"
+	const val CreateSyntheticTermLoadInfoButton = "record_create_synthetic_term_load_info_button"
+	const val CreateSyntheticTermLoadInfoMessage = "record_create_synthetic_term_load_info_message"
 	const val CreateSyntheticTermSearchField = "record_create_synthetic_term_search_field"
 	const val CreateSyntheticTermSearchClearButton = "record_create_synthetic_term_search_clear_button"
 	const val CreateSyntheticTermSearchResultsTitle = "record_create_synthetic_term_search_results_title"

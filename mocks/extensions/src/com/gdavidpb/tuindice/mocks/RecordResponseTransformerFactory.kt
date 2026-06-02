@@ -438,6 +438,9 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 					"load_index" to loadIndex,
 					"baseline_load_index" to baselineLoadIndex,
 					"effective_terms" to 5,
+					"basis" to "PERSONAL",
+					"confidence" to "HIGH",
+					"detail" to "PERSONAL_HISTORY_STRONG",
 				),
 				delayMs = GET_DELAY_MS,
 			)

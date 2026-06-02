@@ -46,6 +46,7 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
 import com.gdavidpb.tuindice.record.presentation.contract.Record
+import com.gdavidpb.tuindice.record.presentation.mapper.toCreateTermSubjectItem
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
 import com.gdavidpb.tuindice.subjects.presentation.model.SubjectDetailItem
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
@@ -113,7 +114,7 @@ internal fun sampleCreateSyntheticTermState() = CreateSyntheticTerm.State(
 			code = "EP5855",
 			name = "Innovación y Emprendimiento"
 		)
-	)
+	).map { subject -> subject.toCreateTermSubjectItem() }
 )
 
 internal fun sampleSubjectDetailState(

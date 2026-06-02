@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.record.domain.usecase.param.LoadSyntheticTermPrevie
 import com.gdavidpb.tuindice.record.domain.usecase.param.ObserveSyntheticTermCreationParams
 import com.gdavidpb.tuindice.record.domain.usecase.param.RefreshSyntheticTermSubjectSearchParams
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
+import com.gdavidpb.tuindice.record.presentation.mapper.toCreateTermSubjectItem
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
@@ -78,9 +79,15 @@ class ObserveCreateSyntheticTermActionProcessor(
 							editingTermKey = useCaseState.value.editingTermKey,
 							periodOptions = useCaseState.value.periodOptions,
 							selectedPeriod = useCaseState.value.selectedPeriod,
-							selectedSubjects = useCaseState.value.selectedSubjects,
-							suggestedSubjects = useCaseState.value.suggestedSubjects,
-							searchResults = useCaseState.value.searchResults,
+							selectedSubjects = useCaseState.value.selectedSubjects.map { subject ->
+								subject.toCreateTermSubjectItem()
+							},
+							suggestedSubjects = useCaseState.value.suggestedSubjects.map { subject ->
+								subject.toCreateTermSubjectItem()
+							},
+							searchResults = useCaseState.value.searchResults.map { subject ->
+								subject.toCreateTermSubjectItem()
+							},
 							submitError = UiText.Empty,
 							hasSearchError = if (useCaseState.value.searchResults.isNotEmpty()) false else state.hasSearchError
 						)

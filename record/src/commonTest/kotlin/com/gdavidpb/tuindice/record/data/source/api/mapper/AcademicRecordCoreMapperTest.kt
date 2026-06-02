@@ -13,6 +13,11 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.source.api.response.AcademicRecordResponse
+import com.gdavidpb.tuindice.record.data.source.api.response.SyntheticTermLoadPreviewResponse
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadBand
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadBasis
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadConfidence
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadDetail
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -80,6 +85,28 @@ class AcademicRecordCoreMapperTest {
 		assertEquals(AttemptOutcome.APPROVED, request.outcome)
 		assertEquals("mutation-1", request.mutationId)
 		assertEquals(7L, request.expectedRevision)
+	}
+
+	@Test
+	fun toSyntheticTermLoadPreview_preservesConfidenceMetadata() {
+		val preview = SyntheticTermLoadPreviewResponse(
+			available = true,
+			band = "NORMAL",
+			credits = 12,
+			weightedDifficulty = 30.0,
+			loadIndex = 15.6,
+			baselineLoadIndex = 14.0,
+			effectiveTerms = 4,
+			basis = "PERSONAL",
+			confidence = "HIGH",
+			detail = "PERSONAL_HISTORY_STRONG"
+		).toSyntheticTermLoadPreview()
+
+		assertEquals(true, preview.available)
+		assertEquals(SyntheticTermLoadBand.NORMAL, preview.band)
+		assertEquals(SyntheticTermLoadBasis.PERSONAL, preview.basis)
+		assertEquals(SyntheticTermLoadConfidence.HIGH, preview.confidence)
+		assertEquals(SyntheticTermLoadDetail.PERSONAL_HISTORY_STRONG, preview.detail)
 	}
 
 	@Test

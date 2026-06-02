@@ -26,6 +26,10 @@ appId: com.gdavidpb.tuindice.debug
       id: evaluation_calendar_container
     timeout: 10000
 - tapOn:
+    id: evaluation_calendar_previous_month_button
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
     id: evaluation_calendar_day_cell_15
 - tapOn:
     id: evaluation_date_dialog_accept_button

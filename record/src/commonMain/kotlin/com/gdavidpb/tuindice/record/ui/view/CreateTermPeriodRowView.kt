@@ -16,7 +16,6 @@ import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -110,7 +109,9 @@ fun CreateTermPeriodRow(
 			}
 		}
 
-		Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
+		Column(
+			verticalArrangement = Arrangement.spacedBy(6.dp)
+		) {
 			CreateTermControlLabel(text = stringResource(Res.string.create_term_load_label))
 			CreateTermLoadChip(
 				modifier = Modifier.height(TermControlHeight),

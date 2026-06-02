@@ -7,6 +7,8 @@ import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailabilityDetail
+import com.gdavidpb.tuindice.record.presentation.mapper.toCreateTermSubjectItem
+import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
@@ -76,13 +78,13 @@ class CreateTermSubjectStatusRowViewUiTest {
 	private fun subject(
 		availability: SyntheticTermSubjectAvailability,
 		detail: SyntheticTermSubjectAvailabilityDetail
-	): SyntheticTermSubject {
+	): CreateTermSubjectItem {
 		return SyntheticTermSubject(
 			subjectCode = "EP2308",
 			name = "Proyecto de Grado II",
 			credits = 3,
 			availability = availability,
 			availabilityDetail = detail
-		)
+		).toCreateTermSubjectItem()
 	}
 }

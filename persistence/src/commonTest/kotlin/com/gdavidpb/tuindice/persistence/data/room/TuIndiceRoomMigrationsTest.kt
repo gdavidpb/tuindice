@@ -11,24 +11,36 @@ class TuIndiceRoomMigrationsTest {
 		val migrations = TuIndiceRoomMigrations.all
 
 		assertEquals(
-			listOf(30 to 31),
+			listOf(30 to 31, 31 to 32),
 			migrations.map { migration -> migration.startVersion to migration.endVersion }
 		)
 
-		migrations.forEach { migration ->
+		val executedSqlByMigration = migrations.associate { migration ->
 			val connection = CapturingSQLiteConnection()
 
 			migration.migrate(connection)
-
-			assertEquals(
-				listOf(
-					"DELETE FROM pensum_selection",
-					"DELETE FROM pensum_cache",
-					"DELETE FROM subject_catalog_cache"
-				),
-				connection.executedSql
-			)
+			(migration.startVersion to migration.endVersion) to connection.executedSql
 		}
+		val migration30To31Sql = executedSqlByMigration[30 to 31].orEmpty()
+		val migration31To32Sql = executedSqlByMigration[31 to 32].orEmpty()
+
+		assertEquals(
+			listOf(
+				"DELETE FROM pensum_selection",
+				"DELETE FROM pensum_cache",
+				"DELETE FROM subject_catalog_cache"
+			),
+			migration30To31Sql
+		)
+		assertEquals(
+			listOf(
+				"DELETE FROM synthetic_term_load_preview_cache",
+				"ALTER TABLE synthetic_term_load_preview_cache ADD COLUMN basis TEXT",
+				"ALTER TABLE synthetic_term_load_preview_cache ADD COLUMN confidence TEXT",
+				"ALTER TABLE synthetic_term_load_preview_cache ADD COLUMN detail TEXT"
+			),
+			migration31To32Sql
+		)
 	}
 }
 

@@ -18,7 +18,9 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
+import com.gdavidpb.tuindice.record.presentation.mapper.toCreateTermSubjectItem
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
+import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.CreateTermSubjectCardAction
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -40,7 +42,7 @@ class CreateSyntheticTermScreenUiTest {
 								name = "Matemáticas I",
 								credits = 4
 							)
-						)
+						).toItems()
 					)
 				)
 			}
@@ -73,7 +75,8 @@ class CreateSyntheticTermScreenUiTest {
 
 		onNodeWithText("Agregar materias").assertIsDisplayed()
 		onNodeWithText("Sugeridas por tu pensum").assertIsDisplayed()
-		onNodeWithText("Matemáticas I").assertIsDisplayed()
+		onNodeWithText("MATEMÁTICAS I").assertIsDisplayed()
+		onAllNodesWithText("Matemáticas I").assertCountEquals(0)
 		onAllNodesWithTag(RecordUiTags.CreateSyntheticTermSearchField).assertCountEquals(0)
 
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchTab).performClick()
@@ -101,7 +104,7 @@ class CreateSyntheticTermScreenUiTest {
 							credits = 4,
 							availability = SyntheticTermSubjectAvailability.ALREADY_TAKEN
 						)
-					)
+					).toItems()
 				),
 				onQueryChange = { _, _, _ -> },
 				onClearQueryClick = {},
@@ -115,13 +118,15 @@ class CreateSyntheticTermScreenUiTest {
 
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchTab).performClick()
 
-		onNodeWithText("Matemáticas I").assertIsDisplayed()
-		onAllNodesWithText("Matemáticas II").assertCountEquals(0)
+		onNodeWithText("MATEMÁTICAS I").assertIsDisplayed()
+		onAllNodesWithText("Matemáticas I").assertCountEquals(0)
+		onAllNodesWithText("MATEMÁTICAS II").assertCountEquals(0)
 		onNodeWithText("Mostrar 1 ya cursadas").assertIsDisplayed()
 
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle).performClick()
 
-		onNodeWithText("Matemáticas II").assertIsDisplayed()
+		onNodeWithText("MATEMÁTICAS II").assertIsDisplayed()
+		onAllNodesWithText("Matemáticas II").assertCountEquals(0)
 		onNodeWithText("Ocultar 1 ya cursadas").assertIsDisplayed()
 	}
 
@@ -142,8 +147,8 @@ class CreateSyntheticTermScreenUiTest {
 						selectedSubject.copy(
 							availability = SyntheticTermSubjectAvailability.SELECTED
 						)
-					),
-					selectedSubjects = listOf(selectedSubject)
+					).toItems(),
+					selectedSubjects = listOf(selectedSubject).toItems()
 				),
 				onQueryChange = { _, _, _ -> },
 				onClearQueryClick = {},
@@ -157,7 +162,8 @@ class CreateSyntheticTermScreenUiTest {
 
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchTab).performClick()
 
-		onAllNodesWithText("Matemáticas I").assertCountEquals(1)
+		onAllNodesWithText("MATEMÁTICAS I").assertCountEquals(1)
+		onAllNodesWithText("Matemáticas I").assertCountEquals(0)
 	}
 
 	@Test
@@ -204,7 +210,7 @@ class CreateSyntheticTermScreenUiTest {
 							credits = 4,
 							availability = SyntheticTermSubjectAvailability.NOT_IN_PENSUM
 						)
-					)
+					).toItems()
 				),
 				onQueryChange = { _, _, _ -> },
 				onClearQueryClick = {},
@@ -306,7 +312,7 @@ class CreateSyntheticTermScreenUiTest {
 							credits = 4,
 							availability = SyntheticTermSubjectAvailability.NOT_IN_PENSUM
 						)
-					)
+					).toItems()
 				),
 				onQueryChange = { _, _, _ -> },
 				onClearQueryClick = {},
@@ -345,7 +351,7 @@ class CreateSyntheticTermScreenUiTest {
 							credits = 4,
 							availability = SyntheticTermSubjectAvailability.UNAVAILABLE
 						)
-					)
+					).toItems()
 				),
 				onQueryChange = { _, _, _ -> },
 				onClearQueryClick = {},
@@ -378,7 +384,7 @@ class CreateSyntheticTermScreenUiTest {
 								credits = 4,
 								availability = SyntheticTermSubjectAvailability.AVAILABLE
 							)
-						)
+						).toItems()
 					)
 				)
 			}
@@ -410,24 +416,24 @@ class CreateSyntheticTermScreenUiTest {
 		}
 
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchTab).performClick()
-		onNodeWithText("Matemáticas I").assertIsDisplayed()
+		onNodeWithText("MATEMÁTICAS I").assertIsDisplayed()
 
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermSuggestedTab).performClick()
-		onAllNodesWithText("Matemáticas I").assertCountEquals(0)
+		onAllNodesWithText("MATEMÁTICAS I").assertCountEquals(0)
 
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchTab).performClick()
-		onNodeWithText("Matemáticas I").assertIsDisplayed()
+		onNodeWithText("MATEMÁTICAS I").assertIsDisplayed()
 	}
 
 	@Test
 	fun when_searchQueryHasNoMatches_then_zeroResultsIsShown() = runTuIndiceUiTest {
-		setTuIndiceTestContent {
-			CreateSyntheticTermScreen(
-				state = CreateSyntheticTerm.State(
-					query = "zz",
-					selectedAddSubjectTab = CreateTermAddSubjectTab.Search,
-					searchResults = emptyList()
-				),
+			setTuIndiceTestContent {
+				CreateSyntheticTermScreen(
+					state = CreateSyntheticTerm.State(
+						query = "zz",
+						selectedAddSubjectTab = CreateTermAddSubjectTab.Search,
+						searchResults = emptyList()
+					),
 				onQueryChange = { _, _, _ -> },
 				onClearQueryClick = {},
 				onPeriodSelected = {},
@@ -458,7 +464,7 @@ class CreateSyntheticTermScreenUiTest {
 							name = "Matemáticas I",
 							credits = 4
 						)
-					),
+					).toItems(),
 					isSubmitting = true
 				),
 				onQueryChange = { _, _, _ -> },
@@ -511,4 +517,8 @@ class CreateSyntheticTermScreenUiTest {
 			status = availability.name.lowercase()
 		)
 	}
+}
+
+private fun List<SyntheticTermSubject>.toItems(): List<CreateTermSubjectItem> {
+	return map { subject -> subject.toCreateTermSubjectItem() }
 }

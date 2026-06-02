@@ -9,6 +9,8 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: pensum_screen
     timeout: 30000
+- waitForAnimationToEnd:
+    timeout: 5000
 - tapOn:
     id: base_top_app_bar_action_search_pensum
 - extendedWaitUntil:

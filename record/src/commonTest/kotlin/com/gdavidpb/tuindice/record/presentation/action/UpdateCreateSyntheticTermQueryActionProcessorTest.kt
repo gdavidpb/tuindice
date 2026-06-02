@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.record.presentation.action
 
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
+import com.gdavidpb.tuindice.record.presentation.mapper.toCreateTermSubjectItem
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -50,7 +51,7 @@ class UpdateCreateSyntheticTermQueryActionProcessorTest {
 
 		val state = mutation(
 			CreateSyntheticTerm.State(
-				searchResults = listOf(previousResult),
+				searchResults = listOf(previousResult.toCreateTermSubjectItem()),
 				isRefreshingSearch = true,
 				hasSearchError = true
 			)

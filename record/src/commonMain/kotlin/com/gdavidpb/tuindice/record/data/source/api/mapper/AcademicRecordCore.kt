@@ -11,6 +11,9 @@ import com.gdavidpb.tuindice.record.data.source.api.response.SyntheticTermLoadPr
 import com.gdavidpb.tuindice.record.data.source.api.response.UpdateSyntheticTermRequest
 import com.gdavidpb.tuindice.record.data.source.api.response.UpsertAttemptOverrideRequest
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadBand
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadBasis
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadConfidence
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadDetail
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview
 
 fun AcademicRecordResponse.toVersionedAcademicRecord(): VersionedAcademicRecord {
@@ -79,6 +82,9 @@ fun SyntheticTermLoadPreviewResponse.toSyntheticTermLoadPreview(): SyntheticTerm
 		weightedDifficulty = weightedDifficulty,
 		loadIndex = loadIndex,
 		baselineLoadIndex = baselineLoadIndex,
-		effectiveTerms = effectiveTerms
+		effectiveTerms = effectiveTerms,
+		basis = basis?.let(SyntheticTermLoadBasis::valueOf),
+		confidence = confidence?.let(SyntheticTermLoadConfidence::valueOf),
+		detail = detail?.let(SyntheticTermLoadDetail::valueOf)
 	)
 }
