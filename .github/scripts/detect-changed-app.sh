@@ -38,6 +38,7 @@ APP_VERSION_CHANGED=false
 APP_VERSION_NAME_CHANGED=false
 ANDROID_VERSION_CODE_CHANGED=false
 IOS_BUILD_NUMBER_CHANGED=false
+APP_RELEASE_BUILD_NUMBERS_CHANGED=false
 CI_CONFIG_TOUCHED=false
 IOS_CI_SCRIPTS_TOUCHED=false
 E2E_CONTRACT_TOUCHED=false
@@ -486,6 +487,9 @@ if [[ "$APP_VERSION_TOUCHED" == "true" ]]; then
 	if [[ "$base_ios_build" != "$head_ios_build" ]]; then
 		IOS_BUILD_NUMBER_CHANGED=true
 	fi
+	if [[ "$ANDROID_VERSION_CODE_CHANGED" == "true" && "$IOS_BUILD_NUMBER_CHANGED" == "true" ]]; then
+		APP_RELEASE_BUILD_NUMBERS_CHANGED=true
+	fi
 
 	if [[ "$APP_VERSION_NAME_CHANGED" == "true" || "$ANDROID_VERSION_CODE_CHANGED" == "true" || "$IOS_BUILD_NUMBER_CHANGED" == "true" ]]; then
 		APP_VERSION_CHANGED=true
@@ -500,8 +504,13 @@ if [[ "$APP_VERSION_NAME_CHANGED" == "true" || "$IOS_BUILD_NUMBER_CHANGED" == "t
 	append_runtime_module iosApp
 fi
 
-if [[ "$HAS_RELEASE_IMPACT" == "true" && "$APP_VERSION_CHANGED" != "true" ]]; then
-	append_unique_line "$MISSING_VERSION_BUMP_FILE" app
+if [[ "$HAS_RELEASE_IMPACT" == "true" || "$APP_VERSION_CHANGED" == "true" ]]; then
+	if [[ "$ANDROID_VERSION_CODE_CHANGED" != "true" ]]; then
+		append_unique_line "$MISSING_VERSION_BUMP_FILE" androidVersionCode
+	fi
+	if [[ "$IOS_BUILD_NUMBER_CHANGED" != "true" ]]; then
+		append_unique_line "$MISSING_VERSION_BUMP_FILE" iosBuildNumber
+	fi
 fi
 
 if [[ "$APP_VERSION_CHANGED" == "true" ]]; then
@@ -593,6 +602,7 @@ info "Impacted modules: $(file_to_csv "$IMPACTED_MODULES_FILE" || true)"
 info "Release impacted modules: $(file_to_csv "$RELEASE_IMPACTED_MODULES_FILE" || true)"
 info "App version touched: ${APP_VERSION_TOUCHED}"
 info "App version changed: ${APP_VERSION_CHANGED}"
+info "App release build numbers changed: ${APP_RELEASE_BUILD_NUMBERS_CHANGED}"
 info "Missing version bump: $(file_to_csv "$MISSING_VERSION_BUMP_FILE" || true)"
 info "CI/CD configuration touched: ${CI_CONFIG_TOUCHED}"
 info "iOS CI scripts touched: ${IOS_CI_SCRIPTS_TOUCHED}"
@@ -619,6 +629,7 @@ if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
 		printf 'ios_tasks_file=%s\n' "$IOS_TASKS_FILE"
 		printf 'app_version_touched=%s\n' "$APP_VERSION_TOUCHED"
 		printf 'app_version_changed=%s\n' "$APP_VERSION_CHANGED"
+		printf 'app_release_build_numbers_changed=%s\n' "$APP_RELEASE_BUILD_NUMBERS_CHANGED"
 		printf 'ci_config_touched=%s\n' "$CI_CONFIG_TOUCHED"
 		printf 'ios_ci_scripts_touched=%s\n' "$IOS_CI_SCRIPTS_TOUCHED"
 		printf 'e2e_contract_touched=%s\n' "$E2E_CONTRACT_TOUCHED"

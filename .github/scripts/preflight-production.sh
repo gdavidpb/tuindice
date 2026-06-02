@@ -313,7 +313,7 @@ fi
 bash "${SCRIPT_DIR}/validate-app-version.sh"
 
 if file_has_entries "$MISSING_VERSION_BUMP_FILE"; then
-	die "Runtime app changes were detected, but $(app_version_file) did not change. Bump versionName/androidVersionCode/iosBuildNumber before deploying."
+	die "Runtime app changes or app version changes require both androidVersionCode and iosBuildNumber to change. Bump the missing build number(s) in $(app_version_file) before deploying."
 fi
 
 if [[ "${SKIP_E2E_STATUS_CHECK:-0}" != "1" && "$REQUIRES_E2E_CERTIFICATION" == "true" ]]; then
