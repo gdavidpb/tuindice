@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
@@ -27,8 +28,8 @@ import tuindice.evaluations.generated.resources.evaluation_group_count_one
 fun EvaluationsView(
 	lazyListState: LazyListState,
 	weekGroups: List<EvaluationsWeekGroupItem>,
-	selectedWeekNumber: Int,
-	onVisibleWeekChange: (Int) -> Unit,
+	selectedWeekKey: EvaluationsWeekKey,
+	onVisibleWeekChange: (EvaluationsWeekKey) -> Unit,
 	onEvaluationClick: (evaluationId: String, evaluationName: String, subjectCode: String) -> Unit,
 	onEvaluationEdit: (evaluationId: String) -> Unit,
 	onEvaluationDelete: (evaluationId: String) -> Unit,
@@ -44,8 +45,8 @@ fun EvaluationsView(
 	}
 	val isProgrammaticWeekScroll = remember { mutableStateOf(false) }
 
-	LaunchedEffect(selectedWeekNumber, weekHeaderIndexes) {
-		val targetIndex = weekHeaderIndexes[selectedWeekNumber] ?: return@LaunchedEffect
+	LaunchedEffect(selectedWeekKey, weekHeaderIndexes) {
+		val targetIndex = weekHeaderIndexes[selectedWeekKey] ?: return@LaunchedEffect
 
 		if (!lazyListState.isScrollInProgress) {
 			isProgrammaticWeekScroll.value = true
@@ -57,18 +58,18 @@ fun EvaluationsView(
 		}
 	}
 
-	LaunchedEffect(lazyListState, weekHeaderIndexes, selectedWeekNumber) {
+	LaunchedEffect(lazyListState, weekHeaderIndexes, selectedWeekKey) {
 		snapshotFlow { lazyListState.firstVisibleItemIndex }
-			.map { index -> weekHeaderIndexes.visibleWeekNumber(index) }
+			.map { index -> weekHeaderIndexes.visibleWeekKey(index) }
 			.distinctUntilChanged()
-			.collect { weekNumber ->
+			.collect { weekKey ->
 				if (
-					weekNumber != null &&
-					weekNumber != selectedWeekNumber &&
+					weekKey != null &&
+					weekKey != selectedWeekKey &&
 					lazyListState.isScrollInProgress &&
 					!isProgrammaticWeekScroll.value
 				) {
-					onVisibleWeekChange(weekNumber)
+					onVisibleWeekChange(weekKey)
 				}
 			}
 	}
@@ -86,10 +87,10 @@ fun EvaluationsView(
 			}
 
 			stickyHeader(
-				key = "week_header:${weekGroup.weekNumber}"
+				key = "week_header:${weekGroup.key.tagSuffix}"
 			) {
 				EvaluationWeekHeaderView(
-					weekNumber = weekGroup.weekNumber,
+					weekKey = weekGroup.key,
 					label = weekGroup.title,
 					countText = evaluations.countText(
 						singleCountPattern = singleCountPattern,
@@ -139,15 +140,15 @@ fun EvaluationsView(
 	}
 }
 
-private fun List<EvaluationsWeekGroupItem>.weekHeaderIndexes(): Map<Int, Int> {
+private fun List<EvaluationsWeekGroupItem>.weekHeaderIndexes(): Map<EvaluationsWeekKey, Int> {
 	var index = 0
-	val indexes = mutableMapOf<Int, Int>()
+	val indexes = mutableMapOf<EvaluationsWeekKey, Int>()
 
 	forEach { weekGroup ->
 		val evaluationCount = weekGroup.evaluationItems().size
 
 		if (evaluationCount > 0) {
-			indexes[weekGroup.weekNumber] = index
+			indexes[weekGroup.key] = index
 			index += 1
 			index += evaluationCount
 		}
@@ -156,7 +157,7 @@ private fun List<EvaluationsWeekGroupItem>.weekHeaderIndexes(): Map<Int, Int> {
 	return indexes
 }
 
-private fun Map<Int, Int>.visibleWeekNumber(index: Int): Int? {
+private fun Map<EvaluationsWeekKey, Int>.visibleWeekKey(index: Int): EvaluationsWeekKey? {
 	return entries
 		.sortedBy { (_, itemIndex) -> itemIndex }
 		.lastOrNull { (_, itemIndex) -> itemIndex <= index }

@@ -1,11 +1,13 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 
 fun List<EvaluationsWeekItem>.toEvaluationsWeekGroupItemList(
 	evaluations: List<Evaluation>,
@@ -20,7 +22,7 @@ fun List<EvaluationsWeekItem>.toEvaluationsWeekGroupItemList(
 	)
 
 	return mapNotNull { weekItem ->
-		val groups = weeklyGroups[weekItem.weekNumber]
+		val groups = weeklyGroups[weekItem.key]
 			?.filter { group -> group.items.isNotEmpty() }
 			.orEmpty()
 
@@ -29,7 +31,7 @@ fun List<EvaluationsWeekItem>.toEvaluationsWeekGroupItemList(
 		}
 
 		EvaluationsWeekGroupItem(
-			weekNumber = weekItem.weekNumber,
+			key = weekItem.key,
 			title = weekItem.labelText,
 			groups = groups
 		)
@@ -40,12 +42,22 @@ private fun List<Evaluation>.toWeeklyEvaluationGroups(
 	currentTerm: EvaluationTermDescriptor?,
 	attempts: List<EditableAttemptDescriptor>,
 	mapping: EvaluationItemMapping
-): Map<Int, List<EvaluationsGroupItem>> {
-	return (MIN_ACADEMIC_WEEK..MAX_ACADEMIC_WEEK).associateWith { weekNumber ->
-		filter { evaluation -> evaluation.academicWeekNumber(currentTerm) == weekNumber }
+): Map<EvaluationsWeekKey, List<EvaluationsGroupItem>> {
+	val continuousGroups = filter { evaluation ->
+		evaluation.scheduleMode == EvaluationScheduleMode.CONTINUOUS
+	}.toEvaluationItemList(
+		mapping = mapping,
+		attempts = attempts
+	)
+	val weeklyGroups = (MIN_ACADEMIC_WEEK..MAX_ACADEMIC_WEEK).associate { weekNumber ->
+		EvaluationsWeekKey.Academic(weekNumber) to filter { evaluation ->
+			evaluation.academicWeekNumber(currentTerm) == weekNumber
+		}
 			.toEvaluationItemList(
 				mapping = mapping,
 				attempts = attempts
 			)
 	}
+
+	return mapOf(EvaluationsWeekKey.Continuous to continuousGroups) + weeklyGroups
 }

@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsGroupItemsFixture
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsWeekGroupItemsFixture
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -30,7 +31,7 @@ class EvaluationsViewUiTest {
 			EvaluationsView(
 				lazyListState = rememberLazyListState(),
 				weekGroups = evaluationsWeekGroupItemsFixture(groups),
-				selectedWeekNumber = 8,
+				selectedWeekKey = EvaluationsWeekKey.Academic(8),
 				onVisibleWeekChange = {},
 				onEvaluationClick = { evaluationId, evaluationName, subjectCode ->
 					clickedEvaluationId = evaluationId
@@ -74,7 +75,7 @@ class EvaluationsViewUiTest {
 			EvaluationsView(
 				lazyListState = rememberLazyListState(),
 				weekGroups = evaluationsWeekGroupItemsFixture(groups),
-				selectedWeekNumber = 8,
+				selectedWeekKey = EvaluationsWeekKey.Academic(8),
 				onVisibleWeekChange = {},
 				onEvaluationClick = { evaluationId, _, _ -> clickedEvaluationId = evaluationId },
 				onEvaluationEdit = {},
@@ -92,7 +93,7 @@ class EvaluationsViewUiTest {
 		val groups = evaluationsGroupItemsFixture()
 		val weekGroups = listOf(
 			EvaluationsWeekGroupItem(
-				weekNumber = 7,
+				key = EvaluationsWeekKey.Academic(7),
 				title = "Semana 7",
 				groups = emptyList()
 			),
@@ -103,7 +104,7 @@ class EvaluationsViewUiTest {
 			EvaluationsView(
 				lazyListState = rememberLazyListState(),
 				weekGroups = weekGroups,
-				selectedWeekNumber = 7,
+				selectedWeekKey = EvaluationsWeekKey.Academic(7),
 				onVisibleWeekChange = {},
 				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
@@ -114,5 +115,44 @@ class EvaluationsViewUiTest {
 		assertNodeHidden(EvaluationsUiTags.evaluationsWeekHeader(7))
 		assertNodeVisible(EvaluationsUiTags.evaluationsWeekHeader(8))
 		assertNodeVisible(EvaluationsUiTags.evaluationItemCard(groups.first().items.first().evaluationId))
+	}
+
+	@Test
+	fun when_continuousGroupExists_then_showsContinuousHeader() = runTuIndiceUiTest {
+		val groups = evaluationsGroupItemsFixture()
+		val weekGroupsFixture = groups.map { group ->
+			group.copy(
+				items = group.items.map { item ->
+					item.copy(evaluationId = "${item.evaluationId}-week")
+				}
+			)
+		}
+		val weekGroups = listOf(
+			EvaluationsWeekGroupItem(
+				key = EvaluationsWeekKey.Continuous,
+				title = "Continuas",
+				groups = groups
+			),
+			EvaluationsWeekGroupItem(
+				key = EvaluationsWeekKey.Academic(8),
+				title = "Semana 8",
+				groups = weekGroupsFixture
+			)
+		)
+
+		setTuIndiceTestContent {
+			EvaluationsView(
+				lazyListState = rememberLazyListState(),
+				weekGroups = weekGroups,
+				selectedWeekKey = EvaluationsWeekKey.Continuous,
+				onVisibleWeekChange = {},
+				onEvaluationClick = { _, _, _ -> },
+				onEvaluationEdit = {},
+				onEvaluationDelete = {}
+			)
+		}
+
+		assertNodeVisible(EvaluationsUiTags.evaluationsWeekHeader(EvaluationsWeekKey.Continuous))
+		assertNodeVisible(EvaluationsUiTags.evaluationHeader("Continuas"))
 	}
 }

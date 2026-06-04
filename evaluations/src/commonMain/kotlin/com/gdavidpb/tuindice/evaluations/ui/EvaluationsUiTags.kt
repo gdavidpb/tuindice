@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.ui
 
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
+
 object EvaluationsUiTags {
 	const val EvaluationsContentContainer = "evaluations_content_container"
 	const val EvaluationsWeekStrip = "evaluations_week_strip"
@@ -45,14 +47,23 @@ object EvaluationsUiTags {
 	fun evaluationHeader(label: String): String =
 		"evaluation_header_${label.toTagSuffix()}"
 
+	fun evaluationsWeekPage(key: EvaluationsWeekKey): String =
+		"evaluations_week_page_${key.tagSuffix}"
+
 	fun evaluationsWeekPage(weekNumber: Int): String =
-		"evaluations_week_page_$weekNumber"
+		evaluationsWeekPage(EvaluationsWeekKey.Academic(weekNumber))
+
+	fun evaluationsWeekChip(key: EvaluationsWeekKey): String =
+		"evaluations_week_chip_${key.tagSuffix}"
 
 	fun evaluationsWeekChip(weekNumber: Int): String =
-		"evaluations_week_chip_$weekNumber"
+		evaluationsWeekChip(EvaluationsWeekKey.Academic(weekNumber))
+
+	fun evaluationsWeekHeader(key: EvaluationsWeekKey): String =
+		"evaluations_week_header_${key.tagSuffix}"
 
 	fun evaluationsWeekHeader(weekNumber: Int): String =
-		"evaluations_week_header_$weekNumber"
+		evaluationsWeekHeader(EvaluationsWeekKey.Academic(weekNumber))
 
 	fun evaluationItemCard(evaluationId: String): String =
 		"evaluation_item_card_${evaluationId.toTagSuffix()}"

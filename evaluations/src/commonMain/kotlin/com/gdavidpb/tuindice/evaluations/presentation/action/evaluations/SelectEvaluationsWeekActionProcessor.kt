@@ -15,20 +15,17 @@ class SelectEvaluationsWeekActionProcessor :
 	): Flow<Mutation<Evaluations.State>> {
 		return flowOf { state ->
 			if (state is Evaluations.State.Content) {
-				val selectedWeekNumber = action.weekNumber.coerceIn(MIN_WEEK_NUMBER, MAX_WEEK_NUMBER)
-
-				state.copy(
-					selectedWeekNumber = selectedWeekNumber,
-					weekItem = state.weekItems.firstOrNull { item ->
-						item.weekNumber == selectedWeekNumber
-					} ?: state.weekItem
-				)
+				state.weekItems
+					.firstOrNull { item -> item.key == action.weekKey }
+					?.let { selectedWeekItem ->
+						state.copy(
+							selectedWeekKey = selectedWeekItem.key,
+							weekItem = selectedWeekItem
+						)
+					} ?: state
 			} else {
 				state
 			}
 		}
 	}
 }
-
-private const val MIN_WEEK_NUMBER = 1
-private const val MAX_WEEK_NUMBER = 12

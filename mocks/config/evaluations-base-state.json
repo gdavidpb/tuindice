@@ -108,7 +108,7 @@
       "schedule_mode": "continuous",
       "grade": 12.0,
       "max_grade": 15.0,
-      "date": 1781107200000,
+      "date": null,
       "is_done": true,
       "revision": 1
     },
@@ -192,7 +192,7 @@
       "schedule_mode": "continuous",
       "grade": 8.0,
       "max_grade": 10.0,
-      "date": 1779897600000,
+      "date": null,
       "is_done": true,
       "revision": 1
     },
@@ -220,7 +220,7 @@
       "schedule_mode": "continuous",
       "grade": 12.0,
       "max_grade": 15.0,
-      "date": 1781712000000,
+      "date": null,
       "is_done": true,
       "revision": 1
     },

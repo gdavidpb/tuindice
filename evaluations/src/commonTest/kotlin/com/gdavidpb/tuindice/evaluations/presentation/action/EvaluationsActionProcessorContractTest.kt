@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.action
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
@@ -8,6 +9,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadEval
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEvaluationsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
@@ -68,6 +70,52 @@ class EvaluationsActionProcessorContractTest {
 		}
 
 		assertTrue(effects.isEmpty())
+	}
+
+	@Test
+	fun loadEvaluationsActionProcessor_placesContinuousEvaluationsInContinuousGroup() = runTest {
+		val continuousEvaluation = DEFAULT_PENDING_EVALUATION.copy(
+			id = "continuous-evaluation",
+			scheduleMode = EvaluationScheduleMode.CONTINUOUS,
+			date = DEFAULT_PENDING_EVALUATION.date
+		)
+		val processor = LoadEvaluationsActionProcessor(
+			getEvaluationsUseCase = GetEvaluationsUseCase(
+				evaluationRepository = RecordingEvaluationRepository(
+					evaluationsFlow = flowOf(
+						listOf(
+							continuousEvaluation,
+							DEFAULT_PENDING_EVALUATION
+						)
+					),
+					initialEvaluations = listOf(
+						continuousEvaluation,
+						DEFAULT_PENDING_EVALUATION
+					)
+				),
+				recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+				reportingRepository = RecordingReportingRepository()
+			)
+		)
+
+		processor.process(
+			action = Evaluations.Action.LoadEvaluations,
+			sideEffect = {}
+		).test {
+			val content = assertIs<Evaluations.State.Content>(awaitItem()(Evaluations.State.Idle))
+			val continuousGroup = content.evaluationWeekGroups.first { group ->
+				group.key == EvaluationsWeekKey.Continuous
+			}
+
+			assertEquals("Continuas", continuousGroup.title)
+			assertEquals(
+				listOf(continuousEvaluation.id),
+				continuousGroup.groups
+					.flatMap { group -> group.items }
+					.map { item -> item.evaluationId }
+			)
+			awaitComplete()
+		}
 	}
 
 	@Test

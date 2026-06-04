@@ -127,7 +127,7 @@ EVALUATION_MOCK_PLANS = (
 		{"week": 7, "day_offset": 2, "type": 10, "schedule_mode": "dated", "grade": None, "max_grade": 10.0, "slug": "semana-7-pendiente"},
 		{"week": 8, "day_offset": 2, "type": 7, "schedule_mode": "dated", "grade": 8.0, "max_grade": 10.0, "slug": "semana-8-completada"},
 		{"week": 10, "day_offset": 4, "type": 9, "schedule_mode": "dated", "grade": None, "max_grade": 15.0, "id": LEGACY_VISIBLE_EVALUATION_ID},
-		{"week": 11, "day_offset": 2, "type": 11, "schedule_mode": "continuous", "grade": 12.0, "max_grade": 15.0, "slug": "semana-11-continua"},
+		{"type": 11, "schedule_mode": "continuous", "grade": 12.0, "max_grade": 15.0, "slug": "continua-informe"},
 	),
 	(
 		{"week": 2, "day_offset": 2, "type": 4, "schedule_mode": "dated", "grade": None, "max_grade": 10.0, "slug": "semana-2-pendiente"},
@@ -135,9 +135,9 @@ EVALUATION_MOCK_PLANS = (
 		{"week": 5, "day_offset": 2, "type": 8, "schedule_mode": "dated", "grade": None, "max_grade": 10.0, "slug": "semana-5-pendiente"},
 		{"week": 6, "day_offset": 2, "type": 5, "schedule_mode": "dated", "grade": 13.0, "max_grade": 15.0, "slug": "semana-6-completada"},
 		{"week": 8, "day_offset": 2, "type": 7, "schedule_mode": "dated", "grade": None, "max_grade": 10.0, "slug": "semana-8-pendiente"},
-		{"week": 9, "day_offset": 2, "type": 2, "schedule_mode": "continuous", "grade": 8.0, "max_grade": 10.0, "slug": "semana-9-continua"},
+		{"type": 2, "schedule_mode": "continuous", "grade": 8.0, "max_grade": 10.0, "slug": "continua-asistencia"},
 		{"week": 11, "day_offset": 2, "type": 11, "schedule_mode": "dated", "grade": None, "max_grade": 20.0, "slug": "semana-11-programada"},
-		{"week": 12, "day_offset": 2, "type": 12, "schedule_mode": "continuous", "grade": 12.0, "max_grade": 15.0, "slug": "semana-12-continua"},
+		{"type": 12, "schedule_mode": "continuous", "grade": 12.0, "max_grade": 15.0, "slug": "continua-otra"},
 	),
 	(
 		{"week": 1, "day_offset": 4, "type": 1, "schedule_mode": "dated", "grade": 9.0, "max_grade": 10.0, "slug": "semana-1-completada"},
@@ -472,7 +472,9 @@ def build_evaluations_state(record_state: dict[str, object]) -> dict[str, object
 					"schedule_mode": pattern["schedule_mode"],
 					"grade": grade,
 					"max_grade": pattern["max_grade"],
-					"date": build_week_evaluation_date(
+					"date": None
+					if pattern["schedule_mode"] == "continuous"
+					else build_week_evaluation_date(
 						current_term,
 						week=int(pattern["week"]),
 						day_offset=int(pattern["day_offset"]),

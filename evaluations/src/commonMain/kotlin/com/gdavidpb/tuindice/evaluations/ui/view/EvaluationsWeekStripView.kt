@@ -15,6 +15,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.view.PeekingSelectorView
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
@@ -22,15 +23,15 @@ import kotlinx.coroutines.flow.filter
 @Composable
 fun EvaluationsWeekStripView(
 	items: List<EvaluationsWeekItem>,
-	selectedWeekNumber: Int,
-	onWeekSelected: (Int) -> Unit,
+	selectedWeekKey: EvaluationsWeekKey,
+	onWeekSelected: (EvaluationsWeekKey) -> Unit,
 	modifier: Modifier = Modifier
 ) {
 	val weekItems = remember(items) {
-		items.sortedBy { item -> item.weekNumber }
+		items.sortedBy { item -> item.key.sortOrder }
 	}
-	val selectedWeekIndex = remember(weekItems, selectedWeekNumber) {
-		weekItems.indexOfFirst { item -> item.weekNumber == selectedWeekNumber }
+	val selectedWeekIndex = remember(weekItems, selectedWeekKey) {
+		weekItems.indexOfFirst { item -> item.key == selectedWeekKey }
 			.takeIf { index -> index >= 0 }
 			?: 0
 	}
@@ -38,10 +39,10 @@ fun EvaluationsWeekStripView(
 		initialPage = selectedWeekIndex,
 		pageCount = { weekItems.size }
 	)
-	val visibleSelectedWeekNumber = weekItems
+	val visibleSelectedWeekKey = weekItems
 		.getOrNull(pagerState.currentPage)
-		?.weekNumber
-		?: selectedWeekNumber
+		?.key
+		?: selectedWeekKey
 
 	LaunchedEffect(weekItems, selectedWeekIndex) {
 		if (pagerState.currentPage != selectedWeekIndex) {
@@ -49,15 +50,15 @@ fun EvaluationsWeekStripView(
 		}
 	}
 
-	LaunchedEffect(pagerState, weekItems, selectedWeekNumber) {
+	LaunchedEffect(pagerState, weekItems, selectedWeekKey) {
 		snapshotFlow { pagerState.isScrollInProgress to pagerState.currentPage }
 			.distinctUntilChanged()
 			.filter { (isScrollInProgress, _) -> !isScrollInProgress }
 			.collect { (_, page) ->
-				val weekNumber = weekItems.getOrNull(page)?.weekNumber ?: return@collect
+				val weekKey = weekItems.getOrNull(page)?.key ?: return@collect
 
-				if (weekNumber != selectedWeekNumber) {
-					onWeekSelected(weekNumber)
+				if (weekKey != selectedWeekKey) {
+					onWeekSelected(weekKey)
 				}
 			}
 	}
@@ -70,10 +71,10 @@ fun EvaluationsWeekStripView(
 	) {
 		PeekingSelectorView(
 			items = weekItems,
-			selectedItemKey = visibleSelectedWeekNumber,
-			itemKey = { item -> item.weekNumber },
-			itemTestTag = { item -> EvaluationsUiTags.evaluationsWeekChip(item.weekNumber) },
-			onItemSelected = { item -> onWeekSelected(item.weekNumber) },
+			selectedItemKey = visibleSelectedWeekKey,
+			itemKey = { item -> item.key },
+			itemTestTag = { item -> EvaluationsUiTags.evaluationsWeekChip(item.key) },
+			onItemSelected = { item -> onWeekSelected(item.key) },
 			contentType = WeekSelectorItemContentType
 		) { item, isSelected ->
 			EvaluationWeekSelectorItemView(
@@ -87,13 +88,13 @@ fun EvaluationsWeekStripView(
 				.fillMaxWidth()
 				.padding(top = 12.dp),
 			state = pagerState,
-			key = { page -> weekItems[page].weekNumber }
+			key = { page -> weekItems[page].key.tagSuffix }
 		) { page ->
 			val item = weekItems[page]
 
 			Row(
 				modifier = Modifier
-					.testTag(EvaluationsUiTags.evaluationsWeekPage(item.weekNumber))
+					.testTag(EvaluationsUiTags.evaluationsWeekPage(item.key))
 					.fillMaxWidth()
 					.padding(start = 24.dp, end = 24.dp)
 			) {

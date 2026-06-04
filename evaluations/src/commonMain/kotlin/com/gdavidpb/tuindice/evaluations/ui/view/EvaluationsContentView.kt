@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
@@ -32,7 +33,7 @@ import tuindice.evaluations.generated.resources.title_empty_match_evaluations
 fun EvaluationsContentView(
 	state: Evaluations.State.Content,
 	onAddEvaluationClick: () -> Unit,
-	onWeekClick: (Int) -> Unit = {},
+	onWeekClick: (EvaluationsWeekKey) -> Unit = {},
 	onEvaluationClick: (evaluationId: String, evaluationName: String, subjectCode: String) -> Unit,
 	onEvaluationEdit: (evaluationId: String) -> Unit,
 	onEvaluationDelete: (evaluationId: String) -> Unit,
@@ -58,7 +59,7 @@ fun EvaluationsContentView(
 		) {
 			EvaluationsWeekStripView(
 				items = state.weekItems,
-				selectedWeekNumber = state.selectedWeekNumber,
+				selectedWeekKey = state.selectedWeekKey,
 				onWeekSelected = onWeekClick,
 				modifier = Modifier.padding(top = 6.dp)
 			)
@@ -67,7 +68,7 @@ fun EvaluationsContentView(
 				EvaluationsView(
 					lazyListState = lazyColumState,
 					weekGroups = state.evaluationWeekGroups,
-					selectedWeekNumber = state.selectedWeekNumber,
+					selectedWeekKey = state.selectedWeekKey,
 					onVisibleWeekChange = onWeekClick,
 					onEvaluationClick = onEvaluationClick,
 					onEvaluationEdit = onEvaluationEdit,

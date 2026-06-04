@@ -15,6 +15,7 @@
 	<string name="button_add_evaluation">Crear</string>
 	<string name="button_save_evaluation_changes">Modificar</string>
 	<string name="evaluations_week_label">Semana %1$d</string>
+	<string name="evaluations_continuous_label">Continuas</string>
 	<string name="evaluation_group_count_one">%1$d evaluación</string>
 	<string name="evaluation_group_count_many">%1$d evaluaciones</string>
 

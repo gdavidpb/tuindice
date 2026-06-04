@@ -7,13 +7,14 @@ import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.buildEvaluationsWeekItems
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.defaultEvaluationsWeekNumber
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.defaultEvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationItemMapping
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationsWeekGroupItemList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 import org.jetbrains.compose.resources.getString
 import tuindice.evaluations.generated.resources.Res
+import tuindice.evaluations.generated.resources.evaluations_continuous_label
 import tuindice.evaluations.generated.resources.evaluations_week_label
 
 class LoadEvaluationsActionProcessor(
@@ -45,22 +46,29 @@ class LoadEvaluationsActionProcessor(
 							is GetEvaluations.Content -> {
 								val mapping = getEvaluationItemMapping()
 								val weekLabelPattern = getString(Res.string.evaluations_week_label)
+								val continuousLabel = getString(Res.string.evaluations_continuous_label)
 
 								when {
 									evaluations.evaluations.isNotEmpty() ->
 										{
-											val defaultWeekNumber = defaultEvaluationsWeekNumber(
-												currentTerm = evaluations.displayContext.currentTerm
+											val defaultWeekKey = defaultEvaluationsWeekKey(
+												currentTerm = evaluations.displayContext.currentTerm,
+												evaluations = evaluations.evaluations
 											)
-											val selectedWeekNumber = when (current) {
-												is Evaluations.State.Content -> current.selectedWeekNumber
-												else -> defaultWeekNumber
-											}.coerceIn(MIN_WEEK_NUMBER, MAX_WEEK_NUMBER)
 											val weekItems = buildEvaluationsWeekItems(
 												currentTerm = evaluations.displayContext.currentTerm,
 												evaluations = evaluations.evaluations,
-												weekLabelPattern = weekLabelPattern
+												weekLabelPattern = weekLabelPattern,
+												continuousLabel = continuousLabel
 											)
+											val selectedWeekKey = when (current) {
+												is Evaluations.State.Content -> current.selectedWeekKey
+												else -> defaultWeekKey
+											}.takeIf { key ->
+												weekItems.any { item -> item.key == key }
+											} ?: defaultWeekKey.takeIf { key ->
+												weekItems.any { item -> item.key == key }
+											} ?: weekItems.first().key
 											val evaluationWeekGroups = weekItems.toEvaluationsWeekGroupItemList(
 												evaluations = evaluations.evaluations,
 												currentTerm = evaluations.displayContext.currentTerm,
@@ -73,10 +81,10 @@ class LoadEvaluationsActionProcessor(
 
 											Evaluations.State.Content(
 												weekItem = weekItems.first { item ->
-													item.weekNumber == selectedWeekNumber
+													item.key == selectedWeekKey
 												},
 												weekItems = weekItems,
-												selectedWeekNumber = selectedWeekNumber,
+												selectedWeekKey = selectedWeekKey,
 												evaluationGroups = evaluationGroups,
 												evaluationWeekGroups = evaluationWeekGroups
 											)
@@ -110,6 +118,3 @@ class LoadEvaluationsActionProcessor(
 			}
 	}
 }
-
-private const val MIN_WEEK_NUMBER = 1
-private const val MAX_WEEK_NUMBER = 12

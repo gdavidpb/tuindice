@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.screen_title_evaluations
 
@@ -23,11 +24,11 @@ object Evaluations {
 		data class Content(
 			val weekItem: EvaluationsWeekItem,
 			val weekItems: List<EvaluationsWeekItem> = listOf(weekItem),
-			val selectedWeekNumber: Int = weekItem.weekNumber,
+			val selectedWeekKey: EvaluationsWeekKey = weekItem.key,
 			val evaluationGroups: List<EvaluationsGroupItem>,
 			val evaluationWeekGroups: List<EvaluationsWeekGroupItem> = listOf(
 				EvaluationsWeekGroupItem(
-					weekNumber = selectedWeekNumber,
+					key = selectedWeekKey,
 					title = weekItem.labelText,
 					groups = evaluationGroups
 				)
@@ -47,7 +48,7 @@ object Evaluations {
 		data object RefreshEvaluations : Action()
 
 		class SelectWeek(
-			val weekNumber: Int
+			val weekKey: EvaluationsWeekKey
 		) : Action()
 
 		data object AddEvaluation : Action()

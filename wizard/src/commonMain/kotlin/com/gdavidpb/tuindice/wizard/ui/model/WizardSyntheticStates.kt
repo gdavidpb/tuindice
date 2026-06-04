@@ -35,6 +35,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePicker
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumDisplayLayoutDefaults
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
@@ -423,7 +424,7 @@ private fun sampleEvaluationsWeekItems() = (1..12).map { weekNumber ->
 private fun sampleEvaluationsWeekItem(
 	weekNumber: Int = 4
 ) = EvaluationsWeekItem(
-	weekNumber = weekNumber,
+	key = EvaluationsWeekKey.Academic(weekNumber),
 	labelText = "Semana $weekNumber",
 	days = sampleEvaluationsWeekDays(weekNumber = weekNumber)
 )
@@ -464,7 +465,7 @@ private const val MOCK_MONTH_DAYS = 31
 private fun sampleEvaluationsWeekGroupItem(
 	groups: List<EvaluationsGroupItem>
 ) = EvaluationsWeekGroupItem(
-	weekNumber = 4,
+	key = EvaluationsWeekKey.Academic(4),
 	title = "Semana 4",
 	groups = groups
 )

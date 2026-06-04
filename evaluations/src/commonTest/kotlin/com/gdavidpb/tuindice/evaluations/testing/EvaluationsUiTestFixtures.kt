@@ -22,6 +22,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationWeekDayIte
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 
 private const val PENDING_DATE = 1_900_000_000_000L
 private const val COMPLETED_DATE = 1_700_000_000_000L
@@ -132,14 +133,14 @@ fun evaluationsWeekGroupItemsFixture(
 	groups: List<EvaluationsGroupItem> = evaluationsGroupItemsFixture()
 ): List<EvaluationsWeekGroupItem> = listOf(
 	EvaluationsWeekGroupItem(
-		weekNumber = 8,
+		key = EvaluationsWeekKey.Academic(8),
 		title = "Semana 8",
 		groups = groups
 	)
 )
 
 fun evaluationsWeekItemFixture(): EvaluationsWeekItem = EvaluationsWeekItem(
-	weekNumber = 8,
+	key = EvaluationsWeekKey.Academic(8),
 	labelText = "Semana 8",
 	days = listOf(
 		EvaluationWeekDayItem("LUN", "19", isSelected = false, hasEvaluations = false),

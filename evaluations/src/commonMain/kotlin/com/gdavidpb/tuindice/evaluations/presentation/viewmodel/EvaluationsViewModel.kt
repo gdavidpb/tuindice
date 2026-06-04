@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RemoveE
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SelectEvaluationsWeekActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SetEvaluationGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import kotlinx.coroutines.flow.Flow
 
 class EvaluationsViewModel(
@@ -34,8 +35,8 @@ class EvaluationsViewModel(
 	fun refreshEvaluationsAction() =
 		sendAction(Evaluations.Action.RefreshEvaluations)
 
-	fun selectWeekAction(weekNumber: Int) =
-		sendAction(Evaluations.Action.SelectWeek(weekNumber))
+	fun selectWeekAction(weekKey: EvaluationsWeekKey) =
+		sendAction(Evaluations.Action.SelectWeek(weekKey))
 
 	fun addEvaluationAction() =
 		sendAction(Evaluations.Action.AddEvaluation)
