@@ -142,7 +142,6 @@ fun WizardStepContent(
 				onEvaluationDelete = {},
 				onFilterCheckedChange = { _: EvaluationFilter, _: Boolean -> },
 				onClearFiltersClick = {},
-				onTabClick = {},
 				onRetryClick = {},
 				scrollEnabled = false,
 				openActionsEvaluationId = focusedEvaluationId,

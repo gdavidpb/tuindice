@@ -264,7 +264,7 @@ class WizardScreenUiTest {
 	}
 
 	@Test
-	fun when_evaluationsStepIsRendered_then_showsStateSubjectAndDateFilters() = runTuIndiceUiTest {
+	fun when_evaluationsStepIsRendered_then_showsWeeklyAgenda() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			WizardScreen(
 				state = Wizard.State.Content().goTo(WizardStepId.Evaluations),
@@ -282,11 +282,10 @@ class WizardScreenUiTest {
 
 		onNodeWithText("Evaluaciones").assertExists()
 		onNodeWithText("Paso 8 de 11").assertExists()
-		onNodeWithTag(EvaluationsUiTags.filterChip("Pendientes")).assertExists()
-		onNodeWithTag(EvaluationsUiTags.filterChip("CI2611")).assertExists()
-		onNodeWithTag(EvaluationsUiTags.filterChip("Mañana")).assertExists()
+		assertNodeVisible(EvaluationsUiTags.EvaluationsWeekStrip)
+		onNodeWithTag(EvaluationsUiTags.evaluationsWeekChip(4)).assertExists()
 		onNodeWithText(
-			"Puedes filtrar por estado, materia y fecha",
+			"Desliza entre semanas",
 			substring = true
 		).assertExists()
 		assertNodeVisible(WizardUiTags.FocusOverlay)

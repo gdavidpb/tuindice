@@ -38,7 +38,6 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationWeekDayItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsTab
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
@@ -391,7 +390,7 @@ private fun sampleEvaluationFilters() = listOf(
 )
 
 internal fun sampleEvaluationsState(): Evaluations.State.Content {
-		val upcomingGroups = listOf(
+	val upcomingGroups = listOf(
 			EvaluationsGroupItem(
 				title = "Jueves 23 de Abril",
 				items = listOf(
@@ -408,8 +407,8 @@ internal fun sampleEvaluationsState(): Evaluations.State.Content {
 					),
 					sampleEvaluationItem(
 						id = "evaluation_2",
-					name = "Taller 1",
-					subjectCode = "EC5344",
+						name = "Taller 1",
+						subjectCode = "EC5344",
 						typeText = "Taller",
 						dateText = "Jueves - 30/04/26",
 						gradesText = "Sin nota / 40.00",
@@ -420,13 +419,13 @@ internal fun sampleEvaluationsState(): Evaluations.State.Content {
 				)
 			)
 	)
-		val historyGroups = listOf(
+	val historyGroups = listOf(
 			EvaluationsGroupItem(
 				title = "Miércoles 8 de Abril",
 				items = listOf(
 					sampleEvaluationItem(
 						id = "evaluation_3",
-					name = "Laboratorio 1",
+						name = "Laboratorio 1",
 						subjectCode = "CI2611",
 						typeText = "Laboratorio",
 						dateText = "Miércoles - 08/04/26",
@@ -437,36 +436,64 @@ internal fun sampleEvaluationsState(): Evaluations.State.Content {
 						maxGrade = 25.0
 					)
 				)
-			)
+		)
 	)
+	val evaluationGroups = upcomingGroups + historyGroups
 
 	return Evaluations.State.Content(
-		selectedTab = EvaluationsTab.Upcoming,
-		upcomingGroups = upcomingGroups,
-		historyGroups = historyGroups,
 		weekItem = sampleEvaluationsWeekItem(),
-		upcomingWeekGroups = listOf(sampleEvaluationsWeekGroupItem(upcomingGroups)),
-		historyWeekGroups = listOf(sampleEvaluationsWeekGroupItem(historyGroups)),
-		evaluationWeekGroups = listOf(sampleEvaluationsWeekGroupItem(upcomingGroups)),
+		weekItems = sampleEvaluationsWeekItems(),
+		evaluationGroups = evaluationGroups,
+		evaluationWeekGroups = listOf(sampleEvaluationsWeekGroupItem(evaluationGroups)),
 		filterGroups = sampleEvaluationFilters().toEvaluationFilterGroupItemList(activeFilters = emptyList()),
-		evaluationGroups = upcomingGroups,
 		activeFilters = emptyList()
 	)
 }
 
-	private fun sampleEvaluationsWeekItem() = EvaluationsWeekItem(
-		weekNumber = 4,
-		labelText = "Semana 4",
-	days = listOf(
-		EvaluationWeekDayItem(weekdayText = "LUN", dayText = "20", isSelected = false, hasEvaluations = false),
-		EvaluationWeekDayItem(weekdayText = "MAR", dayText = "21", isSelected = false, hasEvaluations = false),
-		EvaluationWeekDayItem(weekdayText = "MIE", dayText = "22", isSelected = false, hasEvaluations = false),
-		EvaluationWeekDayItem(weekdayText = "JUE", dayText = "23", isSelected = true, hasEvaluations = true),
-		EvaluationWeekDayItem(weekdayText = "VIE", dayText = "24", isSelected = false, hasEvaluations = false),
-		EvaluationWeekDayItem(weekdayText = "SAB", dayText = "25", isSelected = false, hasEvaluations = false),
-		EvaluationWeekDayItem(weekdayText = "DOM", dayText = "26", isSelected = false, hasEvaluations = false)
-	)
+private fun sampleEvaluationsWeekItems() = (1..12).map { weekNumber ->
+	sampleEvaluationsWeekItem(weekNumber = weekNumber)
+}
+
+private fun sampleEvaluationsWeekItem(
+	weekNumber: Int = 4
+) = EvaluationsWeekItem(
+	weekNumber = weekNumber,
+	labelText = "Semana $weekNumber",
+	days = sampleEvaluationsWeekDays(weekNumber = weekNumber)
 )
+
+private fun sampleEvaluationsWeekDays(
+	weekNumber: Int
+): List<EvaluationWeekDayItem> {
+	val weekdayTexts = listOf("LUN", "MAR", "MIE", "JUE", "VIE", "SAB", "DOM")
+	val startDay = 20 + ((weekNumber - 4) * 7)
+
+	return weekdayTexts.mapIndexed { offset, weekdayText ->
+		val isToday = weekNumber == 4 && offset == 3
+		val hasEvaluations = weekNumber == 4 && offset in setOf(2, 3)
+
+		EvaluationWeekDayItem(
+			weekdayText = weekdayText,
+			dayText = normalizedMonthDay(startDay + offset).toString(),
+			isSelected = isToday,
+			hasEvaluations = hasEvaluations
+		)
+	}
+}
+
+private fun normalizedMonthDay(day: Int): Int {
+	val normalized = (day - 1).floorMod(MOCK_MONTH_DAYS)
+
+	return normalized + 1
+}
+
+private fun Int.floorMod(other: Int): Int {
+	val remainder = this % other
+
+	return if (remainder < 0) remainder + other else remainder
+}
+
+private const val MOCK_MONTH_DAYS = 31
 
 private fun sampleEvaluationsWeekGroupItem(
 	groups: List<EvaluationsGroupItem>

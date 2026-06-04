@@ -24,7 +24,6 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenEva
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.PickEvaluationGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RefreshEvaluationsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RemoveEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SelectEvaluationsTabActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SelectEvaluationsWeekActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SetEvaluationGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.UncheckEvaluationFilterActionProcessor
@@ -212,18 +211,6 @@ class EvaluationsRouteUiTest {
 				viewModel = viewModel
 			)
 		}
-
-		waitUntil(timeoutMillis = 2_000) {
-			onAllNodesWithTag(
-				testTag = EvaluationsUiTags.EvaluationsHistoryTab,
-				useUnmergedTree = true
-			).fetchSemanticsNodes().isNotEmpty()
-		}
-
-		onNodeWithTag(
-			testTag = EvaluationsUiTags.EvaluationsHistoryTab,
-			useUnmergedTree = true
-		).performClick()
 
 		val completedEvaluationTag = EvaluationsUiTags.evaluationItemCard(DEFAULT_COMPLETED_EVALUATION.id)
 
@@ -413,7 +400,6 @@ class EvaluationsRouteUiTest {
 			checkEvaluationFilterActionProcessor = CheckEvaluationFilterActionProcessor(),
 			uncheckEvaluationFilterActionProcessor = UncheckEvaluationFilterActionProcessor(),
 			clearEvaluationFiltersActionProcessor = ClearEvaluationFiltersActionProcessor(),
-			selectEvaluationsTabActionProcessor = SelectEvaluationsTabActionProcessor(),
 			selectEvaluationsWeekActionProcessor = SelectEvaluationsWeekActionProcessor(),
 			openAddEvaluationActionProcessor = OpenAddEvaluationActionProcessor(),
 			pickEvaluationGradeActionProcessor = PickEvaluationGradeActionProcessor(

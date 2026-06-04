@@ -10,8 +10,6 @@ appId: com.gdavidpb.tuindice.debug
       id: evaluations_content_container
     timeout: 30000
 - assertVisible:
-    id: evaluations_tab_row
-- assertVisible:
     id: evaluations_week_strip
 - assertVisible:
     id: evaluations_week_label

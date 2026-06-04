@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
+import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationCourseFilter
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.GetEvaluationParams
@@ -16,18 +17,25 @@ import kotlin.test.assertTrue
 class EvaluationsUseCaseContractTest {
 	@Test
 	fun getEvaluationsUseCase_emitsSortedAndFilteredEvaluations() = runTest {
-		val filter = EvaluationCourseFilter(DEFAULT_EVALUATION_SUBJECT.code)
+		val currentTime = currentTimeMillis()
+		val futureEvaluation = DEFAULT_PENDING_EVALUATION.copy(
+			date = currentTime + ONE_DAY_MILLIS
+		)
+		val pastEvaluation = DEFAULT_COMPLETED_EVALUATION.copy(
+			date = currentTime - ONE_DAY_MILLIS
+		)
+		val filter = EvaluationCourseFilter(futureEvaluation.subjectCode)
 		val useCase = GetEvaluationsUseCase(
 			evaluationRepository = RecordingEvaluationRepository(
 				evaluationsFlow = flowOf(
 					listOf(
-						DEFAULT_PENDING_EVALUATION,
-						DEFAULT_COMPLETED_EVALUATION
+						futureEvaluation,
+						pastEvaluation
 					)
 				),
 				initialEvaluations = listOf(
-					DEFAULT_PENDING_EVALUATION,
-					DEFAULT_COMPLETED_EVALUATION
+					futureEvaluation,
+					pastEvaluation
 				)
 			),
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
@@ -37,10 +45,10 @@ class EvaluationsUseCaseContractTest {
 		useCase.execute(flowOf(listOf(filter))).test {
 			val result = awaitLoadingThenData(this) as GetEvaluations.Content
 			assertEquals(
-				listOf(DEFAULT_PENDING_EVALUATION, DEFAULT_COMPLETED_EVALUATION),
+				listOf(pastEvaluation, futureEvaluation),
 				result.originalEvaluations
 			)
-			assertEquals(listOf(DEFAULT_PENDING_EVALUATION), result.filteredEvaluations)
+			assertEquals(listOf(futureEvaluation), result.filteredEvaluations)
 			assertEquals(listOf(filter), result.activeFilters)
 			awaitComplete()
 		}
@@ -124,3 +132,5 @@ class EvaluationsUseCaseContractTest {
 		}
 	}
 }
+
+private const val ONE_DAY_MILLIS = 86_400_000L

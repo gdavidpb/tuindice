@@ -24,7 +24,6 @@ class EvaluationsScreenUiTest {
 				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
 				onEvaluationDelete = {},
-				onTabClick = {},
 				onFilterCheckedChange = { _, _ -> },
 				onClearFiltersClick = {},
 				onRetryClick = {}
@@ -43,7 +42,6 @@ class EvaluationsScreenUiTest {
 				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
 				onEvaluationDelete = {},
-				onTabClick = {},
 				onFilterCheckedChange = { _, _ -> },
 				onClearFiltersClick = {},
 				onRetryClick = {}
@@ -64,7 +62,6 @@ class EvaluationsScreenUiTest {
 				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
 				onEvaluationDelete = {},
-				onTabClick = {},
 				onFilterCheckedChange = { _, _ -> },
 				onClearFiltersClick = {},
 				onRetryClick = { retryClicks++ }
@@ -87,7 +84,6 @@ class EvaluationsScreenUiTest {
 				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
 				onEvaluationDelete = {},
-				onTabClick = {},
 				onFilterCheckedChange = { _, _ -> },
 				onClearFiltersClick = {},
 				onRetryClick = {}
@@ -108,7 +104,6 @@ class EvaluationsScreenUiTest {
 				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
 				onEvaluationDelete = {},
-				onTabClick = {},
 				onFilterCheckedChange = { _, _ -> },
 				onClearFiltersClick = {},
 				onRetryClick = {}

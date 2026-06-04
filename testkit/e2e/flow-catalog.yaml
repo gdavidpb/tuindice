@@ -1122,7 +1122,6 @@ flows:
       - evaluations.Evaluations.AddEvaluation
     primary_selectors:
       - evaluations_content_container
-      - evaluations_tab_row
       - evaluations_week_strip
       - evaluations_week_label
       - evaluations_list
@@ -1135,10 +1134,9 @@ flows:
     type: interaction
     platforms: [android, ios]
     status: active
-    variant: tabs-and-form-inputs
+    variant: weekly-agenda-and-form-inputs
     fixture_state: evaluations-content
     actions_covered:
-      - evaluations.Evaluations.SelectTab
       - evaluations.Evaluation.SetAttempt
       - evaluations.Evaluation.SetType
       - evaluations.Evaluation.SetDate
@@ -1147,9 +1145,6 @@ flows:
       - evaluations.Evaluation.ClickGrade
       - evaluations.Evaluation.ClickMaxGrade
     primary_selectors:
-      - evaluations_tab_row
-      - evaluations_tab_history
-      - evaluations_tab_upcoming
       - evaluations_week_strip
       - evaluation_status_chip
       - evaluation_subject_chip_e21f0d7e481d13d19f328d6818ce4d77
@@ -1170,7 +1165,6 @@ flows:
     fixture_state: evaluations-suite
     actions_covered:
       - evaluations.Evaluations.AddEvaluation
-      - evaluations.Evaluations.SelectTab
       - evaluations.Evaluations.ShowEvaluationGradeDialog
       - evaluations.Evaluations.SetEvaluationGrade
       - evaluations.Evaluations.EditEvaluation
@@ -1186,7 +1180,6 @@ flows:
       - evaluations.Evaluation.ClickEditEvaluation
     primary_selectors:
       - evaluations_content_container
-      - evaluations_tab_row
       - evaluations_week_strip
       - evaluation_grade_action_button
       - evaluation_done_fab

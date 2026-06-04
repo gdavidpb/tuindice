@@ -147,9 +147,6 @@ subjects_search_result_RX
 subjects_search_result_QA
 subjects_search_result_QB
 evaluations_content_container
-evaluations_tab_row
-evaluations_tab_upcoming
-evaluations_tab_history
 evaluations_week_strip
 evaluations_week_label
 evaluations_list

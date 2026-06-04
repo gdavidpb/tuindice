@@ -23,7 +23,6 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightT
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationWeekDayItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsTab
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 
@@ -83,8 +82,7 @@ fun evaluationContentState(
 
 fun evaluationsContentState(
 	originalEvaluations: List<Evaluation> = uiDomainEvaluations(),
-	activeFilters: List<EvaluationFilter> = emptyList(),
-	selectedTab: EvaluationsTab = EvaluationsTab.Upcoming
+	activeFilters: List<EvaluationFilter> = emptyList()
 ): Evaluations.State.Content {
 	val filteredEvaluations = if (activeFilters.isEmpty()) {
 		originalEvaluations
@@ -93,33 +91,12 @@ fun evaluationsContentState(
 			activeFilters.all { filter -> filter.match(evaluation) }
 		}
 	}
-
-	val upcomingGroups = filteredEvaluations
-		.filter { evaluation ->
-			evaluation.state == EvaluationState.PENDING || evaluation.state == EvaluationState.OVERDUE
-		}
-		.toFixtureEvaluationGroups()
-	val historyGroups = filteredEvaluations
-		.filter { evaluation ->
-			evaluation.state == EvaluationState.COMPLETED || evaluation.state == EvaluationState.CONTINUOUS
-		}
-		.toFixtureEvaluationGroups()
+	val evaluationGroups = filteredEvaluations.toFixtureEvaluationGroups()
 
 	return Evaluations.State.Content(
-		selectedTab = selectedTab,
-		upcomingGroups = upcomingGroups,
-		historyGroups = historyGroups,
 		weekItem = evaluationsWeekItemFixture(),
-		upcomingWeekGroups = evaluationsWeekGroupItemsFixture(upcomingGroups),
-		historyWeekGroups = evaluationsWeekGroupItemsFixture(historyGroups),
-		evaluationWeekGroups = when (selectedTab) {
-			EvaluationsTab.Upcoming -> evaluationsWeekGroupItemsFixture(upcomingGroups)
-			EvaluationsTab.History -> evaluationsWeekGroupItemsFixture(historyGroups)
-		},
-		evaluationGroups = when (selectedTab) {
-			EvaluationsTab.Upcoming -> upcomingGroups
-			EvaluationsTab.History -> historyGroups
-		},
+		evaluationGroups = evaluationGroups,
+		evaluationWeekGroups = evaluationsWeekGroupItemsFixture(evaluationGroups),
 		filterGroups = uiAvailableFilters().toEvaluationFilterGroupItemList(
 			activeFilters = activeFilters
 		),

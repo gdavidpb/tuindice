@@ -1,24 +1,22 @@
 package com.gdavidpb.tuindice.evaluations.presentation.action.evaluations
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
-import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
+import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.EvaluationItemMapping
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.academicWeekNumber
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.buildEvaluationsWeekItems
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.defaultEvaluationsWeekNumber
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationItemMapping
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationDateTextMapping
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationItemMapping
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationFilterGroupItemList
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationItemList
-import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.EvaluationItemMapping
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsTab
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
@@ -76,10 +74,6 @@ class LoadEvaluationsActionProcessor(
 								when {
 									evaluations.originalEvaluations.isNotEmpty() ->
 										{
-											val selectedTab = when (current) {
-												is Evaluations.State.Content -> current.selectedTab
-												else -> EvaluationsTab.Upcoming
-											}
 											val defaultWeekNumber = defaultEvaluationsWeekNumber(
 												currentTerm = evaluations.displayContext.currentTerm
 											)
@@ -92,58 +86,27 @@ class LoadEvaluationsActionProcessor(
 												evaluations = evaluations.filteredEvaluations,
 												weekLabelPattern = weekLabelPattern
 											)
-											val weeklyUpcomingGroups = evaluations.filteredEvaluations
+											val weeklyEvaluationGroups = evaluations.filteredEvaluations
 												.toWeeklyEvaluationGroups(
 													currentTerm = evaluations.displayContext.currentTerm,
 													attempts = evaluations.displayContext.attempts,
 													mapping = mapping
-												) { evaluation ->
-													evaluation.state == EvaluationState.PENDING ||
-														evaluation.state == EvaluationState.OVERDUE
-												}
-											val weeklyHistoryGroups = evaluations.filteredEvaluations
-												.toWeeklyEvaluationGroups(
-													currentTerm = evaluations.displayContext.currentTerm,
-													attempts = evaluations.displayContext.attempts,
-													mapping = mapping
-												) { evaluation ->
-													evaluation.state == EvaluationState.COMPLETED ||
-														evaluation.state == EvaluationState.CONTINUOUS
-												}
-											val upcomingWeekGroups = weekItems.toEvaluationsWeekGroupItems(
-												weeklyGroups = weeklyUpcomingGroups
+												)
+											val evaluationWeekGroups = weekItems.toEvaluationsWeekGroupItems(
+												weeklyGroups = weeklyEvaluationGroups
 											)
-											val historyWeekGroups = weekItems.toEvaluationsWeekGroupItems(
-												weeklyGroups = weeklyHistoryGroups
-											)
-											val upcomingGroups = upcomingWeekGroups.flatMap { weekGroup ->
-												weekGroup.groups
-											}
-											val historyGroups = historyWeekGroups.flatMap { weekGroup ->
+											val evaluationGroups = evaluationWeekGroups.flatMap { weekGroup ->
 												weekGroup.groups
 											}
 
 											Evaluations.State.Content(
-												selectedTab = selectedTab,
-												upcomingGroups = upcomingGroups,
-												historyGroups = historyGroups,
 												weekItem = weekItems.first { item ->
 													item.weekNumber == selectedWeekNumber
 												},
 												weekItems = weekItems,
 												selectedWeekNumber = selectedWeekNumber,
-												weeklyUpcomingGroups = weeklyUpcomingGroups,
-												weeklyHistoryGroups = weeklyHistoryGroups,
-												upcomingWeekGroups = upcomingWeekGroups,
-												historyWeekGroups = historyWeekGroups,
-												evaluationWeekGroups = when (selectedTab) {
-													EvaluationsTab.Upcoming -> upcomingWeekGroups
-													EvaluationsTab.History -> historyWeekGroups
-												},
-												evaluationGroups = when (selectedTab) {
-													EvaluationsTab.Upcoming -> upcomingGroups
-													EvaluationsTab.History -> historyGroups
-												},
+												evaluationGroups = evaluationGroups,
+												evaluationWeekGroups = evaluationWeekGroups,
 												filterGroups = availableFilters.toEvaluationFilterGroupItemList(
 													activeFilters = evaluations.activeFilters
 												),
@@ -203,12 +166,10 @@ private fun List<EvaluationsWeekItem>.toEvaluationsWeekGroupItems(
 private fun List<Evaluation>.toWeeklyEvaluationGroups(
 	currentTerm: EvaluationTermDescriptor?,
 	attempts: List<EditableAttemptDescriptor>,
-	mapping: EvaluationItemMapping,
-	predicate: (Evaluation) -> Boolean
+	mapping: EvaluationItemMapping
 ): Map<Int, List<EvaluationsGroupItem>> {
 	return (MIN_WEEK_NUMBER..MAX_WEEK_NUMBER).associateWith { weekNumber ->
-		filter(predicate)
-			.filter { evaluation -> evaluation.academicWeekNumber(currentTerm) == weekNumber }
+		filter { evaluation -> evaluation.academicWeekNumber(currentTerm) == weekNumber }
 			.toEvaluationItemList(
 				mapping = mapping,
 				attempts = attempts

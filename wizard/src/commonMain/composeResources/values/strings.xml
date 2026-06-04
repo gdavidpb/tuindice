@@ -44,16 +44,16 @@
 	<string name="wizard_subject_retry">Reintentar</string>
 	<string name="wizard_subject_close">Cerrar</string>
 	<string name="wizard_evaluations_title">Evaluaciones</string>
-	<string name="wizard_evaluations_message">En **Evaluaciones** organizas lo **pendiente**, lo **completado** y lo que aún no tiene **nota** del **trimestre actual**, si existe. Puedes filtrar por **estado**, **materia** y **fecha** para encontrar rápido lo importante.</string>
+	<string name="wizard_evaluations_message">En **Evaluaciones** organizas parciales, tareas y entregas del **trimestre actual** por **semana**. Desliza entre semanas o toca una semana cercana para ver solo sus evaluaciones.</string>
 	<string name="wizard_evaluation_swipe_title">Editar o eliminar evaluaciones</string>
 	<string name="wizard_evaluation_swipe_message">Toca **Sin nota** o la **nota** para establecer la calificación. Toca la **tarjeta** o haz **swipe hacia la izquierda** para abrir las acciones y desde ahí **editar** o **eliminar** la evaluación.</string>
 	<string name="wizard_evaluation_form_title">Nueva evaluación</string>
-	<string name="wizard_evaluation_form_message">Al crear una **evaluación** eliges la **materia**, el **tipo**, la **fecha** y la **nota máxima** para mantener tu calendario académico al día.</string>
+	<string name="wizard_evaluation_form_message">Al crear una **evaluación** eliges la **materia**, el **tipo**, la **fecha** y el **peso** para mantener tu calendario académico al día.</string>
 	<string name="wizard_about_title">Ayuda e información</string>
 	<string name="wizard_about_message">En **Acerca de** encuentras **soporte**, **privacidad**, **términos** e **información** de la app cuando necesites ayuda o quieras revisar detalles.</string>
 
 	<string name="wizard_focus_record">Índices del trimestre</string>
 	<string name="wizard_focus_record_actions">Botones superiores</string>
-	<string name="wizard_focus_evaluations">Filtros y evaluaciones</string>
+	<string name="wizard_focus_evaluations">Agenda semanal</string>
 	<string name="wizard_focus_evaluation_swipe">Sin nota</string>
 </resources>

@@ -7,7 +7,6 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationFilterGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsTab
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import kotlinx.coroutines.flow.Flow
@@ -25,33 +24,17 @@ object Evaluations {
 		data object Loading : State()
 
 		data class Content(
-			val selectedTab: EvaluationsTab,
-			val upcomingGroups: List<EvaluationsGroupItem>,
-			val historyGroups: List<EvaluationsGroupItem>,
 			val weekItem: EvaluationsWeekItem,
 			val weekItems: List<EvaluationsWeekItem> = listOf(weekItem),
 			val selectedWeekNumber: Int = weekItem.weekNumber,
-			val weeklyUpcomingGroups: Map<Int, List<EvaluationsGroupItem>> = mapOf(selectedWeekNumber to upcomingGroups),
-			val weeklyHistoryGroups: Map<Int, List<EvaluationsGroupItem>> = mapOf(selectedWeekNumber to historyGroups),
-			val upcomingWeekGroups: List<EvaluationsWeekGroupItem> = listOf(
-				EvaluationsWeekGroupItem(
-					weekNumber = selectedWeekNumber,
-					title = weekItem.labelText,
-					groups = upcomingGroups
-				)
-			),
-			val historyWeekGroups: List<EvaluationsWeekGroupItem> = listOf(
-				EvaluationsWeekGroupItem(
-					weekNumber = selectedWeekNumber,
-					title = weekItem.labelText,
-					groups = historyGroups
-				)
-			),
-			val evaluationWeekGroups: List<EvaluationsWeekGroupItem> = when (selectedTab) {
-				EvaluationsTab.Upcoming -> upcomingWeekGroups
-				EvaluationsTab.History -> historyWeekGroups
-			},
 			val evaluationGroups: List<EvaluationsGroupItem>,
+			val evaluationWeekGroups: List<EvaluationsWeekGroupItem> = listOf(
+				EvaluationsWeekGroupItem(
+					weekNumber = selectedWeekNumber,
+					title = weekItem.labelText,
+					groups = evaluationGroups
+				)
+			),
 			val filterGroups: List<EvaluationFilterGroupItem>,
 			val activeFilters: List<EvaluationFilter>
 		) : State() {
@@ -82,10 +65,6 @@ object Evaluations {
 		) : Action()
 
 		data object ClearEvaluationFilters : Action()
-
-		class SelectTab(
-			val tab: EvaluationsTab
-		) : Action()
 
 		class SelectWeek(
 			val weekNumber: Int

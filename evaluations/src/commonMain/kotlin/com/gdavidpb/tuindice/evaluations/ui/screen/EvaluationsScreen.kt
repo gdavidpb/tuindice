@@ -12,7 +12,6 @@ import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsTab
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsContentView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsEmptyView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsFailedView
@@ -38,7 +37,6 @@ fun EvaluationsScreen(
 	onEvaluationDelete: (evaluationId: String) -> Unit,
 	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
 	onClearFiltersClick: () -> Unit,
-	onTabClick: (EvaluationsTab) -> Unit,
 	onWeekClick: (Int) -> Unit = {},
 	onRetryClick: () -> Unit,
 	scrollEnabled: Boolean = true,
@@ -66,7 +64,6 @@ fun EvaluationsScreen(
 						onAddEvaluationClick = onAddEvaluationClick,
 						onClearFiltersClick = onClearFiltersClick,
 						onFilterCheckedChange = onFilterCheckedChange,
-						onTabClick = onTabClick,
 						onWeekClick = onWeekClick,
 						onEvaluationClick = onEvaluationClick,
 						onEvaluationEdit = onEvaluationEdit,

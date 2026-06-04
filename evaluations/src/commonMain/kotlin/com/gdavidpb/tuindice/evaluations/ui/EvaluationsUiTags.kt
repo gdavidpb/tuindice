@@ -4,9 +4,6 @@ object EvaluationsUiTags {
 	const val EvaluationsContentContainer = "evaluations_content_container"
 	const val EvaluationsFiltersContainer = "evaluations_filters_container"
 	const val EvaluationsFilterRow = "evaluations_filter_row"
-	const val EvaluationsTabRow = "evaluations_tab_row"
-	const val EvaluationsUpcomingTab = "evaluations_tab_upcoming"
-	const val EvaluationsHistoryTab = "evaluations_tab_history"
 	const val EvaluationsWeekStrip = "evaluations_week_strip"
 	const val EvaluationsWeekLabel = "evaluations_week_label"
 	const val EvaluationsList = "evaluations_list"
@@ -59,6 +56,9 @@ object EvaluationsUiTags {
 
 	fun evaluationsWeekPage(weekNumber: Int): String =
 		"evaluations_week_page_$weekNumber"
+
+	fun evaluationsWeekChip(weekNumber: Int): String =
+		"evaluations_week_chip_$weekNumber"
 
 	fun evaluationsWeekHeader(weekNumber: Int): String =
 		"evaluations_week_header_$weekNumber"

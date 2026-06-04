@@ -46,7 +46,6 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenEva
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.PickEvaluationGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RefreshEvaluationsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RemoveEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SelectEvaluationsTabActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SelectEvaluationsWeekActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SetEvaluationGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.UncheckEvaluationFilterActionProcessor
@@ -92,7 +91,6 @@ val evaluationsModule = module {
 	factoryOf(::CheckEvaluationFilterActionProcessor)
 	factoryOf(::UncheckEvaluationFilterActionProcessor)
 	factoryOf(::ClearEvaluationFiltersActionProcessor)
-	factoryOf(::SelectEvaluationsTabActionProcessor)
 	factoryOf(::SelectEvaluationsWeekActionProcessor)
 	factoryOf(::OpenAddEvaluationActionProcessor)
 	factoryOf(::PickEvaluationGradeActionProcessor)

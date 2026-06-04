@@ -13,12 +13,10 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenEva
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.PickEvaluationGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RefreshEvaluationsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RemoveEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SelectEvaluationsTabActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SelectEvaluationsWeekActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SetEvaluationGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.UncheckEvaluationFilterActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsTab
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -32,7 +30,6 @@ class EvaluationsViewModel(
 	private val checkEvaluationFilterActionProcessor: CheckEvaluationFilterActionProcessor,
 	private val uncheckEvaluationFilterActionProcessor: UncheckEvaluationFilterActionProcessor,
 	private val clearEvaluationFiltersActionProcessor: ClearEvaluationFiltersActionProcessor,
-	private val selectEvaluationsTabActionProcessor: SelectEvaluationsTabActionProcessor,
 	private val selectEvaluationsWeekActionProcessor: SelectEvaluationsWeekActionProcessor,
 	private val openAddEvaluationActionProcessor: OpenAddEvaluationActionProcessor,
 	private val pickEvaluationGradeActionProcessor: PickEvaluationGradeActionProcessor,
@@ -68,9 +65,6 @@ class EvaluationsViewModel(
 
 	fun clearFiltersAction() =
 		sendAction(Evaluations.Action.ClearEvaluationFilters)
-
-	fun selectTabAction(tab: EvaluationsTab) =
-		sendAction(Evaluations.Action.SelectTab(tab))
 
 	fun selectWeekAction(weekNumber: Int) =
 		sendAction(Evaluations.Action.SelectWeek(weekNumber))
@@ -109,9 +103,6 @@ class EvaluationsViewModel(
 
 			is Evaluations.Action.ClearEvaluationFilters ->
 				clearEvaluationFiltersActionProcessor.process(action, sideEffect)
-
-			is Evaluations.Action.SelectTab ->
-				selectEvaluationsTabActionProcessor.process(action, sideEffect)
 
 			is Evaluations.Action.SelectWeek ->
 				selectEvaluationsWeekActionProcessor.process(action, sideEffect)

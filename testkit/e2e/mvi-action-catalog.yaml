@@ -241,12 +241,6 @@ actions:
   - id: evaluations.Evaluations.ClearEvaluationFilters
     classification: internal
     reason: legacy filter state retained in contract but no visible clear-filters control is rendered
-  - id: evaluations.Evaluations.SelectTab
-    classification: user
-    variants: [upcoming, history]
-    selector: evaluations_tab_row
-    flow: e2e/maestro/flows/evaluations/evaluations-filters-and-form.yaml
-    fixture_state: evaluations-content
   - id: evaluations.Evaluations.SelectWeek
     classification: user
     variants: [horizontal-week-swipe]

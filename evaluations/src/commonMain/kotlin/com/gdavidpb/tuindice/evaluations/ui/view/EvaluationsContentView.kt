@@ -23,7 +23,6 @@ import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsTab
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
@@ -36,7 +35,6 @@ fun EvaluationsContentView(
 	onAddEvaluationClick: () -> Unit,
 	onClearFiltersClick: () -> Unit,
 	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
-	onTabClick: (EvaluationsTab) -> Unit,
 	onWeekClick: (Int) -> Unit = {},
 	onEvaluationClick: (evaluationId: String, evaluationName: String, subjectCode: String) -> Unit,
 	onEvaluationEdit: (evaluationId: String) -> Unit,
@@ -61,16 +59,11 @@ fun EvaluationsContentView(
 				.fillMaxSize()
 				.padding(top = InternalScreenDefaults.TopBarSpacing)
 		) {
-			EvaluationsTabsView(
-				selectedTab = state.selectedTab,
-				onTabClick = onTabClick
-			)
-
 			EvaluationsWeekStripView(
 				items = state.weekItems,
 				selectedWeekNumber = state.selectedWeekNumber,
 				onWeekSelected = onWeekClick,
-				modifier = Modifier.padding(top = 10.dp)
+				modifier = Modifier.padding(top = 6.dp)
 			)
 
 			if (hasEvaluationItems) {

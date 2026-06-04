@@ -9,7 +9,6 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEva
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsTab
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
@@ -52,14 +51,16 @@ class EvaluationsActionProcessorContractTest {
 			sideEffect = effects::add
 		).test {
 			val content = assertIs<Evaluations.State.Content>(awaitItem()(Evaluations.State.Idle))
-			assertEquals(EvaluationsTab.Upcoming, content.selectedTab)
-			assertEquals(1, content.evaluationGroups.flatMap { group -> group.items }.size)
-			assertEquals(1, content.upcomingGroups.flatMap { group -> group.items }.size)
-			assertEquals(1, content.historyGroups.flatMap { group -> group.items }.size)
-			assertEquals(1, content.upcomingWeekGroups.size)
-			assertEquals(1, content.historyWeekGroups.size)
+			assertEquals(2, content.evaluationGroups.flatMap { group -> group.items }.size)
+			assertEquals(
+				2,
+				content.evaluationWeekGroups
+					.flatMap { weekGroup -> weekGroup.groups }
+					.flatMap { group -> group.items }
+					.size
+			)
 			assertTrue(
-				content.upcomingWeekGroups.all { weekGroup ->
+				content.evaluationWeekGroups.all { weekGroup ->
 					weekGroup.groups.any { group -> group.items.isNotEmpty() }
 				}
 			)
