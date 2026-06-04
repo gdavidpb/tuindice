@@ -20,10 +20,11 @@ import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 @Composable
 fun EvaluationHeaderView(
 	label: String,
-	countText: String
+	countText: String,
+	modifier: Modifier = Modifier
 ) {
 	Row(
-		modifier = Modifier
+		modifier = modifier
 			.background(MaterialTheme.colorScheme.background)
 			.fillMaxWidth()
 			.padding(

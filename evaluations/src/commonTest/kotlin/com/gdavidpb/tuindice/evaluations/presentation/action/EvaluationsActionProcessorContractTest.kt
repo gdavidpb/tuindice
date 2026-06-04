@@ -56,6 +56,13 @@ class EvaluationsActionProcessorContractTest {
 			assertEquals(1, content.evaluationGroups.flatMap { group -> group.items }.size)
 			assertEquals(1, content.upcomingGroups.flatMap { group -> group.items }.size)
 			assertEquals(1, content.historyGroups.flatMap { group -> group.items }.size)
+			assertEquals(1, content.upcomingWeekGroups.size)
+			assertEquals(1, content.historyWeekGroups.size)
+			assertTrue(
+				content.upcomingWeekGroups.all { weekGroup ->
+					weekGroup.groups.any { group -> group.items.isNotEmpty() }
+				}
+			)
 			assertTrue(
 				content.filterGroups
 					.flatMap { group -> group.items }

@@ -183,11 +183,19 @@ class LoadEvaluationsActionProcessor(
 private fun List<EvaluationsWeekItem>.toEvaluationsWeekGroupItems(
 	weeklyGroups: Map<Int, List<EvaluationsGroupItem>>
 ): List<EvaluationsWeekGroupItem> {
-	return map { weekItem ->
+	return mapNotNull { weekItem ->
+		val groups = weeklyGroups[weekItem.weekNumber]
+			?.filter { group -> group.items.isNotEmpty() }
+			.orEmpty()
+
+		if (groups.isEmpty()) {
+			return@mapNotNull null
+		}
+
 		EvaluationsWeekGroupItem(
 			weekNumber = weekItem.weekNumber,
 			title = weekItem.labelText,
-			groups = weeklyGroups[weekItem.weekNumber] ?: emptyList()
+			groups = groups
 		)
 	}
 }

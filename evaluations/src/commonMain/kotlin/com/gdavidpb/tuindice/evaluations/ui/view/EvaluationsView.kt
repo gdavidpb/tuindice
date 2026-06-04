@@ -13,6 +13,7 @@ import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.Modifier
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -78,66 +79,60 @@ fun EvaluationsView(
 		userScrollEnabled = scrollEnabled
 	) {
 		weekGroups.forEach { weekGroup ->
+			val evaluations = weekGroup.evaluationItems()
+
+			if (evaluations.isEmpty()) {
+				return@forEach
+			}
+
 			stickyHeader(
 				key = "week_header:${weekGroup.weekNumber}"
 			) {
 				EvaluationWeekHeaderView(
 					weekNumber = weekGroup.weekNumber,
-					label = weekGroup.title
+					label = weekGroup.title,
+					countText = evaluations.countText(
+						singleCountPattern = singleCountPattern,
+						manyCountPattern = manyCountPattern
+					)
 				)
 			}
 
-			weekGroup.groups.forEach { group ->
-				item(
-					key = "date_header:${weekGroup.weekNumber}:${group.title}",
-					contentType = EvaluationHeaderContentType
-				) {
-					EvaluationHeaderView(
-						label = group.title,
-						countText = if (group.items.size == 1) {
-							singleCountPattern.replace("%1${'$'}d", group.items.size.toString())
-						} else {
-							manyCountPattern.replace("%1${'$'}d", group.items.size.toString())
-						}
-					)
+			items(
+				items = evaluations,
+				key = { evaluation -> evaluation.evaluationId },
+				contentType = { EvaluationItemContentType }
+			) { evaluation ->
+				val itemModifier = if (evaluation.evaluationId == focusEvaluationId) {
+					Modifier.onGloballyPositioned { coordinates ->
+						onFocusEvaluationBoundsChange(coordinates.boundsInRoot())
+					}
+				} else {
+					Modifier
 				}
 
-				items(
-					items = group.items,
-					key = { evaluation -> evaluation.evaluationId },
-					contentType = { EvaluationItemContentType }
-				) { evaluation ->
-					val itemModifier = if (evaluation.evaluationId == focusEvaluationId) {
-						Modifier.onGloballyPositioned { coordinates ->
-							onFocusEvaluationBoundsChange(coordinates.boundsInRoot())
-						}
-					} else {
-						Modifier
-					}
-
-					EvaluationSwipeToDismiss(
-						modifier = itemModifier.animateItem(
-							fadeInSpec = null,
-							fadeOutSpec = null
-						),
-						initiallyOpen = evaluation.evaluationId == openActionsEvaluationId,
-						onEdit = { onEvaluationEdit(evaluation.evaluationId) },
-						onDelete = { onEvaluationDelete(evaluation.evaluationId) }
-					) { onActionsClick ->
-						EvaluationItemView(
-							item = evaluation,
-							onGradeClick = {
-								if (evaluation.isClickable) {
-									onEvaluationClick(
-										evaluation.evaluationId,
-										evaluation.nameText,
-										evaluation.subjectCodeText
-									)
-								}
-							},
-							onCardClick = onActionsClick
-						)
-					}
+				EvaluationSwipeToDismiss(
+					modifier = itemModifier.animateItem(
+						fadeInSpec = null,
+						fadeOutSpec = null
+					),
+					initiallyOpen = evaluation.evaluationId == openActionsEvaluationId,
+					onEdit = { onEvaluationEdit(evaluation.evaluationId) },
+					onDelete = { onEvaluationDelete(evaluation.evaluationId) }
+				) { onActionsClick ->
+					EvaluationItemView(
+						item = evaluation,
+						onGradeClick = {
+							if (evaluation.isClickable) {
+								onEvaluationClick(
+									evaluation.evaluationId,
+									evaluation.nameText,
+									evaluation.subjectCodeText
+								)
+							}
+						},
+						onCardClick = onActionsClick
+					)
 				}
 			}
 		}
@@ -146,18 +141,19 @@ fun EvaluationsView(
 
 private fun List<EvaluationsWeekGroupItem>.weekHeaderIndexes(): Map<Int, Int> {
 	var index = 0
+	val indexes = mutableMapOf<Int, Int>()
 
-	return associate { weekGroup ->
-		val weekHeaderIndex = index
-		index += 1
+	forEach { weekGroup ->
+		val evaluationCount = weekGroup.evaluationItems().size
 
-		weekGroup.groups.forEach { group ->
+		if (evaluationCount > 0) {
+			indexes[weekGroup.weekNumber] = index
 			index += 1
-			index += group.items.size
+			index += evaluationCount
 		}
-
-		weekGroup.weekNumber to weekHeaderIndex
 	}
+
+	return indexes
 }
 
 private fun Map<Int, Int>.visibleWeekNumber(index: Int): Int? {
@@ -167,5 +163,16 @@ private fun Map<Int, Int>.visibleWeekNumber(index: Int): Int? {
 		?.key
 }
 
-private const val EvaluationHeaderContentType = "evaluation_header"
+private fun EvaluationsWeekGroupItem.evaluationItems(): List<EvaluationItem> =
+	groups.flatMap { group -> group.items }
+
+private fun List<EvaluationItem>.countText(
+	singleCountPattern: String,
+	manyCountPattern: String
+): String {
+	val pattern = if (size == 1) singleCountPattern else manyCountPattern
+
+	return pattern.replace("%1${'$'}d", size.toString())
+}
+
 private const val EvaluationItemContentType = "evaluation_item"
