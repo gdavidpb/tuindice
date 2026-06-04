@@ -12,16 +12,14 @@ class PickGradeActionProcessor
 		action: Evaluation.Action.ClickGrade,
 		sideEffect: (Evaluation.Effect) -> Unit
 	): Flow<Mutation<Evaluation.State>> {
-		if (action.maxGrade != null && action.maxGrade > 0.0) {
-			sideEffect(
-				Evaluation.Effect.NavigateToGradePickerDialog(
-					evaluationName = action.evaluationName,
-					subjectCode = action.subjectCode,
-					grade = action.grade,
-					maxGrade = action.maxGrade
-				)
+		sideEffect(
+			Evaluation.Effect.NavigateToGradePickerDialog(
+				evaluationName = action.evaluationName,
+				subjectCode = action.subjectCode,
+				grade = action.grade,
+				maxGrade = action.maxGrade
 			)
-		}
+		)
 
 		return super.process(action, sideEffect)
 	}

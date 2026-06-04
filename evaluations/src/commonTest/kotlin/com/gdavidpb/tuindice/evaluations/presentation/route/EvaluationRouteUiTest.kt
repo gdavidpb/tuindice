@@ -326,7 +326,13 @@ class EvaluationRouteUiTest {
 
 	@Test
 	fun when_gradeChipTappedFromUiForOverdueEvaluation_then_navigatesToGradeDialogWithCurrentValues() = runTuIndiceUiTest {
-		val viewModel = createViewModel()
+		val overdueEvaluation = DEFAULT_COMPLETED_EVALUATION.copy(date = 1_779_336_000_000L)
+		val viewModel = createViewModel(
+			repository = RecordingEvaluationRepository(
+				initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION, overdueEvaluation),
+				availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT)
+			)
+		)
 		var requestedEvaluationName = ""
 		var requestedSubjectCode = ""
 		var requestedGrade: Double? = null
@@ -334,7 +340,7 @@ class EvaluationRouteUiTest {
 
 			setTuIndiceTestContent {
 				EvaluationRoute(
-					evaluationId = DEFAULT_COMPLETED_EVALUATION.id,
+					evaluationId = overdueEvaluation.id,
 					onNavigateToEvaluations = {},
 					onNavigateToGradePickerDialog = { evaluationName, subjectCode, grade, maxGrade ->
 						requestedEvaluationName = evaluationName
@@ -361,8 +367,8 @@ class EvaluationRouteUiTest {
 
 			assertEquals("Parcial 1", requestedEvaluationName)
 			assertEquals(SECOND_EVALUATION_SUBJECT.code, requestedSubjectCode)
-			assertEquals(DEFAULT_COMPLETED_EVALUATION.grade, requestedGrade)
-		assertEquals(DEFAULT_COMPLETED_EVALUATION.maxGrade, requestedMaxGrade)
+			assertEquals(overdueEvaluation.grade, requestedGrade)
+		assertEquals(overdueEvaluation.maxGrade, requestedMaxGrade)
 	}
 
 	@Test
@@ -401,11 +407,11 @@ class EvaluationRouteUiTest {
 		assertTrue(snackBars.first().message.isNotBlank())
 	}
 
-	private fun createViewModel(): EvaluationViewModel {
-		val repository = RecordingEvaluationRepository(
+	private fun createViewModel(
+		repository: RecordingEvaluationRepository = RecordingEvaluationRepository(
 			availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT)
 		)
-
+	): EvaluationViewModel {
 		return EvaluationViewModel(
 			loadAvailableAttemptsActionProcessor = LoadAvailableAttemptsActionProcessor(
 				getAvailableAttemptsUseCase = GetAvailableAttemptsUseCase(

@@ -4,10 +4,16 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
+import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
+import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
@@ -54,5 +60,36 @@ class EvaluationItemMappingUiTest {
 		assertTrue(pendingGrades.contains("20"))
 		assertTrue(overdueGrades.contains("20"))
 		assertTrue(overdueGrades != pendingGrades)
+	}
+
+	@Test
+	fun toEvaluationItemList_mapsRequiredSubjectNameGradeAndStatus() = runTest {
+		val evaluation = DEFAULT_PENDING_EVALUATION.copy(
+			grade = 32.0,
+			maxGrade = 35.0,
+			state = EvaluationState.COMPLETED
+		)
+		val item = listOf(evaluation).toEvaluationItemList(
+			mapping = getEvaluationItemMapping(),
+			attempts = listOf(DEFAULT_EVALUATION_SUBJECT)
+		).single().items.single()
+
+		assertEquals(DEFAULT_EVALUATION_SUBJECT.name, item.subjectNameText)
+		assertEquals("32 / 35", item.gradeText)
+		assertEquals("Completada", item.statusText)
+		assertTrue(item.showsGradeAction)
+		assertTrue(item.isClickable)
+	}
+
+	@Test
+	fun toEvaluationItemList_failsWhenLocalAttemptIsMissing() = runTest {
+		val error = assertFailsWith<IllegalStateException> {
+			listOf(DEFAULT_PENDING_EVALUATION).toEvaluationItemList(
+				mapping = getEvaluationItemMapping(),
+				attempts = emptyList()
+			)
+		}
+
+		assertTrue(error.message.orEmpty().contains(DEFAULT_PENDING_EVALUATION.attemptId))
 	}
 }

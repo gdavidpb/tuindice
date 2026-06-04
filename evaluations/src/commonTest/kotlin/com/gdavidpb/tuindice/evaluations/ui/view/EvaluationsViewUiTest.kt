@@ -5,6 +5,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsGroupItemsFixture
+import com.gdavidpb.tuindice.evaluations.testing.evaluationsWeekGroupItemsFixture
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -24,7 +25,9 @@ class EvaluationsViewUiTest {
 		setTuIndiceTestContent {
 			EvaluationsView(
 				lazyListState = rememberLazyListState(),
-				evaluations = groups,
+				weekGroups = evaluationsWeekGroupItemsFixture(groups),
+				selectedWeekNumber = 8,
+				onVisibleWeekChange = {},
 					onEvaluationClick = { evaluationId, evaluationName, subjectCode ->
 						clickedEvaluationId = evaluationId
 						clickedEvaluationName = evaluationName
@@ -38,6 +41,7 @@ class EvaluationsViewUiTest {
 		val item = groups.first().items.first()
 
 		assertNodeVisible(EvaluationsUiTags.EvaluationsList)
+		assertNodeVisible(EvaluationsUiTags.evaluationsWeekHeader(8))
 		assertNodeVisible(EvaluationsUiTags.evaluationItemCard(item.evaluationId))
 		assertNodeVisible(EvaluationsUiTags.evaluationHeader(groups.first().title))
 
@@ -63,7 +67,9 @@ class EvaluationsViewUiTest {
 		setTuIndiceTestContent {
 			EvaluationsView(
 				lazyListState = rememberLazyListState(),
-				evaluations = groups,
+				weekGroups = evaluationsWeekGroupItemsFixture(groups),
+				selectedWeekNumber = 8,
+				onVisibleWeekChange = {},
 				onEvaluationClick = { evaluationId, _, _ -> clickedEvaluationId = evaluationId },
 				onEvaluationEdit = {},
 				onEvaluationDelete = {}

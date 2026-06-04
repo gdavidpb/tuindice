@@ -21,7 +21,11 @@ import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationTypePic
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationGradeSectionItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationWeekDayItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsTab
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 
 private const val PENDING_DATE = 1_900_000_000_000L
 private const val COMPLETED_DATE = 1_700_000_000_000L
@@ -79,7 +83,8 @@ fun evaluationContentState(
 
 fun evaluationsContentState(
 	originalEvaluations: List<Evaluation> = uiDomainEvaluations(),
-	activeFilters: List<EvaluationFilter> = emptyList()
+	activeFilters: List<EvaluationFilter> = emptyList(),
+	selectedTab: EvaluationsTab = EvaluationsTab.Upcoming
 ): Evaluations.State.Content {
 	val filteredEvaluations = if (activeFilters.isEmpty()) {
 		originalEvaluations
@@ -89,8 +94,32 @@ fun evaluationsContentState(
 		}
 	}
 
+	val upcomingGroups = filteredEvaluations
+		.filter { evaluation ->
+			evaluation.state == EvaluationState.PENDING || evaluation.state == EvaluationState.OVERDUE
+		}
+		.toFixtureEvaluationGroups()
+	val historyGroups = filteredEvaluations
+		.filter { evaluation ->
+			evaluation.state == EvaluationState.COMPLETED || evaluation.state == EvaluationState.CONTINUOUS
+		}
+		.toFixtureEvaluationGroups()
+
 	return Evaluations.State.Content(
-		evaluationGroups = filteredEvaluations.toFixtureEvaluationGroups(),
+		selectedTab = selectedTab,
+		upcomingGroups = upcomingGroups,
+		historyGroups = historyGroups,
+		weekItem = evaluationsWeekItemFixture(),
+		upcomingWeekGroups = evaluationsWeekGroupItemsFixture(upcomingGroups),
+		historyWeekGroups = evaluationsWeekGroupItemsFixture(historyGroups),
+		evaluationWeekGroups = when (selectedTab) {
+			EvaluationsTab.Upcoming -> evaluationsWeekGroupItemsFixture(upcomingGroups)
+			EvaluationsTab.History -> evaluationsWeekGroupItemsFixture(historyGroups)
+		},
+		evaluationGroups = when (selectedTab) {
+			EvaluationsTab.Upcoming -> upcomingGroups
+			EvaluationsTab.History -> historyGroups
+		},
 		filterGroups = uiAvailableFilters().toEvaluationFilterGroupItemList(
 			activeFilters = activeFilters
 		),
@@ -108,9 +137,10 @@ fun evaluationItemFixture(
 
 	return EvaluationItem(
 		evaluationId = evaluationId,
-		grade = if (isOverdue) null else 17.5,
-		maxGrade = 20.0,
+		grade = if (isOverdue) null else 10.0,
+		maxGrade = 35.0,
 		nameText = "Quiz #1",
+		subjectNameText = DEFAULT_EVALUATION_SUBJECT.name,
 		subjectCodeText = DEFAULT_EVALUATION_SUBJECT.code,
 		subjectCodeColor = subjectColors.color,
 		subjectCodeContainerColor = subjectColors.containerColor,
@@ -119,12 +149,16 @@ fun evaluationItemFixture(
 		} else {
 			EvaluationHighlightTone.Neutral
 		},
+		statusText = if (isOverdue) "Pendiente" else "Programada",
+		statusTone = if (isOverdue) EvaluationHighlightTone.Error else EvaluationHighlightTone.Neutral,
 		typeText = "Quiz",
+		typeNameText = "Quiz #1",
 		typeIcon = EvaluationType.QUIZ.asIcon(),
 		dateText = if (isOverdue) "Vencida" else "Manana",
 		dateIcon = Icons.Outlined.Event,
-		gradesText = if (isOverdue) "Sin nota / 20,00" else "17,50 / 20,00",
-		gradeActionText = if (isOverdue) "Sin nota" else "17,50",
+		gradeText = if (isOverdue) "-- / 35" else "10 / 35",
+		gradesText = if (isOverdue) "Sin nota / 35,00" else "10,00 / 35,00",
+		gradeActionText = if (isOverdue) "-- / 35" else "10 / 35",
 		showsGradeAction = showsGradeAction,
 		gradesIcon = Icons.Outlined.AssignmentTurnedIn,
 		isOverdue = isOverdue,
@@ -138,6 +172,30 @@ fun evaluationsGroupItemsFixture(): List<EvaluationsGroupItem> = listOf(
 		items = listOf(
 			evaluationItemFixture(evaluationId = "evaluation-item-1", isClickable = true)
 		)
+	)
+)
+
+fun evaluationsWeekGroupItemsFixture(
+	groups: List<EvaluationsGroupItem> = evaluationsGroupItemsFixture()
+): List<EvaluationsWeekGroupItem> = listOf(
+	EvaluationsWeekGroupItem(
+		weekNumber = 8,
+		title = "Semana 8",
+		groups = groups
+	)
+)
+
+fun evaluationsWeekItemFixture(): EvaluationsWeekItem = EvaluationsWeekItem(
+	weekNumber = 8,
+	labelText = "Semana 8",
+	days = listOf(
+		EvaluationWeekDayItem("LUN", "19", isSelected = false, hasEvaluations = false),
+		EvaluationWeekDayItem("MAR", "20", isSelected = false, hasEvaluations = true),
+		EvaluationWeekDayItem("MIE", "21", isSelected = true, hasEvaluations = true),
+		EvaluationWeekDayItem("JUE", "22", isSelected = false, hasEvaluations = true),
+		EvaluationWeekDayItem("VIE", "23", isSelected = false, hasEvaluations = false),
+		EvaluationWeekDayItem("SAB", "24", isSelected = false, hasEvaluations = false),
+		EvaluationWeekDayItem("DOM", "25", isSelected = false, hasEvaluations = false)
 	)
 )
 
@@ -164,7 +222,7 @@ private fun uiGradeSection(
 ) = EvaluationGradeSectionItem(
 	maxGradeTitleText = "Nota maxima",
 	overdueTitleText = "Notas",
-	gradeText = (grade ?: 0.0).formatGrade(decimals = 2),
+	gradeText = "${(grade ?: 0.0).formatGrade(decimals = 2)} / ${(maxGrade ?: 0.0).formatGrade(decimals = 2)}",
 	maxGradeText = (maxGrade ?: 0.0).formatGrade(decimals = 2),
 	showsGradeChip = isOverdue && maxGrade != null && maxGrade > 0.0
 )
@@ -189,6 +247,10 @@ private fun Evaluation.toFixtureEvaluationItem(): EvaluationItem {
 		grade = grade,
 		maxGrade = maxGrade,
 		nameText = "${uiTypeLabels().getValue(type)} #1",
+		subjectNameText = when (attemptId) {
+			DEFAULT_EVALUATION_SUBJECT.id -> DEFAULT_EVALUATION_SUBJECT.name
+			else -> SECOND_EVALUATION_SUBJECT.name
+		},
 		subjectCodeText = subjectCode,
 		subjectCodeColor = subjectColors.color,
 		subjectCodeContainerColor = subjectColors.containerColor,
@@ -197,19 +259,36 @@ private fun Evaluation.toFixtureEvaluationItem(): EvaluationItem {
 			EvaluationState.OVERDUE -> EvaluationHighlightTone.Error
 			else -> EvaluationHighlightTone.Neutral
 		},
+		statusText = when (state) {
+			EvaluationState.PENDING -> "Programada"
+			EvaluationState.OVERDUE -> "Pendiente"
+			EvaluationState.COMPLETED -> "Completada"
+			EvaluationState.CONTINUOUS -> "Continua"
+		},
+		statusTone = when (state) {
+			EvaluationState.COMPLETED -> EvaluationHighlightTone.Success
+			EvaluationState.OVERDUE -> EvaluationHighlightTone.Error
+			else -> EvaluationHighlightTone.Neutral
+		},
 		typeText = uiTypeLabels().getValue(type),
+		typeNameText = "${uiTypeLabels().getValue(type)} #1",
 		typeIcon = type.asIcon(),
 		dateText = "Fecha",
-		dateIcon = Icons.Outlined.Event,
+			dateIcon = Icons.Outlined.Event,
+			gradeText = currentGrade?.let {
+				"${it.formatGrade(decimals = 0)} / ${maxGrade.formatGrade(decimals = 0)}"
+			} ?: "-- / ${maxGrade.formatGrade(decimals = 0)}",
 		gradesText = if (currentGrade != null) {
 			"${currentGrade.formatGrade(decimals = 2)} / ${maxGrade.formatGrade(decimals = 2)}"
 		} else {
 			"Pendiente / ${maxGrade.formatGrade(decimals = 2)}"
-		},
-		gradeActionText = currentGrade?.formatGrade(decimals = 2) ?: "Sin nota",
-		showsGradeAction = (state != EvaluationState.PENDING),
+			},
+			gradeActionText = currentGrade?.let {
+				"${it.formatGrade(decimals = 0)} / ${maxGrade.formatGrade(decimals = 0)}"
+			} ?: "-- / ${maxGrade.formatGrade(decimals = 0)}",
+		showsGradeAction = true,
 		gradesIcon = Icons.Outlined.AssignmentTurnedIn,
 		isOverdue = (state == EvaluationState.OVERDUE),
-		isClickable = (state != EvaluationState.PENDING)
+		isClickable = true
 	)
 }

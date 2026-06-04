@@ -24,6 +24,8 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenEva
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.PickEvaluationGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RefreshEvaluationsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RemoveEvaluationActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SelectEvaluationsTabActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SelectEvaluationsWeekActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SetEvaluationGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.UncheckEvaluationFilterActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
@@ -183,7 +185,7 @@ class EvaluationsRouteUiTest {
 			assertEquals("Parcial 1", requestedEvaluationName)
 			assertEquals(SECOND_EVALUATION_SUBJECT.code, requestedSubjectCode)
 			assertEquals(DEFAULT_COMPLETED_EVALUATION.grade, requestedGrade)
-		assertEquals(DEFAULT_COMPLETED_EVALUATION.maxGrade, requestedMaxGrade)
+			assertEquals(DEFAULT_COMPLETED_EVALUATION.maxGrade, requestedMaxGrade)
 	}
 
 	@Test
@@ -211,6 +213,18 @@ class EvaluationsRouteUiTest {
 			)
 		}
 
+		waitUntil(timeoutMillis = 2_000) {
+			onAllNodesWithTag(
+				testTag = EvaluationsUiTags.EvaluationsHistoryTab,
+				useUnmergedTree = true
+			).fetchSemanticsNodes().isNotEmpty()
+		}
+
+		onNodeWithTag(
+			testTag = EvaluationsUiTags.EvaluationsHistoryTab,
+			useUnmergedTree = true
+		).performClick()
+
 		val completedEvaluationTag = EvaluationsUiTags.evaluationItemCard(DEFAULT_COMPLETED_EVALUATION.id)
 
 		waitUntil(timeoutMillis = 2_000) {
@@ -229,7 +243,7 @@ class EvaluationsRouteUiTest {
 			assertEquals("Parcial 1", requestedEvaluationName)
 			assertEquals(SECOND_EVALUATION_SUBJECT.code, requestedSubjectCode)
 			assertEquals(DEFAULT_COMPLETED_EVALUATION.grade, requestedGrade)
-		assertEquals(DEFAULT_COMPLETED_EVALUATION.maxGrade, requestedMaxGrade)
+			assertEquals(DEFAULT_COMPLETED_EVALUATION.maxGrade, requestedMaxGrade)
 	}
 
 	@Test
@@ -399,6 +413,8 @@ class EvaluationsRouteUiTest {
 			checkEvaluationFilterActionProcessor = CheckEvaluationFilterActionProcessor(),
 			uncheckEvaluationFilterActionProcessor = UncheckEvaluationFilterActionProcessor(),
 			clearEvaluationFiltersActionProcessor = ClearEvaluationFiltersActionProcessor(),
+			selectEvaluationsTabActionProcessor = SelectEvaluationsTabActionProcessor(),
+			selectEvaluationsWeekActionProcessor = SelectEvaluationsWeekActionProcessor(),
 			openAddEvaluationActionProcessor = OpenAddEvaluationActionProcessor(),
 			pickEvaluationGradeActionProcessor = PickEvaluationGradeActionProcessor(
 				getEvaluationUseCase = GetEvaluationUseCase(

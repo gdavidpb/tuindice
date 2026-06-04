@@ -13,6 +13,7 @@ sealed interface GetEvaluations {
 		val originalEvaluations: List<Evaluation>,
 		val filteredEvaluations: List<Evaluation>,
 		val activeFilters: List<EvaluationFilter>,
-		val hasSyncedEvaluations: Boolean
+		val hasSyncedEvaluations: Boolean,
+		val displayContext: EvaluationDisplayContext
 	) : GetEvaluations
 }

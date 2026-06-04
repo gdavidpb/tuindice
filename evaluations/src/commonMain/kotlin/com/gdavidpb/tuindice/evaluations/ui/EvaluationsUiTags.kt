@@ -4,6 +4,11 @@ object EvaluationsUiTags {
 	const val EvaluationsContentContainer = "evaluations_content_container"
 	const val EvaluationsFiltersContainer = "evaluations_filters_container"
 	const val EvaluationsFilterRow = "evaluations_filter_row"
+	const val EvaluationsTabRow = "evaluations_tab_row"
+	const val EvaluationsUpcomingTab = "evaluations_tab_upcoming"
+	const val EvaluationsHistoryTab = "evaluations_tab_history"
+	const val EvaluationsWeekStrip = "evaluations_week_strip"
+	const val EvaluationsWeekLabel = "evaluations_week_label"
 	const val EvaluationsList = "evaluations_list"
 	const val EvaluationsAddFab = "evaluations_add_fab"
 	const val EvaluationsClearFiltersFab = "evaluations_clear_filters_fab"
@@ -28,6 +33,8 @@ object EvaluationsUiTags {
 	const val EvaluationGradeChip = "evaluation_grade_chip"
 	const val EvaluationMaxGradeChip = "evaluation_max_grade_chip"
 	const val EvaluationTypeLeadingIcon = "evaluation_type_leading_icon"
+	const val EvaluationTypeInlineIcon = "evaluation_type_inline_icon"
+	const val EvaluationStatusChip = "evaluation_status_chip"
 	const val EvaluationGradeActionButton = "evaluation_grade_action_button"
 	const val EvaluationLoadingIndicator = "evaluation_loading_indicator"
 	const val EvaluationGradeWheelPicker = "evaluation_grade_wheel_picker"
@@ -49,6 +56,12 @@ object EvaluationsUiTags {
 
 	fun evaluationHeader(label: String): String =
 		"evaluation_header_${label.toTagSuffix()}"
+
+	fun evaluationsWeekPage(weekNumber: Int): String =
+		"evaluations_week_page_$weekNumber"
+
+	fun evaluationsWeekHeader(weekNumber: Int): String =
+		"evaluations_week_header_$weekNumber"
 
 	fun evaluationItemCard(evaluationId: String): String =
 		"evaluation_item_card_${evaluationId.toTagSuffix()}"

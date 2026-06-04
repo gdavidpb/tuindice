@@ -404,10 +404,10 @@ def build_evaluations_state(record_state: dict[str, object]) -> dict[str, object
 		raise ValueError("Expected at least one numeric attempt in the current editable term")
 
 	patterns = (
-		{"offset_days": -5, "grade": 82.0},
-		{"offset_days": 10, "grade": None},
-		{"offset_days": -1, "grade": None},
-		{"offset_days": -2, "grade": 67.0},
+		{"offset_days": -5, "grade": 28.0, "max_grade": 35.0},
+		{"offset_days": 10, "grade": None, "max_grade": 25.0},
+		{"offset_days": -1, "grade": None, "max_grade": 40.0},
+		{"offset_days": -2, "grade": 16.0, "max_grade": 20.0},
 	)
 	evaluations = []
 	for index, attempt in enumerate(current_attempts, start=1):
@@ -424,7 +424,7 @@ def build_evaluations_state(record_state: dict[str, object]) -> dict[str, object
 				"type": EVALUATION_TYPE_SEQUENCE[(index - 1) % len(EVALUATION_TYPE_SEQUENCE)],
 				"schedule_mode": "dated",
 				"grade": grade,
-				"max_grade": 100.0,
+				"max_grade": pattern["max_grade"],
 				"date": build_sample_evaluation_date(current_term, offset_days=pattern["offset_days"]),
 				"is_done": grade is not None,
 				"revision": 1,

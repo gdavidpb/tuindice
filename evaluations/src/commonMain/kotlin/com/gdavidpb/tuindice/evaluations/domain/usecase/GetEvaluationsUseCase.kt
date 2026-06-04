@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDisplayContext
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
@@ -49,6 +50,10 @@ class GetEvaluationsUseCase(
 	private suspend fun observeReadyEvaluations(params: Flow<List<EvaluationFilter>>): Flow<GetEvaluations> {
 		val availableAttempts = evaluationRepository.getAvailableAttempts()
 		if (availableAttempts.isEmpty()) return flowOf(GetEvaluations.NoAttempts)
+		val displayContext = EvaluationDisplayContext(
+			attempts = availableAttempts,
+			currentTerm = evaluationRepository.getCurrentTerm()
+		)
 
 		return params.flatMapLatest { activeFilters ->
 			combine(
@@ -73,7 +78,8 @@ class GetEvaluationsUseCase(
 					originalEvaluations = sortedEvaluations,
 					filteredEvaluations = filteredEvaluations,
 					activeFilters = activeFilters,
-					hasSyncedEvaluations = hasSyncedEvaluations
+					hasSyncedEvaluations = hasSyncedEvaluations,
+					displayContext = displayContext
 				)
 			}
 		}

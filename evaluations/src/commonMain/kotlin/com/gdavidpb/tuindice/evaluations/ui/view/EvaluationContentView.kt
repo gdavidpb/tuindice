@@ -38,6 +38,7 @@ import tuindice.evaluations.generated.resources.evaluation_name
 import tuindice.evaluations.generated.resources.label_add_evaluation_date
 import tuindice.evaluations.generated.resources.label_add_evaluation_subject
 import tuindice.evaluations.generated.resources.label_add_evaluation_type
+import tuindice.evaluations.generated.resources.label_evaluation_weight_separator
 
 @Composable
 fun EvaluationContentView(
@@ -172,7 +173,7 @@ fun EvaluationContentView(
 					Text(
 						modifier = Modifier
 							.padding(all = 8.dp),
-						text = "/",
+						text = stringResource(Res.string.label_evaluation_weight_separator),
 						style = MaterialTheme.typography.titleLarge
 					)
 

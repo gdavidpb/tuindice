@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -9,9 +11,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +19,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -38,17 +39,7 @@ fun EvaluationItemView(
 		EvaluationHighlightTone.Error -> MaterialTheme.colorScheme.error
 		else -> MaterialTheme.colorScheme.onSurfaceVariant
 	}
-	val gradeButtonColors = if (item.isOverdue) {
-		ButtonDefaults.filledTonalButtonColors(
-			containerColor = MaterialTheme.colorScheme.errorContainer,
-			contentColor = MaterialTheme.colorScheme.onErrorContainer
-		)
-	} else {
-		ButtonDefaults.filledTonalButtonColors(
-			containerColor = MaterialTheme.colorScheme.primaryContainer,
-			contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-		)
-	}
+	val statusColors = statusColors(item.statusTone)
 
 	ElevatedCard(
 		modifier = modifier
@@ -63,82 +54,143 @@ fun EvaluationItemView(
 		Box(
 			modifier = Modifier
 				.fillMaxWidth()
+				.background(MaterialTheme.colorScheme.surfaceVariant)
 				.padding(16.dp)
 		) {
 			Column {
 				Row(
 					modifier = Modifier.fillMaxWidth(),
-					verticalAlignment = Alignment.Top
+					verticalAlignment = Alignment.CenterVertically
 				) {
-					Box(
+					Row(
 						modifier = Modifier
-							.testTag(EvaluationsUiTags.EvaluationTypeLeadingIcon)
-							.size(44.dp)
-							.background(
-								color = MaterialTheme.colorScheme.secondaryContainer,
-								shape = RoundedCornerShape(12.dp)
-							),
-						contentAlignment = Alignment.Center
+							.weight(1f),
+						verticalAlignment = Alignment.CenterVertically
 					) {
 						Icon(
-							modifier = Modifier.size(24.dp),
+							modifier = Modifier
+								.testTag(EvaluationsUiTags.EvaluationTypeInlineIcon)
+								.size(18.dp),
 							imageVector = item.typeIcon,
-							tint = MaterialTheme.colorScheme.onSecondaryContainer,
+							tint = MaterialTheme.colorScheme.onBackground,
 							contentDescription = null
 						)
-					}
 
-					Spacer(modifier = Modifier.width(12.dp))
-
-					Column(
-						modifier = Modifier.weight(1f)
-					) {
 						Text(
-							modifier = Modifier.fillMaxWidth(),
-							text = item.nameText,
+							modifier = Modifier
+								.weight(1f)
+								.padding(start = 8.dp),
+							text = item.typeNameText,
 							maxLines = 1,
 							overflow = TextOverflow.Ellipsis,
 							color = MaterialTheme.colorScheme.onBackground,
 							style = MaterialTheme.typography.titleMedium,
 							fontWeight = FontWeight.SemiBold
 						)
-
-						Row(
-							modifier = Modifier
-								.fillMaxWidth()
-								.padding(top = 8.dp),
-							verticalAlignment = Alignment.CenterVertically
-						) {
-							SubjectCodeChip(
-								subjectCode = item.subjectCodeText,
-								containerColor = item.subjectCodeContainerColor,
-								contentColor = item.subjectCodeColor
-							)
-						}
 					}
 
-					if (item.showsGradeAction) {
-						EvaluationGradeActionButton(
-							modifier = Modifier.testTag(EvaluationsUiTags.EvaluationGradeActionButton),
-							text = item.gradeActionText,
-							colors = gradeButtonColors,
-							onClick = onGradeClick
+					Box(
+						modifier = Modifier
+							.testTag(EvaluationsUiTags.EvaluationStatusChip)
+							.background(
+								color = statusColors.container,
+								shape = RoundedCornerShape(8.dp)
+							)
+							.padding(horizontal = 10.dp, vertical = 5.dp)
+					) {
+						Text(
+							text = item.statusText,
+							color = statusColors.content,
+							style = MaterialTheme.typography.labelMedium,
+							fontWeight = FontWeight.SemiBold
 						)
 					}
 				}
 
-				Box(
-					modifier = Modifier.padding(start = 56.dp)
+				Row(
+					modifier = Modifier
+						.fillMaxWidth()
+						.padding(top = 10.dp),
+					verticalAlignment = Alignment.CenterVertically
 				) {
-					EvaluationMetadataRow(
-						modifier = Modifier.padding(top = 12.dp),
-						dateIcon = item.dateIcon,
-						dateText = item.dateText,
-						typeText = item.typeText,
-						color = metadataColor
+					SubjectCodeChip(
+						subjectCode = item.subjectCodeText,
+						containerColor = item.subjectCodeContainerColor,
+						contentColor = item.subjectCodeColor
 					)
+				}
+
+				Row(
+					modifier = Modifier
+						.fillMaxWidth()
+						.padding(top = 16.dp),
+					verticalAlignment = Alignment.CenterVertically
+				) {
+					Icon(
+						modifier = Modifier.size(18.dp),
+						imageVector = item.dateIcon,
+						tint = metadataColor,
+						contentDescription = null
+					)
+
+					Text(
+						modifier = Modifier.padding(start = 8.dp),
+						text = item.dateText,
+						maxLines = 1,
+						softWrap = false,
+						color = metadataColor,
+						style = MaterialTheme.typography.bodyMedium
+					)
+
+					Spacer(modifier = Modifier.weight(1f))
+
+					if (item.showsGradeAction) {
+						Box(
+							modifier = Modifier
+								.testTag(EvaluationsUiTags.EvaluationGradeActionButton)
+								.clickable(onClick = onGradeClick)
+								.border(
+									border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
+									shape = RoundedCornerShape(16.dp)
+								)
+								.padding(horizontal = 22.dp, vertical = 10.dp),
+							contentAlignment = Alignment.Center
+						) {
+							Text(
+								text = item.gradeText,
+								color = MaterialTheme.colorScheme.onSurfaceVariant,
+								style = MaterialTheme.typography.titleMedium,
+								fontWeight = FontWeight.Bold
+							)
+						}
+					}
 				}
 			}
 		}
+	}
+}
+
+private data class StatusColors(
+	val container: Color,
+	val content: Color
+)
+
+@Composable
+private fun statusColors(tone: EvaluationHighlightTone): StatusColors {
+	return when (tone) {
+		EvaluationHighlightTone.Success -> StatusColors(
+			container = Color(0xFF314D20),
+			content = Color(0xFFC7F28E)
+		)
+
+		EvaluationHighlightTone.Error -> StatusColors(
+			container = Color(0xFF6E2D32),
+			content = Color(0xFFFFC5C9)
+		)
+
+		EvaluationHighlightTone.Neutral -> StatusColors(
+			container = MaterialTheme.colorScheme.primaryContainer,
+			content = MaterialTheme.colorScheme.onPrimaryContainer
+		)
 	}
 }

@@ -3,19 +3,31 @@ package com.gdavidpb.tuindice.evaluations.ui.view
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.Modifier
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import org.jetbrains.compose.resources.stringResource
+import tuindice.evaluations.generated.resources.Res
+import tuindice.evaluations.generated.resources.evaluation_group_count_many
+import tuindice.evaluations.generated.resources.evaluation_group_count_one
 
 @Composable
 fun EvaluationsView(
 	lazyListState: LazyListState,
-	evaluations: List<EvaluationsGroupItem>,
+	weekGroups: List<EvaluationsWeekGroupItem>,
+	selectedWeekNumber: Int,
+	onVisibleWeekChange: (Int) -> Unit,
 	onEvaluationClick: (evaluationId: String, evaluationName: String, subjectCode: String) -> Unit,
 	onEvaluationEdit: (evaluationId: String) -> Unit,
 	onEvaluationDelete: (evaluationId: String) -> Unit,
@@ -24,57 +36,136 @@ fun EvaluationsView(
 	focusEvaluationId: String? = null,
 	onFocusEvaluationBoundsChange: (Rect?) -> Unit = {}
 ) {
+	val singleCountPattern = stringResource(Res.string.evaluation_group_count_one)
+	val manyCountPattern = stringResource(Res.string.evaluation_group_count_many)
+	val weekHeaderIndexes = remember(weekGroups) {
+		weekGroups.weekHeaderIndexes()
+	}
+	val isProgrammaticWeekScroll = remember { mutableStateOf(false) }
+
+	LaunchedEffect(selectedWeekNumber, weekHeaderIndexes) {
+		val targetIndex = weekHeaderIndexes[selectedWeekNumber] ?: return@LaunchedEffect
+
+		if (!lazyListState.isScrollInProgress) {
+			isProgrammaticWeekScroll.value = true
+			try {
+				lazyListState.animateScrollToItem(targetIndex)
+			} finally {
+				isProgrammaticWeekScroll.value = false
+			}
+		}
+	}
+
+	LaunchedEffect(lazyListState, weekHeaderIndexes, selectedWeekNumber) {
+		snapshotFlow { lazyListState.firstVisibleItemIndex }
+			.map { index -> weekHeaderIndexes.visibleWeekNumber(index) }
+			.distinctUntilChanged()
+			.collect { weekNumber ->
+				if (
+					weekNumber != null &&
+					weekNumber != selectedWeekNumber &&
+					lazyListState.isScrollInProgress &&
+					!isProgrammaticWeekScroll.value
+				) {
+					onVisibleWeekChange(weekNumber)
+				}
+			}
+	}
+
 	LazyColumn(
 		modifier = Modifier.testTag(EvaluationsUiTags.EvaluationsList),
 		state = lazyListState,
 		userScrollEnabled = scrollEnabled
 	) {
-		evaluations.forEach { (title, items) ->
+		weekGroups.forEach { weekGroup ->
 			stickyHeader(
-				key = "header:$title"
+				key = "week_header:${weekGroup.weekNumber}"
 			) {
-				EvaluationHeaderView(label = title)
+				EvaluationWeekHeaderView(
+					weekNumber = weekGroup.weekNumber,
+					label = weekGroup.title
+				)
 			}
 
-			items(
-				items = items,
-				key = { evaluation -> evaluation.evaluationId },
-				contentType = { EvaluationItemContentType }
-			) { evaluation ->
-				val itemModifier = if (evaluation.evaluationId == focusEvaluationId) {
-					Modifier.onGloballyPositioned { coordinates ->
-						onFocusEvaluationBoundsChange(coordinates.boundsInRoot())
-					}
-				} else {
-					Modifier
+			weekGroup.groups.forEach { group ->
+				item(
+					key = "date_header:${weekGroup.weekNumber}:${group.title}",
+					contentType = EvaluationHeaderContentType
+				) {
+					EvaluationHeaderView(
+						label = group.title,
+						countText = if (group.items.size == 1) {
+							singleCountPattern.replace("%1${'$'}d", group.items.size.toString())
+						} else {
+							manyCountPattern.replace("%1${'$'}d", group.items.size.toString())
+						}
+					)
 				}
 
-				EvaluationSwipeToDismiss(
-					modifier = itemModifier.animateItem(
-						fadeInSpec = null,
-						fadeOutSpec = null
-					),
-					initiallyOpen = evaluation.evaluationId == openActionsEvaluationId,
-					onEdit = { onEvaluationEdit(evaluation.evaluationId) },
-					onDelete = { onEvaluationDelete(evaluation.evaluationId) }
-				) { onActionsClick ->
-					EvaluationItemView(
-						item = evaluation,
-						onGradeClick = {
-							if (evaluation.isClickable) {
-								onEvaluationClick(
-									evaluation.evaluationId,
-									evaluation.nameText,
-									evaluation.subjectCodeText
-								)
-							}
-						},
-						onCardClick = onActionsClick
-					)
+				items(
+					items = group.items,
+					key = { evaluation -> evaluation.evaluationId },
+					contentType = { EvaluationItemContentType }
+				) { evaluation ->
+					val itemModifier = if (evaluation.evaluationId == focusEvaluationId) {
+						Modifier.onGloballyPositioned { coordinates ->
+							onFocusEvaluationBoundsChange(coordinates.boundsInRoot())
+						}
+					} else {
+						Modifier
+					}
+
+					EvaluationSwipeToDismiss(
+						modifier = itemModifier.animateItem(
+							fadeInSpec = null,
+							fadeOutSpec = null
+						),
+						initiallyOpen = evaluation.evaluationId == openActionsEvaluationId,
+						onEdit = { onEvaluationEdit(evaluation.evaluationId) },
+						onDelete = { onEvaluationDelete(evaluation.evaluationId) }
+					) { onActionsClick ->
+						EvaluationItemView(
+							item = evaluation,
+							onGradeClick = {
+								if (evaluation.isClickable) {
+									onEvaluationClick(
+										evaluation.evaluationId,
+										evaluation.nameText,
+										evaluation.subjectCodeText
+									)
+								}
+							},
+							onCardClick = onActionsClick
+						)
+					}
 				}
 			}
 		}
 	}
 }
 
+private fun List<EvaluationsWeekGroupItem>.weekHeaderIndexes(): Map<Int, Int> {
+	var index = 0
+
+	return associate { weekGroup ->
+		val weekHeaderIndex = index
+		index += 1
+
+		weekGroup.groups.forEach { group ->
+			index += 1
+			index += group.items.size
+		}
+
+		weekGroup.weekNumber to weekHeaderIndex
+	}
+}
+
+private fun Map<Int, Int>.visibleWeekNumber(index: Int): Int? {
+	return entries
+		.sortedBy { (_, itemIndex) -> itemIndex }
+		.lastOrNull { (_, itemIndex) -> itemIndex <= index }
+		?.key
+}
+
+private const val EvaluationHeaderContentType = "evaluation_header"
 private const val EvaluationItemContentType = "evaluation_item"

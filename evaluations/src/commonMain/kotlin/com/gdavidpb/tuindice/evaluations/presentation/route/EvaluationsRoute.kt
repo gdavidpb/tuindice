@@ -7,6 +7,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsTab
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationsScreen
 
@@ -61,6 +62,8 @@ fun EvaluationsRoute(
 		onEvaluationDelete = viewModel::removeEvaluationAction,
 		onFilterCheckedChange = viewModel::toggleFilterAction,
 		onClearFiltersClick = viewModel::clearFiltersAction,
+		onTabClick = viewModel::selectTabAction,
+		onWeekClick = viewModel::selectWeekAction,
 		onRetryClick = {
 			viewModel.loadEvaluationsAction()
 			viewModel.refreshEvaluationsAction()

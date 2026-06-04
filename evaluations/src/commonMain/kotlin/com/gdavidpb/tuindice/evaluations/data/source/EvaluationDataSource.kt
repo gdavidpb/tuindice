@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEditableAttemptDescriptor
+import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
@@ -170,6 +171,9 @@ class EvaluationDataSource(
 			.map { attempt -> attempt.toEditableAttemptDescriptor() }
 			.sortedBy(EditableAttemptDescriptor::code)
 	}
+
+	override suspend fun getCurrentTerm() =
+		databaseDataSource.getCurrentTerm()?.toEvaluationTermDescriptor()
 
 	private suspend fun refreshRemoteSnapshot(): RemoteEvaluationsSnapshot {
 		val snapshotVersion = mutationEngine.currentMutationVersion()

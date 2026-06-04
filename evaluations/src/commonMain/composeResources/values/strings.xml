@@ -14,6 +14,11 @@
 	<string name="message_empty_match_evaluations">Ajusta los filtros o la búsqueda para encontrar otras evaluaciones.</string>
 	<string name="button_add_evaluation">Crear</string>
 	<string name="button_save_evaluation_changes">Modificar</string>
+	<string name="evaluations_tab_upcoming">Próximas</string>
+	<string name="evaluations_tab_history">Historial</string>
+	<string name="evaluations_week_label">Semana %1$d</string>
+	<string name="evaluation_group_count_one">%1$d evaluación</string>
+	<string name="evaluation_group_count_many">%1$d evaluaciones</string>
 
 	<string name="view_error_title">No pudimos cargar la información</string>
 	<string name="view_error_message">Intenta de nuevo en unos segundos.</string>
@@ -23,6 +28,8 @@
 
 	<string name="evaluation_name">%1$s %2$d</string>
 	<string name="evaluation_grade">%1$.2f / %2$.2f</string>
+	<string name="evaluation_score_grade">%1$s / %2$s</string>
+	<string name="evaluation_empty_grade">-- / %1$s</string>
 	<string name="evaluation_not_grade">Sin nota / %1$.2f</string>
 	<string name="evaluation_pending_grade">Pendiente / %1$.2f</string>
 	<string name="evaluation_title">%1$s ─ %2$s</string>
@@ -39,17 +46,22 @@
 	<string name="evaluation_workshop">Taller</string>
 	<string name="evaluation_written_work">Trabajo escrito</string>
 	<string name="evaluation_other">Otra</string>
+	<string name="evaluation_status_pending">Pendiente</string>
+	<string name="evaluation_status_scheduled">Programada</string>
+	<string name="evaluation_status_completed">Completada</string>
+	<string name="evaluation_status_continuous">Continua</string>
 
 	<string name="label_add_evaluation_subject">Materia</string>
 	<string name="label_add_evaluation_type">Tipo</string>
 	<string name="label_add_evaluation_date">Fecha</string>
-	<string name="label_add_evaluation_grades">Nota obtenida / máxima</string>
-	<string name="label_add_evaluation_max_grade">Nota máxima</string>
+	<string name="label_add_evaluation_grades">Nota obtenida / peso</string>
+	<string name="label_add_evaluation_max_grade">Peso (%)</string>
 	<string name="label_evaluation_date">Elige una fecha</string>
 	<string name="label_evaluation_no_date">Evaluación continua</string>
 	<string name="label_evaluation_assign_today">Asignar hoy</string>
 	<string name="label_evaluation_assign_grade">Sin nota</string>
 	<string name="label_evaluation_no_date_short">Sin fecha</string>
+	<string name="label_evaluation_weight_separator">peso</string>
 	<string name="label_evaluation_swipe_delete">Eliminar</string>
 	<string name="label_evaluation_swipe_edit">Editar</string>
 	<string name="evaluation_date_today">Hoy</string>
@@ -62,13 +74,13 @@
 
 	<string name="error_evaluation_subject_missed">Debes seleccionar una materia</string>
 	<string name="error_evaluation_type_missed">Debes seleccionar un tipo</string>
-	<string name="error_evaluation_max_grade_missed">Debes asignar una nota máxima</string>
+	<string name="error_evaluation_max_grade_missed">Debes asignar un peso</string>
 	<string name="label_state_pending">Pendientes</string>
 	<string name="label_state_completed">Completadas</string>
 	<string name="label_state_not_grade">Sin nota</string>
 
 	<string name="dialog_title_add_evaluation_grade">Nota obtenida</string>
-	<string name="dialog_title_add_evaluation_max_grade">Nota máxima</string>
+	<string name="dialog_title_add_evaluation_max_grade">Peso (%)</string>
 	<string name="dialog_title_edit_evaluation_grade">Modificar nota</string>
 
 	<string name="snack_evaluation_set_grade">Nota actualizada</string>

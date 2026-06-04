@@ -42,7 +42,7 @@ class EvaluationActionProcessorContractTest {
 		).test {
 			val content = assertIs<Evaluation.State.Content>(awaitItem()(initialState))
 
-			assertEquals(null, content.grade)
+			assertEquals(initialState.grade, content.grade)
 			assertEquals(null, content.maxGrade)
 			assertEquals(false, content.gradeSection.showsGradeChip)
 

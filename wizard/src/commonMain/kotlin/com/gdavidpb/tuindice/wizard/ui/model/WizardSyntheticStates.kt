@@ -4,8 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AssignmentReturned
 import androidx.compose.material.icons.outlined.AssignmentTurnedIn
 import androidx.compose.material.icons.outlined.Build
-import androidx.compose.material.icons.outlined.Event
-import androidx.compose.material.icons.outlined.EventAvailable
+import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.FileCopy
 import androidx.compose.material.icons.outlined.Science
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
@@ -36,8 +35,12 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationAttemptPic
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationGradeSectionItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationWeekDayItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsTab
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumDisplayLayoutDefaults
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
@@ -387,53 +390,90 @@ private fun sampleEvaluationFilters() = listOf(
 	) { evaluation -> evaluation.date == SAMPLE_DATE - 1_296_000_000L }
 )
 
-internal fun sampleEvaluationsState() = Evaluations.State.Content(
-	filterGroups = sampleEvaluationFilters().toEvaluationFilterGroupItemList(activeFilters = emptyList()),
-	evaluationGroups = listOf(
-		EvaluationsGroupItem(
-			title = "Jueves - 23/04/26",
-			items = listOf(
-				sampleEvaluationItem(
-					id = "evaluation_1",
-					name = "Parcial 1",
-					subjectCode = "CI2611",
-					typeText = "Parcial",
-					dateText = "Jueves - 23/04/26",
-					gradesText = "Sin nota / 100.00",
-					type = EvaluationType.TEST,
-					state = EvaluationState.PENDING
-				),
-				sampleEvaluationItem(
-					id = "evaluation_2",
+internal fun sampleEvaluationsState(): Evaluations.State.Content {
+		val upcomingGroups = listOf(
+			EvaluationsGroupItem(
+				title = "Jueves 23 de Abril",
+				items = listOf(
+					sampleEvaluationItem(
+						id = "evaluation_1",
+						name = "Parcial 1",
+						subjectCode = "CI2611",
+						typeText = "Parcial",
+						dateText = "Jueves - 23/04/26",
+						gradesText = "Sin nota / 35.00",
+						type = EvaluationType.TEST,
+						state = EvaluationState.PENDING,
+						maxGrade = 35.0
+					),
+					sampleEvaluationItem(
+						id = "evaluation_2",
 					name = "Taller 1",
 					subjectCode = "EC5344",
-					typeText = "Taller",
-					dateText = "Jueves - 30/04/26",
-					gradesText = "Sin nota / 20.00",
-					type = EvaluationType.WORKSHOP,
-					state = EvaluationState.PENDING
+						typeText = "Taller",
+						dateText = "Jueves - 30/04/26",
+						gradesText = "Sin nota / 40.00",
+						type = EvaluationType.WORKSHOP,
+						state = EvaluationState.PENDING,
+						maxGrade = 40.0
+					)
 				)
 			)
-		),
-		EvaluationsGroupItem(
-			title = "Completadas",
-			items = listOf(
-				sampleEvaluationItem(
-					id = "evaluation_3",
+	)
+		val historyGroups = listOf(
+			EvaluationsGroupItem(
+				title = "Miércoles 8 de Abril",
+				items = listOf(
+					sampleEvaluationItem(
+						id = "evaluation_3",
 					name = "Laboratorio 1",
-					subjectCode = "CI2611",
-					typeText = "Laboratorio",
-					dateText = "Miércoles - 08/04/26",
-					gradesText = "18.00 / 20.00",
-					type = EvaluationType.LABORATORY,
-					state = EvaluationState.COMPLETED,
-					grade = 18.0,
-					maxGrade = 20.0
+						subjectCode = "CI2611",
+						typeText = "Laboratorio",
+						dateText = "Miércoles - 08/04/26",
+						gradesText = "18.00 / 25.00",
+						type = EvaluationType.LABORATORY,
+						state = EvaluationState.COMPLETED,
+						grade = 18.0,
+						maxGrade = 25.0
+					)
 				)
 			)
-		)
-	),
-	activeFilters = emptyList()
+	)
+
+	return Evaluations.State.Content(
+		selectedTab = EvaluationsTab.Upcoming,
+		upcomingGroups = upcomingGroups,
+		historyGroups = historyGroups,
+		weekItem = sampleEvaluationsWeekItem(),
+		upcomingWeekGroups = listOf(sampleEvaluationsWeekGroupItem(upcomingGroups)),
+		historyWeekGroups = listOf(sampleEvaluationsWeekGroupItem(historyGroups)),
+		evaluationWeekGroups = listOf(sampleEvaluationsWeekGroupItem(upcomingGroups)),
+		filterGroups = sampleEvaluationFilters().toEvaluationFilterGroupItemList(activeFilters = emptyList()),
+		evaluationGroups = upcomingGroups,
+		activeFilters = emptyList()
+	)
+}
+
+	private fun sampleEvaluationsWeekItem() = EvaluationsWeekItem(
+		weekNumber = 4,
+		labelText = "Semana 4",
+	days = listOf(
+		EvaluationWeekDayItem(weekdayText = "LUN", dayText = "20", isSelected = false, hasEvaluations = false),
+		EvaluationWeekDayItem(weekdayText = "MAR", dayText = "21", isSelected = false, hasEvaluations = false),
+		EvaluationWeekDayItem(weekdayText = "MIE", dayText = "22", isSelected = false, hasEvaluations = false),
+		EvaluationWeekDayItem(weekdayText = "JUE", dayText = "23", isSelected = true, hasEvaluations = true),
+		EvaluationWeekDayItem(weekdayText = "VIE", dayText = "24", isSelected = false, hasEvaluations = false),
+		EvaluationWeekDayItem(weekdayText = "SAB", dayText = "25", isSelected = false, hasEvaluations = false),
+		EvaluationWeekDayItem(weekdayText = "DOM", dayText = "26", isSelected = false, hasEvaluations = false)
+	)
+)
+
+private fun sampleEvaluationsWeekGroupItem(
+	groups: List<EvaluationsGroupItem>
+) = EvaluationsWeekGroupItem(
+	weekNumber = 4,
+	title = "Semana 4",
+	groups = groups
 )
 
 internal fun sampleEvaluationFormState(): Evaluation.State.Content {
@@ -471,16 +511,16 @@ internal fun sampleEvaluationFormState(): Evaluation.State.Content {
 				isVisible = true
 			)
 		},
-		scheduleMode = EvaluationScheduleMode.DATED,
-		date = SAMPLE_DATE,
-		maxGrade = 100.0,
-		gradeSection = EvaluationGradeSectionItem(
-			maxGradeTitleText = "Nota máxima",
-			overdueTitleText = "Nota",
-			gradeText = "0.00",
-			maxGradeText = "100.00",
-			showsGradeChip = false
-		)
+			scheduleMode = EvaluationScheduleMode.DATED,
+			date = SAMPLE_DATE,
+			maxGrade = 35.0,
+			gradeSection = EvaluationGradeSectionItem(
+				maxGradeTitleText = "Peso (%)",
+				overdueTitleText = "Nota",
+				gradeText = "-- / 35",
+				maxGradeText = "35",
+				showsGradeChip = false
+			)
 	)
 }
 
@@ -616,41 +656,62 @@ private fun sampleEvaluationItem(
 	type: EvaluationType,
 	state: EvaluationState,
 	grade: Double? = null,
-	maxGrade: Double = 100.0
+		maxGrade: Double = 35.0
 ): EvaluationItem {
 	val colors = CourseCodeColorGenerator.fromCode(subjectCode)
+	val tone = when (state) {
+		EvaluationState.COMPLETED -> EvaluationHighlightTone.Success
+		EvaluationState.OVERDUE -> EvaluationHighlightTone.Error
+		else -> EvaluationHighlightTone.Neutral
+		}
+		val gradeText = grade?.let {
+			"${it.formatGrade(decimals = 0)} / ${maxGrade.formatGrade(decimals = 0)}"
+		} ?: "-- / ${maxGrade.formatGrade(decimals = 0)}"
+
 	return EvaluationItem(
 		evaluationId = id,
 		grade = grade,
 		maxGrade = maxGrade,
 		nameText = name,
+		subjectNameText = subjectNameForCode(subjectCode),
 		subjectCodeText = subjectCode,
 		subjectCodeColor = colors.color,
 		subjectCodeContainerColor = colors.containerColor,
-		highlightTone = when (state) {
-			EvaluationState.COMPLETED -> EvaluationHighlightTone.Success
-			EvaluationState.OVERDUE -> EvaluationHighlightTone.Error
-			else -> EvaluationHighlightTone.Neutral
+		highlightTone = tone,
+		statusText = when (state) {
+			EvaluationState.COMPLETED -> "Completada"
+			EvaluationState.OVERDUE -> "Pendiente"
+			EvaluationState.CONTINUOUS -> "Continua"
+			else -> "Programada"
 		},
+		statusTone = tone,
 		typeText = typeText,
+		typeNameText = name,
 		typeIcon = when (type) {
 			EvaluationType.TEST -> Icons.Outlined.FileCopy
 			EvaluationType.WORKSHOP -> Icons.Outlined.Build
 			EvaluationType.LABORATORY -> Icons.Outlined.Science
 			else -> type.asIcon()
-		},
-		dateText = dateText,
-		dateIcon = if (state == EvaluationState.COMPLETED) Icons.Outlined.EventAvailable else Icons.Outlined.Event,
+			},
+			dateText = dateText,
+			dateIcon = Icons.Outlined.CalendarToday,
+			gradeText = gradeText,
 		gradesText = gradesText,
-		gradeActionText = grade?.formatGrade(decimals = 2) ?: "Sin nota",
-		showsGradeAction = state != EvaluationState.PENDING,
+		gradeActionText = gradeText,
+		showsGradeAction = true,
 		gradesIcon = if (state == EvaluationState.COMPLETED)
 			Icons.Outlined.AssignmentTurnedIn
 		else
 			Icons.Outlined.AssignmentReturned,
 		isOverdue = state == EvaluationState.OVERDUE,
-		isClickable = state != EvaluationState.PENDING
+		isClickable = true
 	)
+}
+
+private fun subjectNameForCode(subjectCode: String): String = when (subjectCode) {
+	"CI2611" -> "Algoritmos y Estructuras I"
+	"EC5344" -> "Sistemas Digitales"
+	else -> subjectCode
 }
 
 private fun sampleEditableAttempts() = listOf(

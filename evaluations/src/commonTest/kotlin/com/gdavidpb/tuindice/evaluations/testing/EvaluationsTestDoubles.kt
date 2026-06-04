@@ -5,12 +5,14 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
+import com.gdavidpb.tuindice.evaluations.data.model.LocalCurrentTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
@@ -25,6 +27,7 @@ import com.gdavidpb.tuindice.evaluations.domain.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
@@ -38,8 +41,8 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 
-private const val PAST_EVALUATION_DATE = 1_700_000_000_000L
-private const val FUTURE_EVALUATION_DATE = 1_900_000_000_000L
+private const val PAST_EVALUATION_DATE = 1_780_545_600_000L
+private const val FUTURE_EVALUATION_DATE = 1_780_632_000_000L
 const val DEFAULT_HAS_SYNCED_EVALUATIONS = true
 
 class ReadyRecordDataPrerequisiteRepository(
@@ -73,6 +76,20 @@ val SECOND_EVALUATION_SUBJECT = EditableAttemptDescriptor(
 	grade = 65
 )
 
+val DEFAULT_EVALUATION_TERM = EvaluationTermDescriptor(
+	id = DEFAULT_EVALUATION_SUBJECT.termId,
+	periodYear = 2026,
+	periodCode = AcademicTermPeriod.APR_JUL,
+	periodLabel = "Abril - Julio 2026"
+)
+
+val DEFAULT_LOCAL_EVALUATION_TERM = LocalCurrentTermDescriptor(
+	id = DEFAULT_EVALUATION_TERM.id,
+	periodYear = DEFAULT_EVALUATION_TERM.periodYear,
+	periodCode = DEFAULT_EVALUATION_TERM.periodCode,
+	periodLabel = DEFAULT_EVALUATION_TERM.periodLabel
+)
+
 val DEFAULT_LOCAL_EVALUATION_SUBJECT = LocalEditableAttemptDescriptor(
 	id = DEFAULT_EVALUATION_SUBJECT.id,
 	termId = DEFAULT_EVALUATION_SUBJECT.termId,
@@ -98,7 +115,7 @@ val DEFAULT_PENDING_EVALUATION = Evaluation(
 	termId = DEFAULT_EVALUATION_SUBJECT.termId,
 	scheduleMode = EvaluationScheduleMode.DATED,
 	grade = null,
-	maxGrade = 100.0,
+	maxGrade = 35.0,
 	date = FUTURE_EVALUATION_DATE,
 	type = EvaluationType.QUIZ,
 	state = EvaluationState.PENDING
@@ -110,8 +127,8 @@ val DEFAULT_COMPLETED_EVALUATION = Evaluation(
 	subjectCode = SECOND_EVALUATION_SUBJECT.code,
 	termId = SECOND_EVALUATION_SUBJECT.termId,
 	scheduleMode = EvaluationScheduleMode.DATED,
-	grade = 82.0,
-	maxGrade = 100.0,
+	grade = 18.0,
+	maxGrade = 25.0,
 	date = PAST_EVALUATION_DATE,
 	type = EvaluationType.TEST,
 	state = EvaluationState.COMPLETED
@@ -191,7 +208,8 @@ class RecordingEvaluationRepository(
 	private val availableSubjects: List<EditableAttemptDescriptor> = listOf(
 		DEFAULT_EVALUATION_SUBJECT,
 		SECOND_EVALUATION_SUBJECT
-	)
+	),
+	private val currentTerm: EvaluationTermDescriptor? = DEFAULT_EVALUATION_TERM
 ) : EvaluationRepository {
 	private val evaluationsState = MutableStateFlow(initialEvaluations)
 
@@ -263,6 +281,8 @@ class RecordingEvaluationRepository(
 	}
 
 	override suspend fun getAvailableAttempts(): List<EditableAttemptDescriptor> = availableSubjects
+
+	override suspend fun getCurrentTerm(): EvaluationTermDescriptor? = currentTerm
 }
 
 class FakeDatabaseDataSource(
@@ -276,7 +296,8 @@ class FakeDatabaseDataSource(
 	private val availableSubjects: List<LocalEditableAttemptDescriptor> = listOf(
 		DEFAULT_LOCAL_EVALUATION_SUBJECT,
 		SECOND_LOCAL_EVALUATION_SUBJECT
-	)
+	),
+	private val currentTerm: LocalCurrentTermDescriptor? = DEFAULT_LOCAL_EVALUATION_TERM
 ) : DatabaseDataRepository {
 	private val snapshotState = MutableStateFlow(initialSnapshot)
 	private val hasSyncedEvaluationsState = MutableStateFlow(initialSnapshot.hasSynced)
@@ -299,6 +320,8 @@ class FakeDatabaseDataSource(
 	override suspend fun getConfirmedSnapshot(): LocalEvaluationsSnapshot = snapshotState.value
 
 	override suspend fun getAvailableAttempts(): List<LocalEditableAttemptDescriptor> = availableSubjects
+
+	override suspend fun getCurrentTerm(): LocalCurrentTermDescriptor? = currentTerm
 
 	override suspend fun confirmAddedEvaluation(evaluation: LocalEvaluation): LocalEvaluation {
 		addedEvaluations += evaluation

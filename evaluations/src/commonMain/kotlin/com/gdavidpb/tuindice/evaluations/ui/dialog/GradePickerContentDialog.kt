@@ -25,8 +25,8 @@ fun GradePickerContentDialog(
 		subjectCode = subjectCode,
 		acceptText = stringResource(Res.string.accept),
 		cancelText = stringResource(Res.string.cancel),
-		selectedGrade = selectedGrade ?: maxGrade ?: MIN_EVALUATION_GRADE,
-		gradeRange = MIN_EVALUATION_GRADE..(maxGrade ?: MAX_EVALUATION_GRADE),
+		selectedGrade = selectedGrade ?: MIN_EVALUATION_GRADE,
+		gradeRange = MIN_EVALUATION_GRADE..(maxGrade?.takeIf { value -> value > MIN_EVALUATION_GRADE } ?: MAX_EVALUATION_GRADE),
 		onGradeChange = onGradeChange,
 		onDismissRequest = onDismissRequest,
 		dismissOnConfirm = dismissOnConfirm

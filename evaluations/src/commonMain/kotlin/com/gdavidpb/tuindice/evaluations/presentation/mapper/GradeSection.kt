@@ -27,8 +27,8 @@ fun EvaluationGradeSectionItem.updated(
 	maxGrade: Double?
 ): EvaluationGradeSectionItem {
 	return copy(
-		gradeText = (grade ?: 0.0).formatGrade(decimals = 2),
-		maxGradeText = (maxGrade ?: 0.0).formatGrade(decimals = 2),
+		gradeText = grade.formatScoreText(maxGrade),
+		maxGradeText = maxGrade.formatWeightText(),
 		showsGradeChip = shouldShowGradeChip(isOverdue, maxGrade)
 	)
 }
@@ -43,8 +43,8 @@ private fun createEvaluationGradeSectionItem(
 	return EvaluationGradeSectionItem(
 		maxGradeTitleText = maxGradeTitleText,
 		overdueTitleText = overdueTitleText,
-		gradeText = (grade ?: 0.0).formatGrade(decimals = 2),
-		maxGradeText = (maxGrade ?: 0.0).formatGrade(decimals = 2),
+		gradeText = grade.formatScoreText(maxGrade),
+		maxGradeText = maxGrade.formatWeightText(),
 		showsGradeChip = shouldShowGradeChip(isOverdue, maxGrade)
 	)
 }
@@ -54,3 +54,25 @@ private fun shouldShowGradeChip(
 	maxGrade: Double?
 ): Boolean =
 	isOverdue && maxGrade != null && maxGrade > 0.0
+
+private fun Double?.formatScoreText(maxGrade: Double?): String {
+	val maxGradeText = maxGrade?.formatCompactGrade() ?: "--"
+
+	return this?.let { grade ->
+		"${grade.formatCompactGrade()} / $maxGradeText"
+	} ?: "-- / $maxGradeText"
+}
+
+private fun Double?.formatWeightText(): String {
+	return this?.let { weight ->
+		weight.formatCompactGrade()
+	} ?: "--"
+}
+
+private fun Double.formatCompactGrade(): String {
+	return if (this == toInt().toDouble()) {
+		formatGrade(decimals = 0)
+	} else {
+		formatGrade(decimals = 2)
+	}
+}

@@ -4,7 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsTab
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsContentState
 import com.gdavidpb.tuindice.evaluations.testing.uiAvailableFilters
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -14,48 +14,40 @@ import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class EvaluationsContentViewUiTest {
 	@Test
-	fun when_fabAndFilterActionsTapped_then_invokeCallbacks() = runTuIndiceUiTest {
-		val selectedEvents = mutableListOf<Pair<EvaluationFilter, Boolean>>()
-		val availableFilters = uiAvailableFilters()
-		val state = evaluationsContentState(
-			activeFilters = listOf(availableFilters.first())
-		)
+	fun when_fabAndTabActionsTapped_then_invokeCallbacks() = runTuIndiceUiTest {
+		val state = evaluationsContentState()
+		val selectedTabs = mutableListOf<EvaluationsTab>()
 		var addClicks = 0
-		var clearClicks = 0
 
 		setTuIndiceTestContent {
 			EvaluationsContentView(
 				state = state,
 				onAddEvaluationClick = { addClicks++ },
-				onClearFiltersClick = { clearClicks++ },
-				onFilterCheckedChange = { filter, checked ->
-					selectedEvents += filter to checked
-				},
+				onClearFiltersClick = {},
+				onFilterCheckedChange = { _, _ -> },
 				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
-				onEvaluationDelete = {}
+				onEvaluationDelete = {},
+				onTabClick = { tab -> selectedTabs += tab }
 			)
 		}
 
 		assertNodeVisible(EvaluationsUiTags.EvaluationsContentContainer)
-		assertNodeVisible(EvaluationsUiTags.EvaluationsFiltersContainer)
+		assertNodeVisible(EvaluationsUiTags.EvaluationsTabRow)
+		assertNodeVisible(EvaluationsUiTags.EvaluationsWeekStrip)
 		assertNodeVisible(EvaluationsUiTags.EvaluationsList)
-		assertNodeVisible(EvaluationsUiTags.EvaluationsClearFiltersFab)
+		assertNodeHidden(EvaluationsUiTags.EvaluationsFiltersContainer)
+		assertNodeHidden(EvaluationsUiTags.EvaluationsClearFiltersFab)
 		assertNodeVisible(EvaluationsUiTags.EvaluationsAddFab)
 
-		onNodeWithTag(EvaluationsUiTags.filterChip(availableFilters[1].getLabel())).performClick()
-		onNodeWithTag(EvaluationsUiTags.EvaluationsClearFiltersFab).performClick()
+		onNodeWithTag(EvaluationsUiTags.EvaluationsHistoryTab).performClick()
 		onNodeWithTag(EvaluationsUiTags.EvaluationsAddFab).performClick()
 
-		assertEquals(1, selectedEvents.size)
-		assertEquals(availableFilters[1], selectedEvents.first().first)
-		assertTrue(selectedEvents.first().second)
-		assertEquals(1, clearClicks)
+		assertEquals(listOf(EvaluationsTab.History), selectedTabs)
 		assertEquals(1, addClicks)
 	}
 
@@ -71,12 +63,16 @@ class EvaluationsContentViewUiTest {
 				onFilterCheckedChange = { _, _ -> },
 				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
-				onEvaluationDelete = {}
+				onEvaluationDelete = {},
+				onTabClick = {}
 			)
 		}
 
 		assertNodeVisible(EvaluationsUiTags.EvaluationsList)
+		assertNodeVisible(EvaluationsUiTags.EvaluationsTabRow)
+		assertNodeVisible(EvaluationsUiTags.EvaluationsWeekStrip)
 		assertNodeVisible(EvaluationsUiTags.EvaluationsAddFab)
+		assertNodeHidden(EvaluationsUiTags.EvaluationsFiltersContainer)
 		assertNodeHidden(EvaluationsUiTags.EvaluationsClearFiltersFab)
 	}
 
@@ -95,44 +91,47 @@ class EvaluationsContentViewUiTest {
 				onFilterCheckedChange = { _, _ -> },
 				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
-				onEvaluationDelete = {}
+				onEvaluationDelete = {},
+				onTabClick = {}
 			)
 		}
 
 		assertNodeVisible(EvaluationsUiTags.EvaluationsContentContainer)
+		assertNodeVisible(EvaluationsUiTags.EvaluationsTabRow)
+		assertNodeVisible(EvaluationsUiTags.EvaluationsWeekStrip)
 		assertNodeVisible(BaseUiTags.EmptyViewContainer)
 		assertNodeVisible(EvaluationsUiTags.EvaluationsAddFab)
 		assertNodeHidden(EvaluationsUiTags.EvaluationsClearFiltersFab)
+		assertNodeHidden(EvaluationsUiTags.EvaluationsFiltersContainer)
 		assertNodeHidden(EvaluationsUiTags.EvaluationsList)
 	}
 
 	@Test
-	fun when_addAndClearFilterActionsTapped_then_forwardsCallbacks() = runTuIndiceUiTest {
+	fun when_activeFiltersExist_then_filterControlsStayHidden() = runTuIndiceUiTest {
 		val state = evaluationsContentState(
 			activeFilters = listOf(uiAvailableFilters().first())
 		)
 		var addClicks = 0
-		var clearClicks = 0
 
 		setTuIndiceTestContent {
 			EvaluationsContentView(
 				state = state,
 				onAddEvaluationClick = { addClicks++ },
-				onClearFiltersClick = { clearClicks++ },
+				onClearFiltersClick = {},
 				onFilterCheckedChange = { _, _ -> },
 				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
-				onEvaluationDelete = {}
+				onEvaluationDelete = {},
+				onTabClick = {}
 			)
 		}
 
 		assertNodeVisible(EvaluationsUiTags.EvaluationsAddFab)
-		assertNodeVisible(EvaluationsUiTags.EvaluationsClearFiltersFab)
+		assertNodeHidden(EvaluationsUiTags.EvaluationsFiltersContainer)
+		assertNodeHidden(EvaluationsUiTags.EvaluationsClearFiltersFab)
 
-		onNodeWithTag(EvaluationsUiTags.EvaluationsClearFiltersFab).performClick()
 		onNodeWithTag(EvaluationsUiTags.EvaluationsAddFab).performClick()
 
-		assertEquals(1, clearClicks)
 		assertEquals(1, addClicks)
 	}
 }

@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import kotlinx.coroutines.flow.Flow
 
@@ -18,4 +19,5 @@ interface EvaluationRepository {
 	suspend fun removeEvaluation(remove: EvaluationRemove)
 
 	suspend fun getAvailableAttempts(): List<EditableAttemptDescriptor>
+	suspend fun getCurrentTerm(): EvaluationTermDescriptor?
 }

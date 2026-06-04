@@ -37,7 +37,7 @@ class EvaluationsUseCaseContractTest {
 		useCase.execute(flowOf(listOf(filter))).test {
 			val result = awaitLoadingThenData(this) as GetEvaluations.Content
 			assertEquals(
-				listOf(DEFAULT_COMPLETED_EVALUATION, DEFAULT_PENDING_EVALUATION),
+				listOf(DEFAULT_PENDING_EVALUATION, DEFAULT_COMPLETED_EVALUATION),
 				result.originalEvaluations
 			)
 			assertEquals(listOf(DEFAULT_PENDING_EVALUATION), result.filteredEvaluations)
