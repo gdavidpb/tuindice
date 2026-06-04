@@ -225,22 +225,13 @@ actions:
 
   - id: evaluations.Evaluations.LoadEvaluations
     classification: internal
-    reason: list bootstrap and filter observation
+    reason: list bootstrap
   - id: evaluations.Evaluations.RefreshEvaluations
     classification: user
     variants: [success, failed-retry, waiting-record, no-attempts]
     selector: base_error_view_retry_button
     flow: e2e/maestro/flows/evaluations/evaluations-smoke.yaml
     fixture_state: evaluations-content
-  - id: evaluations.Evaluations.CheckEvaluationFilter
-    classification: internal
-    reason: legacy filter state retained in contract but no visible filter controls are rendered
-  - id: evaluations.Evaluations.UncheckEvaluationFilter
-    classification: internal
-    reason: legacy filter state retained in contract but no visible filter controls are rendered
-  - id: evaluations.Evaluations.ClearEvaluationFilters
-    classification: internal
-    reason: legacy filter state retained in contract but no visible clear-filters control is rendered
   - id: evaluations.Evaluations.SelectWeek
     classification: user
     variants: [horizontal-week-swipe]

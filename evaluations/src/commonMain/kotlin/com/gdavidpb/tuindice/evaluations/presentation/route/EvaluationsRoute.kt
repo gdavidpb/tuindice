@@ -59,8 +59,6 @@ fun EvaluationsRoute(
 		onEvaluationClick = viewModel::showEvaluationGradeDialogAction,
 		onEvaluationEdit = viewModel::editEvaluationAction,
 		onEvaluationDelete = viewModel::removeEvaluationAction,
-		onFilterCheckedChange = viewModel::toggleFilterAction,
-		onClearFiltersClick = viewModel::clearFiltersAction,
 		onWeekClick = viewModel::selectWeekAction,
 		onRetryClick = {
 			viewModel.loadEvaluationsAction()

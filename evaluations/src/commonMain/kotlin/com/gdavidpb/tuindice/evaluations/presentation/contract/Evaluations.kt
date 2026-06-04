@@ -4,12 +4,9 @@ import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationFilterGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
-import kotlinx.coroutines.flow.Flow
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.screen_title_evaluations
 
@@ -34,13 +31,8 @@ object Evaluations {
 					title = weekItem.labelText,
 					groups = evaluationGroups
 				)
-			),
-			val filterGroups: List<EvaluationFilterGroupItem>,
-			val activeFilters: List<EvaluationFilter>
-		) : State() {
-			val hasActiveFilters: Boolean
-				get() = activeFilters.isNotEmpty()
-		}
+			)
+		) : State()
 
 		data object Empty : State()
 
@@ -50,21 +42,9 @@ object Evaluations {
 	}
 
 	sealed class Action : ViewAction() {
-		class LoadEvaluations(
-			val activeFilters: Flow<List<EvaluationFilter>>
-		) : Action()
+		data object LoadEvaluations : Action()
 
 		data object RefreshEvaluations : Action()
-
-		class CheckEvaluationFilter(
-			val filter: EvaluationFilter
-		) : Action()
-
-		class UncheckEvaluationFilter(
-			val filter: EvaluationFilter
-		) : Action()
-
-		data object ClearEvaluationFilters : Action()
 
 		class SelectWeek(
 			val weekNumber: Int

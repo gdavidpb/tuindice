@@ -23,14 +23,9 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationCourseFilter
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateFilter
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateGroup
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationStateFilter
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.asIcon
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationFilterGroupItemList
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationAttemptPickerItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationGradeSectionItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
@@ -362,33 +357,6 @@ private fun PensumSampleNodeState.toVisualStyle(): PensumScreenModel.NodeVisualS
 	}
 }
 
-private fun sampleEvaluationFilters() = listOf(
-	EvaluationStateFilter(
-		label = "Pendientes"
-	) { evaluation -> evaluation.state == EvaluationState.PENDING },
-	EvaluationStateFilter(
-		label = "Completadas"
-	) { evaluation -> evaluation.state == EvaluationState.COMPLETED },
-	EvaluationStateFilter(
-		label = "Sin nota"
-	) { evaluation -> evaluation.state == EvaluationState.OVERDUE },
-	EvaluationCourseFilter("CI2611"),
-	EvaluationCourseFilter("EC5344"),
-	EvaluationCourseFilter("MA1111"),
-	EvaluationDateFilter(
-		group = EvaluationDateGroup.Yesterday,
-		label = "Ayer"
-	) { evaluation -> evaluation.date == SAMPLE_DATE },
-	EvaluationDateFilter(
-		group = EvaluationDateGroup.Tomorrow,
-		label = "Mañana"
-	) { evaluation -> evaluation.date == SAMPLE_DATE + 604_800_000L },
-	EvaluationDateFilter(
-		group = EvaluationDateGroup.WeeksAhead(weeks = 2),
-		label = "En 2 semanas"
-	) { evaluation -> evaluation.date == SAMPLE_DATE - 1_296_000_000L }
-)
-
 internal fun sampleEvaluationsState(): Evaluations.State.Content {
 	val upcomingGroups = listOf(
 			EvaluationsGroupItem(
@@ -444,9 +412,7 @@ internal fun sampleEvaluationsState(): Evaluations.State.Content {
 		weekItem = sampleEvaluationsWeekItem(),
 		weekItems = sampleEvaluationsWeekItems(),
 		evaluationGroups = evaluationGroups,
-		evaluationWeekGroups = listOf(sampleEvaluationsWeekGroupItem(evaluationGroups)),
-		filterGroups = sampleEvaluationFilters().toEvaluationFilterGroupItemList(activeFilters = emptyList()),
-		activeFilters = emptyList()
+		evaluationWeekGroups = listOf(sampleEvaluationsWeekGroupItem(evaluationGroups))
 	)
 }
 

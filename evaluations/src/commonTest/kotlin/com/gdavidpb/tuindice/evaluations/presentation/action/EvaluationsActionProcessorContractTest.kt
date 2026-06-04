@@ -25,7 +25,7 @@ import kotlin.test.assertTrue
 
 class EvaluationsActionProcessorContractTest {
 	@Test
-	fun loadEvaluationsActionProcessor_reducesStateToContent_withAvailableFilters() = runTest {
+	fun loadEvaluationsActionProcessor_reducesStateToContent_withWeeklyGroups() = runTest {
 		val processor = LoadEvaluationsActionProcessor(
 			getEvaluationsUseCase = GetEvaluationsUseCase(
 				evaluationRepository = RecordingEvaluationRepository(
@@ -47,7 +47,7 @@ class EvaluationsActionProcessorContractTest {
 		val effects = mutableListOf<Evaluations.Effect>()
 
 		processor.process(
-			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
+			action = Evaluations.Action.LoadEvaluations,
 			sideEffect = effects::add
 		).test {
 			val content = assertIs<Evaluations.State.Content>(awaitItem()(Evaluations.State.Idle))
@@ -64,12 +64,6 @@ class EvaluationsActionProcessorContractTest {
 					weekGroup.groups.any { group -> group.items.isNotEmpty() }
 				}
 			)
-			assertTrue(
-				content.filterGroups
-					.flatMap { group -> group.items }
-					.any { item -> item.filter.getLabel() == DEFAULT_EVALUATION_SUBJECT.code }
-			)
-
 			awaitComplete()
 		}
 
@@ -91,7 +85,7 @@ class EvaluationsActionProcessorContractTest {
 		)
 
 		processor.process(
-			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
+			action = Evaluations.Action.LoadEvaluations,
 			sideEffect = {}
 		).test {
 			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Idle))
@@ -115,7 +109,7 @@ class EvaluationsActionProcessorContractTest {
 		)
 
 		processor.process(
-			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
+			action = Evaluations.Action.LoadEvaluations,
 			sideEffect = {}
 		).test {
 			assertEquals(Evaluations.State.Empty, awaitItem()(Evaluations.State.Idle))
@@ -139,7 +133,7 @@ class EvaluationsActionProcessorContractTest {
 		)
 
 		processor.process(
-			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
+			action = Evaluations.Action.LoadEvaluations,
 			sideEffect = {}
 		).test {
 			assertEquals(Evaluations.State.NoAttempts, awaitItem()(Evaluations.State.Idle))
@@ -166,7 +160,7 @@ class EvaluationsActionProcessorContractTest {
 		)
 
 		processor.process(
-			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
+			action = Evaluations.Action.LoadEvaluations,
 			sideEffect = {}
 		).test {
 			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Idle))
@@ -188,7 +182,7 @@ class EvaluationsActionProcessorContractTest {
 		)
 
 		processor.process(
-			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
+			action = Evaluations.Action.LoadEvaluations,
 			sideEffect = {}
 		).test {
 			assertEquals(Evaluations.State.Failed, awaitItem()(Evaluations.State.Idle))

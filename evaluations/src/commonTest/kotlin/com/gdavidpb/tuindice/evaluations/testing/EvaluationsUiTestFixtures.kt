@@ -10,13 +10,10 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationStateFilter
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation as EvaluationContract
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.asIcon
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationAttemptPickerItems
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationFilterGroupItemList
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationTypePickerItemList
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationGradeSectionItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
@@ -38,15 +35,6 @@ fun uiSubjects(): List<EditableAttemptDescriptor> = listOf(
 fun uiDomainEvaluations(): List<Evaluation> = listOf(
 	DEFAULT_COMPLETED_EVALUATION,
 	DEFAULT_PENDING_EVALUATION
-)
-
-fun uiAvailableFilters(): List<EvaluationFilter> = listOf(
-	EvaluationStateFilter(label = "Pendientes") { evaluation ->
-		evaluation.state == EvaluationState.PENDING
-	},
-	EvaluationStateFilter(label = "Completadas") { evaluation ->
-		evaluation.state == EvaluationState.COMPLETED
-	}
 )
 
 fun evaluationContentState(
@@ -81,26 +69,14 @@ fun evaluationContentState(
 }
 
 fun evaluationsContentState(
-	originalEvaluations: List<Evaluation> = uiDomainEvaluations(),
-	activeFilters: List<EvaluationFilter> = emptyList()
+	originalEvaluations: List<Evaluation> = uiDomainEvaluations()
 ): Evaluations.State.Content {
-	val filteredEvaluations = if (activeFilters.isEmpty()) {
-		originalEvaluations
-	} else {
-		originalEvaluations.filter { evaluation ->
-			activeFilters.all { filter -> filter.match(evaluation) }
-		}
-	}
-	val evaluationGroups = filteredEvaluations.toFixtureEvaluationGroups()
+	val evaluationGroups = originalEvaluations.toFixtureEvaluationGroups()
 
 	return Evaluations.State.Content(
 		weekItem = evaluationsWeekItemFixture(),
 		evaluationGroups = evaluationGroups,
-		evaluationWeekGroups = evaluationsWeekGroupItemsFixture(evaluationGroups),
-		filterGroups = uiAvailableFilters().toEvaluationFilterGroupItemList(
-			activeFilters = activeFilters
-		),
-		activeFilters = activeFilters
+		evaluationWeekGroups = evaluationsWeekGroupItemsFixture(evaluationGroups)
 	)
 }
 

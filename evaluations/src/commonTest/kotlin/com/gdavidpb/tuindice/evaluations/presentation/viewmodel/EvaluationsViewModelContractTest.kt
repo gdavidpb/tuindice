@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationCourseFilter
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
@@ -24,13 +23,12 @@ import kotlin.test.assertIs
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class EvaluationsViewModelContractTest {
 	@Test
-	fun publicActions_loadContent_updateFilters_andEmitNavigationEffect() = runTest {
+	fun publicActions_loadContent_andEmitNavigationEffect() = runTest {
 		val viewModel = createViewModel(testScheduler)
 		val stateCollector = backgroundScope.launchStateCollector(
 			flow = viewModel.state,
 			testScheduler = testScheduler
 		)
-		val filter = EvaluationCourseFilter(DEFAULT_EVALUATION_SUBJECT.code)
 
 		try {
 			viewModel.state.test {
@@ -45,16 +43,6 @@ class EvaluationsViewModelContractTest {
 						.flatMap { weekGroup -> weekGroup.groups }
 						.flatMap { group -> group.items }
 						.size
-				)
-
-				viewModel.toggleFilterAction(filter, isChecked = true)
-				val filtered = assertIs<Evaluations.State.Content>(awaitItem())
-				assertEquals(listOf(filter), filtered.activeFilters)
-				assertEquals(
-					listOf(filter),
-					filtered.filterGroups.flatMap { group -> group.items }
-						.filter { item -> item.isChecked }
-						.map { item -> item.filter }
 				)
 
 				cancelAndIgnoreRemainingEvents()
@@ -97,9 +85,6 @@ class EvaluationsViewModelContractTest {
 					exceptionHandler = UpdateEvaluationsExceptionHandler()
 				)
 			),
-			checkEvaluationFilterActionProcessor = CheckEvaluationFilterActionProcessor(),
-			uncheckEvaluationFilterActionProcessor = UncheckEvaluationFilterActionProcessor(),
-			clearEvaluationFiltersActionProcessor = ClearEvaluationFiltersActionProcessor(),
 			selectEvaluationsWeekActionProcessor = SelectEvaluationsWeekActionProcessor(),
 			openAddEvaluationActionProcessor = OpenAddEvaluationActionProcessor(),
 			pickEvaluationGradeActionProcessor = PickEvaluationGradeActionProcessor(

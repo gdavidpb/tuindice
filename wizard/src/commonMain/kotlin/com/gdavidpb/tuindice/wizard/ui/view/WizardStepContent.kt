@@ -9,7 +9,6 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationScreen
 import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationsScreen
 import com.gdavidpb.tuindice.pensum.ui.screen.PensumScreen
@@ -140,8 +139,6 @@ fun WizardStepContent(
 				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
 				onEvaluationDelete = {},
-				onFilterCheckedChange = { _: EvaluationFilter, _: Boolean -> },
-				onClearFiltersClick = {},
 				onRetryClick = {},
 				scrollEnabled = false,
 				openActionsEvaluationId = focusedEvaluationId,

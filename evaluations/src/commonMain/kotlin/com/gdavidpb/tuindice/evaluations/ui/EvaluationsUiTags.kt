@@ -2,13 +2,10 @@ package com.gdavidpb.tuindice.evaluations.ui
 
 object EvaluationsUiTags {
 	const val EvaluationsContentContainer = "evaluations_content_container"
-	const val EvaluationsFiltersContainer = "evaluations_filters_container"
-	const val EvaluationsFilterRow = "evaluations_filter_row"
 	const val EvaluationsWeekStrip = "evaluations_week_strip"
 	const val EvaluationsWeekLabel = "evaluations_week_label"
 	const val EvaluationsList = "evaluations_list"
 	const val EvaluationsAddFab = "evaluations_add_fab"
-	const val EvaluationsClearFiltersFab = "evaluations_clear_filters_fab"
 	const val EvaluationsLoadingIndicator = "evaluations_loading_indicator"
 
 	const val EvaluationContentContainer = "evaluation_content_container"
@@ -44,12 +41,6 @@ object EvaluationsUiTags {
 	const val EvaluationSwipeToDismissContainer = "evaluation_swipe_to_dismiss_container"
 	const val EvaluationSwipeEditAction = "evaluation_swipe_edit_action"
 	const val EvaluationSwipeDeleteAction = "evaluation_swipe_delete_action"
-
-	fun filterChip(label: String): String =
-		"evaluations_filter_chip_${label.toTagSuffix()}"
-
-	fun filterChipCheck(label: String): String =
-		"evaluations_filter_chip_check_${label.toTagSuffix()}"
 
 	fun evaluationHeader(label: String): String =
 		"evaluation_header_${label.toTagSuffix()}"

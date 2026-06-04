@@ -38,8 +38,6 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetGrade
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetMaxGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetAttemptActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetTypeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.CheckEvaluationFilterActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.ClearEvaluationFiltersActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEvaluationsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenAddEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenEvaluationActionProcessor
@@ -48,7 +46,6 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.Refresh
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RemoveEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SelectEvaluationsWeekActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SetEvaluationGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.UncheckEvaluationFilterActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import com.gdavidpb.tuindice.persistence.data.room.RoomMutationEnvelopeStore
@@ -88,9 +85,6 @@ val evaluationsModule = module {
 
 	factoryOf(::LoadEvaluationsActionProcessor)
 	factoryOf(::RefreshEvaluationsActionProcessor)
-	factoryOf(::CheckEvaluationFilterActionProcessor)
-	factoryOf(::UncheckEvaluationFilterActionProcessor)
-	factoryOf(::ClearEvaluationFiltersActionProcessor)
 	factoryOf(::SelectEvaluationsWeekActionProcessor)
 	factoryOf(::OpenAddEvaluationActionProcessor)
 	factoryOf(::PickEvaluationGradeActionProcessor)
