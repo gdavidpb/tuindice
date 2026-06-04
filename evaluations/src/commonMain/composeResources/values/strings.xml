@@ -52,14 +52,13 @@
 	<string name="label_add_evaluation_subject">Materia</string>
 	<string name="label_add_evaluation_type">Tipo</string>
 	<string name="label_add_evaluation_date">Fecha</string>
-	<string name="label_add_evaluation_grades">Nota obtenida / peso</string>
-	<string name="label_add_evaluation_max_grade">Peso (%)</string>
+	<string name="label_add_evaluation_grades">Nota obtenida / máxima</string>
+	<string name="label_add_evaluation_max_grade">Nota máxima</string>
 	<string name="label_evaluation_date">Elige una fecha</string>
 	<string name="label_evaluation_no_date">Evaluación continua</string>
 	<string name="label_evaluation_assign_today">Asignar hoy</string>
 	<string name="label_evaluation_assign_grade">Sin nota</string>
 	<string name="label_evaluation_no_date_short">Sin fecha</string>
-	<string name="label_evaluation_weight_separator">peso</string>
 	<string name="label_evaluation_swipe_delete">Eliminar</string>
 	<string name="label_evaluation_swipe_edit">Editar</string>
 	<string name="evaluation_date_today">Hoy</string>
@@ -72,10 +71,10 @@
 
 	<string name="error_evaluation_subject_missed">Debes seleccionar una materia</string>
 	<string name="error_evaluation_type_missed">Debes seleccionar un tipo</string>
-	<string name="error_evaluation_max_grade_missed">Debes asignar un peso</string>
+	<string name="error_evaluation_max_grade_missed">Debes asignar una nota máxima</string>
 
 	<string name="dialog_title_add_evaluation_grade">Nota obtenida</string>
-	<string name="dialog_title_add_evaluation_max_grade">Peso (%)</string>
+	<string name="dialog_title_add_evaluation_max_grade">Nota máxima</string>
 	<string name="dialog_title_edit_evaluation_grade">Modificar nota</string>
 
 	<string name="snack_evaluation_set_grade">Nota actualizada</string>

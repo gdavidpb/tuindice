@@ -508,10 +508,10 @@ internal fun sampleEvaluationFormState(): Evaluation.State.Content {
 			date = SAMPLE_DATE,
 			maxGrade = 35.0,
 			gradeSection = EvaluationGradeSectionItem(
-				maxGradeTitleText = "Peso (%)",
-				overdueTitleText = "Nota",
-				gradeText = "-- / 35",
-				maxGradeText = "35",
+				maxGradeTitleText = "Nota máxima",
+				overdueTitleText = "Nota obtenida / máxima",
+				gradeText = "0.00",
+				maxGradeText = "35.00",
 				showsGradeChip = false
 			)
 	)

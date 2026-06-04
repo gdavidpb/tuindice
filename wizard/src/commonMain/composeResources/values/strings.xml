@@ -48,7 +48,7 @@
 	<string name="wizard_evaluation_swipe_title">Editar o eliminar evaluaciones</string>
 	<string name="wizard_evaluation_swipe_message">Toca **Sin nota** o la **nota** para establecer la calificación. Toca la **tarjeta** o haz **swipe hacia la izquierda** para abrir las acciones y desde ahí **editar** o **eliminar** la evaluación.</string>
 	<string name="wizard_evaluation_form_title">Nueva evaluación</string>
-	<string name="wizard_evaluation_form_message">Al crear una **evaluación** eliges la **materia**, el **tipo**, la **fecha** y el **peso** para mantener tu calendario académico al día.</string>
+	<string name="wizard_evaluation_form_message">Al crear una **evaluación** eliges la **materia**, el **tipo**, la **fecha** y la **nota máxima** para mantener tu calendario académico al día.</string>
 	<string name="wizard_about_title">Ayuda e información</string>
 	<string name="wizard_about_message">En **Acerca de** encuentras **soporte**, **privacidad**, **términos** e **información** de la app cuando necesites ayuda o quieras revisar detalles.</string>
 
