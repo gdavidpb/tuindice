@@ -47,15 +47,15 @@ fun EvaluationItemView(
 			.clickable(onClick = onCardClick)
 			.fillMaxWidth()
 			.padding(
-				horizontal = 16.dp,
-				vertical = 8.dp
+				horizontal = EvaluationCardHorizontalPadding,
+				vertical = EvaluationCardVerticalPadding
 			)
 	) {
 		Box(
 			modifier = Modifier
 				.fillMaxWidth()
 				.background(MaterialTheme.colorScheme.surfaceVariant)
-				.padding(16.dp)
+				.padding(EvaluationCardContentPadding)
 		) {
 			Column {
 				Row(
@@ -110,7 +110,7 @@ fun EvaluationItemView(
 				Row(
 					modifier = Modifier
 						.fillMaxWidth()
-						.padding(top = 10.dp),
+						.padding(top = EvaluationSubjectTopPadding),
 					verticalAlignment = Alignment.CenterVertically
 				) {
 					SubjectCodeChip(
@@ -123,7 +123,7 @@ fun EvaluationItemView(
 				Row(
 					modifier = Modifier
 						.fillMaxWidth()
-						.padding(top = 16.dp),
+						.padding(top = EvaluationMetadataTopPadding),
 					verticalAlignment = Alignment.CenterVertically
 				) {
 					Icon(
@@ -153,7 +153,10 @@ fun EvaluationItemView(
 									border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
 									shape = RoundedCornerShape(16.dp)
 								)
-								.padding(horizontal = 22.dp, vertical = 10.dp),
+								.padding(
+									horizontal = EvaluationGradeHorizontalPadding,
+									vertical = EvaluationGradeVerticalPadding
+								),
 							contentAlignment = Alignment.Center
 						) {
 							Text(
@@ -169,6 +172,14 @@ fun EvaluationItemView(
 		}
 	}
 }
+
+private val EvaluationCardHorizontalPadding = 16.dp
+private val EvaluationCardVerticalPadding = 6.dp
+private val EvaluationCardContentPadding = 14.dp
+private val EvaluationSubjectTopPadding = 8.dp
+private val EvaluationMetadataTopPadding = 12.dp
+private val EvaluationGradeHorizontalPadding = 20.dp
+private val EvaluationGradeVerticalPadding = 8.dp
 
 private data class StatusColors(
 	val container: Color,

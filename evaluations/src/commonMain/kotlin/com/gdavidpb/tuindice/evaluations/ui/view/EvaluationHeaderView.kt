@@ -1,6 +1,9 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,38 +26,52 @@ fun EvaluationHeaderView(
 	countText: String,
 	modifier: Modifier = Modifier
 ) {
-	Row(
+	Column(
 		modifier = modifier
 			.background(MaterialTheme.colorScheme.background)
 			.fillMaxWidth()
-			.padding(
-				top = 14.dp,
-				bottom = 6.dp,
-				start = 20.dp,
-				end = 20.dp
-			),
-		verticalAlignment = Alignment.CenterVertically
 	) {
-		Text(
+		Row(
 			modifier = Modifier
-				.testTag(EvaluationsUiTags.evaluationHeader(label))
-				.weight(1f),
-			text = label,
-			color = MaterialTheme.colorScheme.onSurfaceVariant,
-			style = MaterialTheme.typography.titleMedium,
-			fontWeight = FontWeight.Bold,
-			maxLines = 1,
-			overflow = TextOverflow.Ellipsis
-		)
+				.fillMaxWidth()
+				.padding(
+					top = 14.dp,
+					bottom = 8.dp,
+					start = 20.dp,
+					end = 20.dp
+				),
+			verticalAlignment = Alignment.CenterVertically
+		) {
+			Text(
+				modifier = Modifier
+					.testTag(EvaluationsUiTags.evaluationHeader(label))
+					.weight(1f),
+				text = label,
+				color = MaterialTheme.colorScheme.onSurfaceVariant,
+				style = MaterialTheme.typography.titleMedium,
+				fontWeight = FontWeight.Bold,
+				maxLines = 1,
+				overflow = TextOverflow.Ellipsis
+			)
 
-		Spacer(modifier = Modifier.width(12.dp))
+			Spacer(modifier = Modifier.width(12.dp))
 
-		Text(
-			text = countText,
-			color = MaterialTheme.colorScheme.onSurfaceVariant,
-			style = MaterialTheme.typography.titleSmall,
-			fontWeight = FontWeight.Medium,
-			maxLines = 1
+			Text(
+				text = countText,
+				color = MaterialTheme.colorScheme.onSurfaceVariant,
+				style = MaterialTheme.typography.titleSmall,
+				fontWeight = FontWeight.Medium,
+				maxLines = 1
+			)
+		}
+
+		Box(
+			modifier = Modifier
+				.fillMaxWidth()
+				.height(1.dp)
+				.background(MaterialTheme.colorScheme.outlineVariant.copy(alpha = HeaderDividerAlpha))
 		)
 	}
 }
+
+private const val HeaderDividerAlpha = 0.18f

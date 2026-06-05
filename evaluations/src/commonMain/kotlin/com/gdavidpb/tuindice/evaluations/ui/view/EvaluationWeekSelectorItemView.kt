@@ -26,6 +26,7 @@ import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 fun EvaluationWeekSelectorItemView(
 	item: EvaluationsWeekItem,
 	isSelected: Boolean,
+	showCurrentIndicator: Boolean = true,
 	modifier: Modifier = Modifier
 ) {
 	Row(
@@ -50,7 +51,7 @@ fun EvaluationWeekSelectorItemView(
 			overflow = TextOverflow.Ellipsis
 		)
 
-		if (item.isCurrent) {
+		if (showCurrentIndicator && item.isCurrent) {
 			Box(
 				modifier = Modifier
 					.padding(start = 8.dp)
