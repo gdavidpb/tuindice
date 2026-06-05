@@ -20,6 +20,13 @@
 	<string name="pensum_selection_modality">Modalidad</string>
 	<string name="pensum_selection_apply">Aplicar</string>
 	<string name="pensum_selection_cancel">Cancelar</string>
+	<string name="pensum_canvas_legend_approved">Aprobada</string>
+	<string name="pensum_canvas_legend_current">En curso</string>
+	<string name="pensum_canvas_legend_available">Disponible</string>
+	<string name="pensum_canvas_legend_blocked">Bloqueada</string>
+	<string name="pensum_fit_to_screen">Ajustar al contenido</string>
+	<string name="pensum_show_minimap">Mostrar mapa</string>
+	<string name="pensum_hide_minimap">Ocultar mapa</string>
 	<string name="pensum_zoom_in">Acercar</string>
 	<string name="pensum_zoom_out">Alejar</string>
 	<string name="pensum_subject_stats_content_description">Ver estadísticas de %1$s</string>

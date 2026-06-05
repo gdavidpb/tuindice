@@ -89,6 +89,36 @@ class PensumScreenUiTest {
 	}
 
 	@Test
+	fun when_contentIsDisplayed_then_canvasLegendAndViewportControlsAreAvailable() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = Pensum.State.Content(model = samplePensumModel()),
+				onRetryClick = {},
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		assertNodeVisible(PensumUiTags.CanvasLegend)
+		onNodeWithText("Aprobada").assertExists()
+		onNodeWithText("En curso").assertExists()
+		onNodeWithText("Disponible").assertExists()
+		onNodeWithText("Bloqueada").assertExists()
+		onNodeWithTag(PensumUiTags.FitToScreen).assertHasClickAction().performClick()
+		assertNodeHidden(PensumUiTags.MinimapToggle)
+		onNodeWithTag(PensumUiTags.ZoomIn).assertHasClickAction().performClick()
+		onNodeWithTag(PensumUiTags.ZoomOut).assertHasClickAction()
+		assertNodeHidden(PensumUiTags.Minimap)
+		onNodeWithTag(PensumUiTags.MinimapToggle).assertHasClickAction().performClick()
+		assertNodeVisible(PensumUiTags.Minimap)
+		onNodeWithTag(PensumUiTags.FitToScreen).performClick()
+		assertNodeHidden(PensumUiTags.MinimapToggle)
+		assertNodeHidden(PensumUiTags.Minimap)
+	}
+
+	@Test
 	fun when_nodeIsWildcardSlot_then_statsButtonIsHidden() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			PensumScreen(

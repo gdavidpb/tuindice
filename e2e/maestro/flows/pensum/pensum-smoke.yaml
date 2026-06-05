@@ -11,7 +11,21 @@ appId: com.gdavidpb.tuindice.debug
     timeout: 30000
 - assertVisible:
     id: pensum_canvas
+- assertVisible:
+    id: pensum_canvas_legend
+- doubleTapOn:
+    id: pensum_canvas
+- doubleTapOn:
+    id: pensum_canvas
 - tapOn:
     id: pensum_zoom_in
+- assertVisible:
+    id: pensum_minimap_toggle
+- tapOn:
+    id: pensum_minimap_toggle
+- assertVisible:
+    id: pensum_minimap
 - tapOn:
     id: pensum_zoom_out
+- tapOn:
+    id: pensum_fit_to_screen

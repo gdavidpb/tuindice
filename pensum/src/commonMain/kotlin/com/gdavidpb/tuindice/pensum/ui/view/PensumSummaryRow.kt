@@ -90,7 +90,7 @@ fun PensumSummaryRow(
 	Row(
 		modifier = Modifier
 			.fillMaxWidth()
-			.background(ScreenBackground)
+			.background(MaterialTheme.colorScheme.surface)
 			.padding(horizontal = 16.dp, vertical = 10.dp)
 			.height(IntrinsicSize.Min),
 		verticalAlignment = Alignment.CenterVertically,

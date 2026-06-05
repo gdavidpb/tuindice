@@ -938,6 +938,10 @@ flows:
     primary_selectors:
       - pensum_screen
       - pensum_canvas
+      - pensum_canvas_legend
+      - pensum_fit_to_screen
+      - pensum_minimap
+      - pensum_minimap_toggle
       - pensum_zoom_in
       - pensum_zoom_out
   - id: pensum-refresh-not-found

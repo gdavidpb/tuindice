@@ -7,10 +7,8 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
@@ -51,6 +49,7 @@ import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import kotlin.math.PI
 import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.min
 import kotlin.math.sin
 import kotlinx.coroutines.launch
 
@@ -66,6 +65,8 @@ fun PensumGraphCanvas(
 	var savedScale by rememberSaveable(graphKey) { mutableStateOf<Float?>(null) }
 	var savedOffsetX by rememberSaveable(graphKey) { mutableStateOf<Float?>(null) }
 	var savedOffsetY by rememberSaveable(graphKey) { mutableStateOf<Float?>(null) }
+	var isMinimapToggleVisible by rememberSaveable(graphKey) { mutableStateOf(false) }
+	var isMinimapVisible by rememberSaveable(graphKey) { mutableStateOf(false) }
 	val scale = remember(graphKey) { Animatable(savedScale ?: InitialCanvasZoom) }
 	val offsetX = remember(graphKey) { Animatable(savedOffsetX ?: 0f) }
 	val offsetY = remember(graphKey) { Animatable(savedOffsetY ?: 0f) }
@@ -86,6 +87,7 @@ fun PensumGraphCanvas(
 			height = with(density) { model.canvas.height.dp.toPx() }
 		)
 		val panMarginPx = with(density) { CanvasPanMargin.toPx() }
+		val fitPaddingPx = with(density) { CanvasFitPadding.toPx() }
 		var selectedNodeId by remember(graphKey) { mutableStateOf<String?>(null) }
 		val selectedRequirementEdgeIds = remember(model.edges, selectedNodeId) {
 			model.requirementEdgeIdsTo(selectedNodeId)
@@ -104,7 +106,10 @@ fun PensumGraphCanvas(
 		}
 
 		LaunchedEffect(graphKey, viewportSizePx, canvasSizePx, panMarginPx) {
-			val restoredScale = savedScale?.coerceIn(MinCanvasZoom, MaxCanvasZoom) ?: InitialCanvasZoom
+			val restoredScale = savedScale?.coerceIn(
+				minimumValue = MinCanvasZoom,
+				maximumValue = MaxCanvasZoom
+			) ?: InitialCanvasZoom
 			val restoredOffset = if (savedOffsetX != null && savedOffsetY != null) {
 				Offset(
 					x = checkNotNull(savedOffsetX),
@@ -132,33 +137,14 @@ fun PensumGraphCanvas(
 			)
 		}
 
-		fun zoomTo(targetScale: Float) {
+		fun animateCanvasViewport(targetScale: Float, targetOffset: Offset) {
 			coroutineScope.launch {
-				val oldScale = scale.value
-				val newScale = targetScale.coerceIn(MinCanvasZoom, MaxCanvasZoom)
-				val viewportCenter = Offset(
-					x = viewportSizePx.width / 2f,
-					y = viewportSizePx.height / 2f
-				)
-				val currentOffset = Offset(offsetX.value, offsetY.value)
-				val targetOffset = constrainCanvasOffset(
-					offset = currentOffset.zoomedAround(
-						anchor = viewportCenter,
-						oldScale = oldScale,
-						newScale = newScale
-					),
-					scale = newScale,
-					canvasSizePx = canvasSizePx,
-					viewportSizePx = viewportSizePx,
-					panMarginPx = panMarginPx
-				)
-
 				scale.stop()
 				offsetX.stop()
 				offsetY.stop()
 				launch {
 					scale.animateTo(
-						targetValue = newScale,
+						targetValue = targetScale,
 						animationSpec = tween(
 							durationMillis = ZoomAnimationMillis,
 							easing = DecelerateEasing
@@ -184,16 +170,109 @@ fun PensumGraphCanvas(
 					)
 				}
 				saveCanvasViewport(
-					scaleValue = newScale,
+					scaleValue = targetScale,
 					offset = targetOffset
 				)
 			}
+		}
+
+		fun revealMinimapToggle() {
+			isMinimapToggleVisible = true
+		}
+
+		fun hideMinimap() {
+			isMinimapToggleVisible = false
+			isMinimapVisible = false
+		}
+
+		fun zoomTo(targetScale: Float, shouldRevealMinimapToggle: Boolean = true) {
+			if (shouldRevealMinimapToggle) {
+				revealMinimapToggle()
+			}
+			val oldScale = scale.value
+			val newScale = targetScale.coerceIn(MinCanvasZoom, MaxCanvasZoom)
+			val viewportCenter = Offset(
+				x = viewportSizePx.width / 2f,
+				y = viewportSizePx.height / 2f
+			)
+			val currentOffset = Offset(offsetX.value, offsetY.value)
+			val targetOffset = constrainCanvasOffset(
+				offset = currentOffset.zoomedAround(
+					anchor = viewportCenter,
+					oldScale = oldScale,
+					newScale = newScale
+				),
+				scale = newScale,
+				canvasSizePx = canvasSizePx,
+				viewportSizePx = viewportSizePx,
+				panMarginPx = panMarginPx
+			)
+
+			animateCanvasViewport(
+				targetScale = newScale,
+				targetOffset = targetOffset
+			)
+		}
+
+		fun fitCanvasOffset(targetScale: Float): Offset {
+			return constrainCanvasOffset(
+				offset = centerCanvasOffset(
+					scale = targetScale,
+					canvasSizePx = canvasSizePx,
+					viewportSizePx = viewportSizePx
+				),
+				scale = targetScale,
+				canvasSizePx = canvasSizePx,
+				viewportSizePx = viewportSizePx,
+				panMarginPx = panMarginPx
+			)
+		}
+
+		fun fitToScreen() {
+			hideMinimap()
+			val targetScale = fitCanvasScale(
+				viewportSizePx = viewportSizePx,
+				canvasSizePx = canvasSizePx,
+				paddingPx = fitPaddingPx
+			)
+
+			animateCanvasViewport(
+				targetScale = targetScale,
+				targetOffset = fitCanvasOffset(targetScale)
+			)
+		}
+
+		fun toggleDoubleTapZoom(anchor: Offset) {
+			if (scale.value >= DoubleTapZoomOutThreshold) {
+				fitToScreen()
+				return
+			}
+
+			val targetScale = DoubleTapCanvasZoom.coerceIn(MinCanvasZoom, MaxCanvasZoom)
+			revealMinimapToggle()
+			val targetOffset = constrainCanvasOffset(
+				offset = Offset(offsetX.value, offsetY.value).zoomedAround(
+					anchor = anchor,
+					oldScale = scale.value,
+					newScale = targetScale
+				),
+				scale = targetScale,
+				canvasSizePx = canvasSizePx,
+				viewportSizePx = viewportSizePx,
+				panMarginPx = panMarginPx
+			)
+
+			animateCanvasViewport(
+				targetScale = targetScale,
+				targetOffset = targetOffset
+			)
 		}
 
 		Box(
 			modifier = Modifier
 				.pointerInput(graphKey, viewportSizePx, canvasSizePx, panMarginPx) {
 					detectTransformGestures { centroid, pan, zoom, _ ->
+						revealMinimapToggle()
 						val oldScale = scale.value
 						val newScale = (oldScale * zoom).coerceIn(MinCanvasZoom, MaxCanvasZoom)
 						val currentOffset = Offset(offsetX.value, offsetY.value)
@@ -237,7 +316,10 @@ fun PensumGraphCanvas(
 				modifier = Modifier
 					.fillMaxSize()
 					.pointerInput(graphKey) {
-						detectTapGestures(onTap = { selectedNodeId = null })
+						detectTapGestures(
+							onTap = { selectedNodeId = null },
+							onDoubleTap = { tapOffset -> toggleDoubleTapZoom(tapOffset) }
+						)
 					}
 			) {
 				drawCanvasBackground(
@@ -275,26 +357,31 @@ fun PensumGraphCanvas(
 			}
 		}
 
-		Row(
-			modifier = Modifier
-				.align(Alignment.BottomEnd)
-				.padding(end = 16.dp, bottom = 16.dp),
-			horizontalArrangement = Arrangement.spacedBy(GraphControlsGap),
-			verticalAlignment = Alignment.Bottom
-		) {
+		if (isMinimapToggleVisible && isMinimapVisible) {
 			PensumMinimap(
 				model = model,
 				scale = scale.value,
 				offset = Offset(offsetX.value, offsetY.value),
 				viewportSizePx = viewportSizePx,
 				selectedRequirementEdgeIds = selectedRequirementEdgeIds,
-				densityScale = density.density
-			)
-			PensumZoomControls(
-				onZoomIn = { zoomTo(scale.value + ZoomButtonStep) },
-				onZoomOut = { zoomTo(scale.value - ZoomButtonStep) }
+				densityScale = density.density,
+				modifier = Modifier
+					.align(Alignment.BottomStart)
+					.padding(start = 16.dp, bottom = 16.dp)
 			)
 		}
+
+		PensumZoomControls(
+			modifier = Modifier
+				.align(Alignment.BottomEnd)
+				.padding(end = 16.dp, bottom = 16.dp),
+			isMinimapToggleVisible = isMinimapToggleVisible,
+			isMinimapVisible = isMinimapVisible,
+			onFitToScreen = { fitToScreen() },
+			onToggleMinimap = { isMinimapVisible = !isMinimapVisible },
+			onZoomIn = { zoomTo(scale.value + ZoomButtonStep) },
+			onZoomOut = { zoomTo(scale.value - ZoomButtonStep) }
+		)
 	}
 }
 
@@ -408,6 +495,35 @@ private fun Offset.zoomedAround(
 ): Offset {
 	val scaleChange = newScale / oldScale
 	return this + (anchor - this) * (1f - scaleChange)
+}
+
+private fun fitCanvasScale(
+	viewportSizePx: Size,
+	canvasSizePx: Size,
+	paddingPx: Float
+): Float {
+	if (canvasSizePx.width <= 0f || canvasSizePx.height <= 0f) return InitialCanvasZoom
+
+	val availableWidth = (viewportSizePx.width - paddingPx * 2f).coerceAtLeast(1f)
+	val availableHeight = (viewportSizePx.height - paddingPx * 2f).coerceAtLeast(1f)
+	return min(
+		availableWidth / canvasSizePx.width,
+		availableHeight / canvasSizePx.height
+	).coerceIn(
+		minimumValue = MinCanvasFitZoom,
+		maximumValue = MaxCanvasZoom
+	)
+}
+
+private fun centerCanvasOffset(
+	scale: Float,
+	canvasSizePx: Size,
+	viewportSizePx: Size
+): Offset {
+	return Offset(
+		x = (viewportSizePx.width - canvasSizePx.width * scale) / 2f,
+		y = (viewportSizePx.height - canvasSizePx.height * scale) / 2f
+	)
 }
 
 private fun PensumScreenModel.requirementEdgeIdsTo(nodeId: String?): Set<String> {

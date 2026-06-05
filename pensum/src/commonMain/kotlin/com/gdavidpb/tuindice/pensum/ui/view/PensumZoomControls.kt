@@ -11,6 +11,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.outlined.CenterFocusStrong
+import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
@@ -21,22 +23,71 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
+import tuindice.pensum.generated.resources.pensum_fit_to_screen
+import tuindice.pensum.generated.resources.pensum_hide_minimap
+import tuindice.pensum.generated.resources.pensum_show_minimap
 import tuindice.pensum.generated.resources.pensum_zoom_in
 import tuindice.pensum.generated.resources.pensum_zoom_out
 
 @Composable
 fun PensumZoomControls(
+	isMinimapToggleVisible: Boolean,
+	isMinimapVisible: Boolean,
+	onFitToScreen: () -> Unit,
+	onToggleMinimap: () -> Unit,
 	onZoomIn: () -> Unit,
 	onZoomOut: () -> Unit,
 	modifier: Modifier = Modifier
 ) {
+	val controlsHeight = if (isMinimapToggleVisible) {
+		ZoomControlsExpandedHeight
+	} else {
+		ZoomControlsHeight
+	}
+
 	Column(
 		modifier = modifier
 			.width(48.dp)
-			.height(MinimapHeight)
+			.height(controlsHeight)
 			.background(Color.Black.copy(alpha = 0.68f), RoundedCornerShape(8.dp))
 			.border(1.dp, Available, RoundedCornerShape(8.dp))
 	) {
+		IconButton(
+			modifier = Modifier
+				.weight(1f)
+				.fillMaxWidth()
+				.testTag(PensumUiTags.FitToScreen),
+			onClick = onFitToScreen
+		) {
+			Icon(
+				imageVector = Icons.Outlined.CenterFocusStrong,
+				contentDescription = stringResource(Res.string.pensum_fit_to_screen),
+				tint = TextPrimary
+			)
+		}
+		PensumZoomControlDivider()
+		if (isMinimapToggleVisible) {
+			IconButton(
+				modifier = Modifier
+					.weight(1f)
+					.fillMaxWidth()
+					.testTag(PensumUiTags.MinimapToggle),
+				onClick = onToggleMinimap
+			) {
+				Icon(
+					imageVector = Icons.Outlined.Map,
+					contentDescription = stringResource(
+						if (isMinimapVisible) {
+							Res.string.pensum_hide_minimap
+						} else {
+							Res.string.pensum_show_minimap
+						}
+					),
+					tint = if (isMinimapVisible) Current else TextPrimary
+				)
+			}
+			PensumZoomControlDivider()
+		}
 		IconButton(
 			modifier = Modifier
 				.weight(1f)
@@ -50,7 +101,7 @@ fun PensumZoomControls(
 				tint = TextPrimary
 			)
 		}
-		Box(modifier = Modifier.height(1.dp).fillMaxWidth().background(Available.copy(alpha = 0.4f)))
+		PensumZoomControlDivider()
 		IconButton(
 			modifier = Modifier
 				.weight(1f)
@@ -65,4 +116,9 @@ fun PensumZoomControls(
 			)
 		}
 	}
+}
+
+@Composable
+private fun PensumZoomControlDivider() {
+	Box(modifier = Modifier.height(1.dp).fillMaxWidth().background(Available.copy(alpha = 0.4f)))
 }
