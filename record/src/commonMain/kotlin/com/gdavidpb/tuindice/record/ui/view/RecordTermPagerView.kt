@@ -78,7 +78,7 @@ fun RecordTermPagerView(
 				.padding(
 					top = 8.dp,
 					bottom = 8.dp
-			),
+				),
 			terms = terms,
 			selectedTermId = termIds.getOrNull(pagerState.currentPage) ?: selectedTermId,
 			onTermSelected = onSelectedTermChange

@@ -67,16 +67,17 @@ fun WizardScreen(
 	onSubjectTabSelected: (SubjectSegmentTab) -> Unit,
 	onSelectedTermChange: (String) -> Unit,
 	onSubjectChartsVisibilityChange: (Boolean) -> Unit,
+	onDismissRecordTermSelection: () -> Unit = {},
 	modifier: Modifier = Modifier
 ) {
-		if (state.isWelcomeStep) {
-			Box(
-				modifier = modifier
-					.fillMaxSize()
-					.background(MaterialTheme.colorScheme.background)
-					.testTag(WizardUiTags.Screen)
-			) {
-				WizardWelcomeView(
+	if (state.isWelcomeStep) {
+		Box(
+			modifier = modifier
+				.fillMaxSize()
+				.background(MaterialTheme.colorScheme.background)
+				.testTag(WizardUiTags.Screen)
+		) {
+			WizardWelcomeView(
 				onStart = onNext,
 				onSkip = onSkip
 			)
@@ -109,6 +110,7 @@ fun WizardScreen(
 				onOpenEvaluationForm = onOpenEvaluationForm,
 				onSubjectTabSelected = onSubjectTabSelected,
 				onSelectedTermChange = onSelectedTermChange,
+				onDismissRecordTermSelection = onDismissRecordTermSelection,
 				onSubjectChartsVisibilityChange = onSubjectChartsVisibilityChange,
 				onEvaluationFocusTargetBoundsChange = { bounds ->
 					focusTargetBounds.value = bounds

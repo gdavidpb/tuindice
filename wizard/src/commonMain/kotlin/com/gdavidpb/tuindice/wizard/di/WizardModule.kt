@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.wizard.domain.usecase.ShouldStartWizardUseCase
 import com.gdavidpb.tuindice.wizard.presentation.action.AdvanceWizardActionProcessor
 import com.gdavidpb.tuindice.wizard.presentation.action.BackWizardActionProcessor
 import com.gdavidpb.tuindice.wizard.presentation.action.ConsumeTopBarWizardActionProcessor
+import com.gdavidpb.tuindice.wizard.presentation.action.DismissRecordTermSelectionWizardActionProcessor
 import com.gdavidpb.tuindice.wizard.presentation.action.DismissWizardActionProcessor
 import com.gdavidpb.tuindice.wizard.presentation.action.FinishWizardActionProcessor
 import com.gdavidpb.tuindice.wizard.presentation.action.OpenEvaluationFormWizardActionProcessor
@@ -34,6 +35,7 @@ val wizardModule = module {
 	factoryOf(::OpenSubjectDetailWizardActionProcessor)
 	factoryOf(::OpenEvaluationFormWizardActionProcessor)
 	factoryOf(::ConsumeTopBarWizardActionProcessor)
+	factoryOf(::DismissRecordTermSelectionWizardActionProcessor)
 	factoryOf(::SetSubjectChartsVisibleWizardActionProcessor)
 	factoryOf(::SelectSubjectTabWizardActionProcessor)
 	factoryOf(::SetRecordViewModeWizardActionProcessor)

@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.utils.extension.canNavigateBackFromCurrentDestination
+import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofDestination
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.enrollmentProofNavigation
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.EvaluationsDestination
 import com.gdavidpb.tuindice.evaluations.presentation.navigation.evaluationsNavigation
@@ -43,6 +44,7 @@ fun TuIndiceNavHost(
 	isCameraAvailable: Boolean,
 	onNavigateToExternalResource: (url: String) -> Unit,
 	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
+	onRecordTermSelectionAvailable: ((() -> Unit)?) -> Unit,
 	onWizardFinished: () -> Unit = {},
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
@@ -112,6 +114,10 @@ fun TuIndiceNavHost(
 				navController.navigate(SubjectsDestination.SubjectDetail(subjectCode = subjectCode))
 			},
 			onTopBarViewModeChangeAvailable = onRecordViewModeChangeAvailable,
+			onTopBarTermSelectionAvailable = onRecordTermSelectionAvailable,
+			onNavigateToEnrollmentProof = {
+				navController.navigate(EnrollmentProofDestination.EnrollmentProofDialog)
+			},
 			showTopBarBanner = showTopBarBanner,
 			onViewStateChanged = onViewStateChanged,
 			showSnackBar = showSnackBar

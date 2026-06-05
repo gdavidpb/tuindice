@@ -100,7 +100,7 @@ class WizardScreenUiTest {
 	}
 
 	@Test
-	fun when_recordActionsStepIsRendered_then_explainsTopButtons() = runTuIndiceUiTest {
+	fun when_recordActionsStepIsRendered_then_explainsTermSelectionAndFloatingActions() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			WizardScreen(
 				state = Wizard.State.Content().goTo(WizardStepId.RecordActions),
@@ -118,16 +118,50 @@ class WizardScreenUiTest {
 
 		onNodeWithText("Acciones del trimestre").assertExists()
 		onNodeWithText("Paso 3 de 11").assertExists()
-		onNodeWithText("Botones superiores").assertExists()
+		onNodeWithText("Calendario y acciones").assertExists()
 		onNodeWithText(
-			"El botón de modo alterna entre Histórico y Proyección",
+			"El botón de calendario abre todos los trimestres",
 			substring = true
 		).assertExists()
 		onNodeWithText(
-			"En Proyección, usa el botón + para planificar un trimestre futuro",
+			"el botón de modo alterna entre Histórico y Proyección",
 			substring = true
 		).assertExists()
+		onNodeWithText(
+			"el comprobante aparece como botón flotante sobre +",
+			substring = true
+		).assertExists()
+		assertNodeVisible(RecordUiTags.EnrollmentProofButton)
 		assertNodeVisible(WizardUiTags.FocusOverlay)
+	}
+
+	@Test
+	fun when_recordTermSelectionIsVisible_then_showsSheetAndDismissesFromUi() = runTuIndiceUiTest {
+		var dismissCalls = 0
+
+		setTuIndiceTestContent {
+			WizardScreen(
+				state = Wizard.State.Content(
+					isRecordTermSelectionVisible = true
+				).goTo(WizardStepId.RecordActions),
+				onBack = {},
+				onSkip = {},
+				onNext = {},
+				onFinish = {},
+				onOpenSubjectDetail = {},
+				onOpenEvaluationForm = {},
+				onSubjectTabSelected = {},
+				onSelectedTermChange = {},
+				onSubjectChartsVisibilityChange = {},
+				onDismissRecordTermSelection = { dismissCalls++ }
+			)
+		}
+
+		assertNodeVisible(RecordUiTags.TermSelectionSheet)
+		assertNodeVisible(RecordUiTags.TermSelectionList)
+		assertNodeVisible(RecordUiTags.termSelectionOption("2026-2"))
+		onNodeWithTag(RecordUiTags.termSelectionOption("2026-2")).performClick()
+		assertEquals(1, dismissCalls)
 	}
 
 	@Test

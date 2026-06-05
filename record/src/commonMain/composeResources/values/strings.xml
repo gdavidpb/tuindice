@@ -20,6 +20,14 @@
 	<string name="record_view_mode_info_button_description">Información sobre este modo de vista</string>
 	<string name="record_view_mode_info_message_historical">Trimestres cerrados registrados en tu historial académico. Solo lectura.</string>
 	<string name="record_view_mode_info_message_projection">Incluye el trimestre actual y tus simulaciones. No modifica el historial académico.</string>
+	<string name="term_selector_expanded_content_description">Ver todos los trimestres</string>
+	<string name="term_selection_title">Todos los trimestres</string>
+	<string name="term_selection_mode_pattern">Modo %1$s</string>
+	<string name="term_selection_kind_current">Actual</string>
+	<string name="term_selection_kind_historical">Histórico</string>
+	<string name="term_selection_kind_projection">Proyección</string>
+	<string name="term_selection_selected_content_description">Trimestre seleccionado</string>
+	<string name="record_enrollment_proof_action">Ver comprobante</string>
 	<string name="term_grade_diff_pattern">Δx %1$.4f</string>
 	<string name="term_grade_sum_pattern">∑x %1$.4f</string>
 	<string name="term_credits_pattern">⦿ %1$d</string>

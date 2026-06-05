@@ -58,6 +58,7 @@ fun WizardRoute(
 		onOpenEvaluationForm = viewModel::openEvaluationFormAction,
 		onSubjectTabSelected = viewModel::selectSubjectTabAction,
 		onSelectedTermChange = viewModel::selectTermAction,
+		onDismissRecordTermSelection = viewModel::dismissRecordTermSelectionAction,
 		onSubjectChartsVisibilityChange = viewModel::setSubjectChartsVisibleAction
 	)
 }

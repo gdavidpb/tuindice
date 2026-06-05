@@ -365,7 +365,7 @@ class TuIndiceScreenUiTest {
 			}
 
 			assertNodeVisible(
-				tag = BaseUiTags.topBarActionButton(TopBarAction.FetchEnrollmentProofAction),
+				tag = BaseUiTags.topBarActionButton(TopBarAction.RecordTermSelectionAction),
 				useUnmergedTree = true
 			)
 			onNodeWithTag(RecordUiTags.TopBarViewModeButton).performClick()

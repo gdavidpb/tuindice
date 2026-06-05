@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.record.ui.screen
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -108,26 +109,154 @@ class RecordScreenUiTest {
 		assertNodeVisible(RecordUiTags.CreateSyntheticTermFab)
 	}
 
+	@Test
+	fun when_selectedTermIsCurrentProjection_then_enrollmentProofActionIsShownAndClickable() = runTuIndiceUiTest {
+		var enrollmentProofClicks = 0
+
+		setTuIndiceTestContent {
+			RecordScreen(
+				state = contentState(
+					termId = "current-term",
+					termKind = TermKind.CURRENT
+				),
+				selectedTermId = "current-term",
+				onSelectedTermChange = {},
+				onRetryClick = {},
+				onAttemptSelectionChange = { _, _, _, _ -> },
+				onCreateSyntheticTermClick = {},
+				onUpdateSyntheticTermClick = {},
+				onDeleteSyntheticTermClick = {},
+				onEnrollmentProofClick = {
+					enrollmentProofClicks++
+				}
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.EnrollmentProofButton)
+			.assertIsDisplayed()
+			.performClick()
+
+		assertEquals(1, enrollmentProofClicks)
+	}
+
+	@Test
+	fun when_termSelectionIsShown_then_termsAreGroupedAndSelectionIsForwarded() = runTuIndiceUiTest {
+		var selectedTermId: String? = null
+
+		setTuIndiceTestContent {
+			RecordScreen(
+				state = contentState(
+					terms = listOf(
+						academicTerm(
+							id = "current-2026",
+							periodYear = 2026,
+							periodCode = AcademicTermPeriod.SEP_DEC,
+							kind = TermKind.CURRENT
+						),
+						academicTerm(
+							id = "synthetic-2026",
+							periodYear = 2026,
+							periodCode = AcademicTermPeriod.APR_JUL,
+							kind = TermKind.SYNTHETIC
+						),
+						academicTerm(
+							id = "historical-2024",
+							periodYear = 2024,
+							periodCode = AcademicTermPeriod.JAN_MAR,
+							kind = TermKind.HISTORICAL
+						)
+					),
+					selectedTermId = "current-2026"
+				),
+				selectedTermId = "current-2026",
+				onSelectedTermChange = { selectedTermId = it },
+				onRetryClick = {},
+				onAttemptSelectionChange = { _, _, _, _ -> },
+				onCreateSyntheticTermClick = {},
+				onUpdateSyntheticTermClick = {},
+				onDeleteSyntheticTermClick = {},
+				showTermSelection = true
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			onAllNodesWithTag(RecordUiTags.TermSelectionSheet)
+				.fetchSemanticsNodes()
+				.isNotEmpty()
+		}
+
+		onNodeWithTag(RecordUiTags.TermSelectionSheet).assertIsDisplayed()
+		onNodeWithTag(RecordUiTags.TermSelectionList).assertIsDisplayed()
+		onNodeWithTag(RecordUiTags.termSelectionYear(2026)).assertIsDisplayed()
+		onNodeWithTag(RecordUiTags.termSelectionYear(2024)).assertIsDisplayed()
+		onNodeWithTag(
+			testTag = RecordUiTags.termSelectionSelectedIcon("current-2026"),
+			useUnmergedTree = true
+		).assertIsDisplayed()
+		onNodeWithTag(
+			testTag = RecordUiTags.termSelectionKind("current-2026"),
+			useUnmergedTree = true
+		).assertIsDisplayed()
+		onNodeWithTag(
+			testTag = RecordUiTags.termSelectionKind("synthetic-2026"),
+			useUnmergedTree = true
+		).assertIsDisplayed()
+		onNodeWithTag(
+			testTag = RecordUiTags.termSelectionKind("historical-2024"),
+			useUnmergedTree = true
+		).assertIsDisplayed()
+
+		onNodeWithTag(RecordUiTags.termSelectionOption("historical-2024")).performClick()
+
+		assertEquals("historical-2024", selectedTermId)
+	}
+
 	private fun contentState(
 		termId: String = SyntheticTermId,
 		termKind: TermKind,
 		attempts: List<AcademicAttempt> = emptyList()
 	): Record.State.Content {
+		return contentState(
+			terms = listOf(
+				academicTerm(
+					id = termId,
+					periodYear = 2026,
+					periodCode = AcademicTermPeriod.SEP_DEC,
+					kind = termKind,
+					attempts = attempts
+				)
+			),
+			selectedTermId = termId
+		)
+	}
+
+	private fun contentState(
+		terms: List<AcademicTerm>,
+		selectedTermId: String
+	): Record.State.Content {
 		return Record.State.Content(
 			viewMode = RecordViewMode.Projection,
 			record = AcademicRecord(
 				id = "record",
-				terms = listOf(
-					AcademicTerm(
-						id = termId,
-						periodYear = 2026,
-						periodCode = AcademicTermPeriod.SEP_DEC,
-						kind = termKind,
-						attempts = attempts
-					)
-				)
+				terms = terms
 			),
-			selectedTermId = termId
+			selectedTermId = selectedTermId
+		)
+	}
+
+	private fun academicTerm(
+		id: String,
+		periodYear: Int,
+		periodCode: AcademicTermPeriod,
+		kind: TermKind,
+		attempts: List<AcademicAttempt> = emptyList()
+	): AcademicTerm {
+		return AcademicTerm(
+			id = id,
+			periodYear = periodYear,
+			periodCode = periodCode,
+			kind = kind,
+			attempts = attempts
 		)
 	}
 }

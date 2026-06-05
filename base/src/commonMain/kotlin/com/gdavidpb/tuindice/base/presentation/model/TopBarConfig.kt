@@ -11,7 +11,7 @@ sealed class TopBarConfig(
 
 	data object Record : TopBarConfig(
 		actions = listOf(
-			TopBarAction.FetchEnrollmentProofAction
+			TopBarAction.RecordTermSelectionAction
 		)
 	)
 

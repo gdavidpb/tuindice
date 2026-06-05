@@ -157,7 +157,7 @@ actions:
   - id: enrollmentproof.Enrollment.FetchEnrollmentProof
     classification: user
     variants: [trigger, fetching-cancel, success-file-open, no-connection, timeout, unavailable, not-found, unsupported-file, outdated-credentials]
-    selector: base_top_app_bar_action_enrollment_proof
+    selector: record_enrollment_proof_button
     flow: e2e/maestro/flows/suites/enrollmentproof-suite.yaml
     fixture_state: enrollment-proof-suite
     platform_edge: file opener success and unsupported-file host assertions require UI Automator/XCUITest
@@ -506,8 +506,8 @@ actions:
     fixture_state: first-launch
   - id: wizard.Wizard.ConsumeTopBarAction
     classification: user
-    variants: [enrollment-proof-consumed]
-    selector: base_top_app_bar_action_enrollment_proof
+    variants: [record-term-selection-consumed]
+    selector: base_top_app_bar_action_record_term_selection
     flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
     fixture_state: first-launch
   - id: wizard.Wizard.SelectSubjectTab
@@ -526,6 +526,12 @@ actions:
     classification: user
     variants: [guided-term]
     selector: record_term_chip_2024-3
+    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
+    fixture_state: first-launch
+  - id: wizard.Wizard.DismissRecordTermSelection
+    classification: user
+    variants: [guided-term-sheet-dismiss]
+    selector: record_term_selection_option_2026-2
     flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
     fixture_state: first-launch
   - id: wizard.Wizard.SetSubjectChartsVisible

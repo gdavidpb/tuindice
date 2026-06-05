@@ -29,6 +29,8 @@ fun NavGraphBuilder.recordNavigation(
 	onNavigateToUpdatePassword: () -> Unit,
 	onNavigateToSubjectDetail: (String) -> Unit,
 	onTopBarViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
+	onTopBarTermSelectionAvailable: ((() -> Unit)?) -> Unit,
+	onNavigateToEnrollmentProof: () -> Unit,
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
@@ -67,6 +69,8 @@ fun NavGraphBuilder.recordNavigation(
 					)
 				},
 				onTopBarViewModeChangeAvailable = onTopBarViewModeChangeAvailable,
+				onTopBarTermSelectionAvailable = onTopBarTermSelectionAvailable,
+				onNavigateToEnrollmentProof = onNavigateToEnrollmentProof,
 				showTopBarBanner = showTopBarBanner,
 				showSnackBar = showSnackBar,
 				viewModel = viewModel

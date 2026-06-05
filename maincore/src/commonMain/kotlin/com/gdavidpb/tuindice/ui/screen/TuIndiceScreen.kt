@@ -97,6 +97,7 @@ fun TuIndiceScreen(
 	onAction: (action: TopBarAction) -> Unit,
 	onRecordViewModeChange: ((RecordViewMode) -> Unit)?,
 	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
+	onRecordTermSelectionAvailable: ((() -> Unit)?) -> Unit = {},
 	onNavigateTo: (destination: Destination) -> Unit,
 	onNavigateBack: () -> Unit,
 	onConfirmExitClick: () -> Unit,
@@ -348,6 +349,7 @@ fun TuIndiceScreen(
 				isCameraAvailable = isCameraAvailable,
 				onNavigateToExternalResource = onNavigateToExternalResource,
 				onRecordViewModeChangeAvailable = onRecordViewModeChangeAvailable,
+				onRecordTermSelectionAvailable = onRecordTermSelectionAvailable,
 				onWizardFinished = onWizardFinished,
 				showTopBarBanner = showTopBarBanner,
 				onViewStateChanged = onViewStateChanged,
@@ -365,6 +367,8 @@ private fun TopBarAction.getIcon(): ImageVector {
 			Icons.AutoMirrored.Outlined.Logout
 		is TopBarAction.FetchEnrollmentProofAction ->
 			Icons.Outlined.FindInPage
+		is TopBarAction.RecordTermSelectionAction ->
+			Icons.Outlined.DateRange
 		is TopBarAction.SearchPensumAction ->
 			Icons.Outlined.Search
 		is TopBarAction.ChangePensumAction ->

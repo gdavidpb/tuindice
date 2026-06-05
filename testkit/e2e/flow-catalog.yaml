@@ -511,12 +511,18 @@ flows:
       - wizard.Wizard.SelectSubjectTab
       - wizard.Wizard.SetRecordViewMode
       - wizard.Wizard.SelectTerm
+      - wizard.Wizard.DismissRecordTermSelection
       - wizard.Wizard.SetSubjectChartsVisible
     primary_selectors:
       - record_top_bar_view_mode_switch
       - record_term_chip_2025-3
       - record_term_chip_2024-3
-      - base_top_app_bar_action_enrollment_proof
+      - record_term_current_chip_2026-2
+      - base_top_app_bar_action_record_term_selection
+      - record_term_selection_sheet
+      - record_term_selection_list
+      - record_term_selection_option_2026-2
+      - record_enrollment_proof_button
       - pensum_node_ma1111
       - pensum_node_subject_stats_button_ma1111
       - subjects_global_tab
@@ -839,13 +845,13 @@ flows:
     type: smoke
     platforms: [android, ios]
     status: active
-    variant: top-bar-trigger
+    variant: current-term-trigger
     fixture_state: enrollment-proof-success
     platform_edge: PDF/file opener requires UI Automator/XCUITest for host assertion.
     actions_covered:
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
-      - base_top_app_bar_action_enrollment_proof
+      - record_enrollment_proof_button
       - record_content_container
   - id: enrollmentproof-suite
     path: e2e/maestro/flows/suites/enrollmentproof-suite.yaml
@@ -859,7 +865,7 @@ flows:
     actions_covered:
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
-      - base_top_app_bar_action_enrollment_proof
+      - record_enrollment_proof_button
       - enrollment_fetching_sheet
       - enrollment_fetching_cancel_button
       - base_snackbar_container
@@ -875,7 +881,7 @@ flows:
     actions_covered:
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
-      - base_top_app_bar_action_enrollment_proof
+      - record_enrollment_proof_button
       - enrollment_fetching_sheet
       - enrollment_fetching_loading_container
       - enrollment_fetching_message
@@ -891,7 +897,7 @@ flows:
     actions_covered:
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
-      - base_top_app_bar_action_enrollment_proof
+      - record_enrollment_proof_button
       - base_snackbar_container
   - id: enrollmentproof-not-found
     path: e2e/maestro/flows/enrollmentproof/enrollmentproof-not-found.yaml
@@ -904,7 +910,7 @@ flows:
     actions_covered:
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
-      - base_top_app_bar_action_enrollment_proof
+      - record_enrollment_proof_button
       - base_snackbar_container
   - id: enrollmentproof-outdated-credentials
     path: e2e/maestro/flows/enrollmentproof/enrollmentproof-outdated-credentials.yaml
@@ -917,7 +923,7 @@ flows:
     actions_covered:
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
-      - base_top_app_bar_action_enrollment_proof
+      - record_enrollment_proof_button
       - auth_update_password_idle_container
   - id: pensum-smoke
     path: e2e/maestro/flows/pensum/pensum-smoke.yaml

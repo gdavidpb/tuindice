@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
 import com.gdavidpb.tuindice.wizard.presentation.action.AdvanceWizardActionProcessor
 import com.gdavidpb.tuindice.wizard.presentation.action.BackWizardActionProcessor
 import com.gdavidpb.tuindice.wizard.presentation.action.ConsumeTopBarWizardActionProcessor
+import com.gdavidpb.tuindice.wizard.presentation.action.DismissRecordTermSelectionWizardActionProcessor
 import com.gdavidpb.tuindice.wizard.presentation.action.DismissWizardActionProcessor
 import com.gdavidpb.tuindice.wizard.presentation.action.FinishWizardActionProcessor
 import com.gdavidpb.tuindice.wizard.presentation.action.OpenEvaluationFormWizardActionProcessor
@@ -28,6 +29,7 @@ class WizardViewModel(
 	private val openSubjectDetailWizardActionProcessor: OpenSubjectDetailWizardActionProcessor,
 	private val openEvaluationFormWizardActionProcessor: OpenEvaluationFormWizardActionProcessor,
 	private val consumeTopBarWizardActionProcessor: ConsumeTopBarWizardActionProcessor,
+	private val dismissRecordTermSelectionWizardActionProcessor: DismissRecordTermSelectionWizardActionProcessor,
 	private val setSubjectChartsVisibleWizardActionProcessor: SetSubjectChartsVisibleWizardActionProcessor,
 	private val selectSubjectTabWizardActionProcessor: SelectSubjectTabWizardActionProcessor,
 	private val setRecordViewModeWizardActionProcessor: SetRecordViewModeWizardActionProcessor,
@@ -66,6 +68,9 @@ class WizardViewModel(
 
 	fun selectTermAction(termId: String) =
 		sendAction(Wizard.Action.SelectTerm(termId))
+
+	fun dismissRecordTermSelectionAction() =
+		sendAction(Wizard.Action.DismissRecordTermSelection)
 
 	fun setSubjectChartsVisibleAction(isVisible: Boolean) =
 		sendAction(Wizard.Action.SetSubjectChartsVisible(isVisible))
@@ -107,6 +112,9 @@ class WizardViewModel(
 
 			is Wizard.Action.SelectTerm ->
 				selectTermWizardActionProcessor.process(action, sideEffect)
+
+			is Wizard.Action.DismissRecordTermSelection ->
+				dismissRecordTermSelectionWizardActionProcessor.process(action, sideEffect)
 		}
 	}
 }

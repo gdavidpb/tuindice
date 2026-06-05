@@ -6,22 +6,15 @@ import com.gdavidpb.tuindice.wizard.presentation.contract.Wizard
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
-class SelectTermWizardActionProcessor :
-	ActionProcessor<Wizard.State, Wizard.Action.SelectTerm, Wizard.Effect>() {
+class DismissRecordTermSelectionWizardActionProcessor :
+	ActionProcessor<Wizard.State, Wizard.Action.DismissRecordTermSelection, Wizard.Effect>() {
 	override suspend fun process(
-		action: Wizard.Action.SelectTerm,
+		action: Wizard.Action.DismissRecordTermSelection,
 		sideEffect: (Wizard.Effect) -> Unit
 	): Flow<Mutation<Wizard.State>> = flowOf(
 		suspend { state ->
 			val content = state as? Wizard.State.Content
-			if (content == null) {
-				state
-			} else {
-				content.copy(
-					selectedTermId = action.termId,
-					isRecordTermSelectionVisible = false
-				)
-			}
+			if (content == null) state else content.copy(isRecordTermSelectionVisible = false)
 		}
 	)
 }

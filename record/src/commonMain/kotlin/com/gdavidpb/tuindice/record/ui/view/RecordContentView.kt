@@ -9,7 +9,6 @@ import androidx.compose.foundation.pager.rememberPagerState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
@@ -24,6 +23,7 @@ import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
 import com.gdavidpb.tuindice.record.presentation.mapper.toTermItemList
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.dialog.TermSelectionBottomSheet
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filter
 import org.jetbrains.compose.resources.stringResource
@@ -45,6 +45,8 @@ fun RecordContentView(
 		newOutcome: AttemptOutcome?,
 		isSelected: Boolean
 	) -> Unit,
+	showTermSelection: Boolean,
+	onDismissTermSelection: () -> Unit,
 	onScrollInProgressChange: (Boolean) -> Unit = {}
 ) {
 	val termGradeDiffPattern = stringResource(Res.string.term_grade_diff_pattern)
@@ -106,5 +108,15 @@ fun RecordContentView(
 				onScrollInProgressChange = onScrollInProgressChange
 			)
 		}
+	}
+
+	if (showTermSelection && terms.isNotEmpty() && effectiveSelectedTermId != null) {
+		TermSelectionBottomSheet(
+			terms = terms,
+			selectedTermId = effectiveSelectedTermId,
+			viewMode = state.viewMode,
+			onTermSelected = onSelectedTermChange,
+			onDismissRequest = onDismissTermSelection
+		)
 	}
 }

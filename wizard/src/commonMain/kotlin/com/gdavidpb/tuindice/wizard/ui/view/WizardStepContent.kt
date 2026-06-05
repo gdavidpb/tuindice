@@ -47,6 +47,7 @@ fun WizardStepContent(
 	onOpenEvaluationForm: () -> Unit,
 	onSubjectTabSelected: (SubjectSegmentTab) -> Unit,
 	onSelectedTermChange: (String) -> Unit,
+	onDismissRecordTermSelection: () -> Unit,
 	onSubjectChartsVisibilityChange: (Boolean) -> Unit,
 	onEvaluationFocusTargetBoundsChange: (Rect?) -> Unit
 ) {
@@ -78,7 +79,10 @@ fun WizardStepContent(
 				onSelectedTermChange = onSelectedTermChange,
 				onRetryClick = {},
 				onAttemptSelectionChange = emptyAttemptSelectionHandler(),
-				onCreateSyntheticTermClick = {}
+				onCreateSyntheticTermClick = {},
+				onEnrollmentProofClick = {},
+				showTermSelection = state.isRecordTermSelectionVisible,
+				onDismissTermSelection = onDismissRecordTermSelection
 			)
 
 		WizardStepId.CreateSyntheticTerm ->

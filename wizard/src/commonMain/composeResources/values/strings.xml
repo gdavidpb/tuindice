@@ -24,7 +24,7 @@
 	<string name="wizard_record_title">Índices del trimestre</string>
 	<string name="wizard_record_message">Este bloque resume el **trimestre seleccionado**: **índice del trimestre**, **índice acumulado** y **cantidad de créditos**. Las variaciones muestran cómo cambiaron desde el trimestre anterior.</string>
 	<string name="wizard_record_actions_title">Acciones del trimestre</string>
-	<string name="wizard_record_actions_message">El **botón de modo** alterna entre **Histórico** y **Proyección**; en el **trimestre actual** verás el botón de comprobante. En **Proyección**, usa el botón **+** para planificar un **trimestre futuro**.</string>
+	<string name="wizard_record_actions_message">El **botón de calendario** abre todos los trimestres y el **botón de modo** alterna entre **Histórico** y **Proyección**. En el **trimestre actual**, el comprobante aparece como botón flotante sobre **+**; usa **+** para planificar un **trimestre futuro**.</string>
 	<string name="wizard_synthetic_term_title">Planificar trimestre</string>
 	<string name="wizard_synthetic_term_message">Aquí eliges el **periodo**, agregas **materias sugeridas** o buscas por **código/nombre**, y revisas la **carga estimada**. Al guardar, queda como **proyección** y no cambia tu historial académico.</string>
 	<string name="wizard_subject_title">Estadísticas de materia</string>
@@ -53,7 +53,7 @@
 	<string name="wizard_about_message">En **Acerca de** encuentras **soporte**, **privacidad**, **términos** e **información** de la app cuando necesites ayuda o quieras revisar detalles.</string>
 
 	<string name="wizard_focus_record">Índices del trimestre</string>
-	<string name="wizard_focus_record_actions">Botones superiores</string>
+	<string name="wizard_focus_record_actions">Calendario y acciones</string>
 	<string name="wizard_focus_evaluations">Agenda semanal</string>
 	<string name="wizard_focus_evaluation_swipe">Sin nota</string>
 </resources>

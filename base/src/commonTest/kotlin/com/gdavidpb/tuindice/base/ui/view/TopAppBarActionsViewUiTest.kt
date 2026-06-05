@@ -52,7 +52,7 @@ class TopAppBarActionsViewUiTest {
 	}
 
 	@Test
-	fun when_recordConfigActionTapped_then_dispatchesFetchEnrollmentProofAction() = runTuIndiceUiTest {
+	fun when_recordConfigActionTapped_then_dispatchesRecordTermSelectionAction() = runTuIndiceUiTest {
 		var selectedAction: TopBarAction? = null
 
 		setTuIndiceTestContent {
@@ -64,10 +64,10 @@ class TopAppBarActionsViewUiTest {
 			}
 		}
 
-		val actionTag = BaseUiTags.topBarActionButton(TopBarAction.FetchEnrollmentProofAction)
+		val actionTag = BaseUiTags.topBarActionButton(TopBarAction.RecordTermSelectionAction)
 		assertNodeVisible(actionTag)
 
 		onNodeWithTag(actionTag).performClick()
-		assertEquals(TopBarAction.FetchEnrollmentProofAction, selectedAction)
+		assertEquals(TopBarAction.RecordTermSelectionAction, selectedAction)
 	}
 }
