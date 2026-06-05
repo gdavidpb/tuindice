@@ -101,7 +101,7 @@ fun EvaluationItemView(
 						Text(
 							text = item.statusText,
 							color = statusColors.content,
-							style = MaterialTheme.typography.labelMedium,
+							style = MaterialTheme.typography.labelLarge,
 							fontWeight = FontWeight.SemiBold
 						)
 					}
