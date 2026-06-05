@@ -111,5 +111,5 @@ fun EvaluationsWeekStripView(
 	}
 }
 
-private const val WeekSelectorItemWidthFraction = 0.44f
+private const val WeekSelectorItemWidthFraction = 0.40f
 private const val WeekSelectorItemContentType = "week_selector_item"
