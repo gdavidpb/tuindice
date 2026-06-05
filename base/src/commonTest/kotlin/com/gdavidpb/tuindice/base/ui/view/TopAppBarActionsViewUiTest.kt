@@ -70,4 +70,19 @@ class TopAppBarActionsViewUiTest {
 		onNodeWithTag(actionTag).performClick()
 		assertEquals(TopBarAction.RecordTermSelectionAction, selectedAction)
 	}
+
+	@Test
+	fun when_pensumConfigHasActions_then_rendersSearchOnly() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			TopAppBarActionsView(
+				topBarConfig = TopBarConfig.Pensum,
+				onAction = {}
+			) { action ->
+				Text(action.action)
+			}
+		}
+
+		assertNodeVisible(BaseUiTags.topBarActionButton(TopBarAction.SearchPensumAction))
+		assertNodeHidden(BaseUiTags.topBarActionButton(TopBarAction.ChangePensumAction))
+	}
 }

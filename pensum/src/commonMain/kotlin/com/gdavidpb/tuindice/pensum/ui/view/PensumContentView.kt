@@ -16,7 +16,8 @@ fun PensumContentView(
 	showSelectionSheet: Boolean,
 	onSelectionSheetDismiss: () -> Unit,
 	onSubjectStatsClick: (subjectCode: String) -> Unit,
-	onSelectionApplied: (PensumScreenModel.PensumOptionItem, PensumScreenModel.ModalityItem) -> Unit
+	onSelectionApplied: (PensumScreenModel.PensumOptionItem, PensumScreenModel.ModalityItem) -> Unit,
+	onPensumContextClick: () -> Unit
 ) {
 	Column(
 		modifier = Modifier
@@ -24,7 +25,10 @@ fun PensumContentView(
 			.background(ScreenBackground)
 			.testTag(PensumUiTags.PensumScreen)
 	) {
-		PensumSummaryRow(model = model)
+		PensumSummaryRow(
+			model = model,
+			onPensumContextClick = onPensumContextClick
+		)
 		PensumGraphCanvas(
 			model = model,
 			onSubjectStatsClick = onSubjectStatsClick,

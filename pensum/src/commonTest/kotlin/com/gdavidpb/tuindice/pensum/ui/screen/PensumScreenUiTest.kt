@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.pensum.ui.screen
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
+import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.onAllNodesWithText
@@ -42,7 +43,9 @@ class PensumScreenUiTest {
 	}
 
 	@Test
-	fun when_contentIsDisplayed_then_summaryShowsCareerAndPensumContext() = runTuIndiceUiTest {
+	fun when_contentIsDisplayed_then_summaryShowsOnlyCareerInContextCard() = runTuIndiceUiTest {
+		var contextClickCount = 0
+
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModelWithSelectableYears()),
@@ -50,12 +53,18 @@ class PensumScreenUiTest {
 				showSelectionSheet = false,
 				onSelectionSheetDismiss = {},
 				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
+				onSelectionApplied = { _, _ -> },
+				onPensumContextClick = { contextClickCount += 1 }
 			)
 		}
 
 		onNodeWithText("Ingenieria de Computacion").assertExists()
-		onNodeWithText("Pensum 2019 · Proyecto de Grado").assertExists()
+		onAllNodesWithText("Pensum 2019").assertCountEquals(0)
+		onAllNodesWithText("Proyecto de Grado").assertCountEquals(0)
+		onNodeWithTag(PensumUiTags.PensumContextSummary)
+			.assertHasClickAction()
+			.performClick()
+		assertEquals(1, contextClickCount)
 	}
 
 	@Test
@@ -127,8 +136,9 @@ class PensumScreenUiTest {
 		}
 
 		onAllNodesWithText("Ciclo Básico").assertCountEquals(0)
-		onNodeWithText("Carrera").assertExists()
+		onNodeWithText("Pensum actual").assertExists()
 		onAllNodesWithText("Ingenieria de Computacion").assertCountEquals(2)
+		onNodeWithText("0% avance · 0 / 8 UC aprobadas").assertExists()
 		onNodeWithTag(PensumUiTags.versionOption(year = 2019)).assertIsSelected()
 		onNodeWithTag(PensumUiTags.versionOption(year = 2018)).assertIsNotSelected()
 		onNodeWithTag(PensumUiTags.modalityOption("degree_project")).assertIsSelected()

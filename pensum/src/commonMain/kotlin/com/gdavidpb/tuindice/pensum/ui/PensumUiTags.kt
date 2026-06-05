@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.pensum.ui
 
 object PensumUiTags {
 	const val PensumScreen = "pensum_screen"
+	const val PensumContextSummary = "pensum_context_summary"
+	const val PensumCurrentSelectionSummary = "pensum_current_selection_summary"
 	const val PensumSelector = "pensum_selector"
 	const val ModalitySelector = "pensum_modality_selector"
 	const val Canvas = "pensum_canvas"

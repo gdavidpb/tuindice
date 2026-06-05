@@ -982,7 +982,7 @@ flows:
     actions_covered:
       - pensum.Pensum.SelectSelection
     primary_selectors:
-      - base_top_app_bar_action_change_pensum
+      - pensum_context_summary
       - base_confirmation_dialog_sheet
       - pensum_version_option_2018
       - pensum_modality_option_long_internship

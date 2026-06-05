@@ -10,8 +10,11 @@
 	<string name="pensum_modality_placeholder">Modalidad</string>
 	<string name="pensum_progress_label">avance</string>
 	<string name="pensum_summary_pensum_label">Pensum</string>
+	<string name="pensum_context_content_description">Ver y cambiar pensum</string>
 	<string name="pensum_selection_title">Cambiar pensum</string>
 	<string name="pensum_selection_current">%1$s · Pensum %2$d · %3$s</string>
+	<string name="pensum_selection_active_title">Pensum actual</string>
+	<string name="pensum_selection_progress_summary">%1$s avance · %2$d / %3$d UC aprobadas</string>
 	<string name="pensum_selection_career">Carrera</string>
 	<string name="pensum_selection_version">Versión del pensum</string>
 	<string name="pensum_selection_modality">Modalidad</string>

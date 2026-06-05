@@ -55,6 +55,9 @@ fun PensumRoute(
 				year = item.year,
 				modalityId = modality.id
 			)
+		},
+		onPensumContextClick = {
+			showSelectionSheet.value = true
 		}
 	)
 }

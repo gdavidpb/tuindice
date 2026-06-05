@@ -30,7 +30,8 @@ fun PensumScreen(
 	showSelectionSheet: Boolean,
 	onSelectionSheetDismiss: () -> Unit,
 	onSubjectStatsClick: (subjectCode: String) -> Unit,
-	onSelectionApplied: (PensumScreenModel.PensumOptionItem, PensumScreenModel.ModalityItem) -> Unit
+	onSelectionApplied: (PensumScreenModel.PensumOptionItem, PensumScreenModel.ModalityItem) -> Unit,
+	onPensumContextClick: () -> Unit = {}
 ) {
 	Box(
 		modifier = Modifier
@@ -48,7 +49,8 @@ fun PensumScreen(
 						showSelectionSheet = showSelectionSheet,
 						onSelectionSheetDismiss = onSelectionSheetDismiss,
 						onSubjectStatsClick = onSubjectStatsClick,
-						onSelectionApplied = onSelectionApplied
+						onSelectionApplied = onSelectionApplied,
+						onPensumContextClick = onPensumContextClick
 					)
 					is Pensum.State.Failed ->
 						ErrorView(

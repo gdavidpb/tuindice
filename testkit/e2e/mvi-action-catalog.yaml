@@ -335,7 +335,7 @@ actions:
   - id: pensum.Pensum.SelectSelection
     classification: user
     variants: [version-and-modality]
-    selector: base_top_app_bar_action_change_pensum
+    selector: pensum_context_summary
     flow: e2e/maestro/flows/pensum/pensum-selection.yaml
     fixture_state: pensum-versions-modalities
 
