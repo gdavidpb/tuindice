@@ -333,7 +333,7 @@ private fun samplePensumModelWithSelectableYears(): PensumScreenModel {
 private fun availableNodeVisualStyle(): PensumScreenModel.NodeVisualStyle {
 	return PensumScreenModel.NodeVisualStyle(
 		containerArgb = 0xFF171819,
-		borderArgb = 0xFF6DD7FF,
+		borderArgb = 0xFF8A8F94,
 		chipArgb = 0xFFEBDDA3,
 		chipTextArgb = 0xFF534500,
 		textArgb = 0xFFF7F7F7,

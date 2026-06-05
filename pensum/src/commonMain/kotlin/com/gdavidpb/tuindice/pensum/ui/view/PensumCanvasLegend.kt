@@ -12,8 +12,12 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -43,20 +47,23 @@ fun PensumCanvasLegend(
 	val items = listOf(
 		LegendItem(
 			label = Res.string.pensum_canvas_legend_approved,
-			color = Approved
+			color = Approved,
+			icon = LegendIcon.Check
 		),
 		LegendItem(
 			label = Res.string.pensum_canvas_legend_current,
-			color = Current
+			color = Current,
+			icon = LegendIcon.Play
 		),
 		LegendItem(
 			label = Res.string.pensum_canvas_legend_available,
-			color = Available
+			color = Available,
+			icon = LegendIcon.Add
 		),
 		LegendItem(
 			label = Res.string.pensum_canvas_legend_blocked,
 			color = CanvasNeutral.copy(alpha = 0.72f),
-			isLocked = true
+			icon = LegendIcon.Lock
 		)
 	)
 
@@ -109,19 +116,23 @@ private fun PensumCanvasLegendItem(
 private fun PensumCanvasLegendMarker(
 	item: LegendItem
 ) {
-	if (item.isLocked) {
+	Box(
+		modifier = Modifier
+			.size(15.dp)
+			.background(PanelBackground, CircleShape)
+			.border(1.2.dp, item.color, CircleShape),
+		contentAlignment = Alignment.Center
+	) {
 		Icon(
-			imageVector = Icons.Outlined.Lock,
+			imageVector = when (item.icon) {
+				LegendIcon.Check -> Icons.Filled.Check
+				LegendIcon.Play -> Icons.Filled.PlayArrow
+				LegendIcon.Add -> Icons.Outlined.Add
+				LegendIcon.Lock -> Icons.Outlined.Lock
+			},
 			contentDescription = null,
 			tint = item.color,
-			modifier = Modifier.size(14.dp)
-		)
-	} else {
-		Box(
-			modifier = Modifier
-				.size(10.dp)
-				.background(item.color)
-				.border(1.dp, TextPrimary.copy(alpha = 0.12f))
+			modifier = Modifier.size(11.dp)
 		)
 	}
 }
@@ -129,5 +140,12 @@ private fun PensumCanvasLegendMarker(
 private data class LegendItem(
 	val label: StringResource,
 	val color: Color,
-	val isLocked: Boolean = false
+	val icon: LegendIcon
 )
+
+private enum class LegendIcon {
+	Check,
+	Play,
+	Add,
+	Lock
+}

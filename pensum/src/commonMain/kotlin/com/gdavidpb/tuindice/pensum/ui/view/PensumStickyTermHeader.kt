@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.pensum.ui.view
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -33,6 +34,7 @@ fun PensumStickyTermHeader(
 	scale: Float,
 	offsetX: Float,
 	densityScale: Float,
+	onTermClick: (termId: String) -> Unit,
 	modifier: Modifier = Modifier
 ) {
 	val density = LocalDensity.current
@@ -59,7 +61,8 @@ fun PensumStickyTermHeader(
 					.offset(x = with(density) { xPx.toDp() })
 					.width(widthDp)
 					.fillMaxHeight()
-					.padding(horizontal = 4.dp, vertical = 5.dp),
+					.padding(horizontal = 4.dp, vertical = 5.dp)
+					.clickable { onTermClick(term.id) },
 				shape = RoundedCornerShape(8.dp),
 				color = FloatingPanelBackground,
 				border = BorderStroke(1.dp, PanelBorder.copy(alpha = 0.9f))

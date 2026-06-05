@@ -14,6 +14,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.PlayArrow
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.Icon
@@ -45,14 +47,10 @@ fun PensumNodeCard(
 ) {
 	val colors = node.visualStyle.toNodeColors()
 	val isHighlighted = isSelected || isRequirementHighlighted || isUnlockHighlighted
-	val highlightColor = if (isUnlockHighlighted && !isSelected && !isRequirementHighlighted) {
-		Available
-	} else {
-		Selected
-	}
 	val subjectStatsCode = node.subjectStatsCode
 	val fulfilledSubject = node.fulfilledSubject
-	val hasStatusBadge = node.isApproved || node.isBlocked
+	val isAvailable = !node.isApproved && !node.isCurrent && !node.isBlocked
+	val hasStatusBadge = node.isApproved || node.isCurrent || node.isBlocked || isAvailable
 	val chipColors = node.displayCode.toPensumChipColors(
 		fallbackContainer = colors.chip,
 		fallbackContent = colors.chipText
@@ -63,7 +61,7 @@ fun PensumNodeCard(
 		color = colors.container,
 		border = BorderStroke(
 			width = if (isHighlighted) 2.2.dp else 1.2.dp,
-			color = if (isHighlighted) highlightColor else colors.border
+			color = colors.border
 		),
 		shadowElevation = if (isSelected || node.isCurrent) 8.dp else 0.dp
 	) {
@@ -111,7 +109,11 @@ fun PensumNodeCard(
 				)
 			}
 			if (hasStatusBadge) {
-				val badgeColor = if (node.isApproved) Approved else colors.border
+				val badgeColor = when {
+					node.isApproved -> Approved
+					node.isCurrent -> Current
+					else -> colors.border
+				}
 				Box(
 					modifier = Modifier
 						.align(Alignment.TopEnd)
@@ -121,7 +123,12 @@ fun PensumNodeCard(
 					contentAlignment = Alignment.Center
 				) {
 					Icon(
-						imageVector = if (node.isApproved) Icons.Filled.Check else Icons.Outlined.Lock,
+						imageVector = when {
+							node.isApproved -> Icons.Filled.Check
+							node.isCurrent -> Icons.Filled.PlayArrow
+							node.isBlocked -> Icons.Outlined.Lock
+							else -> Icons.Outlined.Add
+						},
 						contentDescription = null,
 						tint = badgeColor,
 						modifier = Modifier.size(16.dp)

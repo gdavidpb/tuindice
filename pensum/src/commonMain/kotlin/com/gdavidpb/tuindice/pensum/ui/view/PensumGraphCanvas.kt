@@ -282,6 +282,21 @@ fun PensumGraphCanvas(
 			)
 		}
 
+		fun focusTerm(termId: String) {
+			selectedNodeId = null
+			val bounds = model.termFocusBounds(termId) ?: return
+			centerCanvasBounds(
+				bounds = bounds,
+				targetScale = focusCanvasScale(
+					bounds = bounds,
+					viewportSizePx = viewportSizePx,
+					densityScale = density.density,
+					paddingPx = focusPaddingPx,
+					maxScale = TermFocusMaxZoom
+				)
+			)
+		}
+
 		fun moveViewportToCanvasCenter(canvasCenter: Offset) {
 			revealMinimapToggle()
 			val targetOffset = viewportOffsetForCanvasCenter(
@@ -542,12 +557,13 @@ fun PensumGraphCanvas(
 		if (!isFitToScreen) {
 			PensumStickyTermHeader(
 				terms = model.terms,
-				scale = scale.value,
-				offsetX = offsetX.value,
-				densityScale = density.density,
-				modifier = Modifier.align(Alignment.TopStart)
-			)
-		}
+					scale = scale.value,
+					offsetX = offsetX.value,
+					densityScale = density.density,
+					onTermClick = { termId -> focusTerm(termId) },
+					modifier = Modifier.align(Alignment.TopStart)
+				)
+			}
 
 		if (isMinimapToggleVisible && isMinimapVisible) {
 			PensumMinimap(
@@ -841,6 +857,27 @@ private fun PensumScreenModel.progressFocusBounds(): CanvasBounds? {
 	if (approvedNodes.isNotEmpty()) return approvedNodes.trailingColumn().canvasBounds()
 
 	return nodes.firstOrNull()?.canvasBounds()
+}
+
+private fun PensumScreenModel.termFocusBounds(termId: String): CanvasBounds? {
+	val term = terms.firstOrNull { term -> term.id == termId } ?: return null
+	val termNodes = nodes.filter { node -> node.termId == termId }
+	val nodeBounds = termNodes.canvasBounds()
+	if (nodeBounds != null) {
+		return CanvasBounds(
+			left = min(term.x.toFloat(), nodeBounds.left),
+			top = nodeBounds.top,
+			right = max((term.x + term.width).toFloat(), nodeBounds.right),
+			bottom = nodeBounds.bottom
+		)
+	}
+
+	return CanvasBounds(
+		left = term.x.toFloat(),
+		top = 0f,
+		right = (term.x + term.width).toFloat(),
+		bottom = canvas.height.toFloat()
+	)
 }
 
 private fun List<PensumScreenModel.Node>.leadingColumn(): List<PensumScreenModel.Node> {
