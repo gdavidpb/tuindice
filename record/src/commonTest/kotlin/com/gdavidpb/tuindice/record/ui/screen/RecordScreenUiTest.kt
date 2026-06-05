@@ -187,6 +187,7 @@ class RecordScreenUiTest {
 
 		onNodeWithTag(RecordUiTags.TermSelectionSheet).assertIsDisplayed()
 		onNodeWithTag(RecordUiTags.TermSelectionList).assertIsDisplayed()
+		onNodeWithText("Proyección: trimestre actual y simulaciones").assertIsDisplayed()
 		onNodeWithTag(RecordUiTags.termSelectionYear(2026)).assertIsDisplayed()
 		onNodeWithTag(RecordUiTags.termSelectionYear(2024)).assertIsDisplayed()
 		onNodeWithTag(
@@ -211,6 +212,42 @@ class RecordScreenUiTest {
 		assertEquals("historical-2024", selectedTermId)
 	}
 
+	@Test
+	fun when_historicalTermSelectionIsShown_then_modeDescriptionExplainsFilteredTerms() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			RecordScreen(
+				state = contentState(
+					viewMode = RecordViewMode.Historical,
+					terms = listOf(
+						academicTerm(
+							id = "historical-2024",
+							periodYear = 2024,
+							periodCode = AcademicTermPeriod.JAN_MAR,
+							kind = TermKind.HISTORICAL
+						)
+					),
+					selectedTermId = "historical-2024"
+				),
+				selectedTermId = "historical-2024",
+				onSelectedTermChange = {},
+				onRetryClick = {},
+				onAttemptSelectionChange = { _, _, _, _ -> },
+				onCreateSyntheticTermClick = {},
+				onUpdateSyntheticTermClick = {},
+				onDeleteSyntheticTermClick = {},
+				showTermSelection = true
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			onAllNodesWithTag(RecordUiTags.TermSelectionSheet)
+				.fetchSemanticsNodes()
+				.isNotEmpty()
+		}
+
+		onNodeWithText("Histórico: solo trimestres cerrados").assertIsDisplayed()
+	}
+
 	private fun contentState(
 		termId: String = SyntheticTermId,
 		termKind: TermKind,
@@ -231,11 +268,12 @@ class RecordScreenUiTest {
 	}
 
 	private fun contentState(
+		viewMode: RecordViewMode = RecordViewMode.Projection,
 		terms: List<AcademicTerm>,
 		selectedTermId: String
 	): Record.State.Content {
 		return Record.State.Content(
-			viewMode = RecordViewMode.Projection,
+			viewMode = viewMode,
 			record = AcademicRecord(
 				id = "record",
 				terms = terms

@@ -16,8 +16,8 @@ import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
-import tuindice.record.generated.resources.record_view_mode_historical
-import tuindice.record.generated.resources.record_view_mode_projection
+import tuindice.record.generated.resources.record_view_mode_state_historical
+import tuindice.record.generated.resources.record_view_mode_state_projection
 import tuindice.record.generated.resources.record_view_mode_toggle_to_historical
 import tuindice.record.generated.resources.record_view_mode_toggle_to_projection
 
@@ -72,8 +72,8 @@ private fun RecordViewMode.otherMode(): RecordViewMode {
 @Composable
 private fun recordViewModeLabel(mode: RecordViewMode): String {
 	return when (mode) {
-		RecordViewMode.Historical -> stringResource(Res.string.record_view_mode_historical)
-		RecordViewMode.Projection -> stringResource(Res.string.record_view_mode_projection)
+		RecordViewMode.Historical -> stringResource(Res.string.record_view_mode_state_historical)
+		RecordViewMode.Projection -> stringResource(Res.string.record_view_mode_state_projection)
 	}
 }
 

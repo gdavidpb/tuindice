@@ -25,7 +25,7 @@ class RecordTopBarViewModeBannerViewUiTest {
 
 		onNodeWithTag(RecordUiTags.TopBarViewModeInfoButton).performClick()
 
-		onNodeWithText("Incluye el trimestre actual y tus simulaciones. No modifica el historial académico.")
+		onNodeWithText("Proyección: trimestre actual y simulaciones. No modifica el historial académico.")
 			.assertIsDisplayed()
 	}
 
@@ -42,7 +42,7 @@ class RecordTopBarViewModeBannerViewUiTest {
 		}
 
 		onNodeWithTag(RecordUiTags.TopBarViewModeInfoButton).performClick()
-		onNodeWithText("Trimestres cerrados registrados en tu historial académico. Solo lectura.")
+		onNodeWithText("Histórico: solo trimestres cerrados. Solo lectura.")
 			.assertIsDisplayed()
 
 		runOnIdle {

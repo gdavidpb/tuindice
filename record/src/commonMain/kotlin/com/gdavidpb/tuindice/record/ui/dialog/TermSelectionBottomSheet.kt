@@ -23,9 +23,8 @@ import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
-import tuindice.record.generated.resources.record_view_mode_historical
-import tuindice.record.generated.resources.record_view_mode_projection
-import tuindice.record.generated.resources.term_selection_mode_pattern
+import tuindice.record.generated.resources.term_selection_mode_historical_description
+import tuindice.record.generated.resources.term_selection_mode_projection_description
 import tuindice.record.generated.resources.term_selection_selected_content_description
 import tuindice.record.generated.resources.term_selection_title
 
@@ -42,9 +41,9 @@ fun TermSelectionBottomSheet(
 	val termsByYear = terms
 		.sortedByDescending(TermItem::termOrder)
 		.groupBy(TermItem::periodYear)
-	val modeText = when (viewMode) {
-		RecordViewMode.Historical -> stringResource(Res.string.record_view_mode_historical)
-		RecordViewMode.Projection -> stringResource(Res.string.record_view_mode_projection)
+	val modeDescriptionText = when (viewMode) {
+		RecordViewMode.Historical -> stringResource(Res.string.term_selection_mode_historical_description)
+		RecordViewMode.Projection -> stringResource(Res.string.term_selection_mode_projection_description)
 	}
 	val selectedContentDescription = stringResource(Res.string.term_selection_selected_content_description)
 
@@ -72,7 +71,7 @@ fun TermSelectionBottomSheet(
 					fontWeight = FontWeight.Black
 				)
 				Text(
-					text = stringResource(Res.string.term_selection_mode_pattern, modeText),
+					text = modeDescriptionText,
 					style = MaterialTheme.typography.bodyMedium,
 					color = MaterialTheme.colorScheme.onSurfaceVariant
 				)
