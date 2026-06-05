@@ -74,6 +74,7 @@ fun EvaluationsWeekStripView(
 			selectedItemKey = visibleSelectedWeekKey,
 			itemKey = { item -> item.key },
 			itemTestTag = { item -> EvaluationsUiTags.evaluationsWeekChip(item.key) },
+			itemWidthFraction = WeekSelectorItemWidthFraction,
 			onItemSelected = { item -> onWeekSelected(item.key) },
 			contentType = WeekSelectorItemContentType
 		) { item, isSelected ->
@@ -109,4 +110,5 @@ fun EvaluationsWeekStripView(
 	}
 }
 
+private const val WeekSelectorItemWidthFraction = 0.44f
 private const val WeekSelectorItemContentType = "week_selector_item"

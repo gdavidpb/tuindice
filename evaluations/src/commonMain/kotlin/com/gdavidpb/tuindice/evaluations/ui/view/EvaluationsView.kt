@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
@@ -13,6 +14,7 @@ import androidx.compose.ui.layout.boundsInRoot
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
@@ -77,7 +79,8 @@ fun EvaluationsView(
 	LazyColumn(
 		modifier = Modifier.testTag(EvaluationsUiTags.EvaluationsList),
 		state = lazyListState,
-		userScrollEnabled = scrollEnabled
+		userScrollEnabled = scrollEnabled,
+		contentPadding = PaddingValues(bottom = EvaluationsListBottomPadding)
 	) {
 		weekGroups.forEach { weekGroup ->
 			val evaluations = weekGroup.evaluationItems()
@@ -176,4 +179,5 @@ private fun List<EvaluationItem>.countText(
 	return pattern.replace("%1${'$'}d", size.toString())
 }
 
+private val EvaluationsListBottomPadding = 120.dp
 private const val EvaluationItemContentType = "evaluation_item"
