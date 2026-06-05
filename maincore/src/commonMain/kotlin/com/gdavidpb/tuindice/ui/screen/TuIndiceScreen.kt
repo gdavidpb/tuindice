@@ -18,11 +18,12 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.Article
+import androidx.compose.material.icons.automirrored.filled.Assignment
 import androidx.compose.material.icons.automirrored.outlined.Article
+import androidx.compose.material.icons.automirrored.outlined.Assignment
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.AccountTree
 import androidx.compose.material.icons.filled.Bookmark
-import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.AccountTree
 import androidx.compose.material.icons.outlined.BookmarkBorder
@@ -387,7 +388,7 @@ private fun bottomBarIcon(
 	BottomBarConfig.Pensum ->
 		if (selected) Icons.Filled.AccountTree else Icons.Outlined.AccountTree
 	BottomBarConfig.Evaluations ->
-		if (selected) Icons.Filled.DateRange else Icons.Outlined.DateRange
+		if (selected) Icons.AutoMirrored.Filled.Assignment else Icons.AutoMirrored.Outlined.Assignment
 	BottomBarConfig.About ->
 		if (selected) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder
 }
