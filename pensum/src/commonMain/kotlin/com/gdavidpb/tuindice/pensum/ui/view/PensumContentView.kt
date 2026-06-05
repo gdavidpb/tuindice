@@ -34,7 +34,6 @@ fun PensumContentView(
 			onSubjectStatsClick = onSubjectStatsClick,
 			modifier = Modifier.weight(1f)
 		)
-		PensumCanvasLegend()
 	}
 
 	if (showSelectionSheet) {

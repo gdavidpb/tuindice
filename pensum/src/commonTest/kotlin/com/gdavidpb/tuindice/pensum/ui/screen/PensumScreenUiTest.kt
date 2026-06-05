@@ -106,9 +106,14 @@ class PensumScreenUiTest {
 		onNodeWithText("En curso").assertExists()
 		onNodeWithText("Disponible").assertExists()
 		onNodeWithText("Bloqueada").assertExists()
+		onNodeWithText("1er trimestre").assertExists()
+		onNodeWithTag(PensumUiTags.FocusProgress).assertHasClickAction().performClick()
+		assertNodeVisible(PensumUiTags.StickyTerms)
 		onNodeWithTag(PensumUiTags.FitToScreen).assertHasClickAction().performClick()
 		assertNodeHidden(PensumUiTags.MinimapToggle)
+		assertNodeVisible(PensumUiTags.StickyTerms)
 		onNodeWithTag(PensumUiTags.ZoomIn).assertHasClickAction().performClick()
+		assertNodeVisible(PensumUiTags.StickyTerms)
 		onNodeWithTag(PensumUiTags.ZoomOut).assertHasClickAction()
 		assertNodeHidden(PensumUiTags.Minimap)
 		onNodeWithTag(PensumUiTags.MinimapToggle).assertHasClickAction().performClick()
@@ -116,6 +121,7 @@ class PensumScreenUiTest {
 		onNodeWithTag(PensumUiTags.FitToScreen).performClick()
 		assertNodeHidden(PensumUiTags.MinimapToggle)
 		assertNodeHidden(PensumUiTags.Minimap)
+		assertNodeVisible(PensumUiTags.StickyTerms)
 	}
 
 	@Test

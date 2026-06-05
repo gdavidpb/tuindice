@@ -39,11 +39,17 @@ fun PensumNodeCard(
 	node: PensumScreenModel.Node,
 	isSelected: Boolean,
 	isRequirementHighlighted: Boolean,
+	isUnlockHighlighted: Boolean,
 	onSubjectStatsClick: (subjectCode: String) -> Unit,
 	modifier: Modifier = Modifier
 ) {
 	val colors = node.visualStyle.toNodeColors()
-	val isHighlighted = isSelected || isRequirementHighlighted
+	val isHighlighted = isSelected || isRequirementHighlighted || isUnlockHighlighted
+	val highlightColor = if (isUnlockHighlighted && !isSelected && !isRequirementHighlighted) {
+		Current
+	} else {
+		Selected
+	}
 	val subjectStatsCode = node.subjectStatsCode
 	val fulfilledSubject = node.fulfilledSubject
 	val hasStatusBadge = node.isApproved || node.isBlocked
@@ -57,7 +63,7 @@ fun PensumNodeCard(
 		color = colors.container,
 		border = BorderStroke(
 			width = if (isHighlighted) 2.2.dp else 1.2.dp,
-			color = if (isHighlighted) Selected else colors.border
+			color = if (isHighlighted) highlightColor else colors.border
 		),
 		shadowElevation = if (isSelected || node.isCurrent) 8.dp else 0.dp
 	) {

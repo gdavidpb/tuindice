@@ -125,8 +125,10 @@ pensum_screen
 pensum_canvas
 pensum_canvas_legend
 pensum_fit_to_screen
+pensum_focus_progress
 pensum_minimap
 pensum_minimap_toggle
+pensum_sticky_terms
 pensum_zoom_in
 pensum_zoom_out
 pensum_node_ma1111

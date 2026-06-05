@@ -13,18 +13,28 @@ appId: com.gdavidpb.tuindice.debug
     id: pensum_canvas
 - assertVisible:
     id: pensum_canvas_legend
+- assertVisible:
+    id: pensum_focus_progress
 - doubleTapOn:
     id: pensum_canvas
+- assertVisible:
+    id: pensum_sticky_terms
 - doubleTapOn:
     id: pensum_canvas
 - tapOn:
     id: pensum_zoom_in
+- assertVisible:
+    id: pensum_sticky_terms
 - assertVisible:
     id: pensum_minimap_toggle
 - tapOn:
     id: pensum_minimap_toggle
 - assertVisible:
     id: pensum_minimap
+- tapOn:
+    id: pensum_minimap
+- tapOn:
+    id: pensum_focus_progress
 - tapOn:
     id: pensum_zoom_out
 - tapOn:

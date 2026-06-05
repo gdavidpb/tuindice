@@ -63,11 +63,10 @@ fun PensumCanvasLegend(
 	Surface(
 		modifier = modifier
 			.fillMaxWidth()
-			.background(MaterialTheme.colorScheme.onSecondary)
 			.padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
 			.testTag(PensumUiTags.CanvasLegend),
 		shape = RoundedCornerShape(8.dp),
-		color = Color.Black.copy(alpha = 0.54f),
+		color = FloatingPanelBackground,
 		border = BorderStroke(1.dp, PanelBorder.copy(alpha = 0.9f))
 	) {
 		Row(

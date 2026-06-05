@@ -25,6 +25,7 @@
 	<string name="pensum_canvas_legend_available">Disponible</string>
 	<string name="pensum_canvas_legend_blocked">Bloqueada</string>
 	<string name="pensum_fit_to_screen">Ajustar al contenido</string>
+	<string name="pensum_focus_progress">Volver a mi avance</string>
 	<string name="pensum_show_minimap">Mostrar mapa</string>
 	<string name="pensum_hide_minimap">Ocultar mapa</string>
 	<string name="pensum_zoom_in">Acercar</string>

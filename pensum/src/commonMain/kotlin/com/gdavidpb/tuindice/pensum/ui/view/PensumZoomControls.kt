@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.CenterFocusStrong
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material3.Icon
@@ -24,6 +25,7 @@ import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_fit_to_screen
+import tuindice.pensum.generated.resources.pensum_focus_progress
 import tuindice.pensum.generated.resources.pensum_hide_minimap
 import tuindice.pensum.generated.resources.pensum_show_minimap
 import tuindice.pensum.generated.resources.pensum_zoom_in
@@ -33,6 +35,7 @@ import tuindice.pensum.generated.resources.pensum_zoom_out
 fun PensumZoomControls(
 	isMinimapToggleVisible: Boolean,
 	isMinimapVisible: Boolean,
+	onFocusProgress: () -> Unit,
 	onFitToScreen: () -> Unit,
 	onToggleMinimap: () -> Unit,
 	onZoomIn: () -> Unit,
@@ -52,6 +55,20 @@ fun PensumZoomControls(
 			.background(Color.Black.copy(alpha = 0.68f), RoundedCornerShape(8.dp))
 			.border(1.dp, Available, RoundedCornerShape(8.dp))
 	) {
+		IconButton(
+			modifier = Modifier
+				.weight(1f)
+				.fillMaxWidth()
+				.testTag(PensumUiTags.FocusProgress),
+			onClick = onFocusProgress
+		) {
+			Icon(
+				imageVector = Icons.Outlined.BookmarkBorder,
+				contentDescription = stringResource(Res.string.pensum_focus_progress),
+				tint = TextPrimary
+			)
+		}
+		PensumZoomControlDivider()
 		IconButton(
 			modifier = Modifier
 				.weight(1f)
