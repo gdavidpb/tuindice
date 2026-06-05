@@ -74,6 +74,9 @@ class EvaluationItemMappingUiTest {
 			attempts = listOf(DEFAULT_EVALUATION_SUBJECT)
 		).single().items.single()
 
+		assertEquals("QUIZ 1", item.nameText)
+		assertEquals("QUIZ 1", item.typeNameText)
+		assertEquals("Quiz", item.typeText)
 		assertEquals(DEFAULT_EVALUATION_SUBJECT.name, item.subjectNameText)
 		assertEquals("32 / 35", item.gradeText)
 		assertEquals("Completada", item.statusText)

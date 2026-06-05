@@ -48,7 +48,7 @@ fun Evaluation.toEvaluationItem(
 	mapping: EvaluationItemMapping,
 	attempt: EditableAttemptDescriptor
 ) = CourseCodeColorGenerator.fromCode(subjectCode).let { subjectColors ->
-	val typeName = mapping.evaluationName(type, ordinal)
+	val typeName = mapping.evaluationName(type, ordinal).uppercase()
 	val gradeText = mapping.scoreGrade(grade, maxGrade)
 	EvaluationItem(
 		evaluationId = id,

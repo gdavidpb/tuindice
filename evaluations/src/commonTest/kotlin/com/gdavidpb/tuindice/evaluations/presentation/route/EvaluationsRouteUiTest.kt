@@ -224,7 +224,7 @@ class EvaluationsRouteUiTest {
 		}
 
 			assertEquals(DEFAULT_COMPLETED_EVALUATION.id, requestedEvaluationId)
-			assertEquals("Parcial 1", requestedEvaluationName)
+			assertEquals("PARCIAL 1", requestedEvaluationName)
 			assertEquals(SECOND_EVALUATION_SUBJECT.code, requestedSubjectCode)
 			assertEquals(DEFAULT_COMPLETED_EVALUATION.grade, requestedGrade)
 			assertEquals(DEFAULT_COMPLETED_EVALUATION.maxGrade, requestedMaxGrade)
