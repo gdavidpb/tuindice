@@ -179,8 +179,8 @@ internal fun samplePensumState(): Pensum.State.Content {
 				pensumRequirementEdge("lla111", "lla112"),
 				pensumRequirementEdge("ci2611", "ci3611"),
 				pensumRequirementEdge("ci3611", "ci4325"),
-				pensumRequirementEdge("ci4325", "ep5406"),
-				pensumRequirementEdge("ec5344", "ep5406")
+				pensumRequirementEdge("ci4325", "ep5406", isDisconnected = true),
+				pensumRequirementEdge("ec5344", "ep5406", isDisconnected = true)
 			)
 		)
 	)
@@ -267,6 +267,7 @@ private fun PensumSampleNodeSpec.toPensumNode(
 	visualStyle = state.toVisualStyle(),
 	isCurrent = state == PensumSampleNodeState.CURRENT,
 	isApproved = state == PensumSampleNodeState.APPROVED,
+	isBlocked = state == PensumSampleNodeState.BLOCKED,
 	hasSubjectStatsAction = true,
 	subjectStatsCode = code,
 	fulfilledSubject = null
@@ -302,12 +303,14 @@ private fun sampleModalityOptions() = listOf(
 
 private fun pensumRequirementEdge(
 	fromNodeId: String,
-	toNodeId: String
+	toNodeId: String,
+	isDisconnected: Boolean = false
 ) = PensumScreenModel.Edge(
 	id = "${fromNodeId}_to_$toNodeId",
 	fromNodeId = fromNodeId,
 	toNodeId = toNodeId,
 	relationshipType = PensumScreenModel.RelationshipType.REQUIREMENT,
+	isDisconnected = isDisconnected,
 	points = listOf(
 		PensumScreenModel.Point(x = 0.0, y = 0.0),
 		PensumScreenModel.Point(x = 1.0, y = 1.0)
@@ -348,12 +351,12 @@ private fun PensumSampleNodeState.toVisualStyle(): PensumScreenModel.NodeVisualS
 			secondaryTextArgb = 0xFF9C9EA3
 		)
 		PensumSampleNodeState.BLOCKED -> PensumScreenModel.NodeVisualStyle(
-			containerArgb = 0xFF242628,
+			containerArgb = 0xFF171819,
 			borderArgb = 0xFF686B70,
 			chipArgb = 0xFFB7B8BA,
 			chipTextArgb = 0xFF383A3D,
-			textArgb = 0xFFC7C8CA,
-			secondaryTextArgb = 0xFF8A8C90
+			textArgb = 0xFFF7F7F7,
+			secondaryTextArgb = 0xFF9C9EA3
 		)
 	}
 }

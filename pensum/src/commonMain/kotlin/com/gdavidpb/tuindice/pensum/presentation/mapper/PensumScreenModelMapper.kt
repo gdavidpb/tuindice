@@ -52,6 +52,7 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 				visualStyle = status.toVisualStyle(),
 				isCurrent = status == PensumNodeStatus.CURRENT,
 				isApproved = status == PensumNodeStatus.APPROVED,
+				isBlocked = status == PensumNodeStatus.BLOCKED,
 				hasSubjectStatsAction = subjectStatsCode.hasSubjectStatsAction(displayCode = subjectStatsCode.orEmpty()),
 				subjectStatsCode = subjectStatsCode,
 				fulfilledSubject = fulfillment?.let { fulfilled ->
@@ -110,11 +111,14 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 		terms = displayTerms,
 		nodes = displayNodes,
 		edges = pensum.edges.map { edge ->
+			val targetStatus = nodeStatuses[edge.toNodeId] ?: PensumNodeStatus.BLOCKED
+
 			PensumScreenModel.Edge(
 				id = edge.id,
 				fromNodeId = edge.fromNodeId,
 				toNodeId = edge.toNodeId,
 				relationshipType = edge.relationshipType.toScreenRelationshipType(),
+				isDisconnected = targetStatus == PensumNodeStatus.BLOCKED,
 				points = edge.points.map { point ->
 					PensumScreenModel.Point(
 						x = point.x,
@@ -213,12 +217,12 @@ private fun PensumNodeStatus.toVisualStyle(): PensumScreenModel.NodeVisualStyle 
 			secondaryTextArgb = 0xFF9C9EA3
 		)
 		PensumNodeStatus.BLOCKED -> PensumScreenModel.NodeVisualStyle(
-			containerArgb = 0xFF242628,
+			containerArgb = 0xFF171819,
 			borderArgb = 0xFF686B70,
 			chipArgb = 0xFFB7B8BA,
 			chipTextArgb = 0xFF383A3D,
-			textArgb = 0xFFC7C8CA,
-			secondaryTextArgb = 0xFF8A8C90
+			textArgb = 0xFFF7F7F7,
+			secondaryTextArgb = 0xFF9C9EA3
 		)
 	}
 }

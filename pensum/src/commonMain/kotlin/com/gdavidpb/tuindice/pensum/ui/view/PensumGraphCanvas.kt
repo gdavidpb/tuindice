@@ -33,6 +33,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -351,6 +352,16 @@ private fun DrawScope.drawPensumEdge(
 	if (edge.points.size < 2) return
 	val color = if (isHighlighted) Selected else Available
 	val strokeWidth = if (isHighlighted) 4.dp else 2.dp
+	val pathEffect = if (edge.isDisconnected) {
+		PathEffect.dashPathEffect(
+			floatArrayOf(
+				DisconnectedEdgeDashLength.toPx(),
+				DisconnectedEdgeDashGap.toPx()
+			)
+		)
+	} else {
+		null
+	}
 	val points = model.edgeRoute(
 		edge = edge,
 		endpointGap = EdgeEndpointGap.toPx() / density,
@@ -362,7 +373,8 @@ private fun DrawScope.drawPensumEdge(
 		color = color,
 		style = Stroke(
 			width = strokeWidth.toPx(),
-			cap = StrokeCap.Round
+			cap = StrokeCap.Round,
+			pathEffect = pathEffect
 		)
 	)
 	drawArrowHead(points[points.lastIndex - 1], points.last(), color)

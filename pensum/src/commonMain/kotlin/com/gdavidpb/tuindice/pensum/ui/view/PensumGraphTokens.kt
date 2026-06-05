@@ -27,4 +27,6 @@ internal val GraphControlsGap = 6.dp
 internal val EdgeEndpointGap = 0.dp
 internal val EdgeCornerRadius = 14.dp
 internal val EdgeRerouteSpacing = 32.dp
+internal val DisconnectedEdgeDashLength = 14.dp
+internal val DisconnectedEdgeDashGap = 10.dp
 internal val ArrowHeadLength = 12.dp

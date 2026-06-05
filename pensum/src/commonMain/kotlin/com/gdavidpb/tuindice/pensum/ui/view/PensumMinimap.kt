@@ -11,6 +11,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
@@ -40,6 +41,16 @@ fun PensumMinimap(
 		model.edges.forEach { edge ->
 			val color = if (edge.id in selectedRequirementEdgeIds) Selected.copy(alpha = 0.9f) else Available.copy(alpha = 0.55f)
 			val strokeWidth = if (edge.id in selectedRequirementEdgeIds) 4f else 2f
+			val pathEffect = if (edge.isDisconnected) {
+				PathEffect.dashPathEffect(
+					floatArrayOf(
+						DisconnectedEdgeDashLength.toPx(),
+						DisconnectedEdgeDashGap.toPx()
+					)
+				)
+			} else {
+				null
+			}
 			model.edgeRoute(
 				edge = edge,
 				endpointGap = EdgeEndpointGap.value,
@@ -49,7 +60,8 @@ fun PensumMinimap(
 					color = color,
 					start = Offset(start.x * sx, start.y * sy),
 					end = Offset(end.x * sx, end.y * sy),
-					strokeWidth = strokeWidth
+					strokeWidth = strokeWidth,
+					pathEffect = pathEffect
 				)
 			}
 		}

@@ -15,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.BarChart
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -45,6 +46,7 @@ fun PensumNodeCard(
 	val isHighlighted = isSelected || isRequirementHighlighted
 	val subjectStatsCode = node.subjectStatsCode
 	val fulfilledSubject = node.fulfilledSubject
+	val hasStatusBadge = node.isApproved || node.isBlocked
 	val chipColors = node.displayCode.toPensumChipColors(
 		fallbackContainer = colors.chip,
 		fallbackContent = colors.chipText
@@ -65,7 +67,7 @@ fun PensumNodeCard(
 			) {
 				Text(
 					modifier = Modifier
-						.padding(end = if (node.isApproved) 28.dp else 0.dp)
+						.padding(end = if (hasStatusBadge) 28.dp else 0.dp)
 						.background(chipColors.container, RoundedCornerShape(6.dp))
 						.padding(horizontal = 8.dp, vertical = 4.dp),
 					text = node.displayCode,
@@ -102,19 +104,20 @@ fun PensumNodeCard(
 					color = colors.secondaryText
 				)
 			}
-			if (node.isApproved) {
+			if (hasStatusBadge) {
+				val badgeColor = if (node.isApproved) Approved else colors.border
 				Box(
 					modifier = Modifier
 						.align(Alignment.TopEnd)
 						.size(22.dp)
 						.background(PanelBackground, CircleShape)
-						.border(1.4.dp, Approved, CircleShape),
+						.border(1.4.dp, badgeColor, CircleShape),
 					contentAlignment = Alignment.Center
 				) {
 					Icon(
-						imageVector = Icons.Filled.Check,
+						imageVector = if (node.isApproved) Icons.Filled.Check else Icons.Outlined.Lock,
 						contentDescription = null,
-						tint = Approved,
+						tint = badgeColor,
 						modifier = Modifier.size(16.dp)
 					)
 				}

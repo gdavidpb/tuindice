@@ -60,6 +60,7 @@ data class PensumScreenModel(
 		val visualStyle: NodeVisualStyle,
 		val isCurrent: Boolean,
 		val isApproved: Boolean,
+		val isBlocked: Boolean = false,
 		val hasSubjectStatsAction: Boolean,
 		val subjectStatsCode: String?,
 		val fulfilledSubject: FulfilledSubject?
@@ -75,6 +76,7 @@ data class PensumScreenModel(
 		val fromNodeId: String,
 		val toNodeId: String,
 		val relationshipType: RelationshipType,
+		val isDisconnected: Boolean = false,
 		val points: List<Point>
 	)
 
