@@ -62,7 +62,7 @@ fun SelectedTermView(
 	LazyColumn(
 		modifier = modifier.testTag(RecordUiTags.AttemptsList),
 		state = lazyListState,
-		contentPadding = PaddingValues(bottom = 16.dp)
+		contentPadding = PaddingValues(bottom = SelectedTermListBottomPadding)
 	) {
 		items(
 			items = term.attempts,
@@ -89,4 +89,5 @@ fun SelectedTermView(
 	}
 }
 
+private val SelectedTermListBottomPadding = 120.dp
 private const val SelectedTermAttemptContentType = "selected_term_attempt"
