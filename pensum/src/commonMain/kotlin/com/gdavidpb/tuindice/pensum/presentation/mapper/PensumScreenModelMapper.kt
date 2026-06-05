@@ -210,7 +210,7 @@ private fun PensumNodeStatus.toVisualStyle(): PensumScreenModel.NodeVisualStyle 
 		)
 		PensumNodeStatus.AVAILABLE -> PensumScreenModel.NodeVisualStyle(
 			containerArgb = 0xFF171819,
-			borderArgb = 0xFF8A8F94,
+			borderArgb = 0xFF6DD7FF,
 			chipArgb = 0xFFEBDDA3,
 			chipTextArgb = 0xFF534500,
 			textArgb = 0xFFF7F7F7,

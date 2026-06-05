@@ -55,7 +55,7 @@ fun PensumCanvasLegend(
 		),
 		LegendItem(
 			label = Res.string.pensum_canvas_legend_blocked,
-			color = Available.copy(alpha = 0.72f),
+			color = CanvasNeutral.copy(alpha = 0.72f),
 			isLocked = true
 		)
 	)

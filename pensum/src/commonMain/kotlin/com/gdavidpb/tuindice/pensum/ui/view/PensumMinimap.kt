@@ -29,6 +29,7 @@ fun PensumMinimap(
 	viewportSizePx: Size,
 	selectedRequirementEdgeIds: Set<String>,
 	selectedUnlockEdgeIds: Set<String>,
+	selectedAvailableUnlockEdgeIds: Set<String>,
 	densityScale: Float,
 	onViewportCenterChange: (Offset) -> Unit,
 	modifier: Modifier = Modifier
@@ -47,7 +48,7 @@ fun PensumMinimap(
 		modifier = modifier
 			.size(MinimapWidth, MinimapHeight)
 			.background(Color.Black.copy(alpha = 0.62f), RoundedCornerShape(8.dp))
-			.border(1.dp, Available, RoundedCornerShape(8.dp))
+			.border(1.dp, CanvasNeutral, RoundedCornerShape(8.dp))
 			.padding(8.dp)
 			.pointerInput(model.canvas, scale) {
 				detectTapGestures(
@@ -73,9 +74,10 @@ fun PensumMinimap(
 		val sy = size.height / model.canvas.height.toFloat()
 		model.edges.forEach { edge ->
 			val color = when (edge.id) {
+				in selectedAvailableUnlockEdgeIds -> Available.copy(alpha = 0.9f)
 				in selectedRequirementEdgeIds -> Selected.copy(alpha = 0.9f)
-				in selectedUnlockEdgeIds -> Current.copy(alpha = 0.9f)
-				else -> Available.copy(alpha = 0.55f)
+				in selectedUnlockEdgeIds -> Selected.copy(alpha = 0.9f)
+				else -> CanvasNeutral.copy(alpha = 0.55f)
 			}
 			val strokeWidth = if (edge.id in selectedRequirementEdgeIds || edge.id in selectedUnlockEdgeIds) 4f else 2f
 			val pathEffect = if (edge.isDisconnected) {

@@ -106,22 +106,25 @@ class PensumScreenUiTest {
 		onNodeWithText("En curso").assertExists()
 		onNodeWithText("Disponible").assertExists()
 		onNodeWithText("Bloqueada").assertExists()
-		onNodeWithText("1er trimestre").assertExists()
+		onNodeWithText("1° trimestre").assertExists()
 		onNodeWithTag(PensumUiTags.FocusProgress).assertHasClickAction().performClick()
 		assertNodeVisible(PensumUiTags.StickyTerms)
 		onNodeWithTag(PensumUiTags.FitToScreen).assertHasClickAction().performClick()
-		assertNodeHidden(PensumUiTags.MinimapToggle)
-		assertNodeVisible(PensumUiTags.StickyTerms)
+		assertNodeVisible(PensumUiTags.MinimapToggle)
+		assertNodeHidden(PensumUiTags.StickyTerms)
+		assertNodeHidden(PensumUiTags.FitToScreen)
 		onNodeWithTag(PensumUiTags.ZoomIn).assertHasClickAction().performClick()
 		assertNodeVisible(PensumUiTags.StickyTerms)
+		assertNodeVisible(PensumUiTags.FitToScreen)
 		onNodeWithTag(PensumUiTags.ZoomOut).assertHasClickAction()
 		assertNodeHidden(PensumUiTags.Minimap)
 		onNodeWithTag(PensumUiTags.MinimapToggle).assertHasClickAction().performClick()
 		assertNodeVisible(PensumUiTags.Minimap)
 		onNodeWithTag(PensumUiTags.FitToScreen).performClick()
-		assertNodeHidden(PensumUiTags.MinimapToggle)
+		assertNodeVisible(PensumUiTags.MinimapToggle)
 		assertNodeHidden(PensumUiTags.Minimap)
-		assertNodeVisible(PensumUiTags.StickyTerms)
+		assertNodeHidden(PensumUiTags.StickyTerms)
+		assertNodeHidden(PensumUiTags.FitToScreen)
 	}
 
 	@Test
@@ -330,7 +333,7 @@ private fun samplePensumModelWithSelectableYears(): PensumScreenModel {
 private fun availableNodeVisualStyle(): PensumScreenModel.NodeVisualStyle {
 	return PensumScreenModel.NodeVisualStyle(
 		containerArgb = 0xFF171819,
-		borderArgb = 0xFF8A8F94,
+		borderArgb = 0xFF6DD7FF,
 		chipArgb = 0xFFEBDDA3,
 		chipTextArgb = 0xFF534500,
 		textArgb = 0xFFF7F7F7,

@@ -48,11 +48,16 @@ fun PensumStickyTermHeader(
 		terms.forEachIndexed { index, term ->
 			val xPx = offsetX + term.x.toFloat() * densityScale * scale
 			val widthPx = max(term.width.toFloat() * densityScale * scale, minimumWidthPx)
+			val widthDp = with(density) { widthPx.toDp() }
+			val label = trimesterOrdinalLabel(
+				number = index + 1,
+				shouldIncludeText = widthDp >= StickyTermFullLabelMinWidth
+			)
 
 			Surface(
 				modifier = Modifier
 					.offset(x = with(density) { xPx.toDp() })
-					.width(with(density) { widthPx.toDp() })
+					.width(widthDp)
 					.fillMaxHeight()
 					.padding(horizontal = 4.dp, vertical = 5.dp),
 				shape = RoundedCornerShape(8.dp),
@@ -65,7 +70,7 @@ fun PensumStickyTermHeader(
 				) {
 					Text(
 						modifier = Modifier.padding(horizontal = 8.dp),
-						text = trimesterOrdinalLabel(index + 1),
+						text = label,
 						textAlign = TextAlign.Center,
 						style = MaterialTheme.typography.labelMedium,
 						fontWeight = FontWeight.SemiBold,
@@ -79,24 +84,11 @@ fun PensumStickyTermHeader(
 	}
 }
 
-private fun trimesterOrdinalLabel(number: Int): String {
-	val suffix = when (number) {
-		1 -> "er"
-		2 -> "do"
-		3 -> "er"
-		4 -> "to"
-		5 -> "to"
-		6 -> "to"
-		7 -> "mo"
-		8 -> "vo"
-		9 -> "no"
-		10 -> "mo"
-		else -> when {
-			number % 10 == 1 -> "er"
-			number % 10 == 2 -> "do"
-			number % 10 == 3 -> "er"
-			else -> "to"
-		}
+private fun trimesterOrdinalLabel(number: Int, shouldIncludeText: Boolean): String {
+	val ordinal = "$number°"
+	return if (shouldIncludeText) {
+		"$ordinal trimestre"
+	} else {
+		ordinal
 	}
-	return "$number$suffix trimestre"
 }

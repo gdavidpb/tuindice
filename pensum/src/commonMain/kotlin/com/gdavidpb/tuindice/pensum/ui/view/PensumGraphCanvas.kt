@@ -38,6 +38,7 @@ import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.gdavidpb.tuindice.base.utils.extension.DecelerateEasing
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
@@ -104,11 +105,17 @@ fun PensumGraphCanvas(
 		val selectedUnlockEdgeIds = remember(model.edges, selectedNodeId) {
 			model.unlockEdgeIdsFrom(selectedNodeId)
 		}
+		val selectedAvailableUnlockEdgeIds = remember(model.edges, model.nodes, selectedUnlockEdgeIds) {
+			model.availableUnlockEdgeIdsIn(selectedUnlockEdgeIds)
+		}
 		val selectedUnlockNodeIds = remember(model.edges, selectedNodeId, selectedUnlockEdgeIds) {
 			model.unlockNodeIdsIn(
 				selectedNodeId = selectedNodeId,
 				selectedUnlockEdgeIds = selectedUnlockEdgeIds
 			)
+		}
+		val selectedAvailableUnlockNodeIds = remember(model.edges, selectedAvailableUnlockEdgeIds) {
+			model.availableUnlockNodeIdsIn(selectedAvailableUnlockEdgeIds)
 		}
 		val selectedFocusNodeIds = remember(selectedRequirementNodeIds, selectedUnlockNodeIds) {
 			selectedRequirementNodeIds + selectedUnlockNodeIds
@@ -212,7 +219,6 @@ fun PensumGraphCanvas(
 		}
 
 		fun hideMinimap() {
-			isMinimapToggleVisible = false
 			isMinimapVisible = false
 		}
 
@@ -262,6 +268,7 @@ fun PensumGraphCanvas(
 		}
 
 		fun focusProgress() {
+			selectedNodeId = null
 			val bounds = model.progressFocusBounds() ?: return
 			centerCanvasBounds(
 				bounds = bounds,
@@ -411,6 +418,20 @@ fun PensumGraphCanvas(
 			)
 		}
 
+		val fitStateScale = fitCanvasScale(
+			viewportSizePx = viewportSizePx,
+			canvasSizePx = canvasSizePx,
+			paddingPx = fitPaddingPx
+		)
+		val fitStateOffset = fitCanvasOffset(fitStateScale)
+		val isFitToScreen = isCanvasFitToScreen(
+			scale = scale.value,
+			offset = Offset(offsetX.value, offsetY.value),
+			fitScale = fitStateScale,
+			fitOffset = fitStateOffset,
+			offsetTolerancePx = with(density) { CanvasFitStateTolerance.toPx() }
+		)
+
 		Box(
 			modifier = Modifier
 				.pointerInput(graphKey, viewportSizePx, canvasSizePx, panMarginPx) {
@@ -472,23 +493,24 @@ fun PensumGraphCanvas(
 				drawCanvasBackground(
 					model = model,
 					density = density.density,
-					selectedRequirementEdgeIds = selectedRequirementEdgeIds,
-					selectedUnlockEdgeIds = selectedUnlockEdgeIds,
+					focusedEdgeIds = selectedRequirementEdgeIds + selectedUnlockEdgeIds,
 					isFocusActive = selectedNodeId != null
 				)
 			}
 			model.nodes.forEach { node ->
-				val isUnlockHighlighted = node.id in selectedUnlockNodeIds
+				val isUnlockHighlighted = node.id in selectedAvailableUnlockNodeIds
 				val isNodeDimmed = selectedNodeId != null && node.id !in selectedFocusNodeIds
 				PensumNodeCard(
 					node = node,
 					isSelected = node.id == selectedNodeId,
-					isRequirementHighlighted = node.id in selectedRequirementNodeIds,
+					isRequirementHighlighted = node.id in selectedRequirementNodeIds ||
+						(node.id in selectedUnlockNodeIds && node.id !in selectedAvailableUnlockNodeIds),
 					isUnlockHighlighted = isUnlockHighlighted,
 					onSubjectStatsClick = onSubjectStatsClick,
 					modifier = Modifier
 						.offset(x = node.x.dp, y = node.y.dp)
 						.size(width = node.width.dp, height = node.height.dp)
+						.zIndex(if (isNodeDimmed) 0f else 2f)
 						.graphicsLayer {
 							alpha = if (isNodeDimmed) 0.34f else 1f
 						}
@@ -502,15 +524,30 @@ fun PensumGraphCanvas(
 						.testTag(PensumUiTags.node(node.id))
 				)
 			}
+			Canvas(
+				modifier = Modifier
+					.fillMaxSize()
+					.zIndex(1f)
+			) {
+				drawFocusedCanvasEdges(
+					model = model,
+					density = density.density,
+					selectedRequirementEdgeIds = selectedRequirementEdgeIds,
+					selectedUnlockEdgeIds = selectedUnlockEdgeIds,
+					selectedAvailableUnlockEdgeIds = selectedAvailableUnlockEdgeIds
+				)
+			}
 		}
 
-		PensumStickyTermHeader(
-			terms = model.terms,
-			scale = scale.value,
-			offsetX = offsetX.value,
-			densityScale = density.density,
-			modifier = Modifier.align(Alignment.TopStart)
-		)
+		if (!isFitToScreen) {
+			PensumStickyTermHeader(
+				terms = model.terms,
+				scale = scale.value,
+				offsetX = offsetX.value,
+				densityScale = density.density,
+				modifier = Modifier.align(Alignment.TopStart)
+			)
+		}
 
 		if (isMinimapToggleVisible && isMinimapVisible) {
 			PensumMinimap(
@@ -520,6 +557,7 @@ fun PensumGraphCanvas(
 				viewportSizePx = viewportSizePx,
 				selectedRequirementEdgeIds = selectedRequirementEdgeIds,
 				selectedUnlockEdgeIds = selectedUnlockEdgeIds,
+				selectedAvailableUnlockEdgeIds = selectedAvailableUnlockEdgeIds,
 				densityScale = density.density,
 				onViewportCenterChange = { canvasCenter -> moveViewportToCanvasCenter(canvasCenter) },
 				modifier = Modifier
@@ -534,6 +572,7 @@ fun PensumGraphCanvas(
 				.padding(end = 16.dp, bottom = CanvasBottomOverlayPadding),
 			isMinimapToggleVisible = isMinimapToggleVisible,
 			isMinimapVisible = isMinimapVisible,
+			isFitToScreenVisible = !isFitToScreen,
 			onFocusProgress = { focusProgress() },
 			onFitToScreen = { fitToScreen() },
 			onToggleMinimap = { isMinimapVisible = !isMinimapVisible },
@@ -550,8 +589,7 @@ fun PensumGraphCanvas(
 private fun DrawScope.drawCanvasBackground(
 	model: PensumScreenModel,
 	density: Float,
-	selectedRequirementEdgeIds: Set<String>,
-	selectedUnlockEdgeIds: Set<String>,
+	focusedEdgeIds: Set<String>,
 	isFocusActive: Boolean
 ) {
 	val widthPx = model.canvas.width.toFloat() * density
@@ -582,7 +620,6 @@ private fun DrawScope.drawCanvasBackground(
 		cornerRadius = androidx.compose.ui.geometry.CornerRadius(12.dp.toPx(), 12.dp.toPx()),
 		style = Stroke(width = 1.dp.toPx())
 	)
-	val focusedEdgeIds = selectedRequirementEdgeIds + selectedUnlockEdgeIds
 	model.edges.forEach { edge ->
 		if (edge.id !in focusedEdgeIds) {
 			drawPensumEdge(
@@ -593,6 +630,15 @@ private fun DrawScope.drawCanvasBackground(
 			)
 		}
 	}
+}
+
+private fun DrawScope.drawFocusedCanvasEdges(
+	model: PensumScreenModel,
+	density: Float,
+	selectedRequirementEdgeIds: Set<String>,
+	selectedUnlockEdgeIds: Set<String>,
+	selectedAvailableUnlockEdgeIds: Set<String>
+) {
 	model.edges.forEach { edge ->
 		if (edge.id in selectedRequirementEdgeIds) {
 			drawPensumEdge(
@@ -604,7 +650,21 @@ private fun DrawScope.drawCanvasBackground(
 		}
 	}
 	model.edges.forEach { edge ->
-		if (edge.id in selectedUnlockEdgeIds && edge.id !in selectedRequirementEdgeIds) {
+		if (
+			edge.id in selectedUnlockEdgeIds &&
+			edge.id !in selectedRequirementEdgeIds &&
+			edge.id !in selectedAvailableUnlockEdgeIds
+		) {
+			drawPensumEdge(
+				edge = edge,
+				model = model,
+				density = density,
+				focusTone = EdgeFocusTone.Requirement
+			)
+		}
+	}
+	model.edges.forEach { edge ->
+		if (edge.id in selectedAvailableUnlockEdgeIds && edge.id !in selectedRequirementEdgeIds) {
 			drawPensumEdge(
 				edge = edge,
 				model = model,
@@ -623,10 +683,10 @@ private fun DrawScope.drawPensumEdge(
 ) {
 	if (edge.points.size < 2) return
 	val color = when (focusTone) {
-		EdgeFocusTone.Default -> Available
-		EdgeFocusTone.Dimmed -> Available.copy(alpha = 0.18f)
+		EdgeFocusTone.Default -> CanvasNeutral
+		EdgeFocusTone.Dimmed -> CanvasNeutral.copy(alpha = 0.18f)
 		EdgeFocusTone.Requirement -> Selected
-		EdgeFocusTone.Unlock -> Current
+		EdgeFocusTone.Unlock -> Available
 	}
 	val strokeWidth = when (focusTone) {
 		EdgeFocusTone.Default -> 2.dp
@@ -726,6 +786,18 @@ private fun centerCanvasOffset(
 		x = (viewportSizePx.width - canvasSizePx.width * scale) / 2f,
 		y = (viewportSizePx.height - canvasSizePx.height * scale) / 2f
 	)
+}
+
+private fun isCanvasFitToScreen(
+	scale: Float,
+	offset: Offset,
+	fitScale: Float,
+	fitOffset: Offset,
+	offsetTolerancePx: Float
+): Boolean {
+	return abs(scale - fitScale) <= CanvasFitScaleTolerance &&
+		abs(offset.x - fitOffset.x) <= offsetTolerancePx &&
+		abs(offset.y - fitOffset.y) <= offsetTolerancePx
 }
 
 private data class CanvasBounds(
@@ -911,6 +983,26 @@ private fun PensumScreenModel.unlockNodeIdsIn(
 			}
 		}
 	}
+}
+
+private fun PensumScreenModel.availableUnlockEdgeIdsIn(selectedUnlockEdgeIds: Set<String>): Set<String> {
+	val nodesById = nodes.associateBy(PensumScreenModel.Node::id)
+	return edges
+		.filter { edge -> edge.id in selectedUnlockEdgeIds }
+		.filter { edge -> nodesById[edge.toNodeId]?.isAvailableUnseen() == true }
+		.map(PensumScreenModel.Edge::id)
+		.toSet()
+}
+
+private fun PensumScreenModel.availableUnlockNodeIdsIn(selectedAvailableUnlockEdgeIds: Set<String>): Set<String> {
+	return edges
+		.filter { edge -> edge.id in selectedAvailableUnlockEdgeIds }
+		.map(PensumScreenModel.Edge::toNodeId)
+		.toSet()
+}
+
+private fun PensumScreenModel.Node.isAvailableUnseen(): Boolean {
+	return !isApproved && !isCurrent && !isBlocked
 }
 
 private fun constrainCanvasOffset(

@@ -35,6 +35,7 @@ import tuindice.pensum.generated.resources.pensum_zoom_out
 fun PensumZoomControls(
 	isMinimapToggleVisible: Boolean,
 	isMinimapVisible: Boolean,
+	isFitToScreenVisible: Boolean,
 	onFocusProgress: () -> Unit,
 	onFitToScreen: () -> Unit,
 	onToggleMinimap: () -> Unit,
@@ -42,18 +43,17 @@ fun PensumZoomControls(
 	onZoomOut: () -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	val controlsHeight = if (isMinimapToggleVisible) {
-		ZoomControlsExpandedHeight
-	} else {
-		ZoomControlsHeight
-	}
+	val controlsCount = 3 +
+		(if (isFitToScreenVisible) 1 else 0) +
+		(if (isMinimapToggleVisible) 1 else 0)
+	val controlsHeight = ZoomControlButtonHeight * controlsCount.toFloat()
 
 	Column(
 		modifier = modifier
 			.width(48.dp)
 			.height(controlsHeight)
 			.background(Color.Black.copy(alpha = 0.68f), RoundedCornerShape(8.dp))
-			.border(1.dp, Available, RoundedCornerShape(8.dp))
+			.border(1.dp, CanvasNeutral, RoundedCornerShape(8.dp))
 	) {
 		IconButton(
 			modifier = Modifier
@@ -69,20 +69,22 @@ fun PensumZoomControls(
 			)
 		}
 		PensumZoomControlDivider()
-		IconButton(
-			modifier = Modifier
-				.weight(1f)
-				.fillMaxWidth()
-				.testTag(PensumUiTags.FitToScreen),
-			onClick = onFitToScreen
-		) {
-			Icon(
-				imageVector = Icons.Outlined.CenterFocusStrong,
-				contentDescription = stringResource(Res.string.pensum_fit_to_screen),
-				tint = TextPrimary
-			)
+		if (isFitToScreenVisible) {
+			IconButton(
+				modifier = Modifier
+					.weight(1f)
+					.fillMaxWidth()
+					.testTag(PensumUiTags.FitToScreen),
+				onClick = onFitToScreen
+			) {
+				Icon(
+					imageVector = Icons.Outlined.CenterFocusStrong,
+					contentDescription = stringResource(Res.string.pensum_fit_to_screen),
+					tint = TextPrimary
+				)
+			}
+			PensumZoomControlDivider()
 		}
-		PensumZoomControlDivider()
 		if (isMinimapToggleVisible) {
 			IconButton(
 				modifier = Modifier
@@ -137,5 +139,5 @@ fun PensumZoomControls(
 
 @Composable
 private fun PensumZoomControlDivider() {
-	Box(modifier = Modifier.height(1.dp).fillMaxWidth().background(Available.copy(alpha = 0.4f)))
+	Box(modifier = Modifier.height(1.dp).fillMaxWidth().background(CanvasNeutral.copy(alpha = 0.4f)))
 }

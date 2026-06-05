@@ -46,7 +46,7 @@ fun PensumNodeCard(
 	val colors = node.visualStyle.toNodeColors()
 	val isHighlighted = isSelected || isRequirementHighlighted || isUnlockHighlighted
 	val highlightColor = if (isUnlockHighlighted && !isSelected && !isRequirementHighlighted) {
-		Current
+		Available
 	} else {
 		Selected
 	}
