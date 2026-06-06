@@ -83,8 +83,14 @@ class PensumScreenUiTest {
 			)
 		}
 
-		assertNodeHidden(PensumUiTags.nodeSubjectStatsButton("ci4325"))
 		onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
+		onNodeWithTag(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
+			.assertExists()
+		assertNodeHidden(PensumUiTags.SubjectDetailSheet)
+		assertNodeHidden(PensumUiTags.nodeSubjectStatsButton("ci4325"))
+		onNodeWithTag(PensumUiTags.nodeDetailButton("ci4325"))
+			.assertHasClickAction()
+			.performClick()
 		assertNodeVisible(PensumUiTags.SubjectDetailSheet)
 		onNodeWithText("Detalle de materia").assertExists()
 		assertNodeVisible(PensumUiTags.SubjectDetailCode)
@@ -93,6 +99,11 @@ class PensumScreenUiTest {
 		onNodeWithTag(PensumUiTags.SubjectDetailTermValue)
 			.assertTextEquals("1° trimestre")
 		onNodeWithText("Ver estadísticas").assertExists()
+		onNodeWithTag(BaseUiTags.ConfirmationDialogNegativeButton).performClick()
+		assertNodeHidden(PensumUiTags.SubjectDetailSheet)
+		onNodeWithTag(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
+			.assertExists()
+		onNodeWithTag(PensumUiTags.nodeDetailButton("ci4325")).performClick()
 		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performClick()
 
 		assertEquals("CI4325", selectedSubjectCode)
@@ -152,6 +163,8 @@ class PensumScreenUiTest {
 
 		assertNodeHidden(PensumUiTags.nodeSubjectStatsButton("ea1"))
 		onNodeWithTag(PensumUiTags.node("ea1")).performClick()
+		assertNodeHidden(PensumUiTags.SubjectDetailSheet)
+		onNodeWithTag(PensumUiTags.nodeDetailButton("ea1")).performClick()
 		assertNodeVisible(PensumUiTags.SubjectDetailSheet)
 		assertNodeVisible(PensumUiTags.SubjectDetailName)
 		assertNodeVisible(PensumUiTags.SubjectDetailStatsUnavailable)

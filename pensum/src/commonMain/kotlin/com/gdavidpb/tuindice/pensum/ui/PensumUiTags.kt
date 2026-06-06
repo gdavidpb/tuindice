@@ -24,5 +24,7 @@ object PensumUiTags {
 	fun versionOption(year: Int): String = "pensum_version_option_$year"
 	fun modalityOption(id: String): String = "pensum_modality_option_$id"
 	fun node(id: String): String = "pensum_node_$id"
+	fun focusedNode(id: String): String = "pensum_focused_node_$id"
+	fun nodeDetailButton(id: String): String = "pensum_node_detail_button_$id"
 	fun nodeSubjectStatsButton(id: String): String = "pensum_node_subject_stats_button_$id"
 }

@@ -58,6 +58,7 @@ fun PensumGraphCanvas(
 	model: PensumScreenModel,
 	selectedNodeId: String?,
 	onSelectedNodeChange: (String?) -> Unit,
+	onNodeDetailClick: (String) -> Unit,
 	modifier: Modifier = Modifier
 ) {
 	val density = LocalDensity.current
@@ -521,6 +522,11 @@ fun PensumGraphCanvas(
 					isRequirementHighlighted = node.id in selectedRequirementNodeIds ||
 						(node.id in selectedUnlockNodeIds && node.id !in selectedAvailableUnlockNodeIds),
 					isUnlockHighlighted = isUnlockHighlighted,
+					onDetailClick = {
+						onSelectedNodeChange(node.id)
+						centerSelectedNode(node)
+						onNodeDetailClick(node.id)
+					},
 					modifier = Modifier
 						.offset(x = node.x.dp, y = node.y.dp)
 						.size(width = node.width.dp, height = node.height.dp)
@@ -529,11 +535,8 @@ fun PensumGraphCanvas(
 							alpha = if (isNodeDimmed) 0.34f else 1f
 						}
 						.clickable {
-							val nextSelectedNodeId = if (selectedNodeId == node.id) null else node.id
-							onSelectedNodeChange(nextSelectedNodeId)
-							if (nextSelectedNodeId != null) {
-								centerSelectedNode(node)
-							}
+							onSelectedNodeChange(node.id)
+							centerSelectedNode(node)
 						}
 						.testTag(PensumUiTags.node(node.id))
 				)

@@ -495,7 +495,7 @@ actions:
   - id: wizard.Wizard.OpenSubjectDetail
     classification: user
     variants: [guided-subject-detail]
-    selector: pensum_node_subject_stats_button_ma1111
+    selector: pensum_node_detail_button_ma1111
     flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
     fixture_state: first-launch
   - id: wizard.Wizard.OpenEvaluationForm

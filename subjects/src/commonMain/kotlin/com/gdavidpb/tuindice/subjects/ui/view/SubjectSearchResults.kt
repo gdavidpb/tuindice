@@ -4,6 +4,7 @@ import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -19,8 +20,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.subjects.presentation.model.SubjectSearchResultItem
+import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.subjects.generated.resources.Res
 import tuindice.subjects.generated.resources.subjects_search_no_results
@@ -61,12 +64,14 @@ fun SubjectSearchResults(
 		LazyColumn(
 			modifier = Modifier
 				.fillMaxSize()
+				.testTag(SubjectsUiTags.SearchResults)
 				.pointerInput(onResultsInteraction) {
 					awaitEachGesture {
 						awaitFirstDown(requireUnconsumed = false)
 						onResultsInteraction()
 					}
 				},
+			contentPadding = PaddingValues(bottom = 24.dp),
 			verticalArrangement = Arrangement.spacedBy(12.dp)
 		) {
 			items(

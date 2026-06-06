@@ -22,10 +22,13 @@ fun PensumContentView(
 	onSelectionApplied: (PensumScreenModel.PensumOptionItem, PensumScreenModel.ModalityItem) -> Unit,
 	onPensumContextClick: () -> Unit
 ) {
-	val selectedNodeIdState = remember(model.selection.year, model.selection.modalityId) {
+	val focusedNodeIdState = remember(model.selection.year, model.selection.modalityId) {
 		mutableStateOf<String?>(null)
 	}
-	val selectedNode = model.nodes.firstOrNull { node -> node.id == selectedNodeIdState.value }
+	val detailNodeIdState = remember(model.selection.year, model.selection.modalityId) {
+		mutableStateOf<String?>(null)
+	}
+	val detailNode = model.nodes.firstOrNull { node -> node.id == detailNodeIdState.value }
 
 	Column(
 		modifier = Modifier
@@ -39,8 +42,12 @@ fun PensumContentView(
 		)
 		PensumGraphCanvas(
 			model = model,
-			selectedNodeId = selectedNodeIdState.value,
-			onSelectedNodeChange = { nodeId -> selectedNodeIdState.value = nodeId },
+			selectedNodeId = focusedNodeIdState.value,
+			onSelectedNodeChange = { nodeId -> focusedNodeIdState.value = nodeId },
+			onNodeDetailClick = { nodeId ->
+				focusedNodeIdState.value = nodeId
+				detailNodeIdState.value = nodeId
+			},
 			modifier = Modifier.weight(1f)
 		)
 	}
@@ -53,12 +60,12 @@ fun PensumContentView(
 		)
 	}
 
-	if (selectedNode != null) {
+	if (detailNode != null) {
 		PensumSubjectDetailBottomSheet(
 			model = model,
-			node = selectedNode,
+			node = detailNode,
 			onSubjectStatsClick = onSubjectStatsClick,
-			onDismissRequest = { selectedNodeIdState.value = null }
+			onDismissRequest = { detailNodeIdState.value = null }
 		)
 	}
 }

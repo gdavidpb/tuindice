@@ -82,10 +82,16 @@ appId: com.gdavidpb.tuindice.debug
     id: pensum_node_ma1111
 - extendedWaitUntil:
     visible:
-      id: pensum_node_subject_stats_button_ma1111
+      id: pensum_node_detail_button_ma1111
     timeout: 10000
 - tapOn:
-    id: pensum_node_subject_stats_button_ma1111
+    id: pensum_node_detail_button_ma1111
+- extendedWaitUntil:
+    visible:
+      id: pensum_subject_detail_sheet
+    timeout: 10000
+- tapOn:
+    text: Ver estadísticas
 - extendedWaitUntil:
     visible:
       id: wizard_current_step_subject_detail

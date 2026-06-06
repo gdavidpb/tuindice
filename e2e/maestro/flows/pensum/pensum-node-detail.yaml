@@ -16,9 +16,15 @@ appId: com.gdavidpb.tuindice.debug
 - tapOn:
     id: pensum_node_0800-2019-degree_project-t1-math1-ma1111
 - assertVisible:
-    id: pensum_node_subject_stats_button_0800-2019-degree_project-t1-math1-ma1111
+    id: pensum_node_detail_button_0800-2019-degree_project-t1-math1-ma1111
 - tapOn:
-    id: pensum_node_subject_stats_button_0800-2019-degree_project-t1-math1-ma1111
+    id: pensum_node_detail_button_0800-2019-degree_project-t1-math1-ma1111
+- extendedWaitUntil:
+    visible:
+      id: pensum_subject_detail_sheet
+    timeout: 10000
+- tapOn:
+    text: Ver estadísticas
 - extendedWaitUntil:
     visible:
       id: subjects_content

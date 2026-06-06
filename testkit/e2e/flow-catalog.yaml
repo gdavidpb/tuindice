@@ -524,7 +524,7 @@ flows:
       - record_term_selection_option_2026-2
       - record_enrollment_proof_button
       - pensum_node_ma1111
-      - pensum_node_subject_stats_button_ma1111
+      - pensum_node_detail_button_ma1111
       - subjects_global_tab
       - subjects_charts
       - subjects_generated_at
@@ -581,7 +581,7 @@ flows:
       - wizard_back_button
       - wizard_focus_overlay
       - record_top_bar_view_mode_switch
-      - pensum_node_subject_stats_button_ma1111
+      - pensum_node_detail_button_ma1111
       - subjects_charts
       - evaluations_add_fab
   - id: summary-smoke
@@ -1006,7 +1006,7 @@ flows:
       - subjects.SubjectDetail.SelectSubjectSegmentTab
     primary_selectors:
       - pensum_node_0800-2019-degree_project-t1-math1-ma1111
-      - pensum_node_subject_stats_button_0800-2019-degree_project-t1-math1-ma1111
+      - pensum_node_detail_button_0800-2019-degree_project-t1-math1-ma1111
       - subjects_content
       - subjects_segment_students_metric
       - subjects_segment_attempts_metric

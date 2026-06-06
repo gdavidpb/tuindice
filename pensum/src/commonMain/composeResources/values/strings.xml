@@ -31,6 +31,7 @@
 	<string name="pensum_zoom_in">Acercar</string>
 	<string name="pensum_zoom_out">Alejar</string>
 	<string name="pensum_subject_stats_content_description">Ver estadísticas de %1$s</string>
+	<string name="pensum_subject_detail_content_description">Ver detalle de %1$s</string>
 	<string name="pensum_subject_detail_title">Detalle de materia</string>
 	<string name="pensum_subject_detail_close">Cerrar</string>
 	<string name="pensum_subject_detail_stats">Ver estadísticas</string>
