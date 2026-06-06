@@ -37,8 +37,22 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroup
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumCanvasItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumDisplayLayoutDefaults
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumEdgeItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumEdgeRelationshipType
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusDisplay
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusIcon
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeVisualStyle
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumPointItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSelection
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumSubjectDetailItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumTermItem
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
@@ -144,7 +158,7 @@ internal fun sampleSubjectDetailState(
 
 internal fun samplePensumState(): Pensum.State.Content {
 	val terms = (1..SAMPLE_PENSUM_TERM_COUNT).map { term ->
-		PensumScreenModel.Term(
+		PensumTermItem(
 			id = "T$term",
 			label = "T$term",
 			x = samplePensumTermX(term),
@@ -156,7 +170,7 @@ internal fun samplePensumState(): Pensum.State.Content {
 	return Pensum.State.Content(
 		model = PensumScreenModel(
 			careerName = SAMPLE_CAREER_NAME,
-			selection = PensumScreenModel.Selection(
+			selection = PensumScreenSelection(
 				year = 2019,
 				modalityId = "degree_project"
 			),
@@ -186,7 +200,7 @@ internal fun samplePensumState(): Pensum.State.Content {
 	)
 }
 
-private fun samplePensumNodes(): List<PensumScreenModel.Node> {
+private fun samplePensumNodes(): List<PensumNodeItem> {
 	val nextYByTerm = mutableMapOf<Int, Double>()
 	return listOf(
 		PensumSampleNodeSpec("ma1111", "MA1111", "Matemáticas I", 4, 1, PensumSampleNodeState.APPROVED),
@@ -212,15 +226,15 @@ private fun samplePensumNodes(): List<PensumScreenModel.Node> {
 }
 
 private fun samplePensumCanvas(
-	terms: List<PensumScreenModel.Term>,
-	nodes: List<PensumScreenModel.Node>
-): PensumScreenModel.Canvas {
+	terms: List<PensumTermItem>,
+	nodes: List<PensumNodeItem>
+): PensumCanvasItem {
 	val width = terms.maxOfOrNull { term -> term.x + term.width }.orZero() +
 		PensumDisplayLayoutDefaults.CanvasRightPadding
 	val height = nodes.maxOfOrNull { node -> node.y + node.height }.orZero() +
 		PensumDisplayLayoutDefaults.CanvasBottomPadding
 
-	return PensumScreenModel.Canvas(width = width, height = height)
+	return PensumCanvasItem(width = width, height = height)
 }
 
 private fun samplePensumTermX(term: Int): Double {
@@ -253,27 +267,35 @@ private data class PensumSampleNodeSpec(
 private fun PensumSampleNodeSpec.toPensumNode(
 	y: Double,
 	height: Double
-) = PensumScreenModel.Node(
+) = PensumNodeItem(
 	id = id,
 	displayCode = code,
 	subjectCode = code,
 	name = name,
+	displayName = name,
 	credits = credits,
+	creditsText = "$credits UC",
 	termId = "T$term",
 	x = samplePensumNodeX(term),
 	y = y,
 	width = SAMPLE_PENSUM_NODE_WIDTH,
 	height = height,
 	visualStyle = state.toVisualStyle(),
-	isCurrent = state == PensumSampleNodeState.CURRENT,
-	isApproved = state == PensumSampleNodeState.APPROVED,
-	isBlocked = state == PensumSampleNodeState.BLOCKED,
-	hasSubjectStatsAction = true,
+	status = state.toStatusDisplay(),
 	subjectStatsCode = code,
-	fulfilledSubject = null
+	fulfilledSubject = null,
+	detail = PensumSubjectDetailItem(
+		code = code,
+		name = name,
+		status = state.toStatusDisplay(),
+		termLabel = "$term° trimestre",
+		creditsText = "$credits UC",
+		statsCode = code,
+		fulfilledSubject = null
+	)
 )
 
-private fun pensumOption(year: Int) = PensumScreenModel.PensumOptionItem(
+private fun pensumOption(year: Int) = PensumOptionItem(
 	id = year.toString(),
 	year = year,
 	modalityOptions = sampleModalityOptions(),
@@ -281,19 +303,19 @@ private fun pensumOption(year: Int) = PensumScreenModel.PensumOptionItem(
 )
 
 private fun sampleModalityOptions() = listOf(
-	PensumScreenModel.ModalityItem(
+	PensumModalityItem(
 		id = "degree_project",
 		name = "Proyecto de Grado",
 		isDefault = true,
 		text = "Proyecto de Grado"
 	),
-	PensumScreenModel.ModalityItem(
+	PensumModalityItem(
 		id = "exclusive_degree_project",
 		name = "Proyecto de Grado a Dedicación Exclusiva",
 		isDefault = false,
 		text = "Proyecto de Grado a Dedicación Exclusiva"
 	),
-	PensumScreenModel.ModalityItem(
+	PensumModalityItem(
 		id = "long_internship",
 		name = "Pasantía Larga",
 		isDefault = false,
@@ -305,15 +327,15 @@ private fun pensumRequirementEdge(
 	fromNodeId: String,
 	toNodeId: String,
 	isDisconnected: Boolean = false
-) = PensumScreenModel.Edge(
+) = PensumEdgeItem(
 	id = "${fromNodeId}_to_$toNodeId",
 	fromNodeId = fromNodeId,
 	toNodeId = toNodeId,
-	relationshipType = PensumScreenModel.RelationshipType.REQUIREMENT,
+	relationshipType = PensumEdgeRelationshipType.REQUIREMENT,
 	isDisconnected = isDisconnected,
 	points = listOf(
-		PensumScreenModel.Point(x = 0.0, y = 0.0),
-		PensumScreenModel.Point(x = 1.0, y = 1.0)
+		PensumPointItem(x = 0.0, y = 0.0),
+		PensumPointItem(x = 1.0, y = 1.0)
 	)
 )
 
@@ -324,9 +346,9 @@ private enum class PensumSampleNodeState {
 	BLOCKED
 }
 
-private fun PensumSampleNodeState.toVisualStyle(): PensumScreenModel.NodeVisualStyle {
+private fun PensumSampleNodeState.toVisualStyle(): PensumNodeVisualStyle {
 	return when (this) {
-		PensumSampleNodeState.APPROVED -> PensumScreenModel.NodeVisualStyle(
+		PensumSampleNodeState.APPROVED -> PensumNodeVisualStyle(
 			containerArgb = 0xFF171819,
 			borderArgb = 0xFF8FE38C,
 			chipArgb = 0xFFB8F4A8,
@@ -334,7 +356,7 @@ private fun PensumSampleNodeState.toVisualStyle(): PensumScreenModel.NodeVisualS
 			textArgb = 0xFFF7F7F7,
 			secondaryTextArgb = 0xFF9C9EA3
 		)
-		PensumSampleNodeState.CURRENT -> PensumScreenModel.NodeVisualStyle(
+		PensumSampleNodeState.CURRENT -> PensumNodeVisualStyle(
 			containerArgb = 0xFF171819,
 			borderArgb = 0xFFFFC400,
 			chipArgb = 0xFFF7E6A6,
@@ -342,7 +364,7 @@ private fun PensumSampleNodeState.toVisualStyle(): PensumScreenModel.NodeVisualS
 			textArgb = 0xFFF7F7F7,
 			secondaryTextArgb = 0xFF9C9EA3
 		)
-		PensumSampleNodeState.AVAILABLE -> PensumScreenModel.NodeVisualStyle(
+		PensumSampleNodeState.AVAILABLE -> PensumNodeVisualStyle(
 			containerArgb = 0xFF171819,
 			borderArgb = 0xFF8A8F94,
 			chipArgb = 0xFFEBDDA3,
@@ -350,13 +372,39 @@ private fun PensumSampleNodeState.toVisualStyle(): PensumScreenModel.NodeVisualS
 			textArgb = 0xFFF7F7F7,
 			secondaryTextArgb = 0xFF9C9EA3
 		)
-		PensumSampleNodeState.BLOCKED -> PensumScreenModel.NodeVisualStyle(
+		PensumSampleNodeState.BLOCKED -> PensumNodeVisualStyle(
 			containerArgb = 0xFF171819,
 			borderArgb = 0xFF686B70,
 			chipArgb = 0xFFB7B8BA,
 			chipTextArgb = 0xFF383A3D,
 			textArgb = 0xFFF7F7F7,
 			secondaryTextArgb = 0xFF9C9EA3
+		)
+	}
+}
+
+private fun PensumSampleNodeState.toStatusDisplay(): PensumNodeStatusDisplay {
+	val visualStyle = toVisualStyle()
+	return when (this) {
+		PensumSampleNodeState.APPROVED -> PensumNodeStatusDisplay(
+			type = PensumNodeStatusType.APPROVED,
+			icon = PensumNodeStatusIcon.CHECK,
+			colorArgb = visualStyle.borderArgb
+		)
+		PensumSampleNodeState.CURRENT -> PensumNodeStatusDisplay(
+			type = PensumNodeStatusType.CURRENT,
+			icon = PensumNodeStatusIcon.PLAY,
+			colorArgb = visualStyle.borderArgb
+		)
+		PensumSampleNodeState.AVAILABLE -> PensumNodeStatusDisplay(
+			type = PensumNodeStatusType.AVAILABLE,
+			icon = PensumNodeStatusIcon.ADD,
+			colorArgb = visualStyle.borderArgb
+		)
+		PensumSampleNodeState.BLOCKED -> PensumNodeStatusDisplay(
+			type = PensumNodeStatusType.BLOCKED,
+			icon = PensumNodeStatusIcon.LOCK,
+			colorArgb = visualStyle.borderArgb
 		)
 	}
 }

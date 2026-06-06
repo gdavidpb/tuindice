@@ -524,7 +524,10 @@ flows:
       - record_term_selection_option_2026-2
       - record_enrollment_proof_button
       - pensum_node_ma1111
+      - pensum_focused_node_ma1111
       - pensum_node_detail_button_ma1111
+      - pensum_subject_detail_status
+      - pensum_subject_detail_term_value
       - subjects_global_tab
       - subjects_charts
       - subjects_generated_at
@@ -1000,13 +1003,17 @@ flows:
     type: navigation
     platforms: [android, ios]
     status: active
-    variant: node-stats-subject-detail
+    variant: node-focus-detail-and-stats
     fixture_state: pensum-success-subject-detail
     actions_covered:
       - subjects.SubjectDetail.SelectSubjectSegmentTab
     primary_selectors:
       - pensum_node_0800-2019-degree_project-t1-math1-ma1111
+      - pensum_focused_node_0800-2019-degree_project-t1-math1-ma1111
       - pensum_node_detail_button_0800-2019-degree_project-t1-math1-ma1111
+      - pensum_subject_detail_status
+      - pensum_subject_detail_term_value
+      - base_confirmation_dialog_negative_button
       - subjects_content
       - subjects_segment_students_metric
       - subjects_segment_attempts_metric

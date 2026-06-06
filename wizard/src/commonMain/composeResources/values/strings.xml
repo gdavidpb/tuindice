@@ -31,8 +31,8 @@
 	<string name="wizard_subject_message">Arriba ves el **nombre de la materia**, su **código** y **UC**. Las pestañas comparan **tu carrera** con el **panorama general**; debajo aparecen la **muestra de estudiantes e intentos**, más indicadores de **dificultad**, **aprobación**, **reprobación**, **retiros** y **primer intento**.</string>
 	<string name="wizard_subject_charts_title">Gráficos de materia</string>
 	<string name="wizard_subject_charts_message">Los **gráficos** resumen cómo se distribuyeron las **notas** y cuántos **intentos** necesitaron otros estudiantes para aprobar. Úsalos como **contexto**: no predicen tu resultado, pero ayudan a entender la **dificultad histórica** de la materia.</string>
-	<string name="wizard_pensum_title">Pensum y avance</string>
-	<string name="wizard_pensum_message">Puedes ver **tu pensum** como un **mapa de materias**, revisar **avance**, **créditos** y **requisitos**, **buscar materias** y **cambiar tu pensum**. Toca el **botón de estadísticas** de una **materia** para abrir su **desempeño histórico**.</string>
+	<string name="wizard_pensum_title">Mapa del pensum</string>
+	<string name="wizard_pensum_message">Aquí ves tu **avance**, la **carrera seleccionada** y el mapa de materias. Toca una **materia** para enfocar sus **requisitos** y lo que desbloquea; toca el **botón de información** para ver trimestre, UC, estado y abrir sus **estadísticas**. Usa **zoom**, **ajustar a pantalla** y el **minimapa** para orientarte.</string>
 	<string name="wizard_subject_tab_career">Tu carrera</string>
 	<string name="wizard_subject_tab_global">General</string>
 	<string name="wizard_subject_title_loading_stats">Calculando estadísticas</string>

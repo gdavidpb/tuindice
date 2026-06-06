@@ -219,21 +219,26 @@ class WizardScreenUiTest {
 			)
 		}
 
-		onNodeWithText("Pensum y avance").assertExists()
+		onNodeWithText("Mapa del pensum").assertExists()
 		onNodeWithText("Paso 5 de 11").assertExists()
 		onNodeWithText("75% avance").assertExists()
-		onNodeWithText("Pensum 2019 · Proyecto de Grado").assertExists()
+		onNodeWithText("Ingeniería de Computación").assertExists()
 		onNodeWithText(
-			"Puedes ver tu pensum como un mapa de materias",
+			"Aquí ves tu avance",
 			substring = true
 		).assertExists()
 		onNodeWithText(
-			"Toca el botón de estadísticas de una materia",
+			"toca el botón de información",
 			substring = true
 		).assertExists()
 		assertNodeVisible(PensumUiTags.PensumScreen)
 		onNodeWithTag(PensumUiTags.node("ci4325")).assertExists()
-		onNodeWithTag(PensumUiTags.nodeSubjectStatsButton("ma1111")).performClick()
+		onNodeWithTag(PensumUiTags.node("ma1111")).performClick()
+		onNodeWithTag(PensumUiTags.focusedNode("ma1111"), useUnmergedTree = true).assertExists()
+		onNodeWithTag(PensumUiTags.nodeDetailButton("ma1111")).performClick()
+		assertNodeVisible(PensumUiTags.SubjectDetailSheet)
+		onNodeWithTag(PensumUiTags.SubjectDetailTermValue).assertExists()
+		onNodeWithText("Ver estadísticas").performClick()
 		assertEquals(true, didOpenSubjectDetail)
 		onAllNodesWithTag(WizardUiTags.FocusOverlay).assertCountEquals(0)
 	}

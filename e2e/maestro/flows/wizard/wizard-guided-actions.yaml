@@ -80,6 +80,8 @@ appId: com.gdavidpb.tuindice.debug
     timeout: 15000
 - tapOn:
     id: pensum_node_ma1111
+- assertVisible:
+    id: pensum_focused_node_ma1111
 - extendedWaitUntil:
     visible:
       id: pensum_node_detail_button_ma1111
@@ -90,6 +92,10 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: pensum_subject_detail_sheet
     timeout: 10000
+- assertVisible:
+    id: pensum_subject_detail_status
+- assertVisible:
+    id: pensum_subject_detail_term_value
 - tapOn:
     text: Ver estadísticas
 - extendedWaitUntil:

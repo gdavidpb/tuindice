@@ -39,3 +39,13 @@ appId: com.gdavidpb.tuindice.debug
     id: pensum_zoom_out
 - tapOn:
     id: pensum_fit_to_screen
+- extendedWaitUntil:
+    notVisible:
+      id: pensum_fit_to_screen
+    timeout: 10000
+- assertNotVisible:
+    id: pensum_minimap_toggle
+- assertNotVisible:
+    id: pensum_minimap
+- assertNotVisible:
+    id: pensum_sticky_terms
