@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.action
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
@@ -8,6 +9,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadEval
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEvaluationsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
@@ -25,7 +27,7 @@ import kotlin.test.assertTrue
 
 class EvaluationsActionProcessorContractTest {
 	@Test
-	fun loadEvaluationsActionProcessor_reducesStateToContent_withAvailableFilters() = runTest {
+	fun loadEvaluationsActionProcessor_reducesStateToContent_withWeeklyGroups() = runTest {
 		val processor = LoadEvaluationsActionProcessor(
 			getEvaluationsUseCase = GetEvaluationsUseCase(
 				evaluationRepository = RecordingEvaluationRepository(
@@ -47,21 +49,73 @@ class EvaluationsActionProcessorContractTest {
 		val effects = mutableListOf<Evaluations.Effect>()
 
 		processor.process(
-			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
+			action = Evaluations.Action.LoadEvaluations,
 			sideEffect = effects::add
 		).test {
 			val content = assertIs<Evaluations.State.Content>(awaitItem()(Evaluations.State.Idle))
 			assertEquals(2, content.evaluationGroups.flatMap { group -> group.items }.size)
-			assertTrue(
-				content.filterGroups
+			assertEquals(
+				2,
+				content.evaluationWeekGroups
+					.flatMap { weekGroup -> weekGroup.groups }
 					.flatMap { group -> group.items }
-					.any { item -> item.filter.getLabel() == DEFAULT_EVALUATION_SUBJECT.code }
+					.size
 			)
-
+			assertTrue(
+				content.evaluationWeekGroups.all { weekGroup ->
+					weekGroup.groups.any { group -> group.items.isNotEmpty() }
+				}
+			)
 			awaitComplete()
 		}
 
 		assertTrue(effects.isEmpty())
+	}
+
+	@Test
+	fun loadEvaluationsActionProcessor_placesContinuousEvaluationsInContinuousGroup() = runTest {
+		val continuousEvaluation = DEFAULT_PENDING_EVALUATION.copy(
+			id = "continuous-evaluation",
+			scheduleMode = EvaluationScheduleMode.CONTINUOUS,
+			date = DEFAULT_PENDING_EVALUATION.date
+		)
+		val processor = LoadEvaluationsActionProcessor(
+			getEvaluationsUseCase = GetEvaluationsUseCase(
+				evaluationRepository = RecordingEvaluationRepository(
+					evaluationsFlow = flowOf(
+						listOf(
+							continuousEvaluation,
+							DEFAULT_PENDING_EVALUATION
+						)
+					),
+					initialEvaluations = listOf(
+						continuousEvaluation,
+						DEFAULT_PENDING_EVALUATION
+					)
+				),
+				recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+				reportingRepository = RecordingReportingRepository()
+			)
+		)
+
+		processor.process(
+			action = Evaluations.Action.LoadEvaluations,
+			sideEffect = {}
+		).test {
+			val content = assertIs<Evaluations.State.Content>(awaitItem()(Evaluations.State.Idle))
+			val continuousGroup = content.evaluationWeekGroups.first { group ->
+				group.key == EvaluationsWeekKey.Continuous
+			}
+
+			assertEquals("Continuas", continuousGroup.title)
+			assertEquals(
+				listOf(continuousEvaluation.id),
+				continuousGroup.groups
+					.flatMap { group -> group.items }
+					.map { item -> item.evaluationId }
+			)
+			awaitComplete()
+		}
 	}
 
 	@Test
@@ -79,7 +133,7 @@ class EvaluationsActionProcessorContractTest {
 		)
 
 		processor.process(
-			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
+			action = Evaluations.Action.LoadEvaluations,
 			sideEffect = {}
 		).test {
 			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Idle))
@@ -103,7 +157,7 @@ class EvaluationsActionProcessorContractTest {
 		)
 
 		processor.process(
-			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
+			action = Evaluations.Action.LoadEvaluations,
 			sideEffect = {}
 		).test {
 			assertEquals(Evaluations.State.Empty, awaitItem()(Evaluations.State.Idle))
@@ -127,7 +181,7 @@ class EvaluationsActionProcessorContractTest {
 		)
 
 		processor.process(
-			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
+			action = Evaluations.Action.LoadEvaluations,
 			sideEffect = {}
 		).test {
 			assertEquals(Evaluations.State.NoAttempts, awaitItem()(Evaluations.State.Idle))
@@ -154,7 +208,7 @@ class EvaluationsActionProcessorContractTest {
 		)
 
 		processor.process(
-			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
+			action = Evaluations.Action.LoadEvaluations,
 			sideEffect = {}
 		).test {
 			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Idle))
@@ -176,7 +230,7 @@ class EvaluationsActionProcessorContractTest {
 		)
 
 		processor.process(
-			action = Evaluations.Action.LoadEvaluations(activeFilters = flowOf(emptyList())),
+			action = Evaluations.Action.LoadEvaluations,
 			sideEffect = {}
 		).test {
 			assertEquals(Evaluations.State.Failed, awaitItem()(Evaluations.State.Idle))

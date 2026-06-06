@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.pensum.ui.view
 
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Path
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumEdgeItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import kotlin.math.abs
 import kotlin.math.max
@@ -9,7 +11,7 @@ import kotlin.math.min
 import kotlin.math.sqrt
 
 internal fun PensumScreenModel.edgeRoute(
-	edge: PensumScreenModel.Edge,
+	edge: PensumEdgeItem,
 	endpointGap: Float,
 	rerouteSpacing: Float
 ): List<Offset> {
@@ -113,16 +115,16 @@ internal fun List<Offset>.toRoundedOrthogonalPath(cornerRadius: Float): Path {
 	}
 }
 
-private val PensumScreenModel.Node.center: Offset
+private val PensumNodeItem.center: Offset
 	get() = Offset(
 		x = x.toFloat() + width.toFloat() / 2f,
 		y = y.toFloat() + height.toFloat() / 2f
 	)
 
-private val PensumScreenModel.Node.right: Float
+private val PensumNodeItem.right: Float
 	get() = x.toFloat() + width.toFloat()
 
-private val PensumScreenModel.Node.bottom: Float
+private val PensumNodeItem.bottom: Float
 	get() = y.toFloat() + height.toFloat()
 
 private fun List<Offset>.withoutNearDuplicates(): List<Offset> {

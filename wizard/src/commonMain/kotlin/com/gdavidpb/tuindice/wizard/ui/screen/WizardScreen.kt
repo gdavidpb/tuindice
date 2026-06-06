@@ -19,7 +19,6 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationScreen
 import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationsScreen
 import com.gdavidpb.tuindice.pensum.ui.screen.PensumScreen
@@ -68,16 +67,17 @@ fun WizardScreen(
 	onSubjectTabSelected: (SubjectSegmentTab) -> Unit,
 	onSelectedTermChange: (String) -> Unit,
 	onSubjectChartsVisibilityChange: (Boolean) -> Unit,
+	onDismissRecordTermSelection: () -> Unit = {},
 	modifier: Modifier = Modifier
 ) {
-		if (state.isWelcomeStep) {
-			Box(
-				modifier = modifier
-					.fillMaxSize()
-					.background(MaterialTheme.colorScheme.background)
-					.testTag(WizardUiTags.Screen)
-			) {
-				WizardWelcomeView(
+	if (state.isWelcomeStep) {
+		Box(
+			modifier = modifier
+				.fillMaxSize()
+				.background(MaterialTheme.colorScheme.background)
+				.testTag(WizardUiTags.Screen)
+		) {
+			WizardWelcomeView(
 				onStart = onNext,
 				onSkip = onSkip
 			)
@@ -110,6 +110,7 @@ fun WizardScreen(
 				onOpenEvaluationForm = onOpenEvaluationForm,
 				onSubjectTabSelected = onSubjectTabSelected,
 				onSelectedTermChange = onSelectedTermChange,
+				onDismissRecordTermSelection = onDismissRecordTermSelection,
 				onSubjectChartsVisibilityChange = onSubjectChartsVisibilityChange,
 				onEvaluationFocusTargetBoundsChange = { bounds ->
 					focusTargetBounds.value = bounds

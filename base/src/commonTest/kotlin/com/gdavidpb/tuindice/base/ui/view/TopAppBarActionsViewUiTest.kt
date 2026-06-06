@@ -52,7 +52,7 @@ class TopAppBarActionsViewUiTest {
 	}
 
 	@Test
-	fun when_recordConfigActionTapped_then_dispatchesFetchEnrollmentProofAction() = runTuIndiceUiTest {
+	fun when_recordConfigActionTapped_then_dispatchesRecordTermSelectionAction() = runTuIndiceUiTest {
 		var selectedAction: TopBarAction? = null
 
 		setTuIndiceTestContent {
@@ -64,10 +64,25 @@ class TopAppBarActionsViewUiTest {
 			}
 		}
 
-		val actionTag = BaseUiTags.topBarActionButton(TopBarAction.FetchEnrollmentProofAction)
+		val actionTag = BaseUiTags.topBarActionButton(TopBarAction.RecordTermSelectionAction)
 		assertNodeVisible(actionTag)
 
 		onNodeWithTag(actionTag).performClick()
-		assertEquals(TopBarAction.FetchEnrollmentProofAction, selectedAction)
+		assertEquals(TopBarAction.RecordTermSelectionAction, selectedAction)
+	}
+
+	@Test
+	fun when_pensumConfigHasActions_then_rendersSearchOnly() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			TopAppBarActionsView(
+				topBarConfig = TopBarConfig.Pensum,
+				onAction = {}
+			) { action ->
+				Text(action.action)
+			}
+		}
+
+		assertNodeVisible(BaseUiTags.topBarActionButton(TopBarAction.SearchPensumAction))
+		assertNodeHidden(BaseUiTags.topBarActionButton(TopBarAction.ChangePensumAction))
 	}
 }

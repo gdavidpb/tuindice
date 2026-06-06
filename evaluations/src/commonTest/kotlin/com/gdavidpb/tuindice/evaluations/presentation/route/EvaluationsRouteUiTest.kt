@@ -16,16 +16,14 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.RemoveEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationsExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.CheckEvaluationFilterActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.ClearEvaluationFiltersActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEvaluationsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenAddEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.PickEvaluationGradeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RefreshEvaluationsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RemoveEvaluationActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SelectEvaluationsWeekActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SetEvaluationGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.UncheckEvaluationFilterActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
@@ -183,7 +181,7 @@ class EvaluationsRouteUiTest {
 			assertEquals("Parcial 1", requestedEvaluationName)
 			assertEquals(SECOND_EVALUATION_SUBJECT.code, requestedSubjectCode)
 			assertEquals(DEFAULT_COMPLETED_EVALUATION.grade, requestedGrade)
-		assertEquals(DEFAULT_COMPLETED_EVALUATION.maxGrade, requestedMaxGrade)
+			assertEquals(DEFAULT_COMPLETED_EVALUATION.maxGrade, requestedMaxGrade)
 	}
 
 	@Test
@@ -217,7 +215,7 @@ class EvaluationsRouteUiTest {
 			onAllNodesWithTag(completedEvaluationTag).fetchSemanticsNodes().isNotEmpty()
 		}
 
-		onAllNodesWithTag(EvaluationsUiTags.EvaluationGradeActionButton)[0].performClick()
+		onNodeWithTag(EvaluationsUiTags.evaluationGradeActionButton(DEFAULT_COMPLETED_EVALUATION.id)).performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
 			requestedEvaluationId.isNotEmpty() &&
@@ -226,10 +224,10 @@ class EvaluationsRouteUiTest {
 		}
 
 			assertEquals(DEFAULT_COMPLETED_EVALUATION.id, requestedEvaluationId)
-			assertEquals("Parcial 1", requestedEvaluationName)
+			assertEquals("PARCIAL 1", requestedEvaluationName)
 			assertEquals(SECOND_EVALUATION_SUBJECT.code, requestedSubjectCode)
 			assertEquals(DEFAULT_COMPLETED_EVALUATION.grade, requestedGrade)
-		assertEquals(DEFAULT_COMPLETED_EVALUATION.maxGrade, requestedMaxGrade)
+			assertEquals(DEFAULT_COMPLETED_EVALUATION.maxGrade, requestedMaxGrade)
 	}
 
 	@Test
@@ -396,9 +394,7 @@ class EvaluationsRouteUiTest {
 					exceptionHandler = UpdateEvaluationsExceptionHandler()
 				)
 			),
-			checkEvaluationFilterActionProcessor = CheckEvaluationFilterActionProcessor(),
-			uncheckEvaluationFilterActionProcessor = UncheckEvaluationFilterActionProcessor(),
-			clearEvaluationFiltersActionProcessor = ClearEvaluationFiltersActionProcessor(),
+			selectEvaluationsWeekActionProcessor = SelectEvaluationsWeekActionProcessor(),
 			openAddEvaluationActionProcessor = OpenAddEvaluationActionProcessor(),
 			pickEvaluationGradeActionProcessor = PickEvaluationGradeActionProcessor(
 				getEvaluationUseCase = GetEvaluationUseCase(

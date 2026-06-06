@@ -22,7 +22,7 @@ appId: com.gdavidpb.tuindice.debug
       id: record_attempt_item_e21f0d7e481d13d19f328d6818ce4d77
     timeout: 10000
 - assertVisible:
-    id: base_top_app_bar_action_enrollment_proof
+    id: record_enrollment_proof_button
 - tapOn:
     id: record_top_bar_view_mode_switch
 - extendedWaitUntil:
@@ -40,4 +40,4 @@ appId: com.gdavidpb.tuindice.debug
       id: record_attempt_item_e21f0d7e481d13d19f328d6818ce4d77
     timeout: 10000
 - assertVisible:
-    id: base_top_app_bar_action_enrollment_proof
+    id: record_enrollment_proof_button

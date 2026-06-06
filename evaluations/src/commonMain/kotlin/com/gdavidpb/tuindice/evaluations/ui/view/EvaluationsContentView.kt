@@ -10,11 +10,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.FilterAltOff
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SmallFloatingActionButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.Alignment
@@ -23,8 +21,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
@@ -35,8 +33,7 @@ import tuindice.evaluations.generated.resources.title_empty_match_evaluations
 fun EvaluationsContentView(
 	state: Evaluations.State.Content,
 	onAddEvaluationClick: () -> Unit,
-	onClearFiltersClick: () -> Unit,
-	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
+	onWeekClick: (EvaluationsWeekKey) -> Unit = {},
 	onEvaluationClick: (evaluationId: String, evaluationName: String, subjectCode: String) -> Unit,
 	onEvaluationEdit: (evaluationId: String) -> Unit,
 	onEvaluationDelete: (evaluationId: String) -> Unit,
@@ -46,6 +43,9 @@ fun EvaluationsContentView(
 	onFocusEvaluationBoundsChange: (Rect?) -> Unit = {}
 ) {
 	val lazyColumState = rememberLazyListState()
+	val hasEvaluationItems = state.evaluationWeekGroups.any { weekGroup ->
+		weekGroup.groups.any { group -> group.items.isNotEmpty() }
+	}
 
 	Box(
 		modifier = Modifier
@@ -57,16 +57,19 @@ fun EvaluationsContentView(
 				.fillMaxSize()
 				.padding(top = InternalScreenDefaults.TopBarSpacing)
 		) {
-			EvaluationFilterView(
-				groups = state.filterGroups,
-				onFilterCheckedChange = onFilterCheckedChange,
-				scrollEnabled = scrollEnabled
+			EvaluationsWeekStripView(
+				items = state.weekItems,
+				selectedWeekKey = state.selectedWeekKey,
+				onWeekSelected = onWeekClick,
+				modifier = Modifier.padding(top = 6.dp)
 			)
 
-			if (state.evaluationGroups.isNotEmpty()) {
+			if (hasEvaluationItems) {
 				EvaluationsView(
 					lazyListState = lazyColumState,
-					evaluations = state.evaluationGroups,
+					weekGroups = state.evaluationWeekGroups,
+					selectedWeekKey = state.selectedWeekKey,
+					onVisibleWeekChange = onWeekClick,
 					onEvaluationClick = onEvaluationClick,
 					onEvaluationEdit = onEvaluationEdit,
 					onEvaluationDelete = onEvaluationDelete,
@@ -94,34 +97,15 @@ fun EvaluationsContentView(
 			enter = fadeIn(),
 			exit = fadeOut()
 		) {
-			Column(
-				horizontalAlignment = Alignment.End
+			FloatingActionButton(
+				modifier = Modifier.testTag(EvaluationsUiTags.EvaluationsAddFab),
+				containerColor = MaterialTheme.colorScheme.primary,
+				onClick = onAddEvaluationClick
 			) {
-				if (state.hasActiveFilters)
-					SmallFloatingActionButton(
-						modifier = Modifier
-							.testTag(EvaluationsUiTags.EvaluationsClearFiltersFab)
-							.padding(bottom = 16.dp),
-						containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
-						contentColor = MaterialTheme.colorScheme.primaryContainer,
-						onClick = onClearFiltersClick
-					) {
-						Icon(
-							imageVector = Icons.Outlined.FilterAltOff,
-							contentDescription = null
-						)
-					}
-
-				FloatingActionButton(
-					modifier = Modifier.testTag(EvaluationsUiTags.EvaluationsAddFab),
-					containerColor = MaterialTheme.colorScheme.primary,
-					onClick = onAddEvaluationClick
-				) {
-					Icon(
-						imageVector = Icons.Outlined.Add,
-						contentDescription = null
-					)
-				}
+				Icon(
+					imageVector = Icons.Outlined.Add,
+					contentDescription = null
+				)
 			}
 		}
 	}

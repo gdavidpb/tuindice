@@ -117,7 +117,39 @@ PROFILE_TEMPLATE = {
 	"career_code": 12039,
 	"scholarship": False,
 }
-EVALUATION_TYPE_SEQUENCE = (0, 10, 12, 9)
+LEGACY_VISIBLE_EVALUATION_ID = "bfa02abf2292f47e5baee862a8a50ff1"
+EVALUATION_MOCK_PLANS = (
+	(
+		{"week": 1, "day_offset": 3, "type": 0, "schedule_mode": "dated", "grade": None, "max_grade": 10.0, "slug": "semana-1-pendiente"},
+		{"week": 2, "day_offset": 2, "type": 4, "schedule_mode": "dated", "grade": 9.0, "max_grade": 10.0, "slug": "semana-2-completada"},
+		{"week": 4, "day_offset": 2, "type": 1, "schedule_mode": "dated", "grade": None, "max_grade": 15.0, "slug": "semana-4-pendiente"},
+		{"week": 5, "day_offset": 2, "type": 8, "schedule_mode": "dated", "grade": 12.0, "max_grade": 15.0, "slug": "semana-5-completada"},
+		{"week": 7, "day_offset": 2, "type": 10, "schedule_mode": "dated", "grade": None, "max_grade": 10.0, "slug": "semana-7-pendiente"},
+		{"week": 8, "day_offset": 2, "type": 7, "schedule_mode": "dated", "grade": 8.0, "max_grade": 10.0, "slug": "semana-8-completada"},
+		{"week": 10, "day_offset": 4, "type": 9, "schedule_mode": "dated", "grade": None, "max_grade": 15.0, "id": LEGACY_VISIBLE_EVALUATION_ID},
+		{"type": 11, "schedule_mode": "continuous", "grade": 12.0, "max_grade": 15.0, "slug": "continua-informe"},
+	),
+	(
+		{"week": 2, "day_offset": 2, "type": 4, "schedule_mode": "dated", "grade": None, "max_grade": 10.0, "slug": "semana-2-pendiente"},
+		{"week": 3, "day_offset": 2, "type": 0, "schedule_mode": "dated", "grade": 9.0, "max_grade": 10.0, "slug": "semana-3-completada"},
+		{"week": 5, "day_offset": 2, "type": 8, "schedule_mode": "dated", "grade": None, "max_grade": 10.0, "slug": "semana-5-pendiente"},
+		{"week": 6, "day_offset": 2, "type": 5, "schedule_mode": "dated", "grade": 13.0, "max_grade": 15.0, "slug": "semana-6-completada"},
+		{"week": 8, "day_offset": 2, "type": 7, "schedule_mode": "dated", "grade": None, "max_grade": 10.0, "slug": "semana-8-pendiente"},
+		{"type": 2, "schedule_mode": "continuous", "grade": 8.0, "max_grade": 10.0, "slug": "continua-asistencia"},
+		{"week": 11, "day_offset": 2, "type": 11, "schedule_mode": "dated", "grade": None, "max_grade": 20.0, "slug": "semana-11-programada"},
+		{"type": 12, "schedule_mode": "continuous", "grade": 12.0, "max_grade": 15.0, "slug": "continua-otra"},
+	),
+	(
+		{"week": 1, "day_offset": 4, "type": 1, "schedule_mode": "dated", "grade": 9.0, "max_grade": 10.0, "slug": "semana-1-completada"},
+		{"week": 3, "day_offset": 2, "type": 1, "schedule_mode": "dated", "grade": None, "max_grade": 10.0, "slug": "semana-3-pendiente"},
+		{"week": 4, "day_offset": 3, "type": 6, "schedule_mode": "dated", "grade": 14.0, "max_grade": 15.0, "slug": "semana-4-completada"},
+		{"week": 6, "day_offset": 2, "type": 6, "schedule_mode": "dated", "grade": None, "max_grade": 10.0, "slug": "semana-6-pendiente"},
+		{"week": 7, "day_offset": 3, "type": 10, "schedule_mode": "dated", "grade": 9.0, "max_grade": 10.0, "slug": "semana-7-completada"},
+		{"week": 9, "day_offset": 2, "type": 2, "schedule_mode": "dated", "grade": None, "max_grade": 15.0, "slug": "semana-9-pendiente"},
+		{"week": 10, "day_offset": 1, "type": 9, "schedule_mode": "dated", "grade": 13.0, "max_grade": 15.0, "slug": "semana-10-completada"},
+		{"week": 12, "day_offset": 2, "type": 12, "schedule_mode": "dated", "grade": None, "max_grade": 15.0, "slug": "semana-12-programada"},
+	),
+)
 
 
 @dataclass(frozen=True)
@@ -390,6 +422,18 @@ def build_sample_evaluation_date(current_term: dict[str, object], offset_days: i
 	return int(date.timestamp() * 1000)
 
 
+def build_week_evaluation_date(current_term: dict[str, object], week: int, day_offset: int) -> int:
+	term_start = datetime.fromtimestamp(current_term["start_date"] / 1000, tz=TIMEZONE)
+	week_one_start = (term_start - timedelta(days=term_start.weekday())).replace(
+		hour=12,
+		minute=0,
+		second=0,
+		microsecond=0,
+	)
+	date = week_one_start + timedelta(days=((week - 1) * 7) + day_offset)
+	return int(date.timestamp() * 1000)
+
+
 def build_evaluations_state(record_state: dict[str, object]) -> dict[str, object]:
 	current_term = select_current_evaluations_term(record_state)
 	current_attempts = sorted(
@@ -403,33 +447,42 @@ def build_evaluations_state(record_state: dict[str, object]) -> dict[str, object
 	if not current_attempts:
 		raise ValueError("Expected at least one numeric attempt in the current editable term")
 
-	patterns = (
-		{"offset_days": -5, "grade": 82.0},
-		{"offset_days": 10, "grade": None},
-		{"offset_days": -1, "grade": None},
-		{"offset_days": -2, "grade": 67.0},
-	)
 	evaluations = []
-	for index, attempt in enumerate(current_attempts, start=1):
-		pattern = patterns[(index - 1) % len(patterns)]
-		grade = pattern["grade"]
-		evaluation_id = mock_hex_id("evaluation", str(attempt["id"]))
-		evaluations.append(
-			{
-				"id": evaluation_id,
-				"reference_id": evaluation_id,
-				"term_id": current_term["id"],
-				"attempt_id": attempt["id"],
-				"subject_code": attempt["code"],
-				"type": EVALUATION_TYPE_SEQUENCE[(index - 1) % len(EVALUATION_TYPE_SEQUENCE)],
-				"schedule_mode": "dated",
-				"grade": grade,
-				"max_grade": 100.0,
-				"date": build_sample_evaluation_date(current_term, offset_days=pattern["offset_days"]),
-				"is_done": grade is not None,
-				"revision": 1,
-			}
-		)
+	for index, attempt in enumerate(current_attempts):
+		plan = EVALUATION_MOCK_PLANS[index % len(EVALUATION_MOCK_PLANS)]
+		total_weight = sum(float(pattern["max_grade"]) for pattern in plan)
+		if total_weight > 100.0:
+			raise ValueError(f"Evaluation mock plan for {attempt['code']} exceeds 100 points: {total_weight}")
+
+		for pattern in plan:
+			grade = pattern["grade"]
+			evaluation_id = pattern.get("id") or mock_hex_id(
+				"evaluation",
+				str(attempt["id"]),
+				str(pattern["slug"]),
+			)
+			evaluations.append(
+				{
+					"id": evaluation_id,
+					"reference_id": evaluation_id,
+					"term_id": current_term["id"],
+					"attempt_id": attempt["id"],
+					"subject_code": attempt["code"],
+					"type": pattern["type"],
+					"schedule_mode": pattern["schedule_mode"],
+					"grade": grade,
+					"max_grade": pattern["max_grade"],
+					"date": None
+					if pattern["schedule_mode"] == "continuous"
+					else build_week_evaluation_date(
+						current_term,
+						week=int(pattern["week"]),
+						day_offset=int(pattern["day_offset"]),
+					),
+					"is_done": grade is not None,
+					"revision": 1,
+				}
+			)
 
 	return {
 		"evaluations": evaluations,

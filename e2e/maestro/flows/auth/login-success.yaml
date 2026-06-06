@@ -8,7 +8,8 @@ appId: com.gdavidpb.tuindice.debug
 - inputText: "1"
 - tapOn:
     id: auth_password_text_field
-- inputText: "123456"
+- inputText: "123"
+- inputText: "456"
 - tapOn:
     id: auth_keyboard_dismiss_area
 - tapOn:

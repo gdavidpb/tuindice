@@ -7,13 +7,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
-import com.gdavidpb.tuindice.record.domain.model.filteredProjectionFor
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.model.RecordRouteViewState
 import com.gdavidpb.tuindice.record.presentation.model.RecordTopBarViewModeState
@@ -27,6 +25,8 @@ fun RecordRoute(
 	onNavigateToUpdateSyntheticTerm: (termId: String) -> Unit,
 	onNavigateToDeleteSyntheticTermConfirmation: (termId: String) -> Unit,
 	onTopBarViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
+	onTopBarTermSelectionAvailable: ((() -> Unit)?) -> Unit,
+	onNavigateToEnrollmentProof: () -> Unit,
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: RecordViewModel
@@ -36,12 +36,17 @@ fun RecordRoute(
 	val pendingTopBarBanner = remember {
 		mutableStateOf<Record.Effect.ShowTopBarBanner?>(null)
 	}
+	val showTermSelection = remember { mutableStateOf(false) }
 
 	DisposableEffect(viewModel) {
 		onTopBarViewModeChangeAvailable(viewModel::setViewModeAction)
+		onTopBarTermSelectionAvailable {
+			showTermSelection.value = true
+		}
 
 		onDispose {
 			onTopBarViewModeChangeAvailable(null)
+			onTopBarTermSelectionAvailable(null)
 		}
 	}
 
@@ -91,29 +96,26 @@ fun RecordRoute(
 		},
 		onCreateSyntheticTermClick = onNavigateToCreateSyntheticTerm,
 		onUpdateSyntheticTermClick = onNavigateToUpdateSyntheticTerm,
-		onDeleteSyntheticTermClick = onNavigateToDeleteSyntheticTermConfirmation
+		onDeleteSyntheticTermClick = onNavigateToDeleteSyntheticTermConfirmation,
+		onEnrollmentProofClick = onNavigateToEnrollmentProof,
+		showTermSelection = showTermSelection.value,
+		onDismissTermSelection = {
+			showTermSelection.value = false
+		}
 	)
 }
 
 internal fun Record.State.toRouteViewState(): ViewState {
-	val isEnrollmentProofVisible = when (this) {
-		is Record.State.Content -> viewMode == RecordViewMode.Projection &&
-			record.filteredProjectionFor(viewMode)
-				.terms
-				.any { term ->
-					term.id == selectedTermId && term.kind.isCurrent
-				}
-
-		Record.State.Idle,
-		Record.State.Empty,
-		Record.State.Failed,
-		Record.State.Loading,
-		-> false
-	}
-
 	return RecordRouteViewState(
 		topBarTitle = topBarTitle,
-		topBarConfig = if (isEnrollmentProofVisible) topBarConfig else null,
+		topBarConfig = when (this) {
+			is Record.State.Content -> topBarConfig
+			Record.State.Idle,
+			Record.State.Empty,
+			Record.State.Failed,
+			Record.State.Loading,
+			-> null
+		},
 		isTopBarVisible = isTopBarVisible,
 		isBottomBarVisible = isBottomBarVisible,
 		topBarViewModeState = when (this) {

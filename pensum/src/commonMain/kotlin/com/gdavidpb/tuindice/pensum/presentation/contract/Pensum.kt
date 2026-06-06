@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import tuindice.pensum.generated.resources.Res
+import tuindice.pensum.generated.resources.pensum_failed_message
 import tuindice.pensum.generated.resources.top_bar_pensum
 
 object Pensum {
@@ -26,7 +27,9 @@ object Pensum {
 			val model: PensumScreenModel
 		) : State()
 
-		data object Failed : State()
+		data class Failed(
+			val message: UiText = UiText.Resource(Res.string.pensum_failed_message)
+		) : State()
 	}
 
 	sealed class Action : ViewAction() {
@@ -45,6 +48,6 @@ object Pensum {
 	}
 
 	sealed class Effect : ViewEffect() {
-		class ShowSnackBar(val message: String) : Effect()
+		class ShowSnackBar(val message: UiText) : Effect()
 	}
 }

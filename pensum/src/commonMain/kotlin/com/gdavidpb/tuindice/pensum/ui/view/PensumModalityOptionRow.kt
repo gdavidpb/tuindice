@@ -21,12 +21,12 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
 
 @Composable
 fun PensumModalityOptionRow(
 	modifier: Modifier = Modifier,
-	modality: PensumScreenModel.ModalityItem,
+	modality: PensumModalityItem,
 	isSelected: Boolean,
 	onClick: () -> Unit
 ) {

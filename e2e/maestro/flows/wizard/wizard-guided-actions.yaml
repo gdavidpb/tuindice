@@ -27,6 +27,16 @@ appId: com.gdavidpb.tuindice.debug
       id: record_attempts_list
     timeout: 10000
 - tapOn:
+    id: record_top_bar_view_mode_switch
+- extendedWaitUntil:
+    visible:
+      id: record_term_current_chip_2026-2
+    timeout: 10000
+- extendedWaitUntil:
+    visible:
+      id: record_enrollment_proof_button
+    timeout: 10000
+- tapOn:
     id: wizard_primary_button
 - extendedWaitUntil:
     visible:
@@ -34,10 +44,24 @@ appId: com.gdavidpb.tuindice.debug
     timeout: 10000
 - assertVisible:
     id: wizard_focus_overlay
-- tapOn:
-    id: base_top_app_bar_action_enrollment_proof
 - assertVisible:
-    id: wizard_current_step_record_actions
+    id: record_enrollment_proof_button
+- tapOn:
+    id: base_top_app_bar_action_record_term_selection
+- extendedWaitUntil:
+    visible:
+      id: record_term_selection_sheet
+    timeout: 10000
+- assertVisible:
+    id: record_term_selection_list
+- assertVisible:
+    id: record_term_selection_option_2026-2
+- tapOn:
+    id: record_term_selection_option_2026-2
+- extendedWaitUntil:
+    visible:
+      id: wizard_current_step_record_actions
+    timeout: 10000
 - tapOn:
     id: wizard_primary_button
 - extendedWaitUntil:
@@ -56,12 +80,24 @@ appId: com.gdavidpb.tuindice.debug
     timeout: 15000
 - tapOn:
     id: pensum_node_ma1111
+- assertVisible:
+    id: pensum_focused_node_ma1111
 - extendedWaitUntil:
     visible:
-      id: pensum_node_subject_stats_button_ma1111
+      id: pensum_node_detail_button_ma1111
     timeout: 10000
 - tapOn:
-    id: pensum_node_subject_stats_button_ma1111
+    id: pensum_node_detail_button_ma1111
+- extendedWaitUntil:
+    visible:
+      id: pensum_subject_detail_sheet
+    timeout: 10000
+- assertVisible:
+    id: pensum_subject_detail_status
+- assertVisible:
+    id: pensum_subject_detail_term_value
+- tapOn:
+    text: Ver estadísticas
 - extendedWaitUntil:
     visible:
       id: wizard_current_step_subject_detail

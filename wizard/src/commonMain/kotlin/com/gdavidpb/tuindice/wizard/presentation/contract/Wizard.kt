@@ -22,7 +22,8 @@ object Wizard {
 			val currentIndex: Int = 0,
 			val selectedSubjectTab: SubjectSegmentTab = SubjectSegmentTab.CAREER,
 			val recordViewMode: RecordViewMode = RecordViewMode.Projection,
-			val selectedTermId: String = CURRENT_TERM_ID
+			val selectedTermId: String = CURRENT_TERM_ID,
+			val isRecordTermSelectionVisible: Boolean = false
 		) : State(), WizardRouteViewState {
 			val currentStep: WizardStep
 				get() = steps[currentIndex.coerceIn(0, steps.lastIndex.coerceAtLeast(0))]
@@ -88,6 +89,7 @@ object Wizard {
 		class SelectSubjectTab(val tab: SubjectSegmentTab) : Action()
 		class SetRecordViewMode(val viewMode: RecordViewMode) : Action()
 		class SelectTerm(val termId: String) : Action()
+		data object DismissRecordTermSelection : Action()
 		class SetSubjectChartsVisible(val isVisible: Boolean) : Action()
 	}
 

@@ -10,8 +10,8 @@ import androidx.compose.ui.geometry.Rect
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsContentView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsEmptyView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsFailedView
@@ -35,8 +35,7 @@ fun EvaluationsScreen(
 	onEvaluationClick: (evaluationId: String, evaluationName: String, subjectCode: String) -> Unit,
 	onEvaluationEdit: (evaluationId: String) -> Unit,
 	onEvaluationDelete: (evaluationId: String) -> Unit,
-	onFilterCheckedChange: (filter: EvaluationFilter, isChecked: Boolean) -> Unit,
-	onClearFiltersClick: () -> Unit,
+	onWeekClick: (EvaluationsWeekKey) -> Unit = {},
 	onRetryClick: () -> Unit,
 	scrollEnabled: Boolean = true,
 	openActionsEvaluationId: String? = null,
@@ -61,8 +60,7 @@ fun EvaluationsScreen(
 					EvaluationsContentView(
 						state = targetState,
 						onAddEvaluationClick = onAddEvaluationClick,
-						onClearFiltersClick = onClearFiltersClick,
-						onFilterCheckedChange = onFilterCheckedChange,
+						onWeekClick = onWeekClick,
 						onEvaluationClick = onEvaluationClick,
 						onEvaluationEdit = onEvaluationEdit,
 						onEvaluationDelete = onEvaluationDelete,

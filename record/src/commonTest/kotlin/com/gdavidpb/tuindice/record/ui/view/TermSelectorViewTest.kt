@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.AnnotatedString
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
+import com.gdavidpb.tuindice.record.presentation.model.TermItemKind
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -73,7 +74,10 @@ class TermSelectorViewTest {
 	): TermItem {
 		return TermItem(
 			termId = termId,
+			periodYear = 2027,
+			termOrder = 20272,
 			shortNameText = shortNameText,
+			kind = TermItemKind.HISTORICAL,
 			gradeText = AnnotatedString("0.00"),
 			gradeDelta = null,
 			gradeSumText = AnnotatedString("0.00"),

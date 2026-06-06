@@ -11,14 +11,13 @@ sealed class TopBarConfig(
 
 	data object Record : TopBarConfig(
 		actions = listOf(
-			TopBarAction.FetchEnrollmentProofAction
+			TopBarAction.RecordTermSelectionAction
 		)
 	)
 
 	data object Pensum : TopBarConfig(
 		actions = listOf(
-			TopBarAction.SearchPensumAction,
-			TopBarAction.ChangePensumAction
+			TopBarAction.SearchPensumAction
 		)
 	)
 }

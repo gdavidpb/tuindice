@@ -99,7 +99,7 @@ class WizardActionProcessorContractTest {
 	}
 
 	@Test
-	fun consumeTopBarAction_consumesEnrollmentProofWithoutNavigationOrEffect() = runTest {
+	fun consumeTopBarAction_opensRecordTermSelectionWithoutNavigationOrEffect() = runTest {
 		val effects = mutableListOf<Wizard.Effect>()
 		val initialState = Wizard.State.Content().goTo(WizardStepId.RecordActions)
 		val state = reduce(
@@ -107,7 +107,7 @@ class WizardActionProcessorContractTest {
 			mutations = ConsumeTopBarWizardActionProcessor()
 				.process(
 					action = Wizard.Action.ConsumeTopBarAction(
-						TopBarAction.FetchEnrollmentProofAction
+						TopBarAction.RecordTermSelectionAction
 					),
 					sideEffect = effects::add
 				)
@@ -115,6 +115,30 @@ class WizardActionProcessorContractTest {
 
 		val content = state as Wizard.State.Content
 		assertEquals(WizardStepId.RecordActions, content.currentStep.id)
+		assertEquals(true, content.isRecordTermSelectionVisible)
+		assertContentEquals(emptyList(), effects)
+	}
+
+	@Test
+	fun selectTermAndDismissRecordTermSelection_closeRecordTermSelectionSheet() = runTest {
+		val effects = mutableListOf<Wizard.Effect>()
+		val visibleState = Wizard.State.Content(
+			isRecordTermSelectionVisible = true
+		).goTo(WizardStepId.RecordActions)
+		val selected = reduce(
+			initialState = visibleState,
+			mutations = SelectTermWizardActionProcessor()
+				.process(Wizard.Action.SelectTerm(HISTORICAL_TERM_ID), effects::add)
+		) as Wizard.State.Content
+		val dismissed = reduce(
+			initialState = visibleState,
+			mutations = DismissRecordTermSelectionWizardActionProcessor()
+				.process(Wizard.Action.DismissRecordTermSelection, effects::add)
+		) as Wizard.State.Content
+
+		assertEquals(HISTORICAL_TERM_ID, selected.selectedTermId)
+		assertEquals(false, selected.isRecordTermSelectionVisible)
+		assertEquals(false, dismissed.isRecordTermSelectionVisible)
 		assertContentEquals(emptyList(), effects)
 	}
 

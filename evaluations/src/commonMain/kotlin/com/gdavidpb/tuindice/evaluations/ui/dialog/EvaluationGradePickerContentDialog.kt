@@ -24,7 +24,7 @@ fun EvaluationGradePickerContentDialog(
 		subjectCode = subjectCode,
 		acceptText = stringResource(Res.string.accept),
 		cancelText = stringResource(Res.string.cancel),
-		selectedGrade = selectedGrade ?: maxGrade,
+		selectedGrade = selectedGrade ?: MIN_EVALUATION_GRADE,
 		gradeRange = MIN_EVALUATION_GRADE..maxGrade,
 		onGradeChange = onGradeChange,
 		onDismissRequest = onDismissRequest,

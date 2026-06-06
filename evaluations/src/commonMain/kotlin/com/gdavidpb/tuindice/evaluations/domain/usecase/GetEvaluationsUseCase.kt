@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteReposi
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationFilter
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDisplayContext
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
@@ -21,7 +21,7 @@ class GetEvaluationsUseCase(
 	private val evaluationRepository: EvaluationRepository,
 	private val recordDataPrerequisiteRepository: RecordDataPrerequisiteRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Flow<List<EvaluationFilter>>, GetEvaluations, EvaluationsUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<Unit, GetEvaluations, EvaluationsUseCaseError>(reportingRepository = reportingRepository) {
 
 	private val evaluationComparator =
 		Comparator<Evaluation> { a, b ->
@@ -34,48 +34,35 @@ class GetEvaluationsUseCase(
 		}
 			.then(compareBy(Evaluation::state))
 
-	override suspend fun executeOnBackground(params: Flow<List<EvaluationFilter>>): Flow<GetEvaluations> {
+	override suspend fun executeOnBackground(params: Unit): Flow<GetEvaluations> {
 		return recordDataPrerequisiteRepository
 			.observeRecordDataPrerequisiteFlow()
 			.flatMapLatest { prerequisite ->
 				when {
 					prerequisite.hasFailed -> flowOf(GetEvaluations.RecordDataUnavailable)
 					!prerequisite.isReady -> flowOf(GetEvaluations.WaitingForRecordData)
-					else -> observeReadyEvaluations(params)
+					else -> observeReadyEvaluations()
 				}
 			}
 	}
 
-	private suspend fun observeReadyEvaluations(params: Flow<List<EvaluationFilter>>): Flow<GetEvaluations> {
+	private suspend fun observeReadyEvaluations(): Flow<GetEvaluations> {
 		val availableAttempts = evaluationRepository.getAvailableAttempts()
 		if (availableAttempts.isEmpty()) return flowOf(GetEvaluations.NoAttempts)
+		val displayContext = EvaluationDisplayContext(
+			attempts = availableAttempts,
+			currentTerm = evaluationRepository.getCurrentTerm()
+		)
 
-		return params.flatMapLatest { activeFilters ->
-			combine(
-				evaluationRepository.observeEvaluationsFlow(),
-				evaluationRepository.observeHasSyncedEvaluationsFlow()
-			) { evaluations, hasSyncedEvaluations ->
-				val sortedEvaluations = evaluations.sortedWith(evaluationComparator)
-
-				val filteredEvaluations = if (activeFilters.isEmpty())
-					sortedEvaluations
-				else
-					activeFilters
-						.groupBy { filter -> filter::class }
-						.values
-						.fold(initial = sortedEvaluations) { acc, filters ->
-							acc.filter { evaluation ->
-								filters.any { filter -> filter.match(evaluation) }
-							}
-						}
-
-				GetEvaluations.Content(
-					originalEvaluations = sortedEvaluations,
-					filteredEvaluations = filteredEvaluations,
-					activeFilters = activeFilters,
-					hasSyncedEvaluations = hasSyncedEvaluations
-				)
-			}
+		return combine(
+			evaluationRepository.observeEvaluationsFlow(),
+			evaluationRepository.observeHasSyncedEvaluationsFlow()
+		) { evaluations, hasSyncedEvaluations ->
+			GetEvaluations.Content(
+				evaluations = evaluations.sortedWith(evaluationComparator),
+				hasSyncedEvaluations = hasSyncedEvaluations,
+				displayContext = displayContext
+			)
 		}
 	}
 }

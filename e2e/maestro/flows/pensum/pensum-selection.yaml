@@ -12,7 +12,7 @@ appId: com.gdavidpb.tuindice.debug
 - waitForAnimationToEnd:
     timeout: 5000
 - tapOn:
-    id: base_top_app_bar_action_change_pensum
+    id: pensum_context_summary
 - extendedWaitUntil:
     visible:
       id: base_confirmation_dialog_sheet

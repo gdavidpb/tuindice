@@ -7,10 +7,13 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Modifier
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorView
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.ui.view.PensumContentView
 import com.gdavidpb.tuindice.pensum.ui.view.PensumEmptyView
@@ -19,7 +22,6 @@ import com.gdavidpb.tuindice.pensum.ui.view.ScreenBackground
 import com.gdavidpb.tuindice.pensum.ui.view.TextPrimary
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
-import tuindice.pensum.generated.resources.pensum_failed_message
 import tuindice.pensum.generated.resources.pensum_failed_retry
 import tuindice.pensum.generated.resources.pensum_failed_title
 
@@ -30,7 +32,8 @@ fun PensumScreen(
 	showSelectionSheet: Boolean,
 	onSelectionSheetDismiss: () -> Unit,
 	onSubjectStatsClick: (subjectCode: String) -> Unit,
-	onSelectionApplied: (PensumScreenModel.PensumOptionItem, PensumScreenModel.ModalityItem) -> Unit
+	onSelectionApplied: (PensumOptionItem, PensumModalityItem) -> Unit,
+	onPensumContextClick: () -> Unit = {}
 ) {
 	Box(
 		modifier = Modifier
@@ -48,12 +51,13 @@ fun PensumScreen(
 						showSelectionSheet = showSelectionSheet,
 						onSelectionSheetDismiss = onSelectionSheetDismiss,
 						onSubjectStatsClick = onSubjectStatsClick,
-						onSelectionApplied = onSelectionApplied
+						onSelectionApplied = onSelectionApplied,
+						onPensumContextClick = onPensumContextClick
 					)
 					is Pensum.State.Failed ->
 						ErrorView(
 							title = stringResource(Res.string.pensum_failed_title),
-							message = stringResource(Res.string.pensum_failed_message),
+							message = targetState.message.asString(),
 							retryText = stringResource(Res.string.pensum_failed_retry),
 							onRetryClick = onRetryClick,
 							headerContent = { ErrorStateAnimationView() }

@@ -56,15 +56,15 @@ fun SubjectSearchResultCard(
 		Row(
 			modifier = Modifier
 				.fillMaxWidth()
-				.padding(horizontal = 16.dp, vertical = 16.dp),
+				.padding(horizontal = 14.dp, vertical = 12.dp),
 			verticalAlignment = Alignment.CenterVertically
 		) {
 			Text(
 				modifier = Modifier
 					.background(codeColors.containerColor, RoundedCornerShape(10.dp))
-					.padding(horizontal = 12.dp, vertical = 8.dp),
+					.padding(horizontal = 11.dp, vertical = 7.dp),
 				text = item.subjectCode,
-				style = MaterialTheme.typography.bodyMedium,
+				style = MaterialTheme.typography.bodySmall,
 				fontWeight = FontWeight.Bold,
 				color = codeColors.color,
 				maxLines = 1
@@ -72,31 +72,31 @@ fun SubjectSearchResultCard(
 			Column(
 				modifier = Modifier
 					.weight(1f)
-					.padding(start = 16.dp, end = 12.dp)
+					.padding(start = 14.dp, end = 8.dp)
 			) {
 				Text(
 					text = item.name,
-					style = MaterialTheme.typography.bodyLarge,
+					style = MaterialTheme.typography.bodyMedium,
 					fontWeight = FontWeight.Bold,
 					color = MaterialTheme.colorScheme.onSurface,
 					maxLines = 2,
 					overflow = TextOverflow.Ellipsis
 				)
-				Spacer(modifier = Modifier.height(8.dp))
+				Spacer(modifier = Modifier.height(4.dp))
 				Text(
 					text = item.creditsText,
-					style = MaterialTheme.typography.bodyMedium,
+					style = MaterialTheme.typography.bodySmall,
 					color = MaterialTheme.colorScheme.onSurfaceVariant
 				)
 			}
 			IconButton(
 				modifier = Modifier
-					.size(40.dp)
+					.size(36.dp)
 					.testTag(SubjectsUiTags.searchResultStatsButton(item.subjectCode)),
 				onClick = onClick
 			) {
 				Icon(
-					modifier = Modifier.size(22.dp),
+					modifier = Modifier.size(20.dp),
 					imageVector = Icons.Outlined.BarChart,
 					contentDescription = stringResource(
 						Res.string.subjects_search_result_content_description,

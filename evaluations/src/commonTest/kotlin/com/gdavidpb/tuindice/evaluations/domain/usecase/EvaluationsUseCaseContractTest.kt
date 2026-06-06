@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationCourseFilter
+import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.GetEvaluationParams
 import com.gdavidpb.tuindice.evaluations.testing.*
@@ -15,33 +15,37 @@ import kotlin.test.assertTrue
 
 class EvaluationsUseCaseContractTest {
 	@Test
-	fun getEvaluationsUseCase_emitsSortedAndFilteredEvaluations() = runTest {
-		val filter = EvaluationCourseFilter(DEFAULT_EVALUATION_SUBJECT.code)
+	fun getEvaluationsUseCase_emitsSortedEvaluations() = runTest {
+		val currentTime = currentTimeMillis()
+		val futureEvaluation = DEFAULT_PENDING_EVALUATION.copy(
+			date = currentTime + ONE_DAY_MILLIS
+		)
+		val pastEvaluation = DEFAULT_COMPLETED_EVALUATION.copy(
+			date = currentTime - ONE_DAY_MILLIS
+		)
 		val useCase = GetEvaluationsUseCase(
 			evaluationRepository = RecordingEvaluationRepository(
 				evaluationsFlow = flowOf(
 					listOf(
-						DEFAULT_PENDING_EVALUATION,
-						DEFAULT_COMPLETED_EVALUATION
+						futureEvaluation,
+						pastEvaluation
 					)
 				),
 				initialEvaluations = listOf(
-					DEFAULT_PENDING_EVALUATION,
-					DEFAULT_COMPLETED_EVALUATION
+					futureEvaluation,
+					pastEvaluation
 				)
 			),
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 			reportingRepository = RecordingReportingRepository()
 		)
 
-		useCase.execute(flowOf(listOf(filter))).test {
+		useCase.execute(Unit).test {
 			val result = awaitLoadingThenData(this) as GetEvaluations.Content
 			assertEquals(
-				listOf(DEFAULT_COMPLETED_EVALUATION, DEFAULT_PENDING_EVALUATION),
-				result.originalEvaluations
+				listOf(pastEvaluation, futureEvaluation),
+				result.evaluations
 			)
-			assertEquals(listOf(DEFAULT_PENDING_EVALUATION), result.filteredEvaluations)
-			assertEquals(listOf(filter), result.activeFilters)
 			awaitComplete()
 		}
 	}
@@ -59,7 +63,7 @@ class EvaluationsUseCaseContractTest {
 			reportingRepository = reportingRepository
 		)
 
-		useCase.execute(flowOf(emptyList())).test {
+		useCase.execute(Unit).test {
 			assertEquals(GetEvaluations.NoAttempts, awaitLoadingThenData(this))
 			assertTrue(reportingRepository.exceptions.isEmpty())
 			awaitComplete()
@@ -80,7 +84,7 @@ class EvaluationsUseCaseContractTest {
 			reportingRepository = RecordingReportingRepository()
 		)
 
-		useCase.execute(flowOf(emptyList())).test {
+		useCase.execute(Unit).test {
 			assertEquals(GetEvaluations.WaitingForRecordData, awaitLoadingThenData(this))
 			awaitComplete()
 		}
@@ -96,7 +100,7 @@ class EvaluationsUseCaseContractTest {
 			reportingRepository = RecordingReportingRepository()
 		)
 
-		useCase.execute(flowOf(emptyList())).test {
+		useCase.execute(Unit).test {
 			assertEquals(GetEvaluations.RecordDataUnavailable, awaitLoadingThenData(this))
 			awaitComplete()
 		}
@@ -124,3 +128,5 @@ class EvaluationsUseCaseContractTest {
 		}
 	}
 }
+
+private const val ONE_DAY_MILLIS = 86_400_000L

@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_STOR
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
@@ -306,6 +307,8 @@ private class FakeEvaluationRepository(
 	override suspend fun removeEvaluation(remove: EvaluationRemove) = Unit
 
 	override suspend fun getAvailableAttempts(): List<EditableAttemptDescriptor> = emptyList()
+
+	override suspend fun getCurrentTerm(): EvaluationTermDescriptor? = null
 }
 
 private fun pendingMutation(

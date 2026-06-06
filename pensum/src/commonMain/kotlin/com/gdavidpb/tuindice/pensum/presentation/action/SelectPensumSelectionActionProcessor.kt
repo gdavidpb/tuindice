@@ -7,6 +7,10 @@ import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.error.UpdatePensumUseCaseError
 import com.gdavidpb.tuindice.pensum.domain.usecase.param.SelectPensumSelectionParams
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
+import com.gdavidpb.tuindice.pensum.presentation.mapper.failedOrContent
+import com.gdavidpb.tuindice.pensum.presentation.mapper.loadingOrContent
+import com.gdavidpb.tuindice.pensum.presentation.mapper.snackBarEffectOrNull
+import com.gdavidpb.tuindice.pensum.presentation.mapper.toFailedMessage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 
@@ -27,14 +31,14 @@ class SelectPensumSelectionActionProcessor(
 				is UseCaseState.Loading -> suspend { state: Pensum.State -> state.loadingOrContent() }
 				is UseCaseState.Data -> null
 				is UseCaseState.Error -> suspend { state: Pensum.State ->
-					if (useCaseState.error == UpdatePensumUseCaseError.NotFound) {
-						Pensum.State.Empty
-					} else {
-						sideEffect(Pensum.Effect.ShowSnackBar(useCaseState.error.toSnackBarMessage()))
-						state.failedOrContent()
-					}
+							if (useCaseState.error == UpdatePensumUseCaseError.NotFound) {
+								Pensum.State.Empty
+							} else {
+								state.snackBarEffectOrNull(useCaseState.error)?.let(sideEffect)
+								state.failedOrContent(useCaseState.error.toFailedMessage())
+							}
+						}
 				}
-			}
 		}
 	}
 }

@@ -7,17 +7,12 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.gestures.detectTransformGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -33,6 +28,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.DrawScope
@@ -41,22 +37,31 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import com.gdavidpb.tuindice.base.utils.extension.DecelerateEasing
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumEdgeItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import com.gdavidpb.tuindice.pensum.ui.model.focusStateFor
 import kotlin.math.PI
+import kotlin.math.abs
 import kotlin.math.atan2
 import kotlin.math.cos
+import kotlin.math.max
+import kotlin.math.min
 import kotlin.math.sin
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
 fun PensumGraphCanvas(
 	model: PensumScreenModel,
-	onSubjectStatsClick: (subjectCode: String) -> Unit,
+	selectedNodeId: String?,
+	onSelectedNodeChange: (String?) -> Unit,
+	onNodeDetailClick: (String) -> Unit,
 	modifier: Modifier = Modifier
 ) {
 	val density = LocalDensity.current
@@ -65,9 +70,12 @@ fun PensumGraphCanvas(
 	var savedScale by rememberSaveable(graphKey) { mutableStateOf<Float?>(null) }
 	var savedOffsetX by rememberSaveable(graphKey) { mutableStateOf<Float?>(null) }
 	var savedOffsetY by rememberSaveable(graphKey) { mutableStateOf<Float?>(null) }
+	var isMinimapToggleVisible by rememberSaveable(graphKey) { mutableStateOf(false) }
+	var isMinimapVisible by rememberSaveable(graphKey) { mutableStateOf(false) }
 	val scale = remember(graphKey) { Animatable(savedScale ?: InitialCanvasZoom) }
 	val offsetX = remember(graphKey) { Animatable(savedOffsetX ?: 0f) }
 	val offsetY = remember(graphKey) { Animatable(savedOffsetY ?: 0f) }
+	var canvasSnapJob by remember(graphKey) { mutableStateOf<Job?>(null) }
 
 	BoxWithConstraints(
 		modifier = modifier
@@ -85,15 +93,12 @@ fun PensumGraphCanvas(
 			height = with(density) { model.canvas.height.dp.toPx() }
 		)
 		val panMarginPx = with(density) { CanvasPanMargin.toPx() }
-		var selectedNodeId by remember(graphKey) { mutableStateOf<String?>(null) }
-		val selectedRequirementEdgeIds = remember(model.edges, selectedNodeId) {
-			model.requirementEdgeIdsTo(selectedNodeId)
-		}
-		val selectedRequirementNodeIds = remember(model.edges, selectedNodeId, selectedRequirementEdgeIds) {
-			model.requirementNodeIdsIn(
-				selectedNodeId = selectedNodeId,
-				selectedRequirementEdgeIds = selectedRequirementEdgeIds
-			)
+		val fitPaddingPx = with(density) { CanvasFitPadding.toPx() }
+		val focusPaddingPx = with(density) { CanvasFocusPadding.toPx() }
+		val snapDistancePx = with(density) { CanvasSnapDistance.toPx() }
+		val snapInsetPx = with(density) { CanvasSnapViewportInset.toPx() }
+		val focusState = remember(model.edges, model.nodes, selectedNodeId) {
+			model.focusStateFor(selectedNodeId)
 		}
 
 		fun saveCanvasViewport(scaleValue: Float, offset: Offset) {
@@ -103,7 +108,10 @@ fun PensumGraphCanvas(
 		}
 
 		LaunchedEffect(graphKey, viewportSizePx, canvasSizePx, panMarginPx) {
-			val restoredScale = savedScale?.coerceIn(MinCanvasZoom, MaxCanvasZoom) ?: InitialCanvasZoom
+			val restoredScale = savedScale?.coerceIn(
+				minimumValue = MinCanvasZoom,
+				maximumValue = MaxCanvasZoom
+			) ?: InitialCanvasZoom
 			val restoredOffset = if (savedOffsetX != null && savedOffsetY != null) {
 				Offset(
 					x = checkNotNull(savedOffsetX),
@@ -131,33 +139,14 @@ fun PensumGraphCanvas(
 			)
 		}
 
-		fun zoomTo(targetScale: Float) {
+		fun animateCanvasViewport(targetScale: Float, targetOffset: Offset) {
 			coroutineScope.launch {
-				val oldScale = scale.value
-				val newScale = targetScale.coerceIn(MinCanvasZoom, MaxCanvasZoom)
-				val viewportCenter = Offset(
-					x = viewportSizePx.width / 2f,
-					y = viewportSizePx.height / 2f
-				)
-				val currentOffset = Offset(offsetX.value, offsetY.value)
-				val targetOffset = constrainCanvasOffset(
-					offset = currentOffset.zoomedAround(
-						anchor = viewportCenter,
-						oldScale = oldScale,
-						newScale = newScale
-					),
-					scale = newScale,
-					canvasSizePx = canvasSizePx,
-					viewportSizePx = viewportSizePx,
-					panMarginPx = panMarginPx
-				)
-
 				scale.stop()
 				offsetX.stop()
 				offsetY.stop()
 				launch {
 					scale.animateTo(
-						targetValue = newScale,
+						targetValue = targetScale,
 						animationSpec = tween(
 							durationMillis = ZoomAnimationMillis,
 							easing = DecelerateEasing
@@ -183,9 +172,265 @@ fun PensumGraphCanvas(
 					)
 				}
 				saveCanvasViewport(
-					scaleValue = newScale,
+					scaleValue = targetScale,
 					offset = targetOffset
 				)
+			}
+		}
+
+		fun snapCanvasViewport(targetScale: Float, targetOffset: Offset) {
+			canvasSnapJob?.cancel()
+			coroutineScope.launch {
+				scale.stop()
+				offsetX.stop()
+				offsetY.stop()
+				scale.snapTo(targetScale)
+				offsetX.snapTo(targetOffset.x)
+				offsetY.snapTo(targetOffset.y)
+				saveCanvasViewport(
+					scaleValue = targetScale,
+					offset = targetOffset
+				)
+			}
+		}
+
+		fun revealMinimapToggle() {
+			isMinimapToggleVisible = true
+		}
+
+		fun hideMinimap() {
+			isMinimapVisible = false
+		}
+
+		fun viewportOffsetForCanvasCenter(
+			canvasCenter: Offset,
+			targetScale: Float
+		): Offset {
+			val viewportAnchor = Offset(
+				x = viewportSizePx.width / 2f,
+				y = viewportSizePx.height * 0.46f
+			)
+			return constrainCanvasOffset(
+				offset = Offset(
+					x = viewportAnchor.x - canvasCenter.x * density.density * targetScale,
+					y = viewportAnchor.y - canvasCenter.y * density.density * targetScale
+				),
+				scale = targetScale,
+				canvasSizePx = canvasSizePx,
+				viewportSizePx = viewportSizePx,
+				panMarginPx = panMarginPx
+			)
+		}
+
+		fun centerCanvasBounds(
+			bounds: CanvasBounds,
+			targetScale: Float
+		) {
+			canvasSnapJob?.cancel()
+			revealMinimapToggle()
+			animateCanvasViewport(
+				targetScale = targetScale,
+				targetOffset = viewportOffsetForCanvasCenter(
+					canvasCenter = bounds.center,
+					targetScale = targetScale
+				)
+			)
+		}
+
+		fun centerSelectedNode(node: PensumNodeItem) {
+			centerCanvasBounds(
+				bounds = node.canvasBounds(),
+				targetScale = max(scale.value, NodeFocusMinZoom).coerceIn(
+					minimumValue = MinCanvasZoom,
+					maximumValue = MaxCanvasZoom
+				)
+			)
+		}
+
+		fun focusProgress() {
+			onSelectedNodeChange(null)
+			val bounds = model.progressFocusBounds() ?: return
+			centerCanvasBounds(
+				bounds = bounds,
+				targetScale = focusCanvasScale(
+					bounds = bounds,
+					viewportSizePx = viewportSizePx,
+					densityScale = density.density,
+					paddingPx = focusPaddingPx,
+					maxScale = ProgressFocusMaxZoom
+				)
+			)
+		}
+
+		fun focusTerm(termId: String) {
+			onSelectedNodeChange(null)
+			val bounds = model.termFocusBounds(termId) ?: return
+			centerCanvasBounds(
+				bounds = bounds,
+				targetScale = focusCanvasScale(
+					bounds = bounds,
+					viewportSizePx = viewportSizePx,
+					densityScale = density.density,
+					paddingPx = focusPaddingPx,
+					maxScale = TermFocusMaxZoom
+				)
+			)
+		}
+
+		fun moveViewportToCanvasCenter(canvasCenter: Offset) {
+			revealMinimapToggle()
+			val targetOffset = viewportOffsetForCanvasCenter(
+				canvasCenter = canvasCenter,
+				targetScale = scale.value
+			)
+			snapCanvasViewport(
+				targetScale = scale.value,
+				targetOffset = targetOffset
+			)
+		}
+
+		fun scheduleViewportSnap(scaleValue: Float, offset: Offset) {
+			canvasSnapJob?.cancel()
+			canvasSnapJob = coroutineScope.launch {
+				delay(CanvasSnapDelayMillis.toLong())
+				val snappedOffset = snapCanvasOffset(
+					model = model,
+					offset = offset,
+					scale = scaleValue,
+					canvasSizePx = canvasSizePx,
+					viewportSizePx = viewportSizePx,
+					densityScale = density.density,
+					panMarginPx = panMarginPx,
+					snapDistancePx = snapDistancePx,
+					snapInsetPx = snapInsetPx
+				)
+				canvasSnapJob = null
+				if (snappedOffset != offset) {
+					animateCanvasViewport(
+						targetScale = scaleValue,
+						targetOffset = snappedOffset
+					)
+				}
+			}
+		}
+
+		fun zoomTo(targetScale: Float, shouldRevealMinimapToggle: Boolean = true) {
+			canvasSnapJob?.cancel()
+			if (shouldRevealMinimapToggle) {
+				revealMinimapToggle()
+			}
+			val oldScale = scale.value
+			val newScale = targetScale.coerceIn(MinCanvasZoom, MaxCanvasZoom)
+			val viewportCenter = Offset(
+				x = viewportSizePx.width / 2f,
+				y = viewportSizePx.height / 2f
+			)
+			val currentOffset = Offset(offsetX.value, offsetY.value)
+			val targetOffset = constrainCanvasOffset(
+				offset = currentOffset.zoomedAround(
+					anchor = viewportCenter,
+					oldScale = oldScale,
+					newScale = newScale
+				),
+				scale = newScale,
+				canvasSizePx = canvasSizePx,
+				viewportSizePx = viewportSizePx,
+				panMarginPx = panMarginPx
+			)
+
+			animateCanvasViewport(
+				targetScale = newScale,
+				targetOffset = targetOffset
+			)
+		}
+
+		fun fitCanvasOffset(targetScale: Float): Offset {
+			return constrainCanvasOffset(
+				offset = centerCanvasOffset(
+					scale = targetScale,
+					canvasSizePx = canvasSizePx,
+					viewportSizePx = viewportSizePx
+				),
+				scale = targetScale,
+				canvasSizePx = canvasSizePx,
+				viewportSizePx = viewportSizePx,
+				panMarginPx = panMarginPx
+			)
+		}
+
+		fun fitToScreen() {
+			canvasSnapJob?.cancel()
+			hideMinimap()
+			val targetScale = fitCanvasScale(
+				viewportSizePx = viewportSizePx,
+				canvasSizePx = canvasSizePx,
+				paddingPx = fitPaddingPx
+			)
+
+			animateCanvasViewport(
+				targetScale = targetScale,
+				targetOffset = fitCanvasOffset(targetScale)
+			)
+		}
+
+		fun zoomOut() {
+			val fitScale = fitCanvasScale(
+				viewportSizePx = viewportSizePx,
+				canvasSizePx = canvasSizePx,
+				paddingPx = fitPaddingPx
+			)
+			if (scale.value - ZoomButtonStep <= fitScale) {
+				fitToScreen()
+			} else {
+				zoomTo(scale.value - ZoomButtonStep)
+			}
+		}
+
+		fun toggleDoubleTapZoom(anchor: Offset) {
+			if (scale.value >= DoubleTapZoomOutThreshold) {
+				fitToScreen()
+				return
+			}
+
+			canvasSnapJob?.cancel()
+			val targetScale = DoubleTapCanvasZoom.coerceIn(MinCanvasZoom, MaxCanvasZoom)
+			revealMinimapToggle()
+			val targetOffset = constrainCanvasOffset(
+				offset = Offset(offsetX.value, offsetY.value).zoomedAround(
+					anchor = anchor,
+					oldScale = scale.value,
+					newScale = targetScale
+				),
+				scale = targetScale,
+				canvasSizePx = canvasSizePx,
+				viewportSizePx = viewportSizePx,
+				panMarginPx = panMarginPx
+			)
+
+			animateCanvasViewport(
+				targetScale = targetScale,
+				targetOffset = targetOffset
+			)
+		}
+
+		val fitStateScale = fitCanvasScale(
+			viewportSizePx = viewportSizePx,
+			canvasSizePx = canvasSizePx,
+			paddingPx = fitPaddingPx
+		)
+		val fitStateOffset = fitCanvasOffset(fitStateScale)
+		val isFitToScreen = isCanvasFitToScreen(
+			scale = scale.value,
+			offset = Offset(offsetX.value, offsetY.value),
+			fitScale = fitStateScale,
+			fitOffset = fitStateOffset,
+			offsetTolerancePx = with(density) { CanvasFitStateTolerance.toPx() }
+		)
+		val shouldShowMinimapControls = isMinimapToggleVisible && !isFitToScreen
+
+		LaunchedEffect(isFitToScreen) {
+			if (isFitToScreen) {
+				hideMinimap()
 			}
 		}
 
@@ -193,6 +438,7 @@ fun PensumGraphCanvas(
 			modifier = Modifier
 				.pointerInput(graphKey, viewportSizePx, canvasSizePx, panMarginPx) {
 					detectTransformGestures { centroid, pan, zoom, _ ->
+						revealMinimapToggle()
 						val oldScale = scale.value
 						val newScale = (oldScale * zoom).coerceIn(MinCanvasZoom, MaxCanvasZoom)
 						val currentOffset = Offset(offsetX.value, offsetY.value)
@@ -220,6 +466,10 @@ fun PensumGraphCanvas(
 								scaleValue = newScale,
 								offset = nextOffset
 							)
+							scheduleViewportSnap(
+								scaleValue = newScale,
+								offset = nextOffset
+							)
 						}
 					}
 				}
@@ -236,71 +486,124 @@ fun PensumGraphCanvas(
 				modifier = Modifier
 					.fillMaxSize()
 					.pointerInput(graphKey) {
-						detectTapGestures(onTap = { selectedNodeId = null })
+						detectTapGestures(
+							onTap = { onSelectedNodeChange(null) },
+							onDoubleTap = { tapOffset -> toggleDoubleTapZoom(tapOffset) }
+						)
 					}
 			) {
 				drawCanvasBackground(
 					model = model,
 					density = density.density,
-					selectedRequirementEdgeIds = selectedRequirementEdgeIds
-				)
-			}
-			model.terms.forEach { term ->
-				Text(
-					modifier = Modifier
-						.offset(x = term.x.dp, y = 16.dp)
-						.width(term.width.dp),
-					text = term.label,
-					textAlign = TextAlign.Center,
-					style = MaterialTheme.typography.titleMedium,
-					fontWeight = FontWeight.SemiBold,
-					color = TextSecondary
+					focusedEdgeIds = focusState.selectedRequirementEdgeIds + focusState.selectedUnlockEdgeIds,
+					isFocusActive = focusState.isActive
 				)
 			}
 			model.nodes.forEach { node ->
+				val isUnlockHighlighted = node.id in focusState.selectedAvailableUnlockNodeIds
+				val isNodeDimmed = focusState.isActive && node.id !in focusState.selectedFocusNodeIds
 				PensumNodeCard(
 					node = node,
 					isSelected = node.id == selectedNodeId,
-					isRequirementHighlighted = node.id in selectedRequirementNodeIds,
-					onSubjectStatsClick = onSubjectStatsClick,
+					isRequirementHighlighted = node.id in focusState.selectedRequirementNodeIds ||
+						(
+							node.id in focusState.selectedUnlockNodeIds &&
+								node.id !in focusState.selectedAvailableUnlockNodeIds
+							),
+					isUnlockHighlighted = isUnlockHighlighted,
+					onDetailClick = {
+						onSelectedNodeChange(node.id)
+						centerSelectedNode(node)
+						onNodeDetailClick(node.id)
+					},
 					modifier = Modifier
 						.offset(x = node.x.dp, y = node.y.dp)
 						.size(width = node.width.dp, height = node.height.dp)
+						.zIndex(if (isNodeDimmed) 0f else 2f)
+						.graphicsLayer {
+							alpha = if (isNodeDimmed) 0.34f else 1f
+						}
 						.clickable {
-							selectedNodeId = if (selectedNodeId == node.id) null else node.id
+							if (node.id == selectedNodeId) {
+								onSelectedNodeChange(null)
+							} else {
+								onSelectedNodeChange(node.id)
+								centerSelectedNode(node)
+							}
 						}
 						.testTag(PensumUiTags.node(node.id))
 				)
 			}
+			Canvas(
+				modifier = Modifier
+					.fillMaxSize()
+					.zIndex(1f)
+			) {
+				drawFocusedCanvasEdges(
+					model = model,
+					density = density.density,
+					selectedRequirementEdgeIds = focusState.selectedRequirementEdgeIds,
+					selectedUnlockEdgeIds = focusState.selectedUnlockEdgeIds,
+					selectedAvailableUnlockEdgeIds = focusState.selectedAvailableUnlockEdgeIds
+				)
+			}
 		}
 
-		Row(
-			modifier = Modifier
-				.align(Alignment.BottomEnd)
-				.padding(end = 16.dp, bottom = 16.dp),
-			horizontalArrangement = Arrangement.spacedBy(GraphControlsGap),
-			verticalAlignment = Alignment.Bottom
-		) {
+		if (!isFitToScreen) {
+			PensumStickyTermHeader(
+				terms = model.terms,
+				scale = scale.value,
+				offsetX = offsetX.value,
+				densityScale = density.density,
+				onTermClick = { termId -> focusTerm(termId) },
+				modifier = Modifier.align(Alignment.TopStart)
+			)
+		}
+
+		if (shouldShowMinimapControls && isMinimapVisible) {
 			PensumMinimap(
 				model = model,
 				scale = scale.value,
 				offset = Offset(offsetX.value, offsetY.value),
 				viewportSizePx = viewportSizePx,
-				selectedRequirementEdgeIds = selectedRequirementEdgeIds,
-				densityScale = density.density
-			)
-			PensumZoomControls(
-				onZoomIn = { zoomTo(scale.value + ZoomButtonStep) },
-				onZoomOut = { zoomTo(scale.value - ZoomButtonStep) }
+				selectedRequirementEdgeIds = focusState.selectedRequirementEdgeIds,
+				selectedUnlockEdgeIds = focusState.selectedUnlockEdgeIds,
+				selectedAvailableUnlockEdgeIds = focusState.selectedAvailableUnlockEdgeIds,
+				focusedNodeIds = focusState.selectedFocusNodeIds,
+				isFocusActive = focusState.isActive,
+				densityScale = density.density,
+				onViewportCenterChange = { canvasCenter -> moveViewportToCanvasCenter(canvasCenter) },
+				modifier = Modifier
+					.align(Alignment.BottomStart)
+					.padding(start = 16.dp, bottom = CanvasBottomOverlayPadding)
 			)
 		}
+
+		PensumZoomControls(
+			modifier = Modifier
+				.align(Alignment.BottomEnd)
+				.padding(end = 16.dp, bottom = CanvasBottomOverlayPadding),
+			isMinimapToggleVisible = shouldShowMinimapControls,
+			isMinimapVisible = isMinimapVisible,
+			isFitToScreenVisible = !isFitToScreen,
+			onFocusProgress = { focusProgress() },
+			onFitToScreen = { fitToScreen() },
+			onToggleMinimap = { isMinimapVisible = !isMinimapVisible },
+			onZoomIn = { zoomTo(scale.value + ZoomButtonStep) },
+			onZoomOut = { zoomOut() }
+		)
+
+		PensumCanvasLegend(
+			modifier = Modifier.align(Alignment.BottomCenter)
+		)
 	}
 }
 
 private fun DrawScope.drawCanvasBackground(
 	model: PensumScreenModel,
 	density: Float,
-	selectedRequirementEdgeIds: Set<String>
+	focusedEdgeIds: Set<String>,
+	isFocusActive: Boolean
 ) {
 	val widthPx = model.canvas.width.toFloat() * density
 	val heightPx = model.canvas.height.toFloat() * density
@@ -331,26 +634,89 @@ private fun DrawScope.drawCanvasBackground(
 		style = Stroke(width = 1.dp.toPx())
 	)
 	model.edges.forEach { edge ->
-		if (edge.id !in selectedRequirementEdgeIds) {
-			drawPensumEdge(edge, model, density, isHighlighted = false)
+		if (edge.id !in focusedEdgeIds) {
+			drawPensumEdge(
+				edge = edge,
+				model = model,
+				density = density,
+				focusTone = if (isFocusActive) EdgeFocusTone.Dimmed else EdgeFocusTone.Default
+			)
+		}
+	}
+}
+
+private fun DrawScope.drawFocusedCanvasEdges(
+	model: PensumScreenModel,
+	density: Float,
+	selectedRequirementEdgeIds: Set<String>,
+	selectedUnlockEdgeIds: Set<String>,
+	selectedAvailableUnlockEdgeIds: Set<String>
+) {
+	model.edges.forEach { edge ->
+		if (edge.id in selectedRequirementEdgeIds) {
+			drawPensumEdge(
+				edge = edge,
+				model = model,
+				density = density,
+				focusTone = EdgeFocusTone.Requirement
+			)
 		}
 	}
 	model.edges.forEach { edge ->
-		if (edge.id in selectedRequirementEdgeIds) {
-			drawPensumEdge(edge, model, density, isHighlighted = true)
+		if (
+			edge.id in selectedUnlockEdgeIds &&
+			edge.id !in selectedRequirementEdgeIds &&
+			edge.id !in selectedAvailableUnlockEdgeIds
+		) {
+			drawPensumEdge(
+				edge = edge,
+				model = model,
+				density = density,
+				focusTone = EdgeFocusTone.Requirement
+			)
+		}
+	}
+	model.edges.forEach { edge ->
+		if (edge.id in selectedAvailableUnlockEdgeIds && edge.id !in selectedRequirementEdgeIds) {
+			drawPensumEdge(
+				edge = edge,
+				model = model,
+				density = density,
+				focusTone = EdgeFocusTone.Unlock
+			)
 		}
 	}
 }
 
 private fun DrawScope.drawPensumEdge(
-	edge: PensumScreenModel.Edge,
+	edge: PensumEdgeItem,
 	model: PensumScreenModel,
 	density: Float,
-	isHighlighted: Boolean
+	focusTone: EdgeFocusTone
 ) {
 	if (edge.points.size < 2) return
-	val color = if (isHighlighted) Selected else Available
-	val strokeWidth = if (isHighlighted) 4.dp else 2.dp
+	val color = when (focusTone) {
+		EdgeFocusTone.Default -> CanvasNeutral
+		EdgeFocusTone.Dimmed -> CanvasNeutral.copy(alpha = 0.18f)
+		EdgeFocusTone.Requirement -> Selected
+		EdgeFocusTone.Unlock -> Available
+	}
+	val strokeWidth = when (focusTone) {
+		EdgeFocusTone.Default -> 2.dp
+		EdgeFocusTone.Dimmed -> 1.4.dp
+		EdgeFocusTone.Requirement,
+		EdgeFocusTone.Unlock -> 4.dp
+	}
+	val pathEffect = if (edge.isDisconnected) {
+		PathEffect.dashPathEffect(
+			floatArrayOf(
+				DisconnectedEdgeDashLength.toPx(),
+				DisconnectedEdgeDashGap.toPx()
+			)
+		)
+	} else {
+		null
+	}
 	val points = model.edgeRoute(
 		edge = edge,
 		endpointGap = EdgeEndpointGap.toPx() / density,
@@ -362,10 +728,18 @@ private fun DrawScope.drawPensumEdge(
 		color = color,
 		style = Stroke(
 			width = strokeWidth.toPx(),
-			cap = StrokeCap.Round
+			cap = StrokeCap.Round,
+			pathEffect = pathEffect
 		)
 	)
 	drawArrowHead(points[points.lastIndex - 1], points.last(), color)
+}
+
+private enum class EdgeFocusTone {
+	Default,
+	Dimmed,
+	Requirement,
+	Unlock
 }
 
 private fun DrawScope.drawArrowHead(start: Offset, end: Offset, color: Color) {
@@ -398,43 +772,173 @@ private fun Offset.zoomedAround(
 	return this + (anchor - this) * (1f - scaleChange)
 }
 
-private fun PensumScreenModel.requirementEdgeIdsTo(nodeId: String?): Set<String> {
-	if (nodeId == null) return emptySet()
+private fun fitCanvasScale(
+	viewportSizePx: Size,
+	canvasSizePx: Size,
+	paddingPx: Float
+): Float {
+	if (canvasSizePx.width <= 0f || canvasSizePx.height <= 0f) return InitialCanvasZoom
 
-	val incomingRequirementEdges = edges
-		.filter { edge -> edge.relationshipType == PensumScreenModel.RelationshipType.REQUIREMENT }
-		.groupBy { edge -> edge.toNodeId }
-	val selectedEdgeIds = mutableSetOf<String>()
-	val visitedNodeIds = mutableSetOf<String>()
-
-	fun collectRequirements(targetNodeId: String) {
-		if (!visitedNodeIds.add(targetNodeId)) return
-
-		incomingRequirementEdges[targetNodeId].orEmpty().forEach { edge ->
-			selectedEdgeIds += edge.id
-			collectRequirements(edge.fromNodeId)
-		}
-	}
-
-	collectRequirements(nodeId)
-	return selectedEdgeIds
+	val availableWidth = (viewportSizePx.width - paddingPx * 2f).coerceAtLeast(1f)
+	val availableHeight = (viewportSizePx.height - paddingPx * 2f).coerceAtLeast(1f)
+	return min(
+		availableWidth / canvasSizePx.width,
+		availableHeight / canvasSizePx.height
+	).coerceIn(
+		minimumValue = MinCanvasFitZoom,
+		maximumValue = MaxCanvasZoom
+	)
 }
 
-private fun PensumScreenModel.requirementNodeIdsIn(
-	selectedNodeId: String?,
-	selectedRequirementEdgeIds: Set<String>
-): Set<String> {
-	if (selectedNodeId == null) return emptySet()
+private fun centerCanvasOffset(
+	scale: Float,
+	canvasSizePx: Size,
+	viewportSizePx: Size
+): Offset {
+	return Offset(
+		x = (viewportSizePx.width - canvasSizePx.width * scale) / 2f,
+		y = (viewportSizePx.height - canvasSizePx.height * scale) / 2f
+	)
+}
 
-	return buildSet {
-		add(selectedNodeId)
-		edges.forEach { edge ->
-			if (edge.id in selectedRequirementEdgeIds) {
-				add(edge.fromNodeId)
-				add(edge.toNodeId)
-			}
-		}
+private fun isCanvasFitToScreen(
+	scale: Float,
+	offset: Offset,
+	fitScale: Float,
+	fitOffset: Offset,
+	offsetTolerancePx: Float
+): Boolean {
+	return abs(scale - fitScale) <= CanvasFitScaleTolerance &&
+		abs(offset.x - fitOffset.x) <= offsetTolerancePx &&
+		abs(offset.y - fitOffset.y) <= offsetTolerancePx
+}
+
+private data class CanvasBounds(
+	val left: Float,
+	val top: Float,
+	val right: Float,
+	val bottom: Float
+) {
+	val width: Float get() = (right - left).coerceAtLeast(1f)
+	val height: Float get() = (bottom - top).coerceAtLeast(1f)
+	val center: Offset get() = Offset(x = left + width / 2f, y = top + height / 2f)
+}
+
+private fun PensumNodeItem.canvasBounds(): CanvasBounds {
+	return CanvasBounds(
+		left = x.toFloat(),
+		top = y.toFloat(),
+		right = (x + width).toFloat(),
+		bottom = (y + height).toFloat()
+	)
+}
+
+private fun List<PensumNodeItem>.canvasBounds(): CanvasBounds? {
+	if (isEmpty()) return null
+	return CanvasBounds(
+		left = minOf { node -> node.x.toFloat() },
+		top = minOf { node -> node.y.toFloat() },
+		right = maxOf { node -> (node.x + node.width).toFloat() },
+		bottom = maxOf { node -> (node.y + node.height).toFloat() }
+	)
+}
+
+private fun PensumScreenModel.progressFocusBounds(): CanvasBounds? {
+	val currentNodes = nodes.filter { node -> node.isCurrent }
+	if (currentNodes.isNotEmpty()) return currentNodes.canvasBounds()
+
+	val availableNodes = nodes.filter { node -> !node.isApproved && !node.isBlocked }
+	if (availableNodes.isNotEmpty()) return availableNodes.leadingColumn().canvasBounds()
+
+	val approvedNodes = nodes.filter { node -> node.isApproved }
+	if (approvedNodes.isNotEmpty()) return approvedNodes.trailingColumn().canvasBounds()
+
+	return nodes.firstOrNull()?.canvasBounds()
+}
+
+private fun PensumScreenModel.termFocusBounds(termId: String): CanvasBounds? {
+	val term = terms.firstOrNull { term -> term.id == termId } ?: return null
+	val termNodes = nodes.filter { node -> node.termId == termId }
+	val nodeBounds = termNodes.canvasBounds()
+	if (nodeBounds != null) {
+		return CanvasBounds(
+			left = min(term.x.toFloat(), nodeBounds.left),
+			top = nodeBounds.top,
+			right = max((term.x + term.width).toFloat(), nodeBounds.right),
+			bottom = nodeBounds.bottom
+		)
 	}
+
+	return CanvasBounds(
+		left = term.x.toFloat(),
+		top = 0f,
+		right = (term.x + term.width).toFloat(),
+		bottom = canvas.height.toFloat()
+	)
+}
+
+private fun List<PensumNodeItem>.leadingColumn(): List<PensumNodeItem> {
+	val firstX = minOf { node -> node.x }
+	return filter { node -> abs(node.x - firstX) < 1.0 }
+}
+
+private fun List<PensumNodeItem>.trailingColumn(): List<PensumNodeItem> {
+	val lastX = maxOf { node -> node.x }
+	return filter { node -> abs(node.x - lastX) < 1.0 }
+}
+
+private fun focusCanvasScale(
+	bounds: CanvasBounds,
+	viewportSizePx: Size,
+	densityScale: Float,
+	paddingPx: Float,
+	maxScale: Float
+): Float {
+	val availableWidth = (viewportSizePx.width - paddingPx * 2f).coerceAtLeast(1f)
+	val availableHeight = (viewportSizePx.height - paddingPx * 2f).coerceAtLeast(1f)
+	val boundsWidthPx = bounds.width * densityScale
+	val boundsHeightPx = bounds.height * densityScale
+	return min(
+		availableWidth / boundsWidthPx,
+		availableHeight / boundsHeightPx
+	).coerceIn(
+		minimumValue = MinCanvasZoom,
+		maximumValue = maxScale
+	)
+}
+
+private fun snapCanvasOffset(
+	model: PensumScreenModel,
+	offset: Offset,
+	scale: Float,
+	canvasSizePx: Size,
+	viewportSizePx: Size,
+	densityScale: Float,
+	panMarginPx: Float,
+	snapDistancePx: Float,
+	snapInsetPx: Float
+): Offset {
+	val nearestTermOffsetX = model.terms
+		.map { term -> snapInsetPx - term.x.toFloat() * densityScale * scale }
+		.minByOrNull { targetX -> abs(targetX - offset.x) }
+	val snappedX = if (nearestTermOffsetX != null && abs(nearestTermOffsetX - offset.x) <= snapDistancePx) {
+		nearestTermOffsetX
+	} else {
+		offset.x
+	}
+	val snappedY = if (abs(offset.y - snapInsetPx) <= snapDistancePx) {
+		snapInsetPx
+	} else {
+		offset.y
+	}
+
+	return constrainCanvasOffset(
+		offset = Offset(snappedX, snappedY),
+		scale = scale,
+		canvasSizePx = canvasSizePx,
+		viewportSizePx = viewportSizePx,
+		panMarginPx = panMarginPx
+	)
 }
 
 private fun constrainCanvasOffset(

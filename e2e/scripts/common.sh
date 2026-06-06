@@ -50,6 +50,164 @@ capture_streamed_last_line() {
 	printf -v "${result_variable}" '%s' "$(tail -n 1 "${output_file}")"
 }
 
+elapsed_label() {
+	local elapsed_seconds="$1"
+	printf '%dm %02ds' "$((elapsed_seconds / 60))" "$((elapsed_seconds % 60))"
+}
+
+maestro_direct_flow_plan() {
+	local suite_path="$1"
+	local suite_dir
+	local resolved_dir
+	local flow
+	local flow_count=0
+
+	[[ -f "${suite_path}" ]] || return 0
+	suite_dir="$(cd "$(dirname "${suite_path}")" && pwd -P)"
+	log "Maestro suite plan for $(basename "${suite_path}"):"
+	while IFS= read -r flow; do
+		[[ -n "${flow}" ]] || continue
+		flow_count=$((flow_count + 1))
+		case "${flow}" in
+			/*)
+				log "  ${flow_count}. ${flow}"
+				;;
+			*)
+				if resolved_dir="$(cd "${suite_dir}" && cd "$(dirname "${flow}")" && pwd -P 2>/dev/null)"; then
+					log "  ${flow_count}. ${flow} (${resolved_dir}/$(basename "${flow}"))"
+				else
+					log "  ${flow_count}. ${flow} (${suite_dir}/${flow})"
+				fi
+				;;
+		esac
+	done < <(
+		awk '
+			/^[[:space:]]*-[[:space:]]*runFlow:[[:space:]]*[^[:space:]]/ {
+				sub(/^[[:space:]]*-[[:space:]]*runFlow:[[:space:]]*/, "")
+				gsub(/^["'\''[:space:]]+|["'\''[:space:]]+$/, "")
+				print
+			}
+		' "${suite_path}"
+	)
+
+	if [[ "${flow_count}" == "0" ]]; then
+		log "  inline commands only"
+	fi
+}
+
+latest_modified_file() {
+	local path
+	local file
+	local timestamp
+
+	for path in "$@"; do
+		[[ -n "${path}" && -d "${path}" ]] || continue
+		while IFS= read -r -d '' file; do
+			timestamp="$(stat -f '%m' "${file}" 2>/dev/null || stat -c '%Y' "${file}" 2>/dev/null || printf '0')"
+			printf '%s\t%s\n' "${timestamp}" "${file}"
+		done < <(find "${path}" -type f -print0 2>/dev/null)
+	done | sort -rn | head -n 1 | cut -f2-
+}
+
+latest_wiremock_request() {
+	local wiremock_log="${E2E_TMP_DIR}/wiremock.log"
+	[[ -f "${wiremock_log}" ]] || return 0
+	awk '
+		/Request received:/ {
+			request = $0
+			if (getline endpoint) {
+				last = request " " endpoint
+			}
+		}
+		END {
+			if (last != "") {
+				print last
+			}
+		}
+	' "${wiremock_log}"
+}
+
+log_maestro_progress() {
+	local platform="$1"
+	local started_at="$2"
+	local test_output_dir="$3"
+	local debug_output_dir="$4"
+	local log_file="$5"
+	local elapsed
+	local latest_file
+	local latest_line=""
+	local wiremock_request=""
+
+	elapsed="$(elapsed_label "$(($(date +%s) - started_at))")"
+	latest_file="$(latest_modified_file "${test_output_dir}" "${debug_output_dir}")"
+
+	if [[ -n "${latest_file}" ]]; then
+		case "${latest_file}" in
+			*.json|*.log|*.txt|*.xml|*.yaml)
+				latest_line="$(tail -n 1 "${latest_file}" 2>/dev/null | tr -d '\r' | cut -c1-220)"
+				;;
+		esac
+		if [[ -n "${latest_line}" ]]; then
+			log "${platform} Maestro still running after ${elapsed}; latest artifact $(basename "${latest_file}"): ${latest_line}"
+		else
+			log "${platform} Maestro still running after ${elapsed}; latest artifact $(basename "${latest_file}") updated."
+		fi
+		return 0
+	fi
+
+	wiremock_request="$(latest_wiremock_request)"
+	if [[ -n "${wiremock_request}" ]]; then
+		log "${platform} Maestro still running after ${elapsed}; latest WireMock request: ${wiremock_request}"
+		return 0
+	fi
+
+	if [[ -f "${log_file}" ]]; then
+		latest_line="$(tail -n 1 "${log_file}" 2>/dev/null | tr -d '\r' | cut -c1-220)"
+	fi
+	if [[ -n "${latest_line}" ]]; then
+		log "${platform} Maestro still running after ${elapsed}; latest log line: ${latest_line}"
+	else
+		log "${platform} Maestro still running after ${elapsed}; waiting for Maestro output."
+	fi
+}
+
+run_maestro_with_progress() {
+	local platform="$1"
+	local log_file="$2"
+	local suite_path="$3"
+	local test_output_dir="$4"
+	local debug_output_dir="$5"
+	shift 5
+	local interval_seconds="${E2E_MAESTRO_PROGRESS_INTERVAL_SECONDS:-30}"
+	local started_at
+	local command_pid
+	local monitor_pid
+	local status=0
+
+	maestro_direct_flow_plan "${suite_path}"
+	started_at="$(date +%s)"
+	(
+		set -o pipefail
+		"$@" 2>&1 | tee "${log_file}"
+	) &
+	command_pid="$!"
+
+	(
+		trap 'exit 0' INT TERM
+		while kill -0 "${command_pid}" >/dev/null 2>&1; do
+			sleep "${interval_seconds}"
+			kill -0 "${command_pid}" >/dev/null 2>&1 || break
+			log_maestro_progress "${platform}" "${started_at}" "${test_output_dir}" "${debug_output_dir}" "${log_file}"
+		done
+	) &
+	monitor_pid="$!"
+
+	wait "${command_pid}" || status="$?"
+	kill "${monitor_pid}" >/dev/null 2>&1 || true
+	wait "${monitor_pid}" >/dev/null 2>&1 || true
+	return "${status}"
+}
+
 is_macos() {
 	[[ "$(uname -s)" == "Darwin" ]]
 }

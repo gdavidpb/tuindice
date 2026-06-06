@@ -14,7 +14,14 @@ class SelectTermWizardActionProcessor :
 	): Flow<Mutation<Wizard.State>> = flowOf(
 		suspend { state ->
 			val content = state as? Wizard.State.Content
-			if (content == null) state else content.copy(selectedTermId = action.termId)
+			if (content == null) {
+				state
+			} else {
+				content.copy(
+					selectedTermId = action.termId,
+					isRecordTermSelectionVisible = false
+				)
+			}
 		}
 	)
 }

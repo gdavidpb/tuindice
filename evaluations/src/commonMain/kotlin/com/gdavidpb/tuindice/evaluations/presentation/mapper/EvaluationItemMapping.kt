@@ -14,6 +14,7 @@ import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Event
 import androidx.compose.material.icons.outlined.EventAvailable
 import androidx.compose.material.icons.outlined.EventRepeat
+import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.FileCopy
 import androidx.compose.material.icons.outlined.HistoryEdu
 import androidx.compose.material.icons.outlined.ModeComment
@@ -34,6 +35,7 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.evaluation_attendance
 import tuindice.evaluations.generated.resources.evaluation_essay
+import tuindice.evaluations.generated.resources.evaluation_empty_grade
 import tuindice.evaluations.generated.resources.evaluation_grade
 import tuindice.evaluations.generated.resources.evaluation_interventions
 import tuindice.evaluations.generated.resources.evaluation_laboratory
@@ -46,10 +48,14 @@ import tuindice.evaluations.generated.resources.evaluation_presentation
 import tuindice.evaluations.generated.resources.evaluation_project
 import tuindice.evaluations.generated.resources.evaluation_quiz
 import tuindice.evaluations.generated.resources.evaluation_report
+import tuindice.evaluations.generated.resources.evaluation_score_grade
+import tuindice.evaluations.generated.resources.evaluation_status_completed
+import tuindice.evaluations.generated.resources.evaluation_status_continuous
+import tuindice.evaluations.generated.resources.evaluation_status_pending
+import tuindice.evaluations.generated.resources.evaluation_status_scheduled
 import tuindice.evaluations.generated.resources.evaluation_test
 import tuindice.evaluations.generated.resources.evaluation_workshop
 import tuindice.evaluations.generated.resources.evaluation_written_work
-import tuindice.evaluations.generated.resources.label_evaluation_assign_grade
 
 data class EvaluationItemMapping(
 	val evaluationName: (type: EvaluationType, ordinal: Int) -> String,
@@ -57,11 +63,13 @@ data class EvaluationItemMapping(
 	val gradesCompleted: (grade: Double?, maxGrade: Double) -> String,
 	val gradesPending: (maxGrade: Double) -> String,
 	val gradesOverdue: (maxGrade: Double) -> String,
-	val gradeAction: (grade: Double?) -> String,
+	val scoreGrade: (grade: Double?, maxGrade: Double) -> String,
+	val statusLabel: (state: EvaluationState) -> String,
 	val typeIcon: (type: EvaluationType) -> ImageVector,
 	val dateIcon: (state: EvaluationState) -> ImageVector,
 	val gradesIcon: (state: EvaluationState) -> ImageVector,
 	val dateGroupTitle: (group: EvaluationDateGroup) -> String,
+	val dateHeaderText: (evaluation: Evaluation) -> String,
 	val dateText: (evaluation: Evaluation) -> String,
 	val highlightTone: (state: EvaluationState) -> EvaluationHighlightTone
 )
@@ -72,27 +80,42 @@ fun rememberEvaluationItemMapping(): EvaluationItemMapping {
 
 	val evaluationNamePattern = stringResource(Res.string.evaluation_name)
 	val evaluationGradePattern = stringResource(Res.string.evaluation_grade)
+	val evaluationScoreGradePattern = stringResource(Res.string.evaluation_score_grade)
+	val evaluationEmptyGradeLabel = stringResource(Res.string.evaluation_empty_grade)
 	val evaluationPendingGradePattern = stringResource(Res.string.evaluation_pending_grade)
 	val evaluationNotGradePattern = stringResource(Res.string.evaluation_not_grade)
-	val evaluationAssignGradeLabel = stringResource(Res.string.label_evaluation_assign_grade)
+	val evaluationPendingStatusLabel = stringResource(Res.string.evaluation_status_pending)
+	val evaluationScheduledStatusLabel = stringResource(Res.string.evaluation_status_scheduled)
+	val evaluationCompletedStatusLabel = stringResource(Res.string.evaluation_status_completed)
+	val evaluationContinuousStatusLabel = stringResource(Res.string.evaluation_status_continuous)
 	val typeLabels = rememberEvaluationTypeLabels()
 
 	return remember(
 		dateTextMapping,
 		evaluationNamePattern,
 		evaluationGradePattern,
+		evaluationScoreGradePattern,
+		evaluationEmptyGradeLabel,
 		evaluationPendingGradePattern,
 		evaluationNotGradePattern,
-		evaluationAssignGradeLabel,
+		evaluationPendingStatusLabel,
+		evaluationScheduledStatusLabel,
+		evaluationCompletedStatusLabel,
+		evaluationContinuousStatusLabel,
 		typeLabels
 	) {
 		buildEvaluationItemMapping(
 			dateTextMapping = dateTextMapping,
 			evaluationNamePattern = evaluationNamePattern,
 			evaluationGradePattern = evaluationGradePattern,
+			evaluationScoreGradePattern = evaluationScoreGradePattern,
+			evaluationEmptyGradeLabel = evaluationEmptyGradeLabel,
 			evaluationPendingGradePattern = evaluationPendingGradePattern,
 			evaluationNotGradePattern = evaluationNotGradePattern,
-			evaluationAssignGradeLabel = evaluationAssignGradeLabel,
+			evaluationPendingStatusLabel = evaluationPendingStatusLabel,
+			evaluationScheduledStatusLabel = evaluationScheduledStatusLabel,
+			evaluationCompletedStatusLabel = evaluationCompletedStatusLabel,
+			evaluationContinuousStatusLabel = evaluationContinuousStatusLabel,
 			typeLabels = typeLabels
 		)
 	}
@@ -103,9 +126,14 @@ suspend fun getEvaluationItemMapping(): EvaluationItemMapping {
 		dateTextMapping = getEvaluationDateTextMapping(),
 		evaluationNamePattern = getString(Res.string.evaluation_name),
 		evaluationGradePattern = getString(Res.string.evaluation_grade),
+		evaluationScoreGradePattern = getString(Res.string.evaluation_score_grade),
+		evaluationEmptyGradeLabel = getString(Res.string.evaluation_empty_grade),
 		evaluationPendingGradePattern = getString(Res.string.evaluation_pending_grade),
 		evaluationNotGradePattern = getString(Res.string.evaluation_not_grade),
-		evaluationAssignGradeLabel = getString(Res.string.label_evaluation_assign_grade),
+		evaluationPendingStatusLabel = getString(Res.string.evaluation_status_pending),
+		evaluationScheduledStatusLabel = getString(Res.string.evaluation_status_scheduled),
+		evaluationCompletedStatusLabel = getString(Res.string.evaluation_status_completed),
+		evaluationContinuousStatusLabel = getString(Res.string.evaluation_status_continuous),
 		typeLabels = getEvaluationTypeLabels()
 	)
 }
@@ -114,9 +142,14 @@ private fun buildEvaluationItemMapping(
 	dateTextMapping: EvaluationDateTextMapping,
 	evaluationNamePattern: String,
 	evaluationGradePattern: String,
+	evaluationScoreGradePattern: String,
+	evaluationEmptyGradeLabel: String,
 	evaluationPendingGradePattern: String,
 	evaluationNotGradePattern: String,
-	evaluationAssignGradeLabel: String,
+	evaluationPendingStatusLabel: String,
+	evaluationScheduledStatusLabel: String,
+	evaluationCompletedStatusLabel: String,
+	evaluationContinuousStatusLabel: String,
 	typeLabels: Map<EvaluationType, String>
 ): EvaluationItemMapping {
 	return EvaluationItemMapping(
@@ -139,17 +172,25 @@ private fun buildEvaluationItemMapping(
 			evaluationNotGradePattern
 				.replace("%1${'$'}.2f", maxGrade.formatGrade(decimals = 2))
 		},
-		gradeAction = { grade ->
-			grade?.formatGrade(decimals = 2) ?: evaluationAssignGradeLabel
+		scoreGrade = { grade, maxGrade ->
+			val maxGradeText = maxGrade.formatCompactGrade()
+
+			grade?.let { value ->
+				evaluationScoreGradePattern
+					.replace("%1${'$'}s", value.formatCompactGrade())
+					.replace("%2${'$'}s", maxGradeText)
+			} ?: evaluationEmptyGradeLabel.replace("%1${'$'}s", maxGradeText)
 		},
-		typeIcon = { type -> type.asIcon() },
-		dateIcon = { state ->
+		statusLabel = { state ->
 			when (state) {
-				EvaluationState.COMPLETED -> Icons.Outlined.EventAvailable
-				EvaluationState.CONTINUOUS -> Icons.Outlined.EventRepeat
-				else -> Icons.Outlined.Event
+				EvaluationState.PENDING -> evaluationScheduledStatusLabel
+				EvaluationState.OVERDUE -> evaluationPendingStatusLabel
+				EvaluationState.COMPLETED -> evaluationCompletedStatusLabel
+				EvaluationState.CONTINUOUS -> evaluationContinuousStatusLabel
 			}
 		},
+		typeIcon = { type -> type.asIcon() },
+		dateIcon = { Icons.Outlined.CalendarToday },
 		gradesIcon = { state ->
 			when (state) {
 				EvaluationState.COMPLETED, EvaluationState.CONTINUOUS -> Icons.Outlined.AssignmentTurnedIn
@@ -159,6 +200,9 @@ private fun buildEvaluationItemMapping(
 		},
 		dateGroupTitle = { bucket ->
 			bucket.getLabel(dateTextMapping)
+		},
+		dateHeaderText = { evaluation: Evaluation ->
+			evaluation.formatAsExactDateHeader(noDateLabel = dateTextMapping.noDateLabel)
 		},
 		dateText = { evaluation: Evaluation ->
 			evaluation.formatAsDayOfWeekAndDate(noDateLabel = dateTextMapping.noDateLabel)
@@ -191,6 +235,14 @@ fun EvaluationType.asIcon() = when (this) {
 
 private fun EvaluationType.asString(typeLabels: Map<EvaluationType, String>) =
 	typeLabels.getValue(this)
+
+private fun Double.formatCompactGrade(): String {
+	return if (this == toInt().toDouble()) {
+		formatGrade(decimals = 0)
+	} else {
+		formatGrade(decimals = 2)
+	}
+}
 
 @Composable
 fun EvaluationType.asString() = when (this) {

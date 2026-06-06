@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
+import com.gdavidpb.tuindice.record.presentation.model.TermItemKind
 import com.gdavidpb.tuindice.record.presentation.model.TermMetricDelta
 import com.gdavidpb.tuindice.record.presentation.model.TermMetricDeltaTone
 import kotlin.math.abs
@@ -64,7 +65,10 @@ fun TermProjection.toTermItem(
 
 	return TermItem(
 		termId = id,
+		periodYear = periodYear,
+		termOrder = termOrder,
 		shortNameText = "${periodCode.shortLabel} $periodYear",
+		kind = toTermItemKind(),
 		gradeText = texts
 			.termGrade(animatedGrade.value)
 			.annotatedTermValue(highlightColor),
@@ -93,6 +97,12 @@ fun TermProjection.toTermItem(
 			)
 		}
 	)
+}
+
+private fun TermProjection.toTermItemKind(): TermItemKind = when {
+	kind.isSynthetic -> TermItemKind.SYNTHETIC
+	kind.isCurrent -> TermItemKind.CURRENT
+	else -> TermItemKind.HISTORICAL
 }
 
 internal fun TermProjection.isCurrentTerm(): Boolean {

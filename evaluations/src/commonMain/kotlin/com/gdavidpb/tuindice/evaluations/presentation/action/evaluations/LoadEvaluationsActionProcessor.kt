@@ -6,18 +6,16 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.buildEvaluationsWeekItems
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.defaultEvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationItemMapping
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationDateTextMapping
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationFilterGroupItemList
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationItemList
-import com.gdavidpb.tuindice.evaluations.utils.extension.computeAvailableFilters
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationsWeekGroupItemList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 import org.jetbrains.compose.resources.getString
 import tuindice.evaluations.generated.resources.Res
-import tuindice.evaluations.generated.resources.label_state_completed
-import tuindice.evaluations.generated.resources.label_state_not_grade
-import tuindice.evaluations.generated.resources.label_state_pending
+import tuindice.evaluations.generated.resources.evaluations_continuous_label
+import tuindice.evaluations.generated.resources.evaluations_week_label
 
 class LoadEvaluationsActionProcessor(
 	private val getEvaluationsUseCase: GetEvaluationsUseCase
@@ -27,7 +25,7 @@ class LoadEvaluationsActionProcessor(
 		action: Evaluations.Action.LoadEvaluations,
 		sideEffect: (Evaluations.Effect) -> Unit
 	): Flow<Mutation<Evaluations.State>> {
-		return getEvaluationsUseCase.execute(params = action.activeFilters)
+		return getEvaluationsUseCase.execute(params = Unit)
 			.mapNotNull { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> null
@@ -46,30 +44,51 @@ class LoadEvaluationsActionProcessor(
 							GetEvaluations.NoAttempts -> Evaluations.State.NoAttempts
 
 							is GetEvaluations.Content -> {
-								val pendingLabel = getString(Res.string.label_state_pending)
-								val completedLabel = getString(Res.string.label_state_completed)
-								val noGradeLabel = getString(Res.string.label_state_not_grade)
-								val dateTextMapping = getEvaluationDateTextMapping()
 								val mapping = getEvaluationItemMapping()
-								val availableFilters =
-									evaluations.originalEvaluations.computeAvailableFilters(
-										pendingLabel = pendingLabel,
-										completedLabel = completedLabel,
-										noGradeLabel = noGradeLabel,
-										dateTextMapping = dateTextMapping
-									)
+								val weekLabelPattern = getString(Res.string.evaluations_week_label)
+								val continuousLabel = getString(Res.string.evaluations_continuous_label)
 
 								when {
-									evaluations.originalEvaluations.isNotEmpty() ->
-										Evaluations.State.Content(
-											evaluationGroups = evaluations.filteredEvaluations.toEvaluationItemList(
+									evaluations.evaluations.isNotEmpty() ->
+										{
+											val defaultWeekKey = defaultEvaluationsWeekKey(
+												currentTerm = evaluations.displayContext.currentTerm,
+												evaluations = evaluations.evaluations
+											)
+											val weekItems = buildEvaluationsWeekItems(
+												currentTerm = evaluations.displayContext.currentTerm,
+												evaluations = evaluations.evaluations,
+												weekLabelPattern = weekLabelPattern,
+												continuousLabel = continuousLabel
+											)
+											val selectedWeekKey = when (current) {
+												is Evaluations.State.Content -> current.selectedWeekKey
+												else -> defaultWeekKey
+											}.takeIf { key ->
+												weekItems.any { item -> item.key == key }
+											} ?: defaultWeekKey.takeIf { key ->
+												weekItems.any { item -> item.key == key }
+											} ?: weekItems.first().key
+											val evaluationWeekGroups = weekItems.toEvaluationsWeekGroupItemList(
+												evaluations = evaluations.evaluations,
+												currentTerm = evaluations.displayContext.currentTerm,
+												attempts = evaluations.displayContext.attempts,
 												mapping = mapping
-											),
-											filterGroups = availableFilters.toEvaluationFilterGroupItemList(
-												activeFilters = evaluations.activeFilters
-											),
-											activeFilters = evaluations.activeFilters
-										)
+											)
+											val evaluationGroups = evaluationWeekGroups.flatMap { weekGroup ->
+												weekGroup.groups
+											}
+
+											Evaluations.State.Content(
+												weekItem = weekItems.first { item ->
+													item.key == selectedWeekKey
+												},
+												weekItems = weekItems,
+												selectedWeekKey = selectedWeekKey,
+												evaluationGroups = evaluationGroups,
+												evaluationWeekGroups = evaluationWeekGroups
+											)
+										}
 
 									evaluations.hasSyncedEvaluations ->
 										Evaluations.State.Empty

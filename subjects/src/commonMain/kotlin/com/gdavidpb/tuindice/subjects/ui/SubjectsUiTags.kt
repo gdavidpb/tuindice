@@ -18,7 +18,10 @@ object SubjectsUiTags {
 	const val SearchScreen = "subjects_search_screen"
 	const val SearchTextField = "subjects_search_text_field"
 	const val SearchClear = "subjects_search_clear"
+	const val SearchGuidance = "subjects_search_guidance"
+	const val SearchResults = "subjects_search_results"
 	const val SearchRetry = "subjects_search_retry"
+	fun searchExample(index: Int): String = "subjects_search_example_$index"
 	fun searchResult(subjectCode: String): String = "subjects_search_result_$subjectCode"
 	fun searchResultStatsButton(subjectCode: String): String = "subjects_search_result_stats_$subjectCode"
 }

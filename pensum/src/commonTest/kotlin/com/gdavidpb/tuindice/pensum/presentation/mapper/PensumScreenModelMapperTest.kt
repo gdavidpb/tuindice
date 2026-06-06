@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumNodeStatus
 import com.gdavidpb.tuindice.pensum.domain.model.PensumNodeType
 import com.gdavidpb.tuindice.pensum.domain.model.PensumOption
 import com.gdavidpb.tuindice.pensum.domain.model.PensumProgress
+import com.gdavidpb.tuindice.pensum.domain.model.PensumRelationshipType
 import com.gdavidpb.tuindice.pensum.domain.model.PensumSelection
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -173,6 +174,45 @@ class PensumScreenModelMapperTest {
 		assertEquals("EG1111", node.subjectStatsCode)
 		assertEquals(true, node.hasSubjectStatsAction)
 	}
+
+	@Test
+	fun when_nodeIsBlocked_then_displayModelKeepsApprovedBackgroundAndDisconnectsIncomingEdges() {
+		val approvedNode = course(
+			id = "ma1111",
+			displayCode = "MA1111",
+			y = 84.0,
+			height = 120.0
+		)
+		val blockedNode = course(
+			id = "ci5406",
+			displayCode = "CI5406",
+			y = 252.0,
+			height = 120.0
+		)
+		val edge = edge(fromNodeId = approvedNode.id, toNodeId = blockedNode.id)
+		val pensum = graph(
+			nodes = listOf(approvedNode, blockedNode),
+			edges = listOf(edge)
+		)
+
+		val model = observedPensum(
+			nodes = listOf(approvedNode, blockedNode),
+			pensum = pensum,
+			nodeStatuses = mapOf(
+				approvedNode.id to PensumNodeStatus.APPROVED,
+				blockedNode.id to PensumNodeStatus.BLOCKED
+			)
+		).toScreenModel()
+		val nodesById = model.nodes.associateBy { node -> node.id }
+
+		assertEquals(
+			nodesById.getValue(approvedNode.id).visualStyle.containerArgb,
+			nodesById.getValue(blockedNode.id).visualStyle.containerArgb
+		)
+		assertEquals(false, nodesById.getValue(approvedNode.id).isBlocked)
+		assertEquals(true, nodesById.getValue(blockedNode.id).isBlocked)
+		assertEquals(true, model.edges.single().isDisconnected)
+	}
 }
 
 private fun observedPensum(
@@ -192,7 +232,8 @@ private fun observedPensum(
 			isDefault = true
 		)
 	),
-	nodeFulfillments: Map<String, PensumProgress.NodeFulfillment> = emptyMap()
+	nodeFulfillments: Map<String, PensumProgress.NodeFulfillment> = emptyMap(),
+	nodeStatuses: Map<String, PensumNodeStatus> = nodes.associate { node -> node.id to PensumNodeStatus.AVAILABLE }
 ): ObservedPensum {
 	return ObservedPensum(
 		careerName = "Ingenieria de Computacion",
@@ -208,7 +249,7 @@ private fun observedPensum(
 		pensum = pensum,
 		pensums = pensums,
 		approvedCredits = 0,
-		nodeStatuses = nodes.associate { node -> node.id to PensumNodeStatus.AVAILABLE },
+		nodeStatuses = nodeStatuses,
 		nodeFulfillments = nodeFulfillments
 	)
 }
@@ -217,7 +258,8 @@ private fun graph(
 	id: String = "computacion-2019-degree-project",
 	modalityId: String = "degree_project",
 	modalityName: String = "Proyecto de Grado",
-	nodes: List<PensumGraph.Node> = emptyList()
+	nodes: List<PensumGraph.Node> = emptyList(),
+	edges: List<PensumGraph.Edge> = emptyList()
 ): PensumGraph {
 	return PensumGraph(
 		id = id,
@@ -235,7 +277,23 @@ private fun graph(
 			)
 		),
 		nodes = nodes,
-		edges = emptyList()
+		edges = edges
+	)
+}
+
+private fun edge(
+	fromNodeId: String,
+	toNodeId: String
+): PensumGraph.Edge {
+	return PensumGraph.Edge(
+		id = "${fromNodeId}_to_$toNodeId",
+		fromNodeId = fromNodeId,
+		toNodeId = toNodeId,
+		relationshipType = PensumRelationshipType.REQUIREMENT,
+		points = listOf(
+			PensumGraph.Point(x = 0.0, y = 0.0),
+			PensumGraph.Point(x = 1.0, y = 1.0)
+		)
 	)
 }
 

@@ -4,8 +4,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.AssignmentReturned
 import androidx.compose.material.icons.outlined.AssignmentTurnedIn
 import androidx.compose.material.icons.outlined.Build
-import androidx.compose.material.icons.outlined.Event
-import androidx.compose.material.icons.outlined.EventAvailable
+import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.FileCopy
 import androidx.compose.material.icons.outlined.Science
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
@@ -24,23 +23,36 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationCourseFilter
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateFilter
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateGroup
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationStateFilter
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.asIcon
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationFilterGroupItemList
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationAttemptPickerItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationGradeSectionItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationWeekDayItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumCanvasItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumDisplayLayoutDefaults
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumEdgeItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumEdgeRelationshipType
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusDisplay
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusIcon
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeVisualStyle
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumPointItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSelection
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumSubjectDetailItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumTermItem
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
@@ -146,7 +158,7 @@ internal fun sampleSubjectDetailState(
 
 internal fun samplePensumState(): Pensum.State.Content {
 	val terms = (1..SAMPLE_PENSUM_TERM_COUNT).map { term ->
-		PensumScreenModel.Term(
+		PensumTermItem(
 			id = "T$term",
 			label = "T$term",
 			x = samplePensumTermX(term),
@@ -158,7 +170,7 @@ internal fun samplePensumState(): Pensum.State.Content {
 	return Pensum.State.Content(
 		model = PensumScreenModel(
 			careerName = SAMPLE_CAREER_NAME,
-			selection = PensumScreenModel.Selection(
+			selection = PensumScreenSelection(
 				year = 2019,
 				modalityId = "degree_project"
 			),
@@ -181,14 +193,14 @@ internal fun samplePensumState(): Pensum.State.Content {
 				pensumRequirementEdge("lla111", "lla112"),
 				pensumRequirementEdge("ci2611", "ci3611"),
 				pensumRequirementEdge("ci3611", "ci4325"),
-				pensumRequirementEdge("ci4325", "ep5406"),
-				pensumRequirementEdge("ec5344", "ep5406")
+				pensumRequirementEdge("ci4325", "ep5406", isDisconnected = true),
+				pensumRequirementEdge("ec5344", "ep5406", isDisconnected = true)
 			)
 		)
 	)
 }
 
-private fun samplePensumNodes(): List<PensumScreenModel.Node> {
+private fun samplePensumNodes(): List<PensumNodeItem> {
 	val nextYByTerm = mutableMapOf<Int, Double>()
 	return listOf(
 		PensumSampleNodeSpec("ma1111", "MA1111", "Matemáticas I", 4, 1, PensumSampleNodeState.APPROVED),
@@ -214,15 +226,15 @@ private fun samplePensumNodes(): List<PensumScreenModel.Node> {
 }
 
 private fun samplePensumCanvas(
-	terms: List<PensumScreenModel.Term>,
-	nodes: List<PensumScreenModel.Node>
-): PensumScreenModel.Canvas {
+	terms: List<PensumTermItem>,
+	nodes: List<PensumNodeItem>
+): PensumCanvasItem {
 	val width = terms.maxOfOrNull { term -> term.x + term.width }.orZero() +
 		PensumDisplayLayoutDefaults.CanvasRightPadding
 	val height = nodes.maxOfOrNull { node -> node.y + node.height }.orZero() +
 		PensumDisplayLayoutDefaults.CanvasBottomPadding
 
-	return PensumScreenModel.Canvas(width = width, height = height)
+	return PensumCanvasItem(width = width, height = height)
 }
 
 private fun samplePensumTermX(term: Int): Double {
@@ -255,26 +267,35 @@ private data class PensumSampleNodeSpec(
 private fun PensumSampleNodeSpec.toPensumNode(
 	y: Double,
 	height: Double
-) = PensumScreenModel.Node(
+) = PensumNodeItem(
 	id = id,
 	displayCode = code,
 	subjectCode = code,
 	name = name,
+	displayName = name,
 	credits = credits,
+	creditsText = "$credits UC",
 	termId = "T$term",
 	x = samplePensumNodeX(term),
 	y = y,
 	width = SAMPLE_PENSUM_NODE_WIDTH,
 	height = height,
 	visualStyle = state.toVisualStyle(),
-	isCurrent = state == PensumSampleNodeState.CURRENT,
-	isApproved = state == PensumSampleNodeState.APPROVED,
-	hasSubjectStatsAction = true,
+	status = state.toStatusDisplay(),
 	subjectStatsCode = code,
-	fulfilledSubject = null
+	fulfilledSubject = null,
+	detail = PensumSubjectDetailItem(
+		code = code,
+		name = name,
+		status = state.toStatusDisplay(),
+		termLabel = "$term° trimestre",
+		creditsText = "$credits UC",
+		statsCode = code,
+		fulfilledSubject = null
+	)
 )
 
-private fun pensumOption(year: Int) = PensumScreenModel.PensumOptionItem(
+private fun pensumOption(year: Int) = PensumOptionItem(
 	id = year.toString(),
 	year = year,
 	modalityOptions = sampleModalityOptions(),
@@ -282,19 +303,19 @@ private fun pensumOption(year: Int) = PensumScreenModel.PensumOptionItem(
 )
 
 private fun sampleModalityOptions() = listOf(
-	PensumScreenModel.ModalityItem(
+	PensumModalityItem(
 		id = "degree_project",
 		name = "Proyecto de Grado",
 		isDefault = true,
 		text = "Proyecto de Grado"
 	),
-	PensumScreenModel.ModalityItem(
+	PensumModalityItem(
 		id = "exclusive_degree_project",
 		name = "Proyecto de Grado a Dedicación Exclusiva",
 		isDefault = false,
 		text = "Proyecto de Grado a Dedicación Exclusiva"
 	),
-	PensumScreenModel.ModalityItem(
+	PensumModalityItem(
 		id = "long_internship",
 		name = "Pasantía Larga",
 		isDefault = false,
@@ -304,15 +325,17 @@ private fun sampleModalityOptions() = listOf(
 
 private fun pensumRequirementEdge(
 	fromNodeId: String,
-	toNodeId: String
-) = PensumScreenModel.Edge(
+	toNodeId: String,
+	isDisconnected: Boolean = false
+) = PensumEdgeItem(
 	id = "${fromNodeId}_to_$toNodeId",
 	fromNodeId = fromNodeId,
 	toNodeId = toNodeId,
-	relationshipType = PensumScreenModel.RelationshipType.REQUIREMENT,
+	relationshipType = PensumEdgeRelationshipType.REQUIREMENT,
+	isDisconnected = isDisconnected,
 	points = listOf(
-		PensumScreenModel.Point(x = 0.0, y = 0.0),
-		PensumScreenModel.Point(x = 1.0, y = 1.0)
+		PensumPointItem(x = 0.0, y = 0.0),
+		PensumPointItem(x = 1.0, y = 1.0)
 	)
 )
 
@@ -323,9 +346,9 @@ private enum class PensumSampleNodeState {
 	BLOCKED
 }
 
-private fun PensumSampleNodeState.toVisualStyle(): PensumScreenModel.NodeVisualStyle {
+private fun PensumSampleNodeState.toVisualStyle(): PensumNodeVisualStyle {
 	return when (this) {
-		PensumSampleNodeState.APPROVED -> PensumScreenModel.NodeVisualStyle(
+		PensumSampleNodeState.APPROVED -> PensumNodeVisualStyle(
 			containerArgb = 0xFF171819,
 			borderArgb = 0xFF8FE38C,
 			chipArgb = 0xFFB8F4A8,
@@ -333,7 +356,7 @@ private fun PensumSampleNodeState.toVisualStyle(): PensumScreenModel.NodeVisualS
 			textArgb = 0xFFF7F7F7,
 			secondaryTextArgb = 0xFF9C9EA3
 		)
-		PensumSampleNodeState.CURRENT -> PensumScreenModel.NodeVisualStyle(
+		PensumSampleNodeState.CURRENT -> PensumNodeVisualStyle(
 			containerArgb = 0xFF171819,
 			borderArgb = 0xFFFFC400,
 			chipArgb = 0xFFF7E6A6,
@@ -341,7 +364,7 @@ private fun PensumSampleNodeState.toVisualStyle(): PensumScreenModel.NodeVisualS
 			textArgb = 0xFFF7F7F7,
 			secondaryTextArgb = 0xFF9C9EA3
 		)
-		PensumSampleNodeState.AVAILABLE -> PensumScreenModel.NodeVisualStyle(
+		PensumSampleNodeState.AVAILABLE -> PensumNodeVisualStyle(
 			containerArgb = 0xFF171819,
 			borderArgb = 0xFF8A8F94,
 			chipArgb = 0xFFEBDDA3,
@@ -349,91 +372,153 @@ private fun PensumSampleNodeState.toVisualStyle(): PensumScreenModel.NodeVisualS
 			textArgb = 0xFFF7F7F7,
 			secondaryTextArgb = 0xFF9C9EA3
 		)
-		PensumSampleNodeState.BLOCKED -> PensumScreenModel.NodeVisualStyle(
-			containerArgb = 0xFF242628,
+		PensumSampleNodeState.BLOCKED -> PensumNodeVisualStyle(
+			containerArgb = 0xFF171819,
 			borderArgb = 0xFF686B70,
 			chipArgb = 0xFFB7B8BA,
 			chipTextArgb = 0xFF383A3D,
-			textArgb = 0xFFC7C8CA,
-			secondaryTextArgb = 0xFF8A8C90
+			textArgb = 0xFFF7F7F7,
+			secondaryTextArgb = 0xFF9C9EA3
 		)
 	}
 }
 
-private fun sampleEvaluationFilters() = listOf(
-	EvaluationStateFilter(
-		label = "Pendientes"
-	) { evaluation -> evaluation.state == EvaluationState.PENDING },
-	EvaluationStateFilter(
-		label = "Completadas"
-	) { evaluation -> evaluation.state == EvaluationState.COMPLETED },
-	EvaluationStateFilter(
-		label = "Sin nota"
-	) { evaluation -> evaluation.state == EvaluationState.OVERDUE },
-	EvaluationCourseFilter("CI2611"),
-	EvaluationCourseFilter("EC5344"),
-	EvaluationCourseFilter("MA1111"),
-	EvaluationDateFilter(
-		group = EvaluationDateGroup.Yesterday,
-		label = "Ayer"
-	) { evaluation -> evaluation.date == SAMPLE_DATE },
-	EvaluationDateFilter(
-		group = EvaluationDateGroup.Tomorrow,
-		label = "Mañana"
-	) { evaluation -> evaluation.date == SAMPLE_DATE + 604_800_000L },
-	EvaluationDateFilter(
-		group = EvaluationDateGroup.WeeksAhead(weeks = 2),
-		label = "En 2 semanas"
-	) { evaluation -> evaluation.date == SAMPLE_DATE - 1_296_000_000L }
+private fun PensumSampleNodeState.toStatusDisplay(): PensumNodeStatusDisplay {
+	val visualStyle = toVisualStyle()
+	return when (this) {
+		PensumSampleNodeState.APPROVED -> PensumNodeStatusDisplay(
+			type = PensumNodeStatusType.APPROVED,
+			icon = PensumNodeStatusIcon.CHECK,
+			colorArgb = visualStyle.borderArgb
+		)
+		PensumSampleNodeState.CURRENT -> PensumNodeStatusDisplay(
+			type = PensumNodeStatusType.CURRENT,
+			icon = PensumNodeStatusIcon.PLAY,
+			colorArgb = visualStyle.borderArgb
+		)
+		PensumSampleNodeState.AVAILABLE -> PensumNodeStatusDisplay(
+			type = PensumNodeStatusType.AVAILABLE,
+			icon = PensumNodeStatusIcon.ADD,
+			colorArgb = visualStyle.borderArgb
+		)
+		PensumSampleNodeState.BLOCKED -> PensumNodeStatusDisplay(
+			type = PensumNodeStatusType.BLOCKED,
+			icon = PensumNodeStatusIcon.LOCK,
+			colorArgb = visualStyle.borderArgb
+		)
+	}
+}
+
+internal fun sampleEvaluationsState(): Evaluations.State.Content {
+	val upcomingGroups = listOf(
+			EvaluationsGroupItem(
+				title = "Jueves 23 de Abril",
+				items = listOf(
+					sampleEvaluationItem(
+						id = "evaluation_1",
+						name = "Parcial 1",
+						subjectCode = "CI2611",
+						typeText = "Parcial",
+						dateText = "Jueves - 23/04/26",
+						gradesText = "Sin nota / 35.00",
+						type = EvaluationType.TEST,
+						state = EvaluationState.PENDING,
+						maxGrade = 35.0
+					),
+					sampleEvaluationItem(
+						id = "evaluation_2",
+						name = "Taller 1",
+						subjectCode = "EC5344",
+						typeText = "Taller",
+						dateText = "Jueves - 30/04/26",
+						gradesText = "Sin nota / 40.00",
+						type = EvaluationType.WORKSHOP,
+						state = EvaluationState.PENDING,
+						maxGrade = 40.0
+					)
+				)
+			)
+	)
+	val historyGroups = listOf(
+			EvaluationsGroupItem(
+				title = "Miércoles 8 de Abril",
+				items = listOf(
+					sampleEvaluationItem(
+						id = "evaluation_3",
+						name = "Laboratorio 1",
+						subjectCode = "CI2611",
+						typeText = "Laboratorio",
+						dateText = "Miércoles - 08/04/26",
+						gradesText = "18.00 / 25.00",
+						type = EvaluationType.LABORATORY,
+						state = EvaluationState.COMPLETED,
+						grade = 18.0,
+						maxGrade = 25.0
+					)
+				)
+		)
+	)
+	val evaluationGroups = upcomingGroups + historyGroups
+
+	return Evaluations.State.Content(
+		weekItem = sampleEvaluationsWeekItem(),
+		weekItems = sampleEvaluationsWeekItems(),
+		evaluationGroups = evaluationGroups,
+		evaluationWeekGroups = listOf(sampleEvaluationsWeekGroupItem(evaluationGroups))
+	)
+}
+
+private fun sampleEvaluationsWeekItems() = (1..12).map { weekNumber ->
+	sampleEvaluationsWeekItem(weekNumber = weekNumber)
+}
+
+private fun sampleEvaluationsWeekItem(
+	weekNumber: Int = 4
+) = EvaluationsWeekItem(
+	key = EvaluationsWeekKey.Academic(weekNumber),
+	labelText = "Semana $weekNumber",
+	days = sampleEvaluationsWeekDays(weekNumber = weekNumber)
 )
 
-internal fun sampleEvaluationsState() = Evaluations.State.Content(
-	filterGroups = sampleEvaluationFilters().toEvaluationFilterGroupItemList(activeFilters = emptyList()),
-	evaluationGroups = listOf(
-		EvaluationsGroupItem(
-			title = "Jueves - 23/04/26",
-			items = listOf(
-				sampleEvaluationItem(
-					id = "evaluation_1",
-					name = "Parcial 1",
-					subjectCode = "CI2611",
-					typeText = "Parcial",
-					dateText = "Jueves - 23/04/26",
-					gradesText = "Sin nota / 100.00",
-					type = EvaluationType.TEST,
-					state = EvaluationState.PENDING
-				),
-				sampleEvaluationItem(
-					id = "evaluation_2",
-					name = "Taller 1",
-					subjectCode = "EC5344",
-					typeText = "Taller",
-					dateText = "Jueves - 30/04/26",
-					gradesText = "Sin nota / 20.00",
-					type = EvaluationType.WORKSHOP,
-					state = EvaluationState.PENDING
-				)
-			)
-		),
-		EvaluationsGroupItem(
-			title = "Completadas",
-			items = listOf(
-				sampleEvaluationItem(
-					id = "evaluation_3",
-					name = "Laboratorio 1",
-					subjectCode = "CI2611",
-					typeText = "Laboratorio",
-					dateText = "Miércoles - 08/04/26",
-					gradesText = "18.00 / 20.00",
-					type = EvaluationType.LABORATORY,
-					state = EvaluationState.COMPLETED,
-					grade = 18.0,
-					maxGrade = 20.0
-				)
-			)
+private fun sampleEvaluationsWeekDays(
+	weekNumber: Int
+): List<EvaluationWeekDayItem> {
+	val weekdayTexts = listOf("LUN", "MAR", "MIE", "JUE", "VIE", "SAB", "DOM")
+	val startDay = 20 + ((weekNumber - 4) * 7)
+
+	return weekdayTexts.mapIndexed { offset, weekdayText ->
+		val isToday = weekNumber == 4 && offset == 3
+		val hasEvaluations = weekNumber == 4 && offset in setOf(2, 3)
+
+		EvaluationWeekDayItem(
+			weekdayText = weekdayText,
+			dayText = normalizedMonthDay(startDay + offset).toString(),
+			isSelected = isToday,
+			hasEvaluations = hasEvaluations
 		)
-	),
-	activeFilters = emptyList()
+	}
+}
+
+private fun normalizedMonthDay(day: Int): Int {
+	val normalized = (day - 1).floorMod(MOCK_MONTH_DAYS)
+
+	return normalized + 1
+}
+
+private fun Int.floorMod(other: Int): Int {
+	val remainder = this % other
+
+	return if (remainder < 0) remainder + other else remainder
+}
+
+private const val MOCK_MONTH_DAYS = 31
+
+private fun sampleEvaluationsWeekGroupItem(
+	groups: List<EvaluationsGroupItem>
+) = EvaluationsWeekGroupItem(
+	key = EvaluationsWeekKey.Academic(4),
+	title = "Semana 4",
+	groups = groups
 )
 
 internal fun sampleEvaluationFormState(): Evaluation.State.Content {
@@ -471,16 +556,16 @@ internal fun sampleEvaluationFormState(): Evaluation.State.Content {
 				isVisible = true
 			)
 		},
-		scheduleMode = EvaluationScheduleMode.DATED,
-		date = SAMPLE_DATE,
-		maxGrade = 100.0,
-		gradeSection = EvaluationGradeSectionItem(
-			maxGradeTitleText = "Nota máxima",
-			overdueTitleText = "Nota",
-			gradeText = "0.00",
-			maxGradeText = "100.00",
-			showsGradeChip = false
-		)
+			scheduleMode = EvaluationScheduleMode.DATED,
+			date = SAMPLE_DATE,
+			maxGrade = 35.0,
+			gradeSection = EvaluationGradeSectionItem(
+				maxGradeTitleText = "Nota máxima",
+				overdueTitleText = "Nota obtenida / máxima",
+				gradeText = "0.00",
+				maxGradeText = "35.00",
+				showsGradeChip = false
+			)
 	)
 }
 
@@ -616,41 +701,62 @@ private fun sampleEvaluationItem(
 	type: EvaluationType,
 	state: EvaluationState,
 	grade: Double? = null,
-	maxGrade: Double = 100.0
+		maxGrade: Double = 35.0
 ): EvaluationItem {
 	val colors = CourseCodeColorGenerator.fromCode(subjectCode)
+	val tone = when (state) {
+		EvaluationState.COMPLETED -> EvaluationHighlightTone.Success
+		EvaluationState.OVERDUE -> EvaluationHighlightTone.Error
+		else -> EvaluationHighlightTone.Neutral
+		}
+		val gradeText = grade?.let {
+			"${it.formatGrade(decimals = 0)} / ${maxGrade.formatGrade(decimals = 0)}"
+		} ?: "-- / ${maxGrade.formatGrade(decimals = 0)}"
+
 	return EvaluationItem(
 		evaluationId = id,
 		grade = grade,
 		maxGrade = maxGrade,
 		nameText = name,
+		subjectNameText = subjectNameForCode(subjectCode),
 		subjectCodeText = subjectCode,
 		subjectCodeColor = colors.color,
 		subjectCodeContainerColor = colors.containerColor,
-		highlightTone = when (state) {
-			EvaluationState.COMPLETED -> EvaluationHighlightTone.Success
-			EvaluationState.OVERDUE -> EvaluationHighlightTone.Error
-			else -> EvaluationHighlightTone.Neutral
+		highlightTone = tone,
+		statusText = when (state) {
+			EvaluationState.COMPLETED -> "Completada"
+			EvaluationState.OVERDUE -> "Pendiente"
+			EvaluationState.CONTINUOUS -> "Continua"
+			else -> "Programada"
 		},
+		statusTone = tone,
 		typeText = typeText,
+		typeNameText = name,
 		typeIcon = when (type) {
 			EvaluationType.TEST -> Icons.Outlined.FileCopy
 			EvaluationType.WORKSHOP -> Icons.Outlined.Build
 			EvaluationType.LABORATORY -> Icons.Outlined.Science
 			else -> type.asIcon()
-		},
-		dateText = dateText,
-		dateIcon = if (state == EvaluationState.COMPLETED) Icons.Outlined.EventAvailable else Icons.Outlined.Event,
+			},
+			dateText = dateText,
+			dateIcon = Icons.Outlined.CalendarToday,
+			gradeText = gradeText,
 		gradesText = gradesText,
-		gradeActionText = grade?.formatGrade(decimals = 2) ?: "Sin nota",
-		showsGradeAction = state != EvaluationState.PENDING,
+		gradeActionText = gradeText,
+		showsGradeAction = true,
 		gradesIcon = if (state == EvaluationState.COMPLETED)
 			Icons.Outlined.AssignmentTurnedIn
 		else
 			Icons.Outlined.AssignmentReturned,
 		isOverdue = state == EvaluationState.OVERDUE,
-		isClickable = state != EvaluationState.PENDING
+		isClickable = true
 	)
+}
+
+private fun subjectNameForCode(subjectCode: String): String = when (subjectCode) {
+	"CI2611" -> "Algoritmos y Estructuras I"
+	"EC5344" -> "Sistemas Digitales"
+	else -> subjectCode
 }
 
 private fun sampleEditableAttempts() = listOf(

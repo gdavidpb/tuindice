@@ -27,6 +27,7 @@ class TuIndiceNavHostUiTest {
 				isCameraAvailable = false,
 				onNavigateToExternalResource = {},
 				onRecordViewModeChangeAvailable = {},
+				onRecordTermSelectionAvailable = {},
 				showTopBarBanner = {},
 				onViewStateChanged = {},
 				showSnackBar = {}
@@ -50,6 +51,7 @@ class TuIndiceNavHostUiTest {
 				isCameraAvailable = false,
 				onNavigateToExternalResource = {},
 				onRecordViewModeChangeAvailable = {},
+				onRecordTermSelectionAvailable = {},
 				showTopBarBanner = {},
 				onViewStateChanged = {},
 				showSnackBar = {}
@@ -74,6 +76,7 @@ class TuIndiceNavHostUiTest {
 				isCameraAvailable = false,
 				onNavigateToExternalResource = {},
 				onRecordViewModeChangeAvailable = {},
+				onRecordTermSelectionAvailable = {},
 				showTopBarBanner = {},
 				onViewStateChanged = {},
 				showSnackBar = {}

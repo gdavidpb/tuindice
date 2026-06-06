@@ -36,10 +36,18 @@
     <string name="subjects_message_failed">Intenta de nuevo para consultar los datos de %1$s.</string>
     <string name="subjects_message_retry">Reintentar</string>
     <string name="subjects_action_close">Cerrar</string>
-    <string name="subjects_search_placeholder">Código o nombre de materia</string>
+    <string name="subjects_search_placeholder">Código, nombre o palabra clave</string>
+    <string name="subjects_search_min_query_title">Agrega un carácter más</string>
+    <string name="subjects_search_min_query_message">La búsqueda empieza con al menos 2 caracteres.</string>
+    <string name="subjects_search_examples_label">Búsquedas sugeridas</string>
+    <string name="subjects_search_example_math">MA1111</string>
+    <string name="subjects_search_example_physics">Física</string>
+    <string name="subjects_search_example_algorithms">Algoritmos</string>
     <string name="subjects_search_results">%1$d resultados para "%2$s"</string>
-    <string name="subjects_search_no_results">No encontramos materias para "%1$s"</string>
-    <string name="subjects_search_error">No pudimos buscar materias. Intenta de nuevo.</string>
+    <string name="subjects_search_no_results_title">No encontramos materias</string>
+    <string name="subjects_search_no_results_message">No hay resultados para "%1$s". Prueba con otro código o nombre.</string>
+    <string name="subjects_search_error_title">No pudimos buscar materias</string>
+    <string name="subjects_search_error_message">Intenta de nuevo.</string>
     <string name="subjects_search_clear_content_description">Limpiar búsqueda</string>
     <string name="subjects_search_result_content_description">Abrir estadísticas de %1$s</string>
 </resources>

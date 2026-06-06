@@ -11,6 +11,10 @@ sealed class TopBarAction(
 		action = "enrollment_proof"
 	)
 
+	data object RecordTermSelectionAction : TopBarAction(
+		action = "record_term_selection"
+	)
+
 	data object SearchPensumAction : TopBarAction(
 		action = "search_pensum"
 	)

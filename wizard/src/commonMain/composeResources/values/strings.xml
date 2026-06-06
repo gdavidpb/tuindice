@@ -24,15 +24,15 @@
 	<string name="wizard_record_title">Índices del trimestre</string>
 	<string name="wizard_record_message">Este bloque resume el **trimestre seleccionado**: **índice del trimestre**, **índice acumulado** y **cantidad de créditos**. Las variaciones muestran cómo cambiaron desde el trimestre anterior.</string>
 	<string name="wizard_record_actions_title">Acciones del trimestre</string>
-	<string name="wizard_record_actions_message">El **botón de modo** alterna entre **Histórico** y **Proyección**; en el **trimestre actual** verás el botón de comprobante. En **Proyección**, usa el botón **+** para planificar un **trimestre futuro**.</string>
+	<string name="wizard_record_actions_message">El **botón de calendario** abre todos los trimestres y el **botón de modo** alterna entre **Histórico** y **Proyección**. En el **trimestre actual**, el comprobante aparece como botón flotante sobre **+**; usa **+** para planificar un **trimestre futuro**.</string>
 	<string name="wizard_synthetic_term_title">Planificar trimestre</string>
 	<string name="wizard_synthetic_term_message">Aquí eliges el **periodo**, agregas **materias sugeridas** o buscas por **código/nombre**, y revisas la **carga estimada**. Al guardar, queda como **proyección** y no cambia tu historial académico.</string>
 	<string name="wizard_subject_title">Estadísticas de materia</string>
 	<string name="wizard_subject_message">Arriba ves el **nombre de la materia**, su **código** y **UC**. Las pestañas comparan **tu carrera** con el **panorama general**; debajo aparecen la **muestra de estudiantes e intentos**, más indicadores de **dificultad**, **aprobación**, **reprobación**, **retiros** y **primer intento**.</string>
 	<string name="wizard_subject_charts_title">Gráficos de materia</string>
 	<string name="wizard_subject_charts_message">Los **gráficos** resumen cómo se distribuyeron las **notas** y cuántos **intentos** necesitaron otros estudiantes para aprobar. Úsalos como **contexto**: no predicen tu resultado, pero ayudan a entender la **dificultad histórica** de la materia.</string>
-	<string name="wizard_pensum_title">Pensum y avance</string>
-	<string name="wizard_pensum_message">Puedes ver **tu pensum** como un **mapa de materias**, revisar **avance**, **créditos** y **requisitos**, **buscar materias** y **cambiar tu pensum**. Toca el **botón de estadísticas** de una **materia** para abrir su **desempeño histórico**.</string>
+	<string name="wizard_pensum_title">Mapa del pensum</string>
+	<string name="wizard_pensum_message">Toca una **materia** para enfocar sus **requisitos** y desbloqueos. El **botón de información** abre detalle y estadísticas. Usa **zoom**, **fit** o **minimapa** para navegar.</string>
 	<string name="wizard_subject_tab_career">Tu carrera</string>
 	<string name="wizard_subject_tab_global">General</string>
 	<string name="wizard_subject_title_loading_stats">Calculando estadísticas</string>
@@ -44,7 +44,7 @@
 	<string name="wizard_subject_retry">Reintentar</string>
 	<string name="wizard_subject_close">Cerrar</string>
 	<string name="wizard_evaluations_title">Evaluaciones</string>
-	<string name="wizard_evaluations_message">En **Evaluaciones** organizas lo **pendiente**, lo **completado** y lo que aún no tiene **nota** del **trimestre actual**, si existe. Puedes filtrar por **estado**, **materia** y **fecha** para encontrar rápido lo importante.</string>
+	<string name="wizard_evaluations_message">En **Evaluaciones** organizas parciales, tareas y entregas del **trimestre actual** por **semana**. Desliza entre semanas o toca una semana cercana para ver solo sus evaluaciones.</string>
 	<string name="wizard_evaluation_swipe_title">Editar o eliminar evaluaciones</string>
 	<string name="wizard_evaluation_swipe_message">Toca **Sin nota** o la **nota** para establecer la calificación. Toca la **tarjeta** o haz **swipe hacia la izquierda** para abrir las acciones y desde ahí **editar** o **eliminar** la evaluación.</string>
 	<string name="wizard_evaluation_form_title">Nueva evaluación</string>
@@ -53,7 +53,7 @@
 	<string name="wizard_about_message">En **Acerca de** encuentras **soporte**, **privacidad**, **términos** e **información** de la app cuando necesites ayuda o quieras revisar detalles.</string>
 
 	<string name="wizard_focus_record">Índices del trimestre</string>
-	<string name="wizard_focus_record_actions">Botones superiores</string>
-	<string name="wizard_focus_evaluations">Filtros y evaluaciones</string>
+	<string name="wizard_focus_record_actions">Calendario y acciones</string>
+	<string name="wizard_focus_evaluations">Agenda semanal</string>
 	<string name="wizard_focus_evaluation_swipe">Sin nota</string>
 </resources>

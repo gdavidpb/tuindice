@@ -1,12 +1,13 @@
 package com.gdavidpb.tuindice.evaluations.ui
 
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
+
 object EvaluationsUiTags {
 	const val EvaluationsContentContainer = "evaluations_content_container"
-	const val EvaluationsFiltersContainer = "evaluations_filters_container"
-	const val EvaluationsFilterRow = "evaluations_filter_row"
+	const val EvaluationsWeekStrip = "evaluations_week_strip"
+	const val EvaluationsWeekLabel = "evaluations_week_label"
 	const val EvaluationsList = "evaluations_list"
 	const val EvaluationsAddFab = "evaluations_add_fab"
-	const val EvaluationsClearFiltersFab = "evaluations_clear_filters_fab"
 	const val EvaluationsLoadingIndicator = "evaluations_loading_indicator"
 
 	const val EvaluationContentContainer = "evaluation_content_container"
@@ -28,6 +29,8 @@ object EvaluationsUiTags {
 	const val EvaluationGradeChip = "evaluation_grade_chip"
 	const val EvaluationMaxGradeChip = "evaluation_max_grade_chip"
 	const val EvaluationTypeLeadingIcon = "evaluation_type_leading_icon"
+	const val EvaluationTypeInlineIcon = "evaluation_type_inline_icon"
+	const val EvaluationStatusChip = "evaluation_status_chip"
 	const val EvaluationGradeActionButton = "evaluation_grade_action_button"
 	const val EvaluationLoadingIndicator = "evaluation_loading_indicator"
 	const val EvaluationGradeWheelPicker = "evaluation_grade_wheel_picker"
@@ -41,17 +44,32 @@ object EvaluationsUiTags {
 	const val EvaluationSwipeEditAction = "evaluation_swipe_edit_action"
 	const val EvaluationSwipeDeleteAction = "evaluation_swipe_delete_action"
 
-	fun filterChip(label: String): String =
-		"evaluations_filter_chip_${label.toTagSuffix()}"
-
-	fun filterChipCheck(label: String): String =
-		"evaluations_filter_chip_check_${label.toTagSuffix()}"
-
 	fun evaluationHeader(label: String): String =
 		"evaluation_header_${label.toTagSuffix()}"
 
+	fun evaluationsWeekPage(key: EvaluationsWeekKey): String =
+		"evaluations_week_page_${key.tagSuffix}"
+
+	fun evaluationsWeekPage(weekNumber: Int): String =
+		evaluationsWeekPage(EvaluationsWeekKey.Academic(weekNumber))
+
+	fun evaluationsWeekChip(key: EvaluationsWeekKey): String =
+		"evaluations_week_chip_${key.tagSuffix}"
+
+	fun evaluationsWeekChip(weekNumber: Int): String =
+		evaluationsWeekChip(EvaluationsWeekKey.Academic(weekNumber))
+
+	fun evaluationsWeekHeader(key: EvaluationsWeekKey): String =
+		"evaluations_week_header_${key.tagSuffix}"
+
+	fun evaluationsWeekHeader(weekNumber: Int): String =
+		evaluationsWeekHeader(EvaluationsWeekKey.Academic(weekNumber))
+
 	fun evaluationItemCard(evaluationId: String): String =
 		"evaluation_item_card_${evaluationId.toTagSuffix()}"
+
+	fun evaluationGradeActionButton(evaluationId: String): String =
+		"${EvaluationGradeActionButton}_${evaluationId.toTagSuffix()}"
 
 	fun evaluationSubjectChip(attemptId: String): String =
 		"evaluation_subject_chip_${attemptId.toTagSuffix()}"

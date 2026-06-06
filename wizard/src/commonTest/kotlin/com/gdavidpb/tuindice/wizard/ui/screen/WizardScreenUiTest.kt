@@ -100,7 +100,7 @@ class WizardScreenUiTest {
 	}
 
 	@Test
-	fun when_recordActionsStepIsRendered_then_explainsTopButtons() = runTuIndiceUiTest {
+	fun when_recordActionsStepIsRendered_then_explainsTermSelectionAndFloatingActions() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			WizardScreen(
 				state = Wizard.State.Content().goTo(WizardStepId.RecordActions),
@@ -118,16 +118,50 @@ class WizardScreenUiTest {
 
 		onNodeWithText("Acciones del trimestre").assertExists()
 		onNodeWithText("Paso 3 de 11").assertExists()
-		onNodeWithText("Botones superiores").assertExists()
+		onNodeWithText("Calendario y acciones").assertExists()
 		onNodeWithText(
-			"El botón de modo alterna entre Histórico y Proyección",
+			"El botón de calendario abre todos los trimestres",
 			substring = true
 		).assertExists()
 		onNodeWithText(
-			"En Proyección, usa el botón + para planificar un trimestre futuro",
+			"el botón de modo alterna entre Histórico y Proyección",
 			substring = true
 		).assertExists()
+		onNodeWithText(
+			"el comprobante aparece como botón flotante sobre +",
+			substring = true
+		).assertExists()
+		assertNodeVisible(RecordUiTags.EnrollmentProofButton)
 		assertNodeVisible(WizardUiTags.FocusOverlay)
+	}
+
+	@Test
+	fun when_recordTermSelectionIsVisible_then_showsSheetAndDismissesFromUi() = runTuIndiceUiTest {
+		var dismissCalls = 0
+
+		setTuIndiceTestContent {
+			WizardScreen(
+				state = Wizard.State.Content(
+					isRecordTermSelectionVisible = true
+				).goTo(WizardStepId.RecordActions),
+				onBack = {},
+				onSkip = {},
+				onNext = {},
+				onFinish = {},
+				onOpenSubjectDetail = {},
+				onOpenEvaluationForm = {},
+				onSubjectTabSelected = {},
+				onSelectedTermChange = {},
+				onSubjectChartsVisibilityChange = {},
+				onDismissRecordTermSelection = { dismissCalls++ }
+			)
+		}
+
+		assertNodeVisible(RecordUiTags.TermSelectionSheet)
+		assertNodeVisible(RecordUiTags.TermSelectionList)
+		assertNodeVisible(RecordUiTags.termSelectionOption("2026-2"))
+		onNodeWithTag(RecordUiTags.termSelectionOption("2026-2")).performClick()
+		assertEquals(1, dismissCalls)
 	}
 
 	@Test
@@ -185,21 +219,26 @@ class WizardScreenUiTest {
 			)
 		}
 
-		onNodeWithText("Pensum y avance").assertExists()
+		onNodeWithText("Mapa del pensum").assertExists()
 		onNodeWithText("Paso 5 de 11").assertExists()
 		onNodeWithText("75% avance").assertExists()
-		onNodeWithText("Pensum 2019 · Proyecto de Grado").assertExists()
+		onNodeWithText("Ingeniería de Computación").assertExists()
 		onNodeWithText(
-			"Puedes ver tu pensum como un mapa de materias",
+			"Toca una materia para enfocar sus requisitos y desbloqueos.",
 			substring = true
 		).assertExists()
 		onNodeWithText(
-			"Toca el botón de estadísticas de una materia",
+			"El botón de información abre detalle y estadísticas.",
 			substring = true
 		).assertExists()
 		assertNodeVisible(PensumUiTags.PensumScreen)
 		onNodeWithTag(PensumUiTags.node("ci4325")).assertExists()
-		onNodeWithTag(PensumUiTags.nodeSubjectStatsButton("ma1111")).performClick()
+		onNodeWithTag(PensumUiTags.node("ma1111")).performClick()
+		onNodeWithTag(PensumUiTags.focusedNode("ma1111"), useUnmergedTree = true).assertExists()
+		onNodeWithTag(PensumUiTags.nodeDetailButton("ma1111")).performClick()
+		assertNodeVisible(PensumUiTags.SubjectDetailSheet)
+		onNodeWithTag(PensumUiTags.SubjectDetailTermValue).assertExists()
+		onNodeWithText("Ver estadísticas").performClick()
 		assertEquals(true, didOpenSubjectDetail)
 		onAllNodesWithTag(WizardUiTags.FocusOverlay).assertCountEquals(0)
 	}
@@ -264,7 +303,7 @@ class WizardScreenUiTest {
 	}
 
 	@Test
-	fun when_evaluationsStepIsRendered_then_showsStateSubjectAndDateFilters() = runTuIndiceUiTest {
+	fun when_evaluationsStepIsRendered_then_showsWeeklyAgenda() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			WizardScreen(
 				state = Wizard.State.Content().goTo(WizardStepId.Evaluations),
@@ -282,11 +321,10 @@ class WizardScreenUiTest {
 
 		onNodeWithText("Evaluaciones").assertExists()
 		onNodeWithText("Paso 8 de 11").assertExists()
-		onNodeWithTag(EvaluationsUiTags.filterChip("Pendientes")).assertExists()
-		onNodeWithTag(EvaluationsUiTags.filterChip("CI2611")).assertExists()
-		onNodeWithTag(EvaluationsUiTags.filterChip("Mañana")).assertExists()
+		assertNodeVisible(EvaluationsUiTags.EvaluationsWeekStrip)
+		onNodeWithTag(EvaluationsUiTags.evaluationsWeekChip(4)).assertExists()
 		onNodeWithText(
-			"Puedes filtrar por estado, materia y fecha",
+			"Desliza entre semanas",
 			substring = true
 		).assertExists()
 		assertNodeVisible(WizardUiTags.FocusOverlay)

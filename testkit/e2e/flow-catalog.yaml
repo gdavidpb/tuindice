@@ -511,14 +511,23 @@ flows:
       - wizard.Wizard.SelectSubjectTab
       - wizard.Wizard.SetRecordViewMode
       - wizard.Wizard.SelectTerm
+      - wizard.Wizard.DismissRecordTermSelection
       - wizard.Wizard.SetSubjectChartsVisible
     primary_selectors:
       - record_top_bar_view_mode_switch
       - record_term_chip_2025-3
       - record_term_chip_2024-3
-      - base_top_app_bar_action_enrollment_proof
+      - record_term_current_chip_2026-2
+      - base_top_app_bar_action_record_term_selection
+      - record_term_selection_sheet
+      - record_term_selection_list
+      - record_term_selection_option_2026-2
+      - record_enrollment_proof_button
       - pensum_node_ma1111
-      - pensum_node_subject_stats_button_ma1111
+      - pensum_focused_node_ma1111
+      - pensum_node_detail_button_ma1111
+      - pensum_subject_detail_status
+      - pensum_subject_detail_term_value
       - subjects_global_tab
       - subjects_charts
       - subjects_generated_at
@@ -575,7 +584,7 @@ flows:
       - wizard_back_button
       - wizard_focus_overlay
       - record_top_bar_view_mode_switch
-      - pensum_node_subject_stats_button_ma1111
+      - pensum_node_detail_button_ma1111
       - subjects_charts
       - evaluations_add_fab
   - id: summary-smoke
@@ -839,13 +848,13 @@ flows:
     type: smoke
     platforms: [android, ios]
     status: active
-    variant: top-bar-trigger
+    variant: current-term-trigger
     fixture_state: enrollment-proof-success
     platform_edge: PDF/file opener requires UI Automator/XCUITest for host assertion.
     actions_covered:
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
-      - base_top_app_bar_action_enrollment_proof
+      - record_enrollment_proof_button
       - record_content_container
   - id: enrollmentproof-suite
     path: e2e/maestro/flows/suites/enrollmentproof-suite.yaml
@@ -859,7 +868,7 @@ flows:
     actions_covered:
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
-      - base_top_app_bar_action_enrollment_proof
+      - record_enrollment_proof_button
       - enrollment_fetching_sheet
       - enrollment_fetching_cancel_button
       - base_snackbar_container
@@ -875,7 +884,7 @@ flows:
     actions_covered:
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
-      - base_top_app_bar_action_enrollment_proof
+      - record_enrollment_proof_button
       - enrollment_fetching_sheet
       - enrollment_fetching_loading_container
       - enrollment_fetching_message
@@ -891,7 +900,7 @@ flows:
     actions_covered:
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
-      - base_top_app_bar_action_enrollment_proof
+      - record_enrollment_proof_button
       - base_snackbar_container
   - id: enrollmentproof-not-found
     path: e2e/maestro/flows/enrollmentproof/enrollmentproof-not-found.yaml
@@ -904,7 +913,7 @@ flows:
     actions_covered:
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
-      - base_top_app_bar_action_enrollment_proof
+      - record_enrollment_proof_button
       - base_snackbar_container
   - id: enrollmentproof-outdated-credentials
     path: e2e/maestro/flows/enrollmentproof/enrollmentproof-outdated-credentials.yaml
@@ -917,7 +926,7 @@ flows:
     actions_covered:
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
-      - base_top_app_bar_action_enrollment_proof
+      - record_enrollment_proof_button
       - auth_update_password_idle_container
   - id: pensum-smoke
     path: e2e/maestro/flows/pensum/pensum-smoke.yaml
@@ -932,6 +941,12 @@ flows:
     primary_selectors:
       - pensum_screen
       - pensum_canvas
+      - pensum_canvas_legend
+      - pensum_fit_to_screen
+      - pensum_focus_progress
+      - pensum_minimap
+      - pensum_minimap_toggle
+      - pensum_sticky_terms
       - pensum_zoom_in
       - pensum_zoom_out
   - id: pensum-refresh-not-found
@@ -976,7 +991,7 @@ flows:
     actions_covered:
       - pensum.Pensum.SelectSelection
     primary_selectors:
-      - base_top_app_bar_action_change_pensum
+      - pensum_context_summary
       - base_confirmation_dialog_sheet
       - pensum_version_option_2018
       - pensum_modality_option_long_internship
@@ -988,13 +1003,17 @@ flows:
     type: navigation
     platforms: [android, ios]
     status: active
-    variant: node-stats-subject-detail
+    variant: node-focus-detail-and-stats
     fixture_state: pensum-success-subject-detail
     actions_covered:
       - subjects.SubjectDetail.SelectSubjectSegmentTab
     primary_selectors:
       - pensum_node_0800-2019-degree_project-t1-math1-ma1111
-      - pensum_node_subject_stats_button_0800-2019-degree_project-t1-math1-ma1111
+      - pensum_focused_node_0800-2019-degree_project-t1-math1-ma1111
+      - pensum_node_detail_button_0800-2019-degree_project-t1-math1-ma1111
+      - pensum_subject_detail_status
+      - pensum_subject_detail_term_value
+      - base_confirmation_dialog_negative_button
       - subjects_content
       - subjects_segment_students_metric
       - subjects_segment_attempts_metric
@@ -1122,22 +1141,21 @@ flows:
       - evaluations.Evaluations.AddEvaluation
     primary_selectors:
       - evaluations_content_container
+      - evaluations_week_strip
+      - evaluations_week_label
       - evaluations_list
       - evaluations_add_fab
       - evaluation_content_container
-      - evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
+      - evaluation_status_chip
   - id: evaluations-filters-and-form
     path: e2e/maestro/flows/evaluations/evaluations-filters-and-form.yaml
     module: evaluations
     type: interaction
     platforms: [android, ios]
     status: active
-    variant: filters-and-form-inputs
+    variant: weekly-agenda-and-form-inputs
     fixture_state: evaluations-content
     actions_covered:
-      - evaluations.Evaluations.CheckEvaluationFilter
-      - evaluations.Evaluations.UncheckEvaluationFilter
-      - evaluations.Evaluations.ClearEvaluationFilters
       - evaluations.Evaluation.SetAttempt
       - evaluations.Evaluation.SetType
       - evaluations.Evaluation.SetDate
@@ -1146,8 +1164,8 @@ flows:
       - evaluations.Evaluation.ClickGrade
       - evaluations.Evaluation.ClickMaxGrade
     primary_selectors:
-      - evaluations_filter_chip_ci5311
-      - evaluations_clear_filters_fab
+      - evaluations_week_strip
+      - evaluation_status_chip
       - evaluation_subject_chip_e21f0d7e481d13d19f328d6818ce4d77
       - evaluation_type_chip_test
       - evaluation_date_select_button
@@ -1166,9 +1184,6 @@ flows:
     fixture_state: evaluations-suite
     actions_covered:
       - evaluations.Evaluations.AddEvaluation
-      - evaluations.Evaluations.CheckEvaluationFilter
-      - evaluations.Evaluations.UncheckEvaluationFilter
-      - evaluations.Evaluations.ClearEvaluationFilters
       - evaluations.Evaluations.ShowEvaluationGradeDialog
       - evaluations.Evaluations.SetEvaluationGrade
       - evaluations.Evaluations.EditEvaluation
@@ -1184,8 +1199,7 @@ flows:
       - evaluations.Evaluation.ClickEditEvaluation
     primary_selectors:
       - evaluations_content_container
-      - evaluations_filter_chip_ci5311
-      - evaluations_clear_filters_fab
+      - evaluations_week_strip
       - evaluation_grade_action_button
       - evaluation_done_fab
       - evaluation_swipe_edit_action

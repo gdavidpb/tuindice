@@ -61,4 +61,10 @@ fi
 maestro_args+=("${E2E_MAESTRO_SUITE}")
 
 log "Running Maestro iOS suite ${E2E_MAESTRO_SUITE} on ${MAESTRO_IOS_DEVICE_ID}."
-HOME="${MAESTRO_HOME}" maestro --device "${MAESTRO_IOS_DEVICE_ID}" "${maestro_args[@]}" 2>&1 | tee "${MAESTRO_LOG_FILE}"
+run_maestro_with_progress \
+	"iOS" \
+	"${MAESTRO_LOG_FILE}" \
+	"${E2E_MAESTRO_SUITE}" \
+	"${E2E_MAESTRO_TEST_OUTPUT_DIR:-}" \
+	"${E2E_MAESTRO_DEBUG_OUTPUT_DIR:-}" \
+	env HOME="${MAESTRO_HOME}" maestro --device "${MAESTRO_IOS_DEVICE_ID}" "${maestro_args[@]}"

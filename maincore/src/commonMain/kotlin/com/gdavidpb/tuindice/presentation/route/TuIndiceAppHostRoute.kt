@@ -159,9 +159,12 @@ fun TuIndiceAppHostRoute(
 		val isPreparingSignOut = remember {
 			mutableStateOf(false)
 		}
-		val onRecordViewModeChange = remember {
-			mutableStateOf<((RecordViewMode) -> Unit)?>(null)
-		}
+	val onRecordViewModeChange = remember {
+		mutableStateOf<((RecordViewMode) -> Unit)?>(null)
+	}
+	val onRecordTermSelection = remember {
+		mutableStateOf<(() -> Unit)?>(null)
+	}
 		val syncStatus by syncStatusRepository
 			.observeSyncStatus()
 			.collectAsStateWithLifecycle(initialValue = SyncStatus.Healthy)
@@ -242,6 +245,9 @@ fun TuIndiceAppHostRoute(
 						is TopBarAction.FetchEnrollmentProofAction ->
 							navController.navigate(EnrollmentProofDestination.EnrollmentProofDialog)
 
+						is TopBarAction.RecordTermSelectionAction ->
+							onRecordTermSelection.value?.invoke()
+
 						is TopBarAction.SearchPensumAction ->
 							navController.navigate(SubjectsDestination.SubjectSearch)
 
@@ -251,6 +257,9 @@ fun TuIndiceAppHostRoute(
 				}
 			},
 			onRecordViewModeChange = onRecordViewModeChange.value,
+			onRecordTermSelectionAvailable = { callback ->
+				onRecordTermSelection.value = callback
+			},
 			onNavigateTo = { destination ->
 				val currentDestination = navController.currentDestination?.parent?.route
 				val isNewDestination = !navController.isCurrentDestination(destination)

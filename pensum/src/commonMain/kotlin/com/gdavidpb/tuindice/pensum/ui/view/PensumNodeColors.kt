@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.pensum.ui.view
 
 import androidx.compose.ui.graphics.Color
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
-import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeVisualStyle
 
 internal data class NodeColors(
 	val container: Color,
@@ -27,7 +27,7 @@ internal fun String.toPensumChipColors(
 		?: PensumChipColors(container = fallbackContainer, content = fallbackContent)
 }
 
-internal fun PensumScreenModel.NodeVisualStyle.toNodeColors(): NodeColors {
+internal fun PensumNodeVisualStyle.toNodeColors(): NodeColors {
 	return NodeColors(
 		container = Color(containerArgb),
 		border = Color(borderArgb),

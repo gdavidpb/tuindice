@@ -9,32 +9,12 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: evaluations_content_container
     timeout: 20000
-- tapOn:
-    id: evaluations_filter_chip_ci5311
-- extendedWaitUntil:
-    visible:
-      id: evaluations_filter_chip_check_ci5311
-    timeout: 10000
 - assertVisible:
-    id: evaluations_clear_filters_fab
-- tapOn:
-    id: evaluations_filter_chip_ci5311
-- extendedWaitUntil:
-    notVisible:
-      id: evaluations_clear_filters_fab
-    timeout: 10000
-- tapOn:
-    id: evaluations_filter_chip_ci5311
-- extendedWaitUntil:
-    visible:
-      id: evaluations_clear_filters_fab
-    timeout: 10000
-- tapOn:
-    id: evaluations_clear_filters_fab
-- extendedWaitUntil:
-    notVisible:
-      id: evaluations_clear_filters_fab
-    timeout: 10000
+    id: evaluations_week_strip
+- assertVisible:
+    id: evaluations_list
+- assertVisible:
+    id: evaluation_status_chip
 - tapOn:
     id: evaluations_add_fab
 - extendedWaitUntil:

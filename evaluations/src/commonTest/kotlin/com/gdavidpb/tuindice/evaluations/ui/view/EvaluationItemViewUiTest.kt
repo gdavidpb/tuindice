@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.ui.view
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -13,6 +14,7 @@ import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class EvaluationItemViewUiTest {
@@ -28,16 +30,22 @@ class EvaluationItemViewUiTest {
 		}
 
 		assertNodeVisible(EvaluationsUiTags.evaluationItemCard(item.evaluationId))
-		onNodeWithText(item.nameText).assertIsDisplayed()
+		assertTrue(onAllNodesWithText(item.subjectNameText).fetchSemanticsNodes().isEmpty())
 		onNodeWithText(item.subjectCodeText).assertIsDisplayed()
 		onNodeWithText(item.dateText).assertIsDisplayed()
-		onNodeWithText(item.typeText).assertIsDisplayed()
-		onNodeWithText(item.gradeActionText).assertIsDisplayed()
+		onNodeWithText(item.typeNameText).assertIsDisplayed()
+		onNodeWithText(item.statusText).assertIsDisplayed()
+		onNodeWithText(item.gradeText).assertIsDisplayed()
 		onNodeWithTag(
-			testTag = EvaluationsUiTags.EvaluationTypeLeadingIcon,
+			testTag = EvaluationsUiTags.EvaluationStatusChip,
 			useUnmergedTree = true
 		).assertIsDisplayed()
-		assertNodeVisible(EvaluationsUiTags.EvaluationGradeActionButton)
+		onNodeWithTag(
+			testTag = EvaluationsUiTags.EvaluationTypeInlineIcon,
+			useUnmergedTree = true
+		).assertIsDisplayed()
+		assertNodeHidden(EvaluationsUiTags.EvaluationTypeLeadingIcon, useUnmergedTree = true)
+		assertNodeVisible(EvaluationsUiTags.evaluationGradeActionButton(item.evaluationId))
 	}
 
 	@Test
@@ -48,7 +56,7 @@ class EvaluationItemViewUiTest {
 			EvaluationItemView(item = item)
 		}
 
-		assertNodeHidden(EvaluationsUiTags.EvaluationGradeActionButton)
+		assertNodeHidden(EvaluationsUiTags.evaluationGradeActionButton(item.evaluationId))
 	}
 
 	@Test
@@ -63,7 +71,7 @@ class EvaluationItemViewUiTest {
 			)
 		}
 
-		onNodeWithTag(EvaluationsUiTags.EvaluationGradeActionButton).performClick()
+		onNodeWithTag(EvaluationsUiTags.evaluationGradeActionButton(item.evaluationId)).performClick()
 
 		assertEquals(1, gradeClicks)
 	}

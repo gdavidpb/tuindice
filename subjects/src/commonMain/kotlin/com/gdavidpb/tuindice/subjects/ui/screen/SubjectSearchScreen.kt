@@ -18,6 +18,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectSearch
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
 import com.gdavidpb.tuindice.subjects.ui.view.SubjectSearchError
+import com.gdavidpb.tuindice.subjects.ui.view.SubjectSearchGuidanceView
 import com.gdavidpb.tuindice.subjects.ui.view.SubjectSearchResults
 import com.gdavidpb.tuindice.subjects.ui.view.SubjectSearchTextField
 
@@ -55,11 +56,15 @@ fun SubjectSearchScreen(
 			onClearClick = onClearClick,
 			onSearch = ::dismissKeyboard
 		)
-		Spacer(modifier = Modifier.height(28.dp))
+		Spacer(modifier = Modifier.height(20.dp))
 
 		when {
 			state.query.trim().length < 2 ->
-				Unit
+				SubjectSearchGuidanceView(
+					query = state.query,
+					onExampleClick = onQueryChange,
+					modifier = Modifier.weight(1f)
+				)
 
 			state.hasRemoteError ->
 				SubjectSearchError(

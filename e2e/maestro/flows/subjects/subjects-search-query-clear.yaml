@@ -17,6 +17,8 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: subjects_search_screen
     timeout: 10000
+- assertVisible:
+    id: subjects_search_guidance
 - runFlow:
     when:
       platform: iOS
@@ -26,10 +28,14 @@ appId: com.gdavidpb.tuindice.debug
 - tapOn:
     id: subjects_search_text_field
 - inputText: "c"
+- assertVisible:
+    id: subjects_search_guidance
 - assertNotVisible:
     id: subjects_search_result_CI4325
 - tapOn:
     id: subjects_search_clear
+- assertVisible:
+    id: subjects_search_guidance
 - tapOn:
     id: subjects_search_text_field
 - inputText: "ci"
@@ -44,6 +50,8 @@ appId: com.gdavidpb.tuindice.debug
     timeout: 15000
 - tapOn:
     id: subjects_search_clear
+- assertVisible:
+    id: subjects_search_guidance
 - assertNotVisible:
     id: subjects_search_result_CI2511
 - tapOn:
