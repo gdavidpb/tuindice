@@ -67,6 +67,8 @@ jobs:
           E2E_IOS_CONTEXTS_FILE: ${{ steps.changes.outputs.e2e_ios_contexts_file }}
           REQUIRES_E2E_CERTIFICATION: ${{ steps.changes.outputs.requires_e2e_certification }}
           HAS_RELEVANT_CHANGES: ${{ steps.changes.outputs.has_relevant_changes }}
+          APP_VERSION_CHANGED: ${{ steps.changes.outputs.app_version_changed }}
+          HAS_RELEASE_IMPACT: ${{ steps.changes.outputs.has_release_impact }}
           E2E_REUSE_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           set -euo pipefail

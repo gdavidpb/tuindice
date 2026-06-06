@@ -171,6 +171,19 @@ run_detector_fixture() {
 	) >"$output_file" 2>&1
 
 	case "$name" in
+		e2e-runner)
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_empty "${temp_dir}/state/release-impacted-modules.txt" "release impacted modules"
+			assert_file_empty "${temp_dir}/state/missing-version-bump.txt" "missing version bump"
+			assert_file_contains_line "${temp_dir}/state/e2e-suites.txt" "local-certification-suite" "E2E suites"
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,local-certification-suite,e2e-runner" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,e2e-runner" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eContract" "Android tasks"
+			assert_file_empty "${temp_dir}/state/ios-gradle-tasks.txt" "iOS tasks"
+			assert_file_contains_line "$github_output_file" "app_version_changed=false" "GitHub output"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
+			;;
 		ios-script-tooling)
 			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
 			assert_file_empty "${temp_dir}/state/release-impacted-modules.txt" "release impacted modules"
@@ -306,6 +319,7 @@ ios_release_signing_commit="$(
 	create_ios_release_signing_commit ios-release-signing
 )"
 
+run_detector_fixture e2e-runner e2e/scripts/common.sh
 run_detector_fixture ios-script-tooling iosApp/scripts/ci-upload-ios-appstore.sh
 run_detector_fixture ios-host-runtime iosApp/Sources/TuIndiceHost/TuIndiceAppBootstrap.swift
 run_detector_fixture ios-version-xcconfig iosApp/Config/Version.xcconfig

@@ -129,6 +129,8 @@ SH
 		E2E_IOS_CONTEXTS_FILE="${ios_contexts_file}" \
 		REQUIRES_E2E_CERTIFICATION="true" \
 		HAS_RELEVANT_CHANGES="true" \
+		APP_VERSION_CHANGED="false" \
+		HAS_RELEASE_IMPACT="false" \
 		SUMMARY_FILE="${summary_file}" \
 		bash ./.github/scripts/preflight-production.sh
 	) >"${output_file}" 2>&1
@@ -149,6 +151,11 @@ SH
 
 	case "${name}" in
 		reuse-success)
+			if ! grep -q 'Skipping app version validation' "${output_file}"; then
+				printf 'Preflight fixture %s did not skip app version validation for E2E-only scope.\n' "${name}" >&2
+				cat "${output_file}" >&2
+				exit 1
+			fi
 			if grep -q 'Missing successful E2E status' "${output_file}"; then
 				printf 'Preflight fixture %s unexpectedly reported missing evidence.\n' "${name}" >&2
 				cat "${output_file}" >&2

@@ -16,6 +16,8 @@ E2E_ANDROID_CONTEXTS_FILE="${E2E_ANDROID_CONTEXTS_FILE:-}"
 E2E_IOS_CONTEXTS_FILE="${E2E_IOS_CONTEXTS_FILE:-}"
 REQUIRES_E2E_CERTIFICATION="${REQUIRES_E2E_CERTIFICATION:-false}"
 HAS_RELEVANT_CHANGES="${HAS_RELEVANT_CHANGES:-true}"
+APP_VERSION_CHANGED="${APP_VERSION_CHANGED:-true}"
+HAS_RELEASE_IMPACT="${HAS_RELEASE_IMPACT:-true}"
 SUMMARY_FILE="${SUMMARY_FILE:-${GITHUB_STEP_SUMMARY:-${RUNNER_TEMP:-/tmp}/preflight-production-summary.md}}"
 TARGET_GIT_SHA="${TARGET_GIT_SHA:-${GITHUB_SHA:-$(git rev-parse HEAD)}}"
 E2E_REUSE_BASE_SHA="${E2E_REUSE_BASE_SHA:-}"
@@ -310,7 +312,11 @@ if [[ "$HAS_RELEVANT_CHANGES" != "true" ]]; then
 	exit 0
 fi
 
-bash "${SCRIPT_DIR}/validate-app-version.sh"
+if [[ "$APP_VERSION_CHANGED" == "true" || "$HAS_RELEASE_IMPACT" == "true" ]]; then
+	bash "${SCRIPT_DIR}/validate-app-version.sh"
+else
+	info "Skipping app version validation because no app version or runtime release changes were detected."
+fi
 
 if file_has_entries "$MISSING_VERSION_BUMP_FILE"; then
 	die "Runtime app changes or app version changes require both androidVersionCode and iosBuildNumber to change. Bump the missing build number(s) in $(app_version_file) before deploying."
