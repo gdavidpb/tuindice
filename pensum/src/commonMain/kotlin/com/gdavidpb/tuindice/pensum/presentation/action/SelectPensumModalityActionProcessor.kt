@@ -6,6 +6,10 @@ import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.error.UpdatePensumUseCaseError
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
+import com.gdavidpb.tuindice.pensum.presentation.mapper.failedOrContent
+import com.gdavidpb.tuindice.pensum.presentation.mapper.loadingOrContent
+import com.gdavidpb.tuindice.pensum.presentation.mapper.snackBarEffectOrNull
+import com.gdavidpb.tuindice.pensum.presentation.mapper.toFailedMessage
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 
@@ -25,7 +29,7 @@ class SelectPensumModalityActionProcessor(
 							if (useCaseState.error == UpdatePensumUseCaseError.NotFound) {
 								Pensum.State.Empty
 							} else {
-								state.showSnackBarIfContent(useCaseState.error, sideEffect)
+								state.snackBarEffectOrNull(useCaseState.error)?.let(sideEffect)
 								state.failedOrContent(useCaseState.error.toFailedMessage())
 							}
 						}

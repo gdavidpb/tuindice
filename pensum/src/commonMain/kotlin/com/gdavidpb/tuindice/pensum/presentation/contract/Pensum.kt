@@ -48,6 +48,6 @@ object Pensum {
 	}
 
 	sealed class Effect : ViewEffect() {
-		class ShowSnackBar(val message: String) : Effect()
+		class ShowSnackBar(val message: UiText) : Effect()
 	}
 }

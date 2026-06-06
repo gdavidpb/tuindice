@@ -1,8 +1,7 @@
-package com.gdavidpb.tuindice.pensum.presentation.action
+package com.gdavidpb.tuindice.pensum.presentation.mapper
 
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.pensum.domain.usecase.error.UpdatePensumUseCaseError
-import org.jetbrains.compose.resources.getString
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_failed_message
 import tuindice.pensum.generated.resources.pensum_failed_network_unavailable
@@ -13,25 +12,25 @@ import tuindice.pensum.generated.resources.snack_network_unavailable
 import tuindice.pensum.generated.resources.snack_service_unavailable
 import tuindice.pensum.generated.resources.snack_timeout
 
-internal suspend fun UpdatePensumUseCaseError?.toSnackBarMessage(): String {
+internal fun UpdatePensumUseCaseError?.toSnackBarMessage(): UiText {
 	return when (this) {
 		UpdatePensumUseCaseError.NotFound ->
-			getString(Res.string.snack_default_error)
+			UiText.Resource(Res.string.snack_default_error)
 
 		is UpdatePensumUseCaseError.NoConnection ->
 			if (isNetworkAvailable)
-				getString(Res.string.snack_service_unavailable)
+				UiText.Resource(Res.string.snack_service_unavailable)
 			else
-				getString(Res.string.snack_network_unavailable)
+				UiText.Resource(Res.string.snack_network_unavailable)
 
 		is UpdatePensumUseCaseError.Timeout ->
-			getString(Res.string.snack_timeout)
+			UiText.Resource(Res.string.snack_timeout)
 
 		is UpdatePensumUseCaseError.Unavailable ->
-			getString(Res.string.snack_service_unavailable)
+			UiText.Resource(Res.string.snack_service_unavailable)
 
 		null ->
-			getString(Res.string.snack_default_error)
+			UiText.Resource(Res.string.snack_default_error)
 	}
 }
 

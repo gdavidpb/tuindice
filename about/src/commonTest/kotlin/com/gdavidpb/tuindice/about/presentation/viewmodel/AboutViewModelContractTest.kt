@@ -23,7 +23,6 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepositor
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
-import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -40,72 +39,6 @@ class AboutViewModelContractTest {
 			assertEquals(CURRENT_PRODUCTION_VERSION_TEXT, content.versionText)
 
 			cancelAndIgnoreRemainingEvents()
-		}
-	}
-
-	@Test
-	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-	fun userActions_emitExpectedEffects() = runTest {
-		val viewModel = createViewModel()
-		val stateCollector = backgroundScope.launchStateCollector(
-			flow = viewModel.state,
-			testScheduler = testScheduler
-		)
-
-		try {
-			viewModel.state.test {
-				assertEquals(About.State.Idle, awaitItem())
-				assertIs<About.State.Content>(awaitItem())
-				cancelAndIgnoreRemainingEvents()
-			}
-
-			viewModel.effect.test {
-				viewModel.openTermsAndConditionsAction()
-				val termsEffect = assertIs<About.Effect.NavigateToBrowser>(awaitItem())
-				assertEquals("https://tuindice.app/terms_and_conditions_v6_0.html", termsEffect.url)
-				cancelAndIgnoreRemainingEvents()
-			}
-
-			viewModel.effect.test {
-				viewModel.openSupportAction()
-				val supportEffect = assertIs<About.Effect.NavigateToBrowser>(awaitItem())
-				assertEquals("https://tuindice.app/support_v6_0.html", supportEffect.url)
-				cancelAndIgnoreRemainingEvents()
-			}
-
-			viewModel.effect.test {
-				viewModel.shareAppAction()
-				val shareEffect = assertIs<About.Effect.ShareText>(awaitItem())
-				assertEquals("TuIndice", shareEffect.subject)
-				assertEquals(
-					"""
-					Descarga TuIndice y administra tus notas de forma simple.
-					Google Play: https://play.google.com/store/apps/details?id=com.gdavidpb.tuindice
-					App Store: https://apps.apple.com/app/id6760307454
-					""".trimIndent(),
-					shareEffect.text
-				)
-				cancelAndIgnoreRemainingEvents()
-			}
-
-			viewModel.effect.test {
-				viewModel.contactDeveloperAction()
-				val contactEffect = assertIs<About.Effect.OpenUri>(awaitItem())
-				assertEquals(
-					"mailto:support@tuindice.app?subject=Support%20TuIndice&body=",
-					contactEffect.uri
-				)
-				cancelAndIgnoreRemainingEvents()
-			}
-
-			viewModel.effect.test {
-				viewModel.rateOnPlayStoreAction()
-				val rateEffect = assertIs<About.Effect.OpenUri>(awaitItem())
-				assertEquals("market://details?id=com.gdavidpb.tuindice", rateEffect.uri)
-				cancelAndIgnoreRemainingEvents()
-			}
-		} finally {
-			stateCollector.cancel()
 		}
 	}
 

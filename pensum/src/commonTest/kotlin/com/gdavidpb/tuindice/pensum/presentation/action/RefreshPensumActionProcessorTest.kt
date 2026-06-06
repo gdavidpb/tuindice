@@ -17,12 +17,14 @@ import com.gdavidpb.tuindice.testkit.mvi.reduceMutations
 import io.ktor.http.HttpStatusCode
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_failed_service_unavailable
+import tuindice.pensum.generated.resources.snack_service_unavailable
 
 class RefreshPensumActionProcessorTest {
 	@Test
@@ -109,7 +111,8 @@ class RefreshPensumActionProcessorTest {
 		).toList().reduceMutations(contentState)
 
 		assertEquals(contentState, finalState)
-		assertEquals(1, effects.size)
+		val effect = assertIs<Pensum.Effect.ShowSnackBar>(effects.single())
+		assertEquals(UiText.Resource(Res.string.snack_service_unavailable), effect.message)
 	}
 }
 
