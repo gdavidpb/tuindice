@@ -151,10 +151,16 @@ scope_status() {
 android_scope="$(scope_status android)"
 ios_scope="$(scope_status ios)"
 
+if [[ -n "${REQUESTED_E2E_MAESTRO_SUITE}" ]]; then
+	log "Local E2E evidence plan: requestedSuite=$(basename "${REQUESTED_E2E_MAESTRO_SUITE}"); android=${android_scope} tcp:${ANDROID_WIREMOCK_PORT}; ios=${ios_scope} tcp:${IOS_WIREMOCK_PORT}."
+else
+	log "Local E2E evidence plan: scope-aware suites; android=${android_scope} tcp:${ANDROID_WIREMOCK_PORT}; ios=${ios_scope} tcp:${IOS_WIREMOCK_PORT}."
+fi
+
 if [[ "${E2E_SKIP_ANDROID:-0}" == "1" ]]; then
 	log "Skipping Android Maestro evidence because E2E_SKIP_ANDROID=1."
 elif [[ "$android_scope" == "required" ]]; then
-	log "Starting Android Maestro evidence in parallel on WireMock tcp:${ANDROID_WIREMOCK_PORT}."
+	log "Starting Android evidence worker."
 	run_platform_evidence android "${ANDROID_WIREMOCK_PORT}" "${ANDROID_TMP_DIR}" &
 	android_pid="$!"
 else
@@ -164,7 +170,7 @@ fi
 if [[ "$ios_scope" != "required" ]]; then
 	log "Skipping iOS Maestro evidence because no iOS E2E suites are required for this diff."
 elif is_macos && command -v xcrun >/dev/null 2>&1; then
-	log "Starting iOS Maestro evidence in parallel on WireMock tcp:${IOS_WIREMOCK_PORT}."
+	log "Starting iOS evidence worker."
 	run_platform_evidence ios "${IOS_WIREMOCK_PORT}" "${IOS_TMP_DIR}" &
 	ios_pid="$!"
 elif [[ "${E2E_STRICT_IOS:-0}" == "1" ]]; then

@@ -6,6 +6,7 @@ source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/common.sh"
 require_command adb
 require_command maestro
 
+log "Android Maestro setup: WireMock=${E2E_WIREMOCK_URL}; appId=${E2E_APP_ID}."
 register_wiremock_cleanup
 "${SCRIPT_DIR}/start-wiremock.sh"
 reset_wiremock
@@ -19,7 +20,7 @@ if [[ ! -f "${APK_PATH}" ]]; then
 	exit 1
 fi
 
-log "Installing ${APK_PATH}."
+log "Installing Android APK: $(display_path "${APK_PATH}")."
 adb install -r "${APK_PATH}" >/dev/null
 "${SCRIPT_DIR}/reset-android-app.sh"
 
@@ -45,7 +46,6 @@ if [[ -n "${E2E_MAESTRO_DEBUG_OUTPUT_DIR:-}" ]]; then
 fi
 maestro_args+=("${E2E_MAESTRO_SUITE}")
 
-log "Running Maestro Android suite ${E2E_MAESTRO_SUITE}."
 run_maestro_with_progress \
 	"Android" \
 	"${MAESTRO_LOG_FILE}" \

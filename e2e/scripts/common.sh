@@ -55,43 +55,122 @@ elapsed_label() {
 	printf '%dm %02ds' "$((elapsed_seconds / 60))" "$((elapsed_seconds % 60))"
 }
 
-maestro_direct_flow_plan() {
+display_path() {
+	local path="$1"
+
+	if [[ -z "${path}" ]]; then
+		printf '-'
+		return 0
+	fi
+
+	case "${path}" in
+		"${REPO_ROOT}/"*)
+			printf '%s' "${path#"${REPO_ROOT}/"}"
+			;;
+		"${E2E_TMP_DIR}/"*)
+			printf '%s' "${path#"${E2E_TMP_DIR}/"}"
+			;;
+		*)
+			printf '%s' "${path}"
+			;;
+	esac
+}
+
+maestro_direct_flow_entries() {
 	local suite_path="$1"
-	local suite_dir
-	local resolved_dir
-	local flow
-	local flow_count=0
 
 	[[ -f "${suite_path}" ]] || return 0
-	suite_dir="$(cd "$(dirname "${suite_path}")" && pwd -P)"
-	log "Maestro suite plan for $(basename "${suite_path}"):"
+	awk '
+		/^[[:space:]]*-[[:space:]]*runFlow:[[:space:]]*[^[:space:]]/ {
+			sub(/^[[:space:]]*-[[:space:]]*runFlow:[[:space:]]*/, "")
+			gsub(/^["'\''[:space:]]+|["'\''[:space:]]+$/, "")
+			print
+		}
+	' "${suite_path}"
+}
+
+maestro_flow_label() {
+	local flow="$1"
+	flow="${flow##*/}"
+	flow="${flow%.yaml}"
+	printf '%s' "${flow}"
+}
+
+maestro_direct_flow_plan() {
+	local suite_path="$1"
+	local suite_name
+	local preview_limit="${E2E_MAESTRO_FLOW_PREVIEW_LIMIT:-6}"
+	local flow
+	local flow_count=0
+	local preview_count=0
+	local preview=""
+
+	[[ -f "${suite_path}" ]] || return 0
+	suite_name="$(basename "${suite_path}")"
+	if [[ ! "${preview_limit}" =~ ^[0-9]+$ ]]; then
+		preview_limit=6
+	fi
+
 	while IFS= read -r flow; do
 		[[ -n "${flow}" ]] || continue
 		flow_count=$((flow_count + 1))
-		case "${flow}" in
-			/*)
-				log "  ${flow_count}. ${flow}"
-				;;
-			*)
-				if resolved_dir="$(cd "${suite_dir}" && cd "$(dirname "${flow}")" && pwd -P 2>/dev/null)"; then
-					log "  ${flow_count}. ${flow} (${resolved_dir}/$(basename "${flow}"))"
-				else
-					log "  ${flow_count}. ${flow} (${suite_dir}/${flow})"
-				fi
-				;;
-		esac
-	done < <(
-		awk '
-			/^[[:space:]]*-[[:space:]]*runFlow:[[:space:]]*[^[:space:]]/ {
-				sub(/^[[:space:]]*-[[:space:]]*runFlow:[[:space:]]*/, "")
-				gsub(/^["'\''[:space:]]+|["'\''[:space:]]+$/, "")
-				print
-			}
-		' "${suite_path}"
-	)
+		if [[ "${preview_count}" -lt "${preview_limit}" ]]; then
+			if [[ -n "${preview}" ]]; then
+				preview="${preview}, "
+			fi
+			preview="${preview}$(maestro_flow_label "${flow}")"
+			preview_count=$((preview_count + 1))
+		fi
+	done < <(maestro_direct_flow_entries "${suite_path}")
 
 	if [[ "${flow_count}" == "0" ]]; then
-		log "  inline commands only"
+		log "Maestro suite: ${suite_name}; inline commands only."
+	else
+		log "Maestro suite: ${suite_name}; top-level runFlow entries=${flow_count}."
+		if [[ "${preview_count}" -gt "0" ]]; then
+			if [[ "${flow_count}" -gt "${preview_count}" ]]; then
+				preview="${preview}, +$((flow_count - preview_count)) more"
+			fi
+			log "Maestro flow preview: ${preview}."
+		else
+			log "Maestro flow preview disabled; set E2E_MAESTRO_FLOW_PREVIEW_LIMIT to show entries."
+		fi
+	fi
+
+	if [[ "${E2E_MAESTRO_PRINT_FLOW_PLAN:-0}" == "1" && "${flow_count}" != "0" ]]; then
+		local index=0
+		while IFS= read -r flow; do
+			[[ -n "${flow}" ]] || continue
+			index=$((index + 1))
+			log "  ${index}/${flow_count} ${flow}"
+		done < <(maestro_direct_flow_entries "${suite_path}")
+	fi
+}
+
+log_maestro_start() {
+	local platform="$1"
+	local suite_path="$2"
+	local log_file="$3"
+	local report_file="${E2E_MAESTRO_REPORT_FILE:-}"
+	local test_output_dir="$4"
+	local debug_output_dir="$5"
+	local interval_seconds="$6"
+
+	log "${platform} Maestro start: suite=$(basename "${suite_path}"), progressInterval=${interval_seconds}s."
+	log "${platform} Maestro outputs: log=$(display_path "${log_file}"), report=$(display_path "${report_file}"), artifacts=$(display_path "${test_output_dir}"), debug=$(display_path "${debug_output_dir}")."
+}
+
+log_maestro_finish() {
+	local platform="$1"
+	local status="$2"
+	local started_at="$3"
+	local elapsed
+
+	elapsed="$(elapsed_label "$(($(date +%s) - started_at))")"
+	if [[ "${status}" == "0" ]]; then
+		log "${platform} Maestro finished: passed in ${elapsed}."
+	else
+		log "${platform} Maestro finished: failed with exit ${status} after ${elapsed}."
 	fi
 }
 
@@ -148,16 +227,16 @@ log_maestro_progress() {
 				;;
 		esac
 		if [[ -n "${latest_line}" ]]; then
-			log "${platform} Maestro still running after ${elapsed}; latest artifact $(basename "${latest_file}"): ${latest_line}"
+			log "${platform} Maestro running ${elapsed}; artifact=$(display_path "${latest_file}"); last='${latest_line}'."
 		else
-			log "${platform} Maestro still running after ${elapsed}; latest artifact $(basename "${latest_file}") updated."
+			log "${platform} Maestro running ${elapsed}; artifact=$(display_path "${latest_file}") updated."
 		fi
 		return 0
 	fi
 
 	wiremock_request="$(latest_wiremock_request)"
 	if [[ -n "${wiremock_request}" ]]; then
-		log "${platform} Maestro still running after ${elapsed}; latest WireMock request: ${wiremock_request}"
+		log "${platform} Maestro running ${elapsed}; latest WireMock request: ${wiremock_request}."
 		return 0
 	fi
 
@@ -165,9 +244,9 @@ log_maestro_progress() {
 		latest_line="$(tail -n 1 "${log_file}" 2>/dev/null | tr -d '\r' | cut -c1-220)"
 	fi
 	if [[ -n "${latest_line}" ]]; then
-		log "${platform} Maestro still running after ${elapsed}; latest log line: ${latest_line}"
+		log "${platform} Maestro running ${elapsed}; latest log='${latest_line}'."
 	else
-		log "${platform} Maestro still running after ${elapsed}; waiting for Maestro output."
+		log "${platform} Maestro running ${elapsed}; waiting for first Maestro output."
 	fi
 }
 
@@ -185,6 +264,7 @@ run_maestro_with_progress() {
 	local status=0
 
 	maestro_direct_flow_plan "${suite_path}"
+	log_maestro_start "${platform}" "${suite_path}" "${log_file}" "${test_output_dir}" "${debug_output_dir}" "${interval_seconds}"
 	started_at="$(date +%s)"
 	(
 		set -o pipefail
@@ -205,6 +285,7 @@ run_maestro_with_progress() {
 	wait "${command_pid}" || status="$?"
 	kill "${monitor_pid}" >/dev/null 2>&1 || true
 	wait "${monitor_pid}" >/dev/null 2>&1 || true
+	log_maestro_finish "${platform}" "${status}" "${started_at}"
 	return "${status}"
 }
 
