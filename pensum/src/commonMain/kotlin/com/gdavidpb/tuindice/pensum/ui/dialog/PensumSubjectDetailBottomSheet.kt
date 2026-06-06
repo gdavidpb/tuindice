@@ -95,10 +95,12 @@ fun PensumSubjectDetailBottomSheet(
 					verticalArrangement = Arrangement.spacedBy(12.dp)
 				) {
 					Column(
+						modifier = Modifier.fillMaxWidth(),
 						verticalArrangement = Arrangement.spacedBy(10.dp)
 					) {
 						Row(
-							horizontalArrangement = Arrangement.spacedBy(10.dp),
+							modifier = Modifier.fillMaxWidth(),
+							horizontalArrangement = Arrangement.SpaceBetween,
 							verticalAlignment = Alignment.CenterVertically
 						) {
 							PensumSubjectCodeChip(
