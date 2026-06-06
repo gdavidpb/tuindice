@@ -71,8 +71,8 @@ fun EvaluationsWeekStripView(
 	) {
 		PeekingSelectorView(
 			items = weekItems,
-			selectedItemKey = visibleSelectedWeekKey,
-			itemKey = { item -> item.key },
+			selectedItemKey = visibleSelectedWeekKey.tagSuffix,
+			itemKey = { item -> item.key.tagSuffix },
 			itemTestTag = { item -> EvaluationsUiTags.evaluationsWeekChip(item.key) },
 			itemWidthFraction = WeekSelectorItemWidthFraction,
 			onItemSelected = { item -> onWeekSelected(item.key) },
