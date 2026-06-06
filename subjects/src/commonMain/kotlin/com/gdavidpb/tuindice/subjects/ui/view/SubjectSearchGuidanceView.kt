@@ -45,16 +45,9 @@ fun SubjectSearchGuidanceView(
 		verticalArrangement = Arrangement.spacedBy(14.dp)
 	) {
 		if (hasDraftQuery) {
-			Text(
-				text = stringResource(Res.string.subjects_search_min_query_title),
-				style = MaterialTheme.typography.titleMedium,
-				fontWeight = FontWeight.Bold,
-				color = MaterialTheme.colorScheme.onSurface
-			)
-			Text(
-				text = stringResource(Res.string.subjects_search_min_query_message),
-				style = MaterialTheme.typography.bodyMedium,
-				color = MaterialTheme.colorScheme.onSurfaceVariant
+			SubjectSearchMessage(
+				title = stringResource(Res.string.subjects_search_min_query_title),
+				description = stringResource(Res.string.subjects_search_min_query_message)
 			)
 		}
 		Text(

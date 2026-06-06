@@ -86,4 +86,39 @@ class SubjectSearchScreenUiTest {
 		assertNodeVisible(SubjectsUiTags.SearchResults)
 		assertNodeVisible(SubjectsUiTags.searchResult("CI2511"))
 	}
+
+	@Test
+	fun when_queryHasNoResults_then_displaysConsistentEmptyMessage() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SubjectSearchScreen(
+				state = SubjectSearch.State(query = "zz"),
+				onQueryChange = {},
+				onClearClick = {},
+				onRetryClick = {},
+				onSubjectClick = {}
+			)
+		}
+
+		onNodeWithText("No encontramos materias").assertExists()
+		onNodeWithText("No hay resultados para \"zz\". Prueba con otro código o nombre.").assertExists()
+	}
+
+	@Test
+	fun when_searchFails_then_displaysConsistentErrorMessage() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SubjectSearchScreen(
+				state = SubjectSearch.State(
+					query = "ci",
+					hasRemoteError = true
+				),
+				onQueryChange = {},
+				onClearClick = {},
+				onRetryClick = {},
+				onSubjectClick = {}
+			)
+		}
+
+		onNodeWithText("No pudimos buscar materias").assertExists()
+		onNodeWithText("Intenta de nuevo.").assertExists()
+	}
 }
