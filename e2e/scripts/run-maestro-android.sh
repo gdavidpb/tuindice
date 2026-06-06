@@ -46,4 +46,10 @@ fi
 maestro_args+=("${E2E_MAESTRO_SUITE}")
 
 log "Running Maestro Android suite ${E2E_MAESTRO_SUITE}."
-HOME="${MAESTRO_HOME}" maestro "${maestro_args[@]}" 2>&1 | tee "${MAESTRO_LOG_FILE}"
+run_maestro_with_progress \
+	"Android" \
+	"${MAESTRO_LOG_FILE}" \
+	"${E2E_MAESTRO_SUITE}" \
+	"${E2E_MAESTRO_TEST_OUTPUT_DIR:-}" \
+	"${E2E_MAESTRO_DEBUG_OUTPUT_DIR:-}" \
+	env HOME="${MAESTRO_HOME}" maestro "${maestro_args[@]}"
