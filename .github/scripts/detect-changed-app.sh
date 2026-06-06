@@ -376,7 +376,6 @@ classify_changed_file() {
 		e2e/scripts/*|e2e/platform/*)
 			E2E_CONTRACT_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
-			append_e2e_scope all local-certification-suite "e2e-runner"
 			return 0
 			;;
 		mocks/*)

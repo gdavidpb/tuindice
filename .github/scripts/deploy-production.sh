@@ -54,22 +54,50 @@ create_release_tag() {
 }
 
 run_deploy_preflight() {
+	local detect_output_file
+	local has_relevant_changes
+	local app_version_changed
+	local has_release_impact
+	local should_deploy
+
 	BEFORE_SHA="$(resolve_deploy_diff_base_sha)"
 	[[ -n "$BEFORE_SHA" ]] || die "Unable to resolve previous production SHA."
 
 	DETECT_STATE_DIR="${STATE_DIR}/detect"
 	mkdir -p "$DETECT_STATE_DIR"
+	detect_output_file="${STATE_DIR}/detect-output.env"
 
-	STATE_DIR="$DETECT_STATE_DIR" bash "${SCRIPT_DIR}/detect-changed-app.sh" "$BEFORE_SHA" "$TARGET_GIT_SHA"
+	GITHUB_OUTPUT="$detect_output_file" \
+	STATE_DIR="$DETECT_STATE_DIR" \
+		bash "${SCRIPT_DIR}/detect-changed-app.sh" "$BEFORE_SHA" "$TARGET_GIT_SHA"
+
+	has_relevant_changes="$(awk -F= '$1 == "has_relevant_changes" { print $2 }' "$detect_output_file")"
+	app_version_changed="$(awk -F= '$1 == "app_version_changed" { print $2 }' "$detect_output_file")"
+	has_release_impact="$(awk -F= '$1 == "has_release_impact" { print $2 }' "$detect_output_file")"
+
+	should_deploy=false
+	if [[ "$app_version_changed" == "true" || "$has_release_impact" == "true" ]]; then
+		should_deploy=true
+	fi
+
+	if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
+		printf 'should_deploy=%s\n' "$should_deploy" >>"$GITHUB_OUTPUT"
+	fi
 
 	MISSING_VERSION_BUMP_FILE="${DETECT_STATE_DIR}/missing-version-bump.txt" \
 	E2E_ANDROID_CONTEXTS_FILE="${DETECT_STATE_DIR}/e2e-android-contexts.txt" \
 	E2E_IOS_CONTEXTS_FILE="${DETECT_STATE_DIR}/e2e-ios-contexts.txt" \
 	REQUIRES_E2E_CERTIFICATION="false" \
-	HAS_RELEVANT_CHANGES="true" \
+	HAS_RELEVANT_CHANGES="$has_relevant_changes" \
+	APP_VERSION_CHANGED="$app_version_changed" \
+	HAS_RELEASE_IMPACT="$has_release_impact" \
 	TARGET_GIT_SHA="$TARGET_GIT_SHA" \
 	SKIP_E2E_STATUS_CHECK=1 \
 		bash "${SCRIPT_DIR}/preflight-production.sh"
+
+	if [[ "$should_deploy" != "true" ]]; then
+		info "No app version or runtime release changes detected; production deploy jobs should be skipped."
+	fi
 }
 
 run_android_deploy() {
