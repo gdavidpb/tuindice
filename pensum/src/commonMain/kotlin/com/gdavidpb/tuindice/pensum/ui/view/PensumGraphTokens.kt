@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.pensum.ui.view
 
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
@@ -14,6 +15,8 @@ internal val CanvasNeutral = Available
 internal val Selected = Color(0xFFF7F7F7)
 internal val TextPrimary = Color(0xFFF7F7F7)
 internal val TextSecondary = Color(0xFF9C9EA3)
+internal val PensumElementCornerRadius = 8.dp
+internal val PensumElementShape = RoundedCornerShape(PensumElementCornerRadius)
 
 internal const val MinCanvasZoom = 0.18f
 internal const val MinCanvasFitZoom = 0.08f

@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -64,7 +63,7 @@ fun PensumStickyTermHeader(
 					.fillMaxHeight()
 					.padding(horizontal = 4.dp, vertical = 5.dp)
 					.clickable { onTermClick(term.id) },
-				shape = RoundedCornerShape(8.dp),
+				shape = PensumElementShape,
 				color = FloatingPanelBackground,
 				border = BorderStroke(1.dp, PanelBorder.copy(alpha = 0.9f))
 			) {

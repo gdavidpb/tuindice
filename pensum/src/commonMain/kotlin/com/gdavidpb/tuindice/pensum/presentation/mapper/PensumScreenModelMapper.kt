@@ -144,6 +144,7 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 			((approvedCredits.toDouble() / pensum.totalCredits.toDouble()) * 100).roundToInt().coerceIn(0, 100),
 		approvedCredits = approvedCredits,
 		totalCredits = pensum.totalCredits,
+		isCurrentFocusVisible = displayNodes.any(PensumNodeItem::isCurrent),
 		canvas = PensumCanvasItem(
 			width = displayCanvasWidth,
 			height = displayCanvasHeight

@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.pensum.ui.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,7 +25,7 @@ fun PensumSubjectCodeChip(
 
 	Text(
 		modifier = modifier
-			.background(chipColors.container, RoundedCornerShape(8.dp))
+			.background(chipColors.container, PensumElementShape)
 			.padding(horizontal = 10.dp, vertical = 6.dp),
 		text = code,
 		style = MaterialTheme.typography.labelLarge,

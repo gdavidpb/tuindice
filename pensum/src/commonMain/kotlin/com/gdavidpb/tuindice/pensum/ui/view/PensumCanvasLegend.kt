@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.PlayArrow
@@ -72,7 +71,7 @@ fun PensumCanvasLegend(
 			.fillMaxWidth()
 			.padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
 			.testTag(PensumUiTags.CanvasLegend),
-		shape = RoundedCornerShape(8.dp),
+		shape = PensumElementShape,
 		color = FloatingPanelBackground,
 		border = BorderStroke(1.dp, PanelBorder.copy(alpha = 0.9f))
 	) {

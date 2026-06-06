@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumRelationshipType
 import com.gdavidpb.tuindice.pensum.domain.model.PensumSelection
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class PensumScreenModelMapperTest {
@@ -212,6 +213,40 @@ class PensumScreenModelMapperTest {
 		assertEquals(false, nodesById.getValue(approvedNode.id).isBlocked)
 		assertEquals(true, nodesById.getValue(blockedNode.id).isBlocked)
 		assertEquals(true, model.edges.single().isDisconnected)
+	}
+
+	@Test
+	fun when_currentNodeExists_then_displayModelShowsCurrentFocus() {
+		val currentNode = course(
+			id = "ma2112",
+			displayCode = "MA2112",
+			y = 84.0,
+			height = 120.0
+		)
+
+		val model = observedPensum(
+			nodes = listOf(currentNode),
+			nodeStatuses = mapOf(currentNode.id to PensumNodeStatus.CURRENT)
+		).toScreenModel()
+
+		assertTrue(model.isCurrentFocusVisible)
+	}
+
+	@Test
+	fun when_noCurrentNodeExists_then_displayModelHidesCurrentFocus() {
+		val availableNode = course(
+			id = "ma2112",
+			displayCode = "MA2112",
+			y = 84.0,
+			height = 120.0
+		)
+
+		val model = observedPensum(
+			nodes = listOf(availableNode),
+			nodeStatuses = mapOf(availableNode.id to PensumNodeStatus.AVAILABLE)
+		).toScreenModel()
+
+		assertFalse(model.isCurrentFocusVisible)
 	}
 }
 

@@ -583,6 +583,7 @@ fun PensumGraphCanvas(
 			modifier = Modifier
 				.align(Alignment.BottomEnd)
 				.padding(end = 16.dp, bottom = CanvasBottomOverlayPadding),
+			isCurrentFocusVisible = model.isCurrentFocusVisible,
 			isMinimapToggleVisible = shouldShowMinimapControls,
 			isMinimapVisible = isMinimapVisible,
 			isFitToScreenVisible = !isFitToScreen,
@@ -610,7 +611,10 @@ private fun DrawScope.drawCanvasBackground(
 	drawRoundRect(
 		color = Color(0xFF141516),
 		size = Size(widthPx, heightPx),
-		cornerRadius = androidx.compose.ui.geometry.CornerRadius(12.dp.toPx(), 12.dp.toPx())
+		cornerRadius = androidx.compose.ui.geometry.CornerRadius(
+			PensumElementCornerRadius.toPx(),
+			PensumElementCornerRadius.toPx()
+		)
 	)
 	model.terms.forEach { term ->
 		val x = term.x.toFloat() * density
@@ -620,17 +624,22 @@ private fun DrawScope.drawCanvasBackground(
 			topLeft = Offset(x, 0f),
 			size = Size(termWidth, heightPx)
 		)
-		drawLine(
-			color = PanelBorder,
-			start = Offset(x, 0f),
-			end = Offset(x, heightPx),
-			strokeWidth = 1.dp.toPx()
-		)
+		if (x > 0f) {
+			drawLine(
+				color = PanelBorder,
+				start = Offset(x, 0f),
+				end = Offset(x, heightPx),
+				strokeWidth = 1.dp.toPx()
+			)
+		}
 	}
 	drawRoundRect(
 		color = PanelBorder,
 		size = Size(widthPx, heightPx),
-		cornerRadius = androidx.compose.ui.geometry.CornerRadius(12.dp.toPx(), 12.dp.toPx()),
+		cornerRadius = androidx.compose.ui.geometry.CornerRadius(
+			PensumElementCornerRadius.toPx(),
+			PensumElementCornerRadius.toPx()
+		),
 		style = Stroke(width = 1.dp.toPx())
 	)
 	model.edges.forEach { edge ->
@@ -845,15 +854,7 @@ private fun List<PensumNodeItem>.canvasBounds(): CanvasBounds? {
 
 private fun PensumScreenModel.progressFocusBounds(): CanvasBounds? {
 	val currentNodes = nodes.filter { node -> node.isCurrent }
-	if (currentNodes.isNotEmpty()) return currentNodes.canvasBounds()
-
-	val availableNodes = nodes.filter { node -> !node.isApproved && !node.isBlocked }
-	if (availableNodes.isNotEmpty()) return availableNodes.leadingColumn().canvasBounds()
-
-	val approvedNodes = nodes.filter { node -> node.isApproved }
-	if (approvedNodes.isNotEmpty()) return approvedNodes.trailingColumn().canvasBounds()
-
-	return nodes.firstOrNull()?.canvasBounds()
+	return currentNodes.canvasBounds()
 }
 
 private fun PensumScreenModel.termFocusBounds(termId: String): CanvasBounds? {
@@ -875,16 +876,6 @@ private fun PensumScreenModel.termFocusBounds(termId: String): CanvasBounds? {
 		right = (term.x + term.width).toFloat(),
 		bottom = canvas.height.toFloat()
 	)
-}
-
-private fun List<PensumNodeItem>.leadingColumn(): List<PensumNodeItem> {
-	val firstX = minOf { node -> node.x }
-	return filter { node -> abs(node.x - firstX) < 1.0 }
-}
-
-private fun List<PensumNodeItem>.trailingColumn(): List<PensumNodeItem> {
-	val lastX = maxOf { node -> node.x }
-	return filter { node -> abs(node.x - lastX) < 1.0 }
 }
 
 private fun focusCanvasScale(

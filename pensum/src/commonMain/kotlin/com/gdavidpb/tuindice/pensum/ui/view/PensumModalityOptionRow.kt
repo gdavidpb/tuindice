@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
@@ -38,7 +37,7 @@ fun PensumModalityOptionRow(
 				role = Role.RadioButton,
 				onClick = onClick
 			),
-		shape = RoundedCornerShape(8.dp),
+		shape = PensumElementShape,
 		color = if (isSelected)
 			MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.28f)
 		else

@@ -145,6 +145,7 @@ private fun sampleContentState(): Pensum.State.Content {
 			progressPercent = 0,
 			approvedCredits = 0,
 			totalCredits = 0,
+			isCurrentFocusVisible = false,
 			canvas = PensumCanvasItem(width = 0.0, height = 0.0),
 			terms = emptyList(),
 			nodes = emptyList(),

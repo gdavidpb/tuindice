@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
@@ -33,6 +32,7 @@ import tuindice.pensum.generated.resources.pensum_zoom_out
 
 @Composable
 fun PensumZoomControls(
+	isCurrentFocusVisible: Boolean,
 	isMinimapToggleVisible: Boolean,
 	isMinimapVisible: Boolean,
 	isFitToScreenVisible: Boolean,
@@ -43,7 +43,8 @@ fun PensumZoomControls(
 	onZoomOut: () -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	val controlsCount = 3 +
+	val controlsCount = 2 +
+		(if (isCurrentFocusVisible) 1 else 0) +
 		(if (isFitToScreenVisible) 1 else 0) +
 		(if (isMinimapToggleVisible) 1 else 0)
 	val controlsHeight = ZoomControlButtonHeight * controlsCount.toFloat()
@@ -52,23 +53,25 @@ fun PensumZoomControls(
 		modifier = modifier
 			.width(48.dp)
 			.height(controlsHeight)
-			.background(Color.Black.copy(alpha = 0.68f), RoundedCornerShape(8.dp))
-			.border(1.dp, CanvasNeutral, RoundedCornerShape(8.dp))
+			.background(Color.Black.copy(alpha = 0.68f), PensumElementShape)
+			.border(1.dp, CanvasNeutral, PensumElementShape)
 	) {
-		IconButton(
-			modifier = Modifier
-				.weight(1f)
-				.fillMaxWidth()
-				.testTag(PensumUiTags.FocusProgress),
-			onClick = onFocusProgress
-		) {
-			Icon(
-				imageVector = Icons.Outlined.BookmarkBorder,
-				contentDescription = stringResource(Res.string.pensum_focus_progress),
-				tint = TextPrimary
-			)
+		if (isCurrentFocusVisible) {
+			IconButton(
+				modifier = Modifier
+					.weight(1f)
+					.fillMaxWidth()
+					.testTag(PensumUiTags.FocusProgress),
+				onClick = onFocusProgress
+			) {
+				Icon(
+					imageVector = Icons.Outlined.BookmarkBorder,
+					contentDescription = stringResource(Res.string.pensum_focus_progress),
+					tint = TextPrimary
+				)
+			}
+			PensumZoomControlDivider()
 		}
-		PensumZoomControlDivider()
 		if (isFitToScreenVisible) {
 			IconButton(
 				modifier = Modifier

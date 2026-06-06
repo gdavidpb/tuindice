@@ -196,6 +196,26 @@ class PensumScreenUiTest {
 	}
 
 	@Test
+	fun when_contentHasNoCurrentFocus_then_hidesCurrentFocusButton() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = Pensum.State.Content(
+					model = samplePensumModel().copy(isCurrentFocusVisible = false)
+				),
+				onRetryClick = {},
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		assertNodeHidden(PensumUiTags.FocusProgress)
+		onNodeWithTag(PensumUiTags.ZoomIn).assertHasClickAction()
+		onNodeWithTag(PensumUiTags.ZoomOut).assertHasClickAction()
+	}
+
+	@Test
 	fun when_nodeIsWildcardSlot_then_statsButtonIsHidden() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			PensumScreen(
@@ -279,6 +299,7 @@ private fun samplePensumModel(): PensumScreenModel {
 		progressPercent = 0,
 		approvedCredits = 0,
 		totalCredits = 8,
+		isCurrentFocusVisible = true,
 		canvas = PensumCanvasItem(width = 520.0, height = 700.0),
 		terms = listOf(PensumTermItem(id = "T1", label = "Primer trimestre", x = 0.0, width = 240.0)),
 		nodes = listOf(
@@ -293,7 +314,9 @@ private fun samplePensumModel(): PensumScreenModel {
 				y = 72.0,
 				width = 190.0,
 				height = 144.0,
-				subjectStatsCode = "CI4325"
+				subjectStatsCode = "CI4325",
+				status = currentNodeStatus(),
+				visualStyle = currentNodeVisualStyle()
 			),
 			sampleNode(
 				id = "ea1",
@@ -393,9 +416,10 @@ private fun sampleNode(
 	y: Double,
 	width: Double,
 	height: Double,
-	subjectStatsCode: String? = null
+	subjectStatsCode: String? = null,
+	status: PensumNodeStatusDisplay = availableNodeStatus(),
+	visualStyle: PensumNodeVisualStyle = availableNodeVisualStyle()
 ): PensumNodeItem {
-	val status = availableNodeStatus()
 	val creditsText = "$credits UC"
 
 	return PensumNodeItem(
@@ -411,7 +435,7 @@ private fun sampleNode(
 		y = y,
 		width = width,
 		height = height,
-		visualStyle = availableNodeVisualStyle(),
+		visualStyle = visualStyle,
 		status = status,
 		subjectStatsCode = subjectStatsCode,
 		fulfilledSubject = null,
@@ -427,11 +451,30 @@ private fun sampleNode(
 	)
 }
 
+private fun currentNodeStatus(): PensumNodeStatusDisplay {
+	return PensumNodeStatusDisplay(
+		type = PensumNodeStatusType.CURRENT,
+		icon = PensumNodeStatusIcon.PLAY,
+		colorArgb = 0xFFFFC400
+	)
+}
+
 private fun availableNodeStatus(): PensumNodeStatusDisplay {
 	return PensumNodeStatusDisplay(
 		type = PensumNodeStatusType.AVAILABLE,
 		icon = PensumNodeStatusIcon.ADD,
 		colorArgb = 0xFF8A8F94
+	)
+}
+
+private fun currentNodeVisualStyle(): PensumNodeVisualStyle {
+	return PensumNodeVisualStyle(
+		containerArgb = 0xFF171819,
+		borderArgb = 0xFFFFC400,
+		chipArgb = 0xFFF7E6A6,
+		chipTextArgb = 0xFF5A4A00,
+		textArgb = 0xFFF7F7F7,
+		secondaryTextArgb = 0xFF9C9EA3
 	)
 }
 

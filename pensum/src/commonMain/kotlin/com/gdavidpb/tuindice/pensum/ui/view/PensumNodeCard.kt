@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Icon
@@ -54,7 +53,7 @@ fun PensumNodeCard(
 
 	Surface(
 		modifier = modifier,
-		shape = RoundedCornerShape(8.dp),
+		shape = PensumElementShape,
 		color = colors.container,
 		border = BorderStroke(
 			width = if (isHighlighted) 2.2.dp else 1.2.dp,
@@ -77,7 +76,7 @@ fun PensumNodeCard(
 				Text(
 					modifier = Modifier
 						.padding(end = 28.dp)
-						.background(chipColors.container, RoundedCornerShape(6.dp))
+						.background(chipColors.container, PensumElementShape)
 						.padding(horizontal = 8.dp, vertical = 4.dp),
 					text = node.displayCode,
 					style = MaterialTheme.typography.labelMedium,

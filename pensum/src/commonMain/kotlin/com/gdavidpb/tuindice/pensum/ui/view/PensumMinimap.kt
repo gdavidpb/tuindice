@@ -7,7 +7,6 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -20,6 +19,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import kotlin.math.min
 
 @Composable
 fun PensumMinimap(
@@ -49,8 +49,8 @@ fun PensumMinimap(
 	Canvas(
 		modifier = modifier
 			.size(MinimapWidth, MinimapHeight)
-			.background(Color.Black.copy(alpha = 0.62f), RoundedCornerShape(8.dp))
-			.border(1.dp, CanvasNeutral, RoundedCornerShape(8.dp))
+			.background(Color.Black.copy(alpha = 0.62f), PensumElementShape)
+			.border(1.dp, CanvasNeutral, PensumElementShape)
 			.padding(8.dp)
 			.pointerInput(model.canvas, scale) {
 				detectTapGestures(
@@ -74,6 +74,7 @@ fun PensumMinimap(
 	) {
 		val sx = size.width / model.canvas.width.toFloat()
 		val sy = size.height / model.canvas.height.toFloat()
+		val nodeCornerRadius = PensumElementCornerRadius.value * min(sx, sy)
 		model.edges.forEach { edge ->
 			val isFocusedEdge = edge.id in selectedRequirementEdgeIds || edge.id in selectedUnlockEdgeIds
 			val color = when {
@@ -118,7 +119,7 @@ fun PensumMinimap(
 				color = node.visualStyle.toNodeColors().border.copy(alpha = nodeAlpha),
 				topLeft = Offset(node.x.toFloat() * sx, node.y.toFloat() * sy),
 				size = Size((node.width.toFloat() * sx).coerceAtLeast(5f), (node.height.toFloat() * sy).coerceAtLeast(4f)),
-				cornerRadius = androidx.compose.ui.geometry.CornerRadius(2f, 2f)
+				cornerRadius = androidx.compose.ui.geometry.CornerRadius(nodeCornerRadius, nodeCornerRadius)
 			)
 		}
 

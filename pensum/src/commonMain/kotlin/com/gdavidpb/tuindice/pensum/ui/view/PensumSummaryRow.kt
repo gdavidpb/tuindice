@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.Icon
@@ -55,7 +54,7 @@ fun PensumSummaryRow(
 	val approvedCredits = remember { Animatable(0f) }
 	val totalCredits = remember { Animatable(0f) }
 	val targetProgress = model.progressPercent.coerceIn(0, 100) / 100f
-	val summaryShape = RoundedCornerShape(18.dp)
+	val summaryShape = PensumElementShape
 	val summaryTextStyle = MaterialTheme.typography.bodyMedium
 	val summaryAnimationSpec = tween<Float>(
 		durationMillis = SummaryAnimationMillis,

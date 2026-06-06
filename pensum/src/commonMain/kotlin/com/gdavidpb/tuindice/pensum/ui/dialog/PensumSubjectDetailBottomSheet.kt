@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +34,7 @@ import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.model.toImageVector
 import com.gdavidpb.tuindice.pensum.ui.view.Current
 import com.gdavidpb.tuindice.pensum.ui.view.PanelBackground
+import com.gdavidpb.tuindice.pensum.ui.view.PensumElementShape
 import com.gdavidpb.tuindice.pensum.ui.view.PensumSubjectCodeChip
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -83,7 +83,7 @@ fun PensumSubjectDetailBottomSheet(
 		) {
 			Surface(
 				modifier = Modifier.fillMaxWidth(),
-				shape = RoundedCornerShape(12.dp),
+				shape = PensumElementShape,
 				color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.48f),
 				border = BorderStroke(
 					width = 1.dp,
@@ -198,7 +198,7 @@ private fun PensumSubjectDetailMeta(
 ) {
 	Surface(
 		modifier = modifier,
-		shape = RoundedCornerShape(8.dp),
+		shape = PensumElementShape,
 		color = MaterialTheme.colorScheme.surface.copy(alpha = 0.55f),
 		border = BorderStroke(
 			width = 1.dp,
@@ -235,7 +235,7 @@ private fun PensumFulfilledSubjectSummary(
 ) {
 	Surface(
 		modifier = Modifier.fillMaxWidth(),
-		shape = RoundedCornerShape(10.dp),
+		shape = PensumElementShape,
 		color = Current.copy(alpha = 0.12f),
 		border = BorderStroke(
 			width = 1.dp,
