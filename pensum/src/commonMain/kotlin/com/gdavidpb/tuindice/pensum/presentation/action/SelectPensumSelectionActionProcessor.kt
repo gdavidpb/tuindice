@@ -27,14 +27,14 @@ class SelectPensumSelectionActionProcessor(
 				is UseCaseState.Loading -> suspend { state: Pensum.State -> state.loadingOrContent() }
 				is UseCaseState.Data -> null
 				is UseCaseState.Error -> suspend { state: Pensum.State ->
-					if (useCaseState.error == UpdatePensumUseCaseError.NotFound) {
-						Pensum.State.Empty
-					} else {
-						sideEffect(Pensum.Effect.ShowSnackBar(useCaseState.error.toSnackBarMessage()))
-						state.failedOrContent()
+						if (useCaseState.error == UpdatePensumUseCaseError.NotFound) {
+							Pensum.State.Empty
+						} else {
+							state.showSnackBarIfContent(useCaseState.error, sideEffect)
+							state.failedOrContent(useCaseState.error.toFailedMessage())
+						}
 					}
 				}
-			}
 		}
 	}
 }

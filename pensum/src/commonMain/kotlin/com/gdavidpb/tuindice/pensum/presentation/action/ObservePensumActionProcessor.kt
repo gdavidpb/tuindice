@@ -3,15 +3,16 @@ package com.gdavidpb.tuindice.pensum.presentation.action
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
 import com.gdavidpb.tuindice.pensum.presentation.mapper.toScreenModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
-import org.jetbrains.compose.resources.getString
 import tuindice.pensum.generated.resources.Res
-import tuindice.pensum.generated.resources.snack_default_error
+import tuindice.pensum.generated.resources.pensum_failed_message
+import tuindice.pensum.generated.resources.pensum_failed_record_data_unavailable
 
 class ObservePensumActionProcessor(
 	private val observePensumUseCase: ObservePensumUseCase
@@ -27,34 +28,37 @@ class ObservePensumActionProcessor(
 
 					is UseCaseState.Data -> suspend { state: Pensum.State ->
 						when (val observation = useCaseState.value) {
-								is PensumObservation.Content ->
-									Pensum.State.Content(model = observation.pensum.toScreenModel())
+							is PensumObservation.Content ->
+								Pensum.State.Content(model = observation.pensum.toScreenModel())
 
-								PensumObservation.Missing,
-								PensumObservation.WaitingForRecordData,
-								-> when (state) {
-									Pensum.State.Empty -> Pensum.State.Empty
-									Pensum.State.Idle,
-									is Pensum.State.Content,
-									Pensum.State.Failed,
-									Pensum.State.Loading,
+							PensumObservation.Missing,
+							PensumObservation.WaitingForRecordData,
+							-> when (state) {
+								Pensum.State.Empty -> Pensum.State.Empty
+								Pensum.State.Idle,
+								is Pensum.State.Content,
+								is Pensum.State.Failed,
+								Pensum.State.Loading,
 								-> Pensum.State.Loading
 							}
 
-								PensumObservation.RecordDataUnavailable -> when (state) {
-									Pensum.State.Empty -> Pensum.State.Empty
-									Pensum.State.Idle,
-									is Pensum.State.Content,
-									Pensum.State.Failed,
-									Pensum.State.Loading,
-								-> Pensum.State.Failed
+							PensumObservation.RecordDataUnavailable -> when (state) {
+								Pensum.State.Empty -> Pensum.State.Empty
+								Pensum.State.Idle,
+								is Pensum.State.Content,
+								is Pensum.State.Failed,
+								Pensum.State.Loading,
+								-> Pensum.State.Failed(
+									message = UiText.Resource(Res.string.pensum_failed_record_data_unavailable)
+								)
 							}
 						}
 					}
 
 					is UseCaseState.Error -> suspend { _: Pensum.State ->
-						sideEffect(Pensum.Effect.ShowSnackBar(getString(Res.string.snack_default_error)))
-						Pensum.State.Failed
+						Pensum.State.Failed(
+							message = UiText.Resource(Res.string.pensum_failed_message)
+						)
 					}
 				}
 			}

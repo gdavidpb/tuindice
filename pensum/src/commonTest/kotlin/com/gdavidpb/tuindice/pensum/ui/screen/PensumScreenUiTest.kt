@@ -10,16 +10,19 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
+import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
-import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
-import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
-import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import tuindice.pensum.generated.resources.Res
+import tuindice.pensum.generated.resources.pensum_failed_service_unavailable
 
 @OptIn(ExperimentalTestApi::class)
 class PensumScreenUiTest {
@@ -41,6 +44,32 @@ class PensumScreenUiTest {
 		assertNodeVisible(BaseUiTags.EmptyViewMessage)
 		assertNodeVisible(BaseUiTags.EmptyStateAnimation)
 		assertNodeHidden(BaseUiTags.EmptyViewActionButton)
+	}
+
+	@Test
+	fun when_stateIsFailed_then_displaysPersistentFailureCauseAndRetryAction() = runTuIndiceUiTest {
+		var retryCount = 0
+
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = Pensum.State.Failed(
+					message = UiText.Resource(Res.string.pensum_failed_service_unavailable)
+				),
+				onRetryClick = { retryCount += 1 },
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		assertNodeVisible(BaseUiTags.ErrorViewContainer)
+		onNodeWithText("No pudimos cargar el pensum").assertExists()
+		onNodeWithText("El servicio no está disponible. Intenta de nuevo en unos minutos.").assertExists()
+		onNodeWithTag(BaseUiTags.ErrorViewRetryButton)
+			.assertHasClickAction()
+			.performClick()
+		assertEquals(1, retryCount)
 	}
 
 	@Test

@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.pensum.presentation.action
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.pensum.domain.usecase.UpdatePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.error.UpdatePensumUseCaseError
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
@@ -25,8 +26,8 @@ class RefreshPensumActionProcessor(
 						if (useCaseState.error == UpdatePensumUseCaseError.NotFound) {
 							Pensum.State.Empty
 						} else {
-							sideEffect(Pensum.Effect.ShowSnackBar(useCaseState.error.toSnackBarMessage()))
-							state.failedOrContent()
+							state.showSnackBarIfContent(useCaseState.error, sideEffect)
+							state.failedOrContent(useCaseState.error.toFailedMessage())
 						}
 					}
 				}
@@ -37,17 +38,26 @@ class RefreshPensumActionProcessor(
 internal fun Pensum.State.loadingOrContent(): Pensum.State = when (this) {
 	is Pensum.State.Content -> this
 	Pensum.State.Empty,
-	Pensum.State.Failed,
+	is Pensum.State.Failed,
 	Pensum.State.Idle,
 	Pensum.State.Loading,
 	-> Pensum.State.Loading
 }
 
-internal fun Pensum.State.failedOrContent(): Pensum.State = when (this) {
+internal fun Pensum.State.failedOrContent(message: UiText): Pensum.State = when (this) {
 	is Pensum.State.Content -> this
 	Pensum.State.Empty,
-	Pensum.State.Failed,
+	is Pensum.State.Failed,
 	Pensum.State.Idle,
 	Pensum.State.Loading,
-	-> Pensum.State.Failed
+	-> Pensum.State.Failed(message = message)
+}
+
+internal suspend fun Pensum.State.showSnackBarIfContent(
+	error: UpdatePensumUseCaseError?,
+	sideEffect: (Pensum.Effect) -> Unit
+) {
+	if (this is Pensum.State.Content) {
+		sideEffect(Pensum.Effect.ShowSnackBar(error.toSnackBarMessage()))
+	}
 }
