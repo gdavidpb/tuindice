@@ -58,7 +58,7 @@ fun SubjectSearchScreen(
 			onClearClick = onClearClick,
 			onSearch = ::dismissKeyboard
 		)
-		Spacer(modifier = Modifier.height(28.dp))
+		Spacer(modifier = Modifier.height(20.dp))
 
 		when {
 			state.query.trim().length < 2 ->

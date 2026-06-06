@@ -38,7 +38,16 @@ fun SubjectSearchResults(
 	onResultsInteraction: () -> Unit,
 	modifier: Modifier = Modifier
 ) {
-	Column(modifier = modifier.fillMaxWidth()) {
+	Column(
+		modifier = modifier
+			.fillMaxWidth()
+			.pointerInput(onResultsInteraction) {
+				awaitEachGesture {
+					awaitFirstDown(requireUnconsumed = false)
+					onResultsInteraction()
+				}
+			}
+	) {
 		Row(
 			modifier = Modifier.fillMaxWidth(),
 			horizontalArrangement = Arrangement.SpaceBetween,
@@ -60,19 +69,13 @@ fun SubjectSearchResults(
 				)
 			}
 		}
-		Spacer(modifier = Modifier.height(16.dp))
+		Spacer(modifier = Modifier.height(12.dp))
 		LazyColumn(
 			modifier = Modifier
 				.fillMaxSize()
-				.testTag(SubjectsUiTags.SearchResults)
-				.pointerInput(onResultsInteraction) {
-					awaitEachGesture {
-						awaitFirstDown(requireUnconsumed = false)
-						onResultsInteraction()
-					}
-				},
-			contentPadding = PaddingValues(bottom = 24.dp),
-			verticalArrangement = Arrangement.spacedBy(12.dp)
+				.testTag(SubjectsUiTags.SearchResults),
+			contentPadding = PaddingValues(bottom = 80.dp),
+			verticalArrangement = Arrangement.spacedBy(10.dp)
 		) {
 			items(
 				items = results,
