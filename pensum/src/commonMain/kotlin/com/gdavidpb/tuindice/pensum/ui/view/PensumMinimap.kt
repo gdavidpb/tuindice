@@ -30,6 +30,8 @@ fun PensumMinimap(
 	selectedRequirementEdgeIds: Set<String>,
 	selectedUnlockEdgeIds: Set<String>,
 	selectedAvailableUnlockEdgeIds: Set<String>,
+	focusedNodeIds: Set<String>,
+	isFocusActive: Boolean,
 	densityScale: Float,
 	onViewportCenterChange: (Offset) -> Unit,
 	modifier: Modifier = Modifier
@@ -73,13 +75,15 @@ fun PensumMinimap(
 		val sx = size.width / model.canvas.width.toFloat()
 		val sy = size.height / model.canvas.height.toFloat()
 		model.edges.forEach { edge ->
-			val color = when (edge.id) {
-				in selectedAvailableUnlockEdgeIds -> Available.copy(alpha = 0.9f)
-				in selectedRequirementEdgeIds -> Selected.copy(alpha = 0.9f)
-				in selectedUnlockEdgeIds -> Selected.copy(alpha = 0.9f)
-				else -> CanvasNeutral.copy(alpha = 0.55f)
+			val isFocusedEdge = edge.id in selectedRequirementEdgeIds || edge.id in selectedUnlockEdgeIds
+			val color = when {
+				edge.id in selectedAvailableUnlockEdgeIds -> Available.copy(alpha = MinimapFocusedAlpha)
+				isFocusedEdge -> Selected.copy(alpha = MinimapFocusedAlpha)
+				else -> CanvasNeutral.copy(
+					alpha = if (isFocusActive) MinimapDimmedAlpha else MinimapNeutralAlpha
+				)
 			}
-			val strokeWidth = if (edge.id in selectedRequirementEdgeIds || edge.id in selectedUnlockEdgeIds) 4f else 2f
+			val strokeWidth = if (isFocusedEdge) 4f else 2f
 			val pathEffect = if (edge.isDisconnected) {
 				PathEffect.dashPathEffect(
 					floatArrayOf(
@@ -105,8 +109,13 @@ fun PensumMinimap(
 			}
 		}
 		model.nodes.forEach { node ->
+			val nodeAlpha = if (isFocusActive && node.id !in focusedNodeIds) {
+				MinimapDimmedAlpha
+			} else {
+				MinimapFocusedAlpha
+			}
 			drawRoundRect(
-				color = node.visualStyle.toNodeColors().border,
+				color = node.visualStyle.toNodeColors().border.copy(alpha = nodeAlpha),
 				topLeft = Offset(node.x.toFloat() * sx, node.y.toFloat() * sy),
 				size = Size((node.width.toFloat() * sx).coerceAtLeast(5f), (node.height.toFloat() * sy).coerceAtLeast(4f)),
 				cornerRadius = androidx.compose.ui.geometry.CornerRadius(2f, 2f)
@@ -134,3 +143,7 @@ fun PensumMinimap(
 		)
 	}
 }
+
+private const val MinimapFocusedAlpha = 0.9f
+private const val MinimapNeutralAlpha = 0.55f
+private const val MinimapDimmedAlpha = 0.18f

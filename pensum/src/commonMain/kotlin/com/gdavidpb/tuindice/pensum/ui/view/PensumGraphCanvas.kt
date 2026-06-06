@@ -583,6 +583,8 @@ fun PensumGraphCanvas(
 				selectedRequirementEdgeIds = selectedRequirementEdgeIds,
 				selectedUnlockEdgeIds = selectedUnlockEdgeIds,
 				selectedAvailableUnlockEdgeIds = selectedAvailableUnlockEdgeIds,
+				focusedNodeIds = selectedFocusNodeIds,
+				isFocusActive = selectedNodeId != null,
 				densityScale = density.density,
 				onViewportCenterChange = { canvasCenter -> moveViewportToCanvasCenter(canvasCenter) },
 				modifier = Modifier
