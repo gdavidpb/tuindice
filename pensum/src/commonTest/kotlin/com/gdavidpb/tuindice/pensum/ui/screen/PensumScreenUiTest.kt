@@ -5,6 +5,7 @@ import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -68,7 +69,7 @@ class PensumScreenUiTest {
 	}
 
 	@Test
-	fun when_nodeIsRealSubject_then_statsButtonNavigatesWithSubjectCode() = runTuIndiceUiTest {
+	fun when_nodeIsRealSubject_then_detailSheetStatsButtonNavigatesWithSubjectCode() = runTuIndiceUiTest {
 		var selectedSubjectCode: String? = null
 
 		setTuIndiceTestContent {
@@ -82,8 +83,17 @@ class PensumScreenUiTest {
 			)
 		}
 
-		assertNodeVisible(PensumUiTags.nodeSubjectStatsButton("ci4325"))
-		onNodeWithTag(PensumUiTags.nodeSubjectStatsButton("ci4325")).performClick()
+		assertNodeHidden(PensumUiTags.nodeSubjectStatsButton("ci4325"))
+		onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
+		assertNodeVisible(PensumUiTags.SubjectDetailSheet)
+		onNodeWithText("Detalle de materia").assertExists()
+		assertNodeVisible(PensumUiTags.SubjectDetailCode)
+		assertNodeVisible(PensumUiTags.SubjectDetailName)
+		assertNodeVisible(PensumUiTags.SubjectDetailStatus)
+		onNodeWithTag(PensumUiTags.SubjectDetailTermValue)
+			.assertTextEquals("1° trimestre")
+		onNodeWithText("Ver estadísticas").assertExists()
+		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performClick()
 
 		assertEquals("CI4325", selectedSubjectCode)
 	}
@@ -141,6 +151,11 @@ class PensumScreenUiTest {
 		}
 
 		assertNodeHidden(PensumUiTags.nodeSubjectStatsButton("ea1"))
+		onNodeWithTag(PensumUiTags.node("ea1")).performClick()
+		assertNodeVisible(PensumUiTags.SubjectDetailSheet)
+		assertNodeVisible(PensumUiTags.SubjectDetailName)
+		assertNodeVisible(PensumUiTags.SubjectDetailStatsUnavailable)
+		onAllNodesWithText("Ver estadísticas").assertCountEquals(0)
 	}
 
 	@Test
@@ -205,7 +220,7 @@ private fun samplePensumModel(): PensumScreenModel {
 		approvedCredits = 0,
 		totalCredits = 8,
 		canvas = PensumScreenModel.Canvas(width = 520.0, height = 700.0),
-		terms = listOf(PensumScreenModel.Term(id = "T1", label = "T1", x = 0.0, width = 240.0)),
+		terms = listOf(PensumScreenModel.Term(id = "T1", label = "Primer trimestre", x = 0.0, width = 240.0)),
 		nodes = listOf(
 			PensumScreenModel.Node(
 				id = "ci4325",

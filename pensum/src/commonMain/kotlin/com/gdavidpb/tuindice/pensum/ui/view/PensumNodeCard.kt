@@ -16,25 +16,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.BarChart
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
-import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
-import org.jetbrains.compose.resources.stringResource
-import tuindice.pensum.generated.resources.Res
-import tuindice.pensum.generated.resources.pensum_subject_stats_content_description
 
 @Composable
 fun PensumNodeCard(
@@ -42,12 +35,10 @@ fun PensumNodeCard(
 	isSelected: Boolean,
 	isRequirementHighlighted: Boolean,
 	isUnlockHighlighted: Boolean,
-	onSubjectStatsClick: (subjectCode: String) -> Unit,
 	modifier: Modifier = Modifier
 ) {
 	val colors = node.visualStyle.toNodeColors()
 	val isHighlighted = isSelected || isRequirementHighlighted || isUnlockHighlighted
-	val subjectStatsCode = node.subjectStatsCode
 	val fulfilledSubject = node.fulfilledSubject
 	val isAvailable = !node.isApproved && !node.isCurrent && !node.isBlocked
 	val hasStatusBadge = node.isApproved || node.isCurrent || node.isBlocked || isAvailable
@@ -132,25 +123,6 @@ fun PensumNodeCard(
 						contentDescription = null,
 						tint = badgeColor,
 						modifier = Modifier.size(16.dp)
-					)
-				}
-			}
-			if (node.hasSubjectStatsAction && subjectStatsCode != null) {
-				IconButton(
-					modifier = Modifier
-						.align(Alignment.BottomEnd)
-						.size(32.dp)
-						.testTag(PensumUiTags.nodeSubjectStatsButton(node.id)),
-					onClick = { onSubjectStatsClick(subjectStatsCode) }
-				) {
-					Icon(
-						imageVector = Icons.Outlined.BarChart,
-						contentDescription = stringResource(
-							Res.string.pensum_subject_stats_content_description,
-							subjectStatsCode
-						),
-						tint = colors.secondaryText,
-						modifier = Modifier.size(20.dp)
 					)
 				}
 			}

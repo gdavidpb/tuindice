@@ -31,6 +31,15 @@
 	<string name="pensum_zoom_in">Acercar</string>
 	<string name="pensum_zoom_out">Alejar</string>
 	<string name="pensum_subject_stats_content_description">Ver estadísticas de %1$s</string>
+	<string name="pensum_subject_detail_title">Detalle de materia</string>
+	<string name="pensum_subject_detail_close">Cerrar</string>
+	<string name="pensum_subject_detail_stats">Ver estadísticas</string>
+	<string name="pensum_subject_detail_term">Trimestre</string>
+	<string name="pensum_subject_detail_credits">Unidades crédito</string>
+	<string name="pensum_subject_detail_credits_value">%1$d UC</string>
+	<string name="pensum_subject_detail_no_term">Sin trimestre asignado</string>
+	<string name="pensum_subject_detail_fulfilled_by">Cursada como</string>
+	<string name="pensum_subject_detail_stats_unavailable">Las estadísticas no están disponibles para esta materia.</string>
 	<string name="snack_default_error">Ocurrió un error inesperado.</string>
 	<string name="snack_network_unavailable">Revisa tu conexión e intenta de nuevo.</string>
 	<string name="snack_service_unavailable">El servicio no está disponible.</string>

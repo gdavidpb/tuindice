@@ -26,6 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import com.gdavidpb.tuindice.pensum.ui.model.pensumTermOrdinalLabel
 import kotlin.math.max
 
 @Composable
@@ -51,7 +52,7 @@ fun PensumStickyTermHeader(
 			val xPx = offsetX + term.x.toFloat() * densityScale * scale
 			val widthPx = max(term.width.toFloat() * densityScale * scale, minimumWidthPx)
 			val widthDp = with(density) { widthPx.toDp() }
-			val label = trimesterOrdinalLabel(
+			val label = pensumTermOrdinalLabel(
 				number = index + 1,
 				shouldIncludeText = widthDp >= StickyTermFullLabelMinWidth
 			)
@@ -84,14 +85,5 @@ fun PensumStickyTermHeader(
 				}
 			}
 		}
-	}
-}
-
-private fun trimesterOrdinalLabel(number: Int, shouldIncludeText: Boolean): String {
-	val ordinal = "$number°"
-	return if (shouldIncludeText) {
-		"$ordinal trimestre"
-	} else {
-		ordinal
 	}
 }

@@ -56,7 +56,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun PensumGraphCanvas(
 	model: PensumScreenModel,
-	onSubjectStatsClick: (subjectCode: String) -> Unit,
+	selectedNodeId: String?,
+	onSelectedNodeChange: (String?) -> Unit,
 	modifier: Modifier = Modifier
 ) {
 	val density = LocalDensity.current
@@ -92,7 +93,6 @@ fun PensumGraphCanvas(
 		val focusPaddingPx = with(density) { CanvasFocusPadding.toPx() }
 		val snapDistancePx = with(density) { CanvasSnapDistance.toPx() }
 		val snapInsetPx = with(density) { CanvasSnapViewportInset.toPx() }
-		var selectedNodeId by remember(graphKey) { mutableStateOf<String?>(null) }
 		val selectedRequirementEdgeIds = remember(model.edges, selectedNodeId) {
 			model.requirementEdgeIdsTo(selectedNodeId)
 		}
@@ -268,7 +268,7 @@ fun PensumGraphCanvas(
 		}
 
 		fun focusProgress() {
-			selectedNodeId = null
+			onSelectedNodeChange(null)
 			val bounds = model.progressFocusBounds() ?: return
 			centerCanvasBounds(
 				bounds = bounds,
@@ -283,7 +283,7 @@ fun PensumGraphCanvas(
 		}
 
 		fun focusTerm(termId: String) {
-			selectedNodeId = null
+			onSelectedNodeChange(null)
 			val bounds = model.termFocusBounds(termId) ?: return
 			centerCanvasBounds(
 				bounds = bounds,
@@ -500,7 +500,7 @@ fun PensumGraphCanvas(
 					.fillMaxSize()
 					.pointerInput(graphKey) {
 						detectTapGestures(
-							onTap = { selectedNodeId = null },
+							onTap = { onSelectedNodeChange(null) },
 							onDoubleTap = { tapOffset -> toggleDoubleTapZoom(tapOffset) }
 						)
 					}
@@ -521,7 +521,6 @@ fun PensumGraphCanvas(
 					isRequirementHighlighted = node.id in selectedRequirementNodeIds ||
 						(node.id in selectedUnlockNodeIds && node.id !in selectedAvailableUnlockNodeIds),
 					isUnlockHighlighted = isUnlockHighlighted,
-					onSubjectStatsClick = onSubjectStatsClick,
 					modifier = Modifier
 						.offset(x = node.x.dp, y = node.y.dp)
 						.size(width = node.width.dp, height = node.height.dp)
@@ -531,7 +530,7 @@ fun PensumGraphCanvas(
 						}
 						.clickable {
 							val nextSelectedNodeId = if (selectedNodeId == node.id) null else node.id
-							selectedNodeId = nextSelectedNodeId
+							onSelectedNodeChange(nextSelectedNodeId)
 							if (nextSelectedNodeId != null) {
 								centerSelectedNode(node)
 							}
@@ -557,13 +556,13 @@ fun PensumGraphCanvas(
 		if (!isFitToScreen) {
 			PensumStickyTermHeader(
 				terms = model.terms,
-					scale = scale.value,
-					offsetX = offsetX.value,
-					densityScale = density.density,
-					onTermClick = { termId -> focusTerm(termId) },
-					modifier = Modifier.align(Alignment.TopStart)
-				)
-			}
+				scale = scale.value,
+				offsetX = offsetX.value,
+				densityScale = density.density,
+				onTermClick = { termId -> focusTerm(termId) },
+				modifier = Modifier.align(Alignment.TopStart)
+			)
+		}
 
 		if (isMinimapToggleVisible && isMinimapVisible) {
 			PensumMinimap(
