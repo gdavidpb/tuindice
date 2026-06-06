@@ -6,6 +6,8 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 # shellcheck source=.github/scripts/common.sh
 source "${SCRIPT_DIR}/common.sh"
 
+SKIP_APP_VERSION_TAG_CONFLICT_CHECK="${SKIP_APP_VERSION_TAG_CONFLICT_CHECK:-0}"
+
 bash "${SCRIPT_DIR}/sync-app-version.sh"
 
 VERSION_NAME="$(get_app_version_name)"
@@ -41,7 +43,9 @@ fi
 TAG_NAME="$(app_tag_name "$VERSION_NAME")"
 TAG_TARGET="$(existing_tag_target "$TAG_NAME" || true)"
 
-if [[ -n "$TAG_TARGET" && -n "${TARGET_GIT_SHA:-${GITHUB_SHA:-}}" ]]; then
+if [[ "$SKIP_APP_VERSION_TAG_CONFLICT_CHECK" == "1" ]]; then
+	info "Skipping app version tag conflict check for non-release validation."
+elif [[ -n "$TAG_TARGET" && -n "${TARGET_GIT_SHA:-${GITHUB_SHA:-}}" ]]; then
 	TARGET_SHA="${TARGET_GIT_SHA:-${GITHUB_SHA:-}}"
 	if [[ "$TAG_TARGET" != "$TARGET_SHA" ]]; then
 		die "Tag ${TAG_NAME} already exists at ${TAG_TARGET}. Bump $(app_version_file) before deploying."
