@@ -5,8 +5,23 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumGraph
 import com.gdavidpb.tuindice.pensum.domain.model.PensumModality
 import com.gdavidpb.tuindice.pensum.domain.model.PensumNodeStatus
 import com.gdavidpb.tuindice.pensum.domain.model.PensumRelationshipType
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumCanvasItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumDisplayLayoutDefaults
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumEdgeItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumEdgeRelationshipType
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumFulfilledSubjectItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusDisplay
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusIcon
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeVisualStyle
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumPointItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSelection
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumSubjectDetailItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumTermItem
 import kotlin.math.roundToInt
 
 fun ObservedPensum.toScreenModel(): PensumScreenModel {
@@ -15,14 +30,22 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 		?.let { minY -> (minY - PensumDisplayLayoutDefaults.FirstNodeTop).coerceAtLeast(0.0) }
 		.orZero()
 	val displayTerms = pensum.terms.mapIndexed { index, term ->
-		PensumScreenModel.Term(
+		PensumTermItem(
 			id = term.id,
 			label = term.label,
 			x = index * PensumDisplayLayoutDefaults.TermWidth,
 			width = PensumDisplayLayoutDefaults.TermWidth
 		)
 	}
-	val displayTermsById = displayTerms.associateBy(PensumScreenModel.Term::id)
+	val displayTermsById = displayTerms.associateBy(PensumTermItem::id)
+	val detailTermLabelById = displayTerms
+		.mapIndexed { index, term ->
+			term.id to pensumTermOrdinalLabel(
+				number = index + 1,
+				shouldIncludeText = true
+			)
+		}
+		.toMap()
 	val displayNodes = pensum.nodes
 		.map { node ->
 			val term = displayTermsById[node.termId]
@@ -33,34 +56,51 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 			val fulfillment = nodeFulfillments[node.id]
 			val subjectStatsCode = fulfillment?.subjectCode ?: node.subjectCode
 			val displayName = fulfillment?.subjectName ?: node.name
+			val creditsText = "${node.credits} UC"
+			val visualStyle = status.toVisualStyle()
+			val statusDisplay = status.toStatusDisplay(visualStyle = visualStyle)
+			val fulfilledSubject = fulfillment?.let { fulfilled ->
+				PensumFulfilledSubjectItem(
+					code = fulfilled.subjectCode,
+					name = fulfilled.subjectName
+				)
+			}
+			val statsCode = subjectStatsCode.takeIf { code ->
+				code.hasSubjectStatsAction(displayCode = subjectStatsCode.orEmpty())
+			}
+			val detailTermLabel = detailTermLabelById[node.termId]
+				?: term?.label?.takeIf(String::isNotBlank)
 			val minimumNodeHeight = maxOf(
 				displayName.minimumDisplayHeight(),
 				if (fulfillment != null) PensumDisplayLayoutDefaults.NodeMultiLineMinHeight else 0.0
 			)
 
-			PensumScreenModel.Node(
+			PensumNodeItem(
 				id = node.id,
 				displayCode = node.displayCode,
 				subjectCode = node.subjectCode,
 				name = node.name,
+				displayName = displayName,
 				credits = node.credits,
+				creditsText = creditsText,
 				termId = node.termId,
 				x = x,
 				y = (node.y - contentTopShift).coerceAtLeast(0.0),
 				width = node.width,
 				height = maxOf(node.height, minimumNodeHeight),
-				visualStyle = status.toVisualStyle(),
-				isCurrent = status == PensumNodeStatus.CURRENT,
-				isApproved = status == PensumNodeStatus.APPROVED,
-				isBlocked = status == PensumNodeStatus.BLOCKED,
-				hasSubjectStatsAction = subjectStatsCode.hasSubjectStatsAction(displayCode = subjectStatsCode.orEmpty()),
-				subjectStatsCode = subjectStatsCode,
-				fulfilledSubject = fulfillment?.let { fulfilled ->
-					PensumScreenModel.FulfilledSubject(
-						code = fulfilled.subjectCode,
-						name = fulfilled.subjectName
-					)
-				}
+				visualStyle = visualStyle,
+				status = statusDisplay,
+				subjectStatsCode = statsCode,
+				fulfilledSubject = fulfilledSubject,
+				detail = PensumSubjectDetailItem(
+					code = node.displayCode,
+					name = node.name,
+					status = statusDisplay,
+					termLabel = detailTermLabel,
+					creditsText = creditsText,
+					statsCode = statsCode,
+					fulfilledSubject = fulfilledSubject
+				)
 			)
 		}
 		.withMinimumVerticalSpacing()
@@ -77,22 +117,22 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 	val modalityItems = availableModalities.toModalityItems()
 	val pensumOptions = availablePensums
 		.map { option ->
-			PensumScreenModel.PensumOptionItem(
+			PensumOptionItem(
 				id = option.id,
 				year = option.year,
 				modalityOptions = modalityItems,
 				text = option.year.toString()
 			)
 		}
-		.distinctBy(PensumScreenModel.PensumOptionItem::year)
-		.sortedBy(PensumScreenModel.PensumOptionItem::year)
+		.distinctBy(PensumOptionItem::year)
+		.sortedBy(PensumOptionItem::year)
 	val selectedOption = pensumOptions.firstOrNull { option ->
 		option.year == selection.year
 	}
 
 	return PensumScreenModel(
 		careerName = careerName,
-		selection = PensumScreenModel.Selection(
+		selection = PensumScreenSelection(
 			year = selection.year,
 			modalityId = selection.modalityId
 		),
@@ -104,7 +144,7 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 			((approvedCredits.toDouble() / pensum.totalCredits.toDouble()) * 100).roundToInt().coerceIn(0, 100),
 		approvedCredits = approvedCredits,
 		totalCredits = pensum.totalCredits,
-		canvas = PensumScreenModel.Canvas(
+		canvas = PensumCanvasItem(
 			width = displayCanvasWidth,
 			height = displayCanvasHeight
 		),
@@ -113,14 +153,14 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 		edges = pensum.edges.map { edge ->
 			val targetStatus = nodeStatuses[edge.toNodeId] ?: PensumNodeStatus.BLOCKED
 
-			PensumScreenModel.Edge(
+			PensumEdgeItem(
 				id = edge.id,
 				fromNodeId = edge.fromNodeId,
 				toNodeId = edge.toNodeId,
 				relationshipType = edge.relationshipType.toScreenRelationshipType(),
 				isDisconnected = targetStatus == PensumNodeStatus.BLOCKED,
 				points = edge.points.map { point ->
-					PensumScreenModel.Point(
+					PensumPointItem(
 						x = point.x,
 						y = (point.y - contentTopShift).coerceAtLeast(0.0)
 					)
@@ -130,16 +170,16 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 	)
 }
 
-private fun List<PensumModality>.toModalityItems(): List<PensumScreenModel.ModalityItem> {
+private fun List<PensumModality>.toModalityItems(): List<PensumModalityItem> {
 	return map { modality ->
-		PensumScreenModel.ModalityItem(
+		PensumModalityItem(
 			id = modality.id,
 			name = modality.name,
 			isDefault = modality.isDefault,
 			text = modality.name
 		)
 	}
-		.distinctBy(PensumScreenModel.ModalityItem::id)
+		.distinctBy(PensumModalityItem::id)
 }
 
 private fun Double?.orZero(): Double = this ?: 0.0
@@ -152,13 +192,25 @@ private fun String.minimumDisplayHeight(): Double {
 	}
 }
 
-private fun List<PensumScreenModel.Node>.withMinimumVerticalSpacing(): List<PensumScreenModel.Node> {
-	val spacedNodeYById = groupBy(PensumScreenModel.Node::termId)
+private fun pensumTermOrdinalLabel(
+	number: Int,
+	shouldIncludeText: Boolean
+): String {
+	val ordinal = "$number°"
+	return if (shouldIncludeText) {
+		"$ordinal trimestre"
+	} else {
+		ordinal
+	}
+}
+
+private fun List<PensumNodeItem>.withMinimumVerticalSpacing(): List<PensumNodeItem> {
+	val spacedNodeYById = groupBy(PensumNodeItem::termId)
 		.values
 		.flatMap { termNodes ->
 			var nextAvailableY = 0.0
 			termNodes
-				.sortedWith(compareBy<PensumScreenModel.Node> { node -> node.y }.thenBy { node -> node.x })
+				.sortedWith(compareBy<PensumNodeItem> { node -> node.y }.thenBy { node -> node.x })
 				.map { node ->
 					val y = maxOf(node.y, nextAvailableY)
 					nextAvailableY = y + node.height + PensumDisplayLayoutDefaults.NodeVerticalGap
@@ -183,16 +235,16 @@ private fun String?.hasSubjectStatsAction(displayCode: String): Boolean {
 
 private val WildcardSubjectCodeRegex = Regex("^[A-Z]{2}\\d{1,2}$")
 
-private fun PensumRelationshipType.toScreenRelationshipType(): PensumScreenModel.RelationshipType {
+private fun PensumRelationshipType.toScreenRelationshipType(): PensumEdgeRelationshipType {
 	return when (this) {
-		PensumRelationshipType.REQUIREMENT -> PensumScreenModel.RelationshipType.REQUIREMENT
-		PensumRelationshipType.COREQUISITE -> PensumScreenModel.RelationshipType.COREQUISITE
+		PensumRelationshipType.REQUIREMENT -> PensumEdgeRelationshipType.REQUIREMENT
+		PensumRelationshipType.COREQUISITE -> PensumEdgeRelationshipType.COREQUISITE
 	}
 }
 
-private fun PensumNodeStatus.toVisualStyle(): PensumScreenModel.NodeVisualStyle {
+private fun PensumNodeStatus.toVisualStyle(): PensumNodeVisualStyle {
 	return when (this) {
-		PensumNodeStatus.APPROVED -> PensumScreenModel.NodeVisualStyle(
+		PensumNodeStatus.APPROVED -> PensumNodeVisualStyle(
 			containerArgb = 0xFF171819,
 			borderArgb = 0xFF8FE38C,
 			chipArgb = 0xFFB8F4A8,
@@ -200,7 +252,7 @@ private fun PensumNodeStatus.toVisualStyle(): PensumScreenModel.NodeVisualStyle 
 			textArgb = 0xFFF7F7F7,
 			secondaryTextArgb = 0xFF9C9EA3
 		)
-		PensumNodeStatus.CURRENT -> PensumScreenModel.NodeVisualStyle(
+		PensumNodeStatus.CURRENT -> PensumNodeVisualStyle(
 			containerArgb = 0xFF171819,
 			borderArgb = 0xFFFFC400,
 			chipArgb = 0xFFF7E6A6,
@@ -208,7 +260,7 @@ private fun PensumNodeStatus.toVisualStyle(): PensumScreenModel.NodeVisualStyle 
 			textArgb = 0xFFF7F7F7,
 			secondaryTextArgb = 0xFF9C9EA3
 		)
-		PensumNodeStatus.AVAILABLE -> PensumScreenModel.NodeVisualStyle(
+		PensumNodeStatus.AVAILABLE -> PensumNodeVisualStyle(
 			containerArgb = 0xFF171819,
 			borderArgb = 0xFF8A8F94,
 			chipArgb = 0xFFEBDDA3,
@@ -216,13 +268,38 @@ private fun PensumNodeStatus.toVisualStyle(): PensumScreenModel.NodeVisualStyle 
 			textArgb = 0xFFF7F7F7,
 			secondaryTextArgb = 0xFF9C9EA3
 		)
-		PensumNodeStatus.BLOCKED -> PensumScreenModel.NodeVisualStyle(
+		PensumNodeStatus.BLOCKED -> PensumNodeVisualStyle(
 			containerArgb = 0xFF171819,
 			borderArgb = 0xFF686B70,
 			chipArgb = 0xFFB7B8BA,
 			chipTextArgb = 0xFF383A3D,
 			textArgb = 0xFFF7F7F7,
 			secondaryTextArgb = 0xFF9C9EA3
+		)
+	}
+}
+
+private fun PensumNodeStatus.toStatusDisplay(visualStyle: PensumNodeVisualStyle): PensumNodeStatusDisplay {
+	return when (this) {
+		PensumNodeStatus.APPROVED -> PensumNodeStatusDisplay(
+			type = PensumNodeStatusType.APPROVED,
+			icon = PensumNodeStatusIcon.CHECK,
+			colorArgb = visualStyle.borderArgb
+		)
+		PensumNodeStatus.CURRENT -> PensumNodeStatusDisplay(
+			type = PensumNodeStatusType.CURRENT,
+			icon = PensumNodeStatusIcon.PLAY,
+			colorArgb = visualStyle.borderArgb
+		)
+		PensumNodeStatus.AVAILABLE -> PensumNodeStatusDisplay(
+			type = PensumNodeStatusType.AVAILABLE,
+			icon = PensumNodeStatusIcon.ADD,
+			colorArgb = visualStyle.borderArgb
+		)
+		PensumNodeStatus.BLOCKED -> PensumNodeStatusDisplay(
+			type = PensumNodeStatusType.BLOCKED,
+			icon = PensumNodeStatusIcon.LOCK,
+			colorArgb = visualStyle.borderArgb
 		)
 	}
 }

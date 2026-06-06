@@ -12,6 +12,8 @@ import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorView
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.ui.view.PensumContentView
 import com.gdavidpb.tuindice.pensum.ui.view.PensumEmptyView
@@ -30,7 +32,7 @@ fun PensumScreen(
 	showSelectionSheet: Boolean,
 	onSelectionSheetDismiss: () -> Unit,
 	onSubjectStatsClick: (subjectCode: String) -> Unit,
-	onSelectionApplied: (PensumScreenModel.PensumOptionItem, PensumScreenModel.ModalityItem) -> Unit,
+	onSelectionApplied: (PensumOptionItem, PensumModalityItem) -> Unit,
 	onPensumContextClick: () -> Unit = {}
 ) {
 	Box(

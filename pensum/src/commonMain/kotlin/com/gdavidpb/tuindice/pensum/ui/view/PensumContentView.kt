@@ -8,6 +8,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.dialog.PensumSelectionBottomSheet
@@ -19,7 +21,7 @@ fun PensumContentView(
 	showSelectionSheet: Boolean,
 	onSelectionSheetDismiss: () -> Unit,
 	onSubjectStatsClick: (subjectCode: String) -> Unit,
-	onSelectionApplied: (PensumScreenModel.PensumOptionItem, PensumScreenModel.ModalityItem) -> Unit,
+	onSelectionApplied: (PensumOptionItem, PensumModalityItem) -> Unit,
 	onPensumContextClick: () -> Unit
 ) {
 	val focusedNodeIdState = remember(model.selection.year, model.selection.modalityId) {
@@ -62,7 +64,6 @@ fun PensumContentView(
 
 	if (detailNode != null) {
 		PensumSubjectDetailBottomSheet(
-			model = model,
 			node = detailNode,
 			onSubjectStatsClick = onSubjectStatsClick,
 			onDismissRequest = { detailNodeIdState.value = null }

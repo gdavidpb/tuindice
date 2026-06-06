@@ -15,6 +15,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import org.jetbrains.compose.resources.stringResource
@@ -26,8 +28,8 @@ import tuindice.pensum.generated.resources.pensum_summary_pensum_label
 @Composable
 fun PensumCurrentSelectionSummary(
 	model: PensumScreenModel,
-	currentPensum: PensumScreenModel.PensumOptionItem,
-	currentModality: PensumScreenModel.ModalityItem
+	currentPensum: PensumOptionItem,
+	currentModality: PensumModalityItem
 ) {
 	val pensumLabel = stringResource(Res.string.pensum_summary_pensum_label)
 	val title = model.careerName.ifBlank { "$pensumLabel ${currentPensum.year}" }

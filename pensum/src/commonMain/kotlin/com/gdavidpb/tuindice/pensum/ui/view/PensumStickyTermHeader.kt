@@ -24,14 +24,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumTermItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.model.pensumTermOrdinalLabel
 import kotlin.math.max
 
 @Composable
 fun PensumStickyTermHeader(
-	terms: List<PensumScreenModel.Term>,
+	terms: List<PensumTermItem>,
 	scale: Float,
 	offsetX: Float,
 	densityScale: Float,

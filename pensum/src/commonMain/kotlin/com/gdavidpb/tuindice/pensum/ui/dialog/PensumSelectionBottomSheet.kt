@@ -21,6 +21,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.view.Current
@@ -37,7 +39,7 @@ import tuindice.pensum.generated.resources.pensum_selection_version
 @Composable
 fun PensumSelectionBottomSheet(
 	model: PensumScreenModel,
-	onSelectionApplied: (PensumScreenModel.PensumOptionItem, PensumScreenModel.ModalityItem) -> Unit,
+	onSelectionApplied: (PensumOptionItem, PensumModalityItem) -> Unit,
 	onDismissRequest: () -> Unit
 ) {
 	val currentPensum = model.selectedPensumOption() ?: model.pensumOptions.firstOrNull()
@@ -106,7 +108,7 @@ fun PensumSelectionBottomSheet(
 				) {
 					items(
 						items = model.pensumOptions,
-						key = PensumScreenModel.PensumOptionItem::id,
+						key = PensumOptionItem::id,
 						contentType = { PensumVersionOptionContentType }
 					) { item ->
 						FilterChip(
@@ -155,21 +157,21 @@ fun PensumSelectionBottomSheet(
 
 private const val PensumVersionOptionContentType = "pensum_version_option"
 
-private fun PensumScreenModel.PensumOptionItem.hasSameAcademicIdentity(
-	other: PensumScreenModel.PensumOptionItem
+private fun PensumOptionItem.hasSameAcademicIdentity(
+	other: PensumOptionItem
 ): Boolean {
 	return year == other.year
 }
 
-private fun PensumScreenModel.selectedPensumOption(): PensumScreenModel.PensumOptionItem? {
+private fun PensumScreenModel.selectedPensumOption(): PensumOptionItem? {
 	return pensumOptions.firstOrNull { option ->
 		option.year == selection.year
 	}
 }
 
-private fun PensumScreenModel.PensumOptionItem.selectedModality(
+private fun PensumOptionItem.selectedModality(
 	modalityId: String
-): PensumScreenModel.ModalityItem? {
+): PensumModalityItem? {
 	return modalityOptions.firstOrNull { modality -> modality.id == modalityId }
 		?: modalityOptions.firstOrNull { modality -> modality.isDefault }
 		?: modalityOptions.firstOrNull()

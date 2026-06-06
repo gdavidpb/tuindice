@@ -14,11 +14,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -26,19 +22,21 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import com.gdavidpb.tuindice.pensum.ui.model.toImageVector
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_subject_detail_content_description
 
 @Composable
 fun PensumNodeCard(
-	node: PensumScreenModel.Node,
+	node: PensumNodeItem,
 	isSelected: Boolean,
 	isRequirementHighlighted: Boolean,
 	isUnlockHighlighted: Boolean,
@@ -48,8 +46,7 @@ fun PensumNodeCard(
 	val colors = node.visualStyle.toNodeColors()
 	val isHighlighted = isSelected || isRequirementHighlighted || isUnlockHighlighted
 	val fulfilledSubject = node.fulfilledSubject
-	val isAvailable = !node.isApproved && !node.isCurrent && !node.isBlocked
-	val hasStatusBadge = node.isApproved || node.isCurrent || node.isBlocked || isAvailable
+	val statusColor = Color(node.status.colorArgb)
 	val chipColors = node.displayCode.toPensumChipColors(
 		fallbackContainer = colors.chip,
 		fallbackContent = colors.chipText
@@ -79,7 +76,7 @@ fun PensumNodeCard(
 			) {
 				Text(
 					modifier = Modifier
-						.padding(end = if (hasStatusBadge) 28.dp else 0.dp)
+						.padding(end = 28.dp)
 						.background(chipColors.container, RoundedCornerShape(6.dp))
 						.padding(horizontal = 8.dp, vertical = 4.dp),
 					text = node.displayCode,
@@ -102,7 +99,7 @@ fun PensumNodeCard(
 					Spacer(modifier = Modifier.height(4.dp))
 				}
 				Text(
-					text = fulfilledSubject?.name ?: node.name,
+					text = node.displayName,
 					style = MaterialTheme.typography.bodyMedium,
 					fontWeight = if (node.isCurrent) FontWeight.Bold else FontWeight.Medium,
 					color = colors.text,
@@ -111,37 +108,25 @@ fun PensumNodeCard(
 				)
 				Spacer(modifier = Modifier.height(8.dp))
 				Text(
-					text = "${node.credits} UC",
+					text = node.creditsText,
 					style = MaterialTheme.typography.bodyMedium,
 					color = colors.secondaryText
 				)
 			}
-			if (hasStatusBadge) {
-				val badgeColor = when {
-					node.isApproved -> Approved
-					node.isCurrent -> Current
-					else -> colors.border
-				}
-				Box(
-					modifier = Modifier
-						.align(Alignment.TopEnd)
-						.size(22.dp)
-						.background(PanelBackground, CircleShape)
-						.border(1.4.dp, badgeColor, CircleShape),
-					contentAlignment = Alignment.Center
-				) {
-					Icon(
-						imageVector = when {
-							node.isApproved -> Icons.Filled.Check
-							node.isCurrent -> Icons.Filled.PlayArrow
-							node.isBlocked -> Icons.Outlined.Lock
-							else -> Icons.Outlined.Add
-						},
-						contentDescription = null,
-						tint = badgeColor,
-						modifier = Modifier.size(16.dp)
-					)
-				}
+			Box(
+				modifier = Modifier
+					.align(Alignment.TopEnd)
+					.size(22.dp)
+					.background(PanelBackground, CircleShape)
+					.border(1.4.dp, statusColor, CircleShape),
+				contentAlignment = Alignment.Center
+			) {
+				Icon(
+					imageVector = node.status.icon.toImageVector(),
+					contentDescription = null,
+					tint = statusColor,
+					modifier = Modifier.size(16.dp)
+				)
 			}
 			Box(
 				modifier = Modifier

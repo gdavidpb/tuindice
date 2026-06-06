@@ -12,11 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.filled.PlayArrow
-import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,18 +22,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
-import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumFulfilledSubjectItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusDisplay
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
-import com.gdavidpb.tuindice.pensum.ui.model.pensumTermOrdinalLabel
-import com.gdavidpb.tuindice.pensum.ui.view.Approved
-import com.gdavidpb.tuindice.pensum.ui.view.Available
-import com.gdavidpb.tuindice.pensum.ui.view.CanvasNeutral
+import com.gdavidpb.tuindice.pensum.ui.model.toImageVector
 import com.gdavidpb.tuindice.pensum.ui.view.Current
 import com.gdavidpb.tuindice.pensum.ui.view.PanelBackground
 import org.jetbrains.compose.resources.StringResource
@@ -50,7 +44,6 @@ import tuindice.pensum.generated.resources.pensum_canvas_legend_blocked
 import tuindice.pensum.generated.resources.pensum_canvas_legend_current
 import tuindice.pensum.generated.resources.pensum_subject_detail_close
 import tuindice.pensum.generated.resources.pensum_subject_detail_credits
-import tuindice.pensum.generated.resources.pensum_subject_detail_credits_value
 import tuindice.pensum.generated.resources.pensum_subject_detail_fulfilled_by
 import tuindice.pensum.generated.resources.pensum_subject_detail_no_term
 import tuindice.pensum.generated.resources.pensum_subject_detail_stats
@@ -61,27 +54,13 @@ import tuindice.pensum.generated.resources.pensum_subject_detail_title
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PensumSubjectDetailBottomSheet(
-	model: PensumScreenModel,
-	node: PensumScreenModel.Node,
+	node: PensumNodeItem,
 	onSubjectStatsClick: (subjectCode: String) -> Unit,
 	onDismissRequest: () -> Unit
 ) {
 	val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-	val status = node.toSubjectStatus()
-	val termIndex = model.terms.indexOfFirst { term -> term.id == node.termId }
-	val selectedTerm = model.terms
-		.firstOrNull { term -> term.id == node.termId }
-	val termLabel = if (termIndex >= 0) {
-		pensumTermOrdinalLabel(
-			number = termIndex + 1,
-			shouldIncludeText = true
-		)
-	} else {
-		selectedTerm?.label
-			?.takeIf(String::isNotBlank)
-			?: stringResource(Res.string.pensum_subject_detail_no_term)
-	}
-	val statsCode = node.subjectStatsCode.takeIf { node.hasSubjectStatsAction }
+	val detail = node.detail
+	val statsCode = detail.statsCode
 
 	ConfirmationDialog(
 		sheetState = sheetState,
@@ -118,11 +97,11 @@ fun PensumSubjectDetailBottomSheet(
 						horizontalArrangement = Arrangement.spacedBy(10.dp),
 						verticalAlignment = Alignment.Top
 					) {
-						PensumSubjectStatusBadge(status = status)
+						PensumSubjectStatusBadge(status = detail.status)
 						Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
 							Text(
 								modifier = Modifier.testTag(PensumUiTags.SubjectDetailCode),
-								text = node.displayCode,
+								text = detail.code,
 								style = MaterialTheme.typography.titleSmall,
 								fontWeight = FontWeight.Black,
 								maxLines = 1,
@@ -130,7 +109,7 @@ fun PensumSubjectDetailBottomSheet(
 							)
 							Text(
 								modifier = Modifier.testTag(PensumUiTags.SubjectDetailName),
-								text = node.name,
+								text = detail.name,
 								style = MaterialTheme.typography.bodyMedium,
 								fontWeight = FontWeight.SemiBold,
 								maxLines = 2,
@@ -146,23 +125,20 @@ fun PensumSubjectDetailBottomSheet(
 						PensumSubjectDetailMeta(
 							modifier = Modifier.weight(1f),
 							label = stringResource(Res.string.pensum_subject_detail_term),
-							value = termLabel,
+							value = detail.termLabel ?: stringResource(Res.string.pensum_subject_detail_no_term),
 							valueTag = PensumUiTags.SubjectDetailTermValue
 						)
 						PensumSubjectDetailMeta(
 							modifier = Modifier.weight(1f),
 							label = stringResource(Res.string.pensum_subject_detail_credits),
-							value = stringResource(
-								Res.string.pensum_subject_detail_credits_value,
-								node.credits
-							)
+							value = detail.creditsText
 						)
 					}
 				}
 			}
 
-			if (node.fulfilledSubject != null) {
-				PensumFulfilledSubjectSummary(fulfilledSubject = node.fulfilledSubject)
+			if (detail.fulfilledSubject != null) {
+				PensumFulfilledSubjectSummary(fulfilledSubject = detail.fulfilledSubject)
 			}
 
 			if (statsCode == null) {
@@ -179,8 +155,9 @@ fun PensumSubjectDetailBottomSheet(
 
 @Composable
 private fun PensumSubjectStatusBadge(
-	status: SubjectStatus
+	status: PensumNodeStatusDisplay
 ) {
+	val statusColor = Color(status.colorArgb)
 	Row(
 		horizontalArrangement = Arrangement.spacedBy(6.dp),
 		verticalAlignment = Alignment.CenterVertically
@@ -189,22 +166,22 @@ private fun PensumSubjectStatusBadge(
 			modifier = Modifier
 				.size(24.dp)
 				.background(PanelBackground, CircleShape)
-				.border(1.4.dp, status.color, CircleShape),
+				.border(1.4.dp, statusColor, CircleShape),
 			contentAlignment = Alignment.Center
 		) {
 			Icon(
-				imageVector = status.icon,
+				imageVector = status.icon.toImageVector(),
 				contentDescription = null,
-				tint = status.color,
+				tint = statusColor,
 				modifier = Modifier.size(16.dp)
 			)
 		}
 		Text(
 			modifier = Modifier.testTag(PensumUiTags.SubjectDetailStatus),
-			text = stringResource(status.label),
+			text = stringResource(status.labelResource()),
 			style = MaterialTheme.typography.labelMedium,
 			fontWeight = FontWeight.SemiBold,
-			color = status.color,
+			color = statusColor,
 			maxLines = 1,
 			overflow = TextOverflow.Ellipsis
 		)
@@ -253,7 +230,7 @@ private fun PensumSubjectDetailMeta(
 
 @Composable
 private fun PensumFulfilledSubjectSummary(
-	fulfilledSubject: PensumScreenModel.FulfilledSubject
+	fulfilledSubject: PensumFulfilledSubjectItem
 ) {
 	Surface(
 		modifier = Modifier.fillMaxWidth(),
@@ -289,33 +266,11 @@ private fun PensumFulfilledSubjectSummary(
 	}
 }
 
-private data class SubjectStatus(
-	val label: StringResource,
-	val color: Color,
-	val icon: ImageVector
-)
-
-private fun PensumScreenModel.Node.toSubjectStatus(): SubjectStatus {
+private fun PensumNodeStatusDisplay.labelResource(): StringResource {
 	return when {
-		isApproved -> SubjectStatus(
-			label = Res.string.pensum_canvas_legend_approved,
-			color = Approved,
-			icon = Icons.Filled.Check
-		)
-		isCurrent -> SubjectStatus(
-			label = Res.string.pensum_canvas_legend_current,
-			color = Current,
-			icon = Icons.Filled.PlayArrow
-		)
-		isBlocked -> SubjectStatus(
-			label = Res.string.pensum_canvas_legend_blocked,
-			color = CanvasNeutral.copy(alpha = 0.72f),
-			icon = Icons.Outlined.Lock
-		)
-		else -> SubjectStatus(
-			label = Res.string.pensum_canvas_legend_available,
-			color = Available,
-			icon = Icons.Outlined.Add
-		)
+		type == PensumNodeStatusType.APPROVED -> Res.string.pensum_canvas_legend_approved
+		type == PensumNodeStatusType.CURRENT -> Res.string.pensum_canvas_legend_current
+		type == PensumNodeStatusType.BLOCKED -> Res.string.pensum_canvas_legend_blocked
+		else -> Res.string.pensum_canvas_legend_available
 	}
 }

@@ -13,7 +13,18 @@ import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumCanvasItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusDisplay
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusIcon
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeVisualStyle
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSelection
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumSubjectDetailItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumTermItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -112,6 +123,11 @@ class PensumScreenUiTest {
 			)
 		}
 
+		onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
+		onNodeWithTag(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
+			.assertExists()
+		onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
+		assertNodeHidden(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
 		onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
 		onNodeWithTag(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
 			.assertExists()
@@ -246,12 +262,12 @@ class PensumScreenUiTest {
 private fun samplePensumModel(): PensumScreenModel {
 	return PensumScreenModel(
 		careerName = "Ingenieria de Computacion",
-		selection = PensumScreenModel.Selection(
+		selection = PensumScreenSelection(
 			year = 2019,
 			modalityId = "degree_project"
 		),
 		pensumOptions = listOf(
-			PensumScreenModel.PensumOptionItem(
+			PensumOptionItem(
 				id = "computacion-2019",
 				year = 2019,
 				modalityOptions = emptyList(),
@@ -262,10 +278,10 @@ private fun samplePensumModel(): PensumScreenModel {
 		progressPercent = 0,
 		approvedCredits = 0,
 		totalCredits = 8,
-		canvas = PensumScreenModel.Canvas(width = 520.0, height = 700.0),
-		terms = listOf(PensumScreenModel.Term(id = "T1", label = "Primer trimestre", x = 0.0, width = 240.0)),
+		canvas = PensumCanvasItem(width = 520.0, height = 700.0),
+		terms = listOf(PensumTermItem(id = "T1", label = "Primer trimestre", x = 0.0, width = 240.0)),
 		nodes = listOf(
-			PensumScreenModel.Node(
+			sampleNode(
 				id = "ci4325",
 				displayCode = "CI4325",
 				subjectCode = "CI4325",
@@ -276,14 +292,9 @@ private fun samplePensumModel(): PensumScreenModel {
 				y = 72.0,
 				width = 190.0,
 				height = 144.0,
-				visualStyle = availableNodeVisualStyle(),
-				isCurrent = false,
-				isApproved = false,
-				hasSubjectStatsAction = true,
-				subjectStatsCode = "CI4325",
-				fulfilledSubject = null
+				subjectStatsCode = "CI4325"
 			),
-			PensumScreenModel.Node(
+			sampleNode(
 				id = "ea1",
 				displayCode = "EA1",
 				subjectCode = null,
@@ -293,15 +304,9 @@ private fun samplePensumModel(): PensumScreenModel {
 				x = 24.0,
 				y = 240.0,
 				width = 190.0,
-				height = 144.0,
-				visualStyle = availableNodeVisualStyle(),
-				isCurrent = false,
-				isApproved = false,
-				hasSubjectStatsAction = false,
-				subjectStatsCode = null,
-				fulfilledSubject = null
+				height = 144.0
 			),
-			PensumScreenModel.Node(
+			sampleNode(
 				id = "math1-ma1111",
 				displayCode = "MA1111",
 				subjectCode = "MA1111",
@@ -311,15 +316,9 @@ private fun samplePensumModel(): PensumScreenModel {
 				x = 24.0,
 				y = 408.0,
 				width = 190.0,
-				height = 120.0,
-				visualStyle = availableNodeVisualStyle(),
-				isCurrent = false,
-				isApproved = false,
-				hasSubjectStatsAction = false,
-				subjectStatsCode = null,
-				fulfilledSubject = null
+				height = 120.0
 			),
-			PensumScreenModel.Node(
+			sampleNode(
 				id = "math1-ma1121",
 				displayCode = "MA1121",
 				subjectCode = "MA1121",
@@ -329,13 +328,7 @@ private fun samplePensumModel(): PensumScreenModel {
 				x = 24.0,
 				y = 552.0,
 				width = 190.0,
-				height = 120.0,
-				visualStyle = availableNodeVisualStyle(),
-				isCurrent = false,
-				isApproved = false,
-				hasSubjectStatsAction = false,
-				subjectStatsCode = null,
-				fulfilledSubject = null
+				height = 120.0
 			)
 		),
 		edges = emptyList()
@@ -344,13 +337,13 @@ private fun samplePensumModel(): PensumScreenModel {
 
 private fun samplePensumModelWithSelectableYears(): PensumScreenModel {
 	val modalities = listOf(
-		PensumScreenModel.ModalityItem(
+		PensumModalityItem(
 			id = "degree_project",
 			name = "Proyecto de Grado",
 			isDefault = true,
 			text = "Proyecto de Grado"
 		),
-		PensumScreenModel.ModalityItem(
+		PensumModalityItem(
 			id = "long_internship",
 			name = "Pasantía Larga",
 			isDefault = false,
@@ -359,16 +352,16 @@ private fun samplePensumModelWithSelectableYears(): PensumScreenModel {
 	)
 
 	return samplePensumModel().copy(
-		selection = PensumScreenModel.Selection(
+		selection = PensumScreenSelection(
 			year = 2019,
 			modalityId = "degree_project"
 		),
 		pensumOptions = listOf(
-			PensumScreenModel.PensumOptionItem(
+			PensumOptionItem(
 				id = "2018",
 				year = 2018,
 				modalityOptions = listOf(
-					PensumScreenModel.ModalityItem(
+					PensumModalityItem(
 						id = "degree_project",
 						name = "Proyecto de Grado",
 						isDefault = true,
@@ -377,7 +370,7 @@ private fun samplePensumModelWithSelectableYears(): PensumScreenModel {
 				),
 				text = "2018"
 			),
-			PensumScreenModel.PensumOptionItem(
+			PensumOptionItem(
 				id = "2019",
 				year = 2019,
 				modalityOptions = modalities,
@@ -388,8 +381,61 @@ private fun samplePensumModelWithSelectableYears(): PensumScreenModel {
 	)
 }
 
-private fun availableNodeVisualStyle(): PensumScreenModel.NodeVisualStyle {
-	return PensumScreenModel.NodeVisualStyle(
+private fun sampleNode(
+	id: String,
+	displayCode: String,
+	subjectCode: String?,
+	name: String,
+	credits: Int,
+	termId: String,
+	x: Double,
+	y: Double,
+	width: Double,
+	height: Double,
+	subjectStatsCode: String? = null
+): PensumNodeItem {
+	val status = availableNodeStatus()
+	val creditsText = "$credits UC"
+
+	return PensumNodeItem(
+		id = id,
+		displayCode = displayCode,
+		subjectCode = subjectCode,
+		name = name,
+		displayName = name,
+		credits = credits,
+		creditsText = creditsText,
+		termId = termId,
+		x = x,
+		y = y,
+		width = width,
+		height = height,
+		visualStyle = availableNodeVisualStyle(),
+		status = status,
+		subjectStatsCode = subjectStatsCode,
+		fulfilledSubject = null,
+		detail = PensumSubjectDetailItem(
+			code = displayCode,
+			name = name,
+			status = status,
+			termLabel = "1° trimestre",
+			creditsText = creditsText,
+			statsCode = subjectStatsCode,
+			fulfilledSubject = null
+		)
+	)
+}
+
+private fun availableNodeStatus(): PensumNodeStatusDisplay {
+	return PensumNodeStatusDisplay(
+		type = PensumNodeStatusType.AVAILABLE,
+		icon = PensumNodeStatusIcon.ADD,
+		colorArgb = 0xFF8A8F94
+	)
+}
+
+private fun availableNodeVisualStyle(): PensumNodeVisualStyle {
+	return PensumNodeVisualStyle(
 		containerArgb = 0xFF171819,
 		borderArgb = 0xFF8A8F94,
 		chipArgb = 0xFFEBDDA3,

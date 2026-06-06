@@ -6,7 +6,9 @@ import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
 import com.gdavidpb.tuindice.pensum.domain.usecase.UpdatePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.exceptionhandler.UpdatePensumExceptionHandler
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumCanvasItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSelection
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
@@ -131,7 +133,7 @@ private fun sampleContentState(): Pensum.State.Content {
 	return Pensum.State.Content(
 		model = PensumScreenModel(
 			careerName = "Ingenieria de Computacion",
-			selection = PensumScreenModel.Selection(
+			selection = PensumScreenSelection(
 				year = 2019,
 				modalityId = "degree_project"
 			),
@@ -140,7 +142,7 @@ private fun sampleContentState(): Pensum.State.Content {
 			progressPercent = 0,
 			approvedCredits = 0,
 			totalCredits = 0,
-			canvas = PensumScreenModel.Canvas(width = 0.0, height = 0.0),
+			canvas = PensumCanvasItem(width = 0.0, height = 0.0),
 			terms = emptyList(),
 			nodes = emptyList(),
 			edges = emptyList()
