@@ -94,25 +94,27 @@ fun PensumSubjectDetailBottomSheet(
 					modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
 					verticalArrangement = Arrangement.spacedBy(12.dp)
 				) {
-					Row(
-						horizontalArrangement = Arrangement.spacedBy(10.dp),
-						verticalAlignment = Alignment.Top
+					Column(
+						verticalArrangement = Arrangement.spacedBy(10.dp)
 					) {
-						PensumSubjectStatusBadge(status = detail.status)
-						Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+						Row(
+							horizontalArrangement = Arrangement.spacedBy(10.dp),
+							verticalAlignment = Alignment.CenterVertically
+						) {
 							PensumSubjectCodeChip(
 								modifier = Modifier.testTag(PensumUiTags.SubjectDetailCode),
 								code = detail.code
 							)
-							Text(
-								modifier = Modifier.testTag(PensumUiTags.SubjectDetailName),
-								text = detail.name,
-								style = MaterialTheme.typography.bodyMedium,
-								fontWeight = FontWeight.SemiBold,
-								maxLines = 2,
-								overflow = TextOverflow.Ellipsis
-							)
+							PensumSubjectStatusBadge(status = detail.status)
 						}
+						Text(
+							modifier = Modifier.testTag(PensumUiTags.SubjectDetailName),
+							text = detail.name,
+							style = MaterialTheme.typography.bodyMedium,
+							fontWeight = FontWeight.SemiBold,
+							maxLines = 2,
+							overflow = TextOverflow.Ellipsis
+						)
 					}
 
 					Row(
