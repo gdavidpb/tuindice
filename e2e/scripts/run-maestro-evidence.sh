@@ -134,10 +134,18 @@ publish_github_statuses() {
 	local description="$2"
 	local include_covered="${3:-1}"
 	local context
+	local contexts=()
 
 	while IFS= read -r context; do
 		[[ -n "${context}" ]] || continue
-		log "Publishing GitHub commit status ${context}=${state}."
+		contexts+=("${context}")
+	done < <(covered_status_contexts "${include_covered}")
+
+	log "Publishing ${#contexts[@]} GitHub commit status context(s) as ${state}."
+	for context in "${contexts[@]}"; do
+		if [[ "${E2E_VERBOSE_STATUS_PUBLISHING:-0}" == "1" ]]; then
+			log "  ${context}=${state}"
+		fi
 		gh api \
 			-X POST \
 			"repos/{owner}/{repo}/statuses/${COMMIT_SHA}" \
@@ -145,7 +153,7 @@ publish_github_statuses() {
 			-f context="${context}" \
 			-f description="${description}" \
 			>/dev/null
-	done < <(covered_status_contexts "${include_covered}")
+	done
 }
 
 maestro_report_has_no_failures() {
@@ -207,6 +215,9 @@ run_suite_evidence() {
 	local android_version_code
 	local ios_build_number
 	local publish_description
+	local started_seconds
+	local finished_seconds
+	local duration_label
 
 	SUITE_ID="$(basename "${suite_path}" .yaml)"
 	E2E_FINGERPRINT="$("${SCRIPT_DIR}/e2e-fingerprint.sh" "${PLATFORM}" "${SUITE_ID}" "${COMMIT_SHA}")"
@@ -229,12 +240,16 @@ run_suite_evidence() {
 	export E2E_MAESTRO_TEST_OUTPUT_DIR="${TEST_OUTPUT_DIR}"
 	export E2E_MAESTRO_DEBUG_OUTPUT_DIR="${DEBUG_OUTPUT_DIR}"
 
+	log "E2E evidence start: ${PLATFORM}/${SUITE_ID}; commit=${COMMIT_SHA:0:7}; context=${STATUS_CONTEXT}."
 	started_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+	started_seconds="$(date +%s)"
 	set +e
 	bash "${SCRIPT_DIR}/run-maestro-${PLATFORM}.sh"
 	status=$?
 	set -e
 	finished_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+	finished_seconds="$(date +%s)"
+	duration_label="$(elapsed_label "$((finished_seconds - started_seconds))")"
 
 	if maestro_nonzero_after_passed_flow_is_recoverable "$status" "$LOG_FILE" "$REPORT_FILE"; then
 		log "Maestro exited with ${status} after reporting a passing flow and writing a clean JUnit report; treating evidence as passed."
@@ -328,7 +343,11 @@ run_suite_evidence() {
 		log "Skipping GitHub commit status publishing because E2E failed."
 	fi
 
-	log "E2E evidence manifest: ${MANIFEST_FILE}"
+	if [[ "$status" == "0" ]]; then
+		log "E2E evidence passed: ${PLATFORM}/${SUITE_ID} in ${duration_label}; manifest=$(display_path "${MANIFEST_FILE}")."
+	else
+		log "E2E evidence failed: ${PLATFORM}/${SUITE_ID} in ${duration_label}; manifest=$(display_path "${MANIFEST_FILE}")."
+	fi
 	return "$status"
 }
 
@@ -355,6 +374,8 @@ if [[ "${#suites[@]}" == "0" ]]; then
 	exit 0
 fi
 
+log "${PLATFORM} E2E evidence suites: ${suites[*]}."
+
 if [[ "${#suites[@]}" -gt 1 && -n "${E2E_CERTIFICATION_DIR:-}" ]]; then
 	printf 'E2E_CERTIFICATION_DIR cannot be shared by multi-suite smart evidence. Set E2E_MAESTRO_SUITE or unset E2E_CERTIFICATION_DIR.\n' >&2
 	exit 1
@@ -367,7 +388,6 @@ for suite in "${suites[@]}"; do
 		exit 1
 	fi
 
-	log "Running smart ${PLATFORM} E2E evidence suite ${suite}."
 	run_suite_evidence "$suite_path" || overall_status="$?"
 done
 

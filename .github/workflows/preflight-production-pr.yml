@@ -23,6 +23,8 @@ jobs:
       ios_tasks: ${{ steps.changes.outputs.ios_tasks }}
       ios_ci_scripts_touched: ${{ steps.changes.outputs.ios_ci_scripts_touched }}
       has_relevant_changes: ${{ steps.changes.outputs.has_relevant_changes }}
+      app_version_changed: ${{ steps.changes.outputs.app_version_changed }}
+      has_release_impact: ${{ steps.changes.outputs.has_release_impact }}
 
     steps:
       - name: Check out repository
@@ -67,6 +69,8 @@ jobs:
           E2E_IOS_CONTEXTS_FILE: ${{ steps.changes.outputs.e2e_ios_contexts_file }}
           REQUIRES_E2E_CERTIFICATION: ${{ steps.changes.outputs.requires_e2e_certification }}
           HAS_RELEVANT_CHANGES: ${{ steps.changes.outputs.has_relevant_changes }}
+          APP_VERSION_CHANGED: ${{ steps.changes.outputs.app_version_changed }}
+          HAS_RELEASE_IMPACT: ${{ steps.changes.outputs.has_release_impact }}
           E2E_REUSE_BASE_SHA: ${{ github.event.pull_request.base.sha }}
         run: |
           set -euo pipefail
@@ -121,6 +125,7 @@ jobs:
           TU_INDICE_KEY_ALIAS: ${{ secrets.TU_INDICE_KEY_ALIAS }}
           TU_INDICE_KEY_PASSWORD: ${{ secrets.TU_INDICE_KEY_PASSWORD }}
           TU_INDICE_KEY_STORE_PASSWORD: ${{ secrets.TU_INDICE_KEY_STORE_PASSWORD }}
+          SKIP_APP_VERSION_TAG_CONFLICT_CHECK: ${{ (needs.shared-preflight.outputs.app_version_changed != 'true' && needs.shared-preflight.outputs.has_release_impact != 'true') && '1' || '0' }}
         run: |
           set -euo pipefail
           bash ./.github/scripts/run-gradle-with-retry.sh \

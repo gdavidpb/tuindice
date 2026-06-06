@@ -11,6 +11,7 @@ fi
 require_command maestro
 require_command xcrun
 
+log "iOS Maestro setup: WireMock=${E2E_WIREMOCK_URL}; bundleId=${E2E_IOS_BUNDLE_ID}; requestedDevice=${E2E_IOS_DEVICE_ID}."
 register_wiremock_cleanup
 "${SCRIPT_DIR}/start-wiremock.sh"
 reset_wiremock
@@ -25,7 +26,7 @@ if [[ ! -d "${APP_PATH}" ]]; then
 fi
 
 "${SCRIPT_DIR}/reset-ios-app.sh"
-log "Installing ${APP_PATH} on ${E2E_IOS_DEVICE_ID}."
+log "Installing iOS app: $(display_path "${APP_PATH}") on ${E2E_IOS_DEVICE_ID}."
 xcrun simctl install "${E2E_IOS_DEVICE_ID}" "${APP_PATH}"
 
 MAESTRO_IOS_DEVICE_ID="${E2E_IOS_DEVICE_ID}"
@@ -60,7 +61,7 @@ if [[ -n "${E2E_MAESTRO_DEBUG_OUTPUT_DIR:-}" ]]; then
 fi
 maestro_args+=("${E2E_MAESTRO_SUITE}")
 
-log "Running Maestro iOS suite ${E2E_MAESTRO_SUITE} on ${MAESTRO_IOS_DEVICE_ID}."
+log "iOS Maestro resolved device: ${MAESTRO_IOS_DEVICE_ID}."
 run_maestro_with_progress \
 	"iOS" \
 	"${MAESTRO_LOG_FILE}" \

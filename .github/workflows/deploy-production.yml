@@ -24,6 +24,8 @@ jobs:
     name: Deploy preflight
     runs-on: ubuntu-24.04
     timeout-minutes: 15
+    outputs:
+      should_deploy: ${{ steps.deploy-preflight.outputs.should_deploy }}
 
     steps:
       - name: Check out repository
@@ -33,6 +35,7 @@ jobs:
           fetch-depth: 0
 
       - name: Run deploy preflight
+        id: deploy-preflight
         env:
           TARGET_GIT_SHA: ${{ github.sha }}
           DEPLOY_PRODUCTION_PHASE: preflight
@@ -44,6 +47,7 @@ jobs:
     name: Deploy Android
     runs-on: ubuntu-24.04
     needs: deploy-preflight
+    if: needs.deploy-preflight.outputs.should_deploy == 'true'
     environment: production
     timeout-minutes: 90
 
@@ -103,6 +107,7 @@ jobs:
     name: Deploy iOS
     runs-on: macos-26
     needs: deploy-preflight
+    if: needs.deploy-preflight.outputs.should_deploy == 'true'
     environment: production
     timeout-minutes: 120
 
@@ -221,8 +226,10 @@ jobs:
     name: Tag release
     runs-on: ubuntu-24.04
     needs:
+      - deploy-preflight
       - deploy-android
       - deploy-ios
+    if: needs.deploy-preflight.outputs.should_deploy == 'true'
     timeout-minutes: 15
 
     steps:
