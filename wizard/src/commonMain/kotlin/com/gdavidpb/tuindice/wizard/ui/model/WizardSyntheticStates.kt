@@ -184,6 +184,7 @@ internal fun samplePensumState(): Pensum.State.Content {
 			progressPercent = 75,
 			approvedCredits = 153,
 			totalCredits = 205,
+			isCurrentFocusVisible = true,
 			canvas = samplePensumCanvas(terms = terms, nodes = nodes),
 			terms = terms,
 			nodes = nodes,
