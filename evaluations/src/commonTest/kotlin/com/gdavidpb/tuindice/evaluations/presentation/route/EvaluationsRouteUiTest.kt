@@ -215,7 +215,7 @@ class EvaluationsRouteUiTest {
 			onAllNodesWithTag(completedEvaluationTag).fetchSemanticsNodes().isNotEmpty()
 		}
 
-		onAllNodesWithTag(EvaluationsUiTags.EvaluationGradeActionButton)[0].performClick()
+		onNodeWithTag(EvaluationsUiTags.evaluationGradeActionButton(DEFAULT_COMPLETED_EVALUATION.id)).performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
 			requestedEvaluationId.isNotEmpty() &&

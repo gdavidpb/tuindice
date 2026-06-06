@@ -12,7 +12,7 @@ appId: com.gdavidpb.tuindice.debug
 - assertVisible:
     id: evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
 - tapOn:
-    id: evaluation_grade_action_button
+    id: evaluation_grade_action_button_bfa02abf2292f47e5baee862a8a50ff1
 - extendedWaitUntil:
     visible:
       id: evaluation_dialog_title
@@ -30,7 +30,7 @@ appId: com.gdavidpb.tuindice.debug
       id: evaluations_content_container
     timeout: 10000
 - tapOn:
-    id: evaluation_grade_action_button
+    id: evaluation_grade_action_button_bfa02abf2292f47e5baee862a8a50ff1
 - extendedWaitUntil:
     visible:
       id: evaluation_dialog_title

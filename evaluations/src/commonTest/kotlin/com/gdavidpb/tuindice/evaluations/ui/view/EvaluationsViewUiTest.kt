@@ -52,7 +52,7 @@ class EvaluationsViewUiTest {
 		assertNodeHidden(EvaluationsUiTags.evaluationHeader(groups.first().title))
 		onNodeWithText("1 evaluación").assertIsDisplayed()
 
-		onNodeWithTag(EvaluationsUiTags.EvaluationGradeActionButton).performClick()
+		onNodeWithTag(EvaluationsUiTags.evaluationGradeActionButton(item.evaluationId)).performClick()
 
 		assertEquals(item.evaluationId, clickedEvaluationId)
 		assertEquals(item.nameText, clickedEvaluationName)
@@ -83,7 +83,7 @@ class EvaluationsViewUiTest {
 			)
 		}
 
-		onNodeWithTag(EvaluationsUiTags.EvaluationGradeActionButton).performClick()
+		onNodeWithTag(EvaluationsUiTags.evaluationGradeActionButton(disabledItem.evaluationId)).performClick()
 
 		assertEquals(null, clickedEvaluationId)
 	}

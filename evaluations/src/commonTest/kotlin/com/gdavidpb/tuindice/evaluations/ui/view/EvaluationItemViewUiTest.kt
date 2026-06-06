@@ -45,7 +45,7 @@ class EvaluationItemViewUiTest {
 			useUnmergedTree = true
 		).assertIsDisplayed()
 		assertNodeHidden(EvaluationsUiTags.EvaluationTypeLeadingIcon, useUnmergedTree = true)
-		assertNodeVisible(EvaluationsUiTags.EvaluationGradeActionButton)
+		assertNodeVisible(EvaluationsUiTags.evaluationGradeActionButton(item.evaluationId))
 	}
 
 	@Test
@@ -56,7 +56,7 @@ class EvaluationItemViewUiTest {
 			EvaluationItemView(item = item)
 		}
 
-		assertNodeHidden(EvaluationsUiTags.EvaluationGradeActionButton)
+		assertNodeHidden(EvaluationsUiTags.evaluationGradeActionButton(item.evaluationId))
 	}
 
 	@Test
@@ -71,7 +71,7 @@ class EvaluationItemViewUiTest {
 			)
 		}
 
-		onNodeWithTag(EvaluationsUiTags.EvaluationGradeActionButton).performClick()
+		onNodeWithTag(EvaluationsUiTags.evaluationGradeActionButton(item.evaluationId)).performClick()
 
 		assertEquals(1, gradeClicks)
 	}

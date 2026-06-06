@@ -147,7 +147,7 @@ fun EvaluationItemView(
 					if (item.showsGradeAction) {
 						Box(
 							modifier = Modifier
-								.testTag(EvaluationsUiTags.EvaluationGradeActionButton)
+								.testTag(EvaluationsUiTags.evaluationGradeActionButton(item.evaluationId))
 								.clickable(onClick = onGradeClick)
 								.border(
 									border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
