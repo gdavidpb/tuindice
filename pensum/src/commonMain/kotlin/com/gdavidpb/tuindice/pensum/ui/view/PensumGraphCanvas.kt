@@ -447,6 +447,13 @@ fun PensumGraphCanvas(
 			fitOffset = fitStateOffset,
 			offsetTolerancePx = with(density) { CanvasFitStateTolerance.toPx() }
 		)
+		val shouldShowMinimapControls = isMinimapToggleVisible && !isFitToScreen
+
+		LaunchedEffect(isFitToScreen) {
+			if (isFitToScreen) {
+				hideMinimap()
+			}
+		}
 
 		Box(
 			modifier = Modifier
@@ -567,7 +574,7 @@ fun PensumGraphCanvas(
 			)
 		}
 
-		if (isMinimapToggleVisible && isMinimapVisible) {
+		if (shouldShowMinimapControls && isMinimapVisible) {
 			PensumMinimap(
 				model = model,
 				scale = scale.value,
@@ -588,7 +595,7 @@ fun PensumGraphCanvas(
 			modifier = Modifier
 				.align(Alignment.BottomEnd)
 				.padding(end = 16.dp, bottom = CanvasBottomOverlayPadding),
-			isMinimapToggleVisible = isMinimapToggleVisible,
+			isMinimapToggleVisible = shouldShowMinimapControls,
 			isMinimapVisible = isMinimapVisible,
 			isFitToScreenVisible = !isFitToScreen,
 			onFocusProgress = { focusProgress() },
