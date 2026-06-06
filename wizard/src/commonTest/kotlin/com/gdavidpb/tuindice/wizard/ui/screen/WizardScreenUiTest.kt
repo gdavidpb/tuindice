@@ -224,11 +224,11 @@ class WizardScreenUiTest {
 		onNodeWithText("75% avance").assertExists()
 		onNodeWithText("Ingeniería de Computación").assertExists()
 		onNodeWithText(
-			"Aquí ves tu avance",
+			"Toca una materia para enfocar sus requisitos y desbloqueos.",
 			substring = true
 		).assertExists()
 		onNodeWithText(
-			"toca el botón de información",
+			"El botón de información abre detalle y estadísticas.",
 			substring = true
 		).assertExists()
 		assertNodeVisible(PensumUiTags.PensumScreen)

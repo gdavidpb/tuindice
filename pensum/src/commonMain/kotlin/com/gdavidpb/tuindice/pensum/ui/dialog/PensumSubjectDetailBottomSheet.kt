@@ -35,6 +35,7 @@ import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.model.toImageVector
 import com.gdavidpb.tuindice.pensum.ui.view.Current
 import com.gdavidpb.tuindice.pensum.ui.view.PanelBackground
+import com.gdavidpb.tuindice.pensum.ui.view.PensumSubjectCodeChip
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
@@ -99,13 +100,9 @@ fun PensumSubjectDetailBottomSheet(
 					) {
 						PensumSubjectStatusBadge(status = detail.status)
 						Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-							Text(
+							PensumSubjectCodeChip(
 								modifier = Modifier.testTag(PensumUiTags.SubjectDetailCode),
-								text = detail.code,
-								style = MaterialTheme.typography.titleSmall,
-								fontWeight = FontWeight.Black,
-								maxLines = 1,
-								overflow = TextOverflow.Ellipsis
+								code = detail.code
 							)
 							Text(
 								modifier = Modifier.testTag(PensumUiTags.SubjectDetailName),

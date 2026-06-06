@@ -32,7 +32,7 @@
 	<string name="wizard_subject_charts_title">Gráficos de materia</string>
 	<string name="wizard_subject_charts_message">Los **gráficos** resumen cómo se distribuyeron las **notas** y cuántos **intentos** necesitaron otros estudiantes para aprobar. Úsalos como **contexto**: no predicen tu resultado, pero ayudan a entender la **dificultad histórica** de la materia.</string>
 	<string name="wizard_pensum_title">Mapa del pensum</string>
-	<string name="wizard_pensum_message">Aquí ves tu **avance**, la **carrera seleccionada** y el mapa de materias. Toca una **materia** para enfocar sus **requisitos** y lo que desbloquea; toca el **botón de información** para ver trimestre, UC, estado y abrir sus **estadísticas**. Usa **zoom**, **ajustar a pantalla** y el **minimapa** para orientarte.</string>
+	<string name="wizard_pensum_message">Toca una **materia** para enfocar sus **requisitos** y desbloqueos. El **botón de información** abre detalle y estadísticas. Usa **zoom**, **fit** o **minimapa** para navegar.</string>
 	<string name="wizard_subject_tab_career">Tu carrera</string>
 	<string name="wizard_subject_tab_global">General</string>
 	<string name="wizard_subject_title_loading_stats">Calculando estadísticas</string>
