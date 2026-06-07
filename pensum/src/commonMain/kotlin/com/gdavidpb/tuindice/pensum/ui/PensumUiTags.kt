@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.pensum.ui
 
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
+
 object PensumUiTags {
 	const val PensumScreen = "pensum_screen"
 	const val PensumContextSummary = "pensum_context_summary"
@@ -8,6 +10,7 @@ object PensumUiTags {
 	const val ModalitySelector = "pensum_modality_selector"
 	const val Canvas = "pensum_canvas"
 	const val CanvasLegend = "pensum_canvas_legend"
+	const val StatusFilterClear = "pensum_status_filter_clear"
 	const val FitToScreen = "pensum_fit_to_screen"
 	const val FocusProgress = "pensum_focus_progress"
 	const val MinimapToggle = "pensum_minimap_toggle"
@@ -23,6 +26,7 @@ object PensumUiTags {
 	const val SubjectDetailStatsUnavailable = "pensum_subject_detail_stats_unavailable"
 	fun versionOption(year: Int): String = "pensum_version_option_$year"
 	fun modalityOption(id: String): String = "pensum_modality_option_$id"
+	fun statusFilter(type: PensumNodeStatusType): String = "pensum_status_filter_${type.name.lowercase()}"
 	fun node(id: String): String = "pensum_node_$id"
 	fun focusedNode(id: String): String = "pensum_focused_node_$id"
 	fun nodeDetailButton(id: String): String = "pensum_node_detail_button_$id"

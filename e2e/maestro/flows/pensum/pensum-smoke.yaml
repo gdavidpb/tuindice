@@ -13,6 +13,16 @@ appId: com.gdavidpb.tuindice.debug
     id: pensum_canvas
 - assertVisible:
     id: pensum_canvas_legend
+- tapOn:
+    id: pensum_status_filter_available
+- assertVisible:
+    id: pensum_status_filter_clear
+- tapOn:
+    id: pensum_status_filter_current
+- tapOn:
+    id: pensum_status_filter_clear
+- assertNotVisible:
+    id: pensum_status_filter_clear
 - assertVisible:
     id: pensum_focus_progress
 - doubleTapOn:

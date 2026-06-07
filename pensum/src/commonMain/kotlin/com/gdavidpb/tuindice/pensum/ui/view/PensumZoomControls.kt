@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Remove
-import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.CenterFocusStrong
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material3.Icon
@@ -21,6 +20,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import com.gdavidpb.tuindice.pensum.ui.model.PensumCurrentRouteIcon
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_fit_to_screen
@@ -65,7 +65,7 @@ fun PensumZoomControls(
 				onClick = onFocusProgress
 			) {
 				Icon(
-					imageVector = Icons.Outlined.BookmarkBorder,
+					imageVector = PensumCurrentRouteIcon,
 					contentDescription = stringResource(Res.string.pensum_focus_progress),
 					tint = TextPrimary
 				)

@@ -289,7 +289,7 @@ private fun PensumNodeStatus.toStatusDisplay(visualStyle: PensumNodeVisualStyle)
 		)
 		PensumNodeStatus.CURRENT -> PensumNodeStatusDisplay(
 			type = PensumNodeStatusType.CURRENT,
-			icon = PensumNodeStatusIcon.PLAY,
+			icon = PensumNodeStatusIcon.CURRENT_ROUTE,
 			colorArgb = visualStyle.borderArgb
 		)
 		PensumNodeStatus.AVAILABLE -> PensumNodeStatusDisplay(

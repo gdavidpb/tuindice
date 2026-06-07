@@ -124,6 +124,9 @@ pensum_context_summary
 pensum_screen
 pensum_canvas
 pensum_canvas_legend
+pensum_status_filter_available
+pensum_status_filter_current
+pensum_status_filter_clear
 pensum_fit_to_screen
 pensum_focus_progress
 pensum_minimap

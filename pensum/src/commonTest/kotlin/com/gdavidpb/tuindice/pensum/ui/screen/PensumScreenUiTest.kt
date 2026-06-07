@@ -169,10 +169,10 @@ class PensumScreenUiTest {
 		}
 
 		assertNodeVisible(PensumUiTags.CanvasLegend)
-		onNodeWithText("Aprobada").assertExists()
-		onNodeWithText("En curso").assertExists()
-		onNodeWithText("Disponible").assertExists()
-		onNodeWithText("Bloqueada").assertExists()
+		onNodeWithTag(PensumUiTags.statusFilter(PensumNodeStatusType.APPROVED)).assertHasClickAction()
+		onNodeWithTag(PensumUiTags.statusFilter(PensumNodeStatusType.CURRENT)).assertHasClickAction()
+		onNodeWithTag(PensumUiTags.statusFilter(PensumNodeStatusType.AVAILABLE)).assertHasClickAction()
+		onNodeWithTag(PensumUiTags.statusFilter(PensumNodeStatusType.BLOCKED)).assertHasClickAction()
 		onNodeWithText("1° trimestre").assertExists()
 		onNodeWithTag(PensumUiTags.FocusProgress).assertHasClickAction().performClick()
 		assertNodeVisible(PensumUiTags.StickyTerms)
@@ -193,6 +193,44 @@ class PensumScreenUiTest {
 		assertNodeHidden(PensumUiTags.Minimap)
 		assertNodeHidden(PensumUiTags.StickyTerms)
 		assertNodeHidden(PensumUiTags.FitToScreen)
+	}
+
+	@Test
+	fun when_statusLegendFiltersAreToggled_then_selectionIsMultiSelectAndResettable() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = Pensum.State.Content(model = samplePensumModel()),
+				onRetryClick = {},
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		val availableFilter = PensumUiTags.statusFilter(PensumNodeStatusType.AVAILABLE)
+		val currentFilter = PensumUiTags.statusFilter(PensumNodeStatusType.CURRENT)
+
+		assertNodeHidden(PensumUiTags.StatusFilterClear)
+		onNodeWithTag(availableFilter)
+			.assertIsNotSelected()
+			.performClick()
+			.assertIsSelected()
+		assertNodeVisible(PensumUiTags.StatusFilterClear)
+		onNodeWithTag(currentFilter)
+			.assertIsNotSelected()
+			.performClick()
+			.assertIsSelected()
+		onNodeWithTag(PensumUiTags.node("approved-ee1111")).assertExists()
+		onNodeWithTag(PensumUiTags.node("ci4325")).assertExists()
+		onNodeWithTag(PensumUiTags.node("ea1")).assertExists()
+		onNodeWithTag(PensumUiTags.node("blocked-ci9999")).assertExists()
+		onNodeWithTag(PensumUiTags.StatusFilterClear)
+			.assertHasClickAction()
+			.performClick()
+		onNodeWithTag(availableFilter).assertIsNotSelected()
+		onNodeWithTag(currentFilter).assertIsNotSelected()
+		assertNodeHidden(PensumUiTags.StatusFilterClear)
 	}
 
 	@Test
@@ -301,7 +339,10 @@ private fun samplePensumModel(): PensumScreenModel {
 		totalCredits = 8,
 		isCurrentFocusVisible = true,
 		canvas = PensumCanvasItem(width = 520.0, height = 700.0),
-		terms = listOf(PensumTermItem(id = "T1", label = "Primer trimestre", x = 0.0, width = 240.0)),
+		terms = listOf(
+			PensumTermItem(id = "T1", label = "Primer trimestre", x = 0.0, width = 240.0),
+			PensumTermItem(id = "T2", label = "Segundo trimestre", x = 240.0, width = 240.0)
+		),
 		nodes = listOf(
 			sampleNode(
 				id = "ci4325",
@@ -319,6 +360,20 @@ private fun samplePensumModel(): PensumScreenModel {
 				visualStyle = currentNodeVisualStyle()
 			),
 			sampleNode(
+				id = "approved-ee1111",
+				displayCode = "EE1111",
+				subjectCode = "EE1111",
+				name = "Electiva General",
+				credits = 3,
+				termId = "T2",
+				x = 270.0,
+				y = 72.0,
+				width = 190.0,
+				height = 120.0,
+				status = approvedNodeStatus(),
+				visualStyle = approvedNodeVisualStyle()
+			),
+			sampleNode(
 				id = "ea1",
 				displayCode = "EA1",
 				subjectCode = null,
@@ -329,6 +384,20 @@ private fun samplePensumModel(): PensumScreenModel {
 				y = 240.0,
 				width = 190.0,
 				height = 144.0
+			),
+			sampleNode(
+				id = "blocked-ci9999",
+				displayCode = "CI9999",
+				subjectCode = "CI9999",
+				name = "Proyecto Integrador",
+				credits = 4,
+				termId = "T2",
+				x = 270.0,
+				y = 240.0,
+				width = 190.0,
+				height = 120.0,
+				status = blockedNodeStatus(),
+				visualStyle = blockedNodeVisualStyle()
 			),
 			sampleNode(
 				id = "math1-ma1111",
@@ -451,10 +520,18 @@ private fun sampleNode(
 	)
 }
 
+private fun approvedNodeStatus(): PensumNodeStatusDisplay {
+	return PensumNodeStatusDisplay(
+		type = PensumNodeStatusType.APPROVED,
+		icon = PensumNodeStatusIcon.CHECK,
+		colorArgb = 0xFF8FE38C
+	)
+}
+
 private fun currentNodeStatus(): PensumNodeStatusDisplay {
 	return PensumNodeStatusDisplay(
 		type = PensumNodeStatusType.CURRENT,
-		icon = PensumNodeStatusIcon.PLAY,
+		icon = PensumNodeStatusIcon.CURRENT_ROUTE,
 		colorArgb = 0xFFFFC400
 	)
 }
@@ -467,12 +544,42 @@ private fun availableNodeStatus(): PensumNodeStatusDisplay {
 	)
 }
 
+private fun blockedNodeStatus(): PensumNodeStatusDisplay {
+	return PensumNodeStatusDisplay(
+		type = PensumNodeStatusType.BLOCKED,
+		icon = PensumNodeStatusIcon.LOCK,
+		colorArgb = 0xFF686B70
+	)
+}
+
+private fun approvedNodeVisualStyle(): PensumNodeVisualStyle {
+	return PensumNodeVisualStyle(
+		containerArgb = 0xFF171819,
+		borderArgb = 0xFF8FE38C,
+		chipArgb = 0xFFB8F4A8,
+		chipTextArgb = 0xFF1D5B25,
+		textArgb = 0xFFF7F7F7,
+		secondaryTextArgb = 0xFF9C9EA3
+	)
+}
+
 private fun currentNodeVisualStyle(): PensumNodeVisualStyle {
 	return PensumNodeVisualStyle(
 		containerArgb = 0xFF171819,
 		borderArgb = 0xFFFFC400,
 		chipArgb = 0xFFF7E6A6,
 		chipTextArgb = 0xFF5A4A00,
+		textArgb = 0xFFF7F7F7,
+		secondaryTextArgb = 0xFF9C9EA3
+	)
+}
+
+private fun blockedNodeVisualStyle(): PensumNodeVisualStyle {
+	return PensumNodeVisualStyle(
+		containerArgb = 0xFF171819,
+		borderArgb = 0xFF686B70,
+		chipArgb = 0xFFB7B8BA,
+		chipTextArgb = 0xFF383A3D,
 		textArgb = 0xFFF7F7F7,
 		secondaryTextArgb = 0xFF9C9EA3
 	)

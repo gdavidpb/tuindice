@@ -42,6 +42,7 @@ import androidx.compose.ui.zIndex
 import com.gdavidpb.tuindice.base.utils.extension.DecelerateEasing
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumEdgeItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.model.focusStateFor
@@ -72,6 +73,7 @@ fun PensumGraphCanvas(
 	var savedOffsetY by rememberSaveable(graphKey) { mutableStateOf<Float?>(null) }
 	var isMinimapToggleVisible by rememberSaveable(graphKey) { mutableStateOf(false) }
 	var isMinimapVisible by rememberSaveable(graphKey) { mutableStateOf(false) }
+	var activeStatusFilters by remember(graphKey) { mutableStateOf<Set<PensumNodeStatusType>>(emptySet()) }
 	val scale = remember(graphKey) { Animatable(savedScale ?: InitialCanvasZoom) }
 	val offsetX = remember(graphKey) { Animatable(savedOffsetX ?: 0f) }
 	val offsetY = remember(graphKey) { Animatable(savedOffsetY ?: 0f) }
@@ -100,6 +102,12 @@ fun PensumGraphCanvas(
 		val focusState = remember(model.edges, model.nodes, selectedNodeId) {
 			model.focusStateFor(selectedNodeId)
 		}
+		val statusFilteredNodeIds = remember(model.nodes, activeStatusFilters) {
+			model.nodes
+				.filter { node -> node.status.type in activeStatusFilters }
+				.mapTo(mutableSetOf()) { node -> node.id }
+		}
+		val isStatusFilterActive = activeStatusFilters.isNotEmpty()
 
 		fun saveCanvasViewport(scaleValue: Float, offset: Offset) {
 			savedScale = scaleValue
@@ -200,6 +208,14 @@ fun PensumGraphCanvas(
 
 		fun hideMinimap() {
 			isMinimapVisible = false
+		}
+
+		fun toggleStatusFilter(type: PensumNodeStatusType) {
+			activeStatusFilters = if (type in activeStatusFilters) {
+				activeStatusFilters - type
+			} else {
+				activeStatusFilters + type
+			}
 		}
 
 		fun viewportOffsetForCanvasCenter(
@@ -496,12 +512,16 @@ fun PensumGraphCanvas(
 					model = model,
 					density = density.density,
 					focusedEdgeIds = focusState.selectedRequirementEdgeIds + focusState.selectedUnlockEdgeIds,
-					isFocusActive = focusState.isActive
+					isFocusActive = focusState.isActive,
+					statusFilteredNodeIds = statusFilteredNodeIds,
+					isStatusFilterActive = isStatusFilterActive
 				)
 			}
 			model.nodes.forEach { node ->
 				val isUnlockHighlighted = node.id in focusState.selectedAvailableUnlockNodeIds
-				val isNodeDimmed = focusState.isActive && node.id !in focusState.selectedFocusNodeIds
+				val isDimmedByFocus = focusState.isActive && node.id !in focusState.selectedFocusNodeIds
+				val isDimmedByFilter = isStatusFilterActive && node.id !in statusFilteredNodeIds
+				val isNodeDimmed = isDimmedByFocus || isDimmedByFilter
 				PensumNodeCard(
 					node = node,
 					isSelected = node.id == selectedNodeId,
@@ -571,6 +591,8 @@ fun PensumGraphCanvas(
 				selectedAvailableUnlockEdgeIds = focusState.selectedAvailableUnlockEdgeIds,
 				focusedNodeIds = focusState.selectedFocusNodeIds,
 				isFocusActive = focusState.isActive,
+				statusFilteredNodeIds = statusFilteredNodeIds,
+				isStatusFilterActive = isStatusFilterActive,
 				densityScale = density.density,
 				onViewportCenterChange = { canvasCenter -> moveViewportToCanvasCenter(canvasCenter) },
 				modifier = Modifier
@@ -595,6 +617,9 @@ fun PensumGraphCanvas(
 		)
 
 		PensumCanvasLegend(
+			activeStatusFilters = activeStatusFilters,
+			onStatusFilterToggle = { type -> toggleStatusFilter(type) },
+			onClearStatusFilters = { activeStatusFilters = emptySet() },
 			modifier = Modifier.align(Alignment.BottomCenter)
 		)
 	}
@@ -604,7 +629,9 @@ private fun DrawScope.drawCanvasBackground(
 	model: PensumScreenModel,
 	density: Float,
 	focusedEdgeIds: Set<String>,
-	isFocusActive: Boolean
+	isFocusActive: Boolean,
+	statusFilteredNodeIds: Set<String>,
+	isStatusFilterActive: Boolean
 ) {
 	val widthPx = model.canvas.width.toFloat() * density
 	val heightPx = model.canvas.height.toFloat() * density
@@ -644,11 +671,14 @@ private fun DrawScope.drawCanvasBackground(
 	)
 	model.edges.forEach { edge ->
 		if (edge.id !in focusedEdgeIds) {
+			val isFilteredOut = isStatusFilterActive &&
+				edge.fromNodeId !in statusFilteredNodeIds &&
+				edge.toNodeId !in statusFilteredNodeIds
 			drawPensumEdge(
 				edge = edge,
 				model = model,
 				density = density,
-				focusTone = if (isFocusActive) EdgeFocusTone.Dimmed else EdgeFocusTone.Default
+				focusTone = if (isFocusActive || isFilteredOut) EdgeFocusTone.Dimmed else EdgeFocusTone.Default
 			)
 		}
 	}

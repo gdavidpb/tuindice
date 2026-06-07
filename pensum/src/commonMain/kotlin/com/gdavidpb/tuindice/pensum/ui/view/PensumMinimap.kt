@@ -32,6 +32,8 @@ fun PensumMinimap(
 	selectedAvailableUnlockEdgeIds: Set<String>,
 	focusedNodeIds: Set<String>,
 	isFocusActive: Boolean,
+	statusFilteredNodeIds: Set<String>,
+	isStatusFilterActive: Boolean,
 	densityScale: Float,
 	onViewportCenterChange: (Offset) -> Unit,
 	modifier: Modifier = Modifier
@@ -77,11 +79,14 @@ fun PensumMinimap(
 		val nodeCornerRadius = PensumElementCornerRadius.value * min(sx, sy)
 		model.edges.forEach { edge ->
 			val isFocusedEdge = edge.id in selectedRequirementEdgeIds || edge.id in selectedUnlockEdgeIds
+			val isFilteredOut = isStatusFilterActive &&
+				edge.fromNodeId !in statusFilteredNodeIds &&
+				edge.toNodeId !in statusFilteredNodeIds
 			val color = when {
 				edge.id in selectedAvailableUnlockEdgeIds -> Available.copy(alpha = MinimapFocusedAlpha)
 				isFocusedEdge -> Selected.copy(alpha = MinimapFocusedAlpha)
 				else -> CanvasNeutral.copy(
-					alpha = if (isFocusActive) MinimapDimmedAlpha else MinimapNeutralAlpha
+					alpha = if (isFocusActive || isFilteredOut) MinimapDimmedAlpha else MinimapNeutralAlpha
 				)
 			}
 			val strokeWidth = if (isFocusedEdge) 4f else 2f
@@ -110,7 +115,9 @@ fun PensumMinimap(
 			}
 		}
 		model.nodes.forEach { node ->
-			val nodeAlpha = if (isFocusActive && node.id !in focusedNodeIds) {
+			val isDimmedByFocus = isFocusActive && node.id !in focusedNodeIds
+			val isDimmedByFilter = isStatusFilterActive && node.id !in statusFilteredNodeIds
+			val nodeAlpha = if (isDimmedByFocus || isDimmedByFilter) {
 				MinimapDimmedAlpha
 			} else {
 				MinimapFocusedAlpha
