@@ -25,17 +25,17 @@ class PensumStickyTermHeaderUiTest {
 	fun when_zoomIsBelowStickyHeaderThreshold_then_headerGateIsHidden() {
 		assertFalse(
 			shouldRenderStickyTermHeader(
-				scale = StickyTermHeaderMinZoom - 0.01f,
+				scale = StickyTermHeaderShortMinZoom - 0.01f,
 				isFitToScreen = false
 			)
 		)
 	}
 
 	@Test
-	fun when_zoomMeetsStickyHeaderThreshold_then_headerGateIsVisible() {
+	fun when_zoomMeetsShortStickyHeaderThreshold_then_headerGateIsVisible() {
 		assertTrue(
 			shouldRenderStickyTermHeader(
-				scale = StickyTermHeaderMinZoom,
+				scale = StickyTermHeaderShortMinZoom,
 				isFitToScreen = false
 			)
 		)
@@ -45,24 +45,24 @@ class PensumStickyTermHeaderUiTest {
 	fun when_canvasIsFitToScreen_then_headerGateIsHidden() {
 		assertFalse(
 			shouldRenderStickyTermHeader(
-				scale = StickyTermHeaderMinZoom + 0.2f,
+				scale = StickyTermHeaderShortMinZoom + 0.2f,
 				isFitToScreen = true
 			)
 		)
 	}
 
 	@Test
-	fun when_headerIsRenderedAtThreshold_then_headerIsVisible() = runTuIndiceUiTest {
+	fun when_headerIsRenderedAtShortThreshold_then_shortLabelsAreVisible() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			val density = LocalDensity.current
 			Box(
 				modifier = Modifier
-					.width(320.dp)
+					.width(420.dp)
 					.height(StickyTermHeaderHeight)
 			) {
 				PensumStickyTermHeader(
 					terms = stickyHeaderTerms(),
-					scale = StickyTermHeaderMinZoom,
+					scale = StickyTermHeaderShortMinZoom,
 					offsetX = 0f,
 					densityScale = density.density,
 					onTermClick = {}
@@ -74,12 +74,36 @@ class PensumStickyTermHeaderUiTest {
 		onNodeWithText("1°").assertExists()
 		onAllNodesWithText("1° trimestre").assertCountEquals(0)
 	}
+
+	@Test
+	fun when_headerIsRenderedAtFullThreshold_then_fullLabelsAreVisible() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			val density = LocalDensity.current
+			Box(
+				modifier = Modifier
+					.width(420.dp)
+					.height(StickyTermHeaderHeight)
+			) {
+				PensumStickyTermHeader(
+					terms = stickyHeaderTerms(),
+					scale = StickyTermHeaderFullMinZoom,
+					offsetX = 0f,
+					densityScale = density.density,
+					onTermClick = {}
+				)
+			}
+		}
+
+		assertNodeVisible(PensumUiTags.StickyTerms)
+		onNodeWithText("1° trimestre").assertExists()
+		onAllNodesWithText("1°").assertCountEquals(0)
+	}
 }
 
 private fun stickyHeaderTerms(): List<PensumTermItem> {
 	return listOf(
-		PensumTermItem(id = "T1", label = "Primer trimestre", x = 0.0, width = 120.0),
-		PensumTermItem(id = "T2", label = "Segundo trimestre", x = 120.0, width = 120.0),
-		PensumTermItem(id = "T3", label = "Tercer trimestre", x = 240.0, width = 120.0)
+		PensumTermItem(id = "T1", label = "Primer trimestre", x = 0.0, width = 240.0),
+		PensumTermItem(id = "T2", label = "Segundo trimestre", x = 240.0, width = 240.0),
+		PensumTermItem(id = "T3", label = "Tercer trimestre", x = 480.0, width = 240.0)
 	)
 }

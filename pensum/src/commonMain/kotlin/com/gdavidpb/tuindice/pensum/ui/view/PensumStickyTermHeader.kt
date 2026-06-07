@@ -39,7 +39,14 @@ fun PensumStickyTermHeader(
 ) {
 	val density = LocalDensity.current
 	val labelTextStyle = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold)
-	val minimumWidthPx = with(density) { StickyTermShortLabelMinWidth.toPx() }
+	val shouldUseFullLabels = scale >= StickyTermHeaderFullMinZoom
+	val minimumWidthPx = with(density) {
+		if (shouldUseFullLabels) {
+			StickyTermFullLabelMinWidth.toPx()
+		} else {
+			StickyTermShortLabelMinWidth.toPx()
+		}
+	}
 
 	Box(
 		modifier = modifier
@@ -52,9 +59,14 @@ fun PensumStickyTermHeader(
 			val xPx = offsetX + term.x.toFloat() * densityScale * scale
 			val widthPx = max(term.width.toFloat() * densityScale * scale, minimumWidthPx)
 			val widthDp = with(density) { widthPx.toDp() }
+			val labelHorizontalPadding = if (shouldUseFullLabels) {
+				StickyTermFullLabelHorizontalPadding
+			} else {
+				StickyTermShortLabelHorizontalPadding
+			}
 			val label = pensumTermOrdinalLabel(
 				number = index + 1,
-				shouldIncludeText = widthDp >= StickyTermFullLabelMinWidth
+				shouldIncludeText = shouldUseFullLabels
 			)
 
 			Surface(
@@ -73,7 +85,7 @@ fun PensumStickyTermHeader(
 					contentAlignment = Alignment.Center
 				) {
 					Text(
-						modifier = Modifier.padding(horizontal = StickyTermLabelHorizontalPadding),
+						modifier = Modifier.padding(horizontal = labelHorizontalPadding),
 						text = label,
 						textAlign = TextAlign.Center,
 						style = labelTextStyle,
@@ -89,4 +101,5 @@ fun PensumStickyTermHeader(
 }
 
 private val StickyTermOuterHorizontalPadding = 4.dp
-private val StickyTermLabelHorizontalPadding = 8.dp
+private val StickyTermFullLabelHorizontalPadding = 8.dp
+private val StickyTermShortLabelHorizontalPadding = 4.dp

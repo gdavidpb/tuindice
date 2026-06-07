@@ -886,7 +886,7 @@ internal fun shouldRenderStickyTermHeader(
 	scale: Float,
 	isFitToScreen: Boolean
 ): Boolean {
-	return !isFitToScreen && scale >= StickyTermHeaderMinZoom
+	return !isFitToScreen && scale >= StickyTermHeaderShortMinZoom
 }
 
 private fun nextDiscreteZoomScale(

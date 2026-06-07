@@ -1,8 +1,6 @@
 package com.gdavidpb.tuindice.pensum.ui.dialog
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -13,7 +11,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -41,8 +38,8 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumSubjectRelationItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.model.toImageVector
 import com.gdavidpb.tuindice.pensum.ui.view.Current
-import com.gdavidpb.tuindice.pensum.ui.view.PanelBackground
 import com.gdavidpb.tuindice.pensum.ui.view.PensumElementShape
+import com.gdavidpb.tuindice.pensum.ui.view.PensumStatusIconMarker
 import com.gdavidpb.tuindice.pensum.ui.view.PensumSubjectCodeChip
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -300,17 +297,16 @@ private fun PensumSubjectRelationStatusBadge(
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		Box(
-			modifier = Modifier
-				.size(20.dp)
-				.background(PanelBackground, CircleShape)
-				.border(1.2.dp, statusColor, CircleShape),
+			modifier = Modifier.size(20.dp),
 			contentAlignment = Alignment.Center
 		) {
-			Icon(
+			PensumStatusIconMarker(
 				imageVector = status.icon.toImageVector(),
-				contentDescription = null,
 				tint = statusColor,
-				modifier = Modifier.size(13.dp)
+				hasBuiltInContainer = status.type == PensumNodeStatusType.CURRENT,
+				markerSize = 20.dp,
+				iconSize = 13.dp,
+				borderWidth = 1.2.dp
 			)
 		}
 		Text(
@@ -334,17 +330,16 @@ private fun PensumSubjectStatusBadge(
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		Box(
-			modifier = Modifier
-				.size(24.dp)
-				.background(PanelBackground, CircleShape)
-				.border(1.4.dp, statusColor, CircleShape),
+			modifier = Modifier.size(24.dp),
 			contentAlignment = Alignment.Center
 		) {
-			Icon(
+			PensumStatusIconMarker(
 				imageVector = status.icon.toImageVector(),
-				contentDescription = null,
 				tint = statusColor,
-				modifier = Modifier.size(16.dp)
+				hasBuiltInContainer = status.type == PensumNodeStatusType.CURRENT,
+				markerSize = 24.dp,
+				iconSize = 16.dp,
+				borderWidth = 1.4.dp
 			)
 		}
 		Text(

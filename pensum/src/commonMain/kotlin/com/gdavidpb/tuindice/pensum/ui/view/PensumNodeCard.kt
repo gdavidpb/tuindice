@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.pensum.ui.view
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material3.Icon
@@ -115,16 +113,14 @@ fun PensumNodeCard(
 			Box(
 				modifier = Modifier
 					.align(Alignment.TopEnd)
-					.size(22.dp)
-					.background(PanelBackground, CircleShape)
-					.border(1.4.dp, statusColor, CircleShape),
-				contentAlignment = Alignment.Center
 			) {
-				Icon(
+				PensumStatusIconMarker(
 					imageVector = node.status.icon.toImageVector(),
-					contentDescription = null,
 					tint = statusColor,
-					modifier = Modifier.size(16.dp)
+					hasBuiltInContainer = node.isCurrent,
+					markerSize = 22.dp,
+					iconSize = 16.dp,
+					borderWidth = 1.4.dp
 				)
 			}
 			Box(

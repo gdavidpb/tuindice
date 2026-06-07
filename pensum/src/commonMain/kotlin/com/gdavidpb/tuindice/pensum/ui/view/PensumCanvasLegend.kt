@@ -159,25 +159,20 @@ private fun PensumCanvasLegendMarker(
 	item: LegendItem,
 	isSelected: Boolean
 ) {
-	Box(
-		modifier = Modifier
-			.size(15.dp)
-			.background(if (isSelected) item.color.copy(alpha = 0.18f) else PanelBackground, CircleShape)
-			.border(1.2.dp, item.color, CircleShape),
-		contentAlignment = Alignment.Center
-	) {
-		Icon(
-			imageVector = when (item.icon) {
-				LegendIcon.Check -> Icons.Filled.Check
-				LegendIcon.CurrentRoute -> PensumCurrentRouteIcon
-				LegendIcon.Add -> Icons.Outlined.Add
-				LegendIcon.Lock -> Icons.Outlined.Lock
-			},
-			contentDescription = null,
-			tint = item.color,
-			modifier = Modifier.size(11.dp)
-		)
-	}
+	PensumStatusIconMarker(
+		imageVector = when (item.icon) {
+			LegendIcon.Check -> Icons.Filled.Check
+			LegendIcon.CurrentRoute -> PensumCurrentRouteIcon
+			LegendIcon.Add -> Icons.Outlined.Add
+			LegendIcon.Lock -> Icons.Outlined.Lock
+		},
+		tint = item.color,
+		hasBuiltInContainer = item.icon == LegendIcon.CurrentRoute,
+		markerSize = 15.dp,
+		iconSize = 11.dp,
+		borderWidth = 1.2.dp,
+		backgroundColor = if (isSelected) item.color.copy(alpha = 0.18f) else PanelBackground
+	)
 }
 
 @Composable
