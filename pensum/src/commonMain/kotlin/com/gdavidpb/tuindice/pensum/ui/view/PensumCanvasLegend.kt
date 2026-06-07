@@ -15,10 +15,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Check
-import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Close
-import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -34,7 +31,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
-import com.gdavidpb.tuindice.pensum.ui.model.PensumCurrentRouteIcon
+import com.gdavidpb.tuindice.pensum.ui.model.PensumStatusIconVisual
+import com.gdavidpb.tuindice.pensum.ui.model.toStatusIconVisual
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
@@ -56,25 +54,25 @@ fun PensumCanvasLegend(
 			statusType = PensumNodeStatusType.APPROVED,
 			label = Res.string.pensum_canvas_legend_approved,
 			color = Approved,
-			icon = LegendIcon.Check
+			icon = PensumNodeStatusType.APPROVED.toStatusIconVisual()
 		),
 		LegendItem(
 			statusType = PensumNodeStatusType.CURRENT,
 			label = Res.string.pensum_canvas_legend_current,
 			color = Current,
-			icon = LegendIcon.CurrentRoute
+			icon = PensumNodeStatusType.CURRENT.toStatusIconVisual()
 		),
 		LegendItem(
 			statusType = PensumNodeStatusType.AVAILABLE,
 			label = Res.string.pensum_canvas_legend_available,
 			color = Available,
-			icon = LegendIcon.Add
+			icon = PensumNodeStatusType.AVAILABLE.toStatusIconVisual()
 		),
 		LegendItem(
 			statusType = PensumNodeStatusType.BLOCKED,
 			label = Res.string.pensum_canvas_legend_blocked,
 			color = CanvasNeutral.copy(alpha = 0.72f),
-			icon = LegendIcon.Lock
+			icon = PensumNodeStatusType.BLOCKED.toStatusIconVisual()
 		)
 	)
 
@@ -160,14 +158,9 @@ private fun PensumCanvasLegendMarker(
 	isSelected: Boolean
 ) {
 	PensumStatusIconMarker(
-		imageVector = when (item.icon) {
-			LegendIcon.Check -> Icons.Filled.Check
-			LegendIcon.CurrentRoute -> PensumCurrentRouteIcon
-			LegendIcon.Add -> Icons.Outlined.Add
-			LegendIcon.Lock -> Icons.Outlined.Lock
-		},
+		imageVector = item.icon.imageVector,
 		tint = item.color,
-		hasBuiltInContainer = item.icon == LegendIcon.CurrentRoute,
+		hasBuiltInContainer = item.icon.hasBuiltInContainer,
 		markerSize = 15.dp,
 		iconSize = 11.dp,
 		borderWidth = 1.2.dp,
@@ -207,12 +200,5 @@ private data class LegendItem(
 	val statusType: PensumNodeStatusType,
 	val label: StringResource,
 	val color: Color,
-	val icon: LegendIcon
+	val icon: PensumStatusIconVisual
 )
-
-private enum class LegendIcon {
-	Check,
-	CurrentRoute,
-	Add,
-	Lock
-}

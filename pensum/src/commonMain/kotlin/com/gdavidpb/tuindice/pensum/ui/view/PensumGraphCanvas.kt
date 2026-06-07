@@ -13,8 +13,13 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculateCentroid
+import androidx.compose.foundation.gestures.calculateCentroidSize
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
@@ -42,7 +47,9 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerInputScope
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
@@ -88,6 +95,7 @@ fun PensumGraphCanvas(
 	val offsetX = remember(graphKey) { Animatable(savedOffsetX ?: 0f) }
 	val offsetY = remember(graphKey) { Animatable(savedOffsetY ?: 0f) }
 	var canvasSnapJob by remember(graphKey) { mutableStateOf<Job?>(null) }
+	var isManualCanvasGestureActive by remember(graphKey) { mutableStateOf(false) }
 
 	BoxWithConstraints(
 		modifier = modifier
@@ -484,6 +492,8 @@ fun PensumGraphCanvas(
 			offsetTolerancePx = with(density) { CanvasFitStateTolerance.toPx() }
 		)
 		val shouldShowMinimapControls = isMinimapToggleVisible && !isFitToScreen && !isSubjectSheetVisible
+			&& !isManualCanvasGestureActive
+		val shouldShowCanvasOverlays = !isSubjectSheetVisible && !isManualCanvasGestureActive
 		val shouldShowStickyTermHeader = shouldRenderStickyTermHeader(
 			scale = scale.value,
 			isFitToScreen = isFitToScreen
@@ -498,46 +508,50 @@ fun PensumGraphCanvas(
 		Box(
 			modifier = Modifier
 				.pointerInput(graphKey, viewportSizePx, canvasSizePx, panMarginPx) {
-					detectTransformGestures { centroid, pan, zoom, _ ->
-						revealMinimapToggle()
-						val oldScale = scale.value
-						val rawScale = oldScale * zoom
-						val newScale = rawScale.coerceIn(fitStateScale, MaxCanvasZoom)
-						val currentOffset = Offset(offsetX.value, offsetY.value)
-						val nextOffset = if (rawScale <= fitStateScale + CanvasFitScaleTolerance) {
-							fitCanvasOffset(fitStateScale)
-						} else {
-							constrainCanvasOffset(
-								offset = currentOffset
-									.zoomedAround(
-										anchor = centroid,
-										oldScale = oldScale,
-										newScale = newScale
-									) + pan,
-								scale = newScale,
-								canvasSizePx = canvasSizePx,
-								viewportSizePx = viewportSizePx,
-								panMarginPx = panMarginPx
-							)
-						}
+					detectCanvasTransformGestures(
+						onGestureStart = { isManualCanvasGestureActive = true },
+						onGestureEnd = { isManualCanvasGestureActive = false },
+						onGesture = { centroid, pan, zoom ->
+							revealMinimapToggle()
+							val oldScale = scale.value
+							val rawScale = oldScale * zoom
+							val newScale = rawScale.coerceIn(fitStateScale, MaxCanvasZoom)
+							val currentOffset = Offset(offsetX.value, offsetY.value)
+							val nextOffset = if (rawScale <= fitStateScale + CanvasFitScaleTolerance) {
+								fitCanvasOffset(fitStateScale)
+							} else {
+								constrainCanvasOffset(
+									offset = currentOffset
+										.zoomedAround(
+											anchor = centroid,
+											oldScale = oldScale,
+											newScale = newScale
+										) + pan,
+									scale = newScale,
+									canvasSizePx = canvasSizePx,
+									viewportSizePx = viewportSizePx,
+									panMarginPx = panMarginPx
+								)
+							}
 
-						coroutineScope.launch {
-							scale.stop()
-							offsetX.stop()
-							offsetY.stop()
-							scale.snapTo(newScale)
-							offsetX.snapTo(nextOffset.x)
-							offsetY.snapTo(nextOffset.y)
-							saveCanvasViewport(
-								scaleValue = newScale,
-								offset = nextOffset
-							)
-							scheduleViewportSnap(
-								scaleValue = newScale,
-								offset = nextOffset
-							)
+							coroutineScope.launch {
+								scale.stop()
+								offsetX.stop()
+								offsetY.stop()
+								scale.snapTo(newScale)
+								offsetX.snapTo(nextOffset.x)
+								offsetY.snapTo(nextOffset.y)
+								saveCanvasViewport(
+									scaleValue = newScale,
+									offset = nextOffset
+								)
+								scheduleViewportSnap(
+									scaleValue = newScale,
+									offset = nextOffset
+								)
+							}
 						}
-					}
+					)
 				}
 				.graphicsLayer {
 					translationX = offsetX.value
@@ -547,6 +561,7 @@ fun PensumGraphCanvas(
 					transformOrigin = TransformOrigin(0f, 0f)
 				}
 				.size(model.canvas.width.dp, model.canvas.height.dp)
+				.testTag(PensumUiTags.CanvasGestureLayer)
 		) {
 			Canvas(
 				modifier = Modifier
@@ -651,7 +666,7 @@ fun PensumGraphCanvas(
 		}
 
 		AnimatedVisibility(
-			visible = !isSubjectSheetVisible,
+			visible = shouldShowCanvasOverlays,
 			modifier = Modifier
 				.align(Alignment.BottomEnd)
 				.padding(end = 16.dp, bottom = CanvasBottomOverlayPadding),
@@ -672,7 +687,7 @@ fun PensumGraphCanvas(
 		}
 
 		AnimatedVisibility(
-			visible = !isSubjectSheetVisible,
+			visible = shouldShowCanvasOverlays,
 			modifier = Modifier.align(Alignment.BottomCenter),
 			enter = canvasOverlayEnter(transformOrigin = TransformOrigin(0.5f, 1f)),
 			exit = canvasOverlayExit(transformOrigin = TransformOrigin(0.5f, 1f))
@@ -683,6 +698,64 @@ fun PensumGraphCanvas(
 				onClearStatusFilters = { clearStatusFilters() },
 				modifier = Modifier
 			)
+		}
+	}
+}
+
+private suspend fun PointerInputScope.detectCanvasTransformGestures(
+	onGestureStart: () -> Unit,
+	onGestureEnd: () -> Unit,
+	onGesture: (centroid: Offset, pan: Offset, zoom: Float) -> Unit
+) {
+	awaitEachGesture {
+		var zoom = 1f
+		var pan = Offset.Zero
+		var isPastTouchSlop = false
+		var didStartGesture = false
+		val touchSlop = viewConfiguration.touchSlop
+
+		awaitFirstDown(requireUnconsumed = false)
+		do {
+			val event = awaitPointerEvent()
+			val isCanceled = event.changes.any { change -> change.isConsumed }
+
+			if (!isCanceled) {
+				val zoomChange = event.calculateZoom()
+				val panChange = event.calculatePan()
+
+				if (!isPastTouchSlop) {
+					zoom *= zoomChange
+					pan += panChange
+
+					val centroidSize = event.calculateCentroidSize(useCurrent = false)
+					val zoomMotion = abs(1 - zoom) * centroidSize
+					val panMotion = pan.getDistance()
+
+					isPastTouchSlop = zoomMotion > touchSlop || panMotion > touchSlop
+				}
+
+				if (isPastTouchSlop) {
+					if (!didStartGesture) {
+						onGestureStart()
+						didStartGesture = true
+					}
+
+					onGesture(
+						event.calculateCentroid(useCurrent = false),
+						panChange,
+						zoomChange
+					)
+					event.changes.forEach { change ->
+						if (change.positionChanged()) {
+							change.consume()
+						}
+					}
+				}
+			}
+		} while (!isCanceled && event.changes.any { change -> change.pressed })
+
+		if (didStartGesture) {
+			onGestureEnd()
 		}
 	}
 }

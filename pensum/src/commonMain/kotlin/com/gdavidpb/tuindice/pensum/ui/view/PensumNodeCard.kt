@@ -22,7 +22,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
-import com.gdavidpb.tuindice.pensum.ui.model.toImageVector
+import com.gdavidpb.tuindice.pensum.ui.model.toStatusIconVisual
 
 @Composable
 fun PensumNodeCard(
@@ -36,6 +36,7 @@ fun PensumNodeCard(
 	val isHighlighted = isSelected || isRequirementHighlighted || isUnlockHighlighted
 	val fulfilledSubject = node.fulfilledSubject
 	val statusColor = Color(node.status.colorArgb)
+	val statusIcon = node.status.toStatusIconVisual()
 	val chipColors = node.displayCode.toPensumChipColors(
 		fallbackContainer = colors.chip,
 		fallbackContent = colors.chipText
@@ -107,9 +108,9 @@ fun PensumNodeCard(
 					.align(Alignment.TopEnd)
 			) {
 				PensumStatusIconMarker(
-					imageVector = node.status.icon.toImageVector(),
+					imageVector = statusIcon.imageVector,
 					tint = statusColor,
-					hasBuiltInContainer = node.isCurrent,
+					hasBuiltInContainer = statusIcon.hasBuiltInContainer,
 					markerSize = 22.dp,
 					iconSize = 16.dp,
 					borderWidth = 1.4.dp

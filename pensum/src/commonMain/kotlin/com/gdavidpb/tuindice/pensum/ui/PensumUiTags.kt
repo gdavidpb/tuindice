@@ -9,6 +9,7 @@ object PensumUiTags {
 	const val PensumSelector = "pensum_selector"
 	const val ModalitySelector = "pensum_modality_selector"
 	const val Canvas = "pensum_canvas"
+	const val CanvasGestureLayer = "pensum_canvas_gesture_layer"
 	const val CanvasLegend = "pensum_canvas_legend"
 	const val StatusFilterClear = "pensum_status_filter_clear"
 	const val FitToScreen = "pensum_fit_to_screen"

@@ -15,9 +15,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusDisplay
-import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
-import com.gdavidpb.tuindice.pensum.ui.model.toImageVector
+import com.gdavidpb.tuindice.pensum.ui.model.toStatusIconVisual
 import com.gdavidpb.tuindice.pensum.ui.view.PensumStatusIconMarker
 import org.jetbrains.compose.resources.stringResource
 
@@ -26,6 +25,7 @@ fun PensumSubjectStatusBadge(
 	status: PensumNodeStatusDisplay
 ) {
 	val statusColor = Color(status.colorArgb)
+	val statusIcon = status.toStatusIconVisual()
 	Row(
 		horizontalArrangement = Arrangement.spacedBy(6.dp),
 		verticalAlignment = Alignment.CenterVertically
@@ -35,9 +35,9 @@ fun PensumSubjectStatusBadge(
 			contentAlignment = Alignment.Center
 		) {
 			PensumStatusIconMarker(
-				imageVector = status.icon.toImageVector(),
+				imageVector = statusIcon.imageVector,
 				tint = statusColor,
-				hasBuiltInContainer = status.type == PensumNodeStatusType.CURRENT,
+				hasBuiltInContainer = statusIcon.hasBuiltInContainer,
 				markerSize = 24.dp,
 				iconSize = 16.dp,
 				borderWidth = 1.4.dp

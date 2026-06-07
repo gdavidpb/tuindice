@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.pensum.ui.screen
 
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
@@ -11,6 +12,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
@@ -285,6 +287,62 @@ class PensumScreenUiTest {
 		assertNodeHidden(PensumUiTags.CanvasLegend)
 		assertNodeHidden(PensumUiTags.ZoomIn)
 		assertNodeHidden(PensumUiTags.ZoomOut)
+	}
+
+	@Test
+	fun when_manualCanvasGestureIsRunning_then_canvasControlsAndLegendHideTemporarily() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumGraphCanvas(
+				model = samplePensumModel(),
+				selectedNodeId = null,
+				onSelectedNodeChange = {}
+			)
+		}
+
+		assertNodeVisible(PensumUiTags.CanvasLegend)
+		assertNodeVisible(PensumUiTags.ZoomIn)
+		assertNodeVisible(PensumUiTags.ZoomOut)
+
+		mainClock.autoAdvance = false
+		onNodeWithTag(PensumUiTags.CanvasGestureLayer)
+			.performTouchInput {
+				down(center)
+				moveBy(Offset(x = -120f, y = 0f))
+				advanceEventTime((CanvasOverlayAnimationMillis * 3).toLong())
+			}
+		advanceAnimationsBy((CanvasOverlayAnimationMillis * 3).toLong())
+
+		assertNodeHidden(PensumUiTags.CanvasLegend)
+		assertNodeHidden(PensumUiTags.ZoomIn)
+		assertNodeHidden(PensumUiTags.ZoomOut)
+
+		onNodeWithTag(PensumUiTags.CanvasGestureLayer)
+			.performTouchInput { up() }
+		advanceAnimationsBy((CanvasOverlayAnimationMillis * 3).toLong())
+
+		assertNodeVisible(PensumUiTags.CanvasLegend)
+		assertNodeVisible(PensumUiTags.ZoomIn)
+		assertNodeVisible(PensumUiTags.ZoomOut)
+	}
+
+	@Test
+	fun when_zoomControlIsPressed_then_canvasControlsAndLegendStayVisible() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumGraphCanvas(
+				model = samplePensumModel(),
+				selectedNodeId = null,
+				onSelectedNodeChange = {}
+			)
+		}
+
+		assertNodeVisible(PensumUiTags.CanvasLegend)
+		onNodeWithTag(PensumUiTags.ZoomIn).assertHasClickAction().performClick()
+		waitForIdle()
+
+		assertNodeVisible(PensumUiTags.CanvasLegend)
+		assertNodeVisible(PensumUiTags.ZoomIn)
+		assertNodeVisible(PensumUiTags.ZoomOut)
+		assertNodeVisible(PensumUiTags.FitToScreen)
 	}
 
 	@Test

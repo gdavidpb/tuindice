@@ -19,8 +19,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
-import com.gdavidpb.tuindice.pensum.ui.model.PensumCurrentRouteIcon
+import com.gdavidpb.tuindice.pensum.ui.model.toStatusIconVisual
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_fit_to_screen
@@ -48,6 +49,7 @@ fun PensumZoomControls(
 		(if (isFitToScreenVisible) 1 else 0) +
 		(if (isMinimapToggleVisible) 1 else 0)
 	val controlsHeight = ZoomControlButtonHeight * controlsCount.toFloat()
+	val currentStatusIcon = PensumNodeStatusType.CURRENT.toStatusIconVisual()
 
 	Column(
 		modifier = modifier
@@ -65,7 +67,7 @@ fun PensumZoomControls(
 				onClick = onFocusProgress
 			) {
 				Icon(
-					imageVector = PensumCurrentRouteIcon,
+					imageVector = currentStatusIcon.imageVector,
 					contentDescription = stringResource(Res.string.pensum_focus_progress),
 					tint = TextPrimary
 				)
