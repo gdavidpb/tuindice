@@ -63,7 +63,7 @@ fun PensumGraphCanvas(
 	model: PensumScreenModel,
 	selectedNodeId: String?,
 	onSelectedNodeChange: (String?) -> Unit,
-	onNodeDetailClick: (String) -> Unit,
+	isSubjectSheetVisible: Boolean = false,
 	focusRequestSerial: Int = 0,
 	modifier: Modifier = Modifier
 ) {
@@ -222,6 +222,18 @@ fun PensumGraphCanvas(
 				activeStatusFilters - type
 			} else {
 				activeStatusFilters + type
+			}
+			onSelectedNodeChange(null)
+		}
+
+		fun clearStatusFilters() {
+			activeStatusFilters = emptySet()
+			onSelectedNodeChange(null)
+		}
+
+		LaunchedEffect(graphKey, selectedNodeId) {
+			if (selectedNodeId != null && activeStatusFilters.isNotEmpty()) {
+				activeStatusFilters = emptySet()
 			}
 		}
 
@@ -463,7 +475,7 @@ fun PensumGraphCanvas(
 			fitOffset = fitStateOffset,
 			offsetTolerancePx = with(density) { CanvasFitStateTolerance.toPx() }
 		)
-		val shouldShowMinimapControls = isMinimapToggleVisible && !isFitToScreen
+		val shouldShowMinimapControls = isMinimapToggleVisible && !isFitToScreen && !isSubjectSheetVisible
 		val shouldShowStickyTermHeader = shouldRenderStickyTermHeader(
 			scale = scale.value,
 			isFitToScreen = isFitToScreen
@@ -561,11 +573,6 @@ fun PensumGraphCanvas(
 								node.id !in focusState.selectedAvailableUnlockNodeIds
 							),
 					isUnlockHighlighted = isUnlockHighlighted,
-					onDetailClick = {
-						onSelectedNodeChange(node.id)
-						centerSelectedNode(node)
-						onNodeDetailClick(node.id)
-					},
 					modifier = Modifier
 						.offset(x = node.x.dp, y = node.y.dp)
 						.size(width = node.width.dp, height = node.height.dp)
@@ -574,12 +581,8 @@ fun PensumGraphCanvas(
 							alpha = if (isNodeDimmed) 0.34f else 1f
 						}
 						.clickable {
-							if (node.id == selectedNodeId) {
-								onSelectedNodeChange(null)
-							} else {
-								onSelectedNodeChange(node.id)
-								centerSelectedNode(node)
-							}
+							onSelectedNodeChange(node.id)
+							centerSelectedNode(node)
 						}
 						.testTag(PensumUiTags.node(node.id))
 				)
@@ -631,27 +634,29 @@ fun PensumGraphCanvas(
 			)
 		}
 
-		PensumZoomControls(
-			modifier = Modifier
-				.align(Alignment.BottomEnd)
-				.padding(end = 16.dp, bottom = CanvasBottomOverlayPadding),
-			isCurrentFocusVisible = model.isCurrentFocusVisible,
-			isMinimapToggleVisible = shouldShowMinimapControls,
-			isMinimapVisible = isMinimapVisible,
-			isFitToScreenVisible = !isFitToScreen,
-			onFocusProgress = { focusProgress() },
-			onFitToScreen = { fitToScreen() },
-			onToggleMinimap = { isMinimapVisible = !isMinimapVisible },
-			onZoomIn = { zoomIn() },
-			onZoomOut = { zoomOut() }
-		)
+		if (!isSubjectSheetVisible) {
+			PensumZoomControls(
+				modifier = Modifier
+					.align(Alignment.BottomEnd)
+					.padding(end = 16.dp, bottom = CanvasBottomOverlayPadding),
+				isCurrentFocusVisible = model.isCurrentFocusVisible,
+				isMinimapToggleVisible = shouldShowMinimapControls,
+				isMinimapVisible = isMinimapVisible,
+				isFitToScreenVisible = !isFitToScreen,
+				onFocusProgress = { focusProgress() },
+				onFitToScreen = { fitToScreen() },
+				onToggleMinimap = { isMinimapVisible = !isMinimapVisible },
+				onZoomIn = { zoomIn() },
+				onZoomOut = { zoomOut() }
+			)
 
-		PensumCanvasLegend(
-			activeStatusFilters = activeStatusFilters,
-			onStatusFilterToggle = { type -> toggleStatusFilter(type) },
-			onClearStatusFilters = { activeStatusFilters = emptySet() },
-			modifier = Modifier.align(Alignment.BottomCenter)
-		)
+			PensumCanvasLegend(
+				activeStatusFilters = activeStatusFilters,
+				onStatusFilterToggle = { type -> toggleStatusFilter(type) },
+				onClearStatusFilters = { clearStatusFilters() },
+				modifier = Modifier.align(Alignment.BottomCenter)
+			)
+		}
 	}
 }
 

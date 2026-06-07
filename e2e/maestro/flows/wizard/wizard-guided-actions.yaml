@@ -84,12 +84,6 @@ appId: com.gdavidpb.tuindice.debug
     id: pensum_focused_node_ma1111
 - extendedWaitUntil:
     visible:
-      id: pensum_node_detail_button_ma1111
-    timeout: 10000
-- tapOn:
-    id: pensum_node_detail_button_ma1111
-- extendedWaitUntil:
-    visible:
       id: pensum_subject_detail_sheet
     timeout: 10000
 - assertVisible:

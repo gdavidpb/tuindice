@@ -136,13 +136,12 @@ pensum_zoom_in
 pensum_zoom_out
 pensum_node_ma1111
 pensum_focused_node_ma1111
-pensum_node_detail_button_ma1111
+pensum_subject_detail_sheet
 pensum_version_option_2018
 pensum_modality_option_long_internship
 pensum_node_0800-2018-long_internship-t1-math1-ma1111
 pensum_node_0800-2019-degree_project-t1-math1-ma1111
 pensum_focused_node_0800-2019-degree_project-t1-math1-ma1111
-pensum_node_detail_button_0800-2019-degree_project-t1-math1-ma1111
 pensum_subject_detail_status
 pensum_subject_detail_term_value
 base_top_app_bar_action_search_pensum

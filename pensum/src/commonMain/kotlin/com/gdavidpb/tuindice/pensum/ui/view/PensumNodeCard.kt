@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.pensum.ui.view
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -10,9 +9,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Info
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -27,9 +23,6 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.model.toImageVector
-import org.jetbrains.compose.resources.stringResource
-import tuindice.pensum.generated.resources.Res
-import tuindice.pensum.generated.resources.pensum_subject_detail_content_description
 
 @Composable
 fun PensumNodeCard(
@@ -37,7 +30,6 @@ fun PensumNodeCard(
 	isSelected: Boolean,
 	isRequirementHighlighted: Boolean,
 	isUnlockHighlighted: Boolean,
-	onDetailClick: () -> Unit,
 	modifier: Modifier = Modifier
 ) {
 	val colors = node.visualStyle.toNodeColors()
@@ -121,24 +113,6 @@ fun PensumNodeCard(
 					markerSize = 22.dp,
 					iconSize = 16.dp,
 					borderWidth = 1.4.dp
-				)
-			}
-			Box(
-				modifier = Modifier
-					.align(Alignment.BottomEnd)
-					.size(22.dp)
-					.clickable(onClick = onDetailClick)
-					.testTag(PensumUiTags.nodeDetailButton(node.id)),
-				contentAlignment = Alignment.Center
-			) {
-				Icon(
-					imageVector = Icons.Outlined.Info,
-					contentDescription = stringResource(
-						Res.string.pensum_subject_detail_content_description,
-						node.displayCode
-					),
-					tint = colors.secondaryText,
-					modifier = Modifier.size(22.dp)
 				)
 			}
 		}

@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -33,7 +34,37 @@ fun PensumContentView(
 	val focusRequestSerialState = remember(model.selection.year, model.selection.modalityId) {
 		mutableStateOf(0)
 	}
-	val detailNode = model.nodes.firstOrNull { node -> node.id == detailNodeIdState.value }
+	val nodeIds = remember(model.nodes) {
+		model.nodes.mapTo(mutableSetOf()) { node -> node.id }
+	}
+	val focusedNodeId = focusedNodeIdState.value?.takeIf { nodeId -> nodeId in nodeIds }
+	val detailNodeId = detailNodeIdState.value?.takeIf { nodeId -> nodeId in nodeIds }
+	val detailNode = if (showSelectionSheet) {
+		null
+	} else {
+		model.nodes.firstOrNull { node -> node.id == detailNodeId }
+	}
+	val isSubjectDetailVisible = detailNode != null
+
+	fun clearSubjectContext() {
+		focusedNodeIdState.value = null
+		detailNodeIdState.value = null
+	}
+
+	LaunchedEffect(showSelectionSheet) {
+		if (showSelectionSheet) {
+			clearSubjectContext()
+		}
+	}
+
+	LaunchedEffect(nodeIds, focusedNodeIdState.value, detailNodeIdState.value) {
+		if (focusedNodeIdState.value != null && focusedNodeIdState.value !in nodeIds) {
+			focusedNodeIdState.value = null
+		}
+		if (detailNodeIdState.value != null && detailNodeIdState.value !in nodeIds) {
+			detailNodeIdState.value = null
+		}
+	}
 
 	Column(
 		modifier = Modifier
@@ -43,19 +74,22 @@ fun PensumContentView(
 	) {
 		PensumSummaryRow(
 			model = model,
-			onPensumContextClick = onPensumContextClick
+			onPensumContextClick = {
+				clearSubjectContext()
+				onPensumContextClick()
+			}
 		)
 		PensumGraphCanvas(
 			model = model,
-			selectedNodeId = focusedNodeIdState.value,
-				onSelectedNodeChange = { nodeId -> focusedNodeIdState.value = nodeId },
-				onNodeDetailClick = { nodeId ->
-					focusedNodeIdState.value = nodeId
-					detailNodeIdState.value = nodeId
-				},
-				focusRequestSerial = focusRequestSerialState.value,
-				modifier = Modifier.weight(1f)
-			)
+			selectedNodeId = if (showSelectionSheet) null else focusedNodeId,
+			onSelectedNodeChange = { nodeId ->
+				focusedNodeIdState.value = nodeId
+				detailNodeIdState.value = nodeId
+			},
+			isSubjectSheetVisible = isSubjectDetailVisible,
+			focusRequestSerial = focusRequestSerialState.value,
+			modifier = Modifier.weight(1f)
+		)
 	}
 
 	if (showSelectionSheet) {
@@ -67,15 +101,15 @@ fun PensumContentView(
 	}
 
 	if (detailNode != null) {
-			PensumSubjectDetailBottomSheet(
-				node = detailNode,
-				onSubjectStatsClick = onSubjectStatsClick,
-				onRelatedSubjectClick = { nodeId ->
-					focusedNodeIdState.value = nodeId
-					detailNodeIdState.value = nodeId
-					focusRequestSerialState.value += 1
-				},
-				onDismissRequest = { detailNodeIdState.value = null }
-			)
+		PensumSubjectDetailBottomSheet(
+			node = detailNode,
+			onSubjectStatsClick = onSubjectStatsClick,
+			onRelatedSubjectClick = { nodeId ->
+				focusedNodeIdState.value = nodeId
+				detailNodeIdState.value = nodeId
+				focusRequestSerialState.value += 1
+			},
+			onDismissRequest = { detailNodeIdState.value = null }
+		)
 	}
 }

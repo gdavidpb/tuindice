@@ -13,13 +13,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -55,6 +60,7 @@ import tuindice.pensum.generated.resources.pensum_subject_detail_credits
 import tuindice.pensum.generated.resources.pensum_subject_detail_focus_subject
 import tuindice.pensum.generated.resources.pensum_subject_detail_fulfilled_by
 import tuindice.pensum.generated.resources.pensum_subject_detail_no_term
+import tuindice.pensum.generated.resources.pensum_subject_detail_more
 import tuindice.pensum.generated.resources.pensum_subject_detail_requirements
 import tuindice.pensum.generated.resources.pensum_subject_detail_stats
 import tuindice.pensum.generated.resources.pensum_subject_detail_stats_unavailable
@@ -70,9 +76,24 @@ fun PensumSubjectDetailBottomSheet(
 	onRelatedSubjectClick: (nodeId: String) -> Unit,
 	onDismissRequest: () -> Unit
 ) {
-	val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
+	val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
 	val detail = node.detail
 	val statsCode = detail.statsCode
+	val hasMoreDetail =
+		detail.fulfilledSubject != null ||
+			detail.blockingReasons.isNotEmpty() ||
+			detail.requirements.isNotEmpty() ||
+			detail.corequisites.isNotEmpty() ||
+			detail.unlocks.isNotEmpty()
+	val isMoreDetailExpandedState = remember(node.id) {
+		mutableStateOf(false)
+	}
+
+	LaunchedEffect(isMoreDetailExpandedState.value) {
+		if (isMoreDetailExpandedState.value) {
+			sheetState.expand()
+		}
+	}
 
 	ConfirmationDialog(
 		sheetState = sheetState,
@@ -93,99 +114,7 @@ fun PensumSubjectDetailBottomSheet(
 				.testTag(PensumUiTags.SubjectDetailSheet),
 			verticalArrangement = Arrangement.spacedBy(14.dp)
 		) {
-			Surface(
-				modifier = Modifier.fillMaxWidth(),
-				shape = PensumElementShape,
-				color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.48f),
-				border = BorderStroke(
-					width = 1.dp,
-					color = MaterialTheme.colorScheme.outlineVariant
-				)
-			) {
-				Column(
-					modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
-					verticalArrangement = Arrangement.spacedBy(12.dp)
-				) {
-					Column(
-						modifier = Modifier.fillMaxWidth(),
-						verticalArrangement = Arrangement.spacedBy(10.dp)
-					) {
-						Row(
-							modifier = Modifier.fillMaxWidth(),
-							horizontalArrangement = Arrangement.SpaceBetween,
-							verticalAlignment = Alignment.CenterVertically
-						) {
-							PensumStyledSubjectCodeChip(
-								modifier = Modifier.testTag(PensumUiTags.SubjectDetailCode),
-								code = detail.code,
-								visualStyle = node.visualStyle
-							)
-							PensumSubjectStatusBadge(status = detail.status)
-						}
-						Text(
-							modifier = Modifier.testTag(PensumUiTags.SubjectDetailName),
-							text = detail.name,
-							style = MaterialTheme.typography.bodyMedium,
-							fontWeight = FontWeight.SemiBold,
-							maxLines = 2,
-							overflow = TextOverflow.Ellipsis
-						)
-					}
-
-					Row(
-						modifier = Modifier.fillMaxWidth(),
-						horizontalArrangement = Arrangement.spacedBy(8.dp)
-					) {
-						PensumSubjectDetailMeta(
-							modifier = Modifier.weight(1f),
-							label = stringResource(Res.string.pensum_subject_detail_term),
-							value = detail.termLabel ?: stringResource(Res.string.pensum_subject_detail_no_term),
-							valueTag = PensumUiTags.SubjectDetailTermValue
-						)
-						PensumSubjectDetailMeta(
-							modifier = Modifier.weight(1f),
-							label = stringResource(Res.string.pensum_subject_detail_credits),
-							value = detail.creditsText
-						)
-					}
-				}
-			}
-
-			if (detail.fulfilledSubject != null) {
-				PensumFulfilledSubjectSummary(
-					fulfilledSubject = detail.fulfilledSubject,
-					visualStyle = node.visualStyle
-				)
-			}
-
-			PensumSubjectRelationSection(
-				title = stringResource(Res.string.pensum_subject_detail_blocked_by),
-				items = detail.blockingReasons,
-				testTag = PensumUiTags.SubjectDetailBlockingReasons,
-				rowTag = { nodeId -> PensumUiTags.subjectDetailBlockingReason(nodeId) },
-				onRelatedSubjectClick = onRelatedSubjectClick
-			)
-			PensumSubjectRelationSection(
-				title = stringResource(Res.string.pensum_subject_detail_requirements),
-				items = detail.requirements,
-				testTag = PensumUiTags.SubjectDetailRequirements,
-				rowTag = { nodeId -> PensumUiTags.subjectDetailRequirement(nodeId) },
-				onRelatedSubjectClick = onRelatedSubjectClick
-			)
-			PensumSubjectRelationSection(
-				title = stringResource(Res.string.pensum_subject_detail_corequisites),
-				items = detail.corequisites,
-				testTag = PensumUiTags.SubjectDetailCorequisites,
-				rowTag = { nodeId -> PensumUiTags.subjectDetailCorequisite(nodeId) },
-				onRelatedSubjectClick = onRelatedSubjectClick
-			)
-			PensumSubjectRelationSection(
-				title = stringResource(Res.string.pensum_subject_detail_unlocks),
-				items = detail.unlocks,
-				testTag = PensumUiTags.SubjectDetailUnlocks,
-				rowTag = { nodeId -> PensumUiTags.subjectDetailUnlock(nodeId) },
-				onRelatedSubjectClick = onRelatedSubjectClick
-			)
+			PensumSubjectOverviewCard(node = node)
 
 			if (statsCode == null) {
 				Text(
@@ -195,7 +124,135 @@ fun PensumSubjectDetailBottomSheet(
 					color = MaterialTheme.colorScheme.onSurfaceVariant
 				)
 			}
+
+			if (!isMoreDetailExpandedState.value && hasMoreDetail) {
+				PensumSubjectMoreDetailButton(
+					onClick = { isMoreDetailExpandedState.value = true }
+				)
+			}
+
+			if (isMoreDetailExpandedState.value) {
+				if (detail.fulfilledSubject != null) {
+					PensumFulfilledSubjectSummary(
+						fulfilledSubject = detail.fulfilledSubject,
+						visualStyle = node.visualStyle
+					)
+				}
+
+				PensumSubjectRelationSection(
+					title = stringResource(Res.string.pensum_subject_detail_blocked_by),
+					items = detail.blockingReasons,
+					testTag = PensumUiTags.SubjectDetailBlockingReasons,
+					rowTag = { nodeId -> PensumUiTags.subjectDetailBlockingReason(nodeId) },
+					onRelatedSubjectClick = onRelatedSubjectClick
+				)
+				PensumSubjectRelationSection(
+					title = stringResource(Res.string.pensum_subject_detail_requirements),
+					items = detail.requirements,
+					testTag = PensumUiTags.SubjectDetailRequirements,
+					rowTag = { nodeId -> PensumUiTags.subjectDetailRequirement(nodeId) },
+					onRelatedSubjectClick = onRelatedSubjectClick
+				)
+				PensumSubjectRelationSection(
+					title = stringResource(Res.string.pensum_subject_detail_corequisites),
+					items = detail.corequisites,
+					testTag = PensumUiTags.SubjectDetailCorequisites,
+					rowTag = { nodeId -> PensumUiTags.subjectDetailCorequisite(nodeId) },
+					onRelatedSubjectClick = onRelatedSubjectClick
+				)
+				PensumSubjectRelationSection(
+					title = stringResource(Res.string.pensum_subject_detail_unlocks),
+					items = detail.unlocks,
+					testTag = PensumUiTags.SubjectDetailUnlocks,
+					rowTag = { nodeId -> PensumUiTags.subjectDetailUnlock(nodeId) },
+					onRelatedSubjectClick = onRelatedSubjectClick
+				)
+			}
 		}
+	}
+}
+
+@Composable
+private fun PensumSubjectOverviewCard(
+	node: PensumNodeItem
+) {
+	val detail = node.detail
+
+	Surface(
+		modifier = Modifier.fillMaxWidth(),
+		shape = PensumElementShape,
+		color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.48f),
+		border = BorderStroke(
+			width = 1.dp,
+			color = MaterialTheme.colorScheme.outlineVariant
+		)
+	) {
+		Column(
+			modifier = Modifier.padding(horizontal = 14.dp, vertical = 12.dp),
+			verticalArrangement = Arrangement.spacedBy(12.dp)
+		) {
+			Column(
+				modifier = Modifier.fillMaxWidth(),
+				verticalArrangement = Arrangement.spacedBy(10.dp)
+			) {
+				Row(
+					modifier = Modifier.fillMaxWidth(),
+					horizontalArrangement = Arrangement.SpaceBetween,
+					verticalAlignment = Alignment.CenterVertically
+				) {
+					PensumStyledSubjectCodeChip(
+						modifier = Modifier.testTag(PensumUiTags.SubjectDetailCode),
+						code = detail.code,
+						visualStyle = node.visualStyle
+					)
+					PensumSubjectStatusBadge(status = detail.status)
+				}
+				Text(
+					modifier = Modifier.testTag(PensumUiTags.SubjectDetailName),
+					text = detail.name,
+					style = MaterialTheme.typography.bodyMedium,
+					fontWeight = FontWeight.SemiBold,
+					maxLines = 2,
+					overflow = TextOverflow.Ellipsis
+				)
+			}
+
+			Row(
+				modifier = Modifier.fillMaxWidth(),
+				horizontalArrangement = Arrangement.spacedBy(8.dp)
+			) {
+				PensumSubjectDetailMeta(
+					modifier = Modifier.weight(1f),
+					label = stringResource(Res.string.pensum_subject_detail_term),
+					value = detail.termLabel ?: stringResource(Res.string.pensum_subject_detail_no_term),
+					valueTag = PensumUiTags.SubjectDetailTermValue
+				)
+				PensumSubjectDetailMeta(
+					modifier = Modifier.weight(1f),
+					label = stringResource(Res.string.pensum_subject_detail_credits),
+					value = detail.creditsText
+				)
+			}
+		}
+	}
+}
+
+@Composable
+private fun PensumSubjectMoreDetailButton(
+	onClick: () -> Unit
+) {
+	OutlinedButton(
+		modifier = Modifier
+			.fillMaxWidth()
+			.testTag(PensumUiTags.SubjectDetailMoreButton),
+		onClick = onClick
+	) {
+		Text(text = stringResource(Res.string.pensum_subject_detail_more))
+		Icon(
+			imageVector = Icons.Filled.KeyboardArrowDown,
+			contentDescription = null,
+			modifier = Modifier.size(18.dp)
+		)
 	}
 }
 
