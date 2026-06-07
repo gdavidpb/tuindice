@@ -15,7 +15,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.Dp
 
 @Composable
-internal fun PensumStatusIconMarker(
+fun PensumStatusIconMarker(
 	imageVector: ImageVector,
 	tint: Color,
 	hasBuiltInContainer: Boolean,

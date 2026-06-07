@@ -224,18 +224,17 @@ class WizardScreenUiTest {
 		onNodeWithText("75% avance").assertExists()
 		onNodeWithText("Ingeniería de Computación").assertExists()
 		onNodeWithText(
-			"Toca una materia para enfocar sus requisitos y desbloqueos.",
+			"Toca una materia para enfocar sus requisitos,",
 			substring = true
 		).assertExists()
 		onNodeWithText(
-			"El botón de información abre detalle y estadísticas.",
+			"abrir su detalle.",
 			substring = true
 		).assertExists()
 		assertNodeVisible(PensumUiTags.PensumScreen)
 		onNodeWithTag(PensumUiTags.node("ci4325")).assertExists()
 		onNodeWithTag(PensumUiTags.node("ma1111")).performClick()
 		onNodeWithTag(PensumUiTags.focusedNode("ma1111"), useUnmergedTree = true).assertExists()
-		onNodeWithTag(PensumUiTags.nodeDetailButton("ma1111")).performClick()
 		assertNodeVisible(PensumUiTags.SubjectDetailSheet)
 		onNodeWithTag(PensumUiTags.SubjectDetailTermValue).assertExists()
 		onNodeWithText("Ver estadísticas").performClick()

@@ -1,7 +1,15 @@
 package com.gdavidpb.tuindice.pensum.ui.view
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.scaleIn
+import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -545,7 +553,11 @@ fun PensumGraphCanvas(
 					.fillMaxSize()
 					.pointerInput(graphKey) {
 						detectTapGestures(
-							onTap = { onSelectedNodeChange(null) },
+							onTap = { tapOffset ->
+								if (model.nodes.none { node -> node.containsCanvasTap(tapOffset, density.density) }) {
+									onSelectedNodeChange(null)
+								}
+							},
 							onDoubleTap = { tapOffset -> toggleDoubleTapZoom(tapOffset) }
 						)
 					}
@@ -613,7 +625,14 @@ fun PensumGraphCanvas(
 			)
 		}
 
-		if (shouldShowMinimapControls && isMinimapVisible) {
+		AnimatedVisibility(
+			visible = shouldShowMinimapControls && isMinimapVisible,
+			modifier = Modifier
+				.align(Alignment.BottomStart)
+				.padding(start = 16.dp, bottom = CanvasBottomOverlayPadding),
+			enter = canvasOverlayEnter(transformOrigin = TransformOrigin(0f, 1f)),
+			exit = canvasOverlayExit(transformOrigin = TransformOrigin(0f, 1f))
+		) {
 			PensumMinimap(
 				model = model,
 				scale = scale.value,
@@ -627,18 +646,19 @@ fun PensumGraphCanvas(
 				statusFilteredNodeIds = statusFilteredNodeIds,
 				isStatusFilterActive = isStatusFilterActive,
 				densityScale = density.density,
-				onViewportCenterChange = { canvasCenter -> moveViewportToCanvasCenter(canvasCenter) },
-				modifier = Modifier
-					.align(Alignment.BottomStart)
-					.padding(start = 16.dp, bottom = CanvasBottomOverlayPadding)
+				onViewportCenterChange = { canvasCenter -> moveViewportToCanvasCenter(canvasCenter) }
 			)
 		}
 
-		if (!isSubjectSheetVisible) {
+		AnimatedVisibility(
+			visible = !isSubjectSheetVisible,
+			modifier = Modifier
+				.align(Alignment.BottomEnd)
+				.padding(end = 16.dp, bottom = CanvasBottomOverlayPadding),
+			enter = canvasOverlayEnter(transformOrigin = TransformOrigin(1f, 1f)),
+			exit = canvasOverlayExit(transformOrigin = TransformOrigin(1f, 1f))
+		) {
 			PensumZoomControls(
-				modifier = Modifier
-					.align(Alignment.BottomEnd)
-					.padding(end = 16.dp, bottom = CanvasBottomOverlayPadding),
 				isCurrentFocusVisible = model.isCurrentFocusVisible,
 				isMinimapToggleVisible = shouldShowMinimapControls,
 				isMinimapVisible = isMinimapVisible,
@@ -649,15 +669,63 @@ fun PensumGraphCanvas(
 				onZoomIn = { zoomIn() },
 				onZoomOut = { zoomOut() }
 			)
+		}
 
+		AnimatedVisibility(
+			visible = !isSubjectSheetVisible,
+			modifier = Modifier.align(Alignment.BottomCenter),
+			enter = canvasOverlayEnter(transformOrigin = TransformOrigin(0.5f, 1f)),
+			exit = canvasOverlayExit(transformOrigin = TransformOrigin(0.5f, 1f))
+		) {
 			PensumCanvasLegend(
 				activeStatusFilters = activeStatusFilters,
 				onStatusFilterToggle = { type -> toggleStatusFilter(type) },
 				onClearStatusFilters = { clearStatusFilters() },
-				modifier = Modifier.align(Alignment.BottomCenter)
+				modifier = Modifier
 			)
 		}
 	}
+}
+
+private fun canvasOverlayEnter(
+	transformOrigin: TransformOrigin
+): EnterTransition {
+	return fadeIn(
+		animationSpec = tween(durationMillis = CanvasOverlayAnimationMillis)
+	) + scaleIn(
+		animationSpec = tween(
+			durationMillis = CanvasOverlayAnimationMillis,
+			easing = FastOutSlowInEasing
+		),
+		initialScale = 0.96f,
+		transformOrigin = transformOrigin
+	)
+}
+
+private fun canvasOverlayExit(
+	transformOrigin: TransformOrigin
+): ExitTransition {
+	return fadeOut(
+		animationSpec = tween(durationMillis = CanvasOverlayAnimationMillis)
+	) + scaleOut(
+		animationSpec = tween(
+			durationMillis = CanvasOverlayAnimationMillis,
+			easing = FastOutSlowInEasing
+		),
+		targetScale = 0.96f,
+		transformOrigin = transformOrigin
+	)
+}
+
+private fun PensumNodeItem.containsCanvasTap(
+	tapOffset: Offset,
+	densityScale: Float
+): Boolean {
+	val left = (x * densityScale).toFloat()
+	val top = (y * densityScale).toFloat()
+	val right = ((x + width) * densityScale).toFloat()
+	val bottom = ((y + height) * densityScale).toFloat()
+	return tapOffset.x in left..right && tapOffset.y in top..bottom
 }
 
 private fun DrawScope.drawCanvasBackground(

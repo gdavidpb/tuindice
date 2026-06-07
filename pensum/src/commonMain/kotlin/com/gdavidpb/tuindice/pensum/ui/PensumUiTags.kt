@@ -25,6 +25,9 @@ object PensumUiTags {
 	const val SubjectDetailTermValue = "pensum_subject_detail_term_value"
 	const val SubjectDetailMoreButton = "pensum_subject_detail_more_button"
 	const val SubjectDetailStatsUnavailable = "pensum_subject_detail_stats_unavailable"
+	const val SubjectDetailRouteContext = "pensum_subject_detail_route_context"
+	const val SubjectDetailSelectedRouteCard = "pensum_subject_detail_selected_route_card"
+	const val SubjectDetailAlsoWith = "pensum_subject_detail_also_with"
 	const val SubjectDetailBlockingReasons = "pensum_subject_detail_blocking_reasons"
 	const val SubjectDetailRequirements = "pensum_subject_detail_requirements"
 	const val SubjectDetailCorequisites = "pensum_subject_detail_corequisites"
@@ -39,4 +42,5 @@ object PensumUiTags {
 	fun subjectDetailRequirement(nodeId: String): String = "pensum_subject_detail_requirement_$nodeId"
 	fun subjectDetailCorequisite(nodeId: String): String = "pensum_subject_detail_corequisite_$nodeId"
 	fun subjectDetailUnlock(nodeId: String): String = "pensum_subject_detail_unlock_$nodeId"
+	fun subjectDetailRelationStatus(nodeId: String): String = "pensum_subject_detail_relation_status_$nodeId"
 }
