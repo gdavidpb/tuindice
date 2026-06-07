@@ -26,6 +26,7 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSelection
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumSubjectDetailItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTermItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import com.gdavidpb.tuindice.pensum.ui.view.ZoomControlStepCount
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -191,6 +192,31 @@ class PensumScreenUiTest {
 		onNodeWithTag(PensumUiTags.FitToScreen).performClick()
 		assertNodeHidden(PensumUiTags.MinimapToggle)
 		assertNodeHidden(PensumUiTags.Minimap)
+		assertNodeHidden(PensumUiTags.StickyTerms)
+		assertNodeHidden(PensumUiTags.FitToScreen)
+	}
+
+	@Test
+	fun when_zoomOutControlIsRepeated_then_reachesFitToScreenState() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = Pensum.State.Content(model = samplePensumModel()),
+				onRetryClick = {},
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		onNodeWithTag(PensumUiTags.ZoomIn).assertHasClickAction().performClick()
+		assertNodeVisible(PensumUiTags.FitToScreen)
+		repeat(ZoomControlStepCount + 1) {
+			onNodeWithTag(PensumUiTags.ZoomOut).assertHasClickAction().performClick()
+			waitForIdle()
+		}
+
+		assertNodeHidden(PensumUiTags.MinimapToggle)
 		assertNodeHidden(PensumUiTags.StickyTerms)
 		assertNodeHidden(PensumUiTags.FitToScreen)
 	}

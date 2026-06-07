@@ -52,6 +52,7 @@ import kotlin.math.atan2
 import kotlin.math.cos
 import kotlin.math.max
 import kotlin.math.min
+import kotlin.math.pow
 import kotlin.math.sin
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -108,6 +109,11 @@ fun PensumGraphCanvas(
 				.mapTo(mutableSetOf()) { node -> node.id }
 		}
 		val isStatusFilterActive = activeStatusFilters.isNotEmpty()
+		val fitStateScale = fitCanvasScale(
+			viewportSizePx = viewportSizePx,
+			canvasSizePx = canvasSizePx,
+			paddingPx = fitPaddingPx
+		)
 
 		fun saveCanvasViewport(scaleValue: Float, offset: Offset) {
 			savedScale = scaleValue
@@ -117,9 +123,9 @@ fun PensumGraphCanvas(
 
 		LaunchedEffect(graphKey, viewportSizePx, canvasSizePx, panMarginPx) {
 			val restoredScale = savedScale?.coerceIn(
-				minimumValue = MinCanvasZoom,
+				minimumValue = fitStateScale,
 				maximumValue = MaxCanvasZoom
-			) ?: InitialCanvasZoom
+			) ?: InitialCanvasZoom.coerceIn(fitStateScale, MaxCanvasZoom)
 			val restoredOffset = if (savedOffsetX != null && savedOffsetY != null) {
 				Offset(
 					x = checkNotNull(savedOffsetX),
@@ -330,13 +336,17 @@ fun PensumGraphCanvas(
 			}
 		}
 
-		fun zoomTo(targetScale: Float, shouldRevealMinimapToggle: Boolean = true) {
+		fun zoomTo(
+			targetScale: Float,
+			shouldRevealMinimapToggle: Boolean = true,
+			minimumScale: Float = fitStateScale
+		) {
 			canvasSnapJob?.cancel()
 			if (shouldRevealMinimapToggle) {
 				revealMinimapToggle()
 			}
 			val oldScale = scale.value
-			val newScale = targetScale.coerceIn(MinCanvasZoom, MaxCanvasZoom)
+			val newScale = targetScale.coerceIn(minimumScale, MaxCanvasZoom)
 			val viewportCenter = Offset(
 				x = viewportSizePx.width / 2f,
 				y = viewportSizePx.height / 2f
@@ -377,28 +387,35 @@ fun PensumGraphCanvas(
 		fun fitToScreen() {
 			canvasSnapJob?.cancel()
 			hideMinimap()
-			val targetScale = fitCanvasScale(
-				viewportSizePx = viewportSizePx,
-				canvasSizePx = canvasSizePx,
-				paddingPx = fitPaddingPx
-			)
 
 			animateCanvasViewport(
-				targetScale = targetScale,
-				targetOffset = fitCanvasOffset(targetScale)
+				targetScale = fitStateScale,
+				targetOffset = fitCanvasOffset(fitStateScale)
+			)
+		}
+
+		fun zoomIn() {
+			zoomTo(
+				targetScale = nextDiscreteZoomScale(
+					currentScale = scale.value,
+					minimumScale = fitStateScale
+				),
+				minimumScale = fitStateScale
 			)
 		}
 
 		fun zoomOut() {
-			val fitScale = fitCanvasScale(
-				viewportSizePx = viewportSizePx,
-				canvasSizePx = canvasSizePx,
-				paddingPx = fitPaddingPx
+			val targetScale = previousDiscreteZoomScale(
+				currentScale = scale.value,
+				minimumScale = fitStateScale
 			)
-			if (scale.value - ZoomButtonStep <= fitScale) {
+			if (targetScale <= fitStateScale + CanvasFitScaleTolerance) {
 				fitToScreen()
 			} else {
-				zoomTo(scale.value - ZoomButtonStep)
+				zoomTo(
+					targetScale = targetScale,
+					minimumScale = fitStateScale
+				)
 			}
 		}
 
@@ -429,11 +446,6 @@ fun PensumGraphCanvas(
 			)
 		}
 
-		val fitStateScale = fitCanvasScale(
-			viewportSizePx = viewportSizePx,
-			canvasSizePx = canvasSizePx,
-			paddingPx = fitPaddingPx
-		)
 		val fitStateOffset = fitCanvasOffset(fitStateScale)
 		val isFitToScreen = isCanvasFitToScreen(
 			scale = scale.value,
@@ -456,20 +468,25 @@ fun PensumGraphCanvas(
 					detectTransformGestures { centroid, pan, zoom, _ ->
 						revealMinimapToggle()
 						val oldScale = scale.value
-						val newScale = (oldScale * zoom).coerceIn(MinCanvasZoom, MaxCanvasZoom)
+						val rawScale = oldScale * zoom
+						val newScale = rawScale.coerceIn(fitStateScale, MaxCanvasZoom)
 						val currentOffset = Offset(offsetX.value, offsetY.value)
-						val nextOffset = constrainCanvasOffset(
-							offset = currentOffset
-								.zoomedAround(
-									anchor = centroid,
-									oldScale = oldScale,
-									newScale = newScale
-								) + pan,
-							scale = newScale,
-							canvasSizePx = canvasSizePx,
-							viewportSizePx = viewportSizePx,
-							panMarginPx = panMarginPx
-						)
+						val nextOffset = if (rawScale <= fitStateScale + CanvasFitScaleTolerance) {
+							fitCanvasOffset(fitStateScale)
+						} else {
+							constrainCanvasOffset(
+								offset = currentOffset
+									.zoomedAround(
+										anchor = centroid,
+										oldScale = oldScale,
+										newScale = newScale
+									) + pan,
+								scale = newScale,
+								canvasSizePx = canvasSizePx,
+								viewportSizePx = viewportSizePx,
+								panMarginPx = panMarginPx
+							)
+						}
 
 						coroutineScope.launch {
 							scale.stop()
@@ -612,7 +629,7 @@ fun PensumGraphCanvas(
 			onFocusProgress = { focusProgress() },
 			onFitToScreen = { fitToScreen() },
 			onToggleMinimap = { isMinimapVisible = !isMinimapVisible },
-			onZoomIn = { zoomTo(scale.value + ZoomButtonStep) },
+			onZoomIn = { zoomIn() },
 			onZoomOut = { zoomOut() }
 		)
 
@@ -850,6 +867,33 @@ private fun isCanvasFitToScreen(
 	return abs(scale - fitScale) <= CanvasFitScaleTolerance &&
 		abs(offset.x - fitOffset.x) <= offsetTolerancePx &&
 		abs(offset.y - fitOffset.y) <= offsetTolerancePx
+}
+
+private fun nextDiscreteZoomScale(
+	currentScale: Float,
+	minimumScale: Float
+): Float {
+	val levels = discreteZoomLevels(minimumScale)
+	return levels.firstOrNull { level -> level > currentScale + CanvasFitScaleTolerance } ?: levels.last()
+}
+
+private fun previousDiscreteZoomScale(
+	currentScale: Float,
+	minimumScale: Float
+): Float {
+	val levels = discreteZoomLevels(minimumScale)
+	return levels.lastOrNull { level -> level < currentScale - CanvasFitScaleTolerance } ?: levels.first()
+}
+
+private fun discreteZoomLevels(minimumScale: Float): List<Float> {
+	val minScale = minimumScale.coerceIn(MinCanvasFitZoom, MaxCanvasZoom)
+	if (minScale >= MaxCanvasZoom) return listOf(MaxCanvasZoom)
+
+	val ratio = MaxCanvasZoom.toDouble() / minScale.toDouble()
+	return (0..ZoomControlStepCount).map { index ->
+		val progress = index.toDouble() / ZoomControlStepCount.toDouble()
+		(minScale.toDouble() * ratio.pow(progress)).toFloat()
+	}
 }
 
 private data class CanvasBounds(
