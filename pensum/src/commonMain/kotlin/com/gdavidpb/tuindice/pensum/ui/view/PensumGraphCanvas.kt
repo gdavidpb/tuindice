@@ -64,6 +64,7 @@ fun PensumGraphCanvas(
 	selectedNodeId: String?,
 	onSelectedNodeChange: (String?) -> Unit,
 	onNodeDetailClick: (String) -> Unit,
+	focusRequestSerial: Int = 0,
 	modifier: Modifier = Modifier
 ) {
 	val density = LocalDensity.current
@@ -269,6 +270,14 @@ fun PensumGraphCanvas(
 			)
 		}
 
+		LaunchedEffect(focusRequestSerial, selectedNodeId, graphKey) {
+			if (focusRequestSerial <= 0 || selectedNodeId == null) return@LaunchedEffect
+
+			model.nodes
+				.firstOrNull { node -> node.id == selectedNodeId }
+				?.let { node -> centerSelectedNode(node) }
+		}
+
 		fun focusProgress() {
 			onSelectedNodeChange(null)
 			val bounds = model.progressFocusBounds() ?: return
@@ -455,6 +464,10 @@ fun PensumGraphCanvas(
 			offsetTolerancePx = with(density) { CanvasFitStateTolerance.toPx() }
 		)
 		val shouldShowMinimapControls = isMinimapToggleVisible && !isFitToScreen
+		val shouldShowStickyTermHeader = shouldRenderStickyTermHeader(
+			scale = scale.value,
+			isFitToScreen = isFitToScreen
+		)
 
 		LaunchedEffect(isFitToScreen) {
 			if (isFitToScreen) {
@@ -586,7 +599,7 @@ fun PensumGraphCanvas(
 			}
 		}
 
-		if (!isFitToScreen) {
+		if (shouldShowStickyTermHeader) {
 			PensumStickyTermHeader(
 				terms = model.terms,
 				scale = scale.value,
@@ -867,6 +880,13 @@ private fun isCanvasFitToScreen(
 	return abs(scale - fitScale) <= CanvasFitScaleTolerance &&
 		abs(offset.x - fitOffset.x) <= offsetTolerancePx &&
 		abs(offset.y - fitOffset.y) <= offsetTolerancePx
+}
+
+internal fun shouldRenderStickyTermHeader(
+	scale: Float,
+	isFitToScreen: Boolean
+): Boolean {
+	return !isFitToScreen && scale >= StickyTermHeaderMinZoom
 }
 
 private fun nextDiscreteZoomScale(

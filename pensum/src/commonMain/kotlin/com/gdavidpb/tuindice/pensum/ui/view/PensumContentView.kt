@@ -30,6 +30,9 @@ fun PensumContentView(
 	val detailNodeIdState = remember(model.selection.year, model.selection.modalityId) {
 		mutableStateOf<String?>(null)
 	}
+	val focusRequestSerialState = remember(model.selection.year, model.selection.modalityId) {
+		mutableStateOf(0)
+	}
 	val detailNode = model.nodes.firstOrNull { node -> node.id == detailNodeIdState.value }
 
 	Column(
@@ -45,13 +48,14 @@ fun PensumContentView(
 		PensumGraphCanvas(
 			model = model,
 			selectedNodeId = focusedNodeIdState.value,
-			onSelectedNodeChange = { nodeId -> focusedNodeIdState.value = nodeId },
-			onNodeDetailClick = { nodeId ->
-				focusedNodeIdState.value = nodeId
-				detailNodeIdState.value = nodeId
-			},
-			modifier = Modifier.weight(1f)
-		)
+				onSelectedNodeChange = { nodeId -> focusedNodeIdState.value = nodeId },
+				onNodeDetailClick = { nodeId ->
+					focusedNodeIdState.value = nodeId
+					detailNodeIdState.value = nodeId
+				},
+				focusRequestSerial = focusRequestSerialState.value,
+				modifier = Modifier.weight(1f)
+			)
 	}
 
 	if (showSelectionSheet) {
@@ -63,10 +67,15 @@ fun PensumContentView(
 	}
 
 	if (detailNode != null) {
-		PensumSubjectDetailBottomSheet(
-			node = detailNode,
-			onSubjectStatsClick = onSubjectStatsClick,
-			onDismissRequest = { detailNodeIdState.value = null }
-		)
+			PensumSubjectDetailBottomSheet(
+				node = detailNode,
+				onSubjectStatsClick = onSubjectStatsClick,
+				onRelatedSubjectClick = { nodeId ->
+					focusedNodeIdState.value = nodeId
+					detailNodeIdState.value = nodeId
+					focusRequestSerialState.value += 1
+				},
+				onDismissRequest = { detailNodeIdState.value = null }
+			)
 	}
 }

@@ -38,7 +38,8 @@ fun PensumStickyTermHeader(
 	modifier: Modifier = Modifier
 ) {
 	val density = LocalDensity.current
-	val minimumWidthPx = with(density) { StickyTermMinWidth.toPx() }
+	val labelTextStyle = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold)
+	val minimumWidthPx = with(density) { StickyTermShortLabelMinWidth.toPx() }
 
 	Box(
 		modifier = modifier
@@ -61,7 +62,7 @@ fun PensumStickyTermHeader(
 					.offset(x = with(density) { xPx.toDp() })
 					.width(widthDp)
 					.fillMaxHeight()
-					.padding(horizontal = 4.dp, vertical = 5.dp)
+					.padding(horizontal = StickyTermOuterHorizontalPadding, vertical = 5.dp)
 					.clickable { onTermClick(term.id) },
 				shape = PensumElementShape,
 				color = FloatingPanelBackground,
@@ -72,10 +73,10 @@ fun PensumStickyTermHeader(
 					contentAlignment = Alignment.Center
 				) {
 					Text(
-						modifier = Modifier.padding(horizontal = 8.dp),
+						modifier = Modifier.padding(horizontal = StickyTermLabelHorizontalPadding),
 						text = label,
 						textAlign = TextAlign.Center,
-						style = MaterialTheme.typography.labelMedium,
+						style = labelTextStyle,
 						fontWeight = FontWeight.SemiBold,
 						color = TextPrimary,
 						maxLines = 1,
@@ -86,3 +87,6 @@ fun PensumStickyTermHeader(
 		}
 	}
 }
+
+private val StickyTermOuterHorizontalPadding = 4.dp
+private val StickyTermLabelHorizontalPadding = 8.dp

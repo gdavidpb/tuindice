@@ -3,6 +3,9 @@ package com.gdavidpb.tuindice.pensum.ui.dialog
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -11,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +27,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -30,6 +36,8 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumFulfilledSubjectIte
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusDisplay
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeVisualStyle
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumSubjectRelationItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.model.toImageVector
 import com.gdavidpb.tuindice.pensum.ui.view.Current
@@ -44,19 +52,25 @@ import tuindice.pensum.generated.resources.pensum_canvas_legend_available
 import tuindice.pensum.generated.resources.pensum_canvas_legend_blocked
 import tuindice.pensum.generated.resources.pensum_canvas_legend_current
 import tuindice.pensum.generated.resources.pensum_subject_detail_close
+import tuindice.pensum.generated.resources.pensum_subject_detail_blocked_by
+import tuindice.pensum.generated.resources.pensum_subject_detail_corequisites
 import tuindice.pensum.generated.resources.pensum_subject_detail_credits
+import tuindice.pensum.generated.resources.pensum_subject_detail_focus_subject
 import tuindice.pensum.generated.resources.pensum_subject_detail_fulfilled_by
 import tuindice.pensum.generated.resources.pensum_subject_detail_no_term
+import tuindice.pensum.generated.resources.pensum_subject_detail_requirements
 import tuindice.pensum.generated.resources.pensum_subject_detail_stats
 import tuindice.pensum.generated.resources.pensum_subject_detail_stats_unavailable
 import tuindice.pensum.generated.resources.pensum_subject_detail_term
 import tuindice.pensum.generated.resources.pensum_subject_detail_title
+import tuindice.pensum.generated.resources.pensum_subject_detail_unlocks
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PensumSubjectDetailBottomSheet(
 	node: PensumNodeItem,
 	onSubjectStatsClick: (subjectCode: String) -> Unit,
+	onRelatedSubjectClick: (nodeId: String) -> Unit,
 	onDismissRequest: () -> Unit
 ) {
 	val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -78,6 +92,7 @@ fun PensumSubjectDetailBottomSheet(
 		Column(
 			modifier = Modifier
 				.fillMaxWidth()
+				.verticalScroll(rememberScrollState())
 				.testTag(PensumUiTags.SubjectDetailSheet),
 			verticalArrangement = Arrangement.spacedBy(14.dp)
 		) {
@@ -103,9 +118,10 @@ fun PensumSubjectDetailBottomSheet(
 							horizontalArrangement = Arrangement.SpaceBetween,
 							verticalAlignment = Alignment.CenterVertically
 						) {
-							PensumSubjectCodeChip(
+							PensumStyledSubjectCodeChip(
 								modifier = Modifier.testTag(PensumUiTags.SubjectDetailCode),
-								code = detail.code
+								code = detail.code,
+								visualStyle = node.visualStyle
 							)
 							PensumSubjectStatusBadge(status = detail.status)
 						}
@@ -139,8 +155,40 @@ fun PensumSubjectDetailBottomSheet(
 			}
 
 			if (detail.fulfilledSubject != null) {
-				PensumFulfilledSubjectSummary(fulfilledSubject = detail.fulfilledSubject)
+				PensumFulfilledSubjectSummary(
+					fulfilledSubject = detail.fulfilledSubject,
+					visualStyle = node.visualStyle
+				)
 			}
+
+			PensumSubjectRelationSection(
+				title = stringResource(Res.string.pensum_subject_detail_blocked_by),
+				items = detail.blockingReasons,
+				testTag = PensumUiTags.SubjectDetailBlockingReasons,
+				rowTag = { nodeId -> PensumUiTags.subjectDetailBlockingReason(nodeId) },
+				onRelatedSubjectClick = onRelatedSubjectClick
+			)
+			PensumSubjectRelationSection(
+				title = stringResource(Res.string.pensum_subject_detail_requirements),
+				items = detail.requirements,
+				testTag = PensumUiTags.SubjectDetailRequirements,
+				rowTag = { nodeId -> PensumUiTags.subjectDetailRequirement(nodeId) },
+				onRelatedSubjectClick = onRelatedSubjectClick
+			)
+			PensumSubjectRelationSection(
+				title = stringResource(Res.string.pensum_subject_detail_corequisites),
+				items = detail.corequisites,
+				testTag = PensumUiTags.SubjectDetailCorequisites,
+				rowTag = { nodeId -> PensumUiTags.subjectDetailCorequisite(nodeId) },
+				onRelatedSubjectClick = onRelatedSubjectClick
+			)
+			PensumSubjectRelationSection(
+				title = stringResource(Res.string.pensum_subject_detail_unlocks),
+				items = detail.unlocks,
+				testTag = PensumUiTags.SubjectDetailUnlocks,
+				rowTag = { nodeId -> PensumUiTags.subjectDetailUnlock(nodeId) },
+				onRelatedSubjectClick = onRelatedSubjectClick
+			)
 
 			if (statsCode == null) {
 				Text(
@@ -151,6 +199,128 @@ fun PensumSubjectDetailBottomSheet(
 				)
 			}
 		}
+	}
+}
+
+@Composable
+private fun PensumSubjectRelationSection(
+	title: String,
+	items: List<PensumSubjectRelationItem>,
+	testTag: String,
+	rowTag: (String) -> String,
+	onRelatedSubjectClick: (nodeId: String) -> Unit
+) {
+	if (items.isEmpty()) return
+
+	Column(
+		modifier = Modifier
+			.fillMaxWidth()
+			.testTag(testTag),
+		verticalArrangement = Arrangement.spacedBy(8.dp)
+	) {
+		Text(
+			text = title,
+			style = MaterialTheme.typography.labelLarge,
+			fontWeight = FontWeight.Black,
+			color = MaterialTheme.colorScheme.onSurface
+		)
+		items.forEach { item ->
+			PensumSubjectRelationRow(
+				item = item,
+				testTag = rowTag(item.nodeId),
+				onClick = { onRelatedSubjectClick(item.nodeId) }
+			)
+		}
+	}
+}
+
+@Composable
+private fun PensumSubjectRelationRow(
+	item: PensumSubjectRelationItem,
+	testTag: String,
+	onClick: () -> Unit
+) {
+	Surface(
+		modifier = Modifier
+			.fillMaxWidth()
+			.clickable(
+				role = Role.Button,
+				onClick = onClick
+			)
+			.testTag(testTag),
+		shape = PensumElementShape,
+		color = MaterialTheme.colorScheme.surface.copy(alpha = 0.55f),
+		border = BorderStroke(
+			width = 1.dp,
+			color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)
+		)
+	) {
+		Row(
+			modifier = Modifier.padding(horizontal = 12.dp, vertical = 10.dp),
+			horizontalArrangement = Arrangement.spacedBy(10.dp),
+			verticalAlignment = Alignment.CenterVertically
+		) {
+			Column(
+				modifier = Modifier.weight(1f),
+				verticalArrangement = Arrangement.spacedBy(6.dp)
+			) {
+				PensumStyledSubjectCodeChip(
+					code = item.code,
+					visualStyle = item.visualStyle
+				)
+				Text(
+					text = item.name,
+					style = MaterialTheme.typography.bodySmall,
+					color = MaterialTheme.colorScheme.onSurfaceVariant,
+					maxLines = 1,
+					overflow = TextOverflow.Ellipsis
+				)
+			}
+			PensumSubjectRelationStatusBadge(status = item.status)
+			Icon(
+				imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+				contentDescription = stringResource(
+					Res.string.pensum_subject_detail_focus_subject,
+					item.code
+				),
+				tint = MaterialTheme.colorScheme.onSurfaceVariant,
+				modifier = Modifier.size(18.dp)
+			)
+		}
+	}
+}
+
+@Composable
+private fun PensumSubjectRelationStatusBadge(
+	status: PensumNodeStatusDisplay
+) {
+	val statusColor = Color(status.colorArgb)
+	Row(
+		horizontalArrangement = Arrangement.spacedBy(5.dp),
+		verticalAlignment = Alignment.CenterVertically
+	) {
+		Box(
+			modifier = Modifier
+				.size(20.dp)
+				.background(PanelBackground, CircleShape)
+				.border(1.2.dp, statusColor, CircleShape),
+			contentAlignment = Alignment.Center
+		) {
+			Icon(
+				imageVector = status.icon.toImageVector(),
+				contentDescription = null,
+				tint = statusColor,
+				modifier = Modifier.size(13.dp)
+			)
+		}
+		Text(
+			text = stringResource(status.labelResource()),
+			style = MaterialTheme.typography.labelSmall,
+			fontWeight = FontWeight.SemiBold,
+			color = statusColor,
+			maxLines = 1,
+			overflow = TextOverflow.Ellipsis
+		)
 	}
 }
 
@@ -231,7 +401,8 @@ private fun PensumSubjectDetailMeta(
 
 @Composable
 private fun PensumFulfilledSubjectSummary(
-	fulfilledSubject: PensumFulfilledSubjectItem
+	fulfilledSubject: PensumFulfilledSubjectItem,
+	visualStyle: PensumNodeVisualStyle
 ) {
 	Surface(
 		modifier = Modifier.fillMaxWidth(),
@@ -252,10 +423,9 @@ private fun PensumFulfilledSubjectSummary(
 				fontWeight = FontWeight.SemiBold,
 				color = MaterialTheme.colorScheme.onSurfaceVariant
 			)
-			Text(
-				text = fulfilledSubject.code,
-				style = MaterialTheme.typography.labelMedium,
-				fontWeight = FontWeight.Black
+			PensumStyledSubjectCodeChip(
+				code = fulfilledSubject.code,
+				visualStyle = visualStyle
 			)
 			Text(
 				text = fulfilledSubject.name,
@@ -265,6 +435,20 @@ private fun PensumFulfilledSubjectSummary(
 			)
 		}
 	}
+}
+
+@Composable
+private fun PensumStyledSubjectCodeChip(
+	code: String,
+	visualStyle: PensumNodeVisualStyle,
+	modifier: Modifier = Modifier
+) {
+	PensumSubjectCodeChip(
+		modifier = modifier,
+		code = code,
+		fallbackContainer = Color(visualStyle.chipArgb),
+		fallbackContent = Color(visualStyle.chipTextArgb)
+	)
 }
 
 private fun PensumNodeStatusDisplay.labelResource(): StringResource {

@@ -14,6 +14,8 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumCanvasItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumEdgeItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumEdgeRelationshipType
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusDisplay
@@ -21,9 +23,11 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusIcon
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeVisualStyle
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumPointItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSelection
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumSubjectDetailItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumSubjectRelationItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTermItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.view.ZoomControlStepCount
@@ -303,6 +307,38 @@ class PensumScreenUiTest {
 	}
 
 	@Test
+	fun when_subjectDetailHasRelations_then_theyAreActionableAndUpdateFocusedSubject() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = Pensum.State.Content(model = samplePensumModelWithSubjectRelations()),
+				onRetryClick = {},
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		onNodeWithTag(PensumUiTags.nodeDetailButton("ci4325"))
+			.assertHasClickAction()
+			.performClick()
+		assertNodeVisible(PensumUiTags.SubjectDetailRequirements)
+		assertNodeVisible(PensumUiTags.SubjectDetailUnlocks)
+		onAllNodesWithText("Req.").assertCountEquals(0)
+		onNodeWithTag(PensumUiTags.subjectDetailRequirement("approved-ee1111"))
+			.assertHasClickAction()
+		onNodeWithTag(PensumUiTags.subjectDetailUnlock("blocked-ci9999"))
+			.assertHasClickAction()
+			.performClick()
+		waitForIdle()
+
+		onNodeWithTag(PensumUiTags.SubjectDetailCode)
+			.assertTextEquals("CI9999")
+		onNodeWithTag(PensumUiTags.focusedNode("blocked-ci9999"), useUnmergedTree = true)
+			.assertExists()
+	}
+
+	@Test
 	fun when_equivalentCodesAreSeparateNodes_then_displaysSeparateCards() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			PensumScreen(
@@ -342,6 +378,71 @@ class PensumScreenUiTest {
 		onNodeWithTag(PensumUiTags.modalityOption("degree_project")).assertIsSelected()
 		onNodeWithTag(PensumUiTags.modalityOption("long_internship")).assertIsNotSelected()
 	}
+}
+
+private fun samplePensumModelWithSubjectRelations(): PensumScreenModel {
+	val baseModel = samplePensumModel()
+	val nodesById = baseModel.nodes.associateBy(PensumNodeItem::id)
+	val currentNode = checkNotNull(nodesById["ci4325"])
+	val requirementNode = checkNotNull(nodesById["approved-ee1111"])
+	val unlockNode = checkNotNull(nodesById["blocked-ci9999"])
+	val currentNodeWithRelations = currentNode.copy(
+		detail = currentNode.detail.copy(
+			requirements = listOf(
+				requirementNode.toRelationItem(PensumEdgeRelationshipType.REQUIREMENT)
+			),
+			unlocks = listOf(
+				unlockNode.toRelationItem(PensumEdgeRelationshipType.REQUIREMENT)
+			)
+		)
+	)
+
+	return baseModel.copy(
+		nodes = baseModel.nodes.map { node ->
+			if (node.id == currentNode.id) currentNodeWithRelations else node
+		},
+		edges = listOf(
+			sampleEdge(
+				fromNodeId = requirementNode.id,
+				toNodeId = currentNode.id
+			),
+			sampleEdge(
+				fromNodeId = currentNode.id,
+				toNodeId = unlockNode.id
+			)
+		)
+	)
+}
+
+private fun PensumNodeItem.toRelationItem(
+	relationshipType: PensumEdgeRelationshipType
+): PensumSubjectRelationItem {
+	return PensumSubjectRelationItem(
+		nodeId = id,
+		code = displayCode,
+		name = displayName,
+		status = status,
+		visualStyle = visualStyle,
+		relationshipType = relationshipType
+	)
+}
+
+private fun sampleEdge(
+	fromNodeId: String,
+	toNodeId: String,
+	relationshipType: PensumEdgeRelationshipType = PensumEdgeRelationshipType.REQUIREMENT
+): PensumEdgeItem {
+	return PensumEdgeItem(
+		id = "${fromNodeId}_to_$toNodeId",
+		fromNodeId = fromNodeId,
+		toNodeId = toNodeId,
+		relationshipType = relationshipType,
+		isDisconnected = false,
+		points = listOf(
+			PensumPointItem(x = 0.0, y = 0.0),
+			PensumPointItem(x = 1.0, y = 1.0)
+		)
+	)
 }
 
 private fun samplePensumModel(): PensumScreenModel {
