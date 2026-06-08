@@ -12,6 +12,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
@@ -32,6 +33,10 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumSubjectDetailItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumSubjectRelationItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTermItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import com.gdavidpb.tuindice.pensum.ui.dialog.SubjectDetailRouteColumnWidth
+import com.gdavidpb.tuindice.pensum.ui.dialog.SubjectDetailRouteConnectorWidth
+import com.gdavidpb.tuindice.pensum.ui.dialog.routeNavigationOriginIsInAfterItems
+import com.gdavidpb.tuindice.pensum.ui.dialog.routeNavigationOriginScrollOffset
 import com.gdavidpb.tuindice.pensum.ui.model.focusStateFor
 import com.gdavidpb.tuindice.pensum.ui.view.CanvasOverlayAnimationMillis
 import com.gdavidpb.tuindice.pensum.ui.view.LocalPensumManualCanvasGestureActiveOverride
@@ -594,6 +599,69 @@ class PensumScreenUiTest {
 	}
 
 	@Test
+	fun when_subjectDetailUnlockIsTapped_then_internalNavigationMovesForward() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = Pensum.State.Content(model = samplePensumModelWithSubjectRelations()),
+				onRetryClick = {},
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
+		onNodeWithTag(PensumUiTags.SubjectDetailMoreButton)
+			.assertHasClickAction()
+			.performClick()
+		waitForIdle()
+		onNodeWithTag(PensumUiTags.subjectDetailUnlock("blocked-ci9999"))
+			.assertHasClickAction()
+			.performClick()
+		waitForIdle()
+
+		onNodeWithTag(PensumUiTags.SubjectDetailCode)
+			.assertTextEquals("CI9999")
+		onNodeWithTag(PensumUiTags.focusedNode("blocked-ci9999"), useUnmergedTree = true)
+			.assertExists()
+		assertNodeVisible(PensumUiTags.SubjectDetailSheet)
+		assertNodeHidden(PensumUiTags.SubjectDetailMoreButton)
+	}
+
+	@Test
+	fun when_subjectDetailCorequisiteIsTapped_then_internalNavigationMovesLaterally() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = Pensum.State.Content(model = samplePensumModelWithSubjectRelations()),
+				onRetryClick = {},
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
+		onNodeWithTag(PensumUiTags.SubjectDetailMoreButton)
+			.assertHasClickAction()
+			.performClick()
+		waitForIdle()
+		onNodeWithTag(PensumUiTags.subjectDetailCorequisite("ea1"))
+			.assertHasClickAction()
+			.performClick()
+		waitForIdle()
+
+		onNodeWithTag(PensumUiTags.SubjectDetailCode)
+			.assertTextEquals("EA1")
+		onNodeWithTag(PensumUiTags.focusedNode("ea1"), useUnmergedTree = true)
+			.assertExists()
+		assertNodeVisible(PensumUiTags.SubjectDetailSheet)
+		assertNodeVisible(PensumUiTags.SubjectDetailStatsUnavailable)
+		assertNodeHidden(PensumUiTags.SubjectDetailMoreButton)
+	}
+
+	@Test
 	fun when_subjectDetailRouteHasMultipleRelations_then_usesPluralRouteLabels() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			PensumScreen(
@@ -648,6 +716,43 @@ class PensumScreenUiTest {
 		onNodeWithText("Requisito para").assertExists()
 		onNodeWithTag(PensumUiTags.subjectDetailUnlock("blocked-ci9999"))
 			.assertHasClickAction()
+	}
+
+	@Test
+	fun when_navigationOriginExists_then_routeScrollStartsAtSelectedSubjectColumn() {
+		val model = samplePensumModelWithSubjectRelations()
+		val nodesById = model.nodes.associateBy(PensumNodeItem::id)
+		val beforeItems = listOf(
+			checkNotNull(nodesById["approved-ee1111"])
+				.toRelationItem(PensumEdgeRelationshipType.REQUIREMENT)
+		)
+		val afterItems = listOf(
+			checkNotNull(nodesById["blocked-ci9999"])
+				.toRelationItem(PensumEdgeRelationshipType.REQUIREMENT)
+		)
+
+		assertEquals(
+			0.dp,
+			routeNavigationOriginScrollOffset(
+				navigationOriginNodeId = null,
+				beforeItems = beforeItems
+			)
+		)
+		assertEquals(
+			true,
+			routeNavigationOriginIsInAfterItems(
+				navigationOriginNodeId = "blocked-ci9999",
+				afterItems = afterItems
+			)
+		)
+		assertEquals(
+			SubjectDetailRouteColumnWidth +
+				SubjectDetailRouteConnectorWidth,
+			routeNavigationOriginScrollOffset(
+				navigationOriginNodeId = "blocked-ci9999",
+				beforeItems = beforeItems
+			)
+		)
 	}
 
 	@Test

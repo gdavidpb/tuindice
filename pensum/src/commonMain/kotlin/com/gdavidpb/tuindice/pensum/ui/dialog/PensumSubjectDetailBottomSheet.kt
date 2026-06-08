@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationTarget
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_subject_detail_close
@@ -40,8 +41,9 @@ import tuindice.pensum.generated.resources.pensum_subject_detail_title
 fun PensumSubjectDetailBottomSheet(
 	node: PensumNodeItem,
 	shouldStartExpanded: Boolean,
+	navigationOriginNodeId: String?,
 	onSubjectStatsClick: (subjectCode: String) -> Unit,
-	onRelatedSubjectClick: (nodeId: String) -> Unit,
+	onRelatedSubjectClick: (PensumSubjectDetailNavigationTarget) -> Unit,
 	onDismissRequest: () -> Unit
 ) {
 	val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = false)
@@ -86,7 +88,7 @@ fun PensumSubjectDetailBottomSheet(
 						durationMillis = SubjectDetailExpansionDurationMillis,
 						easing = FastOutSlowInEasing
 					)
-				),
+			),
 			verticalArrangement = Arrangement.spacedBy(14.dp)
 		) {
 			PensumSubjectOverviewCard(node = node)
@@ -127,7 +129,7 @@ fun PensumSubjectDetailBottomSheet(
 			}
 
 			AnimatedVisibility(
-				visible = isMoreDetailExpandedState.value,
+				visible = isMoreDetailExpandedState.value && hasMoreDetail,
 				enter = fadeIn(
 					animationSpec = tween(
 						durationMillis = SubjectDetailFadeDurationMillis,
@@ -152,6 +154,7 @@ fun PensumSubjectDetailBottomSheet(
 			) {
 				PensumSubjectExpandedDetailContent(
 					node = node,
+					navigationOriginNodeId = navigationOriginNodeId,
 					onRelatedSubjectClick = onRelatedSubjectClick
 				)
 			}

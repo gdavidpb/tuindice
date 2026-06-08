@@ -34,6 +34,9 @@ fun PensumContentView(
 	val shouldOpenDetailExpandedState = remember(model.selection.year, model.selection.modalityId) {
 		mutableStateOf(false)
 	}
+	val detailNavigationOriginNodeIdState = remember(model.selection.year, model.selection.modalityId) {
+		mutableStateOf<String?>(null)
+	}
 	val focusRequestSerialState = remember(model.selection.year, model.selection.modalityId) {
 		mutableStateOf(0)
 	}
@@ -53,6 +56,7 @@ fun PensumContentView(
 		focusedNodeIdState.value = null
 		detailNodeIdState.value = null
 		shouldOpenDetailExpandedState.value = false
+		detailNavigationOriginNodeIdState.value = null
 	}
 
 	LaunchedEffect(showSelectionSheet) {
@@ -68,6 +72,7 @@ fun PensumContentView(
 		if (detailNodeIdState.value != null && detailNodeIdState.value !in nodeIds) {
 			detailNodeIdState.value = null
 			shouldOpenDetailExpandedState.value = false
+			detailNavigationOriginNodeIdState.value = null
 		}
 	}
 
@@ -91,6 +96,7 @@ fun PensumContentView(
 				focusedNodeIdState.value = nodeId
 				detailNodeIdState.value = nodeId
 				shouldOpenDetailExpandedState.value = false
+				detailNavigationOriginNodeIdState.value = null
 			},
 			isSubjectSheetVisible = isSubjectDetailVisible,
 			focusRequestSerial = focusRequestSerialState.value,
@@ -110,16 +116,19 @@ fun PensumContentView(
 		PensumSubjectDetailBottomSheet(
 			node = detailNode,
 			shouldStartExpanded = shouldOpenDetailExpandedState.value,
+			navigationOriginNodeId = detailNavigationOriginNodeIdState.value,
 			onSubjectStatsClick = onSubjectStatsClick,
-			onRelatedSubjectClick = { nodeId ->
-				focusedNodeIdState.value = nodeId
-				detailNodeIdState.value = nodeId
+			onRelatedSubjectClick = { target ->
+				detailNavigationOriginNodeIdState.value = target.originNodeId
+				focusedNodeIdState.value = target.nodeId
+				detailNodeIdState.value = target.nodeId
 				shouldOpenDetailExpandedState.value = true
 				focusRequestSerialState.value += 1
 			},
 			onDismissRequest = {
 				detailNodeIdState.value = null
 				shouldOpenDetailExpandedState.value = false
+				detailNavigationOriginNodeIdState.value = null
 			}
 		)
 	}

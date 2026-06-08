@@ -8,11 +8,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationTarget
 
 @Composable
 fun PensumSubjectExpandedDetailContent(
 	node: PensumNodeItem,
-	onRelatedSubjectClick: (nodeId: String) -> Unit
+	navigationOriginNodeId: String?,
+	onRelatedSubjectClick: (PensumSubjectDetailNavigationTarget) -> Unit
 ) {
 	val detail = node.detail
 
@@ -45,11 +47,13 @@ fun PensumSubjectExpandedDetailContent(
 					}
 				},
 				afterItems = detail.unlocks,
+				navigationOriginNodeId = navigationOriginNodeId,
 				onRelatedSubjectClick = onRelatedSubjectClick
 			)
 		}
 
 		PensumSubjectCorequisiteSection(
+			originNodeId = node.id,
 			items = detail.corequisites,
 			onRelatedSubjectClick = onRelatedSubjectClick
 		)

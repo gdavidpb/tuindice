@@ -12,14 +12,17 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumSubjectRelationItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationDirection
+import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationTarget
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_subject_detail_also_with
 
 @Composable
 fun PensumSubjectCorequisiteSection(
+	originNodeId: String,
 	items: List<PensumSubjectRelationItem>,
-	onRelatedSubjectClick: (nodeId: String) -> Unit
+	onRelatedSubjectClick: (PensumSubjectDetailNavigationTarget) -> Unit
 ) {
 	if (items.isEmpty()) return
 
@@ -41,7 +44,15 @@ fun PensumSubjectCorequisiteSection(
 				item = item,
 				testTag = PensumUiTags.subjectDetailCorequisite(item.nodeId),
 				statusTestTag = PensumUiTags.subjectDetailRelationStatus(item.nodeId),
-				onClick = { onRelatedSubjectClick(item.nodeId) }
+				onClick = {
+					onRelatedSubjectClick(
+						PensumSubjectDetailNavigationTarget(
+							nodeId = item.nodeId,
+							originNodeId = originNodeId,
+							direction = PensumSubjectDetailNavigationDirection.Lateral
+						)
+					)
+				}
 			)
 		}
 	}

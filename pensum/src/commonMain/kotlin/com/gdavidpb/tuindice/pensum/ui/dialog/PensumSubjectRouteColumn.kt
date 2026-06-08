@@ -12,6 +12,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumSubjectRelationItem
+import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationDirection
+import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationTarget
 
 @Composable
 fun PensumSubjectRouteColumn(
@@ -19,7 +21,9 @@ fun PensumSubjectRouteColumn(
 	items: List<PensumSubjectRelationItem>,
 	testTag: String,
 	rowTag: (String) -> String,
-	onRelatedSubjectClick: (nodeId: String) -> Unit,
+	originNodeId: String,
+	navigationDirection: PensumSubjectDetailNavigationDirection,
+	onRelatedSubjectClick: (PensumSubjectDetailNavigationTarget) -> Unit,
 	modifier: Modifier = Modifier
 ) {
 	Column(
@@ -40,7 +44,15 @@ fun PensumSubjectRouteColumn(
 			PensumRouteRelationCard(
 				item = item,
 				testTag = rowTag(item.nodeId),
-				onClick = { onRelatedSubjectClick(item.nodeId) }
+				onClick = {
+					onRelatedSubjectClick(
+						PensumSubjectDetailNavigationTarget(
+							nodeId = item.nodeId,
+							originNodeId = originNodeId,
+							direction = navigationDirection
+						)
+					)
+				}
 			)
 		}
 	}
