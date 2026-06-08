@@ -7,6 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
@@ -26,20 +27,21 @@ fun PensumContentView(
 	onSelectionApplied: (PensumOptionItem, PensumModalityItem) -> Unit,
 	onPensumContextClick: () -> Unit
 ) {
-	val focusedNodeIdState = remember(model.selection.year, model.selection.modalityId) {
+	val pensumStateKey = "${model.selection.year}-${model.selection.modalityId}"
+	val focusedNodeIdState = rememberSaveable(pensumStateKey) {
 		mutableStateOf<String?>(null)
 	}
-	val detailNodeIdState = remember(model.selection.year, model.selection.modalityId) {
+	val detailNodeIdState = rememberSaveable(pensumStateKey) {
 		mutableStateOf<String?>(null)
 	}
-	val shouldOpenDetailExpandedState = remember(model.selection.year, model.selection.modalityId) {
+	val shouldOpenDetailExpandedState = rememberSaveable(pensumStateKey) {
 		mutableStateOf(false)
 	}
-	val detailNavigationOriginNodeIdState = remember(model.selection.year, model.selection.modalityId) {
+	val detailNavigationOriginNodeIdState = rememberSaveable(pensumStateKey) {
 		mutableStateOf<String?>(null)
 	}
-	val detailNavigationDirectionState = remember(model.selection.year, model.selection.modalityId) {
-		mutableStateOf<PensumSubjectDetailNavigationDirection?>(null)
+	val detailNavigationDirectionNameState = rememberSaveable(pensumStateKey) {
+		mutableStateOf<String?>(null)
 	}
 	val focusRequestSerialState = remember(model.selection.year, model.selection.modalityId) {
 		mutableStateOf(0)
@@ -49,6 +51,8 @@ fun PensumContentView(
 	}
 	val focusedNodeId = focusedNodeIdState.value?.takeIf { nodeId -> nodeId in nodeIds }
 	val detailNodeId = detailNodeIdState.value?.takeIf { nodeId -> nodeId in nodeIds }
+	val detailNavigationDirection = detailNavigationDirectionNameState.value
+		?.let(PensumSubjectDetailNavigationDirection::valueOf)
 	val detailNode = if (showSelectionSheet) {
 		null
 	} else {
@@ -61,7 +65,7 @@ fun PensumContentView(
 		detailNodeIdState.value = null
 		shouldOpenDetailExpandedState.value = false
 		detailNavigationOriginNodeIdState.value = null
-		detailNavigationDirectionState.value = null
+		detailNavigationDirectionNameState.value = null
 	}
 
 	LaunchedEffect(showSelectionSheet) {
@@ -78,7 +82,7 @@ fun PensumContentView(
 			detailNodeIdState.value = null
 			shouldOpenDetailExpandedState.value = false
 			detailNavigationOriginNodeIdState.value = null
-			detailNavigationDirectionState.value = null
+			detailNavigationDirectionNameState.value = null
 		}
 	}
 
@@ -103,7 +107,7 @@ fun PensumContentView(
 				detailNodeIdState.value = nodeId
 				shouldOpenDetailExpandedState.value = false
 				detailNavigationOriginNodeIdState.value = null
-				detailNavigationDirectionState.value = null
+				detailNavigationDirectionNameState.value = null
 			},
 			isSubjectSheetVisible = isSubjectDetailVisible,
 			focusRequestSerial = focusRequestSerialState.value,
@@ -124,11 +128,11 @@ fun PensumContentView(
 			node = detailNode,
 			shouldStartExpanded = shouldOpenDetailExpandedState.value,
 			navigationOriginNodeId = detailNavigationOriginNodeIdState.value,
-			navigationDirection = detailNavigationDirectionState.value,
+			navigationDirection = detailNavigationDirection,
 			onSubjectStatsClick = onSubjectStatsClick,
 			onRelatedSubjectClick = { target ->
 				detailNavigationOriginNodeIdState.value = target.originNodeId
-				detailNavigationDirectionState.value = target.direction
+				detailNavigationDirectionNameState.value = target.direction.name
 				focusedNodeIdState.value = target.nodeId
 				detailNodeIdState.value = target.nodeId
 				shouldOpenDetailExpandedState.value = true
@@ -138,7 +142,7 @@ fun PensumContentView(
 				detailNodeIdState.value = null
 				shouldOpenDetailExpandedState.value = false
 				detailNavigationOriginNodeIdState.value = null
-				detailNavigationDirectionState.value = null
+				detailNavigationDirectionNameState.value = null
 			}
 		)
 	}

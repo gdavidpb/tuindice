@@ -71,6 +71,7 @@ fun PensumSubjectDetailBottomSheet(
 	ConfirmationDialog(
 		sheetState = sheetState,
 		titleText = stringResource(Res.string.pensum_subject_detail_title),
+		dismissOnPositive = false,
 		positiveText = statsCode?.let { stringResource(Res.string.pensum_subject_detail_stats) },
 		negativeText = stringResource(Res.string.pensum_subject_detail_close),
 		onPositiveClick = {

@@ -199,6 +199,9 @@ class PensumScreenUiTest {
 		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performClick()
 
 		assertEquals("CI4325", selectedSubjectCode)
+		assertNodeVisible(PensumUiTags.SubjectDetailSheet)
+		onNodeWithTag(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
+			.assertExists()
 	}
 
 	@Test
