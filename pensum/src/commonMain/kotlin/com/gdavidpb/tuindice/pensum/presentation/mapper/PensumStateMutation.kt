@@ -25,9 +25,20 @@ internal fun Pensum.State.failedOrContent(message: UiText): Pensum.State = when 
 internal fun Pensum.State.snackBarEffectOrNull(
 	error: UpdatePensumUseCaseError?
 ): Pensum.Effect.ShowSnackBar? {
-	return if (this is Pensum.State.Content) {
+	return if (this is Pensum.State.Content && error.shouldNotifyVisibleContent()) {
 		Pensum.Effect.ShowSnackBar(error.toSnackBarMessage())
 	} else {
 		null
+	}
+}
+
+private fun UpdatePensumUseCaseError?.shouldNotifyVisibleContent(): Boolean {
+	return when (this) {
+		is UpdatePensumUseCaseError.NoConnection -> isNetworkAvailable
+		UpdatePensumUseCaseError.NotFound,
+		UpdatePensumUseCaseError.Timeout,
+		UpdatePensumUseCaseError.Unavailable,
+		null,
+		-> true
 	}
 }
