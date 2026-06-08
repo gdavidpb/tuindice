@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.dialog.PensumSelectionBottomSheet
 import com.gdavidpb.tuindice.pensum.ui.dialog.PensumSubjectDetailBottomSheet
+import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationDirection
 
 @Composable
 fun PensumContentView(
@@ -37,6 +38,9 @@ fun PensumContentView(
 	val detailNavigationOriginNodeIdState = remember(model.selection.year, model.selection.modalityId) {
 		mutableStateOf<String?>(null)
 	}
+	val detailNavigationDirectionState = remember(model.selection.year, model.selection.modalityId) {
+		mutableStateOf<PensumSubjectDetailNavigationDirection?>(null)
+	}
 	val focusRequestSerialState = remember(model.selection.year, model.selection.modalityId) {
 		mutableStateOf(0)
 	}
@@ -57,6 +61,7 @@ fun PensumContentView(
 		detailNodeIdState.value = null
 		shouldOpenDetailExpandedState.value = false
 		detailNavigationOriginNodeIdState.value = null
+		detailNavigationDirectionState.value = null
 	}
 
 	LaunchedEffect(showSelectionSheet) {
@@ -73,6 +78,7 @@ fun PensumContentView(
 			detailNodeIdState.value = null
 			shouldOpenDetailExpandedState.value = false
 			detailNavigationOriginNodeIdState.value = null
+			detailNavigationDirectionState.value = null
 		}
 	}
 
@@ -97,6 +103,7 @@ fun PensumContentView(
 				detailNodeIdState.value = nodeId
 				shouldOpenDetailExpandedState.value = false
 				detailNavigationOriginNodeIdState.value = null
+				detailNavigationDirectionState.value = null
 			},
 			isSubjectSheetVisible = isSubjectDetailVisible,
 			focusRequestSerial = focusRequestSerialState.value,
@@ -117,9 +124,11 @@ fun PensumContentView(
 			node = detailNode,
 			shouldStartExpanded = shouldOpenDetailExpandedState.value,
 			navigationOriginNodeId = detailNavigationOriginNodeIdState.value,
+			navigationDirection = detailNavigationDirectionState.value,
 			onSubjectStatsClick = onSubjectStatsClick,
 			onRelatedSubjectClick = { target ->
 				detailNavigationOriginNodeIdState.value = target.originNodeId
+				detailNavigationDirectionState.value = target.direction
 				focusedNodeIdState.value = target.nodeId
 				detailNodeIdState.value = target.nodeId
 				shouldOpenDetailExpandedState.value = true
@@ -129,6 +138,7 @@ fun PensumContentView(
 				detailNodeIdState.value = null
 				shouldOpenDetailExpandedState.value = false
 				detailNavigationOriginNodeIdState.value = null
+				detailNavigationDirectionState.value = null
 			}
 		)
 	}

@@ -36,7 +36,9 @@ import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.dialog.SubjectDetailRouteColumnWidth
 import com.gdavidpb.tuindice.pensum.ui.dialog.SubjectDetailRouteConnectorWidth
 import com.gdavidpb.tuindice.pensum.ui.dialog.routeNavigationOriginIsInAfterItems
-import com.gdavidpb.tuindice.pensum.ui.dialog.routeNavigationOriginScrollOffset
+import com.gdavidpb.tuindice.pensum.ui.dialog.routeNavigationStartScrollOffset
+import com.gdavidpb.tuindice.pensum.ui.dialog.routeNavigationTargetScrollOffset
+import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationDirection
 import com.gdavidpb.tuindice.pensum.ui.model.focusStateFor
 import com.gdavidpb.tuindice.pensum.ui.view.CanvasOverlayAnimationMillis
 import com.gdavidpb.tuindice.pensum.ui.view.LocalPensumManualCanvasGestureActiveOverride
@@ -719,7 +721,7 @@ class PensumScreenUiTest {
 	}
 
 	@Test
-	fun when_navigationOriginExists_then_routeScrollStartsAtSelectedSubjectColumn() {
+	fun when_navigationOriginExists_then_routeScrollAnimatesByNavigationDirection() {
 		val model = samplePensumModelWithSubjectRelations()
 		val nodesById = model.nodes.associateBy(PensumNodeItem::id)
 		val beforeItems = listOf(
@@ -733,8 +735,9 @@ class PensumScreenUiTest {
 
 		assertEquals(
 			0.dp,
-			routeNavigationOriginScrollOffset(
+			routeNavigationTargetScrollOffset(
 				navigationOriginNodeId = null,
+				navigationDirection = null,
 				beforeItems = beforeItems
 			)
 		)
@@ -746,10 +749,34 @@ class PensumScreenUiTest {
 			)
 		)
 		assertEquals(
-			SubjectDetailRouteColumnWidth +
-				SubjectDetailRouteConnectorWidth,
-			routeNavigationOriginScrollOffset(
+			0.dp,
+			routeNavigationStartScrollOffset(
 				navigationOriginNodeId = "blocked-ci9999",
+				navigationDirection = PensumSubjectDetailNavigationDirection.Forward,
+				beforeItems = beforeItems
+			)
+		)
+		assertEquals(
+			SubjectDetailRouteColumnWidth + SubjectDetailRouteConnectorWidth,
+			routeNavigationTargetScrollOffset(
+				navigationOriginNodeId = "blocked-ci9999",
+				navigationDirection = PensumSubjectDetailNavigationDirection.Forward,
+				beforeItems = beforeItems
+			)
+		)
+		assertEquals(
+			SubjectDetailRouteColumnWidth + SubjectDetailRouteConnectorWidth,
+			routeNavigationStartScrollOffset(
+				navigationOriginNodeId = "approved-ee1111",
+				navigationDirection = PensumSubjectDetailNavigationDirection.Backward,
+				beforeItems = beforeItems
+			)
+		)
+		assertEquals(
+			0.dp,
+			routeNavigationTargetScrollOffset(
+				navigationOriginNodeId = "approved-ee1111",
+				navigationDirection = PensumSubjectDetailNavigationDirection.Backward,
 				beforeItems = beforeItems
 			)
 		)

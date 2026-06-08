@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationDirection
 import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationTarget
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
@@ -42,6 +43,7 @@ fun PensumSubjectDetailBottomSheet(
 	node: PensumNodeItem,
 	shouldStartExpanded: Boolean,
 	navigationOriginNodeId: String?,
+	navigationDirection: PensumSubjectDetailNavigationDirection?,
 	onSubjectStatsClick: (subjectCode: String) -> Unit,
 	onRelatedSubjectClick: (PensumSubjectDetailNavigationTarget) -> Unit,
 	onDismissRequest: () -> Unit
@@ -155,6 +157,7 @@ fun PensumSubjectDetailBottomSheet(
 				PensumSubjectExpandedDetailContent(
 					node = node,
 					navigationOriginNodeId = navigationOriginNodeId,
+					navigationDirection = navigationDirection,
 					onRelatedSubjectClick = onRelatedSubjectClick
 				)
 			}

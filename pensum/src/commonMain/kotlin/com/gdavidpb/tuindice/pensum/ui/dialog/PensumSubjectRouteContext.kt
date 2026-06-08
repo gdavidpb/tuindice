@@ -43,27 +43,46 @@ fun PensumSubjectRouteContext(
 	beforeRowTag: (String) -> String,
 	afterItems: List<PensumSubjectRelationItem>,
 	navigationOriginNodeId: String?,
+	navigationDirection: PensumSubjectDetailNavigationDirection?,
 	onRelatedSubjectClick: (PensumSubjectDetailNavigationTarget) -> Unit
 ) {
 	val density = LocalDensity.current
 	val hasBeforeItems = beforeItems.isNotEmpty()
 	val hasAfterItems = afterItems.isNotEmpty()
-	val routeInitialScrollOffset = routeNavigationOriginScrollOffset(
+	val routeStartScrollOffset = routeNavigationStartScrollOffset(
 		navigationOriginNodeId = navigationOriginNodeId,
+		navigationDirection = navigationDirection,
 		beforeItems = beforeItems
 	)
-	val routeInitialScrollOffsetPx = with(density) { routeInitialScrollOffset.roundToPx() }
-	val routeScrollState = rememberScrollState(initial = routeInitialScrollOffsetPx)
+	val routeTargetScrollOffset = routeNavigationTargetScrollOffset(
+		navigationOriginNodeId = navigationOriginNodeId,
+		navigationDirection = navigationDirection,
+		beforeItems = beforeItems
+	)
+	val routeStartScrollOffsetPx = with(density) { routeStartScrollOffset.roundToPx() }
+	val routeTargetScrollOffsetPx = with(density) { routeTargetScrollOffset.roundToPx() }
+	val routeScrollState = rememberScrollState(initial = routeStartScrollOffsetPx)
 	val shouldReserveTrailingSpace = navigationOriginNodeId != null
 
-	LaunchedEffect(navigationOriginNodeId, routeInitialScrollOffsetPx, routeScrollState.maxValue) {
-		val targetScrollOffset = routeInitialScrollOffsetPx.coerceIn(
+	LaunchedEffect(
+		navigationOriginNodeId,
+		navigationDirection,
+		routeStartScrollOffsetPx,
+		routeTargetScrollOffsetPx,
+		routeScrollState.maxValue
+	) {
+		val startScrollOffset = routeStartScrollOffsetPx.coerceIn(
+			minimumValue = 0,
+			maximumValue = routeScrollState.maxValue
+		)
+		val targetScrollOffset = routeTargetScrollOffsetPx.coerceIn(
 			minimumValue = 0,
 			maximumValue = routeScrollState.maxValue
 		)
 		if (navigationOriginNodeId == null) {
 			routeScrollState.scrollTo(targetScrollOffset)
 		} else {
+			routeScrollState.scrollTo(startScrollOffset)
 			routeScrollState.animateScrollTo(
 				value = targetScrollOffset,
 				animationSpec = tween(
@@ -156,12 +175,39 @@ fun PensumSubjectRouteContext(
 	}
 }
 
-internal fun routeNavigationOriginScrollOffset(
+internal fun routeNavigationStartScrollOffset(
 	navigationOriginNodeId: String?,
+	navigationDirection: PensumSubjectDetailNavigationDirection?,
 	beforeItems: List<PensumSubjectRelationItem>
 ): Dp {
 	if (navigationOriginNodeId == null) return 0.dp
 
+	return when (navigationDirection) {
+		PensumSubjectDetailNavigationDirection.Backward -> selectedSubjectRouteScrollOffset(beforeItems)
+		PensumSubjectDetailNavigationDirection.Forward,
+		PensumSubjectDetailNavigationDirection.Lateral,
+		null -> 0.dp
+	}
+}
+
+internal fun routeNavigationTargetScrollOffset(
+	navigationOriginNodeId: String?,
+	navigationDirection: PensumSubjectDetailNavigationDirection?,
+	beforeItems: List<PensumSubjectRelationItem>
+): Dp {
+	if (navigationOriginNodeId == null) return 0.dp
+
+	return when (navigationDirection) {
+		PensumSubjectDetailNavigationDirection.Backward -> 0.dp
+		PensumSubjectDetailNavigationDirection.Forward,
+		PensumSubjectDetailNavigationDirection.Lateral,
+		null -> selectedSubjectRouteScrollOffset(beforeItems)
+	}
+}
+
+private fun selectedSubjectRouteScrollOffset(
+	beforeItems: List<PensumSubjectRelationItem>
+): Dp {
 	return if (beforeItems.isNotEmpty()) {
 		SubjectDetailRouteColumnWidth + SubjectDetailRouteConnectorWidth
 	} else {
