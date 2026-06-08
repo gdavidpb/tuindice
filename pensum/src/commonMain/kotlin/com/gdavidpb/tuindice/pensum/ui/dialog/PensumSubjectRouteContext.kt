@@ -20,8 +20,10 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumSubjectRelationItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
-import tuindice.pensum.generated.resources.pensum_subject_detail_route_after
-import tuindice.pensum.generated.resources.pensum_subject_detail_route_before
+import tuindice.pensum.generated.resources.pensum_subject_detail_route_after_plural
+import tuindice.pensum.generated.resources.pensum_subject_detail_route_after_singular
+import tuindice.pensum.generated.resources.pensum_subject_detail_route_before_plural
+import tuindice.pensum.generated.resources.pensum_subject_detail_route_before_singular
 import tuindice.pensum.generated.resources.pensum_subject_detail_route_context
 
 @Composable
@@ -59,7 +61,13 @@ fun PensumSubjectRouteContext(
 			if (hasBeforeItems) {
 				PensumSubjectRouteColumn(
 					modifier = Modifier.width(SubjectDetailRouteColumnWidth),
-					title = stringResource(Res.string.pensum_subject_detail_route_before),
+					title = stringResource(
+						if (beforeItems.size == 1) {
+							Res.string.pensum_subject_detail_route_before_singular
+						} else {
+							Res.string.pensum_subject_detail_route_before_plural
+						}
+					),
 					items = beforeItems,
 					testTag = beforeTestTag,
 					rowTag = beforeRowTag,
@@ -75,7 +83,13 @@ fun PensumSubjectRouteContext(
 				PensumRouteConnector(modifier = Modifier.width(SubjectDetailRouteConnectorWidth))
 				PensumSubjectRouteColumn(
 					modifier = Modifier.width(SubjectDetailRouteColumnWidth),
-					title = stringResource(Res.string.pensum_subject_detail_route_after),
+					title = stringResource(
+						if (afterItems.size == 1) {
+							Res.string.pensum_subject_detail_route_after_singular
+						} else {
+							Res.string.pensum_subject_detail_route_after_plural
+						}
+					),
 					items = afterItems,
 					testTag = PensumUiTags.SubjectDetailUnlocks,
 					rowTag = { nodeId -> PensumUiTags.subjectDetailUnlock(nodeId) },

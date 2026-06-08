@@ -39,6 +39,7 @@ import tuindice.pensum.generated.resources.pensum_subject_detail_title
 @Composable
 fun PensumSubjectDetailBottomSheet(
 	node: PensumNodeItem,
+	shouldStartExpanded: Boolean,
 	onSubjectStatsClick: (subjectCode: String) -> Unit,
 	onRelatedSubjectClick: (nodeId: String) -> Unit,
 	onDismissRequest: () -> Unit
@@ -52,8 +53,9 @@ fun PensumSubjectDetailBottomSheet(
 			detail.requirements.isNotEmpty() ||
 			detail.corequisites.isNotEmpty() ||
 			detail.unlocks.isNotEmpty()
-	val isMoreDetailExpandedState = remember(node.id) {
-		mutableStateOf(false)
+	val shouldStartWithMoreDetailExpanded = shouldStartExpanded && hasMoreDetail
+	val isMoreDetailExpandedState = remember(node.id, shouldStartWithMoreDetailExpanded) {
+		mutableStateOf(shouldStartWithMoreDetailExpanded)
 	}
 
 	LaunchedEffect(isMoreDetailExpandedState.value) {

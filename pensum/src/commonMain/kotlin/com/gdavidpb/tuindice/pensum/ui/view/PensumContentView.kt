@@ -31,6 +31,9 @@ fun PensumContentView(
 	val detailNodeIdState = remember(model.selection.year, model.selection.modalityId) {
 		mutableStateOf<String?>(null)
 	}
+	val shouldOpenDetailExpandedState = remember(model.selection.year, model.selection.modalityId) {
+		mutableStateOf(false)
+	}
 	val focusRequestSerialState = remember(model.selection.year, model.selection.modalityId) {
 		mutableStateOf(0)
 	}
@@ -49,6 +52,7 @@ fun PensumContentView(
 	fun clearSubjectContext() {
 		focusedNodeIdState.value = null
 		detailNodeIdState.value = null
+		shouldOpenDetailExpandedState.value = false
 	}
 
 	LaunchedEffect(showSelectionSheet) {
@@ -63,6 +67,7 @@ fun PensumContentView(
 		}
 		if (detailNodeIdState.value != null && detailNodeIdState.value !in nodeIds) {
 			detailNodeIdState.value = null
+			shouldOpenDetailExpandedState.value = false
 		}
 	}
 
@@ -85,6 +90,7 @@ fun PensumContentView(
 			onSelectedNodeChange = { nodeId ->
 				focusedNodeIdState.value = nodeId
 				detailNodeIdState.value = nodeId
+				shouldOpenDetailExpandedState.value = false
 			},
 			isSubjectSheetVisible = isSubjectDetailVisible,
 			focusRequestSerial = focusRequestSerialState.value,
@@ -103,13 +109,18 @@ fun PensumContentView(
 	if (detailNode != null) {
 		PensumSubjectDetailBottomSheet(
 			node = detailNode,
+			shouldStartExpanded = shouldOpenDetailExpandedState.value,
 			onSubjectStatsClick = onSubjectStatsClick,
 			onRelatedSubjectClick = { nodeId ->
 				focusedNodeIdState.value = nodeId
 				detailNodeIdState.value = nodeId
+				shouldOpenDetailExpandedState.value = true
 				focusRequestSerialState.value += 1
 			},
-			onDismissRequest = { detailNodeIdState.value = null }
+			onDismissRequest = {
+				detailNodeIdState.value = null
+				shouldOpenDetailExpandedState.value = false
+			}
 		)
 	}
 }

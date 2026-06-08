@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.pensum.ui.screen
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
@@ -12,7 +12,6 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.test.performTouchInput
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
@@ -35,6 +34,7 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumTermItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.model.focusStateFor
 import com.gdavidpb.tuindice.pensum.ui.view.CanvasOverlayAnimationMillis
+import com.gdavidpb.tuindice.pensum.ui.view.LocalPensumManualCanvasGestureActiveOverride
 import com.gdavidpb.tuindice.pensum.ui.view.PensumGraphCanvas
 import com.gdavidpb.tuindice.pensum.ui.view.ZoomControlStepCount
 import com.gdavidpb.tuindice.testkit.ui.advanceAnimationsBy
@@ -184,13 +184,18 @@ class PensumScreenUiTest {
 		onNodeWithTag(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
 			.assertExists()
 		onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
+		waitForIdle()
+		assertNodeHidden(PensumUiTags.SubjectDetailSheet)
+		assertNodeHidden(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
+		onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
+		waitForIdle()
 		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performClick()
 
 		assertEquals("CI4325", selectedSubjectCode)
 	}
 
 	@Test
-	fun when_selectedSubjectDetailIsDismissed_then_tappingSameSubjectReopensDetail() = runTuIndiceUiTest {
+	fun when_focusedSubjectIsTapped_then_focusIsClearedAndNextTapReopensDetail() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModel()),
@@ -213,6 +218,12 @@ class PensumScreenUiTest {
 		onNodeWithTag(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
 			.assertExists()
 		onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
+		waitForIdle()
+
+		assertNodeHidden(PensumUiTags.SubjectDetailSheet)
+		assertNodeHidden(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
+		onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
+		waitForIdle()
 
 		assertNodeVisible(PensumUiTags.SubjectDetailSheet)
 		onNodeWithTag(PensumUiTags.SubjectDetailCode)
@@ -291,12 +302,18 @@ class PensumScreenUiTest {
 
 	@Test
 	fun when_manualCanvasGestureIsRunning_then_canvasControlsAndLegendHideTemporarily() = runTuIndiceUiTest {
+		val isManualCanvasGestureActiveState = mutableStateOf(false)
+
 		setTuIndiceTestContent {
-			PensumGraphCanvas(
-				model = samplePensumModel(),
-				selectedNodeId = null,
-				onSelectedNodeChange = {}
-			)
+			CompositionLocalProvider(
+				LocalPensumManualCanvasGestureActiveOverride provides isManualCanvasGestureActiveState.value
+			) {
+				PensumGraphCanvas(
+					model = samplePensumModel(),
+					selectedNodeId = null,
+					onSelectedNodeChange = {}
+				)
+			}
 		}
 
 		assertNodeVisible(PensumUiTags.CanvasLegend)
@@ -304,25 +321,25 @@ class PensumScreenUiTest {
 		assertNodeVisible(PensumUiTags.ZoomOut)
 
 		mainClock.autoAdvance = false
-		onNodeWithTag(PensumUiTags.CanvasGestureLayer)
-			.performTouchInput {
-				down(center)
-				moveBy(Offset(x = -120f, y = 0f))
-				advanceEventTime((CanvasOverlayAnimationMillis * 3).toLong())
-			}
+		runOnIdle {
+			isManualCanvasGestureActiveState.value = true
+		}
 		advanceAnimationsBy((CanvasOverlayAnimationMillis * 3).toLong())
 
 		assertNodeHidden(PensumUiTags.CanvasLegend)
 		assertNodeHidden(PensumUiTags.ZoomIn)
 		assertNodeHidden(PensumUiTags.ZoomOut)
+		assertNodeHidden(PensumUiTags.StickyTerms)
 
-		onNodeWithTag(PensumUiTags.CanvasGestureLayer)
-			.performTouchInput { up() }
+		runOnIdle {
+			isManualCanvasGestureActiveState.value = false
+		}
 		advanceAnimationsBy((CanvasOverlayAnimationMillis * 3).toLong())
 
 		assertNodeVisible(PensumUiTags.CanvasLegend)
 		assertNodeVisible(PensumUiTags.ZoomIn)
 		assertNodeVisible(PensumUiTags.ZoomOut)
+		assertNodeVisible(PensumUiTags.StickyTerms)
 	}
 
 	@Test
@@ -456,6 +473,27 @@ class PensumScreenUiTest {
 	}
 
 	@Test
+	fun when_focusedCanvasNodeIsTapped_then_selectedNodeFocusIsReset() = runTuIndiceUiTest {
+		val selectedNodeIdState = mutableStateOf<String?>("ci4325")
+
+		setTuIndiceTestContent {
+			PensumGraphCanvas(
+				model = samplePensumModel(),
+				selectedNodeId = selectedNodeIdState.value,
+				onSelectedNodeChange = { nodeId -> selectedNodeIdState.value = nodeId }
+			)
+		}
+
+		onNodeWithTag(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
+			.assertExists()
+		onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
+		waitForIdle()
+
+		assertNodeHidden(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
+		assertEquals(null, selectedNodeIdState.value)
+	}
+
+	@Test
 	fun when_selectedNodeDoesNotExist_then_focusStateIsInactive() {
 		val focusState = samplePensumModel().focusStateFor("missing-node")
 
@@ -528,10 +566,10 @@ class PensumScreenUiTest {
 		assertNodeVisible(PensumUiTags.SubjectDetailRequirements)
 		assertNodeVisible(PensumUiTags.SubjectDetailCorequisites)
 		onNodeWithTag(PensumUiTags.SubjectDetailUnlocks).assertExists()
-		onNodeWithText("Ruta de prelación").assertExists()
-		onNodeWithText("Para cursarla").assertExists()
+		onNodeWithText("Ruta de esta materia").assertExists()
+		onNodeWithText("Requisito").assertExists()
 		onNodeWithText("Materia seleccionada").assertExists()
-		onNodeWithText("Abre camino a").assertExists()
+		onNodeWithText("Requisito para").assertExists()
 		onNodeWithText("También se cursa con").assertExists()
 		onAllNodesWithText("Req.").assertCountEquals(0)
 		onNodeWithTag(PensumUiTags.subjectDetailRequirement("approved-ee1111"))
@@ -550,6 +588,35 @@ class PensumScreenUiTest {
 			.assertTextEquals("EE1111")
 		onNodeWithTag(PensumUiTags.focusedNode("approved-ee1111"), useUnmergedTree = true)
 			.assertExists()
+		assertNodeHidden(PensumUiTags.SubjectDetailMoreButton)
+		assertNodeVisible(PensumUiTags.SubjectDetailRouteContext)
+		onNodeWithText("Requisito para").assertExists()
+	}
+
+	@Test
+	fun when_subjectDetailRouteHasMultipleRelations_then_usesPluralRouteLabels() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = Pensum.State.Content(model = samplePensumModelWithPluralSubjectRelations()),
+				onRetryClick = {},
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
+		onNodeWithTag(PensumUiTags.SubjectDetailMoreButton)
+			.assertHasClickAction()
+			.performClick()
+		waitForIdle()
+
+		onNodeWithText("Ruta de esta materia").assertExists()
+		onNodeWithText("Requisitos").assertExists()
+		onNodeWithText("Requisitos para").assertExists()
+		onAllNodesWithText("Requisito").assertCountEquals(0)
+		onAllNodesWithText("Requisito para").assertCountEquals(0)
 	}
 
 	@Test
@@ -576,9 +643,9 @@ class PensumScreenUiTest {
 		assertNodeVisible(PensumUiTags.SubjectDetailUnlocks)
 		assertNodeHidden(PensumUiTags.SubjectDetailRequirements)
 		assertNodeHidden(PensumUiTags.SubjectDetailBlockingReasons)
-		onAllNodesWithText("Para cursarla").assertCountEquals(0)
+		onAllNodesWithText("Requisito").assertCountEquals(0)
 		onNodeWithText("Materia seleccionada").assertExists()
-		onNodeWithText("Abre camino a").assertExists()
+		onNodeWithText("Requisito para").assertExists()
 		onNodeWithTag(PensumUiTags.subjectDetailUnlock("blocked-ci9999"))
 			.assertHasClickAction()
 	}
@@ -632,6 +699,7 @@ private fun samplePensumModelWithSubjectRelations(): PensumScreenModel {
 	val requirementNode = checkNotNull(nodesById["approved-ee1111"])
 	val corequisiteNode = checkNotNull(nodesById["ea1"])
 	val unlockNode = checkNotNull(nodesById["blocked-ci9999"])
+	val relatedUnlockNode = checkNotNull(nodesById["math1-ma1111"])
 	val currentNodeWithRelations = currentNode.copy(
 		detail = currentNode.detail.copy(
 			requirements = listOf(
@@ -645,10 +713,21 @@ private fun samplePensumModelWithSubjectRelations(): PensumScreenModel {
 			)
 		)
 	)
+	val requirementNodeWithRelations = requirementNode.copy(
+		detail = requirementNode.detail.copy(
+			unlocks = listOf(
+				relatedUnlockNode.toRelationItem(PensumEdgeRelationshipType.REQUIREMENT)
+			)
+		)
+	)
 
 	return baseModel.copy(
 		nodes = baseModel.nodes.map { node ->
-			if (node.id == currentNode.id) currentNodeWithRelations else node
+			when (node.id) {
+				currentNode.id -> currentNodeWithRelations
+				requirementNode.id -> requirementNodeWithRelations
+				else -> node
+			}
 		},
 		edges = listOf(
 			sampleEdge(
@@ -663,6 +742,56 @@ private fun samplePensumModelWithSubjectRelations(): PensumScreenModel {
 			sampleEdge(
 				fromNodeId = currentNode.id,
 				toNodeId = unlockNode.id
+			),
+			sampleEdge(
+				fromNodeId = requirementNode.id,
+				toNodeId = relatedUnlockNode.id
+			)
+		)
+	)
+}
+
+private fun samplePensumModelWithPluralSubjectRelations(): PensumScreenModel {
+	val baseModel = samplePensumModel()
+	val nodesById = baseModel.nodes.associateBy(PensumNodeItem::id)
+	val currentNode = checkNotNull(nodesById["ci4325"])
+	val firstRequirementNode = checkNotNull(nodesById["approved-ee1111"])
+	val secondRequirementNode = checkNotNull(nodesById["math1-ma1111"])
+	val firstUnlockNode = checkNotNull(nodesById["blocked-ci9999"])
+	val secondUnlockNode = checkNotNull(nodesById["math1-ma1121"])
+	val currentNodeWithRelations = currentNode.copy(
+		detail = currentNode.detail.copy(
+			requirements = listOf(
+				firstRequirementNode.toRelationItem(PensumEdgeRelationshipType.REQUIREMENT),
+				secondRequirementNode.toRelationItem(PensumEdgeRelationshipType.REQUIREMENT)
+			),
+			unlocks = listOf(
+				firstUnlockNode.toRelationItem(PensumEdgeRelationshipType.REQUIREMENT),
+				secondUnlockNode.toRelationItem(PensumEdgeRelationshipType.REQUIREMENT)
+			)
+		)
+	)
+
+	return baseModel.copy(
+		nodes = baseModel.nodes.map { node ->
+			if (node.id == currentNode.id) currentNodeWithRelations else node
+		},
+		edges = listOf(
+			sampleEdge(
+				fromNodeId = firstRequirementNode.id,
+				toNodeId = currentNode.id
+			),
+			sampleEdge(
+				fromNodeId = secondRequirementNode.id,
+				toNodeId = currentNode.id
+			),
+			sampleEdge(
+				fromNodeId = currentNode.id,
+				toNodeId = firstUnlockNode.id
+			),
+			sampleEdge(
+				fromNodeId = currentNode.id,
+				toNodeId = secondUnlockNode.id
 			)
 		)
 	)

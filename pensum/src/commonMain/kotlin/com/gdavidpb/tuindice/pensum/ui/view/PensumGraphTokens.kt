@@ -31,6 +31,7 @@ internal const val ZoomControlStepCount = 8
 internal const val CanvasFitScaleTolerance = 0.002f
 internal const val ZoomAnimationMillis = 220
 internal const val CanvasOverlayAnimationMillis = 180
+internal const val CanvasManualGestureIdleMillis = 320
 internal const val CanvasSnapDelayMillis = 260
 internal const val SummaryAnimationMillis = 700
 internal val InitialCanvasOffset = 18.dp

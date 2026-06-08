@@ -50,10 +50,12 @@
 	<string name="pensum_subject_detail_requirements">Requisitos</string>
 	<string name="pensum_subject_detail_corequisites">Correquisitos</string>
 	<string name="pensum_subject_detail_unlocks">Desbloquea</string>
-	<string name="pensum_subject_detail_route_context">Ruta de prelación</string>
-	<string name="pensum_subject_detail_route_before">Para cursarla</string>
+	<string name="pensum_subject_detail_route_context">Ruta de esta materia</string>
+	<string name="pensum_subject_detail_route_before_singular">Requisito</string>
+	<string name="pensum_subject_detail_route_before_plural">Requisitos</string>
 	<string name="pensum_subject_detail_route_selected">Materia seleccionada</string>
-	<string name="pensum_subject_detail_route_after">Abre camino a</string>
+	<string name="pensum_subject_detail_route_after_singular">Requisito para</string>
+	<string name="pensum_subject_detail_route_after_plural">Requisitos para</string>
 	<string name="pensum_subject_detail_also_with">También se cursa con</string>
 	<string name="pensum_subject_detail_focus_subject">Abrir %1$s</string>
 	<string name="snack_default_error">Ocurrió un error inesperado.</string>
