@@ -1,6 +1,7 @@
 <resources>
 	<string name="top_bar_pensum">Pensum</string>
-	<string name="pensum_loading_message">Cargando pensum...</string>
+	<string name="pensum_loading_title">Preparando tu pensum</string>
+	<string name="pensum_loading_message">Estamos armando la ruta de materias y prelaciones.</string>
 	<string name="pensum_empty_title">Aún no tenemos tu pensum</string>
 	<string name="pensum_empty_message">Todavía no tenemos el pensum de tu carrera, pero pronto estará disponible.</string>
 	<string name="pensum_failed_title">No pudimos cargar el pensum</string>

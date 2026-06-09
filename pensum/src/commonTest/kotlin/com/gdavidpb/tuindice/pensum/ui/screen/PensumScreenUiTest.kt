@@ -57,6 +57,27 @@ import tuindice.pensum.generated.resources.pensum_failed_service_unavailable
 @OptIn(ExperimentalTestApi::class)
 class PensumScreenUiTest {
 	@Test
+	fun when_stateIsLoading_then_displaysPensumLoadingAnimationAndMessage() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = Pensum.State.Loading,
+				onRetryClick = {},
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		assertNodeVisible(PensumUiTags.Loading)
+		assertNodeVisible(PensumUiTags.LoadingAnimation)
+		onNodeWithTag(PensumUiTags.LoadingTitle)
+			.assertTextEquals("Preparando tu pensum")
+		onNodeWithTag(PensumUiTags.LoadingMessage)
+			.assertTextEquals("Estamos armando la ruta de materias y prelaciones.")
+	}
+
+	@Test
 	fun when_stateIsEmpty_then_displaysEmptyViewWithAnimationAndNoRetryAction() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			PensumScreen(

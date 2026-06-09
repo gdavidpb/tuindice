@@ -4,6 +4,10 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
 
 object PensumUiTags {
 	const val PensumScreen = "pensum_screen"
+	const val Loading = "pensum_loading"
+	const val LoadingTitle = "pensum_loading_title"
+	const val LoadingMessage = "pensum_loading_message"
+	const val LoadingAnimation = "pensum_loading_animation"
 	const val PensumContextSummary = "pensum_context_summary"
 	const val RefreshingIndicator = "pensum_refreshing_indicator"
 	const val PensumCurrentSelectionSummary = "pensum_current_selection_summary"
