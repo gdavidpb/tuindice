@@ -34,4 +34,22 @@ class WizardSyntheticStatesTest {
 		assertEquals(contentRight + PensumDisplayLayoutDefaults.CanvasRightPadding, model.canvas.width)
 		assertEquals(contentBottom + PensumDisplayLayoutDefaults.CanvasBottomPadding, model.canvas.height)
 	}
+
+	@Test
+	fun when_samplePensumIsBuilt_then_nodeDetailsMirrorGraphEdges() {
+		val nodesById = samplePensumState().model.nodes.associateBy { node -> node.id }
+
+		assertEquals(
+			listOf("ma1112"),
+			checkNotNull(nodesById["ma1111"]).detail.unlocks.map { item -> item.nodeId }
+		)
+		assertEquals(
+			listOf("ma1111"),
+			checkNotNull(nodesById["ma1112"]).detail.requirements.map { item -> item.nodeId }
+		)
+		assertEquals(
+			setOf("ec5344", "ci4325"),
+			checkNotNull(nodesById["ep5406"]).detail.blockingReasons.map { item -> item.nodeId }.toSet()
+		)
+	}
 }

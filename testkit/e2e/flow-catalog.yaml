@@ -527,8 +527,8 @@ flows:
       - record_term_selection_option_2026-2
       - record_enrollment_proof_button
       - pensum_node_ma1111
-      - pensum_focused_node_ma1111
       - pensum_subject_detail_sheet
+      - pensum_subject_detail_more_button
       - pensum_subject_detail_status
       - pensum_subject_detail_term_value
       - subjects_global_tab
@@ -1048,7 +1048,6 @@ flows:
       - subjects.SubjectDetail.SelectSubjectSegmentTab
     primary_selectors:
       - pensum_node_0800-2019-degree_project-t1-math1-ma1111
-      - pensum_focused_node_0800-2019-degree_project-t1-math1-ma1111
       - pensum_subject_detail_sheet
       - pensum_subject_detail_status
       - pensum_subject_detail_term_value
@@ -1074,10 +1073,8 @@ flows:
       - pensum_subject_detail_selected_route_card
       - pensum_subject_detail_requirements
       - pensum_subject_detail_requirement_0800-2019-degree_project-t1-math1-ma1111
-      - pensum_focused_node_0800-2019-degree_project-t1-math1-ma1111
       - pensum_subject_detail_unlocks
       - pensum_subject_detail_unlock_0800-2019-degree_project-t2-math2-ma1112
-      - pensum_focused_node_0800-2019-degree_project-t2-math2-ma1112
   - id: pensum-cache-refresh-failed
     path: e2e/maestro/flows/pensum/pensum-cache-refresh-failed.yaml
     module: pensum

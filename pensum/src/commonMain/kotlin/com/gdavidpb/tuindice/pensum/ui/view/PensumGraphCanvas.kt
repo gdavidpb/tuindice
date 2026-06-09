@@ -625,6 +625,15 @@ fun PensumGraphCanvas(
 						}
 						.testTag(PensumUiTags.node(node.id))
 				)
+				if (node.id == selectedNodeId) {
+					Box(
+						modifier = Modifier
+							.offset(x = node.x.dp, y = node.y.dp)
+							.size(width = node.width.dp, height = node.height.dp)
+							.zIndex(3f)
+							.testTag(PensumUiTags.focusedNode(node.id))
+					)
+				}
 			}
 			Canvas(
 				modifier = Modifier

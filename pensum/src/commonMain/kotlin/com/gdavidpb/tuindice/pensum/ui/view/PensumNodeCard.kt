@@ -8,19 +8,16 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
-import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.model.toStatusIconVisual
 
 @Composable
@@ -53,14 +50,6 @@ fun PensumNodeCard(
 		shadowElevation = if (isSelected || node.isCurrent) 8.dp else 0.dp
 	) {
 		Box(modifier = Modifier.fillMaxSize().padding(10.dp)) {
-			if (isSelected) {
-				Box(
-					modifier = Modifier
-						.align(Alignment.TopStart)
-						.size(1.dp)
-						.testTag(PensumUiTags.focusedNode(node.id))
-				)
-			}
 			Column(
 				modifier = Modifier.align(Alignment.TopStart)
 			) {

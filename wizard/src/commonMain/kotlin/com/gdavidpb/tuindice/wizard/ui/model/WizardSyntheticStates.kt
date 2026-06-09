@@ -52,6 +52,7 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumPointItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSelection
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumSubjectDetailItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumSubjectRelationItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTermItem
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
@@ -165,7 +166,16 @@ internal fun samplePensumState(): Pensum.State.Content {
 			width = PensumDisplayLayoutDefaults.TermWidth
 		)
 	}
-	val nodes = samplePensumNodes()
+	val edges = listOf(
+		pensumRequirementEdge("ma1111", "ma1112"),
+		pensumRequirementEdge("ma1112", "ma1113"),
+		pensumRequirementEdge("lla111", "lla112"),
+		pensumRequirementEdge("ci2611", "ci3611"),
+		pensumRequirementEdge("ci3611", "ci4325"),
+		pensumRequirementEdge("ci4325", "ep5406", isDisconnected = true),
+		pensumRequirementEdge("ec5344", "ep5406", isDisconnected = true)
+	)
+	val nodes = samplePensumNodes().withDetailRelations(edges)
 
 	return Pensum.State.Content(
 		model = PensumScreenModel(
@@ -188,15 +198,7 @@ internal fun samplePensumState(): Pensum.State.Content {
 			canvas = samplePensumCanvas(terms = terms, nodes = nodes),
 			terms = terms,
 			nodes = nodes,
-			edges = listOf(
-				pensumRequirementEdge("ma1111", "ma1112"),
-				pensumRequirementEdge("ma1112", "ma1113"),
-				pensumRequirementEdge("lla111", "lla112"),
-				pensumRequirementEdge("ci2611", "ci3611"),
-				pensumRequirementEdge("ci3611", "ci4325"),
-				pensumRequirementEdge("ci4325", "ep5406", isDisconnected = true),
-				pensumRequirementEdge("ec5344", "ep5406", isDisconnected = true)
-			)
+			edges = edges
 		)
 	)
 }
@@ -255,6 +257,96 @@ private fun String.samplePensumNodeHeight(): Double {
 }
 
 private fun Double?.orZero(): Double = this ?: 0.0
+
+private fun List<PensumNodeItem>.withDetailRelations(
+	edges: List<PensumEdgeItem>
+): List<PensumNodeItem> {
+	val nodesById = associateBy(PensumNodeItem::id)
+
+	return map { node ->
+		val requirements = edges.incomingRelations(
+			nodeId = node.id,
+			relationshipType = PensumEdgeRelationshipType.REQUIREMENT,
+			nodesById = nodesById
+		)
+		val corequisites = edges.incomingRelations(
+			nodeId = node.id,
+			relationshipType = PensumEdgeRelationshipType.COREQUISITE,
+			nodesById = nodesById
+		)
+		val unlocks = edges.outgoingRelations(
+			nodeId = node.id,
+			nodesById = nodesById
+		)
+
+		node.copy(
+			detail = node.detail.copy(
+				requirements = requirements,
+				corequisites = corequisites,
+				unlocks = unlocks,
+				blockingReasons = node.blockingReasons(
+					requirements = requirements,
+					corequisites = corequisites
+				)
+			)
+		)
+	}
+}
+
+private fun List<PensumEdgeItem>.incomingRelations(
+	nodeId: String,
+	relationshipType: PensumEdgeRelationshipType,
+	nodesById: Map<String, PensumNodeItem>
+): List<PensumSubjectRelationItem> {
+	return filter { edge -> edge.toNodeId == nodeId && edge.relationshipType == relationshipType }
+		.mapNotNull { edge -> nodesById[edge.fromNodeId]?.let { node -> edge to node } }
+		.sortedByNodePosition()
+		.map { (edge, node) -> node.toSubjectRelationItem(edge.relationshipType) }
+}
+
+private fun List<PensumEdgeItem>.outgoingRelations(
+	nodeId: String,
+	nodesById: Map<String, PensumNodeItem>
+): List<PensumSubjectRelationItem> {
+	return filter { edge -> edge.fromNodeId == nodeId }
+		.mapNotNull { edge -> nodesById[edge.toNodeId]?.let { node -> edge to node } }
+		.sortedByNodePosition()
+		.map { (edge, node) -> node.toSubjectRelationItem(edge.relationshipType) }
+}
+
+private fun List<Pair<PensumEdgeItem, PensumNodeItem>>.sortedByNodePosition(): List<Pair<PensumEdgeItem, PensumNodeItem>> {
+	return sortedWith(
+		compareBy<Pair<PensumEdgeItem, PensumNodeItem>> { (_, node) -> node.x }
+			.thenBy { (_, node) -> node.y }
+			.thenBy { (_, node) -> node.displayCode }
+	)
+}
+
+private fun PensumNodeItem.toSubjectRelationItem(
+	relationshipType: PensumEdgeRelationshipType
+): PensumSubjectRelationItem {
+	return PensumSubjectRelationItem(
+		nodeId = id,
+		code = displayCode,
+		name = displayName,
+		status = status,
+		visualStyle = visualStyle,
+		relationshipType = relationshipType
+	)
+}
+
+private fun PensumNodeItem.blockingReasons(
+	requirements: List<PensumSubjectRelationItem>,
+	corequisites: List<PensumSubjectRelationItem>
+): List<PensumSubjectRelationItem> {
+	if (!isBlocked) return emptyList()
+
+	return requirements.filter { requirement ->
+		requirement.status.type != PensumNodeStatusType.APPROVED
+	} + corequisites.filter { corequisite ->
+		corequisite.status.type !in setOf(PensumNodeStatusType.APPROVED, PensumNodeStatusType.CURRENT)
+	}
+}
 
 private data class PensumSampleNodeSpec(
 	val id: String,
