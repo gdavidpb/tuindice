@@ -241,14 +241,10 @@ class PensumScreenUiTest {
 			.assertHasClickAction()
 		onNodeWithTag(BaseUiTags.ConfirmationDialogNegativeButton).performClick()
 		assertNodeHidden(PensumUiTags.SubjectDetailSheet)
-		onNodeWithTag(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
-			.assertExists()
-		onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
-		waitForIdle()
-		assertNodeHidden(PensumUiTags.SubjectDetailSheet)
 		assertNodeHidden(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
 		onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
 		waitForIdle()
+		assertNodeVisible(PensumUiTags.SubjectDetailSheet)
 		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performClick()
 
 		assertEquals("CI4325", selectedSubjectCode)
@@ -258,7 +254,7 @@ class PensumScreenUiTest {
 	}
 
 	@Test
-	fun when_focusedSubjectIsTapped_then_focusIsClearedAndNextTapReopensDetail() = runTuIndiceUiTest {
+	fun when_detailSheetIsDismissed_then_sameSubjectTapReopensDetail() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModel()),
@@ -275,12 +271,6 @@ class PensumScreenUiTest {
 		onNodeWithTag(BaseUiTags.ConfirmationDialogNegativeButton)
 			.assertHasClickAction()
 			.performClick()
-		waitForIdle()
-
-		assertNodeHidden(PensumUiTags.SubjectDetailSheet)
-		onNodeWithTag(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
-			.assertExists()
-		onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
 		waitForIdle()
 
 		assertNodeHidden(PensumUiTags.SubjectDetailSheet)

@@ -202,10 +202,7 @@ fun PensumContentView(
 				focusRequestSerialState.value += 1
 			},
 			onDismissRequest = {
-				detailNodeIdState.value = null
-				shouldOpenDetailExpandedState.value = false
-				detailNavigationOriginNodeIdState.value = null
-				detailNavigationDirectionNameState.value = null
+				clearSubjectContext()
 			}
 		)
 	}
