@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.pensum.ui.view
 
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -12,11 +13,18 @@ import tuindice.pensum.generated.resources.Res
 @OptIn(ExperimentalResourceApi::class)
 @Composable
 fun PensumLoadingAnimationView() {
+	val animationPath = if (isSystemInDarkTheme()) {
+		PENSUM_LOADING_ANIMATION_PATH_DARK
+	} else {
+		PENSUM_LOADING_ANIMATION_PATH_LIGHT
+	}
+
 	LottieResourceAnimationView(
-		readBytes = { Res.readBytes(PENSUM_LOADING_ANIMATION_PATH) },
+		readBytes = { Res.readBytes(animationPath) },
 		modifier = Modifier.size(240.dp),
 		testTag = PensumUiTags.LoadingAnimation
 	)
 }
 
-private const val PENSUM_LOADING_ANIMATION_PATH = "files/an_pensum_loading.json"
+private const val PENSUM_LOADING_ANIMATION_PATH_DARK = "files/an_pensum_loading.json"
+private const val PENSUM_LOADING_ANIMATION_PATH_LIGHT = "files/an_pensum_loading_light.json"
