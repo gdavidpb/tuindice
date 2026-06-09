@@ -15,4 +15,5 @@ name: TuIndice auth E2E suite
 - runFlow: ../auth/pending-sign-out-flush-success.yaml
 - runFlow: ../_shared/launch-clean.yaml
 - runFlow: ../auth/login-success.yaml
+- runFlow: ../wizard/wizard-smoke.yaml
 - runFlow: ../auth/sign-out.yaml
