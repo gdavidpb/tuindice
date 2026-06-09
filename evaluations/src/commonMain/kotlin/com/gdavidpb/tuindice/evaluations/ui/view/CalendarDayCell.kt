@@ -28,12 +28,12 @@ fun CalendarDayCell(
 	val isSelected = date != null && date == selectedDate
 	val isToday = date != null && date == today
 	val containerColor = when {
-		isSelected -> MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
+		isSelected -> MaterialTheme.colorScheme.secondaryContainer
 		isToday -> MaterialTheme.colorScheme.secondaryContainer
 		else -> Color.Transparent
 	}
 	val textColor = when {
-		isSelected -> MaterialTheme.colorScheme.primary
+		isSelected -> MaterialTheme.colorScheme.onSecondaryContainer
 		isToday -> MaterialTheme.colorScheme.onSecondaryContainer
 		else -> MaterialTheme.colorScheme.onSurface
 	}

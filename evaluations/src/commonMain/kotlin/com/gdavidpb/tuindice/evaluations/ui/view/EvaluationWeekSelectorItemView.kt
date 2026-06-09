@@ -57,7 +57,7 @@ fun EvaluationWeekSelectorItemView(
 					.padding(start = 8.dp)
 					.size(8.dp)
 					.clip(CircleShape)
-					.background(MaterialTheme.colorScheme.primary)
+					.background(MaterialTheme.colorScheme.secondary)
 			)
 		}
 	}

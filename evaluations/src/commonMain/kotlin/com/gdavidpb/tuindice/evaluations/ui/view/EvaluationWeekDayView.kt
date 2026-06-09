@@ -21,13 +21,17 @@ fun EvaluationWeekDayView(
 	item: EvaluationWeekDayItem,
 	modifier: Modifier = Modifier
 ) {
+	val selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer
+	val selectedContentColor = MaterialTheme.colorScheme.onSecondaryContainer
+	val selectedAccentColor = MaterialTheme.colorScheme.secondary
+
 	Column(
 		modifier = modifier,
 		horizontalAlignment = Alignment.CenterHorizontally
 	) {
 		Text(
 			text = item.weekdayText,
-			color = if (item.isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurfaceVariant,
+			color = if (item.isSelected) selectedAccentColor else MaterialTheme.colorScheme.onSurfaceVariant,
 			style = MaterialTheme.typography.labelSmall,
 			fontWeight = FontWeight.Bold
 		)
@@ -37,14 +41,14 @@ fun EvaluationWeekDayView(
 				.padding(top = 4.dp)
 				.size(36.dp)
 				.background(
-					color = if (item.isSelected) MaterialTheme.colorScheme.primary else Color.Transparent,
+					color = if (item.isSelected) selectedContainerColor else Color.Transparent,
 					shape = CircleShape
 				),
 			contentAlignment = Alignment.Center
 		) {
 			Text(
 				text = item.dayText,
-				color = if (item.isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
+				color = if (item.isSelected) selectedContentColor else MaterialTheme.colorScheme.onSurfaceVariant,
 				style = MaterialTheme.typography.titleMedium,
 				fontWeight = FontWeight.Bold
 			)
@@ -55,7 +59,7 @@ fun EvaluationWeekDayView(
 				.padding(top = 3.dp)
 				.size(4.dp)
 				.background(
-					color = if (item.hasEvaluations) MaterialTheme.colorScheme.primary else Color.Transparent,
+					color = if (item.hasEvaluations) selectedAccentColor else Color.Transparent,
 					shape = CircleShape
 				)
 		)

@@ -54,7 +54,6 @@ fun EvaluationItemView(
 		Box(
 			modifier = Modifier
 				.fillMaxWidth()
-				.background(MaterialTheme.colorScheme.surfaceVariant)
 				.padding(EvaluationCardContentPadding)
 		) {
 			Column {
@@ -190,18 +189,18 @@ private data class StatusColors(
 private fun statusColors(tone: EvaluationHighlightTone): StatusColors {
 	return when (tone) {
 		EvaluationHighlightTone.Success -> StatusColors(
-			container = Color(0xFF314D20),
-			content = Color(0xFFC7F28E)
+			container = MaterialTheme.colorScheme.surfaceContainerHighest,
+			content = MaterialTheme.colorScheme.onSurface
 		)
 
 		EvaluationHighlightTone.Error -> StatusColors(
-			container = Color(0xFF6E2D32),
-			content = Color(0xFFFFC5C9)
+			container = MaterialTheme.colorScheme.errorContainer,
+			content = MaterialTheme.colorScheme.onErrorContainer
 		)
 
 		EvaluationHighlightTone.Neutral -> StatusColors(
-			container = MaterialTheme.colorScheme.primaryContainer,
-			content = MaterialTheme.colorScheme.onPrimaryContainer
+			container = MaterialTheme.colorScheme.surfaceContainerHighest,
+			content = MaterialTheme.colorScheme.onSurface
 		)
 	}
 }
