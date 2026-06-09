@@ -41,7 +41,7 @@ fun CreateTermSuggestedSubjectCard(
 			.height(166.dp)
 			.testTag(RecordUiTags.createSyntheticTermSubject(subject.subjectCode)),
 		shape = RoundedCornerShape(14.dp),
-		color = MaterialTheme.colorScheme.surface.copy(alpha = 0.56f),
+		color = MaterialTheme.colorScheme.surfaceContainerLow,
 		border = BorderStroke(
 			width = 1.dp,
 			color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.42f)
