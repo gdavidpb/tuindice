@@ -192,7 +192,10 @@ fun PensumContentView(
 			shouldStartExpanded = shouldOpenDetailExpandedState.value,
 			navigationOriginNodeId = detailNavigationOriginNodeIdState.value,
 			navigationDirection = detailNavigationDirection,
-			onSubjectStatsClick = onSubjectStatsClick,
+			onSubjectStatsClick = { subjectCode ->
+				clearSubjectContext()
+				onSubjectStatsClick(subjectCode)
+			},
 			onRelatedSubjectClick = { target ->
 				detailNavigationOriginNodeIdState.value = target.originNodeId
 				detailNavigationDirectionNameState.value = target.direction.name
