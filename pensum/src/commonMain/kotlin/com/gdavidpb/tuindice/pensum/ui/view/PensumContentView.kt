@@ -20,6 +20,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
@@ -32,6 +34,7 @@ import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationDirect
 fun PensumContentView(
 	model: PensumScreenModel,
 	isRefreshing: Boolean,
+	localDataMessage: UiText?,
 	showSelectionSheet: Boolean,
 	onSelectionSheetDismiss: () -> Unit,
 	onSubjectStatsClick: (subjectCode: String) -> Unit,
@@ -133,6 +136,30 @@ fun PensumContentView(
 				horizontalAlignment = Alignment.CenterHorizontally
 			) {
 				PensumRefreshingIndicatorView()
+			}
+		}
+		AnimatedVisibility(
+			visible = localDataMessage != null && !isRefreshing,
+			enter = fadeIn(
+				animationSpec = tween(durationMillis = CanvasOverlayAnimationMillis)
+			) + expandVertically(
+				expandFrom = Alignment.Top,
+				animationSpec = tween(durationMillis = CanvasOverlayAnimationMillis)
+			),
+			exit = fadeOut(
+				animationSpec = tween(durationMillis = CanvasOverlayAnimationMillis)
+			) + shrinkVertically(
+				shrinkTowards = Alignment.Top,
+				animationSpec = tween(durationMillis = CanvasOverlayAnimationMillis)
+			)
+		) {
+			Column(
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(horizontal = 16.dp, vertical = 8.dp),
+				horizontalAlignment = Alignment.CenterHorizontally
+			) {
+				PensumLocalDataWarningView(message = localDataMessage?.asString().orEmpty())
 			}
 		}
 		PensumGraphCanvas(

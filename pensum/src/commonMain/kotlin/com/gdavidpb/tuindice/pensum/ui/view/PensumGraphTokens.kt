@@ -19,6 +19,12 @@ internal val CanvasNeutral = Available
 internal val Selected = Color(0xFFF7F7F7)
 internal val TextPrimary = Color(0xFFF7F7F7)
 internal val TextSecondary = Color(0xFF9C9EA3)
+private val LightPensumPanelBackground = Color(0xFFF2F2F2)
+private val LightPensumFloatingPanelBackground = Color(0xFFF7F7F7)
+private val LightPensumCanvasTermBand = Color(0xFFF4F4F4)
+private val LightPensumPanelBorder = Color(0xFFD8D8D8)
+private val LightPensumNeutral = Color(0xFF8A8A8A)
+private val LightPensumTextSecondary = Color(0xFF5F6368)
 internal val PensumElementCornerRadius = 8.dp
 internal val PensumElementShape = RoundedCornerShape(PensumElementCornerRadius)
 
@@ -51,28 +57,25 @@ internal fun pensumGraphColors(): PensumGraphColors {
 	return if (isSystemInDarkTheme()) {
 		DarkPensumGraphColors.copy(current = colorScheme.primary)
 	} else {
-		val containerSurface = colorScheme.surfaceContainerLow
-		val floatingSurface = colorScheme.surfaceContainer
-
 		PensumGraphColors(
 			isDark = false,
 			screenBackground = colorScheme.background,
 			canvasBackground = colorScheme.background,
-			canvasTermBand = colorScheme.surfaceContainerLow.copy(alpha = 0.72f),
-			panelBackground = containerSurface,
-			panelBorder = colorScheme.outlineVariant,
-			floatingPanelBackground = floatingSurface,
+			canvasTermBand = LightPensumCanvasTermBand.copy(alpha = 0.72f),
+			panelBackground = LightPensumPanelBackground,
+			panelBorder = LightPensumPanelBorder,
+			floatingPanelBackground = LightPensumFloatingPanelBackground,
 			approved = Color(0xFF2E7D32),
 			current = colorScheme.primary,
-			available = colorScheme.outline,
-			blocked = colorScheme.onSurfaceVariant.copy(alpha = 0.58f),
-			canvasNeutral = colorScheme.outline,
-			selected = colorScheme.onSurfaceVariant,
+			available = LightPensumNeutral,
+			blocked = LightPensumNeutral.copy(alpha = 0.72f),
+			canvasNeutral = LightPensumNeutral,
+			selected = LightPensumTextSecondary,
 			textPrimary = colorScheme.onSurface,
-			textSecondary = colorScheme.onSurfaceVariant,
-			nodeContainer = containerSurface,
-			controlsBackground = floatingSurface,
-			minimapBackground = floatingSurface
+			textSecondary = LightPensumTextSecondary,
+			nodeContainer = LightPensumPanelBackground,
+			controlsBackground = LightPensumFloatingPanelBackground,
+			minimapBackground = LightPensumFloatingPanelBackground
 		)
 	}
 }

@@ -23,9 +23,12 @@ object Pensum {
 
 		data object Empty : State()
 
+		data object RecordDataUnavailable : State()
+
 		data class Content(
 			val model: PensumScreenModel,
-			val isRefreshing: Boolean = false
+			val isRefreshing: Boolean = false,
+			val localDataMessage: UiText? = null
 		) : State()
 
 		data class Failed(

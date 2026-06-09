@@ -12,7 +12,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_failed_message
-import tuindice.pensum.generated.resources.pensum_failed_record_data_unavailable
 
 class ObservePensumActionProcessor(
 	private val observePensumUseCase: ObservePensumUseCase
@@ -28,33 +27,34 @@ class ObservePensumActionProcessor(
 
 					is UseCaseState.Data -> suspend { state: Pensum.State ->
 						when (val observation = useCaseState.value) {
-							is PensumObservation.Content ->
-								Pensum.State.Content(
-									model = observation.pensum.toScreenModel(),
-									isRefreshing = (state as? Pensum.State.Content)?.isRefreshing ?: false
-								)
+								is PensumObservation.Content ->
+									Pensum.State.Content(
+										model = observation.pensum.toScreenModel(),
+										isRefreshing = (state as? Pensum.State.Content)?.isRefreshing ?: false,
+										localDataMessage = (state as? Pensum.State.Content)?.localDataMessage
+									)
 
-							PensumObservation.Missing,
-							PensumObservation.WaitingForRecordData,
-							-> when (state) {
-								Pensum.State.Empty -> Pensum.State.Empty
-								Pensum.State.Idle,
-								is Pensum.State.Content,
-								is Pensum.State.Failed,
-								Pensum.State.Loading,
+								PensumObservation.Missing,
+								PensumObservation.WaitingForRecordData,
+								-> when (state) {
+									Pensum.State.Empty -> Pensum.State.Empty
+									Pensum.State.RecordDataUnavailable -> Pensum.State.RecordDataUnavailable
+									Pensum.State.Idle,
+									is Pensum.State.Content,
+									is Pensum.State.Failed,
+									Pensum.State.Loading,
 								-> Pensum.State.Loading
 							}
 
-							PensumObservation.RecordDataUnavailable -> when (state) {
-								Pensum.State.Empty -> Pensum.State.Empty
-								Pensum.State.Idle,
-								is Pensum.State.Content,
-								is Pensum.State.Failed,
-								Pensum.State.Loading,
-								-> Pensum.State.Failed(
-									message = UiText.Resource(Res.string.pensum_failed_record_data_unavailable)
-								)
-							}
+								PensumObservation.RecordDataUnavailable -> when (state) {
+									Pensum.State.Empty -> Pensum.State.Empty
+									Pensum.State.RecordDataUnavailable -> Pensum.State.RecordDataUnavailable
+									Pensum.State.Idle,
+									is Pensum.State.Content,
+									is Pensum.State.Failed,
+									Pensum.State.Loading,
+									-> Pensum.State.RecordDataUnavailable
+								}
 						}
 					}
 

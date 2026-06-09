@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-pensum-cache-login",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "BootstrapIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic OTktOTk5OTk6cGVuc3VtLWNhY2hlLXBhc3M="
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "pensum-cache-user",
+      "usb_id": "99-99999",
+      "access_token": "bootstrap.mock.pensum.cache.token",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

@@ -1,0 +1,38 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- tapOn:
+    id: auth_usb_id_text_field
+- inputText: "4444444"
+- inputText: "4"
+- tapOn:
+    id: auth_password_text_field
+- inputText: "pensum-record-unavailable-pass"
+- tapOn:
+    id: auth_keyboard_dismiss_area
+- tapOn:
+    id: auth_sign_in_button
+- extendedWaitUntil:
+    visible:
+      id: wizard_welcome_screen
+    timeout: 30000
+- tapOn:
+    id: wizard_skip_button
+- extendedWaitUntil:
+    visible:
+      id: maincore_tuindice_bottom_bar_record_item
+    timeout: 30000
+- tapOn:
+    id: maincore_tuindice_bottom_bar_pensum_item
+- extendedWaitUntil:
+    visible:
+      id: base_empty_view_container
+    timeout: 30000
+- assertVisible:
+    id: base_empty_state_animation
+- assertVisible:
+    id: base_empty_view_title
+- assertVisible:
+    id: base_empty_view_message
+- assertVisible:
+    id: base_empty_view_action_button

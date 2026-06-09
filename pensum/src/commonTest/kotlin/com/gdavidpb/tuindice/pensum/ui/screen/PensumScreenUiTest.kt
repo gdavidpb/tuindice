@@ -53,6 +53,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_failed_service_unavailable
+import tuindice.pensum.generated.resources.pensum_local_data_warning_network
 
 @OptIn(ExperimentalTestApi::class)
 class PensumScreenUiTest {
@@ -95,6 +96,37 @@ class PensumScreenUiTest {
 		assertNodeVisible(BaseUiTags.EmptyViewMessage)
 		assertNodeVisible(BaseUiTags.EmptyStateAnimation)
 		assertNodeHidden(BaseUiTags.EmptyViewActionButton)
+		onNodeWithText("Pensum no disponible").assertExists()
+		onNodeWithText(
+			"No encontramos un pensum para esta carrera o modalidad. Prueba otra selección o inténtalo más tarde."
+		).assertExists()
+	}
+
+	@Test
+	fun when_recordDataIsUnavailable_then_displaysIllustratedEmptyViewWithRetryAction() = runTuIndiceUiTest {
+		var retryCount = 0
+
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = Pensum.State.RecordDataUnavailable,
+				onRetryClick = { retryCount += 1 },
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		assertNodeVisible(BaseUiTags.EmptyViewContainer)
+		assertNodeVisible(BaseUiTags.EmptyStateAnimation)
+		onNodeWithText("Historial no sincronizado").assertExists()
+		onNodeWithText(
+			"No pudimos leer tu historial académico. El avance y los estados del pensum pueden no estar actualizados."
+		).assertExists()
+		onNodeWithTag(BaseUiTags.EmptyViewActionButton)
+			.assertHasClickAction()
+			.performClick()
+		assertEquals(1, retryCount)
 	}
 
 	@Test
@@ -340,6 +372,47 @@ class PensumScreenUiTest {
 		}
 
 		assertNodeHidden(PensumUiTags.RefreshingIndicator)
+	}
+
+	@Test
+	fun when_contentHasLocalDataWarning_then_warningIndicatorIsShown() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = Pensum.State.Content(
+					model = samplePensumModel(),
+					localDataMessage = UiText.Resource(Res.string.pensum_local_data_warning_network)
+				),
+				onRetryClick = {},
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		assertNodeVisible(PensumUiTags.LocalDataWarning)
+		onNodeWithText("Sin conexión. Mostramos la información guardada en este dispositivo.").assertExists()
+	}
+
+	@Test
+	fun when_contentIsRefreshing_then_localDataWarningIsHidden() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = Pensum.State.Content(
+					model = samplePensumModel(),
+					isRefreshing = true,
+					localDataMessage = UiText.Resource(Res.string.pensum_local_data_warning_network)
+				),
+				onRetryClick = {},
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		assertNodeVisible(PensumUiTags.RefreshingIndicator)
+		assertNodeHidden(PensumUiTags.LocalDataWarning)
 	}
 
 	@Test

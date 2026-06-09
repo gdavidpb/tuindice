@@ -14,10 +14,9 @@ import tuindice.pensum.generated.resources.pensum_failed_message
 import tuindice.pensum.generated.resources.pensum_failed_network_unavailable
 import tuindice.pensum.generated.resources.pensum_failed_service_unavailable
 import tuindice.pensum.generated.resources.pensum_failed_timeout
-import tuindice.pensum.generated.resources.snack_default_error
-import tuindice.pensum.generated.resources.snack_network_unavailable
-import tuindice.pensum.generated.resources.snack_service_unavailable
-import tuindice.pensum.generated.resources.snack_timeout
+import tuindice.pensum.generated.resources.pensum_local_data_warning_network
+import tuindice.pensum.generated.resources.pensum_local_data_warning_service
+import tuindice.pensum.generated.resources.pensum_local_data_warning_timeout
 
 class SelectPensumModalityActionProcessor(
 	private val selectPensumModalityUseCase: SelectPensumModalityUseCase
@@ -35,8 +34,7 @@ class SelectPensumModalityActionProcessor(
 						if (useCaseState.error == UpdatePensumUseCaseError.NotFound) {
 							Pensum.State.Empty
 						} else {
-							state.snackBarEffectOrNull(useCaseState.error)?.let(sideEffect)
-							state.failedOrContent(useCaseState.error.toFailedMessage())
+							state.failedOrContent(useCaseState.error)
 						}
 					}
 				}
@@ -44,8 +42,9 @@ class SelectPensumModalityActionProcessor(
 	}
 
 	private fun Pensum.State.loadingOrContent(): Pensum.State = when (this) {
-		is Pensum.State.Content -> copy(isRefreshing = true)
+		is Pensum.State.Content -> copy(isRefreshing = true, localDataMessage = null)
 		Pensum.State.Empty,
+		Pensum.State.RecordDataUnavailable,
 		is Pensum.State.Failed,
 		Pensum.State.Idle,
 		Pensum.State.Loading,
@@ -53,63 +52,47 @@ class SelectPensumModalityActionProcessor(
 	}
 
 	private fun Pensum.State.idleOrContent(): Pensum.State = when (this) {
-		is Pensum.State.Content -> copy(isRefreshing = false)
+		is Pensum.State.Content -> copy(isRefreshing = false, localDataMessage = null)
 		Pensum.State.Empty,
+		Pensum.State.RecordDataUnavailable,
 		is Pensum.State.Failed,
 		Pensum.State.Idle,
 		Pensum.State.Loading,
 		-> this
 	}
 
-	private fun Pensum.State.failedOrContent(message: UiText): Pensum.State = when (this) {
-		is Pensum.State.Content -> copy(isRefreshing = false)
+	private fun Pensum.State.failedOrContent(error: UpdatePensumUseCaseError?): Pensum.State = when (this) {
+		is Pensum.State.Content -> copy(
+			isRefreshing = false,
+			localDataMessage = error.toLocalDataWarningMessage()
+		)
 		Pensum.State.Empty,
+		Pensum.State.RecordDataUnavailable,
 		is Pensum.State.Failed,
 		Pensum.State.Idle,
 		Pensum.State.Loading,
-		-> Pensum.State.Failed(message = message)
+		-> Pensum.State.Failed(message = error.toFailedMessage())
 	}
 
-	private fun Pensum.State.snackBarEffectOrNull(
-		error: UpdatePensumUseCaseError?
-	): Pensum.Effect.ShowSnackBar? {
-		return if (this is Pensum.State.Content && error.shouldNotifyVisibleContent()) {
-			Pensum.Effect.ShowSnackBar(error.toSnackBarMessage())
-		} else {
-			null
-		}
-	}
-
-	private fun UpdatePensumUseCaseError?.shouldNotifyVisibleContent(): Boolean {
-		return when (this) {
-			is UpdatePensumUseCaseError.NoConnection -> isNetworkAvailable
-			UpdatePensumUseCaseError.NotFound,
-			UpdatePensumUseCaseError.Timeout,
-			UpdatePensumUseCaseError.Unavailable,
-			null,
-			-> true
-		}
-	}
-
-	private fun UpdatePensumUseCaseError?.toSnackBarMessage(): UiText {
+	private fun UpdatePensumUseCaseError?.toLocalDataWarningMessage(): UiText {
 		return when (this) {
 			UpdatePensumUseCaseError.NotFound ->
-				UiText.Resource(Res.string.snack_default_error)
+				UiText.Resource(Res.string.pensum_local_data_warning_service)
 
 			is UpdatePensumUseCaseError.NoConnection ->
 				if (isNetworkAvailable)
-					UiText.Resource(Res.string.snack_service_unavailable)
+					UiText.Resource(Res.string.pensum_local_data_warning_service)
 				else
-					UiText.Resource(Res.string.snack_network_unavailable)
+					UiText.Resource(Res.string.pensum_local_data_warning_network)
 
 			UpdatePensumUseCaseError.Timeout ->
-				UiText.Resource(Res.string.snack_timeout)
+				UiText.Resource(Res.string.pensum_local_data_warning_timeout)
 
 			UpdatePensumUseCaseError.Unavailable ->
-				UiText.Resource(Res.string.snack_service_unavailable)
+				UiText.Resource(Res.string.pensum_local_data_warning_service)
 
 			null ->
-				UiText.Resource(Res.string.snack_default_error)
+				UiText.Resource(Res.string.pensum_local_data_warning_service)
 		}
 	}
 

@@ -17,14 +17,15 @@ import com.gdavidpb.tuindice.testkit.mvi.reduceMutations
 import io.ktor.http.HttpStatusCode
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertIs
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_failed_service_unavailable
-import tuindice.pensum.generated.resources.snack_service_unavailable
+import tuindice.pensum.generated.resources.pensum_local_data_warning_network
+import tuindice.pensum.generated.resources.pensum_local_data_warning_service
+import tuindice.pensum.generated.resources.pensum_local_data_warning_timeout
 
 class RefreshPensumActionProcessorTest {
 	@Test
@@ -112,7 +113,7 @@ class RefreshPensumActionProcessorTest {
 	}
 
 	@Test
-	fun when_refreshFailsWhileContentIsVisible_then_contentRemainsAndSnackbarShowsError() = runTest {
+	fun when_refreshFailsWhileContentIsVisible_then_contentRemainsAndLocalDataWarningIsShown() = runTest {
 		val processor = createProcessor(
 			pensumRepository = ThrowingPensumRepository(
 				throwable = serverResponseException(
@@ -129,13 +130,17 @@ class RefreshPensumActionProcessorTest {
 			sideEffect = effects::add
 		).toList().reduceMutations(contentState)
 
-		assertEquals(contentState, finalState)
-		val effect = assertIs<Pensum.Effect.ShowSnackBar>(effects.single())
-		assertEquals(UiText.Resource(Res.string.snack_service_unavailable), effect.message)
+		assertEquals(
+			contentState.copy(
+				localDataMessage = UiText.Resource(Res.string.pensum_local_data_warning_service)
+			),
+			finalState
+		)
+		assertEquals(emptyList(), effects)
 	}
 
 	@Test
-	fun when_refreshFailsWhileContentIsVisibleWithoutNetwork_then_contentRemainsAndSnackbarIsSuppressed() = runTest {
+	fun when_refreshFailsWhileContentIsVisibleWithoutNetwork_then_contentRemainsAndNetworkWarningIsShown() = runTest {
 		val processor = createProcessor(
 			pensumRepository = ThrowingPensumRepository(throwable = connectionThrowable()),
 			isNetworkAvailable = false
@@ -148,12 +153,17 @@ class RefreshPensumActionProcessorTest {
 			sideEffect = effects::add
 		).toList().reduceMutations(contentState)
 
-		assertEquals(contentState, finalState)
+		assertEquals(
+			contentState.copy(
+				localDataMessage = UiText.Resource(Res.string.pensum_local_data_warning_network)
+			),
+			finalState
+		)
 		assertEquals(emptyList(), effects)
 	}
 
 	@Test
-	fun when_refreshFailsWhileContentIsVisibleWithNetworkAvailable_then_contentRemainsAndSnackbarShowsServiceError() = runTest {
+	fun when_refreshFailsWhileContentIsVisibleWithNetworkAvailable_then_contentRemainsAndServiceWarningIsShown() = runTest {
 		val processor = createProcessor(
 			pensumRepository = ThrowingPensumRepository(throwable = connectionThrowable()),
 			isNetworkAvailable = true
@@ -166,9 +176,37 @@ class RefreshPensumActionProcessorTest {
 			sideEffect = effects::add
 		).toList().reduceMutations(contentState)
 
-		assertEquals(contentState, finalState)
-		val effect = assertIs<Pensum.Effect.ShowSnackBar>(effects.single())
-		assertEquals(UiText.Resource(Res.string.snack_service_unavailable), effect.message)
+		assertEquals(
+			contentState.copy(
+				localDataMessage = UiText.Resource(Res.string.pensum_local_data_warning_service)
+			),
+			finalState
+		)
+		assertEquals(emptyList(), effects)
+	}
+
+	@Test
+	fun when_refreshTimesOutWhileContentIsVisible_then_timeoutWarningIsShown() = runTest {
+		val processor = createProcessor(
+			pensumRepository = ThrowingPensumRepository(
+				throwable = Throwable("timeout")
+			)
+		)
+		val contentState = sampleContentState()
+		val effects = mutableListOf<Pensum.Effect>()
+
+		val finalState = processor.process(
+			action = Pensum.Action.RefreshPensum,
+			sideEffect = effects::add
+		).toList().reduceMutations(contentState)
+
+		assertEquals(
+			contentState.copy(
+				localDataMessage = UiText.Resource(Res.string.pensum_local_data_warning_timeout)
+			),
+			finalState
+		)
+		assertEquals(emptyList(), effects)
 	}
 }
 

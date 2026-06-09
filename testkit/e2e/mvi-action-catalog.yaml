@@ -322,7 +322,7 @@ actions:
     reason: screen bootstrap
   - id: pensum.Pensum.RefreshPensum
     classification: user
-    variants: [success, not-found, failed-retry]
+    variants: [success, not-found, failed-retry, record-unavailable, no-current-focus-hidden]
     selector: base_error_view_retry_button
     flow: e2e/maestro/flows/pensum/pensum-refresh-failed-retry.yaml
     fixture_state: pensum-unavailable-then-success
@@ -334,7 +334,7 @@ actions:
     reason: current bottom sheet keeps modality as local UI state and dispatches SelectSelection on apply
   - id: pensum.Pensum.SelectSelection
     classification: user
-    variants: [version-and-modality]
+    variants: [version-and-modality, cached-canvas-local-warning]
     selector: pensum_context_summary
     flow: e2e/maestro/flows/pensum/pensum-selection.yaml
     fixture_state: pensum-versions-modalities

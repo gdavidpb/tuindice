@@ -69,7 +69,7 @@ fun PensumZoomControls(
 				Icon(
 					imageVector = currentStatusIcon.imageVector,
 					contentDescription = stringResource(Res.string.pensum_focus_progress),
-					tint = graphColors.current
+					tint = graphColors.textSecondary
 				)
 			}
 			PensumZoomControlDivider()

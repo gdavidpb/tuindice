@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.pensum.presentation.action
 
-import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.pensum.domain.model.ObservedPensum
 import com.gdavidpb.tuindice.pensum.domain.model.PensumGraph
 import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
@@ -19,8 +18,6 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import tuindice.pensum.generated.resources.Res
-import tuindice.pensum.generated.resources.pensum_failed_record_data_unavailable
 
 class ObservePensumActionProcessorTest {
 	@Test
@@ -36,7 +33,7 @@ class ObservePensumActionProcessorTest {
 	}
 
 	@Test
-	fun when_recordDataFailed_then_stateBecomesFailed() = runTest {
+	fun when_recordDataFailed_then_stateBecomesRecordDataUnavailable() = runTest {
 		val processor = createProcessor(PensumObservation.RecordDataUnavailable)
 
 		val finalState = processor.process(
@@ -44,12 +41,7 @@ class ObservePensumActionProcessorTest {
 			sideEffect = {}
 		).toList().reduceMutations(Pensum.State.Loading)
 
-		assertEquals(
-			Pensum.State.Failed(
-				message = UiText.Resource(Res.string.pensum_failed_record_data_unavailable)
-			),
-			finalState
-		)
+		assertEquals(Pensum.State.RecordDataUnavailable, finalState)
 	}
 
 	@Test

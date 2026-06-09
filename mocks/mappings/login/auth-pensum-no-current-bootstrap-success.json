@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-pensum-no-current-login",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "BootstrapIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic NTUtNTU1NTU6cGVuc3VtLW5vLWN1cnJlbnQtcGFzcw=="
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "pensum-no-current-user",
+      "usb_id": "55-55555",
+      "access_token": "bootstrap.mock.pensum.no.current.token",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

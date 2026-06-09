@@ -1,0 +1,55 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- runFlow: ../auth/login-success.yaml
+- runFlow: ../wizard/wizard-smoke.yaml
+- tapOn:
+    id: maincore_tuindice_bottom_bar_pensum_item
+- extendedWaitUntil:
+    visible:
+      id: pensum_screen
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: pensum_node_0800-2019-degree_project-t2-math2-ma1112
+    timeout: 15000
+- tapOn:
+    id: pensum_node_0800-2019-degree_project-t2-math2-ma1112
+- extendedWaitUntil:
+    visible:
+      id: pensum_subject_detail_sheet
+    timeout: 10000
+- tapOn:
+    id: pensum_subject_detail_more_button
+- extendedWaitUntil:
+    visible:
+      id: pensum_subject_detail_route_context
+    timeout: 10000
+- assertVisible:
+    id: pensum_subject_detail_selected_route_card
+- assertVisible:
+    id: pensum_subject_detail_requirements
+- tapOn:
+    id: pensum_subject_detail_requirement_0800-2019-degree_project-t1-math1-ma1111
+- extendedWaitUntil:
+    visible:
+      id: pensum_focused_node_0800-2019-degree_project-t1-math1-ma1111
+    timeout: 10000
+- assertVisible:
+    id: pensum_subject_detail_sheet
+- assertVisible:
+    id: pensum_subject_detail_route_context
+- assertVisible:
+    id: pensum_subject_detail_selected_route_card
+- assertVisible:
+    id: pensum_subject_detail_unlocks
+- tapOn:
+    id: pensum_subject_detail_unlock_0800-2019-degree_project-t2-math2-ma1112
+- extendedWaitUntil:
+    visible:
+      id: pensum_focused_node_0800-2019-degree_project-t2-math2-ma1112
+    timeout: 10000
+- assertVisible:
+    id: pensum_subject_detail_sheet
+- assertVisible:
+    id: pensum_subject_detail_selected_route_card
