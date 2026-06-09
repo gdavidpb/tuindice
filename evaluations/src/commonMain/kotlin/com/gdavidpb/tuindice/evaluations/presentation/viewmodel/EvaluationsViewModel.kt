@@ -27,7 +27,8 @@ class EvaluationsViewModel(
 	override val eventPublisher: EventPublisher
 ) : BaseViewModel<Evaluations.State, Evaluations.Action, Evaluations.Effect>(
 	name = "evaluations",
-	initialState = Evaluations.State.Idle
+	initialState = Evaluations.State.Idle,
+	initialAction = Evaluations.Action.LoadEvaluations
 ) {
 	fun loadEvaluationsAction() =
 		sendAction(Evaluations.Action.LoadEvaluations)

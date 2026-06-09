@@ -22,11 +22,11 @@ class RefreshEvaluationsActionProcessor(
 					is UseCaseState.Loading -> suspend { current: Evaluations.State ->
 						when (current) {
 							is Evaluations.State.Content -> current
-							Evaluations.State.Empty,
+							Evaluations.State.Empty -> current
+							Evaluations.State.NoAttempts -> current
 							Evaluations.State.Failed,
 							Evaluations.State.Idle,
 							Evaluations.State.Loading,
-							Evaluations.State.NoAttempts,
 							-> Evaluations.State.Loading
 						}
 					}

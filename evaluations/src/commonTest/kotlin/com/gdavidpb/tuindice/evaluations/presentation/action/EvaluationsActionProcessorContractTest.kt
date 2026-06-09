@@ -5,8 +5,11 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationsExceptionHandler
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEvaluationsActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RefreshEvaluationsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
@@ -234,6 +237,46 @@ class EvaluationsActionProcessorContractTest {
 			sideEffect = {}
 		).test {
 			assertEquals(Evaluations.State.Failed, awaitItem()(Evaluations.State.Idle))
+
+			awaitComplete()
+		}
+	}
+
+	@Test
+	fun refreshEvaluationsActionProcessor_keepsEmptyState_whenRefreshing() = runTest {
+		val processor = RefreshEvaluationsActionProcessor(
+			updateEvaluationsUseCase = UpdateEvaluationsUseCase(
+				evaluationRepository = RecordingEvaluationRepository(),
+				reportingRepository = RecordingReportingRepository(),
+				exceptionHandler = UpdateEvaluationsExceptionHandler()
+			)
+		)
+
+		processor.process(
+			action = Evaluations.Action.RefreshEvaluations,
+			sideEffect = {}
+		).test {
+			assertEquals(Evaluations.State.Empty, awaitItem()(Evaluations.State.Empty))
+
+			awaitComplete()
+		}
+	}
+
+	@Test
+	fun refreshEvaluationsActionProcessor_keepsNoAttemptsState_whenRefreshing() = runTest {
+		val processor = RefreshEvaluationsActionProcessor(
+			updateEvaluationsUseCase = UpdateEvaluationsUseCase(
+				evaluationRepository = RecordingEvaluationRepository(),
+				reportingRepository = RecordingReportingRepository(),
+				exceptionHandler = UpdateEvaluationsExceptionHandler()
+			)
+		)
+
+		processor.process(
+			action = Evaluations.Action.RefreshEvaluations,
+			sideEffect = {}
+		).test {
+			assertEquals(Evaluations.State.NoAttempts, awaitItem()(Evaluations.State.NoAttempts))
 
 			awaitComplete()
 		}
