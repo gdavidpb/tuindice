@@ -82,6 +82,78 @@ class CreateSyntheticTermScreenUiTest {
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchTab).performClick()
 
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).assertIsDisplayed()
+		onNodeWithText("Código, nombre o palabra clave").assertIsDisplayed()
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchGuidance).assertIsDisplayed()
+		onNodeWithText("Búsquedas sugeridas").assertIsDisplayed()
+		onNodeWithText("MA1111").assertIsDisplayed()
+		onNodeWithText("Física").assertIsDisplayed()
+		onNodeWithText("Algoritmos").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_searchQueryIsTooShort_then_minQueryGuidanceIsShown() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateSyntheticTermScreen(
+				state = CreateSyntheticTerm.State(
+					query = "m",
+					selectedAddSubjectTab = CreateTermAddSubjectTab.Search
+				),
+				onQueryChange = { _, _, _ -> },
+				onClearQueryClick = {},
+				onPeriodSelected = {},
+				onAddSubjectTabSelected = {},
+				onSubjectAdd = {},
+				onSubjectRemove = {},
+				onCreateClick = {}
+			)
+		}
+
+		onNodeWithText("Agrega un carácter más").assertIsDisplayed()
+		onNodeWithText("La búsqueda empieza con al menos 2 caracteres.").assertIsDisplayed()
+		onNodeWithText("Búsquedas sugeridas").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_searchExampleIsClicked_then_queryIsUpdated() = runTuIndiceUiTest {
+		var latestQuery = ""
+		var latestSelectionStart = 0
+		var latestSelectionEnd = 0
+
+		setTuIndiceTestContent {
+			val screenState = remember {
+				mutableStateOf(
+					CreateSyntheticTerm.State(
+						selectedAddSubjectTab = CreateTermAddSubjectTab.Search
+					)
+				)
+			}
+
+			CreateSyntheticTermScreen(
+				state = screenState.value,
+				onQueryChange = { query, selectionStart, selectionEnd ->
+					latestQuery = query
+					latestSelectionStart = selectionStart
+					latestSelectionEnd = selectionEnd
+					screenState.value = screenState.value.copy(
+						query = query,
+						querySelectionStart = selectionStart,
+						querySelectionEnd = selectionEnd
+					)
+				},
+				onClearQueryClick = {},
+				onPeriodSelected = {},
+				onAddSubjectTabSelected = {},
+				onSubjectAdd = {},
+				onSubjectRemove = {},
+				onCreateClick = {}
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.createSyntheticTermSearchExample(0)).performClick()
+
+		assertEquals("MA1111", latestQuery)
+		assertEquals("MA1111".length, latestSelectionStart)
+		assertEquals("MA1111".length, latestSelectionEnd)
 	}
 
 	@Test
@@ -524,7 +596,7 @@ class CreateSyntheticTermScreenUiTest {
 	}
 
 	@Test
-	fun when_searchQueryHasNoMatches_then_zeroResultsIsShown() = runTuIndiceUiTest {
+	fun when_searchQueryHasNoMatches_then_noResultsMessageIsShown() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			CreateSyntheticTermScreen(
 				state = CreateSyntheticTerm.State(
@@ -544,7 +616,8 @@ class CreateSyntheticTermScreenUiTest {
 
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchTab).performClick()
 
-		onNodeWithText("0 resultados").assertIsDisplayed()
+		onNodeWithText("No encontramos materias").assertIsDisplayed()
+		onNodeWithText("No hay resultados para \"zz\". Prueba con otro código o nombre.").assertIsDisplayed()
 	}
 
 	@Test
@@ -575,7 +648,8 @@ class CreateSyntheticTermScreenUiTest {
 
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchTab).performClick()
 
-		onNodeWithText("0 resultados").assertIsDisplayed()
+		onNodeWithText("No encontramos materias").assertIsDisplayed()
+		onNodeWithText("No hay resultados para \"zz\". Prueba con otro código o nombre.").assertIsDisplayed()
 		onNodeWithText("Sugeridas por tu pensum").assertIsDisplayed()
 		onNodeWithText("MATEMÁTICAS I").assertIsDisplayed()
 	}

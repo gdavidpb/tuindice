@@ -42,6 +42,8 @@ import com.gdavidpb.tuindice.record.ui.view.AlreadyTakenSearchResultsToggle
 import com.gdavidpb.tuindice.record.ui.view.CreateTermAddSubjectTabs
 import com.gdavidpb.tuindice.record.ui.view.CreateTermPeriodRow
 import com.gdavidpb.tuindice.record.ui.view.CreateTermSearchField
+import com.gdavidpb.tuindice.record.ui.view.CreateTermSearchGuidance
+import com.gdavidpb.tuindice.record.ui.view.CreateTermSearchMessage
 import com.gdavidpb.tuindice.record.ui.view.CreateTermSectionTitle
 import com.gdavidpb.tuindice.record.ui.view.CreateTermSelectedSubjectCard
 import com.gdavidpb.tuindice.record.ui.view.CreateTermSubmitBar
@@ -51,6 +53,8 @@ import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.create_term_add_subjects_title
 import tuindice.record.generated.resources.create_term_no_suggestions
 import tuindice.record.generated.resources.create_term_search_error
+import tuindice.record.generated.resources.create_term_search_no_results_message
+import tuindice.record.generated.resources.create_term_search_no_results_title
 import tuindice.record.generated.resources.create_term_search_results
 import tuindice.record.generated.resources.create_term_selected_title
 import tuindice.record.generated.resources.create_term_suggested_title
@@ -118,6 +122,10 @@ fun CreateSyntheticTermScreen(
 	} else {
 		otherSearchResults
 	}
+	val hasNoSearchResults = isSearchQueryReady &&
+		searchResultsWithoutSelectedSubjects.isEmpty() &&
+		!state.hasSearchError &&
+		!state.isRefreshingSearch
 
 	Box(
 		modifier = modifier
@@ -247,14 +255,32 @@ fun CreateSyntheticTermScreen(
 						)
 					}
 
-					if (isSearchQueryReady) {
+					if (!isSearchQueryReady) {
 						item {
-							CreateTermSectionTitle(
+							CreateTermSearchGuidance(
+								query = state.query,
+								onExampleClick = { example ->
+									onQueryChange(example, example.length, example.length)
+								}
+							)
+						}
+					} else {
+						item {
+							CreateTermSearchMessage(
 								modifier = Modifier.testTag(RecordUiTags.CreateSyntheticTermSearchResultsTitle),
-								text = stringResource(
-									Res.string.create_term_search_results,
-									displayedSearchResults.size
-								),
+								title = if (hasNoSearchResults) {
+									stringResource(Res.string.create_term_search_no_results_title)
+								} else {
+									stringResource(
+										Res.string.create_term_search_results,
+										displayedSearchResults.size
+									)
+								},
+								description = if (hasNoSearchResults) {
+									stringResource(Res.string.create_term_search_no_results_message, state.query)
+								} else {
+									null
+								},
 								isRefreshing = state.isRefreshingSearch
 							)
 						}
@@ -270,14 +296,8 @@ fun CreateSyntheticTermScreen(
 						}
 
 						if (searchResultsWithoutSelectedSubjects.isEmpty() && !state.hasSearchError) {
-							item {
-								if (displayedSuggestedSubjects.isEmpty()) {
-									Text(
-										text = stringResource(Res.string.create_term_no_suggestions),
-										style = MaterialTheme.typography.bodyMedium,
-										color = MaterialTheme.colorScheme.onSurfaceVariant
-									)
-								} else {
+							if (displayedSuggestedSubjects.isNotEmpty()) {
+								item {
 									CreateTermSectionTitle(text = stringResource(Res.string.create_term_suggested_title))
 									LazyRow(
 										horizontalArrangement = Arrangement.spacedBy(12.dp)

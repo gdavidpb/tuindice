@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.ui.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,8 +10,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.Add
-import androidx.compose.material.icons.outlined.CheckCircleOutline
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -27,6 +28,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -69,46 +71,7 @@ fun CreateTermSubjectStatusRow(
 		horizontalArrangement = Arrangement.spacedBy(6.dp),
 		verticalAlignment = Alignment.CenterVertically
 	) {
-		when (status.icon) {
-			CreateTermSubjectStatusIcon.Dot ->
-				Box(
-					modifier = Modifier
-						.size(10.dp)
-						.background(status.color, CircleShape)
-				)
-
-			CreateTermSubjectStatusIcon.Check ->
-				Icon(
-					modifier = Modifier.size(16.dp),
-					imageVector = Icons.Outlined.CheckCircleOutline,
-					contentDescription = null,
-					tint = status.color
-				)
-
-			CreateTermSubjectStatusIcon.Clock ->
-				Icon(
-					modifier = Modifier.size(16.dp),
-					imageVector = Icons.Outlined.Schedule,
-					contentDescription = null,
-					tint = status.color
-				)
-
-			CreateTermSubjectStatusIcon.Available ->
-				Icon(
-					modifier = Modifier.size(16.dp),
-					imageVector = Icons.Outlined.Add,
-					contentDescription = null,
-					tint = status.color
-				)
-
-			CreateTermSubjectStatusIcon.Blocked ->
-				Icon(
-					modifier = Modifier.size(16.dp),
-					imageVector = Icons.Outlined.Lock,
-					contentDescription = null,
-					tint = status.color
-				)
-		}
+		CreateTermSubjectStatusMarker(status = status)
 		if (tooltipText == null) {
 			CreateTermSubjectStatusLabel(
 				subject = subject,
@@ -220,7 +183,7 @@ private fun CreateTermSubjectItem.status(
 		SyntheticTermSubjectAvailability.AVAILABLE ->
 			SubjectStatus(
 				text = availableText,
-				color = if (isDarkTheme) CreateTermSuccessColor else CreateTermSuccessLightThemeColor,
+				color = if (isDarkTheme) CreateTermAvailableColor else CreateTermAvailableLightThemeColor,
 				icon = availableIcon
 			)
 
@@ -241,23 +204,57 @@ private fun CreateTermSubjectItem.status(
 		SyntheticTermSubjectAvailability.ALREADY_TAKEN ->
 			SubjectStatus(
 				text = alreadyTakenText,
-				color = onSurfaceVariantColor,
-				icon = CreateTermSubjectStatusIcon.Dot
+				color = if (isDarkTheme) CreateTermApprovedColor else CreateTermApprovedLightThemeColor,
+				icon = CreateTermSubjectStatusIcon.Check
 			)
 
 		SyntheticTermSubjectAvailability.ALREADY_PLANNED ->
 			SubjectStatus(
 				text = alreadyPlannedText,
 				color = onSurfaceVariantColor,
-				icon = CreateTermSubjectStatusIcon.Dot
+				icon = CreateTermSubjectStatusIcon.Clock
 			)
 
 		SyntheticTermSubjectAvailability.UNAVAILABLE ->
 			SubjectStatus(
 				text = unavailableText,
-				color = if (isDarkTheme) CreateTermWarningColor else CreateTermWarningLightThemeColor,
+				color = if (isDarkTheme) CreateTermBlockedColor else CreateTermBlockedLightThemeColor,
 				icon = CreateTermSubjectStatusIcon.Blocked
 			)
+	}
+}
+
+@Composable
+private fun CreateTermSubjectStatusMarker(status: SubjectStatus) {
+	Box(
+		modifier = Modifier
+			.size(20.dp)
+			.background(MaterialTheme.colorScheme.surfaceContainerLow, CircleShape)
+			.border(1.2.dp, status.color, CircleShape),
+		contentAlignment = Alignment.Center
+	) {
+		status.icon.imageVector()?.let { icon ->
+			Icon(
+				modifier = Modifier.size(13.dp),
+				imageVector = icon,
+				contentDescription = null,
+				tint = status.color
+			)
+		} ?: Box(
+			modifier = Modifier
+				.size(6.dp)
+				.background(status.color, CircleShape)
+		)
+	}
+}
+
+private fun CreateTermSubjectStatusIcon.imageVector(): ImageVector? {
+	return when (this) {
+		CreateTermSubjectStatusIcon.Dot -> null
+		CreateTermSubjectStatusIcon.Check -> Icons.Filled.Check
+		CreateTermSubjectStatusIcon.Clock -> Icons.Outlined.Schedule
+		CreateTermSubjectStatusIcon.Available -> Icons.Outlined.Add
+		CreateTermSubjectStatusIcon.Blocked -> Icons.Outlined.Lock
 	}
 }
 
