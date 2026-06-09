@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -65,6 +66,9 @@ fun SubjectSearchGuidanceView(
 				AssistChip(
 					modifier = Modifier.testTag(SubjectsUiTags.searchExample(index)),
 					onClick = { onExampleClick(example) },
+					colors = AssistChipDefaults.assistChipColors(
+						containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+					),
 					label = {
 						Text(
 							text = example,

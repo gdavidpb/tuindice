@@ -19,8 +19,7 @@ internal val CanvasNeutral = Available
 internal val Selected = Color(0xFFF7F7F7)
 internal val TextPrimary = Color(0xFFF7F7F7)
 internal val TextSecondary = Color(0xFF9C9EA3)
-private val LightPensumPanelBackground = Color(0xFFF2F2F2)
-private val LightPensumFloatingPanelBackground = Color(0xFFF7F7F7)
+private val LightPensumPanelBackground = Color(0xFFF7F2FA)
 private val LightPensumCanvasTermBand = Color(0xFFF4F4F4)
 private val LightPensumPanelBorder = Color(0xFFD8D8D8)
 private val LightPensumNeutral = Color(0xFF8A8A8A)
@@ -55,7 +54,15 @@ internal fun pensumGraphColors(): PensumGraphColors {
 	val colorScheme = MaterialTheme.colorScheme
 
 	return if (isSystemInDarkTheme()) {
-		DarkPensumGraphColors.copy(current = colorScheme.primary)
+		val recordItemBackground = colorScheme.surfaceContainerLow
+		DarkPensumGraphColors.copy(
+			current = colorScheme.primary,
+			panelBackground = recordItemBackground,
+			floatingPanelBackground = recordItemBackground,
+			nodeContainer = recordItemBackground,
+			controlsBackground = recordItemBackground,
+			minimapBackground = recordItemBackground
+		)
 	} else {
 		PensumGraphColors(
 			isDark = false,
@@ -64,7 +71,7 @@ internal fun pensumGraphColors(): PensumGraphColors {
 			canvasTermBand = LightPensumCanvasTermBand.copy(alpha = 0.72f),
 			panelBackground = LightPensumPanelBackground,
 			panelBorder = LightPensumPanelBorder,
-			floatingPanelBackground = LightPensumFloatingPanelBackground,
+			floatingPanelBackground = LightPensumPanelBackground,
 			approved = Color(0xFF2E7D32),
 			current = colorScheme.primary,
 			available = LightPensumNeutral,
@@ -74,8 +81,8 @@ internal fun pensumGraphColors(): PensumGraphColors {
 			textPrimary = colorScheme.onSurface,
 			textSecondary = LightPensumTextSecondary,
 			nodeContainer = LightPensumPanelBackground,
-			controlsBackground = LightPensumFloatingPanelBackground,
-			minimapBackground = LightPensumFloatingPanelBackground
+			controlsBackground = LightPensumPanelBackground,
+			minimapBackground = LightPensumPanelBackground
 		)
 	}
 }

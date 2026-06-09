@@ -38,12 +38,9 @@ fun PensumModalityOptionRow(
 				selected = isSelected,
 				role = Role.RadioButton,
 				onClick = onClick
-			),
+		),
 		shape = PensumElementShape,
-		color = if (isSelected)
-			MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.28f)
-		else
-			graphColors.panelBackground,
+		color = graphColors.panelBackground,
 		border = BorderStroke(
 			width = 1.dp,
 			color = if (isSelected)

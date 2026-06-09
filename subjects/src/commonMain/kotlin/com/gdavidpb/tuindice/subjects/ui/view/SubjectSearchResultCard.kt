@@ -47,7 +47,7 @@ fun SubjectSearchResultCard(
 			.testTag(SubjectsUiTags.searchResult(item.subjectCode))
 			.clickable(onClick = onClick),
 		shape = RoundedCornerShape(14.dp),
-		color = MaterialTheme.colorScheme.surface.copy(alpha = 0.62f),
+		color = MaterialTheme.colorScheme.surfaceContainerLow,
 		border = BorderStroke(
 			width = 1.dp,
 			color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.35f)

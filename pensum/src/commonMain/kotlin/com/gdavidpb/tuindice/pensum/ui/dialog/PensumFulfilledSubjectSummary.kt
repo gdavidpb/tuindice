@@ -30,7 +30,7 @@ fun PensumFulfilledSubjectSummary(
 	Surface(
 		modifier = Modifier.fillMaxWidth(),
 		shape = PensumElementShape,
-		color = graphColors.current.copy(alpha = 0.12f),
+		color = graphColors.panelBackground,
 		border = BorderStroke(
 			width = 1.dp,
 			color = graphColors.current.copy(alpha = 0.34f)
