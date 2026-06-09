@@ -43,9 +43,10 @@ override the diff inputs, or `E2E_SCOPE_FILE` to replay a resolved
 
 `e2eMaestroEvidenceLocal` runs Android and iOS in parallel when both local
 toolchains are available, prefixes live output with `[android]` and `[ios]`,
-and isolates WireMock plus temporary files per platform. It skips a platform
-when the resolved scope has no suites for it. Override the default ports or
-temporary roots with `E2E_ANDROID_WIREMOCK_PORT`,
+and isolates WireMock plus temporary files per platform. If either worker
+fails, the aggregate runner cancels the remaining platform worker and exits
+failed. It skips a platform when the resolved scope has no suites for it.
+Override the default ports or temporary roots with `E2E_ANDROID_WIREMOCK_PORT`,
 `E2E_IOS_WIREMOCK_PORT`, `E2E_ANDROID_TMP_DIR`, and `E2E_IOS_TMP_DIR`.
 
 Evidence is written to `build/e2e/certifications/<sha>/<platform>/<suite>/`
