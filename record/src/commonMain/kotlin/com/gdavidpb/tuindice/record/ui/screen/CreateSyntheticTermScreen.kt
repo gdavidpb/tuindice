@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -360,48 +361,44 @@ fun CreateSyntheticTermScreen(
 
 							if (takenSearchResultsCount > 0) {
 								item {
-									AlreadyTakenSearchResultsToggle(
-										count = takenSearchResultsCount,
-										isExpanded = showTakenSearchResults.value,
-										onClick = {
-											showTakenSearchResults.value = !showTakenSearchResults.value
-										}
-									)
-								}
-							}
-
-							if (showTakenSearchResults.value) {
-								itemsIndexed(
-									items = takenSearchResults,
-									key = { _, subject -> SearchResultSubjectKeyPrefix + subject.subjectCode },
-									contentType = { _, _ -> CreateTermSearchResultContentType }
-								) { index, subject ->
-									Box(
-										modifier = Modifier.animateItem(
-											fadeInSpec = null,
-											fadeOutSpec = null
-										)
-											.fillMaxWidth()
-											.testTag(
-												RecordUiTags.createSyntheticTermSearchResult(
-													index = otherSearchResults.size + index,
-													subjectCode = subject.subjectCode
-												)
-											)
+									Column(
+										verticalArrangement = Arrangement.spacedBy(20.dp)
 									) {
-										CreateTermSelectedSubjectCard(
-											subject = subject,
-											action = CreateTermSubjectCardAction.Add,
-											enabled = subject.canAdd,
+										AlreadyTakenSearchResultsToggle(
+											count = takenSearchResultsCount,
+											isExpanded = showTakenSearchResults.value,
 											onClick = {
-												dismissKeyboard()
-												onSubjectAdd(subject)
-											},
-											onStatsClick = { subjectCode ->
-												dismissKeyboard()
-												onSubjectStatsClick(subjectCode)
+												showTakenSearchResults.value = !showTakenSearchResults.value
 											}
 										)
+										if (showTakenSearchResults.value) {
+											takenSearchResults.forEachIndexed { index, subject ->
+												Box(
+													modifier = Modifier
+														.fillMaxWidth()
+														.testTag(
+															RecordUiTags.createSyntheticTermSearchResult(
+																index = otherSearchResults.size + index,
+																subjectCode = subject.subjectCode
+															)
+														)
+												) {
+													CreateTermSelectedSubjectCard(
+														subject = subject,
+														action = CreateTermSubjectCardAction.Add,
+														enabled = subject.canAdd,
+														onClick = {
+															dismissKeyboard()
+															onSubjectAdd(subject)
+														},
+														onStatsClick = { subjectCode ->
+															dismissKeyboard()
+															onSubjectStatsClick(subjectCode)
+														}
+													)
+												}
+											}
+										}
 									}
 								}
 							}

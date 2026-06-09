@@ -4,6 +4,7 @@ enum class CreateTermSubjectStatusIcon {
 	Dot,
 	Check,
 	Clock,
+	OutsidePensum,
 	Available,
 	Blocked
 }

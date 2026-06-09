@@ -13,6 +13,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -188,7 +189,7 @@ private fun CreateTermSubjectItem.status(
 			SubjectStatus(
 				text = notInPensumText,
 				color = onSurfaceVariantColor,
-				icon = CreateTermSubjectStatusIcon.Dot
+				icon = CreateTermSubjectStatusIcon.OutsidePensum
 			)
 
 		SyntheticTermSubjectAvailability.ALREADY_TAKEN ->
@@ -243,6 +244,7 @@ private fun CreateTermSubjectStatusIcon.imageVector(): ImageVector? {
 		CreateTermSubjectStatusIcon.Dot -> null
 		CreateTermSubjectStatusIcon.Check -> Icons.Filled.Check
 		CreateTermSubjectStatusIcon.Clock -> Icons.Outlined.Schedule
+		CreateTermSubjectStatusIcon.OutsidePensum -> Icons.Outlined.Map
 		CreateTermSubjectStatusIcon.Available -> Icons.Outlined.Add
 		CreateTermSubjectStatusIcon.Blocked -> Icons.Outlined.Lock
 	}
