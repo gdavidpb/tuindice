@@ -1,5 +1,8 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Sync
+import androidx.compose.material.icons.outlined.SyncProblem
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
@@ -143,30 +146,90 @@ class SummaryContentViewUiTest {
 		assertEquals(
 			expected = -180f,
 			actual = syncStatusIconRotation(
-				syncStatus = SyncStatus.Healthy,
-				isSyncing = true,
+				isStatusRefreshing = true,
 				currentRotation = -180f
 			)
 		)
 	}
 
 	@Test
-	fun when_syncStatusIsNotHealthy_then_statusIconDoesNotUseLoadingRotation() {
+	fun when_userRefreshIsRunningWithHealthyStatus_then_statusIconUsesLoadingRotation() {
+		val contentState = summaryContentState(isUserRefreshing = true)
+
+		assertEquals(
+			expected = -180f,
+			actual = syncStatusIconRotation(
+				isStatusRefreshing = contentState.isUserRefreshing,
+				currentRotation = -180f
+			)
+		)
+	}
+
+	@Test
+	fun when_syncStatusIsNotHealthyButRefreshing_then_statusIconUsesLoadingRotation() {
 		listOf(
 			SyncStatus.Failed,
 			SyncStatus.Unavailable,
 			SyncStatus.OutdatedCredentials
 		).forEach { syncStatus ->
 			assertEquals(
-				expected = 0f,
-				actual = syncStatusIconRotation(
+				expected = Icons.Outlined.Sync,
+				actual = syncStatusIcon(
 					syncStatus = syncStatus,
-					isSyncing = true,
+					isStatusRefreshing = true
+				)
+			)
+			assertEquals(
+				expected = -180f,
+				actual = syncStatusIconRotation(
+					isStatusRefreshing = true,
 					currentRotation = -180f
 				)
 			)
 		}
 	}
+
+	@Test
+	fun when_statusIsNotRefreshing_then_statusIconDoesNotUseLoadingRotationOrOverrideErrorIcon() {
+		assertEquals(
+			expected = Icons.Outlined.SyncProblem,
+			actual = syncStatusIcon(
+				syncStatus = SyncStatus.Failed,
+				isStatusRefreshing = false
+			)
+		)
+		assertEquals(
+			expected = 0f,
+			actual = syncStatusIconRotation(
+				isStatusRefreshing = false,
+				currentRotation = -180f
+			)
+		)
+	}
+
+	@Test
+	fun when_syncHasFailedButRefreshIsRunning_then_statusShowsLoadingAndDetailsAreTemporarilyDisabled() =
+		runTuIndiceUiTest {
+			val contentState = summaryContentState()
+			var statusIconClicks = 0
+
+			setTuIndiceTestContent {
+				SummaryContentView(
+					state = contentState,
+					syncStatus = SyncStatus.Failed,
+					isSyncing = true,
+					summaryItems = summaryItemsFor(contentState),
+					onEditProfilePictureClick = {},
+					onStatusIconClick = { statusIconClicks++ }
+				)
+			}
+
+			assertNodeVisible(SummaryUiTags.StatusRow)
+			assertNodeVisible(SummaryUiTags.StatusIconButton)
+			onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
+			onNodeWithTag(SummaryUiTags.StatusText).assertTextContains(contentState.lastUpdate)
+			assertEquals(0, statusIconClicks)
+		}
 
 	@Test
 	fun when_syncHasFailed_then_statusKeepsLastUpdateAndCanOpenDetails() = runTuIndiceUiTest {

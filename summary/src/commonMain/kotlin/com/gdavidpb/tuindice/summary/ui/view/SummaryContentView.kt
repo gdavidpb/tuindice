@@ -41,27 +41,28 @@ fun SummaryContentView(
 	onStatusIconClick: () -> Unit
 ) {
 	val isProfilePictureInteractionEnabled = !state.isUserRefreshing
-	val statusIcon = when (syncStatus) {
-		SyncStatus.Healthy -> Icons.Outlined.Sync
-		SyncStatus.Unavailable,
-		SyncStatus.Failed,
-		SyncStatus.OutdatedCredentials,
-		-> Icons.Outlined.SyncProblem
+	val isStatusRefreshing = isSyncing || state.isUserRefreshing
+	val statusIcon = syncStatusIcon(
+		syncStatus = syncStatus,
+		isStatusRefreshing = isStatusRefreshing
+	)
+	val statusTint = if (isStatusRefreshing) {
+		MaterialTheme.colorScheme.onSurfaceVariant
+	} else {
+		when (syncStatus) {
+			SyncStatus.Healthy -> MaterialTheme.colorScheme.onSurfaceVariant
+			SyncStatus.Unavailable,
+			SyncStatus.Failed,
+			SyncStatus.OutdatedCredentials,
+			-> MaterialTheme.colorScheme.error
+		}
 	}
-	val statusTint = when (syncStatus) {
-		SyncStatus.Healthy -> MaterialTheme.colorScheme.onSurfaceVariant
-		SyncStatus.Unavailable,
-		SyncStatus.Failed,
-		SyncStatus.OutdatedCredentials,
-		-> MaterialTheme.colorScheme.error
-	}
-	val canOpenStatusDetails = syncStatus != SyncStatus.Healthy
+	val canOpenStatusDetails = syncStatus != SyncStatus.Healthy && !isStatusRefreshing
 	val statusText = state.lastUpdate
 	val syncRotation = remember { Animatable(0f) }
-	val isSyncIconRotating = isSyncing && syncStatus == SyncStatus.Healthy
 
-	LaunchedEffect(isSyncIconRotating) {
-		if (isSyncIconRotating) {
+	LaunchedEffect(isStatusRefreshing) {
+		if (isStatusRefreshing) {
 			while (true) {
 				syncRotation.animateTo(
 					targetValue = syncRotation.value - SYNC_ICON_FULL_ROTATION_DEGREES,
@@ -89,8 +90,7 @@ fun SummaryContentView(
 		}
 	}
 	val statusIconRotation = syncStatusIconRotation(
-		syncStatus = syncStatus,
-		isSyncing = isSyncing,
+		isStatusRefreshing = isStatusRefreshing,
 		currentRotation = syncRotation.value
 	)
 
@@ -179,12 +179,26 @@ fun SummaryContentView(
 	}
 }
 
-internal fun syncStatusIconRotation(
+internal fun syncStatusIcon(
 	syncStatus: SyncStatus,
-	isSyncing: Boolean,
+	isStatusRefreshing: Boolean
+) = if (isStatusRefreshing) {
+	Icons.Outlined.Sync
+} else {
+	when (syncStatus) {
+		SyncStatus.Healthy -> Icons.Outlined.Sync
+		SyncStatus.Unavailable,
+		SyncStatus.Failed,
+		SyncStatus.OutdatedCredentials,
+		-> Icons.Outlined.SyncProblem
+	}
+}
+
+internal fun syncStatusIconRotation(
+	isStatusRefreshing: Boolean,
 	currentRotation: Float
 ): Float {
-	return if (isSyncing && syncStatus == SyncStatus.Healthy) currentRotation else 0f
+	return if (isStatusRefreshing) currentRotation else 0f
 }
 
 private fun nextSyncIconStopRotation(currentRotation: Float): Float {
