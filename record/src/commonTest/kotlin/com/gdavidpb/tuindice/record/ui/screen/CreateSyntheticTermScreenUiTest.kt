@@ -314,9 +314,7 @@ class CreateSyntheticTermScreenUiTest {
 					query = "ma",
 					selectedAddSubjectTab = CreateTermAddSubjectTab.Search,
 					searchResults = listOf(
-						selectedSubject.copy(
-							availability = SyntheticTermSubjectAvailability.SELECTED
-						)
+						selectedSubject
 					).toItems(),
 					selectedSubjects = listOf(selectedSubject).toItems()
 				),
@@ -349,12 +347,6 @@ class CreateSyntheticTermScreenUiTest {
 							name = "Estado disponible",
 							credits = 4,
 							availability = SyntheticTermSubjectAvailability.AVAILABLE
-						),
-						SyntheticTermSubject(
-							subjectCode = "BB1001",
-							name = "Estado seleccionada",
-							credits = 4,
-							availability = SyntheticTermSubjectAvailability.SELECTED
 						),
 						SyntheticTermSubject(
 							subjectCode = "CC1001",
@@ -403,14 +395,6 @@ class CreateSyntheticTermScreenUiTest {
 				action = CreateTermSubjectCardAction.Add.name.lowercase()
 			)
 		).assertIsDisplayed()
-		assertVisibleStatus("BB1001", SyntheticTermSubjectAvailability.SELECTED)
-		assertVisibleStatsButton("BB1001")
-		onAllNodesWithTag(
-			RecordUiTags.createSyntheticTermSubjectAction(
-				subjectCode = "BB1001",
-				action = CreateTermSubjectCardAction.Add.name.lowercase()
-			)
-		).assertCountEquals(0)
 		assertVisibleStatus("DD1001", SyntheticTermSubjectAvailability.ALREADY_PLANNED)
 		assertVisibleStatsButton("DD1001")
 		onAllNodesWithTag(

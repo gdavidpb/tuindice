@@ -74,10 +74,6 @@ class SyntheticTermCreationDataSourceTest {
 
 	@Test
 	fun observeSnapshot_resolvesEverySearchResultAvailabilityState() = runTest {
-		val selectedSubject = subjectCatalogEntity(
-			subjectCode = "BB1001",
-			name = "Estado seleccionada"
-		).toSyntheticTermSubject()
 		val dataSource = dataSource(
 			record = AcademicRecord(
 				id = "record",
@@ -101,7 +97,6 @@ class SyntheticTermCreationDataSourceTest {
 			pensumPayloadJson = pensumPayload(
 				nodes = listOf(
 					pensumNode(id = "aa1001", subjectCode = "AA1001", name = "Estado disponible"),
-					pensumNode(id = "bb1001", subjectCode = "BB1001", name = "Estado seleccionada"),
 					pensumNode(id = "cc1001", subjectCode = "CC1001", name = "Estado cursada"),
 					pensumNode(id = "dd1001", subjectCode = "DD1001", name = "Estado planificada"),
 					pensumNode(id = "ff1001", subjectCode = "FF1001", name = "Estado requisito faltante"),
@@ -113,7 +108,6 @@ class SyntheticTermCreationDataSourceTest {
 			),
 			searchEntities = listOf(
 				subjectCatalogEntity(subjectCode = "AA1001", name = "Estado disponible"),
-				subjectCatalogEntity(subjectCode = "BB1001", name = "Estado seleccionada"),
 				subjectCatalogEntity(subjectCode = "CC1001", name = "Estado cursada"),
 				subjectCatalogEntity(subjectCode = "DD1001", name = "Estado planificada"),
 				subjectCatalogEntity(subjectCode = "EE1001", name = "Estado no disponible"),
@@ -123,7 +117,7 @@ class SyntheticTermCreationDataSourceTest {
 
 		val snapshot = dataSource.observeSnapshot(
 			queryFlow = MutableStateFlow("estado"),
-			selectedSubjectsFlow = MutableStateFlow(listOf(selectedSubject)),
+			selectedSubjectsFlow = MutableStateFlow(emptyList()),
 			selectedPeriodKeyFlow = MutableStateFlow(null),
 			editingTermIdFlow = MutableStateFlow(null),
 			editingTermKeyFlow = MutableStateFlow(null)
@@ -133,7 +127,6 @@ class SyntheticTermCreationDataSourceTest {
 		assertEquals(
 				listOf(
 					"AA1001" to SyntheticTermSubjectAvailability.AVAILABLE,
-					"BB1001" to SyntheticTermSubjectAvailability.SELECTED,
 					"DD1001" to SyntheticTermSubjectAvailability.ALREADY_PLANNED,
 					"EE1001" to SyntheticTermSubjectAvailability.UNAVAILABLE,
 					"CC1001" to SyntheticTermSubjectAvailability.ALREADY_TAKEN,

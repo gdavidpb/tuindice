@@ -42,7 +42,6 @@ import tuindice.record.generated.resources.create_term_subject_already_planned
 import tuindice.record.generated.resources.create_term_subject_already_taken
 import tuindice.record.generated.resources.create_term_subject_not_in_pensum
 import tuindice.record.generated.resources.create_term_subject_requirement_pending
-import tuindice.record.generated.resources.create_term_subject_selected
 import tuindice.record.generated.resources.create_term_subject_tooltip_already_planned
 import tuindice.record.generated.resources.create_term_subject_tooltip_already_taken
 import tuindice.record.generated.resources.create_term_subject_tooltip_unavailable
@@ -59,7 +58,6 @@ fun CreateTermSubjectStatusRow(
 	val status = subject.status(
 		availableText = availableText,
 		availableIcon = availableIcon,
-		selectedText = stringResource(Res.string.create_term_subject_selected),
 		alreadyTakenText = stringResource(Res.string.create_term_subject_already_taken),
 		alreadyPlannedText = stringResource(Res.string.create_term_subject_already_planned),
 		notInPensumText = stringResource(Res.string.create_term_subject_not_in_pensum),
@@ -171,7 +169,6 @@ private fun CreateTermSubjectStatusLabel(
 private fun CreateTermSubjectItem.status(
 	availableText: String,
 	availableIcon: CreateTermSubjectStatusIcon,
-	selectedText: String,
 	alreadyTakenText: String,
 	alreadyPlannedText: String,
 	notInPensumText: String,
@@ -190,13 +187,6 @@ private fun CreateTermSubjectItem.status(
 		SyntheticTermSubjectAvailability.NOT_IN_PENSUM ->
 			SubjectStatus(
 				text = notInPensumText,
-				color = onSurfaceVariantColor,
-				icon = CreateTermSubjectStatusIcon.Dot
-			)
-
-		SyntheticTermSubjectAvailability.SELECTED ->
-			SubjectStatus(
-				text = selectedText,
 				color = onSurfaceVariantColor,
 				icon = CreateTermSubjectStatusIcon.Dot
 			)

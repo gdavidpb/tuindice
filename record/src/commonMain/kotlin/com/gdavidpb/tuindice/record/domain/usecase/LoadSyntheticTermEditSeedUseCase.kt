@@ -7,7 +7,6 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermEditSeed
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
-import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.usecase.error.RecordUseCaseError
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExceptionHandler
@@ -42,8 +41,7 @@ class LoadSyntheticTermEditSeedUseCase(
 					subjectCode = attempt.subjectCode,
 					name = attempt.subjectName,
 					credits = attempt.credits,
-					gradingMode = attempt.gradingMode,
-					availability = SyntheticTermSubjectAvailability.SELECTED
+					gradingMode = attempt.gradingMode
 				)
 			}
 		)

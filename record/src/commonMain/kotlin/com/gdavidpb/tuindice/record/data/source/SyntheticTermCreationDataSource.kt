@@ -109,7 +109,6 @@ class SyntheticTermCreationDataSource(
 						subject
 							.takeIf { item -> RealSubjectCodeRegex.matches(item.subjectCode) }
 							?.withAvailability(
-								selectedCodes = selectedCodes,
 								availabilityBySubjectCode = availabilityBySubjectCode,
 								pensumAvailabilityBySubjectCode = pensumAvailabilityBySubjectCode
 							)
@@ -462,13 +461,10 @@ class SyntheticTermCreationDataSource(
 	}
 
 	private fun SyntheticTermSubject.withAvailability(
-		selectedCodes: Set<String>,
 		availabilityBySubjectCode: Map<String, SubjectAvailabilityResolution>,
 		pensumAvailabilityBySubjectCode: Map<String, SubjectAvailabilityResolution>
 	): SyntheticTermSubject {
 		val resolution = when {
-			subjectCode in selectedCodes ->
-				SubjectAvailabilityResolution(availability = SyntheticTermSubjectAvailability.SELECTED)
 			availabilityBySubjectCode[subjectCode] != null ->
 				availabilityBySubjectCode.getValue(subjectCode)
 			else -> pensumAvailabilityBySubjectCode[subjectCode]
@@ -485,7 +481,6 @@ class SyntheticTermCreationDataSource(
 		get() = when (this) {
 			SyntheticTermSubjectAvailability.AVAILABLE -> 0
 			SyntheticTermSubjectAvailability.NOT_IN_PENSUM -> 1
-			SyntheticTermSubjectAvailability.SELECTED -> 2
 			SyntheticTermSubjectAvailability.ALREADY_TAKEN -> 6
 			SyntheticTermSubjectAvailability.ALREADY_PLANNED -> 4
 			SyntheticTermSubjectAvailability.UNAVAILABLE -> 5
