@@ -131,6 +131,58 @@ class CreateSyntheticTermScreenUiTest {
 	}
 
 	@Test
+	fun when_searchResultsHaveTakenAndOthers_thenTakenSubjectsAppearAtTheEndAndToggleIsBetweenGroups() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateSyntheticTermScreen(
+				state = CreateSyntheticTerm.State(
+					query = "ma",
+					selectedAddSubjectTab = CreateTermAddSubjectTab.Search,
+					searchResults = listOf(
+						SyntheticTermSubject(
+							subjectCode = "AA0001",
+							name = "Materia libre",
+							credits = 4,
+							availability = SyntheticTermSubjectAvailability.AVAILABLE
+						),
+						SyntheticTermSubject(
+							subjectCode = "CC0001",
+							name = "Materia cursada",
+							credits = 4,
+							availability = SyntheticTermSubjectAvailability.ALREADY_TAKEN
+						),
+						SyntheticTermSubject(
+							subjectCode = "BB0001",
+							name = "Materia bloqueada",
+							credits = 4,
+							availability = SyntheticTermSubjectAvailability.UNAVAILABLE
+						)
+					).toItems()
+				),
+				onQueryChange = { _, _, _ -> },
+				onClearQueryClick = {},
+				onPeriodSelected = {},
+				onAddSubjectTabSelected = {},
+				onSubjectAdd = {},
+				onSubjectRemove = {},
+				onCreateClick = {}
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchTab).performClick()
+
+		// Hidden state: only non-taken subjects should be visible.
+		assertVisibleSearchResult(index = 0, subjectCode = "AA0001")
+		assertVisibleSearchResult(index = 1, subjectCode = "BB0001")
+		onAllNodesWithText("Materia cursada").assertCountEquals(0)
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle).performClick()
+
+		// After expand, taken subjects should stay at the end.
+		assertVisibleSearchResult(index = 0, subjectCode = "AA0001")
+		assertVisibleSearchResult(index = 1, subjectCode = "BB0001")
+		assertVisibleSearchResult(index = 2, subjectCode = "CC0001")
+	}
+
+	@Test
 	fun when_selectedSubjectIsStillInSearchResults_then_itIsOnlyShownInSelectedSubjects() = runTuIndiceUiTest {
 		val selectedSubject = SyntheticTermSubject(
 			subjectCode = "MA1111",

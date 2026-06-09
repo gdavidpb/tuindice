@@ -131,14 +131,14 @@ class SyntheticTermCreationDataSourceTest {
 		val resultsByCode = snapshot.searchResults.associateBy { subject -> subject.subjectCode }
 
 		assertEquals(
-			listOf(
-				"AA1001" to SyntheticTermSubjectAvailability.AVAILABLE,
-				"BB1001" to SyntheticTermSubjectAvailability.SELECTED,
-				"CC1001" to SyntheticTermSubjectAvailability.ALREADY_TAKEN,
-				"DD1001" to SyntheticTermSubjectAvailability.ALREADY_PLANNED,
-				"EE1001" to SyntheticTermSubjectAvailability.UNAVAILABLE,
-				"GG1001" to SyntheticTermSubjectAvailability.NOT_IN_PENSUM
-			),
+				listOf(
+					"AA1001" to SyntheticTermSubjectAvailability.AVAILABLE,
+					"BB1001" to SyntheticTermSubjectAvailability.SELECTED,
+					"DD1001" to SyntheticTermSubjectAvailability.ALREADY_PLANNED,
+					"EE1001" to SyntheticTermSubjectAvailability.UNAVAILABLE,
+					"CC1001" to SyntheticTermSubjectAvailability.ALREADY_TAKEN,
+					"GG1001" to SyntheticTermSubjectAvailability.NOT_IN_PENSUM
+				),
 			snapshot.searchResults.map { subject -> subject.subjectCode to subject.availability }
 		)
 		assertEquals("Ene - Mar 2025", resultsByCode.getValue("CC1001").availabilityDetail?.termLabel)

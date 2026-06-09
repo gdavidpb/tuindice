@@ -107,12 +107,16 @@ fun CreateSyntheticTermScreen(
 	val takenSearchResultsCount = searchResultsWithoutSelectedSubjects.count { subject ->
 		subject.availability == SyntheticTermSubjectAvailability.ALREADY_TAKEN
 	}
+	val otherSearchResults = searchResultsWithoutSelectedSubjects.filterNot { subject ->
+		subject.availability == SyntheticTermSubjectAvailability.ALREADY_TAKEN
+	}
+	val takenSearchResults = searchResultsWithoutSelectedSubjects.filter { subject ->
+		subject.availability == SyntheticTermSubjectAvailability.ALREADY_TAKEN
+	}
 	val displayedSearchResults = if (showTakenSearchResults.value) {
-		searchResultsWithoutSelectedSubjects
+		otherSearchResults + takenSearchResults
 	} else {
-		searchResultsWithoutSelectedSubjects.filterNot { subject ->
-			subject.availability == SyntheticTermSubjectAvailability.ALREADY_TAKEN
-		}
+		otherSearchResults
 	}
 
 	Box(
@@ -301,7 +305,7 @@ fun CreateSyntheticTermScreen(
 							}
 						} else {
 							itemsIndexed(
-								items = displayedSearchResults,
+								items = otherSearchResults,
 								key = { _, subject -> SearchResultSubjectKeyPrefix + subject.subjectCode },
 								contentType = { _, _ -> CreateTermSearchResultContentType }
 							) { index, subject ->
@@ -333,24 +337,56 @@ fun CreateSyntheticTermScreen(
 									)
 								}
 							}
+
+							if (takenSearchResultsCount > 0) {
+								item {
+									AlreadyTakenSearchResultsToggle(
+										count = takenSearchResultsCount,
+										isExpanded = showTakenSearchResults.value,
+										onClick = {
+											showTakenSearchResults.value = !showTakenSearchResults.value
+										}
+									)
+								}
+							}
+
+							if (showTakenSearchResults.value) {
+								itemsIndexed(
+									items = takenSearchResults,
+									key = { _, subject -> SearchResultSubjectKeyPrefix + subject.subjectCode },
+									contentType = { _, _ -> CreateTermSearchResultContentType }
+								) { index, subject ->
+									Box(
+										modifier = Modifier.animateItem(
+											fadeInSpec = null,
+											fadeOutSpec = null
+										)
+											.fillMaxWidth()
+											.testTag(
+												RecordUiTags.createSyntheticTermSearchResult(
+													index = otherSearchResults.size + index,
+													subjectCode = subject.subjectCode
+												)
+											)
+									) {
+										CreateTermSelectedSubjectCard(
+											subject = subject,
+											action = CreateTermSubjectCardAction.Add,
+											enabled = subject.canAdd,
+											onClick = {
+												dismissKeyboard()
+												onSubjectAdd(subject)
+											},
+											onStatsClick = { subjectCode ->
+												dismissKeyboard()
+												onSubjectStatsClick(subjectCode)
+											}
+										)
+									}
+								}
+							}
 						}
 					}
-				}
-			}
-
-			if (
-				state.selectedAddSubjectTab == CreateTermAddSubjectTab.Search &&
-				isSearchQueryReady &&
-				takenSearchResultsCount > 0
-			) {
-				item {
-					AlreadyTakenSearchResultsToggle(
-						count = takenSearchResultsCount,
-						isExpanded = showTakenSearchResults.value,
-						onClick = {
-							showTakenSearchResults.value = !showTakenSearchResults.value
-						}
-					)
 				}
 			}
 		}

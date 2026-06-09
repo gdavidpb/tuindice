@@ -486,7 +486,7 @@ class SyntheticTermCreationDataSource(
 			SyntheticTermSubjectAvailability.AVAILABLE -> 0
 			SyntheticTermSubjectAvailability.NOT_IN_PENSUM -> 1
 			SyntheticTermSubjectAvailability.SELECTED -> 2
-			SyntheticTermSubjectAvailability.ALREADY_TAKEN -> 3
+			SyntheticTermSubjectAvailability.ALREADY_TAKEN -> 6
 			SyntheticTermSubjectAvailability.ALREADY_PLANNED -> 4
 			SyntheticTermSubjectAvailability.UNAVAILABLE -> 5
 		}
