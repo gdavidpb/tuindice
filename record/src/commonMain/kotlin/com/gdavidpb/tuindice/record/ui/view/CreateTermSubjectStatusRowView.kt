@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.CheckCircleOutline
@@ -59,6 +60,7 @@ fun CreateTermSubjectStatusRow(
 		alreadyPlannedText = stringResource(Res.string.create_term_subject_already_planned),
 		notInPensumText = stringResource(Res.string.create_term_subject_not_in_pensum),
 		unavailableText = stringResource(Res.string.create_term_subject_requirement_pending),
+		isDarkTheme = isSystemInDarkTheme(),
 		onSurfaceVariantColor = onSurfaceVariantColor
 	)
 	Row(
@@ -193,13 +195,14 @@ private fun CreateTermSubjectItem.status(
 	alreadyPlannedText: String,
 	notInPensumText: String,
 	unavailableText: String,
+	isDarkTheme: Boolean,
 	onSurfaceVariantColor: Color
 ): SubjectStatus {
 	return when (availability) {
 		SyntheticTermSubjectAvailability.AVAILABLE ->
 			SubjectStatus(
 				text = availableText,
-				color = CreateTermSuccessColor,
+				color = if (isDarkTheme) CreateTermSuccessColor else CreateTermSuccessLightThemeColor,
 				icon = availableIcon
 			)
 
@@ -234,7 +237,7 @@ private fun CreateTermSubjectItem.status(
 		SyntheticTermSubjectAvailability.UNAVAILABLE ->
 			SubjectStatus(
 				text = unavailableText,
-				color = CreateTermWarningColor,
+				color = if (isDarkTheme) CreateTermWarningColor else CreateTermWarningLightThemeColor,
 				icon = CreateTermSubjectStatusIcon.Clock
 			)
 	}

@@ -265,37 +265,73 @@ fun CreateSyntheticTermScreen(
 							}
 						}
 
-						itemsIndexed(
-							items = displayedSearchResults,
-							key = { _, subject -> SearchResultSubjectKeyPrefix + subject.subjectCode },
-							contentType = { _, _ -> CreateTermSearchResultContentType }
-						) { index, subject ->
-							Box(
-								modifier = Modifier.animateItem(
-									fadeInSpec = null,
-									fadeOutSpec = null
-								)
-									.fillMaxWidth()
-									.testTag(
-										RecordUiTags.createSyntheticTermSearchResult(
-											index = index,
-											subjectCode = subject.subjectCode
-										)
+						if (displayedSearchResults.isEmpty() && !state.hasSearchError) {
+							item {
+								if (displayedSuggestedSubjects.isEmpty()) {
+									Text(
+										text = stringResource(Res.string.create_term_no_suggestions),
+										style = MaterialTheme.typography.bodyMedium,
+										color = MaterialTheme.colorScheme.onSurfaceVariant
 									)
-							) {
-								CreateTermSelectedSubjectCard(
-									subject = subject,
-									action = CreateTermSubjectCardAction.Add,
-									enabled = subject.canAdd,
-									onClick = {
-										dismissKeyboard()
-										onSubjectAdd(subject)
-									},
-									onStatsClick = { subjectCode ->
-										dismissKeyboard()
-										onSubjectStatsClick(subjectCode)
+								} else {
+									CreateTermSectionTitle(text = stringResource(Res.string.create_term_suggested_title))
+									LazyRow(
+										horizontalArrangement = Arrangement.spacedBy(12.dp)
+									) {
+										items(
+											items = displayedSuggestedSubjects,
+											key = { subject -> SuggestedSubjectKeyPrefix + subject.subjectCode },
+											contentType = { CreateTermSuggestedSubjectContentType }
+										) { subject ->
+											CreateTermSuggestedSubjectCard(
+												modifier = Modifier.animateItem(
+													fadeInSpec = null,
+													fadeOutSpec = null
+												),
+												subject = subject,
+												enabled = subject.canAdd,
+												onClick = {
+													dismissKeyboard()
+													onSubjectAdd(subject)
+												}
+											)
+										}
 									}
-								)
+								}
+							}
+						} else {
+							itemsIndexed(
+								items = displayedSearchResults,
+								key = { _, subject -> SearchResultSubjectKeyPrefix + subject.subjectCode },
+								contentType = { _, _ -> CreateTermSearchResultContentType }
+							) { index, subject ->
+								Box(
+									modifier = Modifier.animateItem(
+										fadeInSpec = null,
+										fadeOutSpec = null
+									)
+										.fillMaxWidth()
+										.testTag(
+											RecordUiTags.createSyntheticTermSearchResult(
+												index = index,
+												subjectCode = subject.subjectCode
+											)
+										)
+								) {
+									CreateTermSelectedSubjectCard(
+										subject = subject,
+										action = CreateTermSubjectCardAction.Add,
+										enabled = subject.canAdd,
+										onClick = {
+											dismissKeyboard()
+											onSubjectAdd(subject)
+										},
+										onStatsClick = { subjectCode ->
+											dismissKeyboard()
+											onSubjectStatsClick(subjectCode)
+										}
+									)
+								}
 							}
 						}
 					}

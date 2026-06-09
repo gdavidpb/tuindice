@@ -427,13 +427,13 @@ class CreateSyntheticTermScreenUiTest {
 
 	@Test
 	fun when_searchQueryHasNoMatches_then_zeroResultsIsShown() = runTuIndiceUiTest {
-			setTuIndiceTestContent {
-				CreateSyntheticTermScreen(
-					state = CreateSyntheticTerm.State(
-						query = "zz",
-						selectedAddSubjectTab = CreateTermAddSubjectTab.Search,
-						searchResults = emptyList()
-					),
+		setTuIndiceTestContent {
+			CreateSyntheticTermScreen(
+				state = CreateSyntheticTerm.State(
+					query = "zz",
+					selectedAddSubjectTab = CreateTermAddSubjectTab.Search,
+					searchResults = emptyList()
+				),
 				onQueryChange = { _, _, _ -> },
 				onClearQueryClick = {},
 				onPeriodSelected = {},
@@ -447,6 +447,39 @@ class CreateSyntheticTermScreenUiTest {
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchTab).performClick()
 
 		onNodeWithText("0 resultados").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_searchHasNoMatches_then_suggestedSubjectsAreShown() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateSyntheticTermScreen(
+				state = CreateSyntheticTerm.State(
+					query = "zz",
+					selectedAddSubjectTab = CreateTermAddSubjectTab.Search,
+					searchResults = emptyList(),
+					suggestedSubjects = listOf(
+						SyntheticTermSubject(
+							subjectCode = "MA1111",
+							name = "Matemáticas I",
+							credits = 4
+						)
+					).toItems()
+				),
+				onQueryChange = { _, _, _ -> },
+				onClearQueryClick = {},
+				onPeriodSelected = {},
+				onAddSubjectTabSelected = {},
+				onSubjectAdd = {},
+				onSubjectRemove = {},
+				onCreateClick = {}
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchTab).performClick()
+
+		onNodeWithText("0 resultados").assertIsDisplayed()
+		onNodeWithText("Sugeridas por tu pensum").assertIsDisplayed()
+		onNodeWithText("MATEMÁTICAS I").assertIsDisplayed()
 	}
 
 	@Test
