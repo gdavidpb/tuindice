@@ -23,8 +23,9 @@ fun PensumStatusIconMarker(
 	iconSize: Dp,
 	borderWidth: Dp,
 	modifier: Modifier = Modifier,
-	backgroundColor: Color = PanelBackground
+	backgroundColor: Color? = null
 ) {
+	val resolvedBackgroundColor = backgroundColor ?: pensumGraphColors().panelBackground
 	Box(
 		modifier = modifier.size(markerSize),
 		contentAlignment = Alignment.Center
@@ -40,7 +41,7 @@ fun PensumStatusIconMarker(
 			Box(
 				modifier = Modifier
 					.fillMaxSize()
-					.background(backgroundColor, CircleShape)
+					.background(resolvedBackgroundColor, CircleShape)
 					.border(borderWidth, tint, CircleShape),
 				contentAlignment = Alignment.Center
 			) {

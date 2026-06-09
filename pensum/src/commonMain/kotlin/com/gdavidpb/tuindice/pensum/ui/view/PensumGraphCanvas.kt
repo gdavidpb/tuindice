@@ -78,6 +78,7 @@ fun PensumGraphCanvas(
 	focusRequestSerial: Int = 0,
 	modifier: Modifier = Modifier
 ) {
+	val graphColors = pensumGraphColors()
 	val density = LocalDensity.current
 	val coroutineScope = rememberCoroutineScope()
 	val graphKey = "${model.selection.year}-${model.selection.modalityId}"
@@ -100,7 +101,7 @@ fun PensumGraphCanvas(
 		modifier = modifier
 			.fillMaxSize()
 			.clipToBounds()
-			.background(ScreenBackground)
+			.background(graphColors.screenBackground)
 			.testTag(PensumUiTags.Canvas)
 	) {
 		val viewportSizePx = Size(
@@ -586,6 +587,7 @@ fun PensumGraphCanvas(
 				drawCanvasBackground(
 					model = model,
 					density = density.density,
+					graphColors = graphColors,
 					focusedEdgeIds = focusState.selectedRequirementEdgeIds + focusState.selectedUnlockEdgeIds,
 					isFocusActive = focusState.isActive,
 					statusFilteredNodeIds = statusFilteredNodeIds,
@@ -632,6 +634,7 @@ fun PensumGraphCanvas(
 				drawFocusedCanvasEdges(
 					model = model,
 					density = density.density,
+					graphColors = graphColors,
 					selectedRequirementEdgeIds = focusState.selectedRequirementEdgeIds,
 					selectedUnlockEdgeIds = focusState.selectedUnlockEdgeIds,
 					selectedAvailableUnlockEdgeIds = focusState.selectedAvailableUnlockEdgeIds
@@ -756,6 +759,7 @@ private fun PensumNodeItem.containsCanvasTap(
 private fun DrawScope.drawCanvasBackground(
 	model: PensumScreenModel,
 	density: Float,
+	graphColors: PensumGraphColors,
 	focusedEdgeIds: Set<String>,
 	isFocusActive: Boolean,
 	statusFilteredNodeIds: Set<String>,
@@ -764,7 +768,7 @@ private fun DrawScope.drawCanvasBackground(
 	val widthPx = model.canvas.width.toFloat() * density
 	val heightPx = model.canvas.height.toFloat() * density
 	drawRoundRect(
-		color = Color(0xFF141516),
+		color = graphColors.canvasBackground,
 		size = Size(widthPx, heightPx),
 		cornerRadius = androidx.compose.ui.geometry.CornerRadius(
 			PensumElementCornerRadius.toPx(),
@@ -775,13 +779,13 @@ private fun DrawScope.drawCanvasBackground(
 		val x = term.x.toFloat() * density
 		val termWidth = term.width.toFloat() * density
 		drawRect(
-			color = PanelBackground.copy(alpha = 0.42f),
+			color = graphColors.canvasTermBand,
 			topLeft = Offset(x, 0f),
 			size = Size(termWidth, heightPx)
 		)
 		if (x > 0f) {
 			drawLine(
-				color = PanelBorder,
+				color = graphColors.panelBorder,
 				start = Offset(x, 0f),
 				end = Offset(x, heightPx),
 				strokeWidth = 1.dp.toPx()
@@ -789,7 +793,7 @@ private fun DrawScope.drawCanvasBackground(
 		}
 	}
 	drawRoundRect(
-		color = PanelBorder,
+		color = graphColors.panelBorder,
 		size = Size(widthPx, heightPx),
 		cornerRadius = androidx.compose.ui.geometry.CornerRadius(
 			PensumElementCornerRadius.toPx(),
@@ -806,6 +810,7 @@ private fun DrawScope.drawCanvasBackground(
 				edge = edge,
 				model = model,
 				density = density,
+				graphColors = graphColors,
 				focusTone = if (isFocusActive || isFilteredOut) EdgeFocusTone.Dimmed else EdgeFocusTone.Default
 			)
 		}
@@ -815,6 +820,7 @@ private fun DrawScope.drawCanvasBackground(
 private fun DrawScope.drawFocusedCanvasEdges(
 	model: PensumScreenModel,
 	density: Float,
+	graphColors: PensumGraphColors,
 	selectedRequirementEdgeIds: Set<String>,
 	selectedUnlockEdgeIds: Set<String>,
 	selectedAvailableUnlockEdgeIds: Set<String>
@@ -825,6 +831,7 @@ private fun DrawScope.drawFocusedCanvasEdges(
 				edge = edge,
 				model = model,
 				density = density,
+				graphColors = graphColors,
 				focusTone = EdgeFocusTone.Requirement
 			)
 		}
@@ -839,6 +846,7 @@ private fun DrawScope.drawFocusedCanvasEdges(
 				edge = edge,
 				model = model,
 				density = density,
+				graphColors = graphColors,
 				focusTone = EdgeFocusTone.Requirement
 			)
 		}
@@ -849,6 +857,7 @@ private fun DrawScope.drawFocusedCanvasEdges(
 				edge = edge,
 				model = model,
 				density = density,
+				graphColors = graphColors,
 				focusTone = EdgeFocusTone.Unlock
 			)
 		}
@@ -859,14 +868,15 @@ private fun DrawScope.drawPensumEdge(
 	edge: PensumEdgeItem,
 	model: PensumScreenModel,
 	density: Float,
+	graphColors: PensumGraphColors,
 	focusTone: EdgeFocusTone
 ) {
 	if (edge.points.size < 2) return
 	val color = when (focusTone) {
-		EdgeFocusTone.Default -> CanvasNeutral
-		EdgeFocusTone.Dimmed -> CanvasNeutral.copy(alpha = 0.18f)
-		EdgeFocusTone.Requirement -> Selected
-		EdgeFocusTone.Unlock -> Available
+		EdgeFocusTone.Default -> graphColors.canvasNeutral
+		EdgeFocusTone.Dimmed -> graphColors.canvasNeutral.copy(alpha = 0.18f)
+		EdgeFocusTone.Requirement -> graphColors.selected
+		EdgeFocusTone.Unlock -> graphColors.available
 	}
 	val strokeWidth = when (focusTone) {
 		EdgeFocusTone.Default -> 2.dp

@@ -14,6 +14,7 @@ import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -22,6 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import org.jetbrains.compose.resources.stringResource
@@ -42,7 +44,12 @@ fun EvaluationsContentView(
 	focusEvaluationId: String? = null,
 	onFocusEvaluationBoundsChange: (Rect?) -> Unit = {}
 ) {
-	val lazyColumState = rememberLazyListState()
+	val initialFirstVisibleItemIndex = remember(state.evaluationWeekGroups, state.selectedWeekKey) {
+		state.evaluationWeekGroups.initialFirstVisibleItemIndex(state.selectedWeekKey)
+	}
+	val lazyColumState = rememberLazyListState(
+		initialFirstVisibleItemIndex = initialFirstVisibleItemIndex
+	)
 	val hasEvaluationItems = state.evaluationWeekGroups.any { weekGroup ->
 		weekGroup.groups.any { group -> group.items.isNotEmpty() }
 	}
@@ -110,4 +117,24 @@ fun EvaluationsContentView(
 			}
 		}
 	}
+}
+
+private fun List<EvaluationsWeekGroupItem>.initialFirstVisibleItemIndex(
+	selectedWeekKey: EvaluationsWeekKey
+): Int {
+	var index = 0
+
+	forEach { weekGroup ->
+		val evaluationCount = weekGroup.groups.sumOf { group -> group.items.size }
+
+		if (evaluationCount > 0) {
+			if (weekGroup.key == selectedWeekKey) {
+				return index
+			}
+
+			index += 1 + evaluationCount
+		}
+	}
+
+	return 0
 }

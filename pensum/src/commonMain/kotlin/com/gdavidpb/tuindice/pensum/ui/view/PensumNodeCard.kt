@@ -15,7 +15,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -32,10 +31,11 @@ fun PensumNodeCard(
 	isUnlockHighlighted: Boolean,
 	modifier: Modifier = Modifier
 ) {
-	val colors = node.visualStyle.toNodeColors()
+	val graphColors = pensumGraphColors()
+	val colors = node.toNodeColors(graphColors)
 	val isHighlighted = isSelected || isRequirementHighlighted || isUnlockHighlighted
 	val fulfilledSubject = node.fulfilledSubject
-	val statusColor = Color(node.status.colorArgb)
+	val statusColor = node.status.toStatusColor(graphColors)
 	val statusIcon = node.status.toStatusIconVisual()
 	val chipColors = node.displayCode.toPensumChipColors(
 		fallbackContainer = colors.chip,

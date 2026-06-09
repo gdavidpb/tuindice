@@ -18,10 +18,11 @@ import tuindice.pensum.generated.resources.pensum_loading_title
 
 @Composable
 fun PensumLoadingView() {
+	val graphColors = pensumGraphColors()
 	Box(
 		modifier = Modifier
 			.fillMaxSize()
-			.background(ScreenBackground)
+			.background(graphColors.screenBackground)
 	) {
 		IllustratedMessageView(
 			modifier = Modifier

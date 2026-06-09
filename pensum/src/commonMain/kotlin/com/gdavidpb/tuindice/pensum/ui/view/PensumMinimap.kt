@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
@@ -38,6 +37,8 @@ fun PensumMinimap(
 	onViewportCenterChange: (Offset) -> Unit,
 	modifier: Modifier = Modifier
 ) {
+	val graphColors = pensumGraphColors()
+
 	fun Offset.toCanvasCenter(minimapSize: androidx.compose.ui.unit.IntSize): Offset {
 		if (minimapSize.width <= 0 || minimapSize.height <= 0) return Offset.Zero
 		val sx = minimapSize.width.toFloat() / model.canvas.width.toFloat()
@@ -51,8 +52,8 @@ fun PensumMinimap(
 	Canvas(
 		modifier = modifier
 			.size(MinimapWidth, MinimapHeight)
-			.background(Color.Black.copy(alpha = 0.62f), PensumElementShape)
-			.border(1.dp, CanvasNeutral, PensumElementShape)
+			.background(graphColors.minimapBackground, PensumElementShape)
+			.border(1.dp, graphColors.canvasNeutral, PensumElementShape)
 			.padding(8.dp)
 			.pointerInput(model.canvas, scale) {
 				detectTapGestures(
@@ -83,9 +84,9 @@ fun PensumMinimap(
 				edge.fromNodeId !in statusFilteredNodeIds &&
 				edge.toNodeId !in statusFilteredNodeIds
 			val color = when {
-				edge.id in selectedAvailableUnlockEdgeIds -> Available.copy(alpha = MinimapFocusedAlpha)
-				isFocusedEdge -> Selected.copy(alpha = MinimapFocusedAlpha)
-				else -> CanvasNeutral.copy(
+				edge.id in selectedAvailableUnlockEdgeIds -> graphColors.available.copy(alpha = MinimapFocusedAlpha)
+				isFocusedEdge -> graphColors.selected.copy(alpha = MinimapFocusedAlpha)
+				else -> graphColors.canvasNeutral.copy(
 					alpha = if (isFocusActive || isFilteredOut) MinimapDimmedAlpha else MinimapNeutralAlpha
 				)
 			}
@@ -123,7 +124,7 @@ fun PensumMinimap(
 				MinimapFocusedAlpha
 			}
 			drawRoundRect(
-				color = node.visualStyle.toNodeColors().border.copy(alpha = nodeAlpha),
+				color = node.toNodeColors(graphColors).border.copy(alpha = nodeAlpha),
 				topLeft = Offset(node.x.toFloat() * sx, node.y.toFloat() * sy),
 				size = Size((node.width.toFloat() * sx).coerceAtLeast(5f), (node.height.toFloat() * sy).coerceAtLeast(4f)),
 				cornerRadius = androidx.compose.ui.geometry.CornerRadius(nodeCornerRadius, nodeCornerRadius)
@@ -138,7 +139,7 @@ fun PensumMinimap(
 			.coerceIn(0f, (model.canvas.height.toFloat() - visibleCanvasHeight).coerceAtLeast(0f))
 
 		drawRect(
-			color = Current,
+			color = graphColors.current,
 			topLeft = Offset(
 				x = visibleCanvasX * sx,
 				y = visibleCanvasY * sy

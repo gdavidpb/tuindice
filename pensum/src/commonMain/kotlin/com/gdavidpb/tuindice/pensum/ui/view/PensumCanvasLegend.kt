@@ -49,29 +49,30 @@ fun PensumCanvasLegend(
 	onClearStatusFilters: () -> Unit,
 	modifier: Modifier = Modifier
 ) {
+	val graphColors = pensumGraphColors()
 	val items = listOf(
 		LegendItem(
 			statusType = PensumNodeStatusType.APPROVED,
 			label = Res.string.pensum_canvas_legend_approved,
-			color = Approved,
+			color = graphColors.approved,
 			icon = PensumNodeStatusType.APPROVED.toStatusIconVisual()
 		),
 		LegendItem(
 			statusType = PensumNodeStatusType.CURRENT,
 			label = Res.string.pensum_canvas_legend_current,
-			color = Current,
+			color = graphColors.current,
 			icon = PensumNodeStatusType.CURRENT.toStatusIconVisual()
 		),
 		LegendItem(
 			statusType = PensumNodeStatusType.AVAILABLE,
 			label = Res.string.pensum_canvas_legend_available,
-			color = Available,
+			color = graphColors.available,
 			icon = PensumNodeStatusType.AVAILABLE.toStatusIconVisual()
 		),
 		LegendItem(
 			statusType = PensumNodeStatusType.BLOCKED,
 			label = Res.string.pensum_canvas_legend_blocked,
-			color = CanvasNeutral.copy(alpha = 0.72f),
+			color = graphColors.blocked,
 			icon = PensumNodeStatusType.BLOCKED.toStatusIconVisual()
 		)
 	)
@@ -82,8 +83,8 @@ fun PensumCanvasLegend(
 			.padding(start = 12.dp, top = 8.dp, end = 12.dp, bottom = 8.dp)
 			.testTag(PensumUiTags.CanvasLegend),
 		shape = PensumElementShape,
-		color = FloatingPanelBackground,
-		border = BorderStroke(1.dp, PanelBorder.copy(alpha = 0.9f))
+		color = graphColors.floatingPanelBackground,
+		border = BorderStroke(1.dp, graphColors.panelBorder.copy(alpha = 0.9f))
 	) {
 		Row(
 			modifier = Modifier
@@ -104,12 +105,16 @@ fun PensumCanvasLegend(
 					PensumCanvasLegendItem(
 						item = item,
 						isSelected = item.statusType in activeStatusFilters,
+						graphColors = graphColors,
 						onClick = { onStatusFilterToggle(item.statusType) }
 					)
 				}
 			}
 			if (activeStatusFilters.isNotEmpty()) {
-				PensumCanvasLegendClearButton(onClick = onClearStatusFilters)
+				PensumCanvasLegendClearButton(
+					graphColors = graphColors,
+					onClick = onClearStatusFilters
+				)
 			}
 		}
 	}
@@ -119,6 +124,7 @@ fun PensumCanvasLegend(
 private fun PensumCanvasLegendItem(
 	item: LegendItem,
 	isSelected: Boolean,
+	graphColors: PensumGraphColors,
 	onClick: () -> Unit
 ) {
 	Surface(
@@ -139,12 +145,16 @@ private fun PensumCanvasLegendItem(
 			horizontalArrangement = Arrangement.spacedBy(5.dp),
 			verticalAlignment = Alignment.CenterVertically
 		) {
-			PensumCanvasLegendMarker(item = item, isSelected = isSelected)
+			PensumCanvasLegendMarker(
+				item = item,
+				isSelected = isSelected,
+				graphColors = graphColors
+			)
 			Text(
 				text = stringResource(item.label),
 				style = MaterialTheme.typography.labelSmall,
 				fontWeight = FontWeight.SemiBold,
-				color = TextPrimary.copy(alpha = if (isSelected) 0.96f else 0.86f),
+				color = graphColors.textPrimary.copy(alpha = if (isSelected) 0.96f else 0.86f),
 				maxLines = 1,
 				overflow = TextOverflow.Ellipsis
 			)
@@ -155,7 +165,8 @@ private fun PensumCanvasLegendItem(
 @Composable
 private fun PensumCanvasLegendMarker(
 	item: LegendItem,
-	isSelected: Boolean
+	isSelected: Boolean,
+	graphColors: PensumGraphColors
 ) {
 	PensumStatusIconMarker(
 		imageVector = item.icon.imageVector,
@@ -164,12 +175,13 @@ private fun PensumCanvasLegendMarker(
 		markerSize = 15.dp,
 		iconSize = 11.dp,
 		borderWidth = 1.2.dp,
-		backgroundColor = if (isSelected) item.color.copy(alpha = 0.18f) else PanelBackground
+		backgroundColor = if (isSelected) item.color.copy(alpha = 0.18f) else graphColors.panelBackground
 	)
 }
 
 @Composable
 private fun PensumCanvasLegendClearButton(
+	graphColors: PensumGraphColors,
 	onClick: () -> Unit
 ) {
 	Surface(
@@ -182,14 +194,14 @@ private fun PensumCanvasLegendClearButton(
 			)
 			.testTag(PensumUiTags.StatusFilterClear),
 		shape = CircleShape,
-		color = PanelBackground,
-		border = BorderStroke(1.dp, PanelBorder.copy(alpha = 0.82f))
+		color = graphColors.panelBackground,
+		border = BorderStroke(1.dp, graphColors.panelBorder.copy(alpha = 0.82f))
 	) {
 		Box(contentAlignment = Alignment.Center) {
 			Icon(
 				imageVector = Icons.Outlined.Close,
 				contentDescription = stringResource(Res.string.pensum_canvas_filters_clear),
-				tint = TextPrimary,
+				tint = graphColors.textPrimary,
 				modifier = Modifier.size(15.dp)
 			)
 		}

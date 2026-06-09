@@ -14,10 +14,11 @@ import tuindice.pensum.generated.resources.pensum_empty_title
 
 @Composable
 fun PensumEmptyView() {
+	val graphColors = pensumGraphColors()
 	Box(
 		modifier = Modifier
 			.fillMaxSize()
-			.background(ScreenBackground)
+			.background(graphColors.screenBackground)
 	) {
 		EmptyView(
 			title = stringResource(Res.string.pensum_empty_title),

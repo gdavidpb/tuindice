@@ -37,6 +37,7 @@ fun PensumStickyTermHeader(
 	onTermClick: (termId: String) -> Unit,
 	modifier: Modifier = Modifier
 ) {
+	val graphColors = pensumGraphColors()
 	val density = LocalDensity.current
 	val labelTextStyle = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold)
 	val shouldUseFullLabels = scale >= StickyTermHeaderFullMinZoom
@@ -77,8 +78,8 @@ fun PensumStickyTermHeader(
 					.padding(horizontal = StickyTermOuterHorizontalPadding, vertical = 5.dp)
 					.clickable { onTermClick(term.id) },
 				shape = PensumElementShape,
-				color = FloatingPanelBackground,
-				border = BorderStroke(1.dp, PanelBorder.copy(alpha = 0.9f))
+				color = graphColors.floatingPanelBackground,
+				border = BorderStroke(1.dp, graphColors.panelBorder.copy(alpha = 0.9f))
 			) {
 				Box(
 					modifier = Modifier.fillMaxSize(),
@@ -90,7 +91,7 @@ fun PensumStickyTermHeader(
 						textAlign = TextAlign.Center,
 						style = labelTextStyle,
 						fontWeight = FontWeight.SemiBold,
-						color = TextPrimary,
+						color = graphColors.textPrimary,
 						maxLines = 1,
 						overflow = TextOverflow.Ellipsis
 					)

@@ -23,23 +23,24 @@ import tuindice.pensum.generated.resources.pensum_refreshing_indicator
 fun PensumRefreshingIndicatorView(
 	modifier: Modifier = Modifier
 ) {
+	val graphColors = pensumGraphColors()
 	Row(
 		modifier = modifier
 			.testTag(PensumUiTags.RefreshingIndicator)
-			.background(PanelBackground, PensumElementShape)
-			.border(1.dp, Current.copy(alpha = 0.42f), PensumElementShape)
+			.background(graphColors.panelBackground, PensumElementShape)
+			.border(1.dp, graphColors.current.copy(alpha = 0.42f), PensumElementShape)
 			.padding(horizontal = 12.dp, vertical = 8.dp),
 		horizontalArrangement = Arrangement.spacedBy(8.dp),
 		verticalAlignment = Alignment.CenterVertically
 	) {
 		CircularProgressIndicator(
 			modifier = Modifier.size(14.dp),
-			color = Current,
+			color = graphColors.current,
 			strokeWidth = 2.dp
 		)
 		Text(
 			text = stringResource(Res.string.pensum_refreshing_indicator),
-			color = TextPrimary,
+			color = graphColors.textPrimary,
 			style = MaterialTheme.typography.labelMedium
 		)
 	}

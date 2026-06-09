@@ -16,7 +16,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
@@ -44,6 +43,7 @@ fun PensumZoomControls(
 	onZoomOut: () -> Unit,
 	modifier: Modifier = Modifier
 ) {
+	val graphColors = pensumGraphColors()
 	val controlsCount = 2 +
 		(if (isCurrentFocusVisible) 1 else 0) +
 		(if (isFitToScreenVisible) 1 else 0) +
@@ -55,8 +55,8 @@ fun PensumZoomControls(
 		modifier = modifier
 			.width(48.dp)
 			.height(controlsHeight)
-			.background(Color.Black.copy(alpha = 0.68f), PensumElementShape)
-			.border(1.dp, CanvasNeutral, PensumElementShape)
+			.background(graphColors.controlsBackground, PensumElementShape)
+			.border(1.dp, graphColors.canvasNeutral, PensumElementShape)
 	) {
 		if (isCurrentFocusVisible) {
 			IconButton(
@@ -69,7 +69,7 @@ fun PensumZoomControls(
 				Icon(
 					imageVector = currentStatusIcon.imageVector,
 					contentDescription = stringResource(Res.string.pensum_focus_progress),
-					tint = TextPrimary
+					tint = graphColors.textPrimary
 				)
 			}
 			PensumZoomControlDivider()
@@ -85,7 +85,7 @@ fun PensumZoomControls(
 				Icon(
 					imageVector = Icons.Outlined.CenterFocusStrong,
 					contentDescription = stringResource(Res.string.pensum_fit_to_screen),
-					tint = TextPrimary
+					tint = graphColors.textPrimary
 				)
 			}
 			PensumZoomControlDivider()
@@ -107,7 +107,7 @@ fun PensumZoomControls(
 							Res.string.pensum_show_minimap
 						}
 					),
-					tint = if (isMinimapVisible) Current else TextPrimary
+					tint = if (isMinimapVisible) graphColors.current else graphColors.textPrimary
 				)
 			}
 			PensumZoomControlDivider()
@@ -122,7 +122,7 @@ fun PensumZoomControls(
 			Icon(
 				imageVector = Icons.Filled.Add,
 				contentDescription = stringResource(Res.string.pensum_zoom_in),
-				tint = TextPrimary
+				tint = graphColors.textPrimary
 			)
 		}
 		PensumZoomControlDivider()
@@ -136,7 +136,7 @@ fun PensumZoomControls(
 			Icon(
 				imageVector = Icons.Filled.Remove,
 				contentDescription = stringResource(Res.string.pensum_zoom_out),
-				tint = TextPrimary
+				tint = graphColors.textPrimary
 			)
 		}
 	}
@@ -144,5 +144,6 @@ fun PensumZoomControls(
 
 @Composable
 private fun PensumZoomControlDivider() {
-	Box(modifier = Modifier.height(1.dp).fillMaxWidth().background(CanvasNeutral.copy(alpha = 0.4f)))
+	val graphColors = pensumGraphColors()
+	Box(modifier = Modifier.height(1.dp).fillMaxWidth().background(graphColors.canvasNeutral.copy(alpha = 0.4f)))
 }

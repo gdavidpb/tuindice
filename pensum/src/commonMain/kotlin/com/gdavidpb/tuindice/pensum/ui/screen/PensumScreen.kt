@@ -18,8 +18,7 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.ui.view.PensumContentView
 import com.gdavidpb.tuindice.pensum.ui.view.PensumEmptyView
 import com.gdavidpb.tuindice.pensum.ui.view.PensumLoadingView
-import com.gdavidpb.tuindice.pensum.ui.view.ScreenBackground
-import com.gdavidpb.tuindice.pensum.ui.view.TextPrimary
+import com.gdavidpb.tuindice.pensum.ui.view.pensumGraphColors
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_failed_retry
@@ -35,12 +34,14 @@ fun PensumScreen(
 	onSelectionApplied: (PensumOptionItem, PensumModalityItem) -> Unit,
 	onPensumContextClick: () -> Unit = {}
 ) {
+	val graphColors = pensumGraphColors()
+
 	Box(
 		modifier = Modifier
 			.fillMaxSize()
-			.background(ScreenBackground)
+			.background(graphColors.screenBackground)
 	) {
-		CompositionLocalProvider(LocalContentColor provides TextPrimary) {
+		CompositionLocalProvider(LocalContentColor provides graphColors.textPrimary) {
 			SealedCrossfade(targetState = state) { targetState ->
 				when (targetState) {
 					is Pensum.State.Idle -> Unit

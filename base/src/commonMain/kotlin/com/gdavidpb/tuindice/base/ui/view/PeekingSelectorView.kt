@@ -15,6 +15,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -40,12 +42,18 @@ fun <T> PeekingSelectorView(
 ) {
 	val lazyListState = rememberLazyListState()
 	val itemKeys = items.map(itemKey)
+	val hasPositionedSelectedItem = remember { mutableStateOf(false) }
 
 	LaunchedEffect(itemKeys, selectedItemKey) {
 		val selectedIndex = itemKeys.indexOf(selectedItemKey)
 
 		if (selectedIndex >= 0) {
-			lazyListState.animateScrollToItem(selectedIndex)
+			if (hasPositionedSelectedItem.value) {
+				lazyListState.animateScrollToItem(selectedIndex)
+			} else {
+				lazyListState.scrollToItem(selectedIndex)
+				hasPositionedSelectedItem.value = true
+			}
 		}
 	}
 

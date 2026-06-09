@@ -38,6 +38,7 @@ fun PensumContentView(
 	onSelectionApplied: (PensumOptionItem, PensumModalityItem) -> Unit,
 	onPensumContextClick: () -> Unit
 ) {
+	val graphColors = pensumGraphColors()
 	val pensumStateKey = "${model.selection.year}-${model.selection.modalityId}"
 	val focusedNodeIdState = rememberSaveable(pensumStateKey) {
 		mutableStateOf<String?>(null)
@@ -100,7 +101,7 @@ fun PensumContentView(
 	Column(
 		modifier = Modifier
 			.fillMaxSize()
-			.background(ScreenBackground)
+			.background(graphColors.screenBackground)
 			.testTag(PensumUiTags.PensumScreen)
 	) {
 		PensumSummaryRow(
