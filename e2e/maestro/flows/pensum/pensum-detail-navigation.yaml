@@ -33,7 +33,7 @@ appId: com.gdavidpb.tuindice.debug
     id: pensum_subject_detail_requirement_0800-2019-degree_project-t1-math1-ma1111
 - extendedWaitUntil:
     visible:
-      id: pensum_focused_node_0800-2019-degree_project-t1-math1-ma1111
+      id: pensum_subject_detail_sheet
     timeout: 10000
 - assertVisible:
     id: pensum_subject_detail_sheet
@@ -47,7 +47,7 @@ appId: com.gdavidpb.tuindice.debug
     id: pensum_subject_detail_unlock_0800-2019-degree_project-t2-math2-ma1112
 - extendedWaitUntil:
     visible:
-      id: pensum_focused_node_0800-2019-degree_project-t2-math2-ma1112
+      id: pensum_subject_detail_sheet
     timeout: 10000
 - assertVisible:
     id: pensum_subject_detail_sheet
