@@ -57,7 +57,7 @@ class SyncSettingsDataSource(
 		settings.remove(EvaluationsPreferencesKeys.COOLDOWN_GET_EVALUATIONS)
 	}
 
-	override suspend fun markSyncRetryBackoff(_throwable: Throwable) {
+	override suspend fun markSyncRetryBackoff(throwable: Throwable) {
 		val now = currentTimeMillis()
 		val nextRetryCount = (settings.getIntOrNull(PreferencesKeys.SYNC_RETRY_COUNT) ?: 0) + 1
 		val retryBackoff = calculateSyncRetryBackoff(retryCount = nextRetryCount)
