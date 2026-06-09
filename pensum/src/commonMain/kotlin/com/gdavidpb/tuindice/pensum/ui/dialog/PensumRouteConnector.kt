@@ -10,12 +10,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.StrokeCap
-import com.gdavidpb.tuindice.pensum.ui.view.Selected
+import com.gdavidpb.tuindice.pensum.ui.view.pensumGraphColors
 
 @Composable
 fun PensumRouteConnector(
 	modifier: Modifier = Modifier
 ) {
+	val graphColors = pensumGraphColors()
 	Box(
 		modifier = modifier.padding(top = SubjectDetailRouteConnectorTopPadding),
 		contentAlignment = Alignment.Center
@@ -27,7 +28,7 @@ fun PensumRouteConnector(
 		) {
 			val centerY = size.height / 2f
 			drawLine(
-				color = Selected,
+				color = graphColors.selected,
 				start = Offset(0f, centerY),
 				end = Offset(size.width, centerY),
 				strokeWidth = SubjectDetailRouteConnectorStrokeWidth.toPx(),

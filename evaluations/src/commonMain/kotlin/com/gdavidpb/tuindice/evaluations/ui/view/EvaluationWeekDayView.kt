@@ -24,6 +24,7 @@ fun EvaluationWeekDayView(
 	val selectedContainerColor = MaterialTheme.colorScheme.secondaryContainer
 	val selectedContentColor = MaterialTheme.colorScheme.onSecondaryContainer
 	val selectedAccentColor = MaterialTheme.colorScheme.secondary
+	val evaluationIndicatorColor = MaterialTheme.colorScheme.primary
 
 	Column(
 		modifier = modifier,
@@ -59,7 +60,7 @@ fun EvaluationWeekDayView(
 				.padding(top = 3.dp)
 				.size(4.dp)
 				.background(
-					color = if (item.hasEvaluations) selectedAccentColor else Color.Transparent,
+					color = if (item.hasEvaluations) evaluationIndicatorColor else Color.Transparent,
 					shape = CircleShape
 				)
 		)

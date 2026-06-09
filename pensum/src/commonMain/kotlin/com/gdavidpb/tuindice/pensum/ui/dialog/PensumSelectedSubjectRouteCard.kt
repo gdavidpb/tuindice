@@ -12,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -20,6 +19,8 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.view.PensumElementShape
+import com.gdavidpb.tuindice.pensum.ui.view.pensumGraphColors
+import com.gdavidpb.tuindice.pensum.ui.view.toNodeColors
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_subject_detail_route_selected
@@ -29,8 +30,9 @@ fun PensumSelectedSubjectRouteCard(
 	node: PensumNodeItem,
 	modifier: Modifier = Modifier
 ) {
+	val graphColors = pensumGraphColors()
 	val detail = node.detail
-	val borderColor = Color(node.visualStyle.borderArgb)
+	val borderColor = node.toNodeColors(graphColors).border
 
 	Column(
 		modifier = modifier,
@@ -50,7 +52,7 @@ fun PensumSelectedSubjectRouteCard(
 				.fillMaxWidth()
 				.testTag(PensumUiTags.SubjectDetailSelectedRouteCard),
 			shape = PensumElementShape,
-			color = MaterialTheme.colorScheme.surface.copy(alpha = 0.62f),
+			color = graphColors.panelBackground,
 			border = BorderStroke(
 				width = 1.4.dp,
 				color = borderColor

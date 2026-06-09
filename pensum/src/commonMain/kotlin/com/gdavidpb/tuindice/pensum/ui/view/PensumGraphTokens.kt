@@ -49,27 +49,30 @@ internal fun pensumGraphColors(): PensumGraphColors {
 	val colorScheme = MaterialTheme.colorScheme
 
 	return if (isSystemInDarkTheme()) {
-		DarkPensumGraphColors
+		DarkPensumGraphColors.copy(current = colorScheme.primary)
 	} else {
+		val containerSurface = colorScheme.surfaceContainerLow
+		val floatingSurface = colorScheme.surfaceContainer
+
 		PensumGraphColors(
 			isDark = false,
 			screenBackground = colorScheme.background,
 			canvasBackground = colorScheme.background,
-			canvasTermBand = colorScheme.surfaceVariant.copy(alpha = 0.18f),
-			panelBackground = colorScheme.surface,
+			canvasTermBand = colorScheme.surfaceContainerLow.copy(alpha = 0.72f),
+			panelBackground = containerSurface,
 			panelBorder = colorScheme.outlineVariant,
-			floatingPanelBackground = colorScheme.surface,
+			floatingPanelBackground = floatingSurface,
 			approved = Color(0xFF2E7D32),
-			current = Color(0xFF8C6700),
+			current = colorScheme.primary,
 			available = colorScheme.outline,
 			blocked = colorScheme.onSurfaceVariant.copy(alpha = 0.58f),
 			canvasNeutral = colorScheme.outline,
-			selected = colorScheme.onSurface,
+			selected = colorScheme.onSurfaceVariant,
 			textPrimary = colorScheme.onSurface,
 			textSecondary = colorScheme.onSurfaceVariant,
-			nodeContainer = colorScheme.surface,
-			controlsBackground = colorScheme.surface.copy(alpha = 0.92f),
-			minimapBackground = colorScheme.surface.copy(alpha = 0.92f)
+			nodeContainer = containerSurface,
+			controlsBackground = floatingSurface,
+			minimapBackground = floatingSurface
 		)
 	}
 }

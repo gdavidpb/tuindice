@@ -201,7 +201,7 @@ private fun PensumCanvasLegendClearButton(
 			Icon(
 				imageVector = Icons.Outlined.Close,
 				contentDescription = stringResource(Res.string.pensum_canvas_filters_clear),
-				tint = graphColors.textPrimary,
+				tint = graphColors.textSecondary,
 				modifier = Modifier.size(15.dp)
 			)
 		}

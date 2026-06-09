@@ -106,8 +106,7 @@ fun EvaluationsContentView(
 		) {
 			FloatingActionButton(
 				modifier = Modifier.testTag(EvaluationsUiTags.EvaluationsAddFab),
-				containerColor = MaterialTheme.colorScheme.onPrimaryContainer,
-				contentColor = MaterialTheme.colorScheme.primaryContainer,
+				containerColor = MaterialTheme.colorScheme.primary,
 				onClick = onAddEvaluationClick
 			) {
 				Icon(

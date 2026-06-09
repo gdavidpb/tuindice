@@ -69,7 +69,7 @@ fun PensumZoomControls(
 				Icon(
 					imageVector = currentStatusIcon.imageVector,
 					contentDescription = stringResource(Res.string.pensum_focus_progress),
-					tint = graphColors.textPrimary
+					tint = graphColors.current
 				)
 			}
 			PensumZoomControlDivider()
@@ -85,7 +85,7 @@ fun PensumZoomControls(
 				Icon(
 					imageVector = Icons.Outlined.CenterFocusStrong,
 					contentDescription = stringResource(Res.string.pensum_fit_to_screen),
-					tint = graphColors.textPrimary
+					tint = graphColors.textSecondary
 				)
 			}
 			PensumZoomControlDivider()
@@ -107,7 +107,7 @@ fun PensumZoomControls(
 							Res.string.pensum_show_minimap
 						}
 					),
-					tint = if (isMinimapVisible) graphColors.current else graphColors.textPrimary
+					tint = if (isMinimapVisible) graphColors.current else graphColors.textSecondary
 				)
 			}
 			PensumZoomControlDivider()
@@ -122,7 +122,7 @@ fun PensumZoomControls(
 			Icon(
 				imageVector = Icons.Filled.Add,
 				contentDescription = stringResource(Res.string.pensum_zoom_in),
-				tint = graphColors.textPrimary
+				tint = graphColors.textSecondary
 			)
 		}
 		PensumZoomControlDivider()
@@ -136,7 +136,7 @@ fun PensumZoomControls(
 			Icon(
 				imageVector = Icons.Filled.Remove,
 				contentDescription = stringResource(Res.string.pensum_zoom_out),
-				tint = graphColors.textPrimary
+				tint = graphColors.textSecondary
 			)
 		}
 	}

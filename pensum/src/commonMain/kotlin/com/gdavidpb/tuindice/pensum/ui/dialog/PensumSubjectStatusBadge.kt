@@ -9,7 +9,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -18,13 +17,16 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusDisplay
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.model.toStatusIconVisual
 import com.gdavidpb.tuindice.pensum.ui.view.PensumStatusIconMarker
+import com.gdavidpb.tuindice.pensum.ui.view.pensumGraphColors
+import com.gdavidpb.tuindice.pensum.ui.view.toStatusColor
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun PensumSubjectStatusBadge(
 	status: PensumNodeStatusDisplay
 ) {
-	val statusColor = Color(status.colorArgb)
+	val graphColors = pensumGraphColors()
+	val statusColor = status.toStatusColor(graphColors)
 	val statusIcon = status.toStatusIconVisual()
 	Row(
 		horizontalArrangement = Arrangement.spacedBy(6.dp),

@@ -14,6 +14,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.ui.view.PensumElementShape
+import com.gdavidpb.tuindice.pensum.ui.view.pensumGraphColors
 
 @Composable
 fun PensumSubjectDetailMeta(
@@ -22,10 +23,12 @@ fun PensumSubjectDetailMeta(
 	modifier: Modifier = Modifier,
 	valueTag: String? = null
 ) {
+	val graphColors = pensumGraphColors()
+
 	Surface(
 		modifier = modifier,
 		shape = PensumElementShape,
-		color = MaterialTheme.colorScheme.surface.copy(alpha = 0.55f),
+		color = graphColors.panelBackground,
 		border = BorderStroke(
 			width = 1.dp,
 			color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.7f)

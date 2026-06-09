@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.view.PensumElementShape
+import com.gdavidpb.tuindice.pensum.ui.view.pensumGraphColors
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_subject_detail_credits
@@ -29,12 +30,13 @@ import tuindice.pensum.generated.resources.pensum_subject_detail_term
 fun PensumSubjectOverviewCard(
 	node: PensumNodeItem
 ) {
+	val graphColors = pensumGraphColors()
 	val detail = node.detail
 
 	Surface(
 		modifier = Modifier.fillMaxWidth(),
 		shape = PensumElementShape,
-		color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.48f),
+		color = graphColors.panelBackground,
 		border = BorderStroke(
 			width = 1.dp,
 			color = MaterialTheme.colorScheme.outlineVariant

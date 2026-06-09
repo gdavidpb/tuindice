@@ -19,6 +19,7 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.view.PensumElementShape
+import com.gdavidpb.tuindice.pensum.ui.view.pensumGraphColors
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_selection_active_title
@@ -31,6 +32,7 @@ fun PensumCurrentSelectionSummary(
 	currentPensum: PensumOptionItem,
 	currentModality: PensumModalityItem
 ) {
+	val graphColors = pensumGraphColors()
 	val pensumLabel = stringResource(Res.string.pensum_summary_pensum_label)
 	val title = model.careerName.ifBlank { "$pensumLabel ${currentPensum.year}" }
 	val subtitle = listOf(
@@ -45,7 +47,7 @@ fun PensumCurrentSelectionSummary(
 			.fillMaxWidth()
 			.testTag(PensumUiTags.PensumCurrentSelectionSummary),
 		shape = PensumElementShape,
-		color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.48f),
+		color = graphColors.panelBackground,
 		border = BorderStroke(
 			width = 1.dp,
 			color = MaterialTheme.colorScheme.outlineVariant

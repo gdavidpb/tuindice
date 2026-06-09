@@ -15,8 +15,8 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumFulfilledSubjectItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeVisualStyle
-import com.gdavidpb.tuindice.pensum.ui.view.Current
 import com.gdavidpb.tuindice.pensum.ui.view.PensumElementShape
+import com.gdavidpb.tuindice.pensum.ui.view.pensumGraphColors
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_subject_detail_fulfilled_by
@@ -26,13 +26,14 @@ fun PensumFulfilledSubjectSummary(
 	fulfilledSubject: PensumFulfilledSubjectItem,
 	visualStyle: PensumNodeVisualStyle
 ) {
+	val graphColors = pensumGraphColors()
 	Surface(
 		modifier = Modifier.fillMaxWidth(),
 		shape = PensumElementShape,
-		color = Current.copy(alpha = 0.12f),
+		color = graphColors.current.copy(alpha = 0.12f),
 		border = BorderStroke(
 			width = 1.dp,
-			color = Current.copy(alpha = 0.34f)
+			color = graphColors.current.copy(alpha = 0.34f)
 		)
 	) {
 		Column(

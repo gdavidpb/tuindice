@@ -29,6 +29,8 @@ fun PensumModalityOptionRow(
 	isSelected: Boolean,
 	onClick: () -> Unit
 ) {
+	val graphColors = pensumGraphColors()
+
 	Surface(
 		modifier = modifier
 			.fillMaxWidth()
@@ -41,7 +43,7 @@ fun PensumModalityOptionRow(
 		color = if (isSelected)
 			MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.28f)
 		else
-			MaterialTheme.colorScheme.surface,
+			graphColors.panelBackground,
 		border = BorderStroke(
 			width = 1.dp,
 			color = if (isSelected)
