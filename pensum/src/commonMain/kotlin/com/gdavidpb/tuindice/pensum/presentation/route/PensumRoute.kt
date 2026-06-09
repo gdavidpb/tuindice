@@ -41,10 +41,6 @@ fun PensumRoute(
 		}
 	}
 
-	LaunchedEffect(Unit) {
-		viewModel.refreshPensumAction()
-	}
-
 	LaunchedEffect(topBarActionBus) {
 		topBarActionBus.actions.collect { action ->
 			if (action is TopBarAction.ChangePensumAction) {

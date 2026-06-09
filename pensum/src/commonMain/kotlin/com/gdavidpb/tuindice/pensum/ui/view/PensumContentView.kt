@@ -1,15 +1,25 @@
 package com.gdavidpb.tuindice.pensum.ui.view
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
@@ -21,6 +31,7 @@ import com.gdavidpb.tuindice.pensum.ui.model.PensumSubjectDetailNavigationDirect
 @Composable
 fun PensumContentView(
 	model: PensumScreenModel,
+	isRefreshing: Boolean,
 	showSelectionSheet: Boolean,
 	onSelectionSheetDismiss: () -> Unit,
 	onSubjectStatsClick: (subjectCode: String) -> Unit,
@@ -99,6 +110,30 @@ fun PensumContentView(
 				onPensumContextClick()
 			}
 		)
+		AnimatedVisibility(
+			visible = isRefreshing,
+			enter = fadeIn(
+				animationSpec = tween(durationMillis = CanvasOverlayAnimationMillis)
+			) + expandVertically(
+				expandFrom = Alignment.Top,
+				animationSpec = tween(durationMillis = CanvasOverlayAnimationMillis)
+			),
+			exit = fadeOut(
+				animationSpec = tween(durationMillis = CanvasOverlayAnimationMillis)
+			) + shrinkVertically(
+				shrinkTowards = Alignment.Top,
+				animationSpec = tween(durationMillis = CanvasOverlayAnimationMillis)
+			)
+		) {
+			Column(
+				modifier = Modifier
+					.fillMaxWidth()
+					.padding(horizontal = 16.dp, vertical = 8.dp),
+				horizontalAlignment = Alignment.CenterHorizontally
+			) {
+				PensumRefreshingIndicatorView()
+			}
+		}
 		PensumGraphCanvas(
 			model = model,
 			selectedNodeId = if (showSelectionSheet) null else focusedNodeId,

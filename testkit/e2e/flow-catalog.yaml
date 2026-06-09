@@ -941,6 +941,7 @@ flows:
       - pensum.Pensum.RefreshPensum
     primary_selectors:
       - pensum_screen
+      - pensum_refreshing_indicator
       - pensum_canvas
       - pensum_canvas_legend
       - pensum_status_filter_available

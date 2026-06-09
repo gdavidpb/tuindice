@@ -14,6 +14,7 @@
 	<string name="pensum_modality_placeholder">Modalidad</string>
 	<string name="pensum_progress_label">avance</string>
 	<string name="pensum_summary_pensum_label">Pensum</string>
+	<string name="pensum_refreshing_indicator">Actualizando pensum</string>
 	<string name="pensum_context_content_description">Ver y cambiar pensum</string>
 	<string name="pensum_selection_title">Cambiar pensum</string>
 	<string name="pensum_selection_current">%1$s · Pensum %2$d · %3$s</string>

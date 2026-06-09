@@ -24,7 +24,8 @@ object Pensum {
 		data object Empty : State()
 
 		data class Content(
-			val model: PensumScreenModel
+			val model: PensumScreenModel,
+			val isRefreshing: Boolean = false
 		) : State()
 
 		data class Failed(

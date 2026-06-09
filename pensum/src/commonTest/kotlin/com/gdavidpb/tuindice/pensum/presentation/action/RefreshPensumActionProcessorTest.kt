@@ -29,17 +29,11 @@ import tuindice.pensum.generated.resources.snack_service_unavailable
 class RefreshPensumActionProcessorTest {
 	@Test
 	fun when_refreshReturnsNotFound_then_stateBecomesEmptyWithoutSnackbar() = runTest {
-		val processor = RefreshPensumActionProcessor(
-			updatePensumUseCase = UpdatePensumUseCase(
-				pensumRepository = ThrowingPensumRepository(
-					throwable = clientRequestException(
-						statusCode = HttpStatusCode.NotFound,
-						path = "/pensums/v4"
-					)
-				),
-				reportingRepository = RecordingReportingRepository(),
-				exceptionHandler = UpdatePensumExceptionHandler(
-					networkRepository = FakeNetworkRepository(isAvailable = true)
+		val processor = createProcessor(
+			pensumRepository = ThrowingPensumRepository(
+				throwable = clientRequestException(
+					statusCode = HttpStatusCode.NotFound,
+					path = "/pensums/v4"
 				)
 			)
 		)
@@ -56,17 +50,11 @@ class RefreshPensumActionProcessorTest {
 
 	@Test
 	fun when_refreshReturnsServiceUnavailable_then_stateKeepsPersistentFailureCause() = runTest {
-		val processor = RefreshPensumActionProcessor(
-			updatePensumUseCase = UpdatePensumUseCase(
-				pensumRepository = ThrowingPensumRepository(
-					throwable = serverResponseException(
-						statusCode = HttpStatusCode.ServiceUnavailable,
-						path = "/pensums/v4"
-					)
-				),
-				reportingRepository = RecordingReportingRepository(),
-				exceptionHandler = UpdatePensumExceptionHandler(
-					networkRepository = FakeNetworkRepository(isAvailable = true)
+		val processor = createProcessor(
+			pensumRepository = ThrowingPensumRepository(
+				throwable = serverResponseException(
+					statusCode = HttpStatusCode.ServiceUnavailable,
+					path = "/pensums/v4"
 				)
 			)
 		)
@@ -87,18 +75,49 @@ class RefreshPensumActionProcessorTest {
 	}
 
 	@Test
+	fun when_refreshStartsWhileContentIsVisible_then_refreshingFlagIsEnabled() = runTest {
+		val processor = createProcessor(pensumRepository = SuccessfulPensumRepository())
+		val contentState = sampleContentState()
+		val effects = mutableListOf<Pensum.Effect>()
+
+		val mutations = processor.process(
+			action = Pensum.Action.RefreshPensum,
+			sideEffect = effects::add
+		).toList()
+		val loadingState = mutations.first().invoke(contentState)
+
+		assertEquals(
+			contentState.copy(isRefreshing = true),
+			loadingState
+		)
+		assertEquals(emptyList(), effects)
+	}
+
+	@Test
+	fun when_refreshSucceedsWhileContentIsVisible_then_refreshingFlagIsDisabled() = runTest {
+		val processor = createProcessor(pensumRepository = SuccessfulPensumRepository())
+		val contentState = sampleContentState()
+		val effects = mutableListOf<Pensum.Effect>()
+
+		val finalState = processor.process(
+			action = Pensum.Action.RefreshPensum,
+			sideEffect = effects::add
+		).toList().reduceMutations(contentState)
+
+		assertEquals(
+			contentState.copy(isRefreshing = false),
+			finalState
+		)
+		assertEquals(emptyList(), effects)
+	}
+
+	@Test
 	fun when_refreshFailsWhileContentIsVisible_then_contentRemainsAndSnackbarShowsError() = runTest {
-		val processor = RefreshPensumActionProcessor(
-			updatePensumUseCase = UpdatePensumUseCase(
-				pensumRepository = ThrowingPensumRepository(
-					throwable = serverResponseException(
-						statusCode = HttpStatusCode.ServiceUnavailable,
-						path = "/pensums/v4"
-					)
-				),
-				reportingRepository = RecordingReportingRepository(),
-				exceptionHandler = UpdatePensumExceptionHandler(
-					networkRepository = FakeNetworkRepository(isAvailable = true)
+		val processor = createProcessor(
+			pensumRepository = ThrowingPensumRepository(
+				throwable = serverResponseException(
+					statusCode = HttpStatusCode.ServiceUnavailable,
+					path = "/pensums/v4"
 				)
 			)
 		)
@@ -114,6 +133,70 @@ class RefreshPensumActionProcessorTest {
 		val effect = assertIs<Pensum.Effect.ShowSnackBar>(effects.single())
 		assertEquals(UiText.Resource(Res.string.snack_service_unavailable), effect.message)
 	}
+
+	@Test
+	fun when_refreshFailsWhileContentIsVisibleWithoutNetwork_then_contentRemainsAndSnackbarIsSuppressed() = runTest {
+		val processor = createProcessor(
+			pensumRepository = ThrowingPensumRepository(throwable = connectionThrowable()),
+			isNetworkAvailable = false
+		)
+		val contentState = sampleContentState()
+		val effects = mutableListOf<Pensum.Effect>()
+
+		val finalState = processor.process(
+			action = Pensum.Action.RefreshPensum,
+			sideEffect = effects::add
+		).toList().reduceMutations(contentState)
+
+		assertEquals(contentState, finalState)
+		assertEquals(emptyList(), effects)
+	}
+
+	@Test
+	fun when_refreshFailsWhileContentIsVisibleWithNetworkAvailable_then_contentRemainsAndSnackbarShowsServiceError() = runTest {
+		val processor = createProcessor(
+			pensumRepository = ThrowingPensumRepository(throwable = connectionThrowable()),
+			isNetworkAvailable = true
+		)
+		val contentState = sampleContentState()
+		val effects = mutableListOf<Pensum.Effect>()
+
+		val finalState = processor.process(
+			action = Pensum.Action.RefreshPensum,
+			sideEffect = effects::add
+		).toList().reduceMutations(contentState)
+
+		assertEquals(contentState, finalState)
+		val effect = assertIs<Pensum.Effect.ShowSnackBar>(effects.single())
+		assertEquals(UiText.Resource(Res.string.snack_service_unavailable), effect.message)
+	}
+}
+
+private fun createProcessor(
+	pensumRepository: PensumRepository,
+	isNetworkAvailable: Boolean = true
+): RefreshPensumActionProcessor {
+	return RefreshPensumActionProcessor(
+		updatePensumUseCase = UpdatePensumUseCase(
+			pensumRepository = pensumRepository,
+			reportingRepository = RecordingReportingRepository(),
+			exceptionHandler = UpdatePensumExceptionHandler(
+				networkRepository = FakeNetworkRepository(isAvailable = isNetworkAvailable)
+			)
+		)
+	)
+}
+
+private class SuccessfulPensumRepository : PensumRepository {
+	override fun observePensumFlow(): Flow<PensumObservation> = emptyFlow()
+
+	override suspend fun refreshPensum() = Unit
+
+	override suspend fun selectPensum(year: Int) = Unit
+
+	override suspend fun selectModality(modalityId: String) = Unit
+
+	override suspend fun selectSelection(year: Int, modalityId: String) = Unit
 }
 
 private class ThrowingPensumRepository(
@@ -130,6 +213,10 @@ private class ThrowingPensumRepository(
 	override suspend fun selectModality(modalityId: String) = Unit
 
 	override suspend fun selectSelection(year: Int, modalityId: String) = Unit
+}
+
+private fun connectionThrowable(): Throwable {
+	return Throwable("internet connection appears to be offline")
 }
 
 private fun sampleContentState(): Pensum.State.Content {

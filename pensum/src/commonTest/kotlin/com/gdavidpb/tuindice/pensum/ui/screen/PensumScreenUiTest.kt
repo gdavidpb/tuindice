@@ -283,6 +283,45 @@ class PensumScreenUiTest {
 	}
 
 	@Test
+	fun when_contentIsRefreshing_then_refreshingIndicatorIsShown() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = Pensum.State.Content(
+					model = samplePensumModel(),
+					isRefreshing = true
+				),
+				onRetryClick = {},
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		assertNodeVisible(PensumUiTags.RefreshingIndicator)
+		onNodeWithText("Actualizando pensum").assertExists()
+	}
+
+	@Test
+	fun when_contentIsNotRefreshing_then_refreshingIndicatorIsHidden() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = Pensum.State.Content(
+					model = samplePensumModel(),
+					isRefreshing = false
+				),
+				onRetryClick = {},
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		assertNodeHidden(PensumUiTags.RefreshingIndicator)
+	}
+
+	@Test
 	fun when_subjectSheetBecomesVisible_then_canvasControlsHideAfterAnimation() = runTuIndiceUiTest {
 		val isSubjectSheetVisibleState = mutableStateOf(false)
 

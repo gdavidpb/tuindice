@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
 object PensumUiTags {
 	const val PensumScreen = "pensum_screen"
 	const val PensumContextSummary = "pensum_context_summary"
+	const val RefreshingIndicator = "pensum_refreshing_indicator"
 	const val PensumCurrentSelectionSummary = "pensum_current_selection_summary"
 	const val PensumSelector = "pensum_selector"
 	const val ModalitySelector = "pensum_modality_selector"

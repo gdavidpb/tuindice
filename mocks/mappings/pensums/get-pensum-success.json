@@ -8,7 +8,8 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "bodyFileName": "pensums/get-pensum-success.json"
+    "bodyFileName": "pensums/get-pensum-success.json",
+    "fixedDelayMilliseconds": 1800
   },
   "priority": 10
 }

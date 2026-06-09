@@ -33,6 +33,12 @@ fun NavGraphBuilder.pensumNavigation(
 				onValue = onViewStateChanged
 			)
 
+			navController.CollectCurrentEntryValueWithLifecycle(
+				backStackEntry = backStackEntry,
+				value = Unit,
+				onValue = { viewModel.refreshPensumAction() }
+			)
+
 			PensumRoute(
 				showSnackBar = showSnackBar,
 				topBarActionBus = topBarActionBus,

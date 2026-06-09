@@ -29,7 +29,10 @@ class ObservePensumActionProcessor(
 					is UseCaseState.Data -> suspend { state: Pensum.State ->
 						when (val observation = useCaseState.value) {
 							is PensumObservation.Content ->
-								Pensum.State.Content(model = observation.pensum.toScreenModel())
+								Pensum.State.Content(
+									model = observation.pensum.toScreenModel(),
+									isRefreshing = (state as? Pensum.State.Content)?.isRefreshing ?: false
+								)
 
 							PensumObservation.Missing,
 							PensumObservation.WaitingForRecordData,

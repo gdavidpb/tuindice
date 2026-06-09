@@ -48,6 +48,7 @@ fun PensumScreen(
 					is Pensum.State.Empty -> PensumEmptyView()
 					is Pensum.State.Content -> PensumContentView(
 						model = targetState.model,
+						isRefreshing = targetState.isRefreshing,
 						showSelectionSheet = showSelectionSheet,
 						onSelectionSheetDismiss = onSelectionSheetDismiss,
 						onSubjectStatsClick = onSubjectStatsClick,
