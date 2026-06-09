@@ -4,11 +4,13 @@ import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepository
 import com.russhwolf.settings.Settings
 import kotlin.time.Duration.Companion.days
+import kotlin.time.Duration.Companion.hours
 import com.gdavidpb.tuindice.evaluations.utils.PreferencesKeys as EvaluationsPreferencesKeys
 import com.gdavidpb.tuindice.record.utils.CooldownTimes as RecordCooldownTimes
 import com.gdavidpb.tuindice.record.utils.PreferencesKeys as RecordPreferencesKeys
 import com.gdavidpb.tuindice.summary.utils.CooldownTimes as SummaryCooldownTimes
 import com.gdavidpb.tuindice.summary.utils.PreferencesKeys as SummaryPreferencesKeys
+import com.gdavidpb.tuindice.data.repository.sync.SyncRetryBackoffState
 
 class SyncSettingsDataSource(
 	private val settings: Settings
@@ -17,6 +19,12 @@ class SyncSettingsDataSource(
 		val cooldownTime = settings.getLongOrNull(PreferencesKeys.COOLDOWN_SYNC) ?: 0L
 
 		return cooldownTime >= currentTimeMillis()
+	}
+
+	override suspend fun isSyncRetryBackoffActive(): Boolean {
+		val retryBackoffUntil = settings.getLongOrNull(PreferencesKeys.SYNC_RETRY_UNTIL) ?: 0L
+
+		return retryBackoffUntil >= currentTimeMillis()
 	}
 
 	override suspend fun setSyncOnCooldown() {
@@ -49,11 +57,49 @@ class SyncSettingsDataSource(
 		settings.remove(EvaluationsPreferencesKeys.COOLDOWN_GET_EVALUATIONS)
 	}
 
+	override suspend fun markSyncRetryBackoff(_throwable: Throwable) {
+		val now = currentTimeMillis()
+		val nextRetryCount = (settings.getIntOrNull(PreferencesKeys.SYNC_RETRY_COUNT) ?: 0) + 1
+		val retryBackoff = calculateSyncRetryBackoff(retryCount = nextRetryCount)
+
+		settings.putInt(PreferencesKeys.SYNC_RETRY_COUNT, nextRetryCount)
+		settings.putLong(PreferencesKeys.SYNC_RETRY_LAST_AT, now)
+		settings.putLong(PreferencesKeys.SYNC_RETRY_UNTIL, now + retryBackoff)
+	}
+
+	override suspend fun clearSyncRetryBackoff() {
+		settings.remove(PreferencesKeys.SYNC_RETRY_COUNT)
+		settings.remove(PreferencesKeys.SYNC_RETRY_LAST_AT)
+		settings.remove(PreferencesKeys.SYNC_RETRY_UNTIL)
+	}
+
+	override suspend fun getSyncRetryBackoffState(): SyncRetryBackoffState {
+		return SyncRetryBackoffState(
+			retryCount = settings.getIntOrNull(PreferencesKeys.SYNC_RETRY_COUNT) ?: 0,
+			lastRetryAt = settings.getLongOrNull(PreferencesKeys.SYNC_RETRY_LAST_AT) ?: 0L,
+			retryBackoffUntil = settings.getLongOrNull(PreferencesKeys.SYNC_RETRY_UNTIL) ?: 0L
+		)
+	}
+
+	private fun calculateSyncRetryBackoff(retryCount: Int): Long {
+		var delayInMs = CooldownTimes.BACKOFF_SYNC
+		repeat((retryCount - 1).coerceIn(0, 5)) {
+			delayInMs = (delayInMs * 2).coerceAtMost(CooldownTimes.BACKOFF_SYNC_MAX)
+		}
+
+		return delayInMs
+	}
+
 	private object PreferencesKeys {
 		const val COOLDOWN_SYNC = "cooldownSync"
+		const val SYNC_RETRY_COUNT = "syncRetryCount"
+		const val SYNC_RETRY_UNTIL = "syncRetryUntil"
+		const val SYNC_RETRY_LAST_AT = "syncRetryLastAt"
 	}
 
 	private object CooldownTimes {
 		val COOLDOWN_SYNC = 1.days.inWholeMilliseconds
+		val BACKOFF_SYNC = 1.hours.inWholeMilliseconds
+		val BACKOFF_SYNC_MAX = 24.hours.inWholeMilliseconds
 	}
 }

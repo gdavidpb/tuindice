@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
 import com.gdavidpb.tuindice.base.utils.extension.isFailedDependency
 import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
+import com.gdavidpb.tuindice.base.utils.extension.isSyncRetryable
 import com.gdavidpb.tuindice.data.repository.sync.SyncRemoteDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
@@ -44,10 +45,12 @@ class SyncDataSource(
 						return@withLock
 
 					val isOnCooldown = settingsDataSource.isSyncOnCooldown()
+					val isSyncRetryBackoffActive = settingsDataSource.isSyncRetryBackoffActive()
 
-					if (isOnCooldown && policy == SyncPolicy.RespectCooldown) return@withLock
+					if ((isOnCooldown || isSyncRetryBackoffActive) && policy == SyncPolicy.RespectCooldown) return@withLock
 					if (policy == SyncPolicy.ForceRefresh) {
 						settingsDataSource.clearRecoveryCooldowns()
+						settingsDataSource.clearSyncRetryBackoff()
 					}
 
 					val syncResult = try {
@@ -60,6 +63,7 @@ class SyncDataSource(
 					recordLocalDataSource.saveAcademicRecord(syncResult.record)
 					userLocalDataSource.updateUser(syncResult.user)
 					syncStatusRepository.setSyncStatus(SyncStatus.Healthy)
+					settingsDataSource.clearSyncRetryBackoff()
 					settingsDataSource.setSyncOnCooldown()
 					settingsDataSource.setSyncedFeatureCooldowns()
 					settingsDataSource.clearStaleFeatureCooldowns()
@@ -75,11 +79,17 @@ class SyncDataSource(
 					else ->
 						SyncStatus.Failed
 				}
+				val isSyncRetryable = throwable.isSyncRetryable()
 
 				runCatching {
 					syncStatusRepository.setSyncStatus(syncStatus)
 				}
+				if (isSyncRetryable) {
+					runCatching {
+						settingsDataSource.markSyncRetryBackoff(throwable)
+					}
+				}
 			}
-		}
 	}
+}
 }
