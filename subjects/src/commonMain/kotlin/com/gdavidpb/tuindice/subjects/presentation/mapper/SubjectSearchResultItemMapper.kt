@@ -7,6 +7,7 @@ fun SubjectSearchResult.toSubjectSearchResultItem(): SubjectSearchResultItem {
 	return SubjectSearchResultItem(
 		subjectCode = subjectCode,
 		name = name.uppercase(),
-		creditsText = "$credits UC"
+		creditsText = "$credits UC",
+		pensumStatus = pensumStatus
 	)
 }

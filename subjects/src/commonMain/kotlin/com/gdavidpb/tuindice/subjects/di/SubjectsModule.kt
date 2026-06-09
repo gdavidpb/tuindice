@@ -1,12 +1,15 @@
 package com.gdavidpb.tuindice.subjects.di
 
+import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicPensumStatusEngine
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectCatalogLocalDataRepository
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectCatalogRemoteDataRepository
+import com.gdavidpb.tuindice.subjects.data.repository.SubjectSearchPensumStatusDataRepository
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectStatsApiDataRepository
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectStatsLocalDataRepository
 import com.gdavidpb.tuindice.subjects.data.source.SubjectCatalogDataSource
 import com.gdavidpb.tuindice.subjects.data.source.SubjectCatalogRoomDataSource
 import com.gdavidpb.tuindice.subjects.data.source.KtorSubjectsApiDataSource
+import com.gdavidpb.tuindice.subjects.data.source.SubjectSearchPensumStatusDataSource
 import com.gdavidpb.tuindice.subjects.data.source.SubjectStatsDataSource
 import com.gdavidpb.tuindice.subjects.data.source.SubjectStatsRoomDataSource
 import com.gdavidpb.tuindice.subjects.domain.repository.SubjectCatalogRepository
@@ -46,8 +49,10 @@ val subjectsModule = module {
 	factoryOf(::RefreshSubjectSearchUseCase)
 
 	singleOf(::KtorSubjectsApiDataSource)
+	singleOf(::AcademicPensumStatusEngine)
 	single<SubjectStatsApiDataRepository> { get<KtorSubjectsApiDataSource>() }
 	single<SubjectCatalogRemoteDataRepository> { get<KtorSubjectsApiDataSource>() }
+	singleOf(::SubjectSearchPensumStatusDataSource) { bind<SubjectSearchPensumStatusDataRepository>() }
 	singleOf(::SubjectCatalogRoomDataSource) { bind<SubjectCatalogLocalDataRepository>() }
 	singleOf(::SubjectStatsRoomDataSource) { bind<SubjectStatsLocalDataRepository>() }
 	singleOf(::SubjectStatsDataSource) { bind<SubjectStatsRepository>() }

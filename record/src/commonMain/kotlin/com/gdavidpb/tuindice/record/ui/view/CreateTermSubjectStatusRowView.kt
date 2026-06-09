@@ -9,7 +9,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.CheckCircleOutline
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -87,6 +89,22 @@ fun CreateTermSubjectStatusRow(
 				Icon(
 					modifier = Modifier.size(16.dp),
 					imageVector = Icons.Outlined.Schedule,
+					contentDescription = null,
+					tint = status.color
+				)
+
+			CreateTermSubjectStatusIcon.Available ->
+				Icon(
+					modifier = Modifier.size(16.dp),
+					imageVector = Icons.Outlined.Add,
+					contentDescription = null,
+					tint = status.color
+				)
+
+			CreateTermSubjectStatusIcon.Blocked ->
+				Icon(
+					modifier = Modifier.size(16.dp),
+					imageVector = Icons.Outlined.Lock,
 					contentDescription = null,
 					tint = status.color
 				)
@@ -238,7 +256,7 @@ private fun CreateTermSubjectItem.status(
 			SubjectStatus(
 				text = unavailableText,
 				color = if (isDarkTheme) CreateTermWarningColor else CreateTermWarningLightThemeColor,
-				icon = CreateTermSubjectStatusIcon.Clock
+				icon = CreateTermSubjectStatusIcon.Blocked
 			)
 	}
 }

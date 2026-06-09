@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.subjects.presentation.action
 
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumNodeStatus
 import com.gdavidpb.tuindice.base.domain.model.GradingMode
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchResult
@@ -70,6 +71,27 @@ class SubjectSearchActionProcessorContractTest {
 		advanceTimeBy(SubjectSearchDebounceMillis - 1)
 
 		assertEquals(emptyList(), repository.refreshCalls)
+		job.cancelAndJoin()
+	}
+
+	@Test
+	fun observeSubjectSearch_preservesContextualPensumStatusFromCachedResults() = runTest {
+		val cached = subjectSearchResult(
+			subjectCode = "CI2511",
+			pensumStatus = AcademicPensumNodeStatus.BLOCKED
+		)
+		val queryFlow = MutableStateFlow("ci")
+		val repository = RecordingSubjectCatalogRepository(initialLocalResults = listOf(cached))
+		var state = SubjectSearch.State()
+		val job = launch(start = CoroutineStart.UNDISPATCHED) {
+			createProcessor(repository = repository)
+				.process(SubjectSearch.Action.ObserveSubjectSearch(queryFlow = queryFlow)) {}
+				.collect { mutation -> state = mutation(state) }
+		}
+
+		waitUntil { state.results.singleOrNull()?.subjectCode == "CI2511" }
+
+		assertEquals(AcademicPensumNodeStatus.BLOCKED, state.results.single().pensumStatus)
 		job.cancelAndJoin()
 	}
 
@@ -204,15 +226,20 @@ private fun SubjectSearchResult.toItem(): com.gdavidpb.tuindice.subjects.present
 	return com.gdavidpb.tuindice.subjects.presentation.model.SubjectSearchResultItem(
 		subjectCode = subjectCode,
 		name = name,
-		creditsText = "$credits UC"
+		creditsText = "$credits UC",
+		pensumStatus = pensumStatus
 	)
 }
 
-private fun subjectSearchResult(subjectCode: String): SubjectSearchResult {
+private fun subjectSearchResult(
+	subjectCode: String,
+	pensumStatus: AcademicPensumNodeStatus? = null
+): SubjectSearchResult {
 	return SubjectSearchResult(
 		subjectCode = subjectCode,
 		name = "Int. a las microondas y sus aplicaciones",
 		credits = 3,
-		gradingMode = GradingMode.NUMERIC
+		gradingMode = GradingMode.NUMERIC,
+		pensumStatus = pensumStatus
 	)
 }

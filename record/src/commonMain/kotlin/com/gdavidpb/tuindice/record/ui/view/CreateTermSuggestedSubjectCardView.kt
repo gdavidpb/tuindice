@@ -87,7 +87,7 @@ fun CreateTermSuggestedSubjectCard(
 			CreateTermSubjectStatusRow(
 				subject = subject,
 				availableText = stringResource(Res.string.create_term_subject_available),
-				availableIcon = CreateTermSubjectStatusIcon.Dot
+				availableIcon = CreateTermSubjectStatusIcon.Available
 			)
 		}
 	}

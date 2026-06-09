@@ -48,12 +48,44 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: subjects_search_result_CI2511
     timeout: 15000
+- assertVisible:
+    id: subjects_search_result_CI2511_status_approved
+- assertVisible:
+    id: subjects_search_result_stats_CI2511
+- tapOn:
+    id: subjects_search_result_stats_CI2511
+- extendedWaitUntil:
+    visible:
+      id: subjects_content
+    timeout: 30000
+- tapOn:
+    id: maincore_tuindice_top_bar_back_button
+- extendedWaitUntil:
+    visible:
+      id: subjects_search_screen
+    timeout: 10000
 - tapOn:
     id: subjects_search_clear
 - assertVisible:
     id: subjects_search_guidance
 - assertNotVisible:
     id: subjects_search_result_CI2511
+- tapOn:
+    id: subjects_search_text_field
+- inputText: "zzzznomatch"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard
+- extendedWaitUntil:
+    visible: "No encontramos materias"
+    timeout: 15000
+- assertVisible: "No hay resultados para \"zzzznomatch\". Prueba con otro código o nombre."
+- tapOn:
+    id: subjects_search_clear
+- assertVisible:
+    id: subjects_search_guidance
 - tapOn:
     id: maincore_tuindice_top_bar_back_button
 - extendedWaitUntil:

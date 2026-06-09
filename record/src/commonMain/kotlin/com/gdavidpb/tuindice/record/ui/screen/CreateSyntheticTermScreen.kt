@@ -269,7 +269,7 @@ fun CreateSyntheticTermScreen(
 							}
 						}
 
-						if (displayedSearchResults.isEmpty() && !state.hasSearchError) {
+						if (searchResultsWithoutSelectedSubjects.isEmpty() && !state.hasSearchError) {
 							item {
 								if (displayedSuggestedSubjects.isEmpty()) {
 									Text(

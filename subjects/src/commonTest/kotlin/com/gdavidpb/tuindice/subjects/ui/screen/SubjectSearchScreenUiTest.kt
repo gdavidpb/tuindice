@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumNodeStatus
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectSearch
 import com.gdavidpb.tuindice.subjects.presentation.model.SubjectSearchResultItem
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
@@ -71,7 +72,8 @@ class SubjectSearchScreenUiTest {
 						SubjectSearchResultItem(
 							subjectCode = "CI2511",
 							name = "Lógica Simbólica",
-							creditsText = "4 UC"
+							creditsText = "4 UC",
+							pensumStatus = AcademicPensumNodeStatus.APPROVED
 						)
 					)
 				),
@@ -85,6 +87,8 @@ class SubjectSearchScreenUiTest {
 		assertNodeHidden(SubjectsUiTags.SearchGuidance)
 		assertNodeVisible(SubjectsUiTags.SearchResults)
 		assertNodeVisible(SubjectsUiTags.searchResult("CI2511"))
+		assertNodeVisible(SubjectsUiTags.searchResultStatus("CI2511", "approved"))
+		onNodeWithText("Aprobada").assertExists()
 	}
 
 	@Test

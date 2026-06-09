@@ -96,13 +96,13 @@
 	<string name="create_term_error_subject_already_planned">Una materia seleccionada ya está planificada.</string>
 	<string name="create_term_error_generic">No pudimos crear el trimestre. Revisa la selección.</string>
 	<string name="create_term_subject_available">Disponible</string>
-	<string name="create_term_subject_requirements_met">Requisitos cumplidos</string>
+	<string name="create_term_subject_requirements_met">Disponible</string>
 	<string name="create_term_subject_not_in_pensum">Fuera de tu pensum</string>
-	<string name="create_term_subject_requirement_pending">Requisito pendiente</string>
+	<string name="create_term_subject_requirement_pending">Bloqueada</string>
 	<string name="create_term_subject_selected">Seleccionada</string>
-	<string name="create_term_subject_already_taken">Ya cursada</string>
+	<string name="create_term_subject_already_taken">Aprobada</string>
 	<string name="create_term_subject_already_planned">Ya planificada</string>
-	<string name="create_term_subject_unavailable">No disponible</string>
+	<string name="create_term_subject_unavailable">Bloqueada</string>
 	<string name="create_term_subject_tooltip_already_taken">Cursada en %1$s</string>
 	<string name="create_term_subject_tooltip_already_planned">Planificada en %1$s</string>
 	<string name="create_term_subject_tooltip_unavailable">Faltan requisitos: %1$s</string>

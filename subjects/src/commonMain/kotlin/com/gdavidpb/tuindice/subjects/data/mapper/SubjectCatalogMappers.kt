@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.subjects.data.mapper
 
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumNodeStatus
 import com.gdavidpb.tuindice.base.domain.model.GradingMode
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity
 import com.gdavidpb.tuindice.base.domain.utils.SubjectCatalogSearchNormalizer
@@ -24,12 +25,15 @@ fun SubjectSearchResult.toSubjectCatalogCacheEntity(updatedAt: Long): SubjectCat
 	)
 }
 
-fun SubjectCatalogCacheEntity.toSubjectSearchResult(): SubjectSearchResult {
+fun SubjectCatalogCacheEntity.toSubjectSearchResult(
+	pensumStatus: AcademicPensumNodeStatus? = null
+): SubjectSearchResult {
 	return SubjectSearchResult(
 		subjectCode = subjectCode,
 		name = name,
 		credits = credits,
-		gradingMode = gradingMode?.let(GradingMode::valueOf)
+		gradingMode = gradingMode?.let(GradingMode::valueOf),
+		pensumStatus = pensumStatus
 	)
 }
 

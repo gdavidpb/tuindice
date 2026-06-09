@@ -50,4 +50,8 @@
     <string name="subjects_search_error_message">Intenta de nuevo.</string>
     <string name="subjects_search_clear_content_description">Limpiar búsqueda</string>
     <string name="subjects_search_result_content_description">Abrir estadísticas de %1$s</string>
+    <string name="subjects_search_status_approved">Aprobada</string>
+    <string name="subjects_search_status_current">En curso</string>
+    <string name="subjects_search_status_available">Disponible</string>
+    <string name="subjects_search_status_blocked">Bloqueada</string>
 </resources>

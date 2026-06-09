@@ -344,7 +344,7 @@ actions:
     reason: screen bootstrap and local state observation
   - id: record.CreateSyntheticTerm.UpdateQuery
     classification: user
-    variants: [search, clear, no-results, availability-states, pensum-priority, not-in-pensum]
+    variants: [search, clear, no-results, availability-states, pensum-priority, not-in-pensum, unified-status-language]
     selector: record_create_synthetic_term_search_field
     flow: e2e/maestro/flows/suites/record-suite.yaml
     fixture_state: synthetic-term-search
@@ -410,7 +410,7 @@ actions:
     reason: search query observation
   - id: subjects.SubjectSearch.UpdateQuery
     classification: user
-    variants: [short-query, success, clear]
+    variants: [short-query, success, clear, no-results, contextual-pensum-status]
     selector: subjects_search_text_field
     flow: e2e/maestro/flows/subjects/subjects-search-query-clear.yaml
     fixture_state: subject-search-success

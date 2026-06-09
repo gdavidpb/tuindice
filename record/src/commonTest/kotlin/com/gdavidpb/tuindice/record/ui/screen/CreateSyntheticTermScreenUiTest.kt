@@ -131,6 +131,52 @@ class CreateSyntheticTermScreenUiTest {
 	}
 
 	@Test
+	fun when_searchHasOnlyTakenSubjects_then_toggleIsShownInsteadOfEmptyState() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateSyntheticTermScreen(
+				state = CreateSyntheticTerm.State(
+					query = "ma1111",
+					selectedAddSubjectTab = CreateTermAddSubjectTab.Search,
+					searchResults = listOf(
+						SyntheticTermSubject(
+							subjectCode = "MA1111",
+							name = "Matemáticas I",
+							credits = 4,
+							availability = SyntheticTermSubjectAvailability.ALREADY_TAKEN
+						)
+					).toItems(),
+					suggestedSubjects = listOf(
+						SyntheticTermSubject(
+							subjectCode = "MA1121",
+							name = "Matemáticas II",
+							credits = 4,
+							availability = SyntheticTermSubjectAvailability.AVAILABLE
+						)
+					).toItems()
+				),
+				onQueryChange = { _, _, _ -> },
+				onClearQueryClick = {},
+				onPeriodSelected = {},
+				onAddSubjectTabSelected = {},
+				onSubjectAdd = {},
+				onSubjectRemove = {},
+				onCreateClick = {}
+			)
+		}
+
+		onNodeWithText("0 resultados").assertIsDisplayed()
+		onAllNodesWithText("Sugeridas por tu pensum").assertCountEquals(0)
+		onAllNodesWithText("MATEMÁTICAS I").assertCountEquals(0)
+		onNodeWithText("Mostrar 1 ya cursadas").assertIsDisplayed()
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle).performClick()
+
+		onNodeWithText("MATEMÁTICAS I").assertIsDisplayed()
+		assertVisibleStatus("MA1111", SyntheticTermSubjectAvailability.ALREADY_TAKEN)
+		onNodeWithText("Aprobada").assertIsDisplayed()
+	}
+
+	@Test
 	fun when_searchResultsHaveTakenAndOthers_thenTakenSubjectsAppearAtTheEndAndToggleIsBetweenGroups() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			CreateSyntheticTermScreen(
