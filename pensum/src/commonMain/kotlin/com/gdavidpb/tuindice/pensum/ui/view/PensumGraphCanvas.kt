@@ -66,6 +66,7 @@ import kotlin.math.sin
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 internal val LocalPensumManualCanvasGestureActiveOverride = compositionLocalOf<Boolean?> { null }
 
@@ -131,6 +132,7 @@ fun PensumGraphCanvas(
 			canvasSizePx = canvasSizePx,
 			paddingPx = fitPaddingPx
 		)
+		val minimumInteractiveScale = min(fitStateScale, InitialCanvasZoom)
 
 		fun saveCanvasViewport(scaleValue: Float, offset: Offset) {
 			savedScale = scaleValue
@@ -140,9 +142,9 @@ fun PensumGraphCanvas(
 
 		LaunchedEffect(graphKey, viewportSizePx, canvasSizePx, panMarginPx) {
 			val restoredScale = savedScale?.coerceIn(
-				minimumValue = fitStateScale,
+				minimumValue = minimumInteractiveScale,
 				maximumValue = MaxCanvasZoom
-			) ?: InitialCanvasZoom.coerceIn(fitStateScale, MaxCanvasZoom)
+			) ?: InitialCanvasZoom.coerceIn(MinCanvasZoom, MaxCanvasZoom)
 			val restoredOffset = if (savedOffsetX != null && savedOffsetY != null) {
 				Offset(
 					x = checkNotNull(savedOffsetX),
@@ -237,7 +239,7 @@ fun PensumGraphCanvas(
 			manualGestureIdleJob?.cancel()
 			isDetectedManualCanvasGestureActive = true
 			manualGestureIdleJob = coroutineScope.launch {
-				delay(CanvasManualGestureIdleMillis.toLong())
+				delay(CanvasManualGestureIdleMillis.milliseconds)
 				isDetectedManualCanvasGestureActive = false
 				manualGestureIdleJob = null
 			}
@@ -361,7 +363,7 @@ fun PensumGraphCanvas(
 		fun scheduleViewportSnap(scaleValue: Float, offset: Offset) {
 			canvasSnapJob?.cancel()
 			canvasSnapJob = coroutineScope.launch {
-				delay(CanvasSnapDelayMillis.toLong())
+				delay(CanvasSnapDelayMillis.milliseconds)
 				val snappedOffset = snapCanvasOffset(
 					model = model,
 					offset = offset,
@@ -386,7 +388,7 @@ fun PensumGraphCanvas(
 		fun zoomTo(
 			targetScale: Float,
 			shouldRevealMinimapToggle: Boolean = true,
-			minimumScale: Float = fitStateScale
+			minimumScale: Float = minimumInteractiveScale
 		) {
 			canvasSnapJob?.cancel()
 			if (shouldRevealMinimapToggle) {
@@ -445,23 +447,23 @@ fun PensumGraphCanvas(
 			zoomTo(
 				targetScale = nextDiscreteZoomScale(
 					currentScale = scale.value,
-					minimumScale = fitStateScale
+					minimumScale = minimumInteractiveScale
 				),
-				minimumScale = fitStateScale
+				minimumScale = minimumInteractiveScale
 			)
 		}
 
 		fun zoomOut() {
 			val targetScale = previousDiscreteZoomScale(
 				currentScale = scale.value,
-				minimumScale = fitStateScale
+				minimumScale = minimumInteractiveScale
 			)
-			if (targetScale <= fitStateScale + CanvasFitScaleTolerance) {
+			if (fitStateScale <= scale.value && targetScale <= fitStateScale + CanvasFitScaleTolerance) {
 				fitToScreen()
 			} else {
 				zoomTo(
 					targetScale = targetScale,
-					minimumScale = fitStateScale
+					minimumScale = minimumInteractiveScale
 				)
 			}
 		}
@@ -523,9 +525,15 @@ fun PensumGraphCanvas(
 						revealMinimapToggle()
 						val oldScale = scale.value
 						val rawScale = oldScale * zoom
-						val newScale = rawScale.coerceIn(fitStateScale, MaxCanvasZoom)
+						val shouldSnapToFit = fitStateScale <= oldScale &&
+							rawScale <= fitStateScale + CanvasFitScaleTolerance
+						val newScale = if (shouldSnapToFit) {
+							fitStateScale
+						} else {
+							rawScale.coerceIn(minimumInteractiveScale, MaxCanvasZoom)
+						}
 						val currentOffset = Offset(offsetX.value, offsetY.value)
-						val nextOffset = if (rawScale <= fitStateScale + CanvasFitScaleTolerance) {
+						val nextOffset = if (shouldSnapToFit) {
 							fitCanvasOffset(fitStateScale)
 						} else {
 							constrainCanvasOffset(
@@ -1173,8 +1181,10 @@ private fun constrainCanvasAxisOffset(
 	panMarginPx: Float
 ): Float {
 	if (contentSizePx <= viewportSizePx) {
-		val centeredOffset = (viewportSizePx - contentSizePx) / 2f
-		return offset.coerceIn(centeredOffset - panMarginPx, centeredOffset + panMarginPx)
+		return offset.coerceIn(
+			minimumValue = -panMarginPx,
+			maximumValue = viewportSizePx - contentSizePx + panMarginPx
+		)
 	}
 
 	return offset.coerceIn(
