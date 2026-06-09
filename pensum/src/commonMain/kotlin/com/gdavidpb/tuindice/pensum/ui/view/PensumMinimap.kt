@@ -23,6 +23,7 @@ import kotlin.math.min
 @Composable
 fun PensumMinimap(
 	model: PensumScreenModel,
+	edgeRoutes: Map<String, List<Offset>>,
 	scale: Float,
 	offset: Offset,
 	viewportSizePx: Size,
@@ -78,7 +79,11 @@ fun PensumMinimap(
 		val sx = size.width / model.canvas.width.toFloat()
 		val sy = size.height / model.canvas.height.toFloat()
 		val nodeCornerRadius = PensumElementCornerRadius.value * min(sx, sy)
+
 		model.edges.forEach { edge ->
+			val points = edgeRoutes[edge.id] ?: emptyList()
+			if (points.size < 2) return@forEach
+
 			val isFocusedEdge = edge.id in selectedRequirementEdgeIds || edge.id in selectedUnlockEdgeIds
 			val isFilteredOut = isStatusFilterActive &&
 				edge.fromNodeId !in statusFilteredNodeIds &&
@@ -101,11 +106,7 @@ fun PensumMinimap(
 			} else {
 				null
 			}
-			model.edgeRoute(
-				edge = edge,
-				endpointGap = EdgeEndpointGap.value,
-				rerouteSpacing = EdgeRerouteSpacing.value
-			).zipWithNext().forEach { (start, end) ->
+			points.zipWithNext().forEach { (start, end) ->
 				drawLine(
 					color = color,
 					start = Offset(start.x * sx, start.y * sy),

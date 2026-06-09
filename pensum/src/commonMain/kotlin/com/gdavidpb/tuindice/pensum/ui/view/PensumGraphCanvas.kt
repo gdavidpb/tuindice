@@ -23,6 +23,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.compositionLocalOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -81,8 +82,28 @@ fun PensumGraphCanvas(
 ) {
 	val graphColors = pensumGraphColors()
 	val density = LocalDensity.current
+	val densityScale = density.density
 	val coroutineScope = rememberCoroutineScope()
 	val graphKey = "${model.selection.year}-${model.selection.modalityId}"
+	val edgeRouteEndpointGap = with(density) { EdgeEndpointGap.toPx() } / densityScale
+	val edgeRouteRerouteSpacing = with(density) { EdgeRerouteSpacing.toPx() } / densityScale
+	val edgeRoutes = remember(
+		graphKey,
+		model.edges,
+		model.nodes,
+		edgeRouteEndpointGap,
+		edgeRouteRerouteSpacing
+	) {
+		model.edgeRoutes(
+			endpointGap = edgeRouteEndpointGap,
+			rerouteSpacing = edgeRouteRerouteSpacing
+		)
+	}
+	val edgeRoutesPx = remember(graphKey, edgeRoutes, densityScale) {
+		edgeRoutes.map { (edgeId, route) ->
+			edgeId to route.map { point -> Offset(point.x * densityScale, point.y * densityScale) }
+		}.toMap()
+	}
 	var savedScale by rememberSaveable(graphKey) { mutableStateOf<Float?>(null) }
 	var savedOffsetX by rememberSaveable(graphKey) { mutableStateOf<Float?>(null) }
 	var savedOffsetY by rememberSaveable(graphKey) { mutableStateOf<Float?>(null) }
@@ -118,6 +139,7 @@ fun PensumGraphCanvas(
 		val focusPaddingPx = with(density) { CanvasFocusPadding.toPx() }
 		val snapDistancePx = with(density) { CanvasSnapDistance.toPx() }
 		val snapInsetPx = with(density) { CanvasSnapViewportInset.toPx() }
+		val fitTolerancePx = with(density) { CanvasFitStateTolerance.toPx() }
 		val focusState = remember(model.edges, model.nodes, selectedNodeId) {
 			model.focusStateFor(selectedNodeId)
 		}
@@ -496,20 +518,40 @@ fun PensumGraphCanvas(
 		}
 
 		val fitStateOffset = fitCanvasOffset(fitStateScale)
-		val isFitToScreen = isCanvasFitToScreen(
-			scale = scale.value,
-			offset = Offset(offsetX.value, offsetY.value),
-			fitScale = fitStateScale,
-			fitOffset = fitStateOffset,
-			offsetTolerancePx = with(density) { CanvasFitStateTolerance.toPx() }
-		)
-		val shouldShowMinimapControls = isMinimapToggleVisible && !isFitToScreen && !isSubjectSheetVisible
-			&& !isManualCanvasGestureActive
-		val shouldShowCanvasOverlays = !isSubjectSheetVisible && !isManualCanvasGestureActive
-		val shouldShowStickyTermHeader = shouldRenderStickyTermHeader(
-			scale = scale.value,
-			isFitToScreen = isFitToScreen
-		) && !isManualCanvasGestureActive
+		val isFitToScreen by remember(
+			fitStateScale,
+			fitStateOffset,
+			fitTolerancePx
+		) {
+			derivedStateOf {
+				isCanvasFitToScreen(
+					scale = scale.value,
+					offset = Offset(offsetX.value, offsetY.value),
+					fitScale = fitStateScale,
+					fitOffset = fitStateOffset,
+					offsetTolerancePx = fitTolerancePx
+				)
+			}
+		}
+		val shouldShowMinimapControls by remember {
+			derivedStateOf {
+				isMinimapToggleVisible &&
+					!isFitToScreen &&
+					!isSubjectSheetVisible &&
+					!isManualCanvasGestureActive
+			}
+		}
+		val shouldShowCanvasOverlays by remember {
+			derivedStateOf { !isSubjectSheetVisible && !isManualCanvasGestureActive }
+		}
+		val shouldShowStickyTermHeader by remember {
+			derivedStateOf {
+				shouldRenderStickyTermHeader(
+					scale = scale.value,
+					isFitToScreen = isFitToScreen
+				) && !isManualCanvasGestureActive
+			}
+		}
 
 		LaunchedEffect(isFitToScreen) {
 			if (isFitToScreen) {
@@ -595,11 +637,7 @@ fun PensumGraphCanvas(
 				drawCanvasBackground(
 					model = model,
 					density = density.density,
-					graphColors = graphColors,
-					focusedEdgeIds = focusState.selectedRequirementEdgeIds + focusState.selectedUnlockEdgeIds,
-					isFocusActive = focusState.isActive,
-					statusFilteredNodeIds = statusFilteredNodeIds,
-					isStatusFilterActive = isStatusFilterActive
+					graphColors = graphColors
 				)
 			}
 			model.nodes.forEach { node ->
@@ -648,13 +686,16 @@ fun PensumGraphCanvas(
 					.fillMaxSize()
 					.zIndex(1f)
 			) {
-				drawFocusedCanvasEdges(
+				drawCanvasEdges(
+					edgeRoutes = edgeRoutesPx,
 					model = model,
-					density = density.density,
 					graphColors = graphColors,
 					selectedRequirementEdgeIds = focusState.selectedRequirementEdgeIds,
 					selectedUnlockEdgeIds = focusState.selectedUnlockEdgeIds,
-					selectedAvailableUnlockEdgeIds = focusState.selectedAvailableUnlockEdgeIds
+					selectedAvailableUnlockEdgeIds = focusState.selectedAvailableUnlockEdgeIds,
+					isFocusActive = focusState.isActive,
+					statusFilteredNodeIds = statusFilteredNodeIds,
+					isStatusFilterActive = isStatusFilterActive
 				)
 			}
 		}
@@ -680,6 +721,7 @@ fun PensumGraphCanvas(
 		) {
 			PensumMinimap(
 				model = model,
+				edgeRoutes = edgeRoutes,
 				scale = scale.value,
 				offset = Offset(offsetX.value, offsetY.value),
 				viewportSizePx = viewportSizePx,
@@ -776,11 +818,7 @@ private fun PensumNodeItem.containsCanvasTap(
 private fun DrawScope.drawCanvasBackground(
 	model: PensumScreenModel,
 	density: Float,
-	graphColors: PensumGraphColors,
-	focusedEdgeIds: Set<String>,
-	isFocusActive: Boolean,
-	statusFilteredNodeIds: Set<String>,
-	isStatusFilterActive: Boolean
+	graphColors: PensumGraphColors
 ) {
 	val widthPx = model.canvas.width.toFloat() * density
 	val heightPx = model.canvas.height.toFloat() * density
@@ -818,77 +856,83 @@ private fun DrawScope.drawCanvasBackground(
 		),
 		style = Stroke(width = 1.dp.toPx())
 	)
-	model.edges.forEach { edge ->
-		if (edge.id !in focusedEdgeIds) {
-			val isFilteredOut = isStatusFilterActive &&
-				edge.fromNodeId !in statusFilteredNodeIds &&
-				edge.toNodeId !in statusFilteredNodeIds
-			drawPensumEdge(
-				edge = edge,
-				model = model,
-				density = density,
-				graphColors = graphColors,
-				focusTone = if (isFocusActive || isFilteredOut) EdgeFocusTone.Dimmed else EdgeFocusTone.Default
-			)
-		}
-	}
 }
 
-private fun DrawScope.drawFocusedCanvasEdges(
+
+private fun DrawScope.drawCanvasEdges(
+	edgeRoutes: Map<String, List<Offset>>,
 	model: PensumScreenModel,
-	density: Float,
 	graphColors: PensumGraphColors,
 	selectedRequirementEdgeIds: Set<String>,
 	selectedUnlockEdgeIds: Set<String>,
-	selectedAvailableUnlockEdgeIds: Set<String>
+	selectedAvailableUnlockEdgeIds: Set<String>,
+	isFocusActive: Boolean,
+	statusFilteredNodeIds: Set<String>,
+	isStatusFilterActive: Boolean
 ) {
 	model.edges.forEach { edge ->
-		if (edge.id in selectedRequirementEdgeIds) {
-			drawPensumEdge(
-				edge = edge,
-				model = model,
-				density = density,
-				graphColors = graphColors,
-				focusTone = EdgeFocusTone.Requirement
-			)
-		}
-	}
-	model.edges.forEach { edge ->
+		val route = edgeRoutes[edge.id] ?: return@forEach
 		if (
-			edge.id in selectedUnlockEdgeIds &&
-			edge.id !in selectedRequirementEdgeIds &&
-			edge.id !in selectedAvailableUnlockEdgeIds
+			edge.id in selectedRequirementEdgeIds ||
+			edge.id in selectedUnlockEdgeIds ||
+			edge.id in selectedAvailableUnlockEdgeIds
 		) {
-			drawPensumEdge(
-				edge = edge,
-				model = model,
-				density = density,
-				graphColors = graphColors,
-				focusTone = EdgeFocusTone.Requirement
-			)
+			return@forEach
 		}
+		val isFilteredOut = isStatusFilterActive &&
+			edge.fromNodeId !in statusFilteredNodeIds &&
+			edge.toNodeId !in statusFilteredNodeIds
+		drawPensumEdge(
+			edge = edge,
+			route = route,
+			graphColors = graphColors,
+			focusTone = if (isFocusActive || isFilteredOut) EdgeFocusTone.Dimmed else EdgeFocusTone.Default
+		)
 	}
+
 	model.edges.forEach { edge ->
-		if (edge.id in selectedAvailableUnlockEdgeIds && edge.id !in selectedRequirementEdgeIds) {
-			drawPensumEdge(
-				edge = edge,
-				model = model,
-				density = density,
-				graphColors = graphColors,
-				focusTone = EdgeFocusTone.Unlock
-			)
+		val route = edgeRoutes[edge.id] ?: return@forEach
+		when (edge.id) {
+			in selectedRequirementEdgeIds -> {
+				drawPensumEdge(
+					edge = edge,
+					route = route,
+					graphColors = graphColors,
+					focusTone = EdgeFocusTone.Requirement
+				)
+			}
+
+			in selectedUnlockEdgeIds if edge.id !in selectedRequirementEdgeIds &&
+					edge.id !in selectedAvailableUnlockEdgeIds
+				-> {
+				drawPensumEdge(
+					edge = edge,
+					route = route,
+					graphColors = graphColors,
+					focusTone = EdgeFocusTone.Requirement
+				)
+			}
+
+			in selectedAvailableUnlockEdgeIds if edge.id !in selectedRequirementEdgeIds
+				-> {
+				drawPensumEdge(
+					edge = edge,
+					route = route,
+					graphColors = graphColors,
+					focusTone = EdgeFocusTone.Unlock
+				)
+			}
 		}
 	}
 }
 
 private fun DrawScope.drawPensumEdge(
 	edge: PensumEdgeItem,
-	model: PensumScreenModel,
-	density: Float,
+	route: List<Offset>,
 	graphColors: PensumGraphColors,
 	focusTone: EdgeFocusTone
 ) {
-	if (edge.points.size < 2) return
+	if (route.size < 2) return
 	val color = when (focusTone) {
 		EdgeFocusTone.Default -> graphColors.canvasNeutral
 		EdgeFocusTone.Dimmed -> graphColors.canvasNeutral.copy(alpha = 0.18f)
@@ -911,14 +955,8 @@ private fun DrawScope.drawPensumEdge(
 	} else {
 		null
 	}
-	val points = model.edgeRoute(
-		edge = edge,
-		endpointGap = EdgeEndpointGap.toPx() / density,
-		rerouteSpacing = EdgeRerouteSpacing.toPx() / density
-	).map { point -> Offset(point.x * density, point.y * density) }
-	if (points.size < 2) return
 	drawPath(
-		path = points.toRoundedOrthogonalPath(cornerRadius = EdgeCornerRadius.toPx()),
+		path = route.toRoundedOrthogonalPath(cornerRadius = EdgeCornerRadius.toPx()),
 		color = color,
 		style = Stroke(
 			width = strokeWidth.toPx(),
@@ -926,7 +964,7 @@ private fun DrawScope.drawPensumEdge(
 			pathEffect = pathEffect
 		)
 	)
-	drawArrowHead(points[points.lastIndex - 1], points.last(), color)
+	drawArrowHead(route[route.lastIndex - 1], route.last(), color)
 }
 
 private enum class EdgeFocusTone {

@@ -13,10 +13,11 @@ import kotlin.math.sqrt
 internal fun PensumScreenModel.edgeRoute(
 	edge: PensumEdgeItem,
 	endpointGap: Float,
-	rerouteSpacing: Float
+	rerouteSpacing: Float,
+	nodesById: Map<String, PensumNodeItem>
 ): List<Offset> {
-	val from = nodes.firstOrNull { node -> node.id == edge.fromNodeId }
-	val to = nodes.firstOrNull { node -> node.id == edge.toNodeId }
+	val from = nodesById[edge.fromNodeId]
+	val to = nodesById[edge.toNodeId]
 	if (from == null || to == null) {
 		return edge.points.map { point -> Offset(point.x.toFloat(), point.y.toFloat()) }
 	}
@@ -83,6 +84,21 @@ internal fun PensumScreenModel.edgeRoute(
 				end
 			)
 		}
+	}
+}
+
+internal fun PensumScreenModel.edgeRoutes(
+	endpointGap: Float,
+	rerouteSpacing: Float
+): Map<String, List<Offset>> {
+	val nodesById = nodes.associateBy { node -> node.id }
+	return edges.associate { edge ->
+		edge.id to edgeRoute(
+			edge = edge,
+			endpointGap = endpointGap,
+			rerouteSpacing = rerouteSpacing,
+			nodesById = nodesById
+		)
 	}
 }
 
