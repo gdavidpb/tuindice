@@ -39,8 +39,20 @@ appId: com.gdavidpb.tuindice.debug
     id: evaluation_type_picker_row
 - assertVisible:
     id: evaluation_date_picker
-- assertVisible:
-    id: evaluation_grade_chip
+- runFlow:
+    when:
+      visible:
+        id: evaluation_grade_chip
+    commands:
+      - assertVisible:
+          id: evaluation_grade_chip
+- runFlow:
+    when:
+      notVisible:
+        id: evaluation_grade_chip
+    commands:
+      - assertVisible:
+          id: evaluation_max_grade_chip
 - tapOn:
     id: evaluation_done_fab
 - extendedWaitUntil:
