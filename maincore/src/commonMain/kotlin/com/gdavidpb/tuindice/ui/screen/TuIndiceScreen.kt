@@ -17,15 +17,15 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material.icons.automirrored.filled.Assignment
-import androidx.compose.material.icons.automirrored.outlined.Article
 import androidx.compose.material.icons.automirrored.outlined.Assignment
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.AccountTree
+import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.AccountTree
+import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.FindInPage
@@ -384,7 +384,7 @@ private fun bottomBarIcon(
 	BottomBarConfig.Summary ->
 		if (selected) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder
 	BottomBarConfig.Record ->
-		if (selected) Icons.AutoMirrored.Filled.Article else Icons.AutoMirrored.Outlined.Article
+		if (selected) Icons.Filled.Book else Icons.Outlined.Book
 	BottomBarConfig.Pensum ->
 		if (selected) Icons.Filled.AccountTree else Icons.Outlined.AccountTree
 	BottomBarConfig.Evaluations ->
