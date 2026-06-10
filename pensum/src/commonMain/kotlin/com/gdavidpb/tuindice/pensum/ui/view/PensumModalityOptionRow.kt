@@ -30,6 +30,8 @@ fun PensumModalityOptionRow(
 	onClick: () -> Unit
 ) {
 	val graphColors = pensumGraphColors()
+	val selectedBackground = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
+	val selectedBorder = MaterialTheme.colorScheme.primary
 
 	Surface(
 		modifier = modifier
@@ -40,13 +42,10 @@ fun PensumModalityOptionRow(
 				onClick = onClick
 		),
 		shape = PensumElementShape,
-		color = graphColors.panelBackground,
+		color = if (isSelected) selectedBackground else graphColors.panelBackground,
 		border = BorderStroke(
 			width = 1.dp,
-			color = if (isSelected)
-				MaterialTheme.colorScheme.primary
-			else
-				MaterialTheme.colorScheme.outlineVariant
+			color = if (isSelected) selectedBorder else MaterialTheme.colorScheme.outlineVariant
 		)
 	) {
 		Row(
@@ -58,6 +57,7 @@ fun PensumModalityOptionRow(
 				modifier = Modifier.weight(1f),
 				text = modality.name,
 				style = MaterialTheme.typography.bodyMedium,
+				color = MaterialTheme.colorScheme.onSurface,
 				fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
 				maxLines = 1,
 				overflow = TextOverflow.Ellipsis

@@ -112,9 +112,10 @@ fun PensumSelectionBottomSheet(
 						key = PensumOptionItem::id,
 						contentType = { PensumVersionOptionContentType }
 					) { item ->
+						val isSelected = item.hasSameAcademicIdentity(selectedPensumState.value)
 						FilterChip(
 							modifier = Modifier.testTag(PensumUiTags.versionOption(item.year)),
-							selected = item.hasSameAcademicIdentity(selectedPensumState.value),
+							selected = isSelected,
 							onClick = {
 								selectedPensumState.value = item
 								selectedModalityIdState.value = (
@@ -128,9 +129,15 @@ fun PensumSelectionBottomSheet(
 									maxLines = 1
 								)
 							},
+							border = FilterChipDefaults.filterChipBorder(
+								enabled = true,
+								selected = isSelected,
+								selectedBorderColor = MaterialTheme.colorScheme.primary,
+								disabledBorderColor = MaterialTheme.colorScheme.outlineVariant
+							),
 							colors = FilterChipDefaults.filterChipColors(
 								containerColor = graphColors.panelBackground,
-								selectedContainerColor = graphColors.panelBackground,
+								selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
 								selectedLabelColor = MaterialTheme.colorScheme.onSurface
 							)
 						)
