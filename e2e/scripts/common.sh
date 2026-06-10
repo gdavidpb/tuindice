@@ -195,19 +195,19 @@ run_maestro_with_progress() {
 	local debug_output_dir="$5"
 	shift 5
 	local started_at
-	local command_pid
 	local status=0
 
 	maestro_direct_flow_plan "${suite_path}"
 	log_maestro_start "${platform}" "${suite_path}" "${log_file}" "${test_output_dir}" "${debug_output_dir}"
 	started_at="$(date +%s)"
-	(
+	if (
 		set -o pipefail
 		"$@" 2>&1 | tee "${log_file}"
-	) &
-	command_pid="$!"
-
-	wait "${command_pid}" || status="$?"
+	); then
+		status=0
+	else
+		status="$?"
+	fi
 	log_maestro_finish "${platform}" "${status}" "${started_at}"
 	return "${status}"
 }
@@ -581,21 +581,21 @@ run_maestro_item_compact() {
 	local test_output_dir="$7"
 	local debug_output_dir="$8"
 	shift 8
-	local command_pid
 	local status=0
 
 	mkdir -p "$(dirname "${item_log}")"
-	(
+	if (
 		set -o pipefail
 		if [[ "${E2E_MAESTRO_RAW_OUTPUT:-0}" == "1" ]]; then
 			"$@" 2>&1 | tee "${item_log}"
 		else
 			"$@" >"${item_log}" 2>&1
 		fi
-	) &
-	command_pid="$!"
-
-	wait "${command_pid}" || status="$?"
+	); then
+		status=0
+	else
+		status="$?"
+	fi
 	return "${status}"
 }
 
