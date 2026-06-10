@@ -19,7 +19,6 @@ internal val CanvasNeutral = Available
 internal val Selected = Color(0xFFF7F7F7)
 internal val TextPrimary = Color(0xFFF7F7F7)
 internal val TextSecondary = Color(0xFF9C9EA3)
-private val LightPensumPanelBackground = Color(0xFFF7F2FA)
 private val LightPensumCanvasTermBand = Color(0xFFF4F4F4)
 private val LightPensumPanelBorder = Color(0xFFD8D8D8)
 private val LightPensumNeutral = Color(0xFF8A8A8A)
@@ -64,14 +63,15 @@ internal fun pensumGraphColors(): PensumGraphColors {
 			minimapBackground = recordItemBackground
 		)
 	} else {
+		val panelBackground = colorScheme.surfaceContainerLow
 		PensumGraphColors(
 			isDark = false,
 			screenBackground = colorScheme.background,
 			canvasBackground = colorScheme.background,
 			canvasTermBand = LightPensumCanvasTermBand.copy(alpha = 0.72f),
-			panelBackground = LightPensumPanelBackground,
+			panelBackground = panelBackground,
 			panelBorder = LightPensumPanelBorder,
-			floatingPanelBackground = LightPensumPanelBackground,
+			floatingPanelBackground = panelBackground,
 			approved = Color(0xFF2E7D32),
 			current = colorScheme.primary,
 			available = LightPensumNeutral,
@@ -80,9 +80,9 @@ internal fun pensumGraphColors(): PensumGraphColors {
 			selected = LightPensumTextSecondary,
 			textPrimary = colorScheme.onSurface,
 			textSecondary = LightPensumTextSecondary,
-			nodeContainer = LightPensumPanelBackground,
-			controlsBackground = LightPensumPanelBackground,
-			minimapBackground = LightPensumPanelBackground
+			nodeContainer = panelBackground,
+			controlsBackground = panelBackground,
+			minimapBackground = panelBackground
 		)
 	}
 }

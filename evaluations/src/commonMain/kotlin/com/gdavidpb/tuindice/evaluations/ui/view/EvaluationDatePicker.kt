@@ -34,6 +34,8 @@ fun EvaluationDatePicker(
 	val displayedMonth = remember(selectedDate) {
 		mutableStateOf((committedDate ?: currentEvaluationLocalDate()).monthStart())
 	}
+	val pickerContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
+	val selectedPickerContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
 
 	fun resetDialogState() {
 		draftSelectedDate.value = committedDate
@@ -98,17 +100,20 @@ fun EvaluationDatePicker(
 		modifier = modifier
 			.testTag(EvaluationsUiTags.EvaluationDatePicker)
 	) {
-			OutlinedButton(
+		OutlinedButton(
 			modifier = Modifier
 				.testTag(EvaluationsUiTags.EvaluationDateSelectButton)
 				.offset(x = 0.5.dp)
 				.weight(0.5f)
 				.defaultMinSize(minHeight = 56.dp),
-			colors = if (selectedScheduleMode == EvaluationScheduleMode.DATED) {
-				ButtonDefaults.filledTonalButtonColors()
-			} else {
-				ButtonDefaults.outlinedButtonColors()
-			},
+			colors = ButtonDefaults.outlinedButtonColors(
+				containerColor = if (selectedScheduleMode == EvaluationScheduleMode.DATED) {
+					selectedPickerContainerColor
+				} else {
+					pickerContainerColor
+				},
+				contentColor = MaterialTheme.colorScheme.onSurface
+			),
 			onClick = {
 				resetDialogState()
 				isPickerDialogOpen.value = true
@@ -148,11 +153,14 @@ fun EvaluationDatePicker(
 				.offset(x = (-0.5).dp)
 				.weight(0.5f)
 				.defaultMinSize(minHeight = 56.dp),
-			colors = if (selectedScheduleMode == EvaluationScheduleMode.CONTINUOUS) {
-				ButtonDefaults.filledTonalButtonColors()
-			} else {
-				ButtonDefaults.outlinedButtonColors()
-			},
+			colors = ButtonDefaults.outlinedButtonColors(
+				containerColor = if (selectedScheduleMode == EvaluationScheduleMode.CONTINUOUS) {
+					selectedPickerContainerColor
+				} else {
+					pickerContainerColor
+				},
+				contentColor = MaterialTheme.colorScheme.onSurface
+			),
 			onClick = {
 				onDateChange(null)
 			},

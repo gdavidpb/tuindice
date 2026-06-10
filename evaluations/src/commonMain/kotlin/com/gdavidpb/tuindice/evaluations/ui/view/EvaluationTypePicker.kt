@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.FilterChip
+import androidx.compose.material3.FilterChipDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -28,6 +29,9 @@ fun EvaluationTypePicker(
 	items: List<EvaluationTypePickerItem>,
 	onTypeChange: (EvaluationType?) -> Unit
 ) {
+	val containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+	val selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
+
 	FlowRow(
 		modifier = Modifier
 			.animateContentSize(animationSpec = spring())
@@ -45,6 +49,12 @@ fun EvaluationTypePicker(
 				FilterChip(
 					modifier = Modifier.testTag(EvaluationsUiTags.evaluationTypeChip(item.type.name)),
 					selected = item.isSelected,
+					colors = FilterChipDefaults.filterChipColors(
+						containerColor = containerColor,
+						labelColor = MaterialTheme.colorScheme.onSurface,
+						selectedContainerColor = selectedContainerColor,
+						selectedLabelColor = MaterialTheme.colorScheme.onSurface
+					),
 					onClick = {
 						if (item.isSelected) {
 							onTypeChange(null)

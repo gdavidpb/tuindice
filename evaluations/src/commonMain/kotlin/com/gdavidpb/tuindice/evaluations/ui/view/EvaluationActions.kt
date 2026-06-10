@@ -35,7 +35,7 @@ fun EvaluationActions(
 				.weight(1f)
 				.testTag(EvaluationsUiTags.EvaluationSwipeEditAction),
 			text = stringResource(Res.string.label_evaluation_swipe_edit),
-			containerColor = MaterialTheme.colorScheme.surfaceContainerHighest,
+			containerColor = MaterialTheme.colorScheme.surfaceContainerLow,
 			contentColor = MaterialTheme.colorScheme.onSurface,
 			shape = RoundedCornerShape(
 				topStart = 8.dp,
