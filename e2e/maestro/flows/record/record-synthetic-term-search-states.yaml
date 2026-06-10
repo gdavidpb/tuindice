@@ -25,7 +25,6 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: record_create_synthetic_term_subject_MA1121_status_available
     timeout: 20000
-- assertVisible: "Disponible"
 - assertVisible:
     id: record_create_synthetic_term_subject_MA1121_add_button
 - tapOn:

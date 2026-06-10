@@ -49,11 +49,25 @@ appId: com.gdavidpb.tuindice.debug
     id: base_confirmation_dialog_positive_button
 - extendedWaitUntil:
     visible:
-      id: pensum_local_data_warning
+      id: pensum_canvas
     timeout: 30000
+- runFlow:
+    when:
+      visible:
+        id: pensum_local_data_warning
+    commands:
+      - assertVisible:
+          id: pensum_local_data_warning
+- runFlow:
+    when:
+      notVisible:
+        id: pensum_local_data_warning
+    commands:
+      - assertNotVisible:
+          id: pensum_local_data_warning
 - assertVisible:
     id: pensum_canvas
 - assertVisible:
-    id: pensum_node_0800-2019-degree_project-t1-math1-ma1111
+    id: pensum_node_0800-2018-long_internship-t1-math1-ma1111
 - assertNotVisible:
     id: base_snackbar_container

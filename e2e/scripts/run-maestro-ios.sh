@@ -44,6 +44,21 @@ MAESTRO_LOG_FILE="${E2E_MAESTRO_LOG_FILE:-${E2E_REPORT_DIR}/maestro-ios.log}"
 MAESTRO_HOME="${E2E_MAESTRO_HOME:-${E2E_TMP_DIR}/maestro-home/ios}"
 mkdir -p "${MAESTRO_HOME}"
 E2E_MAESTRO_SUITE="$("${SCRIPT_DIR}/prepare-maestro-suite.sh" "${E2E_MAESTRO_SUITE}")"
+
+if [[ "${E2E_MAESTRO_RESUME_FIRST}" == "1" ]]; then
+	log "iOS Maestro resolved device: ${MAESTRO_IOS_DEVICE_ID}."
+	run_maestro_suite_resume_first \
+		"iOS" \
+		"${MAESTRO_LOG_FILE}" \
+		"${E2E_MAESTRO_SUITE}" \
+		"${E2E_MAESTRO_TEST_OUTPUT_DIR:-}" \
+		"${E2E_MAESTRO_DEBUG_OUTPUT_DIR:-}" \
+		"${E2E_MAESTRO_REPORT_FILE:-}" \
+		"${MAESTRO_HOME}" \
+		"${MAESTRO_IOS_DEVICE_ID}"
+	exit "$?"
+fi
+
 declare -a maestro_args=(
 	test
 )

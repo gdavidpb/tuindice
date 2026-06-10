@@ -1093,6 +1093,7 @@ flows:
       - base_confirmation_dialog_positive_button
       - pensum_local_data_warning
       - pensum_canvas
+      - pensum_node_0800-2018-long_internship-t1-math1-ma1111
       - base_snackbar_container
   - id: subjects-smoke
     path: e2e/maestro/flows/subjects/subjects-smoke.yaml

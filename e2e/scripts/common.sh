@@ -19,6 +19,8 @@ E2E_MAESTRO_SUITE="${E2E_MAESTRO_SUITE:-${REPO_ROOT}/e2e/maestro/flows/suites/lo
 E2E_DISABLE_KEYBOARD_HELPERS="${E2E_DISABLE_KEYBOARD_HELPERS:-1}"
 E2E_WIREMOCK_DELAY_PROFILE="${E2E_WIREMOCK_DELAY_PROFILE:-fast}"
 E2E_MAESTRO_OPTIMIZE_SETUP="${E2E_MAESTRO_OPTIMIZE_SETUP:-1}"
+E2E_MAESTRO_RESUME_FIRST="${E2E_MAESTRO_RESUME_FIRST:-1}"
+E2E_MAESTRO_CHECKPOINT_DIR="${E2E_MAESTRO_CHECKPOINT_DIR:-${REPO_ROOT}/build/e2e/checkpoints}"
 
 log() {
 	printf '[tuindice-e2e] %s\n' "$*"
@@ -53,6 +55,18 @@ capture_streamed_last_line() {
 elapsed_label() {
 	local elapsed_seconds="$1"
 	printf '%dm %02ds' "$((elapsed_seconds / 60))" "$((elapsed_seconds % 60))"
+}
+
+maestro_progress_percent() {
+	local current="$1"
+	local total="$2"
+
+	if [[ ! "${current}" =~ ^[0-9]+$ || ! "${total}" =~ ^[0-9]+$ || "${total}" == "0" ]]; then
+		printf '0'
+		return 0
+	fi
+
+	printf '%s' "$((current * 100 / total))"
 }
 
 display_path() {
@@ -154,9 +168,8 @@ log_maestro_start() {
 	local report_file="${E2E_MAESTRO_REPORT_FILE:-}"
 	local test_output_dir="$4"
 	local debug_output_dir="$5"
-	local interval_seconds="$6"
 
-	log "${platform} Maestro start: suite=$(basename "${suite_path}"), progressInterval=${interval_seconds}s."
+	log "${platform} Maestro start: suite=$(basename "${suite_path}")."
 	log "${platform} Maestro outputs: log=$(display_path "${log_file}"), report=$(display_path "${report_file}"), artifacts=$(display_path "${test_output_dir}"), debug=$(display_path "${debug_output_dir}")."
 }
 
@@ -174,82 +187,6 @@ log_maestro_finish() {
 	fi
 }
 
-latest_modified_file() {
-	local path
-	local file
-	local timestamp
-
-	for path in "$@"; do
-		[[ -n "${path}" && -d "${path}" ]] || continue
-		while IFS= read -r -d '' file; do
-			timestamp="$(stat -f '%m' "${file}" 2>/dev/null || stat -c '%Y' "${file}" 2>/dev/null || printf '0')"
-			printf '%s\t%s\n' "${timestamp}" "${file}"
-		done < <(find "${path}" -type f -print0 2>/dev/null)
-	done | sort -rn | head -n 1 | cut -f2-
-}
-
-latest_wiremock_request() {
-	local wiremock_log="${E2E_TMP_DIR}/wiremock.log"
-	[[ -f "${wiremock_log}" ]] || return 0
-	awk '
-		/Request received:/ {
-			request = $0
-			if (getline endpoint) {
-				last = request " " endpoint
-			}
-		}
-		END {
-			if (last != "") {
-				print last
-			}
-		}
-	' "${wiremock_log}"
-}
-
-log_maestro_progress() {
-	local platform="$1"
-	local started_at="$2"
-	local test_output_dir="$3"
-	local debug_output_dir="$4"
-	local log_file="$5"
-	local elapsed
-	local latest_file
-	local latest_line=""
-	local wiremock_request=""
-
-	elapsed="$(elapsed_label "$(($(date +%s) - started_at))")"
-	latest_file="$(latest_modified_file "${test_output_dir}" "${debug_output_dir}")"
-
-	if [[ -n "${latest_file}" ]]; then
-		case "${latest_file}" in
-			*.json|*.log|*.txt|*.xml|*.yaml)
-				latest_line="$(tail -n 1 "${latest_file}" 2>/dev/null | tr -d '\r' | cut -c1-220)"
-				;;
-		esac
-		if [[ -n "${latest_line}" ]]; then
-			log "${platform} Maestro running ${elapsed}; artifact=$(display_path "${latest_file}"); last='${latest_line}'."
-		else
-			log "${platform} Maestro running ${elapsed}; artifact=$(display_path "${latest_file}") updated."
-		fi
-		return 0
-	fi
-
-	wiremock_request="$(latest_wiremock_request)"
-	if [[ -n "${wiremock_request}" ]]; then
-		log "${platform} Maestro running ${elapsed}; latest WireMock request: ${wiremock_request}."
-		return 0
-	fi
-
-	if [[ -f "${log_file}" ]]; then
-		latest_line="$(tail -n 1 "${log_file}" 2>/dev/null | tr -d '\r' | cut -c1-220)"
-	fi
-	if [[ -n "${latest_line}" ]]; then
-		log "${platform} Maestro running ${elapsed}; latest log='${latest_line}'."
-	else
-		log "${platform} Maestro running ${elapsed}; waiting for first Maestro output."
-	fi
-}
-
 run_maestro_with_progress() {
 	local platform="$1"
 	local log_file="$2"
@@ -257,14 +194,12 @@ run_maestro_with_progress() {
 	local test_output_dir="$4"
 	local debug_output_dir="$5"
 	shift 5
-	local interval_seconds="${E2E_MAESTRO_PROGRESS_INTERVAL_SECONDS:-30}"
 	local started_at
 	local command_pid
-	local monitor_pid
 	local status=0
 
 	maestro_direct_flow_plan "${suite_path}"
-	log_maestro_start "${platform}" "${suite_path}" "${log_file}" "${test_output_dir}" "${debug_output_dir}" "${interval_seconds}"
+	log_maestro_start "${platform}" "${suite_path}" "${log_file}" "${test_output_dir}" "${debug_output_dir}"
 	started_at="$(date +%s)"
 	(
 		set -o pipefail
@@ -272,21 +207,621 @@ run_maestro_with_progress() {
 	) &
 	command_pid="$!"
 
-	(
-		trap 'exit 0' INT TERM
-		while kill -0 "${command_pid}" >/dev/null 2>&1; do
-			sleep "${interval_seconds}"
-			kill -0 "${command_pid}" >/dev/null 2>&1 || break
-			log_maestro_progress "${platform}" "${started_at}" "${test_output_dir}" "${debug_output_dir}" "${log_file}"
-		done
-	) &
-	monitor_pid="$!"
-
 	wait "${command_pid}" || status="$?"
-	kill "${monitor_pid}" >/dev/null 2>&1 || true
-	wait "${monitor_pid}" >/dev/null 2>&1 || true
 	log_maestro_finish "${platform}" "${status}" "${started_at}"
 	return "${status}"
+}
+
+maestro_slug() {
+	local value="$1"
+	printf '%s' "${value}" | tr '/[:space:]' '__' | tr -cd 'A-Za-z0-9_.-'
+}
+
+maestro_checkpoint_dir() {
+	local platform="$1"
+	local suite_path="$2"
+	local suite_id
+
+	suite_id="$(basename "${suite_path}" .yaml)"
+	printf '%s/%s/%s\n' \
+		"${E2E_MAESTRO_CHECKPOINT_DIR}" \
+		"$(maestro_slug "${platform}")" \
+		"$(maestro_slug "${suite_id}")"
+}
+
+maestro_checkpoint_file() {
+	local platform="$1"
+	local suite_path="$2"
+	printf '%s/resume-target.txt\n' "$(maestro_checkpoint_dir "${platform}" "${suite_path}")"
+}
+
+maestro_legacy_checkpoint_file() {
+	local platform="$1"
+	local suite_path="$2"
+	printf '%s/last-failure.txt\n' "$(maestro_checkpoint_dir "${platform}" "${suite_path}")"
+}
+
+maestro_checkpoint_metadata_file() {
+	local platform="$1"
+	local suite_path="$2"
+	printf '%s/metadata.env\n' "$(maestro_checkpoint_dir "${platform}" "${suite_path}")"
+}
+
+maestro_checkpoint_targets_file() {
+	local platform="$1"
+	local suite_path="$2"
+	printf '%s/targets.txt\n' "$(maestro_checkpoint_dir "${platform}" "${suite_path}")"
+}
+
+write_maestro_checkpoint() {
+	local platform="$1"
+	local suite_path="$2"
+	local target="$3"
+	local original_index="$4"
+	local total_count="$5"
+	local log_file="$6"
+	local reason="${7:-failed}"
+	local checkpoint_dir
+	local checkpoint_file
+	local metadata_file
+	local legacy_checkpoint_file
+	local recorded_at
+
+	checkpoint_dir="$(maestro_checkpoint_dir "${platform}" "${suite_path}")"
+	checkpoint_file="$(maestro_checkpoint_file "${platform}" "${suite_path}")"
+	legacy_checkpoint_file="$(maestro_legacy_checkpoint_file "${platform}" "${suite_path}")"
+	metadata_file="$(maestro_checkpoint_metadata_file "${platform}" "${suite_path}")"
+	recorded_at="$(date -u +%Y-%m-%dT%H:%M:%SZ)"
+	mkdir -p "${checkpoint_dir}"
+	printf '%s\n' "${target}" >"${checkpoint_file}"
+	rm -f "${legacy_checkpoint_file}" 2>/dev/null || true
+	{
+		printf 'recorded_at=%s\n' "${recorded_at}"
+		printf 'reason=%s\n' "${reason}"
+		if [[ "${reason}" == "failed" ]]; then
+			printf 'failed_at=%s\n' "${recorded_at}"
+		fi
+		printf 'platform=%s\n' "${platform}"
+		printf 'suite=%s\n' "$(basename "${suite_path}")"
+		printf 'target=%s\n' "${target}"
+		printf 'original_index=%s\n' "${original_index}"
+		printf 'total_count=%s\n' "${total_count}"
+		printf 'log_file=%s\n' "${log_file}"
+	} >"${metadata_file}"
+}
+
+maestro_checkpoint_reason() {
+	local platform="$1"
+	local suite_path="$2"
+	local metadata_file
+	local reason=""
+
+	metadata_file="$(maestro_checkpoint_metadata_file "${platform}" "${suite_path}")"
+	if [[ -f "${metadata_file}" ]]; then
+		reason="$(awk -F= '$1 == "reason" { print $2; exit }' "${metadata_file}")"
+	fi
+	printf '%s\n' "${reason:-failed}"
+}
+
+clear_maestro_checkpoint() {
+	local platform="$1"
+	local suite_path="$2"
+	local checkpoint_dir
+
+	checkpoint_dir="$(maestro_checkpoint_dir "${platform}" "${suite_path}")"
+	if [[ -d "${checkpoint_dir}" ]]; then
+		rm -rf "${checkpoint_dir}"
+	fi
+}
+
+maestro_resolve_flow_target() {
+	local target="$1"
+	local base_dir="$2"
+	local candidate
+	local candidate_dir
+
+	case "${target}" in
+		/*)
+			candidate="${target}"
+			;;
+		*)
+			candidate="$(cd "${base_dir}" && pwd -P)/${target}"
+			;;
+	esac
+
+	candidate_dir="$(dirname "${candidate}")"
+	if [[ -d "${candidate_dir}" ]]; then
+		printf '%s/%s\n' "$(cd "${candidate_dir}" && pwd -P)" "$(basename "${candidate}")"
+	else
+		printf '%s\n' "${candidate}"
+	fi
+}
+
+maestro_flows_root_for_suite() {
+	local suite_path="$1"
+	local flows_root="${REPO_ROOT}/e2e/maestro/flows"
+	local prepared_prefix="${E2E_TMP_DIR}/maestro-prepared/"
+	local relative
+	local prepared_suite
+
+	case "${suite_path}" in
+		"${flows_root}/"*)
+			printf '%s\n' "${flows_root}"
+			return 0
+			;;
+		"${prepared_prefix}"*)
+			relative="${suite_path#"${prepared_prefix}"}"
+			prepared_suite="${relative%%/*}"
+			printf '%s%s\n' "${prepared_prefix}" "${prepared_suite}"
+			return 0
+			;;
+	esac
+
+	printf '%s\n' "${flows_root}"
+}
+
+maestro_is_setup_target() {
+	local target_file="$1"
+
+	case "${target_file}" in
+		*/_shared/launch-clean.yaml|*/_shared/launch-seeded-authenticated.yaml)
+			return 0
+			;;
+	esac
+	return 1
+}
+
+maestro_flow_has_bootstrap() {
+	local target_file="$1"
+
+	[[ -f "${target_file}" ]] || return 1
+	awk '
+		/^---$/ { inCommands = 1; next }
+		inCommands && commandCount < 8 {
+			if ($0 == "- runFlow: ../_shared/launch-clean.yaml" ||
+				$0 == "- runFlow: ../_shared/launch-seeded-authenticated.yaml" ||
+				$0 ~ /^[[:space:]]*-[[:space:]]*launchApp:/) {
+				found = 1
+			}
+			if ($0 ~ /^- /) {
+				commandCount++
+			}
+		}
+		END { exit found ? 0 : 1 }
+	' "${target_file}"
+}
+
+maestro_item_prelude_entries() {
+	local target_file="$1"
+	local flows_root="$2"
+
+	if maestro_flow_has_bootstrap "${target_file}"; then
+		return 0
+	fi
+
+	case "${target_file}" in
+		*/auth/login-success.yaml)
+			printf '%s/_shared/launch-clean.yaml\n' "${flows_root}"
+			return 0
+			;;
+		*/wizard/*.yaml)
+			printf '%s/_shared/launch-clean.yaml\n' "${flows_root}"
+			printf '%s/auth/login-success.yaml\n' "${flows_root}"
+			return 0
+			;;
+	esac
+
+	printf '%s/_shared/launch-seeded-authenticated.yaml\n' "${flows_root}"
+}
+
+write_maestro_item_suite() {
+	local source_suite="$1"
+	local target="$2"
+	local item_suite="$3"
+	local source_suite_dir
+	local target_file
+	local flows_root
+	local prelude
+
+	source_suite_dir="$(dirname "${source_suite}")"
+	target_file="$(maestro_resolve_flow_target "${target}" "${source_suite_dir}")"
+	flows_root="$(maestro_flows_root_for_suite "${source_suite}")"
+	mkdir -p "$(dirname "${item_suite}")"
+	{
+		awk '
+			/^---$/ { exit }
+			!/^name:[[:space:]]/ { print }
+		' "${source_suite}"
+		printf 'name: TuIndice Maestro item %s\n' "$(maestro_flow_label "${target}")"
+		printf -- '---\n'
+		while IFS= read -r prelude; do
+			[[ -n "${prelude}" ]] || continue
+			printf -- '- runFlow: %s\n' "${prelude}"
+		done < <(maestro_item_prelude_entries "${target_file}" "${flows_root}")
+		printf -- '- runFlow: %s\n' "${target_file}"
+	} >"${item_suite}"
+}
+
+maestro_case_targets() {
+	local suite_path="$1"
+	local suite_dir
+	local target
+	local target_file
+
+	suite_dir="$(dirname "${suite_path}")"
+	while IFS= read -r target; do
+		[[ -n "${target}" ]] || continue
+		target_file="$(maestro_resolve_flow_target "${target}" "${suite_dir}")"
+		if maestro_is_setup_target "${target_file}"; then
+			continue
+		fi
+		printf '%s\n' "${target}"
+	done < <(maestro_direct_flow_entries "${suite_path}")
+}
+
+maestro_last_useful_line() {
+	local log_file="$1"
+
+	[[ -f "${log_file}" ]] || return 0
+	tail -n 80 "${log_file}" 2>/dev/null |
+		tr -d '\r' |
+		awk '
+			length($0) == 0 { next }
+			$0 == "Waiting for flows to complete..." { next }
+			$0 ~ /^[[:space:]]*at[[:space:]]/ { next }
+			$0 ~ /^[[:space:]]*\.\.\.[[:space:]][0-9]+[[:space:]]+more$/ { next }
+			{ line = $0 }
+			END { if (line != "") print substr(line, 1, 220) }
+		'
+}
+
+maestro_report_has_no_failures() {
+	local report_file="$1"
+
+	[[ -f "${report_file}" ]] || return 1
+	if grep -Eq '<(testsuite|testsuites)[^>]*(failures|errors)="[1-9][0-9]*"' "${report_file}"; then
+		return 1
+	fi
+
+	grep -Eq '<testcase[^>]*status="SUCCESS"|<(testsuite|testsuites)[^>]*failures="0"' "${report_file}"
+}
+
+maestro_log_reports_passed_flow() {
+	local log_file="$1"
+
+	[[ -f "${log_file}" ]] || return 1
+	grep -q '\[Passed\]' "${log_file}" && grep -q 'Flow Passed' "${log_file}"
+}
+
+maestro_nonzero_after_passed_flow_is_recoverable() {
+	local status="$1"
+	local log_file="$2"
+	local report_file="$3"
+
+	[[ "${status}" != "0" ]] || return 1
+	[[ "${E2E_STRICT_MAESTRO_EXIT:-0}" != "1" ]] || return 1
+	maestro_log_reports_passed_flow "${log_file}" || return 1
+	maestro_report_has_no_failures "${report_file}"
+}
+
+xml_escape() {
+	local value="$1"
+	value="${value//&/&amp;}"
+	value="${value//</&lt;}"
+	value="${value//>/&gt;}"
+	value="${value//\"/&quot;}"
+	value="${value//\'/&apos;}"
+	printf '%s' "${value}"
+}
+
+write_maestro_aggregate_junit() {
+	local report_file="$1"
+	local suite_name="$2"
+	local results_file="$3"
+	local tests=0
+	local errors=0
+	local total_duration=0
+	local status
+	local duration
+	local target
+	local item_log
+	local escaped_suite
+	local escaped_target
+	local escaped_log
+
+	[[ -n "${report_file}" ]] || return 0
+	[[ -f "${results_file}" ]] || return 0
+	mkdir -p "$(dirname "${report_file}")"
+	while IFS=$'\t' read -r status duration target item_log; do
+		[[ -n "${status}" ]] || continue
+		tests=$((tests + 1))
+		total_duration=$((total_duration + duration))
+		if [[ "${status}" != "0" ]]; then
+			errors=$((errors + 1))
+		fi
+	done <"${results_file}"
+
+	escaped_suite="$(xml_escape "${suite_name}")"
+	{
+		printf '<?xml version="1.0" encoding="UTF-8"?>\n'
+		printf '<testsuite name="%s" tests="%s" failures="0" errors="%s" skipped="0" time="%s">\n' \
+			"${escaped_suite}" \
+			"${tests}" \
+			"${errors}" \
+			"${total_duration}"
+		while IFS=$'\t' read -r status duration target item_log; do
+			[[ -n "${status}" ]] || continue
+			escaped_target="$(xml_escape "$(maestro_flow_label "${target}")")"
+			escaped_log="$(xml_escape "$(display_path "${item_log}")")"
+			if [[ "${status}" == "0" ]]; then
+				printf '  <testcase classname="%s" name="%s" time="%s" status="SUCCESS"/>\n' \
+					"${escaped_suite}" \
+					"${escaped_target}" \
+					"${duration}"
+			else
+				printf '  <testcase classname="%s" name="%s" time="%s" status="ERROR">\n' \
+					"${escaped_suite}" \
+					"${escaped_target}" \
+					"${duration}"
+				printf '    <error message="Maestro exit %s">See %s</error>\n' "${status}" "${escaped_log}"
+				printf '  </testcase>\n'
+			fi
+		done <"${results_file}"
+		printf '</testsuite>\n'
+	} >"${report_file}"
+}
+
+run_maestro_item_compact() {
+	local platform="$1"
+	local label="$2"
+	local execution_index="$3"
+	local original_index="$4"
+	local total_count="$5"
+	local item_log="$6"
+	local test_output_dir="$7"
+	local debug_output_dir="$8"
+	shift 8
+	local command_pid
+	local status=0
+
+	mkdir -p "$(dirname "${item_log}")"
+	(
+		set -o pipefail
+		if [[ "${E2E_MAESTRO_RAW_OUTPUT:-0}" == "1" ]]; then
+			"$@" 2>&1 | tee "${item_log}"
+		else
+			"$@" >"${item_log}" 2>&1
+		fi
+	) &
+	command_pid="$!"
+
+	wait "${command_pid}" || status="$?"
+	return "${status}"
+}
+
+run_maestro_suite_resume_first() {
+	local platform="$1"
+	local log_file="$2"
+	local suite_path="$3"
+	local test_output_dir="$4"
+	local debug_output_dir="$5"
+	local report_file="$6"
+	local maestro_home="$7"
+	local maestro_device_id="${8:-}"
+	local suite_name
+	local checkpoint_file
+	local legacy_checkpoint_file
+	local checkpoint_read_file=""
+	local checkpoint_targets_file
+	local checkpoint_target=""
+	local checkpoint_reason=""
+	local start_index=0
+	local total_count
+	local target
+	local found_checkpoint=0
+	local item_root
+	local results_file
+	local item_suite
+	local item_log
+	local item_report
+	local item_test_output_dir
+	local item_debug_output_dir
+	local execution_index
+	local original_zero_index
+	local original_index
+	local started_at
+	local elapsed
+	local status=0
+	local latest_line
+	local target_label
+	local target_file
+	local progress_percent
+	local command_status
+	local suite_dir
+	local fallback_command
+	local maestro_command
+	local targets=()
+
+	while IFS= read -r target; do
+		[[ -n "${target}" ]] || continue
+		targets+=("${target}")
+	done < <(maestro_case_targets "${suite_path}")
+
+	total_count="${#targets[@]}"
+	if [[ "${total_count}" == "0" ]]; then
+		fallback_command=(env "HOME=${maestro_home}" maestro)
+		if [[ -n "${maestro_device_id}" ]]; then
+			fallback_command+=(--device "${maestro_device_id}")
+		fi
+		fallback_command+=(test)
+		if [[ -n "${E2E_MAESTRO_FORMAT:-}" ]]; then
+			fallback_command+=(--format "${E2E_MAESTRO_FORMAT}")
+		fi
+		if [[ -n "${report_file}" ]]; then
+			fallback_command+=(--output "${report_file}")
+		fi
+		if [[ -n "${test_output_dir}" ]]; then
+			fallback_command+=(--test-output-dir "${test_output_dir}")
+		fi
+		if [[ -n "${debug_output_dir}" ]]; then
+			fallback_command+=(--debug-output "${debug_output_dir}")
+		fi
+		fallback_command+=("${suite_path}")
+		run_maestro_with_progress \
+			"${platform}" \
+			"${log_file}" \
+			"${suite_path}" \
+			"${test_output_dir}" \
+			"${debug_output_dir}" \
+			"${fallback_command[@]}"
+		return "$?"
+	fi
+
+	suite_name="$(basename "${suite_path}" .yaml)"
+	checkpoint_file="$(maestro_checkpoint_file "${platform}" "${suite_path}")"
+	legacy_checkpoint_file="$(maestro_legacy_checkpoint_file "${platform}" "${suite_path}")"
+	checkpoint_targets_file="$(maestro_checkpoint_targets_file "${platform}" "${suite_path}")"
+	if [[ -f "${checkpoint_file}" ]]; then
+		checkpoint_read_file="${checkpoint_file}"
+	elif [[ -f "${legacy_checkpoint_file}" ]]; then
+		checkpoint_read_file="${legacy_checkpoint_file}"
+	fi
+	if [[ -n "${checkpoint_read_file}" ]]; then
+		checkpoint_target="$(head -n 1 "${checkpoint_read_file}" | tr -d '\r')"
+		checkpoint_reason="$(maestro_checkpoint_reason "${platform}" "${suite_path}")"
+		for original_zero_index in "${!targets[@]}"; do
+			if [[ "${targets[$original_zero_index]}" == "${checkpoint_target}" ]]; then
+				start_index="${original_zero_index}"
+				found_checkpoint=1
+				break
+			fi
+		done
+		if [[ "${found_checkpoint}" != "1" ]]; then
+			log "${platform} Maestro checkpoint target no longer exists for ${suite_name}; restarting from first case."
+		fi
+	fi
+
+	mkdir -p "$(dirname "${log_file}")" "$(maestro_checkpoint_dir "${platform}" "${suite_path}")"
+	: >"${log_file}"
+	printf '%s\n' "${targets[@]}" >"${checkpoint_targets_file}"
+
+	item_root="${E2E_TMP_DIR}/maestro-items/$(maestro_slug "${platform}")/$(maestro_slug "${suite_name}")"
+	results_file="${item_root}/results.tsv"
+	rm -rf "${item_root}"
+	mkdir -p "${item_root}"
+	: >"${results_file}"
+
+	if [[ "${found_checkpoint}" == "1" ]]; then
+		log "${platform} Maestro plan: suite=${suite_name}; cases=${total_count}; resumeTarget=$(maestro_flow_label "${checkpoint_target}") case=$((start_index + 1))/${total_count}; checkpointReason=${checkpoint_reason}; order=rotated."
+	else
+		log "${platform} Maestro plan: suite=${suite_name}; cases=${total_count}; start=$(maestro_flow_label "${targets[0]}") case=1/${total_count}; order=normal."
+	fi
+	log "${platform} Maestro outputs: log=$(display_path "${log_file}"), report=$(display_path "${report_file}"), artifacts=$(display_path "${test_output_dir}"), debug=$(display_path "${debug_output_dir}")."
+
+	suite_dir="$(dirname "${suite_path}")"
+	for ((execution_index = 1; execution_index <= total_count; execution_index++)); do
+		original_zero_index=$(((start_index + execution_index - 1) % total_count))
+		original_index=$((original_zero_index + 1))
+		target="${targets[$original_zero_index]}"
+		target_label="$(maestro_flow_label "${target}")"
+		target_file="$(maestro_resolve_flow_target "${target}" "${suite_dir}")"
+		item_suite="${item_root}/suite-${execution_index}-case-${original_index}-$(maestro_slug "${target_label}").yaml"
+		item_log="${item_root}/logs/${execution_index}-case-${original_index}-$(maestro_slug "${target_label}").log"
+		item_report="${item_root}/reports/${execution_index}-case-${original_index}-$(maestro_slug "${target_label}").xml"
+		mkdir -p "$(dirname "${item_report}")"
+		item_test_output_dir=""
+		item_debug_output_dir=""
+		if [[ -n "${test_output_dir}" ]]; then
+			item_test_output_dir="${test_output_dir}/case-${original_index}-$(maestro_slug "${target_label}")"
+			mkdir -p "${item_test_output_dir}"
+		fi
+		if [[ -n "${debug_output_dir}" ]]; then
+			item_debug_output_dir="${debug_output_dir}/case-${original_index}-$(maestro_slug "${target_label}")"
+			mkdir -p "${item_debug_output_dir}"
+		fi
+
+		write_maestro_item_suite "${suite_path}" "${target}" "${item_suite}"
+		if [[ "${E2E_MAESTRO_RESET_WIREMOCK_PER_ITEM:-1}" == "1" ]]; then
+			reset_wiremock
+		fi
+
+		started_at="$(date +%s)"
+		progress_percent="$(maestro_progress_percent "${execution_index}" "${total_count}")"
+		write_maestro_checkpoint "${platform}" "${suite_path}" "${target}" "${original_index}" "${total_count}" "${item_log}" "in_progress"
+		log "${platform} Maestro START progress=${progress_percent}% case=${original_index}/${total_count} ${target_label}; target=$(display_path "${target_file}")."
+		{
+			printf '===== START progress=%s%% case=%s/%s %s =====\n' "${progress_percent}" "${original_index}" "${total_count}" "${target}"
+		} >>"${log_file}"
+
+		maestro_command=(env "HOME=${maestro_home}" maestro)
+		if [[ -n "${maestro_device_id}" ]]; then
+			maestro_command+=(--device "${maestro_device_id}")
+		fi
+		maestro_command+=(test)
+		if [[ -n "${E2E_MAESTRO_FORMAT:-}" ]]; then
+			maestro_command+=(--format "${E2E_MAESTRO_FORMAT}")
+		fi
+		if [[ -n "${report_file}" ]]; then
+			if [[ -z "${E2E_MAESTRO_FORMAT:-}" ]]; then
+				maestro_command+=(--format junit)
+			fi
+			maestro_command+=(--output "${item_report}")
+		elif [[ -n "${E2E_MAESTRO_REPORT_FILE:-}" ]]; then
+			maestro_command+=(--output "${item_report}")
+		fi
+		if [[ -n "${item_test_output_dir}" ]]; then
+			maestro_command+=(--test-output-dir "${item_test_output_dir}")
+		fi
+		if [[ -n "${item_debug_output_dir}" ]]; then
+			maestro_command+=(--debug-output "${item_debug_output_dir}")
+		fi
+		maestro_command+=("${item_suite}")
+
+		set +e
+		run_maestro_item_compact \
+			"${platform}" \
+			"${target_label}" \
+			"${execution_index}" \
+			"${original_index}" \
+			"${total_count}" \
+			"${item_log}" \
+			"${item_test_output_dir}" \
+			"${item_debug_output_dir}" \
+			"${maestro_command[@]}"
+		command_status="$?"
+		set -e
+		elapsed="$(($(date +%s) - started_at))"
+		if maestro_nonzero_after_passed_flow_is_recoverable "${command_status}" "${item_log}" "${item_report}"; then
+			log "${platform} Maestro recovered nonzero exit ${command_status} after clean PASS for ${target_label}; treating as PASS."
+			command_status=0
+		fi
+		printf '%s\t%s\t%s\t%s\n' "${command_status}" "${elapsed}" "${target}" "${item_log}" >>"${results_file}"
+		{
+			cat "${item_log}" 2>/dev/null || true
+			printf '===== END progress=%s%% case=%s/%s %s status=%s =====\n' "${progress_percent}" "${original_index}" "${total_count}" "${target}" "${command_status}"
+		} >>"${log_file}"
+
+		if [[ "${command_status}" == "0" ]]; then
+			log "${platform} Maestro PASS progress=${progress_percent}% case=${original_index}/${total_count} ${target_label}; elapsed=$(elapsed_label "${elapsed}")."
+			continue
+		fi
+
+		status="${command_status}"
+		latest_line="$(maestro_last_useful_line "${item_log}")"
+		write_maestro_checkpoint "${platform}" "${suite_path}" "${target}" "${original_index}" "${total_count}" "${item_log}" "failed"
+		write_maestro_aggregate_junit "${report_file}" "${suite_name}" "${results_file}"
+		log "${platform} Maestro FAIL progress=${progress_percent}% case=${original_index}/${total_count} ${target_label}; exit=${status}; elapsed=$(elapsed_label "${elapsed}")."
+		if [[ -n "${latest_line}" ]]; then
+			log "${platform} Maestro failure detail: failureSummary='${latest_line}'."
+		fi
+		log "${platform} Maestro failure artifacts: log=$(display_path "${item_log}"), report=$(display_path "${item_report}"), debug=$(display_path "${item_debug_output_dir}")."
+		return "${status}"
+	done
+
+	write_maestro_aggregate_junit "${report_file}" "${suite_name}" "${results_file}"
+	clear_maestro_checkpoint "${platform}" "${suite_path}"
+	log "${platform} Maestro finished: passed ${total_count}/${total_count}; checkpoint cleared."
+	return 0
 }
 
 is_macos() {

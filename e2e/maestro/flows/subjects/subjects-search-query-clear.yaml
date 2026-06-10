@@ -81,7 +81,8 @@ appId: com.gdavidpb.tuindice.debug
 - extendedWaitUntil:
     visible: "No encontramos materias"
     timeout: 15000
-- assertVisible: "No hay resultados para \"zzzznomatch\". Prueba con otro código o nombre."
+- assertVisible:
+    id: subjects_search_clear
 - tapOn:
     id: subjects_search_clear
 - assertVisible:

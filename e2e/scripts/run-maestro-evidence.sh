@@ -353,11 +353,12 @@ run_suite_evidence() {
 
 validate_publish_mode
 
-overall_status=0
-
 if [[ -n "$REQUESTED_E2E_MAESTRO_SUITE" ]]; then
-	run_suite_evidence "$REQUESTED_E2E_MAESTRO_SUITE" || overall_status="$?"
-	exit "$overall_status"
+	if run_suite_evidence "$REQUESTED_E2E_MAESTRO_SUITE"; then
+		exit 0
+	else
+		exit "$?"
+	fi
 fi
 
 if ! resolved_scope="$(resolved_suite_ids)"; then
@@ -388,7 +389,11 @@ for suite in "${suites[@]}"; do
 		exit 1
 	fi
 
-	run_suite_evidence "$suite_path" || overall_status="$?"
+	if run_suite_evidence "$suite_path"; then
+		continue
+	else
+		exit "$?"
+	fi
 done
 
-exit "$overall_status"
+exit 0

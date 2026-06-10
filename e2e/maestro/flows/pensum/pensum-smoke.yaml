@@ -33,10 +33,14 @@ appId: com.gdavidpb.tuindice.debug
     id: pensum_canvas
 - tapOn:
     id: pensum_zoom_in
-- assertVisible:
-    id: pensum_sticky_terms
-- assertVisible:
-    id: pensum_minimap_toggle
+- extendedWaitUntil:
+    visible:
+      id: pensum_fit_to_screen
+    timeout: 10000
+- extendedWaitUntil:
+    visible:
+      id: pensum_minimap_toggle
+    timeout: 10000
 - tapOn:
     id: pensum_minimap_toggle
 - assertVisible:

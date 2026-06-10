@@ -73,6 +73,19 @@ non-auth module flows use a debug-only seeded authenticated launch helper to
 avoid repeated login and wizard traversal. Set `E2E_MAESTRO_OPTIMIZE_SETUP=0`
 to run the source YAML exactly as written.
 
+Maestro runners execute suite `runFlow` entries one case at a time by default.
+When a case fails, the runner stores the failed target under
+`build/e2e/checkpoints/<platform>/<suite>/`. The next run starts from that
+target to fail fast after a local fix, then wraps around and executes the
+earlier cases before reporting success. Checkpoints never skip cases: a passing
+run always executes the full suite, only with a rotated start point. Set
+`E2E_MAESTRO_RESUME_FIRST=0` to use the legacy monolithic Maestro execution.
+The segmented runner prints the plan, one `START` line per case, and the final
+`PASS` or `FAIL` for that case; it does not emit heartbeat lines while Maestro
+is still running. Use `E2E_MAESTRO_RAW_OUTPUT=1` when debugging Maestro itself
+and you want raw CLI output in the terminal; otherwise raw output stays in the
+per-case logs.
+
 Profile local Maestro timing without publishing evidence:
 
 ```bash

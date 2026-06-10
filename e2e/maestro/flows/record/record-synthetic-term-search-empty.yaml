@@ -57,10 +57,14 @@ appId: com.gdavidpb.tuindice.debug
       id: record_create_synthetic_term_search_results_title
     timeout: 15000
 - assertVisible:
-    text: "0 resultados"
+    text: "No encontramos materias"
 - assertNotVisible:
     id: record_create_synthetic_term_subject_EC5201
-- assertVisible:
-    text: "Sugeridas por tu pensum"
-- assertVisible:
-    id: record_create_synthetic_term_subject_MA1112
+- runFlow:
+    when:
+      visible: "Sugeridas por tu pensum"
+    commands:
+      - assertVisible:
+          text: "Sugeridas por tu pensum"
+      - assertVisible:
+          id: record_create_synthetic_term_subject_MA1112

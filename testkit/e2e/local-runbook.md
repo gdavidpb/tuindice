@@ -58,6 +58,9 @@ Useful environment variables:
 - `E2E_SCOPE_FILE`: optional `platform,suite,reason` file to replay a previously resolved smart scope.
 - `E2E_MAESTRO_SUITE`: bypasses smart scope resolution and runs one explicit suite; use it only for ad-hoc debugging.
 - `E2E_MAESTRO_OPTIMIZE_SETUP`: defaults to `1`; set to `0` to run source YAML without the seeded authenticated setup optimization.
+- `E2E_MAESTRO_RESUME_FIRST`: defaults to `1`; starts the next run from the last failed case, then wraps around and still executes every case before success.
+- `E2E_MAESTRO_CHECKPOINT_DIR`: defaults to `build/e2e/checkpoints`; stores the last failed Maestro target per platform and suite.
+- `E2E_MAESTRO_RAW_OUTPUT`: defaults to `0`; set to `1` to print raw Maestro output in the terminal in addition to per-case log files.
 - `E2E_MAESTRO_HOME`: optional isolated home for Maestro CLI runtime logs; platform runners default it under `E2E_TMP_DIR`.
 - `E2E_WIREMOCK_DELAY_PROFILE`: defaults to `fast` in E2E runners; use `legacy` to keep checked-in WireMock delays unchanged.
 - `E2E_PROFILE_OUTPUT_DIR`: defaults to `build/e2e/profiles` for profile runs.
@@ -74,7 +77,9 @@ Execution order:
 3. Build the debug app.
 4. Reset app state.
 5. Install and prepare an optimized suite copy unless disabled.
-6. Run the Maestro suite.
+6. Run each Maestro `runFlow` case with compact progress output.
+7. On failure, store the failed case as the next resume-first start point.
+8. On success, clear the checkpoint only after every case in the suite passed in the current run.
 
 MVI action coverage:
 
