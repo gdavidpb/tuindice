@@ -1296,7 +1296,7 @@ flows:
       - evaluations.Evaluations.ShowEvaluationGradeDialog
       - evaluations.Evaluations.SetEvaluationGrade
     primary_selectors:
-      - evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
+      - evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435
       - evaluation_grade_action_button
       - evaluation_dialog_subtitle
       - evaluation_dialog_subject_code_chip
