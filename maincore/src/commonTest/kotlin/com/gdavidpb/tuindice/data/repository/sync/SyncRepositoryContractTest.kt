@@ -494,7 +494,7 @@ private class FakeSyncSettingsLocalDataSource(
 
 	override suspend fun isSyncRetryBackoffActive(): Boolean = syncRetryBackoffActive
 
-	override suspend fun markSyncRetryBackoff(_throwable: Throwable) {
+	override suspend fun markSyncRetryBackoff(throwable: Throwable) {
 		syncRetryBackoffMarked = true
 		syncRetryBackoffActive = true
 		syncRetryBackoffState = syncRetryBackoffState.copy(

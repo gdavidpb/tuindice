@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.SyncProblem
@@ -12,6 +13,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.testing.summaryContentState
 import com.gdavidpb.tuindice.summary.testing.summaryItemsFor
@@ -60,13 +62,15 @@ class SummaryContentViewUiTest {
 		val contentState = summaryContentState(isUserRefreshing = true)
 
 		setTuIndiceTestContent {
-			SummaryContentView(
-				state = contentState,
-				syncStatus = SyncStatus.Healthy,
-				summaryItems = summaryItemsFor(contentState),
-				onEditProfilePictureClick = { editClicks++ },
-				onStatusIconClick = {}
-			)
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+				SummaryContentView(
+					state = contentState,
+					syncStatus = SyncStatus.Healthy,
+					summaryItems = summaryItemsFor(contentState),
+					onEditProfilePictureClick = { editClicks++ },
+					onStatusIconClick = {}
+				)
+			}
 		}
 
 		onNodeWithTag(SummaryUiTags.ProfilePictureEditButton).assertIsNotEnabled()
@@ -124,14 +128,16 @@ class SummaryContentViewUiTest {
 		mainClock.autoAdvance = false
 
 		setTuIndiceTestContent {
-			SummaryContentView(
-				state = contentState,
-				syncStatus = SyncStatus.Healthy,
-				isSyncing = true,
-				summaryItems = summaryItemsFor(contentState),
-				onEditProfilePictureClick = {},
-				onStatusIconClick = {}
-			)
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+				SummaryContentView(
+					state = contentState,
+					syncStatus = SyncStatus.Healthy,
+					isSyncing = true,
+					summaryItems = summaryItemsFor(contentState),
+					onEditProfilePictureClick = {},
+					onStatusIconClick = {}
+				)
+			}
 		}
 
 		onNodeWithTag(
@@ -214,14 +220,16 @@ class SummaryContentViewUiTest {
 			var statusIconClicks = 0
 
 			setTuIndiceTestContent {
-				SummaryContentView(
-					state = contentState,
-					syncStatus = SyncStatus.Failed,
-					isSyncing = true,
-					summaryItems = summaryItemsFor(contentState),
-					onEditProfilePictureClick = {},
-					onStatusIconClick = { statusIconClicks++ }
-				)
+				CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+					SummaryContentView(
+						state = contentState,
+						syncStatus = SyncStatus.Failed,
+						isSyncing = true,
+						summaryItems = summaryItemsFor(contentState),
+						onEditProfilePictureClick = {},
+						onStatusIconClick = { statusIconClicks++ }
+					)
+				}
 			}
 
 			assertNodeVisible(SummaryUiTags.StatusRow)

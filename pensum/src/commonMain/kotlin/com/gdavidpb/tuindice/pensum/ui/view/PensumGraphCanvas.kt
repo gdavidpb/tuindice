@@ -533,25 +533,15 @@ fun PensumGraphCanvas(
 				)
 			}
 		}
-		val shouldShowMinimapControls by remember {
-			derivedStateOf {
-				isMinimapToggleVisible &&
-					!isFitToScreen &&
-					!isSubjectSheetVisible &&
-					!isManualCanvasGestureActive
-			}
-		}
-		val shouldShowCanvasOverlays by remember {
-			derivedStateOf { !isSubjectSheetVisible && !isManualCanvasGestureActive }
-		}
-		val shouldShowStickyTermHeader by remember {
-			derivedStateOf {
-				shouldRenderStickyTermHeader(
-					scale = scale.value,
-					isFitToScreen = isFitToScreen
-				) && !isManualCanvasGestureActive
-			}
-		}
+		val shouldShowMinimapControls = isMinimapToggleVisible &&
+			!isFitToScreen &&
+			!isSubjectSheetVisible &&
+			!isManualCanvasGestureActive
+		val shouldShowCanvasOverlays = !isSubjectSheetVisible && !isManualCanvasGestureActive
+		val shouldShowStickyTermHeader = shouldRenderStickyTermHeader(
+			scale = scale.value,
+			isFitToScreen = isFitToScreen
+		) && !isManualCanvasGestureActive
 
 		LaunchedEffect(isFitToScreen) {
 			if (isFitToScreen) {

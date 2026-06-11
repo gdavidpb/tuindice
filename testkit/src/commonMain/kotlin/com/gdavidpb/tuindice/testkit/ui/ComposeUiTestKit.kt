@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.test.ComposeUiTest
@@ -18,6 +20,10 @@ import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleOwner
+import androidx.lifecycle.LifecycleRegistry
+import androidx.lifecycle.compose.LocalLifecycleOwner
 
 enum class TuIndiceTestSizeClass(
 	val widthDp: Int,
@@ -52,7 +58,15 @@ fun ComposeUiTest.setTuIndiceTestContent(
 	content: @Composable () -> Unit
 ) {
 	setContent {
+		val lifecycleOwner = remember { TuIndiceTestLifecycleOwner() }
+
+		DisposableEffect(lifecycleOwner) {
+			lifecycleOwner.resume()
+			onDispose { lifecycleOwner.destroy() }
+		}
+
 		CompositionLocalProvider(
+			LocalLifecycleOwner provides lifecycleOwner,
 			LocalDensity provides Density(density = density),
 			LocalLayoutDirection provides locale.toLayoutDirection()
 		) {
@@ -68,6 +82,23 @@ fun ComposeUiTest.setTuIndiceTestContent(
 				}
 			}
 		}
+	}
+}
+
+private class TuIndiceTestLifecycleOwner : LifecycleOwner {
+	private val registry = LifecycleRegistry(this)
+
+	override val lifecycle: Lifecycle
+		get() = registry
+
+	fun resume() {
+		registry.handleLifecycleEvent(Lifecycle.Event.ON_CREATE)
+		registry.handleLifecycleEvent(Lifecycle.Event.ON_START)
+		registry.handleLifecycleEvent(Lifecycle.Event.ON_RESUME)
+	}
+
+	fun destroy() {
+		registry.handleLifecycleEvent(Lifecycle.Event.ON_DESTROY)
 	}
 }
 

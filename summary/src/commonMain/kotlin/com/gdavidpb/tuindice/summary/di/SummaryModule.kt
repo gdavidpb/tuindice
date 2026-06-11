@@ -30,13 +30,26 @@ import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
-import org.koin.core.module.dsl.viewModelOf
+import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
 
 val summaryModule = module {
 	/* View models */
 
-	viewModelOf(::SummaryViewModel)
+	viewModel {
+		SummaryViewModel(
+			observeSummaryActionProcessor = get(),
+			refreshSummaryActionProcessor = get(),
+			takeProfilePictureActionProcessor = get(),
+			pickProfilePictureActionProcessor = get(),
+			uploadProfilePictureActionProcessor = get(),
+			confirmRemoveProfilePictureActionProcessor = get(),
+			removeProfilePictureActionProcessor = get(),
+			openProfilePictureSettingsActionProcessor = get(),
+			eventPublisher = get(),
+			dispatchers = get()
+		)
+	}
 
 	/* Action processor */
 
@@ -51,10 +64,37 @@ val summaryModule = module {
 
 	/* Use cases */
 
-	factoryOf(::ObserveUserUseCase)
-	factoryOf(::UpdateUserUseCase)
-	factoryOf(::UploadProfilePictureUseCase)
-	factoryOf(::RemoveProfilePictureUseCase)
+	factory {
+		ObserveUserUseCase(
+			userRepository = get(),
+			reportingRepository = get(),
+			dispatchers = get()
+		)
+	}
+	factory {
+		UpdateUserUseCase(
+			userRepository = get(),
+			reportingRepository = get(),
+			exceptionHandler = get(),
+			dispatchers = get()
+		)
+	}
+	factory {
+		UploadProfilePictureUseCase(
+			userRepository = get(),
+			reportingRepository = get(),
+			exceptionHandler = get(),
+			dispatchers = get()
+		)
+	}
+	factory {
+		RemoveProfilePictureUseCase(
+			userRepository = get(),
+			reportingRepository = get(),
+			exceptionHandler = get(),
+			dispatchers = get()
+		)
+	}
 
 	/* Repositories */
 

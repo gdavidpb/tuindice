@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.di
 
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.data.source.ConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.SessionInvalidationDataSource
 import com.gdavidpb.tuindice.base.data.source.SessionDataSource
@@ -51,6 +53,7 @@ import org.koin.dsl.module
 val commonModule = module {
 	singleOf(::createSharedJson)
 	singleOf(::createAppSettings)
+	single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 
 	singleOf(::MultiplatformSettingsDataSource) { bind<SettingsRepository>() }
 	singleOf(::UsageDataConsentSettingsDataSource) { bind<UsageDataConsentRepository>() }
@@ -58,7 +61,8 @@ val commonModule = module {
 	single<EventPublisher> {
 		BufferedEventPublisher(
 			usageDataConsentRepository = get(),
-			eventSubscriber = CompositeEventSubscriber(subscribers = getAll<EventSubscriber>())
+			eventSubscriber = CompositeEventSubscriber(subscribers = getAll<EventSubscriber>()),
+			dispatchers = get()
 		)
 	}
 

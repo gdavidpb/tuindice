@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.summary.domain.usecase
 
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
@@ -12,8 +14,12 @@ import kotlinx.coroutines.flow.flowOf
 class UploadProfilePictureUseCase(
 	private val userRepository: UserRepository,
 	override val reportingRepository: ReportingRepository,
-	override val exceptionHandler: UploadProfilePictureExceptionHandler
-) : FlowUseCase<PlatformFile, String, ProfilePictureUseCaseError>(reportingRepository = reportingRepository) {
+	override val exceptionHandler: UploadProfilePictureExceptionHandler,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
+) : FlowUseCase<PlatformFile, String, ProfilePictureUseCaseError>(
+	reportingRepository = reportingRepository,
+	dispatchers = dispatchers
+) {
 	override suspend fun executeOnBackground(params: PlatformFile): Flow<String> {
 		val url = userRepository.uploadProfilePicture(file = params).url
 

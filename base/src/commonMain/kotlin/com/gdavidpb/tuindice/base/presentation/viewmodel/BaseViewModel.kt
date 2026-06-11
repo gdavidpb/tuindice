@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.base.presentation.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.event.AppEvent
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
@@ -9,7 +11,6 @@ import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.utils.extension.eventName
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
@@ -28,7 +29,8 @@ import kotlinx.coroutines.launch
 abstract class BaseViewModel<S : ViewState, A : ViewAction, E : ViewEffect>(
 	name: String,
 	initialState: S,
-	initialAction: A? = null
+	initialAction: A? = null,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : ViewModel() {
 	private val effectChannel = Channel<E>(Channel.BUFFERED)
 	private val actionChannel = Channel<A>(Channel.BUFFERED)
@@ -55,7 +57,7 @@ abstract class BaseViewModel<S : ViewState, A : ViewAction, E : ViewEffect>(
 		.scan(initialState) { currentState, mutation -> mutation(currentState) }
 		.distinctUntilChanged()
 		.onEach { state -> publishState(name, state) }
-		.flowOn(Dispatchers.Default)
+		.flowOn(dispatchers.default)
 		.stateIn(
 			scope = viewModelScope,
 			started = SharingStarted.Lazily,

@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.summary.di
 
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
@@ -23,6 +25,7 @@ class SummaryModuleKoinSmokeTest {
 			single<NetworkRepository> { FakeNetworkRepository(isAvailable = true) }
 			single<ReportingRepository> { RecordingReportingRepository() }
 			single<EventPublisher> { NoOpEventPublisher }
+			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 		}
 	) {
 		assertResolves(SummaryViewModel::class)

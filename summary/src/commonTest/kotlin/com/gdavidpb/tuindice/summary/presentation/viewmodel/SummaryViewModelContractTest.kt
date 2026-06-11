@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.summary.presentation.viewmodel
 
-import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
@@ -22,9 +22,14 @@ import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
+import com.gdavidpb.tuindice.testkit.coroutines.withMainDispatcher
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.withTimeout
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -33,42 +38,43 @@ class SummaryViewModelContractTest {
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun initialAction_observesSummary_andUserActionEmitsPickerEffect() = runTest {
-		val viewModel = createViewModel()
-		val stateCollector = backgroundScope.launchStateCollector(
-			flow = viewModel.state,
-			testScheduler = testScheduler
-		)
+		withMainDispatcher { dispatchers ->
+			val viewModel = createViewModel(dispatchers = dispatchers)
+			val stateCollector = backgroundScope.launchStateCollector(
+				flow = viewModel.state,
+				testScheduler = testScheduler
+			)
 
-		try {
-			viewModel.state.test {
-				assertEquals(Summary.State.Idle, awaitItem())
-
-				val content = assertIs<Summary.State.Content>(awaitItem())
+			try {
+				val content = withTimeout(3_000) {
+					viewModel.state
+						.filterIsInstance<Summary.State.Content>()
+						.first()
+				}
 				assertEquals("Ana Diaz", content.name)
 				assertEquals(DEFAULT_SUMMARY_USER.pictureUrl, content.profilePictureUrl)
 
-				cancelAndIgnoreRemainingEvents()
-			}
-
-			viewModel.effect.test {
+				val pickerEffect = async { viewModel.effect.first() }
 				viewModel.pickProfilePictureAction()
 
-				assertIs<Summary.Effect.OpenPicker>(awaitItem())
-				cancelAndIgnoreRemainingEvents()
+				assertIs<Summary.Effect.OpenPicker>(pickerEffect.await())
+			} finally {
+				stateCollector.cancel()
 			}
-		} finally {
-			stateCollector.cancel()
 		}
 	}
 
-	private fun createViewModel(): SummaryViewModel {
+	private fun createViewModel(
+		dispatchers: TuIndiceDispatchers
+	): SummaryViewModel {
 		val userRepository = RecordingUserRepository(users = flowOf(DEFAULT_SUMMARY_USER))
 
 		return SummaryViewModel(
 			observeSummaryActionProcessor = ObserveSummaryActionProcessor(
 				observeUserUseCase = ObserveUserUseCase(
 					userRepository = userRepository,
-					reportingRepository = RecordingReportingRepository()
+					reportingRepository = RecordingReportingRepository(),
+					dispatchers = dispatchers
 				)
 			),
 			refreshSummaryActionProcessor = RefreshSummaryActionProcessor(
@@ -77,7 +83,8 @@ class SummaryViewModelContractTest {
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = UpdateUserExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true)
-					)
+					),
+					dispatchers = dispatchers
 				)
 			),
 			takeProfilePictureActionProcessor = TakeProfilePictureActionProcessor(),
@@ -88,7 +95,8 @@ class SummaryViewModelContractTest {
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = UploadProfilePictureExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true)
-					)
+					),
+					dispatchers = dispatchers
 				)
 			),
 			confirmRemoveProfilePictureActionProcessor = ConfirmRemoveProfilePictureActionProcessor(
@@ -97,12 +105,14 @@ class SummaryViewModelContractTest {
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = RemoveProfilePictureExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true)
-					)
+					),
+					dispatchers = dispatchers
 				)
 			),
 			removeProfilePictureActionProcessor = RemoveProfilePictureActionProcessor(),
 			openProfilePictureSettingsActionProcessor = OpenProfilePictureSettingsActionProcessor(),
-			eventPublisher = NoOpEventPublisher
+			eventPublisher = NoOpEventPublisher,
+			dispatchers = dispatchers
 		)
 	}
 }

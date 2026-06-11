@@ -44,7 +44,6 @@ import com.gdavidpb.tuindice.pensum.ui.view.CanvasOverlayAnimationMillis
 import com.gdavidpb.tuindice.pensum.ui.view.LocalPensumManualCanvasGestureActiveOverride
 import com.gdavidpb.tuindice.pensum.ui.view.PensumGraphCanvas
 import com.gdavidpb.tuindice.pensum.ui.view.ZoomControlStepCount
-import com.gdavidpb.tuindice.testkit.ui.TuIndiceTestSizeClass
 import com.gdavidpb.tuindice.testkit.ui.advanceAnimationsBy
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -328,7 +327,7 @@ class PensumScreenUiTest {
 
 	@Test
 	fun when_canvasOpens_then_doesNotAutomaticallyFitToScreen() = runTuIndiceUiTest {
-		setTuIndiceTestContent(sizeClass = TuIndiceTestSizeClass.Expanded) {
+		setTuIndiceTestContent {
 			PensumGraphCanvas(
 				model = samplePensumModel(),
 				selectedNodeId = null,

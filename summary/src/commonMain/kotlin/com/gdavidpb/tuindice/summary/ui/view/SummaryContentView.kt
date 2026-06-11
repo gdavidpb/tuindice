@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
@@ -40,6 +41,7 @@ fun SummaryContentView(
 	onEditProfilePictureClick: () -> Unit,
 	onStatusIconClick: () -> Unit
 ) {
+	val animationsEnabled = LocalTuIndiceAnimationsEnabled.current
 	val isProfilePictureInteractionEnabled = !state.isUserRefreshing
 	val isStatusRefreshing = isSyncing || state.isUserRefreshing
 	val statusIcon = syncStatusIcon(
@@ -61,8 +63,8 @@ fun SummaryContentView(
 	val statusText = state.lastUpdate
 	val syncRotation = remember { Animatable(0f) }
 
-	LaunchedEffect(isStatusRefreshing) {
-		if (isStatusRefreshing) {
+	LaunchedEffect(isStatusRefreshing, animationsEnabled) {
+		if (isStatusRefreshing && animationsEnabled) {
 			while (true) {
 				syncRotation.animateTo(
 					targetValue = syncRotation.value - SYNC_ICON_FULL_ROTATION_DEGREES,
@@ -89,10 +91,14 @@ fun SummaryContentView(
 			syncRotation.snapTo(0f)
 		}
 	}
-	val statusIconRotation = syncStatusIconRotation(
-		isStatusRefreshing = isStatusRefreshing,
-		currentRotation = syncRotation.value
-	)
+	val statusIconRotation = if (animationsEnabled) {
+		syncStatusIconRotation(
+			isStatusRefreshing = isStatusRefreshing,
+			currentRotation = syncRotation.value
+		)
+	} else {
+		0f
+	}
 
 	Column(
 		modifier = Modifier

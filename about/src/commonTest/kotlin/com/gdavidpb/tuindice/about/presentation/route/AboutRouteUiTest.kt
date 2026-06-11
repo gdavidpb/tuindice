@@ -611,6 +611,8 @@ class AboutRouteUiTest {
 			}
 		}
 
+		waitUntilNodeExists(AboutUiTags.ContentContainer)
+
 		expectedLinksByTag.forEach { (tag, expectedLink) ->
 			onNodeWithTag(AboutUiTags.ContentContainer)
 				.performScrollToNode(hasTestTag(tag))
