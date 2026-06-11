@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.about.ui.custom
+package com.gdavidpb.tuindice.about.ui.view
 
 import androidx.compose.material3.Text
 import androidx.compose.ui.test.ExperimentalTestApi

@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.subjects.di
 
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetailResult
@@ -25,6 +27,7 @@ class SubjectsModuleKoinSmokeTest {
 			single<SubjectStatsRepository> { FakeSubjectStatsRepository() }
 			single<ReportingRepository> { RecordingReportingRepository() }
 			single<EventPublisher> { NoOpEventPublisher }
+			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 		}
 	) {
 		assertResolves(SubjectDetailViewModel::class)
@@ -37,6 +40,7 @@ class SubjectsModuleKoinSmokeTest {
 			single<SubjectCatalogRepository> { FakeSubjectCatalogRepository() }
 			single<ReportingRepository> { RecordingReportingRepository() }
 			single<EventPublisher> { NoOpEventPublisher }
+			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 		}
 	) {
 		assertResolves(SubjectSearchViewModel::class)

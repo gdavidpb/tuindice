@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.about.ui.custom
+package com.gdavidpb.tuindice.about.ui.view
 
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding

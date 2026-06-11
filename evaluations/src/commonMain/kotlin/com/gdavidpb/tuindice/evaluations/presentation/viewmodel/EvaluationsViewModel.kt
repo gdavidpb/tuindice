@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
@@ -24,11 +26,13 @@ class EvaluationsViewModel(
 	private val setEvaluationGradeActionProcessor: SetEvaluationGradeActionProcessor,
 	private val openEvaluationActionProcessor: OpenEvaluationActionProcessor,
 	private val removeEvaluationActionProcessor: RemoveEvaluationActionProcessor,
-	override val eventPublisher: EventPublisher
+	override val eventPublisher: EventPublisher,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : BaseViewModel<Evaluations.State, Evaluations.Action, Evaluations.Effect>(
 	name = "evaluations",
 	initialState = Evaluations.State.Idle,
-	initialAction = Evaluations.Action.LoadEvaluations
+	initialAction = Evaluations.Action.LoadEvaluations,
+	dispatchers = dispatchers
 ) {
 	fun loadEvaluationsAction() =
 		sendAction(Evaluations.Action.LoadEvaluations)

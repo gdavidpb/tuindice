@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.wizard.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
@@ -34,10 +36,12 @@ class WizardViewModel(
 	private val selectSubjectTabWizardActionProcessor: SelectSubjectTabWizardActionProcessor,
 	private val setRecordViewModeWizardActionProcessor: SetRecordViewModeWizardActionProcessor,
 	private val selectTermWizardActionProcessor: SelectTermWizardActionProcessor,
-	override val eventPublisher: EventPublisher
+	override val eventPublisher: EventPublisher,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : BaseViewModel<Wizard.State, Wizard.Action, Wizard.Effect>(
 	name = "wizard",
-	initialState = Wizard.State.Content()
+	initialState = Wizard.State.Content(),
+	dispatchers = dispatchers
 ) {
 	fun advanceAction() =
 		sendAction(Wizard.Action.Advance)

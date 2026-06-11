@@ -217,6 +217,12 @@ tasks.register("verifyCommonUiGate") {
 	)
 }
 
+tasks.register<Exec>("verifyModuleGraph") {
+	group = "verification"
+	description = "Validates module project dependencies against the agreed architecture graph."
+	commandLine("bash", "${rootDir}/scripts/validate-module-graph.sh")
+}
+
 tasks.register<Exec>("verifyE2eContract") {
 	group = "verification"
 	description = "Validates the local E2E flow catalog and critical selector coverage."

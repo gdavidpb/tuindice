@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.record.domain.usecase
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.record.domain.exception.SyntheticTermValidationException
@@ -17,9 +19,11 @@ import kotlinx.coroutines.flow.flowOf
 class UpdateSyntheticTermUseCase(
 	private val repository: AcademicRecordRepository,
 	override val reportingRepository: ReportingRepository,
-	override val exceptionHandler: RecordExceptionHandler
+	override val exceptionHandler: RecordExceptionHandler,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : FlowUseCase<CreateSyntheticTermParams, String, RecordUseCaseError>(
-	reportingRepository = reportingRepository
+	reportingRepository = reportingRepository,
+	dispatchers = dispatchers
 ) {
 	override suspend fun executeOnBackground(params: CreateSyntheticTermParams): Flow<String> {
 		val targetTermId = requireNotNull(params.editingTermId)

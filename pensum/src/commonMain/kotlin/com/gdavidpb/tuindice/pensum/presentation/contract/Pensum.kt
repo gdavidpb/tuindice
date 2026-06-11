@@ -51,7 +51,5 @@ object Pensum {
 		) : Action()
 	}
 
-	sealed class Effect : ViewEffect() {
-		class ShowSnackBar(val message: UiText) : Effect()
-	}
+	sealed class Effect : ViewEffect()
 }

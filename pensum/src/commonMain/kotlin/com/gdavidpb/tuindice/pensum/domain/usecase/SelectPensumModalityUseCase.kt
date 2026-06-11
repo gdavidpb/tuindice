@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.pensum.domain.usecase
 
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
@@ -11,8 +13,12 @@ import kotlinx.coroutines.flow.flow
 class SelectPensumModalityUseCase(
 	private val pensumRepository: PensumRepository,
 	override val reportingRepository: ReportingRepository,
-	override val exceptionHandler: UpdatePensumExceptionHandler
-) : FlowUseCase<String, Unit, UpdatePensumUseCaseError>(reportingRepository = reportingRepository) {
+	override val exceptionHandler: UpdatePensumExceptionHandler,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
+) : FlowUseCase<String, Unit, UpdatePensumUseCaseError>(
+	reportingRepository = reportingRepository,
+	dispatchers = dispatchers
+) {
 	override suspend fun executeOnBackground(params: String): Flow<Unit> {
 		return flow {
 			pensumRepository.selectModality(params)

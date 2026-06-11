@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.about.ui.custom
+package com.gdavidpb.tuindice.about.ui.view
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.ColorPainter

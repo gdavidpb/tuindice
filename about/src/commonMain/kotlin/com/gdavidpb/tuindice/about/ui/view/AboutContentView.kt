@@ -23,9 +23,9 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.about.generated.AboutDependencyTexts
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
-import com.gdavidpb.tuindice.about.ui.custom.AboutHeader
-import com.gdavidpb.tuindice.about.ui.custom.AboutItem
-import com.gdavidpb.tuindice.about.ui.custom.AboutSwitchItem
+import com.gdavidpb.tuindice.about.ui.view.AboutHeader
+import com.gdavidpb.tuindice.about.ui.view.AboutItem
+import com.gdavidpb.tuindice.about.ui.view.AboutSwitchItem
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource

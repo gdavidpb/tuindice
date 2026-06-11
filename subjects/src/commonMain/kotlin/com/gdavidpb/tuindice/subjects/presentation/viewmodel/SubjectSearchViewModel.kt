@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.subjects.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
@@ -14,10 +16,12 @@ class SubjectSearchViewModel(
 	private val observeSubjectSearchActionProcessor: ObserveSubjectSearchActionProcessor,
 	private val updateSubjectSearchQueryActionProcessor: UpdateSubjectSearchQueryActionProcessor,
 	private val retrySubjectSearchActionProcessor: RetrySubjectSearchActionProcessor,
-	override val eventPublisher: EventPublisher
+	override val eventPublisher: EventPublisher,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : BaseViewModel<SubjectSearch.State, SubjectSearch.Action, SubjectSearch.Effect>(
 	name = "subject_search",
-	initialState = SubjectSearch.State()
+	initialState = SubjectSearch.State(),
+	dispatchers = dispatchers
 ) {
 	private val queryFlow = MutableStateFlow("")
 

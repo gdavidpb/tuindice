@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.record.domain.usecase
 
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.record.domain.model.ObservedRecord
@@ -14,8 +16,12 @@ import kotlinx.coroutines.flow.combine
 class ObserveRecordUseCase(
 	private val academicRecordRepository: AcademicRecordRepository,
 	private val recordSelectionRepository: RecordSelectionRepository,
-	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, ObservedRecord, Nothing>(reportingRepository = reportingRepository) {
+	override val reportingRepository: ReportingRepository,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
+) : FlowUseCase<Unit, ObservedRecord, Nothing>(
+	reportingRepository = reportingRepository,
+	dispatchers = dispatchers
+) {
 	override suspend fun executeOnBackground(params: Unit): Flow<ObservedRecord> {
 		return combine(
 			academicRecordRepository.observeAcademicRecordSnapshotFlow(),

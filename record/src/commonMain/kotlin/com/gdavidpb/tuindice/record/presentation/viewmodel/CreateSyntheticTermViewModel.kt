@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.record.presentation.viewmodel
 
 import androidx.lifecycle.viewModelScope
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
@@ -22,10 +24,12 @@ class CreateSyntheticTermViewModel(
 	private val updateCreateSyntheticTermQueryActionProcessor: UpdateCreateSyntheticTermQueryActionProcessor,
 	private val createSyntheticTermActionProcessor: CreateSyntheticTermActionProcessor,
 	private val loadSyntheticTermEditSeedUseCase: LoadSyntheticTermEditSeedUseCase,
-	override val eventPublisher: EventPublisher
+	override val eventPublisher: EventPublisher,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : BaseViewModel<CreateSyntheticTerm.State, CreateSyntheticTerm.Action, CreateSyntheticTerm.Effect>(
 	name = "create_synthetic_term",
-	initialState = CreateSyntheticTerm.State()
+	initialState = CreateSyntheticTerm.State(),
+	dispatchers = dispatchers
 ) {
 	private val queryFlow = MutableStateFlow("")
 	private val selectedAddSubjectTabFlow = MutableStateFlow(CreateTermAddSubjectTab.Suggested)

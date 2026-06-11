@@ -61,7 +61,7 @@ Implement module work by copying the nearest existing module pattern instead of 
 
 ## Non-Negotiable Project Rules
 
-- Keep the dependency flow pointed inward. Do not add new feature-to-feature dependencies without explicit approval. Current legacy exception: `evaluations -> record`.
+- Keep the dependency flow pointed inward. Do not add new feature-to-feature dependencies without explicit approval. There are no feature-to-feature exceptions today besides the intentional `wizard -> features` orchestration. The module graph is enforced by `./gradlew verifyModuleGraph`; update `scripts/validate-module-graph.sh` together with `README.md` when a module boundary changes.
 - Preserve `presentation -> domain -> data -> di` separation. Interfaces live in `domain`; implementations live in `data`; `di` only wires them.
 - Within that separation, use this finer layering order when a module needs multiple data origins: `presentation -> domain -> data/repository -> data/source -> di`.
 - `domain/repository` contains business-facing contracts used by action processors, use cases, or view models. These interfaces should end with `Repository`.
@@ -156,6 +156,7 @@ Implement module work by copying the nearest existing module pattern instead of 
 - Start with targeted compilation:
   - `./gradlew --continue --console=plain :<module>:compileAndroidMain`
   - `./gradlew --continue --console=plain :<module>:compileKotlinIosSimulatorArm64`
+- For module dependency changes, run `./gradlew verifyModuleGraph` and update `scripts/validate-module-graph.sh` plus `README.md` together.
 - For feature DI changes, run the module smoke test.
 - For shared bootstrap changes, run the relevant `maincore` smoke tests and the iOS bootstrap smoke test when applicable.
 - For navigation or shared UI work, run focused module tests or the shared UI gate if the change is broad.

@@ -199,8 +199,7 @@ fun TuIndiceNavHost(
 			onViewStateChanged = onViewStateChanged,
 			onNavigateToSubjectDetail = { subjectCode ->
 				navController.navigate(SubjectsDestination.SubjectDetail(subjectCode = subjectCode))
-			},
-			showSnackBar = showSnackBar
+			}
 		)
 
 		browserNavigation(

@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
@@ -13,10 +15,12 @@ class BrowserViewModel(
 	private val navigateToActionProcessor: NavigateToActionProcessor,
 	private val setLoadingActionProcessor: SetLoadingActionProcessor,
 	private val openExternalResourceActionProcessor: OpenExternalResourceActionProcessor,
-	override val eventPublisher: EventPublisher
+	override val eventPublisher: EventPublisher,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : BaseViewModel<Browser.State, Browser.Action, Browser.Effect>(
 	name = "browser",
-	initialState = Browser.State.Idle
+	initialState = Browser.State.Idle,
+	dispatchers = dispatchers
 ) {
 	fun navigateToAction(title: String, url: String) =
 		sendAction(Browser.Action.NavigateTo(title, url))

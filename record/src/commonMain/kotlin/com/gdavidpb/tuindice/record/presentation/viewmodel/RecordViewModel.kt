@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.record.presentation.viewmodel
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
@@ -21,11 +23,13 @@ class RecordViewModel(
 	private val selectRecordTermActionProcessor: SelectRecordTermActionProcessor,
 	private val upsertAttemptSelectionActionProcessor: UpsertAttemptSelectionActionProcessor,
 	private val deleteSyntheticTermActionProcessor: DeleteSyntheticTermActionProcessor,
-	override val eventPublisher: EventPublisher
+	override val eventPublisher: EventPublisher,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : BaseViewModel<Record.State, Record.Action, Record.Effect>(
 	name = "record",
 	initialState = Record.State.Idle,
-	initialAction = Record.Action.ObserveRecord
+	initialAction = Record.Action.ObserveRecord,
+	dispatchers = dispatchers
 ) {
 	fun refreshRecordAction() {
 		sendAction(Record.Action.RefreshRecord)

@@ -4,8 +4,8 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.presentation.mapper.localizedShortWeekdayNames
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
-import com.gdavidpb.tuindice.evaluations.presentation.extension.currentEvaluationLocalDate
-import com.gdavidpb.tuindice.evaluations.presentation.extension.toEvaluationLocalDate
+import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
+import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationLocalDate
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationWeekDayItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey

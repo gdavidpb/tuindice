@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.auth.presentation.viewmodel
 
 import com.gdavidpb.tuindice.auth.presentation.action.SetUsageDataCollectionEnabledActionProcessor
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
@@ -25,12 +27,14 @@ class SignInViewModel(
 	private val usageDataConsentRepository: UsageDataConsentRepository = InMemoryUsageDataConsentRepository(),
 	private val setUsageDataCollectionEnabledActionProcessor: SetUsageDataCollectionEnabledActionProcessor =
 		SetUsageDataCollectionEnabledActionProcessor(usageDataConsentRepository),
-	override val eventPublisher: EventPublisher
+	override val eventPublisher: EventPublisher,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : BaseViewModel<SignIn.State, SignIn.Action, SignIn.Effect>(
 	name = "sign_in",
 	initialState = SignIn.State.Idle(
 		usageDataCollectionEnabled = usageDataConsentRepository.isUsageDataCollectionEnabled()
-	)
+	),
+	dispatchers = dispatchers
 ) {
 	fun setUsbIdAction(usbId: String) =
 		sendAction(

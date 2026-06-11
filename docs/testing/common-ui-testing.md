@@ -2,11 +2,13 @@
 
 ## Objetivo
 
-Establecer un patron único para cubrir todos los `@Composable` en `commonMain` con pruebas semánticas e interacciones reales (sin snapshot/golden).
+Establecer un patron único para cubrir todos los `@Composable` en `commonMain` con pruebas
+semánticas e interacciones reales (sin snapshot/golden).
 
 ## Alcance
 
-- Incluido: `ui/view`, `ui/dialog`, `ui/screen`, `ui/custom`, `presentation/route`, `ui/theme` y utilidades composables en `commonMain`.
+- Incluido: `ui/view`, `ui/dialog`, `ui/screen`, `presentation/route`, `ui/theme` y utilidades
+  composables en `commonMain`.
 - Excluido: composables de `androidMain`/`iosMain`.
 - Excluido: validación visual por pixel.
 
@@ -16,13 +18,13 @@ Todas las pruebas UI common deben usar `testkit`:
 
 ```kotlin
 runTuIndiceUiTest {
-    setTuIndiceTestContent(
-        sizeClass = TuIndiceTestSizeClass.Compact,
-        density = 1f,
-        locale = null
-    ) {
-        // host composable
-    }
+	setTuIndiceTestContent(
+		sizeClass = TuIndiceTestSizeClass.Compact,
+		density = 1f,
+		locale = null
+	) {
+		// host composable
+	}
 }
 ```
 
@@ -34,7 +36,8 @@ Helpers disponibles:
 - `assertNodeEnabled(tag)`
 - `assertNodeDisabled(tag)`
 
-Nota de locale: en Compose Multiplatform, el locale del entorno se toma del sistema; el parámetro `locale` del host de test se usa para dirección de layout (LTR/RTL) y escenarios estructurales.
+Nota de locale: en Compose Multiplatform, el locale del entorno se toma del sistema; el parámetro
+`locale` del host de test se usa para dirección de layout (LTR/RTL) y escenarios estructurales.
 
 ## Convenciones
 
@@ -45,7 +48,8 @@ Nota de locale: en Compose Multiplatform, el locale del entorno se toma del sist
 - Default: `>= 2` métodos `when_...`
 - Excepción vigente: `maincore >= 3` métodos `when_...`
 - Tags por modulo: `object <Module>UiTags`
-- `Modifier.testTag` obligatorio en nodos interactivos críticos (inputs, botones, pickers, filas swipeables, loaders, contenedores de estado).
+- `Modifier.testTag` obligatorio en nodos interactivos críticos (inputs, botones, pickers, filas
+  swipeables, loaders, contenedores de estado).
 
 ## Criterio de Cobertura Exhaustiva
 

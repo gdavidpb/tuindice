@@ -89,12 +89,15 @@ Dependencias actuales:
 - `record`: depende de `:academiccore`, `:base`, `:persistence`.
 - `enrollmentproof`: depende de `:base`, `:persistence`.
 - `evaluations`: depende de `:academiccore`, `:base`, `:persistence`.
-- `subjects`: depende de `:base`, `:persistence`.
+- `subjects`: depende de `:academiccore`, `:base`, `:persistence`.
 - `pensum`: depende de `:academiccore`, `:base`, `:persistence`.
 - `wizard`: depende de `:base`, `:academiccore`, `:summary`, `:record`, `:evaluations`, `:subjects`, `:about`
   `:pensum` y `:enrollmentproof`.
 - `maincore`: depende de `:base`, `:persistence` y todas las features.
 - `app`: host Android; ensambla `maincore`.
+
+Este grafo se valida mecánicamente con `./gradlew verifyModuleGraph` contra `scripts/validate-module-graph.sh`. Si un
+límite cambia, hay que actualizar el script, este README y el skill del repo en el mismo cambio.
 
 Acuerdo de límites:
 
@@ -352,6 +355,7 @@ Reglas:
 Ejemplos de comandos usados habitualmente:
 
 ```bash
+./gradlew --continue --console=plain verifyModuleGraph
 ./gradlew --continue --console=plain :app:compileDebugKotlin
 ./gradlew --continue --console=plain :maincore:linkDebugFrameworkIosSimulatorArm64
 ./gradlew --continue --console=plain :evaluations:allTests

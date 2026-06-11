@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.auth.domain.usecase
 
 import com.gdavidpb.tuindice.auth.domain.exception.AuthenticationStage
 import com.gdavidpb.tuindice.auth.domain.exception.AuthenticationStageException
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
@@ -31,8 +33,12 @@ class UpdatePasswordUseCase(
 	private val attestationRepository: AttestationRepository,
 	override val reportingRepository: ReportingRepository,
 	override val paramsValidator: UpdatePasswordParamsValidator,
-	override val exceptionHandler: UpdatePasswordExceptionHandler
-) : FlowUseCase<String, Unit, SignInUseCaseError>(reportingRepository = reportingRepository) {
+	override val exceptionHandler: UpdatePasswordExceptionHandler,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
+) : FlowUseCase<String, Unit, SignInUseCaseError>(
+	reportingRepository = reportingRepository,
+	dispatchers = dispatchers
+) {
 	override suspend fun executeOnBackground(params: String): Flow<Unit> {
 		val usbId = sessionRepository.getUsbId()
 		val accessToken = sessionRepository.getAccessToken()

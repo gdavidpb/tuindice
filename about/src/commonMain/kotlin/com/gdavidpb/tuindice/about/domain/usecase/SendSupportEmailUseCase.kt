@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.about.domain.usecase
 
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
@@ -9,8 +11,12 @@ import kotlinx.coroutines.flow.flowOf
 
 class SendSupportEmailUseCase(
 	private val configRepository: ConfigRepository,
-	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, String, Nothing>(reportingRepository = reportingRepository) {
+	override val reportingRepository: ReportingRepository,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
+) : FlowUseCase<Unit, String, Nothing>(
+	reportingRepository = reportingRepository,
+	dispatchers = dispatchers
+) {
 	override suspend fun executeOnBackground(params: Unit): Flow<String> {
 		val email = configRepository.getContactEmail()
 		val subject = configRepository.getContactSubject().encodeURLParameter()

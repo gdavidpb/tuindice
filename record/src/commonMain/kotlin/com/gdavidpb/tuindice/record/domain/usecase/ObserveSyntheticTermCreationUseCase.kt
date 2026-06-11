@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.record.domain.usecase
 
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationSnapshot
@@ -9,9 +11,11 @@ import kotlinx.coroutines.flow.Flow
 
 class ObserveSyntheticTermCreationUseCase(
 	private val repository: SyntheticTermCreationRepository,
-	override val reportingRepository: ReportingRepository
+	override val reportingRepository: ReportingRepository,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : FlowUseCase<ObserveSyntheticTermCreationParams, SyntheticTermCreationSnapshot, Nothing>(
-	reportingRepository = reportingRepository
+	reportingRepository = reportingRepository,
+	dispatchers = dispatchers
 ) {
 	override suspend fun executeOnBackground(
 		params: ObserveSyntheticTermCreationParams

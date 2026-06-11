@@ -18,9 +18,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.evaluations.presentation.extension.currentEvaluationLocalDate
-import com.gdavidpb.tuindice.evaluations.presentation.extension.formatMonthYear
-import com.gdavidpb.tuindice.evaluations.presentation.extension.toCalendarGrid
+import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
+import com.gdavidpb.tuindice.evaluations.presentation.utils.formatMonthYear
+import com.gdavidpb.tuindice.evaluations.presentation.utils.toCalendarGrid
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import kotlinx.datetime.LocalDate
 

@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
@@ -12,8 +14,12 @@ import kotlinx.coroutines.flow.flowOf
 class RemoveEvaluationUseCase(
 	private val evaluationRepository: EvaluationRepository,
 	override val reportingRepository: ReportingRepository,
-	override val exceptionHandler: RemoveEvaluationExceptionHandler
-) : FlowUseCase<String, Unit, RemoveEvaluationUseCaseError>(reportingRepository = reportingRepository) {
+	override val exceptionHandler: RemoveEvaluationExceptionHandler,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
+) : FlowUseCase<String, Unit, RemoveEvaluationUseCaseError>(
+	reportingRepository = reportingRepository,
+	dispatchers = dispatchers
+) {
 	override suspend fun executeOnBackground(params: String): Flow<Unit> {
 		val remove = EvaluationRemove(id = params)
 

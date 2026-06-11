@@ -8,6 +8,8 @@ import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
@@ -32,8 +34,12 @@ class SignInUseCase(
 	private val attestationRepository: AttestationRepository,
 	override val reportingRepository: ReportingRepository,
 	override val paramsValidator: SignInParamsValidator,
-	override val exceptionHandler: SignInExceptionHandler
-) : FlowUseCase<SignInParams, Unit, SignInUseCaseError>(reportingRepository = reportingRepository) {
+	override val exceptionHandler: SignInExceptionHandler,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
+) : FlowUseCase<SignInParams, Unit, SignInUseCaseError>(
+	reportingRepository = reportingRepository,
+	dispatchers = dispatchers
+) {
 	override suspend fun executeOnBackground(params: SignInParams): Flow<Unit> {
 		val bootstrapTokens = runCatching {
 			authRepository.bootstrapSignIn(

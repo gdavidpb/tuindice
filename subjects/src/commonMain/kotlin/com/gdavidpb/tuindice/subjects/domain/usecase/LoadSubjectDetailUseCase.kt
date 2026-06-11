@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.subjects.domain.usecase
 
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetailLoad
@@ -10,8 +12,12 @@ import kotlinx.coroutines.flow.flow
 
 class LoadSubjectDetailUseCase(
 	private val subjectStatsRepository: SubjectStatsRepository,
-	override val reportingRepository: ReportingRepository
-) : FlowUseCase<SubjectDetailParams, SubjectDetailLoad, Nothing>(reportingRepository = reportingRepository) {
+	override val reportingRepository: ReportingRepository,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
+) : FlowUseCase<SubjectDetailParams, SubjectDetailLoad, Nothing>(
+	reportingRepository = reportingRepository,
+	dispatchers = dispatchers
+) {
 	override suspend fun executeOnBackground(params: SubjectDetailParams): Flow<SubjectDetailLoad> {
 		return flow {
 			val localResult = subjectStatsRepository.getFreshSubjectDetail(params.subjectCode)

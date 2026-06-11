@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.about.ui.custom
+package com.gdavidpb.tuindice.about.ui.view
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed

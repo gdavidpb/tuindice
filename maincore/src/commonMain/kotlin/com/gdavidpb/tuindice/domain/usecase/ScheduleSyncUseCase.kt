@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.domain.usecase
 
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
@@ -16,8 +18,12 @@ class ScheduleSyncUseCase(
 	private val credentialsRepository: CredentialsRepository,
 	private val syncRepository: SyncRepository,
 	private val coreCacheStateRepository: CoreCacheStateRepository,
-	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, Unit, Nothing>(reportingRepository = reportingRepository) {
+	override val reportingRepository: ReportingRepository,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
+) : FlowUseCase<Unit, Unit, Nothing>(
+	reportingRepository = reportingRepository,
+	dispatchers = dispatchers
+) {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
 		if (!sessionRepository.hasActiveSession()) return emptyFlow()
 		if (!credentialsRepository.hasPassword()) return emptyFlow()

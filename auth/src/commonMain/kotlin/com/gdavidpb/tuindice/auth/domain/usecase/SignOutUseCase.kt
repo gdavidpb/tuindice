@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.auth.domain.usecase
 
 import com.gdavidpb.tuindice.auth.domain.model.RevokeTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
@@ -23,8 +25,12 @@ class SignOutUseCase(
 	private val sessionInvalidationRepository: SessionInvalidationRepository,
 	private val applicationRepository: ApplicationRepository,
 	private val syncStatusRepository: SyncStatusRepository,
-	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, Unit, Nothing>(reportingRepository = reportingRepository) {
+	override val reportingRepository: ReportingRepository,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
+) : FlowUseCase<Unit, Unit, Nothing>(
+	reportingRepository = reportingRepository,
+	dispatchers = dispatchers
+) {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
 		val sessionId = sessionRepository.getSessionId()
 		val refreshToken = sessionRepository.getRefreshToken()

@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
-import com.gdavidpb.tuindice.evaluations.presentation.extension.isDateInPast
+import com.gdavidpb.tuindice.evaluations.presentation.utils.isDateInPast
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationGradeSectionItem
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationTypePickerItemList
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toGetEvaluationParams

@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.auth.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
@@ -13,10 +15,12 @@ class UpdatePasswordViewModel(
 	private val setUpdatePasswordActionProcessor: SetUpdatePasswordActionProcessor,
 	private val toggleUpdatePasswordVisibilityActionProcessor: ToggleUpdatePasswordVisibilityActionProcessor,
 	private val updatePasswordActionProcessor: UpdatePasswordActionProcessor,
-	override val eventPublisher: EventPublisher
+	override val eventPublisher: EventPublisher,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : BaseViewModel<UpdatePassword.State, UpdatePassword.Action, UpdatePassword.Effect>(
 	name = "update_password",
-	initialState = UpdatePassword.State.Idle()
+	initialState = UpdatePassword.State.Idle(),
+	dispatchers = dispatchers
 ) {
 	fun signInAction(password: String) =
 		sendAction(UpdatePassword.Action.ClickSignIn(password))

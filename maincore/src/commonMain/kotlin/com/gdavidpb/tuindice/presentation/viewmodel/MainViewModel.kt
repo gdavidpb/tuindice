@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
@@ -21,11 +23,13 @@ class MainViewModel(
 	private val requestUpdateActionProcessor: RequestUpdateActionProcessor,
 	private val setLastMainSectionActionProcessor: SetLastMainSectionActionProcessor,
 	private val requestWizardStartActionProcessor: RequestWizardStartActionProcessor,
-	override val eventPublisher: EventPublisher
+	override val eventPublisher: EventPublisher,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : BaseViewModel<Main.State, Main.Action, Main.Effect>(
 	name = "main",
 	initialState = Main.State.Starting,
-	initialAction = Main.Action.StartUp
+	initialAction = Main.Action.StartUp,
+	dispatchers = dispatchers
 ) {
 	fun requestReviewAction() =
 		sendAction(Main.Action.RequestReview)

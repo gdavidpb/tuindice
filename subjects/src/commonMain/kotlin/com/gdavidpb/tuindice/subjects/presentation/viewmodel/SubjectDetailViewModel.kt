@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.subjects.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
@@ -14,10 +16,12 @@ class SubjectDetailViewModel(
 	private val loadSubjectDetailActionProcessor: LoadSubjectDetailActionProcessor,
 	private val refreshSubjectDetailActionProcessor: RefreshSubjectDetailActionProcessor,
 	private val selectSubjectSegmentTabActionProcessor: SelectSubjectSegmentTabActionProcessor,
-	override val eventPublisher: EventPublisher
+	override val eventPublisher: EventPublisher,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : BaseViewModel<SubjectDetail.State, SubjectDetail.Action, SubjectDetail.Effect>(
 	name = "subject_detail",
-	initialState = SubjectDetail.State.Idle
+	initialState = SubjectDetail.State.Idle,
+	dispatchers = dispatchers
 ) {
 	fun loadSubjectDetailAction(subjectCode: String) {
 		sendAction(SubjectDetail.Action.LoadSubjectDetail(subjectCode = subjectCode))

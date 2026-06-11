@@ -11,7 +11,7 @@ import com.gdavidpb.tuindice.base.presentation.mapper.weeksToNow
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.base.utils.extension.capitalize
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateGroup
-import com.gdavidpb.tuindice.evaluations.presentation.extension.toEvaluationLocalDate
+import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationLocalDate
 
 fun Evaluation.toEvaluationDateGroup(): EvaluationDateGroup {
 	if (scheduleMode == EvaluationScheduleMode.CONTINUOUS) return EvaluationDateGroup.Continuous

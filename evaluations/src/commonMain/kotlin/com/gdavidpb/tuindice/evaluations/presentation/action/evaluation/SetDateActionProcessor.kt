@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
-import com.gdavidpb.tuindice.evaluations.presentation.extension.isDateInPast
+import com.gdavidpb.tuindice.evaluations.presentation.utils.isDateInPast
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.updated
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf

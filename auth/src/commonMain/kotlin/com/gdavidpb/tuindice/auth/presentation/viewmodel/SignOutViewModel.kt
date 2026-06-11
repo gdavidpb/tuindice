@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.auth.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
@@ -18,10 +20,12 @@ class SignOutViewModel(
 	private val flushAndSignOutActionProcessor: FlushAndSignOutActionProcessor,
 	private val forceSignOutActionProcessor: ForceSignOutActionProcessor,
 	private val openUpdatePasswordActionProcessor: OpenUpdatePasswordActionProcessor,
-	override val eventPublisher: EventPublisher
+	override val eventPublisher: EventPublisher,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : BaseViewModel<SignOut.State, SignOut.Action, SignOut.Effect>(
 	name = "sign_out",
-	initialState = SignOut.State.Plain
+	initialState = SignOut.State.Plain,
+	dispatchers = dispatchers
 ) {
 	fun initializeAction(pendingChanges: PendingChanges) =
 		sendAction(SignOut.Action.Initialize(pendingChanges))

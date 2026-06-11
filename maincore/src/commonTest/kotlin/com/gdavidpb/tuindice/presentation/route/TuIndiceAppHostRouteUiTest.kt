@@ -11,6 +11,8 @@ import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
@@ -594,6 +596,7 @@ class TuIndiceAppHostRouteUiTest {
 		sessionInvalidationRepository: SessionInvalidationRepository = FakeSessionInvalidationRepository()
 	) = module {
 		factory { createSummaryViewModel() }
+		single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 		single<EventPublisher> { NoOpEventPublisher }
 		single<PendingChangesRepository> { FakePendingChangesRepository() }
 		single<SessionInvalidationRepository> { sessionInvalidationRepository }

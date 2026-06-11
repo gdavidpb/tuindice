@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.subjects.domain.usecase
 
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.subjects.domain.repository.SubjectCatalogRepository
@@ -9,8 +11,12 @@ import kotlinx.coroutines.flow.flowOf
 
 class RefreshSubjectSearchUseCase(
 	private val subjectCatalogRepository: SubjectCatalogRepository,
-	override val reportingRepository: ReportingRepository
-) : FlowUseCase<SubjectSearchParams, Unit, Nothing>(reportingRepository = reportingRepository) {
+	override val reportingRepository: ReportingRepository,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
+) : FlowUseCase<SubjectSearchParams, Unit, Nothing>(
+	reportingRepository = reportingRepository,
+	dispatchers = dispatchers
+) {
 	override suspend fun executeOnBackground(params: SubjectSearchParams): Flow<Unit> {
 		subjectCatalogRepository.refreshSearchResults(
 			query = params.query,

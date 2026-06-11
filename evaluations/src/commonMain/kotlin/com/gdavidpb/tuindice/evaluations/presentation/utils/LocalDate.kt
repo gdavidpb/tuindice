@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.evaluations.presentation.extension
+package com.gdavidpb.tuindice.evaluations.presentation.utils
 
 import com.gdavidpb.tuindice.base.presentation.mapper.formatLocalizedMonthYear
 import kotlinx.datetime.*

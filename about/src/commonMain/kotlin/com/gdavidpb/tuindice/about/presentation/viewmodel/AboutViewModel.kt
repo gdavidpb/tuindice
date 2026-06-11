@@ -12,6 +12,8 @@ import com.gdavidpb.tuindice.about.presentation.action.SetUsageDataCollectionEna
 import com.gdavidpb.tuindice.about.presentation.action.ShareAppActionProcessor
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.Mutation
@@ -31,11 +33,13 @@ class AboutViewModel(
 	private val usageDataConsentRepository: UsageDataConsentRepository = InMemoryUsageDataConsentRepository(),
 	private val setUsageDataCollectionEnabledActionProcessor: SetUsageDataCollectionEnabledActionProcessor =
 		SetUsageDataCollectionEnabledActionProcessor(usageDataConsentRepository),
-	override val eventPublisher: EventPublisher
+	override val eventPublisher: EventPublisher,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : BaseViewModel<About.State, About.Action, About.Effect>(
 	name = "about",
 	initialState = About.State.Idle,
-	initialAction = About.Action.LoadVersion
+	initialAction = About.Action.LoadVersion,
+	dispatchers = dispatchers
 ) {
 	fun openTermsAndConditionsAction() =
 		sendAction(About.Action.OpenTermsAndConditions)
