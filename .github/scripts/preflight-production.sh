@@ -88,7 +88,7 @@ write_missing_e2e_guidance() {
 	} >>"$SUMMARY_FILE"
 }
 
-github_commit_status_state_at_sha() {
+github_commit_status_payload_at_sha() {
 	local sha="$1"
 	local context="$2"
 	local repository="${GITHUB_REPOSITORY:?GITHUB_REPOSITORY is required to verify E2E commit statuses.}"
@@ -97,41 +97,113 @@ github_commit_status_state_at_sha() {
 
 	[[ -n "$token" ]] || die "GITHUB_TOKEN or GH_TOKEN is required to verify E2E commit status '${context}'."
 
-	curl --fail --silent --show-error \
+	curl --fail --silent --show-error --retry 3 \
 		-H "Accept: application/vnd.github+json" \
 		-H "Authorization: Bearer ${token}" \
 		-H "X-GitHub-Api-Version: 2022-11-28" \
 		"${api_url}/repos/${repository}/commits/${sha}/status" \
-		| jq -r --arg context "$context" '.statuses[] | select(.context == $context) | .state' \
-		| head -n 1
+		| jq -c --arg context "$context" '[.statuses[] | select(.context == $context)][0] // empty'
 }
 
-github_commit_status_state() {
-	local context="$1"
-	github_commit_status_state_at_sha "$TARGET_GIT_SHA" "$context"
+# Statuses are trusted only when created by the repository owner or the
+# Actions bot; anything else with a token could fabricate a success state.
+trusted_status_creators() {
+	local repository="${GITHUB_REPOSITORY:-}"
+	local owner="${repository%%/*}"
+
+	printf '%s\n' "${E2E_TRUSTED_STATUS_CREATORS:-${owner},github-actions[bot]}" | tr ',' '\n'
 }
 
-status_context_succeeded_at_sha() {
+status_creator_is_trusted() {
+	local creator="$1"
+	local trusted
+
+	[[ -n "$creator" ]] || return 0
+
+	while IFS= read -r trusted; do
+		[[ -n "$trusted" ]] || continue
+		if [[ "$creator" == "$trusted" ]]; then
+			return 0
+		fi
+	done < <(trusted_status_creators)
+
+	return 1
+}
+
+# Prints the status description when the context is successful and trusted.
+status_context_success_description_at_sha() {
 	local sha="$1"
 	local context="$2"
+	local payload
 	local state
+	local creator
 
-	state="$(github_commit_status_state_at_sha "$sha" "$context" || true)"
-	[[ "$state" == "success" ]]
+	payload="$(github_commit_status_payload_at_sha "$sha" "$context")" || return 1
+	[[ -n "$payload" ]] || return 1
+
+	state="$(jq -r '.state // empty' <<<"$payload")"
+	[[ "$state" == "success" ]] || return 1
+
+	creator="$(jq -r '.creator.login // empty' <<<"$payload")"
+	if ! status_creator_is_trusted "$creator"; then
+		warn "Ignoring E2E status '${context}' on ${sha}: creator '${creator}' is not trusted."
+		return 1
+	fi
+
+	jq -r '.description // empty' <<<"$payload"
 }
 
 status_context_succeeded_at_sha_quiet() {
 	local sha="$1"
 	local context="$2"
-	local state
 
-	state="$(github_commit_status_state_at_sha "$sha" "$context" 2>/dev/null || true)"
-	[[ "$state" == "success" ]]
+	status_context_success_description_at_sha "$sha" "$context" >/dev/null 2>&1
+}
+
+# Published evidence embeds the first 12 chars of the suite fingerprint in the
+# status description; a success state alone is not accepted as evidence. The
+# aggregate certification-suite fingerprint also covers focused suites because
+# e2eMaestroEvidenceLocal publishes covered contexts with its own description.
+description_matches_fingerprint() {
+	local description="$1"
+	local platform="$2"
+	local suite="$3"
+	local sha="$4"
+	local fingerprint
+
+	fingerprint="$(e2e_fingerprint "$sha" "$platform" "$suite" || true)"
+	if [[ -n "$fingerprint" && "$description" == *"fp ${fingerprint:0:12}"* ]]; then
+		return 0
+	fi
+
+	if [[ "$suite" != "local-certification-suite" ]]; then
+		fingerprint="$(e2e_fingerprint "$sha" "$platform" "local-certification-suite" || true)"
+		if [[ -n "$fingerprint" && "$description" == *"fp ${fingerprint:0:12}"* ]]; then
+			return 0
+		fi
+	fi
+
+	return 1
 }
 
 status_context_succeeded() {
 	local context="$1"
-	status_context_succeeded_at_sha "$TARGET_GIT_SHA" "$context"
+	local platform="$2"
+	local suite
+	local description
+
+	suite="$(e2e_suite_from_context "$context" "$platform" || true)"
+	[[ -n "$suite" ]] || return 1
+
+	description="$(status_context_success_description_at_sha "$TARGET_GIT_SHA" "$context" || true)"
+	[[ -n "$description" ]] || return 1
+
+	if description_matches_fingerprint "$description" "$platform" "$suite" "$TARGET_GIT_SHA"; then
+		return 0
+	fi
+
+	warn "E2E status '${context}' on ${TARGET_GIT_SHA} does not match the current fingerprint; requiring fresh evidence."
+	return 1
 }
 
 publish_github_commit_status() {
@@ -200,13 +272,48 @@ e2e_fingerprint() {
 	bash "${E2E_FINGERPRINT_SCRIPT}" "$platform" "$suite" "$git_ref"
 }
 
+# Head SHAs of pull requests associated with a commit. Squash and rebase
+# merges leave certified PR heads outside the production history, so reuse
+# must look them up through the API instead of ancestry alone.
+github_pull_request_head_shas() {
+	local sha="$1"
+	local repository="${GITHUB_REPOSITORY:-}"
+	local token="${GITHUB_TOKEN:-${GH_TOKEN:-}}"
+	local api_url="${GITHUB_API_URL:-https://api.github.com}"
+
+	[[ -n "$repository" && -n "$token" ]] || return 0
+
+	curl --fail --silent --show-error --retry 3 \
+		-H "Accept: application/vnd.github+json" \
+		-H "Authorization: Bearer ${token}" \
+		-H "X-GitHub-Api-Version: 2022-11-28" \
+		"${api_url}/repos/${repository}/commits/${sha}/pulls" 2>/dev/null \
+		| jq -r '.[].head.sha // empty' 2>/dev/null || true
+}
+
+# GitHub serves arbitrary reachable SHAs on fetch, so certified PR heads can
+# be materialized even after the source branch was deleted.
+ensure_commit_available() {
+	local sha="$1"
+
+	if git cat-file -e "${sha}^{commit}" 2>/dev/null; then
+		return 0
+	fi
+
+	git fetch --quiet origin "$sha" 2>/dev/null || true
+	git cat-file -e "${sha}^{commit}" 2>/dev/null
+}
+
 e2e_reuse_candidate_commits() {
-	if [[ -n "$E2E_REUSE_BASE_SHA" ]] && ! is_zero_sha "$E2E_REUSE_BASE_SHA" &&
-		git merge-base --is-ancestor "$E2E_REUSE_BASE_SHA" "$TARGET_GIT_SHA" 2>/dev/null; then
-		git rev-list "$TARGET_GIT_SHA" "^${E2E_REUSE_BASE_SHA}"
-	else
-		git rev-list --max-count="$E2E_REUSE_MAX_COMMITS" "$TARGET_GIT_SHA"
-	fi | grep -v "^${TARGET_GIT_SHA}$" || true
+	{
+		github_pull_request_head_shas "$TARGET_GIT_SHA"
+		if [[ -n "$E2E_REUSE_BASE_SHA" ]] && ! is_zero_sha "$E2E_REUSE_BASE_SHA" &&
+			git merge-base --is-ancestor "$E2E_REUSE_BASE_SHA" "$TARGET_GIT_SHA" 2>/dev/null; then
+			git rev-list "$TARGET_GIT_SHA" "^${E2E_REUSE_BASE_SHA}"
+		else
+			git rev-list --max-count="$E2E_REUSE_MAX_COMMITS" "$TARGET_GIT_SHA"
+		fi
+	} | awk '!seen[$0]++' | grep -v "^${TARGET_GIT_SHA}$" || true
 }
 
 reuse_successful_status_for_context() {
@@ -226,6 +333,11 @@ reuse_successful_status_for_context() {
 	while IFS= read -r candidate_sha; do
 		[[ -n "$candidate_sha" ]] || continue
 		if ! status_context_succeeded_at_sha_quiet "$candidate_sha" "$context"; then
+			continue
+		fi
+
+		if ! ensure_commit_available "$candidate_sha"; then
+			warn "Skipping E2E reuse candidate ${candidate_sha}: commit is not fetchable."
 			continue
 		fi
 
@@ -256,12 +368,12 @@ verify_contexts_file() {
 
 	while IFS= read -r context; do
 		[[ -n "$context" ]] || continue
-		if status_context_succeeded "$context"; then
+		if status_context_succeeded "$context" "$platform"; then
 			info "Found successful E2E status: ${context}"
 			continue
 		fi
 
-		if [[ "$context" != "$fallback_context" ]] && status_context_succeeded "$fallback_context"; then
+		if [[ "$context" != "$fallback_context" ]] && status_context_succeeded "$fallback_context" "$platform"; then
 			info "Found successful aggregate E2E status for ${context}: ${fallback_context}"
 			continue
 		fi

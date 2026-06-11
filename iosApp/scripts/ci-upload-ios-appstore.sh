@@ -26,6 +26,7 @@ KEYCHAIN_PATH="${APPLE_KEYCHAIN_PATH:-${RUNNER_TEMP:-/tmp}/tuindice-signing.keyc
 KEYCHAIN_PASSWORD="${APPLE_KEYCHAIN_PASSWORD:-tuindice-ci-keychain}"
 SKIP_IF_BUILD_EXISTS="${APP_STORE_CONNECT_SKIP_EXISTING_BUILD:-1}"
 CHECK_ONLY="${APP_STORE_CONNECT_CHECK_ONLY:-0}"
+DRY_RUN="${DRY_RUN:-0}"
 BUILD_EXISTS_FILE="${APP_STORE_CONNECT_BUILD_EXISTS_FILE:-}"
 APP_STORE_CONNECT_API_ROOT="${APP_STORE_CONNECT_API_ROOT:-https://api.appstoreconnect.apple.com/v1}"
 IOS_BUILD_NUMBER="$(get_ios_build_number)"
@@ -123,7 +124,7 @@ app_store_connect_get_json() {
 	local status_code
 
 	status_code="$(
-		curl --silent --show-error \
+		curl --silent --show-error --retry 3 \
 			-X GET \
 			-H "Authorization: Bearer ${APP_STORE_CONNECT_JWT}" \
 			-H "Accept: application/json" \
@@ -199,7 +200,9 @@ fi
 [[ -n "$API_KEY_ID" ]] || die "APP_STORE_CONNECT_KEY_ID is required."
 [[ -n "$API_ISSUER_ID" ]] || die "APP_STORE_CONNECT_ISSUER_ID is required."
 
-if check_app_store_connect_build_exists; then
+if [[ "$DRY_RUN" == "1" ]]; then
+	log "DRY_RUN=1: skipping App Store Connect build existence check; archive will be exported locally."
+elif check_app_store_connect_build_exists; then
 	if [[ "$CHECK_ONLY" == "1" || "$SKIP_IF_BUILD_EXISTS" == "1" ]]; then
 		exit 0
 	fi
@@ -323,6 +326,11 @@ xcodebuild \
 	archive
 
 EXPORT_OPTIONS_PLIST="${RUNNER_TEMP:-/tmp}/tuindice-export-options.plist"
+if [[ "$DRY_RUN" == "1" ]]; then
+	EXPORT_DESTINATION="export"
+else
+	EXPORT_DESTINATION="upload"
+fi
 if [[ "$CODE_SIGN_STYLE_VALUE" == "Manual" ]]; then
 	PROFILE_EXPORT_VALUE="$(xml_escape "${PROFILE_SPECIFIER:-$PROFILE_UUID}")"
 	BUNDLE_IDENTIFIER_VALUE="$(xml_escape "$IOS_BUNDLE_IDENTIFIER")"
@@ -340,7 +348,7 @@ cat <<EOF
 <plist version="1.0">
 <dict>
 	<key>destination</key>
-	<string>upload</string>
+	<string>${EXPORT_DESTINATION}</string>
 	<key>manageAppVersionAndBuildNumber</key>
 	<false/>
 	<key>method</key>
@@ -371,7 +379,11 @@ cat <<EOF
 EOF
 } >"$EXPORT_OPTIONS_PLIST"
 
-log "Uploading archive to App Store Connect."
+if [[ "$DRY_RUN" == "1" ]]; then
+	log "DRY_RUN=1: exporting signed archive locally without uploading."
+else
+	log "Uploading archive to App Store Connect."
+fi
 xcodebuild \
 	-exportArchive \
 	-archivePath "$ARCHIVE_PATH" \
@@ -379,4 +391,8 @@ xcodebuild \
 	-exportOptionsPlist "$EXPORT_OPTIONS_PLIST" \
 	"${auth_args[@]}"
 
-log "App Store Connect upload requested. The build will appear after Apple finishes processing it."
+if [[ "$DRY_RUN" == "1" ]]; then
+	log "DRY_RUN=1: signed export available at ${EXPORT_PATH}; nothing was uploaded."
+else
+	log "App Store Connect upload requested. The build will appear after Apple finishes processing it."
+fi

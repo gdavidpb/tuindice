@@ -78,6 +78,10 @@ Regla general:
 - Las dependencias deben apuntar hacia módulos base o infraestructura compartida.
 - Evitar dependencias cruzadas entre features.
 
+La fuente de verdad del grafo es `scripts/module-graph.txt`, validada contra los `build.gradle.kts` reales con
+`./gradlew verifyModuleGraph` (también corre en preflight). CI deriva de ese archivo qué módulos recompilar,
+testear y certificar con E2E. Si cambia una frontera, actualizar el archivo y esta sección en el mismo cambio.
+
 Dependencias actuales:
 
 - `base`: sin dependencias de proyecto.
@@ -95,9 +99,6 @@ Dependencias actuales:
   `:pensum` y `:enrollmentproof`.
 - `maincore`: depende de `:base`, `:persistence` y todas las features.
 - `app`: host Android; ensambla `maincore`.
-
-Este grafo se valida mecánicamente con `./gradlew verifyModuleGraph` contra `scripts/validate-module-graph.sh`. Si un
-límite cambia, hay que actualizar el script, este README y el skill del repo en el mismo cambio.
 
 Acuerdo de límites:
 

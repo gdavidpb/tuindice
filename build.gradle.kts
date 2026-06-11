@@ -237,7 +237,7 @@ tasks.register<Exec>("syncAppVersion") {
 
 tasks.register<Exec>("verifyAppVersionSync") {
 	group = "verification"
-	description = "Synchronizes and validates Android and iOS app versions against the shared app version properties."
+	description = "Validates Android and iOS app versions against the shared app version properties without mutating the tree."
 	commandLine("bash", "${rootDir}/.github/scripts/validate-app-version.sh")
 }
 

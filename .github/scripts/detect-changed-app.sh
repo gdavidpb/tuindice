@@ -41,6 +41,7 @@ IOS_BUILD_NUMBER_CHANGED=false
 APP_RELEASE_BUILD_NUMBERS_CHANGED=false
 CI_CONFIG_TOUCHED=false
 IOS_CI_SCRIPTS_TOUCHED=false
+MODULE_GRAPH_TOUCHED=false
 E2E_CONTRACT_TOUCHED=false
 HAS_RELEVANT_CHANGES=false
 HAS_RELEASE_IMPACT=false
@@ -128,6 +129,18 @@ append_e2e_scopes_for_modules() {
 	done
 }
 
+append_e2e_scopes_for_impacted_features() {
+	local platform="$1"
+	local module="$2"
+	local reason="$3"
+	local feature
+
+	while IFS= read -r feature; do
+		[[ -n "$feature" ]] || continue
+		append_e2e_scope_for_module "$platform" "$feature" "$reason"
+	done < <(module_impacted_feature_suites "$module")
+}
+
 append_runtime_module() {
 	local module="$1"
 
@@ -201,7 +214,7 @@ is_kmp_runtime_source_or_build_file() {
 mark_e2e_suite_for_module() {
 	local module="$1"
 
-	append_e2e_scope_for_module all "$module" "module-runtime"
+	append_e2e_scopes_for_impacted_features all "$module" "module-runtime"
 }
 
 append_ios_signing_config_validation() {
@@ -286,10 +299,10 @@ append_e2e_scope_for_shared_module_path() {
 
 	case "$module" in
 		academiccore)
-			append_e2e_scopes_for_modules all "academiccore-runtime" record evaluations pensum wizard
+			append_e2e_scopes_for_impacted_features all academiccore "academiccore-runtime"
 			;;
 		persistence)
-			append_e2e_scopes_for_modules all "persistence-runtime" summary record evaluations enrollmentproof subjects pensum
+			append_e2e_scopes_for_impacted_features all persistence "persistence-runtime"
 			case "$file" in
 				persistence/build.gradle.kts|persistence/src/*Main/kotlin/*/di/*|persistence/src/*Main/kotlin/*/data/source/*|persistence/src/*Main/kotlin/*/data/room/schema/*)
 					append_e2e_scope all maincore-suite "persistence-bootstrap"
@@ -392,7 +405,14 @@ classify_changed_file() {
 			append_runtime_module iosApp
 			HAS_RELEVANT_CHANGES=true
 			HAS_RELEASE_IMPACT=true
+			MODULE_GRAPH_TOUCHED=true
 			append_e2e_scope all local-certification-suite "root-build"
+			return 0
+			;;
+		scripts/module-graph.txt|scripts/validate-module-graph.sh)
+			CI_CONFIG_TOUCHED=true
+			MODULE_GRAPH_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
 			return 0
 			;;
 		iosApp/Config/Release.xcconfig|iosApp/TuIndiceHost.xcodeproj/project.pbxproj)
@@ -400,6 +420,20 @@ classify_changed_file() {
 				append_ios_signing_config_validation
 				return 0
 			fi
+			;;
+		iosApp/scripts/build-kmp-framework.sh|iosApp/scripts/ci-build-ios-host.sh)
+			CI_CONFIG_TOUCHED=true
+			IOS_CI_SCRIPTS_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			append_unique_line "$IOS_TASKS_FILE" "verifyIosHostBuildDeviceRelease"
+			return 0
+			;;
+		iosApp/scripts/ci-typecheck-ios-host.sh)
+			CI_CONFIG_TOUCHED=true
+			IOS_CI_SCRIPTS_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			append_unique_line "$IOS_TASKS_FILE" "verifyIosHostTypecheck"
+			return 0
 			;;
 		iosApp/scripts/*)
 			CI_CONFIG_TOUCHED=true
@@ -427,6 +461,10 @@ classify_changed_file() {
 				return 0
 			fi
 
+			if [[ "$file" == "app/build.gradle.kts" ]]; then
+				MODULE_GRAPH_TOUCHED=true
+			fi
+
 			append_runtime_module app
 			HAS_RELEVANT_CHANGES=true
 			HAS_RELEASE_IMPACT=true
@@ -441,6 +479,10 @@ classify_changed_file() {
 		if is_kmp_test_source_file "$top_level" "$file"; then
 			append_changed_test_module "$top_level"
 			return 0
+		fi
+
+		if [[ "$file" == "${top_level}/build.gradle.kts" ]]; then
+			MODULE_GRAPH_TOUCHED=true
 		fi
 
 		append_runtime_module "$top_level"
@@ -560,6 +602,10 @@ if [[ "$CI_CONFIG_TOUCHED" == "true" ]]; then
 	append_unique_line "$ANDROID_TASKS_FILE" "verifyAppVersionSync"
 fi
 
+if [[ "$MODULE_GRAPH_TOUCHED" == "true" ]]; then
+	append_unique_line "$ANDROID_TASKS_FILE" "verifyModuleGraph"
+fi
+
 sort_file_if_present "$ANDROID_TASKS_FILE"
 sort_file_if_present "$IOS_TASKS_FILE"
 sort_file_if_present "$E2E_SCOPE_FILE"
@@ -605,6 +651,7 @@ info "App release build numbers changed: ${APP_RELEASE_BUILD_NUMBERS_CHANGED}"
 info "Missing version bump: $(file_to_csv "$MISSING_VERSION_BUMP_FILE" || true)"
 info "CI/CD configuration touched: ${CI_CONFIG_TOUCHED}"
 info "iOS CI scripts touched: ${IOS_CI_SCRIPTS_TOUCHED}"
+info "Module graph touched: ${MODULE_GRAPH_TOUCHED}"
 info "E2E suites requiring local certification: $(file_to_csv "$E2E_SUITES_FILE" || true)"
 info "E2E scope: $(file_to_csv "$E2E_SCOPE_FILE" || true)"
 info "E2E Android contexts: $(file_to_csv "$E2E_ANDROID_CONTEXTS_FILE" || true)"
@@ -631,6 +678,7 @@ if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
 		printf 'app_release_build_numbers_changed=%s\n' "$APP_RELEASE_BUILD_NUMBERS_CHANGED"
 		printf 'ci_config_touched=%s\n' "$CI_CONFIG_TOUCHED"
 		printf 'ios_ci_scripts_touched=%s\n' "$IOS_CI_SCRIPTS_TOUCHED"
+		printf 'module_graph_touched=%s\n' "$MODULE_GRAPH_TOUCHED"
 		printf 'e2e_contract_touched=%s\n' "$E2E_CONTRACT_TOUCHED"
 		printf 'requires_e2e_certification=%s\n' "$REQUIRES_E2E_CERTIFICATION"
 		printf 'e2e_suites_file=%s\n' "$E2E_SUITES_FILE"

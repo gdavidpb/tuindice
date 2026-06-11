@@ -62,7 +62,7 @@ api_get_json() {
 	local status_code
 
 	status_code="$(
-		curl --silent --show-error \
+		curl --silent --show-error --retry 3 \
 			-X GET \
 			-H "Authorization: Bearer ${ACCESS_TOKEN}" \
 			-H "Accept: application/json" \

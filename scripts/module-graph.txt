@@ -1,0 +1,25 @@
+# Single source of truth for the module dependency graph.
+#
+# Consumed by:
+# - scripts/validate-module-graph.sh (validates build.gradle.kts files against it)
+# - .github/scripts/common.sh (derives reverse transitive closures for CI scoping)
+#
+# Format: <module>=<space-separated :deps, sorted; "-" means no project dependencies>
+# Only main-scope dependencies count; test source sets are ignored.
+# The iOS host (iosApp) is not a Gradle module: CI treats it as a dependent of
+# maincore, whose umbrella framework it links.
+about=:base
+academiccore=-
+app=:about :auth :base :enrollmentproof :evaluations :maincore :pensum :persistence :record :subjects :summary :wizard
+auth=:base
+base=-
+enrollmentproof=:base :persistence
+evaluations=:academiccore :base :persistence
+maincore=:about :auth :base :enrollmentproof :evaluations :pensum :persistence :record :subjects :summary :wizard
+pensum=:academiccore :base :persistence
+persistence=:base
+record=:academiccore :base :persistence
+subjects=:academiccore :base :persistence
+summary=:base :persistence
+testkit=:base
+wizard=:about :academiccore :base :enrollmentproof :evaluations :pensum :record :subjects :summary

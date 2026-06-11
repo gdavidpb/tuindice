@@ -31,6 +31,9 @@ done < <(
 	find .github/workflows \( -name '*.yml' -o -name '*.yaml' \) -type f 2>/dev/null | sort
 )
 
+info "Validating module dependency graph."
+bash "${SCRIPT_DIR}/../../scripts/validate-module-graph.sh"
+
 ios_framework_cache_hash="$(bash "${SCRIPT_DIR}/ios-framework-cache-key.sh")"
 if [[ ! "$ios_framework_cache_hash" =~ ^[0-9a-f]{64}$ ]]; then
 	die "iOS framework cache key script returned an invalid hash: ${ios_framework_cache_hash}"

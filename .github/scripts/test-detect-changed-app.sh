@@ -275,6 +275,52 @@ run_detector_fixture() {
 			assert_file_contains_line "$github_output_file" "app_version_changed=true" "GitHub output"
 			assert_file_contains_line "$github_output_file" "app_release_build_numbers_changed=true" "GitHub output"
 			;;
+		persistence-runtime)
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "persistence" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "wizard" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "subjects" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,wizard-suite,persistence-runtime" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,summary-suite,persistence-runtime" "E2E scope"
+			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "android,maincore-suite,persistence-bootstrap" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":wizard:testAndroidHostTest" "Android tasks"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
+			;;
+		persistence-bootstrap)
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,maincore-suite,persistence-bootstrap" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,wizard-suite,persistence-runtime" "E2E scope"
+			;;
+		feature-module-dependents)
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "record" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "wizard" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "maincore" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,record-suite,module-runtime" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,wizard-suite,module-runtime" "E2E scope"
+			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "android,subjects-suite,module-runtime" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":wizard:testAndroidHostTest" "Android tasks"
+			;;
+		module-graph-config)
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyModuleGraph" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyAppVersionSync" "Android tasks"
+			assert_file_contains_line "$github_output_file" "module_graph_touched=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			;;
+		module-build-file)
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyModuleGraph" "Android tasks"
+			assert_file_contains_line "$github_output_file" "module_graph_touched=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "has_release_impact=true" "GitHub output"
+			;;
+		ios-build-script)
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS tasks"
+			assert_file_contains_line "$github_output_file" "ios_ci_scripts_touched=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			;;
+		ios-typecheck-script)
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" "verifyIosHostTypecheck" "iOS tasks"
+			assert_file_contains_line "$github_output_file" "ios_ci_scripts_touched=true" "GitHub output"
+			;;
 		*)
 			printf 'Unknown detector fixture: %s\n' "$name" >&2
 			exit 1
@@ -320,6 +366,13 @@ ios_release_signing_commit="$(
 
 run_detector_fixture e2e-runner e2e/scripts/common.sh
 run_detector_fixture ios-script-tooling iosApp/scripts/ci-upload-ios-appstore.sh
+run_detector_fixture persistence-runtime persistence/src/commonMain/kotlin/com/gdavidpb/tuindice/persistence/data/repository/MutationRepository.kt
+run_detector_fixture persistence-bootstrap persistence/src/commonMain/kotlin/com/gdavidpb/tuindice/persistence/di/PersistenceModule.kt
+run_detector_fixture feature-module-dependents record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/presentation/RecordScreen.kt
+run_detector_fixture module-graph-config scripts/module-graph.txt
+run_detector_fixture module-build-file record/build.gradle.kts
+run_detector_fixture ios-build-script iosApp/scripts/build-kmp-framework.sh
+run_detector_fixture ios-typecheck-script iosApp/scripts/ci-typecheck-ios-host.sh
 run_detector_fixture ios-host-runtime iosApp/Sources/TuIndiceHost/TuIndiceAppBootstrap.swift
 run_detector_fixture ios-version-xcconfig iosApp/Config/Version.xcconfig
 run_detector_fixture ios-release-signing iosApp/Config/Release.xcconfig "$HEAD_SHA" "$ios_release_signing_commit"
