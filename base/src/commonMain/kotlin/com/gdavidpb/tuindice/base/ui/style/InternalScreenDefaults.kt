@@ -4,7 +4,7 @@ import androidx.compose.ui.unit.dp
 
 object InternalScreenDefaults {
 	val TopBarContentVerticalOffset = (-6).dp
-	val TopBarHeight = 56.dp
-	val TopBarSpacing = 12.dp
-	val BottomBarHeight = 56.dp
+	val TopBarHeight = TuIndiceComponentSizes.TopBarHeight
+	val TopBarSpacing = TuIndiceSpacing.XLarge
+	val BottomBarHeight = TuIndiceComponentSizes.BottomBarHeight
 }

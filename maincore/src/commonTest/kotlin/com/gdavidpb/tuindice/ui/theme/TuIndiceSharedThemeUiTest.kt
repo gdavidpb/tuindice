@@ -7,6 +7,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.unit.TextUnit
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceShapes
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
@@ -53,11 +54,13 @@ class TuIndiceSharedThemeUiTest {
 	fun when_themeRenders_then_usesSharedDesignTokens() = runTuIndiceUiTest {
 		var titleLargeFontSize = TextUnit.Unspecified
 		var primaryColor = Color.Unspecified
+		var mediumShape = TuIndiceShapes.medium
 
 		setTuIndiceTestContent {
 			TuIndiceSharedTheme(darkTheme = false) {
 				titleLargeFontSize = MaterialTheme.typography.titleLarge.fontSize
 				primaryColor = MaterialTheme.colorScheme.primary
+				mediumShape = MaterialTheme.shapes.medium
 				Text("Tokens")
 			}
 		}
@@ -66,5 +69,6 @@ class TuIndiceSharedThemeUiTest {
 
 		assertEquals(TuIndiceTypography.titleLarge.fontSize, titleLargeFontSize)
 		assertEquals(TuIndiceColorScheme.light.primary, primaryColor)
+		assertEquals(TuIndiceShapes.medium, mediumShape)
 	}
 }

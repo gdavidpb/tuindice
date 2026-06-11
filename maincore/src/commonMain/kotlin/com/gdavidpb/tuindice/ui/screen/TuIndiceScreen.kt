@@ -66,6 +66,7 @@ import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceShellColors
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
@@ -191,8 +192,8 @@ fun TuIndiceScreen(
 				topBar = {
 				if (shellState.isTopBarVisible) {
 					val recordTopBarViewModeState = shellState.recordTopBarViewModeState
-					val topBarContainerColor = MaterialTheme.colorScheme.surface
-					val topBarContentColor = MaterialTheme.colorScheme.onSurface
+					val topBarContainerColor = TuIndiceShellColors.topBarContainer()
+					val topBarContentColor = TuIndiceShellColors.topBarContent()
 					val onRecordTopBarViewModeSelected =
 						if (onRecordViewModeChange == null) null
 						else { mode: RecordViewMode -> onRecordViewModeChange(mode) }
@@ -289,7 +290,7 @@ fun TuIndiceScreen(
 			},
 			bottomBar = {
 				if (shellState.isBottomBarVisible) {
-					val bottomBarContainerColor = MaterialTheme.colorScheme.onSecondary
+					val bottomBarContainerColor = TuIndiceShellColors.bottomBarContainer()
 
 					Box(
 						modifier = Modifier
@@ -330,7 +331,7 @@ fun TuIndiceScreen(
 										)
 									},
 									colors = NavigationBarItemDefaults.colors(
-										indicatorColor = MaterialTheme.colorScheme.secondaryContainer
+										indicatorColor = TuIndiceShellColors.bottomBarIndicator()
 									),
 									selected = isNavigationBarItemSelected,
 									onClick = { onNavigateTo(bottomBarConfig.destination) }
