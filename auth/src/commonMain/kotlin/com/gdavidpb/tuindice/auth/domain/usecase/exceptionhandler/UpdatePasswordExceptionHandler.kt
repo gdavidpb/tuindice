@@ -16,7 +16,7 @@ import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 
 class UpdatePasswordExceptionHandler(
 	private val networkRepository: NetworkRepository
-) : ExceptionHandler<SignInUseCaseError>() {
+) : ExceptionHandler<SignInUseCaseError> {
 	override fun parseException(throwable: Throwable): SignInUseCaseError? {
 		val rootThrowable = (throwable as? AuthenticationStageException)?.cause ?: throwable
 

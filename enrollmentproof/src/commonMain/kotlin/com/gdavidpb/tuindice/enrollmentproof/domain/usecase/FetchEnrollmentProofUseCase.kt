@@ -15,7 +15,7 @@ class FetchEnrollmentProofUseCase(
 	private val enrollmentProofRepository: EnrollmentProofRepository,
 	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: FetchEnrollmentProofExceptionHandler
-) : FlowUseCase<Unit, PlatformFile, FetchEnrollmentProofUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<Unit, PlatformFile, FetchEnrollmentProofUseCaseError>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<PlatformFile> {
 		val enrollmentProof = enrollmentProofRepository.getEnrollmentProof()
 		val file = PlatformFile(enrollmentProof.source)

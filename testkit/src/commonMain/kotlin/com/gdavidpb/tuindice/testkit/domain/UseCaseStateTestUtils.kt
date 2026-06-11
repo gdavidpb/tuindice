@@ -8,15 +8,15 @@ import kotlin.test.assertIs
 suspend fun <T, E : UseCaseError> awaitLoadingThenData(
 	turbine: ReceiveTurbine<UseCaseState<T, E>>
 ): T {
-	assertIs<UseCaseState.Loading<*, *>>(turbine.awaitItem())
+	assertIs<UseCaseState.Loading>(turbine.awaitItem())
 
-	val data = assertIs<UseCaseState.Data<T, E>>(turbine.awaitItem())
+	val data = assertIs<UseCaseState.Data<T>>(turbine.awaitItem())
 	return data.value
 }
 
 suspend fun <T, E : UseCaseError> awaitLoadingThenError(
 	turbine: ReceiveTurbine<UseCaseState<T, E>>
-): UseCaseState.Error<T, E> {
-	assertIs<UseCaseState.Loading<*, *>>(turbine.awaitItem())
-	return assertIs<UseCaseState.Error<T, E>>(turbine.awaitItem())
+): UseCaseState.Error<E> {
+	assertIs<UseCaseState.Loading>(turbine.awaitItem())
+	return assertIs<UseCaseState.Error<E>>(turbine.awaitItem())
 }

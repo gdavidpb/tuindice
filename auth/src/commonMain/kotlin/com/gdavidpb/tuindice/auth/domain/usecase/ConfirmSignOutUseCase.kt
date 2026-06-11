@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.flowOf
 class ConfirmSignOutUseCase(
 	private val pendingChangesRepository: PendingChangesRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, PendingChanges, Nothing>(reportingRepository = reportingRepository) {
+) : FlowUseCase<Unit, PendingChanges, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<PendingChanges> {
 		return flowOf(
 			pendingChangesRepository.getPendingChanges()

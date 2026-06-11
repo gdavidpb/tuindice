@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.flowOf
 class GetEvaluationAndAvailableAttemptsUseCase(
 	private val evaluationRepository: EvaluationRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<GetEvaluationParams, EvaluationAndAvailableAttempts, Nothing>(reportingRepository = reportingRepository) {
+) : FlowUseCase<GetEvaluationParams, EvaluationAndAvailableAttempts, Nothing>() {
 	override suspend fun executeOnBackground(params: GetEvaluationParams): Flow<EvaluationAndAvailableAttempts> {
 		val evaluation = evaluationRepository
 			.getEvaluation(eid = params.evaluationId)

@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
 import com.gdavidpb.tuindice.record.domain.exception.SyntheticTermValidationException
 import com.gdavidpb.tuindice.record.domain.usecase.error.RecordUseCaseError
 
-class RecordExceptionHandler : ExceptionHandler<RecordUseCaseError>() {
+class RecordExceptionHandler : ExceptionHandler<RecordUseCaseError> {
 	override fun parseException(throwable: Throwable): RecordUseCaseError? {
 		return when {
 			throwable is SyntheticTermValidationException ->

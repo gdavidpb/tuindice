@@ -18,7 +18,7 @@ class AddEvaluationUseCase(
 	override val reportingRepository: ReportingRepository,
 	override val paramsValidator: AddEvaluationParamsValidator,
 	override val exceptionHandler: AddEvaluationExceptionHandler
-) : FlowUseCase<AddEvaluationParams, Unit, AddEvaluationUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<AddEvaluationParams, Unit, AddEvaluationUseCaseError>() {
 	override suspend fun executeOnBackground(params: AddEvaluationParams): Flow<Unit> {
 		val evaluation = params.toEvaluationAdd(
 			reference = identifierRepository.generateRandomIdentifier()

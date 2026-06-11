@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseE
 
 class RemoveProfilePictureExceptionHandler(
 	private val networkRepository: NetworkRepository
-) : ExceptionHandler<ProfilePictureUseCaseError>() {
+) : ExceptionHandler<ProfilePictureUseCaseError> {
 	override fun parseException(throwable: Throwable): ProfilePictureUseCaseError? {
 		return when {
 			throwable.isNotFound() -> ProfilePictureUseCaseError.NotFound

@@ -18,7 +18,7 @@ class CreateSyntheticTermUseCase(
 	private val repository: AcademicRecordRepository,
 	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: RecordExceptionHandler
-) : FlowUseCase<CreateSyntheticTermParams, String, RecordUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<CreateSyntheticTermParams, String, RecordUseCaseError>() {
 	override suspend fun executeOnBackground(params: CreateSyntheticTermParams): Flow<String> {
 		val record = repository.getAcademicRecord()
 			?: throw SyntheticTermValidationException(SyntheticTermValidationError.RECORD_UNAVAILABLE)

@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.base.domain.usecase.base
 
-sealed class UseCaseState<T, E : UseCaseError> {
-	class Loading<T, E : UseCaseError> : UseCaseState<T, E>()
-	data class Data<T, E : UseCaseError>(val value: T) : UseCaseState<T, E>()
-	data class Error<T, E : UseCaseError>(val error: E?) : UseCaseState<T, E>()
+sealed class UseCaseState<out T, out E : UseCaseError> {
+	data object Loading : UseCaseState<Nothing, Nothing>()
+	data class Data<out T>(val value: T) : UseCaseState<T, Nothing>()
+	data class Error<out E : UseCaseError>(val error: E?) : UseCaseState<Nothing, E>()
 }

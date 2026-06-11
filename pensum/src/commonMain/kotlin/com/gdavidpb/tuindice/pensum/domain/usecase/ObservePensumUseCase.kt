@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 class ObservePensumUseCase(
 	private val pensumRepository: PensumRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, PensumObservation, ObservePensumUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<Unit, PensumObservation, ObservePensumUseCaseError>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<PensumObservation> {
 		return pensumRepository.observePensumFlow()
 	}

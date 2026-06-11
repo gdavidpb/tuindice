@@ -12,7 +12,7 @@ class SelectPensumModalityUseCase(
 	private val pensumRepository: PensumRepository,
 	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: UpdatePensumExceptionHandler
-) : FlowUseCase<String, Unit, UpdatePensumUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<String, Unit, UpdatePensumUseCaseError>() {
 	override suspend fun executeOnBackground(params: String): Flow<Unit> {
 		return flow {
 			pensumRepository.selectModality(params)

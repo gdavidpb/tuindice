@@ -11,7 +11,7 @@ class ShouldStartWizardUseCase(
 	private val settingsRepository: SettingsRepository,
 	private val sessionRepository: SessionRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, Boolean, Nothing>(reportingRepository = reportingRepository) {
+) : FlowUseCase<Unit, Boolean, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<Boolean> {
 		return flowOf(
 			sessionRepository.hasActiveSession() &&

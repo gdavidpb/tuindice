@@ -7,7 +7,6 @@ import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationsExceptionHandler
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEvaluationsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RefreshEvaluationsActionProcessor
@@ -288,8 +287,7 @@ class EvaluationsActionProcessorContractTest {
 		val processor = RefreshEvaluationsActionProcessor(
 			updateEvaluationsUseCase = UpdateEvaluationsUseCase(
 				evaluationRepository = RecordingEvaluationRepository(),
-				reportingRepository = RecordingReportingRepository(),
-				exceptionHandler = UpdateEvaluationsExceptionHandler()
+				reportingRepository = RecordingReportingRepository()
 			)
 		)
 
@@ -308,8 +306,7 @@ class EvaluationsActionProcessorContractTest {
 		val processor = RefreshEvaluationsActionProcessor(
 			updateEvaluationsUseCase = UpdateEvaluationsUseCase(
 				evaluationRepository = RecordingEvaluationRepository(),
-				reportingRepository = RecordingReportingRepository(),
-				exceptionHandler = UpdateEvaluationsExceptionHandler()
+				reportingRepository = RecordingReportingRepository()
 			)
 		)
 

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.flowOf
 class RefreshSubjectSearchUseCase(
 	private val subjectCatalogRepository: SubjectCatalogRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<SubjectSearchParams, Unit, Nothing>(reportingRepository = reportingRepository) {
+) : FlowUseCase<SubjectSearchParams, Unit, Nothing>() {
 	override suspend fun executeOnBackground(params: SubjectSearchParams): Flow<Unit> {
 		subjectCatalogRepository.refreshSearchResults(
 			query = params.query,

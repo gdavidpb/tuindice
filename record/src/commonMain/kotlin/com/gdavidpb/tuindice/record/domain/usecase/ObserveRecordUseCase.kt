@@ -15,7 +15,7 @@ class ObserveRecordUseCase(
 	private val academicRecordRepository: AcademicRecordRepository,
 	private val recordSelectionRepository: RecordSelectionRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, ObservedRecord, Nothing>(reportingRepository = reportingRepository) {
+) : FlowUseCase<Unit, ObservedRecord, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<ObservedRecord> {
 		return combine(
 			academicRecordRepository.observeAcademicRecordSnapshotFlow(),

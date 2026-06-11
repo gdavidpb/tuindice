@@ -21,7 +21,7 @@ class GetEvaluationsUseCase(
 	private val evaluationRepository: EvaluationRepository,
 	private val recordDataPrerequisiteRepository: RecordDataPrerequisiteRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, GetEvaluations, EvaluationsUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<Unit, GetEvaluations, EvaluationsUseCaseError>() {
 
 	private val evaluationComparator =
 		Comparator<Evaluation> { a, b ->

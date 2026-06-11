@@ -12,7 +12,7 @@ class UpdateUserUseCase(
 	private val userRepository: UserRepository,
 	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: UpdateUserExceptionHandler
-) : FlowUseCase<Unit, Unit, UpdateUserUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<Unit, Unit, UpdateUserUseCaseError>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
 		userRepository.updateUser()
 

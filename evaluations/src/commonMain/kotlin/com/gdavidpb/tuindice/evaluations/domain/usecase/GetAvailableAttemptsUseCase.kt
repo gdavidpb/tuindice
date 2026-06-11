@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.flowOf
 class GetAvailableAttemptsUseCase(
 	private val evaluationRepository: EvaluationRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, List<EditableAttemptDescriptor>, Nothing>(reportingRepository = reportingRepository) {
+) : FlowUseCase<Unit, List<EditableAttemptDescriptor>, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<List<EditableAttemptDescriptor>> {
 		val availableAttempts = evaluationRepository
 			.getAvailableAttempts()

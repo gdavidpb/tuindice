@@ -24,7 +24,7 @@ class SignOutUseCase(
 	private val applicationRepository: ApplicationRepository,
 	private val syncStatusRepository: SyncStatusRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, Unit, Nothing>(reportingRepository = reportingRepository) {
+) : FlowUseCase<Unit, Unit, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
 		val sessionId = sessionRepository.getSessionId()
 		val refreshToken = sessionRepository.getRefreshToken()

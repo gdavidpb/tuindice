@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.summary.domain.usecase.error.UpdateUserUseCaseError
 
 class UpdateUserExceptionHandler(
 	private val networkRepository: NetworkRepository
-) : ExceptionHandler<UpdateUserUseCaseError>() {
+) : ExceptionHandler<UpdateUserUseCaseError> {
 	override fun parseException(throwable: Throwable): UpdateUserUseCaseError? {
 		return when {
 			throwable.isNotFound() -> UpdateUserUseCaseError.NotFound

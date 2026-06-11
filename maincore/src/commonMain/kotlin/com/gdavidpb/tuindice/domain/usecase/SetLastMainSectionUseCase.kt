@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.flowOf
 class SetLastMainSectionUseCase(
 	private val settingsRepository: SettingsRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<MainSection, Unit, Nothing>(reportingRepository = reportingRepository) {
+) : FlowUseCase<MainSection, Unit, Nothing>() {
 	override suspend fun executeOnBackground(params: MainSection): Flow<Unit> {
 		settingsRepository.setLastMainSection(section = params)
 

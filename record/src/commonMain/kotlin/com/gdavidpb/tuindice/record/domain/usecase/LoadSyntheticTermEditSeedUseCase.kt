@@ -17,7 +17,7 @@ class LoadSyntheticTermEditSeedUseCase(
 	private val repository: AcademicRecordRepository,
 	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: RecordExceptionHandler
-) : FlowUseCase<String, SyntheticTermEditSeed, RecordUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<String, SyntheticTermEditSeed, RecordUseCaseError>() {
 	override suspend fun executeOnBackground(params: String): Flow<SyntheticTermEditSeed> {
 		val record = requireNotNull(repository.getAcademicRecord())
 		val term = record.terms.first { term -> term.id == params && term.kind.isSynthetic }

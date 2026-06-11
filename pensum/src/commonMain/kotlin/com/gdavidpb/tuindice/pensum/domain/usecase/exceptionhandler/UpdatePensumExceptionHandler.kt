@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.pensum.domain.usecase.error.UpdatePensumUseCaseErro
 
 class UpdatePensumExceptionHandler(
 	private val networkRepository: NetworkRepository
-) : ExceptionHandler<UpdatePensumUseCaseError>() {
+) : ExceptionHandler<UpdatePensumUseCaseError> {
 	override fun parseException(throwable: Throwable): UpdatePensumUseCaseError? {
 		return when {
 			throwable.isNotFound() -> UpdatePensumUseCaseError.NotFound

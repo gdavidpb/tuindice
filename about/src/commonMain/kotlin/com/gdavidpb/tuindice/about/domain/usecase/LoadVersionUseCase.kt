@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.flowOf
 class LoadVersionUseCase(
 	private val aboutRepository: AboutRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, String, Nothing>(reportingRepository = reportingRepository) {
+) : FlowUseCase<Unit, String, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<String> {
 		val versionDescription = aboutRepository.getVersionDescription()
 

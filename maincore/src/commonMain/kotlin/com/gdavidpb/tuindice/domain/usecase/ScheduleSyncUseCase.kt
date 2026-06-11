@@ -17,7 +17,7 @@ class ScheduleSyncUseCase(
 	private val syncRepository: SyncRepository,
 	private val coreCacheStateRepository: CoreCacheStateRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, Unit, Nothing>(reportingRepository = reportingRepository) {
+) : FlowUseCase<Unit, Unit, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
 		if (!sessionRepository.hasActiveSession()) return emptyFlow()
 		if (!credentialsRepository.hasPassword()) return emptyFlow()

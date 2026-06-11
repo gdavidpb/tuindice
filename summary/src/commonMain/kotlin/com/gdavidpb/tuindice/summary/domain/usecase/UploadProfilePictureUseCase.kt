@@ -13,7 +13,7 @@ class UploadProfilePictureUseCase(
 	private val userRepository: UserRepository,
 	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: UploadProfilePictureExceptionHandler
-) : FlowUseCase<PlatformFile, String, ProfilePictureUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<PlatformFile, String, ProfilePictureUseCaseError>() {
 	override suspend fun executeOnBackground(params: PlatformFile): Flow<String> {
 		val url = userRepository.uploadProfilePicture(file = params).url
 

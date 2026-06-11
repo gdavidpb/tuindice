@@ -4,7 +4,6 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.error.UpdateEvaluationsUseCaseError
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.mapNotNull

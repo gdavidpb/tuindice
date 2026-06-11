@@ -24,7 +24,6 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.RemoveEvaluationExceptionHandler
-import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationsExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.AddEvaluationActionProcessor
@@ -152,7 +151,6 @@ val evaluationsModule = module {
 
 	/* Exception handlers */
 
-	factoryOf(::UpdateEvaluationsExceptionHandler)
 	factoryOf(::AddEvaluationExceptionHandler)
 	factoryOf(::UpdateEvaluationExceptionHandler)
 	factoryOf(::RemoveEvaluationExceptionHandler)
