@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.map
 class LoadVersionActionProcessor(
 	private val loadVersionUseCase: LoadVersionUseCase,
 	private val usageDataConsentRepository: UsageDataConsentRepository = InMemoryUsageDataConsentRepository()
-) : ActionProcessor<About.State, About.Action.LoadVersion, About.Effect>() {
+) : ActionProcessor<About.State, About.Action.LoadVersion, About.Effect> {
 	override suspend fun process(
 		action: About.Action.LoadVersion,
 		sideEffect: (About.Effect) -> Unit

@@ -5,7 +5,7 @@ import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 
 object UpdatePassword {
-	sealed class State : ViewState() {
+	sealed class State : ViewState {
 		data class Idle(
 			val password: String = "",
 			val isPasswordVisible: Boolean = false,
@@ -18,13 +18,13 @@ object UpdatePassword {
 		) : State()
 	}
 
-	sealed class Action : ViewAction() {
+	sealed class Action : ViewAction {
 		class SetPassword(val password: String) : Action()
 		data object TogglePasswordVisibility : Action()
 		class ClickSignIn(val password: String) : Action()
 	}
 
-	sealed class Effect : ViewEffect() {
+	sealed class Effect : ViewEffect {
 		class PasswordUpdated(val message: String) : Effect()
 		class ShowSnackBar(val message: String) : Effect()
 	}

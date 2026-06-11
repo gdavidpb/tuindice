@@ -5,13 +5,14 @@ import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import org.jetbrains.compose.resources.getString
 import tuindice.about.generated.resources.Res
 import tuindice.about.generated.resources.label_privacy_policy
 
 class OpenPrivacyPolicyActionProcessor(
 	private val appEnvironmentRepository: AppEnvironmentRepository
-) : ActionProcessor<About.State, About.Action.OpenPrivacyPolicy, About.Effect>() {
+) : ActionProcessor<About.State, About.Action.OpenPrivacyPolicy, About.Effect> {
 	override suspend fun process(
 		action: About.Action.OpenPrivacyPolicy,
 		sideEffect: (About.Effect) -> Unit
@@ -23,6 +24,6 @@ class OpenPrivacyPolicyActionProcessor(
 			)
 		)
 
-		return super.process(action, sideEffect)
+		return emptyFlow()
 	}
 }

@@ -4,9 +4,10 @@ import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.presentation.contract.Browser
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 class OpenExternalResourceActionProcessor
-	: ActionProcessor<Browser.State, Browser.Action.OpenExternalResource, Browser.Effect>() {
+	: ActionProcessor<Browser.State, Browser.Action.OpenExternalResource, Browser.Effect> {
 
 	override suspend fun process(
 		action: Browser.Action.OpenExternalResource,
@@ -16,6 +17,6 @@ class OpenExternalResourceActionProcessor
 			Browser.Effect.NavigateToExternalResourceDialog(url = action.url)
 		)
 
-		return super.process(action, sideEffect)
+		return emptyFlow()
 	}
 }

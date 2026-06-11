@@ -18,7 +18,7 @@ import tuindice.summary.generated.resources.snack_timeout
 
 class ConfirmRemoveProfilePictureActionProcessor(
 	private val removeProfilePictureUseCase: RemoveProfilePictureUseCase
-) : ActionProcessor<Summary.State, Summary.Action.ConfirmRemoveProfilePicture, Summary.Effect>() {
+) : ActionProcessor<Summary.State, Summary.Action.ConfirmRemoveProfilePicture, Summary.Effect> {
 
 	override suspend fun process(
 		action: Summary.Action.ConfirmRemoveProfilePicture,

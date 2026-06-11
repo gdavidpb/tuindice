@@ -20,7 +20,7 @@ import tuindice.evaluations.generated.resources.snack_evaluation_added
 
 class AddEvaluationActionProcessor(
 	private val addEvaluationUseCase: AddEvaluationUseCase
-) : ActionProcessor<Evaluation.State, Evaluation.Action.ClickAddEvaluation, Evaluation.Effect>() {
+) : ActionProcessor<Evaluation.State, Evaluation.Action.ClickAddEvaluation, Evaluation.Effect> {
 
 	override suspend fun process(
 		action: Evaluation.Action.ClickAddEvaluation,

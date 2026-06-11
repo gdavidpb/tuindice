@@ -16,7 +16,7 @@ object Pensum {
 		override val topBarConfig: TopBarConfig = TopBarConfig.Pensum,
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = true
-	) : ViewState() {
+	) : ViewState {
 		data object Idle : State()
 
 		data object Loading : State()
@@ -36,7 +36,7 @@ object Pensum {
 		) : State()
 	}
 
-	sealed class Action : ViewAction() {
+	sealed class Action : ViewAction {
 		data object ObservePensum : Action()
 		data object RefreshPensum : Action()
 		class SelectPensum(
@@ -51,5 +51,5 @@ object Pensum {
 		) : Action()
 	}
 
-	sealed class Effect : ViewEffect()
+	sealed class Effect : ViewEffect
 }

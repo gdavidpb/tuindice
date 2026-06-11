@@ -11,7 +11,7 @@ private const val MIN_EVALUATION_GRADE = 0.0
 
 class SetMaxGradeActionProcessor
 	:
-	ActionProcessor<Evaluation.State, Evaluation.Action.SetMaxGrade, Evaluation.Effect>() {
+	ActionProcessor<Evaluation.State, Evaluation.Action.SetMaxGrade, Evaluation.Effect> {
 
 	override suspend fun process(
 		action: Evaluation.Action.SetMaxGrade,

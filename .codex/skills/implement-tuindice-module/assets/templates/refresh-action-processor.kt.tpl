@@ -13,7 +13,7 @@ import $GENERATED_RESOURCES_PACKAGE.Res
 
 class $REFRESH_ACTION_PROCESSOR_NAME(
 	private val $UPDATE_USE_CASE_PARAM_NAME: $UPDATE_USE_CASE_NAME
-) : ActionProcessor<$FEATURE_NAME.State, $FEATURE_NAME.Action.$REFRESH_ACTION_NAME, $FEATURE_NAME.Effect>() {
+) : ActionProcessor<$FEATURE_NAME.State, $FEATURE_NAME.Action.$REFRESH_ACTION_NAME, $FEATURE_NAME.Effect> {
 
 	override suspend fun process(
 		action: $FEATURE_NAME.Action.$REFRESH_ACTION_NAME,

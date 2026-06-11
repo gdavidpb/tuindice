@@ -16,7 +16,7 @@ import tuindice.evaluations.generated.resources.snack_evaluation_removed
 
 class RemoveEvaluationActionProcessor(
 	private val removeEvaluationUseCase: RemoveEvaluationUseCase
-) : ActionProcessor<Evaluations.State, Evaluations.Action.RemoveEvaluation, Evaluations.Effect>() {
+) : ActionProcessor<Evaluations.State, Evaluations.Action.RemoveEvaluation, Evaluations.Effect> {
 
 	override suspend fun process(
 		action: Evaluations.Action.RemoveEvaluation,

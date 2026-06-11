@@ -15,7 +15,7 @@ import tuindice.pensum.generated.resources.pensum_failed_message
 
 class ObservePensumActionProcessor(
 	private val observePensumUseCase: ObservePensumUseCase
-) : ActionProcessor<Pensum.State, Pensum.Action.ObservePensum, Pensum.Effect>() {
+) : ActionProcessor<Pensum.State, Pensum.Action.ObservePensum, Pensum.Effect> {
 	override suspend fun process(
 		action: Pensum.Action.ObservePensum,
 		sideEffect: (Pensum.Effect) -> Unit

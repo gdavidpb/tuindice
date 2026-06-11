@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 
 object SignOut {
-	sealed class State : ViewState() {
+	sealed class State : ViewState {
 		data object Plain : State()
 
 		data class Pending(
@@ -24,7 +24,7 @@ object SignOut {
 		) : State()
 	}
 
-	sealed class Action : ViewAction() {
+	sealed class Action : ViewAction {
 		data class Initialize(
 			val pendingChanges: PendingChanges
 		) : Action()
@@ -39,7 +39,7 @@ object SignOut {
 		data object OpenUpdatePassword : Action()
 	}
 
-	sealed class Effect : ViewEffect() {
+	sealed class Effect : ViewEffect {
 		data object NavigateToSignIn : Effect()
 		data object NavigateToUpdatePassword : Effect()
 

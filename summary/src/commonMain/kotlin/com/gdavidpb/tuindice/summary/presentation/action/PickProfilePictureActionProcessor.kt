@@ -4,9 +4,10 @@ import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 class PickProfilePictureActionProcessor
-	: ActionProcessor<Summary.State, Summary.Action.PickProfilePicture, Summary.Effect>() {
+	: ActionProcessor<Summary.State, Summary.Action.PickProfilePicture, Summary.Effect> {
 
 	override suspend fun process(
 		action: Summary.Action.PickProfilePicture,
@@ -16,6 +17,6 @@ class PickProfilePictureActionProcessor
 			Summary.Effect.OpenPicker
 		)
 
-		return super.process(action, sideEffect)
+		return emptyFlow()
 	}
 }

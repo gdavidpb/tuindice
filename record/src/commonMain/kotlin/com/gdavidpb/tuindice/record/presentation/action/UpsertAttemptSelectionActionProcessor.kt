@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.map
 
 class UpsertAttemptSelectionActionProcessor(
 	private val upsertAttemptSelectionUseCase: UpsertAttemptSelectionUseCase
-) : ActionProcessor<Record.State, Record.Action.UpsertAttemptSelection, Record.Effect>() {
+) : ActionProcessor<Record.State, Record.Action.UpsertAttemptSelection, Record.Effect> {
 	override suspend fun process(
 		action: Record.Action.UpsertAttemptSelection,
 		sideEffect: (Record.Effect) -> Unit

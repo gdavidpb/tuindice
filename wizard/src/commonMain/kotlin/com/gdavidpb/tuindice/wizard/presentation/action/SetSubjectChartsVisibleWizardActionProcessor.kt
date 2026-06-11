@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class SetSubjectChartsVisibleWizardActionProcessor :
-	ActionProcessor<Wizard.State, Wizard.Action.SetSubjectChartsVisible, Wizard.Effect>() {
+	ActionProcessor<Wizard.State, Wizard.Action.SetSubjectChartsVisible, Wizard.Effect> {
 	override suspend fun process(
 		action: Wizard.Action.SetSubjectChartsVisible,
 		sideEffect: (Wizard.Effect) -> Unit

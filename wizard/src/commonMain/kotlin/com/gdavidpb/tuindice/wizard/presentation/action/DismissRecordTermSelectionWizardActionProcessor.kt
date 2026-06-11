@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class DismissRecordTermSelectionWizardActionProcessor :
-	ActionProcessor<Wizard.State, Wizard.Action.DismissRecordTermSelection, Wizard.Effect>() {
+	ActionProcessor<Wizard.State, Wizard.Action.DismissRecordTermSelection, Wizard.Effect> {
 	override suspend fun process(
 		action: Wizard.Action.DismissRecordTermSelection,
 		sideEffect: (Wizard.Effect) -> Unit

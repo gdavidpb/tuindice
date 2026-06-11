@@ -12,7 +12,7 @@ object SignIn {
 	sealed class State(
 		override val topBarTitle: UiText = UiText.Resource(Res.string.top_bar_tuindice),
 		override val isTopBarVisible: Boolean = true
-	) : ViewState() {
+	) : ViewState {
 		data class Idle(
 			val usbId: String = "",
 			val password: String = "",
@@ -28,7 +28,7 @@ object SignIn {
 		) : State()
 	}
 
-	sealed class Action : ViewAction() {
+	sealed class Action : ViewAction {
 		class SetUsbId(
 			val usbId: String
 		) : Action()
@@ -53,7 +53,7 @@ object SignIn {
 		data object ClickPrivacyPolicy : Action()
 	}
 
-	sealed class Effect : ViewEffect() {
+	sealed class Effect : ViewEffect {
 		data object NavigateToSummary : Effect()
 
 		class NavigateToBrowser(

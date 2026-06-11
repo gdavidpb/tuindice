@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class OpenUpdatePasswordActionProcessor :
-	ActionProcessor<SignOut.State, SignOut.Action.OpenUpdatePassword, SignOut.Effect>() {
+	ActionProcessor<SignOut.State, SignOut.Action.OpenUpdatePassword, SignOut.Effect> {
 	override suspend fun process(
 		action: SignOut.Action.OpenUpdatePassword,
 		sideEffect: (SignOut.Effect) -> Unit

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.map
 
 class SelectRecordTermActionProcessor(
 	private val setSelectedTermUseCase: SetSelectedTermUseCase
-) : ActionProcessor<Record.State, Record.Action.SelectTerm, Record.Effect>() {
+) : ActionProcessor<Record.State, Record.Action.SelectTerm, Record.Effect> {
 	override suspend fun process(
 		action: Record.Action.SelectTerm,
 		sideEffect: (Record.Effect) -> Unit

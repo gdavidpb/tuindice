@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.mapNotNull
 
 class RefreshEvaluationsActionProcessor(
 	private val updateEvaluationsUseCase: UpdateEvaluationsUseCase
-) : ActionProcessor<Evaluations.State, Evaluations.Action.RefreshEvaluations, Evaluations.Effect>() {
+) : ActionProcessor<Evaluations.State, Evaluations.Action.RefreshEvaluations, Evaluations.Effect> {
 	override suspend fun process(
 		action: Evaluations.Action.RefreshEvaluations,
 		sideEffect: (Evaluations.Effect) -> Unit

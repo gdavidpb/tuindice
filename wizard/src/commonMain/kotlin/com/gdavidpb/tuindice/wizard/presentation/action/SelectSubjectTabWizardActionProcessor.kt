@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class SelectSubjectTabWizardActionProcessor :
-	ActionProcessor<Wizard.State, Wizard.Action.SelectSubjectTab, Wizard.Effect>() {
+	ActionProcessor<Wizard.State, Wizard.Action.SelectSubjectTab, Wizard.Effect> {
 	override suspend fun process(
 		action: Wizard.Action.SelectSubjectTab,
 		sideEffect: (Wizard.Effect) -> Unit

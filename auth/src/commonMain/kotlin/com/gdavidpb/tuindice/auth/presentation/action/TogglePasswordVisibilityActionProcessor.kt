@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class TogglePasswordVisibilityActionProcessor :
-	ActionProcessor<SignIn.State, SignIn.Action.TogglePasswordVisibility, SignIn.Effect>() {
+	ActionProcessor<SignIn.State, SignIn.Action.TogglePasswordVisibility, SignIn.Effect> {
 	override suspend fun process(
 		action: SignIn.Action.TogglePasswordVisibility,
 		sideEffect: (SignIn.Effect) -> Unit

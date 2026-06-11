@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.map
 class FetchEnrollmentProofActionProcessor(
 	private val enrollmentProofUseCase: FetchEnrollmentProofUseCase,
 	private val textProvider: EnrollmentProofTextProvider
-) : ActionProcessor<Enrollment.State, Enrollment.Action.FetchEnrollmentProof, Enrollment.Effect>() {
+) : ActionProcessor<Enrollment.State, Enrollment.Action.FetchEnrollmentProof, Enrollment.Effect> {
 
 	override suspend fun process(
 		action: Enrollment.Action.FetchEnrollmentProof,

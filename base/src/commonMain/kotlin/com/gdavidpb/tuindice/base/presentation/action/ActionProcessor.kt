@@ -5,11 +5,10 @@ import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
 
-abstract class ActionProcessor<S : ViewState, A : ViewAction, E : ViewEffect> {
-	open suspend fun process(
+interface ActionProcessor<S : ViewState, A : ViewAction, E : ViewEffect> {
+	suspend fun process(
 		action: A,
 		sideEffect: (E) -> Unit
-	): Flow<Mutation<S>> = flowOf<Mutation<S>>(suspend { state: S -> state })
+	): Flow<Mutation<S>>
 }

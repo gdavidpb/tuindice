@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class AdvanceWizardActionProcessor :
-	ActionProcessor<Wizard.State, Wizard.Action.Advance, Wizard.Effect>() {
+	ActionProcessor<Wizard.State, Wizard.Action.Advance, Wizard.Effect> {
 	override suspend fun process(
 		action: Wizard.Action.Advance,
 		sideEffect: (Wizard.Effect) -> Unit

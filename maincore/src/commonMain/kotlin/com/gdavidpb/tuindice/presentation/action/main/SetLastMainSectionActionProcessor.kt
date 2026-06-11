@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.map
 
 class SetLastMainSectionActionProcessor(
 	private val setLastMainSectionUseCase: SetLastMainSectionUseCase
-) : ActionProcessor<Main.State, Main.Action.SetLastMainSection, Main.Effect>() {
+) : ActionProcessor<Main.State, Main.Action.SetLastMainSection, Main.Effect> {
 
 	override suspend fun process(
 		action: Main.Action.SetLastMainSection,

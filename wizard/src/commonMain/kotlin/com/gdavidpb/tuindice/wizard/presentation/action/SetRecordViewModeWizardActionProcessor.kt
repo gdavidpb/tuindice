@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class SetRecordViewModeWizardActionProcessor :
-	ActionProcessor<Wizard.State, Wizard.Action.SetRecordViewMode, Wizard.Effect>() {
+	ActionProcessor<Wizard.State, Wizard.Action.SetRecordViewMode, Wizard.Effect> {
 	override suspend fun process(
 		action: Wizard.Action.SetRecordViewMode,
 		sideEffect: (Wizard.Effect) -> Unit

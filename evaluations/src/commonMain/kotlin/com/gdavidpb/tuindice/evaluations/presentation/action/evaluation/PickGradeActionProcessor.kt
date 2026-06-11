@@ -4,9 +4,10 @@ import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 class PickGradeActionProcessor
-	: ActionProcessor<Evaluation.State, Evaluation.Action.ClickGrade, Evaluation.Effect>() {
+	: ActionProcessor<Evaluation.State, Evaluation.Action.ClickGrade, Evaluation.Effect> {
 
 	override suspend fun process(
 		action: Evaluation.Action.ClickGrade,
@@ -21,6 +22,6 @@ class PickGradeActionProcessor
 			)
 		)
 
-		return super.process(action, sideEffect)
+		return emptyFlow()
 	}
 }

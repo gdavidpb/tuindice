@@ -10,7 +10,7 @@ class UpdateCreateSyntheticTermQueryActionProcessor : ActionProcessor<
 	CreateSyntheticTerm.State,
 	CreateSyntheticTerm.Action.UpdateQuery,
 	CreateSyntheticTerm.Effect
-	>() {
+	> {
 	override suspend fun process(
 		action: CreateSyntheticTerm.Action.UpdateQuery,
 		sideEffect: (CreateSyntheticTerm.Effect) -> Unit

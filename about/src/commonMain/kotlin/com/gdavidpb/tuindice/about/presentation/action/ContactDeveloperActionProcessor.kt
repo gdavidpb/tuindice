@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.map
 
 class ContactDeveloperActionProcessor(
 	private val sendSupportEmailUseCase: SendSupportEmailUseCase
-) : ActionProcessor<About.State, About.Action.ContactDeveloper, About.Effect>() {
+) : ActionProcessor<About.State, About.Action.ContactDeveloper, About.Effect> {
 	override suspend fun process(
 		action: About.Action.ContactDeveloper,
 		sideEffect: (About.Effect) -> Unit

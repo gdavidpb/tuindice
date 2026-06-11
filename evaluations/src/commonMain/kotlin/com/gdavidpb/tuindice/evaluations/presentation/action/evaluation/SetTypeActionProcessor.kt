@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class SetTypeActionProcessor
-	: ActionProcessor<Evaluation.State, Evaluation.Action.SetType, Evaluation.Effect>() {
+	: ActionProcessor<Evaluation.State, Evaluation.Action.SetType, Evaluation.Effect> {
 
 	override suspend fun process(
 		action: Evaluation.Action.SetType,

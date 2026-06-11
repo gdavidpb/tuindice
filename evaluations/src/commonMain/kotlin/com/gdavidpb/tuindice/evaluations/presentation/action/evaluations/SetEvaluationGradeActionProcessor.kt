@@ -17,7 +17,7 @@ import tuindice.evaluations.generated.resources.snack_evaluation_set_grade
 
 class SetEvaluationGradeActionProcessor(
 	private val updateEvaluationUseCase: UpdateEvaluationUseCase
-) : ActionProcessor<Evaluations.State, Evaluations.Action.SetEvaluationGrade, Evaluations.Effect>() {
+) : ActionProcessor<Evaluations.State, Evaluations.Action.SetEvaluationGrade, Evaluations.Effect> {
 
 	override suspend fun process(
 		action: Evaluations.Action.SetEvaluationGrade,

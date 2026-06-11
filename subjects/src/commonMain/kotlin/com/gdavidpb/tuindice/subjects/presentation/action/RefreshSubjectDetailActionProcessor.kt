@@ -16,7 +16,7 @@ class RefreshSubjectDetailActionProcessor(
 	SubjectDetail.State,
 	SubjectDetail.Action.RefreshSubjectDetail,
 	SubjectDetail.Effect
-	>() {
+	> {
 	override suspend fun process(
 		action: SubjectDetail.Action.RefreshSubjectDetail,
 		sideEffect: (SubjectDetail.Effect) -> Unit

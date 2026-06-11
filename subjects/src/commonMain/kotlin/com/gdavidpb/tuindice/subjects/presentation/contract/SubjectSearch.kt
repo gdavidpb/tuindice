@@ -18,13 +18,13 @@ object SubjectSearch {
 		val results: List<SubjectSearchResultItem> = emptyList(),
 		val isRefreshing: Boolean = false,
 		val hasRemoteError: Boolean = false
-	) : ViewState()
+	) : ViewState
 
-	sealed class Action : ViewAction() {
+	sealed class Action : ViewAction {
 		data class ObserveSubjectSearch(val queryFlow: StateFlow<String>) : Action()
 		data class UpdateQuery(val query: String) : Action()
 		data class Retry(val query: String) : Action()
 	}
 
-	sealed class Effect : ViewEffect()
+	sealed class Effect : ViewEffect
 }

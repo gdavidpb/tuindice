@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class SetAttemptActionProcessor
-	: ActionProcessor<Evaluation.State, Evaluation.Action.SetAttempt, Evaluation.Effect>() {
+	: ActionProcessor<Evaluation.State, Evaluation.Action.SetAttempt, Evaluation.Effect> {
 
 	override suspend fun process(
 		action: Evaluation.Action.SetAttempt,

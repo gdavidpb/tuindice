@@ -11,7 +11,7 @@ class SelectSubjectSegmentTabActionProcessor : ActionProcessor<
 	SubjectDetail.State,
 	SubjectDetail.Action.SelectSubjectSegmentTab,
 	SubjectDetail.Effect
-	>() {
+	> {
 	override suspend fun process(
 		action: SubjectDetail.Action.SelectSubjectSegmentTab,
 		sideEffect: (SubjectDetail.Effect) -> Unit

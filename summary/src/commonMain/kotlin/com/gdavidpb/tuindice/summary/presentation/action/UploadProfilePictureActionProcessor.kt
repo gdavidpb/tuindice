@@ -20,7 +20,7 @@ import tuindice.summary.generated.resources.snack_timeout
 
 class UploadProfilePictureActionProcessor(
 	private val uploadProfilePictureUseCase: UploadProfilePictureUseCase
-) : ActionProcessor<Summary.State, Summary.Action.UploadProfilePicture, Summary.Effect>() {
+) : ActionProcessor<Summary.State, Summary.Action.UploadProfilePicture, Summary.Effect> {
 
 	override suspend fun process(
 		action: Summary.Action.UploadProfilePicture,

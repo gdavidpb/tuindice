@@ -16,7 +16,7 @@ import tuindice.summary.generated.resources.text_sync_healthy
 
 class ObserveSummaryActionProcessor(
 	private val observeUserUseCase: ObserveUserUseCase
-) : ActionProcessor<Summary.State, Summary.Action.ObserveSummary, Summary.Effect>() {
+) : ActionProcessor<Summary.State, Summary.Action.ObserveSummary, Summary.Effect> {
 
 	override suspend fun process(
 		action: Summary.Action.ObserveSummary,

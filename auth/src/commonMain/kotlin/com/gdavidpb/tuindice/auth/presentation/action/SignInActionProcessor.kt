@@ -25,7 +25,7 @@ import tuindice.auth.generated.resources.snack_timeout
 class SignInActionProcessor(
 	private val signInUseCase: SignInUseCase,
 	private val configRepository: ConfigRepository
-) : ActionProcessor<SignIn.State, SignIn.Action.ClickSignIn, SignIn.Effect>() {
+) : ActionProcessor<SignIn.State, SignIn.Action.ClickSignIn, SignIn.Effect> {
 
 	private val loadingMessages by lazy {
 		configRepository.getLoadingMessages()

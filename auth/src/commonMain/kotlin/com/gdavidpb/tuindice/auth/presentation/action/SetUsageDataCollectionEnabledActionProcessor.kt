@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.flowOf
 
 class SetUsageDataCollectionEnabledActionProcessor(
 	private val usageDataConsentRepository: UsageDataConsentRepository
-) : ActionProcessor<SignIn.State, SignIn.Action.SetUsageDataCollectionEnabled, SignIn.Effect>() {
+) : ActionProcessor<SignIn.State, SignIn.Action.SetUsageDataCollectionEnabled, SignIn.Effect> {
 	override suspend fun process(
 		action: SignIn.Action.SetUsageDataCollectionEnabled,
 		sideEffect: (SignIn.Effect) -> Unit

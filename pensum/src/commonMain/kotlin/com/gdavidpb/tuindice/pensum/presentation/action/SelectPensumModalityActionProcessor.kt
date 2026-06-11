@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.map
 
 class SelectPensumModalityActionProcessor(
 	private val selectPensumModalityUseCase: SelectPensumModalityUseCase
-) : ActionProcessor<Pensum.State, Pensum.Action.SelectModality, Pensum.Effect>() {
+) : ActionProcessor<Pensum.State, Pensum.Action.SelectModality, Pensum.Effect> {
 	override suspend fun process(
 		action: Pensum.Action.SelectModality,
 		sideEffect: (Pensum.Effect) -> Unit

@@ -13,7 +13,7 @@ object SubjectDetail {
 	sealed class State(
 		override val topBarTitle: UiText,
 		override val isTopBarVisible: Boolean = true
-	) : ViewState() {
+	) : ViewState {
 		data object Idle : State(topBarTitle = UiText.Empty)
 
 		data object Loading : State(topBarTitle = UiText.Empty)
@@ -31,7 +31,7 @@ object SubjectDetail {
 		) : State(topBarTitle = subjectCode.toSubjectDetailTopBarTitle())
 	}
 
-	sealed class Action : ViewAction() {
+	sealed class Action : ViewAction {
 		data class LoadSubjectDetail(
 			val subjectCode: String
 		) : Action()
@@ -45,7 +45,7 @@ object SubjectDetail {
 		) : Action()
 	}
 
-	sealed class Effect : ViewEffect()
+	sealed class Effect : ViewEffect
 }
 
 private fun String.toSubjectDetailTopBarTitle(): UiText {

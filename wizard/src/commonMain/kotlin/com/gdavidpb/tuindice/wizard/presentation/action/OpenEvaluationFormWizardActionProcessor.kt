@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class OpenEvaluationFormWizardActionProcessor :
-	ActionProcessor<Wizard.State, Wizard.Action.OpenEvaluationForm, Wizard.Effect>() {
+	ActionProcessor<Wizard.State, Wizard.Action.OpenEvaluationForm, Wizard.Effect> {
 	override suspend fun process(
 		action: Wizard.Action.OpenEvaluationForm,
 		sideEffect: (Wizard.Effect) -> Unit

@@ -17,7 +17,7 @@ class LoadSubjectDetailActionProcessor(
 	SubjectDetail.State,
 	SubjectDetail.Action.LoadSubjectDetail,
 	SubjectDetail.Effect
-	>() {
+	> {
 	override suspend fun process(
 		action: SubjectDetail.Action.LoadSubjectDetail,
 		sideEffect: (SubjectDetail.Effect) -> Unit

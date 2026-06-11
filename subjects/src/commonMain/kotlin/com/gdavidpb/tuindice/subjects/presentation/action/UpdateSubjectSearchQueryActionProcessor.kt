@@ -10,7 +10,7 @@ class UpdateSubjectSearchQueryActionProcessor : ActionProcessor<
 	SubjectSearch.State,
 	SubjectSearch.Action.UpdateQuery,
 	SubjectSearch.Effect
-	>() {
+	> {
 	override suspend fun process(
 		action: SubjectSearch.Action.UpdateQuery,
 		sideEffect: (SubjectSearch.Effect) -> Unit

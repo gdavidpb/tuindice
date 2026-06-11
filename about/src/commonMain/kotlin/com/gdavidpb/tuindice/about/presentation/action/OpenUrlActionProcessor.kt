@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.map
 
 class OpenUrlActionProcessor(
 	private val openExternalUrlUseCase: OpenExternalUrlUseCase
-) : ActionProcessor<About.State, About.Action.OpenUrl, About.Effect>() {
+) : ActionProcessor<About.State, About.Action.OpenUrl, About.Effect> {
 	override suspend fun process(
 		action: About.Action.OpenUrl,
 		sideEffect: (About.Effect) -> Unit

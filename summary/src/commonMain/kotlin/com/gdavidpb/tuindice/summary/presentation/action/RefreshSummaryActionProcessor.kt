@@ -19,7 +19,7 @@ import tuindice.summary.generated.resources.snack_timeout
 
 class RefreshSummaryActionProcessor(
 	private val updateUserUseCase: UpdateUserUseCase
-) : ActionProcessor<Summary.State, Summary.Action.RefreshSummary, Summary.Effect>() {
+) : ActionProcessor<Summary.State, Summary.Action.RefreshSummary, Summary.Effect> {
 
 	override suspend fun process(
 		action: Summary.Action.RefreshSummary,

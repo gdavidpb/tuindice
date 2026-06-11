@@ -15,7 +15,7 @@ class RetrySubjectSearchActionProcessor(
 	SubjectSearch.State,
 	SubjectSearch.Action.Retry,
 	SubjectSearch.Effect
-	>() {
+	> {
 	override suspend fun process(
 		action: SubjectSearch.Action.Retry,
 		sideEffect: (SubjectSearch.Effect) -> Unit

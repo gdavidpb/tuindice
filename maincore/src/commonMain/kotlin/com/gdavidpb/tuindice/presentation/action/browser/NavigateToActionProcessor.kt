@@ -8,7 +8,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class NavigateToActionProcessor
-	: ActionProcessor<Browser.State, Browser.Action.NavigateTo, Browser.Effect>() {
+	: ActionProcessor<Browser.State, Browser.Action.NavigateTo, Browser.Effect> {
 
 	override suspend fun process(
 		action: Browser.Action.NavigateTo,

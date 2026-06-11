@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 
 object Browser {
-	sealed class State : ViewState() {
+	sealed class State : ViewState {
 		data object Idle : State()
 
 		data class Content(
@@ -17,13 +17,13 @@ object Browser {
 		) : State()
 	}
 
-	sealed class Action : ViewAction() {
+	sealed class Action : ViewAction {
 		class NavigateTo(val title: String, val url: String) : Action()
 		class SetLoading(val isLoading: Boolean) : Action()
 		class OpenExternalResource(val url: String) : Action()
 	}
 
-	sealed class Effect : ViewEffect() {
+	sealed class Effect : ViewEffect {
 		class NavigateToExternalResourceDialog(val url: String) : Effect()
 	}
 }

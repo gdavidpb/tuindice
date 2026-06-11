@@ -27,7 +27,7 @@ class ObserveSubjectSearchActionProcessor(
 	SubjectSearch.State,
 	SubjectSearch.Action.ObserveSubjectSearch,
 	SubjectSearch.Effect
-	>() {
+	> {
 	override suspend fun process(
 		action: SubjectSearch.Action.ObserveSubjectSearch,
 		sideEffect: (SubjectSearch.Effect) -> Unit

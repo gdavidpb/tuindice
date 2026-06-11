@@ -18,7 +18,7 @@ object Record {
 		override val topBarConfig: TopBarConfig = TopBarConfig.Record,
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = true
-	) : ViewState() {
+	) : ViewState {
 		data object Idle : State()
 
 		data object Loading : State()
@@ -34,7 +34,7 @@ object Record {
 		data object Failed : State()
 	}
 
-	sealed class Action : ViewAction() {
+	sealed class Action : ViewAction {
 		data object ObserveRecord : Action()
 		data object RefreshRecord : Action()
 		class SetViewMode(val viewMode: RecordViewMode) : Action()
@@ -53,7 +53,7 @@ object Record {
 		class DeleteSyntheticTerm(val termId: String) : Action()
 	}
 
-	sealed class Effect : ViewEffect() {
+	sealed class Effect : ViewEffect {
 		data object NavigateToOutdatedCredentials : Effect()
 		class ShowSnackBar(val message: String) : Effect()
 		class ShowTopBarBanner(

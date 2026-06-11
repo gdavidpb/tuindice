@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.mapNotNull
 
 class ObserveRecordActionProcessor(
 	private val observeRecordUseCase: ObserveRecordUseCase
-) : ActionProcessor<Record.State, Record.Action.ObserveRecord, Record.Effect>() {
+) : ActionProcessor<Record.State, Record.Action.ObserveRecord, Record.Effect> {
 	override suspend fun process(
 		action: Record.Action.ObserveRecord,
 		sideEffect: (Record.Effect) -> Unit

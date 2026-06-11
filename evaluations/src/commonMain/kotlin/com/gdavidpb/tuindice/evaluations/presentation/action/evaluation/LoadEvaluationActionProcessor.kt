@@ -16,7 +16,7 @@ import kotlinx.coroutines.flow.map
 
 class LoadEvaluationActionProcessor(
 	private val getEvaluationAndAvailableAttemptsUseCase: GetEvaluationAndAvailableAttemptsUseCase
-) : ActionProcessor<Evaluation.State, Evaluation.Action.LoadEvaluation, Evaluation.Effect>() {
+) : ActionProcessor<Evaluation.State, Evaluation.Action.LoadEvaluation, Evaluation.Effect> {
 
 	override suspend fun process(
 		action: Evaluation.Action.LoadEvaluation,

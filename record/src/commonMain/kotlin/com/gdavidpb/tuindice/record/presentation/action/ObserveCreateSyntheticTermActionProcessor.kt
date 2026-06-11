@@ -35,7 +35,7 @@ class ObserveCreateSyntheticTermActionProcessor(
 	CreateSyntheticTerm.State,
 	CreateSyntheticTerm.Action.Observe,
 	CreateSyntheticTerm.Effect
-	>() {
+	> {
 	override suspend fun process(
 		action: CreateSyntheticTerm.Action.Observe,
 		sideEffect: (CreateSyntheticTerm.Effect) -> Unit

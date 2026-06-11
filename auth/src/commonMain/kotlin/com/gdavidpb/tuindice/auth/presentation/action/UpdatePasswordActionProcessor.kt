@@ -22,7 +22,7 @@ import tuindice.auth.generated.resources.snack_update_password_failed
 
 class UpdatePasswordActionProcessor(
 	private val updatePasswordUseCase: UpdatePasswordUseCase
-) : ActionProcessor<UpdatePassword.State, UpdatePassword.Action.ClickSignIn, UpdatePassword.Effect>() {
+) : ActionProcessor<UpdatePassword.State, UpdatePassword.Action.ClickSignIn, UpdatePassword.Effect> {
 
 	override suspend fun process(
 		action: UpdatePassword.Action.ClickSignIn,

@@ -34,7 +34,7 @@ class CreateSyntheticTermActionProcessor(
 	CreateSyntheticTerm.State,
 	CreateSyntheticTerm.Action.CreateTerm,
 	CreateSyntheticTerm.Effect
-	>() {
+	> {
 	override suspend fun process(
 		action: CreateSyntheticTerm.Action.CreateTerm,
 		sideEffect: (CreateSyntheticTerm.Effect) -> Unit

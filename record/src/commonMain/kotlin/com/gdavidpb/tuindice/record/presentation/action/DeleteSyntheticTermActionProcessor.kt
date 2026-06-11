@@ -15,7 +15,7 @@ import tuindice.record.generated.resources.snack_synthetic_term_deleted
 
 class DeleteSyntheticTermActionProcessor(
 	private val deleteSyntheticTermUseCase: DeleteSyntheticTermUseCase
-) : ActionProcessor<Record.State, Record.Action.DeleteSyntheticTerm, Record.Effect>() {
+) : ActionProcessor<Record.State, Record.Action.DeleteSyntheticTerm, Record.Effect> {
 	override suspend fun process(
 		action: Record.Action.DeleteSyntheticTerm,
 		sideEffect: (Record.Effect) -> Unit

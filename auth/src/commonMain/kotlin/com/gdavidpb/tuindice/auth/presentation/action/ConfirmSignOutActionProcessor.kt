@@ -15,7 +15,7 @@ import tuindice.auth.generated.resources.snack_default_error
 class ConfirmSignOutActionProcessor(
 	private val confirmSignOutUseCase: ConfirmSignOutUseCase,
 	private val signOutUseCase: SignOutUseCase
-) : ActionProcessor<SignOut.State, SignOut.Action.ConfirmSignOut, SignOut.Effect>() {
+) : ActionProcessor<SignOut.State, SignOut.Action.ConfirmSignOut, SignOut.Effect> {
 	override suspend fun process(
 		action: SignOut.Action.ConfirmSignOut,
 		sideEffect: (SignOut.Effect) -> Unit

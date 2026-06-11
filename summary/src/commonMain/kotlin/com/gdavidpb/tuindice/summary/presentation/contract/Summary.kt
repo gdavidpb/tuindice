@@ -16,7 +16,7 @@ object Summary {
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = true,
 		open val isUserRefreshing: Boolean = false
-	) : ViewState() {
+	) : ViewState {
 		data object Idle : State()
 
 		data class Loading(
@@ -46,7 +46,7 @@ object Summary {
 		) : State(isUserRefreshing = isUserRefreshing)
 	}
 
-	sealed class Action : ViewAction() {
+	sealed class Action : ViewAction {
 		data object ObserveSummary : Action()
 		data object RefreshSummary : Action()
 		data object TakeProfilePicture : Action()
@@ -57,7 +57,7 @@ object Summary {
 		data object ConfirmRemoveProfilePicture : Action()
 	}
 
-	sealed class Effect : ViewEffect() {
+	sealed class Effect : ViewEffect {
 		class ShowProfilePictureSettingsDialog(val showRemove: Boolean) : Effect()
 		data object NavigateToOutdatedCredentials : Effect()
 		data object ShowRemoveProfilePictureConfirmationDialog : Effect()

@@ -12,7 +12,7 @@ object About {
 		override val topBarTitle: UiText = UiText.Resource(Res.string.top_bar_about),
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = true
-	) : ViewState() {
+	) : ViewState {
 		data object Idle : State()
 		data class Content(
 			val versionText: String,
@@ -20,7 +20,7 @@ object About {
 		) : State()
 	}
 
-	sealed class Action : ViewAction() {
+	sealed class Action : ViewAction {
 		data object LoadVersion : Action()
 		data object OpenTermsAndConditions : Action()
 		data object OpenPrivacyPolicy : Action()
@@ -33,7 +33,7 @@ object About {
 		data class SetUsageDataCollectionEnabled(val enabled: Boolean) : Action()
 	}
 
-	sealed class Effect : ViewEffect() {
+	sealed class Effect : ViewEffect {
 		data class NavigateToBrowser(
 			val title: String,
 			val url: String

@@ -4,9 +4,10 @@ import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 
 class OpenAddEvaluationActionProcessor
-	: ActionProcessor<Evaluations.State, Evaluations.Action.AddEvaluation, Evaluations.Effect>() {
+	: ActionProcessor<Evaluations.State, Evaluations.Action.AddEvaluation, Evaluations.Effect> {
 
 	override suspend fun process(
 		action: Evaluations.Action.AddEvaluation,
@@ -16,6 +17,6 @@ class OpenAddEvaluationActionProcessor
 			Evaluations.Effect.NavigateToAddEvaluation
 		)
 
-		return super.process(action, sideEffect)
+		return emptyFlow()
 	}
 }

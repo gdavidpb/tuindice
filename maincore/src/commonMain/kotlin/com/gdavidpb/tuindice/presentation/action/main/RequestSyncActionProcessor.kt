@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.map
 
 class RequestSyncActionProcessor(
 	private val scheduleSyncUseCase: ScheduleSyncUseCase
-) : ActionProcessor<Main.State, Main.Action.RequestSync, Main.Effect>() {
+) : ActionProcessor<Main.State, Main.Action.RequestSync, Main.Effect> {
 	override suspend fun process(
 		action: Main.Action.RequestSync,
 		sideEffect: (Main.Effect) -> Unit

@@ -21,7 +21,7 @@ import tuindice.evaluations.generated.resources.evaluations_week_label
 
 class LoadEvaluationsActionProcessor(
 	private val getEvaluationsUseCase: GetEvaluationsUseCase
-) : ActionProcessor<Evaluations.State, Evaluations.Action.LoadEvaluations, Evaluations.Effect>() {
+) : ActionProcessor<Evaluations.State, Evaluations.Action.LoadEvaluations, Evaluations.Effect> {
 
 	override suspend fun process(
 		action: Evaluations.Action.LoadEvaluations,

@@ -230,15 +230,15 @@ private class EventTestViewModel(
 	}
 }
 
-private sealed class EventTestState : ViewState() {
+private sealed class EventTestState : ViewState {
 	data object Idle : EventTestState()
 	data object Done : EventTestState()
 }
 
-private sealed class EventTestAction : ViewAction() {
+private sealed class EventTestAction : ViewAction {
 	data object Start : EventTestAction()
 }
 
-private sealed class EventTestEffect : ViewEffect() {
+private sealed class EventTestEffect : ViewEffect {
 	data object Done : EventTestEffect()
 }

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.map
 
 class RequestWizardStartActionProcessor(
 	private val shouldStartWizardUseCase: ShouldStartWizardUseCase
-) : ActionProcessor<Main.State, Main.Action.RequestWizardStart, Main.Effect>() {
+) : ActionProcessor<Main.State, Main.Action.RequestWizardStart, Main.Effect> {
 	override suspend fun process(
 		action: Main.Action.RequestWizardStart,
 		sideEffect: (Main.Effect) -> Unit

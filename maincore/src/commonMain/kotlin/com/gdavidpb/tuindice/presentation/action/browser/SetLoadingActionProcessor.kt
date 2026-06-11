@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class SetLoadingActionProcessor
-	: ActionProcessor<Browser.State, Browser.Action.SetLoading, Browser.Effect>() {
+	: ActionProcessor<Browser.State, Browser.Action.SetLoading, Browser.Effect> {
 
 	override suspend fun process(
 		action: Browser.Action.SetLoading,

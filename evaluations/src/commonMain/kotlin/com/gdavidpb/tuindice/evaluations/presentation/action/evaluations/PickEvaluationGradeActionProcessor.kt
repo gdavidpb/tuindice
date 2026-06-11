@@ -13,7 +13,7 @@ import tuindice.evaluations.generated.resources.snack_default_error
 
 class PickEvaluationGradeActionProcessor(
 	private val getEvaluationUseCase: GetEvaluationUseCase
-) : ActionProcessor<Evaluations.State, Evaluations.Action.ShowEvaluationGradeDialog, Evaluations.Effect>() {
+) : ActionProcessor<Evaluations.State, Evaluations.Action.ShowEvaluationGradeDialog, Evaluations.Effect> {
 
 	override suspend fun process(
 		action: Evaluations.Action.ShowEvaluationGradeDialog,

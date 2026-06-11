@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class InitializeSignOutActionProcessor :
-	ActionProcessor<SignOut.State, SignOut.Action.Initialize, SignOut.Effect>() {
+	ActionProcessor<SignOut.State, SignOut.Action.Initialize, SignOut.Effect> {
 	override suspend fun process(
 		action: SignOut.Action.Initialize,
 		sideEffect: (SignOut.Effect) -> Unit

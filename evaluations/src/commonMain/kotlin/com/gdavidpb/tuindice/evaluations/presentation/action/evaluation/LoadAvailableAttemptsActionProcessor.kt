@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.map
 
 class LoadAvailableAttemptsActionProcessor(
 	private val getAvailableAttemptsUseCase: GetAvailableAttemptsUseCase
-) : ActionProcessor<Evaluation.State, Evaluation.Action.LoadAvailableAttempts, Evaluation.Effect>() {
+) : ActionProcessor<Evaluation.State, Evaluation.Action.LoadAvailableAttempts, Evaluation.Effect> {
 
 	override suspend fun process(
 		action: Evaluation.Action.LoadAvailableAttempts,

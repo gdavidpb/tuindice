@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.map
 
 class RefreshRecordActionProcessor(
 	private val updateRecordUseCase: UpdateRecordUseCase
-) : ActionProcessor<Record.State, Record.Action.RefreshRecord, Record.Effect>() {
+) : ActionProcessor<Record.State, Record.Action.RefreshRecord, Record.Effect> {
 	override suspend fun process(
 		action: Record.Action.RefreshRecord,
 		sideEffect: (Record.Effect) -> Unit

@@ -15,7 +15,7 @@ import tuindice.evaluations.generated.resources.top_bar_add_evaluation
 import tuindice.evaluations.generated.resources.top_bar_edit_evaluation
 
 object Evaluation {
-	sealed class State : ViewState() {
+	sealed class State : ViewState {
 		data object Loading : State()
 
 		data class Content(
@@ -51,7 +51,7 @@ object Evaluation {
 		data object Failed : State()
 	}
 
-	sealed class Action : ViewAction() {
+	sealed class Action : ViewAction {
 		data object LoadAvailableAttempts : Action()
 
 		class LoadEvaluation(
@@ -111,7 +111,7 @@ object Evaluation {
 		) : Action()
 	}
 
-	sealed class Effect : ViewEffect() {
+	sealed class Effect : ViewEffect {
 		data object NavigateToEvaluations : Effect()
 
 		class NavigateToGradePickerDialog(

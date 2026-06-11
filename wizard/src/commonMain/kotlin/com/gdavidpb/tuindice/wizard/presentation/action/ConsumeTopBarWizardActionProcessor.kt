@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class ConsumeTopBarWizardActionProcessor :
-	ActionProcessor<Wizard.State, Wizard.Action.ConsumeTopBarAction, Wizard.Effect>() {
+	ActionProcessor<Wizard.State, Wizard.Action.ConsumeTopBarAction, Wizard.Effect> {
 	override suspend fun process(
 		action: Wizard.Action.ConsumeTopBarAction,
 		sideEffect: (Wizard.Effect) -> Unit

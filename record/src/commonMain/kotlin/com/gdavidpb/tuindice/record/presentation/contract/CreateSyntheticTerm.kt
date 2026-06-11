@@ -36,7 +36,7 @@ object CreateSyntheticTerm {
 		val hasSearchError: Boolean = false,
 		val isSubmitting: Boolean = false,
 		val submitError: UiText = UiText.Empty
-	) : ViewState() {
+	) : ViewState {
 		val canSubmit: Boolean
 			get() = selectedPeriod != null && selectedSubjects.isNotEmpty() && !isSubmitting
 
@@ -51,7 +51,7 @@ object CreateSyntheticTerm {
 			get() = editingTermId != null
 	}
 
-	sealed class Action : ViewAction() {
+	sealed class Action : ViewAction {
 		data class Observe(
 			val queryFlow: StateFlow<String>,
 			val selectedAddSubjectTabFlow: StateFlow<CreateTermAddSubjectTab>,
@@ -74,7 +74,7 @@ object CreateSyntheticTerm {
 		) : Action()
 	}
 
-	sealed class Effect : ViewEffect() {
+	sealed class Effect : ViewEffect {
 		data object NavigateBack : Effect()
 		data class ShowSnackBar(val message: String) : Effect()
 	}

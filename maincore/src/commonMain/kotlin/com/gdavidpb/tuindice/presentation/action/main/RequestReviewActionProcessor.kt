@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.map
 
 class RequestReviewActionProcessor(
 	private val requestReviewUseCase: RequestReviewUseCase
-) : ActionProcessor<Main.State, Main.Action.RequestReview, Main.Effect>() {
+) : ActionProcessor<Main.State, Main.Action.RequestReview, Main.Effect> {
 
 	override suspend fun process(
 		action: Main.Action.RequestReview,

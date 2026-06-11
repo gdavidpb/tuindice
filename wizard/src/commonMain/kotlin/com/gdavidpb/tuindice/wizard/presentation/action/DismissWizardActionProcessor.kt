@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.map
 
 class DismissWizardActionProcessor(
 	private val completeWizardUseCase: CompleteWizardUseCase
-) : ActionProcessor<Wizard.State, Wizard.Action.Dismiss, Wizard.Effect>() {
+) : ActionProcessor<Wizard.State, Wizard.Action.Dismiss, Wizard.Effect> {
 	override suspend fun process(
 		action: Wizard.Action.Dismiss,
 		sideEffect: (Wizard.Effect) -> Unit

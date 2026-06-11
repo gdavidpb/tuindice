@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class SelectEvaluationsWeekActionProcessor :
-	ActionProcessor<Evaluations.State, Evaluations.Action.SelectWeek, Evaluations.Effect>() {
+	ActionProcessor<Evaluations.State, Evaluations.Action.SelectWeek, Evaluations.Effect> {
 
 	override suspend fun process(
 		action: Evaluations.Action.SelectWeek,

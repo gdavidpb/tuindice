@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class OpenProfilePictureSettingsActionProcessor
-	: ActionProcessor<Summary.State, Summary.Action.OpenProfilePictureSettings, Summary.Effect>() {
+	: ActionProcessor<Summary.State, Summary.Action.OpenProfilePictureSettings, Summary.Effect> {
 
 	override suspend fun process(
 		action: Summary.Action.OpenProfilePictureSettings,

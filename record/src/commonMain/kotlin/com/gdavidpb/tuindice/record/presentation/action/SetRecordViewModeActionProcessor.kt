@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.map
 
 class SetRecordViewModeActionProcessor(
 	private val setRecordViewModeUseCase: SetRecordViewModeUseCase
-) : ActionProcessor<Record.State, Record.Action.SetViewMode, Record.Effect>() {
+) : ActionProcessor<Record.State, Record.Action.SetViewMode, Record.Effect> {
 	override suspend fun process(
 		action: Record.Action.SetViewMode,
 		sideEffect: (Record.Effect) -> Unit

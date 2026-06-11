@@ -12,7 +12,7 @@ import kotlinx.coroutines.flow.map
 
 class StartUpActionProcessor(
 	private val startUpUseCase: StartUpUseCase
-) : ActionProcessor<Main.State, Main.Action.StartUp, Main.Effect>() {
+) : ActionProcessor<Main.State, Main.Action.StartUp, Main.Effect> {
 
 	override suspend fun process(
 		action: Main.Action.StartUp,

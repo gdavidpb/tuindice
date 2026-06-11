@@ -7,7 +7,7 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
 class SelectTermWizardActionProcessor :
-	ActionProcessor<Wizard.State, Wizard.Action.SelectTerm, Wizard.Effect>() {
+	ActionProcessor<Wizard.State, Wizard.Action.SelectTerm, Wizard.Effect> {
 	override suspend fun process(
 		action: Wizard.Action.SelectTerm,
 		sideEffect: (Wizard.Effect) -> Unit

@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.map
 
 class RefreshPensumActionProcessor(
 	private val updatePensumUseCase: UpdatePensumUseCase
-) : ActionProcessor<Pensum.State, Pensum.Action.RefreshPensum, Pensum.Effect>() {
+) : ActionProcessor<Pensum.State, Pensum.Action.RefreshPensum, Pensum.Effect> {
 	override suspend fun process(
 		action: Pensum.Action.RefreshPensum,
 		sideEffect: (Pensum.Effect) -> Unit

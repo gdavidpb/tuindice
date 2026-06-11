@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.map
 
 class RequestUpdateActionProcessor(
 	private val getUpdateInfoUseCase: GetUpdateInfoUseCase
-) : ActionProcessor<Main.State, Main.Action.RequestUpdateCheck, Main.Effect>() {
+) : ActionProcessor<Main.State, Main.Action.RequestUpdateCheck, Main.Effect> {
 
 	override suspend fun process(
 		action: Main.Action.RequestUpdateCheck,

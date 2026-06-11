@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.map
 
 class RateOnStoreActionProcessor(
 	private val openStoreUseCase: OpenStoreUseCase
-) : ActionProcessor<About.State, About.Action.RateOnStore, About.Effect>() {
+) : ActionProcessor<About.State, About.Action.RateOnStore, About.Effect> {
 	override suspend fun process(
 		action: About.Action.RateOnStore,
 		sideEffect: (About.Effect) -> Unit

@@ -13,7 +13,7 @@ import tuindice.auth.generated.resources.snack_default_error
 
 class ForceSignOutActionProcessor(
 	private val signOutUseCase: SignOutUseCase
-) : ActionProcessor<SignOut.State, SignOut.Action.ForceSignOut, SignOut.Effect>() {
+) : ActionProcessor<SignOut.State, SignOut.Action.ForceSignOut, SignOut.Effect> {
 	override suspend fun process(
 		action: SignOut.Action.ForceSignOut,
 		sideEffect: (SignOut.Effect) -> Unit

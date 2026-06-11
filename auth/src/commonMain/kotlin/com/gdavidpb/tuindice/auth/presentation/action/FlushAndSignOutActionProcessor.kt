@@ -16,7 +16,7 @@ import tuindice.auth.generated.resources.snack_default_error
 class FlushAndSignOutActionProcessor(
 	private val flushPendingChangesUseCase: FlushPendingChangesUseCase,
 	private val signOutUseCase: SignOutUseCase
-) : ActionProcessor<SignOut.State, SignOut.Action.FlushAndSignOut, SignOut.Effect>() {
+) : ActionProcessor<SignOut.State, SignOut.Action.FlushAndSignOut, SignOut.Effect> {
 	override suspend fun process(
 		action: SignOut.Action.FlushAndSignOut,
 		sideEffect: (SignOut.Effect) -> Unit
