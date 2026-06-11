@@ -18,12 +18,12 @@ class ObserveRecordUseCase(
 ) : FlowUseCase<Unit, ObservedRecord, Nothing>(reportingRepository = reportingRepository) {
 	override suspend fun executeOnBackground(params: Unit): Flow<ObservedRecord> {
 		return combine(
-			academicRecordRepository.observeAcademicRecordFlow(),
+			academicRecordRepository.observeAcademicRecordSnapshotFlow(),
 			recordSelectionRepository.observeRecordViewMode(),
 			recordSelectionRepository.observeSelectedTermId(RecordViewMode.Historical),
-			recordSelectionRepository.observeSelectedTermId(RecordViewMode.Projection),
-			academicRecordRepository.observeHasSyncedRecordFlow()
-		) { record, viewMode, selectedHistoricalTermId, selectedProjectionTermId, hasSyncedRecord ->
+			recordSelectionRepository.observeSelectedTermId(RecordViewMode.Projection)
+		) { recordSnapshot, viewMode, selectedHistoricalTermId, selectedProjectionTermId ->
+			val record = recordSnapshot.value
 			val visibleTermIds = record.filteredProjectionFor(viewMode)
 				.terms
 				.map { term -> term.id }
@@ -51,7 +51,7 @@ class ObserveRecordUseCase(
 				record = record,
 				viewMode = viewMode,
 				selectedTermId = selectedTermId,
-				hasSyncedRecord = hasSyncedRecord
+				hasSyncedRecord = recordSnapshot.hasSynced
 			)
 		}
 	}

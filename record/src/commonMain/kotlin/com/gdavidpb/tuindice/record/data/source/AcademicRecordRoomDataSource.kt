@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
+import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptOverrideDao
@@ -37,18 +38,27 @@ class AcademicRecordRoomDataSource(
 	private val writeMutex = Mutex()
 
 	override fun observeAcademicRecordFlow(): Flow<AcademicRecord?> {
+		return observeAcademicRecordSnapshotFlow()
+			.map { snapshot -> snapshot.value }
+	}
+
+	override fun observeAcademicRecordSnapshotFlow(): Flow<ObservedSyncedSnapshot<AcademicRecord?>> {
 		return combine(
 			academicRecordDao.observeRecordFlow(),
 			academicTermDao.observeTermsFlow(),
 			academicAttemptDao.observeAttemptsFlow(),
-			academicAttemptOverrideDao.observeOverridesFlow()
-		) { recordEntity, terms, attempts, overrides ->
-			val persistedRecord = recordEntity ?: return@combine null
-
-			AcademicRecord(
-				id = persistedRecord.id,
-				terms = terms.toAcademicTerms(attempts),
-				attemptOverrides = overrides.map { override -> override.toAttemptOverride() }
+			academicAttemptOverrideDao.observeOverridesFlow(),
+			academicRecordSyncStateDao.observeSyncState()
+		) { recordEntity, terms, attempts, overrides, syncState ->
+			ObservedSyncedSnapshot(
+				value = recordEntity?.let { persistedRecord ->
+					AcademicRecord(
+						id = persistedRecord.id,
+						terms = terms.toAcademicTerms(attempts),
+						attemptOverrides = overrides.map { override -> override.toAttemptOverride() }
+					)
+				},
+				hasSynced = syncState?.hasSynced == true
 			)
 		}
 	}

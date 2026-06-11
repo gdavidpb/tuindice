@@ -2,12 +2,12 @@ package com.gdavidpb.tuindice.evaluations.presentation.action
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationsExceptionHandler
-import com.gdavidpb.tuindice.evaluations.domain.model.ObservedEvaluations
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEvaluationsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RefreshEvaluationsActionProcessor
@@ -129,15 +129,15 @@ class EvaluationsActionProcessorContractTest {
 				evaluationRepository = RecordingEvaluationRepository(
 					initialEvaluations = emptyList(),
 					evaluationsSnapshotFlow = flowOf(
-						ObservedEvaluations(
-							evaluations = emptyList(),
-							hasSyncedEvaluations = false
+							ObservedSyncedSnapshot(
+								value = emptyList(),
+								hasSynced = false
+							),
+							ObservedSyncedSnapshot(
+								value = listOf(DEFAULT_PENDING_EVALUATION),
+								hasSynced = true
+							)
 						),
-						ObservedEvaluations(
-							evaluations = listOf(DEFAULT_PENDING_EVALUATION),
-							hasSyncedEvaluations = true
-						)
-					),
 					availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
 				),
 				recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),

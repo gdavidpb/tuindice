@@ -3,6 +3,8 @@ package com.gdavidpb.tuindice.record.presentation.action
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.action.ActionProcessor
+import com.gdavidpb.tuindice.base.presentation.model.SyncedContentResolution
+import com.gdavidpb.tuindice.base.presentation.model.resolveSyncedContentResolution
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import kotlinx.coroutines.flow.Flow
@@ -24,18 +26,28 @@ class ObserveRecordActionProcessor(
 						suspend { current: Record.State ->
 							val record = useCaseState.value
 
-							if (record.selectedTermId == null) {
-								when {
-									record.hasSyncedRecord -> Record.State.Empty
-									current is Record.State.Failed -> current
-									else -> Record.State.Loading
-								}
-							} else {
-								Record.State.Content(
-									viewMode = record.viewMode,
-									record = record.record,
-									selectedTermId = record.selectedTermId
+							when (
+								resolveSyncedContentResolution(
+									hasContent = record.selectedTermId != null,
+									hasSynced = record.hasSyncedRecord,
+									keepCurrentWhileWaiting = current is Record.State.Failed
 								)
+							) {
+								SyncedContentResolution.Content ->
+									Record.State.Content(
+										viewMode = record.viewMode,
+										record = record.record,
+										selectedTermId = requireNotNull(record.selectedTermId)
+									)
+
+								SyncedContentResolution.Empty ->
+									Record.State.Empty
+
+								SyncedContentResolution.Loading ->
+									Record.State.Loading
+
+								SyncedContentResolution.KeepCurrent ->
+									current
 							}
 						}
 

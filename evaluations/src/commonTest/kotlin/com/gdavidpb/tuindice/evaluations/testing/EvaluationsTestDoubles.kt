@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
+import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
@@ -29,7 +30,6 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
-import com.gdavidpb.tuindice.evaluations.domain.model.ObservedEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
@@ -206,7 +206,7 @@ class RecordingEvaluationRepository(
 	private val removeThrowable: Throwable? = null,
 	private val refreshThrowable: Throwable? = null,
 	private val hasSyncedEvaluationsFlow: Flow<Boolean> = flowOf(true),
-	private val evaluationsSnapshotFlow: Flow<ObservedEvaluations>? = null,
+		private val evaluationsSnapshotFlow: Flow<ObservedSyncedSnapshot<List<Evaluation>>>? = null,
 	private val availableSubjects: List<EditableAttemptDescriptor> = listOf(
 		DEFAULT_EVALUATION_SUBJECT,
 		SECOND_EVALUATION_SUBJECT
@@ -224,14 +224,14 @@ class RecordingEvaluationRepository(
 
 	override suspend fun observeHasSyncedEvaluationsFlow(): Flow<Boolean> = hasSyncedEvaluationsFlow
 
-	override suspend fun observeEvaluationsSnapshotFlow(): Flow<ObservedEvaluations> {
+	override suspend fun observeEvaluationsSnapshotFlow(): Flow<ObservedSyncedSnapshot<List<Evaluation>>> {
 		return evaluationsSnapshotFlow ?: kotlinx.coroutines.flow.combine(
 			evaluationsFlow ?: evaluationsState,
 			hasSyncedEvaluationsFlow
 		) { evaluations, hasSyncedEvaluations ->
-			ObservedEvaluations(
-				evaluations = evaluations,
-				hasSyncedEvaluations = hasSyncedEvaluations
+			ObservedSyncedSnapshot(
+				value = evaluations,
+				hasSynced = hasSyncedEvaluations
 			)
 		}
 	}

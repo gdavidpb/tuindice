@@ -57,8 +57,8 @@ class GetEvaluationsUseCase(
 		return evaluationRepository.observeEvaluationsSnapshotFlow()
 			.map { snapshot ->
 				GetEvaluations.Content(
-					evaluations = snapshot.evaluations.sortedWith(evaluationComparator),
-					hasSyncedEvaluations = snapshot.hasSyncedEvaluations,
+					evaluations = snapshot.value.sortedWith(evaluationComparator),
+					hasSyncedEvaluations = snapshot.hasSynced,
 					displayContext = displayContext
 				)
 			}

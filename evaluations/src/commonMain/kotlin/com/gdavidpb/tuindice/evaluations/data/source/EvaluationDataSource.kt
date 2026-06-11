@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.data.source
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
@@ -23,7 +24,6 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
-import com.gdavidpb.tuindice.evaluations.domain.model.ObservedEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
@@ -54,12 +54,12 @@ class EvaluationDataSource(
 		return databaseDataSource.observeHasSyncedEvaluationsFlow()
 	}
 
-	override suspend fun observeEvaluationsSnapshotFlow(): Flow<ObservedEvaluations> {
+	override suspend fun observeEvaluationsSnapshotFlow(): Flow<ObservedSyncedSnapshot<List<Evaluation>>> {
 		return databaseDataSource.observeEvaluationsSnapshotFlow()
 			.map { snapshot ->
-				ObservedEvaluations(
-					evaluations = snapshot.evaluations.map { evaluation -> evaluation.toEvaluation() },
-					hasSyncedEvaluations = snapshot.hasSynced
+				ObservedSyncedSnapshot(
+					value = snapshot.evaluations.map { evaluation -> evaluation.toEvaluation() },
+					hasSynced = snapshot.hasSynced
 				)
 			}
 	}

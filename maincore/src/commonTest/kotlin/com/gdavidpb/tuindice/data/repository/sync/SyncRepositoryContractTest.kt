@@ -247,6 +247,7 @@ class SyncRepositoryContractTest {
 	@Test
 	fun scheduleSync_nonRetriableError_doesNotMarkSyncRetryBackoff() = runTest {
 		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
+		val syncStatusRepository = FakeSyncStatusRepository()
 		val remoteDataSource = FakeSyncRemoteDataSource(
 			throwable = serverResponseException(
 				statusCode = HttpStatusCode.BadRequest,
@@ -255,7 +256,7 @@ class SyncRepositoryContractTest {
 		)
 		val repository = createRepository(
 			settingsDataSource = settingsDataSource,
-			syncStatusRepository = FakeSyncStatusRepository(),
+			syncStatusRepository = syncStatusRepository,
 			remoteDataSource = remoteDataSource,
 			dispatcher = StandardTestDispatcher(testScheduler)
 		)
