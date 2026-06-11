@@ -17,7 +17,7 @@ class BufferedEventPublisher(
 	private val eventSubscriber: EventSubscriber,
 	bufferCapacity: Int = DEFAULT_BUFFER_CAPACITY,
 	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers,
-	private val coroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + dispatchers.default)
+	coroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + dispatchers.default)
 ) : EventPublisher {
 	private val events = Channel<AppEvent>(
 		capacity = bufferCapacity,
