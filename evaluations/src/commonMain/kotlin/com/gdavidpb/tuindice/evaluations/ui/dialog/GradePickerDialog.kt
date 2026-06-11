@@ -17,11 +17,11 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
-import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
+import com.gdavidpb.tuindice.base.ui.model.SubjectCodeChipVariant
+import com.gdavidpb.tuindice.base.ui.view.SubjectCodeChip
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.evaluations.ui.model.MIN_EVALUATION_GRADE
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationGradeWheelPicker
-import com.gdavidpb.tuindice.evaluations.ui.view.SubjectCodeChip
 
 @Composable
 fun GradePickerDialog(
@@ -39,10 +39,6 @@ fun GradePickerDialog(
 	val selectedGradeState = remember(selectedGrade, gradeRange.start, gradeRange.endInclusive) {
 		mutableDoubleStateOf(selectedGrade ?: MIN_EVALUATION_GRADE)
 	}
-	val subjectColors = remember(subjectCode) {
-		CourseCodeColorGenerator.fromCode(subjectCode)
-	}
-
 	AlertDialog(
 		modifier = Modifier.exposeTestTagsAsResourceId(),
 		title = {
@@ -78,8 +74,7 @@ fun GradePickerDialog(
 					SubjectCodeChip(
 						modifier = Modifier.testTag(EvaluationsUiTags.EvaluationDialogSubjectCodeChip),
 						subjectCode = subjectCode,
-						containerColor = subjectColors.containerColor,
-						contentColor = subjectColors.color
+						variant = SubjectCodeChipVariant.Dense
 					)
 				}
 			}

@@ -24,6 +24,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.model.SubjectCodeChipVariant
+import com.gdavidpb.tuindice.base.ui.view.SubjectCodeChip
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -114,6 +116,7 @@ fun EvaluationItemView(
 				) {
 					SubjectCodeChip(
 						subjectCode = item.subjectCodeText,
+						variant = SubjectCodeChipVariant.Dense,
 						containerColor = item.subjectCodeContainerColor,
 						contentColor = item.subjectCodeColor
 					)
