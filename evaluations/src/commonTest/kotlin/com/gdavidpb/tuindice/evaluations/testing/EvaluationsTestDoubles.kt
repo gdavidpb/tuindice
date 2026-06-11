@@ -29,6 +29,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
+import com.gdavidpb.tuindice.evaluations.domain.model.ObservedEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
@@ -205,6 +206,7 @@ class RecordingEvaluationRepository(
 	private val removeThrowable: Throwable? = null,
 	private val refreshThrowable: Throwable? = null,
 	private val hasSyncedEvaluationsFlow: Flow<Boolean> = flowOf(true),
+	private val evaluationsSnapshotFlow: Flow<ObservedEvaluations>? = null,
 	private val availableSubjects: List<EditableAttemptDescriptor> = listOf(
 		DEFAULT_EVALUATION_SUBJECT,
 		SECOND_EVALUATION_SUBJECT
@@ -221,6 +223,18 @@ class RecordingEvaluationRepository(
 	override suspend fun observeEvaluationsFlow(): Flow<List<Evaluation>> = evaluationsFlow ?: evaluationsState
 
 	override suspend fun observeHasSyncedEvaluationsFlow(): Flow<Boolean> = hasSyncedEvaluationsFlow
+
+	override suspend fun observeEvaluationsSnapshotFlow(): Flow<ObservedEvaluations> {
+		return evaluationsSnapshotFlow ?: kotlinx.coroutines.flow.combine(
+			evaluationsFlow ?: evaluationsState,
+			hasSyncedEvaluationsFlow
+		) { evaluations, hasSyncedEvaluations ->
+			ObservedEvaluations(
+				evaluations = evaluations,
+				hasSyncedEvaluations = hasSyncedEvaluations
+			)
+		}
+	}
 
 	override suspend fun updateEvaluations() {
 		updateEvaluationsCalls++
@@ -312,6 +326,8 @@ class FakeDatabaseDataSource(
 	}
 
 	override fun observeHasSyncedEvaluationsFlow(): Flow<Boolean> = hasSyncedEvaluationsState
+
+	override fun observeEvaluationsSnapshotFlow(): Flow<LocalEvaluationsSnapshot> = snapshotState
 
 	override suspend fun getEvaluation(eid: String): LocalEvaluation? {
 		return snapshotState.value.evaluations.firstOrNull { evaluation -> evaluation.id == eid }

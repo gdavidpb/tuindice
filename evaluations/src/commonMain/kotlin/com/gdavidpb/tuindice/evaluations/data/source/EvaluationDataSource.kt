@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
+import com.gdavidpb.tuindice.evaluations.domain.model.ObservedEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
@@ -51,6 +52,16 @@ class EvaluationDataSource(
 
 	override suspend fun observeHasSyncedEvaluationsFlow(): Flow<Boolean> {
 		return databaseDataSource.observeHasSyncedEvaluationsFlow()
+	}
+
+	override suspend fun observeEvaluationsSnapshotFlow(): Flow<ObservedEvaluations> {
+		return databaseDataSource.observeEvaluationsSnapshotFlow()
+			.map { snapshot ->
+				ObservedEvaluations(
+					evaluations = snapshot.evaluations.map { evaluation -> evaluation.toEvaluation() },
+					hasSyncedEvaluations = snapshot.hasSynced
+				)
+			}
 	}
 
 	override suspend fun updateEvaluations() {

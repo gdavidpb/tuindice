@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
+import com.gdavidpb.tuindice.evaluations.domain.model.ObservedEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.PendingMutationEntity
@@ -291,6 +292,8 @@ private class FakeEvaluationRepository(
 	override suspend fun observeEvaluationsFlow(): Flow<List<Evaluation>> = emptyFlow()
 
 	override suspend fun observeHasSyncedEvaluationsFlow(): Flow<Boolean> = flowOf(false)
+
+	override suspend fun observeEvaluationsSnapshotFlow(): Flow<ObservedEvaluations> = emptyFlow()
 
 	override suspend fun updateEvaluations() = Unit
 

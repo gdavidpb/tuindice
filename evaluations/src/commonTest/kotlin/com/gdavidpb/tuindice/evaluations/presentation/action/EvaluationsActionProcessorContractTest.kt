@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailabl
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationsExceptionHandler
+import com.gdavidpb.tuindice.evaluations.domain.model.ObservedEvaluations
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadEvaluationActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEvaluationsActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RefreshEvaluationsActionProcessor
@@ -117,6 +118,46 @@ class EvaluationsActionProcessorContractTest {
 					.flatMap { group -> group.items }
 					.map { item -> item.evaluationId }
 			)
+			awaitComplete()
+		}
+	}
+
+	@Test
+	fun loadEvaluationsActionProcessor_skipsTransientEmpty_whenSnapshotMovesFromUnsyncedEmptyToContent() = runTest {
+		val processor = LoadEvaluationsActionProcessor(
+			getEvaluationsUseCase = GetEvaluationsUseCase(
+				evaluationRepository = RecordingEvaluationRepository(
+					initialEvaluations = emptyList(),
+					evaluationsSnapshotFlow = flowOf(
+						ObservedEvaluations(
+							evaluations = emptyList(),
+							hasSyncedEvaluations = false
+						),
+						ObservedEvaluations(
+							evaluations = listOf(DEFAULT_PENDING_EVALUATION),
+							hasSyncedEvaluations = true
+						)
+					),
+					availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
+				),
+				recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+				reportingRepository = RecordingReportingRepository()
+			)
+		)
+
+		processor.process(
+			action = Evaluations.Action.LoadEvaluations,
+			sideEffect = {}
+		).test {
+			assertEquals(Evaluations.State.Loading, awaitItem()(Evaluations.State.Idle))
+			val content = assertIs<Evaluations.State.Content>(awaitItem()(Evaluations.State.Loading))
+			assertEquals(
+				listOf(DEFAULT_PENDING_EVALUATION.id),
+				content.evaluationGroups
+					.flatMap { group -> group.items }
+					.map { item -> item.evaluationId }
+			)
+
 			awaitComplete()
 		}
 	}

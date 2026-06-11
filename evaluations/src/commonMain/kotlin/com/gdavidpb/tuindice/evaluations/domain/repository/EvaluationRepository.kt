@@ -6,11 +6,13 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
+import com.gdavidpb.tuindice.evaluations.domain.model.ObservedEvaluations
 import kotlinx.coroutines.flow.Flow
 
 interface EvaluationRepository {
 	suspend fun observeEvaluationsFlow(): Flow<List<Evaluation>>
 	suspend fun observeHasSyncedEvaluationsFlow(): Flow<Boolean>
+	suspend fun observeEvaluationsSnapshotFlow(): Flow<ObservedEvaluations>
 	suspend fun updateEvaluations()
 	suspend fun drainPendingMutations()
 	suspend fun getEvaluation(eid: String): Evaluation?
