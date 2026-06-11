@@ -77,6 +77,7 @@
 	<string name="create_term_load_tooltip_terms_plural">Se usaron %1$d trimestres.</string>
 	<string name="create_term_selected_count">%1$d materias seleccionadas</string>
 	<string name="create_term_search_placeholder">Código, nombre o palabra clave</string>
+	<string name="create_term_search_clear_content_description">Limpiar búsqueda</string>
 	<string name="create_term_selected_title">Materias del trimestre</string>
 	<string name="create_term_add_subjects_title">Agregar materias</string>
 	<string name="create_term_suggested_tab">Sugeridas</string>
