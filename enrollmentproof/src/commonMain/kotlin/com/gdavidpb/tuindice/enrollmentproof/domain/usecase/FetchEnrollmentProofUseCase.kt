@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.enrollmentproof.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
-import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.FileRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
@@ -16,12 +14,8 @@ class FetchEnrollmentProofUseCase(
 	private val applicationRepository: FileRepository,
 	private val enrollmentProofRepository: EnrollmentProofRepository,
 	override val reportingRepository: ReportingRepository,
-	override val exceptionHandler: FetchEnrollmentProofExceptionHandler,
-	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
-) : FlowUseCase<Unit, PlatformFile, FetchEnrollmentProofUseCaseError>(
-	reportingRepository = reportingRepository,
-	dispatchers = dispatchers
-) {
+	override val exceptionHandler: FetchEnrollmentProofExceptionHandler
+) : FlowUseCase<Unit, PlatformFile, FetchEnrollmentProofUseCaseError>(reportingRepository = reportingRepository) {
 	override suspend fun executeOnBackground(params: Unit): Flow<PlatformFile> {
 		val enrollmentProof = enrollmentProofRepository.getEnrollmentProof()
 		val file = PlatformFile(enrollmentProof.source)

@@ -2,8 +2,6 @@ package com.gdavidpb.tuindice.record.domain.usecase
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
-import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
-import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.record.domain.exception.SyntheticTermValidationException
@@ -19,12 +17,8 @@ import kotlinx.coroutines.flow.flowOf
 class CreateSyntheticTermUseCase(
 	private val repository: AcademicRecordRepository,
 	override val reportingRepository: ReportingRepository,
-	override val exceptionHandler: RecordExceptionHandler,
-	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
-) : FlowUseCase<CreateSyntheticTermParams, String, RecordUseCaseError>(
-	reportingRepository = reportingRepository,
-	dispatchers = dispatchers
-) {
+	override val exceptionHandler: RecordExceptionHandler
+) : FlowUseCase<CreateSyntheticTermParams, String, RecordUseCaseError>(reportingRepository = reportingRepository) {
 	override suspend fun executeOnBackground(params: CreateSyntheticTermParams): Flow<String> {
 		val record = repository.getAcademicRecord()
 			?: throw SyntheticTermValidationException(SyntheticTermValidationError.RECORD_UNAVAILABLE)

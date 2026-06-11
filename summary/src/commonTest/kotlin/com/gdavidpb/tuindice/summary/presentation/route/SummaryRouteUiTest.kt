@@ -508,8 +508,7 @@ class SummaryRouteUiTest {
 			observeSummaryActionProcessor = ObserveSummaryActionProcessor(
 				observeUserUseCase = ObserveUserUseCase(
 					userRepository = userRepository,
-					reportingRepository = RecordingReportingRepository(),
-					dispatchers = dispatchers
+					reportingRepository = RecordingReportingRepository()
 				)
 			),
 			refreshSummaryActionProcessor = RefreshSummaryActionProcessor(
@@ -518,8 +517,7 @@ class SummaryRouteUiTest {
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = UpdateUserExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true)
-					),
-					dispatchers = dispatchers
+					)
 				)
 			),
 			takeProfilePictureActionProcessor = TakeProfilePictureActionProcessor(),
@@ -530,8 +528,7 @@ class SummaryRouteUiTest {
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = UploadProfilePictureExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true)
-					),
-					dispatchers = dispatchers
+					)
 				)
 			),
 			confirmRemoveProfilePictureActionProcessor = ConfirmRemoveProfilePictureActionProcessor(
@@ -540,8 +537,7 @@ class SummaryRouteUiTest {
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = RemoveProfilePictureExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true)
-					),
-					dispatchers = dispatchers
+					)
 				)
 			),
 			removeProfilePictureActionProcessor = RemoveProfilePictureActionProcessor(),

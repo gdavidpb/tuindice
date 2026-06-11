@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
-import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAndAvailableAttempts
@@ -12,12 +10,8 @@ import kotlinx.coroutines.flow.flowOf
 
 class GetEvaluationAndAvailableAttemptsUseCase(
 	private val evaluationRepository: EvaluationRepository,
-	override val reportingRepository: ReportingRepository,
-	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
-) : FlowUseCase<GetEvaluationParams, EvaluationAndAvailableAttempts, Nothing>(
-	reportingRepository = reportingRepository,
-	dispatchers = dispatchers
-) {
+	override val reportingRepository: ReportingRepository
+) : FlowUseCase<GetEvaluationParams, EvaluationAndAvailableAttempts, Nothing>(reportingRepository = reportingRepository) {
 	override suspend fun executeOnBackground(params: GetEvaluationParams): Flow<EvaluationAndAvailableAttempts> {
 		val evaluation = evaluationRepository
 			.getEvaluation(eid = params.evaluationId)

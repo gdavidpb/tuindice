@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
-import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
@@ -19,12 +17,8 @@ class AddEvaluationUseCase(
 	private val identifierRepository: IdentifierRepository,
 	override val reportingRepository: ReportingRepository,
 	override val paramsValidator: AddEvaluationParamsValidator,
-	override val exceptionHandler: AddEvaluationExceptionHandler,
-	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
-) : FlowUseCase<AddEvaluationParams, Unit, AddEvaluationUseCaseError>(
-	reportingRepository = reportingRepository,
-	dispatchers = dispatchers
-) {
+	override val exceptionHandler: AddEvaluationExceptionHandler
+) : FlowUseCase<AddEvaluationParams, Unit, AddEvaluationUseCaseError>(reportingRepository = reportingRepository) {
 	override suspend fun executeOnBackground(params: AddEvaluationParams): Flow<Unit> {
 		val evaluation = params.toEvaluationAdd(
 			reference = identifierRepository.generateRandomIdentifier()

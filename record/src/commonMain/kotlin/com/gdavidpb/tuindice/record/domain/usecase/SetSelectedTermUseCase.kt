@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.record.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
-import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
@@ -11,12 +9,8 @@ import kotlinx.coroutines.flow.flowOf
 
 class SetSelectedTermUseCase(
 	private val recordSelectionRepository: RecordSelectionRepository,
-	override val reportingRepository: ReportingRepository,
-	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
-) : FlowUseCase<SetSelectedTermParams, Unit, Nothing>(
-	reportingRepository = reportingRepository,
-	dispatchers = dispatchers
-) {
+	override val reportingRepository: ReportingRepository
+) : FlowUseCase<SetSelectedTermParams, Unit, Nothing>(reportingRepository = reportingRepository) {
 	override suspend fun executeOnBackground(params: SetSelectedTermParams): Flow<Unit> {
 		recordSelectionRepository.setSelectedTermId(
 			viewMode = params.viewMode,

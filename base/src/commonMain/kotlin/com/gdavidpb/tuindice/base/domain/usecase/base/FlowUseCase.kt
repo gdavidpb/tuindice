@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.base.domain.usecase.base
 
-import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
-import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.utils.reportingMessage
 import com.gdavidpb.tuindice.base.domain.utils.reportingName
@@ -11,13 +9,11 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
 
 abstract class FlowUseCase<P, T, E : UseCaseError>(
-	protected open val reportingRepository: ReportingRepository,
-	protected open val dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
+	protected open val reportingRepository: ReportingRepository
 ) {
 	protected open val paramsValidator: ParamsValidator<P>? = null
 	protected open val exceptionHandler: ExceptionHandler<E>? = null
@@ -27,10 +23,9 @@ abstract class FlowUseCase<P, T, E : UseCaseError>(
 	fun execute(params: P): Flow<UseCaseState<T, E>> {
 		return flow {
 			emitAll(executeOnBackground(params))
-		}.flowOn(dispatchers.default)
-			.map { data ->
-				UseCaseState.Data<T, E>(data) as UseCaseState<T, E>
-			}
+		}.map { data ->
+			UseCaseState.Data<T, E>(data) as UseCaseState<T, E>
+		}
 			.onStart {
 				emit(UseCaseState.Loading())
 				paramsValidator?.validate(params)

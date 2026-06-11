@@ -73,8 +73,7 @@ class SummaryViewModelContractTest {
 			observeSummaryActionProcessor = ObserveSummaryActionProcessor(
 				observeUserUseCase = ObserveUserUseCase(
 					userRepository = userRepository,
-					reportingRepository = RecordingReportingRepository(),
-					dispatchers = dispatchers
+					reportingRepository = RecordingReportingRepository()
 				)
 			),
 			refreshSummaryActionProcessor = RefreshSummaryActionProcessor(
@@ -83,8 +82,7 @@ class SummaryViewModelContractTest {
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = UpdateUserExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true)
-					),
-					dispatchers = dispatchers
+					)
 				)
 			),
 			takeProfilePictureActionProcessor = TakeProfilePictureActionProcessor(),
@@ -95,8 +93,7 @@ class SummaryViewModelContractTest {
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = UploadProfilePictureExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true)
-					),
-					dispatchers = dispatchers
+					)
 				)
 			),
 			confirmRemoveProfilePictureActionProcessor = ConfirmRemoveProfilePictureActionProcessor(
@@ -105,8 +102,7 @@ class SummaryViewModelContractTest {
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = RemoveProfilePictureExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true)
-					),
-					dispatchers = dispatchers
+					)
 				)
 			),
 			removeProfilePictureActionProcessor = RemoveProfilePictureActionProcessor(),

@@ -67,32 +67,28 @@ val summaryModule = module {
 	factory {
 		ObserveUserUseCase(
 			userRepository = get(),
-			reportingRepository = get(),
-			dispatchers = get()
+			reportingRepository = get()
 		)
 	}
 	factory {
 		UpdateUserUseCase(
 			userRepository = get(),
 			reportingRepository = get(),
-			exceptionHandler = get(),
-			dispatchers = get()
+			exceptionHandler = get()
 		)
 	}
 	factory {
 		UploadProfilePictureUseCase(
 			userRepository = get(),
 			reportingRepository = get(),
-			exceptionHandler = get(),
-			dispatchers = get()
+			exceptionHandler = get()
 		)
 	}
 	factory {
 		RemoveProfilePictureUseCase(
 			userRepository = get(),
 			reportingRepository = get(),
-			exceptionHandler = get(),
-			dispatchers = get()
+			exceptionHandler = get()
 		)
 	}
 

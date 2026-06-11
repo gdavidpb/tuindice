@@ -1,7 +1,5 @@
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
-import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
@@ -22,12 +20,8 @@ import kotlin.math.sign
 class GetEvaluationsUseCase(
 	private val evaluationRepository: EvaluationRepository,
 	private val recordDataPrerequisiteRepository: RecordDataPrerequisiteRepository,
-	override val reportingRepository: ReportingRepository,
-	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
-) : FlowUseCase<Unit, GetEvaluations, EvaluationsUseCaseError>(
-	reportingRepository = reportingRepository,
-	dispatchers = dispatchers
-) {
+	override val reportingRepository: ReportingRepository
+) : FlowUseCase<Unit, GetEvaluations, EvaluationsUseCaseError>(reportingRepository = reportingRepository) {
 
 	private val evaluationComparator =
 		Comparator<Evaluation> { a, b ->

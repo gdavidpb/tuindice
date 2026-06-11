@@ -152,6 +152,9 @@ Ubicación típica:
 Reglas:
 
 - `UseCase` depende de interfaces, no de implementaciones.
+- Los `UseCase` no fijan dispatchers ni hacen `flowOn`; heredan el contexto del pipeline. `TuIndiceDispatchers` se
+  inyecta solo en la frontera MVI (`ViewModel` → `BaseViewModel`), en `BufferedEventPublisher` y en `DataSource`
+  concretos con trabajo bloqueante o de CPU real.
 - Validaciones en `ParamsValidator`.
 - Traducción de errores en `ExceptionHandler`.
 - Cada feature expone una interfaz de fachada de negocio en `domain/repository`.

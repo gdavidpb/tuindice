@@ -2,8 +2,6 @@ package com.gdavidpb.tuindice.record.domain.usecase
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
-import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
-import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermEditSeed
@@ -18,12 +16,8 @@ import kotlinx.coroutines.flow.flowOf
 class LoadSyntheticTermEditSeedUseCase(
 	private val repository: AcademicRecordRepository,
 	override val reportingRepository: ReportingRepository,
-	override val exceptionHandler: RecordExceptionHandler,
-	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
-) : FlowUseCase<String, SyntheticTermEditSeed, RecordUseCaseError>(
-	reportingRepository = reportingRepository,
-	dispatchers = dispatchers
-) {
+	override val exceptionHandler: RecordExceptionHandler
+) : FlowUseCase<String, SyntheticTermEditSeed, RecordUseCaseError>(reportingRepository = reportingRepository) {
 	override suspend fun executeOnBackground(params: String): Flow<SyntheticTermEditSeed> {
 		val record = requireNotNull(repository.getAcademicRecord())
 		val term = record.terms.first { term -> term.id == params && term.kind.isSynthetic }
