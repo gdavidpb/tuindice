@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.data.source.analytics
 
+import com.gdavidpb.tuindice.base.data.source.event.isAnalyticsRelevant
 import com.gdavidpb.tuindice.base.domain.model.event.AppEvent
 import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
@@ -34,6 +35,7 @@ class IosAnalyticsEventSubscriber(
 
 	override fun onEvent(event: AppEvent) {
 		if (!isEnabled) return
+		if (!event.isAnalyticsRelevant()) return
 
 		observabilityCapability.logEvent(
 			name = event.name,

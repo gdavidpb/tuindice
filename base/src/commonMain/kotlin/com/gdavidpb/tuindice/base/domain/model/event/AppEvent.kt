@@ -60,7 +60,10 @@ sealed class AppEvent private constructor(
 			EventParameterKeys.EVENT to event,
 			EventParameterKeys.TO to to
 		)
-	)
+	) {
+		val isSelfLoop: Boolean
+			get() = from == to
+	}
 
 	data class InvalidTransition(
 		private val source: String,

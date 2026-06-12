@@ -342,9 +342,16 @@ Supporting conventions, all applied:
   screen whose route fires startup actions ships an order-inverted oracle test
   (`refreshEnqueuedBeforeObserve_stillReachesContent`).
 
-## Open items (post-migration)
+## Closed decisions (post-migration, 2026-06-12)
 
-- Promote `CreateSyntheticTermDraft` to a domain `SyntheticTermDraftRepository` if the
-  draft proves to be domain truth (deferred: ripples through use case and data source
-  signatures and raises draft-lifetime questions).
-- Register `app_transition`/`app_invalid_transition` in the telemetry consumers.
+- **Engine telemetry policy**: the analytics subscribers forward everything except
+  self-loop transitions (`AppEvent.Transition.isSelfLoop`, filtered via
+  `isAnalyticsRelevant()` in `base/data/source/event/AnalyticsEventPolicy.kt`).
+  State-changing transitions keep the navigation narrative with their triggering
+  event; `app_invalid_transition` is the production anomaly signal; keystroke
+  self-loops stay in the debug subscriber only — they roughly doubled per-input
+  volume while `app_action`/`app_state` already cover usage analytics.
+- **Draft stays in presentation**: `CreateSyntheticTermDraft` is ephemeral UI input
+  state whose ViewModel-bound lifetime is a feature (it clears itself). Promotion to
+  a domain `SyntheticTermDraftRepository` is reopened only if domain ever needs the
+  draft (e.g. persisting it across sessions).

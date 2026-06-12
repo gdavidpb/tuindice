@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.data.source.analytics
 
 import android.os.Bundle
+import com.gdavidpb.tuindice.base.data.source.event.isAnalyticsRelevant
 import com.gdavidpb.tuindice.base.domain.model.event.AppEvent
 import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
@@ -35,6 +36,7 @@ class FirebaseAnalyticsEventSubscriber(
 
 	override fun onEvent(event: AppEvent) {
 		if (!isEnabled) return
+		if (!event.isAnalyticsRelevant()) return
 
 		firebaseAnalytics.logEvent(event.name, event.parameters.toBundle())
 	}
