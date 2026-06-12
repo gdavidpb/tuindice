@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -200,7 +201,7 @@ fun EvaluationContentView(
 				.padding(24.dp)
 				.height(52.dp)
 				.widthIn(min = 168.dp),
-			shape = RoundedCornerShape(999.dp),
+			shape = RoundedCornerShape(TuIndiceRadius.Full),
 			enabled = state.canSubmit,
 			onClick = {
 				onDoneClick(

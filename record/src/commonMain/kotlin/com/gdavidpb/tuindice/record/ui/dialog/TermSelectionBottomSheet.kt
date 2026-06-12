@@ -68,7 +68,7 @@ fun TermSelectionBottomSheet(
 				Text(
 					text = stringResource(Res.string.term_selection_title),
 					style = MaterialTheme.typography.titleLarge,
-					fontWeight = FontWeight.Black
+					fontWeight = FontWeight.Bold
 				)
 				Text(
 					text = modeDescriptionText,

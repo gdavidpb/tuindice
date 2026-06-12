@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import org.jetbrains.compose.resources.stringResource
@@ -30,7 +31,7 @@ fun CreateTermAddSubjectTabs(
 		activeBorderColor = MaterialTheme.colorScheme.primary,
 		inactiveContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.48f),
 		inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
-		inactiveBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f)
+		inactiveBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = TuIndiceAlpha.Muted)
 	)
 
 	SingleChoiceSegmentedButtonRow(modifier = Modifier.fillMaxWidth()) {

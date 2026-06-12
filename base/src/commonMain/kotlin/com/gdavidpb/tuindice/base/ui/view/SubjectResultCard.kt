@@ -21,6 +21,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 
 @Composable
 fun SubjectResultCard(
@@ -47,7 +48,7 @@ fun SubjectResultCard(
 	}
 	Surface(
 		modifier = clickableModifier.fillMaxWidth(),
-		shape = RoundedCornerShape(14.dp),
+		shape = RoundedCornerShape(TuIndiceRadius.Card),
 		color = MaterialTheme.colorScheme.surfaceContainerLow,
 		border = BorderStroke(
 			width = 1.dp,

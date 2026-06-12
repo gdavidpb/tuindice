@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Delete
+import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.UploadFile
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -59,7 +59,7 @@ fun ProfilePictureSettingsDialog(
 		if (showRemove)
 			Box(modifier = Modifier.testTag(SummaryUiTags.ProfilePictureRemoveAction)) {
 				ConfirmationDialogEntry(
-					icon = Icons.Outlined.Delete,
+					icon = Icons.Outlined.DeleteOutline,
 					iconColor = MaterialTheme.colorScheme.error,
 					text = removePictureLabel,
 					textColor = MaterialTheme.colorScheme.error,

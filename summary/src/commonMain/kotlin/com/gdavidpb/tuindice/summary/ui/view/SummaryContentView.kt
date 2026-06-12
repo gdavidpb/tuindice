@@ -26,6 +26,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAnimation
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
@@ -225,4 +226,4 @@ private const val SYNC_ICON_ROTATION_DURATION_MILLIS = 900
 private const val SYNC_ICON_MIN_STOP_DURATION_MILLIS = 180
 private const val SYNC_ICON_FULL_ROTATION_DEGREES = 360f
 private const val SummaryItemContentType = "summary_item"
-internal const val SYNC_STATUS_TEXT_ANIMATION_DURATION_MILLIS = 220
+internal const val SYNC_STATUS_TEXT_ANIMATION_DURATION_MILLIS = TuIndiceAnimation.StandardMillis

@@ -33,6 +33,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
@@ -137,7 +138,7 @@ fun CreateSyntheticTermScreen(
 		LazyColumn(
 			modifier = Modifier
 				.fillMaxSize()
-				.padding(horizontal = 20.dp)
+				.padding(horizontal = TuIndiceSpacing.Screen)
 				.imePadding()
 				.pointerInput(Unit) {
 					awaitEachGesture {

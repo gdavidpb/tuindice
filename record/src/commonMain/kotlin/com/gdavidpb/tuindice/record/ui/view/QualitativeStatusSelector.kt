@@ -22,6 +22,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 
 @Composable
@@ -79,7 +80,7 @@ fun QualitativeStatusSelector(
 			Surface(
 				modifier = Modifier
 					.padding(top = 6.dp),
-				shape = RoundedCornerShape(10.dp),
+				shape = RoundedCornerShape(TuIndiceRadius.Medium),
 				color = MaterialTheme.colorScheme.surfaceContainerHigh
 			) {
 				Column(

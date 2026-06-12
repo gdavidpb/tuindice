@@ -36,7 +36,7 @@ fun PensumSubjectCorequisiteSection(
 			modifier = Modifier.testTag(PensumUiTags.SubjectDetailAlsoWith),
 			text = stringResource(Res.string.pensum_subject_detail_also_with),
 			style = MaterialTheme.typography.labelLarge,
-			fontWeight = FontWeight.Black,
+			fontWeight = FontWeight.Bold,
 			color = MaterialTheme.colorScheme.onSurface
 		)
 		items.forEach { item ->

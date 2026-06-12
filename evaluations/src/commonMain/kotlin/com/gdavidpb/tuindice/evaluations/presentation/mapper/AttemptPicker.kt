@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.GradingMode
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationAttemptPickerItem
 
@@ -18,7 +19,7 @@ fun List<EditableAttemptDescriptor>.toEvaluationAttemptPickerItems(
 					isVisible = (selectedAttempt == null) || (attempt == selectedAttempt),
 					containerColor = subjectColors.containerColor,
 					contentColor = subjectColors.color,
-					disabledContainerColor = subjectColors.containerColor.copy(alpha = 0.55f),
+					disabledContainerColor = subjectColors.containerColor.copy(alpha = TuIndiceAlpha.Muted),
 					disabledContentColor = subjectColors.color.copy(alpha = 0.38f)
 				)
 			}

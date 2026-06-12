@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 
 @Composable
 fun AttemptStatusBadge(
@@ -21,7 +22,7 @@ fun AttemptStatusBadge(
 		modifier = modifier
 			.background(
 				color = containerColor,
-				shape = RoundedCornerShape(8.dp)
+				shape = RoundedCornerShape(TuIndiceRadius.Small)
 			)
 			.padding(vertical = 4.dp, horizontal = 10.dp),
 		text = text,

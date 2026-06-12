@@ -23,10 +23,13 @@ class CourseCodeColorGeneratorTest {
 	}
 
 	@Test
-	fun when_codeDoesNotMatchSupportedFormats_then_usesBlackAsCodeColor() {
-		assertEquals(Color.Black, CourseCodeColorGenerator.fromCode("A1").color)
-		assertEquals(Color.Black, CourseCodeColorGenerator.fromCode("INF-101").color)
-		assertEquals(Color.Black, CourseCodeColorGenerator.fromCode("ABCD12").color)
+	fun when_codeDoesNotMatchSupportedFormats_then_usesNeutralFallbackColorPair() {
+		val fallback = CourseCodeColorGenerator.fromCode("A1")
+
+		assertTrue(fallback.color != Color.Black)
+		assertTrue(fallback.containerColor != fallback.color)
+		assertEquals(fallback, CourseCodeColorGenerator.fromCode("INF-101"))
+		assertEquals(fallback, CourseCodeColorGenerator.fromCode("ABCD12"))
 	}
 
 	@Test

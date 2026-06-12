@@ -120,7 +120,7 @@ class SummaryContentDialogUiTest {
 			)
 		}
 
-		onNodeWithText("Remover foto").performClick()
+		onNodeWithText("Eliminar foto").performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
 			removeClicks == 1

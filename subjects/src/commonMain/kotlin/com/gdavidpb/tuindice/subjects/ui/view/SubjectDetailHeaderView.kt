@@ -15,6 +15,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.subjects.presentation.model.SubjectDetailItem
 
 @Composable
@@ -40,13 +41,12 @@ fun SubjectDetailHeaderView(
 				modifier = Modifier
 					.background(
 						color = colors.containerColor,
-						shape = RoundedCornerShape(10.dp)
+						shape = RoundedCornerShape(TuIndiceRadius.Medium)
 					)
 					.padding(horizontal = 12.dp, vertical = 6.dp),
 				text = detail.id,
 				color = colors.color,
 				style = MaterialTheme.typography.labelLarge,
-				fontWeight = FontWeight.SemiBold
 			)
 
 			Text(

@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.wizard.ui.WizardUiTags
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -34,7 +35,7 @@ fun WizardTargetBoundsFocusOverlay(
 	label: StringResource,
 	modifier: Modifier = Modifier
 ) {
-	val shape = RoundedCornerShape(18.dp)
+	val shape = RoundedCornerShape(TuIndiceRadius.XLarge)
 	val highlightColor = MaterialTheme.colorScheme.primary
 	val density = LocalDensity.current
 	val overlayPositionInRoot = remember {

@@ -20,9 +20,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.Role
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
@@ -45,7 +45,7 @@ fun AlreadyTakenSearchResultsToggle(
 		color = MaterialTheme.colorScheme.surfaceContainerLow,
 		border = BorderStroke(
 			width = 1.dp,
-			color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.58f)
+			color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = TuIndiceAlpha.Muted)
 		)
 	) {
 		Row(
@@ -65,7 +65,6 @@ fun AlreadyTakenSearchResultsToggle(
 					count
 				),
 				style = MaterialTheme.typography.labelLarge,
-				fontWeight = FontWeight.SemiBold,
 				color = MaterialTheme.colorScheme.onSurfaceVariant,
 				maxLines = 1,
 				overflow = TextOverflow.Ellipsis

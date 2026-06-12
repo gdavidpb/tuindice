@@ -12,7 +12,7 @@ object TuIndiceSpacing {
 	val Large = 10.dp
 	val XLarge = 12.dp
 	val Section = 16.dp
-	val ScreenCompact = 20.dp
-	val Screen = 24.dp
+	val Screen = 16.dp
+	val Dialog = 24.dp
 	val Wide = 32.dp
 }

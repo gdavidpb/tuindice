@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.CreateTermSubjectCardAction
@@ -40,7 +41,7 @@ fun CreateTermSuggestedSubjectCard(
 			.width(144.dp)
 			.height(166.dp)
 			.testTag(RecordUiTags.createSyntheticTermSubject(subject.subjectCode)),
-		shape = RoundedCornerShape(14.dp),
+		shape = RoundedCornerShape(TuIndiceRadius.Card),
 		color = MaterialTheme.colorScheme.surfaceContainerLow,
 		border = BorderStroke(
 			width = 1.dp,

@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.summary.ui.view
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.mapper.toSummaryItemList
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryItemsColors
@@ -43,7 +44,7 @@ fun rememberSummaryItems(
 		creditsRetiredLabel = stringResource(Res.string.summary_credits_retired)
 	)
 	val colors = SummaryItemsColors(
-		approved = MaterialTheme.colorScheme.primary,
+		approved = AcademicStatusColors.approved(),
 		failed = MaterialTheme.colorScheme.error,
 		retired = MaterialTheme.colorScheme.outline
 	)

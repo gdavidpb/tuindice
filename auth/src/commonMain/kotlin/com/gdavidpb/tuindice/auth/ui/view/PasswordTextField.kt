@@ -3,9 +3,9 @@ package com.gdavidpb.tuindice.auth.ui.view
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Lock
-import androidx.compose.material.icons.filled.Visibility
-import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Visibility
+import androidx.compose.material.icons.outlined.VisibilityOff
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
@@ -89,7 +89,7 @@ fun PasswordTextField(
 		label = { Text(text = labelText) },
 		leadingIcon = {
 			Icon(
-				imageVector = Icons.Filled.Lock,
+				imageVector = Icons.Outlined.Lock,
 				contentDescription = null
 			)
 		},
@@ -101,9 +101,9 @@ fun PasswordTextField(
 			) {
 				Icon(
 					imageVector = if (isPasswordVisible)
-						Icons.Filled.VisibilityOff
+						Icons.Outlined.VisibilityOff
 					else
-						Icons.Filled.Visibility,
+						Icons.Outlined.Visibility,
 					contentDescription = if (isPasswordVisible)
 						stringResource(Res.string.a11y_hide_password)
 					else

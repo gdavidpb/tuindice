@@ -1,27 +1,16 @@
 package com.gdavidpb.tuindice.pensum.ui.view
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceDarkTheme
 
-internal val ScreenBackground = Color(0xFF101112)
-internal val PanelBackground = Color(0xFF171819)
-internal val PanelBorder = Color(0xFF343638)
-internal val FloatingPanelBackground = Color.Black
-internal val Approved = Color(0xFF8FE38C)
-internal val Current = Color(0xFFFFC400)
-internal val Available = Color(0xFF8A8F94)
-internal val CanvasNeutral = Available
-internal val Selected = Color(0xFFF7F7F7)
-internal val TextPrimary = Color(0xFFF7F7F7)
-internal val TextSecondary = Color(0xFF9C9EA3)
 private val LightPensumCanvasTermBand = Color(0xFFF4F4F4)
 private val LightPensumPanelBorder = Color(0xFFD8D8D8)
-private val LightPensumNeutral = Color(0xFF8A8A8A)
 private val LightPensumTextSecondary = Color(0xFF5F6368)
 internal val PensumElementCornerRadius = 8.dp
 internal val PensumElementShape = RoundedCornerShape(PensumElementCornerRadius)
@@ -51,19 +40,30 @@ internal data class PensumGraphColors(
 @Composable
 internal fun pensumGraphColors(): PensumGraphColors {
 	val colorScheme = MaterialTheme.colorScheme
+	val panelBackground = colorScheme.surfaceContainerLow
 
-	return if (isSystemInDarkTheme()) {
-		val recordItemBackground = colorScheme.surfaceContainerLow
-		DarkPensumGraphColors.copy(
+	return if (TuIndiceDarkTheme.isDark()) {
+		PensumGraphColors(
+			isDark = true,
+			screenBackground = colorScheme.background,
+			canvasBackground = colorScheme.background,
+			canvasTermBand = colorScheme.surfaceVariant.copy(alpha = 0.42f),
+			panelBackground = panelBackground,
+			panelBorder = colorScheme.outlineVariant,
+			floatingPanelBackground = panelBackground,
+			approved = AcademicStatusColors.ApprovedDark,
 			current = colorScheme.primary,
-			panelBackground = recordItemBackground,
-			floatingPanelBackground = recordItemBackground,
-			nodeContainer = recordItemBackground,
-			controlsBackground = recordItemBackground,
-			minimapBackground = recordItemBackground
+			available = AcademicStatusColors.AvailableDark,
+			blocked = AcademicStatusColors.BlockedDark,
+			canvasNeutral = AcademicStatusColors.AvailableDark,
+			selected = colorScheme.onSurface,
+			textPrimary = colorScheme.onSurface,
+			textSecondary = colorScheme.onSurfaceVariant,
+			nodeContainer = panelBackground,
+			controlsBackground = panelBackground,
+			minimapBackground = panelBackground
 		)
 	} else {
-		val panelBackground = colorScheme.surfaceContainerLow
 		PensumGraphColors(
 			isDark = false,
 			screenBackground = colorScheme.background,
@@ -72,11 +72,11 @@ internal fun pensumGraphColors(): PensumGraphColors {
 			panelBackground = panelBackground,
 			panelBorder = LightPensumPanelBorder,
 			floatingPanelBackground = panelBackground,
-			approved = Color(0xFF2E7D32),
+			approved = AcademicStatusColors.ApprovedLight,
 			current = colorScheme.primary,
-			available = LightPensumNeutral,
-			blocked = LightPensumNeutral.copy(alpha = 0.72f),
-			canvasNeutral = LightPensumNeutral,
+			available = AcademicStatusColors.AvailableLight,
+			blocked = AcademicStatusColors.BlockedLight,
+			canvasNeutral = AcademicStatusColors.AvailableLight,
 			selected = LightPensumTextSecondary,
 			textPrimary = colorScheme.onSurface,
 			textSecondary = LightPensumTextSecondary,
@@ -86,27 +86,6 @@ internal fun pensumGraphColors(): PensumGraphColors {
 		)
 	}
 }
-
-private val DarkPensumGraphColors = PensumGraphColors(
-	isDark = true,
-	screenBackground = ScreenBackground,
-	canvasBackground = Color(0xFF141516),
-	canvasTermBand = PanelBackground.copy(alpha = 0.42f),
-	panelBackground = PanelBackground,
-	panelBorder = PanelBorder,
-	floatingPanelBackground = FloatingPanelBackground,
-	approved = Approved,
-	current = Current,
-	available = Available,
-	blocked = CanvasNeutral.copy(alpha = 0.72f),
-	canvasNeutral = CanvasNeutral,
-	selected = Selected,
-	textPrimary = TextPrimary,
-	textSecondary = TextSecondary,
-	nodeContainer = PanelBackground,
-	controlsBackground = Color.Black.copy(alpha = 0.68f),
-	minimapBackground = Color.Black.copy(alpha = 0.62f)
-)
 
 internal const val MinCanvasZoom = 0.18f
 internal const val MinCanvasFitZoom = 0.08f

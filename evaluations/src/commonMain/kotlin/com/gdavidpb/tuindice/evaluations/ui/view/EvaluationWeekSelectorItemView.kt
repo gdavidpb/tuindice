@@ -40,7 +40,7 @@ fun EvaluationWeekSelectorItemView(
 				.testTag(EvaluationsUiTags.EvaluationsWeekLabel),
 			text = item.labelText,
 			style = MaterialTheme.typography.titleLarge,
-			fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium,
+			fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
 			color = if (isSelected) {
 				MaterialTheme.colorScheme.onSurface
 			} else {

@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
@@ -629,7 +630,7 @@ internal fun sampleEvaluationFormState(): Evaluation.State.Content {
 				isVisible = true,
 				containerColor = colors.containerColor,
 				contentColor = colors.color,
-				disabledContainerColor = colors.containerColor.copy(alpha = 0.55f),
+				disabledContainerColor = colors.containerColor.copy(alpha = TuIndiceAlpha.Muted),
 				disabledContentColor = colors.color.copy(alpha = 0.38f)
 			)
 		},

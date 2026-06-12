@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
@@ -33,6 +32,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -63,7 +63,9 @@ fun CreateTermSubjectStatusRow(
 		alreadyPlannedText = stringResource(Res.string.create_term_subject_already_planned),
 		notInPensumText = stringResource(Res.string.create_term_subject_not_in_pensum),
 		unavailableText = stringResource(Res.string.create_term_subject_requirement_pending),
-		isDarkTheme = isSystemInDarkTheme(),
+		availableColor = AcademicStatusColors.available(),
+		approvedColor = AcademicStatusColors.approved(),
+		blockedColor = AcademicStatusColors.blocked(),
 		onSurfaceVariantColor = onSurfaceVariantColor
 	)
 	Row(
@@ -174,14 +176,16 @@ private fun CreateTermSubjectItem.status(
 	alreadyPlannedText: String,
 	notInPensumText: String,
 	unavailableText: String,
-	isDarkTheme: Boolean,
+	availableColor: Color,
+	approvedColor: Color,
+	blockedColor: Color,
 	onSurfaceVariantColor: Color
 ): SubjectStatus {
 	return when (availability) {
 		SyntheticTermSubjectAvailability.AVAILABLE ->
 			SubjectStatus(
 				text = availableText,
-				color = if (isDarkTheme) CreateTermAvailableColor else CreateTermAvailableLightThemeColor,
+				color = availableColor,
 				icon = availableIcon
 			)
 
@@ -195,7 +199,7 @@ private fun CreateTermSubjectItem.status(
 		SyntheticTermSubjectAvailability.ALREADY_TAKEN ->
 			SubjectStatus(
 				text = alreadyTakenText,
-				color = if (isDarkTheme) CreateTermApprovedColor else CreateTermApprovedLightThemeColor,
+				color = approvedColor,
 				icon = CreateTermSubjectStatusIcon.Check
 			)
 
@@ -209,7 +213,7 @@ private fun CreateTermSubjectItem.status(
 		SyntheticTermSubjectAvailability.UNAVAILABLE ->
 			SubjectStatus(
 				text = unavailableText,
-				color = if (isDarkTheme) CreateTermBlockedColor else CreateTermBlockedLightThemeColor,
+				color = blockedColor,
 				icon = CreateTermSubjectStatusIcon.Blocked
 			)
 	}

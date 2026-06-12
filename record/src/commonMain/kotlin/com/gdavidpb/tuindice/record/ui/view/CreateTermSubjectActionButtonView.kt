@@ -14,7 +14,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.record.ui.model.CreateTermSubjectCardAction
+import org.jetbrains.compose.resources.stringResource
+import tuindice.record.generated.resources.Res
+import tuindice.record.generated.resources.a11y_add_subject
+import tuindice.record.generated.resources.a11y_remove_subject
 
 @Composable
 fun CreateTermSubjectActionButton(
@@ -32,11 +38,11 @@ fun CreateTermSubjectActionButton(
 	}
 
 	Surface(
-		shape = RoundedCornerShape(10.dp),
+		shape = RoundedCornerShape(TuIndiceRadius.Medium),
 		color = MaterialTheme.colorScheme.surface.copy(alpha = 0.48f),
 		border = BorderStroke(
 			width = 1.dp,
-			color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.55f)
+			color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = TuIndiceAlpha.Muted)
 		)
 	) {
 		IconButton(
@@ -49,7 +55,10 @@ fun CreateTermSubjectActionButton(
 					CreateTermSubjectCardAction.Add -> Icons.Outlined.Add
 					CreateTermSubjectCardAction.Remove -> Icons.Outlined.DeleteOutline
 				},
-				contentDescription = null,
+				contentDescription = when (action) {
+					CreateTermSubjectCardAction.Add -> stringResource(Res.string.a11y_add_subject)
+					CreateTermSubjectCardAction.Remove -> stringResource(Res.string.a11y_remove_subject)
+				},
 				tint = if (enabled)
 					MaterialTheme.colorScheme.onSurface
 				else

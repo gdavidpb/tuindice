@@ -12,4 +12,5 @@
 	<string name="main_start_failed_retry">Reintentar</string>
 	<string name="snack_session_invalidated">Inicia sesión nuevamente</string>
 	<string name="snack_pending_changes_unavailable">No pudimos revisar tus cambios pendientes. Intenta nuevamente.</string>
+	<string name="a11y_navigate_back">Volver</string>
 </resources>

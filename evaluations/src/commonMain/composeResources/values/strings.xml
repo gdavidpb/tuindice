@@ -88,4 +88,5 @@
 	<string name="snack_service_unavailable">Servicio no disponible</string>
 	<string name="snack_network_unavailable">Comprueba tu conexión</string>
 	<string name="snack_timeout">Tiempo de espera agotado</string>
+	<string name="a11y_add_evaluation">Agregar evaluación</string>
 </resources>

@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.base.ui.view.AppLogoView
 import com.gdavidpb.tuindice.wizard.ui.WizardUiTags
 import org.jetbrains.compose.resources.stringResource
@@ -126,7 +127,7 @@ fun WizardWelcomeView(
 				TextButton(
 					modifier = Modifier.testTag(WizardUiTags.SkipButton),
 					colors = ButtonDefaults.textButtonColors(
-						contentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.68f)
+						contentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = TuIndiceAlpha.Deemphasis)
 					),
 					onClick = onSkip
 				) {

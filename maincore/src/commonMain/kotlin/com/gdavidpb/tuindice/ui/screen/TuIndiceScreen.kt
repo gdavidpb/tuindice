@@ -83,6 +83,7 @@ import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.ui.view.TopBarBannerHost
 import org.jetbrains.compose.resources.stringResource
 import tuindice.maincore.generated.resources.Res
+import tuindice.maincore.generated.resources.a11y_navigate_back
 import tuindice.maincore.generated.resources.main_start_failed_message
 import tuindice.maincore.generated.resources.main_start_failed_retry
 import tuindice.maincore.generated.resources.main_start_failed_title
@@ -259,7 +260,7 @@ fun TuIndiceScreen(
 										) {
 											Icon(
 												imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-												contentDescription = null
+												contentDescription = stringResource(Res.string.a11y_navigate_back)
 											)
 										}
 									}

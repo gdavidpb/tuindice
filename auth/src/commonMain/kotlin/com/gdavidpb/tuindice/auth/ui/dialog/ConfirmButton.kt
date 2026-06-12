@@ -4,6 +4,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -42,7 +43,7 @@ fun ConfirmButton(
 					modifier = Modifier
 						.testTag(BaseUiTags.ConfirmationDialogPositiveLoading)
 						.size(18.dp),
-					color = Color.White
+					color = LocalContentColor.current
 				)
 			}
 		}

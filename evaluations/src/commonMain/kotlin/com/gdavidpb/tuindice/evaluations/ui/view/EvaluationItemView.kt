@@ -25,6 +25,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.model.SubjectCodeChipVariant
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.view.SubjectCodeChip
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
@@ -86,7 +87,6 @@ fun EvaluationItemView(
 							overflow = TextOverflow.Ellipsis,
 							color = MaterialTheme.colorScheme.onBackground,
 							style = MaterialTheme.typography.titleMedium,
-							fontWeight = FontWeight.SemiBold
 						)
 					}
 
@@ -95,7 +95,7 @@ fun EvaluationItemView(
 							.testTag(EvaluationsUiTags.EvaluationStatusChip)
 							.background(
 								color = statusColors.container,
-								shape = RoundedCornerShape(8.dp)
+								shape = RoundedCornerShape(TuIndiceRadius.Small)
 							)
 							.padding(horizontal = 10.dp, vertical = 5.dp)
 					) {
@@ -103,7 +103,6 @@ fun EvaluationItemView(
 							text = item.statusText,
 							color = statusColors.content,
 							style = MaterialTheme.typography.labelLarge,
-							fontWeight = FontWeight.SemiBold
 						)
 					}
 				}
@@ -153,7 +152,7 @@ fun EvaluationItemView(
 								.clickable(onClick = onGradeClick)
 								.border(
 									border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-									shape = RoundedCornerShape(16.dp)
+									shape = RoundedCornerShape(TuIndiceRadius.Large)
 								)
 								.padding(
 									horizontal = EvaluationGradeHorizontalPadding,

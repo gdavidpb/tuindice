@@ -123,4 +123,7 @@
 	<string name="dialog_button_delete">Eliminar</string>
 	<string name="create_term_button">Crear</string>
 	<string name="edit_term_button">Modificar</string>
+	<string name="a11y_create_synthetic_term">Crear término de proyección</string>
+	<string name="a11y_add_subject">Agregar materia</string>
+	<string name="a11y_remove_subject">Quitar materia</string>
 </resources>

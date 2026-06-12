@@ -1,11 +1,15 @@
 package com.gdavidpb.tuindice.subjects.ui.view
 
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.subjects.presentation.model.SubjectDetailItem
+import com.gdavidpb.tuindice.subjects.ui.model.SubjectChartDefaults
 import com.gdavidpb.tuindice.subjects.ui.model.SubjectGradeChartSummary
 import com.patrykandpatrick.vico.compose.cartesian.CartesianDrawingContext
 import com.patrykandpatrick.vico.compose.cartesian.data.ColumnCartesianLayerModel
@@ -39,22 +43,21 @@ fun SubjectDetailNumericGradeChartCard(
 			stddevGrade = segment.stddevGrade
 		)
 	}
-	val baseBarColor = Color(0xFF4A8DFF)
-	val highlightedBarColor = Color(0xFF88BAFF)
-	val barShape = remember { RoundedCornerShape(10.dp) }
+	val markerColor = MaterialTheme.colorScheme.onSurface
+	val barShape = remember { RoundedCornerShape(TuIndiceRadius.Medium) }
 	val defaultColumn = remember(barShape) {
 		LineComponent(
-			fill = Fill(baseBarColor),
+			fill = Fill(SubjectChartDefaults.BarColor),
 			thickness = 24.dp,
 			shape = barShape
 		)
 	}
-	val highlightedColumn = remember(barShape) {
+	val highlightedColumn = remember(barShape, markerColor) {
 		LineComponent(
-			fill = Fill(highlightedBarColor),
+			fill = Fill(SubjectChartDefaults.HighlightedBarColor),
 			thickness = 24.dp,
 			shape = barShape,
-			strokeFill = Fill(Color.White.copy(alpha = 0.35f)),
+			strokeFill = Fill(markerColor.copy(alpha = 0.35f)),
 			strokeThickness = 1.dp
 		)
 	}
@@ -75,25 +78,25 @@ fun SubjectDetailNumericGradeChartCard(
 			): LineComponent = highlightedColumn
 		}
 	}
-	val bandDecoration = remember(summary.stddevRangeStart, summary.stddevRangeEnd) {
+	val bandDecoration = remember(summary.stddevRangeStart, summary.stddevRangeEnd, markerColor) {
 		if (summary.stddevRangeStart != null && summary.stddevRangeEnd != null) {
 			VerticalRangeBandDecoration(
 				startX = { summary.stddevRangeStart },
 				endX = { summary.stddevRangeEnd },
 				component = ShapeComponent(
-					fill = Fill(Color.White.copy(alpha = 0.08f)),
-					shape = RoundedCornerShape(12.dp)
+					fill = Fill(markerColor.copy(alpha = 0.08f)),
+					shape = RoundedCornerShape(TuIndiceRadius.Medium)
 				)
 			)
 		} else {
 			null
 		}
 	}
-	val medianLine = remember {
+	val medianLine = remember(markerColor) {
 		LineComponent(
-			fill = Fill(Color.White.copy(alpha = 0.72f)),
+			fill = Fill(markerColor.copy(alpha = TuIndiceAlpha.Deemphasis)),
 			thickness = 2.dp,
-			shape = RoundedCornerShape(999.dp)
+			shape = RoundedCornerShape(TuIndiceRadius.Full)
 		)
 	}
 	val medianDecoration = remember(summary.medianGrade) {

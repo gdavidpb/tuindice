@@ -24,6 +24,9 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.model.asString
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
@@ -46,14 +49,14 @@ fun CreateTermSubmitBar(
 		color = MaterialTheme.colorScheme.background.copy(alpha = 0.96f),
 		border = BorderStroke(
 			width = 1.dp,
-			color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.18f)
+			color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = TuIndiceAlpha.BorderSubtle)
 		),
 		tonalElevation = 6.dp
 	) {
 		Column(
 			modifier = Modifier
 				.fillMaxWidth()
-				.padding(horizontal = 20.dp, vertical = 14.dp),
+				.padding(horizontal = TuIndiceSpacing.Screen, vertical = 14.dp),
 		) {
 			if (submitError != UiText.Empty) {
 				Text(
@@ -88,7 +91,7 @@ fun CreateTermSubmitBar(
 						.testTag(RecordUiTags.CreateSyntheticTermSubmitButton),
 					enabled = canSubmit,
 					onClick = onCreateClick,
-					shape = RoundedCornerShape(999.dp)
+					shape = RoundedCornerShape(TuIndiceRadius.Full)
 				) {
 					if (isSubmitting) {
 						CircularProgressIndicator(

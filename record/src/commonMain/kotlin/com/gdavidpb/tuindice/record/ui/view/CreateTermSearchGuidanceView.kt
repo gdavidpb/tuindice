@@ -12,7 +12,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -54,7 +53,6 @@ fun CreateTermSearchGuidance(
 		Text(
 			text = stringResource(Res.string.create_term_search_examples_label),
 			style = MaterialTheme.typography.labelLarge,
-			fontWeight = FontWeight.SemiBold,
 			color = MaterialTheme.colorScheme.onSurface
 		)
 		FlowRow(

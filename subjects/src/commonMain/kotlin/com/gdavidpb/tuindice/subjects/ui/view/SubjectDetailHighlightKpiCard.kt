@@ -11,6 +11,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 
 @Composable
 fun SubjectDetailHighlightKpiCard(
@@ -44,7 +45,7 @@ fun SubjectDetailHighlightKpiCard(
 			Text(
 				text = supporting,
 				style = MaterialTheme.typography.bodySmall,
-				color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.85f)
+				color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = TuIndiceAlpha.Deemphasis)
 			)
 		}
 	}

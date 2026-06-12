@@ -24,6 +24,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumNodeStatus
+import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.base.ui.view.SubjectResultCard
 import com.gdavidpb.tuindice.subjects.presentation.model.SubjectSearchResultItem
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
@@ -120,11 +121,7 @@ private fun AcademicPensumNodeStatus.visual(): SubjectSearchStatusVisual {
 		AcademicPensumNodeStatus.APPROVED -> SubjectSearchStatusVisual(
 			text = stringResource(Res.string.subjects_search_status_approved),
 			icon = Icons.Filled.Check,
-			color = if (MaterialTheme.colorScheme.background.luminance() < 0.5f) {
-				Color(0xFF8FE38C)
-			} else {
-				Color(0xFF2E7D32)
-			}
+			color = AcademicStatusColors.approved()
 		)
 
 		AcademicPensumNodeStatus.CURRENT -> SubjectSearchStatusVisual(
@@ -142,13 +139,9 @@ private fun AcademicPensumNodeStatus.visual(): SubjectSearchStatusVisual {
 		AcademicPensumNodeStatus.BLOCKED -> SubjectSearchStatusVisual(
 			text = stringResource(Res.string.subjects_search_status_blocked),
 			icon = Icons.Outlined.Lock,
-			color = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.72f)
+			color = AcademicStatusColors.blocked()
 		)
 	}
-}
-
-private fun Color.luminance(): Float {
-	return (0.299f * red) + (0.587f * green) + (0.114f * blue)
 }
 
 private data class SubjectSearchStatusVisual(

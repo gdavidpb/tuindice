@@ -28,6 +28,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
+import tuindice.evaluations.generated.resources.a11y_add_evaluation
 import tuindice.evaluations.generated.resources.message_empty_match_evaluations
 import tuindice.evaluations.generated.resources.title_empty_match_evaluations
 
@@ -111,7 +112,7 @@ fun EvaluationsContentView(
 			) {
 				Icon(
 					imageVector = Icons.Outlined.Add,
-					contentDescription = null
+					contentDescription = stringResource(Res.string.a11y_add_evaluation)
 				)
 			}
 		}

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -15,6 +16,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectSearch
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
 import com.gdavidpb.tuindice.subjects.ui.view.SubjectSearchError
@@ -46,7 +48,8 @@ fun SubjectSearchScreen(
 		modifier = modifier
 			.fillMaxSize()
 			.background(MaterialTheme.colorScheme.background)
-			.padding(horizontal = 20.dp, vertical = 20.dp)
+			.imePadding()
+			.padding(horizontal = TuIndiceSpacing.Screen, vertical = TuIndiceSpacing.Screen)
 			.testTag(SubjectsUiTags.SearchScreen)
 	) {
 		SubjectSearchTextField(

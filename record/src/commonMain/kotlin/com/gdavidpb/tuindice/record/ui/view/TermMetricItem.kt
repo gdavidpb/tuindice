@@ -31,7 +31,6 @@ fun TermMetricItem(
 			modifier = Modifier.fillMaxWidth(),
 			text = value,
 			style = MaterialTheme.typography.titleMedium,
-			fontWeight = FontWeight.SemiBold,
 			textAlign = TextAlign.Center
 		)
 

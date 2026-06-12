@@ -8,8 +8,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.Remove
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Remove
 import androidx.compose.material.icons.outlined.CenterFocusStrong
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material3.Icon
@@ -120,7 +120,7 @@ fun PensumZoomControls(
 			onClick = onZoomIn
 		) {
 			Icon(
-				imageVector = Icons.Filled.Add,
+				imageVector = Icons.Outlined.Add,
 				contentDescription = stringResource(Res.string.pensum_zoom_in),
 				tint = graphColors.textSecondary
 			)
@@ -134,7 +134,7 @@ fun PensumZoomControls(
 			onClick = onZoomOut
 		) {
 			Icon(
-				imageVector = Icons.Filled.Remove,
+				imageVector = Icons.Outlined.Remove,
 				contentDescription = stringResource(Res.string.pensum_zoom_out),
 				tint = graphColors.textSecondary
 			)

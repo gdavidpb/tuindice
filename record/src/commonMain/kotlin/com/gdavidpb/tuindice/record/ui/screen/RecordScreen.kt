@@ -37,6 +37,7 @@ import com.gdavidpb.tuindice.record.ui.view.RecordLoadingView
 import com.gdavidpb.tuindice.record.ui.view.RecordSyntheticTermActionsView
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
+import tuindice.record.generated.resources.a11y_create_synthetic_term
 import tuindice.record.generated.resources.record_empty_message
 import tuindice.record.generated.resources.record_empty_title
 import tuindice.record.generated.resources.record_failed_message
@@ -162,7 +163,7 @@ fun RecordScreen(
 				) {
 					Icon(
 						imageVector = Icons.Outlined.Add,
-						contentDescription = null
+						contentDescription = stringResource(Res.string.a11y_create_synthetic_term)
 					)
 				}
 			}
