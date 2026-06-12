@@ -29,6 +29,8 @@ kotlin {
 		val commonMain by getting {
 			dependencies {
 				implementation(project(":base"))
+				implementation(libs.kstatemachine.core)
+				implementation(libs.kstatemachine.coroutines)
 				implementation(libs.navigation.compose)
 				implementation(libs.koin.compose)
 				implementation(libs.koin.core.viewmodel)

@@ -13,12 +13,6 @@ import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
-import com.gdavidpb.tuindice.auth.presentation.action.OpenPrivacyPolicyActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.OpenTermsAndConditionsActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.SetPasswordActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.SetUsbIdActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.SignInActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.TogglePasswordVisibilityActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
@@ -304,33 +298,15 @@ class SignInRouteUiTest {
 
 		return SignInRouteFixture(
 			viewModel = SignInViewModel(
-				signInActionProcessor = SignInActionProcessor(
-					signInUseCase = signInUseCase,
-					configRepository = FakeConfigRepository()
-				),
-				setUsbIdActionProcessor = SetUsbIdActionProcessor(),
-				setPasswordActionProcessor = SetPasswordActionProcessor(),
-				togglePasswordVisibilityActionProcessor = TogglePasswordVisibilityActionProcessor(),
-				openTermsAndConditionsActionProcessor = OpenTermsAndConditionsActionProcessor(
-					appEnvironmentRepository = FakeAppEnvironmentRepository(
-						appEnvironment = AppEnvironment(
-							apiBaseUrl = "https://api.tuindice.test/",
-							privacyPolicyUrl = privacyPolicyUrl,
-							termsAndConditionsUrl = termsAndConditionsUrl,
-							supportUrl = "https://tuindice.test/support",
-							debug = true
-						)
-					)
-				),
-				privacyPolicyActionProcessor = OpenPrivacyPolicyActionProcessor(
-					appEnvironmentRepository = FakeAppEnvironmentRepository(
-						appEnvironment = AppEnvironment(
-							apiBaseUrl = "https://api.tuindice.test/",
-							privacyPolicyUrl = privacyPolicyUrl,
-							termsAndConditionsUrl = termsAndConditionsUrl,
-							supportUrl = "https://tuindice.test/support",
-							debug = true
-						)
+				signInUseCase = signInUseCase,
+				configRepository = FakeConfigRepository(),
+				appEnvironmentRepository = FakeAppEnvironmentRepository(
+					appEnvironment = AppEnvironment(
+						apiBaseUrl = "https://api.tuindice.test/",
+						privacyPolicyUrl = privacyPolicyUrl,
+						termsAndConditionsUrl = termsAndConditionsUrl,
+						supportUrl = "https://tuindice.test/support",
+						debug = true
 					)
 				),
 				eventPublisher = NoOpEventPublisher

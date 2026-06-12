@@ -5,12 +5,6 @@ import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
-import com.gdavidpb.tuindice.auth.presentation.action.OpenPrivacyPolicyActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.OpenTermsAndConditionsActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.SetPasswordActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.SetUsbIdActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.SignInActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.TogglePasswordVisibilityActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
 import com.gdavidpb.tuindice.auth.testing.FakeNetworkRepository
@@ -37,31 +31,21 @@ class SignInViewModelContractTest {
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun publicActions_updateState_andEmitEffects() = runTest {
 		val viewModel = SignInViewModel(
-			signInActionProcessor = SignInActionProcessor(
-				signInUseCase = SignInUseCase(
-					authRepository = RecordingAuthRepository(),
-					messagingRepository = RecordingMessagingRepository(),
-					syncRepository = FakeSyncRepository(),
-					credentialsRepository = FakeCredentialsRepository(),
-					syncStatusRepository = FakeSyncStatusRepository(),
-					attestationRepository = FakeAttestationRepository(),
-					reportingRepository = RecordingReportingRepository(),
-					paramsValidator = SignInParamsValidator(),
-					exceptionHandler = SignInExceptionHandler(
-						networkRepository = FakeNetworkRepository(isAvailable = true)
-					)
-				),
-				configRepository = FakeConfigRepository()
+			signInUseCase = SignInUseCase(
+				authRepository = RecordingAuthRepository(),
+				messagingRepository = RecordingMessagingRepository(),
+				syncRepository = FakeSyncRepository(),
+				credentialsRepository = FakeCredentialsRepository(),
+				syncStatusRepository = FakeSyncStatusRepository(),
+				attestationRepository = FakeAttestationRepository(),
+				reportingRepository = RecordingReportingRepository(),
+				paramsValidator = SignInParamsValidator(),
+				exceptionHandler = SignInExceptionHandler(
+					networkRepository = FakeNetworkRepository(isAvailable = true)
+				)
 			),
-			setUsbIdActionProcessor = SetUsbIdActionProcessor(),
-			setPasswordActionProcessor = SetPasswordActionProcessor(),
-			togglePasswordVisibilityActionProcessor = TogglePasswordVisibilityActionProcessor(),
-			openTermsAndConditionsActionProcessor = OpenTermsAndConditionsActionProcessor(
-				appEnvironmentRepository = FakeAppEnvironmentRepository()
-			),
-			privacyPolicyActionProcessor = OpenPrivacyPolicyActionProcessor(
-				appEnvironmentRepository = FakeAppEnvironmentRepository()
-			),
+			configRepository = FakeConfigRepository(),
+			appEnvironmentRepository = FakeAppEnvironmentRepository(),
 			eventPublisher = NoOpEventPublisher
 		)
 
@@ -109,8 +93,13 @@ class SignInViewModelContractTest {
 				val browserEffect = assertIs<SignIn.Effect.NavigateToBrowser>(awaitItem())
 				assertEquals("https://tuindice.app/terms_and_conditions_v6_0.html", browserEffect.url)
 
+				// Re-clicking sign-in while LoggingIn is an invalid transition: the machine
+				// ignores it, so no second NavigateToSummary may be emitted. Both events are
+				// queued in order; if the re-click were processed, its NavigateToSummary
+				// would arrive before the browser effect asserted below.
 				viewModel.signInAction(VALID_USB_ID, "secret123")
-				assertIs<SignIn.Effect.NavigateToSummary>(awaitItem())
+				viewModel.openPrivacyPolicyAction()
+				assertIs<SignIn.Effect.NavigateToBrowser>(awaitItem())
 
 				cancelAndIgnoreRemainingEvents()
 			}

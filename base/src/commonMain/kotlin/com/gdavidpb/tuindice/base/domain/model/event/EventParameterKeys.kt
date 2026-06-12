@@ -6,4 +6,7 @@ object EventParameterKeys {
 	const val ACTION = "action"
 	const val STATE = "state"
 	const val EFFECT = "effect"
+	const val EVENT = "event"
+	const val FROM = "from"
+	const val TO = "to"
 }

@@ -40,6 +40,8 @@ kotlin {
 				api(libs.kermit)
 				api(libs.multiplatform.settings)
 				api(libs.ksafe)
+				api(libs.kstatemachine.core)
+				api(libs.kstatemachine.coroutines)
 
 				api(libs.components.resources)
 				implementation(libs.material.icons.extended)
