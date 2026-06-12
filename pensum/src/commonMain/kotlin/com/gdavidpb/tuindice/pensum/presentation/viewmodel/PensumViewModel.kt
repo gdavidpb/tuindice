@@ -13,7 +13,7 @@ class PensumViewModel(
 	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : StateMachineViewModel<Pensum.State, Pensum.Action, Pensum.Effect>(
 	name = "pensum",
-	initialState = Pensum.State.Idle,
+	initialState = screenMachine.initialState(),
 	initialAction = Pensum.Action.ObservePensum,
 	dispatchers = dispatchers
 ) {

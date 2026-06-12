@@ -34,6 +34,12 @@ class SignInMachine(
 	private val appEnvironmentRepository: AppEnvironmentRepository,
 	private val usageDataConsentRepository: UsageDataConsentRepository
 ) : ScreenMachine<SignIn.State, SignIn.Effect> {
+	override fun initialState(): SignIn.State {
+		return SignIn.State.Idle(
+			usageDataCollectionEnabled = usageDataConsentRepository.isUsageDataCollectionEnabled()
+		)
+	}
+
 	override fun define(host: MachineHost<SignIn.Effect>): MachineDefinition<SignIn.State> {
 		return MachineDefinition.define {
 			idleTransitions(machine = this@SignInMachine, host = host)

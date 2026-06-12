@@ -2,23 +2,18 @@ package com.gdavidpb.tuindice.auth.presentation.viewmodel
 
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import com.gdavidpb.tuindice.auth.presentation.machine.SignInMachine
-import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
-import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.presentation.statemachine.StateMachineViewModel
 
 class SignInViewModel(
 	override val screenMachine: SignInMachine,
-	usageDataConsentRepository: UsageDataConsentRepository = InMemoryUsageDataConsentRepository(),
 	override val eventPublisher: EventPublisher,
 	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : StateMachineViewModel<SignIn.State, SignIn.Action, SignIn.Effect>(
 	name = "sign_in",
-	initialState = SignIn.State.Idle(
-		usageDataCollectionEnabled = usageDataConsentRepository.isUsageDataCollectionEnabled()
-	),
+	initialState = screenMachine.initialState(),
 	dispatchers = dispatchers
 ) {
 	fun setUsbIdAction(usbId: String) =

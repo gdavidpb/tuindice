@@ -28,6 +28,8 @@ class PensumMachine(
 	private val selectPensumModalityUseCase: SelectPensumModalityUseCase,
 	private val selectPensumSelectionUseCase: SelectPensumSelectionUseCase
 ) : ScreenMachine<Pensum.State, Pensum.Effect> {
+	override fun initialState(): Pensum.State = Pensum.State.Idle
+
 	override fun define(host: MachineHost<Pensum.Effect>): MachineDefinition<Pensum.State> {
 		return MachineDefinition.define {
 			idleTransitions(machine = this@PensumMachine, host = host)

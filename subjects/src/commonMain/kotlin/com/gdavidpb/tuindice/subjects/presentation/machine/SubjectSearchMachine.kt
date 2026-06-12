@@ -29,6 +29,8 @@ class SubjectSearchMachine(
 	private val observeSubjectSearchUseCase: ObserveSubjectSearchUseCase,
 	private val refreshSubjectSearchUseCase: RefreshSubjectSearchUseCase
 ) : ScreenMachine<SubjectSearch.State, SubjectSearch.Effect> {
+	override fun initialState(): SubjectSearch.State = SubjectSearch.State()
+
 	override fun define(host: MachineHost<SubjectSearch.Effect>): MachineDefinition<SubjectSearch.State> {
 		return MachineDefinition.define {
 			searchTransitions(machine = this@SubjectSearchMachine, host = host)

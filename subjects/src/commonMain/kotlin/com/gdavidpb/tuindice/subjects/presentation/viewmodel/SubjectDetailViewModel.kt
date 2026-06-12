@@ -14,7 +14,7 @@ class SubjectDetailViewModel(
 	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : StateMachineViewModel<SubjectDetail.State, SubjectDetail.Action, SubjectDetail.Effect>(
 	name = "subject_detail",
-	initialState = SubjectDetail.State.Idle,
+	initialState = screenMachine.initialState(),
 	dispatchers = dispatchers
 ) {
 	fun loadSubjectDetailAction(subjectCode: String) {

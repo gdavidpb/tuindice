@@ -178,6 +178,11 @@ The dependency was fully removed in iteration 2.
     constructor (the machine enters as injected dependency through the base
     `ScreenMachine<S, E>` contract — same pattern as use-case exception handlers;
     the glue calls `define(host)` itself, no loose function in the body).
+  - The machine owns the full declarative core of the 6-tuple: `initialState()` (S₀)
+    plus `define(host)` (T and G). The ViewModel passes
+    `initialState = screenMachine.initialState()` to the glue, so screen state never
+    needs screen dependencies in the ViewModel (SignIn's consent repository lives only
+    in the machine — one instance for both the initial read and the persist path).
   - `MachineHost<E>` (base) carries the three capabilities transition outputs may use
     (`sendEffect`, `processInternalEvent`, `launchMachineJob`) — explicit parameters,
     no mutable wiring.

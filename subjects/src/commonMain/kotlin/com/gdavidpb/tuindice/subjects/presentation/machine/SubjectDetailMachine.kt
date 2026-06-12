@@ -19,6 +19,8 @@ class SubjectDetailMachine(
 	private val loadSubjectDetailUseCase: LoadSubjectDetailUseCase,
 	private val refreshSubjectDetailUseCase: RefreshSubjectDetailUseCase
 ) : ScreenMachine<SubjectDetail.State, SubjectDetail.Effect> {
+	override fun initialState(): SubjectDetail.State = SubjectDetail.State.Idle
+
 	override fun define(host: MachineHost<SubjectDetail.Effect>): MachineDefinition<SubjectDetail.State> {
 		return MachineDefinition.define {
 			contentTransitions()

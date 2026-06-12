@@ -14,7 +14,7 @@ class SubjectSearchViewModel(
 	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : StateMachineViewModel<SubjectSearch.State, SubjectSearch.Action, SubjectSearch.Effect>(
 	name = "subject_search",
-	initialState = SubjectSearch.State(),
+	initialState = screenMachine.initialState(),
 	dispatchers = dispatchers
 ) {
 	private val queryFlow = MutableStateFlow("")
