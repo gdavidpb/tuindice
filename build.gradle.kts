@@ -48,7 +48,6 @@ private fun hasIosXcodeResourceEnvironment(): Boolean =
 
 private val androidHostTestExcludedPatterns = listOf(
 	"**/*UiTest.class",
-	"**/AboutActionProcessorContractTest.class",
 	"**/AboutViewModelContractTest.class",
 	"**/AuthActionProcessorContractTest.class",
 	"**/SignInViewModelContractTest.class",

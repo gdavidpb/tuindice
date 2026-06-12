@@ -17,17 +17,10 @@ import com.gdavidpb.tuindice.about.domain.usecase.LoadVersionUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenExternalUrlUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.OpenStoreUseCase
 import com.gdavidpb.tuindice.about.domain.usecase.SendSupportEmailUseCase
-import com.gdavidpb.tuindice.about.presentation.action.ContactDeveloperActionProcessor
-import com.gdavidpb.tuindice.about.presentation.action.LoadVersionActionProcessor
-import com.gdavidpb.tuindice.about.presentation.action.OpenPrivacyPolicyActionProcessor
-import com.gdavidpb.tuindice.about.presentation.action.OpenSupportActionProcessor
-import com.gdavidpb.tuindice.about.presentation.action.OpenTermsAndConditionsActionProcessor
-import com.gdavidpb.tuindice.about.presentation.action.OpenUrlActionProcessor
-import com.gdavidpb.tuindice.about.presentation.action.RateOnStoreActionProcessor
-import com.gdavidpb.tuindice.about.presentation.action.ReportBugActionProcessor
-import com.gdavidpb.tuindice.about.presentation.action.ShareAppActionProcessor
 import com.gdavidpb.tuindice.about.presentation.utils.LocalShareTextHandler
+import com.gdavidpb.tuindice.about.presentation.machine.AboutMachine
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
+import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
@@ -682,21 +675,14 @@ class AboutRouteUiTest {
 
 		return AboutRouteFixture(
 			viewModel = AboutViewModel(
-				loadVersionActionProcessor = LoadVersionActionProcessor(loadVersionUseCase),
-				contactDeveloperActionProcessor = ContactDeveloperActionProcessor(sendSupportEmailUseCase),
-				openTermsAndConditionsActionProcessor = OpenTermsAndConditionsActionProcessor(
-					appEnvironmentRepository = appEnvironmentRepository
+				screenMachine = AboutMachine(
+					loadVersionUseCase = loadVersionUseCase,
+					sendSupportEmailUseCase = sendSupportEmailUseCase,
+					openStoreUseCase = openStoreUseCase,
+					openExternalUrlUseCase = openExternalUrlUseCase,
+					appEnvironmentRepository = appEnvironmentRepository,
+					usageDataConsentRepository = InMemoryUsageDataConsentRepository()
 				),
-				openPrivacyPolicyActionProcessor = OpenPrivacyPolicyActionProcessor(
-					appEnvironmentRepository = appEnvironmentRepository
-				),
-				openSupportActionProcessor = OpenSupportActionProcessor(
-					appEnvironmentRepository = appEnvironmentRepository
-				),
-				shareAppActionProcessor = ShareAppActionProcessor(),
-				rateOnStoreActionProcessor = RateOnStoreActionProcessor(openStoreUseCase),
-				reportBugActionProcessor = ReportBugActionProcessor(sendSupportEmailUseCase),
-				openUrlActionProcessor = OpenUrlActionProcessor(openExternalUrlUseCase),
 				eventPublisher = NoOpEventPublisher
 			),
 			browserRepository = browserRepository

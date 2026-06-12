@@ -1,43 +1,19 @@
 package com.gdavidpb.tuindice.about.presentation.viewmodel
 
-import com.gdavidpb.tuindice.about.presentation.action.ContactDeveloperActionProcessor
-import com.gdavidpb.tuindice.about.presentation.action.LoadVersionActionProcessor
-import com.gdavidpb.tuindice.about.presentation.action.OpenPrivacyPolicyActionProcessor
-import com.gdavidpb.tuindice.about.presentation.action.OpenSupportActionProcessor
-import com.gdavidpb.tuindice.about.presentation.action.OpenTermsAndConditionsActionProcessor
-import com.gdavidpb.tuindice.about.presentation.action.OpenUrlActionProcessor
-import com.gdavidpb.tuindice.about.presentation.action.RateOnStoreActionProcessor
-import com.gdavidpb.tuindice.about.presentation.action.ReportBugActionProcessor
-import com.gdavidpb.tuindice.about.presentation.action.SetUsageDataCollectionEnabledActionProcessor
-import com.gdavidpb.tuindice.about.presentation.action.ShareAppActionProcessor
 import com.gdavidpb.tuindice.about.presentation.contract.About
-import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
+import com.gdavidpb.tuindice.about.presentation.machine.AboutMachine
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
-import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
-import com.gdavidpb.tuindice.base.presentation.Mutation
-import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
-import kotlinx.coroutines.flow.Flow
+import com.gdavidpb.tuindice.base.presentation.statemachine.StateMachineViewModel
 
 class AboutViewModel(
-	private val loadVersionActionProcessor: LoadVersionActionProcessor,
-	private val contactDeveloperActionProcessor: ContactDeveloperActionProcessor,
-	private val openTermsAndConditionsActionProcessor: OpenTermsAndConditionsActionProcessor,
-	private val openPrivacyPolicyActionProcessor: OpenPrivacyPolicyActionProcessor,
-	private val openSupportActionProcessor: OpenSupportActionProcessor,
-	private val shareAppActionProcessor: ShareAppActionProcessor,
-	private val rateOnStoreActionProcessor: RateOnStoreActionProcessor,
-	private val reportBugActionProcessor: ReportBugActionProcessor,
-	private val openUrlActionProcessor: OpenUrlActionProcessor,
-	private val usageDataConsentRepository: UsageDataConsentRepository = InMemoryUsageDataConsentRepository(),
-	private val setUsageDataCollectionEnabledActionProcessor: SetUsageDataCollectionEnabledActionProcessor =
-		SetUsageDataCollectionEnabledActionProcessor(usageDataConsentRepository),
+	override val screenMachine: AboutMachine,
 	override val eventPublisher: EventPublisher,
 	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
-) : BaseViewModel<About.State, About.Action, About.Effect>(
+) : StateMachineViewModel<About.State, About.Action, About.Effect>(
 	name = "about",
-	initialState = About.State.Idle,
+	initialState = screenMachine.initialState(),
 	initialAction = About.Action.LoadVersion,
 	dispatchers = dispatchers
 ) {
@@ -67,41 +43,4 @@ class AboutViewModel(
 
 	fun setUsageDataCollectionEnabledAction(enabled: Boolean) =
 		sendAction(About.Action.SetUsageDataCollectionEnabled(enabled))
-
-	override suspend fun processAction(
-		action: About.Action,
-		sideEffect: (About.Effect) -> Unit
-	): Flow<Mutation<About.State>> {
-		return when (action) {
-			is About.Action.LoadVersion ->
-				loadVersionActionProcessor.process(action, sideEffect)
-
-			is About.Action.ContactDeveloper ->
-				contactDeveloperActionProcessor.process(action, sideEffect)
-
-			is About.Action.OpenPrivacyPolicy ->
-				openPrivacyPolicyActionProcessor.process(action, sideEffect)
-
-			is About.Action.OpenSupport ->
-				openSupportActionProcessor.process(action, sideEffect)
-
-			is About.Action.OpenTermsAndConditions ->
-				openTermsAndConditionsActionProcessor.process(action, sideEffect)
-
-			is About.Action.RateOnStore ->
-				rateOnStoreActionProcessor.process(action, sideEffect)
-
-			is About.Action.ReportBug ->
-				reportBugActionProcessor.process(action, sideEffect)
-
-			is About.Action.ShareApp ->
-				shareAppActionProcessor.process(action, sideEffect)
-
-			is About.Action.OpenUrl ->
-				openUrlActionProcessor.process(action, sideEffect)
-
-			is About.Action.SetUsageDataCollectionEnabled ->
-				setUsageDataCollectionEnabledActionProcessor.process(action, sideEffect)
-		}
-	}
 }
