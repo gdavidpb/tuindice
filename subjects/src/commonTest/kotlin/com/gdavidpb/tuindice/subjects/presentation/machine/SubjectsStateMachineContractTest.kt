@@ -124,6 +124,7 @@ class SubjectsStateMachineContractTest {
 
 		return SubjectSearchViewModel(
 			screenMachine = SubjectSearchMachine(
+				draft = SubjectSearchDraft(),
 				observeSubjectSearchUseCase = ObserveSubjectSearchUseCase(
 					subjectCatalogRepository = repository,
 					reportingRepository = reportingRepository

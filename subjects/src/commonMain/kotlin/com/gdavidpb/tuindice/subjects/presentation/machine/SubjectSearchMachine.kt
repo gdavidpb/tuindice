@@ -8,9 +8,6 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.subjects.domain.usecase.ObserveSubjectSearchUseCase
 import com.gdavidpb.tuindice.subjects.domain.usecase.RefreshSubjectSearchUseCase
 import com.gdavidpb.tuindice.subjects.domain.usecase.param.SubjectSearchParams
-import com.gdavidpb.tuindice.subjects.presentation.action.MinimumSubjectSearchQueryLength
-import com.gdavidpb.tuindice.subjects.presentation.action.SubjectSearchDebounceMillis
-import com.gdavidpb.tuindice.subjects.presentation.action.SubjectSearchLimit
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectSearch
 import com.gdavidpb.tuindice.subjects.presentation.mapper.toSubjectSearchResultItem
 import com.gdavidpb.tuindice.subjects.presentation.transition.searchTransitions
@@ -26,6 +23,7 @@ import kotlinx.coroutines.flow.merge
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SubjectSearchMachine(
+	internal val draft: SubjectSearchDraft,
 	private val observeSubjectSearchUseCase: ObserveSubjectSearchUseCase,
 	private val refreshSubjectSearchUseCase: RefreshSubjectSearchUseCase
 ) : ScreenMachine<SubjectSearch.State, SubjectSearch.Effect> {
@@ -37,12 +35,9 @@ class SubjectSearchMachine(
 		}
 	}
 
-	internal fun startObservation(
-		host: MachineHost<SubjectSearch.Effect>,
-		action: SubjectSearch.Action.ObserveSubjectSearch
-	) {
+	internal fun startObservation(host: MachineHost<SubjectSearch.Effect>) {
 		host.launchMachineJob {
-			action.queryFlow
+			draft.queryFlow
 				.distinctUntilChanged { old, new ->
 					SubjectCatalogSearchNormalizer.normalize(old) ==
 						SubjectCatalogSearchNormalizer.normalize(new)
@@ -63,12 +58,9 @@ class SubjectSearchMachine(
 		}
 	}
 
-	internal fun startRetry(
-		host: MachineHost<SubjectSearch.Effect>,
-		action: SubjectSearch.Action.Retry
-	) {
+	internal fun startRetry(host: MachineHost<SubjectSearch.Effect>, query: String) {
 		host.launchMachineJob {
-			if (action.query.trim().length < MinimumSubjectSearchQueryLength) {
+			if (query.trim().length < MinimumSubjectSearchQueryLength) {
 				host.processInternalEvent(SubjectSearchInternalEvent.RetryCleared)
 				return@launchMachineJob
 			}
@@ -76,7 +68,7 @@ class SubjectSearchMachine(
 			host.processInternalEvent(SubjectSearchInternalEvent.RetryStarted)
 
 			refreshSubjectSearchUseCase.execute(
-				SubjectSearchParams(query = action.query, limit = SubjectSearchLimit)
+				SubjectSearchParams(query = query, limit = SubjectSearchLimit)
 			).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Data ->
@@ -133,3 +125,7 @@ class SubjectSearchMachine(
 		}
 	}
 }
+
+internal const val MinimumSubjectSearchQueryLength = 2
+internal const val SubjectSearchLimit = 20
+internal const val SubjectSearchDebounceMillis = 300L

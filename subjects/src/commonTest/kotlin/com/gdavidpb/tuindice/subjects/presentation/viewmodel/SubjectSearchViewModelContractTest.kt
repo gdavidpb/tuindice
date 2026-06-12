@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.subjects.domain.usecase.ObserveSubjectSearchUseCase
 import com.gdavidpb.tuindice.subjects.domain.usecase.RefreshSubjectSearchUseCase
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectSearch
+import com.gdavidpb.tuindice.subjects.presentation.machine.SubjectSearchDraft
 import com.gdavidpb.tuindice.subjects.presentation.machine.SubjectSearchMachine
 import com.gdavidpb.tuindice.subjects.testing.ControllableSubjectCatalogRepository
 import com.gdavidpb.tuindice.subjects.testing.subjectSearchResult
@@ -148,6 +149,7 @@ class SubjectSearchViewModelContractTest {
 
 		val viewModel = SubjectSearchViewModel(
 			screenMachine = SubjectSearchMachine(
+				draft = SubjectSearchDraft(),
 				observeSubjectSearchUseCase = ObserveSubjectSearchUseCase(
 					subjectCatalogRepository = repository,
 					reportingRepository = reportingRepository

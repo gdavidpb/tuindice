@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.statemachine.StateMachineViewModel
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectSearch
 import com.gdavidpb.tuindice.subjects.presentation.machine.SubjectSearchMachine
-import kotlinx.coroutines.flow.MutableStateFlow
 
 class SubjectSearchViewModel(
 	override val screenMachine: SubjectSearchMachine,
@@ -15,21 +14,12 @@ class SubjectSearchViewModel(
 ) : StateMachineViewModel<SubjectSearch.State, SubjectSearch.Action, SubjectSearch.Effect>(
 	name = "subject_search",
 	initialState = screenMachine.initialState(),
+	initialAction = SubjectSearch.Action.ObserveSubjectSearch,
 	dispatchers = dispatchers
 ) {
-	private val queryFlow = MutableStateFlow("")
-
-	init {
-		sendAction(SubjectSearch.Action.ObserveSubjectSearch(queryFlow = queryFlow))
-	}
-
-	fun updateQueryAction(query: String) {
-		queryFlow.value = query
+	fun updateQueryAction(query: String) =
 		sendAction(SubjectSearch.Action.UpdateQuery(query = query))
-	}
 
-	fun retryAction() {
-		sendAction(SubjectSearch.Action.Retry(query = queryFlow.value))
-	}
-
+	fun retryAction() =
+		sendAction(SubjectSearch.Action.Retry)
 }

@@ -19,12 +19,10 @@ import com.gdavidpb.tuindice.subjects.domain.usecase.ObserveSubjectSearchUseCase
 import com.gdavidpb.tuindice.subjects.domain.usecase.RefreshSubjectDetailUseCase
 import com.gdavidpb.tuindice.subjects.domain.usecase.RefreshSubjectSearchUseCase
 import com.gdavidpb.tuindice.subjects.presentation.action.LoadSubjectDetailActionProcessor
-import com.gdavidpb.tuindice.subjects.presentation.action.ObserveSubjectSearchActionProcessor
 import com.gdavidpb.tuindice.subjects.presentation.action.RefreshSubjectDetailActionProcessor
-import com.gdavidpb.tuindice.subjects.presentation.action.RetrySubjectSearchActionProcessor
 import com.gdavidpb.tuindice.subjects.presentation.action.SelectSubjectSegmentTabActionProcessor
-import com.gdavidpb.tuindice.subjects.presentation.action.UpdateSubjectSearchQueryActionProcessor
 import com.gdavidpb.tuindice.subjects.presentation.machine.SubjectDetailMachine
+import com.gdavidpb.tuindice.subjects.presentation.machine.SubjectSearchDraft
 import com.gdavidpb.tuindice.subjects.presentation.machine.SubjectSearchMachine
 import com.gdavidpb.tuindice.subjects.presentation.viewmodel.SubjectDetailViewModel
 import com.gdavidpb.tuindice.subjects.presentation.viewmodel.SubjectSearchViewModel
@@ -40,13 +38,11 @@ val subjectsModule = module {
 
 	factoryOf(::SubjectDetailMachine)
 	factoryOf(::SubjectSearchMachine)
+	factoryOf(::SubjectSearchDraft)
 
 	factoryOf(::LoadSubjectDetailActionProcessor)
 	factoryOf(::RefreshSubjectDetailActionProcessor)
 	factoryOf(::SelectSubjectSegmentTabActionProcessor)
-	factoryOf(::ObserveSubjectSearchActionProcessor)
-	factoryOf(::UpdateSubjectSearchQueryActionProcessor)
-	factoryOf(::RetrySubjectSearchActionProcessor)
 
 	factoryOf(::LoadSubjectDetailUseCase)
 	factoryOf(::RefreshSubjectDetailUseCase)
