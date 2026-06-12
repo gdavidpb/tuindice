@@ -110,9 +110,10 @@ state explosion) and partial T (completed observationally as ignore + telemetry)
 2. `NavigateToSummary` is emitted by the declared `logging_in × SignInSucceeded` transition
    instead of an unguarded `UseCaseState.Data` branch.
 
-Known smell surfaced (not fixed): `ClickSignIn` carries `(usbId, password)` duplicating
-what `Idle` already holds; the transition still reads them from the event for
-bug-compatibility.
+Known smell surfaced then (closed by the convergence pass): `ClickSignIn` carried
+`(usbId, password)` duplicating what `Idle` already holds. It is now a `data object`
+and the row reads the credentials from S — the founding example of the minimal-payload
+rule in the doctrine below.
 
 ## Why the engine was swapped (iteration 1 → 2 evidence)
 
@@ -275,8 +276,8 @@ machine (Koin factory, injected only there, so its lifetime matches the ViewMode
 
 Cost honestly paid: the `Observe` contract change invalidated
 `ObserveCreateSyntheticTermActionProcessor`, so that processor and its test were deleted
-(the remaining CST processors still compile and stay, per the rollback policy — though
-rollback for this screen now means reverting commits, not swapping processors back).
+first — and the convergence pass later purged every orphaned processor across the
+migrated modules (rollback is git history plus standing oracles, not dead code).
 Possible promotion at ratification: move the draft into domain as a
 `SyntheticTermDraftRepository` so `ObserveSyntheticTermCreationUseCase` stops taking
 flows as params; deferred because it ripples through use case and data source
@@ -291,13 +292,54 @@ production launch (isolate per event + telemetry) if crash volume warrants it. N
 declared-target `check` and `build()` duplicate-row validation exist precisely so most
 table mistakes fail in tests, not at runtime.
 
+## Doctrine (converged across the seven migrated screens)
+
+Three rules make the model single and closed; everything else is anatomy:
+
+1. **Minimal payload Σ**: an `Action` carries only new information from the environment
+   (typed text, navigation arguments). Anything S already knows is read inside `f` — the
+   row receives the state; duplicating it in the payload is distrusting the machine.
+   `UpdateQuery(query, selections)` is legitimate payload; `CreateTerm(period, subjects)`
+   was not (now a `data object` whose row reads S under a `canSubmit` EFSM guard).
+2. **Input registers are a machine-owned draft**: no `MutableStateFlow` lives in a
+   ViewModel. Form screens reify them as `machine/<Screen>Draft.kt`, injected only into
+   the machine and written only from machine level. The ViewModel is a pure screen API
+   of one-line `sendAction` helpers.
+3. **Validity lives in the table, not in ViewModel guards**: a `?: return` in a helper
+   is an invisible rejection. State-specific rows encode where an action applies; other
+   states reject with `app_invalid_transition` telemetry. Guards over extended state
+   (payload of S) live in the machine command, documented as EFSM guards.
+
+Supporting conventions, all applied:
+
+- Error-type → text mapping functions live in `presentation/mapper`
+  (`<Screen>ErrorMessages.kt`). Fixed single-resource messages built inline in a row or
+  command are data, not mapping functions, and may stay inline (pensum's failed message,
+  record's delete snacks, browser titles).
+- Λ-coverage runs with an **empty `except` set**: dead effect symbols get deleted, not
+  excepted (`Summary.NavigateToOutdatedCredentials` and
+  `CreateSyntheticTerm.Effect.ShowSnackBar` are gone; git restores them if an emitter
+  ever appears).
+- Machine contract tests: manual fixture when the machine is light or the test drives
+  behavior with controllable fakes; Koin-boot with stubbed repositories
+  (`RecordStateMachineContractTest` style) when hand-building the use-case graph gets
+  heavy. Both are valid recipes — the table assertions are identical.
+- Orphaned processors are purged, not kept: with oracles standing on every migrated
+  screen, rollback is git history. Only screens not yet migrated (SignOut,
+  UpdatePassword, evaluations, about, wizard, enrollmentproof, maincore) still run on
+  `BaseViewModel` + `ActionProcessor`s.
+- The `implement-tuindice-module` skill and `scaffold_feature_module.py` templates
+  generate the machine anatomy (machine + internal events + transitions + error mapper
+  + machine contract test); new screens are born on the doctrine.
+- One simulator lesson: the first `getString`-dependent test per module pays the cold
+  compose-resources load on iOS; those tests use an explicit longer Turbine timeout.
+
 ## Open items for the real migration (out of spike scope)
 
-- Pick one layer for error→UiText mapping and apply it consistently (SignIn maps inline
-  in the ViewModel, pensum in `presentation/mapper`) — decide at ratification.
-- Remove the orphaned SignIn `ActionProcessor`s once the pattern is ratified.
-- README architecture section update when `StateMachineViewModel` becomes the default —
-  including the `implement-tuindice-module` skill and `scaffold_feature_module.py`
-  templates, which still generate `ActionProcessor`s.
-- Pilot: pensum (long-lived observe flows, refresh-from-Content, Empty states) after its
-  UX branch lands; write its missing ViewModel contract tests first.
+- Migrate the remaining screens: evaluations (the largest, a form — use the draft
+  pattern), about, wizard, enrollmentproof, maincore, and auth's SignOut/UpdatePassword.
+- README architecture section update describing `StateMachineViewModel` as the default.
+- Promote `CreateSyntheticTermDraft` to a domain `SyntheticTermDraftRepository` if the
+  draft proves to be domain truth (deferred: ripples through use case and data source
+  signatures and raises draft-lifetime questions).
+- Register `app_transition`/`app_invalid_transition` in the telemetry consumers.

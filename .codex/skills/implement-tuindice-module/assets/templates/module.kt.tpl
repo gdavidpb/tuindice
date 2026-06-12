@@ -5,8 +5,7 @@ import $PACKAGE.domain.repository.$REPOSITORY_INTERFACE_NAME
 import $PACKAGE.domain.usecase.$OBSERVE_USE_CASE_NAME
 import $PACKAGE.domain.usecase.$UPDATE_USE_CASE_NAME
 import $PACKAGE.domain.usecase.exceptionhandler.$UPDATE_EXCEPTION_HANDLER_NAME
-import $PACKAGE.presentation.action.$OBSERVE_ACTION_PROCESSOR_NAME
-import $PACKAGE.presentation.action.$REFRESH_ACTION_PROCESSOR_NAME
+import $PACKAGE.presentation.machine.$MACHINE_NAME
 import $PACKAGE.presentation.viewmodel.$VIEWMODEL_NAME
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
@@ -18,10 +17,9 @@ val $MODULE_VAR_NAME = module {
 
 	viewModelOf(::$VIEWMODEL_NAME)
 
-	/* Action processor */
+	/* Screen machines */
 
-	factoryOf(::$OBSERVE_ACTION_PROCESSOR_NAME)
-	factoryOf(::$REFRESH_ACTION_PROCESSOR_NAME)
+	factoryOf(::$MACHINE_NAME)
 
 	/* Use cases */
 

@@ -56,7 +56,8 @@ La regla base es simple:
 ## Eventos y datos de uso
 
 La app publica eventos genericos desde el pipeline MVI sin acoplar features ni `base` a una herramienta concreta.
-`BaseViewModel` emite automaticamente `screen_view`, `app_action`, `app_state` y `app_effect`; cada `ViewModel`
+`StateMachineViewModel` emite automaticamente `screen_view`, `app_action`, `app_state`, `app_effect`,
+`app_transition` y `app_invalid_transition`; cada `ViewModel`
 entrega su `name` al constructor base, y el `EventPublisher` global se inyecta con `override`, igual que otros puntos
 extensibles de la capa presentation.
 
@@ -124,15 +125,19 @@ Responsable de estado, acciones de UI y efectos.
 Ubicación típica:
 
 - `contract/*`: `State`, `Action`, `Effect`.
-- `viewmodel/*`: clases que extienden `BaseViewModel`.
-- `action/*`: `ActionProcessor` por acción relevante.
+- `viewmodel/*`: clases que extienden `StateMachineViewModel`; API pura de pantalla (helpers `sendAction`).
+- `machine/*`: `<Screen>Machine` (use cases + comandos + `define()`), `<Screen>InternalEvent` y, en pantallas
+  formulario, `<Screen>Draft` (registros de entrada, escritos solo desde la máquina).
+- `transition/*`: la tabla de transiciones como extension functions del builder, un archivo por estado origen.
+- `mapper/*`: funciones de mapeo error→texto (`<Screen>ErrorMessages`) y mappers de presentación.
 - `route/*`: traducción de `Effect` a navegación o side effects UI.
 - `navigation/*`: builders de `NavGraphBuilder`.
 - `composeResources/values/*`: strings y recursos de UI del feature.
 
 Reglas:
 
-- `ViewModel` no llama infraestructura directamente; delega en processors y use cases.
+- `ViewModel` no llama infraestructura directamente; la máquina posee los use cases y los ejecuta como
+  comandos de transición.
 - `Route` no contiene lógica de negocio.
 - `Screen` y `View` no acceden a repositorios.
 - No hardcodear textos visibles en `presentation`; usar recursos.
@@ -154,7 +159,7 @@ Reglas:
 
 - `UseCase` depende de interfaces, no de implementaciones.
 - Los `UseCase` no fijan dispatchers ni hacen `flowOn`; heredan el contexto del pipeline. `TuIndiceDispatchers` se
-  inyecta solo en la frontera MVI (`ViewModel` → `BaseViewModel`), en `BufferedEventPublisher` y en `DataSource`
+  inyecta solo en la frontera MVI (`ViewModel` → `StateMachineViewModel`), en `BufferedEventPublisher` y en `DataSource`
   concretos con trabajo bloqueante o de CPU real.
 - Validaciones en `ParamsValidator`.
 - Traducción de errores en `ExceptionHandler`.
@@ -281,11 +286,13 @@ Reglas adicionales:
 
 ## Flujo estándar
 
-1. `Screen` dispara una acción en `ViewModel`.
-2. `ViewModel` delega en `ActionProcessor`.
-3. `ActionProcessor` ejecuta un `UseCase`.
+1. `Screen` dispara una acción en `ViewModel` (`sendAction`, payload mínimo: solo información nueva del entorno).
+2. El loop FIFO de `StateMachineViewModel` resuelve la fila en la tabla de la máquina; pares `(estado, acción)`
+   no declarados se rechazan con telemetría `app_invalid_transition`.
+3. La fila ejecuta `f: (S, σ) -> S` y, si es asíncrona, lanza un comando de la máquina que ejecuta un `UseCase`.
 4. `UseCase` usa interfaces de repositorio de `domain`.
-5. `ActionProcessor` mapea el resultado a `Mutation<State>` y `Effect`.
+5. El resultado re-entra a la tabla como evento interno (partido por outcome); su fila produce el nuevo estado y
+   emite los `Effect` declarados en `emits`.
 6. `Route` consume `Effect` y lo traduce a navegación o side effects UI.
 7. El chrome global del host (`topBar` y `bottomBar`) se deriva del `ViewState` emitido por la ruta activa y se
    mantiene en `TuIndiceAppHostRoute`; `MainViewModel` solo conserva estado de arranque y destino inicial.
@@ -345,7 +352,8 @@ Reglas:
 - Se respeta separación `presentation/domain/data/di`.
 - No se introducen nuevas dependencias cruzadas entre features.
 - La navegación del feature vive en `commonMain`.
-- `ViewModel` usa `ActionProcessor`.
+- `ViewModel` es API pura de pantalla; la lógica vive en `machine/` + `transition/` (motor en
+  `base/presentation/statemachine`, doctrina en `docs/spike-kstatemachine-signin.md`).
 - Los casos de uso tienen validator y exception handler cuando aplica.
 - Las interfaces viven en `domain` y las implementaciones en `data`.
 - Koin se registra en el módulo correcto.
