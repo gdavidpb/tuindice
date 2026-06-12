@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.enrollmentproof.data.source.RoomDatabaseDataSource
 import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.FetchEnrollmentProofUseCase
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.exceptionhandler.FetchEnrollmentProofExceptionHandler
-import com.gdavidpb.tuindice.enrollmentproof.presentation.action.FetchEnrollmentProofActionProcessor
+import com.gdavidpb.tuindice.enrollmentproof.presentation.machine.EnrollmentProofMachine
 import com.gdavidpb.tuindice.enrollmentproof.presentation.resource.DefaultEnrollmentProofTextProvider
 import com.gdavidpb.tuindice.enrollmentproof.presentation.resource.EnrollmentProofTextProvider
 import com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel.EnrollmentProofViewModel
@@ -26,7 +26,7 @@ val enrollmentProofModule = module {
 
 	/* Action processors */
 
-	factoryOf(::FetchEnrollmentProofActionProcessor)
+	factoryOf(::EnrollmentProofMachine)
 
 	/* Use cases */
 

@@ -4,7 +4,7 @@ import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.FetchEnrollmentProofUseCase
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.exceptionhandler.FetchEnrollmentProofExceptionHandler
-import com.gdavidpb.tuindice.enrollmentproof.presentation.action.FetchEnrollmentProofActionProcessor
+import com.gdavidpb.tuindice.enrollmentproof.presentation.machine.EnrollmentProofMachine
 import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
 import com.gdavidpb.tuindice.enrollmentproof.testing.DEFAULT_ENROLLMENT_PROOF
 import com.gdavidpb.tuindice.enrollmentproof.testing.DEFAULT_ENROLLMENT_PROOF_SOURCE
@@ -26,8 +26,8 @@ class EnrollmentProofViewModelContractTest {
 	@OptIn(ExperimentalCoroutinesApi::class)
 	fun initialAction_keepsFetchingStateAndEmitsOpenEnrollmentProofEffect() = runTest {
 		val viewModel = EnrollmentProofViewModel(
-			enrollmentProofActionProcessor = FetchEnrollmentProofActionProcessor(
-				enrollmentProofUseCase = FetchEnrollmentProofUseCase(
+			screenMachine = EnrollmentProofMachine(
+				fetchEnrollmentProofUseCase = FetchEnrollmentProofUseCase(
 					applicationRepository = FakeFileRepository(canOpen = true),
 					enrollmentProofRepository = FakeEnrollmentProofRepository(
 						enrollmentProof = DEFAULT_ENROLLMENT_PROOF
