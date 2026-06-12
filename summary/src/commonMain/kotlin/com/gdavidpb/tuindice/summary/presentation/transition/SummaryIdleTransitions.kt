@@ -11,11 +11,6 @@ internal fun MachineDefinitionBuilder<Summary.State>.idleTransitions(
 	host: MachineHost<Summary.Effect>
 ) {
 	from<Summary.State.Idle> {
-		on<Summary.Action.ObserveSummary> { state, _ ->
-			machine.startObservation(host = host)
-			state
-		}
-
 		onTo<Summary.Action.RefreshSummary, Summary.State.Loading> { _, _ ->
 			machine.refreshUser(host = host)
 			Summary.State.Loading(isUserRefreshing = true)

@@ -57,6 +57,37 @@ class SummaryViewModelContractTest {
 		}
 	}
 
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun refreshEnqueuedBeforeObserve_stillReachesContent() = runTest {
+		withMainDispatcher { dispatchers ->
+			val viewModel = createViewModel(dispatchers = dispatchers)
+
+			// Mirrors the real startup order on Android: the route's LaunchedEffect
+			// enqueues the refresh during composition, before collectAsStateWithLifecycle
+			// starts the machine loop and queues the initial ObserveSummary — so Refresh
+			// is processed first and the machine is already in Loading when Observe
+			// arrives. Regression test for the Loading deadlock.
+			viewModel.refreshSummaryAction()
+
+			val stateCollector = backgroundScope.launchStateCollector(
+				flow = viewModel.state,
+				testScheduler = testScheduler
+			)
+
+			try {
+				val content = withTimeout(3_000) {
+					viewModel.state
+						.filterIsInstance<Summary.State.Content>()
+						.first()
+				}
+				assertEquals("Ana Diaz", content.name)
+			} finally {
+				stateCollector.cancel()
+			}
+		}
+	}
+
 	private fun createViewModel(
 		dispatchers: TuIndiceDispatchers
 	): SummaryViewModel {

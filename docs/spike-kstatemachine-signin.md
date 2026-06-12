@@ -333,6 +333,14 @@ Supporting conventions, all applied:
   + machine contract test); new screens are born on the doctrine.
 - One simulator lesson: the first `getString`-dependent test per module pays the cold
   compose-resources load on iOS; those tests use an explicit longer Turbine timeout.
+- One startup-ordering lesson (found as a real Loading deadlock in Summary): a route's
+  `LaunchedEffect` enqueues during composition, **before** `collectAsStateWithLifecycle`
+  starts the machine loop and queues the `initialAction` — so a startup action can be
+  processed first and move the machine out of `Idle` synchronously. Rows for the initial
+  observation therefore live in `fromAny`, not `from<Idle>`; the alphabet validator
+  cannot catch this (it checks the union of rows, not per-state coverage), so every
+  screen whose route fires startup actions ships an order-inverted oracle test
+  (`refreshEnqueuedBeforeObserve_stillReachesContent`).
 
 ## Open items for the real migration (out of spike scope)
 

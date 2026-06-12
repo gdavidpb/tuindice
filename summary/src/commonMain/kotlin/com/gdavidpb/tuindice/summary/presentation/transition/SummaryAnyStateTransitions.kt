@@ -11,6 +11,16 @@ internal fun MachineDefinitionBuilder<Summary.State>.anyStateTransitions(
 	host: MachineHost<Summary.Effect>
 ) {
 	fromAny {
+		// Startup actions race: the route's refresh LaunchedEffect can enqueue before
+		// the initial ObserveSummary (composition runs before the state collection
+		// starts), so by the time Observe is processed the machine may already be in
+		// Loading. Observation is legal from any state — confining it to Idle deadlocks
+		// the screen in Loading with nobody producing UserObserved.
+		on<Summary.Action.ObserveSummary> { state, _ ->
+			machine.startObservation(host = host)
+			state
+		}
+
 		on<Summary.Action.TakeProfilePicture>(
 			emits = setOf(Summary.Effect.OpenCamera::class)
 		) { state, _ ->
@@ -43,7 +53,11 @@ internal fun MachineDefinitionBuilder<Summary.State>.anyStateTransitions(
 		}
 
 		onTo<SummaryInternalEvent.UserObserved, Summary.State.Content> { state, event ->
-			event.content.copy(isUserRefreshing = state.isUserRefreshing)
+			event.content.copy(
+				isUserRefreshing = state.isUserRefreshing,
+				isProfilePictureLoading =
+					(state as? Summary.State.Content)?.isProfilePictureLoading ?: false
+			)
 		}
 
 		onTo<SummaryInternalEvent.ObservationFailed, Summary.State.Failed>(
