@@ -22,6 +22,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
+import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
@@ -239,15 +240,6 @@ class SignInStateMachineContractTest {
 				diagram.contains(fragment),
 				"Expected Mermaid export to mention '$fragment':\n$diagram"
 			)
-		}
-	}
-
-	private suspend inline fun <reified T : SignIn.State> app.cash.turbine.TurbineTestContext<SignIn.State>.awaitUntilState(
-		predicate: (T) -> Boolean
-	): T {
-		while (true) {
-			val state = awaitItem()
-			if (state is T && predicate(state)) return state
 		}
 	}
 

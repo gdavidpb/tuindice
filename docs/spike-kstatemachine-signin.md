@@ -211,8 +211,19 @@ state pensum {
 The cascaded `when`s that used to hide inside `ObservePensumActionProcessor` and
 `PensumRefreshMutation` are now this diagram, generated from the running table.
 
+## Error policy (decided after code review)
+
+An exception thrown by a transition output `f` kills the machine loop and crashes the
+screen — same failure mode as the old `scan` pipeline (parity, fail-loud). This is a
+deliberate pre-production choice: a swallowing loop would hide real bugs. Revisit before
+production launch (isolate per event + telemetry) if crash volume warrants it. Note the
+declared-target `check` and `build()` duplicate-row validation exist precisely so most
+table mistakes fail in tests, not at runtime.
+
 ## Open items for the real migration (out of spike scope)
 
+- Pick one layer for error→UiText mapping and apply it consistently (SignIn maps inline
+  in the ViewModel, pensum in `presentation/mapper`) — decide at ratification.
 - Remove the orphaned SignIn `ActionProcessor`s once the pattern is ratified.
 - README architecture section update when `StateMachineViewModel` becomes the default —
   including the `implement-tuindice-module` skill and `scaffold_feature_module.py`

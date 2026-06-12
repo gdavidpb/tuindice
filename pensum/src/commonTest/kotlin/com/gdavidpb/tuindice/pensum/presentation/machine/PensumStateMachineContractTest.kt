@@ -68,6 +68,7 @@ class PensumStateMachineContractTest {
 
 	private fun createViewModel(): PensumViewModel {
 		val repository = StaticPensumRepository()
+		val reportingRepository = RecordingReportingRepository()
 		val exceptionHandler = UpdatePensumExceptionHandler(
 			networkRepository = FakeNetworkRepository(isAvailable = true)
 		)
@@ -75,26 +76,26 @@ class PensumStateMachineContractTest {
 		return PensumViewModel(
 			observePensumUseCase = ObservePensumUseCase(
 				pensumRepository = repository,
-				reportingRepository = RecordingReportingRepository()
+				reportingRepository = reportingRepository
 			),
 			updatePensumUseCase = UpdatePensumUseCase(
 				pensumRepository = repository,
-				reportingRepository = RecordingReportingRepository(),
+				reportingRepository = reportingRepository,
 				exceptionHandler = exceptionHandler
 			),
 			selectPensumUseCase = SelectPensumUseCase(
 				pensumRepository = repository,
-				reportingRepository = RecordingReportingRepository(),
+				reportingRepository = reportingRepository,
 				exceptionHandler = exceptionHandler
 			),
 			selectPensumModalityUseCase = SelectPensumModalityUseCase(
 				pensumRepository = repository,
-				reportingRepository = RecordingReportingRepository(),
+				reportingRepository = reportingRepository,
 				exceptionHandler = exceptionHandler
 			),
 			selectPensumSelectionUseCase = SelectPensumSelectionUseCase(
 				pensumRepository = repository,
-				reportingRepository = RecordingReportingRepository(),
+				reportingRepository = reportingRepository,
 				exceptionHandler = exceptionHandler
 			),
 			eventPublisher = NoOpEventPublisher

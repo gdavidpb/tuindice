@@ -3,10 +3,7 @@ package com.gdavidpb.tuindice.pensum.presentation.viewmodel
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.pensum.domain.model.ObservedPensum
-import com.gdavidpb.tuindice.pensum.domain.model.PensumGraph
 import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
-import com.gdavidpb.tuindice.pensum.domain.model.PensumSelection
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
@@ -15,10 +12,12 @@ import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.UpdatePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.exceptionhandler.UpdatePensumExceptionHandler
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
+import com.gdavidpb.tuindice.pensum.testing.sampleObservedPensum
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import com.gdavidpb.tuindice.testkit.ktor.serverResponseException
+import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import io.ktor.http.HttpStatusCode
 import kotlin.test.Test
@@ -285,17 +284,9 @@ class PensumViewModelContractTest {
 		}
 	}
 
-	private suspend inline fun <reified T : Pensum.State> app.cash.turbine.TurbineTestContext<Pensum.State>.awaitUntilState(
-		predicate: (T) -> Boolean
-	): T {
-		while (true) {
-			val state = awaitItem()
-			if (state is T && predicate(state)) return state
-		}
-	}
-
 	private fun createFixture(isNetworkAvailable: Boolean = true): PensumFixture {
 		val repository = ControllablePensumRepository()
+		val reportingRepository = RecordingReportingRepository()
 		val exceptionHandler = UpdatePensumExceptionHandler(
 			networkRepository = FakeNetworkRepository(isAvailable = isNetworkAvailable)
 		)
@@ -303,26 +294,26 @@ class PensumViewModelContractTest {
 		val viewModel = PensumViewModel(
 			observePensumUseCase = ObservePensumUseCase(
 				pensumRepository = repository,
-				reportingRepository = RecordingReportingRepository()
+				reportingRepository = reportingRepository
 			),
 			updatePensumUseCase = UpdatePensumUseCase(
 				pensumRepository = repository,
-				reportingRepository = RecordingReportingRepository(),
+				reportingRepository = reportingRepository,
 				exceptionHandler = exceptionHandler
 			),
 			selectPensumUseCase = SelectPensumUseCase(
 				pensumRepository = repository,
-				reportingRepository = RecordingReportingRepository(),
+				reportingRepository = reportingRepository,
 				exceptionHandler = exceptionHandler
 			),
 			selectPensumModalityUseCase = SelectPensumModalityUseCase(
 				pensumRepository = repository,
-				reportingRepository = RecordingReportingRepository(),
+				reportingRepository = reportingRepository,
 				exceptionHandler = exceptionHandler
 			),
 			selectPensumSelectionUseCase = SelectPensumSelectionUseCase(
 				pensumRepository = repository,
-				reportingRepository = RecordingReportingRepository(),
+				reportingRepository = reportingRepository,
 				exceptionHandler = exceptionHandler
 			),
 			eventPublisher = NoOpEventPublisher
@@ -390,41 +381,4 @@ private class ControllablePensumRepository : PensumRepository {
 	override suspend fun selectSelection(year: Int, modalityId: String) {
 		selectSelectionCalls.trySend(year to modalityId)
 	}
-}
-
-private fun sampleObservedPensum(): ObservedPensum {
-	return ObservedPensum(
-		careerName = "Ingenieria de Computacion",
-		selection = PensumSelection(
-			pensumId = "0800-2019-degree_project",
-			year = 2019,
-			modalityId = "degree_project",
-			modalityName = "Proyecto de grado",
-			inferred = false
-		),
-		availablePensums = emptyList(),
-		availableModalities = emptyList(),
-		pensum = samplePensumGraph(),
-		pensums = emptyList(),
-		approvedCredits = 0,
-		nodeStatuses = emptyMap(),
-		nodeFulfillments = emptyMap()
-	)
-}
-
-private fun samplePensumGraph(): PensumGraph {
-	return PensumGraph(
-		id = "0800-2019-degree_project",
-		year = 2019,
-		modalityId = "degree_project",
-		modalityName = "Proyecto de grado",
-		totalCredits = 0,
-		canvas = PensumGraph.Canvas(
-			width = 0.0,
-			height = 0.0
-		),
-		terms = emptyList(),
-		nodes = emptyList(),
-		edges = emptyList()
-	)
 }

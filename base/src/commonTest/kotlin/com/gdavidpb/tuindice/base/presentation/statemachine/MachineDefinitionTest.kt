@@ -206,6 +206,30 @@ class MachineDefinitionTest {
 	}
 
 	@Test
+	fun duplicateRows_failFastAtBuildTime() = runTest {
+		assertFailsWith<IllegalArgumentException> {
+			MachineDefinition.define<TestState> {
+				from<TestState.Idle> {
+					on<TestEvent.Ping> { state, _ -> state }
+					on<TestEvent.Ping> { state, _ -> state }
+				}
+			}
+		}
+
+		assertFailsWith<IllegalArgumentException> {
+			MachineDefinition.define<TestState> {
+				from<TestState.Idle> {
+					onExit { }
+				}
+
+				from<TestState.Idle> {
+					onExit { }
+				}
+			}
+		}
+	}
+
+	@Test
 	fun export_containsStatesAndDeclaredTransitions() = runTest {
 		val machine = MachineDefinition.define<TestState> {
 			from<TestState.Idle> {

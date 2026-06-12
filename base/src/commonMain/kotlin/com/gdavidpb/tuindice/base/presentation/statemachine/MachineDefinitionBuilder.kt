@@ -26,6 +26,18 @@ class MachineDefinitionBuilder<S : ViewState> {
 	}
 
 	fun build(): MachineDefinition<S> {
+		val duplicated = transitions
+			.groupBy { spec -> spec.from to spec.on }
+			.filterValues { rows -> rows.size > 1 }
+			.keys
+
+		require(duplicated.isEmpty()) {
+			"Duplicate transition rows (only the first would ever run): " +
+				duplicated.joinToString { (from, on) ->
+					"${from?.simpleName ?: "*"} × ${on.simpleName}"
+				}
+		}
+
 		return MachineDefinition(
 			transitions = transitions.toList(),
 			enterActions = enterActions.toMap(),
@@ -73,6 +85,10 @@ class MachineDefinitionBuilder<S : ViewState> {
 		}
 
 		fun onEnter(action: suspend (F) -> Unit) {
+			require(fromClass !in builder.enterActions) {
+				"onEnter already declared for ${fromClass.simpleName}"
+			}
+
 			builder.enterActions[fromClass] = { state ->
 				@Suppress("UNCHECKED_CAST")
 				action(state as F)
@@ -80,6 +96,10 @@ class MachineDefinitionBuilder<S : ViewState> {
 		}
 
 		fun onExit(action: suspend (F) -> Unit) {
+			require(fromClass !in builder.exitActions) {
+				"onExit already declared for ${fromClass.simpleName}"
+			}
+
 			builder.exitActions[fromClass] = { state ->
 				@Suppress("UNCHECKED_CAST")
 				action(state as F)
