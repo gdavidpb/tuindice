@@ -66,8 +66,8 @@ internal fun MachineDefinitionBuilder<CreateSyntheticTerm.State>.createSynthetic
 			state
 		}
 
-		on<CreateSyntheticTerm.Action.CreateTerm> { state, action ->
-			machine.submit(host = host, action = action)
+		on<CreateSyntheticTerm.Action.CreateTerm> { state, _ ->
+			machine.submit(host = host, state = state)
 			state
 		}
 

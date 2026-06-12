@@ -98,16 +98,25 @@ class CreateSyntheticTermMachine(
 
 	internal fun submit(
 		host: MachineHost<CreateSyntheticTerm.Effect>,
-		action: CreateSyntheticTerm.Action.CreateTerm
+		state: CreateSyntheticTerm.State
 	) {
+		// EFSM guard over extended state: mirrors the submit button's enablement and
+		// also ignores re-submission while a submit is in flight.
+		if (!state.canSubmit) return
+
+		val editingTermId = state.editingTermId
+		val editingTermKey = state.editingTermKey
+		val period = requireNotNull(state.selectedPeriod)
+		val subjects = state.selectedSubjects.map { item -> item.subject }
+
 		host.launchMachineJob {
 			val params = CreateSyntheticTermParams(
-				editingTermId = action.editingTermId,
-				editingTermKey = action.editingTermKey,
-				period = action.period,
-				subjects = action.subjects
+				editingTermId = editingTermId,
+				editingTermKey = editingTermKey,
+				period = period,
+				subjects = subjects
 			)
-			val result = if (action.editingTermId == null) {
+			val result = if (editingTermId == null) {
 				createSyntheticTermUseCase.execute(params)
 			} else {
 				updateSyntheticTermUseCase.execute(params)

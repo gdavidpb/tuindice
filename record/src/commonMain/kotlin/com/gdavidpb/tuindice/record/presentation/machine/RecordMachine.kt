@@ -42,7 +42,7 @@ class RecordMachine(
 	override fun define(host: MachineHost<Record.Effect>): MachineDefinition<Record.State> {
 		return MachineDefinition.define {
 			recordIdleTransitions(machine = this@RecordMachine, host = host)
-			recordContentTransitions(host = host)
+			recordContentTransitions(machine = this@RecordMachine, host = host)
 			recordEmptyTransitions(host = host)
 			recordFailedTransitions()
 			recordAnyStateTransitions(machine = this@RecordMachine, host = host)

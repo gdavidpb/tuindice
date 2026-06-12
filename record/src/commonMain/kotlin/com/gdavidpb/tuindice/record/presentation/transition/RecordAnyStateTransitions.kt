@@ -22,15 +22,6 @@ internal fun MachineDefinitionBuilder<Record.State>.recordAnyStateTransitions(
 			state
 		}
 
-		on<Record.Action.SelectTerm> { state, action ->
-			machine.selectTerm(
-				host = host,
-				termId = action.termId,
-				viewMode = action.viewMode
-			)
-			state
-		}
-
 		on<Record.Action.UpsertAttemptSelection> { state, action ->
 			machine.upsertAttemptSelection(
 				host = host,

@@ -39,8 +39,7 @@ object Record {
 		data object RefreshRecord : Action()
 		class SetViewMode(val viewMode: RecordViewMode) : Action()
 		class SelectTerm(
-			val termId: String,
-			val viewMode: RecordViewMode
+			val termId: String
 		) : Action()
 
 		class UpsertAttemptSelection(

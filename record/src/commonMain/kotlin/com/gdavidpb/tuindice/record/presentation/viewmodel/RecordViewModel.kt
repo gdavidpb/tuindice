@@ -24,14 +24,7 @@ class RecordViewModel(
 	}
 
 	fun selectTermAction(termId: String) {
-		val currentViewMode = (state.value as? Record.State.Content)?.viewMode ?: return
-
-		sendAction(
-			Record.Action.SelectTerm(
-				termId = termId,
-				viewMode = currentViewMode
-			)
-		)
+		sendAction(Record.Action.SelectTerm(termId))
 	}
 
 	fun setViewModeAction(viewMode: RecordViewMode) {

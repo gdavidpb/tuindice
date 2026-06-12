@@ -53,19 +53,6 @@ class CreateSyntheticTermViewModel(
 	fun removeSubjectAction(subjectCode: String) =
 		sendAction(CreateSyntheticTerm.Action.RemoveSubject(subjectCode))
 
-	fun createTermAction() {
-		val currentState = state.value
-		val period = currentState.selectedPeriod ?: return
-		val subjects = currentState.selectedSubjects.map { item -> item.subject }
-		if (subjects.isEmpty()) return
-
-		sendAction(
-			CreateSyntheticTerm.Action.CreateTerm(
-				editingTermId = currentState.editingTermId,
-				editingTermKey = currentState.editingTermKey,
-				period = period,
-				subjects = subjects
-			)
-		)
-	}
+	fun createTermAction() =
+		sendAction(CreateSyntheticTerm.Action.CreateTerm)
 }

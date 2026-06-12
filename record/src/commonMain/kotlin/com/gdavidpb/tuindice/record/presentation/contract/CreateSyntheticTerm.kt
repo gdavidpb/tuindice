@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
-import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
 import tuindice.record.generated.resources.Res
@@ -79,12 +78,7 @@ object CreateSyntheticTerm {
 			val subjectCode: String
 		) : Action()
 
-		data class CreateTerm(
-			val editingTermId: String?,
-			val editingTermKey: String?,
-			val period: SyntheticTermPeriodOption,
-			val subjects: List<SyntheticTermSubject>
-		) : Action()
+		data object CreateTerm : Action()
 	}
 
 	sealed class Effect : ViewEffect {
