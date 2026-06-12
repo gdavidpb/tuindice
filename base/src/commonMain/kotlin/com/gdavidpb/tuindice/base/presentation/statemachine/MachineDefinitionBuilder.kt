@@ -15,7 +15,7 @@ class MachineDefinitionBuilder<S : ViewState> {
 	internal val exitActions = mutableMapOf<KClass<out S>, suspend (S) -> Unit>()
 
 	inline fun <reified F : S> from(block: StateTransitions<S, F>.() -> Unit) {
-		StateTransitions<S, F>(
+		StateTransitions(
 			fromClass = F::class,
 			builder = this
 		).block()
