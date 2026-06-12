@@ -20,3 +20,5 @@ GoogleService-Info.plist
 /mocks/.runtime/
 /mocks/.runtime-check/
 /iosApp/.build/
+/graphify-out/
+/.claude/settings.local.json
