@@ -15,14 +15,7 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.RemoveEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEvaluationsActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenAddEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.PickEvaluationGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RefreshEvaluationsActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RemoveEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SelectEvaluationsWeekActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SetEvaluationGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationsMachine
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
@@ -379,36 +372,25 @@ class EvaluationsRouteUiTest {
 	): EvaluationsViewModel {
 
 		return EvaluationsViewModel(
-			loadEvaluationsActionProcessor = LoadEvaluationsActionProcessor(
-					getEvaluationsUseCase = GetEvaluationsUseCase(
-						evaluationRepository = repository,
-						recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
-						reportingRepository = RecordingReportingRepository()
-					)
+			screenMachine = EvaluationsMachine(
+				getEvaluationsUseCase = GetEvaluationsUseCase(
+					evaluationRepository = repository,
+					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+					reportingRepository = RecordingReportingRepository()
 				),
-			refreshEvaluationsActionProcessor = RefreshEvaluationsActionProcessor(
 				updateEvaluationsUseCase = UpdateEvaluationsUseCase(
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository()
-				)
-			),
-			selectEvaluationsWeekActionProcessor = SelectEvaluationsWeekActionProcessor(),
-			openAddEvaluationActionProcessor = OpenAddEvaluationActionProcessor(),
-			pickEvaluationGradeActionProcessor = PickEvaluationGradeActionProcessor(
+				),
 				getEvaluationUseCase = GetEvaluationUseCase(
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository()
-				)
-			),
-			setEvaluationGradeActionProcessor = SetEvaluationGradeActionProcessor(
+				),
 				updateEvaluationUseCase = UpdateEvaluationUseCase(
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = UpdateEvaluationExceptionHandler()
-				)
-			),
-			openEvaluationActionProcessor = OpenEvaluationActionProcessor(),
-			removeEvaluationActionProcessor = RemoveEvaluationActionProcessor(
+				),
 				removeEvaluationUseCase = RemoveEvaluationUseCase(
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository(),

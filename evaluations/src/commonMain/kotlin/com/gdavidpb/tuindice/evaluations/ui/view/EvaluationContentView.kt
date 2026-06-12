@@ -49,14 +49,7 @@ fun EvaluationContentView(
 	onDateChange: (date: Long?) -> Unit,
 	onGradeClick: (evaluationName: String, subjectCode: String, grade: Double?, maxGrade: Double?) -> Unit,
 	onMaxGradeClick: (evaluationName: String, subjectCode: String, grade: Double?) -> Unit,
-	onDoneClick: (
-		attempt: EditableAttemptDescriptor?,
-		type: EvaluationType?,
-		scheduleMode: EvaluationScheduleMode,
-		date: Long?,
-		grade: Double?,
-		maxGrade: Double?
-	) -> Unit
+	onDoneClick: () -> Unit
 ) {
 	val selectedTypeLabel = state.typeItems.firstOrNull { item -> item.isSelected }?.labelText.orEmpty()
 	val dialogEvaluationName = if (selectedTypeLabel.isBlank()) {
@@ -204,14 +197,7 @@ fun EvaluationContentView(
 			shape = RoundedCornerShape(TuIndiceRadius.Full),
 			enabled = state.canSubmit,
 			onClick = {
-				onDoneClick(
-					state.selectedAttempt,
-					state.type,
-					state.scheduleMode,
-					state.date,
-					state.grade,
-					state.maxGrade
-				)
+				onDoneClick()
 			}
 		) {
 			if (state.isSubmitting) {

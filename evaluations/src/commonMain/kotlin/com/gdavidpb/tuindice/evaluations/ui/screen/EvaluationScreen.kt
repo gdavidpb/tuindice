@@ -29,14 +29,7 @@ fun EvaluationScreen(
 	onDateChange: (date: Long?) -> Unit,
 	onGradeClick: (evaluationName: String, subjectCode: String, grade: Double?, maxGrade: Double?) -> Unit,
 	onMaxGradeClick: (evaluationName: String, subjectCode: String, grade: Double?) -> Unit,
-	onDoneClick: (
-		attempt: EditableAttemptDescriptor?,
-		type: EvaluationType?,
-		scheduleMode: EvaluationScheduleMode,
-		date: Long?,
-		grade: Double?,
-		maxGrade: Double?
-	) -> Unit,
+	onDoneClick: () -> Unit,
 	onRetryClick: () -> Unit
 ) {
 	Box(

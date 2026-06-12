@@ -91,24 +91,7 @@ object Evaluation {
 			val maxGrade: Double?
 		) : Action()
 
-		class ClickAddEvaluation(
-			val attempt: EditableAttemptDescriptor?,
-			val type: EvaluationType?,
-			val scheduleMode: EvaluationScheduleMode,
-			val date: Long?,
-			val grade: Double?,
-			val maxGrade: Double?
-		) : Action()
-
-		class ClickEditEvaluation(
-			val evaluationId: String,
-			val attempt: EditableAttemptDescriptor?,
-			val type: EvaluationType?,
-			val scheduleMode: EvaluationScheduleMode,
-			val date: Long?,
-			val grade: Double?,
-			val maxGrade: Double?
-		) : Action()
+		data object ClickSubmitEvaluation : Action()
 	}
 
 	sealed class Effect : ViewEffect {

@@ -9,18 +9,8 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.AddEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.EditEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadAvailableAttemptsActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.PickGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.PickMaxGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetDateActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetMaxGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetAttemptActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetTypeActionProcessor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
+import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationMachine
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.FakeIdentifierRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
@@ -92,41 +82,28 @@ class EvaluationViewModelContractTest {
 		)
 
 		return EvaluationViewModel(
-			loadAvailableAttemptsActionProcessor = LoadAvailableAttemptsActionProcessor(
+			screenMachine = EvaluationMachine(
 				getAvailableAttemptsUseCase = GetAvailableAttemptsUseCase(
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository()
-				)
-			),
-			loadEvaluationActionProcessor = LoadEvaluationActionProcessor(
+				),
 				getEvaluationAndAvailableAttemptsUseCase = GetEvaluationAndAvailableAttemptsUseCase(
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository()
-				)
-			),
-			addEvaluationActionProcessor = AddEvaluationActionProcessor(
+				),
 				addEvaluationUseCase = AddEvaluationUseCase(
 					evaluationRepository = repository,
 					identifierRepository = FakeIdentifierRepository(),
 					reportingRepository = RecordingReportingRepository(),
 					paramsValidator = AddEvaluationParamsValidator(),
 					exceptionHandler = AddEvaluationExceptionHandler()
-				)
-			),
-			editEvaluationActionProcessor = EditEvaluationActionProcessor(
+				),
 				updateEvaluationUseCase = UpdateEvaluationUseCase(
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = UpdateEvaluationExceptionHandler()
 				)
 			),
-			pickGradeActionProcessor = PickGradeActionProcessor(),
-			pickMaxGradeActionProcessor = PickMaxGradeActionProcessor(),
-			setAttemptActionProcessor = SetAttemptActionProcessor(),
-			setTypeActionProcessor = SetTypeActionProcessor(),
-			setDateActionProcessor = SetDateActionProcessor(),
-			setGradeActionProcessor = SetGradeActionProcessor(),
-			setMaxGradeActionProcessor = SetMaxGradeActionProcessor(),
 			eventPublisher = NoOpEventPublisher
 		)
 	}

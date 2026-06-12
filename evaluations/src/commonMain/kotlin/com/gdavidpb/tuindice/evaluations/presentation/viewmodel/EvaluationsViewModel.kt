@@ -3,34 +3,18 @@ package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
-import com.gdavidpb.tuindice.base.presentation.Mutation
-import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEvaluationsActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenAddEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.PickEvaluationGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RefreshEvaluationsActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RemoveEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SelectEvaluationsWeekActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SetEvaluationGradeActionProcessor
+import com.gdavidpb.tuindice.base.presentation.statemachine.StateMachineViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationsMachine
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
-import kotlinx.coroutines.flow.Flow
 
 class EvaluationsViewModel(
-	private val loadEvaluationsActionProcessor: LoadEvaluationsActionProcessor,
-	private val refreshEvaluationsActionProcessor: RefreshEvaluationsActionProcessor,
-	private val selectEvaluationsWeekActionProcessor: SelectEvaluationsWeekActionProcessor,
-	private val openAddEvaluationActionProcessor: OpenAddEvaluationActionProcessor,
-	private val pickEvaluationGradeActionProcessor: PickEvaluationGradeActionProcessor,
-	private val setEvaluationGradeActionProcessor: SetEvaluationGradeActionProcessor,
-	private val openEvaluationActionProcessor: OpenEvaluationActionProcessor,
-	private val removeEvaluationActionProcessor: RemoveEvaluationActionProcessor,
+	override val screenMachine: EvaluationsMachine,
 	override val eventPublisher: EventPublisher,
 	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
-) : BaseViewModel<Evaluations.State, Evaluations.Action, Evaluations.Effect>(
+) : StateMachineViewModel<Evaluations.State, Evaluations.Action, Evaluations.Effect>(
 	name = "evaluations",
-	initialState = Evaluations.State.Idle,
+	initialState = screenMachine.initialState(),
 	initialAction = Evaluations.Action.LoadEvaluations,
 	dispatchers = dispatchers
 ) {
@@ -57,35 +41,4 @@ class EvaluationsViewModel(
 
 	fun setEvaluationGradeAction(evaluationId: String, grade: Double) =
 		sendAction(Evaluations.Action.SetEvaluationGrade(evaluationId, grade))
-
-	override suspend fun processAction(
-		action: Evaluations.Action,
-		sideEffect: (Evaluations.Effect) -> Unit
-	): Flow<Mutation<Evaluations.State>> {
-		return when (action) {
-			is Evaluations.Action.LoadEvaluations ->
-				loadEvaluationsActionProcessor.process(action, sideEffect)
-
-			is Evaluations.Action.RefreshEvaluations ->
-				refreshEvaluationsActionProcessor.process(action, sideEffect)
-
-			is Evaluations.Action.SelectWeek ->
-				selectEvaluationsWeekActionProcessor.process(action, sideEffect)
-
-			is Evaluations.Action.AddEvaluation ->
-				openAddEvaluationActionProcessor.process(action, sideEffect)
-
-			is Evaluations.Action.ShowEvaluationGradeDialog ->
-				pickEvaluationGradeActionProcessor.process(action, sideEffect)
-
-			is Evaluations.Action.SetEvaluationGrade ->
-				setEvaluationGradeActionProcessor.process(action, sideEffect)
-
-			is Evaluations.Action.EditEvaluation ->
-				openEvaluationActionProcessor.process(action, sideEffect)
-
-			is Evaluations.Action.RemoveEvaluation ->
-				removeEvaluationActionProcessor.process(action, sideEffect)
-		}
-	}
 }

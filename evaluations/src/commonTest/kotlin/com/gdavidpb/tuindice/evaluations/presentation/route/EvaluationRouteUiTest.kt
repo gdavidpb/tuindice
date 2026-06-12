@@ -13,17 +13,8 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.AddEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.EditEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadAvailableAttemptsActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.PickGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.PickMaxGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetDateActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetMaxGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetAttemptActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetTypeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
+import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationMachine
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
@@ -162,15 +153,17 @@ class EvaluationRouteUiTest {
 			)
 		}
 
+		waitUntil(timeoutMillis = 2_000) {
+			viewModel.state.value is Evaluation.State.Content
+		}
+
 		runOnIdle {
-			viewModel.clickAddEvaluationAction(
-				attempt = DEFAULT_EVALUATION_SUBJECT,
-				type = DEFAULT_PENDING_EVALUATION.type,
-				scheduleMode = DEFAULT_PENDING_EVALUATION.scheduleMode,
-				date = DEFAULT_PENDING_EVALUATION.date,
-				grade = DEFAULT_PENDING_EVALUATION.grade,
-				maxGrade = DEFAULT_PENDING_EVALUATION.maxGrade
-			)
+			viewModel.setAttemptAction(DEFAULT_EVALUATION_SUBJECT)
+			viewModel.setTypeAction(DEFAULT_PENDING_EVALUATION.type)
+			viewModel.setDateAction(DEFAULT_PENDING_EVALUATION.date)
+			DEFAULT_PENDING_EVALUATION.grade?.let(viewModel::setGradeAction)
+			viewModel.setMaxGradeAction(DEFAULT_PENDING_EVALUATION.maxGrade)
+			viewModel.submitEvaluationAction()
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
@@ -230,16 +223,13 @@ class EvaluationRouteUiTest {
 			)
 		}
 
+		waitUntil(timeoutMillis = 2_000) {
+			viewModel.state.value is Evaluation.State.Content
+		}
+
+		// Edit mode loaded the evaluation into S; submitting reads the form from state.
 		runOnIdle {
-			viewModel.clickEditEvaluationAction(
-				evaluationId = DEFAULT_PENDING_EVALUATION.id,
-				attempt = DEFAULT_EVALUATION_SUBJECT,
-				type = DEFAULT_PENDING_EVALUATION.type,
-				scheduleMode = DEFAULT_PENDING_EVALUATION.scheduleMode,
-				date = DEFAULT_PENDING_EVALUATION.date,
-				grade = DEFAULT_PENDING_EVALUATION.grade,
-				maxGrade = DEFAULT_PENDING_EVALUATION.maxGrade
-			)
+			viewModel.submitEvaluationAction()
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
@@ -388,15 +378,16 @@ class EvaluationRouteUiTest {
 			)
 		}
 
+		waitUntil(timeoutMillis = 2_000) {
+			viewModel.state.value is Evaluation.State.Content
+		}
+
 		runOnIdle {
-			viewModel.clickAddEvaluationAction(
-				attempt = DEFAULT_EVALUATION_SUBJECT,
-				type = DEFAULT_PENDING_EVALUATION.type,
-				scheduleMode = DEFAULT_PENDING_EVALUATION.scheduleMode,
-				date = DEFAULT_PENDING_EVALUATION.date,
-				grade = DEFAULT_PENDING_EVALUATION.grade,
-				maxGrade = null
-			)
+			viewModel.setAttemptAction(DEFAULT_EVALUATION_SUBJECT)
+			viewModel.setTypeAction(DEFAULT_PENDING_EVALUATION.type)
+			viewModel.setDateAction(DEFAULT_PENDING_EVALUATION.date)
+			DEFAULT_PENDING_EVALUATION.grade?.let(viewModel::setGradeAction)
+			viewModel.submitEvaluationAction()
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
@@ -413,41 +404,28 @@ class EvaluationRouteUiTest {
 		)
 	): EvaluationViewModel {
 		return EvaluationViewModel(
-			loadAvailableAttemptsActionProcessor = LoadAvailableAttemptsActionProcessor(
+			screenMachine = EvaluationMachine(
 				getAvailableAttemptsUseCase = GetAvailableAttemptsUseCase(
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository()
-				)
-			),
-			loadEvaluationActionProcessor = LoadEvaluationActionProcessor(
+				),
 				getEvaluationAndAvailableAttemptsUseCase = GetEvaluationAndAvailableAttemptsUseCase(
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository()
-				)
-			),
-			addEvaluationActionProcessor = AddEvaluationActionProcessor(
+				),
 				addEvaluationUseCase = AddEvaluationUseCase(
 					evaluationRepository = repository,
 					identifierRepository = FakeIdentifierRepository(),
 					reportingRepository = RecordingReportingRepository(),
 					paramsValidator = AddEvaluationParamsValidator(),
 					exceptionHandler = AddEvaluationExceptionHandler()
-				)
-			),
-			editEvaluationActionProcessor = EditEvaluationActionProcessor(
+				),
 				updateEvaluationUseCase = UpdateEvaluationUseCase(
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = UpdateEvaluationExceptionHandler()
 				)
 			),
-			pickGradeActionProcessor = PickGradeActionProcessor(),
-			pickMaxGradeActionProcessor = PickMaxGradeActionProcessor(),
-			setAttemptActionProcessor = SetAttemptActionProcessor(),
-			setTypeActionProcessor = SetTypeActionProcessor(),
-			setDateActionProcessor = SetDateActionProcessor(),
-			setGradeActionProcessor = SetGradeActionProcessor(),
-			setMaxGradeActionProcessor = SetMaxGradeActionProcessor(),
 			eventPublisher = NoOpEventPublisher
 		)
 	}

@@ -53,8 +53,6 @@ private val androidHostTestExcludedPatterns = listOf(
 	"**/AuthActionProcessorContractTest.class",
 	"**/SignInViewModelContractTest.class",
 	"**/UpdatePasswordViewModelContractTest.class",
-	"**/EvaluationActionProcessorContractTest.class",
-	"**/EvaluationsActionProcessorContractTest.class",
 	"**/EvaluationViewModelContractTest.class",
 	"**/EvaluationsViewModelContractTest.class",
 	"**/FileKitStorageDataSourceContractTest.class",

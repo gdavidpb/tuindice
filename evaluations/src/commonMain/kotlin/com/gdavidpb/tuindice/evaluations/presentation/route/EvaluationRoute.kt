@@ -60,28 +60,7 @@ fun EvaluationRoute(
 		onDateChange = viewModel::setDateAction,
 		onGradeClick = viewModel::clickGradeAction,
 		onMaxGradeClick = viewModel::clickMaxGradeAction,
-		onDoneClick = { attempt, type, scheduleMode, date, grade, maxGrade ->
-			if (evaluationId == null) {
-				viewModel.clickAddEvaluationAction(
-					attempt = attempt,
-					type = type,
-					scheduleMode = scheduleMode,
-					date = date,
-					grade = grade,
-					maxGrade = maxGrade
-				)
-			} else {
-				viewModel.clickEditEvaluationAction(
-					evaluationId = evaluationId,
-					attempt = attempt,
-					type = type,
-					scheduleMode = scheduleMode,
-					date = date,
-					grade = grade,
-					maxGrade = maxGrade
-				)
-			}
-		},
+		onDoneClick = viewModel::submitEvaluationAction,
 		onRetryClick = {
 			if (evaluationId == null)
 				viewModel.loadAvailableAttemptsAction()

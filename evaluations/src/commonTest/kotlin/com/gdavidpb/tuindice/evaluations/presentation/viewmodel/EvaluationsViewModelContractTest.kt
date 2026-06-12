@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.RemoveEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.*
+import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationsMachine
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.testing.*
 import kotlinx.coroutines.test.TestCoroutineScheduler
@@ -60,36 +60,25 @@ class EvaluationsViewModelContractTest {
 		)
 
 		return EvaluationsViewModel(
-			loadEvaluationsActionProcessor = LoadEvaluationsActionProcessor(
-					getEvaluationsUseCase = GetEvaluationsUseCase(
-						evaluationRepository = repository,
-						recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
-						reportingRepository = RecordingReportingRepository()
-					)
+			screenMachine = EvaluationsMachine(
+				getEvaluationsUseCase = GetEvaluationsUseCase(
+					evaluationRepository = repository,
+					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+					reportingRepository = RecordingReportingRepository()
 				),
-			refreshEvaluationsActionProcessor = RefreshEvaluationsActionProcessor(
 				updateEvaluationsUseCase = UpdateEvaluationsUseCase(
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository()
-				)
-			),
-			selectEvaluationsWeekActionProcessor = SelectEvaluationsWeekActionProcessor(),
-			openAddEvaluationActionProcessor = OpenAddEvaluationActionProcessor(),
-			pickEvaluationGradeActionProcessor = PickEvaluationGradeActionProcessor(
+				),
 				getEvaluationUseCase = GetEvaluationUseCase(
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository()
-				)
-			),
-			setEvaluationGradeActionProcessor = SetEvaluationGradeActionProcessor(
+				),
 				updateEvaluationUseCase = UpdateEvaluationUseCase(
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = UpdateEvaluationExceptionHandler()
-				)
-			),
-			openEvaluationActionProcessor = OpenEvaluationActionProcessor(),
-			removeEvaluationActionProcessor = RemoveEvaluationActionProcessor(
+				),
 				removeEvaluationUseCase = RemoveEvaluationUseCase(
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository(),
