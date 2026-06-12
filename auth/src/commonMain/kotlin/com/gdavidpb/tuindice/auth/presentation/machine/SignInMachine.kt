@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
+import com.gdavidpb.tuindice.auth.presentation.mapper.toErrorMessage
 import com.gdavidpb.tuindice.auth.presentation.transition.anyStateTransitions
 import com.gdavidpb.tuindice.auth.presentation.transition.idleTransitions
 import com.gdavidpb.tuindice.auth.presentation.transition.loggingInTransitions
@@ -16,15 +17,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import org.jetbrains.compose.resources.getString
 import tuindice.auth.generated.resources.Res
-import tuindice.auth.generated.resources.error_account_disabled
-import tuindice.auth.generated.resources.error_invalid_credentials
-import tuindice.auth.generated.resources.error_untrusted
 import tuindice.auth.generated.resources.label_retry
-import tuindice.auth.generated.resources.snack_default_error
-import tuindice.auth.generated.resources.snack_network_unavailable
-import tuindice.auth.generated.resources.snack_sign_in_failed
-import tuindice.auth.generated.resources.snack_service_unavailable
-import tuindice.auth.generated.resources.snack_timeout
 import tuindice.auth.generated.resources.title_privacy_policy
 import tuindice.auth.generated.resources.title_terms_and_conditions
 
@@ -87,34 +80,7 @@ class SignInMachine(
 		event: SignInInternalEvent.SignInFailed
 	): SignIn.State.Idle {
 		val error = event.error
-		val errorMessage = when (error) {
-			is SignInUseCaseError.InvalidCredentials ->
-				getString(Res.string.error_invalid_credentials)
-
-			is SignInUseCaseError.AccountDisabled ->
-				getString(Res.string.error_account_disabled)
-
-			is SignInUseCaseError.Untrusted ->
-				getString(Res.string.error_untrusted)
-
-			is SignInUseCaseError.AuthenticationFailed ->
-				getString(Res.string.snack_sign_in_failed)
-
-			is SignInUseCaseError.NoConnection ->
-				if (error.isNetworkAvailable)
-					getString(Res.string.snack_service_unavailable)
-				else
-					getString(Res.string.snack_network_unavailable)
-
-			is SignInUseCaseError.Timeout ->
-				getString(Res.string.snack_timeout)
-
-			is SignInUseCaseError.Unavailable ->
-				getString(Res.string.snack_service_unavailable)
-
-			else ->
-				getString(Res.string.snack_default_error)
-		}
+		val errorMessage = error.toErrorMessage()
 
 		when (error) {
 			is SignInUseCaseError.InvalidCredentials,

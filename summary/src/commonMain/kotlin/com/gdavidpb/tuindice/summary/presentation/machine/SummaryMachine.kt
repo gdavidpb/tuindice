@@ -9,9 +9,11 @@ import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
-import com.gdavidpb.tuindice.summary.domain.usecase.error.UpdateUserUseCaseError
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.mapper.formatLastUpdate
+import com.gdavidpb.tuindice.summary.presentation.mapper.toRefreshMessage
+import com.gdavidpb.tuindice.summary.presentation.mapper.toRemoveMessage
+import com.gdavidpb.tuindice.summary.presentation.mapper.toUploadMessage
 import com.gdavidpb.tuindice.summary.presentation.mapper.toShortName
 import com.gdavidpb.tuindice.summary.presentation.transition.anyStateTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.contentTransitions
@@ -22,14 +24,8 @@ import io.github.vinceglb.filekit.PlatformFile
 import org.jetbrains.compose.resources.getString
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.snack_default_error
-import tuindice.summary.generated.resources.snack_network_unavailable
-import tuindice.summary.generated.resources.snack_no_service
-import tuindice.summary.generated.resources.snack_profile_picture_not_image
 import tuindice.summary.generated.resources.snack_profile_picture_removed
-import tuindice.summary.generated.resources.snack_profile_picture_size_exceeded
 import tuindice.summary.generated.resources.snack_profile_picture_updated
-import tuindice.summary.generated.resources.snack_service_unavailable
-import tuindice.summary.generated.resources.snack_timeout
 import tuindice.summary.generated.resources.text_sync_healthy
 
 class SummaryMachine(
@@ -164,69 +160,6 @@ class SummaryMachine(
 					)
 				}
 			}
-		}
-	}
-
-	private suspend fun UpdateUserUseCaseError?.toRefreshMessage(): String {
-		return when (this) {
-			is UpdateUserUseCaseError.NoConnection ->
-				if (isNetworkAvailable)
-					getString(Res.string.snack_service_unavailable)
-				else
-					getString(Res.string.snack_network_unavailable)
-
-			UpdateUserUseCaseError.Timeout ->
-				getString(Res.string.snack_timeout)
-
-			UpdateUserUseCaseError.Unavailable ->
-				getString(Res.string.snack_service_unavailable)
-
-			UpdateUserUseCaseError.NotFound ->
-				getString(Res.string.snack_no_service)
-
-			null ->
-				getString(Res.string.snack_default_error)
-		}
-	}
-
-	private suspend fun ProfilePictureUseCaseError?.toUploadMessage(): String {
-		return when (this) {
-			is ProfilePictureUseCaseError.Timeout ->
-				getString(Res.string.snack_timeout)
-
-			is ProfilePictureUseCaseError.NoConnection ->
-				if (isNetworkAvailable)
-					getString(Res.string.snack_service_unavailable)
-				else
-					getString(Res.string.snack_network_unavailable)
-
-			ProfilePictureUseCaseError.InvalidImage ->
-				getString(Res.string.snack_profile_picture_not_image)
-
-			ProfilePictureUseCaseError.SizeExceeded ->
-				getString(Res.string.snack_profile_picture_size_exceeded)
-
-			else ->
-				getString(Res.string.snack_default_error)
-		}
-	}
-
-	private suspend fun ProfilePictureUseCaseError?.toRemoveMessage(): String {
-		return when (this) {
-			ProfilePictureUseCaseError.NotFound ->
-				getString(Res.string.snack_profile_picture_removed)
-
-			is ProfilePictureUseCaseError.Timeout ->
-				getString(Res.string.snack_timeout)
-
-			is ProfilePictureUseCaseError.NoConnection ->
-				if (isNetworkAvailable)
-					getString(Res.string.snack_service_unavailable)
-				else
-					getString(Res.string.snack_network_unavailable)
-
-			else ->
-				getString(Res.string.snack_default_error)
 		}
 	}
 }
