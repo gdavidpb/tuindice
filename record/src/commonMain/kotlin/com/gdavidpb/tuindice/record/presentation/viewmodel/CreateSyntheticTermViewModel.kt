@@ -5,30 +5,24 @@ import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
-import com.gdavidpb.tuindice.base.presentation.Mutation
-import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
+import com.gdavidpb.tuindice.base.presentation.statemachine.StateMachineViewModel
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermEditSeedUseCase
-import com.gdavidpb.tuindice.record.presentation.action.CreateSyntheticTermActionProcessor
-import com.gdavidpb.tuindice.record.presentation.action.ObserveCreateSyntheticTermActionProcessor
-import com.gdavidpb.tuindice.record.presentation.action.UpdateCreateSyntheticTermQueryActionProcessor
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
+import com.gdavidpb.tuindice.record.presentation.machine.CreateSyntheticTermMachine
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 
 class CreateSyntheticTermViewModel(
-	private val observeCreateSyntheticTermActionProcessor: ObserveCreateSyntheticTermActionProcessor,
-	private val updateCreateSyntheticTermQueryActionProcessor: UpdateCreateSyntheticTermQueryActionProcessor,
-	private val createSyntheticTermActionProcessor: CreateSyntheticTermActionProcessor,
+	override val screenMachine: CreateSyntheticTermMachine,
 	private val loadSyntheticTermEditSeedUseCase: LoadSyntheticTermEditSeedUseCase,
 	override val eventPublisher: EventPublisher,
 	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
-) : BaseViewModel<CreateSyntheticTerm.State, CreateSyntheticTerm.Action, CreateSyntheticTerm.Effect>(
+) : StateMachineViewModel<CreateSyntheticTerm.State, CreateSyntheticTerm.Action, CreateSyntheticTerm.Effect>(
 	name = "create_synthetic_term",
-	initialState = CreateSyntheticTerm.State(),
+	initialState = screenMachine.initialState(),
 	dispatchers = dispatchers
 ) {
 	private val queryFlow = MutableStateFlow("")
@@ -134,21 +128,5 @@ class CreateSyntheticTermViewModel(
 				subjects = subjects
 			)
 		)
-	}
-
-	override suspend fun processAction(
-		action: CreateSyntheticTerm.Action,
-		sideEffect: (CreateSyntheticTerm.Effect) -> Unit
-	): Flow<Mutation<CreateSyntheticTerm.State>> {
-		return when (action) {
-			is CreateSyntheticTerm.Action.Observe ->
-				observeCreateSyntheticTermActionProcessor.process(action, sideEffect)
-
-			is CreateSyntheticTerm.Action.UpdateQuery ->
-				updateCreateSyntheticTermQueryActionProcessor.process(action, sideEffect)
-
-			is CreateSyntheticTerm.Action.CreateTerm ->
-				createSyntheticTermActionProcessor.process(action, sideEffect)
-		}
 	}
 }

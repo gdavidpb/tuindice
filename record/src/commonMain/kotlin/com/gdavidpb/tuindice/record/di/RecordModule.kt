@@ -44,6 +44,8 @@ import com.gdavidpb.tuindice.record.presentation.action.SelectRecordTermActionPr
 import com.gdavidpb.tuindice.record.presentation.action.SetRecordViewModeActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.UpdateCreateSyntheticTermQueryActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.UpsertAttemptSelectionActionProcessor
+import com.gdavidpb.tuindice.record.presentation.machine.CreateSyntheticTermMachine
+import com.gdavidpb.tuindice.record.presentation.machine.RecordMachine
 import com.gdavidpb.tuindice.record.presentation.viewmodel.CreateSyntheticTermViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import org.koin.core.module.dsl.bind
@@ -61,6 +63,11 @@ val recordModule = module {
 
 	viewModelOf(::RecordViewModel)
 	viewModelOf(::CreateSyntheticTermViewModel)
+
+	/* Screen machines */
+
+	factoryOf(::RecordMachine)
+	factoryOf(::CreateSyntheticTermMachine)
 
 	/* Action processor */
 
