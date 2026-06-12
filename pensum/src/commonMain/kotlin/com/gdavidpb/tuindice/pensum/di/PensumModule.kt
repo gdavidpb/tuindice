@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.pensum.presentation.action.RefreshPensumActionProce
 import com.gdavidpb.tuindice.pensum.presentation.action.SelectPensumActionProcessor
 import com.gdavidpb.tuindice.pensum.presentation.action.SelectPensumModalityActionProcessor
 import com.gdavidpb.tuindice.pensum.presentation.action.SelectPensumSelectionActionProcessor
+import com.gdavidpb.tuindice.pensum.presentation.machine.PensumMachine
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
 import com.gdavidpb.tuindice.pensum.presentation.viewmodel.PensumViewModel
 import org.koin.core.module.dsl.bind
@@ -28,6 +29,8 @@ import org.koin.dsl.module
 
 val pensumModule = module {
 	viewModelOf(::PensumViewModel)
+
+	factoryOf(::PensumMachine)
 
 	factoryOf(::ObservePensumActionProcessor)
 	factoryOf(::RefreshPensumActionProcessor)

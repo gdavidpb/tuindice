@@ -28,6 +28,7 @@ import com.gdavidpb.tuindice.auth.presentation.action.SignInActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.TogglePasswordVisibilityActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.ToggleUpdatePasswordVisibilityActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.UpdatePasswordActionProcessor
+import com.gdavidpb.tuindice.auth.presentation.machine.SignInMachine
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignOutViewModel
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.UpdatePasswordViewModel
@@ -42,6 +43,10 @@ val authModule = module {
 	viewModelOf(::SignInViewModel)
 	viewModelOf(::SignOutViewModel)
 	viewModelOf(::UpdatePasswordViewModel)
+
+	/* State machines */
+
+	factoryOf(::SignInMachine)
 
 	/* Action Processors */
 

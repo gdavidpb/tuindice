@@ -83,29 +83,31 @@ class PensumStateMachineContractTest {
 		)
 
 		return PensumViewModel(
-			observePensumUseCase = ObservePensumUseCase(
-				pensumRepository = repository,
-				reportingRepository = reportingRepository
-			),
-			updatePensumUseCase = UpdatePensumUseCase(
-				pensumRepository = repository,
-				reportingRepository = reportingRepository,
-				exceptionHandler = exceptionHandler
-			),
-			selectPensumUseCase = SelectPensumUseCase(
-				pensumRepository = repository,
-				reportingRepository = reportingRepository,
-				exceptionHandler = exceptionHandler
-			),
-			selectPensumModalityUseCase = SelectPensumModalityUseCase(
-				pensumRepository = repository,
-				reportingRepository = reportingRepository,
-				exceptionHandler = exceptionHandler
-			),
-			selectPensumSelectionUseCase = SelectPensumSelectionUseCase(
-				pensumRepository = repository,
-				reportingRepository = reportingRepository,
-				exceptionHandler = exceptionHandler
+			pensumMachine = PensumMachine(
+				observePensumUseCase = ObservePensumUseCase(
+					pensumRepository = repository,
+					reportingRepository = reportingRepository
+				),
+				updatePensumUseCase = UpdatePensumUseCase(
+					pensumRepository = repository,
+					reportingRepository = reportingRepository,
+					exceptionHandler = exceptionHandler
+				),
+				selectPensumUseCase = SelectPensumUseCase(
+					pensumRepository = repository,
+					reportingRepository = reportingRepository,
+					exceptionHandler = exceptionHandler
+				),
+				selectPensumModalityUseCase = SelectPensumModalityUseCase(
+					pensumRepository = repository,
+					reportingRepository = reportingRepository,
+					exceptionHandler = exceptionHandler
+				),
+				selectPensumSelectionUseCase = SelectPensumSelectionUseCase(
+					pensumRepository = repository,
+					reportingRepository = reportingRepository,
+					exceptionHandler = exceptionHandler
+				)
 			),
 			eventPublisher = NoOpEventPublisher
 		)

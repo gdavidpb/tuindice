@@ -106,6 +106,19 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 		return viewModelScope.launch(dispatchers.default, block = block)
 	}
 
+	protected fun machineHost(): MachineHost<E> {
+		return object : MachineHost<E> {
+			override fun sendEffect(effect: E) =
+				this@StateMachineViewModel.sendEffect(effect)
+
+			override fun processInternalEvent(event: Any) =
+				this@StateMachineViewModel.processInternalEvent(event)
+
+			override fun launchMachineJob(block: suspend CoroutineScope.() -> Unit): Job =
+				this@StateMachineViewModel.launchMachineJob(block)
+		}
+	}
+
 	fun exportMachineToMermaid(): String {
 		return machine.exportToMermaid(
 			machineName = name,

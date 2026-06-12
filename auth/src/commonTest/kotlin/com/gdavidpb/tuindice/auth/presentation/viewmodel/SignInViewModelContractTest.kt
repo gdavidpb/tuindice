@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.auth.presentation.viewmodel
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.auth.presentation.machine.SignInMachine
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
@@ -31,21 +33,24 @@ class SignInViewModelContractTest {
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun publicActions_updateState_andEmitEffects() = runTest {
 		val viewModel = SignInViewModel(
-			signInUseCase = SignInUseCase(
-				authRepository = RecordingAuthRepository(),
-				messagingRepository = RecordingMessagingRepository(),
-				syncRepository = FakeSyncRepository(),
-				credentialsRepository = FakeCredentialsRepository(),
-				syncStatusRepository = FakeSyncStatusRepository(),
-				attestationRepository = FakeAttestationRepository(),
-				reportingRepository = RecordingReportingRepository(),
-				paramsValidator = SignInParamsValidator(),
-				exceptionHandler = SignInExceptionHandler(
-					networkRepository = FakeNetworkRepository(isAvailable = true)
-				)
+			signInMachine = SignInMachine(
+				signInUseCase = SignInUseCase(
+					authRepository = RecordingAuthRepository(),
+					messagingRepository = RecordingMessagingRepository(),
+					syncRepository = FakeSyncRepository(),
+					credentialsRepository = FakeCredentialsRepository(),
+					syncStatusRepository = FakeSyncStatusRepository(),
+					attestationRepository = FakeAttestationRepository(),
+					reportingRepository = RecordingReportingRepository(),
+					paramsValidator = SignInParamsValidator(),
+					exceptionHandler = SignInExceptionHandler(
+						networkRepository = FakeNetworkRepository(isAvailable = true)
+					)
+				),
+				configRepository = FakeConfigRepository(),
+				appEnvironmentRepository = FakeAppEnvironmentRepository(),
+				usageDataConsentRepository = InMemoryUsageDataConsentRepository()
 			),
-			configRepository = FakeConfigRepository(),
-			appEnvironmentRepository = FakeAppEnvironmentRepository(),
 			eventPublisher = NoOpEventPublisher
 		)
 

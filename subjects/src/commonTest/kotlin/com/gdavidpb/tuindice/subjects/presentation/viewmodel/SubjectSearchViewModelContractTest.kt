@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.subjects.domain.usecase.ObserveSubjectSearchUseCase
 import com.gdavidpb.tuindice.subjects.domain.usecase.RefreshSubjectSearchUseCase
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectSearch
+import com.gdavidpb.tuindice.subjects.presentation.machine.SubjectSearchMachine
 import com.gdavidpb.tuindice.subjects.testing.ControllableSubjectCatalogRepository
 import com.gdavidpb.tuindice.subjects.testing.subjectSearchResult
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -146,13 +147,15 @@ class SubjectSearchViewModelContractTest {
 		val reportingRepository = RecordingReportingRepository()
 
 		val viewModel = SubjectSearchViewModel(
-			observeSubjectSearchUseCase = ObserveSubjectSearchUseCase(
-				subjectCatalogRepository = repository,
-				reportingRepository = reportingRepository
-			),
-			refreshSubjectSearchUseCase = RefreshSubjectSearchUseCase(
-				subjectCatalogRepository = repository,
-				reportingRepository = reportingRepository
+			subjectSearchMachine = SubjectSearchMachine(
+				observeSubjectSearchUseCase = ObserveSubjectSearchUseCase(
+					subjectCatalogRepository = repository,
+					reportingRepository = reportingRepository
+				),
+				refreshSubjectSearchUseCase = RefreshSubjectSearchUseCase(
+					subjectCatalogRepository = repository,
+					reportingRepository = reportingRepository
+				)
 			),
 			eventPublisher = NoOpEventPublisher
 		)

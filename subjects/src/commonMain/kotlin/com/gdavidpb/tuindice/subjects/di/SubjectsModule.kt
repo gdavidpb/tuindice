@@ -24,6 +24,8 @@ import com.gdavidpb.tuindice.subjects.presentation.action.RefreshSubjectDetailAc
 import com.gdavidpb.tuindice.subjects.presentation.action.RetrySubjectSearchActionProcessor
 import com.gdavidpb.tuindice.subjects.presentation.action.SelectSubjectSegmentTabActionProcessor
 import com.gdavidpb.tuindice.subjects.presentation.action.UpdateSubjectSearchQueryActionProcessor
+import com.gdavidpb.tuindice.subjects.presentation.machine.SubjectDetailMachine
+import com.gdavidpb.tuindice.subjects.presentation.machine.SubjectSearchMachine
 import com.gdavidpb.tuindice.subjects.presentation.viewmodel.SubjectDetailViewModel
 import com.gdavidpb.tuindice.subjects.presentation.viewmodel.SubjectSearchViewModel
 import org.koin.core.module.dsl.bind
@@ -35,6 +37,9 @@ import org.koin.dsl.module
 val subjectsModule = module {
 	viewModelOf(::SubjectDetailViewModel)
 	viewModelOf(::SubjectSearchViewModel)
+
+	factoryOf(::SubjectDetailMachine)
+	factoryOf(::SubjectSearchMachine)
 
 	factoryOf(::LoadSubjectDetailActionProcessor)
 	factoryOf(::RefreshSubjectDetailActionProcessor)

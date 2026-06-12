@@ -6,7 +6,9 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
+import com.gdavidpb.tuindice.auth.presentation.machine.SignInMachine
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
@@ -298,16 +300,19 @@ class SignInRouteUiTest {
 
 		return SignInRouteFixture(
 			viewModel = SignInViewModel(
-				signInUseCase = signInUseCase,
-				configRepository = FakeConfigRepository(),
-				appEnvironmentRepository = FakeAppEnvironmentRepository(
-					appEnvironment = AppEnvironment(
-						apiBaseUrl = "https://api.tuindice.test/",
-						privacyPolicyUrl = privacyPolicyUrl,
-						termsAndConditionsUrl = termsAndConditionsUrl,
-						supportUrl = "https://tuindice.test/support",
-						debug = true
-					)
+				signInMachine = SignInMachine(
+					signInUseCase = signInUseCase,
+					configRepository = FakeConfigRepository(),
+					appEnvironmentRepository = FakeAppEnvironmentRepository(
+						appEnvironment = AppEnvironment(
+							apiBaseUrl = "https://api.tuindice.test/",
+							privacyPolicyUrl = privacyPolicyUrl,
+							termsAndConditionsUrl = termsAndConditionsUrl,
+							supportUrl = "https://tuindice.test/support",
+							debug = true
+						)
+					),
+					usageDataConsentRepository = InMemoryUsageDataConsentRepository()
 				),
 				eventPublisher = NoOpEventPublisher
 			),

@@ -104,13 +104,15 @@ class SubjectsStateMachineContractTest {
 		val reportingRepository = RecordingReportingRepository()
 
 		return SubjectDetailViewModel(
-			loadSubjectDetailUseCase = LoadSubjectDetailUseCase(
-				subjectStatsRepository = repository,
-				reportingRepository = reportingRepository
-			),
-			refreshSubjectDetailUseCase = RefreshSubjectDetailUseCase(
-				subjectStatsRepository = repository,
-				reportingRepository = reportingRepository
+			subjectDetailMachine = SubjectDetailMachine(
+				loadSubjectDetailUseCase = LoadSubjectDetailUseCase(
+					subjectStatsRepository = repository,
+					reportingRepository = reportingRepository
+				),
+				refreshSubjectDetailUseCase = RefreshSubjectDetailUseCase(
+					subjectStatsRepository = repository,
+					reportingRepository = reportingRepository
+				)
 			),
 			eventPublisher = NoOpEventPublisher
 		)
@@ -121,13 +123,15 @@ class SubjectsStateMachineContractTest {
 		val reportingRepository = RecordingReportingRepository()
 
 		return SubjectSearchViewModel(
-			observeSubjectSearchUseCase = ObserveSubjectSearchUseCase(
-				subjectCatalogRepository = repository,
-				reportingRepository = reportingRepository
-			),
-			refreshSubjectSearchUseCase = RefreshSubjectSearchUseCase(
-				subjectCatalogRepository = repository,
-				reportingRepository = reportingRepository
+			subjectSearchMachine = SubjectSearchMachine(
+				observeSubjectSearchUseCase = ObserveSubjectSearchUseCase(
+					subjectCatalogRepository = repository,
+					reportingRepository = reportingRepository
+				),
+				refreshSubjectSearchUseCase = RefreshSubjectSearchUseCase(
+					subjectCatalogRepository = repository,
+					reportingRepository = reportingRepository
+				)
 			),
 			eventPublisher = NoOpEventPublisher
 		)

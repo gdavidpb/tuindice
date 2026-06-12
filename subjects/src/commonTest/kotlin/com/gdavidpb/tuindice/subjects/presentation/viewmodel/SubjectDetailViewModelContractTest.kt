@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
 import com.gdavidpb.tuindice.subjects.domain.usecase.LoadSubjectDetailUseCase
 import com.gdavidpb.tuindice.subjects.domain.usecase.RefreshSubjectDetailUseCase
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectDetail
+import com.gdavidpb.tuindice.subjects.presentation.machine.SubjectDetailMachine
 import com.gdavidpb.tuindice.subjects.testing.RecordingSubjectStatsRepository
 import com.gdavidpb.tuindice.subjects.testing.readySubjectDetail
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -199,13 +200,15 @@ class SubjectDetailViewModelContractTest {
 		val reportingRepository = RecordingReportingRepository()
 
 		val viewModel = SubjectDetailViewModel(
-			loadSubjectDetailUseCase = LoadSubjectDetailUseCase(
-				subjectStatsRepository = repository,
-				reportingRepository = reportingRepository
-			),
-			refreshSubjectDetailUseCase = RefreshSubjectDetailUseCase(
-				subjectStatsRepository = repository,
-				reportingRepository = reportingRepository
+			subjectDetailMachine = SubjectDetailMachine(
+				loadSubjectDetailUseCase = LoadSubjectDetailUseCase(
+					subjectStatsRepository = repository,
+					reportingRepository = reportingRepository
+				),
+				refreshSubjectDetailUseCase = RefreshSubjectDetailUseCase(
+					subjectStatsRepository = repository,
+					reportingRepository = reportingRepository
+				)
 			),
 			eventPublisher = NoOpEventPublisher
 		)

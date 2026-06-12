@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.UpdatePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.exceptionhandler.UpdatePensumExceptionHandler
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
+import com.gdavidpb.tuindice.pensum.presentation.machine.PensumMachine
 import com.gdavidpb.tuindice.pensum.testing.sampleObservedPensum
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -292,29 +293,31 @@ class PensumViewModelContractTest {
 		)
 
 		val viewModel = PensumViewModel(
-			observePensumUseCase = ObservePensumUseCase(
-				pensumRepository = repository,
-				reportingRepository = reportingRepository
-			),
-			updatePensumUseCase = UpdatePensumUseCase(
-				pensumRepository = repository,
-				reportingRepository = reportingRepository,
-				exceptionHandler = exceptionHandler
-			),
-			selectPensumUseCase = SelectPensumUseCase(
-				pensumRepository = repository,
-				reportingRepository = reportingRepository,
-				exceptionHandler = exceptionHandler
-			),
-			selectPensumModalityUseCase = SelectPensumModalityUseCase(
-				pensumRepository = repository,
-				reportingRepository = reportingRepository,
-				exceptionHandler = exceptionHandler
-			),
-			selectPensumSelectionUseCase = SelectPensumSelectionUseCase(
-				pensumRepository = repository,
-				reportingRepository = reportingRepository,
-				exceptionHandler = exceptionHandler
+			pensumMachine = PensumMachine(
+				observePensumUseCase = ObservePensumUseCase(
+					pensumRepository = repository,
+					reportingRepository = reportingRepository
+				),
+				updatePensumUseCase = UpdatePensumUseCase(
+					pensumRepository = repository,
+					reportingRepository = reportingRepository,
+					exceptionHandler = exceptionHandler
+				),
+				selectPensumUseCase = SelectPensumUseCase(
+					pensumRepository = repository,
+					reportingRepository = reportingRepository,
+					exceptionHandler = exceptionHandler
+				),
+				selectPensumModalityUseCase = SelectPensumModalityUseCase(
+					pensumRepository = repository,
+					reportingRepository = reportingRepository,
+					exceptionHandler = exceptionHandler
+				),
+				selectPensumSelectionUseCase = SelectPensumSelectionUseCase(
+					pensumRepository = repository,
+					reportingRepository = reportingRepository,
+					exceptionHandler = exceptionHandler
+				)
 			),
 			eventPublisher = NoOpEventPublisher
 		)

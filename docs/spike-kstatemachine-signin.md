@@ -163,9 +163,21 @@ The dependency was fully removed in iteration 2.
     uncovered inputs.
   - `assertMachineStatesReachable(machine, initialState)` — BFS over declared
     state-changing rows; pure table math, enforced on every platform.
-- File convention: `defineMachine()` stays inline in the ViewModel while the table is
-  small (SignIn); extract to `presentation/machine/<Screen>Machine.kt` when it grows
-  (evaluations-sized screens).
+- Standard screen anatomy (decided 2026-06-12, applied to all migrated screens):
+  - `presentation/contract/<Screen>.kt` — State/Action/Effect (untouched by migration).
+  - `presentation/machine/<Screen>InternalEvent.kt` — the internal input alphabet.
+  - `presentation/machine/<Screen>Machine.kt` — Koin-injectable class: dependencies,
+    commands (job launchers using the host), and `define(host)` composing the blocks.
+  - `presentation/transition/<Screen><FromState>Transitions.kt` — one file per
+    from-state block (plus `<Screen>AnyStateTransitions.kt` for machine-level rows),
+    written as builder extension functions; mirrors how `action/` held one processor
+    per action, organized by the dimension that matters now (origin state). Pure
+    reductions live beside their block as named functions.
+  - `presentation/viewmodel/<Screen>ViewModel.kt` — screen API only (~40-60 lines):
+    named action helpers + `defineMachine() = machine.define(machineHost())`.
+  - `MachineHost<E>` (base) carries the three capabilities transition outputs may use
+    (`sendEffect`, `processInternalEvent`, `launchMachineJob`) — explicit parameters,
+    no mutable wiring.
 
 ## Pilot: pensum (first full-module migration)
 
