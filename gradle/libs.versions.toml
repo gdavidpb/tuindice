@@ -49,13 +49,8 @@ multiplatform-settings = "1.3.0"
 ksafe = "2.1.0"
 skiko = "0.144.6"
 vico = "3.1.0"
-kstatemachine = "0.37.0"
 
 [libraries]
-# State machine
-kstatemachine-core = { module = "io.github.nsk90:kstatemachine", version.ref = "kstatemachine" }
-kstatemachine-coroutines = { module = "io.github.nsk90:kstatemachine-coroutines", version.ref = "kstatemachine" }
-
 # Room
 room-ktx = { module = "androidx.room:room-ktx", version.ref = "room" }
 room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }

@@ -27,7 +27,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
-import ru.nsk.kstatemachine.visitors.export.exportToMermaid
 
 class SignInStateMachineContractTest {
 	private companion object {
@@ -205,8 +204,7 @@ class SignInStateMachineContractTest {
 		)
 
 		try {
-			val machine = viewModel.awaitMachine()
-			val diagram = machine.exportToMermaid()
+			val diagram = viewModel.exportMachineToMermaid()
 
 			// Captured from test output to publish the generated diagram as a docs artifact.
 			println(diagram)

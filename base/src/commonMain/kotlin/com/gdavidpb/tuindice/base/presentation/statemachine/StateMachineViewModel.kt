@@ -22,11 +22,6 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import ru.nsk.kstatemachine.event.Event
-import ru.nsk.kstatemachine.statemachine.BuildingStateMachine
-import ru.nsk.kstatemachine.statemachine.ProcessingResult
-import ru.nsk.kstatemachine.statemachine.StateMachine
-import ru.nsk.kstatemachine.statemachine.createStdLibStateMachine
 
 abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffect>(
 	private val name: String,
@@ -34,10 +29,11 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 	initialAction: A? = null,
 	private val dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : ViewModel() {
+	private val initialStateClass = initialState::class
 	private val effectChannel = Channel<E>(Channel.UNLIMITED)
 	private val inputChannel = Channel<MachineInput<A>>(Channel.UNLIMITED)
 	private val viewState = MutableStateFlow(initialState)
-	private val machineRef = CompletableDeferred<StateMachine>()
+	private val machineRef = CompletableDeferred<MachineDefinition<S>>()
 	private var lastPublishedState: String? = null
 
 	protected abstract val eventPublisher: EventPublisher
@@ -58,21 +54,9 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 			initialValue = initialState
 		)
 
-	protected abstract suspend fun createMachine(): StateMachine
+	protected abstract fun defineMachine(): MachineDefinition<S>
 
-	protected abstract fun toMachineEvent(action: A): Event
-
-	// StdLib abstraction: the machine has no coroutine machinery of its own, so every
-	// processEvent call (and the listeners it triggers) is confined to the single
-	// machine-loop coroutine. That serialization is what makes transitions atomic.
-	protected fun buildMachine(
-		init: suspend BuildingStateMachine.() -> Unit
-	): StateMachine {
-		return createStdLibStateMachine(
-			name = name,
-			init = init
-		)
-	}
+	protected open fun toMachineEvent(action: A): Any = action
 
 	protected val currentState: S
 		get() = viewState.value
@@ -86,17 +70,13 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 		)
 	}
 
-	protected fun processInternalEvent(event: Event) {
+	protected fun processInternalEvent(event: Any) {
 		inputChannel.trySend(
 			MachineInput(
 				event = event,
 				action = null
 			)
 		)
-	}
-
-	protected fun updateState(transform: (S) -> S) {
-		viewState.value = transform(viewState.value)
 	}
 
 	protected fun sendEffect(viewEffect: E) {
@@ -115,16 +95,25 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 
 	// Public on purpose: the machine is introspectable data — diagram export and
 	// transition-table validation tooling read it from here.
-	suspend fun awaitMachine(): StateMachine {
+	suspend fun awaitMachine(): MachineDefinition<S> {
 		return machineRef.await()
+	}
+
+	suspend fun exportMachineToMermaid(): String {
+		return awaitMachine().exportToMermaid(
+			machineName = name,
+			initialState = initialStateClass
+		)
 	}
 
 	private fun startMachineLoop() {
 		viewModelScope.launch(dispatchers.default) {
-			val machine = createMachine()
+			val machine = defineMachine()
 
 			machineRef.complete(machine)
 
+			// Single consumer over a FIFO channel: transition resolution and state
+			// application are serialized here, which is what makes them atomic.
 			for (input in inputChannel) {
 				if (input.action != null) {
 					eventPublisher.publish(
@@ -135,30 +124,30 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 					)
 				}
 
-				val from = currentState.eventName()
-				val result = machine.processEvent(input.event)
+				val fromState = viewState.value
 
-				when (result) {
-					ProcessingResult.PROCESSED ->
+				when (val result = machine.process(fromState, input.event)) {
+					is TransitionResult.Transitioned -> {
+						viewState.value = result.toState
+
 						eventPublisher.publish(
 							AppEvent.Transition(
 								source = name,
-								from = from,
+								from = fromState.eventName(),
 								event = input.event.eventName(),
-								to = currentState.eventName()
+								to = result.toState.eventName()
 							)
 						)
+					}
 
-					ProcessingResult.IGNORED ->
+					is TransitionResult.Rejected ->
 						eventPublisher.publish(
 							AppEvent.InvalidTransition(
 								source = name,
-								from = from,
+								from = fromState.eventName(),
 								event = input.event.eventName()
 							)
 						)
-
-					else -> Unit
 				}
 			}
 		}
@@ -180,6 +169,6 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 }
 
 private data class MachineInput<A>(
-	val event: Event,
+	val event: Any,
 	val action: A?
 )
