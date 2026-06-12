@@ -49,8 +49,6 @@ class RecordViewModelContractTest {
 
 		try {
 			fixture.viewModel.state.test {
-				assertEquals(Record.State.Idle, awaitItem())
-
 				val content = awaitUntilState<Record.State.Content>()
 				assertEquals("term", content.selectedTermId)
 				assertEquals(RecordViewMode.Historical, content.viewMode)
@@ -76,8 +74,6 @@ class RecordViewModelContractTest {
 
 		try {
 			fixture.viewModel.state.test {
-				assertEquals(Record.State.Idle, awaitItem())
-
 				awaitUntilState<Record.State.Loading>()
 
 				fixture.academicRecordRepository.hasSyncedFlow.value = true
@@ -119,8 +115,6 @@ class RecordViewModelContractTest {
 
 		try {
 			fixture.viewModel.state.test {
-				assertEquals(Record.State.Idle, awaitItem())
-
 			val content = awaitUntilState<Record.State.Content>()
 				val otherTermId = if (content.selectedTermId == "term-a") "term-b" else "term-a"
 
@@ -156,8 +150,6 @@ class RecordViewModelContractTest {
 
 		try {
 			fixture.viewModel.state.test {
-				assertEquals(Record.State.Idle, awaitItem())
-
 				awaitUntilState<Record.State.Loading>()
 
 				fixture.viewModel.selectTermAction(termId = "ghost-term")

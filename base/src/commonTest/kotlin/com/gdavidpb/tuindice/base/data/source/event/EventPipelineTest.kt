@@ -8,11 +8,13 @@ import com.gdavidpb.tuindice.base.domain.model.event.EventParameterKeys
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
-import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
-import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
+import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
+import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
+import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
+import com.gdavidpb.tuindice.base.presentation.statemachine.StateMachineViewModel
 import com.gdavidpb.tuindice.testkit.coroutines.withMainDispatcher
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlin.test.Test
@@ -21,9 +23,7 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -209,24 +209,38 @@ private class RecordingEventPublisher : EventPublisher {
 	}
 }
 
+private class EventTestMachine : ScreenMachine<EventTestState, EventTestEffect> {
+	override fun initialState(): EventTestState = EventTestState.Idle
+
+	override fun define(
+		host: MachineHost<EventTestEffect>
+	): MachineDefinition<EventTestState> {
+		return MachineDefinition.define {
+			from<EventTestState.Idle> {
+				onTo<EventTestAction.Start, EventTestState.Done>(
+					emits = setOf(EventTestEffect.Done::class)
+				) { _, _ ->
+					host.sendEffect(EventTestEffect.Done)
+					EventTestState.Done
+				}
+			}
+		}
+	}
+}
+
 private class EventTestViewModel(
 	override val eventPublisher: EventPublisher,
 	dispatchers: TuIndiceDispatchers
-) : BaseViewModel<EventTestState, EventTestAction, EventTestEffect>(
+) : StateMachineViewModel<EventTestState, EventTestAction, EventTestEffect>(
 	name = "event_test",
 	initialState = EventTestState.Idle,
 	dispatchers = dispatchers
 ) {
+	override val screenMachine: ScreenMachine<EventTestState, EventTestEffect> =
+		EventTestMachine()
+
 	fun startAction() {
 		sendAction(EventTestAction.Start)
-	}
-
-	override suspend fun processAction(
-		action: EventTestAction,
-		sideEffect: (EventTestEffect) -> Unit
-	): Flow<Mutation<EventTestState>> {
-		sideEffect(EventTestEffect.Done)
-		return flowOf { EventTestState.Done }
 	}
 }
 

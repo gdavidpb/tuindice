@@ -325,9 +325,9 @@ Supporting conventions, all applied:
   (`RecordStateMachineContractTest` style) when hand-building the use-case graph gets
   heavy. Both are valid recipes — the table assertions are identical.
 - Orphaned processors are purged, not kept: with oracles standing on every migrated
-  screen, rollback is git history. Only screens not yet migrated (SignOut,
-  UpdatePassword, evaluations, about, wizard, enrollmentproof, maincore) still run on
-  `BaseViewModel` + `ActionProcessor`s.
+  screen, rollback is git history. As of 2026-06-12 every screen runs on the engine and
+  the legacy plumbing (`BaseViewModel`, `ActionProcessor`, the `Mutation` typealias) is
+  deleted from `base` — the model is single also at the engine level.
 - The `implement-tuindice-module` skill and `scaffold_feature_module.py` templates
   generate the machine anatomy (machine + internal events + transitions + error mapper
   + machine contract test); new screens are born on the doctrine.
@@ -342,11 +342,8 @@ Supporting conventions, all applied:
   screen whose route fires startup actions ships an order-inverted oracle test
   (`refreshEnqueuedBeforeObserve_stillReachesContent`).
 
-## Open items for the real migration (out of spike scope)
+## Open items (post-migration)
 
-- Migrate the remaining screens: evaluations (the largest, a form — use the draft
-  pattern), about, wizard, enrollmentproof, maincore, and auth's SignOut/UpdatePassword.
-- README architecture section update describing `StateMachineViewModel` as the default.
 - Promote `CreateSyntheticTermDraft` to a domain `SyntheticTermDraftRepository` if the
   draft proves to be domain truth (deferred: ripples through use case and data source
   signatures and raises draft-lifetime questions).
