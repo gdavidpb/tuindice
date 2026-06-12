@@ -55,7 +55,7 @@ class SubjectSearchViewModel(
 
 	// Degenerate machine on purpose: one formal state, every transition internal. The
 	// uniformity keeps validity, telemetry, export, and the alphabet validator total.
-	override fun defineMachine() = MachineDefinition.define<SubjectSearch.State> {
+	override fun defineMachine() = MachineDefinition.define {
 		from<SubjectSearch.State> {
 			on<SubjectSearch.Action.ObserveSubjectSearch> { state, action ->
 				startObservation(action = action)

@@ -80,7 +80,7 @@ class SignInViewModel(
 	fun openPrivacyPolicyAction() =
 		sendAction(SignIn.Action.ClickPrivacyPolicy)
 
-	override fun defineMachine() = MachineDefinition.define<SignIn.State> {
+	override fun defineMachine() = MachineDefinition.define {
 		from<SignIn.State.Idle> {
 			on<SignIn.Action.SetUsbId> { state, action ->
 				state.copy(usbId = action.usbId)
@@ -141,14 +141,15 @@ class SignInViewModel(
 			on<SignIn.Action.SetUsageDataCollectionEnabled> { state, action ->
 				usageDataConsentRepository.setUsageDataCollectionEnabled(action.enabled)
 
-				when (state) {
-					is SignIn.State.Idle ->
-						state.copy(usageDataCollectionEnabled = action.enabled)
-
-					is SignIn.State.LoggingIn ->
-						state.copy(usageDataCollectionEnabled = action.enabled)
-				}
+				state.withUsageDataCollection(enabled = action.enabled)
 			}
+		}
+	}
+
+	private fun SignIn.State.withUsageDataCollection(enabled: Boolean): SignIn.State {
+		return when (this) {
+			is SignIn.State.Idle -> copy(usageDataCollectionEnabled = enabled)
+			is SignIn.State.LoggingIn -> copy(usageDataCollectionEnabled = enabled)
 		}
 	}
 

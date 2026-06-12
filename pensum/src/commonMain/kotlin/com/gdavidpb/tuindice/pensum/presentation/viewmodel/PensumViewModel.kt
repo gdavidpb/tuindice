@@ -60,7 +60,7 @@ class PensumViewModel(
 		)
 	}
 
-	override fun defineMachine() = MachineDefinition.define<Pensum.State> {
+	override fun defineMachine() = MachineDefinition.define {
 		from<Pensum.State.Idle> {
 			on<Pensum.Action.ObservePensum> { state, _ ->
 				startObservation()

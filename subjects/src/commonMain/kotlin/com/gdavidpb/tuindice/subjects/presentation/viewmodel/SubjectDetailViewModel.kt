@@ -39,7 +39,7 @@ class SubjectDetailViewModel(
 		sendAction(SubjectDetail.Action.SelectSubjectSegmentTab(tab = tab))
 	}
 
-	override fun defineMachine() = MachineDefinition.define<SubjectDetail.State> {
+	override fun defineMachine() = MachineDefinition.define {
 		from<SubjectDetail.State.Content> {
 			on<SubjectDetail.Action.SelectSubjectSegmentTab> { state, action ->
 				state.copy(detail = state.detail.withSelectedTab(action.tab))
