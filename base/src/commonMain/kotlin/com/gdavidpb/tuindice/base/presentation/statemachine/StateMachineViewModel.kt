@@ -38,9 +38,11 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 
 	protected abstract val eventPublisher: EventPublisher
 
+	protected abstract val screenMachine: ScreenMachine<S, E>
+
 	// Public on purpose: the machine is introspectable data — diagram export and
 	// transition-table validation tooling read it from here.
-	val machine: MachineDefinition<S> by lazy { defineMachine() }
+	val machine: MachineDefinition<S> by lazy { screenMachine.define(host = machineHost()) }
 
 	val effect = effectChannel.receiveAsFlow()
 
@@ -57,8 +59,6 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 			started = SharingStarted.Lazily,
 			initialValue = initialState
 		)
-
-	protected abstract fun defineMachine(): MachineDefinition<S>
 
 	protected val currentState: S
 		get() = viewState.value
@@ -106,7 +106,7 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 		return viewModelScope.launch(dispatchers.default, block = block)
 	}
 
-	protected fun machineHost(): MachineHost<E> {
+	private fun machineHost(): MachineHost<E> {
 		return object : MachineHost<E> {
 			override fun sendEffect(effect: E) =
 				this@StateMachineViewModel.sendEffect(effect)

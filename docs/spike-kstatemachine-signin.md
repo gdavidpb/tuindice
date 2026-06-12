@@ -174,7 +174,10 @@ The dependency was fully removed in iteration 2.
     per action, organized by the dimension that matters now (origin state). Pure
     reductions live beside their block as named functions.
   - `presentation/viewmodel/<Screen>ViewModel.kt` — screen API only (~40-60 lines):
-    named action helpers + `defineMachine() = machine.define(machineHost())`.
+    named action helpers + `override val screenMachine: <Screen>Machine` in the
+    constructor (the machine enters as injected dependency through the base
+    `ScreenMachine<S, E>` contract — same pattern as use-case exception handlers;
+    the glue calls `define(host)` itself, no loose function in the body).
   - `MachineHost<E>` (base) carries the three capabilities transition outputs may use
     (`sendEffect`, `processInternalEvent`, `launchMachineJob`) — explicit parameters,
     no mutable wiring.

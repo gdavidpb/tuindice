@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.presentation.statemachine.StateMachineViewModel
 
 class SignInViewModel(
-	private val signInMachine: SignInMachine,
+	override val screenMachine: SignInMachine,
 	usageDataConsentRepository: UsageDataConsentRepository = InMemoryUsageDataConsentRepository(),
 	override val eventPublisher: EventPublisher,
 	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
@@ -55,5 +55,4 @@ class SignInViewModel(
 	fun openPrivacyPolicyAction() =
 		sendAction(SignIn.Action.ClickPrivacyPolicy)
 
-	override fun defineMachine() = signInMachine.define(host = machineHost())
 }

@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.subjects.presentation.machine
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
+import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetailLoad
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetailResult
 import com.gdavidpb.tuindice.subjects.domain.usecase.LoadSubjectDetailUseCase
@@ -17,8 +18,8 @@ import com.gdavidpb.tuindice.subjects.presentation.transition.unavailableTransit
 class SubjectDetailMachine(
 	private val loadSubjectDetailUseCase: LoadSubjectDetailUseCase,
 	private val refreshSubjectDetailUseCase: RefreshSubjectDetailUseCase
-) {
-	fun define(host: MachineHost<SubjectDetail.Effect>): MachineDefinition<SubjectDetail.State> {
+) : ScreenMachine<SubjectDetail.State, SubjectDetail.Effect> {
+	override fun define(host: MachineHost<SubjectDetail.Effect>): MachineDefinition<SubjectDetail.State> {
 		return MachineDefinition.define {
 			contentTransitions()
 			unavailableTransitions()

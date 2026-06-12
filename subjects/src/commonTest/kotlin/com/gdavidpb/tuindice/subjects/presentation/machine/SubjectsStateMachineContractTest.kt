@@ -104,7 +104,7 @@ class SubjectsStateMachineContractTest {
 		val reportingRepository = RecordingReportingRepository()
 
 		return SubjectDetailViewModel(
-			subjectDetailMachine = SubjectDetailMachine(
+			screenMachine = SubjectDetailMachine(
 				loadSubjectDetailUseCase = LoadSubjectDetailUseCase(
 					subjectStatsRepository = repository,
 					reportingRepository = reportingRepository
@@ -123,7 +123,7 @@ class SubjectsStateMachineContractTest {
 		val reportingRepository = RecordingReportingRepository()
 
 		return SubjectSearchViewModel(
-			subjectSearchMachine = SubjectSearchMachine(
+			screenMachine = SubjectSearchMachine(
 				observeSubjectSearchUseCase = ObserveSubjectSearchUseCase(
 					subjectCatalogRepository = repository,
 					reportingRepository = reportingRepository

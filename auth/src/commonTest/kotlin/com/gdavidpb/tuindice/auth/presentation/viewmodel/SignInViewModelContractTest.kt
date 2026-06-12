@@ -33,7 +33,7 @@ class SignInViewModelContractTest {
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun publicActions_updateState_andEmitEffects() = runTest {
 		val viewModel = SignInViewModel(
-			signInMachine = SignInMachine(
+			screenMachine = SignInMachine(
 				signInUseCase = SignInUseCase(
 					authRepository = RecordingAuthRepository(),
 					messagingRepository = RecordingMessagingRepository(),

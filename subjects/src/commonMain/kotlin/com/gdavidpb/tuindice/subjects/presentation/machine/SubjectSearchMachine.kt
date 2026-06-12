@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.domain.utils.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
+import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.subjects.domain.usecase.ObserveSubjectSearchUseCase
 import com.gdavidpb.tuindice.subjects.domain.usecase.RefreshSubjectSearchUseCase
 import com.gdavidpb.tuindice.subjects.domain.usecase.param.SubjectSearchParams
@@ -27,8 +28,8 @@ import kotlinx.coroutines.flow.merge
 class SubjectSearchMachine(
 	private val observeSubjectSearchUseCase: ObserveSubjectSearchUseCase,
 	private val refreshSubjectSearchUseCase: RefreshSubjectSearchUseCase
-) {
-	fun define(host: MachineHost<SubjectSearch.Effect>): MachineDefinition<SubjectSearch.State> {
+) : ScreenMachine<SubjectSearch.State, SubjectSearch.Effect> {
+	override fun define(host: MachineHost<SubjectSearch.Effect>): MachineDefinition<SubjectSearch.State> {
 		return MachineDefinition.define {
 			searchTransitions(machine = this@SubjectSearchMachine, host = host)
 		}

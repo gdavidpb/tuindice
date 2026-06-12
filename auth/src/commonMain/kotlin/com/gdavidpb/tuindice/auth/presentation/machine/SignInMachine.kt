@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
+import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import org.jetbrains.compose.resources.getString
 import tuindice.auth.generated.resources.Res
 import tuindice.auth.generated.resources.error_account_disabled
@@ -32,8 +33,8 @@ class SignInMachine(
 	private val configRepository: ConfigRepository,
 	private val appEnvironmentRepository: AppEnvironmentRepository,
 	private val usageDataConsentRepository: UsageDataConsentRepository
-) {
-	fun define(host: MachineHost<SignIn.Effect>): MachineDefinition<SignIn.State> {
+) : ScreenMachine<SignIn.State, SignIn.Effect> {
+	override fun define(host: MachineHost<SignIn.Effect>): MachineDefinition<SignIn.State> {
 		return MachineDefinition.define {
 			idleTransitions(machine = this@SignInMachine, host = host)
 			loggingInTransitions(machine = this@SignInMachine, host = host)

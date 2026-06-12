@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.subjects.presentation.machine.SubjectSearchMachine
 import kotlinx.coroutines.flow.MutableStateFlow
 
 class SubjectSearchViewModel(
-	private val subjectSearchMachine: SubjectSearchMachine,
+	override val screenMachine: SubjectSearchMachine,
 	override val eventPublisher: EventPublisher,
 	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : StateMachineViewModel<SubjectSearch.State, SubjectSearch.Action, SubjectSearch.Effect>(
@@ -32,5 +32,4 @@ class SubjectSearchViewModel(
 		sendAction(SubjectSearch.Action.Retry(query = queryFlow.value))
 	}
 
-	override fun defineMachine() = subjectSearchMachine.define(host = machineHost())
 }

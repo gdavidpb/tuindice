@@ -9,7 +9,7 @@ import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectDetail
 import com.gdavidpb.tuindice.subjects.presentation.machine.SubjectDetailMachine
 
 class SubjectDetailViewModel(
-	private val subjectDetailMachine: SubjectDetailMachine,
+	override val screenMachine: SubjectDetailMachine,
 	override val eventPublisher: EventPublisher,
 	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : StateMachineViewModel<SubjectDetail.State, SubjectDetail.Action, SubjectDetail.Effect>(
@@ -29,5 +29,4 @@ class SubjectDetailViewModel(
 		sendAction(SubjectDetail.Action.SelectSubjectSegmentTab(tab = tab))
 	}
 
-	override fun defineMachine() = subjectDetailMachine.define(host = machineHost())
 }

@@ -83,7 +83,7 @@ class PensumStateMachineContractTest {
 		)
 
 		return PensumViewModel(
-			pensumMachine = PensumMachine(
+			screenMachine = PensumMachine(
 				observePensumUseCase = ObservePensumUseCase(
 					pensumRepository = repository,
 					reportingRepository = reportingRepository

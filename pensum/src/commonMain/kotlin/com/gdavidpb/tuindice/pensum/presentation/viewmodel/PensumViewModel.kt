@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
 import com.gdavidpb.tuindice.pensum.presentation.machine.PensumMachine
 
 class PensumViewModel(
-	private val pensumMachine: PensumMachine,
+	override val screenMachine: PensumMachine,
 	override val eventPublisher: EventPublisher,
 	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : StateMachineViewModel<Pensum.State, Pensum.Action, Pensum.Effect>(
@@ -38,5 +38,4 @@ class PensumViewModel(
 		)
 	}
 
-	override fun defineMachine() = pensumMachine.define(host = machineHost())
 }

@@ -300,7 +300,7 @@ class SignInRouteUiTest {
 
 		return SignInRouteFixture(
 			viewModel = SignInViewModel(
-				signInMachine = SignInMachine(
+				screenMachine = SignInMachine(
 					signInUseCase = signInUseCase,
 					configRepository = FakeConfigRepository(),
 					appEnvironmentRepository = FakeAppEnvironmentRepository(

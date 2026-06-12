@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.pensum.presentation.machine
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
+import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
@@ -26,8 +27,8 @@ class PensumMachine(
 	private val selectPensumUseCase: SelectPensumUseCase,
 	private val selectPensumModalityUseCase: SelectPensumModalityUseCase,
 	private val selectPensumSelectionUseCase: SelectPensumSelectionUseCase
-) {
-	fun define(host: MachineHost<Pensum.Effect>): MachineDefinition<Pensum.State> {
+) : ScreenMachine<Pensum.State, Pensum.Effect> {
+	override fun define(host: MachineHost<Pensum.Effect>): MachineDefinition<Pensum.State> {
 		return MachineDefinition.define {
 			idleTransitions(machine = this@PensumMachine, host = host)
 			contentTransitions()

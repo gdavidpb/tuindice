@@ -293,7 +293,7 @@ class PensumViewModelContractTest {
 		)
 
 		val viewModel = PensumViewModel(
-			pensumMachine = PensumMachine(
+			screenMachine = PensumMachine(
 				observePensumUseCase = ObservePensumUseCase(
 					pensumRepository = repository,
 					reportingRepository = reportingRepository

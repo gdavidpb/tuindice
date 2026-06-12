@@ -260,7 +260,7 @@ class SignInStateMachineContractTest {
 		val eventPublisher = RecordingEventPublisher()
 
 		val viewModel = SignInViewModel(
-			signInMachine = SignInMachine(
+			screenMachine = SignInMachine(
 				signInUseCase = SignInUseCase(
 					authRepository = authRepository,
 					messagingRepository = RecordingMessagingRepository(),

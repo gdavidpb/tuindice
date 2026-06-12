@@ -147,7 +147,7 @@ class SubjectSearchViewModelContractTest {
 		val reportingRepository = RecordingReportingRepository()
 
 		val viewModel = SubjectSearchViewModel(
-			subjectSearchMachine = SubjectSearchMachine(
+			screenMachine = SubjectSearchMachine(
 				observeSubjectSearchUseCase = ObserveSubjectSearchUseCase(
 					subjectCatalogRepository = repository,
 					reportingRepository = reportingRepository

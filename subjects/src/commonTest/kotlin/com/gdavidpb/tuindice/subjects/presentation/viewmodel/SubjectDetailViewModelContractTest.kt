@@ -200,7 +200,7 @@ class SubjectDetailViewModelContractTest {
 		val reportingRepository = RecordingReportingRepository()
 
 		val viewModel = SubjectDetailViewModel(
-			subjectDetailMachine = SubjectDetailMachine(
+			screenMachine = SubjectDetailMachine(
 				loadSubjectDetailUseCase = LoadSubjectDetailUseCase(
 					subjectStatsRepository = repository,
 					reportingRepository = reportingRepository
