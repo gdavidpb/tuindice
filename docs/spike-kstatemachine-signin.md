@@ -81,8 +81,12 @@ needs durability or replay should be modeled as state instead, case by case.
   `process` calls. This replaces the `scan` guarantee of `BaseViewModel`.
 - Invalid transition policy: ignore + `AppEvent.InvalidTransition` telemetry
   (bug-compatible with the old silent no-op mutations, but observable).
-- In-flight work is cancelled on state exit (`from<LoggingIn> { onExit { … } }` cancels the
-  sign-in job) — previously there was no cancellation policy at all.
+- In-flight work needs no per-state cancellation today (removed 2026-06-12 after review):
+  the only exit from `LoggingIn` is produced by the job itself at its natural end, the
+  table rejects zombie results arriving in the wrong state (`app_invalid_transition`),
+  and `launchMachineJob` is bounded by `viewModelScope`. Reintroduce state-owned
+  cancellation (`onExit { job.cancel() }`) the day a screen gains a mid-flight exit,
+  e.g. a cancel button.
 
 ## Approved behavior diffs vs. the old ActionProcessor implementation
 

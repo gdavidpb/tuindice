@@ -15,7 +15,6 @@ import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.StateMachineViewModel
-import kotlinx.coroutines.Job
 import org.jetbrains.compose.resources.getString
 import tuindice.auth.generated.resources.Res
 import tuindice.auth.generated.resources.error_account_disabled
@@ -44,8 +43,6 @@ class SignInViewModel(
 	),
 	dispatchers = dispatchers
 ) {
-	private var signInJob: Job? = null
-
 	fun setUsbIdAction(usbId: String) =
 		sendAction(
 			SignIn.Action.SetUsbId(
@@ -108,11 +105,6 @@ class SignInViewModel(
 			onTo<SignInInternalEvent.SignInFailed, SignIn.State.Idle> { state, event ->
 				failSignIn(state = state, event = event)
 			}
-
-			onExit {
-				signInJob?.cancel()
-				signInJob = null
-			}
 		}
 
 		fromAny {
@@ -162,7 +154,7 @@ class SignInViewModel(
 			password = action.password
 		)
 
-		signInJob = launchMachineJob {
+		launchMachineJob {
 			signInUseCase.execute(params).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> Unit
