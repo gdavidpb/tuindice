@@ -247,6 +247,41 @@ state pensum {
 The cascaded `when`s that used to hide inside `ObservePensumActionProcessor` and
 `PensumRefreshMutation` are now this diagram, generated from the running table.
 
+## Form screens: the draft pattern (decided on CreateSyntheticTerm)
+
+Form-heavy screens used to keep their input sources — `MutableStateFlow`s for the text
+field, selections and editing ids — inside the ViewModel, with helpers writing them
+directly and one use case (the edit seed) loading into them. That left the ViewModel
+owning a use case and made every gesture invisible to the table.
+
+The consistent shape: reify the registers as `machine/<Screen>Draft.kt`, owned by the
+machine (Koin factory, injected only there, so its lifetime matches the ViewModel).
+
+- The draft exposes read-only `StateFlow`s plus synchronous mutators; **only machine
+  level writes it** (transition rows and commands), never the ViewModel.
+- Every user gesture becomes an Action with a table row: `ConfigureTerm`, `UpdateQuery`,
+  `SelectAddSubjectTab`, `SelectPeriod`, `AddSubject`, `RemoveSubject`, `CreateTerm`.
+  The alphabet now covers the whole form, and each gesture lands in `app_transition`.
+- Rows either write the draft and stay (`SelectPeriod`), copy straight into `S` when no
+  domain recomputation is involved (`SelectAddSubjectTab` — this killed the old tab
+  observer pipeline and its internal event), or both (`UpdateQuery`).
+- Async input loading is a command like any other: `ConfigureTerm` runs the seed use
+  case and `applySeed`s the draft; the snapshot pipeline folds the change back into the
+  table as `SnapshotObserved`. Same cycle the subject search already used (command
+  writes a repository, pipeline re-observes) — the draft is that pattern applied to
+  inputs.
+- `Action.Observe` collapsed from carrying six `StateFlow`s (an action smuggling flows
+  was always a smell) to a plain `data object`, which also lets it be the `initialAction`.
+
+Cost honestly paid: the `Observe` contract change invalidated
+`ObserveCreateSyntheticTermActionProcessor`, so that processor and its test were deleted
+(the remaining CST processors still compile and stay, per the rollback policy — though
+rollback for this screen now means reverting commits, not swapping processors back).
+Possible promotion at ratification: move the draft into domain as a
+`SyntheticTermDraftRepository` so `ObserveSyntheticTermCreationUseCase` stops taking
+flows as params; deferred because it ripples through use case and data source
+signatures and raises draft-lifetime questions a presentation-level draft avoids.
+
 ## Error policy (decided after code review)
 
 An exception thrown by a transition output `f` kills the machine loop and crashes the

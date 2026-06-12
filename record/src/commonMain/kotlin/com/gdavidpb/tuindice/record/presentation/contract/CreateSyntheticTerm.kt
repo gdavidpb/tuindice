@@ -9,7 +9,6 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
-import kotlinx.coroutines.flow.StateFlow
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.top_bar_create_synthetic_term
 import tuindice.record.generated.resources.top_bar_edit_synthetic_term
@@ -52,13 +51,10 @@ object CreateSyntheticTerm {
 	}
 
 	sealed class Action : ViewAction {
-		data class Observe(
-			val queryFlow: StateFlow<String>,
-			val selectedAddSubjectTabFlow: StateFlow<CreateTermAddSubjectTab>,
-			val selectedSubjectsFlow: StateFlow<List<SyntheticTermSubject>>,
-			val selectedPeriodKeyFlow: StateFlow<String?>,
-			val editingTermIdFlow: StateFlow<String?>,
-			val editingTermKeyFlow: StateFlow<String?>
+		data object Observe : Action()
+
+		data class ConfigureTerm(
+			val termId: String?
 		) : Action()
 
 		data class UpdateQuery(
@@ -66,6 +62,23 @@ object CreateSyntheticTerm {
 			val selectionStart: Int,
 			val selectionEnd: Int
 		) : Action()
+
+		data class SelectAddSubjectTab(
+			val tab: CreateTermAddSubjectTab
+		) : Action()
+
+		data class SelectPeriod(
+			val termKey: String
+		) : Action()
+
+		data class AddSubject(
+			val subjectItem: CreateTermSubjectItem
+		) : Action()
+
+		data class RemoveSubject(
+			val subjectCode: String
+		) : Action()
+
 		data class CreateTerm(
 			val editingTermId: String?,
 			val editingTermKey: String?,

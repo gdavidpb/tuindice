@@ -119,7 +119,12 @@ class RecordStateMachineContractTest {
 		val expectedCreateFragments = listOf(
 			"state state",
 			"Observe",
+			"ConfigureTerm",
 			"UpdateQuery",
+			"SelectAddSubjectTab",
+			"SelectPeriod",
+			"AddSubject",
+			"RemoveSubject",
 			"SnapshotObserved",
 			"SearchStarted",
 			"LoadPreviewLoaded",

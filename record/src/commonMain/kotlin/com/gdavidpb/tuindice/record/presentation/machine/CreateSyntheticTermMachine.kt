@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermValidationError
 import com.gdavidpb.tuindice.record.domain.usecase.CreateSyntheticTermUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermEditSeedUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermPreviewUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermCreationUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RefreshSyntheticTermSubjectSearchUseCase
@@ -32,7 +33,6 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.coroutines.flow.merge
 import kotlin.time.Duration.Companion.milliseconds
@@ -48,9 +48,11 @@ import tuindice.record.generated.resources.create_term_error_term_must_be_after_
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class CreateSyntheticTermMachine(
+	internal val draft: CreateSyntheticTermDraft,
 	private val observeSyntheticTermCreationUseCase: ObserveSyntheticTermCreationUseCase,
 	private val refreshSyntheticTermSubjectSearchUseCase: RefreshSyntheticTermSubjectSearchUseCase,
 	private val loadSyntheticTermPreviewUseCase: LoadSyntheticTermPreviewUseCase,
+	private val loadSyntheticTermEditSeedUseCase: LoadSyntheticTermEditSeedUseCase,
 	private val createSyntheticTermUseCase: CreateSyntheticTermUseCase,
 	private val updateSyntheticTermUseCase: UpdateSyntheticTermUseCase,
 	private val setSelectedTermUseCase: SetSelectedTermUseCase
@@ -65,17 +67,32 @@ class CreateSyntheticTermMachine(
 		}
 	}
 
-	internal fun startObservation(
-		host: MachineHost<CreateSyntheticTerm.Effect>,
-		action: CreateSyntheticTerm.Action.Observe
-	) {
+	internal fun startObservation(host: MachineHost<CreateSyntheticTerm.Effect>) {
 		host.launchMachineJob {
 			merge(
-				observeSelectedTab(action),
-				observeSnapshot(action),
-				searchPipeline(action),
-				loadPreviewPipeline(action)
+				observeSnapshot(),
+				searchPipeline(),
+				loadPreviewPipeline()
 			).collect { event -> host.processInternalEvent(event) }
+		}
+	}
+
+	internal fun configureTerm(
+		host: MachineHost<CreateSyntheticTerm.Effect>,
+		termId: String?
+	) {
+		if (!draft.tryConfigure(termId)) return
+		if (termId == null) {
+			draft.clearEditing()
+			return
+		}
+
+		host.launchMachineJob {
+			loadSyntheticTermEditSeedUseCase.execute(termId).collect { useCaseState ->
+				if (useCaseState is UseCaseState.Data) {
+					draft.applySeed(useCaseState.value)
+				}
+			}
 		}
 	}
 
@@ -125,25 +142,19 @@ class CreateSyntheticTermMachine(
 		}
 	}
 
-	private fun observeSelectedTab(
-		action: CreateSyntheticTerm.Action.Observe
-	): Flow<CreateSyntheticTermInternalEvent> {
-		return action.selectedAddSubjectTabFlow.map { tab ->
-			CreateSyntheticTermInternalEvent.TabSelected(tab = tab)
-		}
+	private fun observeSnapshotParams(): ObserveSyntheticTermCreationParams {
+		return ObserveSyntheticTermCreationParams(
+			queryFlow = draft.queryFlow,
+			selectedSubjectsFlow = draft.selectedSubjectsFlow,
+			selectedPeriodKeyFlow = draft.selectedPeriodKeyFlow,
+			editingTermIdFlow = draft.editingTermIdFlow,
+			editingTermKeyFlow = draft.editingTermKeyFlow
+		)
 	}
 
-	private fun observeSnapshot(
-		action: CreateSyntheticTerm.Action.Observe
-	): Flow<CreateSyntheticTermInternalEvent> {
+	private fun observeSnapshot(): Flow<CreateSyntheticTermInternalEvent> {
 		return observeSyntheticTermCreationUseCase.execute(
-			ObserveSyntheticTermCreationParams(
-				queryFlow = action.queryFlow,
-				selectedSubjectsFlow = action.selectedSubjectsFlow,
-				selectedPeriodKeyFlow = action.selectedPeriodKeyFlow,
-				editingTermIdFlow = action.editingTermIdFlow,
-				editingTermKeyFlow = action.editingTermKeyFlow
-			)
+			observeSnapshotParams()
 		).mapNotNull { useCaseState ->
 			when (useCaseState) {
 				is UseCaseState.Data -> {
@@ -173,10 +184,8 @@ class CreateSyntheticTermMachine(
 		}
 	}
 
-	private fun searchPipeline(
-		action: CreateSyntheticTerm.Action.Observe
-	): Flow<CreateSyntheticTermInternalEvent> {
-		return action.queryFlow
+	private fun searchPipeline(): Flow<CreateSyntheticTermInternalEvent> {
+		return draft.queryFlow
 			.distinctUntilChanged { old, new ->
 				SubjectCatalogSearchNormalizer.normalize(old) ==
 					SubjectCatalogSearchNormalizer.normalize(new)
@@ -212,17 +221,9 @@ class CreateSyntheticTermMachine(
 			}
 	}
 
-	private fun loadPreviewPipeline(
-		action: CreateSyntheticTerm.Action.Observe
-	): Flow<CreateSyntheticTermInternalEvent> {
+	private fun loadPreviewPipeline(): Flow<CreateSyntheticTermInternalEvent> {
 		return observeSyntheticTermCreationUseCase.execute(
-			ObserveSyntheticTermCreationParams(
-				queryFlow = action.queryFlow,
-				selectedSubjectsFlow = action.selectedSubjectsFlow,
-				selectedPeriodKeyFlow = action.selectedPeriodKeyFlow,
-				editingTermIdFlow = action.editingTermIdFlow,
-				editingTermKeyFlow = action.editingTermKeyFlow
-			)
+			observeSnapshotParams()
 		)
 			.mapNotNull { useCaseState ->
 				when (useCaseState) {

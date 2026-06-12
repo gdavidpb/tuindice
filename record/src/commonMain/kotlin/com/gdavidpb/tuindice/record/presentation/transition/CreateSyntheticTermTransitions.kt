@@ -12,12 +12,19 @@ internal fun MachineDefinitionBuilder<CreateSyntheticTerm.State>.createSynthetic
 	host: MachineHost<CreateSyntheticTerm.Effect>
 ) {
 	from<CreateSyntheticTerm.State> {
-		on<CreateSyntheticTerm.Action.Observe> { state, action ->
-			machine.startObservation(host = host, action = action)
+		on<CreateSyntheticTerm.Action.Observe> { state, _ ->
+			machine.startObservation(host = host)
+			state
+		}
+
+		on<CreateSyntheticTerm.Action.ConfigureTerm> { state, action ->
+			machine.configureTerm(host = host, termId = action.termId)
 			state
 		}
 
 		on<CreateSyntheticTerm.Action.UpdateQuery> { state, action ->
+			machine.draft.setQuery(action.query)
+
 			val selectionStart = action.selectionStart.coerceIn(0, action.query.length)
 			val selectionEnd = action.selectionEnd.coerceIn(0, action.query.length)
 
@@ -40,13 +47,28 @@ internal fun MachineDefinitionBuilder<CreateSyntheticTerm.State>.createSynthetic
 			}
 		}
 
-		on<CreateSyntheticTerm.Action.CreateTerm> { state, action ->
-			machine.submit(host = host, action = action)
+		on<CreateSyntheticTerm.Action.SelectAddSubjectTab> { state, action ->
+			state.copy(selectedAddSubjectTab = action.tab)
+		}
+
+		on<CreateSyntheticTerm.Action.SelectPeriod> { state, action ->
+			machine.draft.selectPeriod(termKey = action.termKey)
 			state
 		}
 
-		on<CreateSyntheticTermInternalEvent.TabSelected> { state, event ->
-			state.copy(selectedAddSubjectTab = event.tab)
+		on<CreateSyntheticTerm.Action.AddSubject> { state, action ->
+			machine.draft.addSubject(subjectItem = action.subjectItem)
+			state
+		}
+
+		on<CreateSyntheticTerm.Action.RemoveSubject> { state, action ->
+			machine.draft.removeSubject(subjectCode = action.subjectCode)
+			state
+		}
+
+		on<CreateSyntheticTerm.Action.CreateTerm> { state, action ->
+			machine.submit(host = host, action = action)
+			state
 		}
 
 		on<CreateSyntheticTermInternalEvent.SnapshotObserved> { state, event ->

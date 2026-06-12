@@ -37,13 +37,13 @@ import com.gdavidpb.tuindice.record.domain.usecase.UpsertAttemptSelectionUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExceptionHandler
 import com.gdavidpb.tuindice.record.presentation.action.CreateSyntheticTermActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.DeleteSyntheticTermActionProcessor
-import com.gdavidpb.tuindice.record.presentation.action.ObserveCreateSyntheticTermActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.ObserveRecordActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.RefreshRecordActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SelectRecordTermActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.SetRecordViewModeActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.UpdateCreateSyntheticTermQueryActionProcessor
 import com.gdavidpb.tuindice.record.presentation.action.UpsertAttemptSelectionActionProcessor
+import com.gdavidpb.tuindice.record.presentation.machine.CreateSyntheticTermDraft
 import com.gdavidpb.tuindice.record.presentation.machine.CreateSyntheticTermMachine
 import com.gdavidpb.tuindice.record.presentation.machine.RecordMachine
 import com.gdavidpb.tuindice.record.presentation.viewmodel.CreateSyntheticTermViewModel
@@ -68,6 +68,7 @@ val recordModule = module {
 
 	factoryOf(::RecordMachine)
 	factoryOf(::CreateSyntheticTermMachine)
+	factoryOf(::CreateSyntheticTermDraft)
 
 	/* Action processor */
 
@@ -77,7 +78,6 @@ val recordModule = module {
 	factoryOf(::SelectRecordTermActionProcessor)
 	factoryOf(::UpsertAttemptSelectionActionProcessor)
 	factoryOf(::DeleteSyntheticTermActionProcessor)
-	factoryOf(::ObserveCreateSyntheticTermActionProcessor)
 	factoryOf(::UpdateCreateSyntheticTermQueryActionProcessor)
 	factoryOf(::CreateSyntheticTermActionProcessor)
 

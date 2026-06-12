@@ -3,19 +3,14 @@ package com.gdavidpb.tuindice.record.presentation.machine
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
-import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
 
 /**
  * Internal machine inputs for the synthetic-term editor: flattened emissions of the
- * four observation pipelines (tab, creation snapshot, debounced subject search, and
- * debounced load preview) plus the submit lifecycle.
+ * three observation pipelines over the draft registers (creation snapshot, debounced
+ * subject search, and debounced load preview) plus the submit lifecycle.
  */
 sealed interface CreateSyntheticTermInternalEvent {
-	data class TabSelected(
-		val tab: CreateTermAddSubjectTab
-	) : CreateSyntheticTermInternalEvent
-
 	data class SnapshotObserved(
 		val editingTermId: String?,
 		val editingTermKey: String?,
