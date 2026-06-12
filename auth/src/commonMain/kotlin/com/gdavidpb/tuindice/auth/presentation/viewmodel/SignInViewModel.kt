@@ -97,18 +97,27 @@ class SignInViewModel(
 		}
 
 		from<SignIn.State.LoggingIn> {
-			on<SignInInternalEvent.SignInSucceeded> { state, _ ->
+			on<SignInInternalEvent.SignInSucceeded>(
+				emits = setOf(SignIn.Effect.NavigateToSummary::class)
+			) { state, _ ->
 				sendEffect(SignIn.Effect.NavigateToSummary)
 				state
 			}
 
-			onTo<SignInInternalEvent.SignInFailed, SignIn.State.Idle> { state, event ->
+			onTo<SignInInternalEvent.SignInFailed, SignIn.State.Idle>(
+				emits = setOf(
+					SignIn.Effect.ShowSnackBar::class,
+					SignIn.Effect.ShowRetrySnackBar::class
+				)
+			) { state, event ->
 				failSignIn(state = state, event = event)
 			}
 		}
 
 		fromAny {
-			on<SignIn.Action.ClickTermsAndConditions> { state, _ ->
+			on<SignIn.Action.ClickTermsAndConditions>(
+				emits = setOf(SignIn.Effect.NavigateToBrowser::class)
+			) { state, _ ->
 				sendEffect(
 					SignIn.Effect.NavigateToBrowser(
 						title = getString(Res.string.title_terms_and_conditions),
@@ -119,7 +128,9 @@ class SignInViewModel(
 				state
 			}
 
-			on<SignIn.Action.ClickPrivacyPolicy> { state, _ ->
+			on<SignIn.Action.ClickPrivacyPolicy>(
+				emits = setOf(SignIn.Effect.NavigateToBrowser::class)
+			) { state, _ ->
 				sendEffect(
 					SignIn.Effect.NavigateToBrowser(
 						title = getString(Res.string.title_privacy_policy),

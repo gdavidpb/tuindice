@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.base.presentation.statemachine
 
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.sealedSubclassesOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -21,6 +22,11 @@ class MachineDefinitionTest {
 		data object Start : TestEvent()
 		data object Stop : TestEvent()
 		data object Ping : TestEvent()
+	}
+
+	private sealed class TestEffect {
+		data object Beep : TestEffect()
+		data object Boop : TestEffect()
 	}
 
 	@Test
@@ -227,6 +233,38 @@ class MachineDefinitionTest {
 				}
 			}
 		}
+	}
+
+	@Test
+	fun declaredEmits_appearInExport_andEffectsValidatorDetectsDeadSymbols() = runTest {
+		val machine = MachineDefinition.define<TestState> {
+			from<TestState.Idle> {
+				on<TestEvent.Ping>(emits = setOf(TestEffect.Beep::class)) { state, _ -> state }
+			}
+		}
+
+		val diagram = machine.exportToMermaid(
+			machineName = "test_machine",
+			initialState = TestState.Idle::class
+		)
+
+		assertTrue(
+			diagram.contains("idle --> idle : Ping / Beep"),
+			"Expected σ / λ edge label in export:\n$diagram"
+		)
+
+		// Enforcement requires sealed-hierarchy reflection (android host run).
+		if (sealedSubclassesOf(TestEffect::class) == null) return@runTest
+
+		assertFailsWith<AssertionError> {
+			assertMachineCoversEffects(machine, TestEffect::class)
+		}
+
+		assertMachineCoversEffects(
+			machine,
+			TestEffect::class,
+			except = setOf(TestEffect.Boop::class)
+		)
 	}
 
 	@Test

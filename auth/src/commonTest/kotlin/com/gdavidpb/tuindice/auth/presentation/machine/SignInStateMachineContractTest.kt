@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
@@ -208,6 +209,16 @@ class SignInStateMachineContractTest {
 	}
 
 	@Test
+	fun machine_declaresTheFullOutputAlphabet() {
+		val fixture = createFixture()
+
+		assertMachineCoversEffects(
+			fixture.viewModel.machine,
+			SignIn.Effect::class
+		)
+	}
+
+	@Test
 	fun machine_statesAreReachableFromIdle() {
 		val fixture = createFixture()
 
@@ -229,10 +240,10 @@ class SignInStateMachineContractTest {
 			"idle",
 			"logging_in",
 			"ClickSignIn",
-			"SignInSucceeded",
-			"SignInFailed",
+			"SignInSucceeded / NavigateToSummary",
+			"SignInFailed / ShowSnackBar · ShowRetrySnackBar",
 			"SetUsbId",
-			"ClickTermsAndConditions"
+			"ClickTermsAndConditions / NavigateToBrowser"
 		)
 
 		for (fragment in expectedFragments) {

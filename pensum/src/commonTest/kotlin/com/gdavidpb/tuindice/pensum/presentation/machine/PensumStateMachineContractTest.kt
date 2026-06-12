@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.pensum.presentation.viewmodel.PensumViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -27,6 +28,14 @@ class PensumStateMachineContractTest {
 			createViewModel().machine,
 			Pensum.Action::class,
 			PensumInternalEvent::class
+		)
+	}
+
+	@Test
+	fun machine_declaresTheFullOutputAlphabet() {
+		assertMachineCoversEffects(
+			createViewModel().machine,
+			Pensum.Effect::class
 		)
 	}
 

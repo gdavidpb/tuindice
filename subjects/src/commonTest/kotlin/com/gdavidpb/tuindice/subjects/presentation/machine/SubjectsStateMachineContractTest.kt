@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.subjects.testing.ControllableSubjectCatalogReposito
 import com.gdavidpb.tuindice.subjects.testing.RecordingSubjectStatsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -32,6 +33,8 @@ class SubjectsStateMachineContractTest {
 			machine = machine,
 			initialState = SubjectDetail.State.Idle::class
 		)
+
+		assertMachineCoversEffects(machine, SubjectDetail.Effect::class)
 	}
 
 	@Test
@@ -48,6 +51,8 @@ class SubjectsStateMachineContractTest {
 			machine = machine,
 			initialState = SubjectSearch.State::class
 		)
+
+		assertMachineCoversEffects(machine, SubjectSearch.Effect::class)
 	}
 
 	@Test

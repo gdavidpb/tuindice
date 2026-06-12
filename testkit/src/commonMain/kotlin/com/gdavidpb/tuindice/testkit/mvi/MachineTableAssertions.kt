@@ -37,6 +37,29 @@ fun <S : ViewState> assertMachineCoversAlphabet(
 }
 
 /**
+ * Asserts that every direct sealed subclass of [effectsRoot] is declared in some row's
+ * `emits` set, except those explicitly listed in [except] — i.e. the output alphabet Λ
+ * has no dead symbols. No-op on platforms without sealed-hierarchy reflection; the
+ * android host run is the enforcing platform.
+ */
+fun <S : ViewState> assertMachineCoversEffects(
+	machine: MachineDefinition<S>,
+	effectsRoot: KClass<*>,
+	except: Set<KClass<*>> = emptySet()
+) {
+	val effects = sealedSubclassesOf(effectsRoot) ?: return
+	val declared = machine.table.flatMap { spec -> spec.emits }.toSet()
+	val missing = effects.filter { effect ->
+		effect !in except && effect !in declared
+	}
+
+	assertTrue(
+		missing.isEmpty(),
+		"Effects never declared by any transition: ${missing.map { it.simpleName }}"
+	)
+}
+
+/**
  * Asserts that every state class declared in the transition table is reachable from
  * [initialState] following declared state-changing transitions. Pure table math, runs
  * on every platform.

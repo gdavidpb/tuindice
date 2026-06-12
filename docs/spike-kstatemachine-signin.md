@@ -49,13 +49,15 @@ state sign_in {
     idle --> idle : SetPassword
     idle --> idle : TogglePasswordVisibility
     idle --> logging_in : ClickSignIn
-    logging_in --> logging_in : SignInSucceeded
-    logging_in --> idle : SignInFailed
-    sign_in --> sign_in : ClickTermsAndConditions
-    sign_in --> sign_in : ClickPrivacyPolicy
+    logging_in --> logging_in : SignInSucceeded / NavigateToSummary
+    logging_in --> idle : SignInFailed / ShowSnackBar · ShowRetrySnackBar
+    sign_in --> sign_in : ClickTermsAndConditions / NavigateToBrowser
+    sign_in --> sign_in : ClickPrivacyPolicy / NavigateToBrowser
     sign_in --> sign_in : SetUsageDataCollectionEnabled
 }
 ```
+
+Edges are labeled `σ / λ` — a true Mealy diagram: each row declares its possible outputs.
 
 Machine-level self-loops are transitions valid from **any** state, matching today's
 unguarded behavior for terms/privacy/consent — declared instead of accidental.
@@ -70,6 +72,16 @@ outputs — state (δ: the table's `from × event → to`, implemented by `f`) a
 back. The effects channel is not an exception to UDF; it is the Mealy output function.
 Effects are fire-and-forget (they do not survive process death); any effect that ever
 needs durability or replay should be modeled as state instead, case by case.
+
+The full 6-tuple M = (S, S₀, Σ, Λ, T, G) is data: S/S₀/Σ/Λ are enumerable by `sealed`
+construction; T is the table (`resolve` looks it up, the declared-target `check` keeps f
+honest); and G is reified as a may-emit set per row (`emits`, formally G: S × Σ → P(Λ) —
+set-valued because outputs may depend on payload). The runtime enforces G the same way it
+enforces T: emitting an undeclared effect, or emitting outside any transition, fails
+loudly. The Mermaid export labels edges `σ / λ`, and
+`assertMachineCoversEffects` verifies Λ has no dead symbols. The known deviations from
+the pure formalism are deliberate: payload as extended state (EFSM — the quotient avoids
+state explosion) and partial T (completed observationally as ignore + telemetry).
 
 ## Semantics (held across both iterations)
 

@@ -21,6 +21,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
+import kotlin.reflect.KClass
 
 abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffect>(
 	private val name: String,
@@ -33,6 +34,7 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 	private val inputChannel = Channel<MachineInput<A>>(Channel.UNLIMITED)
 	private val viewState = MutableStateFlow(initialState)
 	private var lastPublishedState: String? = null
+	private var activeTransitionEmits: Set<KClass<*>>? = null
 
 	protected abstract val eventPublisher: EventPublisher
 
@@ -79,7 +81,18 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 		)
 	}
 
+	// G as data: effects may only flow while a transition is being applied, and only
+	// those the active row declared in `emits`. Anything else is a table bug — fail loud.
 	protected fun sendEffect(viewEffect: E) {
+		val declared = checkNotNull(activeTransitionEmits) {
+			"Effect ${viewEffect.eventName()} emitted outside a transition; " +
+				"effects must be outputs of a table row"
+		}
+
+		check(declared.any { effect -> effect.isInstance(viewEffect) }) {
+			"Effect ${viewEffect.eventName()} is not declared by the active transition"
+		}
+
 		val event = AppEvent.Effect(
 			source = name,
 			effect = viewEffect.eventName()
@@ -115,29 +128,39 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 				}
 
 				val fromState = viewState.value
+				val transition = machine.resolve(fromState, input.event)
 
-				when (val result = machine.process(fromState, input.event)) {
-					is TransitionResult.Transitioned -> {
-						viewState.value = result.toState
+				if (transition == null) {
+					eventPublisher.publish(
+						AppEvent.InvalidTransition(
+							source = name,
+							from = fromState.eventName(),
+							event = input.event.eventName()
+						)
+					)
+				} else {
+					activeTransitionEmits = transition.emits
+
+					try {
+						val toState = machine.apply(
+							transition = transition,
+							state = fromState,
+							event = input.event
+						)
+
+						viewState.value = toState
 
 						eventPublisher.publish(
 							AppEvent.Transition(
 								source = name,
 								from = fromState.eventName(),
 								event = input.event.eventName(),
-								to = result.toState.eventName()
+								to = toState.eventName()
 							)
 						)
+					} finally {
+						activeTransitionEmits = null
 					}
-
-					is TransitionResult.Rejected ->
-						eventPublisher.publish(
-							AppEvent.InvalidTransition(
-								source = name,
-								from = fromState.eventName(),
-								event = input.event.eventName()
-							)
-						)
 				}
 			}
 		}

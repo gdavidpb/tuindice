@@ -56,11 +56,15 @@ class MachineDefinitionBuilder<S : ViewState> {
 		 * Internal transition: f must return the same state class, enforced at
 		 * compile time by the (F, E) -> F signature.
 		 */
-		inline fun <reified E : Any> on(noinline output: suspend (F, E) -> F) {
+		inline fun <reified E : Any> on(
+			emits: Set<KClass<*>> = emptySet(),
+			noinline output: suspend (F, E) -> F
+		) {
 			builder.transitions += TransitionSpec(
 				from = fromClass,
 				on = E::class,
 				to = null,
+				emits = emits,
 				output = { state, event ->
 					@Suppress("UNCHECKED_CAST")
 					output(state as F, event as E)
@@ -72,11 +76,15 @@ class MachineDefinitionBuilder<S : ViewState> {
 		 * State-changing transition: the declared target [To] is enforced at
 		 * compile time by the (F, E) -> To signature.
 		 */
-		inline fun <reified E : Any, reified To : S> onTo(noinline output: suspend (F, E) -> To) {
+		inline fun <reified E : Any, reified To : S> onTo(
+			emits: Set<KClass<*>> = emptySet(),
+			noinline output: suspend (F, E) -> To
+		) {
 			builder.transitions += TransitionSpec(
 				from = fromClass,
 				on = E::class,
 				to = To::class,
+				emits = emits,
 				output = { state, event ->
 					@Suppress("UNCHECKED_CAST")
 					output(state as F, event as E)
@@ -116,11 +124,15 @@ class MachineDefinitionBuilder<S : ViewState> {
 		 * Machine-level internal transition, valid from any state; the same-class
 		 * invariant is enforced at runtime by [MachineDefinition.process].
 		 */
-		inline fun <reified E : Any> on(noinline output: suspend (S, E) -> S) {
+		inline fun <reified E : Any> on(
+			emits: Set<KClass<*>> = emptySet(),
+			noinline output: suspend (S, E) -> S
+		) {
 			builder.transitions += TransitionSpec(
 				from = null,
 				on = E::class,
 				to = null,
+				emits = emits,
 				output = { state, event ->
 					@Suppress("UNCHECKED_CAST")
 					output(state, event as E)
@@ -132,11 +144,15 @@ class MachineDefinitionBuilder<S : ViewState> {
 		 * Machine-level state-changing transition, valid from any state; the declared
 		 * target [To] is enforced at compile time by the (S, E) -> To signature.
 		 */
-		inline fun <reified E : Any, reified To : S> onTo(noinline output: suspend (S, E) -> To) {
+		inline fun <reified E : Any, reified To : S> onTo(
+			emits: Set<KClass<*>> = emptySet(),
+			noinline output: suspend (S, E) -> To
+		) {
 			builder.transitions += TransitionSpec(
 				from = null,
 				on = E::class,
 				to = To::class,
+				emits = emits,
 				output = { state, event ->
 					@Suppress("UNCHECKED_CAST")
 					output(state, event as E)

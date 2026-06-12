@@ -29,19 +29,35 @@ class MachineDefinition<S : ViewState>(
 
 	suspend fun process(state: S, event: Any): TransitionResult<S> {
 		val spec = resolve(state, event) ?: return TransitionResult.Rejected()
+
+		return TransitionResult.Transitioned(
+			toState = apply(transition = spec, state = state, event = event),
+			transition = spec
+		)
+	}
+
+	fun resolve(state: S, event: Any): TransitionSpec<S>? {
+		return transitions.firstOrNull { spec ->
+			spec.from != null && spec.from.isInstance(state) && spec.on.isInstance(event)
+		} ?: transitions.firstOrNull { spec ->
+			spec.from == null && spec.on.isInstance(event)
+		}
+	}
+
+	suspend fun apply(transition: TransitionSpec<S>, state: S, event: Any): S {
 		val fromClass = state::class
-		val changesState = spec.to != null && spec.to != fromClass
+		val changesState = transition.to != null && transition.to != fromClass
 
 		if (changesState) {
 			exitActions[fromClass]?.invoke(state)
 		}
 
-		val next = spec.output(state, event)
+		val next = transition.output(state, event)
 
-		if (spec.to != null) {
-			check(spec.to.isInstance(next)) {
+		if (transition.to != null) {
+			check(transition.to.isInstance(next)) {
 				"Transition on ${event::class.simpleName} from ${fromClass.simpleName} " +
-					"declared target ${spec.to.simpleName} but produced ${next::class.simpleName}"
+					"declared target ${transition.to.simpleName} but produced ${next::class.simpleName}"
 			}
 		} else {
 			check(next::class == fromClass) {
@@ -54,10 +70,7 @@ class MachineDefinition<S : ViewState>(
 			enterActions[next::class]?.invoke(next)
 		}
 
-		return TransitionResult.Transitioned(
-			toState = next,
-			transition = spec
-		)
+		return next
 	}
 
 	fun exportToMermaid(machineName: String, initialState: KClass<out S>): String {
@@ -79,19 +92,13 @@ class MachineDefinition<S : ViewState>(
 			appendLine("    [*] --> ${initialState.stateName()}")
 			transitions.forEach { spec ->
 				val event = spec.on.simpleName
+				val outputs = spec.emits.mapNotNull { effect -> effect.simpleName }
+				val label = if (outputs.isEmpty()) event else "$event / ${outputs.joinToString(" · ")}"
 				val from = spec.from?.stateName() ?: machineName
 				val to = spec.to?.stateName() ?: from
-				appendLine("    $from --> $to : $event")
+				appendLine("    $from --> $to : $label")
 			}
 			append("}")
-		}
-	}
-
-	private fun resolve(state: S, event: Any): TransitionSpec<S>? {
-		return transitions.firstOrNull { spec ->
-			spec.from != null && spec.from.isInstance(state) && spec.on.isInstance(event)
-		} ?: transitions.firstOrNull { spec ->
-			spec.from == null && spec.on.isInstance(event)
 		}
 	}
 
