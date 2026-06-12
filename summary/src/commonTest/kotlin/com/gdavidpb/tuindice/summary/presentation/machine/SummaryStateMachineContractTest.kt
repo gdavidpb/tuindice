@@ -37,14 +37,7 @@ class SummaryStateMachineContractTest {
 			initialState = Summary.State.Idle::class
 		)
 
-		// NavigateToOutdatedCredentials is collected by SummaryRoute but no transition
-		// emits it today — a dead Λ symbol surfaced by the validator, pending a decision
-		// at ratification (remove from the contract or wire its emitter).
-		assertMachineCoversEffects(
-			machine,
-			Summary.Effect::class,
-			except = setOf(Summary.Effect.NavigateToOutdatedCredentials::class)
-		)
+		assertMachineCoversEffects(machine, Summary.Effect::class)
 	}
 
 	@Test

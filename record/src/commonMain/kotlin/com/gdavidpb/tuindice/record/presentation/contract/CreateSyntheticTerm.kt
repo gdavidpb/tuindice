@@ -83,6 +83,5 @@ object CreateSyntheticTerm {
 
 	sealed class Effect : ViewEffect {
 		data object NavigateBack : Effect()
-		data class ShowSnackBar(val message: String) : Effect()
 	}
 }

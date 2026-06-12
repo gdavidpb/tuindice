@@ -74,14 +74,7 @@ class RecordStateMachineContractTest {
 			initialState = CreateSyntheticTerm.State::class
 		)
 
-		// ShowSnackBar is collected by CreateSyntheticTermRoute but no transition emits
-		// it today — a dead Λ symbol surfaced by the validator, pending a decision at
-		// ratification (remove from the contract or wire its emitter).
-		assertMachineCoversEffects(
-			machine,
-			CreateSyntheticTerm.Effect::class,
-			except = setOf(CreateSyntheticTerm.Effect.ShowSnackBar::class)
-		)
+		assertMachineCoversEffects(machine, CreateSyntheticTerm.Effect::class)
 	}
 
 	@Test
