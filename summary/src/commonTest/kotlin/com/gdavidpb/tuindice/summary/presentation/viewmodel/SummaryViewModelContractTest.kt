@@ -9,15 +9,8 @@ import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
-import com.gdavidpb.tuindice.summary.presentation.action.ConfirmRemoveProfilePictureActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.ObserveSummaryActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.OpenProfilePictureSettingsActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.PickProfilePictureActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.RefreshSummaryActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.RemoveProfilePictureActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.TakeProfilePictureActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.UploadProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
+import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingReportingRepository
@@ -70,33 +63,25 @@ class SummaryViewModelContractTest {
 		val userRepository = RecordingUserRepository(users = flowOf(DEFAULT_SUMMARY_USER))
 
 		return SummaryViewModel(
-			observeSummaryActionProcessor = ObserveSummaryActionProcessor(
+			screenMachine = SummaryMachine(
 				observeUserUseCase = ObserveUserUseCase(
 					userRepository = userRepository,
 					reportingRepository = RecordingReportingRepository()
-				)
-			),
-			refreshSummaryActionProcessor = RefreshSummaryActionProcessor(
+				),
 				updateUserUseCase = UpdateUserUseCase(
 					userRepository = userRepository,
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = UpdateUserExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true)
 					)
-				)
-			),
-			takeProfilePictureActionProcessor = TakeProfilePictureActionProcessor(),
-			pickProfilePictureActionProcessor = PickProfilePictureActionProcessor(),
-			uploadProfilePictureActionProcessor = UploadProfilePictureActionProcessor(
+				),
 				uploadProfilePictureUseCase = UploadProfilePictureUseCase(
 					userRepository = userRepository,
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = UploadProfilePictureExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true)
 					)
-				)
-			),
-			confirmRemoveProfilePictureActionProcessor = ConfirmRemoveProfilePictureActionProcessor(
+				),
 				removeProfilePictureUseCase = RemoveProfilePictureUseCase(
 					userRepository = userRepository,
 					reportingRepository = RecordingReportingRepository(),
@@ -105,8 +90,6 @@ class SummaryViewModelContractTest {
 					)
 				)
 			),
-			removeProfilePictureActionProcessor = RemoveProfilePictureActionProcessor(),
-			openProfilePictureSettingsActionProcessor = OpenProfilePictureSettingsActionProcessor(),
 			eventPublisher = NoOpEventPublisher,
 			dispatchers = dispatchers
 		)

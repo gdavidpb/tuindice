@@ -26,6 +26,7 @@ import com.gdavidpb.tuindice.summary.presentation.action.RefreshSummaryActionPro
 import com.gdavidpb.tuindice.summary.presentation.action.RemoveProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.TakeProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.action.UploadProfilePictureActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
@@ -38,18 +39,15 @@ val summaryModule = module {
 
 	viewModel {
 		SummaryViewModel(
-			observeSummaryActionProcessor = get(),
-			refreshSummaryActionProcessor = get(),
-			takeProfilePictureActionProcessor = get(),
-			pickProfilePictureActionProcessor = get(),
-			uploadProfilePictureActionProcessor = get(),
-			confirmRemoveProfilePictureActionProcessor = get(),
-			removeProfilePictureActionProcessor = get(),
-			openProfilePictureSettingsActionProcessor = get(),
+			screenMachine = get(),
 			eventPublisher = get(),
 			dispatchers = get()
 		)
 	}
+
+	/* State machines */
+
+	factoryOf(::SummaryMachine)
 
 	/* Action processor */
 
