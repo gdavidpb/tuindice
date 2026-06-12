@@ -18,14 +18,6 @@ import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
-import com.gdavidpb.tuindice.summary.presentation.action.ObserveSummaryActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.ConfirmRemoveProfilePictureActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.OpenProfilePictureSettingsActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.PickProfilePictureActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.RefreshSummaryActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.RemoveProfilePictureActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.TakeProfilePictureActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.UploadProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import org.koin.core.module.dsl.bind
@@ -48,17 +40,6 @@ val summaryModule = module {
 	/* State machines */
 
 	factoryOf(::SummaryMachine)
-
-	/* Action processor */
-
-	factoryOf(::ObserveSummaryActionProcessor)
-	factoryOf(::RefreshSummaryActionProcessor)
-	factoryOf(::TakeProfilePictureActionProcessor)
-	factoryOf(::UploadProfilePictureActionProcessor)
-	factoryOf(::ConfirmRemoveProfilePictureActionProcessor)
-	factoryOf(::PickProfilePictureActionProcessor)
-	factoryOf(::RemoveProfilePictureActionProcessor)
-	factoryOf(::OpenProfilePictureSettingsActionProcessor)
 
 	/* Use cases */
 

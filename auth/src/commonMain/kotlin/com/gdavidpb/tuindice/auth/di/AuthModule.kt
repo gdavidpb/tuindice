@@ -17,14 +17,8 @@ import com.gdavidpb.tuindice.auth.presentation.action.ConfirmSignOutActionProces
 import com.gdavidpb.tuindice.auth.presentation.action.FlushAndSignOutActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.ForceSignOutActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.InitializeSignOutActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.OpenPrivacyPolicyActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.OpenTermsAndConditionsActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.SetUsageDataCollectionEnabledActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.OpenUpdatePasswordActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.SetPasswordActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.SetUpdatePasswordActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.SetUsbIdActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.TogglePasswordVisibilityActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.ToggleUpdatePasswordVisibilityActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.action.UpdatePasswordActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.machine.SignInMachine
@@ -49,12 +43,6 @@ val authModule = module {
 
 	/* Action Processors */
 
-	factoryOf(::SetUsbIdActionProcessor)
-	factoryOf(::SetPasswordActionProcessor)
-	factoryOf(::TogglePasswordVisibilityActionProcessor)
-	factoryOf(::SetUsageDataCollectionEnabledActionProcessor)
-	factoryOf(::OpenTermsAndConditionsActionProcessor)
-	factoryOf(::OpenPrivacyPolicyActionProcessor)
 	factoryOf(::InitializeSignOutActionProcessor)
 	factoryOf(::ConfirmSignOutActionProcessor)
 	factoryOf(::FlushAndSignOutActionProcessor)

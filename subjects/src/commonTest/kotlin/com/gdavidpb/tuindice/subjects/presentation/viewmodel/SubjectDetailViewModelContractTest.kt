@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepositor
 import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlin.test.Test
+import kotlin.time.Duration.Companion.seconds
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlinx.coroutines.test.runTest
@@ -35,7 +36,9 @@ class SubjectDetailViewModelContractTest {
 		)
 
 		try {
-			viewModel.state.test {
+			// First getString of the suite: cold compose-resources load on the simulator
+			// can exceed Turbine's 3s default now that no earlier test warms it up.
+			viewModel.state.test(timeout = 15.seconds) {
 				assertEquals(SubjectDetail.State.Idle, awaitItem())
 
 				viewModel.loadSubjectDetailAction(subjectCode = "MAT101")

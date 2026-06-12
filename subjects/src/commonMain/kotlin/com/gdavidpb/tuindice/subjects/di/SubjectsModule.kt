@@ -18,9 +18,6 @@ import com.gdavidpb.tuindice.subjects.domain.usecase.LoadSubjectDetailUseCase
 import com.gdavidpb.tuindice.subjects.domain.usecase.ObserveSubjectSearchUseCase
 import com.gdavidpb.tuindice.subjects.domain.usecase.RefreshSubjectDetailUseCase
 import com.gdavidpb.tuindice.subjects.domain.usecase.RefreshSubjectSearchUseCase
-import com.gdavidpb.tuindice.subjects.presentation.action.LoadSubjectDetailActionProcessor
-import com.gdavidpb.tuindice.subjects.presentation.action.RefreshSubjectDetailActionProcessor
-import com.gdavidpb.tuindice.subjects.presentation.action.SelectSubjectSegmentTabActionProcessor
 import com.gdavidpb.tuindice.subjects.presentation.machine.SubjectDetailMachine
 import com.gdavidpb.tuindice.subjects.presentation.machine.SubjectSearchDraft
 import com.gdavidpb.tuindice.subjects.presentation.machine.SubjectSearchMachine
@@ -39,10 +36,6 @@ val subjectsModule = module {
 	factoryOf(::SubjectDetailMachine)
 	factoryOf(::SubjectSearchMachine)
 	factoryOf(::SubjectSearchDraft)
-
-	factoryOf(::LoadSubjectDetailActionProcessor)
-	factoryOf(::RefreshSubjectDetailActionProcessor)
-	factoryOf(::SelectSubjectSegmentTabActionProcessor)
 
 	factoryOf(::LoadSubjectDetailUseCase)
 	factoryOf(::RefreshSubjectDetailUseCase)

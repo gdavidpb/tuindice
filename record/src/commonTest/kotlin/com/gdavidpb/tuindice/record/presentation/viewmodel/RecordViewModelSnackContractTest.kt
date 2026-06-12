@@ -20,6 +20,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.test.runTest
 
 // Resolves snack messages through getString, so it runs on the iOS host only
@@ -75,7 +76,9 @@ class RecordViewModelSnackContractTest {
 		)
 
 		try {
-			viewModel.effect.test {
+			// First getString of the suite: cold compose-resources load on the simulator
+			// can exceed Turbine's 3s default now that no earlier test warms it up.
+			viewModel.effect.test(timeout = 15.seconds) {
 				viewModel.deleteSyntheticTermAction(termId = "synthetic-term")
 
 				val snack = assertIs<Record.Effect.ShowSnackBar>(awaitItem())

@@ -45,25 +45,6 @@ class AuthActionProcessorContractTest {
 	}
 
 	@Test
-	fun setUsageDataCollectionEnabledActionProcessor_persistsConsentAndUpdatesIdleState() = runTest {
-		val usageDataConsentRepository = InMemoryUsageDataConsentRepository(initialValue = false)
-		val processor = SetUsageDataCollectionEnabledActionProcessor(
-			usageDataConsentRepository = usageDataConsentRepository
-		)
-
-		processor.process(
-			action = SignIn.Action.SetUsageDataCollectionEnabled(enabled = true),
-			sideEffect = {}
-		).test {
-			val state = assertIs<SignIn.State.Idle>(awaitItem()(SignIn.State.Idle()))
-			assertTrue(state.usageDataCollectionEnabled)
-			awaitComplete()
-		}
-
-		assertTrue(usageDataConsentRepository.isUsageDataCollectionEnabled())
-	}
-
-	@Test
 	fun updatePasswordActionProcessor_emitsUpdatingMutation_thenReportsPasswordUpdated() = runTest {
 		val processor = UpdatePasswordActionProcessor(
 			updatePasswordUseCase = UpdatePasswordUseCase(
