@@ -62,6 +62,7 @@ private val androidHostTestExcludedPatterns = listOf(
 	"**/DeleteSyntheticTermActionProcessorTest.class",
 	"**/DebugSubjectsApiDataSourceTest.class",
 	"**/SubjectDetailActionProcessorContractTest.class",
+	"**/SubjectDetailViewModelContractTest.class",
 	"**/FileKitSkiaPictureEncoderDataSourceTest.class",
 	"**/SummaryActionProcessorContractTest.class",
 	"**/SummaryUseCaseContractTest.class",
