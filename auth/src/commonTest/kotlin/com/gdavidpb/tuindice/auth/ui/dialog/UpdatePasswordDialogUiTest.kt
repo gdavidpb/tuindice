@@ -39,7 +39,7 @@ class UpdatePasswordDialogUiTest {
 
 	@Test
 	fun when_idleStateWithPasswordAndConfirmTapped_then_invokesConfirmCallback() = runTuIndiceUiTest {
-		var confirmedPassword = ""
+		var confirmClicks = 0
 
 		setTuIndiceTestContent {
 			UpdatePasswordDialog(
@@ -52,7 +52,7 @@ class UpdatePasswordDialogUiTest {
 				passwordLabelText = "Clave",
 				onPasswordChange = {},
 				onPasswordVisibilityToggle = {},
-				onConfirmClick = { password -> confirmedPassword = password },
+				onConfirmClick = { confirmClicks++ },
 				onDismissRequest = {}
 			)
 		}
@@ -60,7 +60,7 @@ class UpdatePasswordDialogUiTest {
 		assertNodeEnabled(BaseUiTags.ConfirmationDialogPositiveButton)
 		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performClick()
 
-		assertEquals("1234", confirmedPassword)
+		assertEquals(1, confirmClicks)
 	}
 
 	@Test

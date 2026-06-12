@@ -28,15 +28,16 @@ object SignOut {
 		data class Initialize(
 			val pendingChanges: PendingChanges
 		) : Action()
-		data object ConfirmSignOut : Action()
-		data class FlushAndSignOut(
+
+		data class ClickSignOut(
+			val resolvedPendingChanges: PendingChanges?
+		) : Action()
+
+		data class RetryFlushAndSignOut(
 			val pendingChanges: PendingChanges
 		) : Action()
-		data class ForceSignOut(
-			val pendingChanges: PendingChanges,
-			val requiresPasswordUpdate: Boolean
-		) : Action()
-		data object OpenUpdatePassword : Action()
+
+		data object ForceSignOut : Action()
 	}
 
 	sealed class Effect : ViewEffect {

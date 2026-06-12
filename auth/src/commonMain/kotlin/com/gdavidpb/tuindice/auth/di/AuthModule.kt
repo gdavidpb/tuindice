@@ -13,15 +13,9 @@ import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptio
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.UpdatePasswordParamsValidator
-import com.gdavidpb.tuindice.auth.presentation.action.ConfirmSignOutActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.FlushAndSignOutActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.ForceSignOutActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.InitializeSignOutActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.OpenUpdatePasswordActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.SetUpdatePasswordActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.ToggleUpdatePasswordVisibilityActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.UpdatePasswordActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.machine.SignInMachine
+import com.gdavidpb.tuindice.auth.presentation.machine.SignOutMachine
+import com.gdavidpb.tuindice.auth.presentation.machine.UpdatePasswordMachine
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignOutViewModel
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.UpdatePasswordViewModel
@@ -40,17 +34,10 @@ val authModule = module {
 	/* State machines */
 
 	factoryOf(::SignInMachine)
+	factoryOf(::SignOutMachine)
+	factoryOf(::UpdatePasswordMachine)
 
 	/* Action Processors */
-
-	factoryOf(::InitializeSignOutActionProcessor)
-	factoryOf(::ConfirmSignOutActionProcessor)
-	factoryOf(::FlushAndSignOutActionProcessor)
-	factoryOf(::ForceSignOutActionProcessor)
-	factoryOf(::OpenUpdatePasswordActionProcessor)
-	factoryOf(::SetUpdatePasswordActionProcessor)
-	factoryOf(::ToggleUpdatePasswordVisibilityActionProcessor)
-	factoryOf(::UpdatePasswordActionProcessor)
 
 	/* Use cases */
 

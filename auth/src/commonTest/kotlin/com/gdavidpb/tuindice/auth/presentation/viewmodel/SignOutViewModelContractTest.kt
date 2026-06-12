@@ -5,12 +5,8 @@ import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.auth.domain.usecase.ConfirmSignOutUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.FlushPendingChangesUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.SignOutUseCase
-import com.gdavidpb.tuindice.auth.presentation.action.ConfirmSignOutActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.FlushAndSignOutActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.ForceSignOutActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.InitializeSignOutActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.OpenUpdatePasswordActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.contract.SignOut
+import com.gdavidpb.tuindice.auth.presentation.machine.SignOutMachine
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.FakeSessionRepository
@@ -37,9 +33,8 @@ class SignOutViewModelContractTest {
 			hasFailedMutations = true
 		)
 		val viewModel = SignOutViewModel(
-			initializeSignOutActionProcessor = InitializeSignOutActionProcessor(),
-			confirmSignOutActionProcessor = ConfirmSignOutActionProcessor(
-				ConfirmSignOutUseCase(
+			screenMachine = SignOutMachine(
+				confirmSignOutUseCase = ConfirmSignOutUseCase(
 					pendingChangesRepository = FakePendingChangesRepository(pendingChanges = pendingChanges),
 					reportingRepository = RecordingReportingRepository()
 				),
@@ -51,37 +46,14 @@ class SignOutViewModelContractTest {
 					applicationRepository = RecordingApplicationRepository(),
 					syncStatusRepository = FakeSyncStatusRepository(),
 					reportingRepository = RecordingReportingRepository()
-				)
-			),
-			flushAndSignOutActionProcessor = FlushAndSignOutActionProcessor(
-				FlushPendingChangesUseCase(
+				),
+				flushPendingChangesUseCase = FlushPendingChangesUseCase(
 					pendingChangesRepository = FakePendingChangesRepository(
 						pendingChanges = pendingChanges
 					),
 					reportingRepository = RecordingReportingRepository()
-				),
-				signOutUseCase = SignOutUseCase(
-					authRepository = RecordingAuthRepository(),
-					attestationRepository = FakeAttestationRepository(),
-					sessionRepository = FakeSessionRepository(),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					applicationRepository = RecordingApplicationRepository(),
-					syncStatusRepository = FakeSyncStatusRepository(),
-					reportingRepository = RecordingReportingRepository()
 				)
 			),
-			forceSignOutActionProcessor = ForceSignOutActionProcessor(
-				SignOutUseCase(
-					authRepository = RecordingAuthRepository(),
-					attestationRepository = FakeAttestationRepository(),
-					sessionRepository = FakeSessionRepository(),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					applicationRepository = RecordingApplicationRepository(),
-					syncStatusRepository = FakeSyncStatusRepository(),
-					reportingRepository = RecordingReportingRepository()
-				)
-			),
-			openUpdatePasswordActionProcessor = OpenUpdatePasswordActionProcessor(),
 			eventPublisher = NoOpEventPublisher
 		)
 
@@ -127,23 +99,17 @@ class SignOutViewModelContractTest {
 			reportingRepository = reportingRepository
 		)
 		val viewModel = SignOutViewModel(
-			initializeSignOutActionProcessor = InitializeSignOutActionProcessor(),
-			confirmSignOutActionProcessor = ConfirmSignOutActionProcessor(
-				ConfirmSignOutUseCase(
+			screenMachine = SignOutMachine(
+				confirmSignOutUseCase = ConfirmSignOutUseCase(
 					pendingChangesRepository = pendingChangesRepository,
 					reportingRepository = reportingRepository
 				),
-				signOutUseCase = signOutUseCase
-			),
-			flushAndSignOutActionProcessor = FlushAndSignOutActionProcessor(
-				FlushPendingChangesUseCase(
+				signOutUseCase = signOutUseCase,
+				flushPendingChangesUseCase = FlushPendingChangesUseCase(
 					pendingChangesRepository = pendingChangesRepository,
 					reportingRepository = reportingRepository
-				),
-				signOutUseCase = signOutUseCase
+				)
 			),
-			forceSignOutActionProcessor = ForceSignOutActionProcessor(signOutUseCase),
-			openUpdatePasswordActionProcessor = OpenUpdatePasswordActionProcessor(),
 			eventPublisher = NoOpEventPublisher
 		)
 
@@ -199,23 +165,17 @@ class SignOutViewModelContractTest {
 			reportingRepository = reportingRepository
 		)
 		val viewModel = SignOutViewModel(
-			initializeSignOutActionProcessor = InitializeSignOutActionProcessor(),
-			confirmSignOutActionProcessor = ConfirmSignOutActionProcessor(
-				ConfirmSignOutUseCase(
+			screenMachine = SignOutMachine(
+				confirmSignOutUseCase = ConfirmSignOutUseCase(
 					pendingChangesRepository = pendingChangesRepository,
 					reportingRepository = reportingRepository
 				),
-				signOutUseCase = signOutUseCase
-			),
-			flushAndSignOutActionProcessor = FlushAndSignOutActionProcessor(
-				FlushPendingChangesUseCase(
+				signOutUseCase = signOutUseCase,
+				flushPendingChangesUseCase = FlushPendingChangesUseCase(
 					pendingChangesRepository = pendingChangesRepository,
 					reportingRepository = reportingRepository
-				),
-				signOutUseCase = signOutUseCase
+				)
 			),
-			forceSignOutActionProcessor = ForceSignOutActionProcessor(signOutUseCase),
-			openUpdatePasswordActionProcessor = OpenUpdatePasswordActionProcessor(),
 			eventPublisher = NoOpEventPublisher
 		)
 		val stateCollector = backgroundScope.launchStateCollector(

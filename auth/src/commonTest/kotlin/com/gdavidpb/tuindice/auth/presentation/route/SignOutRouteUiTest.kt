@@ -9,11 +9,7 @@ import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.auth.domain.usecase.ConfirmSignOutUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.FlushPendingChangesUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.SignOutUseCase
-import com.gdavidpb.tuindice.auth.presentation.action.ConfirmSignOutActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.FlushAndSignOutActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.ForceSignOutActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.InitializeSignOutActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.OpenUpdatePasswordActionProcessor
+import com.gdavidpb.tuindice.auth.presentation.machine.SignOutMachine
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignOutViewModel
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
@@ -149,23 +145,17 @@ class SignOutRouteUiTest {
 		)
 
 		return SignOutViewModel(
-			initializeSignOutActionProcessor = InitializeSignOutActionProcessor(),
-			confirmSignOutActionProcessor = ConfirmSignOutActionProcessor(
-				ConfirmSignOutUseCase(
+			screenMachine = SignOutMachine(
+				confirmSignOutUseCase = ConfirmSignOutUseCase(
 					pendingChangesRepository = pendingChangesRepository,
 					reportingRepository = reportingRepository
 				),
-				signOutUseCase = signOutUseCase
-			),
-			flushAndSignOutActionProcessor = FlushAndSignOutActionProcessor(
-				FlushPendingChangesUseCase(
+				signOutUseCase = signOutUseCase,
+				flushPendingChangesUseCase = FlushPendingChangesUseCase(
 					pendingChangesRepository = pendingChangesRepository,
 					reportingRepository = reportingRepository
-				),
-				signOutUseCase = signOutUseCase
+				)
 			),
-			forceSignOutActionProcessor = ForceSignOutActionProcessor(signOutUseCase),
-			openUpdatePasswordActionProcessor = OpenUpdatePasswordActionProcessor(),
 			eventPublisher = NoOpEventPublisher
 		)
 	}

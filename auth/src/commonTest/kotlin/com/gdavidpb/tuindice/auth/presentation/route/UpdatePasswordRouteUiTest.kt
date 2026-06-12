@@ -12,9 +12,7 @@ import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.usecase.UpdatePasswordUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.UpdatePasswordParamsValidator
-import com.gdavidpb.tuindice.auth.presentation.action.SetUpdatePasswordActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.ToggleUpdatePasswordVisibilityActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.UpdatePasswordActionProcessor
+import com.gdavidpb.tuindice.auth.presentation.machine.UpdatePasswordMachine
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.UpdatePasswordViewModel
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
@@ -57,7 +55,8 @@ class UpdatePasswordRouteUiTest {
 		}
 
 		runOnIdle {
-			fixture.viewModel.signInAction(password = "nueva-clave-segura")
+			fixture.viewModel.setPasswordAction(password = "nueva-clave-segura")
+			fixture.viewModel.signInAction()
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
@@ -138,7 +137,8 @@ class UpdatePasswordRouteUiTest {
 		}
 
 		runOnIdle {
-			fixture.viewModel.signInAction(password = "password-invalida")
+			fixture.viewModel.setPasswordAction(password = "password-invalida")
+			fixture.viewModel.signInAction()
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
@@ -174,9 +174,7 @@ class UpdatePasswordRouteUiTest {
 
 		return UpdatePasswordRouteFixture(
 			viewModel = UpdatePasswordViewModel(
-				setUpdatePasswordActionProcessor = SetUpdatePasswordActionProcessor(),
-				toggleUpdatePasswordVisibilityActionProcessor = ToggleUpdatePasswordVisibilityActionProcessor(),
-				updatePasswordActionProcessor = UpdatePasswordActionProcessor(updatePasswordUseCase),
+				screenMachine = UpdatePasswordMachine(updatePasswordUseCase),
 				eventPublisher = NoOpEventPublisher
 			),
 			authRepository = authRepository

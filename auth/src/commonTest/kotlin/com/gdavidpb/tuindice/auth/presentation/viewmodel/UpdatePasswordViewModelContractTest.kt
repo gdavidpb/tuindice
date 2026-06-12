@@ -5,10 +5,8 @@ import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.auth.domain.usecase.UpdatePasswordUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.UpdatePasswordParamsValidator
-import com.gdavidpb.tuindice.auth.presentation.action.SetUpdatePasswordActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.ToggleUpdatePasswordVisibilityActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.UpdatePasswordActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.contract.UpdatePassword
+import com.gdavidpb.tuindice.auth.presentation.machine.UpdatePasswordMachine
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
 import com.gdavidpb.tuindice.auth.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.auth.testing.FakeSessionRepository
@@ -31,9 +29,7 @@ class UpdatePasswordViewModelContractTest {
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun publicActions_updatePasswordState_andEmitPasswordUpdatedEffect() = runTest {
 		val viewModel = UpdatePasswordViewModel(
-			setUpdatePasswordActionProcessor = SetUpdatePasswordActionProcessor(),
-			toggleUpdatePasswordVisibilityActionProcessor = ToggleUpdatePasswordVisibilityActionProcessor(),
-			updatePasswordActionProcessor = UpdatePasswordActionProcessor(
+			screenMachine = UpdatePasswordMachine(
 				updatePasswordUseCase = UpdatePasswordUseCase(
 					authRepository = RecordingAuthRepository(),
 					sessionRepository = FakeSessionRepository(usbId = "20261234"),
@@ -71,7 +67,7 @@ class UpdatePasswordViewModelContractTest {
 					awaitItem()
 				)
 
-				viewModel.signInAction("new-secret")
+				viewModel.signInAction()
 				val updating = assertIs<UpdatePassword.State.Updating>(awaitItem())
 				assertEquals("new-secret", updating.password)
 				assertEquals(true, updating.isPasswordVisible)
@@ -80,7 +76,6 @@ class UpdatePasswordViewModelContractTest {
 			}
 
 			viewModel.effect.test {
-				viewModel.signInAction("new-secret")
 				val effect = assertIs<UpdatePassword.Effect.PasswordUpdated>(awaitItem())
 				assertEquals(getString(Res.string.snack_password_updated), effect.message)
 

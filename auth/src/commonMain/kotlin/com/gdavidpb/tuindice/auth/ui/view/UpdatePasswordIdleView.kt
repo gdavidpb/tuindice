@@ -23,7 +23,7 @@ fun UpdatePasswordIdleView(
 	state: UpdatePassword.State.Idle,
 	onPasswordChange: (password: String) -> Unit,
 	onPasswordVisibilityToggle: () -> Unit,
-	onConfirmClick: (password: String) -> Unit,
+	onConfirmClick: () -> Unit,
 	appNameText: String,
 	messageText: String,
 	passwordLabelText: String,
@@ -68,7 +68,7 @@ fun UpdatePasswordIdleView(
 			imeAction = ImeAction.Done,
 			keyboardActions = KeyboardActions(onDone = {
 				if (enabled && state.password.isNotEmpty())
-					onConfirmClick(state.password)
+					onConfirmClick()
 			})
 		)
 	}

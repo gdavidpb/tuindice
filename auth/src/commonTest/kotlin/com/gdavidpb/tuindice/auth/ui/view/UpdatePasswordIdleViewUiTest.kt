@@ -44,7 +44,7 @@ class UpdatePasswordIdleViewUiTest {
 
 	@Test
 	fun when_imeDoneIsPressedWithPassword_then_dispatchesConfirmCallback() = runTuIndiceUiTest {
-		var confirmedPassword: String? = null
+		var confirmClicks = 0
 
 		setTuIndiceTestContent {
 			var state by remember { mutableStateOf(UpdatePassword.State.Idle()) }
@@ -53,7 +53,7 @@ class UpdatePasswordIdleViewUiTest {
 				state = state,
 				onPasswordChange = { value -> state = state.copy(password = value) },
 				onPasswordVisibilityToggle = {},
-				onConfirmClick = { password -> confirmedPassword = password },
+				onConfirmClick = { confirmClicks++ },
 				appNameText = "TuIndice",
 				messageText = "Debes actualizar la clave de TuIndice",
 				passwordLabelText = "Clave"
@@ -63,7 +63,7 @@ class UpdatePasswordIdleViewUiTest {
 		onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("clave-ime")
 		onNodeWithTag(AuthUiTags.PasswordTextField).performImeAction()
 
-		assertEquals("clave-ime", confirmedPassword)
+		assertEquals(1, confirmClicks)
 	}
 
 	@Test

@@ -21,7 +21,7 @@ object UpdatePassword {
 	sealed class Action : ViewAction {
 		class SetPassword(val password: String) : Action()
 		data object TogglePasswordVisibility : Action()
-		class ClickSignIn(val password: String) : Action()
+		data object ClickSignIn : Action()
 	}
 
 	sealed class Effect : ViewEffect {

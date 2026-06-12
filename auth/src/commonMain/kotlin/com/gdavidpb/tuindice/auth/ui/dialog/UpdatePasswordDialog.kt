@@ -21,7 +21,7 @@ fun UpdatePasswordDialog(
 	passwordLabelText: String,
 	onPasswordChange: (password: String) -> Unit,
 	onPasswordVisibilityToggle: () -> Unit,
-	onConfirmClick: (password: String) -> Unit,
+	onConfirmClick: () -> Unit,
 	onDismissRequest: () -> Unit
 ) {
 	val isLoading = state is UpdatePassword.State.Updating
@@ -53,7 +53,7 @@ fun UpdatePasswordDialog(
 		negativeText = laterText,
 		onPositiveClick = {
 			if (state is UpdatePassword.State.Idle)
-				onConfirmClick(state.password)
+				onConfirmClick()
 		},
 		onDismissRequest = onDismissRequest,
 		properties = ModalBottomSheetProperties(shouldDismissOnBackPress = false)
