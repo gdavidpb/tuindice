@@ -60,6 +60,17 @@ state sign_in {
 Machine-level self-loops are transitions valid from **any** state, matching today's
 unguarded behavior for terms/privacy/consent — declared instead of accidental.
 
+## Canonical description
+
+The architecture is **single-entry, single-writer unidirectional data flow with a dual
+output tape — a formal Mealy machine**. There is one input gate (the FIFO channel, shared
+by user actions and internal domain events) and one state writer (the loop). The two
+outputs — state (δ: the table's `from × event → to`, implemented by `f`) and effects
+(λ: the `sendEffect` calls emitted on transitions) — both flow machine → UI and never
+back. The effects channel is not an exception to UDF; it is the Mealy output function.
+Effects are fire-and-forget (they do not survive process death); any effect that ever
+needs durability or replay should be modeled as state instead, case by case.
+
 ## Semantics (held across both iterations)
 
 - Formal state = the sealed `State` class; payload lives in the instance.
@@ -139,6 +150,66 @@ The dependency was fully removed in iteration 2.
 - File convention: `defineMachine()` stays inline in the ViewModel while the table is
   small (SignIn); extract to `presentation/machine/<Screen>Machine.kt` when it grows
   (evaluations-sized screens).
+
+## Pilot: pensum (first full-module migration)
+
+Pensum validated everything SignIn could not:
+
+- **Long-lived observation**: `idle × ObservePensum` launches a screen-lifetime job; every
+  emission of `observePensumFlow()` re-enters the loop as an internal event
+  (`PensumContentObserved` / `PensumDataMissing` / `PensumRecordDataUnavailableObserved`),
+  serialized FIFO with user actions.
+- **Payload-dependent targets**: observation outcomes were split into distinct internal
+  events so every table row keeps a fixed declared target. The refresh family (refresh +
+  three selections) shares one reducer, so it shares one event set
+  (`PensumRefreshLoading/Succeeded/NotFound/Failed`).
+- **Engine addition driven by real need**: `fromAny { onTo<E, To> }` — machine-level
+  transitions with a declared target ("from any state, NotFound → empty"). Specific rows
+  still win over machine-level rows, which keeps deviations (`empty` and
+  `record_data_unavailable` absorbing `PensumDataMissing`) explicit and the default in one
+  row. The reachability validator learned that machine-level targets are reachable by
+  definition.
+- **Method confirmed**: oracle first (8 ViewModel contract tests pinned against the old
+  ActionProcessor implementation, committed separately), then migration — the oracle went
+  green on the machine with construction-only changes. Koin needed no edits
+  (`viewModelOf` resolved the new constructor; smoke test green).
+
+```mermaid
+stateDiagram-v2
+state pensum {
+    state idle
+    state content
+    state empty
+    state record_data_unavailable
+    state loading
+    state failed
+
+    [*] --> idle
+    idle --> idle : ObservePensum
+    content --> content : PensumContentObserved
+    content --> content : PensumRefreshLoading
+    content --> content : PensumRefreshFailed
+    empty --> empty : PensumDataMissing
+    empty --> empty : PensumRecordDataUnavailableObserved
+    record_data_unavailable --> record_data_unavailable : PensumDataMissing
+    record_data_unavailable --> record_data_unavailable : PensumRecordDataUnavailableObserved
+    pensum --> pensum : RefreshPensum
+    pensum --> pensum : SelectPensum
+    pensum --> pensum : SelectModality
+    pensum --> pensum : SelectSelection
+    pensum --> content : PensumContentObserved
+    pensum --> loading : PensumDataMissing
+    pensum --> record_data_unavailable : PensumRecordDataUnavailableObserved
+    pensum --> failed : PensumObservationFailed
+    pensum --> loading : PensumRefreshLoading
+    pensum --> pensum : PensumRefreshSucceeded
+    pensum --> empty : PensumRefreshNotFound
+    pensum --> failed : PensumRefreshFailed
+}
+```
+
+The cascaded `when`s that used to hide inside `ObservePensumActionProcessor` and
+`PensumRefreshMutation` are now this diagram, generated from the running table.
 
 ## Open items for the real migration (out of spike scope)
 

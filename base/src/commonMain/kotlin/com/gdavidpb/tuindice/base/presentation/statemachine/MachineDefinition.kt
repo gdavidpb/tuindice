@@ -79,13 +79,9 @@ class MachineDefinition<S : ViewState>(
 			appendLine("    [*] --> ${initialState.stateName()}")
 			transitions.forEach { spec ->
 				val event = spec.on.simpleName
-				if (spec.from == null) {
-					appendLine("    $machineName --> $machineName : $event")
-				} else {
-					val from = spec.from.stateName()
-					val to = (spec.to ?: spec.from).stateName()
-					appendLine("    $from --> $to : $event")
-				}
+				val from = spec.from?.stateName() ?: machineName
+				val to = spec.to?.stateName() ?: from
+				appendLine("    $from --> $to : $event")
 			}
 			append("}")
 		}

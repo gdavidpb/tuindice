@@ -14,11 +14,6 @@ import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.UpdatePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.exceptionhandler.UpdatePensumExceptionHandler
-import com.gdavidpb.tuindice.pensum.presentation.action.ObservePensumActionProcessor
-import com.gdavidpb.tuindice.pensum.presentation.action.RefreshPensumActionProcessor
-import com.gdavidpb.tuindice.pensum.presentation.action.SelectPensumActionProcessor
-import com.gdavidpb.tuindice.pensum.presentation.action.SelectPensumModalityActionProcessor
-import com.gdavidpb.tuindice.pensum.presentation.action.SelectPensumSelectionActionProcessor
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -306,39 +301,29 @@ class PensumViewModelContractTest {
 		)
 
 		val viewModel = PensumViewModel(
-			observePensumActionProcessor = ObservePensumActionProcessor(
-				observePensumUseCase = ObservePensumUseCase(
-					pensumRepository = repository,
-					reportingRepository = RecordingReportingRepository()
-				)
+			observePensumUseCase = ObservePensumUseCase(
+				pensumRepository = repository,
+				reportingRepository = RecordingReportingRepository()
 			),
-			refreshPensumActionProcessor = RefreshPensumActionProcessor(
-				updatePensumUseCase = UpdatePensumUseCase(
-					pensumRepository = repository,
-					reportingRepository = RecordingReportingRepository(),
-					exceptionHandler = exceptionHandler
-				)
+			updatePensumUseCase = UpdatePensumUseCase(
+				pensumRepository = repository,
+				reportingRepository = RecordingReportingRepository(),
+				exceptionHandler = exceptionHandler
 			),
-			selectPensumActionProcessor = SelectPensumActionProcessor(
-				selectPensumUseCase = SelectPensumUseCase(
-					pensumRepository = repository,
-					reportingRepository = RecordingReportingRepository(),
-					exceptionHandler = exceptionHandler
-				)
+			selectPensumUseCase = SelectPensumUseCase(
+				pensumRepository = repository,
+				reportingRepository = RecordingReportingRepository(),
+				exceptionHandler = exceptionHandler
 			),
-			selectPensumModalityActionProcessor = SelectPensumModalityActionProcessor(
-				selectPensumModalityUseCase = SelectPensumModalityUseCase(
-					pensumRepository = repository,
-					reportingRepository = RecordingReportingRepository(),
-					exceptionHandler = exceptionHandler
-				)
+			selectPensumModalityUseCase = SelectPensumModalityUseCase(
+				pensumRepository = repository,
+				reportingRepository = RecordingReportingRepository(),
+				exceptionHandler = exceptionHandler
 			),
-			selectPensumSelectionActionProcessor = SelectPensumSelectionActionProcessor(
-				selectPensumSelectionUseCase = SelectPensumSelectionUseCase(
-					pensumRepository = repository,
-					reportingRepository = RecordingReportingRepository(),
-					exceptionHandler = exceptionHandler
-				)
+			selectPensumSelectionUseCase = SelectPensumSelectionUseCase(
+				pensumRepository = repository,
+				reportingRepository = RecordingReportingRepository(),
+				exceptionHandler = exceptionHandler
 			),
 			eventPublisher = NoOpEventPublisher
 		)

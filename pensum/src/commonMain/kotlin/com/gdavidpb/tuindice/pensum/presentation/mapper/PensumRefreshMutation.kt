@@ -60,7 +60,7 @@ private fun Pensum.State.failedOrContent(error: UpdatePensumUseCaseError?): Pens
 	-> Pensum.State.Failed(message = error.toFailedMessage())
 }
 
-private fun UpdatePensumUseCaseError?.toLocalDataWarningMessage(): UiText {
+internal fun UpdatePensumUseCaseError?.toLocalDataWarningMessage(): UiText {
 	return when (this) {
 		UpdatePensumUseCaseError.NotFound ->
 			UiText.Resource(Res.string.pensum_local_data_warning_service)
@@ -82,7 +82,7 @@ private fun UpdatePensumUseCaseError?.toLocalDataWarningMessage(): UiText {
 	}
 }
 
-private fun UpdatePensumUseCaseError?.toFailedMessage(): UiText {
+internal fun UpdatePensumUseCaseError?.toFailedMessage(): UiText {
 	return when (this) {
 		UpdatePensumUseCaseError.NotFound ->
 			UiText.Resource(Res.string.pensum_failed_message)

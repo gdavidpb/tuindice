@@ -56,6 +56,13 @@ fun <S : ViewState> assertMachineStatesReachable(
 	}
 
 	val reachable = mutableSetOf<KClass<out S>>(initialState)
+
+	// A machine-level row (from == null) is an edge out of every state, so its target
+	// is reachable as soon as any state is — and the initial state always is.
+	machine.table.forEach { spec ->
+		val to = spec.to
+		if (spec.from == null && to != null) reachable += to
+	}
 	var grew = true
 	while (grew) {
 		grew = false

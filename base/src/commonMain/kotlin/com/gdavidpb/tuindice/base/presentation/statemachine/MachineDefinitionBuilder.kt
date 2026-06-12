@@ -107,5 +107,21 @@ class MachineDefinitionBuilder<S : ViewState> {
 				}
 			)
 		}
+
+		/**
+		 * Machine-level state-changing transition, valid from any state; the declared
+		 * target [To] is enforced at compile time by the (S, E) -> To signature.
+		 */
+		inline fun <reified E : Any, reified To : S> onTo(noinline output: suspend (S, E) -> To) {
+			builder.transitions += TransitionSpec(
+				from = null,
+				on = E::class,
+				to = To::class,
+				output = { state, event ->
+					@Suppress("UNCHECKED_CAST")
+					output(state, event as E)
+				}
+			)
+		}
 	}
 }

@@ -148,6 +148,38 @@ class MachineDefinitionTest {
 	}
 
 	@Test
+	fun wildcardTransition_withDeclaredTarget_changesStateFromAnywhere() = runTest {
+		val machine = MachineDefinition.define<TestState> {
+			from<TestState.Idle> {
+				on<TestEvent.Stop> { state, _ -> state }
+			}
+
+			fromAny {
+				onTo<TestEvent.Stop, TestState.Running> { _, _ -> TestState.Running() }
+			}
+		}
+
+		val fromRunning = machine.process(TestState.Running(count = 1), TestEvent.Stop)
+		val fromIdle = machine.process(TestState.Idle(), TestEvent.Stop)
+
+		val transitioned = assertIs<TransitionResult.Transitioned<TestState>>(fromRunning)
+		assertEquals(TestState.Running(), transitioned.toState)
+
+		val specific = assertIs<TransitionResult.Transitioned<TestState>>(fromIdle)
+		assertEquals(TestState.Idle(), specific.toState, "State-specific row must win over wildcard")
+
+		val diagram = machine.exportToMermaid(
+			machineName = "test_machine",
+			initialState = TestState.Idle::class
+		)
+
+		assertTrue(
+			diagram.contains("test_machine --> running : Stop"),
+			"Expected wildcard targeted transition in export:\n$diagram"
+		)
+	}
+
+	@Test
 	fun alphabetValidator_detectsUncoveredInputs() = runTest {
 		// Enforcement requires sealed-hierarchy reflection (android host run).
 		if (sealedSubclassesOf(TestEvent::class) == null) return@runTest
