@@ -36,13 +36,8 @@ class SignInViewModel(
 	fun setUsageDataCollectionEnabledAction(enabled: Boolean) =
 		sendAction(SignIn.Action.SetUsageDataCollectionEnabled(enabled))
 
-	fun signInAction(usbId: String, password: String) =
-		sendAction(
-			SignIn.Action.ClickSignIn(
-				usbId = usbId,
-				password = password
-			)
-		)
+	fun signInAction() =
+		sendAction(SignIn.Action.ClickSignIn)
 
 	fun openTermsAndConditionsAction() =
 		sendAction(SignIn.Action.ClickTermsAndConditions)

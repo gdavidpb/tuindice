@@ -103,8 +103,10 @@ class SignInStateMachineContractTest {
 			viewModel.state.test {
 				assertEquals(SignIn.State.Idle(), awaitItem())
 
-				viewModel.signInAction(VALID_USB_ID, PASSWORD)
-				assertIs<SignIn.State.LoggingIn>(awaitItem())
+				viewModel.setUsbIdAction(VALID_USB_ID)
+				viewModel.setPasswordAction(PASSWORD)
+				viewModel.signInAction()
+				awaitUntilState<SignIn.State.LoggingIn>()
 
 				cancelAndIgnoreRemainingEvents()
 			}
@@ -115,7 +117,7 @@ class SignInStateMachineContractTest {
 				// Second click while LoggingIn: invalid transition, must not re-run the
 				// use case. The consent change behind it is valid from LoggingIn, so its
 				// state emission is the FIFO anchor proving the click was already handled.
-				viewModel.signInAction(VALID_USB_ID, PASSWORD)
+				viewModel.signInAction()
 				viewModel.setUsageDataCollectionEnabledAction(true)
 
 				cancelAndIgnoreRemainingEvents()
@@ -163,8 +165,10 @@ class SignInStateMachineContractTest {
 			viewModel.state.test {
 				assertEquals(SignIn.State.Idle(), awaitItem())
 
-				viewModel.signInAction(VALID_USB_ID, PASSWORD)
-				assertIs<SignIn.State.LoggingIn>(awaitItem())
+				viewModel.setUsbIdAction(VALID_USB_ID)
+				viewModel.setPasswordAction(PASSWORD)
+				viewModel.signInAction()
+				awaitUntilState<SignIn.State.LoggingIn>()
 
 				cancelAndIgnoreRemainingEvents()
 			}

@@ -50,12 +50,11 @@ class SignInMachine(
 
 	internal fun startSignIn(
 		host: MachineHost<SignIn.Effect>,
-		state: SignIn.State.Idle,
-		action: SignIn.Action.ClickSignIn
+		state: SignIn.State.Idle
 	): SignIn.State.LoggingIn {
 		val params = SignInParams(
-			usbId = action.usbId,
-			password = action.password
+			usbId = state.usbId,
+			password = state.password
 		)
 
 		host.launchMachineJob {
@@ -75,8 +74,8 @@ class SignInMachine(
 		}
 
 		return SignIn.State.LoggingIn(
-			usbId = action.usbId,
-			password = action.password,
+			usbId = state.usbId,
+			password = state.password,
 			messages = configRepository.getLoadingMessages(),
 			usageDataCollectionEnabled = state.usageDataCollectionEnabled
 		)
@@ -131,11 +130,7 @@ class SignInMachine(
 				host.sendEffect(
 					SignIn.Effect.ShowRetrySnackBar(
 						message = errorMessage,
-						actionLabel = getString(Res.string.label_retry),
-						params = SignInParams(
-							usbId = state.usbId,
-							password = state.password
-						)
+						actionLabel = getString(Res.string.label_retry)
 					)
 				)
 		}

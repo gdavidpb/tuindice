@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.auth.presentation.contract
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
-import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import tuindice.auth.generated.resources.Res
 import tuindice.auth.generated.resources.top_bar_tuindice
@@ -43,10 +42,7 @@ object SignIn {
 			val enabled: Boolean
 		) : Action()
 
-		class ClickSignIn(
-			val usbId: String,
-			val password: String
-		) : Action()
+		data object ClickSignIn : Action()
 
 		data object ClickTermsAndConditions : Action()
 
@@ -67,8 +63,7 @@ object SignIn {
 
 		class ShowRetrySnackBar(
 			val message: String,
-			val actionLabel: String,
-			val params: SignInParams
+			val actionLabel: String
 		) : Effect()
 	}
 }

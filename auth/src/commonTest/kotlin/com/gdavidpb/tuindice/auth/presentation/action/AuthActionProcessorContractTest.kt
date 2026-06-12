@@ -64,45 +64,6 @@ class AuthActionProcessorContractTest {
 	}
 
 	@Test
-	fun signInActionProcessor_emitsLoggingMutation_thenNavigatesToSummary() = runTest {
-		val processor = SignInActionProcessor(
-			signInUseCase = SignInUseCase(
-				authRepository = RecordingAuthRepository(),
-				messagingRepository = RecordingMessagingRepository(),
-				syncRepository = FakeSyncRepository(),
-				credentialsRepository = FakeCredentialsRepository(),
-				syncStatusRepository = FakeSyncStatusRepository(),
-				attestationRepository = FakeAttestationRepository(),
-				reportingRepository = RecordingReportingRepository(),
-				paramsValidator = SignInParamsValidator(),
-				exceptionHandler = SignInExceptionHandler(
-					networkRepository = FakeNetworkRepository(isAvailable = true)
-				)
-			),
-			configRepository = FakeConfigRepository()
-		)
-		val effects = mutableListOf<SignIn.Effect>()
-
-		processor.process(
-			action = SignIn.Action.ClickSignIn(
-				usbId = VALID_USB_ID,
-				password = "secret123"
-			),
-			sideEffect = effects::add
-		).test {
-			val loading = awaitItem()(SignIn.State.Idle())
-			val logging = assertIs<SignIn.State.LoggingIn>(loading)
-			assertEquals(VALID_USB_ID, logging.usbId)
-
-			val next = awaitItem()(logging)
-			assertEquals(logging, next)
-			awaitComplete()
-		}
-
-		assertIs<SignIn.Effect.NavigateToSummary>(effects.single())
-	}
-
-	@Test
 	fun updatePasswordActionProcessor_emitsUpdatingMutation_thenReportsPasswordUpdated() = runTest {
 		val processor = UpdatePasswordActionProcessor(
 			updatePasswordUseCase = UpdatePasswordUseCase(
@@ -218,42 +179,4 @@ class AuthActionProcessorContractTest {
 		assertEquals(emptyList(), effects)
 	}
 
-	@Test
-	fun signInActionProcessor_showsNonRetrySnackBar_forDisabledAccount() = runTest {
-		val processor = SignInActionProcessor(
-			signInUseCase = SignInUseCase(
-				authRepository = RecordingAuthRepository(
-					throwable = clientRequestException(HttpStatusCode.Locked, path = "/auth/v1/token")
-				),
-				messagingRepository = RecordingMessagingRepository(),
-				syncRepository = FakeSyncRepository(),
-				credentialsRepository = FakeCredentialsRepository(),
-				syncStatusRepository = FakeSyncStatusRepository(),
-				attestationRepository = FakeAttestationRepository(),
-				reportingRepository = RecordingReportingRepository(),
-				paramsValidator = SignInParamsValidator(),
-				exceptionHandler = SignInExceptionHandler(
-					networkRepository = FakeNetworkRepository(isAvailable = true)
-				)
-			),
-			configRepository = FakeConfigRepository()
-		)
-		val effects = mutableListOf<SignIn.Effect>()
-
-		processor.process(
-			action = SignIn.Action.ClickSignIn(
-				usbId = VALID_USB_ID,
-				password = "secret123"
-			),
-			sideEffect = effects::add
-		).test {
-			val logging = assertIs<SignIn.State.LoggingIn>(awaitItem()(SignIn.State.Idle()))
-			val idle = assertIs<SignIn.State.Idle>(awaitItem()(logging))
-			assertEquals(VALID_USB_ID, idle.usbId)
-			awaitComplete()
-		}
-
-		val effect = assertIs<SignIn.Effect.ShowSnackBar>(effects.single())
-		assertEquals(getString(Res.string.error_account_disabled), effect.message)
-	}
 }

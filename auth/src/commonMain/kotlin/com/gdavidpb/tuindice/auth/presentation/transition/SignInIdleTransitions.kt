@@ -22,8 +22,8 @@ internal fun MachineDefinitionBuilder<SignIn.State>.idleTransitions(
 			state.copy(isPasswordVisible = !state.isPasswordVisible)
 		}
 
-		onTo<SignIn.Action.ClickSignIn, SignIn.State.LoggingIn> { state, action ->
-			machine.startSignIn(host = host, state = state, action = action)
+		onTo<SignIn.Action.ClickSignIn, SignIn.State.LoggingIn> { state, _ ->
+			machine.startSignIn(host = host, state = state)
 		}
 	}
 }

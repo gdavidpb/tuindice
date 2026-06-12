@@ -85,7 +85,7 @@ class SignInViewModelContractTest {
 					awaitItem()
 				)
 
-				viewModel.signInAction(VALID_USB_ID, "secret123")
+				viewModel.signInAction()
 				assertIs<SignIn.State.LoggingIn>(awaitItem())
 
 				cancelAndIgnoreRemainingEvents()
@@ -102,7 +102,7 @@ class SignInViewModelContractTest {
 				// ignores it, so no second NavigateToSummary may be emitted. Both events are
 				// queued in order; if the re-click were processed, its NavigateToSummary
 				// would arrive before the browser effect asserted below.
-				viewModel.signInAction(VALID_USB_ID, "secret123")
+				viewModel.signInAction()
 				viewModel.openPrivacyPolicyAction()
 				assertIs<SignIn.Effect.NavigateToBrowser>(awaitItem())
 

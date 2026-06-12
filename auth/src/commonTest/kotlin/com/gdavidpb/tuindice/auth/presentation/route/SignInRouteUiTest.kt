@@ -91,10 +91,9 @@ class SignInRouteUiTest {
 		}
 
 		runOnIdle {
-			fixture.viewModel.signInAction(
-				usbId = "12-34567",
-				password = "1234"
-			)
+			fixture.viewModel.setUsbIdAction("12-34567")
+			fixture.viewModel.setPasswordAction("1234")
+			fixture.viewModel.signInAction()
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
@@ -216,10 +215,9 @@ class SignInRouteUiTest {
 		}
 
 		runOnIdle {
-			fixture.viewModel.signInAction(
-				usbId = "12-34567",
-				password = "clave-invalida"
-			)
+			fixture.viewModel.setUsbIdAction("12-34567")
+			fixture.viewModel.setPasswordAction("clave-invalida")
+			fixture.viewModel.signInAction()
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
@@ -251,10 +249,9 @@ class SignInRouteUiTest {
 		}
 
 		runOnIdle {
-			fixture.viewModel.signInAction(
-				usbId = "12-34567",
-				password = "1234"
-			)
+			fixture.viewModel.setUsbIdAction("12-34567")
+			fixture.viewModel.setPasswordAction("1234")
+			fixture.viewModel.signInAction()
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
