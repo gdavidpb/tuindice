@@ -196,80 +196,49 @@ class SignInStateMachineContractTest {
 	}
 
 	@Test
-	fun machine_coversTheFullInputAlphabet() = runTest {
+	fun machine_coversTheFullInputAlphabet() {
 		val fixture = createFixture()
-		val viewModel = fixture.viewModel
 
-		val stateCollector = backgroundScope.launchStateCollector(
-			flow = viewModel.state,
-			testScheduler = testScheduler
+		assertMachineCoversAlphabet(
+			fixture.viewModel.machine,
+			SignIn.Action::class,
+			SignInInternalEvent::class
 		)
-
-		try {
-			assertMachineCoversAlphabet(
-				viewModel.awaitMachine(),
-				SignIn.Action::class,
-				SignInInternalEvent::class
-			)
-		} finally {
-			stateCollector.cancel()
-		}
 	}
 
 	@Test
-	fun machine_statesAreReachableFromIdle() = runTest {
+	fun machine_statesAreReachableFromIdle() {
 		val fixture = createFixture()
-		val viewModel = fixture.viewModel
 
-		val stateCollector = backgroundScope.launchStateCollector(
-			flow = viewModel.state,
-			testScheduler = testScheduler
+		assertMachineStatesReachable(
+			machine = fixture.viewModel.machine,
+			initialState = SignIn.State.Idle::class
 		)
-
-		try {
-			assertMachineStatesReachable(
-				machine = viewModel.awaitMachine(),
-				initialState = SignIn.State.Idle::class
-			)
-		} finally {
-			stateCollector.cancel()
-		}
 	}
 
 	@Test
-	fun machine_exportsDeclaredTransitionsToMermaid() = runTest {
+	fun machine_exportsDeclaredTransitionsToMermaid() {
 		val fixture = createFixture()
-		val viewModel = fixture.viewModel
+		val diagram = fixture.viewModel.exportMachineToMermaid()
 
-		val stateCollector = backgroundScope.launchStateCollector(
-			flow = viewModel.state,
-			testScheduler = testScheduler
+		// Captured from test output to publish the generated diagram as a docs artifact.
+		println(diagram)
+
+		val expectedFragments = listOf(
+			"idle",
+			"logging_in",
+			"ClickSignIn",
+			"SignInSucceeded",
+			"SignInFailed",
+			"SetUsbId",
+			"ClickTermsAndConditions"
 		)
 
-		try {
-			val diagram = viewModel.exportMachineToMermaid()
-
-			// Captured from test output to publish the generated diagram as a docs artifact.
-			println(diagram)
-
-			val expectedFragments = listOf(
-				"idle",
-				"logging_in",
-				"ClickSignIn",
-				"SignInSucceeded",
-				"SignInFailed",
-				"SetUsbId",
-				"ClickTermsAndConditions"
+		for (fragment in expectedFragments) {
+			assertTrue(
+				diagram.contains(fragment),
+				"Expected Mermaid export to mention '$fragment':\n$diagram"
 			)
-
-			for (fragment in expectedFragments) {
-				assertTrue(
-					diagram.contains(fragment),
-					"Expected Mermaid export to mention '$fragment':\n$diagram"
-				)
-			}
-		} finally {
-			stateCollector.cancel()
 		}
 	}
 

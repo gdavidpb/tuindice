@@ -31,7 +31,8 @@ decision.
     coroutine consumes a FIFO channel of inputs; only the loop mutates the `StateFlow`.
     Valid transitions publish `AppEvent.Transition(from, event, to)`; rejected events
     publish `AppEvent.InvalidTransition(from, event)`. User actions are machine events
-    directly (`toMachineEvent` defaults to identity) — no event mirror per screen.
+    directly — no event mirror per screen. The machine is exposed as a lazy `val machine`
+    (pure data, no coroutine needed to introspect or export it).
 - `auth`: `SignInViewModel.defineMachine()` declares the table below;
   `SignInInternalEvent` holds the two use-case results that re-enter the loop.
 

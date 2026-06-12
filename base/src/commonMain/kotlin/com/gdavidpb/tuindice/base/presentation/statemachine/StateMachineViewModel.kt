@@ -10,7 +10,6 @@ import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.utils.extension.eventName
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
@@ -33,10 +32,13 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 	private val effectChannel = Channel<E>(Channel.UNLIMITED)
 	private val inputChannel = Channel<MachineInput<A>>(Channel.UNLIMITED)
 	private val viewState = MutableStateFlow(initialState)
-	private val machineRef = CompletableDeferred<MachineDefinition<S>>()
 	private var lastPublishedState: String? = null
 
 	protected abstract val eventPublisher: EventPublisher
+
+	// Public on purpose: the machine is introspectable data — diagram export and
+	// transition-table validation tooling read it from here.
+	val machine: MachineDefinition<S> by lazy { defineMachine() }
 
 	val effect = effectChannel.receiveAsFlow()
 
@@ -56,15 +58,13 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 
 	protected abstract fun defineMachine(): MachineDefinition<S>
 
-	protected open fun toMachineEvent(action: A): Any = action
-
 	protected val currentState: S
 		get() = viewState.value
 
 	protected fun sendAction(viewAction: A) {
 		inputChannel.trySend(
 			MachineInput(
-				event = toMachineEvent(viewAction),
+				event = viewAction,
 				action = viewAction
 			)
 		)
@@ -93,14 +93,8 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 		return viewModelScope.launch(dispatchers.default, block = block)
 	}
 
-	// Public on purpose: the machine is introspectable data — diagram export and
-	// transition-table validation tooling read it from here.
-	suspend fun awaitMachine(): MachineDefinition<S> {
-		return machineRef.await()
-	}
-
-	suspend fun exportMachineToMermaid(): String {
-		return awaitMachine().exportToMermaid(
+	fun exportMachineToMermaid(): String {
+		return machine.exportToMermaid(
 			machineName = name,
 			initialState = initialStateClass
 		)
@@ -108,10 +102,6 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 
 	private fun startMachineLoop() {
 		viewModelScope.launch(dispatchers.default) {
-			val machine = defineMachine()
-
-			machineRef.complete(machine)
-
 			// Single consumer over a FIFO channel: transition resolution and state
 			// application are serialized here, which is what makes them atomic.
 			for (input in inputChannel) {
