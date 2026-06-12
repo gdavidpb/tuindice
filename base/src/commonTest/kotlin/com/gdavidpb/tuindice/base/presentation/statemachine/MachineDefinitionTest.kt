@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.base.presentation.statemachine
 
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
+import com.gdavidpb.tuindice.testkit.mvi.sealedSubclassesOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -143,6 +145,32 @@ class MachineDefinitionTest {
 		assertFailsWith<IllegalStateException> {
 			machine.process(TestState.Idle(), TestEvent.Start)
 		}
+	}
+
+	@Test
+	fun alphabetValidator_detectsUncoveredInputs() = runTest {
+		// Enforcement requires sealed-hierarchy reflection (android host run).
+		if (sealedSubclassesOf(TestEvent::class) == null) return@runTest
+
+		val machine = MachineDefinition.define<TestState> {
+			from<TestState.Idle> {
+				on<TestEvent.Increment> { state, _ -> state }
+			}
+		}
+
+		assertFailsWith<AssertionError> {
+			assertMachineCoversAlphabet(machine, TestEvent::class)
+		}
+
+		assertMachineCoversAlphabet(
+			machine,
+			TestEvent::class,
+			except = setOf(
+				TestEvent.Start::class,
+				TestEvent.Stop::class,
+				TestEvent.Ping::class
+			)
+		)
 	}
 
 	@Test

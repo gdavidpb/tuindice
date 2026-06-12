@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.base.presentation.statemachine
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import kotlin.reflect.KClass
 
+@MachineDsl
 class MachineDefinitionBuilder<S : ViewState> {
 	@PublishedApi
 	internal val transitions = mutableListOf<TransitionSpec<S>>()
@@ -32,6 +33,7 @@ class MachineDefinitionBuilder<S : ViewState> {
 		)
 	}
 
+	@MachineDsl
 	class StateTransitions<S : ViewState, F : S>(
 		@PublishedApi
 		internal val fromClass: KClass<F>,
@@ -85,6 +87,7 @@ class MachineDefinitionBuilder<S : ViewState> {
 		}
 	}
 
+	@MachineDsl
 	class AnyStateTransitions<S : ViewState>(
 		@PublishedApi
 		internal val builder: MachineDefinitionBuilder<S>

@@ -124,12 +124,26 @@ The dependency was fully removed in iteration 2.
 - `:base:compileKotlinIosSimulatorArm64` / `:auth:compileKotlinIosSimulatorArm64`,
   `verifyModuleGraph`.
 
+## Hardening (done on this branch)
+
+- `@MachineDsl` (`@DslMarker`) on the builder: nested blocks cannot call outer receivers.
+- Table validators in `testkit/mvi/MachineTableAssertions.kt`, applied to SignIn:
+  - `assertMachineCoversAlphabet(machine, vararg roots, except)` — every sealed input has
+    a row. Uses `sealedSubclassesOf` (expect/actual): real reflection on the android host
+    run (kotlin-reflect in testkit androidMain), no-op on Kotlin/Native — android host is
+    the enforcing platform. A negative test in `MachineDefinitionTest` proves it detects
+    uncovered inputs.
+  - `assertMachineStatesReachable(machine, initialState)` — BFS over declared
+    state-changing rows; pure table math, enforced on every platform.
+- File convention: `defineMachine()` stays inline in the ViewModel while the table is
+  small (SignIn); extract to `presentation/machine/<Screen>Machine.kt` when it grows
+  (evaluations-sized screens).
+
 ## Open items for the real migration (out of spike scope)
 
-- Transition-table validation helper in `testkit` (coverage of the Action alphabet,
-  unreachable states) reusable by every screen's machine test.
-- Decide per-screen file conventions for `defineMachine()` blocks as tables grow
-  (e.g. extract to `presentation/machine/<Screen>Machine.kt`).
 - Remove the orphaned SignIn `ActionProcessor`s once the pattern is ratified.
-- `@DslMarker` on the builder DSL to prevent receiver leakage between nested blocks.
-- README architecture section update when `StateMachineViewModel` becomes the default.
+- README architecture section update when `StateMachineViewModel` becomes the default —
+  including the `implement-tuindice-module` skill and `scaffold_feature_module.py`
+  templates, which still generate `ActionProcessor`s.
+- Pilot: pensum (long-lived observe flows, refresh-from-Content, Empty states) after its
+  UX branch lands; write its missing ViewModel contract tests first.

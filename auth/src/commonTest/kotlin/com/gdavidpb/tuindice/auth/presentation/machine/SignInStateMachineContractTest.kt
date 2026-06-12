@@ -20,6 +20,8 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
@@ -187,6 +189,47 @@ class SignInStateMachineContractTest {
 			assertTrue(
 				Triple("logging_in", "sign_in_succeeded", "logging_in") in transitions,
 				"Expected logging_in --sign_in_succeeded--> logging_in in $transitions"
+			)
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun machine_coversTheFullInputAlphabet() = runTest {
+		val fixture = createFixture()
+		val viewModel = fixture.viewModel
+
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			assertMachineCoversAlphabet(
+				viewModel.awaitMachine(),
+				SignIn.Action::class,
+				SignInInternalEvent::class
+			)
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun machine_statesAreReachableFromIdle() = runTest {
+		val fixture = createFixture()
+		val viewModel = fixture.viewModel
+
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			assertMachineStatesReachable(
+				machine = viewModel.awaitMachine(),
+				initialState = SignIn.State.Idle::class
 			)
 		} finally {
 			stateCollector.cancel()
