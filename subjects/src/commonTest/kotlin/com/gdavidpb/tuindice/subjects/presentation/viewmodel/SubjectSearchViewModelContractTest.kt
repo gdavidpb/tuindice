@@ -4,9 +4,6 @@ import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.subjects.domain.usecase.ObserveSubjectSearchUseCase
 import com.gdavidpb.tuindice.subjects.domain.usecase.RefreshSubjectSearchUseCase
-import com.gdavidpb.tuindice.subjects.presentation.action.ObserveSubjectSearchActionProcessor
-import com.gdavidpb.tuindice.subjects.presentation.action.RetrySubjectSearchActionProcessor
-import com.gdavidpb.tuindice.subjects.presentation.action.UpdateSubjectSearchQueryActionProcessor
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectSearch
 import com.gdavidpb.tuindice.subjects.testing.ControllableSubjectCatalogRepository
 import com.gdavidpb.tuindice.subjects.testing.subjectSearchResult
@@ -149,22 +146,13 @@ class SubjectSearchViewModelContractTest {
 		val reportingRepository = RecordingReportingRepository()
 
 		val viewModel = SubjectSearchViewModel(
-			observeSubjectSearchActionProcessor = ObserveSubjectSearchActionProcessor(
-				observeSubjectSearchUseCase = ObserveSubjectSearchUseCase(
-					subjectCatalogRepository = repository,
-					reportingRepository = reportingRepository
-				),
-				refreshSubjectSearchUseCase = RefreshSubjectSearchUseCase(
-					subjectCatalogRepository = repository,
-					reportingRepository = reportingRepository
-				)
+			observeSubjectSearchUseCase = ObserveSubjectSearchUseCase(
+				subjectCatalogRepository = repository,
+				reportingRepository = reportingRepository
 			),
-			updateSubjectSearchQueryActionProcessor = UpdateSubjectSearchQueryActionProcessor(),
-			retrySubjectSearchActionProcessor = RetrySubjectSearchActionProcessor(
-				refreshSubjectSearchUseCase = RefreshSubjectSearchUseCase(
-					subjectCatalogRepository = repository,
-					reportingRepository = reportingRepository
-				)
+			refreshSubjectSearchUseCase = RefreshSubjectSearchUseCase(
+				subjectCatalogRepository = repository,
+				reportingRepository = reportingRepository
 			),
 			eventPublisher = NoOpEventPublisher
 		)
