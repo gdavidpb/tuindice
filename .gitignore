@@ -11,6 +11,7 @@
 .externalNativeBuild
 xcuserdata/
 /scripts/*
+!/scripts/dump-machine-diagrams.sh
 !/scripts/generate-common-ui-matrix.sh
 !/scripts/module-graph.txt
 !/scripts/validate-module-graph.sh

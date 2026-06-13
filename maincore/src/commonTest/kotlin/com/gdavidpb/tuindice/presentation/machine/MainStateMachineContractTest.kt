@@ -12,6 +12,8 @@ import com.gdavidpb.tuindice.presentation.contract.Browser
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.testing.FakeCoreCacheStateRepository
+import com.gdavidpb.tuindice.testing.createBrowserViewModel
+import com.gdavidpb.tuindice.testing.createMainViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
@@ -21,8 +23,10 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeUpdateRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
+import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import com.gdavidpb.tuindice.wizard.domain.usecase.ShouldStartWizardUseCase
 import kotlin.test.Test
+import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
 
 // Model-based walks over the host machines: the wiring mirrors the fixtures in
@@ -119,5 +123,53 @@ class MainStateMachineContractTest {
 			// raise to the observed coverage once the walk has run on CI.
 			minRowCoverage = 0.5
 		)
+	}
+
+	@Test
+	fun machines_exportDeclaredTransitionsToMermaid() {
+		val mainDiagram = createMainViewModel().machine.exportToMermaid(
+			machineName = "main",
+			initialState = Main.State.Starting::class
+		)
+		val browserDiagram = createBrowserViewModel().machine.exportToMermaid(
+			machineName = "browser",
+			initialState = Browser.State.Idle::class
+		)
+
+		// Captured from test output to publish the generated diagrams as docs artifacts.
+		println(mainDiagram)
+		println(browserDiagram)
+
+		val expectedMainFragments = listOf(
+			"starting",
+			"content",
+			"failed",
+			"StartUp",
+			"StartUpCompleted",
+			"ReviewRequested / TriggerReviewFlow",
+			"WizardStartApproved / NavigateToWizard"
+		)
+
+		for (fragment in expectedMainFragments) {
+			assertTrue(
+				mainDiagram.contains(fragment),
+				"Expected main Mermaid export to mention '$fragment':\n$mainDiagram"
+			)
+		}
+
+		val expectedBrowserFragments = listOf(
+			"idle",
+			"content",
+			"NavigateTo",
+			"SetLoading",
+			"OpenExternalResource / NavigateToExternalResourceDialog"
+		)
+
+		for (fragment in expectedBrowserFragments) {
+			assertTrue(
+				browserDiagram.contains(fragment),
+				"Expected browser Mermaid export to mention '$fragment':\n$browserDiagram"
+			)
+		}
 	}
 }
