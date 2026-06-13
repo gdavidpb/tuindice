@@ -18,8 +18,10 @@ decision.
     transition function `f: suspend (S, event) -> S`. The mutation is now a named entity.
   - `MachineDefinition`: the introspectable table (`.table`), `process(state, event)`
     returning `Transitioned`/`Rejected`, hierarchical resolution (state-specific rows win
-    over machine-level rows), enter/exit actions on state-class change (UML order:
-    exit → output → enter), and `exportToMermaid()`.
+    over machine-level rows), and enter/exit actions on state-class change (UML order:
+    exit → output → enter). `.table` is the only introspection surface production exposes;
+    diagram rendering is test-only tooling (`testkit/mvi/exportToMermaid`, a pure function
+    over the table) so it never ships in the app artifact.
   - `MachineDefinitionBuilder`: typed DSL. `from<State> { on<Event> { f } }` declares
     internal transitions whose same-class invariant is enforced **at compile time**
     (`(F, E) -> F`); `onTo<Event, Target>` enforces the declared target at compile time

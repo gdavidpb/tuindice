@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
+import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import com.gdavidpb.tuindice.wizard.domain.usecase.CompleteWizardUseCase
 import com.gdavidpb.tuindice.wizard.presentation.contract.Wizard
 import com.gdavidpb.tuindice.wizard.presentation.viewmodel.WizardViewModel
@@ -38,7 +39,10 @@ class WizardStateMachineContractTest {
 
 	@Test
 	fun machine_exportsDeclaredTransitionsToMermaid() {
-		val diagram = createViewModel().exportMachineToMermaid()
+		val diagram = createViewModel().machine.exportToMermaid(
+			machineName = "wizard",
+			initialState = Wizard.State.Content::class
+		)
 
 		// Captured from test output to publish the generated diagram as a docs artifact.
 		println(diagram)

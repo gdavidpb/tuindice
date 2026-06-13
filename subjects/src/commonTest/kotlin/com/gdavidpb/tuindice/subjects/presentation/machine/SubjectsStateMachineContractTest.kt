@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
+import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
@@ -61,8 +62,14 @@ class SubjectsStateMachineContractTest {
 
 	@Test
 	fun machines_exportDeclaredTransitionsToMermaid() {
-		val detailDiagram = createDetailViewModel().exportMachineToMermaid()
-		val searchDiagram = createSearchViewModel().exportMachineToMermaid()
+		val detailDiagram = createDetailViewModel().machine.exportToMermaid(
+			machineName = "subject_detail",
+			initialState = SubjectDetail.State.Idle::class
+		)
+		val searchDiagram = createSearchViewModel().machine.exportToMermaid(
+			machineName = "subject_search",
+			initialState = SubjectSearch.State::class
+		)
 
 		// Captured from test output to publish the generated diagrams as docs artifacts.
 		println(detailDiagram)

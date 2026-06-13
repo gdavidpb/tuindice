@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.base.presentation.statemachine
 
 import com.gdavidpb.tuindice.base.presentation.ViewState
-import com.gdavidpb.tuindice.base.utils.extension.toSnakeCase
 import kotlin.reflect.KClass
 
 /**
@@ -71,38 +70,5 @@ class MachineDefinition<S : ViewState>(
 		}
 
 		return next
-	}
-
-	fun exportToMermaid(machineName: String, initialState: KClass<out S>): String {
-		val states = buildList {
-			add(initialState)
-			transitions.forEach { spec ->
-				spec.from?.let(::add)
-				spec.to?.let(::add)
-			}
-		}.distinct()
-
-		return buildString {
-			appendLine("stateDiagram-v2")
-			appendLine("state $machineName {")
-			states.forEach { state ->
-				appendLine("    state ${state.stateName()}")
-			}
-			appendLine()
-			appendLine("    [*] --> ${initialState.stateName()}")
-			transitions.forEach { spec ->
-				val event = spec.on.simpleName
-				val outputs = spec.emits.mapNotNull { effect -> effect.simpleName }
-				val label = if (outputs.isEmpty()) event else "$event / ${outputs.joinToString(" · ")}"
-				val from = spec.from?.stateName() ?: machineName
-				val to = spec.to?.stateName() ?: from
-				appendLine("    $from --> $to : $label")
-			}
-			append("}")
-		}
-	}
-
-	private fun KClass<*>.stateName(): String {
-		return simpleName?.toSnakeCase() ?: "unknown"
 	}
 }

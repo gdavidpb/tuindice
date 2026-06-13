@@ -27,6 +27,7 @@ import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
+import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -237,7 +238,10 @@ class SignInStateMachineContractTest {
 	@Test
 	fun machine_exportsDeclaredTransitionsToMermaid() {
 		val fixture = createFixture()
-		val diagram = fixture.viewModel.exportMachineToMermaid()
+		val diagram = fixture.viewModel.machine.exportToMermaid(
+			machineName = "sign_in",
+			initialState = SignIn.State.Idle::class
+		)
 
 		// Captured from test output to publish the generated diagram as a docs artifact.
 		println(diagram)

@@ -29,7 +29,6 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 	initialAction: A? = null,
 	private val dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ) : ViewModel() {
-	private val initialStateClass = initialState::class
 	private val effectChannel = Channel<E>(Channel.UNLIMITED)
 	private val inputChannel = Channel<MachineInput<A>>(Channel.UNLIMITED)
 	private val viewState = MutableStateFlow(initialState)
@@ -117,13 +116,6 @@ abstract class StateMachineViewModel<S : ViewState, A : ViewAction, E : ViewEffe
 			override fun launchMachineJob(block: suspend CoroutineScope.() -> Unit): Job =
 				this@StateMachineViewModel.launchMachineJob(block)
 		}
-	}
-
-	fun exportMachineToMermaid(): String {
-		return machine.exportToMermaid(
-			machineName = name,
-			initialState = initialStateClass
-		)
 	}
 
 	private fun startMachineLoop() {

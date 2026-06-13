@@ -34,6 +34,7 @@ import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
+import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlinx.coroutines.test.runTest
@@ -87,9 +88,15 @@ class RecordStateMachineContractTest {
 	@Test
 	fun machines_exportDeclaredTransitionsToMermaid() = withMachineKoin {
 		val recordDiagram = get<RecordViewModel>()
-			.exportMachineToMermaid()
+			.machine.exportToMermaid(
+				machineName = "record",
+				initialState = Record.State.Idle::class
+			)
 		val createDiagram = get<CreateSyntheticTermViewModel>()
-			.exportMachineToMermaid()
+			.machine.exportToMermaid(
+				machineName = "create_synthetic_term",
+				initialState = CreateSyntheticTerm.State::class
+			)
 
 		// Captured from test output to publish the generated diagrams as docs artifacts.
 		println(recordDiagram)
