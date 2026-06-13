@@ -31,7 +31,7 @@ mkdir -p "${MAESTRO_HOME}"
 E2E_MAESTRO_SUITE="$("${SCRIPT_DIR}/prepare-maestro-suite.sh" "${E2E_MAESTRO_SUITE}")"
 
 if [[ "${E2E_MAESTRO_RESUME_FIRST}" == "1" ]]; then
-	run_maestro_suite_resume_first \
+	run_maestro_suite_with_retries \
 		"Android" \
 		"${MAESTRO_LOG_FILE}" \
 		"${E2E_MAESTRO_SUITE}" \

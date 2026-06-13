@@ -374,7 +374,12 @@ Ejemplos de comandos usados habitualmente:
 ./gradlew --continue --console=plain :maincore:iosSimulatorArm64Test --tests '*IosAppKoinSmokeTest*'
 ./gradlew --continue --console=plain verifyE2eContract
 ./gradlew --continue --console=plain e2eMaestroAndroid
+./gradlew --continue --console=plain verifySharedHostTests
+./gradlew --continue --console=plain detekt
+./gradlew --continue --console=plain koverHtmlReport
 ```
+
+Nota: `verifySharedHostTests` corre los tests compartidos en el host JVM de Android — la única plataforma donde los validadores de alfabeto/Λ de las máquinas validan de verdad (en iOS reportan SKIPPED). `detekt` usa baselines por módulo y `koverHtmlReport` es medición de cobertura sin umbral.
 
 ## Política de evolución
 

@@ -12,12 +12,12 @@ import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.UpdatePasswordParamsValidator
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
-import com.gdavidpb.tuindice.auth.testing.FakeNetworkRepository
-import com.gdavidpb.tuindice.auth.testing.FakeSessionRepository
-import com.gdavidpb.tuindice.auth.testing.RecordingApplicationRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
-import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenError
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
@@ -192,7 +192,7 @@ class AuthUseCaseContractTest {
 		assertEquals(SyncStatus.OutdatedCredentials, syncStatusRepository.getSyncStatus())
 		assertEquals(false, applicationRepository.cleared)
 		assertEquals(null, sessionInvalidationRepository.intentionalSignOutSessionId)
-		assertEquals(revokeThrowable, reportingRepository.exceptions.single())
+		assertEquals(revokeThrowable, reportingRepository.loggedExceptions.single())
 	}
 
 	@Test

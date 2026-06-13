@@ -10,8 +10,10 @@ import kotlin.test.assertTrue
  * one row in the machine's transition table, except those explicitly listed in [except]
  * (inputs that are deliberately invalid in every state).
  *
- * On platforms without sealed-hierarchy reflection this is a no-op; the android host
- * test run is the enforcing platform.
+ * On platforms without sealed-hierarchy reflection this check cannot run: it reports a
+ * visible SKIPPED line and returns, so a green run never implies alphabet coverage here.
+ * The android host run (testAndroidHostTest, aggregated by verifySharedHostTests) is the
+ * enforcing platform.
  */
 fun <S : ViewState> assertMachineCoversAlphabet(
 	machine: MachineDefinition<S>,
@@ -21,7 +23,8 @@ fun <S : ViewState> assertMachineCoversAlphabet(
 	val alphabet = mutableListOf<KClass<*>>()
 
 	for (root in alphabetRoots) {
-		val subclasses = sealedSubclassesOf(root) ?: return
+		val subclasses = sealedSubclassesOf(root)
+			?: return reportCoverageSkipped(check = "assertMachineCoversAlphabet")
 		alphabet += subclasses
 	}
 
@@ -39,15 +42,17 @@ fun <S : ViewState> assertMachineCoversAlphabet(
 /**
  * Asserts that every direct sealed subclass of [effectsRoot] is declared in some row's
  * `emits` set, except those explicitly listed in [except] — i.e. the output alphabet Λ
- * has no dead symbols. No-op on platforms without sealed-hierarchy reflection; the
- * android host run is the enforcing platform.
+ * has no dead symbols. On platforms without sealed-hierarchy reflection this check cannot
+ * run: it reports a visible SKIPPED line and returns. The android host run
+ * (testAndroidHostTest, aggregated by verifySharedHostTests) is the enforcing platform.
  */
 fun <S : ViewState> assertMachineCoversEffects(
 	machine: MachineDefinition<S>,
 	effectsRoot: KClass<*>,
 	except: Set<KClass<*>> = emptySet()
 ) {
-	val effects = sealedSubclassesOf(effectsRoot) ?: return
+	val effects = sealedSubclassesOf(effectsRoot)
+		?: return reportCoverageSkipped(check = "assertMachineCoversEffects")
 	val declared = machine.table.flatMap { spec -> spec.emits }.toSet()
 	val missing = effects.filter { effect ->
 		effect !in except && effect !in declared
@@ -103,5 +108,12 @@ fun <S : ViewState> assertMachineStatesReachable(
 		unreachable.isEmpty(),
 		"States declared in the table but unreachable from " +
 			"${initialState.simpleName}: ${unreachable.map { it.simpleName }}"
+	)
+}
+
+private fun reportCoverageSkipped(check: String) {
+	println(
+		"[testkit] $check SKIPPED on this platform (no sealed-hierarchy reflection) — " +
+			"enforced by testAndroidHostTest; run ./gradlew verifySharedHostTests"
 	)
 }

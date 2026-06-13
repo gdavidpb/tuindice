@@ -5,8 +5,8 @@ import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserE
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
-import com.gdavidpb.tuindice.summary.testing.FakeNetworkRepository
-import com.gdavidpb.tuindice.summary.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
 import io.github.vinceglb.filekit.PlatformFile

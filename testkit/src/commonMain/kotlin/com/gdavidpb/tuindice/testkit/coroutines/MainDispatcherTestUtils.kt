@@ -21,3 +21,15 @@ suspend fun TestScope.withMainDispatcher(
 		Dispatchers.resetMain()
 	}
 }
+
+/**
+ * [withMainDispatcher] with the dispatcher fixed to an [UnconfinedTestDispatcher] bound
+ * to this scope's scheduler, so the dispatcher driving Dispatchers.Main and the
+ * [TuIndiceDispatchers] handed to [block] can never diverge.
+ */
+@OptIn(ExperimentalCoroutinesApi::class)
+suspend fun TestScope.withUnconfinedTestDispatchers(
+	block: suspend TestScope.(TuIndiceDispatchers) -> Unit
+) {
+	withMainDispatcher(UnconfinedTestDispatcher(testScheduler), block)
+}

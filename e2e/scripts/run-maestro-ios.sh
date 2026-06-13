@@ -47,7 +47,7 @@ E2E_MAESTRO_SUITE="$("${SCRIPT_DIR}/prepare-maestro-suite.sh" "${E2E_MAESTRO_SUI
 
 if [[ "${E2E_MAESTRO_RESUME_FIRST}" == "1" ]]; then
 	log "iOS Maestro resolved device: ${MAESTRO_IOS_DEVICE_ID}."
-	run_maestro_suite_resume_first \
+	run_maestro_suite_with_retries \
 		"iOS" \
 		"${MAESTRO_LOG_FILE}" \
 		"${E2E_MAESTRO_SUITE}" \

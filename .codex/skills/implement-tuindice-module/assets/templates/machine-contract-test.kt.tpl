@@ -11,7 +11,9 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
 
@@ -32,6 +34,23 @@ class $MACHINE_CONTRACT_TEST_CLASS_NAME {
 		)
 
 		assertMachineCoversEffects(machine, $FEATURE_NAME.Effect::class)
+	}
+
+	@Test
+	fun machine_survivesSeededRandomWalk() = runTest {
+		assertMachineRandomWalk(
+			screenMachine = createScreenMachine(),
+			sampleEvents = listOf(
+				$FEATURE_NAME.Action.$OBSERVE_ACTION_NAME,
+				$FEATURE_NAME.Action.$REFRESH_ACTION_NAME,
+				$INTERNAL_EVENT_NAME.$CONTENT_OBSERVED_EVENT_NAME(message = "walk"),
+				$INTERNAL_EVENT_NAME.$OBSERVATION_FAILED_EVENT_NAME(message = "walk"),
+				$INTERNAL_EVENT_NAME.$REFRESH_STARTED_EVENT_NAME,
+				$INTERNAL_EVENT_NAME.$REFRESH_FAILED_EVENT_NAME(message = "walk")
+			),
+			scope = backgroundScope,
+			minRowCoverage = 0.8
+		)
 	}
 
 	@Test
@@ -59,25 +78,29 @@ class $MACHINE_CONTRACT_TEST_CLASS_NAME {
 		}
 	}
 
-	private fun createViewModel(): $VIEWMODEL_NAME {
+	private fun createScreenMachine(): $MACHINE_NAME {
 		val repository = $RECORDING_REPOSITORY_NAME()
 		val reportingRepository = RecordingReportingRepository()
 
-		return $VIEWMODEL_NAME(
-			screenMachine = $MACHINE_NAME(
-				$OBSERVE_USE_CASE_PARAM_NAME = $OBSERVE_USE_CASE_NAME(
-					$REPOSITORY_PARAM_NAME = repository,
-					reportingRepository = reportingRepository
-				),
-				$UPDATE_USE_CASE_PARAM_NAME = $UPDATE_USE_CASE_NAME(
-					$REPOSITORY_PARAM_NAME = repository,
-					reportingRepository = reportingRepository,
-					exceptionHandler = $UPDATE_EXCEPTION_HANDLER_NAME(
-						networkRepository = FakeNetworkRepository(isAvailable = true),
-						reportingRepository = reportingRepository
-					)
-				)
+		return $MACHINE_NAME(
+			$OBSERVE_USE_CASE_PARAM_NAME = $OBSERVE_USE_CASE_NAME(
+				$REPOSITORY_PARAM_NAME = repository,
+				reportingRepository = reportingRepository
 			),
+			$UPDATE_USE_CASE_PARAM_NAME = $UPDATE_USE_CASE_NAME(
+				$REPOSITORY_PARAM_NAME = repository,
+				reportingRepository = reportingRepository,
+				exceptionHandler = $UPDATE_EXCEPTION_HANDLER_NAME(
+					networkRepository = FakeNetworkRepository(isAvailable = true),
+					reportingRepository = reportingRepository
+				)
+			)
+		)
+	}
+
+	private fun createViewModel(): $VIEWMODEL_NAME {
+		return $VIEWMODEL_NAME(
+			screenMachine = createScreenMachine(),
 			eventPublisher = NoOpEventPublisher
 		)
 	}

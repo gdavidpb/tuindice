@@ -110,13 +110,13 @@ actions:
   - id: auth.SignOut.Initialize
     classification: internal
     reason: route state bootstrap from pending changes
-  - id: auth.SignOut.ConfirmSignOut
+  - id: auth.SignOut.ClickSignOut
     classification: user
     variants: [plain-success, pending-flush-success, flush-failure]
     selector: base_confirmation_dialog_positive_button
     flow: e2e/maestro/flows/auth/sign-out.yaml
     fixture_state: auth-revoke-success
-  - id: auth.SignOut.FlushAndSignOut
+  - id: auth.SignOut.RetryFlushAndSignOut
     classification: user
     variants: [pending-success, pending-failed, outdated-credentials]
     selector: base_confirmation_dialog_positive_button
@@ -128,12 +128,6 @@ actions:
     selector: auth_sign_out_secondary_button
     flow: e2e/maestro/flows/auth/pending-sign-out.yaml
     fixture_state: pending-evaluation-mutation
-  - id: auth.SignOut.OpenUpdatePassword
-    classification: user
-    variants: [outdated-credentials]
-    selector: base_confirmation_dialog_positive_button
-    flow: e2e/maestro/flows/auth/update-password.yaml
-    fixture_state: auth-outdated-credentials
 
   - id: auth.UpdatePassword.SetPassword
     classification: user
@@ -210,18 +204,12 @@ actions:
     selector: evaluation_max_grade_chip
     flow: e2e/maestro/flows/evaluations/evaluations-filters-and-form.yaml
     fixture_state: evaluations-content
-  - id: evaluations.Evaluation.ClickAddEvaluation
+  - id: evaluations.Evaluation.ClickSubmitEvaluation
     classification: user
-    variants: [success, missing-attempt, missing-type, missing-max-grade, already-exists]
+    variants: [add-success, edit-success, missing-attempt, missing-type, missing-max-grade, already-exists, not-found]
     selector: evaluation_done_fab
     flow: e2e/maestro/flows/evaluations/evaluations-add-submit.yaml
     fixture_state: post-evaluations-success
-  - id: evaluations.Evaluation.ClickEditEvaluation
-    classification: user
-    variants: [success, not-found]
-    selector: evaluation_done_fab
-    flow: e2e/maestro/flows/evaluations/evaluations-edit-submit.yaml
-    fixture_state: patch-evaluations-success
 
   - id: evaluations.Evaluations.LoadEvaluations
     classification: internal
@@ -348,6 +336,36 @@ actions:
     selector: record_create_synthetic_term_search_field
     flow: e2e/maestro/flows/suites/record-suite.yaml
     fixture_state: synthetic-term-search
+  - id: record.CreateSyntheticTerm.SelectAddSubjectTab
+    classification: user
+    variants: [search-tab]
+    selector: record_create_synthetic_term_search_tab
+    flow: e2e/maestro/flows/record/record-synthetic-term-search-states.yaml
+    fixture_state: synthetic-term-search
+  - id: record.CreateSyntheticTerm.AddSubject
+    classification: user
+    variants: [from-search-results]
+    selector: record_create_synthetic_term_subject_MA1121_add_button
+    flow: e2e/maestro/flows/record/record-synthetic-term-lifecycle.yaml
+    fixture_state: synthetic-term-success
+  - id: record.CreateSyntheticTerm.RemoveSubject
+    classification: user
+    variants: [pending-direct-coverage]
+    selector: record_create_synthetic_term_screen
+    flow: e2e/maestro/flows/record/record-synthetic-term-lifecycle.yaml
+    fixture_state: synthetic-term-success
+  - id: record.CreateSyntheticTerm.SelectPeriod
+    classification: user
+    variants: [pending-direct-coverage]
+    selector: record_create_synthetic_term_screen
+    flow: e2e/maestro/flows/record/record-synthetic-term-lifecycle.yaml
+    fixture_state: synthetic-term-success
+  - id: record.CreateSyntheticTerm.ConfigureTerm
+    classification: user
+    variants: [edit-seed-load, pending-direct-coverage]
+    selector: record_edit_synthetic_term_button
+    flow: e2e/maestro/flows/record/record-synthetic-term-lifecycle.yaml
+    fixture_state: synthetic-term-success
   - id: record.CreateSyntheticTerm.CreateTerm
     classification: user
     variants: [create-success, edit-success, empty-subjects-disabled]

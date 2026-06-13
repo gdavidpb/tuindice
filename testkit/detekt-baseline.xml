@@ -1,0 +1,50 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ImportOrdering:BaseRepositoryFakes.kt$import com.gdavidpb.tuindice.base.domain.model.AppEnvironment import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult import com.gdavidpb.tuindice.base.domain.model.MainSection import com.gdavidpb.tuindice.base.domain.model.PendingChanges import com.gdavidpb.tuindice.base.domain.model.SyncPolicy import com.gdavidpb.tuindice.base.domain.model.SyncStatus import com.gdavidpb.tuindice.base.domain.model.UpdateAction import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository import com.gdavidpb.tuindice.base.domain.repository.FileRepository import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository import com.gdavidpb.tuindice.base.domain.repository.SessionRepository import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository import com.gdavidpb.tuindice.base.domain.repository.SyncRepository import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository import io.github.vinceglb.filekit.PlatformFile import kotlinx.coroutines.flow.Flow import kotlinx.coroutines.flow.MutableSharedFlow import kotlinx.coroutines.flow.MutableStateFlow import kotlinx.coroutines.flow.flowOf import kotlinx.coroutines.flow.update</ID>
+    <ID>Indentation:BaseRepositoryFakes.kt$FakeAppEnvironmentRepository$ </ID>
+    <ID>Indentation:BaseRepositoryFakes.kt$FakeConfigRepository$ </ID>
+    <ID>Indentation:BaseRepositoryFakes.kt$FakeCredentialsRepository$ </ID>
+    <ID>Indentation:BaseRepositoryFakes.kt$FakeFileRepository$ </ID>
+    <ID>Indentation:BaseRepositoryFakes.kt$FakeNetworkRepository$ </ID>
+    <ID>Indentation:BaseRepositoryFakes.kt$FakePendingChangesRepository$ </ID>
+    <ID>Indentation:BaseRepositoryFakes.kt$FakeSessionInvalidationRepository$ </ID>
+    <ID>Indentation:BaseRepositoryFakes.kt$FakeSessionRepository$ </ID>
+    <ID>Indentation:BaseRepositoryFakes.kt$FakeSettingsRepository$ </ID>
+    <ID>Indentation:BaseRepositoryFakes.kt$FakeSyncRepository$ </ID>
+    <ID>Indentation:BaseRepositoryFakes.kt$FakeSyncStatusRepository$ </ID>
+    <ID>Indentation:BaseRepositoryFakes.kt$FakeUpdateRepository$ </ID>
+    <ID>Indentation:BaseRepositoryFakes.kt$RecordingApplicationRepository$ </ID>
+    <ID>Indentation:BaseRepositoryFakes.kt$RecordingBrowserRepository$ </ID>
+    <ID>Indentation:BaseRepositoryFakes.kt$RecordingReportingRepository$ </ID>
+    <ID>Indentation:BaseRepositoryFakes.kt$RecordingReviewRepository$ </ID>
+    <ID>Indentation:ComposeUiTestKit.kt$ </ID>
+    <ID>Indentation:ComposeUiTestKit.kt$TuIndiceTestLifecycleOwner$ </ID>
+    <ID>Indentation:ComposeUiTestKit.kt$TuIndiceTestSizeClass$ </ID>
+    <ID>Indentation:ComposeUiTestKit.kt$TuIndiceTestSizeClass.Compact$ </ID>
+    <ID>Indentation:ComposeUiTestKit.kt$TuIndiceTestSizeClass.Expanded$ </ID>
+    <ID>Indentation:ComposeUiTestKit.kt$TuIndiceTestSizeClass.Medium$ </ID>
+    <ID>Indentation:E2eFixtureContract.kt$E2eFixtureContract$ </ID>
+    <ID>Indentation:E2eFixtureContract.kt$E2eFixtureContract.RecordSearch$ </ID>
+    <ID>Indentation:KoinSmokeTestUtils.kt$ </ID>
+    <ID>Indentation:KtorTestUtils.kt$ </ID>
+    <ID>Indentation:MachineRandomWalk.kt$ </ID>
+    <ID>Indentation:MachineRandomWalk.kt$MachineWalkReport$ </ID>
+    <ID>Indentation:MachineRandomWalk.kt$RecordingMachineHost$ </ID>
+    <ID>Indentation:MachineTableAssertions.kt$ </ID>
+    <ID>Indentation:MainDispatcherTestUtils.kt$ </ID>
+    <ID>Indentation:SealedReflection.android.kt$ </ID>
+    <ID>Indentation:SealedReflection.ios.kt$ </ID>
+    <ID>Indentation:TestTuIndiceDispatchers.kt$TestTuIndiceDispatchers$ </ID>
+    <ID>Indentation:TurbineStateAssertions.kt$ </ID>
+    <ID>Indentation:UseCaseStateTestUtils.kt$ </ID>
+    <ID>Indentation:ViewModelTestUtils.kt$ </ID>
+    <ID>LongMethod:MachineRandomWalk.kt$suspend fun &lt;S : ViewState, E : ViewEffect&gt; assertMachineRandomWalk( screenMachine: ScreenMachine&lt;S, E&gt;, sampleEvents: List&lt;Any&gt;, scope: CoroutineScope, steps: Int = 400, seed: Long = 0x7E57AB1E, feedProducedInternalEvents: Boolean = true, minRowCoverage: Double = 0.0 ): MachineWalkReport</ID>
+    <ID>LongParameterList:MachineRandomWalk.kt$( screenMachine: ScreenMachine&lt;S, E&gt;, sampleEvents: List&lt;Any&gt;, scope: CoroutineScope, steps: Int = 400, seed: Long = 0x7E57AB1E, feedProducedInternalEvents: Boolean = true, minRowCoverage: Double = 0.0 )</ID>
+    <ID>MatchingDeclarationName:ComposeUiTestKit.kt$TuIndiceTestSizeClass</ID>
+    <ID>ThrowingExceptionsWithoutMessageOrCause:BaseRepositoryFakes.kt$FakeCredentialsRepository$IllegalStateException()</ID>
+    <ID>TooGenericExceptionCaught:MachineRandomWalk.kt$e: Throwable</ID>
+    <ID>UseCheckOrError:BaseRepositoryFakes.kt$FakeCredentialsRepository$throw IllegalStateException()</ID>
+  </CurrentIssues>
+</SmellBaseline>

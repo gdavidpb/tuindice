@@ -164,6 +164,7 @@ Implement module work by copying the nearest existing module pattern instead of 
   - `./gradlew --continue --console=plain :<module>:compileKotlinIosSimulatorArm64`
 - For module dependency changes, run `./gradlew verifyModuleGraph` and update `scripts/validate-module-graph.sh` plus `README.md` together.
 - For feature DI changes, run the module smoke test.
+- For machine or transition-table changes, run `./gradlew verifySharedHostTests`: the android host is the only platform where the alphabet/Λ validators enforce (on iOS they report SKIPPED), and the contract tests' seeded random walk (`assertMachineRandomWalk`) runs everywhere.
 - For shared bootstrap changes, run the relevant `maincore` smoke tests and the iOS bootstrap smoke test when applicable.
 - For navigation or shared UI work, run focused module tests or the shared UI gate if the change is broad.
 - For user-visible flow or selector changes, run `./gradlew verifyE2eContract`; run `./gradlew e2eMaestroAndroid` or `./gradlew e2eMaestroIos` when the local device/simulator and Maestro CLI are available.

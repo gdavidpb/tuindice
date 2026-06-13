@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
@@ -33,14 +34,22 @@ class ControllableAcademicRecordRepository(
 	val updatedTerms = mutableListOf<SyntheticTermUpdateCommand>()
 	val deletedTermIds = mutableListOf<String>()
 	var addSyntheticTermGate: CompletableDeferred<Unit>? = null
+	var recordAvailable: Boolean = true
+	var updateAcademicRecordCalls: Int = 0
+		private set
+	var updateAcademicRecordThrowable: Throwable? = null
 
 	override suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord> = recordFlow
 
 	override suspend fun observeHasSyncedRecordFlow(): Flow<Boolean> = hasSyncedFlow
 
-	override suspend fun getAcademicRecord(): AcademicRecord? = recordFlow.value
+	override suspend fun getAcademicRecord(): AcademicRecord? =
+		if (recordAvailable) recordFlow.value else null
 
-	override suspend fun updateAcademicRecord() = Unit
+	override suspend fun updateAcademicRecord() {
+		updateAcademicRecordCalls++
+		updateAcademicRecordThrowable?.let { throwable -> throw throwable }
+	}
 
 	override suspend fun drainPendingMutations() = Unit
 
@@ -101,8 +110,18 @@ class RecordingRecordSelectionRepository(
 }
 
 class ControllableSyntheticTermCreationRepository : SyntheticTermCreationRepository {
+	data class ObserveSnapshotCall(
+		val queryFlow: StateFlow<String>,
+		val selectedSubjectsFlow: StateFlow<List<SyntheticTermSubject>>,
+		val selectedPeriodKeyFlow: StateFlow<String?>,
+		val editingTermIdFlow: StateFlow<String?>,
+		val editingTermKeyFlow: StateFlow<String?>
+	)
+
 	val snapshotFlow = MutableStateFlow<SyntheticTermCreationSnapshot?>(null)
 	val refreshCalls = mutableListOf<String>()
+	val observeSnapshotCalls = mutableListOf<ObserveSnapshotCall>()
+	var refreshSearchThrowable: Throwable? = null
 
 	override fun observeSnapshot(
 		queryFlow: StateFlow<String>,
@@ -110,18 +129,37 @@ class ControllableSyntheticTermCreationRepository : SyntheticTermCreationReposit
 		selectedPeriodKeyFlow: StateFlow<String?>,
 		editingTermIdFlow: StateFlow<String?>,
 		editingTermKeyFlow: StateFlow<String?>
-	): Flow<SyntheticTermCreationSnapshot> = snapshotFlow.filterNotNull()
+	): Flow<SyntheticTermCreationSnapshot> {
+		observeSnapshotCalls += ObserveSnapshotCall(
+			queryFlow = queryFlow,
+			selectedSubjectsFlow = selectedSubjectsFlow,
+			selectedPeriodKeyFlow = selectedPeriodKeyFlow,
+			editingTermIdFlow = editingTermIdFlow,
+			editingTermKeyFlow = editingTermKeyFlow
+		)
+		return snapshotFlow.filterNotNull()
+	}
 
 	override suspend fun refreshSearch(query: String) {
 		refreshCalls += query
+		refreshSearchThrowable?.let { throwable -> throw throwable }
 	}
 }
 
-class FakeSyntheticTermLoadPreviewRepository : SyntheticTermLoadPreviewRepository {
+class FakeSyntheticTermLoadPreviewRepository(
+	var preview: SyntheticTermLoadPreview = SyntheticTermLoadPreview(available = false),
+	var throwable: Throwable? = null
+) : SyntheticTermLoadPreviewRepository {
+	val loadCalls = mutableListOf<Pair<String, List<String>>>()
+
 	override suspend fun loadSyntheticTermPreview(
 		termKey: String,
 		subjectCodes: List<String>
-	): SyntheticTermLoadPreview = SyntheticTermLoadPreview(available = false)
+	): SyntheticTermLoadPreview {
+		loadCalls += termKey to subjectCodes
+		throwable?.let { error -> throw error }
+		return preview
+	}
 }
 
 fun academicTerm(
@@ -142,13 +180,20 @@ fun academicTerm(
 
 fun academicAttempt(
 	subjectCode: String,
-	outcome: AttemptOutcome = AttemptOutcome.APPROVED
+	outcome: AttemptOutcome = AttemptOutcome.APPROVED,
+	id: String = "attempt-$subjectCode",
+	subjectName: String = subjectCode,
+	credits: Int = 4,
+	gradingMode: AttemptGradingMode = AttemptGradingMode.NUMERIC,
+	score: AttemptScore = AttemptScore.empty()
 ): AcademicAttempt {
 	return AcademicAttempt(
-		id = "attempt-$subjectCode",
+		id = id,
 		subjectCode = subjectCode,
-		subjectName = subjectCode,
-		credits = 4,
+		subjectName = subjectName,
+		credits = credits,
+		gradingMode = gradingMode,
+		academicScore = score,
 		academicOutcome = outcome
 	)
 }

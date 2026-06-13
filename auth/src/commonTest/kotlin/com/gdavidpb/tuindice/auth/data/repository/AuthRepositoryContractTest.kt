@@ -5,8 +5,8 @@ import com.gdavidpb.tuindice.auth.testing.DEFAULT_AUTH_ATTESTATION
 import com.gdavidpb.tuindice.auth.testing.DEFAULT_BOOTSTRAP_TOKENS
 import com.gdavidpb.tuindice.auth.testing.DEFAULT_REFRESH_TOKENS
 import com.gdavidpb.tuindice.auth.testing.FakeAuthApiDataSource
-import com.gdavidpb.tuindice.auth.testing.FakeSessionRepository
-import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -33,7 +33,7 @@ class AuthRepositoryContractTest {
 		assertEquals("", sessionRepository.getSessionId())
 		assertEquals("", sessionRepository.getAccessToken())
 		assertEquals("", sessionRepository.getRefreshToken())
-		assertEquals(null, reportingRepository.recordedIdentifier)
+		assertEquals(null, reportingRepository.lastIdentifier)
 		assertEquals(1, authDataSource.bootstrapCalls.size)
 	}
 

@@ -21,7 +21,9 @@
 - `testkit/e2e/flow-catalog.yaml`: source of truth for module coverage and platform-edge assignment.
 - `testkit/e2e/mvi-action-catalog.yaml`: source of truth mapping MVI Action declarations to required E2E coverage.
 - `testkit/e2e/critical-selectors.txt`: selectors that must stay available for stable E2E.
-- `testkit/e2e/validate-e2e-contract.sh`: validates catalog entries, flow files, and critical selectors.
+- `testkit/e2e/fixture-contract.env`: canonical fixture values (single source of truth, mirrored in testkit's `E2eFixtureContract.kt`; the validator fails on drift).
+- `testkit/e2e/quarantine.txt`: temporarily skipped flows; removed from aggregator suites with a visible QUARANTINED line and validated by the contract.
+- `testkit/e2e/validate-e2e-contract.sh`: validates catalog entries, flow files, critical selectors, fixture contract, and quarantine.
 - `testkit/e2e/selector-policy.md`, `fixture-contract.md`, and `local-runbook.md`: reusable QA policy.
 
 ## Frontend Change Rules
@@ -55,6 +57,7 @@
 - For Android local E2E, run `./gradlew e2eMaestroAndroid` when Maestro CLI, an Android device/emulator, and `adb` are available.
 - For iOS local E2E, run `./gradlew e2eMaestroIos` when Maestro CLI, macOS/Xcode tooling, and a booted simulator are available.
 - For both platforms, run `./gradlew e2eMaestroLocal`; outside macOS, iOS should only be required in strict mode.
+- Failed suites retry once from the failed flow by default (`E2E_MAESTRO_SUITE_RETRIES`, composes with resume-first checkpoints); flaky flows can be parked in `testkit/e2e/quarantine.txt` with a reason instead of deleting coverage.
 - For MVI action coverage changes, run `./gradlew verifyE2eContract` and the relevant unified platform task: `./gradlew e2eMaestroAndroid` or `./gradlew e2eMaestroIos`.
 - Platform edge placeholders are verified by `./gradlew e2ePlatformAndroid` and `./gradlew e2ePlatformIos` until concrete tests are added.
 

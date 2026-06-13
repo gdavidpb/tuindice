@@ -2,6 +2,11 @@
 
 Local E2E flows use the WireMock state under `mocks/` as the QA backend.
 
+Canonical values are machine-readable in `fixture-contract.env` (single source of truth,
+sourced and enforced by `validate-e2e-contract.sh`) and mirrored for platform tests in
+`testkit/src/commonMain/kotlin/com/gdavidpb/tuindice/testkit/e2e/E2eFixtureContract.kt`.
+This document keeps the semantics; the values live there.
+
 Rules:
 
 - Keep backend fixture changes in the same change as app contract changes.

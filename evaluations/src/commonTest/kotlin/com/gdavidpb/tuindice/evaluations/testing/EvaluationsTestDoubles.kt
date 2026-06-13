@@ -205,6 +205,8 @@ class RecordingEvaluationRepository(
 	private val updateThrowable: Throwable? = null,
 	private val removeThrowable: Throwable? = null,
 	private val refreshThrowable: Throwable? = null,
+	private val getEvaluationThrowable: Throwable? = null,
+	private val availableAttemptsThrowable: Throwable? = null,
 	private val hasSyncedEvaluationsFlow: Flow<Boolean> = flowOf(true),
 		private val evaluationsSnapshotFlow: Flow<ObservedSyncedSnapshot<List<Evaluation>>>? = null,
 	private val availableSubjects: List<EditableAttemptDescriptor> = listOf(
@@ -244,6 +246,7 @@ class RecordingEvaluationRepository(
 	override suspend fun drainPendingMutations() = Unit
 
 	override suspend fun getEvaluation(eid: String): Evaluation? {
+		getEvaluationThrowable?.let { throw it }
 		return evaluationsState.value.firstOrNull { evaluation -> evaluation.id == eid }
 	}
 
@@ -294,7 +297,10 @@ class RecordingEvaluationRepository(
 		}
 	}
 
-	override suspend fun getAvailableAttempts(): List<EditableAttemptDescriptor> = availableSubjects
+	override suspend fun getAvailableAttempts(): List<EditableAttemptDescriptor> {
+		availableAttemptsThrowable?.let { throw it }
+		return availableSubjects
+	}
 
 	override suspend fun getCurrentTerm(): EvaluationTermDescriptor? = currentTerm
 }

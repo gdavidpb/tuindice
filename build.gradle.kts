@@ -1,9 +1,12 @@
+import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.gradle.api.tasks.testing.Test
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
 	alias(libs.plugins.compose.compiler) apply false
+	alias(libs.plugins.kover)
+	alias(libs.plugins.detekt)
 }
 
 buildscript {
@@ -27,6 +30,54 @@ allprojects {
 		google()
 		mavenCentral()
 		maven("https://maven.pkg.jetbrains.space/public/p/compose/dev")
+	}
+}
+
+// Coverage is measurement-only for now: merged report, no verification thresholds.
+// testkit is deliberately out of the aggregation — test infrastructure would inflate it.
+dependencies {
+	kover(project(":about"))
+	kover(project(":academiccore"))
+	kover(project(":app"))
+	kover(project(":auth"))
+	kover(project(":base"))
+	kover(project(":enrollmentproof"))
+	kover(project(":evaluations"))
+	kover(project(":maincore"))
+	kover(project(":pensum"))
+	kover(project(":persistence"))
+	kover(project(":record"))
+	kover(project(":subjects"))
+	kover(project(":summary"))
+	kover(project(":wizard"))
+}
+
+kover {
+	reports {
+		filters {
+			excludes {
+				classes("*.BuildConfig")
+				classes("*.generated.resources.*")
+			}
+		}
+	}
+}
+
+val detektFormatting = libs.detekt.formatting
+
+subprojects {
+	apply(plugin = "org.jetbrains.kotlinx.kover")
+	apply(plugin = "io.gitlab.arturbosch.detekt")
+
+	dependencies {
+		"detektPlugins"(detektFormatting)
+	}
+
+	extensions.configure<DetektExtension> {
+		buildUponDefaultConfig = true
+		parallel = true
+		baseline = file("detekt-baseline.xml")
+		source.setFrom(files("src"))
 	}
 }
 
@@ -151,6 +202,28 @@ tasks.register("verifySharedTests") {
 		":pensum:iosSimulatorArm64Test",
 		":wizard:iosSimulatorArm64Test",
 		":maincore:iosSimulatorArm64Test"
+	)
+}
+
+tasks.register("verifySharedHostTests") {
+	group = "verification"
+	description = "Runs shared tests on the Android host JVM, the only platform where machine alphabet/Λ coverage validators enforce."
+
+	dependsOn(
+		":about:testAndroidHostTest",
+		":academiccore:testAndroidHostTest",
+		":base:testAndroidHostTest",
+		":testkit:testAndroidHostTest",
+		":enrollmentproof:testAndroidHostTest",
+		":evaluations:testAndroidHostTest",
+		":auth:testAndroidHostTest",
+		":persistence:testAndroidHostTest",
+		":record:testAndroidHostTest",
+		":summary:testAndroidHostTest",
+		":subjects:testAndroidHostTest",
+		":pensum:testAndroidHostTest",
+		":wizard:testAndroidHostTest",
+		":maincore:testAndroidHostTest"
 	)
 }
 

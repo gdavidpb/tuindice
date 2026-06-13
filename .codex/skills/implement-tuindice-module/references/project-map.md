@@ -237,6 +237,8 @@ Feature module smoke tests:
 Shared helpers:
 
 - `testkit/src/commonMain/kotlin/com/gdavidpb/tuindice/testkit/koin/KoinSmokeTestUtils.kt`
+- `testkit/src/commonMain/kotlin/com/gdavidpb/tuindice/testkit/mvi/MachineRandomWalk.kt` (seeded model-based walks for machine contract tests)
+- `testkit/src/commonMain/kotlin/com/gdavidpb/tuindice/testkit/e2e/E2eFixtureContract.kt` (Kotlin mirror of `testkit/e2e/fixture-contract.env`)
 
 E2E contract and local runners:
 
@@ -261,6 +263,9 @@ Useful checks are already present in the repo:
 - `./gradlew --continue --console=plain verifyModuleGraph`
 - `./gradlew --continue --console=plain verifySharedCompilation`
 - `./gradlew --continue --console=plain verifySharedTests`
+- `./gradlew --continue --console=plain verifySharedHostTests` (android host JVM — the only platform where machine alphabet/Λ validators enforce)
+- `./gradlew --continue --console=plain detekt` (per-module baselines)
+- `./gradlew --continue --console=plain koverHtmlReport` (coverage measurement, no thresholds)
 - `./gradlew --continue --console=plain verifyCommonUiGate`
 - `./gradlew --continue --console=plain verifyIosHostTypecheck`
 

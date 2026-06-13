@@ -36,6 +36,7 @@ TEMPLATE_FILES = {
     "route": "route.kt.tpl",
     "screen": "screen.kt.tpl",
     "smoke-test": "smoke-test.kt.tpl",
+    "use-case-test": "use-case-test.kt.tpl",
     "test-doubles": "test-doubles.kt.tpl",
     "strings": "strings.xml.tpl",
 }
@@ -63,6 +64,7 @@ SCAFFOLD_LAYOUT = {
     "update-use-case-error": "{module_dir}/src/commonMain/kotlin/{package_path}/domain/usecase/error/{UPDATE_USE_CASE_ERROR_NAME}.kt",
     "update-exception-handler": "{module_dir}/src/commonMain/kotlin/{package_path}/domain/usecase/exceptionhandler/{UPDATE_EXCEPTION_HANDLER_NAME}.kt",
     "smoke-test": "{module_dir}/src/commonTest/kotlin/{package_path}/di/{SMOKE_TEST_CLASS_NAME}.kt",
+    "use-case-test": "{module_dir}/src/commonTest/kotlin/{package_path}/domain/usecase/{USE_CASE_TEST_CLASS_NAME}.kt",
     "test-doubles": "{module_dir}/src/commonTest/kotlin/{package_path}/testing/{FEATURE_NAME}TestDoubles.kt",
 }
 
@@ -157,6 +159,7 @@ def build_context(args: argparse.Namespace) -> dict[str, str]:
         "INTERNAL_EVENT_NAME": f"{feature_name}InternalEvent",
         "TRANSITIONS_FUNCTION_NAME": f"{feature_lower_camel}Transitions",
         "MACHINE_CONTRACT_TEST_CLASS_NAME": f"{feature_name}StateMachineContractTest",
+        "USE_CASE_TEST_CLASS_NAME": f"{feature_name}UseCaseContractTest",
         "CONTENT_OBSERVED_EVENT_NAME": f"{feature_name}ContentObserved",
         "OBSERVATION_FAILED_EVENT_NAME": f"{feature_name}ObservationFailed",
         "REFRESH_STARTED_EVENT_NAME": f"{feature_name}RefreshStarted",

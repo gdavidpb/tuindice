@@ -46,7 +46,9 @@ class ControllableSubjectCatalogRepository(
 
 	var blockRefresh = false
 	val observeCalls = mutableListOf<String>()
+	val observeLimits = mutableListOf<Int>()
 	val refreshCalls = mutableListOf<String>()
+	val refreshLimits = mutableListOf<Int>()
 
 	fun releaseRefresh() {
 		refreshGate.trySend(Unit)
@@ -57,6 +59,7 @@ class ControllableSubjectCatalogRepository(
 		limit: Int
 	): Flow<List<SubjectSearchResult>> {
 		observeCalls += query
+		observeLimits += limit
 		return flowOf(localResults)
 	}
 
@@ -65,6 +68,7 @@ class ControllableSubjectCatalogRepository(
 		limit: Int
 	) {
 		refreshCalls += query
+		refreshLimits += limit
 		if (blockRefresh) refreshGate.receive()
 		if (refreshResponses.isEmpty()) return
 

@@ -21,6 +21,8 @@ E2E_WIREMOCK_DELAY_PROFILE="${E2E_WIREMOCK_DELAY_PROFILE:-fast}"
 E2E_MAESTRO_OPTIMIZE_SETUP="${E2E_MAESTRO_OPTIMIZE_SETUP:-1}"
 E2E_MAESTRO_RESUME_FIRST="${E2E_MAESTRO_RESUME_FIRST:-1}"
 E2E_MAESTRO_CHECKPOINT_DIR="${E2E_MAESTRO_CHECKPOINT_DIR:-${REPO_ROOT}/build/e2e/checkpoints}"
+E2E_MAESTRO_SUITE_RETRIES="${E2E_MAESTRO_SUITE_RETRIES:-1}"
+E2E_MAESTRO_QUARANTINE_FILE="${E2E_MAESTRO_QUARANTINE_FILE:-${REPO_ROOT}/testkit/e2e/quarantine.txt}"
 
 log() {
 	printf '[tuindice-e2e] %s\n' "$*"
@@ -210,6 +212,40 @@ run_maestro_with_progress() {
 	fi
 	log_maestro_finish "${platform}" "${status}" "${started_at}"
 	return "${status}"
+}
+
+quarantine_active_entries() {
+	[[ -f "${E2E_MAESTRO_QUARANTINE_FILE}" ]] || return 0
+	sed -e 's/#.*$//' -e 's/[[:space:]]*$//' -e '/^[[:space:]]*$/d' "${E2E_MAESTRO_QUARANTINE_FILE}"
+}
+
+# Suite retries compose with resume-first checkpoints: a failed run leaves the failed
+# flow as the resume target, so each retry re-enters the suite exactly there. This is
+# per-flow retry built from two existing mechanisms, not a new execution mode.
+run_maestro_suite_with_retries() {
+	local retries_left="${E2E_MAESTRO_SUITE_RETRIES}"
+	local attempt=1
+
+	if [[ ! "${retries_left}" =~ ^[0-9]+$ ]]; then
+		retries_left=1
+	fi
+
+	while :; do
+		local run_status=0
+		run_maestro_suite_resume_first "$@" || run_status="$?"
+		if [[ "${run_status}" == "0" ]]; then
+			return 0
+		fi
+		if [[ "${retries_left}" -le 0 ]]; then
+			return "${run_status}"
+		fi
+		retries_left=$((retries_left - 1))
+		attempt=$((attempt + 1))
+		log "Maestro suite failed (exit ${run_status}); retry attempt ${attempt} resumes from the failed flow. Retries left after this one: ${retries_left}."
+		if declare -F reset_wiremock >/dev/null 2>&1; then
+			reset_wiremock || true
+		fi
+	done
 }
 
 maestro_slug() {

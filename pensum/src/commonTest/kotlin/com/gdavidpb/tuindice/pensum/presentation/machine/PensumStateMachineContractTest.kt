@@ -1,7 +1,12 @@
 package com.gdavidpb.tuindice.pensum.presentation.machine
 
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.pensum.domain.model.ObservedPensum
+import com.gdavidpb.tuindice.pensum.domain.model.PensumGraph
+import com.gdavidpb.tuindice.pensum.domain.model.PensumModality
 import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
+import com.gdavidpb.tuindice.pensum.domain.model.PensumOption
+import com.gdavidpb.tuindice.pensum.domain.model.PensumSelection
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
@@ -15,11 +20,13 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import kotlin.test.Test
 import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.test.runTest
 
 class PensumStateMachineContractTest {
 	@Test
@@ -73,6 +80,96 @@ class PensumStateMachineContractTest {
 				"Expected Mermaid export to mention '$fragment':\n$diagram"
 			)
 		}
+	}
+
+	@Test
+	fun machine_survivesSeededRandomWalk() = runTest {
+		val repository = StaticPensumRepository()
+		val reportingRepository = RecordingReportingRepository()
+		val exceptionHandler = UpdatePensumExceptionHandler(
+			networkRepository = FakeNetworkRepository(isAvailable = true)
+		)
+
+		val screenMachine = PensumMachine(
+			observePensumUseCase = ObservePensumUseCase(
+				pensumRepository = repository,
+				reportingRepository = reportingRepository
+			),
+			updatePensumUseCase = UpdatePensumUseCase(
+				pensumRepository = repository,
+				reportingRepository = reportingRepository,
+				exceptionHandler = exceptionHandler
+			),
+			selectPensumUseCase = SelectPensumUseCase(
+				pensumRepository = repository,
+				reportingRepository = reportingRepository,
+				exceptionHandler = exceptionHandler
+			),
+			selectPensumModalityUseCase = SelectPensumModalityUseCase(
+				pensumRepository = repository,
+				reportingRepository = reportingRepository,
+				exceptionHandler = exceptionHandler
+			),
+			selectPensumSelectionUseCase = SelectPensumSelectionUseCase(
+				pensumRepository = repository,
+				reportingRepository = reportingRepository,
+				exceptionHandler = exceptionHandler
+			)
+		)
+
+		val graph = PensumGraph(
+			id = "pensum-1970",
+			year = 1970,
+			modalityId = "modality-diurna",
+			modalityName = "Diurna",
+			totalCredits = 180,
+			canvas = PensumGraph.Canvas(width = 0.0, height = 0.0),
+			terms = emptyList(),
+			nodes = emptyList(),
+			edges = emptyList()
+		)
+		val observedPensum = ObservedPensum(
+			careerName = "Ingeniería de Computación",
+			selection = PensumSelection(
+				pensumId = "pensum-1970",
+				year = 1970,
+				modalityId = "modality-diurna",
+				modalityName = "Diurna",
+				inferred = false
+			),
+			availablePensums = listOf(PensumOption(id = "pensum-1970", year = 1970)),
+			availableModalities = listOf(
+				PensumModality(id = "modality-diurna", name = "Diurna", isDefault = true)
+			),
+			pensum = graph,
+			pensums = listOf(graph),
+			approvedCredits = 42,
+			nodeStatuses = emptyMap(),
+			nodeFulfillments = emptyMap()
+		)
+
+		assertMachineRandomWalk(
+			screenMachine = screenMachine,
+			sampleEvents = listOf(
+				Pensum.Action.ObservePensum,
+				Pensum.Action.RefreshPensum,
+				Pensum.Action.SelectPensum(year = 1970),
+				Pensum.Action.SelectModality(modalityId = "modality-diurna"),
+				Pensum.Action.SelectSelection(year = 1970, modalityId = "modality-diurna"),
+				PensumInternalEvent.PensumContentObserved(pensum = observedPensum),
+				PensumInternalEvent.PensumDataMissing,
+				PensumInternalEvent.PensumRecordDataUnavailableObserved,
+				PensumInternalEvent.PensumObservationFailed,
+				PensumInternalEvent.PensumRefreshLoading,
+				PensumInternalEvent.PensumRefreshSucceeded,
+				PensumInternalEvent.PensumRefreshNotFound,
+				PensumInternalEvent.PensumRefreshFailed(error = null)
+			),
+			scope = backgroundScope,
+			// Conservative floor: every internal event is sampled by hand; raise to the
+			// observed coverage once the walk has run on CI.
+			minRowCoverage = 0.4
+		)
 	}
 
 	private fun createViewModel(): PensumViewModel {

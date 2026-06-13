@@ -1,9 +1,11 @@
 package com.gdavidpb.tuindice.record.presentation.machine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
@@ -13,6 +15,7 @@ import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationSnapshot
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
@@ -21,15 +24,19 @@ import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermCreationRepos
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermLoadPreviewRepository
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
 import com.gdavidpb.tuindice.record.presentation.contract.Record
+import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
+import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
 import com.gdavidpb.tuindice.record.presentation.viewmodel.CreateSyntheticTermViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import kotlin.test.Test
 import kotlin.test.assertTrue
+import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
@@ -130,6 +137,123 @@ class RecordStateMachineContractTest {
 				"Expected create-term Mermaid export to mention '$fragment':\n$createDiagram"
 			)
 		}
+	}
+
+	@Test
+	fun recordMachine_survivesSeededRandomWalk() = runTest {
+		// The walk is suspend and withMachineKoin's block is not, so the machine is
+		// resolved inside the Koin scope and walked after it closes: the machine is a
+		// plain constructor-injected object graph over the stub repositories.
+		var resolvedMachine: RecordMachine? = null
+
+		withMachineKoin {
+			resolvedMachine = get()
+		}
+
+		assertMachineRandomWalk(
+			screenMachine = requireNotNull(resolvedMachine),
+			sampleEvents = listOf(
+				Record.Action.ObserveRecord,
+				Record.Action.RefreshRecord,
+				Record.Action.SetViewMode(viewMode = RecordViewMode.Historical),
+				Record.Action.SelectTerm(termId = "term-1"),
+				Record.Action.UpsertAttemptSelection(
+					attemptId = "attempt-1",
+					grade = 15,
+					commit = true
+				),
+				Record.Action.DeleteSyntheticTerm(termId = "term-synthetic-1"),
+				RecordInternalEvent.RecordContentObserved(
+					viewMode = RecordViewMode.Projection,
+					record = AcademicRecord(id = "record-1"),
+					selectedTermId = "term-1"
+				),
+				RecordInternalEvent.RecordEmptyObserved,
+				RecordInternalEvent.RecordWaitingObserved,
+				RecordInternalEvent.RecordObservationFailed,
+				RecordInternalEvent.RecordRefreshStarted,
+				RecordInternalEvent.RecordRefreshFailed(navigateToOutdatedCredentials = false),
+				RecordInternalEvent.RecordViewModeSet(viewMode = RecordViewMode.Projection),
+				RecordInternalEvent.RecordUnauthorized,
+				RecordInternalEvent.SyntheticTermDeleted(message = "Período eliminado"),
+				RecordInternalEvent.SyntheticTermDeleteFailed(
+					message = "No se pudo eliminar",
+					navigateToOutdatedCredentials = false
+				)
+			),
+			scope = backgroundScope,
+			// Conservative floor: every internal event is sampled by hand; raise to the
+			// observed coverage once the walk has run on CI.
+			minRowCoverage = 0.4
+		)
+	}
+
+	@Test
+	fun createSyntheticTermMachine_survivesSeededRandomWalk() = runTest {
+		var resolvedMachine: CreateSyntheticTermMachine? = null
+
+		withMachineKoin {
+			resolvedMachine = get()
+		}
+
+		val period = SyntheticTermPeriodOption(
+			periodYear = 2026,
+			periodCode = AcademicTermPeriod.JAN_MAR
+		)
+		val subjectItem = CreateTermSubjectItem(
+			subject = SyntheticTermSubject(
+				subjectCode = "CI2125",
+				name = "Algoritmos y Estructuras I",
+				credits = 4
+			),
+			nameText = "Algoritmos y Estructuras I"
+		)
+
+		assertMachineRandomWalk(
+			screenMachine = requireNotNull(resolvedMachine),
+			sampleEvents = listOf(
+				CreateSyntheticTerm.Action.Observe,
+				CreateSyntheticTerm.Action.ConfigureTerm(termId = null),
+				CreateSyntheticTerm.Action.UpdateQuery(
+					query = "algoritmos",
+					selectionStart = 10,
+					selectionEnd = 10
+				),
+				CreateSyntheticTerm.Action.SelectAddSubjectTab(
+					tab = CreateTermAddSubjectTab.Search
+				),
+				CreateSyntheticTerm.Action.SelectPeriod(termKey = period.termKey),
+				CreateSyntheticTerm.Action.AddSubject(subjectItem = subjectItem),
+				CreateSyntheticTerm.Action.RemoveSubject(subjectCode = "CI2125"),
+				CreateSyntheticTerm.Action.CreateTerm,
+				CreateSyntheticTermInternalEvent.SnapshotObserved(
+					editingTermId = null,
+					editingTermKey = null,
+					periodOptions = listOf(period),
+					selectedPeriod = period,
+					selectedSubjects = listOf(subjectItem),
+					suggestedSubjects = emptyList(),
+					searchResults = emptyList()
+				),
+				CreateSyntheticTermInternalEvent.SearchCleared,
+				CreateSyntheticTermInternalEvent.SearchStarted,
+				CreateSyntheticTermInternalEvent.SearchSucceeded,
+				CreateSyntheticTermInternalEvent.SearchFailed,
+				CreateSyntheticTermInternalEvent.LoadPreviewCleared,
+				CreateSyntheticTermInternalEvent.LoadPreviewStarted,
+				CreateSyntheticTermInternalEvent.LoadPreviewLoaded(
+					preview = SyntheticTermLoadPreview(available = false)
+				),
+				CreateSyntheticTermInternalEvent.LoadPreviewFailed,
+				CreateSyntheticTermInternalEvent.SubmitStarted,
+				CreateSyntheticTermInternalEvent.SubmitSucceeded,
+				CreateSyntheticTermInternalEvent.SubmitFailed(error = UiText.Empty)
+			),
+			scope = backgroundScope,
+			// Conservative floor: single state class, so every row resolves from these
+			// samples; raise to the observed coverage once the walk has run on CI.
+			minRowCoverage = 0.5
+		)
 	}
 
 	private fun withMachineKoin(block: Koin.() -> Unit) = withKoinSmokeTest(
