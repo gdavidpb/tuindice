@@ -5,7 +5,8 @@
 # `<Screen>StateMachineContractTest` prints its machine via testkit's
 # `exportToMermaid` (a pure function over `machine.table`), and this script runs
 # those export tests and lifts the diagrams out of the Gradle test reports into
-# build/diagrams/<machine>.mmd (one file per machine, named after its wrapper).
+# build/diagrams/<machine>.mmd (one file per machine, named from each diagram's
+# `%% machine: <name>` comment).
 #
 # Paste a .mmd into https://mermaid.live, a ```mermaid block on GitHub, or an IDE
 # Mermaid preview to see it rendered. build/ is gitignored — these are ephemeral
@@ -52,21 +53,43 @@ out_dir = sys.argv[1]
 modules = sys.argv[2:]
 written = 0
 
+def is_diagram_line(line):
+    # The flat diagram is comments, state declarations, transitions and blanks.
+    # The first line that fits none of those marks the end of the diagram in stdout.
+    stripped = line.strip()
+    return (
+        stripped == ""
+        or stripped.startswith("%%")
+        or stripped.startswith("state ")
+        or stripped.startswith("[*]")
+        or "-->" in stripped
+    )
+
 for module in modules:
     pattern = f"{module}/build/test-results/testAndroidHostTest/TEST-*StateMachineContractTest.xml"
     for report in glob.glob(pattern):
         system_out = ET.parse(report).getroot().findtext("system-out") or ""
         # One report's stdout may hold several diagrams (e.g. Record + CST).
         for body in system_out.split("stateDiagram-v2")[1:]:
-            diagram = "stateDiagram-v2" + body
-            # Each diagram ends at the wrapper's closing brace on its own line.
-            close = re.search(r"^\}", diagram, re.MULTILINE)
-            if close:
-                diagram = diagram[: close.end()]
-            name_match = re.search(r"^state (\w+) \{", diagram, re.MULTILINE)
+            # The diagram is flat (no closing brace): keep diagram-shaped lines until
+            # the first line of unrelated stdout.
+            lines = ["stateDiagram-v2"]
+            started = False
+            for line in body.splitlines():
+                if not is_diagram_line(line):
+                    break
+                # Drop the blank that splitting on "stateDiagram-v2" leaves at the
+                # front; keep blanks once the diagram body has started.
+                if not started and line.strip() == "":
+                    continue
+                started = True
+                lines.append(line)
+            diagram = "\n".join(lines).strip()
+            # Each diagram self-identifies via a `%% machine: <name>` comment.
+            name_match = re.search(r"^%% machine: (\w+)", diagram, re.MULTILINE)
             name = name_match.group(1) if name_match else f"machine_{written}"
             with open(f"{out_dir}/{name}.mmd", "w") as handle:
-                handle.write(diagram.strip() + "\n")
+                handle.write(diagram + "\n")
             print(f"  build/diagrams/{name}.mmd")
             written += 1
 

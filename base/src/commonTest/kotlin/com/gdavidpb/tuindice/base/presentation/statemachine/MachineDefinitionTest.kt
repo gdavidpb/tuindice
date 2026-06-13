@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
@@ -291,9 +292,10 @@ class MachineDefinitionTest {
 
 		val expectedFragments = listOf(
 			"stateDiagram-v2",
-			"state test_machine {",
+			"%% machine: test_machine",
 			"state idle",
 			"state running",
+			"state \"any state\" as test_machine",
 			"[*] --> idle",
 			"idle --> running : Start",
 			"running --> idle : Stop",
@@ -306,5 +308,13 @@ class MachineDefinitionTest {
 				"Expected Mermaid export to contain '$fragment':\n$diagram"
 			)
 		}
+
+		// Regression guard: the diagram must stay flat. A `state X { … X --> … }`
+		// composite wrapper makes Mermaid reject the self-parent cycle on the
+		// machine-level (fromAny) rows ("Setting X as parent of X would create a cycle").
+		assertFalse(
+			diagram.contains("state test_machine {"),
+			"Mermaid export must not wrap states in a composite (self-parent cycle):\n$diagram"
+		)
 	}
 }

@@ -124,7 +124,9 @@ class RecordStateMachineContractTest {
 		}
 
 		val expectedCreateFragments = listOf(
-			"state state",
+			// The single state is named `State`; `state` is a Mermaid keyword, so it
+			// renders via a safe aliased id with the readable name as its label.
+			"state \"state\" as state_node",
 			"Observe",
 			"ConfigureTerm",
 			"UpdateQuery",

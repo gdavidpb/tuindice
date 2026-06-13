@@ -42,21 +42,21 @@ decision.
 
 ```mermaid
 stateDiagram-v2
-state sign_in {
-    state idle
-    state logging_in
+%% machine: sign_in
+state idle
+state logging_in
+state "any state" as sign_in
 
-    [*] --> idle
-    idle --> idle : SetUsbId
-    idle --> idle : SetPassword
-    idle --> idle : TogglePasswordVisibility
-    idle --> logging_in : ClickSignIn
-    logging_in --> logging_in : SignInSucceeded / NavigateToSummary
-    logging_in --> idle : SignInFailed / ShowSnackBar · ShowRetrySnackBar
-    sign_in --> sign_in : ClickTermsAndConditions / NavigateToBrowser
-    sign_in --> sign_in : ClickPrivacyPolicy / NavigateToBrowser
-    sign_in --> sign_in : SetUsageDataCollectionEnabled
-}
+[*] --> idle
+idle --> idle : SetUsbId
+idle --> idle : SetPassword
+idle --> idle : TogglePasswordVisibility
+idle --> logging_in : ClickSignIn
+logging_in --> logging_in : SignInSucceeded / NavigateToSummary
+logging_in --> idle : SignInFailed / ShowSnackBar · ShowRetrySnackBar
+sign_in --> sign_in : ClickTermsAndConditions / NavigateToBrowser
+sign_in --> sign_in : ClickPrivacyPolicy / NavigateToBrowser
+sign_in --> sign_in : SetUsageDataCollectionEnabled
 ```
 
 Edges are labeled `σ / λ` — a true Mealy diagram: each row declares its possible outputs.
@@ -215,36 +215,36 @@ Pensum validated everything SignIn could not:
 
 ```mermaid
 stateDiagram-v2
-state pensum {
-    state idle
-    state content
-    state empty
-    state record_data_unavailable
-    state loading
-    state failed
+%% machine: pensum
+state idle
+state content
+state empty
+state record_data_unavailable
+state loading
+state failed
+state "any state" as pensum
 
-    [*] --> idle
-    idle --> idle : ObservePensum
-    content --> content : PensumContentObserved
-    content --> content : PensumRefreshLoading
-    content --> content : PensumRefreshFailed
-    empty --> empty : PensumDataMissing
-    empty --> empty : PensumRecordDataUnavailableObserved
-    record_data_unavailable --> record_data_unavailable : PensumDataMissing
-    record_data_unavailable --> record_data_unavailable : PensumRecordDataUnavailableObserved
-    pensum --> pensum : RefreshPensum
-    pensum --> pensum : SelectPensum
-    pensum --> pensum : SelectModality
-    pensum --> pensum : SelectSelection
-    pensum --> content : PensumContentObserved
-    pensum --> loading : PensumDataMissing
-    pensum --> record_data_unavailable : PensumRecordDataUnavailableObserved
-    pensum --> failed : PensumObservationFailed
-    pensum --> loading : PensumRefreshLoading
-    pensum --> pensum : PensumRefreshSucceeded
-    pensum --> empty : PensumRefreshNotFound
-    pensum --> failed : PensumRefreshFailed
-}
+[*] --> idle
+idle --> idle : ObservePensum
+content --> content : PensumContentObserved
+content --> content : PensumRefreshLoading
+content --> content : PensumRefreshFailed
+empty --> empty : PensumDataMissing
+empty --> empty : PensumRecordDataUnavailableObserved
+record_data_unavailable --> record_data_unavailable : PensumDataMissing
+record_data_unavailable --> record_data_unavailable : PensumRecordDataUnavailableObserved
+pensum --> pensum : RefreshPensum
+pensum --> pensum : SelectPensum
+pensum --> pensum : SelectModality
+pensum --> pensum : SelectSelection
+pensum --> content : PensumContentObserved
+pensum --> loading : PensumDataMissing
+pensum --> record_data_unavailable : PensumRecordDataUnavailableObserved
+pensum --> failed : PensumObservationFailed
+pensum --> loading : PensumRefreshLoading
+pensum --> pensum : PensumRefreshSucceeded
+pensum --> empty : PensumRefreshNotFound
+pensum --> failed : PensumRefreshFailed
 ```
 
 The cascaded `when`s that used to hide inside `ObservePensumActionProcessor` and
