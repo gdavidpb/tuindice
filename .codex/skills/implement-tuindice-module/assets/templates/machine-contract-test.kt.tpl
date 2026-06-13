@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
+import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -55,7 +56,10 @@ class $MACHINE_CONTRACT_TEST_CLASS_NAME {
 
 	@Test
 	fun machine_exportsDeclaredTransitionsToMermaid() {
-		val diagram = createViewModel().exportMachineToMermaid()
+		val diagram = createViewModel().machine.exportToMermaid(
+			machineName = "$MODULE_NAME",
+			initialState = $FEATURE_NAME.State.Loading::class
+		)
 
 		// Captured from test output to publish the generated diagram as a docs artifact.
 		println(diagram)

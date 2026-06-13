@@ -23,7 +23,7 @@ cd "$ROOT_DIR"
 # Modules whose *StateMachineContractTest exports diagrams. The export test runs
 # on testAndroidHostTest (pure table read, no resources), so the host gate serves
 # every diagram even for screens whose walks are iOS-only.
-DEFAULT_MODULES=(auth summary pensum record subjects evaluations wizard maincore)
+DEFAULT_MODULES=(auth summary pensum record subjects evaluations wizard maincore about enrollmentproof)
 MODULES=("$@")
 [[ ${#MODULES[@]} -eq 0 ]] && MODULES=("${DEFAULT_MODULES[@]}")
 
