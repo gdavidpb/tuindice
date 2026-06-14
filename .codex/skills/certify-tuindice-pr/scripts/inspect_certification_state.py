@@ -4,8 +4,10 @@
 from __future__ import annotations
 
 import json
+import os
 import subprocess
 import sys
+import tempfile
 from dataclasses import dataclass
 from pathlib import Path
 
@@ -49,6 +51,59 @@ def load_manifest(path: Path) -> tuple[dict[str, object] | None, str | None]:
         return None, str(exc)
 
 
+def parse_github_output(path: Path) -> dict[str, str]:
+    values: dict[str, str] = {}
+    if not path.is_file():
+        return values
+
+    for line in path.read_text(encoding="utf-8").splitlines():
+        key, separator, value = line.partition("=")
+        if separator:
+            values[key] = value
+    return values
+
+
+def merge_base_for_e2e_scope(head: str) -> str | None:
+    for ref in ("origin/production", "production"):
+        result = run_git("merge-base", ref, head)
+        if result.code == 0 and result.stdout:
+            return result.stdout
+    return None
+
+
+def detect_e2e_requirement(head: str) -> tuple[bool | None, str]:
+    before_sha = merge_base_for_e2e_scope(head)
+    if not before_sha:
+        return None, "Unable to resolve merge-base with production."
+
+    with tempfile.TemporaryDirectory(prefix="tuindice-cert-audit.") as temp_dir_name:
+        temp_dir = Path(temp_dir_name)
+        output_path = temp_dir / "detect-output.env"
+        state_dir = temp_dir / "state"
+        env = {
+            **os.environ,
+            "GITHUB_OUTPUT": str(output_path),
+            "STATE_DIR": str(state_dir),
+        }
+        completed = subprocess.run(
+            ["bash", ".github/scripts/detect-changed-app.sh", before_sha, head],
+            cwd=REPO_ROOT,
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=env,
+            check=False,
+        )
+        if completed.returncode != 0:
+            detail = completed.stderr.strip() or completed.stdout.strip()
+            return None, f"detect-changed-app failed: {detail}"
+
+        values = parse_github_output(output_path)
+        requires_e2e = values.get("requires_e2e_certification") == "true"
+        scope = values.get("e2e_scope_csv") or "<none>"
+        return requires_e2e, f"scope={scope}"
+
+
 def main() -> int:
     failures = 0
 
@@ -88,7 +143,14 @@ def main() -> int:
     manifests = sorted(evidence_root.glob("*/*/manifest.json"))
 
     if not manifests:
+        requires_e2e, detail = detect_e2e_requirement(head)
+        if requires_e2e is False:
+            print_check(True, "no E2E evidence required for HEAD", detail)
+            return 1 if failures else 0
+
         print_check(False, "evidence manifests exist for HEAD", str(evidence_root))
+        if detail:
+            print(f"  {detail}")
         return failures + 1
 
     print(f"Evidence root: {evidence_root}")

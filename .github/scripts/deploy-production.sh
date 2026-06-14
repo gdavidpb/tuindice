@@ -14,6 +14,7 @@ DEPLOY_DIFF_BASE_SHA="${DEPLOY_DIFF_BASE_SHA:-}"
 STATE_DIR="${STATE_DIR:-$(mktemp -d "${RUNNER_TEMP:-/tmp}/tuindice-deploy.XXXXXX")}"
 DRY_RUN="${DRY_RUN:-0}"
 DEPLOY_PRODUCTION_PHASE="${DEPLOY_PRODUCTION_PHASE:-all}"
+PRODUCTION_RELEASE_ARTIFACT_DIR="${PRODUCTION_RELEASE_ARTIFACT_DIR:-build/production-release}"
 VERSION_NAME="$(get_app_version_name)"
 TAG_NAME="$(app_tag_name "$VERSION_NAME")"
 
@@ -125,8 +126,20 @@ run_deploy_preflight() {
 	fi
 }
 
+validate_production_release_artifact() {
+	RELEASE_ARTIFACT_DIR="$PRODUCTION_RELEASE_ARTIFACT_DIR" \
+	TARGET_GIT_SHA="$TARGET_GIT_SHA" \
+		bash "${SCRIPT_DIR}/production-release-artifact.sh" validate-manifest
+}
+
+production_release_manifest_value() {
+	local jq_filter="$1"
+	jq -r "$jq_filter" "${PRODUCTION_RELEASE_ARTIFACT_DIR}/release-manifest.json"
+}
+
 run_android_deploy() {
 	local release_exists_file="${STATE_DIR}/android-release-exists.env"
+	local staged_aab_path
 
 	if [[ "$DRY_RUN" != "1" ]]; then
 		GOOGLE_PLAY_CHECK_ONLY=1 \
@@ -138,23 +151,21 @@ run_android_deploy() {
 		fi
 	fi
 
-	REQUIRE_ANDROID_FIREBASE_CONFIG=1 bash "${SCRIPT_DIR}/materialize-firebase-configs.sh"
-	export TU_INDICE_KEY_STORE_PATH="${TU_INDICE_KEY_STORE_PATH:-${RUNNER_TEMP:-/tmp}/tuindice-release.jks}"
-	bash "${SCRIPT_DIR}/materialize-android-signing.sh"
-
-	info "Building signed Android App Bundle."
-	./gradlew --console=plain :app:bundleRelease
+	validate_production_release_artifact
+	staged_aab_path="${PRODUCTION_RELEASE_ARTIFACT_DIR}/$(production_release_manifest_value '.android.aabPath')"
 
 	if [[ "$DRY_RUN" == "1" ]]; then
-		info "DRY_RUN=1: skipping Google Play upload."
+		info "DRY_RUN=1: validated staged Android App Bundle at ${staged_aab_path}; skipping Google Play upload."
 		return 0
 	fi
 
+	ANDROID_AAB_PATH="$staged_aab_path" \
 	bash "${SCRIPT_DIR}/publish-google-play-draft.sh"
 }
 
 run_ios_deploy() {
 	local build_exists_file="${STATE_DIR}/ios-build-exists.env"
+	local staged_ipa_path
 
 	if [[ "$DRY_RUN" != "1" ]]; then
 		APP_STORE_CONNECT_CHECK_ONLY=1 \
@@ -166,9 +177,12 @@ run_ios_deploy() {
 		fi
 	fi
 
-	REQUIRE_IOS_FIREBASE_CONFIG=1 bash "${SCRIPT_DIR}/materialize-firebase-configs.sh"
+	validate_production_release_artifact
+	staged_ipa_path="${PRODUCTION_RELEASE_ARTIFACT_DIR}/$(production_release_manifest_value '.ios.ipaPath')"
 
-	DRY_RUN="$DRY_RUN" bash "${PWD}/iosApp/scripts/ci-upload-ios-appstore.sh"
+	DRY_RUN="$DRY_RUN" \
+	IOS_IPA_PATH="$staged_ipa_path" \
+		bash "${PWD}/iosApp/scripts/ci-upload-ios-appstore.sh"
 }
 
 run_release_tag() {

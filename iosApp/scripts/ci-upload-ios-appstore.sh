@@ -13,6 +13,7 @@ SCHEME_NAME="TuIndiceHost"
 CONFIGURATION_NAME="${CONFIGURATION:-Release}"
 ARCHIVE_PATH="${ARCHIVE_PATH:-${REPO_ROOT}/build/ios/archive/TuIndiceHost.xcarchive}"
 EXPORT_PATH="${EXPORT_PATH:-${REPO_ROOT}/build/ios/export}"
+IOS_IPA_PATH="${IOS_IPA_PATH:-}"
 API_KEY_PATH="${APP_STORE_CONNECT_API_KEY_PATH:-}"
 API_KEY_ID="${APP_STORE_CONNECT_KEY_ID:-}"
 API_ISSUER_ID="${APP_STORE_CONNECT_ISSUER_ID:-}"
@@ -183,6 +184,36 @@ check_app_store_connect_build_exists() {
 	return 1
 }
 
+install_app_store_connect_private_key() {
+	local private_key_dir="${HOME}/.appstoreconnect/private_keys"
+	local private_key_path="${private_key_dir}/AuthKey_${API_KEY_ID}.p8"
+
+	mkdir -p "$private_key_dir"
+	cp "$API_KEY_PATH" "$private_key_path"
+	chmod 600 "$private_key_path"
+}
+
+upload_existing_ipa() {
+	[[ -s "$IOS_IPA_PATH" ]] || die "IOS_IPA_PATH does not point to an existing .ipa: ${IOS_IPA_PATH}"
+
+	if [[ "$DRY_RUN" == "1" ]]; then
+		log "DRY_RUN=1: validated staged IPA at ${IOS_IPA_PATH}; nothing was uploaded."
+		return 0
+	fi
+
+	install_app_store_connect_private_key
+
+	log "Uploading staged IPA to App Store Connect: ${IOS_IPA_PATH}"
+	xcrun altool \
+		--upload-app \
+		--type ios \
+		--file "$IOS_IPA_PATH" \
+		--apiKey "$API_KEY_ID" \
+		--apiIssuer "$API_ISSUER_ID"
+
+	log "App Store Connect upload requested from staged IPA. The build will appear after Apple finishes processing it."
+}
+
 if [[ "$OSTYPE" != darwin* ]]; then
 	die "App Store Connect upload requires macOS."
 fi
@@ -207,6 +238,11 @@ elif check_app_store_connect_build_exists; then
 		exit 0
 	fi
 elif [[ "$CHECK_ONLY" == "1" ]]; then
+	exit 0
+fi
+
+if [[ -n "$IOS_IPA_PATH" ]]; then
+	upload_existing_ipa
 	exit 0
 fi
 

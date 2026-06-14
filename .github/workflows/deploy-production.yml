@@ -1,18 +1,26 @@
 name: Deploy production
 
 on:
-  push:
-    branches:
-      - production
+  workflow_run:
+    workflows:
+      - Stage production artifacts
+    types:
+      - completed
   workflow_dispatch:
+    inputs:
+      target_sha:
+        description: Production commit SHA to deploy. Defaults to the current workflow SHA.
+        required: false
+        type: string
 
 # Deploys queue instead of cancelling: an interrupted upload must finish (it
-# is idempotent) before the next push is evaluated.
+# is idempotent) before the next deploy is evaluated.
 concurrency:
   group: deploy-production
   cancel-in-progress: false
 
 permissions:
+  actions: read
   contents: write
   id-token: write
   statuses: write
@@ -21,46 +29,145 @@ env:
   GCP_PROJECT: tu-indice-usb
   ANDROID_PACKAGE_NAME: com.gdavidpb.tuindice
   GOOGLE_PLAY_TRACK: production
+  PRODUCTION_RELEASE_ARTIFACT_DIR: build/production-release
 
 jobs:
-  deploy-preflight:
-    name: Deploy preflight
+  resolve-artifact:
+    name: Resolve production artifact
     runs-on: ubuntu-24.04
-    timeout-minutes: 15
+    timeout-minutes: 10
     outputs:
-      should_deploy: ${{ steps.deploy-preflight.outputs.should_deploy }}
+      should_deploy: ${{ steps.resolve.outputs.should_deploy }}
+      target_sha: ${{ steps.resolve.outputs.target_sha }}
+      stage_run_id: ${{ steps.resolve.outputs.stage_run_id }}
+      artifact_name: ${{ steps.resolve.outputs.artifact_name }}
 
     steps:
-      - name: Check out repository
-        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
-        with:
-          ref: ${{ github.sha }}
-          fetch-depth: 0
-
-      - name: Run deploy preflight
-        id: deploy-preflight
+      - name: Resolve staged artifact
+        id: resolve
         env:
-          GITHUB_TOKEN: ${{ github.token }}
-          TARGET_GIT_SHA: ${{ github.sha }}
-          DEPLOY_PRODUCTION_PHASE: preflight
+          GH_TOKEN: ${{ github.token }}
+          GH_REPOSITORY: ${{ github.repository }}
+          GH_API_URL: ${{ github.api_url }}
+          GH_EVENT_NAME: ${{ github.event_name }}
+          DEFAULT_TARGET_SHA: ${{ github.sha }}
+          DISPATCH_TARGET_SHA: ${{ inputs.target_sha }}
         run: |
           set -euo pipefail
-          bash ./.github/scripts/deploy-production.sh
+
+          api_get() {
+            local url="$1"
+            curl --fail --silent --show-error \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "$url"
+          }
+
+          target_sha="${DISPATCH_TARGET_SHA:-$DEFAULT_TARGET_SHA}"
+          stage_run_id=""
+          allow_missing=0
+
+          if [[ "$GH_EVENT_NAME" == "workflow_run" ]]; then
+            conclusion="$(jq -r '.workflow_run.conclusion // empty' "$GITHUB_EVENT_PATH")"
+            target_sha="$(jq -r '.workflow_run.head_sha // empty' "$GITHUB_EVENT_PATH")"
+            stage_run_id="$(jq -r '.workflow_run.id // empty' "$GITHUB_EVENT_PATH")"
+            allow_missing=1
+            if [[ "$conclusion" != "success" ]]; then
+              printf 'should_deploy=false\n' >>"$GITHUB_OUTPUT"
+              printf 'target_sha=%s\n' "$target_sha" >>"$GITHUB_OUTPUT"
+              printf 'stage_run_id=%s\n' "$stage_run_id" >>"$GITHUB_OUTPUT"
+              printf 'artifact_name=\n' >>"$GITHUB_OUTPUT"
+              exit 0
+            fi
+          fi
+
+          [[ -n "$target_sha" ]] || {
+            printf 'Unable to resolve target SHA.\n' >&2
+            exit 1
+          }
+
+          artifact_name="production-release-${target_sha}"
+
+          if [[ -z "$stage_run_id" ]]; then
+            runs_response="$(api_get "${GH_API_URL}/repos/${GH_REPOSITORY}/actions/workflows/stage-production-artifacts.yml/runs?branch=production&status=completed&per_page=100")"
+            stage_run_id="$(
+              jq -r \
+                --arg target_sha "$target_sha" \
+                '[
+                  .workflow_runs[]?
+                  | select(.head_sha == $target_sha)
+                  | select(.conclusion == "success")
+                  | .id
+                ][0] // empty' \
+                <<<"$runs_response"
+            )"
+          fi
+
+          if [[ -n "$stage_run_id" ]]; then
+            artifacts_response="$(api_get "${GH_API_URL}/repos/${GH_REPOSITORY}/actions/runs/${stage_run_id}/artifacts?per_page=100")"
+            artifact_found="$(
+              jq -r \
+                --arg artifact_name "$artifact_name" \
+                '[
+                  .artifacts[]?
+                  | select(.name == $artifact_name)
+                  | select(.expired == false)
+                  | .id
+                ][0] // empty' \
+                <<<"$artifacts_response"
+            )"
+          else
+            artifact_found=""
+          fi
+
+          if [[ -z "$artifact_found" ]]; then
+            if [[ "$allow_missing" == "1" ]]; then
+              printf 'No staged production artifact found for %s in stage run %s; deploy will be skipped.\n' "$target_sha" "${stage_run_id:-<none>}"
+              printf 'should_deploy=false\n' >>"$GITHUB_OUTPUT"
+              printf 'target_sha=%s\n' "$target_sha" >>"$GITHUB_OUTPUT"
+              printf 'stage_run_id=%s\n' "$stage_run_id" >>"$GITHUB_OUTPUT"
+              printf 'artifact_name=%s\n' "$artifact_name" >>"$GITHUB_OUTPUT"
+              exit 0
+            fi
+            printf 'Missing staged production artifact %s for %s.\n' "$artifact_name" "$target_sha" >&2
+            exit 1
+          fi
+
+          printf 'should_deploy=true\n' >>"$GITHUB_OUTPUT"
+          printf 'target_sha=%s\n' "$target_sha" >>"$GITHUB_OUTPUT"
+          printf 'stage_run_id=%s\n' "$stage_run_id" >>"$GITHUB_OUTPUT"
+          printf 'artifact_name=%s\n' "$artifact_name" >>"$GITHUB_OUTPUT"
 
   deploy-android:
     name: Deploy Android
     runs-on: ubuntu-24.04
-    needs: deploy-preflight
-    if: needs.deploy-preflight.outputs.should_deploy == 'true'
+    needs: resolve-artifact
+    if: needs.resolve-artifact.outputs.should_deploy == 'true'
     environment: production
-    timeout-minutes: 90
+    timeout-minutes: 45
 
     steps:
       - name: Check out repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ needs.resolve-artifact.outputs.target_sha }}
           fetch-depth: 0
+
+      - name: Download production release artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.resolve-artifact.outputs.artifact_name }}
+          run-id: ${{ needs.resolve-artifact.outputs.stage_run_id }}
+          github-token: ${{ github.token }}
+          path: ${{ env.PRODUCTION_RELEASE_ARTIFACT_DIR }}
+
+      - name: Validate production release artifact
+        env:
+          TARGET_GIT_SHA: ${{ needs.resolve-artifact.outputs.target_sha }}
+        run: |
+          set -euo pipefail
+          bash ./.github/scripts/production-release-artifact.sh validate-manifest
 
       - name: Authenticate to Google Cloud for Play publishing
         id: google-auth
@@ -72,37 +179,11 @@ jobs:
           token_format: access_token
           access_token_scopes: https://www.googleapis.com/auth/androidpublisher
 
-      - name: Check Android draft exists
-        id: android-draft-check
+      - name: Upload Android draft from staged artifact
         env:
-          GOOGLE_PLAY_CHECK_ONLY: "1"
-          ANDROID_PUBLISHER_ACCESS_TOKEN: ${{ steps.google-auth.outputs.access_token }}
-        run: |
-          set -euo pipefail
-          bash ./.github/scripts/publish-google-play-draft.sh
-
-      - name: Set up Java
-        if: steps.android-draft-check.outputs.android_draft_exists != 'true'
-        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
-        with:
-          distribution: temurin
-          java-version: "21"
-
-      - name: Set up Gradle
-        if: steps.android-draft-check.outputs.android_draft_exists != 'true'
-        uses: gradle/actions/setup-gradle@017a9effdb900e5b5b2fddfb590a105619dca3c3 # v4.4.2
-
-      - name: Build and upload Android draft
-        if: steps.android-draft-check.outputs.android_draft_exists != 'true'
-        env:
-          TARGET_GIT_SHA: ${{ github.sha }}
+          TARGET_GIT_SHA: ${{ needs.resolve-artifact.outputs.target_sha }}
           DEPLOY_PRODUCTION_PHASE: android
           ANDROID_PUBLISHER_ACCESS_TOKEN: ${{ steps.google-auth.outputs.access_token }}
-          ANDROID_GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON_BASE64 }}
-          ANDROID_RELEASE_KEYSTORE_BASE64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_BASE64 }}
-          TU_INDICE_KEY_ALIAS: ${{ secrets.TU_INDICE_KEY_ALIAS }}
-          TU_INDICE_KEY_PASSWORD: ${{ secrets.TU_INDICE_KEY_PASSWORD }}
-          TU_INDICE_KEY_STORE_PASSWORD: ${{ secrets.TU_INDICE_KEY_STORE_PASSWORD }}
         run: |
           set -euo pipefail
           bash ./.github/scripts/deploy-production.sh
@@ -110,47 +191,40 @@ jobs:
   deploy-ios:
     name: Deploy iOS
     runs-on: macos-26
-    needs: deploy-preflight
-    if: needs.deploy-preflight.outputs.should_deploy == 'true'
+    needs: resolve-artifact
+    if: needs.resolve-artifact.outputs.should_deploy == 'true'
     environment: production
-    timeout-minutes: 120
+    timeout-minutes: 45
 
     steps:
       - name: Check out repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ needs.resolve-artifact.outputs.target_sha }}
           fetch-depth: 0
 
-      - name: Check App Store Connect build exists
-        id: ios-build-check
+      - name: Download production release artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ needs.resolve-artifact.outputs.artifact_name }}
+          run-id: ${{ needs.resolve-artifact.outputs.stage_run_id }}
+          github-token: ${{ github.token }}
+          path: ${{ env.PRODUCTION_RELEASE_ARTIFACT_DIR }}
+
+      - name: Validate production release artifact
         env:
-          APP_STORE_CONNECT_CHECK_ONLY: "1"
-          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
-          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
-          APP_STORE_CONNECT_API_KEY_P8_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8_BASE64 }}
+          TARGET_GIT_SHA: ${{ needs.resolve-artifact.outputs.target_sha }}
         run: |
           set -euo pipefail
-          bash ./iosApp/scripts/ci-upload-ios-appstore.sh
+          bash ./.github/scripts/production-release-artifact.sh validate-manifest
 
-      - name: Set up iOS build environment
-        if: steps.ios-build-check.outputs.ios_build_exists != 'true'
-        uses: ./.github/actions/setup-ios-build
-
-      - name: Build and upload iOS build
-        if: steps.ios-build-check.outputs.ios_build_exists != 'true'
+      - name: Upload iOS build from staged artifact
         env:
-          TARGET_GIT_SHA: ${{ github.sha }}
+          TARGET_GIT_SHA: ${{ needs.resolve-artifact.outputs.target_sha }}
           DEPLOY_PRODUCTION_PHASE: ios
-          IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64: ${{ secrets.IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
           APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
           APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
           APP_STORE_CONNECT_API_KEY_P8_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8_BASE64 }}
-          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
-          APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64 }}
-          APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
-          APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
-          TUINDICE_UPLOAD_CRASHLYTICS_MAPPING: "1"
         run: |
           set -euo pipefail
           bash ./.github/scripts/deploy-production.sh
@@ -159,17 +233,17 @@ jobs:
     name: Tag release
     runs-on: ubuntu-24.04
     needs:
-      - deploy-preflight
+      - resolve-artifact
       - deploy-android
       - deploy-ios
-    if: needs.deploy-preflight.outputs.should_deploy == 'true'
+    if: needs.resolve-artifact.outputs.should_deploy == 'true'
     timeout-minutes: 15
 
     steps:
       - name: Check out repository
         uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
         with:
-          ref: ${{ github.sha }}
+          ref: ${{ needs.resolve-artifact.outputs.target_sha }}
           fetch-depth: 0
 
       - name: Configure git identity for release tags
@@ -180,7 +254,7 @@ jobs:
 
       - name: Create release tag
         env:
-          TARGET_GIT_SHA: ${{ github.sha }}
+          TARGET_GIT_SHA: ${{ needs.resolve-artifact.outputs.target_sha }}
           DEPLOY_PRODUCTION_PHASE: tag
         run: |
           set -euo pipefail
