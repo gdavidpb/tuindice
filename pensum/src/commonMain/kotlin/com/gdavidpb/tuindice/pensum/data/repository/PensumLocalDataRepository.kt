@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.Flow
 interface PensumLocalDataRepository {
 	fun observePensumResponseFlow(): Flow<GetPensumResponse?>
 	fun observeAcademicSnapshotFlow(): Flow<AcademicPensumSnapshot>
+	suspend fun hasSelectedPensumResponse(): Boolean
 	suspend fun getSelectionParams(): PensumSelectionParams
 	suspend fun savePensumResponse(response: GetPensumResponse)
 	suspend fun selectPensum(year: Int)

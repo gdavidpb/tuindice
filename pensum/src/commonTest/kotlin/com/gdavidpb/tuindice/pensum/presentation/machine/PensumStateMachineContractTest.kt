@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
 import com.gdavidpb.tuindice.pensum.domain.model.PensumOption
 import com.gdavidpb.tuindice.pensum.domain.model.PensumSelection
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
+import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
@@ -23,11 +24,11 @@ import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
-import kotlin.test.Test
-import kotlin.test.assertTrue
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.test.assertTrue
 
 class PensumStateMachineContractTest {
 	@Test
@@ -99,6 +100,11 @@ class PensumStateMachineContractTest {
 				pensumRepository = repository,
 				reportingRepository = reportingRepository
 			),
+			ensurePensumLoadedUseCase = EnsurePensumLoadedUseCase(
+				pensumRepository = repository,
+				reportingRepository = reportingRepository,
+				exceptionHandler = exceptionHandler
+			),
 			updatePensumUseCase = UpdatePensumUseCase(
 				pensumRepository = repository,
 				reportingRepository = reportingRepository,
@@ -156,6 +162,7 @@ class PensumStateMachineContractTest {
 			screenMachine = screenMachine,
 			sampleEvents = listOf(
 				Pensum.Action.ObservePensum,
+				Pensum.Action.EnsurePensumLoaded,
 				Pensum.Action.RefreshPensum,
 				Pensum.Action.SelectPensum(year = 1970),
 				Pensum.Action.SelectModality(modalityId = "modality-diurna"),
@@ -189,6 +196,11 @@ class PensumStateMachineContractTest {
 					pensumRepository = repository,
 					reportingRepository = reportingRepository
 				),
+				ensurePensumLoadedUseCase = EnsurePensumLoadedUseCase(
+					pensumRepository = repository,
+					reportingRepository = reportingRepository,
+					exceptionHandler = exceptionHandler
+				),
 				updatePensumUseCase = UpdatePensumUseCase(
 					pensumRepository = repository,
 					reportingRepository = reportingRepository,
@@ -217,6 +229,8 @@ class PensumStateMachineContractTest {
 
 private class StaticPensumRepository : PensumRepository {
 	override fun observePensumFlow(): Flow<PensumObservation> = emptyFlow()
+
+	override suspend fun refreshPensumIfMissing() = Unit
 
 	override suspend fun refreshPensum() = Unit
 

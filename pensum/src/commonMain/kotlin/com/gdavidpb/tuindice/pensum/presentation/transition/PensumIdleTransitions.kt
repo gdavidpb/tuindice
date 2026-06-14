@@ -16,6 +16,11 @@ internal fun MachineDefinitionBuilder<Pensum.State>.idleTransitions(
 			state
 		}
 
+		on<Pensum.Action.EnsurePensumLoaded> { state, _ ->
+			machine.ensurePensumLoaded(host = host)
+			state
+		}
+
 		on<PensumInternalEvent.PensumRefreshLoading> { state, _ -> state }
 	}
 }

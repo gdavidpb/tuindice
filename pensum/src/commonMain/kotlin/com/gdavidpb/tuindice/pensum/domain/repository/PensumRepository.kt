@@ -5,6 +5,7 @@ import kotlinx.coroutines.flow.Flow
 
 interface PensumRepository {
 	fun observePensumFlow(): Flow<PensumObservation>
+	suspend fun refreshPensumIfMissing()
 	suspend fun refreshPensum()
 	suspend fun selectPensum(year: Int)
 	suspend fun selectModality(modalityId: String)

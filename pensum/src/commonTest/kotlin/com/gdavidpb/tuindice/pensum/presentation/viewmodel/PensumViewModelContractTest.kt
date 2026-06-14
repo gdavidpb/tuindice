@@ -2,9 +2,11 @@ package com.gdavidpb.tuindice.pensum.presentation.viewmodel
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
+import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
@@ -16,13 +18,13 @@ import com.gdavidpb.tuindice.pensum.presentation.machine.PensumMachine
 import com.gdavidpb.tuindice.pensum.testing.sampleObservedPensum
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import com.gdavidpb.tuindice.testkit.ktor.serverResponseException
 import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import io.ktor.http.HttpStatusCode
-import kotlin.test.Test
-import kotlin.test.assertEquals
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -30,6 +32,8 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_local_data_warning_service
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class PensumViewModelContractTest {
 	@Test
@@ -107,6 +111,104 @@ class PensumViewModelContractTest {
 
 				viewModel.refreshPensumAction()
 				advanceUntilIdle()
+				assertEquals(Pensum.State.Idle, viewModel.state.value)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun ensureLoaded_whenContentAlreadyExists_doesNotShowRefreshingOrHitRepository() = runTest {
+		val fixture = createFixture()
+		val viewModel = fixture.viewModel
+
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				assertEquals(Pensum.State.Idle, awaitItem())
+
+				fixture.repository.emit(PensumObservation.Content(sampleObservedPensum()))
+				awaitUntilState<Pensum.State.Content> { true }
+
+				viewModel.ensurePensumLoadedAction()
+				advanceUntilIdle()
+
+				val content = viewModel.state.value as Pensum.State.Content
+				assertEquals(false, content.isRefreshing)
+				assertEquals(0, fixture.repository.refreshIfMissingCalls)
+				assertEquals(0, fixture.repository.refreshCalls)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun ensureLoaded_whenCacheExistsBeforeObservation_doesNotRefreshRemote() = runTest {
+		val fixture = createFixture()
+		val viewModel = fixture.viewModel
+		fixture.repository.hasCachedPensum = true
+
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				assertEquals(Pensum.State.Idle, awaitItem())
+
+				viewModel.ensurePensumLoadedAction()
+				advanceUntilIdle()
+
+				assertEquals(Pensum.State.Idle, viewModel.state.value)
+				assertEquals(1, fixture.repository.refreshIfMissingCalls)
+				assertEquals(0, fixture.repository.refreshCalls)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun ensureLoaded_whenCacheIsMissing_refreshesWithoutLeavingIdle() = runTest {
+		val fixture = createFixture()
+		val viewModel = fixture.viewModel
+		fixture.repository.blockRefresh = true
+
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				assertEquals(Pensum.State.Idle, awaitItem())
+
+				viewModel.ensurePensumLoadedAction()
+				advanceUntilIdle()
+
+				assertEquals(Pensum.State.Idle, viewModel.state.value)
+				assertEquals(1, fixture.repository.refreshIfMissingCalls)
+				assertEquals(1, fixture.repository.refreshCalls)
+
+				fixture.repository.releaseRefresh()
+				advanceUntilIdle()
+
 				assertEquals(Pensum.State.Idle, viewModel.state.value)
 
 				cancelAndIgnoreRemainingEvents()
@@ -313,7 +415,10 @@ class PensumViewModelContractTest {
 		}
 	}
 
-	private fun createFixture(isNetworkAvailable: Boolean = true): PensumFixture {
+	private fun createFixture(
+		isNetworkAvailable: Boolean = true,
+		dispatchers: TuIndiceDispatchers = TestTuIndiceDispatchers(Dispatchers.Unconfined)
+	): PensumFixture {
 		val repository = ControllablePensumRepository()
 		val reportingRepository = RecordingReportingRepository()
 		val exceptionHandler = UpdatePensumExceptionHandler(
@@ -325,6 +430,11 @@ class PensumViewModelContractTest {
 				observePensumUseCase = ObservePensumUseCase(
 					pensumRepository = repository,
 					reportingRepository = reportingRepository
+				),
+				ensurePensumLoadedUseCase = EnsurePensumLoadedUseCase(
+					pensumRepository = repository,
+					reportingRepository = reportingRepository,
+					exceptionHandler = exceptionHandler
 				),
 				updatePensumUseCase = UpdatePensumUseCase(
 					pensumRepository = repository,
@@ -347,7 +457,8 @@ class PensumViewModelContractTest {
 					exceptionHandler = exceptionHandler
 				)
 			),
-			eventPublisher = NoOpEventPublisher
+			eventPublisher = NoOpEventPublisher,
+			dispatchers = dispatchers
 		)
 
 		return PensumFixture(
@@ -369,8 +480,13 @@ private class ControllablePensumRepository : PensumRepository {
 	private val selectModalityCalls = Channel<String>(Channel.UNLIMITED)
 	private val selectSelectionCalls = Channel<Pair<Int, String>>(Channel.UNLIMITED)
 
+	var hasCachedPensum = false
 	var blockRefresh = false
 	var refreshThrowable: Throwable? = null
+	var refreshIfMissingCalls = 0
+		private set
+	var refreshCalls = 0
+		private set
 
 	fun emit(observation: PensumObservation) {
 		observations.trySend(Result.success(observation))
@@ -397,8 +513,16 @@ private class ControllablePensumRepository : PensumRepository {
 	}
 
 	override suspend fun refreshPensum() {
+		refreshCalls++
 		if (blockRefresh) refreshGate.receive()
 		refreshThrowable?.let { throw it }
+	}
+
+	override suspend fun refreshPensumIfMissing() {
+		refreshIfMissingCalls++
+		if (!hasCachedPensum) {
+			refreshPensum()
+		}
 	}
 
 	override suspend fun selectPensum(year: Int) {
