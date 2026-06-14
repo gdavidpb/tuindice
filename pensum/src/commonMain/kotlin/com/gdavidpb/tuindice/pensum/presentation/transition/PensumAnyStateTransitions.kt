@@ -44,9 +44,7 @@ internal fun MachineDefinitionBuilder<Pensum.State>.anyStateTransitions(
 			Pensum.State.Content(model = event.pensum.toScreenModel())
 		}
 
-		onTo<PensumInternalEvent.PensumDataMissing, Pensum.State.Loading> { _, _ ->
-			Pensum.State.Loading
-		}
+		on<PensumInternalEvent.PensumDataMissing> { state, _ -> state }
 
 		onTo<PensumInternalEvent.PensumRecordDataUnavailableObserved, Pensum.State.RecordDataUnavailable> { _, _ ->
 			Pensum.State.RecordDataUnavailable

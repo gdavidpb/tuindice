@@ -76,6 +76,7 @@ fun PensumGraphCanvas(
 	model: PensumScreenModel,
 	selectedNodeId: String?,
 	onSelectedNodeChange: (String?) -> Unit,
+	onFocusedNodeClick: (String) -> Unit = { onSelectedNodeChange(null) },
 	isSubjectSheetVisible: Boolean = false,
 	focusRequestSerial: Int = 0,
 	modifier: Modifier = Modifier
@@ -541,7 +542,7 @@ fun PensumGraphCanvas(
 		val shouldShowStickyTermHeader = shouldRenderStickyTermHeader(
 			scale = scale.value,
 			isFitToScreen = isFitToScreen
-		) && !isManualCanvasGestureActive
+		)
 
 		LaunchedEffect(isFitToScreen) {
 			if (isFitToScreen) {
@@ -653,7 +654,7 @@ fun PensumGraphCanvas(
 						}
 						.clickable {
 							if (node.id == selectedNodeId) {
-								onSelectedNodeChange(null)
+								onFocusedNodeClick(node.id)
 							} else {
 								onSelectedNodeChange(node.id)
 								centerSelectedNode(node)
