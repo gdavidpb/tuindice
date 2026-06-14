@@ -25,9 +25,9 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepositor
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import com.gdavidpb.tuindice.wizard.domain.usecase.ShouldStartWizardUseCase
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
-import kotlinx.coroutines.test.runTest
 
 // Model-based walks over the host machines: the wiring mirrors the fixtures in
 // com.gdavidpb.tuindice.testing.MaincoreUiTestFixtures, rebuilt inline because the

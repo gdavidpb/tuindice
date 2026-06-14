@@ -63,7 +63,7 @@ class WizardScreenUiTest {
 
 		onNodeWithText("Andrea Pérez").assertExists()
 		onNodeWithText("Ingeniería de Computación").assertExists()
-		onNodeWithText("Última actualización: 28 de abril 2026").assertExists()
+		onNodeWithText("Última sincronización: 28 de abril 2026").assertExists()
 		onAllNodesWithText("Sincronizado hace 2 min").assertCountEquals(0)
 		onNodeWithText("Resumen académico").assertExists()
 		onNodeWithText("Paso 1 de 11").assertExists()

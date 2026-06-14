@@ -62,6 +62,7 @@ class SyncDataSource(
 
 					recordLocalDataSource.saveAcademicRecord(syncResult.record)
 					userLocalDataSource.updateUser(syncResult.user)
+					syncStatusRepository.setLastSuccessfulSyncAt(syncResult.user.lastUpdate)
 					syncStatusRepository.setSyncStatus(SyncStatus.Healthy)
 					settingsDataSource.clearSyncRetryBackoff()
 					settingsDataSource.setSyncOnCooldown()
@@ -90,6 +91,6 @@ class SyncDataSource(
 					}
 				}
 			}
+		}
 	}
-}
 }

@@ -10,13 +10,17 @@ import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
+import com.gdavidpb.tuindice.summary.presentation.mapper.formatSyncTimestamp
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.screen.SummaryScreen
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.openCameraPicker
 import io.github.vinceglb.filekit.dialogs.openFilePicker
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
+import tuindice.summary.generated.resources.Res
+import tuindice.summary.generated.resources.text_last_sync
 
 @Composable
 fun SummaryRoute(
@@ -32,9 +36,20 @@ fun SummaryRoute(
 	val syncStatus by syncStatusRepository
 		.observeSyncStatus()
 		.collectAsStateWithLifecycle(initialValue = SyncStatus.Healthy)
+	val lastSuccessfulSyncAt by syncStatusRepository
+		.observeLastSuccessfulSyncAt()
+		.collectAsStateWithLifecycle(initialValue = null)
 	val isSyncing by syncRepository
 		.observeSyncInProgress()
 		.collectAsStateWithLifecycle(initialValue = false)
+	val syncStatusText = stringResource(
+		Res.string.text_last_sync,
+		lastSuccessfulSyncAt.formatSyncTimestamp()
+	)
+	val screenState = when (val currentState = viewState) {
+		is Summary.State.Content -> currentState.copy(syncStatusText = syncStatusText)
+		else -> currentState
+	}
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {
@@ -64,7 +79,7 @@ fun SummaryRoute(
 	}
 
 	SummaryScreen(
-		state = viewState,
+		state = screenState,
 		syncStatus = syncStatus,
 		isSyncing = isSyncing,
 		onRetryClick = viewModel::refreshSummaryAction,

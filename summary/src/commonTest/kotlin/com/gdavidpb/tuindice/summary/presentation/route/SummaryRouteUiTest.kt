@@ -2,12 +2,15 @@ package com.gdavidpb.tuindice.summary.presentation.route
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
@@ -25,12 +28,12 @@ import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
-import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
-import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -201,6 +204,39 @@ class SummaryRouteUiTest {
 
 		onNodeWithTag(SummaryUiTags.ProfilePictureEditButton).assertIsEnabled()
 		assertTrue(profilePictureSettingsNavigations.isEmpty())
+	}
+
+	@Test
+	fun when_userRefreshIsRunningAndSyncHasFailed_then_routeKeepsSyncFailureVisible() = runTuIndiceUiTest {
+		val userRepository = BlockingRefreshUserRepository()
+		val viewModel = createSummaryViewModel(userRepository = userRepository)
+		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.Failed)
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+				SummaryRoute(
+					onNavigateToUpdatePassword = {},
+					onNavigateToProfilePictureSettingsDialog = {},
+					onNavigateToRemoveProfilePictureConfirmationDialog = {},
+					showSnackBar = {},
+					viewModel = viewModel,
+					syncStatusRepository = syncStatusRepository,
+					syncRepository = FakeSyncRepository()
+				)
+			}
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			(viewModel.state.value as? Summary.State.Content)?.isUserRefreshing == true &&
+				userRepository.updateUserCalls == 1
+		}
+
+		onNodeWithText("Última sincronización: Nunca").assertIsDisplayed()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+		onNodeWithText("No pudimos sincronizar con la universidad").assertIsDisplayed()
+
+		userRepository.completeRefresh()
 	}
 
 	@Test

@@ -65,6 +65,8 @@ class SyncRepositoryContractTest {
 		assertEquals(true, settingsDataSource.staleFeatureCooldownsCleared)
 		assertEquals(SyncStatus.Healthy, syncStatusRepository.getSyncStatus())
 		assertEquals(listOf(SyncStatus.Healthy), syncStatusRepository.setStatuses)
+		assertEquals(DEFAULT_USER.lastUpdate, syncStatusRepository.getLastSuccessfulSyncAt())
+		assertEquals(listOf(DEFAULT_USER.lastUpdate), syncStatusRepository.setLastSuccessfulSyncTimestamps)
 	}
 
 	@Test
@@ -518,22 +520,35 @@ private class FakeSyncSettingsLocalDataSource(
 }
 
 private class FakeSyncStatusRepository(
-	initialValue: SyncStatus = SyncStatus.Healthy
+	initialValue: SyncStatus = SyncStatus.Healthy,
+	initialLastSuccessfulSyncAt: Long? = null
 ) : SyncStatusRepository {
 	private val syncStatus = MutableStateFlow(initialValue)
+	private val lastSuccessfulSyncAt = MutableStateFlow(initialLastSuccessfulSyncAt)
 	val setStatuses = mutableListOf<SyncStatus>()
+	val setLastSuccessfulSyncTimestamps = mutableListOf<Long>()
 
 	override fun observeSyncStatus(): Flow<SyncStatus> = syncStatus
 
+	override fun observeLastSuccessfulSyncAt(): Flow<Long?> = lastSuccessfulSyncAt
+
 	override suspend fun getSyncStatus(): SyncStatus = syncStatus.value
+
+	override suspend fun getLastSuccessfulSyncAt(): Long? = lastSuccessfulSyncAt.value
 
 	override suspend fun setSyncStatus(status: SyncStatus) {
 		syncStatus.value = status
 		setStatuses += status
 	}
 
+	override suspend fun setLastSuccessfulSyncAt(timestamp: Long) {
+		lastSuccessfulSyncAt.value = timestamp
+		setLastSuccessfulSyncTimestamps += timestamp
+	}
+
 	override suspend fun reset() {
 		syncStatus.value = SyncStatus.Healthy
+		lastSuccessfulSyncAt.value = null
 	}
 }
 

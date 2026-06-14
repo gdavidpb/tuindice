@@ -10,11 +10,10 @@ import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseError
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
-import com.gdavidpb.tuindice.summary.presentation.mapper.formatLastUpdate
 import com.gdavidpb.tuindice.summary.presentation.mapper.toRefreshMessage
 import com.gdavidpb.tuindice.summary.presentation.mapper.toRemoveMessage
-import com.gdavidpb.tuindice.summary.presentation.mapper.toUploadMessage
 import com.gdavidpb.tuindice.summary.presentation.mapper.toShortName
+import com.gdavidpb.tuindice.summary.presentation.mapper.toUploadMessage
 import com.gdavidpb.tuindice.summary.presentation.transition.anyStateTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.contentTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.failedTransitions
@@ -26,7 +25,6 @@ import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.snack_default_error
 import tuindice.summary.generated.resources.snack_profile_picture_removed
 import tuindice.summary.generated.resources.snack_profile_picture_updated
-import tuindice.summary.generated.resources.text_sync_healthy
 
 class SummaryMachine(
 	private val observeUserUseCase: ObserveUserUseCase,
@@ -54,17 +52,12 @@ class SummaryMachine(
 
 					is UseCaseState.Data -> {
 						val user = useCaseState.value
-						val lastUpdateText = getString(
-							Res.string.text_sync_healthy,
-							user.lastUpdate.formatLastUpdate()
-						)
 
 						host.processInternalEvent(
 							SummaryInternalEvent.UserObserved(
 								content = with(user) {
 									Summary.State.Content(
 										name = toShortName(),
-										lastUpdate = lastUpdateText,
 										careerName = careerName,
 										grade = grade.toFloat(),
 										enrolledSubjects = enrolledSubjects,

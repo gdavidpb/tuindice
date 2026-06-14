@@ -69,13 +69,12 @@ import com.gdavidpb.tuindice.wizard.presentation.contract.HISTORICAL_TERM_ID
 
 private const val SAMPLE_DATE = 1_776_902_400_000L
 private const val SAMPLE_CAREER_NAME = "Ingeniería de Computación"
-private const val SAMPLE_LAST_UPDATE_TEXT = "Última actualización: 28 de abril 2026"
+private const val SAMPLE_SYNC_STATUS_TEXT = "Última sincronización: 28 de abril 2026"
 private const val SAMPLE_PENSUM_TERM_COUNT = 6
 private const val SAMPLE_PENSUM_NODE_WIDTH = 160.0
 
 internal fun sampleSummaryState() = Summary.State.Content(
 	name = "Andrea Pérez",
-	lastUpdate = SAMPLE_LAST_UPDATE_TEXT,
 	careerName = SAMPLE_CAREER_NAME,
 	grade = 4.2308f,
 	enrolledSubjects = 4,
@@ -88,7 +87,8 @@ internal fun sampleSummaryState() = Summary.State.Content(
 	failedCredits = 7,
 	profilePictureUrl = "",
 	isProfilePictureLoading = false,
-	isUserRefreshing = false
+	isUserRefreshing = false,
+	syncStatusText = SAMPLE_SYNC_STATUS_TEXT
 )
 
 internal fun sampleRecordState(
