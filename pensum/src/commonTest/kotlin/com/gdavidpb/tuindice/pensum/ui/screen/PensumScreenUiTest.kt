@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.pensum.ui.screen
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
@@ -12,6 +13,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
@@ -517,6 +519,38 @@ class PensumScreenUiTest {
 		assertNodeVisible(PensumUiTags.ZoomIn)
 		assertNodeVisible(PensumUiTags.ZoomOut)
 		assertNodeVisible(PensumUiTags.FitToScreen)
+	}
+
+	@Test
+	fun when_pinchStartsOnSubjectNode_then_canvasZooms() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumGraphCanvas(
+				model = samplePensumModel(),
+				selectedNodeId = null,
+				onSelectedNodeChange = {}
+			)
+		}
+
+		onNodeWithTag(PensumUiTags.FitToScreen).assertHasClickAction().performClick()
+		waitForIdle()
+		assertNodeHidden(PensumUiTags.FitToScreen)
+		assertNodeHidden(PensumUiTags.StickyTerms)
+
+		onNodeWithTag(PensumUiTags.node("ci4325"))
+			.performTouchInput {
+				val leftPointerStart = center - Offset(8f, 0f)
+				val rightPointerStart = center + Offset(8f, 0f)
+				down(0, leftPointerStart)
+				down(1, rightPointerStart)
+				moveTo(0, leftPointerStart - Offset(40f, 0f))
+				moveTo(1, rightPointerStart + Offset(40f, 0f))
+				up(0)
+				up(1)
+			}
+		waitForIdle()
+
+		assertNodeVisible(PensumUiTags.FitToScreen)
+		assertNodeVisible(PensumUiTags.StickyTerms)
 	}
 
 	@Test
