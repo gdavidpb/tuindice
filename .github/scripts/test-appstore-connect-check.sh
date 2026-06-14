@@ -60,7 +60,7 @@ while [[ "$#" -gt 0 ]]; do
 			method="$2"
 			shift 2
 			;;
-		-H|-o|-w)
+		-H|-o|-w|--retry|--retry-delay)
 			if [[ "$1" == "-o" ]]; then
 				output_file="$2"
 			fi

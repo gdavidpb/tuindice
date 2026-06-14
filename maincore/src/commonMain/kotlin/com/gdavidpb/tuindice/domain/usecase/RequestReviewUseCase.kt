@@ -12,7 +12,7 @@ class RequestReviewUseCase(
 	private val settingsRepository: SettingsRepository,
 	private val configRepository: ConfigRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, Unit, Nothing>(reportingRepository = reportingRepository) {
+) : FlowUseCase<Unit, Unit, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
 		val syncsCount = configRepository.getSyncsToSuggestReview()
 

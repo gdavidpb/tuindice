@@ -38,5 +38,11 @@ kotlin {
 				implementation(kotlin("test"))
 			}
 		}
+
+		val androidMain by getting {
+			dependencies {
+				implementation(kotlin("reflect"))
+			}
+		}
 	}
 }

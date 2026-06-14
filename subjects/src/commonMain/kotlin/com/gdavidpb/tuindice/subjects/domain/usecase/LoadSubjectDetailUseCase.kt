@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.flow
 class LoadSubjectDetailUseCase(
 	private val subjectStatsRepository: SubjectStatsRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<SubjectDetailParams, SubjectDetailLoad, Nothing>(reportingRepository = reportingRepository) {
+) : FlowUseCase<SubjectDetailParams, SubjectDetailLoad, Nothing>() {
 	override suspend fun executeOnBackground(params: SubjectDetailParams): Flow<SubjectDetailLoad> {
 		return flow {
 			val localResult = subjectStatsRepository.getFreshSubjectDetail(params.subjectCode)

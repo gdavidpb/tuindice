@@ -1,33 +1,33 @@
 package com.gdavidpb.tuindice.base.data.source.event
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.event.AppEvent
 import com.gdavidpb.tuindice.base.domain.model.event.EventNames
 import com.gdavidpb.tuindice.base.domain.model.event.EventParameterKeys
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
-import com.gdavidpb.tuindice.base.presentation.Mutation
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
-import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
+import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
+import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
+import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
+import com.gdavidpb.tuindice.base.presentation.statemachine.StateMachineViewModel
+import com.gdavidpb.tuindice.testkit.coroutines.withMainDispatcher
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
 import kotlinx.coroutines.withTimeout
 
 class EventPipelineTest {
@@ -66,7 +66,8 @@ class EventPipelineTest {
 		val subscriber = RecordingEventSubscriber()
 		val publisher = BufferedEventPublisher(
 			usageDataConsentRepository = InMemoryUsageDataConsentRepository(initialValue = false),
-			eventSubscriber = subscriber
+			eventSubscriber = subscriber,
+			coroutineScope = createPublisherScope()
 		)
 
 		publisher.publish(
@@ -76,8 +77,6 @@ class EventPipelineTest {
 			)
 		)
 
-		delay(50)
-
 		assertTrue(subscriber.events.isEmpty())
 	}
 
@@ -86,7 +85,8 @@ class EventPipelineTest {
 		val subscriber = RecordingEventSubscriber()
 		val publisher = BufferedEventPublisher(
 			usageDataConsentRepository = InMemoryUsageDataConsentRepository(initialValue = true),
-			eventSubscriber = subscriber
+			eventSubscriber = subscriber,
+			coroutineScope = createPublisherScope()
 		)
 		val event = AppEvent.Action(
 			source = "summary",
@@ -94,10 +94,6 @@ class EventPipelineTest {
 		)
 
 		publisher.publish(event)
-
-		withTimeout(1_000) {
-			while (subscriber.events.isEmpty()) delay(10)
-		}
 
 		assertEquals(listOf<AppEvent>(event), subscriber.events)
 	}
@@ -124,34 +120,37 @@ class EventPipelineTest {
 	@Test
 	@OptIn(ExperimentalCoroutinesApi::class)
 	fun baseViewModel_publishesAutomaticEvents() = runTest {
-		Dispatchers.setMain(UnconfinedTestDispatcher(testScheduler))
-		val recordingEventPublisher = RecordingEventPublisher()
-		val viewModel = EventTestViewModel(
-			eventPublisher = recordingEventPublisher
-		)
+		withMainDispatcher { dispatchers ->
+			val recordingEventPublisher = RecordingEventPublisher()
+			val viewModel = EventTestViewModel(
+				eventPublisher = recordingEventPublisher,
+				dispatchers = dispatchers
+			)
 
-		try {
 			val stateJob = backgroundScope.launchStateCollector(
 				flow = viewModel.state,
 				testScheduler = testScheduler
 			)
 
-			viewModel.state.test {
-				awaitItem()
-				viewModel.startAction()
-				awaitItem()
+			try {
+				viewModel.state.test {
+					awaitItem()
+					viewModel.startAction()
+					awaitItem()
 
-				withTimeout(1_000) {
-					recordingEventPublisher.eventsFlow.first { events ->
-						val eventNames = events.map { event -> event.name }
-						EventNames.SCREEN_VIEW in eventNames &&
-							EventNames.APP_ACTION in eventNames &&
-							EventNames.APP_STATE in eventNames &&
-							EventNames.APP_EFFECT in eventNames
+					withTimeout(1_000) {
+						recordingEventPublisher.eventsFlow.first { events ->
+							val eventNames = events.map { event -> event.name }
+							EventNames.SCREEN_VIEW in eventNames &&
+								EventNames.APP_ACTION in eventNames &&
+								EventNames.APP_STATE in eventNames &&
+								EventNames.APP_EFFECT in eventNames
+						}
 					}
 				}
+			} finally {
+				stateJob.cancel()
 			}
-			stateJob.cancel()
 
 			val eventNames = recordingEventPublisher.events.map { event -> event.name }
 
@@ -171,10 +170,13 @@ class EventPipelineTest {
 			assertFalse(recordingEventPublisher.events.any { event ->
 				event.parameters.containsKey("password") || event.parameters.containsKey("usbId")
 			})
-		} finally {
-			Dispatchers.resetMain()
 		}
 	}
+}
+
+@OptIn(ExperimentalCoroutinesApi::class)
+private fun TestScope.createPublisherScope(): CoroutineScope {
+	return CoroutineScope(backgroundScope.coroutineContext + UnconfinedTestDispatcher(testScheduler))
 }
 
 private class RecordingEventSubscriber : EventSubscriber {
@@ -207,34 +209,50 @@ private class RecordingEventPublisher : EventPublisher {
 	}
 }
 
-private class EventTestViewModel(
-	override val eventPublisher: EventPublisher
-) : BaseViewModel<EventTestState, EventTestAction, EventTestEffect>(
-	name = "event_test",
-	initialState = EventTestState.Idle
-) {
-	fun startAction() {
-		sendAction(EventTestAction.Start)
-	}
+private class EventTestMachine : ScreenMachine<EventTestState, EventTestEffect> {
+	override fun initialState(): EventTestState = EventTestState.Idle
 
-	override suspend fun processAction(
-		action: EventTestAction,
-		sideEffect: (EventTestEffect) -> Unit
-	): Flow<Mutation<EventTestState>> {
-		sideEffect(EventTestEffect.Done)
-		return flowOf { EventTestState.Done }
+	override fun define(
+		host: MachineHost<EventTestEffect>
+	): MachineDefinition<EventTestState> {
+		return MachineDefinition.define {
+			from<EventTestState.Idle> {
+				onTo<EventTestAction.Start, EventTestState.Done>(
+					emits = setOf(EventTestEffect.Done::class)
+				) { _, _ ->
+					host.sendEffect(EventTestEffect.Done)
+					EventTestState.Done
+				}
+			}
+		}
 	}
 }
 
-private sealed class EventTestState : ViewState() {
+private class EventTestViewModel(
+	override val eventPublisher: EventPublisher,
+	dispatchers: TuIndiceDispatchers
+) : StateMachineViewModel<EventTestState, EventTestAction, EventTestEffect>(
+	name = "event_test",
+	initialState = EventTestState.Idle,
+	dispatchers = dispatchers
+) {
+	override val screenMachine: ScreenMachine<EventTestState, EventTestEffect> =
+		EventTestMachine()
+
+	fun startAction() {
+		sendAction(EventTestAction.Start)
+	}
+}
+
+private sealed class EventTestState : ViewState {
 	data object Idle : EventTestState()
 	data object Done : EventTestState()
 }
 
-private sealed class EventTestAction : ViewAction() {
+private sealed class EventTestAction : ViewAction {
 	data object Start : EventTestAction()
 }
 
-private sealed class EventTestEffect : ViewEffect() {
+private sealed class EventTestEffect : ViewEffect {
 	data object Done : EventTestEffect()
 }

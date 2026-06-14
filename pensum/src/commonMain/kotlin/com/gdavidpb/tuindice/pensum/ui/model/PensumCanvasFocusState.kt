@@ -19,6 +19,10 @@ internal data class PensumCanvasFocusState(
 }
 
 internal fun PensumScreenModel.focusStateFor(selectedNodeId: String?): PensumCanvasFocusState {
+	if (selectedNodeId == null || nodes.none { node -> node.id == selectedNodeId }) {
+		return emptyPensumCanvasFocusState()
+	}
+
 	val selectedRequirementEdgeIds = requirementEdgeIdsTo(selectedNodeId)
 	val selectedRequirementNodeIds = requirementNodeIdsIn(
 		selectedNodeId = selectedNodeId,
@@ -40,6 +44,18 @@ internal fun PensumScreenModel.focusStateFor(selectedNodeId: String?): PensumCan
 		selectedUnlockNodeIds = selectedUnlockNodeIds,
 		selectedAvailableUnlockNodeIds = selectedAvailableUnlockNodeIds,
 		selectedFocusNodeIds = selectedRequirementNodeIds + selectedUnlockNodeIds
+	)
+}
+
+private fun emptyPensumCanvasFocusState(): PensumCanvasFocusState {
+	return PensumCanvasFocusState(
+		selectedRequirementEdgeIds = emptySet(),
+		selectedRequirementNodeIds = emptySet(),
+		selectedUnlockEdgeIds = emptySet(),
+		selectedAvailableUnlockEdgeIds = emptySet(),
+		selectedUnlockNodeIds = emptySet(),
+		selectedAvailableUnlockNodeIds = emptySet(),
+		selectedFocusNodeIds = emptySet()
 	)
 }
 

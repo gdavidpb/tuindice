@@ -22,12 +22,9 @@ fun SignInRoute(
 		minActiveState = Lifecycle.State.CREATED
 	)
 
-	val onSignInClick: (String, String) -> Unit = { usbId, password ->
+	val onSignInClick: () -> Unit = {
 		dismissSnackBar()
-		viewModel.signInAction(
-			usbId = usbId,
-			password = password
-		)
+		viewModel.signInAction()
 	}
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
@@ -54,7 +51,9 @@ fun SignInRoute(
 						message = effect.message,
 						actionLabel = effect.actionLabel,
 						onAction = {
-							onSignInClick(effect.params.usbId, effect.params.password)
+							// The failed transition restored the credentials into Idle,
+							// so retrying is just clicking sign-in again.
+							onSignInClick()
 						}
 					)
 				)

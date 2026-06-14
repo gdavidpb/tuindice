@@ -12,11 +12,12 @@ object CourseCodeColorGenerator {
 
 	private val twoLettersPattern = Regex("^([A-Z]{2})(\\d{4})$")
 	private val threeLettersPattern = Regex("^([A-Z]{3})(\\d{3})$")
+	private val fallbackColor = Color(0xFF8A8F94)
 
 	fun fromCode(code: String): CourseColors {
 		return fromCodeOrNull(code) ?: CourseColors(
-			color = Color.Black,
-			containerColor = Color.Black.brightness(amount = 0.50f)
+			color = fallbackColor.brightness(amount = -0.25f),
+			containerColor = fallbackColor.brightness(amount = 0.50f)
 		)
 	}
 

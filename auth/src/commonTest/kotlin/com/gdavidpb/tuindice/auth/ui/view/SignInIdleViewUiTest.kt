@@ -23,7 +23,7 @@ class SignInIdleViewUiTest {
 				onUsbIdChange = {},
 				onPasswordChange = {},
 				onPasswordVisibilityToggle = {},
-				onSignInClick = { _, _ -> },
+				onSignInClick = {},
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {},
 				termsAndConditionsText = "Terminos",
@@ -41,8 +41,7 @@ class SignInIdleViewUiTest {
 
 	@Test
 	fun when_stateIsValidAndButtonTapped_then_invokesSignInCallback() = runTuIndiceUiTest {
-		var receivedUsbId = ""
-		var receivedPassword = ""
+		var signInClicks = 0
 
 		setTuIndiceTestContent {
 			SignInIdleView(
@@ -50,10 +49,7 @@ class SignInIdleViewUiTest {
 				onUsbIdChange = {},
 				onPasswordChange = {},
 				onPasswordVisibilityToggle = {},
-				onSignInClick = { usbId, password ->
-					receivedUsbId = usbId
-					receivedPassword = password
-				},
+				onSignInClick = { signInClicks++ },
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {},
 				termsAndConditionsText = "Terminos",
@@ -68,7 +64,6 @@ class SignInIdleViewUiTest {
 		assertNodeEnabled(AuthUiTags.SignInButton)
 		onNodeWithTag(AuthUiTags.SignInButton).performClick()
 
-		assertEquals("12-34567", receivedUsbId)
-		assertEquals("1234", receivedPassword)
+		assertEquals(1, signInClicks)
 	}
 }

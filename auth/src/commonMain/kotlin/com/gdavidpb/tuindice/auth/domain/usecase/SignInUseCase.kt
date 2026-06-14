@@ -33,7 +33,7 @@ class SignInUseCase(
 	override val reportingRepository: ReportingRepository,
 	override val paramsValidator: SignInParamsValidator,
 	override val exceptionHandler: SignInExceptionHandler
-) : FlowUseCase<SignInParams, Unit, SignInUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<SignInParams, Unit, SignInUseCaseError>() {
 	override suspend fun executeOnBackground(params: SignInParams): Flow<Unit> {
 		val bootstrapTokens = runCatching {
 			authRepository.bootstrapSignIn(

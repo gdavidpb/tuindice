@@ -75,7 +75,7 @@ class FlowUseCaseTest {
 	private class TestFallbackUseCase(
 		override val reportingRepository: ReportingRepository,
 		private val throwable: Throwable
-	) : FlowUseCase<Unit, Unit, Nothing>(reportingRepository = reportingRepository) {
+	) : FlowUseCase<Unit, Unit, Nothing>() {
 		override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
 			throw throwable
 		}
@@ -85,13 +85,13 @@ class FlowUseCaseTest {
 		override val reportingRepository: ReportingRepository,
 		override val exceptionHandler: TestExceptionHandler,
 		private val throwable: Throwable
-	) : FlowUseCase<Unit, Unit, TestUseCaseError>(reportingRepository = reportingRepository) {
+	) : FlowUseCase<Unit, Unit, TestUseCaseError>() {
 		override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
 			throw throwable
 		}
 	}
 
-	private class TestExceptionHandler : ExceptionHandler<TestUseCaseError>() {
+	private class TestExceptionHandler : ExceptionHandler<TestUseCaseError> {
 		override fun parseException(throwable: Throwable): TestUseCaseError {
 			return TestUseCaseError.Handled
 		}

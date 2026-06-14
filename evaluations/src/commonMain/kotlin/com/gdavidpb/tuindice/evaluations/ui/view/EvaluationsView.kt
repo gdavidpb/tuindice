@@ -46,17 +46,25 @@ fun EvaluationsView(
 		weekGroups.weekHeaderIndexes()
 	}
 	val isProgrammaticWeekScroll = remember { mutableStateOf(false) }
+	val hasPositionedSelectedWeek = remember { mutableStateOf(false) }
 
 	LaunchedEffect(selectedWeekKey, weekHeaderIndexes) {
 		val targetIndex = weekHeaderIndexes[selectedWeekKey] ?: return@LaunchedEffect
 
-		if (!lazyListState.isScrollInProgress) {
+		if (!lazyListState.isScrollInProgress && lazyListState.firstVisibleItemIndex != targetIndex) {
 			isProgrammaticWeekScroll.value = true
 			try {
-				lazyListState.animateScrollToItem(targetIndex)
+				if (hasPositionedSelectedWeek.value) {
+					lazyListState.animateScrollToItem(targetIndex)
+				} else {
+					lazyListState.scrollToItem(targetIndex)
+					hasPositionedSelectedWeek.value = true
+				}
 			} finally {
 				isProgrammaticWeekScroll.value = false
 			}
+		} else {
+			hasPositionedSelectedWeek.value = true
 		}
 	}
 

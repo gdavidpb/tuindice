@@ -92,8 +92,7 @@ fun NavGraphBuilder.recordNavigation(
 				termId = args.termId,
 				viewModel = viewModel,
 				onBack = { navController.navigateUp() },
-				onSubjectStatsClick = onNavigateToSubjectDetail,
-				showSnackBar = showSnackBar
+				onSubjectStatsClick = onNavigateToSubjectDetail
 			)
 		}
 

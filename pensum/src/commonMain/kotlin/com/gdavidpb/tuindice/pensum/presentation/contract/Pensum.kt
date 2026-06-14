@@ -16,15 +16,19 @@ object Pensum {
 		override val topBarConfig: TopBarConfig = TopBarConfig.Pensum,
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = true
-	) : ViewState() {
+	) : ViewState {
 		data object Idle : State()
 
 		data object Loading : State()
 
 		data object Empty : State()
 
+		data object RecordDataUnavailable : State()
+
 		data class Content(
-			val model: PensumScreenModel
+			val model: PensumScreenModel,
+			val isRefreshing: Boolean = false,
+			val localDataMessage: UiText? = null
 		) : State()
 
 		data class Failed(
@@ -32,7 +36,7 @@ object Pensum {
 		) : State()
 	}
 
-	sealed class Action : ViewAction() {
+	sealed class Action : ViewAction {
 		data object ObservePensum : Action()
 		data object RefreshPensum : Action()
 		class SelectPensum(
@@ -47,7 +51,5 @@ object Pensum {
 		) : Action()
 	}
 
-	sealed class Effect : ViewEffect() {
-		class ShowSnackBar(val message: UiText) : Effect()
-	}
+	sealed class Effect : ViewEffect
 }

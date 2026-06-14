@@ -13,7 +13,7 @@ class RemoveEvaluationUseCase(
 	private val evaluationRepository: EvaluationRepository,
 	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: RemoveEvaluationExceptionHandler
-) : FlowUseCase<String, Unit, RemoveEvaluationUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<String, Unit, RemoveEvaluationUseCaseError>() {
 	override suspend fun executeOnBackground(params: String): Flow<Unit> {
 		val remove = EvaluationRemove(id = params)
 

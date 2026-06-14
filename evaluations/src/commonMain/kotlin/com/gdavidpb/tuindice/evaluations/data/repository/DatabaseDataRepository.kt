@@ -9,6 +9,7 @@ import kotlinx.coroutines.flow.Flow
 interface DatabaseDataRepository {
 	fun observeEvaluationsFlow(): Flow<List<LocalEvaluation>>
 	fun observeHasSyncedEvaluationsFlow(): Flow<Boolean>
+	fun observeEvaluationsSnapshotFlow(): Flow<LocalEvaluationsSnapshot>
 	suspend fun getEvaluation(eid: String): LocalEvaluation?
 	suspend fun getConfirmedSnapshot(): LocalEvaluationsSnapshot
 	suspend fun getAvailableAttempts(): List<LocalEditableAttemptDescriptor>

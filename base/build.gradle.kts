@@ -42,6 +42,7 @@ kotlin {
 				api(libs.ksafe)
 
 				api(libs.components.resources)
+				implementation(libs.material.icons.extended)
 				implementation(libs.kotlinx.datetime)
 				implementation(libs.kotlinx.serialization.json)
 				implementation(libs.koin.core)

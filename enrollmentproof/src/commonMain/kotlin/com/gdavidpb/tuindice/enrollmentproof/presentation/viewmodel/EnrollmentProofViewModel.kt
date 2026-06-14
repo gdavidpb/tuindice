@@ -1,27 +1,19 @@
 package com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
-import com.gdavidpb.tuindice.base.presentation.Mutation
-import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
-import com.gdavidpb.tuindice.enrollmentproof.presentation.action.FetchEnrollmentProofActionProcessor
+import com.gdavidpb.tuindice.base.presentation.statemachine.StateMachineViewModel
 import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
-import kotlinx.coroutines.flow.Flow
+import com.gdavidpb.tuindice.enrollmentproof.presentation.machine.EnrollmentProofMachine
 
 class EnrollmentProofViewModel(
-	private val enrollmentProofActionProcessor: FetchEnrollmentProofActionProcessor,
-	override val eventPublisher: EventPublisher
-) : BaseViewModel<Enrollment.State, Enrollment.Action, Enrollment.Effect>(
+	override val screenMachine: EnrollmentProofMachine,
+	override val eventPublisher: EventPublisher,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
+) : StateMachineViewModel<Enrollment.State, Enrollment.Action, Enrollment.Effect>(
 	name = "enrollment_proof",
-	initialState = Enrollment.State.Fetching,
-	initialAction = Enrollment.Action.FetchEnrollmentProof
-) {
-	override suspend fun processAction(
-		action: Enrollment.Action,
-		sideEffect: (Enrollment.Effect) -> Unit
-	): Flow<Mutation<Enrollment.State>> {
-		return when (action) {
-			is Enrollment.Action.FetchEnrollmentProof ->
-				enrollmentProofActionProcessor.process(action, sideEffect)
-		}
-	}
-}
+	initialState = screenMachine.initialState(),
+	initialAction = Enrollment.Action.FetchEnrollmentProof,
+	dispatchers = dispatchers
+)

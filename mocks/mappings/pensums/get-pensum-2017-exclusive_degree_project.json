@@ -16,7 +16,8 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "bodyFileName": "pensums/get-pensum-2017-exclusive_degree_project.json"
+    "bodyFileName": "pensums/get-pensum-2017-exclusive_degree_project.json",
+    "fixedDelayMilliseconds": 1800
   },
   "priority": 1
 }

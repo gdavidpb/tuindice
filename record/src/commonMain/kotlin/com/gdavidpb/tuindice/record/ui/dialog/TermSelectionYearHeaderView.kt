@@ -14,7 +14,7 @@ fun TermSelectionYearHeaderView(year: Int) {
 		modifier = Modifier.testTag(RecordUiTags.termSelectionYear(year)),
 		text = year.toString(),
 		style = MaterialTheme.typography.titleSmall,
-		fontWeight = FontWeight.Black,
+		fontWeight = FontWeight.Bold,
 		color = MaterialTheme.colorScheme.onSurfaceVariant
 	)
 }

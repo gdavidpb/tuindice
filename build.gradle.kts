@@ -1,9 +1,12 @@
+import io.gitlab.arturbosch.detekt.extensions.DetektExtension
 import org.gradle.api.tasks.testing.Test
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
 
 plugins {
 	alias(libs.plugins.compose.compiler) apply false
+	alias(libs.plugins.kover)
+	alias(libs.plugins.detekt)
 }
 
 buildscript {
@@ -30,6 +33,54 @@ allprojects {
 	}
 }
 
+// Coverage is measurement-only for now: merged report, no verification thresholds.
+// testkit is deliberately out of the aggregation — test infrastructure would inflate it.
+dependencies {
+	kover(project(":about"))
+	kover(project(":academiccore"))
+	kover(project(":app"))
+	kover(project(":auth"))
+	kover(project(":base"))
+	kover(project(":enrollmentproof"))
+	kover(project(":evaluations"))
+	kover(project(":maincore"))
+	kover(project(":pensum"))
+	kover(project(":persistence"))
+	kover(project(":record"))
+	kover(project(":subjects"))
+	kover(project(":summary"))
+	kover(project(":wizard"))
+}
+
+kover {
+	reports {
+		filters {
+			excludes {
+				classes("*.BuildConfig")
+				classes("*.generated.resources.*")
+			}
+		}
+	}
+}
+
+val detektFormatting = libs.detekt.formatting
+
+subprojects {
+	apply(plugin = "org.jetbrains.kotlinx.kover")
+	apply(plugin = "io.gitlab.arturbosch.detekt")
+
+	dependencies {
+		"detektPlugins"(detektFormatting)
+	}
+
+	extensions.configure<DetektExtension> {
+		buildUponDefaultConfig = true
+		parallel = true
+		baseline = file("detekt-baseline.xml")
+		source.setFrom(files("src"))
+	}
+}
+
 private val iosDeviceDeploymentTarget = "16.0"
 private val iosSimulatorDeploymentTarget = "18.5"
 private val iosDeviceKotlinNativeTargetNames = setOf("iosArm64")
@@ -48,22 +99,17 @@ private fun hasIosXcodeResourceEnvironment(): Boolean =
 
 private val androidHostTestExcludedPatterns = listOf(
 	"**/*UiTest.class",
-	"**/AboutActionProcessorContractTest.class",
 	"**/AboutViewModelContractTest.class",
-	"**/AuthActionProcessorContractTest.class",
 	"**/SignInViewModelContractTest.class",
 	"**/UpdatePasswordViewModelContractTest.class",
-	"**/EvaluationActionProcessorContractTest.class",
-	"**/EvaluationsActionProcessorContractTest.class",
 	"**/EvaluationViewModelContractTest.class",
 	"**/EvaluationsViewModelContractTest.class",
 	"**/FileKitStorageDataSourceContractTest.class",
 	"**/SyncSettingsDataSourceTest.class",
-	"**/DeleteSyntheticTermActionProcessorTest.class",
+	"**/RecordViewModelSnackContractTest.class",
 	"**/DebugSubjectsApiDataSourceTest.class",
-	"**/SubjectDetailActionProcessorContractTest.class",
+	"**/SubjectDetailViewModelContractTest.class",
 	"**/FileKitSkiaPictureEncoderDataSourceTest.class",
-	"**/SummaryActionProcessorContractTest.class",
 	"**/SummaryUseCaseContractTest.class",
 	"**/UserRepositoryContractTest.class",
 	"**/SummaryViewModelContractTest.class",
@@ -159,6 +205,28 @@ tasks.register("verifySharedTests") {
 	)
 }
 
+tasks.register("verifySharedHostTests") {
+	group = "verification"
+	description = "Runs shared tests on the Android host JVM, the only platform where machine alphabet/Λ coverage validators enforce."
+
+	dependsOn(
+		":about:testAndroidHostTest",
+		":academiccore:testAndroidHostTest",
+		":base:testAndroidHostTest",
+		":testkit:testAndroidHostTest",
+		":enrollmentproof:testAndroidHostTest",
+		":evaluations:testAndroidHostTest",
+		":auth:testAndroidHostTest",
+		":persistence:testAndroidHostTest",
+		":record:testAndroidHostTest",
+		":summary:testAndroidHostTest",
+		":subjects:testAndroidHostTest",
+		":pensum:testAndroidHostTest",
+		":wizard:testAndroidHostTest",
+		":maincore:testAndroidHostTest"
+	)
+}
+
 private val commonUiModules = listOf(
 	"about",
 	"base",
@@ -217,6 +285,12 @@ tasks.register("verifyCommonUiGate") {
 	)
 }
 
+tasks.register<Exec>("verifyModuleGraph") {
+	group = "verification"
+	description = "Validates module project dependencies against the agreed architecture graph."
+	commandLine("bash", "${rootDir}/scripts/validate-module-graph.sh")
+}
+
 tasks.register<Exec>("verifyE2eContract") {
 	group = "verification"
 	description = "Validates the local E2E flow catalog and critical selector coverage."
@@ -231,7 +305,7 @@ tasks.register<Exec>("syncAppVersion") {
 
 tasks.register<Exec>("verifyAppVersionSync") {
 	group = "verification"
-	description = "Synchronizes and validates Android and iOS app versions against the shared app version properties."
+	description = "Validates Android and iOS app versions against the shared app version properties without mutating the tree."
 	commandLine("bash", "${rootDir}/.github/scripts/validate-app-version.sh")
 }
 

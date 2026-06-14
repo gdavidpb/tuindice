@@ -13,9 +13,7 @@ class RefreshSyntheticTermSubjectSearchUseCase(
 	private val repository: SyntheticTermCreationRepository,
 	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: RecordExceptionHandler
-) : FlowUseCase<RefreshSyntheticTermSubjectSearchParams, Unit, RecordUseCaseError>(
-	reportingRepository = reportingRepository
-) {
+) : FlowUseCase<RefreshSyntheticTermSubjectSearchParams, Unit, RecordUseCaseError>() {
 	override suspend fun executeOnBackground(params: RefreshSyntheticTermSubjectSearchParams): Flow<Unit> {
 		repository.refreshSearch(params.query)
 		return flowOf(Unit)

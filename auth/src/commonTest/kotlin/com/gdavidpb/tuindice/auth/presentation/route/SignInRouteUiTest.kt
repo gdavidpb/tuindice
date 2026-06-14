@@ -6,19 +6,15 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
+import com.gdavidpb.tuindice.auth.presentation.machine.SignInMachine
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
-import com.gdavidpb.tuindice.auth.presentation.action.OpenPrivacyPolicyActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.OpenTermsAndConditionsActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.SetPasswordActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.SetUsbIdActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.SignInActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.TogglePasswordVisibilityActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
@@ -95,10 +91,9 @@ class SignInRouteUiTest {
 		}
 
 		runOnIdle {
-			fixture.viewModel.signInAction(
-				usbId = "12-34567",
-				password = "1234"
-			)
+			fixture.viewModel.setUsbIdAction("12-34567")
+			fixture.viewModel.setPasswordAction("1234")
+			fixture.viewModel.signInAction()
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
@@ -220,10 +215,9 @@ class SignInRouteUiTest {
 		}
 
 		runOnIdle {
-			fixture.viewModel.signInAction(
-				usbId = "12-34567",
-				password = "clave-invalida"
-			)
+			fixture.viewModel.setUsbIdAction("12-34567")
+			fixture.viewModel.setPasswordAction("clave-invalida")
+			fixture.viewModel.signInAction()
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
@@ -255,10 +249,9 @@ class SignInRouteUiTest {
 		}
 
 		runOnIdle {
-			fixture.viewModel.signInAction(
-				usbId = "12-34567",
-				password = "1234"
-			)
+			fixture.viewModel.setUsbIdAction("12-34567")
+			fixture.viewModel.setPasswordAction("1234")
+			fixture.viewModel.signInAction()
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
@@ -304,14 +297,9 @@ class SignInRouteUiTest {
 
 		return SignInRouteFixture(
 			viewModel = SignInViewModel(
-				signInActionProcessor = SignInActionProcessor(
+				screenMachine = SignInMachine(
 					signInUseCase = signInUseCase,
-					configRepository = FakeConfigRepository()
-				),
-				setUsbIdActionProcessor = SetUsbIdActionProcessor(),
-				setPasswordActionProcessor = SetPasswordActionProcessor(),
-				togglePasswordVisibilityActionProcessor = TogglePasswordVisibilityActionProcessor(),
-				openTermsAndConditionsActionProcessor = OpenTermsAndConditionsActionProcessor(
+					configRepository = FakeConfigRepository(),
 					appEnvironmentRepository = FakeAppEnvironmentRepository(
 						appEnvironment = AppEnvironment(
 							apiBaseUrl = "https://api.tuindice.test/",
@@ -320,18 +308,8 @@ class SignInRouteUiTest {
 							supportUrl = "https://tuindice.test/support",
 							debug = true
 						)
-					)
-				),
-				privacyPolicyActionProcessor = OpenPrivacyPolicyActionProcessor(
-					appEnvironmentRepository = FakeAppEnvironmentRepository(
-						appEnvironment = AppEnvironment(
-							apiBaseUrl = "https://api.tuindice.test/",
-							privacyPolicyUrl = privacyPolicyUrl,
-							termsAndConditionsUrl = termsAndConditionsUrl,
-							supportUrl = "https://tuindice.test/support",
-							debug = true
-						)
-					)
+					),
+					usageDataConsentRepository = InMemoryUsageDataConsentRepository()
 				),
 				eventPublisher = NoOpEventPublisher
 			),

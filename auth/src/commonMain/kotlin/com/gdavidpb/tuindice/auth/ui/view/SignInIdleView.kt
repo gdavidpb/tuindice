@@ -5,6 +5,7 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -41,7 +42,7 @@ fun SignInIdleView(
 	onPasswordChange: (password: String) -> Unit,
 	onPasswordVisibilityToggle: () -> Unit,
 	onUsageDataCollectionEnabledChange: (enabled: Boolean) -> Unit = {},
-	onSignInClick: (usbId: String, password: String) -> Unit,
+	onSignInClick: () -> Unit,
 	onTermsAndConditionsClick: () -> Unit,
 	onPrivacyPolicyClick: () -> Unit,
 	termsAndConditionsText: String,
@@ -68,7 +69,8 @@ fun SignInIdleView(
 	Column(
 		modifier = Modifier
 			.testTag(AuthUiTags.SignInIdleContainer)
-			.fillMaxSize(),
+			.fillMaxSize()
+			.imePadding(),
 		horizontalAlignment = Alignment.CenterHorizontally,
 		verticalArrangement = Arrangement.Center
 	) {
@@ -112,7 +114,7 @@ fun SignInIdleView(
 			onPasswordVisibilityToggle = onPasswordVisibilityToggle,
 			imeAction = ImeAction.Done,
 			keyboardActions = KeyboardActions(onDone = {
-				if (isSignInEnabled) onSignInClick(state.usbId, state.password)
+				if (isSignInEnabled) onSignInClick()
 			})
 		)
 
@@ -153,7 +155,7 @@ fun SignInIdleView(
 					horizontal = 32.dp
 				),
 			enabled = isSignInEnabled,
-			onClick = { onSignInClick(state.usbId, state.password) }
+			onClick = { onSignInClick() }
 		) {
 			Text(text = signInButtonText)
 		}

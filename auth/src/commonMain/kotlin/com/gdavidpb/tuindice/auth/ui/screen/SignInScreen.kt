@@ -32,7 +32,7 @@ fun SignInScreen(
 	onPasswordChange: (password: String) -> Unit,
 	onPasswordVisibilityToggle: () -> Unit,
 	onUsageDataCollectionEnabledChange: (enabled: Boolean) -> Unit = {},
-	onSignInClick: (usbId: String, password: String) -> Unit,
+	onSignInClick: () -> Unit,
 	onTermsAndConditionsClick: () -> Unit,
 	onPrivacyPolicyClick: () -> Unit
 ) {

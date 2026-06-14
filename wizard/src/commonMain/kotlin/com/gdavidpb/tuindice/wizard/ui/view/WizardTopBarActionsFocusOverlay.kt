@@ -20,6 +20,7 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.wizard.ui.WizardUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.wizard.generated.resources.Res
@@ -29,7 +30,7 @@ import tuindice.wizard.generated.resources.wizard_focus_record_actions
 fun WizardTopBarActionsFocusOverlay(
 	modifier: Modifier = Modifier
 ) {
-	val shape = RoundedCornerShape(18.dp)
+	val shape = RoundedCornerShape(TuIndiceRadius.XLarge)
 	val highlightColor = MaterialTheme.colorScheme.primary
 
 	Box(

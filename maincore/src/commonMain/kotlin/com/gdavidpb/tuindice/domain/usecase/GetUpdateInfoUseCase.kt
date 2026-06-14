@@ -13,7 +13,7 @@ class GetUpdateInfoUseCase(
 	private val configRepository: ConfigRepository,
 	private val updateGateway: UpdateRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, UpdateAction, Nothing>(reportingRepository = reportingRepository) {
+) : FlowUseCase<Unit, UpdateAction, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<UpdateAction> {
 		val stalenessDays = configRepository.getTimeUpdateStalenessDays()
 		val updateAction = updateGateway.checkForUpdate(stalenessDays = stalenessDays)

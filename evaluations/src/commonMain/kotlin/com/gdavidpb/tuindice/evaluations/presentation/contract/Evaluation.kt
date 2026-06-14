@@ -15,7 +15,7 @@ import tuindice.evaluations.generated.resources.top_bar_add_evaluation
 import tuindice.evaluations.generated.resources.top_bar_edit_evaluation
 
 object Evaluation {
-	sealed class State : ViewState() {
+	sealed class State : ViewState {
 		data object Loading : State()
 
 		data class Content(
@@ -51,7 +51,7 @@ object Evaluation {
 		data object Failed : State()
 	}
 
-	sealed class Action : ViewAction() {
+	sealed class Action : ViewAction {
 		data object LoadAvailableAttempts : Action()
 
 		class LoadEvaluation(
@@ -91,27 +91,10 @@ object Evaluation {
 			val maxGrade: Double?
 		) : Action()
 
-		class ClickAddEvaluation(
-			val attempt: EditableAttemptDescriptor?,
-			val type: EvaluationType?,
-			val scheduleMode: EvaluationScheduleMode,
-			val date: Long?,
-			val grade: Double?,
-			val maxGrade: Double?
-		) : Action()
-
-		class ClickEditEvaluation(
-			val evaluationId: String,
-			val attempt: EditableAttemptDescriptor?,
-			val type: EvaluationType?,
-			val scheduleMode: EvaluationScheduleMode,
-			val date: Long?,
-			val grade: Double?,
-			val maxGrade: Double?
-		) : Action()
+		data object ClickSubmitEvaluation : Action()
 	}
 
-	sealed class Effect : ViewEffect() {
+	sealed class Effect : ViewEffect {
 		data object NavigateToEvaluations : Effect()
 
 		class NavigateToGradePickerDialog(

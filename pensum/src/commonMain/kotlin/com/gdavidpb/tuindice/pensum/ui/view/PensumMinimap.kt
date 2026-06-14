@@ -7,12 +7,10 @@ import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.input.pointer.pointerInput
@@ -20,10 +18,12 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import kotlin.math.min
 
 @Composable
 fun PensumMinimap(
 	model: PensumScreenModel,
+	edgeRoutes: Map<String, List<Offset>>,
 	scale: Float,
 	offset: Offset,
 	viewportSizePx: Size,
@@ -32,10 +32,14 @@ fun PensumMinimap(
 	selectedAvailableUnlockEdgeIds: Set<String>,
 	focusedNodeIds: Set<String>,
 	isFocusActive: Boolean,
+	statusFilteredNodeIds: Set<String>,
+	isStatusFilterActive: Boolean,
 	densityScale: Float,
 	onViewportCenterChange: (Offset) -> Unit,
 	modifier: Modifier = Modifier
 ) {
+	val graphColors = pensumGraphColors()
+
 	fun Offset.toCanvasCenter(minimapSize: androidx.compose.ui.unit.IntSize): Offset {
 		if (minimapSize.width <= 0 || minimapSize.height <= 0) return Offset.Zero
 		val sx = minimapSize.width.toFloat() / model.canvas.width.toFloat()
@@ -49,8 +53,8 @@ fun PensumMinimap(
 	Canvas(
 		modifier = modifier
 			.size(MinimapWidth, MinimapHeight)
-			.background(Color.Black.copy(alpha = 0.62f), RoundedCornerShape(8.dp))
-			.border(1.dp, CanvasNeutral, RoundedCornerShape(8.dp))
+			.background(graphColors.minimapBackground, PensumElementShape)
+			.border(1.dp, graphColors.canvasNeutral, PensumElementShape)
 			.padding(8.dp)
 			.pointerInput(model.canvas, scale) {
 				detectTapGestures(
@@ -74,13 +78,21 @@ fun PensumMinimap(
 	) {
 		val sx = size.width / model.canvas.width.toFloat()
 		val sy = size.height / model.canvas.height.toFloat()
+		val nodeCornerRadius = PensumElementCornerRadius.value * min(sx, sy)
+
 		model.edges.forEach { edge ->
+			val points = edgeRoutes[edge.id] ?: emptyList()
+			if (points.size < 2) return@forEach
+
 			val isFocusedEdge = edge.id in selectedRequirementEdgeIds || edge.id in selectedUnlockEdgeIds
+			val isFilteredOut = isStatusFilterActive &&
+				edge.fromNodeId !in statusFilteredNodeIds &&
+				edge.toNodeId !in statusFilteredNodeIds
 			val color = when {
-				edge.id in selectedAvailableUnlockEdgeIds -> Available.copy(alpha = MinimapFocusedAlpha)
-				isFocusedEdge -> Selected.copy(alpha = MinimapFocusedAlpha)
-				else -> CanvasNeutral.copy(
-					alpha = if (isFocusActive) MinimapDimmedAlpha else MinimapNeutralAlpha
+				edge.id in selectedAvailableUnlockEdgeIds -> graphColors.available.copy(alpha = MinimapFocusedAlpha)
+				isFocusedEdge -> graphColors.selected.copy(alpha = MinimapFocusedAlpha)
+				else -> graphColors.canvasNeutral.copy(
+					alpha = if (isFocusActive || isFilteredOut) MinimapDimmedAlpha else MinimapNeutralAlpha
 				)
 			}
 			val strokeWidth = if (isFocusedEdge) 4f else 2f
@@ -94,11 +106,7 @@ fun PensumMinimap(
 			} else {
 				null
 			}
-			model.edgeRoute(
-				edge = edge,
-				endpointGap = EdgeEndpointGap.value,
-				rerouteSpacing = EdgeRerouteSpacing.value
-			).zipWithNext().forEach { (start, end) ->
+			points.zipWithNext().forEach { (start, end) ->
 				drawLine(
 					color = color,
 					start = Offset(start.x * sx, start.y * sy),
@@ -109,16 +117,18 @@ fun PensumMinimap(
 			}
 		}
 		model.nodes.forEach { node ->
-			val nodeAlpha = if (isFocusActive && node.id !in focusedNodeIds) {
+			val isDimmedByFocus = isFocusActive && node.id !in focusedNodeIds
+			val isDimmedByFilter = isStatusFilterActive && node.id !in statusFilteredNodeIds
+			val nodeAlpha = if (isDimmedByFocus || isDimmedByFilter) {
 				MinimapDimmedAlpha
 			} else {
 				MinimapFocusedAlpha
 			}
 			drawRoundRect(
-				color = node.visualStyle.toNodeColors().border.copy(alpha = nodeAlpha),
+				color = node.toNodeColors(graphColors).border.copy(alpha = nodeAlpha),
 				topLeft = Offset(node.x.toFloat() * sx, node.y.toFloat() * sy),
 				size = Size((node.width.toFloat() * sx).coerceAtLeast(5f), (node.height.toFloat() * sy).coerceAtLeast(4f)),
-				cornerRadius = androidx.compose.ui.geometry.CornerRadius(2f, 2f)
+				cornerRadius = androidx.compose.ui.geometry.CornerRadius(nodeCornerRadius, nodeCornerRadius)
 			)
 		}
 
@@ -130,7 +140,7 @@ fun PensumMinimap(
 			.coerceIn(0f, (model.canvas.height.toFloat() - visibleCanvasHeight).coerceAtLeast(0f))
 
 		drawRect(
-			color = Current,
+			color = graphColors.current,
 			topLeft = Offset(
 				x = visibleCanvasX * sx,
 				y = visibleCanvasY * sy

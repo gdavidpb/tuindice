@@ -24,4 +24,6 @@ object SubjectsUiTags {
 	fun searchExample(index: Int): String = "subjects_search_example_$index"
 	fun searchResult(subjectCode: String): String = "subjects_search_result_$subjectCode"
 	fun searchResultStatsButton(subjectCode: String): String = "subjects_search_result_stats_$subjectCode"
+	fun searchResultStatus(subjectCode: String, status: String): String =
+		"subjects_search_result_${subjectCode}_status_$status"
 }

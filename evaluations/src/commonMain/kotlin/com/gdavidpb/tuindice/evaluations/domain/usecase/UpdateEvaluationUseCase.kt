@@ -14,7 +14,7 @@ class UpdateEvaluationUseCase(
 	private val evaluationRepository: EvaluationRepository,
 	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: UpdateEvaluationExceptionHandler
-) : FlowUseCase<UpdateEvaluationParams, Unit, UpdateEvaluationUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<UpdateEvaluationParams, Unit, UpdateEvaluationUseCaseError>() {
 	override suspend fun executeOnBackground(params: UpdateEvaluationParams): Flow<Unit> {
 		val update = params.toEvaluationUpdate()
 

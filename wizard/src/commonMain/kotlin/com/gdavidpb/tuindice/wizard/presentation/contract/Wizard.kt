@@ -16,7 +16,7 @@ import com.gdavidpb.tuindice.wizard.presentation.model.defaultWizardSteps
 import com.gdavidpb.tuindice.wizard.presentation.model.indexOfStep
 
 object Wizard {
-	sealed class State : ViewState() {
+	sealed class State : ViewState {
 		data class Content(
 			val steps: List<WizardStep> = defaultWizardSteps(),
 			val currentIndex: Int = 0,
@@ -78,7 +78,7 @@ object Wizard {
 		}
 	}
 
-	sealed class Action : ViewAction() {
+	sealed class Action : ViewAction {
 		data object Advance : Action()
 		data object Back : Action()
 		data object Dismiss : Action()
@@ -93,7 +93,7 @@ object Wizard {
 		class SetSubjectChartsVisible(val isVisible: Boolean) : Action()
 	}
 
-	sealed class Effect : ViewEffect() {
+	sealed class Effect : ViewEffect {
 		data object FinishWizard : Effect()
 	}
 }

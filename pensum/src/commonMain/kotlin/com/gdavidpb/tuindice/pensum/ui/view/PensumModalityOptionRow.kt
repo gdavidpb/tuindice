@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.selectable
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
@@ -30,6 +29,10 @@ fun PensumModalityOptionRow(
 	isSelected: Boolean,
 	onClick: () -> Unit
 ) {
+	val graphColors = pensumGraphColors()
+	val selectedBackground = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
+	val selectedBorder = MaterialTheme.colorScheme.primary
+
 	Surface(
 		modifier = modifier
 			.fillMaxWidth()
@@ -37,18 +40,12 @@ fun PensumModalityOptionRow(
 				selected = isSelected,
 				role = Role.RadioButton,
 				onClick = onClick
-			),
-		shape = RoundedCornerShape(8.dp),
-		color = if (isSelected)
-			MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.28f)
-		else
-			MaterialTheme.colorScheme.surface,
+		),
+		shape = PensumElementShape,
+		color = if (isSelected) selectedBackground else graphColors.panelBackground,
 		border = BorderStroke(
 			width = 1.dp,
-			color = if (isSelected)
-				MaterialTheme.colorScheme.primary
-			else
-				MaterialTheme.colorScheme.outlineVariant
+			color = if (isSelected) selectedBorder else MaterialTheme.colorScheme.outlineVariant
 		)
 	) {
 		Row(
@@ -60,6 +57,7 @@ fun PensumModalityOptionRow(
 				modifier = Modifier.weight(1f),
 				text = modality.name,
 				style = MaterialTheme.typography.bodyMedium,
+				color = MaterialTheme.colorScheme.onSurface,
 				fontWeight = if (isSelected) FontWeight.SemiBold else FontWeight.Normal,
 				maxLines = 1,
 				overflow = TextOverflow.Ellipsis

@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -65,7 +66,7 @@ fun CreateTermPeriodRow(
 						.height(TermControlHeight)
 						.testTag(RecordUiTags.CreateSyntheticTermPeriodSelector),
 					onClick = { expanded.value = true },
-					shape = RoundedCornerShape(14.dp),
+					shape = RoundedCornerShape(TuIndiceRadius.Card),
 					contentPadding = PaddingValues(start = 12.dp, end = 12.dp)
 				) {
 					Row(

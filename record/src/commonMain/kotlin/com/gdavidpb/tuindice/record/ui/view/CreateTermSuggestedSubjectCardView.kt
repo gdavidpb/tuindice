@@ -21,6 +21,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.CreateTermSubjectCardAction
@@ -40,8 +41,8 @@ fun CreateTermSuggestedSubjectCard(
 			.width(144.dp)
 			.height(166.dp)
 			.testTag(RecordUiTags.createSyntheticTermSubject(subject.subjectCode)),
-		shape = RoundedCornerShape(14.dp),
-		color = MaterialTheme.colorScheme.surface.copy(alpha = 0.56f),
+		shape = RoundedCornerShape(TuIndiceRadius.Card),
+		color = MaterialTheme.colorScheme.surfaceContainerLow,
 		border = BorderStroke(
 			width = 1.dp,
 			color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.42f)
@@ -87,7 +88,7 @@ fun CreateTermSuggestedSubjectCard(
 			CreateTermSubjectStatusRow(
 				subject = subject,
 				availableText = stringResource(Res.string.create_term_subject_available),
-				availableIcon = CreateTermSubjectStatusIcon.Dot
+				availableIcon = CreateTermSubjectStatusIcon.Available
 			)
 		}
 	}

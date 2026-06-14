@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.summary.domain.usecase.error.ProfilePictureUseCaseE
 
 class UploadProfilePictureExceptionHandler(
 	private val networkRepository: NetworkRepository
-) : ExceptionHandler<ProfilePictureUseCaseError>() {
+) : ExceptionHandler<ProfilePictureUseCaseError> {
 	override fun parseException(throwable: Throwable): ProfilePictureUseCaseError? {
 		return when {
 			throwable is IllegalArgumentException -> ProfilePictureUseCaseError.InvalidImage

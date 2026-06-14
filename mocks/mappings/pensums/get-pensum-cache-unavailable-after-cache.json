@@ -1,0 +1,21 @@
+{
+  "priority": 1,
+  "scenarioName": "pensum-cache-refresh-failed",
+  "requiredScenarioState": "CachePrimed",
+  "request": {
+    "method": "GET",
+    "urlPath": "/pensums/v4",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer pensum.cache.mock.access"
+      }
+    }
+  },
+  "response": {
+    "status": 503,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

@@ -47,7 +47,33 @@ class RoomDatabaseDataSource(
 	private var pendingMutationsSnapshot: List<MutationEnvelope<String, EvaluationMutation>> = emptyList()
 
 	override fun observeEvaluationsFlow(): Flow<List<LocalEvaluation>> {
-		val confirmedFlow = combine(
+		return observeEvaluationsSnapshotFlow()
+			.map { snapshot -> snapshot.evaluations }
+	}
+
+	override fun observeEvaluationsSnapshotFlow(): Flow<LocalEvaluationsSnapshot> {
+		val pendingFlow = mutationEngine.observePendingMutations(EVALUATIONS_MUTATION_SCOPE)
+			.onEach { mutations ->
+				pendingMutationsSnapshot = mutations
+			}
+
+		return combine(observeConfirmedSnapshotFlow(), pendingFlow) { confirmedSnapshot, pendingMutations ->
+			confirmedSnapshot.copy(
+				evaluations = visibleEvaluationsStateResolver.resolveVisibleState(
+					confirmedSnapshot = confirmedSnapshot,
+					pendingMutations = pendingMutations
+				)
+			)
+		}
+	}
+
+	override fun observeHasSyncedEvaluationsFlow(): Flow<Boolean> {
+		return evaluationSyncStateDao.observeSyncState()
+			.map { syncState -> syncState?.hasSynced == true }
+	}
+
+	private fun observeConfirmedSnapshotFlow(): Flow<LocalEvaluationsSnapshot> {
+		return combine(
 			evaluationDao.observeEvaluationsFlow(),
 			evaluationSyncStateDao.observeSyncState()
 		) { evaluations, syncState ->
@@ -58,23 +84,6 @@ class RoomDatabaseDataSource(
 		}.onEach { snapshot ->
 			inMemoryConfirmedSnapshot = snapshot
 		}
-
-		val pendingFlow = mutationEngine.observePendingMutations(EVALUATIONS_MUTATION_SCOPE)
-			.onEach { mutations ->
-				pendingMutationsSnapshot = mutations
-			}
-
-		return combine(confirmedFlow, pendingFlow) { confirmedSnapshot, pendingMutations ->
-			visibleEvaluationsStateResolver.resolveVisibleState(
-				confirmedSnapshot = confirmedSnapshot,
-				pendingMutations = pendingMutations
-			)
-		}
-	}
-
-	override fun observeHasSyncedEvaluationsFlow(): Flow<Boolean> {
-		return evaluationSyncStateDao.observeSyncState()
-			.map { syncState -> syncState?.hasSynced == true }
 	}
 
 	override suspend fun getEvaluation(eid: String): LocalEvaluation? {

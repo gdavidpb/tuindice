@@ -3,9 +3,9 @@ package com.gdavidpb.tuindice.base.presentation
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 
-abstract class ViewState(
-	open val topBarTitle: UiText = UiText.Empty,
-	open val topBarConfig: TopBarConfig? = null,
-	open val isTopBarVisible: Boolean = false,
-	open val isBottomBarVisible: Boolean = false
-)
+interface ViewState {
+	val topBarTitle: UiText get() = UiText.Empty
+	val topBarConfig: TopBarConfig? get() = null
+	val isTopBarVisible: Boolean get() = false
+	val isBottomBarVisible: Boolean get() = false
+}

@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.auth.ui.view
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.outlined.Person
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
@@ -97,7 +97,7 @@ fun UsbIdTextField(
 		label = { Text(text = labelText) },
 		leadingIcon = {
 			Icon(
-				imageVector = Icons.Filled.Person,
+				imageVector = Icons.Outlined.Person,
 				contentDescription = null
 			)
 		},

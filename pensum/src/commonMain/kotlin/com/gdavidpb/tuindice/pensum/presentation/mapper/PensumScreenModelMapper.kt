@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumPointItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSelection
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumSubjectDetailItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumSubjectRelationItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTermItem
 import kotlin.math.roundToInt
 
@@ -104,6 +105,51 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 			)
 		}
 		.withMinimumVerticalSpacing()
+	val displayEdges = pensum.edges.map { edge ->
+		val targetStatus = nodeStatuses[edge.toNodeId] ?: PensumNodeStatus.BLOCKED
+
+		PensumEdgeItem(
+			id = edge.id,
+			fromNodeId = edge.fromNodeId,
+			toNodeId = edge.toNodeId,
+			relationshipType = edge.relationshipType.toScreenRelationshipType(),
+			isDisconnected = targetStatus == PensumNodeStatus.BLOCKED,
+			points = edge.points.map { point ->
+				PensumPointItem(
+					x = point.x,
+					y = (point.y - contentTopShift).coerceAtLeast(0.0)
+				)
+			}
+		)
+	}
+	val displayNodesById = displayNodes.associateBy(PensumNodeItem::id)
+	val displayNodesWithDetails = displayNodes.map { node ->
+		val requirements = displayEdges.incomingRelations(
+			nodeId = node.id,
+			relationshipType = PensumEdgeRelationshipType.REQUIREMENT,
+			nodesById = displayNodesById
+		)
+		val corequisites = displayEdges.incomingRelations(
+			nodeId = node.id,
+			relationshipType = PensumEdgeRelationshipType.COREQUISITE,
+			nodesById = displayNodesById
+		)
+		val unlocks = displayEdges.outgoingRelations(
+			nodeId = node.id,
+			nodesById = displayNodesById
+		)
+		node.copy(
+			detail = node.detail.copy(
+				requirements = requirements,
+				corequisites = corequisites,
+				unlocks = unlocks,
+				blockingReasons = node.blockingReasons(
+					requirements = requirements,
+					corequisites = corequisites
+				)
+			)
+		)
+	}
 	val displayCanvasWidth = maxOf(
 		pensum.canvas.width,
 		displayTerms.maxOfOrNull { term -> term.x + term.width }.orZero() +
@@ -144,29 +190,14 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 			((approvedCredits.toDouble() / pensum.totalCredits.toDouble()) * 100).roundToInt().coerceIn(0, 100),
 		approvedCredits = approvedCredits,
 		totalCredits = pensum.totalCredits,
+		isCurrentFocusVisible = displayNodesWithDetails.any(PensumNodeItem::isCurrent),
 		canvas = PensumCanvasItem(
 			width = displayCanvasWidth,
 			height = displayCanvasHeight
 		),
 		terms = displayTerms,
-		nodes = displayNodes,
-		edges = pensum.edges.map { edge ->
-			val targetStatus = nodeStatuses[edge.toNodeId] ?: PensumNodeStatus.BLOCKED
-
-			PensumEdgeItem(
-				id = edge.id,
-				fromNodeId = edge.fromNodeId,
-				toNodeId = edge.toNodeId,
-				relationshipType = edge.relationshipType.toScreenRelationshipType(),
-				isDisconnected = targetStatus == PensumNodeStatus.BLOCKED,
-				points = edge.points.map { point ->
-					PensumPointItem(
-						x = point.x,
-						y = (point.y - contentTopShift).coerceAtLeast(0.0)
-					)
-				}
-			)
-		}
+		nodes = displayNodesWithDetails,
+		edges = displayEdges
 	)
 }
 
@@ -221,6 +252,61 @@ private fun List<PensumNodeItem>.withMinimumVerticalSpacing(): List<PensumNodeIt
 
 	return map { node ->
 		node.copy(y = spacedNodeYById[node.id] ?: node.y)
+	}
+}
+
+private fun List<PensumEdgeItem>.incomingRelations(
+	nodeId: String,
+	relationshipType: PensumEdgeRelationshipType,
+	nodesById: Map<String, PensumNodeItem>
+): List<PensumSubjectRelationItem> {
+	return filter { edge -> edge.toNodeId == nodeId && edge.relationshipType == relationshipType }
+		.mapNotNull { edge -> nodesById[edge.fromNodeId]?.let { node -> edge to node } }
+		.sortedByNodePosition()
+		.map { (edge, node) -> node.toSubjectRelationItem(edge.relationshipType) }
+}
+
+private fun List<PensumEdgeItem>.outgoingRelations(
+	nodeId: String,
+	nodesById: Map<String, PensumNodeItem>
+): List<PensumSubjectRelationItem> {
+	return filter { edge -> edge.fromNodeId == nodeId }
+		.mapNotNull { edge -> nodesById[edge.toNodeId]?.let { node -> edge to node } }
+		.sortedByNodePosition()
+		.map { (edge, node) -> node.toSubjectRelationItem(edge.relationshipType) }
+}
+
+private fun List<Pair<PensumEdgeItem, PensumNodeItem>>.sortedByNodePosition(): List<Pair<PensumEdgeItem, PensumNodeItem>> {
+	return sortedWith(
+		compareBy<Pair<PensumEdgeItem, PensumNodeItem>> { (_, node) -> node.x }
+			.thenBy { (_, node) -> node.y }
+			.thenBy { (_, node) -> node.displayCode }
+	)
+}
+
+private fun PensumNodeItem.toSubjectRelationItem(
+	relationshipType: PensumEdgeRelationshipType
+): PensumSubjectRelationItem {
+	return PensumSubjectRelationItem(
+		nodeId = id,
+		code = displayCode,
+		name = displayName,
+		status = status,
+		visualStyle = visualStyle,
+		relationshipType = relationshipType
+	)
+}
+
+private fun PensumNodeItem.blockingReasons(
+	requirements: List<PensumSubjectRelationItem>,
+	corequisites: List<PensumSubjectRelationItem>
+): List<PensumSubjectRelationItem> {
+	if (!isBlocked) return emptyList()
+
+	return requirements.filter { requirement ->
+		requirement.status.type != PensumNodeStatusType.APPROVED
+	} + corequisites.filter { corequisite ->
+		corequisite.status.type !in setOf(PensumNodeStatusType.APPROVED, PensumNodeStatusType.CURRENT)
 	}
 }
 
@@ -288,7 +374,7 @@ private fun PensumNodeStatus.toStatusDisplay(visualStyle: PensumNodeVisualStyle)
 		)
 		PensumNodeStatus.CURRENT -> PensumNodeStatusDisplay(
 			type = PensumNodeStatusType.CURRENT,
-			icon = PensumNodeStatusIcon.PLAY,
+			icon = PensumNodeStatusIcon.CURRENT_ROUTE,
 			colorArgb = visualStyle.borderArgb
 		)
 		PensumNodeStatus.AVAILABLE -> PensumNodeStatusDisplay(

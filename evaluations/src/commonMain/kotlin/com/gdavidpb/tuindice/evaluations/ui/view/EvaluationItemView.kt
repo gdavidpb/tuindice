@@ -24,6 +24,9 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.model.SubjectCodeChipVariant
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
+import com.gdavidpb.tuindice.base.ui.view.SubjectCodeChip
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -54,7 +57,6 @@ fun EvaluationItemView(
 		Box(
 			modifier = Modifier
 				.fillMaxWidth()
-				.background(MaterialTheme.colorScheme.surfaceVariant)
 				.padding(EvaluationCardContentPadding)
 		) {
 			Column {
@@ -85,7 +87,6 @@ fun EvaluationItemView(
 							overflow = TextOverflow.Ellipsis,
 							color = MaterialTheme.colorScheme.onBackground,
 							style = MaterialTheme.typography.titleMedium,
-							fontWeight = FontWeight.SemiBold
 						)
 					}
 
@@ -94,7 +95,7 @@ fun EvaluationItemView(
 							.testTag(EvaluationsUiTags.EvaluationStatusChip)
 							.background(
 								color = statusColors.container,
-								shape = RoundedCornerShape(8.dp)
+								shape = RoundedCornerShape(TuIndiceRadius.Small)
 							)
 							.padding(horizontal = 10.dp, vertical = 5.dp)
 					) {
@@ -102,7 +103,6 @@ fun EvaluationItemView(
 							text = item.statusText,
 							color = statusColors.content,
 							style = MaterialTheme.typography.labelLarge,
-							fontWeight = FontWeight.SemiBold
 						)
 					}
 				}
@@ -115,6 +115,7 @@ fun EvaluationItemView(
 				) {
 					SubjectCodeChip(
 						subjectCode = item.subjectCodeText,
+						variant = SubjectCodeChipVariant.Dense,
 						containerColor = item.subjectCodeContainerColor,
 						contentColor = item.subjectCodeColor
 					)
@@ -151,7 +152,7 @@ fun EvaluationItemView(
 								.clickable(onClick = onGradeClick)
 								.border(
 									border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
-									shape = RoundedCornerShape(16.dp)
+									shape = RoundedCornerShape(TuIndiceRadius.Large)
 								)
 								.padding(
 									horizontal = EvaluationGradeHorizontalPadding,
@@ -190,18 +191,18 @@ private data class StatusColors(
 private fun statusColors(tone: EvaluationHighlightTone): StatusColors {
 	return when (tone) {
 		EvaluationHighlightTone.Success -> StatusColors(
-			container = Color(0xFF314D20),
-			content = Color(0xFFC7F28E)
+			container = MaterialTheme.colorScheme.surfaceContainerHighest,
+			content = MaterialTheme.colorScheme.onSurface
 		)
 
 		EvaluationHighlightTone.Error -> StatusColors(
-			container = Color(0xFF6E2D32),
-			content = Color(0xFFFFC5C9)
+			container = MaterialTheme.colorScheme.errorContainer,
+			content = MaterialTheme.colorScheme.onErrorContainer
 		)
 
 		EvaluationHighlightTone.Neutral -> StatusColors(
-			container = MaterialTheme.colorScheme.primaryContainer,
-			content = MaterialTheme.colorScheme.onPrimaryContainer
+			container = MaterialTheme.colorScheme.surfaceContainerHighest,
+			content = MaterialTheme.colorScheme.onSurface
 		)
 	}
 }

@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-pensum-record-unavailable-login",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "BootstrapIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic NDQtNDQ0NDQ6cGVuc3VtLXJlY29yZC11bmF2YWlsYWJsZS1wYXNz"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "pensum-record-unavailable-user",
+      "usb_id": "44-44444",
+      "access_token": "bootstrap.mock.pensum.record.unavailable.token",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

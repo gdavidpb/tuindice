@@ -18,12 +18,15 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.ui.view.PensumContentView
 import com.gdavidpb.tuindice.pensum.ui.view.PensumEmptyView
 import com.gdavidpb.tuindice.pensum.ui.view.PensumLoadingView
-import com.gdavidpb.tuindice.pensum.ui.view.ScreenBackground
-import com.gdavidpb.tuindice.pensum.ui.view.TextPrimary
+import com.gdavidpb.tuindice.pensum.ui.view.pensumGraphColors
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
+import tuindice.pensum.generated.resources.pensum_empty_message
+import tuindice.pensum.generated.resources.pensum_empty_title
 import tuindice.pensum.generated.resources.pensum_failed_retry
 import tuindice.pensum.generated.resources.pensum_failed_title
+import tuindice.pensum.generated.resources.pensum_record_unavailable_message
+import tuindice.pensum.generated.resources.pensum_record_unavailable_title
 
 @Composable
 fun PensumScreen(
@@ -35,19 +38,32 @@ fun PensumScreen(
 	onSelectionApplied: (PensumOptionItem, PensumModalityItem) -> Unit,
 	onPensumContextClick: () -> Unit = {}
 ) {
+	val graphColors = pensumGraphColors()
+
 	Box(
 		modifier = Modifier
 			.fillMaxSize()
-			.background(ScreenBackground)
+			.background(graphColors.screenBackground)
 	) {
-		CompositionLocalProvider(LocalContentColor provides TextPrimary) {
+		CompositionLocalProvider(LocalContentColor provides graphColors.textPrimary) {
 			SealedCrossfade(targetState = state) { targetState ->
 				when (targetState) {
 					is Pensum.State.Idle -> Unit
 					is Pensum.State.Loading -> PensumLoadingView()
-					is Pensum.State.Empty -> PensumEmptyView()
+					is Pensum.State.Empty -> PensumEmptyView(
+						title = stringResource(Res.string.pensum_empty_title),
+						message = stringResource(Res.string.pensum_empty_message)
+					)
+					is Pensum.State.RecordDataUnavailable -> PensumEmptyView(
+						title = stringResource(Res.string.pensum_record_unavailable_title),
+						message = stringResource(Res.string.pensum_record_unavailable_message),
+						actionLabel = stringResource(Res.string.pensum_failed_retry),
+						onActionClick = onRetryClick
+					)
 					is Pensum.State.Content -> PensumContentView(
 						model = targetState.model,
+						isRefreshing = targetState.isRefreshing,
+						localDataMessage = targetState.localDataMessage,
 						showSelectionSheet = showSelectionSheet,
 						onSelectionSheetDismiss = onSelectionSheetDismiss,
 						onSubjectStatsClick = onSubjectStatsClick,

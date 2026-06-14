@@ -12,7 +12,7 @@ class DeleteSyntheticTermUseCase(
 	private val academicRecordRepository: AcademicRecordRepository,
 	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: RecordExceptionHandler
-) : FlowUseCase<String, Unit, RecordUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<String, Unit, RecordUseCaseError>() {
 	override suspend fun executeOnBackground(params: String): Flow<Unit> {
 		academicRecordRepository.deleteSyntheticTerm(params)
 		return flowOf(Unit)

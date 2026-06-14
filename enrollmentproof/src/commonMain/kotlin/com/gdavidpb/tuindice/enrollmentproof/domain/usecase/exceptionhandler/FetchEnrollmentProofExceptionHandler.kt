@@ -12,7 +12,7 @@ import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmen
 
 class FetchEnrollmentProofExceptionHandler(
 	private val networkRepository: NetworkRepository
-) : ExceptionHandler<FetchEnrollmentProofUseCaseError>() {
+) : ExceptionHandler<FetchEnrollmentProofUseCaseError> {
 	override fun parseException(throwable: Throwable): FetchEnrollmentProofUseCaseError? {
 		return when {
 			throwable is EnrollmentProofNotFoundException -> FetchEnrollmentProofUseCaseError.NotFound

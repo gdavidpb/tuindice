@@ -31,6 +31,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.wizard.presentation.model.WizardStepId
 import com.gdavidpb.tuindice.wizard.ui.WizardUiTags
 import org.jetbrains.compose.resources.StringResource
@@ -64,7 +65,7 @@ fun WizardFocusOverlay(
 	}
 
 	val spec = stepId.focusOverlaySpec() ?: return
-	val shape = RoundedCornerShape(18.dp)
+	val shape = RoundedCornerShape(TuIndiceRadius.XLarge)
 	val highlightColor = MaterialTheme.colorScheme.primary
 
 	BoxWithConstraints(

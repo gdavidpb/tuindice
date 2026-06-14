@@ -8,7 +8,7 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 
 object Main {
-	sealed class State : ViewState() {
+	sealed class State : ViewState {
 		data object Starting : State()
 
 		data class Content(
@@ -19,7 +19,7 @@ object Main {
 		data object Failed : State()
 	}
 
-	sealed class Action : ViewAction() {
+	sealed class Action : ViewAction {
 		data object StartUp : Action()
 		data object RequestReview : Action()
 		data object RequestUpdateCheck : Action()
@@ -28,7 +28,7 @@ object Main {
 		data object RequestWizardStart : Action()
 	}
 
-	sealed class Effect : ViewEffect() {
+	sealed class Effect : ViewEffect {
 		object NavigateToGooglePlayServicesUnavailableDialog : Effect()
 		data object TriggerReviewFlow : Effect()
 		class TriggerUpdateFlow(val action: UpdateAction) : Effect()

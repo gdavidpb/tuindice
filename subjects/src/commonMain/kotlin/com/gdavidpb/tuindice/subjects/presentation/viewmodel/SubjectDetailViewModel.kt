@@ -1,23 +1,21 @@
 package com.gdavidpb.tuindice.subjects.presentation.viewmodel
 
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
-import com.gdavidpb.tuindice.base.presentation.Mutation
-import com.gdavidpb.tuindice.base.presentation.viewmodel.BaseViewModel
+import com.gdavidpb.tuindice.base.presentation.statemachine.StateMachineViewModel
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
-import com.gdavidpb.tuindice.subjects.presentation.action.LoadSubjectDetailActionProcessor
-import com.gdavidpb.tuindice.subjects.presentation.action.RefreshSubjectDetailActionProcessor
-import com.gdavidpb.tuindice.subjects.presentation.action.SelectSubjectSegmentTabActionProcessor
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectDetail
-import kotlinx.coroutines.flow.Flow
+import com.gdavidpb.tuindice.subjects.presentation.machine.SubjectDetailMachine
 
 class SubjectDetailViewModel(
-	private val loadSubjectDetailActionProcessor: LoadSubjectDetailActionProcessor,
-	private val refreshSubjectDetailActionProcessor: RefreshSubjectDetailActionProcessor,
-	private val selectSubjectSegmentTabActionProcessor: SelectSubjectSegmentTabActionProcessor,
-	override val eventPublisher: EventPublisher
-) : BaseViewModel<SubjectDetail.State, SubjectDetail.Action, SubjectDetail.Effect>(
+	override val screenMachine: SubjectDetailMachine,
+	override val eventPublisher: EventPublisher,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
+) : StateMachineViewModel<SubjectDetail.State, SubjectDetail.Action, SubjectDetail.Effect>(
 	name = "subject_detail",
-	initialState = SubjectDetail.State.Idle
+	initialState = screenMachine.initialState(),
+	dispatchers = dispatchers
 ) {
 	fun loadSubjectDetailAction(subjectCode: String) {
 		sendAction(SubjectDetail.Action.LoadSubjectDetail(subjectCode = subjectCode))
@@ -31,19 +29,4 @@ class SubjectDetailViewModel(
 		sendAction(SubjectDetail.Action.SelectSubjectSegmentTab(tab = tab))
 	}
 
-	override suspend fun processAction(
-		action: SubjectDetail.Action,
-		sideEffect: (SubjectDetail.Effect) -> Unit
-	): Flow<Mutation<SubjectDetail.State>> {
-		return when (action) {
-			is SubjectDetail.Action.LoadSubjectDetail ->
-				loadSubjectDetailActionProcessor.process(action, sideEffect)
-
-			is SubjectDetail.Action.RefreshSubjectDetail ->
-				refreshSubjectDetailActionProcessor.process(action, sideEffect)
-
-			is SubjectDetail.Action.SelectSubjectSegmentTab ->
-				selectSubjectSegmentTabActionProcessor.process(action, sideEffect)
-		}
-	}
 }

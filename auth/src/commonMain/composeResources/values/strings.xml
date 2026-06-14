@@ -22,7 +22,7 @@
 	<string name="dialog_title_update_password">Tu contraseña ha cambiado</string>
 	<string name="dialog_message_update_password">Confirma tu contraseña para seguir disfrutando de TuIndice.</string>
 	<string name="dialog_button_update_password_later">Más tarde</string>
-	<string name="dialog_button_update_password_confirm">Confirmar</string>
+	<string name="dialog_button_update_password_confirm">Aceptar</string>
 	<string name="a11y_show_password">Mostrar contraseña</string>
 	<string name="a11y_hide_password">Ocultar contraseña</string>
 	<string name="title_terms_and_conditions">Términos y condiciones</string>

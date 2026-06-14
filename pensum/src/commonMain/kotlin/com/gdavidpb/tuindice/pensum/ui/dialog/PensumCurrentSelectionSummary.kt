@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -19,6 +18,8 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import com.gdavidpb.tuindice.pensum.ui.view.PensumElementShape
+import com.gdavidpb.tuindice.pensum.ui.view.pensumGraphColors
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_selection_active_title
@@ -31,6 +32,7 @@ fun PensumCurrentSelectionSummary(
 	currentPensum: PensumOptionItem,
 	currentModality: PensumModalityItem
 ) {
+	val graphColors = pensumGraphColors()
 	val pensumLabel = stringResource(Res.string.pensum_summary_pensum_label)
 	val title = model.careerName.ifBlank { "$pensumLabel ${currentPensum.year}" }
 	val subtitle = listOf(
@@ -44,8 +46,8 @@ fun PensumCurrentSelectionSummary(
 		modifier = Modifier
 			.fillMaxWidth()
 			.testTag(PensumUiTags.PensumCurrentSelectionSummary),
-		shape = RoundedCornerShape(12.dp),
-		color = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.48f),
+		shape = PensumElementShape,
+		color = graphColors.panelBackground,
 		border = BorderStroke(
 			width = 1.dp,
 			color = MaterialTheme.colorScheme.outlineVariant

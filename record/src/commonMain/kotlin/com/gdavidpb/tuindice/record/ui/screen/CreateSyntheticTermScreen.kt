@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.awaitFirstDown
 import androidx.compose.foundation.gestures.awaitTouchSlopOrCancellation
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -32,6 +33,7 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
@@ -42,6 +44,8 @@ import com.gdavidpb.tuindice.record.ui.view.AlreadyTakenSearchResultsToggle
 import com.gdavidpb.tuindice.record.ui.view.CreateTermAddSubjectTabs
 import com.gdavidpb.tuindice.record.ui.view.CreateTermPeriodRow
 import com.gdavidpb.tuindice.record.ui.view.CreateTermSearchField
+import com.gdavidpb.tuindice.record.ui.view.CreateTermSearchGuidance
+import com.gdavidpb.tuindice.record.ui.view.CreateTermSearchMessage
 import com.gdavidpb.tuindice.record.ui.view.CreateTermSectionTitle
 import com.gdavidpb.tuindice.record.ui.view.CreateTermSelectedSubjectCard
 import com.gdavidpb.tuindice.record.ui.view.CreateTermSubmitBar
@@ -51,6 +55,8 @@ import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.create_term_add_subjects_title
 import tuindice.record.generated.resources.create_term_no_suggestions
 import tuindice.record.generated.resources.create_term_search_error
+import tuindice.record.generated.resources.create_term_search_no_results_message
+import tuindice.record.generated.resources.create_term_search_no_results_title
 import tuindice.record.generated.resources.create_term_search_results
 import tuindice.record.generated.resources.create_term_selected_title
 import tuindice.record.generated.resources.create_term_suggested_title
@@ -107,13 +113,21 @@ fun CreateSyntheticTermScreen(
 	val takenSearchResultsCount = searchResultsWithoutSelectedSubjects.count { subject ->
 		subject.availability == SyntheticTermSubjectAvailability.ALREADY_TAKEN
 	}
-	val displayedSearchResults = if (showTakenSearchResults.value) {
-		searchResultsWithoutSelectedSubjects
-	} else {
-		searchResultsWithoutSelectedSubjects.filterNot { subject ->
-			subject.availability == SyntheticTermSubjectAvailability.ALREADY_TAKEN
-		}
+	val otherSearchResults = searchResultsWithoutSelectedSubjects.filterNot { subject ->
+		subject.availability == SyntheticTermSubjectAvailability.ALREADY_TAKEN
 	}
+	val takenSearchResults = searchResultsWithoutSelectedSubjects.filter { subject ->
+		subject.availability == SyntheticTermSubjectAvailability.ALREADY_TAKEN
+	}
+	val displayedSearchResults = if (showTakenSearchResults.value) {
+		otherSearchResults + takenSearchResults
+	} else {
+		otherSearchResults
+	}
+	val hasNoSearchResults = isSearchQueryReady &&
+		searchResultsWithoutSelectedSubjects.isEmpty() &&
+		!state.hasSearchError &&
+		!state.isRefreshingSearch
 
 	Box(
 		modifier = modifier
@@ -124,7 +138,7 @@ fun CreateSyntheticTermScreen(
 		LazyColumn(
 			modifier = Modifier
 				.fillMaxSize()
-				.padding(horizontal = 20.dp)
+				.padding(horizontal = TuIndiceSpacing.Screen)
 				.imePadding()
 				.pointerInput(Unit) {
 					awaitEachGesture {
@@ -243,14 +257,32 @@ fun CreateSyntheticTermScreen(
 						)
 					}
 
-					if (isSearchQueryReady) {
+					if (!isSearchQueryReady) {
 						item {
-							CreateTermSectionTitle(
+							CreateTermSearchGuidance(
+								query = state.query,
+								onExampleClick = { example ->
+									onQueryChange(example, example.length, example.length)
+								}
+							)
+						}
+					} else {
+						item {
+							CreateTermSearchMessage(
 								modifier = Modifier.testTag(RecordUiTags.CreateSyntheticTermSearchResultsTitle),
-								text = stringResource(
-									Res.string.create_term_search_results,
-									displayedSearchResults.size
-								),
+								title = if (hasNoSearchResults) {
+									stringResource(Res.string.create_term_search_no_results_title)
+								} else {
+									stringResource(
+										Res.string.create_term_search_results,
+										displayedSearchResults.size
+									)
+								},
+								description = if (hasNoSearchResults) {
+									stringResource(Res.string.create_term_search_no_results_message, state.query)
+								} else {
+									null
+								},
 								isRefreshing = state.isRefreshingSearch
 							)
 						}
@@ -265,56 +297,114 @@ fun CreateSyntheticTermScreen(
 							}
 						}
 
-						itemsIndexed(
-							items = displayedSearchResults,
-							key = { _, subject -> SearchResultSubjectKeyPrefix + subject.subjectCode },
-							contentType = { _, _ -> CreateTermSearchResultContentType }
-						) { index, subject ->
-							Box(
-								modifier = Modifier.animateItem(
-									fadeInSpec = null,
-									fadeOutSpec = null
-								)
-									.fillMaxWidth()
-									.testTag(
-										RecordUiTags.createSyntheticTermSearchResult(
-											index = index,
-											subjectCode = subject.subjectCode
-										)
-									)
-							) {
-								CreateTermSelectedSubjectCard(
-									subject = subject,
-									action = CreateTermSubjectCardAction.Add,
-									enabled = subject.canAdd,
-									onClick = {
-										dismissKeyboard()
-										onSubjectAdd(subject)
-									},
-									onStatsClick = { subjectCode ->
-										dismissKeyboard()
-										onSubjectStatsClick(subjectCode)
+						if (searchResultsWithoutSelectedSubjects.isEmpty() && !state.hasSearchError) {
+							if (displayedSuggestedSubjects.isNotEmpty()) {
+								item {
+									CreateTermSectionTitle(text = stringResource(Res.string.create_term_suggested_title))
+									LazyRow(
+										horizontalArrangement = Arrangement.spacedBy(12.dp)
+									) {
+										items(
+											items = displayedSuggestedSubjects,
+											key = { subject -> SuggestedSubjectKeyPrefix + subject.subjectCode },
+											contentType = { CreateTermSuggestedSubjectContentType }
+										) { subject ->
+											CreateTermSuggestedSubjectCard(
+												modifier = Modifier.animateItem(
+													fadeInSpec = null,
+													fadeOutSpec = null
+												),
+												subject = subject,
+												enabled = subject.canAdd,
+												onClick = {
+													dismissKeyboard()
+													onSubjectAdd(subject)
+												}
+											)
+										}
 									}
-								)
+								}
+							}
+						} else {
+							itemsIndexed(
+								items = otherSearchResults,
+								key = { _, subject -> SearchResultSubjectKeyPrefix + subject.subjectCode },
+								contentType = { _, _ -> CreateTermSearchResultContentType }
+							) { index, subject ->
+								Box(
+									modifier = Modifier.animateItem(
+										fadeInSpec = null,
+										fadeOutSpec = null
+									)
+										.fillMaxWidth()
+										.testTag(
+											RecordUiTags.createSyntheticTermSearchResult(
+												index = index,
+												subjectCode = subject.subjectCode
+											)
+										)
+								) {
+									CreateTermSelectedSubjectCard(
+										subject = subject,
+										action = CreateTermSubjectCardAction.Add,
+										enabled = subject.canAdd,
+										onClick = {
+											dismissKeyboard()
+											onSubjectAdd(subject)
+										},
+										onStatsClick = { subjectCode ->
+											dismissKeyboard()
+											onSubjectStatsClick(subjectCode)
+										}
+									)
+								}
+							}
+
+							if (takenSearchResultsCount > 0) {
+								item {
+									Column(
+										verticalArrangement = Arrangement.spacedBy(20.dp)
+									) {
+										AlreadyTakenSearchResultsToggle(
+											count = takenSearchResultsCount,
+											isExpanded = showTakenSearchResults.value,
+											onClick = {
+												showTakenSearchResults.value = !showTakenSearchResults.value
+											}
+										)
+										if (showTakenSearchResults.value) {
+											takenSearchResults.forEachIndexed { index, subject ->
+												Box(
+													modifier = Modifier
+														.fillMaxWidth()
+														.testTag(
+															RecordUiTags.createSyntheticTermSearchResult(
+																index = otherSearchResults.size + index,
+																subjectCode = subject.subjectCode
+															)
+														)
+												) {
+													CreateTermSelectedSubjectCard(
+														subject = subject,
+														action = CreateTermSubjectCardAction.Add,
+														enabled = subject.canAdd,
+														onClick = {
+															dismissKeyboard()
+															onSubjectAdd(subject)
+														},
+														onStatsClick = { subjectCode ->
+															dismissKeyboard()
+															onSubjectStatsClick(subjectCode)
+														}
+													)
+												}
+											}
+										}
+									}
+								}
 							}
 						}
 					}
-				}
-			}
-
-			if (
-				state.selectedAddSubjectTab == CreateTermAddSubjectTab.Search &&
-				isSearchQueryReady &&
-				takenSearchResultsCount > 0
-			) {
-				item {
-					AlreadyTakenSearchResultsToggle(
-						count = takenSearchResultsCount,
-						isExpanded = showTakenSearchResults.value,
-						onClick = {
-							showTakenSearchResults.value = !showTakenSearchResults.value
-						}
-					)
 				}
 			}
 		}

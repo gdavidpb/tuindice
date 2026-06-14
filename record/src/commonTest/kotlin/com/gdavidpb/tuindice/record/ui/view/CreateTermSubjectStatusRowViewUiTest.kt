@@ -30,7 +30,7 @@ class CreateTermSubjectStatusRowViewUiTest {
 			)
 		}
 
-		onNodeWithText("Ya cursada").performClick()
+		onNodeWithText("Aprobada").performClick()
 
 		onNodeWithText("Cursada en Ene - Mar 2025").assertIsDisplayed()
 	}
@@ -70,9 +70,25 @@ class CreateTermSubjectStatusRowViewUiTest {
 			)
 		}
 
-		onNodeWithText("Requisito pendiente").performClick()
+		onNodeWithText("Bloqueada").performClick()
 
 		onNodeWithText("Faltan requisitos: EP1308, EP5855").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_availableStatusRendered_then_usesPensumLanguage() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateTermSubjectStatusRow(
+				subject = subject(
+					availability = SyntheticTermSubjectAvailability.AVAILABLE,
+					detail = SyntheticTermSubjectAvailabilityDetail()
+				),
+				availableText = "Disponible",
+				availableIcon = CreateTermSubjectStatusIcon.Available
+			)
+		}
+
+		onNodeWithText("Disponible").assertIsDisplayed()
 	}
 
 	private fun subject(

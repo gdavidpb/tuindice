@@ -6,12 +6,12 @@ import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
@@ -53,7 +53,6 @@ fun SubjectSearchGuidanceView(
 		Text(
 			text = stringResource(Res.string.subjects_search_examples_label),
 			style = MaterialTheme.typography.labelLarge,
-			fontWeight = FontWeight.SemiBold,
 			color = MaterialTheme.colorScheme.onSurface
 		)
 		FlowRow(
@@ -65,6 +64,9 @@ fun SubjectSearchGuidanceView(
 				AssistChip(
 					modifier = Modifier.testTag(SubjectsUiTags.searchExample(index)),
 					onClick = { onExampleClick(example) },
+					colors = AssistChipDefaults.assistChipColors(
+						containerColor = MaterialTheme.colorScheme.surfaceContainerLow
+					),
 					label = {
 						Text(
 							text = example,

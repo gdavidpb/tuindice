@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.ModalBottomSheetDefaults
@@ -27,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -68,7 +71,8 @@ fun ConfirmationDialog(
 		Column(
 			modifier = Modifier
 				.fillMaxWidth()
-				.padding(horizontal = 24.dp)
+				.imePadding()
+				.padding(horizontal = TuIndiceSpacing.Dialog)
 		) {
 			if (titleText != null)
 				Text(
@@ -77,7 +81,7 @@ fun ConfirmationDialog(
 						.padding(bottom = 16.dp),
 					text = titleText,
 					style = MaterialTheme.typography.titleLarge,
-					fontWeight = FontWeight.Black
+					fontWeight = FontWeight.Bold
 				)
 
 			content()
@@ -131,7 +135,7 @@ fun ConfirmationDialog(
 										modifier = Modifier
 											.testTag(BaseUiTags.ConfirmationDialogPositiveLoading)
 											.size(18.dp),
-										color = Color.White
+										color = LocalContentColor.current
 									)
 							}
 						}

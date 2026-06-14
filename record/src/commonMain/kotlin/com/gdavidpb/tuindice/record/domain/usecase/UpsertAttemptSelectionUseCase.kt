@@ -16,7 +16,7 @@ class UpsertAttemptSelectionUseCase(
 	private val academicRecordRepository: AcademicRecordRepository,
 	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: RecordExceptionHandler
-) : FlowUseCase<UpsertAttemptSelectionParams, Unit, RecordUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<UpsertAttemptSelectionParams, Unit, RecordUseCaseError>() {
 	override suspend fun executeOnBackground(params: UpsertAttemptSelectionParams): Flow<Unit> {
 		val (score, outcome) = attemptSelectionToOverridePayload(
 			grade = params.grade,

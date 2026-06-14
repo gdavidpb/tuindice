@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.auth.presentation.contract
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
-import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import tuindice.auth.generated.resources.Res
 import tuindice.auth.generated.resources.top_bar_tuindice
@@ -12,7 +11,7 @@ object SignIn {
 	sealed class State(
 		override val topBarTitle: UiText = UiText.Resource(Res.string.top_bar_tuindice),
 		override val isTopBarVisible: Boolean = true
-	) : ViewState() {
+	) : ViewState {
 		data class Idle(
 			val usbId: String = "",
 			val password: String = "",
@@ -28,7 +27,7 @@ object SignIn {
 		) : State()
 	}
 
-	sealed class Action : ViewAction() {
+	sealed class Action : ViewAction {
 		class SetUsbId(
 			val usbId: String
 		) : Action()
@@ -43,17 +42,14 @@ object SignIn {
 			val enabled: Boolean
 		) : Action()
 
-		class ClickSignIn(
-			val usbId: String,
-			val password: String
-		) : Action()
+		data object ClickSignIn : Action()
 
 		data object ClickTermsAndConditions : Action()
 
 		data object ClickPrivacyPolicy : Action()
 	}
 
-	sealed class Effect : ViewEffect() {
+	sealed class Effect : ViewEffect {
 		data object NavigateToSummary : Effect()
 
 		class NavigateToBrowser(
@@ -67,8 +63,7 @@ object SignIn {
 
 		class ShowRetrySnackBar(
 			val message: String,
-			val actionLabel: String,
-			val params: SignInParams
+			val actionLabel: String
 		) : Effect()
 	}
 }

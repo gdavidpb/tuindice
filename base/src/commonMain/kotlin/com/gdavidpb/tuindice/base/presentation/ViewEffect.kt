@@ -1,3 +1,3 @@
 package com.gdavidpb.tuindice.base.presentation
 
-abstract class ViewEffect
+interface ViewEffect

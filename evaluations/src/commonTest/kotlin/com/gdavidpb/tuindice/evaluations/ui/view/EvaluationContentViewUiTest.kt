@@ -21,20 +21,11 @@ import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalTestApi::class)
 class EvaluationContentViewUiTest {
-	private data class DonePayload(
-		val attempt: EditableAttemptDescriptor?,
-		val type: EvaluationType?,
-		val scheduleMode: EvaluationScheduleMode,
-		val date: Long?,
-		val grade: Double?,
-		val maxGrade: Double?
-	)
-
 	@Test
-	fun when_doneTapped_then_invokesDoneCallbackWithCurrentForm() = runTuIndiceUiTest {
+	fun when_doneTapped_then_invokesDoneCallback() = runTuIndiceUiTest {
 		val state = evaluationContentState(isOverdue = false)
 		var maxGradeClicks = 0
-		var donePayload: DonePayload? = null
+		var doneDispatches = 0
 
 		setTuIndiceTestContent {
 			EvaluationContentView(
@@ -44,9 +35,7 @@ class EvaluationContentViewUiTest {
 					onDateChange = {},
 					onGradeClick = { _, _, _, _ -> },
 					onMaxGradeClick = { _, _, _ -> maxGradeClicks++ },
-				onDoneClick = { attempt, type, scheduleMode, date, grade, maxGrade ->
-					donePayload = DonePayload(attempt, type, scheduleMode, date, grade, maxGrade)
-				}
+				onDoneClick = { doneDispatches++ }
 			)
 		}
 
@@ -60,16 +49,8 @@ class EvaluationContentViewUiTest {
 		onNodeWithTag(EvaluationsUiTags.EvaluationMaxGradeChip).performClick()
 		onNodeWithTag(EvaluationsUiTags.EvaluationDoneFab).performClick()
 
-		val payload = donePayload!!
-
 		assertEquals(1, maxGradeClicks)
-		assertNotNull(payload)
-		assertEquals(state.selectedAttempt, payload.attempt)
-		assertEquals(state.type, payload.type)
-		assertEquals(state.scheduleMode, payload.scheduleMode)
-		assertEquals(state.date, payload.date)
-		assertEquals(state.grade, payload.grade)
-		assertEquals(state.maxGrade, payload.maxGrade)
+		assertEquals(1, doneDispatches)
 	}
 
 	@Test
@@ -82,7 +63,7 @@ class EvaluationContentViewUiTest {
 					onDateChange = {},
 					onGradeClick = { _, _, _, _ -> },
 					onMaxGradeClick = { _, _, _ -> },
-				onDoneClick = { _, _, _, _, _, _ -> }
+				onDoneClick = {}
 			)
 		}
 
@@ -102,7 +83,7 @@ class EvaluationContentViewUiTest {
 					onDateChange = {},
 					onGradeClick = { _, _, _, _ -> },
 					onMaxGradeClick = { _, _, _ -> },
-				onDoneClick = { _, _, _, _, _, _ -> doneClicks++ }
+				onDoneClick = { doneClicks++ }
 			)
 		}
 
@@ -139,7 +120,7 @@ class EvaluationContentViewUiTest {
 						maxGradeSubjectCode = subjectCode
 						maxGradePayload = maxGrade
 					},
-				onDoneClick = { _, _, _, _, _, _ -> }
+				onDoneClick = {}
 			)
 		}
 
@@ -177,7 +158,7 @@ class EvaluationContentViewUiTest {
 					onMaxGradeClick = { _, _, maxGrade ->
 						maxGradePayload = maxGrade
 					},
-				onDoneClick = { _, _, _, _, _, _ -> }
+				onDoneClick = {}
 			)
 		}
 

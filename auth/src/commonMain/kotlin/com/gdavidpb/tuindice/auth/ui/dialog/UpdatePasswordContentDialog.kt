@@ -16,7 +16,7 @@ fun UpdatePasswordContentDialog(
 	state: UpdatePassword.State,
 	onPasswordChange: (String) -> Unit,
 	onPasswordVisibilityToggle: () -> Unit,
-	onConfirmClick: (password: String) -> Unit,
+	onConfirmClick: () -> Unit,
 	onDismissRequest: () -> Unit
 ) {
 	UpdatePasswordDialog(

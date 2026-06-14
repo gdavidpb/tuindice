@@ -50,7 +50,7 @@ fun TermSelectorView(
 				modifier = Modifier.weight(1f, fill = false),
 				text = term.shortNameText,
 				style = MaterialTheme.typography.titleLarge,
-				fontWeight = if (isSelected) FontWeight.Black else FontWeight.Medium,
+				fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
 				color = if (isSelected) {
 					MaterialTheme.colorScheme.onSurface
 				} else {

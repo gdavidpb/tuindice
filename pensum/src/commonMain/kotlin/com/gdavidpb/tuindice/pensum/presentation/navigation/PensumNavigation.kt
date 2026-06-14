@@ -7,7 +7,6 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.gdavidpb.tuindice.base.presentation.ViewState
-import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLifecycle
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
 import com.gdavidpb.tuindice.pensum.presentation.route.PensumRoute
@@ -18,8 +17,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun NavGraphBuilder.pensumNavigation(
 	navController: NavHostController,
 	onViewStateChanged: (ViewState) -> Unit,
-	onNavigateToSubjectDetail: (subjectCode: String) -> Unit,
-	showSnackBar: (message: SnackBarMessage) -> Unit
+	onNavigateToSubjectDetail: (subjectCode: String) -> Unit
 ) {
 	navigation<PensumDestination.NavGraph>(startDestination = PensumDestination.Pensum) {
 		composable<PensumDestination.Pensum> { backStackEntry ->
@@ -33,8 +31,13 @@ fun NavGraphBuilder.pensumNavigation(
 				onValue = onViewStateChanged
 			)
 
+			navController.CollectCurrentEntryValueWithLifecycle(
+				backStackEntry = backStackEntry,
+				value = Unit,
+				onValue = { viewModel.refreshPensumAction() }
+			)
+
 			PensumRoute(
-				showSnackBar = showSnackBar,
 				topBarActionBus = topBarActionBus,
 				onNavigateToSubjectDetail = onNavigateToSubjectDetail,
 				viewModel = viewModel

@@ -58,7 +58,9 @@ run_deploy_preflight() {
 	local has_relevant_changes
 	local app_version_changed
 	local has_release_impact
+	local requires_e2e_certification
 	local should_deploy
+	local skip_e2e_status_check
 
 	BEFORE_SHA="$(resolve_deploy_diff_base_sha)"
 	[[ -n "$BEFORE_SHA" ]] || die "Unable to resolve previous production SHA."
@@ -74,25 +76,48 @@ run_deploy_preflight() {
 	has_relevant_changes="$(awk -F= '$1 == "has_relevant_changes" { print $2 }' "$detect_output_file")"
 	app_version_changed="$(awk -F= '$1 == "app_version_changed" { print $2 }' "$detect_output_file")"
 	has_release_impact="$(awk -F= '$1 == "has_release_impact" { print $2 }' "$detect_output_file")"
+	requires_e2e_certification="$(awk -F= '$1 == "requires_e2e_certification" { print $2 }' "$detect_output_file")"
 
+	# Deploy when the diff carries release changes, or when the current app
+	# version was never tagged: a cancelled or failed deploy must not be lost
+	# just because a later push has no release impact of its own.
 	should_deploy=false
 	if [[ "$app_version_changed" == "true" || "$has_release_impact" == "true" ]]; then
 		should_deploy=true
+	elif [[ -z "$(existing_tag_target "$TAG_NAME" || true)" ]]; then
+		info "Release tag ${TAG_NAME} does not exist yet; resuming pending deploy for ${VERSION_NAME}."
+		should_deploy=true
+		has_relevant_changes=true
+		has_release_impact=true
 	fi
 
 	if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
 		printf 'should_deploy=%s\n' "$should_deploy" >>"$GITHUB_OUTPUT"
 	fi
 
+	# E2E statuses are revalidated against the deploy SHA; fingerprint reuse
+	# accepts evidence certified on the merged PR head. Without a token (local
+	# preflight) the check is skipped with a warning.
+	skip_e2e_status_check="${SKIP_E2E_STATUS_CHECK:-}"
+	if [[ -z "$skip_e2e_status_check" ]]; then
+		if [[ -n "${GITHUB_TOKEN:-${GH_TOKEN:-}}" && -n "${GITHUB_REPOSITORY:-}" ]]; then
+			skip_e2e_status_check=0
+		else
+			warn "Skipping E2E status revalidation: GITHUB_TOKEN/GITHUB_REPOSITORY are not available."
+			skip_e2e_status_check=1
+		fi
+	fi
+
 	MISSING_VERSION_BUMP_FILE="${DETECT_STATE_DIR}/missing-version-bump.txt" \
 	E2E_ANDROID_CONTEXTS_FILE="${DETECT_STATE_DIR}/e2e-android-contexts.txt" \
 	E2E_IOS_CONTEXTS_FILE="${DETECT_STATE_DIR}/e2e-ios-contexts.txt" \
-	REQUIRES_E2E_CERTIFICATION="false" \
+	REQUIRES_E2E_CERTIFICATION="${requires_e2e_certification:-false}" \
 	HAS_RELEVANT_CHANGES="$has_relevant_changes" \
 	APP_VERSION_CHANGED="$app_version_changed" \
 	HAS_RELEASE_IMPACT="$has_release_impact" \
 	TARGET_GIT_SHA="$TARGET_GIT_SHA" \
-	SKIP_E2E_STATUS_CHECK=1 \
+	E2E_REUSE_BASE_SHA="$BEFORE_SHA" \
+	SKIP_E2E_STATUS_CHECK="$skip_e2e_status_check" \
 		bash "${SCRIPT_DIR}/preflight-production.sh"
 
 	if [[ "$should_deploy" != "true" ]]; then
@@ -129,23 +154,21 @@ run_android_deploy() {
 }
 
 run_ios_deploy() {
-	if [[ "$DRY_RUN" == "1" ]]; then
-		info "DRY_RUN=1: skipping App Store Connect upload."
-		return 0
-	fi
-
 	local build_exists_file="${STATE_DIR}/ios-build-exists.env"
-	APP_STORE_CONNECT_CHECK_ONLY=1 \
-	APP_STORE_CONNECT_BUILD_EXISTS_FILE="$build_exists_file" \
-		bash "${PWD}/iosApp/scripts/ci-upload-ios-appstore.sh"
 
-	if grep -q '^exists=true$' "$build_exists_file"; then
-		return 0
+	if [[ "$DRY_RUN" != "1" ]]; then
+		APP_STORE_CONNECT_CHECK_ONLY=1 \
+		APP_STORE_CONNECT_BUILD_EXISTS_FILE="$build_exists_file" \
+			bash "${PWD}/iosApp/scripts/ci-upload-ios-appstore.sh"
+
+		if grep -q '^exists=true$' "$build_exists_file"; then
+			return 0
+		fi
 	fi
 
 	REQUIRE_IOS_FIREBASE_CONFIG=1 bash "${SCRIPT_DIR}/materialize-firebase-configs.sh"
 
-	bash "${PWD}/iosApp/scripts/ci-upload-ios-appstore.sh"
+	DRY_RUN="$DRY_RUN" bash "${PWD}/iosApp/scripts/ci-upload-ios-appstore.sh"
 }
 
 run_release_tag() {
@@ -161,13 +184,17 @@ case "$DEPLOY_PRODUCTION_PHASE" in
 	all)
 		run_deploy_preflight
 		run_android_deploy
-		if [[ "$DRY_RUN" == "1" ]]; then
-			info "DRY_RUN=1: skipping App Store Connect upload and release tag creation."
-			exit 0
+		if [[ "$DRY_RUN" == "1" && "$OSTYPE" != darwin* ]]; then
+			warn "DRY_RUN=1: skipping iOS archive because this host is not macOS."
+		else
+			run_ios_deploy
 		fi
-		run_ios_deploy
 		run_release_tag
-		info "Production deploy completed for ${VERSION_NAME} (${TAG_NAME})."
+		if [[ "$DRY_RUN" == "1" ]]; then
+			info "Production dry-run completed for ${VERSION_NAME} (${TAG_NAME}): artifacts built, nothing published."
+		else
+			info "Production deploy completed for ${VERSION_NAME} (${TAG_NAME})."
+		fi
 		;;
 	preflight)
 		run_deploy_preflight

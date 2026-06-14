@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.flowOf
 class FlushPendingChangesUseCase(
 	private val pendingChangesRepository: PendingChangesRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, FlushPendingChangesResult, Nothing>(reportingRepository = reportingRepository) {
+) : FlowUseCase<Unit, FlushPendingChangesResult, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<FlushPendingChangesResult> {
 		return flowOf(
 			pendingChangesRepository.flushPendingChanges()

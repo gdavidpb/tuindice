@@ -65,7 +65,7 @@ fun SignOutDialog(
 					.padding(bottom = 16.dp),
 				text = titleText,
 				style = MaterialTheme.typography.titleLarge,
-				fontWeight = FontWeight.Black
+				fontWeight = FontWeight.Bold
 			)
 
 			Text(

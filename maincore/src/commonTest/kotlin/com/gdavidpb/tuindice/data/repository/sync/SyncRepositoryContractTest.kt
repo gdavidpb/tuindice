@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import com.gdavidpb.tuindice.testkit.ktor.serverResponseException
 import io.ktor.http.HttpStatusCode
+import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlinx.coroutines.CompletableDeferred
@@ -32,6 +33,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SyncRepositoryContractTest {
@@ -115,6 +118,156 @@ class SyncRepositoryContractTest {
 		advanceUntilIdle()
 
 		assertEquals(false, repository.observeSyncInProgress().first())
+	}
+
+	@Test
+	fun scheduleSync_doesNotMarkSyncCooldownWhenSyncFails() = runTest {
+		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val remoteDataSource = FakeSyncRemoteDataSource(
+			throwable = serverResponseException(
+				statusCode = HttpStatusCode.BadRequest,
+				path = "/record/v5/sync"
+			)
+		)
+		val repository = createRepository(
+			settingsDataSource = settingsDataSource,
+			syncStatusRepository = syncStatusRepository,
+			remoteDataSource = remoteDataSource,
+			dispatcher = StandardTestDispatcher(testScheduler)
+		)
+
+		repository.scheduleSync(password = "secret123", policy = SyncPolicy.RespectCooldown)
+		advanceUntilIdle()
+
+		assertEquals(listOf("secret123"), remoteDataSource.syncPasswords)
+		assertEquals(false, settingsDataSource.cooldownMarked)
+		assertEquals(false, settingsDataSource.syncRetryBackoffMarked)
+		assertEquals(SyncStatus.Failed, syncStatusRepository.getSyncStatus())
+	}
+
+	@Test
+	fun scheduleSync_retriableFailure_marksSyncRetryBackoffAndBlocksNextRespectCooldownAttempt() = runTest {
+		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val remoteDataSource = FakeSyncRemoteDataSource(
+			throwable = serverResponseException(
+				statusCode = HttpStatusCode.ServiceUnavailable,
+				path = "/record/v5/sync"
+			)
+		)
+		val repository = createRepository(
+			settingsDataSource = settingsDataSource,
+			syncStatusRepository = syncStatusRepository,
+			remoteDataSource = remoteDataSource,
+			dispatcher = StandardTestDispatcher(testScheduler)
+		)
+		val successRemoteDataSource = FakeSyncRemoteDataSource()
+
+		repository.scheduleSync(password = "secret123", policy = SyncPolicy.RespectCooldown)
+		advanceUntilIdle()
+
+		assertEquals(listOf("secret123"), remoteDataSource.syncPasswords)
+		assertEquals(true, settingsDataSource.syncRetryBackoffMarked)
+		assertEquals(1, settingsDataSource.syncRetryBackoffState.retryCount)
+		assertEquals(SyncStatus.Unavailable, syncStatusRepository.getSyncStatus())
+
+		createRepository(
+			settingsDataSource = settingsDataSource,
+			syncStatusRepository = FakeSyncStatusRepository(),
+			remoteDataSource = successRemoteDataSource,
+			dispatcher = StandardTestDispatcher(testScheduler)
+		).scheduleSync(password = "secret123", policy = SyncPolicy.RespectCooldown)
+		advanceUntilIdle()
+
+		assertEquals(emptyList(), successRemoteDataSource.syncPasswords)
+		assertEquals(true, settingsDataSource.syncRetryBackoffActive)
+	}
+
+	@Test
+	fun scheduleSync_forceRefresh_clearsSyncRetryBackoff() = runTest {
+		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = true)
+		settingsDataSource.markSyncRetryBackoff(IllegalStateException("backoff-active"))
+		val remoteDataSource = FakeSyncRemoteDataSource()
+		val repository = createRepository(
+			settingsDataSource = settingsDataSource,
+			syncStatusRepository = FakeSyncStatusRepository(),
+			remoteDataSource = remoteDataSource,
+			dispatcher = StandardTestDispatcher(testScheduler)
+		)
+
+		repository.scheduleSync(password = "recovery-secret", policy = SyncPolicy.ForceRefresh)
+		advanceUntilIdle()
+
+		assertEquals(true, settingsDataSource.recoveryCooldownsCleared)
+		assertEquals(true, settingsDataSource.syncRetryBackoffCleared)
+		assertEquals(false, settingsDataSource.syncRetryBackoffActive)
+		assertEquals(listOf("recovery-secret"), remoteDataSource.syncPasswords)
+	}
+
+	@Test
+	fun scheduleSync_success_clearsSyncRetryBackoffAndAllowsNextAttempt() = runTest {
+		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = true)
+		settingsDataSource.syncRetryBackoffActive = true
+		settingsDataSource.syncRetryBackoffState = SyncRetryBackoffState(
+			retryCount = 1,
+			lastRetryAt = 1L,
+			retryBackoffUntil = Long.MAX_VALUE
+		)
+		settingsDataSource.syncRetryBackoffMarked = true
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val forceRemoteDataSource = FakeSyncRemoteDataSource()
+		createRepository(
+			settingsDataSource = settingsDataSource,
+			syncStatusRepository = syncStatusRepository,
+			remoteDataSource = forceRemoteDataSource,
+			dispatcher = StandardTestDispatcher(testScheduler)
+		).scheduleSync(password = "recovery-secret", policy = SyncPolicy.ForceRefresh)
+		advanceUntilIdle()
+
+		assertEquals(true, settingsDataSource.syncRetryBackoffCleared)
+		assertEquals(false, settingsDataSource.syncRetryBackoffActive)
+		assertEquals(listOf("recovery-secret"), forceRemoteDataSource.syncPasswords)
+		assertEquals(true, settingsDataSource.cooldownMarked)
+
+		val nextRemoteDataSource = FakeSyncRemoteDataSource()
+		settingsDataSource.onCooldown = false
+		createRepository(
+			settingsDataSource = settingsDataSource,
+			syncStatusRepository = syncStatusRepository,
+			remoteDataSource = nextRemoteDataSource,
+			dispatcher = StandardTestDispatcher(testScheduler)
+		).scheduleSync(password = "secret123", policy = SyncPolicy.RespectCooldown)
+		advanceUntilIdle()
+
+		assertEquals(true, settingsDataSource.cooldownMarked)
+		assertEquals(listOf("secret123"), nextRemoteDataSource.syncPasswords)
+	}
+
+	@Test
+	fun scheduleSync_nonRetriableError_doesNotMarkSyncRetryBackoff() = runTest {
+		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val remoteDataSource = FakeSyncRemoteDataSource(
+			throwable = serverResponseException(
+				statusCode = HttpStatusCode.BadRequest,
+				path = "/record/v5/sync"
+			)
+		)
+		val repository = createRepository(
+			settingsDataSource = settingsDataSource,
+			syncStatusRepository = syncStatusRepository,
+			remoteDataSource = remoteDataSource,
+			dispatcher = StandardTestDispatcher(testScheduler)
+		)
+
+		repository.scheduleSync(password = "secret123", policy = SyncPolicy.RespectCooldown)
+		advanceUntilIdle()
+
+		assertEquals(listOf("secret123"), remoteDataSource.syncPasswords)
+		assertEquals(false, settingsDataSource.syncRetryBackoffMarked)
+		assertEquals(false, settingsDataSource.cooldownMarked)
+		assertEquals(SyncStatus.Failed, syncStatusRepository.getSyncStatus())
 	}
 
 	@Test
@@ -304,7 +457,15 @@ class SyncRepositoryContractTest {
 }
 
 private class FakeSyncSettingsLocalDataSource(
-	private val onCooldown: Boolean,
+	var onCooldown: Boolean,
+	var syncRetryBackoffActive: Boolean = false,
+	var syncRetryBackoffMarked: Boolean = false,
+	var syncRetryBackoffCleared: Boolean = false,
+	var syncRetryBackoffState: SyncRetryBackoffState = SyncRetryBackoffState(
+		retryCount = 0,
+		lastRetryAt = 0L,
+		retryBackoffUntil = 0L
+	),
 	private val events: MutableList<String> = mutableListOf()
 ) : SyncSettingsLocalDataRepository {
 	var cooldownMarked = false
@@ -330,6 +491,30 @@ private class FakeSyncSettingsLocalDataSource(
 		recoveryCooldownsCleared = true
 		events += "clear_recovery"
 	}
+
+	override suspend fun isSyncRetryBackoffActive(): Boolean = syncRetryBackoffActive
+
+	override suspend fun markSyncRetryBackoff(throwable: Throwable) {
+		syncRetryBackoffMarked = true
+		syncRetryBackoffActive = true
+		syncRetryBackoffState = syncRetryBackoffState.copy(
+			retryCount = syncRetryBackoffState.retryCount + 1,
+			lastRetryAt = currentTimeMillis(),
+			retryBackoffUntil = syncRetryBackoffState.retryBackoffUntil + 1L
+		)
+	}
+
+	override suspend fun clearSyncRetryBackoff() {
+		syncRetryBackoffCleared = true
+		syncRetryBackoffActive = false
+		syncRetryBackoffState = SyncRetryBackoffState(
+			retryCount = 0,
+			lastRetryAt = 0L,
+			retryBackoffUntil = 0L
+		)
+	}
+
+	override suspend fun getSyncRetryBackoffState(): SyncRetryBackoffState = syncRetryBackoffState
 }
 
 private class FakeSyncStatusRepository(

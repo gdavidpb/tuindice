@@ -159,7 +159,7 @@ fun WizardStepContent(
 					onDateChange = { _: Long? -> },
 					onGradeClick = { _: String, _: String, _: Double?, _: Double? -> },
 					onMaxGradeClick = { _: String, _: String, _: Double? -> },
-					onDoneClick = emptyEvaluationDoneHandler(),
+					onDoneClick = {},
 				onRetryClick = {}
 			)
 
@@ -193,11 +193,3 @@ private fun emptyAttemptSelectionHandler(): (
 	isSelected: Boolean
 ) -> Unit = { _, _, _, _ -> }
 
-private fun emptyEvaluationDoneHandler(): (
-	attempt: EditableAttemptDescriptor?,
-	type: EvaluationType?,
-	scheduleMode: EvaluationScheduleMode,
-	date: Long?,
-	grade: Double?,
-	maxGrade: Double?
-) -> Unit = { _, _, _, _, _, _ -> }

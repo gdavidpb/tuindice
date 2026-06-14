@@ -1,9 +1,13 @@
 package com.gdavidpb.tuindice.data.source.sync
 
 import com.russhwolf.settings.Settings
+import com.gdavidpb.tuindice.data.repository.sync.SyncRetryBackoffState
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.test.assertEquals
+import kotlin.math.abs
+import kotlin.time.Duration.Companion.hours
 import kotlinx.coroutines.test.runTest
 import com.gdavidpb.tuindice.evaluations.utils.PreferencesKeys as EvaluationsPreferencesKeys
 import com.gdavidpb.tuindice.record.utils.PreferencesKeys as RecordPreferencesKeys
@@ -36,6 +40,75 @@ class SyncSettingsDataSourceTest {
 		assertFalse(settings.hasKey(SummaryPreferencesKeys.COOLDOWN_GET_USER))
 		assertFalse(settings.hasKey(RecordPreferencesKeys.COOLDOWN_GET_RECORD))
 		assertFalse(settings.hasKey(EvaluationsPreferencesKeys.COOLDOWN_GET_EVALUATIONS))
+	}
+
+	@Test
+	fun markSyncRetryBackoff_usesOneHourBase() = runTest {
+		val settings = FakeSettings()
+		val dataSource = SyncSettingsDataSource(settings)
+
+		dataSource.markSyncRetryBackoff(RuntimeException("network"))
+		val state = dataSource.getSyncRetryBackoffState()
+
+		assertEquals(1, state.retryCount)
+		assertTrue(dataSource.isSyncRetryBackoffActive())
+		assertDelayInMillisIsCloseTo(
+			expected = 1.hours.inWholeMilliseconds,
+			actual = state.retryBackoffUntil - state.lastRetryAt
+		)
+	}
+
+	@Test
+	fun markSyncRetryBackoff_usesExponentialBackoffAndCapsAt24Hours() = runTest {
+		val settings = FakeSettings()
+		val dataSource = SyncSettingsDataSource(settings)
+		val expectedDelays = listOf(
+			1L,
+			2L,
+			4L,
+			8L,
+			16L,
+			24L,
+			24L
+		).map { it.hours.inWholeMilliseconds }
+
+		expectedDelays.forEachIndexed { index, expectedDelay ->
+			dataSource.markSyncRetryBackoff(RuntimeException("attempt-${index + 1}"))
+			val state = dataSource.getSyncRetryBackoffState()
+
+			assertEquals(index + 1, state.retryCount)
+			assertDelayInMillisIsCloseTo(
+				expected = expectedDelay,
+				actual = state.retryBackoffUntil - state.lastRetryAt
+			)
+		}
+	}
+
+	@Test
+	fun clearSyncRetryBackoff_resetsRetryState() = runTest {
+		val settings = FakeSettings()
+		val dataSource = SyncSettingsDataSource(settings)
+
+		dataSource.markSyncRetryBackoff(RuntimeException("network"))
+		dataSource.clearSyncRetryBackoff()
+
+		assertFalse(dataSource.isSyncRetryBackoffActive())
+		assertEquals(
+			SyncRetryBackoffState(
+				retryCount = 0,
+				lastRetryAt = 0L,
+				retryBackoffUntil = 0L
+			),
+			dataSource.getSyncRetryBackoffState()
+		)
+	}
+
+	private fun assertDelayInMillisIsCloseTo(
+		expected: Long,
+		actual: Long,
+		tolerance: Long = 250L
+	) {
+		assertTrue(abs(actual - expected) <= tolerance)
 	}
 }
 

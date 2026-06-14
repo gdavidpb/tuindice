@@ -26,6 +26,7 @@ object RecordUiTags {
 	const val CreateSyntheticTermLoadInfoMessage = "record_create_synthetic_term_load_info_message"
 	const val CreateSyntheticTermSearchField = "record_create_synthetic_term_search_field"
 	const val CreateSyntheticTermSearchClearButton = "record_create_synthetic_term_search_clear_button"
+	const val CreateSyntheticTermSearchGuidance = "record_create_synthetic_term_search_guidance"
 	const val CreateSyntheticTermSearchResultsTitle = "record_create_synthetic_term_search_results_title"
 	const val CreateSyntheticTermSubmitButton = "record_create_synthetic_term_submit_button"
 	const val CreateSyntheticTermSubmitError = "record_create_synthetic_term_submit_error"
@@ -57,6 +58,9 @@ object RecordUiTags {
 	fun createSyntheticTermSubject(subjectCode: String): String = "record_create_synthetic_term_subject_$subjectCode"
 	fun createSyntheticTermSearchResult(index: Int, subjectCode: String): String =
 		"record_create_synthetic_term_search_result_${index}_subject_$subjectCode"
+
+	fun createSyntheticTermSearchExample(index: Int): String =
+		"record_create_synthetic_term_search_example_$index"
 
 	fun createSyntheticTermSubjectStatus(subjectCode: String, status: String): String =
 		"record_create_synthetic_term_subject_${subjectCode}_status_$status"

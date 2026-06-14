@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.flowOf
 class SendSupportEmailUseCase(
 	private val configRepository: ConfigRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, String, Nothing>(reportingRepository = reportingRepository) {
+) : FlowUseCase<Unit, String, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<String> {
 		val email = configRepository.getContactEmail()
 		val subject = configRepository.getContactSubject().encodeURLParameter()

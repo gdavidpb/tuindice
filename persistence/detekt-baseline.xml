@@ -1,0 +1,226 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ArgumentListWrapping:AcademicAttemptDao.kt$AcademicAttemptDao$("SELECT * FROM ${AcademicAttemptTable.TABLE_NAME} ORDER BY ${AcademicAttemptTable.TERM_ID} DESC, ${AcademicAttemptTable.POSITION_IN_TERM} ASC, ${AcademicAttemptTable.ID} ASC")</ID>
+    <ID>ArgumentListWrapping:AcademicAttemptOverrideDao.kt$AcademicAttemptOverrideDao$("DELETE FROM ${AcademicAttemptOverrideTable.TABLE_NAME} WHERE ${AcademicAttemptOverrideTable.ATTEMPT_ID} = :attemptId")</ID>
+    <ID>ArgumentListWrapping:AcademicAttemptOverrideDao.kt$AcademicAttemptOverrideDao$("SELECT * FROM ${AcademicAttemptOverrideTable.TABLE_NAME} ORDER BY ${AcademicAttemptOverrideTable.UPDATED_AT} DESC")</ID>
+    <ID>ArgumentListWrapping:AcademicTermDao.kt$AcademicTermDao$("SELECT * FROM ${AcademicTermTable.TABLE_NAME} ORDER BY ${AcademicTermTable.TERM_ORDER} DESC, ${AcademicTermTable.ID} ASC")</ID>
+    <ID>ArgumentListWrapping:SubjectStatsAttemptBinDao.kt$SubjectStatsAttemptBinDao$("DELETE FROM ${SubjectStatsAttemptBinTable.TABLE_NAME} WHERE ${SubjectStatsAttemptBinTable.SUBJECT_CODE} = :subjectCode")</ID>
+    <ID>ArgumentListWrapping:SubjectStatsAttemptBinEntity.kt$SubjectStatsAttemptBinEntity$(value = [SubjectStatsAttemptBinTable.SUBJECT_CODE, SubjectStatsAttemptBinTable.SEGMENT_TYPE, SubjectStatsAttemptBinTable.SEGMENT_KEY, SubjectStatsAttemptBinTable.BUCKET], unique = true)</ID>
+    <ID>ArgumentListWrapping:SubjectStatsGradeBinDao.kt$SubjectStatsGradeBinDao$("DELETE FROM ${SubjectStatsGradeBinTable.TABLE_NAME} WHERE ${SubjectStatsGradeBinTable.SUBJECT_CODE} = :subjectCode")</ID>
+    <ID>ArgumentListWrapping:SubjectStatsGradeBinEntity.kt$SubjectStatsGradeBinEntity$(value = [SubjectStatsGradeBinTable.SUBJECT_CODE, SubjectStatsGradeBinTable.SEGMENT_TYPE, SubjectStatsGradeBinTable.SEGMENT_KEY, SubjectStatsGradeBinTable.SERIES, SubjectStatsGradeBinTable.GRADE], unique = true)</ID>
+    <ID>ArgumentListWrapping:SubjectStatsSegmentDao.kt$SubjectStatsSegmentDao$("DELETE FROM ${SubjectStatsSegmentTable.TABLE_NAME} WHERE ${SubjectStatsSegmentTable.SUBJECT_CODE} = :subjectCode")</ID>
+    <ID>ArgumentListWrapping:SubjectStatsSegmentEntity.kt$SubjectStatsSegmentEntity$(value = [SubjectStatsSegmentTable.SUBJECT_CODE, SubjectStatsSegmentTable.SEGMENT_TYPE, SubjectStatsSegmentTable.SEGMENT_KEY], unique = true)</ID>
+    <ID>ArgumentListWrapping:TuIndiceRoomMigrations.kt$("ALTER TABLE ${SyntheticTermLoadPreviewCacheTable.TABLE_NAME} ADD COLUMN ${SyntheticTermLoadPreviewCacheTable.BASIS} TEXT")</ID>
+    <ID>ArgumentListWrapping:TuIndiceRoomMigrations.kt$("ALTER TABLE ${SyntheticTermLoadPreviewCacheTable.TABLE_NAME} ADD COLUMN ${SyntheticTermLoadPreviewCacheTable.CONFIDENCE} TEXT")</ID>
+    <ID>ArgumentListWrapping:TuIndiceRoomMigrations.kt$("ALTER TABLE ${SyntheticTermLoadPreviewCacheTable.TABLE_NAME} ADD COLUMN ${SyntheticTermLoadPreviewCacheTable.DETAIL} TEXT")</ID>
+    <ID>CyclomaticComplexMethod:StoreBackedMutationEngine.kt$StoreBackedMutationEngine$private suspend fun processExecution( execution: MutationExecution.Execute&lt;ScopeKey, Command, ConfirmedState, VisibleState, Ack&gt; ): UpdaterResult</ID>
+    <ID>FinalNewline:UpsertDao.kt$com.gdavidpb.tuindice.persistence.data.room.daos.UpsertDao.kt</ID>
+    <ID>FinalNewline:UserEntity.kt$com.gdavidpb.tuindice.persistence.data.room.entity.UserEntity.kt</ID>
+    <ID>FinalNewline:UserTable.kt$com.gdavidpb.tuindice.persistence.data.room.schema.UserTable.kt</ID>
+    <ID>ImportOrdering:PendingMutationDao.kt$import androidx.room.Dao import androidx.room.Query import com.gdavidpb.tuindice.persistence.data.room.schema.PendingMutationTable import com.gdavidpb.tuindice.persistence.data.room.entity.PendingMutationEntity import kotlinx.coroutines.flow.Flow</ID>
+    <ID>ImportOrdering:PersistenceModuleKoinSmokeTest.kt$import androidx.room.InvalidationTracker import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptDao import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptOverrideDao import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicRecordDao import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicRecordSyncStateDao import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationDao import com.gdavidpb.tuindice.persistence.data.room.daos.EvaluationSyncStateDao import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao import com.gdavidpb.tuindice.persistence.data.room.daos.PensumSelectionDao import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectCatalogCacheDao import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectDetailDao import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsAttemptBinDao import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsGradeBinDao import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectStatsSegmentDao import com.gdavidpb.tuindice.persistence.data.room.daos.SyntheticTermLoadPreviewCacheDao import com.gdavidpb.tuindice.persistence.data.room.daos.UserDao import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptEntity import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptOverrideEntity import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicRecordEntity import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicRecordSyncStateEntity import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationSyncStateEntity import com.gdavidpb.tuindice.persistence.data.room.entity.PendingMutationEntity import com.gdavidpb.tuindice.persistence.data.room.entity.PensumCacheEntity import com.gdavidpb.tuindice.persistence.data.room.entity.PensumSelectionEntity import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectDetailEntity import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsAttemptBinEntity import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsGradeBinEntity import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsSegmentEntity import com.gdavidpb.tuindice.persistence.data.room.entity.SyntheticTermLoadPreviewCacheEntity import com.gdavidpb.tuindice.persistence.data.room.entity.UserEntity import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceMaintenanceRepository import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner import com.gdavidpb.tuindice.testkit.koin.assertResolves import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest import kotlin.test.Test import kotlinx.coroutines.flow.Flow import kotlinx.coroutines.flow.emptyFlow import org.koin.dsl.module</ID>
+    <ID>Indentation:AcademicAttemptDao.kt$AcademicAttemptDao$ </ID>
+    <ID>Indentation:AcademicAttemptDaoTest.kt$AcademicAttemptDaoTest$ </ID>
+    <ID>Indentation:AcademicAttemptEntity.kt$AcademicAttemptEntity$ </ID>
+    <ID>Indentation:AcademicAttemptOverrideDao.kt$AcademicAttemptOverrideDao$ </ID>
+    <ID>Indentation:AcademicAttemptOverrideDaoTest.kt$AcademicAttemptOverrideDaoTest$ </ID>
+    <ID>Indentation:AcademicAttemptOverrideEntity.kt$AcademicAttemptOverrideEntity$ </ID>
+    <ID>Indentation:AcademicAttemptOverrideTable.kt$AcademicAttemptOverrideTable$ </ID>
+    <ID>Indentation:AcademicAttemptProjectionTable.kt$AcademicAttemptProjectionTable$ </ID>
+    <ID>Indentation:AcademicAttemptTable.kt$AcademicAttemptTable$ </ID>
+    <ID>Indentation:AcademicLocalAttemptTable.kt$AcademicLocalAttemptTable$ </ID>
+    <ID>Indentation:AcademicRecordDao.kt$AcademicRecordDao$ </ID>
+    <ID>Indentation:AcademicRecordDaoTest.kt$AcademicRecordDaoTest$ </ID>
+    <ID>Indentation:AcademicRecordEntity.kt$AcademicRecordEntity$ </ID>
+    <ID>Indentation:AcademicRecordSyncStateDao.kt$AcademicRecordSyncStateDao$ </ID>
+    <ID>Indentation:AcademicRecordSyncStateDaoTest.kt$AcademicRecordSyncStateDaoTest$ </ID>
+    <ID>Indentation:AcademicRecordSyncStateEntity.kt$AcademicRecordSyncStateEntity$ </ID>
+    <ID>Indentation:AcademicRecordSyncStateTable.kt$AcademicRecordSyncStateTable$ </ID>
+    <ID>Indentation:AcademicRecordTable.kt$AcademicRecordTable$ </ID>
+    <ID>Indentation:AcademicSummaryTable.kt$AcademicSummaryTable$ </ID>
+    <ID>Indentation:AcademicTermDao.kt$AcademicTermDao$ </ID>
+    <ID>Indentation:AcademicTermDaoTest.kt$AcademicTermDaoTest$ </ID>
+    <ID>Indentation:AcademicTermEntity.kt$AcademicTermEntity$ </ID>
+    <ID>Indentation:AcademicTermTable.kt$AcademicTermTable$ </ID>
+    <ID>Indentation:AndroidDatabaseFactory.kt$ </ID>
+    <ID>Indentation:AndroidPersistencePlatformBindings.kt$ </ID>
+    <ID>Indentation:DatabaseConverters.kt$DatabaseConverters$ </ID>
+    <ID>Indentation:EvaluationDao.kt$EvaluationDao$ </ID>
+    <ID>Indentation:EvaluationDaoTest.kt$EvaluationDaoTest$ </ID>
+    <ID>Indentation:EvaluationEntity.kt$EvaluationEntity$ </ID>
+    <ID>Indentation:EvaluationSyncStateDao.kt$EvaluationSyncStateDao$ </ID>
+    <ID>Indentation:EvaluationSyncStateDaoTest.kt$EvaluationSyncStateDaoTest$ </ID>
+    <ID>Indentation:EvaluationSyncStateEntity.kt$EvaluationSyncStateEntity$ </ID>
+    <ID>Indentation:EvaluationSyncStateTable.kt$EvaluationSyncStateTable$ </ID>
+    <ID>Indentation:EvaluationTable.kt$EvaluationTable$ </ID>
+    <ID>Indentation:FakeTuIndiceDatabase.android.kt$AndroidFakeTuIndiceDatabase$ </ID>
+    <ID>Indentation:InMemoryTuIndiceDatabase.kt$ </ID>
+    <ID>Indentation:IosDatabaseFactory.kt$ </ID>
+    <ID>Indentation:IosPersistencePlatformBindings.kt$ </ID>
+    <ID>Indentation:MutationEnvelope.kt$ </ID>
+    <ID>Indentation:MutationEnvelope.kt$MutationEnvelope$ </ID>
+    <ID>Indentation:MutationEnvelopeMapperTest.kt$ </ID>
+    <ID>Indentation:MutationEnvelopeMapperTest.kt$MutationEnvelopeMapperTest$ </ID>
+    <ID>Indentation:MutationEnvelopeMapperTest.kt$TestMutation$ </ID>
+    <ID>Indentation:MutationEnvelopeStore.kt$MutationEnvelopeStore$ </ID>
+    <ID>Indentation:MutationFailureKind.kt$MutationFailureKind$ </ID>
+    <ID>Indentation:MutationFailureResolution.kt$MutationFailureResolution$ </ID>
+    <ID>Indentation:MutationFailureResolution.kt$MutationFailureResolution.Defer$ </ID>
+    <ID>Indentation:MutationFailureResolution.kt$MutationFailureResolution.Drop$ </ID>
+    <ID>Indentation:MutationFailureResolution.kt$MutationFailureResolution.Fail$ </ID>
+    <ID>Indentation:MutationFailureResolution.kt$MutationFailureResolution.Retry$ </ID>
+    <ID>Indentation:MutationPrecondition.kt$MutationPrecondition$ </ID>
+    <ID>Indentation:MutationPrecondition.kt$MutationPrecondition.None$ </ID>
+    <ID>Indentation:MutationPrecondition.kt$MutationPrecondition.Revision$ </ID>
+    <ID>Indentation:MutationSyncSpec.kt$MutationSyncSpec$ </ID>
+    <ID>Indentation:PendingMutationDao.kt$PendingMutationDao$ </ID>
+    <ID>Indentation:PendingMutationDaoTest.kt$PendingMutationDaoTest$ </ID>
+    <ID>Indentation:PendingMutationEntity.kt$PendingMutationEntity$ </ID>
+    <ID>Indentation:PendingMutationTable.kt$PendingMutationTable$ </ID>
+    <ID>Indentation:PensumCacheDao.kt$PensumCacheDao$ </ID>
+    <ID>Indentation:PensumCacheDaoTest.kt$PensumCacheDaoTest$ </ID>
+    <ID>Indentation:PensumCacheEntity.kt$PensumCacheEntity$ </ID>
+    <ID>Indentation:PensumCacheTable.kt$PensumCacheTable$ </ID>
+    <ID>Indentation:PensumSelectionDao.kt$PensumSelectionDao$ </ID>
+    <ID>Indentation:PensumSelectionDaoTest.kt$PensumSelectionDaoTest$ </ID>
+    <ID>Indentation:PensumSelectionEntity.kt$PensumSelectionEntity$ </ID>
+    <ID>Indentation:PensumSelectionTable.kt$PensumSelectionTable$ </ID>
+    <ID>Indentation:PersistenceMaintenanceRepository.kt$PersistenceMaintenanceRepository$ </ID>
+    <ID>Indentation:PersistenceModule.kt$ </ID>
+    <ID>Indentation:PersistenceModuleKoinSmokeTest.kt$FakeTuIndiceDatabase$ </ID>
+    <ID>Indentation:PersistenceModuleKoinSmokeTest.kt$FakeTuIndiceDatabase.&lt;no name provided&gt;$ </ID>
+    <ID>Indentation:PersistenceModuleKoinSmokeTest.kt$PersistenceModuleKoinSmokeTest$ </ID>
+    <ID>Indentation:PersistenceTransactionRunner.kt$PersistenceTransactionRunner$ </ID>
+    <ID>Indentation:RoomMutationEnvelopeStore.kt$RoomMutationEnvelopeStore$ </ID>
+    <ID>Indentation:RoomPersistenceMaintenanceDataSource.kt$RoomPersistenceMaintenanceDataSource$ </ID>
+    <ID>Indentation:RoomPersistenceMaintenanceDataSourceTest.kt$RecordingAcademicAttemptDao$ </ID>
+    <ID>Indentation:RoomPersistenceMaintenanceDataSourceTest.kt$RecordingAcademicAttemptOverrideDao$ </ID>
+    <ID>Indentation:RoomPersistenceMaintenanceDataSourceTest.kt$RecordingAcademicRecordDao$ </ID>
+    <ID>Indentation:RoomPersistenceMaintenanceDataSourceTest.kt$RecordingAcademicRecordSyncStateDao$ </ID>
+    <ID>Indentation:RoomPersistenceMaintenanceDataSourceTest.kt$RecordingAcademicTermDao$ </ID>
+    <ID>Indentation:RoomPersistenceMaintenanceDataSourceTest.kt$RecordingEvaluationDao$ </ID>
+    <ID>Indentation:RoomPersistenceMaintenanceDataSourceTest.kt$RecordingEvaluationSyncStateDao$ </ID>
+    <ID>Indentation:RoomPersistenceMaintenanceDataSourceTest.kt$RecordingPendingMutationDao$ </ID>
+    <ID>Indentation:RoomPersistenceMaintenanceDataSourceTest.kt$RecordingPensumCacheDao$ </ID>
+    <ID>Indentation:RoomPersistenceMaintenanceDataSourceTest.kt$RecordingPensumSelectionDao$ </ID>
+    <ID>Indentation:RoomPersistenceMaintenanceDataSourceTest.kt$RecordingSubjectCatalogCacheDao$ </ID>
+    <ID>Indentation:RoomPersistenceMaintenanceDataSourceTest.kt$RecordingSubjectDetailDao$ </ID>
+    <ID>Indentation:RoomPersistenceMaintenanceDataSourceTest.kt$RecordingSubjectStatsAttemptBinDao$ </ID>
+    <ID>Indentation:RoomPersistenceMaintenanceDataSourceTest.kt$RecordingSubjectStatsGradeBinDao$ </ID>
+    <ID>Indentation:RoomPersistenceMaintenanceDataSourceTest.kt$RecordingSubjectStatsSegmentDao$ </ID>
+    <ID>Indentation:RoomPersistenceMaintenanceDataSourceTest.kt$RecordingSyntheticTermLoadPreviewCacheDao$ </ID>
+    <ID>Indentation:RoomPersistenceMaintenanceDataSourceTest.kt$RecordingTransactionRunner$ </ID>
+    <ID>Indentation:RoomPersistenceMaintenanceDataSourceTest.kt$RecordingUserDao$ </ID>
+    <ID>Indentation:RoomPersistenceMaintenanceDataSourceTest.kt$RoomPersistenceMaintenanceDataSourceTest$ </ID>
+    <ID>Indentation:RoomPersistenceTransactionRunner.kt$RoomPersistenceTransactionRunner$ </ID>
+    <ID>Indentation:StoreBackedMutationEngine.kt$MutationExecution$ </ID>
+    <ID>Indentation:StoreBackedMutationEngine.kt$MutationExecution.Execute$ </ID>
+    <ID>Indentation:StoreBackedMutationEngine.kt$MutationExecution.Idle$ </ID>
+    <ID>Indentation:StoreBackedMutationEngine.kt$StoreBackedMutationEngine$ </ID>
+    <ID>Indentation:StoreBackedMutationEngine.kt$StoreBackedMutationEngine.&lt;no name provided&gt;$ </ID>
+    <ID>Indentation:StoreBackedMutationEngineTest.kt$ </ID>
+    <ID>Indentation:StoreBackedMutationEngineTest.kt$InMemoryMutationEnvelopeStore$ </ID>
+    <ID>Indentation:StoreBackedMutationEngineTest.kt$StoreBackedMutationEngineTest$ </ID>
+    <ID>Indentation:StoreBackedMutationEngineTest.kt$StoreBackedMutationEngineTest.&lt;no name provided&gt;$ </ID>
+    <ID>Indentation:StoreBackedMutationEngineTest.kt$TestAck$ </ID>
+    <ID>Indentation:StoreBackedMutationEngineTest.kt$TestMutation$ </ID>
+    <ID>Indentation:SubjectCatalogCacheDao.kt$SubjectCatalogCacheDao$ </ID>
+    <ID>Indentation:SubjectCatalogCacheDaoTest.kt$SubjectCatalogCacheDaoTest$ </ID>
+    <ID>Indentation:SubjectCatalogCacheEntity.kt$SubjectCatalogCacheEntity$ </ID>
+    <ID>Indentation:SubjectCatalogCacheTable.kt$SubjectCatalogCacheTable$ </ID>
+    <ID>Indentation:SubjectDetailDao.kt$SubjectDetailDao$ </ID>
+    <ID>Indentation:SubjectDetailDaoTest.kt$SubjectDetailDaoTest$ </ID>
+    <ID>Indentation:SubjectDetailEntity.kt$SubjectDetailEntity$ </ID>
+    <ID>Indentation:SubjectDetailTable.kt$SubjectDetailTable$ </ID>
+    <ID>Indentation:SubjectStatsAttemptBinDao.kt$SubjectStatsAttemptBinDao$ </ID>
+    <ID>Indentation:SubjectStatsAttemptBinDaoTest.kt$SubjectStatsAttemptBinDaoTest$ </ID>
+    <ID>Indentation:SubjectStatsAttemptBinEntity.kt$SubjectStatsAttemptBinEntity$ </ID>
+    <ID>Indentation:SubjectStatsAttemptBinTable.kt$SubjectStatsAttemptBinTable$ </ID>
+    <ID>Indentation:SubjectStatsGradeBinDao.kt$SubjectStatsGradeBinDao$ </ID>
+    <ID>Indentation:SubjectStatsGradeBinDaoTest.kt$SubjectStatsGradeBinDaoTest$ </ID>
+    <ID>Indentation:SubjectStatsGradeBinEntity.kt$SubjectStatsGradeBinEntity$ </ID>
+    <ID>Indentation:SubjectStatsGradeBinTable.kt$SubjectStatsGradeBinTable$ </ID>
+    <ID>Indentation:SubjectStatsSegmentDao.kt$SubjectStatsSegmentDao$ </ID>
+    <ID>Indentation:SubjectStatsSegmentDaoTest.kt$SubjectStatsSegmentDaoTest$ </ID>
+    <ID>Indentation:SubjectStatsSegmentEntity.kt$SubjectStatsSegmentEntity$ </ID>
+    <ID>Indentation:SubjectStatsSegmentTable.kt$SubjectStatsSegmentTable$ </ID>
+    <ID>Indentation:SyntheticTermLoadPreviewCacheDao.kt$SyntheticTermLoadPreviewCacheDao$ </ID>
+    <ID>Indentation:SyntheticTermLoadPreviewCacheDaoTest.kt$SyntheticTermLoadPreviewCacheDaoTest$ </ID>
+    <ID>Indentation:SyntheticTermLoadPreviewCacheEntity.kt$SyntheticTermLoadPreviewCacheEntity$ </ID>
+    <ID>Indentation:SyntheticTermLoadPreviewCacheTable.kt$SyntheticTermLoadPreviewCacheTable$ </ID>
+    <ID>Indentation:Transaction.kt$ </ID>
+    <ID>Indentation:TuIndiceDatabase.kt$TuIndiceDatabase$ </ID>
+    <ID>Indentation:TuIndiceDatabase.kt$TuIndiceDatabaseConstructor$ </ID>
+    <ID>Indentation:TuIndiceRoomMigrations.kt$ </ID>
+    <ID>Indentation:TuIndiceRoomMigrations.kt$Migration30To31$ </ID>
+    <ID>Indentation:TuIndiceRoomMigrations.kt$Migration31To32$ </ID>
+    <ID>Indentation:TuIndiceRoomMigrations.kt$TuIndiceRoomMigrations$ </ID>
+    <ID>Indentation:TuIndiceRoomMigrationsTest.kt$CapturingSQLiteConnection$ </ID>
+    <ID>Indentation:TuIndiceRoomMigrationsTest.kt$NoOpSQLiteStatement$ </ID>
+    <ID>Indentation:TuIndiceRoomMigrationsTest.kt$TuIndiceRoomMigrationsTest$ </ID>
+    <ID>Indentation:UpsertDao.kt$UpsertDao$ </ID>
+    <ID>Indentation:UpsertDaoTest.kt$UpsertDaoTest$ </ID>
+    <ID>Indentation:UserDao.kt$UserDao$ </ID>
+    <ID>Indentation:UserDaoTest.kt$UserDaoTest$ </ID>
+    <ID>Indentation:UserEntity.kt$UserEntity$ </ID>
+    <ID>Indentation:UserTable.kt$UserTable$ </ID>
+    <ID>LongMethod:StoreBackedMutationEngine.kt$StoreBackedMutationEngine$private suspend fun processExecution( execution: MutationExecution.Execute&lt;ScopeKey, Command, ConfirmedState, VisibleState, Ack&gt; ): UpdaterResult</ID>
+    <ID>LongParameterList:AcademicTermDaoTest.kt$AcademicTermDaoTest$( id: String, termOrder: Int, termKey: String = "key-$id", periodYear: Int = 2024, periodCode: String = "EM", periodLabel: String = "Enero - Marzo 2024", kind: String = "Regular" )</ID>
+    <ID>LongParameterList:EvaluationDaoTest.kt$EvaluationDaoTest$( id: String, attemptId: String = "attempt-1", date: Long? = 1L, grade: Double? = null, isDone: Boolean = false, scheduleMode: EvaluationScheduleMode = EvaluationScheduleMode.DATED, revision: Long = 1L )</ID>
+    <ID>LongParameterList:PendingMutationDaoTest.kt$PendingMutationDaoTest$( mutationId: String, storeId: String = "evaluations", scopeKey: String = "scope-1", replaceKey: String = mutationId, status: String = "Pending", createdAt: Long = 1L, updatedAt: Long = createdAt, lastError: String? = null )</ID>
+    <ID>LongParameterList:RoomPersistenceMaintenanceDataSource.kt$RoomPersistenceMaintenanceDataSource$( private val userDao: UserDao, private val academicRecordDao: AcademicRecordDao, private val academicRecordSyncStateDao: AcademicRecordSyncStateDao, private val academicTermDao: AcademicTermDao, private val academicAttemptDao: AcademicAttemptDao, private val academicAttemptOverrideDao: AcademicAttemptOverrideDao, private val evaluationDao: EvaluationDao, private val evaluationSyncStateDao: EvaluationSyncStateDao, private val pendingMutationDao: PendingMutationDao, private val subjectCatalogCacheDao: SubjectCatalogCacheDao, private val subjectDetailDao: SubjectDetailDao, private val subjectStatsSegmentDao: SubjectStatsSegmentDao, private val subjectStatsGradeBinDao: SubjectStatsGradeBinDao, private val subjectStatsAttemptBinDao: SubjectStatsAttemptBinDao, private val pensumCacheDao: PensumCacheDao, private val pensumSelectionDao: PensumSelectionDao, private val syntheticTermLoadPreviewCacheDao: SyntheticTermLoadPreviewCacheDao, private val transactionRunner: PersistenceTransactionRunner )</ID>
+    <ID>LongParameterList:SubjectDetailDaoTest.kt$SubjectDetailDaoTest$( subjectCode: String, name: String? = "Matematicas I", credits: Int? = 4, cacheStatus: String = "Ready", generatedAt: Long = 1L, expiresAt: Long = 10L )</ID>
+    <ID>LongParameterList:SubjectStatsAttemptBinDaoTest.kt$SubjectStatsAttemptBinDaoTest$( id: String, subjectCode: String = "ma1111", segmentType: String = "overall", segmentKey: Int? = null, bucket: String = "1", count: Int = 10, generatedAt: Long = 1L )</ID>
+    <ID>LongParameterList:SubjectStatsGradeBinDaoTest.kt$SubjectStatsGradeBinDaoTest$( id: String, subjectCode: String = "ma1111", segmentType: String = "overall", segmentKey: Int? = null, series: String = "latest", grade: Int = 15, count: Int = 7, generatedAt: Long = 1L )</ID>
+    <ID>LongParameterList:SubjectStatsSegmentDaoTest.kt$SubjectStatsSegmentDaoTest$( id: String, subjectCode: String = "ma1111", segmentType: String = "overall", segmentKey: Int? = null, status: String = "Ready", averageGrade: Double? = 12.5, generatedAt: Long = 1L )</ID>
+    <ID>LongParameterList:SyntheticTermLoadPreviewCacheDaoTest.kt$SyntheticTermLoadPreviewCacheDaoTest$( cacheKey: String, termKey: String = "term-2024-1", subjectCodesKey: String = "ci2125+ma2115", available: Boolean = true, updatedAt: Long = 1L, expiresAt: Long = 10L )</ID>
+    <ID>MagicNumber:TuIndiceRoomMigrations.kt$Migration30To31$30</ID>
+    <ID>MagicNumber:TuIndiceRoomMigrations.kt$Migration30To31$31</ID>
+    <ID>MagicNumber:TuIndiceRoomMigrations.kt$Migration31To32$31</ID>
+    <ID>MagicNumber:TuIndiceRoomMigrations.kt$Migration31To32$32</ID>
+    <ID>MaxLineLength:AcademicAttemptDao.kt$AcademicAttemptDao$@Query("SELECT * FROM ${AcademicAttemptTable.TABLE_NAME} ORDER BY ${AcademicAttemptTable.TERM_ID} DESC, ${AcademicAttemptTable.POSITION_IN_TERM} ASC, ${AcademicAttemptTable.ID} ASC")</ID>
+    <ID>MaxLineLength:AcademicAttemptOverrideDao.kt$AcademicAttemptOverrideDao$@Query("DELETE FROM ${AcademicAttemptOverrideTable.TABLE_NAME} WHERE ${AcademicAttemptOverrideTable.ATTEMPT_ID} = :attemptId")</ID>
+    <ID>MaxLineLength:AcademicAttemptOverrideDao.kt$AcademicAttemptOverrideDao$@Query("SELECT * FROM ${AcademicAttemptOverrideTable.TABLE_NAME} ORDER BY ${AcademicAttemptOverrideTable.UPDATED_AT} DESC")</ID>
+    <ID>MaxLineLength:AcademicRecordSyncStateDao.kt$AcademicRecordSyncStateDao$abstract</ID>
+    <ID>MaxLineLength:AcademicTermDao.kt$AcademicTermDao$@Query("SELECT * FROM ${AcademicTermTable.TABLE_NAME} ORDER BY ${AcademicTermTable.TERM_ORDER} DESC, ${AcademicTermTable.ID} ASC")</ID>
+    <ID>MaxLineLength:StoreBackedMutationEngine.kt$MutationExecution$private sealed</ID>
+    <ID>MaxLineLength:StoreBackedMutationEngine.kt$StoreBackedMutationEngine$private</ID>
+    <ID>MaxLineLength:SubjectStatsAttemptBinDao.kt$SubjectStatsAttemptBinDao$@Query("DELETE FROM ${SubjectStatsAttemptBinTable.TABLE_NAME} WHERE ${SubjectStatsAttemptBinTable.SUBJECT_CODE} = :subjectCode")</ID>
+    <ID>MaxLineLength:SubjectStatsAttemptBinEntity.kt$SubjectStatsAttemptBinEntity$Index(value = [SubjectStatsAttemptBinTable.SUBJECT_CODE, SubjectStatsAttemptBinTable.SEGMENT_TYPE, SubjectStatsAttemptBinTable.SEGMENT_KEY, SubjectStatsAttemptBinTable.BUCKET], unique = true)</ID>
+    <ID>MaxLineLength:SubjectStatsGradeBinDao.kt$SubjectStatsGradeBinDao$@Query("DELETE FROM ${SubjectStatsGradeBinTable.TABLE_NAME} WHERE ${SubjectStatsGradeBinTable.SUBJECT_CODE} = :subjectCode")</ID>
+    <ID>MaxLineLength:SubjectStatsGradeBinEntity.kt$SubjectStatsGradeBinEntity$Index(value = [SubjectStatsGradeBinTable.SUBJECT_CODE, SubjectStatsGradeBinTable.SEGMENT_TYPE, SubjectStatsGradeBinTable.SEGMENT_KEY, SubjectStatsGradeBinTable.SERIES, SubjectStatsGradeBinTable.GRADE], unique = true)</ID>
+    <ID>MaxLineLength:SubjectStatsSegmentDao.kt$SubjectStatsSegmentDao$@Query("DELETE FROM ${SubjectStatsSegmentTable.TABLE_NAME} WHERE ${SubjectStatsSegmentTable.SUBJECT_CODE} = :subjectCode")</ID>
+    <ID>MaxLineLength:SubjectStatsSegmentEntity.kt$SubjectStatsSegmentEntity$Index(value = [SubjectStatsSegmentTable.SUBJECT_CODE, SubjectStatsSegmentTable.SEGMENT_TYPE, SubjectStatsSegmentTable.SEGMENT_KEY], unique = true)</ID>
+    <ID>MaxLineLength:TuIndiceRoomMigrations.kt$execSQL("ALTER TABLE ${SyntheticTermLoadPreviewCacheTable.TABLE_NAME} ADD COLUMN ${SyntheticTermLoadPreviewCacheTable.BASIS} TEXT")</ID>
+    <ID>MaxLineLength:TuIndiceRoomMigrations.kt$execSQL("ALTER TABLE ${SyntheticTermLoadPreviewCacheTable.TABLE_NAME} ADD COLUMN ${SyntheticTermLoadPreviewCacheTable.CONFIDENCE} TEXT")</ID>
+    <ID>MaxLineLength:TuIndiceRoomMigrations.kt$execSQL("ALTER TABLE ${SyntheticTermLoadPreviewCacheTable.TABLE_NAME} ADD COLUMN ${SyntheticTermLoadPreviewCacheTable.DETAIL} TEXT")</ID>
+    <ID>MaximumLineLength:AcademicAttemptDao.kt$AcademicAttemptDao$ </ID>
+    <ID>MaximumLineLength:AcademicAttemptOverrideDao.kt$AcademicAttemptOverrideDao$ </ID>
+    <ID>MaximumLineLength:AcademicRecordSyncStateDao.kt$AcademicRecordSyncStateDao$ </ID>
+    <ID>MaximumLineLength:AcademicTermDao.kt$AcademicTermDao$ </ID>
+    <ID>MaximumLineLength:StoreBackedMutationEngine.kt$MutationExecution$private</ID>
+    <ID>MaximumLineLength:StoreBackedMutationEngine.kt$StoreBackedMutationEngine$ </ID>
+    <ID>MaximumLineLength:SubjectStatsAttemptBinDao.kt$SubjectStatsAttemptBinDao$ </ID>
+    <ID>MaximumLineLength:SubjectStatsAttemptBinEntity.kt$SubjectStatsAttemptBinEntity$ </ID>
+    <ID>MaximumLineLength:SubjectStatsGradeBinDao.kt$SubjectStatsGradeBinDao$ </ID>
+    <ID>MaximumLineLength:SubjectStatsGradeBinEntity.kt$SubjectStatsGradeBinEntity$ </ID>
+    <ID>MaximumLineLength:SubjectStatsSegmentDao.kt$SubjectStatsSegmentDao$ </ID>
+    <ID>MaximumLineLength:SubjectStatsSegmentEntity.kt$SubjectStatsSegmentEntity$ </ID>
+    <ID>MaximumLineLength:TuIndiceRoomMigrations.kt$ </ID>
+    <ID>NestedBlockDepth:StoreBackedMutationEngine.kt$StoreBackedMutationEngine$private suspend fun processExecution( execution: MutationExecution.Execute&lt;ScopeKey, Command, ConfirmedState, VisibleState, Ack&gt; ): UpdaterResult</ID>
+    <ID>NewLineAtEndOfFile:UpsertDao.kt$com.gdavidpb.tuindice.persistence.data.room.daos.UpsertDao.kt</ID>
+    <ID>NewLineAtEndOfFile:UserEntity.kt$com.gdavidpb.tuindice.persistence.data.room.entity.UserEntity.kt</ID>
+    <ID>NewLineAtEndOfFile:UserTable.kt$com.gdavidpb.tuindice.persistence.data.room.schema.UserTable.kt</ID>
+    <ID>NoWildcardImports:StoreBackedMutationEngine.kt$import org.mobilenativefoundation.store.store5.*</ID>
+    <ID>ParameterListWrapping:AcademicRecordSyncStateDao.kt$AcademicRecordSyncStateDao$(key: String = AcademicRecordSyncStateTable.DEFAULT_KEY)</ID>
+    <ID>PropertyWrapping:StoreBackedMutationEngine.kt$StoreBackedMutationEngine$private val runtimeStore: MutableStore&lt;ScopeKey, MutationExecution&lt;ScopeKey, Command, ConfirmedState, VisibleState, Ack&gt;&gt; = MutableStoreBuilder.from&lt; ScopeKey, MutationExecution&lt;ScopeKey, Command, ConfirmedState, VisibleState, Ack&gt;, MutationExecution&lt;ScopeKey, Command, ConfirmedState, VisibleState, Ack&gt;, MutationExecution&lt;ScopeKey, Command, ConfirmedState, VisibleState, Ack&gt; &gt;( fetcher = Fetcher.of(name = "$storeId-runtime") { _: ScopeKey -&gt; MutationExecution.Idle() }, sourceOfTruth = object : SourceOfTruth&lt; ScopeKey, MutationExecution&lt;ScopeKey, Command, ConfirmedState, VisibleState, Ack&gt;, MutationExecution&lt;ScopeKey, Command, ConfirmedState, VisibleState, Ack&gt; &gt; { override fun reader( key: ScopeKey ) = runtimeState.map { executions -&gt; executions[key] ?: MutationExecution.Idle() } override suspend fun write( key: ScopeKey, value: MutationExecution&lt;ScopeKey, Command, ConfirmedState, VisibleState, Ack&gt; ) { runtimeState.value = runtimeState.value.toMutableMap() .apply { put(key, value) } .toMap() } override suspend fun delete(key: ScopeKey) { runtimeState.value = runtimeState.value.toMutableMap() .apply { remove(key) } .toMap() } override suspend fun deleteAll() { runtimeState.value = emptyMap() } }, converter = object : Converter&lt; MutationExecution&lt;ScopeKey, Command, ConfirmedState, VisibleState, Ack&gt;, MutationExecution&lt;ScopeKey, Command, ConfirmedState, VisibleState, Ack&gt;, MutationExecution&lt;ScopeKey, Command, ConfirmedState, VisibleState, Ack&gt; &gt; { override fun fromNetworkToLocal( network: MutationExecution&lt;ScopeKey, Command, ConfirmedState, VisibleState, Ack&gt; ): MutationExecution&lt;ScopeKey, Command, ConfirmedState, VisibleState, Ack&gt; = network override fun fromOutputToLocal( output: MutationExecution&lt;ScopeKey, Command, ConfirmedState, VisibleState, Ack&gt; ): MutationExecution&lt;ScopeKey, Command, ConfirmedState, VisibleState, Ack&gt; = output } ) .scope(coroutineScope) .disableCache() .build( updater = Updater.by( post = { _, execution -&gt; when (execution) { is MutationExecution.Execute -&gt; processExecution(execution) is MutationExecution.Idle -&gt; UpdaterResult.Success.Untyped(Unit) } }, onCompletion = OnUpdaterCompletion( onSuccess = { _ -&gt; }, onFailure = { _ -&gt; } ) ), bookkeeper = Bookkeeper.by( getLastFailedSync = { key: ScopeKey -&gt; runtimeBookkeeperMutex.withLock { runtimeBookkeeper[key] } }, setLastFailedSync = { key: ScopeKey, lastFailedSync: Long -&gt; runtimeBookkeeperMutex.withLock { runtimeBookkeeper[key] = lastFailedSync } true }, clear = { key: ScopeKey -&gt; runtimeBookkeeperMutex.withLock { runtimeBookkeeper.remove(key) } true }, clearAll = { runtimeBookkeeperMutex.withLock { runtimeBookkeeper.clear() } true } ) )</ID>
+    <ID>ReturnCount:StoreBackedMutationEngine.kt$StoreBackedMutationEngine$private suspend fun processExecution( execution: MutationExecution.Execute&lt;ScopeKey, Command, ConfirmedState, VisibleState, Ack&gt; ): UpdaterResult</ID>
+    <ID>SpreadOperator:AndroidDatabaseFactory.kt$(*TuIndiceRoomMigrations.all)</ID>
+    <ID>SpreadOperator:IosDatabaseFactory.kt$(*TuIndiceRoomMigrations.all)</ID>
+    <ID>TooGenericExceptionCaught:StoreBackedMutationEngine.kt$StoreBackedMutationEngine$throwable: Throwable</ID>
+    <ID>TooManyFunctions:StoreBackedMutationEngine.kt$StoreBackedMutationEngine&lt;ScopeKey : Any, Command : OutboxMutation, ConfirmedState, VisibleState, Ack : Any&gt;</ID>
+    <ID>WildcardImport:StoreBackedMutationEngine.kt$import org.mobilenativefoundation.store.store5.*</ID>
+  </CurrentIssues>
+</SmellBaseline>

@@ -6,10 +6,8 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
-import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
-import kotlinx.coroutines.flow.StateFlow
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.top_bar_create_synthetic_term
 import tuindice.record.generated.resources.top_bar_edit_synthetic_term
@@ -36,7 +34,7 @@ object CreateSyntheticTerm {
 		val hasSearchError: Boolean = false,
 		val isSubmitting: Boolean = false,
 		val submitError: UiText = UiText.Empty
-	) : ViewState() {
+	) : ViewState {
 		val canSubmit: Boolean
 			get() = selectedPeriod != null && selectedSubjects.isNotEmpty() && !isSubmitting
 
@@ -51,14 +49,11 @@ object CreateSyntheticTerm {
 			get() = editingTermId != null
 	}
 
-	sealed class Action : ViewAction() {
-		data class Observe(
-			val queryFlow: StateFlow<String>,
-			val selectedAddSubjectTabFlow: StateFlow<CreateTermAddSubjectTab>,
-			val selectedSubjectsFlow: StateFlow<List<SyntheticTermSubject>>,
-			val selectedPeriodKeyFlow: StateFlow<String?>,
-			val editingTermIdFlow: StateFlow<String?>,
-			val editingTermKeyFlow: StateFlow<String?>
+	sealed class Action : ViewAction {
+		data object Observe : Action()
+
+		data class ConfigureTerm(
+			val termId: String?
 		) : Action()
 
 		data class UpdateQuery(
@@ -66,16 +61,27 @@ object CreateSyntheticTerm {
 			val selectionStart: Int,
 			val selectionEnd: Int
 		) : Action()
-		data class CreateTerm(
-			val editingTermId: String?,
-			val editingTermKey: String?,
-			val period: SyntheticTermPeriodOption,
-			val subjects: List<SyntheticTermSubject>
+
+		data class SelectAddSubjectTab(
+			val tab: CreateTermAddSubjectTab
 		) : Action()
+
+		data class SelectPeriod(
+			val termKey: String
+		) : Action()
+
+		data class AddSubject(
+			val subjectItem: CreateTermSubjectItem
+		) : Action()
+
+		data class RemoveSubject(
+			val subjectCode: String
+		) : Action()
+
+		data object CreateTerm : Action()
 	}
 
-	sealed class Effect : ViewEffect() {
+	sealed class Effect : ViewEffect {
 		data object NavigateBack : Effect()
-		data class ShowSnackBar(val message: String) : Effect()
 	}
 }

@@ -1,0 +1,11 @@
+# Quarantined Maestro flows: one repo-relative flow path per line, with a trailing
+# comment stating the reason and a date or issue link. Quarantined flows are removed
+# from aggregator suites (suites/ and smoke/) by prepare-maestro-suite.sh, with a
+# visible QUARANTINED line on stderr — they never fail silently.
+#
+# Rules (enforced by verifyE2eContract):
+# - the flow file must exist
+# - _shared/ setup flows cannot be quarantined
+#
+# Example:
+# e2e/maestro/flows/about/about-share.yaml  # flaky share sheet timing, 2026-06-12

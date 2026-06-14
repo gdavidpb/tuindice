@@ -24,28 +24,10 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.RemoveEvaluationExceptionHandler
-import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationsExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.AddEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.EditEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadAvailableAttemptsActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.LoadEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.PickGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.PickMaxGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetDateActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetMaxGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetAttemptActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluation.SetTypeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.LoadEvaluationsActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenAddEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.OpenEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.PickEvaluationGradeActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RefreshEvaluationsActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.RemoveEvaluationActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SelectEvaluationsWeekActionProcessor
-import com.gdavidpb.tuindice.evaluations.presentation.action.evaluations.SetEvaluationGradeActionProcessor
+import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationMachine
+import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationsMachine
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import com.gdavidpb.tuindice.persistence.data.room.RoomMutationEnvelopeStore
@@ -69,28 +51,8 @@ val evaluationsModule = module {
 	viewModelOf(::EvaluationsViewModel)
 	viewModelOf(::EvaluationViewModel)
 
-	/* Action processor */
-
-	factoryOf(::LoadAvailableAttemptsActionProcessor)
-	factoryOf(::LoadEvaluationActionProcessor)
-	factoryOf(::AddEvaluationActionProcessor)
-	factoryOf(::EditEvaluationActionProcessor)
-	factoryOf(::PickGradeActionProcessor)
-	factoryOf(::PickMaxGradeActionProcessor)
-	factoryOf(::SetAttemptActionProcessor)
-	factoryOf(::SetTypeActionProcessor)
-	factoryOf(::SetDateActionProcessor)
-	factoryOf(::SetGradeActionProcessor)
-	factoryOf(::SetMaxGradeActionProcessor)
-
-	factoryOf(::LoadEvaluationsActionProcessor)
-	factoryOf(::RefreshEvaluationsActionProcessor)
-	factoryOf(::SelectEvaluationsWeekActionProcessor)
-	factoryOf(::OpenAddEvaluationActionProcessor)
-	factoryOf(::PickEvaluationGradeActionProcessor)
-	factoryOf(::SetEvaluationGradeActionProcessor)
-	factoryOf(::OpenEvaluationActionProcessor)
-	factoryOf(::RemoveEvaluationActionProcessor)
+	factoryOf(::EvaluationsMachine)
+	factoryOf(::EvaluationMachine)
 
 	/* Use cases */
 
@@ -152,7 +114,6 @@ val evaluationsModule = module {
 
 	/* Exception handlers */
 
-	factoryOf(::UpdateEvaluationsExceptionHandler)
 	factoryOf(::AddEvaluationExceptionHandler)
 	factoryOf(::UpdateEvaluationExceptionHandler)
 	factoryOf(::RemoveEvaluationExceptionHandler)

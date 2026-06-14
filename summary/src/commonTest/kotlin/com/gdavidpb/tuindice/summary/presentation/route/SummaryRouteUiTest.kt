@@ -1,14 +1,17 @@
 package com.gdavidpb.tuindice.summary.presentation.route
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
@@ -17,30 +20,25 @@ import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
-import com.gdavidpb.tuindice.summary.presentation.action.ObserveSummaryActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.ConfirmRemoveProfilePictureActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.OpenProfilePictureSettingsActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.PickProfilePictureActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.RefreshSummaryActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.RemoveProfilePictureActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.TakeProfilePictureActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.UploadProfilePictureActionProcessor
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
+import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
-import com.gdavidpb.tuindice.summary.testing.FakeNetworkRepository
-import com.gdavidpb.tuindice.summary.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
+import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import io.github.vinceglb.filekit.PlatformFile
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
@@ -172,29 +170,30 @@ class SummaryRouteUiTest {
 		val profilePictureSettingsNavigations = mutableListOf<Boolean>()
 
 		setTuIndiceTestContent {
-			SummaryRoute(
-				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = { showRemove ->
-					profilePictureSettingsNavigations += showRemove
-				},
-				onNavigateToRemoveProfilePictureConfirmationDialog = {},
-				showSnackBar = {},
-				viewModel = viewModel,
-				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository()
-			)
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+				SummaryRoute(
+					onNavigateToUpdatePassword = {},
+					onNavigateToProfilePictureSettingsDialog = { showRemove ->
+						profilePictureSettingsNavigations += showRemove
+					},
+					onNavigateToRemoveProfilePictureConfirmationDialog = {},
+					showSnackBar = {},
+					viewModel = viewModel,
+					syncStatusRepository = syncStatusRepository,
+					syncRepository = FakeSyncRepository()
+				)
+			}
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			(viewModel.state.value as? Summary.State.Content)?.isUserRefreshing == true
+			(viewModel.state.value as? Summary.State.Content)?.isUserRefreshing == true &&
+				userRepository.updateUserCalls == 1
 		}
 
 		onNodeWithTag(SummaryUiTags.ProfilePictureEditButton).assertIsNotEnabled()
 		assertTrue(profilePictureSettingsNavigations.isEmpty())
 
-		runOnIdle {
-			userRepository.completeRefresh()
-		}
+		userRepository.completeRefresh()
 
 		waitUntil(timeoutMillis = 2_000) {
 			(viewModel.state.value as? Summary.State.Content)?.isUserRefreshing == false
@@ -495,36 +494,29 @@ class SummaryRouteUiTest {
 	}
 
 	private fun createSummaryViewModel(
-		userRepository: UserRepository = RecordingUserRepository()
+		userRepository: UserRepository = RecordingUserRepository(),
+		dispatchers: TuIndiceDispatchers = TestTuIndiceDispatchers(Dispatchers.Unconfined)
 	): SummaryViewModel {
 		return SummaryViewModel(
-			observeSummaryActionProcessor = ObserveSummaryActionProcessor(
+			screenMachine = SummaryMachine(
 				observeUserUseCase = ObserveUserUseCase(
 					userRepository = userRepository,
 					reportingRepository = RecordingReportingRepository()
-				)
-			),
-			refreshSummaryActionProcessor = RefreshSummaryActionProcessor(
+				),
 				updateUserUseCase = UpdateUserUseCase(
 					userRepository = userRepository,
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = UpdateUserExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true)
 					)
-				)
-			),
-			takeProfilePictureActionProcessor = TakeProfilePictureActionProcessor(),
-			pickProfilePictureActionProcessor = PickProfilePictureActionProcessor(),
-			uploadProfilePictureActionProcessor = UploadProfilePictureActionProcessor(
+				),
 				uploadProfilePictureUseCase = UploadProfilePictureUseCase(
 					userRepository = userRepository,
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = UploadProfilePictureExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true)
 					)
-				)
-			),
-			confirmRemoveProfilePictureActionProcessor = ConfirmRemoveProfilePictureActionProcessor(
+				),
 				removeProfilePictureUseCase = RemoveProfilePictureUseCase(
 					userRepository = userRepository,
 					reportingRepository = RecordingReportingRepository(),
@@ -533,9 +525,8 @@ class SummaryRouteUiTest {
 					)
 				)
 			),
-			removeProfilePictureActionProcessor = RemoveProfilePictureActionProcessor(),
-			openProfilePictureSettingsActionProcessor = OpenProfilePictureSettingsActionProcessor(),
-			eventPublisher = NoOpEventPublisher
+			eventPublisher = NoOpEventPublisher,
+			dispatchers = dispatchers
 		)
 	}
 
@@ -557,10 +548,13 @@ class SummaryRouteUiTest {
 
 	private class BlockingRefreshUserRepository : UserRepository {
 		private val releaseRefresh = CompletableDeferred<Unit>()
+		var updateUserCalls = 0
+			private set
 
 		override suspend fun observeUserFlow() = flowOf(DEFAULT_SUMMARY_USER)
 
 		override suspend fun updateUser() {
+			updateUserCalls++
 			releaseRefresh.await()
 		}
 

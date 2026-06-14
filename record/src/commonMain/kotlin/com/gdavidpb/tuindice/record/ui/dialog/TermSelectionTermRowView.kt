@@ -12,7 +12,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CheckCircleOutline
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -24,6 +24,8 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.presentation.model.TermItemKind
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -40,9 +42,9 @@ fun TermSelectionTermRowView(
 	selectedContentDescription: String,
 	onClick: () -> Unit
 ) {
-	val rowShape = RoundedCornerShape(8.dp)
+	val rowShape = RoundedCornerShape(TuIndiceRadius.Small)
 	val containerColor = if (isSelected) {
-		MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.55f)
+		MaterialTheme.colorScheme.primaryContainer.copy(alpha = TuIndiceAlpha.Muted)
 	} else {
 		MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.24f)
 	}
@@ -68,7 +70,7 @@ fun TermSelectionTermRowView(
 				modifier = Modifier
 					.size(24.dp)
 					.testTag(RecordUiTags.termSelectionSelectedIcon(term.termId)),
-				imageVector = Icons.Outlined.CheckCircleOutline,
+				imageVector = Icons.Filled.Check,
 				contentDescription = selectedContentDescription,
 				tint = MaterialTheme.colorScheme.primary
 			)
@@ -83,7 +85,7 @@ fun TermSelectionTermRowView(
 			Text(
 				text = term.shortNameText,
 				style = MaterialTheme.typography.titleMedium,
-				fontWeight = if (isSelected) FontWeight.Black else FontWeight.SemiBold,
+				fontWeight = if (isSelected) FontWeight.Bold else FontWeight.SemiBold,
 				maxLines = 1,
 				overflow = TextOverflow.Ellipsis
 			)
@@ -94,7 +96,7 @@ fun TermSelectionTermRowView(
 			) {
 				Box(
 					modifier = Modifier
-						.clip(RoundedCornerShape(8.dp))
+						.clip(RoundedCornerShape(TuIndiceRadius.Small))
 						.background(MaterialTheme.colorScheme.secondaryContainer)
 						.testTag(RecordUiTags.termSelectionKind(term.termId))
 						.padding(

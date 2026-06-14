@@ -17,15 +17,15 @@ import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.Article
 import androidx.compose.material.icons.automirrored.filled.Assignment
-import androidx.compose.material.icons.automirrored.outlined.Article
 import androidx.compose.material.icons.automirrored.outlined.Assignment
 import androidx.compose.material.icons.automirrored.outlined.Logout
 import androidx.compose.material.icons.filled.AccountTree
+import androidx.compose.material.icons.filled.Book
 import androidx.compose.material.icons.filled.Bookmark
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.AccountTree
+import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.FindInPage
@@ -66,6 +66,7 @@ import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceShellColors
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
@@ -82,6 +83,7 @@ import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.ui.view.TopBarBannerHost
 import org.jetbrains.compose.resources.stringResource
 import tuindice.maincore.generated.resources.Res
+import tuindice.maincore.generated.resources.a11y_navigate_back
 import tuindice.maincore.generated.resources.main_start_failed_message
 import tuindice.maincore.generated.resources.main_start_failed_retry
 import tuindice.maincore.generated.resources.main_start_failed_title
@@ -191,8 +193,8 @@ fun TuIndiceScreen(
 				topBar = {
 				if (shellState.isTopBarVisible) {
 					val recordTopBarViewModeState = shellState.recordTopBarViewModeState
-					val topBarContainerColor = MaterialTheme.colorScheme.surface
-					val topBarContentColor = MaterialTheme.colorScheme.onSurface
+					val topBarContainerColor = TuIndiceShellColors.topBarContainer()
+					val topBarContentColor = TuIndiceShellColors.topBarContent()
 					val onRecordTopBarViewModeSelected =
 						if (onRecordViewModeChange == null) null
 						else { mode: RecordViewMode -> onRecordViewModeChange(mode) }
@@ -258,7 +260,7 @@ fun TuIndiceScreen(
 										) {
 											Icon(
 												imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-												contentDescription = null
+												contentDescription = stringResource(Res.string.a11y_navigate_back)
 											)
 										}
 									}
@@ -289,7 +291,7 @@ fun TuIndiceScreen(
 			},
 			bottomBar = {
 				if (shellState.isBottomBarVisible) {
-					val bottomBarContainerColor = MaterialTheme.colorScheme.onSecondary
+					val bottomBarContainerColor = TuIndiceShellColors.bottomBarContainer()
 
 					Box(
 						modifier = Modifier
@@ -330,7 +332,7 @@ fun TuIndiceScreen(
 										)
 									},
 									colors = NavigationBarItemDefaults.colors(
-										indicatorColor = MaterialTheme.colorScheme.secondaryContainer
+										indicatorColor = TuIndiceShellColors.bottomBarIndicator()
 									),
 									selected = isNavigationBarItemSelected,
 									onClick = { onNavigateTo(bottomBarConfig.destination) }
@@ -384,7 +386,7 @@ private fun bottomBarIcon(
 	BottomBarConfig.Summary ->
 		if (selected) Icons.Filled.Bookmark else Icons.Outlined.BookmarkBorder
 	BottomBarConfig.Record ->
-		if (selected) Icons.AutoMirrored.Filled.Article else Icons.AutoMirrored.Outlined.Article
+		if (selected) Icons.Filled.Book else Icons.Outlined.Book
 	BottomBarConfig.Pensum ->
 		if (selected) Icons.Filled.AccountTree else Icons.Outlined.AccountTree
 	BottomBarConfig.Evaluations ->

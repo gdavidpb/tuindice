@@ -146,75 +146,92 @@ changed_files_between_refs() {
 	fi
 }
 
+# The module dependency graph lives in scripts/module-graph.txt (validated by
+# scripts/validate-module-graph.sh). Module lists and impact closures are
+# derived from it so CI scoping cannot drift from the agreed boundaries.
+module_graph_file() {
+	local common_sh_dir
+	common_sh_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+	printf '%s/../../scripts/module-graph.txt\n' "$common_sh_dir"
+}
+
+module_graph_entries() {
+	grep -vE '^[[:space:]]*(#|$)' "$(module_graph_file)"
+}
+
+module_graph_modules() {
+	module_graph_entries | awk -F= 'NF { print $1 }' | sort
+}
+
+module_graph_dependencies() {
+	local module="$1"
+
+	module_graph_entries \
+		| awk -F= -v m="$module" '$1 == m { print $2 }' \
+		| tr ' ' '\n' \
+		| sed 's/^://' \
+		| grep -v '^-*$' || true
+}
+
+module_graph_direct_dependents() {
+	local module="$1"
+	local entry
+	local entry_module
+
+	while IFS= read -r entry; do
+		entry_module="${entry%%=*}"
+		if printf '%s\n' "${entry#*=}" | tr ' ' '\n' | grep -Fxq ":${module}"; then
+			printf '%s\n' "$entry_module"
+		fi
+	done < <(module_graph_entries)
+}
+
+# Emits the module plus every transitive dependent, derived from the graph.
+# The iOS host is appended whenever maincore is impacted because it links the
+# maincore umbrella framework.
+module_reverse_closure() {
+	local module="$1"
+	local visited=$'\n'"${module}"$'\n'
+	local queue="$module"
+	local current
+	local dependent
+	local rest
+
+	printf '%s\n' "$module"
+
+	while [[ -n "$queue" ]]; do
+		current="${queue%%$'\n'*}"
+		rest="${queue#"$current"}"
+		queue="${rest#$'\n'}"
+
+		while IFS= read -r dependent; do
+			[[ -n "$dependent" ]] || continue
+			if [[ "$visited" != *$'\n'"${dependent}"$'\n'* ]]; then
+				visited="${visited}${dependent}"$'\n'
+				printf '%s\n' "$dependent"
+				if [[ -n "$queue" ]]; then
+					queue="${queue}"$'\n'"${dependent}"
+				else
+					queue="$dependent"
+				fi
+			fi
+		done < <(module_graph_direct_dependents "$current")
+	done
+
+	if [[ "$visited" == *$'\n'maincore$'\n'* ]]; then
+		printf 'iosApp\n'
+	fi
+}
+
 kmp_modules() {
-	cat <<'EOF'
-about
-academiccore
-auth
-base
-enrollmentproof
-evaluations
-maincore
-pensum
-persistence
-record
-subjects
-summary
-testkit
-wizard
-EOF
+	module_graph_modules | grep -Fxv app
 }
 
 runtime_modules() {
-	cat <<'EOF'
-about
-academiccore
-app
-auth
-base
-enrollmentproof
-evaluations
-iosApp
-maincore
-pensum
-persistence
-record
-subjects
-summary
-wizard
-EOF
-}
-
-feature_modules() {
-	cat <<'EOF'
-about
-auth
-enrollmentproof
-evaluations
-pensum
-record
-subjects
-summary
-wizard
-EOF
-}
-
-all_shared_runtime_modules() {
-	cat <<'EOF'
-about
-academiccore
-auth
-base
-enrollmentproof
-evaluations
-maincore
-pensum
-persistence
-record
-subjects
-summary
-wizard
-EOF
+	{
+		module_graph_modules | grep -Fxv testkit
+		printf 'iosApp\n'
+	} | sort
 }
 
 module_is_kmp() {
@@ -237,50 +254,41 @@ module_e2e_suite() {
 	esac
 }
 
+# Feature modules in the reverse closure of a module, i.e. every module with
+# its own E2E suite whose behavior the change can impact. maincore is excluded:
+# its suite is only required by its own semantic triggers (maincore changes,
+# persistence bootstrap paths, shared E2E flow changes).
+module_impacted_feature_suites() {
+	local module="$1"
+	local impacted
+	local suite
+
+	while IFS= read -r impacted; do
+		[[ -n "$impacted" && "$impacted" != "maincore" ]] || continue
+		suite="$(module_e2e_suite "$impacted" || true)"
+		if [[ -n "$suite" ]]; then
+			printf '%s\n' "$impacted"
+		fi
+	done < <(module_reverse_closure "$module") | sort -u
+}
+
 append_module_closure() {
 	local module="$1"
 	local target_file="$2"
-	local dependency
+	local impacted
 
 	case "$module" in
-		base)
-			while IFS= read -r dependency; do append_unique_line "$target_file" "$dependency"; done < <(all_shared_runtime_modules)
-			append_unique_line "$target_file" app
-			append_unique_line "$target_file" iosApp
-			;;
-		academiccore)
-			for dependency in academiccore record evaluations pensum wizard maincore app iosApp; do
-				append_unique_line "$target_file" "$dependency"
-			done
-			;;
-		persistence)
-			for dependency in persistence summary record evaluations enrollmentproof subjects pensum maincore app iosApp; do
-				append_unique_line "$target_file" "$dependency"
-			done
-			;;
-		testkit)
-			append_unique_line "$target_file" testkit
-			;;
-		maincore)
-			for dependency in maincore app iosApp; do
-				append_unique_line "$target_file" "$dependency"
-			done
-			;;
-		app)
-			append_unique_line "$target_file" app
-			;;
 		iosApp)
 			append_unique_line "$target_file" iosApp
-			;;
-		about|auth|enrollmentproof|evaluations|pensum|record|subjects|summary|wizard)
-			for dependency in "$module" maincore app iosApp; do
-				append_unique_line "$target_file" "$dependency"
-			done
-			;;
-		*)
 			return 0
 			;;
 	esac
+
+	module_graph_modules | grep -Fxq "$module" || return 0
+
+	while IFS= read -r impacted; do
+		append_unique_line "$target_file" "$impacted"
+	done < <(module_reverse_closure "$module")
 }
 
 sort_file_if_present() {

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.data.source
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
@@ -51,6 +52,16 @@ class EvaluationDataSource(
 
 	override suspend fun observeHasSyncedEvaluationsFlow(): Flow<Boolean> {
 		return databaseDataSource.observeHasSyncedEvaluationsFlow()
+	}
+
+	override suspend fun observeEvaluationsSnapshotFlow(): Flow<ObservedSyncedSnapshot<List<Evaluation>>> {
+		return databaseDataSource.observeEvaluationsSnapshotFlow()
+			.map { snapshot ->
+				ObservedSyncedSnapshot(
+					value = snapshot.evaluations.map { evaluation -> evaluation.toEvaluation() },
+					hasSynced = snapshot.hasSynced
+				)
+			}
 	}
 
 	override suspend fun updateEvaluations() {

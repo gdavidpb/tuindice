@@ -16,7 +16,8 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "bodyFileName": "pensums/get-pensum-2016-long_internship.json"
+    "bodyFileName": "pensums/get-pensum-2016-long_internship.json",
+    "fixedDelayMilliseconds": 1800
   },
   "priority": 1
 }

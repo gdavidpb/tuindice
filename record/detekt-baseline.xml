@@ -1,0 +1,507 @@
+<?xml version="1.0" ?>
+<SmellBaseline>
+  <ManuallySuppressedIssues/>
+  <CurrentIssues>
+    <ID>ArgumentListWrapping:AcademicRecordDataSource.kt$AcademicRecordDataSource$(MutationEnvelope&lt;String, AcademicRecordMutation&gt;::createdAt, MutationEnvelope&lt;String, AcademicRecordMutation&gt;::mutationId)</ID>
+    <ID>ArgumentListWrapping:AcademicRecordDataSource.kt$AcademicRecordDataSource$(compareBy(MutationEnvelope&lt;String, AcademicRecordMutation&gt;::createdAt, MutationEnvelope&lt;String, AcademicRecordMutation&gt;::mutationId))</ID>
+    <ID>ComplexCondition:AttemptItem.kt$(this.gradingMode == AttemptGradingMode.NUMERIC) &amp;&amp; ( (numericGrade != MIN_SUBJECT_GRADE) || (resolvedOutcome == AttemptOutcome.UNREPORTED) ) &amp;&amp; (resolvedOutcome != AttemptOutcome.RETIRED) &amp;&amp; (score !is AttemptScore.Empty || resolvedOutcome == AttemptOutcome.UNREPORTED)</ID>
+    <ID>CyclomaticComplexMethod:AttemptItemView.kt$@Composable fun AttemptItemView( modifier: Modifier = Modifier, item: AttemptItem, gradeState: MutableIntState? = null, onGradeChange: (newGrade: Int?, newOutcome: AttemptOutcome?, isSelected: Boolean) -&gt; Unit )</ID>
+    <ID>CyclomaticComplexMethod:CreateSyntheticTermScreen.kt$@Composable fun CreateSyntheticTermScreen( state: CreateSyntheticTerm.State, onQueryChange: (String, Int, Int) -&gt; Unit, onClearQueryClick: () -&gt; Unit, onPeriodSelected: (String) -&gt; Unit, onAddSubjectTabSelected: (CreateTermAddSubjectTab) -&gt; Unit, onSubjectAdd: (CreateTermSubjectItem) -&gt; Unit, onSubjectRemove: (String) -&gt; Unit, onSubjectStatsClick: (String) -&gt; Unit = {}, onCreateClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:AlreadyTakenSearchResultsToggleView.kt$@Composable fun AlreadyTakenSearchResultsToggle( count: Int, isExpanded: Boolean, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:AttemptCardItemView.kt$@Composable fun AttemptCardItemView( modifier: Modifier = Modifier, item: AttemptItem, gradeState: MutableIntState? = null, onGradeChange: (newGrade: Int?, newOutcome: AttemptOutcome?, isSelected: Boolean) -&gt; Unit )</ID>
+    <ID>FunctionNaming:AttemptItemView.kt$@Composable fun AttemptItemView( modifier: Modifier = Modifier, item: AttemptItem, gradeState: MutableIntState? = null, onGradeChange: (newGrade: Int?, newOutcome: AttemptOutcome?, isSelected: Boolean) -&gt; Unit )</ID>
+    <ID>FunctionNaming:AttemptStatusBadge.kt$@Composable fun AttemptStatusBadge( modifier: Modifier = Modifier, text: String, containerColor: Color = MaterialTheme.colorScheme.surfaceContainerHighest, contentColor: Color = MaterialTheme.colorScheme.onSurface )</ID>
+    <ID>FunctionNaming:AttemptStatusChip.kt$@Composable fun AttemptStatusChip( modifier: Modifier = Modifier, text: String )</ID>
+    <ID>FunctionNaming:CreateSyntheticTermRoute.kt$@Composable fun CreateSyntheticTermRoute( termId: String?, viewModel: CreateSyntheticTermViewModel, onBack: () -&gt; Unit, onSubjectStatsClick: (String) -&gt; Unit )</ID>
+    <ID>FunctionNaming:CreateSyntheticTermScreen.kt$@Composable fun CreateSyntheticTermScreen( state: CreateSyntheticTerm.State, onQueryChange: (String, Int, Int) -&gt; Unit, onClearQueryClick: () -&gt; Unit, onPeriodSelected: (String) -&gt; Unit, onAddSubjectTabSelected: (CreateTermAddSubjectTab) -&gt; Unit, onSubjectAdd: (CreateTermSubjectItem) -&gt; Unit, onSubjectRemove: (String) -&gt; Unit, onSubjectStatsClick: (String) -&gt; Unit = {}, onCreateClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:CreateTermAddSubjectTabsView.kt$@Composable fun CreateTermAddSubjectTabs( selectedTab: CreateTermAddSubjectTab, onTabSelected: (CreateTermAddSubjectTab) -&gt; Unit )</ID>
+    <ID>FunctionNaming:CreateTermControlLabel.kt$@Composable fun CreateTermControlLabel(text: String)</ID>
+    <ID>FunctionNaming:CreateTermLoadChipView.kt$@Composable fun CreateTermLoadChip( loadPreview: SyntheticTermLoadPreview?, hasSelectedSubjects: Boolean, isLoading: Boolean, hasError: Boolean, modifier: Modifier = Modifier.height(LoadChipDefaultHeight) )</ID>
+    <ID>FunctionNaming:CreateTermLoadChipView.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable private fun CreateTermLoadInfoButton( message: String, color: Color )</ID>
+    <ID>FunctionNaming:CreateTermPeriodRowView.kt$@Composable fun CreateTermPeriodRow( selectedPeriod: SyntheticTermPeriodOption, periodOptions: List&lt;SyntheticTermPeriodOption&gt;, loadPreview: SyntheticTermLoadPreview?, hasSelectedSubjects: Boolean, isLoadingLoadPreview: Boolean, hasLoadPreviewError: Boolean, onPeriodSelected: (String) -&gt; Unit )</ID>
+    <ID>FunctionNaming:CreateTermSearchFieldView.kt$@Composable fun CreateTermSearchField( query: TextFieldValue, focusRequester: FocusRequester, onQueryChange: (TextFieldValue) -&gt; Unit, onClearQueryClick: () -&gt; Unit, onSearch: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:CreateTermSearchGuidanceView.kt$@OptIn(ExperimentalLayoutApi::class) @Composable fun CreateTermSearchGuidance( query: String, onExampleClick: (String) -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:CreateTermSearchMessageView.kt$@Composable fun CreateTermSearchMessage( title: String, modifier: Modifier = Modifier, description: String? = null, isRefreshing: Boolean = false )</ID>
+    <ID>FunctionNaming:CreateTermSectionTitleView.kt$@Composable fun CreateTermSectionTitle( text: String, isRefreshing: Boolean = false, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:CreateTermSelectedSubjectCardView.kt$@Composable fun CreateTermSelectedSubjectCard( subject: CreateTermSubjectItem, action: CreateTermSubjectCardAction, enabled: Boolean = true, onClick: () -&gt; Unit, onStatsClick: ((String) -&gt; Unit)? = null, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:CreateTermSubjectActionButtonView.kt$@Composable fun CreateTermSubjectActionButton( action: CreateTermSubjectCardAction, enabled: Boolean, onClick: () -&gt; Unit, testTag: String? = null )</ID>
+    <ID>FunctionNaming:CreateTermSubjectCodeChipView.kt$@Composable fun CreateTermSubjectCodeChip(subjectCode: String)</ID>
+    <ID>FunctionNaming:CreateTermSubjectStatsButtonView.kt$@Composable fun CreateTermSubjectStatsButton( subjectCode: String, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:CreateTermSubjectStatusRowView.kt$@Composable private fun CreateTermSubjectStatusLabel( subject: CreateTermSubjectItem, status: SubjectStatus, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:CreateTermSubjectStatusRowView.kt$@Composable private fun CreateTermSubjectStatusMarker(status: SubjectStatus)</ID>
+    <ID>FunctionNaming:CreateTermSubjectStatusRowView.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CreateTermSubjectStatusRow( subject: CreateTermSubjectItem, availableText: String, availableIcon: CreateTermSubjectStatusIcon )</ID>
+    <ID>FunctionNaming:CreateTermSubmitBarView.kt$@Composable fun CreateTermSubmitBar( selectedCount: Int, canSubmit: Boolean, isEditing: Boolean, isSubmitting: Boolean, submitError: UiText, onCreateClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:CreateTermSuggestedSubjectCardView.kt$@Composable fun CreateTermSuggestedSubjectCard( subject: CreateTermSubjectItem, enabled: Boolean, onClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:DeleteSyntheticTermConfirmationContentDialog.kt$@Composable fun DeleteSyntheticTermConfirmationContentDialog( onConfirmClick: () -&gt; Unit, onDismissRequest: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:DeleteSyntheticTermConfirmationDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun DeleteSyntheticTermConfirmationDialog( titleText: String, messageText: String, confirmText: String, cancelText: String, onConfirmClick: () -&gt; Unit, onDismissRequest: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:QualitativeStatusSelector.kt$@Composable fun QualitativeStatusSelector( modifier: Modifier = Modifier, attemptId: String, selectedItem: QualitativeStatusDropdownItem?, placeholderText: String, metadataText: String?, items: List&lt;QualitativeStatusDropdownItem&gt;, onSelected: (AttemptOutcome) -&gt; Unit )</ID>
+    <ID>FunctionNaming:RecordContentView.kt$@Composable fun RecordContentView( state: Record.State.Content, selectedTermId: String?, onSelectedTermChange: (termId: String) -&gt; Unit, onAttemptSelectionChange: ( attemptId: String, newGrade: Int?, newOutcome: AttemptOutcome?, isSelected: Boolean ) -&gt; Unit, showTermSelection: Boolean, onDismissTermSelection: () -&gt; Unit, onScrollInProgressChange: (Boolean) -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:RecordEmptyView.kt$@Composable fun RecordEmptyView( title: String, message: String )</ID>
+    <ID>FunctionNaming:RecordEnrollmentProofActionView.kt$@Composable fun RecordEnrollmentProofActionView( onClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:RecordFailedView.kt$@Composable fun RecordFailedView( title: String, message: String, retryText: String, onRetryClick: () -&gt; Unit, headerContent: @Composable () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:RecordLoadingView.kt$@Composable fun RecordLoadingView()</ID>
+    <ID>FunctionNaming:RecordRoute.kt$@Composable fun RecordRoute( onNavigateToUpdatePassword: () -&gt; Unit, onNavigateToCreateSyntheticTerm: () -&gt; Unit, onNavigateToUpdateSyntheticTerm: (termId: String) -&gt; Unit, onNavigateToDeleteSyntheticTermConfirmation: (termId: String) -&gt; Unit, onTopBarViewModeChangeAvailable: (((RecordViewMode) -&gt; Unit)?) -&gt; Unit, onTopBarTermSelectionAvailable: ((() -&gt; Unit)?) -&gt; Unit, onNavigateToEnrollmentProof: () -&gt; Unit, showTopBarBanner: (behavior: TopBarBannerBehavior) -&gt; Unit, showSnackBar: (message: SnackBarMessage) -&gt; Unit, viewModel: RecordViewModel )</ID>
+    <ID>FunctionNaming:RecordScreen.kt$@Composable fun RecordScreen( state: Record.State, selectedTermId: String?, onSelectedTermChange: (termId: String) -&gt; Unit, onRetryClick: () -&gt; Unit, onAttemptSelectionChange: ( attemptId: String, newGrade: Int?, newOutcome: AttemptOutcome?, isSelected: Boolean ) -&gt; Unit, onCreateSyntheticTermClick: () -&gt; Unit, onUpdateSyntheticTermClick: (termId: String) -&gt; Unit = {}, onDeleteSyntheticTermClick: (termId: String) -&gt; Unit = {}, onEnrollmentProofClick: () -&gt; Unit = {}, showTermSelection: Boolean = false, onDismissTermSelection: () -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:RecordSyntheticTermActionsView.kt$@Composable fun RecordSyntheticTermActionsView( termId: String, onEditClick: (String) -&gt; Unit, onDeleteClick: (String) -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:RecordTermPagerView.kt$@Composable fun RecordTermPagerView( modifier: Modifier = Modifier, terms: List&lt;TermItem&gt;, selectedTermId: String, onSelectedTermChange: (termId: String) -&gt; Unit, onAttemptSelectionChange: ( attemptId: String, newGrade: Int?, newOutcome: AttemptOutcome?, isSelected: Boolean ) -&gt; Unit, onScrollInProgressChange: (Boolean) -&gt; Unit )</ID>
+    <ID>FunctionNaming:RecordTopBarViewModeBannerView.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RecordTopBarViewModeBannerView( selectedMode: RecordViewMode, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:RecordTopBarViewModeSwitchView.kt$@Composable fun RecordTopBarViewModeSwitchView( selectedMode: RecordViewMode, onModeSelected: (RecordViewMode) -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>FunctionNaming:SelectedTermView.kt$@Composable fun SelectedTermView( modifier: Modifier = Modifier, term: TermItem, onAttemptSelectionChange: ( attemptId: String, newGrade: Int?, newOutcome: AttemptOutcome?, isSelected: Boolean ) -&gt; Unit, onScrollInProgressChange: (Boolean) -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:TermDeltaChip.kt$@Composable fun TermDeltaChip( modifier: Modifier = Modifier, delta: TermMetricDelta )</ID>
+    <ID>FunctionNaming:TermItemView.kt$@Composable fun TermItemView( modifier: Modifier = Modifier, item: TermItem, onAttemptSelectionChange: ( attemptId: String, newGrade: Int?, newOutcome: AttemptOutcome?, isSelected: Boolean ) -&gt; Unit, onScrollInProgressChange: (Boolean) -&gt; Unit = {} )</ID>
+    <ID>FunctionNaming:TermMetricDivider.kt$@Composable fun TermMetricDivider()</ID>
+    <ID>FunctionNaming:TermMetricItem.kt$@Composable fun TermMetricItem( modifier: Modifier = Modifier, value: AnnotatedString, delta: TermMetricDelta? = null, subtitle: String )</ID>
+    <ID>FunctionNaming:TermSelectionBottomSheet.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun TermSelectionBottomSheet( terms: List&lt;TermItem&gt;, selectedTermId: String, viewMode: RecordViewMode, onTermSelected: (termId: String) -&gt; Unit, onDismissRequest: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:TermSelectionTermRowView.kt$@Composable fun TermSelectionTermRowView( term: TermItem, isSelected: Boolean, selectedContentDescription: String, onClick: () -&gt; Unit )</ID>
+    <ID>FunctionNaming:TermSelectionYearHeaderView.kt$@Composable fun TermSelectionYearHeaderView(year: Int)</ID>
+    <ID>FunctionNaming:TermSelectorView.kt$@Composable fun TermSelectorView( modifier: Modifier = Modifier, terms: List&lt;TermItem&gt;, selectedTermId: String?, onTermSelected: (termId: String) -&gt; Unit )</ID>
+    <ID>FunctionNaming:TermSummaryContent.kt$@Composable fun TermSummaryContent( modifier: Modifier = Modifier, item: TermItem )</ID>
+    <ID>FunctionNaming:TermSummaryView.kt$@Composable fun TermSummaryView( modifier: Modifier = Modifier, item: TermItem )</ID>
+    <ID>ImportOrdering:AcademicRecordApiDataSource.kt$import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository import com.gdavidpb.tuindice.record.data.source.api.mapper.buildDeleteOverlayMutationRequest import com.gdavidpb.tuindice.record.data.source.api.mapper.buildAcademicUpsertAttemptOverrideRequest import com.gdavidpb.tuindice.record.data.source.api.mapper.toVersionedAcademicRecord import com.gdavidpb.tuindice.record.data.source.api.mapper.toAddSyntheticTermRequest import com.gdavidpb.tuindice.record.data.source.api.mapper.toSyntheticTermLoadPreview import com.gdavidpb.tuindice.record.data.source.api.mapper.toUpdateSyntheticTermRequest import com.gdavidpb.tuindice.record.data.source.api.response.AcademicRecordResponse import com.gdavidpb.tuindice.record.data.source.api.response.LoadSyntheticTermPreviewRequest import com.gdavidpb.tuindice.record.data.source.api.response.SyntheticTermLoadPreviewResponse import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview import io.ktor.client.HttpClient import io.ktor.client.call.body import io.ktor.client.request.delete import io.ktor.client.request.get import io.ktor.client.request.patch import io.ktor.client.request.post import io.ktor.client.request.put import io.ktor.client.request.setBody</ID>
+    <ID>ImportOrdering:AcademicRecordDataSource.kt$import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository import com.gdavidpb.tuindice.base.utils.currentTimeMillis import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutationSyncSpec import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_SCOPE import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository import kotlinx.coroutines.flow.Flow import kotlinx.coroutines.flow.filterNotNull import kotlinx.coroutines.flow.first import kotlinx.coroutines.flow.mapNotNull</ID>
+    <ID>ImportOrdering:AcademicRecordMutation.kt$import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation import kotlinx.serialization.SerialName import kotlinx.serialization.Serializable</ID>
+    <ID>ImportOrdering:AcademicRecordMutationSyncSpec.kt$import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord import com.gdavidpb.tuindice.base.utils.extension.isConflict import com.gdavidpb.tuindice.base.utils.extension.isNotFound import com.gdavidpb.tuindice.base.utils.extension.isPreconditionFailed import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureKind import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureResolution import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition import com.gdavidpb.tuindice.persistence.domain.mutation.MutationSyncSpec import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository</ID>
+    <ID>ImportOrdering:AttemptItem.kt$import androidx.compose.runtime.Composable import androidx.compose.runtime.remember import com.gdavidpb.tuindice.academiccore.domain.model.MIN_SUBJECT_GRADE import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode import com.gdavidpb.tuindice.academiccore.domain.model.AttemptBadge import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome import com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore import com.gdavidpb.tuindice.base.domain.model.GradingMode import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator import com.gdavidpb.tuindice.record.presentation.model.AttemptItem</ID>
+    <ID>ImportOrdering:AttemptItemDisplay.kt$import com.gdavidpb.tuindice.academiccore.domain.model.AttemptBadge import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome import com.gdavidpb.tuindice.base.domain.model.GradingMode import com.gdavidpb.tuindice.academiccore.domain.model.MAX_SUBJECT_GRADE import com.gdavidpb.tuindice.academiccore.domain.model.MIN_SUBJECT_GRADE import com.gdavidpb.tuindice.record.presentation.model.AttemptItem</ID>
+    <ID>ImportOrdering:AttemptItemView.kt$import androidx.compose.animation.AnimatedVisibility import androidx.compose.animation.expandVertically import androidx.compose.animation.fadeIn import androidx.compose.animation.fadeOut import androidx.compose.animation.shrinkVertically import androidx.compose.foundation.background import androidx.compose.foundation.clickable import androidx.compose.foundation.layout.Arrangement import androidx.compose.foundation.layout.Box import androidx.compose.foundation.layout.Column import androidx.compose.foundation.layout.Row import androidx.compose.foundation.layout.fillMaxWidth import androidx.compose.foundation.layout.heightIn import androidx.compose.foundation.layout.padding import androidx.compose.foundation.shape.RoundedCornerShape import androidx.compose.material3.MaterialTheme import androidx.compose.material3.Surface import androidx.compose.material3.Slider import androidx.compose.material3.Text import androidx.compose.runtime.Composable import androidx.compose.runtime.MutableIntState import androidx.compose.runtime.mutableStateOf import androidx.compose.runtime.remember import androidx.compose.ui.Alignment import androidx.compose.ui.Modifier import androidx.compose.ui.graphics.Color import androidx.compose.ui.platform.testTag import androidx.compose.ui.text.style.TextOverflow import androidx.compose.ui.unit.dp import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome import com.gdavidpb.tuindice.academiccore.domain.model.MAX_SUBJECT_GRADE import com.gdavidpb.tuindice.base.domain.model.GradingMode import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius import com.gdavidpb.tuindice.record.presentation.model.AttemptItem import com.gdavidpb.tuindice.record.ui.RecordUiTags import com.gdavidpb.tuindice.record.ui.model.AttemptItemBadge import com.gdavidpb.tuindice.record.ui.model.toAttemptItemDisplay import com.gdavidpb.tuindice.record.utils.Ranges import org.jetbrains.compose.resources.stringResource import tuindice.record.generated.resources.Res import tuindice.record.generated.resources.attempt_approved import tuindice.record.generated.resources.attempt_failed import tuindice.record.generated.resources.attempt_retired import tuindice.record.generated.resources.attempt_status_selector_placeholder import tuindice.record.generated.resources.attempt_unreported import tuindice.record.generated.resources.attempt_without_effect import kotlin.math.roundToInt</ID>
+    <ID>ImportOrdering:CreateSyntheticTermMachine.kt$import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState import com.gdavidpb.tuindice.base.domain.utils.SubjectCatalogSearchNormalizer import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine import com.gdavidpb.tuindice.record.domain.model.RecordViewMode import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject import com.gdavidpb.tuindice.record.domain.usecase.CreateSyntheticTermUseCase import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermEditSeedUseCase import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermPreviewUseCase import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermCreationUseCase import com.gdavidpb.tuindice.record.domain.usecase.RefreshSyntheticTermSubjectSearchUseCase import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedTermUseCase import com.gdavidpb.tuindice.record.domain.usecase.UpdateSyntheticTermUseCase import com.gdavidpb.tuindice.record.domain.usecase.error.RecordUseCaseError import com.gdavidpb.tuindice.record.domain.usecase.param.CreateSyntheticTermParams import com.gdavidpb.tuindice.record.domain.usecase.param.LoadSyntheticTermPreviewParams import com.gdavidpb.tuindice.record.domain.usecase.param.ObserveSyntheticTermCreationParams import com.gdavidpb.tuindice.record.domain.usecase.param.RefreshSyntheticTermSubjectSearchParams import com.gdavidpb.tuindice.record.domain.usecase.param.SetSelectedTermParams import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm import com.gdavidpb.tuindice.record.presentation.mapper.toCreateTermSubjectItem import com.gdavidpb.tuindice.record.presentation.mapper.toSubmitErrorText import com.gdavidpb.tuindice.record.presentation.transition.createSyntheticTermTransitions import kotlinx.coroutines.ExperimentalCoroutinesApi import kotlinx.coroutines.delay import kotlinx.coroutines.flow.Flow import kotlinx.coroutines.flow.collect import kotlinx.coroutines.flow.distinctUntilChanged import kotlinx.coroutines.flow.flatMapLatest import kotlinx.coroutines.flow.flow import kotlinx.coroutines.flow.flowOf import kotlinx.coroutines.flow.mapNotNull import kotlinx.coroutines.flow.merge import kotlin.time.Duration.Companion.milliseconds import tuindice.record.generated.resources.Res</ID>
+    <ID>ImportOrdering:CreateSyntheticTermStateTest.kt$import com.gdavidpb.tuindice.base.presentation.model.UiText import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab import kotlin.test.Test import kotlin.test.assertEquals import tuindice.record.generated.resources.Res import tuindice.record.generated.resources.top_bar_create_synthetic_term import tuindice.record.generated.resources.top_bar_edit_synthetic_term</ID>
+    <ID>ImportOrdering:CreateSyntheticTermViewModelContractTest.kt$import app.cash.turbine.test import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome import com.gdavidpb.tuindice.academiccore.domain.model.TermKind import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher import com.gdavidpb.tuindice.base.presentation.model.UiText import com.gdavidpb.tuindice.record.domain.model.RecordViewMode import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationSnapshot import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject import com.gdavidpb.tuindice.record.domain.usecase.CreateSyntheticTermUseCase import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermEditSeedUseCase import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermPreviewUseCase import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermCreationUseCase import com.gdavidpb.tuindice.record.domain.usecase.RefreshSyntheticTermSubjectSearchUseCase import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedTermUseCase import com.gdavidpb.tuindice.record.domain.usecase.UpdateSyntheticTermUseCase import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExceptionHandler import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm import com.gdavidpb.tuindice.record.presentation.machine.CreateSyntheticTermDraft import com.gdavidpb.tuindice.record.presentation.machine.CreateSyntheticTermMachine import com.gdavidpb.tuindice.record.testing.ControllableAcademicRecordRepository import com.gdavidpb.tuindice.record.testing.ControllableSyntheticTermCreationRepository import com.gdavidpb.tuindice.record.testing.FakeSyntheticTermLoadPreviewRepository import com.gdavidpb.tuindice.record.testing.RecordingRecordSelectionRepository import com.gdavidpb.tuindice.record.testing.academicAttempt import com.gdavidpb.tuindice.record.testing.academicTerm import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector import kotlin.test.Test import kotlin.test.assertEquals import kotlin.test.assertIs import kotlin.test.assertTrue import kotlinx.coroutines.CompletableDeferred import kotlinx.coroutines.test.runTest</ID>
+    <ID>ImportOrdering:CreateTermAddSubjectTabsView.kt$import androidx.compose.foundation.layout.fillMaxWidth import androidx.compose.material3.MaterialTheme import androidx.compose.material3.SegmentedButton import androidx.compose.material3.SegmentedButtonDefaults import androidx.compose.material3.SingleChoiceSegmentedButtonRow import androidx.compose.material3.Text import androidx.compose.runtime.Composable import androidx.compose.ui.Modifier import androidx.compose.ui.platform.testTag import androidx.compose.ui.text.style.TextOverflow import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab import com.gdavidpb.tuindice.record.ui.RecordUiTags import org.jetbrains.compose.resources.stringResource import org.jetbrains.compose.resources.StringResource import tuindice.record.generated.resources.Res import tuindice.record.generated.resources.create_term_search_tab import tuindice.record.generated.resources.create_term_suggested_tab</ID>
+    <ID>ImportOrdering:CreateTermLoadChipView.kt$import androidx.compose.foundation.BorderStroke import androidx.compose.foundation.background import androidx.compose.foundation.layout.Arrangement import androidx.compose.foundation.layout.Box import androidx.compose.foundation.layout.Row import androidx.compose.foundation.layout.fillMaxSize import androidx.compose.foundation.layout.height import androidx.compose.foundation.layout.padding import androidx.compose.foundation.layout.size import androidx.compose.foundation.layout.width import androidx.compose.foundation.shape.CircleShape import androidx.compose.foundation.shape.RoundedCornerShape import androidx.compose.material.icons.Icons import androidx.compose.material.icons.outlined.Info import androidx.compose.material3.CircularProgressIndicator import androidx.compose.material3.ExperimentalMaterial3Api import androidx.compose.material3.Icon import androidx.compose.material3.IconButton import androidx.compose.material3.MaterialTheme import androidx.compose.material3.PlainTooltip import androidx.compose.material3.Surface import androidx.compose.material3.Text import androidx.compose.material3.TooltipAnchorPosition import androidx.compose.material3.TooltipBox import androidx.compose.material3.TooltipDefaults import androidx.compose.material3.rememberTooltipState import androidx.compose.runtime.Composable import androidx.compose.runtime.LaunchedEffect import androidx.compose.runtime.rememberCoroutineScope import androidx.compose.ui.Alignment import androidx.compose.ui.Modifier import androidx.compose.ui.graphics.Color import androidx.compose.ui.platform.testTag import androidx.compose.ui.text.style.TextOverflow import androidx.compose.ui.unit.dp import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadBand import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadBasis import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadConfidence import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadDetail import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview import com.gdavidpb.tuindice.record.ui.RecordUiTags import kotlinx.coroutines.launch import org.jetbrains.compose.resources.stringResource import tuindice.record.generated.resources.Res import tuindice.record.generated.resources.create_term_load_info_content_description import tuindice.record.generated.resources.create_term_load_loading import tuindice.record.generated.resources.create_term_load_placeholder import tuindice.record.generated.resources.create_term_load_tooltip_available import tuindice.record.generated.resources.create_term_load_tooltip_career import tuindice.record.generated.resources.create_term_load_tooltip_error import tuindice.record.generated.resources.create_term_load_tooltip_global import tuindice.record.generated.resources.create_term_load_tooltip_insufficient_reference import tuindice.record.generated.resources.create_term_load_tooltip_loading import tuindice.record.generated.resources.create_term_load_tooltip_missing_difficulty import tuindice.record.generated.resources.create_term_load_tooltip_personal_high import tuindice.record.generated.resources.create_term_load_tooltip_personal_low import tuindice.record.generated.resources.create_term_load_tooltip_personal_medium import tuindice.record.generated.resources.create_term_load_tooltip_placeholder import tuindice.record.generated.resources.create_term_load_tooltip_terms_plural import tuindice.record.generated.resources.create_term_load_tooltip_terms_singular import tuindice.record.generated.resources.create_term_load_unavailable import tuindice.record.generated.resources.create_term_load_tooltip_unavailable import tuindice.record.generated.resources.create_term_load_tooltip_unknown_subject</ID>
+    <ID>ImportOrdering:CreateTermSubmitBarView.kt$import androidx.compose.foundation.BorderStroke import androidx.compose.foundation.layout.Arrangement import androidx.compose.foundation.layout.Column import androidx.compose.foundation.layout.Row import androidx.compose.foundation.layout.fillMaxWidth import androidx.compose.foundation.layout.height import androidx.compose.foundation.layout.padding import androidx.compose.foundation.layout.size import androidx.compose.foundation.layout.width import androidx.compose.foundation.layout.widthIn import androidx.compose.foundation.shape.RoundedCornerShape import androidx.compose.material3.Button import androidx.compose.material3.CircularProgressIndicator import androidx.compose.material3.MaterialTheme import androidx.compose.material3.Surface import androidx.compose.material3.Text import androidx.compose.runtime.Composable import androidx.compose.ui.Alignment import androidx.compose.ui.Modifier import androidx.compose.ui.platform.testTag import androidx.compose.ui.text.style.TextOverflow import androidx.compose.ui.unit.dp import com.gdavidpb.tuindice.base.presentation.model.UiText import com.gdavidpb.tuindice.base.presentation.model.asString import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing import com.gdavidpb.tuindice.record.ui.RecordUiTags import org.jetbrains.compose.resources.stringResource import tuindice.record.generated.resources.Res import tuindice.record.generated.resources.create_term_button import tuindice.record.generated.resources.edit_term_button import tuindice.record.generated.resources.create_term_selected_count</ID>
+    <ID>ImportOrdering:RecordModule.kt$import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord import com.gdavidpb.tuindice.persistence.data.room.RoomMutationEnvelopeStore import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_STORE_ID import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository import com.gdavidpb.tuindice.record.data.source.AcademicRecordApiDataSource import com.gdavidpb.tuindice.record.data.source.AcademicRecordDataSource import com.gdavidpb.tuindice.record.data.source.AcademicRecordRoomDataSource import com.gdavidpb.tuindice.record.data.source.LocalSettingsDataSource import com.gdavidpb.tuindice.record.data.source.RecordSelectionDataSource import com.gdavidpb.tuindice.record.data.source.SyntheticTermCreationDataSource import com.gdavidpb.tuindice.record.data.source.SyntheticTermLoadPreviewDataSource import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermCreationRepository import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermLoadPreviewRepository import com.gdavidpb.tuindice.record.domain.usecase.CreateSyntheticTermUseCase import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermPreviewUseCase import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermEditSeedUseCase import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermCreationUseCase import com.gdavidpb.tuindice.record.domain.usecase.RefreshSyntheticTermSubjectSearchUseCase import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedTermUseCase import com.gdavidpb.tuindice.record.domain.usecase.UpdateRecordUseCase import com.gdavidpb.tuindice.record.domain.usecase.UpdateSyntheticTermUseCase import com.gdavidpb.tuindice.record.domain.usecase.UpsertAttemptSelectionUseCase import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExceptionHandler import com.gdavidpb.tuindice.record.presentation.machine.CreateSyntheticTermDraft import com.gdavidpb.tuindice.record.presentation.machine.CreateSyntheticTermMachine import com.gdavidpb.tuindice.record.presentation.machine.RecordMachine import com.gdavidpb.tuindice.record.presentation.viewmodel.CreateSyntheticTermViewModel import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel import org.koin.core.module.dsl.bind import org.koin.core.module.dsl.factoryOf import org.koin.core.module.dsl.singleOf import org.koin.core.module.dsl.viewModelOf import org.koin.core.qualifier.named import org.koin.dsl.module</ID>
+    <ID>ImportOrdering:RecordModuleKoinSmokeTest.kt$import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers import com.gdavidpb.tuindice.base.domain.repository.EventPublisher import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository import com.gdavidpb.tuindice.record.domain.model.RecordViewMode import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository import com.gdavidpb.tuindice.testkit.koin.assertResolves import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest import kotlin.test.Test import kotlinx.coroutines.flow.Flow import kotlinx.coroutines.flow.emptyFlow import kotlinx.coroutines.flow.flowOf import org.koin.dsl.module</ID>
+    <ID>ImportOrdering:RecordScreen.kt$import androidx.compose.animation.AnimatedVisibility import androidx.compose.animation.fadeIn import androidx.compose.animation.fadeOut import androidx.compose.foundation.background import androidx.compose.foundation.layout.Box import androidx.compose.foundation.layout.Column import androidx.compose.foundation.layout.fillMaxSize import androidx.compose.foundation.layout.padding import androidx.compose.material.icons.Icons import androidx.compose.material.icons.outlined.Add import androidx.compose.material3.FloatingActionButton import androidx.compose.material3.Icon import androidx.compose.material3.MaterialTheme import androidx.compose.runtime.Composable import androidx.compose.runtime.mutableStateOf import androidx.compose.runtime.remember import androidx.compose.ui.Alignment import androidx.compose.ui.Modifier import androidx.compose.ui.platform.testTag import androidx.compose.ui.unit.dp import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView import com.gdavidpb.tuindice.record.domain.model.RecordViewMode import com.gdavidpb.tuindice.record.domain.model.filteredProjectionFor import com.gdavidpb.tuindice.record.presentation.contract.Record import com.gdavidpb.tuindice.record.ui.RecordUiTags import com.gdavidpb.tuindice.record.ui.view.RecordContentView import com.gdavidpb.tuindice.record.ui.view.RecordEmptyView import com.gdavidpb.tuindice.record.ui.view.RecordEnrollmentProofActionView import com.gdavidpb.tuindice.record.ui.view.RecordFailedView import com.gdavidpb.tuindice.record.ui.view.RecordLoadingView import com.gdavidpb.tuindice.record.ui.view.RecordSyntheticTermActionsView import org.jetbrains.compose.resources.stringResource import tuindice.record.generated.resources.Res import tuindice.record.generated.resources.a11y_create_synthetic_term import tuindice.record.generated.resources.record_empty_message import tuindice.record.generated.resources.record_empty_title import tuindice.record.generated.resources.record_failed_message import tuindice.record.generated.resources.record_failed_retry import tuindice.record.generated.resources.record_failed_title</ID>
+    <ID>ImportOrdering:RecordStateMachineContractTest.kt$import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher import com.gdavidpb.tuindice.base.presentation.model.UiText import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers import com.gdavidpb.tuindice.base.domain.repository.EventPublisher import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository import com.gdavidpb.tuindice.record.di.recordModule import com.gdavidpb.tuindice.record.domain.model.RecordViewMode import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationSnapshot import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermCreationRepository import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermLoadPreviewRepository import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm import com.gdavidpb.tuindice.record.presentation.contract.Record import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem import com.gdavidpb.tuindice.record.presentation.viewmodel.CreateSyntheticTermViewModel import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable import kotlin.test.Test import kotlin.test.assertTrue import kotlinx.coroutines.test.runTest import kotlinx.coroutines.flow.Flow import kotlinx.coroutines.flow.StateFlow import kotlinx.coroutines.flow.emptyFlow import kotlinx.coroutines.flow.flowOf import org.koin.core.Koin import org.koin.dsl.module</ID>
+    <ID>ImportOrdering:RecordViewModelContractTest.kt$import app.cash.turbine.test import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher import com.gdavidpb.tuindice.record.domain.model.RecordViewMode import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedTermUseCase import com.gdavidpb.tuindice.record.domain.usecase.UpdateRecordUseCase import com.gdavidpb.tuindice.record.domain.usecase.UpsertAttemptSelectionUseCase import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExceptionHandler import com.gdavidpb.tuindice.record.presentation.contract.Record import com.gdavidpb.tuindice.record.presentation.machine.RecordMachine import com.gdavidpb.tuindice.record.testing.ControllableAcademicRecordRepository import com.gdavidpb.tuindice.record.testing.RecordingRecordSelectionRepository import com.gdavidpb.tuindice.record.testing.academicAttempt import com.gdavidpb.tuindice.record.testing.academicTerm import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector import kotlin.test.Test import kotlin.test.assertEquals import kotlin.test.assertIs import kotlin.test.assertTrue import kotlinx.coroutines.test.runTest</ID>
+    <ID>ImportOrdering:RecordViewModelSnackContractTest.kt$import app.cash.turbine.test import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedTermUseCase import com.gdavidpb.tuindice.record.domain.usecase.UpdateRecordUseCase import com.gdavidpb.tuindice.record.domain.usecase.UpsertAttemptSelectionUseCase import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExceptionHandler import com.gdavidpb.tuindice.record.presentation.contract.Record import com.gdavidpb.tuindice.record.presentation.machine.RecordMachine import com.gdavidpb.tuindice.record.testing.ControllableAcademicRecordRepository import com.gdavidpb.tuindice.record.testing.RecordingRecordSelectionRepository import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector import kotlin.test.Test import kotlin.test.assertEquals import kotlin.test.assertIs import kotlin.test.assertTrue import kotlin.time.Duration.Companion.seconds import kotlinx.coroutines.test.runTest</ID>
+    <ID>ImportOrdering:SyntheticTermCreationDataSource.kt$import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent import com.gdavidpb.tuindice.academiccore.domain.model.isHistorical import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic import com.gdavidpb.tuindice.base.domain.model.GradingMode import com.gdavidpb.tuindice.base.utils.currentTimeMillis import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao import com.gdavidpb.tuindice.persistence.data.room.daos.PensumSelectionDao import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectCatalogCacheDao import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity import com.gdavidpb.tuindice.base.domain.utils.SubjectCatalogSearchNormalizer import com.gdavidpb.tuindice.record.data.model.CreateSyntheticTermPensumCacheResponse import com.gdavidpb.tuindice.record.data.model.CreateSyntheticTermSubjectSearchResponse import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationSnapshot import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailabilityDetail import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermCreationRepository import io.ktor.client.HttpClient import io.ktor.client.call.body import io.ktor.client.request.get import io.ktor.client.request.parameter import kotlinx.coroutines.ExperimentalCoroutinesApi import kotlinx.coroutines.flow.Flow import kotlinx.coroutines.flow.StateFlow import kotlinx.coroutines.flow.combine import kotlinx.coroutines.flow.distinctUntilChanged import kotlinx.coroutines.flow.emitAll import kotlinx.coroutines.flow.flatMapLatest import kotlinx.coroutines.flow.flow import kotlinx.coroutines.flow.flowOf import kotlinx.coroutines.flow.map import kotlinx.datetime.TimeZone import kotlinx.datetime.toLocalDateTime import kotlinx.serialization.json.Json import kotlin.time.Clock import kotlin.time.ExperimentalTime</ID>
+    <ID>ImportOrdering:SyntheticTermCreationDataSourceTest.kt$import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore import com.gdavidpb.tuindice.academiccore.domain.model.TermKind import com.gdavidpb.tuindice.base.domain.model.GradingMode import com.gdavidpb.tuindice.base.domain.utils.SubjectCatalogSearchNormalizer import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao import com.gdavidpb.tuindice.persistence.data.room.daos.PensumSelectionDao import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectCatalogCacheDao import com.gdavidpb.tuindice.persistence.data.room.entity.PensumCacheEntity import com.gdavidpb.tuindice.persistence.data.room.entity.PensumSelectionEntity import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository import io.ktor.client.HttpClient import io.ktor.client.engine.mock.MockEngine import io.ktor.client.engine.mock.respondOk import kotlinx.coroutines.flow.Flow import kotlinx.coroutines.flow.MutableStateFlow import kotlinx.coroutines.flow.flowOf import kotlinx.coroutines.flow.first import kotlinx.coroutines.test.runTest import kotlinx.datetime.TimeZone import kotlinx.datetime.toLocalDateTime import kotlinx.serialization.json.Json import kotlin.time.Clock import kotlin.time.ExperimentalTime import kotlin.test.Test import kotlin.test.assertEquals import kotlin.test.assertTrue</ID>
+    <ID>Indentation:AcademicRecordApiDataSource.kt$AcademicRecordApiDataSource$ </ID>
+    <ID>Indentation:AcademicRecordCore.kt$ </ID>
+    <ID>Indentation:AcademicRecordCoreMapperTest.kt$AcademicRecordCoreMapperTest$ </ID>
+    <ID>Indentation:AcademicRecordDataSource.kt$AcademicRecordDataSource$ </ID>
+    <ID>Indentation:AcademicRecordDataSourceTest.kt$ </ID>
+    <ID>Indentation:AcademicRecordDataSourceTest.kt$AcademicRecordDataSourceTest$ </ID>
+    <ID>Indentation:AcademicRecordDataSourceTest.kt$ControlledAcademicRecordRemoteDataRepository$ </ID>
+    <ID>Indentation:AcademicRecordDataSourceTest.kt$DelayedSequentialUpsertAcademicRecordRemoteDataRepository$ </ID>
+    <ID>Indentation:AcademicRecordDataSourceTest.kt$FakeAcademicRecordLocalDataRepository$ </ID>
+    <ID>Indentation:AcademicRecordDataSourceTest.kt$FakeIdentifierRepository$ </ID>
+    <ID>Indentation:AcademicRecordDataSourceTest.kt$FakeRecordSettingsDataRepository$ </ID>
+    <ID>Indentation:AcademicRecordDataSourceTest.kt$InMemoryMutationEnvelopeStore$ </ID>
+    <ID>Indentation:AcademicRecordDataSourceTest.kt$RebasingAcademicRecordRemoteDataRepository$ </ID>
+    <ID>Indentation:AcademicRecordLocalDataRepository.kt$AcademicRecordLocalDataRepository$ </ID>
+    <ID>Indentation:AcademicRecordMutation.kt$AcademicRecordMutation$ </ID>
+    <ID>Indentation:AcademicRecordMutation.kt$AcademicRecordMutation.AddSyntheticTerm$ </ID>
+    <ID>Indentation:AcademicRecordMutation.kt$AcademicRecordMutation.AddSyntheticTerm.SyntheticAttemptSeed$ </ID>
+    <ID>Indentation:AcademicRecordMutation.kt$AcademicRecordMutation.DeleteAttemptOverride$ </ID>
+    <ID>Indentation:AcademicRecordMutation.kt$AcademicRecordMutation.DeleteSyntheticTerm$ </ID>
+    <ID>Indentation:AcademicRecordMutation.kt$AcademicRecordMutation.UpdateSyntheticTerm$ </ID>
+    <ID>Indentation:AcademicRecordMutation.kt$AcademicRecordMutation.UpdateSyntheticTerm.SyntheticAttemptSeed$ </ID>
+    <ID>Indentation:AcademicRecordMutation.kt$AcademicRecordMutation.UpsertAttemptOverride$ </ID>
+    <ID>Indentation:AcademicRecordMutationSyncSpec.kt$AcademicRecordMutationSyncSpec$ </ID>
+    <ID>Indentation:AcademicRecordRemoteDataRepository.kt$AcademicRecordRemoteDataRepository$ </ID>
+    <ID>Indentation:AcademicRecordRepository.kt$AcademicRecordRepository$ </ID>
+    <ID>Indentation:AcademicRecordResponse.kt$AcademicRecordResponse$ </ID>
+    <ID>Indentation:AcademicRecordRoomDataSource.kt$AcademicRecordRoomDataSource$ </ID>
+    <ID>Indentation:AcademicRecordRoomMappers.kt$ </ID>
+    <ID>Indentation:AcademicRecordRoomMappersTest.kt$AcademicRecordRoomMappersTest$ </ID>
+    <ID>Indentation:AddSyntheticTermRequest.kt$AddSyntheticTermRequest$ </ID>
+    <ID>Indentation:AlreadyTakenSearchResultsToggleView.kt$ </ID>
+    <ID>Indentation:AttemptCardItemView.kt$ </ID>
+    <ID>Indentation:AttemptItem.kt$ </ID>
+    <ID>Indentation:AttemptItem.kt$AttemptItem$ </ID>
+    <ID>Indentation:AttemptItemDisplay.kt$ </ID>
+    <ID>Indentation:AttemptItemDisplay.kt$AttemptItemBadge$ </ID>
+    <ID>Indentation:AttemptItemDisplay.kt$AttemptItemDisplay$ </ID>
+    <ID>Indentation:AttemptItemMappingUiTest.kt$AttemptItemMappingUiTest$ </ID>
+    <ID>Indentation:AttemptItemView.kt$ </ID>
+    <ID>Indentation:AttemptItemViewUiTest.kt$AttemptItemViewUiTest$ </ID>
+    <ID>Indentation:AttemptSelectionToOverridePayload.kt$ </ID>
+    <ID>Indentation:AttemptSelectionToOverridePayloadTest.kt$AttemptSelectionToOverridePayloadTest$ </ID>
+    <ID>Indentation:AttemptStatusBadge.kt$ </ID>
+    <ID>Indentation:AttemptStatusChip.kt$ </ID>
+    <ID>Indentation:Constants.kt$CooldownTimes$ </ID>
+    <ID>Indentation:Constants.kt$PreferencesKeys$ </ID>
+    <ID>Indentation:Constants.kt$Ranges$ </ID>
+    <ID>Indentation:CreateSyntheticTerm.kt$CreateSyntheticTerm$ </ID>
+    <ID>Indentation:CreateSyntheticTerm.kt$CreateSyntheticTerm.Action$ </ID>
+    <ID>Indentation:CreateSyntheticTerm.kt$CreateSyntheticTerm.Action.AddSubject$ </ID>
+    <ID>Indentation:CreateSyntheticTerm.kt$CreateSyntheticTerm.Action.ConfigureTerm$ </ID>
+    <ID>Indentation:CreateSyntheticTerm.kt$CreateSyntheticTerm.Action.RemoveSubject$ </ID>
+    <ID>Indentation:CreateSyntheticTerm.kt$CreateSyntheticTerm.Action.SelectAddSubjectTab$ </ID>
+    <ID>Indentation:CreateSyntheticTerm.kt$CreateSyntheticTerm.Action.SelectPeriod$ </ID>
+    <ID>Indentation:CreateSyntheticTerm.kt$CreateSyntheticTerm.Action.UpdateQuery$ </ID>
+    <ID>Indentation:CreateSyntheticTerm.kt$CreateSyntheticTerm.Effect$ </ID>
+    <ID>Indentation:CreateSyntheticTerm.kt$CreateSyntheticTerm.State$ </ID>
+    <ID>Indentation:CreateSyntheticTermDraft.kt$CreateSyntheticTermDraft$ </ID>
+    <ID>Indentation:CreateSyntheticTermErrorMessages.kt$ </ID>
+    <ID>Indentation:CreateSyntheticTermErrorMessagesTest.kt$CreateSyntheticTermErrorMessagesTest$ </ID>
+    <ID>Indentation:CreateSyntheticTermInternalEvent.kt$CreateSyntheticTermInternalEvent$ </ID>
+    <ID>Indentation:CreateSyntheticTermInternalEvent.kt$CreateSyntheticTermInternalEvent.LoadPreviewLoaded$ </ID>
+    <ID>Indentation:CreateSyntheticTermInternalEvent.kt$CreateSyntheticTermInternalEvent.SnapshotObserved$ </ID>
+    <ID>Indentation:CreateSyntheticTermInternalEvent.kt$CreateSyntheticTermInternalEvent.SubmitFailed$ </ID>
+    <ID>Indentation:CreateSyntheticTermMachine.kt$CreateSyntheticTermMachine$ </ID>
+    <ID>Indentation:CreateSyntheticTermMachine.kt$LoadPreviewSelection$ </ID>
+    <ID>Indentation:CreateSyntheticTermParams.kt$CreateSyntheticTermParams$ </ID>
+    <ID>Indentation:CreateSyntheticTermPensumCacheResponse.kt$CreateSyntheticTermPensumCacheResponse$ </ID>
+    <ID>Indentation:CreateSyntheticTermPensumCacheResponse.kt$CreateSyntheticTermPensumCacheResponse.Edge$ </ID>
+    <ID>Indentation:CreateSyntheticTermPensumCacheResponse.kt$CreateSyntheticTermPensumCacheResponse.Node$ </ID>
+    <ID>Indentation:CreateSyntheticTermPensumCacheResponse.kt$CreateSyntheticTermPensumCacheResponse.Pensum$ </ID>
+    <ID>Indentation:CreateSyntheticTermRoute.kt$ </ID>
+    <ID>Indentation:CreateSyntheticTermScreen.kt$ </ID>
+    <ID>Indentation:CreateSyntheticTermScreenUiTest.kt$ </ID>
+    <ID>Indentation:CreateSyntheticTermScreenUiTest.kt$CreateSyntheticTermScreenUiTest$ </ID>
+    <ID>Indentation:CreateSyntheticTermStateTest.kt$CreateSyntheticTermStateTest$ </ID>
+    <ID>Indentation:CreateSyntheticTermSubjectSearchResponse.kt$CreateSyntheticTermSubjectSearchResponse$ </ID>
+    <ID>Indentation:CreateSyntheticTermSubjectSearchResponse.kt$CreateSyntheticTermSubjectSearchResponse.Result$ </ID>
+    <ID>Indentation:CreateSyntheticTermTransitions.kt$ </ID>
+    <ID>Indentation:CreateSyntheticTermUseCase.kt$CreateSyntheticTermUseCase$ </ID>
+    <ID>Indentation:CreateSyntheticTermUseCaseTest.kt$ </ID>
+    <ID>Indentation:CreateSyntheticTermUseCaseTest.kt$CreateSyntheticTermUseCaseTest$ </ID>
+    <ID>Indentation:CreateSyntheticTermUseCaseTest.kt$RecordingCreateAcademicRecordRepository$ </ID>
+    <ID>Indentation:CreateSyntheticTermViewModel.kt$CreateSyntheticTermViewModel$ </ID>
+    <ID>Indentation:CreateSyntheticTermViewModelContractTest.kt$CreateSyntheticTermFixture$ </ID>
+    <ID>Indentation:CreateSyntheticTermViewModelContractTest.kt$CreateSyntheticTermViewModelContractTest$ </ID>
+    <ID>Indentation:CreateTermAddSubjectTab.kt$CreateTermAddSubjectTab$ </ID>
+    <ID>Indentation:CreateTermAddSubjectTabsView.kt$ </ID>
+    <ID>Indentation:CreateTermControlLabel.kt$ </ID>
+    <ID>Indentation:CreateTermLoadChipView.kt$ </ID>
+    <ID>Indentation:CreateTermLoadChipView.kt$LoadChipStatus$ </ID>
+    <ID>Indentation:CreateTermLoadInfoViewUiTest.kt$CreateTermLoadInfoViewUiTest$ </ID>
+    <ID>Indentation:CreateTermPeriodRowView.kt$ </ID>
+    <ID>Indentation:CreateTermSearchFieldView.kt$ </ID>
+    <ID>Indentation:CreateTermSearchGuidanceView.kt$ </ID>
+    <ID>Indentation:CreateTermSearchMessageView.kt$ </ID>
+    <ID>Indentation:CreateTermSectionTitleView.kt$ </ID>
+    <ID>Indentation:CreateTermSelectedSubjectCardView.kt$ </ID>
+    <ID>Indentation:CreateTermSubjectActionButtonView.kt$ </ID>
+    <ID>Indentation:CreateTermSubjectCardAction.kt$CreateTermSubjectCardAction$ </ID>
+    <ID>Indentation:CreateTermSubjectCodeChipView.kt$ </ID>
+    <ID>Indentation:CreateTermSubjectItem.kt$ </ID>
+    <ID>Indentation:CreateTermSubjectItem.kt$CreateTermSubjectItem$ </ID>
+    <ID>Indentation:CreateTermSubjectItemTest.kt$CreateTermSubjectItemTest$ </ID>
+    <ID>Indentation:CreateTermSubjectStatsButtonView.kt$ </ID>
+    <ID>Indentation:CreateTermSubjectStatusIcon.kt$CreateTermSubjectStatusIcon$ </ID>
+    <ID>Indentation:CreateTermSubjectStatusRowView.kt$ </ID>
+    <ID>Indentation:CreateTermSubjectStatusRowView.kt$SubjectStatus$ </ID>
+    <ID>Indentation:CreateTermSubjectStatusRowViewUiTest.kt$CreateTermSubjectStatusRowViewUiTest$ </ID>
+    <ID>Indentation:CreateTermSubmitBarView.kt$ </ID>
+    <ID>Indentation:CreateTermSuggestedSubjectCardView.kt$ </ID>
+    <ID>Indentation:DeleteOverlayMutationRequest.kt$DeleteOverlayMutationRequest$ </ID>
+    <ID>Indentation:DeleteSyntheticTermConfirmationContentDialog.kt$ </ID>
+    <ID>Indentation:DeleteSyntheticTermConfirmationDialog.kt$ </ID>
+    <ID>Indentation:DeleteSyntheticTermConfirmationDialogUiTest.kt$DeleteSyntheticTermConfirmationDialogUiTest$ </ID>
+    <ID>Indentation:DeleteSyntheticTermConfirmationResult.kt$DeleteSyntheticTermConfirmationResult$ </ID>
+    <ID>Indentation:DeleteSyntheticTermConfirmationResult.kt$DeleteSyntheticTermConfirmationResult.Confirmed$ </ID>
+    <ID>Indentation:DeleteSyntheticTermUseCase.kt$DeleteSyntheticTermUseCase$ </ID>
+    <ID>Indentation:DeleteSyntheticTermUseCaseTest.kt$DeleteSyntheticTermUseCaseTest$ </ID>
+    <ID>Indentation:DeleteSyntheticTermUseCaseTest.kt$RecordingAcademicRecordRepository$ </ID>
+    <ID>Indentation:LoadSyntheticTermEditSeedUseCase.kt$LoadSyntheticTermEditSeedUseCase$ </ID>
+    <ID>Indentation:LoadSyntheticTermEditSeedUseCaseTest.kt$LoadSyntheticTermEditSeedUseCaseTest$ </ID>
+    <ID>Indentation:LoadSyntheticTermPreviewParams.kt$LoadSyntheticTermPreviewParams$ </ID>
+    <ID>Indentation:LoadSyntheticTermPreviewRequest.kt$LoadSyntheticTermPreviewRequest$ </ID>
+    <ID>Indentation:LoadSyntheticTermPreviewUseCase.kt$LoadSyntheticTermPreviewUseCase$ </ID>
+    <ID>Indentation:LoadSyntheticTermPreviewUseCaseTest.kt$LoadSyntheticTermPreviewUseCaseTest$ </ID>
+    <ID>Indentation:LocalSettingsDataSource.kt$LocalSettingsDataSource$ </ID>
+    <ID>Indentation:ObserveRecordUseCase.kt$ObserveRecordUseCase$ </ID>
+    <ID>Indentation:ObserveRecordUseCaseTest.kt$ObserveRecordUseCaseTest$ </ID>
+    <ID>Indentation:ObserveSyntheticTermCreationParams.kt$ObserveSyntheticTermCreationParams$ </ID>
+    <ID>Indentation:ObserveSyntheticTermCreationUseCase.kt$ObserveSyntheticTermCreationUseCase$ </ID>
+    <ID>Indentation:ObserveSyntheticTermCreationUseCaseTest.kt$ObserveSyntheticTermCreationUseCaseTest$ </ID>
+    <ID>Indentation:ObservedRecord.kt$ObservedRecord$ </ID>
+    <ID>Indentation:QualitativeStatusDropdownItem.kt$QualitativeStatusDropdownItem$ </ID>
+    <ID>Indentation:QualitativeStatusSelector.kt$ </ID>
+    <ID>Indentation:Record.kt$Record$ </ID>
+    <ID>Indentation:Record.kt$Record.Action$ </ID>
+    <ID>Indentation:Record.kt$Record.Action.SelectTerm$ </ID>
+    <ID>Indentation:Record.kt$Record.Action.UpsertAttemptSelection$ </ID>
+    <ID>Indentation:Record.kt$Record.Effect$ </ID>
+    <ID>Indentation:Record.kt$Record.Effect.ShowTopBarBanner$ </ID>
+    <ID>Indentation:Record.kt$Record.State$ </ID>
+    <ID>Indentation:Record.kt$Record.State.Content$ </ID>
+    <ID>Indentation:RecordAnyStateTransitions.kt$ </ID>
+    <ID>Indentation:RecordContentTransitions.kt$ </ID>
+    <ID>Indentation:RecordContentView.kt$ </ID>
+    <ID>Indentation:RecordDestination.kt$RecordDestination$ </ID>
+    <ID>Indentation:RecordDestination.kt$RecordDestination.CreateSyntheticTerm$ </ID>
+    <ID>Indentation:RecordDestination.kt$RecordDestination.DeleteSyntheticTermConfirmationDialog$ </ID>
+    <ID>Indentation:RecordDestination.kt$RecordDestination.NavGraph$ </ID>
+    <ID>Indentation:RecordDestination.kt$RecordDestination.Record$ </ID>
+    <ID>Indentation:RecordEmptyTransitions.kt$ </ID>
+    <ID>Indentation:RecordEmptyView.kt$ </ID>
+    <ID>Indentation:RecordEnrollmentProofActionView.kt$ </ID>
+    <ID>Indentation:RecordExceptionHandler.kt$RecordExceptionHandler$ </ID>
+    <ID>Indentation:RecordExceptionHandlerTest.kt$RecordExceptionHandlerTest$ </ID>
+    <ID>Indentation:RecordFailedTransitions.kt$ </ID>
+    <ID>Indentation:RecordFailedView.kt$ </ID>
+    <ID>Indentation:RecordIdleTransitions.kt$ </ID>
+    <ID>Indentation:RecordInternalEvent.kt$RecordInternalEvent$ </ID>
+    <ID>Indentation:RecordInternalEvent.kt$RecordInternalEvent.RecordContentObserved$ </ID>
+    <ID>Indentation:RecordInternalEvent.kt$RecordInternalEvent.RecordRefreshFailed$ </ID>
+    <ID>Indentation:RecordInternalEvent.kt$RecordInternalEvent.RecordViewModeSet$ </ID>
+    <ID>Indentation:RecordInternalEvent.kt$RecordInternalEvent.SyntheticTermDeleteFailed$ </ID>
+    <ID>Indentation:RecordInternalEvent.kt$RecordInternalEvent.SyntheticTermDeleted$ </ID>
+    <ID>Indentation:RecordLoadingView.kt$ </ID>
+    <ID>Indentation:RecordMachine.kt$RecordMachine$ </ID>
+    <ID>Indentation:RecordMapperTexts.kt$RecordMapperTexts$ </ID>
+    <ID>Indentation:RecordModule.kt$ </ID>
+    <ID>Indentation:RecordModuleKoinSmokeTest.kt$RecordModuleKoinSmokeTest$ </ID>
+    <ID>Indentation:RecordModuleKoinSmokeTest.kt$StubAcademicRecordRepository$ </ID>
+    <ID>Indentation:RecordModuleKoinSmokeTest.kt$StubRecordSelectionRepository$ </ID>
+    <ID>Indentation:RecordNavigation.kt$ </ID>
+    <ID>Indentation:RecordRoute.kt$ </ID>
+    <ID>Indentation:RecordRouteViewState.kt$RecordRouteViewState$ </ID>
+    <ID>Indentation:RecordRtlA11yUiTest.kt$RecordRtlA11yUiTest$ </ID>
+    <ID>Indentation:RecordScreen.kt$ </ID>
+    <ID>Indentation:RecordScreenUiTest.kt$RecordScreenUiTest$ </ID>
+    <ID>Indentation:RecordSelectionDataSource.kt$RecordSelectionDataSource$ </ID>
+    <ID>Indentation:RecordSelectionRepository.kt$RecordSelectionRepository$ </ID>
+    <ID>Indentation:RecordSettingsDataRepository.kt$RecordSettingsDataRepository$ </ID>
+    <ID>Indentation:RecordStateMachineContractTest.kt$RecordStateMachineContractTest$ </ID>
+    <ID>Indentation:RecordStateMachineContractTest.kt$StubAcademicRecordRepository$ </ID>
+    <ID>Indentation:RecordStateMachineContractTest.kt$StubRecordSelectionRepository$ </ID>
+    <ID>Indentation:RecordStateMachineContractTest.kt$StubSyntheticTermCreationRepository$ </ID>
+    <ID>Indentation:RecordStateMachineContractTest.kt$StubSyntheticTermLoadPreviewRepository$ </ID>
+    <ID>Indentation:RecordSyntheticTermActionsView.kt$ </ID>
+    <ID>Indentation:RecordTermPagerView.kt$ </ID>
+    <ID>Indentation:RecordTestDoubles.kt$ </ID>
+    <ID>Indentation:RecordTestDoubles.kt$ControllableAcademicRecordRepository$ </ID>
+    <ID>Indentation:RecordTestDoubles.kt$ControllableSyntheticTermCreationRepository$ </ID>
+    <ID>Indentation:RecordTestDoubles.kt$ControllableSyntheticTermCreationRepository.ObserveSnapshotCall$ </ID>
+    <ID>Indentation:RecordTestDoubles.kt$FakeSyntheticTermLoadPreviewRepository$ </ID>
+    <ID>Indentation:RecordTestDoubles.kt$RecordingRecordSelectionRepository$ </ID>
+    <ID>Indentation:RecordTopBarViewModeBannerView.kt$ </ID>
+    <ID>Indentation:RecordTopBarViewModeBannerViewUiTest.kt$RecordTopBarViewModeBannerViewUiTest$ </ID>
+    <ID>Indentation:RecordTopBarViewModeState.kt$RecordTopBarViewModeState$ </ID>
+    <ID>Indentation:RecordTopBarViewModeSwitchView.kt$ </ID>
+    <ID>Indentation:RecordTopBarViewModeSwitchViewUiTest.kt$RecordTopBarViewModeSwitchViewUiTest$ </ID>
+    <ID>Indentation:RecordUiTags.kt$RecordUiTags$ </ID>
+    <ID>Indentation:RecordUseCaseError.kt$RecordUseCaseError$ </ID>
+    <ID>Indentation:RecordUseCaseError.kt$RecordUseCaseError.SyntheticTermValidation$ </ID>
+    <ID>Indentation:RecordViewMode.kt$RecordViewMode$ </ID>
+    <ID>Indentation:RecordViewMode.kt$RecordViewMode.Companion$ </ID>
+    <ID>Indentation:RecordViewModeBannerColors.kt$RecordViewModeBannerColors$ </ID>
+    <ID>Indentation:RecordViewModeBannerColorsProvider.kt$ </ID>
+    <ID>Indentation:RecordViewModeExtensions.kt$ </ID>
+    <ID>Indentation:RecordViewModeIcon.kt$ </ID>
+    <ID>Indentation:RecordViewModeTest.kt$RecordViewModeTest$ </ID>
+    <ID>Indentation:RecordViewModel.kt$RecordViewModel$ </ID>
+    <ID>Indentation:RecordViewModelContractTest.kt$RecordFixture$ </ID>
+    <ID>Indentation:RecordViewModelContractTest.kt$RecordViewModelContractTest$ </ID>
+    <ID>Indentation:RecordViewModelSnackContractTest.kt$RecordViewModelSnackContractTest$ </ID>
+    <ID>Indentation:RefreshSyntheticTermSubjectSearchParams.kt$RefreshSyntheticTermSubjectSearchParams$ </ID>
+    <ID>Indentation:RefreshSyntheticTermSubjectSearchUseCase.kt$RefreshSyntheticTermSubjectSearchUseCase$ </ID>
+    <ID>Indentation:RefreshSyntheticTermSubjectSearchUseCaseTest.kt$RefreshSyntheticTermSubjectSearchUseCaseTest$ </ID>
+    <ID>Indentation:SelectedTermView.kt$ </ID>
+    <ID>Indentation:SetRecordViewModeUseCase.kt$SetRecordViewModeUseCase$ </ID>
+    <ID>Indentation:SetRecordViewModeUseCaseTest.kt$SetRecordViewModeUseCaseTest$ </ID>
+    <ID>Indentation:SetSelectedTermParams.kt$SetSelectedTermParams$ </ID>
+    <ID>Indentation:SetSelectedTermUseCase.kt$SetSelectedTermUseCase$ </ID>
+    <ID>Indentation:SetSelectedTermUseCaseTest.kt$SetSelectedTermUseCaseTest$ </ID>
+    <ID>Indentation:SyntheticTermCommandValidator.kt$SyntheticTermCommandValidator$ </ID>
+    <ID>Indentation:SyntheticTermCommandValidatorTest.kt$SyntheticTermCommandValidatorTest$ </ID>
+    <ID>Indentation:SyntheticTermCreationCommand.kt$SyntheticTermCreationCommand$ </ID>
+    <ID>Indentation:SyntheticTermCreationCommand.kt$SyntheticTermCreationCommand.SyntheticAttemptSeed$ </ID>
+    <ID>Indentation:SyntheticTermCreationDataSource.kt$ </ID>
+    <ID>Indentation:SyntheticTermCreationDataSource.kt$SyntheticTermCreationDataSource$ </ID>
+    <ID>Indentation:SyntheticTermCreationDataSource.kt$SyntheticTermCreationDataSource.FormSelectionState$ </ID>
+    <ID>Indentation:SyntheticTermCreationDataSource.kt$SyntheticTermCreationDataSource.SubjectAvailabilityResolution$ </ID>
+    <ID>Indentation:SyntheticTermCreationDataSourceTest.kt$	</ID>
+    <ID>Indentation:SyntheticTermCreationDataSourceTest.kt$ </ID>
+    <ID>Indentation:SyntheticTermCreationDataSourceTest.kt$FakeAcademicRecordRepository$ </ID>
+    <ID>Indentation:SyntheticTermCreationDataSourceTest.kt$FakePensumCacheDao$ </ID>
+    <ID>Indentation:SyntheticTermCreationDataSourceTest.kt$FakePensumSelectionDao$ </ID>
+    <ID>Indentation:SyntheticTermCreationDataSourceTest.kt$FakeSubjectCatalogCacheDao$ </ID>
+    <ID>Indentation:SyntheticTermCreationDataSourceTest.kt$SyntheticTermCreationDataSourceTest$ </ID>
+    <ID>Indentation:SyntheticTermCreationRepository.kt$SyntheticTermCreationRepository$ </ID>
+    <ID>Indentation:SyntheticTermCreationSnapshot.kt$SyntheticTermCreationSnapshot$ </ID>
+    <ID>Indentation:SyntheticTermEditSeed.kt$SyntheticTermEditSeed$ </ID>
+    <ID>Indentation:SyntheticTermLoadBand.kt$SyntheticTermLoadBand$ </ID>
+    <ID>Indentation:SyntheticTermLoadBasis.kt$SyntheticTermLoadBasis$ </ID>
+    <ID>Indentation:SyntheticTermLoadConfidence.kt$SyntheticTermLoadConfidence$ </ID>
+    <ID>Indentation:SyntheticTermLoadDetail.kt$SyntheticTermLoadDetail$ </ID>
+    <ID>Indentation:SyntheticTermLoadPreview.kt$SyntheticTermLoadPreview$ </ID>
+    <ID>Indentation:SyntheticTermLoadPreviewCacheMapper.kt$ </ID>
+    <ID>Indentation:SyntheticTermLoadPreviewCacheMapperTest.kt$SyntheticTermLoadPreviewCacheMapperTest$ </ID>
+    <ID>Indentation:SyntheticTermLoadPreviewDataSource.kt$SyntheticTermLoadPreviewDataSource$ </ID>
+    <ID>Indentation:SyntheticTermLoadPreviewRepository.kt$SyntheticTermLoadPreviewRepository$ </ID>
+    <ID>Indentation:SyntheticTermLoadPreviewResponse.kt$SyntheticTermLoadPreviewResponse$ </ID>
+    <ID>Indentation:SyntheticTermPeriodOption.kt$SyntheticTermPeriodOption$ </ID>
+    <ID>Indentation:SyntheticTermPeriodOptionTest.kt$SyntheticTermPeriodOptionTest$ </ID>
+    <ID>Indentation:SyntheticTermSubject.kt$SyntheticTermSubject$ </ID>
+    <ID>Indentation:SyntheticTermSubjectAvailability.kt$SyntheticTermSubjectAvailability$ </ID>
+    <ID>Indentation:SyntheticTermSubjectAvailabilityDetail.kt$SyntheticTermSubjectAvailabilityDetail$ </ID>
+    <ID>Indentation:SyntheticTermUpdateCommand.kt$SyntheticTermUpdateCommand$ </ID>
+    <ID>Indentation:SyntheticTermUpdateCommand.kt$SyntheticTermUpdateCommand.SyntheticAttemptSeed$ </ID>
+    <ID>Indentation:SyntheticTermValidationError.kt$SyntheticTermValidationError$ </ID>
+    <ID>Indentation:SyntheticTermValidationException.kt$SyntheticTermValidationException$ </ID>
+    <ID>Indentation:TermDeltaChip.kt$ </ID>
+    <ID>Indentation:TermDeltaChip.kt$TermDeltaChipColors$ </ID>
+    <ID>Indentation:TermItem.kt$ </ID>
+    <ID>Indentation:TermItem.kt$TermItem$ </ID>
+    <ID>Indentation:TermItemCurrentStateTest.kt$ </ID>
+    <ID>Indentation:TermItemCurrentStateTest.kt$TermItemCurrentStateTest$ </ID>
+    <ID>Indentation:TermItemKind.kt$TermItemKind$ </ID>
+    <ID>Indentation:TermItemMappingUiTest.kt$TermItemMappingUiTest$ </ID>
+    <ID>Indentation:TermItemView.kt$ </ID>
+    <ID>Indentation:TermMetricDelta.kt$TermMetricDelta$ </ID>
+    <ID>Indentation:TermMetricDeltaTone.kt$TermMetricDeltaTone$ </ID>
+    <ID>Indentation:TermMetricDivider.kt$ </ID>
+    <ID>Indentation:TermMetricItem.kt$ </ID>
+    <ID>Indentation:TermSelectionBottomSheet.kt$ </ID>
+    <ID>Indentation:TermSelectionTermRowView.kt$ </ID>
+    <ID>Indentation:TermSelectionYearHeaderView.kt$ </ID>
+    <ID>Indentation:TermSelectorView.kt$ </ID>
+    <ID>Indentation:TermSelectorViewTest.kt$TermSelectorViewTest$ </ID>
+    <ID>Indentation:TermSummaryContent.kt$ </ID>
+    <ID>Indentation:TermSummaryView.kt$ </ID>
+    <ID>Indentation:UpdateRecordUseCase.kt$UpdateRecordUseCase$ </ID>
+    <ID>Indentation:UpdateRecordUseCaseTest.kt$UpdateRecordUseCaseTest$ </ID>
+    <ID>Indentation:UpdateSyntheticTermRequest.kt$UpdateSyntheticTermRequest$ </ID>
+    <ID>Indentation:UpdateSyntheticTermUseCase.kt$UpdateSyntheticTermUseCase$ </ID>
+    <ID>Indentation:UpdateSyntheticTermUseCaseTest.kt$UpdateSyntheticTermUseCaseTest$ </ID>
+    <ID>Indentation:UpsertAttemptOverrideRequest.kt$UpsertAttemptOverrideRequest$ </ID>
+    <ID>Indentation:UpsertAttemptSelectionParams.kt$UpsertAttemptSelectionParams$ </ID>
+    <ID>Indentation:UpsertAttemptSelectionUseCase.kt$UpsertAttemptSelectionUseCase$ </ID>
+    <ID>Indentation:UpsertAttemptSelectionUseCaseTest.kt$FakeAcademicRecordRepository$ </ID>
+    <ID>Indentation:UpsertAttemptSelectionUseCaseTest.kt$FakeAcademicRecordRepository.UpsertCall$ </ID>
+    <ID>Indentation:UpsertAttemptSelectionUseCaseTest.kt$UpsertAttemptSelectionUseCaseTest$ </ID>
+    <ID>Indentation:VersionedAcademicRecord.kt$VersionedAcademicRecord$ </ID>
+    <ID>LargeClass:CreateSyntheticTermScreenUiTest.kt$CreateSyntheticTermScreenUiTest</ID>
+    <ID>LongMethod:AcademicRecordDataSourceTest.kt$AcademicRecordDataSourceTest$@Test fun deleteAttemptOverride_whenSupersededByLaterUpsert_suppressesStaleFailure_and_keepsLatestOverride()</ID>
+    <ID>LongMethod:AcademicRecordDataSourceTest.kt$AcademicRecordDataSourceTest$@Test fun updateSyntheticTerm_appliesLocalChange_andSubmitsPatchMutation()</ID>
+    <ID>LongMethod:AcademicRecordDataSourceTest.kt$AcademicRecordDataSourceTest$@Test fun upsertAttemptOverride_whenEarlierAckArrivesAfterNewerTap_keepsLaterPendingOverrideVisible()</ID>
+    <ID>LongMethod:AcademicRecordDataSourceTest.kt$AcademicRecordDataSourceTest$@Test fun upsertAttemptOverride_whenSupersededRevisionFails_rebasesWithoutRestoringOldGrade()</ID>
+    <ID>LongMethod:AttemptItemView.kt$@Composable fun AttemptItemView( modifier: Modifier = Modifier, item: AttemptItem, gradeState: MutableIntState? = null, onGradeChange: (newGrade: Int?, newOutcome: AttemptOutcome?, isSelected: Boolean) -&gt; Unit )</ID>
+    <ID>LongMethod:CreateSyntheticTermScreen.kt$@Composable fun CreateSyntheticTermScreen( state: CreateSyntheticTerm.State, onQueryChange: (String, Int, Int) -&gt; Unit, onClearQueryClick: () -&gt; Unit, onPeriodSelected: (String) -&gt; Unit, onAddSubjectTabSelected: (CreateTermAddSubjectTab) -&gt; Unit, onSubjectAdd: (CreateTermSubjectItem) -&gt; Unit, onSubjectRemove: (String) -&gt; Unit, onSubjectStatsClick: (String) -&gt; Unit = {}, onCreateClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>LongMethod:CreateSyntheticTermScreenUiTest.kt$CreateSyntheticTermScreenUiTest$@Test fun when_searchHasEveryAvailabilityState_then_statusAndActionsMatchEachState()</ID>
+    <ID>LongMethod:CreateSyntheticTermTransitions.kt$internal fun MachineDefinitionBuilder&lt;CreateSyntheticTerm.State&gt;.createSyntheticTermTransitions( machine: CreateSyntheticTermMachine, host: MachineHost&lt;CreateSyntheticTerm.Effect&gt; )</ID>
+    <ID>LongMethod:CreateTermLoadChipView.kt$@Composable fun CreateTermLoadChip( loadPreview: SyntheticTermLoadPreview?, hasSelectedSubjects: Boolean, isLoading: Boolean, hasError: Boolean, modifier: Modifier = Modifier.height(LoadChipDefaultHeight) )</ID>
+    <ID>LongMethod:CreateTermPeriodRowView.kt$@Composable fun CreateTermPeriodRow( selectedPeriod: SyntheticTermPeriodOption, periodOptions: List&lt;SyntheticTermPeriodOption&gt;, loadPreview: SyntheticTermLoadPreview?, hasSelectedSubjects: Boolean, isLoadingLoadPreview: Boolean, hasLoadPreviewError: Boolean, onPeriodSelected: (String) -&gt; Unit )</ID>
+    <ID>LongMethod:CreateTermSubjectStatusRowView.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun CreateTermSubjectStatusRow( subject: CreateTermSubjectItem, availableText: String, availableIcon: CreateTermSubjectStatusIcon )</ID>
+    <ID>LongMethod:CreateTermSubmitBarView.kt$@Composable fun CreateTermSubmitBar( selectedCount: Int, canSubmit: Boolean, isEditing: Boolean, isSubmitting: Boolean, submitError: UiText, onCreateClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>LongMethod:LoadSyntheticTermEditSeedUseCaseTest.kt$LoadSyntheticTermEditSeedUseCaseTest$@Test fun execute_mapsSyntheticTermIntoEditSeed_withPeriodAndSubjects()</ID>
+    <ID>LongMethod:QualitativeStatusSelector.kt$@Composable fun QualitativeStatusSelector( modifier: Modifier = Modifier, attemptId: String, selectedItem: QualitativeStatusDropdownItem?, placeholderText: String, metadataText: String?, items: List&lt;QualitativeStatusDropdownItem&gt;, onSelected: (AttemptOutcome) -&gt; Unit )</ID>
+    <ID>LongMethod:RecordAnyStateTransitions.kt$internal fun MachineDefinitionBuilder&lt;Record.State&gt;.recordAnyStateTransitions( machine: RecordMachine, host: MachineHost&lt;Record.Effect&gt; )</ID>
+    <ID>LongMethod:RecordContentView.kt$@Composable fun RecordContentView( state: Record.State.Content, selectedTermId: String?, onSelectedTermChange: (termId: String) -&gt; Unit, onAttemptSelectionChange: ( attemptId: String, newGrade: Int?, newOutcome: AttemptOutcome?, isSelected: Boolean ) -&gt; Unit, showTermSelection: Boolean, onDismissTermSelection: () -&gt; Unit, onScrollInProgressChange: (Boolean) -&gt; Unit = {} )</ID>
+    <ID>LongMethod:RecordNavigation.kt$fun NavGraphBuilder.recordNavigation( navController: NavHostController, onNavigateToUpdatePassword: () -&gt; Unit, onNavigateToSubjectDetail: (String) -&gt; Unit, onTopBarViewModeChangeAvailable: (((RecordViewMode) -&gt; Unit)?) -&gt; Unit, onTopBarTermSelectionAvailable: ((() -&gt; Unit)?) -&gt; Unit, onNavigateToEnrollmentProof: () -&gt; Unit, showTopBarBanner: (behavior: TopBarBannerBehavior) -&gt; Unit, onViewStateChanged: (ViewState) -&gt; Unit, showSnackBar: (message: SnackBarMessage) -&gt; Unit )</ID>
+    <ID>LongMethod:RecordRoute.kt$@Composable fun RecordRoute( onNavigateToUpdatePassword: () -&gt; Unit, onNavigateToCreateSyntheticTerm: () -&gt; Unit, onNavigateToUpdateSyntheticTerm: (termId: String) -&gt; Unit, onNavigateToDeleteSyntheticTermConfirmation: (termId: String) -&gt; Unit, onTopBarViewModeChangeAvailable: (((RecordViewMode) -&gt; Unit)?) -&gt; Unit, onTopBarTermSelectionAvailable: ((() -&gt; Unit)?) -&gt; Unit, onNavigateToEnrollmentProof: () -&gt; Unit, showTopBarBanner: (behavior: TopBarBannerBehavior) -&gt; Unit, showSnackBar: (message: SnackBarMessage) -&gt; Unit, viewModel: RecordViewModel )</ID>
+    <ID>LongMethod:RecordScreen.kt$@Composable fun RecordScreen( state: Record.State, selectedTermId: String?, onSelectedTermChange: (termId: String) -&gt; Unit, onRetryClick: () -&gt; Unit, onAttemptSelectionChange: ( attemptId: String, newGrade: Int?, newOutcome: AttemptOutcome?, isSelected: Boolean ) -&gt; Unit, onCreateSyntheticTermClick: () -&gt; Unit, onUpdateSyntheticTermClick: (termId: String) -&gt; Unit = {}, onDeleteSyntheticTermClick: (termId: String) -&gt; Unit = {}, onEnrollmentProofClick: () -&gt; Unit = {}, showTermSelection: Boolean = false, onDismissTermSelection: () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:RecordScreenUiTest.kt$RecordScreenUiTest$@Test fun when_termSelectionIsShown_then_termsAreGroupedAndSelectionIsForwarded()</ID>
+    <ID>LongMethod:RecordStateMachineContractTest.kt$RecordStateMachineContractTest$@Test fun createSyntheticTermMachine_survivesSeededRandomWalk()</ID>
+    <ID>LongMethod:RecordTermPagerView.kt$@Composable fun RecordTermPagerView( modifier: Modifier = Modifier, terms: List&lt;TermItem&gt;, selectedTermId: String, onSelectedTermChange: (termId: String) -&gt; Unit, onAttemptSelectionChange: ( attemptId: String, newGrade: Int?, newOutcome: AttemptOutcome?, isSelected: Boolean ) -&gt; Unit, onScrollInProgressChange: (Boolean) -&gt; Unit )</ID>
+    <ID>LongMethod:RecordTopBarViewModeBannerView.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun RecordTopBarViewModeBannerView( selectedMode: RecordViewMode, modifier: Modifier = Modifier )</ID>
+    <ID>LongMethod:RecordViewModelSnackContractTest.kt$RecordViewModelSnackContractTest$@Test fun deleteSyntheticTerm_emitsSnackBar_afterDeleting()</ID>
+    <ID>LongMethod:SyntheticTermCreationDataSource.kt$SyntheticTermCreationDataSource$@OptIn(ExperimentalCoroutinesApi::class) override fun observeSnapshot( queryFlow: StateFlow&lt;String&gt;, selectedSubjectsFlow: StateFlow&lt;List&lt;SyntheticTermSubject&gt;&gt;, selectedPeriodKeyFlow: StateFlow&lt;String?&gt;, editingTermIdFlow: StateFlow&lt;String?&gt;, editingTermKeyFlow: StateFlow&lt;String?&gt; ): Flow&lt;SyntheticTermCreationSnapshot&gt;</ID>
+    <ID>LongMethod:SyntheticTermCreationDataSourceTest.kt$SyntheticTermCreationDataSourceTest$@Test fun observeSnapshot_resolvesEverySearchResultAvailabilityState()</ID>
+    <ID>LongMethod:TermSelectionBottomSheet.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun TermSelectionBottomSheet( terms: List&lt;TermItem&gt;, selectedTermId: String, viewMode: RecordViewMode, onTermSelected: (termId: String) -&gt; Unit, onDismissRequest: () -&gt; Unit )</ID>
+    <ID>LongMethod:TermSelectionTermRowView.kt$@Composable fun TermSelectionTermRowView( term: TermItem, isSelected: Boolean, selectedContentDescription: String, onClick: () -&gt; Unit )</ID>
+    <ID>LongParameterList:CreateSyntheticTermMachine.kt$CreateSyntheticTermMachine$( internal val draft: CreateSyntheticTermDraft, private val observeSyntheticTermCreationUseCase: ObserveSyntheticTermCreationUseCase, private val refreshSyntheticTermSubjectSearchUseCase: RefreshSyntheticTermSubjectSearchUseCase, private val loadSyntheticTermPreviewUseCase: LoadSyntheticTermPreviewUseCase, private val loadSyntheticTermEditSeedUseCase: LoadSyntheticTermEditSeedUseCase, private val createSyntheticTermUseCase: CreateSyntheticTermUseCase, private val updateSyntheticTermUseCase: UpdateSyntheticTermUseCase, private val setSelectedTermUseCase: SetSelectedTermUseCase )</ID>
+    <ID>LongParameterList:CreateSyntheticTermScreen.kt$( state: CreateSyntheticTerm.State, onQueryChange: (String, Int, Int) -&gt; Unit, onClearQueryClick: () -&gt; Unit, onPeriodSelected: (String) -&gt; Unit, onAddSubjectTabSelected: (CreateTermAddSubjectTab) -&gt; Unit, onSubjectAdd: (CreateTermSubjectItem) -&gt; Unit, onSubjectRemove: (String) -&gt; Unit, onSubjectStatsClick: (String) -&gt; Unit = {}, onCreateClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>LongParameterList:CreateTermLoadChipView.kt$( outlineColor: Color, primaryColor: Color, onSurfaceVariantColor: Color, errorColor: Color, lightLoadColor: Color, manageableLoadColor: Color, successColor: Color, warningColor: Color )</ID>
+    <ID>LongParameterList:CreateTermPeriodRowView.kt$( selectedPeriod: SyntheticTermPeriodOption, periodOptions: List&lt;SyntheticTermPeriodOption&gt;, loadPreview: SyntheticTermLoadPreview?, hasSelectedSubjects: Boolean, isLoadingLoadPreview: Boolean, hasLoadPreviewError: Boolean, onPeriodSelected: (String) -&gt; Unit )</ID>
+    <ID>LongParameterList:CreateTermSelectedSubjectCardView.kt$( subject: CreateTermSubjectItem, action: CreateTermSubjectCardAction, enabled: Boolean = true, onClick: () -&gt; Unit, onStatsClick: ((String) -&gt; Unit)? = null, modifier: Modifier = Modifier )</ID>
+    <ID>LongParameterList:CreateTermSubjectStatusRowView.kt$( availableText: String, availableIcon: CreateTermSubjectStatusIcon, alreadyTakenText: String, alreadyPlannedText: String, notInPensumText: String, unavailableText: String, availableColor: Color, approvedColor: Color, blockedColor: Color, onSurfaceVariantColor: Color )</ID>
+    <ID>LongParameterList:CreateTermSubmitBarView.kt$( selectedCount: Int, canSubmit: Boolean, isEditing: Boolean, isSubmitting: Boolean, submitError: UiText, onCreateClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>LongParameterList:DeleteSyntheticTermConfirmationDialog.kt$( titleText: String, messageText: String, confirmText: String, cancelText: String, onConfirmClick: () -&gt; Unit, onDismissRequest: () -&gt; Unit )</ID>
+    <ID>LongParameterList:QualitativeStatusSelector.kt$( modifier: Modifier = Modifier, attemptId: String, selectedItem: QualitativeStatusDropdownItem?, placeholderText: String, metadataText: String?, items: List&lt;QualitativeStatusDropdownItem&gt;, onSelected: (AttemptOutcome) -&gt; Unit )</ID>
+    <ID>LongParameterList:RecordContentView.kt$( state: Record.State.Content, selectedTermId: String?, onSelectedTermChange: (termId: String) -&gt; Unit, onAttemptSelectionChange: ( attemptId: String, newGrade: Int?, newOutcome: AttemptOutcome?, isSelected: Boolean ) -&gt; Unit, showTermSelection: Boolean, onDismissTermSelection: () -&gt; Unit, onScrollInProgressChange: (Boolean) -&gt; Unit = {} )</ID>
+    <ID>LongParameterList:RecordNavigation.kt$( navController: NavHostController, onNavigateToUpdatePassword: () -&gt; Unit, onNavigateToSubjectDetail: (String) -&gt; Unit, onTopBarViewModeChangeAvailable: (((RecordViewMode) -&gt; Unit)?) -&gt; Unit, onTopBarTermSelectionAvailable: ((() -&gt; Unit)?) -&gt; Unit, onNavigateToEnrollmentProof: () -&gt; Unit, showTopBarBanner: (behavior: TopBarBannerBehavior) -&gt; Unit, onViewStateChanged: (ViewState) -&gt; Unit, showSnackBar: (message: SnackBarMessage) -&gt; Unit )</ID>
+    <ID>LongParameterList:RecordRoute.kt$( onNavigateToUpdatePassword: () -&gt; Unit, onNavigateToCreateSyntheticTerm: () -&gt; Unit, onNavigateToUpdateSyntheticTerm: (termId: String) -&gt; Unit, onNavigateToDeleteSyntheticTermConfirmation: (termId: String) -&gt; Unit, onTopBarViewModeChangeAvailable: (((RecordViewMode) -&gt; Unit)?) -&gt; Unit, onTopBarTermSelectionAvailable: ((() -&gt; Unit)?) -&gt; Unit, onNavigateToEnrollmentProof: () -&gt; Unit, showTopBarBanner: (behavior: TopBarBannerBehavior) -&gt; Unit, showSnackBar: (message: SnackBarMessage) -&gt; Unit, viewModel: RecordViewModel )</ID>
+    <ID>LongParameterList:RecordScreen.kt$( state: Record.State, selectedTermId: String?, onSelectedTermChange: (termId: String) -&gt; Unit, onRetryClick: () -&gt; Unit, onAttemptSelectionChange: ( attemptId: String, newGrade: Int?, newOutcome: AttemptOutcome?, isSelected: Boolean ) -&gt; Unit, onCreateSyntheticTermClick: () -&gt; Unit, onUpdateSyntheticTermClick: (termId: String) -&gt; Unit = {}, onDeleteSyntheticTermClick: (termId: String) -&gt; Unit = {}, onEnrollmentProofClick: () -&gt; Unit = {}, showTermSelection: Boolean = false, onDismissTermSelection: () -&gt; Unit = {} )</ID>
+    <ID>LongParameterList:RecordTermPagerView.kt$( modifier: Modifier = Modifier, terms: List&lt;TermItem&gt;, selectedTermId: String, onSelectedTermChange: (termId: String) -&gt; Unit, onAttemptSelectionChange: ( attemptId: String, newGrade: Int?, newOutcome: AttemptOutcome?, isSelected: Boolean ) -&gt; Unit, onScrollInProgressChange: (Boolean) -&gt; Unit )</ID>
+    <ID>LongParameterList:RecordTestDoubles.kt$( subjectCode: String, outcome: AttemptOutcome = AttemptOutcome.APPROVED, id: String = "attempt-$subjectCode", subjectName: String = subjectCode, credits: Int = 4, gradingMode: AttemptGradingMode = AttemptGradingMode.NUMERIC, score: AttemptScore = AttemptScore.empty() )</ID>
+    <ID>LongParameterList:TermItemMappingUiTest.kt$TermItemMappingUiTest$( id: String = "term-1", kind: TermKind = TermKind.SYNTHETIC, periodYear: Int = 2027, periodCode: AcademicTermPeriod = AcademicTermPeriod.SEP_DEC, periodAverage: Double = 4.0, cumulativeAverage: Double = 4.0, periodCredits: Int = 12, cumulativeCredits: Int = 40, attempts: List&lt;AttemptProjection&gt; = listOf(attemptProjection()) )</ID>
+    <ID>MagicNumber:SyntheticTermCommandValidator.kt$SyntheticTermCommandValidator$10</ID>
+    <ID>MagicNumber:SyntheticTermCommandValidator.kt$SyntheticTermCommandValidator$3</ID>
+    <ID>MagicNumber:SyntheticTermCommandValidator.kt$SyntheticTermCommandValidator$4</ID>
+    <ID>MagicNumber:SyntheticTermCommandValidator.kt$SyntheticTermCommandValidator$6</ID>
+    <ID>MagicNumber:SyntheticTermCommandValidator.kt$SyntheticTermCommandValidator$7</ID>
+    <ID>MagicNumber:SyntheticTermCommandValidator.kt$SyntheticTermCommandValidator$8</ID>
+    <ID>MagicNumber:SyntheticTermCreationDataSource.kt$SyntheticTermCreationDataSource$10</ID>
+    <ID>MagicNumber:SyntheticTermCreationDataSource.kt$SyntheticTermCreationDataSource$3</ID>
+    <ID>MagicNumber:SyntheticTermCreationDataSource.kt$SyntheticTermCreationDataSource$4</ID>
+    <ID>MagicNumber:SyntheticTermCreationDataSource.kt$SyntheticTermCreationDataSource$5</ID>
+    <ID>MagicNumber:SyntheticTermCreationDataSource.kt$SyntheticTermCreationDataSource$6</ID>
+    <ID>MagicNumber:SyntheticTermCreationDataSource.kt$SyntheticTermCreationDataSource$7</ID>
+    <ID>MagicNumber:SyntheticTermCreationDataSource.kt$SyntheticTermCreationDataSource$8</ID>
+    <ID>MagicNumber:SyntheticTermPeriodOption.kt$SyntheticTermPeriodOption$10</ID>
+    <ID>MagicNumber:TermDeltaChip.kt$0xFF479A21</ID>
+    <ID>MagicNumber:TermDeltaChip.kt$0xFF9A212D</ID>
+    <ID>MagicNumber:TermDeltaChip.kt$0xFFC6F0B7</ID>
+    <ID>MagicNumber:TermDeltaChip.kt$0xFFF2B8BF</ID>
+    <ID>MaxLineLength:AcademicRecordDataSource.kt$AcademicRecordDataSource$.</ID>
+    <ID>MaxLineLength:AcademicRecordDataSource.kt$AcademicRecordDataSource$private val mutationEngine: StoreBackedMutationEngine&lt;String, AcademicRecordMutation, AcademicRecord, AcademicRecord, VersionedAcademicRecord&gt;</ID>
+    <ID>MaxLineLength:CreateSyntheticTermScreenUiTest.kt$CreateSyntheticTermScreenUiTest$fun</ID>
+    <ID>MaxLineLength:RecordUiTags.kt$RecordUiTags$fun attemptStatusOption(attemptId: String, status: String): String</ID>
+    <ID>MaxLineLength:SyntheticTermCreationDataSource.kt$SyntheticTermCreationDataSource$private</ID>
+    <ID>MaxLineLength:SyntheticTermCreationDataSourceTest.kt$private</ID>
+    <ID>MaximumLineLength:AcademicRecordDataSource.kt$AcademicRecordDataSource$ </ID>
+    <ID>MaximumLineLength:CreateSyntheticTermScreenUiTest.kt$CreateSyntheticTermScreenUiTest$ </ID>
+    <ID>MaximumLineLength:RecordUiTags.kt$RecordUiTags$ </ID>
+    <ID>MaximumLineLength:SyntheticTermCreationDataSource.kt$SyntheticTermCreationDataSource$ </ID>
+    <ID>MaximumLineLength:SyntheticTermCreationDataSourceTest.kt$private</ID>
+    <ID>MultiLineIfElse:AlreadyTakenSearchResultsToggleView.kt$Res.string.create_term_hide_taken_subjects</ID>
+    <ID>MultiLineIfElse:AlreadyTakenSearchResultsToggleView.kt$Res.string.create_term_show_taken_subjects</ID>
+    <ID>MultiLineIfElse:AttemptItem.kt$""</ID>
+    <ID>MultiLineIfElse:AttemptItem.kt$texts.termAttemptGrade(numericGrade)</ID>
+    <ID>MultiLineIfElse:CreateTermSubjectActionButtonView.kt$MaterialTheme.colorScheme.onSurface</ID>
+    <ID>MultiLineIfElse:CreateTermSubjectActionButtonView.kt$MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.38f)</ID>
+    <ID>NoUnusedImports:AttemptItem.kt$com.gdavidpb.tuindice.record.presentation.mapper.AttemptItem.kt</ID>
+    <ID>NoUnusedImports:AttemptItemView.kt$com.gdavidpb.tuindice.record.ui.view.AttemptItemView.kt</ID>
+    <ID>NoUnusedImports:CreateSyntheticTermMachine.kt$com.gdavidpb.tuindice.record.presentation.machine.CreateSyntheticTermMachine.kt</ID>
+    <ID>NoUnusedImports:RecordContentView.kt$com.gdavidpb.tuindice.record.ui.view.RecordContentView.kt</ID>
+    <ID>NoUnusedImports:RecordViewModeExtensions.kt$com.gdavidpb.tuindice.record.domain.model.RecordViewModeExtensions.kt</ID>
+    <ID>NoUnusedImports:UpsertAttemptSelectionUseCaseTest.kt$com.gdavidpb.tuindice.record.domain.usecase.UpsertAttemptSelectionUseCaseTest.kt</ID>
+    <ID>NoWildcardImports:AcademicRecordRoomMappers.kt$import com.gdavidpb.tuindice.academiccore.domain.model.*</ID>
+    <ID>ParameterListWrapping:RecordUiTags.kt$RecordUiTags$(attemptId: String, status: String)</ID>
+    <ID>ParameterWrapping:AcademicRecordDataSource.kt$AcademicRecordDataSource$private val mutationEngine: StoreBackedMutationEngine&lt;String, AcademicRecordMutation, AcademicRecord, AcademicRecord, VersionedAcademicRecord&gt;</ID>
+    <ID>ReturnCount:AcademicRecordDataSource.kt$AcademicRecordDataSource$override suspend fun deleteSyntheticTerm(termId: String)</ID>
+    <ID>ReturnCount:AcademicRecordDataSource.kt$AcademicRecordDataSource$override suspend fun upsertAttemptOverride( attemptId: String, score: AttemptScore?, outcome: AttemptOutcome?, commit: Boolean )</ID>
+    <ID>ReturnCount:CreateTermLoadChipView.kt$@Composable private fun createTermLoadTooltipMessage( loadPreview: SyntheticTermLoadPreview?, hasSelectedSubjects: Boolean, isLoading: Boolean, hasError: Boolean ): String</ID>
+    <ID>ThrowsCount:SyntheticTermCommandValidator.kt$SyntheticTermCommandValidator$private fun validatePeriod( otherTerms: List&lt;AcademicTerm&gt;, period: SyntheticTermPeriodOption, keepsSameTermKey: Boolean )</ID>
+    <ID>ThrowsCount:SyntheticTermCommandValidator.kt$SyntheticTermCommandValidator$private fun validateSubjects( otherTerms: List&lt;AcademicTerm&gt;, subjects: List&lt;SyntheticTermSubject&gt; )</ID>
+    <ID>TooManyFunctions:AcademicRecordDataSource.kt$AcademicRecordDataSource : AcademicRecordRepository</ID>
+    <ID>TooManyFunctions:AcademicRecordLocalDataRepository.kt$AcademicRecordLocalDataRepository</ID>
+    <ID>TooManyFunctions:AcademicRecordRepository.kt$AcademicRecordRepository</ID>
+    <ID>TooManyFunctions:AcademicRecordRoomDataSource.kt$AcademicRecordRoomDataSource : AcademicRecordLocalDataRepository</ID>
+    <ID>TooManyFunctions:RecordUiTags.kt$RecordUiTags</ID>
+    <ID>TooManyFunctions:SyntheticTermCreationDataSource.kt$SyntheticTermCreationDataSource : SyntheticTermCreationRepository</ID>
+    <ID>TooManyFunctions:TermItem.kt$com.gdavidpb.tuindice.record.presentation.mapper.TermItem.kt</ID>
+    <ID>TopLevelPropertyNaming:CreateSyntheticTermMachine.kt$private const val LoadPreviewDebounceMillis = 250L</ID>
+    <ID>TopLevelPropertyNaming:CreateSyntheticTermMachine.kt$private const val MinimumSearchQueryLength = 2</ID>
+    <ID>TopLevelPropertyNaming:CreateSyntheticTermMachine.kt$private const val SearchDebounceMillis = 300L</ID>
+    <ID>TopLevelPropertyNaming:CreateSyntheticTermScreen.kt$private const val CreateTermSearchResultContentType = "create_term_search_result"</ID>
+    <ID>TopLevelPropertyNaming:CreateSyntheticTermScreen.kt$private const val CreateTermSelectedSubjectContentType = "create_term_selected_subject"</ID>
+    <ID>TopLevelPropertyNaming:CreateSyntheticTermScreen.kt$private const val CreateTermSuggestedSubjectContentType = "create_term_suggested_subject"</ID>
+    <ID>TopLevelPropertyNaming:CreateSyntheticTermScreen.kt$private const val MinimumSearchQueryLength = 2</ID>
+    <ID>TopLevelPropertyNaming:CreateSyntheticTermScreen.kt$private const val SearchResultSubjectKeyPrefix = "search:"</ID>
+    <ID>TopLevelPropertyNaming:CreateSyntheticTermScreen.kt$private const val SelectedSubjectKeyPrefix = "selected:"</ID>
+    <ID>TopLevelPropertyNaming:CreateSyntheticTermScreen.kt$private const val SuggestedSubjectKeyPrefix = "suggested:"</ID>
+    <ID>TopLevelPropertyNaming:CreateSyntheticTermTransitions.kt$private const val MinimumSearchQueryLength = 2</ID>
+    <ID>TopLevelPropertyNaming:RecordRtlA11yUiTest.kt$private const val RtlSyntheticTermId = "synthetic-term"</ID>
+    <ID>TopLevelPropertyNaming:RecordScreenUiTest.kt$private const val SyntheticTermId = "synthetic-term"</ID>
+    <ID>TopLevelPropertyNaming:SelectedTermView.kt$private const val SelectedTermAttemptContentType = "selected_term_attempt"</ID>
+    <ID>TopLevelPropertyNaming:SyntheticTermCommandValidator.kt$private const val AcademicCalendarTimeZoneId = "America/Caracas"</ID>
+    <ID>TopLevelPropertyNaming:SyntheticTermCreationDataSource.kt$private const val AcademicCalendarTimeZoneId = "America/Caracas"</ID>
+    <ID>TopLevelPropertyNaming:SyntheticTermCreationDataSource.kt$private const val FuturePeriodCount = 20</ID>
+    <ID>TopLevelPropertyNaming:SyntheticTermCreationDataSource.kt$private const val MinimumSearchQueryLength = 2</ID>
+    <ID>TopLevelPropertyNaming:SyntheticTermCreationDataSource.kt$private const val NodeTypeCourse = "COURSE"</ID>
+    <ID>TopLevelPropertyNaming:SyntheticTermCreationDataSource.kt$private const val SearchLimit = 20</ID>
+    <ID>TopLevelPropertyNaming:SyntheticTermCreationDataSource.kt$private const val SuggestedSubjectLimit = 8</ID>
+    <ID>TopLevelPropertyNaming:SyntheticTermLoadPreviewCacheMapper.kt$private const val SyntheticTermLoadPreviewCacheKeyPrefix = "synthetic-term-load-preview"</ID>
+    <ID>TopLevelPropertyNaming:SyntheticTermLoadPreviewCacheMapper.kt$private const val SyntheticTermLoadPreviewCacheKeySeparator = "::"</ID>
+    <ID>TopLevelPropertyNaming:SyntheticTermLoadPreviewCacheMapper.kt$private const val SyntheticTermLoadPreviewCacheTtlMillis = 24L * 60L * 60L * 1_000L</ID>
+    <ID>TopLevelPropertyNaming:SyntheticTermLoadPreviewCacheMapper.kt$private const val SyntheticTermLoadPreviewSubjectCodeSeparator = "|"</ID>
+    <ID>TopLevelPropertyNaming:TermSelectionBottomSheet.kt$private const val TermSelectionOptionContentType = "term_selection_option"</ID>
+    <ID>TopLevelPropertyNaming:TermSelectorView.kt$private const val TermSelectorItemContentType = "term_selector_item"</ID>
+    <ID>UnusedPrivateMember:SyntheticTermCreationDataSourceTest.kt$private fun SubjectCatalogCacheEntity.toSyntheticTermSubject(): com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject</ID>
+    <ID>WildcardImport:AcademicRecordRoomMappers.kt$import com.gdavidpb.tuindice.academiccore.domain.model.*</ID>
+    <ID>Wrapping:AcademicRecordDataSourceTest.kt$AcademicRecordDataSourceTest$(</ID>
+    <ID>Wrapping:AcademicRecordDataSourceTest.kt$AcademicRecordDataSourceTest$(listOf("MA1111"), remoteDataSource.updateSyntheticTermCommands.single().attempts.map { attempt -&gt; attempt.subjectCode })</ID>
+    <ID>Wrapping:AcademicRecordRoomDataSource.kt$AcademicRecordRoomDataSource$(</ID>
+    <ID>Wrapping:ObserveRecordUseCase.kt$ObserveRecordUseCase$(</ID>
+  </CurrentIssues>
+</SmellBaseline>

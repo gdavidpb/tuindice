@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.flowOf
 class OpenExternalUrlUseCase(
 	private val browserRepository: BrowserRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<String, Unit, Nothing>(reportingRepository = reportingRepository) {
+) : FlowUseCase<String, Unit, Nothing>() {
 	override suspend fun executeOnBackground(params: String): Flow<Unit> {
 		browserRepository.open(params)
 

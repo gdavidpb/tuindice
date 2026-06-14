@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.about.ui.view
 
-import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -23,10 +22,11 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.about.generated.AboutDependencyTexts
 import com.gdavidpb.tuindice.about.presentation.contract.About
 import com.gdavidpb.tuindice.about.ui.AboutUiTags
-import com.gdavidpb.tuindice.about.ui.custom.AboutHeader
-import com.gdavidpb.tuindice.about.ui.custom.AboutItem
-import com.gdavidpb.tuindice.about.ui.custom.AboutSwitchItem
+import com.gdavidpb.tuindice.about.ui.view.AboutHeader
+import com.gdavidpb.tuindice.about.ui.view.AboutItem
+import com.gdavidpb.tuindice.about.ui.view.AboutSwitchItem
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceDarkTheme
 import org.jetbrains.compose.resources.painterResource
 import org.jetbrains.compose.resources.stringResource
 import tuindice.about.generated.resources.Res
@@ -226,7 +226,7 @@ fun AboutContentView(
 				text = stringResource(Res.string.about_dst),
 				testTag = AboutUiTags.OpenDst,
 				size = 48.dp,
-				tint = if (isSystemInDarkTheme()) MaterialTheme.colorScheme.onBackground else null
+				tint = if (TuIndiceDarkTheme.isDark()) MaterialTheme.colorScheme.onBackground else null
 			) { onDstClick() }
 		}
 	}

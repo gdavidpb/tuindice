@@ -1,0 +1,33 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-pensum-no-current-login",
+  "requiredScenarioState": "BootstrapIssued",
+  "newScenarioState": "TokensIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/token/exchange",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer bootstrap.mock.pensum.no.current.token"
+      },
+      "X-Attestation-Token": {
+        "matches": "attestation\\.mock\\.proof\\.(android|ios)"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "pensum-no-current-user",
+      "usb_id": "55-55555",
+      "session_id": "pensum-no-current-session",
+      "access_token": "pensum.no.current.mock.access",
+      "refresh_token": "pensum.no.current.mock.refresh",
+      "expires_in": 3600
+    },
+    "fixedDelayMilliseconds": 1000
+  }
+}

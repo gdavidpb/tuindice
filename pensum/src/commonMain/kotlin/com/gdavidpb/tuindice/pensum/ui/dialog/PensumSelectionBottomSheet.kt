@@ -25,8 +25,8 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
-import com.gdavidpb.tuindice.pensum.ui.view.Current
 import com.gdavidpb.tuindice.pensum.ui.view.PensumModalityOptionRow
+import com.gdavidpb.tuindice.pensum.ui.view.pensumGraphColors
 import org.jetbrains.compose.resources.stringResource
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_selection_apply
@@ -56,6 +56,7 @@ fun PensumSelectionBottomSheet(
 	val selectedPensumIndex = model.pensumOptions.indexOfFirst { option ->
 		option.hasSameAcademicIdentity(currentPensum)
 	}
+	val graphColors = pensumGraphColors()
 	val versionListState = rememberLazyListState(
 		initialFirstVisibleItemIndex = selectedPensumIndex.coerceAtLeast(0)
 	)
@@ -111,9 +112,10 @@ fun PensumSelectionBottomSheet(
 						key = PensumOptionItem::id,
 						contentType = { PensumVersionOptionContentType }
 					) { item ->
+						val isSelected = item.hasSameAcademicIdentity(selectedPensumState.value)
 						FilterChip(
 							modifier = Modifier.testTag(PensumUiTags.versionOption(item.year)),
-							selected = item.hasSameAcademicIdentity(selectedPensumState.value),
+							selected = isSelected,
 							onClick = {
 								selectedPensumState.value = item
 								selectedModalityIdState.value = (
@@ -127,8 +129,15 @@ fun PensumSelectionBottomSheet(
 									maxLines = 1
 								)
 							},
+							border = FilterChipDefaults.filterChipBorder(
+								enabled = true,
+								selected = isSelected,
+								selectedBorderColor = MaterialTheme.colorScheme.primary,
+								disabledBorderColor = MaterialTheme.colorScheme.outlineVariant
+							),
 							colors = FilterChipDefaults.filterChipColors(
-								selectedContainerColor = Current.copy(alpha = 0.18f),
+								containerColor = graphColors.panelBackground,
+								selectedContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
 								selectedLabelColor = MaterialTheme.colorScheme.onSurface
 							)
 						)

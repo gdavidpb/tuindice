@@ -43,9 +43,10 @@ override the diff inputs, or `E2E_SCOPE_FILE` to replay a resolved
 
 `e2eMaestroEvidenceLocal` runs Android and iOS in parallel when both local
 toolchains are available, prefixes live output with `[android]` and `[ios]`,
-and isolates WireMock plus temporary files per platform. It skips a platform
-when the resolved scope has no suites for it. Override the default ports or
-temporary roots with `E2E_ANDROID_WIREMOCK_PORT`,
+and isolates WireMock plus temporary files per platform. If either worker
+fails, the aggregate runner cancels the remaining platform worker and exits
+failed. It skips a platform when the resolved scope has no suites for it.
+Override the default ports or temporary roots with `E2E_ANDROID_WIREMOCK_PORT`,
 `E2E_IOS_WIREMOCK_PORT`, `E2E_ANDROID_TMP_DIR`, and `E2E_IOS_TMP_DIR`.
 
 Evidence is written to `build/e2e/certifications/<sha>/<platform>/<suite>/`
@@ -71,6 +72,19 @@ under `E2E_TMP_DIR`: auth and wizard flows still use real UI setup, while
 non-auth module flows use a debug-only seeded authenticated launch helper to
 avoid repeated login and wizard traversal. Set `E2E_MAESTRO_OPTIMIZE_SETUP=0`
 to run the source YAML exactly as written.
+
+Maestro runners execute suite `runFlow` entries one case at a time by default.
+When a case fails, the runner stores the failed target under
+`build/e2e/checkpoints/<platform>/<suite>/`. The next run starts from that
+target to fail fast after a local fix, then wraps around and executes the
+earlier cases before reporting success. Checkpoints never skip cases: a passing
+run always executes the full suite, only with a rotated start point. Set
+`E2E_MAESTRO_RESUME_FIRST=0` to use the legacy monolithic Maestro execution.
+The segmented runner prints the plan, one `START` line per case, and the final
+`PASS` or `FAIL` for that case; it does not emit heartbeat lines while Maestro
+is still running. Use `E2E_MAESTRO_RAW_OUTPUT=1` when debugging Maestro itself
+and you want raw CLI output in the terminal; otherwise raw output stays in the
+per-case logs.
 
 Profile local Maestro timing without publishing evidence:
 

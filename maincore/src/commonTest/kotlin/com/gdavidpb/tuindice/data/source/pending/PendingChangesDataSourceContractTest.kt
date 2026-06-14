@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
+import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOPE
@@ -291,6 +292,8 @@ private class FakeEvaluationRepository(
 	override suspend fun observeEvaluationsFlow(): Flow<List<Evaluation>> = emptyFlow()
 
 	override suspend fun observeHasSyncedEvaluationsFlow(): Flow<Boolean> = flowOf(false)
+
+	override suspend fun observeEvaluationsSnapshotFlow(): Flow<ObservedSyncedSnapshot<List<Evaluation>>> = emptyFlow()
 
 	override suspend fun updateEvaluations() = Unit
 

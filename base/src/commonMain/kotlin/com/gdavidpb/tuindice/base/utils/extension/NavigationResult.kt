@@ -8,6 +8,7 @@ import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.gdavidpb.tuindice.base.logging.appLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
@@ -16,6 +17,9 @@ import kotlinx.serialization.json.Json
 internal val navigationResultJson = Json {
 	ignoreUnknownKeys = true
 }
+
+@PublishedApi
+internal val navigationResultLogger = appLogger(tag = "NavigationResult")
 
 @PublishedApi
 internal inline fun <reified T : Any> backResultKey(): String =
@@ -28,7 +32,8 @@ inline fun <reified T : Any> NavController.setBackResult(result: T): Boolean {
 	val key = backResultKey<T>()
 	val serializedResult = runCatching {
 		navigationResultJson.encodeToString<T>(result)
-	}.getOrElse {
+	}.getOrElse { throwable ->
+		navigationResultLogger.w(throwable) { "Failed to encode back result '$key'." }
 		return false
 	}
 
@@ -65,7 +70,8 @@ inline fun <reified T : Any> NavController.CollectBackResultWithLifecycle(
 
 					val result = runCatching {
 						navigationResultJson.decodeFromString<T>(serializedResult)
-					}.getOrElse {
+					}.getOrElse { throwable ->
+						navigationResultLogger.w(throwable) { "Failed to decode back result '$key'." }
 						backStackEntry.savedStateHandle[key] = null
 						return@collect
 					}

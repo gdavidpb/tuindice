@@ -8,13 +8,8 @@ import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
-import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
-import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
-import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
-import io.github.vinceglb.filekit.PlatformFile
 
 val DEFAULT_AUTH_ATTESTATION = Attestation(
 	token = "attestation-token"
@@ -139,90 +134,6 @@ class FakeAttestationRepository(
 		lastRequest = request
 		return attestation
 	}
-}
-
-class FakeSessionRepository(
-	private var sessionId: String = DEFAULT_ISSUE_TOKENS.sessionId,
-	private var usbId: String = DEFAULT_ISSUE_TOKENS.usbId,
-	private var accessToken: String = DEFAULT_ISSUE_TOKENS.accessToken,
-	private var refreshToken: String = DEFAULT_ISSUE_TOKENS.refreshToken
-) : SessionRepository {
-	var cleared = false
-
-	override suspend fun hasActiveSession(): Boolean {
-		return sessionId.isNotBlank() && accessToken.isNotBlank() && refreshToken.isNotBlank()
-	}
-
-	override suspend fun setUsbId(usbId: String) {
-		this.usbId = usbId
-	}
-
-	override suspend fun setSessionId(sessionId: String) {
-		this.sessionId = sessionId
-	}
-
-	override suspend fun setAccessToken(accessToken: String) {
-		this.accessToken = accessToken
-	}
-
-	override suspend fun setRefreshToken(refreshToken: String) {
-		this.refreshToken = refreshToken
-	}
-
-	override suspend fun getUsbId(): String = usbId
-
-	override suspend fun getSessionId(): String = sessionId
-
-	override suspend fun getAccessToken(): String = accessToken
-
-	override suspend fun getRefreshToken(): String = refreshToken
-
-	override suspend fun clear() {
-		sessionId = ""
-		usbId = ""
-		accessToken = ""
-		refreshToken = ""
-		cleared = true
-	}
-}
-
-class FakeNetworkRepository(
-	private val isAvailable: Boolean
-) : NetworkRepository {
-	override fun isAvailable(): Boolean = isAvailable
-}
-
-class RecordingReportingRepository : ReportingRepository {
-	var recordedIdentifier: String? = null
-	val exceptions = mutableListOf<Throwable>()
-	val messages = mutableListOf<String>()
-	val customKeys = mutableMapOf<String, Any>()
-
-	override fun setIdentifier(identifier: String) {
-		recordedIdentifier = identifier
-	}
-
-	override fun logException(throwable: Throwable) {
-		exceptions += throwable
-	}
-
-	override fun logMessage(message: String) {
-		messages += message
-	}
-
-	override fun <T : Any> setCustomKey(key: String, value: T) {
-		customKeys[key] = value
-	}
-}
-
-class RecordingApplicationRepository : ApplicationRepository {
-	var cleared = false
-
-	override suspend fun clearData() {
-		cleared = true
-	}
-
-	override suspend fun canOpen(file: PlatformFile): Boolean = true
 }
 
 class RecordingMessagingRepository : MessagingRepository {

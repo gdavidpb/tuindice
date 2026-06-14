@@ -31,7 +31,7 @@
 - `record`: depends on `:academiccore`, `:base`, `:persistence`.
 - `enrollmentproof`: depends on `:base`, `:persistence`.
 - `evaluations`: depends on `:academiccore`, `:base`, `:persistence`.
-- `subjects`: depends on `:base`, `:persistence`.
+- `subjects`: depends on `:academiccore`, `:base`, `:persistence`.
 - `pensum`: depends on `:academiccore`, `:base`, `:persistence`.
 - `wizard`: depends on `:academiccore`, `:base`, `:summary`, `:record`, `:evaluations`, `:subjects`, `:pensum`, `:about`, and `:enrollmentproof`.
 - `maincore`: depends on `:base`, `:persistence`, and every feature module.
@@ -47,7 +47,9 @@ Current intentional exception: `wizard -> features`, because `wizard` is an onbo
 - `settings.gradle.kts`
   - registers every Gradle module
 - `build.gradle.kts`
-  - root verification tasks such as `verifySharedCompilation`, `verifySharedTests`, `verifyCommonUiGate`, and iOS host checks
+  - root verification tasks such as `verifySharedCompilation`, `verifySharedTests`, `verifyCommonUiGate`, `verifyModuleGraph`, and iOS host checks
+- `scripts/validate-module-graph.sh`
+  - machine-checked module dependency graph; must stay in sync with the graph documented in `README.md`
 - `gradle/libs.versions.toml`
   - shared dependency and plugin catalog
 
@@ -99,7 +101,7 @@ Typical shared UI feature module pattern:
   - `alias(libs.plugins.compose.compiler)`
   - `alias(libs.plugins.kotlin.serialization)` when needed
 - targets:
-  - `android { namespace; compileSdk = 36; minSdk = 24; androidResources { enable = true } }`
+  - `android { namespace; compileSdk = 37; minSdk = 24; androidResources { enable = true } }`
   - `iosArm64()`
   - `iosSimulatorArm64()`
 - source sets:
@@ -139,6 +141,7 @@ Common subpackages already used in this repo:
 - `presentation/model`
 - `presentation/navigation`
 - `presentation/route`
+- `presentation/utils`
 - `presentation/viewmodel`
 - `ui/screen`
 - `ui/view`
@@ -234,6 +237,8 @@ Feature module smoke tests:
 Shared helpers:
 
 - `testkit/src/commonMain/kotlin/com/gdavidpb/tuindice/testkit/koin/KoinSmokeTestUtils.kt`
+- `testkit/src/commonMain/kotlin/com/gdavidpb/tuindice/testkit/mvi/MachineRandomWalk.kt` (seeded model-based walks for machine contract tests)
+- `testkit/src/commonMain/kotlin/com/gdavidpb/tuindice/testkit/e2e/E2eFixtureContract.kt` (Kotlin mirror of `testkit/e2e/fixture-contract.env`)
 
 E2E contract and local runners:
 
@@ -255,8 +260,12 @@ Useful checks are already present in the repo:
 - `./gradlew --continue --console=plain :<module>:compileKotlinIosSimulatorArm64`
 - `./gradlew --continue --console=plain :<module>:allTests`
 - `./gradlew --continue --console=plain :maincore:iosSimulatorArm64Test --tests '*IosAppKoinSmokeTest*'`
+- `./gradlew --continue --console=plain verifyModuleGraph`
 - `./gradlew --continue --console=plain verifySharedCompilation`
 - `./gradlew --continue --console=plain verifySharedTests`
+- `./gradlew --continue --console=plain verifySharedHostTests` (android host JVM — the only platform where machine alphabet/Λ validators enforce)
+- `./gradlew --continue --console=plain detekt` (per-module baselines)
+- `./gradlew --continue --console=plain koverHtmlReport` (coverage measurement, no thresholds)
 - `./gradlew --continue --console=plain verifyCommonUiGate`
 - `./gradlew --continue --console=plain verifyIosHostTypecheck`
 

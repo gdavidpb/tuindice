@@ -11,7 +11,7 @@ import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
 class $UPDATE_EXCEPTION_HANDLER_NAME(
 	private val networkRepository: NetworkRepository,
 	override val reportingRepository: ReportingRepository
-) : ExceptionHandler<$UPDATE_USE_CASE_ERROR_NAME>() {
+) : ExceptionHandler<$UPDATE_USE_CASE_ERROR_NAME> {
 	override fun parseException(throwable: Throwable): $UPDATE_USE_CASE_ERROR_NAME? {
 		return when {
 			throwable.isUnavailable() -> $UPDATE_USE_CASE_ERROR_NAME.Unavailable

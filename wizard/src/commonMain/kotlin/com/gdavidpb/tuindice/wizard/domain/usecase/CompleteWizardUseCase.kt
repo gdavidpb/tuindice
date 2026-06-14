@@ -9,7 +9,7 @@ import kotlinx.coroutines.flow.flowOf
 class CompleteWizardUseCase(
 	private val settingsRepository: SettingsRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<Unit, Unit, Nothing>(reportingRepository = reportingRepository) {
+) : FlowUseCase<Unit, Unit, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
 		settingsRepository.setWizardCompleted()
 

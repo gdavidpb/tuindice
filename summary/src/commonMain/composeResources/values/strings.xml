@@ -8,12 +8,12 @@
     <string name="summary_failed_retry">Reintentar</string>
     <string name="dialog_title_remove_profile_picture">Atención</string>
     <string name="dialog_message_remove_profile_picture">¿Estás seguro de que deseas remover tu foto de perfil?</string>
-    <string name="dialog_button_remove">Remover</string>
+    <string name="dialog_button_remove">Eliminar</string>
     <string name="dialog_button_cancel">Cancelar</string>
     <string name="title_menu_profile_picture">Mi foto de perfil</string>
     <string name="menu_pick_profile_picture">Subir foto</string>
     <string name="menu_take_profile_picture">Tomar foto</string>
-    <string name="menu_remove_profile_picture">Remover foto</string>
+    <string name="menu_remove_profile_picture">Eliminar foto</string>
     <string name="snack_profile_picture_updated">Foto de perfil actualizada</string>
     <string name="snack_profile_picture_removed">Foto de perfil removida</string>
     <string name="snack_profile_picture_not_image">El archivo seleccionado no es una imagen válida.</string>

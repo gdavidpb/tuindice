@@ -146,6 +146,9 @@ flows:
     covers:
       - refresh-not-found
       - refresh-failed-retry
+      - record-unavailable
+      - no-current-focus
+      - cache-refresh-failed-local-warning
       - version-modality-selection
       - zoom
       - node-selection
@@ -524,8 +527,8 @@ flows:
       - record_term_selection_option_2026-2
       - record_enrollment_proof_button
       - pensum_node_ma1111
-      - pensum_focused_node_ma1111
-      - pensum_node_detail_button_ma1111
+      - pensum_subject_detail_sheet
+      - pensum_subject_detail_more_button
       - pensum_subject_detail_status
       - pensum_subject_detail_term_value
       - subjects_global_tab
@@ -584,7 +587,8 @@ flows:
       - wizard_back_button
       - wizard_focus_overlay
       - record_top_bar_view_mode_switch
-      - pensum_node_detail_button_ma1111
+      - pensum_node_ma1111
+      - pensum_subject_detail_sheet
       - subjects_charts
       - evaluations_add_fab
   - id: summary-smoke
@@ -757,7 +761,7 @@ flows:
     type: interaction
     platforms: [android, ios]
     status: active
-    variant: synthetic-term-search-priority-order-unavailable-addability-tooltips-stats-back-state
+    variant: synthetic-term-search-priority-order-unavailable-addability-tooltips-stats-back-state-unified-status-language
     fixture_state: synthetic-term-search
     actions_covered:
       - record.CreateSyntheticTerm.UpdateQuery
@@ -940,8 +944,12 @@ flows:
       - pensum.Pensum.RefreshPensum
     primary_selectors:
       - pensum_screen
+      - pensum_refreshing_indicator
       - pensum_canvas
       - pensum_canvas_legend
+      - pensum_status_filter_available
+      - pensum_status_filter_current
+      - pensum_status_filter_clear
       - pensum_fit_to_screen
       - pensum_focus_progress
       - pensum_minimap
@@ -980,6 +988,37 @@ flows:
       - base_error_view_retry_button
       - pensum_screen
       - pensum_canvas
+  - id: pensum-record-unavailable
+    path: e2e/maestro/flows/pensum/pensum-record-unavailable.yaml
+    module: pensum
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: record-data-unavailable-empty
+    fixture_state: record-sync-unavailable
+    actions_covered:
+      - pensum.Pensum.RefreshPensum
+    primary_selectors:
+      - maincore_tuindice_bottom_bar_pensum_item
+      - base_empty_view_container
+      - base_empty_state_animation
+      - base_empty_view_title
+      - base_empty_view_message
+      - base_empty_view_action_button
+  - id: pensum-current-absent
+    path: e2e/maestro/flows/pensum/pensum-current-absent.yaml
+    module: pensum
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: no-current-official-focus-hidden
+    fixture_state: pensum-success-record-without-current-term
+    actions_covered:
+      - pensum.Pensum.RefreshPensum
+    primary_selectors:
+      - pensum_screen
+      - pensum_canvas
+      - pensum_focus_progress
   - id: pensum-selection
     path: e2e/maestro/flows/pensum/pensum-selection.yaml
     module: pensum
@@ -1009,14 +1048,53 @@ flows:
       - subjects.SubjectDetail.SelectSubjectSegmentTab
     primary_selectors:
       - pensum_node_0800-2019-degree_project-t1-math1-ma1111
-      - pensum_focused_node_0800-2019-degree_project-t1-math1-ma1111
-      - pensum_node_detail_button_0800-2019-degree_project-t1-math1-ma1111
+      - pensum_subject_detail_sheet
       - pensum_subject_detail_status
       - pensum_subject_detail_term_value
       - base_confirmation_dialog_negative_button
       - subjects_content
       - subjects_segment_students_metric
       - subjects_segment_attempts_metric
+  - id: pensum-detail-navigation
+    path: e2e/maestro/flows/pensum/pensum-detail-navigation.yaml
+    module: pensum
+    type: navigation
+    platforms: [android, ios]
+    status: active
+    variant: same-sheet-related-subject-navigation
+    fixture_state: pensum-success-subject-detail
+    actions_covered:
+      - pensum.Pensum.RefreshPensum
+    primary_selectors:
+      - pensum_node_0800-2019-degree_project-t2-math2-ma1112
+      - pensum_subject_detail_sheet
+      - pensum_subject_detail_more_button
+      - pensum_subject_detail_route_context
+      - pensum_subject_detail_selected_route_card
+      - pensum_subject_detail_requirements
+      - pensum_subject_detail_requirement_0800-2019-degree_project-t1-math1-ma1111
+      - pensum_subject_detail_unlocks
+      - pensum_subject_detail_unlock_0800-2019-degree_project-t2-math2-ma1112
+  - id: pensum-cache-refresh-failed
+    path: e2e/maestro/flows/pensum/pensum-cache-refresh-failed.yaml
+    module: pensum
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: cached-canvas-local-warning-no-snackbar
+    fixture_state: pensum-cache-then-service-unavailable
+    actions_covered:
+      - pensum.Pensum.SelectSelection
+    primary_selectors:
+      - pensum_context_summary
+      - base_confirmation_dialog_sheet
+      - pensum_version_option_2018
+      - pensum_modality_option_long_internship
+      - base_confirmation_dialog_positive_button
+      - pensum_local_data_warning
+      - pensum_canvas
+      - pensum_node_0800-2018-long_internship-t1-math1-ma1111
+      - base_snackbar_container
   - id: subjects-smoke
     path: e2e/maestro/flows/subjects/subjects-smoke.yaml
     module: subjects
@@ -1060,7 +1138,7 @@ flows:
     type: interaction
     platforms: [android, ios]
     status: active
-    variant: short-query-success-clear
+    variant: short-query-success-clear-no-results-contextual-pensum-status-stats-navigation
     fixture_state: subject-search-success
     actions_covered:
       - subjects.SubjectSearch.UpdateQuery
@@ -1068,6 +1146,8 @@ flows:
       - subjects_search_screen
       - subjects_search_text_field
       - subjects_search_result_CI2511
+      - subjects_search_result_CI2511_status_approved
+      - subjects_search_result_stats_CI2511
       - subjects_search_clear
   - id: subjects-search-failed-retry
     path: e2e/maestro/flows/subjects/subjects-search-failed-retry.yaml
@@ -1216,7 +1296,7 @@ flows:
       - evaluations.Evaluations.ShowEvaluationGradeDialog
       - evaluations.Evaluations.SetEvaluationGrade
     primary_selectors:
-      - evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
+      - evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435
       - evaluation_grade_action_button
       - evaluation_dialog_subtitle
       - evaluation_dialog_subject_code_chip

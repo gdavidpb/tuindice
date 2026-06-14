@@ -25,7 +25,7 @@ class ProfilePictureSettingsDialogUiTest {
 				titleText = "Mi foto de perfil",
 				pickPictureLabel = "Subir foto",
 				takePictureLabel = "Tomar foto",
-				removePictureLabel = "Remover foto",
+				removePictureLabel = "Eliminar foto",
 				onPickPictureClick = { pickClicks++ },
 				onTakePictureClick = {},
 				onRemovePictureClick = {},
@@ -57,7 +57,7 @@ class ProfilePictureSettingsDialogUiTest {
 				titleText = "Mi foto de perfil",
 				pickPictureLabel = "Subir foto",
 				takePictureLabel = "Tomar foto",
-				removePictureLabel = "Remover foto",
+				removePictureLabel = "Eliminar foto",
 				onPickPictureClick = {},
 				onTakePictureClick = { takeClicks++ },
 				onRemovePictureClick = {},
@@ -84,7 +84,7 @@ class ProfilePictureSettingsDialogUiTest {
 				titleText = "Mi foto de perfil",
 				pickPictureLabel = "Subir foto",
 				takePictureLabel = "Tomar foto",
-				removePictureLabel = "Remover foto",
+				removePictureLabel = "Eliminar foto",
 				onPickPictureClick = {},
 				onTakePictureClick = {},
 				onRemovePictureClick = {},
@@ -109,7 +109,7 @@ class ProfilePictureSettingsDialogUiTest {
 				titleText = "Mi foto de perfil",
 				pickPictureLabel = "Subir foto",
 				takePictureLabel = "Tomar foto",
-				removePictureLabel = "Remover foto",
+				removePictureLabel = "Eliminar foto",
 				onPickPictureClick = {},
 				onTakePictureClick = {},
 				onRemovePictureClick = { removeClicks++ },
@@ -118,7 +118,7 @@ class ProfilePictureSettingsDialogUiTest {
 		}
 
 		assertNodeVisible(SummaryUiTags.ProfilePictureRemoveAction)
-		onNodeWithText("Remover foto").performClick()
+		onNodeWithText("Eliminar foto").performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
 			removeClicks == 1
@@ -137,7 +137,7 @@ class ProfilePictureSettingsDialogUiTest {
 				titleText = "Mi foto de perfil",
 				pickPictureLabel = "Subir foto",
 				takePictureLabel = "Tomar foto",
-				removePictureLabel = "Remover foto",
+				removePictureLabel = "Eliminar foto",
 				onPickPictureClick = {},
 				onTakePictureClick = {},
 				onRemovePictureClick = {},

@@ -17,7 +17,7 @@ fun <T> CollectEffectWithLifecycle(
 	minActiveState: Lifecycle.State = Lifecycle.State.STARTED,
 	action: suspend (T) -> Unit
 ) {
-	LaunchedEffect(flow, lifecycleOwner.lifecycle) {
+	LaunchedEffect(flow, lifecycleOwner.lifecycle, minActiveState) {
 		withContext(Dispatchers.Main.immediate) {
 			flow
 				.flowWithLifecycle(lifecycleOwner.lifecycle, minActiveState)

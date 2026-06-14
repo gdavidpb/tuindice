@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
 import androidx.compose.material3.Icon
@@ -47,6 +46,7 @@ fun PensumSummaryRow(
 	model: PensumScreenModel,
 	onPensumContextClick: () -> Unit
 ) {
+	val graphColors = pensumGraphColors()
 	val progressLabel = stringResource(Res.string.pensum_progress_label)
 	val contextTitle = model.careerName
 	val hasPensumContext = contextTitle.isNotBlank()
@@ -55,7 +55,7 @@ fun PensumSummaryRow(
 	val approvedCredits = remember { Animatable(0f) }
 	val totalCredits = remember { Animatable(0f) }
 	val targetProgress = model.progressPercent.coerceIn(0, 100) / 100f
-	val summaryShape = RoundedCornerShape(18.dp)
+	val summaryShape = PensumElementShape
 	val summaryTextStyle = MaterialTheme.typography.bodyMedium
 	val summaryAnimationSpec = tween<Float>(
 		durationMillis = SummaryAnimationMillis,
@@ -90,7 +90,7 @@ fun PensumSummaryRow(
 	Row(
 		modifier = Modifier
 			.fillMaxWidth()
-			.background(MaterialTheme.colorScheme.surface)
+			.background(graphColors.screenBackground)
 			.padding(horizontal = 16.dp, vertical = 10.dp)
 			.height(IntrinsicSize.Min),
 		verticalAlignment = Alignment.CenterVertically,
@@ -100,8 +100,8 @@ fun PensumSummaryRow(
 			modifier = Modifier
 				.then(if (hasPensumContext) Modifier.width(ProgressSummaryWidth) else Modifier.weight(1f))
 				.fillMaxHeight()
-				.background(PanelBackground, summaryShape)
-				.border(1.dp, PanelBorder, summaryShape)
+				.background(graphColors.panelBackground, summaryShape)
+				.border(1.dp, graphColors.panelBorder, summaryShape)
 				.padding(horizontal = 12.dp, vertical = 10.dp),
 			verticalAlignment = Alignment.CenterVertically,
 			horizontalArrangement = Arrangement.spacedBy(10.dp)
@@ -114,14 +114,14 @@ fun PensumSummaryRow(
 					text = "${(progress.value * 100).roundToInt()}% $progressLabel",
 					style = summaryTextStyle,
 					fontWeight = FontWeight.SemiBold,
-					color = TextPrimary,
+					color = graphColors.textPrimary,
 					maxLines = 1,
 					overflow = TextOverflow.Ellipsis
 				)
 				Text(
 					text = "${approvedCredits.value.roundToInt()} / ${totalCredits.value.roundToInt()} UC",
 					style = summaryTextStyle,
-					color = TextSecondary,
+					color = graphColors.textSecondary,
 					maxLines = 1,
 					overflow = TextOverflow.Ellipsis
 				)
@@ -133,8 +133,8 @@ fun PensumSummaryRow(
 					.weight(1f)
 					.fillMaxHeight()
 					.clip(summaryShape)
-					.background(PanelBackground, summaryShape)
-					.border(1.dp, PanelBorder, summaryShape)
+					.background(graphColors.panelBackground, summaryShape)
+					.border(1.dp, graphColors.panelBorder, summaryShape)
 					.clickable(
 						role = Role.Button,
 						onClickLabel = contextActionDescription,
@@ -154,7 +154,7 @@ fun PensumSummaryRow(
 							text = contextTitle,
 							style = summaryTextStyle,
 							fontWeight = FontWeight.SemiBold,
-							color = TextPrimary,
+							color = graphColors.textPrimary,
 							maxLines = 2,
 							overflow = TextOverflow.Ellipsis
 						)
@@ -164,7 +164,7 @@ fun PensumSummaryRow(
 					modifier = Modifier.size(20.dp),
 					imageVector = Icons.Outlined.KeyboardArrowDown,
 					contentDescription = null,
-					tint = TextSecondary
+					tint = graphColors.textSecondary
 				)
 			}
 		}

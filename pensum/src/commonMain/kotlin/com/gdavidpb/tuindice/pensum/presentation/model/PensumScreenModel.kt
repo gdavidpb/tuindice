@@ -8,6 +8,7 @@ data class PensumScreenModel(
 	val progressPercent: Int,
 	val approvedCredits: Int,
 	val totalCredits: Int,
+	val isCurrentFocusVisible: Boolean,
 	val canvas: PensumCanvasItem,
 	val terms: List<PensumTermItem>,
 	val nodes: List<PensumNodeItem>,

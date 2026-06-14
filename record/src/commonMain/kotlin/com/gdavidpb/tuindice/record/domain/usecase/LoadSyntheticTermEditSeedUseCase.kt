@@ -7,7 +7,6 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermEditSeed
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermPeriodOption
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
-import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.usecase.error.RecordUseCaseError
 import com.gdavidpb.tuindice.record.domain.usecase.exceptionhandler.RecordExceptionHandler
@@ -18,9 +17,7 @@ class LoadSyntheticTermEditSeedUseCase(
 	private val repository: AcademicRecordRepository,
 	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: RecordExceptionHandler
-) : FlowUseCase<String, SyntheticTermEditSeed, RecordUseCaseError>(
-	reportingRepository = reportingRepository
-) {
+) : FlowUseCase<String, SyntheticTermEditSeed, RecordUseCaseError>() {
 	override suspend fun executeOnBackground(params: String): Flow<SyntheticTermEditSeed> {
 		val record = requireNotNull(repository.getAcademicRecord())
 		val term = record.terms.first { term -> term.id == params && term.kind.isSynthetic }
@@ -42,8 +39,7 @@ class LoadSyntheticTermEditSeedUseCase(
 					subjectCode = attempt.subjectCode,
 					name = attempt.subjectName,
 					credits = attempt.credits,
-					gradingMode = attempt.gradingMode,
-					availability = SyntheticTermSubjectAvailability.SELECTED
+					gradingMode = attempt.gradingMode
 				)
 			}
 		)

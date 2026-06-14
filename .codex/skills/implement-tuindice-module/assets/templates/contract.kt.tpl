@@ -11,7 +11,7 @@ object $FEATURE_NAME {
 		override val topBarConfig: TopBarConfig = TopBarConfig.$TOP_BAR_CONFIG,
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = $BOTTOM_BAR_VISIBLE_LITERAL
-	) : ViewState() {
+	) : ViewState {
 		data object Loading : State()
 
 		data class Content(
@@ -21,12 +21,12 @@ object $FEATURE_NAME {
 		data object Failed : State()
 	}
 
-	sealed class Action : ViewAction() {
+	sealed class Action : ViewAction {
 		data object $OBSERVE_ACTION_NAME : Action()
 		data object $REFRESH_ACTION_NAME : Action()
 	}
 
-	sealed class Effect : ViewEffect() {
+	sealed class Effect : ViewEffect {
 		class ShowSnackBar(val message: String) : Effect()
 	}
 }

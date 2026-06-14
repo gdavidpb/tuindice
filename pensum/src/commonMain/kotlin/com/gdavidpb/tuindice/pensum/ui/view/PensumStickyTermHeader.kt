@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -38,8 +37,17 @@ fun PensumStickyTermHeader(
 	onTermClick: (termId: String) -> Unit,
 	modifier: Modifier = Modifier
 ) {
+	val graphColors = pensumGraphColors()
 	val density = LocalDensity.current
-	val minimumWidthPx = with(density) { StickyTermMinWidth.toPx() }
+	val labelTextStyle = MaterialTheme.typography.labelMedium.copy(fontWeight = FontWeight.SemiBold)
+	val shouldUseFullLabels = scale >= StickyTermHeaderFullMinZoom
+	val minimumWidthPx = with(density) {
+		if (shouldUseFullLabels) {
+			StickyTermFullLabelMinWidth.toPx()
+		} else {
+			StickyTermShortLabelMinWidth.toPx()
+		}
+	}
 
 	Box(
 		modifier = modifier
@@ -52,9 +60,14 @@ fun PensumStickyTermHeader(
 			val xPx = offsetX + term.x.toFloat() * densityScale * scale
 			val widthPx = max(term.width.toFloat() * densityScale * scale, minimumWidthPx)
 			val widthDp = with(density) { widthPx.toDp() }
+			val labelHorizontalPadding = if (shouldUseFullLabels) {
+				StickyTermFullLabelHorizontalPadding
+			} else {
+				StickyTermShortLabelHorizontalPadding
+			}
 			val label = pensumTermOrdinalLabel(
 				number = index + 1,
-				shouldIncludeText = widthDp >= StickyTermFullLabelMinWidth
+				shouldIncludeText = shouldUseFullLabels
 			)
 
 			Surface(
@@ -62,23 +75,23 @@ fun PensumStickyTermHeader(
 					.offset(x = with(density) { xPx.toDp() })
 					.width(widthDp)
 					.fillMaxHeight()
-					.padding(horizontal = 4.dp, vertical = 5.dp)
+					.padding(horizontal = StickyTermOuterHorizontalPadding, vertical = 5.dp)
 					.clickable { onTermClick(term.id) },
-				shape = RoundedCornerShape(8.dp),
-				color = FloatingPanelBackground,
-				border = BorderStroke(1.dp, PanelBorder.copy(alpha = 0.9f))
+				shape = PensumElementShape,
+				color = graphColors.floatingPanelBackground,
+				border = BorderStroke(1.dp, graphColors.panelBorder.copy(alpha = 0.9f))
 			) {
 				Box(
 					modifier = Modifier.fillMaxSize(),
 					contentAlignment = Alignment.Center
 				) {
 					Text(
-						modifier = Modifier.padding(horizontal = 8.dp),
+						modifier = Modifier.padding(horizontal = labelHorizontalPadding),
 						text = label,
 						textAlign = TextAlign.Center,
-						style = MaterialTheme.typography.labelMedium,
+						style = labelTextStyle,
 						fontWeight = FontWeight.SemiBold,
-						color = TextPrimary,
+						color = graphColors.textPrimary,
 						maxLines = 1,
 						overflow = TextOverflow.Ellipsis
 					)
@@ -87,3 +100,7 @@ fun PensumStickyTermHeader(
 		}
 	}
 }
+
+private val StickyTermOuterHorizontalPadding = 4.dp
+private val StickyTermFullLabelHorizontalPadding = 8.dp
+private val StickyTermShortLabelHorizontalPadding = 4.dp

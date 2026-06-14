@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.pensum.di
 
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
@@ -28,6 +30,7 @@ class PensumModuleKoinSmokeTest {
 			single<NetworkRepository> { FakeNetworkRepository() }
 			single<RecordDataPrerequisiteRepository> { FakeRecordDataPrerequisiteRepository() }
 			single<EventPublisher> { NoOpEventPublisher }
+			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 		}
 	) {
 		assertResolves(PensumViewModel::class)

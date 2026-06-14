@@ -10,9 +10,7 @@ import kotlinx.coroutines.flow.Flow
 class ObserveSyntheticTermCreationUseCase(
 	private val repository: SyntheticTermCreationRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<ObserveSyntheticTermCreationParams, SyntheticTermCreationSnapshot, Nothing>(
-	reportingRepository = reportingRepository
-) {
+) : FlowUseCase<ObserveSyntheticTermCreationParams, SyntheticTermCreationSnapshot, Nothing>() {
 	override suspend fun executeOnBackground(
 		params: ObserveSyntheticTermCreationParams
 	): Flow<SyntheticTermCreationSnapshot> {

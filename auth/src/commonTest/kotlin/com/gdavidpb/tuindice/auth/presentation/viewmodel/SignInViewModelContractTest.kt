@@ -1,22 +1,18 @@
 package com.gdavidpb.tuindice.auth.presentation.viewmodel
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.auth.presentation.machine.SignInMachine
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
-import com.gdavidpb.tuindice.auth.presentation.action.OpenPrivacyPolicyActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.OpenTermsAndConditionsActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.SetPasswordActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.SetUsbIdActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.SignInActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.TogglePasswordVisibilityActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
-import com.gdavidpb.tuindice.auth.testing.FakeNetworkRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
-import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
@@ -37,7 +33,7 @@ class SignInViewModelContractTest {
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun publicActions_updateState_andEmitEffects() = runTest {
 		val viewModel = SignInViewModel(
-			signInActionProcessor = SignInActionProcessor(
+			screenMachine = SignInMachine(
 				signInUseCase = SignInUseCase(
 					authRepository = RecordingAuthRepository(),
 					messagingRepository = RecordingMessagingRepository(),
@@ -51,16 +47,9 @@ class SignInViewModelContractTest {
 						networkRepository = FakeNetworkRepository(isAvailable = true)
 					)
 				),
-				configRepository = FakeConfigRepository()
-			),
-			setUsbIdActionProcessor = SetUsbIdActionProcessor(),
-			setPasswordActionProcessor = SetPasswordActionProcessor(),
-			togglePasswordVisibilityActionProcessor = TogglePasswordVisibilityActionProcessor(),
-			openTermsAndConditionsActionProcessor = OpenTermsAndConditionsActionProcessor(
-				appEnvironmentRepository = FakeAppEnvironmentRepository()
-			),
-			privacyPolicyActionProcessor = OpenPrivacyPolicyActionProcessor(
-				appEnvironmentRepository = FakeAppEnvironmentRepository()
+				configRepository = FakeConfigRepository(),
+				appEnvironmentRepository = FakeAppEnvironmentRepository(),
+				usageDataConsentRepository = InMemoryUsageDataConsentRepository()
 			),
 			eventPublisher = NoOpEventPublisher
 		)
@@ -96,7 +85,7 @@ class SignInViewModelContractTest {
 					awaitItem()
 				)
 
-				viewModel.signInAction(VALID_USB_ID, "secret123")
+				viewModel.signInAction()
 				assertIs<SignIn.State.LoggingIn>(awaitItem())
 
 				cancelAndIgnoreRemainingEvents()
@@ -109,8 +98,13 @@ class SignInViewModelContractTest {
 				val browserEffect = assertIs<SignIn.Effect.NavigateToBrowser>(awaitItem())
 				assertEquals("https://tuindice.app/terms_and_conditions_v6_0.html", browserEffect.url)
 
-				viewModel.signInAction(VALID_USB_ID, "secret123")
-				assertIs<SignIn.Effect.NavigateToSummary>(awaitItem())
+				// Re-clicking sign-in while LoggingIn is an invalid transition: the machine
+				// ignores it, so no second NavigateToSummary may be emitted. Both events are
+				// queued in order; if the re-click were processed, its NavigateToSummary
+				// would arrive before the browser effect asserted below.
+				viewModel.signInAction()
+				viewModel.openPrivacyPolicyAction()
+				assertIs<SignIn.Effect.NavigateToBrowser>(awaitItem())
 
 				cancelAndIgnoreRemainingEvents()
 			}

@@ -13,7 +13,7 @@ class SelectPensumUseCase(
 	private val pensumRepository: PensumRepository,
 	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: UpdatePensumExceptionHandler
-) : FlowUseCase<SelectPensumParams, Unit, UpdatePensumUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<SelectPensumParams, Unit, UpdatePensumUseCaseError>() {
 	override suspend fun executeOnBackground(params: SelectPensumParams): Flow<Unit> {
 		return flow {
 			pensumRepository.selectPensum(

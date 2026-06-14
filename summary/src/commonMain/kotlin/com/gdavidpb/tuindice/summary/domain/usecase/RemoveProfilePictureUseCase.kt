@@ -12,7 +12,7 @@ class RemoveProfilePictureUseCase(
 	private val userRepository: UserRepository,
 	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: RemoveProfilePictureExceptionHandler
-) : FlowUseCase<Unit, Unit, ProfilePictureUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<Unit, Unit, ProfilePictureUseCaseError>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
 		userRepository.removeProfilePicture()
 

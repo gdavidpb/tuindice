@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
-import com.gdavidpb.tuindice.evaluations.presentation.extension.currentEvaluationLocalDate
-import com.gdavidpb.tuindice.evaluations.presentation.extension.toEvaluationEpochMillis
+import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
+import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationEpochMillis
 import kotlinx.datetime.DatePeriod
 import kotlinx.datetime.plus
 import kotlin.test.Test

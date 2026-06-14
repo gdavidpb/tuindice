@@ -12,6 +12,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.record.presentation.model.TermMetricDelta
 import com.gdavidpb.tuindice.record.presentation.model.TermMetricDeltaTone
 
@@ -19,7 +20,7 @@ private val PositiveTermDeltaContainerColor = Color(0xFFC6F0B7)
 private val PositiveTermDeltaContentColor = Color(0xFF479A21)
 private val NegativeTermDeltaContainerColor = Color(0xFFF2B8BF)
 private val NegativeTermDeltaContentColor = Color(0xFF9A212D)
-private val TermDeltaChipShape = RoundedCornerShape(8.dp)
+private val TermDeltaChipShape = RoundedCornerShape(TuIndiceRadius.Small)
 private val TermDeltaChipHorizontalPadding = 8.dp
 private val TermDeltaChipVerticalPadding = 3.dp
 

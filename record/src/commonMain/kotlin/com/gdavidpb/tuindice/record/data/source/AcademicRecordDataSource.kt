@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
+import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
@@ -26,6 +27,7 @@ import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.mapNotNull
 
 class AcademicRecordDataSource(
 	private val localDataSource: AcademicRecordLocalDataRepository,
@@ -46,6 +48,17 @@ class AcademicRecordDataSource(
 
 	override suspend fun observeHasSyncedRecordFlow(): Flow<Boolean> {
 		return localDataSource.observeHasSyncedRecordFlow()
+	}
+
+	override suspend fun observeAcademicRecordSnapshotFlow(): Flow<ObservedSyncedSnapshot<AcademicRecord>> {
+		return localDataSource.observeAcademicRecordSnapshotFlow()
+			.mapNotNull { snapshot ->
+				val record = snapshot.value ?: return@mapNotNull null
+				ObservedSyncedSnapshot(
+					value = record,
+					hasSynced = snapshot.hasSynced
+				)
+			}
 	}
 
 	override suspend fun getAcademicRecord(): AcademicRecord? {

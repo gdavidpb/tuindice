@@ -35,6 +35,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadBand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadBasis
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadConfidence
@@ -87,7 +89,11 @@ fun CreateTermLoadChip(
 		outlineColor = MaterialTheme.colorScheme.outline,
 		primaryColor = MaterialTheme.colorScheme.primary,
 		onSurfaceVariantColor = MaterialTheme.colorScheme.onSurfaceVariant,
-		errorColor = MaterialTheme.colorScheme.error
+		errorColor = MaterialTheme.colorScheme.error,
+		lightLoadColor = AcademicStatusColors.loadBandLight(),
+		manageableLoadColor = AcademicStatusColors.loadBandManageable(),
+		successColor = AcademicStatusColors.success(),
+		warningColor = AcademicStatusColors.warning()
 	)
 	val label = status.label(
 		placeholderText = stringResource(Res.string.create_term_load_placeholder),
@@ -104,7 +110,7 @@ fun CreateTermLoadChip(
 	Surface(
 		modifier = modifier
 			.width(LoadChipWidth),
-		shape = RoundedCornerShape(12.dp),
+		shape = RoundedCornerShape(TuIndiceRadius.Medium),
 		color = color.copy(alpha = 0.12f),
 		border = BorderStroke(
 			width = 1.dp,
@@ -334,7 +340,11 @@ private fun LoadChipStatus.color(
 	outlineColor: Color,
 	primaryColor: Color,
 	onSurfaceVariantColor: Color,
-	errorColor: Color
+	errorColor: Color,
+	lightLoadColor: Color,
+	manageableLoadColor: Color,
+	successColor: Color,
+	warningColor: Color
 ): Color {
 	return when (this) {
 		LoadChipStatus.Placeholder ->
@@ -349,16 +359,16 @@ private fun LoadChipStatus.color(
 		is LoadChipStatus.Available ->
 			when (band) {
 				SyntheticTermLoadBand.LIGHT ->
-					CreateTermLightLoadColor
+					lightLoadColor
 
 				SyntheticTermLoadBand.MANAGEABLE ->
-					CreateTermManageableLoadColor
+					manageableLoadColor
 
 				SyntheticTermLoadBand.NORMAL ->
-					CreateTermSuccessColor
+					successColor
 
 				SyntheticTermLoadBand.DEMANDING ->
-					CreateTermWarningColor
+					warningColor
 
 				SyntheticTermLoadBand.VERY_DEMANDING ->
 					errorColor

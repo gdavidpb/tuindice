@@ -4,6 +4,8 @@ import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
@@ -22,12 +24,12 @@ import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignOutViewModel
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.UpdatePasswordViewModel
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
-import com.gdavidpb.tuindice.auth.testing.FakeNetworkRepository
-import com.gdavidpb.tuindice.auth.testing.FakeSessionRepository
-import com.gdavidpb.tuindice.auth.testing.RecordingApplicationRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
-import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
@@ -64,6 +66,7 @@ class AuthModuleKoinSmokeTest {
 			single<PendingChangesRepository> { FakePendingChangesRepository() }
 			single<UsageDataConsentRepository> { InMemoryUsageDataConsentRepository() }
 			single<EventPublisher> { NoOpEventPublisher }
+			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 			single {
 				HttpClient(
 					MockEngine { respondOk() }

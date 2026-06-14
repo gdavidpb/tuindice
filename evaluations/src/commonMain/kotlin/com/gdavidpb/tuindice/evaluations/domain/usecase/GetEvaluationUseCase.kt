@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.flowOf
 class GetEvaluationUseCase(
 	private val evaluationRepository: EvaluationRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<String, Evaluation?, EvaluationsUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<String, Evaluation?, EvaluationsUseCaseError>() {
 	override suspend fun executeOnBackground(params: String): Flow<Evaluation?> {
 		val evaluation = evaluationRepository.getEvaluation(eid = params)
 

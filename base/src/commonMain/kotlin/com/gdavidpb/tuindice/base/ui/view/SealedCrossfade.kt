@@ -7,13 +7,14 @@ import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAnimation
 
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 fun <T : Any> SealedCrossfade(
 	targetState: T,
 	modifier: Modifier = Modifier,
-	animationSpec: FiniteAnimationSpec<Float> = tween(),
+	animationSpec: FiniteAnimationSpec<Float> = tween(durationMillis = TuIndiceAnimation.StandardMillis),
 	label: String = "SealedCrossfade",
 	content: @Composable (T) -> Unit
 ) {

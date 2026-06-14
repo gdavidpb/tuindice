@@ -5,22 +5,21 @@ import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.auth.domain.usecase.ConfirmSignOutUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.FlushPendingChangesUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.SignOutUseCase
-import com.gdavidpb.tuindice.auth.presentation.action.ConfirmSignOutActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.FlushAndSignOutActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.ForceSignOutActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.InitializeSignOutActionProcessor
-import com.gdavidpb.tuindice.auth.presentation.action.OpenUpdatePasswordActionProcessor
 import com.gdavidpb.tuindice.auth.presentation.contract.SignOut
+import com.gdavidpb.tuindice.auth.presentation.machine.SignOutInternalEvent
+import com.gdavidpb.tuindice.auth.presentation.machine.SignOutMachine
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
-import com.gdavidpb.tuindice.auth.testing.FakeSessionRepository
-import com.gdavidpb.tuindice.auth.testing.RecordingApplicationRepository
-import com.gdavidpb.tuindice.auth.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
+import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -37,9 +36,8 @@ class SignOutViewModelContractTest {
 			hasFailedMutations = true
 		)
 		val viewModel = SignOutViewModel(
-			initializeSignOutActionProcessor = InitializeSignOutActionProcessor(),
-			confirmSignOutActionProcessor = ConfirmSignOutActionProcessor(
-				ConfirmSignOutUseCase(
+			screenMachine = SignOutMachine(
+				confirmSignOutUseCase = ConfirmSignOutUseCase(
 					pendingChangesRepository = FakePendingChangesRepository(pendingChanges = pendingChanges),
 					reportingRepository = RecordingReportingRepository()
 				),
@@ -51,37 +49,14 @@ class SignOutViewModelContractTest {
 					applicationRepository = RecordingApplicationRepository(),
 					syncStatusRepository = FakeSyncStatusRepository(),
 					reportingRepository = RecordingReportingRepository()
-				)
-			),
-			flushAndSignOutActionProcessor = FlushAndSignOutActionProcessor(
-				FlushPendingChangesUseCase(
+				),
+				flushPendingChangesUseCase = FlushPendingChangesUseCase(
 					pendingChangesRepository = FakePendingChangesRepository(
 						pendingChanges = pendingChanges
 					),
 					reportingRepository = RecordingReportingRepository()
-				),
-				signOutUseCase = SignOutUseCase(
-					authRepository = RecordingAuthRepository(),
-					attestationRepository = FakeAttestationRepository(),
-					sessionRepository = FakeSessionRepository(),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					applicationRepository = RecordingApplicationRepository(),
-					syncStatusRepository = FakeSyncStatusRepository(),
-					reportingRepository = RecordingReportingRepository()
 				)
 			),
-			forceSignOutActionProcessor = ForceSignOutActionProcessor(
-				SignOutUseCase(
-					authRepository = RecordingAuthRepository(),
-					attestationRepository = FakeAttestationRepository(),
-					sessionRepository = FakeSessionRepository(),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					applicationRepository = RecordingApplicationRepository(),
-					syncStatusRepository = FakeSyncStatusRepository(),
-					reportingRepository = RecordingReportingRepository()
-				)
-			),
-			openUpdatePasswordActionProcessor = OpenUpdatePasswordActionProcessor(),
 			eventPublisher = NoOpEventPublisher
 		)
 
@@ -127,23 +102,17 @@ class SignOutViewModelContractTest {
 			reportingRepository = reportingRepository
 		)
 		val viewModel = SignOutViewModel(
-			initializeSignOutActionProcessor = InitializeSignOutActionProcessor(),
-			confirmSignOutActionProcessor = ConfirmSignOutActionProcessor(
-				ConfirmSignOutUseCase(
+			screenMachine = SignOutMachine(
+				confirmSignOutUseCase = ConfirmSignOutUseCase(
 					pendingChangesRepository = pendingChangesRepository,
 					reportingRepository = reportingRepository
 				),
-				signOutUseCase = signOutUseCase
-			),
-			flushAndSignOutActionProcessor = FlushAndSignOutActionProcessor(
-				FlushPendingChangesUseCase(
+				signOutUseCase = signOutUseCase,
+				flushPendingChangesUseCase = FlushPendingChangesUseCase(
 					pendingChangesRepository = pendingChangesRepository,
 					reportingRepository = reportingRepository
-				),
-				signOutUseCase = signOutUseCase
+				)
 			),
-			forceSignOutActionProcessor = ForceSignOutActionProcessor(signOutUseCase),
-			openUpdatePasswordActionProcessor = OpenUpdatePasswordActionProcessor(),
 			eventPublisher = NoOpEventPublisher
 		)
 
@@ -157,17 +126,13 @@ class SignOutViewModelContractTest {
 				assertEquals(SignOut.State.Plain, awaitItem())
 
 				viewModel.signOutAction(resolvedPendingChanges = pendingChanges)
-				assertEquals(
-					SignOut.State.LoggingOut(pendingChanges = pendingChanges),
-					awaitItem()
-				)
-				assertEquals(
-					SignOut.State.FlushFailed(
-						pendingChanges = pendingChanges,
-						requiresPasswordUpdate = false
-					),
-					awaitItem()
-				)
+				// The conflated state flow may skip the intermediate LoggingOut emission;
+				// the resolved payload is asserted on the terminal state that carries it
+				// forward, which is what proves bootstrap was bypassed.
+				val flushFailed = awaitUntilState<SignOut.State.FlushFailed> { state ->
+					state.pendingChanges == pendingChanges
+				}
+				assertEquals(false, flushFailed.requiresPasswordUpdate)
 
 				cancelAndIgnoreRemainingEvents()
 			}
@@ -199,23 +164,17 @@ class SignOutViewModelContractTest {
 			reportingRepository = reportingRepository
 		)
 		val viewModel = SignOutViewModel(
-			initializeSignOutActionProcessor = InitializeSignOutActionProcessor(),
-			confirmSignOutActionProcessor = ConfirmSignOutActionProcessor(
-				ConfirmSignOutUseCase(
+			screenMachine = SignOutMachine(
+				confirmSignOutUseCase = ConfirmSignOutUseCase(
 					pendingChangesRepository = pendingChangesRepository,
 					reportingRepository = reportingRepository
 				),
-				signOutUseCase = signOutUseCase
-			),
-			flushAndSignOutActionProcessor = FlushAndSignOutActionProcessor(
-				FlushPendingChangesUseCase(
+				signOutUseCase = signOutUseCase,
+				flushPendingChangesUseCase = FlushPendingChangesUseCase(
 					pendingChangesRepository = pendingChangesRepository,
 					reportingRepository = reportingRepository
-				),
-				signOutUseCase = signOutUseCase
+				)
 			),
-			forceSignOutActionProcessor = ForceSignOutActionProcessor(signOutUseCase),
-			openUpdatePasswordActionProcessor = OpenUpdatePasswordActionProcessor(),
 			eventPublisher = NoOpEventPublisher
 		)
 		val stateCollector = backgroundScope.launchStateCollector(
@@ -242,5 +201,68 @@ class SignOutViewModelContractTest {
 		} finally {
 			stateCollector.cancel()
 		}
+	}
+
+	@Test
+	fun machine_survivesSeededRandomWalk() = runTest {
+		val pendingChanges = PendingChanges(
+			totalCount = 2,
+			recordCount = 2,
+			evaluationsCount = 0,
+			hasFailedMutations = true
+		)
+		val pendingChangesRepository = FakePendingChangesRepository(
+			pendingChanges = pendingChanges
+		)
+		val reportingRepository = RecordingReportingRepository()
+
+		val screenMachine = SignOutMachine(
+			confirmSignOutUseCase = ConfirmSignOutUseCase(
+				pendingChangesRepository = pendingChangesRepository,
+				reportingRepository = reportingRepository
+			),
+			signOutUseCase = SignOutUseCase(
+				authRepository = RecordingAuthRepository(),
+				attestationRepository = FakeAttestationRepository(),
+				sessionRepository = FakeSessionRepository(),
+				sessionInvalidationRepository = FakeSessionInvalidationRepository(),
+				applicationRepository = RecordingApplicationRepository(),
+				syncStatusRepository = FakeSyncStatusRepository(),
+				reportingRepository = reportingRepository
+			),
+			flushPendingChangesUseCase = FlushPendingChangesUseCase(
+				pendingChangesRepository = pendingChangesRepository,
+				reportingRepository = reportingRepository
+			)
+		)
+
+		assertMachineRandomWalk(
+			screenMachine = screenMachine,
+			sampleEvents = listOf(
+				SignOut.Action.Initialize(pendingChanges = pendingChanges),
+				SignOut.Action.ClickSignOut(resolvedPendingChanges = pendingChanges),
+				SignOut.Action.ClickSignOut(resolvedPendingChanges = null),
+				SignOut.Action.RetryFlushAndSignOut(pendingChanges = pendingChanges),
+				SignOut.Action.ForceSignOut,
+				SignOutInternalEvent.SignOutInitializedPlain,
+				SignOutInternalEvent.SignOutInitializedPending(pendingChanges = pendingChanges),
+				SignOutInternalEvent.LoggingOutObserved(
+					pendingChanges = pendingChanges,
+					requiresPasswordUpdate = false
+				),
+				SignOutInternalEvent.PendingChangesFound(pendingChanges = pendingChanges),
+				SignOutInternalEvent.SignOutSucceeded,
+				SignOutInternalEvent.SignOutFailedToPlain(message = "No se pudo cerrar sesión"),
+				SignOutInternalEvent.FlushFailedObserved(
+					pendingChanges = pendingChanges,
+					requiresPasswordUpdate = false,
+					message = "Cambios pendientes sin sincronizar"
+				)
+			),
+			scope = backgroundScope,
+			// Conservative floor: every internal event is sampled by hand; raise to the
+			// observed coverage once the walk has run on CI.
+			minRowCoverage = 0.4
+		)
 	}
 }

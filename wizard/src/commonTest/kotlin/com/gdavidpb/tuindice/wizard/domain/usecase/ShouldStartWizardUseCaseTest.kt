@@ -44,7 +44,7 @@ class ShouldStartWizardUseCaseTest {
 	)
 
 	private suspend fun Flow<UseCaseState<Boolean, Nothing>>.firstValue(): Boolean {
-		return (first { state -> state is UseCaseState.Data } as UseCaseState.Data<Boolean, Nothing>)
+		return (first { state -> state is UseCaseState.Data } as UseCaseState.Data<Boolean>)
 			.value
 	}
 }

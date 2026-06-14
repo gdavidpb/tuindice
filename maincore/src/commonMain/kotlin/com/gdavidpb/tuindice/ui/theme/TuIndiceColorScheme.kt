@@ -7,7 +7,7 @@ import androidx.compose.ui.graphics.Color
 object TuIndiceColorScheme {
 	val light = lightColorScheme(
 		primary = Color(0xFFFABD00),
-		onPrimary = Color(0xFFFFFFFF),
+		onPrimary = Color(0xFF231A00),
 		primaryContainer = Color(0xFFFFDF9E),
 		onPrimaryContainer = Color(0xFF5B4300),
 		secondary = Color(0xFF6B5D3F),

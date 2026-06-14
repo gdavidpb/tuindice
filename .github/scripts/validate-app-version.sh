@@ -8,7 +8,9 @@ source "${SCRIPT_DIR}/common.sh"
 
 SKIP_APP_VERSION_TAG_CONFLICT_CHECK="${SKIP_APP_VERSION_TAG_CONFLICT_CHECK:-0}"
 
-bash "${SCRIPT_DIR}/sync-app-version.sh"
+# Validation must not mutate the working tree: a stale committed
+# Version.xcconfig has to fail here instead of being silently repaired.
+# Regenerate locally with ./gradlew syncAppVersion.
 
 VERSION_NAME="$(get_app_version_name)"
 ANDROID_VERSION_CODE="$(get_android_version_code)"
@@ -23,7 +25,7 @@ EXPECTED_XCCONFIG="$(mktemp "${RUNNER_TEMP:-/tmp}/tuindice-version.XXXXXX")"
 write_version_xcconfig_contents "$VERSION_NAME" "$IOS_BUILD_NUMBER" >"$EXPECTED_XCCONFIG"
 
 if [[ ! -f "$VERSION_XCCONFIG" ]]; then
-	die "Missing ${VERSION_XCCONFIG}. Run the app version sync step."
+	die "Missing ${VERSION_XCCONFIG}. Run ./gradlew syncAppVersion and commit the result."
 fi
 
 if ! cmp -s "$EXPECTED_XCCONFIG" "$VERSION_XCCONFIG"; then
@@ -33,7 +35,7 @@ if ! cmp -s "$EXPECTED_XCCONFIG" "$VERSION_XCCONFIG"; then
 		printf '\nActual contents:\n'
 		cat "$VERSION_XCCONFIG"
 	} >&2
-	die "${VERSION_XCCONFIG} is out of sync with $(app_version_file)."
+	die "${VERSION_XCCONFIG} is out of sync with $(app_version_file). Run ./gradlew syncAppVersion and commit the result."
 fi
 
 if grep -qE '^[[:space:]]*(MARKETING_VERSION|CURRENT_PROJECT_VERSION)[[:space:]]*=' iosApp/TuIndiceHost.xcodeproj/project.pbxproj; then

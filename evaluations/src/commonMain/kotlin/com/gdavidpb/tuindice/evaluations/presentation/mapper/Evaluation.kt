@@ -11,11 +11,11 @@ fun (Evaluation.Action.LoadEvaluation).toGetEvaluationParams() =
 		evaluationId = evaluationId
 	)
 
-fun (Evaluation.Action.ClickAddEvaluation).toAddEvaluationParams() =
+fun (Evaluation.State.Content).toAddEvaluationParams() =
 	AddEvaluationParams(
-		attemptId = attempt?.id,
-		subjectCode = attempt?.code,
-		termId = attempt?.termId,
+		attemptId = selectedAttempt?.id,
+		subjectCode = selectedAttempt?.code,
+		termId = selectedAttempt?.termId,
 		scheduleMode = scheduleMode,
 		grade = grade,
 		maxGrade = maxGrade,
@@ -23,12 +23,12 @@ fun (Evaluation.Action.ClickAddEvaluation).toAddEvaluationParams() =
 		type = type
 	)
 
-fun (Evaluation.Action.ClickEditEvaluation).toUpdateEvaluationParams() =
+fun (Evaluation.State.Content).toUpdateEvaluationParams() =
 	UpdateEvaluationParams(
-		evaluationId = evaluationId,
-		attemptId = attempt?.id,
-		subjectCode = attempt?.code,
-		termId = attempt?.termId,
+		evaluationId = requireNotNull(evaluationId),
+		attemptId = selectedAttempt?.id,
+		subjectCode = selectedAttempt?.code,
+		termId = selectedAttempt?.termId,
 		scheduleMode = scheduleMode,
 		grade = grade,
 		maxGrade = maxGrade,

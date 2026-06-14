@@ -16,7 +16,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.subjects.presentation.mapper.toCompactCountText
 import com.patrykandpatrick.vico.compose.cartesian.CartesianChartHost
@@ -75,7 +74,6 @@ fun SubjectDetailBarChartCard(
 			Text(
 				text = title,
 				style = MaterialTheme.typography.titleMedium,
-				fontWeight = FontWeight.SemiBold
 			)
 
 			if (values.any { value -> value > 0 }) {

@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.evaluations.di
 
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
@@ -27,6 +29,7 @@ class EvaluationsModuleKoinSmokeTest {
 			single<RecordDataPrerequisiteRepository> { ReadyRecordDataPrerequisiteRepository() }
 			single<ReportingRepository> { RecordingReportingRepository() }
 			single<EventPublisher> { NoOpEventPublisher }
+			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 		}
 	) {
 		assertResolves(

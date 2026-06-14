@@ -2,8 +2,6 @@ package com.gdavidpb.tuindice.summary.testing
 
 import com.gdavidpb.tuindice.base.domain.model.EncodedImage
 import com.gdavidpb.tuindice.base.domain.model.User
-import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
-import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
@@ -152,24 +150,4 @@ class FakeProfilePictureInputDataSource(
 		lastFile = file
 		return normalizedFile ?: file
 	}
-}
-
-class FakeNetworkRepository(
-	private val isAvailable: Boolean
-) : NetworkRepository {
-	override fun isAvailable(): Boolean = isAvailable
-}
-
-class RecordingReportingRepository : ReportingRepository {
-	val exceptions = mutableListOf<Throwable>()
-
-	override fun setIdentifier(identifier: String) = Unit
-
-	override fun logException(throwable: Throwable) {
-		exceptions += throwable
-	}
-
-	override fun logMessage(message: String) = Unit
-
-	override fun <T : Any> setCustomKey(key: String, value: T) = Unit
 }

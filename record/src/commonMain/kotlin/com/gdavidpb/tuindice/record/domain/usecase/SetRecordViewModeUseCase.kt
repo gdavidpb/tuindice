@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.flowOf
 class SetRecordViewModeUseCase(
 	private val recordSelectionRepository: RecordSelectionRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<RecordViewMode, Unit, Nothing>(reportingRepository = reportingRepository) {
+) : FlowUseCase<RecordViewMode, Unit, Nothing>() {
 	override suspend fun executeOnBackground(params: RecordViewMode): Flow<Unit> {
 		recordSelectionRepository.setRecordViewMode(params)
 		return flowOf(Unit)

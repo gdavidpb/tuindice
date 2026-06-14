@@ -14,15 +14,8 @@ import com.gdavidpb.tuindice.domain.usecase.SetLastMainSectionUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
 import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
-import com.gdavidpb.tuindice.presentation.action.browser.NavigateToActionProcessor
-import com.gdavidpb.tuindice.presentation.action.browser.OpenExternalResourceActionProcessor
-import com.gdavidpb.tuindice.presentation.action.browser.SetLoadingActionProcessor
-import com.gdavidpb.tuindice.presentation.action.main.RequestReviewActionProcessor
-import com.gdavidpb.tuindice.presentation.action.main.RequestSyncActionProcessor
-import com.gdavidpb.tuindice.presentation.action.main.RequestUpdateActionProcessor
-import com.gdavidpb.tuindice.presentation.action.main.RequestWizardStartActionProcessor
-import com.gdavidpb.tuindice.presentation.action.main.SetLastMainSectionActionProcessor
-import com.gdavidpb.tuindice.presentation.action.main.StartUpActionProcessor
+import com.gdavidpb.tuindice.presentation.machine.BrowserMachine
+import com.gdavidpb.tuindice.presentation.machine.MainMachine
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
@@ -34,14 +27,7 @@ import com.gdavidpb.tuindice.summary.domain.usecase.UploadProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.RemoveProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
-import com.gdavidpb.tuindice.summary.presentation.action.ConfirmRemoveProfilePictureActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.ObserveSummaryActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.OpenProfilePictureSettingsActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.PickProfilePictureActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.RefreshSummaryActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.RemoveProfilePictureActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.TakeProfilePictureActionProcessor
-import com.gdavidpb.tuindice.summary.presentation.action.UploadProfilePictureActionProcessor
+import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
@@ -57,9 +43,7 @@ import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.flowOf
 
 fun createBrowserViewModel(): BrowserViewModel = BrowserViewModel(
-	navigateToActionProcessor = NavigateToActionProcessor(),
-	setLoadingActionProcessor = SetLoadingActionProcessor(),
-	openExternalResourceActionProcessor = OpenExternalResourceActionProcessor(),
+	screenMachine = BrowserMachine(),
 	eventPublisher = NoOpEventPublisher
 )
 
@@ -67,33 +51,25 @@ fun createSummaryViewModel(
 	userRepository: UserRepository = FakeUserRepository()
 ): SummaryViewModel {
 	return SummaryViewModel(
-		observeSummaryActionProcessor = ObserveSummaryActionProcessor(
+		screenMachine = SummaryMachine(
 			observeUserUseCase = ObserveUserUseCase(
 				userRepository = userRepository,
 				reportingRepository = RecordingReportingRepository()
-			)
-		),
-		refreshSummaryActionProcessor = RefreshSummaryActionProcessor(
+			),
 			updateUserUseCase = UpdateUserUseCase(
 				userRepository = userRepository,
 				reportingRepository = RecordingReportingRepository(),
 				exceptionHandler = UpdateUserExceptionHandler(
 					networkRepository = FakeNetworkRepository(isAvailable = true)
 				)
-			)
-		),
-		takeProfilePictureActionProcessor = TakeProfilePictureActionProcessor(),
-		pickProfilePictureActionProcessor = PickProfilePictureActionProcessor(),
-		uploadProfilePictureActionProcessor = UploadProfilePictureActionProcessor(
+			),
 			uploadProfilePictureUseCase = UploadProfilePictureUseCase(
 				userRepository = userRepository,
 				reportingRepository = RecordingReportingRepository(),
 				exceptionHandler = UploadProfilePictureExceptionHandler(
 					networkRepository = FakeNetworkRepository(isAvailable = true)
 				)
-			)
-		),
-		confirmRemoveProfilePictureActionProcessor = ConfirmRemoveProfilePictureActionProcessor(
+			),
 			removeProfilePictureUseCase = RemoveProfilePictureUseCase(
 				userRepository = userRepository,
 				reportingRepository = RecordingReportingRepository(),
@@ -102,8 +78,6 @@ fun createSummaryViewModel(
 				)
 			)
 		),
-		removeProfilePictureActionProcessor = RemoveProfilePictureActionProcessor(),
-		openProfilePictureSettingsActionProcessor = OpenProfilePictureSettingsActionProcessor(),
 		eventPublisher = NoOpEventPublisher
 	)
 }
@@ -123,7 +97,7 @@ fun createMainViewModel(
 	reportingRepository: RecordingReportingRepository = RecordingReportingRepository()
 ): MainViewModel {
 	return MainViewModel(
-		startUpActionProcessor = StartUpActionProcessor(
+		screenMachine = MainMachine(
 			startUpUseCase = StartUpUseCase(
 				sessionRepository = sessionRepository,
 				settingsRepository = settingsRepository,
@@ -131,38 +105,28 @@ fun createMainViewModel(
 				applicationRepository = applicationRepository,
 				reportingRepository = reportingRepository,
 				exceptionHandler = StartUpExceptionHandler()
-			)
-		),
-		requestReviewActionProcessor = RequestReviewActionProcessor(
+			),
 			requestReviewUseCase = RequestReviewUseCase(
 				settingsRepository = settingsRepository,
 				configRepository = configRepository,
 				reportingRepository = reportingRepository
-			)
-		),
-		requestSyncActionProcessor = RequestSyncActionProcessor(
+			),
+			getUpdateInfoUseCase = GetUpdateInfoUseCase(
+				configRepository = configRepository,
+				updateGateway = updateRepository,
+				reportingRepository = reportingRepository
+			),
 			scheduleSyncUseCase = ScheduleSyncUseCase(
 				sessionRepository = sessionRepository,
 				credentialsRepository = credentialsRepository,
 				syncRepository = syncRepository,
 				coreCacheStateRepository = coreCacheStateRepository,
 				reportingRepository = reportingRepository
-			)
-		),
-		requestUpdateActionProcessor = RequestUpdateActionProcessor(
-			getUpdateInfoUseCase = GetUpdateInfoUseCase(
-				configRepository = configRepository,
-				updateGateway = updateRepository,
-				reportingRepository = reportingRepository
-			)
-		),
-		setLastMainSectionActionProcessor = SetLastMainSectionActionProcessor(
+			),
 			setLastMainSectionUseCase = SetLastMainSectionUseCase(
 				settingsRepository = settingsRepository,
 				reportingRepository = reportingRepository
-			)
-		),
-		requestWizardStartActionProcessor = RequestWizardStartActionProcessor(
+			),
 			shouldStartWizardUseCase = ShouldStartWizardUseCase(
 				settingsRepository = settingsRepository,
 				sessionRepository = sessionRepository,

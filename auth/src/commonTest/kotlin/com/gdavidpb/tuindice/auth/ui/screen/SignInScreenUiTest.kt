@@ -22,7 +22,7 @@ class SignInScreenUiTest {
 				onUsbIdChange = {},
 				onPasswordChange = {},
 				onPasswordVisibilityToggle = {},
-				onSignInClick = { _, _ -> },
+				onSignInClick = {},
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {}
 			)
@@ -44,7 +44,7 @@ class SignInScreenUiTest {
 				onUsbIdChange = {},
 				onPasswordChange = {},
 				onPasswordVisibilityToggle = {},
-				onSignInClick = { _, _ -> },
+				onSignInClick = {},
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {}
 			)
@@ -56,8 +56,7 @@ class SignInScreenUiTest {
 
 	@Test
 	fun when_idleStateHasValidCredentialsAndButtonTapped_then_invokesSignInCallback() = runTuIndiceUiTest {
-		var receivedUsbId = ""
-		var receivedPassword = ""
+		var signInClicks = 0
 
 		setTuIndiceTestContent {
 			SignInScreen(
@@ -68,10 +67,7 @@ class SignInScreenUiTest {
 				onUsbIdChange = {},
 				onPasswordChange = {},
 				onPasswordVisibilityToggle = {},
-				onSignInClick = { usbId, password ->
-					receivedUsbId = usbId
-					receivedPassword = password
-				},
+				onSignInClick = { signInClicks++ },
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {}
 			)
@@ -79,8 +75,7 @@ class SignInScreenUiTest {
 
 		onNodeWithTag(AuthUiTags.SignInButton).performClick()
 
-		assertEquals("12-34567", receivedUsbId)
-		assertEquals("1234", receivedPassword)
+		assertEquals(1, signInClicks)
 	}
 
 	@Test
@@ -94,7 +89,7 @@ class SignInScreenUiTest {
 				onUsbIdChange = { usbId -> latestUsbId = usbId },
 				onPasswordChange = { password -> latestPassword = password },
 				onPasswordVisibilityToggle = {},
-				onSignInClick = { _, _ -> },
+				onSignInClick = {},
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {}
 			)

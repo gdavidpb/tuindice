@@ -27,12 +27,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.MAX_SUBJECT_GRADE
 import com.gdavidpb.tuindice.base.domain.model.GradingMode
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.record.presentation.model.AttemptItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.AttemptItemBadge
@@ -116,7 +116,6 @@ fun AttemptItemView(
 					.weight(1f),
 				text = item.nameText,
 				maxLines = 1,
-				fontWeight = FontWeight.SemiBold,
 				style = MaterialTheme.typography.titleMedium,
 				overflow = TextOverflow.Ellipsis
 			)
@@ -156,7 +155,6 @@ fun AttemptItemView(
 											)
 										),
 										text = display.gradeText,
-										fontWeight = FontWeight.SemiBold,
 										style = MaterialTheme.typography.titleMedium
 									)
 								}
@@ -209,7 +207,6 @@ fun AttemptItemView(
 											)
 										),
 										text = display.gradeText,
-										fontWeight = FontWeight.SemiBold,
 										style = MaterialTheme.typography.titleMedium
 									)
 								}
@@ -226,7 +223,6 @@ fun AttemptItemView(
 										)
 									),
 									text = display.gradeText,
-									fontWeight = FontWeight.SemiBold,
 									style = MaterialTheme.typography.titleMedium
 								)
 							}
@@ -248,12 +244,11 @@ fun AttemptItemView(
 					.testTag(RecordUiTags.attemptSubjectChip(item.attemptId))
 					.background(
 						color = item.codeContainerColor,
-						shape = RoundedCornerShape(8.dp)
+						shape = RoundedCornerShape(TuIndiceRadius.Small)
 					)
 					.padding(vertical = 5.dp, horizontal = 10.dp),
 				text = item.codeText,
 				color = item.codeColor,
-				fontWeight = FontWeight.SemiBold,
 				style = MaterialTheme.typography.labelLarge
 			)
 

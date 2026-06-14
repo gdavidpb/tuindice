@@ -23,7 +23,7 @@ class RemoveProfilePictureConfirmationDialogUiTest {
 			RemoveProfilePictureConfirmationDialog(
 				titleText = "Atencion",
 				messageText = "Estas seguro de remover tu foto de perfil?",
-				confirmText = "Remover",
+				confirmText = "Eliminar",
 				cancelText = "Cancelar",
 				onConfirmClick = { confirmClicks++ },
 				onDismissRequest = { dismissClicks++ }
@@ -51,7 +51,7 @@ class RemoveProfilePictureConfirmationDialogUiTest {
 			RemoveProfilePictureConfirmationDialog(
 				titleText = "Atencion",
 				messageText = "Estas seguro de remover tu foto de perfil?",
-				confirmText = "Remover",
+				confirmText = "Eliminar",
 				cancelText = "Cancelar",
 				onConfirmClick = {},
 				onDismissRequest = { dismissClicks++ }

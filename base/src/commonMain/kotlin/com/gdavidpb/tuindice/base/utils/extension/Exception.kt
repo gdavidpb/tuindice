@@ -70,9 +70,18 @@ fun Throwable.isFailedDependency() = when (this) {
 	else -> false
 }
 
+fun Throwable.isServerError() = when (this) {
+	is ResponseException -> response.status.value in 500..599
+	else -> false
+}
+
 fun Throwable.isTooManyRequests() = when (this) {
 	is ResponseException -> response.status == HttpStatusCode.TooManyRequests
 	else -> false
+}
+
+fun Throwable.isSyncRetryable(): Boolean {
+	return isUnavailable() || isFailedDependency() || isTooManyRequests() || isServerError() || isConnection() || isTimeout()
 }
 
 fun Throwable.isForbidden() = when (this) {

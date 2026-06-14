@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
-import com.gdavidpb.tuindice.evaluations.presentation.extension.currentEvaluationLocalDate
+import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
 import kotlinx.datetime.LocalDate
 
 fun defaultEvaluationsWeekNumber(

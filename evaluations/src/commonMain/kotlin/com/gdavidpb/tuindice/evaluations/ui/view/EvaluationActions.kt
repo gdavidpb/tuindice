@@ -4,7 +4,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.outlined.DeleteOutline
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -13,6 +13,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
@@ -35,11 +36,11 @@ fun EvaluationActions(
 				.weight(1f)
 				.testTag(EvaluationsUiTags.EvaluationSwipeEditAction),
 			text = stringResource(Res.string.label_evaluation_swipe_edit),
-			containerColor = MaterialTheme.colorScheme.primaryContainer,
-			contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+			containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f),
+			contentColor = MaterialTheme.colorScheme.onSurface,
 			shape = RoundedCornerShape(
-				topStart = 8.dp,
-				bottomStart = 8.dp,
+				topStart = TuIndiceRadius.Small,
+				bottomStart = TuIndiceRadius.Small,
 				topEnd = 0.dp,
 				bottomEnd = 0.dp
 			),
@@ -61,13 +62,13 @@ fun EvaluationActions(
 			shape = RoundedCornerShape(
 				topStart = 0.dp,
 				bottomStart = 0.dp,
-				topEnd = 8.dp,
-				bottomEnd = 8.dp
+				topEnd = TuIndiceRadius.Small,
+				bottomEnd = TuIndiceRadius.Small
 			),
 			onClick = onDelete
 		) {
 			Icon(
-				imageVector = Icons.Default.Delete,
+				imageVector = Icons.Outlined.DeleteOutline,
 				contentDescription = null
 			)
 		}

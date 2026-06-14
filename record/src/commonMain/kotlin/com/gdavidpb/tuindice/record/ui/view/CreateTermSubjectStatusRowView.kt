@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.ui.view
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,7 +9,10 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.CheckCircleOutline
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Lock
+import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -24,9 +28,11 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -37,7 +43,6 @@ import tuindice.record.generated.resources.create_term_subject_already_planned
 import tuindice.record.generated.resources.create_term_subject_already_taken
 import tuindice.record.generated.resources.create_term_subject_not_in_pensum
 import tuindice.record.generated.resources.create_term_subject_requirement_pending
-import tuindice.record.generated.resources.create_term_subject_selected
 import tuindice.record.generated.resources.create_term_subject_tooltip_already_planned
 import tuindice.record.generated.resources.create_term_subject_tooltip_already_taken
 import tuindice.record.generated.resources.create_term_subject_tooltip_unavailable
@@ -54,41 +59,20 @@ fun CreateTermSubjectStatusRow(
 	val status = subject.status(
 		availableText = availableText,
 		availableIcon = availableIcon,
-		selectedText = stringResource(Res.string.create_term_subject_selected),
 		alreadyTakenText = stringResource(Res.string.create_term_subject_already_taken),
 		alreadyPlannedText = stringResource(Res.string.create_term_subject_already_planned),
 		notInPensumText = stringResource(Res.string.create_term_subject_not_in_pensum),
 		unavailableText = stringResource(Res.string.create_term_subject_requirement_pending),
+		availableColor = AcademicStatusColors.available(),
+		approvedColor = AcademicStatusColors.approved(),
+		blockedColor = AcademicStatusColors.blocked(),
 		onSurfaceVariantColor = onSurfaceVariantColor
 	)
 	Row(
 		horizontalArrangement = Arrangement.spacedBy(6.dp),
 		verticalAlignment = Alignment.CenterVertically
 	) {
-		when (status.icon) {
-			CreateTermSubjectStatusIcon.Dot ->
-				Box(
-					modifier = Modifier
-						.size(10.dp)
-						.background(status.color, CircleShape)
-				)
-
-			CreateTermSubjectStatusIcon.Check ->
-				Icon(
-					modifier = Modifier.size(16.dp),
-					imageVector = Icons.Outlined.CheckCircleOutline,
-					contentDescription = null,
-					tint = status.color
-				)
-
-			CreateTermSubjectStatusIcon.Clock ->
-				Icon(
-					modifier = Modifier.size(16.dp),
-					imageVector = Icons.Outlined.Schedule,
-					contentDescription = null,
-					tint = status.color
-				)
-		}
+		CreateTermSubjectStatusMarker(status = status)
 		if (tooltipText == null) {
 			CreateTermSubjectStatusLabel(
 				subject = subject,
@@ -188,18 +172,20 @@ private fun CreateTermSubjectStatusLabel(
 private fun CreateTermSubjectItem.status(
 	availableText: String,
 	availableIcon: CreateTermSubjectStatusIcon,
-	selectedText: String,
 	alreadyTakenText: String,
 	alreadyPlannedText: String,
 	notInPensumText: String,
 	unavailableText: String,
+	availableColor: Color,
+	approvedColor: Color,
+	blockedColor: Color,
 	onSurfaceVariantColor: Color
 ): SubjectStatus {
 	return when (availability) {
 		SyntheticTermSubjectAvailability.AVAILABLE ->
 			SubjectStatus(
 				text = availableText,
-				color = CreateTermSuccessColor,
+				color = availableColor,
 				icon = availableIcon
 			)
 
@@ -207,36 +193,64 @@ private fun CreateTermSubjectItem.status(
 			SubjectStatus(
 				text = notInPensumText,
 				color = onSurfaceVariantColor,
-				icon = CreateTermSubjectStatusIcon.Dot
-			)
-
-		SyntheticTermSubjectAvailability.SELECTED ->
-			SubjectStatus(
-				text = selectedText,
-				color = onSurfaceVariantColor,
-				icon = CreateTermSubjectStatusIcon.Dot
+				icon = CreateTermSubjectStatusIcon.OutsidePensum
 			)
 
 		SyntheticTermSubjectAvailability.ALREADY_TAKEN ->
 			SubjectStatus(
 				text = alreadyTakenText,
-				color = onSurfaceVariantColor,
-				icon = CreateTermSubjectStatusIcon.Dot
+				color = approvedColor,
+				icon = CreateTermSubjectStatusIcon.Check
 			)
 
 		SyntheticTermSubjectAvailability.ALREADY_PLANNED ->
 			SubjectStatus(
 				text = alreadyPlannedText,
 				color = onSurfaceVariantColor,
-				icon = CreateTermSubjectStatusIcon.Dot
+				icon = CreateTermSubjectStatusIcon.Clock
 			)
 
 		SyntheticTermSubjectAvailability.UNAVAILABLE ->
 			SubjectStatus(
 				text = unavailableText,
-				color = CreateTermWarningColor,
-				icon = CreateTermSubjectStatusIcon.Clock
+				color = blockedColor,
+				icon = CreateTermSubjectStatusIcon.Blocked
 			)
+	}
+}
+
+@Composable
+private fun CreateTermSubjectStatusMarker(status: SubjectStatus) {
+	Box(
+		modifier = Modifier
+			.size(20.dp)
+			.background(MaterialTheme.colorScheme.surfaceContainerLow, CircleShape)
+			.border(1.2.dp, status.color, CircleShape),
+		contentAlignment = Alignment.Center
+	) {
+		status.icon.imageVector()?.let { icon ->
+			Icon(
+				modifier = Modifier.size(13.dp),
+				imageVector = icon,
+				contentDescription = null,
+				tint = status.color
+			)
+		} ?: Box(
+			modifier = Modifier
+				.size(6.dp)
+				.background(status.color, CircleShape)
+		)
+	}
+}
+
+private fun CreateTermSubjectStatusIcon.imageVector(): ImageVector? {
+	return when (this) {
+		CreateTermSubjectStatusIcon.Dot -> null
+		CreateTermSubjectStatusIcon.Check -> Icons.Filled.Check
+		CreateTermSubjectStatusIcon.Clock -> Icons.Outlined.Schedule
+		CreateTermSubjectStatusIcon.OutsidePensum -> Icons.Outlined.Map
+		CreateTermSubjectStatusIcon.Available -> Icons.Outlined.Add
+		CreateTermSubjectStatusIcon.Blocked -> Icons.Outlined.Lock
 	}
 }
 

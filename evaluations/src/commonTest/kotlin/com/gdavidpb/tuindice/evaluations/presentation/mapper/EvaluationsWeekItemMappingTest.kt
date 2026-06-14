@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
-import com.gdavidpb.tuindice.evaluations.presentation.extension.toEvaluationEpochMillis
+import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationEpochMillis
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_TERM
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION

@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -48,14 +49,7 @@ fun EvaluationContentView(
 	onDateChange: (date: Long?) -> Unit,
 	onGradeClick: (evaluationName: String, subjectCode: String, grade: Double?, maxGrade: Double?) -> Unit,
 	onMaxGradeClick: (evaluationName: String, subjectCode: String, grade: Double?) -> Unit,
-	onDoneClick: (
-		attempt: EditableAttemptDescriptor?,
-		type: EvaluationType?,
-		scheduleMode: EvaluationScheduleMode,
-		date: Long?,
-		grade: Double?,
-		maxGrade: Double?
-	) -> Unit
+	onDoneClick: () -> Unit
 ) {
 	val selectedTypeLabel = state.typeItems.firstOrNull { item -> item.isSelected }?.labelText.orEmpty()
 	val dialogEvaluationName = if (selectedTypeLabel.isBlank()) {
@@ -200,17 +194,10 @@ fun EvaluationContentView(
 				.padding(24.dp)
 				.height(52.dp)
 				.widthIn(min = 168.dp),
-			shape = RoundedCornerShape(999.dp),
+			shape = RoundedCornerShape(TuIndiceRadius.Full),
 			enabled = state.canSubmit,
 			onClick = {
-				onDoneClick(
-					state.selectedAttempt,
-					state.type,
-					state.scheduleMode,
-					state.date,
-					state.grade,
-					state.maxGrade
-				)
+				onDoneClick()
 			}
 		) {
 			if (state.isSubmitting) {

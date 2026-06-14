@@ -12,7 +12,7 @@ class UpdateRecordUseCase(
 	private val academicRecordRepository: AcademicRecordRepository,
 	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: RecordExceptionHandler
-) : FlowUseCase<Unit, Unit, RecordUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<Unit, Unit, RecordUseCaseError>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
 		academicRecordRepository.updateAcademicRecord()
 		return flowOf(Unit)

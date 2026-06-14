@@ -21,7 +21,7 @@ class StartUpUseCase(
 	private val applicationRepository: ApplicationRepository,
 	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: StartUpExceptionHandler
-) : FlowUseCase<Unit, StartUpResult, StartUpUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<Unit, StartUpResult, StartUpUseCaseError>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<StartUpResult> {
 		noAwait { configRepository.tryFetch() }
 

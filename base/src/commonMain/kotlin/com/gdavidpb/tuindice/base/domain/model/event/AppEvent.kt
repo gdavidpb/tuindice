@@ -46,4 +46,35 @@ sealed class AppEvent private constructor(
 			EventParameterKeys.EFFECT to effect
 		)
 	)
+
+	data class Transition(
+		private val source: String,
+		private val from: String,
+		private val event: String,
+		private val to: String
+	) : AppEvent(
+		name = EventNames.APP_TRANSITION,
+		parameters = mapOf(
+			EventParameterKeys.SOURCE to source,
+			EventParameterKeys.FROM to from,
+			EventParameterKeys.EVENT to event,
+			EventParameterKeys.TO to to
+		)
+	) {
+		val isSelfLoop: Boolean
+			get() = from == to
+	}
+
+	data class InvalidTransition(
+		private val source: String,
+		private val from: String,
+		private val event: String
+	) : AppEvent(
+		name = EventNames.APP_INVALID_TRANSITION,
+		parameters = mapOf(
+			EventParameterKeys.SOURCE to source,
+			EventParameterKeys.FROM to from,
+			EventParameterKeys.EVENT to event
+		)
+	)
 }

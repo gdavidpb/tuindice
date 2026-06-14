@@ -72,7 +72,7 @@ while [[ "$#" -gt 0 ]]; do
 			payload="$2"
 			shift 2
 			;;
-		-H|--header|--request|--output)
+		-H|--header|--request|--output|--retry|--retry-delay)
 			shift 2
 			;;
 		--fail|--silent|--show-error)
@@ -96,9 +96,20 @@ if [[ "${method}" == "POST" ]]; then
 	exit 0
 fi
 
+if [[ "${url}" == *"/commits/"*"/pulls" ]]; then
+	printf '[]\n'
+	exit 0
+fi
+
 if [[ "${url}" == *"/commits/"*"/status" ]]; then
 	if [[ ("${mode}" == "reuse-success" || "${mode}" == "publish-fails") && "${url}" != *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
-		printf '{"statuses":[{"context":"local-e2e/android/record-suite","state":"success"}]}\n'
+		printf '{"statuses":[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]}\n'
+	elif [[ "${mode}" == "direct-success" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
+		printf '{"statuses":[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]}\n'
+	elif [[ "${mode}" == "forged-status" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
+		printf '{"statuses":[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E record-suite passed for 1234567 fp 000000000000."}]}\n'
+	elif [[ "${mode}" == "untrusted-creator" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
+		printf '{"statuses":[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"intruder"},"description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]}\n'
 	else
 		printf '{"statuses":[]}\n'
 	fi
@@ -162,6 +173,27 @@ SH
 				exit 1
 			fi
 			;;
+		direct-success)
+			if ! grep -q 'Found successful E2E status' "${output_file}"; then
+				printf 'Preflight fixture %s did not accept the direct E2E status.\n' "${name}" >&2
+				cat "${output_file}" >&2
+				exit 1
+			fi
+			;;
+		forged-status)
+			if ! grep -q 'does not match the current fingerprint' "${output_file}"; then
+				printf 'Preflight fixture %s did not reject the forged fingerprint.\n' "${name}" >&2
+				cat "${output_file}" >&2
+				exit 1
+			fi
+			;;
+		untrusted-creator)
+			if ! grep -q 'is not trusted' "${output_file}"; then
+				printf 'Preflight fixture %s did not reject the untrusted status creator.\n' "${name}" >&2
+				cat "${output_file}" >&2
+				exit 1
+			fi
+			;;
 		publish-fails|missing-status)
 			if ! grep -q 'Missing successful E2E status' "${output_file}"; then
 				printf 'Preflight fixture %s did not report missing evidence.\n' "${name}" >&2
@@ -173,6 +205,9 @@ SH
 }
 
 run_preflight_fixture reuse-success reuse-success success
+run_preflight_fixture direct-success direct-success success
+E2E_REUSE_STATUS_BY_FINGERPRINT=0 run_preflight_fixture forged-status forged-status failure
+E2E_REUSE_STATUS_BY_FINGERPRINT=0 run_preflight_fixture untrusted-creator untrusted-creator failure
 run_preflight_fixture publish-fails publish-fails failure
 E2E_REUSE_STATUS_BY_FINGERPRINT=0 run_preflight_fixture missing-status missing-status failure
 

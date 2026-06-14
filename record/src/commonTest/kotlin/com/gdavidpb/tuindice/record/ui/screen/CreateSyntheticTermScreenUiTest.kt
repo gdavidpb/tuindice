@@ -82,6 +82,78 @@ class CreateSyntheticTermScreenUiTest {
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchTab).performClick()
 
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).assertIsDisplayed()
+		onNodeWithText("Código, nombre o palabra clave").assertIsDisplayed()
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchGuidance).assertIsDisplayed()
+		onNodeWithText("Búsquedas sugeridas").assertIsDisplayed()
+		onNodeWithText("MA1111").assertIsDisplayed()
+		onNodeWithText("Física").assertIsDisplayed()
+		onNodeWithText("Algoritmos").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_searchQueryIsTooShort_then_minQueryGuidanceIsShown() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateSyntheticTermScreen(
+				state = CreateSyntheticTerm.State(
+					query = "m",
+					selectedAddSubjectTab = CreateTermAddSubjectTab.Search
+				),
+				onQueryChange = { _, _, _ -> },
+				onClearQueryClick = {},
+				onPeriodSelected = {},
+				onAddSubjectTabSelected = {},
+				onSubjectAdd = {},
+				onSubjectRemove = {},
+				onCreateClick = {}
+			)
+		}
+
+		onNodeWithText("Agrega un carácter más").assertIsDisplayed()
+		onNodeWithText("La búsqueda empieza con al menos 2 caracteres.").assertIsDisplayed()
+		onNodeWithText("Búsquedas sugeridas").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_searchExampleIsClicked_then_queryIsUpdated() = runTuIndiceUiTest {
+		var latestQuery = ""
+		var latestSelectionStart = 0
+		var latestSelectionEnd = 0
+
+		setTuIndiceTestContent {
+			val screenState = remember {
+				mutableStateOf(
+					CreateSyntheticTerm.State(
+						selectedAddSubjectTab = CreateTermAddSubjectTab.Search
+					)
+				)
+			}
+
+			CreateSyntheticTermScreen(
+				state = screenState.value,
+				onQueryChange = { query, selectionStart, selectionEnd ->
+					latestQuery = query
+					latestSelectionStart = selectionStart
+					latestSelectionEnd = selectionEnd
+					screenState.value = screenState.value.copy(
+						query = query,
+						querySelectionStart = selectionStart,
+						querySelectionEnd = selectionEnd
+					)
+				},
+				onClearQueryClick = {},
+				onPeriodSelected = {},
+				onAddSubjectTabSelected = {},
+				onSubjectAdd = {},
+				onSubjectRemove = {},
+				onCreateClick = {}
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.createSyntheticTermSearchExample(0)).performClick()
+
+		assertEquals("MA1111", latestQuery)
+		assertEquals("MA1111".length, latestSelectionStart)
+		assertEquals("MA1111".length, latestSelectionEnd)
 	}
 
 	@Test
@@ -131,6 +203,104 @@ class CreateSyntheticTermScreenUiTest {
 	}
 
 	@Test
+	fun when_searchHasOnlyTakenSubjects_then_toggleIsShownInsteadOfEmptyState() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateSyntheticTermScreen(
+				state = CreateSyntheticTerm.State(
+					query = "ma1111",
+					selectedAddSubjectTab = CreateTermAddSubjectTab.Search,
+					searchResults = listOf(
+						SyntheticTermSubject(
+							subjectCode = "MA1111",
+							name = "Matemáticas I",
+							credits = 4,
+							availability = SyntheticTermSubjectAvailability.ALREADY_TAKEN
+						)
+					).toItems(),
+					suggestedSubjects = listOf(
+						SyntheticTermSubject(
+							subjectCode = "MA1121",
+							name = "Matemáticas II",
+							credits = 4,
+							availability = SyntheticTermSubjectAvailability.AVAILABLE
+						)
+					).toItems()
+				),
+				onQueryChange = { _, _, _ -> },
+				onClearQueryClick = {},
+				onPeriodSelected = {},
+				onAddSubjectTabSelected = {},
+				onSubjectAdd = {},
+				onSubjectRemove = {},
+				onCreateClick = {}
+			)
+		}
+
+		onNodeWithText("0 resultados").assertIsDisplayed()
+		onAllNodesWithText("Sugeridas por tu pensum").assertCountEquals(0)
+		onAllNodesWithText("MATEMÁTICAS I").assertCountEquals(0)
+		onNodeWithText("Mostrar 1 ya cursadas").assertIsDisplayed()
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle).performClick()
+
+		onNodeWithText("MATEMÁTICAS I").assertIsDisplayed()
+		assertVisibleStatus("MA1111", SyntheticTermSubjectAvailability.ALREADY_TAKEN)
+		onNodeWithText("Aprobada").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_searchResultsHaveTakenAndOthers_thenTakenSubjectsAppearAtTheEndAndToggleIsBetweenGroups() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateSyntheticTermScreen(
+				state = CreateSyntheticTerm.State(
+					query = "ma",
+					selectedAddSubjectTab = CreateTermAddSubjectTab.Search,
+					searchResults = listOf(
+						SyntheticTermSubject(
+							subjectCode = "AA0001",
+							name = "Materia libre",
+							credits = 4,
+							availability = SyntheticTermSubjectAvailability.AVAILABLE
+						),
+						SyntheticTermSubject(
+							subjectCode = "CC0001",
+							name = "Materia cursada",
+							credits = 4,
+							availability = SyntheticTermSubjectAvailability.ALREADY_TAKEN
+						),
+						SyntheticTermSubject(
+							subjectCode = "BB0001",
+							name = "Materia bloqueada",
+							credits = 4,
+							availability = SyntheticTermSubjectAvailability.UNAVAILABLE
+						)
+					).toItems()
+				),
+				onQueryChange = { _, _, _ -> },
+				onClearQueryClick = {},
+				onPeriodSelected = {},
+				onAddSubjectTabSelected = {},
+				onSubjectAdd = {},
+				onSubjectRemove = {},
+				onCreateClick = {}
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchTab).performClick()
+
+		// Hidden state: only non-taken subjects should be visible.
+		assertVisibleSearchResult(index = 0, subjectCode = "AA0001")
+		assertVisibleSearchResult(index = 1, subjectCode = "BB0001")
+		onAllNodesWithText("Materia cursada").assertCountEquals(0)
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle).performClick()
+
+		// After expand, taken subjects should stay at the end.
+		assertVisibleSearchResult(index = 0, subjectCode = "AA0001")
+		assertVisibleSearchResult(index = 1, subjectCode = "BB0001")
+		assertVisibleSearchResult(index = 2, subjectCode = "CC0001")
+	}
+
+	@Test
 	fun when_selectedSubjectIsStillInSearchResults_then_itIsOnlyShownInSelectedSubjects() = runTuIndiceUiTest {
 		val selectedSubject = SyntheticTermSubject(
 			subjectCode = "MA1111",
@@ -144,9 +314,7 @@ class CreateSyntheticTermScreenUiTest {
 					query = "ma",
 					selectedAddSubjectTab = CreateTermAddSubjectTab.Search,
 					searchResults = listOf(
-						selectedSubject.copy(
-							availability = SyntheticTermSubjectAvailability.SELECTED
-						)
+						selectedSubject
 					).toItems(),
 					selectedSubjects = listOf(selectedSubject).toItems()
 				),
@@ -179,12 +347,6 @@ class CreateSyntheticTermScreenUiTest {
 							name = "Estado disponible",
 							credits = 4,
 							availability = SyntheticTermSubjectAvailability.AVAILABLE
-						),
-						SyntheticTermSubject(
-							subjectCode = "BB1001",
-							name = "Estado seleccionada",
-							credits = 4,
-							availability = SyntheticTermSubjectAvailability.SELECTED
 						),
 						SyntheticTermSubject(
 							subjectCode = "CC1001",
@@ -233,14 +395,6 @@ class CreateSyntheticTermScreenUiTest {
 				action = CreateTermSubjectCardAction.Add.name.lowercase()
 			)
 		).assertIsDisplayed()
-		assertVisibleStatus("BB1001", SyntheticTermSubjectAvailability.SELECTED)
-		assertVisibleStatsButton("BB1001")
-		onAllNodesWithTag(
-			RecordUiTags.createSyntheticTermSubjectAction(
-				subjectCode = "BB1001",
-				action = CreateTermSubjectCardAction.Add.name.lowercase()
-			)
-		).assertCountEquals(0)
 		assertVisibleStatus("DD1001", SyntheticTermSubjectAvailability.ALREADY_PLANNED)
 		assertVisibleStatsButton("DD1001")
 		onAllNodesWithTag(
@@ -426,14 +580,14 @@ class CreateSyntheticTermScreenUiTest {
 	}
 
 	@Test
-	fun when_searchQueryHasNoMatches_then_zeroResultsIsShown() = runTuIndiceUiTest {
-			setTuIndiceTestContent {
-				CreateSyntheticTermScreen(
-					state = CreateSyntheticTerm.State(
-						query = "zz",
-						selectedAddSubjectTab = CreateTermAddSubjectTab.Search,
-						searchResults = emptyList()
-					),
+	fun when_searchQueryHasNoMatches_then_noResultsMessageIsShown() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateSyntheticTermScreen(
+				state = CreateSyntheticTerm.State(
+					query = "zz",
+					selectedAddSubjectTab = CreateTermAddSubjectTab.Search,
+					searchResults = emptyList()
+				),
 				onQueryChange = { _, _, _ -> },
 				onClearQueryClick = {},
 				onPeriodSelected = {},
@@ -446,7 +600,42 @@ class CreateSyntheticTermScreenUiTest {
 
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchTab).performClick()
 
-		onNodeWithText("0 resultados").assertIsDisplayed()
+		onNodeWithText("No encontramos materias").assertIsDisplayed()
+		onNodeWithText("No hay resultados para \"zz\". Prueba con otro código o nombre.").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_searchHasNoMatches_then_suggestedSubjectsAreShown() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateSyntheticTermScreen(
+				state = CreateSyntheticTerm.State(
+					query = "zz",
+					selectedAddSubjectTab = CreateTermAddSubjectTab.Search,
+					searchResults = emptyList(),
+					suggestedSubjects = listOf(
+						SyntheticTermSubject(
+							subjectCode = "MA1111",
+							name = "Matemáticas I",
+							credits = 4
+						)
+					).toItems()
+				),
+				onQueryChange = { _, _, _ -> },
+				onClearQueryClick = {},
+				onPeriodSelected = {},
+				onAddSubjectTabSelected = {},
+				onSubjectAdd = {},
+				onSubjectRemove = {},
+				onCreateClick = {}
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchTab).performClick()
+
+		onNodeWithText("No encontramos materias").assertIsDisplayed()
+		onNodeWithText("No hay resultados para \"zz\". Prueba con otro código o nombre.").assertIsDisplayed()
+		onNodeWithText("Sugeridas por tu pensum").assertIsDisplayed()
+		onNodeWithText("MATEMÁTICAS I").assertIsDisplayed()
 	}
 
 	@Test

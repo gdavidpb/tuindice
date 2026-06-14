@@ -17,20 +17,20 @@ import kotlin.test.assertEquals
 class UpdatePasswordContentDialogUiTest {
 	@Test
 	fun when_idleStateAndConfirmTapped_then_invokesConfirmCallback() = runTuIndiceUiTest {
-		var confirmedPassword = ""
+		var confirmClicks = 0
 
 		setTuIndiceTestContent {
 			UpdatePasswordContentDialog(
 				state = UpdatePassword.State.Idle(password = "abcd"),
 				onPasswordChange = {},
 				onPasswordVisibilityToggle = {},
-				onConfirmClick = { password -> confirmedPassword = password },
+				onConfirmClick = { confirmClicks++ },
 				onDismissRequest = {}
 			)
 		}
 
 		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performClick()
-		assertEquals("abcd", confirmedPassword)
+		assertEquals(1, confirmClicks)
 	}
 
 	@Test

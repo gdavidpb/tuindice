@@ -13,11 +13,7 @@ import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.UpdatePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.exceptionhandler.UpdatePensumExceptionHandler
-import com.gdavidpb.tuindice.pensum.presentation.action.ObservePensumActionProcessor
-import com.gdavidpb.tuindice.pensum.presentation.action.RefreshPensumActionProcessor
-import com.gdavidpb.tuindice.pensum.presentation.action.SelectPensumActionProcessor
-import com.gdavidpb.tuindice.pensum.presentation.action.SelectPensumModalityActionProcessor
-import com.gdavidpb.tuindice.pensum.presentation.action.SelectPensumSelectionActionProcessor
+import com.gdavidpb.tuindice.pensum.presentation.machine.PensumMachine
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
 import com.gdavidpb.tuindice.pensum.presentation.viewmodel.PensumViewModel
 import org.koin.core.module.dsl.bind
@@ -29,11 +25,7 @@ import org.koin.dsl.module
 val pensumModule = module {
 	viewModelOf(::PensumViewModel)
 
-	factoryOf(::ObservePensumActionProcessor)
-	factoryOf(::RefreshPensumActionProcessor)
-	factoryOf(::SelectPensumActionProcessor)
-	factoryOf(::SelectPensumModalityActionProcessor)
-	factoryOf(::SelectPensumSelectionActionProcessor)
+	factoryOf(::PensumMachine)
 
 	factoryOf(::ObservePensumUseCase)
 	factoryOf(::UpdatePensumUseCase)

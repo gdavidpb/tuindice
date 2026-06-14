@@ -32,7 +32,7 @@ class UpdatePasswordUseCase(
 	override val reportingRepository: ReportingRepository,
 	override val paramsValidator: UpdatePasswordParamsValidator,
 	override val exceptionHandler: UpdatePasswordExceptionHandler
-) : FlowUseCase<String, Unit, SignInUseCaseError>(reportingRepository = reportingRepository) {
+) : FlowUseCase<String, Unit, SignInUseCaseError>() {
 	override suspend fun executeOnBackground(params: String): Flow<Unit> {
 		val usbId = sessionRepository.getUsbId()
 		val accessToken = sessionRepository.getAccessToken()

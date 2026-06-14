@@ -16,7 +16,7 @@ object Evaluations {
 		override val topBarTitle: UiText = UiText.Resource(Res.string.screen_title_evaluations),
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = true
-	) : ViewState() {
+	) : ViewState {
 		data object Idle : State()
 
 		data object Loading : State()
@@ -42,7 +42,7 @@ object Evaluations {
 		data object Failed : State()
 	}
 
-	sealed class Action : ViewAction() {
+	sealed class Action : ViewAction {
 		data object LoadEvaluations : Action()
 
 		data object RefreshEvaluations : Action()
@@ -73,7 +73,7 @@ object Evaluations {
 		) : Action()
 	}
 
-	sealed class Effect : ViewEffect() {
+	sealed class Effect : ViewEffect {
 		data object NavigateToAddEvaluation : Effect()
 
 		class NavigateToEvaluation(

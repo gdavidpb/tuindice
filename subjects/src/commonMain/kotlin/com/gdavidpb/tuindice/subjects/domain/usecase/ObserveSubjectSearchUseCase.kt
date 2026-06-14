@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 class ObserveSubjectSearchUseCase(
 	private val subjectCatalogRepository: SubjectCatalogRepository,
 	override val reportingRepository: ReportingRepository
-) : FlowUseCase<SubjectSearchParams, List<SubjectSearchResult>, Nothing>(reportingRepository = reportingRepository) {
+) : FlowUseCase<SubjectSearchParams, List<SubjectSearchResult>, Nothing>() {
 	override suspend fun executeOnBackground(params: SubjectSearchParams): Flow<List<SubjectSearchResult>> {
 		return subjectCatalogRepository.observeSearchResults(
 			query = params.query,

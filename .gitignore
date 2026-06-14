@@ -11,10 +11,15 @@
 .externalNativeBuild
 xcuserdata/
 /scripts/*
+!/scripts/dump-machine-diagrams.sh
 !/scripts/generate-common-ui-matrix.sh
+!/scripts/module-graph.txt
+!/scripts/validate-module-graph.sh
 !/scripts/verify-common-ui-test-density.sh
 GoogleService-Info.plist
 /mocks/.build/
 /mocks/.runtime/
 /mocks/.runtime-check/
 /iosApp/.build/
+/graphify-out/
+/.claude/settings.local.json

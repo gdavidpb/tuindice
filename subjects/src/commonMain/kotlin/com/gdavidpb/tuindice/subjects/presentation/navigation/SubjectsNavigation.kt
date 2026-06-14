@@ -66,13 +66,13 @@ private fun SubjectDetail.State.resolveNavigationViewState(subjectCode: String):
 	return when (this) {
 		SubjectDetail.State.Idle,
 		SubjectDetail.State.Loading ->
-			object : ViewState(
-				topBarTitle = UiText.Resource(
+			object : ViewState {
+				override val topBarTitle: UiText = UiText.Resource(
 					resource = Res.string.top_bar_subject_detail,
 					args = listOf(subjectCode)
-				),
-				isTopBarVisible = true
-			) {}
+				)
+				override val isTopBarVisible: Boolean = true
+			}
 
 		is SubjectDetail.State.Content,
 		is SubjectDetail.State.Failed,

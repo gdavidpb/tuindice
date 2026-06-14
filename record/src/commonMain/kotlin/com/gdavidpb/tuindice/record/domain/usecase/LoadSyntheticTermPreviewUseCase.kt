@@ -14,9 +14,7 @@ class LoadSyntheticTermPreviewUseCase(
 	private val repository: SyntheticTermLoadPreviewRepository,
 	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: RecordExceptionHandler
-) : FlowUseCase<LoadSyntheticTermPreviewParams, SyntheticTermLoadPreview, RecordUseCaseError>(
-	reportingRepository = reportingRepository
-) {
+) : FlowUseCase<LoadSyntheticTermPreviewParams, SyntheticTermLoadPreview, RecordUseCaseError>() {
 	override suspend fun executeOnBackground(params: LoadSyntheticTermPreviewParams): Flow<SyntheticTermLoadPreview> {
 		return flowOf(
 			repository.loadSyntheticTermPreview(

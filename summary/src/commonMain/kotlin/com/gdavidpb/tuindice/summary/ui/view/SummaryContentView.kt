@@ -25,6 +25,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAnimation
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
@@ -40,28 +42,30 @@ fun SummaryContentView(
 	onEditProfilePictureClick: () -> Unit,
 	onStatusIconClick: () -> Unit
 ) {
+	val animationsEnabled = LocalTuIndiceAnimationsEnabled.current
 	val isProfilePictureInteractionEnabled = !state.isUserRefreshing
-	val statusIcon = when (syncStatus) {
-		SyncStatus.Healthy -> Icons.Outlined.Sync
-		SyncStatus.Unavailable,
-		SyncStatus.Failed,
-		SyncStatus.OutdatedCredentials,
-		-> Icons.Outlined.SyncProblem
+	val isStatusRefreshing = isSyncing || state.isUserRefreshing
+	val statusIcon = syncStatusIcon(
+		syncStatus = syncStatus,
+		isStatusRefreshing = isStatusRefreshing
+	)
+	val statusTint = if (isStatusRefreshing) {
+		MaterialTheme.colorScheme.onSurfaceVariant
+	} else {
+		when (syncStatus) {
+			SyncStatus.Healthy -> MaterialTheme.colorScheme.onSurfaceVariant
+			SyncStatus.Unavailable,
+			SyncStatus.Failed,
+			SyncStatus.OutdatedCredentials,
+			-> MaterialTheme.colorScheme.error
+		}
 	}
-	val statusTint = when (syncStatus) {
-		SyncStatus.Healthy -> MaterialTheme.colorScheme.onSurfaceVariant
-		SyncStatus.Unavailable,
-		SyncStatus.Failed,
-		SyncStatus.OutdatedCredentials,
-		-> MaterialTheme.colorScheme.error
-	}
-	val canOpenStatusDetails = syncStatus != SyncStatus.Healthy
+	val canOpenStatusDetails = syncStatus != SyncStatus.Healthy && !isStatusRefreshing
 	val statusText = state.lastUpdate
 	val syncRotation = remember { Animatable(0f) }
-	val isSyncIconRotating = isSyncing && syncStatus == SyncStatus.Healthy
 
-	LaunchedEffect(isSyncIconRotating) {
-		if (isSyncIconRotating) {
+	LaunchedEffect(isStatusRefreshing, animationsEnabled) {
+		if (isStatusRefreshing && animationsEnabled) {
 			while (true) {
 				syncRotation.animateTo(
 					targetValue = syncRotation.value - SYNC_ICON_FULL_ROTATION_DEGREES,
@@ -88,11 +92,14 @@ fun SummaryContentView(
 			syncRotation.snapTo(0f)
 		}
 	}
-	val statusIconRotation = syncStatusIconRotation(
-		syncStatus = syncStatus,
-		isSyncing = isSyncing,
-		currentRotation = syncRotation.value
-	)
+	val statusIconRotation = if (animationsEnabled) {
+		syncStatusIconRotation(
+			isStatusRefreshing = isStatusRefreshing,
+			currentRotation = syncRotation.value
+		)
+	} else {
+		0f
+	}
 
 	Column(
 		modifier = Modifier
@@ -179,12 +186,26 @@ fun SummaryContentView(
 	}
 }
 
-internal fun syncStatusIconRotation(
+internal fun syncStatusIcon(
 	syncStatus: SyncStatus,
-	isSyncing: Boolean,
+	isStatusRefreshing: Boolean
+) = if (isStatusRefreshing) {
+	Icons.Outlined.Sync
+} else {
+	when (syncStatus) {
+		SyncStatus.Healthy -> Icons.Outlined.Sync
+		SyncStatus.Unavailable,
+		SyncStatus.Failed,
+		SyncStatus.OutdatedCredentials,
+		-> Icons.Outlined.SyncProblem
+	}
+}
+
+internal fun syncStatusIconRotation(
+	isStatusRefreshing: Boolean,
 	currentRotation: Float
 ): Float {
-	return if (isSyncing && syncStatus == SyncStatus.Healthy) currentRotation else 0f
+	return if (isStatusRefreshing) currentRotation else 0f
 }
 
 private fun nextSyncIconStopRotation(currentRotation: Float): Float {
@@ -205,4 +226,4 @@ private const val SYNC_ICON_ROTATION_DURATION_MILLIS = 900
 private const val SYNC_ICON_MIN_STOP_DURATION_MILLIS = 180
 private const val SYNC_ICON_FULL_ROTATION_DEGREES = 360f
 private const val SummaryItemContentType = "summary_item"
-internal const val SYNC_STATUS_TEXT_ANIMATION_DURATION_MILLIS = 220
+internal const val SYNC_STATUS_TEXT_ANIMATION_DURATION_MILLIS = TuIndiceAnimation.StandardMillis

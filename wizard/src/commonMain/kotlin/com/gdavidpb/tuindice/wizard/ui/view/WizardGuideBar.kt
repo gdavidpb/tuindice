@@ -23,9 +23,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.wizard.presentation.contract.Wizard
 import com.gdavidpb.tuindice.wizard.ui.WizardUiTags
 import org.jetbrains.compose.resources.stringResource
@@ -87,7 +87,6 @@ fun WizardGuideBar(
 						.testTag(WizardUiTags.currentStep(step.id)),
 					text = stringResource(step.title),
 					style = MaterialTheme.typography.titleMedium,
-					fontWeight = FontWeight.SemiBold,
 					color = MaterialTheme.colorScheme.onSurface,
 					maxLines = 1,
 					overflow = TextOverflow.Ellipsis
@@ -118,7 +117,7 @@ fun WizardGuideBar(
 						.widthIn(min = 64.dp, max = 96.dp)
 						.testTag(WizardUiTags.SkipButton),
 					colors = ButtonDefaults.textButtonColors(
-						contentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.68f)
+						contentColor = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = TuIndiceAlpha.Deemphasis)
 					),
 					contentPadding = PaddingValues(horizontal = 8.dp, vertical = 4.dp),
 					onClick = onSkip

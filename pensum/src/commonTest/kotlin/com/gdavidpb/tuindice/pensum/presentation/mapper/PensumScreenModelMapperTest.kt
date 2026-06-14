@@ -9,8 +9,10 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumOption
 import com.gdavidpb.tuindice.pensum.domain.model.PensumProgress
 import com.gdavidpb.tuindice.pensum.domain.model.PensumRelationshipType
 import com.gdavidpb.tuindice.pensum.domain.model.PensumSelection
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumEdgeRelationshipType
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class PensumScreenModelMapperTest {
@@ -213,6 +215,108 @@ class PensumScreenModelMapperTest {
 		assertEquals(true, nodesById.getValue(blockedNode.id).isBlocked)
 		assertEquals(true, model.edges.single().isDisconnected)
 	}
+
+	@Test
+	fun when_currentNodeExists_then_displayModelShowsCurrentFocus() {
+		val currentNode = course(
+			id = "ma2112",
+			displayCode = "MA2112",
+			y = 84.0,
+			height = 120.0
+		)
+
+		val model = observedPensum(
+			nodes = listOf(currentNode),
+			nodeStatuses = mapOf(currentNode.id to PensumNodeStatus.CURRENT)
+		).toScreenModel()
+
+		assertTrue(model.isCurrentFocusVisible)
+	}
+
+	@Test
+	fun when_noCurrentNodeExists_then_displayModelHidesCurrentFocus() {
+		val availableNode = course(
+			id = "ma2112",
+			displayCode = "MA2112",
+			y = 84.0,
+			height = 120.0
+		)
+
+		val model = observedPensum(
+			nodes = listOf(availableNode),
+			nodeStatuses = mapOf(availableNode.id to PensumNodeStatus.AVAILABLE)
+		).toScreenModel()
+
+		assertFalse(model.isCurrentFocusVisible)
+	}
+
+	@Test
+	fun when_edgesExist_then_subjectDetailExposesRelationsAndBlockingReasons() {
+		val approvedRequirement = course(
+			id = "ma1111",
+			displayCode = "MA1111",
+			y = 84.0,
+			height = 120.0
+		)
+		val pendingCorequisite = course(
+			id = "ci2693",
+			displayCode = "CI2693",
+			y = 228.0,
+			height = 120.0
+		)
+		val blockedNode = course(
+			id = "ci4325",
+			displayCode = "CI4325",
+			y = 372.0,
+			height = 120.0
+		)
+		val unlockedNode = course(
+			id = "ci5406",
+			displayCode = "CI5406",
+			y = 516.0,
+			height = 120.0
+		)
+		val pensum = graph(
+			nodes = listOf(approvedRequirement, pendingCorequisite, blockedNode, unlockedNode),
+			edges = listOf(
+				edge(
+					fromNodeId = approvedRequirement.id,
+					toNodeId = blockedNode.id
+				),
+				edge(
+					fromNodeId = pendingCorequisite.id,
+					toNodeId = blockedNode.id,
+					relationshipType = PensumRelationshipType.COREQUISITE
+				),
+				edge(
+					fromNodeId = blockedNode.id,
+					toNodeId = unlockedNode.id
+				)
+			)
+		)
+
+		val model = observedPensum(
+			nodes = pensum.nodes,
+			pensum = pensum,
+			nodeStatuses = mapOf(
+				approvedRequirement.id to PensumNodeStatus.APPROVED,
+				pendingCorequisite.id to PensumNodeStatus.AVAILABLE,
+				blockedNode.id to PensumNodeStatus.BLOCKED,
+				unlockedNode.id to PensumNodeStatus.BLOCKED
+			)
+		).toScreenModel()
+		val detail = model.nodes.single { node -> node.id == blockedNode.id }.detail
+
+		assertEquals(listOf(approvedRequirement.id), detail.requirements.map { item -> item.nodeId })
+		assertEquals(listOf(pendingCorequisite.id), detail.corequisites.map { item -> item.nodeId })
+		assertEquals(listOf(unlockedNode.id), detail.unlocks.map { item -> item.nodeId })
+		assertEquals(listOf(pendingCorequisite.id), detail.blockingReasons.map { item -> item.nodeId })
+		assertEquals(PensumEdgeRelationshipType.COREQUISITE, detail.blockingReasons.single().relationshipType)
+		assertEquals(
+			model.nodes.single { node -> node.id == pendingCorequisite.id }.visualStyle,
+			detail.corequisites.single().visualStyle
+		)
+	}
 }
 
 private fun observedPensum(
@@ -283,13 +387,14 @@ private fun graph(
 
 private fun edge(
 	fromNodeId: String,
-	toNodeId: String
+	toNodeId: String,
+	relationshipType: PensumRelationshipType = PensumRelationshipType.REQUIREMENT
 ): PensumGraph.Edge {
 	return PensumGraph.Edge(
 		id = "${fromNodeId}_to_$toNodeId",
 		fromNodeId = fromNodeId,
 		toNodeId = toNodeId,
-		relationshipType = PensumRelationshipType.REQUIREMENT,
+		relationshipType = relationshipType,
 		points = listOf(
 			PensumGraph.Point(x = 0.0, y = 0.0),
 			PensumGraph.Point(x = 1.0, y = 1.0)
