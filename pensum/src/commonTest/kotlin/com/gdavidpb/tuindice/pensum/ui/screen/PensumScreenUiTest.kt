@@ -51,11 +51,11 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
-import kotlin.test.Test
-import kotlin.test.assertEquals
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_failed_service_unavailable
 import tuindice.pensum.generated.resources.pensum_local_data_warning_network
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
 class PensumScreenUiTest {
