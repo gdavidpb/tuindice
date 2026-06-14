@@ -22,6 +22,14 @@ class GitResult:
     stderr: str
 
 
+@dataclass(frozen=True)
+class CertificationScope:
+    requires_e2e: bool | None
+    e2e_scope: str
+    missing_version_bump: str
+    error: str = ""
+
+
 def run_git(*args: str) -> GitResult:
     completed = subprocess.run(
         ["git", *args],
@@ -71,10 +79,15 @@ def merge_base_for_e2e_scope(head: str) -> str | None:
     return None
 
 
-def detect_e2e_requirement(head: str) -> tuple[bool | None, str]:
+def detect_certification_scope(head: str) -> CertificationScope:
     before_sha = merge_base_for_e2e_scope(head)
     if not before_sha:
-        return None, "Unable to resolve merge-base with production."
+        return CertificationScope(
+            requires_e2e=None,
+            e2e_scope="<unknown>",
+            missing_version_bump="",
+            error="Unable to resolve merge-base with production.",
+        )
 
     with tempfile.TemporaryDirectory(prefix="tuindice-cert-audit.") as temp_dir_name:
         temp_dir = Path(temp_dir_name)
@@ -96,12 +109,19 @@ def detect_e2e_requirement(head: str) -> tuple[bool | None, str]:
         )
         if completed.returncode != 0:
             detail = completed.stderr.strip() or completed.stdout.strip()
-            return None, f"detect-changed-app failed: {detail}"
+            return CertificationScope(
+                requires_e2e=None,
+                e2e_scope="<unknown>",
+                missing_version_bump="",
+                error=f"detect-changed-app failed: {detail}",
+            )
 
         values = parse_github_output(output_path)
-        requires_e2e = values.get("requires_e2e_certification") == "true"
-        scope = values.get("e2e_scope_csv") or "<none>"
-        return requires_e2e, f"scope={scope}"
+        return CertificationScope(
+            requires_e2e=values.get("requires_e2e_certification") == "true",
+            e2e_scope=values.get("e2e_scope_csv") or "<none>",
+            missing_version_bump=values.get("missing_version_bump_csv") or "",
+        )
 
 
 def main() -> int:
@@ -139,18 +159,31 @@ def main() -> int:
         print_check(False, "cannot inspect evidence without HEAD")
         return 1
 
+    certification_scope = detect_certification_scope(head)
+    if certification_scope.error:
+        print_check(False, "certification scope resolved", certification_scope.error)
+        failures += 1
+    else:
+        print_check(True, "certification scope resolved", f"scope={certification_scope.e2e_scope}")
+
+    if certification_scope.missing_version_bump:
+        print_check(
+            False,
+            "required app build number bump is present",
+            f"missing: {certification_scope.missing_version_bump}",
+        )
+        print("  Bump gradle/app-version.properties before running commit-bound E2E evidence.")
+        return failures + 1
+
     evidence_root = REPO_ROOT / "build" / "e2e" / "certifications" / head
     manifests = sorted(evidence_root.glob("*/*/manifest.json"))
 
     if not manifests:
-        requires_e2e, detail = detect_e2e_requirement(head)
-        if requires_e2e is False:
-            print_check(True, "no E2E evidence required for HEAD", detail)
+        if certification_scope.requires_e2e is False:
+            print_check(True, "no E2E evidence required for HEAD", f"scope={certification_scope.e2e_scope}")
             return 1 if failures else 0
 
         print_check(False, "evidence manifests exist for HEAD", str(evidence_root))
-        if detail:
-            print(f"  {detail}")
         return failures + 1
 
     print(f"Evidence root: {evidence_root}")

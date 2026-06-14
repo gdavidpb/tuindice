@@ -18,6 +18,10 @@ Read `references/certification-runbook.md` for the detailed runbook before runni
 python3 .codex/skills/certify-tuindice-pr/scripts/inspect_certification_state.py
 ```
 
+If this reports a missing app version/build-number bump, stop and fix the bump
+before running E2E evidence. Evidence from a SHA that preflight will reject is
+not useful.
+
 4. Run local commit-bound evidence:
 
 ```bash

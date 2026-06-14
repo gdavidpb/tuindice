@@ -26,6 +26,12 @@ The two SHAs must match. Evidence statuses are commit-bound and only publish whe
 python3 .codex/skills/certify-tuindice-pr/scripts/inspect_certification_state.py
 ```
 
+If the helper reports `missing_version_bump`, do not run E2E evidence yet.
+First bump the missing build number(s) in `gradle/app-version.properties`, sync
+`iosApp/Config/Version.xcconfig`, commit, push, and rerun the helper. E2E
+evidence is commit-bound and should only be spent on a SHA that production
+preflight can accept.
+
 ## Running Evidence
 
 Run the aggregate local evidence task:
