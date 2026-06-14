@@ -23,6 +23,7 @@ E2E_MAESTRO_RESUME_FIRST="${E2E_MAESTRO_RESUME_FIRST:-1}"
 E2E_MAESTRO_CHECKPOINT_DIR="${E2E_MAESTRO_CHECKPOINT_DIR:-${REPO_ROOT}/build/e2e/checkpoints}"
 E2E_MAESTRO_SUITE_RETRIES="${E2E_MAESTRO_SUITE_RETRIES:-1}"
 E2E_MAESTRO_QUARANTINE_FILE="${E2E_MAESTRO_QUARANTINE_FILE:-${REPO_ROOT}/testkit/e2e/quarantine.txt}"
+E2E_MAESTRO_SUCCESS_REPORT_GRACE_SECONDS="${E2E_MAESTRO_SUCCESS_REPORT_GRACE_SECONDS:-30}"
 
 log() {
 	printf '[tuindice-e2e] %s\n' "$*"
@@ -35,6 +36,36 @@ require_command() {
 		printf 'Missing required command: %s\n' "${command_name}" >&2
 		exit 1
 	fi
+}
+
+child_processes() {
+	local parent_pid="$1"
+
+	if command -v pgrep >/dev/null 2>&1; then
+		pgrep -P "${parent_pid}" 2>/dev/null || true
+	else
+		ps -eo pid=,ppid= 2>/dev/null | awk -v parent_pid="${parent_pid}" '$2 == parent_pid { print $1 }' || true
+	fi
+}
+
+terminate_process_tree() {
+	local pid="$1"
+	local child_pid
+
+	for child_pid in $(child_processes "${pid}"); do
+		terminate_process_tree "${child_pid}"
+	done
+	kill "${pid}" >/dev/null 2>&1 || true
+}
+
+force_terminate_process_tree() {
+	local pid="$1"
+	local child_pid
+
+	for child_pid in $(child_processes "${pid}"); do
+		force_terminate_process_tree "${child_pid}"
+	done
+	kill -9 "${pid}" >/dev/null 2>&1 || true
 }
 
 capture_streamed_last_line() {
@@ -614,23 +645,60 @@ run_maestro_item_compact() {
 	local original_index="$4"
 	local total_count="$5"
 	local item_log="$6"
-	local test_output_dir="$7"
-	local debug_output_dir="$8"
-	shift 8
+	local item_report="$7"
+	local test_output_dir="$8"
+	local debug_output_dir="$9"
+	shift 9
 	local status=0
+	local command_pid
+	local success_report_seen_at=""
+	local now
+	local grace_seconds="${E2E_MAESTRO_SUCCESS_REPORT_GRACE_SECONDS}"
+	local restore_errexit=0
 
 	mkdir -p "$(dirname "${item_log}")"
-	if (
-		set -o pipefail
-		if [[ "${E2E_MAESTRO_RAW_OUTPUT:-0}" == "1" ]]; then
-			"$@" 2>&1 | tee "${item_log}"
-		else
-			"$@" >"${item_log}" 2>&1
-		fi
-	); then
-		status=0
+	: >"${item_log}"
+	if [[ "${E2E_MAESTRO_RAW_OUTPUT:-0}" == "1" ]]; then
+		"$@" > >(tee -a "${item_log}") 2>&1 &
 	else
-		status="$?"
+		"$@" >>"${item_log}" 2>&1 &
+	fi
+	command_pid="$!"
+
+	while kill -0 "${command_pid}" >/dev/null 2>&1; do
+		if [[ "${E2E_STRICT_MAESTRO_EXIT:-0}" != "1" &&
+			"${grace_seconds}" =~ ^[0-9]+$ &&
+			"${grace_seconds}" -gt 0 &&
+			-n "${item_report}" ]] &&
+			maestro_report_has_no_failures "${item_report}"; then
+			now="$(date +%s)"
+			if [[ -z "${success_report_seen_at}" ]]; then
+				success_report_seen_at="${now}"
+			elif (( now - success_report_seen_at >= grace_seconds )); then
+				log "${platform} Maestro item ${label} wrote a clean JUnit report but did not exit after ${grace_seconds}s; terminating stuck Maestro CLI and treating the item as PASS."
+				printf 'Clean JUnit report detected; terminated stuck Maestro CLI after %ss.\n' "${grace_seconds}" >>"${item_log}"
+				terminate_process_tree "${command_pid}"
+				if ! wait_for_process_exit "${command_pid}" 5; then
+					force_terminate_process_tree "${command_pid}"
+					wait_for_process_exit "${command_pid}" 5 >/dev/null 2>&1 || true
+				fi
+				wait "${command_pid}" >/dev/null 2>&1 || true
+				return 0
+			fi
+		else
+			success_report_seen_at=""
+		fi
+		sleep 1
+	done
+
+	case "$-" in
+		*e*) restore_errexit=1 ;;
+	esac
+	set +e
+	wait "${command_pid}"
+	status="$?"
+	if [[ "${restore_errexit}" == "1" ]]; then
+		set -e
 	fi
 	return "${status}"
 }
@@ -821,6 +889,7 @@ run_maestro_suite_resume_first() {
 			"${original_index}" \
 			"${total_count}" \
 			"${item_log}" \
+			"${item_report}" \
 			"${item_test_output_dir}" \
 			"${item_debug_output_dir}" \
 			"${maestro_command[@]}"

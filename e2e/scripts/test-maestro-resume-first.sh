@@ -13,6 +13,7 @@ export E2E_TMP_DIR="${TEST_ROOT}/tmp"
 export E2E_REPORT_DIR="${TEST_ROOT}/reports"
 export E2E_MAESTRO_CHECKPOINT_DIR="${TEST_ROOT}/checkpoints"
 export E2E_MAESTRO_RESET_WIREMOCK_PER_ITEM=0
+export E2E_MAESTRO_SUCCESS_REPORT_GRACE_SECONDS=1
 
 source "${SCRIPT_DIR}/common.sh"
 
@@ -75,6 +76,11 @@ fi
 if [[ "${reported_status}" == "0" ]]; then
 	printf '[Passed] Fake %s\n\n1/1 Flow Passed in 1s\n' "${target_name}"
 fi
+if [[ "${reported_status}" == "0" && -n "${HANG_AFTER_PASS_TARGET:-}" && "${target_name}" == "${HANG_AFTER_PASS_TARGET}" ]]; then
+	while :; do
+		sleep 60
+	done
+fi
 if [[ "${reported_status}" == "0" && -n "${NONZERO_AFTER_PASS_TARGET:-}" && "${target_name}" == "${NONZERO_AFTER_PASS_TARGET}" ]]; then
 	status=9
 fi
@@ -128,12 +134,14 @@ run_fake_suite() {
 	local fail_target="$1"
 	local order_file="$2"
 	local nonzero_after_pass_target="${3:-}"
+	local hang_after_pass_target="${4:-}"
 	local status
 
 	: >"${order_file}"
 	export ORDER_FILE="${order_file}"
 	export FAIL_TARGET="${fail_target}"
 	export NONZERO_AFTER_PASS_TARGET="${nonzero_after_pass_target}"
+	export HANG_AFTER_PASS_TARGET="${hang_after_pass_target}"
 	set +e
 	run_maestro_suite_resume_first \
 		"Test" \
@@ -180,6 +188,17 @@ assert_equals \
 	"nonzero after a clean passed flow should not rotate or fail the suite"
 if [[ -e "${checkpoint_file}" ]]; then
 	printf 'Expected checkpoint to remain cleared after recoverable Maestro nonzero.\n' >&2
+	exit 1
+fi
+
+ORDER_HANG="${TEST_ROOT}/order-hang.txt"
+run_fake_suite "" "${ORDER_HANG}" "" "flow-2.yaml"
+assert_equals \
+	"flow-1.yaml,flow-2.yaml,flow-3.yaml,flow-4.yaml,flow-5.yaml,flow-6.yaml" \
+	"$(order_csv "${ORDER_HANG}")" \
+	"stuck Maestro after clean JUnit should be terminated and treated as pass"
+if [[ -e "${checkpoint_file}" ]]; then
+	printf 'Expected checkpoint to remain cleared after recoverable Maestro hang.\n' >&2
 	exit 1
 fi
 
