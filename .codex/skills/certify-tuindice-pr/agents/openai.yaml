@@ -1,0 +1,4 @@
+interface:
+  display_name: "Certify TuIndice PR"
+  short_description: "Certifica E2E local y abre PR a production"
+  default_prompt: "Use $certify-tuindice-pr to certify a TuIndice feature branch with local E2E evidence, audit manifests, push, and open a ready-for-review PR against production."
