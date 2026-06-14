@@ -51,6 +51,8 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: pensum_canvas
     timeout: 30000
+- assertNotVisible:
+    id: pensum_loading
 - runFlow:
     when:
       visible:

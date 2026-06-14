@@ -149,10 +149,13 @@ flows:
       - record-unavailable
       - no-current-focus
       - cache-refresh-failed-local-warning
+      - cached-refresh-without-fullscreen-loading
       - version-modality-selection
       - zoom
+      - canvas-pan-sticky-headers
       - node-selection
       - subject-detail-navigation
+      - subject-detail-dismiss-keeps-focus
   - id: shared-launch-clean
     path: e2e/maestro/flows/_shared/launch-clean.yaml
     module: shared
@@ -938,7 +941,7 @@ flows:
     type: smoke
     platforms: [android, ios]
     status: active
-    variant: canvas-zoom
+    variant: canvas-pan-zoom-sticky-terms
     fixture_state: pensum-success
     actions_covered:
       - pensum.Pensum.RefreshPensum
@@ -1042,12 +1045,13 @@ flows:
     type: navigation
     platforms: [android, ios]
     status: active
-    variant: node-focus-detail-and-stats
+    variant: node-focus-detail-dismiss-reopen-and-stats
     fixture_state: pensum-success-subject-detail
     actions_covered:
       - subjects.SubjectDetail.SelectSubjectSegmentTab
     primary_selectors:
       - pensum_node_0800-2019-degree_project-t1-math1-ma1111
+      - pensum_focused_node_0800-2019-degree_project-t1-math1-ma1111
       - pensum_subject_detail_sheet
       - pensum_subject_detail_status
       - pensum_subject_detail_term_value
@@ -1081,7 +1085,7 @@ flows:
     type: state
     platforms: [android, ios]
     status: active
-    variant: cached-canvas-local-warning-no-snackbar
+    variant: cached-canvas-local-warning-no-fullscreen-loading-no-snackbar
     fixture_state: pensum-cache-then-service-unavailable
     actions_covered:
       - pensum.Pensum.SelectSelection
@@ -1091,6 +1095,7 @@ flows:
       - pensum_version_option_2018
       - pensum_modality_option_long_internship
       - base_confirmation_dialog_positive_button
+      - pensum_loading
       - pensum_local_data_warning
       - pensum_canvas
       - pensum_node_0800-2018-long_internship-t1-math1-ma1111
