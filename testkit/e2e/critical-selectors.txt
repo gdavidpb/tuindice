@@ -122,6 +122,7 @@ enrollment_fetching_message
 enrollment_fetching_cancel_button
 pensum_context_summary
 pensum_screen
+pensum_loading
 pensum_canvas
 pensum_canvas_legend
 pensum_status_filter_available
@@ -148,6 +149,7 @@ pensum_version_option_2018
 pensum_modality_option_long_internship
 pensum_node_0800-2018-long_internship-t1-math1-ma1111
 pensum_node_0800-2019-degree_project-t1-math1-ma1111
+pensum_focused_node_0800-2019-degree_project-t1-math1-ma1111
 pensum_subject_detail_status
 pensum_subject_detail_term_value
 base_top_app_bar_action_search_pensum

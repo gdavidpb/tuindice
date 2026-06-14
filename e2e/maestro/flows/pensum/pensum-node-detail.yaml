@@ -29,6 +29,8 @@ appId: com.gdavidpb.tuindice.debug
     notVisible:
       id: pensum_subject_detail_sheet
     timeout: 10000
+- assertVisible:
+    id: pensum_focused_node_0800-2019-degree_project-t1-math1-ma1111
 - tapOn:
     id: pensum_node_0800-2019-degree_project-t1-math1-ma1111
 - extendedWaitUntil:

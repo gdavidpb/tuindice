@@ -75,12 +75,16 @@ fun PensumContentView(
 	}
 	val isSubjectDetailVisible = detailNode != null
 
-	fun clearSubjectContext() {
-		focusedNodeIdState.value = null
+	fun clearSubjectDetail() {
 		detailNodeIdState.value = null
 		shouldOpenDetailExpandedState.value = false
 		detailNavigationOriginNodeIdState.value = null
 		detailNavigationDirectionNameState.value = null
+	}
+
+	fun clearSubjectContext() {
+		focusedNodeIdState.value = null
+		clearSubjectDetail()
 	}
 
 	LaunchedEffect(showSelectionSheet) {
@@ -172,6 +176,12 @@ fun PensumContentView(
 				detailNavigationOriginNodeIdState.value = null
 				detailNavigationDirectionNameState.value = null
 			},
+			onFocusedNodeClick = { nodeId ->
+				detailNodeIdState.value = nodeId
+				shouldOpenDetailExpandedState.value = false
+				detailNavigationOriginNodeIdState.value = null
+				detailNavigationDirectionNameState.value = null
+			},
 			isSubjectSheetVisible = isSubjectDetailVisible,
 			focusRequestSerial = focusRequestSerialState.value,
 			modifier = Modifier.weight(1f)
@@ -205,7 +215,7 @@ fun PensumContentView(
 				focusRequestSerialState.value += 1
 			},
 			onDismissRequest = {
-				clearSubjectContext()
+				clearSubjectDetail()
 			}
 		)
 	}

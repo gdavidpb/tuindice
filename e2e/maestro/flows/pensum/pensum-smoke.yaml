@@ -29,6 +29,11 @@ appId: com.gdavidpb.tuindice.debug
     id: pensum_canvas
 - assertVisible:
     id: pensum_sticky_terms
+- swipe:
+    direction: LEFT
+    duration: 600
+- assertVisible:
+    id: pensum_sticky_terms
 - doubleTapOn:
     id: pensum_canvas
 - tapOn:
