@@ -26,6 +26,7 @@ import kotlin.test.assertEquals
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_local_data_warning_service
@@ -62,7 +63,7 @@ class PensumViewModelContractTest {
 
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-	fun contentThatDisappears_fallsBackToLoading() = runTest {
+	fun contentThatDisappears_keepsLastContent() = runTest {
 		val fixture = createFixture()
 		val viewModel = fixture.viewModel
 
@@ -76,10 +77,37 @@ class PensumViewModelContractTest {
 				assertEquals(Pensum.State.Idle, awaitItem())
 
 				fixture.repository.emit(PensumObservation.Content(sampleObservedPensum()))
-				awaitUntilState<Pensum.State.Content> { true }
+				val content = awaitUntilState<Pensum.State.Content> { true }
 
 				fixture.repository.emit(PensumObservation.Missing)
-				awaitUntilState<Pensum.State.Loading> { true }
+				advanceUntilIdle()
+				assertEquals(content, viewModel.state.value)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun initialRefreshLoading_keepsIdleUntilResultArrives() = runTest {
+		val fixture = createFixture()
+		val viewModel = fixture.viewModel
+
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				assertEquals(Pensum.State.Idle, awaitItem())
+
+				viewModel.refreshPensumAction()
+				advanceUntilIdle()
+				assertEquals(Pensum.State.Idle, viewModel.state.value)
 
 				cancelAndIgnoreRemainingEvents()
 			}

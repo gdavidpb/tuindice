@@ -13,8 +13,13 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.awaitEachGesture
+import androidx.compose.foundation.gestures.awaitFirstDown
+import androidx.compose.foundation.gestures.calculateCentroid
+import androidx.compose.foundation.gestures.calculateCentroidSize
+import androidx.compose.foundation.gestures.calculatePan
+import androidx.compose.foundation.gestures.calculateZoom
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.gestures.detectTransformGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,6 +49,9 @@ import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.input.pointer.PointerEventPass
+import androidx.compose.ui.input.pointer.PointerInputScope
+import androidx.compose.ui.input.pointer.positionChanged
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.testTag
@@ -76,6 +84,7 @@ fun PensumGraphCanvas(
 	model: PensumScreenModel,
 	selectedNodeId: String?,
 	onSelectedNodeChange: (String?) -> Unit,
+	onFocusedNodeClick: (String) -> Unit = { onSelectedNodeChange(null) },
 	isSubjectSheetVisible: Boolean = false,
 	focusRequestSerial: Int = 0,
 	modifier: Modifier = Modifier
@@ -541,7 +550,7 @@ fun PensumGraphCanvas(
 		val shouldShowStickyTermHeader = shouldRenderStickyTermHeader(
 			scale = scale.value,
 			isFitToScreen = isFitToScreen
-		) && !isManualCanvasGestureActive
+		)
 
 		LaunchedEffect(isFitToScreen) {
 			if (isFitToScreen) {
@@ -552,7 +561,7 @@ fun PensumGraphCanvas(
 		Box(
 			modifier = Modifier
 				.pointerInput(graphKey, viewportSizePx, canvasSizePx, panMarginPx) {
-					detectTransformGestures { centroid, pan, zoom, _ ->
+					detectPensumTransformGestures { centroid, pan, zoom ->
 						markManualCanvasGestureActive()
 						revealMinimapToggle()
 						val oldScale = scale.value
@@ -653,7 +662,7 @@ fun PensumGraphCanvas(
 						}
 						.clickable {
 							if (node.id == selectedNodeId) {
-								onSelectedNodeChange(null)
+								onFocusedNodeClick(node.id)
 							} else {
 								onSelectedNodeChange(node.id)
 								centerSelectedNode(node)
@@ -760,6 +769,48 @@ fun PensumGraphCanvas(
 				onClearStatusFilters = { clearStatusFilters() },
 				modifier = Modifier
 			)
+		}
+	}
+}
+
+private suspend fun PointerInputScope.detectPensumTransformGestures(
+	onGesture: (centroid: Offset, pan: Offset, zoom: Float) -> Unit
+) {
+	awaitEachGesture {
+		awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+		var pastTouchSlop = false
+		var accumulatedZoom = 1f
+		var accumulatedPan = Offset.Zero
+		var pointerEvent = awaitPointerEvent(PointerEventPass.Initial)
+
+		while (pointerEvent.changes.any { pointerChange -> pointerChange.pressed }) {
+			val zoomChange = pointerEvent.calculateZoom()
+			val panChange = pointerEvent.calculatePan()
+
+			if (!pastTouchSlop) {
+				accumulatedZoom *= zoomChange
+				accumulatedPan += panChange
+				val centroidSize = pointerEvent.calculateCentroidSize(useCurrent = false)
+				val zoomMotion = abs(1 - accumulatedZoom) * centroidSize
+				val panMotion = accumulatedPan.getDistance()
+				if (zoomMotion > viewConfiguration.touchSlop || panMotion > viewConfiguration.touchSlop) {
+					pastTouchSlop = true
+				}
+			}
+
+			if (pastTouchSlop) {
+				val centroid = pointerEvent.calculateCentroid(useCurrent = false)
+				if (zoomChange != 1f || panChange != Offset.Zero) {
+					onGesture(centroid, panChange, zoomChange)
+				}
+				pointerEvent.changes.forEach { pointerChange ->
+					if (pointerChange.positionChanged()) {
+						pointerChange.consume()
+					}
+				}
+			}
+
+			pointerEvent = awaitPointerEvent(PointerEventPass.Initial)
 		}
 	}
 }

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.pensum.ui.screen
 
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
 import androidx.compose.ui.test.assertHasClickAction
@@ -12,6 +13,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
@@ -241,7 +243,8 @@ class PensumScreenUiTest {
 			.assertHasClickAction()
 		onNodeWithTag(BaseUiTags.ConfirmationDialogNegativeButton).performClick()
 		assertNodeHidden(PensumUiTags.SubjectDetailSheet)
-		assertNodeHidden(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
+		onNodeWithTag(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
+			.assertExists()
 		onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
 		waitForIdle()
 		assertNodeVisible(PensumUiTags.SubjectDetailSheet)
@@ -254,36 +257,38 @@ class PensumScreenUiTest {
 	}
 
 	@Test
-	fun when_detailSheetIsDismissed_then_sameSubjectTapReopensDetail() = runTuIndiceUiTest {
-		setTuIndiceTestContent {
-			PensumScreen(
-				state = Pensum.State.Content(model = samplePensumModel()),
-				onRetryClick = {},
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
-			)
+	fun when_detailSheetIsDismissed_then_subjectFocusRemainsAndSameSubjectTapReopensDetail() =
+		runTuIndiceUiTest {
+			setTuIndiceTestContent {
+				PensumScreen(
+					state = Pensum.State.Content(model = samplePensumModel()),
+					onRetryClick = {},
+					showSelectionSheet = false,
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				)
+			}
+
+			onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
+			assertNodeVisible(PensumUiTags.SubjectDetailSheet)
+			onNodeWithTag(BaseUiTags.ConfirmationDialogNegativeButton)
+				.assertHasClickAction()
+				.performClick()
+			waitForIdle()
+
+			assertNodeHidden(PensumUiTags.SubjectDetailSheet)
+			onNodeWithTag(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
+				.assertExists()
+			onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
+			waitForIdle()
+
+			assertNodeVisible(PensumUiTags.SubjectDetailSheet)
+			onNodeWithTag(PensumUiTags.SubjectDetailCode)
+				.assertTextEquals("CI4325")
+			onNodeWithTag(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
+				.assertExists()
 		}
-
-		onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
-		assertNodeVisible(PensumUiTags.SubjectDetailSheet)
-		onNodeWithTag(BaseUiTags.ConfirmationDialogNegativeButton)
-			.assertHasClickAction()
-			.performClick()
-		waitForIdle()
-
-		assertNodeHidden(PensumUiTags.SubjectDetailSheet)
-		assertNodeHidden(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
-		onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
-		waitForIdle()
-
-		assertNodeVisible(PensumUiTags.SubjectDetailSheet)
-		onNodeWithTag(PensumUiTags.SubjectDetailCode)
-			.assertTextEquals("CI4325")
-		onNodeWithTag(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
-			.assertExists()
-	}
 
 	@Test
 	fun when_contentIsDisplayed_then_canvasLegendAndViewportControlsAreAvailable() = runTuIndiceUiTest {
@@ -453,7 +458,8 @@ class PensumScreenUiTest {
 	}
 
 	@Test
-	fun when_manualCanvasGestureIsRunning_then_canvasControlsAndLegendHideTemporarily() = runTuIndiceUiTest {
+	fun when_manualCanvasGestureIsRunning_then_canvasControlsAndLegendHideButStickyTermsStayVisible() =
+		runTuIndiceUiTest {
 		val isManualCanvasGestureActiveState = mutableStateOf(false)
 
 		setTuIndiceTestContent {
@@ -471,6 +477,7 @@ class PensumScreenUiTest {
 		assertNodeVisible(PensumUiTags.CanvasLegend)
 		assertNodeVisible(PensumUiTags.ZoomIn)
 		assertNodeVisible(PensumUiTags.ZoomOut)
+		assertNodeVisible(PensumUiTags.StickyTerms)
 
 		mainClock.autoAdvance = false
 		runOnIdle {
@@ -481,7 +488,7 @@ class PensumScreenUiTest {
 		assertNodeHidden(PensumUiTags.CanvasLegend)
 		assertNodeHidden(PensumUiTags.ZoomIn)
 		assertNodeHidden(PensumUiTags.ZoomOut)
-		assertNodeHidden(PensumUiTags.StickyTerms)
+		assertNodeVisible(PensumUiTags.StickyTerms)
 
 		runOnIdle {
 			isManualCanvasGestureActiveState.value = false
@@ -512,6 +519,38 @@ class PensumScreenUiTest {
 		assertNodeVisible(PensumUiTags.ZoomIn)
 		assertNodeVisible(PensumUiTags.ZoomOut)
 		assertNodeVisible(PensumUiTags.FitToScreen)
+	}
+
+	@Test
+	fun when_pinchStartsOnSubjectNode_then_canvasZooms() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumGraphCanvas(
+				model = samplePensumModel(),
+				selectedNodeId = null,
+				onSelectedNodeChange = {}
+			)
+		}
+
+		onNodeWithTag(PensumUiTags.FitToScreen).assertHasClickAction().performClick()
+		waitForIdle()
+		assertNodeHidden(PensumUiTags.FitToScreen)
+		assertNodeHidden(PensumUiTags.StickyTerms)
+
+		onNodeWithTag(PensumUiTags.node("ci4325"))
+			.performTouchInput {
+				val leftPointerStart = center - Offset(8f, 0f)
+				val rightPointerStart = center + Offset(8f, 0f)
+				down(0, leftPointerStart)
+				down(1, rightPointerStart)
+				moveTo(0, leftPointerStart - Offset(40f, 0f))
+				moveTo(1, rightPointerStart + Offset(40f, 0f))
+				up(0)
+				up(1)
+			}
+		waitForIdle()
+
+		assertNodeVisible(PensumUiTags.FitToScreen)
+		assertNodeVisible(PensumUiTags.StickyTerms)
 	}
 
 	@Test
