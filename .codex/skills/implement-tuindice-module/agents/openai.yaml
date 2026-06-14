@@ -1,4 +1,4 @@
 interface:
   display_name: "Implement TuIndice Module"
-  short_description: "Crea módulos KMP, frontend y E2E local"
-  default_prompt: "Use $implement-tuindice-module to create or modify a module or frontend flow in this tuindice repository, including ViewModel, Route, navigation, Koin, smoke tests, local Maestro E2E flows, selectors, and testkit contracts when needed."
+  short_description: "Crea o modifica módulos KMP, frontend y E2E local"
+  default_prompt: "Use $implement-tuindice-module to create or modify Kotlin Multiplatform modules and app frontend flows in this tuindice repository: a new feature or shared module, or a change to an existing module's architecture, Gradle setup, Koin wiring, navigation, platform bindings, root verification tasks, smoke tests, or local E2E coverage with Maestro/XCUITest/Compose/Espresso/UI Automator for modules such as base, persistence, maincore, app, auth, about, summary, record, evaluations, enrollmentproof, subjects, pensum, wizard, and testkit."
