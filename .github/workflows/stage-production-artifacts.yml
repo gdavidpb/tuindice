@@ -1,0 +1,306 @@
+name: Stage production artifacts
+
+on:
+  push:
+    branches:
+      - production
+  workflow_dispatch:
+
+concurrency:
+  group: stage-production-artifacts-${{ github.sha }}
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+  deployments: write
+  statuses: write
+
+env:
+  GCP_PROJECT: tu-indice-usb
+
+jobs:
+  stage-preflight:
+    name: Stage preflight
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    outputs:
+      should_deploy: ${{ steps.deploy-preflight.outputs.should_deploy }}
+      deployment_id: ${{ steps.create-deployment.outputs.deployment_id }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Run deploy preflight
+        id: deploy-preflight
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          TARGET_GIT_SHA: ${{ github.sha }}
+          DEPLOY_PRODUCTION_PHASE: preflight
+        run: |
+          set -euo pipefail
+          bash ./.github/scripts/deploy-production.sh
+
+      - name: Create production artifact deployment
+        id: create-deployment
+        if: steps.deploy-preflight.outputs.should_deploy == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPOSITORY: ${{ github.repository }}
+          GH_API_URL: ${{ github.api_url }}
+          TARGET_GIT_SHA: ${{ github.sha }}
+        run: |
+          set -euo pipefail
+          deployment_payload="$(
+            jq -n \
+              --arg ref "$TARGET_GIT_SHA" \
+              '{
+                ref: $ref,
+                environment: "production-artifact",
+                description: "Staging production release artifacts",
+                auto_merge: false,
+                required_contexts: [],
+                transient_environment: false,
+                production_environment: false
+              }'
+          )"
+          deployment_response="$(
+            curl --fail --silent --show-error \
+              -X POST \
+              -H "Accept: application/vnd.github+json" \
+              -H "Authorization: Bearer ${GH_TOKEN}" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              --data-binary "$deployment_payload" \
+              "${GH_API_URL}/repos/${GH_REPOSITORY}/deployments"
+          )"
+          deployment_id="$(jq -r '.id // empty' <<<"$deployment_response")"
+          [[ -n "$deployment_id" ]] || {
+            printf 'GitHub deployment creation did not return an id.\n' >&2
+            exit 1
+          }
+          printf 'deployment_id=%s\n' "$deployment_id" >>"$GITHUB_OUTPUT"
+          status_payload="$(
+            jq -n '{
+              state: "in_progress",
+              environment: "production-artifact",
+              description: "Building signed production artifacts"
+            }'
+          )"
+          curl --fail --silent --show-error \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            --data-binary "$status_payload" \
+            "${GH_API_URL}/repos/${GH_REPOSITORY}/deployments/${deployment_id}/statuses" >/dev/null
+
+  stage-android:
+    name: Stage Android artifact
+    runs-on: ubuntu-24.04
+    needs: stage-preflight
+    if: needs.stage-preflight.outputs.should_deploy == 'true'
+    environment: production
+    timeout-minutes: 90
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Set up Java
+        uses: actions/setup-java@c5195efecf7bdfc987ee8bae7a71cb8b11521c00 # v4.7.1
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@017a9effdb900e5b5b2fddfb590a105619dca3c3 # v4.4.2
+
+      - name: Build signed Android App Bundle
+        env:
+          ANDROID_GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.ANDROID_GOOGLE_SERVICES_JSON_BASE64 }}
+          ANDROID_RELEASE_KEYSTORE_BASE64: ${{ secrets.ANDROID_RELEASE_KEYSTORE_BASE64 }}
+          TU_INDICE_KEY_ALIAS: ${{ secrets.TU_INDICE_KEY_ALIAS }}
+          TU_INDICE_KEY_PASSWORD: ${{ secrets.TU_INDICE_KEY_PASSWORD }}
+          TU_INDICE_KEY_STORE_PASSWORD: ${{ secrets.TU_INDICE_KEY_STORE_PASSWORD }}
+        run: |
+          set -euo pipefail
+          REQUIRE_ANDROID_FIREBASE_CONFIG=1 bash ./.github/scripts/materialize-firebase-configs.sh
+          export TU_INDICE_KEY_STORE_PATH="${RUNNER_TEMP}/tuindice-release.jks"
+          bash ./.github/scripts/materialize-android-signing.sh
+          ./gradlew --console=plain :app:bundleRelease
+          mkdir -p build/stage/android
+          cp app/build/outputs/bundle/release/app-release.aab build/stage/android/app-release.aab
+          if [[ -s app/build/outputs/mapping/release/mapping.txt ]]; then
+            cp app/build/outputs/mapping/release/mapping.txt build/stage/android/mapping.txt
+          fi
+
+      - name: Upload staged Android artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-android-${{ github.sha }}
+          path: build/stage/android
+          if-no-files-found: error
+          retention-days: 14
+
+  stage-ios:
+    name: Stage iOS artifact
+    runs-on: macos-26
+    needs: stage-preflight
+    if: needs.stage-preflight.outputs.should_deploy == 'true'
+    environment: production
+    timeout-minutes: 120
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Set up iOS build environment
+        uses: ./.github/actions/setup-ios-build
+
+      - name: Build signed iOS IPA
+        id: build-ios
+        env:
+          IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64: ${{ secrets.IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64 }}
+          APP_STORE_CONNECT_KEY_ID: ${{ secrets.APP_STORE_CONNECT_KEY_ID }}
+          APP_STORE_CONNECT_ISSUER_ID: ${{ secrets.APP_STORE_CONNECT_ISSUER_ID }}
+          APP_STORE_CONNECT_API_KEY_P8_BASE64: ${{ secrets.APP_STORE_CONNECT_API_KEY_P8_BASE64 }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+          APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64 }}
+          APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD: ${{ secrets.APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD }}
+          APPLE_PROVISIONING_PROFILE_BASE64: ${{ secrets.APPLE_PROVISIONING_PROFILE_BASE64 }}
+        run: |
+          set -euo pipefail
+          REQUIRE_IOS_FIREBASE_CONFIG=1 bash ./.github/scripts/materialize-firebase-configs.sh
+          DRY_RUN=1 bash ./iosApp/scripts/ci-upload-ios-appstore.sh
+          ipa_path="$(find build/ios/export -name '*.ipa' -type f -print -quit)"
+          [[ -n "$ipa_path" && -s "$ipa_path" ]] || {
+            printf 'Signed iOS IPA was not produced under build/ios/export.\n' >&2
+            exit 1
+          }
+          mkdir -p build/stage/ios
+          cp "$ipa_path" build/stage/ios/
+          if [[ -d build/ios/archive/TuIndiceHost.xcarchive/dSYMs ]]; then
+            ditto -c -k --keepParent build/ios/archive/TuIndiceHost.xcarchive/dSYMs build/stage/ios/TuIndiceHost.dSYMs.zip
+          fi
+
+      - name: Upload staged iOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-ios-${{ github.sha }}
+          path: build/stage/ios
+          if-no-files-found: error
+          retention-days: 14
+
+  assemble-artifact:
+    name: Assemble production release artifact
+    runs-on: ubuntu-24.04
+    needs:
+      - stage-preflight
+      - stage-android
+      - stage-ios
+    if: needs.stage-preflight.outputs.should_deploy == 'true'
+    timeout-minutes: 15
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+
+      - name: Download staged Android artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: production-android-${{ github.sha }}
+          path: build/staged/android
+
+      - name: Download staged iOS artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: production-ios-${{ github.sha }}
+          path: build/staged/ios
+
+      - name: Generate release manifest
+        env:
+          TARGET_GIT_SHA: ${{ github.sha }}
+          RELEASE_ARTIFACT_DIR: build/production-release
+        run: |
+          set -euo pipefail
+          ios_ipa_path="$(find build/staged/ios -name '*.ipa' -type f -print -quit)"
+          [[ -n "$ios_ipa_path" ]] || {
+            printf 'No staged iOS IPA was downloaded.\n' >&2
+            exit 1
+          }
+          ANDROID_AAB_PATH="build/staged/android/app-release.aab" \
+          IOS_IPA_PATH="$ios_ipa_path" \
+            bash ./.github/scripts/production-release-artifact.sh write-manifest
+          bash ./.github/scripts/production-release-artifact.sh validate-manifest
+          if [[ -s build/staged/android/mapping.txt ]]; then
+            mkdir -p build/production-release/android
+            cp build/staged/android/mapping.txt build/production-release/android/mapping.txt
+          fi
+          if [[ -s build/staged/ios/TuIndiceHost.dSYMs.zip ]]; then
+            mkdir -p build/production-release/ios
+            cp build/staged/ios/TuIndiceHost.dSYMs.zip build/production-release/ios/TuIndiceHost.dSYMs.zip
+          fi
+
+      - name: Upload production release artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: production-release-${{ github.sha }}
+          path: build/production-release
+          if-no-files-found: error
+          retention-days: 14
+
+  stage-status:
+    name: Publish production artifact deployment status
+    runs-on: ubuntu-24.04
+    needs:
+      - stage-preflight
+      - stage-android
+      - stage-ios
+      - assemble-artifact
+    if: always() && needs.stage-preflight.outputs.should_deploy == 'true'
+    timeout-minutes: 5
+
+    steps:
+      - name: Publish deployment status
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPOSITORY: ${{ github.repository }}
+          GH_API_URL: ${{ github.api_url }}
+          DEPLOYMENT_ID: ${{ needs.stage-preflight.outputs.deployment_id }}
+          STAGE_STATE: ${{ needs.assemble-artifact.result == 'success' && 'success' || 'failure' }}
+          STAGE_DESCRIPTION: ${{ needs.assemble-artifact.result == 'success' && 'Production artifact ready' || 'Production artifact staging failed' }}
+        run: |
+          set -euo pipefail
+          [[ -n "$DEPLOYMENT_ID" ]] || {
+            printf 'No production artifact deployment id was produced.\n' >&2
+            exit 1
+          }
+          status_payload="$(
+            jq -n \
+              --arg state "$STAGE_STATE" \
+              --arg description "$STAGE_DESCRIPTION" \
+              '{
+                state: $state,
+                environment: "production-artifact",
+                description: $description
+              }'
+          )"
+          curl --fail --silent --show-error \
+            -X POST \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            --data-binary "$status_payload" \
+            "${GH_API_URL}/repos/${GH_REPOSITORY}/deployments/${DEPLOYMENT_ID}/statuses" >/dev/null

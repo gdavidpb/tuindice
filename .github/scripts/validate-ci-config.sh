@@ -44,5 +44,6 @@ bash "${SCRIPT_DIR}/test-preflight-production.sh"
 bash "${SCRIPT_DIR}/test-detect-changed-app.sh"
 bash "${SCRIPT_DIR}/test-google-play-draft-check.sh"
 bash "${SCRIPT_DIR}/test-appstore-connect-check.sh"
+bash "${SCRIPT_DIR}/test-production-release-artifact.sh"
 
 info "CI configuration syntax checks passed."
