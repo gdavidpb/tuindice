@@ -80,6 +80,10 @@ internal fun MachineDefinitionBuilder<Evaluation.State>.evaluationContentTransit
 		on<Evaluation.Action.ClickGrade>(
 			emits = setOf(Evaluation.Effect.NavigateToGradePickerDialog::class)
 		) { state, action ->
+			if (action.maxGrade == null || action.maxGrade <= MIN_EVALUATION_GRADE) {
+				return@on state
+			}
+
 			host.sendEffect(
 				Evaluation.Effect.NavigateToGradePickerDialog(
 					evaluationName = action.evaluationName,

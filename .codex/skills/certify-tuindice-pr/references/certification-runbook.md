@@ -32,6 +32,36 @@ First bump the missing build number(s) in `gradle/app-version.properties`, sync
 evidence is commit-bound and should only be spent on a SHA that production
 preflight can accept.
 
+The helper also prints the focused Android and iOS Gradle tasks selected by
+`.github/scripts/detect-changed-app.sh`. Treat these as the local preflight
+contract for the branch.
+
+## Running PR Preflight Parity
+
+Before spending time on Maestro evidence, run the local parity helper:
+
+```bash
+.codex/skills/certify-tuindice-pr/scripts/run_preflight_parity_checks.sh
+```
+
+This helper resolves the same diff against `production`, runs
+`.github/scripts/validate-ci-config.sh` when CI/CD files are touched, and
+executes the selected Android/iOS Gradle tasks through
+`.github/scripts/run-gradle-with-retry.sh`. The iOS command uses the same host
+build environment variables, iOS resource flags, and `ios-host-cache` init script
+as the PR `Run focused iOS checks` job.
+
+Use `--dry-run` to inspect the exact commands without executing them:
+
+```bash
+.codex/skills/certify-tuindice-pr/scripts/run_preflight_parity_checks.sh --dry-run
+```
+
+If the local machine cannot run an impacted platform's focused preflight, do not
+claim full certification for a ready production PR. Either fix the local
+environment, run the platform check on suitable hardware, or explicitly report
+that the branch still depends on GitHub preflight for that platform.
+
 ## Running Evidence
 
 Run the aggregate local evidence task:
@@ -70,10 +100,12 @@ git commit -m "<focused message>"
 git push
 git rev-parse HEAD
 git rev-parse @{u}
+.codex/skills/certify-tuindice-pr/scripts/run_preflight_parity_checks.sh
 ./gradlew --continue --console=plain e2eMaestroEvidenceLocal
 ```
 
-Repeat until the final pushed SHA has passing evidence. Do not reuse evidence from a previous commit after pushing new changes.
+Repeat until the final pushed SHA has passing preflight parity and evidence. Do
+not reuse evidence from a previous commit after pushing new changes.
 
 If `production` advances or the branch is rebased, rerun evidence for the new final SHA.
 
@@ -102,6 +134,7 @@ Before opening a PR:
 - Branch is `feat/*`.
 - Working tree is clean.
 - `HEAD == @{u}`.
+- Local PR preflight parity has passed for `HEAD`.
 - Evidence manifests for `HEAD` pass audit.
 
 Use `gh` only when authenticated:

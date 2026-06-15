@@ -22,16 +22,26 @@ If this reports a missing app version/build-number bump, stop and fix the bump
 before running E2E evidence. Evidence from a SHA that preflight will reject is
 not useful.
 
-4. Run local commit-bound evidence:
+4. Run local PR preflight parity checks:
+
+```bash
+.codex/skills/certify-tuindice-pr/scripts/run_preflight_parity_checks.sh
+```
+
+This resolves the same focused Android/iOS Gradle tasks as
+`preflight-production-pr.yml` for the current diff, including the iOS host flags
+used by `Run focused iOS checks`.
+
+5. Run local commit-bound evidence:
 
 ```bash
 ./gradlew --continue --console=plain e2eMaestroEvidenceLocal
 ```
 
-5. If evidence fails, enter the iterative correction loop. Do not open or mark a PR ready.
-6. After evidence passes, rerun the audit helper and verify manifests for the final remote SHA.
-7. Open or update a non-draft PR against `production` with a title that does not mention Codex.
-8. Verify the PR head SHA matches the certified SHA.
+6. If preflight parity or evidence fails, enter the iterative correction loop. Do not open or mark a PR ready.
+7. After evidence passes, rerun the audit helper and verify manifests for the final remote SHA.
+8. Open or update a non-draft PR against `production` with a title that does not mention Codex.
+9. Verify the PR head SHA matches the certified SHA.
 
 ## Iterative Correction Loop
 
@@ -42,8 +52,9 @@ Treat failures as normal certification work:
 3. Fix product code or E2E fixtures/tests when the failure is real.
 4. For local environment failures, clean the affected simulator/device/WireMock/port state and rerun without unrelated code changes.
 5. Commit every code or test fix, push it, and verify `HEAD == @{u}`.
-6. Rerun `./gradlew --continue --console=plain e2eMaestroEvidenceLocal`.
-7. Repeat until the final pushed SHA has passing evidence.
+6. Rerun `.codex/skills/certify-tuindice-pr/scripts/run_preflight_parity_checks.sh`.
+7. Rerun `./gradlew --continue --console=plain e2eMaestroEvidenceLocal`.
+8. Repeat until the final pushed SHA has passing preflight parity and evidence.
 
 Never rely on evidence from an older SHA after new commits are pushed.
 
@@ -60,3 +71,4 @@ Never rely on evidence from an older SHA after new commits are pushed.
 
 - `references/certification-runbook.md`: detailed TuIndice certification and PR procedure.
 - `scripts/inspect_certification_state.py`: local audit helper for branch/upstream/evidence manifests.
+- `scripts/run_preflight_parity_checks.sh`: local reproduction of the PR focused preflight jobs.

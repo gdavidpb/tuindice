@@ -27,6 +27,9 @@ class CertificationScope:
     requires_e2e: bool | None
     e2e_scope: str
     missing_version_bump: str
+    android_tasks: str = ""
+    ios_tasks: str = ""
+    ios_ci_scripts_touched: bool = False
     error: str = ""
 
 
@@ -121,6 +124,9 @@ def detect_certification_scope(head: str) -> CertificationScope:
             requires_e2e=values.get("requires_e2e_certification") == "true",
             e2e_scope=values.get("e2e_scope_csv") or "<none>",
             missing_version_bump=values.get("missing_version_bump_csv") or "",
+            android_tasks=values.get("android_tasks") or "",
+            ios_tasks=values.get("ios_tasks") or "",
+            ios_ci_scripts_touched=values.get("ios_ci_scripts_touched") == "true",
         )
 
 
@@ -165,6 +171,9 @@ def main() -> int:
         failures += 1
     else:
         print_check(True, "certification scope resolved", f"scope={certification_scope.e2e_scope}")
+        print(f"  Android preflight tasks: {certification_scope.android_tasks or '<none>'}")
+        print(f"  iOS preflight tasks: {certification_scope.ios_tasks or '<none>'}")
+        print(f"  iOS CI scripts touched: {certification_scope.ios_ci_scripts_touched}")
 
     if certification_scope.missing_version_bump:
         print_check(
