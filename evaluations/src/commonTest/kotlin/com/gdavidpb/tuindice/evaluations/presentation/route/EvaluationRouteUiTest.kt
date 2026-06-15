@@ -53,6 +53,10 @@ class EvaluationRouteUiTest {
 			)
 		}
 
+		waitUntil(timeoutMillis = 2_000) {
+			viewModel.state.value is Evaluation.State.Content
+		}
+
 		runOnIdle {
 			viewModel.clickMaxGradeAction("Parcial 1", DEFAULT_EVALUATION_SUBJECT.code, 20.0)
 		}
@@ -87,6 +91,10 @@ class EvaluationRouteUiTest {
 				showSnackBar = {},
 				viewModel = viewModel
 			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			viewModel.state.value is Evaluation.State.Content
 		}
 
 		runOnIdle {
