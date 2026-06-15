@@ -58,6 +58,22 @@ load_github_env_file() {
 	done <"$file"
 }
 
+sanitize_sensitive_environment() {
+	local key
+
+	while IFS= read -r key; do
+		case "$key" in
+			*PASSWORD*|*SECRET*|*TOKEN*|*PRIVATE_KEY*|*CERTIFICATE*|*PROVISION*|*CREDENTIAL*|\
+			APP_STORE_CONNECT_*|ASC_*|FASTLANE_*|MATCH_*|SIGH_*|GYM_*|PILOT_*|\
+			FIREBASE_*|GOOGLE_SERVICE*|GOOGLE_SERVICES*|GOOGLE_APPLICATION_CREDENTIALS|\
+			ANDROID_GOOGLE_SERVICES_JSON_BASE64|IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64|\
+			TU_INDICE_KEY_*|GITHUB_TOKEN|GH_TOKEN|ACTIONS_ID_TOKEN_REQUEST_TOKEN)
+				unset "$key"
+				;;
+		esac
+	done < <(compgen -e)
+}
+
 require_clean_tree() {
 	local status
 
@@ -127,51 +143,62 @@ if [[ "$CI_CONFIG_TOUCHED" == "true" ]]; then
 fi
 
 if [[ -n "$ANDROID_TASKS" ]]; then
-	IFS=' ' read -r -a android_task_array <<<"$ANDROID_TASKS"
-	if [[ "$ANDROID_TASKS" == *":app:bundleRelease"* ]]; then
-		android_env_file="${STATE_DIR}/android-github-env"
-		GITHUB_ENV="$android_env_file" \
-			CI_PLACEHOLDER_IOS=0 \
-			bash ./.github/scripts/materialize-ci-placeholders.sh
-		load_github_env_file "$android_env_file"
-	fi
+	(
+		sanitize_sensitive_environment
 
-	if [[ "$APP_VERSION_CHANGED" != "true" && "$HAS_RELEASE_IMPACT" != "true" ]]; then
-		export SKIP_APP_VERSION_TAG_CONFLICT_CHECK=1
-	else
-		export SKIP_APP_VERSION_TAG_CONFLICT_CHECK=0
-	fi
+		IFS=' ' read -r -a android_task_array <<<"$ANDROID_TASKS"
+		if [[ "$ANDROID_TASKS" == *":app:bundleRelease"* ]]; then
+			android_env_file="${STATE_DIR}/android-github-env"
+			GITHUB_ENV="$android_env_file" \
+				CI_PLACEHOLDER_IOS=0 \
+				bash ./.github/scripts/materialize-ci-placeholders.sh
+			load_github_env_file "$android_env_file"
+		fi
 
-	bash ./.github/scripts/run-gradle-with-retry.sh \
-		./gradlew --continue --console=plain --max-workers=2 "${android_task_array[@]}"
+		if [[ "$APP_VERSION_CHANGED" != "true" && "$HAS_RELEASE_IMPACT" != "true" ]]; then
+			export SKIP_APP_VERSION_TAG_CONFLICT_CHECK=1
+		else
+			export SKIP_APP_VERSION_TAG_CONFLICT_CHECK=0
+		fi
+
+		bash ./.github/scripts/run-gradle-with-retry.sh \
+			./gradlew --continue --console=plain --max-workers=2 "${android_task_array[@]}"
+	)
 fi
 
 if [[ "$IOS_CI_SCRIPTS_TOUCHED" == "true" ]]; then
-	bash ./.github/scripts/test-appstore-connect-check.sh
+	(
+		sanitize_sensitive_environment
+		bash ./.github/scripts/test-appstore-connect-check.sh
+	)
 fi
 
 if [[ -n "$IOS_TASKS" ]]; then
-	IFS=' ' read -r -a ios_task_array <<<"$IOS_TASKS"
-	if [[ "$IOS_TASKS" == *"verifyIosHostBuildDeviceRelease"* ]]; then
-		CI_PLACEHOLDER_ANDROID=0 bash ./.github/scripts/materialize-ci-placeholders.sh
-	fi
+	(
+		sanitize_sensitive_environment
 
-	TUINDICE_IOS_HOST_BUILD=1 \
-	TUINDICE_IOS_HOST_E2E=1 \
-	PLATFORM_NAME=iphoneos \
-	ARCHS=arm64 \
-	BUILT_PRODUCTS_DIR="${REPO_ROOT}/iosApp/.build/ios-host-device-release/Build/Products/Release-iphoneos" \
-	UNLOCALIZED_RESOURCES_FOLDER_PATH=TuIndiceHost.app \
-	TUINDICE_IOS_HOST_DEVICE_CODE_SIGNING_ALLOWED=NO \
-		bash ./.github/scripts/run-gradle-with-retry.sh \
-			./gradlew \
-			-I .github/gradle/ios-host-cache.init.gradle.kts \
-			--continue \
-			--console=plain \
-			--max-workers=2 \
-			-Pcompose.ios.resources.platform=iphoneos \
-			-Pcompose.ios.resources.archs=arm64 \
-			"${ios_task_array[@]}"
+		IFS=' ' read -r -a ios_task_array <<<"$IOS_TASKS"
+		if [[ "$IOS_TASKS" == *"verifyIosHostBuildDeviceRelease"* ]]; then
+			CI_PLACEHOLDER_ANDROID=0 bash ./.github/scripts/materialize-ci-placeholders.sh
+		fi
+
+		TUINDICE_IOS_HOST_BUILD=1 \
+		TUINDICE_IOS_HOST_E2E=1 \
+		PLATFORM_NAME=iphoneos \
+		ARCHS=arm64 \
+		BUILT_PRODUCTS_DIR="${REPO_ROOT}/iosApp/.build/ios-host-device-release/Build/Products/Release-iphoneos" \
+		UNLOCALIZED_RESOURCES_FOLDER_PATH=TuIndiceHost.app \
+		TUINDICE_IOS_HOST_DEVICE_CODE_SIGNING_ALLOWED=NO \
+			bash ./.github/scripts/run-gradle-with-retry.sh \
+				./gradlew \
+				-I .github/gradle/ios-host-cache.init.gradle.kts \
+				--continue \
+				--console=plain \
+				--max-workers=2 \
+				-Pcompose.ios.resources.platform=iphoneos \
+				-Pcompose.ios.resources.archs=arm64 \
+				"${ios_task_array[@]}"
+	)
 fi
 
 require_clean_tree
