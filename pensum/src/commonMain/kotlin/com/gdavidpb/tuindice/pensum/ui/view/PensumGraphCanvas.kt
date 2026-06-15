@@ -618,20 +618,24 @@ fun PensumGraphCanvas(
 				}
 				.size(model.canvas.width.dp, model.canvas.height.dp)
 				.testTag(PensumUiTags.CanvasGestureLayer)
+				.pointerInput(graphKey, model.nodes, density.density) {
+					detectTapGestures(
+						onTap = { tapOffset ->
+							if (model.nodes.none { node -> node.containsCanvasTap(tapOffset, density.density) }) {
+								onSelectedNodeChange(null)
+							}
+						},
+						onDoubleTap = { tapOffset ->
+							if (model.nodes.none { node -> node.containsCanvasTap(tapOffset, density.density) }) {
+								toggleDoubleTapZoom(tapOffset)
+							}
+						}
+					)
+				}
 		) {
 			Canvas(
 				modifier = Modifier
 					.fillMaxSize()
-					.pointerInput(graphKey) {
-						detectTapGestures(
-							onTap = { tapOffset ->
-								if (model.nodes.none { node -> node.containsCanvasTap(tapOffset, density.density) }) {
-									onSelectedNodeChange(null)
-								}
-							},
-							onDoubleTap = { tapOffset -> toggleDoubleTapZoom(tapOffset) }
-						)
-					}
 			) {
 				drawCanvasBackground(
 					model = model,

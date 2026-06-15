@@ -17,7 +17,7 @@ class RecordingPensumRepository(
 ) : PensumRepository {
 	var refreshCalls = 0
 		private set
-	var refreshIfMissingCalls = 0
+	var hasSelectedPensumResponseCalls = 0
 		private set
 	val selectedPensumYears = mutableListOf<Int>()
 	val selectedModalityIds = mutableListOf<String>()
@@ -33,11 +33,9 @@ class RecordingPensumRepository(
 		refreshThrowable?.let { throwable -> throw throwable }
 	}
 
-	override suspend fun refreshPensumIfMissing() {
-		refreshIfMissingCalls++
-		if (!hasCachedPensum) {
-			refreshPensum()
-		}
+	override suspend fun hasSelectedPensumResponse(): Boolean {
+		hasSelectedPensumResponseCalls++
+		return hasCachedPensum
 	}
 
 	override suspend fun selectPensum(year: Int) {

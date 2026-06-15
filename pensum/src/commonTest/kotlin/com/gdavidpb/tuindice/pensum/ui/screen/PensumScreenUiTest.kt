@@ -685,6 +685,31 @@ class PensumScreenUiTest {
 	}
 
 	@Test
+	fun when_emptyCanvasSpaceIsTapped_then_selectedNodeFocusIsReset() = runTuIndiceUiTest {
+		val selectedNodeIdState = mutableStateOf<String?>("ci4325")
+
+		setTuIndiceTestContent {
+			PensumGraphCanvas(
+				model = samplePensumModel(),
+				selectedNodeId = selectedNodeIdState.value,
+				onSelectedNodeChange = { nodeId -> selectedNodeIdState.value = nodeId }
+			)
+		}
+
+		onNodeWithTag(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
+			.assertExists()
+		onNodeWithTag(PensumUiTags.CanvasGestureLayer)
+			.performTouchInput {
+				down(0, center)
+				up(0)
+			}
+		waitForIdle()
+
+		assertNodeHidden(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
+		assertEquals(null, selectedNodeIdState.value)
+	}
+
+	@Test
 	fun when_selectedNodeDoesNotExist_then_focusStateIsInactive() {
 		val focusState = samplePensumModel().focusStateFor("missing-node")
 

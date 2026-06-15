@@ -96,9 +96,10 @@ class PensumViewModelContractTest {
 
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-	fun initialRefreshLoading_keepsIdleUntilResultArrives() = runTest {
+	fun initialRefreshLoading_movesIdleToLoadingUntilResultArrives() = runTest {
 		val fixture = createFixture()
 		val viewModel = fixture.viewModel
+		fixture.repository.blockRefresh = true
 
 		val stateCollector = backgroundScope.launchStateCollector(
 			flow = viewModel.state,
@@ -110,8 +111,11 @@ class PensumViewModelContractTest {
 				assertEquals(Pensum.State.Idle, awaitItem())
 
 				viewModel.refreshPensumAction()
+				awaitUntilState<Pensum.State.Loading> { true }
+
+				fixture.repository.releaseRefresh()
 				advanceUntilIdle()
-				assertEquals(Pensum.State.Idle, viewModel.state.value)
+				assertEquals(Pensum.State.Loading, viewModel.state.value)
 
 				cancelAndIgnoreRemainingEvents()
 			}
@@ -143,7 +147,7 @@ class PensumViewModelContractTest {
 
 				val content = viewModel.state.value as Pensum.State.Content
 				assertEquals(false, content.isRefreshing)
-				assertEquals(0, fixture.repository.refreshIfMissingCalls)
+				assertEquals(0, fixture.repository.hasSelectedPensumResponseCalls)
 				assertEquals(0, fixture.repository.refreshCalls)
 
 				cancelAndIgnoreRemainingEvents()
@@ -173,7 +177,7 @@ class PensumViewModelContractTest {
 				advanceUntilIdle()
 
 				assertEquals(Pensum.State.Idle, viewModel.state.value)
-				assertEquals(1, fixture.repository.refreshIfMissingCalls)
+				assertEquals(1, fixture.repository.hasSelectedPensumResponseCalls)
 				assertEquals(0, fixture.repository.refreshCalls)
 
 				cancelAndIgnoreRemainingEvents()
@@ -185,7 +189,7 @@ class PensumViewModelContractTest {
 
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-	fun ensureLoaded_whenCacheIsMissing_refreshesWithoutLeavingIdle() = runTest {
+	fun ensureLoaded_whenCacheIsMissing_showsLoadingWhileRefreshing() = runTest {
 		val fixture = createFixture()
 		val viewModel = fixture.viewModel
 		fixture.repository.blockRefresh = true
@@ -200,16 +204,15 @@ class PensumViewModelContractTest {
 				assertEquals(Pensum.State.Idle, awaitItem())
 
 				viewModel.ensurePensumLoadedAction()
-				advanceUntilIdle()
+				awaitUntilState<Pensum.State.Loading> { true }
 
-				assertEquals(Pensum.State.Idle, viewModel.state.value)
-				assertEquals(1, fixture.repository.refreshIfMissingCalls)
+				assertEquals(1, fixture.repository.hasSelectedPensumResponseCalls)
 				assertEquals(1, fixture.repository.refreshCalls)
 
 				fixture.repository.releaseRefresh()
 				advanceUntilIdle()
 
-				assertEquals(Pensum.State.Idle, viewModel.state.value)
+				assertEquals(Pensum.State.Loading, viewModel.state.value)
 
 				cancelAndIgnoreRemainingEvents()
 			}
@@ -483,7 +486,7 @@ private class ControllablePensumRepository : PensumRepository {
 	var hasCachedPensum = false
 	var blockRefresh = false
 	var refreshThrowable: Throwable? = null
-	var refreshIfMissingCalls = 0
+	var hasSelectedPensumResponseCalls = 0
 		private set
 	var refreshCalls = 0
 		private set
@@ -518,11 +521,9 @@ private class ControllablePensumRepository : PensumRepository {
 		refreshThrowable?.let { throw it }
 	}
 
-	override suspend fun refreshPensumIfMissing() {
-		refreshIfMissingCalls++
-		if (!hasCachedPensum) {
-			refreshPensum()
-		}
+	override suspend fun hasSelectedPensumResponse(): Boolean {
+		hasSelectedPensumResponseCalls++
+		return hasCachedPensum
 	}
 
 	override suspend fun selectPensum(year: Int) {
