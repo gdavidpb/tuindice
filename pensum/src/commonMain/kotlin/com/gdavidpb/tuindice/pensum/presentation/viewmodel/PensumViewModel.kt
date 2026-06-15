@@ -17,6 +17,10 @@ class PensumViewModel(
 	initialAction = Pensum.Action.ObservePensum,
 	dispatchers = dispatchers
 ) {
+	fun ensurePensumLoadedAction() {
+		sendAction(Pensum.Action.EnsurePensumLoaded)
+	}
+
 	fun refreshPensumAction() {
 		sendAction(Pensum.Action.RefreshPensum)
 	}

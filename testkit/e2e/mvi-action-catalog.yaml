@@ -308,6 +308,9 @@ actions:
   - id: pensum.Pensum.ObservePensum
     classification: internal
     reason: screen bootstrap
+  - id: pensum.Pensum.EnsurePensumLoaded
+    classification: internal
+    reason: route entry ensures remote pensum availability when local data is missing
   - id: pensum.Pensum.RefreshPensum
     classification: user
     variants: [success, not-found, failed-retry, record-unavailable, no-current-focus-hidden]

@@ -3,13 +3,13 @@ package com.gdavidpb.tuindice.base.presentation.statemachine
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
-import com.gdavidpb.tuindice.testkit.mvi.sealedSubclassesOf
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
+import com.gdavidpb.tuindice.testkit.mvi.sealedSubclassesOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertFailsWith
+import kotlin.test.assertFalse
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 

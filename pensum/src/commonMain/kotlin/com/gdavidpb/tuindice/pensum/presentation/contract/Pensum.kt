@@ -38,6 +38,7 @@ object Pensum {
 
 	sealed class Action : ViewAction {
 		data object ObservePensum : Action()
+		data object EnsurePensumLoaded : Action()
 		data object RefreshPensum : Action()
 		class SelectPensum(
 			val year: Int

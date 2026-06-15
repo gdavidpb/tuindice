@@ -1,7 +1,6 @@
 appId: com.gdavidpb.tuindice.debug
 ---
-- runFlow: ../_shared/launch-clean.yaml
-- runFlow: ../auth/login-success.yaml
+- runFlow: ../_shared/launch-seeded-authenticated-wizard-pending.yaml
 - assertVisible:
     id: wizard_welcome_screen
 - tapOn:

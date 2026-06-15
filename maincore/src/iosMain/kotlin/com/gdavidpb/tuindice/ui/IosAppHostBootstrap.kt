@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.ui
 
 import androidx.compose.ui.window.ComposeUIViewController
-import com.gdavidpb.tuindice.debug.IosDebugStartupHooks
+import com.gdavidpb.tuindice.debug.IosAuthenticatedWizardCompleteStartupHook
+import com.gdavidpb.tuindice.debug.IosAuthenticatedWizardPendingStartupHook
+import com.gdavidpb.tuindice.debug.IosDebugStartupHook
 import com.gdavidpb.tuindice.di.startIosKoin
 import com.gdavidpb.tuindice.domain.model.IosAppHostConfig
 import com.gdavidpb.tuindice.domain.model.IosBuildVariant
@@ -35,14 +37,41 @@ class IosAppHostBootstrap(
 		name: String,
 		mainSectionName: String
 	) {
+		runDebugStartupHook(
+			hook = when (name) {
+				IosAuthenticatedWizardCompleteStartupHook.NAME -> IosAuthenticatedWizardCompleteStartupHook
+				IosAuthenticatedWizardPendingStartupHook.NAME -> IosAuthenticatedWizardPendingStartupHook
+				else -> error("Unsupported debug startup hook: $name")
+			},
+			mainSectionName = mainSectionName
+		)
+	}
+
+	fun runAuthenticatedWizardCompleteStartupHook(mainSectionName: String) {
+		runDebugStartupHook(
+			hook = IosAuthenticatedWizardCompleteStartupHook,
+			mainSectionName = mainSectionName
+		)
+	}
+
+	fun runAuthenticatedWizardPendingStartupHook(mainSectionName: String) {
+		runDebugStartupHook(
+			hook = IosAuthenticatedWizardPendingStartupHook,
+			mainSectionName = mainSectionName
+		)
+	}
+
+	private fun runDebugStartupHook(
+		hook: IosDebugStartupHook,
+		mainSectionName: String
+	) {
 		check(hostConfig.buildVariant == IosBuildVariant.DEBUG) {
 			"Debug startup hooks are only available in debug iOS builds."
 		}
 
 		val koin = startIfNeeded()
 		runBlocking {
-			IosDebugStartupHooks.run(
-				name = name,
+			hook.run(
 				koin = koin,
 				mainSectionName = mainSectionName
 			)

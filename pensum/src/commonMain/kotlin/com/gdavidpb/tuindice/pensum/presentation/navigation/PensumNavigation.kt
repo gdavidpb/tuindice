@@ -34,7 +34,7 @@ fun NavGraphBuilder.pensumNavigation(
 			navController.CollectCurrentEntryValueWithLifecycle(
 				backStackEntry = backStackEntry,
 				value = Unit,
-				onValue = { viewModel.refreshPensumAction() }
+				onValue = { viewModel.ensurePensumLoadedAction() }
 			)
 
 			PensumRoute(

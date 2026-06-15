@@ -3,8 +3,8 @@ package com.gdavidpb.tuindice.wizard.ui.view
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.about.ui.screen.AboutScreen
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
@@ -192,4 +192,3 @@ private fun emptyAttemptSelectionHandler(): (
 	newOutcome: AttemptOutcome?,
 	isSelected: Boolean
 ) -> Unit = { _, _, _, _ -> }
-

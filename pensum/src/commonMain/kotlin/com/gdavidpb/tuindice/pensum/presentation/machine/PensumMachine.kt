@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
+import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
@@ -23,6 +24,7 @@ import kotlinx.coroutines.flow.Flow
 
 class PensumMachine(
 	private val observePensumUseCase: ObservePensumUseCase,
+	private val ensurePensumLoadedUseCase: EnsurePensumLoadedUseCase,
 	private val updatePensumUseCase: UpdatePensumUseCase,
 	private val selectPensumUseCase: SelectPensumUseCase,
 	private val selectPensumModalityUseCase: SelectPensumModalityUseCase,
@@ -60,6 +62,10 @@ class PensumMachine(
 
 	internal fun refreshPensum(host: MachineHost<Pensum.Effect>) {
 		launchRefresh(host = host, results = updatePensumUseCase.execute(Unit))
+	}
+
+	internal fun ensurePensumLoaded(host: MachineHost<Pensum.Effect>) {
+		launchRefresh(host = host, results = ensurePensumLoadedUseCase.execute(Unit))
 	}
 
 	internal fun selectPensum(host: MachineHost<Pensum.Effect>, year: Int) {

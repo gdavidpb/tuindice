@@ -91,7 +91,8 @@ target_needs_seed() {
 		/^---$/ { inCommands = 1; next }
 		inCommands && commandCount < 6 {
 			if ($0 == "- runFlow: ../_shared/launch-clean.yaml" ||
-				$0 == "- runFlow: ../_shared/launch-seeded-authenticated.yaml") {
+				$0 == "- runFlow: ../_shared/launch-seeded-authenticated.yaml" ||
+				$0 == "- runFlow: ../_shared/launch-seeded-authenticated-wizard-pending.yaml") {
 				found = 1
 			}
 			if ($0 ~ /^- /) {

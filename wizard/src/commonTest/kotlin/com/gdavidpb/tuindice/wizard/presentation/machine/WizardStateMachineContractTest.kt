@@ -4,6 +4,8 @@ import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
@@ -12,11 +14,9 @@ import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import com.gdavidpb.tuindice.wizard.domain.usecase.CompleteWizardUseCase
 import com.gdavidpb.tuindice.wizard.presentation.contract.Wizard
 import com.gdavidpb.tuindice.wizard.presentation.viewmodel.WizardViewModel
-import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
-import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
-import kotlinx.coroutines.test.runTest
 
 class WizardStateMachineContractTest {
 	@Test

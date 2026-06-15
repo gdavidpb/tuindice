@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableAttemptsUseCase
@@ -16,7 +18,10 @@ import com.gdavidpb.tuindice.evaluations.testing.FakeIdentifierRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
+import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -54,19 +59,19 @@ class EvaluationViewModelContractTest {
 				assertEquals(0, cleared.attemptItems.count { item -> item.isSelected })
 
 				cancelAndIgnoreRemainingEvents()
-				}
+			}
 
-				viewModel.effect.test {
-					viewModel.clickGradeAction(
-						evaluationName = "Parcial 1",
-						subjectCode = SECOND_EVALUATION_SUBJECT.code,
-						grade = 15.0,
-						maxGrade = 100.0
-					)
-					val effect = assertIs<Evaluation.Effect.NavigateToGradePickerDialog>(awaitItem())
-					assertEquals("Parcial 1", effect.evaluationName)
-					assertEquals(SECOND_EVALUATION_SUBJECT.code, effect.subjectCode)
-					assertEquals(15.0, effect.grade)
+			viewModel.effect.test {
+				viewModel.clickGradeAction(
+					evaluationName = "Parcial 1",
+					subjectCode = SECOND_EVALUATION_SUBJECT.code,
+					grade = 15.0,
+					maxGrade = 100.0
+				)
+				val effect = assertIs<Evaluation.Effect.NavigateToGradePickerDialog>(awaitItem())
+				assertEquals("Parcial 1", effect.evaluationName)
+				assertEquals(SECOND_EVALUATION_SUBJECT.code, effect.subjectCode)
+				assertEquals(15.0, effect.grade)
 				assertEquals(100.0, effect.maxGrade)
 
 				cancelAndIgnoreRemainingEvents()
@@ -76,7 +81,56 @@ class EvaluationViewModelContractTest {
 		}
 	}
 
-	private fun createViewModel(): EvaluationViewModel {
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun clickGrade_withoutPositiveMaxGrade_doesNotEmitGradePickerEffect() = runTest {
+		val viewModel = createViewModel(
+			dispatchers = TestTuIndiceDispatchers(UnconfinedTestDispatcher(testScheduler))
+		)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				assertEquals(Evaluation.State.Loading, awaitItem())
+
+				viewModel.loadAvailableAttemptsAction()
+				assertIs<Evaluation.State.Content>(awaitItem())
+
+				cancelAndIgnoreRemainingEvents()
+			}
+
+			viewModel.effect.test {
+				viewModel.clickGradeAction(
+					evaluationName = "Parcial 1",
+					subjectCode = SECOND_EVALUATION_SUBJECT.code,
+					grade = null,
+					maxGrade = null
+				)
+				advanceUntilIdle()
+				expectNoEvents()
+
+				viewModel.clickGradeAction(
+					evaluationName = "Parcial 1",
+					subjectCode = SECOND_EVALUATION_SUBJECT.code,
+					grade = null,
+					maxGrade = 0.0
+				)
+				advanceUntilIdle()
+				expectNoEvents()
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	private fun createViewModel(
+		dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
+	): EvaluationViewModel {
 		val repository = RecordingEvaluationRepository(
 			availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT)
 		)
@@ -104,7 +158,8 @@ class EvaluationViewModelContractTest {
 					exceptionHandler = UpdateEvaluationExceptionHandler()
 				)
 			),
-			eventPublisher = NoOpEventPublisher
+			eventPublisher = NoOpEventPublisher,
+			dispatchers = dispatchers
 		)
 	}
 }

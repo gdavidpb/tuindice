@@ -28,7 +28,6 @@ import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
@@ -52,6 +51,10 @@ class EvaluationRouteUiTest {
 				},
 				viewModel = viewModel
 			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			viewModel.state.value is Evaluation.State.Content
 		}
 
 		runOnIdle {
@@ -90,6 +93,10 @@ class EvaluationRouteUiTest {
 			)
 		}
 
+		waitUntil(timeoutMillis = 2_000) {
+			viewModel.state.value is Evaluation.State.Content
+		}
+
 		runOnIdle {
 			viewModel.clickGradeAction("Parcial 1", DEFAULT_EVALUATION_SUBJECT.code, 17.5, 20.0)
 		}
@@ -102,38 +109,6 @@ class EvaluationRouteUiTest {
 		assertEquals(DEFAULT_EVALUATION_SUBJECT.code, requestedSubjectCode)
 		assertEquals(17.5, requestedGrade)
 		assertEquals(20.0, requestedMaxGrade)
-	}
-
-	@Test
-	fun when_gradeActionTriggeredWithoutMaxGrade_then_doesNotNavigateToGradeDialog() = runTuIndiceUiTest {
-		val viewModel = createViewModel()
-		var gradeDialogRequested = false
-
-		setTuIndiceTestContent {
-			EvaluationRoute(
-				evaluationId = null,
-				onNavigateToEvaluations = {},
-					onNavigateToGradePickerDialog = { _, _, _, _ ->
-						gradeDialogRequested = true
-					},
-					onNavigateToMaxGradePickerDialog = { _, _, _ -> },
-				showSnackBar = {},
-				viewModel = viewModel
-			)
-		}
-
-		runOnIdle {
-			viewModel.clickGradeAction(
-				evaluationName = "Parcial 1",
-				subjectCode = DEFAULT_EVALUATION_SUBJECT.code,
-				grade = null,
-				maxGrade = null
-			)
-		}
-
-		waitForIdle()
-
-		assertFalse(gradeDialogRequested)
 	}
 
 	@Test

@@ -7,8 +7,17 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: maincore_browser_container
     timeout: 10000
-- tapOn:
-    id: maincore_tuindice_top_bar_back_button
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - back
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          id: maincore_tuindice_top_bar_back_button
 - extendedWaitUntil:
     visible:
       id: auth_sign_in_idle_container
@@ -19,8 +28,17 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: maincore_browser_container
     timeout: 10000
-- tapOn:
-    id: maincore_tuindice_top_bar_back_button
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - back
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          id: maincore_tuindice_top_bar_back_button
 - extendedWaitUntil:
     visible:
       id: auth_sign_in_idle_container

@@ -9,10 +9,10 @@ import com.gdavidpb.tuindice.summary.presentation.model.SummaryItemsLabels
 fun summaryContentState(
 	profilePictureUrl: String = "https://cdn.tuindice.app/profile.jpg",
 	isProfilePictureLoading: Boolean = false,
-	isUserRefreshing: Boolean = false
+	isUserRefreshing: Boolean = false,
+	syncStatusText: String = DEFAULT_SYNC_STATUS_TEXT
 ): Summary.State.Content = Summary.State.Content(
 	name = "Ana Diaz",
-	lastUpdate = "Última actualización: Hoy",
 	careerName = "Ingenieria Informatica",
 	grade = 4.25f,
 	enrolledSubjects = 5,
@@ -25,8 +25,11 @@ fun summaryContentState(
 	failedCredits = 1,
 	profilePictureUrl = profilePictureUrl,
 	isProfilePictureLoading = isProfilePictureLoading,
-	isUserRefreshing = isUserRefreshing
+	isUserRefreshing = isUserRefreshing,
+	syncStatusText = syncStatusText
 )
+
+const val DEFAULT_SYNC_STATUS_TEXT = "Última sincronización: Hoy"
 
 fun summaryItemsFor(
 	state: Summary.State.Content = summaryContentState()

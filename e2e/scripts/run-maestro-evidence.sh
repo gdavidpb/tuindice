@@ -27,16 +27,6 @@ publish_mode_is_disabled() {
 	return 1
 }
 
-publish_mode_is_required() {
-	case "${E2E_PUBLISH_GITHUB_STATUS:-auto}" in
-		1|true|True|TRUE|yes|Yes|YES|on|On|ON|always|Always|ALWAYS)
-			return 0
-			;;
-	esac
-
-	return 1
-}
-
 validate_publish_mode() {
 	case "${E2E_PUBLISH_GITHUB_STATUS:-auto}" in
 		0|false|False|FALSE|no|No|NO|off|Off|OFF|never|Never|NEVER|\
@@ -50,57 +40,12 @@ validate_publish_mode() {
 	exit 1
 }
 
+github_status_publishing_preflight() {
+	bash "${SCRIPT_DIR}/require-publishable-e2e-commit.sh" "${COMMIT_SHA}"
+}
+
 github_status_publishing_available() {
-	if publish_mode_is_disabled; then
-		log "Skipping GitHub commit status publishing because E2E_PUBLISH_GITHUB_STATUS=${E2E_PUBLISH_GITHUB_STATUS}."
-		return 1
-	fi
-
-	if ! command -v gh >/dev/null 2>&1; then
-		if publish_mode_is_required; then
-			printf 'Missing required command: gh\n' >&2
-			exit 1
-		fi
-		log "Skipping GitHub commit status publishing because gh is unavailable."
-		return 1
-	fi
-
-	if ! gh auth status >/dev/null 2>&1; then
-		if publish_mode_is_required; then
-			printf 'GitHub CLI is not authenticated; run gh auth login before publishing E2E statuses.\n' >&2
-			exit 1
-		fi
-		log "Skipping GitHub commit status publishing because gh is not authenticated."
-		return 1
-	fi
-
-	if [[ -n "$(git -C "${REPO_ROOT}" status --porcelain --untracked-files=all)" ]]; then
-		if publish_mode_is_required; then
-			printf 'Working tree has uncommitted changes; commit or stash them before publishing E2E statuses.\n' >&2
-			exit 1
-		fi
-		log "Skipping GitHub commit status publishing because the working tree has uncommitted changes."
-		return 1
-	fi
-
-	if [[ "${E2E_ALLOW_NON_HEAD_COMMIT_STATUS:-0}" != "1" && "$(git -C "${REPO_ROOT}" rev-parse HEAD)" != "${COMMIT_SHA}" ]]; then
-		if publish_mode_is_required; then
-			printf 'Refusing to publish E2E statuses for non-HEAD commit %s.\n' "${COMMIT_SHA}" >&2
-			exit 1
-		fi
-		log "Skipping GitHub commit status publishing because ${COMMIT_SHA} is not the current HEAD."
-		return 1
-	fi
-
-	if ! gh api "repos/{owner}/{repo}/commits/${COMMIT_SHA}" >/dev/null 2>&1; then
-		if publish_mode_is_required; then
-			printf 'Commit %s is not available through GitHub API for this repository.\n' "${COMMIT_SHA}" >&2
-			exit 1
-		fi
-		log "Skipping GitHub commit status publishing because ${COMMIT_SHA} is not available on GitHub yet."
-		return 1
-	fi
-
+	publish_mode_is_disabled && return 1
 	return 0
 }
 
@@ -352,6 +297,7 @@ run_suite_evidence() {
 }
 
 validate_publish_mode
+github_status_publishing_preflight
 
 if [[ -n "$REQUESTED_E2E_MAESTRO_SUITE" ]]; then
 	if run_suite_evidence "$REQUESTED_E2E_MAESTRO_SUITE"; then

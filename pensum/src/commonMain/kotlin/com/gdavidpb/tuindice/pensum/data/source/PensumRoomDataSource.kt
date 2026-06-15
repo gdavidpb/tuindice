@@ -66,6 +66,11 @@ class PensumRoomDataSource(
 		}
 	}
 
+	override suspend fun hasSelectedPensumResponse(): Boolean {
+		val cacheKey = pensumSelectionDao.getSelection()?.cacheKey ?: return false
+		return pensumCacheDao.getPensum(cacheKey) != null
+	}
+
 	override suspend fun getSelectionParams(): PensumSelectionParams {
 		val selection = pensumSelectionDao.getSelection() ?: return PensumSelectionParams()
 		return PensumSelectionParams(

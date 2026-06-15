@@ -11,23 +11,49 @@ object IosAuthenticatedWizardCompleteStartupHook : IosDebugStartupHook {
 	const val NAME = "authenticatedWizardComplete"
 
 	override suspend fun run(koin: Koin, mainSectionName: String) {
-		val section = MainSection.valueOf(mainSectionName)
-		val sessionRepository = koin.get<SessionRepository>()
-		val settingsRepository = koin.get<SettingsRepository>()
-		val credentialsRepository = koin.get<CredentialsRepository>()
-		val syncStatusRepository = koin.get<SyncStatusRepository>()
-
-		sessionRepository.clear()
-		settingsRepository.clear()
-		credentialsRepository.clearPassword()
-		syncStatusRepository.reset()
-
-		sessionRepository.setUsbId("11-11111")
-		sessionRepository.setSessionId("auth-session-initial")
-		sessionRepository.setAccessToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access")
-		sessionRepository.setRefreshToken("refresh.mock.token.value")
-		credentialsRepository.setPassword("123456")
-		settingsRepository.setWizardCompleted()
-		settingsRepository.setLastMainSection(section)
+		seedAuthenticatedWizardState(
+			koin = koin,
+			mainSectionName = mainSectionName,
+			isWizardCompleted = true
+		)
 	}
+}
+
+object IosAuthenticatedWizardPendingStartupHook : IosDebugStartupHook {
+	const val NAME = "authenticatedWizardPending"
+
+	override suspend fun run(koin: Koin, mainSectionName: String) {
+		seedAuthenticatedWizardState(
+			koin = koin,
+			mainSectionName = mainSectionName,
+			isWizardCompleted = false
+		)
+	}
+}
+
+private suspend fun seedAuthenticatedWizardState(
+	koin: Koin,
+	mainSectionName: String,
+	isWizardCompleted: Boolean
+) {
+	val section = MainSection.valueOf(mainSectionName)
+	val sessionRepository = koin.get<SessionRepository>()
+	val settingsRepository = koin.get<SettingsRepository>()
+	val credentialsRepository = koin.get<CredentialsRepository>()
+	val syncStatusRepository = koin.get<SyncStatusRepository>()
+
+	sessionRepository.clear()
+	settingsRepository.clear()
+	credentialsRepository.clearPassword()
+	syncStatusRepository.reset()
+
+	sessionRepository.setUsbId("11-11111")
+	sessionRepository.setSessionId("auth-session-initial")
+	sessionRepository.setAccessToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access")
+	sessionRepository.setRefreshToken("refresh.mock.token.value")
+	credentialsRepository.setPassword("123456")
+	if (isWizardCompleted) {
+		settingsRepository.setWizardCompleted()
+	}
+	settingsRepository.setLastMainSection(section)
 }

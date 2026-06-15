@@ -10,11 +10,14 @@ import kotlinx.coroutines.flow.flow
 
 class RecordingPensumRepository(
 	private val observations: List<PensumObservation> = emptyList(),
+	var hasCachedPensum: Boolean = false,
 	var observeThrowable: Throwable? = null,
 	var refreshThrowable: Throwable? = null,
 	var selectionThrowable: Throwable? = null
 ) : PensumRepository {
 	var refreshCalls = 0
+		private set
+	var refreshIfMissingCalls = 0
 		private set
 	val selectedPensumYears = mutableListOf<Int>()
 	val selectedModalityIds = mutableListOf<String>()
@@ -28,6 +31,13 @@ class RecordingPensumRepository(
 	override suspend fun refreshPensum() {
 		refreshCalls++
 		refreshThrowable?.let { throwable -> throw throwable }
+	}
+
+	override suspend fun refreshPensumIfMissing() {
+		refreshIfMissingCalls++
+		if (!hasCachedPensum) {
+			refreshPensum()
+		}
 	}
 
 	override suspend fun selectPensum(year: Int) {

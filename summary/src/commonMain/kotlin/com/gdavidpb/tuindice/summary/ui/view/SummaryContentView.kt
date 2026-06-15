@@ -44,7 +44,7 @@ fun SummaryContentView(
 ) {
 	val animationsEnabled = LocalTuIndiceAnimationsEnabled.current
 	val isProfilePictureInteractionEnabled = !state.isUserRefreshing
-	val isStatusRefreshing = isSyncing || state.isUserRefreshing
+	val isStatusRefreshing = isSyncing
 	val statusIcon = syncStatusIcon(
 		syncStatus = syncStatus,
 		isStatusRefreshing = isStatusRefreshing
@@ -61,7 +61,6 @@ fun SummaryContentView(
 		}
 	}
 	val canOpenStatusDetails = syncStatus != SyncStatus.Healthy && !isStatusRefreshing
-	val statusText = state.lastUpdate
 	val syncRotation = remember { Animatable(0f) }
 
 	LaunchedEffect(isStatusRefreshing, animationsEnabled) {
@@ -164,7 +163,7 @@ fun SummaryContentView(
 
 			AnimatedSyncStatusText(
 				modifier = Modifier.weight(1f, fill = false),
-				text = statusText,
+				text = state.syncStatusText,
 			)
 		}
 

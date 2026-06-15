@@ -4,7 +4,7 @@ appId: com.gdavidpb.tuindice.debug
     stopApp: true
     clearState: true
     arguments:
-      TUINDICE_E2E_SEED_STATE: "authenticatedWizardComplete"
+      TUINDICE_E2E_SEED_STATE: "authenticatedWizardPending"
       TUINDICE_E2E_MAIN_SECTION: "SUMMARY"
 - runFlow:
     when:
@@ -14,9 +14,9 @@ appId: com.gdavidpb.tuindice.debug
           stopApp: false
           clearState: false
           arguments:
-            TUINDICE_E2E_SEED_STATE: "authenticatedWizardComplete"
+            TUINDICE_E2E_SEED_STATE: "authenticatedWizardPending"
             TUINDICE_E2E_MAIN_SECTION: "SUMMARY"
 - extendedWaitUntil:
     visible:
-      id: summary_content_container
+      id: wizard_welcome_screen
     timeout: 30000

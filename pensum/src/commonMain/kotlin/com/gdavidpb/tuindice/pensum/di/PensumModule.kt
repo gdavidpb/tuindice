@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.pensum.data.source.PensumDataSource
 import com.gdavidpb.tuindice.pensum.data.source.PensumRoomDataSource
 import com.gdavidpb.tuindice.pensum.domain.engine.PensumStatusEngine
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
+import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
@@ -28,6 +29,7 @@ val pensumModule = module {
 	factoryOf(::PensumMachine)
 
 	factoryOf(::ObservePensumUseCase)
+	factoryOf(::EnsurePensumLoadedUseCase)
 	factoryOf(::UpdatePensumUseCase)
 	factoryOf(::SelectPensumUseCase)
 	factoryOf(::SelectPensumModalityUseCase)

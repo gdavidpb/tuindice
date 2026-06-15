@@ -58,12 +58,11 @@ class SummaryStateMachineWalkUiTest {
 			)
 		)
 
-		val content = Summary.State.Content(
-			name = "Jane Doe",
-			lastUpdate = "Hace 2 horas",
-			careerName = "Ingeniería de Computación",
-			grade = 4.2f,
-			enrolledSubjects = 5,
+			val content = Summary.State.Content(
+				name = "Jane Doe",
+				careerName = "Ingeniería de Computación",
+				grade = 4.2f,
+				enrolledSubjects = 5,
 			enrolledCredits = 16,
 			approvedSubjects = 30,
 			approvedCredits = 120,

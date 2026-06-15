@@ -25,7 +25,6 @@ object Summary {
 
 		data class Content(
 			val name: String,
-			val lastUpdate: String,
 			val careerName: String,
 			val grade: Float,
 			val enrolledSubjects: Int,
@@ -38,7 +37,8 @@ object Summary {
 			val failedCredits: Int,
 			val profilePictureUrl: String,
 			val isProfilePictureLoading: Boolean,
-			override val isUserRefreshing: Boolean
+			override val isUserRefreshing: Boolean,
+			val syncStatusText: String = ""
 		) : State(isUserRefreshing = isUserRefreshing)
 
 		data class Failed(

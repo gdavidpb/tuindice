@@ -16,6 +16,8 @@ internal fun MachineDefinitionBuilder<Pensum.State>.anyStateTransitions(
 	host: MachineHost<Pensum.Effect>
 ) {
 	fromAny {
+		on<Pensum.Action.EnsurePensumLoaded> { state, _ -> state }
+
 		on<Pensum.Action.RefreshPensum> { state, _ ->
 			machine.refreshPensum(host = host)
 			state
