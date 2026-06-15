@@ -54,7 +54,7 @@ import org.koin.dsl.module
 
 val commonModule = module {
 	singleOf(::createSharedJson)
-	singleOf(::createAppSettings)
+	single<Settings> { get<Settings.Factory>().create(APP_STORE_NAME) }
 	single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 
 	singleOf(::MultiplatformSettingsDataSource) { bind<SettingsRepository>() }
@@ -85,25 +85,13 @@ val commonModule = module {
 	singleOf(::SyncApiDataSource) { bind<SyncRemoteDataRepository>() }
 	singleOf(::CoreCacheStateDataSource) { bind<CoreCacheStateRepository>() }
 	singleOf(::RecordDataPrerequisiteDataSource) { bind<RecordDataPrerequisiteRepository>() }
-	singleOf(::createSyncRepository)
-}
-
-private fun createAppSettings(settingsFactory: Settings.Factory): Settings {
-	return settingsFactory.create(APP_STORE_NAME)
-}
-
-private fun createSyncRepository(
-	settingsDataSource: SyncSettingsLocalDataRepository,
-	syncStatusRepository: SyncStatusRepository,
-	remoteDataSource: SyncRemoteDataRepository,
-	recordLocalDataSource: AcademicRecordLocalDataRepository,
-	userLocalDataSource: LocalDataRepository
-): SyncRepository {
-	return SyncDataSource(
-		settingsDataSource = settingsDataSource,
-		syncStatusRepository = syncStatusRepository,
-		remoteDataSource = remoteDataSource,
-		recordLocalDataSource = recordLocalDataSource,
-		userLocalDataSource = userLocalDataSource
-	)
+	single<SyncRepository> {
+		SyncDataSource(
+			settingsDataSource = get<SyncSettingsLocalDataRepository>(),
+			syncStatusRepository = get<SyncStatusRepository>(),
+			remoteDataSource = get<SyncRemoteDataRepository>(),
+			recordLocalDataSource = get<AcademicRecordLocalDataRepository>(),
+			userLocalDataSource = get<LocalDataRepository>()
+		)
+	}
 }

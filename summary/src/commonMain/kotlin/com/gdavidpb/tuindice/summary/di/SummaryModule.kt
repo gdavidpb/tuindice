@@ -23,19 +23,13 @@ import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
-import org.koin.core.module.dsl.viewModel
+import org.koin.core.module.dsl.viewModelOf
 import org.koin.dsl.module
 
 val summaryModule = module {
 	/* View models */
 
-	viewModel {
-		SummaryViewModel(
-			screenMachine = get(),
-			eventPublisher = get(),
-			dispatchers = get()
-		)
-	}
+	viewModelOf(::SummaryViewModel)
 
 	/* State machines */
 
@@ -43,33 +37,10 @@ val summaryModule = module {
 
 	/* Use cases */
 
-	factory {
-		ObserveUserUseCase(
-			userRepository = get(),
-			reportingRepository = get()
-		)
-	}
-	factory {
-		UpdateUserUseCase(
-			userRepository = get(),
-			reportingRepository = get(),
-			exceptionHandler = get()
-		)
-	}
-	factory {
-		UploadProfilePictureUseCase(
-			userRepository = get(),
-			reportingRepository = get(),
-			exceptionHandler = get()
-		)
-	}
-	factory {
-		RemoveProfilePictureUseCase(
-			userRepository = get(),
-			reportingRepository = get(),
-			exceptionHandler = get()
-		)
-	}
+	factoryOf(::ObserveUserUseCase)
+	factoryOf(::UpdateUserUseCase)
+	factoryOf(::UploadProfilePictureUseCase)
+	factoryOf(::RemoveProfilePictureUseCase)
 
 	/* Repositories */
 

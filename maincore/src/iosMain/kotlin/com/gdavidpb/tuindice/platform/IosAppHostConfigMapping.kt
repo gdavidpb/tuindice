@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.platform
 
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
-import com.gdavidpb.tuindice.di.IOSContext
 import com.gdavidpb.tuindice.domain.model.IosAppHostConfig
 
 fun IosAppHostConfig.toIOSContext(): IOSContext {

@@ -61,8 +61,9 @@ La app publica eventos genericos desde el pipeline MVI sin acoplar features ni `
 entrega su `name` al constructor base, y el `EventPublisher` global se inyecta con `override`, igual que otros puntos
 extensibles de la capa presentation.
 
-Firebase Performance no pasa por el `EventPublisher`: se sincroniza desde un `UsageDataCollectionController` de
-plataforma para activar o desactivar las metricas automaticas de rendimiento y red con el mismo consentimiento.
+Firebase Analytics y Firebase Performance no dependen del `EventPublisher` para activar o desactivar recoleccion:
+sus flags de plataforma se sincronizan desde una `AppStartupTask` (`UsageDataCollectionDataSource`) con el mismo
+consentimiento.
 
 Reglas:
 

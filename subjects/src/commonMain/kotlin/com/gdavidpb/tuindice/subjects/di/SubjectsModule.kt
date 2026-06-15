@@ -42,10 +42,11 @@ val subjectsModule = module {
 	factoryOf(::ObserveSubjectSearchUseCase)
 	factoryOf(::RefreshSubjectSearchUseCase)
 
-	singleOf(::KtorSubjectsApiDataSource)
+	singleOf(::KtorSubjectsApiDataSource) {
+		bind<SubjectStatsApiDataRepository>()
+		bind<SubjectCatalogRemoteDataRepository>()
+	}
 	singleOf(::AcademicPensumStatusEngine)
-	single<SubjectStatsApiDataRepository> { get<KtorSubjectsApiDataSource>() }
-	single<SubjectCatalogRemoteDataRepository> { get<KtorSubjectsApiDataSource>() }
 	singleOf(::SubjectSearchPensumStatusDataSource) { bind<SubjectSearchPensumStatusDataRepository>() }
 	singleOf(::SubjectCatalogRoomDataSource) { bind<SubjectCatalogLocalDataRepository>() }
 	singleOf(::SubjectStatsRoomDataSource) { bind<SubjectStatsLocalDataRepository>() }

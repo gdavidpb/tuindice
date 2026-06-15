@@ -16,8 +16,9 @@ import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
 import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
-import com.gdavidpb.tuindice.base.domain.controller.UsageDataCollectionController
+import com.gdavidpb.tuindice.base.data.source.usage.UsageDataCollectionDataSource
 import com.gdavidpb.tuindice.base.domain.repository.*
+import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.base.utils.extension.toFirebaseDefaultsMap
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationProviderDataRepository
@@ -34,9 +35,7 @@ import com.gdavidpb.tuindice.data.source.config.AndroidRemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.device.AndroidDeviceInfoDataSource
 import com.gdavidpb.tuindice.data.source.environment.BuildConfigEnvironmentDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
-import com.gdavidpb.tuindice.data.source.performance.FirebasePerformanceCollectionController
 import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSource
-import com.gdavidpb.tuindice.data.source.reporting.CrashReporterDataSource
 import com.gdavidpb.tuindice.data.source.review.PlayReviewDataSource
 import com.gdavidpb.tuindice.data.source.update.PlayUpdateDataSource
 import com.gdavidpb.tuindice.persistence.di.registerAndroidPersistencePlatformStorage
@@ -64,23 +63,15 @@ import eu.anifantakis.lib.ksafe.KSafe
 import io.ktor.client.HttpClient
 import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
-import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
+import org.koin.core.module.dsl.named as definitionNamed
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository as BaseExternalActionsRepository
 
 val androidPlatformModule = module {
-	registerAndroidPlatformStorage()
-	registerAndroidPlatformPrimitives()
-	registerAndroidPlatformServices()
-	registerAndroidFeaturePlatformBindings()
-	registerAndroidPlatformNetworking()
-}
-
-private fun Module.registerAndroidPlatformStorage() {
 	single<Settings.Factory> {
 		SharedPreferencesSettings.Factory(androidContext())
 	}
@@ -93,9 +84,7 @@ private fun Module.registerAndroidPlatformStorage() {
 	}
 
 	registerAndroidPersistencePlatformStorage()
-}
 
-private fun Module.registerAndroidPlatformPrimitives() {
 	single {
 		androidContext().getSystemService<ConnectivityManager>()
 	}
@@ -148,22 +137,21 @@ private fun Module.registerAndroidPlatformPrimitives() {
 	single<StandardIntegrityManager> {
 		IntegrityManagerFactory.createStandard(androidContext())
 	}
-}
 
-private fun Module.registerAndroidPlatformServices() {
 	if (!BuildConfig.DEBUG) {
 		single { FirebaseAnalytics.getInstance(androidContext()) }
 		single { FirebasePerformance.getInstance() }
-		single<EventSubscriber>(named("firebaseAnalyticsEventSubscriber")) {
-			FirebaseAnalyticsEventSubscriber(
-				firebaseAnalytics = get(),
-				usageDataConsentRepository = get()
-			)
+		singleOf(::FirebaseAnalyticsEventSubscriber) {
+			bind<EventSubscriber>()
+			definitionNamed("firebaseAnalyticsEventSubscriber")
 		}
-		single<UsageDataCollectionController>(named("firebasePerformanceCollectionController")) {
-			FirebasePerformanceCollectionController(
-				firebasePerformance = get(),
-				usageDataConsentRepository = get()
+		single<AppStartupTask> {
+			UsageDataCollectionDataSource(
+				usageDataConsentRepository = get(),
+				setCollectionEnabledActions = listOf(
+					get<FirebaseAnalytics>()::setAnalyticsCollectionEnabled,
+					get<FirebasePerformance>()::setPerformanceCollectionEnabled
+				)
 			)
 		}
 	}
@@ -183,7 +171,6 @@ private fun Module.registerAndroidPlatformServices() {
 		bind<ApplicationRepository>()
 		bind<FileRepository>()
 	}
-	singleOf(::createCrashReporterDataSource)
 	singleOf(::CrashlyticsReportingDataSource) {
 		bind<ReportingRepository>()
 	}
@@ -193,17 +180,13 @@ private fun Module.registerAndroidPlatformServices() {
 	singleOf(::BuildConfigEnvironmentDataSource) {
 		bind<AppEnvironmentRepository>()
 	}
-}
 
-private fun Module.registerAndroidFeaturePlatformBindings() {
 	factoryOf(::AndroidEnvironmentDataSource) { bind<EnvironmentDataRepository>() }
 	factoryOf(::AndroidAppInfoDataSource) { bind<AppInfoDataRepository>() }
 	factoryOf(::AndroidStoreUrlDataSource) { bind<StoreUrlRepository>() }
 	factoryOf(::AndroidShareTextHandler) { bind<ShareTextHandler>() }
 	singleOf(::AndroidProfilePictureInputDataSource) { bind<ProfilePictureInputDataRepository>() }
-}
 
-private fun Module.registerAndroidPlatformNetworking() {
 	singleOf(::PlayIntegrityDataSource) { bind<AttestationProviderDataRepository>() }
 	factory<AuthApiDataRepository> {
 		KtorAuthApiDataSource(
@@ -239,20 +222,4 @@ private fun Module.registerAndroidPlatformNetworking() {
 			userAgentValue = runCatching { UserAgent(androidContext()).toString() }.getOrNull()
 		)
 	}
-}
-
-private fun createCrashReporterDataSource(
-	crashlytics: FirebaseCrashlytics
-): CrashReporterDataSource {
-	return CrashReporterDataSource(
-		setUserIdAction = crashlytics::setUserId,
-		recordExceptionAction = crashlytics::recordException,
-		logAction = crashlytics::log,
-		setIntKeyAction = crashlytics::setCustomKey,
-		setLongKeyAction = crashlytics::setCustomKey,
-		setFloatKeyAction = crashlytics::setCustomKey,
-		setDoubleKeyAction = crashlytics::setCustomKey,
-		setStringKeyAction = crashlytics::setCustomKey,
-		setBooleanKeyAction = crashlytics::setCustomKey
-	)
 }
