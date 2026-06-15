@@ -174,6 +174,15 @@ flows:
     variant: seeded-authenticated
     fixture_state: authenticated-content
     primary_selectors: [summary_content_container]
+  - id: shared-launch-seeded-authenticated-wizard-pending
+    path: e2e/maestro/flows/_shared/launch-seeded-authenticated-wizard-pending.yaml
+    module: shared
+    type: setup
+    platforms: [android, ios]
+    status: active
+    variant: seeded-authenticated-wizard-pending
+    fixture_state: authenticated-wizard-pending
+    primary_selectors: [wizard_welcome_screen]
   - id: maincore-snackbar-retry
     path: e2e/maestro/flows/auth/login-retry-after-unavailable.yaml
     module: maincore

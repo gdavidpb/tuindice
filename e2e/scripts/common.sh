@@ -431,7 +431,7 @@ maestro_is_setup_target() {
 	local target_file="$1"
 
 	case "${target_file}" in
-		*/_shared/launch-clean.yaml|*/_shared/launch-seeded-authenticated.yaml)
+		*/_shared/launch-clean.yaml|*/_shared/launch-seeded-authenticated.yaml|*/_shared/launch-seeded-authenticated-wizard-pending.yaml)
 			return 0
 			;;
 	esac
@@ -447,6 +447,7 @@ maestro_flow_has_bootstrap() {
 		inCommands && commandCount < 8 {
 			if ($0 == "- runFlow: ../_shared/launch-clean.yaml" ||
 				$0 == "- runFlow: ../_shared/launch-seeded-authenticated.yaml" ||
+				$0 == "- runFlow: ../_shared/launch-seeded-authenticated-wizard-pending.yaml" ||
 				$0 ~ /^[[:space:]]*-[[:space:]]*launchApp:/) {
 				found = 1
 			}
@@ -472,8 +473,7 @@ maestro_item_prelude_entries() {
 			return 0
 			;;
 		*/wizard/*.yaml)
-			printf '%s/_shared/launch-clean.yaml\n' "${flows_root}"
-			printf '%s/auth/login-success.yaml\n' "${flows_root}"
+			printf '%s/_shared/launch-seeded-authenticated-wizard-pending.yaml\n' "${flows_root}"
 			return 0
 			;;
 	esac

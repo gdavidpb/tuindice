@@ -37,17 +37,22 @@ enum TuIndiceDebugRuntimeOverrides {
         apiBaseUrl: String
     ) {
         #if DEBUG
-        guard let seedState = launchArgumentString(for: seedStateKey) else { return }
+        guard let rawSeedState = launchArgumentString(for: seedStateKey) else { return }
+        let seedState = rawSeedState.trimmingCharacters(in: .whitespacesAndNewlines)
 
-        guard seedState == authenticatedWizardCompleteSeed else {
-            fatalError("Unsupported debug startup hook: \(seedState)")
-        }
+        guard seedState.isEmpty == false else { return }
+
+        let mainSectionName = launchArgumentString(for: mainSectionKey) ?? "SUMMARY"
 
         seedWireMockTokensIssuedState(apiBaseUrl: apiBaseUrl)
-        appBootstrap.runDebugStartupHook(
-            name: seedState,
-            mainSectionName: launchArgumentString(for: mainSectionKey) ?? "SUMMARY"
-        )
+        switch seedState {
+        case "authenticatedWizardComplete":
+            appBootstrap.runAuthenticatedWizardCompleteStartupHook(mainSectionName: mainSectionName)
+        case "authenticatedWizardPending":
+            appBootstrap.runAuthenticatedWizardPendingStartupHook(mainSectionName: mainSectionName)
+        default:
+            fatalError("Unsupported debug startup hook: \(seedState)")
+        }
         #else
         _ = appBootstrap
         _ = apiBaseUrl
@@ -62,10 +67,13 @@ private extension TuIndiceDebugRuntimeOverrides {
     static let webBaseUrlKey = "TUINDICE_E2E_WEB_BASE_URL"
     static let seedStateKey = "TUINDICE_E2E_SEED_STATE"
     static let mainSectionKey = "TUINDICE_E2E_MAIN_SECTION"
-    static let authenticatedWizardCompleteSeed = "authenticatedWizardComplete"
 
     static func launchArgumentString(for key: String) -> String? {
         if let value = ProcessInfo.processInfo.environment[key], value.isEmpty == false {
+            return value
+        }
+
+        if let value = launchArgumentValue(for: key), value.isEmpty == false {
             return value
         }
 
@@ -74,6 +82,20 @@ private extension TuIndiceDebugRuntimeOverrides {
         }
 
         return nil
+    }
+
+    static func launchArgumentValue(for key: String) -> String? {
+        let arguments = ProcessInfo.processInfo.arguments
+        guard let keyIndex = arguments.firstIndex(of: "-\(key)") else {
+            return nil
+        }
+
+        let valueIndex = arguments.index(after: keyIndex)
+        guard valueIndex < arguments.endIndex else {
+            return nil
+        }
+
+        return arguments[valueIndex]
     }
 
     static func seedWireMockTokensIssuedState(apiBaseUrl: String) {

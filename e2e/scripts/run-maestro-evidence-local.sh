@@ -11,6 +11,8 @@ REQUESTED_E2E_MAESTRO_SUITE="${E2E_MAESTRO_SUITE:-}"
 
 source "$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/common.sh"
 
+require_command git
+
 if [[ -n "${E2E_CERTIFICATION_DIR:-}" ]]; then
 	printf 'E2E_CERTIFICATION_DIR cannot be shared by parallel local evidence. Use platform tasks directly or unset it.\n' >&2
 	exit 1
@@ -20,6 +22,10 @@ if [[ -n "${REQUESTED_WIREMOCK_PORT}" && ! "${REQUESTED_WIREMOCK_PORT}" =~ ^[0-9
 	printf 'E2E_WIREMOCK_PORT must be numeric when used by parallel local evidence.\n' >&2
 	exit 1
 fi
+
+COMMIT_SHA="${E2E_COMMIT_SHA:-${E2E_HEAD_SHA:-$(git -C "${REPO_ROOT}" rev-parse HEAD)}}"
+COMMIT_SHA="$(git -C "${REPO_ROOT}" rev-parse "${COMMIT_SHA}^{commit}")"
+bash "${SCRIPT_DIR}/require-publishable-e2e-commit.sh" "${COMMIT_SHA}"
 
 ANDROID_WIREMOCK_PORT="${E2E_ANDROID_WIREMOCK_PORT:-${REQUESTED_WIREMOCK_PORT:-18626}}"
 if [[ -n "${E2E_IOS_WIREMOCK_PORT:-}" ]]; then

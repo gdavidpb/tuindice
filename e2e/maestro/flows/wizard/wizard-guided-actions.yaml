@@ -1,7 +1,6 @@
 appId: com.gdavidpb.tuindice.debug
 ---
-- runFlow: ../_shared/launch-clean.yaml
-- runFlow: ../auth/login-success.yaml
+- runFlow: ../_shared/launch-seeded-authenticated-wizard-pending.yaml
 - tapOn:
     id: wizard_primary_button
 - extendedWaitUntil:

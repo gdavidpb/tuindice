@@ -20,6 +20,7 @@ object E2eSeedBridge {
 	private const val SEED_STATE_ARG = "TUINDICE_E2E_SEED_STATE"
 	private const val MAIN_SECTION_ARG = "TUINDICE_E2E_MAIN_SECTION"
 	private const val AUTHENTICATED_WIZARD_COMPLETE = "authenticatedWizardComplete"
+	private const val AUTHENTICATED_WIZARD_PENDING = "authenticatedWizardPending"
 
 	@JvmStatic
 	fun seedIfRequested(activity: ComponentActivity, intent: Intent?) {
@@ -27,7 +28,7 @@ object E2eSeedBridge {
 			?.takeIf { it.isNotBlank() }
 			?: return
 
-		check(seedState == AUTHENTICATED_WIZARD_COMPLETE) {
+		check(seedState in setOf(AUTHENTICATED_WIZARD_COMPLETE, AUTHENTICATED_WIZARD_PENDING)) {
 			"Unsupported E2E seed state: $seedState"
 		}
 
@@ -38,16 +39,18 @@ object E2eSeedBridge {
 
 		runBlocking {
 			putWireMockTokensIssuedState(BuildConfig.URL_API)
-			seedAuthenticatedWizardComplete(
+			seedAuthenticatedWizardState(
 				koin = GlobalContext.get(),
-				section = section
+				section = section,
+				isWizardCompleted = seedState == AUTHENTICATED_WIZARD_COMPLETE
 			)
 		}
 	}
 
-	private suspend fun seedAuthenticatedWizardComplete(
+	private suspend fun seedAuthenticatedWizardState(
 		koin: Koin,
-		section: MainSection
+		section: MainSection,
+		isWizardCompleted: Boolean
 	) {
 		val sessionRepository = koin.get<SessionRepository>()
 		val settingsRepository = koin.get<SettingsRepository>()
@@ -64,7 +67,9 @@ object E2eSeedBridge {
 		sessionRepository.setAccessToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access")
 		sessionRepository.setRefreshToken("refresh.mock.token.value")
 		credentialsRepository.setPassword("123456")
-		settingsRepository.setWizardCompleted()
+		if (isWizardCompleted) {
+			settingsRepository.setWizardCompleted()
+		}
 		settingsRepository.setLastMainSection(section)
 	}
 
