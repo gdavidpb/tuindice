@@ -7,13 +7,16 @@ import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
+import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
+import com.gdavidpb.tuindice.base.utils.extension.isAccessRejected
+import com.gdavidpb.tuindice.data.source.session.SessionRecoveryDataSource
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
@@ -31,6 +34,8 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.async
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 
@@ -46,11 +51,11 @@ class KtorClientTest {
 	}
 
 	@Test
-	fun isSessionInvalidatingRefreshFailure_matchesUnauthorizedForbiddenAndLocked() {
-		assertTrue(clientRequestException(HttpStatusCode.Unauthorized).isSessionInvalidatingRefreshFailure())
-		assertTrue(clientRequestException(HttpStatusCode.Forbidden).isSessionInvalidatingRefreshFailure())
-		assertTrue(clientRequestException(HttpStatusCode.Locked).isSessionInvalidatingRefreshFailure())
-		assertFalse(clientRequestException(HttpStatusCode.ServiceUnavailable).isSessionInvalidatingRefreshFailure())
+	fun isAccessRejected_matchesUnauthorizedForbiddenAndLocked() {
+		assertTrue(clientRequestException(HttpStatusCode.Unauthorized).isAccessRejected())
+		assertTrue(clientRequestException(HttpStatusCode.Forbidden).isAccessRejected())
+		assertTrue(clientRequestException(HttpStatusCode.Locked).isAccessRejected())
+		assertFalse(clientRequestException(HttpStatusCode.ServiceUnavailable).isAccessRejected())
 	}
 
 	@Test
@@ -64,7 +69,7 @@ class KtorClientTest {
 	}
 
 	@Test
-	fun tryReissueTokensAfterUnauthorizedRefresh_usesStoredCredentialsAndBearerAttestation() = runTest {
+	fun recover_reissuesTokensAfterUnauthorizedRefresh_withStoredCredentialsAndBearerAttestation() = runTest {
 		val sessionRepository = FakeSessionRepository(
 			sessionId = "session-old",
 			usbId = "12-34567",
@@ -73,26 +78,30 @@ class KtorClientTest {
 		)
 		val credentialsRepository = FakeCredentialsRepository(password = "secret")
 		val attestationRepository = RecordingAttestationRepository()
-		val authRepository = ReissuePersistingAuthRepository(
+		val authRepository = UnauthorizedRefreshThenReissuePersistingAuthRepository(
 			sessionRepository = sessionRepository
 		)
-
-		val tokens = tryReissueTokensAfterUnauthorizedRefresh(
+		val dataSource = sessionRecoveryDataSource(
 			sessionRepository = sessionRepository,
-			credentialsRepository = credentialsRepository,
 			attestationRepository = attestationRepository,
 			authRepository = authRepository,
-			oldAccessToken = "access-old"
+			credentialsRepository = credentialsRepository
+		)
+
+		val snapshot = dataSource.recoverUnauthorizedSession(
+			attemptedAuthorizationAccessToken = "access-old",
+			attemptedCachedAccessToken = "access-old",
+			attemptedCachedRefreshToken = "refresh-old"
 		)
 
 		val reissueCall = authRepository.reissueCalls.single()
-		val attestationRequest = attestationRepository.requests.single()
+		val attestationRequest = attestationRepository.requests.last()
 		val authorization = attestationRequest.authorization
 
 		assertEquals("12-34567", reissueCall.usbId)
 		assertEquals("secret", reissueCall.password)
-		assertEquals("access-reissued", tokens?.accessToken)
-		assertEquals("refresh-reissued", tokens?.refreshToken)
+		assertEquals("access-reissued", snapshot?.accessToken)
+		assertEquals("refresh-reissued", snapshot?.refreshToken)
 		assertEquals(ProtectedOperationCodes.AuthReissueTokens, attestationRequest.operationCode)
 		assertTrue(attestationRequest.payloadJson.contains("\"usb_id\":\"12-34567\""))
 		assertTrue(attestationRequest.payloadJson.contains("\"password\":\"secret\""))
@@ -102,40 +111,45 @@ class KtorClientTest {
 	}
 
 	@Test
-	fun tryReissueTokensAfterUnauthorizedRefresh_returnsNullWhenPasswordIsUnavailable() = runTest {
+	fun recover_invalidatesSessionWhenPasswordIsUnavailableAfterUnauthorizedRefresh() = runTest {
 		val sessionRepository = FakeSessionRepository()
 		val credentialsRepository = FakeCredentialsRepository()
 		val attestationRepository = RecordingAttestationRepository()
-		val authRepository = ReissuePersistingAuthRepository(
+		val authRepository = UnauthorizedRefreshThenReissuePersistingAuthRepository(
 			sessionRepository = sessionRepository
 		)
-
-		val tokens = tryReissueTokensAfterUnauthorizedRefresh(
+		val dataSource = sessionRecoveryDataSource(
 			sessionRepository = sessionRepository,
-			credentialsRepository = credentialsRepository,
 			attestationRepository = attestationRepository,
 			authRepository = authRepository,
-			oldAccessToken = "access-token"
+			credentialsRepository = credentialsRepository
 		)
 
-		assertNull(tokens)
+		val snapshot = dataSource.recoverUnauthorizedSession(
+			attemptedAuthorizationAccessToken = "access-token",
+			attemptedCachedAccessToken = "access-token",
+			attemptedCachedRefreshToken = "refresh-token"
+		)
+
+		assertNull(snapshot)
 		assertTrue(authRepository.reissueCalls.isEmpty())
-		assertTrue(attestationRepository.requests.isEmpty())
+		assertEquals(1, attestationRepository.requests.size)
+		assertTrue(sessionRepository.cleared)
 	}
 
 	@Test
-	fun handleUnauthorizedTokenRefresh_clearsLocalSessionState_andEmitsInvalidation() = runTest {
+	fun unauthorizedSessionRecovery_clearsLocalSessionState_andEmitsInvalidation() = runTest {
 		val sessionRepository = FakeSessionRepository()
 		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
 		val applicationRepository = RecordingApplicationRepository()
 		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 
-		handleUnauthorizedTokenRefresh(
+		sessionRecoveryDataSource(
 			sessionRepository = sessionRepository,
 			syncStatusRepository = syncStatusRepository,
 			applicationRepository = applicationRepository,
 			sessionInvalidationRepository = sessionInvalidationRepository
-		)
+		).invalidateSession()
 
 		assertTrue(sessionRepository.cleared)
 		assertEquals(1, syncStatusRepository.resetCalls)
@@ -145,20 +159,19 @@ class KtorClientTest {
 	}
 
 	@Test
-	fun handleUnauthorizedTokenRefresh_suppressesInvalidation_afterIntentionalSignOut() = runTest {
+	fun unauthorizedSessionRecovery_suppressesInvalidation_afterIntentionalSignOut() = runTest {
 		val sessionRepository = FakeSessionRepository()
 		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
 		val applicationRepository = RecordingApplicationRepository()
 		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 		sessionInvalidationRepository.markIntentionalSignOut("session-123")
 
-		handleUnauthorizedTokenRefresh(
+		sessionRecoveryDataSource(
 			sessionRepository = sessionRepository,
 			syncStatusRepository = syncStatusRepository,
 			applicationRepository = applicationRepository,
-			sessionInvalidationRepository = sessionInvalidationRepository,
-			sessionId = "session-123"
-		)
+			sessionInvalidationRepository = sessionInvalidationRepository
+		).invalidateSession(sessionId = "session-123")
 
 		assertTrue(sessionRepository.cleared)
 		assertEquals(1, syncStatusRepository.resetCalls)
@@ -183,13 +196,9 @@ class KtorClientTest {
 			install(Auth) {
 				installSharedBearerAuth(
 					sessionRepository = sessionRepository,
-					applicationRepository = RecordingApplicationRepository(),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					syncStatusRepository = FakeSyncStatusRepository(),
-					attestationRepositoryProvider = { error("unused in this test") },
-					authRepositoryProvider = { error("unused in this test") },
-					credentialsRepositoryProvider = { FakeCredentialsRepository() },
-					syncRepositoryProvider = { FakeSyncRepository() }
+					sessionRecoveryRepository = sessionRecoveryDataSource(
+						sessionRepository = sessionRepository
+					)
 				)
 			}
 		}
@@ -197,9 +206,14 @@ class KtorClientTest {
 		try {
 			client.get("https://api.tuindice.app/record/v5/sync")
 
-			sessionRepository.setSessionId("session-new")
-			sessionRepository.setAccessToken("access-new")
-			sessionRepository.setRefreshToken("refresh-new")
+			sessionRepository.setSessionSnapshot(
+				SessionSnapshot(
+					sessionId = "session-new",
+					accessToken = "access-new",
+					refreshToken = "refresh-new",
+					usbId = "20261234"
+				)
+			)
 
 			client.get("https://api.tuindice.app/record/v5/sync")
 		} finally {
@@ -210,6 +224,188 @@ class KtorClientTest {
 			listOf("Bearer access-old", "Bearer access-new"),
 			authorizationHeaders
 		)
+	}
+
+	@Test
+	fun installSharedBearerAuth_retriesStaleUnauthorizedRequestWithCurrentTokens() = runTest {
+		val sessionRepository = FakeSessionRepository(
+			sessionId = "session-old",
+			usbId = "12-34567",
+			accessToken = "access-old",
+			refreshToken = "refresh-old"
+		)
+		val authorizationHeaders = mutableListOf<String>()
+		val client = HttpClient(
+			MockEngine { request ->
+				val authorization = checkNotNull(request.headers[HttpHeaders.Authorization])
+				authorizationHeaders += authorization
+
+				if (authorization == "Bearer access-old") {
+					sessionRepository.setSessionSnapshot(
+						SessionSnapshot(
+							sessionId = "session-new",
+							accessToken = "access-new",
+							refreshToken = "refresh-new",
+							usbId = "12-34567"
+						)
+					)
+					respond(
+						content = "",
+						status = HttpStatusCode.Unauthorized,
+						headers = headersOf(HttpHeaders.WWWAuthenticate, "Bearer")
+					)
+				} else {
+					respondOk()
+				}
+			}
+		) {
+			install(Auth) {
+				installSharedBearerAuth(
+					sessionRepository = sessionRepository,
+					sessionRecoveryRepository = sessionRecoveryDataSource(
+						sessionRepository = sessionRepository
+					)
+				)
+			}
+		}
+
+		val response = try {
+			client.get("https://api.tuindice.app/record/v5/sync")
+		} finally {
+			client.close()
+		}
+
+		assertEquals(HttpStatusCode.OK, response.status)
+		assertEquals(
+			listOf("Bearer access-old", "Bearer access-new"),
+			authorizationHeaders
+		)
+	}
+
+	@Test
+	fun installSharedBearerAuth_refreshesOnlyOnceForConcurrentUnauthorizedRequests() = runTest {
+		val sessionRepository = FakeSessionRepository(
+			sessionId = "session-old",
+			usbId = "12-34567",
+			accessToken = "access-old",
+			refreshToken = "refresh-old"
+		)
+		val oldRequestsSeen = CompletableDeferred<Unit>()
+		var oldRequestCount = 0
+		val authorizationHeaders = mutableListOf<String>()
+		val authRepository = RefreshPersistingAuthRepository(
+			sessionRepository = sessionRepository,
+			beforeRefresh = { oldRequestsSeen.await() }
+		)
+		val attestationRepository = RecordingAttestationRepository()
+		val client = HttpClient(
+			MockEngine { request ->
+				val authorization = checkNotNull(request.headers[HttpHeaders.Authorization])
+				authorizationHeaders += authorization
+
+				if (authorization == "Bearer access-old") {
+					oldRequestCount++
+
+					if (oldRequestCount == 2) {
+						oldRequestsSeen.complete(Unit)
+					}
+
+					respond(
+						content = "",
+						status = HttpStatusCode.Unauthorized,
+						headers = headersOf(HttpHeaders.WWWAuthenticate, "Bearer")
+					)
+				} else {
+					respondOk()
+				}
+			}
+		) {
+			install(Auth) {
+				installSharedBearerAuth(
+					sessionRepository = sessionRepository,
+					sessionRecoveryRepository = sessionRecoveryDataSource(
+						sessionRepository = sessionRepository,
+						attestationRepository = attestationRepository,
+						authRepository = authRepository
+					)
+				)
+			}
+		}
+
+		val first = async { client.get("https://api.tuindice.app/record/v5/sync") }
+		val second = async { client.get("https://api.tuindice.app/record/v5/sync") }
+
+		try {
+			assertEquals(HttpStatusCode.OK, first.await().status)
+			assertEquals(HttpStatusCode.OK, second.await().status)
+		} finally {
+			client.close()
+		}
+
+		assertEquals(1, authRepository.refreshCalls.size)
+		assertEquals(1, attestationRepository.requests.size)
+		assertEquals(2, authorizationHeaders.count { header -> header == "Bearer access-old" })
+		assertEquals(2, authorizationHeaders.count { header -> header == "Bearer access-new" })
+	}
+
+	@Test
+	fun installSharedBearerAuth_doesNotClearNewSessionWhenOldRefreshFailsUnauthorized() = runTest {
+		val sessionRepository = FakeSessionRepository(
+			sessionId = "session-old",
+			usbId = "12-34567",
+			accessToken = "access-old",
+			refreshToken = "refresh-old"
+		)
+		val applicationRepository = RecordingApplicationRepository()
+		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+		val authorizationHeaders = mutableListOf<String>()
+		val authRepository = FailingRefreshAfterSessionChangeAuthRepository(
+			sessionRepository = sessionRepository
+		)
+		val client = HttpClient(
+			MockEngine { request ->
+				val authorization = checkNotNull(request.headers[HttpHeaders.Authorization])
+				authorizationHeaders += authorization
+
+				if (authorization == "Bearer access-old") {
+					respond(
+						content = "",
+						status = HttpStatusCode.Unauthorized,
+						headers = headersOf(HttpHeaders.WWWAuthenticate, "Bearer")
+					)
+				} else {
+					respondOk()
+				}
+			}
+		) {
+			install(Auth) {
+				installSharedBearerAuth(
+					sessionRepository = sessionRepository,
+					sessionRecoveryRepository = sessionRecoveryDataSource(
+						sessionRepository = sessionRepository,
+						applicationRepository = applicationRepository,
+						sessionInvalidationRepository = sessionInvalidationRepository,
+						attestationRepository = RecordingAttestationRepository(),
+						authRepository = authRepository
+					)
+				)
+			}
+		}
+
+		val response = try {
+			client.get("https://api.tuindice.app/record/v5/sync")
+		} finally {
+			client.close()
+		}
+
+		assertEquals(HttpStatusCode.OK, response.status)
+		assertEquals(
+			listOf("Bearer access-old", "Bearer access-new"),
+			authorizationHeaders
+		)
+		assertFalse(sessionRepository.cleared)
+		assertEquals(0, applicationRepository.clearCalls)
+		assertEquals(0, sessionInvalidationRepository.invalidationCalls)
 	}
 
 	@Test
@@ -230,13 +426,9 @@ class KtorClientTest {
 			install(Auth) {
 				installSharedBearerAuth(
 					sessionRepository = sessionRepository,
-					applicationRepository = RecordingApplicationRepository(),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					syncStatusRepository = FakeSyncStatusRepository(),
-					attestationRepositoryProvider = { error("unused in this test") },
-					authRepositoryProvider = { error("unused in this test") },
-					credentialsRepositoryProvider = { FakeCredentialsRepository() },
-					syncRepositoryProvider = { FakeSyncRepository() }
+					sessionRecoveryRepository = sessionRecoveryDataSource(
+						sessionRepository = sessionRepository
+					)
 				)
 			}
 		}
@@ -277,13 +469,9 @@ class KtorClientTest {
 			install(Auth) {
 				installSharedBearerAuth(
 					sessionRepository = sessionRepository,
-					applicationRepository = RecordingApplicationRepository(),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					syncStatusRepository = FakeSyncStatusRepository(),
-					attestationRepositoryProvider = { error("unused in this test") },
-					authRepositoryProvider = { error("unused in this test") },
-					credentialsRepositoryProvider = { FakeCredentialsRepository() },
-					syncRepositoryProvider = { FakeSyncRepository() }
+					sessionRecoveryRepository = sessionRecoveryDataSource(
+						sessionRepository = sessionRepository
+					)
 				)
 			}
 		}
@@ -310,6 +498,66 @@ private data class ReissueTokensCall(
 	val attestation: Attestation
 )
 
+private data class RefreshTokensCall(
+	val sessionId: String,
+	val refreshToken: String,
+	val attestation: Attestation
+)
+
+private fun sessionRecoveryDataSource(
+	sessionRepository: SessionRepository,
+	applicationRepository: RecordingApplicationRepository = RecordingApplicationRepository(),
+	sessionInvalidationRepository: FakeSessionInvalidationRepository = FakeSessionInvalidationRepository(),
+	syncStatusRepository: FakeSyncStatusRepository = FakeSyncStatusRepository(),
+	attestationRepository: AttestationRepository = ErrorAttestationRepository,
+	authRepository: AuthRepository = ErrorAuthRepository,
+	credentialsRepository: CredentialsRepository = FakeCredentialsRepository()
+): SessionRecoveryDataSource {
+	return SessionRecoveryDataSource(
+		sessionRepository = sessionRepository,
+		applicationRepository = applicationRepository,
+		sessionInvalidationRepository = sessionInvalidationRepository,
+		syncStatusRepository = syncStatusRepository,
+		attestationRepository = attestationRepository,
+		authRepository = authRepository,
+		credentialsRepository = credentialsRepository
+	)
+}
+
+private object ErrorAttestationRepository : AttestationRepository {
+	override suspend fun attest(request: AttestationRequest): Attestation = error("unused in this test")
+}
+
+private object ErrorAuthRepository : AuthRepository {
+	override suspend fun bootstrapSignIn(
+		usbId: String,
+		password: String
+	): BootstrapTokens = error("unused in this test")
+
+	override suspend fun exchangeSignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation
+	) = error("unused in this test")
+
+	override suspend fun reissueTokens(
+		usbId: String,
+		password: String,
+		attestation: Attestation
+	) = error("unused in this test")
+
+	override suspend fun refreshTokens(
+		sessionId: String,
+		refreshToken: String,
+		attestation: Attestation
+	): RefreshTokens = error("unused in this test")
+
+	override suspend fun revokeTokens(
+		sessionId: String,
+		refreshToken: String,
+		attestation: Attestation
+	) = error("unused in this test")
+}
+
 private class RecordingAttestationRepository : AttestationRepository {
 	val requests = mutableListOf<AttestationRequest>()
 
@@ -319,9 +567,106 @@ private class RecordingAttestationRepository : AttestationRepository {
 	}
 }
 
-private class ReissuePersistingAuthRepository(
+private class RefreshPersistingAuthRepository(
 	private val sessionRepository: SessionRepository,
-	private val throwable: Throwable? = null
+	private val beforeRefresh: suspend () -> Unit = {}
+) : AuthRepository {
+	val refreshCalls = mutableListOf<RefreshTokensCall>()
+
+	override suspend fun bootstrapSignIn(
+		usbId: String,
+		password: String
+	): BootstrapTokens = error("unused")
+
+	override suspend fun exchangeSignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation
+	) = error("unused")
+
+	override suspend fun reissueTokens(
+		usbId: String,
+		password: String,
+		attestation: Attestation
+	) = error("unused")
+
+	override suspend fun refreshTokens(
+		sessionId: String,
+		refreshToken: String,
+		attestation: Attestation
+	): RefreshTokens {
+		beforeRefresh()
+		refreshCalls += RefreshTokensCall(
+			sessionId = sessionId,
+			refreshToken = refreshToken,
+			attestation = attestation
+		)
+		sessionRepository.setSessionSnapshot(
+			SessionSnapshot(
+				sessionId = "session-new",
+				accessToken = "access-new",
+				refreshToken = "refresh-new",
+				usbId = "12-34567"
+			)
+		)
+		return RefreshTokens(
+			sessionId = "session-new",
+			accessToken = "access-new",
+			refreshToken = "refresh-new",
+			expiresIn = 3600
+		)
+	}
+
+	override suspend fun revokeTokens(
+		sessionId: String,
+		refreshToken: String,
+		attestation: Attestation
+	) = error("unused")
+}
+
+private class FailingRefreshAfterSessionChangeAuthRepository(
+	private val sessionRepository: SessionRepository
+) : AuthRepository {
+	override suspend fun bootstrapSignIn(
+		usbId: String,
+		password: String
+	): BootstrapTokens = error("unused")
+
+	override suspend fun exchangeSignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation
+	) = error("unused")
+
+	override suspend fun reissueTokens(
+		usbId: String,
+		password: String,
+		attestation: Attestation
+	) = error("unused")
+
+	override suspend fun refreshTokens(
+		sessionId: String,
+		refreshToken: String,
+		attestation: Attestation
+	): RefreshTokens {
+		sessionRepository.setSessionSnapshot(
+			SessionSnapshot(
+				sessionId = "session-new",
+				accessToken = "access-new",
+				refreshToken = "refresh-new",
+				usbId = "12-34567"
+			)
+		)
+		throw clientRequestException(HttpStatusCode.Unauthorized)
+	}
+
+	override suspend fun revokeTokens(
+		sessionId: String,
+		refreshToken: String,
+		attestation: Attestation
+	) = error("unused")
+}
+
+private class UnauthorizedRefreshThenReissuePersistingAuthRepository(
+	private val sessionRepository: SessionRepository
 ) : AuthRepository {
 	val reissueCalls = mutableListOf<ReissueTokensCall>()
 
@@ -345,18 +690,23 @@ private class ReissuePersistingAuthRepository(
 			password = password,
 			attestation = attestation
 		)
-		throwable?.let { throw it }
-		sessionRepository.setSessionId("session-reissued")
-		sessionRepository.setUsbId(usbId)
-		sessionRepository.setAccessToken("access-reissued")
-		sessionRepository.setRefreshToken("refresh-reissued")
+		sessionRepository.setSessionSnapshot(
+			SessionSnapshot(
+				sessionId = "session-reissued",
+				accessToken = "access-reissued",
+				refreshToken = "refresh-reissued",
+				usbId = usbId
+			)
+		)
 	}
 
 	override suspend fun refreshTokens(
 		sessionId: String,
 		refreshToken: String,
 		attestation: Attestation
-	): RefreshTokens = error("unused")
+	): RefreshTokens {
+		throw clientRequestException(HttpStatusCode.Unauthorized)
+	}
 
 	override suspend fun revokeTokens(
 		sessionId: String,

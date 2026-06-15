@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
+import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
@@ -122,7 +123,40 @@ class FakeSessionRepository(
 		private set
 
 	override suspend fun hasActiveSession(): Boolean {
-		return sessionId.isNotBlank() && accessToken.isNotBlank() && refreshToken.isNotBlank()
+		return sessionId.isNotBlank() &&
+				usbId.isNotBlank() &&
+				accessToken.isNotBlank() &&
+				refreshToken.isNotBlank()
+	}
+
+	override suspend fun getActiveSessionSnapshot(): SessionSnapshot? {
+		return if (hasActiveSession()) {
+			SessionSnapshot(
+				sessionId = sessionId,
+				accessToken = accessToken,
+				refreshToken = refreshToken,
+				usbId = usbId
+			)
+		} else {
+			null
+		}
+	}
+
+	override suspend fun setSessionSnapshot(snapshot: SessionSnapshot) {
+		sessionId = snapshot.sessionId
+		accessToken = snapshot.accessToken
+		refreshToken = snapshot.refreshToken
+		usbId = snapshot.usbId
+	}
+
+	override suspend fun replaceSessionSnapshotIfCurrent(
+		expectedSnapshot: SessionSnapshot,
+		newSnapshot: SessionSnapshot
+	): Boolean {
+		if (getActiveSessionSnapshot() != expectedSnapshot) return false
+
+		setSessionSnapshot(newSnapshot)
+		return true
 	}
 
 	override suspend fun setUsbId(usbId: String) {

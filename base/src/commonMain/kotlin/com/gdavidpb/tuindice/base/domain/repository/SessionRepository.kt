@@ -1,7 +1,16 @@
 package com.gdavidpb.tuindice.base.domain.repository
 
+import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
+
 interface SessionRepository {
 	suspend fun hasActiveSession(): Boolean
+
+	suspend fun getActiveSessionSnapshot(): SessionSnapshot?
+	suspend fun setSessionSnapshot(snapshot: SessionSnapshot)
+	suspend fun replaceSessionSnapshotIfCurrent(
+		expectedSnapshot: SessionSnapshot,
+		newSnapshot: SessionSnapshot
+	): Boolean
 
 	suspend fun setUsbId(usbId: String)
 	suspend fun setSessionId(sessionId: String)

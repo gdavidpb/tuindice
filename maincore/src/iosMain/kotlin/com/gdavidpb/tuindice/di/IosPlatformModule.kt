@@ -33,9 +33,7 @@ import com.gdavidpb.tuindice.data.source.review.IosReviewDataSource
 import com.gdavidpb.tuindice.data.source.update.IosUpdateDataSource
 import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
 import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
-import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.persistence.di.registerIosPersistencePlatformStorage
-import com.gdavidpb.tuindice.platform.IOS_IDENTITY_HTTP_CLIENT_QUALIFIER
 import com.gdavidpb.tuindice.platform.IosAttestationCapability
 import com.gdavidpb.tuindice.platform.IosDeviceCapability
 import com.gdavidpb.tuindice.platform.IosExternalActionsCapability
@@ -44,7 +42,6 @@ import com.gdavidpb.tuindice.platform.IosPushCapability
 import com.gdavidpb.tuindice.platform.IosRemoteConfigCapability
 import com.gdavidpb.tuindice.platform.IosReviewCapability
 import com.gdavidpb.tuindice.platform.IosUpdateCapability
-import com.gdavidpb.tuindice.platform.createIosIdentityHttpClient
 import com.gdavidpb.tuindice.platform.createIosUserAgent
 import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
 import com.gdavidpb.tuindice.summary.data.source.IosProfilePictureInputDataSource
@@ -134,14 +131,12 @@ private fun Module.registerIosPlatformServices() {
 	factoryOf(::IosPushTokenDataSource) { bind<PushTokenDataRepository>() }
 	factory<AuthApiDataRepository> {
 		KtorAuthApiDataSource(
-			ktorClient = get<HttpClient>(qualifier = named(IOS_IDENTITY_HTTP_CLIENT_QUALIFIER))
+			ktorClient = get<HttpClient>(qualifier = named(IDENTITY_HTTP_CLIENT_QUALIFIER))
 		)
 	}
 	factory<AttestationRepository> {
 		IosAttestationDataSource(
-			httpClientProvider = {
-				get<HttpClient>(qualifier = named(IOS_IDENTITY_HTTP_CLIENT_QUALIFIER))
-			},
+			httpClient = get<HttpClient>(qualifier = named(IDENTITY_HTTP_CLIENT_QUALIFIER)),
 			attestationCapability = get<IosAttestationCapability>()
 		)
 	}
@@ -156,8 +151,8 @@ private fun Module.registerIosFeaturePlatformBindings() {
 }
 
 private fun Module.registerIosPlatformNetworking() {
-	single(named(IOS_IDENTITY_HTTP_CLIENT_QUALIFIER)) {
-		createIosIdentityHttpClient(
+	single(named(IDENTITY_HTTP_CLIENT_QUALIFIER)) {
+		createIdentityHttpClient(
 			appEnvironmentRepository = get<AppEnvironmentRepository>(),
 			configRepository = get<ConfigRepository>(),
 			logger = createAppKtorLogger(),
@@ -171,13 +166,7 @@ private fun Module.registerIosPlatformNetworking() {
 			appEnvironmentRepository = get<AppEnvironmentRepository>(),
 			configRepository = get<ConfigRepository>(),
 			sessionRepository = get<SessionRepository>(),
-			applicationRepository = get(),
-			sessionInvalidationRepository = get(),
-			syncStatusRepository = get(),
-			attestationRepositoryProvider = { get<AttestationRepository>() },
-			authRepositoryProvider = { get<AuthRepository>() },
-			credentialsRepositoryProvider = { get<CredentialsRepository>() },
-			syncRepositoryProvider = { get<SyncRepository>() },
+			sessionRecoveryRepository = get(),
 			logger = createAppKtorLogger(),
 			json = get<Json>(),
 			userAgentValue = createIosUserAgent(get<IosDeviceCapability>())

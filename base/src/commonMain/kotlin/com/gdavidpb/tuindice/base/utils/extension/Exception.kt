@@ -84,6 +84,10 @@ fun Throwable.isSyncRetryable(): Boolean {
 	return isUnavailable() || isFailedDependency() || isTooManyRequests() || isServerError() || isConnection() || isTimeout()
 }
 
+fun Throwable.isAccessRejected(): Boolean {
+	return isUnauthorized() || isForbidden() || isLocked()
+}
+
 fun Throwable.isForbidden() = when (this) {
 	is ResponseException -> response.status == HttpStatusCode.Forbidden
 	else -> false

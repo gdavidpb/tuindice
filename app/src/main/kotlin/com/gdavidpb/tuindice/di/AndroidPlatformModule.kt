@@ -11,7 +11,8 @@ import com.gdavidpb.tuindice.about.data.source.AndroidEnvironmentDataSource
 import com.gdavidpb.tuindice.about.data.source.AndroidShareTextHandler
 import com.gdavidpb.tuindice.about.data.source.AndroidStoreUrlDataSource
 import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
-import com.gdavidpb.tuindice.base.data.repository.*
+import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
+import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
 import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
@@ -60,6 +61,8 @@ import com.google.firebase.remoteconfig.FirebaseRemoteConfigSettings
 import com.russhwolf.settings.Settings
 import com.russhwolf.settings.SharedPreferencesSettings
 import eu.anifantakis.lib.ksafe.KSafe
+import io.ktor.client.HttpClient
+import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.bind
@@ -202,20 +205,35 @@ private fun Module.registerAndroidFeaturePlatformBindings() {
 
 private fun Module.registerAndroidPlatformNetworking() {
 	singleOf(::PlayIntegrityDataSource) { bind<AttestationProviderDataRepository>() }
-	factoryOf(::AndroidAttestationDataSource) { bind<AttestationRepository>() }
+	factory<AuthApiDataRepository> {
+		KtorAuthApiDataSource(
+			ktorClient = get<HttpClient>(qualifier = named(IDENTITY_HTTP_CLIENT_QUALIFIER))
+		)
+	}
+	factory<AttestationRepository> {
+		AndroidAttestationDataSource(
+			ktorClient = get<HttpClient>(qualifier = named(IDENTITY_HTTP_CLIENT_QUALIFIER)),
+			providerDataSource = get(),
+			proofOfPossessionCapability = get()
+		)
+	}
+
+	single(named(IDENTITY_HTTP_CLIENT_QUALIFIER)) {
+		createIdentityHttpClient(
+			appEnvironmentRepository = get(),
+			configRepository = get(),
+			logger = createAppKtorLogger(),
+			json = get<Json>(),
+			userAgentValue = runCatching { UserAgent(androidContext()).toString() }.getOrNull()
+		)
+	}
 
 	single {
 		createSharedHttpClient(
 			appEnvironmentRepository = get(),
 			configRepository = get(),
 			sessionRepository = get(),
-			applicationRepository = get(),
-			sessionInvalidationRepository = get(),
-			syncStatusRepository = get(),
-			attestationRepositoryProvider = { get() },
-			authRepositoryProvider = { get() },
-			credentialsRepositoryProvider = { get() },
-			syncRepositoryProvider = { get() },
+			sessionRecoveryRepository = get(),
 			logger = createAppKtorLogger(),
 			json = get(),
 			userAgentValue = runCatching { UserAgent(androidContext()).toString() }.getOrNull()

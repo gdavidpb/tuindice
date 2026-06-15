@@ -42,7 +42,9 @@ import com.gdavidpb.tuindice.data.source.sync.SyncApiDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncSettingsDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncStatusSettingsDataSource
 import com.gdavidpb.tuindice.data.source.settings.MultiplatformSettingsDataSource
+import com.gdavidpb.tuindice.data.source.session.SessionRecoveryDataSource
 import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
+import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import com.russhwolf.settings.Settings
@@ -70,6 +72,7 @@ val commonModule = module {
 	singleOf(::SecureStoreSessionDataSource) { bind<PreferencesSessionDataRepository>() }
 	singleOf(::SessionDataSource) { bind<SessionRepository>() }
 	singleOf(::SessionInvalidationDataSource) { bind<SessionInvalidationRepository>() }
+	singleOf(::SessionRecoveryDataSource) { bind<SessionRecoveryRepository>() }
 
 	singleOf(::MessagingApiDataSource) { bind<MessagingRemoteDataRepository>() }
 	singleOf(::MessagingSettingsDataSource) { bind<MessagingLocalDataRepository>() }

@@ -1,21 +1,8 @@
 package com.gdavidpb.tuindice.platform
 
-import com.gdavidpb.tuindice.base.data.source.network.AttestationHeaders
-import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
-import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
-import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.di.buildStructuredUserAgent
-import io.ktor.client.*
-import io.ktor.client.plugins.*
-import io.ktor.client.plugins.contentnegotiation.*
-import io.ktor.client.plugins.logging.*
-import io.ktor.http.*
-import io.ktor.serialization.kotlinx.json.*
-import kotlinx.serialization.json.Json
 import platform.Foundation.NSBundle
 import platform.UIKit.UIDevice
-
-const val IOS_IDENTITY_HTTP_CLIENT_QUALIFIER = "iosIdentityHttpClient"
 
 fun createIosUserAgent(deviceCapability: IosDeviceCapability): String {
 	val appVersionName = deviceCapability.appVersionName().ifBlank { "0.0.0" }
@@ -42,49 +29,4 @@ fun createIosUserAgent(deviceCapability: IosDeviceCapability): String {
 		manufacturer = "Apple",
 		model = model
 	)
-}
-
-fun createIosIdentityHttpClient(
-	appEnvironmentRepository: AppEnvironmentRepository,
-	configRepository: ConfigRepository,
-	logger: Logger,
-	json: Json,
-	userAgentValue: String?
-): HttpClient {
-	return createPlatformHttpClient {
-		expectSuccess = true
-
-		install(DefaultRequest) {
-			val appEnvironment = appEnvironmentRepository.getEnvironment()
-
-			url(appEnvironment.apiBaseUrl)
-			contentType(ContentType.Application.Json)
-
-			if (!userAgentValue.isNullOrBlank()) {
-				userAgent(userAgentValue)
-			}
-		}
-
-		install(HttpTimeout) {
-			val timeout = configRepository.getTimeout()
-
-			requestTimeoutMillis = timeout
-			connectTimeoutMillis = timeout
-			socketTimeoutMillis = timeout
-		}
-
-		install(ContentNegotiation) {
-			json(json)
-		}
-
-		install(Logging) {
-			this.logger = logger
-			level = LogLevel.ALL
-
-			sanitizeHeader { header ->
-				header == HttpHeaders.Authorization ||
-					header == AttestationHeaders.ATTESTATION_TOKEN
-			}
-		}
-	}
 }

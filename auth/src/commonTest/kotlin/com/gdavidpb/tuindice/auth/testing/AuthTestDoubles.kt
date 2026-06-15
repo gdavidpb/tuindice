@@ -153,7 +153,9 @@ class FakeAuthApiDataSource(
 	private val bootstrapTokens: BootstrapTokens = DEFAULT_BOOTSTRAP_TOKENS,
 	private val issueTokens: IssueTokens = DEFAULT_ISSUE_TOKENS,
 	private val refreshTokens: RefreshTokens = DEFAULT_REFRESH_TOKENS,
-	private val throwable: Throwable? = null
+	private val throwable: Throwable? = null,
+	private val onReissueTokens: suspend () -> Unit = {},
+	private val onRefreshTokens: suspend () -> Unit = {}
 ) : AuthApiDataRepository {
 	var bootstrapCalls = mutableListOf<BootstrapSignInCall>()
 	var exchangeCalls = mutableListOf<ExchangeSignInCall>()
@@ -199,6 +201,7 @@ class FakeAuthApiDataSource(
 			attestation = attestation
 		)
 		throwable?.let { throw it }
+		onReissueTokens()
 		return issueTokens
 	}
 
@@ -209,6 +212,7 @@ class FakeAuthApiDataSource(
 	): RefreshTokens {
 		refreshCalls += Triple(sessionId, refreshToken, attestation)
 		throwable?.let { throw it }
+		onRefreshTokens()
 		return refreshTokens
 	}
 

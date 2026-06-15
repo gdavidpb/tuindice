@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.debug
 
 import com.gdavidpb.tuindice.base.domain.model.MainSection
+import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
@@ -47,10 +48,14 @@ private suspend fun seedAuthenticatedWizardState(
 	credentialsRepository.clearPassword()
 	syncStatusRepository.reset()
 
-	sessionRepository.setUsbId("11-11111")
-	sessionRepository.setSessionId("auth-session-initial")
-	sessionRepository.setAccessToken("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access")
-	sessionRepository.setRefreshToken("refresh.mock.token.value")
+	sessionRepository.setSessionSnapshot(
+		SessionSnapshot(
+			sessionId = "auth-session-initial",
+			accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
+			refreshToken = "refresh.mock.token.value",
+			usbId = "11-11111"
+		)
+	)
 	credentialsRepository.setPassword("123456")
 	if (isWizardCompleted) {
 		settingsRepository.setWizardCompleted()
