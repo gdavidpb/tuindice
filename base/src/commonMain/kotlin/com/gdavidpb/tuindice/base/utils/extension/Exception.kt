@@ -98,10 +98,6 @@ fun Throwable.isSessionSuperseded(): Boolean {
 	return authErrorCode() == AuthErrorHeaders.SESSION_SUPERSEDED
 }
 
-fun Throwable.isRefreshTokenMismatch(): Boolean {
-	return authErrorCode() == AuthErrorHeaders.REFRESH_TOKEN_MISMATCH
-}
-
 fun Throwable.isForbidden() = when (this) {
 	is ResponseException -> response.status == HttpStatusCode.Forbidden
 	else -> false

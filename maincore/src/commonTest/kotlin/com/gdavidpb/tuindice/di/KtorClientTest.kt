@@ -871,7 +871,7 @@ private class RefreshTokenMismatchAuthRepository : AuthRepository {
 	): RefreshTokens {
 		throw clientRequestException(
 			statusCode = HttpStatusCode.Unauthorized,
-			headers = mapOf(AuthErrorHeaders.HEADER to AuthErrorHeaders.REFRESH_TOKEN_MISMATCH)
+			headers = mapOf(AuthErrorHeaders.HEADER to REFRESH_TOKEN_MISMATCH)
 		)
 	}
 
@@ -881,3 +881,5 @@ private class RefreshTokenMismatchAuthRepository : AuthRepository {
 		attestation: Attestation
 	) = error("unused")
 }
+
+private const val REFRESH_TOKEN_MISMATCH = "refresh_token_mismatch"
