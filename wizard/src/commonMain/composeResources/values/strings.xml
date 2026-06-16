@@ -28,7 +28,7 @@
 	<string name="wizard_synthetic_term_title">Planificar trimestre</string>
 	<string name="wizard_synthetic_term_message">Aquí eliges el **periodo**, agregas **materias sugeridas** o buscas por **código/nombre**, y revisas la **carga estimada**. Al guardar, queda como **proyección** y no cambia tu historial académico.</string>
 	<string name="wizard_subject_title">Estadísticas de materia</string>
-	<string name="wizard_subject_message">Arriba ves el **nombre de la materia**, su **código** y **UC**. Las pestañas comparan **tu carrera** con el **panorama general**; debajo aparecen la **muestra de estudiantes e intentos**, más indicadores de **dificultad**, **aprobación**, **reprobación**, **retiros** y **primer intento**.</string>
+	<string name="wizard_subject_message">Aquí ves **nombre**, **código** y **UC**. Cambia entre **tu carrera** y **general** para ver dificultad, aprobación, retiros y primer intento.</string>
 	<string name="wizard_subject_charts_title">Gráficos de materia</string>
 	<string name="wizard_subject_charts_message">Los **gráficos** resumen cómo se distribuyeron las **notas** y cuántos **intentos** necesitaron otros estudiantes para aprobar. Úsalos como **contexto**: no predicen tu resultado, pero ayudan a entender la **dificultad histórica** de la materia.</string>
 	<string name="wizard_pensum_title">Mapa del pensum</string>

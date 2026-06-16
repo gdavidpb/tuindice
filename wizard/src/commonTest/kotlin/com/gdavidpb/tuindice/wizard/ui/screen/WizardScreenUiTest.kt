@@ -263,11 +263,11 @@ class WizardScreenUiTest {
 		onNodeWithText("Paso 6 de 11").assertExists()
 		onNodeWithText("Algoritmos y Estructuras I").assertExists()
 		onNodeWithText(
-			"Arriba ves el nombre de la materia, su código y UC.",
+			"Aquí ves nombre, código y UC.",
 			substring = true
 		).assertExists()
 		onNodeWithText(
-			"indicadores de dificultad, aprobación, reprobación, retiros y primer intento.",
+			"Cambia entre tu carrera y general para ver dificultad, aprobación, retiros y primer intento.",
 			substring = true
 		).assertExists()
 		onAllNodesWithTag(WizardUiTags.FocusOverlay).assertCountEquals(0)

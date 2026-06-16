@@ -20,8 +20,9 @@ import com.gdavidpb.tuindice.subjects.data.repository.SubjectStatsApiDataReposit
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectStatsLocalDataRepository
 import com.gdavidpb.tuindice.subjects.data.source.DebugSubjectStatsLocalDataSource
 import com.gdavidpb.tuindice.subjects.data.source.DebugSubjectsApiDataSource
-import com.gdavidpb.tuindice.subjects.data.source.KtorSubjectsApiDataSource
 import com.gdavidpb.tuindice.subjects.data.source.SubjectStatsRoomDataSource
+import org.koin.core.module.dsl.bind
+import org.koin.core.module.dsl.factoryOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
@@ -30,8 +31,7 @@ private const val IOS_DEBUG_SUMMARY_SOURCE = "ios-debug-summary"
 val iosDebugVariantModule = module {
 	single<EventSubscriber>(named("iosDebugEventSubscriber")) {
 		DebugEventSubscriber(
-			sourceName = "ios-debug",
-			usageDataConsentRepository = get()
+			sourceName = "ios-debug"
 		)
 	}
 
@@ -44,6 +44,7 @@ val iosDebugVariantModule = module {
 			sourceName = IOS_DEBUG_SUMMARY_SOURCE
 		)
 	}
+
 	factory<RemoteDataRepository> {
 		DebugSummaryRemoteDataSource(
 			apiRemoteDataSource = get<SummaryApiDataSource>(),
@@ -51,18 +52,9 @@ val iosDebugVariantModule = module {
 		)
 	}
 
-	factory<SubjectStatsApiDataRepository> {
-		DebugSubjectsApiDataSource(
-			apiDataSource = get<KtorSubjectsApiDataSource>(),
-			json = get()
-		)
-	}
-
-	factory<SubjectCatalogRemoteDataRepository> {
-		DebugSubjectsApiDataSource(
-			apiDataSource = get<KtorSubjectsApiDataSource>(),
-			json = get()
-		)
+	factoryOf(::DebugSubjectsApiDataSource) {
+		bind<SubjectStatsApiDataRepository>()
+		bind<SubjectCatalogRemoteDataRepository>()
 	}
 
 	factory<SubjectStatsLocalDataRepository> {

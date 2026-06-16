@@ -9,20 +9,20 @@ import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class UsageDataCollectionControllerDataSourceTest {
+class UsageDataCollectionDataSourceTest {
 	@Test
 	fun start_setsInitialConsentAndFollowsChanges() = runTest {
 		val calls = mutableListOf<Boolean>()
 		val scope = CoroutineScope(UnconfinedTestDispatcher(testScheduler))
 		val repository = InMemoryUsageDataConsentRepository(initialValue = false)
-		val controller = UsageDataCollectionControllerDataSource(
+		val dataSource = UsageDataCollectionDataSource(
 			usageDataConsentRepository = repository,
-			setCollectionEnabled = calls::add,
+			setCollectionEnabledActions = listOf { enabled -> calls += enabled },
 			scope = scope
 		)
 
 		try {
-			controller.start()
+			dataSource.start()
 			repository.setUsageDataCollectionEnabled(true)
 			repository.setUsageDataCollectionEnabled(false)
 
@@ -36,15 +36,15 @@ class UsageDataCollectionControllerDataSourceTest {
 	fun start_isIdempotent() = runTest {
 		val calls = mutableListOf<Boolean>()
 		val scope = CoroutineScope(UnconfinedTestDispatcher(testScheduler))
-		val controller = UsageDataCollectionControllerDataSource(
+		val dataSource = UsageDataCollectionDataSource(
 			usageDataConsentRepository = InMemoryUsageDataConsentRepository(initialValue = true),
-			setCollectionEnabled = calls::add,
+			setCollectionEnabledActions = listOf { enabled -> calls += enabled },
 			scope = scope
 		)
 
 		try {
-			controller.start()
-			controller.start()
+			dataSource.start()
+			dataSource.start()
 
 			assertEquals(listOf(true), calls)
 		} finally {
@@ -53,7 +53,33 @@ class UsageDataCollectionControllerDataSourceTest {
 	}
 
 	@Test
-	fun noOpUsageDataCollectionController_startDoesNothing() {
-		NoOpUsageDataCollectionController.start()
+	fun noOpUsageDataCollectionDataSource_startDoesNothing() {
+		NoOpUsageDataCollectionDataSource.start()
+	}
+
+	@Test
+	fun start_appliesConsentToEveryCollectionAction() = runTest {
+		val firstCalls = mutableListOf<Boolean>()
+		val secondCalls = mutableListOf<Boolean>()
+		val scope = CoroutineScope(UnconfinedTestDispatcher(testScheduler))
+		val repository = InMemoryUsageDataConsentRepository(initialValue = true)
+		val dataSource = UsageDataCollectionDataSource(
+			usageDataConsentRepository = repository,
+			setCollectionEnabledActions = listOf(
+				{ enabled -> firstCalls += enabled },
+				{ enabled -> secondCalls += enabled }
+			),
+			scope = scope
+		)
+
+		try {
+			dataSource.start()
+			repository.setUsageDataCollectionEnabled(false)
+
+			assertEquals(listOf(true, false), firstCalls)
+			assertEquals(listOf(true, false), secondCalls)
+		} finally {
+			scope.cancel()
+		}
 	}
 }

@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
 import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase
+import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase.Result
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
@@ -65,7 +66,28 @@ class PensumMachine(
 	}
 
 	internal fun ensurePensumLoaded(host: MachineHost<Pensum.Effect>) {
-		launchRefresh(host = host, results = ensurePensumLoadedUseCase.execute(Unit))
+		host.launchMachineJob {
+			ensurePensumLoadedUseCase.execute(Unit).collect { useCaseState ->
+				when (useCaseState) {
+					is UseCaseState.Loading -> Unit
+
+					is UseCaseState.Data -> when (useCaseState.value) {
+						Result.Cached -> Unit
+						Result.RefreshStarted -> host.processInternalEvent(
+							PensumInternalEvent.PensumRefreshLoading
+						)
+
+						Result.RefreshSucceeded -> host.processInternalEvent(
+							PensumInternalEvent.PensumRefreshSucceeded
+						)
+					}
+
+					is UseCaseState.Error -> host.processInternalEvent(
+						useCaseState.error.toRefreshFailureEvent()
+					)
+				}
+			}
+		}
 	}
 
 	internal fun selectPensum(host: MachineHost<Pensum.Effect>, year: Int) {
@@ -114,13 +136,18 @@ class PensumMachine(
 					)
 
 					is UseCaseState.Error -> host.processInternalEvent(
-						if (useCaseState.error == UpdatePensumUseCaseError.NotFound)
-							PensumInternalEvent.PensumRefreshNotFound
-						else
-							PensumInternalEvent.PensumRefreshFailed(error = useCaseState.error)
+						useCaseState.error.toRefreshFailureEvent()
 					)
 				}
 			}
+		}
+	}
+
+	private fun UpdatePensumUseCaseError?.toRefreshFailureEvent(): PensumInternalEvent {
+		return if (this == UpdatePensumUseCaseError.NotFound) {
+			PensumInternalEvent.PensumRefreshNotFound
+		} else {
+			PensumInternalEvent.PensumRefreshFailed(error = this)
 		}
 	}
 

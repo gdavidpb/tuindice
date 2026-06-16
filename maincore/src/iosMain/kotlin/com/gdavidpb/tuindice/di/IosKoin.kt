@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.di
 
+import com.gdavidpb.tuindice.platform.IOSContext
 import com.gdavidpb.tuindice.domain.model.IosAppHostConfig
 import com.gdavidpb.tuindice.domain.model.IosBuildVariant
 import com.gdavidpb.tuindice.platform.toIOSContext

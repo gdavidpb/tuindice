@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.di
 
-import com.gdavidpb.tuindice.base.domain.controller.UsageDataCollectionController
+import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
 import com.gdavidpb.tuindice.testkit.koin.withStartedKoin
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -9,9 +9,9 @@ import org.koin.dsl.module
 
 class AppKoinBootstrapTest {
 	@Test
-	fun startAppKoin_startsUsageDataCollectionControllersAfterKoinStarts() {
-		val firstController = RecordingUsageDataCollectionController()
-		val secondController = RecordingUsageDataCollectionController()
+	fun startAppKoin_startsAppStartupTasksAfterKoinStarts() {
+		val firstTask = RecordingAppStartupTask()
+		val secondTask = RecordingAppStartupTask()
 
 		withStartedKoin(
 			start = {
@@ -20,11 +20,11 @@ class AppKoinBootstrapTest {
 						platformBootstrap = object : PlatformKoinBootstrap {
 							override fun platformModules() = listOf(
 								module {
-									single<UsageDataCollectionController>(named("first")) {
-										firstController
+									single<AppStartupTask>(named("first")) {
+										firstTask
 									}
-									single<UsageDataCollectionController>(named("second")) {
-										secondController
+									single<AppStartupTask>(named("second")) {
+										secondTask
 									}
 								}
 							)
@@ -33,13 +33,13 @@ class AppKoinBootstrapTest {
 				)
 			}
 		) {
-			assertEquals(1, firstController.starts)
-			assertEquals(1, secondController.starts)
+			assertEquals(1, firstTask.starts)
+			assertEquals(1, secondTask.starts)
 		}
 	}
 }
 
-private class RecordingUsageDataCollectionController : UsageDataCollectionController {
+private class RecordingAppStartupTask : AppStartupTask {
 	var starts = 0
 		private set
 

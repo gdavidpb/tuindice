@@ -1,14 +1,15 @@
 package com.gdavidpb.tuindice.auth.data.source
 
 import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
-import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
-import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.base.domain.model.Attestation
-import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
+import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.IssueTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
+import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.domain.model.Attestation
+import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 
 class AuthDataSource(
 	private val authApiDataSource: AuthApiDataRepository,
@@ -42,6 +43,7 @@ class AuthDataSource(
 		password: String,
 		attestation: Attestation
 	) {
+		val expectedSnapshot = sessionRepository.getActiveSessionSnapshot()
 		val tokens = authApiDataSource.reissueTokens(
 			usbId = usbId,
 			password = password,
@@ -49,14 +51,25 @@ class AuthDataSource(
 			attestation = attestation
 		)
 
-		persistIssuedTokens(tokens)
+		if (expectedSnapshot != null) {
+			persistIssuedTokensIfCurrent(
+				tokens = tokens,
+				expectedSnapshot = expectedSnapshot
+			)
+		} else {
+			persistIssuedTokens(tokens)
+		}
 	}
 
 	private suspend fun persistIssuedTokens(tokens: IssueTokens) {
-		sessionRepository.setSessionId(tokens.sessionId)
-		sessionRepository.setAccessToken(tokens.accessToken)
-		sessionRepository.setRefreshToken(tokens.refreshToken)
-		sessionRepository.setUsbId(tokens.usbId)
+		sessionRepository.setSessionSnapshot(
+			SessionSnapshot(
+				sessionId = tokens.sessionId,
+				accessToken = tokens.accessToken,
+				refreshToken = tokens.refreshToken,
+				usbId = tokens.usbId
+			)
+		)
 		reportingRepository.setIdentifier(tokens.uid)
 	}
 
@@ -65,14 +78,32 @@ class AuthDataSource(
 		refreshToken: String,
 		attestation: Attestation
 	): RefreshTokens {
+		val expectedSnapshot = sessionRepository.getActiveSessionSnapshot()
+
 		return authApiDataSource.refreshTokens(
 			sessionId = sessionId,
 			refreshToken = refreshToken,
 			attestation = attestation
 		).also { tokens ->
-			sessionRepository.setSessionId(tokens.sessionId)
-			sessionRepository.setAccessToken(tokens.accessToken)
-			sessionRepository.setRefreshToken(tokens.refreshToken)
+			val refreshedSnapshot = SessionSnapshot(
+				sessionId = tokens.sessionId,
+				accessToken = tokens.accessToken,
+				refreshToken = tokens.refreshToken,
+				usbId = expectedSnapshot?.usbId ?: sessionRepository.getUsbId()
+			)
+
+			if (
+				expectedSnapshot != null &&
+				expectedSnapshot.sessionId == sessionId &&
+				expectedSnapshot.refreshToken == refreshToken
+			) {
+				sessionRepository.replaceSessionSnapshotIfCurrent(
+					expectedSnapshot = expectedSnapshot,
+					newSnapshot = refreshedSnapshot
+				)
+			} else if (expectedSnapshot == null) {
+				sessionRepository.setSessionSnapshot(refreshedSnapshot)
+			}
 		}
 	}
 
@@ -82,5 +113,24 @@ class AuthDataSource(
 			refreshToken = refreshToken,
 			attestation = attestation
 		)
+	}
+
+	private suspend fun persistIssuedTokensIfCurrent(
+		tokens: IssueTokens,
+		expectedSnapshot: SessionSnapshot
+	) {
+		val didReplace = sessionRepository.replaceSessionSnapshotIfCurrent(
+			expectedSnapshot = expectedSnapshot,
+			newSnapshot = SessionSnapshot(
+				sessionId = tokens.sessionId,
+				accessToken = tokens.accessToken,
+				refreshToken = tokens.refreshToken,
+				usbId = tokens.usbId
+			)
+		)
+
+		if (didReplace) {
+			reportingRepository.setIdentifier(tokens.uid)
+		}
 	}
 }

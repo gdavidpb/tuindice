@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.di
 
+import com.gdavidpb.tuindice.platform.IOSContext
 import org.koin.core.KoinApplication
 import org.koin.core.module.Module
 

@@ -42,7 +42,9 @@ import com.gdavidpb.tuindice.data.source.sync.SyncApiDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncSettingsDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncStatusSettingsDataSource
 import com.gdavidpb.tuindice.data.source.settings.MultiplatformSettingsDataSource
+import com.gdavidpb.tuindice.data.source.session.SessionRecoveryDataSource
 import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
+import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import com.russhwolf.settings.Settings
@@ -52,7 +54,7 @@ import org.koin.dsl.module
 
 val commonModule = module {
 	singleOf(::createSharedJson)
-	singleOf(::createAppSettings)
+	single<Settings> { get<Settings.Factory>().create(APP_STORE_NAME) }
 	single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 
 	singleOf(::MultiplatformSettingsDataSource) { bind<SettingsRepository>() }
@@ -70,6 +72,7 @@ val commonModule = module {
 	singleOf(::SecureStoreSessionDataSource) { bind<PreferencesSessionDataRepository>() }
 	singleOf(::SessionDataSource) { bind<SessionRepository>() }
 	singleOf(::SessionInvalidationDataSource) { bind<SessionInvalidationRepository>() }
+	singleOf(::SessionRecoveryDataSource) { bind<SessionRecoveryRepository>() }
 
 	singleOf(::MessagingApiDataSource) { bind<MessagingRemoteDataRepository>() }
 	singleOf(::MessagingSettingsDataSource) { bind<MessagingLocalDataRepository>() }
@@ -82,25 +85,13 @@ val commonModule = module {
 	singleOf(::SyncApiDataSource) { bind<SyncRemoteDataRepository>() }
 	singleOf(::CoreCacheStateDataSource) { bind<CoreCacheStateRepository>() }
 	singleOf(::RecordDataPrerequisiteDataSource) { bind<RecordDataPrerequisiteRepository>() }
-	singleOf(::createSyncRepository)
-}
-
-private fun createAppSettings(settingsFactory: Settings.Factory): Settings {
-	return settingsFactory.create(APP_STORE_NAME)
-}
-
-private fun createSyncRepository(
-	settingsDataSource: SyncSettingsLocalDataRepository,
-	syncStatusRepository: SyncStatusRepository,
-	remoteDataSource: SyncRemoteDataRepository,
-	recordLocalDataSource: AcademicRecordLocalDataRepository,
-	userLocalDataSource: LocalDataRepository
-): SyncRepository {
-	return SyncDataSource(
-		settingsDataSource = settingsDataSource,
-		syncStatusRepository = syncStatusRepository,
-		remoteDataSource = remoteDataSource,
-		recordLocalDataSource = recordLocalDataSource,
-		userLocalDataSource = userLocalDataSource
-	)
+	single<SyncRepository> {
+		SyncDataSource(
+			settingsDataSource = get<SyncSettingsLocalDataRepository>(),
+			syncStatusRepository = get<SyncStatusRepository>(),
+			remoteDataSource = get<SyncRemoteDataRepository>(),
+			recordLocalDataSource = get<AcademicRecordLocalDataRepository>(),
+			userLocalDataSource = get<LocalDataRepository>()
+		)
+	}
 }

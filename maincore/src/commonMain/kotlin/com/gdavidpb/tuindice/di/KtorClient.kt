@@ -1,20 +1,11 @@
 package com.gdavidpb.tuindice.di
 
-import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
-import com.gdavidpb.tuindice.auth.domain.model.IssueTokensAttestationPayload
-import com.gdavidpb.tuindice.auth.domain.model.RefreshTokensAttestationPayload
-import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.data.source.network.AuthErrorHeaders
 import com.gdavidpb.tuindice.base.data.source.network.AttestationHeaders
 import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
-import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
-import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
-import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
+import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.*
-import com.gdavidpb.tuindice.base.utils.canonicalAttestationPayloadJson
-import com.gdavidpb.tuindice.base.utils.extension.isForbidden
-import com.gdavidpb.tuindice.base.utils.extension.isLocked
-import com.gdavidpb.tuindice.base.utils.extension.isUnauthorized
+import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
 import io.ktor.client.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
@@ -38,13 +29,7 @@ fun createSharedHttpClient(
 	appEnvironmentRepository: AppEnvironmentRepository,
 	configRepository: ConfigRepository,
 	sessionRepository: SessionRepository,
-	applicationRepository: ApplicationRepository,
-	sessionInvalidationRepository: SessionInvalidationRepository,
-	syncStatusRepository: SyncStatusRepository,
-	attestationRepositoryProvider: () -> AttestationRepository,
-	authRepositoryProvider: () -> AuthRepository,
-	credentialsRepositoryProvider: () -> CredentialsRepository,
-	syncRepositoryProvider: () -> SyncRepository,
+	sessionRecoveryRepository: SessionRecoveryRepository,
 	logger: Logger,
 	json: Json,
 	userAgentValue: String? = null
@@ -84,12 +69,8 @@ fun createSharedHttpClient(
 					clientRequestException.response.status == HttpStatusCode.Forbidden &&
 					authError == AuthErrorHeaders.INSUFFICIENT_SCOPE
 				) {
-					handleUnauthorizedTokenRefresh(
-						sessionRepository = sessionRepository,
-						syncStatusRepository = syncStatusRepository,
-						applicationRepository = applicationRepository,
-						sessionInvalidationRepository = sessionInvalidationRepository,
-						sessionId = sessionRepository.getSessionId()
+					sessionRecoveryRepository.invalidateSession(
+						sessionId = sessionRepository.getActiveSessionSnapshot()?.sessionId
 					)
 				}
 			}
@@ -108,13 +89,7 @@ fun createSharedHttpClient(
 		install(Auth) {
 			installSharedBearerAuth(
 				sessionRepository = sessionRepository,
-				applicationRepository = applicationRepository,
-				sessionInvalidationRepository = sessionInvalidationRepository,
-				syncStatusRepository = syncStatusRepository,
-				attestationRepositoryProvider = attestationRepositoryProvider,
-				authRepositoryProvider = authRepositoryProvider,
-				credentialsRepositoryProvider = credentialsRepositoryProvider,
-				syncRepositoryProvider = syncRepositoryProvider
+				sessionRecoveryRepository = sessionRecoveryRepository
 			)
 		}
 	}
@@ -122,13 +97,7 @@ fun createSharedHttpClient(
 
 internal fun AuthConfig.installSharedBearerAuth(
 	sessionRepository: SessionRepository,
-	applicationRepository: ApplicationRepository,
-	sessionInvalidationRepository: SessionInvalidationRepository,
-	syncStatusRepository: SyncStatusRepository,
-	attestationRepositoryProvider: () -> AttestationRepository,
-	authRepositoryProvider: () -> AuthRepository,
-	credentialsRepositoryProvider: () -> CredentialsRepository,
-	syncRepositoryProvider: () -> SyncRepository
+	sessionRecoveryRepository: SessionRecoveryRepository
 ) {
 	reAuthorizeOnResponse { response ->
 		response.status == HttpStatusCode.Unauthorized &&
@@ -141,141 +110,35 @@ internal fun AuthConfig.installSharedBearerAuth(
 		}
 
 		loadTokens {
-			val hasActiveTokens = sessionRepository.hasActiveSession()
-
-			if (hasActiveTokens) {
-				BearerTokens(
-					accessToken = sessionRepository.getAccessToken(),
-					refreshToken = sessionRepository.getRefreshToken()
-				)
-			} else {
-				null
-			}
+			sessionRepository.getActiveSessionSnapshot()?.toBearerTokens()
 		}
 
 		// SessionRepository already owns token persistence and mutation.
 		cacheTokens = false
 
 		refreshTokens {
-			val oldSessionId = sessionRepository.getSessionId()
-			val oldAccessToken = oldTokens?.accessToken ?: sessionRepository.getAccessToken()
-			val oldRefreshToken = oldTokens?.refreshToken ?: sessionRepository.getRefreshToken()
-			val attestationRepository = attestationRepositoryProvider()
-			val authRepository = authRepositoryProvider()
-			val credentialsRepository = credentialsRepositoryProvider()
-			val syncRepository = syncRepositoryProvider()
+			val attemptedAccessToken = response.call.request.headers[HttpHeaders.Authorization]?.bearerAccessToken()
 
-			val attestationPayload = RefreshTokensAttestationPayload(
-				sessionId = oldSessionId,
-				refreshToken = oldRefreshToken
-			)
-
-			val attestation = attestationRepository.attest(
-				request = AttestationRequest(
-					operationCode = ProtectedOperationCodes.AuthRefreshTokens,
-					payloadJson = canonicalAttestationPayloadJson(
-						serializer = RefreshTokensAttestationPayload.serializer(),
-						value = attestationPayload
-					),
-					authorization = AttestationAuthorization.Session(
-						sessionId = oldSessionId,
-						refreshToken = oldRefreshToken
-					)
-				)
-			)
-
-			val refreshedBearerTokens = runCatching {
-				val refreshedTokens = authRepository.refreshTokens(
-					sessionId = oldSessionId,
-					refreshToken = oldRefreshToken,
-					attestation = attestation
-				)
-
-				BearerTokens(
-					accessToken = refreshedTokens.accessToken,
-					refreshToken = refreshedTokens.refreshToken
-				)
-			}.getOrElse { throwable ->
-				if (!throwable.isSessionInvalidatingRefreshFailure()) throw throwable
-
-				if (throwable.isUnauthorized()) {
-					val reissuedTokens = tryReissueTokensAfterUnauthorizedRefresh(
-						sessionRepository = sessionRepository,
-						credentialsRepository = credentialsRepository,
-						attestationRepository = attestationRepository,
-						authRepository = authRepository,
-						oldAccessToken = oldAccessToken
-					)
-
-					if (reissuedTokens != null) {
-						return@getOrElse reissuedTokens
-					}
-				}
-
-				handleUnauthorizedTokenRefresh(
-					sessionRepository = sessionRepository,
-					syncStatusRepository = syncStatusRepository,
-					applicationRepository = applicationRepository,
-					sessionInvalidationRepository = sessionInvalidationRepository,
-					sessionId = oldSessionId
-				)
-
-				return@refreshTokens null
-			}
-
-			if (credentialsRepository.hasPassword()) {
-				syncRepository.scheduleSync(
-					password = credentialsRepository.getPassword()
-				)
-			}
-
-			refreshedBearerTokens
+			sessionRecoveryRepository.recoverUnauthorizedSession(
+				attemptedAuthorizationAccessToken = attemptedAccessToken,
+				attemptedCachedAccessToken = oldTokens?.accessToken,
+				attemptedCachedRefreshToken = oldTokens?.refreshToken
+			)?.toBearerTokens()
 		}
 	}
 }
 
-internal suspend fun tryReissueTokensAfterUnauthorizedRefresh(
-	sessionRepository: SessionRepository,
-	credentialsRepository: CredentialsRepository,
-	attestationRepository: AttestationRepository,
-	authRepository: AuthRepository,
-	oldAccessToken: String
-): BearerTokens? {
-	if (!credentialsRepository.hasPassword()) return null
+private fun String.bearerAccessToken(): String? {
+	val prefix = "Bearer "
+	return takeIf { authorization -> authorization.startsWith(prefix) }
+		?.removePrefix(prefix)
+}
 
-	return runCatching {
-		val usbId = sessionRepository.getUsbId()
-		val password = credentialsRepository.getPassword()
-		val flow = AttestedTokenFlow.ReissueTokens
-		val attestationPayload = IssueTokensAttestationPayload(
-			usbId = usbId,
-			password = password,
-			attestedFlow = flow.headerValue
-		)
-		val attestation = attestationRepository.attest(
-			request = AttestationRequest(
-				operationCode = flow.operationCode,
-				payloadJson = canonicalAttestationPayloadJson(
-					serializer = IssueTokensAttestationPayload.serializer(),
-					value = attestationPayload
-				),
-				authorization = AttestationAuthorization.Bearer(
-					accessToken = oldAccessToken
-				)
-			)
-		)
-
-		authRepository.reissueTokens(
-			usbId = usbId,
-			password = password,
-			attestation = attestation
-		)
-
-		BearerTokens(
-			accessToken = sessionRepository.getAccessToken(),
-			refreshToken = sessionRepository.getRefreshToken()
-		)
-	}.getOrNull()
+private fun SessionSnapshot.toBearerTokens(): BearerTokens {
+	return BearerTokens(
+		accessToken = accessToken,
+		refreshToken = refreshToken
+	)
 }
 
 internal fun String.shouldSendBearerAuth(): Boolean {
@@ -284,21 +147,4 @@ internal fun String.shouldSendBearerAuth(): Boolean {
 			!normalizedPath.startsWith("auth/v2/token/refresh") &&
 			!normalizedPath.startsWith("auth/v2/token/revoke") &&
 			!normalizedPath.startsWith("attestation/v4/")
-}
-
-internal fun Throwable.isSessionInvalidatingRefreshFailure(): Boolean {
-	return isUnauthorized() || isForbidden() || isLocked()
-}
-
-internal suspend fun handleUnauthorizedTokenRefresh(
-	sessionRepository: SessionRepository,
-	syncStatusRepository: SyncStatusRepository,
-	applicationRepository: ApplicationRepository,
-	sessionInvalidationRepository: SessionInvalidationRepository,
-	sessionId: String? = null
-) {
-	runCatching { sessionRepository.clear() }
-	runCatching { syncStatusRepository.reset() }
-	runCatching { applicationRepository.clearData() }
-	runCatching { sessionInvalidationRepository.notifySessionInvalidated(sessionId = sessionId) }
 }

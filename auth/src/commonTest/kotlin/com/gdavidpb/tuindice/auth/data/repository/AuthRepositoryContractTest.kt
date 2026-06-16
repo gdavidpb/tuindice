@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.auth.testing.DEFAULT_AUTH_ATTESTATION
 import com.gdavidpb.tuindice.auth.testing.DEFAULT_BOOTSTRAP_TOKENS
 import com.gdavidpb.tuindice.auth.testing.DEFAULT_REFRESH_TOKENS
 import com.gdavidpb.tuindice.auth.testing.FakeAuthApiDataSource
+import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import kotlinx.coroutines.test.runTest
@@ -102,6 +103,64 @@ class AuthRepositoryContractTest {
 		assertEquals(DEFAULT_REFRESH_TOKENS.sessionId, sessionRepository.getSessionId())
 		assertEquals(DEFAULT_REFRESH_TOKENS.accessToken, sessionRepository.getAccessToken())
 		assertEquals(DEFAULT_REFRESH_TOKENS.refreshToken, sessionRepository.getRefreshToken())
+	}
+
+	@Test
+	fun refreshTokens_doesNotOverwriteSessionChangedDuringRefresh() = runTest {
+		val newSessionSnapshot = SessionSnapshot(
+			sessionId = "session-new",
+			accessToken = "access-new",
+			refreshToken = "refresh-new",
+			usbId = "20261234"
+		)
+		val sessionRepository = FakeSessionRepository(accessToken = "old-access", refreshToken = "old-refresh")
+		val repository = AuthDataSource(
+			authApiDataSource = FakeAuthApiDataSource(
+				refreshTokens = DEFAULT_REFRESH_TOKENS,
+				onRefreshTokens = {
+					sessionRepository.setSessionSnapshot(newSessionSnapshot)
+				}
+			),
+			sessionRepository = sessionRepository,
+			reportingRepository = RecordingReportingRepository()
+		)
+
+		val tokens = repository.refreshTokens(
+			sessionId = "session-123",
+			refreshToken = "old-refresh",
+			attestation = DEFAULT_AUTH_ATTESTATION
+		)
+
+		assertEquals(DEFAULT_REFRESH_TOKENS, tokens)
+		assertEquals(newSessionSnapshot, sessionRepository.getActiveSessionSnapshot())
+	}
+
+	@Test
+	fun reissueTokens_doesNotOverwriteSessionChangedDuringReissue() = runTest {
+		val newSessionSnapshot = SessionSnapshot(
+			sessionId = "session-new",
+			accessToken = "access-new",
+			refreshToken = "refresh-new",
+			usbId = "20261234"
+		)
+		val sessionRepository = FakeSessionRepository(accessToken = "old-access", refreshToken = "old-refresh")
+		val repository = AuthDataSource(
+			authApiDataSource = FakeAuthApiDataSource(
+				onReissueTokens = {
+					sessionRepository.setSessionSnapshot(newSessionSnapshot)
+				}
+			),
+			sessionRepository = sessionRepository,
+			reportingRepository = RecordingReportingRepository()
+		)
+
+		repository.reissueTokens(
+			usbId = "20261234",
+			password = "new-secret",
+			attestation = DEFAULT_AUTH_ATTESTATION
+		)
+
+		assertEquals(newSessionSnapshot, sessionRepository.getActiveSessionSnapshot())
 	}
 
 	@Test

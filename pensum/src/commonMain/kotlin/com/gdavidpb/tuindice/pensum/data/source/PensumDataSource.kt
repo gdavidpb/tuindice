@@ -63,11 +63,8 @@ class PensumDataSource(
 		)
 	}
 
-	override suspend fun refreshPensumIfMissing() {
-		if (!localDataRepository.hasSelectedPensumResponse()) {
-			refreshPensum()
-		}
-	}
+	override suspend fun hasSelectedPensumResponse(): Boolean =
+		localDataRepository.hasSelectedPensumResponse()
 
 	override suspend fun selectPensum(year: Int) {
 		localDataRepository.selectPensum(year = year)

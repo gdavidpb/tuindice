@@ -5,6 +5,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.presentation.contract.Main
@@ -177,6 +178,17 @@ class MainRouteUiTest {
 		override suspend fun hasActiveSession(): Boolean {
 			throw GooglePlayServicesNotAvailableException()
 		}
+
+		override suspend fun getActiveSessionSnapshot(): SessionSnapshot? {
+			throw GooglePlayServicesNotAvailableException()
+		}
+
+		override suspend fun setSessionSnapshot(snapshot: SessionSnapshot) = Unit
+
+		override suspend fun replaceSessionSnapshotIfCurrent(
+			expectedSnapshot: SessionSnapshot,
+			newSnapshot: SessionSnapshot
+		): Boolean = true
 
 		override suspend fun setUsbId(usbId: String) = Unit
 

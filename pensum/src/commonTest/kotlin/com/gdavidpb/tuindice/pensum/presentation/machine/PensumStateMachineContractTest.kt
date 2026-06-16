@@ -230,7 +230,7 @@ class PensumStateMachineContractTest {
 private class StaticPensumRepository : PensumRepository {
 	override fun observePensumFlow(): Flow<PensumObservation> = emptyFlow()
 
-	override suspend fun refreshPensumIfMissing() = Unit
+	override suspend fun hasSelectedPensumResponse(): Boolean = false
 
 	override suspend fun refreshPensum() = Unit
 

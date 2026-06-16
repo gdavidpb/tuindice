@@ -44,7 +44,7 @@ class IosAttestationDataRepositoryTest {
 			tokenValues = ArrayDeque(listOf("issued-token"))
 		)
 		val repository = IosAttestationDataSource(
-			httpClientProvider = { httpClient },
+			httpClient = httpClient,
 			attestationCapability = capability
 		)
 
@@ -88,7 +88,7 @@ class IosAttestationDataRepositoryTest {
 			tokenValues = ArrayDeque(listOf("ignored", "issued-token"))
 		)
 		val repository = IosAttestationDataSource(
-			httpClientProvider = { httpClient },
+			httpClient = httpClient,
 			attestationCapability = capability
 		)
 
@@ -123,7 +123,7 @@ class IosAttestationDataRepositoryTest {
 		)
 		val httpClient = appAttestConflictRecoveryHttpClient()
 		val repository = IosAttestationDataSource(
-			httpClientProvider = { httpClient },
+			httpClient = httpClient,
 			attestationCapability = capability
 		)
 
@@ -158,7 +158,7 @@ class IosAttestationDataRepositoryTest {
 		)
 		val httpClient = appAttestPreparationHttpClient()
 		val repository = IosAttestationDataSource(
-			httpClientProvider = { httpClient },
+			httpClient = httpClient,
 			attestationCapability = capability
 		)
 
@@ -207,7 +207,7 @@ class IosAttestationDataRepositoryTest {
 			tokenValues = ArrayDeque()
 		)
 		val repository = IosAttestationDataSource(
-			httpClientProvider = { httpClient },
+			httpClient = httpClient,
 			attestationCapability = capability
 		)
 
@@ -246,7 +246,7 @@ class IosAttestationDataRepositoryTest {
 			tokenValues = ArrayDeque(listOf("ignored", "ignored-again"))
 		)
 		val repository = IosAttestationDataSource(
-			httpClientProvider = { httpClient },
+			httpClient = httpClient,
 			attestationCapability = capability
 		)
 

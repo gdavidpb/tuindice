@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.auth.di
 
+import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
@@ -24,6 +25,7 @@ import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignOutViewModel
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.UpdatePasswordViewModel
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
+import com.gdavidpb.tuindice.auth.testing.FakeAuthApiDataSource
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
@@ -39,41 +41,34 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
-import io.ktor.client.HttpClient
-import io.ktor.client.engine.mock.MockEngine
-import io.ktor.client.engine.mock.respondOk
 import kotlin.test.Test
 import org.koin.dsl.module
 
 class AuthModuleKoinSmokeTest {
 	@Test
 	fun resolvesAuthViewModels() = withKoinSmokeTest(
-		authModule,
-		module {
-			single<AuthRepository> { RecordingAuthRepository() }
-			single<MessagingRepository> { RecordingMessagingRepository() }
+			authModule,
+			module {
+				single<AuthApiDataRepository> { FakeAuthApiDataSource() }
+				single<AuthRepository> { RecordingAuthRepository() }
+				single<MessagingRepository> { RecordingMessagingRepository() }
 				single<AttestationRepository> { FakeAttestationRepository() }
 				single<SessionRepository> { FakeSessionRepository() }
 				single<SessionInvalidationRepository> { FakeSessionInvalidationRepository() }
 				single<SyncRepository> { FakeSyncRepository() }
-			single<CredentialsRepository> { FakeCredentialsRepository() }
-			single<SyncStatusRepository> { FakeSyncStatusRepository() }
-			single<ApplicationRepository> { RecordingApplicationRepository() }
+				single<CredentialsRepository> { FakeCredentialsRepository() }
+				single<SyncStatusRepository> { FakeSyncStatusRepository() }
+				single<ApplicationRepository> { RecordingApplicationRepository() }
 			single<NetworkRepository> { FakeNetworkRepository(isAvailable = true) }
 			single<ReportingRepository> { RecordingReportingRepository() }
 			single<ConfigRepository> { FakeConfigRepository() }
 			single<AppEnvironmentRepository> { FakeAppEnvironmentRepository() }
-			single<PendingChangesRepository> { FakePendingChangesRepository() }
-			single<UsageDataConsentRepository> { InMemoryUsageDataConsentRepository() }
-			single<EventPublisher> { NoOpEventPublisher }
-			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
-			single {
-				HttpClient(
-					MockEngine { respondOk() }
-				)
+				single<PendingChangesRepository> { FakePendingChangesRepository() }
+				single<UsageDataConsentRepository> { InMemoryUsageDataConsentRepository() }
+				single<EventPublisher> { NoOpEventPublisher }
+				single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 			}
-		}
-	) {
+		) {
 		assertResolves(
 			SignInViewModel::class,
 			SignOutViewModel::class,

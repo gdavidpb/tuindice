@@ -12,11 +12,22 @@ class EnsurePensumLoadedUseCase(
     private val pensumRepository: PensumRepository,
     override val reportingRepository: ReportingRepository,
     override val exceptionHandler: UpdatePensumExceptionHandler
-) : FlowUseCase<Unit, Unit, UpdatePensumUseCaseError>() {
-    override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
+) : FlowUseCase<Unit, EnsurePensumLoadedUseCase.Result, UpdatePensumUseCaseError>() {
+    sealed interface Result {
+        data object Cached : Result
+        data object RefreshStarted : Result
+        data object RefreshSucceeded : Result
+    }
+
+    override suspend fun executeOnBackground(params: Unit): Flow<Result> {
         return flow {
-            pensumRepository.refreshPensumIfMissing()
-            emit(Unit)
+            if (pensumRepository.hasSelectedPensumResponse()) {
+                emit(Result.Cached)
+                return@flow
+            }
+            emit(Result.RefreshStarted)
+            pensumRepository.refreshPensum()
+            emit(Result.RefreshSucceeded)
         }
     }
 }

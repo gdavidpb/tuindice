@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.platform.IosPushCapability
 import com.gdavidpb.tuindice.platform.IosRemoteConfigCapability
 import com.gdavidpb.tuindice.platform.IosReviewCapability
 import com.gdavidpb.tuindice.platform.IosUpdateCapability
+import com.gdavidpb.tuindice.platform.IOSContext
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.platform.iosDefaultConfigValues
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel

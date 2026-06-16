@@ -30,7 +30,7 @@ import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
 class IosAttestationDataSource(
-	private val httpClientProvider: () -> HttpClient,
+	private val httpClient: HttpClient,
 	private val attestationCapability: IosAttestationCapability
 ) : AttestationRepository {
 	private val appAttestMutex = Mutex()
@@ -67,7 +67,6 @@ class IosAttestationDataSource(
 		request: AttestationRequest,
 		requestHash: String
 	): Attestation {
-		val httpClient = httpClientProvider()
 		val keyId = runCatching {
 			attestationCapability.resolveAttestationKeyId()
 		}.getOrElse { throwable ->
