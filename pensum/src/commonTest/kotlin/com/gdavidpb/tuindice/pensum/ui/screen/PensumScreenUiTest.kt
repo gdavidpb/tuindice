@@ -700,7 +700,7 @@ class PensumScreenUiTest {
 			.assertExists()
 		onNodeWithTag(PensumUiTags.CanvasGestureLayer)
 			.performTouchInput {
-				down(0, center)
+				down(0, Offset(8f, 8f))
 				up(0)
 			}
 		waitForIdle()
