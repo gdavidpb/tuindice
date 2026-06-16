@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
+import com.gdavidpb.tuindice.base.data.source.network.AuthErrorHeaders
 import io.ktor.client.plugins.ResponseException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.TimeoutCancellationException
@@ -86,6 +87,19 @@ fun Throwable.isSyncRetryable(): Boolean {
 
 fun Throwable.isAccessRejected(): Boolean {
 	return isUnauthorized() || isForbidden() || isLocked()
+}
+
+fun Throwable.authErrorCode(): String? = when (this) {
+	is ResponseException -> response.headers[AuthErrorHeaders.HEADER]
+	else -> null
+}
+
+fun Throwable.isSessionSuperseded(): Boolean {
+	return authErrorCode() == AuthErrorHeaders.SESSION_SUPERSEDED
+}
+
+fun Throwable.isRefreshTokenMismatch(): Boolean {
+	return authErrorCode() == AuthErrorHeaders.REFRESH_TOKEN_MISMATCH
 }
 
 fun Throwable.isForbidden() = when (this) {

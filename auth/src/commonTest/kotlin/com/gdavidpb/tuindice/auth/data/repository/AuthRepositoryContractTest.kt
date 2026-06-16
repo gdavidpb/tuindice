@@ -62,6 +62,33 @@ class AuthRepositoryContractTest {
 	}
 
 	@Test
+	fun exchangeSignIn_doesNotOverwriteSessionChangedDuringExchange() = runTest {
+		val newSessionSnapshot = SessionSnapshot(
+			sessionId = "session-new",
+			accessToken = "access-new",
+			refreshToken = "refresh-new",
+			usbId = "20261234"
+		)
+		val sessionRepository = FakeSessionRepository(accessToken = "old-access", refreshToken = "old-refresh")
+		val repository = AuthDataSource(
+			authApiDataSource = FakeAuthApiDataSource(
+				onExchangeTokens = {
+					sessionRepository.setSessionSnapshot(newSessionSnapshot)
+				}
+			),
+			sessionRepository = sessionRepository,
+			reportingRepository = RecordingReportingRepository()
+		)
+
+		repository.exchangeSignIn(
+			bootstrapAccessToken = "bootstrap-access-token",
+			attestation = DEFAULT_AUTH_ATTESTATION
+		)
+
+		assertEquals(newSessionSnapshot, sessionRepository.getActiveSessionSnapshot())
+	}
+
+	@Test
 	fun reissueTokens_refreshesSessionTokens() = runTest {
 		val sessionRepository = FakeSessionRepository(accessToken = "old-access", refreshToken = "old-refresh")
 		val authDataSource = FakeAuthApiDataSource()

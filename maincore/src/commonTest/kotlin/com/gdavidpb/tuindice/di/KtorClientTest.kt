@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.di
 import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.data.source.network.AuthErrorHeaders
 import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
@@ -62,6 +63,8 @@ class KtorClientTest {
 	fun shouldSendBearerAuth_excludesAuthAndAttestationEndpoints_withOrWithoutLeadingSlash() {
 		assertFalse("/auth/v1/token".shouldSendBearerAuth())
 		assertFalse("auth/v1/token".shouldSendBearerAuth())
+		assertFalse("/auth/v2/bootstrap".shouldSendBearerAuth())
+		assertFalse("/auth/v2/token/exchange".shouldSendBearerAuth())
 		assertFalse("/auth/v2/token/refresh".shouldSendBearerAuth())
 		assertFalse("auth/v2/token/revoke".shouldSendBearerAuth())
 		assertFalse("/attestation/v4/sessions".shouldSendBearerAuth())
@@ -69,7 +72,7 @@ class KtorClientTest {
 	}
 
 	@Test
-	fun recover_reissuesTokensAfterUnauthorizedRefresh_withStoredCredentialsAndBearerAttestation() = runTest {
+	fun recover_bootstrapExchangesAfterSupersededRefresh_withStoredCredentials() = runTest {
 		val sessionRepository = FakeSessionRepository(
 			sessionId = "session-old",
 			usbId = "12-34567",
@@ -78,7 +81,7 @@ class KtorClientTest {
 		)
 		val credentialsRepository = FakeCredentialsRepository(password = "secret")
 		val attestationRepository = RecordingAttestationRepository()
-		val authRepository = UnauthorizedRefreshThenReissuePersistingAuthRepository(
+		val authRepository = SupersededRefreshThenExchangePersistingAuthRepository(
 			sessionRepository = sessionRepository
 		)
 		val dataSource = sessionRecoveryDataSource(
@@ -94,20 +97,20 @@ class KtorClientTest {
 			attemptedCachedRefreshToken = "refresh-old"
 		)
 
-		val reissueCall = authRepository.reissueCalls.single()
+		val bootstrapCall = authRepository.bootstrapCalls.single()
+		val exchangeCall = authRepository.exchangeCalls.single()
 		val attestationRequest = attestationRepository.requests.last()
 		val authorization = attestationRequest.authorization
 
-		assertEquals("12-34567", reissueCall.usbId)
-		assertEquals("secret", reissueCall.password)
-		assertEquals("access-reissued", snapshot?.accessToken)
-		assertEquals("refresh-reissued", snapshot?.refreshToken)
-		assertEquals(ProtectedOperationCodes.AuthReissueTokens, attestationRequest.operationCode)
-		assertTrue(attestationRequest.payloadJson.contains("\"usb_id\":\"12-34567\""))
-		assertTrue(attestationRequest.payloadJson.contains("\"password\":\"secret\""))
-		assertTrue(attestationRequest.payloadJson.contains("\"attested_flow\":\"reissue_tokens\""))
+		assertEquals("12-34567", bootstrapCall.usbId)
+		assertEquals("secret", bootstrapCall.password)
+		assertEquals("bootstrap-access", exchangeCall.bootstrapAccessToken)
+		assertEquals("access-exchanged", snapshot?.accessToken)
+		assertEquals("refresh-exchanged", snapshot?.refreshToken)
+		assertEquals(ProtectedOperationCodes.AuthExchange, attestationRequest.operationCode)
+		assertEquals("{}", attestationRequest.payloadJson)
 		assertTrue(authorization is AttestationAuthorization.Bearer)
-		assertEquals("access-old", authorization.accessToken)
+		assertEquals("bootstrap-access", authorization.accessToken)
 	}
 
 	@Test
@@ -115,7 +118,7 @@ class KtorClientTest {
 		val sessionRepository = FakeSessionRepository()
 		val credentialsRepository = FakeCredentialsRepository()
 		val attestationRepository = RecordingAttestationRepository()
-		val authRepository = UnauthorizedRefreshThenReissuePersistingAuthRepository(
+		val authRepository = SupersededRefreshThenExchangePersistingAuthRepository(
 			sessionRepository = sessionRepository
 		)
 		val dataSource = sessionRecoveryDataSource(
@@ -132,8 +135,38 @@ class KtorClientTest {
 		)
 
 		assertNull(snapshot)
-		assertTrue(authRepository.reissueCalls.isEmpty())
+		assertTrue(authRepository.bootstrapCalls.isEmpty())
+		assertTrue(authRepository.exchangeCalls.isEmpty())
 		assertEquals(1, attestationRepository.requests.size)
+		assertTrue(sessionRepository.cleared)
+	}
+
+	@Test
+	fun recover_invalidatesSessionWithoutBootstrap_whenRefreshTokenMismatches() = runTest {
+		val sessionRepository = FakeSessionRepository(
+			sessionId = "session-old",
+			usbId = "12-34567",
+			accessToken = "access-old",
+			refreshToken = "refresh-old"
+		)
+		val credentialsRepository = FakeCredentialsRepository(password = "secret")
+		val authRepository = RefreshTokenMismatchAuthRepository()
+		val dataSource = sessionRecoveryDataSource(
+			sessionRepository = sessionRepository,
+			attestationRepository = RecordingAttestationRepository(),
+			authRepository = authRepository,
+			credentialsRepository = credentialsRepository
+		)
+
+		val snapshot = dataSource.recoverUnauthorizedSession(
+			attemptedAuthorizationAccessToken = "access-old",
+			attemptedCachedAccessToken = "access-old",
+			attemptedCachedRefreshToken = "refresh-old"
+		)
+
+		assertNull(snapshot)
+		assertEquals(0, authRepository.bootstrapCalls)
+		assertEquals(0, authRepository.exchangeCalls)
 		assertTrue(sessionRepository.cleared)
 	}
 
@@ -492,9 +525,13 @@ private data class TestResponse(
 	val revision: Long
 )
 
-private data class ReissueTokensCall(
+private data class BootstrapSignInCall(
 	val usbId: String,
-	val password: String,
+	val password: String
+)
+
+private data class ExchangeSignInCall(
+	val bootstrapAccessToken: String,
 	val attestation: Attestation
 )
 
@@ -665,47 +702,106 @@ private class FailingRefreshAfterSessionChangeAuthRepository(
 	) = error("unused")
 }
 
-private class UnauthorizedRefreshThenReissuePersistingAuthRepository(
+private class SupersededRefreshThenExchangePersistingAuthRepository(
 	private val sessionRepository: SessionRepository
 ) : AuthRepository {
-	val reissueCalls = mutableListOf<ReissueTokensCall>()
+	val bootstrapCalls = mutableListOf<BootstrapSignInCall>()
+	val exchangeCalls = mutableListOf<ExchangeSignInCall>()
 
 	override suspend fun bootstrapSignIn(
 		usbId: String,
 		password: String
-	): BootstrapTokens = error("unused")
+	): BootstrapTokens {
+		bootstrapCalls += BootstrapSignInCall(
+			usbId = usbId,
+			password = password
+		)
+
+		return BootstrapTokens(
+			uid = "uid-1",
+			usbId = usbId,
+			accessToken = "bootstrap-access",
+			expiresIn = 300
+		)
+	}
 
 	override suspend fun exchangeSignIn(
 		bootstrapAccessToken: String,
 		attestation: Attestation
-	) = error("unused")
+	) {
+		exchangeCalls += ExchangeSignInCall(
+			bootstrapAccessToken = bootstrapAccessToken,
+			attestation = attestation
+		)
+		sessionRepository.setSessionSnapshot(
+			SessionSnapshot(
+				sessionId = "session-exchanged",
+				accessToken = "access-exchanged",
+				refreshToken = "refresh-exchanged",
+				usbId = "12-34567"
+			)
+		)
+	}
 
 	override suspend fun reissueTokens(
 		usbId: String,
 		password: String,
 		attestation: Attestation
-	) {
-		reissueCalls += ReissueTokensCall(
-			usbId = usbId,
-			password = password,
-			attestation = attestation
-		)
-		sessionRepository.setSessionSnapshot(
-			SessionSnapshot(
-				sessionId = "session-reissued",
-				accessToken = "access-reissued",
-				refreshToken = "refresh-reissued",
-				usbId = usbId
-			)
-		)
-	}
+	) = error("unused")
 
 	override suspend fun refreshTokens(
 		sessionId: String,
 		refreshToken: String,
 		attestation: Attestation
 	): RefreshTokens {
-		throw clientRequestException(HttpStatusCode.Unauthorized)
+		throw clientRequestException(
+			statusCode = HttpStatusCode.Unauthorized,
+			headers = mapOf(AuthErrorHeaders.HEADER to AuthErrorHeaders.SESSION_SUPERSEDED)
+		)
+	}
+
+	override suspend fun revokeTokens(
+		sessionId: String,
+		refreshToken: String,
+		attestation: Attestation
+	) = error("unused")
+}
+
+private class RefreshTokenMismatchAuthRepository : AuthRepository {
+	var bootstrapCalls = 0
+	var exchangeCalls = 0
+
+	override suspend fun bootstrapSignIn(
+		usbId: String,
+		password: String
+	): BootstrapTokens {
+		bootstrapCalls++
+		error("bootstrapSignIn should not be called for refresh token mismatch")
+	}
+
+	override suspend fun exchangeSignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation
+	) {
+		exchangeCalls++
+		error("exchangeSignIn should not be called for refresh token mismatch")
+	}
+
+	override suspend fun reissueTokens(
+		usbId: String,
+		password: String,
+		attestation: Attestation
+	) = error("unused")
+
+	override suspend fun refreshTokens(
+		sessionId: String,
+		refreshToken: String,
+		attestation: Attestation
+	): RefreshTokens {
+		throw clientRequestException(
+			statusCode = HttpStatusCode.Unauthorized,
+			headers = mapOf(AuthErrorHeaders.HEADER to AuthErrorHeaders.REFRESH_TOKEN_MISMATCH)
+		)
 	}
 
 	override suspend fun revokeTokens(
