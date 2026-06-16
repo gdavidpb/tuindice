@@ -15,10 +15,8 @@ import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepositor
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.utils.canonicalAttestationPayloadJson
-import com.gdavidpb.tuindice.base.utils.extension.authErrorCode
 import com.gdavidpb.tuindice.base.utils.extension.isAccessRejected
 import com.gdavidpb.tuindice.base.utils.extension.isSessionSuperseded
-import com.gdavidpb.tuindice.base.utils.extension.isUnauthorized
 import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -244,7 +242,7 @@ class SessionRecoveryDataSource(
 	}
 
 	private fun Throwable.shouldAttemptCredentialRecovery(): Boolean {
-		return isSessionSuperseded() || (isUnauthorized() && authErrorCode() == null)
+		return isSessionSuperseded()
 	}
 }
 

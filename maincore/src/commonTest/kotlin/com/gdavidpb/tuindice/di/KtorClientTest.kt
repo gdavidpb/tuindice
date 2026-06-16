@@ -68,6 +68,7 @@ class KtorClientTest {
 		assertFalse("/auth/v2/token/refresh".shouldSendBearerAuth())
 		assertFalse("auth/v2/token/revoke".shouldSendBearerAuth())
 		assertFalse("/attestation/v4/sessions".shouldSendBearerAuth())
+		assertFalse("/attestation/v5/sessions".shouldSendBearerAuth())
 		assertTrue("/record/v5".shouldSendBearerAuth())
 	}
 
@@ -114,7 +115,7 @@ class KtorClientTest {
 	}
 
 	@Test
-	fun recover_invalidatesSessionWhenPasswordIsUnavailableAfterUnauthorizedRefresh() = runTest {
+	fun recover_invalidatesSessionWhenPasswordIsUnavailableAfterSupersededRefresh() = runTest {
 		val sessionRepository = FakeSessionRepository()
 		val credentialsRepository = FakeCredentialsRepository()
 		val attestationRepository = RecordingAttestationRepository()
@@ -138,6 +139,35 @@ class KtorClientTest {
 		assertTrue(authRepository.bootstrapCalls.isEmpty())
 		assertTrue(authRepository.exchangeCalls.isEmpty())
 		assertEquals(1, attestationRepository.requests.size)
+		assertTrue(sessionRepository.cleared)
+	}
+
+	@Test
+	fun recover_invalidatesSessionWithoutBootstrap_whenUnauthorizedRefreshHasNoAuthErrorHeader() = runTest {
+		val sessionRepository = FakeSessionRepository(
+			sessionId = "session-old",
+			usbId = "12-34567",
+			accessToken = "access-old",
+			refreshToken = "refresh-old"
+		)
+		val credentialsRepository = FakeCredentialsRepository(password = "secret")
+		val authRepository = UnauthorizedRefreshAuthRepository()
+		val dataSource = sessionRecoveryDataSource(
+			sessionRepository = sessionRepository,
+			attestationRepository = RecordingAttestationRepository(),
+			authRepository = authRepository,
+			credentialsRepository = credentialsRepository
+		)
+
+		val snapshot = dataSource.recoverUnauthorizedSession(
+			attemptedAuthorizationAccessToken = "access-old",
+			attemptedCachedAccessToken = "access-old",
+			attemptedCachedRefreshToken = "refresh-old"
+		)
+
+		assertNull(snapshot)
+		assertEquals(0, authRepository.bootstrapCalls)
+		assertEquals(0, authRepository.exchangeCalls)
 		assertTrue(sessionRepository.cleared)
 	}
 
@@ -758,6 +788,47 @@ private class SupersededRefreshThenExchangePersistingAuthRepository(
 			statusCode = HttpStatusCode.Unauthorized,
 			headers = mapOf(AuthErrorHeaders.HEADER to AuthErrorHeaders.SESSION_SUPERSEDED)
 		)
+	}
+
+	override suspend fun revokeTokens(
+		sessionId: String,
+		refreshToken: String,
+		attestation: Attestation
+	) = error("unused")
+}
+
+private class UnauthorizedRefreshAuthRepository : AuthRepository {
+	var bootstrapCalls = 0
+	var exchangeCalls = 0
+
+	override suspend fun bootstrapSignIn(
+		usbId: String,
+		password: String
+	): BootstrapTokens {
+		bootstrapCalls++
+		error("bootstrapSignIn should not be called for unclassified unauthorized refresh")
+	}
+
+	override suspend fun exchangeSignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation
+	) {
+		exchangeCalls++
+		error("exchangeSignIn should not be called for unclassified unauthorized refresh")
+	}
+
+	override suspend fun reissueTokens(
+		usbId: String,
+		password: String,
+		attestation: Attestation
+	) = error("unused")
+
+	override suspend fun refreshTokens(
+		sessionId: String,
+		refreshToken: String,
+		attestation: Attestation
+	): RefreshTokens {
+		throw clientRequestException(HttpStatusCode.Unauthorized)
 	}
 
 	override suspend fun revokeTokens(
