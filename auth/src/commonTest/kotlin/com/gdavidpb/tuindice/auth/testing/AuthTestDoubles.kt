@@ -185,10 +185,10 @@ class FakeAuthApiDataSource(
 		exchangeCalls += ExchangeSignInCall(
 			bootstrapAccessToken = bootstrapAccessToken,
 			attestation = attestation
-			)
-			throwable?.let { throw it }
-			onExchangeTokens()
-			return issueTokens
+		)
+		throwable?.let { throw it }
+		onExchangeTokens()
+		return issueTokens
 	}
 
 	override suspend fun reissueTokens(
