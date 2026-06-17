@@ -154,6 +154,7 @@ class FakeAuthApiDataSource(
 	private val issueTokens: IssueTokens = DEFAULT_ISSUE_TOKENS,
 	private val refreshTokens: RefreshTokens = DEFAULT_REFRESH_TOKENS,
 	private val throwable: Throwable? = null,
+	private val onExchangeTokens: suspend () -> Unit = {},
 	private val onReissueTokens: suspend () -> Unit = {},
 	private val onRefreshTokens: suspend () -> Unit = {}
 ) : AuthApiDataRepository {
@@ -186,6 +187,7 @@ class FakeAuthApiDataSource(
 			attestation = attestation
 		)
 		throwable?.let { throw it }
+		onExchangeTokens()
 		return issueTokens
 	}
 

@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.data.source.session
 
-import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
-import com.gdavidpb.tuindice.auth.domain.model.IssueTokensAttestationPayload
+import com.gdavidpb.tuindice.auth.domain.model.ExchangeTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
@@ -17,7 +16,7 @@ import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.utils.canonicalAttestationPayloadJson
 import com.gdavidpb.tuindice.base.utils.extension.isAccessRejected
-import com.gdavidpb.tuindice.base.utils.extension.isUnauthorized
+import com.gdavidpb.tuindice.base.utils.extension.isSessionSuperseded
 import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -141,8 +140,8 @@ class SessionRecoveryDataSource(
 			return snapshot
 		}
 
-		if (throwable.isUnauthorized()) {
-			tryReissueAttemptedSession(
+		if (throwable.shouldAttemptCredentialRecovery()) {
+			tryBootstrapExchangeAttemptedSession(
 				attemptedSnapshot = attemptedSnapshot,
 				credentialsRepository = credentialsRepository,
 				attestationRepository = attestationRepository,
@@ -159,7 +158,7 @@ class SessionRecoveryDataSource(
 		return invalidateAttemptedSession(attemptedSnapshot)
 	}
 
-	private suspend fun tryReissueAttemptedSession(
+	private suspend fun tryBootstrapExchangeAttemptedSession(
 		attemptedSnapshot: SessionSnapshot,
 		credentialsRepository: CredentialsRepository,
 		attestationRepository: AttestationRepository,
@@ -173,34 +172,40 @@ class SessionRecoveryDataSource(
 			}
 
 			val password = credentialsRepository.getPassword()
-			val flow = AttestedTokenFlow.ReissueTokens
-			val attestationPayload = IssueTokensAttestationPayload(
+			val bootstrapTokens = authRepository.bootstrapSignIn(
 				usbId = attemptedSnapshot.usbId,
-				password = password,
-				attestedFlow = flow.headerValue
+				password = password
 			)
+
+			sessionRepository.getSessionChangedSnapshot(attemptedSnapshot)?.let { snapshot ->
+				return@runCatching snapshot
+			}
+
 			val attestation = attestationRepository.attest(
 				request = AttestationRequest(
-					operationCode = flow.operationCode,
+					operationCode = ProtectedOperationCodes.AuthExchange,
 					payloadJson = canonicalAttestationPayloadJson(
-						serializer = IssueTokensAttestationPayload.serializer(),
-						value = attestationPayload
+						serializer = ExchangeTokensAttestationPayload.serializer(),
+						value = ExchangeTokensAttestationPayload
 					),
 					authorization = AttestationAuthorization.Bearer(
-						accessToken = attemptedSnapshot.accessToken
+						accessToken = bootstrapTokens.accessToken
 					)
 				)
 			)
 
-			authRepository.reissueTokens(
-				usbId = attemptedSnapshot.usbId,
-				password = password,
+			sessionRepository.getSessionChangedSnapshot(attemptedSnapshot)?.let { snapshot ->
+				return@runCatching snapshot
+			}
+
+			authRepository.exchangeSignIn(
+				bootstrapAccessToken = bootstrapTokens.accessToken,
 				attestation = attestation
 			)
 
 			sessionRepository.getSessionChangedSnapshot(attemptedSnapshot)
-		}.getOrElse { reissueFailure ->
-			if (reissueFailure.isAccessRejected()) null else throw reissueFailure
+		}.getOrElse { recoveryFailure ->
+			if (recoveryFailure.isAccessRejected()) null else throw recoveryFailure
 		}
 	}
 
@@ -234,6 +239,10 @@ class SessionRecoveryDataSource(
 
 		invalidateSession(sessionId = attemptedSnapshot.sessionId)
 		return null
+	}
+
+	private fun Throwable.shouldAttemptCredentialRecovery(): Boolean {
+		return isSessionSuperseded()
 	}
 }
 

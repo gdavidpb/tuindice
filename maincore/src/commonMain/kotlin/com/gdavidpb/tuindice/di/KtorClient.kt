@@ -143,8 +143,6 @@ private fun SessionSnapshot.toBearerTokens(): BearerTokens {
 
 internal fun String.shouldSendBearerAuth(): Boolean {
 	val normalizedPath = trimStart('/')
-	return !normalizedPath.startsWith("auth/v1/token") &&
-			!normalizedPath.startsWith("auth/v2/token/refresh") &&
-			!normalizedPath.startsWith("auth/v2/token/revoke") &&
-			!normalizedPath.startsWith("attestation/v4/")
+	return !normalizedPath.startsWith("auth/") &&
+			!normalizedPath.startsWith("attestation/")
 }

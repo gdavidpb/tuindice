@@ -30,12 +30,20 @@ class AuthDataSource(
 		bootstrapAccessToken: String,
 		attestation: Attestation
 	) {
+		val expectedSnapshot = sessionRepository.getActiveSessionSnapshot()
 		val tokens = authApiDataSource.exchangeSignIn(
 			bootstrapAccessToken = bootstrapAccessToken,
 			attestation = attestation
 		)
 
-		persistIssuedTokens(tokens)
+		if (expectedSnapshot != null) {
+			persistIssuedTokensIfCurrent(
+				tokens = tokens,
+				expectedSnapshot = expectedSnapshot
+			)
+		} else {
+			persistIssuedTokens(tokens)
+		}
 	}
 
 	override suspend fun reissueTokens(

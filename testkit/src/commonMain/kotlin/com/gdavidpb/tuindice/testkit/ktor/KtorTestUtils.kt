@@ -21,9 +21,14 @@ import kotlin.coroutines.EmptyCoroutineContext
 @OptIn(InternalAPI::class)
 fun clientRequestException(
 	statusCode: HttpStatusCode,
-	path: String = "/test"
+	path: String = "/test",
+	headers: Map<String, String> = emptyMap()
 ): ClientRequestException {
-	val response = httpResponse(statusCode = statusCode, path = path)
+	val response = httpResponse(
+		statusCode = statusCode,
+		path = path,
+		headers = headers
+	)
 
 	return ClientRequestException(response, statusCode.description)
 }
@@ -40,7 +45,8 @@ fun serverResponseException(
 @OptIn(InternalAPI::class)
 private fun httpResponse(
 	statusCode: HttpStatusCode,
-	path: String
+	path: String,
+	headers: Map<String, String> = emptyMap()
 ): HttpResponse {
 	val client = HttpClient(MockEngine { respondOk() })
 	val requestData = HttpRequestBuilder().apply {
@@ -49,7 +55,11 @@ private fun httpResponse(
 	val responseData = HttpResponseData(
 		statusCode = statusCode,
 		requestTime = GMTDate(),
-		headers = Headers.Empty,
+		headers = Headers.build {
+			headers.forEach { (name, value) ->
+				append(name, value)
+			}
+		},
 		version = HttpProtocolVersion.HTTP_1_1,
 		body = ByteReadChannel.Empty,
 		callContext = EmptyCoroutineContext
