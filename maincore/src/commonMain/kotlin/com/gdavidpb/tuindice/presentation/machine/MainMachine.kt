@@ -110,6 +110,9 @@ class MainMachine(
 			is StartUpResult.AppUnavailable -> MainInternalEvent.AppUnavailableResolved(
 				notice = notice
 			)
+			is StartUpResult.OutdatedApp -> MainInternalEvent.OutdatedAppResolved(
+				outdatedAppState = state
+			)
 		}
 	}
 }

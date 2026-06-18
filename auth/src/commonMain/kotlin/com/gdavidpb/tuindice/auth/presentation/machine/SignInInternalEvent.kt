@@ -10,6 +10,8 @@ import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 sealed interface SignInInternalEvent {
 	data object SignInSucceeded : SignInInternalEvent
 
+	data object OutdatedAppResolved : SignInInternalEvent
+
 	data class SignInFailed(
 		val error: SignInUseCaseError?
 	) : SignInInternalEvent

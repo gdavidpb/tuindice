@@ -33,6 +33,9 @@ class MainViewModel(
 	fun checkUpdateAction() =
 		sendAction(Main.Action.RequestUpdateCheck)
 
+	fun updateAppAction() =
+		sendAction(Main.Action.ClickUpdateApp)
+
 	fun requestSyncAction() =
 		sendAction(Main.Action.RequestSync)
 

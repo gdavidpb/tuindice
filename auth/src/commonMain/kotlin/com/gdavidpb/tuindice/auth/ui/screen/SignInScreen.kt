@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import com.gdavidpb.tuindice.auth.ui.view.AnimatedPatternBackground
 import com.gdavidpb.tuindice.auth.ui.view.SignInIdleView
 import com.gdavidpb.tuindice.auth.ui.view.SignInLoggingInView
+import com.gdavidpb.tuindice.base.ui.view.OutdatedAppScreen
 import org.jetbrains.compose.resources.stringResource
 import tuindice.auth.generated.resources.Res
 import tuindice.auth.generated.resources.background
@@ -40,6 +41,7 @@ fun SignInScreen(
 	onIdentifierModeToggle: () -> Unit,
 	onUsageDataCollectionEnabledChange: (enabled: Boolean) -> Unit = {},
 	onSignInClick: () -> Unit,
+	onUpdateAppClick: () -> Unit = {},
 	onTermsAndConditionsClick: () -> Unit,
 	onPrivacyPolicyClick: () -> Unit
 ) {
@@ -91,6 +93,11 @@ fun SignInScreen(
 				is SignIn.State.LoggingIn ->
 					SignInLoggingInView(
 						state = targetState
+					)
+
+				is SignIn.State.OutdatedApp ->
+					OutdatedAppScreen(
+						onUpdateClick = onUpdateAppClick
 					)
 			}
 		}

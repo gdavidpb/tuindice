@@ -6,6 +6,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -54,6 +55,31 @@ class SignInScreenUiTest {
 
 		assertNodeVisible(AuthUiTags.AnimatedPatternBackground)
 		assertNodeVisible(AuthUiTags.SignInLoggingInContainer)
+	}
+
+	@Test
+	fun when_stateIsOutdatedApp_then_displaysUpdateScreen() = runTuIndiceUiTest {
+		var updateClicks = 0
+
+		setTuIndiceTestContent {
+			SignInScreen(
+				state = SignIn.State.OutdatedApp,
+				onUsbIdChange = {},
+				onPasswordChange = {},
+				onPasswordVisibilityToggle = {},
+				onIdentifierModeToggle = {},
+				onSignInClick = {},
+				onUpdateAppClick = { updateClicks++ },
+				onTermsAndConditionsClick = {},
+				onPrivacyPolicyClick = {}
+			)
+		}
+
+		assertNodeVisible(BaseUiTags.OutdatedAppScreen)
+		assertNodeVisible(BaseUiTags.ErrorStateAnimation)
+		onNodeWithTag(BaseUiTags.OutdatedAppUpdateButton).performClick()
+
+		assertEquals(1, updateClicks)
 	}
 
 	@Test

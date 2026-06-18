@@ -13,6 +13,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.gdavidpb.tuindice.about.presentation.navigation.AboutDestination
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
+import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
@@ -52,6 +53,7 @@ class TuIndiceScreenUiTest {
 				state = Main.State.Starting,
 				shellState = shellState(),
 				onRetryStartUp = {},
+				onUpdateAppClick = {},
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
 				onAction = {},
@@ -81,6 +83,7 @@ class TuIndiceScreenUiTest {
 				state = Main.State.Failed,
 				shellState = shellState(),
 				onRetryStartUp = { retryCalls++ },
+				onUpdateAppClick = {},
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
 				onAction = {},
@@ -122,6 +125,7 @@ class TuIndiceScreenUiTest {
 					isBottomBarVisible = true
 				),
 				onRetryStartUp = {},
+				onUpdateAppClick = {},
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
 				onAction = {},
@@ -148,6 +152,49 @@ class TuIndiceScreenUiTest {
 	}
 
 	@Test
+	fun when_stateIsOutdatedApp_then_displaysBlockingUpdateScreen() = runTuIndiceUiTest {
+		var updateClicks = 0
+
+		setTuIndiceTestContent {
+			val navController = rememberNavController()
+
+			TuIndiceScreen(
+				state = Main.State.OutdatedApp(
+					outdatedAppState = OutdatedAppState(minimumVersionCode = 52)
+				),
+				shellState = shellState(
+					topBarTitle = "Resumen",
+					topBarConfig = TopBarConfig.Summary,
+					isTopBarVisible = true,
+					isBottomBarVisible = true
+				),
+				onRetryStartUp = {},
+				onUpdateAppClick = { updateClicks++ },
+				navController = navController,
+				snackbarHostState = remember { SnackbarHostState() },
+				onAction = {},
+				onRecordViewModeChange = null,
+				onRecordViewModeChangeAvailable = {},
+				onNavigateTo = {},
+				onNavigateBack = {},
+				onConfirmExitClick = {},
+				isCameraAvailable = false,
+				onNavigateToExternalResource = {},
+				onViewStateChanged = {},
+				showSnackBar = {}
+			)
+		}
+
+		assertNodeVisible(BaseUiTags.OutdatedAppScreen)
+		assertNodeVisible(BaseUiTags.ErrorStateAnimation)
+		assertNodeHidden(MaincoreUiTags.TuIndiceNavHost)
+		assertNodeHidden(MaincoreUiTags.TuIndiceBottomBar)
+		assertNodeHidden(BaseUiTags.TopAppBarActionsContainer)
+		onNodeWithTag(BaseUiTags.OutdatedAppUpdateButton).performClick()
+		assertEquals(1, updateClicks)
+	}
+
+	@Test
 	fun when_stateIsContentWithBottomBarVisible_then_displaysBottomBar() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			val navController = rememberNavController()
@@ -158,6 +205,7 @@ class TuIndiceScreenUiTest {
 				),
 				shellState = shellState(isBottomBarVisible = true),
 				onRetryStartUp = {},
+				onUpdateAppClick = {},
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
 				onAction = {},
@@ -191,6 +239,7 @@ class TuIndiceScreenUiTest {
 					isTopBarVisible = true
 				),
 				onRetryStartUp = {},
+				onUpdateAppClick = {},
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
 				onAction = {},
@@ -229,6 +278,7 @@ class TuIndiceScreenUiTest {
 					)
 				),
 				onRetryStartUp = {},
+				onUpdateAppClick = {},
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
 				onAction = {},
@@ -263,6 +313,7 @@ class TuIndiceScreenUiTest {
 					topBarConfig = TopBarConfig.Summary
 				),
 				onRetryStartUp = {},
+				onUpdateAppClick = {},
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
 				onAction = {},
@@ -296,6 +347,7 @@ class TuIndiceScreenUiTest {
 					isBottomBarVisible = true
 				),
 				onRetryStartUp = {},
+				onUpdateAppClick = {},
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
 				onAction = {},
@@ -340,6 +392,7 @@ class TuIndiceScreenUiTest {
 						isTopBarVisible = true
 					),
 					onRetryStartUp = {},
+				onUpdateAppClick = {},
 					navController = navController,
 					snackbarHostState = remember { SnackbarHostState() },
 					onAction = { action -> actions += action },
@@ -396,6 +449,7 @@ class TuIndiceScreenUiTest {
 						)
 					),
 					onRetryStartUp = {},
+				onUpdateAppClick = {},
 					navController = navController,
 					snackbarHostState = remember { SnackbarHostState() },
 					onAction = { action -> actions += action },
@@ -446,6 +500,7 @@ class TuIndiceScreenUiTest {
 					),
 					shellState = shellState(isBottomBarVisible = true),
 					onRetryStartUp = {},
+				onUpdateAppClick = {},
 					navController = navController,
 					snackbarHostState = remember { SnackbarHostState() },
 					onAction = {},
@@ -502,6 +557,7 @@ class TuIndiceScreenUiTest {
 						isTopBarVisible = true
 					),
 					onRetryStartUp = {},
+				onUpdateAppClick = {},
 					navController = navController,
 					snackbarHostState = remember { SnackbarHostState() },
 					onAction = {},
@@ -557,6 +613,7 @@ class TuIndiceScreenUiTest {
 						isTopBarVisible = true
 					),
 					onRetryStartUp = {},
+				onUpdateAppClick = {},
 					navController = navController,
 					snackbarHostState = remember { SnackbarHostState() },
 					onAction = {},

@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.presentation.contract.Browser
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.testing.FakeCoreCacheStateRepository
+import com.gdavidpb.tuindice.testing.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testing.createBrowserViewModel
 import com.gdavidpb.tuindice.testing.createMainViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
@@ -50,6 +51,7 @@ class MainStateMachineContractTest {
 				sessionRepository = sessionRepository,
 				settingsRepository = settingsRepository,
 				configRepository = configRepository,
+				deviceInfoRepository = FakeDeviceInfoRepository(),
 				applicationRepository = applicationRepository,
 				reportingRepository = reportingRepository,
 				exceptionHandler = StartUpExceptionHandler()

@@ -103,6 +103,7 @@ flows:
     covers:
       - login
       - login-usb-email
+      - outdated-app
       - update-password
       - sign-out
       - session-invalidated
@@ -396,6 +397,25 @@ flows:
       - auth_sign_in_button
       - base_snackbar_action_button
       - base_snackbar_message
+  - id: auth-login-outdated-app
+    path: e2e/maestro/flows/auth/login-outdated-app.yaml
+    module: auth
+    type: startup-state
+    platforms: [android, ios]
+    status: active
+    variant: upgrade-required-persisted-startup
+    fixture_state: auth-upgrade-required
+    actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
+      - maincore.Main.StartUp
+    primary_selectors:
+      - base_outdated_app_screen
+      - base_outdated_app_title
+      - base_outdated_app_message
+      - base_outdated_app_update_button
+      - base_error_state_animation
   - id: auth-update-password
     path: e2e/maestro/flows/auth/update-password.yaml
     module: auth

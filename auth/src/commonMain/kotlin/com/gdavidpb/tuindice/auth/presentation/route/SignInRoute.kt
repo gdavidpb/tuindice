@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
@@ -16,6 +17,7 @@ fun SignInRoute(
 	onNavigateToBrowser: (title: String, url: String) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	dismissSnackBar: () -> Unit = {},
+	onRequestUpdateFlow: suspend (UpdateAction) -> Unit = {},
 	viewModel: SignInViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle(
@@ -57,6 +59,9 @@ fun SignInRoute(
 						}
 					)
 				)
+
+			is SignIn.Effect.TriggerUpdateFlow ->
+				onRequestUpdateFlow(effect.action)
 		}
 	}
 
@@ -68,6 +73,7 @@ fun SignInRoute(
 		onIdentifierModeToggle = viewModel::toggleIdentifierModeAction,
 		onUsageDataCollectionEnabledChange = viewModel::setUsageDataCollectionEnabledAction,
 		onSignInClick = onSignInClick,
+		onUpdateAppClick = viewModel::updateAppAction,
 		onTermsAndConditionsClick = viewModel::openTermsAndConditionsAction,
 		onPrivacyPolicyClick = viewModel::openPrivacyPolicyAction
 	)

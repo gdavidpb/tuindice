@@ -1,0 +1,48 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- tapOn:
+    id: auth_usb_id_text_field
+- inputText: "4444444"
+- inputText: "4"
+- tapOn:
+    id: auth_password_text_field
+- inputText: "upgrade-pass"
+- tapOn:
+    id: auth_keyboard_dismiss_area
+- tapOn:
+    id: auth_sign_in_button
+- extendedWaitUntil:
+    visible:
+      id: base_outdated_app_screen
+    timeout: 20000
+- assertVisible:
+    id: base_outdated_app_title
+- assertVisible:
+    id: base_outdated_app_message
+- assertVisible:
+    id: base_error_state_animation
+- assertVisible:
+    id: base_outdated_app_update_button
+- assertNotVisible:
+    id: auth_sign_in_idle_container
+- assertNotVisible:
+    id: maincore_tuindice_nav_host
+- launchApp:
+    stopApp: true
+    clearState: false
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - launchApp:
+          stopApp: false
+          clearState: false
+- extendedWaitUntil:
+    visible:
+      id: base_outdated_app_screen
+    timeout: 20000
+- assertVisible:
+    id: base_outdated_app_update_button
+- assertNotVisible:
+    id: maincore_tuindice_nav_host

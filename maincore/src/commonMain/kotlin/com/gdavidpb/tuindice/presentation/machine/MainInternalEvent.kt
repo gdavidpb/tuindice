@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.presentation.machine
 
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
+import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 
@@ -17,6 +18,10 @@ sealed interface MainInternalEvent {
 
 	data class AppUnavailableResolved(
 		val notice: AppAvailabilityNotice
+	) : MainInternalEvent
+
+	data class OutdatedAppResolved(
+		val outdatedAppState: OutdatedAppState
 	) : MainInternalEvent
 
 	data class StartUpFailed(

@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
 import com.gdavidpb.tuindice.base.domain.model.MainSection
+import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
@@ -234,7 +235,8 @@ class FakeSessionInvalidationRepository : SessionInvalidationRepository {
 class FakeSettingsRepository(
 	private val reviewSuggested: Boolean = false,
 	private var lastMainSection: MainSection = MainSection.SUMMARY,
-	private var wizardCompleted: Boolean = true
+	private var wizardCompleted: Boolean = true,
+	private var outdatedAppState: OutdatedAppState? = null
 ) : SettingsRepository {
 	var cleared = false
 		private set
@@ -247,6 +249,16 @@ class FakeSettingsRepository(
 		lastMainSection = section
 	}
 
+	override suspend fun getOutdatedAppState(): OutdatedAppState? = outdatedAppState
+
+	override suspend fun setOutdatedAppState(state: OutdatedAppState) {
+		outdatedAppState = state
+	}
+
+	override suspend fun clearOutdatedAppState() {
+		outdatedAppState = null
+	}
+
 	override suspend fun isWizardCompleted(): Boolean = wizardCompleted
 
 	override suspend fun setWizardCompleted() {
@@ -255,6 +267,7 @@ class FakeSettingsRepository(
 
 	override suspend fun clear() {
 		cleared = true
+		outdatedAppState = null
 	}
 }
 

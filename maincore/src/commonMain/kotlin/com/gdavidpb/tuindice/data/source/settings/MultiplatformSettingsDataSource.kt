@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.data.source.settings
 
 import com.gdavidpb.tuindice.base.domain.model.MainSection
+import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
 import com.gdavidpb.tuindice.data.mapper.toMainSectionOrThrow
@@ -21,6 +22,19 @@ class MultiplatformSettingsDataSource(
 			key = LAST_MAIN_SECTION_KEY,
 			value = section.toPersistedName()
 		)
+	}
+
+	override suspend fun getOutdatedAppState(): OutdatedAppState? {
+		return settings.getLongOrNull(OUTDATED_APP_MIN_VERSION_CODE_KEY)
+			?.let { minimumVersionCode -> OutdatedAppState(minimumVersionCode = minimumVersionCode) }
+	}
+
+	override suspend fun setOutdatedAppState(state: OutdatedAppState) {
+		settings.putLong(OUTDATED_APP_MIN_VERSION_CODE_KEY, state.minimumVersionCode)
+	}
+
+	override suspend fun clearOutdatedAppState() {
+		settings.remove(OUTDATED_APP_MIN_VERSION_CODE_KEY)
 	}
 
 	override suspend fun isReviewSuggested(value: Int): Boolean {
@@ -47,5 +61,6 @@ class MultiplatformSettingsDataSource(
 }
 
 private const val LAST_MAIN_SECTION_KEY = "lastDestination"
+private const val OUTDATED_APP_MIN_VERSION_CODE_KEY = "outdatedAppMinVersionCode"
 private const val WIZARD_COMPLETED_KEY = "wizardCompleted"
 private const val LEGACY_GUIDED_TOUR_COMPLETED_KEY = "guidedTourCompleted"

@@ -89,6 +89,7 @@ fun createMainViewModel(
 		lastMainSection = MainSection.SUMMARY
 	),
 	configRepository: FakeConfigRepository = FakeConfigRepository(),
+	deviceInfoRepository: DeviceInfoRepository = FakeDeviceInfoRepository(),
 	credentialsRepository: CredentialsRepository = FakeCredentialsRepository(),
 	syncRepository: SyncRepository = FakeSyncRepository(),
 	coreCacheStateRepository: CoreCacheStateRepository = FakeCoreCacheStateRepository(),
@@ -102,6 +103,7 @@ fun createMainViewModel(
 				sessionRepository = sessionRepository,
 				settingsRepository = settingsRepository,
 				configRepository = configRepository,
+				deviceInfoRepository = deviceInfoRepository,
 				applicationRepository = applicationRepository,
 				reportingRepository = reportingRepository,
 				exceptionHandler = StartUpExceptionHandler()

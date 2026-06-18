@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.presentation.transition
 
+import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.presentation.contract.Main
@@ -23,6 +24,13 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 
 		on<Main.Action.RequestUpdateCheck> { state, _ ->
 			machine.requestUpdateCheck(host = host)
+			state
+		}
+
+		on<Main.Action.ClickUpdateApp>(
+			emits = setOf(Main.Effect.TriggerUpdateFlow::class)
+		) { state, _ ->
+			host.sendEffect(Main.Effect.TriggerUpdateFlow(action = UpdateAction.Immediate))
 			state
 		}
 
@@ -51,6 +59,10 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 
 		onTo<MainInternalEvent.AppUnavailableResolved, Main.State.AppUnavailable> { _, event ->
 			Main.State.AppUnavailable(notice = event.notice)
+		}
+
+		onTo<MainInternalEvent.OutdatedAppResolved, Main.State.OutdatedApp> { _, event ->
+			Main.State.OutdatedApp(outdatedAppState = event.outdatedAppState)
 		}
 
 		onTo<MainInternalEvent.StartUpFailed, Main.State.Failed>(

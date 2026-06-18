@@ -2,12 +2,15 @@ package com.gdavidpb.tuindice.domain.usecase
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
+import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
 import com.gdavidpb.tuindice.domain.usecase.result.StartUpResult
+import com.gdavidpb.tuindice.testing.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -28,6 +31,7 @@ class StartUpUseCaseTest {
 			sessionRepository = FailingSessionRepository(),
 			settingsRepository = FakeSettingsRepository(),
 			configRepository = FakeConfigRepository(appAvailabilityNotice = notice),
+			deviceInfoRepository = FakeDeviceInfoRepository(),
 			applicationRepository = RecordingApplicationRepository(),
 			reportingRepository = RecordingReportingRepository(),
 			exceptionHandler = StartUpExceptionHandler()
@@ -42,6 +46,54 @@ class StartUpUseCaseTest {
 
 			awaitComplete()
 		}
+	}
+
+	@Test
+	fun execute_returnsOutdatedAppWhenPersistedMinimumVersionIsGreaterThanInstalledVersion() = runTest {
+		val outdatedAppState = OutdatedAppState(minimumVersionCode = 52)
+		val useCase = StartUpUseCase(
+			sessionRepository = FailingSessionRepository(),
+			settingsRepository = FakeSettingsRepository(outdatedAppState = outdatedAppState),
+			configRepository = FakeConfigRepository(),
+			deviceInfoRepository = FakeDeviceInfoRepository(versionCode = 51),
+			applicationRepository = RecordingApplicationRepository(),
+			reportingRepository = RecordingReportingRepository(),
+			exceptionHandler = StartUpExceptionHandler()
+		)
+
+		useCase.execute(Unit).test {
+			assertIs<UseCaseState.Loading>(awaitItem())
+
+			val data = assertIs<UseCaseState.Data<StartUpResult>>(awaitItem())
+			val result = assertIs<StartUpResult.OutdatedApp>(data.value)
+			assertEquals(outdatedAppState, result.state)
+
+			awaitComplete()
+		}
+	}
+
+	@Test
+	fun execute_clearsOutdatedAppStateWhenInstalledVersionSatisfiesMinimumVersion() = runTest {
+		val settingsRepository = FakeSettingsRepository(
+			outdatedAppState = OutdatedAppState(minimumVersionCode = 52)
+		)
+		val useCase = StartUpUseCase(
+			sessionRepository = FakeSessionRepository(),
+			settingsRepository = settingsRepository,
+			configRepository = FakeConfigRepository(),
+			deviceInfoRepository = FakeDeviceInfoRepository(versionCode = 52),
+			applicationRepository = RecordingApplicationRepository(),
+			reportingRepository = RecordingReportingRepository(),
+			exceptionHandler = StartUpExceptionHandler()
+		)
+
+		useCase.execute(Unit).test {
+			assertIs<UseCaseState.Loading>(awaitItem())
+			assertIs<UseCaseState.Data<StartUpResult>>(awaitItem())
+			awaitComplete()
+		}
+
+		assertEquals(null, settingsRepository.getOutdatedAppState())
 	}
 
 	private class FailingSessionRepository : SessionRepository {

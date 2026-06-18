@@ -96,10 +96,17 @@ actions:
     fixture_state: auth-success
   - id: auth.SignIn.ClickSignIn
     classification: user
-    variants: [success, invalid-credentials, disabled-account, connection-retry]
+    variants: [success, invalid-credentials, disabled-account, connection-retry, outdated-app]
     selector: auth_sign_in_button
     flow: e2e/maestro/flows/auth/login-success.yaml
     fixture_state: auth-success
+  - id: auth.SignIn.ClickUpdateApp
+    classification: platform-edge
+    variants: [store-handoff]
+    selector: base_outdated_app_update_button
+    flow: e2e/maestro/flows/auth/login-outdated-app.yaml
+    fixture_state: auth-upgrade-required
+    platform_edge: Store handoff opens Google Play or App Store and requires host/system assertion.
   - id: auth.SignIn.ClickTermsAndConditions
     classification: user
     variants: [internal-browser]
@@ -279,10 +286,17 @@ actions:
 
   - id: maincore.Main.StartUp
     classification: user
-    variants: [content, app-unavailable]
+    variants: [content, app-unavailable, outdated-app]
     selector: maincore_app_availability_notice_screen
     flow: e2e/maestro/flows/maincore/app-availability-notice.yaml
     fixture_state: debug-remote-config
+  - id: maincore.Main.ClickUpdateApp
+    classification: platform-edge
+    variants: [store-handoff-from-startup-block]
+    selector: base_outdated_app_update_button
+    flow: e2e/maestro/flows/auth/login-outdated-app.yaml
+    fixture_state: auth-upgrade-required
+    platform_edge: Store handoff opens Google Play or App Store and requires host/system assertion.
   - id: maincore.Main.RequestReview
     classification: platform-edge
     variants: [review-prompt]

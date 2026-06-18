@@ -183,6 +183,7 @@ val iosPlatformModule = module {
 			appEnvironmentRepository = get<AppEnvironmentRepository>(),
 			configRepository = get<ConfigRepository>(),
 			sessionRepository = get<SessionRepository>(),
+			settingsRepository = get<SettingsRepository>(),
 			sessionRecoveryRepository = get(),
 			logger = createAppKtorLogger(),
 			json = get<Json>(),

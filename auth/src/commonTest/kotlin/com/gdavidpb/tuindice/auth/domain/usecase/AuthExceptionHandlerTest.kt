@@ -46,6 +46,17 @@ class AuthExceptionHandlerTest {
 	}
 
 	@Test
+	fun signInExceptionHandler_mapsOutdatedApp_fromUpgradeRequired() {
+		val actual = SignInExceptionHandler(
+			networkRepository = FakeNetworkRepository(isAvailable = true)
+		).parseException(
+			clientRequestException(HttpStatusCode.UpgradeRequired, path = "/auth/v1/token")
+		)
+
+		assertEquals(SignInUseCaseError.OutdatedApp, actual)
+	}
+
+	@Test
 	fun signInExceptionHandler_mapsUnavailable_fromTooManyRequests() {
 		val actual = SignInExceptionHandler(
 			networkRepository = FakeNetworkRepository(isAvailable = true)

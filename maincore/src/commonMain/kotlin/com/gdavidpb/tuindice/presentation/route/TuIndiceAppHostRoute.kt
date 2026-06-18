@@ -211,6 +211,7 @@ fun TuIndiceAppHostRoute(
 			state = state,
 			shellState = shellState.value,
 			onRetryStartUp = viewModel::startUpAction,
+			onUpdateAppClick = viewModel::updateAppAction,
 			navController = navController,
 			isSwipeBackNavigationEnabled = isSwipeBackNavigationEnabled,
 			snackbarHostState = snackbarHostState,

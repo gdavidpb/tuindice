@@ -42,6 +42,9 @@ class SignInViewModel(
 	fun signInAction() =
 		sendAction(SignIn.Action.ClickSignIn)
 
+	fun updateAppAction() =
+		sendAction(SignIn.Action.ClickUpdateApp)
+
 	fun openTermsAndConditionsAction() =
 		sendAction(SignIn.Action.ClickTermsAndConditions)
 

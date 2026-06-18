@@ -5,8 +5,11 @@ import com.gdavidpb.tuindice.base.data.source.network.AttestationHeaders
 import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.*
+import com.gdavidpb.tuindice.data.source.network.AppUpgradePolicy
+import com.gdavidpb.tuindice.data.source.network.UpgradeRequiredResponse
 import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
 import io.ktor.client.*
+import io.ktor.client.call.body
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.AuthConfig
@@ -29,6 +32,7 @@ fun createSharedHttpClient(
 	appEnvironmentRepository: AppEnvironmentRepository,
 	configRepository: ConfigRepository,
 	sessionRepository: SessionRepository,
+	settingsRepository: SettingsRepository,
 	sessionRecoveryRepository: SessionRecoveryRepository,
 	logger: Logger,
 	json: Json,
@@ -73,6 +77,13 @@ fun createSharedHttpClient(
 						sessionId = sessionRepository.getActiveSessionSnapshot()?.sessionId
 					)
 				}
+
+				if (clientRequestException.response.status == HttpStatusCode.UpgradeRequired) {
+					clientRequestException.response.persistOutdatedAppState(
+						settingsRepository = settingsRepository,
+						userAgentValue = userAgentValue
+					)
+				}
 			}
 		}
 
@@ -93,6 +104,22 @@ fun createSharedHttpClient(
 			)
 		}
 	}
+}
+
+private suspend fun io.ktor.client.statement.HttpResponse.persistOutdatedAppState(
+	settingsRepository: SettingsRepository,
+	userAgentValue: String?
+) {
+	val upgradeRequiredResponse = runCatching {
+		body<UpgradeRequiredResponse>()
+	}.getOrNull() ?: return
+
+	val outdatedAppState = AppUpgradePolicy.toOutdatedAppState(
+		response = upgradeRequiredResponse,
+		userAgentValue = userAgentValue
+	) ?: return
+
+	settingsRepository.setOutdatedAppState(outdatedAppState)
 }
 
 internal fun AuthConfig.installSharedBearerAuth(

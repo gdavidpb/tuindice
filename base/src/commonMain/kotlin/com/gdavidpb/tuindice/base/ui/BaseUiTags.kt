@@ -13,6 +13,11 @@ object BaseUiTags {
 	const val ErrorViewMessage = "base_error_view_message"
 	const val ErrorViewRetryButton = "base_error_view_retry_button"
 
+	const val OutdatedAppScreen = "base_outdated_app_screen"
+	const val OutdatedAppTitle = "base_outdated_app_title"
+	const val OutdatedAppMessage = "base_outdated_app_message"
+	const val OutdatedAppUpdateButton = "base_outdated_app_update_button"
+
 	const val DropdownMenuTextField = "base_dropdown_text_field"
 	const val DropdownMenuError = "base_dropdown_error"
 

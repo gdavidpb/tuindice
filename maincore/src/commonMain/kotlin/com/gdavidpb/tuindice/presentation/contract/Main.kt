@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.presentation.contract
 
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.MainSection
+import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
@@ -16,6 +17,10 @@ object Main {
 			val notice: AppAvailabilityNotice
 		) : State()
 
+		data class OutdatedApp(
+			val outdatedAppState: OutdatedAppState
+		) : State()
+
 		data class Content(
 			val startDestination: Destination,
 			val wizardStartRequested: Boolean = false
@@ -28,6 +33,7 @@ object Main {
 		data object StartUp : Action()
 		data object RequestReview : Action()
 		data object RequestUpdateCheck : Action()
+		data object ClickUpdateApp : Action()
 		data object RequestSync : Action()
 		class SetLastMainSection(val section: MainSection) : Action()
 		data object RequestWizardStart : Action()

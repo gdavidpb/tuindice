@@ -69,6 +69,7 @@ import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceShellColors
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorView
+import com.gdavidpb.tuindice.base.ui.view.OutdatedAppScreen
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
 import com.gdavidpb.tuindice.base.utils.extension.canNavigateBackFromCurrentDestination
@@ -96,6 +97,7 @@ fun TuIndiceScreen(
 	state: Main.State,
 	shellState: MainShellState,
 	onRetryStartUp: () -> Unit,
+	onUpdateAppClick: () -> Unit,
 	navController: NavHostController,
 	isSwipeBackNavigationEnabled: Boolean = false,
 	snackbarHostState: SnackbarHostState,
@@ -142,6 +144,13 @@ fun TuIndiceScreen(
 					?: stringResource(Res.string.app_availability_notice_default_title),
 				message = state.notice.message.takeIf { it.isNotBlank() }
 					?: stringResource(Res.string.app_availability_notice_default_message)
+			)
+			return
+		}
+
+		is Main.State.OutdatedApp -> {
+			OutdatedAppScreen(
+				onUpdateClick = onUpdateAppClick
 			)
 			return
 		}

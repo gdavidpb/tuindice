@@ -187,7 +187,15 @@ val androidPlatformModule = module {
 		bind<PlayCoreAvailabilityDataRepository>()
 	}
 	singleOf(::PlayReviewDataSource) { bind<ReviewRepository>() }
-	singleOf(::PlayUpdateDataSource) { bind<UpdateRepository>() }
+	single<UpdateRepository> {
+		PlayUpdateDataSource(
+			context = androidContext(),
+			appUpdateManager = get(),
+			currentActivityDataSource = get(),
+			playCoreAvailabilityRepository = get(),
+			reportingRepository = get()
+		)
+	}
 	singleOf(::AndroidBrowserDataSource) { bind<BrowserRepository>() }
 	singleOf(::AndroidBrowserScreenRenderer) { bind<BrowserScreenRenderer>() }
 	singleOf(::AndroidFileOpenerDataSource) { bind<BaseExternalActionsRepository>() }
@@ -250,6 +258,7 @@ val androidPlatformModule = module {
 			appEnvironmentRepository = get(),
 			configRepository = get(),
 			sessionRepository = get(),
+			settingsRepository = get(),
 			sessionRecoveryRepository = get(),
 			logger = createAppKtorLogger(),
 			json = get(),
