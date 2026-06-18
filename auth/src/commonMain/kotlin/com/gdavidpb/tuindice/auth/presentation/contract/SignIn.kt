@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.auth.presentation.contract
 
+import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
@@ -15,6 +16,7 @@ object SignIn {
 		data class Idle(
 			val usbId: String = "",
 			val password: String = "",
+			val identifierMode: SignInIdentifierMode = SignInIdentifierMode.UsbId,
 			val isPasswordVisible: Boolean = false,
 			val usageDataCollectionEnabled: Boolean = false
 		) : State()
@@ -23,6 +25,7 @@ object SignIn {
 			val usbId: String,
 			val password: String,
 			val messages: List<String>,
+			val identifierMode: SignInIdentifierMode = SignInIdentifierMode.UsbId,
 			val usageDataCollectionEnabled: Boolean = false
 		) : State()
 	}
@@ -37,6 +40,8 @@ object SignIn {
 		) : Action()
 
 		data object TogglePasswordVisibility : Action()
+
+		data object ToggleIdentifierMode : Action()
 
 		class SetUsageDataCollectionEnabled(
 			val enabled: Boolean

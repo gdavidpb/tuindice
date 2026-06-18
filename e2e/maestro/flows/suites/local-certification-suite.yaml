@@ -2,6 +2,7 @@ appId: com.gdavidpb.tuindice.debug
 name: TuIndice local certification E2E suite
 ---
 - runFlow: ../auth/login-password-toggle.yaml
+- runFlow: ../auth/login-usb-email-success.yaml
 - runFlow: ../auth/terms-privacy-from-login.yaml
 - runFlow: ../auth/login-invalid.yaml
 - runFlow: ../auth/login-disabled.yaml

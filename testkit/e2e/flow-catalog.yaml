@@ -50,6 +50,7 @@ flows:
     actions_covered:
       - auth.SignIn.SetUsbId
       - auth.SignIn.SetPassword
+      - auth.SignIn.ToggleIdentifierMode
       - auth.SignIn.ClickSignIn
       - auth.SignIn.ClickTermsAndConditions
       - auth.SignIn.ClickPrivacyPolicy
@@ -101,6 +102,7 @@ flows:
     fixture_state: auth-local-certification
     covers:
       - login
+      - login-usb-email
       - update-password
       - sign-out
       - session-invalidated
@@ -291,6 +293,25 @@ flows:
     primary_selectors:
       - auth_password_text_field
       - auth_password_toggle
+  - id: auth-login-usb-email-success
+    path: e2e/maestro/flows/auth/login-usb-email-success.yaml
+    module: auth
+    type: happy-path
+    platforms: [android, ios]
+    status: active
+    variant: usb-email-success
+    fixture_state: auth-email-success
+    actions_covered:
+      - auth.SignIn.ToggleIdentifierMode
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
+    primary_selectors:
+      - auth_identifier_mode_toggle
+      - auth_usb_id_text_field
+      - auth_password_text_field
+      - auth_sign_in_button
+      - wizard_welcome_screen
   - id: auth-usage-data-consent
     path: e2e/maestro/flows/auth/usage-data-consent.yaml
     module: auth

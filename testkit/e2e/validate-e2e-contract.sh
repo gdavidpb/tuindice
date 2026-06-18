@@ -198,8 +198,8 @@ while IFS= read -r auth_flow; do
 			value = $0
 			sub(/^[^"]*"/, "", value)
 			sub(/".*$/, "", value)
-			if (value !~ /^([0-9]{7}|[0-9]{2}-[0-9]{5})$/) {
-				printf "Auth flow writes invalid USBID %s in %s\n", value, file > "/dev/stderr"
+			if (value !~ /^([0-9]{7}|[0-9]{2}-[0-9]{5}|[A-Za-z][A-Za-z0-9._-]*(@usb[.]ve)?)$/) {
+				printf "Auth flow writes invalid sign-in identifier %s in %s\n", value, file > "/dev/stderr"
 				exit 42
 			}
 			expectUsbIdInput = 0
@@ -249,6 +249,8 @@ if [[ ! -f "${FIXTURES_KT}" ]]; then
 else
 	check_fixture_pair "${E2E_CANONICAL_USBID_RAW}" "CANONICAL_USBID_RAW"
 	check_fixture_pair "${E2E_CANONICAL_USBID_FORMATTED}" "CANONICAL_USBID_FORMATTED"
+	check_fixture_pair "${E2E_USB_EMAIL_LOCAL}" "USB_EMAIL_LOCAL"
+	check_fixture_pair "${E2E_USB_EMAIL_FULL}" "USB_EMAIL_FULL"
 	check_fixture_pair "${E2E_CANONICAL_PASSWORD}" "CANONICAL_PASSWORD"
 	check_fixture_pair "${E2E_INVALID_USBID_RAW}" "INVALID_USBID_RAW"
 	check_fixture_pair "${E2E_RECORD_SEARCH_PRIORITY_PLANNED}" "PRIORITY_PLANNED"
@@ -281,6 +283,30 @@ else
 			;;
 		*)
 			printf 'Canonical password is not typed by the canonical login flow\n' >&2
+			fixture_contract_mismatches=1
+			;;
+	esac
+fi
+
+email_login_flow="${FLOWS_ROOT}/auth/login-usb-email-success.yaml"
+if [[ ! -f "${email_login_flow}" ]]; then
+	printf 'Missing USB email login flow: %s\n' "${email_login_flow}" >&2
+	fixture_contract_mismatches=1
+else
+	email_flow_typed_input="$(awk '/inputText:/ { line = $0; sub(/^[^"]*"/, "", line); sub(/".*$/, "", line); printf "%s", line }' "${email_login_flow}")"
+	case "${email_flow_typed_input}" in
+		*"${E2E_USB_EMAIL_FULL}"*)
+			;;
+		*)
+			printf 'Canonical USB email %s is not typed by the USB email login flow\n' "${E2E_USB_EMAIL_FULL}" >&2
+			fixture_contract_mismatches=1
+			;;
+	esac
+	case "${email_flow_typed_input}" in
+		*"${E2E_CANONICAL_PASSWORD}"*)
+			;;
+		*)
+			printf 'Canonical password is not typed by the USB email login flow\n' >&2
 			fixture_contract_mismatches=1
 			;;
 	esac

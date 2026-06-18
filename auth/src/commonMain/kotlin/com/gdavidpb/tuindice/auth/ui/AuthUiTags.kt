@@ -6,6 +6,8 @@ object AuthUiTags {
 	const val SignInLoggingInContainer = "auth_sign_in_logging_in_container"
 	const val SignInButton = "auth_sign_in_button"
 	const val UsbIdTextField = "auth_usb_id_text_field"
+	const val IdentifierModeToggle = "auth_identifier_mode_toggle"
+	const val IdentifierModeTooltip = "auth_identifier_mode_tooltip"
 	const val PasswordTextField = "auth_password_text_field"
 	const val PasswordToggle = "auth_password_toggle"
 	const val UsageDataConsentCheckbox = "auth_usage_data_consent_checkbox"

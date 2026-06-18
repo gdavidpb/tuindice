@@ -1,4 +1,5 @@
 auth_usb_id_text_field
+auth_identifier_mode_toggle
 auth_password_text_field
 auth_password_toggle
 auth_usage_data_consent_checkbox

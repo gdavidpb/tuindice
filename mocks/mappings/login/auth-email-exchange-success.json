@@ -1,0 +1,33 @@
+{
+  "priority": 1,
+  "scenarioName": "login-token-lifecycle",
+  "requiredScenarioState": "BootstrapIssued",
+  "newScenarioState": "TokensIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/token/exchange",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer bootstrap\\.mock\\.email\\.access\\.token(\\.reissued)?"
+      },
+      "X-Attestation-Token": {
+        "matches": "attestation\\.mock\\.proof\\.(android|ios)"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "0IQZf2qtYZOTwutEX38qvBY5H8l2",
+      "usb_id": "rcardoza",
+      "session_id": "auth-session-email",
+      "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.email.access",
+      "refresh_token": "refresh.mock.email.token.value",
+      "expires_in": 3600
+    },
+    "fixedDelayMilliseconds": 1000
+  }
+}

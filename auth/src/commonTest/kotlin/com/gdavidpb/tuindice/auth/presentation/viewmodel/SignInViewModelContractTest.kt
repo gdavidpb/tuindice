@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepo
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
+import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
@@ -76,6 +77,27 @@ class SignInViewModelContractTest {
 				)
 
 				viewModel.setPasswordAction("secret123")
+				assertEquals(
+					SignIn.State.Idle(
+						usbId = VALID_USB_ID,
+						password = "secret123",
+						isPasswordVisible = true
+					),
+					awaitItem()
+				)
+
+				viewModel.toggleIdentifierModeAction()
+				assertEquals(
+					SignIn.State.Idle(
+						usbId = VALID_USB_ID,
+						password = "secret123",
+						identifierMode = SignInIdentifierMode.UsbEmail,
+						isPasswordVisible = true
+					),
+					awaitItem()
+				)
+
+				viewModel.toggleIdentifierModeAction()
 				assertEquals(
 					SignIn.State.Idle(
 						usbId = VALID_USB_ID,

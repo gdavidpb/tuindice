@@ -22,6 +22,7 @@ class SignInScreenUiTest {
 				onUsbIdChange = {},
 				onPasswordChange = {},
 				onPasswordVisibilityToggle = {},
+				onIdentifierModeToggle = {},
 				onSignInClick = {},
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {}
@@ -44,6 +45,7 @@ class SignInScreenUiTest {
 				onUsbIdChange = {},
 				onPasswordChange = {},
 				onPasswordVisibilityToggle = {},
+				onIdentifierModeToggle = {},
 				onSignInClick = {},
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {}
@@ -67,6 +69,7 @@ class SignInScreenUiTest {
 				onUsbIdChange = {},
 				onPasswordChange = {},
 				onPasswordVisibilityToggle = {},
+				onIdentifierModeToggle = {},
 				onSignInClick = { signInClicks++ },
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {}
@@ -89,6 +92,7 @@ class SignInScreenUiTest {
 				onUsbIdChange = { usbId -> latestUsbId = usbId },
 				onPasswordChange = { password -> latestPassword = password },
 				onPasswordVisibilityToggle = {},
+				onIdentifierModeToggle = {},
 				onSignInClick = {},
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {}

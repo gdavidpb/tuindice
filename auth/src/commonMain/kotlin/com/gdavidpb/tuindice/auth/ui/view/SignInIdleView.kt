@@ -29,8 +29,10 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
+import com.gdavidpb.tuindice.auth.utils.extension.isUsbEmail
 import com.gdavidpb.tuindice.auth.utils.extension.isUsbId
 import com.gdavidpb.tuindice.base.ui.view.AppLogoView
 import com.gdavidpb.tuindice.base.ui.view.toBoldMarkerAnnotatedText
@@ -41,6 +43,7 @@ fun SignInIdleView(
 	onUsbIdChange: (usbId: String) -> Unit,
 	onPasswordChange: (password: String) -> Unit,
 	onPasswordVisibilityToggle: () -> Unit,
+	onIdentifierModeToggle: () -> Unit,
 	onUsageDataCollectionEnabledChange: (enabled: Boolean) -> Unit = {},
 	onSignInClick: () -> Unit,
 	onTermsAndConditionsClick: () -> Unit,
@@ -49,13 +52,23 @@ fun SignInIdleView(
 	privacyPolicyText: String,
 	policiesText: String,
 	usbIdLabelText: String,
+	usbEmailLabelText: String,
+	usbIdPlaceholderText: String,
+	usbEmailPlaceholderText: String,
+	useUsbEmailContentDescription: String,
+	useUsbIdContentDescription: String,
+	usbEmailTooltipText: String,
 	passwordLabelText: String,
 	usageDataConsentText: String = "",
 	signInButtonText: String
 ) {
 	val focusManager = LocalFocusManager.current
 	val passwordFocusRequester = remember { FocusRequester() }
-	val isSignInEnabled = state.usbId.isUsbId() && state.password.isNotEmpty()
+	val isValidIdentifier = when (state.identifierMode) {
+		SignInIdentifierMode.UsbId -> state.usbId.isUsbId()
+		SignInIdentifierMode.UsbEmail -> state.usbId.isUsbEmail()
+	}
+	val isSignInEnabled = isValidIdentifier && state.password.isNotEmpty()
 	val policyIntroText = policiesText.substringBefore(termsAndConditionsText).trimEnd()
 	val policyTextStyle = TextStyle(
 		textAlign = TextAlign.Center,
@@ -94,9 +107,24 @@ fun SignInIdleView(
 					vertical = 8.dp,
 					horizontal = 32.dp
 				),
-			labelText = usbIdLabelText,
+			labelText = when (state.identifierMode) {
+				SignInIdentifierMode.UsbId -> usbIdLabelText
+				SignInIdentifierMode.UsbEmail -> usbEmailLabelText
+			},
+			placeholderText = when (state.identifierMode) {
+				SignInIdentifierMode.UsbId -> usbIdPlaceholderText
+				SignInIdentifierMode.UsbEmail -> usbEmailPlaceholderText
+			},
+			identifierMode = state.identifierMode,
+			toggleContentDescription = when (state.identifierMode) {
+				SignInIdentifierMode.UsbId -> useUsbEmailContentDescription
+				SignInIdentifierMode.UsbEmail -> useUsbIdContentDescription
+			},
+			tooltipText = usbEmailTooltipText,
+			showTooltip = state.identifierMode == SignInIdentifierMode.UsbId && state.usbId.isEmpty(),
 			usbId = state.usbId,
 			onUsbIdChange = onUsbIdChange,
+			onIdentifierModeToggle = onIdentifierModeToggle,
 			keyboardActions = KeyboardActions(
 				onNext = { passwordFocusRequester.requestFocus() }
 			)

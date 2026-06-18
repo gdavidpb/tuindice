@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.auth.ui.view
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeDisabled
@@ -23,6 +24,7 @@ class SignInIdleViewUiTest {
 				onUsbIdChange = {},
 				onPasswordChange = {},
 				onPasswordVisibilityToggle = {},
+				onIdentifierModeToggle = {},
 				onSignInClick = {},
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {},
@@ -30,6 +32,12 @@ class SignInIdleViewUiTest {
 				privacyPolicyText = "Privacidad",
 				policiesText = "Acepto Terminos y Privacidad",
 				usbIdLabelText = "USB",
+				usbEmailLabelText = "Correo USB",
+				usbIdPlaceholderText = "00-00000",
+				usbEmailPlaceholderText = "correo@usb.ve",
+				useUsbEmailContentDescription = "Iniciar con correo USB",
+				useUsbIdContentDescription = "Usar USBID",
+				usbEmailTooltipText = "Iniciar con correo USB",
 				passwordLabelText = "Clave",
 				signInButtonText = "Entrar"
 			)
@@ -49,6 +57,7 @@ class SignInIdleViewUiTest {
 				onUsbIdChange = {},
 				onPasswordChange = {},
 				onPasswordVisibilityToggle = {},
+				onIdentifierModeToggle = {},
 				onSignInClick = { signInClicks++ },
 				onTermsAndConditionsClick = {},
 				onPrivacyPolicyClick = {},
@@ -56,6 +65,12 @@ class SignInIdleViewUiTest {
 				privacyPolicyText = "Privacidad",
 				policiesText = "Acepto Terminos y Privacidad",
 				usbIdLabelText = "USB",
+				usbEmailLabelText = "Correo USB",
+				usbIdPlaceholderText = "00-00000",
+				usbEmailPlaceholderText = "correo@usb.ve",
+				useUsbEmailContentDescription = "Iniciar con correo USB",
+				useUsbIdContentDescription = "Usar USBID",
+				usbEmailTooltipText = "Iniciar con correo USB",
 				passwordLabelText = "Clave",
 				signInButtonText = "Entrar"
 			)
@@ -65,5 +80,39 @@ class SignInIdleViewUiTest {
 		onNodeWithTag(AuthUiTags.SignInButton).performClick()
 
 		assertEquals(1, signInClicks)
+	}
+
+	@Test
+	fun when_stateHasValidUsbEmailAndPassword_then_signInButtonIsEnabled() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SignInIdleView(
+				state = SignIn.State.Idle(
+					usbId = "rcardoza@usb.ve",
+					password = "1234",
+					identifierMode = SignInIdentifierMode.UsbEmail
+				),
+				onUsbIdChange = {},
+				onPasswordChange = {},
+				onPasswordVisibilityToggle = {},
+				onIdentifierModeToggle = {},
+				onSignInClick = {},
+				onTermsAndConditionsClick = {},
+				onPrivacyPolicyClick = {},
+				termsAndConditionsText = "Terminos",
+				privacyPolicyText = "Privacidad",
+				policiesText = "Acepto Terminos y Privacidad",
+				usbIdLabelText = "USB",
+				usbEmailLabelText = "Correo USB",
+				usbIdPlaceholderText = "00-00000",
+				usbEmailPlaceholderText = "correo@usb.ve",
+				useUsbEmailContentDescription = "Iniciar con correo USB",
+				useUsbIdContentDescription = "Usar USBID",
+				usbEmailTooltipText = "Iniciar con correo USB",
+				passwordLabelText = "Clave",
+				signInButtonText = "Entrar"
+			)
+		}
+
+		assertNodeEnabled(AuthUiTags.SignInButton)
 	}
 }

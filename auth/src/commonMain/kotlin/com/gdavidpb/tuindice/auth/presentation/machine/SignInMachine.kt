@@ -47,7 +47,8 @@ class SignInMachine(
 	): SignIn.State.LoggingIn {
 		val params = SignInParams(
 			usbId = state.usbId,
-			password = state.password
+			password = state.password,
+			identifierMode = state.identifierMode
 		)
 
 		host.launchMachineJob {
@@ -70,6 +71,7 @@ class SignInMachine(
 			usbId = state.usbId,
 			password = state.password,
 			messages = configRepository.getLoadingMessages(),
+			identifierMode = state.identifierMode,
 			usageDataCollectionEnabled = state.usageDataCollectionEnabled
 		)
 	}
@@ -104,6 +106,7 @@ class SignInMachine(
 		return SignIn.State.Idle(
 			usbId = state.usbId,
 			password = state.password,
+			identifierMode = state.identifierMode,
 			usageDataCollectionEnabled = state.usageDataCollectionEnabled
 		)
 	}

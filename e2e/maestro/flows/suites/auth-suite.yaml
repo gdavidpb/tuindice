@@ -2,6 +2,7 @@ appId: com.gdavidpb.tuindice.debug
 name: TuIndice auth E2E suite
 ---
 - runFlow: ../auth/login-password-toggle.yaml
+- runFlow: ../auth/login-usb-email-success.yaml
 - runFlow: ../auth/usage-data-consent.yaml
 - runFlow: ../auth/terms-privacy-from-login.yaml
 - runFlow: ../auth/login-invalid.yaml

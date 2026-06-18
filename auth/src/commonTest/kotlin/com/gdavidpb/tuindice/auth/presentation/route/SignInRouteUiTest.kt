@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
+import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
@@ -33,6 +34,7 @@ import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import io.ktor.http.HttpStatusCode
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -163,6 +165,61 @@ class SignInRouteUiTest {
 		assertEquals("1234", bootstrapCall.password)
 		assertEquals("bootstrap-access-token", exchangeCall.bootstrapAccessToken)
 		assertTrue(shownSnackBars.isEmpty())
+	}
+
+	@Test
+	fun when_usbEmailEnteredAndSignInButtonTapped_then_usesCanonicalEmailUser() = runTuIndiceUiTest {
+		val fixture = createSignInViewModel(
+			termsAndConditionsUrl = "https://tuindice.test/terms"
+		)
+		var summaryNavigations = 0
+
+		setTuIndiceTestContent {
+			SignInRoute(
+				onNavigateToSummary = { summaryNavigations++ },
+				onNavigateToBrowser = { _, _ -> },
+				showSnackBar = {},
+				viewModel = fixture.viewModel
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.IdentifierModeToggle).performClick()
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("RCardoza@USB.VE")
+		onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("1234")
+		onNodeWithTag(AuthUiTags.SignInButton).performClick()
+
+		waitUntil(timeoutMillis = 2_000) {
+			summaryNavigations > 0 &&
+				fixture.authRepository.bootstrapSignInCalls.isNotEmpty()
+		}
+
+		assertEquals("rcardoza", fixture.authRepository.bootstrapSignInCalls.single().usbId)
+		assertEquals("1234", fixture.authRepository.bootstrapSignInCalls.single().password)
+	}
+
+	@Test
+	fun when_emailValueReturnsToUsbIdMode_then_identifierIsCleared() = runTuIndiceUiTest {
+		val fixture = createSignInViewModel(
+			termsAndConditionsUrl = "https://tuindice.test/terms"
+		)
+
+		setTuIndiceTestContent {
+			SignInRoute(
+				onNavigateToSummary = {},
+				onNavigateToBrowser = { _, _ -> },
+				showSnackBar = {},
+				viewModel = fixture.viewModel
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.IdentifierModeToggle).performClick()
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("rcardoza")
+		onNodeWithTag(AuthUiTags.IdentifierModeToggle).performClick()
+
+		runOnIdle {
+			val state = assertIs<SignIn.State.Idle>(fixture.viewModel.state.value)
+			assertEquals("", state.usbId)
+		}
 	}
 
 	@Test
