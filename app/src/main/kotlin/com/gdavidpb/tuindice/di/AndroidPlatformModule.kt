@@ -39,6 +39,10 @@ import com.gdavidpb.tuindice.data.source.config.AndroidRemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.device.AndroidDeviceInfoDataSource
 import com.gdavidpb.tuindice.data.source.environment.BuildConfigEnvironmentDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
+import com.gdavidpb.tuindice.data.repository.playcore.PlayCoreAvailabilityDataRepository
+import com.gdavidpb.tuindice.data.repository.playcore.PlayCoreEnvironmentDataRepository
+import com.gdavidpb.tuindice.data.source.playcore.AndroidPlayCoreAvailabilityDataSource
+import com.gdavidpb.tuindice.data.source.playcore.AndroidPlayCoreEnvironmentDataSource
 import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSource
 import com.gdavidpb.tuindice.data.source.review.PlayReviewDataSource
 import com.gdavidpb.tuindice.data.source.secure.AndroidTinkSecureKeyValueDataSource
@@ -178,6 +182,10 @@ val androidPlatformModule = module {
 	singleOf(::AndroidRemoteConfigDataSource) { bind<RemoteConfigDataRepository>() }
 	singleOf(::FirebasePushTokenDataSource) { bind<PushTokenDataRepository>() }
 	singleOf(::CurrentActivityDataSource)
+	singleOf(::AndroidPlayCoreEnvironmentDataSource) { bind<PlayCoreEnvironmentDataRepository>() }
+	singleOf(::AndroidPlayCoreAvailabilityDataSource) {
+		bind<PlayCoreAvailabilityDataRepository>()
+	}
 	singleOf(::PlayReviewDataSource) { bind<ReviewRepository>() }
 	singleOf(::PlayUpdateDataSource) { bind<UpdateRepository>() }
 	singleOf(::AndroidBrowserDataSource) { bind<BrowserRepository>() }

@@ -1,8 +1,12 @@
 package com.gdavidpb.tuindice.data.source.update
 
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
+import com.gdavidpb.tuindice.data.model.playcore.PlayCoreSurface
+import com.gdavidpb.tuindice.data.repository.playcore.PlayCoreAvailabilityDataRepository
 import com.gdavidpb.tuindice.data.source.activity.CurrentActivityDataSource
+import com.gdavidpb.tuindice.data.source.playcore.reportPlayCoreFailure
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.install.model.AppUpdateType
@@ -12,12 +16,23 @@ import kotlinx.coroutines.tasks.await
 
 class PlayUpdateDataSource(
 	private val appUpdateManager: AppUpdateManager,
-	private val currentActivityDataSource: CurrentActivityDataSource
+	private val currentActivityDataSource: CurrentActivityDataSource,
+	private val playCoreAvailabilityRepository: PlayCoreAvailabilityDataRepository,
+	private val reportingRepository: ReportingRepository
 ) : UpdateRepository {
 	private var pendingUpdateInfo: AppUpdateInfo? = null
 
 	override suspend fun checkForUpdate(stalenessDays: Int): UpdateAction? {
-		val updateInfo = appUpdateManager.appUpdateInfo.await() ?: return null
+		if (!playCoreAvailabilityRepository.isAvailable(PlayCoreSurface.Update)) return null
+
+		val updateInfo = runCatching {
+			appUpdateManager.appUpdateInfo.await()
+		}.onFailure { throwable ->
+			reportingRepository.reportPlayCoreFailure(
+				message = "play_update_check_failed",
+				throwable = throwable
+			)
+		}.getOrNull() ?: return null
 
 		if (updateInfo.isUpdateStalled) {
 			pendingUpdateInfo = updateInfo
@@ -40,17 +55,33 @@ class PlayUpdateDataSource(
 	}
 
 	override suspend fun launchUpdate(action: UpdateAction) {
+		if (!playCoreAvailabilityRepository.isAvailable(PlayCoreSurface.Update)) return
+
 		val activity = currentActivityDataSource.get() ?: return
-		val updateInfo = pendingUpdateInfo ?: appUpdateManager.appUpdateInfo.await() ?: return
+		val updateInfo = pendingUpdateInfo ?: runCatching {
+			appUpdateManager.appUpdateInfo.await()
+		}.onFailure { throwable ->
+			reportingRepository.reportPlayCoreFailure(
+				message = "play_update_launch_info_failed",
+				throwable = throwable
+			)
+		}.getOrNull() ?: return
 
 		when (action) {
 			UpdateAction.Immediate ->
-				appUpdateManager.startUpdateFlowForResult(
-					updateInfo,
-					AppUpdateType.IMMEDIATE,
-					activity,
-					APP_UPDATE_REQUEST_CODE
-				)
+				runCatching {
+					appUpdateManager.startUpdateFlowForResult(
+						updateInfo,
+						AppUpdateType.IMMEDIATE,
+						activity,
+						APP_UPDATE_REQUEST_CODE
+					)
+				}.onFailure { throwable ->
+					reportingRepository.reportPlayCoreFailure(
+						message = "play_update_launch_failed",
+						throwable = throwable
+					)
+				}
 		}
 	}
 
