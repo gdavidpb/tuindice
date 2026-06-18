@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.about.data.source.IosShareTextHandler
 import com.gdavidpb.tuindice.about.data.source.IosStoreUrlDataSource
 import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventSubscriber
+import com.gdavidpb.tuindice.base.data.source.event.ReportingBreadcrumbEventSubscriber
 import com.gdavidpb.tuindice.base.data.source.usage.NoOpUsageDataCollectionDataSource
 import com.gdavidpb.tuindice.base.data.source.usage.UsageDataCollectionDataSource
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
@@ -88,6 +89,15 @@ val iosPlatformModule = module {
 		} else {
 			IosAnalyticsEventSubscriber(
 				observabilityCapability = get()
+			)
+		}
+	}
+	single<EventSubscriber>(named("iosCrashlyticsBreadcrumbEventSubscriber")) {
+		if (get<AppEnvironmentRepository>().getEnvironment().debug) {
+			NoOpEventSubscriber
+		} else {
+			ReportingBreadcrumbEventSubscriber(
+				reportingRepository = get()
 			)
 		}
 	}

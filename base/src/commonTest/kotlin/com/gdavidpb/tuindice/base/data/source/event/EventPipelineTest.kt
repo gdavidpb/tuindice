@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.base.presentation.statemachine.StateMachineViewModel
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.coroutines.withMainDispatcher
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlin.test.Test
@@ -96,6 +97,50 @@ class EventPipelineTest {
 		publisher.publish(event)
 
 		assertEquals(listOf<AppEvent>(event), subscriber.events)
+	}
+
+	@Test
+	fun bufferedEventPublisher_doesNotWriteBreadcrumbsWithoutConsent() = runTest {
+		val reportingRepository = RecordingReportingRepository()
+		val publisher = BufferedEventPublisher(
+			usageDataConsentRepository = InMemoryUsageDataConsentRepository(initialValue = false),
+			eventSubscriber = ReportingBreadcrumbEventSubscriber(reportingRepository),
+			coroutineScope = createPublisherScope()
+		)
+
+		publisher.publish(
+			AppEvent.Action(
+				source = "summary",
+				action = "RefreshSummary"
+			)
+		)
+
+		assertTrue(reportingRepository.loggedMessages.isEmpty())
+		assertTrue(reportingRepository.customKeys.isEmpty())
+	}
+
+	@Test
+	fun bufferedEventPublisher_writesBreadcrumbsWithConsent() = runTest {
+		val reportingRepository = RecordingReportingRepository()
+		val publisher = BufferedEventPublisher(
+			usageDataConsentRepository = InMemoryUsageDataConsentRepository(initialValue = true),
+			eventSubscriber = ReportingBreadcrumbEventSubscriber(reportingRepository),
+			coroutineScope = createPublisherScope()
+		)
+
+		publisher.publish(
+			AppEvent.Action(
+				source = "summary",
+				action = "RefreshSummary"
+			)
+		)
+
+		assertEquals(
+			listOf("mvi app_action source=summary action=RefreshSummary"),
+			reportingRepository.loggedMessages
+		)
+		assertEquals("summary", reportingRepository.customKeys["mvi.current_screen"])
+		assertEquals("RefreshSummary", reportingRepository.customKeys["mvi.last_action"])
 	}
 
 	@Test

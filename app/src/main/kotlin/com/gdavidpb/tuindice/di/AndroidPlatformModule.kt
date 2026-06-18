@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
 import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
 import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
 import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
+import com.gdavidpb.tuindice.base.data.source.event.ReportingBreadcrumbEventSubscriber
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.data.source.usage.UsageDataCollectionDataSource
@@ -144,6 +145,10 @@ val androidPlatformModule = module {
 		singleOf(::FirebaseAnalyticsEventSubscriber) {
 			bind<EventSubscriber>()
 			definitionNamed("firebaseAnalyticsEventSubscriber")
+		}
+		singleOf(::ReportingBreadcrumbEventSubscriber) {
+			bind<EventSubscriber>()
+			definitionNamed("crashlyticsBreadcrumbEventSubscriber")
 		}
 		single<AppStartupTask> {
 			UsageDataCollectionDataSource(

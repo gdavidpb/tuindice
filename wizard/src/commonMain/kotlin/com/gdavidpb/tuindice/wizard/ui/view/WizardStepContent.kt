@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.about.ui.screen.AboutScreen
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
+import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.ui.screen.EvaluationScreen
@@ -62,6 +63,7 @@ fun WizardStepContent(
 			SummaryScreen(
 				state = sampleSummaryState(),
 				syncStatus = SyncStatus.Healthy,
+				syncReport = SyncReport.success(),
 				isSyncing = false,
 				onRetryClick = {},
 				onEditProfilePictureClick = {},
