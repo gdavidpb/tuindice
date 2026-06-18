@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
+import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
@@ -349,26 +350,38 @@ class FakeCredentialsRepository(
 
 class FakeSyncStatusRepository(
 	initialValue: SyncStatus = SyncStatus.Healthy,
+	initialReport: SyncReport = SyncReport.success(),
 	initialLastSuccessfulSyncAt: Long? = null
 ) : SyncStatusRepository {
 	private val syncStatus = MutableStateFlow(initialValue)
+	private val syncReport = MutableStateFlow(initialReport)
 	private val lastSuccessfulSyncAt = MutableStateFlow(initialLastSuccessfulSyncAt)
 	val setStatuses = mutableListOf<SyncStatus>()
+	val setReports = mutableListOf<SyncReport>()
 	val setLastSuccessfulSyncTimestamps = mutableListOf<Long>()
 	var resetCalls = 0
 		private set
 
 	override fun observeSyncStatus(): Flow<SyncStatus> = syncStatus
 
+	override fun observeSyncReport(): Flow<SyncReport> = syncReport
+
 	override fun observeLastSuccessfulSyncAt(): Flow<Long?> = lastSuccessfulSyncAt
 
 	override suspend fun getSyncStatus(): SyncStatus = syncStatus.value
+
+	override suspend fun getSyncReport(): SyncReport = syncReport.value
 
 	override suspend fun getLastSuccessfulSyncAt(): Long? = lastSuccessfulSyncAt.value
 
 	override suspend fun setSyncStatus(status: SyncStatus) {
 		syncStatus.value = status
 		setStatuses += status
+	}
+
+	override suspend fun setSyncReport(report: SyncReport) {
+		syncReport.value = report
+		setReports += report
 	}
 
 	override suspend fun setLastSuccessfulSyncAt(timestamp: Long) {
@@ -378,6 +391,7 @@ class FakeSyncStatusRepository(
 
 	override suspend fun reset() {
 		syncStatus.value = SyncStatus.Healthy
+		syncReport.value = SyncReport.success()
 		lastSuccessfulSyncAt.value = null
 		resetCalls++
 	}

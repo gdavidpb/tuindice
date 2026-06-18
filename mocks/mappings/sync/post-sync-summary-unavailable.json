@@ -14,6 +14,7 @@
     "headers": {
       "Content-Type": "application/json"
     },
+    "bodyFileName": "sync/post-sync-record-unavailable.json",
     "fixedDelayMilliseconds": 500
   }
 }

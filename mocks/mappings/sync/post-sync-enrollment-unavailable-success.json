@@ -14,7 +14,7 @@
     "headers": {
       "Content-Type": "application/json"
     },
-    "bodyFileName": "sync/post-sync-success.json",
+    "bodyFileName": "sync/post-sync-enrollment-unavailable.json",
     "fixedDelayMilliseconds": 1000
   }
 }

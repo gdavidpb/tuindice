@@ -8,5 +8,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 data class SyncRecordResponse(
 	@SerialName("record") val record: AcademicRecordResponse,
-	@SerialName("user") val user: GetUserResponse
+	@SerialName("user") val user: GetUserResponse,
+	@SerialName("sync") val sync: SyncReportResponse? = null
 )

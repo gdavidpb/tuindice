@@ -10,6 +10,7 @@ object SummaryUiTags {
 	const val StatusRow = "summary_status_row"
 	const val StatusIcon = "summary_status_icon"
 	const val StatusIconButton = "summary_status_icon_button"
+	const val StatusIconHalo = "summary_status_icon_halo"
 	const val StatusText = "summary_status_text"
 	const val SyncStatusMessage = "summary_sync_status_message"
 	const val ItemsList = "summary_items_list"

@@ -862,13 +862,13 @@
     "last_update": 1778126400000
   },
   "sync": {
-    "status": "success",
+    "status": "partial",
     "sources": {
       "record": {
         "status": "success"
       },
       "enrollment": {
-        "status": "success"
+        "status": "unavailable"
       }
     }
   }

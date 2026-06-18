@@ -7,5 +7,6 @@ name: TuIndice summary E2E suite
 - runFlow: ../summary/summary-smoke.yaml
 - runFlow: ../summary/summary-refresh-retry.yaml
 - runFlow: ../summary/summary-status-dialog.yaml
+- runFlow: ../summary/summary-partial-enrollment-status-dialog.yaml
 - runFlow: ../summary/summary-profile-picture.yaml
 - runFlow: ../summary/summary-outdated-credentials.yaml

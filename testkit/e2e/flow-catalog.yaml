@@ -662,6 +662,22 @@ flows:
       - summary_status_icon_button
       - summary_sync_status_message
       - base_confirmation_dialog_positive_button
+  - id: summary-partial-enrollment-status-dialog
+    path: e2e/maestro/flows/summary/summary-partial-enrollment-status-dialog.yaml
+    module: summary
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: sync-status-partial-enrollment-dialog
+    fixture_state: summary-sync-partial-enrollment-unavailable
+    actions_covered:
+      - summary.Summary.RefreshSummary
+    primary_selectors:
+      - summary_content_container
+      - summary_status_icon_halo
+      - summary_status_icon_button
+      - summary_sync_status_message
+      - base_confirmation_dialog_positive_button
   - id: summary-profile-picture
     path: e2e/maestro/flows/summary/summary-profile-picture.yaml
     module: summary
