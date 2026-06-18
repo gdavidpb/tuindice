@@ -130,6 +130,22 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         completionHandler(nil)
     }
 
+    func readSecureValue(key: String) -> String? {
+        secureStore.read(key)
+    }
+
+    func writeSecureValue(key: String, value: String) {
+        secureStore.write(key, value: value)
+    }
+
+    func deleteSecureValue(key: String) {
+        secureStore.delete(key)
+    }
+
+    func clearSecureValues() {
+        secureStore.clear()
+    }
+
     func requestAttestation(
         attestationInput: String,
         keyId: String,
@@ -733,7 +749,8 @@ private struct KeychainSecureStore {
 
         let query = baseQuery(for: key)
         let attributes: [String: Any] = [
-            kSecValueData as String: encoded
+            kSecValueData as String: encoded,
+            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         ]
 
         let updateStatus = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
@@ -741,6 +758,7 @@ private struct KeychainSecureStore {
         if updateStatus == errSecItemNotFound {
             var addQuery = query
             addQuery[kSecValueData as String] = encoded
+            addQuery[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
             SecItemAdd(addQuery as CFDictionary, nil)
         }
     }

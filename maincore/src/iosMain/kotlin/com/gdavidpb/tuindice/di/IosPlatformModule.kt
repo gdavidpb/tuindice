@@ -13,7 +13,10 @@ import com.gdavidpb.tuindice.base.data.source.event.ReportingBreadcrumbEventSubs
 import com.gdavidpb.tuindice.base.data.source.usage.NoOpUsageDataCollectionDataSource
 import com.gdavidpb.tuindice.base.data.source.usage.UsageDataCollectionDataSource
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
+import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
+import com.gdavidpb.tuindice.base.data.source.secure.ACTIVE_SECURE_STORE_QUALIFIER
+import com.gdavidpb.tuindice.base.data.source.secure.LEGACY_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
@@ -31,6 +34,7 @@ import com.gdavidpb.tuindice.data.source.environment.IosAppEnvironmentDataSource
 import com.gdavidpb.tuindice.data.source.network.IosNetworkDataSource
 import com.gdavidpb.tuindice.data.source.reporting.IosReportingDataSource
 import com.gdavidpb.tuindice.data.source.review.IosReviewDataSource
+import com.gdavidpb.tuindice.data.source.secure.IosSecureKeyValueDataSource
 import com.gdavidpb.tuindice.data.source.update.IosUpdateDataSource
 import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
 import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
@@ -43,6 +47,7 @@ import com.gdavidpb.tuindice.platform.IOSContext
 import com.gdavidpb.tuindice.platform.IosPushCapability
 import com.gdavidpb.tuindice.platform.IosRemoteConfigCapability
 import com.gdavidpb.tuindice.platform.IosReviewCapability
+import com.gdavidpb.tuindice.platform.IosSecureStoreCapability
 import com.gdavidpb.tuindice.platform.IosUpdateCapability
 import com.gdavidpb.tuindice.platform.createIosUserAgent
 import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
@@ -69,6 +74,9 @@ val iosPlatformModule = module {
 	single {
 		KSafe(fileName = APP_SECURE_STORE_NAME)
 	}
+	single<SecureKeyValueDataRepository>(named(ACTIVE_SECURE_STORE_QUALIFIER)) {
+		IosSecureKeyValueDataSource(capability = get())
+	}
 	registerIosPersistencePlatformStorage {
 		iOSContext().databasePath
 	}
@@ -81,6 +89,7 @@ val iosPlatformModule = module {
 	single<IosExternalActionsCapability> { iOSContext().hostCapabilities.externalActions }
 	single<IosDeviceCapability> { iOSContext().hostCapabilities.device }
 	single<IosObservabilityCapability> { iOSContext().hostCapabilities.observability }
+	single<IosSecureStoreCapability> { iOSContext().hostCapabilities.secureStore }
 	single<DefaultRemoteConfigValues> { iOSContext().configValues }
 
 	single<EventSubscriber>(named("iosAnalyticsEventSubscriber")) {
@@ -126,10 +135,18 @@ val iosPlatformModule = module {
 	singleOf(::IosFileOpenerDataSource) { bind<FileOpenerRepository>() }
 	singleOf(::IosReviewDataSource) { bind<ReviewRepository>() }
 	singleOf(::IosUpdateDataSource) { bind<UpdateRepository>() }
-	singleOf(::IosApplicationDataSource) {
-		bind<ApplicationRepository>()
-		bind<FileRepository>()
+	single<IosApplicationDataSource> {
+		IosApplicationDataSource(
+			persistenceMaintenanceRepository = get(),
+			settingsRepository = get(),
+			secureStore = get(named(ACTIVE_SECURE_STORE_QUALIFIER)),
+			legacySecureStore = get(named(LEGACY_SECURE_STORE_QUALIFIER)),
+			attestationCapability = get(),
+			externalActionsCapability = get()
+		)
 	}
+	single<ApplicationRepository> { get<IosApplicationDataSource>() }
+	single<FileRepository> { get<IosApplicationDataSource>() }
 	singleOf(::IosReportingDataSource) { bind<ReportingRepository>() }
 	factoryOf(::IosPushTokenDataSource) { bind<PushTokenDataRepository>() }
 	factory<AuthApiDataRepository> {

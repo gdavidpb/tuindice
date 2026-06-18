@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.platform.IosObservabilityCapability
 import com.gdavidpb.tuindice.platform.IosPushCapability
 import com.gdavidpb.tuindice.platform.IosRemoteConfigCapability
 import com.gdavidpb.tuindice.platform.IosReviewCapability
+import com.gdavidpb.tuindice.platform.IosSecureStoreCapability
 import com.gdavidpb.tuindice.platform.IosUpdateCapability
 
 data class IosHostCapabilities(
@@ -17,5 +18,6 @@ data class IosHostCapabilities(
 	val update: IosUpdateCapability,
 	val externalActions: IosExternalActionsCapability,
 	val device: IosDeviceCapability,
-	val observability: IosObservabilityCapability
+	val observability: IosObservabilityCapability,
+	val secureStore: IosSecureStoreCapability
 )

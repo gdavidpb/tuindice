@@ -7,11 +7,11 @@ import android.net.Uri
 import android.webkit.MimeTypeMap
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
+import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceMaintenanceRepository
-import eu.anifantakis.lib.ksafe.KSafe
 import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.path
 import java.io.File
@@ -20,7 +20,8 @@ class AndroidApplicationDataSource(
 	private val context: Context,
 	private val persistenceMaintenanceRepository: PersistenceMaintenanceRepository,
 	private val settingsRepository: SettingsRepository,
-	private val kSafe: KSafe,
+	private val secureStore: SecureKeyValueDataRepository,
+	private val legacySecureStore: SecureKeyValueDataRepository,
 	private val proofOfPossessionCapability: AndroidProofOfPossessionCapability
 ) : ApplicationRepository {
 	override suspend fun canOpen(file: PlatformFile): Boolean {
@@ -43,7 +44,8 @@ class AndroidApplicationDataSource(
 
 		proofOfPossessionCapability.invalidateProofOfPossessionKeyId()
 		settingsRepository.clear()
-		kSafe.clearAll()
+		runCatching { secureStore.clear() }
+		runCatching { legacySecureStore.clear() }
 
 		with(context) {
 			listOf(

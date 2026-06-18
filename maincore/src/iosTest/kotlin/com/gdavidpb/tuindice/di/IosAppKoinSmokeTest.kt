@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.platform.IosObservabilityCapability
 import com.gdavidpb.tuindice.platform.IosPushCapability
 import com.gdavidpb.tuindice.platform.IosRemoteConfigCapability
 import com.gdavidpb.tuindice.platform.IosReviewCapability
+import com.gdavidpb.tuindice.platform.IosSecureStoreCapability
 import com.gdavidpb.tuindice.platform.IosUpdateCapability
 import com.gdavidpb.tuindice.platform.IOSContext
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
@@ -81,6 +82,23 @@ class IosAppKoinSmokeTest {
 									override fun logMessage(message: String) = Unit
 									override fun logException(throwable: Throwable) = Unit
 									override fun setCustomKey(key: String, value: String) = Unit
+								},
+								secureStore = object : IosSecureStoreCapability {
+									private val values = mutableMapOf<String, String>()
+
+									override fun readSecureValue(key: String): String? = values[key]
+
+									override fun writeSecureValue(key: String, value: String) {
+										values[key] = value
+									}
+
+									override fun deleteSecureValue(key: String) {
+										values.remove(key)
+									}
+
+									override fun clearSecureValues() {
+										values.clear()
+									}
 								}
 							),
 							appEnvironment = AppEnvironment(
