@@ -1,12 +1,14 @@
 package com.gdavidpb.tuindice.data.repository.attestation
 
 import com.gdavidpb.tuindice.base.data.model.AttestationProofOfPossessionRequest
+import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.base.domain.model.AttestationEvidenceMode
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.AttestationProofOfPossessionMode
 import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.data.source.attestation.AndroidAttestationDataSource
 import com.gdavidpb.tuindice.di.createSharedJson
 import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
@@ -43,7 +45,8 @@ class AndroidAttestationDataSourceTest {
 		val repository = AndroidAttestationDataSource(
 			ktorClient = httpClient,
 			providerDataSource = providerDataSource,
-			proofOfPossessionCapability = proofCapability
+			proofOfPossessionCapability = proofCapability,
+			configRepository = FixedConfigRepository(androidEnforcementEnabled = true)
 		)
 
 		val response = repository.attest(
@@ -64,6 +67,44 @@ class AndroidAttestationDataSourceTest {
 			listOf(AttestationEvidenceMode.PLAY_INTEGRITY_CLASSIC),
 			providerDataSource.calls.map { call -> call.evidenceMode }
 		)
+	}
+
+	@Test
+	fun `attest uses local bypass when Android enforcement is disabled`() = runTest {
+		val proofCapability = RecordingAndroidProofOfPossessionCapability(
+			resolvedKeyIds = ArrayDeque(),
+			proofFailures = ArrayDeque(),
+			issuedSignatures = ArrayDeque()
+		)
+		val providerDataSource = RecordingAttestationProviderDataSource()
+		val httpClient = androidAttestationHttpClient(
+			sessionModes = ArrayDeque(listOf(AttestationEvidenceMode.PLAY_INTEGRITY_STANDARD)),
+			proofModes = ArrayDeque(listOf(AttestationProofOfPossessionMode.ANDROID_KEYSTORE)),
+			tokenStatuses = ArrayDeque(listOf(HttpStatusCode.OK)),
+			tokenValues = ArrayDeque(listOf("bypass-issued-token"))
+		)
+		val repository = AndroidAttestationDataSource(
+			ktorClient = httpClient,
+			providerDataSource = providerDataSource,
+			proofOfPossessionCapability = proofCapability,
+			configRepository = FixedConfigRepository(androidEnforcementEnabled = false)
+		)
+
+		val response = repository.attest(
+			AttestationRequest(
+				operationCode = ProtectedOperationCodes.AuthExchange,
+				payloadJson = """{"usb_id":"12345678-9"}""",
+				authorization = AttestationAuthorization.Bearer(
+					accessToken = "access-token"
+				)
+			)
+		)
+
+		assertEquals("bypass-issued-token", response.token)
+		assertEquals(emptyList<String>(), proofCapability.resolveCalls)
+		assertEquals(emptyList<String>(), proofCapability.proofCalls)
+		assertEquals(0, proofCapability.invalidateCalls)
+		assertEquals(emptyList<RecordingAttestationProviderDataSource.Call>(), providerDataSource.calls)
 	}
 
 	@Test
@@ -93,7 +134,8 @@ class AndroidAttestationDataSourceTest {
 		val repository = AndroidAttestationDataSource(
 			ktorClient = httpClient,
 			providerDataSource = providerDataSource,
-			proofOfPossessionCapability = proofCapability
+			proofOfPossessionCapability = proofCapability,
+			configRepository = FixedConfigRepository(androidEnforcementEnabled = true)
 		)
 
 		val response = repository.attest(
@@ -146,7 +188,8 @@ class AndroidAttestationDataSourceTest {
 		val repository = AndroidAttestationDataSource(
 			ktorClient = httpClient,
 			providerDataSource = providerDataSource,
-			proofOfPossessionCapability = proofCapability
+			proofOfPossessionCapability = proofCapability,
+			configRepository = FixedConfigRepository(androidEnforcementEnabled = true)
 		)
 
 		val response = repository.attest(
@@ -178,7 +221,8 @@ class AndroidAttestationDataSourceTest {
 		val repository = AndroidAttestationDataSource(
 			ktorClient = httpClient,
 			providerDataSource = providerDataSource,
-			proofOfPossessionCapability = proofCapability
+			proofOfPossessionCapability = proofCapability,
+			configRepository = FixedConfigRepository(androidEnforcementEnabled = true)
 		)
 
 		val response = repository.attest(
@@ -216,7 +260,8 @@ class AndroidAttestationDataSourceTest {
 		val repository = AndroidAttestationDataSource(
 			ktorClient = httpClient,
 			providerDataSource = providerDataSource,
-			proofOfPossessionCapability = proofCapability
+			proofOfPossessionCapability = proofCapability,
+			configRepository = FixedConfigRepository(androidEnforcementEnabled = true)
 		)
 
 		val response = repository.attest(
@@ -257,7 +302,8 @@ class AndroidAttestationDataSourceTest {
 		val repository = AndroidAttestationDataSource(
 			ktorClient = httpClient,
 			providerDataSource = providerDataSource,
-			proofOfPossessionCapability = proofCapability
+			proofOfPossessionCapability = proofCapability,
+			configRepository = FixedConfigRepository(androidEnforcementEnabled = true)
 		)
 
 		repository.attest(
@@ -592,6 +638,36 @@ private class RecordingAttestationProviderDataSource : AttestationProviderDataRe
 		return ProviderAttestation(
 			token = "android-debug-attestation:$bindingHash",
 			provider = AttestationProvider.PLAY_INTEGRITY
+		)
+	}
+}
+
+private class FixedConfigRepository(
+	private val androidEnforcementEnabled: Boolean
+) : ConfigRepository {
+	override suspend fun tryFetch() = Unit
+
+	override fun getTimeout(): Long = 30_000L
+
+	override fun getContactEmail(): String = "support@tuindice.app"
+
+	override fun getContactSubject(): String = "Support"
+
+	override fun getLoadingMessages(): List<String> = listOf("Cargando")
+
+	override fun getTimeUpdateStalenessDays(): Int = 7
+
+	override fun getSyncsToSuggestReview(): Int = 3
+
+	override fun getAttestationAndroidEnforcementEnabled(): Boolean = androidEnforcementEnabled
+
+	override fun getAttestationIosEnforcementEnabled(): Boolean = true
+
+	override fun getAppAvailabilityNotice(): AppAvailabilityNotice {
+		return AppAvailabilityNotice(
+			enabled = false,
+			title = "",
+			message = ""
 		)
 	}
 }

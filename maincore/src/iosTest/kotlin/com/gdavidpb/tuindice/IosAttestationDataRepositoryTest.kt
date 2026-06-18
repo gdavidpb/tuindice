@@ -2,10 +2,12 @@ package com.gdavidpb.tuindice
 
 import com.gdavidpb.tuindice.base.domain.model.AttestationEvidenceMode
 import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
+import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.AttestationTemporarilyUnavailableException
 import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.data.source.attestation.IosAttestationDataSource
 import com.gdavidpb.tuindice.di.createSharedJson
 import com.gdavidpb.tuindice.domain.model.IosPlatformAttestation
@@ -45,7 +47,8 @@ class IosAttestationDataRepositoryTest {
 		)
 		val repository = IosAttestationDataSource(
 			httpClient = httpClient,
-			attestationCapability = capability
+			attestationCapability = capability,
+			configRepository = FixedConfigRepository(iosEnforcementEnabled = true)
 		)
 
 		val response = repository.attest(
@@ -71,6 +74,40 @@ class IosAttestationDataRepositoryTest {
 	}
 
 	@Test
+	fun `attest uses local bypass when iOS enforcement is disabled`() = runTest {
+		val capability = RecordingIosAttestationCapability(
+			resolvedKeyIds = ArrayDeque(),
+			requestFailures = ArrayDeque(),
+			issuedTokens = ArrayDeque()
+		)
+		val httpClient = appAttestHttpClient(
+			sessionModes = ArrayDeque(listOf(AttestationEvidenceMode.APP_ATTEST_ASSERTION)),
+			tokenStatuses = ArrayDeque(listOf(HttpStatusCode.OK)),
+			tokenValues = ArrayDeque(listOf("bypass-issued-token"))
+		)
+		val repository = IosAttestationDataSource(
+			httpClient = httpClient,
+			attestationCapability = capability,
+			configRepository = FixedConfigRepository(iosEnforcementEnabled = false)
+		)
+
+		val response = repository.attest(
+			AttestationRequest(
+				operationCode = ProtectedOperationCodes.AuthExchange,
+				payloadJson = """{"usb_id":"12345678-9"}""",
+				authorization = AttestationAuthorization.Bearer(
+					accessToken = "access-token"
+				)
+			)
+		)
+
+		assertEquals("bypass-issued-token", response.token)
+		assertEquals(emptyList<String>(), capability.resolveCalls)
+		assertEquals(emptyList<AttestationCall>(), capability.requestCalls)
+		assertEquals(0, capability.invalidateCalls)
+	}
+
+	@Test
 	fun `attest rotates the key and retries when backend rejects the assertion`() = runTest {
 		val capability = RecordingIosAttestationCapability(
 			resolvedKeyIds = ArrayDeque(listOf("stale-key", "fresh-key")),
@@ -89,7 +126,8 @@ class IosAttestationDataRepositoryTest {
 		)
 		val repository = IosAttestationDataSource(
 			httpClient = httpClient,
-			attestationCapability = capability
+			attestationCapability = capability,
+			configRepository = FixedConfigRepository(iosEnforcementEnabled = true)
 		)
 
 		val response = repository.attest(
@@ -124,7 +162,8 @@ class IosAttestationDataRepositoryTest {
 		val httpClient = appAttestConflictRecoveryHttpClient()
 		val repository = IosAttestationDataSource(
 			httpClient = httpClient,
-			attestationCapability = capability
+			attestationCapability = capability,
+			configRepository = FixedConfigRepository(iosEnforcementEnabled = true)
 		)
 
 		val response = repository.attest(
@@ -159,7 +198,8 @@ class IosAttestationDataRepositoryTest {
 		val httpClient = appAttestPreparationHttpClient()
 		val repository = IosAttestationDataSource(
 			httpClient = httpClient,
-			attestationCapability = capability
+			attestationCapability = capability,
+			configRepository = FixedConfigRepository(iosEnforcementEnabled = true)
 		)
 
 		val response = repository.attest(
@@ -208,7 +248,8 @@ class IosAttestationDataRepositoryTest {
 		)
 		val repository = IosAttestationDataSource(
 			httpClient = httpClient,
-			attestationCapability = capability
+			attestationCapability = capability,
+			configRepository = FixedConfigRepository(iosEnforcementEnabled = true)
 		)
 
 		val error = assertFailsWith<AttestationTemporarilyUnavailableException> {
@@ -247,7 +288,8 @@ class IosAttestationDataRepositoryTest {
 		)
 		val repository = IosAttestationDataSource(
 			httpClient = httpClient,
-			attestationCapability = capability
+			attestationCapability = capability,
+			configRepository = FixedConfigRepository(iosEnforcementEnabled = true)
 		)
 
 		val error = assertFailsWith<AttestationTemporarilyUnavailableException> {
@@ -545,3 +587,33 @@ private data class AttestationCall(
 	val keyId: String,
 	val evidenceMode: String
 )
+
+private class FixedConfigRepository(
+	private val iosEnforcementEnabled: Boolean
+) : ConfigRepository {
+	override suspend fun tryFetch() = Unit
+
+	override fun getTimeout(): Long = 30_000L
+
+	override fun getContactEmail(): String = "support@tuindice.app"
+
+	override fun getContactSubject(): String = "Support"
+
+	override fun getLoadingMessages(): List<String> = listOf("Cargando")
+
+	override fun getTimeUpdateStalenessDays(): Int = 7
+
+	override fun getSyncsToSuggestReview(): Int = 3
+
+	override fun getAttestationAndroidEnforcementEnabled(): Boolean = false
+
+	override fun getAttestationIosEnforcementEnabled(): Boolean = iosEnforcementEnabled
+
+	override fun getAppAvailabilityNotice(): AppAvailabilityNotice {
+		return AppAvailabilityNotice(
+			enabled = false,
+			title = "",
+			message = ""
+		)
+	}
+}

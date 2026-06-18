@@ -11,5 +11,7 @@ interface ConfigRepository {
 	fun getLoadingMessages(): List<String>
 	fun getTimeUpdateStalenessDays(): Int
 	fun getSyncsToSuggestReview(): Int
+	fun getAttestationAndroidEnforcementEnabled(): Boolean
+	fun getAttestationIosEnforcementEnabled(): Boolean
 	fun getAppAvailabilityNotice(): AppAvailabilityNotice
 }

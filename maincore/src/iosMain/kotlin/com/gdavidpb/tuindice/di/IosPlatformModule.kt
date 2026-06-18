@@ -130,7 +130,8 @@ val iosPlatformModule = module {
 	factory<AttestationRepository> {
 		IosAttestationDataSource(
 			httpClient = get<HttpClient>(qualifier = named(IDENTITY_HTTP_CLIENT_QUALIFIER)),
-			attestationCapability = get<IosAttestationCapability>()
+			attestationCapability = get<IosAttestationCapability>(),
+			configRepository = get<ConfigRepository>()
 		)
 	}
 

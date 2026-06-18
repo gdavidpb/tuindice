@@ -280,6 +280,10 @@ class FakeConfigRepository(
 
 	override fun getSyncsToSuggestReview(): Int = 3
 
+	override fun getAttestationAndroidEnforcementEnabled(): Boolean = false
+
+	override fun getAttestationIosEnforcementEnabled(): Boolean = true
+
 	override fun getAppAvailabilityNotice(): AppAvailabilityNotice = appAvailabilityNotice
 }
 

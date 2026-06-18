@@ -38,6 +38,8 @@ class DebugRemoteConfigDataSource(
 			RemoteConfigKeys.LOADING_MESSAGES -> Json.encodeToString(defaults.loadingMessages)
 			RemoteConfigKeys.TIME_UPDATE_STALENESS_DAYS -> defaults.updateStalenessDays.toString()
 			RemoteConfigKeys.SYNCS_TO_SUGGEST_REVIEW -> defaults.syncsToSuggestReview.toString()
+			RemoteConfigKeys.ATTESTATION_ANDROID_ENFORCEMENT_ENABLED -> defaults.attestationAndroidEnforcementEnabled.toString()
+			RemoteConfigKeys.ATTESTATION_IOS_ENFORCEMENT_ENABLED -> defaults.attestationIosEnforcementEnabled.toString()
 			RemoteConfigKeys.APP_AVAILABILITY_NOTICE_ENABLED -> defaults.appAvailabilityNoticeEnabled.toString()
 			RemoteConfigKeys.APP_AVAILABILITY_NOTICE_TITLE -> defaults.appAvailabilityNoticeTitle
 			RemoteConfigKeys.APP_AVAILABILITY_NOTICE_MESSAGE -> defaults.appAvailabilityNoticeMessage

@@ -12,6 +12,8 @@ data class DefaultRemoteConfigValues(
 	val loadingMessages: List<String>,
 	val updateStalenessDays: Int,
 	val syncsToSuggestReview: Int,
+	val attestationAndroidEnforcementEnabled: Boolean,
+	val attestationIosEnforcementEnabled: Boolean,
 	val appAvailabilityNoticeEnabled: Boolean,
 	val appAvailabilityNoticeTitle: String,
 	val appAvailabilityNoticeMessage: String
@@ -24,6 +26,8 @@ object RemoteConfigKeys {
 	const val TIME_UPDATE_STALENESS_DAYS = "time_update_staleness_days"
 	const val SYNCS_TO_SUGGEST_REVIEW = "syncs_to_suggest_review"
 	const val TIME_OUT_CONNECTION = "time_out_connection"
+	const val ATTESTATION_ANDROID_ENFORCEMENT_ENABLED = "attestation_android_enforcement_enabled"
+	const val ATTESTATION_IOS_ENFORCEMENT_ENABLED = "attestation_ios_enforcement_enabled"
 	const val APP_AVAILABILITY_NOTICE_ENABLED = "app_availability_notice_enabled"
 	const val APP_AVAILABILITY_NOTICE_TITLE = "app_availability_notice_title"
 	const val APP_AVAILABILITY_NOTICE_MESSAGE = "app_availability_notice_message"
@@ -31,21 +35,21 @@ object RemoteConfigKeys {
 
 object DefaultRemoteConfig {
 	private val DEFAULT_LOADING_MESSAGES = listOf(
-		"Calculando la resolvente...",
-		"Calculando el campo magnético...",
-		"Midiendo los anillos de Newton...",
-		"Haciendo la transformada de Fourier...",
-		"Haciendo la transformada de Laplace...",
-		"Rompiendo indeterminaciones con L'Hopital...",
-		"Ejecutando algoritmo de Dijkstra...",
-		"Aplicando la 1ra Ley de Newton...",
-		"Aplicando la 2da Ley de Newton...",
-		"Aplicando la 3ra Ley de Newton...",
-		"Aplicando Gauss-Jordan...",
-		"Factorizando...",
-		"Integrando...",
-		"Derivando...",
-		"Cancelando términos..."
+		"Calculando la resolvente…",
+		"Calculando el campo magnético…",
+		"Midiendo los anillos de Newton…",
+		"Haciendo la transformada de Fourier…",
+		"Haciendo la transformada de Laplace…",
+		"Rompiendo indeterminaciones con L'Hopital…",
+		"Ejecutando algoritmo de Dijkstra…",
+		"Aplicando la 1ra Ley de Newton…",
+		"Aplicando la 2da Ley de Newton…",
+		"Aplicando la 3ra Ley de Newton…",
+		"Aplicando Gauss-Jordan…",
+		"Factorizando…",
+		"Integrando…",
+		"Derivando…",
+		"Cancelando términos…"
 	)
 
 	fun values(profile: RemoteConfigDefaultsProfile): DefaultRemoteConfigValues {
@@ -62,6 +66,8 @@ object DefaultRemoteConfig {
 		loadingMessages = DEFAULT_LOADING_MESSAGES,
 		updateStalenessDays = 7,
 		syncsToSuggestReview = 3,
+		attestationAndroidEnforcementEnabled = false,
+		attestationIosEnforcementEnabled = true,
 		appAvailabilityNoticeEnabled = false,
 		appAvailabilityNoticeTitle = "",
 		appAvailabilityNoticeMessage = ""

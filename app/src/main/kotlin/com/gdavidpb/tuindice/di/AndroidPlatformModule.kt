@@ -197,7 +197,8 @@ val androidPlatformModule = module {
 		AndroidAttestationDataSource(
 			ktorClient = get<HttpClient>(qualifier = named(IDENTITY_HTTP_CLIENT_QUALIFIER)),
 			providerDataSource = get(),
-			proofOfPossessionCapability = get()
+			proofOfPossessionCapability = get(),
+			configRepository = get()
 		)
 	}
 

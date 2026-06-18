@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.AttestationTemporarilyUnavailableException
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.utils.attestationBindingInput
 import com.gdavidpb.tuindice.base.utils.extension.isAttestationKeyUserMismatch
 import com.gdavidpb.tuindice.base.utils.extension.isForbidden
@@ -31,7 +32,8 @@ import kotlinx.coroutines.sync.withLock
 
 class IosAttestationDataSource(
 	private val httpClient: HttpClient,
-	private val attestationCapability: IosAttestationCapability
+	private val attestationCapability: IosAttestationCapability,
+	private val configRepository: ConfigRepository
 ) : AttestationRepository {
 	private val appAttestMutex = Mutex()
 
@@ -40,27 +42,86 @@ class IosAttestationDataSource(
 			val requestHash = attestationCapability.sha256Base64Url(request.payloadJson)
 				?: throw IllegalStateException("Unable to hash attestation payload on iOS.")
 
+			if (!configRepository.getAttestationIosEnforcementEnabled()) {
+				return@withLock runCatching {
+					attestWithBypass(
+						request = request,
+						requestHash = requestHash
+					)
+				}.recoverCatching { throwable ->
+					if (!throwable.shouldFallbackToEnforcedAttestation()) throw throwable
+					attestWithRecovery(
+						request = request,
+						requestHash = requestHash
+					)
+				}.getOrThrow()
+			}
+
+			attestWithRecovery(
+				request = request,
+				requestHash = requestHash
+			)
+		}
+	}
+
+	private suspend fun attestWithRecovery(
+		request: AttestationRequest,
+		requestHash: String
+	): Attestation {
+		return runCatching {
+			attestOnce(request = request, requestHash = requestHash)
+		}.recoverCatching { throwable ->
+			if (throwable !is RecoverableAppAttestException) throw throwable
+
+			attestationCapability.invalidateAttestationKeyId()
 			runCatching {
 				attestOnce(request = request, requestHash = requestHash)
-			}.recoverCatching { throwable ->
-				if (throwable !is RecoverableAppAttestException) throw throwable
-
-				attestationCapability.invalidateAttestationKeyId()
-				runCatching {
-					attestOnce(request = request, requestHash = requestHash)
-				}.getOrElse { retryThrowable ->
-					if (retryThrowable is RecoverableAppAttestException) {
-						throw AttestationTemporarilyUnavailableException(
-							platform = PLATFORM_IOS,
-							operationCode = request.operationCode.value,
-							cause = retryThrowable
-						)
-					}
-
-					throw retryThrowable
+			}.getOrElse { retryThrowable ->
+				if (retryThrowable is RecoverableAppAttestException) {
+					throw AttestationTemporarilyUnavailableException(
+						platform = PLATFORM_IOS,
+						operationCode = request.operationCode.value,
+						cause = retryThrowable
+					)
 				}
-			}.getOrThrow()
-		}
+
+				throw retryThrowable
+			}
+		}.getOrThrow()
+	}
+
+	private suspend fun attestWithBypass(
+		request: AttestationRequest,
+		requestHash: String
+	): Attestation {
+		val keyId = BYPASS_KEY_ID
+		val session = requestOperationSession(
+			httpClient = httpClient,
+			operationCode = request.operationCode.value,
+			keyId = keyId,
+			authorization = request.authorization
+		)
+		val bindingHash = requireBindingHash(
+			sessionId = session.sessionId,
+			challenge = session.challenge,
+			bindingCode = request.operationCode.value,
+			requestHash = requestHash
+		)
+		val response = httpClient.post(tokensPath()) {
+			applyAttestationAuthorization(request.authorization)
+			setBody(
+				IssueAttestationTokenRequest(
+					sessionId = session.sessionId,
+					operationCode = request.operationCode.value,
+					requestHash = requestHash,
+					evidenceMode = session.evidenceMode,
+					token = "$BYPASS_TOKEN_PREFIX$bindingHash",
+					keyId = keyId
+				)
+			)
+		}.body<IssueAttestationTokenResponse>()
+
+		return Attestation(token = response.token)
 	}
 
 	private suspend fun attestOnce(
@@ -309,6 +370,10 @@ class IosAttestationDataSource(
 		return throwable.isForbidden() || throwable.isAttestationKeyUserMismatch()
 	}
 
+	private suspend fun Throwable.shouldFallbackToEnforcedAttestation(): Boolean {
+		return isPreconditionRequired() || isForbidden() || isAttestationKeyUserMismatch()
+	}
+
 	private fun HttpRequestBuilder.applyAttestationAuthorization(authorization: AttestationAuthorization) {
 		if (authorization is AttestationAuthorization.Bearer) {
 			bearerAuth(authorization.accessToken)
@@ -333,6 +398,8 @@ class IosAttestationDataSource(
 
 	private companion object {
 		const val PLATFORM_IOS = "iOS"
+		const val BYPASS_KEY_ID = "ios-remote-config-bypass-key"
+		const val BYPASS_TOKEN_PREFIX = "ios-remote-config-bypass:"
 	}
 }
 

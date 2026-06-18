@@ -56,6 +56,18 @@ class ConfigDataSource(
 			?: defaults.syncsToSuggestReview
 	}
 
+	override fun getAttestationAndroidEnforcementEnabled(): Boolean {
+		return remoteConfigDataSource.getString(RemoteConfigKeys.ATTESTATION_ANDROID_ENFORCEMENT_ENABLED)
+			?.toBooleanStrictOrNull()
+			?: defaults.attestationAndroidEnforcementEnabled
+	}
+
+	override fun getAttestationIosEnforcementEnabled(): Boolean {
+		return remoteConfigDataSource.getString(RemoteConfigKeys.ATTESTATION_IOS_ENFORCEMENT_ENABLED)
+			?.toBooleanStrictOrNull()
+			?: defaults.attestationIosEnforcementEnabled
+	}
+
 	override fun getAppAvailabilityNotice(): AppAvailabilityNotice {
 		return AppAvailabilityNotice(
 			enabled = remoteConfigDataSource.getString(RemoteConfigKeys.APP_AVAILABILITY_NOTICE_ENABLED)

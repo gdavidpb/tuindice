@@ -10,6 +10,45 @@ import kotlin.test.assertEquals
 
 class ConfigDataSourceTest {
 	@Test
+	fun getAttestationEnforcementEnabled_readsRemoteConfigValues() {
+		val dataSource = ConfigDataSource(
+			remoteConfigDataSource = MapRemoteConfigDataSource(
+				values = mapOf(
+					RemoteConfigKeys.ATTESTATION_ANDROID_ENFORCEMENT_ENABLED to "true",
+					RemoteConfigKeys.ATTESTATION_IOS_ENFORCEMENT_ENABLED to "false"
+				)
+			),
+			defaults = DefaultRemoteConfig.values(RemoteConfigDefaultsProfile.PRODUCTION)
+		)
+
+		assertEquals(
+			expected = true,
+			actual = dataSource.getAttestationAndroidEnforcementEnabled()
+		)
+		assertEquals(
+			expected = false,
+			actual = dataSource.getAttestationIosEnforcementEnabled()
+		)
+	}
+
+	@Test
+	fun getAttestationEnforcementEnabled_fallsBackToDefaultsWhenRemoteValuesAreMissing() {
+		val dataSource = ConfigDataSource(
+			remoteConfigDataSource = MapRemoteConfigDataSource(),
+			defaults = DefaultRemoteConfig.values(RemoteConfigDefaultsProfile.PRODUCTION)
+		)
+
+		assertEquals(
+			expected = false,
+			actual = dataSource.getAttestationAndroidEnforcementEnabled()
+		)
+		assertEquals(
+			expected = true,
+			actual = dataSource.getAttestationIosEnforcementEnabled()
+		)
+	}
+
+	@Test
 	fun getAppAvailabilityNotice_readsRemoteConfigValues() {
 		val dataSource = ConfigDataSource(
 			remoteConfigDataSource = MapRemoteConfigDataSource(
