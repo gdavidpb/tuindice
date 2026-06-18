@@ -5,12 +5,14 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
+import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
-import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
+import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.testing.createMainViewModel
+import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeUpdateRepository
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -172,6 +174,37 @@ class MainRouteUiTest {
 		}
 
 		assertEquals(SummaryDestination.NavGraph, (latestState as Main.State.Content).startDestination)
+	}
+
+	@Test
+	fun when_appAvailabilityNoticeIsEnabled_then_routeExposesAppUnavailableState() = runTuIndiceUiTest {
+		val notice = AppAvailabilityNotice(
+			enabled = true,
+			title = "Servicio pausado",
+			message = "Estamos en mantenimiento."
+		)
+		val viewModel = createMainViewModel(
+			configRepository = FakeConfigRepository(appAvailabilityNotice = notice)
+		)
+		var latestState: Main.State? = null
+
+		setTuIndiceTestContent {
+			MainRoute(
+				onNavigateToGooglePlayServicesUnavailableDialog = {},
+				onRequestReviewFlow = {},
+				onRequestUpdateFlow = {},
+				viewModel = viewModel
+			) { state ->
+				latestState = state
+				Text(text = state::class.simpleName ?: "State")
+			}
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			latestState is Main.State.AppUnavailable
+		}
+
+		assertEquals(notice, (latestState as Main.State.AppUnavailable).notice)
 	}
 
 	private class GooglePlayServicesFailingSessionRepository : SessionRepository {

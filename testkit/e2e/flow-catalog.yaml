@@ -114,6 +114,7 @@ flows:
     variant: maincore-certification
     fixture_state: authenticated-content
     covers:
+      - availability-notice
       - bottom-bar
       - back-stack
       - internal-browser
@@ -197,6 +198,21 @@ flows:
       - base_snackbar_container
       - base_snackbar_message
       - base_snackbar_action_button
+  - id: maincore-app-availability-notice
+    path: e2e/maestro/flows/maincore/app-availability-notice.yaml
+    module: maincore
+    type: startup-state
+    platforms: [android, ios]
+    status: active
+    variant: remote-config-app-unavailable
+    fixture_state: debug-remote-config
+    actions_covered:
+      - maincore.Main.StartUp
+    primary_selectors:
+      - maincore_app_availability_notice_screen
+      - maincore_app_availability_notice_title
+      - maincore_app_availability_notice_message
+      - base_error_state_animation
   - id: maincore-bottom-bar-state
     path: e2e/maestro/flows/maincore/bottom-bar-state.yaml
     module: maincore

@@ -84,6 +84,8 @@ import com.gdavidpb.tuindice.ui.view.TopBarBannerHost
 import org.jetbrains.compose.resources.stringResource
 import tuindice.maincore.generated.resources.Res
 import tuindice.maincore.generated.resources.a11y_navigate_back
+import tuindice.maincore.generated.resources.app_availability_notice_default_message
+import tuindice.maincore.generated.resources.app_availability_notice_default_title
 import tuindice.maincore.generated.resources.main_start_failed_message
 import tuindice.maincore.generated.resources.main_start_failed_retry
 import tuindice.maincore.generated.resources.main_start_failed_title
@@ -130,6 +132,16 @@ fun TuIndiceScreen(
 				retryText = stringResource(Res.string.main_start_failed_retry),
 				onRetryClick = onRetryStartUp,
 				headerContent = { ErrorStateAnimationView() }
+			)
+			return
+		}
+
+		is Main.State.AppUnavailable -> {
+			AppAvailabilityNoticeScreen(
+				title = state.notice.title.takeIf { it.isNotBlank() }
+					?: stringResource(Res.string.app_availability_notice_default_title),
+				message = state.notice.message.takeIf { it.isNotBlank() }
+					?: stringResource(Res.string.app_availability_notice_default_message)
 			)
 			return
 		}

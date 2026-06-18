@@ -32,6 +32,23 @@ enum TuIndiceDebugRuntimeOverrides {
     }
 
     #if canImport(maincore) || canImport(Maincore)
+    static func configureRemoteConfigOverridesIfNeeded(
+        appBootstrap: IosAppHostBootstrap
+    ) {
+        #if DEBUG
+        guard let rawEnabled = launchArgumentString(for: availabilityNoticeEnabledKey) else { return }
+        let enabled = ["true", "1", "yes"].contains(rawEnabled.trimmingCharacters(in: .whitespacesAndNewlines).lowercased())
+
+        appBootstrap.setDebugAppAvailabilityNoticeOverride(
+            enabled: enabled,
+            title: launchArgumentString(for: availabilityNoticeTitleKey) ?? "",
+            message: launchArgumentString(for: availabilityNoticeMessageKey) ?? ""
+        )
+        #else
+        _ = appBootstrap
+        #endif
+    }
+
     static func runStartupHooksIfNeeded(
         appBootstrap: IosAppHostBootstrap,
         apiBaseUrl: String
@@ -67,6 +84,9 @@ private extension TuIndiceDebugRuntimeOverrides {
     static let webBaseUrlKey = "TUINDICE_E2E_WEB_BASE_URL"
     static let seedStateKey = "TUINDICE_E2E_SEED_STATE"
     static let mainSectionKey = "TUINDICE_E2E_MAIN_SECTION"
+    static let availabilityNoticeEnabledKey = "TUINDICE_E2E_AVAILABILITY_NOTICE_ENABLED"
+    static let availabilityNoticeTitleKey = "TUINDICE_E2E_AVAILABILITY_NOTICE_TITLE"
+    static let availabilityNoticeMessageKey = "TUINDICE_E2E_AVAILABILITY_NOTICE_MESSAGE"
 
     static func launchArgumentString(for key: String) -> String? {
         if let value = ProcessInfo.processInfo.environment[key], value.isEmpty == false {

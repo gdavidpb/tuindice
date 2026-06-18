@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.testkit.base.repository
 
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
+import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
@@ -258,7 +259,12 @@ class FakeSettingsRepository(
 
 class FakeConfigRepository(
 	private val email: String = "support@tuindice.app",
-	private val subject: String = "Support TuIndice"
+	private val subject: String = "Support TuIndice",
+	private val appAvailabilityNotice: AppAvailabilityNotice = AppAvailabilityNotice(
+		enabled = false,
+		title = "",
+		message = ""
+	)
 ) : ConfigRepository {
 	override suspend fun tryFetch() = Unit
 
@@ -273,6 +279,8 @@ class FakeConfigRepository(
 	override fun getTimeUpdateStalenessDays(): Int = 7
 
 	override fun getSyncsToSuggestReview(): Int = 3
+
+	override fun getAppAvailabilityNotice(): AppAvailabilityNotice = appAvailabilityNotice
 }
 
 class RecordingReviewRepository : ReviewRepository {

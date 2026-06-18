@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.presentation.machine
 
+import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
@@ -94,6 +95,13 @@ class MainStateMachineContractTest {
 				MainInternalEvent.StartUpCompleted(
 					startDestination = SummaryDestination.NavGraph
 				),
+				MainInternalEvent.AppUnavailableResolved(
+					notice = AppAvailabilityNotice(
+						enabled = true,
+						title = "Mantenimiento",
+						message = "Volvemos pronto."
+					)
+				),
 				MainInternalEvent.StartUpFailed(noServices = false),
 				MainInternalEvent.ReviewRequested,
 				MainInternalEvent.UpdateInfoLoaded(action = UpdateAction.Immediate),
@@ -144,8 +152,10 @@ class MainStateMachineContractTest {
 			"starting",
 			"content",
 			"failed",
+			"app_unavailable",
 			"StartUp",
 			"StartUpCompleted",
+			"AppUnavailableResolved",
 			"ReviewRequested / TriggerReviewFlow",
 			"WizardStartApproved / NavigateToWizard"
 		)

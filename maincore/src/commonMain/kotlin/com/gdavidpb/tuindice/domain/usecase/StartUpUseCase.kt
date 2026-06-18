@@ -7,7 +7,6 @@ import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
-import com.gdavidpb.tuindice.base.utils.extension.noAwait
 import com.gdavidpb.tuindice.domain.usecase.error.StartUpUseCaseError
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
 import com.gdavidpb.tuindice.domain.usecase.result.StartUpResult
@@ -23,7 +22,16 @@ class StartUpUseCase(
 	override val exceptionHandler: StartUpExceptionHandler
 ) : FlowUseCase<Unit, StartUpResult, StartUpUseCaseError>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<StartUpResult> {
-		noAwait { configRepository.tryFetch() }
+		configRepository.tryFetch()
+
+		val appAvailabilityNotice = configRepository.getAppAvailabilityNotice()
+		if (appAvailabilityNotice.enabled) {
+			return flowOf(
+				StartUpResult.AppUnavailable(
+					notice = appAvailabilityNotice
+				)
+			)
+		}
 
 		val startUpResult = runCatching {
 			val hasActiveTokens = sessionRepository.hasActiveSession()
@@ -33,7 +41,7 @@ class StartUpUseCase(
 			else
 				StartUpTarget.Auth
 
-			StartUpResult(
+			StartUpResult.Available(
 				startTarget = startTarget
 			)
 		}.onFailure {

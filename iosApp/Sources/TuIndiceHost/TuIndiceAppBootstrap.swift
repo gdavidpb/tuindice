@@ -53,6 +53,9 @@ enum TuIndiceAppBootstrap {
     static func makeRootViewController() -> UIViewController {
         #if canImport(maincore) || canImport(Maincore)
         configureLocale()
+        TuIndiceDebugRuntimeOverrides.configureRemoteConfigOverridesIfNeeded(
+            appBootstrap: appBootstrap
+        )
         TuIndiceDebugRuntimeOverrides.runStartupHooksIfNeeded(
             appBootstrap: appBootstrap,
             apiBaseUrl: hostConfig.apiBaseUrl

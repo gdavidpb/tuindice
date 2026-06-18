@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
@@ -58,6 +59,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReviewRepository
 import com.gdavidpb.tuindice.testing.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testing.createMainViewModel
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
+import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -107,6 +109,60 @@ class TuIndiceAppHostRouteUiTest {
 
 			assertNodeVisible(MaincoreUiTags.TuIndiceNavHost)
 			assertTrue(reviewRepository.launchCalls > 0)
+		} finally {
+			stopKoin()
+		}
+	}
+
+	@Test
+	fun when_appAvailabilityNoticeIsEnabled_then_hostRouteBlocksAppSideEffects() = runTuIndiceUiTest {
+		val reviewRepository = RecordingReviewRepository()
+		val updateRepository = FakeUpdateRepository(updateAction = UpdateAction.Immediate)
+		val syncRepository = FakeSyncRepository()
+		val syncStatusRepository = FakeSyncStatusRepository()
+
+		stopKoin()
+		startKoin {
+			modules(hostRouteNavigationModule(syncStatusRepository))
+		}
+
+		try {
+			setTuIndiceTestContent {
+				TuIndiceAppHostRoute(
+					onConfirmExitClick = {},
+					isSwipeBackNavigationEnabled = false,
+					browserRepository = RecordingBrowserRepository(),
+					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
+					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
+					syncStatusRepository = syncStatusRepository,
+					reviewRepository = reviewRepository,
+					updateRepository = updateRepository,
+					viewModel = createMainViewModel(
+						configRepository = FakeConfigRepository(
+							appAvailabilityNotice = AppAvailabilityNotice(
+								enabled = true,
+								title = "Servicio pausado",
+								message = "Estamos en mantenimiento."
+							)
+						),
+						credentialsRepository = FakeCredentialsRepository(password = "secret123"),
+						syncRepository = syncRepository
+					)
+				)
+			}
+
+			waitUntil(timeoutMillis = 2_000) {
+				onAllNodesWithTag(MaincoreUiTags.AppAvailabilityNoticeScreen)
+					.fetchSemanticsNodes()
+					.isNotEmpty()
+			}
+
+			assertNodeVisible(MaincoreUiTags.AppAvailabilityNoticeScreen)
+			assertNodeHidden(MaincoreUiTags.TuIndiceNavHost)
+			assertEquals(0, reviewRepository.launchCalls)
+			assertEquals(emptyList(), updateRepository.checkCalls)
+			assertEquals(emptyList(), updateRepository.launchedActions)
+			assertEquals(emptyList(), syncRepository.scheduledSyncCalls)
 		} finally {
 			stopKoin()
 		}

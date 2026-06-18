@@ -98,44 +98,6 @@ fun TuIndiceAppHostRoute(
 	val pendingChangesUnavailableMessage = stringResource(Res.string.snack_pending_changes_unavailable)
 	val sessionInvalidatedMessage = stringResource(Res.string.snack_session_invalidated)
 
-	LaunchedEffect(Unit) {
-		yield()
-		viewModel.requestReviewAction()
-	}
-
-	LaunchedEffect(lifecycleOwner) {
-		lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
-			viewModel.checkUpdateAction()
-			viewModel.requestSyncAction()
-		}
-	}
-
-	LaunchedEffect(lifecycleOwner, sessionInvalidationRepository, sessionInvalidatedMessage) {
-		lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
-			sessionInvalidationRepository.observeSessionInvalidation().collect {
-				yield()
-
-				val graphId = runCatching { navController.graph.id }
-					.getOrElse {
-						navController.currentBackStackEntryFlow.first()
-						navController.graph.id
-					}
-
-				navController.navigate(AuthDestination.NavGraph) {
-					launchSingleTop = true
-					popUpTo(graphId) {
-						inclusive = true
-					}
-				}
-				showSnackBar(
-					SnackBarMessage(
-						message = sessionInvalidatedMessage
-					)
-				)
-			}
-		}
-	}
-
 	MainRoute(
 		onNavigateToGooglePlayServicesUnavailableDialog = {
 			navController.navigate(MainDestination.GooglePlayServicesUnavailableDialog)
@@ -159,15 +121,65 @@ fun TuIndiceAppHostRoute(
 		val isPreparingSignOut = remember {
 			mutableStateOf(false)
 		}
-	val onRecordViewModeChange = remember {
-		mutableStateOf<((RecordViewMode) -> Unit)?>(null)
-	}
-	val onRecordTermSelection = remember {
-		mutableStateOf<(() -> Unit)?>(null)
-	}
+		val onRecordViewModeChange = remember {
+			mutableStateOf<((RecordViewMode) -> Unit)?>(null)
+		}
+		val onRecordTermSelection = remember {
+			mutableStateOf<(() -> Unit)?>(null)
+		}
 		val syncStatus by syncStatusRepository
 			.observeSyncStatus()
 			.collectAsStateWithLifecycle(initialValue = SyncStatus.Healthy)
+		val isContentAvailable = state is Main.State.Content
+
+		LaunchedEffect(isContentAvailable) {
+			if (!isContentAvailable) return@LaunchedEffect
+
+			yield()
+			viewModel.requestReviewAction()
+		}
+
+		LaunchedEffect(lifecycleOwner, isContentAvailable) {
+			if (!isContentAvailable) return@LaunchedEffect
+
+			lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
+				viewModel.checkUpdateAction()
+				viewModel.requestSyncAction()
+			}
+		}
+
+		LaunchedEffect(
+			lifecycleOwner,
+			sessionInvalidationRepository,
+			sessionInvalidatedMessage,
+			isContentAvailable
+		) {
+			if (!isContentAvailable) return@LaunchedEffect
+
+			lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
+				sessionInvalidationRepository.observeSessionInvalidation().collect {
+					yield()
+
+					val graphId = runCatching { navController.graph.id }
+						.getOrElse {
+							navController.currentBackStackEntryFlow.first()
+							navController.graph.id
+						}
+
+					navController.navigate(AuthDestination.NavGraph) {
+						launchSingleTop = true
+						popUpTo(graphId) {
+							inclusive = true
+						}
+					}
+					showSnackBar(
+						SnackBarMessage(
+							message = sessionInvalidatedMessage
+						)
+					)
+				}
+			}
+		}
 
 		LaunchedEffect(syncStatus, state) {
 			if (state !is Main.State.Content) return@LaunchedEffect

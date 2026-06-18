@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.presentation.contract
 
+import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.presentation.ViewAction
@@ -10,6 +11,10 @@ import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 object Main {
 	sealed class State : ViewState {
 		data object Starting : State()
+
+		data class AppUnavailable(
+			val notice: AppAvailabilityNotice
+		) : State()
 
 		data class Content(
 			val startDestination: Destination,

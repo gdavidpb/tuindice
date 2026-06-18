@@ -241,6 +241,42 @@ class AndroidAttestationDataSourceTest {
 			providerDataSource.calls.map { call -> call.evidenceMode }
 		)
 	}
+
+	@Test
+	fun `bootstrap preparation sends the same contract binding to Play Integrity and proof of possession`() = runTest {
+		val proofCapability = RecordingAndroidProofOfPossessionCapability(
+			resolvedKeyIds = ArrayDeque(listOf(CONTRACT_KEY_ID)),
+			proofFailures = ArrayDeque(listOf(null, null)),
+			issuedSignatures = ArrayDeque(listOf("bootstrap-signature", "business-signature"))
+		)
+		val providerDataSource = RecordingAttestationProviderDataSource()
+		val httpClient = androidPreparationHttpClient(
+			preparationSessionId = CONTRACT_SESSION_ID,
+			preparationChallenge = CONTRACT_CHALLENGE
+		)
+		val repository = AndroidAttestationDataSource(
+			ktorClient = httpClient,
+			providerDataSource = providerDataSource,
+			proofOfPossessionCapability = proofCapability
+		)
+
+		repository.attest(
+			AttestationRequest(
+				operationCode = ProtectedOperationCodes.AuthRefreshTokens,
+				payloadJson = """{"refresh_token":"token"}""",
+				authorization = AttestationAuthorization.Bearer(
+					accessToken = "access-token"
+				)
+			)
+		)
+
+		assertEquals(CONTRACT_BINDING_HASH, providerDataSource.calls.first().bindingHash)
+		assertEquals(CONTRACT_BINDING_HASH, proofCapability.attestationInputs.first())
+		assertEquals(
+			providerDataSource.calls.map { call -> call.bindingHash },
+			proofCapability.attestationInputs
+		)
+	}
 }
 
 private fun androidAttestationHttpClient(
@@ -300,7 +336,10 @@ private fun androidAttestationHttpClient(
 	}
 }
 
-private fun androidPreparationHttpClient(): HttpClient {
+private fun androidPreparationHttpClient(
+	preparationSessionId: String = "preparation-session",
+	preparationChallenge: String = "preparation-challenge"
+): HttpClient {
 	var sessionAttempts = 0
 
 	return HttpClient(
@@ -341,8 +380,8 @@ private fun androidPreparationHttpClient(): HttpClient {
 					respond(
 						content = """
 							{
-							  "session_id": "preparation-session",
-							  "challenge": "preparation-challenge",
+							  "session_id": "$preparationSessionId",
+							  "challenge": "$preparationChallenge",
 							  "expires_at": 1735689600000,
 							  "evidence_mode": "play_integrity_classic",
 							  "proof_of_possession_mode": "android_keystore"
@@ -494,6 +533,7 @@ private class RecordingAndroidProofOfPossessionCapability(
 ) : AndroidProofOfPossessionCapability {
 	val resolveCalls = mutableListOf<String>()
 	val proofCalls = mutableListOf<String>()
+	val attestationInputs = mutableListOf<String>()
 	var invalidateCalls = 0
 
 	override suspend fun resolveProofOfPossessionKeyId(): String {
@@ -512,6 +552,7 @@ private class RecordingAndroidProofOfPossessionCapability(
 		requireKeyAttestation: Boolean
 	): AttestationProofOfPossessionRequest {
 		proofCalls += keyId
+		attestationInputs += attestationInput
 		proofFailures.removeFirstOrNull()?.let { throw it }
 
 		return AttestationProofOfPossessionRequest(
@@ -525,6 +566,11 @@ private class RecordingAndroidProofOfPossessionCapability(
 		)
 	}
 }
+
+private const val CONTRACT_KEY_ID = "eba7ac52-ba56-4faf-99e5-72edb82d5274"
+private const val CONTRACT_SESSION_ID = "11111111-2222-3333-4444-555555555555"
+private const val CONTRACT_CHALLENGE = "GS+cAPertlUa8E4inMJ9QFN7rNGF0I20Mv8bgRpHdAg="
+private const val CONTRACT_BINDING_HASH = "Kl_NfMULpzI-_UxPCSCh3CLuPCPmZNnNvWQFpa-1Bc0"
 
 private class RecordingAttestationProviderDataSource : AttestationProviderDataRepository {
 	data class Call(

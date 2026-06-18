@@ -21,4 +21,7 @@ object MaincoreUiTags {
 	const val TuIndiceBottomBarEvaluationsItemSelected = "maincore_tuindice_bottom_bar_evaluations_item_selected"
 	const val TuIndiceBottomBarAboutItemSelected = "maincore_tuindice_bottom_bar_about_item_selected"
 	const val TuIndiceNavHost = "maincore_tuindice_nav_host"
+	const val AppAvailabilityNoticeScreen = "maincore_app_availability_notice_screen"
+	const val AppAvailabilityNoticeTitle = "maincore_app_availability_notice_title"
+	const val AppAvailabilityNoticeMessage = "maincore_app_availability_notice_message"
 }

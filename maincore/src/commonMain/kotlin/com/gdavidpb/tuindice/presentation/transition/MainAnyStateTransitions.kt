@@ -49,6 +49,10 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 			Main.State.Content(startDestination = event.startDestination)
 		}
 
+		onTo<MainInternalEvent.AppUnavailableResolved, Main.State.AppUnavailable> { _, event ->
+			Main.State.AppUnavailable(notice = event.notice)
+		}
+
 		onTo<MainInternalEvent.StartUpFailed, Main.State.Failed>(
 			emits = setOf(Main.Effect.NavigateToGooglePlayServicesUnavailableDialog::class)
 		) { _, event ->

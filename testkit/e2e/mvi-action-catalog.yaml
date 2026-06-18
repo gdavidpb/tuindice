@@ -272,8 +272,11 @@ actions:
     platform_edge: confirm/open handoff requires UI Automator/XCUITest host assertion
 
   - id: maincore.Main.StartUp
-    classification: internal
-    reason: app bootstrap
+    classification: user
+    variants: [content, app-unavailable]
+    selector: maincore_app_availability_notice_screen
+    flow: e2e/maestro/flows/maincore/app-availability-notice.yaml
+    fixture_state: debug-remote-config
   - id: maincore.Main.RequestReview
     classification: platform-edge
     variants: [review-prompt]

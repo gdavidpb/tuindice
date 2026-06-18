@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.base.data.source
 
 import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
+import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.base.utils.RemoteConfigKeys
@@ -53,6 +54,18 @@ class ConfigDataSource(
 			?.toLongOrNull()
 			?.toInt()
 			?: defaults.syncsToSuggestReview
+	}
+
+	override fun getAppAvailabilityNotice(): AppAvailabilityNotice {
+		return AppAvailabilityNotice(
+			enabled = remoteConfigDataSource.getString(RemoteConfigKeys.APP_AVAILABILITY_NOTICE_ENABLED)
+				?.toBooleanStrictOrNull()
+				?: defaults.appAvailabilityNoticeEnabled,
+			title = remoteConfigDataSource.getString(RemoteConfigKeys.APP_AVAILABILITY_NOTICE_TITLE)
+				?: defaults.appAvailabilityNoticeTitle,
+			message = remoteConfigDataSource.getString(RemoteConfigKeys.APP_AVAILABILITY_NOTICE_MESSAGE)
+				?: defaults.appAvailabilityNoticeMessage
+		)
 	}
 }
 

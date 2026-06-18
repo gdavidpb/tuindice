@@ -12,19 +12,35 @@ class DebugRemoteConfigDataSource(
 	private val sourceName: String
 ) : RemoteConfigDataRepository {
 	private val logger = appLogger(tag = "RemoteConfig")
+	private val stringOverrides = mutableMapOf<String, String>()
 
 	override suspend fun fetch() {
 		logger.i { "[$sourceName] fetch(): using debug defaults instead of Firebase Remote Config." }
 	}
 
+	fun setStringOverride(key: String, value: String?) {
+		if (value == null) {
+			stringOverrides.remove(key)
+		} else {
+			stringOverrides[key] = value
+		}
+	}
+
+	fun clearStringOverrides() {
+		stringOverrides.clear()
+	}
+
 	override fun getString(key: String): String? {
-		val value = when (key) {
+		val value = stringOverrides[key] ?: when (key) {
 			RemoteConfigKeys.TIME_OUT_CONNECTION -> defaults.timeoutMillis.toString()
 			RemoteConfigKeys.CONTACT_EMAIL -> defaults.contactEmail
 			RemoteConfigKeys.CONTACT_SUBJECT -> defaults.contactSubject
 			RemoteConfigKeys.LOADING_MESSAGES -> Json.encodeToString(defaults.loadingMessages)
 			RemoteConfigKeys.TIME_UPDATE_STALENESS_DAYS -> defaults.updateStalenessDays.toString()
 			RemoteConfigKeys.SYNCS_TO_SUGGEST_REVIEW -> defaults.syncsToSuggestReview.toString()
+			RemoteConfigKeys.APP_AVAILABILITY_NOTICE_ENABLED -> defaults.appAvailabilityNoticeEnabled.toString()
+			RemoteConfigKeys.APP_AVAILABILITY_NOTICE_TITLE -> defaults.appAvailabilityNoticeTitle
+			RemoteConfigKeys.APP_AVAILABILITY_NOTICE_MESSAGE -> defaults.appAvailabilityNoticeMessage
 			else -> null
 		}
 

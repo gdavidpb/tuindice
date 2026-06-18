@@ -4,6 +4,7 @@ import androidx.compose.ui.window.ComposeUIViewController
 import com.gdavidpb.tuindice.debug.IosAuthenticatedWizardCompleteStartupHook
 import com.gdavidpb.tuindice.debug.IosAuthenticatedWizardPendingStartupHook
 import com.gdavidpb.tuindice.debug.IosDebugStartupHook
+import com.gdavidpb.tuindice.debug.setDebugAppAvailabilityNoticeOverride
 import com.gdavidpb.tuindice.di.startIosKoin
 import com.gdavidpb.tuindice.domain.model.IosAppHostConfig
 import com.gdavidpb.tuindice.domain.model.IosBuildVariant
@@ -31,6 +32,22 @@ class IosAppHostBootstrap(
 
 	fun startIfNeeded(): Koin {
 		return startIosKoin(hostConfig = hostConfig)
+	}
+
+	fun setDebugAppAvailabilityNoticeOverride(
+		enabled: Boolean,
+		title: String,
+		message: String
+	) {
+		check(hostConfig.buildVariant == IosBuildVariant.DEBUG) {
+			"Debug Remote Config overrides are only available in debug iOS builds."
+		}
+
+		startIfNeeded().setDebugAppAvailabilityNoticeOverride(
+			enabled = enabled,
+			title = title,
+			message = message
+		)
 	}
 
 	fun runDebugStartupHook(

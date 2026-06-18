@@ -1,0 +1,36 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- launchApp:
+    stopApp: true
+    clearState: true
+    arguments:
+      TUINDICE_E2E_AVAILABILITY_NOTICE_ENABLED: "true"
+      TUINDICE_E2E_AVAILABILITY_NOTICE_TITLE: "Servicio no disponible"
+      TUINDICE_E2E_AVAILABILITY_NOTICE_MESSAGE: "Estamos realizando mantenimiento. Intenta nuevamente más tarde."
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - launchApp:
+          stopApp: false
+          clearState: false
+          arguments:
+            TUINDICE_E2E_AVAILABILITY_NOTICE_ENABLED: "true"
+            TUINDICE_E2E_AVAILABILITY_NOTICE_TITLE: "Servicio no disponible"
+            TUINDICE_E2E_AVAILABILITY_NOTICE_MESSAGE: "Estamos realizando mantenimiento. Intenta nuevamente más tarde."
+- extendedWaitUntil:
+    visible:
+      id: maincore_app_availability_notice_screen
+    timeout: 20000
+- assertVisible:
+    id: maincore_app_availability_notice_title
+- assertVisible:
+    id: maincore_app_availability_notice_message
+- assertVisible:
+    id: base_error_state_animation
+- assertNotVisible:
+    id: maincore_tuindice_nav_host
+- assertNotVisible:
+    id: maincore_tuindice_bottom_bar
+- assertNotVisible:
+    id: base_error_view_retry_button
