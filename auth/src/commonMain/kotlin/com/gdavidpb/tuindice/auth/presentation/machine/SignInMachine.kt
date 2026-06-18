@@ -82,7 +82,7 @@ class SignInMachine(
 		event: SignInInternalEvent.SignInFailed
 	): SignIn.State.Idle {
 		val error = event.error
-		val errorMessage = error.toErrorMessage()
+		val errorMessage = error.toErrorMessage(identifierMode = state.identifierMode)
 
 		when (error) {
 			is SignInUseCaseError.InvalidCredentials,

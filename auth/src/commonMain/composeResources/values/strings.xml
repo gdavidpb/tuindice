@@ -33,7 +33,8 @@
 	<string name="tooltip_usb_email">Iniciar con correo USB</string>
 	<string name="title_terms_and_conditions">Términos y condiciones</string>
 	<string name="title_privacy_policy">Política de privacidad</string>
-	<string name="error_invalid_credentials">USBID o contraseña inválida</string>
+	<string name="error_invalid_usb_id_credentials">Revisa tu USBID y contraseña</string>
+	<string name="error_invalid_usb_email_credentials">Revisa tu correo USB y contraseña</string>
 	<string name="error_account_disabled">Cuenta inhabilitada</string>
 	<string name="error_untrusted">No pudimos verificar la seguridad del dispositivo</string>
 	<string name="error_invalid_password">Contraseña inválida</string>

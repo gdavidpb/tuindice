@@ -283,8 +283,42 @@ class SignInRouteUiTest {
 
 		val snackBar = shownSnackBars.first()
 		assertEquals(0, summaryNavigations)
+		assertEquals("Revisa tu USBID y contraseña", snackBar.message)
 		assertTrue(snackBar.message.isNotBlank())
 		assertTrue(snackBar.onAction == null || snackBar.actionLabel.isNullOrBlank().not())
+	}
+
+	@Test
+	fun when_emailSignInFailsWithInvalidCredentials_then_showsEmailSpecificSnackBar() = runTuIndiceUiTest {
+		val fixture = createSignInViewModel(
+			termsAndConditionsUrl = "https://tuindice.test/terms",
+			signInThrowable = clientRequestException(HttpStatusCode.Unauthorized, path = "/auth/v1/token")
+		)
+		var summaryNavigations = 0
+		val shownSnackBars = mutableListOf<SnackBarMessage>()
+
+		setTuIndiceTestContent {
+			SignInRoute(
+				onNavigateToSummary = { summaryNavigations++ },
+				onNavigateToBrowser = { _, _ -> },
+				showSnackBar = { message -> shownSnackBars += message },
+				viewModel = fixture.viewModel
+			)
+		}
+
+		runOnIdle {
+			fixture.viewModel.toggleIdentifierModeAction()
+			fixture.viewModel.setUsbIdAction("rcardoza@usb.ve")
+			fixture.viewModel.setPasswordAction("clave-invalida")
+			fixture.viewModel.signInAction()
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			shownSnackBars.isNotEmpty()
+		}
+
+		assertEquals(0, summaryNavigations)
+		assertEquals("Revisa tu correo USB y contraseña", shownSnackBars.first().message)
 	}
 
 	@Test
