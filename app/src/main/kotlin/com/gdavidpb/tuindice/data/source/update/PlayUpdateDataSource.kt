@@ -18,11 +18,12 @@ import com.google.android.play.core.ktx.isImmediateUpdateAllowed
 import kotlinx.coroutines.tasks.await
 
 class PlayUpdateDataSource(
-	private val context: Context,
+	context: Context,
 	private val appUpdateManager: AppUpdateManager,
 	private val currentActivityDataSource: CurrentActivityDataSource,
 	private val playCoreAvailabilityRepository: PlayCoreAvailabilityDataRepository,
-	private val reportingRepository: ReportingRepository
+	private val reportingRepository: ReportingRepository,
+	private val storeFallbackLauncher: () -> Unit = { openStoreFallback(context) }
 ) : UpdateRepository {
 	private var pendingUpdateInfo: AppUpdateInfo? = null
 
@@ -60,12 +61,12 @@ class PlayUpdateDataSource(
 
 	override suspend fun launchUpdate(action: UpdateAction) {
 		if (!playCoreAvailabilityRepository.isAvailable(PlayCoreSurface.Update)) {
-			openStoreFallback()
+			storeFallbackLauncher()
 			return
 		}
 
 		val activity = currentActivityDataSource.get() ?: run {
-			openStoreFallback()
+			storeFallbackLauncher()
 			return
 		}
 		val updateInfo = pendingUpdateInfo ?: runCatching {
@@ -76,7 +77,7 @@ class PlayUpdateDataSource(
 				throwable = throwable
 			)
 		}.getOrNull() ?: run {
-			openStoreFallback()
+			storeFallbackLauncher()
 			return
 		}
 
@@ -94,30 +95,30 @@ class PlayUpdateDataSource(
 						message = "play_update_launch_failed",
 						throwable = throwable
 					)
-					openStoreFallback()
+					storeFallbackLauncher()
 				}
-		}
-	}
-
-	private fun openStoreFallback() {
-		val packageName = context.packageName
-		val marketUri = Uri.parse("market://details?id=$packageName")
-		val webUri = Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
-
-		val marketIntent = Intent(Intent.ACTION_VIEW, marketUri)
-			.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-		val webIntent = Intent(Intent.ACTION_VIEW, webUri)
-			.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-		runCatching {
-			context.startActivity(marketIntent)
-		}.onFailure {
-			runCatching { context.startActivity(webIntent) }
 		}
 	}
 
 	companion object {
 		private const val APP_UPDATE_REQUEST_CODE = 1001
+	}
+}
+
+private fun openStoreFallback(context: Context) {
+	val packageName = context.packageName
+	val marketUri = Uri.parse("market://details?id=$packageName")
+	val webUri = Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
+
+	val marketIntent = Intent(Intent.ACTION_VIEW, marketUri)
+		.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+	val webIntent = Intent(Intent.ACTION_VIEW, webUri)
+		.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
+	runCatching {
+		context.startActivity(marketIntent)
+	}.onFailure {
+		runCatching { context.startActivity(webIntent) }
 	}
 }
 

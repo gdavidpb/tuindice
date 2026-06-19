@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.data.source.update
 
 import android.app.Activity
 import android.content.ContextWrapper
-import android.content.Intent
 import android.content.IntentSender
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
@@ -29,18 +28,21 @@ class PlayUpdateDataSourceTest {
 	fun checkForUpdate_whenPlayCoreIsUnavailable_doesNotRequestUpdateInfo() = runTest {
 		val appUpdateManager = RecordingAppUpdateManager()
 		val playCoreAvailabilityRepository = FakePlayCoreAvailabilityDataRepository(available = false)
+		val storeFallbackLauncher = RecordingStoreFallbackLauncher()
 		val dataSource = PlayUpdateDataSource(
 			context = TestContext(),
 			appUpdateManager = appUpdateManager,
 			currentActivityDataSource = CurrentActivityDataSource(),
 			playCoreAvailabilityRepository = playCoreAvailabilityRepository,
-			reportingRepository = RecordingReportingRepository()
+			reportingRepository = RecordingReportingRepository(),
+			storeFallbackLauncher = storeFallbackLauncher::launch
 		)
 
 		val result = dataSource.checkForUpdate(stalenessDays = 1)
 
 		assertNull(result)
 		assertEquals(0, appUpdateManager.appUpdateInfoCalls)
+		assertEquals(0, storeFallbackLauncher.launchCalls)
 		assertEquals(listOf(PlayCoreSurface.Update), playCoreAvailabilityRepository.calls)
 	}
 
@@ -51,12 +53,14 @@ class PlayUpdateDataSourceTest {
 			appUpdateInfoTask = Tasks.forException(failure)
 		)
 		val reportingRepository = RecordingReportingRepository()
+		val storeFallbackLauncher = RecordingStoreFallbackLauncher()
 		val dataSource = PlayUpdateDataSource(
 			context = TestContext(),
 			appUpdateManager = appUpdateManager,
 			currentActivityDataSource = CurrentActivityDataSource(),
 			playCoreAvailabilityRepository = FakePlayCoreAvailabilityDataRepository(available = true),
-			reportingRepository = reportingRepository
+			reportingRepository = reportingRepository,
+			storeFallbackLauncher = storeFallbackLauncher::launch
 		)
 
 		val result = dataSource.checkForUpdate(stalenessDays = 1)
@@ -66,35 +70,39 @@ class PlayUpdateDataSourceTest {
 		assertEquals(listOf("play_update_check_failed"), reportingRepository.loggedMessages)
 		assertEquals(1, reportingRepository.loggedExceptions.size)
 		assertSame(failure, reportingRepository.loggedExceptions.single())
+		assertEquals(0, storeFallbackLauncher.launchCalls)
 	}
 
 	@Test
 	fun launchUpdate_whenPlayCoreIsUnavailable_doesNotRequestUpdateInfo() = runTest {
 		val appUpdateManager = RecordingAppUpdateManager()
 		val playCoreAvailabilityRepository = FakePlayCoreAvailabilityDataRepository(available = false)
+		val storeFallbackLauncher = RecordingStoreFallbackLauncher()
 		val dataSource = PlayUpdateDataSource(
 			context = TestContext(),
 			appUpdateManager = appUpdateManager,
 			currentActivityDataSource = CurrentActivityDataSource(),
 			playCoreAvailabilityRepository = playCoreAvailabilityRepository,
-			reportingRepository = RecordingReportingRepository()
+			reportingRepository = RecordingReportingRepository(),
+			storeFallbackLauncher = storeFallbackLauncher::launch
 		)
 
 		dataSource.launchUpdate(UpdateAction.Immediate)
 
 		assertEquals(0, appUpdateManager.appUpdateInfoCalls)
 		assertEquals(0, appUpdateManager.launchUpdateCalls)
+		assertEquals(1, storeFallbackLauncher.launchCalls)
 		assertEquals(listOf(PlayCoreSurface.Update), playCoreAvailabilityRepository.calls)
 	}
 }
 
-private class TestContext : ContextWrapper(null) {
-	val startedIntents = mutableListOf<Intent>()
+private class TestContext : ContextWrapper(null)
 
-	override fun getPackageName(): String = "com.gdavidpb.tuindice"
+private class RecordingStoreFallbackLauncher {
+	var launchCalls = 0
 
-	override fun startActivity(intent: Intent) {
-		startedIntents += intent
+	fun launch() {
+		launchCalls++
 	}
 }
 
