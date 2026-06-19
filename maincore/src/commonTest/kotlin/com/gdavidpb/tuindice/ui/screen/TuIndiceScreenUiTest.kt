@@ -186,7 +186,7 @@ class TuIndiceScreenUiTest {
 		}
 
 		assertNodeVisible(BaseUiTags.OutdatedAppScreen)
-		assertNodeVisible(BaseUiTags.ErrorStateAnimation)
+		assertNodeVisible(BaseUiTags.OutdatedAppAnimation)
 		assertNodeHidden(MaincoreUiTags.TuIndiceNavHost)
 		assertNodeHidden(MaincoreUiTags.TuIndiceBottomBar)
 		assertNodeHidden(BaseUiTags.TopAppBarActionsContainer)

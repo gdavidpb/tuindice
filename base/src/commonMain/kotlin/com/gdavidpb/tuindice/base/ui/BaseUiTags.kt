@@ -17,6 +17,7 @@ object BaseUiTags {
 	const val OutdatedAppTitle = "base_outdated_app_title"
 	const val OutdatedAppMessage = "base_outdated_app_message"
 	const val OutdatedAppUpdateButton = "base_outdated_app_update_button"
+	const val OutdatedAppAnimation = "base_outdated_app_animation"
 
 	const val DropdownMenuTextField = "base_dropdown_text_field"
 	const val DropdownMenuError = "base_dropdown_error"

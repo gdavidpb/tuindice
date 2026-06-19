@@ -36,6 +36,7 @@ import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepositor
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
@@ -658,6 +659,7 @@ class TuIndiceAppHostRouteUiTest {
 		single<SessionInvalidationRepository> { sessionInvalidationRepository }
 		single<SyncRepository> { FakeSyncRepository() }
 		single<SyncStatusRepository> { syncStatusRepository }
+		single<UpdateRepository> { FakeUpdateRepository() }
 		single<UsageDataConsentRepository> { InMemoryUsageDataConsentRepository() }
 		single { WizardTopBarActionBus() }
 		single { PensumTopBarActionBus() }

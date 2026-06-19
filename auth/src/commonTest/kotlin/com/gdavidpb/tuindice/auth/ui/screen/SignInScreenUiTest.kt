@@ -76,7 +76,7 @@ class SignInScreenUiTest {
 		}
 
 		assertNodeVisible(BaseUiTags.OutdatedAppScreen)
-		assertNodeVisible(BaseUiTags.ErrorStateAnimation)
+		assertNodeVisible(BaseUiTags.OutdatedAppAnimation)
 		onNodeWithTag(BaseUiTags.OutdatedAppUpdateButton).performClick()
 
 		assertEquals(1, updateClicks)

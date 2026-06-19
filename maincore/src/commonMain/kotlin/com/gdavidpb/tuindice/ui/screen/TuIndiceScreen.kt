@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -117,7 +118,12 @@ fun TuIndiceScreen(
 ) {
 	when (state) {
 		is Main.State.Starting -> {
-			Box(modifier = Modifier.fillMaxSize()) {
+			Box(
+				modifier = Modifier
+					.fillMaxSize()
+					.background(MaterialTheme.colorScheme.background)
+					.windowInsetsPadding(WindowInsets.systemBars)
+			) {
 				CircularProgressIndicator(
 					modifier = Modifier
 						.testTag(MaincoreUiTags.TuIndiceStartingIndicator)
@@ -128,13 +134,20 @@ fun TuIndiceScreen(
 		}
 
 		is Main.State.Failed -> {
-			ErrorView(
-				title = stringResource(Res.string.main_start_failed_title),
-				message = stringResource(Res.string.main_start_failed_message),
-				retryText = stringResource(Res.string.main_start_failed_retry),
-				onRetryClick = onRetryStartUp,
-				headerContent = { ErrorStateAnimationView() }
-			)
+			Box(
+				modifier = Modifier
+					.fillMaxSize()
+					.background(MaterialTheme.colorScheme.background)
+					.windowInsetsPadding(WindowInsets.systemBars)
+			) {
+				ErrorView(
+					title = stringResource(Res.string.main_start_failed_title),
+					message = stringResource(Res.string.main_start_failed_message),
+					retryText = stringResource(Res.string.main_start_failed_retry),
+					onRetryClick = onRetryStartUp,
+					headerContent = { ErrorStateAnimationView() }
+				)
+			}
 			return
 		}
 
