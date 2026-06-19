@@ -9,7 +9,6 @@ import androidx.navigation.compose.dialog
 import androidx.navigation.navigation
 import androidx.navigation.toRoute
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
-import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectBackResultWithLifecycle
@@ -22,13 +21,13 @@ import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignOutViewModel
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.UpdatePasswordViewModel
 import org.koin.compose.viewmodel.koinViewModel
-import org.koin.compose.koinInject
 
 fun NavGraphBuilder.authNavigation(
 	navController: NavHostController,
 	onNavigateToSignIn: () -> Unit,
 	onNavigateToSummary: () -> Unit,
 	onNavigateToBrowser: (title: String, url: String) -> Unit,
+	onOutdatedAppDetected: () -> Unit = {},
 	onDismissRequest: () -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
@@ -37,7 +36,6 @@ fun NavGraphBuilder.authNavigation(
 	navigation<AuthDestination.NavGraph>(startDestination = AuthDestination.SignIn) {
 		composable<AuthDestination.SignIn> { backStackEntry ->
 			val viewModel = koinViewModel<SignInViewModel>(viewModelStoreOwner = backStackEntry)
-			val updateRepository = koinInject<UpdateRepository>()
 			val viewState by viewModel.state.collectAsStateWithLifecycle()
 
 			navController.CollectCurrentEntryValueWithLifecycle(
@@ -51,7 +49,7 @@ fun NavGraphBuilder.authNavigation(
 				onNavigateToBrowser = onNavigateToBrowser,
 				showSnackBar = showSnackBar,
 				dismissSnackBar = dismissSnackBar,
-				onRequestUpdateFlow = { action -> updateRepository.launchUpdate(action) },
+				onOutdatedAppDetected = onOutdatedAppDetected,
 				viewModel = viewModel
 			)
 		}

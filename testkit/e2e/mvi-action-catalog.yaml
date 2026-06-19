@@ -100,13 +100,6 @@ actions:
     selector: auth_sign_in_button
     flow: e2e/maestro/flows/auth/login-success.yaml
     fixture_state: auth-success
-  - id: auth.SignIn.ClickUpdateApp
-    classification: platform-edge
-    variants: [store-handoff]
-    selector: base_outdated_app_update_button
-    flow: e2e/maestro/flows/auth/login-outdated-app.yaml
-    fixture_state: auth-upgrade-required
-    platform_edge: Store handoff opens Google Play or App Store and requires host/system assertion.
   - id: auth.SignIn.ClickTermsAndConditions
     classification: user
     variants: [internal-browser]

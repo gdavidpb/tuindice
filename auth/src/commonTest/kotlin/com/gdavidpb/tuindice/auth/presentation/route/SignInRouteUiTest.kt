@@ -289,6 +289,41 @@ class SignInRouteUiTest {
 	}
 
 	@Test
+	fun when_signInFailsWithOutdatedApp_then_requestsStartupGate() = runTuIndiceUiTest {
+		val fixture = createSignInViewModel(
+			termsAndConditionsUrl = "https://tuindice.test/terms",
+			signInThrowable = clientRequestException(HttpStatusCode.UpgradeRequired, path = "/auth/v1/token")
+		)
+		var summaryNavigations = 0
+		var startupGateRequests = 0
+		val shownSnackBars = mutableListOf<SnackBarMessage>()
+
+		setTuIndiceTestContent {
+			SignInRoute(
+				onNavigateToSummary = { summaryNavigations++ },
+				onNavigateToBrowser = { _, _ -> },
+				showSnackBar = { message -> shownSnackBars += message },
+				onOutdatedAppDetected = { startupGateRequests++ },
+				viewModel = fixture.viewModel
+			)
+		}
+
+		runOnIdle {
+			fixture.viewModel.setUsbIdAction("12-34567")
+			fixture.viewModel.setPasswordAction("version-vieja")
+			fixture.viewModel.signInAction()
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			startupGateRequests > 0
+		}
+
+		assertEquals(0, summaryNavigations)
+		assertEquals(1, startupGateRequests)
+		assertTrue(shownSnackBars.isEmpty())
+	}
+
+	@Test
 	fun when_emailSignInFailsWithInvalidCredentials_then_showsEmailSpecificSnackBar() = runTuIndiceUiTest {
 		val fixture = createSignInViewModel(
 			termsAndConditionsUrl = "https://tuindice.test/terms",

@@ -8,7 +8,6 @@ import com.gdavidpb.tuindice.auth.presentation.mapper.toErrorMessage
 import com.gdavidpb.tuindice.auth.presentation.transition.anyStateTransitions
 import com.gdavidpb.tuindice.auth.presentation.transition.idleTransitions
 import com.gdavidpb.tuindice.auth.presentation.transition.loggingInTransitions
-import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
@@ -63,7 +62,7 @@ class SignInMachine(
 
 					is UseCaseState.Error ->
 						if (useCaseState.error is SignInUseCaseError.OutdatedApp) {
-							host.processInternalEvent(SignInInternalEvent.OutdatedAppResolved)
+							host.processInternalEvent(SignInInternalEvent.OutdatedAppDetected)
 						} else {
 							host.processInternalEvent(
 								SignInInternalEvent.SignInFailed(error = useCaseState.error)
@@ -139,7 +138,7 @@ class SignInMachine(
 		usageDataConsentRepository.setUsageDataCollectionEnabled(enabled)
 	}
 
-	internal suspend fun requestUpdate(host: MachineHost<SignIn.Effect>) {
-		host.sendEffect(SignIn.Effect.TriggerUpdateFlow(action = UpdateAction.Immediate))
+	internal suspend fun requestStartupGate(host: MachineHost<SignIn.Effect>) {
+		host.sendEffect(SignIn.Effect.RequestStartupGate)
 	}
 }

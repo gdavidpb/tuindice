@@ -6,24 +6,27 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performTextInput
 import com.gdavidpb.tuindice.auth.di.authModule
 import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
+import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
-import com.gdavidpb.tuindice.base.domain.model.MainSection
-import com.gdavidpb.tuindice.base.domain.model.PendingChanges
-import com.gdavidpb.tuindice.base.domain.model.SyncStatus
-import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
-import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
-import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
-import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
+import com.gdavidpb.tuindice.base.domain.model.MainSection
+import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
+import com.gdavidpb.tuindice.base.domain.model.PendingChanges
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
+import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
+import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
@@ -31,7 +34,6 @@ import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
@@ -60,11 +62,13 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReviewRepository
 import com.gdavidpb.tuindice.testing.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testing.createMainViewModel
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
+import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import com.gdavidpb.tuindice.wizard.presentation.model.WizardTopBarActionBus
+import io.ktor.http.HttpStatusCode
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -164,6 +168,129 @@ class TuIndiceAppHostRouteUiTest {
 			assertEquals(emptyList(), updateRepository.checkCalls)
 			assertEquals(emptyList(), updateRepository.launchedActions)
 			assertEquals(emptyList(), syncRepository.scheduledSyncCalls)
+		} finally {
+			stopKoin()
+		}
+	}
+
+	@Test
+	fun when_signInReceivesUpgradeRequired_then_hostRouteShowsGlobalOutdatedGate() = runTuIndiceUiTest {
+		val settingsRepository = FakeSettingsRepository(
+			reviewSuggested = true,
+			lastMainSection = MainSection.SUMMARY
+		)
+		val sessionRepository = FakeSessionRepository(
+			sessionId = "",
+			usbId = "",
+			accessToken = "",
+			refreshToken = ""
+		)
+		val syncStatusRepository = FakeSyncStatusRepository()
+
+		stopKoin()
+		startKoin {
+			modules(
+				hostRouteNavigationModule(syncStatusRepository),
+				authModule,
+				module {
+					single<AuthRepository> {
+						object : AuthRepository {
+							override suspend fun bootstrapSignIn(
+								usbId: String,
+								password: String
+							): BootstrapTokens {
+								settingsRepository.setOutdatedAppState(
+									OutdatedAppState(minimumVersionCode = 52)
+								)
+								throw clientRequestException(
+									statusCode = HttpStatusCode.UpgradeRequired,
+									path = "/auth/v1/token"
+								)
+							}
+
+							override suspend fun exchangeSignIn(
+								bootstrapAccessToken: String,
+								attestation: Attestation
+							) = Unit
+
+							override suspend fun reissueTokens(
+								usbId: String,
+								password: String,
+								attestation: Attestation
+							) = Unit
+
+							override suspend fun refreshTokens(
+								sessionId: String,
+								refreshToken: String,
+								attestation: Attestation
+							): RefreshTokens = error("refreshTokens should not be called in this test")
+
+							override suspend fun revokeTokens(
+								sessionId: String,
+								refreshToken: String,
+								attestation: Attestation
+							) = Unit
+						}
+					}
+					single<SessionRepository> { sessionRepository }
+					single<ApplicationRepository> { RecordingApplicationRepository() }
+					single<MessagingRepository> {
+						object : MessagingRepository {
+							override suspend fun subscribe() = Unit
+
+							override suspend fun unsubscribe() = Unit
+						}
+					}
+					single<ConfigRepository> { FakeConfigRepository() }
+					single<AppEnvironmentRepository> { FakeAppEnvironmentRepository() }
+					single<CredentialsRepository> { FakeCredentialsRepository() }
+					single<AttestationRepository> {
+						object : AttestationRepository {
+							override suspend fun attest(request: AttestationRequest): Attestation {
+								return Attestation(token = "token")
+							}
+						}
+					}
+					single<NetworkRepository> { FakeNetworkRepository(isAvailable = true) }
+					single<ReportingRepository> { RecordingReportingRepository() }
+				}
+			)
+		}
+
+		try {
+			setTuIndiceTestContent {
+				TuIndiceAppHostRoute(
+					onConfirmExitClick = {},
+					isSwipeBackNavigationEnabled = false,
+					browserRepository = RecordingBrowserRepository(),
+					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
+					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
+					syncStatusRepository = syncStatusRepository,
+					reviewRepository = RecordingReviewRepository(),
+					updateRepository = FakeUpdateRepository(),
+					viewModel = createMainViewModel(
+						sessionRepository = sessionRepository,
+						settingsRepository = settingsRepository,
+						deviceInfoRepository = FakeDeviceInfoRepository(versionCode = 1)
+					)
+				)
+			}
+
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithTag(AuthUiTags.PasswordTextField).fetchSemanticsNodes().isNotEmpty()
+			}
+
+			onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("1234567")
+			onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("version-vieja")
+			onNodeWithTag(AuthUiTags.SignInButton).performClick()
+
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithTag(BaseUiTags.OutdatedAppScreen).fetchSemanticsNodes().isNotEmpty()
+			}
+
+			assertNodeVisible(BaseUiTags.OutdatedAppScreen)
+			assertNodeHidden(MaincoreUiTags.TuIndiceNavHost)
+			assertNodeHidden(AuthUiTags.AnimatedPatternBackground)
 		} finally {
 			stopKoin()
 		}

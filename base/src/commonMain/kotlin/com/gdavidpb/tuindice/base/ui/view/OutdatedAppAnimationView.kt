@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.base.ui.view
 
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -14,7 +15,9 @@ import tuindice.base.generated.resources.Res
 fun OutdatedAppAnimationView() {
 	LottieResourceAnimationView(
 		readBytes = { Res.readBytes(OUTDATED_APP_ANIMATION_PATH) },
-		modifier = Modifier.size(256.dp),
+		modifier = Modifier
+			.size(256.dp)
+			.padding(16.dp),
 		testTag = BaseUiTags.OutdatedAppAnimation
 	)
 }

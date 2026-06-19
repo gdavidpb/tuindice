@@ -294,6 +294,7 @@ fun TuIndiceAppHostRoute(
 			onConfirmExitClick = onConfirmExitClick,
 			isCameraAvailable = deviceInfoRepository.hasCamera(),
 			onNavigateToExternalResource = browserRepository::open,
+			onOutdatedAppDetected = viewModel::startUpAction,
 			onRecordViewModeChangeAvailable = { callback ->
 				onRecordViewModeChange.value = callback
 			},

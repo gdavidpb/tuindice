@@ -18,8 +18,11 @@ internal fun MachineDefinitionBuilder<SignIn.State>.loggingInTransitions(
 			state
 		}
 
-		onTo<SignInInternalEvent.OutdatedAppResolved, SignIn.State.OutdatedApp> { _, _ ->
-			SignIn.State.OutdatedApp
+		on<SignInInternalEvent.OutdatedAppDetected>(
+			emits = setOf(SignIn.Effect.RequestStartupGate::class)
+		) { state, _ ->
+			machine.requestStartupGate(host = host)
+			state
 		}
 
 		onTo<SignInInternalEvent.SignInFailed, SignIn.State.Idle>(

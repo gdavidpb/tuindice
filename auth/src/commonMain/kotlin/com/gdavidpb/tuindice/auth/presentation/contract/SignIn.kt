@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.auth.presentation.contract
 
 import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
-import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
@@ -29,10 +28,6 @@ object SignIn {
 			val identifierMode: SignInIdentifierMode = SignInIdentifierMode.UsbId,
 			val usageDataCollectionEnabled: Boolean = false
 		) : State()
-
-		data object OutdatedApp : State(
-			isTopBarVisible = false
-		)
 	}
 
 	sealed class Action : ViewAction {
@@ -53,8 +48,6 @@ object SignIn {
 		) : Action()
 
 		data object ClickSignIn : Action()
-
-		data object ClickUpdateApp : Action()
 
 		data object ClickTermsAndConditions : Action()
 
@@ -78,8 +71,6 @@ object SignIn {
 			val actionLabel: String
 		) : Effect()
 
-		class TriggerUpdateFlow(
-			val action: UpdateAction
-		) : Effect()
+		data object RequestStartupGate : Effect()
 	}
 }

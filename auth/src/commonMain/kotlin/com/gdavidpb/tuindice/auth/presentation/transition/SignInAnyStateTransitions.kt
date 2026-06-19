@@ -24,13 +24,6 @@ internal fun MachineDefinitionBuilder<SignIn.State>.anyStateTransitions(
 			state
 		}
 
-		on<SignIn.Action.ClickUpdateApp>(
-			emits = setOf(SignIn.Effect.TriggerUpdateFlow::class)
-		) { state, _ ->
-			machine.requestUpdate(host = host)
-			state
-		}
-
 		on<SignIn.Action.SetUsageDataCollectionEnabled> { state, action ->
 			machine.persistUsageDataCollection(enabled = action.enabled)
 
@@ -43,6 +36,5 @@ private fun SignIn.State.withUsageDataCollection(enabled: Boolean): SignIn.State
 	return when (this) {
 		is SignIn.State.Idle -> copy(usageDataCollectionEnabled = enabled)
 		is SignIn.State.LoggingIn -> copy(usageDataCollectionEnabled = enabled)
-		is SignIn.State.OutdatedApp -> this
 	}
 }

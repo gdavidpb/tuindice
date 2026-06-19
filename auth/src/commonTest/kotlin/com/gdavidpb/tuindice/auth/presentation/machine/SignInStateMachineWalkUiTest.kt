@@ -59,6 +59,7 @@ class SignInStateMachineWalkUiTest {
 				SignIn.Action.ClickTermsAndConditions,
 				SignIn.Action.ClickPrivacyPolicy,
 				SignInInternalEvent.SignInSucceeded,
+				SignInInternalEvent.OutdatedAppDetected,
 				SignInInternalEvent.SignInFailed(error = null)
 			),
 			scope = backgroundScope,
