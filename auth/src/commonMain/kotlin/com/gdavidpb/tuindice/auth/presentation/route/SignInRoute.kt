@@ -59,8 +59,8 @@ fun SignInRoute(
 					)
 				)
 
-			is SignIn.Effect.RequestStartupGate ->
-				onOutdatedAppDetected()
+				is SignIn.Effect.ShowOutdatedApp ->
+					onOutdatedAppDetected()
 		}
 	}
 

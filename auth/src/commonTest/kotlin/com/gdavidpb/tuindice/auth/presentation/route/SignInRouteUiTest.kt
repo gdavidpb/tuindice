@@ -289,13 +289,13 @@ class SignInRouteUiTest {
 	}
 
 	@Test
-	fun when_signInFailsWithOutdatedApp_then_requestsStartupGate() = runTuIndiceUiTest {
+	fun when_signInFailsWithOutdatedApp_then_requestsOutdatedScreen() = runTuIndiceUiTest {
 		val fixture = createSignInViewModel(
 			termsAndConditionsUrl = "https://tuindice.test/terms",
 			signInThrowable = clientRequestException(HttpStatusCode.UpgradeRequired, path = "/auth/v1/token")
 		)
 		var summaryNavigations = 0
-		var startupGateRequests = 0
+		var outdatedScreenRequests = 0
 		val shownSnackBars = mutableListOf<SnackBarMessage>()
 
 		setTuIndiceTestContent {
@@ -303,7 +303,7 @@ class SignInRouteUiTest {
 				onNavigateToSummary = { summaryNavigations++ },
 				onNavigateToBrowser = { _, _ -> },
 				showSnackBar = { message -> shownSnackBars += message },
-				onOutdatedAppDetected = { startupGateRequests++ },
+				onOutdatedAppDetected = { outdatedScreenRequests++ },
 				viewModel = fixture.viewModel
 			)
 		}
@@ -315,11 +315,11 @@ class SignInRouteUiTest {
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			startupGateRequests > 0
+			outdatedScreenRequests > 0
 		}
 
 		assertEquals(0, summaryNavigations)
-		assertEquals(1, startupGateRequests)
+		assertEquals(1, outdatedScreenRequests)
 		assertTrue(shownSnackBars.isEmpty())
 	}
 

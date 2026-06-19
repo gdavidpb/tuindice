@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.presentation.machine
 
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.MainSection
+import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
@@ -84,11 +85,14 @@ class MainStateMachineContractTest {
 			)
 		)
 
-		assertMachineRandomWalk(
-			screenMachine = screenMachine,
-			sampleEvents = listOf(
-				Main.Action.StartUp,
-				Main.Action.RequestReview,
+			assertMachineRandomWalk(
+				screenMachine = screenMachine,
+				sampleEvents = listOf(
+					Main.Action.StartUp,
+					Main.Action.ShowOutdatedApp(
+						outdatedAppState = OutdatedAppState(minimumVersionCode = 52)
+					),
+					Main.Action.RequestReview,
 				Main.Action.RequestUpdateCheck,
 				Main.Action.RequestSync,
 				Main.Action.SetLastMainSection(section = MainSection.SUMMARY),
@@ -103,6 +107,9 @@ class MainStateMachineContractTest {
 						title = "Mantenimiento",
 						message = "Volvemos pronto."
 					)
+				),
+				MainInternalEvent.OutdatedAppResolved(
+					outdatedAppState = OutdatedAppState(minimumVersionCode = 52)
 				),
 				MainInternalEvent.StartUpFailed(noServices = false),
 				MainInternalEvent.ReviewRequested,
@@ -154,10 +161,12 @@ class MainStateMachineContractTest {
 			"starting",
 			"content",
 			"failed",
-			"app_unavailable",
-			"StartUp",
-			"StartUpCompleted",
+				"app_unavailable",
+				"StartUp",
+				"ShowOutdatedApp",
+				"StartUpCompleted",
 			"AppUnavailableResolved",
+			"OutdatedAppResolved",
 			"ReviewRequested / TriggerReviewFlow",
 			"WizardStartApproved / NavigateToWizard"
 		)

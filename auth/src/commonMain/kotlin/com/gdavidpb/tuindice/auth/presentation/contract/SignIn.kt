@@ -71,6 +71,6 @@ object SignIn {
 			val actionLabel: String
 		) : Effect()
 
-		data object RequestStartupGate : Effect()
+		data object ShowOutdatedApp : Effect()
 	}
 }

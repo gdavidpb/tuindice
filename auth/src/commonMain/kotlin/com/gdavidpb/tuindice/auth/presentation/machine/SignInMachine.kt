@@ -138,7 +138,7 @@ class SignInMachine(
 		usageDataConsentRepository.setUsageDataCollectionEnabled(enabled)
 	}
 
-	internal suspend fun requestStartupGate(host: MachineHost<SignIn.Effect>) {
-		host.sendEffect(SignIn.Effect.RequestStartupGate)
+	internal suspend fun showOutdatedApp(host: MachineHost<SignIn.Effect>) {
+		host.sendEffect(SignIn.Effect.ShowOutdatedApp)
 	}
 }

@@ -260,6 +260,7 @@ val androidPlatformModule = module {
 			sessionRepository = get(),
 			settingsRepository = get(),
 			sessionRecoveryRepository = get(),
+			outdatedAppEventRepository = get(),
 			logger = createAppKtorLogger(),
 			json = get(),
 			userAgentValue = runCatching { UserAgent(androidContext()).toString() }.getOrNull()

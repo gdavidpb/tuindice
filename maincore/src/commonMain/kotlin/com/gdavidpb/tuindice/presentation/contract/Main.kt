@@ -31,6 +31,7 @@ object Main {
 
 	sealed class Action : ViewAction {
 		data object StartUp : Action()
+		class ShowOutdatedApp(val outdatedAppState: OutdatedAppState) : Action()
 		data object RequestReview : Action()
 		data object RequestUpdateCheck : Action()
 		data object ClickUpdateApp : Action()

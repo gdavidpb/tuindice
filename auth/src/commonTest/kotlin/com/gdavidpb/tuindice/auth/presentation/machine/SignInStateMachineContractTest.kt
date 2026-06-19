@@ -287,7 +287,7 @@ class SignInStateMachineContractTest {
 			"logging_in",
 			"ClickSignIn",
 			"SignInSucceeded / NavigateToSummary",
-			"OutdatedAppDetected / RequestStartupGate",
+			"OutdatedAppDetected / ShowOutdatedApp",
 			"SignInFailed / ShowSnackBar · ShowRetrySnackBar",
 			"SetUsbId",
 			"ToggleIdentifierMode",

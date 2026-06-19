@@ -42,12 +42,14 @@ import com.gdavidpb.tuindice.data.source.pending.PendingChangesDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncDataSource
 import com.gdavidpb.tuindice.data.repository.sync.SyncRemoteDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepository
+import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncApiDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncSettingsDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncStatusSettingsDataSource
 import com.gdavidpb.tuindice.data.source.settings.MultiplatformSettingsDataSource
 import com.gdavidpb.tuindice.data.source.session.SessionRecoveryDataSource
 import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
+import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
@@ -87,6 +89,7 @@ val commonModule = module {
 	singleOf(::SessionDataSource) { bind<SessionRepository>() }
 	singleOf(::SessionInvalidationDataSource) { bind<SessionInvalidationRepository>() }
 	singleOf(::SessionRecoveryDataSource) { bind<SessionRecoveryRepository>() }
+	singleOf(::OutdatedAppEventDataSource) { bind<OutdatedAppEventRepository>() }
 
 	singleOf(::MessagingApiDataSource) { bind<MessagingRemoteDataRepository>() }
 	singleOf(::MessagingSettingsDataSource) { bind<MessagingLocalDataRepository>() }

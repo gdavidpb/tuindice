@@ -17,6 +17,10 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 			state
 		}
 
+		onTo<Main.Action.ShowOutdatedApp, Main.State.OutdatedApp> { _, action ->
+			Main.State.OutdatedApp(outdatedAppState = action.outdatedAppState)
+		}
+
 		on<Main.Action.RequestReview> { state, _ ->
 			machine.requestReview(host = host)
 			state

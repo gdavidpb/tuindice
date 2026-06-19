@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.data.source.network.AppUpgradePolicy
 import com.gdavidpb.tuindice.data.source.network.UpgradeRequiredResponse
+import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
 import io.ktor.client.*
 import io.ktor.client.call.body
@@ -34,6 +35,7 @@ fun createSharedHttpClient(
 	sessionRepository: SessionRepository,
 	settingsRepository: SettingsRepository,
 	sessionRecoveryRepository: SessionRecoveryRepository,
+	outdatedAppEventRepository: OutdatedAppEventRepository,
 	logger: Logger,
 	json: Json,
 	userAgentValue: String? = null
@@ -81,6 +83,7 @@ fun createSharedHttpClient(
 				if (clientRequestException.response.status == HttpStatusCode.UpgradeRequired) {
 					clientRequestException.response.persistOutdatedAppState(
 						settingsRepository = settingsRepository,
+						outdatedAppEventRepository = outdatedAppEventRepository,
 						userAgentValue = userAgentValue
 					)
 				}
@@ -108,6 +111,7 @@ fun createSharedHttpClient(
 
 private suspend fun io.ktor.client.statement.HttpResponse.persistOutdatedAppState(
 	settingsRepository: SettingsRepository,
+	outdatedAppEventRepository: OutdatedAppEventRepository,
 	userAgentValue: String?
 ) {
 	val upgradeRequiredResponse = runCatching {
@@ -120,6 +124,7 @@ private suspend fun io.ktor.client.statement.HttpResponse.persistOutdatedAppStat
 	) ?: return
 
 	settingsRepository.setOutdatedAppState(outdatedAppState)
+	outdatedAppEventRepository.notifyOutdatedApp(outdatedAppState)
 }
 
 internal fun AuthConfig.installSharedBearerAuth(

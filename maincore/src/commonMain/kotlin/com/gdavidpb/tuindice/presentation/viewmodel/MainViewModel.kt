@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.presentation.viewmodel
 
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.presentation.statemachine.StateMachineViewModel
@@ -24,6 +25,9 @@ class MainViewModel(
 
 	fun startUpAction() =
 		sendAction(Main.Action.StartUp)
+
+	fun showOutdatedAppAction(state: OutdatedAppState) =
+		sendAction(Main.Action.ShowOutdatedApp(outdatedAppState = state))
 
 	fun setLastDestinationAction(destination: Destination) {
 		destination.toMainSectionOrNull()

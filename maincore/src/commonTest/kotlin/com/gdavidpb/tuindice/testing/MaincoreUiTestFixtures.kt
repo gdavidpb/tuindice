@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
@@ -95,7 +96,8 @@ fun createMainViewModel(
 	coreCacheStateRepository: CoreCacheStateRepository = FakeCoreCacheStateRepository(),
 	updateRepository: FakeUpdateRepository = FakeUpdateRepository(),
 	applicationRepository: RecordingApplicationRepository = RecordingApplicationRepository(),
-	reportingRepository: RecordingReportingRepository = RecordingReportingRepository()
+	reportingRepository: RecordingReportingRepository = RecordingReportingRepository(),
+	eventPublisher: EventPublisher = NoOpEventPublisher
 ): MainViewModel {
 	return MainViewModel(
 		screenMachine = MainMachine(
@@ -135,7 +137,7 @@ fun createMainViewModel(
 				reportingRepository = reportingRepository
 			)
 		),
-		eventPublisher = NoOpEventPublisher
+		eventPublisher = eventPublisher
 	)
 }
 

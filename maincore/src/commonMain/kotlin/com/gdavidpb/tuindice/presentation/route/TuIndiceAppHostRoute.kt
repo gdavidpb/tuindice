@@ -14,6 +14,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
@@ -28,6 +29,7 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofDestination
+import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.model.MainShellState
@@ -64,6 +66,7 @@ fun TuIndiceAppHostRoute(
 	syncStatusRepository: SyncStatusRepository = koinInject(),
 	reviewRepository: ReviewRepository = koinInject(),
 	updateRepository: UpdateRepository = koinInject(),
+	outdatedAppEventRepository: OutdatedAppEventRepository = koinInject(),
 	wizardTopBarActionBus: WizardTopBarActionBus = koinInject(),
 	pensumTopBarActionBus: PensumTopBarActionBus = koinInject(),
 	viewModel: MainViewModel = koinViewModel<MainViewModel>()
@@ -97,6 +100,12 @@ fun TuIndiceAppHostRoute(
 	}
 	val pendingChangesUnavailableMessage = stringResource(Res.string.snack_pending_changes_unavailable)
 	val sessionInvalidatedMessage = stringResource(Res.string.snack_session_invalidated)
+
+	LaunchedEffect(outdatedAppEventRepository) {
+		outdatedAppEventRepository.observeOutdatedApp().collect { state ->
+			viewModel.showOutdatedAppAction(state)
+		}
+	}
 
 	MainRoute(
 		onNavigateToGooglePlayServicesUnavailableDialog = {
@@ -294,7 +303,11 @@ fun TuIndiceAppHostRoute(
 			onConfirmExitClick = onConfirmExitClick,
 			isCameraAvailable = deviceInfoRepository.hasCamera(),
 			onNavigateToExternalResource = browserRepository::open,
-			onOutdatedAppDetected = viewModel::startUpAction,
+			onOutdatedAppDetected = {
+				viewModel.showOutdatedAppAction(
+					OutdatedAppState(minimumVersionCode = Long.MAX_VALUE)
+				)
+			},
 			onRecordViewModeChangeAvailable = { callback ->
 				onRecordViewModeChange.value = callback
 			},

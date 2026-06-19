@@ -26,6 +26,9 @@ import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
+import com.gdavidpb.tuindice.base.domain.model.event.AppEvent
+import com.gdavidpb.tuindice.base.domain.model.event.EventNames
+import com.gdavidpb.tuindice.base.domain.model.event.EventParameterKeys
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
@@ -42,6 +45,8 @@ import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
+import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
 import com.gdavidpb.tuindice.testing.createSummaryViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
@@ -69,6 +74,7 @@ import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import com.gdavidpb.tuindice.wizard.presentation.model.WizardTopBarActionBus
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -186,6 +192,8 @@ class TuIndiceAppHostRouteUiTest {
 			refreshToken = ""
 		)
 		val syncStatusRepository = FakeSyncStatusRepository()
+		val eventPublisher = RecordingEventPublisher()
+		val outdatedAppEventRepository = OutdatedAppEventDataSource()
 
 		stopKoin()
 		startKoin {
@@ -199,9 +207,11 @@ class TuIndiceAppHostRouteUiTest {
 								usbId: String,
 								password: String
 							): BootstrapTokens {
-								settingsRepository.setOutdatedAppState(
+								val outdatedAppState =
 									OutdatedAppState(minimumVersionCode = 52)
-								)
+								settingsRepository.setOutdatedAppState(outdatedAppState)
+								outdatedAppEventRepository.notifyOutdatedApp(outdatedAppState)
+
 								throw clientRequestException(
 									statusCode = HttpStatusCode.UpgradeRequired,
 									path = "/auth/v1/token"
@@ -268,10 +278,12 @@ class TuIndiceAppHostRouteUiTest {
 					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = FakeUpdateRepository(),
+					outdatedAppEventRepository = outdatedAppEventRepository,
 					viewModel = createMainViewModel(
 						sessionRepository = sessionRepository,
 						settingsRepository = settingsRepository,
-						deviceInfoRepository = FakeDeviceInfoRepository(versionCode = 1)
+						deviceInfoRepository = FakeDeviceInfoRepository(versionCode = 1),
+						eventPublisher = eventPublisher
 					)
 				)
 			}
@@ -280,6 +292,7 @@ class TuIndiceAppHostRouteUiTest {
 				onAllNodesWithTag(AuthUiTags.PasswordTextField).fetchSemanticsNodes().isNotEmpty()
 			}
 
+			val eventCountBeforeSignIn = eventPublisher.events.size
 			onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("1234567")
 			onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("version-vieja")
 			onNodeWithTag(AuthUiTags.SignInButton).performClick()
@@ -291,6 +304,20 @@ class TuIndiceAppHostRouteUiTest {
 			assertNodeVisible(BaseUiTags.OutdatedAppScreen)
 			assertNodeHidden(MaincoreUiTags.TuIndiceNavHost)
 			assertNodeHidden(AuthUiTags.AnimatedPatternBackground)
+
+			val gateEvents = eventPublisher.events.drop(eventCountBeforeSignIn)
+			assertTrue(
+				gateEvents.any { event ->
+					event.isMainTransition(event = "show_outdated_app", to = "outdated_app")
+				},
+				"Expected sign-in 426 to show the global outdated screen directly."
+			)
+			assertTrue(
+				gateEvents.none { event ->
+					event.isMainTransition(to = "starting")
+				},
+				"Sign-in 426 should not transition main back to loading."
+			)
 		} finally {
 			stopKoin()
 		}
@@ -782,6 +809,7 @@ class TuIndiceAppHostRouteUiTest {
 		factory { createSummaryViewModel() }
 		single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 		single<EventPublisher> { NoOpEventPublisher }
+		single<OutdatedAppEventRepository> { OutdatedAppEventDataSource() }
 		single<PendingChangesRepository> { FakePendingChangesRepository() }
 		single<SessionInvalidationRepository> { sessionInvalidationRepository }
 		single<SyncRepository> { FakeSyncRepository() }
@@ -791,4 +819,24 @@ class TuIndiceAppHostRouteUiTest {
 		single { WizardTopBarActionBus() }
 		single { PensumTopBarActionBus() }
 	}
+}
+
+private class RecordingEventPublisher : EventPublisher {
+	private val eventsFlow = MutableStateFlow<List<AppEvent>>(emptyList())
+	val events: List<AppEvent>
+		get() = eventsFlow.value
+
+	override fun publish(event: AppEvent) {
+		eventsFlow.value += event
+	}
+}
+
+private fun AppEvent.isMainTransition(
+	event: String? = null,
+	to: String
+): Boolean {
+	return name == EventNames.APP_TRANSITION &&
+			parameters[EventParameterKeys.SOURCE] == "main" &&
+			(event == null || parameters[EventParameterKeys.EVENT] == event) &&
+			parameters[EventParameterKeys.TO] == to
 }

@@ -185,6 +185,7 @@ val iosPlatformModule = module {
 			sessionRepository = get<SessionRepository>(),
 			settingsRepository = get<SettingsRepository>(),
 			sessionRecoveryRepository = get(),
+			outdatedAppEventRepository = get(),
 			logger = createAppKtorLogger(),
 			json = get<Json>(),
 			userAgentValue = createIosUserAgent(get<IosDeviceCapability>())

@@ -283,6 +283,9 @@ actions:
     selector: maincore_app_availability_notice_screen
     flow: e2e/maestro/flows/maincore/app-availability-notice.yaml
     fixture_state: debug-remote-config
+  - id: maincore.Main.ShowOutdatedApp
+    classification: internal
+    reason: host shows the global outdated app screen from the shared HTTP 426 event
   - id: maincore.Main.ClickUpdateApp
     classification: platform-edge
     variants: [store-handoff-from-startup-block]
