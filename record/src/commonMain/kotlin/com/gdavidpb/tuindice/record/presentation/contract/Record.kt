@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.record.presentation.contract
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
-import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
@@ -10,7 +9,6 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
-import com.gdavidpb.tuindice.record.domain.model.filteredProjectionFor
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.top_bar_record
 
@@ -29,12 +27,7 @@ object Record {
 			val viewMode: RecordViewMode,
 			val record: AcademicRecord,
 			val selectedTermId: String
-		) : State(
-			topBarConfig = record.topBarConfigFor(
-				viewMode = viewMode,
-				selectedTermId = selectedTermId
-			)
-		)
+		) : State()
 
 		data object Empty : State()
 
@@ -69,21 +62,5 @@ object Record {
 			val viewMode: RecordViewMode,
 			val behavior: TopBarBannerBehavior
 		) : Effect()
-	}
-}
-
-private fun AcademicRecord.topBarConfigFor(
-	viewMode: RecordViewMode,
-	selectedTermId: String
-): TopBarConfig {
-	val selectedTermIsCurrent = viewMode == RecordViewMode.Projection &&
-		filteredProjectionFor(RecordViewMode.Projection)
-			.terms
-			.any { term -> term.id == selectedTermId && term.kind.isCurrent }
-
-	return if (selectedTermIsCurrent) {
-		TopBarConfig.RecordWithEnrollmentProof
-	} else {
-		TopBarConfig.Record
 	}
 }

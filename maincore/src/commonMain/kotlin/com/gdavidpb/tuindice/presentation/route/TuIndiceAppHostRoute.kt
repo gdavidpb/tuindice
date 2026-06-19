@@ -147,9 +147,6 @@ fun TuIndiceAppHostRoute(
 		val onRecordTermSelection = remember {
 			mutableStateOf<(() -> Unit)?>(null)
 		}
-		val onRecordEnrollmentProof = remember {
-			mutableStateOf<(() -> Unit)?>(null)
-		}
 		val syncStatus by syncStatusRepository
 			.observeSyncStatus()
 			.collectAsStateWithLifecycle(initialValue = SyncStatus.Healthy)
@@ -250,11 +247,6 @@ fun TuIndiceAppHostRoute(
 			snackbarHostState = snackbarHostState,
 			onAction = { action ->
 				when {
-					action is TopBarAction.FetchEnrollmentProofAction &&
-							onRecordEnrollmentProof.value != null -> {
-						onRecordEnrollmentProof.value?.invoke()
-					}
-
 					navController.isCurrentDestination(WizardDestination.NavGraph) ->
 						wizardTopBarActionBus.dispatch(action)
 
@@ -311,9 +303,6 @@ fun TuIndiceAppHostRoute(
 			onRecordViewModeChange = onRecordViewModeChange.value,
 			onRecordTermSelectionAvailable = { callback ->
 				onRecordTermSelection.value = callback
-			},
-			onRecordEnrollmentProofAvailable = { callback ->
-				onRecordEnrollmentProof.value = callback
 			},
 			onNavigateTo = { destination ->
 				val currentDestination = navController.currentDestination?.parent?.route

@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.base.ui.view
 
 import androidx.compose.material3.Text
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
@@ -70,31 +69,6 @@ class TopAppBarActionsViewUiTest {
 
 		onNodeWithTag(actionTag).performClick()
 		assertEquals(TopBarAction.RecordTermSelectionAction, selectedAction)
-	}
-
-	@Test
-	fun when_recordConfigAddsEnrollmentProof_then_dispatchesEnrollmentProofAction() = runTuIndiceUiTest {
-		var selectedAction: TopBarAction? = null
-		val topBarConfig = mutableStateOf<TopBarConfig?>(TopBarConfig.Record)
-
-		setTuIndiceTestContent {
-			TopAppBarActionsView(
-				topBarConfig = topBarConfig.value,
-				onAction = { action -> selectedAction = action }
-			) { action ->
-				Text(action.action)
-			}
-		}
-
-		topBarConfig.value = TopBarConfig.RecordWithEnrollmentProof
-		waitForIdle()
-
-		val enrollmentProofTag = BaseUiTags.topBarActionButton(TopBarAction.FetchEnrollmentProofAction)
-		assertNodeVisible(BaseUiTags.topBarActionButton(TopBarAction.RecordTermSelectionAction))
-		assertNodeVisible(enrollmentProofTag)
-
-		onNodeWithTag(enrollmentProofTag).performClick()
-		assertEquals(TopBarAction.FetchEnrollmentProofAction, selectedAction)
 	}
 
 	@Test

@@ -26,7 +26,6 @@ fun RecordRoute(
 	onNavigateToDeleteSyntheticTermConfirmation: (termId: String) -> Unit,
 	onTopBarViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onTopBarTermSelectionAvailable: ((() -> Unit)?) -> Unit,
-	onTopBarEnrollmentProofAvailable: ((() -> Unit)?) -> Unit,
 	onNavigateToEnrollmentProof: () -> Unit,
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
@@ -44,12 +43,10 @@ fun RecordRoute(
 		onTopBarTermSelectionAvailable {
 			showTermSelection.value = true
 		}
-		onTopBarEnrollmentProofAvailable(viewModel::openEnrollmentProofAction)
 
 		onDispose {
 			onTopBarViewModeChangeAvailable(null)
 			onTopBarTermSelectionAvailable(null)
-			onTopBarEnrollmentProofAvailable(null)
 		}
 	}
 
@@ -103,6 +100,7 @@ fun RecordRoute(
 		onCreateSyntheticTermClick = onNavigateToCreateSyntheticTerm,
 		onUpdateSyntheticTermClick = onNavigateToUpdateSyntheticTerm,
 		onDeleteSyntheticTermClick = onNavigateToDeleteSyntheticTermConfirmation,
+		onEnrollmentProofClick = viewModel::openEnrollmentProofAction,
 		showTermSelection = showTermSelection.value,
 		onDismissTermSelection = {
 			showTermSelection.value = false

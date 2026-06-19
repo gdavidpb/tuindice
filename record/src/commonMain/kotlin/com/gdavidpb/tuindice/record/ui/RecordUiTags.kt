@@ -9,6 +9,7 @@ object RecordUiTags {
 	const val AttemptsList = "record_attempts_list"
 	const val TermSelectionSheet = "record_term_selection_sheet"
 	const val TermSelectionList = "record_term_selection_list"
+	const val EnrollmentProofButton = "record_enrollment_proof_button"
 	const val TopBarViewModeSwitch = "record_top_bar_view_mode_switch"
 	const val TopBarViewModeButton = "record_top_bar_view_mode_button"
 	const val TopBarViewModeBanner = "record_top_bar_view_mode_banner"

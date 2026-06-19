@@ -13,7 +13,6 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
-import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -111,36 +110,33 @@ class RecordScreenUiTest {
 	}
 
 	@Test
-	fun when_selectedTermIsCurrentProjection_then_enrollmentProofFabIsNotRendered() = runTuIndiceUiTest {
-		val state = contentState(
-			termId = "current-term",
-			termKind = TermKind.CURRENT
-		)
+	fun when_selectedTermIsCurrentProjection_then_enrollmentProofActionIsShownAndClickable() = runTuIndiceUiTest {
+		var enrollmentProofClicks = 0
 
 		setTuIndiceTestContent {
 			RecordScreen(
-				state = state,
+				state = contentState(
+					termId = "current-term",
+					termKind = TermKind.CURRENT
+				),
 				selectedTermId = "current-term",
 				onSelectedTermChange = {},
 				onRetryClick = {},
 				onAttemptSelectionChange = { _, _, _, _ -> },
 				onCreateSyntheticTermClick = {},
 				onUpdateSyntheticTermClick = {},
-				onDeleteSyntheticTermClick = {}
+				onDeleteSyntheticTermClick = {},
+				onEnrollmentProofClick = {
+					enrollmentProofClicks++
+				}
 			)
 		}
 
-		assertEquals(TopBarConfig.RecordWithEnrollmentProof, state.topBarConfig)
-	}
+		onNodeWithTag(RecordUiTags.EnrollmentProofButton)
+			.assertIsDisplayed()
+			.performClick()
 
-	@Test
-	fun when_selectedTermIsHistoricalProjection_then_enrollmentProofTopBarActionIsNotAvailable() {
-		val state = contentState(
-			termId = "historical-term",
-			termKind = TermKind.HISTORICAL
-		)
-
-		assertEquals(TopBarConfig.Record, state.topBarConfig)
+		assertEquals(1, enrollmentProofClicks)
 	}
 
 	@Test

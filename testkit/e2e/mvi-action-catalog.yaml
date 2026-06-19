@@ -415,7 +415,7 @@ actions:
   - id: record.Record.OpenEnrollmentProof
     classification: user
     variants: [current-term]
-    selector: base_top_app_bar_action_enrollment_proof
+    selector: record_enrollment_proof_button
     flow: e2e/maestro/flows/_shared/open-current-enrollment-proof.yaml
     fixture_state: record-success
   - id: record.Record.UpsertAttemptSelection

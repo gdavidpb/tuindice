@@ -21,6 +21,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
+import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
@@ -30,6 +31,7 @@ import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.view.RecordContentView
 import com.gdavidpb.tuindice.record.ui.view.RecordEmptyView
+import com.gdavidpb.tuindice.record.ui.view.RecordEnrollmentProofActionView
 import com.gdavidpb.tuindice.record.ui.view.RecordFailedView
 import com.gdavidpb.tuindice.record.ui.view.RecordLoadingView
 import com.gdavidpb.tuindice.record.ui.view.RecordSyntheticTermActionsView
@@ -57,6 +59,7 @@ fun RecordScreen(
 	onCreateSyntheticTermClick: () -> Unit,
 	onUpdateSyntheticTermClick: (termId: String) -> Unit = {},
 	onDeleteSyntheticTermClick: (termId: String) -> Unit = {},
+	onEnrollmentProofClick: () -> Unit = {},
 	showTermSelection: Boolean = false,
 	onDismissTermSelection: () -> Unit = {}
 ) {
@@ -71,6 +74,15 @@ fun RecordScreen(
 		?.firstOrNull { term ->
 			term.id == selectedTermIdValue && term.kind.isSynthetic
 		}
+	val isEnrollmentProofVisible = contentState
+		?.takeIf { content -> content.viewMode == RecordViewMode.Projection }
+		?.record
+		?.filteredProjectionFor(RecordViewMode.Projection)
+		?.terms
+		?.any { term ->
+			term.id == selectedTermIdValue && term.kind.isCurrent
+		}
+		?: false
 
 	Box(
 		modifier = Modifier
@@ -138,6 +150,10 @@ fun RecordScreen(
 						onEditClick = onUpdateSyntheticTermClick,
 						onDeleteClick = onDeleteSyntheticTermClick
 					)
+				}
+
+				if (isEnrollmentProofVisible) {
+					RecordEnrollmentProofActionView(onClick = onEnrollmentProofClick)
 				}
 
 				FloatingActionButton(

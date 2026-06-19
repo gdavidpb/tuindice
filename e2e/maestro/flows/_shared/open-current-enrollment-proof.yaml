@@ -4,11 +4,11 @@ appId: com.gdavidpb.tuindice.debug
     id: record_term_current_chip_.*
 - extendedWaitUntil:
     visible:
-      id: base_top_app_bar_action_enrollment_proof
+      id: record_enrollment_proof_button
     timeout: 10000
 - waitForAnimationToEnd:
     timeout: 5000
 - tapOn:
-    id: base_top_app_bar_action_enrollment_proof
+    id: record_enrollment_proof_button
     waitUntilVisible: true
     retryTapIfNoChange: true

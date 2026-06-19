@@ -47,7 +47,6 @@ fun TuIndiceNavHost(
 	onUpdatePasswordDismissRequest: () -> Unit = {},
 	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onRecordTermSelectionAvailable: ((() -> Unit)?) -> Unit,
-	onRecordEnrollmentProofAvailable: ((() -> Unit)?) -> Unit = {},
 	onWizardFinished: () -> Unit = {},
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
@@ -120,7 +119,6 @@ fun TuIndiceNavHost(
 			},
 			onTopBarViewModeChangeAvailable = onRecordViewModeChangeAvailable,
 			onTopBarTermSelectionAvailable = onRecordTermSelectionAvailable,
-			onTopBarEnrollmentProofAvailable = onRecordEnrollmentProofAvailable,
 			onNavigateToEnrollmentProof = {
 				navController.navigate(EnrollmentProofDestination.EnrollmentProofDialog)
 			},

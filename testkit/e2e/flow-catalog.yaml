@@ -232,7 +232,7 @@ flows:
       - record.Record.OpenEnrollmentProof
     primary_selectors:
       - record_term_current_chip_.*
-      - base_top_app_bar_action_enrollment_proof
+      - record_enrollment_proof_button
   - id: shared-launch-seeded-authenticated
     path: e2e/maestro/flows/_shared/launch-seeded-authenticated.yaml
     module: shared
@@ -1029,7 +1029,7 @@ flows:
     actions_covered:
       - record.Record.SelectTerm
     primary_selectors:
-      - base_top_app_bar_action_enrollment_proof
+      - record_enrollment_proof_button
       - record_content_container
   - id: enrollmentproof-suite
     path: e2e/maestro/flows/suites/enrollmentproof-suite.yaml
@@ -1045,7 +1045,7 @@ flows:
       - record.Record.OpenEnrollmentProof
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
-      - base_top_app_bar_action_enrollment_proof
+      - record_enrollment_proof_button
       - enrollment_fetching_sheet
       - enrollment_fetching_cancel_button
       - base_snackbar_container
@@ -1063,7 +1063,7 @@ flows:
       - record.Record.OpenEnrollmentProof
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
-      - base_top_app_bar_action_enrollment_proof
+      - record_enrollment_proof_button
       - enrollment_fetching_sheet
       - enrollment_fetching_loading_container
       - enrollment_fetching_message
@@ -1081,7 +1081,7 @@ flows:
       - record.Record.OpenEnrollmentProof
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
-      - base_top_app_bar_action_enrollment_proof
+      - record_enrollment_proof_button
       - base_snackbar_container
   - id: enrollmentproof-not-found
     path: e2e/maestro/flows/enrollmentproof/enrollmentproof-not-found.yaml
@@ -1096,7 +1096,7 @@ flows:
       - record.Record.OpenEnrollmentProof
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
-      - base_top_app_bar_action_enrollment_proof
+      - record_enrollment_proof_button
       - base_snackbar_container
   - id: enrollmentproof-outdated-credentials
     path: e2e/maestro/flows/enrollmentproof/enrollmentproof-outdated-credentials.yaml
@@ -1111,7 +1111,7 @@ flows:
       - record.Record.OpenEnrollmentProof
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
-      - base_top_app_bar_action_enrollment_proof
+      - record_enrollment_proof_button
       - auth_update_password_idle_container
   - id: pensum-smoke
     path: e2e/maestro/flows/pensum/pensum-smoke.yaml
