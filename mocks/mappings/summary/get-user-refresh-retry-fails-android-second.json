@@ -1,14 +1,14 @@
 {
   "priority": 1,
   "scenarioName": "summary-refresh-retry",
-  "requiredScenarioState": "FailedOnce",
-  "newScenarioState": "FailedTwice",
+  "requiredScenarioState": "AndroidFailedOnce",
+  "newScenarioState": "FailedOnce",
   "request": {
     "method": "GET",
     "urlPath": "/users/v1",
     "headers": {
-      "Authorization": {
-        "equalTo": "Bearer summary.refresh.retry.mock.access"
+      "User-Agent": {
+        "contains": "Android"
       }
     }
   },

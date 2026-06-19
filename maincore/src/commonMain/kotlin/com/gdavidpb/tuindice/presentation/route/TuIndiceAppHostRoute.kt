@@ -138,16 +138,28 @@ fun TuIndiceAppHostRoute(
 		val isPreparingSignOut = remember {
 			mutableStateOf(false)
 		}
+		val isUpdatePasswordDismissedForOutdatedCredentials = remember {
+			mutableStateOf(false)
+		}
 		val onRecordViewModeChange = remember {
 			mutableStateOf<((RecordViewMode) -> Unit)?>(null)
 		}
 		val onRecordTermSelection = remember {
 			mutableStateOf<(() -> Unit)?>(null)
 		}
+		val onRecordEnrollmentProof = remember {
+			mutableStateOf<(() -> Unit)?>(null)
+		}
 		val syncStatus by syncStatusRepository
 			.observeSyncStatus()
 			.collectAsStateWithLifecycle(initialValue = SyncStatus.Healthy)
 		val isContentAvailable = state is Main.State.Content
+
+		LaunchedEffect(syncStatus) {
+			if (syncStatus != SyncStatus.OutdatedCredentials) {
+				isUpdatePasswordDismissedForOutdatedCredentials.value = false
+			}
+		}
 
 		LaunchedEffect(isContentAvailable) {
 			if (!isContentAvailable) return@LaunchedEffect
@@ -201,6 +213,7 @@ fun TuIndiceAppHostRoute(
 		LaunchedEffect(syncStatus, state) {
 			if (state !is Main.State.Content) return@LaunchedEffect
 			if (syncStatus != SyncStatus.OutdatedCredentials) return@LaunchedEffect
+			if (isUpdatePasswordDismissedForOutdatedCredentials.value) return@LaunchedEffect
 
 			yield()
 
@@ -236,10 +249,16 @@ fun TuIndiceAppHostRoute(
 			isSwipeBackNavigationEnabled = isSwipeBackNavigationEnabled,
 			snackbarHostState = snackbarHostState,
 			onAction = { action ->
-				if (navController.isCurrentDestination(WizardDestination.NavGraph)) {
-					wizardTopBarActionBus.dispatch(action)
-				} else {
-					when (action) {
+				when {
+					action is TopBarAction.FetchEnrollmentProofAction &&
+							onRecordEnrollmentProof.value != null -> {
+						onRecordEnrollmentProof.value?.invoke()
+					}
+
+					navController.isCurrentDestination(WizardDestination.NavGraph) ->
+						wizardTopBarActionBus.dispatch(action)
+
+					else -> when (action) {
 						is TopBarAction.SignOutAction ->
 							if (!isPreparingSignOut.value) {
 								coroutineScope.launch {
@@ -293,6 +312,9 @@ fun TuIndiceAppHostRoute(
 			onRecordTermSelectionAvailable = { callback ->
 				onRecordTermSelection.value = callback
 			},
+			onRecordEnrollmentProofAvailable = { callback ->
+				onRecordEnrollmentProof.value = callback
+			},
 			onNavigateTo = { destination ->
 				val currentDestination = navController.currentDestination?.parent?.route
 				val isNewDestination = !navController.isCurrentDestination(destination)
@@ -318,6 +340,12 @@ fun TuIndiceAppHostRoute(
 				viewModel.showOutdatedAppAction(
 					OutdatedAppState(minimumVersionCode = Long.MAX_VALUE)
 				)
+			},
+			onUpdatePasswordDismissRequest = {
+				if (syncStatus == SyncStatus.OutdatedCredentials) {
+					isUpdatePasswordDismissedForOutdatedCredentials.value = true
+				}
+				navController.navigateUp()
 			},
 			onRecordViewModeChangeAvailable = { callback ->
 				onRecordViewModeChange.value = callback

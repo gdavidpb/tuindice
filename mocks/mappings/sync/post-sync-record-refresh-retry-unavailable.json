@@ -1,13 +1,16 @@
 {
   "priority": 1,
+  "scenarioName": "record-refresh-retry",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "InitialSyncUnavailable",
   "request": {
     "method": "POST",
     "urlPath": "/record/v5/sync",
-    "headers": {
-      "Authorization": {
-        "equalTo": "Bearer record.refresh.retry.mock.access"
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.password == 'record-retry-pass')]"
       }
-    }
+    ]
   },
   "response": {
     "status": 503,

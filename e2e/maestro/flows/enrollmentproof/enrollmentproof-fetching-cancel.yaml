@@ -9,14 +9,7 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: record_content_container
     timeout: 30000
-- tapOn:
-    id: record_term_current_chip_.*
-- extendedWaitUntil:
-    visible:
-      id: record_enrollment_proof_button
-    timeout: 10000
-- tapOn:
-    id: record_enrollment_proof_button
+- runFlow: ../_shared/open-current-enrollment-proof.yaml
 - extendedWaitUntil:
     visible:
       id: enrollment_fetching_sheet

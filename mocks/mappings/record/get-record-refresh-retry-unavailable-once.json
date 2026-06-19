@@ -1,16 +1,11 @@
 {
   "priority": 1,
   "scenarioName": "record-refresh-retry",
-  "requiredScenarioState": "Started",
+  "requiredScenarioState": "InitialSyncUnavailable",
   "newScenarioState": "FirstFailure",
   "request": {
     "method": "GET",
-    "urlPath": "/record/v5",
-    "headers": {
-      "Authorization": {
-        "equalTo": "Bearer record.refresh.retry.mock.access"
-      }
-    }
+    "urlPath": "/record/v5"
   },
   "response": {
     "status": 503,

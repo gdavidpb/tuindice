@@ -26,6 +26,7 @@ fun RecordRoute(
 	onNavigateToDeleteSyntheticTermConfirmation: (termId: String) -> Unit,
 	onTopBarViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onTopBarTermSelectionAvailable: ((() -> Unit)?) -> Unit,
+	onTopBarEnrollmentProofAvailable: ((() -> Unit)?) -> Unit,
 	onNavigateToEnrollmentProof: () -> Unit,
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
@@ -43,10 +44,12 @@ fun RecordRoute(
 		onTopBarTermSelectionAvailable {
 			showTermSelection.value = true
 		}
+		onTopBarEnrollmentProofAvailable(viewModel::openEnrollmentProofAction)
 
 		onDispose {
 			onTopBarViewModeChangeAvailable(null)
 			onTopBarTermSelectionAvailable(null)
+			onTopBarEnrollmentProofAvailable(null)
 		}
 	}
 
@@ -54,6 +57,9 @@ fun RecordRoute(
 		when (effect) {
 			is Record.Effect.NavigateToOutdatedCredentials ->
 				onNavigateToUpdatePassword()
+
+			is Record.Effect.NavigateToEnrollmentProof ->
+				onNavigateToEnrollmentProof()
 
 			is Record.Effect.ShowSnackBar ->
 				showSnackBar(SnackBarMessage(message = effect.message))
@@ -97,7 +103,6 @@ fun RecordRoute(
 		onCreateSyntheticTermClick = onNavigateToCreateSyntheticTerm,
 		onUpdateSyntheticTermClick = onNavigateToUpdateSyntheticTerm,
 		onDeleteSyntheticTermClick = onNavigateToDeleteSyntheticTermConfirmation,
-		onEnrollmentProofClick = onNavigateToEnrollmentProof,
 		showTermSelection = showTermSelection.value,
 		onDismissTermSelection = {
 			showTermSelection.value = false

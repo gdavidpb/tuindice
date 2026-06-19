@@ -86,6 +86,11 @@ import com.gdavidpb.tuindice.ui.view.TopBarBannerHost
 import org.jetbrains.compose.resources.stringResource
 import tuindice.maincore.generated.resources.Res
 import tuindice.maincore.generated.resources.a11y_navigate_back
+import tuindice.maincore.generated.resources.a11y_top_bar_change_pensum
+import tuindice.maincore.generated.resources.a11y_top_bar_enrollment_proof
+import tuindice.maincore.generated.resources.a11y_top_bar_record_term_selection
+import tuindice.maincore.generated.resources.a11y_top_bar_search_pensum
+import tuindice.maincore.generated.resources.a11y_top_bar_sign_out
 import tuindice.maincore.generated.resources.app_availability_notice_default_message
 import tuindice.maincore.generated.resources.app_availability_notice_default_title
 import tuindice.maincore.generated.resources.main_start_failed_message
@@ -106,12 +111,14 @@ fun TuIndiceScreen(
 	onRecordViewModeChange: ((RecordViewMode) -> Unit)?,
 	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onRecordTermSelectionAvailable: ((() -> Unit)?) -> Unit = {},
+	onRecordEnrollmentProofAvailable: ((() -> Unit)?) -> Unit = {},
 	onNavigateTo: (destination: Destination) -> Unit,
 	onNavigateBack: () -> Unit,
 	onConfirmExitClick: () -> Unit,
 	isCameraAvailable: Boolean,
 	onNavigateToExternalResource: (url: String) -> Unit,
 	onOutdatedAppDetected: () -> Unit = {},
+	onUpdatePasswordDismissRequest: () -> Unit = {},
 	onWizardFinished: () -> Unit = {},
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
@@ -276,6 +283,7 @@ fun TuIndiceScreen(
 										TopAppBarActionsView(
 											topBarConfig = shellState.topBarConfig,
 											onAction = onAction,
+											actionContentDescription = { action -> action.getContentDescription() },
 											actionIconContent = { action ->
 												Icon(
 													imageVector = action.getIcon(),
@@ -387,8 +395,10 @@ fun TuIndiceScreen(
 				isCameraAvailable = isCameraAvailable,
 				onNavigateToExternalResource = onNavigateToExternalResource,
 				onOutdatedAppDetected = onOutdatedAppDetected,
+				onUpdatePasswordDismissRequest = onUpdatePasswordDismissRequest,
 				onRecordViewModeChangeAvailable = onRecordViewModeChangeAvailable,
 				onRecordTermSelectionAvailable = onRecordTermSelectionAvailable,
+				onRecordEnrollmentProofAvailable = onRecordEnrollmentProofAvailable,
 				onWizardFinished = onWizardFinished,
 				showTopBarBanner = showTopBarBanner,
 				onViewStateChanged = onViewStateChanged,
@@ -397,6 +407,22 @@ fun TuIndiceScreen(
 			)
 		}
 
+	}
+}
+
+@Composable
+private fun TopBarAction.getContentDescription(): String {
+	return when (this) {
+		is TopBarAction.SignOutAction ->
+			stringResource(Res.string.a11y_top_bar_sign_out)
+		is TopBarAction.FetchEnrollmentProofAction ->
+			stringResource(Res.string.a11y_top_bar_enrollment_proof)
+		is TopBarAction.RecordTermSelectionAction ->
+			stringResource(Res.string.a11y_top_bar_record_term_selection)
+		is TopBarAction.SearchPensumAction ->
+			stringResource(Res.string.a11y_top_bar_search_pensum)
+		is TopBarAction.ChangePensumAction ->
+			stringResource(Res.string.a11y_top_bar_change_pensum)
 	}
 }
 

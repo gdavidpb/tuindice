@@ -57,7 +57,10 @@ done < <(printf '%s\n' "${catalog_paths}")
 mvi_contract_actions="$(mktemp)"
 mvi_catalog_entries="$(mktemp)"
 mvi_catalog_actions="$(mktemp)"
-trap 'rm -f "${mvi_contract_actions}" "${mvi_catalog_entries}" "${mvi_catalog_actions}"' EXIT
+flow_catalog_actions="$(mktemp)"
+flow_catalog_records="$(mktemp)"
+flow_catalog_path_actions="$(mktemp)"
+trap 'rm -f "${mvi_contract_actions}" "${mvi_catalog_entries}" "${mvi_catalog_actions}" "${flow_catalog_actions}" "${flow_catalog_records}" "${flow_catalog_path_actions}"' EXIT
 
 while IFS= read -r contract_file; do
 	relative_path="${contract_file#"${REPO_ROOT}/"}"
@@ -131,6 +134,147 @@ awk '
 ' "${MVI_ACTION_CATALOG}" > "${mvi_catalog_entries}"
 
 cut -d '|' -f 1 "${mvi_catalog_entries}" | sort -u > "${mvi_catalog_actions}"
+
+awk '
+	/^[[:space:]]*actions_covered:/ {
+		inActions = 1
+		next
+	}
+	inActions && /^[[:space:]]*-[[:space:]]*[A-Za-z0-9_.]+/ {
+		action = $2
+		if (action ~ /^[a-z]+[.][A-Za-z][A-Za-z0-9_]*[.][A-Za-z][A-Za-z0-9_]*$/) {
+			print action
+		}
+		next
+	}
+	inActions && /^[[:space:]]*[A-Za-z_][A-Za-z0-9_]*:/ {
+		inActions = 0
+	}
+' "${CATALOG}" | sort -u > "${flow_catalog_actions}"
+
+awk -v records="${flow_catalog_records}" -v pathActions="${flow_catalog_path_actions}" '
+	function flush(i) {
+		if (id != "" && path != "") {
+			print path "|" id "|" module "|" type > records
+			for (i = 1; i <= actionCount; i++) {
+				print path "|" actions[i] > pathActions
+			}
+		}
+		id = ""
+		path = ""
+		module = ""
+		type = ""
+		actionCount = 0
+		delete actions
+		inActions = 0
+	}
+	/^[[:space:]]*-[[:space:]]*id:/ {
+		flush()
+		id = $3
+		next
+	}
+	/^[[:space:]]*path:/ {
+		path = $2
+		next
+	}
+	/^[[:space:]]*module:/ {
+		module = $2
+		next
+	}
+	/^[[:space:]]*type:/ {
+		type = $2
+		next
+	}
+	/^[[:space:]]*actions_covered:/ {
+		inActions = 1
+		next
+	}
+	inActions && /^[[:space:]]*-[[:space:]]*[A-Za-z0-9_.]+/ {
+		actionCount++
+		actions[actionCount] = $2
+		next
+	}
+	inActions && /^[[:space:]]*[A-Za-z_][A-Za-z0-9_]*:/ {
+		inActions = 0
+	}
+	END {
+		flush()
+	}
+' "${CATALOG}"
+
+normalize_flow_path() {
+	local parent_path="$1"
+	local child_ref="$2"
+	local parent_dir child_dir child_base normalized_dir
+
+	parent_dir="$(dirname "${REPO_ROOT}/${parent_path}")"
+	child_dir="$(dirname "${child_ref}")"
+	child_base="$(basename "${child_ref}")"
+	normalized_dir="$(cd "${parent_dir}/${child_dir}" && pwd -P)"
+
+	printf '%s/%s\n' "${normalized_dir#"${REPO_ROOT}/"}" "${child_base}"
+}
+
+suite_action_inheritance_issues=0
+while IFS='|' read -r suite_path suite_id suite_module suite_type; do
+	[[ "${suite_type}" == "suite" ]] || continue
+	if ! grep --fixed-strings --quiet "${suite_path}|" "${flow_catalog_path_actions}"; then
+		continue
+	fi
+
+	suite_actions="$(awk -F '|' -v path="${suite_path}" '$1 == path { print $2 }' "${flow_catalog_path_actions}")"
+
+	while IFS= read -r child_ref; do
+		[[ -z "${child_ref}" ]] && continue
+
+		child_path="$(normalize_flow_path "${suite_path}" "${child_ref}")"
+		child_record="$(awk -F '|' -v path="${child_path}" '$1 == path { print; exit }' "${flow_catalog_records}")"
+		if [[ -z "${child_record}" ]]; then
+			continue
+		fi
+
+		IFS='|' read -r _child_path child_id child_module child_type <<< "${child_record}"
+		if [[ "${child_type}" == "setup" ]]; then
+			continue
+		fi
+		if [[ "${suite_module}" != "all" && "${child_module}" != "${suite_module}" ]]; then
+			continue
+		fi
+
+		while IFS= read -r child_action; do
+			[[ -z "${child_action}" ]] && continue
+			if ! printf '%s\n' "${suite_actions}" | grep --fixed-strings --line-regexp --quiet "${child_action}"; then
+				printf 'Suite %s omits child action %s from %s\n' "${suite_id}" "${child_action}" "${child_id}" >&2
+				suite_action_inheritance_issues=1
+			fi
+		done < <(awk -F '|' -v path="${child_path}" '$1 == path { print $2 }' "${flow_catalog_path_actions}")
+	done < <(
+		awk '
+			/runFlow:[[:space:]]*[^[:space:]].*[.]ya?ml/ {
+				line = $0
+				sub(/^.*runFlow:[[:space:]]*/, "", line)
+				gsub(/[" ]/, "", line)
+				print line
+			}
+		' "${REPO_ROOT}/${suite_path}"
+	)
+done < "${flow_catalog_records}"
+
+invalid_flow_actions=0
+while IFS= read -r action_id; do
+	[[ -z "${action_id}" ]] && continue
+
+	if ! grep --fixed-strings --line-regexp --quiet "${action_id}" "${mvi_contract_actions}"; then
+		printf 'Flow catalog actions_covered references unknown Action: %s\n' "${action_id}" >&2
+		invalid_flow_actions=1
+		continue
+	fi
+
+	if ! grep --fixed-strings --line-regexp --quiet "${action_id}" "${mvi_catalog_actions}"; then
+		printf 'Flow catalog actions_covered is missing from MVI action catalog: %s\n' "${action_id}" >&2
+		invalid_flow_actions=1
+	fi
+done < "${flow_catalog_actions}"
 
 missing_mvi_actions=0
 while IFS= read -r action_id; do
@@ -253,6 +397,8 @@ else
 	check_fixture_pair "${E2E_USB_EMAIL_FULL}" "USB_EMAIL_FULL"
 	check_fixture_pair "${E2E_CANONICAL_PASSWORD}" "CANONICAL_PASSWORD"
 	check_fixture_pair "${E2E_INVALID_USBID_RAW}" "INVALID_USBID_RAW"
+	check_fixture_pair "${E2E_SUMMARY_REFRESH_RETRY_PASSWORD}" "SUMMARY_REFRESH_RETRY_PASSWORD"
+	check_fixture_pair "${E2E_RECORD_REFRESH_RETRY_PASSWORD}" "RECORD_REFRESH_RETRY_PASSWORD"
 	check_fixture_pair "${E2E_RECORD_SEARCH_PRIORITY_PLANNED}" "PRIORITY_PLANNED"
 	check_fixture_pair "${E2E_RECORD_SEARCH_PRIORITY_UNAVAILABLE}" "PRIORITY_UNAVAILABLE"
 	check_fixture_pair "${E2E_RECORD_SEARCH_HISTORICAL_RETIRED}" "HISTORICAL_RETIRED"
@@ -312,6 +458,218 @@ else
 	esac
 fi
 
+refresh_retry_fixture_mismatches=0
+
+flow_typed_input() {
+	local flow_path="$1"
+	awk '/inputText:/ { line = $0; sub(/^[^"]*"/, "", line); sub(/".*$/, "", line); printf "%s", line }' "${flow_path}"
+}
+
+check_flow_types_value() {
+	local flow_path="$1"
+	local expected_value="$2"
+	local description="$3"
+	local typed_input
+
+	if [[ ! -f "${flow_path}" ]]; then
+		printf 'Missing %s flow: %s\n' "${description}" "${flow_path}" >&2
+		refresh_retry_fixture_mismatches=1
+		return
+	fi
+
+	typed_input="$(flow_typed_input "${flow_path}")"
+	case "${typed_input}" in
+		*"${expected_value}"*)
+			;;
+		*)
+			printf '%s does not type expected value %s\n' "${description}" "${expected_value}" >&2
+			refresh_retry_fixture_mismatches=1
+			;;
+	esac
+}
+
+check_flow_contains() {
+	local flow_path="$1"
+	local expected_text="$2"
+	local description="$3"
+
+	if [[ ! -f "${flow_path}" ]]; then
+		printf 'Missing %s flow: %s\n' "${description}" "${flow_path}" >&2
+		refresh_retry_fixture_mismatches=1
+		return
+	fi
+
+	if ! grep --fixed-strings --quiet "${expected_text}" "${flow_path}"; then
+		printf '%s flow does not contain expected text: %s\n' "${description}" "${expected_text}" >&2
+		refresh_retry_fixture_mismatches=1
+	fi
+}
+
+check_mapping_contains() {
+	local mapping_path="$1"
+	local expected_text="$2"
+	local description="$3"
+
+	if [[ ! -f "${mapping_path}" ]]; then
+		printf 'Missing %s mapping: %s\n' "${description}" "${mapping_path}" >&2
+		refresh_retry_fixture_mismatches=1
+		return
+	fi
+
+	if ! grep --fixed-strings --quiet "${expected_text}" "${mapping_path}"; then
+		printf '%s mapping does not contain expected matcher: %s\n' "${description}" "${expected_text}" >&2
+		refresh_retry_fixture_mismatches=1
+	fi
+}
+
+check_mapping_not_contains() {
+	local mapping_path="$1"
+	local rejected_text="$2"
+	local description="$3"
+
+	if [[ ! -f "${mapping_path}" ]]; then
+		printf 'Missing %s mapping: %s\n' "${description}" "${mapping_path}" >&2
+		refresh_retry_fixture_mismatches=1
+		return
+	fi
+
+	if grep --fixed-strings --quiet "${rejected_text}" "${mapping_path}"; then
+		printf '%s mapping contains stale matcher: %s\n' "${description}" "${rejected_text}" >&2
+		refresh_retry_fixture_mismatches=1
+	fi
+}
+
+check_path_absent() {
+	local path="$1"
+	local description="$2"
+
+	if [[ -e "${path}" ]]; then
+		printf '%s should not exist: %s\n' "${description}" "${path}" >&2
+		refresh_retry_fixture_mismatches=1
+	fi
+}
+
+check_flow_types_value \
+	"${FLOWS_ROOT}/summary/summary-refresh-retry.yaml" \
+	"${E2E_SUMMARY_REFRESH_RETRY_PASSWORD}" \
+	"Summary refresh retry"
+check_flow_types_value \
+	"${FLOWS_ROOT}/record/record-refresh-retry.yaml" \
+	"${E2E_RECORD_REFRESH_RETRY_PASSWORD}" \
+	"Record refresh retry"
+check_flow_contains \
+	"${FLOWS_ROOT}/record/record-refresh-retry.yaml" \
+	"wizard_welcome_screen|maincore_tuindice_bottom_bar_record_item|base_error_view_container" \
+	"Record refresh retry post-login"
+
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/sync/post-sync-summary-refresh-retry-unavailable.json" \
+	"\$[?(@.password == '${E2E_SUMMARY_REFRESH_RETRY_PASSWORD}')]" \
+	"Summary refresh retry sync"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/sync/post-sync-summary-refresh-retry-unavailable.json" \
+	"\"bodyFileName\": \"sync/post-sync-record-unavailable.json\"" \
+	"Summary refresh retry sync"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/sync/post-sync-summary-refresh-retry-unavailable.json" \
+	"\"newScenarioState\": \"InitialSyncUnavailable\"" \
+	"Summary refresh retry sync"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/sync/post-sync-record-refresh-retry-unavailable.json" \
+	"\$[?(@.password == '${E2E_RECORD_REFRESH_RETRY_PASSWORD}')]" \
+	"Record refresh retry sync"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/sync/post-sync-record-refresh-retry-unavailable.json" \
+	"\"bodyFileName\": \"sync/post-sync-record-unavailable.json\"" \
+	"Record refresh retry sync"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/sync/post-sync-record-refresh-retry-unavailable.json" \
+	"\"newScenarioState\": \"InitialSyncUnavailable\"" \
+	"Record refresh retry sync"
+check_path_absent \
+	"${REPO_ROOT}/mocks/mappings/sync/post-sync-record-refresh-retry-success.json" \
+	"Stale record refresh retry sync success mapping"
+check_path_absent \
+	"${REPO_ROOT}/mocks/mappings/sync/post-sync-summary-refresh-retry-success.json" \
+	"Stale summary refresh retry sync success mapping"
+
+for summary_retry_mapping in \
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-fails-once.json" \
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-fails-android-first.json" \
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-fails-android-second.json" \
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-success.json"
+do
+	check_mapping_not_contains \
+		"${summary_retry_mapping}" \
+		"\"Authorization\"" \
+		"Summary refresh retry user"
+done
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-fails-once.json" \
+	"\"requiredScenarioState\": \"InitialSyncUnavailable\"" \
+	"Summary refresh retry first failure"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-fails-once.json" \
+	"\"newScenarioState\": \"FailedOnce\"" \
+	"Summary refresh retry iOS first failure"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-fails-once.json" \
+	"\"contains\": \"iOS\"" \
+	"Summary refresh retry iOS first failure"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-fails-android-first.json" \
+	"\"requiredScenarioState\": \"InitialSyncUnavailable\"" \
+	"Summary refresh retry Android first failure"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-fails-android-first.json" \
+	"\"newScenarioState\": \"AndroidFailedOnce\"" \
+	"Summary refresh retry Android first failure"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-fails-android-first.json" \
+	"\"contains\": \"Android\"" \
+	"Summary refresh retry Android first failure"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-fails-android-second.json" \
+	"\"requiredScenarioState\": \"AndroidFailedOnce\"" \
+	"Summary refresh retry Android second failure"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-fails-android-second.json" \
+	"\"newScenarioState\": \"FailedOnce\"" \
+	"Summary refresh retry Android second failure"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-fails-android-second.json" \
+	"\"contains\": \"Android\"" \
+	"Summary refresh retry Android second failure"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-success.json" \
+	"\"requiredScenarioState\": \"FailedOnce\"" \
+	"Summary refresh retry success"
+check_path_absent \
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-fails-twice.json" \
+	"Stale summary refresh retry second failure mapping"
+
+for record_retry_mapping in \
+	"${REPO_ROOT}/mocks/mappings/record/get-record-refresh-retry-unavailable-once.json" \
+	"${REPO_ROOT}/mocks/mappings/record/get-record-refresh-retry-success.json"
+do
+	check_mapping_not_contains \
+		"${record_retry_mapping}" \
+		"\"Authorization\"" \
+		"Record refresh retry record"
+done
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/record/get-record-refresh-retry-unavailable-once.json" \
+	"\"requiredScenarioState\": \"InitialSyncUnavailable\"" \
+	"Record refresh retry first failure"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/record/get-record-refresh-retry-unavailable-once.json" \
+	"\"newScenarioState\": \"FirstFailure\"" \
+	"Record refresh retry first failure"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/record/get-record-refresh-retry-success.json" \
+	"\"requiredScenarioState\": \"FirstFailure\"" \
+	"Record refresh retry success"
+
 quarantine_issues=0
 if [[ -f "${QUARANTINE_FILE}" ]]; then
 	while IFS= read -r entry; do
@@ -337,7 +695,7 @@ if [[ -f "${QUARANTINE_FILE}" ]]; then
 	done < <(sed -e 's/#.*$//' -e 's/[[:space:]]*$//' -e '/^[[:space:]]*$/d' "${QUARANTINE_FILE}")
 fi
 
-if [[ "${missing_catalog_entries}" == "1" || "${missing_flow_files}" == "1" || "${missing_mvi_actions}" == "1" || "${unknown_mvi_actions}" == "1" || "${invalid_mvi_entries}" == "1" || "${missing_selectors}" == "1" || "${invalid_auth_usb_id_inputs}" == "1" || "${record_search_fixture_mismatches}" == "1" || "${fixture_contract_mismatches}" == "1" || "${quarantine_issues}" == "1" ]]; then
+if [[ "${missing_catalog_entries}" == "1" || "${missing_flow_files}" == "1" || "${invalid_flow_actions}" == "1" || "${suite_action_inheritance_issues}" == "1" || "${missing_mvi_actions}" == "1" || "${unknown_mvi_actions}" == "1" || "${invalid_mvi_entries}" == "1" || "${missing_selectors}" == "1" || "${invalid_auth_usb_id_inputs}" == "1" || "${record_search_fixture_mismatches}" == "1" || "${fixture_contract_mismatches}" == "1" || "${refresh_retry_fixture_mismatches}" == "1" || "${quarantine_issues}" == "1" ]]; then
 	exit 1
 fi
 

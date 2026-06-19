@@ -14,6 +14,8 @@ object E2eFixtureContract {
 	const val USB_EMAIL_FULL = "mail@usb.ve"
 	const val CANONICAL_PASSWORD = "123456"
 	const val INVALID_USBID_RAW = "0000000"
+	const val SUMMARY_REFRESH_RETRY_PASSWORD = "summary-retry-pass"
+	const val RECORD_REFRESH_RETRY_PASSWORD = "record-retry-pass"
 
 	object RecordSearch {
 		const val PRIORITY_PLANNED = "EP1308"

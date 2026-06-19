@@ -14,9 +14,5 @@ appId: com.gdavidpb.tuindice.debug
     id: auth_sign_in_button
 - extendedWaitUntil:
     visible:
-      id: summary_content_container
-    timeout: 40000
-- extendedWaitUntil:
-    visible:
       id: auth_update_password_idle_container
-    timeout: 20000
+    timeout: 60000

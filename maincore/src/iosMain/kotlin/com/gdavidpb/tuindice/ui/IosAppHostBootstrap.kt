@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.ui
 
 import androidx.compose.ui.window.ComposeUIViewController
+import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.debug.IosAuthenticatedWizardCompleteStartupHook
 import com.gdavidpb.tuindice.debug.IosAuthenticatedWizardPendingStartupHook
 import com.gdavidpb.tuindice.debug.IosDebugStartupHook
@@ -10,6 +11,8 @@ import com.gdavidpb.tuindice.domain.model.IosAppHostConfig
 import com.gdavidpb.tuindice.domain.model.IosBuildVariant
 import com.gdavidpb.tuindice.presentation.route.TuIndiceAppHostRoute
 import com.gdavidpb.tuindice.ui.theme.TuIndiceSharedTheme
+import com.gdavidpb.tuindice.wizard.domain.repository.WizardStartOverrideRepository
+import com.russhwolf.settings.Settings
 import kotlinx.coroutines.runBlocking
 import org.koin.core.Koin
 import platform.UIKit.UIViewController
@@ -48,6 +51,26 @@ class IosAppHostBootstrap(
 			title = title,
 			message = message
 		)
+	}
+
+	fun setDebugWizardStartForced(enabled: Boolean) {
+		check(hostConfig.buildVariant == IosBuildVariant.DEBUG) {
+			"Debug wizard state overrides are only available in debug iOS builds."
+		}
+
+		val koin = startIfNeeded()
+		runBlocking {
+			koin.get<WizardStartOverrideRepository>().setWizardStartForced(enabled)
+			if (enabled) {
+				koin.get<SettingsRepository>().clear()
+			}
+		}
+		if (enabled) {
+			koin.get<Settings>().apply {
+				putBoolean(DEBUG_WIZARD_COMPLETED_KEY, false)
+				putBoolean(DEBUG_LEGACY_GUIDED_TOUR_COMPLETED_KEY, false)
+			}
+		}
 	}
 
 	fun runDebugStartupHook(
@@ -95,3 +118,6 @@ class IosAppHostBootstrap(
 		}
 	}
 }
+
+private const val DEBUG_WIZARD_COMPLETED_KEY = "wizardCompleted"
+private const val DEBUG_LEGACY_GUIDED_TOUR_COMPLETED_KEY = "guidedTourCompleted"

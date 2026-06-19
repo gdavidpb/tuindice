@@ -48,13 +48,27 @@ if [[ ! -s "${GOOGLE_SERVICE_INFO}" ]]; then
 PLIST
 fi
 
-log "Linking shared iOS simulator framework."
-"${REPO_ROOT}/gradlew" --console=plain :maincore:linkDebugFrameworkIosSimulatorArm64
+log "Linking shared iOS simulator framework and syncing Compose resources."
+CONFIGURATION="Debug" \
+PLATFORM_NAME="iphonesimulator" \
+ARCHS="arm64" \
+BUILT_PRODUCTS_DIR="${E2E_IOS_DERIVED_DATA}/Build/Products/Debug-iphonesimulator" \
+UNLOCALIZED_RESOURCES_FOLDER_PATH="TuIndiceHost.app" \
+	"${REPO_ROOT}/gradlew" --console=plain \
+	:maincore:linkDebugFrameworkIosSimulatorArm64 \
+	:maincore:syncComposeResourcesForIos
+
+MAINCORE_FRAMEWORK_BINARY="${REPO_ROOT}/maincore/build/bin/iosSimulatorArm64/debugFramework/maincore.framework/maincore"
+if [[ ! -f "${MAINCORE_FRAMEWORK_BINARY}" ]]; then
+	printf 'Expected linked maincore framework was not produced: %s\n' "${MAINCORE_FRAMEWORK_BINARY}" >&2
+	exit 1
+fi
 
 log "Building iOS debug host."
 CONFIGURATION="Debug" \
 DERIVED_DATA_PATH="${E2E_IOS_DERIVED_DATA}" \
 REQUIRE_SIMULATOR="1" \
+SKIP_FRAMEWORK_BUILD="1" \
 TUINDICE_API_BASE_URL="${E2E_IOS_API_BASE_URL}" \
 TUINDICE_PRIVACY_POLICY_URL="${E2E_IOS_WEB_BASE_URL}/e2e/privacy.html" \
 TUINDICE_TERMS_AND_CONDITIONS_URL="${E2E_IOS_WEB_BASE_URL}/e2e/terms.html" \

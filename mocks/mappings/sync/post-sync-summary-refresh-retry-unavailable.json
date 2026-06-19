@@ -1,13 +1,16 @@
 {
   "priority": 1,
+  "scenarioName": "summary-refresh-retry",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "InitialSyncUnavailable",
   "request": {
     "method": "POST",
     "urlPath": "/record/v5/sync",
-    "headers": {
-      "Authorization": {
-        "equalTo": "Bearer summary.refresh.retry.mock.access"
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.password == 'summary-retry-pass')]"
       }
-    }
+    ]
   },
   "response": {
     "status": 503,

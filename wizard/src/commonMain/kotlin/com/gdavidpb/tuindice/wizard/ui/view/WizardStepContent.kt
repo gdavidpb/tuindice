@@ -82,7 +82,6 @@ fun WizardStepContent(
 				onRetryClick = {},
 				onAttemptSelectionChange = emptyAttemptSelectionHandler(),
 				onCreateSyntheticTermClick = {},
-				onEnrollmentProofClick = {},
 				showTermSelection = state.isRecordTermSelectionVisible,
 				onDismissTermSelection = onDismissRecordTermSelection
 			)

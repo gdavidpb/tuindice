@@ -468,7 +468,7 @@ maestro_item_prelude_entries() {
 	fi
 
 	case "${target_file}" in
-		*/auth/login-success.yaml)
+		*/auth/login-success.yaml|*/auth/login-summary-ready.yaml)
 			printf '%s/_shared/launch-clean.yaml\n' "${flows_root}"
 			return 0
 			;;

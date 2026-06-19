@@ -62,6 +62,9 @@ enum TuIndiceAppBootstrap {
         TuIndiceDebugRuntimeOverrides.configureRemoteConfigOverridesIfNeeded(
             appBootstrap: appBootstrap
         )
+        TuIndiceDebugRuntimeOverrides.configureWizardStateOverridesIfNeeded(
+            appBootstrap: appBootstrap
+        )
         TuIndiceDebugRuntimeOverrides.runStartupHooksIfNeeded(
             appBootstrap: appBootstrap,
             apiBaseUrl: hostConfig.apiBaseUrl

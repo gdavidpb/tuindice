@@ -1,15 +1,10 @@
 {
   "priority": 1,
   "scenarioName": "summary-refresh-retry",
-  "requiredScenarioState": "FailedTwice",
+  "requiredScenarioState": "FailedOnce",
   "request": {
     "method": "GET",
-    "urlPath": "/users/v1",
-    "headers": {
-      "Authorization": {
-        "equalTo": "Bearer summary.refresh.retry.mock.access"
-      }
-    }
+    "urlPath": "/users/v1"
   },
   "response": {
     "status": 200,

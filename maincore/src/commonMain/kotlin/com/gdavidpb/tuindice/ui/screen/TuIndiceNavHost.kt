@@ -44,8 +44,10 @@ fun TuIndiceNavHost(
 	isCameraAvailable: Boolean,
 	onNavigateToExternalResource: (url: String) -> Unit,
 	onOutdatedAppDetected: () -> Unit = {},
+	onUpdatePasswordDismissRequest: () -> Unit = {},
 	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onRecordTermSelectionAvailable: ((() -> Unit)?) -> Unit,
+	onRecordEnrollmentProofAvailable: ((() -> Unit)?) -> Unit = {},
 	onWizardFinished: () -> Unit = {},
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
@@ -92,6 +94,7 @@ fun TuIndiceNavHost(
 			},
 			onOutdatedAppDetected = onOutdatedAppDetected,
 			onDismissRequest = { navController.navigateUp() },
+			onUpdatePasswordDismissRequest = onUpdatePasswordDismissRequest,
 			onViewStateChanged = onViewStateChanged,
 			showSnackBar = showSnackBar,
 			dismissSnackBar = dismissSnackBar
@@ -117,6 +120,7 @@ fun TuIndiceNavHost(
 			},
 			onTopBarViewModeChangeAvailable = onRecordViewModeChangeAvailable,
 			onTopBarTermSelectionAvailable = onRecordTermSelectionAvailable,
+			onTopBarEnrollmentProofAvailable = onRecordEnrollmentProofAvailable,
 			onNavigateToEnrollmentProof = {
 				navController.navigate(EnrollmentProofDestination.EnrollmentProofDialog)
 			},

@@ -20,5 +20,5 @@ appId: com.gdavidpb.tuindice.debug
     id: record_term_current_chip_.*
 - extendedWaitUntil:
     visible:
-      id: record_enrollment_proof_button
+      id: base_top_app_bar_action_enrollment_proof
     timeout: 10000

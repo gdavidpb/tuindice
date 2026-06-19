@@ -31,6 +31,10 @@ class RecordViewModel(
 		sendAction(Record.Action.SetViewMode(viewMode))
 	}
 
+	fun openEnrollmentProofAction() {
+		sendAction(Record.Action.OpenEnrollmentProof)
+	}
+
 	fun upsertAttemptSelectionAction(
 		attemptId: String,
 		grade: Int? = null,

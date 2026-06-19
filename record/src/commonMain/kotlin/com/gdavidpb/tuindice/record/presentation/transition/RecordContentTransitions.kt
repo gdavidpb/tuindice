@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.presentation.transition
 
+import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.record.presentation.contract.Record
@@ -20,6 +21,16 @@ internal fun MachineDefinitionBuilder<Record.State>.recordContentTransitions(
 				termId = action.termId,
 				viewMode = state.viewMode
 			)
+			state
+		}
+
+		on<Record.Action.OpenEnrollmentProof>(
+			emits = setOf(Record.Effect.NavigateToEnrollmentProof::class)
+		) { state, _ ->
+			if (state.topBarConfig == TopBarConfig.RecordWithEnrollmentProof) {
+				host.sendEffect(Record.Effect.NavigateToEnrollmentProof)
+			}
+
 			state
 		}
 

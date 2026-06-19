@@ -11,30 +11,14 @@ appId: com.gdavidpb.tuindice.debug
     id: auth_keyboard_dismiss_area
 - tapOn:
     id: auth_sign_in_button
-- extendedWaitUntil:
-    visible:
-      id: wizard_welcome_screen
-    timeout: 30000
-- tapOn:
-    id: wizard_skip_button
-- extendedWaitUntil:
-    visible:
-      id: summary_content_container
-    timeout: 40000
+- runFlow: ../_shared/continue-to-summary-after-auth.yaml
 - tapOn:
     id: maincore_tuindice_bottom_bar_record_item
 - extendedWaitUntil:
     visible:
       id: record_content_container
     timeout: 30000
-- tapOn:
-    id: record_term_current_chip_.*
-- extendedWaitUntil:
-    visible:
-      id: record_enrollment_proof_button
-    timeout: 10000
-- tapOn:
-    id: record_enrollment_proof_button
+- runFlow: ../_shared/open-current-enrollment-proof.yaml
 - extendedWaitUntil:
     visible:
       id: base_snackbar_container

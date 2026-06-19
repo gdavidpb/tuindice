@@ -2,13 +2,13 @@
   "priority": 1,
   "scenarioName": "summary-refresh-retry",
   "requiredScenarioState": "InitialSyncUnavailable",
-  "newScenarioState": "FailedOnce",
+  "newScenarioState": "AndroidFailedOnce",
   "request": {
     "method": "GET",
     "urlPath": "/users/v1",
     "headers": {
       "User-Agent": {
-        "contains": "iOS"
+        "contains": "Android"
       }
     }
   },

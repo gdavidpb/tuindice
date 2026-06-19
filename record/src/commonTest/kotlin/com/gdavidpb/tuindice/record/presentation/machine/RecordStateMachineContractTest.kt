@@ -111,6 +111,7 @@ class RecordStateMachineContractTest {
 			"ObserveRecord",
 			"RecordContentObserved",
 			"RecordWaitingObserved",
+			"OpenEnrollmentProof / NavigateToEnrollmentProof",
 			"RecordRefreshFailed / NavigateToOutdatedCredentials",
 			"RecordViewModeSet / ShowTopBarBanner",
 			"SyntheticTermDeleted / ShowSnackBar"
@@ -166,6 +167,7 @@ class RecordStateMachineContractTest {
 				Record.Action.RefreshRecord,
 				Record.Action.SetViewMode(viewMode = RecordViewMode.Historical),
 				Record.Action.SelectTerm(termId = "term-1"),
+				Record.Action.OpenEnrollmentProof,
 				Record.Action.UpsertAttemptSelection(
 					attemptId = "attempt-1",
 					grade = 15,

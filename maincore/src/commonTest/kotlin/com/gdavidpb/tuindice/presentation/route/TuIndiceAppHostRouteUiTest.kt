@@ -730,6 +730,15 @@ class TuIndiceAppHostRouteUiTest {
 			}
 
 			assertNodeVisible(AuthUiTags.PasswordTextField)
+			onNodeWithTag(BaseUiTags.ConfirmationDialogNegativeButton).performClick()
+
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithTag(AuthUiTags.UpdatePasswordIdleContainer)
+					.fetchSemanticsNodes()
+					.isEmpty()
+			}
+
+			assertNodeHidden(AuthUiTags.UpdatePasswordIdleContainer)
 		} finally {
 			stopKoin()
 		}

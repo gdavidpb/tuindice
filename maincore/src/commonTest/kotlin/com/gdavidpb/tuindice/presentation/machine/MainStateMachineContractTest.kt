@@ -28,6 +28,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationReposit
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
+import com.gdavidpb.tuindice.wizard.data.source.InMemoryWizardStartOverrideDataSource
 import com.gdavidpb.tuindice.wizard.domain.usecase.ShouldStartWizardUseCase
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -82,6 +83,7 @@ class MainStateMachineContractTest {
 			shouldStartWizardUseCase = ShouldStartWizardUseCase(
 				settingsRepository = settingsRepository,
 				sessionRepository = sessionRepository,
+				wizardStartOverrideRepository = InMemoryWizardStartOverrideDataSource(),
 				reportingRepository = reportingRepository
 			)
 		)

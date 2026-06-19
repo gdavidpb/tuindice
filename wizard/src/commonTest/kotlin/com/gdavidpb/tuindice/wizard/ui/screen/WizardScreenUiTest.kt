@@ -7,9 +7,12 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -127,11 +130,7 @@ class WizardScreenUiTest {
 			"el botón de modo alterna entre Histórico y Proyección",
 			substring = true
 		).assertExists()
-		onNodeWithText(
-			"el comprobante aparece como botón flotante sobre +",
-			substring = true
-		).assertExists()
-		assertNodeVisible(RecordUiTags.EnrollmentProofButton)
+		assertNodeHidden(BaseUiTags.topBarActionButton(TopBarAction.FetchEnrollmentProofAction))
 		assertNodeVisible(WizardUiTags.FocusOverlay)
 	}
 

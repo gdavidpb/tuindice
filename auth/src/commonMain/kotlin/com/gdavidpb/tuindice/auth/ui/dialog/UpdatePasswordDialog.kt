@@ -46,6 +46,7 @@ fun UpdatePasswordDialog(
 	ConfirmationDialog(
 		sheetState = nonDismissSheetState,
 		dismissOnPositive = false,
+		dismissOnNegative = false,
 		titleText = titleText,
 		positiveLoading = isLoading,
 		positiveEnabled = isConfirmEnabled,
@@ -54,6 +55,7 @@ fun UpdatePasswordDialog(
 		positiveLoadingTestTag = AuthUiTags.UpdatePasswordConfirmLoading,
 		positiveText = confirmText,
 		negativeText = laterText,
+		onNegativeClick = onDismissRequest,
 		onPositiveClick = {
 			if (state is UpdatePassword.State.Idle)
 				onConfirmClick()
