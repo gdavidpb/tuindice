@@ -2,8 +2,6 @@ package com.gdavidpb.tuindice.record.presentation.viewmodel
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
-import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
-import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase
@@ -196,54 +194,6 @@ class RecordViewModelContractTest {
 				listOf(RecordViewMode.Projection),
 				fixture.selectionRepository.setViewModeCalls
 			)
-		} finally {
-			stateCollector.cancel()
-		}
-	}
-
-	@Test
-	fun openEnrollmentProof_fromCurrentProjection_emitsNavigationEffect() = runTest {
-		val fixture = createFixture(
-			record = AcademicRecord(
-				id = "record",
-				terms = listOf(
-					academicTerm(
-						id = "current-term",
-						kind = TermKind.CURRENT,
-						attempts = listOf(
-							academicAttempt(
-								subjectCode = "MAT101",
-								outcome = AttemptOutcome.PENDING
-							)
-						)
-					)
-				)
-			),
-			hasSynced = true,
-			viewMode = RecordViewMode.Projection
-		)
-
-		val stateCollector = backgroundScope.launchStateCollector(
-			flow = fixture.viewModel.state,
-			testScheduler = testScheduler
-		)
-
-		try {
-			fixture.viewModel.state.test {
-				awaitUntilState<Record.State.Content> { state ->
-					state.selectedTermId == "current-term"
-				}
-
-				fixture.viewModel.effect.test {
-					fixture.viewModel.openEnrollmentProofAction()
-
-					assertIs<Record.Effect.NavigateToEnrollmentProof>(awaitItem())
-
-					cancelAndIgnoreRemainingEvents()
-				}
-
-				cancelAndIgnoreRemainingEvents()
-			}
 		} finally {
 			stateCollector.cancel()
 		}

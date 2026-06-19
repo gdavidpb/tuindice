@@ -55,9 +55,6 @@ fun RecordRoute(
 			is Record.Effect.NavigateToOutdatedCredentials ->
 				onNavigateToUpdatePassword()
 
-			is Record.Effect.NavigateToEnrollmentProof ->
-				onNavigateToEnrollmentProof()
-
 			is Record.Effect.ShowSnackBar ->
 				showSnackBar(SnackBarMessage(message = effect.message))
 
@@ -100,7 +97,7 @@ fun RecordRoute(
 		onCreateSyntheticTermClick = onNavigateToCreateSyntheticTerm,
 		onUpdateSyntheticTermClick = onNavigateToUpdateSyntheticTerm,
 		onDeleteSyntheticTermClick = onNavigateToDeleteSyntheticTermConfirmation,
-		onEnrollmentProofClick = viewModel::openEnrollmentProofAction,
+		onEnrollmentProofClick = onNavigateToEnrollmentProof,
 		showTermSelection = showTermSelection.value,
 		onDismissTermSelection = {
 			showTermSelection.value = false

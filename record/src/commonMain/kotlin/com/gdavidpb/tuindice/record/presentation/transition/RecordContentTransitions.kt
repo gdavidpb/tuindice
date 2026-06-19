@@ -1,10 +1,7 @@
 package com.gdavidpb.tuindice.record.presentation.transition
 
-import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
-import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
-import com.gdavidpb.tuindice.record.domain.model.filteredProjectionFor
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.machine.RecordInternalEvent
 import com.gdavidpb.tuindice.record.presentation.machine.RecordMachine
@@ -23,24 +20,6 @@ internal fun MachineDefinitionBuilder<Record.State>.recordContentTransitions(
 				termId = action.termId,
 				viewMode = state.viewMode
 			)
-			state
-		}
-
-		on<Record.Action.OpenEnrollmentProof>(
-			emits = setOf(Record.Effect.NavigateToEnrollmentProof::class)
-		) { state, _ ->
-			val selectedTermIsCurrent = state.viewMode == RecordViewMode.Projection &&
-				state.record
-					.filteredProjectionFor(RecordViewMode.Projection)
-					.terms
-					.any { term ->
-						term.id == state.selectedTermId && term.kind.isCurrent
-					}
-
-			if (selectedTermIsCurrent) {
-				host.sendEffect(Record.Effect.NavigateToEnrollmentProof)
-			}
-
 			state
 		}
 

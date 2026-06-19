@@ -1,7 +1,7 @@
 appId: com.gdavidpb.tuindice.debug
 ---
 - tapOn:
-    id: record_term_current_chip_.*
+    id: record_term_chip_2026-2
 - extendedWaitUntil:
     visible:
       id: record_enrollment_proof_button
@@ -10,5 +10,3 @@ appId: com.gdavidpb.tuindice.debug
     timeout: 5000
 - tapOn:
     id: record_enrollment_proof_button
-    waitUntilVisible: true
-    retryTapIfNoChange: true

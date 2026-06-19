@@ -42,8 +42,6 @@ object Record {
 			val termId: String
 		) : Action()
 
-		data object OpenEnrollmentProof : Action()
-
 		class UpsertAttemptSelection(
 			val attemptId: String,
 			val grade: Int? = null,
@@ -56,7 +54,6 @@ object Record {
 
 	sealed class Effect : ViewEffect {
 		data object NavigateToOutdatedCredentials : Effect()
-		data object NavigateToEnrollmentProof : Effect()
 		class ShowSnackBar(val message: String) : Effect()
 		class ShowTopBarBanner(
 			val viewMode: RecordViewMode,

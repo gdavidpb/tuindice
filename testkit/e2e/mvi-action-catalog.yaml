@@ -156,7 +156,7 @@ actions:
 
   - id: enrollmentproof.Enrollment.FetchEnrollmentProof
     classification: internal
-    reason: enrollment proof dialog bootstrap after record.Record.OpenEnrollmentProof
+    reason: enrollment proof dialog bootstrap after record route navigation
 
   - id: evaluations.Evaluation.LoadAvailableAttempts
     classification: internal
@@ -411,12 +411,6 @@ actions:
     variants: [current, historical, synthetic]
     selector: record_term_selector_row
     flow: e2e/maestro/flows/record/record-term-selection.yaml
-    fixture_state: record-success
-  - id: record.Record.OpenEnrollmentProof
-    classification: user
-    variants: [current-term]
-    selector: record_enrollment_proof_button
-    flow: e2e/maestro/flows/_shared/open-current-enrollment-proof.yaml
     fixture_state: record-success
   - id: record.Record.UpsertAttemptSelection
     classification: user

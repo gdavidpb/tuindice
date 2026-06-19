@@ -75,6 +75,7 @@ maincore_tuindice_bottom_bar_evaluations_item_selected
 maincore_tuindice_bottom_bar_about_item_selected
 record_content_container
 record_term_selector_row
+record_term_chip_2026-2
 record_term_chip_2025-3
 record_term_chip_2024-3
 record_term_current_chip_2026-2

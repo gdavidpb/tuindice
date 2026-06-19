@@ -96,7 +96,6 @@ flows:
       - record.Record.SelectTerm
       - record.Record.SetViewMode
       - record.Record.UpsertAttemptSelection
-      - record.Record.OpenEnrollmentProof
       - record.Record.DeleteSyntheticTerm
       - enrollmentproof.Enrollment.FetchEnrollmentProof
       - pensum.Pensum.RefreshPensum
@@ -230,9 +229,8 @@ flows:
     fixture_state: record-success
     actions_covered:
       - record.Record.SelectTerm
-      - record.Record.OpenEnrollmentProof
     primary_selectors:
-      - record_term_current_chip_.*
+      - record_term_chip_2026-2
       - record_enrollment_proof_button
   - id: shared-launch-seeded-authenticated
     path: e2e/maestro/flows/_shared/launch-seeded-authenticated.yaml
@@ -1029,6 +1027,7 @@ flows:
     actions_covered:
       - record.Record.SelectTerm
     primary_selectors:
+      - record_term_chip_2026-2
       - record_enrollment_proof_button
       - record_content_container
   - id: enrollmentproof-suite
@@ -1041,8 +1040,11 @@ flows:
     fixture_state: enrollment-proof-suite
     platform_edge: PDF/file opener and unsupported-file host assertions remain assigned to UI Automator/XCUITest.
     actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
+      - wizard.Wizard.Dismiss
       - record.Record.SelectTerm
-      - record.Record.OpenEnrollmentProof
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
       - record_enrollment_proof_button
@@ -1057,12 +1059,20 @@ flows:
     platforms: [android, ios]
     status: active
     variant: fetching-cancel
-    fixture_state: enrollment-proof-success
+    fixture_state: enrollment-proof-fetching-cancel
     actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
+      - wizard.Wizard.Dismiss
       - record.Record.SelectTerm
-      - record.Record.OpenEnrollmentProof
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
+      - auth_usb_id_text_field
+      - auth_password_text_field
+      - auth_sign_in_button
+      - wizard_welcome_screen
+      - record_term_chip_2026-2
       - record_enrollment_proof_button
       - enrollment_fetching_sheet
       - enrollment_fetching_loading_container
@@ -1078,7 +1088,6 @@ flows:
     fixture_state: enrollment-proof-unavailable
     actions_covered:
       - record.Record.SelectTerm
-      - record.Record.OpenEnrollmentProof
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
       - record_enrollment_proof_button
@@ -1093,7 +1102,6 @@ flows:
     fixture_state: enrollment-proof-not-found
     actions_covered:
       - record.Record.SelectTerm
-      - record.Record.OpenEnrollmentProof
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
       - record_enrollment_proof_button
@@ -1108,7 +1116,6 @@ flows:
     fixture_state: enrollment-proof-outdated-credentials
     actions_covered:
       - record.Record.SelectTerm
-      - record.Record.OpenEnrollmentProof
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
       - record_enrollment_proof_button

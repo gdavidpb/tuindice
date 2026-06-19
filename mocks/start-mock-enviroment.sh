@@ -59,6 +59,9 @@ apply_fast_delay_profile() {
 
 		delay_ms=250
 		case "${mapping_file}" in
+			*enrollment-proof-fetching-cancel.json)
+				delay_ms=30000
+				;;
 			*enrollment-proof-success.json)
 				delay_ms=15000
 				;;

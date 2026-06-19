@@ -3,11 +3,11 @@
   "request": {
     "method": "POST",
     "urlPath": "/record/v5/sync",
-    "headers": {
-      "Authorization": {
-        "equalTo": "Bearer enrollment.notfound.mock.access"
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.password == 'enrollment-not-found-pass')]"
       }
-    }
+    ]
   },
   "response": {
     "status": 200,

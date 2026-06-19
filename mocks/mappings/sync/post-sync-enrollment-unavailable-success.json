@@ -3,11 +3,11 @@
   "request": {
     "method": "POST",
     "urlPath": "/record/v5/sync",
-    "headers": {
-      "Authorization": {
-        "equalTo": "Bearer enrollment.unavailable.mock.access"
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.password == 'enrollment-unavailable-pass')]"
       }
-    }
+    ]
   },
   "response": {
     "status": 200,
