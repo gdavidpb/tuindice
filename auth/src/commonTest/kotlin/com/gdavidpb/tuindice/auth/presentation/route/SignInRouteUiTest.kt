@@ -184,7 +184,7 @@ class SignInRouteUiTest {
 		}
 
 		onNodeWithTag(AuthUiTags.IdentifierModeToggle).performClick()
-		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("RCardoza@USB.VE")
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("Mail@USB.VE")
 		onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("1234")
 		onNodeWithTag(AuthUiTags.SignInButton).performClick()
 
@@ -193,7 +193,7 @@ class SignInRouteUiTest {
 				fixture.authRepository.bootstrapSignInCalls.isNotEmpty()
 		}
 
-		assertEquals("rcardoza", fixture.authRepository.bootstrapSignInCalls.single().usbId)
+		assertEquals("mail", fixture.authRepository.bootstrapSignInCalls.single().usbId)
 		assertEquals("1234", fixture.authRepository.bootstrapSignInCalls.single().password)
 	}
 
@@ -213,7 +213,7 @@ class SignInRouteUiTest {
 		}
 
 		onNodeWithTag(AuthUiTags.IdentifierModeToggle).performClick()
-		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("rcardoza")
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("mail")
 		onNodeWithTag(AuthUiTags.IdentifierModeToggle).performClick()
 
 		runOnIdle {
@@ -343,7 +343,7 @@ class SignInRouteUiTest {
 
 		runOnIdle {
 			fixture.viewModel.toggleIdentifierModeAction()
-			fixture.viewModel.setUsbIdAction("rcardoza@usb.ve")
+			fixture.viewModel.setUsbIdAction("mail@usb.ve")
 			fixture.viewModel.setPasswordAction("clave-invalida")
 			fixture.viewModel.signInAction()
 		}

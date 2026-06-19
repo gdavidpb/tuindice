@@ -20,7 +20,7 @@ Rules:
 Auth fixture contract:
 
 - The canonical successful local login is raw USBID digits `1111111`, displayed/formatted by the app as `11-11111`, with password `123456`.
-- The canonical USB email login fixture is `rcardoza@usb.ve`, canonized by the app/backend as local identifier `rcardoza`, with the same canonical password.
+- The canonical USB email login fixture is `mail@usb.ve`, canonized by the app/backend as local identifier `mail`, with the same canonical password.
 - Invalid credential flows must still enter a syntactically valid USBID, for example raw digits `0000000`, and vary the password or backend fixture to trigger the unauthorized path.
 - Do not use short USBID values in Maestro flows; the app requires the formatted shape `NN-NNNNN`. iOS flows may repeat the final digit after the canonical 7 digits as an idempotent guard against dropped keystrokes; the UI rejects it once the field is full.
 

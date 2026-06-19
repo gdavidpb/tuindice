@@ -25,7 +25,7 @@ class AuthParamsValidatorTest {
 	fun signInParamsValidator_acceptsUsbEmailParams() {
 		SignInParamsValidator().validate(
 			SignInParams(
-				usbId = "rcardoza@usb.ve",
+				usbId = "mail@usb.ve",
 				password = "secret123",
 				identifierMode = SignInIdentifierMode.UsbEmail
 			)
@@ -33,7 +33,7 @@ class AuthParamsValidatorTest {
 
 		SignInParamsValidator().validate(
 			SignInParams(
-				usbId = "rcardoza",
+				usbId = "mail",
 				password = "secret123",
 				identifierMode = SignInIdentifierMode.UsbEmail
 			)
@@ -63,7 +63,7 @@ class AuthParamsValidatorTest {
 		val exception = assertFailsWith<SignInIllegalArgumentException> {
 			SignInParamsValidator().validate(
 				SignInParams(
-					usbId = "rcardoza@example.com",
+					usbId = "mail@example.com",
 					password = "secret123",
 					identifierMode = SignInIdentifierMode.UsbEmail
 				)

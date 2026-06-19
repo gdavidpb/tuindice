@@ -102,7 +102,7 @@ class AuthUseCaseContractTest {
 
 		useCase.execute(
 			SignInParams(
-				usbId = "RCardoza@USB.VE",
+				usbId = "Mail@USB.VE",
 				password = "secret123",
 				identifierMode = SignInIdentifierMode.UsbEmail
 			)
@@ -111,7 +111,7 @@ class AuthUseCaseContractTest {
 			awaitComplete()
 		}
 
-		assertEquals("rcardoza", repository.bootstrapSignInCalls.single().usbId)
+		assertEquals("mail", repository.bootstrapSignInCalls.single().usbId)
 	}
 
 	@Test

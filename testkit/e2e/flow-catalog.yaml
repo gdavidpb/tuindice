@@ -313,6 +313,7 @@ flows:
       - auth_password_text_field
       - auth_sign_in_button
       - wizard_welcome_screen
+      - summary_content_container
   - id: auth-usage-data-consent
     path: e2e/maestro/flows/auth/usage-data-consent.yaml
     module: auth
@@ -415,7 +416,7 @@ flows:
       - base_outdated_app_title
       - base_outdated_app_message
       - base_outdated_app_update_button
-      - base_error_state_animation
+      - base_outdated_app_animation
   - id: auth-update-password
     path: e2e/maestro/flows/auth/update-password.yaml
     module: auth
@@ -433,9 +434,11 @@ flows:
       - auth_update_password_idle_container
       - auth_password_text_field
       - auth_password_toggle
+      - auth_update_password_confirm_button
+      - auth_update_password_confirm_loading
+      - auth_sign_out_message_text
+      - auth_sign_out_secondary_button
       - base_confirmation_dialog_positive_button
-      - base_confirmation_dialog_positive_loading
-      - base_confirmation_dialog_negative_button
   - id: auth-update-password-failure
     path: e2e/maestro/flows/auth/update-password-failure.yaml
     module: auth
@@ -451,15 +454,16 @@ flows:
     primary_selectors:
       - auth_update_password_idle_container
       - auth_password_text_field
-      - base_confirmation_dialog_positive_button
+      - auth_update_password_confirm_button
       - auth_sign_out_secondary_button
+      - base_confirmation_dialog_positive_button
   - id: auth-session-invalidated
     path: e2e/maestro/flows/auth/session-invalidated.yaml
     module: auth
     type: error-path
     platforms: [android, ios]
     status: active
-    variant: invalidated-session
+    variant: sync-outdated-credentials
     fixture_state: auth-session-invalidated
     actions_covered:
       - auth.SignIn.SetUsbId
@@ -468,7 +472,8 @@ flows:
     primary_selectors:
       - auth_sign_in_button
       - auth_usb_id_text_field
-      - base_snackbar_container
+      - summary_content_container
+      - auth_update_password_idle_container
   - id: auth-pending-sign-out
     path: e2e/maestro/flows/auth/pending-sign-out.yaml
     module: auth

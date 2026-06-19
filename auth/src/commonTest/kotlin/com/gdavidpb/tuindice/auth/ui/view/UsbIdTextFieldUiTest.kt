@@ -128,9 +128,9 @@ class UsbIdTextFieldUiTest {
 			)
 		}
 
-		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("rcardoza@usb.ve")
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("mail@usb.ve")
 
-		assertEquals("rcardoza@usb.ve", latestUsbId)
+		assertEquals("mail@usb.ve", latestUsbId)
 	}
 
 	@Test

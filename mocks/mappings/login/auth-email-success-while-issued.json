@@ -8,7 +8,7 @@
     "urlPath": "/auth/v2/bootstrap",
     "headers": {
       "Authorization": {
-        "equalTo": "Basic cmNhcmRvemE6MTIzNDU2"
+        "equalTo": "Basic bWFpbDoxMjM0NTY="
       }
     }
   },
@@ -19,7 +19,7 @@
     },
     "jsonBody": {
       "uid": "0IQZf2qtYZOTwutEX38qvBY5H8l2",
-      "usb_id": "rcardoza",
+      "usb_id": "mail",
       "access_token": "bootstrap.mock.email.access.token.reissued",
       "expires_in": 300
     },

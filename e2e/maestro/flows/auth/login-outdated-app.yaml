@@ -21,7 +21,7 @@ appId: com.gdavidpb.tuindice.debug
 - assertVisible:
     id: base_outdated_app_message
 - assertVisible:
-    id: base_error_state_animation
+    id: base_outdated_app_animation
 - assertVisible:
     id: base_outdated_app_update_button
 - assertNotVisible:

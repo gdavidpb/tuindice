@@ -22,7 +22,7 @@
     },
     "jsonBody": {
       "uid": "0IQZf2qtYZOTwutEX38qvBY5H8l2",
-      "usb_id": "rcardoza",
+      "usb_id": "mail",
       "session_id": "auth-session-email",
       "access_token": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.email.access",
       "refresh_token": "refresh.mock.email.token.value",

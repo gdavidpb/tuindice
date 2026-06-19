@@ -8,7 +8,7 @@ appId: com.gdavidpb.tuindice.debug
 - assertVisible: "Correo USB"
 - tapOn:
     id: auth_usb_id_text_field
-- inputText: "rcardoza@usb.ve"
+- inputText: "mail@usb.ve"
 - tapOn:
     id: auth_password_text_field
 - inputText: "123"
@@ -19,5 +19,5 @@ appId: com.gdavidpb.tuindice.debug
     id: auth_sign_in_button
 - extendedWaitUntil:
     visible:
-      id: wizard_welcome_screen
+      id: wizard_welcome_screen|summary_content_container
     timeout: 30000

@@ -14,9 +14,9 @@ appId: com.gdavidpb.tuindice.debug
     id: auth_sign_in_button
 - extendedWaitUntil:
     visible:
-      id: base_snackbar_container
-    timeout: 30000
+      id: summary_content_container
+    timeout: 40000
 - extendedWaitUntil:
     visible:
-      id: auth_usb_id_text_field
-    timeout: 10000
+      id: auth_update_password_idle_container
+    timeout: 20000

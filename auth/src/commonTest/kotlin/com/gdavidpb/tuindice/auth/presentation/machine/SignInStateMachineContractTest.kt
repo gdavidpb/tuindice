@@ -112,7 +112,7 @@ class SignInStateMachineContractTest {
 						state.identifierMode == SignInIdentifierMode.UsbEmail
 				}
 
-				viewModel.setUsbIdAction("rcardoza")
+				viewModel.setUsbIdAction("mail")
 				viewModel.toggleIdentifierModeAction()
 				awaitUntilState<SignIn.State.Idle> { state ->
 					state.usbId.isEmpty() &&

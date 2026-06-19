@@ -87,7 +87,7 @@ class SignInIdleViewUiTest {
 		setTuIndiceTestContent {
 			SignInIdleView(
 				state = SignIn.State.Idle(
-					usbId = "rcardoza@usb.ve",
+					usbId = "mail@usb.ve",
 					password = "1234",
 					identifierMode = SignInIdentifierMode.UsbEmail
 				),

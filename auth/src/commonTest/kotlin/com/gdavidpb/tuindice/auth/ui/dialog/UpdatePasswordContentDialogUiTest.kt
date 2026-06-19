@@ -29,7 +29,7 @@ class UpdatePasswordContentDialogUiTest {
 			)
 		}
 
-		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performClick()
+		onNodeWithTag(AuthUiTags.UpdatePasswordConfirmButton).performClick()
 		assertEquals(1, confirmClicks)
 	}
 
@@ -46,9 +46,9 @@ class UpdatePasswordContentDialogUiTest {
 		}
 
 		assertNodeVisible(AuthUiTags.UpdatePasswordIdleContainer)
-		assertNodeVisible(BaseUiTags.ConfirmationDialogPositiveLoading)
+		assertNodeVisible(AuthUiTags.UpdatePasswordConfirmLoading)
 		assertNodeDisabled(AuthUiTags.PasswordTextField)
-		assertNodeDisabled(BaseUiTags.ConfirmationDialogPositiveButton)
+		assertNodeDisabled(AuthUiTags.UpdatePasswordConfirmButton)
 	}
 
 	@Test

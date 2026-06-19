@@ -829,6 +829,13 @@ class TuIndiceAppHostRouteUiTest {
 				)
 			}
 
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithTag(
+					BaseUiTags.topBarActionButton(TopBarAction.SignOutAction),
+					useUnmergedTree = true
+				).fetchSemanticsNodes().isNotEmpty()
+			}
+
 			runOnIdle {
 				sessionInvalidationRepository.notifySessionInvalidated()
 			}

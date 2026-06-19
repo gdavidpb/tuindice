@@ -21,7 +21,7 @@
         "matchesJsonPath": "$[?(@.evidence_mode == 'play_integrity_classic')]"
       },
       {
-        "matchesJsonPath": "$[?(@.token =~ /android-debug-attestation:.+/)]"
+        "matchesJsonPath": "$[?(@.token =~ /(android-debug-attestation|android-remote-config-bypass):.+/)]"
       },
       {
         "matchesJsonPath": "$.key_id"

@@ -174,6 +174,8 @@ val iosPlatformModule = module {
 		createIdentityHttpClient(
 			appEnvironmentRepository = get<AppEnvironmentRepository>(),
 			configRepository = get<ConfigRepository>(),
+			settingsRepository = get<SettingsRepository>(),
+			outdatedAppEventRepository = get(),
 			logger = createAppKtorLogger(),
 			json = get<Json>(),
 			userAgentValue = createIosUserAgent(get<IosDeviceCapability>())

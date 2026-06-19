@@ -247,6 +247,8 @@ val androidPlatformModule = module {
 		createIdentityHttpClient(
 			appEnvironmentRepository = get(),
 			configRepository = get(),
+			settingsRepository = get(),
+			outdatedAppEventRepository = get(),
 			logger = createAppKtorLogger(),
 			json = get<Json>(),
 			userAgentValue = runCatching { UserAgent(androidContext()).toString() }.getOrNull()

@@ -34,7 +34,7 @@ class UpdatePasswordDialogUiTest {
 			)
 		}
 
-		assertNodeDisabled(BaseUiTags.ConfirmationDialogPositiveButton)
+		assertNodeDisabled(AuthUiTags.UpdatePasswordConfirmButton)
 	}
 
 	@Test
@@ -57,8 +57,8 @@ class UpdatePasswordDialogUiTest {
 			)
 		}
 
-		assertNodeEnabled(BaseUiTags.ConfirmationDialogPositiveButton)
-		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performClick()
+		assertNodeEnabled(AuthUiTags.UpdatePasswordConfirmButton)
+		onNodeWithTag(AuthUiTags.UpdatePasswordConfirmButton).performClick()
 
 		assertEquals(1, confirmClicks)
 	}
@@ -82,10 +82,10 @@ class UpdatePasswordDialogUiTest {
 		}
 
 		assertNodeVisible(AuthUiTags.UpdatePasswordIdleContainer)
-		assertNodeVisible(BaseUiTags.ConfirmationDialogPositiveLoading)
+		assertNodeVisible(AuthUiTags.UpdatePasswordConfirmLoading)
 		assertNodeDisabled(AuthUiTags.PasswordTextField)
 		assertNodeDisabled(AuthUiTags.PasswordToggle)
-		assertNodeDisabled(BaseUiTags.ConfirmationDialogPositiveButton)
+		assertNodeDisabled(AuthUiTags.UpdatePasswordConfirmButton)
 		assertNodeDisabled(BaseUiTags.ConfirmationDialogNegativeButton)
 	}
 }

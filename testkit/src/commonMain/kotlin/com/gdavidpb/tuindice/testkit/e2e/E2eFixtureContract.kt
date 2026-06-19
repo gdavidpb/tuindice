@@ -10,8 +10,8 @@ package com.gdavidpb.tuindice.testkit.e2e
 object E2eFixtureContract {
 	const val CANONICAL_USBID_RAW = "1111111"
 	const val CANONICAL_USBID_FORMATTED = "11-11111"
-	const val USB_EMAIL_LOCAL = "rcardoza"
-	const val USB_EMAIL_FULL = "rcardoza@usb.ve"
+	const val USB_EMAIL_LOCAL = "mail"
+	const val USB_EMAIL_FULL = "mail@usb.ve"
 	const val CANONICAL_PASSWORD = "123456"
 	const val INVALID_USBID_RAW = "0000000"
 

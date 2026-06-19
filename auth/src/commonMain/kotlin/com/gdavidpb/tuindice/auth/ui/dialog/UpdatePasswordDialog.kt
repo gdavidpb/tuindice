@@ -7,6 +7,7 @@ import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
 import com.gdavidpb.tuindice.auth.presentation.contract.UpdatePassword
+import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.auth.ui.view.UpdatePasswordIdleView
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -49,6 +50,8 @@ fun UpdatePasswordDialog(
 		positiveLoading = isLoading,
 		positiveEnabled = isConfirmEnabled,
 		negativeEnabled = isLaterEnabled,
+		positiveButtonTestTag = AuthUiTags.UpdatePasswordConfirmButton,
+		positiveLoadingTestTag = AuthUiTags.UpdatePasswordConfirmLoading,
 		positiveText = confirmText,
 		negativeText = laterText,
 		onPositiveClick = {
