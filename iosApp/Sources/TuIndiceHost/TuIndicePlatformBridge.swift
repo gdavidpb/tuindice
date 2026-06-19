@@ -340,10 +340,18 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         .resume()
     }
 
+    func launchUpdate(action: BaseUpdateAction, completionHandler: @escaping (Error?) -> Void) {
+        performLaunchUpdate(action: action, completionHandler: completionHandler)
+    }
+
     func launchUpdate(
         action: BaseUpdateAction,
         completionHandler_ completionHandler: @escaping @Sendable ((any Error)?) -> Void
     ) {
+        performLaunchUpdate(action: action, completionHandler: completionHandler)
+    }
+
+    private func performLaunchUpdate(action: BaseUpdateAction, completionHandler: @escaping (Error?) -> Void) {
         if action == BaseUpdateAction.immediate {
             let trackUrl = stateQueue.sync { appStoreTrackUrl }
 
