@@ -293,6 +293,9 @@ actions:
     flow: e2e/maestro/flows/auth/login-outdated-app.yaml
     fixture_state: auth-upgrade-required
     platform_edge: Store handoff opens Google Play or App Store and requires host/system assertion.
+  - id: maincore.Main.UpdateFlowCompleted
+    classification: internal
+    reason: route re-enters the machine with the platform update launch result
   - id: maincore.Main.RequestReview
     classification: platform-edge
     variants: [review-prompt]

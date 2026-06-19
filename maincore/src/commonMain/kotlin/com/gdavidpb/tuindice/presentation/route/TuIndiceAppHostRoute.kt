@@ -16,6 +16,7 @@ import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.rememberNavController
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
@@ -121,6 +122,9 @@ fun TuIndiceAppHostRoute(
 		},
 		onRequestUpdateFlow = { action ->
 			updateRepository.launchUpdate(action = action)
+		},
+		onOpenUpdateStoreFallback = { result ->
+			browserRepository.openUpdateStoreFallback(result)
 		},
 		viewModel = viewModel
 	) { state ->
@@ -325,5 +329,16 @@ fun TuIndiceAppHostRoute(
 			showSnackBar = showSnackBar,
 			dismissSnackBar = dismissSnackBar
 		)
+	}
+}
+
+private fun BrowserRepository.openUpdateStoreFallback(
+	result: UpdateLaunchResult.OpenStoreFallback
+) {
+	try {
+		open(result.primaryUrl)
+	} catch (throwable: Throwable) {
+		if (throwable is CancellationException) throw throwable
+		open(result.fallbackUrl)
 	}
 }

@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
+import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.ScheduleSyncUseCase
@@ -85,15 +86,21 @@ class MainStateMachineContractTest {
 			)
 		)
 
-			assertMachineRandomWalk(
-				screenMachine = screenMachine,
-				sampleEvents = listOf(
-					Main.Action.StartUp,
-					Main.Action.ShowOutdatedApp(
-						outdatedAppState = OutdatedAppState(minimumVersionCode = 52)
-					),
-					Main.Action.RequestReview,
+		assertMachineRandomWalk(
+			screenMachine = screenMachine,
+			sampleEvents = listOf(
+				Main.Action.StartUp,
+				Main.Action.ShowOutdatedApp(
+					outdatedAppState = OutdatedAppState(minimumVersionCode = 52)
+				),
+				Main.Action.RequestReview,
 				Main.Action.RequestUpdateCheck,
+				Main.Action.UpdateFlowCompleted(
+					result = UpdateLaunchResult.OpenStoreFallback(
+						primaryUrl = "market://details?id=com.gdavidpb.tuindice",
+						fallbackUrl = "https://play.google.com/store/apps/details?id=com.gdavidpb.tuindice"
+					)
+				),
 				Main.Action.RequestSync,
 				Main.Action.SetLastMainSection(section = MainSection.SUMMARY),
 				Main.Action.RequestWizardStart,
@@ -168,6 +175,7 @@ class MainStateMachineContractTest {
 			"AppUnavailableResolved",
 			"OutdatedAppResolved",
 			"ReviewRequested / TriggerReviewFlow",
+			"UpdateFlowCompleted / OpenUpdateStoreFallback",
 			"WizardStartApproved / NavigateToWizard"
 		)
 

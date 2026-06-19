@@ -26,6 +26,7 @@ import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
+import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.base.domain.model.event.AppEvent
 import com.gdavidpb.tuindice.base.domain.model.event.EventNames
 import com.gdavidpb.tuindice.base.domain.model.event.EventParameterKeys
@@ -393,6 +394,50 @@ class TuIndiceAppHostRouteUiTest {
 
 			assertTrue(updateRepository.checkCalls.isNotEmpty())
 			assertTrue(updateRepository.launchedActions.contains(UpdateAction.Immediate))
+		} finally {
+			stopKoin()
+		}
+	}
+
+	@Test
+	fun when_updateLaunchRequestsStoreFallback_then_hostRouteOpensStoreUrl() = runTuIndiceUiTest {
+		val fallbackResult = UpdateLaunchResult.OpenStoreFallback(
+			primaryUrl = "market://details?id=com.gdavidpb.tuindice",
+			fallbackUrl = "https://play.google.com/store/apps/details?id=com.gdavidpb.tuindice"
+		)
+		val updateRepository = FakeUpdateRepository(
+			updateAction = UpdateAction.Immediate,
+			launchResult = fallbackResult
+		)
+		val browserRepository = RecordingBrowserRepository()
+		val viewModel = createMainViewModel(updateRepository = updateRepository)
+		val syncStatusRepository = FakeSyncStatusRepository()
+
+		stopKoin()
+		startKoin {
+			modules(hostRouteNavigationModule(syncStatusRepository))
+		}
+
+		try {
+			setTuIndiceTestContent {
+				TuIndiceAppHostRoute(
+					onConfirmExitClick = {},
+					isSwipeBackNavigationEnabled = false,
+					browserRepository = browserRepository,
+					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
+					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
+					syncStatusRepository = syncStatusRepository,
+					reviewRepository = RecordingReviewRepository(),
+					updateRepository = updateRepository,
+					viewModel = viewModel
+				)
+			}
+
+			waitUntil(timeoutMillis = 2_000) {
+				browserRepository.openedUrls.value.isNotEmpty()
+			}
+
+			assertEquals(listOf(fallbackResult.primaryUrl), browserRepository.openedUrls.value)
 		} finally {
 			stopKoin()
 		}

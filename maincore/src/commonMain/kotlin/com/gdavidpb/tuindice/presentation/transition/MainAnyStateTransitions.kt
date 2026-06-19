@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.presentation.transition
 
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
+import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.presentation.contract.Main
@@ -35,6 +36,16 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 			emits = setOf(Main.Effect.TriggerUpdateFlow::class)
 		) { state, _ ->
 			host.sendEffect(Main.Effect.TriggerUpdateFlow(action = UpdateAction.Immediate))
+			state
+		}
+
+		on<Main.Action.UpdateFlowCompleted>(
+			emits = setOf(Main.Effect.OpenUpdateStoreFallback::class)
+		) { state, action ->
+			if (action.result is UpdateLaunchResult.OpenStoreFallback) {
+				host.sendEffect(Main.Effect.OpenUpdateStoreFallback(result = action.result))
+			}
+
 			state
 		}
 

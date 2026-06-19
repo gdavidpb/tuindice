@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
+import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
@@ -311,7 +312,8 @@ class RecordingReviewRepository : ReviewRepository {
 }
 
 class FakeUpdateRepository(
-	private val updateAction: UpdateAction? = null
+	private val updateAction: UpdateAction? = null,
+	private val launchResult: UpdateLaunchResult = UpdateLaunchResult.Launched
 ) : UpdateRepository {
 	var checkCalls = mutableListOf<Int>()
 	val launchedActions = mutableListOf<UpdateAction>()
@@ -321,8 +323,9 @@ class FakeUpdateRepository(
 		return updateAction
 	}
 
-	override suspend fun launchUpdate(action: UpdateAction) {
+	override suspend fun launchUpdate(action: UpdateAction): UpdateLaunchResult {
 		launchedActions += action
+		return launchResult
 	}
 }
 

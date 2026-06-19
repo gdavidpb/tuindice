@@ -6,6 +6,7 @@ import android.content.IntentSender
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
+import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.data.model.playcore.PlayCoreSurface
 import com.gdavidpb.tuindice.data.source.activity.CurrentActivityDataSource
 import com.gdavidpb.tuindice.data.source.playcore.FakePlayCoreAvailabilityDataRepository
@@ -28,21 +29,18 @@ class PlayUpdateDataSourceTest {
 	fun checkForUpdate_whenPlayCoreIsUnavailable_doesNotRequestUpdateInfo() = runTest {
 		val appUpdateManager = RecordingAppUpdateManager()
 		val playCoreAvailabilityRepository = FakePlayCoreAvailabilityDataRepository(available = false)
-		val storeFallbackLauncher = RecordingStoreFallbackLauncher()
 		val dataSource = PlayUpdateDataSource(
 			context = TestContext(),
 			appUpdateManager = appUpdateManager,
 			currentActivityDataSource = CurrentActivityDataSource(),
 			playCoreAvailabilityRepository = playCoreAvailabilityRepository,
-			reportingRepository = RecordingReportingRepository(),
-			storeFallbackLauncher = storeFallbackLauncher::launch
+			reportingRepository = RecordingReportingRepository()
 		)
 
 		val result = dataSource.checkForUpdate(stalenessDays = 1)
 
 		assertNull(result)
 		assertEquals(0, appUpdateManager.appUpdateInfoCalls)
-		assertEquals(0, storeFallbackLauncher.launchCalls)
 		assertEquals(listOf(PlayCoreSurface.Update), playCoreAvailabilityRepository.calls)
 	}
 
@@ -53,14 +51,12 @@ class PlayUpdateDataSourceTest {
 			appUpdateInfoTask = Tasks.forException(failure)
 		)
 		val reportingRepository = RecordingReportingRepository()
-		val storeFallbackLauncher = RecordingStoreFallbackLauncher()
 		val dataSource = PlayUpdateDataSource(
 			context = TestContext(),
 			appUpdateManager = appUpdateManager,
 			currentActivityDataSource = CurrentActivityDataSource(),
 			playCoreAvailabilityRepository = FakePlayCoreAvailabilityDataRepository(available = true),
-			reportingRepository = reportingRepository,
-			storeFallbackLauncher = storeFallbackLauncher::launch
+			reportingRepository = reportingRepository
 		)
 
 		val result = dataSource.checkForUpdate(stalenessDays = 1)
@@ -70,40 +66,37 @@ class PlayUpdateDataSourceTest {
 		assertEquals(listOf("play_update_check_failed"), reportingRepository.loggedMessages)
 		assertEquals(1, reportingRepository.loggedExceptions.size)
 		assertSame(failure, reportingRepository.loggedExceptions.single())
-		assertEquals(0, storeFallbackLauncher.launchCalls)
 	}
 
 	@Test
-	fun launchUpdate_whenPlayCoreIsUnavailable_doesNotRequestUpdateInfo() = runTest {
+	fun launchUpdate_whenPlayCoreIsUnavailable_returnsStoreFallbackWithoutRequestingUpdateInfo() = runTest {
 		val appUpdateManager = RecordingAppUpdateManager()
 		val playCoreAvailabilityRepository = FakePlayCoreAvailabilityDataRepository(available = false)
-		val storeFallbackLauncher = RecordingStoreFallbackLauncher()
 		val dataSource = PlayUpdateDataSource(
 			context = TestContext(),
 			appUpdateManager = appUpdateManager,
 			currentActivityDataSource = CurrentActivityDataSource(),
 			playCoreAvailabilityRepository = playCoreAvailabilityRepository,
-			reportingRepository = RecordingReportingRepository(),
-			storeFallbackLauncher = storeFallbackLauncher::launch
+			reportingRepository = RecordingReportingRepository()
 		)
 
-		dataSource.launchUpdate(UpdateAction.Immediate)
+		val result = dataSource.launchUpdate(UpdateAction.Immediate)
 
 		assertEquals(0, appUpdateManager.appUpdateInfoCalls)
 		assertEquals(0, appUpdateManager.launchUpdateCalls)
-		assertEquals(1, storeFallbackLauncher.launchCalls)
+		assertEquals(
+			UpdateLaunchResult.OpenStoreFallback(
+				primaryUrl = "market://details?id=com.gdavidpb.tuindice",
+				fallbackUrl = "https://play.google.com/store/apps/details?id=com.gdavidpb.tuindice"
+			),
+			result
+		)
 		assertEquals(listOf(PlayCoreSurface.Update), playCoreAvailabilityRepository.calls)
 	}
 }
 
-private class TestContext : ContextWrapper(null)
-
-private class RecordingStoreFallbackLauncher {
-	var launchCalls = 0
-
-	fun launch() {
-		launchCalls++
-	}
+private class TestContext : ContextWrapper(null) {
+	override fun getPackageName(): String = "com.gdavidpb.tuindice"
 }
 
 private class RecordingAppUpdateManager(

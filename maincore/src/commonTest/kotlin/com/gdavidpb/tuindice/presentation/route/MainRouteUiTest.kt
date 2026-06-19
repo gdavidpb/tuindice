@@ -8,6 +8,7 @@ import androidx.compose.ui.test.onNodeWithText
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
+import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
@@ -40,6 +41,7 @@ class MainRouteUiTest {
 				},
 				onRequestUpdateFlow = {
 					updateFlowCalls++
+					UpdateLaunchResult.Launched
 				},
 				viewModel = viewModel
 			) { state ->
@@ -87,6 +89,7 @@ class MainRouteUiTest {
 				},
 				onRequestUpdateFlow = { action ->
 					updateFlowActions += action
+					UpdateLaunchResult.Launched
 				},
 				viewModel = viewModel
 			) { state ->
@@ -115,6 +118,50 @@ class MainRouteUiTest {
 	}
 
 	@Test
+	fun when_updateFlowReturnsStoreFallback_then_emitsFallbackCallback() = runTuIndiceUiTest {
+		val viewModel = createMainViewModel(
+			updateRepository = FakeUpdateRepository(
+				updateAction = UpdateAction.Immediate
+			)
+		)
+		val fallbackResult = UpdateLaunchResult.OpenStoreFallback(
+			primaryUrl = "market://details?id=com.gdavidpb.tuindice",
+			fallbackUrl = "https://play.google.com/store/apps/details?id=com.gdavidpb.tuindice"
+		)
+		val fallbackResults = mutableListOf<UpdateLaunchResult.OpenStoreFallback>()
+
+		setTuIndiceTestContent {
+			MainRoute(
+				onNavigateToGooglePlayServicesUnavailableDialog = {},
+				onRequestReviewFlow = {},
+				onRequestUpdateFlow = {
+					fallbackResult
+				},
+				onOpenUpdateStoreFallback = { result ->
+					fallbackResults += result
+				},
+				viewModel = viewModel
+			) { state ->
+				Text(text = state::class.simpleName ?: "State")
+			}
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			onAllNodesWithText("Content").fetchSemanticsNodes().isNotEmpty()
+		}
+
+		runOnIdle {
+			viewModel.checkUpdateAction()
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			fallbackResults.isNotEmpty()
+		}
+
+		assertEquals(listOf(fallbackResult), fallbackResults)
+	}
+
+	@Test
 	fun when_startUpFailsWithNoGooglePlayServices_then_navigatesToGmsDialog() = runTuIndiceUiTest {
 		val viewModel = createMainViewModel(
 			sessionRepository = GooglePlayServicesFailingSessionRepository()
@@ -134,6 +181,7 @@ class MainRouteUiTest {
 				},
 				onRequestUpdateFlow = {
 					updateFlowCalls++
+					UpdateLaunchResult.Launched
 				},
 				viewModel = viewModel
 			) { state ->
@@ -161,7 +209,7 @@ class MainRouteUiTest {
 			MainRoute(
 				onNavigateToGooglePlayServicesUnavailableDialog = {},
 				onRequestReviewFlow = {},
-				onRequestUpdateFlow = {},
+				onRequestUpdateFlow = { UpdateLaunchResult.Launched },
 				viewModel = viewModel
 			) { state ->
 				latestState = state
@@ -192,7 +240,7 @@ class MainRouteUiTest {
 			MainRoute(
 				onNavigateToGooglePlayServicesUnavailableDialog = {},
 				onRequestReviewFlow = {},
-				onRequestUpdateFlow = {},
+				onRequestUpdateFlow = { UpdateLaunchResult.Launched },
 				viewModel = viewModel
 			) { state ->
 				latestState = state

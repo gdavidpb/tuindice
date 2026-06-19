@@ -1,9 +1,8 @@
 package com.gdavidpb.tuindice.data.source.update
 
 import android.content.Context
-import android.content.Intent
-import android.net.Uri
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
+import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.data.model.playcore.PlayCoreSurface
@@ -18,12 +17,11 @@ import com.google.android.play.core.ktx.isImmediateUpdateAllowed
 import kotlinx.coroutines.tasks.await
 
 class PlayUpdateDataSource(
-	context: Context,
+	private val context: Context,
 	private val appUpdateManager: AppUpdateManager,
 	private val currentActivityDataSource: CurrentActivityDataSource,
 	private val playCoreAvailabilityRepository: PlayCoreAvailabilityDataRepository,
-	private val reportingRepository: ReportingRepository,
-	private val storeFallbackLauncher: () -> Unit = { openStoreFallback(context) }
+	private val reportingRepository: ReportingRepository
 ) : UpdateRepository {
 	private var pendingUpdateInfo: AppUpdateInfo? = null
 
@@ -59,15 +57,13 @@ class PlayUpdateDataSource(
 		}
 	}
 
-	override suspend fun launchUpdate(action: UpdateAction) {
+	override suspend fun launchUpdate(action: UpdateAction): UpdateLaunchResult {
 		if (!playCoreAvailabilityRepository.isAvailable(PlayCoreSurface.Update)) {
-			storeFallbackLauncher()
-			return
+			return context.storeFallbackResult()
 		}
 
 		val activity = currentActivityDataSource.get() ?: run {
-			storeFallbackLauncher()
-			return
+			return context.storeFallbackResult()
 		}
 		val updateInfo = pendingUpdateInfo ?: runCatching {
 			appUpdateManager.appUpdateInfo.await()
@@ -77,11 +73,10 @@ class PlayUpdateDataSource(
 				throwable = throwable
 			)
 		}.getOrNull() ?: run {
-			storeFallbackLauncher()
-			return
+			return context.storeFallbackResult()
 		}
 
-		when (action) {
+		return when (action) {
 			UpdateAction.Immediate ->
 				runCatching {
 					appUpdateManager.startUpdateFlowForResult(
@@ -90,13 +85,18 @@ class PlayUpdateDataSource(
 						activity,
 						APP_UPDATE_REQUEST_CODE
 					)
-				}.onFailure { throwable ->
-					reportingRepository.reportPlayCoreFailure(
-						message = "play_update_launch_failed",
-						throwable = throwable
-					)
-					storeFallbackLauncher()
-				}
+				}.fold(
+					onSuccess = { launched ->
+						if (launched) UpdateLaunchResult.Launched else context.storeFallbackResult()
+					},
+					onFailure = { throwable ->
+						reportingRepository.reportPlayCoreFailure(
+							message = "play_update_launch_failed",
+							throwable = throwable
+						)
+						context.storeFallbackResult()
+					}
+				)
 		}
 	}
 
@@ -105,21 +105,12 @@ class PlayUpdateDataSource(
 	}
 }
 
-private fun openStoreFallback(context: Context) {
-	val packageName = context.packageName
-	val marketUri = Uri.parse("market://details?id=$packageName")
-	val webUri = Uri.parse("https://play.google.com/store/apps/details?id=$packageName")
-
-	val marketIntent = Intent(Intent.ACTION_VIEW, marketUri)
-		.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-	val webIntent = Intent(Intent.ACTION_VIEW, webUri)
-		.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-
-	runCatching {
-		context.startActivity(marketIntent)
-	}.onFailure {
-		runCatching { context.startActivity(webIntent) }
-	}
+private fun Context.storeFallbackResult(): UpdateLaunchResult.OpenStoreFallback {
+	val appPackageName = packageName
+	return UpdateLaunchResult.OpenStoreFallback(
+		primaryUrl = "market://details?id=$appPackageName",
+		fallbackUrl = "https://play.google.com/store/apps/details?id=$appPackageName"
+	)
 }
 
 private val AppUpdateInfo.isUpdateAvailable: Boolean
