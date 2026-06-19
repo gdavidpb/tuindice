@@ -164,7 +164,9 @@ val iosPlatformModule = module {
 
 	factoryOf(::IosEnvironmentDataSource) { bind<EnvironmentDataRepository>() }
 	factoryOf(::IosAppInfoDataSource) { bind<AppInfoDataRepository>() }
-	factoryOf(::IosStoreUrlDataSource) { bind<StoreUrlRepository>() }
+	factory<StoreUrlRepository> {
+		IosStoreUrlDataSource(appStoreUrl = iOSContext().appStoreUrl)
+	}
 	factoryOf(::IosShareTextHandler) { bind<ShareTextHandler>() }
 	singleOf(::IosProfilePictureInputDataSource) { bind<ProfilePictureInputDataRepository>() }
 

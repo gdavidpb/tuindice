@@ -32,6 +32,8 @@
 	<string>TuIndice usa la galeria para seleccionar la foto de perfil.</string>
 	<key>TUINDICE_API_BASE_URL</key>
 	<string>$(TUINDICE_API_BASE_URL)</string>
+	<key>TUINDICE_APP_STORE_URL</key>
+	<string>$(TUINDICE_APP_STORE_URL)</string>
 	<key>TUINDICE_DEBUG</key>
 	<string>$(TUINDICE_DEBUG)</string>
 	<key>TUINDICE_PRIVACY_POLICY_URL</key>

@@ -13,6 +13,7 @@ fun IosAppHostConfig.toIOSContext(): IOSContext {
 			supportUrl = supportUrl,
 			debug = debug
 		),
+		appStoreUrl = appStoreUrl,
 		configValues = iosDefaultConfigValues(buildVariant)
 	)
 }

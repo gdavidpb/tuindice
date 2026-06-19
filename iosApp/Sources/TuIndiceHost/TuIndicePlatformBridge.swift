@@ -36,6 +36,7 @@ import Maincore
 /// - in-app review / update equivalents on iOS
 #if canImport(maincore) || canImport(Maincore)
 final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
+    private let appStoreUrl: String?
     private let secureStore = KeychainSecureStore(
         service: Bundle.main.bundleIdentifier ?? "com.gdavidpb.tuindice.securestore"
     )
@@ -57,7 +58,12 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         TuIndiceFirebaseRuntimeState.isConfigured
     }
 
-    override init() {
+    init(appStoreUrl: String? = nil) {
+        if let appStoreUrl, appStoreUrl.isEmpty == false {
+            self.appStoreUrl = appStoreUrl
+        } else {
+            self.appStoreUrl = nil
+        }
         super.init()
 
         pathMonitor.pathUpdateHandler = { [weak self] path in
@@ -358,6 +364,8 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
 
         if let trackUrl {
             openUrl(url: trackUrl)
+        } else if let appStoreUrl {
+            openUrl(url: appStoreUrl)
         } else {
             openUrl(url: "itms-apps://apps.apple.com")
         }

@@ -108,6 +108,7 @@ class IosAppKoinSmokeTest {
 								supportUrl = "https://tuindice.app/support_v6_0.html",
 								debug = true
 							),
+							appStoreUrl = "itms-apps://apps.apple.com/app/id6760307454",
 							configValues = iosDefaultConfigValues(IosBuildVariant.DEBUG)
 						),
 						platformVariantModules = emptyList()
