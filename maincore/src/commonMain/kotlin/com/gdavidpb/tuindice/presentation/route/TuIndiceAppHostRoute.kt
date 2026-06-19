@@ -55,6 +55,10 @@ import tuindice.maincore.generated.resources.snack_pending_changes_unavailable
 import tuindice.maincore.generated.resources.snack_session_invalidated
 
 private val logger = appLogger(tag = "SignOut")
+private val updatePasswordSuppressedRoutes = setOf(
+	AuthDestination.NavGraph::class.qualifiedName,
+	AuthDestination.SignIn::class.qualifiedName
+)
 
 @Composable
 fun TuIndiceAppHostRoute(
@@ -197,7 +201,6 @@ fun TuIndiceAppHostRoute(
 		LaunchedEffect(syncStatus, state) {
 			if (state !is Main.State.Content) return@LaunchedEffect
 			if (syncStatus != SyncStatus.OutdatedCredentials) return@LaunchedEffect
-			if (state.startDestination == AuthDestination.NavGraph) return@LaunchedEffect
 
 			yield()
 
@@ -206,7 +209,11 @@ fun TuIndiceAppHostRoute(
 				.destination
 				.route
 
-			if (currentRoute == AuthDestination.UpdatePasswordDialog::class.qualifiedName)
+			if (
+				currentRoute == null ||
+				currentRoute in updatePasswordSuppressedRoutes ||
+				currentRoute == AuthDestination.UpdatePasswordDialog::class.qualifiedName
+			)
 				return@LaunchedEffect
 
 			navController.navigate(AuthDestination.UpdatePasswordDialog) {

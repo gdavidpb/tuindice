@@ -395,6 +395,11 @@ class FakeSyncStatusRepository(
 		setStatuses += status
 	}
 
+	fun emitSyncStatus(status: SyncStatus) {
+		syncStatus.value = status
+		setStatuses += status
+	}
+
 	override suspend fun setSyncReport(report: SyncReport) {
 		syncReport.value = report
 		setReports += report

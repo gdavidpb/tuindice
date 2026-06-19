@@ -49,6 +49,7 @@ import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
 import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
+import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.testing.createSummaryViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
@@ -733,6 +734,137 @@ class TuIndiceAppHostRouteUiTest {
 			stopKoin()
 		}
 	}
+
+	@Test
+	fun when_syncStatusBecomesOutdatedCredentialsAfterSignIn_then_hostRouteNavigatesToUpdatePasswordDialog() =
+		runTuIndiceUiTest {
+			val sessionRepository = FakeSessionRepository(
+				sessionId = "",
+				usbId = "",
+				accessToken = "",
+				refreshToken = ""
+			)
+			val syncStatusRepository = FakeSyncStatusRepository()
+			val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+
+			stopKoin()
+
+			startKoin {
+				modules(
+					hostRouteNavigationModule(
+						syncStatusRepository = syncStatusRepository,
+						sessionInvalidationRepository = sessionInvalidationRepository
+					),
+					authModule,
+					module {
+						single<AuthRepository> {
+							object : AuthRepository {
+								override suspend fun bootstrapSignIn(
+									usbId: String,
+									password: String
+								): BootstrapTokens = BootstrapTokens(
+									uid = "uid",
+									usbId = usbId,
+									accessToken = "bootstrap-token",
+									expiresIn = 300
+								)
+
+								override suspend fun exchangeSignIn(
+									bootstrapAccessToken: String,
+									attestation: Attestation
+								) = Unit
+
+								override suspend fun reissueTokens(
+									usbId: String,
+									password: String,
+									attestation: Attestation
+								) = Unit
+
+								override suspend fun refreshTokens(
+									sessionId: String,
+									refreshToken: String,
+									attestation: Attestation
+								): RefreshTokens = error("refreshTokens should not be called in this test")
+
+								override suspend fun revokeTokens(
+									sessionId: String,
+									refreshToken: String,
+									attestation: Attestation
+								) = Unit
+							}
+						}
+						single<SessionRepository> { sessionRepository }
+						single<MessagingRepository> {
+							object : MessagingRepository {
+								override suspend fun subscribe() = Unit
+
+								override suspend fun unsubscribe() = Unit
+							}
+						}
+						single<ConfigRepository> { FakeConfigRepository() }
+						single<AppEnvironmentRepository> { FakeAppEnvironmentRepository() }
+						single<CredentialsRepository> { FakeCredentialsRepository() }
+						single<AttestationRepository> {
+							object : AttestationRepository {
+								override suspend fun attest(request: AttestationRequest): Attestation {
+									return Attestation(token = "token")
+								}
+							}
+						}
+						single<NetworkRepository> { FakeNetworkRepository(isAvailable = true) }
+						single<ReportingRepository> { RecordingReportingRepository() }
+					}
+				)
+			}
+
+			try {
+				setTuIndiceTestContent {
+					TuIndiceAppHostRoute(
+						onConfirmExitClick = {},
+						isSwipeBackNavigationEnabled = false,
+						browserRepository = RecordingBrowserRepository(),
+						deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
+						sessionInvalidationRepository = sessionInvalidationRepository,
+						syncStatusRepository = syncStatusRepository,
+						reviewRepository = RecordingReviewRepository(),
+						updateRepository = FakeUpdateRepository(),
+						viewModel = createMainViewModel(
+							sessionRepository = sessionRepository,
+							settingsRepository = FakeSettingsRepository(
+								reviewSuggested = true,
+								lastMainSection = MainSection.SUMMARY
+							)
+						)
+					)
+				}
+
+				waitUntil(timeoutMillis = 5_000) {
+					onAllNodesWithTag(AuthUiTags.PasswordTextField).fetchSemanticsNodes().isNotEmpty()
+				}
+
+				onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("1234567")
+				onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("123456")
+				onNodeWithTag(AuthUiTags.SignInButton).performClick()
+
+				waitUntil(timeoutMillis = 5_000) {
+					onAllNodesWithTag(SummaryUiTags.ContentContainer).fetchSemanticsNodes().isNotEmpty()
+				}
+
+				runOnIdle {
+					syncStatusRepository.emitSyncStatus(SyncStatus.OutdatedCredentials)
+				}
+
+				waitUntil(timeoutMillis = 5_000) {
+					onAllNodesWithTag(AuthUiTags.UpdatePasswordIdleContainer)
+						.fetchSemanticsNodes()
+						.isNotEmpty()
+				}
+
+				assertNodeVisible(AuthUiTags.UpdatePasswordIdleContainer)
+			} finally {
+				stopKoin()
+			}
+		}
 
 	@Test
 	fun when_sessionIsInvalidated_then_hostRouteNavigatesToSignIn() = runTuIndiceUiTest {
