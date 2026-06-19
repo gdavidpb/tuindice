@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.data.source.update
 
 import android.app.Activity
+import android.content.ContextWrapper
+import android.content.Intent
 import android.content.IntentSender
 import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.IntentSenderRequest
@@ -28,6 +30,7 @@ class PlayUpdateDataSourceTest {
 		val appUpdateManager = RecordingAppUpdateManager()
 		val playCoreAvailabilityRepository = FakePlayCoreAvailabilityDataRepository(available = false)
 		val dataSource = PlayUpdateDataSource(
+			context = TestContext(),
 			appUpdateManager = appUpdateManager,
 			currentActivityDataSource = CurrentActivityDataSource(),
 			playCoreAvailabilityRepository = playCoreAvailabilityRepository,
@@ -49,6 +52,7 @@ class PlayUpdateDataSourceTest {
 		)
 		val reportingRepository = RecordingReportingRepository()
 		val dataSource = PlayUpdateDataSource(
+			context = TestContext(),
 			appUpdateManager = appUpdateManager,
 			currentActivityDataSource = CurrentActivityDataSource(),
 			playCoreAvailabilityRepository = FakePlayCoreAvailabilityDataRepository(available = true),
@@ -69,6 +73,7 @@ class PlayUpdateDataSourceTest {
 		val appUpdateManager = RecordingAppUpdateManager()
 		val playCoreAvailabilityRepository = FakePlayCoreAvailabilityDataRepository(available = false)
 		val dataSource = PlayUpdateDataSource(
+			context = TestContext(),
 			appUpdateManager = appUpdateManager,
 			currentActivityDataSource = CurrentActivityDataSource(),
 			playCoreAvailabilityRepository = playCoreAvailabilityRepository,
@@ -80,6 +85,16 @@ class PlayUpdateDataSourceTest {
 		assertEquals(0, appUpdateManager.appUpdateInfoCalls)
 		assertEquals(0, appUpdateManager.launchUpdateCalls)
 		assertEquals(listOf(PlayCoreSurface.Update), playCoreAvailabilityRepository.calls)
+	}
+}
+
+private class TestContext : ContextWrapper(null) {
+	val startedIntents = mutableListOf<Intent>()
+
+	override fun getPackageName(): String = "com.gdavidpb.tuindice"
+
+	override fun startActivity(intent: Intent) {
+		startedIntents += intent
 	}
 }
 
