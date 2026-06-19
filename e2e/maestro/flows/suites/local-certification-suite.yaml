@@ -3,11 +3,13 @@ name: TuIndice local certification E2E suite
 ---
 - runFlow: ../auth/login-password-toggle.yaml
 - runFlow: ../auth/login-usb-email-success.yaml
+- runFlow: ../auth/usage-data-consent.yaml
 - runFlow: ../auth/terms-privacy-from-login.yaml
 - runFlow: ../auth/login-invalid.yaml
 - runFlow: ../auth/login-disabled.yaml
 - runFlow: ../auth/login-retry-after-unavailable.yaml
 - runFlow: ../auth/login-outdated-app.yaml
+- runFlow: ../maincore/app-availability-notice.yaml
 - runFlow: ../auth/update-password.yaml
 - runFlow: ../auth/update-password-failure.yaml
 - runFlow: ../auth/session-invalidated.yaml
@@ -24,6 +26,7 @@ name: TuIndice local certification E2E suite
 - runFlow: ../summary/summary-smoke.yaml
 - runFlow: ../summary/summary-refresh-retry.yaml
 - runFlow: ../summary/summary-status-dialog.yaml
+- runFlow: ../summary/summary-partial-enrollment-status-dialog.yaml
 - runFlow: ../summary/summary-profile-picture.yaml
 - runFlow: ../summary/summary-outdated-credentials.yaml
 - runFlow: record-suite.yaml

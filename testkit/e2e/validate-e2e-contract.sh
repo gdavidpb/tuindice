@@ -60,7 +60,10 @@ mvi_catalog_actions="$(mktemp)"
 flow_catalog_actions="$(mktemp)"
 flow_catalog_records="$(mktemp)"
 flow_catalog_path_actions="$(mktemp)"
-trap 'rm -f "${mvi_contract_actions}" "${mvi_catalog_entries}" "${mvi_catalog_actions}" "${flow_catalog_actions}" "${flow_catalog_records}" "${flow_catalog_path_actions}"' EXIT
+flow_catalog_primary_selectors="$(mktemp)"
+flow_catalog_active_executable_paths="$(mktemp)"
+local_certification_reachable_paths="$(mktemp)"
+trap 'rm -f "${mvi_contract_actions}" "${mvi_catalog_entries}" "${mvi_catalog_actions}" "${flow_catalog_actions}" "${flow_catalog_records}" "${flow_catalog_path_actions}" "${flow_catalog_primary_selectors}" "${flow_catalog_active_executable_paths}" "${local_certification_reachable_paths}"' EXIT
 
 while IFS= read -r contract_file; do
 	relative_path="${contract_file#"${REPO_ROOT}/"}"
@@ -202,6 +205,90 @@ awk -v records="${flow_catalog_records}" -v pathActions="${flow_catalog_path_act
 	}
 ' "${CATALOG}"
 
+# primary_selectors are per-flow coverage claims, so they must appear in that
+# flow or in a nested helper it runs. Dynamic selectors are validated at the YAML
+# boundary, not by searching for generated tag strings in Kotlin.
+awk '
+	function flush_inline_selectors(value, itemCount, items, i, selector) {
+		gsub(/[\[\]]/, "", value)
+		itemCount = split(value, items, ",")
+		for (i = 1; i <= itemCount; i++) {
+			selector = items[i]
+			gsub(/^[[:space:]]+|[[:space:]]+$/, "", selector)
+			if (path != "" && selector != "") {
+				print path "|" selector
+			}
+		}
+	}
+	/^[[:space:]]*-[[:space:]]*id:/ {
+		path = ""
+		inPrimary = 0
+		next
+	}
+	/^[[:space:]]*path:/ {
+		path = $2
+		next
+	}
+	/^[[:space:]]*primary_selectors:[[:space:]]*\[/ {
+		value = $0
+		sub(/^[[:space:]]*primary_selectors:[[:space:]]*/, "", value)
+		flush_inline_selectors(value)
+		inPrimary = 0
+		next
+	}
+	/^[[:space:]]*primary_selectors:/ {
+		inPrimary = 1
+		next
+	}
+	inPrimary && /^[[:space:]]*-[[:space:]]*/ {
+		selector = $2
+		if (path != "" && selector != "") {
+			print path "|" selector
+		}
+		next
+	}
+	inPrimary && /^[[:space:]]*[A-Za-z_][A-Za-z0-9_]*:/ {
+		inPrimary = 0
+	}
+' "${CATALOG}" | sort -u > "${flow_catalog_primary_selectors}"
+
+awk '
+	function flush() {
+		if (id != "" && path != "" && status == "active" && flowType != "setup" && flowType != "suite" && module != "shared") {
+			print path
+		}
+		id = ""
+		path = ""
+		module = ""
+		flowType = ""
+		status = ""
+	}
+	/^[[:space:]]*-[[:space:]]*id:/ {
+		flush()
+		id = $3
+		next
+	}
+	/^[[:space:]]*path:/ {
+		path = $2
+		next
+	}
+	/^[[:space:]]*module:/ {
+		module = $2
+		next
+	}
+	/^[[:space:]]*type:/ {
+		flowType = $2
+		next
+	}
+	/^[[:space:]]*status:/ {
+		status = $2
+		next
+	}
+	END {
+		flush()
+	}
+' "${CATALOG}" | sort -u > "${flow_catalog_active_executable_paths}"
+
 normalize_flow_path() {
 	local parent_path="$1"
 	local child_ref="$2"
@@ -214,6 +301,97 @@ normalize_flow_path() {
 
 	printf '%s/%s\n' "${normalized_dir#"${REPO_ROOT}/"}" "${child_base}"
 }
+
+flow_contains_selector() {
+	local flow_path="$1"
+	local selector="$2"
+	local visited="${3:-}"
+	local absolute_path="${REPO_ROOT}/${flow_path}"
+	local child_ref child_path
+
+	[[ -f "${absolute_path}" ]] || return 1
+	case "|${visited}|" in
+		*"|${flow_path}|"*)
+			return 1
+			;;
+	esac
+
+	if grep --fixed-strings --quiet "${selector}" "${absolute_path}"; then
+		return 0
+	fi
+
+	visited="${visited}|${flow_path}"
+	while IFS= read -r child_ref; do
+		[[ -z "${child_ref}" ]] && continue
+		child_path="$(normalize_flow_path "${flow_path}" "${child_ref}")"
+		if flow_contains_selector "${child_path}" "${selector}" "${visited}"; then
+			return 0
+		fi
+	done < <(
+		awk '
+			/runFlow:[[:space:]]*[^[:space:]].*[.]ya?ml/ {
+				line = $0
+				sub(/^.*runFlow:[[:space:]]*/, "", line)
+				gsub(/[" ]/, "", line)
+				print line
+			}
+		' "${absolute_path}"
+	)
+
+	return 1
+}
+
+collect_reachable_flow_paths() {
+	local flow_path="$1"
+	local visited="${2:-}"
+	local absolute_path="${REPO_ROOT}/${flow_path}"
+	local child_ref child_path
+
+	[[ -f "${absolute_path}" ]] || return 0
+	case "|${visited}|" in
+		*"|${flow_path}|"*)
+			return 0
+			;;
+	esac
+
+	printf '%s\n' "${flow_path}"
+	visited="${visited}|${flow_path}"
+	while IFS= read -r child_ref; do
+		[[ -z "${child_ref}" ]] && continue
+		child_path="$(normalize_flow_path "${flow_path}" "${child_ref}")"
+		collect_reachable_flow_paths "${child_path}" "${visited}"
+	done < <(
+		awk '
+			/runFlow:[[:space:]]*[^[:space:]].*[.]ya?ml/ {
+				line = $0
+				sub(/^.*runFlow:[[:space:]]*/, "", line)
+				gsub(/[" ]/, "", line)
+				print line
+			}
+		' "${absolute_path}"
+	)
+}
+
+missing_primary_selectors=0
+while IFS='|' read -r flow_path primary_selector; do
+	[[ -n "${flow_path}" && -n "${primary_selector}" ]] || continue
+	if ! flow_contains_selector "${flow_path}" "${primary_selector}"; then
+		printf 'Flow primary selector is not exercised by flow or nested runFlow: %s -> %s\n' "${flow_path}" "${primary_selector}" >&2
+		missing_primary_selectors=1
+	fi
+done < "${flow_catalog_primary_selectors}"
+
+local_certification_suite="e2e/maestro/flows/suites/local-certification-suite.yaml"
+collect_reachable_flow_paths "${local_certification_suite}" | sort -u > "${local_certification_reachable_paths}"
+
+missing_local_certification_flows=0
+while IFS= read -r active_flow_path; do
+	[[ -n "${active_flow_path}" ]] || continue
+	if ! grep --fixed-strings --line-regexp --quiet "${active_flow_path}" "${local_certification_reachable_paths}"; then
+		printf 'Active flow is not reachable from local-certification-suite: %s\n' "${active_flow_path}" >&2
+		missing_local_certification_flows=1
+	fi
+done < "${flow_catalog_active_executable_paths}"
 
 suite_action_inheritance_issues=0
 while IFS='|' read -r suite_path suite_id suite_module suite_type; do
@@ -695,7 +873,7 @@ if [[ -f "${QUARANTINE_FILE}" ]]; then
 	done < <(sed -e 's/#.*$//' -e 's/[[:space:]]*$//' -e '/^[[:space:]]*$/d' "${QUARANTINE_FILE}")
 fi
 
-if [[ "${missing_catalog_entries}" == "1" || "${missing_flow_files}" == "1" || "${invalid_flow_actions}" == "1" || "${suite_action_inheritance_issues}" == "1" || "${missing_mvi_actions}" == "1" || "${unknown_mvi_actions}" == "1" || "${invalid_mvi_entries}" == "1" || "${missing_selectors}" == "1" || "${invalid_auth_usb_id_inputs}" == "1" || "${record_search_fixture_mismatches}" == "1" || "${fixture_contract_mismatches}" == "1" || "${refresh_retry_fixture_mismatches}" == "1" || "${quarantine_issues}" == "1" ]]; then
+if [[ "${missing_catalog_entries}" == "1" || "${missing_flow_files}" == "1" || "${invalid_flow_actions}" == "1" || "${missing_primary_selectors}" == "1" || "${missing_local_certification_flows}" == "1" || "${suite_action_inheritance_issues}" == "1" || "${missing_mvi_actions}" == "1" || "${unknown_mvi_actions}" == "1" || "${invalid_mvi_entries}" == "1" || "${missing_selectors}" == "1" || "${invalid_auth_usb_id_inputs}" == "1" || "${record_search_fixture_mismatches}" == "1" || "${fixture_contract_mismatches}" == "1" || "${refresh_retry_fixture_mismatches}" == "1" || "${quarantine_issues}" == "1" ]]; then
 	exit 1
 fi
 

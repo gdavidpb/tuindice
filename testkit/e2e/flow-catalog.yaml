@@ -57,6 +57,7 @@ flows:
       - auth.SignIn.SetPassword
       - auth.SignIn.ToggleIdentifierMode
       - auth.SignIn.TogglePasswordVisibility
+      - auth.SignIn.SetUsageDataCollectionEnabled
       - auth.SignIn.ClickSignIn
       - auth.SignIn.ClickTermsAndConditions
       - auth.SignIn.ClickPrivacyPolicy
@@ -887,7 +888,6 @@ flows:
       - record.Record.SetViewMode
     primary_selectors:
       - record_term_selector_row
-      - record_term_chip_synthetic-2026-jul-aug-degree-project
       - record_term_chip_d377155d39da686f412622aaca9074cd
       - record_attempt_item_synthetic-2026-jul-aug-ep1308
       - record_attempt_item_8322eaae7602f4749aef5691b9724af2
@@ -1125,7 +1125,6 @@ flows:
       - pensum.Pensum.RefreshPensum
     primary_selectors:
       - pensum_screen
-      - pensum_refreshing_indicator
       - pensum_canvas
       - pensum_canvas_legend
       - pensum_status_filter_available
