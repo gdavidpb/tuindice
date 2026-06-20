@@ -20,8 +20,14 @@ class RecordingSubjectStatsRepository(
 	results: List<Any> = emptyList()
 ) : SubjectStatsRepository {
 	private val queue = ArrayDeque(results)
+	private val refreshGate = Channel<Unit>(Channel.UNLIMITED)
+	var blockRefresh = false
 	val freshCalls = mutableListOf<String>()
 	val refreshCalls = mutableListOf<String>()
+
+	fun releaseRefresh() {
+		refreshGate.trySend(Unit)
+	}
 
 	override suspend fun getFreshSubjectDetail(subjectCode: String): SubjectDetailResult? {
 		freshCalls += subjectCode
@@ -30,6 +36,7 @@ class RecordingSubjectStatsRepository(
 
 	override suspend fun refreshSubjectDetail(subjectCode: String): SubjectDetailResult {
 		refreshCalls += subjectCode
+		if (blockRefresh) refreshGate.receive()
 		return when (val next = queue.removeFirst()) {
 			is Throwable -> throw next
 			is SubjectDetailResult -> next
