@@ -8,7 +8,11 @@ import com.gdavidpb.tuindice.base.data.source.SessionDataSource
 import com.gdavidpb.tuindice.base.data.source.InMemorySessionDataSource
 import com.gdavidpb.tuindice.base.data.repository.MemorySessionDataRepository
 import com.gdavidpb.tuindice.base.data.repository.PreferencesSessionDataRepository
+import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.data.source.SecureStoreSessionDataSource
+import com.gdavidpb.tuindice.base.data.source.secure.ACTIVE_SECURE_STORE_QUALIFIER
+import com.gdavidpb.tuindice.base.data.source.secure.KSafeLegacySecureKeyValueDataSource
+import com.gdavidpb.tuindice.base.data.source.secure.LEGACY_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.usage.UsageDataConsentSettingsDataSource
 import com.gdavidpb.tuindice.base.data.source.event.BufferedEventPublisher
 import com.gdavidpb.tuindice.base.data.source.event.CompositeEventSubscriber
@@ -38,18 +42,21 @@ import com.gdavidpb.tuindice.data.source.pending.PendingChangesDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncDataSource
 import com.gdavidpb.tuindice.data.repository.sync.SyncRemoteDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepository
+import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncApiDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncSettingsDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncStatusSettingsDataSource
 import com.gdavidpb.tuindice.data.source.settings.MultiplatformSettingsDataSource
 import com.gdavidpb.tuindice.data.source.session.SessionRecoveryDataSource
 import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
+import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val commonModule = module {
@@ -69,16 +76,31 @@ val commonModule = module {
 	}
 
 	singleOf(::InMemorySessionDataSource) { bind<MemorySessionDataRepository>() }
-	singleOf(::SecureStoreSessionDataSource) { bind<PreferencesSessionDataRepository>() }
+	single<SecureKeyValueDataRepository>(named(LEGACY_SECURE_STORE_QUALIFIER)) {
+		KSafeLegacySecureKeyValueDataSource(kSafe = get())
+	}
+	single<PreferencesSessionDataRepository> {
+		SecureStoreSessionDataSource(
+			secureStore = get(named(ACTIVE_SECURE_STORE_QUALIFIER)),
+			legacySecureStore = get(named(LEGACY_SECURE_STORE_QUALIFIER)),
+			sessionInvalidationRepository = get()
+		)
+	}
 	singleOf(::SessionDataSource) { bind<SessionRepository>() }
 	singleOf(::SessionInvalidationDataSource) { bind<SessionInvalidationRepository>() }
 	singleOf(::SessionRecoveryDataSource) { bind<SessionRecoveryRepository>() }
+	singleOf(::OutdatedAppEventDataSource) { bind<OutdatedAppEventRepository>() }
 
 	singleOf(::MessagingApiDataSource) { bind<MessagingRemoteDataRepository>() }
 	singleOf(::MessagingSettingsDataSource) { bind<MessagingLocalDataRepository>() }
 	singleOf(::MessagingDataSource) { bind<MessagingRepository>() }
 
-	singleOf(::CredentialsDataSource) { bind<CredentialsRepository>() }
+	single<CredentialsRepository> {
+		CredentialsDataSource(
+			secureStore = get(named(ACTIVE_SECURE_STORE_QUALIFIER)),
+			legacySecureStore = get(named(LEGACY_SECURE_STORE_QUALIFIER))
+		)
+	}
 	singleOf(::PendingChangesDataSource) { bind<PendingChangesRepository>() }
 	singleOf(::SyncSettingsDataSource) { bind<SyncSettingsLocalDataRepository>() }
 	singleOf(::SyncStatusSettingsDataSource) { bind<SyncStatusRepository>() }

@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "POST",
+    "urlPath": "/enrollment-proof/v1",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.password == 'enrollment-fetching-cancel-pass')]"
+      }
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "name": "Enero - Marzo 2023",
+      "content": "JVBERi0xLjEKMSAwIG9iajw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+ZW5kb2JqCjIgMCBvYmo8PC9UeXBlL1BhZ2VzL0NvdW50IDA+PmVuZG9iagp0cmFpbGVyPDwvUm9vdCAxIDAgUj4+CiUlRU9GCg=="
+    },
+    "fixedDelayMilliseconds": 30000
+  }
+}

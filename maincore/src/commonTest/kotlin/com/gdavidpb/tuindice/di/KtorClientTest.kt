@@ -25,8 +25,11 @@ import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.engine.mock.respondOk
+import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.auth.Auth
 import io.ktor.client.request.get
+import io.ktor.client.request.post
+import io.ktor.client.request.setBody
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
@@ -70,6 +73,10 @@ class KtorClientTest {
 		assertFalse("/attestation/v4/sessions".shouldSendBearerAuth())
 		assertFalse("/attestation/v5/sessions".shouldSendBearerAuth())
 		assertTrue("/record/v5".shouldSendBearerAuth())
+		assertTrue("/record/v5/sync".shouldSendBearerAuth())
+		assertTrue("/users/v1".shouldSendBearerAuth())
+		assertTrue("/messaging/v1".shouldSendBearerAuth())
+		assertTrue("/enrollment-proof/v1".shouldSendBearerAuth())
 	}
 
 	@Test
@@ -287,6 +294,129 @@ class KtorClientTest {
 			listOf("Bearer access-old", "Bearer access-new"),
 			authorizationHeaders
 		)
+	}
+
+	@Test
+	fun installSharedBearerAuth_attachesBearerToProtectedGetAndPostRequests() = runTest {
+		val sessionRepository = FakeSessionRepository(
+			sessionId = "session-id",
+			usbId = "12-34567",
+			accessToken = "access-token",
+			refreshToken = "refresh-token"
+		)
+		val authorizationHeadersByRequest = mutableMapOf<String, String?>()
+		val client = HttpClient(
+			MockEngine { request ->
+				authorizationHeadersByRequest["${request.method.value} ${request.url.encodedPath}"] =
+					request.headers[HttpHeaders.Authorization]
+				respondOk()
+			}
+		) {
+			install(Auth) {
+				installSharedBearerAuth(
+					sessionRepository = sessionRepository,
+					sessionRecoveryRepository = sessionRecoveryDataSource(
+						sessionRepository = sessionRepository
+					)
+				)
+			}
+		}
+
+		try {
+			client.post("https://api.tuindice.app/messaging/v1") {
+				setBody("""{"token":"push-token"}""")
+			}
+			client.post("https://api.tuindice.app/record/v5/sync") {
+				setBody("""{"password":"secret"}""")
+			}
+			client.get("https://api.tuindice.app/users/v1")
+		} finally {
+			client.close()
+		}
+
+		assertEquals("Bearer access-token", authorizationHeadersByRequest["POST /messaging/v1"])
+		assertEquals("Bearer access-token", authorizationHeadersByRequest["POST /record/v5/sync"])
+		assertEquals("Bearer access-token", authorizationHeadersByRequest["GET /users/v1"])
+	}
+
+	@Test
+	fun installCurrentSessionBearerAuth_attachesBearerAfterDefaultRequestMergesRelativePaths() = runTest {
+		val sessionRepository = FakeSessionRepository(
+			sessionId = "session-id",
+			usbId = "12-34567",
+			accessToken = "access-token",
+			refreshToken = "refresh-token"
+		)
+		val authorizationHeadersByRequest = mutableMapOf<String, String?>()
+		val client = HttpClient(
+			MockEngine { request ->
+				authorizationHeadersByRequest["${request.method.value} ${request.url.encodedPath}"] =
+					request.headers[HttpHeaders.Authorization]
+				respondOk()
+			}
+		) {
+			install(Auth) {
+				installSharedBearerAuth(
+					sessionRepository = sessionRepository,
+					sessionRecoveryRepository = sessionRecoveryDataSource(
+						sessionRepository = sessionRepository
+					)
+				)
+			}
+			install(DefaultRequest) {
+				url("https://api.tuindice.app/")
+			}
+			installCurrentSessionBearerAuth(sessionRepository)
+		}
+
+		try {
+			client.post("messaging/v1") {
+				setBody("""{"token":"push-token"}""")
+			}
+			client.post("record/v5/sync") {
+				setBody("""{"password":"secret"}""")
+			}
+			client.get("users/v1")
+		} finally {
+			client.close()
+		}
+
+		assertEquals("Bearer access-token", authorizationHeadersByRequest["POST /messaging/v1"])
+		assertEquals("Bearer access-token", authorizationHeadersByRequest["POST /record/v5/sync"])
+		assertEquals("Bearer access-token", authorizationHeadersByRequest["GET /users/v1"])
+	}
+
+	@Test
+	fun installCurrentSessionBearerAuth_doesNotAttachBearerToAuthOrAttestationRequests() = runTest {
+		val sessionRepository = FakeSessionRepository(
+			sessionId = "session-id",
+			usbId = "12-34567",
+			accessToken = "access-token",
+			refreshToken = "refresh-token"
+		)
+		val authorizationHeadersByRequest = mutableMapOf<String, String?>()
+		val client = HttpClient(
+			MockEngine { request ->
+				authorizationHeadersByRequest["${request.method.value} ${request.url.encodedPath}"] =
+					request.headers[HttpHeaders.Authorization]
+				respondOk()
+			}
+		) {
+			install(DefaultRequest) {
+				url("https://api.tuindice.app/")
+			}
+			installCurrentSessionBearerAuth(sessionRepository)
+		}
+
+		try {
+			client.post("auth/v2/token/exchange")
+			client.post("attestation/v5/sessions")
+		} finally {
+			client.close()
+		}
+
+		assertNull(authorizationHeadersByRequest["POST /auth/v2/token/exchange"])
+		assertNull(authorizationHeadersByRequest["POST /attestation/v5/sessions"])
 	}
 
 	@Test

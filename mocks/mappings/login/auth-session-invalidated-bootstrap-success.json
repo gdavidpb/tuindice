@@ -20,7 +20,7 @@
     "jsonBody": {
       "uid": "expired-session-user",
       "usb_id": "66-66666",
-      "access_token": "bootstrap.mock.expired.session.token",
+      "access_token": "bootstrap.mock.session.invalidated.token",
       "expires_in": 300
     },
     "fixedDelayMilliseconds": 500

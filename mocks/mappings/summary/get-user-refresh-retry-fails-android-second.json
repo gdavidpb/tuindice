@@ -1,0 +1,25 @@
+{
+  "priority": 1,
+  "scenarioName": "summary-refresh-retry",
+  "requiredScenarioState": "AndroidFailedOnce",
+  "newScenarioState": "FailedOnce",
+  "request": {
+    "method": "GET",
+    "urlPath": "/users/v1",
+    "headers": {
+      "User-Agent": {
+        "contains": "Android"
+      },
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 503,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

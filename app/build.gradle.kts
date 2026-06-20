@@ -163,6 +163,7 @@ dependencies {
 	implementation(libs.kotlinx.coroutines.android)
 	implementation(libs.kotlinx.coroutines.play.services)
 	implementation(libs.filekit.dialogs)
+	implementation(libs.tink.android)
 	testImplementation(libs.bundles.testing)
 	testImplementation(libs.ktor.client.mock)
 	testImplementation(libs.kotlinx.coroutines.test)

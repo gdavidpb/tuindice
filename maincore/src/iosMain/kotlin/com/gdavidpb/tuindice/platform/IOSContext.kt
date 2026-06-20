@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.persistence.di.defaultIosDatabasePath
 data class IOSContext(
 	val hostCapabilities: IosHostCapabilities,
 	val appEnvironment: AppEnvironment,
+	val appStoreUrl: String,
 	val configValues: DefaultRemoteConfigValues,
 	val databasePath: String = defaultIosDatabasePath()
 )

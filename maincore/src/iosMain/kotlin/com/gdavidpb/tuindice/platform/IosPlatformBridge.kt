@@ -10,7 +10,8 @@ interface IosPlatformBridge :
 	IosUpdateCapability,
 	IosExternalActionsCapability,
 	IosDeviceCapability,
-	IosObservabilityCapability
+	IosObservabilityCapability,
+	IosSecureStoreCapability
 
 fun IosPlatformBridge.toHostCapabilities(): IosHostCapabilities {
 	return IosHostCapabilities(
@@ -21,6 +22,7 @@ fun IosPlatformBridge.toHostCapabilities(): IosHostCapabilities {
 		update = this,
 		externalActions = this,
 		device = this,
-		observability = this
+		observability = this,
+		secureStore = this
 	)
 }

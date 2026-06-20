@@ -42,6 +42,8 @@ fun ConfirmationDialog(
 	positiveLoading: Boolean = false,
 	positiveEnabled: Boolean = true,
 	negativeEnabled: Boolean = true,
+	positiveButtonTestTag: String = BaseUiTags.ConfirmationDialogPositiveButton,
+	positiveLoadingTestTag: String = BaseUiTags.ConfirmationDialogPositiveLoading,
 	positiveText: String? = null,
 	negativeText: String? = null,
 	onPositiveClick: () -> Unit = {},
@@ -110,7 +112,7 @@ fun ConfirmationDialog(
 
 					if (positiveText != null)
 						Button(
-							modifier = Modifier.testTag(BaseUiTags.ConfirmationDialogPositiveButton),
+							modifier = Modifier.testTag(positiveButtonTestTag),
 							onClick = {
 								onPositiveClick()
 
@@ -133,7 +135,7 @@ fun ConfirmationDialog(
 								if (positiveLoading)
 									CircularProgressIndicator(
 										modifier = Modifier
-											.testTag(BaseUiTags.ConfirmationDialogPositiveLoading)
+											.testTag(positiveLoadingTestTag)
 											.size(18.dp),
 										color = LocalContentColor.current
 									)

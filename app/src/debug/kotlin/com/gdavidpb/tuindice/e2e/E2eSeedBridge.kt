@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.debug.setDebugAppAvailabilityNoticeOverride
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlinx.coroutines.Dispatchers
@@ -20,11 +21,19 @@ import org.koin.core.context.GlobalContext
 object E2eSeedBridge {
 	private const val SEED_STATE_ARG = "TUINDICE_E2E_SEED_STATE"
 	private const val MAIN_SECTION_ARG = "TUINDICE_E2E_MAIN_SECTION"
+	private const val AVAILABILITY_NOTICE_ENABLED_ARG = "TUINDICE_E2E_AVAILABILITY_NOTICE_ENABLED"
+	private const val AVAILABILITY_NOTICE_TITLE_ARG = "TUINDICE_E2E_AVAILABILITY_NOTICE_TITLE"
+	private const val AVAILABILITY_NOTICE_MESSAGE_ARG = "TUINDICE_E2E_AVAILABILITY_NOTICE_MESSAGE"
 	private const val AUTHENTICATED_WIZARD_COMPLETE = "authenticatedWizardComplete"
 	private const val AUTHENTICATED_WIZARD_PENDING = "authenticatedWizardPending"
 
 	@JvmStatic
 	fun seedIfRequested(activity: ComponentActivity, intent: Intent?) {
+		configureAvailabilityNoticeOverrideIfRequested(
+			koin = GlobalContext.get(),
+			intent = intent
+		)
+
 		val seedState = intent?.getStringExtra(SEED_STATE_ARG)
 			?.takeIf { it.isNotBlank() }
 			?: return
@@ -46,6 +55,19 @@ object E2eSeedBridge {
 				isWizardCompleted = seedState == AUTHENTICATED_WIZARD_COMPLETE
 			)
 		}
+	}
+
+	private fun configureAvailabilityNoticeOverrideIfRequested(koin: Koin, intent: Intent?) {
+		val enabled = intent?.getStringExtra(AVAILABILITY_NOTICE_ENABLED_ARG)
+			?.takeIf { it.isNotBlank() }
+			?.toBooleanStrictOrNull()
+			?: return
+
+		koin.setDebugAppAvailabilityNoticeOverride(
+			enabled = enabled,
+			title = intent.getStringExtra(AVAILABILITY_NOTICE_TITLE_ARG).orEmpty(),
+			message = intent.getStringExtra(AVAILABILITY_NOTICE_MESSAGE_ARG).orEmpty()
+		)
 	}
 
 	private suspend fun seedAuthenticatedWizardState(

@@ -1,7 +1,10 @@
 package com.gdavidpb.tuindice.presentation.machine
 
+import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.MainSection
+import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
+import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.ScheduleSyncUseCase
@@ -12,6 +15,7 @@ import com.gdavidpb.tuindice.presentation.contract.Browser
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.testing.FakeCoreCacheStateRepository
+import com.gdavidpb.tuindice.testing.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testing.createBrowserViewModel
 import com.gdavidpb.tuindice.testing.createMainViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
@@ -24,6 +28,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationReposit
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
+import com.gdavidpb.tuindice.wizard.data.source.InMemoryWizardStartOverrideDataSource
 import com.gdavidpb.tuindice.wizard.domain.usecase.ShouldStartWizardUseCase
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -49,6 +54,7 @@ class MainStateMachineContractTest {
 				sessionRepository = sessionRepository,
 				settingsRepository = settingsRepository,
 				configRepository = configRepository,
+				deviceInfoRepository = FakeDeviceInfoRepository(),
 				applicationRepository = applicationRepository,
 				reportingRepository = reportingRepository,
 				exceptionHandler = StartUpExceptionHandler()
@@ -77,6 +83,7 @@ class MainStateMachineContractTest {
 			shouldStartWizardUseCase = ShouldStartWizardUseCase(
 				settingsRepository = settingsRepository,
 				sessionRepository = sessionRepository,
+				wizardStartOverrideRepository = InMemoryWizardStartOverrideDataSource(),
 				reportingRepository = reportingRepository
 			)
 		)
@@ -85,14 +92,33 @@ class MainStateMachineContractTest {
 			screenMachine = screenMachine,
 			sampleEvents = listOf(
 				Main.Action.StartUp,
+				Main.Action.ShowOutdatedApp(
+					outdatedAppState = OutdatedAppState(minimumVersionCode = 52)
+				),
 				Main.Action.RequestReview,
 				Main.Action.RequestUpdateCheck,
+				Main.Action.UpdateFlowCompleted(
+					result = UpdateLaunchResult.OpenStoreFallback(
+						primaryUrl = "market://details?id=com.gdavidpb.tuindice",
+						fallbackUrl = "https://play.google.com/store/apps/details?id=com.gdavidpb.tuindice"
+					)
+				),
 				Main.Action.RequestSync,
 				Main.Action.SetLastMainSection(section = MainSection.SUMMARY),
 				Main.Action.RequestWizardStart,
 				MainInternalEvent.StartUpStarting,
 				MainInternalEvent.StartUpCompleted(
 					startDestination = SummaryDestination.NavGraph
+				),
+				MainInternalEvent.AppUnavailableResolved(
+					notice = AppAvailabilityNotice(
+						enabled = true,
+						title = "Mantenimiento",
+						message = "Volvemos pronto."
+					)
+				),
+				MainInternalEvent.OutdatedAppResolved(
+					outdatedAppState = OutdatedAppState(minimumVersionCode = 52)
 				),
 				MainInternalEvent.StartUpFailed(noServices = false),
 				MainInternalEvent.ReviewRequested,
@@ -144,9 +170,14 @@ class MainStateMachineContractTest {
 			"starting",
 			"content",
 			"failed",
-			"StartUp",
-			"StartUpCompleted",
+				"app_unavailable",
+				"StartUp",
+				"ShowOutdatedApp",
+				"StartUpCompleted",
+			"AppUnavailableResolved",
+			"OutdatedAppResolved",
 			"ReviewRequested / TriggerReviewFlow",
+			"UpdateFlowCompleted / OpenUpdateStoreFallback",
 			"WizardStartApproved / NavigateToWizard"
 		)
 

@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.auth.presentation.machine
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
@@ -85,6 +86,41 @@ class SignInStateMachineContractTest {
 				),
 				actionNames
 			)
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun toggleIdentifierMode_preservesValidUsbId_andClearsEmailWhenReturningToUsbId() = runTest {
+		val fixture = createFixture()
+		val viewModel = fixture.viewModel
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				assertEquals(SignIn.State.Idle(), awaitItem())
+
+				viewModel.setUsbIdAction(VALID_USB_ID)
+				viewModel.toggleIdentifierModeAction()
+				awaitUntilState<SignIn.State.Idle> { state ->
+					state.usbId == VALID_USB_ID &&
+						state.identifierMode == SignInIdentifierMode.UsbEmail
+				}
+
+				viewModel.setUsbIdAction("mail")
+				viewModel.toggleIdentifierModeAction()
+				awaitUntilState<SignIn.State.Idle> { state ->
+					state.usbId.isEmpty() &&
+						state.identifierMode == SignInIdentifierMode.UsbId
+				}
+
+				cancelAndIgnoreRemainingEvents()
+			}
 		} finally {
 			stateCollector.cancel()
 		}
@@ -251,8 +287,10 @@ class SignInStateMachineContractTest {
 			"logging_in",
 			"ClickSignIn",
 			"SignInSucceeded / NavigateToSummary",
+			"OutdatedAppDetected / ShowOutdatedApp",
 			"SignInFailed / ShowSnackBar · ShowRetrySnackBar",
 			"SetUsbId",
+			"ToggleIdentifierMode",
 			"ClickTermsAndConditions / NavigateToBrowser"
 		)
 

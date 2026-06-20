@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.base.domain.repository
 
+import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
+
 interface ConfigRepository {
 	suspend fun tryFetch()
 
@@ -9,4 +11,7 @@ interface ConfigRepository {
 	fun getLoadingMessages(): List<String>
 	fun getTimeUpdateStalenessDays(): Int
 	fun getSyncsToSuggestReview(): Int
+	fun getAttestationAndroidEnforcementEnabled(): Boolean
+	fun getAttestationIosEnforcementEnabled(): Boolean
+	fun getAppAvailabilityNotice(): AppAvailabilityNotice
 }

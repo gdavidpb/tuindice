@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "login-token-lifecycle",
+  "requiredScenarioState": "TokensIssued",
+  "newScenarioState": "BootstrapIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic bWFpbDoxMjM0NTY="
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "0IQZf2qtYZOTwutEX38qvBY5H8l2",
+      "usb_id": "mail",
+      "access_token": "bootstrap.mock.email.access.token.reissued",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

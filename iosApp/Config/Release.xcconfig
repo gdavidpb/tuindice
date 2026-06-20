@@ -23,6 +23,7 @@ TUINDICE_API_BASE_URL = https:/$()/api.tuindice.app/
 TUINDICE_PRIVACY_POLICY_URL = https:/$()/tuindice.app/privacy_policy_v6_0.html
 TUINDICE_TERMS_AND_CONDITIONS_URL = https:/$()/tuindice.app/terms_and_conditions_v6_0.html
 TUINDICE_SUPPORT_URL = https:/$()/tuindice.app/support_v6_0.html
+TUINDICE_APP_STORE_URL = itms-apps:/$()/apps.apple.com/app/id6760307454
 TUINDICE_DEBUG = NO
 APS_ENVIRONMENT = production
 APP_ATTEST_ENVIRONMENT = production

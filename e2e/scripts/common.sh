@@ -468,7 +468,7 @@ maestro_item_prelude_entries() {
 	fi
 
 	case "${target_file}" in
-		*/auth/login-success.yaml)
+		*/auth/login-success.yaml|*/auth/login-summary-ready.yaml)
 			printf '%s/_shared/launch-clean.yaml\n' "${flows_root}"
 			return 0
 			;;
@@ -807,6 +807,9 @@ run_maestro_suite_resume_first() {
 
 	mkdir -p "$(dirname "${log_file}")" "$(maestro_checkpoint_dir "${platform}" "${suite_path}")"
 	: >"${log_file}"
+	if [[ -n "${report_file}" ]]; then
+		rm -f "${report_file}"
+	fi
 	printf '%s\n' "${targets[@]}" >"${checkpoint_targets_file}"
 
 	item_root="${E2E_TMP_DIR}/maestro-items/$(maestro_slug "${platform}")/$(maestro_slug "${suite_name}")"

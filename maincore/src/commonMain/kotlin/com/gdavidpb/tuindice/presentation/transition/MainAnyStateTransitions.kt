@@ -1,5 +1,7 @@
 package com.gdavidpb.tuindice.presentation.transition
 
+import com.gdavidpb.tuindice.base.domain.model.UpdateAction
+import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.presentation.contract.Main
@@ -16,6 +18,10 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 			state
 		}
 
+		onTo<Main.Action.ShowOutdatedApp, Main.State.OutdatedApp> { _, action ->
+			Main.State.OutdatedApp(outdatedAppState = action.outdatedAppState)
+		}
+
 		on<Main.Action.RequestReview> { state, _ ->
 			machine.requestReview(host = host)
 			state
@@ -23,6 +29,23 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 
 		on<Main.Action.RequestUpdateCheck> { state, _ ->
 			machine.requestUpdateCheck(host = host)
+			state
+		}
+
+		on<Main.Action.ClickUpdateApp>(
+			emits = setOf(Main.Effect.TriggerUpdateFlow::class)
+		) { state, _ ->
+			host.sendEffect(Main.Effect.TriggerUpdateFlow(action = UpdateAction.Immediate))
+			state
+		}
+
+		on<Main.Action.UpdateFlowCompleted>(
+			emits = setOf(Main.Effect.OpenUpdateStoreFallback::class)
+		) { state, action ->
+			if (action.result is UpdateLaunchResult.OpenStoreFallback) {
+				host.sendEffect(Main.Effect.OpenUpdateStoreFallback(result = action.result))
+			}
+
 			state
 		}
 
@@ -47,6 +70,14 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 
 		onTo<MainInternalEvent.StartUpCompleted, Main.State.Content> { _, event ->
 			Main.State.Content(startDestination = event.startDestination)
+		}
+
+		onTo<MainInternalEvent.AppUnavailableResolved, Main.State.AppUnavailable> { _, event ->
+			Main.State.AppUnavailable(notice = event.notice)
+		}
+
+		onTo<MainInternalEvent.OutdatedAppResolved, Main.State.OutdatedApp> { _, event ->
+			Main.State.OutdatedApp(outdatedAppState = event.outdatedAppState)
 		}
 
 		onTo<MainInternalEvent.StartUpFailed, Main.State.Failed>(

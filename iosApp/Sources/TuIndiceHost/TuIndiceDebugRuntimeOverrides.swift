@@ -31,7 +31,55 @@ enum TuIndiceDebugRuntimeOverrides {
         #endif
     }
 
+    static func networkAvailabilityOverride() -> Bool? {
+        #if DEBUG
+        guard let rawValue = launchArgumentString(for: networkAvailabilityKey) else { return nil }
+
+        switch rawValue.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "true", "1", "yes":
+            return true
+        case "false", "0", "no":
+            return false
+        default:
+            return nil
+        }
+        #else
+        return nil
+        #endif
+    }
+
     #if canImport(maincore) || canImport(Maincore)
+    static func configureRemoteConfigOverridesIfNeeded(
+        appBootstrap: IosAppHostBootstrap
+    ) {
+        #if DEBUG
+        guard let rawEnabled = launchArgumentString(for: availabilityNoticeEnabledKey) else { return }
+        let enabled = ["true", "1", "yes"].contains(rawEnabled.trimmingCharacters(in: .whitespacesAndNewlines).lowercased())
+
+        appBootstrap.setDebugAppAvailabilityNoticeOverride(
+            enabled: enabled,
+            title: launchArgumentString(for: availabilityNoticeTitleKey) ?? "",
+            message: launchArgumentString(for: availabilityNoticeMessageKey) ?? ""
+        )
+        #else
+        _ = appBootstrap
+        #endif
+    }
+
+    static func configureWizardStateOverridesIfNeeded(
+        appBootstrap: IosAppHostBootstrap
+    ) {
+        #if DEBUG
+        let isPending = launchArgumentString(for: wizardPendingKey)
+            .map { ["true", "1", "yes"].contains($0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()) }
+            ?? false
+
+        appBootstrap.setDebugWizardStartForced(enabled: isPending)
+        #else
+        _ = appBootstrap
+        #endif
+    }
+
     static func runStartupHooksIfNeeded(
         appBootstrap: IosAppHostBootstrap,
         apiBaseUrl: String
@@ -65,8 +113,13 @@ enum TuIndiceDebugRuntimeOverrides {
 private extension TuIndiceDebugRuntimeOverrides {
     static let apiBaseUrlKey = "TUINDICE_E2E_API_BASE_URL"
     static let webBaseUrlKey = "TUINDICE_E2E_WEB_BASE_URL"
+    static let networkAvailabilityKey = "TUINDICE_E2E_NETWORK_AVAILABLE"
     static let seedStateKey = "TUINDICE_E2E_SEED_STATE"
     static let mainSectionKey = "TUINDICE_E2E_MAIN_SECTION"
+    static let availabilityNoticeEnabledKey = "TUINDICE_E2E_AVAILABILITY_NOTICE_ENABLED"
+    static let availabilityNoticeTitleKey = "TUINDICE_E2E_AVAILABILITY_NOTICE_TITLE"
+    static let availabilityNoticeMessageKey = "TUINDICE_E2E_AVAILABILITY_NOTICE_MESSAGE"
+    static let wizardPendingKey = "TUINDICE_E2E_WIZARD_PENDING"
 
     static func launchArgumentString(for key: String) -> String? {
         if let value = ProcessInfo.processInfo.environment[key], value.isEmpty == false {

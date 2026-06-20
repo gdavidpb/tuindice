@@ -1,8 +1,14 @@
 package com.gdavidpb.tuindice.data.source.update
 
+import android.content.Context
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
+import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
+import com.gdavidpb.tuindice.data.model.playcore.PlayCoreSurface
+import com.gdavidpb.tuindice.data.repository.playcore.PlayCoreAvailabilityDataRepository
 import com.gdavidpb.tuindice.data.source.activity.CurrentActivityDataSource
+import com.gdavidpb.tuindice.data.source.playcore.reportPlayCoreFailure
 import com.google.android.play.core.appupdate.AppUpdateInfo
 import com.google.android.play.core.appupdate.AppUpdateManager
 import com.google.android.play.core.install.model.AppUpdateType
@@ -11,13 +17,25 @@ import com.google.android.play.core.ktx.isImmediateUpdateAllowed
 import kotlinx.coroutines.tasks.await
 
 class PlayUpdateDataSource(
+	private val context: Context,
 	private val appUpdateManager: AppUpdateManager,
-	private val currentActivityDataSource: CurrentActivityDataSource
+	private val currentActivityDataSource: CurrentActivityDataSource,
+	private val playCoreAvailabilityRepository: PlayCoreAvailabilityDataRepository,
+	private val reportingRepository: ReportingRepository
 ) : UpdateRepository {
 	private var pendingUpdateInfo: AppUpdateInfo? = null
 
 	override suspend fun checkForUpdate(stalenessDays: Int): UpdateAction? {
-		val updateInfo = appUpdateManager.appUpdateInfo.await() ?: return null
+		if (!playCoreAvailabilityRepository.isAvailable(PlayCoreSurface.Update)) return null
+
+		val updateInfo = runCatching {
+			appUpdateManager.appUpdateInfo.await()
+		}.onFailure { throwable ->
+			reportingRepository.reportPlayCoreFailure(
+				message = "play_update_check_failed",
+				throwable = throwable
+			)
+		}.getOrNull() ?: return null
 
 		if (updateInfo.isUpdateStalled) {
 			pendingUpdateInfo = updateInfo
@@ -39,17 +57,45 @@ class PlayUpdateDataSource(
 		}
 	}
 
-	override suspend fun launchUpdate(action: UpdateAction) {
-		val activity = currentActivityDataSource.get() ?: return
-		val updateInfo = pendingUpdateInfo ?: appUpdateManager.appUpdateInfo.await() ?: return
+	override suspend fun launchUpdate(action: UpdateAction): UpdateLaunchResult {
+		if (!playCoreAvailabilityRepository.isAvailable(PlayCoreSurface.Update)) {
+			return context.storeFallbackResult()
+		}
 
-		when (action) {
+		val activity = currentActivityDataSource.get() ?: run {
+			return context.storeFallbackResult()
+		}
+		val updateInfo = pendingUpdateInfo ?: runCatching {
+			appUpdateManager.appUpdateInfo.await()
+		}.onFailure { throwable ->
+			reportingRepository.reportPlayCoreFailure(
+				message = "play_update_launch_info_failed",
+				throwable = throwable
+			)
+		}.getOrNull() ?: run {
+			return context.storeFallbackResult()
+		}
+
+		return when (action) {
 			UpdateAction.Immediate ->
-				appUpdateManager.startUpdateFlowForResult(
-					updateInfo,
-					AppUpdateType.IMMEDIATE,
-					activity,
-					APP_UPDATE_REQUEST_CODE
+				runCatching {
+					appUpdateManager.startUpdateFlowForResult(
+						updateInfo,
+						AppUpdateType.IMMEDIATE,
+						activity,
+						APP_UPDATE_REQUEST_CODE
+					)
+				}.fold(
+					onSuccess = { launched ->
+						if (launched) UpdateLaunchResult.Launched else context.storeFallbackResult()
+					},
+					onFailure = { throwable ->
+						reportingRepository.reportPlayCoreFailure(
+							message = "play_update_launch_failed",
+							throwable = throwable
+						)
+						context.storeFallbackResult()
+					}
 				)
 		}
 	}
@@ -57,6 +103,14 @@ class PlayUpdateDataSource(
 	companion object {
 		private const val APP_UPDATE_REQUEST_CODE = 1001
 	}
+}
+
+private fun Context.storeFallbackResult(): UpdateLaunchResult.OpenStoreFallback {
+	val appPackageName = packageName
+	return UpdateLaunchResult.OpenStoreFallback(
+		primaryUrl = "market://details?id=$appPackageName",
+		fallbackUrl = "https://play.google.com/store/apps/details?id=$appPackageName"
+	)
 }
 
 private val AppUpdateInfo.isUpdateAvailable: Boolean

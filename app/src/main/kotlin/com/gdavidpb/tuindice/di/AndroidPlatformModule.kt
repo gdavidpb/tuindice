@@ -13,8 +13,12 @@ import com.gdavidpb.tuindice.about.data.source.AndroidStoreUrlDataSource
 import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
 import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
 import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
+import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
+import com.gdavidpb.tuindice.base.data.source.event.ReportingBreadcrumbEventSubscriber
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
+import com.gdavidpb.tuindice.base.data.source.secure.ACTIVE_SECURE_STORE_QUALIFIER
+import com.gdavidpb.tuindice.base.data.source.secure.LEGACY_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.data.source.usage.UsageDataCollectionDataSource
 import com.gdavidpb.tuindice.base.domain.repository.*
@@ -35,8 +39,13 @@ import com.gdavidpb.tuindice.data.source.config.AndroidRemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.device.AndroidDeviceInfoDataSource
 import com.gdavidpb.tuindice.data.source.environment.BuildConfigEnvironmentDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
+import com.gdavidpb.tuindice.data.repository.playcore.PlayCoreAvailabilityDataRepository
+import com.gdavidpb.tuindice.data.repository.playcore.PlayCoreEnvironmentDataRepository
+import com.gdavidpb.tuindice.data.source.playcore.AndroidPlayCoreAvailabilityDataSource
+import com.gdavidpb.tuindice.data.source.playcore.AndroidPlayCoreEnvironmentDataSource
 import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSource
 import com.gdavidpb.tuindice.data.source.review.PlayReviewDataSource
+import com.gdavidpb.tuindice.data.source.secure.AndroidTinkSecureKeyValueDataSource
 import com.gdavidpb.tuindice.data.source.update.PlayUpdateDataSource
 import com.gdavidpb.tuindice.persistence.di.registerAndroidPersistencePlatformStorage
 import com.gdavidpb.tuindice.platform.android.AndroidKeystoreProofOfPossessionCapability
@@ -81,6 +90,9 @@ val androidPlatformModule = module {
 			context = androidContext(),
 			fileName = APP_SECURE_STORE_NAME
 		)
+	}
+	single<SecureKeyValueDataRepository>(named(ACTIVE_SECURE_STORE_QUALIFIER)) {
+		AndroidTinkSecureKeyValueDataSource(context = androidContext())
 	}
 
 	registerAndroidPersistencePlatformStorage()
@@ -145,6 +157,10 @@ val androidPlatformModule = module {
 			bind<EventSubscriber>()
 			definitionNamed("firebaseAnalyticsEventSubscriber")
 		}
+		singleOf(::ReportingBreadcrumbEventSubscriber) {
+			bind<EventSubscriber>()
+			definitionNamed("crashlyticsBreadcrumbEventSubscriber")
+		}
 		single<AppStartupTask> {
 			UsageDataCollectionDataSource(
 				usageDataConsentRepository = get(),
@@ -157,20 +173,45 @@ val androidPlatformModule = module {
 	}
 
 	singleOf(::UUIDIdentifierDataSource) { bind<IdentifierRepository>() }
-	singleOf(::AndroidKeystoreProofOfPossessionCapability) { bind<AndroidProofOfPossessionCapability>() }
+	single<AndroidProofOfPossessionCapability> {
+		AndroidKeystoreProofOfPossessionCapability(
+			secureStore = get(named(ACTIVE_SECURE_STORE_QUALIFIER)),
+			legacySecureStore = get(named(LEGACY_SECURE_STORE_QUALIFIER))
+		)
+	}
 	singleOf(::AndroidRemoteConfigDataSource) { bind<RemoteConfigDataRepository>() }
 	singleOf(::FirebasePushTokenDataSource) { bind<PushTokenDataRepository>() }
 	singleOf(::CurrentActivityDataSource)
+	singleOf(::AndroidPlayCoreEnvironmentDataSource) { bind<PlayCoreEnvironmentDataRepository>() }
+	singleOf(::AndroidPlayCoreAvailabilityDataSource) {
+		bind<PlayCoreAvailabilityDataRepository>()
+	}
 	singleOf(::PlayReviewDataSource) { bind<ReviewRepository>() }
-	singleOf(::PlayUpdateDataSource) { bind<UpdateRepository>() }
+	single<UpdateRepository> {
+		PlayUpdateDataSource(
+			context = androidContext(),
+			appUpdateManager = get(),
+			currentActivityDataSource = get(),
+			playCoreAvailabilityRepository = get(),
+			reportingRepository = get()
+		)
+	}
 	singleOf(::AndroidBrowserDataSource) { bind<BrowserRepository>() }
 	singleOf(::AndroidBrowserScreenRenderer) { bind<BrowserScreenRenderer>() }
 	singleOf(::AndroidFileOpenerDataSource) { bind<BaseExternalActionsRepository>() }
 	singleOf(::AndroidDeviceInfoDataSource) { bind<DeviceInfoRepository>() }
-	singleOf(::AndroidApplicationDataSource) {
-		bind<ApplicationRepository>()
-		bind<FileRepository>()
+	single<AndroidApplicationDataSource> {
+		AndroidApplicationDataSource(
+			context = androidContext(),
+			persistenceMaintenanceRepository = get(),
+			settingsRepository = get(),
+			secureStore = get(named(ACTIVE_SECURE_STORE_QUALIFIER)),
+			legacySecureStore = get(named(LEGACY_SECURE_STORE_QUALIFIER)),
+			proofOfPossessionCapability = get()
+		)
 	}
+	single<ApplicationRepository> { get<AndroidApplicationDataSource>() }
+	single<FileRepository> { get<AndroidApplicationDataSource>() }
 	singleOf(::CrashlyticsReportingDataSource) {
 		bind<ReportingRepository>()
 	}
@@ -197,7 +238,8 @@ val androidPlatformModule = module {
 		AndroidAttestationDataSource(
 			ktorClient = get<HttpClient>(qualifier = named(IDENTITY_HTTP_CLIENT_QUALIFIER)),
 			providerDataSource = get(),
-			proofOfPossessionCapability = get()
+			proofOfPossessionCapability = get(),
+			configRepository = get()
 		)
 	}
 
@@ -205,6 +247,8 @@ val androidPlatformModule = module {
 		createIdentityHttpClient(
 			appEnvironmentRepository = get(),
 			configRepository = get(),
+			settingsRepository = get(),
+			outdatedAppEventRepository = get(),
 			logger = createAppKtorLogger(),
 			json = get<Json>(),
 			userAgentValue = runCatching { UserAgent(androidContext()).toString() }.getOrNull()
@@ -216,7 +260,9 @@ val androidPlatformModule = module {
 			appEnvironmentRepository = get(),
 			configRepository = get(),
 			sessionRepository = get(),
+			settingsRepository = get(),
 			sessionRecoveryRepository = get(),
+			outdatedAppEventRepository = get(),
 			logger = createAppKtorLogger(),
 			json = get(),
 			userAgentValue = runCatching { UserAgent(androidContext()).toString() }.getOrNull()

@@ -3,19 +3,19 @@
   "request": {
     "method": "POST",
     "urlPath": "/record/v5/sync",
-    "headers": {
-      "Authorization": {
-        "equalTo": "Bearer expired.session.mock.access"
-      }
-    },
     "bodyPatterns": [
       {
         "matchesJsonPath": "$[?(@.password == 'expired-pass')]"
       }
-    ]
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
-    "status": 401,
+    "status": 409,
     "headers": {
       "Content-Type": "application/json"
     },

@@ -43,6 +43,7 @@ class SessionDataSource(
 
 	override suspend fun setUsbId(usbId: String) {
 		sessionMutex.withLock {
+			memorySessionDataSource.setUsbId(usbId)
 			preferencesSessionDataSource.setUsbId(usbId)
 		}
 	}
@@ -70,7 +71,11 @@ class SessionDataSource(
 
 	override suspend fun getUsbId(): String {
 		return sessionMutex.withLock {
-			preferencesSessionDataSource.getUsbId() ?: throw IllegalStateException()
+			memorySessionDataSource.getUsbId()
+				?: preferencesSessionDataSource.getUsbId()?.also { usbId ->
+					memorySessionDataSource.setUsbId(usbId)
+				}
+				?: throw IllegalStateException()
 		}
 	}
 
@@ -136,25 +141,26 @@ class SessionDataSource(
 	}
 
 	private suspend fun readActiveSessionSnapshot(): SessionSnapshot? {
+		val memoryUsbId = memorySessionDataSource.getUsbId()
 		val memorySessionId = memorySessionDataSource.getSessionId()
 		val memoryAccessToken = memorySessionDataSource.getAccessToken()
 		val memoryRefreshToken = memorySessionDataSource.getRefreshToken()
-		val usbId = preferencesSessionDataSource.getUsbId()
 
 		if (
+			memoryUsbId != null &&
 			memorySessionId != null &&
 			memoryAccessToken != null &&
-			memoryRefreshToken != null &&
-			usbId != null
+			memoryRefreshToken != null
 		) {
 			return SessionSnapshot(
 				sessionId = memorySessionId,
 				accessToken = memoryAccessToken,
 				refreshToken = memoryRefreshToken,
-				usbId = usbId
+				usbId = memoryUsbId
 			)
 		}
 
+		val usbId = preferencesSessionDataSource.getUsbId()
 		val preferencesSessionId = preferencesSessionDataSource.getSessionId()
 		val preferencesAccessToken = preferencesSessionDataSource.getAccessToken()
 		val preferencesRefreshToken = preferencesSessionDataSource.getRefreshToken()
@@ -168,6 +174,7 @@ class SessionDataSource(
 			return null
 		}
 
+		memorySessionDataSource.setUsbId(usbId)
 		memorySessionDataSource.setSessionId(preferencesSessionId)
 		memorySessionDataSource.setAccessToken(preferencesAccessToken)
 		memorySessionDataSource.setRefreshToken(preferencesRefreshToken)
@@ -181,6 +188,7 @@ class SessionDataSource(
 	}
 
 	private suspend fun writeSessionSnapshot(snapshot: SessionSnapshot) {
+		memorySessionDataSource.setUsbId(snapshot.usbId)
 		memorySessionDataSource.setSessionId(snapshot.sessionId)
 		memorySessionDataSource.setAccessToken(snapshot.accessToken)
 		memorySessionDataSource.setRefreshToken(snapshot.refreshToken)

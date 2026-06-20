@@ -860,5 +860,16 @@
     "failed_credits": 4,
     "failed_relation": 0.02,
     "last_update": 1778126400000
+  },
+  "sync": {
+    "status": "success",
+    "sources": {
+      "record": {
+        "status": "success"
+      },
+      "enrollment": {
+        "status": "success"
+      }
+    }
   }
 }

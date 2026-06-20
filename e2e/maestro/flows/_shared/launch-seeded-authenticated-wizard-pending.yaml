@@ -4,19 +4,20 @@ appId: com.gdavidpb.tuindice.debug
     stopApp: true
     clearState: true
     arguments:
-      TUINDICE_E2E_SEED_STATE: "authenticatedWizardPending"
-      TUINDICE_E2E_MAIN_SECTION: "SUMMARY"
+      TUINDICE_E2E_NETWORK_AVAILABLE: "true"
+      TUINDICE_E2E_WIZARD_PENDING: "true"
 - runFlow:
     when:
       platform: iOS
     commands:
       - launchApp:
-          stopApp: false
+          stopApp: true
           clearState: false
           arguments:
-            TUINDICE_E2E_SEED_STATE: "authenticatedWizardPending"
-            TUINDICE_E2E_MAIN_SECTION: "SUMMARY"
+            TUINDICE_E2E_NETWORK_AVAILABLE: "true"
+            TUINDICE_E2E_WIZARD_PENDING: "true"
 - extendedWaitUntil:
     visible:
-      id: wizard_welcome_screen
-    timeout: 30000
+      id: auth_usb_id_text_field
+    timeout: 20000
+- runFlow: ../auth/login-success.yaml

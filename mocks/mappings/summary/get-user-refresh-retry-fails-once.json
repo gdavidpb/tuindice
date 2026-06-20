@@ -1,14 +1,17 @@
 {
   "priority": 1,
   "scenarioName": "summary-refresh-retry",
-  "requiredScenarioState": "Started",
+  "requiredScenarioState": "InitialSyncUnavailable",
   "newScenarioState": "FailedOnce",
   "request": {
     "method": "GET",
     "urlPath": "/users/v1",
     "headers": {
+      "User-Agent": {
+        "contains": "iOS"
+      },
       "Authorization": {
-        "equalTo": "Bearer summary.refresh.retry.mock.access"
+        "matches": "Bearer .+"
       }
     }
   },

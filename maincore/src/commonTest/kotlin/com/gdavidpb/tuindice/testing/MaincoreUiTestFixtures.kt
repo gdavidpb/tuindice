@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
@@ -38,6 +39,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeUpdateRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.wizard.data.source.InMemoryWizardStartOverrideDataSource
 import com.gdavidpb.tuindice.wizard.domain.usecase.ShouldStartWizardUseCase
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.flowOf
@@ -89,12 +91,14 @@ fun createMainViewModel(
 		lastMainSection = MainSection.SUMMARY
 	),
 	configRepository: FakeConfigRepository = FakeConfigRepository(),
+	deviceInfoRepository: DeviceInfoRepository = FakeDeviceInfoRepository(),
 	credentialsRepository: CredentialsRepository = FakeCredentialsRepository(),
 	syncRepository: SyncRepository = FakeSyncRepository(),
 	coreCacheStateRepository: CoreCacheStateRepository = FakeCoreCacheStateRepository(),
 	updateRepository: FakeUpdateRepository = FakeUpdateRepository(),
 	applicationRepository: RecordingApplicationRepository = RecordingApplicationRepository(),
-	reportingRepository: RecordingReportingRepository = RecordingReportingRepository()
+	reportingRepository: RecordingReportingRepository = RecordingReportingRepository(),
+	eventPublisher: EventPublisher = NoOpEventPublisher
 ): MainViewModel {
 	return MainViewModel(
 		screenMachine = MainMachine(
@@ -102,6 +106,7 @@ fun createMainViewModel(
 				sessionRepository = sessionRepository,
 				settingsRepository = settingsRepository,
 				configRepository = configRepository,
+				deviceInfoRepository = deviceInfoRepository,
 				applicationRepository = applicationRepository,
 				reportingRepository = reportingRepository,
 				exceptionHandler = StartUpExceptionHandler()
@@ -130,10 +135,11 @@ fun createMainViewModel(
 			shouldStartWizardUseCase = ShouldStartWizardUseCase(
 				settingsRepository = settingsRepository,
 				sessionRepository = sessionRepository,
+				wizardStartOverrideRepository = InMemoryWizardStartOverrideDataSource(),
 				reportingRepository = reportingRepository
 			)
 		),
-		eventPublisher = NoOpEventPublisher
+		eventPublisher = eventPublisher
 	)
 }
 

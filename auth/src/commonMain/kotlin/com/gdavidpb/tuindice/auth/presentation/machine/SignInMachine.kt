@@ -47,7 +47,8 @@ class SignInMachine(
 	): SignIn.State.LoggingIn {
 		val params = SignInParams(
 			usbId = state.usbId,
-			password = state.password
+			password = state.password,
+			identifierMode = state.identifierMode
 		)
 
 		host.launchMachineJob {
@@ -59,9 +60,14 @@ class SignInMachine(
 						SignInInternalEvent.SignInSucceeded
 					)
 
-					is UseCaseState.Error -> host.processInternalEvent(
-						SignInInternalEvent.SignInFailed(error = useCaseState.error)
-					)
+					is UseCaseState.Error ->
+						if (useCaseState.error is SignInUseCaseError.OutdatedApp) {
+							host.processInternalEvent(SignInInternalEvent.OutdatedAppDetected)
+						} else {
+							host.processInternalEvent(
+								SignInInternalEvent.SignInFailed(error = useCaseState.error)
+							)
+						}
 				}
 			}
 		}
@@ -70,6 +76,7 @@ class SignInMachine(
 			usbId = state.usbId,
 			password = state.password,
 			messages = configRepository.getLoadingMessages(),
+			identifierMode = state.identifierMode,
 			usageDataCollectionEnabled = state.usageDataCollectionEnabled
 		)
 	}
@@ -80,7 +87,7 @@ class SignInMachine(
 		event: SignInInternalEvent.SignInFailed
 	): SignIn.State.Idle {
 		val error = event.error
-		val errorMessage = error.toErrorMessage()
+		val errorMessage = error.toErrorMessage(identifierMode = state.identifierMode)
 
 		when (error) {
 			is SignInUseCaseError.InvalidCredentials,
@@ -104,6 +111,7 @@ class SignInMachine(
 		return SignIn.State.Idle(
 			usbId = state.usbId,
 			password = state.password,
+			identifierMode = state.identifierMode,
 			usageDataCollectionEnabled = state.usageDataCollectionEnabled
 		)
 	}
@@ -128,5 +136,9 @@ class SignInMachine(
 
 	internal fun persistUsageDataCollection(enabled: Boolean) {
 		usageDataConsentRepository.setUsageDataCollectionEnabled(enabled)
+	}
+
+	internal suspend fun showOutdatedApp(host: MachineHost<SignIn.Effect>) {
+		host.sendEffect(SignIn.Effect.ShowOutdatedApp)
 	}
 }

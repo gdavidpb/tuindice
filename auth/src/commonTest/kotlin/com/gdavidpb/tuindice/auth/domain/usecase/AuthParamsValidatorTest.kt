@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.auth.domain.usecase
 
 import com.gdavidpb.tuindice.auth.domain.exception.SignInIllegalArgumentException
+import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
@@ -21,6 +22,25 @@ class AuthParamsValidatorTest {
 	}
 
 	@Test
+	fun signInParamsValidator_acceptsUsbEmailParams() {
+		SignInParamsValidator().validate(
+			SignInParams(
+				usbId = "mail@usb.ve",
+				password = "secret123",
+				identifierMode = SignInIdentifierMode.UsbEmail
+			)
+		)
+
+		SignInParamsValidator().validate(
+			SignInParams(
+				usbId = "mail",
+				password = "secret123",
+				identifierMode = SignInIdentifierMode.UsbEmail
+			)
+		)
+	}
+
+	@Test
 	fun signInParamsValidator_rejectsEmptyUsbId() {
 		val exception = assertFailsWith<SignInIllegalArgumentException> {
 			SignInParamsValidator().validate(SignInParams(usbId = "", password = "secret123"))
@@ -33,6 +53,21 @@ class AuthParamsValidatorTest {
 	fun signInParamsValidator_rejectsInvalidUsbId() {
 		val exception = assertFailsWith<SignInIllegalArgumentException> {
 			SignInParamsValidator().validate(SignInParams(usbId = "usb-id", password = "secret123"))
+		}
+
+		assertEquals(SignInUseCaseError.InvalidUsbId, exception.error)
+	}
+
+	@Test
+	fun signInParamsValidator_rejectsNonUsbEmailDomain() {
+		val exception = assertFailsWith<SignInIllegalArgumentException> {
+			SignInParamsValidator().validate(
+				SignInParams(
+					usbId = "mail@example.com",
+					password = "secret123",
+					identifierMode = SignInIdentifierMode.UsbEmail
+				)
+			)
 		}
 
 		assertEquals(SignInUseCaseError.InvalidUsbId, exception.error)

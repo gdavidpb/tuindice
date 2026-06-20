@@ -18,6 +18,13 @@ internal fun MachineDefinitionBuilder<SignIn.State>.loggingInTransitions(
 			state
 		}
 
+		on<SignInInternalEvent.OutdatedAppDetected>(
+			emits = setOf(SignIn.Effect.ShowOutdatedApp::class)
+		) { state, _ ->
+			machine.showOutdatedApp(host = host)
+			state
+		}
+
 		onTo<SignInInternalEvent.SignInFailed, SignIn.State.Idle>(
 			emits = setOf(
 				SignIn.Effect.ShowSnackBar::class,

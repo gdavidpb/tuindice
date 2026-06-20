@@ -1,18 +1,20 @@
 {
   "priority": 1,
+  "scenarioName": "login-token-lifecycle",
+  "requiredScenarioState": "TokensIssued",
   "request": {
     "method": "POST",
     "urlPath": "/evaluations/v3",
-    "headers": {
-      "Authorization": {
-        "matches": "Bearer (eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9\\.(exchange|refresh|reissued)\\.mock\\.access|update\\.password\\.mock\\.access|update\\.password\\.failure\\.mock\\.access)"
-      }
-    },
     "bodyPatterns": [
       {
         "matchesJsonPath": "$[?(@.type == 0 && @.date == null)]"
       }
-    ]
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "status": 503,

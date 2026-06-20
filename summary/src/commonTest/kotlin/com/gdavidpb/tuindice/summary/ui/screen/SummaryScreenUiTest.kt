@@ -5,11 +5,13 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.testing.summaryContentState
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -24,6 +26,7 @@ class SummaryScreenUiTest {
 			SummaryScreen(
 				state = Summary.State.Loading(),
 				syncStatus = SyncStatus.Healthy,
+				syncReport = SyncReport.success(),
 				onRetryClick = {},
 				onEditProfilePictureClick = {},
 				onUpdatePasswordClick = {}
@@ -41,6 +44,7 @@ class SummaryScreenUiTest {
 			SummaryScreen(
 				state = Summary.State.Failed(),
 				syncStatus = SyncStatus.Healthy,
+				syncReport = SyncReport.success(),
 				onRetryClick = { retryClicks++ },
 				onEditProfilePictureClick = {},
 				onUpdatePasswordClick = {}
@@ -61,6 +65,7 @@ class SummaryScreenUiTest {
 			SummaryScreen(
 				state = summaryContentState(),
 				syncStatus = SyncStatus.Healthy,
+				syncReport = SyncReport.success(),
 				onRetryClick = {},
 				onEditProfilePictureClick = {},
 				onUpdatePasswordClick = {}
@@ -78,6 +83,7 @@ class SummaryScreenUiTest {
 			SummaryScreen(
 				state = summaryContentState(),
 				syncStatus = SyncStatus.Healthy,
+				syncReport = SyncReport.success(),
 				onRetryClick = {},
 				onEditProfilePictureClick = { editClicks++ },
 				onUpdatePasswordClick = {}
@@ -96,6 +102,7 @@ class SummaryScreenUiTest {
 			SummaryScreen(
 				state = summaryContentState(),
 				syncStatus = SyncStatus.Failed,
+				syncReport = SyncReport.success(),
 				onRetryClick = {},
 				onEditProfilePictureClick = {},
 				onUpdatePasswordClick = {}
@@ -116,6 +123,7 @@ class SummaryScreenUiTest {
 			SummaryScreen(
 				state = summaryContentState(),
 				syncStatus = SyncStatus.Unavailable,
+				syncReport = SyncReport.success(),
 				onRetryClick = {},
 				onEditProfilePictureClick = {},
 				onUpdatePasswordClick = {}
@@ -131,6 +139,32 @@ class SummaryScreenUiTest {
 	}
 
 	@Test
+	fun when_syncReportHasEnrollmentUnavailable_then_statusIconShowsSpecificDetailsAndAcknowledgesHalo() =
+		runTuIndiceUiTest {
+			setTuIndiceTestContent {
+				SummaryScreen(
+					state = summaryContentState(),
+					syncStatus = SyncStatus.Healthy,
+					syncReport = SyncReport.partialEnrollmentUnavailable(),
+					onRetryClick = {},
+					onEditProfilePictureClick = {},
+					onUpdatePasswordClick = {}
+				)
+			}
+
+			assertNodeVisible(SummaryUiTags.StatusIconHalo)
+			onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
+			onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+
+			onNodeWithText("Servicios de la universidad no disponibles").assertExists()
+			onNodeWithText(
+				"No pudimos actualizar tu inscripción porque el servicio de la universidad no está disponible. " +
+					"Tus datos anteriores se mantienen y volveremos a intentar más tarde."
+			).assertExists()
+			assertNodeHidden(SummaryUiTags.StatusIconHalo)
+		}
+
+	@Test
 	fun when_outdatedCredentialsBottomSheetConfirmed_then_invokesUpdatePasswordCallback() = runTuIndiceUiTest {
 		var updatePasswordClicks = 0
 
@@ -138,6 +172,7 @@ class SummaryScreenUiTest {
 			SummaryScreen(
 				state = summaryContentState(),
 				syncStatus = SyncStatus.OutdatedCredentials,
+				syncReport = SyncReport.success(),
 				onRetryClick = {},
 				onEditProfilePictureClick = {},
 				onUpdatePasswordClick = { updatePasswordClicks++ }

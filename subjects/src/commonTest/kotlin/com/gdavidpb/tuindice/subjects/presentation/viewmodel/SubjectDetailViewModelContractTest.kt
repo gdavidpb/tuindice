@@ -66,6 +66,7 @@ class SubjectDetailViewModelContractTest {
 			)
 		)
 		val viewModel = fixture.viewModel
+		fixture.repository.blockRefresh = true
 
 		val stateCollector = backgroundScope.launchStateCollector(
 			flow = viewModel.state,
@@ -73,12 +74,13 @@ class SubjectDetailViewModelContractTest {
 		)
 
 		try {
-			viewModel.state.test {
+			viewModel.state.test(timeout = 15.seconds) {
 				assertEquals(SubjectDetail.State.Idle, awaitItem())
 
 				viewModel.loadSubjectDetailAction(subjectCode = "MAT101")
 
 				awaitUntilState<SubjectDetail.State.Loading>()
+				fixture.repository.releaseRefresh()
 				awaitUntilState<SubjectDetail.State.Content>()
 
 				cancelAndIgnoreRemainingEvents()

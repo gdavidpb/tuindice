@@ -5,7 +5,9 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.runtime.mutableStateOf
+import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -21,7 +23,12 @@ class UsbIdTextFieldUiTest {
 		setTuIndiceTestContent {
 			UsbIdTextField(
 				labelText = "USB ID",
+				placeholderText = "00-00000",
 				usbId = "",
+				toggleContentDescription = "Iniciar con correo USB",
+				tooltipText = "Iniciar con correo USB",
+				showTooltip = false,
+				onIdentifierModeToggle = {},
 				onUsbIdChange = { value -> latestUsbId = value }
 			)
 		}
@@ -39,7 +46,12 @@ class UsbIdTextFieldUiTest {
 		setTuIndiceTestContent {
 			UsbIdTextField(
 				labelText = "USB ID",
+				placeholderText = "00-00000",
 				usbId = "",
+				toggleContentDescription = "Iniciar con correo USB",
+				tooltipText = "Iniciar con correo USB",
+				showTooltip = false,
+				onIdentifierModeToggle = {},
 				onUsbIdChange = { value -> latestUsbId = value }
 			)
 		}
@@ -56,7 +68,12 @@ class UsbIdTextFieldUiTest {
 		setTuIndiceTestContent {
 			UsbIdTextField(
 				labelText = "USB ID",
+				placeholderText = "00-00000",
 				usbId = "",
+				toggleContentDescription = "Iniciar con correo USB",
+				tooltipText = "Iniciar con correo USB",
+				showTooltip = false,
+				onIdentifierModeToggle = {},
 				onUsbIdChange = { value -> latestUsbId = value }
 			)
 		}
@@ -74,7 +91,12 @@ class UsbIdTextFieldUiTest {
 		setTuIndiceTestContent {
 			UsbIdTextField(
 				labelText = "USB ID",
+				placeholderText = "00-00000",
 				usbId = usbId.value,
+				toggleContentDescription = "Iniciar con correo USB",
+				tooltipText = "Iniciar con correo USB",
+				showTooltip = false,
+				onIdentifierModeToggle = {},
 				onUsbIdChange = { value -> usbId.value = value }
 			)
 		}
@@ -86,5 +108,66 @@ class UsbIdTextFieldUiTest {
 		}
 
 		onNodeWithTag(AuthUiTags.UsbIdTextField).assertTextContains("20-26123")
+	}
+
+	@Test
+	fun when_emailModeReceivesLetters_then_emitsTextWithoutMask() = runTuIndiceUiTest {
+		var latestUsbId = ""
+
+		setTuIndiceTestContent {
+			UsbIdTextField(
+				labelText = "Correo USB",
+				placeholderText = "correo@usb.ve",
+				identifierMode = SignInIdentifierMode.UsbEmail,
+				usbId = "",
+				toggleContentDescription = "Usar USBID",
+				tooltipText = "Iniciar con correo USB",
+				showTooltip = false,
+				onIdentifierModeToggle = {},
+				onUsbIdChange = { value -> latestUsbId = value }
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("mail@usb.ve")
+
+		assertEquals("mail@usb.ve", latestUsbId)
+	}
+
+	@Test
+	fun when_showTooltipIsTrueAndFieldIsEmpty_then_tooltipIsVisible() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			UsbIdTextField(
+				labelText = "USB ID",
+				placeholderText = "00-00000",
+				usbId = "",
+				toggleContentDescription = "Iniciar con correo USB",
+				tooltipText = "Iniciar con correo USB",
+				showTooltip = true,
+				onIdentifierModeToggle = {},
+				onUsbIdChange = {}
+			)
+		}
+
+		waitForIdle()
+
+		assertNodeVisible(AuthUiTags.IdentifierModeTooltip)
+	}
+
+	@Test
+	fun when_showTooltipIsFalse_then_tooltipIsHidden() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			UsbIdTextField(
+				labelText = "USB ID",
+				placeholderText = "00-00000",
+				usbId = "12-34567",
+				toggleContentDescription = "Iniciar con correo USB",
+				tooltipText = "Iniciar con correo USB",
+				showTooltip = false,
+				onIdentifierModeToggle = {},
+				onUsbIdChange = {}
+			)
+		}
+
+		assertNodeHidden(AuthUiTags.IdentifierModeTooltip)
 	}
 }

@@ -66,7 +66,7 @@ actions:
 
   - id: auth.SignIn.SetUsbId
     classification: user
-    variants: [valid-format, invalid-format]
+    variants: [valid-format, invalid-format, usb-email]
     selector: auth_usb_id_text_field
     flow: e2e/maestro/flows/auth/login-success.yaml
     fixture_state: auth-success
@@ -82,6 +82,12 @@ actions:
     selector: auth_password_toggle
     flow: e2e/maestro/flows/auth/login-password-toggle.yaml
     fixture_state: static
+  - id: auth.SignIn.ToggleIdentifierMode
+    classification: user
+    variants: [usb-email-login]
+    selector: auth_identifier_mode_toggle
+    flow: e2e/maestro/flows/auth/login-usb-email-success.yaml
+    fixture_state: auth-email-success
   - id: auth.SignIn.SetUsageDataCollectionEnabled
     classification: user
     variants: [enable-before-login]
@@ -90,7 +96,7 @@ actions:
     fixture_state: auth-success
   - id: auth.SignIn.ClickSignIn
     classification: user
-    variants: [success, invalid-credentials, disabled-account, connection-retry]
+    variants: [success, invalid-credentials, disabled-account, connection-retry, outdated-app]
     selector: auth_sign_in_button
     flow: e2e/maestro/flows/auth/login-success.yaml
     fixture_state: auth-success
@@ -149,12 +155,8 @@ actions:
     fixture_state: update-password
 
   - id: enrollmentproof.Enrollment.FetchEnrollmentProof
-    classification: user
-    variants: [trigger, fetching-cancel, success-file-open, no-connection, timeout, unavailable, not-found, unsupported-file, outdated-credentials]
-    selector: record_enrollment_proof_button
-    flow: e2e/maestro/flows/suites/enrollmentproof-suite.yaml
-    fixture_state: enrollment-proof-suite
-    platform_edge: file opener success and unsupported-file host assertions require UI Automator/XCUITest
+    classification: internal
+    reason: enrollment proof dialog bootstrap after record route navigation
 
   - id: evaluations.Evaluation.LoadAvailableAttempts
     classification: internal
@@ -274,6 +276,19 @@ actions:
   - id: maincore.Main.StartUp
     classification: internal
     reason: app bootstrap
+  - id: maincore.Main.ShowOutdatedApp
+    classification: internal
+    reason: host shows the global outdated app screen from the shared HTTP 426 event
+  - id: maincore.Main.ClickUpdateApp
+    classification: platform-edge
+    variants: [store-handoff-from-startup-block]
+    selector: base_outdated_app_update_button
+    flow: e2e/maestro/flows/auth/login-outdated-app.yaml
+    fixture_state: auth-upgrade-required
+    platform_edge: Store handoff opens Google Play or App Store and requires host/system assertion.
+  - id: maincore.Main.UpdateFlowCompleted
+    classification: internal
+    reason: route re-enters the machine with the platform update launch result
   - id: maincore.Main.RequestReview
     classification: platform-edge
     variants: [review-prompt]
@@ -381,7 +396,7 @@ actions:
     reason: screen bootstrap
   - id: record.Record.RefreshRecord
     classification: user
-    variants: [success, failed-retry]
+    variants: [success, initial-load-failed-retry-success]
     selector: base_error_view_retry_button
     flow: e2e/maestro/flows/record/record-refresh-retry.yaml
     fixture_state: record-refresh-retry

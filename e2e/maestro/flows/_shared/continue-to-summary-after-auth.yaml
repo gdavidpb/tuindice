@@ -1,0 +1,32 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- extendedWaitUntil:
+    visible:
+      id: wizard_welcome_screen|summary_content_container|auth_update_password_idle_container
+    timeout: 30000
+- runFlow:
+    when:
+      visible:
+        id: auth_update_password_idle_container
+    commands:
+      - tapOn:
+          id: base_confirmation_dialog_negative_button
+      - extendedWaitUntil:
+          notVisible:
+            id: auth_update_password_idle_container
+          timeout: 10000
+- extendedWaitUntil:
+    visible:
+      id: wizard_welcome_screen|summary_content_container
+    timeout: 30000
+- runFlow:
+    when:
+      visible:
+        id: wizard_welcome_screen
+    commands:
+      - tapOn:
+          id: wizard_skip_button
+- extendedWaitUntil:
+    visible:
+      id: summary_content_container
+    timeout: 40000

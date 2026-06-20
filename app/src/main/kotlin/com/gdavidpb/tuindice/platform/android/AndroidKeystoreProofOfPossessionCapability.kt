@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.platform.android
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import com.gdavidpb.tuindice.base.data.model.AttestationProofOfPossessionRequest
-import eu.anifantakis.lib.ksafe.KSafe
+import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import java.security.KeyPairGenerator
 import java.security.KeyStore
 import java.security.Signature
@@ -12,7 +12,8 @@ import java.util.UUID
 import kotlin.io.encoding.Base64
 
 class AndroidKeystoreProofOfPossessionCapability(
-	private val kSafe: KSafe
+	private val secureStore: SecureKeyValueDataRepository,
+	private val legacySecureStore: SecureKeyValueDataRepository
 ) : AndroidProofOfPossessionCapability {
 	override suspend fun resolveProofOfPossessionKeyId(): String {
 		val existingKeyId = storedKeyId()
@@ -32,7 +33,8 @@ class AndroidKeystoreProofOfPossessionCapability(
 		runCatching {
 			keyStore().deleteEntry(aliasFor(keyId))
 		}
-		storeKeyId("")
+		runCatching { secureStore.remove(SecureStoreKeys.ATTESTATION_KEY_ID) }
+		runCatching { legacySecureStore.remove(SecureStoreKeys.ATTESTATION_KEY_ID) }
 	}
 
 	override suspend fun createProofOfPossession(
@@ -97,18 +99,39 @@ class AndroidKeystoreProofOfPossessionCapability(
 		}
 	}
 
-	private fun storedKeyId(): String? {
-		return kSafe.getDirect<String?>(
-			key = SecureStoreKeys.ATTESTATION_KEY_ID,
-			defaultValue = null
-		)
+	private suspend fun storedKeyId(): String? {
+		val activeKeyId = runCatching {
+			secureStore.getString(SecureStoreKeys.ATTESTATION_KEY_ID)
+				?.takeIf(String::isNotBlank)
+		}.getOrNull()
+
+		if (activeKeyId != null) return activeKeyId
+
+		val legacyKeyId = runCatching {
+			legacySecureStore.getString(SecureStoreKeys.ATTESTATION_KEY_ID)
+				?.takeIf(String::isNotBlank)
+		}.getOrNull() ?: return null
+
+		return migrateLegacyKeyId(legacyKeyId)
 	}
 
-	private fun storeKeyId(keyId: String) {
-		kSafe.putDirect(
+	private suspend fun storeKeyId(keyId: String) {
+		secureStore.putString(
 			key = SecureStoreKeys.ATTESTATION_KEY_ID,
 			value = keyId
 		)
+		runCatching { legacySecureStore.remove(SecureStoreKeys.ATTESTATION_KEY_ID) }
+	}
+
+	private suspend fun migrateLegacyKeyId(keyId: String): String? {
+		return runCatching {
+			storeKeyId(keyId)
+			check(secureStore.getString(SecureStoreKeys.ATTESTATION_KEY_ID) == keyId)
+			keyId
+		}.getOrElse {
+			runCatching { secureStore.remove(SecureStoreKeys.ATTESTATION_KEY_ID) }
+			null
+		}
 	}
 
 	private fun aliasFor(keyId: String): String {

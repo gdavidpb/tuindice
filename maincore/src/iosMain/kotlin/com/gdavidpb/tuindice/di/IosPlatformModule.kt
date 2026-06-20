@@ -9,10 +9,14 @@ import com.gdavidpb.tuindice.about.data.source.IosShareTextHandler
 import com.gdavidpb.tuindice.about.data.source.IosStoreUrlDataSource
 import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventSubscriber
+import com.gdavidpb.tuindice.base.data.source.event.ReportingBreadcrumbEventSubscriber
 import com.gdavidpb.tuindice.base.data.source.usage.NoOpUsageDataCollectionDataSource
 import com.gdavidpb.tuindice.base.data.source.usage.UsageDataCollectionDataSource
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
+import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
+import com.gdavidpb.tuindice.base.data.source.secure.ACTIVE_SECURE_STORE_QUALIFIER
+import com.gdavidpb.tuindice.base.data.source.secure.LEGACY_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
@@ -30,6 +34,7 @@ import com.gdavidpb.tuindice.data.source.environment.IosAppEnvironmentDataSource
 import com.gdavidpb.tuindice.data.source.network.IosNetworkDataSource
 import com.gdavidpb.tuindice.data.source.reporting.IosReportingDataSource
 import com.gdavidpb.tuindice.data.source.review.IosReviewDataSource
+import com.gdavidpb.tuindice.data.source.secure.IosSecureKeyValueDataSource
 import com.gdavidpb.tuindice.data.source.update.IosUpdateDataSource
 import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
 import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
@@ -42,6 +47,7 @@ import com.gdavidpb.tuindice.platform.IOSContext
 import com.gdavidpb.tuindice.platform.IosPushCapability
 import com.gdavidpb.tuindice.platform.IosRemoteConfigCapability
 import com.gdavidpb.tuindice.platform.IosReviewCapability
+import com.gdavidpb.tuindice.platform.IosSecureStoreCapability
 import com.gdavidpb.tuindice.platform.IosUpdateCapability
 import com.gdavidpb.tuindice.platform.createIosUserAgent
 import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
@@ -68,6 +74,9 @@ val iosPlatformModule = module {
 	single {
 		KSafe(fileName = APP_SECURE_STORE_NAME)
 	}
+	single<SecureKeyValueDataRepository>(named(ACTIVE_SECURE_STORE_QUALIFIER)) {
+		IosSecureKeyValueDataSource(capability = get())
+	}
 	registerIosPersistencePlatformStorage {
 		iOSContext().databasePath
 	}
@@ -80,6 +89,7 @@ val iosPlatformModule = module {
 	single<IosExternalActionsCapability> { iOSContext().hostCapabilities.externalActions }
 	single<IosDeviceCapability> { iOSContext().hostCapabilities.device }
 	single<IosObservabilityCapability> { iOSContext().hostCapabilities.observability }
+	single<IosSecureStoreCapability> { iOSContext().hostCapabilities.secureStore }
 	single<DefaultRemoteConfigValues> { iOSContext().configValues }
 
 	single<EventSubscriber>(named("iosAnalyticsEventSubscriber")) {
@@ -88,6 +98,15 @@ val iosPlatformModule = module {
 		} else {
 			IosAnalyticsEventSubscriber(
 				observabilityCapability = get()
+			)
+		}
+	}
+	single<EventSubscriber>(named("iosCrashlyticsBreadcrumbEventSubscriber")) {
+		if (get<AppEnvironmentRepository>().getEnvironment().debug) {
+			NoOpEventSubscriber
+		} else {
+			ReportingBreadcrumbEventSubscriber(
+				reportingRepository = get()
 			)
 		}
 	}
@@ -116,10 +135,18 @@ val iosPlatformModule = module {
 	singleOf(::IosFileOpenerDataSource) { bind<FileOpenerRepository>() }
 	singleOf(::IosReviewDataSource) { bind<ReviewRepository>() }
 	singleOf(::IosUpdateDataSource) { bind<UpdateRepository>() }
-	singleOf(::IosApplicationDataSource) {
-		bind<ApplicationRepository>()
-		bind<FileRepository>()
+	single<IosApplicationDataSource> {
+		IosApplicationDataSource(
+			persistenceMaintenanceRepository = get(),
+			settingsRepository = get(),
+			secureStore = get(named(ACTIVE_SECURE_STORE_QUALIFIER)),
+			legacySecureStore = get(named(LEGACY_SECURE_STORE_QUALIFIER)),
+			attestationCapability = get(),
+			externalActionsCapability = get()
+		)
 	}
+	single<ApplicationRepository> { get<IosApplicationDataSource>() }
+	single<FileRepository> { get<IosApplicationDataSource>() }
 	singleOf(::IosReportingDataSource) { bind<ReportingRepository>() }
 	factoryOf(::IosPushTokenDataSource) { bind<PushTokenDataRepository>() }
 	factory<AuthApiDataRepository> {
@@ -130,13 +157,16 @@ val iosPlatformModule = module {
 	factory<AttestationRepository> {
 		IosAttestationDataSource(
 			httpClient = get<HttpClient>(qualifier = named(IDENTITY_HTTP_CLIENT_QUALIFIER)),
-			attestationCapability = get<IosAttestationCapability>()
+			attestationCapability = get<IosAttestationCapability>(),
+			configRepository = get<ConfigRepository>()
 		)
 	}
 
 	factoryOf(::IosEnvironmentDataSource) { bind<EnvironmentDataRepository>() }
 	factoryOf(::IosAppInfoDataSource) { bind<AppInfoDataRepository>() }
-	factoryOf(::IosStoreUrlDataSource) { bind<StoreUrlRepository>() }
+	factory<StoreUrlRepository> {
+		IosStoreUrlDataSource(appStoreUrl = iOSContext().appStoreUrl)
+	}
 	factoryOf(::IosShareTextHandler) { bind<ShareTextHandler>() }
 	singleOf(::IosProfilePictureInputDataSource) { bind<ProfilePictureInputDataRepository>() }
 
@@ -144,6 +174,8 @@ val iosPlatformModule = module {
 		createIdentityHttpClient(
 			appEnvironmentRepository = get<AppEnvironmentRepository>(),
 			configRepository = get<ConfigRepository>(),
+			settingsRepository = get<SettingsRepository>(),
+			outdatedAppEventRepository = get(),
 			logger = createAppKtorLogger(),
 			json = get<Json>(),
 			userAgentValue = createIosUserAgent(get<IosDeviceCapability>())
@@ -155,7 +187,9 @@ val iosPlatformModule = module {
 			appEnvironmentRepository = get<AppEnvironmentRepository>(),
 			configRepository = get<ConfigRepository>(),
 			sessionRepository = get<SessionRepository>(),
+			settingsRepository = get<SettingsRepository>(),
 			sessionRecoveryRepository = get(),
+			outdatedAppEventRepository = get(),
 			logger = createAppKtorLogger(),
 			json = get<Json>(),
 			userAgentValue = createIosUserAgent(get<IosDeviceCapability>())

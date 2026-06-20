@@ -1,4 +1,5 @@
 {
+  "priority": 10,
   "request": {
     "method": "POST",
     "urlPath": "/enrollment-proof/v1",
@@ -6,7 +7,12 @@
       {
         "matchesJsonPath": "$.password"
       }
-    ]
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "status": 200,

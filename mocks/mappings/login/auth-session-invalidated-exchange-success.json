@@ -8,7 +8,7 @@
     "urlPath": "/auth/v2/token/exchange",
     "headers": {
       "Authorization": {
-        "equalTo": "Bearer bootstrap.mock.expired.session.token"
+        "equalTo": "Bearer bootstrap.mock.session.invalidated.token"
       },
       "X-Attestation-Token": {
         "matches": "attestation\\.mock\\.proof\\.(android|ios)"

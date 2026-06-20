@@ -4,6 +4,9 @@ import com.gdavidpb.tuindice.base.data.source.network.AttestationHeaders
 import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
+import com.gdavidpb.tuindice.data.source.network.installOutdatedAppPersistence
+import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpTimeout
@@ -23,6 +26,8 @@ const val IDENTITY_HTTP_CLIENT_QUALIFIER = "identityHttpClient"
 fun createIdentityHttpClient(
 	appEnvironmentRepository: AppEnvironmentRepository,
 	configRepository: ConfigRepository,
+	settingsRepository: SettingsRepository,
+	outdatedAppEventRepository: OutdatedAppEventRepository,
 	logger: Logger,
 	json: Json,
 	userAgentValue: String?
@@ -48,6 +53,12 @@ fun createIdentityHttpClient(
 			connectTimeoutMillis = timeout
 			socketTimeoutMillis = timeout
 		}
+
+		installOutdatedAppPersistence(
+			settingsRepository = settingsRepository,
+			outdatedAppEventRepository = outdatedAppEventRepository,
+			userAgentValue = userAgentValue
+		)
 
 		install(ContentNegotiation) {
 			json(json)

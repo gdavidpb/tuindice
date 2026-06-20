@@ -1,22 +1,27 @@
 appId: com.gdavidpb.tuindice.debug
 ---
 - runFlow: ../_shared/launch-clean.yaml
-- runFlow: ../auth/login-success.yaml
-- runFlow: ../wizard/wizard-smoke.yaml
+- assertVisible:
+    id: auth_usb_id_text_field
+- tapOn:
+    id: auth_usb_id_text_field
+- inputText: "1111111"
+- inputText: "1"
+- tapOn:
+    id: auth_password_text_field
+- inputText: "enrollment-fetching-cancel-pass"
+- tapOn:
+    id: auth_keyboard_dismiss_area
+- tapOn:
+    id: auth_sign_in_button
+- runFlow: ../_shared/continue-to-summary-after-auth.yaml
 - tapOn:
     id: maincore_tuindice_bottom_bar_record_item
 - extendedWaitUntil:
     visible:
       id: record_content_container
     timeout: 30000
-- tapOn:
-    id: record_term_current_chip_.*
-- extendedWaitUntil:
-    visible:
-      id: record_enrollment_proof_button
-    timeout: 10000
-- tapOn:
-    id: record_enrollment_proof_button
+- runFlow: ../_shared/open-current-enrollment-proof.yaml
 - extendedWaitUntil:
     visible:
       id: enrollment_fetching_sheet
@@ -26,6 +31,12 @@ appId: com.gdavidpb.tuindice.debug
 - assertVisible:
     id: enrollment_fetching_message
 - tapOn:
+    id: enrollment_fetching_cancel_button
+- extendedWaitUntil:
+    notVisible:
+      id: enrollment_fetching_sheet
+    timeout: 10000
+- assertNotVisible:
     id: enrollment_fetching_cancel_button
 - extendedWaitUntil:
     visible:

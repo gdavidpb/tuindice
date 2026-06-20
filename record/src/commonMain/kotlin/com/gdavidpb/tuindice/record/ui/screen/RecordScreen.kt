@@ -23,8 +23,8 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
-import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
+import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.filteredProjectionFor
 import com.gdavidpb.tuindice.record.presentation.contract.Record

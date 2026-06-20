@@ -81,6 +81,11 @@ fun Throwable.isTooManyRequests() = when (this) {
 	else -> false
 }
 
+fun Throwable.isUpgradeRequired() = when (this) {
+	is ResponseException -> response.status == HttpStatusCode.UpgradeRequired
+	else -> false
+}
+
 fun Throwable.isSyncRetryable(): Boolean {
 	return isUnavailable() || isFailedDependency() || isTooManyRequests() || isServerError() || isConnection() || isTimeout()
 }

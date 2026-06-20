@@ -12,22 +12,27 @@ flows:
     variant: smoke
     fixture_state: wiremock-local
     actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
       - auth.SignIn.ClickSignIn
       - wizard.Wizard.Dismiss
       - summary.Summary.RefreshSummary
+      - summary.Summary.OpenProfilePictureSettings
+      - record.Record.RefreshRecord
       - record.Record.SetViewMode
-      - enrollmentproof.Enrollment.FetchEnrollmentProof
+      - record.Record.SelectTerm
       - pensum.Pensum.RefreshPensum
       - subjects.SubjectSearch.UpdateQuery
+      - subjects.SubjectDetail.RefreshSubjectDetail
       - evaluations.Evaluations.AddEvaluation
       - evaluations.Evaluations.ShowEvaluationGradeDialog
       - evaluations.Evaluations.SetEvaluationGrade
       - evaluations.Evaluations.EditEvaluation
       - evaluations.Evaluations.RemoveEvaluation
-      - evaluations.Evaluation.ClickAddEvaluation
-      - evaluations.Evaluation.ClickEditEvaluation
+      - evaluations.Evaluation.ClickSubmitEvaluation
       - about.About.OpenPrivacyPolicy
-      - auth.SignOut.ConfirmSignOut
+      - maincore.Browser.NavigateTo
+      - auth.SignOut.ClickSignOut
     covers:
       - login
       - wizard
@@ -50,15 +55,19 @@ flows:
     actions_covered:
       - auth.SignIn.SetUsbId
       - auth.SignIn.SetPassword
+      - auth.SignIn.ToggleIdentifierMode
+      - auth.SignIn.TogglePasswordVisibility
+      - auth.SignIn.SetUsageDataCollectionEnabled
       - auth.SignIn.ClickSignIn
       - auth.SignIn.ClickTermsAndConditions
       - auth.SignIn.ClickPrivacyPolicy
-      - auth.SignOut.FlushAndSignOut
+      - auth.SignOut.RetryFlushAndSignOut
       - auth.SignOut.ForceSignOut
-      - auth.SignOut.OpenUpdatePassword
+      - auth.SignOut.ClickSignOut
       - auth.UpdatePassword.SetPassword
       - auth.UpdatePassword.TogglePasswordVisibility
       - auth.UpdatePassword.ClickSignIn
+      - maincore.Main.StartUp
       - maincore.Main.SetLastMainSection
       - maincore.Browser.NavigateTo
       - maincore.Browser.OpenExternalResource
@@ -72,6 +81,7 @@ flows:
       - wizard.Wizard.SelectSubjectTab
       - wizard.Wizard.SetRecordViewMode
       - wizard.Wizard.SelectTerm
+      - wizard.Wizard.DismissRecordTermSelection
       - wizard.Wizard.SetSubjectChartsVisible
       - summary.Summary.RefreshSummary
       - summary.Summary.OpenProfilePictureSettings
@@ -82,15 +92,41 @@ flows:
       - summary.Summary.TakeProfilePicture
       - record.CreateSyntheticTerm.UpdateQuery
       - record.CreateSyntheticTerm.CreateTerm
+      - record.Record.RefreshRecord
       - record.Record.SelectTerm
       - record.Record.SetViewMode
       - record.Record.UpsertAttemptSelection
+      - record.Record.DeleteSyntheticTerm
       - enrollmentproof.Enrollment.FetchEnrollmentProof
       - pensum.Pensum.RefreshPensum
+      - pensum.Pensum.SelectSelection
       - subjects.SubjectSearch.UpdateQuery
+      - subjects.SubjectSearch.Retry
+      - subjects.SubjectDetail.RefreshSubjectDetail
+      - subjects.SubjectDetail.SelectSubjectSegmentTab
       - evaluations.Evaluations.AddEvaluation
+      - evaluations.Evaluations.ShowEvaluationGradeDialog
+      - evaluations.Evaluations.SetEvaluationGrade
+      - evaluations.Evaluations.EditEvaluation
+      - evaluations.Evaluations.RemoveEvaluation
+      - evaluations.Evaluation.SetAttempt
+      - evaluations.Evaluation.SetType
+      - evaluations.Evaluation.SetDate
+      - evaluations.Evaluation.SetGrade
+      - evaluations.Evaluation.SetMaxGrade
+      - evaluations.Evaluation.ClickGrade
+      - evaluations.Evaluation.ClickMaxGrade
+      - evaluations.Evaluation.ClickSubmitEvaluation
+      - about.About.OpenTermsAndConditions
       - about.About.OpenPrivacyPolicy
-      - auth.SignOut.ConfirmSignOut
+      - about.About.OpenSupport
+      - about.About.OpenUrl
+      - about.About.ShareApp
+      - about.About.RateOnStore
+      - about.About.ContactDeveloper
+      - about.About.ReportBug
+      - about.About.SetUsageDataCollectionEnabled
+      - auth.SignOut.ClickSignOut
   - id: auth-suite
     path: e2e/maestro/flows/suites/auth-suite.yaml
     module: auth
@@ -101,6 +137,8 @@ flows:
     fixture_state: auth-local-certification
     covers:
       - login
+      - login-usb-email
+      - outdated-app
       - update-password
       - sign-out
       - session-invalidated
@@ -114,6 +152,7 @@ flows:
     variant: maincore-certification
     fixture_state: authenticated-content
     covers:
+      - availability-notice
       - bottom-bar
       - back-stack
       - internal-browser
@@ -143,6 +182,7 @@ flows:
     actions_covered:
       - pensum.Pensum.RefreshPensum
       - pensum.Pensum.SelectSelection
+      - subjects.SubjectDetail.SelectSubjectSegmentTab
     covers:
       - refresh-not-found
       - refresh-failed-retry
@@ -165,6 +205,33 @@ flows:
     variant: clean-launch
     fixture_state: reset-app-state
     primary_selectors: [auth_usb_id_text_field]
+  - id: shared-continue-to-summary-after-auth
+    path: e2e/maestro/flows/_shared/continue-to-summary-after-auth.yaml
+    module: shared
+    type: setup
+    platforms: [android, ios]
+    status: active
+    variant: authenticated-summary-entry
+    fixture_state: wizard-pending-or-completed
+    actions_covered:
+      - wizard.Wizard.Dismiss
+    primary_selectors:
+      - wizard_welcome_screen
+      - summary_content_container
+      - auth_update_password_idle_container
+  - id: shared-open-current-enrollment-proof
+    path: e2e/maestro/flows/_shared/open-current-enrollment-proof.yaml
+    module: shared
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: current-enrollment-proof-entry
+    fixture_state: record-success
+    actions_covered:
+      - record.Record.SelectTerm
+    primary_selectors:
+      - record_term_chip_d377155d39da686f412622aaca9074cd
+      - record_enrollment_proof_button
   - id: shared-launch-seeded-authenticated
     path: e2e/maestro/flows/_shared/launch-seeded-authenticated.yaml
     module: shared
@@ -197,6 +264,21 @@ flows:
       - base_snackbar_container
       - base_snackbar_message
       - base_snackbar_action_button
+  - id: maincore-app-availability-notice
+    path: e2e/maestro/flows/maincore/app-availability-notice.yaml
+    module: maincore
+    type: startup-state
+    platforms: [android, ios]
+    status: active
+    variant: remote-config-app-unavailable
+    fixture_state: debug-remote-config
+    actions_covered:
+      - maincore.Main.StartUp
+    primary_selectors:
+      - maincore_app_availability_notice_screen
+      - maincore_app_availability_notice_title
+      - maincore_app_availability_notice_message
+      - base_error_state_animation
   - id: maincore-bottom-bar-state
     path: e2e/maestro/flows/maincore/bottom-bar-state.yaml
     module: maincore
@@ -261,6 +343,24 @@ flows:
       - auth_usb_id_text_field
       - auth_password_text_field
       - auth_sign_in_button
+  - id: auth-login-summary-ready
+    path: e2e/maestro/flows/auth/login-summary-ready.yaml
+    module: auth
+    type: setup
+    platforms: [android, ios]
+    status: active
+    variant: success-summary-ready
+    fixture_state: auth-success
+    actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
+    primary_selectors:
+      - auth_usb_id_text_field
+      - auth_password_text_field
+      - auth_sign_in_button
+      - wizard_welcome_screen
+      - summary_content_container
   - id: auth-login-password-toggle
     path: e2e/maestro/flows/auth/login-password-toggle.yaml
     module: auth
@@ -275,6 +375,26 @@ flows:
     primary_selectors:
       - auth_password_text_field
       - auth_password_toggle
+  - id: auth-login-usb-email-success
+    path: e2e/maestro/flows/auth/login-usb-email-success.yaml
+    module: auth
+    type: happy-path
+    platforms: [android, ios]
+    status: active
+    variant: usb-email-success
+    fixture_state: auth-email-success
+    actions_covered:
+      - auth.SignIn.ToggleIdentifierMode
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
+    primary_selectors:
+      - auth_identifier_mode_toggle
+      - auth_usb_id_text_field
+      - auth_password_text_field
+      - auth_sign_in_button
+      - wizard_welcome_screen
+      - summary_content_container
   - id: auth-usage-data-consent
     path: e2e/maestro/flows/auth/usage-data-consent.yaml
     module: auth
@@ -359,6 +479,25 @@ flows:
       - auth_sign_in_button
       - base_snackbar_action_button
       - base_snackbar_message
+  - id: auth-login-outdated-app
+    path: e2e/maestro/flows/auth/login-outdated-app.yaml
+    module: auth
+    type: startup-state
+    platforms: [android, ios]
+    status: active
+    variant: upgrade-required-persisted-startup
+    fixture_state: auth-upgrade-required
+    actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
+      - maincore.Main.StartUp
+    primary_selectors:
+      - base_outdated_app_screen
+      - base_outdated_app_title
+      - base_outdated_app_message
+      - base_outdated_app_update_button
+      - base_outdated_app_animation
   - id: auth-update-password
     path: e2e/maestro/flows/auth/update-password.yaml
     module: auth
@@ -368,7 +507,7 @@ flows:
     variant: update-password-from-outdated-sign-out
     fixture_state: auth-outdated-credentials
     actions_covered:
-      - auth.SignOut.OpenUpdatePassword
+      - auth.SignOut.ClickSignOut
       - auth.UpdatePassword.SetPassword
       - auth.UpdatePassword.TogglePasswordVisibility
       - auth.UpdatePassword.ClickSignIn
@@ -376,9 +515,11 @@ flows:
       - auth_update_password_idle_container
       - auth_password_text_field
       - auth_password_toggle
+      - auth_update_password_confirm_button
+      - auth_update_password_confirm_loading
+      - auth_sign_out_message_text
+      - auth_sign_out_secondary_button
       - base_confirmation_dialog_positive_button
-      - base_confirmation_dialog_positive_loading
-      - base_confirmation_dialog_negative_button
   - id: auth-update-password-failure
     path: e2e/maestro/flows/auth/update-password-failure.yaml
     module: auth
@@ -388,21 +529,22 @@ flows:
     variant: update-password-invalid-credentials
     fixture_state: auth-outdated-credentials-update-password-failure
     actions_covered:
-      - auth.SignOut.OpenUpdatePassword
+      - auth.SignOut.ClickSignOut
       - auth.UpdatePassword.SetPassword
       - auth.UpdatePassword.ClickSignIn
     primary_selectors:
       - auth_update_password_idle_container
       - auth_password_text_field
-      - base_confirmation_dialog_positive_button
+      - auth_update_password_confirm_button
       - auth_sign_out_secondary_button
+      - base_confirmation_dialog_positive_button
   - id: auth-session-invalidated
     path: e2e/maestro/flows/auth/session-invalidated.yaml
     module: auth
     type: error-path
     platforms: [android, ios]
     status: active
-    variant: invalidated-session
+    variant: sync-outdated-credentials
     fixture_state: auth-session-invalidated
     actions_covered:
       - auth.SignIn.SetUsbId
@@ -411,7 +553,7 @@ flows:
     primary_selectors:
       - auth_sign_in_button
       - auth_usb_id_text_field
-      - base_snackbar_container
+      - auth_update_password_idle_container
   - id: auth-pending-sign-out
     path: e2e/maestro/flows/auth/pending-sign-out.yaml
     module: auth
@@ -421,8 +563,8 @@ flows:
     variant: pending-flush-failure-force
     fixture_state: pending-evaluation-mutation
     actions_covered:
-      - auth.SignOut.ConfirmSignOut
-      - auth.SignOut.FlushAndSignOut
+      - auth.SignOut.ClickSignOut
+      - auth.SignOut.RetryFlushAndSignOut
       - auth.SignOut.ForceSignOut
     primary_selectors:
       - base_top_app_bar_action_sign_out
@@ -438,8 +580,8 @@ flows:
     variant: pending-flush-success
     fixture_state: pending-evaluation-mutation-flush-success
     actions_covered:
-      - auth.SignOut.ConfirmSignOut
-      - auth.SignOut.FlushAndSignOut
+      - auth.SignOut.ClickSignOut
+      - auth.SignOut.RetryFlushAndSignOut
     primary_selectors:
       - base_top_app_bar_action_sign_out
       - auth_sign_out_message_text
@@ -454,7 +596,7 @@ flows:
     variant: sign-out
     fixture_state: auth-revoke-success
     actions_covered:
-      - auth.SignOut.ConfirmSignOut
+      - auth.SignOut.ClickSignOut
     primary_selectors:
       - base_top_app_bar_action_sign_out
       - auth_sign_out_message_text
@@ -468,7 +610,7 @@ flows:
     variant: sign-out-cancel
     fixture_state: auth-sign-out-cancel
     actions_covered:
-      - auth.SignOut.ConfirmSignOut
+      - auth.SignOut.ClickSignOut
     primary_selectors:
       - base_top_app_bar_action_sign_out
       - auth_sign_out_message_text
@@ -537,7 +679,6 @@ flows:
       - record_term_selection_sheet
       - record_term_selection_list
       - record_term_selection_option_2026-2
-      - record_enrollment_proof_button
       - pensum_node_ma1111
       - pensum_subject_detail_sheet
       - pensum_subject_detail_more_button
@@ -592,6 +733,7 @@ flows:
       - wizard.Wizard.SelectSubjectTab
       - wizard.Wizard.SetRecordViewMode
       - wizard.Wizard.SelectTerm
+      - wizard.Wizard.DismissRecordTermSelection
       - wizard.Wizard.SetSubjectChartsVisible
     primary_selectors:
       - wizard_welcome_screen
@@ -624,7 +766,7 @@ flows:
     type: interaction
     platforms: [android, ios]
     status: active
-    variant: refresh-failed-retry-success
+    variant: initial-load-failed-retry-success
     fixture_state: summary-refresh-retry
     actions_covered:
       - summary.Summary.RefreshSummary
@@ -643,6 +785,21 @@ flows:
     actions_covered:
       - summary.Summary.RefreshSummary
     primary_selectors:
+      - summary_status_icon_button
+      - summary_sync_status_message
+      - base_confirmation_dialog_positive_button
+  - id: summary-partial-enrollment-status-dialog
+    path: e2e/maestro/flows/summary/summary-partial-enrollment-status-dialog.yaml
+    module: summary
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: sync-status-partial-enrollment-dialog
+    fixture_state: summary-sync-partial-enrollment-unavailable
+    actions_covered:
+      - summary.Summary.RefreshSummary
+    primary_selectors:
+      - summary_content_container
       - summary_status_icon_button
       - summary_sync_status_message
       - base_confirmation_dialog_positive_button
@@ -705,7 +862,7 @@ flows:
     type: interaction
     platforms: [android, ios]
     status: active
-    variant: failed-retry
+    variant: initial-load-failed-retry-success
     fixture_state: record-refresh-retry
     actions_covered:
       - record.Record.RefreshRecord
@@ -728,7 +885,6 @@ flows:
       - record.Record.SetViewMode
     primary_selectors:
       - record_term_selector_row
-      - record_term_chip_synthetic-2026-jul-aug-degree-project
       - record_term_chip_d377155d39da686f412622aaca9074cd
       - record_attempt_item_synthetic-2026-jul-aug-ep1308
       - record_attempt_item_8322eaae7602f4749aef5691b9724af2
@@ -868,8 +1024,9 @@ flows:
     fixture_state: enrollment-proof-success
     platform_edge: PDF/file opener requires UI Automator/XCUITest for host assertion.
     actions_covered:
-      - enrollmentproof.Enrollment.FetchEnrollmentProof
+      - record.Record.SelectTerm
     primary_selectors:
+      - record_term_chip_d377155d39da686f412622aaca9074cd
       - record_enrollment_proof_button
       - record_content_container
   - id: enrollmentproof-suite
@@ -882,6 +1039,11 @@ flows:
     fixture_state: enrollment-proof-suite
     platform_edge: PDF/file opener and unsupported-file host assertions remain assigned to UI Automator/XCUITest.
     actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
+      - wizard.Wizard.Dismiss
+      - record.Record.SelectTerm
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
       - record_enrollment_proof_button
@@ -896,10 +1058,20 @@ flows:
     platforms: [android, ios]
     status: active
     variant: fetching-cancel
-    fixture_state: enrollment-proof-success
+    fixture_state: enrollment-proof-fetching-cancel
     actions_covered:
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
+      - wizard.Wizard.Dismiss
+      - record.Record.SelectTerm
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
+      - auth_usb_id_text_field
+      - auth_password_text_field
+      - auth_sign_in_button
+      - wizard_welcome_screen
+      - record_term_chip_d377155d39da686f412622aaca9074cd
       - record_enrollment_proof_button
       - enrollment_fetching_sheet
       - enrollment_fetching_loading_container
@@ -914,6 +1086,7 @@ flows:
     variant: unavailable-snackbar
     fixture_state: enrollment-proof-unavailable
     actions_covered:
+      - record.Record.SelectTerm
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
       - record_enrollment_proof_button
@@ -927,6 +1100,7 @@ flows:
     variant: not-found-snackbar
     fixture_state: enrollment-proof-not-found
     actions_covered:
+      - record.Record.SelectTerm
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
       - record_enrollment_proof_button
@@ -940,6 +1114,7 @@ flows:
     variant: outdated-credentials
     fixture_state: enrollment-proof-outdated-credentials
     actions_covered:
+      - record.Record.SelectTerm
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
       - record_enrollment_proof_button
@@ -956,7 +1131,6 @@ flows:
       - pensum.Pensum.RefreshPensum
     primary_selectors:
       - pensum_screen
-      - pensum_refreshing_indicator
       - pensum_canvas
       - pensum_canvas_legend
       - pensum_status_filter_available
@@ -1289,8 +1463,7 @@ flows:
       - evaluations.Evaluation.SetMaxGrade
       - evaluations.Evaluation.ClickGrade
       - evaluations.Evaluation.ClickMaxGrade
-      - evaluations.Evaluation.ClickAddEvaluation
-      - evaluations.Evaluation.ClickEditEvaluation
+      - evaluations.Evaluation.ClickSubmitEvaluation
     primary_selectors:
       - evaluations_content_container
       - evaluations_week_strip
@@ -1335,7 +1508,7 @@ flows:
       - evaluations.Evaluation.SetGrade
       - evaluations.Evaluation.ClickGrade
       - evaluations.Evaluation.ClickMaxGrade
-      - evaluations.Evaluation.ClickAddEvaluation
+      - evaluations.Evaluation.ClickSubmitEvaluation
     primary_selectors:
       - evaluations_add_fab
       - evaluation_content_container
@@ -1359,7 +1532,7 @@ flows:
     fixture_state: patch-evaluations-success
     actions_covered:
       - evaluations.Evaluations.EditEvaluation
-      - evaluations.Evaluation.ClickEditEvaluation
+      - evaluations.Evaluation.ClickSubmitEvaluation
     primary_selectors:
       - evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
       - evaluation_swipe_to_dismiss_container
@@ -1485,6 +1658,7 @@ flows:
       - about.About.ContactDeveloper
       - about.About.ReportBug
       - about.About.SetUsageDataCollectionEnabled
+      - maincore.Browser.NavigateTo
     primary_selectors:
       - about_content_container
       - about_open_terms

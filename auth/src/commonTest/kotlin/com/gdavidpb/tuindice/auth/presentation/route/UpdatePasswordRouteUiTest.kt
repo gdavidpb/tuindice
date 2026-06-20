@@ -7,7 +7,6 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
-import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.usecase.UpdatePasswordUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
@@ -85,7 +84,7 @@ class UpdatePasswordRouteUiTest {
 		}
 
 		onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("nueva-clave-segura")
-		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performClick()
+		onNodeWithTag(AuthUiTags.UpdatePasswordConfirmButton).performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
 			snackBarMessages.isNotEmpty() &&

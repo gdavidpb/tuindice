@@ -36,6 +36,8 @@ import Maincore
 /// - in-app review / update equivalents on iOS
 #if canImport(maincore) || canImport(Maincore)
 final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
+    private let appStoreUrl: String?
+    private let apiBaseUrl: String?
     private let secureStore = KeychainSecureStore(
         service: Bundle.main.bundleIdentifier ?? "com.gdavidpb.tuindice.securestore"
     )
@@ -57,7 +59,13 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         TuIndiceFirebaseRuntimeState.isConfigured
     }
 
-    override init() {
+    init(appStoreUrl: String? = nil, apiBaseUrl: String? = nil) {
+        if let appStoreUrl, appStoreUrl.isEmpty == false {
+            self.appStoreUrl = appStoreUrl
+        } else {
+            self.appStoreUrl = nil
+        }
+        self.apiBaseUrl = apiBaseUrl
         super.init()
 
         pathMonitor.pathUpdateHandler = { [weak self] path in
@@ -128,6 +136,22 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
     func invalidateAttestationKeyId(completionHandler: @escaping (Error?) -> Void) {
         secureStore.delete(Self.appAttestKeyIdKey)
         completionHandler(nil)
+    }
+
+    func readSecureValue(key: String) -> String? {
+        secureStore.read(key)
+    }
+
+    func writeSecureValue(key: String, value: String) {
+        secureStore.write(key, value: value)
+    }
+
+    func deleteSecureValue(key: String) {
+        secureStore.delete(key)
+    }
+
+    func clearSecureValues() {
+        secureStore.clear()
     }
 
     func requestAttestation(
@@ -318,7 +342,14 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         .resume()
     }
 
-    func launchUpdate(action: BaseUpdateAction, completionHandler: @escaping (Error?) -> Void) {
+    func launchUpdate(
+        action: BaseUpdateAction,
+        completionHandler_ completionHandler: @escaping @Sendable ((any Error)?) -> Void
+    ) {
+        performLaunchUpdate(action: action, completionHandler: completionHandler)
+    }
+
+    private func performLaunchUpdate(action: BaseUpdateAction, completionHandler: @escaping (Error?) -> Void) {
         if action == BaseUpdateAction.immediate {
             let trackUrl = stateQueue.sync { appStoreTrackUrl }
 
@@ -342,6 +373,8 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
 
         if let trackUrl {
             openUrl(url: trackUrl)
+        } else if let appStoreUrl {
+            openUrl(url: appStoreUrl)
         } else {
             openUrl(url: "itms-apps://apps.apple.com")
         }
@@ -377,6 +410,18 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         }
 
         return UIApplication.shared.canOpenURL(url)
+    }
+
+    private func isLocalApiBaseUrl(_ value: String?) -> Bool {
+        guard let value,
+              let host = URL(string: value)?.host?.lowercased() else {
+            return false
+        }
+
+        return host == "localhost" ||
+            host == "127.0.0.1" ||
+            host == "0.0.0.0" ||
+            host == "::1"
     }
 
     func sendEmail(email: String, subject: String, text: String) {
@@ -415,7 +460,17 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
     }
 
     func isNetworkAvailable() -> Bool {
-        stateQueue.sync { isReachable }
+        #if DEBUG
+        if let override = TuIndiceDebugRuntimeOverrides.networkAvailabilityOverride() {
+            return override
+        }
+
+        if isLocalApiBaseUrl(apiBaseUrl) {
+            return true
+        }
+        #endif
+
+        return stateQueue.sync { isReachable }
     }
 
     func setUserIdentifier(identifier: String) {
@@ -733,7 +788,8 @@ private struct KeychainSecureStore {
 
         let query = baseQuery(for: key)
         let attributes: [String: Any] = [
-            kSecValueData as String: encoded
+            kSecValueData as String: encoded,
+            kSecAttrAccessible as String: kSecAttrAccessibleWhenUnlockedThisDeviceOnly
         ]
 
         let updateStatus = SecItemUpdate(query as CFDictionary, attributes as CFDictionary)
@@ -741,6 +797,7 @@ private struct KeychainSecureStore {
         if updateStatus == errSecItemNotFound {
             var addQuery = query
             addQuery[kSecValueData as String] = encoded
+            addQuery[kSecAttrAccessible as String] = kSecAttrAccessibleWhenUnlockedThisDeviceOnly
             SecItemAdd(addQuery as CFDictionary, nil)
         }
     }

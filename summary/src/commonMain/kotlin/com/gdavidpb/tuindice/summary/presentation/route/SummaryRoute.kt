@@ -4,6 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
@@ -36,6 +37,9 @@ fun SummaryRoute(
 	val syncStatus by syncStatusRepository
 		.observeSyncStatus()
 		.collectAsStateWithLifecycle(initialValue = SyncStatus.Healthy)
+	val syncReport by syncStatusRepository
+		.observeSyncReport()
+		.collectAsStateWithLifecycle(initialValue = SyncReport.success())
 	val lastSuccessfulSyncAt by syncStatusRepository
 		.observeLastSuccessfulSyncAt()
 		.collectAsStateWithLifecycle(initialValue = null)
@@ -81,6 +85,7 @@ fun SummaryRoute(
 	SummaryScreen(
 		state = screenState,
 		syncStatus = syncStatus,
+		syncReport = syncReport,
 		isSyncing = isSyncing,
 		onRetryClick = viewModel::refreshSummaryAction,
 		onEditProfilePictureClick = viewModel::openProfilePictureSettingsAction,

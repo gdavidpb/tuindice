@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
+import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
@@ -33,6 +34,7 @@ import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import io.ktor.http.HttpStatusCode
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertNotNull
 import kotlin.test.assertTrue
 
@@ -166,6 +168,61 @@ class SignInRouteUiTest {
 	}
 
 	@Test
+	fun when_usbEmailEnteredAndSignInButtonTapped_then_usesCanonicalEmailUser() = runTuIndiceUiTest {
+		val fixture = createSignInViewModel(
+			termsAndConditionsUrl = "https://tuindice.test/terms"
+		)
+		var summaryNavigations = 0
+
+		setTuIndiceTestContent {
+			SignInRoute(
+				onNavigateToSummary = { summaryNavigations++ },
+				onNavigateToBrowser = { _, _ -> },
+				showSnackBar = {},
+				viewModel = fixture.viewModel
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.IdentifierModeToggle).performClick()
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("Mail@USB.VE")
+		onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("1234")
+		onNodeWithTag(AuthUiTags.SignInButton).performClick()
+
+		waitUntil(timeoutMillis = 2_000) {
+			summaryNavigations > 0 &&
+				fixture.authRepository.bootstrapSignInCalls.isNotEmpty()
+		}
+
+		assertEquals("mail", fixture.authRepository.bootstrapSignInCalls.single().usbId)
+		assertEquals("1234", fixture.authRepository.bootstrapSignInCalls.single().password)
+	}
+
+	@Test
+	fun when_emailValueReturnsToUsbIdMode_then_identifierIsCleared() = runTuIndiceUiTest {
+		val fixture = createSignInViewModel(
+			termsAndConditionsUrl = "https://tuindice.test/terms"
+		)
+
+		setTuIndiceTestContent {
+			SignInRoute(
+				onNavigateToSummary = {},
+				onNavigateToBrowser = { _, _ -> },
+				showSnackBar = {},
+				viewModel = fixture.viewModel
+			)
+		}
+
+		onNodeWithTag(AuthUiTags.IdentifierModeToggle).performClick()
+		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("mail")
+		onNodeWithTag(AuthUiTags.IdentifierModeToggle).performClick()
+
+		runOnIdle {
+			val state = assertIs<SignIn.State.Idle>(fixture.viewModel.state.value)
+			assertEquals("", state.usbId)
+		}
+	}
+
+	@Test
 	fun when_privacyPolicyActionTriggered_then_navigatesToBrowserPrivacyUrl() = runTuIndiceUiTest {
 		val expectedPrivacyUrl = "https://tuindice.test/privacy"
 		val fixture = createSignInViewModel(
@@ -226,8 +283,77 @@ class SignInRouteUiTest {
 
 		val snackBar = shownSnackBars.first()
 		assertEquals(0, summaryNavigations)
+		assertEquals("Revisa tu USBID y contraseña", snackBar.message)
 		assertTrue(snackBar.message.isNotBlank())
 		assertTrue(snackBar.onAction == null || snackBar.actionLabel.isNullOrBlank().not())
+	}
+
+	@Test
+	fun when_signInFailsWithOutdatedApp_then_requestsOutdatedScreen() = runTuIndiceUiTest {
+		val fixture = createSignInViewModel(
+			termsAndConditionsUrl = "https://tuindice.test/terms",
+			signInThrowable = clientRequestException(HttpStatusCode.UpgradeRequired, path = "/auth/v1/token")
+		)
+		var summaryNavigations = 0
+		var outdatedScreenRequests = 0
+		val shownSnackBars = mutableListOf<SnackBarMessage>()
+
+		setTuIndiceTestContent {
+			SignInRoute(
+				onNavigateToSummary = { summaryNavigations++ },
+				onNavigateToBrowser = { _, _ -> },
+				showSnackBar = { message -> shownSnackBars += message },
+				onOutdatedAppDetected = { outdatedScreenRequests++ },
+				viewModel = fixture.viewModel
+			)
+		}
+
+		runOnIdle {
+			fixture.viewModel.setUsbIdAction("12-34567")
+			fixture.viewModel.setPasswordAction("version-vieja")
+			fixture.viewModel.signInAction()
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			outdatedScreenRequests > 0
+		}
+
+		assertEquals(0, summaryNavigations)
+		assertEquals(1, outdatedScreenRequests)
+		assertTrue(shownSnackBars.isEmpty())
+	}
+
+	@Test
+	fun when_emailSignInFailsWithInvalidCredentials_then_showsEmailSpecificSnackBar() = runTuIndiceUiTest {
+		val fixture = createSignInViewModel(
+			termsAndConditionsUrl = "https://tuindice.test/terms",
+			signInThrowable = clientRequestException(HttpStatusCode.Unauthorized, path = "/auth/v1/token")
+		)
+		var summaryNavigations = 0
+		val shownSnackBars = mutableListOf<SnackBarMessage>()
+
+		setTuIndiceTestContent {
+			SignInRoute(
+				onNavigateToSummary = { summaryNavigations++ },
+				onNavigateToBrowser = { _, _ -> },
+				showSnackBar = { message -> shownSnackBars += message },
+				viewModel = fixture.viewModel
+			)
+		}
+
+		runOnIdle {
+			fixture.viewModel.toggleIdentifierModeAction()
+			fixture.viewModel.setUsbIdAction("mail@usb.ve")
+			fixture.viewModel.setPasswordAction("clave-invalida")
+			fixture.viewModel.signInAction()
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			shownSnackBars.isNotEmpty()
+		}
+
+		assertEquals(0, summaryNavigations)
+		assertEquals("Revisa tu correo USB y contraseña", shownSnackBars.first().message)
 	}
 
 	@Test

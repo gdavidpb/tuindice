@@ -33,6 +33,9 @@ class SignInViewModel(
 	fun togglePasswordVisibilityAction() =
 		sendAction(SignIn.Action.TogglePasswordVisibility)
 
+	fun toggleIdentifierModeAction() =
+		sendAction(SignIn.Action.ToggleIdentifierMode)
+
 	fun setUsageDataCollectionEnabledAction(enabled: Boolean) =
 		sendAction(SignIn.Action.SetUsageDataCollectionEnabled(enabled))
 

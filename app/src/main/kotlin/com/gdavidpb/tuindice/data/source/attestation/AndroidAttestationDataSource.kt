@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.Attestation
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.utils.attestationBindingInput
 import com.gdavidpb.tuindice.base.utils.extension.isAttestationKeyUserMismatch
 import com.gdavidpb.tuindice.base.utils.extension.isForbidden
@@ -38,7 +39,8 @@ import kotlinx.coroutines.sync.withLock
 class AndroidAttestationDataSource(
 	private val ktorClient: HttpClient,
 	private val providerDataSource: AttestationProviderDataRepository,
-	private val proofOfPossessionCapability: AndroidProofOfPossessionCapability
+	private val proofOfPossessionCapability: AndroidProofOfPossessionCapability,
+	private val configRepository: ConfigRepository
 ) : AttestationRepository {
 	private val proofOfPossessionMutex = Mutex()
 
@@ -46,21 +48,83 @@ class AndroidAttestationDataSource(
 		return proofOfPossessionMutex.withLock {
 			val requestHash = sha256Base64Url(request.payloadJson)
 
-			runCatching {
-				attestOnce(
-					request = request,
-					requestHash = requestHash
-				)
-			}.recoverCatching { throwable ->
-				if (throwable !is RecoverableAndroidKeystoreException) throw throwable
+			if (!configRepository.getAttestationAndroidEnforcementEnabled()) {
+				return@withLock runCatching {
+					attestWithBypass(
+						request = request,
+						requestHash = requestHash
+					)
+				}.recoverCatching { throwable ->
+					if (!throwable.shouldFallbackToEnforcedAttestation()) throw throwable
+					attestWithRecovery(
+						request = request,
+						requestHash = requestHash
+					)
+				}.getOrThrow()
+			}
 
-				proofOfPossessionCapability.invalidateProofOfPossessionKeyId()
-				attestOnce(
-					request = request,
-					requestHash = requestHash
-				)
-			}.getOrThrow()
+			attestWithRecovery(
+				request = request,
+				requestHash = requestHash
+			)
 		}
+	}
+
+	private suspend fun attestWithRecovery(
+		request: AttestationRequest,
+		requestHash: String
+	): Attestation {
+		return runCatching {
+			attestOnce(
+				request = request,
+				requestHash = requestHash
+			)
+		}.recoverCatching { throwable ->
+			if (throwable !is RecoverableAndroidKeystoreException) throw throwable
+
+			proofOfPossessionCapability.invalidateProofOfPossessionKeyId()
+			attestOnce(
+				request = request,
+				requestHash = requestHash
+			)
+		}.getOrThrow()
+	}
+
+	private suspend fun attestWithBypass(
+		request: AttestationRequest,
+		requestHash: String
+	): Attestation {
+		val keyId = BYPASS_KEY_ID
+		val session = requestOperationSession(
+			operationCode = request.operationCode.value,
+			keyId = keyId,
+			authorization = request.authorization
+		)
+		val bindingHash = bindingHash(
+			sessionId = session.sessionId,
+			challenge = session.challenge,
+			bindingCode = request.operationCode.value,
+			requestHash = requestHash
+		)
+		val response = ktorClient.post(tokensPath()) {
+			applyAttestationAuthorization(request.authorization)
+			setBody(
+				IssueAttestationTokenRequest(
+					sessionId = session.sessionId,
+					operationCode = request.operationCode.value,
+					requestHash = requestHash,
+					evidenceMode = session.evidenceMode,
+					token = "$BYPASS_TOKEN_PREFIX$bindingHash",
+					keyId = keyId
+				)
+			)
+		}.body<IssueAttestationTokenResponse>()
+
+		return Attestation(token = response.token)
+	}
+
+	private suspend fun Throwable.shouldFallbackToEnforcedAttestation(): Boolean {
+		return isPreconditionRequired() || isForbidden() || isAttestationKeyUserMismatch()
 	}
 
 	private suspend fun attestOnce(
@@ -363,6 +427,8 @@ class AndroidAttestationDataSource(
 
 	private companion object {
 		const val PLATFORM_ANDROID = "Android"
+		const val BYPASS_KEY_ID = "android-remote-config-bypass-key"
+		const val BYPASS_TOKEN_PREFIX = "android-remote-config-bypass:"
 	}
 }
 

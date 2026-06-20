@@ -1,0 +1,20 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- tapOn:
+    id: record_term_chip_d377155d39da686f412622aaca9074cd
+- extendedWaitUntil:
+    visible:
+      id: record_enrollment_proof_button
+    timeout: 10000
+- swipe:
+    start: "50%,78%"
+    end: "50%,46%"
+    duration: 700
+- extendedWaitUntil:
+    visible:
+      id: record_enrollment_proof_button
+    timeout: 10000
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    id: record_enrollment_proof_button

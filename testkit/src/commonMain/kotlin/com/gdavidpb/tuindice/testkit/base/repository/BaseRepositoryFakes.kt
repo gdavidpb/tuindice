@@ -1,13 +1,17 @@
 package com.gdavidpb.tuindice.testkit.base.repository
 
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
+import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
 import com.gdavidpb.tuindice.base.domain.model.MainSection
+import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
+import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
+import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
@@ -232,7 +236,8 @@ class FakeSessionInvalidationRepository : SessionInvalidationRepository {
 class FakeSettingsRepository(
 	private val reviewSuggested: Boolean = false,
 	private var lastMainSection: MainSection = MainSection.SUMMARY,
-	private var wizardCompleted: Boolean = true
+	private var wizardCompleted: Boolean = true,
+	private var outdatedAppState: OutdatedAppState? = null
 ) : SettingsRepository {
 	var cleared = false
 		private set
@@ -245,6 +250,16 @@ class FakeSettingsRepository(
 		lastMainSection = section
 	}
 
+	override suspend fun getOutdatedAppState(): OutdatedAppState? = outdatedAppState
+
+	override suspend fun setOutdatedAppState(state: OutdatedAppState) {
+		outdatedAppState = state
+	}
+
+	override suspend fun clearOutdatedAppState() {
+		outdatedAppState = null
+	}
+
 	override suspend fun isWizardCompleted(): Boolean = wizardCompleted
 
 	override suspend fun setWizardCompleted() {
@@ -253,12 +268,18 @@ class FakeSettingsRepository(
 
 	override suspend fun clear() {
 		cleared = true
+		outdatedAppState = null
 	}
 }
 
 class FakeConfigRepository(
 	private val email: String = "support@tuindice.app",
-	private val subject: String = "Support TuIndice"
+	private val subject: String = "Support TuIndice",
+	private val appAvailabilityNotice: AppAvailabilityNotice = AppAvailabilityNotice(
+		enabled = false,
+		title = "",
+		message = ""
+	)
 ) : ConfigRepository {
 	override suspend fun tryFetch() = Unit
 
@@ -273,6 +294,12 @@ class FakeConfigRepository(
 	override fun getTimeUpdateStalenessDays(): Int = 7
 
 	override fun getSyncsToSuggestReview(): Int = 3
+
+	override fun getAttestationAndroidEnforcementEnabled(): Boolean = false
+
+	override fun getAttestationIosEnforcementEnabled(): Boolean = true
+
+	override fun getAppAvailabilityNotice(): AppAvailabilityNotice = appAvailabilityNotice
 }
 
 class RecordingReviewRepository : ReviewRepository {
@@ -285,7 +312,8 @@ class RecordingReviewRepository : ReviewRepository {
 }
 
 class FakeUpdateRepository(
-	private val updateAction: UpdateAction? = null
+	private val updateAction: UpdateAction? = null,
+	private val launchResult: UpdateLaunchResult = UpdateLaunchResult.Launched
 ) : UpdateRepository {
 	var checkCalls = mutableListOf<Int>()
 	val launchedActions = mutableListOf<UpdateAction>()
@@ -295,8 +323,9 @@ class FakeUpdateRepository(
 		return updateAction
 	}
 
-	override suspend fun launchUpdate(action: UpdateAction) {
+	override suspend fun launchUpdate(action: UpdateAction): UpdateLaunchResult {
 		launchedActions += action
+		return launchResult
 	}
 }
 
@@ -337,26 +366,43 @@ class FakeCredentialsRepository(
 
 class FakeSyncStatusRepository(
 	initialValue: SyncStatus = SyncStatus.Healthy,
+	initialReport: SyncReport = SyncReport.success(),
 	initialLastSuccessfulSyncAt: Long? = null
 ) : SyncStatusRepository {
 	private val syncStatus = MutableStateFlow(initialValue)
+	private val syncReport = MutableStateFlow(initialReport)
 	private val lastSuccessfulSyncAt = MutableStateFlow(initialLastSuccessfulSyncAt)
 	val setStatuses = mutableListOf<SyncStatus>()
+	val setReports = mutableListOf<SyncReport>()
 	val setLastSuccessfulSyncTimestamps = mutableListOf<Long>()
 	var resetCalls = 0
 		private set
 
 	override fun observeSyncStatus(): Flow<SyncStatus> = syncStatus
 
+	override fun observeSyncReport(): Flow<SyncReport> = syncReport
+
 	override fun observeLastSuccessfulSyncAt(): Flow<Long?> = lastSuccessfulSyncAt
 
 	override suspend fun getSyncStatus(): SyncStatus = syncStatus.value
+
+	override suspend fun getSyncReport(): SyncReport = syncReport.value
 
 	override suspend fun getLastSuccessfulSyncAt(): Long? = lastSuccessfulSyncAt.value
 
 	override suspend fun setSyncStatus(status: SyncStatus) {
 		syncStatus.value = status
 		setStatuses += status
+	}
+
+	fun emitSyncStatus(status: SyncStatus) {
+		syncStatus.value = status
+		setStatuses += status
+	}
+
+	override suspend fun setSyncReport(report: SyncReport) {
+		syncReport.value = report
+		setReports += report
 	}
 
 	override suspend fun setLastSuccessfulSyncAt(timestamp: Long) {
@@ -366,6 +412,7 @@ class FakeSyncStatusRepository(
 
 	override suspend fun reset() {
 		syncStatus.value = SyncStatus.Healthy
+		syncReport.value = SyncReport.success()
 		lastSuccessfulSyncAt.value = null
 		resetCalls++
 	}

@@ -27,7 +27,9 @@ fun NavGraphBuilder.authNavigation(
 	onNavigateToSignIn: () -> Unit,
 	onNavigateToSummary: () -> Unit,
 	onNavigateToBrowser: (title: String, url: String) -> Unit,
+	onOutdatedAppDetected: () -> Unit = {},
 	onDismissRequest: () -> Unit,
+	onUpdatePasswordDismissRequest: () -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	dismissSnackBar: () -> Unit = {}
@@ -48,6 +50,7 @@ fun NavGraphBuilder.authNavigation(
 				onNavigateToBrowser = onNavigateToBrowser,
 				showSnackBar = showSnackBar,
 				dismissSnackBar = dismissSnackBar,
+				onOutdatedAppDetected = onOutdatedAppDetected,
 				viewModel = viewModel
 			)
 		}
@@ -88,7 +91,7 @@ fun NavGraphBuilder.authNavigation(
 			val viewModel = koinViewModel<UpdatePasswordViewModel>(viewModelStoreOwner = backStackEntry)
 
 			UpdatePasswordRoute(
-				onDismissRequest = onDismissRequest,
+				onDismissRequest = onUpdatePasswordDismissRequest,
 				onPasswordUpdated = {
 					if (!navController.navigateBackWithResult<UpdatePasswordBackResult>(
 							UpdatePasswordBackResult.PasswordUpdated

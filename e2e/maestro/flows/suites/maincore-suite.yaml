@@ -7,3 +7,4 @@ name: TuIndice maincore E2E suite
 - runFlow: ../maincore/bottom-bar-state.yaml
 - runFlow: ../maincore/back-stack.yaml
 - runFlow: ../maincore/browser-external-dialog.yaml
+- runFlow: ../maincore/app-availability-notice.yaml

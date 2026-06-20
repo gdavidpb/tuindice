@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.base.utils.extension.isTimeout
 import com.gdavidpb.tuindice.base.utils.extension.isTooManyRequests
 import com.gdavidpb.tuindice.base.utils.extension.isUnauthorized
 import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
+import com.gdavidpb.tuindice.base.utils.extension.isUpgradeRequired
 import com.gdavidpb.tuindice.auth.domain.exception.SignInIllegalArgumentException
 import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 
@@ -28,6 +29,7 @@ class SignInExceptionHandler(
 
 			rootThrowable.isLocked() -> SignInUseCaseError.AccountDisabled
 			rootThrowable.isForbidden() -> SignInUseCaseError.Untrusted
+			rootThrowable.isUpgradeRequired() -> SignInUseCaseError.OutdatedApp
 			rootThrowable.isUnavailable() || rootThrowable.isTooManyRequests() -> SignInUseCaseError.Unavailable
 			rootThrowable.isUnauthorized() -> SignInUseCaseError.AuthenticationFailed
 			rootThrowable.isTimeout() -> SignInUseCaseError.Timeout

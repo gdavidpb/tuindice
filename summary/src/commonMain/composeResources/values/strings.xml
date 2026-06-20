@@ -21,6 +21,10 @@
     <string name="text_last_sync">Última sincronización: %1$s</string>
     <string name="dialog_title_sync_unavailable">Servicios de la universidad no disponibles</string>
     <string name="dialog_message_sync_unavailable">No pudimos sincronizar tus datos porque los servicios de la universidad no están disponibles en este momento. Intentaremos sincronizar de nuevo más tarde.</string>
+    <string name="dialog_title_sync_sources_unavailable">Servicios de la universidad no disponibles</string>
+    <string name="dialog_message_sync_sources_record_unavailable">No pudimos actualizar tus notas porque el servicio de la universidad no está disponible. Tus datos anteriores se mantienen y volveremos a intentar más tarde.</string>
+    <string name="dialog_message_sync_sources_enrollment_unavailable">No pudimos actualizar tu inscripción porque el servicio de la universidad no está disponible. Tus datos anteriores se mantienen y volveremos a intentar más tarde.</string>
+    <string name="dialog_message_sync_sources_record_and_enrollment_unavailable">No pudimos actualizar tus notas ni tu inscripción porque el servicio de la universidad no está disponible. Tus datos anteriores se mantienen y volveremos a intentar más tarde.</string>
     <string name="dialog_title_sync_failed">No pudimos sincronizar con la universidad</string>
     <string name="dialog_message_sync_failed">No pudimos sincronizar tus datos. Intentaremos sincronizar de nuevo más tarde.</string>
     <string name="dialog_title_sync_outdated_credentials">Actualiza tu contraseña</string>

@@ -1,0 +1,27 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic NDQtNDQ0NDQ6dXBncmFkZS1wYXNz"
+      }
+    }
+  },
+  "response": {
+    "status": 426,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "code": "outdated_app",
+      "message": "Please use the latest version of TuIndice.",
+      "minimum_versions": {
+        "android": 99999,
+        "ios": 99999
+      }
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

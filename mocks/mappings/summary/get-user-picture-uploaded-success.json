@@ -3,7 +3,12 @@
   "requiredScenarioState": "PictureUploaded",
   "request": {
     "method": "GET",
-    "urlPath": "/users/v1"
+    "urlPath": "/users/v1",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "status": 200,

@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.domain.usecase.SetLastMainSectionUseCase
 import com.gdavidpb.tuindice.wizard.domain.usecase.ShouldStartWizardUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.error.StartUpUseCaseError
+import com.gdavidpb.tuindice.domain.usecase.result.StartUpResult
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.mapper.toDestination
 import com.gdavidpb.tuindice.presentation.transition.mainAnyStateTransitions
@@ -44,9 +45,7 @@ class MainMachine(
 					)
 
 					is UseCaseState.Data -> host.processInternalEvent(
-						MainInternalEvent.StartUpCompleted(
-							startDestination = useCaseState.value.startTarget.toDestination()
-						)
+						useCaseState.value.toStartUpEvent()
 					)
 
 					is UseCaseState.Error -> host.processInternalEvent(
@@ -100,6 +99,20 @@ class MainMachine(
 					host.processInternalEvent(MainInternalEvent.WizardStartApproved)
 				}
 			}
+		}
+	}
+
+	private fun StartUpResult.toStartUpEvent(): MainInternalEvent {
+		return when (this) {
+			is StartUpResult.Available -> MainInternalEvent.StartUpCompleted(
+				startDestination = startTarget.toDestination()
+			)
+			is StartUpResult.AppUnavailable -> MainInternalEvent.AppUnavailableResolved(
+				notice = notice
+			)
+			is StartUpResult.OutdatedApp -> MainInternalEvent.OutdatedAppResolved(
+				outdatedAppState = state
+			)
 		}
 	}
 }

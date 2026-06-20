@@ -19,6 +19,8 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: record_term_chip_2025-3
     timeout: 10000
+- assertVisible:
+    id: record_term_chip_2024-3
 - tapOn:
     id: record_term_chip_2024-3
 - extendedWaitUntil:
@@ -31,10 +33,6 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: record_term_current_chip_2026-2
     timeout: 10000
-- extendedWaitUntil:
-    visible:
-      id: record_enrollment_proof_button
-    timeout: 10000
 - tapOn:
     id: wizard_primary_button
 - extendedWaitUntil:
@@ -43,8 +41,6 @@ appId: com.gdavidpb.tuindice.debug
     timeout: 10000
 - assertVisible:
     id: wizard_focus_overlay
-- assertVisible:
-    id: record_enrollment_proof_button
 - tapOn:
     id: base_top_app_bar_action_record_term_selection
 - extendedWaitUntil:

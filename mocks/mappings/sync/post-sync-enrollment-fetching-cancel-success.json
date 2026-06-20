@@ -1,0 +1,25 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "POST",
+    "urlPath": "/record/v5/sync",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.password == 'enrollment-fetching-cancel-pass')]"
+      }
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "sync/post-sync-success.json",
+    "fixedDelayMilliseconds": 1000
+  }
+}

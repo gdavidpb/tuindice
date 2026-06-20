@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
+import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
@@ -19,6 +20,7 @@ import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.testing.FakeCoreCacheStateRepository
+import com.gdavidpb.tuindice.testing.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
@@ -46,6 +48,7 @@ class MainModuleKoinSmokeTest {
 			single<SettingsRepository> { FakeSettingsRepository() }
 			single<ConfigRepository> { FakeConfigRepository() }
 			single<CredentialsRepository> { FakeCredentialsRepository() }
+			single<DeviceInfoRepository> { FakeDeviceInfoRepository() }
 			single<ApplicationRepository> { RecordingApplicationRepository() }
 			single<ReportingRepository> { RecordingReportingRepository() }
 			single<NetworkRepository> { FakeNetworkRepository() }

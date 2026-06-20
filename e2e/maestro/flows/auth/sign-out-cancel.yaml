@@ -1,13 +1,7 @@
 appId: com.gdavidpb.tuindice.debug
 ---
 - runFlow: ../_shared/launch-clean.yaml
-- runFlow: login-success.yaml
-- tapOn:
-    id: wizard_skip_button
-- extendedWaitUntil:
-    visible:
-      id: summary_content_container
-    timeout: 20000
+- runFlow: login-summary-ready.yaml
 - tapOn:
     id: base_top_app_bar_action_sign_out
 - extendedWaitUntil:

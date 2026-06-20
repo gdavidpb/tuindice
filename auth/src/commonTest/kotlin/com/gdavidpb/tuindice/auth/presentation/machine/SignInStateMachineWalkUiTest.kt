@@ -53,11 +53,13 @@ class SignInStateMachineWalkUiTest {
 				SignIn.Action.SetUsbId(usbId = "20-26123"),
 				SignIn.Action.SetPassword(password = "secret123"),
 				SignIn.Action.TogglePasswordVisibility,
+				SignIn.Action.ToggleIdentifierMode,
 				SignIn.Action.SetUsageDataCollectionEnabled(enabled = true),
 				SignIn.Action.ClickSignIn,
 				SignIn.Action.ClickTermsAndConditions,
 				SignIn.Action.ClickPrivacyPolicy,
 				SignInInternalEvent.SignInSucceeded,
+				SignInInternalEvent.OutdatedAppDetected,
 				SignInInternalEvent.SignInFailed(error = null)
 			),
 			scope = backgroundScope,

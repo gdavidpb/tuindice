@@ -19,11 +19,17 @@ import tuindice.auth.generated.resources.Res
 import tuindice.auth.generated.resources.background
 import tuindice.auth.generated.resources.button_sign_in
 import tuindice.auth.generated.resources.hint_password
+import tuindice.auth.generated.resources.hint_usb_email
 import tuindice.auth.generated.resources.hint_usb_id
 import tuindice.auth.generated.resources.label_usage_data_consent
 import tuindice.auth.generated.resources.label_policies
 import tuindice.auth.generated.resources.link_privacy_policy
 import tuindice.auth.generated.resources.link_terms_and_conditions
+import tuindice.auth.generated.resources.placeholder_usb_email
+import tuindice.auth.generated.resources.placeholder_usb_id
+import tuindice.auth.generated.resources.a11y_use_usb_email
+import tuindice.auth.generated.resources.a11y_use_usb_id
+import tuindice.auth.generated.resources.tooltip_usb_email
 
 @Composable
 fun SignInScreen(
@@ -31,6 +37,7 @@ fun SignInScreen(
 	onUsbIdChange: (usbId: String) -> Unit,
 	onPasswordChange: (password: String) -> Unit,
 	onPasswordVisibilityToggle: () -> Unit,
+	onIdentifierModeToggle: () -> Unit,
 	onUsageDataCollectionEnabledChange: (enabled: Boolean) -> Unit = {},
 	onSignInClick: () -> Unit,
 	onTermsAndConditionsClick: () -> Unit,
@@ -61,6 +68,7 @@ fun SignInScreen(
 						onUsbIdChange = onUsbIdChange,
 						onPasswordChange = onPasswordChange,
 						onPasswordVisibilityToggle = onPasswordVisibilityToggle,
+						onIdentifierModeToggle = onIdentifierModeToggle,
 						onUsageDataCollectionEnabledChange = onUsageDataCollectionEnabledChange,
 						onSignInClick = onSignInClick,
 						onTermsAndConditionsClick = onTermsAndConditionsClick,
@@ -69,6 +77,12 @@ fun SignInScreen(
 						privacyPolicyText = stringResource(Res.string.link_privacy_policy),
 						policiesText = stringResource(Res.string.label_policies),
 						usbIdLabelText = stringResource(Res.string.hint_usb_id),
+						usbEmailLabelText = stringResource(Res.string.hint_usb_email),
+						usbIdPlaceholderText = stringResource(Res.string.placeholder_usb_id),
+						usbEmailPlaceholderText = stringResource(Res.string.placeholder_usb_email),
+						useUsbEmailContentDescription = stringResource(Res.string.a11y_use_usb_email),
+						useUsbIdContentDescription = stringResource(Res.string.a11y_use_usb_id),
+						usbEmailTooltipText = stringResource(Res.string.tooltip_usb_email),
 						passwordLabelText = stringResource(Res.string.hint_password),
 						usageDataConsentText = stringResource(Res.string.label_usage_data_consent),
 						signInButtonText = stringResource(Res.string.button_sign_in)

@@ -10,6 +10,7 @@ import Maincore
 enum TuIndiceAppBootstrap {
     #if canImport(maincore) || canImport(Maincore)
     private static let defaultApiBaseUrl = "https://api.tuindice.app/"
+    private static let defaultAppStoreUrl = "itms-apps://apps.apple.com/app/id6760307454"
     private static let defaultLocaleTag = "es-VE"
     private static let defaultAppleLocaleIdentifier = "es_VE"
     private static let buildVariant: IosBuildVariant = {
@@ -19,10 +20,18 @@ enum TuIndiceAppBootstrap {
         return .production
         #endif
     }()
-    private static let bridge = TuIndicePlatformBridge()
+    private static let appStoreUrl = bundleString(
+        for: "TUINDICE_APP_STORE_URL",
+        defaultValue: defaultAppStoreUrl
+    )
+    private static let apiBaseUrl = resolvedApiBaseUrl(defaultValue: defaultApiBaseUrl)
+    private static let bridge = TuIndicePlatformBridge(
+        appStoreUrl: appStoreUrl,
+        apiBaseUrl: apiBaseUrl
+    )
     private static let hostConfig = IosAppHostConfig(
         bridge: bridge,
-        apiBaseUrl: resolvedApiBaseUrl(defaultValue: defaultApiBaseUrl),
+        apiBaseUrl: apiBaseUrl,
         privacyPolicyUrl: resolvedWebUrl(
             debugResource: .privacyPolicy,
             bundleKey: "TUINDICE_PRIVACY_POLICY_URL",
@@ -38,6 +47,7 @@ enum TuIndiceAppBootstrap {
             bundleKey: "TUINDICE_SUPPORT_URL",
             defaultValue: "https://tuindice.app/support_v6_0.html"
         ),
+        appStoreUrl: appStoreUrl,
         debug: bundleBoolean(for: "TUINDICE_DEBUG", defaultValue: false),
         buildVariant: buildVariant
     )
@@ -53,6 +63,12 @@ enum TuIndiceAppBootstrap {
     static func makeRootViewController() -> UIViewController {
         #if canImport(maincore) || canImport(Maincore)
         configureLocale()
+        TuIndiceDebugRuntimeOverrides.configureRemoteConfigOverridesIfNeeded(
+            appBootstrap: appBootstrap
+        )
+        TuIndiceDebugRuntimeOverrides.configureWizardStateOverridesIfNeeded(
+            appBootstrap: appBootstrap
+        )
         TuIndiceDebugRuntimeOverrides.runStartupHooksIfNeeded(
             appBootstrap: appBootstrap,
             apiBaseUrl: hostConfig.apiBaseUrl

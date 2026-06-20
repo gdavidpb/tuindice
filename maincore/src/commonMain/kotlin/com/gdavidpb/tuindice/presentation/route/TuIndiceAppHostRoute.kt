@@ -14,7 +14,9 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.navigation.compose.rememberNavController
+import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
@@ -28,6 +30,7 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
 import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofDestination
+import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.model.MainShellState
@@ -52,6 +55,10 @@ import tuindice.maincore.generated.resources.snack_pending_changes_unavailable
 import tuindice.maincore.generated.resources.snack_session_invalidated
 
 private val logger = appLogger(tag = "SignOut")
+private val updatePasswordSuppressedRoutes = setOf(
+	AuthDestination.NavGraph::class.qualifiedName,
+	AuthDestination.SignIn::class.qualifiedName
+)
 
 @Composable
 fun TuIndiceAppHostRoute(
@@ -64,6 +71,7 @@ fun TuIndiceAppHostRoute(
 	syncStatusRepository: SyncStatusRepository = koinInject(),
 	reviewRepository: ReviewRepository = koinInject(),
 	updateRepository: UpdateRepository = koinInject(),
+	outdatedAppEventRepository: OutdatedAppEventRepository = koinInject(),
 	wizardTopBarActionBus: WizardTopBarActionBus = koinInject(),
 	pensumTopBarActionBus: PensumTopBarActionBus = koinInject(),
 	viewModel: MainViewModel = koinViewModel<MainViewModel>()
@@ -98,41 +106,9 @@ fun TuIndiceAppHostRoute(
 	val pendingChangesUnavailableMessage = stringResource(Res.string.snack_pending_changes_unavailable)
 	val sessionInvalidatedMessage = stringResource(Res.string.snack_session_invalidated)
 
-	LaunchedEffect(Unit) {
-		yield()
-		viewModel.requestReviewAction()
-	}
-
-	LaunchedEffect(lifecycleOwner) {
-		lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
-			viewModel.checkUpdateAction()
-			viewModel.requestSyncAction()
-		}
-	}
-
-	LaunchedEffect(lifecycleOwner, sessionInvalidationRepository, sessionInvalidatedMessage) {
-		lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
-			sessionInvalidationRepository.observeSessionInvalidation().collect {
-				yield()
-
-				val graphId = runCatching { navController.graph.id }
-					.getOrElse {
-						navController.currentBackStackEntryFlow.first()
-						navController.graph.id
-					}
-
-				navController.navigate(AuthDestination.NavGraph) {
-					launchSingleTop = true
-					popUpTo(graphId) {
-						inclusive = true
-					}
-				}
-				showSnackBar(
-					SnackBarMessage(
-						message = sessionInvalidatedMessage
-					)
-				)
-			}
+	LaunchedEffect(outdatedAppEventRepository) {
+		outdatedAppEventRepository.observeOutdatedApp().collect { state ->
+			viewModel.showOutdatedAppAction(state)
 		}
 	}
 
@@ -151,6 +127,9 @@ fun TuIndiceAppHostRoute(
 		onRequestUpdateFlow = { action ->
 			updateRepository.launchUpdate(action = action)
 		},
+		onOpenUpdateStoreFallback = { result ->
+			browserRepository.openUpdateStoreFallback(result)
+		},
 		viewModel = viewModel
 	) { state ->
 		val shellState = remember {
@@ -159,20 +138,79 @@ fun TuIndiceAppHostRoute(
 		val isPreparingSignOut = remember {
 			mutableStateOf(false)
 		}
-	val onRecordViewModeChange = remember {
-		mutableStateOf<((RecordViewMode) -> Unit)?>(null)
-	}
-	val onRecordTermSelection = remember {
-		mutableStateOf<(() -> Unit)?>(null)
-	}
+		val isUpdatePasswordDismissedForOutdatedCredentials = remember {
+			mutableStateOf(false)
+		}
+		val onRecordViewModeChange = remember {
+			mutableStateOf<((RecordViewMode) -> Unit)?>(null)
+		}
+		val onRecordTermSelection = remember {
+			mutableStateOf<(() -> Unit)?>(null)
+		}
 		val syncStatus by syncStatusRepository
 			.observeSyncStatus()
 			.collectAsStateWithLifecycle(initialValue = SyncStatus.Healthy)
+		val isContentAvailable = state is Main.State.Content
+
+		LaunchedEffect(syncStatus) {
+			if (syncStatus != SyncStatus.OutdatedCredentials) {
+				isUpdatePasswordDismissedForOutdatedCredentials.value = false
+			}
+		}
+
+		LaunchedEffect(isContentAvailable) {
+			if (!isContentAvailable) return@LaunchedEffect
+
+			yield()
+			viewModel.requestReviewAction()
+		}
+
+		LaunchedEffect(lifecycleOwner, isContentAvailable) {
+			if (!isContentAvailable) return@LaunchedEffect
+
+			lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
+				viewModel.checkUpdateAction()
+				viewModel.requestSyncAction()
+			}
+		}
+
+		LaunchedEffect(
+			lifecycleOwner,
+			sessionInvalidationRepository,
+			sessionInvalidatedMessage,
+			isContentAvailable
+		) {
+			if (!isContentAvailable) return@LaunchedEffect
+
+			lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
+				sessionInvalidationRepository.observeSessionInvalidation().collect {
+					yield()
+
+					val graphId = runCatching { navController.graph.id }
+						.getOrElse {
+							navController.currentBackStackEntryFlow.first()
+							navController.graph.id
+						}
+
+					navController.navigate(AuthDestination.NavGraph) {
+						launchSingleTop = true
+						popUpTo(graphId) {
+							inclusive = true
+						}
+					}
+					showSnackBar(
+						SnackBarMessage(
+							message = sessionInvalidatedMessage
+						)
+					)
+				}
+			}
+		}
 
 		LaunchedEffect(syncStatus, state) {
 			if (state !is Main.State.Content) return@LaunchedEffect
 			if (syncStatus != SyncStatus.OutdatedCredentials) return@LaunchedEffect
-			if (state.startDestination == AuthDestination.NavGraph) return@LaunchedEffect
+			if (isUpdatePasswordDismissedForOutdatedCredentials.value) return@LaunchedEffect
 
 			yield()
 
@@ -181,7 +219,11 @@ fun TuIndiceAppHostRoute(
 				.destination
 				.route
 
-			if (currentRoute == AuthDestination.UpdatePasswordDialog::class.qualifiedName)
+			if (
+				currentRoute == null ||
+				currentRoute in updatePasswordSuppressedRoutes ||
+				currentRoute == AuthDestination.UpdatePasswordDialog::class.qualifiedName
+			)
 				return@LaunchedEffect
 
 			navController.navigate(AuthDestination.UpdatePasswordDialog) {
@@ -199,14 +241,16 @@ fun TuIndiceAppHostRoute(
 			state = state,
 			shellState = shellState.value,
 			onRetryStartUp = viewModel::startUpAction,
+			onUpdateAppClick = viewModel::updateAppAction,
 			navController = navController,
 			isSwipeBackNavigationEnabled = isSwipeBackNavigationEnabled,
 			snackbarHostState = snackbarHostState,
 			onAction = { action ->
-				if (navController.isCurrentDestination(WizardDestination.NavGraph)) {
-					wizardTopBarActionBus.dispatch(action)
-				} else {
-					when (action) {
+				when {
+					navController.isCurrentDestination(WizardDestination.NavGraph) ->
+						wizardTopBarActionBus.dispatch(action)
+
+					else -> when (action) {
 						is TopBarAction.SignOutAction ->
 							if (!isPreparingSignOut.value) {
 								coroutineScope.launch {
@@ -281,6 +325,17 @@ fun TuIndiceAppHostRoute(
 			onConfirmExitClick = onConfirmExitClick,
 			isCameraAvailable = deviceInfoRepository.hasCamera(),
 			onNavigateToExternalResource = browserRepository::open,
+			onOutdatedAppDetected = {
+				viewModel.showOutdatedAppAction(
+					OutdatedAppState(minimumVersionCode = Long.MAX_VALUE)
+				)
+			},
+			onUpdatePasswordDismissRequest = {
+				if (syncStatus == SyncStatus.OutdatedCredentials) {
+					isUpdatePasswordDismissedForOutdatedCredentials.value = true
+				}
+				navController.navigateUp()
+			},
 			onRecordViewModeChangeAvailable = { callback ->
 				onRecordViewModeChange.value = callback
 			},
@@ -298,5 +353,16 @@ fun TuIndiceAppHostRoute(
 			showSnackBar = showSnackBar,
 			dismissSnackBar = dismissSnackBar
 		)
+	}
+}
+
+private fun BrowserRepository.openUpdateStoreFallback(
+	result: UpdateLaunchResult.OpenStoreFallback
+) {
+	try {
+		open(result.primaryUrl)
+	} catch (throwable: Throwable) {
+		if (throwable is CancellationException) throw throwable
+		open(result.fallbackUrl)
 	}
 }

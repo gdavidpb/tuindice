@@ -12,6 +12,7 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SYNC_STATUS_TEXT
@@ -195,12 +196,69 @@ class SummaryContentViewUiTest {
 	}
 
 	@Test
+	fun when_syncReportHasUnavailableSource_then_statusShowsHaloAndCanOpenDetails() = runTuIndiceUiTest {
+		val contentState = summaryContentState()
+		var statusIconClicks = 0
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+				SummaryContentView(
+					state = contentState,
+					syncStatus = SyncStatus.Healthy,
+					syncReport = SyncReport.partialEnrollmentUnavailable(),
+					showSyncAttentionHalo = true,
+					summaryItems = summaryItemsFor(contentState),
+					onEditProfilePictureClick = {},
+					onStatusIconClick = { statusIconClicks++ }
+				)
+			}
+		}
+
+		assertNodeVisible(SummaryUiTags.StatusIconHalo)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+		assertEquals(1, statusIconClicks)
+	}
+
+	@Test
+	fun when_syncReportHasUnavailableSourceButSyncIsRunning_then_statusUsesLoadingWithoutHalo() =
+		runTuIndiceUiTest {
+			val contentState = summaryContentState()
+
+			setTuIndiceTestContent {
+				CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+					SummaryContentView(
+						state = contentState,
+						syncStatus = SyncStatus.Healthy,
+						syncReport = SyncReport.partialEnrollmentUnavailable(),
+						isSyncing = true,
+						showSyncAttentionHalo = true,
+						summaryItems = summaryItemsFor(contentState),
+						onEditProfilePictureClick = {},
+						onStatusIconClick = {}
+					)
+				}
+			}
+
+			assertNodeHidden(SummaryUiTags.StatusIconHalo)
+			onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
+		}
+
+	@Test
 	fun when_statusIsNotRefreshing_then_statusIconDoesNotUseLoadingRotationOrOverrideErrorIcon() {
 		assertEquals(
 			expected = Icons.Outlined.SyncProblem,
 			actual = syncStatusIcon(
 				syncStatus = SyncStatus.Failed,
 				isStatusRefreshing = false
+			)
+		)
+		assertEquals(
+			expected = Icons.Outlined.SyncProblem,
+			actual = syncStatusIcon(
+				syncStatus = SyncStatus.Healthy,
+				isStatusRefreshing = false,
+				hasSyncSourceIssue = true
 			)
 		)
 		assertEquals(

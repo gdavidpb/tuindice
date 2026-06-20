@@ -16,6 +16,7 @@ fun SignInRoute(
 	onNavigateToBrowser: (title: String, url: String) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	dismissSnackBar: () -> Unit = {},
+	onOutdatedAppDetected: () -> Unit = {},
 	viewModel: SignInViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle(
@@ -57,6 +58,9 @@ fun SignInRoute(
 						}
 					)
 				)
+
+				is SignIn.Effect.ShowOutdatedApp ->
+					onOutdatedAppDetected()
 		}
 	}
 
@@ -65,6 +69,7 @@ fun SignInRoute(
 		onUsbIdChange = viewModel::setUsbIdAction,
 		onPasswordChange = viewModel::setPasswordAction,
 		onPasswordVisibilityToggle = viewModel::togglePasswordVisibilityAction,
+		onIdentifierModeToggle = viewModel::toggleIdentifierModeAction,
 		onUsageDataCollectionEnabledChange = viewModel::setUsageDataCollectionEnabledAction,
 		onSignInClick = onSignInClick,
 		onTermsAndConditionsClick = viewModel::openTermsAndConditionsAction,

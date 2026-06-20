@@ -1,7 +1,12 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/pensums/v4"
+    "urlPath": "/pensums/v4",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "status": 200,

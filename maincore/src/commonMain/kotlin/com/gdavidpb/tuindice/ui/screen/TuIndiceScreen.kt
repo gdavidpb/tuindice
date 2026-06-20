@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.statusBars
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
@@ -69,6 +70,7 @@ import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceShellColors
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorView
+import com.gdavidpb.tuindice.base.ui.view.OutdatedAppScreen
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
 import com.gdavidpb.tuindice.base.utils.extension.canNavigateBackFromCurrentDestination
@@ -84,6 +86,13 @@ import com.gdavidpb.tuindice.ui.view.TopBarBannerHost
 import org.jetbrains.compose.resources.stringResource
 import tuindice.maincore.generated.resources.Res
 import tuindice.maincore.generated.resources.a11y_navigate_back
+import tuindice.maincore.generated.resources.a11y_top_bar_change_pensum
+import tuindice.maincore.generated.resources.a11y_top_bar_enrollment_proof
+import tuindice.maincore.generated.resources.a11y_top_bar_record_term_selection
+import tuindice.maincore.generated.resources.a11y_top_bar_search_pensum
+import tuindice.maincore.generated.resources.a11y_top_bar_sign_out
+import tuindice.maincore.generated.resources.app_availability_notice_default_message
+import tuindice.maincore.generated.resources.app_availability_notice_default_title
 import tuindice.maincore.generated.resources.main_start_failed_message
 import tuindice.maincore.generated.resources.main_start_failed_retry
 import tuindice.maincore.generated.resources.main_start_failed_title
@@ -94,6 +103,7 @@ fun TuIndiceScreen(
 	state: Main.State,
 	shellState: MainShellState,
 	onRetryStartUp: () -> Unit,
+	onUpdateAppClick: () -> Unit,
 	navController: NavHostController,
 	isSwipeBackNavigationEnabled: Boolean = false,
 	snackbarHostState: SnackbarHostState,
@@ -106,6 +116,8 @@ fun TuIndiceScreen(
 	onConfirmExitClick: () -> Unit,
 	isCameraAvailable: Boolean,
 	onNavigateToExternalResource: (url: String) -> Unit,
+	onOutdatedAppDetected: () -> Unit = {},
+	onUpdatePasswordDismissRequest: () -> Unit = {},
 	onWizardFinished: () -> Unit = {},
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
@@ -113,7 +125,12 @@ fun TuIndiceScreen(
 ) {
 	when (state) {
 		is Main.State.Starting -> {
-			Box(modifier = Modifier.fillMaxSize()) {
+			Box(
+				modifier = Modifier
+					.fillMaxSize()
+					.background(MaterialTheme.colorScheme.background)
+					.windowInsetsPadding(WindowInsets.systemBars)
+			) {
 				CircularProgressIndicator(
 					modifier = Modifier
 						.testTag(MaincoreUiTags.TuIndiceStartingIndicator)
@@ -124,12 +141,36 @@ fun TuIndiceScreen(
 		}
 
 		is Main.State.Failed -> {
-			ErrorView(
-				title = stringResource(Res.string.main_start_failed_title),
-				message = stringResource(Res.string.main_start_failed_message),
-				retryText = stringResource(Res.string.main_start_failed_retry),
-				onRetryClick = onRetryStartUp,
-				headerContent = { ErrorStateAnimationView() }
+			Box(
+				modifier = Modifier
+					.fillMaxSize()
+					.background(MaterialTheme.colorScheme.background)
+					.windowInsetsPadding(WindowInsets.systemBars)
+			) {
+				ErrorView(
+					title = stringResource(Res.string.main_start_failed_title),
+					message = stringResource(Res.string.main_start_failed_message),
+					retryText = stringResource(Res.string.main_start_failed_retry),
+					onRetryClick = onRetryStartUp,
+					headerContent = { ErrorStateAnimationView() }
+				)
+			}
+			return
+		}
+
+		is Main.State.AppUnavailable -> {
+			AppAvailabilityNoticeScreen(
+				title = state.notice.title.takeIf { it.isNotBlank() }
+					?: stringResource(Res.string.app_availability_notice_default_title),
+				message = state.notice.message.takeIf { it.isNotBlank() }
+					?: stringResource(Res.string.app_availability_notice_default_message)
+			)
+			return
+		}
+
+		is Main.State.OutdatedApp -> {
+			OutdatedAppScreen(
+				onUpdateClick = onUpdateAppClick
 			)
 			return
 		}
@@ -241,6 +282,7 @@ fun TuIndiceScreen(
 										TopAppBarActionsView(
 											topBarConfig = shellState.topBarConfig,
 											onAction = onAction,
+											actionContentDescription = { action -> action.getContentDescription() },
 											actionIconContent = { action ->
 												Icon(
 													imageVector = action.getIcon(),
@@ -351,6 +393,8 @@ fun TuIndiceScreen(
 				onConfirmExitClick = onConfirmExitClick,
 				isCameraAvailable = isCameraAvailable,
 				onNavigateToExternalResource = onNavigateToExternalResource,
+				onOutdatedAppDetected = onOutdatedAppDetected,
+				onUpdatePasswordDismissRequest = onUpdatePasswordDismissRequest,
 				onRecordViewModeChangeAvailable = onRecordViewModeChangeAvailable,
 				onRecordTermSelectionAvailable = onRecordTermSelectionAvailable,
 				onWizardFinished = onWizardFinished,
@@ -361,6 +405,22 @@ fun TuIndiceScreen(
 			)
 		}
 
+	}
+}
+
+@Composable
+private fun TopBarAction.getContentDescription(): String {
+	return when (this) {
+		is TopBarAction.SignOutAction ->
+			stringResource(Res.string.a11y_top_bar_sign_out)
+		is TopBarAction.FetchEnrollmentProofAction ->
+			stringResource(Res.string.a11y_top_bar_enrollment_proof)
+		is TopBarAction.RecordTermSelectionAction ->
+			stringResource(Res.string.a11y_top_bar_record_term_selection)
+		is TopBarAction.SearchPensumAction ->
+			stringResource(Res.string.a11y_top_bar_search_pensum)
+		is TopBarAction.ChangePensumAction ->
+			stringResource(Res.string.a11y_top_bar_change_pensum)
 	}
 }
 

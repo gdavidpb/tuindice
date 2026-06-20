@@ -5,11 +5,13 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
+import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.data.model.SyncResult
 import com.gdavidpb.tuindice.data.source.sync.SyncDataSource
+import com.gdavidpb.tuindice.data.source.sync.SyncRemoteException
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
@@ -65,8 +67,45 @@ class SyncRepositoryContractTest {
 		assertEquals(true, settingsDataSource.staleFeatureCooldownsCleared)
 		assertEquals(SyncStatus.Healthy, syncStatusRepository.getSyncStatus())
 		assertEquals(listOf(SyncStatus.Healthy), syncStatusRepository.setStatuses)
+		assertEquals(SyncReport.success(), syncStatusRepository.getSyncReport())
+		assertEquals(listOf(SyncReport.success()), syncStatusRepository.setReports)
 		assertEquals(DEFAULT_USER.lastUpdate, syncStatusRepository.getLastSuccessfulSyncAt())
 		assertEquals(listOf(DEFAULT_USER.lastUpdate), syncStatusRepository.setLastSuccessfulSyncTimestamps)
+	}
+
+	@Test
+	fun scheduleSync_partialSuccess_persistsSnapshot_marksHealthy_andPersistsSyncReport() = runTest {
+		val partialReport = SyncReport.partialEnrollmentUnavailable()
+		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
+		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.Failed)
+		val remoteDataSource = FakeSyncRemoteDataSource(
+			result = SyncResult(
+				record = DEFAULT_RECORD,
+				user = DEFAULT_USER,
+				sync = partialReport
+			)
+		)
+		val recordLocalDataSource = FakeAcademicRecordLocalDataRepository()
+		val userLocalDataSource = FakeUserLocalDataRepository()
+		val repository = createRepository(
+			settingsDataSource = settingsDataSource,
+			syncStatusRepository = syncStatusRepository,
+			remoteDataSource = remoteDataSource,
+			recordLocalDataSource = recordLocalDataSource,
+			userLocalDataSource = userLocalDataSource,
+			dispatcher = StandardTestDispatcher(testScheduler)
+		)
+
+		repository.scheduleSync(password = "secret123", policy = SyncPolicy.RespectCooldown)
+		advanceUntilIdle()
+
+		assertEquals(listOf(DEFAULT_RECORD), recordLocalDataSource.savedRecords)
+		assertEquals(listOf(DEFAULT_USER), userLocalDataSource.updatedUsers)
+		assertEquals(SyncStatus.Healthy, syncStatusRepository.getSyncStatus())
+		assertEquals(listOf(SyncStatus.Healthy), syncStatusRepository.setStatuses)
+		assertEquals(partialReport, syncStatusRepository.getSyncReport())
+		assertEquals(listOf(partialReport), syncStatusRepository.setReports)
+		assertEquals(DEFAULT_USER.lastUpdate, syncStatusRepository.getLastSuccessfulSyncAt())
 	}
 
 	@Test
@@ -326,6 +365,37 @@ class SyncRepositoryContractTest {
 	}
 
 	@Test
+	fun scheduleSync_persistsSyncReport_whenServiceUnavailableIncludesStructuredBody() = runTest {
+		val report = SyncReport.failedRecordUnavailable()
+		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val remoteDataSource = FakeSyncRemoteDataSource(
+			throwable = SyncRemoteException(
+				statusCode = HttpStatusCode.ServiceUnavailable,
+				syncReport = report,
+				cause = serverResponseException(
+					statusCode = HttpStatusCode.ServiceUnavailable,
+					path = "/record/v5/sync"
+				)
+			)
+		)
+		val repository = createRepository(
+			settingsDataSource = settingsDataSource,
+			syncStatusRepository = syncStatusRepository,
+			remoteDataSource = remoteDataSource,
+			dispatcher = StandardTestDispatcher(testScheduler)
+		)
+
+		repository.scheduleSync(password = "new-secret", policy = SyncPolicy.RespectCooldown)
+		advanceUntilIdle()
+
+		assertEquals(SyncStatus.Unavailable, syncStatusRepository.getSyncStatus())
+		assertEquals(report, syncStatusRepository.getSyncReport())
+		assertEquals(listOf(report), syncStatusRepository.setReports)
+		assertEquals(listOf(SyncStatus.Unavailable), syncStatusRepository.setStatuses)
+	}
+
+	@Test
 	fun scheduleSync_marksUnavailable_whenSyncFailsWithFailedDependency() = runTest {
 		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
 		val syncStatusRepository = FakeSyncStatusRepository()
@@ -521,24 +591,36 @@ private class FakeSyncSettingsLocalDataSource(
 
 private class FakeSyncStatusRepository(
 	initialValue: SyncStatus = SyncStatus.Healthy,
+	initialReport: SyncReport = SyncReport.success(),
 	initialLastSuccessfulSyncAt: Long? = null
 ) : SyncStatusRepository {
 	private val syncStatus = MutableStateFlow(initialValue)
+	private val syncReport = MutableStateFlow(initialReport)
 	private val lastSuccessfulSyncAt = MutableStateFlow(initialLastSuccessfulSyncAt)
 	val setStatuses = mutableListOf<SyncStatus>()
+	val setReports = mutableListOf<SyncReport>()
 	val setLastSuccessfulSyncTimestamps = mutableListOf<Long>()
 
 	override fun observeSyncStatus(): Flow<SyncStatus> = syncStatus
 
+	override fun observeSyncReport(): Flow<SyncReport> = syncReport
+
 	override fun observeLastSuccessfulSyncAt(): Flow<Long?> = lastSuccessfulSyncAt
 
 	override suspend fun getSyncStatus(): SyncStatus = syncStatus.value
+
+	override suspend fun getSyncReport(): SyncReport = syncReport.value
 
 	override suspend fun getLastSuccessfulSyncAt(): Long? = lastSuccessfulSyncAt.value
 
 	override suspend fun setSyncStatus(status: SyncStatus) {
 		syncStatus.value = status
 		setStatuses += status
+	}
+
+	override suspend fun setSyncReport(report: SyncReport) {
+		syncReport.value = report
+		setReports += report
 	}
 
 	override suspend fun setLastSuccessfulSyncAt(timestamp: Long) {
@@ -548,6 +630,7 @@ private class FakeSyncStatusRepository(
 
 	override suspend fun reset() {
 		syncStatus.value = SyncStatus.Healthy
+		syncReport.value = SyncReport.success()
 		lastSuccessfulSyncAt.value = null
 	}
 }

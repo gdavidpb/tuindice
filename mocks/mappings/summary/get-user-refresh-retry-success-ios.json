@@ -1,22 +1,25 @@
 {
   "priority": 1,
   "scenarioName": "summary-refresh-retry",
-  "requiredScenarioState": "FailedOnce",
-  "newScenarioState": "FailedTwice",
+  "requiredScenarioState": "FailedTwice",
   "request": {
     "method": "GET",
     "urlPath": "/users/v1",
     "headers": {
+      "User-Agent": {
+        "contains": "iOS"
+      },
       "Authorization": {
-        "equalTo": "Bearer summary.refresh.retry.mock.access"
+        "matches": "Bearer .+"
       }
     }
   },
   "response": {
-    "status": 503,
+    "status": 200,
     "headers": {
       "Content-Type": "application/json"
     },
+    "bodyFileName": "summary/get-user-started.json",
     "fixedDelayMilliseconds": 500
   }
 }

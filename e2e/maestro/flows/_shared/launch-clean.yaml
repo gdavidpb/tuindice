@@ -3,6 +3,8 @@ appId: com.gdavidpb.tuindice.debug
 - launchApp:
     stopApp: true
     clearState: true
+    arguments:
+      TUINDICE_E2E_NETWORK_AVAILABLE: "true"
 - runFlow:
     when:
       platform: iOS
@@ -10,6 +12,8 @@ appId: com.gdavidpb.tuindice.debug
       - launchApp:
           stopApp: false
           clearState: false
+          arguments:
+            TUINDICE_E2E_NETWORK_AVAILABLE: "true"
 - extendedWaitUntil:
     visible:
       id: auth_usb_id_text_field

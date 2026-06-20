@@ -13,6 +13,8 @@ Rules:
 - Use WireMock scenarios for stateful flows such as auth lifecycle, profile picture mutation, evaluations mutation, and record mutation.
 - Every E2E flow should start from a known app state and reset WireMock scenarios before the suite.
 - The seeded authenticated launch helper may set `login-token-lifecycle` directly to `TokensIssued`; keep that scenario compatible with the canonical successful login tokens.
+- Protected backend fixtures must require a bearer `Authorization` header. Gateway-backed services use the session token to identify the user and scope, even when the endpoint also forwards a DST password in the JSON body.
+- Login-driven retry fixtures must match the actual sign-in sync request shape: `/record/v5/sync` receives both the bearer session token and the password in the JSON body. Summary and record failed-state retry flows intentionally use an initial sync unavailable response so the target machine starts without usable content; that sync response must open a flow-specific WireMock scenario before retry GET mappings can respond. Summary retry keeps an Android-specific second 503 because first-launch wizard dismissal re-enters Summary and triggers an automatic refresh before the user retry. The retry button then exercises the machine-owned refresh action and transitions to content on success.
 - Do not call production services from local E2E.
 - If a Maestro flow needs a new backend state, add a mapping under `mocks/mappings/<domain>/` and referenced bodies under `mocks/__files/<domain>/`.
 - Record the new fixture dependency in `flow-catalog.yaml`.
@@ -20,6 +22,7 @@ Rules:
 Auth fixture contract:
 
 - The canonical successful local login is raw USBID digits `1111111`, displayed/formatted by the app as `11-11111`, with password `123456`.
+- The canonical USB email login fixture is `mail@usb.ve`, canonized by the app/backend as local identifier `mail`, with the same canonical password.
 - Invalid credential flows must still enter a syntactically valid USBID, for example raw digits `0000000`, and vary the password or backend fixture to trigger the unauthorized path.
 - Do not use short USBID values in Maestro flows; the app requires the formatted shape `NN-NNNNN`. iOS flows may repeat the final digit after the canonical 7 digits as an idempotent guard against dropped keystrokes; the UI rejects it once the field is full.
 

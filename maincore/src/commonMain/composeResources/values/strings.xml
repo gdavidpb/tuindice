@@ -10,7 +10,14 @@
 	<string name="main_start_failed_title">No pudimos iniciar la app</string>
 	<string name="main_start_failed_message">Intenta de nuevo en unos segundos.</string>
 	<string name="main_start_failed_retry">Reintentar</string>
+	<string name="app_availability_notice_default_title">La app no está disponible</string>
+	<string name="app_availability_notice_default_message">Estamos trabajando para restablecer el servicio. Intenta nuevamente más tarde.</string>
 	<string name="snack_session_invalidated">Inicia sesión nuevamente</string>
 	<string name="snack_pending_changes_unavailable">No pudimos revisar tus cambios pendientes. Intenta nuevamente.</string>
 	<string name="a11y_navigate_back">Volver</string>
+	<string name="a11y_top_bar_sign_out">Cerrar sesión</string>
+	<string name="a11y_top_bar_enrollment_proof">Ver comprobante</string>
+	<string name="a11y_top_bar_record_term_selection">Ver todos los trimestres</string>
+	<string name="a11y_top_bar_search_pensum">Buscar materias</string>
+	<string name="a11y_top_bar_change_pensum">Cambiar pensum</string>
 </resources>

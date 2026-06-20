@@ -1,11 +1,19 @@
 {
   "priority": 1,
+  "scenarioName": "summary-refresh-retry",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "InitialSyncUnavailable",
   "request": {
     "method": "POST",
     "urlPath": "/record/v5/sync",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.password == 'summary-retry-pass')]"
+      }
+    ],
     "headers": {
       "Authorization": {
-        "equalTo": "Bearer summary.refresh.retry.mock.access"
+        "matches": "Bearer .+"
       }
     }
   },
@@ -14,6 +22,7 @@
     "headers": {
       "Content-Type": "application/json"
     },
+    "bodyFileName": "sync/post-sync-record-unavailable.json",
     "fixedDelayMilliseconds": 500
   }
 }

@@ -7,13 +7,19 @@
       {
         "matchesJsonPath": "$[?(@.password == 'summary-unavailable-pass')]"
       }
-    ]
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "status": 503,
     "headers": {
       "Content-Type": "application/json"
     },
+    "bodyFileName": "sync/post-sync-record-unavailable.json",
     "fixedDelayMilliseconds": 500
   }
 }

@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="outdated_app_title">Actualiza la app para continuar</string>
+	<string name="outdated_app_message">Esta versión de TuIndice ya no puede conectarse de forma segura. Actualiza la app desde la tienda para seguir usándola.</string>
+	<string name="outdated_app_action">Actualizar app</string>
+</resources>

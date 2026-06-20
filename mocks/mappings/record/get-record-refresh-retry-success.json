@@ -7,7 +7,7 @@
     "urlPath": "/record/v5",
     "headers": {
       "Authorization": {
-        "equalTo": "Bearer record.refresh.retry.mock.access"
+        "matches": "Bearer .+"
       }
     }
   },

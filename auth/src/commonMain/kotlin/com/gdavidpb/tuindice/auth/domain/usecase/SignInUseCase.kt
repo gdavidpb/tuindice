@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
+import com.gdavidpb.tuindice.auth.utils.extension.toCanonicalUsbIdentifier
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
@@ -35,9 +36,10 @@ class SignInUseCase(
 	override val exceptionHandler: SignInExceptionHandler
 ) : FlowUseCase<SignInParams, Unit, SignInUseCaseError>() {
 	override suspend fun executeOnBackground(params: SignInParams): Flow<Unit> {
+		val canonicalUsbId = params.usbId.toCanonicalUsbIdentifier()
 		val bootstrapTokens = runCatching {
 			authRepository.bootstrapSignIn(
-				usbId = params.usbId,
+				usbId = canonicalUsbId,
 				password = params.password
 			)
 		}.getOrElse { throwable ->

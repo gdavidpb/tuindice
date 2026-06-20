@@ -3,9 +3,14 @@
   "request": {
     "method": "POST",
     "urlPath": "/record/v5/sync",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.password == 'enrollment-outdated-pass')]"
+      }
+    ],
     "headers": {
       "Authorization": {
-        "equalTo": "Bearer enrollment.outdated.mock.access"
+        "matches": "Bearer .+"
       }
     }
   },

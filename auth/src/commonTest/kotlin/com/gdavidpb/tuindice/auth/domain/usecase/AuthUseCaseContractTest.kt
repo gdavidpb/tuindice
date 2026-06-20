@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
@@ -80,6 +81,62 @@ class AuthUseCaseContractTest {
 		assertEquals(SyncStatus.Failed, syncStatusRepository.getSyncStatus())
 		assertEquals(listOf(SyncStatus.Failed), syncStatusRepository.setStatuses)
 		assertEquals(listOf("secret123"), syncRepository.scheduledSyncCalls)
+	}
+
+	@Test
+	fun signInUseCase_canonicalizesUsbEmailBeforeCallingRepository() = runTest {
+		val repository = RecordingAuthRepository()
+		val useCase = SignInUseCase(
+			authRepository = repository,
+			messagingRepository = RecordingMessagingRepository(),
+			syncRepository = FakeSyncRepository(),
+			credentialsRepository = FakeCredentialsRepository(),
+			syncStatusRepository = FakeSyncStatusRepository(),
+			attestationRepository = FakeAttestationRepository(),
+			reportingRepository = RecordingReportingRepository(),
+			paramsValidator = SignInParamsValidator(),
+			exceptionHandler = SignInExceptionHandler(
+				networkRepository = FakeNetworkRepository(isAvailable = true)
+			)
+		)
+
+		useCase.execute(
+			SignInParams(
+				usbId = "Mail@USB.VE",
+				password = "secret123",
+				identifierMode = SignInIdentifierMode.UsbEmail
+			)
+		).test {
+			assertEquals(Unit, awaitLoadingThenData(this))
+			awaitComplete()
+		}
+
+		assertEquals("mail", repository.bootstrapSignInCalls.single().usbId)
+	}
+
+	@Test
+	fun signInUseCase_canonicalizesCompactUsbIdBeforeCallingRepository() = runTest {
+		val repository = RecordingAuthRepository()
+		val useCase = SignInUseCase(
+			authRepository = repository,
+			messagingRepository = RecordingMessagingRepository(),
+			syncRepository = FakeSyncRepository(),
+			credentialsRepository = FakeCredentialsRepository(),
+			syncStatusRepository = FakeSyncStatusRepository(),
+			attestationRepository = FakeAttestationRepository(),
+			reportingRepository = RecordingReportingRepository(),
+			paramsValidator = SignInParamsValidator(),
+			exceptionHandler = SignInExceptionHandler(
+				networkRepository = FakeNetworkRepository(isAvailable = true)
+			)
+		)
+
+		useCase.execute(SignInParams(usbId = "2026123", password = "secret123")).test {
+			assertEquals(Unit, awaitLoadingThenData(this))
+			awaitComplete()
+		}
+
+		assertEquals("20-26123", repository.bootstrapSignInCalls.single().usbId)
 	}
 
 	@Test

@@ -61,6 +61,7 @@ class SignInRtlA11yUiTest {
 
 		// E2E-critical nodes must stay laid out and interactive under RTL mirroring.
 		assertNodeVisible(AuthUiTags.UsbIdTextField)
+		assertNodeVisible(AuthUiTags.IdentifierModeToggle)
 		assertNodeVisible(AuthUiTags.PasswordTextField)
 		assertNodeVisible(AuthUiTags.SignInButton)
 		assertNodeVisible(AuthUiTags.TermsAndConditionsLink)
@@ -122,6 +123,9 @@ class SignInRtlA11yUiTest {
 		onNodeWithTag(AuthUiTags.PasswordTextField).assert(hasAccessibleLabel)
 
 		// Password visibility toggle: icon-only control, must carry a contentDescription.
+		onNodeWithTag(AuthUiTags.IdentifierModeToggle)
+			.assert(hasClickAction())
+			.assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.ContentDescription))
 		onNodeWithTag(AuthUiTags.PasswordToggle)
 			.assert(hasClickAction())
 			.assert(SemanticsMatcher.keyIsDefined(SemanticsProperties.ContentDescription))

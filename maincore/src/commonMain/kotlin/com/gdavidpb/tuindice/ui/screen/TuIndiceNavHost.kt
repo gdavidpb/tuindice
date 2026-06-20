@@ -43,6 +43,8 @@ fun TuIndiceNavHost(
 	onConfirmExitClick: () -> Unit,
 	isCameraAvailable: Boolean,
 	onNavigateToExternalResource: (url: String) -> Unit,
+	onOutdatedAppDetected: () -> Unit = {},
+	onUpdatePasswordDismissRequest: () -> Unit = {},
 	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onRecordTermSelectionAvailable: ((() -> Unit)?) -> Unit,
 	onWizardFinished: () -> Unit = {},
@@ -89,7 +91,9 @@ fun TuIndiceNavHost(
 			onNavigateToBrowser = { title, url ->
 				navController.navigate(BrowserDestination.Browser(title = title, url = url))
 			},
+			onOutdatedAppDetected = onOutdatedAppDetected,
 			onDismissRequest = { navController.navigateUp() },
+			onUpdatePasswordDismissRequest = onUpdatePasswordDismissRequest,
 			onViewStateChanged = onViewStateChanged,
 			showSnackBar = showSnackBar,
 			dismissSnackBar = dismissSnackBar
