@@ -5,7 +5,7 @@
     "urlPath": "/record/v5/sync",
     "bodyPatterns": [
       {
-        "matchesJsonPath": "$[?(@.password == 'enrollment-not-found-pass')]"
+        "matchesJsonPath": "$[?(@.password == 'enrollment-fetching-cancel-pass')]"
       }
     ],
     "headers": {

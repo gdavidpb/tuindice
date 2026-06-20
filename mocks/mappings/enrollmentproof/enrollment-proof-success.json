@@ -7,7 +7,12 @@
       {
         "matchesJsonPath": "$.password"
       }
-    ]
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "status": 200,

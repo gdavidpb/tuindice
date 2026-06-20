@@ -24,10 +24,14 @@ enum TuIndiceAppBootstrap {
         for: "TUINDICE_APP_STORE_URL",
         defaultValue: defaultAppStoreUrl
     )
-    private static let bridge = TuIndicePlatformBridge(appStoreUrl: appStoreUrl)
+    private static let apiBaseUrl = resolvedApiBaseUrl(defaultValue: defaultApiBaseUrl)
+    private static let bridge = TuIndicePlatformBridge(
+        appStoreUrl: appStoreUrl,
+        apiBaseUrl: apiBaseUrl
+    )
     private static let hostConfig = IosAppHostConfig(
         bridge: bridge,
-        apiBaseUrl: resolvedApiBaseUrl(defaultValue: defaultApiBaseUrl),
+        apiBaseUrl: apiBaseUrl,
         privacyPolicyUrl: resolvedWebUrl(
             debugResource: .privacyPolicy,
             bundleKey: "TUINDICE_PRIVACY_POLICY_URL",

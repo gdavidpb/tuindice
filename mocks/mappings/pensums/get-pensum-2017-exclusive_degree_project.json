@@ -9,6 +9,11 @@
       "modality_id": {
         "equalTo": "exclusive_degree_project"
       }
+    },
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
     }
   },
   "response": {

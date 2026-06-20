@@ -4,7 +4,12 @@
   "requiredScenarioState": "FirstFailure",
   "request": {
     "method": "GET",
-    "urlPath": "/subjects/v1/QB"
+    "urlPath": "/subjects/v1/QB",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "status": 200,

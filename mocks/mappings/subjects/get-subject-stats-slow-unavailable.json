@@ -1,7 +1,12 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/subjects/v1/CI4325-NODATA"
+    "urlPath": "/subjects/v1/CI4325-NODATA",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "status": 404,

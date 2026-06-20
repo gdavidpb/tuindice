@@ -7,7 +7,12 @@
       {
         "matchesJsonPath": "$[?(@.password == 'enrollment-not-found-pass')]"
       }
-    ]
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "status": 404,

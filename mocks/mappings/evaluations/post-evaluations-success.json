@@ -1,7 +1,12 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/evaluations/v3"
+    "urlPath": "/evaluations/v3",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "status": 200,

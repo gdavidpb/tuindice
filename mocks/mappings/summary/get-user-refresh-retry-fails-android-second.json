@@ -9,6 +9,9 @@
     "headers": {
       "User-Agent": {
         "contains": "Android"
+      },
+      "Authorization": {
+        "matches": "Bearer .+"
       }
     }
   },

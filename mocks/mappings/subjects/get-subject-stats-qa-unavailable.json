@@ -2,7 +2,12 @@
   "priority": 1,
   "request": {
     "method": "GET",
-    "urlPath": "/subjects/v1/QA"
+    "urlPath": "/subjects/v1/QA",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "status": 404,

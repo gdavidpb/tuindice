@@ -7,7 +7,12 @@
       {
         "matchesJsonPath": "$[?(@.password == 'enrollment-unavailable-pass')]"
       }
-    ]
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "status": 200,

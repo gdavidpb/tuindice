@@ -7,6 +7,8 @@ class CredentialsDataSource(
 	private val secureStore: SecureKeyValueDataRepository,
 	private val legacySecureStore: SecureKeyValueDataRepository
 ) : CredentialsRepository {
+	private var memoryPassword: String? = null
+
 	override suspend fun hasPassword(): Boolean {
 		return readPassword() != null
 	}
@@ -21,12 +23,14 @@ class CredentialsDataSource(
 			key = SecureStoreKeys.UNIVERSITY_PASSWORD,
 			value = password
 		)
+		memoryPassword = password
 		runCatching {
 			legacySecureStore.remove(SecureStoreKeys.UNIVERSITY_PASSWORD)
 		}
 	}
 
 	override suspend fun clearPassword() {
+		memoryPassword = null
 		runCatching {
 			secureStore.remove(SecureStoreKeys.UNIVERSITY_PASSWORD)
 		}
@@ -36,12 +40,17 @@ class CredentialsDataSource(
 	}
 
 	private suspend fun readPassword(): String? {
+		memoryPassword?.let { return it }
+
 		val activePassword = runCatching {
 			secureStore.getString(SecureStoreKeys.UNIVERSITY_PASSWORD)
 				?.takeIf(String::isNotBlank)
 		}.getOrNull()
 
-		if (activePassword != null) return activePassword
+		if (activePassword != null) {
+			memoryPassword = activePassword
+			return activePassword
+		}
 
 		val legacyPassword = runCatching {
 			legacySecureStore.getString(SecureStoreKeys.UNIVERSITY_PASSWORD)
@@ -61,6 +70,7 @@ class CredentialsDataSource(
 				secureStore.getString(SecureStoreKeys.UNIVERSITY_PASSWORD) == password
 			)
 			legacySecureStore.remove(SecureStoreKeys.UNIVERSITY_PASSWORD)
+			memoryPassword = password
 			password
 		}.getOrElse {
 			runCatching {

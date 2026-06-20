@@ -5,7 +5,12 @@
   "newScenarioState": "FirstFailure",
   "request": {
     "method": "GET",
-    "urlPath": "/record/v5"
+    "urlPath": "/record/v5",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "status": 503,

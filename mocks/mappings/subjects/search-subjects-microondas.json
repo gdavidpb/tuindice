@@ -6,6 +6,11 @@
       "query": {
         "contains": "microondas"
       }
+    },
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
     }
   },
   "response": {

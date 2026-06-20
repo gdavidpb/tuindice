@@ -1,7 +1,12 @@
 {
   "request": {
     "method": "GET",
-    "urlPath": "/subjects/v1/CI4325"
+    "urlPath": "/subjects/v1/CI4325",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "status": 200,

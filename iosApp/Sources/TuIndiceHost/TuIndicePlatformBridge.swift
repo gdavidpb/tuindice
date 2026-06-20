@@ -37,6 +37,7 @@ import Maincore
 #if canImport(maincore) || canImport(Maincore)
 final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
     private let appStoreUrl: String?
+    private let apiBaseUrl: String?
     private let secureStore = KeychainSecureStore(
         service: Bundle.main.bundleIdentifier ?? "com.gdavidpb.tuindice.securestore"
     )
@@ -58,12 +59,13 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         TuIndiceFirebaseRuntimeState.isConfigured
     }
 
-    init(appStoreUrl: String? = nil) {
+    init(appStoreUrl: String? = nil, apiBaseUrl: String? = nil) {
         if let appStoreUrl, appStoreUrl.isEmpty == false {
             self.appStoreUrl = appStoreUrl
         } else {
             self.appStoreUrl = nil
         }
+        self.apiBaseUrl = apiBaseUrl
         super.init()
 
         pathMonitor.pathUpdateHandler = { [weak self] path in
@@ -410,6 +412,18 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
         return UIApplication.shared.canOpenURL(url)
     }
 
+    private func isLocalApiBaseUrl(_ value: String?) -> Bool {
+        guard let value,
+              let host = URL(string: value)?.host?.lowercased() else {
+            return false
+        }
+
+        return host == "localhost" ||
+            host == "127.0.0.1" ||
+            host == "0.0.0.0" ||
+            host == "::1"
+    }
+
     func sendEmail(email: String, subject: String, text: String) {
         let encodedSubject = subject.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
         let encodedBody = text.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
@@ -446,7 +460,17 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
     }
 
     func isNetworkAvailable() -> Bool {
-        stateQueue.sync { isReachable }
+        #if DEBUG
+        if let override = TuIndiceDebugRuntimeOverrides.networkAvailabilityOverride() {
+            return override
+        }
+
+        if isLocalApiBaseUrl(apiBaseUrl) {
+            return true
+        }
+        #endif
+
+        return stateQueue.sync { isReachable }
     }
 
     func setUserIdentifier(identifier: String) {

@@ -230,7 +230,7 @@ flows:
     actions_covered:
       - record.Record.SelectTerm
     primary_selectors:
-      - record_term_chip_2026-2
+      - record_term_chip_d377155d39da686f412622aaca9074cd
       - record_enrollment_proof_button
   - id: shared-launch-seeded-authenticated
     path: e2e/maestro/flows/_shared/launch-seeded-authenticated.yaml
@@ -672,13 +672,13 @@ flows:
       - wizard.Wizard.SetSubjectChartsVisible
     primary_selectors:
       - record_top_bar_view_mode_switch
-      - record_term_chip_2025-3
-      - record_term_chip_2024-3
-      - record_term_current_chip_2026-2
+      - record_term_chip_47f5aaff77822ce6f0fd6615b208eab9
+      - record_term_chip_387af2b5460eb43705ecc69c42dd1b4b
+      - record_term_current_chip_d377155d39da686f412622aaca9074cd
       - base_top_app_bar_action_record_term_selection
       - record_term_selection_sheet
       - record_term_selection_list
-      - record_term_selection_option_2026-2
+      - record_term_selection_option_d377155d39da686f412622aaca9074cd
       - pensum_node_ma1111
       - pensum_subject_detail_sheet
       - pensum_subject_detail_more_button
@@ -1027,7 +1027,7 @@ flows:
     actions_covered:
       - record.Record.SelectTerm
     primary_selectors:
-      - record_term_chip_2026-2
+      - record_term_chip_d377155d39da686f412622aaca9074cd
       - record_enrollment_proof_button
       - record_content_container
   - id: enrollmentproof-suite
@@ -1072,7 +1072,7 @@ flows:
       - auth_password_text_field
       - auth_sign_in_button
       - wizard_welcome_screen
-      - record_term_chip_2026-2
+      - record_term_chip_d377155d39da686f412622aaca9074cd
       - record_enrollment_proof_button
       - enrollment_fetching_sheet
       - enrollment_fetching_loading_container

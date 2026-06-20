@@ -2,7 +2,12 @@
   "priority": 1,
   "request": {
     "method": "GET",
-    "urlPath": "/subjects/v1/MA1112"
+    "urlPath": "/subjects/v1/MA1112",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "status": 200,

@@ -7,7 +7,12 @@
       {
         "matchesJsonPath": "$[?(@.password == 'expired-pass')]"
       }
-    ]
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "status": 409,

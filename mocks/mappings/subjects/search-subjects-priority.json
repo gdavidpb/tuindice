@@ -7,6 +7,11 @@
       "query": {
         "contains": "prioridad"
       }
+    },
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
     }
   },
   "response": {

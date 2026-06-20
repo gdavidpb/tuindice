@@ -17,7 +17,7 @@ appId: com.gdavidpb.tuindice.debug
 - tapOn:
     id: record_top_bar_view_mode_switch
 - tapOn:
-    id: record_term_chip_2026-2
+    id: record_term_chip_d377155d39da686f412622aaca9074cd
 - extendedWaitUntil:
     visible:
       id: record_enrollment_proof_button

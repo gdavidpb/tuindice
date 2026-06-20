@@ -10,7 +10,12 @@
       {
         "matchesJsonPath": "$[?(@.password == 'record-retry-pass')]"
       }
-    ]
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "status": 503,

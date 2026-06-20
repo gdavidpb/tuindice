@@ -727,6 +727,31 @@ check_path_absent() {
 	fi
 }
 
+check_protected_mappings_require_bearer() {
+	local protected_path_pattern='^/(users/v1($|/)|messaging/v1$|record/v5($|/)|evaluations/v3($|/)|enrollment-proof/v1$|subjects/v1($|/)|pensums/v4$)'
+	local protected_mapping_issues=0
+
+	while IFS= read -r mapping_path; do
+		if jq -e --arg pattern "${protected_path_pattern}" '
+			def authMatcher: .request.headers.Authorization?;
+			(.request.urlPath? // "" | test($pattern)) and
+				(
+					authMatcher == null or
+					(((authMatcher.equalTo? // authMatcher.matches? // "") | startswith("Bearer ")) | not)
+				)
+		' "${mapping_path}" >/dev/null; then
+			printf 'Protected mapping must require Bearer Authorization: %s\n' "${mapping_path#"${REPO_ROOT}/"}" >&2
+			protected_mapping_issues=1
+		fi
+	done < <(find "${REPO_ROOT}/mocks/mappings" -name '*.json' -type f | sort)
+
+	if [[ "${protected_mapping_issues}" -ne 0 ]]; then
+		fixture_contract_mismatches=1
+	fi
+}
+
+check_protected_mappings_require_bearer
+
 check_flow_types_value \
 	"${FLOWS_ROOT}/summary/summary-refresh-retry.yaml" \
 	"${E2E_SUMMARY_REFRESH_RETRY_PASSWORD}" \
@@ -777,7 +802,7 @@ for summary_retry_mapping in \
 	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-fails-android-second.json" \
 	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-success.json"
 do
-	check_mapping_not_contains \
+	check_mapping_contains \
 		"${summary_retry_mapping}" \
 		"\"Authorization\"" \
 		"Summary refresh retry user"
@@ -830,7 +855,7 @@ for record_retry_mapping in \
 	"${REPO_ROOT}/mocks/mappings/record/get-record-refresh-retry-unavailable-once.json" \
 	"${REPO_ROOT}/mocks/mappings/record/get-record-refresh-retry-success.json"
 do
-	check_mapping_not_contains \
+	check_mapping_contains \
 		"${record_retry_mapping}" \
 		"\"Authorization\"" \
 		"Record refresh retry record"

@@ -26,6 +26,7 @@ class SessionDataSourceTest {
 		dataSource.setSessionSnapshot(snapshot)
 
 		assertEquals(snapshot, dataSource.getActiveSessionSnapshot())
+		assertEquals("12-34567", memorySessionDataSource.usbId)
 		assertEquals("session-1", memorySessionDataSource.sessionId)
 		assertEquals("access-1", memorySessionDataSource.accessToken)
 		assertEquals("refresh-1", memorySessionDataSource.refreshToken)
@@ -56,9 +57,31 @@ class SessionDataSourceTest {
 		)
 
 		assertEquals(expectedSnapshot, dataSource.getActiveSessionSnapshot())
+		assertEquals("12-34567", memorySessionDataSource.usbId)
 		assertEquals("session-1", memorySessionDataSource.sessionId)
 		assertEquals("access-1", memorySessionDataSource.accessToken)
 		assertEquals("refresh-1", memorySessionDataSource.refreshToken)
+	}
+
+	@Test
+	fun getActiveSessionSnapshot_readsCompleteMemorySessionWithoutPreferencesUsbId() = runTest {
+		val expectedSnapshot = SessionSnapshot(
+			sessionId = "session-1",
+			accessToken = "access-1",
+			refreshToken = "refresh-1",
+			usbId = "12-34567"
+		)
+		val dataSource = SessionDataSource(
+			memorySessionDataSource = FakeMemorySessionDataRepository(
+				usbId = expectedSnapshot.usbId,
+				sessionId = expectedSnapshot.sessionId,
+				accessToken = expectedSnapshot.accessToken,
+				refreshToken = expectedSnapshot.refreshToken
+			),
+			preferencesSessionDataSource = FakePreferencesSessionDataRepository()
+		)
+
+		assertEquals(expectedSnapshot, dataSource.getActiveSessionSnapshot())
 	}
 
 	@Test
@@ -90,12 +113,17 @@ class SessionDataSourceTest {
 }
 
 private class FakeMemorySessionDataRepository(
+	var usbId: String? = null,
 	var sessionId: String? = null,
 	var accessToken: String? = null,
 	var refreshToken: String? = null
 ) : MemorySessionDataRepository {
 	override suspend fun hasActiveSession(): Boolean {
-		return sessionId != null && accessToken != null && refreshToken != null
+		return usbId != null && sessionId != null && accessToken != null && refreshToken != null
+	}
+
+	override suspend fun setUsbId(usbId: String) {
+		this.usbId = usbId
 	}
 
 	override suspend fun setSessionId(sessionId: String) {
@@ -110,6 +138,8 @@ private class FakeMemorySessionDataRepository(
 		this.refreshToken = refreshToken
 	}
 
+	override suspend fun getUsbId(): String? = usbId
+
 	override suspend fun getSessionId(): String? = sessionId
 
 	override suspend fun getAccessToken(): String? = accessToken
@@ -117,6 +147,7 @@ private class FakeMemorySessionDataRepository(
 	override suspend fun getRefreshToken(): String? = refreshToken
 
 	override suspend fun clear() {
+		usbId = null
 		sessionId = null
 		accessToken = null
 		refreshToken = null

@@ -31,6 +31,23 @@ enum TuIndiceDebugRuntimeOverrides {
         #endif
     }
 
+    static func networkAvailabilityOverride() -> Bool? {
+        #if DEBUG
+        guard let rawValue = launchArgumentString(for: networkAvailabilityKey) else { return nil }
+
+        switch rawValue.trimmingCharacters(in: .whitespacesAndNewlines).lowercased() {
+        case "true", "1", "yes":
+            return true
+        case "false", "0", "no":
+            return false
+        default:
+            return nil
+        }
+        #else
+        return nil
+        #endif
+    }
+
     #if canImport(maincore) || canImport(Maincore)
     static func configureRemoteConfigOverridesIfNeeded(
         appBootstrap: IosAppHostBootstrap
@@ -96,6 +113,7 @@ enum TuIndiceDebugRuntimeOverrides {
 private extension TuIndiceDebugRuntimeOverrides {
     static let apiBaseUrlKey = "TUINDICE_E2E_API_BASE_URL"
     static let webBaseUrlKey = "TUINDICE_E2E_WEB_BASE_URL"
+    static let networkAvailabilityKey = "TUINDICE_E2E_NETWORK_AVAILABLE"
     static let seedStateKey = "TUINDICE_E2E_SEED_STATE"
     static let mainSectionKey = "TUINDICE_E2E_MAIN_SECTION"
     static let availabilityNoticeEnabledKey = "TUINDICE_E2E_AVAILABILITY_NOTICE_ENABLED"

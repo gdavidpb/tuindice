@@ -4,7 +4,12 @@
   "newScenarioState": "PictureUploaded",
   "request": {
     "method": "POST",
-    "urlPath": "/users/v1/picture"
+    "urlPath": "/users/v1/picture",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "status": 201,

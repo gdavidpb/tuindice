@@ -17,10 +17,10 @@ appId: com.gdavidpb.tuindice.debug
     id: record_top_bar_view_mode_switch
 - extendedWaitUntil:
     visible:
-      id: record_term_chip_2025-3
+      id: record_term_chip_47f5aaff77822ce6f0fd6615b208eab9
     timeout: 10000
 - tapOn:
-    id: record_term_chip_2024-3
+    id: record_term_chip_387af2b5460eb43705ecc69c42dd1b4b
 - extendedWaitUntil:
     visible:
       id: record_attempts_list
@@ -29,7 +29,7 @@ appId: com.gdavidpb.tuindice.debug
     id: record_top_bar_view_mode_switch
 - extendedWaitUntil:
     visible:
-      id: record_term_current_chip_2026-2
+      id: record_term_current_chip_d377155d39da686f412622aaca9074cd
     timeout: 10000
 - tapOn:
     id: wizard_primary_button
@@ -48,9 +48,9 @@ appId: com.gdavidpb.tuindice.debug
 - assertVisible:
     id: record_term_selection_list
 - assertVisible:
-    id: record_term_selection_option_2026-2
+    id: record_term_selection_option_d377155d39da686f412622aaca9074cd
 - tapOn:
-    id: record_term_selection_option_2026-2
+    id: record_term_selection_option_d377155d39da686f412622aaca9074cd
 - extendedWaitUntil:
     visible:
       id: wizard_current_step_record_actions

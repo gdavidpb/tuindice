@@ -4,6 +4,7 @@ appId: com.gdavidpb.tuindice.debug
     stopApp: true
     clearState: true
     arguments:
+      TUINDICE_E2E_NETWORK_AVAILABLE: "true"
       TUINDICE_E2E_AVAILABILITY_NOTICE_ENABLED: "true"
       TUINDICE_E2E_AVAILABILITY_NOTICE_TITLE: "Servicio no disponible"
       TUINDICE_E2E_AVAILABILITY_NOTICE_MESSAGE: "Estamos realizando mantenimiento. Intenta nuevamente más tarde."
@@ -15,6 +16,7 @@ appId: com.gdavidpb.tuindice.debug
           stopApp: false
           clearState: false
           arguments:
+            TUINDICE_E2E_NETWORK_AVAILABLE: "true"
             TUINDICE_E2E_AVAILABILITY_NOTICE_ENABLED: "true"
             TUINDICE_E2E_AVAILABILITY_NOTICE_TITLE: "Servicio no disponible"
             TUINDICE_E2E_AVAILABILITY_NOTICE_MESSAGE: "Estamos realizando mantenimiento. Intenta nuevamente más tarde."

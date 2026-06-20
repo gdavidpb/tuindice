@@ -62,6 +62,22 @@ class CredentialsDataSourceTest {
 	}
 
 	@Test
+	fun setPasswordKeepsPasswordAvailableWhenActiveStoreReadReturnsNull() = runTest {
+		val activeStore = FakeSecureKeyValueDataRepository(dropReads = true)
+		val legacyStore = FakeSecureKeyValueDataRepository()
+		val dataSource = CredentialsDataSource(
+			secureStore = activeStore,
+			legacySecureStore = legacyStore
+		)
+
+		dataSource.setPassword("new-password")
+
+		assertTrue(dataSource.hasPassword())
+		assertEquals("new-password", dataSource.getPassword())
+		assertEquals("new-password", activeStore.values[UNIVERSITY_PASSWORD_KEY])
+	}
+
+	@Test
 	fun clearPasswordRemovesActiveAndLegacyValues() = runTest {
 		val activeStore = FakeSecureKeyValueDataRepository(
 			initialValues = mapOf(UNIVERSITY_PASSWORD_KEY to "active-password")
@@ -81,17 +97,34 @@ class CredentialsDataSourceTest {
 		assertNull(legacyStore.values[UNIVERSITY_PASSWORD_KEY])
 	}
 
+	@Test
+	fun clearPasswordClearsMemoryPassword() = runTest {
+		val activeStore = FakeSecureKeyValueDataRepository(dropReads = true)
+		val legacyStore = FakeSecureKeyValueDataRepository()
+		val dataSource = CredentialsDataSource(
+			secureStore = activeStore,
+			legacySecureStore = legacyStore
+		)
+
+		dataSource.setPassword("new-password")
+		dataSource.clearPassword()
+
+		assertFalse(dataSource.hasPassword())
+	}
+
 	private companion object {
 		const val UNIVERSITY_PASSWORD_KEY = "universityPassword"
 	}
 }
 
 private class FakeSecureKeyValueDataRepository(
-	initialValues: Map<String, String> = emptyMap()
+	initialValues: Map<String, String> = emptyMap(),
+	private val dropReads: Boolean = false
 ) : SecureKeyValueDataRepository {
 	val values = initialValues.toMutableMap()
 
-	override suspend fun getString(key: String): String? = values[key]
+	override suspend fun getString(key: String): String? =
+		if (dropReads) null else values[key]
 
 	override suspend fun putString(key: String, value: String) {
 		values[key] = value

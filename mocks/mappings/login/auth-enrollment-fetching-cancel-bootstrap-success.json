@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-enrollment-fetching-cancel-login",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "BootstrapIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic MTEtMTExMTE6ZW5yb2xsbWVudC1mZXRjaGluZy1jYW5jZWwtcGFzcw=="
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "enrollment-fetching-cancel-user",
+      "usb_id": "11-11111",
+      "access_token": "bootstrap.mock.enrollment.fetching.cancel.token",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

@@ -4,6 +4,7 @@ appId: com.gdavidpb.tuindice.debug
     stopApp: true
     clearState: true
     arguments:
+      TUINDICE_E2E_NETWORK_AVAILABLE: "true"
       TUINDICE_E2E_WIZARD_PENDING: "true"
 - runFlow:
     when:
@@ -13,6 +14,7 @@ appId: com.gdavidpb.tuindice.debug
           stopApp: true
           clearState: false
           arguments:
+            TUINDICE_E2E_NETWORK_AVAILABLE: "true"
             TUINDICE_E2E_WIZARD_PENDING: "true"
 - extendedWaitUntil:
     visible:

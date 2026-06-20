@@ -3,12 +3,17 @@ package com.gdavidpb.tuindice.base.data.source
 import com.gdavidpb.tuindice.base.data.repository.MemorySessionDataRepository
 
 class InMemorySessionDataSource : MemorySessionDataRepository {
+	private var usbId: String? = null
 	private var sessionId: String? = null
 	private var accessToken: String? = null
 	private var refreshToken: String? = null
 
 	override suspend fun hasActiveSession(): Boolean {
-		return sessionId != null && accessToken != null && refreshToken != null
+		return usbId != null && sessionId != null && accessToken != null && refreshToken != null
+	}
+
+	override suspend fun setUsbId(usbId: String) {
+		this.usbId = usbId
 	}
 
 	override suspend fun setSessionId(sessionId: String) {
@@ -21,6 +26,10 @@ class InMemorySessionDataSource : MemorySessionDataRepository {
 
 	override suspend fun setRefreshToken(refreshToken: String) {
 		this.refreshToken = refreshToken
+	}
+
+	override suspend fun getUsbId(): String? {
+		return usbId
 	}
 
 	override suspend fun getSessionId(): String? {
@@ -36,6 +45,7 @@ class InMemorySessionDataSource : MemorySessionDataRepository {
 	}
 
 	override suspend fun clear() {
+		usbId = null
 		sessionId = null
 		accessToken = null
 		refreshToken = null

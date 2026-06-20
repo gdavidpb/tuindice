@@ -1,7 +1,12 @@
 {
   "request": {
     "method": "POST",
-    "urlPath": "/record/v5/overlay/terms/load-preview"
+    "urlPath": "/record/v5/overlay/terms/load-preview",
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
   },
   "response": {
     "transformers": [
