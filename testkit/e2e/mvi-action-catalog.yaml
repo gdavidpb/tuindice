@@ -561,13 +561,13 @@ actions:
   - id: wizard.Wizard.SelectTerm
     classification: user
     variants: [guided-term]
-    selector: record_term_chip_387af2b5460eb43705ecc69c42dd1b4b
+    selector: record_term_chip_2024-3
     flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
     fixture_state: first-launch
   - id: wizard.Wizard.DismissRecordTermSelection
     classification: user
     variants: [guided-term-sheet-dismiss]
-    selector: record_term_selection_option_d377155d39da686f412622aaca9074cd
+    selector: record_term_selection_option_2026-2
     flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
     fixture_state: first-launch
   - id: wizard.Wizard.SetSubjectChartsVisible
