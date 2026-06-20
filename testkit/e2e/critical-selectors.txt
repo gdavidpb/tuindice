@@ -39,7 +39,6 @@ wizard_current_step_evaluation_swipe
 wizard_current_step_evaluation_form
 wizard_current_step_about
 summary_content_container
-summary_status_icon_halo
 summary_status_icon_button
 summary_sync_status_message
 summary_profile_picture_container

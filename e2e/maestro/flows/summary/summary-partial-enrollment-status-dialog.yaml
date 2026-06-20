@@ -14,7 +14,7 @@ appId: com.gdavidpb.tuindice.debug
 - runFlow: ../_shared/continue-to-summary-after-auth.yaml
 - extendedWaitUntil:
     visible:
-      id: summary_status_icon_halo
+      id: summary_status_icon_button
     timeout: 10000
 - tapOn:
     id: summary_status_icon_button
@@ -29,7 +29,7 @@ appId: com.gdavidpb.tuindice.debug
     id: base_confirmation_dialog_positive_button
 - extendedWaitUntil:
     notVisible:
-      id: summary_status_icon_halo
+      id: summary_sync_status_message
     timeout: 10000
 - assertVisible:
     id: summary_content_container
