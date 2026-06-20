@@ -1,13 +1,13 @@
 {
   "priority": 1,
   "scenarioName": "summary-refresh-retry",
-  "requiredScenarioState": "FailedOnce",
+  "requiredScenarioState": "FailedTwice",
   "request": {
     "method": "GET",
     "urlPath": "/users/v1",
     "headers": {
       "User-Agent": {
-        "contains": "Android"
+        "contains": "iOS"
       },
       "Authorization": {
         "matches": "Bearer .+"

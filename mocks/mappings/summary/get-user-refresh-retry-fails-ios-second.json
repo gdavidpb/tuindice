@@ -2,12 +2,13 @@
   "priority": 1,
   "scenarioName": "summary-refresh-retry",
   "requiredScenarioState": "FailedOnce",
+  "newScenarioState": "FailedTwice",
   "request": {
     "method": "GET",
     "urlPath": "/users/v1",
     "headers": {
       "User-Agent": {
-        "contains": "Android"
+        "contains": "iOS"
       },
       "Authorization": {
         "matches": "Bearer .+"
@@ -15,11 +16,10 @@
     }
   },
   "response": {
-    "status": 200,
+    "status": 503,
     "headers": {
       "Content-Type": "application/json"
     },
-    "bodyFileName": "summary/get-user-started.json",
     "fixedDelayMilliseconds": 500
   }
 }

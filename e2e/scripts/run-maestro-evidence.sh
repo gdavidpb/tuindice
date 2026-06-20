@@ -176,6 +176,7 @@ run_suite_evidence() {
 	DEBUG_OUTPUT_DIR="${CERTIFICATION_DIR}/maestro-debug"
 
 	mkdir -p "${CERTIFICATION_DIR}" "${TEST_OUTPUT_DIR}" "${DEBUG_OUTPUT_DIR}"
+	rm -f "${MANIFEST_FILE}" "${REPORT_FILE}"
 
 	export E2E_MAESTRO_SUITE="${suite_path}"
 	export E2E_REPORT_DIR="${CERTIFICATION_DIR}"
