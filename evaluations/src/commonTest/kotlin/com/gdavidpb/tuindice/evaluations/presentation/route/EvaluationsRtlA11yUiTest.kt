@@ -27,6 +27,7 @@ import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.ReadyRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.evaluations.testing.RecordingSyncStatusRepository
 import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.TuIndiceTestSizeClass
@@ -177,6 +178,7 @@ class EvaluationsRtlA11yUiTest {
 				getEvaluationsUseCase = GetEvaluationsUseCase(
 					evaluationRepository = repository,
 					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+					syncStatusRepository = RecordingSyncStatusRepository(),
 					reportingRepository = RecordingReportingRepository()
 				),
 				updateEvaluationsUseCase = UpdateEvaluationsUseCase(

@@ -67,8 +67,10 @@ class EvaluationsMachine(
 							EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved
 						)
 
-						GetEvaluations.NoAttempts -> host.processInternalEvent(
-							EvaluationsInternalEvent.EvaluationsNoAttemptsObserved
+						is GetEvaluations.NoAttempts -> host.processInternalEvent(
+							EvaluationsInternalEvent.EvaluationsNoAttemptsObserved(
+								reason = evaluations.reason
+							)
 						)
 
 						is GetEvaluations.Content -> when (

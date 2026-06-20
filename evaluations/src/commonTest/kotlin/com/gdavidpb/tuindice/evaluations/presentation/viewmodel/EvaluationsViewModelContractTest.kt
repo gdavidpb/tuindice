@@ -64,6 +64,7 @@ class EvaluationsViewModelContractTest {
 				getEvaluationsUseCase = GetEvaluationsUseCase(
 					evaluationRepository = repository,
 					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+					syncStatusRepository = RecordingSyncStatusRepository(),
 					reportingRepository = RecordingReportingRepository()
 				),
 				updateEvaluationsUseCase = UpdateEvaluationsUseCase(

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.machine
 
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableAttemptsUseCase
@@ -26,6 +27,7 @@ import com.gdavidpb.tuindice.evaluations.testing.FakeIdentifierRepository
 import com.gdavidpb.tuindice.evaluations.testing.ReadyRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.evaluations.testing.RecordingSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
@@ -138,6 +140,7 @@ class EvaluationsStateMachineContractTest {
 			getEvaluationsUseCase = GetEvaluationsUseCase(
 				evaluationRepository = repository,
 				recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+				syncStatusRepository = RecordingSyncStatusRepository(),
 				reportingRepository = reportingRepository
 			),
 			updateEvaluationsUseCase = UpdateEvaluationsUseCase(
@@ -187,7 +190,9 @@ class EvaluationsStateMachineContractTest {
 				Evaluations.Action.RemoveEvaluation(evaluationId = "evaluation-1"),
 				EvaluationsInternalEvent.EvaluationsWaitingObserved,
 				EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved,
-				EvaluationsInternalEvent.EvaluationsNoAttemptsObserved,
+				EvaluationsInternalEvent.EvaluationsNoAttemptsObserved(
+					reason = EvaluationsNoAttemptsReason.NoCurrentTerm
+				),
 				EvaluationsInternalEvent.EvaluationsContentObserved(
 					weekItems = listOf(weekItem),
 					defaultWeekKey = weekKey,
@@ -310,6 +315,7 @@ class EvaluationsStateMachineContractTest {
 				getEvaluationsUseCase = GetEvaluationsUseCase(
 					evaluationRepository = repository,
 					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+					syncStatusRepository = RecordingSyncStatusRepository(),
 					reportingRepository = reportingRepository
 				),
 				updateEvaluationsUseCase = UpdateEvaluationsUseCase(

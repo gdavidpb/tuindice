@@ -6,12 +6,15 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
+import com.gdavidpb.tuindice.base.domain.model.SyncReport
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalCurrentTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEditableAttemptDescriptor
@@ -57,6 +60,44 @@ class ReadyRecordDataPrerequisiteRepository(
 	override fun observeRecordDataPrerequisiteFlow(): Flow<RecordDataPrerequisiteState> = states
 
 	override suspend fun isRecordDataReady(): Boolean = states.first().isReady
+}
+
+class RecordingSyncStatusRepository(
+	initialReport: SyncReport = SyncReport.success()
+) : SyncStatusRepository {
+	private val syncStatus = MutableStateFlow(SyncStatus.Healthy)
+	private val syncReport = MutableStateFlow(initialReport)
+	private val lastSuccessfulSyncAt = MutableStateFlow<Long?>(null)
+
+	override fun observeSyncStatus(): Flow<SyncStatus> = syncStatus
+
+	override fun observeSyncReport(): Flow<SyncReport> = syncReport
+
+	override fun observeLastSuccessfulSyncAt(): Flow<Long?> = lastSuccessfulSyncAt
+
+	override suspend fun getSyncStatus(): SyncStatus = syncStatus.value
+
+	override suspend fun getSyncReport(): SyncReport = syncReport.value
+
+	override suspend fun getLastSuccessfulSyncAt(): Long? = lastSuccessfulSyncAt.value
+
+	override suspend fun setSyncStatus(status: SyncStatus) {
+		syncStatus.value = status
+	}
+
+	override suspend fun setSyncReport(report: SyncReport) {
+		syncReport.value = report
+	}
+
+	override suspend fun setLastSuccessfulSyncAt(timestamp: Long) {
+		lastSuccessfulSyncAt.value = timestamp
+	}
+
+	override suspend fun reset() {
+		syncStatus.value = SyncStatus.Healthy
+		syncReport.value = SyncReport.success()
+		lastSuccessfulSyncAt.value = null
+	}
 }
 
 val DEFAULT_EVALUATION_SUBJECT = EditableAttemptDescriptor(

@@ -67,8 +67,8 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsAnyStateTran
 			Evaluations.State.Failed
 		}
 
-		onTo<EvaluationsInternalEvent.EvaluationsNoAttemptsObserved, Evaluations.State.NoAttempts> { _, _ ->
-			Evaluations.State.NoAttempts
+		onTo<EvaluationsInternalEvent.EvaluationsNoAttemptsObserved, Evaluations.State.NoAttempts> { _, event ->
+			Evaluations.State.NoAttempts(reason = event.reason)
 		}
 
 		onTo<EvaluationsInternalEvent.EvaluationsContentObserved, Evaluations.State.Content> { state, event ->

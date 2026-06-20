@@ -2,8 +2,10 @@ package com.gdavidpb.tuindice.evaluations.ui.screen
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsContentState
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -91,7 +93,7 @@ class EvaluationsScreenUiTest {
 	fun when_stateIsNoAttempts_then_displaysEmptyContainerWithoutActionButton() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			EvaluationsScreen(
-				state = Evaluations.State.NoAttempts,
+				state = Evaluations.State.NoAttempts(EvaluationsNoAttemptsReason.NoCurrentTerm),
 				onAddEvaluationClick = {},
 				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
@@ -102,4 +104,25 @@ class EvaluationsScreenUiTest {
 
 		assertNodeVisible(BaseUiTags.EmptyViewContainer)
 	}
+
+	@Test
+	fun when_stateIsNoAttemptsBecauseEnrollmentIsUnavailable_then_displaysEnrollmentUnavailableMessage() =
+		runTuIndiceUiTest {
+			setTuIndiceTestContent {
+				EvaluationsScreen(
+					state = Evaluations.State.NoAttempts(EvaluationsNoAttemptsReason.EnrollmentUnavailable),
+					onAddEvaluationClick = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {},
+					onRetryClick = {}
+				)
+			}
+
+			onNodeWithText("Servicio de inscripción no disponible").assertExists()
+			onNodeWithText(
+				"En este momento no está disponible el servicio de inscripción de la universidad. " +
+					"Intenta sincronizar de nuevo más tarde para cargar las materias del trimestre."
+			).assertExists()
+		}
 }
