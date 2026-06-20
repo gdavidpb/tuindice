@@ -33,6 +33,8 @@ private fun AcademicTermPeriod.startMonth(): Month = when (this) {
 	AcademicTermPeriod.APR_JUL -> Month.APRIL
 	AcademicTermPeriod.JUL_AUG -> Month.JULY
 	AcademicTermPeriod.SEP_DEC -> Month.SEPTEMBER
+	AcademicTermPeriod.JUL_DEC -> Month.JULY
+	AcademicTermPeriod.APR_SEP -> Month.APRIL
 }
 
 internal const val DAYS_PER_WEEK = 7

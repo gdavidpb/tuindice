@@ -12,6 +12,7 @@ import tuindice.record.generated.resources.create_term_error_subject_already_pla
 import tuindice.record.generated.resources.create_term_error_subject_already_taken
 import tuindice.record.generated.resources.create_term_error_term_already_exists
 import tuindice.record.generated.resources.create_term_error_term_must_be_after_latest
+import tuindice.record.generated.resources.create_term_error_unsupported_period
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -21,6 +22,7 @@ class CreateSyntheticTermErrorMessagesTest {
 		val expectations = mapOf(
 			SyntheticTermValidationError.RECORD_UNAVAILABLE to Res.string.create_term_error_record_unavailable,
 			SyntheticTermValidationError.TERM_NOT_FOUND to Res.string.create_term_error_record_unavailable,
+			SyntheticTermValidationError.UNSUPPORTED_PERIOD to Res.string.create_term_error_unsupported_period,
 			SyntheticTermValidationError.PERIOD_IN_PAST to Res.string.create_term_error_period_in_past,
 			SyntheticTermValidationError.TERM_ALREADY_EXISTS to Res.string.create_term_error_term_already_exists,
 			SyntheticTermValidationError.TERM_MUST_BE_AFTER_LATEST to Res.string.create_term_error_term_must_be_after_latest,

@@ -51,6 +51,9 @@ internal object SyntheticTermCommandValidator {
 		period: SyntheticTermPeriodOption,
 		keepsSameTermKey: Boolean
 	) {
+		if (!period.periodCode.supportsSyntheticPlanning) {
+			throw SyntheticTermValidationException(SyntheticTermValidationError.UNSUPPORTED_PERIOD)
+		}
 		if (otherTerms.any { term -> term.termKey == period.termKey }) {
 			throw SyntheticTermValidationException(SyntheticTermValidationError.TERM_ALREADY_EXISTS)
 		}

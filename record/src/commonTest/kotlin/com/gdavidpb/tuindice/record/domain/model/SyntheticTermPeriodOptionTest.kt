@@ -46,4 +46,10 @@ class SyntheticTermPeriodOptionTest {
 
 		assertEquals("Abr - Jul 2027", option.label)
 	}
+
+	@Test
+	fun longPeriods_areNotSupportedForSyntheticPlanning() {
+		assertTrue(!AcademicTermPeriod.JUL_DEC.supportsSyntheticPlanning)
+		assertTrue(!AcademicTermPeriod.APR_SEP.supportsSyntheticPlanning)
+	}
 }

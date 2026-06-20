@@ -97,6 +97,7 @@
 	<string name="create_term_no_suggestions">No hay materias sugeridas disponibles.</string>
 	<string name="create_term_search_error">No pudimos actualizar la búsqueda. Mostramos lo disponible en cache.</string>
 	<string name="create_term_error_record_unavailable">No pudimos validar tu informe. Intenta de nuevo.</string>
+	<string name="create_term_error_unsupported_period">Ese trimestre sólo está disponible como histórico de lectura.</string>
 	<string name="create_term_error_period_in_past">El trimestre seleccionado ya no está disponible.</string>
 	<string name="create_term_error_term_already_exists">Ya existe un trimestre con ese periodo.</string>
 	<string name="create_term_error_term_must_be_after_latest">El trimestre debe ser posterior al último registrado.</string>

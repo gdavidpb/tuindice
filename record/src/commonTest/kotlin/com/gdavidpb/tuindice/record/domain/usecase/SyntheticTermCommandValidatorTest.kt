@@ -66,6 +66,21 @@ class SyntheticTermCommandValidatorTest {
 	}
 
 	@Test
+	fun validate_throwsUnsupportedPeriod_whenCreatingLongAcademicTerm() {
+		assertValidationError(SyntheticTermValidationError.UNSUPPORTED_PERIOD) {
+			SyntheticTermCommandValidator.validate(
+				record = record(),
+				params = creationParams(
+					period = SyntheticTermPeriodOption(
+						periodYear = 9999,
+						periodCode = AcademicTermPeriod.APR_SEP
+					)
+				)
+			)
+		}
+	}
+
+	@Test
 	fun validate_throwsPeriodInPast_whenNewTermKeyIsBeforeCurrentPeriod() {
 		assertValidationError(SyntheticTermValidationError.PERIOD_IN_PAST) {
 			SyntheticTermCommandValidator.validate(

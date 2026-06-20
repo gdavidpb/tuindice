@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.record.domain.model
 enum class SyntheticTermValidationError {
 	RECORD_UNAVAILABLE,
 	TERM_NOT_FOUND,
+	UNSUPPORTED_PERIOD,
 	PERIOD_IN_PAST,
 	TERM_ALREADY_EXISTS,
 	TERM_MUST_BE_AFTER_LATEST,
