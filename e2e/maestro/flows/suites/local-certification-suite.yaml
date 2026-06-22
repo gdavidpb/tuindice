@@ -16,10 +16,10 @@ name: TuIndice local certification E2E suite
 - runFlow: ../auth/sign-out-cancel.yaml
 - runFlow: ../auth/pending-sign-out.yaml
 - runFlow: ../auth/pending-sign-out-flush-success.yaml
-- runFlow: wizard-suite.yaml
+- runFlow: coachmarks-suite.yaml
 - runFlow: ../_shared/launch-clean.yaml
 - runFlow: ../auth/login-success.yaml
-- runFlow: ../wizard/wizard-smoke.yaml
+- runFlow: ../coachmarks/coachmark-contextual-summary.yaml
 - runFlow: ../maincore/bottom-bar-state.yaml
 - runFlow: ../maincore/back-stack.yaml
 - runFlow: ../maincore/browser-external-dialog.yaml

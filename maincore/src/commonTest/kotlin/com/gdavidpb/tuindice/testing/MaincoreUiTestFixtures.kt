@@ -39,8 +39,6 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeUpdateRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
-import com.gdavidpb.tuindice.wizard.data.source.InMemoryWizardStartOverrideDataSource
-import com.gdavidpb.tuindice.wizard.domain.usecase.ShouldStartWizardUseCase
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.flowOf
 
@@ -130,12 +128,6 @@ fun createMainViewModel(
 			),
 			setLastMainSectionUseCase = SetLastMainSectionUseCase(
 				settingsRepository = settingsRepository,
-				reportingRepository = reportingRepository
-			),
-			shouldStartWizardUseCase = ShouldStartWizardUseCase(
-				settingsRepository = settingsRepository,
-				sessionRepository = sessionRepository,
-				wizardStartOverrideRepository = InMemoryWizardStartOverrideDataSource(),
 				reportingRepository = reportingRepository
 			)
 		),

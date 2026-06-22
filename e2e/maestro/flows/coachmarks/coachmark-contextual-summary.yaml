@@ -1,0 +1,17 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-seeded-authenticated-coachmarks-pending.yaml
+- assertVisible:
+    id: summary_content_container
+- assertVisible:
+    id: coachmark_host
+- assertVisible:
+    id: coachmark_bubble
+- assertVisible:
+    id: coachmark_anchor_summary
+- tapOn:
+    id: coachmark_confirm
+- extendedWaitUntil:
+    notVisible:
+      id: coachmark_bubble
+    timeout: 10000

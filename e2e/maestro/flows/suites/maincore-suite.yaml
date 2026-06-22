@@ -3,7 +3,7 @@ name: TuIndice maincore E2E suite
 ---
 - runFlow: ../_shared/launch-clean.yaml
 - runFlow: ../auth/login-success.yaml
-- runFlow: ../wizard/wizard-smoke.yaml
+- runFlow: ../_shared/continue-to-summary-after-auth.yaml
 - runFlow: ../maincore/bottom-bar-state.yaml
 - runFlow: ../maincore/back-stack.yaml
 - runFlow: ../maincore/browser-external-dialog.yaml

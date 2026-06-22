@@ -1,0 +1,49 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-seeded-authenticated-coachmarks-pending.yaml
+- tapOn:
+    id: coachmark_confirm
+- extendedWaitUntil:
+    notVisible:
+      id: coachmark_bubble
+    timeout: 10000
+- tapOn:
+    id: maincore_tuindice_bottom_bar_record_item
+- extendedWaitUntil:
+    visible:
+      id: record_content_container
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: coachmark_current_record
+    timeout: 20000
+- assertVisible:
+    id: coachmark_bubble
+- assertVisible:
+    id: coachmark_anchor_record
+- tapOn:
+    id: coachmark_confirm
+- extendedWaitUntil:
+    visible:
+      id: coachmark_current_record_controls
+    timeout: 10000
+- assertVisible:
+    id: coachmark_back
+- tapOn:
+    id: coachmark_back
+- extendedWaitUntil:
+    visible:
+      id: coachmark_current_record
+    timeout: 10000
+- tapOn:
+    id: coachmark_confirm
+- extendedWaitUntil:
+    visible:
+      id: coachmark_current_record_controls
+    timeout: 10000
+- tapOn:
+    id: coachmark_confirm
+- extendedWaitUntil:
+    notVisible:
+      id: coachmark_bubble
+    timeout: 10000

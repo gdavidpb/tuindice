@@ -5,7 +5,6 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.record.presentation.model.RecordRouteViewState
 import com.gdavidpb.tuindice.record.presentation.model.RecordTopBarViewModeState
-import com.gdavidpb.tuindice.wizard.presentation.model.WizardRouteViewState
 
 data class MainShellState(
 	val topBarTitle: UiText = UiText.Empty,
@@ -21,10 +20,8 @@ fun ViewState.toMainShellState(): MainShellState = MainShellState(
 	topBarConfig = topBarConfig,
 	isTopBarVisible = isTopBarVisible,
 	isBottomBarVisible = isBottomBarVisible,
-	showsTopBarBackButton = this !is WizardRouteViewState,
 	recordTopBarViewModeState = when (this) {
 		is RecordRouteViewState -> topBarViewModeState
-		is WizardRouteViewState -> topBarViewModeState
 		else -> null
 	}
 )

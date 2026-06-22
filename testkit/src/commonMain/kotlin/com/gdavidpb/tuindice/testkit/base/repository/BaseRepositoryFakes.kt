@@ -236,8 +236,9 @@ class FakeSessionInvalidationRepository : SessionInvalidationRepository {
 class FakeSettingsRepository(
 	private val reviewSuggested: Boolean = false,
 	private var lastMainSection: MainSection = MainSection.SUMMARY,
-	private var wizardCompleted: Boolean = true,
-	private var outdatedAppState: OutdatedAppState? = null
+	private var outdatedAppState: OutdatedAppState? = null,
+	private val seenCoachmarkIds: MutableSet<String> = mutableSetOf(),
+	private var legacyOnboardingCompleted: Boolean = false
 ) : SettingsRepository {
 	var cleared = false
 		private set
@@ -260,15 +261,24 @@ class FakeSettingsRepository(
 		outdatedAppState = null
 	}
 
-	override suspend fun isWizardCompleted(): Boolean = wizardCompleted
+	override suspend fun migrateLegacyOnboardingState(completedCoachmarkIds: Set<String>) {
+		if (legacyOnboardingCompleted) {
+			seenCoachmarkIds += completedCoachmarkIds
+			legacyOnboardingCompleted = false
+		}
+	}
 
-	override suspend fun setWizardCompleted() {
-		wizardCompleted = true
+	override suspend fun getSeenCoachmarkIds(): Set<String> = seenCoachmarkIds.toSet()
+
+	override suspend fun markCoachmarkSeen(coachmarkId: String) {
+		seenCoachmarkIds += coachmarkId
 	}
 
 	override suspend fun clear() {
 		cleared = true
 		outdatedAppState = null
+		seenCoachmarkIds.clear()
+		legacyOnboardingCompleted = false
 	}
 }
 

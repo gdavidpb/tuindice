@@ -1,0 +1,5 @@
+appId: com.gdavidpb.tuindice.debug
+name: TuIndice coachmarks E2E suite
+---
+- runFlow: ../coachmarks/coachmark-contextual-summary.yaml
+- runFlow: ../coachmarks/coachmark-progressive-record.yaml

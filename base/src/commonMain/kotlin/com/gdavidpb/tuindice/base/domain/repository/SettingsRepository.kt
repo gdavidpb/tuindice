@@ -13,8 +13,9 @@ interface SettingsRepository {
 	suspend fun setOutdatedAppState(state: OutdatedAppState)
 	suspend fun clearOutdatedAppState()
 
-	suspend fun isWizardCompleted(): Boolean
-	suspend fun setWizardCompleted()
+	suspend fun migrateLegacyOnboardingState(completedCoachmarkIds: Set<String>)
+	suspend fun getSeenCoachmarkIds(): Set<String>
+	suspend fun markCoachmarkSeen(coachmarkId: String)
 
 	suspend fun clear()
 }

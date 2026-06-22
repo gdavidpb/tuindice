@@ -12,14 +12,13 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
-import com.gdavidpb.tuindice.wizard.presentation.model.WizardTopBarActionBus
-import com.gdavidpb.tuindice.wizard.presentation.viewmodel.WizardViewModel
+import com.gdavidpb.tuindice.wizard.presentation.viewmodel.CoachmarkOverlayViewModel
 import kotlin.test.Test
 import org.koin.dsl.module
 
 class WizardModuleKoinSmokeTest {
 	@Test
-	fun resolvesWizardRuntime() = withKoinSmokeTest(
+	fun resolvesCoachmarkRuntime() = withKoinSmokeTest(
 		wizardModule,
 		module {
 			single<SettingsRepository> { FakeSettingsRepository() }
@@ -30,8 +29,7 @@ class WizardModuleKoinSmokeTest {
 		}
 	) {
 		assertResolves(
-			WizardViewModel::class,
-			WizardTopBarActionBus::class
+			CoachmarkOverlayViewModel::class
 		)
 	}
 }

@@ -762,7 +762,7 @@ check_flow_types_value \
 	"Record refresh retry"
 check_flow_contains \
 	"${FLOWS_ROOT}/record/record-refresh-retry.yaml" \
-	"wizard_welcome_screen|maincore_tuindice_bottom_bar_record_item|base_error_view_container" \
+	"coachmark_bubble|maincore_tuindice_bottom_bar_record_item|base_error_view_container" \
 	"Record refresh retry post-login"
 
 check_mapping_contains \

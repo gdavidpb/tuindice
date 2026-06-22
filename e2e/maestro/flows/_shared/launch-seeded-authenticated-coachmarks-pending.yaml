@@ -1,0 +1,30 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- launchApp:
+    stopApp: true
+    clearState: true
+    arguments:
+      TUINDICE_E2E_NETWORK_AVAILABLE: "true"
+      TUINDICE_E2E_SEED_STATE: "authenticatedCoachmarksPending"
+      TUINDICE_E2E_MAIN_SECTION: "SUMMARY"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - launchApp:
+          stopApp: true
+          clearState: false
+          arguments:
+            TUINDICE_E2E_NETWORK_AVAILABLE: "true"
+            TUINDICE_E2E_SEED_STATE: "authenticatedCoachmarksPending"
+            TUINDICE_E2E_MAIN_SECTION: "SUMMARY"
+- extendedWaitUntil:
+    visible:
+      id: summary_content_container
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: coachmark_current_summary
+    timeout: 10000
+- assertVisible:
+    id: coachmark_bubble

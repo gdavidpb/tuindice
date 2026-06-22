@@ -74,7 +74,12 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
-import com.gdavidpb.tuindice.wizard.presentation.model.WizardTopBarActionBus
+import com.gdavidpb.tuindice.wizard.domain.usecase.MarkCoachmarkSeenUseCase
+import com.gdavidpb.tuindice.wizard.domain.usecase.ResolveCoachmarkUseCase
+import com.gdavidpb.tuindice.wizard.presentation.machine.CoachmarkOverlayMachine
+import com.gdavidpb.tuindice.wizard.presentation.model.contextualCoachmarks
+import com.gdavidpb.tuindice.wizard.presentation.model.persistedId
+import com.gdavidpb.tuindice.wizard.presentation.viewmodel.CoachmarkOverlayViewModel
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.test.Test
@@ -1009,9 +1014,33 @@ class TuIndiceAppHostRouteUiTest {
 		single<SyncStatusRepository> { syncStatusRepository }
 		single<UpdateRepository> { FakeUpdateRepository() }
 		single<UsageDataConsentRepository> { InMemoryUsageDataConsentRepository() }
-		single { WizardTopBarActionBus() }
+		factory { createTestCoachmarkOverlayViewModel() }
 		single { PensumTopBarActionBus() }
 	}
+}
+
+private fun createTestCoachmarkOverlayViewModel(): CoachmarkOverlayViewModel {
+	val settingsRepository = FakeSettingsRepository(
+		seenCoachmarkIds = contextualCoachmarks()
+			.map { coachmark -> coachmark.id.persistedId }
+			.toMutableSet()
+	)
+	val reportingRepository = RecordingReportingRepository()
+
+	return CoachmarkOverlayViewModel(
+		screenMachine = CoachmarkOverlayMachine(
+			resolveCoachmarkUseCase = ResolveCoachmarkUseCase(
+				settingsRepository = settingsRepository,
+				sessionRepository = FakeSessionRepository(),
+				reportingRepository = reportingRepository
+			),
+			markCoachmarkSeenUseCase = MarkCoachmarkSeenUseCase(
+				settingsRepository = settingsRepository,
+				reportingRepository = reportingRepository
+			)
+		),
+		eventPublisher = NoOpEventPublisher
+	)
 }
 
 private class RecordingEventPublisher : EventPublisher {

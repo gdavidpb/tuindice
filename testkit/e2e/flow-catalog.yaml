@@ -15,7 +15,7 @@ flows:
       - auth.SignIn.SetUsbId
       - auth.SignIn.SetPassword
       - auth.SignIn.ClickSignIn
-      - wizard.Wizard.Dismiss
+      - wizard.CoachmarkOverlay.PrimaryActionClick
       - summary.Summary.RefreshSummary
       - summary.Summary.OpenProfilePictureSettings
       - record.Record.RefreshRecord
@@ -35,7 +35,7 @@ flows:
       - auth.SignOut.ClickSignOut
     covers:
       - login
-      - wizard
+      - coachmarks
       - summary
       - record
       - enrollmentproof
@@ -71,18 +71,8 @@ flows:
       - maincore.Main.SetLastMainSection
       - maincore.Browser.NavigateTo
       - maincore.Browser.OpenExternalResource
-      - wizard.Wizard.Advance
-      - wizard.Wizard.Back
-      - wizard.Wizard.Dismiss
-      - wizard.Wizard.Finish
-      - wizard.Wizard.OpenSubjectDetail
-      - wizard.Wizard.OpenEvaluationForm
-      - wizard.Wizard.ConsumeTopBarAction
-      - wizard.Wizard.SelectSubjectTab
-      - wizard.Wizard.SetRecordViewMode
-      - wizard.Wizard.SelectTerm
-      - wizard.Wizard.DismissRecordTermSelection
-      - wizard.Wizard.SetSubjectChartsVisible
+      - wizard.CoachmarkOverlay.PrimaryActionClick
+      - wizard.CoachmarkOverlay.PreviousActionClick
       - summary.Summary.RefreshSummary
       - summary.Summary.OpenProfilePictureSettings
       - summary.Summary.RemoveProfilePicture
@@ -212,11 +202,11 @@ flows:
     platforms: [android, ios]
     status: active
     variant: authenticated-summary-entry
-    fixture_state: wizard-pending-or-completed
+    fixture_state: coachmarks-pending-or-seen
     actions_covered:
-      - wizard.Wizard.Dismiss
+      - wizard.CoachmarkOverlay.PrimaryActionClick
     primary_selectors:
-      - wizard_welcome_screen
+      - coachmark_bubble
       - summary_content_container
       - auth_update_password_idle_container
   - id: shared-open-current-enrollment-proof
@@ -241,15 +231,28 @@ flows:
     variant: seeded-authenticated
     fixture_state: authenticated-content
     primary_selectors: [summary_content_container]
-  - id: shared-launch-seeded-authenticated-wizard-pending
-    path: e2e/maestro/flows/_shared/launch-seeded-authenticated-wizard-pending.yaml
+  - id: shared-launch-seeded-authenticated-coachmarks-pending
+    path: e2e/maestro/flows/_shared/launch-seeded-authenticated-coachmarks-pending.yaml
     module: shared
     type: setup
     platforms: [android, ios]
     status: active
-    variant: seeded-authenticated-wizard-pending
-    fixture_state: authenticated-wizard-pending
-    primary_selectors: [wizard_welcome_screen]
+    variant: seeded-authenticated-coachmarks-pending
+    fixture_state: authenticated-coachmarks-pending
+    primary_selectors:
+      - summary_content_container
+      - coachmark_bubble
+      - coachmark_current_summary
+  - id: shared-launch-seeded-authenticated-coachmarks-seen
+    path: e2e/maestro/flows/_shared/launch-seeded-authenticated-coachmarks-seen.yaml
+    module: shared
+    type: setup
+    platforms: [android, ios]
+    status: active
+    variant: seeded-authenticated-coachmarks-seen
+    fixture_state: authenticated-coachmarks-seen
+    primary_selectors:
+      - summary_content_container
   - id: maincore-snackbar-retry
     path: e2e/maestro/flows/auth/login-retry-after-unavailable.yaml
     module: maincore
@@ -359,7 +362,7 @@ flows:
       - auth_usb_id_text_field
       - auth_password_text_field
       - auth_sign_in_button
-      - wizard_welcome_screen
+      - coachmark_bubble
       - summary_content_container
   - id: auth-login-password-toggle
     path: e2e/maestro/flows/auth/login-password-toggle.yaml
@@ -393,7 +396,7 @@ flows:
       - auth_usb_id_text_field
       - auth_password_text_field
       - auth_sign_in_button
-      - wizard_welcome_screen
+      - coachmark_bubble
       - summary_content_container
   - id: auth-usage-data-consent
     path: e2e/maestro/flows/auth/usage-data-consent.yaml
@@ -414,13 +417,13 @@ flows:
       - auth_usb_id_text_field
       - auth_password_text_field
       - auth_sign_in_button
-      - wizard_welcome_screen
+      - coachmark_bubble
   - id: auth-terms-privacy-from-login
     path: e2e/maestro/flows/auth/terms-privacy-from-login.yaml
     module: auth
     type: interaction
     platforms: [android, ios]
-    status: active
+    status: legacy
     variant: terms-privacy-from-login
     fixture_state: static
     actions_covered:
@@ -616,135 +619,67 @@ flows:
       - auth_sign_out_message_text
       - base_confirmation_dialog_negative_button
       - summary_content_container
-  - id: wizard-smoke
-    path: e2e/maestro/flows/wizard/wizard-smoke.yaml
+  - id: coachmark-contextual-summary
+    path: e2e/maestro/flows/coachmarks/coachmark-contextual-summary.yaml
     module: wizard
     type: smoke
     platforms: [android, ios]
     status: active
-    variant: welcome-skip
-    fixture_state: first-launch
+    variant: contextual-summary-confirm
+    fixture_state: authenticated-coachmarks-pending
     actions_covered:
-      - wizard.Wizard.Dismiss
+      - wizard.CoachmarkOverlay.PrimaryActionClick
     primary_selectors:
-      - wizard_welcome_screen
-      - wizard_primary_button
-      - wizard_skip_button
-  - id: wizard-navigation-focus
-    path: e2e/maestro/flows/wizard/wizard-navigation-focus.yaml
-    module: wizard
-    type: interaction
-    platforms: [android, ios]
-    status: active
-    variant: next-back-focus-overlay
-    fixture_state: first-launch
-    actions_covered:
-      - wizard.Wizard.Advance
-      - wizard.Wizard.Back
-    primary_selectors:
-      - wizard_screen
-      - wizard_guide_bar
-      - wizard_primary_button
-      - wizard_back_button
-      - wizard_progress_text
-      - wizard_focus_overlay
-      - wizard_focus_label
-      - wizard_current_step_summary
-      - wizard_current_step_record
-      - wizard_current_step_record_actions
-  - id: wizard-guided-actions
-    path: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
-    module: wizard
-    type: interaction
-    platforms: [android, ios]
-    status: active
-    variant: record-pensum-subject-evaluation-guidance
-    fixture_state: first-launch
-    actions_covered:
-      - wizard.Wizard.Advance
-      - wizard.Wizard.OpenSubjectDetail
-      - wizard.Wizard.OpenEvaluationForm
-      - wizard.Wizard.ConsumeTopBarAction
-      - wizard.Wizard.SelectSubjectTab
-      - wizard.Wizard.SetRecordViewMode
-      - wizard.Wizard.SelectTerm
-      - wizard.Wizard.DismissRecordTermSelection
-      - wizard.Wizard.SetSubjectChartsVisible
-    primary_selectors:
-      - record_top_bar_view_mode_switch
-      - record_term_chip_2025-3
-      - record_term_chip_2024-3
-      - record_term_current_chip_2026-2
-      - base_top_app_bar_action_record_term_selection
-      - record_term_selection_sheet
-      - record_term_selection_list
-      - record_term_selection_option_2026-2
-      - pensum_node_ma1111
-      - pensum_subject_detail_sheet
-      - pensum_subject_detail_more_button
-      - pensum_subject_detail_status
-      - pensum_subject_detail_term_value
-      - subjects_global_tab
-      - subjects_charts
-      - subjects_generated_at
-      - evaluations_add_fab
-      - evaluation_content_container
-  - id: wizard-finish
-    path: e2e/maestro/flows/wizard/wizard-finish.yaml
-    module: wizard
-    type: interaction
-    platforms: [android, ios]
-    status: active
-    variant: complete-wizard
-    fixture_state: first-launch
-    actions_covered:
-      - wizard.Wizard.Advance
-      - wizard.Wizard.Finish
-    primary_selectors:
-      - wizard_primary_button
-      - wizard_current_step_summary
-      - wizard_current_step_record
-      - wizard_current_step_record_actions
-      - wizard_current_step_create_synthetic_term
-      - wizard_current_step_pensum
-      - wizard_current_step_subject_detail
-      - wizard_current_step_subject_charts
-      - wizard_current_step_evaluations
-      - wizard_current_step_evaluation_swipe
-      - wizard_current_step_evaluation_form
-      - wizard_current_step_about
+      - coachmark_host
+      - coachmark_bubble
+      - coachmark_anchor_summary
+      - coachmark_current_summary
+      - coachmark_confirm
       - summary_content_container
-  - id: wizard-suite
-    path: e2e/maestro/flows/suites/wizard-suite.yaml
+  - id: coachmark-progressive-record
+    path: e2e/maestro/flows/coachmarks/coachmark-progressive-record.yaml
+    module: wizard
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: contextual-summary-then-record
+    fixture_state: authenticated-coachmarks-pending
+    actions_covered:
+      - wizard.CoachmarkOverlay.PrimaryActionClick
+      - wizard.CoachmarkOverlay.PreviousActionClick
+    primary_selectors:
+      - coachmark_bubble
+      - coachmark_back
+      - coachmark_current_summary
+      - coachmark_current_record
+      - coachmark_current_record_controls
+      - coachmark_anchor_record
+      - coachmark_confirm
+      - maincore_tuindice_bottom_bar_record_item
+      - record_content_container
+  - id: coachmarks-suite
+    path: e2e/maestro/flows/suites/coachmarks-suite.yaml
     module: wizard
     type: suite
     platforms: [android, ios]
     status: active
-    variant: exhaustive-local
-    fixture_state: wizard-suite
+    variant: contextual-coachmarks
+    fixture_state: coachmarks-suite
     actions_covered:
-      - wizard.Wizard.Advance
-      - wizard.Wizard.Back
-      - wizard.Wizard.Dismiss
-      - wizard.Wizard.Finish
-      - wizard.Wizard.OpenSubjectDetail
-      - wizard.Wizard.OpenEvaluationForm
-      - wizard.Wizard.ConsumeTopBarAction
-      - wizard.Wizard.SelectSubjectTab
-      - wizard.Wizard.SetRecordViewMode
-      - wizard.Wizard.SelectTerm
-      - wizard.Wizard.DismissRecordTermSelection
-      - wizard.Wizard.SetSubjectChartsVisible
+      - wizard.CoachmarkOverlay.PrimaryActionClick
+      - wizard.CoachmarkOverlay.PreviousActionClick
     primary_selectors:
-      - wizard_welcome_screen
-      - wizard_primary_button
-      - wizard_back_button
-      - wizard_focus_overlay
-      - record_top_bar_view_mode_switch
-      - pensum_node_ma1111
-      - pensum_subject_detail_sheet
-      - subjects_charts
-      - evaluations_add_fab
+      - coachmark_host
+      - coachmark_bubble
+      - coachmark_back
+      - coachmark_confirm
+      - coachmark_current_summary
+      - coachmark_current_record
+      - coachmark_current_record_controls
+      - coachmark_anchor_summary
+      - coachmark_anchor_record
+      - maincore_tuindice_bottom_bar_record_item
+      - record_content_container
   - id: summary-smoke
     path: e2e/maestro/flows/summary/summary-smoke.yaml
     module: summary
@@ -1042,7 +977,7 @@ flows:
       - auth.SignIn.SetUsbId
       - auth.SignIn.SetPassword
       - auth.SignIn.ClickSignIn
-      - wizard.Wizard.Dismiss
+      - wizard.CoachmarkOverlay.PrimaryActionClick
       - record.Record.SelectTerm
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
@@ -1063,14 +998,14 @@ flows:
       - auth.SignIn.SetUsbId
       - auth.SignIn.SetPassword
       - auth.SignIn.ClickSignIn
-      - wizard.Wizard.Dismiss
+      - wizard.CoachmarkOverlay.PrimaryActionClick
       - record.Record.SelectTerm
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
       - auth_usb_id_text_field
       - auth_password_text_field
       - auth_sign_in_button
-      - wizard_welcome_screen
+      - coachmark_bubble
       - record_term_chip_d377155d39da686f412622aaca9074cd
       - record_enrollment_proof_button
       - enrollment_fetching_sheet

@@ -10,6 +10,8 @@ import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.debug.setDebugAppAvailabilityNoticeOverride
+import com.gdavidpb.tuindice.wizard.presentation.model.contextualCoachmarks
+import com.gdavidpb.tuindice.wizard.presentation.model.persistedId
 import java.net.HttpURLConnection
 import java.net.URL
 import kotlinx.coroutines.Dispatchers
@@ -24,8 +26,8 @@ object E2eSeedBridge {
 	private const val AVAILABILITY_NOTICE_ENABLED_ARG = "TUINDICE_E2E_AVAILABILITY_NOTICE_ENABLED"
 	private const val AVAILABILITY_NOTICE_TITLE_ARG = "TUINDICE_E2E_AVAILABILITY_NOTICE_TITLE"
 	private const val AVAILABILITY_NOTICE_MESSAGE_ARG = "TUINDICE_E2E_AVAILABILITY_NOTICE_MESSAGE"
-	private const val AUTHENTICATED_WIZARD_COMPLETE = "authenticatedWizardComplete"
-	private const val AUTHENTICATED_WIZARD_PENDING = "authenticatedWizardPending"
+	private const val AUTHENTICATED_COACHMARKS_SEEN = "authenticatedCoachmarksSeen"
+	private const val AUTHENTICATED_COACHMARKS_PENDING = "authenticatedCoachmarksPending"
 
 	@JvmStatic
 	fun seedIfRequested(activity: ComponentActivity, intent: Intent?) {
@@ -38,7 +40,7 @@ object E2eSeedBridge {
 			?.takeIf { it.isNotBlank() }
 			?: return
 
-		check(seedState in setOf(AUTHENTICATED_WIZARD_COMPLETE, AUTHENTICATED_WIZARD_PENDING)) {
+		check(seedState in setOf(AUTHENTICATED_COACHMARKS_SEEN, AUTHENTICATED_COACHMARKS_PENDING)) {
 			"Unsupported E2E seed state: $seedState"
 		}
 
@@ -49,10 +51,10 @@ object E2eSeedBridge {
 
 		runBlocking {
 			putWireMockTokensIssuedState(BuildConfig.URL_API)
-			seedAuthenticatedWizardState(
+			seedAuthenticatedCoachmarkState(
 				koin = GlobalContext.get(),
 				section = section,
-				isWizardCompleted = seedState == AUTHENTICATED_WIZARD_COMPLETE
+				areCoachmarksSeen = seedState == AUTHENTICATED_COACHMARKS_SEEN
 			)
 		}
 	}
@@ -70,10 +72,10 @@ object E2eSeedBridge {
 		)
 	}
 
-	private suspend fun seedAuthenticatedWizardState(
+	private suspend fun seedAuthenticatedCoachmarkState(
 		koin: Koin,
 		section: MainSection,
-		isWizardCompleted: Boolean
+		areCoachmarksSeen: Boolean
 	) {
 		val sessionRepository = koin.get<SessionRepository>()
 		val settingsRepository = koin.get<SettingsRepository>()
@@ -94,8 +96,10 @@ object E2eSeedBridge {
 			)
 		)
 		credentialsRepository.setPassword("123456")
-		if (isWizardCompleted) {
-			settingsRepository.setWizardCompleted()
+		if (areCoachmarksSeen) {
+			contextualCoachmarks().forEach { coachmark ->
+				settingsRepository.markCoachmarkSeen(coachmark.id.persistedId)
+			}
 		}
 		settingsRepository.setLastMainSection(section)
 	}

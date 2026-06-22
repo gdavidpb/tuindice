@@ -23,8 +23,7 @@ object Main {
 		) : State()
 
 		data class Content(
-			val startDestination: Destination,
-			val wizardStartRequested: Boolean = false
+			val startDestination: Destination
 		) : State()
 
 		data object Failed : State()
@@ -39,7 +38,6 @@ object Main {
 		class UpdateFlowCompleted(val result: UpdateLaunchResult) : Action()
 		data object RequestSync : Action()
 		class SetLastMainSection(val section: MainSection) : Action()
-		data object RequestWizardStart : Action()
 	}
 
 	sealed class Effect : ViewEffect {
@@ -49,6 +47,5 @@ object Main {
 		class OpenUpdateStoreFallback(
 			val result: UpdateLaunchResult.OpenStoreFallback
 		) : Effect()
-		data object NavigateToWizard : Effect()
 	}
 }

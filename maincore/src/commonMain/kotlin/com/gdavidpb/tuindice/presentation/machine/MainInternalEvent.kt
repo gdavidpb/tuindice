@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 
 /**
  * Internal machine inputs for the app host: the startup lifecycle split per outcome,
- * plus the platform flow triggers (review, update) and the wizard start approval.
+ * plus the platform flow triggers (review, update).
  */
 sealed interface MainInternalEvent {
 	data object StartUpStarting : MainInternalEvent
@@ -33,6 +33,4 @@ sealed interface MainInternalEvent {
 	data class UpdateInfoLoaded(
 		val action: UpdateAction
 	) : MainInternalEvent
-
-	data object WizardStartApproved : MainInternalEvent
 }
