@@ -66,7 +66,7 @@ actions:
 
   - id: auth.SignIn.SetUsbId
     classification: user
-    variants: [valid-format, invalid-format, usb-email]
+    variants: [valid-format, invalid-format, usb-email, usb-email-usbid]
     selector: auth_usb_id_text_field
     flow: e2e/maestro/flows/auth/login-success.yaml
     fixture_state: auth-success
@@ -84,7 +84,7 @@ actions:
     fixture_state: static
   - id: auth.SignIn.ToggleIdentifierMode
     classification: user
-    variants: [usb-email-login]
+    variants: [usb-email-login, usb-email-usbid-login]
     selector: auth_identifier_mode_toggle
     flow: e2e/maestro/flows/auth/login-usb-email-success.yaml
     fixture_state: auth-email-success

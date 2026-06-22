@@ -16,11 +16,14 @@ fun String.isUsbId(): Boolean {
 fun String.isUsbEmail(): Boolean {
 	val value = trim()
 	val localPart = value.lowercase().removeSuffix(USB_EMAIL_SUFFIX)
+	val isValidUsbId = localPart.isUsbId()
+	val isValidUsbEmail =
+		!localPart.matches(invalidNumericLikeUsbEmailRegex) &&
+			value.matches(usbEmailRegex)
 
 	return value.isNotEmpty() &&
 		value.count { character -> character == '@' } <= 1 &&
-		!localPart.matches(invalidNumericLikeUsbEmailRegex) &&
-		value.matches(usbEmailRegex)
+		(isValidUsbId || isValidUsbEmail)
 }
 
 fun String.toCanonicalUsbIdentifier(): String {

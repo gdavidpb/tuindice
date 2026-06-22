@@ -115,6 +115,37 @@ class AuthUseCaseContractTest {
 	}
 
 	@Test
+	fun signInUseCase_canonicalizesUsbIdInUsbEmailModeBeforeCallingRepository() = runTest {
+		val repository = RecordingAuthRepository()
+		val useCase = SignInUseCase(
+			authRepository = repository,
+			messagingRepository = RecordingMessagingRepository(),
+			syncRepository = FakeSyncRepository(),
+			credentialsRepository = FakeCredentialsRepository(),
+			syncStatusRepository = FakeSyncStatusRepository(),
+			attestationRepository = FakeAttestationRepository(),
+			reportingRepository = RecordingReportingRepository(),
+			paramsValidator = SignInParamsValidator(),
+			exceptionHandler = SignInExceptionHandler(
+				networkRepository = FakeNetworkRepository(isAvailable = true)
+			)
+		)
+
+		useCase.execute(
+			SignInParams(
+				usbId = "2026123@usb.ve",
+				password = "secret123",
+				identifierMode = SignInIdentifierMode.UsbEmail
+			)
+		).test {
+			assertEquals(Unit, awaitLoadingThenData(this))
+			awaitComplete()
+		}
+
+		assertEquals("20-26123", repository.bootstrapSignInCalls.single().usbId)
+	}
+
+	@Test
 	fun signInUseCase_canonicalizesCompactUsbIdBeforeCallingRepository() = runTest {
 		val repository = RecordingAuthRepository()
 		val useCase = SignInUseCase(

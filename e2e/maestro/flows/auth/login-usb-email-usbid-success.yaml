@@ -1,0 +1,34 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- assertVisible:
+    id: auth_identifier_mode_toggle
+- tapOn:
+    id: auth_identifier_mode_toggle
+- assertVisible: "Correo USB"
+- tapOn:
+    id: auth_usb_id_text_field
+- inputText: "1111111"
+- tapOn:
+    id: auth_password_text_field
+- inputText: "123"
+- inputText: "456"
+- tapOn:
+    id: auth_keyboard_dismiss_area
+- tapOn:
+    id: auth_sign_in_button
+- extendedWaitUntil:
+    visible:
+      id: summary_content_container
+    timeout: 30000
+- runFlow:
+    when:
+      visible:
+        id: coachmark_bubble
+    commands:
+      - tapOn:
+          id: coachmark_confirm
+- extendedWaitUntil:
+    visible:
+      id: summary_content_container
+    timeout: 40000

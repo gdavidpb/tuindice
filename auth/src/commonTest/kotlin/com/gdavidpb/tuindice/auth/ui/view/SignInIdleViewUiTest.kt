@@ -115,4 +115,38 @@ class SignInIdleViewUiTest {
 
 		assertNodeEnabled(AuthUiTags.SignInButton)
 	}
+
+	@Test
+	fun when_stateHasUsbIdInUsbEmailModeAndPassword_then_signInButtonIsEnabled() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SignInIdleView(
+				state = SignIn.State.Idle(
+					usbId = "12-34567@usb.ve",
+					password = "1234",
+					identifierMode = SignInIdentifierMode.UsbEmail
+				),
+				onUsbIdChange = {},
+				onPasswordChange = {},
+				onPasswordVisibilityToggle = {},
+				onIdentifierModeToggle = {},
+				onSignInClick = {},
+				onTermsAndConditionsClick = {},
+				onPrivacyPolicyClick = {},
+				termsAndConditionsText = "Terminos",
+				privacyPolicyText = "Privacidad",
+				policiesText = "Acepto Terminos y Privacidad",
+				usbIdLabelText = "USB",
+				usbEmailLabelText = "Correo USB",
+				usbIdPlaceholderText = "00-00000",
+				usbEmailPlaceholderText = "correo@usb.ve",
+				useUsbEmailContentDescription = "Iniciar con correo USB",
+				useUsbIdContentDescription = "Usar USBID",
+				usbEmailTooltipText = "Iniciar con correo USB",
+				passwordLabelText = "Clave",
+				signInButtonText = "Entrar"
+			)
+		}
+
+		assertNodeEnabled(AuthUiTags.SignInButton)
+	}
 }

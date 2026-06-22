@@ -128,6 +128,7 @@ flows:
     covers:
       - login
       - login-usb-email
+      - login-usb-email-usbid
       - outdated-app
       - update-password
       - sign-out
@@ -386,6 +387,26 @@ flows:
     status: active
     variant: usb-email-success
     fixture_state: auth-email-success
+    actions_covered:
+      - auth.SignIn.ToggleIdentifierMode
+      - auth.SignIn.SetUsbId
+      - auth.SignIn.SetPassword
+      - auth.SignIn.ClickSignIn
+    primary_selectors:
+      - auth_identifier_mode_toggle
+      - auth_usb_id_text_field
+      - auth_password_text_field
+      - auth_sign_in_button
+      - coachmark_bubble
+      - summary_content_container
+  - id: auth-login-usb-email-usbid-success
+    path: e2e/maestro/flows/auth/login-usb-email-usbid-success.yaml
+    module: auth
+    type: happy-path
+    platforms: [android, ios]
+    status: active
+    variant: usb-email-usbid-success
+    fixture_state: auth-success
     actions_covered:
       - auth.SignIn.ToggleIdentifierMode
       - auth.SignIn.SetUsbId
