@@ -6,6 +6,7 @@ object PensumSelectionTable {
 	const val ID = "id"
 	const val YEAR = "year"
 	const val MODALITY_ID = "modality_id"
+	const val INFERRED = "inferred"
 	const val CACHE_KEY = "cache_key"
 	const val UPDATED_AT = "updated_at"
 }

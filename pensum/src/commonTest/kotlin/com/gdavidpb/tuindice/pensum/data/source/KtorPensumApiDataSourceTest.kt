@@ -52,6 +52,28 @@ class KtorPensumApiDataSourceTest {
 		)
 		assertEquals("EC5344", result.pensum.nodes.first().displayCode)
 	}
+
+	@Test
+	fun getPensum_withEmptySelection_omitsQueryParameters() = runTest {
+		var capturedQuery: String? = null
+		val client = HttpClient(
+			engine = MockEngine { request ->
+				capturedQuery = request.url.encodedQuery
+				respond(
+					content = sampleResponse,
+					status = HttpStatusCode.OK,
+					headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+				)
+			}
+		) {
+			expectSuccess = true
+			install(ContentNegotiation) { json() }
+		}
+
+		KtorPensumApiDataSource(client).getPensum(PensumSelectionParams())
+
+		assertEquals("", capturedQuery)
+	}
 }
 
 private val sampleResponse = """

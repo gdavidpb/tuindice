@@ -58,8 +58,10 @@ class PensumDataSource(
 	}
 
 	override suspend fun refreshPensum() {
+		val selection = localDataRepository.getSelectionParams()
 		localDataRepository.savePensumResponse(
-			remoteDataRepository.getPensum(localDataRepository.getSelectionParams())
+			response = remoteDataRepository.getPensum(selection),
+			inferredSelection = selection.year == null && selection.modalityId == null
 		)
 	}
 
