@@ -85,7 +85,7 @@ class CreateSyntheticTermUseCaseTest {
 
 		val errorState = assertIs<UseCaseState.Error<RecordUseCaseError>>(states.last())
 		val error = assertIs<RecordUseCaseError.SyntheticTermValidation>(errorState.error)
-		assertEquals(SyntheticTermValidationError.SUBJECT_ALREADY_TAKEN, error.reason)
+		assertEquals(SyntheticTermValidationError.SUBJECT_ALREADY_APPROVED, error.reason)
 		assertEquals(emptyList(), repository.addedTerms)
 	}
 

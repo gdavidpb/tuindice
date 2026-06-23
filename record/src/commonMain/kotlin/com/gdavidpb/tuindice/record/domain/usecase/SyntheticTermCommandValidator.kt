@@ -82,7 +82,7 @@ internal object SyntheticTermCommandValidator {
 			.flatMap(AcademicTerm::attempts)
 			.map { attempt -> attempt.subjectCode.uppercase() }
 			.toSet()
-		val takenSubjectCodes = otherTerms
+		val approvedSubjectCodes = otherTerms
 			.filter { term -> term.kind.isHistorical || term.kind.isCurrent }
 			.flatMap { term ->
 				term.attempts.filter { attempt ->
@@ -93,8 +93,8 @@ internal object SyntheticTermCommandValidator {
 			.toSet()
 
 		when {
-			subjectCodes.any { subjectCode -> subjectCode in takenSubjectCodes } ->
-				throw SyntheticTermValidationException(SyntheticTermValidationError.SUBJECT_ALREADY_TAKEN)
+			subjectCodes.any { subjectCode -> subjectCode in approvedSubjectCodes } ->
+				throw SyntheticTermValidationException(SyntheticTermValidationError.SUBJECT_ALREADY_APPROVED)
 			subjectCodes.any { subjectCode -> subjectCode in plannedSubjectCodes } ->
 				throw SyntheticTermValidationException(SyntheticTermValidationError.SUBJECT_ALREADY_PLANNED)
 		}

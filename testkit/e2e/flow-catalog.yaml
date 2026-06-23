@@ -885,7 +885,7 @@ flows:
     type: interaction
     platforms: [android, ios]
     status: active
-    variant: synthetic-term-search-priority-order-unavailable-addability-tooltips-stats-back-state-unified-status-language
+    variant: synthetic-term-search-priority-order-blocked-addability-tooltips-stats-back-state-unified-status-language
     fixture_state: synthetic-term-search
     actions_covered:
       - record.CreateSyntheticTerm.UpdateQuery
@@ -910,11 +910,11 @@ flows:
       - subjects_content
       - record_create_synthetic_term_subject_EP1308_status_already_planned
       - record_create_synthetic_term_subject_EP1308_stats_button
-      - record_create_synthetic_term_subject_EP2308_status_unavailable
+      - record_create_synthetic_term_subject_EP2308_status_blocked
       - record_create_synthetic_term_subject_EP2308_stats_button
       - record_create_synthetic_term_subject_EP2308_add_button
       - record_create_synthetic_term_taken_subjects_toggle
-      - record_create_synthetic_term_subject_MA1111_status_already_taken
+      - record_create_synthetic_term_subject_MA1111_status_approved
       - record_create_synthetic_term_subject_MA1111_stats_button
   - id: record-synthetic-term-lifecycle
     path: e2e/maestro/flows/record/record-synthetic-term-lifecycle.yaml

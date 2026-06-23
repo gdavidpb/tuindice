@@ -157,7 +157,7 @@ class CreateSyntheticTermScreenUiTest {
 	}
 
 	@Test
-	fun when_searchHasTakenSubjects_then_theyAreHiddenBehindToggle() = runTuIndiceUiTest {
+	fun when_searchHasApprovedSubjects_then_theyAreHiddenBehindToggle() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			CreateSyntheticTermScreen(
 				state = CreateSyntheticTerm.State(
@@ -174,7 +174,7 @@ class CreateSyntheticTermScreenUiTest {
 							subjectCode = "MA1112",
 							name = "Matemáticas II",
 							credits = 4,
-							availability = SyntheticTermSubjectAvailability.ALREADY_TAKEN
+							availability = SyntheticTermSubjectAvailability.APPROVED
 						)
 					).toItems()
 				),
@@ -203,7 +203,7 @@ class CreateSyntheticTermScreenUiTest {
 	}
 
 	@Test
-	fun when_searchHasOnlyTakenSubjects_then_toggleIsShownInsteadOfEmptyState() = runTuIndiceUiTest {
+	fun when_searchHasOnlyApprovedSubjects_then_toggleIsShownInsteadOfEmptyState() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			CreateSyntheticTermScreen(
 				state = CreateSyntheticTerm.State(
@@ -214,7 +214,7 @@ class CreateSyntheticTermScreenUiTest {
 							subjectCode = "MA1111",
 							name = "Matemáticas I",
 							credits = 4,
-							availability = SyntheticTermSubjectAvailability.ALREADY_TAKEN
+							availability = SyntheticTermSubjectAvailability.APPROVED
 						)
 					).toItems(),
 					suggestedSubjects = listOf(
@@ -244,12 +244,12 @@ class CreateSyntheticTermScreenUiTest {
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle).performClick()
 
 		onNodeWithText("MATEMÁTICAS I").assertIsDisplayed()
-		assertVisibleStatus("MA1111", SyntheticTermSubjectAvailability.ALREADY_TAKEN)
+		assertVisibleStatus("MA1111", SyntheticTermSubjectAvailability.APPROVED)
 		onNodeWithText("Aprobada").assertIsDisplayed()
 	}
 
 	@Test
-	fun when_searchResultsHaveTakenAndOthers_thenTakenSubjectsAppearAtTheEndAndToggleIsBetweenGroups() = runTuIndiceUiTest {
+	fun when_searchResultsHaveApprovedAndOthers_thenApprovedSubjectsAppearAtTheEndAndToggleIsBetweenGroups() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			CreateSyntheticTermScreen(
 				state = CreateSyntheticTerm.State(
@@ -266,13 +266,13 @@ class CreateSyntheticTermScreenUiTest {
 							subjectCode = "CC0001",
 							name = "Materia cursada",
 							credits = 4,
-							availability = SyntheticTermSubjectAvailability.ALREADY_TAKEN
+							availability = SyntheticTermSubjectAvailability.APPROVED
 						),
 						SyntheticTermSubject(
 							subjectCode = "BB0001",
 							name = "Materia bloqueada",
 							credits = 4,
-							availability = SyntheticTermSubjectAvailability.UNAVAILABLE
+							availability = SyntheticTermSubjectAvailability.BLOCKED
 						)
 					).toItems()
 				),
@@ -288,13 +288,13 @@ class CreateSyntheticTermScreenUiTest {
 
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchTab).performClick()
 
-		// Hidden state: only non-taken subjects should be visible.
+		// Hidden state: only non-approved subjects should be visible.
 		assertVisibleSearchResult(index = 0, subjectCode = "AA0001")
 		assertVisibleSearchResult(index = 1, subjectCode = "BB0001")
 		onAllNodesWithText("Materia cursada").assertCountEquals(0)
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle).performClick()
 
-		// After expand, taken subjects should stay at the end.
+		// After expand, approved subjects should stay at the end.
 		assertVisibleSearchResult(index = 0, subjectCode = "AA0001")
 		assertVisibleSearchResult(index = 1, subjectCode = "BB0001")
 		assertVisibleSearchResult(index = 2, subjectCode = "CC0001")
@@ -352,7 +352,7 @@ class CreateSyntheticTermScreenUiTest {
 							subjectCode = "CC1001",
 							name = "Estado cursada",
 							credits = 4,
-							availability = SyntheticTermSubjectAvailability.ALREADY_TAKEN
+							availability = SyntheticTermSubjectAvailability.APPROVED
 						),
 						SyntheticTermSubject(
 							subjectCode = "DD1001",
@@ -364,7 +364,7 @@ class CreateSyntheticTermScreenUiTest {
 							subjectCode = "EE1001",
 							name = "Estado no disponible",
 							credits = 4,
-							availability = SyntheticTermSubjectAvailability.UNAVAILABLE
+							availability = SyntheticTermSubjectAvailability.BLOCKED
 						),
 						SyntheticTermSubject(
 							subjectCode = "FF1001",
@@ -388,7 +388,7 @@ class CreateSyntheticTermScreenUiTest {
 
 		assertVisibleStatus("AA1001", SyntheticTermSubjectAvailability.AVAILABLE)
 		assertVisibleStatsButton("AA1001")
-		onAllNodesWithTag(statusTag("CC1001", SyntheticTermSubjectAvailability.ALREADY_TAKEN)).assertCountEquals(0)
+		onAllNodesWithTag(statusTag("CC1001", SyntheticTermSubjectAvailability.APPROVED)).assertCountEquals(0)
 		onNodeWithTag(
 			RecordUiTags.createSyntheticTermSubjectAction(
 				subjectCode = "AA1001",
@@ -403,7 +403,7 @@ class CreateSyntheticTermScreenUiTest {
 				action = CreateTermSubjectCardAction.Add.name.lowercase()
 			)
 		).assertCountEquals(0)
-		assertVisibleStatus("EE1001", SyntheticTermSubjectAvailability.UNAVAILABLE)
+		assertVisibleStatus("EE1001", SyntheticTermSubjectAvailability.BLOCKED)
 		assertVisibleStatsButton("EE1001")
 		onNodeWithTag(
 			RecordUiTags.createSyntheticTermSubjectAction(
@@ -424,7 +424,7 @@ class CreateSyntheticTermScreenUiTest {
 			.performScrollToNode(hasTestTag(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle))
 		onNodeWithTag(RecordUiTags.CreateSyntheticTermTakenSubjectsToggle).performClick()
 
-		assertVisibleStatus("CC1001", SyntheticTermSubjectAvailability.ALREADY_TAKEN)
+		assertVisibleStatus("CC1001", SyntheticTermSubjectAvailability.APPROVED)
 		assertVisibleStatsButton("CC1001")
 		onAllNodesWithTag(
 			RecordUiTags.createSyntheticTermSubjectAction(
@@ -452,7 +452,7 @@ class CreateSyntheticTermScreenUiTest {
 							subjectCode = "EP2308",
 							name = "Prioridad bloqueada del pensum",
 							credits = 4,
-							availability = SyntheticTermSubjectAvailability.UNAVAILABLE
+							availability = SyntheticTermSubjectAvailability.BLOCKED
 						),
 						SyntheticTermSubject(
 							subjectCode = "AA1001",
@@ -503,7 +503,7 @@ class CreateSyntheticTermScreenUiTest {
 							subjectCode = "AA1001",
 							name = "Estadística buscada",
 							credits = 4,
-							availability = SyntheticTermSubjectAvailability.UNAVAILABLE
+							availability = SyntheticTermSubjectAvailability.BLOCKED
 						)
 					).toItems()
 				),

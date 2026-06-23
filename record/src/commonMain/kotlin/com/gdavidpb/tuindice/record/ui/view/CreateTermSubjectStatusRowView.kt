@@ -40,11 +40,13 @@ import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.create_term_subject_already_planned
-import tuindice.record.generated.resources.create_term_subject_already_taken
+import tuindice.record.generated.resources.create_term_subject_approved
+import tuindice.record.generated.resources.create_term_subject_current
 import tuindice.record.generated.resources.create_term_subject_not_in_pensum
 import tuindice.record.generated.resources.create_term_subject_requirement_pending
 import tuindice.record.generated.resources.create_term_subject_tooltip_already_planned
-import tuindice.record.generated.resources.create_term_subject_tooltip_already_taken
+import tuindice.record.generated.resources.create_term_subject_tooltip_approved
+import tuindice.record.generated.resources.create_term_subject_tooltip_current
 import tuindice.record.generated.resources.create_term_subject_tooltip_unavailable
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -57,16 +59,21 @@ fun CreateTermSubjectStatusRow(
 	val onSurfaceVariantColor = MaterialTheme.colorScheme.onSurfaceVariant
 	val tooltipText = subject.tooltipText()
 	val status = subject.status(
-		availableText = availableText,
 		availableIcon = availableIcon,
-		alreadyTakenText = stringResource(Res.string.create_term_subject_already_taken),
-		alreadyPlannedText = stringResource(Res.string.create_term_subject_already_planned),
-		notInPensumText = stringResource(Res.string.create_term_subject_not_in_pensum),
-		unavailableText = stringResource(Res.string.create_term_subject_requirement_pending),
-		availableColor = AcademicStatusColors.available(),
-		approvedColor = AcademicStatusColors.approved(),
-		blockedColor = AcademicStatusColors.blocked(),
-		onSurfaceVariantColor = onSurfaceVariantColor
+		copy = SubjectStatusCopy(
+			availableText = availableText,
+			approvedText = stringResource(Res.string.create_term_subject_approved),
+			currentText = stringResource(Res.string.create_term_subject_current),
+			alreadyPlannedText = stringResource(Res.string.create_term_subject_already_planned),
+			notInPensumText = stringResource(Res.string.create_term_subject_not_in_pensum),
+			blockedText = stringResource(Res.string.create_term_subject_requirement_pending)
+		),
+		palette = SubjectStatusPalette(
+			availableColor = AcademicStatusColors.available(),
+			approvedColor = AcademicStatusColors.approved(),
+			blockedColor = AcademicStatusColors.blocked(),
+			onSurfaceVariantColor = onSurfaceVariantColor
+		)
 	)
 	Row(
 		horizontalArrangement = Arrangement.spacedBy(6.dp),
@@ -125,9 +132,14 @@ fun CreateTermSubjectStatusRow(
 @Composable
 private fun CreateTermSubjectItem.tooltipText(): String? {
 	return when (availability) {
-		SyntheticTermSubjectAvailability.ALREADY_TAKEN ->
+		SyntheticTermSubjectAvailability.APPROVED ->
 			availabilityDetail?.termLabel?.let { termLabel ->
-				stringResource(Res.string.create_term_subject_tooltip_already_taken, termLabel)
+				stringResource(Res.string.create_term_subject_tooltip_approved, termLabel)
+			}
+
+		SyntheticTermSubjectAvailability.CURRENT ->
+			availabilityDetail?.termLabel?.let { termLabel ->
+				stringResource(Res.string.create_term_subject_tooltip_current, termLabel)
 			}
 
 		SyntheticTermSubjectAvailability.ALREADY_PLANNED ->
@@ -135,7 +147,7 @@ private fun CreateTermSubjectItem.tooltipText(): String? {
 				stringResource(Res.string.create_term_subject_tooltip_already_planned, termLabel)
 			}
 
-		SyntheticTermSubjectAvailability.UNAVAILABLE ->
+		SyntheticTermSubjectAvailability.BLOCKED ->
 			availabilityDetail
 				?.missingSubjectCodes
 				?.takeIf { subjectCodes -> subjectCodes.isNotEmpty() }
@@ -170,50 +182,50 @@ private fun CreateTermSubjectStatusLabel(
 }
 
 private fun CreateTermSubjectItem.status(
-	availableText: String,
 	availableIcon: CreateTermSubjectStatusIcon,
-	alreadyTakenText: String,
-	alreadyPlannedText: String,
-	notInPensumText: String,
-	unavailableText: String,
-	availableColor: Color,
-	approvedColor: Color,
-	blockedColor: Color,
-	onSurfaceVariantColor: Color
+	copy: SubjectStatusCopy,
+	palette: SubjectStatusPalette
 ): SubjectStatus {
 	return when (availability) {
+		SyntheticTermSubjectAvailability.APPROVED ->
+			SubjectStatus(
+				text = copy.approvedText,
+				color = palette.approvedColor,
+				icon = CreateTermSubjectStatusIcon.Check
+			)
+
+		SyntheticTermSubjectAvailability.CURRENT ->
+			SubjectStatus(
+				text = copy.currentText,
+				color = palette.availableColor,
+				icon = CreateTermSubjectStatusIcon.Current
+			)
+
 		SyntheticTermSubjectAvailability.AVAILABLE ->
 			SubjectStatus(
-				text = availableText,
-				color = availableColor,
+				text = copy.availableText,
+				color = palette.availableColor,
 				icon = availableIcon
 			)
 
 		SyntheticTermSubjectAvailability.NOT_IN_PENSUM ->
 			SubjectStatus(
-				text = notInPensumText,
-				color = onSurfaceVariantColor,
+				text = copy.notInPensumText,
+				color = palette.onSurfaceVariantColor,
 				icon = CreateTermSubjectStatusIcon.OutsidePensum
-			)
-
-		SyntheticTermSubjectAvailability.ALREADY_TAKEN ->
-			SubjectStatus(
-				text = alreadyTakenText,
-				color = approvedColor,
-				icon = CreateTermSubjectStatusIcon.Check
 			)
 
 		SyntheticTermSubjectAvailability.ALREADY_PLANNED ->
 			SubjectStatus(
-				text = alreadyPlannedText,
-				color = onSurfaceVariantColor,
-				icon = CreateTermSubjectStatusIcon.Clock
+				text = copy.alreadyPlannedText,
+				color = palette.onSurfaceVariantColor,
+				icon = CreateTermSubjectStatusIcon.Planned
 			)
 
-		SyntheticTermSubjectAvailability.UNAVAILABLE ->
+		SyntheticTermSubjectAvailability.BLOCKED ->
 			SubjectStatus(
-				text = unavailableText,
-				color = blockedColor,
+				text = copy.blockedText,
+				color = palette.blockedColor,
 				icon = CreateTermSubjectStatusIcon.Blocked
 			)
 	}
@@ -247,7 +259,8 @@ private fun CreateTermSubjectStatusIcon.imageVector(): ImageVector? {
 	return when (this) {
 		CreateTermSubjectStatusIcon.Dot -> null
 		CreateTermSubjectStatusIcon.Check -> Icons.Filled.Check
-		CreateTermSubjectStatusIcon.Clock -> Icons.Outlined.Schedule
+		CreateTermSubjectStatusIcon.Current -> Icons.Outlined.Schedule
+		CreateTermSubjectStatusIcon.Planned -> Icons.Outlined.Schedule
 		CreateTermSubjectStatusIcon.OutsidePensum -> Icons.Outlined.Map
 		CreateTermSubjectStatusIcon.Available -> Icons.Outlined.Add
 		CreateTermSubjectStatusIcon.Blocked -> Icons.Outlined.Lock
@@ -258,4 +271,20 @@ private data class SubjectStatus(
 	val text: String,
 	val color: Color,
 	val icon: CreateTermSubjectStatusIcon
+)
+
+private data class SubjectStatusCopy(
+    val availableText: String,
+    val approvedText: String,
+    val currentText: String,
+    val alreadyPlannedText: String,
+    val notInPensumText: String,
+    val blockedText: String
+)
+
+private data class SubjectStatusPalette(
+    val availableColor: Color,
+    val approvedColor: Color,
+    val blockedColor: Color,
+    val onSurfaceVariantColor: Color
 )

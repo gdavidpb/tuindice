@@ -89,15 +89,15 @@ appId: com.gdavidpb.tuindice.debug
     direction: DOWN
     timeout: 20000
 - assertVisible:
-    id: record_create_synthetic_term_subject_EP2308_status_unavailable
+    id: record_create_synthetic_term_subject_EP2308_status_blocked
 - assertVisible: "Bloqueada"
 - tapOn:
-    id: record_create_synthetic_term_subject_EP2308_status_unavailable
+    id: record_create_synthetic_term_subject_EP2308_status_blocked
 - extendedWaitUntil:
     visible: "Faltan requisitos: EP1308, EP5855"
     timeout: 5000
 - tapOn:
-    id: record_create_synthetic_term_subject_EP2308_status_unavailable
+    id: record_create_synthetic_term_subject_EP2308_status_blocked
 - assertVisible:
     id: record_create_synthetic_term_subject_EP2308_stats_button
 - assertVisible:
@@ -249,13 +249,13 @@ appId: com.gdavidpb.tuindice.debug
     commands:
       - extendedWaitUntil:
           visible:
-            id: record_create_synthetic_term_subject_MA1111_status_already_taken
+            id: record_create_synthetic_term_subject_MA1111_status_approved
           timeout: 20000
 - assertVisible:
-    id: record_create_synthetic_term_subject_MA1111_status_already_taken
+    id: record_create_synthetic_term_subject_MA1111_status_approved
 - assertVisible: "Aprobada"
 - tapOn:
-    id: record_create_synthetic_term_subject_MA1111_status_already_taken
+    id: record_create_synthetic_term_subject_MA1111_status_approved
 - extendedWaitUntil:
     visible: "Cursada en Sep - Dic 2021"
     timeout: 5000

@@ -5,11 +5,11 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
-import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.record.di.recordModule
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
@@ -35,15 +35,15 @@ import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
-import kotlin.test.Test
-import kotlin.test.assertTrue
-import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import org.koin.core.Koin
 import org.koin.dsl.module
+import kotlin.test.Test
+import kotlin.test.assertTrue
 
 // The machines need twelve use cases between them, so instead of hand-building that
 // graph the tests boot the real Koin module with stubbed repositories and resolve the

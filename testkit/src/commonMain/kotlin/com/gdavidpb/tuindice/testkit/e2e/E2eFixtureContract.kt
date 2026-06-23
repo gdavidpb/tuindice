@@ -19,7 +19,7 @@ object E2eFixtureContract {
 
 	object RecordSearch {
 		const val PRIORITY_PLANNED = "EP1308"
-		const val PRIORITY_UNAVAILABLE = "EP2308"
+		const val PRIORITY_BLOCKED = "EP2308"
 		const val HISTORICAL_RETIRED = "MA1112"
 		const val HISTORICAL_FAILED = "MA1121"
 		const val HISTORICAL_APPROVED = "MA1111"

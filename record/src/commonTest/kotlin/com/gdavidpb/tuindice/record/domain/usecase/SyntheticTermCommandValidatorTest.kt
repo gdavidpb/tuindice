@@ -203,7 +203,7 @@ class SyntheticTermCommandValidatorTest {
 	}
 
 	@Test
-	fun validate_throwsSubjectAlreadyTaken_whenSubjectIsApprovedInCurrentTerm() {
+	fun validate_throwsSubjectAlreadyApproved_whenSubjectIsApprovedInCurrentTerm() {
 		val record = record(
 			academicTerm(
 				id = "current",
@@ -215,7 +215,7 @@ class SyntheticTermCommandValidatorTest {
 			)
 		)
 
-		assertValidationError(SyntheticTermValidationError.SUBJECT_ALREADY_TAKEN) {
+		assertValidationError(SyntheticTermValidationError.SUBJECT_ALREADY_APPROVED) {
 			SyntheticTermCommandValidator.validate(
 				record = record,
 				params = creationParams(subjects = listOf(syntheticSubject("ma1112")))

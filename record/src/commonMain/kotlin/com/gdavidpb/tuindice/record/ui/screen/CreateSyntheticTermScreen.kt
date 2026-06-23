@@ -40,7 +40,7 @@ import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.model.CreateTermSubjectCardAction
-import com.gdavidpb.tuindice.record.ui.view.AlreadyTakenSearchResultsToggle
+import com.gdavidpb.tuindice.record.ui.view.ApprovedSearchResultsToggle
 import com.gdavidpb.tuindice.record.ui.view.CreateTermAddSubjectTabs
 import com.gdavidpb.tuindice.record.ui.view.CreateTermPeriodRow
 import com.gdavidpb.tuindice.record.ui.view.CreateTermSearchField
@@ -77,7 +77,7 @@ fun CreateSyntheticTermScreen(
 	val focusRequester = remember { FocusRequester() }
 	val focusManager = LocalFocusManager.current
 	val lazyListState = rememberLazyListState()
-	val showTakenSearchResults = remember { mutableStateOf(false) }
+	val showApprovedSearchResults = remember { mutableStateOf(false) }
 	val searchFieldValue = TextFieldValue(
 		text = state.query,
 		selection = TextRange(
@@ -97,7 +97,7 @@ fun CreateSyntheticTermScreen(
 	val isSearchQueryReady = state.query.trim().length >= MinimumSearchQueryLength
 
 	LaunchedEffect(state.query) {
-		showTakenSearchResults.value = false
+		showApprovedSearchResults.value = false
 	}
 
 	LaunchedEffect(state.selectedAddSubjectTab) {
@@ -110,17 +110,17 @@ fun CreateSyntheticTermScreen(
 		focusManager.clearFocus()
 	}
 
-	val takenSearchResultsCount = searchResultsWithoutSelectedSubjects.count { subject ->
-		subject.availability == SyntheticTermSubjectAvailability.ALREADY_TAKEN
+	val approvedSearchResultsCount = searchResultsWithoutSelectedSubjects.count { subject ->
+		subject.availability == SyntheticTermSubjectAvailability.APPROVED
 	}
 	val otherSearchResults = searchResultsWithoutSelectedSubjects.filterNot { subject ->
-		subject.availability == SyntheticTermSubjectAvailability.ALREADY_TAKEN
+		subject.availability == SyntheticTermSubjectAvailability.APPROVED
 	}
-	val takenSearchResults = searchResultsWithoutSelectedSubjects.filter { subject ->
-		subject.availability == SyntheticTermSubjectAvailability.ALREADY_TAKEN
+	val approvedSearchResults = searchResultsWithoutSelectedSubjects.filter { subject ->
+		subject.availability == SyntheticTermSubjectAvailability.APPROVED
 	}
-	val displayedSearchResults = if (showTakenSearchResults.value) {
-		otherSearchResults + takenSearchResults
+	val displayedSearchResults = if (showApprovedSearchResults.value) {
+		otherSearchResults + approvedSearchResults
 	} else {
 		otherSearchResults
 	}
@@ -360,20 +360,20 @@ fun CreateSyntheticTermScreen(
 								}
 							}
 
-							if (takenSearchResultsCount > 0) {
+							if (approvedSearchResultsCount > 0) {
 								item {
 									Column(
 										verticalArrangement = Arrangement.spacedBy(20.dp)
 									) {
-										AlreadyTakenSearchResultsToggle(
-											count = takenSearchResultsCount,
-											isExpanded = showTakenSearchResults.value,
+										ApprovedSearchResultsToggle(
+											count = approvedSearchResultsCount,
+											isExpanded = showApprovedSearchResults.value,
 											onClick = {
-												showTakenSearchResults.value = !showTakenSearchResults.value
+												showApprovedSearchResults.value = !showApprovedSearchResults.value
 											}
 										)
-										if (showTakenSearchResults.value) {
-											takenSearchResults.forEachIndexed { index, subject ->
+										if (showApprovedSearchResults.value) {
+											approvedSearchResults.forEachIndexed { index, subject ->
 												Box(
 													modifier = Modifier
 														.fillMaxWidth()

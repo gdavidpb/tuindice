@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.PensumCacheEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.PensumSelectionEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
@@ -26,17 +27,17 @@ import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respondOk
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlinx.serialization.json.Json
-import kotlin.time.Clock
-import kotlin.time.ExperimentalTime
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Clock
+import kotlin.time.ExperimentalTime
 
 class SyntheticTermCreationDataSourceTest {
 	@Test
@@ -86,6 +87,14 @@ class SyntheticTermCreationDataSourceTest {
 						)
 					),
 					academicTerm(
+						id = "current",
+						kind = TermKind.CURRENT,
+						periodCode = AcademicTermPeriod.APR_JUL,
+						attempts = listOf(
+							academicAttempt(subjectCode = "BB1001", outcome = AttemptOutcome.PENDING)
+						)
+					),
+					academicTerm(
 						id = "synthetic",
 						kind = TermKind.SYNTHETIC,
 						attempts = listOf(
@@ -97,6 +106,7 @@ class SyntheticTermCreationDataSourceTest {
 			pensumPayloadJson = pensumPayload(
 				nodes = listOf(
 					pensumNode(id = "aa1001", subjectCode = "AA1001", name = "Estado disponible"),
+					pensumNode(id = "bb1001", subjectCode = "BB1001", name = "Estado en curso"),
 					pensumNode(id = "cc1001", subjectCode = "CC1001", name = "Estado cursada"),
 					pensumNode(id = "dd1001", subjectCode = "DD1001", name = "Estado planificada"),
 					pensumNode(id = "ff1001", subjectCode = "FF1001", name = "Estado requisito faltante"),
@@ -108,6 +118,7 @@ class SyntheticTermCreationDataSourceTest {
 			),
 			searchEntities = listOf(
 				subjectCatalogEntity(subjectCode = "AA1001", name = "Estado disponible"),
+				subjectCatalogEntity(subjectCode = "BB1001", name = "Estado en curso"),
 				subjectCatalogEntity(subjectCode = "CC1001", name = "Estado cursada"),
 				subjectCatalogEntity(subjectCode = "DD1001", name = "Estado planificada"),
 				subjectCatalogEntity(subjectCode = "EE1001", name = "Estado no disponible"),
@@ -125,22 +136,24 @@ class SyntheticTermCreationDataSourceTest {
 		val resultsByCode = snapshot.searchResults.associateBy { subject -> subject.subjectCode }
 
 		assertEquals(
-				listOf(
-					"AA1001" to SyntheticTermSubjectAvailability.AVAILABLE,
-					"DD1001" to SyntheticTermSubjectAvailability.ALREADY_PLANNED,
-					"EE1001" to SyntheticTermSubjectAvailability.UNAVAILABLE,
-					"CC1001" to SyntheticTermSubjectAvailability.ALREADY_TAKEN,
-					"GG1001" to SyntheticTermSubjectAvailability.NOT_IN_PENSUM
-				),
+			listOf(
+				"AA1001" to SyntheticTermSubjectAvailability.AVAILABLE,
+				"DD1001" to SyntheticTermSubjectAvailability.ALREADY_PLANNED,
+				"EE1001" to SyntheticTermSubjectAvailability.BLOCKED,
+				"BB1001" to SyntheticTermSubjectAvailability.CURRENT,
+				"CC1001" to SyntheticTermSubjectAvailability.APPROVED,
+				"GG1001" to SyntheticTermSubjectAvailability.NOT_IN_PENSUM
+			),
 			snapshot.searchResults.map { subject -> subject.subjectCode to subject.availability }
 		)
+		assertEquals("Abr - Jul 2025", resultsByCode.getValue("BB1001").availabilityDetail?.termLabel)
 		assertEquals("Ene - Mar 2025", resultsByCode.getValue("CC1001").availabilityDetail?.termLabel)
 		assertEquals("Ene - Mar 2025", resultsByCode.getValue("DD1001").availabilityDetail?.termLabel)
 		assertEquals(listOf("FF1001"), resultsByCode.getValue("EE1001").availabilityDetail?.missingSubjectCodes)
 	}
 
 	@Test
-	fun observeSnapshot_marksSearchResultUnavailable_whenPensumRequirementIsPending() = runTest {
+	fun observeSnapshot_marksSearchResultBlocked_whenPensumRequirementIsPending() = runTest {
 		val dataSource = dataSource(
 			record = academicRecord(
 				approvedSubjectCodes = listOf("MA1111")
@@ -168,9 +181,50 @@ class SyntheticTermCreationDataSourceTest {
 		).first()
 
 		val result = snapshot.searchResults.single()
-		assertEquals(SyntheticTermSubjectAvailability.UNAVAILABLE, result.availability)
+		assertEquals(SyntheticTermSubjectAvailability.BLOCKED, result.availability)
 		assertEquals(listOf("MA1112"), result.availabilityDetail?.missingSubjectCodes)
 		assertTrue(result.canAdd)
+	}
+
+	@Test
+	fun observeSnapshot_rehydratesSelectedSubjectsWithPensumAvailability_whenEditingTerm() = runTest {
+		val dataSource = dataSource(
+			record = academicRecord(
+				approvedSubjectCodes = listOf("MA1112")
+			),
+			pensumPayloadJson = pensumPayload(
+				nodes = listOf(
+					pensumNode(id = "ma1112", subjectCode = "MA1112", name = "Matemáticas II"),
+					pensumNode(id = "ma1122", subjectCode = "MA1122", name = "Matemáticas II"),
+					pensumNode(id = "ci2511", subjectCode = "CI2511", name = "Lógica Simbólica")
+				),
+				edges = listOf(
+					pensumEdge(fromNodeId = "ma1112", toNodeId = "ci2511", relationshipType = "REQUIREMENT"),
+					pensumEdge(fromNodeId = "ma1122", toNodeId = "ci2511", relationshipType = "REQUIREMENT")
+				)
+			),
+			searchEntities = emptyList()
+		)
+
+		val snapshot = dataSource.observeSnapshot(
+			queryFlow = MutableStateFlow(""),
+			selectedSubjectsFlow = MutableStateFlow(
+				listOf(
+					SyntheticTermSubject(
+						subjectCode = "CI2511",
+						name = "Lógica Simbólica",
+						credits = 4
+					)
+				)
+			),
+			selectedPeriodKeyFlow = MutableStateFlow(null),
+			editingTermIdFlow = MutableStateFlow("synthetic-term"),
+			editingTermKeyFlow = MutableStateFlow("2026-APR_JUL")
+		).first()
+
+		val selectedSubject = snapshot.selectedSubjects.single()
+		assertEquals(SyntheticTermSubjectAvailability.BLOCKED, selectedSubject.availability)
+		assertEquals(listOf("MA1122"), selectedSubject.availabilityDetail?.missingSubjectCodes)
 	}
 
 	@Test
@@ -220,7 +274,7 @@ class SyntheticTermCreationDataSourceTest {
 			listOf(
 				"MA1112" to SyntheticTermSubjectAvailability.AVAILABLE,
 				"MA1121" to SyntheticTermSubjectAvailability.AVAILABLE,
-				"MA1111" to SyntheticTermSubjectAvailability.ALREADY_TAKEN
+				"MA1111" to SyntheticTermSubjectAvailability.APPROVED
 			),
 			snapshot.searchResults.map { subject -> subject.subjectCode to subject.availability }
 		)
@@ -354,7 +408,7 @@ class SyntheticTermCreationDataSourceTest {
 	}
 
 	@Test
-	fun observeSnapshot_marksProjectSubjectUnavailable_whenRequirementsAreOnlyPlanned() = runTest {
+	fun observeSnapshot_marksProjectSubjectBlocked_whenRequirementsAreOnlyPlanned() = runTest {
 		val dataSource = dataSource(
 			record = AcademicRecord(
 				id = "record",
@@ -394,7 +448,7 @@ class SyntheticTermCreationDataSourceTest {
 		).first()
 
 		val result = snapshot.searchResults.single()
-		assertEquals(SyntheticTermSubjectAvailability.UNAVAILABLE, result.availability)
+		assertEquals(SyntheticTermSubjectAvailability.BLOCKED, result.availability)
 		assertEquals(listOf("EP1308", "EP5855"), result.availabilityDetail?.missingSubjectCodes)
 		assertTrue(result.canAdd)
 	}
@@ -443,7 +497,7 @@ class SyntheticTermCreationDataSourceTest {
 		assertEquals(
 			listOf(
 				"EP1308" to SyntheticTermSubjectAvailability.ALREADY_PLANNED,
-				"EP2308" to SyntheticTermSubjectAvailability.UNAVAILABLE,
+				"EP2308" to SyntheticTermSubjectAvailability.BLOCKED,
 				"AA1001" to SyntheticTermSubjectAvailability.NOT_IN_PENSUM,
 				"AB1001" to SyntheticTermSubjectAvailability.NOT_IN_PENSUM
 			),

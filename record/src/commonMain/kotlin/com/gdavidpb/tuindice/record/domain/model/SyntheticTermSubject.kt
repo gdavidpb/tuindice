@@ -13,6 +13,6 @@ data class SyntheticTermSubject(
 ) {
 	val creditsText: String = "$credits UC"
 	val canAdd: Boolean = availability == SyntheticTermSubjectAvailability.AVAILABLE ||
-		availability == SyntheticTermSubjectAvailability.NOT_IN_PENSUM ||
-		availability == SyntheticTermSubjectAvailability.UNAVAILABLE
+		availability == SyntheticTermSubjectAvailability.BLOCKED ||
+		availability == SyntheticTermSubjectAvailability.NOT_IN_PENSUM
 }
