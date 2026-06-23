@@ -96,6 +96,31 @@ class EvaluationRepositoryContractTest {
 	}
 
 	@Test
+	fun updateEvaluations_forceRemote_ignoresCooldown_whenSyncedSnapshotIsEmpty() = runTest {
+		val databaseDataSource = FakeDatabaseDataSource(
+			initialSnapshot = LocalEvaluationsSnapshot(
+				hasSynced = true,
+				evaluations = emptyList()
+			)
+		)
+		val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
+		val settingsDataSource = FakeSettingsDataSource(onCooldown = true)
+		val repository = EvaluationDataSource(
+			databaseDataSource = databaseDataSource,
+			evaluationsApiDataSource = evaluationsApiDataSource,
+			settingsDataSource = settingsDataSource,
+			mutationEngine = createEvaluationsMutationEngine(),
+			identifierRepository = FakeIdentifierRepository()
+		)
+
+		repository.updateEvaluations(forceRemote = true)
+
+		assertEquals(1, evaluationsApiDataSource.getEvaluationsCalls)
+		assertEquals(1, databaseDataSource.savedSnapshots.size)
+		assertTrue(settingsDataSource.cooldownMarked)
+	}
+
+	@Test
 	fun addEvaluation_enqueues_pending_add_locally_before_remote_ack() = runTest {
 		val databaseDataSource = FakeDatabaseDataSource()
 		val evaluationsApiDataSource = FakeEvaluationsApiDataSource()

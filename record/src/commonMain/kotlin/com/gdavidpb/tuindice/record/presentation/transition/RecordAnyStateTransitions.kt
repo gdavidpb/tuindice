@@ -12,6 +12,11 @@ internal fun MachineDefinitionBuilder<Record.State>.recordAnyStateTransitions(
 	host: MachineHost<Record.Effect>
 ) {
 	fromAny {
+		on<Record.Action.EnsureRecordLoaded> { state, _ ->
+			machine.ensureRecordLoaded(host = host)
+			state
+		}
+
 		on<Record.Action.RefreshRecord> { state, _ ->
 			machine.refreshRecord(host = host)
 			state

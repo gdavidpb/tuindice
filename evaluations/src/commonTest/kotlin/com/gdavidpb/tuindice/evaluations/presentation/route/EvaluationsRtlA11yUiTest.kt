@@ -13,6 +13,7 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.intl.Locale
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
@@ -179,6 +180,10 @@ class EvaluationsRtlA11yUiTest {
 					evaluationRepository = repository,
 					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 					syncStatusRepository = RecordingSyncStatusRepository(),
+					reportingRepository = RecordingReportingRepository()
+				),
+				ensureEvaluationsLoadedUseCase = EnsureEvaluationsLoadedUseCase(
+					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository()
 				),
 				updateEvaluationsUseCase = UpdateEvaluationsUseCase(

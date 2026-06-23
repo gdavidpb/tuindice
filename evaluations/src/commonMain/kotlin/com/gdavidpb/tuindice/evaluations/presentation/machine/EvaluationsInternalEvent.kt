@@ -27,6 +27,8 @@ sealed interface EvaluationsInternalEvent {
 
 	data object EvaluationsEmptyObserved : EvaluationsInternalEvent
 
+	data object EvaluationsEmptyConfirmed : EvaluationsInternalEvent
+
 	data object EvaluationsObservationFailed : EvaluationsInternalEvent
 
 	data object EvaluationsRefreshStarted : EvaluationsInternalEvent

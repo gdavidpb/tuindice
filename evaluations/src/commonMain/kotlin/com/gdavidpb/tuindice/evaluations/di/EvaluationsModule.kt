@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.evaluations.data.source.RoomDatabaseDataSource
 import com.gdavidpb.tuindice.evaluations.data.resolver.VisibleEvaluationsStateResolver
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
@@ -58,6 +59,7 @@ val evaluationsModule = module {
 
 	factoryOf(::GetEvaluationAndAvailableAttemptsUseCase)
 	factoryOf(::GetEvaluationsUseCase)
+	factoryOf(::EnsureEvaluationsLoadedUseCase)
 	factoryOf(::UpdateEvaluationsUseCase)
 	factoryOf(::GetEvaluationUseCase)
 	factoryOf(::UpdateEvaluationUseCase)

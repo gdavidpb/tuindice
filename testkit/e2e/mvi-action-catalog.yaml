@@ -216,6 +216,9 @@ actions:
   - id: evaluations.Evaluations.LoadEvaluations
     classification: internal
     reason: list bootstrap
+  - id: evaluations.Evaluations.EnsureEvaluationsLoaded
+    classification: internal
+    reason: route entry confirms initial evaluations refresh before showing empty
   - id: evaluations.Evaluations.RefreshEvaluations
     classification: user
     variants: [success, failed-retry, waiting-record, no-attempts]
@@ -388,6 +391,9 @@ actions:
   - id: record.Record.ObserveRecord
     classification: internal
     reason: screen bootstrap
+  - id: record.Record.EnsureRecordLoaded
+    classification: internal
+    reason: route entry preserves initial record refresh while local content wins
   - id: record.Record.RefreshRecord
     classification: user
     variants: [success, initial-load-failed-retry-success]

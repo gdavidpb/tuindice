@@ -33,6 +33,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsRefreshResult
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
@@ -246,10 +247,12 @@ class RecordingEvaluationRepository(
 	private val updateThrowable: Throwable? = null,
 	private val removeThrowable: Throwable? = null,
 	private val refreshThrowable: Throwable? = null,
+	private val refreshedEvaluations: List<Evaluation>? = null,
 	private val getEvaluationThrowable: Throwable? = null,
 	private val availableAttemptsThrowable: Throwable? = null,
 	private val hasSyncedEvaluationsFlow: Flow<Boolean> = flowOf(true),
-		private val evaluationsSnapshotFlow: Flow<ObservedSyncedSnapshot<List<Evaluation>>>? = null,
+	private val evaluationsSnapshotFlow: Flow<ObservedSyncedSnapshot<List<Evaluation>>>? = null,
+	private val refreshResult: EvaluationsRefreshResult? = null,
 	private val availableSubjects: List<EditableAttemptDescriptor> = listOf(
 		DEFAULT_EVALUATION_SUBJECT,
 		SECOND_EVALUATION_SUBJECT
@@ -262,6 +265,7 @@ class RecordingEvaluationRepository(
 	val updateCalls = mutableListOf<EvaluationUpdate>()
 	val removeCalls = mutableListOf<EvaluationRemove>()
 	var updateEvaluationsCalls = 0
+	val updateEvaluationsForceRemoteCalls = mutableListOf<Boolean>()
 
 	override suspend fun observeEvaluationsFlow(): Flow<List<Evaluation>> = evaluationsFlow ?: evaluationsState
 
@@ -279,9 +283,23 @@ class RecordingEvaluationRepository(
 		}
 	}
 
-	override suspend fun updateEvaluations() {
+	override suspend fun getEvaluationsSnapshot(): ObservedSyncedSnapshot<List<Evaluation>> {
+		return observeEvaluationsSnapshotFlow().first()
+	}
+
+	override suspend fun updateEvaluations(): EvaluationsRefreshResult {
+		return updateEvaluations(forceRemote = false)
+	}
+
+	override suspend fun updateEvaluations(forceRemote: Boolean): EvaluationsRefreshResult {
 		updateEvaluationsCalls++
+		updateEvaluationsForceRemoteCalls += forceRemote
 		refreshThrowable?.let { throw it }
+		refreshedEvaluations?.let { evaluations -> evaluationsState.value = evaluations }
+		return refreshResult ?: EvaluationsRefreshResult(
+			hasEvaluations = evaluationsState.value.isNotEmpty(),
+			hasAvailableAttempts = availableSubjects.isNotEmpty()
+		)
 	}
 
 	override suspend fun drainPendingMutations() = Unit
@@ -375,6 +393,8 @@ class FakeDatabaseDataSource(
 	override fun observeHasSyncedEvaluationsFlow(): Flow<Boolean> = hasSyncedEvaluationsState
 
 	override fun observeEvaluationsSnapshotFlow(): Flow<LocalEvaluationsSnapshot> = snapshotState
+
+	override suspend fun getEvaluationsSnapshot(): LocalEvaluationsSnapshot = snapshotState.value
 
 	override suspend fun getEvaluation(eid: String): LocalEvaluation? {
 		return snapshotState.value.evaluations.firstOrNull { evaluation -> evaluation.id == eid }

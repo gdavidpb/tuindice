@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
+import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
@@ -378,6 +379,10 @@ class EvaluationsRouteUiTest {
 					evaluationRepository = repository,
 					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 					syncStatusRepository = RecordingSyncStatusRepository(),
+					reportingRepository = RecordingReportingRepository()
+				),
+				ensureEvaluationsLoadedUseCase = EnsureEvaluationsLoadedUseCase(
+					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository()
 				),
 				updateEvaluationsUseCase = UpdateEvaluationsUseCase(

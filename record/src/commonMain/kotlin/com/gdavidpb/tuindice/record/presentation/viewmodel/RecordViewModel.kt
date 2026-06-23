@@ -19,6 +19,10 @@ class RecordViewModel(
 	initialAction = Record.Action.ObserveRecord,
 	dispatchers = dispatchers
 ) {
+	fun ensureRecordLoadedAction() {
+		sendAction(Record.Action.EnsureRecordLoaded)
+	}
+
 	fun refreshRecordAction() {
 		sendAction(Record.Action.RefreshRecord)
 	}

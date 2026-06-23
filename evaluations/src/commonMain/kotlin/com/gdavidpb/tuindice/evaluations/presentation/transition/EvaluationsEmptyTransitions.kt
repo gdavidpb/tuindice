@@ -8,7 +8,9 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsEmptyTransit
 	from<Evaluations.State.Empty> {
 		on<EvaluationsInternalEvent.EvaluationsObservationFailed> { state, _ -> state }
 
-		on<EvaluationsInternalEvent.EvaluationsRefreshStarted> { state, _ -> state }
+		onTo<EvaluationsInternalEvent.EvaluationsRefreshStarted, Evaluations.State.Loading> { _, _ ->
+			Evaluations.State.Loading
+		}
 
 		on<EvaluationsInternalEvent.EvaluationsRefreshFailed> { state, _ -> state }
 	}

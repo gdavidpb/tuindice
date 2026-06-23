@@ -87,11 +87,18 @@ class RoomDatabaseDataSource(
 	}
 
 	override suspend fun getEvaluation(eid: String): LocalEvaluation? {
+		return getEvaluationsSnapshot().evaluations
+			.firstOrNull { evaluation -> evaluation.id == eid }
+	}
+
+	override suspend fun getEvaluationsSnapshot(): LocalEvaluationsSnapshot {
 		val confirmedSnapshot = getConfirmedSnapshot()
-		return visibleEvaluationsStateResolver.resolveVisibleState(
-			confirmedSnapshot = confirmedSnapshot,
-			pendingMutations = currentPendingMutations()
-		).firstOrNull { evaluation -> evaluation.id == eid }
+		return confirmedSnapshot.copy(
+			evaluations = visibleEvaluationsStateResolver.resolveVisibleState(
+				confirmedSnapshot = confirmedSnapshot,
+				pendingMutations = currentPendingMutations()
+			)
+		)
 	}
 
 	override suspend fun getConfirmedSnapshot(): LocalEvaluationsSnapshot {

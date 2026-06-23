@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.presentation.machine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
+import com.gdavidpb.tuindice.base.domain.usecase.base.InitialContentLoadResult
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.model.SyncedContentResolution
 import com.gdavidpb.tuindice.base.presentation.model.resolveSyncedContentResolution
@@ -9,6 +10,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.EnsureRecordLoadedUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedTermUseCase
@@ -31,6 +33,7 @@ import tuindice.record.generated.resources.snack_synthetic_term_deleted
 
 class RecordMachine(
 	private val observeRecordUseCase: ObserveRecordUseCase,
+	private val ensureRecordLoadedUseCase: EnsureRecordLoadedUseCase,
 	private val updateRecordUseCase: UpdateRecordUseCase,
 	private val setRecordViewModeUseCase: SetRecordViewModeUseCase,
 	private val setSelectedTermUseCase: SetSelectedTermUseCase,
@@ -102,6 +105,32 @@ class RecordMachine(
 					)
 
 					is UseCaseState.Data -> Unit
+
+					is UseCaseState.Error -> host.processInternalEvent(
+						RecordInternalEvent.RecordRefreshFailed(
+							navigateToOutdatedCredentials =
+								useCaseState.error == RecordUseCaseError.Unauthorized
+						)
+					)
+				}
+			}
+		}
+	}
+
+	internal fun ensureRecordLoaded(host: MachineHost<Record.Effect>) {
+		host.launchMachineJob {
+			ensureRecordLoadedUseCase.execute(Unit).collect { useCaseState ->
+				when (useCaseState) {
+					is UseCaseState.Loading -> Unit
+
+					is UseCaseState.Data -> when (useCaseState.value) {
+						InitialContentLoadResult.Cached -> Unit
+						InitialContentLoadResult.RefreshStarted -> host.processInternalEvent(
+							RecordInternalEvent.RecordRefreshStarted
+						)
+
+						InitialContentLoadResult.RefreshSucceeded -> Unit
+					}
 
 					is UseCaseState.Error -> host.processInternalEvent(
 						RecordInternalEvent.RecordRefreshFailed(

@@ -23,6 +23,11 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsAnyStateTran
 			state
 		}
 
+		on<Evaluations.Action.EnsureEvaluationsLoaded> { state, _ ->
+			machine.ensureLoaded(host = host)
+			state
+		}
+
 		on<Evaluations.Action.AddEvaluation>(
 			emits = setOf(Evaluations.Effect.NavigateToAddEvaluation::class)
 		) { state, _ ->
@@ -76,6 +81,10 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsAnyStateTran
 		}
 
 		onTo<EvaluationsInternalEvent.EvaluationsEmptyObserved, Evaluations.State.Empty> { _, _ ->
+			Evaluations.State.Empty
+		}
+
+		onTo<EvaluationsInternalEvent.EvaluationsEmptyConfirmed, Evaluations.State.Empty> { _, _ ->
 			Evaluations.State.Empty
 		}
 

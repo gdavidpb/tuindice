@@ -7,8 +7,10 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsRefreshResult
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 
 interface EvaluationRepository {
 	suspend fun observeEvaluationsFlow(): Flow<List<Evaluation>>
@@ -24,7 +26,13 @@ interface EvaluationRepository {
 			)
 		}
 	}
-	suspend fun updateEvaluations()
+	suspend fun getEvaluationsSnapshot(): ObservedSyncedSnapshot<List<Evaluation>> {
+		return observeEvaluationsSnapshotFlow().first()
+	}
+	suspend fun updateEvaluations(): EvaluationsRefreshResult
+	suspend fun updateEvaluations(forceRemote: Boolean): EvaluationsRefreshResult {
+		return updateEvaluations()
+	}
 	suspend fun drainPendingMutations()
 	suspend fun getEvaluation(eid: String): Evaluation?
 	suspend fun addEvaluation(add: EvaluationAdd)

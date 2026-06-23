@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
@@ -143,6 +144,10 @@ class EvaluationsStateMachineContractTest {
 				syncStatusRepository = RecordingSyncStatusRepository(),
 				reportingRepository = reportingRepository
 			),
+			ensureEvaluationsLoadedUseCase = EnsureEvaluationsLoadedUseCase(
+				evaluationRepository = repository,
+				reportingRepository = reportingRepository
+			),
 			updateEvaluationsUseCase = UpdateEvaluationsUseCase(
 				evaluationRepository = repository,
 				reportingRepository = reportingRepository
@@ -174,6 +179,7 @@ class EvaluationsStateMachineContractTest {
 			screenMachine = screenMachine,
 			sampleEvents = listOf(
 				Evaluations.Action.LoadEvaluations,
+				Evaluations.Action.EnsureEvaluationsLoaded,
 				Evaluations.Action.RefreshEvaluations,
 				Evaluations.Action.SelectWeek(weekKey = weekKey),
 				Evaluations.Action.AddEvaluation,
@@ -205,6 +211,7 @@ class EvaluationsStateMachineContractTest {
 					)
 				),
 				EvaluationsInternalEvent.EvaluationsEmptyObserved,
+				EvaluationsInternalEvent.EvaluationsEmptyConfirmed,
 				EvaluationsInternalEvent.EvaluationsObservationFailed,
 				EvaluationsInternalEvent.EvaluationsRefreshStarted,
 				EvaluationsInternalEvent.EvaluationsRefreshFailed,
@@ -316,6 +323,10 @@ class EvaluationsStateMachineContractTest {
 					evaluationRepository = repository,
 					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 					syncStatusRepository = RecordingSyncStatusRepository(),
+					reportingRepository = reportingRepository
+				),
+				ensureEvaluationsLoadedUseCase = EnsureEvaluationsLoadedUseCase(
+					evaluationRepository = repository,
 					reportingRepository = reportingRepository
 				),
 				updateEvaluationsUseCase = UpdateEvaluationsUseCase(

@@ -64,7 +64,7 @@ fun RecordRoute(
 	}
 
 	LaunchedEffect(Unit) {
-		viewModel.refreshRecordAction()
+		viewModel.ensureRecordLoadedAction()
 	}
 
 	LaunchedEffect(viewState, pendingTopBarBanner.value) {

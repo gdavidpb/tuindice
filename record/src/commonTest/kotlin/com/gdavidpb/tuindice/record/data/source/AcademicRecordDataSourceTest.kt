@@ -109,6 +109,30 @@ class AcademicRecordDataSourceTest {
 	}
 
 	@Test
+	fun updateAcademicRecord_forceRemote_ignoresCooldown_whenLocalRecordIsUsable() = runTest {
+		val remoteRecord = defaultVersionedRecord(revision = 2L)
+		val localDataSource = FakeAcademicRecordLocalDataRepository(
+			record = defaultVersionedRecord(),
+			hasSyncedRecord = true
+		)
+		val remoteDataSource = ControlledAcademicRecordRemoteDataRepository(upsertResponse = remoteRecord)
+		val settingsDataSource = FakeRecordSettingsDataRepository(onCooldown = true)
+		val dataSource = AcademicRecordDataSource(
+			localDataSource = localDataSource,
+			remoteDataSource = remoteDataSource,
+			settingsDataSource = settingsDataSource,
+			mutationEngine = createMutationEngine(this),
+			identifierRepository = FakeIdentifierRepository()
+		)
+
+		dataSource.updateAcademicRecord(forceRemote = true)
+
+		assertEquals(1, remoteDataSource.getRecordCalls)
+		assertEquals(listOf(remoteRecord), localDataSource.savedRecords)
+		assertEquals(true, settingsDataSource.cooldownMarked)
+	}
+
+	@Test
 	fun upsertAttemptOverride_whenEarlierAckArrivesAfterNewerTap_keepsLaterPendingOverrideVisible() = runTest {
 		val firstAttemptId = "11111111111111111111111111111111"
 		val secondAttemptId = "22222222222222222222222222222222"

@@ -37,6 +37,7 @@ class ControllableAcademicRecordRepository(
 	var recordAvailable: Boolean = true
 	var updateAcademicRecordCalls: Int = 0
 		private set
+	val updateAcademicRecordForceRemoteCalls = mutableListOf<Boolean>()
 	var updateAcademicRecordThrowable: Throwable? = null
 
 	override suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord> = recordFlow
@@ -47,7 +48,12 @@ class ControllableAcademicRecordRepository(
 		if (recordAvailable) recordFlow.value else null
 
 	override suspend fun updateAcademicRecord() {
+		updateAcademicRecord(forceRemote = false)
+	}
+
+	override suspend fun updateAcademicRecord(forceRemote: Boolean) {
 		updateAcademicRecordCalls++
+		updateAcademicRecordForceRemoteCalls += forceRemote
 		updateAcademicRecordThrowable?.let { throwable -> throw throwable }
 	}
 

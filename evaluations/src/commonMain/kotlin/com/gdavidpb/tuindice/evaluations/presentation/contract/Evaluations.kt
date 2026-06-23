@@ -48,6 +48,8 @@ object Evaluations {
 	sealed class Action : ViewAction {
 		data object LoadEvaluations : Action()
 
+		data object EnsureEvaluationsLoaded : Action()
+
 		data object RefreshEvaluations : Action()
 
 		class SelectWeek(

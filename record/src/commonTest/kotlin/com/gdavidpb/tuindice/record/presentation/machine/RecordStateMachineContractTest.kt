@@ -109,6 +109,7 @@ class RecordStateMachineContractTest {
 			"empty",
 			"failed",
 			"ObserveRecord",
+			"EnsureRecordLoaded",
 			"RecordContentObserved",
 			"RecordWaitingObserved",
 			"RecordRefreshFailed / NavigateToOutdatedCredentials",
@@ -163,6 +164,7 @@ class RecordStateMachineContractTest {
 			screenMachine = requireNotNull(resolvedMachine),
 			sampleEvents = listOf(
 				Record.Action.ObserveRecord,
+				Record.Action.EnsureRecordLoaded,
 				Record.Action.RefreshRecord,
 				Record.Action.SetViewMode(viewMode = RecordViewMode.Historical),
 				Record.Action.SelectTerm(termId = "term-1"),
