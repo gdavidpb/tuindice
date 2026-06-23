@@ -51,5 +51,6 @@ class SyntheticTermPeriodOptionTest {
 	fun longPeriods_areNotSupportedForSyntheticPlanning() {
 		assertTrue(!AcademicTermPeriod.JUL_DEC.supportsSyntheticPlanning)
 		assertTrue(!AcademicTermPeriod.APR_SEP.supportsSyntheticPlanning)
+		assertTrue(!AcademicTermPeriod.JAN_MAY.supportsSyntheticPlanning)
 	}
 }

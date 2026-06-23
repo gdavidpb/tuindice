@@ -103,6 +103,16 @@ class AcademicRecordCoreMapperTest {
 			        "term_key": "2026-JUL_DEC",
 			        "term_order": 20265,
 			        "period_label": "Julio - Diciembre 2026"
+			      },
+			      {
+			        "id": "term-jan-may",
+			        "period_year": 2025,
+			        "period_code": "JAN_MAY",
+			        "term_kind": "historical",
+			        "attempts": [],
+			        "term_key": "2025-JAN_MAY",
+			        "term_order": 20257,
+			        "period_label": "Enero - Mayo 2025"
 			      }
 			    ]
 			  }
@@ -111,7 +121,7 @@ class AcademicRecordCoreMapperTest {
 		)
 
 		assertEquals(
-			listOf(AcademicTermPeriod.APR_SEP, AcademicTermPeriod.JUL_DEC),
+			listOf(AcademicTermPeriod.APR_SEP, AcademicTermPeriod.JUL_DEC, AcademicTermPeriod.JAN_MAY),
 			response.record.terms.map(AcademicTerm::periodCode)
 		)
 	}

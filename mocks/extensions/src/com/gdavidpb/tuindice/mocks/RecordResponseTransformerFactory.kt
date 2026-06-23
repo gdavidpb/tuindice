@@ -834,6 +834,7 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 				PeriodModel(code = "SEP_DEC", sequence = 4, labelPrefix = "Septiembre - Diciembre"),
 				PeriodModel(code = "JUL_DEC", sequence = 5, labelPrefix = "Julio - Diciembre"),
 				PeriodModel(code = "APR_SEP", sequence = 6, labelPrefix = "Abril - Septiembre"),
+				PeriodModel(code = "JAN_MAY", sequence = 7, labelPrefix = "Enero - Mayo"),
 			).associateBy(PeriodModel::code)
 			private val VALID_OUTCOMES = setOf(
 				PENDING_OUTCOME,

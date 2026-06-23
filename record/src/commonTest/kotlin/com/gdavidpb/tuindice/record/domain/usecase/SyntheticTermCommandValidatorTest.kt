@@ -73,7 +73,7 @@ class SyntheticTermCommandValidatorTest {
 				params = creationParams(
 					period = SyntheticTermPeriodOption(
 						periodYear = 9999,
-						periodCode = AcademicTermPeriod.APR_SEP
+						periodCode = AcademicTermPeriod.JAN_MAY
 					)
 				)
 			)

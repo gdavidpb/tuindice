@@ -52,5 +52,13 @@ enum class AcademicTermPeriod(
 		label = "Abril - Septiembre",
 		shortLabel = "Abr - Sep",
 		supportsSyntheticPlanning = false
+	),
+
+	@SerialName("JAN_MAY")
+	JAN_MAY(
+		sequence = 7,
+		label = "Enero - Mayo",
+		shortLabel = "Ene - May",
+		supportsSyntheticPlanning = false
 	);
 }
