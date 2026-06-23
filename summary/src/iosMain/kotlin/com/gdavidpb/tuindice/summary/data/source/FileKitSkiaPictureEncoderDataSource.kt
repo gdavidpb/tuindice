@@ -33,10 +33,11 @@ class FileKitSkiaPictureEncoderDataSource : PictureEncoderDataRepository {
 
 				val maxDimension = maxOf(decodedImage.width, decodedImage.height)
 
-				val scaleFactor = if (maxDimension <= Settings.MAX_DIMENSION_PX)
+				val scaleFactor = if (maxDimension <= Settings.MAX_DIMENSION_PX) {
 					1.0
-				else
+				} else {
 					Settings.MAX_DIMENSION_PX.toDouble() / maxDimension.toDouble()
+				}
 
 				val targetWidth = maxOf(1, (decodedImage.width * scaleFactor).toInt())
 				val targetHeight = maxOf(1, (decodedImage.height * scaleFactor).toInt())
@@ -73,11 +74,10 @@ class FileKitSkiaPictureEncoderDataSource : PictureEncoderDataRepository {
 					}
 				}
 			}
-		} catch (exception: Throwable) {
-			throw exception
 		} finally {
-			if (accessGranted)
+			if (accessGranted) {
 				file.stopAccessingSecurityScopedResource()
+			}
 		}
 	}
 

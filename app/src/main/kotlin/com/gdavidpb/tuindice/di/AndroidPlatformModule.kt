@@ -52,7 +52,9 @@ import com.gdavidpb.tuindice.platform.android.AndroidKeystoreProofOfPossessionCa
 import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
 import com.gdavidpb.tuindice.platform.android.UserAgent
 import com.gdavidpb.tuindice.platform.android.androidDefaultConfigValues
+import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
+import com.gdavidpb.tuindice.summary.data.source.AndroidBitmapPictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.data.source.AndroidProfilePictureInputDataSource
 import com.gdavidpb.tuindice.ui.screen.AndroidBrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
@@ -227,6 +229,7 @@ val androidPlatformModule = module {
 	factoryOf(::AndroidStoreUrlDataSource) { bind<StoreUrlRepository>() }
 	factoryOf(::AndroidShareTextHandler) { bind<ShareTextHandler>() }
 	singleOf(::AndroidProfilePictureInputDataSource) { bind<ProfilePictureInputDataRepository>() }
+	singleOf(::AndroidBitmapPictureEncoderDataSource) { bind<PictureEncoderDataRepository>() }
 
 	singleOf(::PlayIntegrityDataSource) { bind<AttestationProviderDataRepository>() }
 	factory<AuthApiDataRepository> {

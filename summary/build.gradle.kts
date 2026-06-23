@@ -25,6 +25,8 @@ kotlin {
 	iosArm64()
 	iosSimulatorArm64()
 
+	applyDefaultHierarchyTemplate()
+
 	sourceSets {
 		val commonMain by getting {
 			dependencies {
@@ -34,7 +36,6 @@ kotlin {
 				implementation(libs.filekit.dialogs.compose)
 				implementation(libs.coil3.compose)
 				implementation(libs.coil3.network.ktor3)
-				implementation(libs.skiko)
 				implementation(libs.navigation.compose)
 				implementation(libs.koin.compose)
 				implementation(libs.koin.core.viewmodel)
@@ -58,6 +59,12 @@ kotlin {
 			dependencies {
 				implementation(libs.compose.activity)
 				implementation(libs.core.ktx)
+			}
+		}
+
+		val iosMain by getting {
+			dependencies {
+				implementation(libs.skiko)
 			}
 		}
 	}

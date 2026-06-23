@@ -1,16 +1,17 @@
 package com.gdavidpb.tuindice.summary.data.source
 
 import io.github.vinceglb.filekit.FileKit
+import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.createDirectories
 import io.github.vinceglb.filekit.delete
 import io.github.vinceglb.filekit.div
 import io.github.vinceglb.filekit.exists
 import io.github.vinceglb.filekit.filesDir
 import io.github.vinceglb.filekit.write
+import kotlinx.coroutines.test.runTest
 import org.jetbrains.skia.EncodedImageFormat
 import org.jetbrains.skia.Image
 import org.jetbrains.skia.Surface
-import kotlinx.coroutines.test.runTest
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -123,12 +124,17 @@ class FileKitSkiaPictureEncoderDataSourceTest {
 		prefix: String,
 		extension: String,
 		content: ByteArray
-	) = (FileKit.filesDir / "summaryTests" / "${prefix}_${Random.nextInt(1_000_000)}.$extension").also { file ->
-		(FileKit.filesDir / "summaryTests").createDirectories()
+	): PlatformFile {
+		val directory = FileKit.filesDir / "summaryTests"
+		val file = directory / "${prefix}_${Random.nextInt(1_000_000)}.$extension"
+
+		directory.createDirectories()
 		file.write(content)
+
+		return file
 	}
 
-	private suspend fun deleteInputFileIfExists(file: io.github.vinceglb.filekit.PlatformFile) {
+	private suspend fun deleteInputFileIfExists(file: PlatformFile) {
 		if (file.exists()) {
 			file.delete(mustExist = false)
 		}
