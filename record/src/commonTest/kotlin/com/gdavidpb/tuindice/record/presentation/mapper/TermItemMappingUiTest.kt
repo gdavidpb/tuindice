@@ -44,7 +44,7 @@ class TermItemMappingUiTest {
 		val mapped = assertNotNull(item)
 		assertEquals("term-1", mapped.termId)
 		assertEquals(2027, mapped.periodYear)
-		assertEquals(20274, mapped.termOrder)
+		assertEquals(20276, mapped.termOrder)
 		assertEquals("Sep - Dic 2027", mapped.shortNameText)
 		assertEquals(TermItemKind.SYNTHETIC, mapped.kind)
 		assertFalse(mapped.isCurrent)

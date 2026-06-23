@@ -829,12 +829,12 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			)
 			private val PERIODS_BY_CODE = listOf(
 				PeriodModel(code = "JAN_MAR", sequence = 1, labelPrefix = "Enero - Marzo"),
-				PeriodModel(code = "APR_JUL", sequence = 2, labelPrefix = "Abril - Julio"),
-				PeriodModel(code = "JUL_AUG", sequence = 3, labelPrefix = "Julio - Agosto"),
-				PeriodModel(code = "SEP_DEC", sequence = 4, labelPrefix = "Septiembre - Diciembre"),
-				PeriodModel(code = "JUL_DEC", sequence = 5, labelPrefix = "Julio - Diciembre"),
-				PeriodModel(code = "APR_SEP", sequence = 6, labelPrefix = "Abril - Septiembre"),
-				PeriodModel(code = "JAN_MAY", sequence = 7, labelPrefix = "Enero - Mayo"),
+				PeriodModel(code = "JAN_MAY", sequence = 2, labelPrefix = "Enero - Mayo"),
+				PeriodModel(code = "APR_JUL", sequence = 3, labelPrefix = "Abril - Julio"),
+				PeriodModel(code = "JUL_AUG", sequence = 4, labelPrefix = "Julio - Agosto"),
+				PeriodModel(code = "APR_SEP", sequence = 5, labelPrefix = "Abril - Septiembre"),
+				PeriodModel(code = "SEP_DEC", sequence = 6, labelPrefix = "Septiembre - Diciembre"),
+				PeriodModel(code = "JUL_DEC", sequence = 7, labelPrefix = "Julio - Diciembre"),
 			).associateBy(PeriodModel::code)
 			private val VALID_OUTCOMES = setOf(
 				PENDING_OUTCOME,

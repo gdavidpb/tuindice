@@ -32,7 +32,7 @@ class SyntheticTermPeriodOptionTest {
 		)
 
 		assertEquals(20271, january.termOrder)
-		assertEquals(20274, september.termOrder)
+		assertEquals(20276, september.termOrder)
 		assertTrue(january.termOrder < september.termOrder)
 		assertTrue(september.termOrder < nextYear.termOrder)
 	}

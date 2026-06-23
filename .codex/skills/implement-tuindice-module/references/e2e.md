@@ -65,7 +65,7 @@ When E2E is in scope, include the test and every required supporting artifact in
 8. `subjects`: search, detail, career/global tabs, unavailable/failed/retry.
 9. `evaluations`: list, filters, create, edit, date/grade/max-grade selection, swipe edit/delete.
 10. `enrollmentproof`: top-bar entry, fetching sheet, cancel, PDF/open-file success, error/outdated credentials.
-11. `wizard`: welcome, next/back, skip, focus per screen, finish into summary.
+11. `wizard`: contextual coachmark host, pending/seen startup variants, summary/record anchors, primary/back progression, and persistence of seen coachmarks.
 12. `about`: internal/external links, browser dialog, support/contact/share/rate.
 
 ## Local Validation

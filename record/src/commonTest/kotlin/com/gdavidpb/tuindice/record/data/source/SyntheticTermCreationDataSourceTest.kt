@@ -74,6 +74,30 @@ class SyntheticTermCreationDataSourceTest {
 	}
 
 	@Test
+	fun observeSnapshot_excludesLongAcademicTermsFromPeriodOptions() = runTest {
+		val dataSource = dataSource(
+			record = AcademicRecord(id = "record"),
+			pensumPayloadJson = pensumPayload(nodes = emptyList(), edges = emptyList()),
+			searchEntities = emptyList()
+		)
+
+		val snapshot = dataSource.observeSnapshot(
+			queryFlow = MutableStateFlow(""),
+			selectedSubjectsFlow = MutableStateFlow(emptyList()),
+			selectedPeriodKeyFlow = MutableStateFlow(null),
+			editingTermIdFlow = MutableStateFlow(null),
+			editingTermKeyFlow = MutableStateFlow(null)
+		).first()
+
+		assertEquals(20, snapshot.periodOptions.size)
+		assertTrue(
+			snapshot.periodOptions.none { option ->
+				!option.periodCode.supportsSyntheticPlanning
+			}
+		)
+	}
+
+	@Test
 	fun observeSnapshot_resolvesEverySearchResultAvailabilityState() = runTest {
 		val dataSource = dataSource(
 			record = AcademicRecord(

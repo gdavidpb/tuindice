@@ -231,14 +231,17 @@ class SyntheticTermCreationDataSource(
 		var year = currentOrder / 10
 		var sequence = currentOrder % 10
 
-		repeat(FuturePeriodCount) {
+		while (options.size < FuturePeriodCount) {
 			val period = AcademicTermPeriod.entries
 				.first { value -> value.sequence == sequence }
 			val option = SyntheticTermPeriodOption(
 				periodYear = year,
 				periodCode = period
 			)
-			if (maxExistingOrder?.let { latestOrder -> option.termOrder > latestOrder } != false) {
+			if (
+				period.supportsSyntheticPlanning &&
+				maxExistingOrder?.let { latestOrder -> option.termOrder > latestOrder } != false
+			) {
 				options += option
 			}
 

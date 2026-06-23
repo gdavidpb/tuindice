@@ -62,6 +62,13 @@ kotlin {
 			}
 		}
 
+		val androidHostTest by getting {
+			dependencies {
+				implementation(libs.junit)
+				implementation(libs.robolectric)
+			}
+		}
+
 		val iosMain by getting {
 			dependencies {
 				implementation(libs.skiko)

@@ -91,7 +91,7 @@ class AcademicRecordCoreMapperTest {
 			        "term_kind": "historical",
 			        "attempts": [],
 			        "term_key": "2012-APR_SEP",
-			        "term_order": 20126,
+			        "term_order": 20125,
 			        "period_label": "Abril - Septiembre 2012"
 			      },
 			      {
@@ -101,7 +101,7 @@ class AcademicRecordCoreMapperTest {
 			        "term_kind": "historical",
 			        "attempts": [],
 			        "term_key": "2026-JUL_DEC",
-			        "term_order": 20265,
+			        "term_order": 20267,
 			        "period_label": "Julio - Diciembre 2026"
 			      },
 			      {
@@ -111,7 +111,7 @@ class AcademicRecordCoreMapperTest {
 			        "term_kind": "historical",
 			        "attempts": [],
 			        "term_key": "2025-JAN_MAY",
-			        "term_order": 20257,
+			        "term_order": 20252,
 			        "period_label": "Enero - Mayo 2025"
 			      }
 			    ]

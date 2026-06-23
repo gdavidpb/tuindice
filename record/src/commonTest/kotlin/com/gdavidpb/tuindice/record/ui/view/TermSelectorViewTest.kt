@@ -7,6 +7,7 @@ import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.AnnotatedString
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.presentation.model.TermItemKind
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -30,7 +31,8 @@ class TermSelectorViewTest {
 					),
 					termItem(
 						termId = "2027-JUL_AUG",
-						shortNameText = "Jul - Ago 2027"
+						shortNameText = "Jul - Ago 2027",
+						periodCode = AcademicTermPeriod.JUL_AUG
 					)
 				),
 				selectedTermId = "2027-APR_JUL",
@@ -53,6 +55,7 @@ class TermSelectorViewTest {
 					termItem(
 						termId = "2027-JUL_AUG",
 						shortNameText = "Jul - Ago 2027",
+						periodCode = AcademicTermPeriod.JUL_AUG,
 						canEdit = true,
 						canDelete = true
 					)
@@ -69,13 +72,14 @@ class TermSelectorViewTest {
 	private fun termItem(
 		termId: String,
 		shortNameText: String,
+		periodCode: AcademicTermPeriod = AcademicTermPeriod.APR_JUL,
 		canEdit: Boolean = false,
 		canDelete: Boolean = false
 	): TermItem {
 		return TermItem(
 			termId = termId,
 			periodYear = 2027,
-			termOrder = 20272,
+			termOrder = 2027 * 10 + periodCode.sequence,
 			shortNameText = shortNameText,
 			kind = TermItemKind.HISTORICAL,
 			gradeText = AnnotatedString("0.00"),
