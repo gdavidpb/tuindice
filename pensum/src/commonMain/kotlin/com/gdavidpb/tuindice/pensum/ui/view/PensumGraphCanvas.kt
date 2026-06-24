@@ -562,8 +562,18 @@ fun PensumGraphCanvas(
 			}
 		}
 
+		fun isNodeTap(tapOffset: Offset): Boolean {
+			val canvasTapOffset = tapOffset.toCanvasOffset(
+				scale = scale.value,
+				offset = Offset(offsetX.value, offsetY.value)
+			)
+			return model.nodes.any { node -> node.containsCanvasTap(canvasTapOffset, density.density) }
+		}
+
 		Box(
 			modifier = Modifier
+				.fillMaxSize()
+				.testTag(PensumUiTags.CanvasGestureLayer)
 				.pointerInput(graphKey, viewportSizePx, canvasSizePx, panMarginPx) {
 					detectPensumTransformGestures { centroid, pan, zoom ->
 						markManualCanvasGestureActive()
@@ -613,109 +623,116 @@ fun PensumGraphCanvas(
 						}
 					}
 				}
-				.graphicsLayer {
-					translationX = offsetX.value
-					translationY = offsetY.value
-					scaleX = scale.value
-					scaleY = scale.value
-					transformOrigin = TransformOrigin(0f, 0f)
-				}
-				.size(model.canvas.width.dp, model.canvas.height.dp)
-				.testTag(PensumUiTags.CanvasGestureLayer)
-				.pointerInput(graphKey, model.nodes, density.density) {
+				.pointerInput(
+					graphKey,
+					model.nodes,
+					density.density
+				) {
 					detectTapGestures(
 						onTap = { tapOffset ->
-							if (model.nodes.none { node -> node.containsCanvasTap(tapOffset, density.density) }) {
+							if (!isNodeTap(tapOffset)) {
 								onSelectedNodeChange(null)
 							}
 						},
 						onDoubleTap = { tapOffset ->
-							if (model.nodes.none { node -> node.containsCanvasTap(tapOffset, density.density) }) {
+							if (!isNodeTap(tapOffset)) {
 								toggleDoubleTapZoom(tapOffset)
 							}
 						}
 					)
 				}
 		) {
-			Canvas(
+			Box(
 				modifier = Modifier
-					.fillMaxSize()
+					.graphicsLayer {
+						translationX = offsetX.value
+						translationY = offsetY.value
+						scaleX = scale.value
+						scaleY = scale.value
+						transformOrigin = TransformOrigin(0f, 0f)
+					}
+					.size(model.canvas.width.dp, model.canvas.height.dp)
 			) {
-				drawCanvasBackground(
-					model = model,
-					density = density.density,
-					graphColors = graphColors
-				)
-			}
-			model.nodes.forEach { node ->
-				val isUnlockHighlighted = node.id in focusState.selectedAvailableUnlockNodeIds
-				val isDimmedByFocus = focusState.isActive && node.id !in focusState.selectedFocusNodeIds
-				val isDimmedByFilter = isStatusFilterActive && node.id !in statusFilteredNodeIds
-				val isNodeDimmed = isDimmedByFocus || isDimmedByFilter
-				PensumNodeCard(
-					node = node,
-					isSelected = node.id == selectedNodeId,
-					isRequirementHighlighted = node.id in focusState.selectedRequirementNodeIds ||
-						(
-							node.id in focusState.selectedUnlockNodeIds &&
-								node.id !in focusState.selectedAvailableUnlockNodeIds
-							),
-					isUnlockHighlighted = isUnlockHighlighted,
+				Canvas(
 					modifier = Modifier
-						.offset(x = node.x.dp, y = node.y.dp)
-						.size(width = node.width.dp, height = node.height.dp)
-						.zIndex(if (isNodeDimmed) 0f else 2f)
-						.graphicsLayer {
-							alpha = if (isNodeDimmed) 0.34f else 1f
-						}
-						.clickable {
-							if (node.id == selectedNodeId) {
-								onFocusedNodeClick(node.id)
-							} else {
-								onSelectedNodeChange(node.id)
-								centerSelectedNode(node)
-							}
-						}
-						.testTag(PensumUiTags.node(node.id))
-				)
-				if (node.id == selectedNodeId) {
-					Box(
+						.fillMaxSize()
+				) {
+					drawCanvasBackground(
+						model = model,
+						density = density.density,
+						graphColors = graphColors
+					)
+				}
+				model.nodes.forEach { node ->
+					val isUnlockHighlighted = node.id in focusState.selectedAvailableUnlockNodeIds
+					val isDimmedByFocus = focusState.isActive && node.id !in focusState.selectedFocusNodeIds
+					val isDimmedByFilter = isStatusFilterActive && node.id !in statusFilteredNodeIds
+					val isNodeDimmed = isDimmedByFocus || isDimmedByFilter
+					PensumNodeCard(
+						node = node,
+						isSelected = node.id == selectedNodeId,
+						isRequirementHighlighted = node.id in focusState.selectedRequirementNodeIds ||
+							(
+								node.id in focusState.selectedUnlockNodeIds &&
+									node.id !in focusState.selectedAvailableUnlockNodeIds
+								),
+						isUnlockHighlighted = isUnlockHighlighted,
 						modifier = Modifier
 							.offset(x = node.x.dp, y = node.y.dp)
 							.size(width = node.width.dp, height = node.height.dp)
-							.zIndex(3f)
-							.testTag(PensumUiTags.focusedNode(node.id))
+							.zIndex(if (isNodeDimmed) 0f else 2f)
+							.graphicsLayer {
+								alpha = if (isNodeDimmed) 0.34f else 1f
+							}
+							.clickable {
+								if (node.id == selectedNodeId) {
+									onFocusedNodeClick(node.id)
+								} else {
+									onSelectedNodeChange(node.id)
+									centerSelectedNode(node)
+								}
+							}
+							.testTag(PensumUiTags.node(node.id))
+					)
+					if (node.id == selectedNodeId) {
+						Box(
+							modifier = Modifier
+								.offset(x = node.x.dp, y = node.y.dp)
+								.size(width = node.width.dp, height = node.height.dp)
+								.zIndex(3f)
+								.testTag(PensumUiTags.focusedNode(node.id))
+						)
+					}
+				}
+				Canvas(
+					modifier = Modifier
+						.fillMaxSize()
+						.zIndex(1f)
+				) {
+					drawCanvasEdges(
+						edgeRoutes = edgeRoutesPx,
+						model = model,
+						graphColors = graphColors,
+						selectedRequirementEdgeIds = focusState.selectedRequirementEdgeIds,
+						selectedUnlockEdgeIds = focusState.selectedUnlockEdgeIds,
+						selectedAvailableUnlockEdgeIds = focusState.selectedAvailableUnlockEdgeIds,
+						isFocusActive = focusState.isActive,
+						statusFilteredNodeIds = statusFilteredNodeIds,
+						isStatusFilterActive = isStatusFilterActive
 					)
 				}
 			}
-			Canvas(
-				modifier = Modifier
-					.fillMaxSize()
-					.zIndex(1f)
-			) {
-				drawCanvasEdges(
-					edgeRoutes = edgeRoutesPx,
-					model = model,
-					graphColors = graphColors,
-					selectedRequirementEdgeIds = focusState.selectedRequirementEdgeIds,
-					selectedUnlockEdgeIds = focusState.selectedUnlockEdgeIds,
-					selectedAvailableUnlockEdgeIds = focusState.selectedAvailableUnlockEdgeIds,
-					isFocusActive = focusState.isActive,
-					statusFilteredNodeIds = statusFilteredNodeIds,
-					isStatusFilterActive = isStatusFilterActive
+
+			if (shouldShowStickyTermHeader) {
+				PensumStickyTermHeader(
+					terms = model.terms,
+					scale = scale.value,
+					offsetX = offsetX.value,
+					densityScale = density.density,
+					onTermClick = { termId -> focusTerm(termId) },
+					modifier = Modifier.align(Alignment.TopStart)
 				)
 			}
-		}
-
-		if (shouldShowStickyTermHeader) {
-			PensumStickyTermHeader(
-				terms = model.terms,
-				scale = scale.value,
-				offsetX = offsetX.value,
-				densityScale = density.density,
-				onTermClick = { termId -> focusTerm(termId) },
-				modifier = Modifier.align(Alignment.TopStart)
-			)
 		}
 
 		AnimatedVisibility(
@@ -862,6 +879,17 @@ private fun PensumNodeItem.containsCanvasTap(
 	val right = ((x + width) * densityScale).toFloat()
 	val bottom = ((y + height) * densityScale).toFloat()
 	return tapOffset.x in left..right && tapOffset.y in top..bottom
+}
+
+private fun Offset.toCanvasOffset(
+	scale: Float,
+	offset: Offset
+): Offset {
+	if (scale == 0f) return Offset.Zero
+	return Offset(
+		x = (x - offset.x) / scale,
+		y = (y - offset.y) / scale
+	)
 }
 
 private fun DrawScope.drawCanvasBackground(
