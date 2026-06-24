@@ -8,11 +8,14 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
 import com.gdavidpb.tuindice.pensum.domain.model.PensumOption
 import com.gdavidpb.tuindice.pensum.domain.model.PensumSelection
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
+import com.gdavidpb.tuindice.pensum.domain.repository.PensumSettingsRepository
 import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
+import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumSummaryCollapsedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumUseCase
+import com.gdavidpb.tuindice.pensum.domain.usecase.SetPensumSummaryCollapsedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.UpdatePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.exceptionhandler.UpdatePensumExceptionHandler
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
@@ -25,6 +28,7 @@ import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -75,7 +79,9 @@ class PensumStateMachineContractTest {
 			"failed",
 			"ObservePensum",
 			"PensumContentObserved",
+			"PensumSummaryCollapsedObserved",
 			"PensumRefreshNotFound",
+			"ToggleSummaryCollapsed",
 			"SelectSelection"
 		)
 
@@ -90,6 +96,7 @@ class PensumStateMachineContractTest {
 	@Test
 	fun machine_survivesSeededRandomWalk() = runTest {
 		val repository = StaticPensumRepository()
+		val settingsRepository = StaticPensumSettingsRepository()
 		val reportingRepository = RecordingReportingRepository()
 		val exceptionHandler = UpdatePensumExceptionHandler(
 			networkRepository = FakeNetworkRepository(isAvailable = true)
@@ -98,6 +105,10 @@ class PensumStateMachineContractTest {
 		val screenMachine = PensumMachine(
 			observePensumUseCase = ObservePensumUseCase(
 				pensumRepository = repository,
+				reportingRepository = reportingRepository
+			),
+			observePensumSummaryCollapsedUseCase = ObservePensumSummaryCollapsedUseCase(
+				pensumSettingsRepository = settingsRepository,
 				reportingRepository = reportingRepository
 			),
 			ensurePensumLoadedUseCase = EnsurePensumLoadedUseCase(
@@ -124,6 +135,10 @@ class PensumStateMachineContractTest {
 				pensumRepository = repository,
 				reportingRepository = reportingRepository,
 				exceptionHandler = exceptionHandler
+			),
+			setPensumSummaryCollapsedUseCase = SetPensumSummaryCollapsedUseCase(
+				pensumSettingsRepository = settingsRepository,
+				reportingRepository = reportingRepository
 			)
 		)
 
@@ -167,7 +182,12 @@ class PensumStateMachineContractTest {
 				Pensum.Action.SelectPensum(year = 1970),
 				Pensum.Action.SelectModality(modalityId = "modality-diurna"),
 				Pensum.Action.SelectSelection(year = 1970, modalityId = "modality-diurna"),
-				PensumInternalEvent.PensumContentObserved(pensum = observedPensum),
+				Pensum.Action.ToggleSummaryCollapsed,
+				PensumInternalEvent.PensumContentObserved(
+					pensum = observedPensum,
+					isSummaryCollapsed = false
+				),
+				PensumInternalEvent.PensumSummaryCollapsedObserved(isCollapsed = true),
 				PensumInternalEvent.PensumDataMissing,
 				PensumInternalEvent.PensumRecordDataUnavailableObserved,
 				PensumInternalEvent.PensumObservationFailed,
@@ -185,6 +205,7 @@ class PensumStateMachineContractTest {
 
 	private fun createViewModel(): PensumViewModel {
 		val repository = StaticPensumRepository()
+		val settingsRepository = StaticPensumSettingsRepository()
 		val reportingRepository = RecordingReportingRepository()
 		val exceptionHandler = UpdatePensumExceptionHandler(
 			networkRepository = FakeNetworkRepository(isAvailable = true)
@@ -194,6 +215,10 @@ class PensumStateMachineContractTest {
 			screenMachine = PensumMachine(
 				observePensumUseCase = ObservePensumUseCase(
 					pensumRepository = repository,
+					reportingRepository = reportingRepository
+				),
+				observePensumSummaryCollapsedUseCase = ObservePensumSummaryCollapsedUseCase(
+					pensumSettingsRepository = settingsRepository,
 					reportingRepository = reportingRepository
 				),
 				ensurePensumLoadedUseCase = EnsurePensumLoadedUseCase(
@@ -220,6 +245,10 @@ class PensumStateMachineContractTest {
 					pensumRepository = repository,
 					reportingRepository = reportingRepository,
 					exceptionHandler = exceptionHandler
+				),
+				setPensumSummaryCollapsedUseCase = SetPensumSummaryCollapsedUseCase(
+					pensumSettingsRepository = settingsRepository,
+					reportingRepository = reportingRepository
 				)
 			),
 			eventPublisher = NoOpEventPublisher
@@ -239,4 +268,16 @@ private class StaticPensumRepository : PensumRepository {
 	override suspend fun selectModality(modalityId: String) = Unit
 
 	override suspend fun selectSelection(year: Int, modalityId: String) = Unit
+}
+
+private class StaticPensumSettingsRepository : PensumSettingsRepository {
+	private val summaryCollapsed = MutableStateFlow(false)
+
+	override fun observeSummaryCollapsed(): Flow<Boolean> = summaryCollapsed
+
+	override fun isSummaryCollapsed(): Boolean = summaryCollapsed.value
+
+	override fun setSummaryCollapsed(isCollapsed: Boolean) {
+		summaryCollapsed.value = isCollapsed
+	}
 }

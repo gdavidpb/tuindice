@@ -42,8 +42,32 @@ internal fun MachineDefinitionBuilder<Pensum.State>.anyStateTransitions(
 			state
 		}
 
+		on<Pensum.Action.ToggleSummaryCollapsed> { state, _ ->
+			if (state is Pensum.State.Content) {
+				val nextCollapsed = !state.isSummaryCollapsed
+				machine.setSummaryCollapsed(
+					host = host,
+					isCollapsed = nextCollapsed
+				)
+				state.copy(isSummaryCollapsed = nextCollapsed)
+			} else {
+				state
+			}
+		}
+
 		onTo<PensumInternalEvent.PensumContentObserved, Pensum.State.Content> { _, event ->
-			Pensum.State.Content(model = event.pensum.toScreenModel())
+			Pensum.State.Content(
+				model = event.pensum.toScreenModel(),
+				isSummaryCollapsed = event.isSummaryCollapsed
+			)
+		}
+
+		on<PensumInternalEvent.PensumSummaryCollapsedObserved> { state, event ->
+			if (state is Pensum.State.Content) {
+				state.copy(isSummaryCollapsed = event.isCollapsed)
+			} else {
+				state
+			}
 		}
 
 		on<PensumInternalEvent.PensumDataMissing> { state, _ -> state }

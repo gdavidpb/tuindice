@@ -10,6 +10,16 @@ appId: com.gdavidpb.tuindice.debug
       id: pensum_screen
     timeout: 30000
 - assertVisible:
+    id: pensum_summary_container
+- tapOn:
+    id: pensum_summary_container
+- assertNotVisible:
+    id: pensum_context_summary
+- tapOn:
+    id: pensum_summary_container
+- assertVisible:
+    id: pensum_context_summary
+- assertVisible:
     id: pensum_canvas
 - assertVisible:
     id: pensum_canvas_legend

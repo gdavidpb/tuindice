@@ -9,7 +9,10 @@ import com.gdavidpb.tuindice.pensum.presentation.mapper.toScreenModel
 internal fun MachineDefinitionBuilder<Pensum.State>.contentTransitions() {
 	from<Pensum.State.Content> {
 		on<PensumInternalEvent.PensumContentObserved> { state, event ->
-			state.copy(model = event.pensum.toScreenModel())
+			state.copy(
+				model = event.pensum.toScreenModel(),
+				isSummaryCollapsed = event.isSummaryCollapsed
+			)
 		}
 
 		on<PensumInternalEvent.PensumRefreshLoading> { state, _ ->

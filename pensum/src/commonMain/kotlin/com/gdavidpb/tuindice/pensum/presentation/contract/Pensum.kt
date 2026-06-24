@@ -28,7 +28,8 @@ object Pensum {
 		data class Content(
 			val model: PensumScreenModel,
 			val isRefreshing: Boolean = false,
-			val localDataMessage: UiText? = null
+			val localDataMessage: UiText? = null,
+			val isSummaryCollapsed: Boolean = false
 		) : State()
 
 		data class Failed(
@@ -50,6 +51,7 @@ object Pensum {
 			val year: Int,
 			val modalityId: String
 		) : Action()
+		data object ToggleSummaryCollapsed : Action()
 	}
 
 	sealed class Effect : ViewEffect

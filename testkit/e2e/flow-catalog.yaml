@@ -22,6 +22,7 @@ flows:
       - record.Record.SetViewMode
       - record.Record.SelectTerm
       - pensum.Pensum.RefreshPensum
+      - pensum.Pensum.ToggleSummaryCollapsed
       - subjects.SubjectSearch.UpdateQuery
       - subjects.SubjectDetail.RefreshSubjectDetail
       - evaluations.Evaluations.AddEvaluation
@@ -89,6 +90,7 @@ flows:
       - record.Record.DeleteSyntheticTerm
       - enrollmentproof.Enrollment.FetchEnrollmentProof
       - pensum.Pensum.RefreshPensum
+      - pensum.Pensum.ToggleSummaryCollapsed
       - pensum.Pensum.SelectSelection
       - subjects.SubjectSearch.UpdateQuery
       - subjects.SubjectSearch.Retry
@@ -172,6 +174,7 @@ flows:
     fixture_state: pensum-local-certification
     actions_covered:
       - pensum.Pensum.RefreshPensum
+      - pensum.Pensum.ToggleSummaryCollapsed
       - pensum.Pensum.SelectSelection
       - subjects.SubjectDetail.SelectSubjectSegmentTab
     covers:
@@ -1085,7 +1088,9 @@ flows:
     fixture_state: pensum-success
     actions_covered:
       - pensum.Pensum.RefreshPensum
+      - pensum.Pensum.ToggleSummaryCollapsed
     primary_selectors:
+      - pensum_summary_container
       - pensum_screen
       - pensum_canvas
       - pensum_canvas_legend

@@ -32,6 +32,7 @@ fun PensumRoute(
 		state = viewState,
 		onRetryClick = viewModel::refreshPensumAction,
 		showSelectionSheet = showSelectionSheet.value,
+		onSummaryCollapsedToggle = viewModel::toggleSummaryCollapsedAction,
 		onSelectionSheetDismiss = {
 			showSelectionSheet.value = false
 		},

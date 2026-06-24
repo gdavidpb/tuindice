@@ -36,6 +36,8 @@ fun PensumContentView(
 	isRefreshing: Boolean,
 	localDataMessage: UiText?,
 	showSelectionSheet: Boolean,
+	isSummaryCollapsed: Boolean,
+	onSummaryCollapsedToggle: () -> Unit,
 	onSelectionSheetDismiss: () -> Unit,
 	onSubjectStatsClick: (subjectCode: String) -> Unit,
 	onSelectionApplied: (PensumOptionItem, PensumModalityItem) -> Unit,
@@ -50,9 +52,6 @@ fun PensumContentView(
 		mutableStateOf<String?>(null)
 	}
 	val shouldOpenDetailExpandedState = rememberSaveable(pensumStateKey) {
-		mutableStateOf(false)
-	}
-	val isSummaryCollapsedState = rememberSaveable(pensumStateKey) {
 		mutableStateOf(false)
 	}
 	val detailNavigationOriginNodeIdState = rememberSaveable(pensumStateKey) {
@@ -116,10 +115,8 @@ fun PensumContentView(
 	) {
 		PensumSummaryRow(
 			model = model,
-			isCollapsed = isSummaryCollapsedState.value,
-			onSummaryClick = {
-				isSummaryCollapsedState.value = !isSummaryCollapsedState.value
-			},
+			isCollapsed = isSummaryCollapsed,
+			onSummaryClick = onSummaryCollapsedToggle,
 			onPensumContextClick = {
 				clearSubjectContext()
 				onPensumContextClick()

@@ -186,11 +186,22 @@ class PensumScreenUiTest {
 
 	@Test
 	fun when_summaryTitleIsTapped_then_summaryCollapsesAndExpands() = runTuIndiceUiTest {
+		val state = mutableStateOf<Pensum.State>(
+			Pensum.State.Content(model = samplePensumModelWithSelectableYears())
+		)
+		val collapsedChanges = mutableListOf<Boolean>()
+
 		setTuIndiceTestContent {
 			PensumScreen(
-				state = Pensum.State.Content(model = samplePensumModelWithSelectableYears()),
+				state = state.value,
 				onRetryClick = {},
 				showSelectionSheet = false,
+				onSummaryCollapsedToggle = {
+					val content = state.value as Pensum.State.Content
+					val nextCollapsed = !content.isSummaryCollapsed
+					state.value = content.copy(isSummaryCollapsed = nextCollapsed)
+					collapsedChanges += nextCollapsed
+				},
 				onSelectionSheetDismiss = {},
 				onSubjectStatsClick = {},
 				onSelectionApplied = { _, _ -> }
@@ -206,6 +217,7 @@ class PensumScreenUiTest {
 			.performClick()
 		advanceAnimationsBy((CanvasOverlayAnimationMillis * 3).toLong())
 
+		assertEquals(listOf(true), collapsedChanges)
 		onNodeWithText("Ingenieria de Computacion").assertExists()
 		onNodeWithText("Pensum 2019").assertDoesNotExist()
 		onNodeWithText("Proyecto de Grado").assertDoesNotExist()
@@ -215,6 +227,7 @@ class PensumScreenUiTest {
 			.performClick()
 		advanceAnimationsBy((CanvasOverlayAnimationMillis * 3).toLong())
 
+		assertEquals(listOf(true, false), collapsedChanges)
 		onNodeWithText("Pensum 2019").assertExists()
 		onNodeWithText("Proyecto de Grado").assertExists()
 	}

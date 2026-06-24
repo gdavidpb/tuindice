@@ -42,4 +42,7 @@ class PensumViewModel(
 		)
 	}
 
+	fun toggleSummaryCollapsedAction() {
+		sendAction(Pensum.Action.ToggleSummaryCollapsed)
+	}
 }

@@ -341,6 +341,12 @@ actions:
     selector: pensum_context_summary
     flow: e2e/maestro/flows/pensum/pensum-selection.yaml
     fixture_state: pensum-versions-modalities
+  - id: pensum.Pensum.ToggleSummaryCollapsed
+    classification: user
+    variants: [collapse, expand]
+    selector: pensum_summary_container
+    flow: e2e/maestro/flows/pensum/pensum-smoke.yaml
+    fixture_state: pensum-success
 
   - id: record.CreateSyntheticTerm.Observe
     classification: internal
