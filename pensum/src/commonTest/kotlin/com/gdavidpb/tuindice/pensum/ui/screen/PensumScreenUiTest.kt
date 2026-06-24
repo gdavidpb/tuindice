@@ -158,7 +158,7 @@ class PensumScreenUiTest {
 	}
 
 	@Test
-	fun when_contentIsDisplayed_then_summaryShowsOnlyCareerInContextCard() = runTuIndiceUiTest {
+	fun when_contentIsDisplayed_then_summaryShowsPensumContext() = runTuIndiceUiTest {
 		var contextClickCount = 0
 
 		setTuIndiceTestContent {
@@ -174,8 +174,10 @@ class PensumScreenUiTest {
 		}
 
 		onNodeWithText("Ingenieria de Computacion").assertExists()
-		onAllNodesWithText("Pensum 2019").assertCountEquals(0)
-		onAllNodesWithText("Proyecto de Grado").assertCountEquals(0)
+		onNodeWithText("0% Avance").assertExists()
+		onNodeWithText("0 / 8 UC").assertExists()
+		onNodeWithText("Pensum 2019").assertExists()
+		onNodeWithText("Proyecto de Grado").assertExists()
 		onNodeWithTag(PensumUiTags.PensumContextSummary)
 			.assertHasClickAction()
 			.performClick()
