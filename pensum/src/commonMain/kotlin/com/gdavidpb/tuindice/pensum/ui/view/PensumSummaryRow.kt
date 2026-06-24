@@ -1,13 +1,18 @@
 package com.gdavidpb.tuindice.pensum.ui.view
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,9 +21,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.KeyboardArrowDown
+import androidx.compose.material.icons.outlined.KeyboardArrowUp
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -47,6 +52,8 @@ import kotlin.math.roundToInt
 @Composable
 fun PensumSummaryRow(
 	model: PensumScreenModel,
+	isCollapsed: Boolean = false,
+	onSummaryClick: () -> Unit = {},
 	onPensumContextClick: () -> Unit
 ) {
 	val graphColors = pensumGraphColors()
@@ -101,111 +108,145 @@ fun PensumSummaryRow(
 		Column(
 			modifier = Modifier
 				.fillMaxWidth()
+				.animateContentSize(
+					animationSpec = tween(
+						durationMillis = CanvasOverlayAnimationMillis,
+						easing = DecelerateEasing
+					)
+				)
+				.clip(summaryShape)
 				.background(graphColors.panelBackground, summaryShape)
 				.border(1.dp, graphColors.panelBorder, summaryShape)
 		) {
 			if (contextTitle.isNotBlank()) {
-				Text(
-					modifier = Modifier.padding(
-						start = 20.dp,
-						top = 10.dp,
-						end = 20.dp,
-						bottom = 8.dp
-					),
-					text = contextTitle,
-					style = summaryTextStyle,
-					fontWeight = FontWeight.SemiBold,
-					color = graphColors.textPrimary,
-					maxLines = 1,
-					overflow = TextOverflow.Ellipsis
-				)
-			}
-			PensumSummaryDivider()
-			Row(
-				modifier = Modifier.fillMaxWidth(),
-				verticalAlignment = Alignment.CenterVertically
-			) {
-				Box(
+				Row(
 					modifier = Modifier
-						.width(ProgressSummarySectionWidth)
-						.padding(horizontal = SummarySectionHorizontalPadding, vertical = 8.dp),
-					contentAlignment = Alignment.Center
-				) {
-					Row(
-						verticalAlignment = Alignment.CenterVertically,
-						horizontalArrangement = Arrangement.spacedBy(10.dp)
-					) {
-						PensumProgressRing(progress = progress.value)
-						Column(
-							verticalArrangement = Arrangement.spacedBy(2.dp)
-						) {
-							Text(
-								text = "${(progress.value * 100).roundToInt()}% $progressLabel",
-								style = compactTextStyle,
-								fontWeight = FontWeight.SemiBold,
-								color = graphColors.textPrimary,
-								maxLines = 1,
-								overflow = TextOverflow.Ellipsis
-							)
-							Text(
-								text = "${approvedCredits.value.roundToInt()} / ${totalCredits.value.roundToInt()} UC",
-								style = compactTextStyle,
-								color = graphColors.textSecondary,
-								maxLines = 1,
-								overflow = TextOverflow.Ellipsis
-							)
-						}
-					}
-				}
-				PensumSummaryVerticalDivider()
-				BoxWithConstraints(
-					modifier = Modifier
-						.weight(1f)
-						.clip(summaryShape)
+						.fillMaxWidth()
 						.clickable(
 							role = Role.Button,
-							onClickLabel = contextActionDescription,
-							onClick = onPensumContextClick
+							onClick = onSummaryClick
 						)
-						.testTag(PensumUiTags.PensumContextSummary)
-						.padding(horizontal = SummarySectionHorizontalPadding, vertical = 8.dp),
-					contentAlignment = Alignment.Center
+						.testTag(PensumUiTags.PensumSummaryContainer)
+						.padding(
+							start = 20.dp,
+							top = 10.dp,
+							end = 20.dp,
+							bottom = 8.dp
+						),
+					verticalAlignment = Alignment.CenterVertically,
+					horizontalArrangement = Arrangement.spacedBy(8.dp)
 				) {
+					Text(
+						modifier = Modifier.weight(1f),
+						text = contextTitle,
+						style = summaryTextStyle,
+						fontWeight = FontWeight.SemiBold,
+						color = graphColors.textPrimary,
+						maxLines = 1,
+						overflow = TextOverflow.Ellipsis
+					)
+					Icon(
+						modifier = Modifier.size(18.dp),
+						imageVector = if (isCollapsed) {
+							Icons.Outlined.KeyboardArrowDown
+						} else {
+							Icons.Outlined.KeyboardArrowUp
+						},
+						contentDescription = null,
+						tint = graphColors.textSecondary
+					)
+				}
+			}
+			AnimatedVisibility(
+				visible = !isCollapsed,
+				enter = fadeIn(
+					animationSpec = tween(durationMillis = CanvasOverlayAnimationMillis)
+				) + expandVertically(
+					expandFrom = Alignment.Top,
+					animationSpec = tween(durationMillis = CanvasOverlayAnimationMillis)
+				),
+				exit = fadeOut(
+					animationSpec = tween(durationMillis = CanvasOverlayAnimationMillis)
+				) + shrinkVertically(
+					shrinkTowards = Alignment.Top,
+					animationSpec = tween(durationMillis = CanvasOverlayAnimationMillis)
+				)
+			) {
+				Column {
+					PensumSummaryDivider()
 					Row(
-						modifier = Modifier.widthIn(max = maxWidth),
-						verticalAlignment = Alignment.CenterVertically,
-						horizontalArrangement = Arrangement.spacedBy(6.dp)
+						modifier = Modifier.fillMaxWidth(),
+						verticalAlignment = Alignment.CenterVertically
 					) {
-						Column(
-							modifier = Modifier.weight(
-								weight = 1f,
-								fill = false
-							),
-							horizontalAlignment = Alignment.Start,
-							verticalArrangement = Arrangement.spacedBy(2.dp)
+						Box(
+							modifier = Modifier
+								.width(ProgressSummarySectionWidth)
+								.padding(horizontal = SummarySectionHorizontalPadding, vertical = 8.dp),
+							contentAlignment = Alignment.Center
 						) {
-							Text(
-								text = "$pensumLabel ${model.selection.year}",
-								style = compactTextStyle,
-								fontWeight = FontWeight.SemiBold,
-								color = graphColors.textPrimary,
-								maxLines = 1,
-								overflow = TextOverflow.Ellipsis
-							)
-							Text(
-								text = modalityName,
-								style = compactTextStyle,
-								color = graphColors.textSecondary,
-								maxLines = 1,
-								overflow = TextOverflow.Ellipsis
-							)
+							Row(
+								verticalAlignment = Alignment.CenterVertically,
+								horizontalArrangement = Arrangement.spacedBy(10.dp)
+							) {
+								PensumProgressRing(progress = progress.value)
+								Column(
+									verticalArrangement = Arrangement.spacedBy(2.dp)
+								) {
+									Text(
+										text = "${(progress.value * 100).roundToInt()}% $progressLabel",
+										style = compactTextStyle,
+										fontWeight = FontWeight.SemiBold,
+										color = graphColors.textPrimary,
+										maxLines = 1,
+										overflow = TextOverflow.Ellipsis
+									)
+									Text(
+										text = "${approvedCredits.value.roundToInt()} / ${totalCredits.value.roundToInt()} UC",
+										style = compactTextStyle,
+										color = graphColors.textSecondary,
+										maxLines = 1,
+										overflow = TextOverflow.Ellipsis
+									)
+								}
+							}
 						}
-						Icon(
-							modifier = Modifier.size(18.dp),
-							imageVector = Icons.Outlined.KeyboardArrowDown,
-							contentDescription = null,
-							tint = graphColors.textSecondary
-						)
+						PensumSummaryVerticalDivider()
+						Row(
+							modifier = Modifier
+								.weight(1f)
+								.clip(summaryShape)
+								.clickable(
+									role = Role.Button,
+									onClickLabel = contextActionDescription,
+									onClick = onPensumContextClick
+								)
+								.testTag(PensumUiTags.PensumContextSummary)
+								.padding(horizontal = SummarySectionHorizontalPadding, vertical = 8.dp),
+							verticalAlignment = Alignment.CenterVertically,
+							horizontalArrangement = Arrangement.spacedBy(6.dp)
+						) {
+							Column(
+								modifier = Modifier.weight(1f),
+								horizontalAlignment = Alignment.Start,
+								verticalArrangement = Arrangement.spacedBy(2.dp)
+							) {
+								Text(
+									text = "$pensumLabel ${model.selection.year}",
+									style = compactTextStyle,
+									fontWeight = FontWeight.SemiBold,
+									color = graphColors.textPrimary,
+									maxLines = 1,
+									overflow = TextOverflow.Ellipsis
+								)
+								Text(
+									text = modalityName,
+									style = compactTextStyle,
+									color = graphColors.textSecondary,
+									maxLines = 1,
+									overflow = TextOverflow.Ellipsis
+								)
+							}
+						}
 					}
 				}
 			}

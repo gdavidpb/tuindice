@@ -52,6 +52,9 @@ fun PensumContentView(
 	val shouldOpenDetailExpandedState = rememberSaveable(pensumStateKey) {
 		mutableStateOf(false)
 	}
+	val isSummaryCollapsedState = rememberSaveable(pensumStateKey) {
+		mutableStateOf(false)
+	}
 	val detailNavigationOriginNodeIdState = rememberSaveable(pensumStateKey) {
 		mutableStateOf<String?>(null)
 	}
@@ -113,6 +116,10 @@ fun PensumContentView(
 	) {
 		PensumSummaryRow(
 			model = model,
+			isCollapsed = isSummaryCollapsedState.value,
+			onSummaryClick = {
+				isSummaryCollapsedState.value = !isSummaryCollapsedState.value
+			},
 			onPensumContextClick = {
 				clearSubjectContext()
 				onPensumContextClick()

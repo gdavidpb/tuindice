@@ -185,6 +185,41 @@ class PensumScreenUiTest {
 	}
 
 	@Test
+	fun when_summaryTitleIsTapped_then_summaryCollapsesAndExpands() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = Pensum.State.Content(model = samplePensumModelWithSelectableYears()),
+				onRetryClick = {},
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		onNodeWithText("Ingenieria de Computacion").assertExists()
+		onNodeWithText("Pensum 2019").assertExists()
+		onNodeWithText("Proyecto de Grado").assertExists()
+
+		onNodeWithTag(PensumUiTags.PensumSummaryContainer)
+			.assertHasClickAction()
+			.performClick()
+		advanceAnimationsBy((CanvasOverlayAnimationMillis * 3).toLong())
+
+		onNodeWithText("Ingenieria de Computacion").assertExists()
+		onNodeWithText("Pensum 2019").assertDoesNotExist()
+		onNodeWithText("Proyecto de Grado").assertDoesNotExist()
+
+		onNodeWithTag(PensumUiTags.PensumSummaryContainer)
+			.assertHasClickAction()
+			.performClick()
+		advanceAnimationsBy((CanvasOverlayAnimationMillis * 3).toLong())
+
+		onNodeWithText("Pensum 2019").assertExists()
+		onNodeWithText("Proyecto de Grado").assertExists()
+	}
+
+	@Test
 	fun when_selectionSheetOpens_then_subjectDetailIsDismissed() = runTuIndiceUiTest {
 		val showSelectionSheetState = mutableStateOf(false)
 

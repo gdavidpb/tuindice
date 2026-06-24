@@ -35,9 +35,9 @@ class PensumScreenModelMapperTest {
 		val nodesById = model.nodes.associateBy { node -> node.id }
 
 		assertEquals("Ingenieria de Computacion", model.careerName)
-		assertEquals(84.0, nodesById.getValue("ma1111").y)
-		assertEquals(220.0, nodesById.getValue("id1111").y)
-		assertTrue(model.canvas.height >= 388.0)
+		assertEquals(60.0, nodesById.getValue("ma1111").y)
+		assertEquals(196.0, nodesById.getValue("id1111").y)
+		assertTrue(model.canvas.height >= 364.0)
 	}
 
 	@Test

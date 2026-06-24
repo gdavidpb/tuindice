@@ -379,18 +379,6 @@ fun PensumGraphCanvas(
 			)
 		}
 
-		fun moveViewportToCanvasCenter(canvasCenter: Offset) {
-			revealMinimapToggle()
-			val targetOffset = viewportOffsetForCanvasCenter(
-				canvasCenter = canvasCenter,
-				targetScale = scale.value
-			)
-			snapCanvasViewport(
-				targetScale = scale.value,
-				targetOffset = targetOffset
-			)
-		}
-
 		fun scheduleViewportSnap(scaleValue: Float, offset: Offset) {
 			canvasSnapJob?.cancel()
 			canvasSnapJob = coroutineScope.launch {
@@ -414,6 +402,22 @@ fun PensumGraphCanvas(
 					)
 				}
 			}
+		}
+
+		fun moveViewportToCanvasCenter(canvasCenter: Offset) {
+			revealMinimapToggle()
+			val targetOffset = viewportOffsetForCanvasCenter(
+				canvasCenter = canvasCenter,
+				targetScale = scale.value
+			)
+			snapCanvasViewport(
+				targetScale = scale.value,
+				targetOffset = targetOffset
+			)
+			scheduleViewportSnap(
+				scaleValue = scale.value,
+				offset = targetOffset
+			)
 		}
 
 		fun zoomTo(
@@ -891,6 +895,16 @@ private fun DrawScope.drawCanvasBackground(
 				strokeWidth = 1.dp.toPx()
 			)
 		}
+	}
+	val trailingTermEndPx = model.terms
+		.maxOfOrNull { term -> (term.x + term.width).toFloat() * density }
+		?: 0f
+	if (trailingTermEndPx < widthPx) {
+		drawRect(
+			color = graphColors.canvasTermBand,
+			topLeft = Offset(trailingTermEndPx, 0f),
+			size = Size(widthPx - trailingTermEndPx, heightPx)
+		)
 	}
 	drawRoundRect(
 		color = graphColors.panelBorder,

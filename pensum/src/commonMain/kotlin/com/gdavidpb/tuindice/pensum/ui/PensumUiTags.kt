@@ -8,6 +8,7 @@ object PensumUiTags {
 	const val LoadingTitle = "pensum_loading_title"
 	const val LoadingMessage = "pensum_loading_message"
 	const val LoadingAnimation = "pensum_loading_animation"
+	const val PensumSummaryContainer = "pensum_summary_container"
 	const val PensumContextSummary = "pensum_context_summary"
 	const val RefreshingIndicator = "pensum_refreshing_indicator"
 	const val LocalDataWarning = "pensum_local_data_warning"
