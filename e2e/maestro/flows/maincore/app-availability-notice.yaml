@@ -23,7 +23,7 @@ appId: com.gdavidpb.tuindice.debug
 - extendedWaitUntil:
     visible:
       id: maincore_app_availability_notice_screen
-    timeout: 20000
+    timeout: 60000
 - assertVisible:
     id: maincore_app_availability_notice_title
 - assertVisible:

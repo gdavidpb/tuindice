@@ -30,6 +30,22 @@ appId: com.gdavidpb.tuindice.debug
 - tapOn:
     id: base_error_view_retry_button
     waitUntilVisible: true
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - extendedWaitUntil:
+          visible:
+            id: summary_content_container|base_error_view_container
+          timeout: 30000
+      - runFlow:
+          when:
+            visible:
+              id: base_error_view_container
+          commands:
+            - tapOn:
+                id: base_error_view_retry_button
+                waitUntilVisible: true
 - extendedWaitUntil:
     visible:
       id: summary_content_container

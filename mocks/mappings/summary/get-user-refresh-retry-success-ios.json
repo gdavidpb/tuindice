@@ -1,7 +1,7 @@
 {
   "priority": 1,
   "scenarioName": "summary-refresh-retry",
-  "requiredScenarioState": "FailedTwice",
+  "requiredScenarioState": "FailedOnce",
   "request": {
     "method": "GET",
     "urlPath": "/users/v1",

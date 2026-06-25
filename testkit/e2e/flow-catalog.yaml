@@ -198,7 +198,7 @@ flows:
     status: active
     variant: clean-launch
     fixture_state: reset-app-state
-    primary_selectors: [auth_usb_id_text_field]
+    primary_selectors: [auth_sign_in_idle_container]
   - id: shared-continue-to-summary-after-auth
     path: e2e/maestro/flows/_shared/continue-to-summary-after-auth.yaml
     module: shared
@@ -213,6 +213,29 @@ flows:
       - coachmark_bubble
       - summary_content_container
       - auth_update_password_idle_container
+  - id: shared-dismiss-coachmarks-if-visible
+    path: e2e/maestro/flows/_shared/dismiss-coachmarks-if-visible.yaml
+    module: shared
+    type: setup
+    platforms: [android, ios]
+    status: active
+    variant: dismiss-visible-coachmarks
+    fixture_state: coachmarks-pending-or-seen
+    actions_covered:
+      - wizard.CoachmarkOverlay.PrimaryActionClick
+    primary_selectors:
+      - coachmark_bubble
+      - coachmark_confirm
+  - id: shared-submit-ios-search-key-if-visible
+    path: e2e/maestro/flows/_shared/submit-ios-search-key-if-visible.yaml
+    module: shared
+    type: interaction
+    platforms: [ios]
+    status: active
+    variant: dismiss-ios-search-keyboard
+    fixture_state: any
+    primary_selectors:
+      - Search
   - id: shared-open-current-enrollment-proof
     path: e2e/maestro/flows/_shared/open-current-enrollment-proof.yaml
     module: shared
@@ -899,9 +922,8 @@ flows:
       - maincore_tuindice_top_bar_back_button
       - record_create_synthetic_term_search_result_0_subject_EP1308
       - record_create_synthetic_term_search_result_1_subject_EP2308
-      - record_create_synthetic_term_search_result_2_subject_AA1001
-      - record_create_synthetic_term_search_result_3_subject_AB1001
       - record_create_synthetic_term_subject_AA1001_status_not_in_pensum
+      - record_create_synthetic_term_subject_AB1001_status_not_in_pensum
       - record_create_synthetic_term_subject_AA1001_stats_button
       - record_create_synthetic_term_search_result_0_subject_MA1112
       - record_create_synthetic_term_search_result_1_subject_MA1121
@@ -909,7 +931,6 @@ flows:
       - record_create_synthetic_term_subject_MA1112_add_button
       - record_create_synthetic_term_subject_MA1121_status_available
       - record_create_synthetic_term_subject_MA1121_add_button
-      - record_create_synthetic_term_search_result_0_subject_MA1111
       - subjects_content
       - record_create_synthetic_term_subject_EP1308_status_already_planned
       - record_create_synthetic_term_subject_EP1308_stats_button
@@ -940,15 +961,12 @@ flows:
       - record_create_synthetic_term_search_field
       - record_create_synthetic_term_search_clear_button
       - record_create_synthetic_term_search_results_title
-      - record_create_synthetic_term_subject_EC5201_add_button
-      - record_create_synthetic_term_subject_EC5201_remove_button
       - record_create_synthetic_term_subject_EC5333_add_button
       - record_create_synthetic_term_subject_EC5333_remove_button
       - record_create_synthetic_term_submit_button
       - record_delete_synthetic_term_button
       - record_delete_synthetic_term_message
-      - record_attempt_item_2026-SEP_DEC-EC5201-1
-      - record_attempt_item_2026-SEP_DEC-EC5333-2
+      - record_term_chip_2026-SEP_DEC
   - id: record-suite
     path: e2e/maestro/flows/suites/record-suite.yaml
     module: record

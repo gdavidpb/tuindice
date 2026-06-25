@@ -9,6 +9,7 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: record_content_container
     timeout: 30000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - tapOn:
     id: record_term_chip_d377155d39da686f412622aaca9074cd
 - extendedWaitUntil:

@@ -746,7 +746,10 @@ fun PensumGraphCanvas(
 			visible = shouldShowMinimapControls && isMinimapVisible,
 			modifier = Modifier
 				.align(Alignment.BottomStart)
-				.padding(start = 16.dp, bottom = CanvasBottomOverlayPadding),
+				.padding(
+					start = 16.dp,
+					bottom = CanvasBottomOverlayPadding + CanvasLegendOverlaySpacing
+				),
 			enter = canvasOverlayEnter(transformOrigin = TransformOrigin(0f, 1f)),
 			exit = canvasOverlayExit(transformOrigin = TransformOrigin(0f, 1f))
 		) {
@@ -772,7 +775,10 @@ fun PensumGraphCanvas(
 			visible = shouldShowCanvasOverlays,
 			modifier = Modifier
 				.align(Alignment.BottomEnd)
-				.padding(end = 16.dp, bottom = CanvasBottomOverlayPadding),
+				.padding(
+					end = 16.dp,
+					bottom = CanvasBottomOverlayPadding + CanvasLegendOverlaySpacing
+				),
 			enter = canvasOverlayEnter(transformOrigin = TransformOrigin(1f, 1f)),
 			exit = canvasOverlayExit(transformOrigin = TransformOrigin(1f, 1f))
 		) {
@@ -791,7 +797,9 @@ fun PensumGraphCanvas(
 
 		AnimatedVisibility(
 			visible = shouldShowCanvasOverlays,
-			modifier = Modifier.align(Alignment.BottomCenter),
+			modifier = Modifier
+				.align(Alignment.BottomCenter)
+				.padding(bottom = CanvasBottomOverlayPadding),
 			enter = canvasOverlayEnter(transformOrigin = TransformOrigin(0.5f, 1f)),
 			exit = canvasOverlayExit(transformOrigin = TransformOrigin(0.5f, 1f))
 		) {

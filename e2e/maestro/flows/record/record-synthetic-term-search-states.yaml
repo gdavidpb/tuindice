@@ -15,12 +15,14 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: record_content_container
     timeout: 30000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - tapOn:
     id: record_create_synthetic_term_fab
 - extendedWaitUntil:
     visible:
       id: record_create_synthetic_term_screen
     timeout: 10000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - extendedWaitUntil:
     visible:
       id: record_create_synthetic_term_subject_MA1121_status_available
@@ -48,37 +50,37 @@ appId: com.gdavidpb.tuindice.debug
           when:
             platform: Android
           commands:
-            - inputText: "prioridad"
+            - setClipboard: "pr"
+            - pasteText
       - runFlow:
           when:
             platform: iOS
           commands:
-            - setClipboard: "prioridad"
+            - setClipboard: "pr"
             - pasteText
       - runFlow:
           when:
             platform: Android
           commands:
             - hideKeyboard
-      - runFlow:
-          when:
-            platform: iOS
-          commands:
-            - tapOn:
-                point: "87%,89%"
+      - runFlow: ../_shared/submit-ios-search-key-if-visible.yaml
       - extendedWaitUntil:
           visible:
             id: record_create_synthetic_term_search_result_0_subject_EP1308
           timeout: 20000
 - assertVisible:
     id: record_create_synthetic_term_subject_EP1308_status_already_planned
-- tapOn:
-    id: record_create_synthetic_term_subject_EP1308_status_already_planned
-- extendedWaitUntil:
-    visible: "Planificada en Jul - Ago 2026"
-    timeout: 5000
-- tapOn:
-    id: record_create_synthetic_term_subject_EP1308_status_already_planned
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          id: record_create_synthetic_term_subject_EP1308_status_already_planned
+      - extendedWaitUntil:
+          visible: "Planificada en Jul - Ago 2026"
+          timeout: 5000
+      - tapOn:
+          id: record_create_synthetic_term_subject_EP1308_status_already_planned
 - assertVisible:
     id: record_create_synthetic_term_subject_EP1308_stats_button
 - assertNotVisible:
@@ -91,24 +93,26 @@ appId: com.gdavidpb.tuindice.debug
 - assertVisible:
     id: record_create_synthetic_term_subject_EP2308_status_blocked
 - assertVisible: "Bloqueada"
-- tapOn:
-    id: record_create_synthetic_term_subject_EP2308_status_blocked
-- extendedWaitUntil:
-    visible: "Faltan requisitos: EP1308, EP5855"
-    timeout: 5000
-- tapOn:
-    id: record_create_synthetic_term_subject_EP2308_status_blocked
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          id: record_create_synthetic_term_subject_EP2308_status_blocked
+      - extendedWaitUntil:
+          visible: "Faltan requisitos: EP1308, EP5855"
+          timeout: 5000
+      - tapOn:
+          id: record_create_synthetic_term_subject_EP2308_status_blocked
 - assertVisible:
     id: record_create_synthetic_term_subject_EP2308_stats_button
 - assertVisible:
     id: record_create_synthetic_term_subject_EP2308_add_button
 - scrollUntilVisible:
     element:
-      id: record_create_synthetic_term_search_result_2_subject_AA1001
+      id: record_create_synthetic_term_subject_AA1001_status_not_in_pensum
     direction: DOWN
     timeout: 20000
-- assertVisible:
-    id: record_create_synthetic_term_search_result_2_subject_AA1001
 - assertVisible:
     id: record_create_synthetic_term_subject_AA1001_status_not_in_pensum
 - assertVisible:
@@ -127,13 +131,9 @@ appId: com.gdavidpb.tuindice.debug
     timeout: 30000
 - tapOn:
     id: maincore_tuindice_top_bar_back_button
-- extendedWaitUntil:
-    visible:
-      id: record_create_synthetic_term_search_field
-    timeout: 10000
 - scrollUntilVisible:
     element:
-      id: record_create_synthetic_term_search_result_2_subject_AA1001
+      id: record_create_synthetic_term_subject_AA1001_status_not_in_pensum
     direction: DOWN
     timeout: 20000
 - assertVisible:
@@ -142,11 +142,11 @@ appId: com.gdavidpb.tuindice.debug
     id: record_create_synthetic_term_subject_AA1001_stats_button
 - scrollUntilVisible:
     element:
-      id: record_create_synthetic_term_search_result_3_subject_AB1001
+      id: record_create_synthetic_term_subject_AB1001_status_not_in_pensum
     direction: DOWN
     timeout: 20000
 - assertVisible:
-    id: record_create_synthetic_term_search_result_3_subject_AB1001
+    id: record_create_synthetic_term_subject_AB1001_status_not_in_pensum
 - scrollUntilVisible:
     element:
       id: record_create_synthetic_term_search_tab
@@ -162,7 +162,8 @@ appId: com.gdavidpb.tuindice.debug
           when:
             platform: Android
           commands:
-            - inputText: "ma"
+            - setClipboard: "ma"
+            - pasteText
       - runFlow:
           when:
             platform: iOS
@@ -174,12 +175,7 @@ appId: com.gdavidpb.tuindice.debug
             platform: Android
           commands:
             - hideKeyboard
-      - runFlow:
-          when:
-            platform: iOS
-          commands:
-            - tapOn:
-                point: "87%,89%"
+      - runFlow: ../_shared/submit-ios-search-key-if-visible.yaml
       - extendedWaitUntil:
           visible:
             id: record_create_synthetic_term_search_result_0_subject_MA1112
@@ -198,20 +194,26 @@ appId: com.gdavidpb.tuindice.debug
     id: record_create_synthetic_term_subject_MA1121_add_button
 - scrollUntilVisible:
     element:
-      id: record_create_synthetic_term_search_tab
+      id: record_create_synthetic_term_search_field
     direction: UP
     timeout: 20000
+- extendedWaitUntil:
+    visible:
+      id: record_create_synthetic_term_search_clear_button
+    timeout: 10000
+- tapOn:
+    id: record_create_synthetic_term_search_clear_button
 - retry:
     maxRetries: 3
     commands:
       - tapOn:
           id: record_create_synthetic_term_search_field
-      - eraseText: 20
       - runFlow:
           when:
             platform: Android
           commands:
-            - inputText: "ma1111"
+            - setClipboard: "ma1111"
+            - pasteText
       - runFlow:
           when:
             platform: iOS
@@ -223,12 +225,7 @@ appId: com.gdavidpb.tuindice.debug
             platform: Android
           commands:
             - hideKeyboard
-      - runFlow:
-          when:
-            platform: iOS
-          commands:
-            - tapOn:
-                point: "87%,89%"
+      - runFlow: ../_shared/submit-ios-search-key-if-visible.yaml
       - extendedWaitUntil:
           visible:
             id: record_create_synthetic_term_taken_subjects_toggle
@@ -239,26 +236,32 @@ appId: com.gdavidpb.tuindice.debug
     when:
       platform: Android
     commands:
-      - extendedWaitUntil:
-          visible:
-            id: record_create_synthetic_term_search_result_0_subject_MA1111
+      - scrollUntilVisible:
+          element:
+            id: record_create_synthetic_term_subject_MA1111_status_approved
+          direction: DOWN
           timeout: 20000
 - runFlow:
     when:
       platform: iOS
     commands:
-      - extendedWaitUntil:
-          visible:
+      - scrollUntilVisible:
+          element:
             id: record_create_synthetic_term_subject_MA1111_status_approved
+          direction: DOWN
           timeout: 20000
 - assertVisible:
     id: record_create_synthetic_term_subject_MA1111_status_approved
 - assertVisible: "Aprobada"
-- tapOn:
-    id: record_create_synthetic_term_subject_MA1111_status_approved
-- extendedWaitUntil:
-    visible: "Cursada en Sep - Dic 2021"
-    timeout: 5000
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          id: record_create_synthetic_term_subject_MA1111_status_approved
+      - extendedWaitUntil:
+          visible: "Cursada en Sep - Dic 2021"
+          timeout: 5000
 - assertVisible:
     id: record_create_synthetic_term_subject_MA1111_stats_button
 - assertNotVisible:

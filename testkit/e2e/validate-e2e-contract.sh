@@ -800,7 +800,8 @@ for summary_retry_mapping in \
 	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-fails-once.json" \
 	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-fails-android-first.json" \
 	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-fails-android-second.json" \
-	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-success.json"
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-success.json" \
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-success-ios.json"
 do
 	check_mapping_contains \
 		"${summary_retry_mapping}" \
@@ -846,10 +847,25 @@ check_mapping_contains \
 check_mapping_contains \
 	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-success.json" \
 	"\"requiredScenarioState\": \"FailedOnce\"" \
-	"Summary refresh retry success"
+	"Summary refresh retry Android success"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-success.json" \
+	"\"contains\": \"Android\"" \
+	"Summary refresh retry Android success"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-success-ios.json" \
+	"\"requiredScenarioState\": \"FailedOnce\"" \
+	"Summary refresh retry iOS success"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-success-ios.json" \
+	"\"contains\": \"iOS\"" \
+	"Summary refresh retry iOS success"
 check_path_absent \
 	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-fails-twice.json" \
 	"Stale summary refresh retry second failure mapping"
+check_path_absent \
+	"${REPO_ROOT}/mocks/mappings/summary/get-user-refresh-retry-fails-ios-second.json" \
+	"Stale summary refresh retry iOS second failure mapping"
 
 for record_retry_mapping in \
 	"${REPO_ROOT}/mocks/mappings/record/get-record-refresh-retry-unavailable-once.json" \

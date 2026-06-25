@@ -1,0 +1,15 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - runFlow:
+          when:
+            visible:
+              id: Search
+          commands:
+            - tapOn:
+                id: Search
+            - waitForAnimationToEnd:
+                timeout: 5000

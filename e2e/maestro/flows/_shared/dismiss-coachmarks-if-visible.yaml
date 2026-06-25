@@ -1,0 +1,38 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow:
+    when:
+      visible:
+        id: coachmark_bubble
+    commands:
+      - tapOn:
+          id: coachmark_confirm
+      - waitForAnimationToEnd:
+          timeout: 5000
+- runFlow:
+    when:
+      visible:
+        id: coachmark_bubble
+    commands:
+      - tapOn:
+          id: coachmark_confirm
+      - waitForAnimationToEnd:
+          timeout: 5000
+- runFlow:
+    when:
+      visible:
+        id: coachmark_bubble
+    commands:
+      - tapOn:
+          id: coachmark_confirm
+      - waitForAnimationToEnd:
+          timeout: 5000
+- runFlow:
+    when:
+      visible:
+        id: coachmark_bubble
+    commands:
+      - tapOn:
+          id: coachmark_confirm
+      - waitForAnimationToEnd:
+          timeout: 5000

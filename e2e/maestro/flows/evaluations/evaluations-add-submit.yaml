@@ -9,6 +9,7 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: evaluations_content_container
     timeout: 30000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - tapOn:
     id: evaluations_add_fab
 - extendedWaitUntil:
