@@ -39,6 +39,7 @@ import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -649,6 +650,6 @@ fun createEvaluationsMutationEngine(
 	return StoreBackedMutationEngine(
 		storeId = EVALUATIONS_MUTATION_STORE_ID,
 		outboxStore = store,
-		coroutineScope = coroutineScope ?: CoroutineScope(kotlinx.coroutines.Dispatchers.Default)
+		coroutineScope = coroutineScope ?: testSessionCoroutineScope()
 	)
 }

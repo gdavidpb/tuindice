@@ -95,7 +95,7 @@ class CoachmarkOverlayStateMachineContractTest {
 					)
 				)
 			),
-			scope = backgroundScope,
+			coroutineScope = backgroundScope,
 			minRowCoverage = 0.5
 		)
 	}

@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
@@ -48,6 +49,7 @@ class SignOutViewModelContractTest {
 					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 					applicationRepository = RecordingApplicationRepository(),
 					syncStatusRepository = FakeSyncStatusRepository(),
+					sessionCoroutineScope = testSessionCoroutineScope(),
 					reportingRepository = RecordingReportingRepository()
 				),
 				flushPendingChangesUseCase = FlushPendingChangesUseCase(
@@ -99,6 +101,7 @@ class SignOutViewModelContractTest {
 			sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 			applicationRepository = RecordingApplicationRepository(),
 			syncStatusRepository = FakeSyncStatusRepository(),
+			sessionCoroutineScope = testSessionCoroutineScope(),
 			reportingRepository = reportingRepository
 		)
 		val viewModel = SignOutViewModel(
@@ -161,6 +164,7 @@ class SignOutViewModelContractTest {
 			sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 			applicationRepository = applicationRepository,
 			syncStatusRepository = syncStatusRepository,
+			sessionCoroutineScope = testSessionCoroutineScope(),
 			reportingRepository = reportingRepository
 		)
 		val viewModel = SignOutViewModel(
@@ -228,6 +232,7 @@ class SignOutViewModelContractTest {
 				sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 				applicationRepository = RecordingApplicationRepository(),
 				syncStatusRepository = FakeSyncStatusRepository(),
+				sessionCoroutineScope = testSessionCoroutineScope(),
 				reportingRepository = reportingRepository
 			),
 			flushPendingChangesUseCase = FlushPendingChangesUseCase(
@@ -259,7 +264,7 @@ class SignOutViewModelContractTest {
 					message = "Cambios pendientes sin sincronizar"
 				)
 			),
-			scope = backgroundScope,
+			coroutineScope = backgroundScope,
 			// Conservative floor: every internal event is sampled by hand; raise to the
 			// observed coverage once the walk has run on CI.
 			minRowCoverage = 0.4

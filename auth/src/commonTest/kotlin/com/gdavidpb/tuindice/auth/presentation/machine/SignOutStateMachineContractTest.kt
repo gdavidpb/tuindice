@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
@@ -93,6 +94,7 @@ class SignOutStateMachineContractTest {
 					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 					applicationRepository = RecordingApplicationRepository(),
 					syncStatusRepository = FakeSyncStatusRepository(),
+					sessionCoroutineScope = testSessionCoroutineScope(),
 					reportingRepository = RecordingReportingRepository()
 				),
 				flushPendingChangesUseCase = FlushPendingChangesUseCase(

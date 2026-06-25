@@ -70,6 +70,7 @@ import com.gdavidpb.tuindice.testing.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testing.createMainViewModel
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -1006,6 +1007,7 @@ class TuIndiceAppHostRouteUiTest {
 	) = module {
 		factory { createSummaryViewModel() }
 		single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
+		single { testSessionCoroutineScope() }
 		single<EventPublisher> { NoOpEventPublisher }
 		single<OutdatedAppEventRepository> { OutdatedAppEventDataSource() }
 		single<PendingChangesRepository> { FakePendingChangesRepository() }

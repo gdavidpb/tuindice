@@ -1,23 +1,20 @@
 package com.gdavidpb.tuindice.base.data.source.event
 
-import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
-import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.event.AppEvent
-import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
+import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.channels.BufferOverflow
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.launch
 
 class BufferedEventPublisher(
 	private val usageDataConsentRepository: UsageDataConsentRepository,
 	private val eventSubscriber: EventSubscriber,
 	bufferCapacity: Int = DEFAULT_BUFFER_CAPACITY,
-	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers,
-	coroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + dispatchers.default)
+	coroutineScope: CoroutineScope
 ) : EventPublisher {
 	private val events = Channel<AppEvent>(
 		capacity = bufferCapacity,
@@ -29,7 +26,11 @@ class BufferedEventPublisher(
 			for (event in events) {
 				if (!usageDataConsentRepository.isUsageDataCollectionEnabled()) continue
 
-				eventSubscriber.onEvent(event)
+				runCatching {
+					eventSubscriber.onEvent(event)
+				}.onFailure { throwable ->
+					if (throwable is CancellationException) throw throwable
+				}
 			}
 		}
 	}

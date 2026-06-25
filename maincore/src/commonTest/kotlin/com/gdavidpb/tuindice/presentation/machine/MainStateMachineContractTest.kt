@@ -115,7 +115,7 @@ class MainStateMachineContractTest {
 				MainInternalEvent.ReviewRequested,
 				MainInternalEvent.UpdateInfoLoaded(action = UpdateAction.Immediate)
 			),
-			scope = backgroundScope,
+			coroutineScope = backgroundScope,
 			// Conservative floor: every internal event is sampled by hand; raise to the
 			// observed coverage once the walk has run on CI.
 			minRowCoverage = 0.4
@@ -134,7 +134,7 @@ class MainStateMachineContractTest {
 				Browser.Action.SetLoading(isLoading = false),
 				Browser.Action.OpenExternalResource(url = "https://example.com/resource")
 			),
-			scope = backgroundScope,
+			coroutineScope = backgroundScope,
 			// Conservative floor: all three rows resolve once NavigateTo lands on Content;
 			// raise to the observed coverage once the walk has run on CI.
 			minRowCoverage = 0.5

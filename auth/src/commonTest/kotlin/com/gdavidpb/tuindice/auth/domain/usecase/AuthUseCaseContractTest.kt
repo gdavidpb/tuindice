@@ -26,13 +26,20 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class AuthUseCaseContractTest {
 	private companion object {
 		const val VALID_USB_ID = "20-26123"
@@ -212,6 +219,15 @@ class AuthUseCaseContractTest {
 		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 		val applicationRepository = RecordingApplicationRepository()
 		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
+		val sessionCoroutineScope = testSessionCoroutineScope(UnconfinedTestDispatcher(testScheduler))
+		var activeSessionWorkCancelled = false
+		val activeSessionWork = sessionCoroutineScope.launch {
+			try {
+				awaitCancellation()
+			} finally {
+				activeSessionWorkCancelled = true
+			}
+		}
 		val useCase = SignOutUseCase(
 			authRepository = authRepository,
 			attestationRepository = attestationRepository,
@@ -219,6 +235,7 @@ class AuthUseCaseContractTest {
 			sessionInvalidationRepository = sessionInvalidationRepository,
 			applicationRepository = applicationRepository,
 			syncStatusRepository = syncStatusRepository,
+			sessionCoroutineScope = sessionCoroutineScope,
 			reportingRepository = RecordingReportingRepository()
 		)
 
@@ -243,6 +260,8 @@ class AuthUseCaseContractTest {
 		assertEquals(1, syncStatusRepository.resetCalls)
 		assertEquals(true, applicationRepository.cleared)
 		assertEquals("session-123", sessionInvalidationRepository.intentionalSignOutSessionId)
+		assertTrue(activeSessionWork.isCancelled)
+		assertTrue(activeSessionWorkCancelled)
 	}
 
 	@Test
@@ -265,6 +284,7 @@ class AuthUseCaseContractTest {
 			sessionInvalidationRepository = sessionInvalidationRepository,
 			applicationRepository = applicationRepository,
 			syncStatusRepository = syncStatusRepository,
+			sessionCoroutineScope = testSessionCoroutineScope(),
 			reportingRepository = reportingRepository
 		)
 

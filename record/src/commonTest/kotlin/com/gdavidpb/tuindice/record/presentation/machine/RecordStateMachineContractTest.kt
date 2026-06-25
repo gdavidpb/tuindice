@@ -192,7 +192,7 @@ class RecordStateMachineContractTest {
 					navigateToOutdatedCredentials = false
 				)
 			),
-			scope = backgroundScope,
+			coroutineScope = backgroundScope,
 			// Conservative floor: every internal event is sampled by hand; raise to the
 			// observed coverage once the walk has run on CI.
 			minRowCoverage = 0.4
@@ -260,7 +260,7 @@ class RecordStateMachineContractTest {
 				CreateSyntheticTermInternalEvent.SubmitSucceeded,
 				CreateSyntheticTermInternalEvent.SubmitFailed(error = UiText.Empty)
 			),
-			scope = backgroundScope,
+			coroutineScope = backgroundScope,
 			// Conservative floor: single state class, so every row resolves from these
 			// samples; raise to the observed coverage once the walk has run on CI.
 			minRowCoverage = 0.5

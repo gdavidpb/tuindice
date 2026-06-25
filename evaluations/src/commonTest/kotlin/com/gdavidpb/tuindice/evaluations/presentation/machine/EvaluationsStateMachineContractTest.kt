@@ -228,7 +228,7 @@ class EvaluationsStateMachineContractTest {
 				EvaluationsInternalEvent.EvaluationRemoved(message = "Evaluación eliminada"),
 				EvaluationsInternalEvent.EvaluationRemoveFailed(message = "No se pudo eliminar")
 			),
-			scope = backgroundScope,
+			coroutineScope = backgroundScope,
 			// Conservative floor: every internal event is sampled by hand; raise to the
 			// observed coverage once the walk has run on CI.
 			minRowCoverage = 0.4
@@ -306,7 +306,7 @@ class EvaluationsStateMachineContractTest {
 					navigateBack = false
 				)
 			),
-			scope = backgroundScope,
+			coroutineScope = backgroundScope,
 			// Conservative floor: every internal event is sampled by hand; raise to the
 			// observed coverage once the walk has run on CI.
 			minRowCoverage = 0.4

@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataReposit
 import com.gdavidpb.tuindice.base.data.source.secure.ACTIVE_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.secure.LEGACY_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
+import com.gdavidpb.tuindice.base.domain.coroutine.AppCoroutineScope
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
@@ -122,7 +123,8 @@ val iosPlatformModule = module {
 				setCollectionEnabledActions = listOf(
 					observabilityCapability::setUsageDataCollectionEnabled,
 					observabilityCapability::setPerformanceCollectionEnabled
-				)
+				),
+				coroutineScope = get<AppCoroutineScope>()
 			)
 		}
 	}

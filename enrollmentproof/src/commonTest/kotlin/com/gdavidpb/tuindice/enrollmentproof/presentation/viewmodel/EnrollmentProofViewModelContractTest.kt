@@ -92,7 +92,7 @@ class EnrollmentProofViewModelContractTest {
 				),
 				EnrollmentProofInternalEvent.EnrollmentProofUnauthorized
 			),
-			scope = backgroundScope,
+			coroutineScope = backgroundScope,
 			// Conservative floor: single state, so every row resolves from these samples;
 			// raise to the observed coverage once the walk has run on CI.
 			minRowCoverage = 0.5

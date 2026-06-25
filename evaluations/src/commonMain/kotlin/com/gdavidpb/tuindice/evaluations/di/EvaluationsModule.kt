@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.di
 
+import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
@@ -85,7 +86,8 @@ val evaluationsModule = module {
 	single<StoreBackedMutationEngine<String, EvaluationMutation, LocalEvaluationsSnapshot, List<LocalEvaluation>, EvaluationMutationAck>>(named(EVALUATIONS_MUTATION_ENGINE_QUALIFIER)) {
 		StoreBackedMutationEngine(
 			storeId = EVALUATIONS_MUTATION_STORE_ID,
-			outboxStore = get(named(EVALUATIONS_MUTATION_STORE_QUALIFIER))
+			outboxStore = get(named(EVALUATIONS_MUTATION_STORE_QUALIFIER)),
+			coroutineScope = get<SessionCoroutineScope>()
 		)
 	}
 	single<EvaluationRepository> {

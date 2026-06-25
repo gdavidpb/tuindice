@@ -39,6 +39,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepositor
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
 import kotlin.test.Test
@@ -67,6 +68,7 @@ class AuthModuleKoinSmokeTest {
 				single<UsageDataConsentRepository> { InMemoryUsageDataConsentRepository() }
 				single<EventPublisher> { NoOpEventPublisher }
 				single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
+				single { testSessionCoroutineScope() }
 			}
 		) {
 		assertResolves(

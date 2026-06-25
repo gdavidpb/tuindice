@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.coroutine.AppCoroutineScope
+import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.data.source.ConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.SessionInvalidationDataSource
 import com.gdavidpb.tuindice.base.data.source.SessionDataSource
@@ -63,6 +65,8 @@ val commonModule = module {
 	singleOf(::createSharedJson)
 	single<Settings> { get<Settings.Factory>().create(APP_STORE_NAME) }
 	single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
+	single { AppCoroutineScope(dispatchers = get()) }
+	single { SessionCoroutineScope(dispatchers = get()) }
 
 	singleOf(::MultiplatformSettingsDataSource) { bind<SettingsRepository>() }
 	singleOf(::UsageDataConsentSettingsDataSource) { bind<UsageDataConsentRepository>() }
@@ -71,7 +75,7 @@ val commonModule = module {
 		BufferedEventPublisher(
 			usageDataConsentRepository = get(),
 			eventSubscriber = CompositeEventSubscriber(subscribers = getAll<EventSubscriber>()),
-			dispatchers = get()
+			coroutineScope = get<AppCoroutineScope>()
 		)
 	}
 
@@ -113,7 +117,8 @@ val commonModule = module {
 			syncStatusRepository = get<SyncStatusRepository>(),
 			remoteDataSource = get<SyncRemoteDataRepository>(),
 			recordLocalDataSource = get<AcademicRecordLocalDataRepository>(),
-			userLocalDataSource = get<LocalDataRepository>()
+			userLocalDataSource = get<LocalDataRepository>(),
+			coroutineScope = get<SessionCoroutineScope>()
 		)
 	}
 }

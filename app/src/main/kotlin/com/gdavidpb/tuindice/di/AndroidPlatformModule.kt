@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.base.data.source.secure.ACTIVE_SECURE_STORE_QUALIFI
 import com.gdavidpb.tuindice.base.data.source.secure.LEGACY_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.data.source.usage.UsageDataCollectionDataSource
+import com.gdavidpb.tuindice.base.domain.coroutine.AppCoroutineScope
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
@@ -169,7 +170,8 @@ val androidPlatformModule = module {
 				setCollectionEnabledActions = listOf(
 					get<FirebaseAnalytics>()::setAnalyticsCollectionEnabled,
 					get<FirebasePerformance>()::setPerformanceCollectionEnabled
-				)
+				),
+				coroutineScope = get<AppCoroutineScope>()
 			)
 		}
 	}

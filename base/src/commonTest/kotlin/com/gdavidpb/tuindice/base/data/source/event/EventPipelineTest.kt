@@ -144,6 +144,29 @@ class EventPipelineTest {
 	}
 
 	@Test
+	fun bufferedEventPublisher_keepsConsumingAfterSubscriberFailure() = runTest {
+		val subscriber = ThrowingOnceEventSubscriber()
+		val publisher = BufferedEventPublisher(
+			usageDataConsentRepository = InMemoryUsageDataConsentRepository(initialValue = true),
+			eventSubscriber = subscriber,
+			coroutineScope = createPublisherScope()
+		)
+		val firstEvent = AppEvent.Action(
+			source = "summary",
+			action = "first"
+		)
+		val secondEvent = AppEvent.Action(
+			source = "summary",
+			action = "second"
+		)
+
+		publisher.publish(firstEvent)
+		publisher.publish(secondEvent)
+
+		assertEquals(listOf<AppEvent>(secondEvent), subscriber.events)
+	}
+
+	@Test
 	fun compositeEventSubscriber_isolatesSubscriberErrors() {
 		val recordingSubscriber = RecordingEventSubscriber()
 		val composite = CompositeEventSubscriber(
@@ -241,6 +264,24 @@ private class ThrowingEventSubscriber : EventSubscriber {
 
 	override fun onEvent(event: AppEvent) {
 		error("Subscriber failed")
+	}
+}
+
+private class ThrowingOnceEventSubscriber : EventSubscriber {
+	val events = mutableListOf<AppEvent>()
+	private var calls = 0
+
+	override val id: String = "throwing_once"
+	override val isEnabled: Boolean = true
+
+	override fun onEvent(event: AppEvent) {
+		calls += 1
+
+		if (calls == 1) {
+			error("Subscriber failed")
+		}
+
+		events += event
 	}
 }
 
