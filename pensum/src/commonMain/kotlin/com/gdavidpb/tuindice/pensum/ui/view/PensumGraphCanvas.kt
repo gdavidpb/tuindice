@@ -575,53 +575,60 @@ fun PensumGraphCanvas(
 				.fillMaxSize()
 				.testTag(PensumUiTags.CanvasGestureLayer)
 				.pointerInput(graphKey, viewportSizePx, canvasSizePx, panMarginPx) {
-					detectPensumTransformGestures { centroid, pan, zoom ->
-						markManualCanvasGestureActive()
-						revealMinimapToggle()
-						val oldScale = scale.value
-						val rawScale = oldScale * zoom
-						val shouldSnapToFit = fitStateScale <= oldScale &&
-							rawScale <= fitStateScale + CanvasFitScaleTolerance
-						val newScale = if (shouldSnapToFit) {
-							fitStateScale
-						} else {
-							rawScale.coerceIn(minimumInteractiveScale, MaxCanvasZoom)
-						}
-						val currentOffset = Offset(offsetX.value, offsetY.value)
-						val nextOffset = if (shouldSnapToFit) {
-							fitCanvasOffset(fitStateScale)
-						} else {
-							constrainCanvasOffset(
-								offset = currentOffset
-									.zoomedAround(
-										anchor = centroid,
-										oldScale = oldScale,
-										newScale = newScale
-									) + pan,
-								scale = newScale,
-								canvasSizePx = canvasSizePx,
-								viewportSizePx = viewportSizePx,
-								panMarginPx = panMarginPx
-							)
-						}
+					detectPensumTransformGestures(
+						onTap = { tapOffset ->
+							if (!isNodeTap(tapOffset)) {
+								onSelectedNodeChange(null)
+							}
+						},
+						onGesture = { centroid, pan, zoom ->
+							markManualCanvasGestureActive()
+							revealMinimapToggle()
+							val oldScale = scale.value
+							val rawScale = oldScale * zoom
+							val shouldSnapToFit = fitStateScale <= oldScale &&
+								rawScale <= fitStateScale + CanvasFitScaleTolerance
+							val newScale = if (shouldSnapToFit) {
+								fitStateScale
+							} else {
+								rawScale.coerceIn(minimumInteractiveScale, MaxCanvasZoom)
+							}
+							val currentOffset = Offset(offsetX.value, offsetY.value)
+							val nextOffset = if (shouldSnapToFit) {
+								fitCanvasOffset(fitStateScale)
+							} else {
+								constrainCanvasOffset(
+									offset = currentOffset
+										.zoomedAround(
+											anchor = centroid,
+											oldScale = oldScale,
+											newScale = newScale
+										) + pan,
+									scale = newScale,
+									canvasSizePx = canvasSizePx,
+									viewportSizePx = viewportSizePx,
+									panMarginPx = panMarginPx
+								)
+							}
 
-						coroutineScope.launch {
-							scale.stop()
-							offsetX.stop()
-							offsetY.stop()
-							scale.snapTo(newScale)
-							offsetX.snapTo(nextOffset.x)
-							offsetY.snapTo(nextOffset.y)
-							saveCanvasViewport(
-								scaleValue = newScale,
-								offset = nextOffset
-							)
-							scheduleViewportSnap(
-								scaleValue = newScale,
-								offset = nextOffset
-							)
+							coroutineScope.launch {
+								scale.stop()
+								offsetX.stop()
+								offsetY.stop()
+								scale.snapTo(newScale)
+								offsetX.snapTo(nextOffset.x)
+								offsetY.snapTo(nextOffset.y)
+								saveCanvasViewport(
+									scaleValue = newScale,
+									offset = nextOffset
+								)
+								scheduleViewportSnap(
+									scaleValue = newScale,
+									offset = nextOffset
+								)
+							}
 						}
-					}
+					)
 				}
 				.pointerInput(
 					graphKey,
@@ -799,16 +806,22 @@ fun PensumGraphCanvas(
 }
 
 private suspend fun PointerInputScope.detectPensumTransformGestures(
+	onTap: (Offset) -> Unit,
 	onGesture: (centroid: Offset, pan: Offset, zoom: Float) -> Unit
 ) {
 	awaitEachGesture {
-		awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
+		val down = awaitFirstDown(requireUnconsumed = false, pass = PointerEventPass.Initial)
 		var pastTouchSlop = false
 		var accumulatedZoom = 1f
 		var accumulatedPan = Offset.Zero
+		var maximumPressedPointers = 1
 		var pointerEvent = awaitPointerEvent(PointerEventPass.Initial)
 
 		while (pointerEvent.changes.any { pointerChange -> pointerChange.pressed }) {
+			maximumPressedPointers = max(
+				maximumPressedPointers,
+				pointerEvent.changes.count { pointerChange -> pointerChange.pressed }
+			)
 			val zoomChange = pointerEvent.calculateZoom()
 			val panChange = pointerEvent.calculatePan()
 
@@ -836,6 +849,10 @@ private suspend fun PointerInputScope.detectPensumTransformGestures(
 			}
 
 			pointerEvent = awaitPointerEvent(PointerEventPass.Initial)
+		}
+
+		if (!pastTouchSlop && maximumPressedPointers == 1) {
+			onTap(down.position)
 		}
 	}
 }
