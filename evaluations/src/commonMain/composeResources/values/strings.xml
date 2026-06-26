@@ -11,7 +11,7 @@
 	<string name="title_no_subjects_evaluations">Sin trimestre en curso</string>
 	<string name="message_no_subjects_evaluations">Cuando tengas un trimestre activo, podrás agregar evaluaciones desde aquí.</string>
 	<string name="title_enrollment_unavailable_evaluations">Servicio de inscripción no disponible</string>
-	<string name="message_enrollment_unavailable_evaluations">En este momento no está disponible el servicio de inscripción de la universidad. Intenta sincronizar de nuevo más tarde para cargar las materias del trimestre.</string>
+	<string name="message_enrollment_unavailable_evaluations">En este momento no está disponible el servicio de inscripción de la universidad. Intenta cargar de nuevo más tarde.</string>
 	<string name="title_empty_match_evaluations">Sin resultados</string>
 	<string name="message_empty_match_evaluations">Ajusta los filtros o la búsqueda para encontrar otras evaluaciones.</string>
 	<string name="button_add_evaluation">Crear</string>
