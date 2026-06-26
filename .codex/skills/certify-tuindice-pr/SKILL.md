@@ -39,9 +39,20 @@ used by `Run focused iOS checks`.
 ```
 
 6. If preflight parity or evidence fails, enter the iterative correction loop. Do not open or mark a PR ready.
-7. After evidence passes, rerun the audit helper and verify manifests for the final remote SHA.
-8. Open or update a non-draft PR against `production` with a title that does not mention Codex.
-9. Verify the PR head SHA matches the certified SHA.
+7. Before accepting any E2E/preflight stabilization fix, enforce the product integrity gate below.
+8. After evidence passes, rerun the audit helper and verify manifests for the final remote SHA.
+9. Open or update a non-draft PR against `production` with a title that does not mention Codex.
+10. Verify the PR head SHA matches the certified SHA.
+
+## Product Integrity Gate
+
+E2E and preflight fixes must not arbitrarily alter the product experience.
+
+- Prefer fixing tests, selectors, waits, fixtures, mock state, reset scripts, simulator/device state, or platform harnesses when the failure is test instability.
+- Change production UI, copy, layout, navigation, timing, gestures, or business behavior only when the failure exposes a real product regression or the user explicitly requests that product change.
+- If a certification fix touches user-visible product code, state the product rationale, compare it against the intended experience, and add/update focused product or UI coverage that protects the intended behavior.
+- Do not move, hide, resize, reorder, relabel, or weaken product surfaces merely to make Maestro or preflight pass.
+- If the only passing path requires changing the product experience and the rationale is not clear, stop and ask before committing or pushing that fix.
 
 ## Iterative Correction Loop
 
