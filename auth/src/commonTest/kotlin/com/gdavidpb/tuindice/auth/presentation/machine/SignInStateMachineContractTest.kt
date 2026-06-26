@@ -12,6 +12,8 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.event.AppEvent
 import com.gdavidpb.tuindice.base.domain.model.event.EventNames
 import com.gdavidpb.tuindice.base.domain.model.event.EventParameterKeys
@@ -22,6 +24,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
@@ -30,6 +33,9 @@ import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -45,7 +51,7 @@ class SignInStateMachineContractTest {
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun payloadEvents_applyInSendOrder_withoutLoss() = runTest {
-		val fixture = createFixture()
+		val fixture = createFixture(testScheduler = testScheduler)
 		val viewModel = fixture.viewModel
 
 		val stateCollector = backgroundScope.launchStateCollector(
@@ -94,7 +100,7 @@ class SignInStateMachineContractTest {
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun toggleIdentifierMode_preservesValidUsbId_andClearsEmailWhenReturningToUsbId() = runTest {
-		val fixture = createFixture()
+		val fixture = createFixture(testScheduler = testScheduler)
 		val viewModel = fixture.viewModel
 		val stateCollector = backgroundScope.launchStateCollector(
 			flow = viewModel.state,
@@ -129,7 +135,7 @@ class SignInStateMachineContractTest {
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun clickSignIn_whileLoggingIn_isIgnored_andUseCaseRunsOnce() = runTest {
-		val fixture = createFixture()
+		val fixture = createFixture(testScheduler = testScheduler)
 		val viewModel = fixture.viewModel
 
 		val stateCollector = backgroundScope.launchStateCollector(
@@ -191,7 +197,7 @@ class SignInStateMachineContractTest {
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun validTransitions_publishTransitionTelemetry() = runTest {
-		val fixture = createFixture()
+		val fixture = createFixture(testScheduler = testScheduler)
 		val viewModel = fixture.viewModel
 
 		val stateCollector = backgroundScope.launchStateCollector(
@@ -216,6 +222,7 @@ class SignInStateMachineContractTest {
 
 				cancelAndIgnoreRemainingEvents()
 			}
+			advanceUntilIdle()
 
 			val transitions = fixture.eventPublisher.events()
 				.filter { event -> event.name == EventNames.APP_TRANSITION }
@@ -302,9 +309,15 @@ class SignInStateMachineContractTest {
 		}
 	}
 
-	private fun createFixture(): SignInStateMachineFixture {
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	private fun createFixture(
+		testScheduler: TestCoroutineScheduler? = null
+	): SignInStateMachineFixture {
 		val authRepository = RecordingAuthRepository()
 		val eventPublisher = RecordingEventPublisher()
+		val dispatchers: TuIndiceDispatchers = testScheduler
+			?.let { scheduler -> TestTuIndiceDispatchers(UnconfinedTestDispatcher(scheduler)) }
+			?: DefaultTuIndiceDispatchers
 
 		val viewModel = SignInViewModel(
 			screenMachine = SignInMachine(
@@ -325,7 +338,8 @@ class SignInStateMachineContractTest {
 				appEnvironmentRepository = FakeAppEnvironmentRepository(),
 				usageDataConsentRepository = InMemoryUsageDataConsentRepository()
 			),
-			eventPublisher = eventPublisher
+			eventPublisher = eventPublisher,
+			dispatchers = dispatchers
 		)
 
 		return SignInStateMachineFixture(
