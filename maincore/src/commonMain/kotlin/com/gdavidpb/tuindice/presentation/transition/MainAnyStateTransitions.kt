@@ -59,11 +59,6 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 			state
 		}
 
-		on<Main.Action.RequestWizardStart> { state, _ ->
-			machine.requestWizardStart(host = host)
-			state
-		}
-
 		onTo<MainInternalEvent.StartUpStarting, Main.State.Starting> { _, _ ->
 			Main.State.Starting
 		}

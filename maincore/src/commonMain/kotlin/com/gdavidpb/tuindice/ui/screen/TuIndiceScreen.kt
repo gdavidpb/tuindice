@@ -83,6 +83,10 @@ import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeBannerView
 import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeSwitchView
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.ui.view.TopBarBannerHost
+import com.gdavidpb.tuindice.wizard.presentation.contract.CoachmarkOverlay
+import com.gdavidpb.tuindice.wizard.ui.anchor.CoachmarkAnchorRegistry
+import com.gdavidpb.tuindice.wizard.ui.anchor.coachmarkAnchor
+import com.gdavidpb.tuindice.wizard.ui.view.CoachmarkOverlayHost
 import org.jetbrains.compose.resources.stringResource
 import tuindice.maincore.generated.resources.Res
 import tuindice.maincore.generated.resources.a11y_navigate_back
@@ -118,7 +122,9 @@ fun TuIndiceScreen(
 	onNavigateToExternalResource: (url: String) -> Unit,
 	onOutdatedAppDetected: () -> Unit = {},
 	onUpdatePasswordDismissRequest: () -> Unit = {},
-	onWizardFinished: () -> Unit = {},
+	coachmarkOverlayState: CoachmarkOverlay.State = CoachmarkOverlay.State(),
+	onCoachmarkPreviousActionClick: () -> Unit = {},
+	onCoachmarkPrimaryActionClick: () -> Unit = {},
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	dismissSnackBar: () -> Unit = {}
@@ -186,6 +192,9 @@ fun TuIndiceScreen(
 	}
 	val topBarBannerRequestKey = remember {
 		mutableIntStateOf(0)
+	}
+	val coachmarkAnchorRegistry = remember {
+		CoachmarkAnchorRegistry()
 	}
 	val showTopBarBanner: (TopBarBannerBehavior) -> Unit = { behavior ->
 		topBarBannerBehavior.value = behavior
@@ -389,7 +398,12 @@ fun TuIndiceScreen(
 				navController = navController,
 				startDestination = contentState.startDestination,
 				isSwipeBackNavigationEnabled = isSwipeBackNavigationEnabled,
-				modifier = Modifier.padding(innerPadding),
+				modifier = Modifier
+					.padding(innerPadding)
+					.coachmarkAnchor(
+						id = coachmarkOverlayState.activeCoachmark?.id,
+						registry = coachmarkAnchorRegistry
+					),
 				onConfirmExitClick = onConfirmExitClick,
 				isCameraAvailable = isCameraAvailable,
 				onNavigateToExternalResource = onNavigateToExternalResource,
@@ -397,13 +411,28 @@ fun TuIndiceScreen(
 				onUpdatePasswordDismissRequest = onUpdatePasswordDismissRequest,
 				onRecordViewModeChangeAvailable = onRecordViewModeChangeAvailable,
 				onRecordTermSelectionAvailable = onRecordTermSelectionAvailable,
-				onWizardFinished = onWizardFinished,
 				showTopBarBanner = showTopBarBanner,
 				onViewStateChanged = onViewStateChanged,
 				showSnackBar = showSnackBar,
 				dismissSnackBar = dismissSnackBar
 			)
 		}
+
+		CoachmarkOverlayHost(
+			state = coachmarkOverlayState,
+			anchorRegistry = coachmarkAnchorRegistry,
+			onPreviousActionClick = onCoachmarkPreviousActionClick,
+			onPrimaryActionClick = onCoachmarkPrimaryActionClick,
+			modifier = Modifier
+				.fillMaxSize()
+				.padding(
+					bottom = if (shellState.isBottomBarVisible) {
+						InternalScreenDefaults.BottomBarHeight
+					} else {
+						0.dp
+					}
+				)
+		)
 
 	}
 }

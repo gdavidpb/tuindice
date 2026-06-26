@@ -6,6 +6,7 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: record_content_container
     timeout: 30000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - assertVisible:
     id: record_term_selector_row
 - assertVisible:

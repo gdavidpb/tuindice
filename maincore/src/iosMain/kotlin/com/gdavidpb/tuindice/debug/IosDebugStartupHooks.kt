@@ -5,8 +5,8 @@ import org.koin.core.Koin
 object IosDebugStartupHooks {
 	suspend fun run(name: String, koin: Koin, mainSectionName: String) {
 		val hook = when (name) {
-			"authenticatedWizardComplete" -> IosAuthenticatedWizardCompleteStartupHook
-			"authenticatedWizardPending" -> IosAuthenticatedWizardPendingStartupHook
+			IosAuthenticatedCoachmarksSeenStartupHook.NAME -> IosAuthenticatedCoachmarksSeenStartupHook
+			IosAuthenticatedCoachmarksPendingStartupHook.NAME -> IosAuthenticatedCoachmarksPendingStartupHook
 			else -> error("Unsupported debug startup hook: $name")
 		}
 

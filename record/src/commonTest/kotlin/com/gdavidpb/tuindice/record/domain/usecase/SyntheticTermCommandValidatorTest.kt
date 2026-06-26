@@ -66,6 +66,21 @@ class SyntheticTermCommandValidatorTest {
 	}
 
 	@Test
+	fun validate_throwsUnsupportedPeriod_whenCreatingLongAcademicTerm() {
+		assertValidationError(SyntheticTermValidationError.UNSUPPORTED_PERIOD) {
+			SyntheticTermCommandValidator.validate(
+				record = record(),
+				params = creationParams(
+					period = SyntheticTermPeriodOption(
+						periodYear = 9999,
+						periodCode = AcademicTermPeriod.JAN_MAY
+					)
+				)
+			)
+		}
+	}
+
+	@Test
 	fun validate_throwsPeriodInPast_whenNewTermKeyIsBeforeCurrentPeriod() {
 		assertValidationError(SyntheticTermValidationError.PERIOD_IN_PAST) {
 			SyntheticTermCommandValidator.validate(
@@ -188,7 +203,7 @@ class SyntheticTermCommandValidatorTest {
 	}
 
 	@Test
-	fun validate_throwsSubjectAlreadyTaken_whenSubjectIsApprovedInCurrentTerm() {
+	fun validate_throwsSubjectAlreadyApproved_whenSubjectIsApprovedInCurrentTerm() {
 		val record = record(
 			academicTerm(
 				id = "current",
@@ -200,7 +215,7 @@ class SyntheticTermCommandValidatorTest {
 			)
 		)
 
-		assertValidationError(SyntheticTermValidationError.SUBJECT_ALREADY_TAKEN) {
+		assertValidationError(SyntheticTermValidationError.SUBJECT_ALREADY_APPROVED) {
 			SyntheticTermCommandValidator.validate(
 				record = record,
 				params = creationParams(subjects = listOf(syntheticSubject("ma1112")))

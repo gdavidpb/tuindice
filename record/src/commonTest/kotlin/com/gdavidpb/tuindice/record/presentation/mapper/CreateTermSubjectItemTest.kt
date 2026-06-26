@@ -27,7 +27,7 @@ class CreateTermSubjectItemTest {
 	}
 
 	@Test
-	fun canAdd_isTrue_forAvailableNotInPensumAndUnavailableSubjects() {
+	fun canAdd_isTrue_forAvailableNotInPensumAndBlockedSubjects() {
 		assertTrue(
 			syntheticSubject(availability = SyntheticTermSubjectAvailability.AVAILABLE)
 				.toCreateTermSubjectItem().canAdd
@@ -37,15 +37,19 @@ class CreateTermSubjectItemTest {
 				.toCreateTermSubjectItem().canAdd
 		)
 		assertTrue(
-			syntheticSubject(availability = SyntheticTermSubjectAvailability.UNAVAILABLE)
+			syntheticSubject(availability = SyntheticTermSubjectAvailability.BLOCKED)
 				.toCreateTermSubjectItem().canAdd
 		)
 	}
 
 	@Test
-	fun canAdd_isFalse_forAlreadyTakenOrPlannedSubjects() {
+	fun canAdd_isFalse_forApprovedCurrentOrPlannedSubjects() {
 		assertFalse(
-			syntheticSubject(availability = SyntheticTermSubjectAvailability.ALREADY_TAKEN)
+			syntheticSubject(availability = SyntheticTermSubjectAvailability.APPROVED)
+				.toCreateTermSubjectItem().canAdd
+		)
+		assertFalse(
+			syntheticSubject(availability = SyntheticTermSubjectAvailability.CURRENT)
 				.toCreateTermSubjectItem().canAdd
 		)
 		assertFalse(
@@ -61,11 +65,11 @@ class CreateTermSubjectItemTest {
 			missingSubjectCodes = listOf("MA1111")
 		)
 		val item = syntheticSubject(
-			availability = SyntheticTermSubjectAvailability.UNAVAILABLE,
+			availability = SyntheticTermSubjectAvailability.BLOCKED,
 			availabilityDetail = detail
 		).toCreateTermSubjectItem()
 
-		assertEquals(SyntheticTermSubjectAvailability.UNAVAILABLE, item.availability)
+		assertEquals(SyntheticTermSubjectAvailability.BLOCKED, item.availability)
 		assertEquals(detail, item.availabilityDetail)
 	}
 

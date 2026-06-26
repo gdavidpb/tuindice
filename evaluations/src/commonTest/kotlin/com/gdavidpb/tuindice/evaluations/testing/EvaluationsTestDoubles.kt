@@ -6,12 +6,15 @@ import com.gdavidpb.tuindice.base.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
+import com.gdavidpb.tuindice.base.domain.model.SyncReport
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalCurrentTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEditableAttemptDescriptor
@@ -30,11 +33,13 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsRefreshResult
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -57,6 +62,44 @@ class ReadyRecordDataPrerequisiteRepository(
 	override fun observeRecordDataPrerequisiteFlow(): Flow<RecordDataPrerequisiteState> = states
 
 	override suspend fun isRecordDataReady(): Boolean = states.first().isReady
+}
+
+class RecordingSyncStatusRepository(
+	initialReport: SyncReport = SyncReport.success()
+) : SyncStatusRepository {
+	private val syncStatus = MutableStateFlow(SyncStatus.Healthy)
+	private val syncReport = MutableStateFlow(initialReport)
+	private val lastSuccessfulSyncAt = MutableStateFlow<Long?>(null)
+
+	override fun observeSyncStatus(): Flow<SyncStatus> = syncStatus
+
+	override fun observeSyncReport(): Flow<SyncReport> = syncReport
+
+	override fun observeLastSuccessfulSyncAt(): Flow<Long?> = lastSuccessfulSyncAt
+
+	override suspend fun getSyncStatus(): SyncStatus = syncStatus.value
+
+	override suspend fun getSyncReport(): SyncReport = syncReport.value
+
+	override suspend fun getLastSuccessfulSyncAt(): Long? = lastSuccessfulSyncAt.value
+
+	override suspend fun setSyncStatus(status: SyncStatus) {
+		syncStatus.value = status
+	}
+
+	override suspend fun setSyncReport(report: SyncReport) {
+		syncReport.value = report
+	}
+
+	override suspend fun setLastSuccessfulSyncAt(timestamp: Long) {
+		lastSuccessfulSyncAt.value = timestamp
+	}
+
+	override suspend fun reset() {
+		syncStatus.value = SyncStatus.Healthy
+		syncReport.value = SyncReport.success()
+		lastSuccessfulSyncAt.value = null
+	}
 }
 
 val DEFAULT_EVALUATION_SUBJECT = EditableAttemptDescriptor(
@@ -205,10 +248,12 @@ class RecordingEvaluationRepository(
 	private val updateThrowable: Throwable? = null,
 	private val removeThrowable: Throwable? = null,
 	private val refreshThrowable: Throwable? = null,
+	private val refreshedEvaluations: List<Evaluation>? = null,
 	private val getEvaluationThrowable: Throwable? = null,
 	private val availableAttemptsThrowable: Throwable? = null,
 	private val hasSyncedEvaluationsFlow: Flow<Boolean> = flowOf(true),
-		private val evaluationsSnapshotFlow: Flow<ObservedSyncedSnapshot<List<Evaluation>>>? = null,
+	private val evaluationsSnapshotFlow: Flow<ObservedSyncedSnapshot<List<Evaluation>>>? = null,
+	private val refreshResult: EvaluationsRefreshResult? = null,
 	private val availableSubjects: List<EditableAttemptDescriptor> = listOf(
 		DEFAULT_EVALUATION_SUBJECT,
 		SECOND_EVALUATION_SUBJECT
@@ -221,6 +266,7 @@ class RecordingEvaluationRepository(
 	val updateCalls = mutableListOf<EvaluationUpdate>()
 	val removeCalls = mutableListOf<EvaluationRemove>()
 	var updateEvaluationsCalls = 0
+	val updateEvaluationsForceRemoteCalls = mutableListOf<Boolean>()
 
 	override suspend fun observeEvaluationsFlow(): Flow<List<Evaluation>> = evaluationsFlow ?: evaluationsState
 
@@ -238,9 +284,23 @@ class RecordingEvaluationRepository(
 		}
 	}
 
-	override suspend fun updateEvaluations() {
+	override suspend fun getEvaluationsSnapshot(): ObservedSyncedSnapshot<List<Evaluation>> {
+		return observeEvaluationsSnapshotFlow().first()
+	}
+
+	override suspend fun updateEvaluations(): EvaluationsRefreshResult {
+		return updateEvaluations(forceRemote = false)
+	}
+
+	override suspend fun updateEvaluations(forceRemote: Boolean): EvaluationsRefreshResult {
 		updateEvaluationsCalls++
+		updateEvaluationsForceRemoteCalls += forceRemote
 		refreshThrowable?.let { throw it }
+		refreshedEvaluations?.let { evaluations -> evaluationsState.value = evaluations }
+		return refreshResult ?: EvaluationsRefreshResult(
+			hasEvaluations = evaluationsState.value.isNotEmpty(),
+			hasAvailableAttempts = availableSubjects.isNotEmpty()
+		)
 	}
 
 	override suspend fun drainPendingMutations() = Unit
@@ -334,6 +394,8 @@ class FakeDatabaseDataSource(
 	override fun observeHasSyncedEvaluationsFlow(): Flow<Boolean> = hasSyncedEvaluationsState
 
 	override fun observeEvaluationsSnapshotFlow(): Flow<LocalEvaluationsSnapshot> = snapshotState
+
+	override suspend fun getEvaluationsSnapshot(): LocalEvaluationsSnapshot = snapshotState.value
 
 	override suspend fun getEvaluation(eid: String): LocalEvaluation? {
 		return snapshotState.value.evaluations.firstOrNull { evaluation -> evaluation.id == eid }
@@ -588,6 +650,6 @@ fun createEvaluationsMutationEngine(
 	return StoreBackedMutationEngine(
 		storeId = EVALUATIONS_MUTATION_STORE_ID,
 		outboxStore = store,
-		coroutineScope = coroutineScope ?: CoroutineScope(kotlinx.coroutines.Dispatchers.Default)
+		coroutineScope = coroutineScope ?: testSessionCoroutineScope()
 	)
 }

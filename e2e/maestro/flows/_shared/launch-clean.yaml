@@ -16,5 +16,5 @@ appId: com.gdavidpb.tuindice.debug
             TUINDICE_E2E_NETWORK_AVAILABLE: "true"
 - extendedWaitUntil:
     visible:
-      id: auth_usb_id_text_field
-    timeout: 20000
+      id: auth_sign_in_idle_container
+    timeout: 60000

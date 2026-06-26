@@ -10,6 +10,7 @@ import androidx.compose.ui.geometry.Rect
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsContentView
@@ -21,8 +22,10 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.button_add_evaluation
 import tuindice.evaluations.generated.resources.message_empty_evaluations
+import tuindice.evaluations.generated.resources.message_enrollment_unavailable_evaluations
 import tuindice.evaluations.generated.resources.message_no_subjects_evaluations
 import tuindice.evaluations.generated.resources.title_empty_evaluations
+import tuindice.evaluations.generated.resources.title_enrollment_unavailable_evaluations
 import tuindice.evaluations.generated.resources.title_no_subjects_evaluations
 import tuindice.evaluations.generated.resources.view_error_message
 import tuindice.evaluations.generated.resources.view_error_retry
@@ -83,8 +86,8 @@ fun EvaluationsScreen(
 
 				is Evaluations.State.NoAttempts ->
 					EvaluationsNoAttemptsView(
-						title = stringResource(Res.string.title_no_subjects_evaluations),
-						message = stringResource(Res.string.message_no_subjects_evaluations),
+						title = targetState.noAttemptsTitle(),
+						message = targetState.noAttemptsMessage(),
 						headerContent = {
 							EmptyStateAnimationView()
 						}
@@ -102,5 +105,27 @@ fun EvaluationsScreen(
 					)
 			}
 		}
+	}
+}
+
+@Composable
+private fun Evaluations.State.NoAttempts.noAttemptsTitle(): String {
+	return when (reason) {
+		EvaluationsNoAttemptsReason.NoCurrentTerm ->
+			stringResource(Res.string.title_no_subjects_evaluations)
+
+		EvaluationsNoAttemptsReason.EnrollmentUnavailable ->
+			stringResource(Res.string.title_enrollment_unavailable_evaluations)
+	}
+}
+
+@Composable
+private fun Evaluations.State.NoAttempts.noAttemptsMessage(): String {
+	return when (reason) {
+		EvaluationsNoAttemptsReason.NoCurrentTerm ->
+			stringResource(Res.string.message_no_subjects_evaluations)
+
+		EvaluationsNoAttemptsReason.EnrollmentUnavailable ->
+			stringResource(Res.string.message_enrollment_unavailable_evaluations)
 	}
 }

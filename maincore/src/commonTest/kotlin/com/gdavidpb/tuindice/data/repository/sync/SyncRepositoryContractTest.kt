@@ -16,15 +16,19 @@ import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import com.gdavidpb.tuindice.testkit.ktor.serverResponseException
 import io.ktor.http.HttpStatusCode
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
@@ -35,8 +39,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import kotlin.test.assertFalse
-import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SyncRepositoryContractTest {
@@ -135,7 +137,7 @@ class SyncRepositoryContractTest {
 	}
 
 	@Test
-	fun observeSyncInProgress_emitsTrueOnlyWhileRemoteSyncIsRunning() = runTest {
+	fun observeSyncInProgress_emitsTrueUntilSyncPipelineCompletes() = runTest {
 		val remoteDataSource = FakeSyncRemoteDataSource(blockUntilCompleted = true)
 		val repository = createRepository(
 			settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false),
@@ -159,6 +161,41 @@ class SyncRepositoryContractTest {
 		advanceUntilIdle()
 
 		assertEquals(false, repository.observeSyncInProgress().first())
+	}
+
+	@Test
+	fun scheduleSync_cancelsActiveWorkWhenSessionScopeIsCancelled() = runTest {
+		val dispatcher = StandardTestDispatcher(testScheduler)
+		val sessionCoroutineScope = testSessionCoroutineScope(dispatcher)
+		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val remoteDataSource = FakeSyncRemoteDataSource(blockUntilCompleted = true)
+		val recordLocalDataSource = FakeAcademicRecordLocalDataRepository()
+		val userLocalDataSource = FakeUserLocalDataRepository()
+		val repository = createRepository(
+			settingsDataSource = settingsDataSource,
+			syncStatusRepository = syncStatusRepository,
+			remoteDataSource = remoteDataSource,
+			recordLocalDataSource = recordLocalDataSource,
+			userLocalDataSource = userLocalDataSource,
+			dispatcher = dispatcher,
+			coroutineScope = sessionCoroutineScope
+		)
+
+		repository.scheduleSync(password = "stored-secret", policy = SyncPolicy.RespectCooldown)
+		advanceUntilIdle()
+
+		assertEquals(true, repository.observeSyncInProgress().first())
+
+		sessionCoroutineScope.cancelActiveWork()
+		advanceUntilIdle()
+
+		assertEquals(true, remoteDataSource.syncCancelled)
+		assertEquals(false, repository.observeSyncInProgress().first())
+		assertEquals(emptyList(), recordLocalDataSource.savedRecords)
+		assertEquals(emptyList(), userLocalDataSource.updatedUsers)
+		assertEquals(false, settingsDataSource.cooldownMarked)
+		assertEquals(SyncStatus.Healthy, syncStatusRepository.getSyncStatus())
 	}
 
 	@Test
@@ -515,7 +552,8 @@ class SyncRepositoryContractTest {
 		remoteDataSource: SyncRemoteDataRepository,
 		recordLocalDataSource: FakeAcademicRecordLocalDataRepository = FakeAcademicRecordLocalDataRepository(),
 		userLocalDataSource: FakeUserLocalDataRepository = FakeUserLocalDataRepository(),
-		dispatcher: CoroutineDispatcher
+		dispatcher: CoroutineDispatcher,
+		coroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + dispatcher)
 	): SyncDataSource {
 		return SyncDataSource(
 			settingsDataSource = settingsDataSource,
@@ -523,7 +561,7 @@ class SyncRepositoryContractTest {
 			remoteDataSource = remoteDataSource,
 			recordLocalDataSource = recordLocalDataSource,
 			userLocalDataSource = userLocalDataSource,
-			syncDispatcher = dispatcher
+			coroutineScope = coroutineScope
 		)
 	}
 }
@@ -646,6 +684,7 @@ private class FakeSyncRemoteDataSource(
 ) : SyncRemoteDataRepository {
 	private val releaseSync = CompletableDeferred<Unit>()
 	var onSyncStarted: suspend () -> Unit = {}
+	var syncCancelled = false
 	val syncPasswords = mutableListOf<String>()
 
 	override suspend fun sync(password: String): SyncResult {
@@ -653,8 +692,13 @@ private class FakeSyncRemoteDataSource(
 		events += "sync"
 		onSyncStarted()
 
-		if (blockUntilCompleted) {
-			releaseSync.await()
+		try {
+			if (blockUntilCompleted) {
+				releaseSync.await()
+			}
+		} catch (throwable: CancellationException) {
+			syncCancelled = true
+			throw throwable
 		}
 
 		throwable?.let { throw it }

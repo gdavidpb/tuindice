@@ -66,11 +66,15 @@ class AcademicRecordDataSource(
 	}
 
 	override suspend fun updateAcademicRecord() {
+		updateAcademicRecord(forceRemote = false)
+	}
+
+	override suspend fun updateAcademicRecord(forceRemote: Boolean) {
 		val isOnCooldown = settingsDataSource.isGetAcademicRecordOnCooldown()
 		val hasUsableLocalRecord = localDataSource.hasAcademicRecord() &&
 				localDataSource.observeHasSyncedRecordFlow().first()
 
-		if (!isOnCooldown || !hasUsableLocalRecord) {
+		if (forceRemote || !isOnCooldown || !hasUsableLocalRecord) {
 			val snapshotVersion = mutationEngine.currentMutationVersion()
 			val remoteRecord = remoteDataSource.getAcademicRecord()
 			if (snapshotVersion == mutationEngine.currentMutationVersion()) {

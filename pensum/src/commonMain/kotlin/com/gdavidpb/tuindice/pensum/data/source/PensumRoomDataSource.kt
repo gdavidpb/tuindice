@@ -73,13 +73,14 @@ class PensumRoomDataSource(
 
 	override suspend fun getSelectionParams(): PensumSelectionParams {
 		val selection = pensumSelectionDao.getSelection() ?: return PensumSelectionParams()
+		if (selection.inferred) return PensumSelectionParams()
 		return PensumSelectionParams(
 			year = selection.year,
 			modalityId = selection.modalityId
 		)
 	}
 
-	override suspend fun savePensumResponse(response: GetPensumResponse) {
+	override suspend fun savePensumResponse(response: GetPensumResponse, inferredSelection: Boolean) {
 		writeMutex.withLock {
 			transactionRunner.immediate {
 				val cacheKey = response.cacheKey()
@@ -95,6 +96,7 @@ class PensumRoomDataSource(
 						id = PensumSelectionTable.DEFAULT_ID,
 						year = selectedPensum.year,
 						modalityId = selectedPensum.modalityId,
+						inferred = inferredSelection,
 						cacheKey = cacheKey,
 						updatedAt = now
 					)
@@ -110,6 +112,7 @@ class PensumRoomDataSource(
 					id = PensumSelectionTable.DEFAULT_ID,
 					year = year,
 					modalityId = null,
+					inferred = false,
 					cacheKey = null,
 					updatedAt = currentTimeMillis()
 				)
@@ -129,6 +132,7 @@ class PensumRoomDataSource(
 			pensumSelectionDao.upsertEntity(
 				currentSelection.copy(
 					modalityId = modalityId,
+					inferred = false,
 					cacheKey = cacheKey,
 					updatedAt = currentTimeMillis()
 				)
@@ -147,6 +151,7 @@ class PensumRoomDataSource(
 					id = PensumSelectionTable.DEFAULT_ID,
 					year = year,
 					modalityId = modalityId,
+					inferred = false,
 					cacheKey = cacheKey,
 					updatedAt = currentTimeMillis()
 				)

@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
@@ -37,13 +38,17 @@ object Evaluations {
 
 		data object Empty : State()
 
-		data object NoAttempts : State()
+		data class NoAttempts(
+			val reason: EvaluationsNoAttemptsReason
+		) : State()
 
 		data object Failed : State()
 	}
 
 	sealed class Action : ViewAction {
 		data object LoadEvaluations : Action()
+
+		data object EnsureEvaluationsLoaded : Action()
 
 		data object RefreshEvaluations : Action()
 

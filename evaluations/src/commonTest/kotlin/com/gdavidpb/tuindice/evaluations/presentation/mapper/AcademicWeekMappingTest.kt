@@ -25,6 +25,18 @@ class AcademicWeekMappingTest {
 			LocalDate(2026, 9, 1),
 			DEFAULT_EVALUATION_TERM.copy(periodCode = AcademicTermPeriod.SEP_DEC).academicTermStartDate()
 		)
+		assertEquals(
+			LocalDate(2026, 7, 1),
+			DEFAULT_EVALUATION_TERM.copy(periodCode = AcademicTermPeriod.JUL_DEC).academicTermStartDate()
+		)
+		assertEquals(
+			LocalDate(2026, 4, 1),
+			DEFAULT_EVALUATION_TERM.copy(periodCode = AcademicTermPeriod.APR_SEP).academicTermStartDate()
+		)
+		assertEquals(
+			LocalDate(2026, 1, 1),
+			DEFAULT_EVALUATION_TERM.copy(periodCode = AcademicTermPeriod.JAN_MAY).academicTermStartDate()
+		)
 	}
 
 	@Test

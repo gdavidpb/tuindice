@@ -2,7 +2,7 @@ appId: com.gdavidpb.tuindice.debug
 ---
 - extendedWaitUntil:
     visible:
-      id: wizard_welcome_screen|summary_content_container|auth_update_password_idle_container
+      id: summary_content_container|auth_update_password_idle_container
     timeout: 30000
 - runFlow:
     when:
@@ -17,15 +17,15 @@ appId: com.gdavidpb.tuindice.debug
           timeout: 10000
 - extendedWaitUntil:
     visible:
-      id: wizard_welcome_screen|summary_content_container
+      id: summary_content_container
     timeout: 30000
 - runFlow:
     when:
       visible:
-        id: wizard_welcome_screen
+        id: coachmark_bubble
     commands:
       - tapOn:
-          id: wizard_skip_button
+          id: coachmark_confirm
 - extendedWaitUntil:
     visible:
       id: summary_content_container

@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
@@ -20,6 +21,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepo
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
@@ -38,11 +40,16 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.awaitCancellation
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.async
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlinx.serialization.Serializable
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class KtorClientTest {
 	@Test
 	fun createSharedJson_ignoresUnknownTopLevelFields() {
@@ -213,14 +220,26 @@ class KtorClientTest {
 		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
 		val applicationRepository = RecordingApplicationRepository()
 		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+		val sessionCoroutineScope = testSessionCoroutineScope(UnconfinedTestDispatcher(testScheduler))
+		var activeSessionWorkCancelled = false
+		val activeSessionWork = sessionCoroutineScope.launch {
+			try {
+				awaitCancellation()
+			} finally {
+				activeSessionWorkCancelled = true
+			}
+		}
 
 		sessionRecoveryDataSource(
 			sessionRepository = sessionRepository,
 			syncStatusRepository = syncStatusRepository,
 			applicationRepository = applicationRepository,
-			sessionInvalidationRepository = sessionInvalidationRepository
+			sessionInvalidationRepository = sessionInvalidationRepository,
+			sessionCoroutineScope = sessionCoroutineScope
 		).invalidateSession()
 
+		assertTrue(activeSessionWork.isCancelled)
+		assertTrue(activeSessionWorkCancelled)
 		assertTrue(sessionRepository.cleared)
 		assertEquals(1, syncStatusRepository.resetCalls)
 		assertEquals(SyncStatus.Healthy, syncStatusRepository.getSyncStatus())
@@ -708,7 +727,8 @@ private fun sessionRecoveryDataSource(
 	syncStatusRepository: FakeSyncStatusRepository = FakeSyncStatusRepository(),
 	attestationRepository: AttestationRepository = ErrorAttestationRepository,
 	authRepository: AuthRepository = ErrorAuthRepository,
-	credentialsRepository: CredentialsRepository = FakeCredentialsRepository()
+	credentialsRepository: CredentialsRepository = FakeCredentialsRepository(),
+	sessionCoroutineScope: SessionCoroutineScope = testSessionCoroutineScope()
 ): SessionRecoveryDataSource {
 	return SessionRecoveryDataSource(
 		sessionRepository = sessionRepository,
@@ -717,7 +737,8 @@ private fun sessionRecoveryDataSource(
 		syncStatusRepository = syncStatusRepository,
 		attestationRepository = attestationRepository,
 		authRepository = authRepository,
-		credentialsRepository = credentialsRepository
+		credentialsRepository = credentialsRepository,
+		sessionCoroutineScope = sessionCoroutineScope
 	)
 }
 

@@ -7,11 +7,18 @@ sealed interface GetEvaluations {
 
 	data object RecordDataUnavailable : GetEvaluations
 
-	data object NoAttempts : GetEvaluations
+	data class NoAttempts(
+		val reason: EvaluationsNoAttemptsReason
+	) : GetEvaluations
 
 	data class Content(
 		val evaluations: List<Evaluation>,
 		val hasSyncedEvaluations: Boolean,
 		val displayContext: EvaluationDisplayContext
 	) : GetEvaluations
+}
+
+enum class EvaluationsNoAttemptsReason {
+	NoCurrentTerm,
+	EnrollmentUnavailable
 }

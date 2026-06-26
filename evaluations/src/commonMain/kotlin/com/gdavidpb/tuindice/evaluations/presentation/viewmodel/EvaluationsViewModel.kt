@@ -21,6 +21,9 @@ class EvaluationsViewModel(
 	fun loadEvaluationsAction() =
 		sendAction(Evaluations.Action.LoadEvaluations)
 
+	fun ensureEvaluationsLoadedAction() =
+		sendAction(Evaluations.Action.EnsureEvaluationsLoaded)
+
 	fun refreshEvaluationsAction() =
 		sendAction(Evaluations.Action.RefreshEvaluations)
 

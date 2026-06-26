@@ -24,6 +24,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsRefreshResult
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
@@ -56,21 +57,26 @@ class EvaluationDataSource(
 
 	override suspend fun observeEvaluationsSnapshotFlow(): Flow<ObservedSyncedSnapshot<List<Evaluation>>> {
 		return databaseDataSource.observeEvaluationsSnapshotFlow()
-			.map { snapshot ->
-				ObservedSyncedSnapshot(
-					value = snapshot.evaluations.map { evaluation -> evaluation.toEvaluation() },
-					hasSynced = snapshot.hasSynced
-				)
-			}
+			.map { snapshot -> snapshot.toObservedSyncedSnapshot() }
 	}
 
-	override suspend fun updateEvaluations() {
+	override suspend fun getEvaluationsSnapshot(): ObservedSyncedSnapshot<List<Evaluation>> {
+		return databaseDataSource.getEvaluationsSnapshot().toObservedSyncedSnapshot()
+	}
+
+	override suspend fun updateEvaluations(): EvaluationsRefreshResult {
+		return updateEvaluations(forceRemote = false)
+	}
+
+	override suspend fun updateEvaluations(forceRemote: Boolean): EvaluationsRefreshResult {
 		val isOnCooldown = settingsDataSource.isGetEvaluationsOnCooldown()
 		val hasSyncedEvaluations = databaseDataSource.observeHasSyncedEvaluationsFlow().first()
+		var fetchedSnapshot: RemoteEvaluationsSnapshot? = null
 
-		if (!isOnCooldown || !hasSyncedEvaluations) {
+		if (forceRemote || !isOnCooldown || !hasSyncedEvaluations) {
 			val snapshotVersion = mutationEngine.currentMutationVersion()
 			val remoteSnapshot = evaluationsApiDataSource.getEvaluations()
+			fetchedSnapshot = remoteSnapshot
 			if (snapshotVersion == mutationEngine.currentMutationVersion()) {
 				databaseDataSource.saveConfirmedSnapshot(remoteSnapshot.toLocalSnapshot())
 				settingsDataSource.setGetEvaluationsOnCooldown()
@@ -81,6 +87,13 @@ class EvaluationDataSource(
 			scopeKey = EVALUATIONS_MUTATION_SCOPE,
 			syncSpec = mutationSyncSpec,
 			propagateTerminalErrors = false
+		)
+
+		val visibleSnapshot = databaseDataSource.getEvaluationsSnapshot()
+		return EvaluationsRefreshResult(
+			hasEvaluations = fetchedSnapshot?.evaluations?.isNotEmpty() == true ||
+					visibleSnapshot.evaluations.isNotEmpty(),
+			hasAvailableAttempts = databaseDataSource.getAvailableAttempts().isNotEmpty()
 		)
 	}
 
@@ -185,6 +198,13 @@ class EvaluationDataSource(
 
 	override suspend fun getCurrentTerm() =
 		databaseDataSource.getCurrentTerm()?.toEvaluationTermDescriptor()
+
+	private fun LocalEvaluationsSnapshot.toObservedSyncedSnapshot(): ObservedSyncedSnapshot<List<Evaluation>> {
+		return ObservedSyncedSnapshot(
+			value = evaluations.map { evaluation -> evaluation.toEvaluation() },
+			hasSynced = hasSynced
+		)
+	}
 
 	private suspend fun refreshRemoteSnapshot(): RemoteEvaluationsSnapshot {
 		val snapshotVersion = mutationEngine.currentMutationVersion()

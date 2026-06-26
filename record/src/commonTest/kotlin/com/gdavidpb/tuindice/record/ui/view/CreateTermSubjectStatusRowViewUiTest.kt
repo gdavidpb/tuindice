@@ -16,11 +16,11 @@ import kotlin.test.Test
 @OptIn(ExperimentalTestApi::class)
 class CreateTermSubjectStatusRowViewUiTest {
 	@Test
-	fun when_alreadyTakenStatusClicked_then_showsTermTooltip() = runTuIndiceUiTest {
+	fun when_approvedStatusClicked_then_showsTermTooltip() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			CreateTermSubjectStatusRow(
 				subject = subject(
-					availability = SyntheticTermSubjectAvailability.ALREADY_TAKEN,
+					availability = SyntheticTermSubjectAvailability.APPROVED,
 					detail = SyntheticTermSubjectAvailabilityDetail(
 						termLabel = "Ene - Mar 2025"
 					)
@@ -33,6 +33,26 @@ class CreateTermSubjectStatusRowViewUiTest {
 		onNodeWithText("Aprobada").performClick()
 
 		onNodeWithText("Cursada en Ene - Mar 2025").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_currentStatusClicked_then_showsTermTooltip() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateTermSubjectStatusRow(
+				subject = subject(
+					availability = SyntheticTermSubjectAvailability.CURRENT,
+					detail = SyntheticTermSubjectAvailabilityDetail(
+						termLabel = "Abr - Jul 2026"
+					)
+				),
+				availableText = "Disponible",
+				availableIcon = CreateTermSubjectStatusIcon.Dot
+			)
+		}
+
+		onNodeWithText("En curso").performClick()
+
+		onNodeWithText("En curso en Abr - Jul 2026").assertIsDisplayed()
 	}
 
 	@Test
@@ -56,11 +76,11 @@ class CreateTermSubjectStatusRowViewUiTest {
 	}
 
 	@Test
-	fun when_unavailableStatusClicked_then_showsMissingRequirementCodesTooltip() = runTuIndiceUiTest {
+	fun when_blockedStatusClicked_then_showsMissingRequirementCodesTooltip() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			CreateTermSubjectStatusRow(
 				subject = subject(
-					availability = SyntheticTermSubjectAvailability.UNAVAILABLE,
+					availability = SyntheticTermSubjectAvailability.BLOCKED,
 					detail = SyntheticTermSubjectAvailabilityDetail(
 						missingSubjectCodes = listOf("EP1308", "EP5855")
 					)

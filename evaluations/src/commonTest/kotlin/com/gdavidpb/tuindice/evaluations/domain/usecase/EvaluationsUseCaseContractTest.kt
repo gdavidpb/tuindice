@@ -2,7 +2,9 @@ package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
+import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.GetEvaluationParams
 import com.gdavidpb.tuindice.evaluations.testing.*
@@ -37,6 +39,7 @@ class EvaluationsUseCaseContractTest {
 				)
 			),
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+			syncStatusRepository = RecordingSyncStatusRepository(),
 			reportingRepository = RecordingReportingRepository()
 		)
 
@@ -60,13 +63,41 @@ class EvaluationsUseCaseContractTest {
 				availableSubjects = emptyList()
 			),
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+			syncStatusRepository = RecordingSyncStatusRepository(),
 			reportingRepository = reportingRepository
 		)
 
 		useCase.execute(Unit).test {
-			assertEquals(GetEvaluations.NoAttempts, awaitLoadingThenData(this))
+			assertEquals(
+				GetEvaluations.NoAttempts(EvaluationsNoAttemptsReason.NoCurrentTerm),
+				awaitLoadingThenData(this)
+			)
 			assertTrue(reportingRepository.exceptions.isEmpty())
-			awaitComplete()
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	@Test
+	fun getEvaluationsUseCase_returnsEnrollmentUnavailableNoAttemptsState_whenEnrollmentSyncFailed() = runTest {
+		val useCase = GetEvaluationsUseCase(
+			evaluationRepository = RecordingEvaluationRepository(
+				evaluationsFlow = flowOf(emptyList()),
+				initialEvaluations = emptyList(),
+				availableSubjects = emptyList()
+			),
+			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+			syncStatusRepository = RecordingSyncStatusRepository(
+				initialReport = SyncReport.partialEnrollmentUnavailable()
+			),
+			reportingRepository = RecordingReportingRepository()
+		)
+
+		useCase.execute(Unit).test {
+			assertEquals(
+				GetEvaluations.NoAttempts(EvaluationsNoAttemptsReason.EnrollmentUnavailable),
+				awaitLoadingThenData(this)
+			)
+			cancelAndIgnoreRemainingEvents()
 		}
 	}
 
@@ -81,6 +112,7 @@ class EvaluationsUseCaseContractTest {
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(
 				states = flowOf(RecordDataPrerequisiteState(isReady = false, hasFailed = false))
 			),
+			syncStatusRepository = RecordingSyncStatusRepository(),
 			reportingRepository = RecordingReportingRepository()
 		)
 
@@ -97,6 +129,7 @@ class EvaluationsUseCaseContractTest {
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(
 				states = flowOf(RecordDataPrerequisiteState(isReady = false, hasFailed = true))
 			),
+			syncStatusRepository = RecordingSyncStatusRepository(),
 			reportingRepository = RecordingReportingRepository()
 		)
 

@@ -154,7 +154,7 @@ class SubjectsStateMachineContractTest {
 				SubjectDetailInternalEvent.DetailLoadFailed(subjectCode = "CI2125"),
 				SubjectDetailInternalEvent.DetailRefreshFailed(subjectCode = "CI2125")
 			),
-			scope = backgroundScope,
+			coroutineScope = backgroundScope,
 			// Conservative floor: every internal event is sampled by hand; raise to the
 			// observed coverage once the walk has run on CI.
 			minRowCoverage = 0.4
@@ -195,7 +195,7 @@ class SubjectsStateMachineContractTest {
 				SubjectSearchInternalEvent.RetryStarted,
 				SubjectSearchInternalEvent.RetryCleared
 			),
-			scope = backgroundScope,
+			coroutineScope = backgroundScope,
 			// Conservative floor: single state class, so every row resolves from these
 			// samples; raise to the observed coverage once the walk has run on CI.
 			minRowCoverage = 0.5

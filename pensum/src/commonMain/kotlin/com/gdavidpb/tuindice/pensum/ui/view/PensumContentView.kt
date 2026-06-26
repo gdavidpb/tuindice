@@ -36,6 +36,8 @@ fun PensumContentView(
 	isRefreshing: Boolean,
 	localDataMessage: UiText?,
 	showSelectionSheet: Boolean,
+	isSummaryCollapsed: Boolean,
+	onSummaryCollapsedToggle: () -> Unit,
 	onSelectionSheetDismiss: () -> Unit,
 	onSubjectStatsClick: (subjectCode: String) -> Unit,
 	onSelectionApplied: (PensumOptionItem, PensumModalityItem) -> Unit,
@@ -113,6 +115,8 @@ fun PensumContentView(
 	) {
 		PensumSummaryRow(
 			model = model,
+			isCollapsed = isSummaryCollapsed,
+			onSummaryClick = onSummaryCollapsedToggle,
 			onPensumContextClick = {
 				clearSubjectContext()
 				onPensumContextClick()

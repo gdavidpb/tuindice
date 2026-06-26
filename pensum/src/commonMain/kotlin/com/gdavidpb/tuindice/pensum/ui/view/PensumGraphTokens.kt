@@ -110,6 +110,7 @@ internal val CanvasFocusPadding = 64.dp
 internal val CanvasSnapDistance = 26.dp
 internal val CanvasSnapViewportInset = 18.dp
 internal val CanvasBottomOverlayPadding = 88.dp
+internal val CanvasLegendOverlaySpacing = 64.dp
 internal val MinimapWidth = 156.dp
 internal val MinimapHeight = 104.dp
 internal val StickyTermHeaderHeight = 38.dp

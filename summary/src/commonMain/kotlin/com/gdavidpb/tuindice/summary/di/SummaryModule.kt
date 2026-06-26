@@ -1,15 +1,12 @@
 package com.gdavidpb.tuindice.summary.di
 
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
-import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
-import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataRepository
-import com.gdavidpb.tuindice.summary.data.source.UserDataSource
-import com.gdavidpb.tuindice.summary.data.source.FileKitSkiaPictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.data.source.LocalSettingsDataSource
 import com.gdavidpb.tuindice.summary.data.source.RoomDataSource
 import com.gdavidpb.tuindice.summary.data.source.SummaryApiDataSource
+import com.gdavidpb.tuindice.summary.data.source.UserDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
@@ -51,8 +48,6 @@ val summaryModule = module {
 	factoryOf(::RoomDataSource) { bind<LocalDataRepository>() }
 	factoryOf(::SummaryApiDataSource) { bind<RemoteDataRepository>() }
 	singleOf(::LocalSettingsDataSource) { bind<SettingsDataRepository>() }
-	// Platform-specific binding for ProfilePictureInputDataRepository comes from platform modules.
-	factoryOf(::FileKitSkiaPictureEncoderDataSource) { bind<PictureEncoderDataRepository>() }
 
 	/* Exception handlers */
 

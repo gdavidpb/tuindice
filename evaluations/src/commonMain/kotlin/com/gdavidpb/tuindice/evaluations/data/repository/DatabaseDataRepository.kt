@@ -11,6 +11,7 @@ interface DatabaseDataRepository {
 	fun observeHasSyncedEvaluationsFlow(): Flow<Boolean>
 	fun observeEvaluationsSnapshotFlow(): Flow<LocalEvaluationsSnapshot>
 	suspend fun getEvaluation(eid: String): LocalEvaluation?
+	suspend fun getEvaluationsSnapshot(): LocalEvaluationsSnapshot
 	suspend fun getConfirmedSnapshot(): LocalEvaluationsSnapshot
 	suspend fun getAvailableAttempts(): List<LocalEditableAttemptDescriptor>
 	suspend fun getCurrentTerm(): LocalCurrentTermDescriptor?

@@ -15,7 +15,7 @@
 	<string name="pensum_failed_retry">Reintentar</string>
 	<string name="pensum_selector_placeholder">Pensum</string>
 	<string name="pensum_modality_placeholder">Modalidad</string>
-	<string name="pensum_progress_label">avance</string>
+	<string name="pensum_progress_label">Avance</string>
 	<string name="pensum_summary_pensum_label">Pensum</string>
 	<string name="pensum_refreshing_indicator">Actualizando pensum</string>
 	<string name="pensum_local_data_warning_network">Sin conexión. Mostramos la información guardada en este dispositivo.</string>

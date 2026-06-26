@@ -3,6 +3,7 @@ name: TuIndice auth E2E suite
 ---
 - runFlow: ../auth/login-password-toggle.yaml
 - runFlow: ../auth/login-usb-email-success.yaml
+- runFlow: ../auth/login-usb-email-usbid-success.yaml
 - runFlow: ../auth/usage-data-consent.yaml
 - runFlow: ../auth/terms-privacy-from-login.yaml
 - runFlow: ../auth/login-invalid.yaml
@@ -17,5 +18,5 @@ name: TuIndice auth E2E suite
 - runFlow: ../auth/pending-sign-out-flush-success.yaml
 - runFlow: ../_shared/launch-clean.yaml
 - runFlow: ../auth/login-success.yaml
-- runFlow: ../wizard/wizard-smoke.yaml
+- runFlow: ../_shared/continue-to-summary-after-auth.yaml
 - runFlow: ../auth/sign-out.yaml

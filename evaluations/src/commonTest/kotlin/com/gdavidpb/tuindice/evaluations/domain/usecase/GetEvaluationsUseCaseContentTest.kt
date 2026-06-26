@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.ReadyRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.evaluations.testing.RecordingSyncStatusRepository
 import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenError
@@ -33,6 +34,7 @@ class GetEvaluationsUseCaseContentTest {
 				hasSyncedEvaluationsFlow = flowOf(false)
 			),
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+			syncStatusRepository = RecordingSyncStatusRepository(),
 			reportingRepository = RecordingReportingRepository()
 		)
 
@@ -56,6 +58,7 @@ class GetEvaluationsUseCaseContentTest {
 				currentTerm = DEFAULT_EVALUATION_TERM
 			),
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+			syncStatusRepository = RecordingSyncStatusRepository(),
 			reportingRepository = RecordingReportingRepository()
 		)
 
@@ -108,6 +111,7 @@ class GetEvaluationsUseCaseContentTest {
 				)
 			),
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+			syncStatusRepository = RecordingSyncStatusRepository(),
 			reportingRepository = RecordingReportingRepository()
 		)
 
@@ -130,6 +134,7 @@ class GetEvaluationsUseCaseContentTest {
 				availableAttemptsThrowable = throwable
 			),
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+			syncStatusRepository = RecordingSyncStatusRepository(),
 			reportingRepository = reportingRepository
 		)
 

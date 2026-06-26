@@ -18,10 +18,13 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadBand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadBasis
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadConfidence
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadDetail
+import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class AcademicRecordCoreMapperTest {
+	private val json = Json { ignoreUnknownKeys = true }
+
 	@Test
 	fun toVersionedAcademicRecord_preservesRevisionAndRecordPayload() {
 		val record = AcademicRecord(
@@ -70,6 +73,57 @@ class AcademicRecordCoreMapperTest {
 
 		assertEquals(12L, versioned.revision)
 		assertEquals(record, versioned.record)
+	}
+
+	@Test
+	fun academicRecordResponse_decodesLongAcademicTermPeriods() {
+		val response = json.decodeFromString<AcademicRecordResponse>(
+			"""
+			{
+			  "revision": 1,
+			  "record": {
+			    "id": "u1",
+			    "terms": [
+			      {
+			        "id": "term-apr-sep",
+			        "period_year": 2012,
+			        "period_code": "APR_SEP",
+			        "term_kind": "historical",
+			        "attempts": [],
+			        "term_key": "2012-APR_SEP",
+			        "term_order": 20125,
+			        "period_label": "Abril - Septiembre 2012"
+			      },
+			      {
+			        "id": "term-jul-dec",
+			        "period_year": 2026,
+			        "period_code": "JUL_DEC",
+			        "term_kind": "historical",
+			        "attempts": [],
+			        "term_key": "2026-JUL_DEC",
+			        "term_order": 20267,
+			        "period_label": "Julio - Diciembre 2026"
+			      },
+			      {
+			        "id": "term-jan-may",
+			        "period_year": 2025,
+			        "period_code": "JAN_MAY",
+			        "term_kind": "historical",
+			        "attempts": [],
+			        "term_key": "2025-JAN_MAY",
+			        "term_order": 20252,
+			        "period_label": "Enero - Mayo 2025"
+			      }
+			    ]
+			  }
+			}
+			""".trimIndent()
+		)
+
+		assertEquals(
+			listOf(AcademicTermPeriod.APR_SEP, AcademicTermPeriod.JUL_DEC, AcademicTermPeriod.JAN_MAY),
+			response.record.terms.map(AcademicTerm::periodCode)
+		)
 	}
 
 	@Test

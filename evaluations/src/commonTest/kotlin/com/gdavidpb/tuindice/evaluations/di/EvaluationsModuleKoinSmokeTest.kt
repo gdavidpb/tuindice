@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
@@ -14,6 +15,7 @@ import com.gdavidpb.tuindice.evaluations.testing.FakeIdentifierRepository
 import com.gdavidpb.tuindice.evaluations.testing.ReadyRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.evaluations.testing.RecordingSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
 import kotlin.test.Test
@@ -27,6 +29,7 @@ class EvaluationsModuleKoinSmokeTest {
 			single<EvaluationRepository> { RecordingEvaluationRepository() }
 			single<IdentifierRepository> { FakeIdentifierRepository() }
 			single<RecordDataPrerequisiteRepository> { ReadyRecordDataPrerequisiteRepository() }
+			single<SyncStatusRepository> { RecordingSyncStatusRepository() }
 			single<ReportingRepository> { RecordingReportingRepository() }
 			single<EventPublisher> { NoOpEventPublisher }
 			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }

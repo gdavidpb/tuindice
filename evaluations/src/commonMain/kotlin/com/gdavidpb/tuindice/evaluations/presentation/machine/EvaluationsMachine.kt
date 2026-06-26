@@ -6,7 +6,9 @@ import com.gdavidpb.tuindice.base.presentation.model.resolveSyncedContentResolut
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsRefreshResult
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
+import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
@@ -24,6 +26,8 @@ import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsAnyS
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsContentTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsEmptyTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsFailedTransitions
+import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsIdleTransitions
+import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsLoadingTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsNoAttemptsTransitions
 import org.jetbrains.compose.resources.getString
 import tuindice.evaluations.generated.resources.Res
@@ -35,6 +39,7 @@ import tuindice.evaluations.generated.resources.snack_evaluation_set_grade
 
 class EvaluationsMachine(
 	private val getEvaluationsUseCase: GetEvaluationsUseCase,
+	private val ensureEvaluationsLoadedUseCase: EnsureEvaluationsLoadedUseCase,
 	private val updateEvaluationsUseCase: UpdateEvaluationsUseCase,
 	private val getEvaluationUseCase: GetEvaluationUseCase,
 	private val updateEvaluationUseCase: UpdateEvaluationUseCase,
@@ -44,6 +49,8 @@ class EvaluationsMachine(
 
 	override fun define(host: MachineHost<Evaluations.Effect>): MachineDefinition<Evaluations.State> {
 		return MachineDefinition.define {
+			evaluationsIdleTransitions()
+			evaluationsLoadingTransitions()
 			evaluationsContentTransitions(machine = this@EvaluationsMachine, host = host)
 			evaluationsEmptyTransitions()
 			evaluationsNoAttemptsTransitions()
@@ -67,8 +74,10 @@ class EvaluationsMachine(
 							EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved
 						)
 
-						GetEvaluations.NoAttempts -> host.processInternalEvent(
-							EvaluationsInternalEvent.EvaluationsNoAttemptsObserved
+						is GetEvaluations.NoAttempts -> host.processInternalEvent(
+							EvaluationsInternalEvent.EvaluationsNoAttemptsObserved(
+								reason = evaluations.reason
+							)
 						)
 
 						is GetEvaluations.Content -> when (
@@ -110,13 +119,51 @@ class EvaluationsMachine(
 						EvaluationsInternalEvent.EvaluationsRefreshStarted
 					)
 
-					is UseCaseState.Data -> Unit
+					is UseCaseState.Data -> processRefreshResult(
+						host = host,
+						refreshResult = useCaseState.value
+					)
 
 					is UseCaseState.Error -> host.processInternalEvent(
 						EvaluationsInternalEvent.EvaluationsRefreshFailed
 					)
 				}
 			}
+		}
+	}
+
+	internal fun ensureLoaded(host: MachineHost<Evaluations.Effect>) {
+		host.launchMachineJob {
+			ensureEvaluationsLoadedUseCase.execute(Unit).collect { useCaseState ->
+				when (useCaseState) {
+					is UseCaseState.Loading -> Unit
+
+					is UseCaseState.Data -> when (val result = useCaseState.value) {
+						EnsureEvaluationsLoadedUseCase.Result.Cached -> Unit
+						EnsureEvaluationsLoadedUseCase.Result.RefreshStarted -> host.processInternalEvent(
+							EvaluationsInternalEvent.EvaluationsRefreshStarted
+						)
+
+						is EnsureEvaluationsLoadedUseCase.Result.RefreshSucceeded -> processRefreshResult(
+							host = host,
+							refreshResult = result.refreshResult
+						)
+					}
+
+					is UseCaseState.Error -> host.processInternalEvent(
+						EvaluationsInternalEvent.EvaluationsRefreshFailed
+					)
+				}
+			}
+		}
+	}
+
+	private suspend fun processRefreshResult(
+		host: MachineHost<Evaluations.Effect>,
+		refreshResult: EvaluationsRefreshResult
+	) {
+		if (!refreshResult.hasEvaluations && refreshResult.hasAvailableAttempts) {
+			host.processInternalEvent(EvaluationsInternalEvent.EvaluationsEmptyConfirmed)
 		}
 	}
 

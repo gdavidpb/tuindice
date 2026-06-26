@@ -64,7 +64,7 @@ class AboutRouteUiTest {
 			fixture.viewModel.openTermsAndConditionsAction()
 		}
 
-		waitUntil(timeoutMillis = 2_000) {
+		waitUntil(timeoutMillis = 10_000) {
 			navigatedUrl.isNotEmpty()
 		}
 

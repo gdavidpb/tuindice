@@ -3,8 +3,6 @@ package com.gdavidpb.tuindice.evaluations.presentation.route
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
@@ -21,9 +19,6 @@ fun EvaluationsRoute(
 	viewModel: EvaluationsViewModel
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
-	val initialRefreshRequested = remember(viewModel) {
-		mutableStateOf(false)
-	}
 
 	CollectEffectWithLifecycle(flow = viewModel.effect) { effect ->
 		when (effect) {
@@ -53,15 +48,8 @@ fun EvaluationsRoute(
 		}
 	}
 
-	LaunchedEffect(viewModel, viewState) {
-		if (
-			initialRefreshRequested.value ||
-			viewState == Evaluations.State.Idle ||
-			viewState == Evaluations.State.Failed
-		) return@LaunchedEffect
-
-		initialRefreshRequested.value = true
-		viewModel.refreshEvaluationsAction()
+	LaunchedEffect(viewModel) {
+		viewModel.ensureEvaluationsLoadedAction()
 	}
 
 	EvaluationsScreen(

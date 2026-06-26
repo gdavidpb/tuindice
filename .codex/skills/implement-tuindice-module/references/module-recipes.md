@@ -44,11 +44,14 @@ If the request does not fit one of those buckets, pause and explain why before i
      - use `base/.../NavigationResult.kt` when the dialog must return an intent to the previous destination and that destination must run a lifecycle-sensitive side effect after the dialog closes
    - when using `NavigationResult`, create a dedicated `@Serializable` result type per flow instead of raw primitives; for sealed results, send them with the base generic type so the writer and collector share the same key
 8. Validate with targeted compilation plus the feature smoke test and the smallest relevant contract/UI tests.
-9. If the feature change affects a user-visible flow, selector, navigation path, or mock-backed state, update local E2E:
+9. If the feature change affects a user-visible flow, presentation `Action`, selector, navigation path, platform hand-off, app startup/reset path, or mock-backed state, update local E2E in the same change:
    - `testkit/e2e/flow-catalog.yaml`
+   - `testkit/e2e/mvi-action-catalog.yaml` when presentation `Action`s are added, removed, renamed, or reclassified
    - `e2e/maestro/flows/<module>/`
+   - affected suite aggregators under `e2e/maestro/flows/suites/`
    - `testkit/e2e/critical-selectors.txt` when selectors are added, renamed, or removed
-   - `mocks/` when the covered backend contract changes
+   - `mocks/`, `testkit/e2e/fixture-contract.env`, and `E2eFixtureContract.kt` when the covered backend contract or fixture state changes
+   - `e2e/platform/android/` or `e2e/platform/ios/` when the edge cannot be verified by Maestro
 
 ## 3. Create A New KMP Feature Module
 
@@ -106,6 +109,13 @@ If the request does not fit one of those buckets, pause and explain why before i
    - do not create per-feature platform modules
 14. Add `<Feature>ModuleKoinSmokeTest.kt` and resolve every public view model or entry point.
 15. Add focused contract or UI tests for non-trivial behavior.
+16. For any user-facing feature, add the initial local E2E artifact set before considering the module complete:
+   - a module entry in `testkit/e2e/flow-catalog.yaml`
+   - user/platform-edge action entries in `testkit/e2e/mvi-action-catalog.yaml`
+   - at least the smoke or primary happy-path Maestro flow under `e2e/maestro/flows/<module>/`
+   - a suite entry under `e2e/maestro/flows/suites/`
+   - stable selectors/test tags and critical selector entries where needed
+   - mock mappings, response bodies, fixture contract values, reset/run script changes, or platform-edge placeholders/tests when the flow depends on them
 
 ## 4. Create Or Modify Shared Infrastructure Modules
 
@@ -158,18 +168,20 @@ Use [e2e.md](e2e.md) as the detailed policy.
 1. Start from `testkit/e2e/flow-catalog.yaml` and identify the affected module flow.
 2. Prefer Maestro flows under `e2e/maestro/flows/<module>/` for app-level behavior.
 3. Use shared helpers from `e2e/maestro/flows/_shared/` for launch/reset/login/navigation instead of repeating setup in every flow.
-4. Keep selectors stable:
+4. Update affected suite aggregators under `e2e/maestro/flows/suites/` whenever adding, removing, renaming, quarantining, or replacing active flows.
+5. Keep selectors stable:
    - add or preserve `Modifier.testTag` for critical controls
    - update `testkit/e2e/critical-selectors.txt` for selectors that must not disappear silently
    - avoid selectors based only on mutable text unless the text itself is the assertion
-5. Keep the local backend deterministic:
+6. Keep the local backend deterministic:
    - use WireMock scenarios and reset scripts for stateful flows
    - update `mocks/mappings/` and `mocks/__files/` when the app-facing HTTP contract changes
-6. Assign edge cases to platform-specific suites only when Maestro cannot observe the result stably:
+   - update `testkit/e2e/fixture-contract.env`, `E2eFixtureContract.kt`, catalog `fixture_state`, and reset/run scripts when fixture values or setup change
+7. Assign edge cases to platform-specific suites only when Maestro cannot observe the result stably:
    - Android Compose internals or intents: Compose/Espresso
    - Android system surfaces: UI Automator
    - iOS host/system surfaces: XCUITest
-7. Validate with `./gradlew verifyE2eContract` first; run platform E2E only when the required local device/simulator and Maestro CLI are available.
+8. Validate with `./gradlew verifyE2eContract` first; run platform E2E only when the required local device/simulator and Maestro CLI are available.
 
 ## 7. Root-Level Files Commonly Forgotten
 
@@ -186,8 +198,15 @@ These files are easy to miss when adding or widening a module:
 - `maincore/.../BottomBarConfig.kt`
 - `maincore/.../TuIndiceScreen.kt`
 - `testkit/e2e/flow-catalog.yaml`
+- `testkit/e2e/mvi-action-catalog.yaml`
 - `testkit/e2e/critical-selectors.txt`
+- `testkit/e2e/fixture-contract.env`
+- `testkit/src/commonMain/kotlin/com/gdavidpb/tuindice/testkit/e2e/E2eFixtureContract.kt`
 - `e2e/maestro/flows/<module>/`
+- `e2e/maestro/flows/suites/`
+- `e2e/platform/android/`
+- `e2e/platform/ios/`
+- `mocks/`
 
 Treat that as a checklist, not a guarantee that every file must change.
 

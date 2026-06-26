@@ -17,7 +17,7 @@ import kotlin.test.fail
  * provided scope (use runTest's backgroundScope so they are cancelled with the test).
  */
 class RecordingMachineHost<E : ViewEffect>(
-	private val scope: CoroutineScope
+	private val coroutineScope: CoroutineScope
 ) : MachineHost<E> {
 	val sentEffects = mutableListOf<E>()
 	val producedInternalEvents = mutableListOf<Any>()
@@ -31,7 +31,7 @@ class RecordingMachineHost<E : ViewEffect>(
 	}
 
 	override fun launchMachineJob(block: suspend CoroutineScope.() -> Unit): Job {
-		return scope.launch { block() }
+		return coroutineScope.launch { block() }
 	}
 }
 
@@ -65,7 +65,7 @@ class MachineWalkReport(
 suspend fun <S : ViewState, E : ViewEffect> assertMachineRandomWalk(
 	screenMachine: ScreenMachine<S, E>,
 	sampleEvents: List<Any>,
-	scope: CoroutineScope,
+	coroutineScope: CoroutineScope,
 	steps: Int = 400,
 	seed: Long = 0x7E57AB1E,
 	feedProducedInternalEvents: Boolean = true,
@@ -73,7 +73,7 @@ suspend fun <S : ViewState, E : ViewEffect> assertMachineRandomWalk(
 ): MachineWalkReport {
 	require(sampleEvents.isNotEmpty()) { "sampleEvents must not be empty" }
 
-	val host = RecordingMachineHost<E>(scope = scope)
+	val host = RecordingMachineHost<E>(coroutineScope = coroutineScope)
 	val machine = screenMachine.define(host = host)
 	val random = Random(seed)
 	val pool = sampleEvents.toMutableList()

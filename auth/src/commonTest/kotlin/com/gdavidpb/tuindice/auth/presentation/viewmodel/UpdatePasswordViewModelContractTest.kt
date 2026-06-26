@@ -119,7 +119,7 @@ class UpdatePasswordViewModelContractTest {
 					message = "No se pudo actualizar"
 				)
 			),
-			scope = backgroundScope,
+			coroutineScope = backgroundScope,
 			// Conservative floor: every internal event is sampled by hand; raise to the
 			// observed coverage once the walk has run on CI.
 			minRowCoverage = 0.4

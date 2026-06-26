@@ -46,7 +46,4 @@ class MainViewModel(
 
 	fun requestSyncAction() =
 		sendAction(Main.Action.RequestSync)
-
-	fun requestWizardStartAction() =
-		sendAction(Main.Action.RequestWizardStart)
 }

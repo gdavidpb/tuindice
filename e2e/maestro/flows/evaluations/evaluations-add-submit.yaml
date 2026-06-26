@@ -2,13 +2,14 @@ appId: com.gdavidpb.tuindice.debug
 ---
 - runFlow: ../_shared/launch-clean.yaml
 - runFlow: ../auth/login-success.yaml
-- runFlow: ../wizard/wizard-smoke.yaml
+- runFlow: ../_shared/continue-to-summary-after-auth.yaml
 - tapOn:
     id: maincore_tuindice_bottom_bar_evaluations_item
 - extendedWaitUntil:
     visible:
       id: evaluations_content_container
     timeout: 30000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - tapOn:
     id: evaluations_add_fab
 - extendedWaitUntil:

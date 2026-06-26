@@ -28,8 +28,6 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationReposit
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
-import com.gdavidpb.tuindice.wizard.data.source.InMemoryWizardStartOverrideDataSource
-import com.gdavidpb.tuindice.wizard.domain.usecase.ShouldStartWizardUseCase
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
@@ -79,12 +77,6 @@ class MainStateMachineContractTest {
 			setLastMainSectionUseCase = SetLastMainSectionUseCase(
 				settingsRepository = settingsRepository,
 				reportingRepository = reportingRepository
-			),
-			shouldStartWizardUseCase = ShouldStartWizardUseCase(
-				settingsRepository = settingsRepository,
-				sessionRepository = sessionRepository,
-				wizardStartOverrideRepository = InMemoryWizardStartOverrideDataSource(),
-				reportingRepository = reportingRepository
 			)
 		)
 
@@ -105,7 +97,6 @@ class MainStateMachineContractTest {
 				),
 				Main.Action.RequestSync,
 				Main.Action.SetLastMainSection(section = MainSection.SUMMARY),
-				Main.Action.RequestWizardStart,
 				MainInternalEvent.StartUpStarting,
 				MainInternalEvent.StartUpCompleted(
 					startDestination = SummaryDestination.NavGraph
@@ -122,10 +113,9 @@ class MainStateMachineContractTest {
 				),
 				MainInternalEvent.StartUpFailed(noServices = false),
 				MainInternalEvent.ReviewRequested,
-				MainInternalEvent.UpdateInfoLoaded(action = UpdateAction.Immediate),
-				MainInternalEvent.WizardStartApproved
+				MainInternalEvent.UpdateInfoLoaded(action = UpdateAction.Immediate)
 			),
-			scope = backgroundScope,
+			coroutineScope = backgroundScope,
 			// Conservative floor: every internal event is sampled by hand; raise to the
 			// observed coverage once the walk has run on CI.
 			minRowCoverage = 0.4
@@ -144,7 +134,7 @@ class MainStateMachineContractTest {
 				Browser.Action.SetLoading(isLoading = false),
 				Browser.Action.OpenExternalResource(url = "https://example.com/resource")
 			),
-			scope = backgroundScope,
+			coroutineScope = backgroundScope,
 			// Conservative floor: all three rows resolve once NavigateTo lands on Content;
 			// raise to the observed coverage once the walk has run on CI.
 			minRowCoverage = 0.5
@@ -177,8 +167,7 @@ class MainStateMachineContractTest {
 			"AppUnavailableResolved",
 			"OutdatedAppResolved",
 			"ReviewRequested / TriggerReviewFlow",
-			"UpdateFlowCompleted / OpenUpdateStoreFallback",
-			"WizardStartApproved / NavigateToWizard"
+			"UpdateFlowCompleted / OpenUpdateStoreFallback"
 		)
 
 		for (fragment in expectedMainFragments) {

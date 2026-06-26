@@ -3,7 +3,7 @@ name: TuIndice record E2E suite
 ---
 - runFlow: ../_shared/launch-clean.yaml
 - runFlow: ../auth/login-success.yaml
-- runFlow: ../wizard/wizard-smoke.yaml
+- runFlow: ../_shared/continue-to-summary-after-auth.yaml
 - runFlow: ../record/record-smoke.yaml
 - runFlow: ../record/record-refresh-retry.yaml
 - runFlow: ../record/record-term-selection.yaml

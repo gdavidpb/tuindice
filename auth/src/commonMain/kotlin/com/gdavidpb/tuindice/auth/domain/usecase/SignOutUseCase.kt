@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.auth.domain.usecase
 
 import com.gdavidpb.tuindice.auth.domain.model.RevokeTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
@@ -23,6 +24,7 @@ class SignOutUseCase(
 	private val sessionInvalidationRepository: SessionInvalidationRepository,
 	private val applicationRepository: ApplicationRepository,
 	private val syncStatusRepository: SyncStatusRepository,
+	private val sessionCoroutineScope: SessionCoroutineScope,
 	override val reportingRepository: ReportingRepository
 ) : FlowUseCase<Unit, Unit, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
@@ -60,6 +62,7 @@ class SignOutUseCase(
 			throw throwable
 		}
 
+		sessionCoroutineScope.cancelActiveWork()
 		sessionRepository.clear()
 		applicationRepository.clearData()
 		syncStatusRepository.reset()

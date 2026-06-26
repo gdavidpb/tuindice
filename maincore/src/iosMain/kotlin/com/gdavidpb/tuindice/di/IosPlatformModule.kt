@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataReposit
 import com.gdavidpb.tuindice.base.data.source.secure.ACTIVE_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.secure.LEGACY_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
+import com.gdavidpb.tuindice.base.domain.coroutine.AppCoroutineScope
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
@@ -50,7 +51,9 @@ import com.gdavidpb.tuindice.platform.IosReviewCapability
 import com.gdavidpb.tuindice.platform.IosSecureStoreCapability
 import com.gdavidpb.tuindice.platform.IosUpdateCapability
 import com.gdavidpb.tuindice.platform.createIosUserAgent
+import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
+import com.gdavidpb.tuindice.summary.data.source.FileKitSkiaPictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.data.source.IosProfilePictureInputDataSource
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.IosBrowserScreenRenderer
@@ -120,7 +123,8 @@ val iosPlatformModule = module {
 				setCollectionEnabledActions = listOf(
 					observabilityCapability::setUsageDataCollectionEnabled,
 					observabilityCapability::setPerformanceCollectionEnabled
-				)
+				),
+				coroutineScope = get<AppCoroutineScope>()
 			)
 		}
 	}
@@ -169,6 +173,7 @@ val iosPlatformModule = module {
 	}
 	factoryOf(::IosShareTextHandler) { bind<ShareTextHandler>() }
 	singleOf(::IosProfilePictureInputDataSource) { bind<ProfilePictureInputDataRepository>() }
+	singleOf(::FileKitSkiaPictureEncoderDataSource) { bind<PictureEncoderDataRepository>() }
 
 	single(named(IDENTITY_HTTP_CLIENT_QUALIFIER)) {
 		createIdentityHttpClient(

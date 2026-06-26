@@ -6,11 +6,14 @@ import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
+import com.gdavidpb.tuindice.pensum.domain.repository.PensumSettingsRepository
 import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
+import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumSummaryCollapsedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumUseCase
+import com.gdavidpb.tuindice.pensum.domain.usecase.SetPensumSummaryCollapsedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.UpdatePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.exceptionhandler.UpdatePensumExceptionHandler
 import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
@@ -27,6 +30,7 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -57,6 +61,73 @@ class PensumViewModelContractTest {
 				assertEquals("Ingenieria de Computacion", content.model.careerName)
 				assertEquals(false, content.isRefreshing)
 				assertEquals(null, content.localDataMessage)
+				assertEquals(false, content.isSummaryCollapsed)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun observedContent_usesPersistedSummaryCollapsedState() = runTest {
+		val fixture = createFixture()
+		val viewModel = fixture.viewModel
+		fixture.settingsRepository.setSummaryCollapsed(true)
+
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				assertEquals(Pensum.State.Idle, awaitItem())
+
+				fixture.repository.emit(PensumObservation.Content(sampleObservedPensum()))
+				val content = awaitUntilState<Pensum.State.Content> { true }
+				assertEquals(true, content.isSummaryCollapsed)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun toggleSummaryCollapsed_updatesContentAndPersistsPreference() = runTest {
+		val fixture = createFixture()
+		val viewModel = fixture.viewModel
+
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				assertEquals(Pensum.State.Idle, awaitItem())
+
+				fixture.repository.emit(PensumObservation.Content(sampleObservedPensum()))
+				awaitUntilState<Pensum.State.Content> { true }
+
+				viewModel.toggleSummaryCollapsedAction()
+				val collapsed = awaitUntilState<Pensum.State.Content> { state ->
+					state.isSummaryCollapsed
+				}
+				assertEquals(true, collapsed.isSummaryCollapsed)
+				assertEquals(true, fixture.settingsRepository.awaitSummaryCollapsedCall())
+
+				viewModel.toggleSummaryCollapsedAction()
+				val expanded = awaitUntilState<Pensum.State.Content> { state ->
+					!state.isSummaryCollapsed
+				}
+				assertEquals(false, expanded.isSummaryCollapsed)
+				assertEquals(false, fixture.settingsRepository.awaitSummaryCollapsedCall())
 
 				cancelAndIgnoreRemainingEvents()
 			}
@@ -423,6 +494,7 @@ class PensumViewModelContractTest {
 		dispatchers: TuIndiceDispatchers = TestTuIndiceDispatchers(Dispatchers.Unconfined)
 	): PensumFixture {
 		val repository = ControllablePensumRepository()
+		val settingsRepository = ControllablePensumSettingsRepository()
 		val reportingRepository = RecordingReportingRepository()
 		val exceptionHandler = UpdatePensumExceptionHandler(
 			networkRepository = FakeNetworkRepository(isAvailable = isNetworkAvailable)
@@ -432,6 +504,10 @@ class PensumViewModelContractTest {
 			screenMachine = PensumMachine(
 				observePensumUseCase = ObservePensumUseCase(
 					pensumRepository = repository,
+					reportingRepository = reportingRepository
+				),
+				observePensumSummaryCollapsedUseCase = ObservePensumSummaryCollapsedUseCase(
+					pensumSettingsRepository = settingsRepository,
 					reportingRepository = reportingRepository
 				),
 				ensurePensumLoadedUseCase = EnsurePensumLoadedUseCase(
@@ -458,6 +534,10 @@ class PensumViewModelContractTest {
 					pensumRepository = repository,
 					reportingRepository = reportingRepository,
 					exceptionHandler = exceptionHandler
+				),
+				setPensumSummaryCollapsedUseCase = SetPensumSummaryCollapsedUseCase(
+					pensumSettingsRepository = settingsRepository,
+					reportingRepository = reportingRepository
 				)
 			),
 			eventPublisher = NoOpEventPublisher,
@@ -466,15 +546,33 @@ class PensumViewModelContractTest {
 
 		return PensumFixture(
 			viewModel = viewModel,
-			repository = repository
+			repository = repository,
+			settingsRepository = settingsRepository
 		)
 	}
 }
 
 private data class PensumFixture(
 	val viewModel: PensumViewModel,
-	val repository: ControllablePensumRepository
+	val repository: ControllablePensumRepository,
+	val settingsRepository: ControllablePensumSettingsRepository
 )
+
+private class ControllablePensumSettingsRepository : PensumSettingsRepository {
+	private val summaryCollapsed = MutableStateFlow(false)
+	private val summaryCollapsedCalls = Channel<Boolean>(Channel.UNLIMITED)
+
+	override fun observeSummaryCollapsed(): Flow<Boolean> = summaryCollapsed
+
+	override fun isSummaryCollapsed(): Boolean = summaryCollapsed.value
+
+	override fun setSummaryCollapsed(isCollapsed: Boolean) {
+		summaryCollapsed.value = isCollapsed
+		summaryCollapsedCalls.trySend(isCollapsed)
+	}
+
+	suspend fun awaitSummaryCollapsedCall(): Boolean = summaryCollapsedCalls.receive()
+}
 
 private class ControllablePensumRepository : PensumRepository {
 	private val observations = Channel<Result<PensumObservation>>(Channel.UNLIMITED)

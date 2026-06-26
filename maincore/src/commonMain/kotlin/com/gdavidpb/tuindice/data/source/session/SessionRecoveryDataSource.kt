@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
+import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
@@ -28,7 +29,8 @@ class SessionRecoveryDataSource(
 	private val syncStatusRepository: SyncStatusRepository,
 	private val attestationRepository: AttestationRepository,
 	private val authRepository: AuthRepository,
-	private val credentialsRepository: CredentialsRepository
+	private val credentialsRepository: CredentialsRepository,
+	private val sessionCoroutineScope: SessionCoroutineScope
 ) : SessionRecoveryRepository {
 	private val recoveryMutex = Mutex()
 
@@ -85,6 +87,7 @@ class SessionRecoveryDataSource(
 	}
 
 	override suspend fun invalidateSession(sessionId: String?) {
+		sessionCoroutineScope.cancelActiveWork()
 		runCatching { sessionRepository.clear() }
 		runCatching { syncStatusRepository.reset() }
 		runCatching { applicationRepository.clearData() }

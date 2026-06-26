@@ -3,7 +3,7 @@ name: TuIndice summary E2E suite
 ---
 - runFlow: ../_shared/launch-clean.yaml
 - runFlow: ../auth/login-success.yaml
-- runFlow: ../wizard/wizard-smoke.yaml
+- runFlow: ../_shared/continue-to-summary-after-auth.yaml
 - runFlow: ../summary/summary-smoke.yaml
 - runFlow: ../summary/summary-refresh-retry.yaml
 - runFlow: ../summary/summary-status-dialog.yaml

@@ -23,6 +23,11 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsAnyStateTran
 			state
 		}
 
+		on<Evaluations.Action.EnsureEvaluationsLoaded> { state, _ ->
+			machine.ensureLoaded(host = host)
+			state
+		}
+
 		on<Evaluations.Action.AddEvaluation>(
 			emits = setOf(Evaluations.Effect.NavigateToAddEvaluation::class)
 		) { state, _ ->
@@ -67,8 +72,8 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsAnyStateTran
 			Evaluations.State.Failed
 		}
 
-		onTo<EvaluationsInternalEvent.EvaluationsNoAttemptsObserved, Evaluations.State.NoAttempts> { _, _ ->
-			Evaluations.State.NoAttempts
+		onTo<EvaluationsInternalEvent.EvaluationsNoAttemptsObserved, Evaluations.State.NoAttempts> { _, event ->
+			Evaluations.State.NoAttempts(reason = event.reason)
 		}
 
 		onTo<EvaluationsInternalEvent.EvaluationsContentObserved, Evaluations.State.Content> { state, event ->
@@ -76,6 +81,10 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsAnyStateTran
 		}
 
 		onTo<EvaluationsInternalEvent.EvaluationsEmptyObserved, Evaluations.State.Empty> { _, _ ->
+			Evaluations.State.Empty
+		}
+
+		onTo<EvaluationsInternalEvent.EvaluationsEmptyConfirmed, Evaluations.State.Empty> { _, _ ->
 			Evaluations.State.Empty
 		}
 

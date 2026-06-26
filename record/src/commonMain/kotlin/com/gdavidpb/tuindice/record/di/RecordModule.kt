@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.di
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
+import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.persistence.data.room.RoomMutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
@@ -24,6 +25,7 @@ import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermCreationRepos
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermLoadPreviewRepository
 import com.gdavidpb.tuindice.record.domain.usecase.CreateSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.EnsureRecordLoadedUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermPreviewUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermEditSeedUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
@@ -65,6 +67,7 @@ val recordModule = module {
 	/* Use cases */
 
 	factoryOf(::ObserveRecordUseCase)
+	factoryOf(::EnsureRecordLoadedUseCase)
 	factoryOf(::UpdateRecordUseCase)
 	factoryOf(::SetRecordViewModeUseCase)
 	factoryOf(::SetSelectedTermUseCase)
@@ -96,7 +99,8 @@ val recordModule = module {
 	) {
 		StoreBackedMutationEngine(
 			storeId = RECORD_MUTATION_STORE_ID,
-			outboxStore = get(named(RECORD_MUTATION_STORE_QUALIFIER))
+			outboxStore = get(named(RECORD_MUTATION_STORE_QUALIFIER)),
+			coroutineScope = get<SessionCoroutineScope>()
 		)
 	}
 	single<AcademicRecordRepository> {

@@ -3,8 +3,11 @@ package com.gdavidpb.tuindice.record.presentation.viewmodel
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.EnsureRecordLoadedUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedTermUseCase
@@ -18,14 +21,18 @@ import com.gdavidpb.tuindice.record.testing.RecordingRecordSelectionRepository
 import com.gdavidpb.tuindice.record.testing.academicAttempt
 import com.gdavidpb.tuindice.record.testing.academicTerm
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class RecordViewModelContractTest {
 	@Test
 	fun observe_resolvesContentWithSelectedTerm() = runTest {
@@ -82,6 +89,45 @@ class RecordViewModelContractTest {
 
 				cancelAndIgnoreRemainingEvents()
 			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun ensureLoaded_whenContentExists_keepsContentDuringInitialRefresh() = runTest {
+		val fixture = createFixture(
+			record = AcademicRecord(
+				id = "record",
+				terms = listOf(
+					academicTerm(
+						id = "term",
+						attempts = listOf(academicAttempt(subjectCode = "MAT101"))
+					)
+				)
+			),
+			hasSynced = true,
+			dispatchers = TestTuIndiceDispatchers(UnconfinedTestDispatcher(testScheduler))
+		)
+
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				awaitUntilState<Record.State.Content>()
+
+				fixture.viewModel.ensureRecordLoadedAction()
+				advanceUntilIdle()
+
+				expectNoEvents()
+				cancelAndIgnoreRemainingEvents()
+			}
+
+			assertEquals(1, fixture.academicRecordRepository.updateAcademicRecordCalls)
+			assertEquals(listOf(false), fixture.academicRecordRepository.updateAcademicRecordForceRemoteCalls)
 		} finally {
 			stateCollector.cancel()
 		}
@@ -202,7 +248,8 @@ class RecordViewModelContractTest {
 	private fun createFixture(
 		record: AcademicRecord,
 		hasSynced: Boolean,
-		viewMode: RecordViewMode = RecordViewMode.Historical
+		viewMode: RecordViewMode = RecordViewMode.Historical,
+		dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 	): RecordFixture {
 		val academicRecordRepository = ControllableAcademicRecordRepository(
 			initialRecord = record,
@@ -218,6 +265,11 @@ class RecordViewModelContractTest {
 					academicRecordRepository = academicRecordRepository,
 					recordSelectionRepository = selectionRepository,
 					reportingRepository = reportingRepository
+				),
+				ensureRecordLoadedUseCase = EnsureRecordLoadedUseCase(
+					academicRecordRepository = academicRecordRepository,
+					reportingRepository = reportingRepository,
+					exceptionHandler = exceptionHandler
 				),
 				updateRecordUseCase = UpdateRecordUseCase(
 					academicRecordRepository = academicRecordRepository,
@@ -243,7 +295,8 @@ class RecordViewModelContractTest {
 					exceptionHandler = exceptionHandler
 				)
 			),
-			eventPublisher = NoOpEventPublisher
+			eventPublisher = NoOpEventPublisher,
+			dispatchers = dispatchers
 		)
 
 		return RecordFixture(

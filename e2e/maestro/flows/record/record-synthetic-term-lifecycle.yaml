@@ -2,21 +2,31 @@ appId: com.gdavidpb.tuindice.debug
 ---
 - runFlow: ../_shared/launch-clean.yaml
 - runFlow: ../auth/login-success.yaml
-- runFlow: ../wizard/wizard-smoke.yaml
+- runFlow: ../_shared/continue-to-summary-after-auth.yaml
 - tapOn:
     id: maincore_tuindice_bottom_bar_record_item
 - extendedWaitUntil:
     visible:
       id: record_content_container
     timeout: 30000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - tapOn:
     id: record_create_synthetic_term_fab
 - extendedWaitUntil:
     visible:
       id: record_create_synthetic_term_screen
     timeout: 10000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - assertVisible:
     id: record_create_synthetic_term_period_selector
+- tapOn:
+    id: record_create_synthetic_term_period_selector
+- extendedWaitUntil:
+    visible: "Sep - Dic 2026"
+    timeout: 10000
+- tapOn: "Sep - Dic 2026"
+- waitForAnimationToEnd:
+    timeout: 5000
 - assertVisible:
     id: record_create_synthetic_term_submit_button
     enabled: false
@@ -66,88 +76,43 @@ appId: com.gdavidpb.tuindice.debug
       platform: Android
     commands:
       - hideKeyboard
-- runFlow:
-    when:
-      platform: iOS
+- runFlow: ../_shared/submit-ios-search-key-if-visible.yaml
+- retry:
+    maxRetries: 3
     commands:
+      - scrollUntilVisible:
+          element:
+            id: record_create_synthetic_term_subject_EC5333_add_button
+          direction: DOWN
+          visibilityPercentage: 50
+          centerElement: true
+          timeout: 20000
       - tapOn:
-          point: "87%,89%"
-- scrollUntilVisible:
-    element:
-      id: record_create_synthetic_term_subject_EC5201_add_button
-    direction: DOWN
-    timeout: 20000
-- tapOn:
-    id: record_create_synthetic_term_subject_EC5201_add_button
-- extendedWaitUntil:
-    visible:
-      id: record_create_synthetic_term_subject_EC5201_remove_button
-    timeout: 10000
-- scrollUntilVisible:
-    element:
-      id: record_create_synthetic_term_subject_EC5333_add_button
-    direction: DOWN
-    timeout: 20000
-- tapOn:
-    id: record_create_synthetic_term_subject_EC5333_add_button
-- extendedWaitUntil:
-    visible:
-      id: record_create_synthetic_term_subject_EC5333_remove_button
-    timeout: 10000
-- scrollUntilVisible:
-    element:
-      id: record_create_synthetic_term_search_field
-    direction: UP
-    timeout: 20000
+          id: record_create_synthetic_term_subject_EC5333_add_button
+      - runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+      - waitForAnimationToEnd:
+          timeout: 5000
+      - extendedWaitUntil:
+          visible: "1 materias seleccionadas"
+          timeout: 10000
+- assertVisible:
+    id: record_create_synthetic_term_submit_button
+    enabled: true
 - retry:
     maxRetries: 3
     commands:
       - tapOn:
-          id: record_create_synthetic_term_search_field
-      - eraseText: 20
-      - runFlow:
-          when:
-            platform: Android
-          commands:
-            - inputText: "ma"
-      - runFlow:
-          when:
-            platform: iOS
-          commands:
-            - setClipboard: "ma"
-            - pasteText
-      - runFlow:
-          when:
-            platform: Android
-          commands:
-            - hideKeyboard
-      - runFlow:
-          when:
-            platform: iOS
-          commands:
-            - tapOn:
-                point: "87%,89%"
-      - scrollUntilVisible:
-          element:
-            id: record_create_synthetic_term_subject_MA1112_add_button
-          direction: DOWN
-          timeout: 20000
-- assertVisible:
-    id: record_create_synthetic_term_submit_button
-    enabled: true
-- tapOn:
-    id: record_create_synthetic_term_submit_button
+          id: record_create_synthetic_term_submit_button
+      - extendedWaitUntil:
+          notVisible:
+            id: record_create_synthetic_term_screen
+          timeout: 10000
 - extendedWaitUntil:
     visible:
       id: record_content_container
     timeout: 30000
 - extendedWaitUntil:
-    visible:
-      id: record_attempt_item_2026-SEP_DEC-EC5201-1
-    timeout: 15000
-- extendedWaitUntil:
-    visible:
-      id: record_attempt_item_2026-SEP_DEC-EC5333-2
+    visible: "EC5333"
     timeout: 15000
 - tapOn:
     id: record_edit_synthetic_term_button
@@ -155,8 +120,13 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: record_create_synthetic_term_screen
     timeout: 10000
-- assertVisible:
-    id: record_create_synthetic_term_subject_EC5201_remove_button
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+- extendedWaitUntil:
+    visible: "Modificar trimestre"
+    timeout: 10000
+- extendedWaitUntil:
+    visible: "Modificar"
+    timeout: 10000
 - assertVisible:
     id: record_create_synthetic_term_subject_EC5333_remove_button
 - tapOn:
@@ -199,37 +169,47 @@ appId: com.gdavidpb.tuindice.debug
             platform: Android
           commands:
             - hideKeyboard
-      - runFlow:
-          when:
-            platform: iOS
-          commands:
-            - tapOn:
-                point: "87%,89%"
+      - runFlow: ../_shared/submit-ios-search-key-if-visible.yaml
       - extendedWaitUntil:
           visible:
             id: record_create_synthetic_term_search_results_title
           timeout: 20000
-- scrollUntilVisible:
-    element:
-      id: record_create_synthetic_term_subject_MA1121_add_button
-    direction: DOWN
-    timeout: 20000
-- tapOn:
-    id: record_create_synthetic_term_subject_MA1121_add_button
-- extendedWaitUntil:
-    visible:
-      id: record_create_synthetic_term_subject_MA1121_remove_button
-    timeout: 10000
-- tapOn:
-    id: record_create_synthetic_term_submit_button
+- retry:
+    maxRetries: 3
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: record_create_synthetic_term_subject_MA1121_add_button
+          direction: DOWN
+          visibilityPercentage: 50
+          centerElement: true
+          timeout: 20000
+      - tapOn:
+          id: record_create_synthetic_term_subject_MA1121_add_button
+      - runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+      - waitForAnimationToEnd:
+          timeout: 5000
+      - extendedWaitUntil:
+          visible: "2 materias seleccionadas"
+          timeout: 10000
+- assertVisible: "Modificar"
+- retry:
+    maxRetries: 3
+    commands:
+      - tapOn:
+          id: record_create_synthetic_term_submit_button
+      - extendedWaitUntil:
+          notVisible:
+            id: record_create_synthetic_term_screen
+          timeout: 10000
 - extendedWaitUntil:
     visible:
       id: record_content_container
     timeout: 30000
 - extendedWaitUntil:
-    visible:
-      id: record_attempt_item_2026-SEP_DEC-MA1121-3
+    visible: "MA1121"
     timeout: 15000
+- assertVisible: "EC5333"
 - tapOn:
     id: record_term_chip_2026-SEP_DEC
 - extendedWaitUntil:
@@ -252,5 +232,5 @@ appId: com.gdavidpb.tuindice.debug
     timeout: 15000
 - extendedWaitUntil:
     notVisible:
-      id: record_attempt_item_2026-SEP_DEC-EC5201-1
+      id: record_term_chip_2026-SEP_DEC
     timeout: 15000

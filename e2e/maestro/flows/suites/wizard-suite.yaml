@@ -1,8 +1,0 @@
-appId: com.gdavidpb.tuindice.debug
-name: TuIndice wizard E2E suite
----
-- runFlow: ../_shared/launch-seeded-authenticated-wizard-pending.yaml
-- runFlow: ../wizard/wizard-smoke.yaml
-- runFlow: ../wizard/wizard-navigation-focus.yaml
-- runFlow: ../wizard/wizard-guided-actions.yaml
-- runFlow: ../wizard/wizard-finish.yaml

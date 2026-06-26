@@ -25,6 +25,7 @@ espresso-core = "3.7.0"
 exifinterface = "1.4.2"
 wiremock = "3.13.2"
 junit = "4.13.2"
+robolectric = "4.15.1"
 app-update-ktx = "2.1.0"
 review-ktx = "2.0.2"
 integrity = "1.6.0"
@@ -62,6 +63,7 @@ store5 = { module = "org.mobilenativefoundation.store:store5", version.ref = "st
 
 # Testing
 junit = { module = "junit:junit", version.ref = "junit" }
+robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 wiremock = { module = "org.wiremock:wiremock", version.ref = "wiremock" }
 koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
 test-runner = { module = "androidx.test:runner", version.ref = "test-runner" }

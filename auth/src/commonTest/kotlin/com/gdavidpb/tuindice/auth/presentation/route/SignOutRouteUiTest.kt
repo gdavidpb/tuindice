@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
+import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import io.github.vinceglb.filekit.PlatformFile
@@ -141,6 +142,7 @@ class SignOutRouteUiTest {
 			sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 			applicationRepository = applicationRepository,
 			syncStatusRepository = syncStatusRepository,
+			sessionCoroutineScope = testSessionCoroutineScope(),
 			reportingRepository = reportingRepository
 		)
 

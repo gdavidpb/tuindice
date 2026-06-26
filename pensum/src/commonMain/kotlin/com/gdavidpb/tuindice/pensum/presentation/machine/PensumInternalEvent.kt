@@ -11,7 +11,12 @@ import com.gdavidpb.tuindice.pensum.domain.usecase.error.UpdatePensumUseCaseErro
  */
 sealed interface PensumInternalEvent {
 	data class PensumContentObserved(
-		val pensum: ObservedPensum
+		val pensum: ObservedPensum,
+		val isSummaryCollapsed: Boolean
+	) : PensumInternalEvent
+
+	data class PensumSummaryCollapsedObserved(
+		val isCollapsed: Boolean
 	) : PensumInternalEvent
 
 	data object PensumDataMissing : PensumInternalEvent

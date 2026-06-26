@@ -3,9 +3,8 @@ package com.gdavidpb.tuindice.persistence.domain.mutation
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -18,7 +17,7 @@ import org.mobilenativefoundation.store.store5.*
 class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, ConfirmedState, VisibleState, Ack : Any>(
 	private val storeId: String,
 	private val outboxStore: MutationEnvelopeStore<ScopeKey, Command>,
-	private val coroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Default)
+	private val coroutineScope: CoroutineScope
 ) {
 	private val versionMutex = Mutex()
 	private val runtimeBookkeeperMutex = Mutex()
@@ -290,6 +289,8 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Confir
 
 				return UpdaterResult.Success.Typed(ack)
 			} catch (throwable: Throwable) {
+				if (throwable is CancellationException) throw throwable
+
 				if (!shouldApplyMutation(currentMutation)) {
 					forgetMutationVersion(currentMutation.mutationId)
 					return UpdaterResult.Success.Untyped(Unit)

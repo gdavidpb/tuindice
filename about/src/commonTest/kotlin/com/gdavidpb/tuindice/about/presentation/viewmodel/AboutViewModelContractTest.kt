@@ -17,23 +17,35 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepositor
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
+import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
+import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
+import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertIs
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class AboutViewModelContractTest {
 	@Test
 	fun initialAction_loadsVersionIntoContentState() = runTest {
-		createViewModel().state.test {
-			val initial = awaitItem()
-			assertEquals(About.State.Idle, initial)
+		val viewModel = createViewModel(testScheduler = testScheduler)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
 
-			val content = assertIs<About.State.Content>(awaitItem())
-			assertEquals(CURRENT_PRODUCTION_VERSION_TEXT, content.versionText)
+		try {
+			viewModel.state.test {
+				val content = awaitUntilState<About.State.Content>()
+				assertEquals(CURRENT_PRODUCTION_VERSION_TEXT, content.versionText)
 
-			cancelAndIgnoreRemainingEvents()
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
 		}
 	}
 
@@ -83,7 +95,7 @@ class AboutViewModelContractTest {
 				AboutInternalEvent.SupportEmailUriLoaded(uri = "mailto:support@tuindice.app"),
 				AboutInternalEvent.StoreUriLoaded(uri = "https://example.com/store")
 			),
-			scope = backgroundScope,
+			coroutineScope = backgroundScope,
 			// Conservative floor: every internal event is sampled by hand; raise to the
 			// observed coverage once the walk has run on CI.
 			minRowCoverage = 0.4
@@ -91,6 +103,7 @@ class AboutViewModelContractTest {
 	}
 
 	private fun createViewModel(
+		testScheduler: TestCoroutineScheduler,
 		browserRepository: RecordingBrowserRepository = RecordingBrowserRepository()
 	): AboutViewModel {
 		return AboutViewModel(
@@ -114,7 +127,8 @@ class AboutViewModelContractTest {
 				appEnvironmentRepository = FakeAppEnvironmentRepository(),
 				usageDataConsentRepository = InMemoryUsageDataConsentRepository()
 			),
-			eventPublisher = NoOpEventPublisher
+			eventPublisher = NoOpEventPublisher,
+			dispatchers = TestTuIndiceDispatchers(UnconfinedTestDispatcher(testScheduler))
 		)
 	}
 }

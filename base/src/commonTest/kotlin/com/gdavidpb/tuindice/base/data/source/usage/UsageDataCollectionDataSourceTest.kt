@@ -18,7 +18,7 @@ class UsageDataCollectionDataSourceTest {
 		val dataSource = UsageDataCollectionDataSource(
 			usageDataConsentRepository = repository,
 			setCollectionEnabledActions = listOf { enabled -> calls += enabled },
-			scope = scope
+			coroutineScope = scope
 		)
 
 		try {
@@ -39,7 +39,7 @@ class UsageDataCollectionDataSourceTest {
 		val dataSource = UsageDataCollectionDataSource(
 			usageDataConsentRepository = InMemoryUsageDataConsentRepository(initialValue = true),
 			setCollectionEnabledActions = listOf { enabled -> calls += enabled },
-			scope = scope
+			coroutineScope = scope
 		)
 
 		try {
@@ -69,7 +69,7 @@ class UsageDataCollectionDataSourceTest {
 				{ enabled -> firstCalls += enabled },
 				{ enabled -> secondCalls += enabled }
 			),
-			scope = scope
+			coroutineScope = scope
 		)
 
 		try {

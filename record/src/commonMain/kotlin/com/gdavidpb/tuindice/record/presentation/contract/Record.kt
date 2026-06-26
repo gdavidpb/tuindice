@@ -36,6 +36,7 @@ object Record {
 
 	sealed class Action : ViewAction {
 		data object ObserveRecord : Action()
+		data object EnsureRecordLoaded : Action()
 		data object RefreshRecord : Action()
 		class SetViewMode(val viewMode: RecordViewMode) : Action()
 		class SelectTerm(

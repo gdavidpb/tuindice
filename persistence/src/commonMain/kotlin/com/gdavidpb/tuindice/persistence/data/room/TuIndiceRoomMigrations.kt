@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.persistence.data.room.schema.SyntheticTermLoadPrevi
 
 object TuIndiceRoomMigrations {
 	val all: Array<Migration>
-		get() = arrayOf(Migration30To31, Migration31To32)
+		get() = arrayOf(Migration30To31, Migration31To32, Migration32To33)
 }
 
 private object Migration30To31 : Migration(30, 31) {
@@ -23,6 +23,12 @@ private object Migration31To32 : Migration(31, 32) {
 	override fun migrate(connection: SQLiteConnection) {
 		connection.clearSyntheticTermLoadPreviewCache()
 		connection.addSyntheticTermLoadPreviewConfidenceColumns()
+	}
+}
+
+private object Migration32To33 : Migration(32, 33) {
+	override fun migrate(connection: SQLiteConnection) {
+		connection.addPensumSelectionInferredColumn()
 	}
 }
 
@@ -40,4 +46,8 @@ private fun SQLiteConnection.addSyntheticTermLoadPreviewConfidenceColumns() {
 	execSQL("ALTER TABLE ${SyntheticTermLoadPreviewCacheTable.TABLE_NAME} ADD COLUMN ${SyntheticTermLoadPreviewCacheTable.BASIS} TEXT")
 	execSQL("ALTER TABLE ${SyntheticTermLoadPreviewCacheTable.TABLE_NAME} ADD COLUMN ${SyntheticTermLoadPreviewCacheTable.CONFIDENCE} TEXT")
 	execSQL("ALTER TABLE ${SyntheticTermLoadPreviewCacheTable.TABLE_NAME} ADD COLUMN ${SyntheticTermLoadPreviewCacheTable.DETAIL} TEXT")
+}
+
+private fun SQLiteConnection.addPensumSelectionInferredColumn() {
+	execSQL("ALTER TABLE ${PensumSelectionTable.TABLE_NAME} ADD COLUMN ${PensumSelectionTable.INFERRED} INTEGER NOT NULL DEFAULT 1")
 }

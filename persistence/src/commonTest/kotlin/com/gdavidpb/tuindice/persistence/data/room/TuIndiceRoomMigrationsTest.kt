@@ -11,7 +11,7 @@ class TuIndiceRoomMigrationsTest {
 		val migrations = TuIndiceRoomMigrations.all
 
 		assertEquals(
-			listOf(30 to 31, 31 to 32),
+			listOf(30 to 31, 31 to 32, 32 to 33),
 			migrations.map { migration -> migration.startVersion to migration.endVersion }
 		)
 
@@ -23,6 +23,7 @@ class TuIndiceRoomMigrationsTest {
 		}
 		val migration30To31Sql = executedSqlByMigration[30 to 31].orEmpty()
 		val migration31To32Sql = executedSqlByMigration[31 to 32].orEmpty()
+		val migration32To33Sql = executedSqlByMigration[32 to 33].orEmpty()
 
 		assertEquals(
 			listOf(
@@ -40,6 +41,10 @@ class TuIndiceRoomMigrationsTest {
 				"ALTER TABLE synthetic_term_load_preview_cache ADD COLUMN detail TEXT"
 			),
 			migration31To32Sql
+		)
+		assertEquals(
+			listOf("ALTER TABLE pensum_selection ADD COLUMN inferred INTEGER NOT NULL DEFAULT 1"),
+			migration32To33Sql
 		)
 	}
 }

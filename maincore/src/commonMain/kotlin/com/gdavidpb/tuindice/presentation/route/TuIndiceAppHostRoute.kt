@@ -6,6 +6,7 @@ import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -39,10 +40,9 @@ import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.subjects.presentation.navigation.SubjectsDestination
-import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.ui.screen.TuIndiceScreen
-import com.gdavidpb.tuindice.wizard.presentation.model.WizardTopBarActionBus
-import com.gdavidpb.tuindice.wizard.presentation.navigation.WizardDestination
+import com.gdavidpb.tuindice.wizard.presentation.mapper.toCoachmarkSurface
+import com.gdavidpb.tuindice.wizard.presentation.viewmodel.CoachmarkOverlayViewModel
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -72,9 +72,9 @@ fun TuIndiceAppHostRoute(
 	reviewRepository: ReviewRepository = koinInject(),
 	updateRepository: UpdateRepository = koinInject(),
 	outdatedAppEventRepository: OutdatedAppEventRepository = koinInject(),
-	wizardTopBarActionBus: WizardTopBarActionBus = koinInject(),
 	pensumTopBarActionBus: PensumTopBarActionBus = koinInject(),
-	viewModel: MainViewModel = koinViewModel<MainViewModel>()
+	viewModel: MainViewModel = koinViewModel<MainViewModel>(),
+	coachmarkOverlayViewModel: CoachmarkOverlayViewModel = koinViewModel<CoachmarkOverlayViewModel>()
 ) {
 	val lifecycleOwner = LocalLifecycleOwner.current
 	val navController = rememberNavController()
@@ -116,11 +116,6 @@ fun TuIndiceAppHostRoute(
 		onNavigateToGooglePlayServicesUnavailableDialog = {
 			navController.navigate(MainDestination.GooglePlayServicesUnavailableDialog)
 		},
-		onNavigateToWizard = {
-			navController.navigate(WizardDestination.NavGraph) {
-				launchSingleTop = true
-			}
-		},
 		onRequestReviewFlow = {
 			reviewRepository.launchReview()
 		},
@@ -146,6 +141,13 @@ fun TuIndiceAppHostRoute(
 		}
 		val onRecordTermSelection = remember {
 			mutableStateOf<(() -> Unit)?>(null)
+		}
+		val coachmarkOverlayState by coachmarkOverlayViewModel.state.collectAsStateWithLifecycle()
+		val coachmarkSurfaceKey = remember {
+			mutableStateOf<String?>(null)
+		}
+		val coachmarkVisitCounter = remember {
+			mutableIntStateOf(0)
 		}
 		val syncStatus by syncStatusRepository
 			.observeSyncStatus()
@@ -231,12 +233,6 @@ fun TuIndiceAppHostRoute(
 			}
 		}
 
-		LaunchedEffect(state, shellState.value.isBottomBarVisible) {
-			if (state is Main.State.Content && shellState.value.isBottomBarVisible) {
-				viewModel.requestWizardStartAction()
-			}
-		}
-
 		TuIndiceScreen(
 			state = state,
 			shellState = shellState.value,
@@ -246,58 +242,53 @@ fun TuIndiceAppHostRoute(
 			isSwipeBackNavigationEnabled = isSwipeBackNavigationEnabled,
 			snackbarHostState = snackbarHostState,
 			onAction = { action ->
-				when {
-					navController.isCurrentDestination(WizardDestination.NavGraph) ->
-						wizardTopBarActionBus.dispatch(action)
+				when (action) {
+					is TopBarAction.SignOutAction ->
+						if (!isPreparingSignOut.value) {
+							coroutineScope.launch {
+								try {
+									isPreparingSignOut.value = true
+									val pendingChanges = try {
+										pendingChangesRepository.getPendingChanges()
+									} catch (throwable: Throwable) {
+										if (throwable is CancellationException) throw throwable
 
-					else -> when (action) {
-						is TopBarAction.SignOutAction ->
-							if (!isPreparingSignOut.value) {
-								coroutineScope.launch {
-									try {
-										isPreparingSignOut.value = true
-										val pendingChanges = try {
-											pendingChangesRepository.getPendingChanges()
-										} catch (throwable: Throwable) {
-											if (throwable is CancellationException) throw throwable
-
-											logger.e(throwable) {
-												"Failed to resolve pending changes before opening sign-out dialog."
-											}
-											showSnackBar(
-												SnackBarMessage(
-													message = pendingChangesUnavailableMessage
-												)
-											)
-											return@launch
+										logger.e(throwable) {
+											"Failed to resolve pending changes before opening sign-out dialog."
 										}
-
-										navController.navigate(
-											AuthDestination.SignOutDialog(
-												totalCount = pendingChanges.totalCount,
-												recordCount = pendingChanges.recordCount,
-												evaluationsCount = pendingChanges.evaluationsCount,
-												hasFailedMutations = pendingChanges.hasFailedMutations
+										showSnackBar(
+											SnackBarMessage(
+												message = pendingChangesUnavailableMessage
 											)
 										)
-									} finally {
-										isPreparingSignOut.value = false
+										return@launch
 									}
+
+									navController.navigate(
+										AuthDestination.SignOutDialog(
+											totalCount = pendingChanges.totalCount,
+											recordCount = pendingChanges.recordCount,
+											evaluationsCount = pendingChanges.evaluationsCount,
+											hasFailedMutations = pendingChanges.hasFailedMutations
+										)
+									)
+								} finally {
+									isPreparingSignOut.value = false
 								}
 							}
+						}
 
-						is TopBarAction.FetchEnrollmentProofAction ->
-							navController.navigate(EnrollmentProofDestination.EnrollmentProofDialog)
+					is TopBarAction.FetchEnrollmentProofAction ->
+						navController.navigate(EnrollmentProofDestination.EnrollmentProofDialog)
 
-						is TopBarAction.RecordTermSelectionAction ->
-							onRecordTermSelection.value?.invoke()
+					is TopBarAction.RecordTermSelectionAction ->
+						onRecordTermSelection.value?.invoke()
 
-						is TopBarAction.SearchPensumAction ->
-							navController.navigate(SubjectsDestination.SubjectSearch)
+					is TopBarAction.SearchPensumAction ->
+						navController.navigate(SubjectsDestination.SubjectSearch)
 
-						is TopBarAction.ChangePensumAction ->
-							pensumTopBarActionBus.dispatch(action)
-					}
+					is TopBarAction.ChangePensumAction ->
+						pensumTopBarActionBus.dispatch(action)
 				}
 			},
 			onRecordViewModeChange = onRecordViewModeChange.value,
@@ -339,16 +330,26 @@ fun TuIndiceAppHostRoute(
 			onRecordViewModeChangeAvailable = { callback ->
 				onRecordViewModeChange.value = callback
 			},
-			onWizardFinished = {
-				navController.navigate(SummaryDestination.NavGraph) {
-					launchSingleTop = true
-					popUpTo(WizardDestination.NavGraph) {
-						inclusive = true
-					}
-				}
-			},
+			coachmarkOverlayState = coachmarkOverlayState,
+			onCoachmarkPreviousActionClick = coachmarkOverlayViewModel::previousActionClickAction,
+			onCoachmarkPrimaryActionClick = coachmarkOverlayViewModel::primaryActionClickAction,
 			onViewStateChanged = { viewState ->
 				shellState.value = viewState.toMainShellState()
+
+				val routeKey = viewState::class.qualifiedName
+					?: viewState::class.simpleName
+					?: viewState.toString()
+
+				if (coachmarkSurfaceKey.value != routeKey) {
+					coachmarkSurfaceKey.value = routeKey
+					coachmarkVisitCounter.intValue += 1
+				}
+
+				coachmarkOverlayViewModel.surfaceChangedAction(
+					viewState.toCoachmarkSurface(
+						visitKey = "$routeKey:${coachmarkVisitCounter.intValue}"
+					)
+				)
 			},
 			showSnackBar = showSnackBar,
 			dismissSnackBar = dismissSnackBar

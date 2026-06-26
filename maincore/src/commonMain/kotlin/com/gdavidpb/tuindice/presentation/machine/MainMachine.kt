@@ -9,14 +9,12 @@ import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.ScheduleSyncUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastMainSectionUseCase
-import com.gdavidpb.tuindice.wizard.domain.usecase.ShouldStartWizardUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.error.StartUpUseCaseError
 import com.gdavidpb.tuindice.domain.usecase.result.StartUpResult
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.mapper.toDestination
 import com.gdavidpb.tuindice.presentation.transition.mainAnyStateTransitions
-import com.gdavidpb.tuindice.presentation.transition.mainContentTransitions
 import kotlinx.coroutines.flow.collect
 
 class MainMachine(
@@ -24,14 +22,12 @@ class MainMachine(
 	private val requestReviewUseCase: RequestReviewUseCase,
 	private val getUpdateInfoUseCase: GetUpdateInfoUseCase,
 	private val scheduleSyncUseCase: ScheduleSyncUseCase,
-	private val setLastMainSectionUseCase: SetLastMainSectionUseCase,
-	private val shouldStartWizardUseCase: ShouldStartWizardUseCase
+	private val setLastMainSectionUseCase: SetLastMainSectionUseCase
 ) : ScreenMachine<Main.State, Main.Effect> {
 	override fun initialState(): Main.State = Main.State.Starting
 
 	override fun define(host: MachineHost<Main.Effect>): MachineDefinition<Main.State> {
 		return MachineDefinition.define {
-			mainContentTransitions(host = host)
 			mainAnyStateTransitions(machine = this@MainMachine, host = host)
 		}
 	}
@@ -89,16 +85,6 @@ class MainMachine(
 	internal fun setLastMainSection(host: MachineHost<Main.Effect>, section: MainSection) {
 		host.launchMachineJob {
 			setLastMainSectionUseCase.execute(section).collect()
-		}
-	}
-
-	internal fun requestWizardStart(host: MachineHost<Main.Effect>) {
-		host.launchMachineJob {
-			shouldStartWizardUseCase.execute(Unit).collect { useCaseState ->
-				if (useCaseState is UseCaseState.Data && useCaseState.value) {
-					host.processInternalEvent(MainInternalEvent.WizardStartApproved)
-				}
-			}
 		}
 	}
 

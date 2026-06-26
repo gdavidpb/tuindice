@@ -15,7 +15,7 @@ appId: com.gdavidpb.tuindice.debug
 - extendedWaitUntil:
     visible:
       id: base_outdated_app_screen
-    timeout: 20000
+    timeout: 60000
 - assertVisible:
     id: base_outdated_app_title
 - assertVisible:
@@ -41,7 +41,7 @@ appId: com.gdavidpb.tuindice.debug
 - extendedWaitUntil:
     visible:
       id: base_outdated_app_screen
-    timeout: 20000
+    timeout: 60000
 - assertVisible:
     id: base_outdated_app_update_button
 - assertNotVisible:

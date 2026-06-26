@@ -15,6 +15,7 @@
 
 - `e2e/maestro/flows/`: Maestro YAML flows grouped by module.
 - `e2e/maestro/flows/_shared/`: shared setup, clean launch, login, reset, and navigation helpers.
+- `e2e/maestro/flows/suites/`: suite aggregators that must include active module flows.
 - `e2e/scripts/`: local build/reset/run scripts.
 - `e2e/platform/android/`: Android-specific edge tests or instructions.
 - `e2e/platform/ios/`: iOS-specific edge tests or instructions.
@@ -26,15 +27,31 @@
 - `testkit/e2e/validate-e2e-contract.sh`: validates catalog entries, flow files, critical selectors, fixture contract, and quarantine.
 - `testkit/e2e/selector-policy.md`, `fixture-contract.md`, and `local-runbook.md`: reusable QA policy.
 
+## E2E Scope Gate
+
+At the start of every module change, classify whether local E2E is in scope. It is in scope when the change touches any of:
+
+- user-visible behavior, state, copy, empty/loading/failed/retry branches, or screen acceptance criteria
+- navigation destinations, back results, top-level tabs, dialogs, deep links, or app startup/reset behavior
+- presentation `Action`s, especially added/removed/renamed user actions or actions reclassified as internal/platform-edge
+- `Modifier.testTag`, accessibility identifiers, selectors, or UI structure used by existing flows
+- local backend contracts, WireMock mappings/bodies, fixture values, scenario state, debug URLs, or reset/run scripts
+- platform hand-offs such as browser, file/PDF opener, camera/photo picker, permissions, share sheet, mail, store, or external intents
+
+When E2E is in scope, include the test and every required supporting artifact in the same change. Do not update only app code and leave E2E as a follow-up. If E2E is out of scope, be ready to state the internal-only reason.
+
 ## Frontend Change Rules
 
-- When adding or changing a user-visible flow, update `testkit/e2e/flow-catalog.yaml` in the same change.
+- When adding or changing a user-visible flow, update `testkit/e2e/flow-catalog.yaml`, the module Maestro flow, and affected suite aggregators in the same change.
 - When changing a presentation `Action` in `commonMain`, update `testkit/e2e/mvi-action-catalog.yaml` and either map user-visible coverage or document why it is internal/platform-edge.
 - Add or adjust a Maestro flow under `e2e/maestro/flows/<module>/` for happy path, critical interactions, navigation entry/exit, and empty/failed/retry states when applicable.
 - Prefer stable selectors based on Compose `Modifier.testTag`; avoid text-only selectors for dynamic, translated, formatted, or duplicated labels.
+- Add, preserve, or rename test tags and accessibility identifiers together with the flow that needs them; update `testkit/e2e/critical-selectors.txt` when a selector is suite-critical.
 - Keep Android test tags visible to Maestro through `testTagsAsResourceId` in the Android host.
 - Audit iOS accessibility identifiers before escalating a case to XCUITest.
 - If a flow depends on backend behavior, update WireMock mappings and response bodies under `mocks/` with the app change.
+- If fixture values or state setup change, update `testkit/e2e/fixture-contract.env`, `testkit/src/commonMain/kotlin/com/gdavidpb/tuindice/testkit/e2e/E2eFixtureContract.kt`, affected catalog `fixture_state` entries, and reset/run scripts.
+- If Maestro cannot verify the edge stably, add or update the platform-edge entry in `testkit/e2e/mvi-action-catalog.yaml` and the matching placeholder/test under `e2e/platform/android/` or `e2e/platform/ios/`.
 
 ## Module Coverage Order
 
@@ -48,7 +65,7 @@
 8. `subjects`: search, detail, career/global tabs, unavailable/failed/retry.
 9. `evaluations`: list, filters, create, edit, date/grade/max-grade selection, swipe edit/delete.
 10. `enrollmentproof`: top-bar entry, fetching sheet, cancel, PDF/open-file success, error/outdated credentials.
-11. `wizard`: welcome, next/back, skip, focus per screen, finish into summary.
+11. `wizard`: contextual coachmark host, pending/seen startup variants, summary/record anchors, primary/back progression, and persistence of seen coachmarks.
 12. `about`: internal/external links, browser dialog, support/contact/share/rate.
 
 ## Local Validation

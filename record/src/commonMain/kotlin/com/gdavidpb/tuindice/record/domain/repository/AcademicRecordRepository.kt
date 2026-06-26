@@ -25,6 +25,9 @@ interface AcademicRecordRepository {
 	}
 	suspend fun getAcademicRecord(): AcademicRecord?
 	suspend fun updateAcademicRecord()
+	suspend fun updateAcademicRecord(forceRemote: Boolean) {
+		updateAcademicRecord()
+	}
 	suspend fun drainPendingMutations()
 	suspend fun upsertAttemptOverride(
 		attemptId: String,

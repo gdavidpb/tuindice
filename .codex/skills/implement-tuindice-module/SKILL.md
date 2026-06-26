@@ -1,6 +1,6 @@
 ---
 name: implement-tuindice-module
-description: Create or modify Kotlin Multiplatform modules and app frontend flows in this `tuindice` app repository. Use when adding a new feature or shared module, changing an existing module's architecture, Gradle setup, Koin wiring, navigation, platform bindings, root verification tasks, smoke tests, or local E2E coverage with Maestro/XCUITest/Compose/Espresso/UI Automator for modules such as `base`, `persistence`, `maincore`, `app`, `auth`, `about`, `summary`, `record`, `evaluations`, `enrollmentproof`, `subjects`, `pensum`, `wizard`, and `testkit`.
+description: Create or modify Kotlin Multiplatform modules and app frontend flows in this `tuindice` app repository, including required E2E tests and supporting artifacts whenever a change affects user-visible behavior, navigation, selectors, fixtures, app host startup/reset, or platform edges. Use when adding a new feature or shared module, changing an existing module's architecture, Gradle setup, Koin wiring, navigation, platform bindings, root verification tasks, smoke tests, or local E2E coverage with Maestro/XCUITest/Compose/Espresso/UI Automator for modules such as `base`, `persistence`, `maincore`, `app`, `auth`, `about`, `summary`, `record`, `evaluations`, `enrollmentproof`, `subjects`, `pensum`, `wizard`, and `testkit`.
 ---
 
 # Implement TuIndice Module
@@ -15,7 +15,7 @@ Implement module work by copying the nearest existing module pattern instead of 
 - Load [references/module-recipes.md](references/module-recipes.md) when you need the concrete checklist for creating or modifying a module.
 - Load [references/scaffolding.md](references/scaffolding.md) when you want to bootstrap a new module or render boilerplate for individual architecture components.
 - Load [references/pensum-layout.md](references/pensum-layout.md) when updating pensum fixtures, importer output, Mongo seed data, or frontend mocks that include graph node positions and edge routes.
-- Load [references/e2e.md](references/e2e.md) when a change affects user-visible flows, navigation, selectors, local mock behavior, app host startup/reset, or module acceptance coverage.
+- Load [references/e2e.md](references/e2e.md) when a change can affect user-visible flows, presentation `Action`s, navigation, selectors/accessibility identifiers/test tags, local mock behavior, fixture state, app host startup/reset, platform hand-offs, or module acceptance coverage. Include every required E2E test and supporting artifact in the same change.
 - Use the closest existing module as a template:
   - `summary` for a feature with dialog destinations plus typed back results for lifecycle-sensitive platform effects
   - `evaluations` for a feature with multiple screens and dialog destinations that dispatch directly into the parent `ViewModel`
@@ -28,7 +28,7 @@ Implement module work by copying the nearest existing module pattern instead of 
 
 ## Workflow
 
-1. Classify the change first: existing feature, new feature, shared infrastructure, or host/bootstrap change.
+1. Classify the change first: existing feature, new feature, shared infrastructure, or host/bootstrap change. Decide E2E scope at the same time; if any trigger in [references/e2e.md](references/e2e.md) applies, treat E2E work as required.
 2. Inspect the nearest existing module and mirror its package layout, Gradle plugins, and DI style.
 3. For new work, prefer scaffolding from `scripts/scaffold_feature_module.py` or `assets/templates/` and then adapt the result instead of rewriting the same boilerplate by hand.
 4. Default to `commonMain`; move code to `androidMain` or `iosMain` only for real platform needs.
@@ -51,12 +51,20 @@ Implement module work by copying the nearest existing module pattern instead of 
    - referenced response bodies live under `mocks/__files/<feature-or-domain>/`
    - keep fixture payloads aligned with the current request shape, response shape, and status codes
    - update E2E fixture assumptions or scenario reset expectations when the contract is covered by a local flow
+   - update `testkit/e2e/fixture-contract.env`, `testkit/src/commonMain/kotlin/com/gdavidpb/tuindice/testkit/e2e/E2eFixtureContract.kt`, catalog `fixture_state` entries, and reset/run scripts when fixture values or state setup change
 8. Keep the UI boundary explicit:
    - `Navigation` resolves the `ViewModel`
    - `Route` bridges `state/effect` and lifecycle to the pure `Screen`
    - `Screen` stays free of Koin and business wiring
 9. Update smoke tests and focused contract/UI tests when constructor wiring or public entry points change.
-10. For user-visible flow changes, update the E2E catalog and Maestro flow for the affected module unless the change is intentionally not covered yet; document platform-specific edge cases instead of duplicating them in Maestro.
+10. When E2E is in scope, update the complete local E2E surface in the same change:
+   - `testkit/e2e/flow-catalog.yaml` for flow, module, platform, and fixture coverage
+   - `testkit/e2e/mvi-action-catalog.yaml` for added, removed, renamed, or reclassified presentation `Action`s
+   - Maestro flows under `e2e/maestro/flows/<module>/` plus affected suite aggregators under `e2e/maestro/flows/suites/`
+   - stable `Modifier.testTag`/accessibility identifiers and `testkit/e2e/critical-selectors.txt` when selectors are added, renamed, removed, or made critical
+   - `mocks/`, `testkit/e2e/fixture-contract.env`, `E2eFixtureContract.kt`, and reset/run scripts when local backend behavior or fixture state changes
+   - `e2e/platform/android/` or `e2e/platform/ios/` placeholders/tests for platform edges Maestro cannot verify stably
+   Do not leave required E2E coverage as a TODO; either add coverage or state the precise internal-only or platform-edge reason.
 11. Run the smallest truthful verification set and report anything left unverified.
 
 ## Non-Negotiable Project Rules
@@ -167,7 +175,7 @@ Implement module work by copying the nearest existing module pattern instead of 
 - For machine or transition-table changes, run `./gradlew verifySharedHostTests`: the android host is the only platform where the alphabet/Λ validators enforce (on iOS they report SKIPPED), and the contract tests' seeded random walk (`assertMachineRandomWalk`) runs everywhere.
 - For shared bootstrap changes, run the relevant `maincore` smoke tests and the iOS bootstrap smoke test when applicable.
 - For navigation or shared UI work, run focused module tests or the shared UI gate if the change is broad.
-- For user-visible flow or selector changes, run `./gradlew verifyE2eContract`; run `./gradlew e2eMaestroAndroid` or `./gradlew e2eMaestroIos` when the local device/simulator and Maestro CLI are available.
+- When E2E scope was triggered, always run `./gradlew verifyE2eContract`; run `./gradlew e2eMaestroAndroid` or `./gradlew e2eMaestroIos` when the local device/simulator and Maestro CLI are available, and report any unavailable platform runner as unverified.
 - When a new shared module is added, also update and run the relevant root verification tasks listed in [references/project-map.md](references/project-map.md).
 - Never claim checks you did not run.
 

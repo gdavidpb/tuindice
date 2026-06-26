@@ -22,4 +22,4 @@ record=:academiccore :base :persistence
 subjects=:academiccore :base :persistence
 summary=:base :persistence
 testkit=:base
-wizard=:about :academiccore :base :enrollmentproof :evaluations :pensum :record :subjects :summary
+wizard=:about :base :evaluations :pensum :record :subjects :summary

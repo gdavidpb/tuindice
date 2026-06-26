@@ -158,7 +158,7 @@ class PensumScreenUiTest {
 	}
 
 	@Test
-	fun when_contentIsDisplayed_then_summaryShowsOnlyCareerInContextCard() = runTuIndiceUiTest {
+	fun when_contentIsDisplayed_then_summaryShowsPensumContext() = runTuIndiceUiTest {
 		var contextClickCount = 0
 
 		setTuIndiceTestContent {
@@ -174,12 +174,62 @@ class PensumScreenUiTest {
 		}
 
 		onNodeWithText("Ingenieria de Computacion").assertExists()
-		onAllNodesWithText("Pensum 2019").assertCountEquals(0)
-		onAllNodesWithText("Proyecto de Grado").assertCountEquals(0)
+		onNodeWithText("0% Avance").assertExists()
+		onNodeWithText("0 / 8 UC").assertExists()
+		onNodeWithText("Pensum 2019").assertExists()
+		onNodeWithText("Proyecto de Grado").assertExists()
 		onNodeWithTag(PensumUiTags.PensumContextSummary)
 			.assertHasClickAction()
 			.performClick()
 		assertEquals(1, contextClickCount)
+	}
+
+	@Test
+	fun when_summaryTitleIsTapped_then_summaryCollapsesAndExpands() = runTuIndiceUiTest {
+		val state = mutableStateOf<Pensum.State>(
+			Pensum.State.Content(model = samplePensumModelWithSelectableYears())
+		)
+		val collapsedChanges = mutableListOf<Boolean>()
+
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = state.value,
+				onRetryClick = {},
+				showSelectionSheet = false,
+				onSummaryCollapsedToggle = {
+					val content = state.value as Pensum.State.Content
+					val nextCollapsed = !content.isSummaryCollapsed
+					state.value = content.copy(isSummaryCollapsed = nextCollapsed)
+					collapsedChanges += nextCollapsed
+				},
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		onNodeWithText("Ingenieria de Computacion").assertExists()
+		onNodeWithText("Pensum 2019").assertExists()
+		onNodeWithText("Proyecto de Grado").assertExists()
+
+		onNodeWithTag(PensumUiTags.PensumSummaryContainer)
+			.assertHasClickAction()
+			.performClick()
+		advanceAnimationsBy((CanvasOverlayAnimationMillis * 3).toLong())
+
+		assertEquals(listOf(true), collapsedChanges)
+		onNodeWithText("Ingenieria de Computacion").assertExists()
+		onNodeWithText("Pensum 2019").assertDoesNotExist()
+		onNodeWithText("Proyecto de Grado").assertDoesNotExist()
+
+		onNodeWithTag(PensumUiTags.PensumSummaryContainer)
+			.assertHasClickAction()
+			.performClick()
+		advanceAnimationsBy((CanvasOverlayAnimationMillis * 3).toLong())
+
+		assertEquals(listOf(true, false), collapsedChanges)
+		onNodeWithText("Pensum 2019").assertExists()
+		onNodeWithText("Proyecto de Grado").assertExists()
 	}
 
 	@Test
@@ -701,6 +751,7 @@ class PensumScreenUiTest {
 		onNodeWithTag(PensumUiTags.CanvasGestureLayer)
 			.performTouchInput {
 				down(0, Offset(8f, 8f))
+				advanceEventTime(50L)
 				up(0)
 			}
 		waitForIdle()

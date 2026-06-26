@@ -33,12 +33,12 @@
 - `evaluations`: depends on `:academiccore`, `:base`, `:persistence`.
 - `subjects`: depends on `:academiccore`, `:base`, `:persistence`.
 - `pensum`: depends on `:academiccore`, `:base`, `:persistence`.
-- `wizard`: depends on `:academiccore`, `:base`, `:summary`, `:record`, `:evaluations`, `:subjects`, `:pensum`, `:about`, and `:enrollmentproof`.
+- `wizard`: depends on `:base`, `:summary`, `:record`, `:evaluations`, `:pensum`, `:subjects`, and `:about`.
 - `maincore`: depends on `:base`, `:persistence`, and every feature module.
 - `app`: depends on `:base`, `:maincore`, `:persistence`, and every feature module used by the Android host.
 
 Default rule: features should point to shared infrastructure, not to each other.
-Current intentional exception: `wizard -> features`, because `wizard` is an onboarding orchestrator that reuses real screens with synthetic state.
+Current intentional exception: `wizard -> features`, because `wizard` owns contextual coachmarks anchored to eligible real screens.
 
 ## Root Files That Define The Architecture
 
@@ -183,7 +183,7 @@ Feature navigation lives inside each feature module, for example:
 - `auth/.../presentation/navigation/AuthNavigation.kt`
 - `pensum/.../presentation/navigation/PensumNavigation.kt`
 - `subjects/.../presentation/navigation/SubjectsNavigation.kt`
-- `wizard/.../presentation/navigation/WizardNavigation.kt`
+- `wizard/.../ui/view/CoachmarkOverlayHost.kt`
 
 Shared integration lives in:
 

@@ -1,10 +1,13 @@
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.SyncSourceStatus
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDisplayContext
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
@@ -20,6 +23,7 @@ import kotlin.math.sign
 class GetEvaluationsUseCase(
 	private val evaluationRepository: EvaluationRepository,
 	private val recordDataPrerequisiteRepository: RecordDataPrerequisiteRepository,
+	private val syncStatusRepository: SyncStatusRepository,
 	override val reportingRepository: ReportingRepository
 ) : FlowUseCase<Unit, GetEvaluations, EvaluationsUseCaseError>() {
 
@@ -48,7 +52,18 @@ class GetEvaluationsUseCase(
 
 	private suspend fun observeReadyEvaluations(): Flow<GetEvaluations> {
 		val availableAttempts = evaluationRepository.getAvailableAttempts()
-		if (availableAttempts.isEmpty()) return flowOf(GetEvaluations.NoAttempts)
+		if (availableAttempts.isEmpty()) {
+			return syncStatusRepository.observeSyncReport()
+				.map { syncReport ->
+					GetEvaluations.NoAttempts(
+						reason = if (syncReport.sources.enrollment.status == SyncSourceStatus.Unavailable) {
+							EvaluationsNoAttemptsReason.EnrollmentUnavailable
+						} else {
+							EvaluationsNoAttemptsReason.NoCurrentTerm
+						}
+					)
+				}
+		}
 		val displayContext = EvaluationDisplayContext(
 			attempts = availableAttempts,
 			currentTerm = evaluationRepository.getCurrentTerm()

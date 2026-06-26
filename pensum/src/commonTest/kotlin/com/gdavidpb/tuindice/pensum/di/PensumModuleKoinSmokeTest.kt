@@ -10,10 +10,13 @@ import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
+import com.gdavidpb.tuindice.pensum.domain.repository.PensumSettingsRepository
 import com.gdavidpb.tuindice.pensum.presentation.viewmodel.PensumViewModel
+import com.gdavidpb.tuindice.pensum.testing.FakeSettings
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
+import com.russhwolf.settings.Settings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
@@ -31,9 +34,13 @@ class PensumModuleKoinSmokeTest {
 			single<RecordDataPrerequisiteRepository> { FakeRecordDataPrerequisiteRepository() }
 			single<EventPublisher> { NoOpEventPublisher }
 			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
+			single<Settings> { FakeSettings() }
 		}
 	) {
-		assertResolves(PensumViewModel::class)
+		assertResolves(
+			PensumViewModel::class,
+			PensumSettingsRepository::class
+		)
 	}
 }
 

@@ -14,10 +14,8 @@ import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepositor
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import io.ktor.http.HttpStatusCode
-import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -31,16 +29,15 @@ class SyncDataSource(
 	private val remoteDataSource: SyncRemoteDataRepository,
 	private val recordLocalDataSource: AcademicRecordLocalDataRepository,
 	private val userLocalDataSource: LocalDataRepository,
-	syncDispatcher: CoroutineDispatcher = Dispatchers.Default
+	private val coroutineScope: CoroutineScope
 ) : SyncRepository {
-	private val syncScope = CoroutineScope(SupervisorJob() + syncDispatcher)
 	private val syncMutex = Mutex()
 	private val syncInProgress = MutableStateFlow(false)
 
 	override fun observeSyncInProgress(): Flow<Boolean> = syncInProgress.asStateFlow()
 
 	override fun scheduleSync(password: String, policy: SyncPolicy) {
-		syncScope.launch {
+		coroutineScope.launch {
 			runCatching {
 				syncMutex.withLock {
 					if (syncStatusRepository.getSyncStatus() == SyncStatus.OutdatedCredentials)
@@ -55,24 +52,27 @@ class SyncDataSource(
 						settingsDataSource.clearSyncRetryBackoff()
 					}
 
-					val syncResult = try {
-						syncInProgress.value = true
-						remoteDataSource.sync(password)
+					syncInProgress.value = true
+
+					try {
+						val syncResult = remoteDataSource.sync(password)
+
+						recordLocalDataSource.saveAcademicRecord(syncResult.record)
+						userLocalDataSource.updateUser(syncResult.user)
+						syncStatusRepository.setLastSuccessfulSyncAt(syncResult.user.lastUpdate)
+						syncStatusRepository.setSyncReport(syncResult.sync)
+						syncStatusRepository.setSyncStatus(SyncStatus.Healthy)
+						settingsDataSource.clearSyncRetryBackoff()
+						settingsDataSource.setSyncOnCooldown()
+						settingsDataSource.setSyncedFeatureCooldowns()
+						settingsDataSource.clearStaleFeatureCooldowns()
 					} finally {
 						syncInProgress.value = false
 					}
-
-					recordLocalDataSource.saveAcademicRecord(syncResult.record)
-					userLocalDataSource.updateUser(syncResult.user)
-					syncStatusRepository.setLastSuccessfulSyncAt(syncResult.user.lastUpdate)
-					syncStatusRepository.setSyncReport(syncResult.sync)
-					syncStatusRepository.setSyncStatus(SyncStatus.Healthy)
-					settingsDataSource.clearSyncRetryBackoff()
-					settingsDataSource.setSyncOnCooldown()
-					settingsDataSource.setSyncedFeatureCooldowns()
-					settingsDataSource.clearStaleFeatureCooldowns()
 				}
 			}.onFailure { throwable ->
+				if (throwable is CancellationException) throw throwable
+
 				val syncHttpStatusCode = throwable.syncHttpStatusCode()
 				val syncStatus = when {
 					syncHttpStatusCode == HttpStatusCode.Conflict || throwable.isConflict() ->

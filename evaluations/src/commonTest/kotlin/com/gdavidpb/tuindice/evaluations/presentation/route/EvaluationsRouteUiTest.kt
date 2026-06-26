@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
+import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
@@ -23,6 +24,7 @@ import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.ReadyRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.evaluations.testing.RecordingSyncStatusRepository
 import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -376,6 +378,11 @@ class EvaluationsRouteUiTest {
 				getEvaluationsUseCase = GetEvaluationsUseCase(
 					evaluationRepository = repository,
 					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+					syncStatusRepository = RecordingSyncStatusRepository(),
+					reportingRepository = RecordingReportingRepository()
+				),
+				ensureEvaluationsLoadedUseCase = EnsureEvaluationsLoadedUseCase(
+					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository()
 				),
 				updateEvaluationsUseCase = UpdateEvaluationsUseCase(

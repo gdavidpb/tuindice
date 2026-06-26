@@ -2,7 +2,7 @@ appId: com.gdavidpb.tuindice.debug
 ---
 - runFlow: ../_shared/launch-clean.yaml
 - runFlow: ../auth/login-success.yaml
-- runFlow: ../wizard/wizard-smoke.yaml
+- runFlow: ../_shared/continue-to-summary-after-auth.yaml
 - tapOn:
     id: maincore_tuindice_bottom_bar_pensum_item
 - extendedWaitUntil:
@@ -10,15 +10,28 @@ appId: com.gdavidpb.tuindice.debug
       id: pensum_screen
     timeout: 30000
 - assertVisible:
+    id: pensum_summary_container
+- tapOn:
+    id: pensum_summary_container
+- assertNotVisible:
+    id: pensum_context_summary
+- tapOn:
+    id: pensum_summary_container
+- assertVisible:
+    id: pensum_context_summary
+- assertVisible:
     id: pensum_canvas
 - assertVisible:
     id: pensum_canvas_legend
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - tapOn:
     id: pensum_status_filter_available
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - assertVisible:
     id: pensum_status_filter_clear
 - tapOn:
     id: pensum_status_filter_current
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - tapOn:
     id: pensum_status_filter_clear
 - assertNotVisible:

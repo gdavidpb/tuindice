@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.base.data.source.secure.ACTIVE_SECURE_STORE_QUALIFI
 import com.gdavidpb.tuindice.base.data.source.secure.LEGACY_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.data.source.usage.UsageDataCollectionDataSource
+import com.gdavidpb.tuindice.base.domain.coroutine.AppCoroutineScope
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
@@ -52,7 +53,9 @@ import com.gdavidpb.tuindice.platform.android.AndroidKeystoreProofOfPossessionCa
 import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
 import com.gdavidpb.tuindice.platform.android.UserAgent
 import com.gdavidpb.tuindice.platform.android.androidDefaultConfigValues
+import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
+import com.gdavidpb.tuindice.summary.data.source.AndroidBitmapPictureEncoderDataSource
 import com.gdavidpb.tuindice.summary.data.source.AndroidProfilePictureInputDataSource
 import com.gdavidpb.tuindice.ui.screen.AndroidBrowserScreenRenderer
 import com.gdavidpb.tuindice.ui.screen.BrowserScreenRenderer
@@ -167,7 +170,8 @@ val androidPlatformModule = module {
 				setCollectionEnabledActions = listOf(
 					get<FirebaseAnalytics>()::setAnalyticsCollectionEnabled,
 					get<FirebasePerformance>()::setPerformanceCollectionEnabled
-				)
+				),
+				coroutineScope = get<AppCoroutineScope>()
 			)
 		}
 	}
@@ -227,6 +231,7 @@ val androidPlatformModule = module {
 	factoryOf(::AndroidStoreUrlDataSource) { bind<StoreUrlRepository>() }
 	factoryOf(::AndroidShareTextHandler) { bind<ShareTextHandler>() }
 	singleOf(::AndroidProfilePictureInputDataSource) { bind<ProfilePictureInputDataRepository>() }
+	singleOf(::AndroidBitmapPictureEncoderDataSource) { bind<PictureEncoderDataRepository>() }
 
 	singleOf(::PlayIntegrityDataSource) { bind<AttestationProviderDataRepository>() }
 	factory<AuthApiDataRepository> {

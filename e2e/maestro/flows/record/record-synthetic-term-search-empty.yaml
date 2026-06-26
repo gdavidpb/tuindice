@@ -2,19 +2,21 @@ appId: com.gdavidpb.tuindice.debug
 ---
 - runFlow: ../_shared/launch-clean.yaml
 - runFlow: ../auth/login-success.yaml
-- runFlow: ../wizard/wizard-smoke.yaml
+- runFlow: ../_shared/continue-to-summary-after-auth.yaml
 - tapOn:
     id: maincore_tuindice_bottom_bar_record_item
 - extendedWaitUntil:
     visible:
       id: record_content_container
     timeout: 30000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - tapOn:
     id: record_create_synthetic_term_fab
 - extendedWaitUntil:
     visible:
       id: record_create_synthetic_term_screen
     timeout: 10000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - tapOn:
     id: record_create_synthetic_term_search_tab
 - runFlow:
@@ -44,12 +46,7 @@ appId: com.gdavidpb.tuindice.debug
       platform: Android
     commands:
       - hideKeyboard
-- runFlow:
-    when:
-      platform: iOS
-    commands:
-      - tapOn:
-          point: "87%,89%"
+- runFlow: ../_shared/submit-ios-search-key-if-visible.yaml
 - assertVisible:
     id: record_create_synthetic_term_search_field
 - extendedWaitUntil:

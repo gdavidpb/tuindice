@@ -2,8 +2,10 @@ package com.gdavidpb.tuindice.evaluations.presentation.machine
 
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.model.EvaluationType
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
@@ -26,6 +28,7 @@ import com.gdavidpb.tuindice.evaluations.testing.FakeIdentifierRepository
 import com.gdavidpb.tuindice.evaluations.testing.ReadyRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.evaluations.testing.RecordingSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
@@ -138,6 +141,11 @@ class EvaluationsStateMachineContractTest {
 			getEvaluationsUseCase = GetEvaluationsUseCase(
 				evaluationRepository = repository,
 				recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+				syncStatusRepository = RecordingSyncStatusRepository(),
+				reportingRepository = reportingRepository
+			),
+			ensureEvaluationsLoadedUseCase = EnsureEvaluationsLoadedUseCase(
+				evaluationRepository = repository,
 				reportingRepository = reportingRepository
 			),
 			updateEvaluationsUseCase = UpdateEvaluationsUseCase(
@@ -171,6 +179,7 @@ class EvaluationsStateMachineContractTest {
 			screenMachine = screenMachine,
 			sampleEvents = listOf(
 				Evaluations.Action.LoadEvaluations,
+				Evaluations.Action.EnsureEvaluationsLoaded,
 				Evaluations.Action.RefreshEvaluations,
 				Evaluations.Action.SelectWeek(weekKey = weekKey),
 				Evaluations.Action.AddEvaluation,
@@ -187,7 +196,9 @@ class EvaluationsStateMachineContractTest {
 				Evaluations.Action.RemoveEvaluation(evaluationId = "evaluation-1"),
 				EvaluationsInternalEvent.EvaluationsWaitingObserved,
 				EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved,
-				EvaluationsInternalEvent.EvaluationsNoAttemptsObserved,
+				EvaluationsInternalEvent.EvaluationsNoAttemptsObserved(
+					reason = EvaluationsNoAttemptsReason.NoCurrentTerm
+				),
 				EvaluationsInternalEvent.EvaluationsContentObserved(
 					weekItems = listOf(weekItem),
 					defaultWeekKey = weekKey,
@@ -200,6 +211,7 @@ class EvaluationsStateMachineContractTest {
 					)
 				),
 				EvaluationsInternalEvent.EvaluationsEmptyObserved,
+				EvaluationsInternalEvent.EvaluationsEmptyConfirmed,
 				EvaluationsInternalEvent.EvaluationsObservationFailed,
 				EvaluationsInternalEvent.EvaluationsRefreshStarted,
 				EvaluationsInternalEvent.EvaluationsRefreshFailed,
@@ -216,7 +228,7 @@ class EvaluationsStateMachineContractTest {
 				EvaluationsInternalEvent.EvaluationRemoved(message = "Evaluación eliminada"),
 				EvaluationsInternalEvent.EvaluationRemoveFailed(message = "No se pudo eliminar")
 			),
-			scope = backgroundScope,
+			coroutineScope = backgroundScope,
 			// Conservative floor: every internal event is sampled by hand; raise to the
 			// observed coverage once the walk has run on CI.
 			minRowCoverage = 0.4
@@ -294,7 +306,7 @@ class EvaluationsStateMachineContractTest {
 					navigateBack = false
 				)
 			),
-			scope = backgroundScope,
+			coroutineScope = backgroundScope,
 			// Conservative floor: every internal event is sampled by hand; raise to the
 			// observed coverage once the walk has run on CI.
 			minRowCoverage = 0.4
@@ -310,6 +322,11 @@ class EvaluationsStateMachineContractTest {
 				getEvaluationsUseCase = GetEvaluationsUseCase(
 					evaluationRepository = repository,
 					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+					syncStatusRepository = RecordingSyncStatusRepository(),
+					reportingRepository = reportingRepository
+				),
+				ensureEvaluationsLoadedUseCase = EnsureEvaluationsLoadedUseCase(
+					evaluationRepository = repository,
 					reportingRepository = reportingRepository
 				),
 				updateEvaluationsUseCase = UpdateEvaluationsUseCase(

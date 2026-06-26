@@ -27,7 +27,7 @@ Ver la configuración completa en `docs/release-pipeline.md`.
 - `enrollmentproof`: constancia de inscripción y apertura de archivos.
 - `subjects`: estadísticas y detalle histórico de una materia.
 - `pensum`: mapa de pensum, avance, selección de modalidad y búsqueda de estadísticas por materia.
-- `wizard`: onboarding inicial con flujo sintético que reutiliza pantallas reales de la app.
+- `wizard`: onboarding progresivo con overlays contextuales sobre pantallas reales de la app.
 - `maincore`: navegación compartida, bootstrap común de Koin y superficie principal de la app.
 - `app`: host Android.
 - `iosApp`: host iOS.
@@ -97,16 +97,15 @@ Dependencias actuales:
 - `evaluations`: depende de `:academiccore`, `:base`, `:persistence`.
 - `subjects`: depende de `:academiccore`, `:base`, `:persistence`.
 - `pensum`: depende de `:academiccore`, `:base`, `:persistence`.
-- `wizard`: depende de `:base`, `:academiccore`, `:summary`, `:record`, `:evaluations`, `:subjects`, `:about`
-  `:pensum` y `:enrollmentproof`.
+- `wizard`: depende de `:base`, `:summary`, `:record`, `:evaluations`, `:pensum`, `:subjects` y `:about`.
 - `maincore`: depende de `:base`, `:persistence` y todas las features.
 - `app`: host Android; ensambla `maincore`.
 
 Acuerdo de límites:
 
 - No agregar nuevas dependencias feature -> feature.
-- La excepción `wizard -> features` es intencional: `wizard` no es un feature normal, sino un orquestador de
-  experiencia inicial que reutiliza pantallas reales con datos sintéticos.
+- La excepción `wizard -> features` es intencional: `wizard` no es un feature normal, sino una capa de coachmarks
+  contextuales que detecta pantallas reales elegibles y muestra overlays anclados.
 - Cualquier nueva excepción requiere acuerdo explícito antes de implementarse.
 
 ## Capas por feature

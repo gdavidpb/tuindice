@@ -66,7 +66,7 @@ actions:
 
   - id: auth.SignIn.SetUsbId
     classification: user
-    variants: [valid-format, invalid-format, usb-email]
+    variants: [valid-format, invalid-format, usb-email, usb-email-usbid]
     selector: auth_usb_id_text_field
     flow: e2e/maestro/flows/auth/login-success.yaml
     fixture_state: auth-success
@@ -84,7 +84,7 @@ actions:
     fixture_state: static
   - id: auth.SignIn.ToggleIdentifierMode
     classification: user
-    variants: [usb-email-login]
+    variants: [usb-email-login, usb-email-usbid-login]
     selector: auth_identifier_mode_toggle
     flow: e2e/maestro/flows/auth/login-usb-email-success.yaml
     fixture_state: auth-email-success
@@ -216,6 +216,9 @@ actions:
   - id: evaluations.Evaluations.LoadEvaluations
     classification: internal
     reason: list bootstrap
+  - id: evaluations.Evaluations.EnsureEvaluationsLoaded
+    classification: internal
+    reason: route entry confirms initial evaluations refresh before showing empty
   - id: evaluations.Evaluations.RefreshEvaluations
     classification: user
     variants: [success, failed-retry, waiting-record, no-attempts]
@@ -313,12 +316,6 @@ actions:
     selector: maincore_tuindice_bottom_bar
     flow: e2e/maestro/flows/maincore/bottom-bar-state.yaml
     fixture_state: static
-  - id: maincore.Main.RequestWizardStart
-    classification: user
-    variants: [first-launch, manual-start]
-    selector: wizard_welcome_screen
-    flow: e2e/maestro/flows/wizard/wizard-smoke.yaml
-    fixture_state: first-launch
 
   - id: pensum.Pensum.ObservePensum
     classification: internal
@@ -344,6 +341,12 @@ actions:
     selector: pensum_context_summary
     flow: e2e/maestro/flows/pensum/pensum-selection.yaml
     fixture_state: pensum-versions-modalities
+  - id: pensum.Pensum.ToggleSummaryCollapsed
+    classification: user
+    variants: [collapse, expand]
+    selector: pensum_summary_container
+    flow: e2e/maestro/flows/pensum/pensum-smoke.yaml
+    fixture_state: pensum-success
 
   - id: record.CreateSyntheticTerm.Observe
     classification: internal
@@ -394,6 +397,9 @@ actions:
   - id: record.Record.ObserveRecord
     classification: internal
     reason: screen bootstrap
+  - id: record.Record.EnsureRecordLoaded
+    classification: internal
+    reason: route entry preserves initial record refresh while local content wins
   - id: record.Record.RefreshRecord
     classification: user
     variants: [success, initial-load-failed-retry-success]
@@ -504,75 +510,18 @@ actions:
     fixture_state: profile-picture-delete
     platform_edge: not-found and outdated-credentials delete variants require dedicated backend states not yet stable in Maestro.
 
-  - id: wizard.Wizard.Advance
+  - id: wizard.CoachmarkOverlay.SurfaceChanged
+    classification: internal
+    reason: host bridge from active real ViewState to contextual onboarding eligibility
+  - id: wizard.CoachmarkOverlay.PrimaryActionClick
     classification: user
-    variants: [next-step, step-sequence]
-    selector: wizard_primary_button
-    flow: e2e/maestro/flows/wizard/wizard-navigation-focus.yaml
-    fixture_state: first-launch
-  - id: wizard.Wizard.Back
+    variants: [contextual-summary, progressive-record]
+    selector: coachmark_confirm
+    flow: e2e/maestro/flows/coachmarks/coachmark-contextual-summary.yaml
+    fixture_state: authenticated-coachmarks-pending
+  - id: wizard.CoachmarkOverlay.PreviousActionClick
     classification: user
-    variants: [previous-step]
-    selector: wizard_back_button
-    flow: e2e/maestro/flows/wizard/wizard-navigation-focus.yaml
-    fixture_state: first-launch
-  - id: wizard.Wizard.Dismiss
-    classification: user
-    variants: [skip]
-    selector: wizard_skip_button
-    flow: e2e/maestro/flows/wizard/wizard-smoke.yaml
-    fixture_state: first-launch
-  - id: wizard.Wizard.Finish
-    classification: user
-    variants: [finish]
-    selector: wizard_primary_button
-    flow: e2e/maestro/flows/wizard/wizard-finish.yaml
-    fixture_state: first-launch
-  - id: wizard.Wizard.OpenSubjectDetail
-    classification: user
-    variants: [guided-subject-detail]
-    selector: pensum_node_ma1111
-    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
-    fixture_state: first-launch
-  - id: wizard.Wizard.OpenEvaluationForm
-    classification: user
-    variants: [guided-evaluation-form]
-    selector: evaluations_add_fab
-    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
-    fixture_state: first-launch
-  - id: wizard.Wizard.ConsumeTopBarAction
-    classification: user
-    variants: [record-term-selection-consumed]
-    selector: base_top_app_bar_action_record_term_selection
-    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
-    fixture_state: first-launch
-  - id: wizard.Wizard.SelectSubjectTab
-    classification: user
-    variants: [career, global]
-    selector: subjects_global_tab
-    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
-    fixture_state: first-launch
-  - id: wizard.Wizard.SetRecordViewMode
-    classification: user
-    variants: [historical, projection]
-    selector: record_top_bar_view_mode_switch
-    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
-    fixture_state: first-launch
-  - id: wizard.Wizard.SelectTerm
-    classification: user
-    variants: [guided-term]
-    selector: record_term_chip_2024-3
-    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
-    fixture_state: first-launch
-  - id: wizard.Wizard.DismissRecordTermSelection
-    classification: user
-    variants: [guided-term-sheet-dismiss]
-    selector: record_term_selection_option_2026-2
-    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
-    fixture_state: first-launch
-  - id: wizard.Wizard.SetSubjectChartsVisible
-    classification: user
-    variants: [show, hide]
-    selector: subjects_charts
-    flow: e2e/maestro/flows/wizard/wizard-guided-actions.yaml
-    fixture_state: first-launch
+    variants: [progressive-record]
+    selector: coachmark_back
+    flow: e2e/maestro/flows/coachmarks/coachmark-progressive-record.yaml
+    fixture_state: authenticated-coachmarks-pending

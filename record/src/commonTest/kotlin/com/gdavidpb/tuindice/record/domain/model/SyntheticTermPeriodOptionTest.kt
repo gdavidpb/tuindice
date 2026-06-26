@@ -32,7 +32,7 @@ class SyntheticTermPeriodOptionTest {
 		)
 
 		assertEquals(20271, january.termOrder)
-		assertEquals(20274, september.termOrder)
+		assertEquals(20276, september.termOrder)
 		assertTrue(january.termOrder < september.termOrder)
 		assertTrue(september.termOrder < nextYear.termOrder)
 	}
@@ -45,5 +45,12 @@ class SyntheticTermPeriodOptionTest {
 		)
 
 		assertEquals("Abr - Jul 2027", option.label)
+	}
+
+	@Test
+	fun longPeriods_areNotSupportedForSyntheticPlanning() {
+		assertTrue(!AcademicTermPeriod.JUL_DEC.supportsSyntheticPlanning)
+		assertTrue(!AcademicTermPeriod.APR_SEP.supportsSyntheticPlanning)
+		assertTrue(!AcademicTermPeriod.JAN_MAY.supportsSyntheticPlanning)
 	}
 }

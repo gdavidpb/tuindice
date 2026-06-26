@@ -66,20 +66,6 @@ enum TuIndiceDebugRuntimeOverrides {
         #endif
     }
 
-    static func configureWizardStateOverridesIfNeeded(
-        appBootstrap: IosAppHostBootstrap
-    ) {
-        #if DEBUG
-        let isPending = launchArgumentString(for: wizardPendingKey)
-            .map { ["true", "1", "yes"].contains($0.trimmingCharacters(in: .whitespacesAndNewlines).lowercased()) }
-            ?? false
-
-        appBootstrap.setDebugWizardStartForced(enabled: isPending)
-        #else
-        _ = appBootstrap
-        #endif
-    }
-
     static func runStartupHooksIfNeeded(
         appBootstrap: IosAppHostBootstrap,
         apiBaseUrl: String
@@ -94,10 +80,10 @@ enum TuIndiceDebugRuntimeOverrides {
 
         seedWireMockTokensIssuedState(apiBaseUrl: apiBaseUrl)
         switch seedState {
-        case "authenticatedWizardComplete":
-            appBootstrap.runAuthenticatedWizardCompleteStartupHook(mainSectionName: mainSectionName)
-        case "authenticatedWizardPending":
-            appBootstrap.runAuthenticatedWizardPendingStartupHook(mainSectionName: mainSectionName)
+        case "authenticatedCoachmarksSeen":
+            appBootstrap.runAuthenticatedCoachmarksSeenStartupHook(mainSectionName: mainSectionName)
+        case "authenticatedCoachmarksPending":
+            appBootstrap.runAuthenticatedCoachmarksPendingStartupHook(mainSectionName: mainSectionName)
         default:
             fatalError("Unsupported debug startup hook: \(seedState)")
         }
@@ -119,7 +105,6 @@ private extension TuIndiceDebugRuntimeOverrides {
     static let availabilityNoticeEnabledKey = "TUINDICE_E2E_AVAILABILITY_NOTICE_ENABLED"
     static let availabilityNoticeTitleKey = "TUINDICE_E2E_AVAILABILITY_NOTICE_TITLE"
     static let availabilityNoticeMessageKey = "TUINDICE_E2E_AVAILABILITY_NOTICE_MESSAGE"
-    static let wizardPendingKey = "TUINDICE_E2E_WIZARD_PENDING"
 
     static func launchArgumentString(for key: String) -> String? {
         if let value = ProcessInfo.processInfo.environment[key], value.isEmpty == false {

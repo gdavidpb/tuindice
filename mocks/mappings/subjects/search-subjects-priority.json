@@ -5,7 +5,7 @@
     "urlPath": "/subjects/v1/search",
     "queryParameters": {
       "query": {
-        "contains": "prioridad"
+        "contains": "pr"
       }
     },
     "headers": {
