@@ -14,7 +14,11 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateE
 import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationsMachine
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.testing.*
+import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
+import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
+import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -28,130 +32,192 @@ class EvaluationsViewModelContractTest {
 	@Test
 	fun initialActionLoadsContent_andPublicActionsEmitNavigationEffect() = runTest {
 		val viewModel = createViewModel(testScheduler)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
 
-		viewModel.state.test {
-			assertEquals(Evaluations.State.Idle, awaitItem())
+		try {
+			viewModel.state.test {
+				val content = awaitUntilState<Evaluations.State.Content>()
+				assertEquals(2, content.evaluationGroups.flatMap { group -> group.items }.size)
+				assertEquals(
+					2,
+					content.evaluationWeekGroups
+						.flatMap { weekGroup -> weekGroup.groups }
+						.flatMap { group -> group.items }
+						.size
+				)
 
-			val content = assertIs<Evaluations.State.Content>(awaitItem())
-			assertEquals(2, content.evaluationGroups.flatMap { group -> group.items }.size)
-			assertEquals(
-				2,
-				content.evaluationWeekGroups
-					.flatMap { weekGroup -> weekGroup.groups }
-					.flatMap { group -> group.items }
-					.size
-			)
+				cancelAndIgnoreRemainingEvents()
+			}
 
-			cancelAndIgnoreRemainingEvents()
-		}
+			viewModel.effect.test {
+				viewModel.addEvaluationAction()
+				assertIs<Evaluations.Effect.NavigateToAddEvaluation>(awaitItem())
 
-		viewModel.effect.test {
-			viewModel.addEvaluationAction()
-			assertIs<Evaluations.Effect.NavigateToAddEvaluation>(awaitItem())
-
-			cancelAndIgnoreRemainingEvents()
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
 		}
 	}
 
 	@Test
 	fun ensureLoaded_whenLocalEmptyAndRefreshAddsContent_neverEmitsEmpty() = runTest {
+		val repository = RecordingEvaluationRepository(
+			initialEvaluations = emptyList(),
+			refreshedEvaluations = listOf(DEFAULT_PENDING_EVALUATION),
+			availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
+		)
 		val viewModel = createViewModel(
 			testScheduler = testScheduler,
-			repository = RecordingEvaluationRepository(
-				initialEvaluations = emptyList(),
-				refreshedEvaluations = listOf(DEFAULT_PENDING_EVALUATION),
-				availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
-			)
+			repository = repository
+		)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
 		)
 
-		viewModel.state.test {
-			assertEquals(Evaluations.State.Idle, awaitItem())
+		try {
+			viewModel.state.test {
+				viewModel.ensureEvaluationsLoadedAction()
 
-			viewModel.ensureEvaluationsLoadedAction()
+				var reachedContent = false
+				var observedStates = 0
+				while (!reachedContent && observedStates < 4) {
+					observedStates++
+					when (val state = awaitItem()) {
+						is Evaluations.State.Content -> {
+							reachedContent = true
+							assertEquals(1, state.evaluationGroups.flatMap { group -> group.items }.size)
+						}
 
-			assertIs<Evaluations.State.Loading>(awaitItem())
-			assertIs<Evaluations.State.Content>(awaitItem())
+						Evaluations.State.Empty -> fail("Refresh with content must not reduce through Empty")
+						else -> assertFalse(state is Evaluations.State.Empty)
+					}
+				}
 
-			cancelAndIgnoreRemainingEvents()
+				if (!reachedContent) fail("Expected Content")
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
 		}
+
+		assertEquals(1, repository.updateEvaluationsCalls)
+		assertEquals(listOf(true), repository.updateEvaluationsForceRemoteCalls)
 	}
 
 	@Test
 	fun ensureLoaded_whenLocalEmptyAndRefreshStaysEmptyWithAttempts_confirmsEmpty() = runTest {
+		val repository = RecordingEvaluationRepository(
+			initialEvaluations = emptyList(),
+			refreshedEvaluations = emptyList(),
+			availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
+		)
 		val viewModel = createViewModel(
 			testScheduler = testScheduler,
-			repository = RecordingEvaluationRepository(
-				initialEvaluations = emptyList(),
-				refreshedEvaluations = emptyList(),
-				availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
-			)
+			repository = repository
+		)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
 		)
 
-		viewModel.state.test {
-			assertEquals(Evaluations.State.Idle, awaitItem())
+		try {
+			viewModel.state.test {
+				viewModel.ensureEvaluationsLoadedAction()
+				advanceUntilIdle()
 
-			viewModel.ensureEvaluationsLoadedAction()
-
-			assertIs<Evaluations.State.Loading>(awaitItem())
-			assertEquals(Evaluations.State.Empty, awaitItem())
-
-			cancelAndIgnoreRemainingEvents()
+				awaitUntilState<Evaluations.State.Empty>()
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
 		}
+
+		assertEquals(1, repository.updateEvaluationsCalls)
+		assertEquals(listOf(true), repository.updateEvaluationsForceRemoteCalls)
 	}
 
 	@Test
 	fun ensureLoaded_whenAttemptsAreUnavailable_endsInNoAttemptsNotEmpty() = runTest {
+		val repository = RecordingEvaluationRepository(
+			initialEvaluations = emptyList(),
+			refreshedEvaluations = emptyList(),
+			availableSubjects = emptyList()
+		)
 		val viewModel = createViewModel(
 			testScheduler = testScheduler,
-			repository = RecordingEvaluationRepository(
-				initialEvaluations = emptyList(),
-				refreshedEvaluations = emptyList(),
-				availableSubjects = emptyList()
-			)
+			repository = repository
+		)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
 		)
 
-		viewModel.state.test {
-			assertEquals(Evaluations.State.Idle, awaitItem())
-			viewModel.ensureEvaluationsLoadedAction()
+		try {
+			viewModel.state.test {
+				viewModel.ensureEvaluationsLoadedAction()
 
-			var reachedNoAttempts = false
-			var observedStates = 0
-			while (!reachedNoAttempts && observedStates < 4) {
-				observedStates++
-				when (val state = awaitItem()) {
-					is Evaluations.State.NoAttempts -> reachedNoAttempts = true
+				var reachedNoAttempts = false
+				var observedStates = 0
+				while (!reachedNoAttempts && observedStates < 4) {
+					observedStates++
+					when (val state = awaitItem()) {
+						is Evaluations.State.NoAttempts -> reachedNoAttempts = true
 
-					Evaluations.State.Empty -> fail("No attempts must not reduce through Empty")
-					else -> assertFalse(state is Evaluations.State.Empty)
+						Evaluations.State.Empty -> fail("No attempts must not reduce through Empty")
+						else -> assertFalse(state is Evaluations.State.Empty)
+					}
 				}
-			}
 
-			if (!reachedNoAttempts) fail("Expected NoAttempts")
-			cancelAndIgnoreRemainingEvents()
+				if (!reachedNoAttempts) fail("Expected NoAttempts")
+				advanceUntilIdle()
+				expectNoEvents()
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
 		}
+
+		assertEquals(1, repository.updateEvaluationsCalls)
+		assertEquals(listOf(true), repository.updateEvaluationsForceRemoteCalls)
 	}
 
 	@Test
 	fun ensureLoaded_whenContentExists_keepsContentDuringInitialRefresh() = runTest {
+		val repository = RecordingEvaluationRepository(
+			initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION),
+			refreshedEvaluations = listOf(DEFAULT_PENDING_EVALUATION),
+			availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
+		)
 		val viewModel = createViewModel(
 			testScheduler = testScheduler,
-			repository = RecordingEvaluationRepository(
-				initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION),
-				refreshedEvaluations = listOf(DEFAULT_PENDING_EVALUATION),
-				availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
-			)
+			repository = repository
+		)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
 		)
 
-		viewModel.state.test {
-			assertEquals(Evaluations.State.Idle, awaitItem())
-			assertIs<Evaluations.State.Content>(awaitItem())
+		try {
+			viewModel.state.test {
+				awaitUntilState<Evaluations.State.Content>()
 
-			viewModel.ensureEvaluationsLoadedAction()
-			advanceUntilIdle()
+				viewModel.ensureEvaluationsLoadedAction()
+				advanceUntilIdle()
 
-			expectNoEvents()
-			cancelAndIgnoreRemainingEvents()
+				expectNoEvents()
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
 		}
+
+		assertEquals(1, repository.updateEvaluationsCalls)
+		assertEquals(listOf(false), repository.updateEvaluationsForceRemoteCalls)
 	}
 
 	private fun createViewModel(
@@ -191,13 +257,14 @@ class EvaluationsViewModelContractTest {
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = UpdateEvaluationExceptionHandler()
 				),
-				removeEvaluationUseCase = RemoveEvaluationUseCase(
-					evaluationRepository = repository,
-					reportingRepository = RecordingReportingRepository(),
-					exceptionHandler = RemoveEvaluationExceptionHandler()
-				)
+					removeEvaluationUseCase = RemoveEvaluationUseCase(
+						evaluationRepository = repository,
+						reportingRepository = RecordingReportingRepository(),
+						exceptionHandler = RemoveEvaluationExceptionHandler()
+					)
 			),
-			eventPublisher = NoOpEventPublisher
+			eventPublisher = NoOpEventPublisher,
+			dispatchers = TestTuIndiceDispatchers(UnconfinedTestDispatcher(testScheduler))
 		)
 	}
 }
