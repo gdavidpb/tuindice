@@ -30,7 +30,7 @@
 	<string name="a11y_hide_password">Ocultar contraseña</string>
 	<string name="a11y_use_usb_email">Iniciar con correo USB</string>
 	<string name="a11y_use_usb_id">Usar USBID</string>
-	<string name="tooltip_usb_email">Iniciar con correo USB</string>
+	<string name="tooltip_usb_email">Puedes iniciar sesión con tu correo si lo prefieres.</string>
 	<string name="title_terms_and_conditions">Términos y condiciones</string>
 	<string name="title_privacy_policy">Política de privacidad</string>
 	<string name="error_invalid_usb_id_credentials">Revisa tu USBID y contraseña</string>
