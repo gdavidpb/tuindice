@@ -148,7 +148,7 @@ class UsbIdTextFieldUiTest {
 
 		waitForIdle()
 
-		assertNodeVisible(AuthUiTags.IdentifierModeTogglePulse)
+		assertNodeVisible(AuthUiTags.IdentifierModeTogglePulse, useUnmergedTree = true)
 	}
 
 	@Test
@@ -165,6 +165,6 @@ class UsbIdTextFieldUiTest {
 			)
 		}
 
-		assertNodeHidden(AuthUiTags.IdentifierModeTogglePulse)
+		assertNodeHidden(AuthUiTags.IdentifierModeTogglePulse, useUnmergedTree = true)
 	}
 }
