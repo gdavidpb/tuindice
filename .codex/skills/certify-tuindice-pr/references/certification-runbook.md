@@ -91,6 +91,25 @@ If evidence fails, stop the PR path and diagnose:
 - If the failure is stale or insufficient E2E coverage, fix the flow, fixture, assertion, or selector.
 - If the failure is local environment only, clean the specific simulator/device, WireMock process, port, or temporary state and rerun without unrelated code changes.
 
+### Product Integrity Gate
+
+Treat E2E stabilization as a test and certification activity unless the evidence
+proves a real product bug. Do not change the product experience simply because a
+flow becomes easier to drive.
+
+- Do not move, hide, resize, reorder, relabel, or weaken UI surfaces just to make
+  Maestro, preflight, or platform automation pass.
+- Prefer harness-level fixes: stable selectors, waits, reset state, fixtures,
+  mocked responses, simulator/device cleanup, or platform-specific test helpers.
+- If production UI, copy, layout, navigation, gestures, timing, or business
+  behavior must change, document why it is the intended product behavior and not
+  an automation workaround.
+- Add or update focused product/UI coverage for any user-visible product change
+  made during certification, so the intended experience is protected from future
+  stabilization regressions.
+- Stop and ask before committing or pushing when a passing certification path
+  depends on a user-visible product change whose product rationale is unclear.
+
 After a code or test fix:
 
 ```bash

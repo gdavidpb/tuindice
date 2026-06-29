@@ -57,7 +57,6 @@ fun SignInIdleView(
 	usbEmailPlaceholderText: String,
 	useUsbEmailContentDescription: String,
 	useUsbIdContentDescription: String,
-	usbEmailTooltipText: String,
 	passwordLabelText: String,
 	usageDataConsentText: String = "",
 	signInButtonText: String
@@ -120,8 +119,7 @@ fun SignInIdleView(
 				SignInIdentifierMode.UsbId -> useUsbEmailContentDescription
 				SignInIdentifierMode.UsbEmail -> useUsbIdContentDescription
 			},
-			tooltipText = usbEmailTooltipText,
-			showTooltip = state.identifierMode == SignInIdentifierMode.UsbId && state.usbId.isEmpty(),
+			showTogglePulse = state.identifierMode == SignInIdentifierMode.UsbId && state.usbId.isEmpty(),
 			usbId = state.usbId,
 			onUsbIdChange = onUsbIdChange,
 			onIdentifierModeToggle = onIdentifierModeToggle,

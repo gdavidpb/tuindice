@@ -122,7 +122,7 @@ class EvaluationsScreenUiTest {
 			onNodeWithText("Servicio de inscripción no disponible").assertExists()
 			onNodeWithText(
 				"En este momento no está disponible el servicio de inscripción de la universidad. " +
-					"Intenta sincronizar de nuevo más tarde para cargar las materias del trimestre."
+					"Intenta cargar de nuevo más tarde."
 			).assertExists()
 		}
 }

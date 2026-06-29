@@ -153,6 +153,7 @@ fun TuIndiceAppHostRoute(
 			.observeSyncStatus()
 			.collectAsStateWithLifecycle(initialValue = SyncStatus.Healthy)
 		val isContentAvailable = state is Main.State.Content
+		val isUpdatePasswordDismissed = isUpdatePasswordDismissedForOutdatedCredentials.value
 
 		LaunchedEffect(syncStatus) {
 			if (syncStatus != SyncStatus.OutdatedCredentials) {
@@ -209,24 +210,17 @@ fun TuIndiceAppHostRoute(
 			}
 		}
 
-		LaunchedEffect(syncStatus, state) {
+		LaunchedEffect(syncStatus, state, isUpdatePasswordDismissed) {
 			if (state !is Main.State.Content) return@LaunchedEffect
 			if (syncStatus != SyncStatus.OutdatedCredentials) return@LaunchedEffect
+			if (isUpdatePasswordDismissed) return@LaunchedEffect
+
+			navController.currentBackStackEntryFlow
+				.first { backStackEntry ->
+					backStackEntry.destination.route.canShowUpdatePasswordDialog()
+				}
+
 			if (isUpdatePasswordDismissedForOutdatedCredentials.value) return@LaunchedEffect
-
-			yield()
-
-			val currentRoute = navController.currentBackStackEntryFlow
-				.first()
-				.destination
-				.route
-
-			if (
-				currentRoute == null ||
-				currentRoute in updatePasswordSuppressedRoutes ||
-				currentRoute == AuthDestination.UpdatePasswordDialog::class.qualifiedName
-			)
-				return@LaunchedEffect
 
 			navController.navigate(AuthDestination.UpdatePasswordDialog) {
 				launchSingleTop = true
@@ -356,6 +350,11 @@ fun TuIndiceAppHostRoute(
 		)
 	}
 }
+
+private fun String?.canShowUpdatePasswordDialog(): Boolean =
+	this != null &&
+		this !in updatePasswordSuppressedRoutes &&
+		this != AuthDestination.UpdatePasswordDialog::class.qualifiedName
 
 private fun BrowserRepository.openUpdateStoreFallback(
 	result: UpdateLaunchResult.OpenStoreFallback

@@ -29,7 +29,6 @@ import tuindice.auth.generated.resources.placeholder_usb_email
 import tuindice.auth.generated.resources.placeholder_usb_id
 import tuindice.auth.generated.resources.a11y_use_usb_email
 import tuindice.auth.generated.resources.a11y_use_usb_id
-import tuindice.auth.generated.resources.tooltip_usb_email
 
 @Composable
 fun SignInScreen(
@@ -82,7 +81,6 @@ fun SignInScreen(
 						usbEmailPlaceholderText = stringResource(Res.string.placeholder_usb_email),
 						useUsbEmailContentDescription = stringResource(Res.string.a11y_use_usb_email),
 						useUsbIdContentDescription = stringResource(Res.string.a11y_use_usb_id),
-						usbEmailTooltipText = stringResource(Res.string.tooltip_usb_email),
 						passwordLabelText = stringResource(Res.string.hint_password),
 						usageDataConsentText = stringResource(Res.string.label_usage_data_consent),
 						signInButtonText = stringResource(Res.string.button_sign_in)

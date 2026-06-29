@@ -9,6 +9,7 @@ import androidx.compose.ui.test.assertHasClickAction
 import androidx.compose.ui.test.assertIsNotSelected
 import androidx.compose.ui.test.assertIsSelected
 import androidx.compose.ui.test.assertTextEquals
+import androidx.compose.ui.test.getUnclippedBoundsInRoot
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
@@ -56,6 +57,7 @@ import tuindice.pensum.generated.resources.pensum_failed_service_unavailable
 import tuindice.pensum.generated.resources.pensum_local_data_warning_network
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
 class PensumScreenUiTest {
@@ -354,6 +356,12 @@ class PensumScreenUiTest {
 		}
 
 		assertNodeVisible(PensumUiTags.CanvasLegend)
+		val canvasBounds = onNodeWithTag(PensumUiTags.Canvas).getUnclippedBoundsInRoot()
+		val legendBounds = onNodeWithTag(PensumUiTags.CanvasLegend).getUnclippedBoundsInRoot()
+		assertTrue(
+			canvasBounds.bottom - legendBounds.bottom <= 24.dp,
+			"Expected the pensum legend to stay close to the canvas bottom."
+		)
 		onNodeWithTag(PensumUiTags.statusFilter(PensumNodeStatusType.APPROVED)).assertHasClickAction()
 		onNodeWithTag(PensumUiTags.statusFilter(PensumNodeStatusType.CURRENT)).assertHasClickAction()
 		onNodeWithTag(PensumUiTags.statusFilter(PensumNodeStatusType.AVAILABLE)).assertHasClickAction()
@@ -369,6 +377,11 @@ class PensumScreenUiTest {
 		assertNodeVisible(PensumUiTags.StickyTerms)
 		assertNodeVisible(PensumUiTags.FitToScreen)
 		assertNodeVisible(PensumUiTags.MinimapToggle)
+		val zoomOutBounds = onNodeWithTag(PensumUiTags.ZoomOut).getUnclippedBoundsInRoot()
+		assertTrue(
+			canvasBounds.bottom - zoomOutBounds.bottom <= 80.dp,
+			"Expected the pensum zoom controls to stay close to the canvas bottom."
+		)
 		onNodeWithTag(PensumUiTags.ZoomOut).assertHasClickAction()
 		assertNodeHidden(PensumUiTags.Minimap)
 		onNodeWithTag(PensumUiTags.MinimapToggle).assertHasClickAction().performClick()
