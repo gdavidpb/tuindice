@@ -10,6 +10,13 @@ appId: com.gdavidpb.tuindice.debug
       id: evaluations_content_container
     timeout: 30000
 - runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+- scrollUntilVisible:
+    element:
+      id: evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
+    direction: DOWN
+    visibilityPercentage: 50
+    centerElement: true
+    timeout: 15000
 - assertVisible:
     id: evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
 - swipe:
