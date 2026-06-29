@@ -861,12 +861,12 @@ class TuIndiceAppHostRouteUiTest {
 				onNodeWithTag(AuthUiTags.PasswordTextField).performTextInput("123456")
 				onNodeWithTag(AuthUiTags.SignInButton).performClick()
 
-				waitUntil(timeoutMillis = 5_000) {
-					onAllNodesWithTag(SummaryUiTags.ContentContainer).fetchSemanticsNodes().isNotEmpty()
-				}
-
 				runOnIdle {
 					syncStatusRepository.emitSyncStatus(SyncStatus.OutdatedCredentials)
+				}
+
+				waitUntil(timeoutMillis = 5_000) {
+					onAllNodesWithTag(SummaryUiTags.ContentContainer).fetchSemanticsNodes().isNotEmpty()
 				}
 
 				waitUntil(timeoutMillis = 5_000) {
