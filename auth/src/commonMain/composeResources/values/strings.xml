@@ -6,7 +6,7 @@
 	<string name="label_policies">Al usar la aplicación, aceptas los\nTérminos y condiciones y Política de privacidad</string>
 	<string name="hint_usb_id">USBID</string>
 	<string name="hint_usb_email">Correo USB</string>
-	<string name="placeholder_usb_id">00-00000</string>
+	<string name="placeholder_usb_id">12-34567</string>
 	<string name="placeholder_usb_email">correo@usb.ve</string>
 	<string name="hint_password">Contraseña</string>
 	<string name="label_usage_data_consent">Ayudar a mejorar **TuIndice** compartiendo datos de uso anónimos</string>
@@ -30,7 +30,6 @@
 	<string name="a11y_hide_password">Ocultar contraseña</string>
 	<string name="a11y_use_usb_email">Iniciar con correo USB</string>
 	<string name="a11y_use_usb_id">Usar USBID</string>
-	<string name="tooltip_usb_email">Puedes iniciar sesión con tu correo si lo prefieres.</string>
 	<string name="title_terms_and_conditions">Términos y condiciones</string>
 	<string name="title_privacy_policy">Política de privacidad</string>
 	<string name="error_invalid_usb_id_credentials">Revisa tu USBID y contraseña</string>

@@ -1,37 +1,37 @@
 package com.gdavidpb.tuindice.auth.ui.view
 
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Badge
 import androidx.compose.material.icons.outlined.Email
 import androidx.compose.material.icons.outlined.Person
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Text
-import androidx.compose.material3.TooltipAnchorPosition
-import androidx.compose.material3.TooltipBox
-import androidx.compose.material3.TooltipDefaults
-import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.base.ui.view.PulsingIconHalo
 
 private const val USB_ID_MAX_DIGITS = 7
+private val identifierModeTogglePulseSize = 32.dp
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UsbIdTextField(
 	modifier: Modifier = Modifier,
@@ -40,8 +40,7 @@ fun UsbIdTextField(
 	error: String? = null,
 	identifierMode: SignInIdentifierMode = SignInIdentifierMode.UsbId,
 	toggleContentDescription: String,
-	tooltipText: String,
-	showTooltip: Boolean,
+	showTogglePulse: Boolean,
 	onUsbIdChange: (usbId: String) -> Unit,
 	onIdentifierModeToggle: () -> Unit,
 	usbId: String,
@@ -57,7 +56,8 @@ fun UsbIdTextField(
 	}
 	val supportingText = remember { mutableStateOf(error) }
 	val digitsOnlyRegex = remember { "\\D+".toRegex() }
-	val tooltipState = rememberTooltipState(isPersistent = true)
+	val shouldShowTogglePulse =
+		showTogglePulse && usbId.isEmpty() && identifierMode == SignInIdentifierMode.UsbId
 
 	LaunchedEffect(usbId, identifierMode) {
 		if (textField.value.text != usbId) {
@@ -72,14 +72,6 @@ fun UsbIdTextField(
 
 	LaunchedEffect(error) {
 		supportingText.value = error
-	}
-
-	LaunchedEffect(showTooltip, usbId, identifierMode) {
-		if (showTooltip && usbId.isEmpty() && identifierMode == SignInIdentifierMode.UsbId) {
-			tooltipState.show()
-		} else {
-			tooltipState.dismiss()
-		}
 	}
 
 	OutlinedTextField(
@@ -133,26 +125,21 @@ fun UsbIdTextField(
 			)
 		},
 		trailingIcon = {
-			TooltipBox(
-				positionProvider = TooltipDefaults.rememberTooltipPositionProvider(
-					positioning = TooltipAnchorPosition.Below
-				),
-				tooltip = {
-					PlainTooltip(
-						modifier = Modifier.testTag(AuthUiTags.IdentifierModeTooltip)
-					) {
-						Text(text = tooltipText)
-					}
-				},
-				state = tooltipState,
-				enableUserInput = false
+			Box(
+				modifier = Modifier.size(48.dp),
+				contentAlignment = Alignment.Center
 			) {
+				if (shouldShowTogglePulse) {
+					PulsingIconHalo(
+						color = MaterialTheme.colorScheme.surfaceTint,
+						size = identifierModeTogglePulseSize,
+						testTag = AuthUiTags.IdentifierModeTogglePulse
+					)
+				}
+
 				IconButton(
 					modifier = Modifier.testTag(AuthUiTags.IdentifierModeToggle),
-					onClick = {
-						tooltipState.dismiss()
-						onIdentifierModeToggle()
-					}
+					onClick = onIdentifierModeToggle
 				) {
 					Icon(
 						imageVector = when (identifierMode) {

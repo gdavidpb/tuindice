@@ -33,11 +33,10 @@ class SignInIdleViewUiTest {
 				policiesText = "Acepto Terminos y Privacidad",
 				usbIdLabelText = "USB",
 				usbEmailLabelText = "Correo USB",
-				usbIdPlaceholderText = "00-00000",
+				usbIdPlaceholderText = "12-34567",
 				usbEmailPlaceholderText = "correo@usb.ve",
 				useUsbEmailContentDescription = "Iniciar con correo USB",
 				useUsbIdContentDescription = "Usar USBID",
-				usbEmailTooltipText = "Iniciar con correo USB",
 				passwordLabelText = "Clave",
 				signInButtonText = "Entrar"
 			)
@@ -66,11 +65,10 @@ class SignInIdleViewUiTest {
 				policiesText = "Acepto Terminos y Privacidad",
 				usbIdLabelText = "USB",
 				usbEmailLabelText = "Correo USB",
-				usbIdPlaceholderText = "00-00000",
+				usbIdPlaceholderText = "12-34567",
 				usbEmailPlaceholderText = "correo@usb.ve",
 				useUsbEmailContentDescription = "Iniciar con correo USB",
 				useUsbIdContentDescription = "Usar USBID",
-				usbEmailTooltipText = "Iniciar con correo USB",
 				passwordLabelText = "Clave",
 				signInButtonText = "Entrar"
 			)
@@ -103,11 +101,10 @@ class SignInIdleViewUiTest {
 				policiesText = "Acepto Terminos y Privacidad",
 				usbIdLabelText = "USB",
 				usbEmailLabelText = "Correo USB",
-				usbIdPlaceholderText = "00-00000",
+				usbIdPlaceholderText = "12-34567",
 				usbEmailPlaceholderText = "correo@usb.ve",
 				useUsbEmailContentDescription = "Iniciar con correo USB",
 				useUsbIdContentDescription = "Usar USBID",
-				usbEmailTooltipText = "Iniciar con correo USB",
 				passwordLabelText = "Clave",
 				signInButtonText = "Entrar"
 			)
@@ -137,11 +134,10 @@ class SignInIdleViewUiTest {
 				policiesText = "Acepto Terminos y Privacidad",
 				usbIdLabelText = "USB",
 				usbEmailLabelText = "Correo USB",
-				usbIdPlaceholderText = "00-00000",
+				usbIdPlaceholderText = "12-34567",
 				usbEmailPlaceholderText = "correo@usb.ve",
 				useUsbEmailContentDescription = "Iniciar con correo USB",
 				useUsbIdContentDescription = "Usar USBID",
-				usbEmailTooltipText = "Iniciar con correo USB",
 				passwordLabelText = "Clave",
 				signInButtonText = "Entrar"
 			)
