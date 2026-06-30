@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.pensum.presentation.machine
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
+import com.gdavidpb.tuindice.base.presentation.statemachine.InitialContentRefreshGate
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
@@ -86,24 +87,38 @@ class PensumMachine(
 
 	internal fun ensurePensumLoaded(host: MachineHost<Pensum.Effect>) {
 		host.launchMachineJob {
+			val initialRefreshGate = InitialContentRefreshGate(
+				isCached = { result: Result -> result == Result.Cached },
+				isRefreshStarted = { result -> result == Result.RefreshStarted }
+			)
+
 			ensurePensumLoadedUseCase.execute(Unit).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> Unit
 
-					is UseCaseState.Data -> when (useCaseState.value) {
-						Result.Cached -> Unit
-						Result.RefreshStarted -> host.processInternalEvent(
-							PensumInternalEvent.PensumRefreshLoading
-						)
+					is UseCaseState.Data -> {
+						val result = useCaseState.value
+						if (initialRefreshGate.shouldProcess(result)) {
+							when (result) {
+								Result.Cached -> Unit
+								Result.RefreshStarted -> host.processInternalEvent(
+									PensumInternalEvent.PensumRefreshLoading
+								)
 
-						Result.RefreshSucceeded -> host.processInternalEvent(
-							PensumInternalEvent.PensumRefreshSucceeded
-						)
+								Result.RefreshSucceeded -> host.processInternalEvent(
+									PensumInternalEvent.PensumRefreshSucceeded
+								)
+							}
+						}
 					}
 
-					is UseCaseState.Error -> host.processInternalEvent(
-						useCaseState.error.toRefreshFailureEvent()
-					)
+					is UseCaseState.Error -> {
+						if (initialRefreshGate.shouldProcessError()) {
+							host.processInternalEvent(
+								useCaseState.error.toRefreshFailureEvent()
+							)
+						}
+					}
 				}
 			}
 		}

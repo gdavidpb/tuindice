@@ -24,6 +24,8 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepositor
 import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
@@ -131,6 +133,80 @@ class RecordViewModelContractTest {
 		} finally {
 			stateCollector.cancel()
 		}
+	}
+
+	@Test
+	fun ensureLoaded_whenCacheExistsBeforeObservation_doesNotShowLoadingDuringInitialRefresh() = runTest {
+		val cachedRecord = AcademicRecord(
+			id = "record",
+			terms = listOf(
+				academicTerm(
+					id = "term",
+					attempts = listOf(academicAttempt(subjectCode = "MAT101"))
+				)
+			)
+		)
+		val observedRecords = MutableSharedFlow<AcademicRecord>()
+		val fixture = createFixture(
+			record = AcademicRecord(id = "empty"),
+			hasSynced = true,
+			dispatchers = TestTuIndiceDispatchers(UnconfinedTestDispatcher(testScheduler)),
+			observedRecordFlow = observedRecords,
+			cachedRecord = cachedRecord
+		)
+
+		fixture.viewModel.state.test {
+			assertEquals(Record.State.Idle, awaitItem())
+
+			fixture.viewModel.ensureRecordLoadedAction()
+			advanceUntilIdle()
+			expectNoEvents()
+
+			observedRecords.emit(cachedRecord)
+			assertIs<Record.State.Content>(awaitItem())
+			cancelAndIgnoreRemainingEvents()
+		}
+
+		assertEquals(1, fixture.academicRecordRepository.updateAcademicRecordCalls)
+		assertEquals(listOf(false), fixture.academicRecordRepository.updateAcademicRecordForceRemoteCalls)
+	}
+
+	@Test
+	fun ensureLoaded_whenCacheExistsAndInitialRefreshFails_doesNotShowFailedBeforeCachedContent() = runTest {
+		val cachedRecord = AcademicRecord(
+			id = "record",
+			terms = listOf(
+				academicTerm(
+					id = "term",
+					attempts = listOf(academicAttempt(subjectCode = "MAT101"))
+				)
+			)
+		)
+		val observedRecords = MutableSharedFlow<AcademicRecord>()
+		val fixture = createFixture(
+			record = AcademicRecord(id = "empty"),
+			hasSynced = true,
+			dispatchers = TestTuIndiceDispatchers(UnconfinedTestDispatcher(testScheduler)),
+			observedRecordFlow = observedRecords,
+			cachedRecord = cachedRecord
+		)
+		fixture.academicRecordRepository.updateAcademicRecordThrowable =
+			RuntimeException("network unavailable")
+
+		fixture.viewModel.state.test {
+			assertEquals(Record.State.Idle, awaitItem())
+
+			fixture.viewModel.ensureRecordLoadedAction()
+			advanceUntilIdle()
+			expectNoEvents()
+
+			observedRecords.emit(cachedRecord)
+			assertIs<Record.State.Content>(awaitItem())
+			cancelAndIgnoreRemainingEvents()
+		}
+
+		assertEquals(1, fixture.academicRecordRepository.updateAcademicRecordCalls)
+		assertEquals(listOf(false), fixture.academicRecordRepository.updateAcademicRecordForceRemoteCalls)
 	}
 
 	@Test
@@ -249,11 +325,15 @@ class RecordViewModelContractTest {
 		record: AcademicRecord,
 		hasSynced: Boolean,
 		viewMode: RecordViewMode = RecordViewMode.Historical,
-		dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
+		dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers,
+		observedRecordFlow: Flow<AcademicRecord>? = null,
+		cachedRecord: AcademicRecord? = null
 	): RecordFixture {
 		val academicRecordRepository = ControllableAcademicRecordRepository(
 			initialRecord = record,
-			initialHasSynced = hasSynced
+			initialHasSynced = hasSynced,
+			observedRecordFlow = observedRecordFlow,
+			cachedRecord = cachedRecord
 		)
 		val selectionRepository = RecordingRecordSelectionRepository(initialViewMode = viewMode)
 		val reportingRepository = RecordingReportingRepository()

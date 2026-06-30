@@ -26,7 +26,9 @@ import kotlinx.coroutines.flow.filterNotNull
 
 class ControllableAcademicRecordRepository(
 	initialRecord: AcademicRecord = AcademicRecord(id = "record"),
-	initialHasSynced: Boolean = false
+	initialHasSynced: Boolean = false,
+	private val observedRecordFlow: Flow<AcademicRecord>? = null,
+	private val cachedRecord: AcademicRecord? = null
 ) : AcademicRecordRepository {
 	val recordFlow = MutableStateFlow(initialRecord)
 	val hasSyncedFlow = MutableStateFlow(initialHasSynced)
@@ -40,12 +42,13 @@ class ControllableAcademicRecordRepository(
 	val updateAcademicRecordForceRemoteCalls = mutableListOf<Boolean>()
 	var updateAcademicRecordThrowable: Throwable? = null
 
-	override suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord> = recordFlow
+	override suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord> =
+		observedRecordFlow ?: recordFlow
 
 	override suspend fun observeHasSyncedRecordFlow(): Flow<Boolean> = hasSyncedFlow
 
 	override suspend fun getAcademicRecord(): AcademicRecord? =
-		if (recordAvailable) recordFlow.value else null
+		if (recordAvailable) cachedRecord ?: recordFlow.value else null
 
 	override suspend fun updateAcademicRecord() {
 		updateAcademicRecord(forceRemote = false)

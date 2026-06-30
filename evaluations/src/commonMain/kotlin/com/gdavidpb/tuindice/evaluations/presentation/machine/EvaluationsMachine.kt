@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.machine
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.model.SyncedContentResolution
 import com.gdavidpb.tuindice.base.presentation.model.resolveSyncedContentResolution
+import com.gdavidpb.tuindice.base.presentation.statemachine.InitialContentRefreshGate
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
@@ -134,33 +135,38 @@ class EvaluationsMachine(
 
 	internal fun ensureLoaded(host: MachineHost<Evaluations.Effect>) {
 		host.launchMachineJob {
-			var hasCachedEvaluations = false
+			val initialRefreshGate = InitialContentRefreshGate(
+				isCached = { result: EnsureEvaluationsLoadedUseCase.Result ->
+					result == EnsureEvaluationsLoadedUseCase.Result.Cached
+				},
+				isRefreshStarted = { result ->
+					result == EnsureEvaluationsLoadedUseCase.Result.RefreshStarted
+				}
+			)
 
 			ensureEvaluationsLoadedUseCase.execute(Unit).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> Unit
 
-					is UseCaseState.Data -> when (val result = useCaseState.value) {
-						EnsureEvaluationsLoadedUseCase.Result.Cached -> {
-							hasCachedEvaluations = true
-						}
-
-						EnsureEvaluationsLoadedUseCase.Result.RefreshStarted -> {
-							if (!hasCachedEvaluations) {
-								host.processInternalEvent(
+					is UseCaseState.Data -> {
+						val result = useCaseState.value
+						if (initialRefreshGate.shouldProcess(result)) {
+							when (result) {
+								EnsureEvaluationsLoadedUseCase.Result.Cached -> Unit
+								EnsureEvaluationsLoadedUseCase.Result.RefreshStarted -> host.processInternalEvent(
 									EvaluationsInternalEvent.EvaluationsRefreshStarted
+								)
+
+								is EnsureEvaluationsLoadedUseCase.Result.RefreshSucceeded -> processRefreshResult(
+									host = host,
+									refreshResult = result.refreshResult
 								)
 							}
 						}
-
-						is EnsureEvaluationsLoadedUseCase.Result.RefreshSucceeded -> processRefreshResult(
-							host = host,
-							refreshResult = result.refreshResult
-						)
 					}
 
 					is UseCaseState.Error -> {
-						if (!hasCachedEvaluations) {
+						if (initialRefreshGate.shouldProcessError()) {
 							host.processInternalEvent(
 								EvaluationsInternalEvent.EvaluationsRefreshFailed
 							)
