@@ -946,7 +946,7 @@ flows:
     type: interaction
     platforms: [android, ios]
     status: active
-    variant: synthetic-term-create-edit-delete-search-clear
+variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
     fixture_state: synthetic-term-success
     actions_covered:
       - record.CreateSyntheticTerm.UpdateQuery
@@ -1507,18 +1507,21 @@ flows:
     type: interaction
     platforms: [android, ios]
     status: active
-    variant: swipe-edit-submit
+variant: swipe-edit-change-submit-unchanged-disabled
     fixture_state: patch-evaluations-success
-    actions_covered:
-      - evaluations.Evaluations.EditEvaluation
-      - evaluations.Evaluation.ClickSubmitEvaluation
-    primary_selectors:
-      - evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
-      - evaluation_swipe_to_dismiss_container
-      - evaluation_swipe_edit_action
-      - evaluation_content_container
-      - evaluation_done_fab
-      - base_snackbar_container
+actions_covered:
+- evaluations.Evaluations.EditEvaluation
+- evaluations.Evaluation.SetType
+- evaluations.Evaluation.ClickSubmitEvaluation
+primary_selectors:
+- evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
+- evaluation_swipe_to_dismiss_container
+- evaluation_swipe_edit_action
+- evaluation_content_container
+- evaluation_type_chip_report
+- evaluation_type_chip_test
+- evaluation_done_fab
+- base_snackbar_container
   - id: evaluations-swipe-delete
     path: e2e/maestro/flows/evaluations/evaluations-swipe-delete.yaml
     module: evaluations

@@ -98,30 +98,32 @@ class EvaluationMachine(
 								loadedEvaluation.date.isDateInPast()
 						} ?: false
 
+						val content = Evaluation.State.Content(
+							evaluationId = action.evaluationId,
+							attemptItems = availableAttempts.toEvaluationAttemptPickerItems(
+								selectedAttempt = selectedAttempt
+							),
+							selectedAttempt = selectedAttempt,
+							type = evaluation?.type,
+							typeItems = getEvaluationTypePickerItemList(
+								selectedType = evaluation?.type
+							),
+							scheduleMode = evaluation?.scheduleMode
+								?: EvaluationScheduleMode.CONTINUOUS,
+							date = evaluation?.date,
+							isOverdue = isOverdue,
+							grade = evaluation?.grade,
+							maxGrade = evaluation?.maxGrade,
+							gradeSection = getEvaluationGradeSectionItem(
+								isOverdue = isOverdue,
+								grade = evaluation?.grade,
+								maxGrade = evaluation?.maxGrade
+							)
+						)
+
 						host.processInternalEvent(
 							EvaluationInternalEvent.EditorContentLoaded(
-								content = Evaluation.State.Content(
-									evaluationId = action.evaluationId,
-									attemptItems = availableAttempts.toEvaluationAttemptPickerItems(
-										selectedAttempt = selectedAttempt
-									),
-									selectedAttempt = selectedAttempt,
-									type = evaluation?.type,
-									typeItems = getEvaluationTypePickerItemList(
-										selectedType = evaluation?.type
-									),
-									scheduleMode = evaluation?.scheduleMode
-										?: EvaluationScheduleMode.CONTINUOUS,
-									date = evaluation?.date,
-									isOverdue = isOverdue,
-									grade = evaluation?.grade,
-									maxGrade = evaluation?.maxGrade,
-									gradeSection = getEvaluationGradeSectionItem(
-										isOverdue = isOverdue,
-										grade = evaluation?.grade,
-										maxGrade = evaluation?.maxGrade
-									)
-								)
+								content = content.copy(initialDraft = content.draft)
 							)
 						)
 					}

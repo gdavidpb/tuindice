@@ -18,6 +18,7 @@ object CreateSyntheticTerm {
 		val editingTermKey: String? = null,
 		override val isTopBarVisible: Boolean = true,
 		override val isBottomBarVisible: Boolean = false,
+		val initialDraft: Draft? = null,
 		val query: String = "",
 		val querySelectionStart: Int = 0,
 		val querySelectionEnd: Int = 0,
@@ -35,8 +36,20 @@ object CreateSyntheticTerm {
 		val isSubmitting: Boolean = false,
 		val submitError: UiText = UiText.Empty
 	) : ViewState {
+		val draft: Draft
+			get() = Draft(
+				periodKey = selectedPeriod?.termKey,
+				subjectCodes = selectedSubjects.map { subject -> subject.subjectCode }
+			)
+
+		val hasDraftChanges: Boolean
+			get() = initialDraft?.let { draft -> draft != this.draft } ?: !isEditing
+
 		val canSubmit: Boolean
-			get() = selectedPeriod != null && selectedSubjects.isNotEmpty() && !isSubmitting
+			get() = selectedPeriod != null &&
+				selectedSubjects.isNotEmpty() &&
+				!isSubmitting &&
+				hasDraftChanges
 
 		override val topBarTitle: UiText
 			get() = if (editingTermId == null) {
@@ -48,6 +61,11 @@ object CreateSyntheticTerm {
 		val isEditing: Boolean
 			get() = editingTermId != null
 	}
+
+	data class Draft(
+		val periodKey: String?,
+		val subjectCodes: List<String>
+	)
 
 	sealed class Action : ViewAction {
 		data object Observe : Action()

@@ -1,10 +1,13 @@
 package com.gdavidpb.tuindice.evaluations.presentation.route
 
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableAttemptsUseCase
@@ -204,6 +207,7 @@ class EvaluationRouteUiTest {
 
 		// Edit mode loaded the evaluation into S; submitting reads the form from state.
 		runOnIdle {
+			viewModel.setTypeAction(EvaluationType.TEST)
 			viewModel.submitEvaluationAction()
 		}
 
@@ -237,6 +241,10 @@ class EvaluationRouteUiTest {
 				.fetchSemanticsNodes().isNotEmpty()
 		}
 
+		onNodeWithTag(EvaluationsUiTags.EvaluationDoneFab).assertIsNotEnabled()
+		onNodeWithTag(EvaluationsUiTags.evaluationTypeChip(DEFAULT_PENDING_EVALUATION.type.name)).performClick()
+		onNodeWithTag(EvaluationsUiTags.evaluationTypeChip(EvaluationType.TEST.name)).performClick()
+		onNodeWithTag(EvaluationsUiTags.EvaluationDoneFab).assertIsEnabled()
 		onNodeWithTag(EvaluationsUiTags.EvaluationDoneFab).performClick()
 
 		waitUntil(timeoutMillis = 2_000) {

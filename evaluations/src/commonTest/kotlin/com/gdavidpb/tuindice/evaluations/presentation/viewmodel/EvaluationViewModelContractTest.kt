@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableAttemptsUseCase
@@ -13,12 +14,14 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateE
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationMachine
+import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.FakeIdentifierRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
+import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -120,6 +123,45 @@ class EvaluationViewModelContractTest {
 				)
 				advanceUntilIdle()
 				expectNoEvents()
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun editEvaluation_disablesSubmitUntilDraftChanges() = runTest {
+		val viewModel = createViewModel(
+			dispatchers = TestTuIndiceDispatchers(UnconfinedTestDispatcher(testScheduler))
+		)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				viewModel.loadEvaluationAction(DEFAULT_PENDING_EVALUATION.id)
+
+				val loaded = awaitUntilState<Evaluation.State.Content> { state ->
+					state.initialDraft != null
+				}
+				assertEquals(false, loaded.canSubmit)
+
+				viewModel.setTypeAction(EvaluationType.TEST)
+				val changed = awaitUntilState<Evaluation.State.Content> { state ->
+					state.canSubmit
+				}
+				assertEquals(EvaluationType.TEST, changed.type)
+
+				viewModel.setTypeAction(DEFAULT_PENDING_EVALUATION.type)
+				val restored = awaitUntilState<Evaluation.State.Content> { state ->
+					!state.canSubmit && state.type == DEFAULT_PENDING_EVALUATION.type
+				}
+				assertEquals(false, restored.canSubmit)
 
 				cancelAndIgnoreRemainingEvents()
 			}

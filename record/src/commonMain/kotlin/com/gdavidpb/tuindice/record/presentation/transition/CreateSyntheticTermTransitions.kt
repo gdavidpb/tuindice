@@ -19,7 +19,11 @@ internal fun MachineDefinitionBuilder<CreateSyntheticTerm.State>.createSynthetic
 
 		on<CreateSyntheticTerm.Action.ConfigureTerm> { state, action ->
 			machine.configureTerm(host = host, termId = action.termId)
-			state
+			if (action.termId == state.editingTermId) {
+				state
+			} else {
+				state.copy(initialDraft = null)
+			}
 		}
 
 		on<CreateSyntheticTerm.Action.UpdateQuery> { state, action ->
@@ -72,7 +76,7 @@ internal fun MachineDefinitionBuilder<CreateSyntheticTerm.State>.createSynthetic
 		}
 
 		on<CreateSyntheticTermInternalEvent.SnapshotObserved> { state, event ->
-			state.copy(
+			val updatedState = state.copy(
 				editingTermId = event.editingTermId,
 				editingTermKey = event.editingTermKey,
 				periodOptions = event.periodOptions,
@@ -83,6 +87,12 @@ internal fun MachineDefinitionBuilder<CreateSyntheticTerm.State>.createSynthetic
 				submitError = UiText.Empty,
 				hasSearchError = if (event.searchResults.isNotEmpty()) false else state.hasSearchError
 			)
+
+			if (state.initialDraft == null && event.editingTermId != null) {
+				updatedState.copy(initialDraft = updatedState.draft)
+			} else {
+				updatedState
+			}
 		}
 
 		on<CreateSyntheticTermInternalEvent.SearchCleared> { state, _ ->
