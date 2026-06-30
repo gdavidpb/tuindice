@@ -32,6 +32,7 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumPointItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSelection
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSessionStore
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumSubjectDetailItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumSubjectRelationItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTermItem
@@ -636,14 +637,49 @@ class PensumScreenUiTest {
 			waitForIdle()
 		}
 
-		assertNodeHidden(PensumUiTags.MinimapToggle)
-		assertNodeHidden(PensumUiTags.StickyTerms)
-		assertNodeHidden(PensumUiTags.FitToScreen)
+	assertNodeHidden(PensumUiTags.MinimapToggle)
+	assertNodeHidden(PensumUiTags.StickyTerms)
+	assertNodeHidden(PensumUiTags.FitToScreen)
+}
+
+@Test
+fun when_pensumScreenIsRecreated_then_subjectContextIsRestored() = runTuIndiceUiTest {
+	val screenSessionStore = PensumScreenSessionStore()
+	val isMountedState = mutableStateOf(true)
+
+	setTuIndiceTestContent {
+		if (isMountedState.value) {
+			PensumScreen(
+				state = Pensum.State.Content(model = samplePensumModel()),
+				onRetryClick = {},
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = {},
+				onSelectionApplied = { _, _ -> },
+				screenSessionStore = screenSessionStore
+			)
+		}
 	}
 
-	@Test
-	fun when_statusLegendFiltersAreToggled_then_selectionIsMultiSelectAndResettable() = runTuIndiceUiTest {
-		setTuIndiceTestContent {
+	onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
+	assertNodeVisible(PensumUiTags.SubjectDetailSheet)
+	onNodeWithTag(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true).assertExists()
+
+	runOnIdle { isMountedState.value = false }
+	waitForIdle()
+	assertNodeHidden(PensumUiTags.SubjectDetailSheet)
+
+	runOnIdle { isMountedState.value = true }
+	waitForIdle()
+
+	assertNodeVisible(PensumUiTags.SubjectDetailSheet)
+	onNodeWithTag(PensumUiTags.SubjectDetailCode).assertTextEquals("CI4325")
+	onNodeWithTag(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true).assertExists()
+}
+
+@Test
+fun when_statusLegendFiltersAreToggled_then_selectionIsMultiSelectAndResettable() = runTuIndiceUiTest {
+	setTuIndiceTestContent {
 			PensumScreen(
 				state = Pensum.State.Content(model = samplePensumModel()),
 				onRetryClick = {},
@@ -679,8 +715,63 @@ class PensumScreenUiTest {
 		assertNodeHidden(PensumUiTags.StatusFilterClear)
 	}
 
-	@Test
-	fun when_nodeFocusChanges_then_statusLegendFiltersAreReset() = runTuIndiceUiTest {
+@Test
+fun when_pensumCanvasIsRecreated_then_viewportMinimapAndFiltersAreRestored() = runTuIndiceUiTest {
+	val sessionState = PensumScreenSessionStore.SelectionState()
+	val isMountedState = mutableStateOf(true)
+	val availableFilter = PensumUiTags.statusFilter(PensumNodeStatusType.AVAILABLE)
+
+	setTuIndiceTestContent {
+		if (isMountedState.value) {
+			PensumGraphCanvas(
+				model = samplePensumModel(),
+				selectedNodeId = null,
+				onSelectedNodeChange = {},
+				sessionState = sessionState
+			)
+		}
+	}
+
+	waitForIdle()
+	val initialScale = sessionState.canvasScale
+
+	onNodeWithTag(PensumUiTags.ZoomIn).assertHasClickAction().performClick()
+	waitForIdle()
+	onNodeWithTag(PensumUiTags.MinimapToggle).assertHasClickAction().performClick()
+	onNodeWithTag(availableFilter).assertHasClickAction().performClick()
+	waitForIdle()
+	onNodeWithTag(PensumUiTags.CanvasGestureLayer).performTouchInput {
+		val start = center
+		down(0, start)
+		moveTo(0, start + Offset(96f, 48f))
+		up(0)
+	}
+	waitForIdle()
+	advanceAnimationsBy((CanvasOverlayAnimationMillis * 3).toLong())
+	waitForIdle()
+
+	val restoredScale = sessionState.canvasScale
+	val restoredOffsetX = sessionState.canvasOffsetX
+	val restoredOffsetY = sessionState.canvasOffsetY
+	assertTrue(restoredScale != null && restoredScale != initialScale)
+	assertEquals(setOf(PensumNodeStatusType.AVAILABLE.name), sessionState.activeStatusFilterNames)
+	assertTrue(sessionState.isMinimapVisible)
+
+	runOnIdle { isMountedState.value = false }
+	waitForIdle()
+	runOnIdle { isMountedState.value = true }
+	waitForIdle()
+
+	assertEquals(restoredScale, sessionState.canvasScale)
+	assertEquals(restoredOffsetX, sessionState.canvasOffsetX)
+	assertEquals(restoredOffsetY, sessionState.canvasOffsetY)
+	onNodeWithTag(availableFilter).assertIsSelected()
+	assertNodeVisible(PensumUiTags.StatusFilterClear)
+	assertNodeVisible(PensumUiTags.Minimap)
+}
+
+@Test
+fun when_nodeFocusChanges_then_statusLegendFiltersAreReset() = runTuIndiceUiTest {
 		val selectedNodeIdState = mutableStateOf<String?>(null)
 		val availableFilter = PensumUiTags.statusFilter(PensumNodeStatusType.AVAILABLE)
 

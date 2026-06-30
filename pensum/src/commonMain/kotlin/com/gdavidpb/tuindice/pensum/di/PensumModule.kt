@@ -19,6 +19,7 @@ import com.gdavidpb.tuindice.pensum.domain.usecase.SetPensumSummaryCollapsedUseC
 import com.gdavidpb.tuindice.pensum.domain.usecase.UpdatePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.exceptionhandler.UpdatePensumExceptionHandler
 import com.gdavidpb.tuindice.pensum.presentation.machine.PensumMachine
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSessionStore
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
 import com.gdavidpb.tuindice.pensum.presentation.viewmodel.PensumViewModel
 import org.koin.core.module.dsl.bind
@@ -48,5 +49,6 @@ val pensumModule = module {
 	singleOf(::PensumDataSource) { bind<PensumRepository>() }
 
 	factoryOf(::UpdatePensumExceptionHandler)
+	singleOf(::PensumScreenSessionStore)
 	singleOf(::PensumTopBarActionBus)
 }

@@ -63,6 +63,31 @@ appId: com.gdavidpb.tuindice.debug
     id: pensum_minimap_toggle
 - assertVisible:
     id: pensum_minimap
+    timeout: 10000
+- tapOn:
+    id: pensum_status_filter_available
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+- assertVisible:
+    id: pensum_status_filter_clear
+- tapOn:
+    id: maincore_tuindice_bottom_bar_summary_item
+- extendedWaitUntil:
+    visible:
+      id: summary_content_container
+    timeout: 20000
+- tapOn:
+    id: maincore_tuindice_bottom_bar_pensum_item
+- extendedWaitUntil:
+    visible:
+      id: pensum_screen
+    timeout: 20000
+- assertVisible:
+    id: pensum_status_filter_clear
+- assertVisible:
+    id: pensum_sticky_terms
+- assertVisible:
+    id: pensum_minimap
+    timeout: 10000
 - tapOn:
     id: pensum_minimap
 - tapOn:

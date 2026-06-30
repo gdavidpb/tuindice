@@ -187,6 +187,7 @@ flows:
       - version-modality-selection
       - zoom
       - canvas-pan-sticky-headers
+      - session-state-restoration
       - node-selection
       - subject-detail-navigation
       - subject-detail-dismiss-keeps-focus
@@ -1102,7 +1103,7 @@ variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
     type: smoke
     platforms: [android, ios]
     status: active
-    variant: canvas-pan-zoom-sticky-terms
+    variant: canvas-pan-zoom-sticky-terms-session-restore
     fixture_state: pensum-success
     actions_covered:
       - pensum.Pensum.RefreshPensum
@@ -1122,6 +1123,8 @@ variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
       - pensum_sticky_terms
       - pensum_zoom_in
       - pensum_zoom_out
+      - maincore_tuindice_bottom_bar_summary_item
+      - summary_content_container
   - id: pensum-refresh-not-found
     path: e2e/maestro/flows/pensum/pensum-refresh-not-found.yaml
     module: pensum

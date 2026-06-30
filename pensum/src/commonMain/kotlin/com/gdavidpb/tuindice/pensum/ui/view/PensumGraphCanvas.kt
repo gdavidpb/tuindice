@@ -34,7 +34,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -62,6 +61,7 @@ import com.gdavidpb.tuindice.pensum.presentation.model.PensumEdgeItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSessionStore
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.model.focusStateFor
 import kotlinx.coroutines.Job
@@ -87,13 +87,15 @@ fun PensumGraphCanvas(
 	onFocusedNodeClick: (String) -> Unit = { onSelectedNodeChange(null) },
 	isSubjectSheetVisible: Boolean = false,
 	focusRequestSerial: Int = 0,
-	modifier: Modifier = Modifier
+	modifier: Modifier = Modifier,
+	sessionState: PensumScreenSessionStore.SelectionState? = null
 ) {
 	val graphColors = pensumGraphColors()
 	val density = LocalDensity.current
 	val densityScale = density.density
 	val coroutineScope = rememberCoroutineScope()
 	val graphKey = "${model.selection.year}-${model.selection.modalityId}"
+	val activeSessionState = sessionState ?: remember(graphKey) { PensumScreenSessionStore.SelectionState() }
 	val edgeRouteEndpointGap = with(density) { EdgeEndpointGap.toPx() } / densityScale
 	val edgeRouteRerouteSpacing = with(density) { EdgeRerouteSpacing.toPx() } / densityScale
 	val edgeRoutes = remember(
@@ -113,12 +115,24 @@ fun PensumGraphCanvas(
 			edgeId to route.map { point -> Offset(point.x * densityScale, point.y * densityScale) }
 		}.toMap()
 	}
-	var savedScale by rememberSaveable(graphKey) { mutableStateOf<Float?>(null) }
-	var savedOffsetX by rememberSaveable(graphKey) { mutableStateOf<Float?>(null) }
-	var savedOffsetY by rememberSaveable(graphKey) { mutableStateOf<Float?>(null) }
-	var isMinimapToggleVisible by rememberSaveable(graphKey) { mutableStateOf(false) }
-	var isMinimapVisible by rememberSaveable(graphKey) { mutableStateOf(false) }
-	var activeStatusFilters by remember(graphKey) { mutableStateOf<Set<PensumNodeStatusType>>(emptySet()) }
+	var savedScale by remember(graphKey, activeSessionState) { mutableStateOf(activeSessionState.canvasScale) }
+	var savedOffsetX by remember(graphKey, activeSessionState) { mutableStateOf(activeSessionState.canvasOffsetX) }
+	var savedOffsetY by remember(graphKey, activeSessionState) { mutableStateOf(activeSessionState.canvasOffsetY) }
+	var isMinimapToggleVisible by remember(graphKey, activeSessionState) {
+		mutableStateOf(activeSessionState.isMinimapToggleVisible)
+	}
+	var isMinimapVisible by remember(graphKey, activeSessionState) {
+		mutableStateOf(activeSessionState.isMinimapVisible)
+	}
+	var activeStatusFilters by remember(graphKey, activeSessionState) {
+		mutableStateOf(
+			activeSessionState.activeStatusFilterNames
+				.mapNotNull { filterName ->
+					runCatching { PensumNodeStatusType.valueOf(filterName) }.getOrNull()
+				}
+				.toSet()
+		)
+	}
 	val scale = remember(graphKey) { Animatable(savedScale ?: InitialCanvasZoom) }
 	val offsetX = remember(graphKey) { Animatable(savedOffsetX ?: 0f) }
 	val offsetY = remember(graphKey) { Animatable(savedOffsetY ?: 0f) }
@@ -165,11 +179,14 @@ fun PensumGraphCanvas(
 		)
 		val minimumInteractiveScale = min(fitStateScale, InitialCanvasZoom)
 
-		fun saveCanvasViewport(scaleValue: Float, offset: Offset) {
-			savedScale = scaleValue
-			savedOffsetX = offset.x
-			savedOffsetY = offset.y
-		}
+	fun saveCanvasViewport(scaleValue: Float, offset: Offset) {
+		savedScale = scaleValue
+		savedOffsetX = offset.x
+		savedOffsetY = offset.y
+		activeSessionState.canvasScale = scaleValue
+		activeSessionState.canvasOffsetX = offset.x
+		activeSessionState.canvasOffsetY = offset.y
+	}
 
 		LaunchedEffect(graphKey, viewportSizePx, canvasSizePx, panMarginPx) {
 			val restoredScale = savedScale?.coerceIn(
@@ -258,17 +275,29 @@ fun PensumGraphCanvas(
 			}
 		}
 
-		fun revealMinimapToggle() {
-			isMinimapToggleVisible = true
-		}
+	fun revealMinimapToggle() {
+		isMinimapToggleVisible = true
+		activeSessionState.isMinimapToggleVisible = true
+	}
 
-		fun hideMinimap() {
-			isMinimapVisible = false
-		}
+	fun hideMinimap() {
+		isMinimapVisible = false
+		activeSessionState.isMinimapVisible = false
+	}
 
-		fun markManualCanvasGestureActive() {
-			manualGestureIdleJob?.cancel()
-			isDetectedManualCanvasGestureActive = true
+	fun setMinimapVisible(isVisible: Boolean) {
+		isMinimapVisible = isVisible
+		activeSessionState.isMinimapVisible = isVisible
+	}
+
+	fun setActiveStatusFilters(filters: Set<PensumNodeStatusType>) {
+		activeStatusFilters = filters
+		activeSessionState.activeStatusFilterNames = filters.map { type -> type.name }.toSet()
+	}
+
+	fun markManualCanvasGestureActive() {
+		manualGestureIdleJob?.cancel()
+		isDetectedManualCanvasGestureActive = true
 			manualGestureIdleJob = coroutineScope.launch {
 				delay(CanvasManualGestureIdleMillis.milliseconds)
 				isDetectedManualCanvasGestureActive = false
@@ -276,25 +305,26 @@ fun PensumGraphCanvas(
 			}
 		}
 
-		fun toggleStatusFilter(type: PensumNodeStatusType) {
-			activeStatusFilters = if (type in activeStatusFilters) {
-				activeStatusFilters - type
-			} else {
-				activeStatusFilters + type
-			}
-			onSelectedNodeChange(null)
+	fun toggleStatusFilter(type: PensumNodeStatusType) {
+		val filters = if (type in activeStatusFilters) {
+			activeStatusFilters - type
+		} else {
+			activeStatusFilters + type
 		}
+		setActiveStatusFilters(filters)
+		onSelectedNodeChange(null)
+	}
 
-		fun clearStatusFilters() {
-			activeStatusFilters = emptySet()
-			onSelectedNodeChange(null)
-		}
+	fun clearStatusFilters() {
+		setActiveStatusFilters(emptySet())
+		onSelectedNodeChange(null)
+	}
 
-		LaunchedEffect(graphKey, selectedNodeId) {
-			if (selectedNodeId != null && activeStatusFilters.isNotEmpty()) {
-				activeStatusFilters = emptySet()
-			}
+	LaunchedEffect(graphKey, selectedNodeId) {
+		if (selectedNodeId != null && activeStatusFilters.isNotEmpty()) {
+			setActiveStatusFilters(emptySet())
 		}
+	}
 
 		fun viewportOffsetForCanvasCenter(
 			canvasCenter: Offset,
@@ -789,7 +819,7 @@ fun PensumGraphCanvas(
 				isFitToScreenVisible = !isFitToScreen,
 				onFocusProgress = { focusProgress() },
 				onFitToScreen = { fitToScreen() },
-				onToggleMinimap = { isMinimapVisible = !isMinimapVisible },
+					onToggleMinimap = { setMinimapVisible(!isMinimapVisible) },
 				onZoomIn = { zoomIn() },
 				onZoomOut = { zoomOut() }
 			)

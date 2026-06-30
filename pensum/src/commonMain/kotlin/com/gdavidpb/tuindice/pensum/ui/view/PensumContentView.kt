@@ -15,7 +15,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -25,6 +24,7 @@ import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSessionStore
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
 import com.gdavidpb.tuindice.pensum.ui.dialog.PensumSelectionBottomSheet
 import com.gdavidpb.tuindice.pensum.ui.dialog.PensumSubjectDetailBottomSheet
@@ -36,6 +36,7 @@ fun PensumContentView(
 	isRefreshing: Boolean,
 	localDataMessage: UiText?,
 	showSelectionSheet: Boolean,
+	screenSessionStore: PensumScreenSessionStore,
 	isSummaryCollapsed: Boolean,
 	onSummaryCollapsedToggle: () -> Unit,
 	onSelectionSheetDismiss: () -> Unit,
@@ -45,23 +46,26 @@ fun PensumContentView(
 ) {
 	val graphColors = pensumGraphColors()
 	val pensumStateKey = "${model.selection.year}-${model.selection.modalityId}"
-	val focusedNodeIdState = rememberSaveable(pensumStateKey) {
-		mutableStateOf<String?>(null)
+	val selectionSessionState = remember(screenSessionStore, pensumStateKey) {
+		screenSessionStore.stateFor(pensumStateKey)
 	}
-	val detailNodeIdState = rememberSaveable(pensumStateKey) {
-		mutableStateOf<String?>(null)
+	val focusedNodeIdState = remember(pensumStateKey, selectionSessionState) {
+		mutableStateOf(selectionSessionState.focusedNodeId)
 	}
-	val shouldOpenDetailExpandedState = rememberSaveable(pensumStateKey) {
-		mutableStateOf(false)
+	val detailNodeIdState = remember(pensumStateKey, selectionSessionState) {
+		mutableStateOf(selectionSessionState.detailNodeId)
 	}
-	val detailNavigationOriginNodeIdState = rememberSaveable(pensumStateKey) {
-		mutableStateOf<String?>(null)
+	val shouldOpenDetailExpandedState = remember(pensumStateKey, selectionSessionState) {
+		mutableStateOf(selectionSessionState.shouldOpenDetailExpanded)
 	}
-	val detailNavigationDirectionNameState = rememberSaveable(pensumStateKey) {
-		mutableStateOf<String?>(null)
+	val detailNavigationOriginNodeIdState = remember(pensumStateKey, selectionSessionState) {
+		mutableStateOf(selectionSessionState.detailNavigationOriginNodeId)
 	}
-	val focusRequestSerialState = remember(model.selection.year, model.selection.modalityId) {
-		mutableStateOf(0)
+	val detailNavigationDirectionNameState = remember(pensumStateKey, selectionSessionState) {
+		mutableStateOf(selectionSessionState.detailNavigationDirectionName)
+	}
+	val focusRequestSerialState = remember(pensumStateKey, selectionSessionState) {
+		mutableStateOf(selectionSessionState.focusRequestSerial)
 	}
 	val nodeIds = remember(model.nodes) {
 		model.nodes.mapTo(mutableSetOf()) { node -> node.id }
@@ -77,15 +81,46 @@ fun PensumContentView(
 	}
 	val isSubjectDetailVisible = detailNode != null
 
+	fun setFocusedNodeId(nodeId: String?) {
+		focusedNodeIdState.value = nodeId
+		selectionSessionState.focusedNodeId = nodeId
+	}
+
+	fun setDetailNodeId(nodeId: String?) {
+		detailNodeIdState.value = nodeId
+		selectionSessionState.detailNodeId = nodeId
+	}
+
+	fun setShouldOpenDetailExpanded(shouldOpen: Boolean) {
+		shouldOpenDetailExpandedState.value = shouldOpen
+		selectionSessionState.shouldOpenDetailExpanded = shouldOpen
+	}
+
+	fun setDetailNavigationOriginNodeId(nodeId: String?) {
+		detailNavigationOriginNodeIdState.value = nodeId
+		selectionSessionState.detailNavigationOriginNodeId = nodeId
+	}
+
+	fun setDetailNavigationDirectionName(directionName: String?) {
+		detailNavigationDirectionNameState.value = directionName
+		selectionSessionState.detailNavigationDirectionName = directionName
+	}
+
+	fun incrementFocusRequestSerial() {
+		val nextSerial = focusRequestSerialState.value + 1
+		focusRequestSerialState.value = nextSerial
+		selectionSessionState.focusRequestSerial = nextSerial
+	}
+
 	fun clearSubjectDetail() {
-		detailNodeIdState.value = null
-		shouldOpenDetailExpandedState.value = false
-		detailNavigationOriginNodeIdState.value = null
-		detailNavigationDirectionNameState.value = null
+		setDetailNodeId(null)
+		setShouldOpenDetailExpanded(false)
+		setDetailNavigationOriginNodeId(null)
+		setDetailNavigationDirectionName(null)
 	}
 
 	fun clearSubjectContext() {
-		focusedNodeIdState.value = null
+		setFocusedNodeId(null)
 		clearSubjectDetail()
 	}
 
@@ -97,13 +132,10 @@ fun PensumContentView(
 
 	LaunchedEffect(nodeIds, focusedNodeIdState.value, detailNodeIdState.value) {
 		if (focusedNodeIdState.value != null && focusedNodeIdState.value !in nodeIds) {
-			focusedNodeIdState.value = null
+			setFocusedNodeId(null)
 		}
 		if (detailNodeIdState.value != null && detailNodeIdState.value !in nodeIds) {
-			detailNodeIdState.value = null
-			shouldOpenDetailExpandedState.value = false
-			detailNavigationOriginNodeIdState.value = null
-			detailNavigationDirectionNameState.value = null
+			clearSubjectDetail()
 		}
 	}
 
@@ -172,19 +204,20 @@ fun PensumContentView(
 		}
 		PensumGraphCanvas(
 			model = model,
+			sessionState = selectionSessionState,
 			selectedNodeId = if (showSelectionSheet) null else focusedNodeId,
 			onSelectedNodeChange = { nodeId ->
-				focusedNodeIdState.value = nodeId
-				detailNodeIdState.value = nodeId
-				shouldOpenDetailExpandedState.value = false
-				detailNavigationOriginNodeIdState.value = null
-				detailNavigationDirectionNameState.value = null
+				setFocusedNodeId(nodeId)
+				setDetailNodeId(nodeId)
+				setShouldOpenDetailExpanded(false)
+				setDetailNavigationOriginNodeId(null)
+				setDetailNavigationDirectionName(null)
 			},
 			onFocusedNodeClick = { nodeId ->
-				detailNodeIdState.value = nodeId
-				shouldOpenDetailExpandedState.value = false
-				detailNavigationOriginNodeIdState.value = null
-				detailNavigationDirectionNameState.value = null
+				setDetailNodeId(nodeId)
+				setShouldOpenDetailExpanded(false)
+				setDetailNavigationOriginNodeId(null)
+				setDetailNavigationDirectionName(null)
 			},
 			isSubjectSheetVisible = isSubjectDetailVisible,
 			focusRequestSerial = focusRequestSerialState.value,
@@ -211,12 +244,12 @@ fun PensumContentView(
 				onSubjectStatsClick(subjectCode)
 			},
 			onRelatedSubjectClick = { target ->
-				detailNavigationOriginNodeIdState.value = target.originNodeId
-				detailNavigationDirectionNameState.value = target.direction.name
-				focusedNodeIdState.value = target.nodeId
-				detailNodeIdState.value = target.nodeId
-				shouldOpenDetailExpandedState.value = true
-				focusRequestSerialState.value += 1
+				setDetailNavigationOriginNodeId(target.originNodeId)
+				setDetailNavigationDirectionName(target.direction.name)
+				setFocusedNodeId(target.nodeId)
+				setDetailNodeId(target.nodeId)
+				setShouldOpenDetailExpanded(true)
+				incrementFocusRequestSerial()
 			},
 			onDismissRequest = {
 				clearSubjectDetail()

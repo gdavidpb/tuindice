@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.navigation
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLifecycle
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSessionStore
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
 import com.gdavidpb.tuindice.pensum.presentation.route.PensumRoute
 import com.gdavidpb.tuindice.pensum.presentation.viewmodel.PensumViewModel
@@ -23,6 +24,7 @@ fun NavGraphBuilder.pensumNavigation(
 		composable<PensumDestination.Pensum> { backStackEntry ->
 			val viewModel = koinViewModel<PensumViewModel>(viewModelStoreOwner = backStackEntry)
 			val topBarActionBus = koinInject<PensumTopBarActionBus>()
+			val screenSessionStore = koinInject<PensumScreenSessionStore>()
 			val viewState by viewModel.state.collectAsStateWithLifecycle()
 
 			navController.CollectCurrentEntryValueWithLifecycle(
@@ -39,6 +41,7 @@ fun NavGraphBuilder.pensumNavigation(
 
 			PensumRoute(
 				topBarActionBus = topBarActionBus,
+				screenSessionStore = screenSessionStore,
 				onNavigateToSubjectDetail = onNavigateToSubjectDetail,
 				viewModel = viewModel
 			)
