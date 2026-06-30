@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
@@ -17,6 +19,7 @@ import com.gdavidpb.tuindice.evaluations.testing.*
 import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -216,12 +219,82 @@ class EvaluationsViewModelContractTest {
 			stateCollector.cancel()
 		}
 
-		assertEquals(1, repository.updateEvaluationsCalls)
-		assertEquals(listOf(false), repository.updateEvaluationsForceRemoteCalls)
+	assertEquals(1, repository.updateEvaluationsCalls)
+	assertEquals(listOf(false), repository.updateEvaluationsForceRemoteCalls)
+}
+
+@Test
+fun ensureLoaded_whenCacheExistsBeforeObservation_doesNotShowLoadingDuringInitialRefresh() = runTest {
+	val observedSnapshots = MutableSharedFlow<ObservedSyncedSnapshot<List<Evaluation>>>()
+	val cachedSnapshot = ObservedSyncedSnapshot(
+		value = listOf(DEFAULT_PENDING_EVALUATION),
+		hasSynced = true
+	)
+	val repository = RecordingEvaluationRepository(
+		initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION),
+		refreshedEvaluations = listOf(DEFAULT_PENDING_EVALUATION),
+		availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT),
+		evaluationsSnapshotFlow = observedSnapshots,
+		evaluationsSnapshot = cachedSnapshot
+	)
+	val viewModel = createViewModel(
+		testScheduler = testScheduler,
+		repository = repository
+	)
+
+	viewModel.state.test {
+		assertEquals(Evaluations.State.Idle, awaitItem())
+
+		viewModel.ensureEvaluationsLoadedAction()
+		advanceUntilIdle()
+		expectNoEvents()
+
+		observedSnapshots.emit(cachedSnapshot)
+		assertIs<Evaluations.State.Content>(awaitItem())
+		cancelAndIgnoreRemainingEvents()
 	}
 
-	private fun createViewModel(
-		testScheduler: TestCoroutineScheduler,
+	assertEquals(1, repository.updateEvaluationsCalls)
+	assertEquals(listOf(false), repository.updateEvaluationsForceRemoteCalls)
+}
+
+@Test
+fun ensureLoaded_whenCacheExistsAndInitialRefreshFails_doesNotShowFailedBeforeCachedContent() = runTest {
+	val observedSnapshots = MutableSharedFlow<ObservedSyncedSnapshot<List<Evaluation>>>()
+	val cachedSnapshot = ObservedSyncedSnapshot(
+		value = listOf(DEFAULT_PENDING_EVALUATION),
+		hasSynced = true
+	)
+	val repository = RecordingEvaluationRepository(
+		initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION),
+		availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT),
+		refreshThrowable = RuntimeException("network unavailable"),
+		evaluationsSnapshotFlow = observedSnapshots,
+		evaluationsSnapshot = cachedSnapshot
+	)
+	val viewModel = createViewModel(
+		testScheduler = testScheduler,
+		repository = repository
+	)
+
+	viewModel.state.test {
+		assertEquals(Evaluations.State.Idle, awaitItem())
+
+		viewModel.ensureEvaluationsLoadedAction()
+		advanceUntilIdle()
+		expectNoEvents()
+
+		observedSnapshots.emit(cachedSnapshot)
+		assertIs<Evaluations.State.Content>(awaitItem())
+		cancelAndIgnoreRemainingEvents()
+	}
+
+	assertEquals(1, repository.updateEvaluationsCalls)
+	assertEquals(listOf(false), repository.updateEvaluationsForceRemoteCalls)
+}
+
+private fun createViewModel(
+	testScheduler: TestCoroutineScheduler,
 		repository: EvaluationRepository = RecordingEvaluationRepository(
 			evaluationsFlow = kotlinx.coroutines.flow.flowOf(
 				listOf(

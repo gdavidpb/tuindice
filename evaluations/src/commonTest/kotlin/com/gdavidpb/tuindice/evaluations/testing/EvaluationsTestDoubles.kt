@@ -253,6 +253,7 @@ class RecordingEvaluationRepository(
 	private val availableAttemptsThrowable: Throwable? = null,
 	private val hasSyncedEvaluationsFlow: Flow<Boolean> = flowOf(true),
 	private val evaluationsSnapshotFlow: Flow<ObservedSyncedSnapshot<List<Evaluation>>>? = null,
+	private val evaluationsSnapshot: ObservedSyncedSnapshot<List<Evaluation>>? = null,
 	private val refreshResult: EvaluationsRefreshResult? = null,
 	private val availableSubjects: List<EditableAttemptDescriptor> = listOf(
 		DEFAULT_EVALUATION_SUBJECT,
@@ -285,7 +286,7 @@ class RecordingEvaluationRepository(
 	}
 
 	override suspend fun getEvaluationsSnapshot(): ObservedSyncedSnapshot<List<Evaluation>> {
-		return observeEvaluationsSnapshotFlow().first()
+		return evaluationsSnapshot ?: observeEvaluationsSnapshotFlow().first()
 	}
 
 	override suspend fun updateEvaluations(): EvaluationsRefreshResult {

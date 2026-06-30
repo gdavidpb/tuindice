@@ -134,15 +134,24 @@ class EvaluationsMachine(
 
 	internal fun ensureLoaded(host: MachineHost<Evaluations.Effect>) {
 		host.launchMachineJob {
+			var hasCachedEvaluations = false
+
 			ensureEvaluationsLoadedUseCase.execute(Unit).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> Unit
 
 					is UseCaseState.Data -> when (val result = useCaseState.value) {
-						EnsureEvaluationsLoadedUseCase.Result.Cached -> Unit
-						EnsureEvaluationsLoadedUseCase.Result.RefreshStarted -> host.processInternalEvent(
-							EvaluationsInternalEvent.EvaluationsRefreshStarted
-						)
+						EnsureEvaluationsLoadedUseCase.Result.Cached -> {
+							hasCachedEvaluations = true
+						}
+
+						EnsureEvaluationsLoadedUseCase.Result.RefreshStarted -> {
+							if (!hasCachedEvaluations) {
+								host.processInternalEvent(
+									EvaluationsInternalEvent.EvaluationsRefreshStarted
+								)
+							}
+						}
 
 						is EnsureEvaluationsLoadedUseCase.Result.RefreshSucceeded -> processRefreshResult(
 							host = host,
@@ -150,9 +159,13 @@ class EvaluationsMachine(
 						)
 					}
 
-					is UseCaseState.Error -> host.processInternalEvent(
-						EvaluationsInternalEvent.EvaluationsRefreshFailed
-					)
+					is UseCaseState.Error -> {
+						if (!hasCachedEvaluations) {
+							host.processInternalEvent(
+								EvaluationsInternalEvent.EvaluationsRefreshFailed
+							)
+						}
+					}
 				}
 			}
 		}
