@@ -36,13 +36,16 @@ class AndroidPlayCoreEnvironmentDataSource(
 
 @Suppress("DEPRECATION")
 private fun PackageManager.hasPackage(packageName: String): Boolean {
-	if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-		getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
-	} else {
-		getPackageInfo(packageName, 0)
+	return try {
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+			getPackageInfo(packageName, PackageManager.PackageInfoFlags.of(0))
+		} else {
+			getPackageInfo(packageName, 0)
+		}
+		true
+	} catch (throwable: PackageManager.NameNotFoundException) {
+		false
 	}
-
-	return true
 }
 
 @Suppress("DEPRECATION")

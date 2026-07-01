@@ -66,6 +66,37 @@ class AndroidPlayCoreAvailabilityDataSourceTest {
 	}
 
 	@Test
+	fun isAvailable_whenPlayStoreIsMissing_returnsFalseWithoutReportingException() {
+		val reportingRepository = RecordingReportingRepository()
+		val dataSource = AndroidPlayCoreAvailabilityDataSource(
+			environmentRepository = FakePlayCoreEnvironmentDataRepository(
+				googlePlayServicesStatus = ConnectionResult.SUCCESS,
+				playStoreAvailable = false,
+				playCoreServiceAvailable = false
+			),
+			reportingRepository = reportingRepository,
+		)
+
+		assertFalse(dataSource.isAvailable(PlayCoreSurface.Review))
+
+		assertEquals("review", reportingRepository.customKeys["play_core.last_surface"])
+		assertEquals(ConnectionResult.SUCCESS, reportingRepository.customKeys["play_core.google_play_services_status"])
+		assertEquals(false, reportingRepository.customKeys["play_core.play_store_available"])
+		assertEquals(false, reportingRepository.customKeys["play_core.service_available"])
+		assertEquals(
+			listOf(
+				"play_core_unavailable " +
+					"surface=review " +
+					"google_play_services_status=${ConnectionResult.SUCCESS} " +
+					"play_store_available=false " +
+					"play_core_service_available=false"
+			),
+			reportingRepository.loggedMessages
+		)
+		assertTrue(reportingRepository.loggedExceptions.isEmpty())
+	}
+
+	@Test
 	fun isAvailable_whenPlayStoreCheckFails_returnsFalseAndReportsException() {
 		val failure = IllegalStateException("package manager failed")
 		val reportingRepository = RecordingReportingRepository()
