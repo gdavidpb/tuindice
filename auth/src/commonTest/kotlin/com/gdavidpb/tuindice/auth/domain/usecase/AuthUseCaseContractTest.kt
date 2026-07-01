@@ -184,13 +184,14 @@ class AuthUseCaseContractTest {
 		val syncRepository = FakeSyncRepository()
 		val credentialsRepository = FakeCredentialsRepository()
 		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
+		val attestationRepository = FakeAttestationRepository()
 		val useCase = UpdatePasswordUseCase(
 			authRepository = repository,
 			sessionRepository = sessionRepository,
 			syncRepository = syncRepository,
 			credentialsRepository = credentialsRepository,
 			syncStatusRepository = syncStatusRepository,
-			attestationRepository = FakeAttestationRepository(),
+			attestationRepository = attestationRepository,
 			reportingRepository = RecordingReportingRepository(),
 			paramsValidator = UpdatePasswordParamsValidator(),
 			exceptionHandler = UpdatePasswordExceptionHandler(
@@ -205,6 +206,7 @@ class AuthUseCaseContractTest {
 
 		val call = repository.reissueTokensCalls.single()
 		assertEquals("20261234", call.usbId)
+		assertEquals(AttestationAuthorization.CurrentSession, attestationRepository.lastRequest?.authorization)
 		assertEquals(listOf("new-secret"), credentialsRepository.storedPasswords)
 		assertEquals(SyncStatus.Failed, syncStatusRepository.getSyncStatus())
 		assertEquals(listOf(SyncStatus.Failed), syncStatusRepository.setStatuses)

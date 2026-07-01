@@ -8,9 +8,12 @@ import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.AttestationProofOfPossessionMode
 import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
+import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.data.source.attestation.AndroidAttestationDataSource
 import com.gdavidpb.tuindice.di.createSharedJson
+import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
 import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
 import com.gdavidpb.tuindice.platform.android.model.ProviderAttestation
 import io.ktor.client.HttpClient
@@ -322,6 +325,122 @@ class AndroidAttestationDataSourceTest {
 			providerDataSource.calls.map { call -> call.bindingHash },
 			proofCapability.attestationInputs
 		)
+	}
+
+	@Test
+	fun `current session attestation recovers unauthorized token before retry`() = runTest {
+		val proofCapability = RecordingAndroidProofOfPossessionCapability(
+			resolvedKeyIds = ArrayDeque(listOf("old-key", "fresh-key")),
+			proofFailures = ArrayDeque(),
+			issuedSignatures = ArrayDeque()
+		)
+		val providerDataSource = RecordingAttestationProviderDataSource()
+		val authorizationHeaders = mutableListOf<String?>()
+		var sessionRequests = 0
+		val httpClient = HttpClient(
+			MockEngine { request ->
+				authorizationHeaders += request.headers[HttpHeaders.Authorization]
+				when (request.url.encodedPath) {
+					"/attestation/v4/sessions" -> {
+						sessionRequests++
+						if (sessionRequests == 1) {
+							respond(
+								content = "",
+								status = HttpStatusCode.Unauthorized,
+								headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+							)
+						} else {
+							respond(
+								content = """
+									{
+									 "session_id": "session-recovered",
+									 "challenge": "challenge",
+									 "expires_at": 1735689600000,
+									 "evidence_mode": "play_integrity_standard"
+									}
+								""".trimIndent(),
+								status = HttpStatusCode.OK,
+								headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+							)
+						}
+					}
+
+					"/attestation/v4/tokens" ->
+						respond(
+							content = """
+								{
+								 "token": "issued-token",
+								 "expires_at": 1735689600000
+								}
+							""".trimIndent(),
+							status = HttpStatusCode.OK,
+							headers = headersOf(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+						)
+
+					else -> error("Unexpected path: ${request.url.encodedPath}")
+				}
+			}
+		) {
+			expectSuccess = true
+			install(DefaultRequest) {
+				headers.append(HttpHeaders.ContentType, ContentType.Application.Json.toString())
+			}
+
+			install(ContentNegotiation) {
+				json(createSharedJson())
+			}
+		}
+		val sessionRepository = FixedSessionRepository(
+			SessionSnapshot(
+				sessionId = "session-id",
+				accessToken = "old-access-token",
+				refreshToken = "old-refresh-token",
+				usbId = "20-26123"
+			)
+		)
+		val sessionRecoveryRepository = RecordingSessionRecoveryRepository(
+			recoveredSnapshot = SessionSnapshot(
+				sessionId = "session-id",
+				accessToken = "fresh-access-token",
+				refreshToken = "fresh-refresh-token",
+				usbId = "20-26123"
+			)
+		)
+		val repository = AndroidAttestationDataSource(
+			ktorClient = httpClient,
+			providerDataSource = providerDataSource,
+			proofOfPossessionCapability = proofCapability,
+			configRepository = FixedConfigRepository(androidEnforcementEnabled = true),
+			sessionRepository = sessionRepository,
+			recoverUnauthorizedSession = sessionRecoveryRepository::recoverUnauthorizedSession
+		)
+
+		val response = repository.attest(
+			AttestationRequest(
+				operationCode = ProtectedOperationCodes.AuthReissueTokens,
+				payloadJson = """{"usb_id":"20-26123"}""",
+				authorization = AttestationAuthorization.CurrentSession
+			)
+		)
+
+		assertEquals("issued-token", response.token)
+		assertEquals(
+			listOf<String?>("Bearer old-access-token", "Bearer fresh-access-token", "Bearer fresh-access-token"),
+			authorizationHeaders.toList()
+		)
+		assertEquals(
+			listOf(
+				RecoveryCall(
+					attemptedAuthorizationAccessToken = "old-access-token",
+					attemptedCachedAccessToken = "old-access-token",
+					attemptedCachedRefreshToken = "old-refresh-token"
+				)
+			),
+			sessionRecoveryRepository.calls
+		)
+		assertEquals(listOf("old-key", "fresh-key"), proofCapability.resolveCalls)
+		assertEquals(emptyList<String>(), proofCapability.proofCalls)
+		assertEquals(0, proofCapability.invalidateCalls)
 	}
 }
 
@@ -641,6 +760,66 @@ private class RecordingAttestationProviderDataSource : AttestationProviderDataRe
 		)
 	}
 }
+
+private class FixedSessionRepository(
+	private val snapshot: SessionSnapshot?
+) : SessionRepository {
+	override suspend fun hasActiveSession(): Boolean = snapshot != null
+
+	override suspend fun getActiveSessionSnapshot(): SessionSnapshot? = snapshot
+
+	override suspend fun setSessionSnapshot(snapshot: SessionSnapshot) = error("Unexpected session write.")
+
+	override suspend fun replaceSessionSnapshotIfCurrent(
+		expectedSnapshot: SessionSnapshot,
+		newSnapshot: SessionSnapshot
+	): Boolean = error("Unexpected session replacement.")
+
+	override suspend fun setUsbId(usbId: String) = error("Unexpected usbId write.")
+
+	override suspend fun setSessionId(sessionId: String) = error("Unexpected sessionId write.")
+
+	override suspend fun setAccessToken(accessToken: String) = error("Unexpected accessToken write.")
+
+	override suspend fun setRefreshToken(refreshToken: String) = error("Unexpected refreshToken write.")
+
+	override suspend fun getUsbId(): String = snapshot?.usbId ?: error("Unexpected usbId read.")
+
+	override suspend fun getSessionId(): String = snapshot?.sessionId ?: error("Unexpected sessionId read.")
+
+	override suspend fun getAccessToken(): String = snapshot?.accessToken ?: error("Unexpected accessToken read.")
+
+	override suspend fun getRefreshToken(): String = snapshot?.refreshToken ?: error("Unexpected refreshToken read.")
+
+	override suspend fun clear() = error("Unexpected session clear.")
+}
+
+private class RecordingSessionRecoveryRepository(
+	private val recoveredSnapshot: SessionSnapshot?
+) : SessionRecoveryRepository {
+	val calls = mutableListOf<RecoveryCall>()
+
+	override suspend fun recoverUnauthorizedSession(
+		attemptedAuthorizationAccessToken: String?,
+		attemptedCachedAccessToken: String?,
+		attemptedCachedRefreshToken: String?
+	): SessionSnapshot? {
+		calls += RecoveryCall(
+			attemptedAuthorizationAccessToken = attemptedAuthorizationAccessToken,
+			attemptedCachedAccessToken = attemptedCachedAccessToken,
+			attemptedCachedRefreshToken = attemptedCachedRefreshToken
+		)
+		return recoveredSnapshot
+	}
+
+	override suspend fun invalidateSession(sessionId: String?) = error("Unexpected session invalidation.")
+}
+
+private data class RecoveryCall(
+	val attemptedAuthorizationAccessToken: String?,
+	val attemptedCachedAccessToken: String?,
+	val attemptedCachedRefreshToken: String?
+)
 
 private class FixedConfigRepository(
 	private val androidEnforcementEnabled: Boolean

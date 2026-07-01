@@ -244,7 +244,17 @@ val androidPlatformModule = module {
 			ktorClient = get<HttpClient>(qualifier = named(IDENTITY_HTTP_CLIENT_QUALIFIER)),
 			providerDataSource = get(),
 			proofOfPossessionCapability = get(),
-			configRepository = get()
+			configRepository = get(),
+			sessionRepository = get(),
+			recoverUnauthorizedSession = { attemptedAuthorizationAccessToken,
+				attemptedCachedAccessToken,
+				attemptedCachedRefreshToken ->
+				get<com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository>().recoverUnauthorizedSession(
+					attemptedAuthorizationAccessToken = attemptedAuthorizationAccessToken,
+					attemptedCachedAccessToken = attemptedCachedAccessToken,
+					attemptedCachedRefreshToken = attemptedCachedRefreshToken
+				)
+			}
 		)
 	}
 

@@ -162,7 +162,17 @@ val iosPlatformModule = module {
 		IosAttestationDataSource(
 			httpClient = get<HttpClient>(qualifier = named(IDENTITY_HTTP_CLIENT_QUALIFIER)),
 			attestationCapability = get<IosAttestationCapability>(),
-			configRepository = get<ConfigRepository>()
+			configRepository = get<ConfigRepository>(),
+			sessionRepository = get(),
+			recoverUnauthorizedSession = { attemptedAuthorizationAccessToken,
+				attemptedCachedAccessToken,
+				attemptedCachedRefreshToken ->
+				get<com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository>().recoverUnauthorizedSession(
+					attemptedAuthorizationAccessToken = attemptedAuthorizationAccessToken,
+					attemptedCachedAccessToken = attemptedCachedAccessToken,
+					attemptedCachedRefreshToken = attemptedCachedRefreshToken
+				)
+			}
 		)
 	}
 

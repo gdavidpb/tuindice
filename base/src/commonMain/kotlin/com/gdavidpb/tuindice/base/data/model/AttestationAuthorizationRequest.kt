@@ -15,6 +15,9 @@ fun AttestationAuthorization.toRequestAuthorizationOrNull(): AttestationAuthoriz
 		is AttestationAuthorization.Bearer ->
 			null
 
+		AttestationAuthorization.CurrentSession ->
+			null
+
 		is AttestationAuthorization.Session ->
 			AttestationAuthorizationRequest(
 				sessionId = sessionId,
