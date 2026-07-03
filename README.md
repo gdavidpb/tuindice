@@ -84,7 +84,8 @@ Regla general:
 
 La fuente de verdad del grafo es `scripts/module-graph.txt`, validada contra los `build.gradle.kts` reales con
 `./gradlew verifyModuleGraph` (también corre en preflight). CI deriva de ese archivo qué módulos recompilar,
-testear y certificar con E2E. Si cambia una frontera, actualizar el archivo y esta sección en el mismo cambio.
+testear, pasar por detekt y certificar con E2E. Si cambia una frontera, actualizar el archivo y esta sección en
+el mismo cambio.
 
 Dependencias actuales:
 

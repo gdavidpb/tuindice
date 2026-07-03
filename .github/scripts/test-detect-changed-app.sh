@@ -297,6 +297,8 @@ run_detector_fixture() {
 			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,wizard-suite,module-runtime" "E2E scope"
 			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "android,subjects-suite,module-runtime" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":wizard:testAndroidHostTest" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":record:detekt" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":wizard:detekt" "Android tasks"
 			;;
 		module-graph-config)
 			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
@@ -307,6 +309,7 @@ run_detector_fixture() {
 			;;
 		module-build-file)
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyModuleGraph" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":record:detekt" "Android tasks"
 			assert_file_contains_line "$github_output_file" "module_graph_touched=true" "GitHub output"
 			assert_file_contains_line "$github_output_file" "has_release_impact=true" "GitHub output"
 			;;
@@ -320,6 +323,22 @@ run_detector_fixture() {
 			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
 			assert_file_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" "verifyIosHostTypecheck" "iOS tasks"
 			assert_file_contains_line "$github_output_file" "ios_ci_scripts_touched=true" "GitHub output"
+			;;
+		detekt-config)
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_empty "${temp_dir}/state/release-impacted-modules.txt" "release impacted modules"
+			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "detekt" "Android tasks"
+			assert_file_empty "${temp_dir}/state/ios-gradle-tasks.txt" "iOS tasks"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=false" "GitHub output"
+			;;
+		detekt-baseline)
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_empty "${temp_dir}/state/release-impacted-modules.txt" "release impacted modules"
+			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "detekt" "Android tasks"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
 			;;
 		*)
 			printf 'Unknown detector fixture: %s\n' "$name" >&2
@@ -373,6 +392,8 @@ run_detector_fixture module-graph-config scripts/module-graph.txt
 run_detector_fixture module-build-file record/build.gradle.kts
 run_detector_fixture ios-build-script iosApp/scripts/build-kmp-framework.sh
 run_detector_fixture ios-typecheck-script iosApp/scripts/ci-typecheck-ios-host.sh
+run_detector_fixture detekt-config config/detekt/detekt.yml
+run_detector_fixture detekt-baseline evaluations/detekt-baseline.xml
 run_detector_fixture ios-host-runtime iosApp/Sources/TuIndiceHost/TuIndiceAppBootstrap.swift
 run_detector_fixture ios-version-xcconfig iosApp/Config/Version.xcconfig
 run_detector_fixture ios-release-signing iosApp/Config/Release.xcconfig "$HEAD_SHA" "$ios_release_signing_commit"

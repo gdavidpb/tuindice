@@ -47,6 +47,9 @@ El detector compara el PR contra el merge-base de `production` y ejecuta solo pi
 - Cambios en `base`, `persistence`, `academiccore`, `maincore`, Gradle raíz o hosts amplían el alcance.
 - Cambios en cualquier `build.gradle.kts`, `settings.gradle.kts` o en el propio grafo ejecutan
   `verifyModuleGraph` en preflight, así el grafo no puede derivar en silencio.
+- Cada módulo impactado (y `app`) pasa por `:módulo:detekt` contra su baseline; cambios en
+  `config/detekt/`, `.editorconfig`, cualquier `detekt-baseline.xml` o el Gradle raíz ejecutan `detekt`
+  completo sin marcar impacto de runtime.
 - Cambios runtime exigen bump de versión.
 - Cambios user-visible cubiertos por E2E exigen commit statuses locales exitosos.
 - Cambios en `iosApp/scripts/build-kmp-framework.sh` o `ci-build-ios-host.sh` compilan el host device release;

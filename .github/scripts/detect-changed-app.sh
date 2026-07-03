@@ -43,6 +43,7 @@ CI_CONFIG_TOUCHED=false
 IOS_CI_SCRIPTS_TOUCHED=false
 MODULE_GRAPH_TOUCHED=false
 E2E_CONTRACT_TOUCHED=false
+DETEKT_CONFIG_TOUCHED=false
 HAS_RELEVANT_CHANGES=false
 HAS_RELEASE_IMPACT=false
 REQUIRES_E2E_CERTIFICATION=false
@@ -355,6 +356,13 @@ classify_changed_file() {
 		AGENTS.md|README.md|LICENSE|docs/*|.codex/*)
 			return 0
 			;;
+		config/detekt/*|.editorconfig|*/detekt-baseline.xml)
+			# Solo afecta análisis estático: corre detekt completo sin marcar
+			# impacto de runtime ni suites E2E.
+			DETEKT_CONFIG_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			return 0
+			;;
 		e2e/maestro/flows/suites/*-suite.yaml)
 			E2E_CONTRACT_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
@@ -406,6 +414,7 @@ classify_changed_file() {
 			HAS_RELEVANT_CHANGES=true
 			HAS_RELEASE_IMPACT=true
 			MODULE_GRAPH_TOUCHED=true
+			DETEKT_CONFIG_TOUCHED=true
 			append_e2e_scope all local-certification-suite "root-build"
 			return 0
 			;;
@@ -567,6 +576,7 @@ while IFS= read -r module; do
 	[[ -n "$module" ]] || continue
 	case "$module" in
 		app)
+			append_unique_line "$ANDROID_TASKS_FILE" ":app:detekt"
 			append_unique_line "$ANDROID_TASKS_FILE" ":app:testDebugUnitTest"
 			if [[ "$HAS_RELEASE_IMPACT" == "true" || "$APP_VERSION_CHANGED" == "true" ]]; then
 				append_unique_line "$ANDROID_TASKS_FILE" ":app:bundleRelease"
@@ -582,6 +592,7 @@ while IFS= read -r module; do
 		*)
 			if module_is_kmp "$module"; then
 				append_unique_line "$ANDROID_TASKS_FILE" ":${module}:compileAndroidMain"
+				append_unique_line "$ANDROID_TASKS_FILE" ":${module}:detekt"
 				if [[ "$module" != "testkit" ]]; then
 					append_unique_line "$ANDROID_TASKS_FILE" ":${module}:testAndroidHostTest"
 				fi
@@ -604,6 +615,10 @@ fi
 
 if [[ "$MODULE_GRAPH_TOUCHED" == "true" ]]; then
 	append_unique_line "$ANDROID_TASKS_FILE" "verifyModuleGraph"
+fi
+
+if [[ "$DETEKT_CONFIG_TOUCHED" == "true" ]]; then
+	append_unique_line "$ANDROID_TASKS_FILE" "detekt"
 fi
 
 sort_file_if_present "$ANDROID_TASKS_FILE"
@@ -652,6 +667,7 @@ info "Missing version bump: $(file_to_csv "$MISSING_VERSION_BUMP_FILE" || true)"
 info "CI/CD configuration touched: ${CI_CONFIG_TOUCHED}"
 info "iOS CI scripts touched: ${IOS_CI_SCRIPTS_TOUCHED}"
 info "Module graph touched: ${MODULE_GRAPH_TOUCHED}"
+info "Detekt config touched: ${DETEKT_CONFIG_TOUCHED}"
 info "E2E suites requiring local certification: $(file_to_csv "$E2E_SUITES_FILE" || true)"
 info "E2E scope: $(file_to_csv "$E2E_SCOPE_FILE" || true)"
 info "E2E Android contexts: $(file_to_csv "$E2E_ANDROID_CONTEXTS_FILE" || true)"
