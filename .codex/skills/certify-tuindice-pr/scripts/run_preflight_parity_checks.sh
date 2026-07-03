@@ -97,6 +97,7 @@ GITHUB_OUTPUT="$GITHUB_OUTPUT_FILE" \
 
 ANDROID_TASKS="$(github_output_value android_tasks "$GITHUB_OUTPUT_FILE")"
 IOS_TASKS="$(github_output_value ios_tasks "$GITHUB_OUTPUT_FILE")"
+SEMGREP_REQUIRED="$(github_output_value semgrep_required "$GITHUB_OUTPUT_FILE")"
 CI_CONFIG_TOUCHED="$(github_output_value ci_config_touched "$GITHUB_OUTPUT_FILE")"
 IOS_CI_SCRIPTS_TOUCHED="$(github_output_value ios_ci_scripts_touched "$GITHUB_OUTPUT_FILE")"
 HAS_RELEVANT_CHANGES="$(github_output_value has_relevant_changes "$GITHUB_OUTPUT_FILE")"
@@ -114,6 +115,11 @@ fi
 if [[ "$DRY_RUN" == "true" ]]; then
 	if [[ "$CI_CONFIG_TOUCHED" == "true" ]]; then
 		print_command bash ./.github/scripts/validate-ci-config.sh
+	fi
+	if [[ "$SEMGREP_REQUIRED" == "true" ]]; then
+		# Paridad con el step "Run semgrep architecture checks" del preflight:
+		# incluye detekt vía ANDROID_TASKS y semgrep vía este script.
+		print_command bash ./scripts/semgrep-architecture.sh
 	fi
 	if [[ -n "$ANDROID_TASKS" ]]; then
 		IFS=' ' read -r -a android_task_array <<<"$ANDROID_TASKS"
@@ -140,6 +146,15 @@ fi
 
 if [[ "$CI_CONFIG_TOUCHED" == "true" ]]; then
 	bash ./.github/scripts/validate-ci-config.sh
+fi
+
+if [[ "$SEMGREP_REQUIRED" == "true" ]]; then
+	# Paridad con el step "Run semgrep architecture checks" del preflight de CI.
+	# detekt ya corre en paridad dentro de ANDROID_TASKS (:modulo:detekt o detekt
+	# completo cuando cambia config/baseline), igual que en el job Android de CI.
+	command -v semgrep >/dev/null 2>&1 \
+		|| die "semgrep CLI is required for preflight parity (brew install semgrep)."
+	bash ./scripts/semgrep-architecture.sh
 fi
 
 if [[ -n "$ANDROID_TASKS" ]]; then

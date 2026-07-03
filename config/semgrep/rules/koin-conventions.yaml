@@ -1,0 +1,41 @@
+rules:
+  - id: koin-no-empty-module
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Módulos Koin vacíos no están permitidos (README "Convenciones de Koin > Patrones no permitidos").
+      Elimina el módulo o registra las dependencias reales del feature.
+    pattern-regex: '\bmodule\s*\{\s*\}'
+    metadata:
+      area: koin-conventions
+      referencia: 'README.md § Convenciones de Koin'
+
+  - id: koin-no-coremodule
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Naming *CoreModule no permitido (README "Convenciones de Koin > Patrones no permitidos").
+      La infra compartida va en commonModule; los features exponen un único <feature>Module.
+    pattern-regex: '\bval\s+\w*[Cc]oreModule\s*='
+    metadata:
+      area: koin-conventions
+      referencia: 'README.md § Convenciones de Koin'
+
+  - id: koin-no-per-feature-platform-module
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      No crear módulos de plataforma por feature (README "Convenciones de Koin").
+      Los bindings específicos de plataforma de un feature viven en androidPlatformModule (app)
+      o iosPlatformModule (maincore/iosMain).
+    pattern-regex: '\bval\s+\w*(?:[Aa]ndroid|[Ii]os)\w*Module\s*=\s*module\b'
+    paths:
+      exclude:
+        # Únicos dueños legítimos del wiring de plataforma:
+        # androidPlatformModule (app) e iosPlatformModule (maincore/iosMain).
+        # Todo otro módulo — features actuales y futuros e infra — queda cubierto.
+        - 'app/**'
+        - 'maincore/**'
+    metadata:
+      area: koin-conventions
+      referencia: 'README.md § Convenciones de Koin'

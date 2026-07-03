@@ -1,0 +1,124 @@
+rules:
+  - id: usecase-extends-flowusecase
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Toda clase *UseCase implementa la primitiva base FlowUseCase
+      (base/domain/usecase/base). Fuera de ella se pierde el pipeline completo:
+      UseCaseState.Loading, ParamsValidator, ExceptionHandler y el reporting
+      automático de errores con custom keys.
+    # Regex temperada: clase *UseCase cuyo header (hasta la primera llave)
+    # no menciona FlowUseCase.
+    pattern-regex: '\bclass\s+\w+UseCase\b(?:(?!\bFlowUseCase\b|\{)[\s\S])*\{'
+    paths:
+      include:
+        - '**/domain/usecase/**'
+      exclude:
+        - '**/base/domain/usecase/base/**'
+    metadata:
+      area: base-components
+      referencia: 'base/domain/usecase/base/FlowUseCase.kt'
+
+  - id: usecase-no-trycatch
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Los UseCase no capturan excepciones: FlowUseCase.execute ya captura, reporta
+      con custom keys y re-lanza CancellationException. La traducción tipada vive en
+      ExceptionHandler (usecase/exceptionhandler) y la validación en ParamsValidator.
+      Un try/catch local se traga el reporting y el manejo declarativo.
+    pattern-regex: '\btry\s*\{'
+    paths:
+      include:
+        - '**/domain/usecase/**'
+      exclude:
+        - '**/base/domain/usecase/base/**'
+    metadata:
+      area: base-components
+      referencia: 'base/domain/usecase/base/FlowUseCase.kt § execute/reportException'
+
+  - id: no-direct-executeonbackground
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      executeOnBackground es el template method interno de FlowUseCase: invocarlo
+      directamente salta Loading, ParamsValidator, ExceptionHandler y el reporting.
+      Llama siempre useCase.execute(params) y consume el Flow de UseCaseState.
+    pattern-regex: '\.executeOnBackground\s*\('
+    paths:
+      exclude:
+        - '**/base/domain/usecase/base/**'
+    metadata:
+      area: base-components
+      referencia: 'base/domain/usecase/base/FlowUseCase.kt § execute'
+
+  - id: no-usecasestate-outside-base
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      UseCaseState lo fabrica únicamente FlowUseCase.execute; las máquinas solo hacen
+      pattern-matching (is UseCaseState.Data/Error/Loading) para partir el resultado
+      en eventos internos por outcome. Construirlo a mano falsifica el contrato del
+      pipeline (Loading/reporting).
+    pattern-either:
+      - pattern: UseCaseState.Data(...)
+      - pattern: UseCaseState.Error(...)
+    paths:
+      exclude:
+        - 'base/**'
+    metadata:
+      area: base-components
+      referencia: 'base/domain/usecase/base/UseCaseState.kt'
+
+  - id: no-appevent-outside-base
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      AppEvent es un modelo cerrado que emite el motor (screen_view, app_action,
+      app_state, app_effect, app_transition, app_invalid_transition) — los features
+      no construyen ni publican AppEvent directamente (README "Eventos y datos de uso").
+    pattern: AppEvent.$EVENT(...)
+    paths:
+      exclude:
+        - 'base/**'
+    metadata:
+      area: base-components
+      referencia: 'README.md § Eventos y datos de uso'
+
+  - id: machine-implements-screenmachine
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Toda clase *Machine de presentation/machine implementa ScreenMachine<S, E>
+      (initialState() + define(host)). Es el contrato que el motor introspecciona
+      para exportar diagramas y validar la tabla; una máquina fuera del contrato
+      no entra al loop FIFO de StateMachineViewModel.
+    # Regex temperada: clase *Machine cuyo header (hasta la primera llave)
+    # no menciona ScreenMachine.
+    pattern-regex: '\bclass\s+\w+Machine\b(?:(?!\bScreenMachine\b|\{)[\s\S])*\{'
+    paths:
+      include:
+        - '**/presentation/machine/**'
+    metadata:
+      area: base-components
+      referencia: 'base/presentation/statemachine/StateMachineViewModel.kt § ScreenMachine'
+
+  - id: machine-state-only-in-draft
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      En presentation/machine, los registros de entrada (MutableStateFlow) viven solo
+      en <Screen>Draft.kt — reificados, inyectados únicamente en la máquina y escritos
+      desde filas y comandos. Una máquina con estado mutable propio duplica la fuente
+      de verdad de la tabla.
+    pattern-either:
+      - pattern: MutableStateFlow(...)
+      - pattern: MutableSharedFlow(...)
+    paths:
+      include:
+        - '**/presentation/machine/**'
+      exclude:
+        - '**/*Draft.kt'
+    metadata:
+      area: base-components
+      referencia: '.codex/skills/implement-tuindice-module § draft pattern'

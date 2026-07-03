@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.data.source.sync
 
 import com.russhwolf.settings.Settings
-import com.gdavidpb.tuindice.data.repository.sync.SyncRetryBackoffState
+import com.gdavidpb.tuindice.data.model.SyncRetryBackoffState
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue

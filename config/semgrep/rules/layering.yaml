@@ -1,0 +1,74 @@
+rules:
+  - id: domain-no-data-import
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      domain nunca importa clases de data (README "Capas por feature > Data").
+      Define el contrato en domain/repository y deja la implementación en data/source.
+    pattern-regex: '^import\s+com\.gdavidpb\.tuindice\.(?:\w+\.)*data\.'
+    paths:
+      include:
+        - '**/domain/**'
+    metadata:
+      area: layering
+      referencia: 'README.md § Capas por feature'
+
+  - id: ui-no-business-import
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Screen y View no acceden a repositorios, use cases ni a la capa data
+      (README "Capas por feature > Presentation"). La máquina posee los use cases;
+      la UI recibe estado y callbacks desde Route.
+    pattern-regex: '^import\s+com\.gdavidpb\.tuindice\.(?:\w+\.)*(?:data\.|domain\.usecase\.|domain\.repository\.)'
+    paths:
+      include:
+        # La frontera composable aplica a la UI compartida; los bootstraps de
+        # host en androidMain/iosMain sí tocan DI legítimamente.
+        - '**/src/commonMain/**/ui/**'
+    metadata:
+      area: layering
+      referencia: 'README.md § Capas por feature'
+
+  - id: ui-no-koin-import
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Screen queda libre de Koin y wiring de negocio (skill "Preserve the composable boundary").
+      Navigation resuelve el ViewModel con koinViewModel(...); Route puentea state/effect al Screen puro.
+    pattern-regex: '^import\s+org\.koin\.'
+    paths:
+      include:
+        # La frontera composable aplica a la UI compartida; los bootstraps de
+        # host en androidMain/iosMain sí tocan DI legítimamente.
+        - '**/src/commonMain/**/ui/**'
+    metadata:
+      area: layering
+      referencia: '.codex/skills/implement-tuindice-module § composable boundary'
+
+  - id: no-datasource-interface
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      No deben existir interfaces *DataSource (README "Capas por feature > Data").
+      Los contratos van en domain/repository (*Repository) o data/repository (*DataRepository);
+      las clases concretas en data/source son las que usan el sufijo DataSource.
+    pattern-regex: '\binterface\s+\w*DataSource\b'
+    metadata:
+      area: layering
+      referencia: 'README.md § Capas por feature'
+
+  - id: data-repository-interfaces-only
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      data/repository no debe contener DTOs, modelos, mutaciones, resolvers ni clases concretas
+      (README "Capas por feature > Data"). Solo interfaces *DataRepository; las implementaciones
+      viven en data/source y los helpers en paquetes explícitos (data/model, data/mutation, ...).
+    pattern-regex: '^\s*(?:(?:public|internal|private|protected)\s+)?(?:(?:sealed|abstract|open|data|enum|annotation|value)\s+)*(?:class|object)\b'
+    paths:
+      include:
+        - '**/data/repository/**'
+    metadata:
+      area: layering
+      referencia: 'README.md § Capas por feature'

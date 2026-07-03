@@ -1,0 +1,102 @@
+rules:
+  - id: viewmodel-extends-statemachine
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Todo ViewModel de pantalla extiende StateMachineViewModel, no ViewModel directo
+      ni otra jerarquía (README "Checklist para cambios nuevos"). El motor vive en
+      base/presentation/statemachine; la lógica va en machine/ + transition/.
+    # Regex temperada: matchea una clase *ViewModel cuyo header (hasta la primera
+    # llave) no menciona StateMachineViewModel — cubre ViewModel() directo,
+    # jerarquías ajenas y clases sin supertipo.
+    pattern-regex: '\bclass\s+\w+ViewModel\b(?:(?!\bStateMachineViewModel\b|\{)[\s\S])*\{'
+    paths:
+      include:
+        - '**/presentation/viewmodel/**'
+    metadata:
+      area: viewmodel-purity
+      referencia: 'README.md § Flujo estándar'
+
+  - id: viewmodel-no-state-holding
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      El ViewModel es API pura de pantalla: sin MutableStateFlow/MutableSharedFlow/Channel propios
+      (skill "ViewModel classes stay a pure screen API"). El estado vive en la máquina;
+      los registros de entrada de formularios van en presentation/machine/<Screen>Draft.
+    pattern-either:
+      - pattern: MutableStateFlow(...)
+      - pattern: MutableSharedFlow(...)
+      - pattern: Channel(...)
+    paths:
+      include:
+        - '**/presentation/viewmodel/**'
+    metadata:
+      area: viewmodel-purity
+      referencia: '.codex/skills/implement-tuindice-module § pure screen API'
+
+  - id: viewmodel-no-coroutines
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      El ViewModel no lanza corrutinas ni jobs: los comandos asíncronos son de la máquina
+      (host.launchMachineJob desde comandos de transición). Los helpers son sendAction de una línea.
+    pattern-regex: '\bviewModelScope\b|\blaunchMachineJob\b'
+    paths:
+      include:
+        - '**/presentation/viewmodel/**'
+      exclude:
+        - '**/base/presentation/statemachine/**'
+    metadata:
+      area: viewmodel-purity
+      referencia: '.codex/skills/implement-tuindice-module § pure screen API'
+
+  - id: viewmodel-no-business-import
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      El ViewModel no llama infraestructura ni posee use cases o repositorios
+      (README "Capas por feature > Presentation"). La máquina entra como
+      override val screenMachine vía Koin y es dueña de los use cases.
+      Única dependencia de contrato permitida: EventPublisher.
+    pattern-either:
+      - pattern-regex: '^import\s+com\.gdavidpb\.tuindice\.(?:\w+\.)*domain\.usecase\.'
+      - pattern-regex: '^import\s+com\.gdavidpb\.tuindice\.(?:\w+\.)*data\.'
+      - pattern-regex: '^import\s+com\.gdavidpb\.tuindice\.(?:\w+\.)*domain\.repository\.(?!EventPublisher\b)'
+    paths:
+      include:
+        - '**/presentation/viewmodel/**'
+    metadata:
+      area: viewmodel-purity
+      referencia: 'README.md § Capas por feature'
+
+  - id: viewmodel-no-effect-bypass
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      El ViewModel no emite efectos ni eventos internos directamente: los Effect son
+      salidas declaradas por fila de la tabla (emits) y los eventos internos re-entran
+      desde comandos de la máquina (host.processInternalEvent). Saltarse la tabla rompe
+      la validación G-as-data del motor y la telemetría app_effect/app_transition.
+    pattern-regex: '\bsendEffect\s*\(|\bprocessInternalEvent\s*\('
+    paths:
+      include:
+        - '**/presentation/viewmodel/**'
+    metadata:
+      area: viewmodel-purity
+      referencia: 'base/presentation/statemachine/StateMachineViewModel.kt § sendEffect'
+
+  - id: viewmodel-no-state-reads
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Sin guards leyendo estado en el ViewModel (skill "no guards reading state.value").
+      La validez dependiente de estado vive en la tabla: una fila específica por estado;
+      los demás estados rechazan con telemetría app_invalid_transition.
+    pattern-regex: '\bcurrentState\b|\bstate\.value\b'
+    paths:
+      include:
+        - '**/presentation/viewmodel/**'
+    metadata:
+      area: viewmodel-purity
+      referencia: '.codex/skills/implement-tuindice-module § minimal payloads'

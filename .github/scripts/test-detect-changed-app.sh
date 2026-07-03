@@ -179,6 +179,8 @@ run_detector_fixture() {
 			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eContract" "Android tasks"
 			assert_file_empty "${temp_dir}/state/ios-gradle-tasks.txt" "iOS tasks"
+			assert_file_empty "${temp_dir}/state/ios-test-gradle-tasks.txt" "iOS test tasks"
+			assert_file_empty "${temp_dir}/state/ios-host-gradle-tasks.txt" "iOS host tasks"
 			assert_file_contains_line "$github_output_file" "app_version_changed=false" "GitHub output"
 			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
 			assert_file_contains_line "$github_output_file" "requires_e2e_certification=false" "GitHub output"
@@ -201,6 +203,8 @@ run_detector_fixture() {
 			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,ios-host-runtime" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS tasks"
 			assert_file_not_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" "verifyIosHostTypecheck" "iOS tasks"
+			assert_file_contains_line "${temp_dir}/state/ios-host-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS host tasks"
+			assert_file_empty "${temp_dir}/state/ios-test-gradle-tasks.txt" "iOS test tasks"
 			assert_file_contains_line "$github_output_file" "ios_ci_scripts_touched=false" "GitHub output"
 			;;
 		ios-version-xcconfig)
@@ -220,6 +224,8 @@ run_detector_fixture() {
 			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyAppVersionSync" "Android tasks"
 			assert_file_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS tasks"
+			assert_file_contains_line "${temp_dir}/state/ios-host-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS host tasks"
+			assert_file_empty "${temp_dir}/state/ios-test-gradle-tasks.txt" "iOS test tasks"
 			assert_file_contains_line "$github_output_file" "ci_config_touched=true" "GitHub output"
 			;;
 		android-version-code)
@@ -229,6 +235,8 @@ run_detector_fixture() {
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":app:testDebugUnitTest" "Android tasks"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":app:bundleRelease" "Android tasks"
 			assert_file_empty "${temp_dir}/state/ios-gradle-tasks.txt" "iOS tasks"
+			assert_file_empty "${temp_dir}/state/ios-test-gradle-tasks.txt" "iOS test tasks"
+			assert_file_empty "${temp_dir}/state/ios-host-gradle-tasks.txt" "iOS host tasks"
 			assert_file_contains_line "${temp_dir}/state/missing-version-bump.txt" "iosBuildNumber" "missing version bump"
 			assert_file_not_contains_line "${temp_dir}/state/missing-version-bump.txt" "androidVersionCode" "missing version bump"
 			assert_file_contains_line "$github_output_file" "app_version_changed=true" "GitHub output"
@@ -283,6 +291,10 @@ run_detector_fixture() {
 			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,summary-suite,persistence-runtime" "E2E scope"
 			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "android,maincore-suite,persistence-bootstrap" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":wizard:testAndroidHostTest" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/ios-test-gradle-tasks.txt" ":persistence:iosSimulatorArm64Test" "iOS test tasks"
+			assert_file_contains_line "${temp_dir}/state/ios-test-gradle-tasks.txt" ":wizard:compileKotlinIosSimulatorArm64" "iOS test tasks"
+			assert_file_contains_line "${temp_dir}/state/ios-host-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS host tasks"
+			assert_file_not_contains_line "${temp_dir}/state/ios-test-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS test tasks"
 			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
 			;;
 		persistence-bootstrap)
@@ -299,6 +311,11 @@ run_detector_fixture() {
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":wizard:testAndroidHostTest" "Android tasks"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":record:detekt" "Android tasks"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":wizard:detekt" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/ios-test-gradle-tasks.txt" ":record:compileKotlinIosSimulatorArm64" "iOS test tasks"
+			assert_file_contains_line "${temp_dir}/state/ios-test-gradle-tasks.txt" ":record:iosSimulatorArm64Test" "iOS test tasks"
+			assert_file_contains_line "${temp_dir}/state/ios-host-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS host tasks"
+			assert_file_not_contains_line "${temp_dir}/state/ios-host-gradle-tasks.txt" ":record:iosSimulatorArm64Test" "iOS host tasks"
+			assert_file_contains_line "$github_output_file" "semgrep_required=true" "GitHub output"
 			;;
 		module-graph-config)
 			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
@@ -316,12 +333,16 @@ run_detector_fixture() {
 		ios-build-script)
 			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
 			assert_file_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS tasks"
+			assert_file_contains_line "${temp_dir}/state/ios-host-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS host tasks"
+			assert_file_empty "${temp_dir}/state/ios-test-gradle-tasks.txt" "iOS test tasks"
 			assert_file_contains_line "$github_output_file" "ios_ci_scripts_touched=true" "GitHub output"
 			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
 			;;
 		ios-typecheck-script)
 			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
 			assert_file_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" "verifyIosHostTypecheck" "iOS tasks"
+			assert_file_contains_line "${temp_dir}/state/ios-host-gradle-tasks.txt" "verifyIosHostTypecheck" "iOS host tasks"
+			assert_file_empty "${temp_dir}/state/ios-test-gradle-tasks.txt" "iOS test tasks"
 			assert_file_contains_line "$github_output_file" "ios_ci_scripts_touched=true" "GitHub output"
 			;;
 		detekt-config)
@@ -330,6 +351,19 @@ run_detector_fixture() {
 			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "detekt" "Android tasks"
 			assert_file_empty "${temp_dir}/state/ios-gradle-tasks.txt" "iOS tasks"
+			assert_file_contains_line "$github_output_file" "semgrep_required=false" "GitHub output"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=false" "GitHub output"
+			;;
+		semgrep-config)
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_empty "${temp_dir}/state/release-impacted-modules.txt" "release impacted modules"
+			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
+			assert_file_empty "${temp_dir}/state/android-gradle-tasks.txt" "Android tasks"
+			assert_file_empty "${temp_dir}/state/ios-gradle-tasks.txt" "iOS tasks"
+			assert_file_contains_line "$github_output_file" "semgrep_config_touched=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "semgrep_required=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "has_relevant_changes=true" "GitHub output"
 			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
 			assert_file_contains_line "$github_output_file" "requires_e2e_certification=false" "GitHub output"
 			;;
@@ -394,6 +428,7 @@ run_detector_fixture ios-build-script iosApp/scripts/build-kmp-framework.sh
 run_detector_fixture ios-typecheck-script iosApp/scripts/ci-typecheck-ios-host.sh
 run_detector_fixture detekt-config config/detekt/detekt.yml
 run_detector_fixture detekt-baseline evaluations/detekt-baseline.xml
+run_detector_fixture semgrep-config config/semgrep/rules/layering.yaml
 run_detector_fixture ios-host-runtime iosApp/Sources/TuIndiceHost/TuIndiceAppBootstrap.swift
 run_detector_fixture ios-version-xcconfig iosApp/Config/Version.xcconfig
 run_detector_fixture ios-release-signing iosApp/Config/Release.xcconfig "$HEAD_SHA" "$ios_release_signing_commit"

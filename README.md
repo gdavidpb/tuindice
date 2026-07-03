@@ -366,6 +366,39 @@ Reglas:
 - Si agregas un flujo E2E, actualizas `testkit/e2e/flow-catalog.yaml` y ejecutas `verifyE2eContract`.
 - Ejecutas las verificaciones necesarias antes de cerrar el cambio.
 
+## Enforcement de arquitectura (Semgrep)
+
+Las reglas de `config/semgrep/rules/` codifican las piezas base de este README como chequeos estáticos
+(29 reglas en 6 familias):
+
+- `kmp-portability`: límites KMP en `commonMain` (imports `android.*`/`java.*`, `BuildConfig`,
+  Koin androidx, Firebase directo).
+- `layering`: `domain` sin imports de `data`; `ui` compartida sin repositorios, use cases ni Koin;
+  sin interfaces `*DataSource`; `data/repository` solo interfaces.
+- `dispatchers`: sin `Dispatchers.*` crudo fuera de `base`; sin `TuIndiceDispatchers`/`flowOn`/`withContext`
+  en use cases, máquinas o contratos.
+- `viewmodel-purity`: `ViewModel` como API pura de pantalla (hereda de `StateMachineViewModel`; sin estado
+  propio, corrutinas, use cases, lecturas de estado ni `sendEffect`/`processInternalEvent` directos).
+- `koin-conventions`: sin módulos vacíos, sin `*CoreModule`, sin módulos de plataforma por feature.
+- `base-components`: implementación correcta de las primitivas (`*UseCase` extiende `FlowUseCase`, sin
+  try/catch ni `executeOnBackground` directo, `UseCaseState`/`AppEvent` solo desde `base`, `*Machine`
+  implementa `ScreenMachine`, `MutableStateFlow` de máquina solo en `*Draft.kt`).
+
+Cada archivo de reglas tiene un fixture `.kt` homónimo validado con `semgrep --test`, y el módulo
+sintético de `config/semgrep/generality/` prueba que toda regla dispara sobre layouts y nombres de módulo
+que no existen en el repo (generalidad, no ajuste al código actual), con controles negativos para las
+exenciones por paths. Las exclusiones de scan viven en `.semgrepignore`.
+
+En preflight, `detect-changed-app.sh` expone `semgrep_required` (true cuando cambió código de módulos o la
+configuración del ruleset) y el job compartido ejecuta `scripts/semgrep-architecture.sh`; la paridad local
+del skill de certificación corre el mismo script, junto a los tasks de detekt que ya viajan en las tareas
+Android.
+
+```bash
+scripts/semgrep-architecture.sh              # validate + fixtures + generalidad + scan
+scripts/semgrep-architecture.sh generality   # solo prueba de generalidad
+```
+
 ## Verificaciones útiles
 
 Ejemplos de comandos usados habitualmente:
@@ -381,6 +414,7 @@ Ejemplos de comandos usados habitualmente:
 ./gradlew --continue --console=plain verifySharedHostTests
 ./gradlew --continue --console=plain detekt
 ./gradlew --continue --console=plain koverHtmlReport
+scripts/semgrep-architecture.sh
 ```
 
 Nota: `verifySharedHostTests` corre los tests compartidos en el host JVM de Android — la única plataforma donde los validadores de alfabeto/Λ de las máquinas validan de verdad (en iOS reportan SKIPPED). `detekt` usa baselines por módulo y `koverHtmlReport` es medición de cobertura sin umbral.

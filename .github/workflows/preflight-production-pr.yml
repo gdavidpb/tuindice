@@ -20,7 +20,8 @@ jobs:
     timeout-minutes: 20
     outputs:
       android_tasks: ${{ steps.changes.outputs.android_tasks }}
-      ios_tasks: ${{ steps.changes.outputs.ios_tasks }}
+      ios_test_tasks: ${{ steps.changes.outputs.ios_test_tasks }}
+      ios_host_tasks: ${{ steps.changes.outputs.ios_host_tasks }}
       ios_ci_scripts_touched: ${{ steps.changes.outputs.ios_ci_scripts_touched }}
       has_relevant_changes: ${{ steps.changes.outputs.has_relevant_changes }}
       app_version_changed: ${{ steps.changes.outputs.app_version_changed }}
@@ -58,6 +59,15 @@ jobs:
         run: |
           set -euo pipefail
           bash ./.github/scripts/validate-ci-config.sh
+
+      # Enforcement estático de la arquitectura de referencia (README +
+      # config/semgrep/rules): fixtures, prueba de generalidad y scan repo-wide.
+      - name: Run semgrep architecture checks
+        if: steps.changes.outputs.semgrep_required == 'true'
+        run: |
+          set -euo pipefail
+          pipx install semgrep==1.168.0
+          bash ./scripts/semgrep-architecture.sh
 
       - name: Run shared release preflight checks
         if: steps.changes.outputs.has_relevant_changes == 'true'
@@ -97,8 +107,13 @@ jobs:
           distribution: temurin
           java-version: "21"
 
+      # PR jobs write the Gradle cache (scoped to this PR) so repeated pushes
+      # reuse the previous attempt's outputs instead of recompiling from cold.
       - name: Set up Gradle
         uses: gradle/actions/setup-gradle@017a9effdb900e5b5b2fddfb590a105619dca3c3 # v4.4.2
+        with:
+          cache-read-only: false
+          cache-cleanup: on-success
 
       # PR builds never receive production secrets: release validation runs
       # against placeholder Firebase configs and a throwaway signing keystore.
@@ -118,13 +133,47 @@ jobs:
           bash ./.github/scripts/run-gradle-with-retry.sh \
             ./gradlew --continue --console=plain --max-workers=2 ${{ needs.shared-preflight.outputs.android_tasks }}
 
-  ios-preflight:
-    name: iOS preflight
+  # iOS validation runs as two parallel jobs so the wall clock is the slowest
+  # of the two instead of their sum: simulator tests on one runner, the host
+  # device release build (framework link + xcodebuild) on another.
+  ios-test-preflight:
+    name: iOS test preflight
     runs-on: macos-26
-    timeout-minutes: 90
+    timeout-minutes: 45
     needs:
       - shared-preflight
-    if: ${{ !cancelled() && needs.shared-preflight.result == 'success' && (needs.shared-preflight.outputs.ios_tasks != '' || needs.shared-preflight.outputs.ios_ci_scripts_touched == 'true') }}
+    if: ${{ !cancelled() && needs.shared-preflight.result == 'success' && needs.shared-preflight.outputs.ios_test_tasks != '' }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Set up iOS build environment
+        uses: ./.github/actions/setup-ios-build
+        with:
+          cache-device-framework: "false"
+          cache-read-only: "false"
+
+      - name: Run focused iOS test checks
+        run: |
+          set -euo pipefail
+          bash ./.github/scripts/run-gradle-with-retry.sh \
+            ./gradlew \
+            --continue \
+            --console=plain \
+            --max-workers=2 \
+            ${{ needs.shared-preflight.outputs.ios_test_tasks }}
+
+  ios-host-preflight:
+    name: iOS host preflight
+    runs-on: macos-26
+    timeout-minutes: 45
+    needs:
+      - shared-preflight
+    if: ${{ !cancelled() && needs.shared-preflight.result == 'success' && (needs.shared-preflight.outputs.ios_host_tasks != '' || needs.shared-preflight.outputs.ios_ci_scripts_touched == 'true') }}
 
     steps:
       - name: Check out repository
@@ -140,19 +189,20 @@ jobs:
           bash ./.github/scripts/test-appstore-connect-check.sh
 
       - name: Set up iOS build environment
-        if: needs.shared-preflight.outputs.ios_tasks != ''
+        if: needs.shared-preflight.outputs.ios_host_tasks != ''
         uses: ./.github/actions/setup-ios-build
         with:
-          cache-device-framework: ${{ contains(needs.shared-preflight.outputs.ios_tasks, 'verifyIosHostBuildDeviceRelease') && 'true' || 'false' }}
+          cache-device-framework: ${{ contains(needs.shared-preflight.outputs.ios_host_tasks, 'verifyIosHostBuildDeviceRelease') && 'true' || 'false' }}
+          cache-read-only: "false"
 
       - name: Materialize CI placeholder configuration
-        if: contains(needs.shared-preflight.outputs.ios_tasks, 'verifyIosHostBuildDeviceRelease')
+        if: contains(needs.shared-preflight.outputs.ios_host_tasks, 'verifyIosHostBuildDeviceRelease')
         run: |
           set -euo pipefail
           CI_PLACEHOLDER_ANDROID=0 bash ./.github/scripts/materialize-ci-placeholders.sh
 
-      - name: Run focused iOS checks
-        if: needs.shared-preflight.outputs.ios_tasks != ''
+      - name: Run focused iOS host checks
+        if: needs.shared-preflight.outputs.ios_host_tasks != ''
         env:
           TUINDICE_IOS_HOST_BUILD: "1"
           TUINDICE_IOS_HOST_E2E: "1"
@@ -171,7 +221,7 @@ jobs:
             --max-workers=2 \
             -Pcompose.ios.resources.platform=iphoneos \
             -Pcompose.ios.resources.archs=arm64 \
-            ${{ needs.shared-preflight.outputs.ios_tasks }}
+            ${{ needs.shared-preflight.outputs.ios_host_tasks }}
 
   preflight-production-pr:
     name: preflight-production-pr
@@ -179,7 +229,8 @@ jobs:
     needs:
       - shared-preflight
       - android-preflight
-      - ios-preflight
+      - ios-test-preflight
+      - ios-host-preflight
     if: always()
     steps:
       - name: Verify preflight jobs
@@ -187,19 +238,25 @@ jobs:
           set -euo pipefail
           shared_result="${{ needs.shared-preflight.result }}"
           android_result="${{ needs.android-preflight.result }}"
-          ios_result="${{ needs.ios-preflight.result }}"
+          ios_test_result="${{ needs.ios-test-preflight.result }}"
+          ios_host_result="${{ needs.ios-host-preflight.result }}"
           android_tasks="${{ needs.shared-preflight.outputs.android_tasks }}"
-          ios_tasks="${{ needs.shared-preflight.outputs.ios_tasks }}"
+          ios_test_tasks="${{ needs.shared-preflight.outputs.ios_test_tasks }}"
+          ios_host_tasks="${{ needs.shared-preflight.outputs.ios_host_tasks }}"
           ios_ci_scripts_touched="${{ needs.shared-preflight.outputs.ios_ci_scripts_touched }}"
           echo "Shared preflight result: ${shared_result}"
           echo "Android preflight result: ${android_result}"
-          echo "iOS preflight result: ${ios_result}"
+          echo "iOS test preflight result: ${ios_test_result}"
+          echo "iOS host preflight result: ${ios_host_result}"
           if [[ "${shared_result}" != "success" ]]; then
             exit 1
           fi
           if [[ -n "${android_tasks}" && "${android_result}" != "success" ]]; then
             exit 1
           fi
-          if [[ ( -n "${ios_tasks}" || "${ios_ci_scripts_touched}" == "true" ) && "${ios_result}" != "success" ]]; then
+          if [[ -n "${ios_test_tasks}" && "${ios_test_result}" != "success" ]]; then
+            exit 1
+          fi
+          if [[ ( -n "${ios_host_tasks}" || "${ios_ci_scripts_touched}" == "true" ) && "${ios_host_result}" != "success" ]]; then
             exit 1
           fi

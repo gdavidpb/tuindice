@@ -1,0 +1,52 @@
+name: Warm iOS caches
+
+# Nothing on production builds the iOS simulator variants (stage only builds
+# the device release), so PR preflights always compile them from cold. This
+# workflow warms the Gradle build cache after every push to production and
+# publishes it under the ios-test-preflight job identity so PR runs restore it
+# through their same-job restore-key prefix. It is deliberately a separate
+# workflow: its outcome must never gate staging or deploys.
+
+on:
+  push:
+    branches:
+      - production
+  workflow_dispatch:
+
+concurrency:
+  group: warm-ios-caches
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  warm-ios-caches:
+    name: Warm iOS simulator build caches
+    runs-on: macos-26
+    timeout-minutes: 45
+    env:
+      # gradle/actions keys the Gradle User Home cache by job id; override it
+      # so entries written here match the ios-test-preflight restore keys.
+      GRADLE_BUILD_ACTION_CACHE_KEY_JOB: ios-test-preflight
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 1
+
+      - name: Set up iOS build environment
+        uses: ./.github/actions/setup-ios-build
+        with:
+          cache-device-framework: "false"
+
+      - name: Compile iOS simulator variants
+        run: |
+          set -euo pipefail
+          bash ./.github/scripts/run-gradle-with-retry.sh \
+            ./gradlew \
+            --console=plain \
+            --max-workers=2 \
+            compileKotlinIosSimulatorArm64 \
+            compileTestKotlinIosSimulatorArm64

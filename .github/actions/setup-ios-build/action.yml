@@ -18,6 +18,13 @@ inputs:
     description: Whether to restore/save the iOS device release framework cache.
     required: false
     default: "true"
+  cache-read-only:
+    description: >
+      Whether the Gradle User Home cache is read-only for this job. Defaults to
+      writable: production jobs publish shared entries and PR jobs publish
+      PR-scoped entries so repeated pushes reuse prior outputs.
+    required: false
+    default: "false"
 
 runs:
   using: composite
@@ -83,6 +90,9 @@ runs:
 
     - name: Set up Gradle
       uses: gradle/actions/setup-gradle@017a9effdb900e5b5b2fddfb590a105619dca3c3 # v4.4.2
+      with:
+        cache-read-only: ${{ inputs.cache-read-only }}
+        cache-cleanup: on-success
 
     - name: Install CocoaPods dependencies
       shell: bash
