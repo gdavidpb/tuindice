@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.auth.data.source
 
-import com.gdavidpb.tuindice.base.data.source.network.AttestationHeaders
-import com.gdavidpb.tuindice.base.domain.model.Attestation
+import com.gdavidpb.tuindice.security.data.source.network.AttestationHeaders
+import com.gdavidpb.tuindice.security.domain.model.Attestation
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond

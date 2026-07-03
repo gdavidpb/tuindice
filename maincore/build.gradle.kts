@@ -40,6 +40,7 @@ kotlin {
 			dependencies {
 				implementation(project(":base"))
 				implementation(project(":persistence"))
+				implementation(project(":security"))
 				implementation(project(":auth"))
 				implementation(project(":about"))
 				implementation(project(":summary"))

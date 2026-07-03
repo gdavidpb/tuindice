@@ -19,6 +19,8 @@ Ver la configuración completa en `docs/release-pipeline.md`.
   reutilizables.
 - `academiccore`: modelos académicos compartidos y motor de proyección de historial.
 - `persistence`: schema Room compartido, DAOs/entities públicas, outbox genérico e infraestructura de storage.
+- `security`: subsistema compartido de attestation: modelos, contrato de repositorio, headers y helpers de
+  binding/canonicalización de payloads.
 - `about`: información de app, enlaces y soporte.
 - `auth`: autenticación, sesión y actualización de credenciales.
 - `summary`: resumen del perfil y foto de perfil.
@@ -88,9 +90,10 @@ Dependencias actuales:
 
 - `base`: sin dependencias de proyecto.
 - `academiccore`: sin dependencias de proyecto.
-- `persistence`: depende de `:base`.
+- `persistence`: depende de `:academiccore`, `:base`.
+- `security`: depende de `:base`.
 - `about`: depende de `:base`.
-- `auth`: depende de `:base`.
+- `auth`: depende de `:base`, `:security`.
 - `summary`: depende de `:base`, `:persistence`.
 - `record`: depende de `:academiccore`, `:base`, `:persistence`.
 - `enrollmentproof`: depende de `:base`, `:persistence`.
@@ -98,7 +101,7 @@ Dependencias actuales:
 - `subjects`: depende de `:academiccore`, `:base`, `:persistence`.
 - `pensum`: depende de `:academiccore`, `:base`, `:persistence`.
 - `wizard`: depende de `:base`, `:summary`, `:record`, `:evaluations`, `:pensum`, `:subjects` y `:about`.
-- `maincore`: depende de `:base`, `:persistence` y todas las features.
+- `maincore`: depende de `:base`, `:persistence`, `:security` y todas las features.
 - `app`: host Android; ensambla `maincore`.
 
 Acuerdo de límites:

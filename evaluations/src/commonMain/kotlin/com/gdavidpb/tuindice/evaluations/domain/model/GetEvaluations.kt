@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.domain.model
 
-import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 
 sealed interface GetEvaluations {
 	data object WaitingForRecordData : GetEvaluations

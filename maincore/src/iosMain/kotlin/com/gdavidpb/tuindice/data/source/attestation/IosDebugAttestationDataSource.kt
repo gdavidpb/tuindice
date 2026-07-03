@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.data.source.attestation
 
 
-import com.gdavidpb.tuindice.base.domain.model.Attestation
-import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
-import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.security.domain.model.Attestation
+import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
+import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.logging.appLogger
 
 class IosDebugAttestationDataSource : AttestationRepository {

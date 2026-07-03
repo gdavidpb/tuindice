@@ -1,12 +1,12 @@
 package com.gdavidpb.tuindice
 
-import com.gdavidpb.tuindice.base.domain.model.AttestationEvidenceMode
-import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
+import com.gdavidpb.tuindice.security.domain.model.AttestationEvidenceMode
+import com.gdavidpb.tuindice.security.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
-import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
-import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
-import com.gdavidpb.tuindice.base.domain.model.AttestationTemporarilyUnavailableException
-import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
+import com.gdavidpb.tuindice.security.domain.model.AttestationAuthorization
+import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
+import com.gdavidpb.tuindice.security.domain.model.AttestationTemporarilyUnavailableException
+import com.gdavidpb.tuindice.security.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository

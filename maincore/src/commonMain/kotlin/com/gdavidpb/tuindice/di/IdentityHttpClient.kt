@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.di
 
-import com.gdavidpb.tuindice.base.data.source.network.AttestationHeaders
+import com.gdavidpb.tuindice.security.data.source.network.AttestationHeaders
 import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository

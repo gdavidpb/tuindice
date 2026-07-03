@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.data.source.attestation
 
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.base.domain.model.AttestationEvidenceMode
-import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
+import com.gdavidpb.tuindice.security.domain.model.AttestationEvidenceMode
+import com.gdavidpb.tuindice.security.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationProviderDataRepository
 import com.gdavidpb.tuindice.platform.android.model.ProviderAttestation
 import com.google.android.play.core.integrity.IntegrityManager

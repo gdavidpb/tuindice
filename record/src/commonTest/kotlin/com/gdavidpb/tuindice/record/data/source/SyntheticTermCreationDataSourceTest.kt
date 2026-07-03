@@ -9,8 +9,8 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
-import com.gdavidpb.tuindice.base.domain.model.GradingMode
-import com.gdavidpb.tuindice.base.domain.utils.SubjectCatalogSearchNormalizer
+import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
+import com.gdavidpb.tuindice.academiccore.domain.utils.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumSelectionDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectCatalogCacheDao

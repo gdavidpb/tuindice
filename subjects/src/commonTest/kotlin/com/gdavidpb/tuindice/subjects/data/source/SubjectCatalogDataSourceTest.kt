@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.subjects.data.source
 
-import com.gdavidpb.tuindice.base.domain.model.GradingMode
+import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectCatalogLocalDataRepository
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectCatalogRemoteDataRepository
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchResult

@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.record.ui.model
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptBadge
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
-import com.gdavidpb.tuindice.base.domain.model.GradingMode
+import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.MAX_SUBJECT_GRADE
 import com.gdavidpb.tuindice.academiccore.domain.model.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.record.presentation.model.AttemptItem

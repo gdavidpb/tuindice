@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.record.presentation.model
 import androidx.compose.ui.graphics.Color
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptBadge
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
-import com.gdavidpb.tuindice.base.domain.model.GradingMode
+import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 
 data class AttemptItem(
 	val attemptId: String,

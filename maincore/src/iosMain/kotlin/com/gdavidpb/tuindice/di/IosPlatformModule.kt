@@ -20,9 +20,10 @@ import com.gdavidpb.tuindice.base.data.source.secure.LEGACY_SECURE_STORE_QUALIFI
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.domain.coroutine.AppCoroutineScope
 import com.gdavidpb.tuindice.base.domain.repository.*
+import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
-import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataRepository
+import com.gdavidpb.tuindice.base.data.repository.messaging.PushTokenDataRepository
 import com.gdavidpb.tuindice.data.source.analytics.IosAnalyticsEventSubscriber
 import com.gdavidpb.tuindice.data.source.attestation.IosAttestationDataSource
 import com.gdavidpb.tuindice.data.source.messaging.IosPushTokenDataSource

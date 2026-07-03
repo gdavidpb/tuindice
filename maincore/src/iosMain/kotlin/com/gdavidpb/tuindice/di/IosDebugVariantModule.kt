@@ -6,10 +6,10 @@ import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataReposit
 import com.gdavidpb.tuindice.base.data.source.reporting.DebugReportingDataSource
 import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.data.source.attestation.IosDebugAttestationDataSource
-import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataRepository
-import com.gdavidpb.tuindice.data.source.messaging.DebugPushTokenDataSource
+import com.gdavidpb.tuindice.base.data.repository.messaging.PushTokenDataRepository
+import com.gdavidpb.tuindice.base.data.source.messaging.DebugPushTokenDataSource
 import com.gdavidpb.tuindice.summary.data.repository.user.DebugProfilePictureStorageDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.source.DebugSummaryRemoteDataSource

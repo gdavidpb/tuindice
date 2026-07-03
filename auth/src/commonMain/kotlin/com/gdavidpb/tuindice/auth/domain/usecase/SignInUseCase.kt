@@ -9,18 +9,18 @@ import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptio
 import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.auth.utils.extension.toCanonicalUsbIdentifier
-import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
-import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
+import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
+import com.gdavidpb.tuindice.security.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
-import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
-import com.gdavidpb.tuindice.base.utils.canonicalAttestationPayloadJson
-import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
+import com.gdavidpb.tuindice.security.utils.canonicalAttestationPayloadJson
+import com.gdavidpb.tuindice.security.domain.model.ProtectedOperationCodes
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 

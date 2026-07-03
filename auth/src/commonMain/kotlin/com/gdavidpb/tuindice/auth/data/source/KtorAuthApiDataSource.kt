@@ -10,8 +10,8 @@ import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.IssueTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
-import com.gdavidpb.tuindice.base.data.source.network.AttestationHeaders
-import com.gdavidpb.tuindice.base.domain.model.Attestation
+import com.gdavidpb.tuindice.security.data.source.network.AttestationHeaders
+import com.gdavidpb.tuindice.security.domain.model.Attestation
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.request.HttpRequestBuilder

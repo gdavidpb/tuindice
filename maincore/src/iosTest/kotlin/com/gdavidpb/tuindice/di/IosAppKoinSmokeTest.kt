@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
-import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
+import com.gdavidpb.tuindice.security.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.domain.model.IosBuildVariant
 import com.gdavidpb.tuindice.domain.model.IosHostCapabilities

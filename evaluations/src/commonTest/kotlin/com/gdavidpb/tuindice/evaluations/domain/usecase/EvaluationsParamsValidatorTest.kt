@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
-import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
-import com.gdavidpb.tuindice.base.domain.model.EvaluationType
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.domain.exception.AddEvaluationIllegalArgumentException
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.AddEvaluationUseCaseError
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.AddEvaluationParams

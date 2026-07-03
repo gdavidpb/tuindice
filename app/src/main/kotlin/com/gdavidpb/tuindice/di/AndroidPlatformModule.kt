@@ -23,13 +23,14 @@ import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.data.source.usage.UsageDataCollectionDataSource
 import com.gdavidpb.tuindice.base.domain.coroutine.AppCoroutineScope
 import com.gdavidpb.tuindice.base.domain.repository.*
+import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.base.utils.extension.toFirebaseDefaultsMap
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationProviderDataRepository
 import com.gdavidpb.tuindice.data.source.attestation.AndroidAttestationDataSource
 import com.gdavidpb.tuindice.data.source.attestation.PlayIntegrityDataSource
-import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataRepository
+import com.gdavidpb.tuindice.base.data.repository.messaging.PushTokenDataRepository
 import com.gdavidpb.tuindice.data.source.messaging.FirebasePushTokenDataSource
 import com.gdavidpb.tuindice.data.source.actions.AndroidFileOpenerDataSource
 import com.gdavidpb.tuindice.data.source.analytics.FirebaseAnalyticsEventSubscriber

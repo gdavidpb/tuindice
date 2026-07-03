@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.auth.domain.model
 
-import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCode
-import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
+import com.gdavidpb.tuindice.security.domain.model.ProtectedOperationCode
+import com.gdavidpb.tuindice.security.domain.model.ProtectedOperationCodes
 
 sealed interface AttestedTokenFlow {
 	val headerValue: String

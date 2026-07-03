@@ -10,8 +10,8 @@ import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
 import com.gdavidpb.tuindice.data.MockAttestationProviderDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationProviderDataRepository
-import com.gdavidpb.tuindice.data.source.messaging.DebugPushTokenDataSource
-import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataRepository
+import com.gdavidpb.tuindice.base.data.source.messaging.DebugPushTokenDataSource
+import com.gdavidpb.tuindice.base.data.repository.messaging.PushTokenDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.DebugProfilePictureStorageDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.source.DebugSummaryRemoteDataSource

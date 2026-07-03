@@ -17,8 +17,8 @@ import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepo
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
-import com.gdavidpb.tuindice.base.domain.model.Attestation
-import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
+import com.gdavidpb.tuindice.security.domain.model.Attestation
+import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
@@ -30,7 +30,7 @@ import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.base.domain.model.event.AppEvent
 import com.gdavidpb.tuindice.base.domain.model.event.EventNames
 import com.gdavidpb.tuindice.base.domain.model.event.EventParameterKeys
-import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher

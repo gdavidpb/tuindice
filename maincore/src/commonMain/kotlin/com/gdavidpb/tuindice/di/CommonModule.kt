@@ -34,11 +34,11 @@ import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.data.source.cache.CoreCacheStateDataSource
 import com.gdavidpb.tuindice.data.source.prerequisite.RecordDataPrerequisiteDataSource
-import com.gdavidpb.tuindice.data.source.messaging.MessagingDataSource
-import com.gdavidpb.tuindice.data.repository.messaging.MessagingLocalDataRepository
-import com.gdavidpb.tuindice.data.repository.messaging.MessagingRemoteDataRepository
-import com.gdavidpb.tuindice.data.source.messaging.MessagingApiDataSource
-import com.gdavidpb.tuindice.data.source.messaging.MessagingSettingsDataSource
+import com.gdavidpb.tuindice.base.data.source.messaging.MessagingDataSource
+import com.gdavidpb.tuindice.base.data.repository.messaging.MessagingLocalDataRepository
+import com.gdavidpb.tuindice.base.data.repository.messaging.MessagingRemoteDataRepository
+import com.gdavidpb.tuindice.base.data.source.messaging.MessagingApiDataSource
+import com.gdavidpb.tuindice.base.data.source.messaging.MessagingSettingsDataSource
 import com.gdavidpb.tuindice.data.source.credentials.CredentialsDataSource
 import com.gdavidpb.tuindice.data.source.pending.PendingChangesDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncDataSource

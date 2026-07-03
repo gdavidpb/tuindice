@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.platform.android
 
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
-import com.gdavidpb.tuindice.base.data.model.AttestationProofOfPossessionRequest
+import com.gdavidpb.tuindice.security.data.model.AttestationProofOfPossessionRequest
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import java.security.KeyPairGenerator
 import java.security.KeyStore

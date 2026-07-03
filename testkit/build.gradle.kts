@@ -24,6 +24,7 @@ kotlin {
 		val commonMain by getting {
 			dependencies {
 				api(project(":base"))
+				api(project(":security"))
 				api(kotlin("test"))
 				api(libs.koin.core)
 				api(libs.kotlinx.coroutines.test)

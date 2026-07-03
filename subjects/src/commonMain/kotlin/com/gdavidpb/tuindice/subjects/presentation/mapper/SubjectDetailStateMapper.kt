@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.subjects.presentation.mapper
 
-import com.gdavidpb.tuindice.base.domain.model.GradingMode
+import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectAttemptBin
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail as SubjectDetailModel
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetailResult

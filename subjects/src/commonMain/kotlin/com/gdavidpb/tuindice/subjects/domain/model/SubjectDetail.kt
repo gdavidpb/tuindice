@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.subjects.domain.model
 
-import com.gdavidpb.tuindice.base.domain.model.GradingMode
+import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 
 data class SubjectDetail(
 	val id: String,

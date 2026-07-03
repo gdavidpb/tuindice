@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.persistence.data.room.converter
 
 import androidx.room.TypeConverter
-import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 
 class DatabaseConverters {
 	@TypeConverter

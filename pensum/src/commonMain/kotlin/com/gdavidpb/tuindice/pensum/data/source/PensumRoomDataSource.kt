@@ -18,7 +18,7 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.PensumCacheEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.PensumSelectionEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity
-import com.gdavidpb.tuindice.base.domain.utils.SubjectCatalogSearchNormalizer
+import com.gdavidpb.tuindice.academiccore.domain.utils.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.persistence.data.room.schema.PensumSelectionTable
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
 import kotlinx.coroutines.ExperimentalCoroutinesApi

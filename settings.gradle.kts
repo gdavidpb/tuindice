@@ -9,6 +9,7 @@ include(
 	":academiccore",
 	":testkit",
 	":persistence",
+	":security",
 	":auth",
 	":about",
 	":summary",

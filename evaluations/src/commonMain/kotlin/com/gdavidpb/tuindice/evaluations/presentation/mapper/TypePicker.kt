@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import com.gdavidpb.tuindice.base.domain.model.EvaluationType
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
