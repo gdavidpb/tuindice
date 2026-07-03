@@ -1,16 +1,16 @@
 package com.gdavidpb.tuindice.evaluations.data.mutation
 
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
-import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
+import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.base.utils.extension.isPreconditionFailed
+import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
 import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataRepository
-import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureKind
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureResolution

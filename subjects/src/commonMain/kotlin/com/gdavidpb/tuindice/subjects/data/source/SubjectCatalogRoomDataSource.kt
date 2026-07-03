@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.subjects.data.source
 
+import com.gdavidpb.tuindice.academiccore.domain.utils.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectCatalogCacheDao
-import com.gdavidpb.tuindice.academiccore.domain.utils.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.subjects.data.mapper.toSubjectCatalogCacheEntity
 import com.gdavidpb.tuindice.subjects.data.mapper.toSubjectSearchResult
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectCatalogLocalDataRepository

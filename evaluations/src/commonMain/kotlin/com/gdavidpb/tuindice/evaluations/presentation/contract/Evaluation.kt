@@ -2,13 +2,13 @@ package com.gdavidpb.tuindice.evaluations.presentation.contract
 
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
-import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationGradeSectionItem
+import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationAttemptPickerItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationGradeSectionItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.top_bar_add_evaluation

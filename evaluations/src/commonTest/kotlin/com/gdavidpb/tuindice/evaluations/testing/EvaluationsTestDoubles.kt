@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.testing
 
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
@@ -8,25 +9,24 @@ import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
-import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalCurrentTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEditableAttemptDescriptor
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
-import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
-import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataRepository
-import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataRepository
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
+import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
+import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataRepository
+import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataRepository
 import com.gdavidpb.tuindice.evaluations.domain.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd

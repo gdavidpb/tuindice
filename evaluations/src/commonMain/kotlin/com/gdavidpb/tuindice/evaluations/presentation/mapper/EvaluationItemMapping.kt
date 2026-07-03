@@ -9,12 +9,12 @@ import androidx.compose.material.icons.outlined.AssignmentReturned
 import androidx.compose.material.icons.outlined.AssignmentTurnedIn
 import androidx.compose.material.icons.outlined.BackHand
 import androidx.compose.material.icons.outlined.Build
+import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.CoPresent
 import androidx.compose.material.icons.outlined.Edit
 import androidx.compose.material.icons.outlined.Event
 import androidx.compose.material.icons.outlined.EventAvailable
 import androidx.compose.material.icons.outlined.EventRepeat
-import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.FileCopy
 import androidx.compose.material.icons.outlined.HistoryEdu
 import androidx.compose.material.icons.outlined.ModeComment
@@ -34,8 +34,8 @@ import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.evaluation_attendance
-import tuindice.evaluations.generated.resources.evaluation_essay
 import tuindice.evaluations.generated.resources.evaluation_empty_grade
+import tuindice.evaluations.generated.resources.evaluation_essay
 import tuindice.evaluations.generated.resources.evaluation_grade
 import tuindice.evaluations.generated.resources.evaluation_interventions
 import tuindice.evaluations.generated.resources.evaluation_laboratory

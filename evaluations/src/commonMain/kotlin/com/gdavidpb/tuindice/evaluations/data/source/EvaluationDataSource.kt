@@ -6,8 +6,8 @@ import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
-import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEditableAttemptDescriptor
+import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
@@ -20,8 +20,8 @@ import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationSyncSpe
 import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
 import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataRepository
 import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataRepository
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationRemove
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsRefreshResult

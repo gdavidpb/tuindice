@@ -1,12 +1,12 @@
 package com.gdavidpb.tuindice.di
 
-import com.gdavidpb.tuindice.security.data.source.network.AttestationHeaders
 import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.data.source.network.installOutdatedAppPersistence
 import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
+import com.gdavidpb.tuindice.security.data.source.network.AttestationHeaders
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.HttpTimeout

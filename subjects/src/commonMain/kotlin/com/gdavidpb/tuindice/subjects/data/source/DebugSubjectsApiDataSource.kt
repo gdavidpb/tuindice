@@ -1,11 +1,11 @@
 package com.gdavidpb.tuindice.subjects.data.source
 
+import com.gdavidpb.tuindice.academiccore.domain.utils.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.subjects.data.mapper.toSubjectDetailResult
 import com.gdavidpb.tuindice.subjects.data.model.GetSubjectResponse
 import com.gdavidpb.tuindice.subjects.data.model.SubjectStatsUnavailableResponse
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectCatalogRemoteDataRepository
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectStatsApiDataRepository
-import com.gdavidpb.tuindice.academiccore.domain.utils.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetailResult
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchResult
 import kotlinx.serialization.json.Json

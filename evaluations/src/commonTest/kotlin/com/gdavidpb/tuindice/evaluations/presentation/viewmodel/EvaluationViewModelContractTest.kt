@@ -1,10 +1,10 @@
 package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
-import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableAttemptsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailableAttemptsUseCase
@@ -14,8 +14,8 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateE
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationMachine
-import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
+import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.FakeIdentifierRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository

@@ -2,13 +2,13 @@ package com.gdavidpb.tuindice.record.presentation.mapper
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import com.gdavidpb.tuindice.academiccore.domain.model.MIN_SUBJECT_GRADE
-import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptBadge
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
+import com.gdavidpb.tuindice.academiccore.domain.model.MIN_SUBJECT_GRADE
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 import com.gdavidpb.tuindice.record.presentation.model.AttemptItem
 

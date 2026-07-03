@@ -5,71 +5,6 @@
     <ID>ArgumentListWrapping:AcademicArb.kt$( "MA1111", "MA1112", "CI2525", "EP1308", "ID1101", "FS1111", "QM1181", "EP4135" )</ID>
     <ID>ArgumentListWrapping:AcademicPensumStatusEngineGoldenTest.kt$(id = id, code = code, credits = credits, termKind = TermKind.HISTORICAL, outcome = AttemptOutcome.APPROVED)</ID>
     <ID>CyclomaticComplexMethod:RecordProjectionEngine.kt$RecordProjectionEngine$private fun project( terms: List&lt;AcademicTerm&gt;, attemptOverrides: Map&lt;String, AttemptOverride&gt;, academicProjectionByTermId: Map&lt;String, TermProjection&gt;, includeProjectionBehavior: Boolean ): RecordProjection</ID>
-    <ID>Indentation:AcademicArb.kt$ </ID>
-    <ID>Indentation:AcademicAttempt.kt$AcademicAttempt$ </ID>
-    <ID>Indentation:AcademicPensumGraph.kt$AcademicPensumGraph$ </ID>
-    <ID>Indentation:AcademicPensumGraph.kt$AcademicPensumGraph.Edge$ </ID>
-    <ID>Indentation:AcademicPensumGraph.kt$AcademicPensumGraph.FulfillmentRule$ </ID>
-    <ID>Indentation:AcademicPensumGraph.kt$AcademicPensumGraph.Node$ </ID>
-    <ID>Indentation:AcademicPensumGraph.kt$AcademicPensumGraph.NodeType$ </ID>
-    <ID>Indentation:AcademicPensumGraph.kt$AcademicPensumGraph.RelationshipType$ </ID>
-    <ID>Indentation:AcademicPensumNodeStatus.kt$AcademicPensumNodeStatus$ </ID>
-    <ID>Indentation:AcademicPensumProgress.kt$AcademicPensumProgress$ </ID>
-    <ID>Indentation:AcademicPensumProgress.kt$AcademicPensumProgress.NodeFulfillment$ </ID>
-    <ID>Indentation:AcademicPensumSnapshot.kt$AcademicPensumSnapshot$ </ID>
-    <ID>Indentation:AcademicPensumSnapshot.kt$AcademicPensumSnapshot.Attempt$ </ID>
-    <ID>Indentation:AcademicPensumStatusEngine.kt$AcademicPensumStatusEngine$ </ID>
-    <ID>Indentation:AcademicPensumStatusEngineGoldenTest.kt$ </ID>
-    <ID>Indentation:AcademicPensumStatusEngineGoldenTest.kt$AcademicPensumStatusEngineGoldenTest$ </ID>
-    <ID>Indentation:AcademicPensumStatusEnginePropertyTest.kt$AcademicPensumStatusEnginePropertyTest$ </ID>
-    <ID>Indentation:AcademicPensumStatusEngineTest.kt$AcademicPensumStatusEngineTest$ </ID>
-    <ID>Indentation:AcademicProfile.kt$AcademicProfile$ </ID>
-    <ID>Indentation:AcademicRecord.kt$AcademicRecord$ </ID>
-    <ID>Indentation:AcademicTerm.kt$AcademicTerm$ </ID>
-    <ID>Indentation:AcademicTermPeriod.kt$AcademicTermPeriod$ </ID>
-    <ID>Indentation:AcademicTermPeriod.kt$AcademicTermPeriod.APR_JUL$ </ID>
-    <ID>Indentation:AcademicTermPeriod.kt$AcademicTermPeriod.JAN_MAR$ </ID>
-    <ID>Indentation:AcademicTermPeriod.kt$AcademicTermPeriod.JUL_AUG$ </ID>
-    <ID>Indentation:AcademicTermPeriod.kt$AcademicTermPeriod.SEP_DEC$ </ID>
-    <ID>Indentation:AttemptBadge.kt$AttemptBadge$ </ID>
-    <ID>Indentation:AttemptBadge.kt$AttemptBadge.NONE$ </ID>
-    <ID>Indentation:AttemptBadge.kt$AttemptBadge.WITHOUT_EFFECT$ </ID>
-    <ID>Indentation:AttemptGradingMode.kt$AttemptGradingMode$ </ID>
-    <ID>Indentation:AttemptGradingMode.kt$AttemptGradingMode.NUMERIC$ </ID>
-    <ID>Indentation:AttemptGradingMode.kt$AttemptGradingMode.QUALITATIVE_PASS_FAIL$ </ID>
-    <ID>Indentation:AttemptOutcome.kt$AttemptOutcome$ </ID>
-    <ID>Indentation:AttemptOutcome.kt$AttemptOutcome.APPROVED$ </ID>
-    <ID>Indentation:AttemptOutcome.kt$AttemptOutcome.FAILED$ </ID>
-    <ID>Indentation:AttemptOutcome.kt$AttemptOutcome.PENDING$ </ID>
-    <ID>Indentation:AttemptOutcome.kt$AttemptOutcome.RETIRED$ </ID>
-    <ID>Indentation:AttemptOutcome.kt$AttemptOutcome.UNREPORTED$ </ID>
-    <ID>Indentation:AttemptOverride.kt$AttemptOverride$ </ID>
-    <ID>Indentation:AttemptProjection.kt$AttemptProjection$ </ID>
-    <ID>Indentation:AttemptScore.kt$AttemptScore$ </ID>
-    <ID>Indentation:AttemptScore.kt$AttemptScore.Companion$ </ID>
-    <ID>Indentation:AttemptScore.kt$AttemptScore.Empty$ </ID>
-    <ID>Indentation:AttemptScore.kt$AttemptScore.Numeric$ </ID>
-    <ID>Indentation:AttemptScore.kt$AttemptScore.Symbolic$ </ID>
-    <ID>Indentation:RecordProjection.kt$RecordProjection$ </ID>
-    <ID>Indentation:RecordProjectionEngine.kt$RecordProjectionEngine$ </ID>
-    <ID>Indentation:RecordProjectionEngine.kt$RecordProjectionEngine.EffectiveAttempt$ </ID>
-    <ID>Indentation:RecordProjectionEngine.kt$RecordProjectionEngine.EffectiveAttemptState$ </ID>
-    <ID>Indentation:RecordProjectionEngine.kt$RecordProjectionEngine.EffectiveCodeState$ </ID>
-    <ID>Indentation:RecordProjectionEngine.kt$RecordProjectionEngine.EffectiveTermState$ </ID>
-    <ID>Indentation:RecordProjectionEngine.kt$RecordProjectionEngine.ExclusionCodeState$ </ID>
-    <ID>Indentation:RecordProjectionEngine.kt$RecordProjectionEngine.SubjectAttempt$ </ID>
-    <ID>Indentation:RecordProjectionEngineGoldenTest.kt$ </ID>
-    <ID>Indentation:RecordProjectionEngineGoldenTest.kt$RecordProjectionEngineGoldenTest$ </ID>
-    <ID>Indentation:RecordProjectionEnginePropertyTest.kt$ </ID>
-    <ID>Indentation:RecordProjectionEnginePropertyTest.kt$RecordProjectionEnginePropertyTest$ </ID>
-    <ID>Indentation:RecordProjectionEngineTest.kt$ </ID>
-    <ID>Indentation:RecordProjectionEngineTest.kt$RecordProjectionEngineTest$ </ID>
-    <ID>Indentation:TermKind.kt$ </ID>
-    <ID>Indentation:TermKind.kt$TermKind$ </ID>
-    <ID>Indentation:TermKind.kt$TermKind.CURRENT$ </ID>
-    <ID>Indentation:TermKind.kt$TermKind.HISTORICAL$ </ID>
-    <ID>Indentation:TermKind.kt$TermKind.SYNTHETIC$ </ID>
-    <ID>Indentation:TermProjection.kt$TermProjection$ </ID>
     <ID>LongMethod:RecordProjectionEngine.kt$RecordProjectionEngine$private fun project( terms: List&lt;AcademicTerm&gt;, attemptOverrides: Map&lt;String, AttemptOverride&gt;, academicProjectionByTermId: Map&lt;String, TermProjection&gt;, includeProjectionBehavior: Boolean ): RecordProjection</ID>
     <ID>LongParameterList:AcademicPensumStatusEngineTest.kt$AcademicPensumStatusEngineTest$( code: String, termKind: TermKind, outcome: AttemptOutcome, credits: Int = 5, name: String = code, termOrder: Int = 20201, positionInTerm: Int = 0 )</ID>
     <ID>LongParameterList:RecordProjectionEngineTest.kt$( id: String, subjectCode: String = id.uppercase(), credits: Int, gradingMode: AttemptGradingMode = AttemptGradingMode.NUMERIC, score: AttemptScore = AttemptScore.empty(), outcome: AttemptOutcome = AttemptOutcome.PENDING )</ID>
@@ -78,7 +13,7 @@
     <ID>MagicNumber:RecordProjectionEngine.kt$RecordProjectionEngine$10L</ID>
     <ID>MaxLineLength:AcademicPensumStatusEngineGoldenTest.kt$return attempt(id = id, code = code, credits = credits, termKind = TermKind.HISTORICAL, outcome = AttemptOutcome.APPROVED)</ID>
     <ID>MaximumLineLength:AcademicPensumStatusEngineGoldenTest.kt$ </ID>
-    <ID>NoSemicolons:AcademicTermPeriod.kt$AcademicTermPeriod.SEP_DEC$;</ID>
+    <ID>NoSemicolons:AcademicTermPeriod.kt$AcademicTermPeriod.JUL_DEC$;</ID>
     <ID>NoWildcardImports:RecordProjectionEngine.kt$import com.gdavidpb.tuindice.academiccore.domain.model.*</ID>
     <ID>ReturnCount:AcademicPensumStatusEngine.kt$AcademicPensumStatusEngine$private fun AcademicPensumGraph.FulfillmentRule.matchesAttempt( attempt: AcademicPensumSnapshot.Attempt ): Boolean</ID>
     <ID>ReturnCount:RecordProjectionEngine.kt$RecordProjectionEngine$private fun truncateScaledDivision( numerator: Long, denominator: Long, decimals: Int ): Double</ID>

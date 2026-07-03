@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.auth.domain.repository
 
-import com.gdavidpb.tuindice.security.domain.model.Attestation
 import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
+import com.gdavidpb.tuindice.security.domain.model.Attestation
 
 interface AuthRepository {
 	suspend fun bootstrapSignIn(

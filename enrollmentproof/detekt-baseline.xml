@@ -10,11 +10,6 @@
     <ID>FinalNewline:EnrollmentProofRepository.kt$com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository.kt</ID>
     <ID>FinalNewline:GetEnrollmentProofResponse.kt$com.gdavidpb.tuindice.enrollmentproof.data.model.GetEnrollmentProofResponse.kt</ID>
     <ID>FinalNewline:StorageDataRepository.kt$com.gdavidpb.tuindice.enrollmentproof.data.repository.StorageDataRepository.kt</ID>
-    <ID>FunctionNaming:EnrollmentProofContentDialog.kt$@Composable fun EnrollmentProofContentDialog( state: Enrollment.State, onDismissRequest: () -&gt; Unit )</ID>
-    <ID>FunctionNaming:EnrollmentProofFetchingSheet.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun EnrollmentProofFetchingSheet( cancelText: String, messageText: String, onDismissRequest: () -&gt; Unit, loadingContent: @Composable () -&gt; Unit )</ID>
-    <ID>FunctionNaming:EnrollmentProofFetchingView.kt$@Composable fun EnrollmentProofFetchingView( onDismissRequest: () -&gt; Unit )</ID>
-    <ID>FunctionNaming:EnrollmentProofLoadingView.kt$@OptIn(ExperimentalResourceApi::class) @Composable fun EnrollmentProofLoadingView( modifier: Modifier = Modifier )</ID>
-    <ID>FunctionNaming:EnrollmentProofRoute.kt$@Composable fun EnrollmentProofRoute( onNavigateToUpdatePassword: () -&gt; Unit, onDismissRequest: () -&gt; Unit, showSnackBar: (message: SnackBarMessage) -&gt; Unit, externalActions: FileOpenerRepository, viewModel: EnrollmentProofViewModel )</ID>
     <ID>ImportOrdering:EnrollmentProofFetchingSheet.kt$import androidx.compose.foundation.layout.Arrangement import androidx.compose.foundation.layout.Box import androidx.compose.foundation.layout.Row import androidx.compose.foundation.layout.fillMaxWidth import androidx.compose.foundation.layout.padding import androidx.compose.material3.ExperimentalMaterial3Api import androidx.compose.material3.MaterialTheme import androidx.compose.material3.ModalBottomSheet import androidx.compose.material3.ModalBottomSheetProperties import androidx.compose.material3.OutlinedButton import androidx.compose.material3.SheetValue import androidx.compose.material3.Text import androidx.compose.material3.rememberModalBottomSheetState import androidx.compose.runtime.Composable import androidx.compose.ui.Modifier import androidx.compose.ui.Alignment import androidx.compose.ui.platform.testTag import androidx.compose.ui.unit.dp import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId import com.gdavidpb.tuindice.enrollmentproof.ui.EnrollmentProofUiTags</ID>
     <ID>ImportOrdering:EnrollmentProofFetchingSheetUiTest.kt$import androidx.compose.foundation.layout.Box import androidx.compose.foundation.layout.size import androidx.compose.material3.Text import androidx.compose.ui.Modifier import androidx.compose.ui.test.ExperimentalTestApi import androidx.compose.ui.test.assertIsDisplayed import androidx.compose.ui.test.performClick import androidx.compose.ui.test.onNodeWithTag import androidx.compose.ui.test.onNodeWithText import androidx.compose.ui.platform.testTag import androidx.compose.ui.unit.dp import com.gdavidpb.tuindice.enrollmentproof.ui.EnrollmentProofUiTags import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent import kotlin.test.Test import kotlin.test.assertEquals</ID>
     <ID>ImportOrdering:EnrollmentProofFetchingViewUiTest.kt$import androidx.compose.ui.test.ExperimentalTestApi import androidx.compose.ui.test.assertIsDisplayed import androidx.compose.ui.test.onNodeWithTag import androidx.compose.ui.test.performClick import androidx.compose.ui.test.onNodeWithText import com.gdavidpb.tuindice.enrollmentproof.ui.EnrollmentProofUiTags import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent import kotlin.test.Test import kotlin.test.assertEquals</ID>
@@ -24,67 +19,6 @@
     <ID>ImportOrdering:EnrollmentProofTestDoubles.kt$import com.gdavidpb.tuindice.base.domain.repository.FileRepository import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository import com.gdavidpb.tuindice.enrollmentproof.data.repository.DatabaseDataRepository import com.gdavidpb.tuindice.enrollmentproof.data.repository.EnrollmentProofApiDataRepository import com.gdavidpb.tuindice.enrollmentproof.data.repository.StorageDataRepository import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository import com.gdavidpb.tuindice.enrollmentproof.presentation.resource.EnrollmentProofTextProvider import io.ktor.client.HttpClient import io.ktor.client.call.HttpClientCall import io.ktor.client.engine.mock.MockEngine import io.ktor.client.engine.mock.respondOk import io.ktor.client.plugins.ClientRequestException import io.ktor.client.request.HttpRequestBuilder import io.ktor.client.request.HttpResponseData import io.ktor.http.HttpStatusCode import io.ktor.http.HttpProtocolVersion import io.ktor.http.Headers import io.ktor.http.takeFrom import io.ktor.util.date.GMTDate import io.ktor.utils.io.ByteReadChannel import io.ktor.utils.io.InternalAPI import io.github.vinceglb.filekit.PlatformFile import kotlin.coroutines.EmptyCoroutineContext</ID>
     <ID>ImportOrdering:EnrollmentProofViewModelContractTest.kt$import app.cash.turbine.test import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.FetchEnrollmentProofUseCase import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.exceptionhandler.FetchEnrollmentProofExceptionHandler import com.gdavidpb.tuindice.enrollmentproof.presentation.machine.EnrollmentProofInternalEvent import com.gdavidpb.tuindice.enrollmentproof.presentation.machine.EnrollmentProofMachine import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment import com.gdavidpb.tuindice.enrollmentproof.testing.DEFAULT_ENROLLMENT_PROOF import com.gdavidpb.tuindice.enrollmentproof.testing.DEFAULT_ENROLLMENT_PROOF_SOURCE import com.gdavidpb.tuindice.enrollmentproof.testing.FakeEnrollmentProofRepository import com.gdavidpb.tuindice.enrollmentproof.testing.FakeEnrollmentProofTextProvider import com.gdavidpb.tuindice.enrollmentproof.testing.FakeFileRepository import com.gdavidpb.tuindice.enrollmentproof.testing.FakeNetworkRepository import com.gdavidpb.tuindice.enrollmentproof.testing.RecordingReportingRepository import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector import io.github.vinceglb.filekit.PlatformFile import kotlinx.coroutines.ExperimentalCoroutinesApi import kotlinx.coroutines.test.runTest import kotlin.test.Test import kotlin.test.assertEquals import kotlin.test.assertIs</ID>
     <ID>ImportOrdering:KtorEnrollmentProofApiDataSource.kt$import com.gdavidpb.tuindice.enrollmentproof.data.model.GetEnrollmentProofResponse import com.gdavidpb.tuindice.enrollmentproof.data.model.FetchEnrollmentProofRequest import com.gdavidpb.tuindice.enrollmentproof.data.repository.EnrollmentProofApiDataRepository import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof import io.ktor.client.HttpClient import io.ktor.client.call.body import io.ktor.client.request.post import io.ktor.client.request.setBody</ID>
-    <ID>Indentation:DatabaseDataRepository.kt$DatabaseDataRepository$ </ID>
-    <ID>Indentation:DefaultEnrollmentProofTextProvider.kt$DefaultEnrollmentProofTextProvider$ </ID>
-    <ID>Indentation:Enrollment.kt$Enrollment$ </ID>
-    <ID>Indentation:Enrollment.kt$Enrollment.Action$ </ID>
-    <ID>Indentation:Enrollment.kt$Enrollment.Effect$ </ID>
-    <ID>Indentation:Enrollment.kt$Enrollment.State$ </ID>
-    <ID>Indentation:EnrollmentProof.kt$EnrollmentProof$ </ID>
-    <ID>Indentation:EnrollmentProofApiDataRepository.kt$EnrollmentProofApiDataRepository$ </ID>
-    <ID>Indentation:EnrollmentProofContentDialog.kt$ </ID>
-    <ID>Indentation:EnrollmentProofContentDialogUiTest.kt$EnrollmentProofContentDialogUiTest$ </ID>
-    <ID>Indentation:EnrollmentProofDataSource.kt$EnrollmentProofDataSource$ </ID>
-    <ID>Indentation:EnrollmentProofDestination.kt$EnrollmentProofDestination$ </ID>
-    <ID>Indentation:EnrollmentProofDestination.kt$EnrollmentProofDestination.EnrollmentProofDialog$ </ID>
-    <ID>Indentation:EnrollmentProofErrorMessages.kt$ </ID>
-    <ID>Indentation:EnrollmentProofFetchingSheet.kt$ </ID>
-    <ID>Indentation:EnrollmentProofFetchingSheetUiTest.kt$EnrollmentProofFetchingSheetUiTest$ </ID>
-    <ID>Indentation:EnrollmentProofFetchingView.kt$ </ID>
-    <ID>Indentation:EnrollmentProofFetchingViewUiTest.kt$EnrollmentProofFetchingViewUiTest$ </ID>
-    <ID>Indentation:EnrollmentProofInternalEvent.kt$EnrollmentProofInternalEvent$ </ID>
-    <ID>Indentation:EnrollmentProofInternalEvent.kt$EnrollmentProofInternalEvent.EnrollmentProofFetchFailed$ </ID>
-    <ID>Indentation:EnrollmentProofInternalEvent.kt$EnrollmentProofInternalEvent.EnrollmentProofFetched$ </ID>
-    <ID>Indentation:EnrollmentProofLoadingView.kt$ </ID>
-    <ID>Indentation:EnrollmentProofLoadingViewUiTest.kt$EnrollmentProofLoadingViewUiTest$ </ID>
-    <ID>Indentation:EnrollmentProofMachine.kt$EnrollmentProofMachine$ </ID>
-    <ID>Indentation:EnrollmentProofModule.kt$ </ID>
-    <ID>Indentation:EnrollmentProofModuleKoinSmokeTest.kt$EnrollmentProofModuleKoinSmokeTest$ </ID>
-    <ID>Indentation:EnrollmentProofNavigation.kt$ </ID>
-    <ID>Indentation:EnrollmentProofRepository.kt$EnrollmentProofRepository$ </ID>
-    <ID>Indentation:EnrollmentProofRepositoryContractTest.kt$EnrollmentProofRepositoryContractTest$ </ID>
-    <ID>Indentation:EnrollmentProofRoute.kt$ </ID>
-    <ID>Indentation:EnrollmentProofRouteUiTest.kt$EnrollmentProofRouteUiTest$ </ID>
-    <ID>Indentation:EnrollmentProofRouteUiTest.kt$EnrollmentProofRouteUiTest.&lt;no name provided&gt;$ </ID>
-    <ID>Indentation:EnrollmentProofRouteUiTest.kt$EnrollmentProofRouteUiTest.RecordingFileOpenerRepository$ </ID>
-    <ID>Indentation:EnrollmentProofTestDoubles.kt$ </ID>
-    <ID>Indentation:EnrollmentProofTestDoubles.kt$FakeDatabaseDataSource$ </ID>
-    <ID>Indentation:EnrollmentProofTestDoubles.kt$FakeEnrollmentProofApiDataSource$ </ID>
-    <ID>Indentation:EnrollmentProofTestDoubles.kt$FakeEnrollmentProofRepository$ </ID>
-    <ID>Indentation:EnrollmentProofTestDoubles.kt$FakeEnrollmentProofTextProvider$ </ID>
-    <ID>Indentation:EnrollmentProofTestDoubles.kt$FakeFileRepository$ </ID>
-    <ID>Indentation:EnrollmentProofTestDoubles.kt$FakeNetworkRepository$ </ID>
-    <ID>Indentation:EnrollmentProofTestDoubles.kt$RecordingReportingRepository$ </ID>
-    <ID>Indentation:EnrollmentProofTestDoubles.kt$RecordingStorageDataSource$ </ID>
-    <ID>Indentation:EnrollmentProofTextProvider.kt$EnrollmentProofTextProvider$ </ID>
-    <ID>Indentation:EnrollmentProofTransitions.kt$ </ID>
-    <ID>Indentation:EnrollmentProofUiTags.kt$EnrollmentProofUiTags$ </ID>
-    <ID>Indentation:EnrollmentProofViewModel.kt$EnrollmentProofViewModel$ </ID>
-    <ID>Indentation:EnrollmentProofViewModelContractTest.kt$EnrollmentProofViewModelContractTest$ </ID>
-    <ID>Indentation:FetchEnrollmentProofExceptionHandler.kt$FetchEnrollmentProofExceptionHandler$ </ID>
-    <ID>Indentation:FetchEnrollmentProofExceptionHandlerTest.kt$FetchEnrollmentProofExceptionHandlerTest$ </ID>
-    <ID>Indentation:FetchEnrollmentProofRequest.kt$FetchEnrollmentProofRequest$ </ID>
-    <ID>Indentation:FetchEnrollmentProofUseCase.kt$FetchEnrollmentProofUseCase$ </ID>
-    <ID>Indentation:FetchEnrollmentProofUseCaseContractTest.kt$FetchEnrollmentProofUseCaseContractTest$ </ID>
-    <ID>Indentation:FetchEnrollmentProofUseCaseError.kt$FetchEnrollmentProofUseCaseError$ </ID>
-    <ID>Indentation:FileKitStorageDataSource.kt$FileKitStorageDataSource$ </ID>
-    <ID>Indentation:FileKitStorageDataSourceContractTest.kt$FileKitStorageDataSourceContractTest$ </ID>
-    <ID>Indentation:GetEnrollmentProofResponse.kt$GetEnrollmentProofResponse$ </ID>
-    <ID>Indentation:KtorEnrollmentProofApiDataSource.kt$KtorEnrollmentProofApiDataSource$ </ID>
-    <ID>Indentation:RoomDatabaseDataSource.kt$RoomDatabaseDataSource$ </ID>
-    <ID>Indentation:RoomDatabaseDataSource.kt$RoomDatabaseDataSource.Companion$ </ID>
-    <ID>Indentation:RoomDatabaseDataSourceTermKindTest.kt$RoomDatabaseDataSourceTermKindTest$ </ID>
-    <ID>Indentation:StorageDataRepository.kt$StorageDataRepository$ </ID>
     <ID>MaxLineLength:EnrollmentProofRouteUiTest.kt$EnrollmentProofRouteUiTest$fun</ID>
     <ID>MaximumLineLength:EnrollmentProofRouteUiTest.kt$EnrollmentProofRouteUiTest$ </ID>
     <ID>ModifierListSpacing:GetEnrollmentProofResponse.kt$GetEnrollmentProofResponse$@Serializable data</ID>

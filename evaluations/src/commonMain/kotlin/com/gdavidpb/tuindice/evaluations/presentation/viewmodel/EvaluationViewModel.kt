@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
-import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.presentation.statemachine.StateMachineViewModel
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor

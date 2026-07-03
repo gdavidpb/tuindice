@@ -1,20 +1,20 @@
 package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.base.data.source.network.AuthErrorHeaders
-import com.gdavidpb.tuindice.security.data.source.network.AttestationHeaders
 import com.gdavidpb.tuindice.base.data.source.network.createPlatformHttpClient
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.*
 import com.gdavidpb.tuindice.data.source.network.persistOutdatedAppStateIfUpgradeRequired
 import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
+import com.gdavidpb.tuindice.security.data.source.network.AttestationHeaders
 import io.ktor.client.*
 import io.ktor.client.plugins.*
+import io.ktor.client.plugins.api.SendingRequest
+import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.plugins.auth.*
 import io.ktor.client.plugins.auth.AuthConfig
 import io.ktor.client.plugins.auth.providers.*
-import io.ktor.client.plugins.api.SendingRequest
-import io.ktor.client.plugins.api.createClientPlugin
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.client.plugins.logging.*
 import io.ktor.client.request.HttpRequestBuilder

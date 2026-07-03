@@ -1,5 +1,13 @@
 package com.gdavidpb.tuindice.data.source.attestation
 
+import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
+import com.gdavidpb.tuindice.base.utils.extension.isForbidden
+import com.gdavidpb.tuindice.base.utils.extension.isPreconditionRequired
+import com.gdavidpb.tuindice.base.utils.extension.isUnauthorized
+import com.gdavidpb.tuindice.domain.model.IosPlatformAttestation
+import com.gdavidpb.tuindice.platform.IosAttestationCapability
 import com.gdavidpb.tuindice.security.data.model.AttestationPreparationRequiredResponse
 import com.gdavidpb.tuindice.security.data.model.CompleteAttestationPreparationRequest
 import com.gdavidpb.tuindice.security.data.model.CreateAttestationPreparationSessionRequest
@@ -8,28 +16,20 @@ import com.gdavidpb.tuindice.security.data.model.CreateAttestationSessionRespons
 import com.gdavidpb.tuindice.security.data.model.IssueAttestationTokenRequest
 import com.gdavidpb.tuindice.security.data.model.IssueAttestationTokenResponse
 import com.gdavidpb.tuindice.security.data.model.toRequestAuthorizationOrNull
+import com.gdavidpb.tuindice.security.domain.model.Attestation
 import com.gdavidpb.tuindice.security.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.security.domain.model.AttestationPreparationCode
 import com.gdavidpb.tuindice.security.domain.model.AttestationProvider
-import com.gdavidpb.tuindice.security.domain.model.Attestation
 import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.security.domain.model.AttestationTemporarilyUnavailableException
-import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
-import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
-import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.security.utils.attestationBindingInput
 import com.gdavidpb.tuindice.security.utils.extension.isAttestationKeyUserMismatch
-import com.gdavidpb.tuindice.base.utils.extension.isForbidden
-import com.gdavidpb.tuindice.base.utils.extension.isPreconditionRequired
-import com.gdavidpb.tuindice.base.utils.extension.isUnauthorized
-import com.gdavidpb.tuindice.domain.model.IosPlatformAttestation
-import com.gdavidpb.tuindice.platform.IosAttestationCapability
 import io.ktor.client.*
 import io.ktor.client.call.*
 import io.ktor.client.plugins.ClientRequestException
-import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.*
+import io.ktor.client.request.bearerAuth
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 

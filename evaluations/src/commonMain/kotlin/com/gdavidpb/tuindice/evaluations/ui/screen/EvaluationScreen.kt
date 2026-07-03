@@ -8,10 +8,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
-import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
-import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
+import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
+import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationContentView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationFailedView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationLoadingView

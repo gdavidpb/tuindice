@@ -10,7 +10,6 @@ import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
-import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation as EvaluationContract
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.asIcon
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationAttemptPickerItems
@@ -23,6 +22,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
+import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation as EvaluationContract
 
 private const val PENDING_DATE = 1_900_000_000_000L
 private const val COMPLETED_DATE = 1_700_000_000_000L

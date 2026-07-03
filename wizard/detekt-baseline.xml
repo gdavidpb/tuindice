@@ -2,41 +2,18 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>FunctionNaming:CoachmarkBubble.kt$@Composable fun CoachmarkBubble( coachmark: Coachmark, hasPreviousCoachmark: Boolean, hasNextCoachmark: Boolean, onPreviousActionClick: () -&gt; Unit, onPrimaryActionClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
-    <ID>FunctionNaming:CoachmarkOverlayHost.kt$@Composable fun CoachmarkOverlayHost( state: CoachmarkOverlay.State, anchorRegistry: CoachmarkAnchorRegistry, onPreviousActionClick: () -&gt; Unit, onPrimaryActionClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
     <ID>FunctionReturnTypeSpacing:CoachmarkOverlayMachine.kt$CoachmarkOverlayMachine$override fun define(host: MachineHost&lt;CoachmarkOverlay.Effect&gt;): MachineDefinition&lt;CoachmarkOverlay.State&gt;</ID>
     <ID>FunctionReturnTypeSpacing:ResolveCoachmarkUseCaseTest.kt$ResolveCoachmarkUseCaseTest$private suspend fun Flow&lt;UseCaseState&lt;CoachmarkResolution?, Nothing&gt;&gt;.firstValue(): CoachmarkResolution?</ID>
+    <ID>FunctionTypeReferenceSpacing:CoachmarkOverlayHost.kt$@OptIn(ExperimentalAnimationApi::class) private fun AnimatedContentTransitionScope&lt;CoachmarkBubbleFrame&gt; .coachmarkStepTransition(): ContentTransform</ID>
+    <ID>ImportOrdering:CoachmarkOverlayStateMachineContractTest.kt$import app.cash.turbine.test import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository import com.gdavidpb.tuindice.testkit.coroutines.withUnconfinedTestDispatchers import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid import com.gdavidpb.tuindice.wizard.domain.model.CoachmarkResolution import com.gdavidpb.tuindice.wizard.domain.usecase.MarkCoachmarkSeenUseCase import com.gdavidpb.tuindice.wizard.domain.usecase.ResolveCoachmarkUseCase import com.gdavidpb.tuindice.wizard.presentation.contract.CoachmarkOverlay import com.gdavidpb.tuindice.wizard.presentation.model.CoachmarkId import com.gdavidpb.tuindice.wizard.presentation.model.CoachmarkSurface import com.gdavidpb.tuindice.wizard.presentation.model.persistedId import com.gdavidpb.tuindice.wizard.presentation.viewmodel.CoachmarkOverlayViewModel import kotlinx.coroutines.ExperimentalCoroutinesApi import kotlinx.coroutines.test.advanceUntilIdle import kotlinx.coroutines.test.runTest import kotlin.test.Test import kotlin.test.assertEquals import kotlin.test.assertFalse import kotlin.test.assertNull import kotlin.test.assertTrue</ID>
+    <ID>ImportOrdering:CoachmarkSurfaceMapperTest.kt$import com.gdavidpb.tuindice.about.presentation.contract.About import com.gdavidpb.tuindice.base.presentation.ViewState import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum import com.gdavidpb.tuindice.pensum.presentation.model.PensumCanvasItem import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSelection import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm import com.gdavidpb.tuindice.record.domain.model.RecordViewMode import com.gdavidpb.tuindice.record.presentation.model.RecordRouteViewState import com.gdavidpb.tuindice.record.presentation.model.RecordTopBarViewModeState import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectDetail import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectSearch import com.gdavidpb.tuindice.subjects.presentation.model.SubjectDetailItem import com.gdavidpb.tuindice.wizard.presentation.model.CoachmarkId import com.gdavidpb.tuindice.wizard.presentation.model.contextualCoachmarks import kotlin.test.Test import kotlin.test.assertEquals import kotlin.test.assertTrue</ID>
     <ID>ImportOrdering:WizardModuleKoinSmokeTest.kt$import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers import com.gdavidpb.tuindice.base.domain.repository.EventPublisher import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository import com.gdavidpb.tuindice.base.domain.repository.SessionRepository import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository import com.gdavidpb.tuindice.testkit.koin.assertResolves import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest import com.gdavidpb.tuindice.wizard.presentation.viewmodel.CoachmarkOverlayViewModel import kotlin.test.Test import org.koin.dsl.module</ID>
-    <ID>Indentation:Coachmark.kt$Coachmark$ </ID>
-    <ID>Indentation:CoachmarkAnchorModifier.kt$ </ID>
-    <ID>Indentation:CoachmarkAnchorRegistry.kt$CoachmarkAnchorRegistry$ </ID>
-    <ID>Indentation:CoachmarkBubble.kt$ </ID>
-    <ID>Indentation:CoachmarkId.kt$ </ID>
-    <ID>Indentation:CoachmarkId.kt$CoachmarkId$ </ID>
-    <ID>Indentation:CoachmarkOverlay.kt$CoachmarkOverlay$ </ID>
-    <ID>Indentation:CoachmarkOverlay.kt$CoachmarkOverlay.Action$ </ID>
-    <ID>Indentation:CoachmarkOverlay.kt$CoachmarkOverlay.State$ </ID>
-    <ID>Indentation:CoachmarkOverlayHost.kt$ </ID>
-    <ID>Indentation:CoachmarkOverlayHostUiTest.kt$CoachmarkOverlayHostUiTest$ </ID>
-    <ID>Indentation:CoachmarkOverlayInternalEvent.kt$CoachmarkOverlayInternalEvent$ </ID>
-    <ID>Indentation:CoachmarkOverlayInternalEvent.kt$CoachmarkOverlayInternalEvent.CoachmarkResolved$ </ID>
-    <ID>Indentation:CoachmarkOverlayMachine.kt$CoachmarkOverlayMachine$ </ID>
-    <ID>Indentation:CoachmarkOverlayStateMachineContractTest.kt$CoachmarkOverlayStateMachineContractTest$ </ID>
-    <ID>Indentation:CoachmarkOverlayTransitions.kt$ </ID>
-    <ID>Indentation:CoachmarkOverlayViewModel.kt$CoachmarkOverlayViewModel$ </ID>
-    <ID>Indentation:CoachmarkResolution.kt$CoachmarkResolution$ </ID>
-    <ID>Indentation:CoachmarkSurface.kt$ </ID>
-    <ID>Indentation:CoachmarkSurface.kt$CoachmarkSurface$ </ID>
-    <ID>Indentation:CoachmarkUiTags.kt$CoachmarkUiTags$ </ID>
-    <ID>Indentation:Coachmarks.kt$ </ID>
-    <ID>Indentation:MarkCoachmarkSeenUseCase.kt$MarkCoachmarkSeenUseCase$ </ID>
-    <ID>Indentation:MarkCoachmarkSeenUseCase.kt$MarkCoachmarkSeenUseCase.Params$ </ID>
-    <ID>Indentation:MarkCoachmarkSeenUseCaseTest.kt$MarkCoachmarkSeenUseCaseTest$ </ID>
-    <ID>Indentation:ResolveCoachmarkUseCase.kt$ResolveCoachmarkUseCase$ </ID>
-    <ID>Indentation:ResolveCoachmarkUseCase.kt$ResolveCoachmarkUseCase.Params$ </ID>
-    <ID>Indentation:ResolveCoachmarkUseCaseTest.kt$ResolveCoachmarkUseCaseTest$ </ID>
-    <ID>Indentation:WizardModule.kt$ </ID>
-    <ID>Indentation:WizardModuleKoinSmokeTest.kt$WizardModuleKoinSmokeTest$ </ID>
+    <ID>LongMethod:CoachmarkBubble.kt$@Composable fun CoachmarkBubble( coachmark: Coachmark, hasPreviousCoachmark: Boolean, hasNextCoachmark: Boolean, onPreviousActionClick: () -&gt; Unit, onPrimaryActionClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>LongMethod:Coachmarks.kt$fun contextualCoachmarks(): List&lt;Coachmark&gt;</ID>
+    <ID>LongParameterList:CoachmarkBubble.kt$( coachmark: Coachmark, hasPreviousCoachmark: Boolean, hasNextCoachmark: Boolean, onPreviousActionClick: () -&gt; Unit, onPrimaryActionClick: () -&gt; Unit, modifier: Modifier = Modifier )</ID>
+    <ID>LongParameterList:CoachmarkOverlayHost.kt$( state: CoachmarkOverlay.State, anchorRegistry: CoachmarkAnchorRegistry, maxWidth: Dp, maxHeight: Dp, bottomSafeInsetPx: Int, density: Density )</ID>
+    <ID>MagicNumber:CoachmarkOverlayHost.kt$3</ID>
+    <ID>ReturnCount:CoachmarkOverlayHost.kt$private fun coachmarkBubbleFrame( state: CoachmarkOverlay.State, anchorRegistry: CoachmarkAnchorRegistry, maxWidth: Dp, maxHeight: Dp, bottomSafeInsetPx: Int, density: Density ): CoachmarkBubbleFrame?</ID>
     <ID>Wrapping:ResolveCoachmarkUseCaseTest.kt$ResolveCoachmarkUseCaseTest$(</ID>
   </CurrentIssues>
 </SmellBaseline>

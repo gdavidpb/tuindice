@@ -4,9 +4,9 @@ import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
-import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationLocalDate
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
+import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationLocalDate
 
 fun List<Evaluation>.toEvaluationItemList(
 	mapping: EvaluationItemMapping,

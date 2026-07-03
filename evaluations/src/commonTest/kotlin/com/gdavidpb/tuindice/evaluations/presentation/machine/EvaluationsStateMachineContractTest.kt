@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.evaluations.presentation.machine
 
-import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableAttemptsUseCase
@@ -34,9 +34,9 @@ import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
-import kotlinx.coroutines.test.runTest
 
 class EvaluationsStateMachineContractTest {
 	@Test

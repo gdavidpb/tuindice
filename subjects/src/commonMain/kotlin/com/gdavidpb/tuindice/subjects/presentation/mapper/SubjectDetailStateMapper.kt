@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.subjects.presentation.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectAttemptBin
-import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail as SubjectDetailModel
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetailResult
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDifficultyBand
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectGradeBin
@@ -27,6 +26,7 @@ import tuindice.subjects.generated.resources.subjects_percent_pattern
 import tuindice.subjects.generated.resources.subjects_score_pattern
 import kotlin.math.roundToInt
 import kotlin.time.Instant
+import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail as SubjectDetailModel
 
 suspend fun SubjectDetailResult.toViewState(): SubjectDetail.State {
 	val textMapping = getSubjectDetailTextMapping()

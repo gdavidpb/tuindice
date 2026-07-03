@@ -1,12 +1,6 @@
 package com.gdavidpb.tuindice
 
-import com.gdavidpb.tuindice.security.domain.model.AttestationEvidenceMode
-import com.gdavidpb.tuindice.security.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
-import com.gdavidpb.tuindice.security.domain.model.AttestationAuthorization
-import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
-import com.gdavidpb.tuindice.security.domain.model.AttestationTemporarilyUnavailableException
-import com.gdavidpb.tuindice.security.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
@@ -15,20 +9,26 @@ import com.gdavidpb.tuindice.di.createSharedJson
 import com.gdavidpb.tuindice.domain.model.IosPlatformAttestation
 import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
 import com.gdavidpb.tuindice.platform.IosAttestationCapability
+import com.gdavidpb.tuindice.security.domain.model.AttestationAuthorization
+import com.gdavidpb.tuindice.security.domain.model.AttestationEvidenceMode
+import com.gdavidpb.tuindice.security.domain.model.AttestationProvider
+import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
+import com.gdavidpb.tuindice.security.domain.model.AttestationTemporarilyUnavailableException
+import com.gdavidpb.tuindice.security.domain.model.ProtectedOperationCodes
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
-import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.DefaultRequest
+import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
-import kotlinx.coroutines.test.runTest
 
 class IosAttestationDataRepositoryTest {
 	@Test

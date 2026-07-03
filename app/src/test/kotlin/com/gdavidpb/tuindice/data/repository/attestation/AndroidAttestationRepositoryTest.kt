@@ -1,13 +1,6 @@
 package com.gdavidpb.tuindice.data.repository.attestation
 
-import com.gdavidpb.tuindice.security.data.model.AttestationProofOfPossessionRequest
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
-import com.gdavidpb.tuindice.security.domain.model.AttestationAuthorization
-import com.gdavidpb.tuindice.security.domain.model.AttestationEvidenceMode
-import com.gdavidpb.tuindice.security.domain.model.AttestationProvider
-import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
-import com.gdavidpb.tuindice.security.domain.model.AttestationProofOfPossessionMode
-import com.gdavidpb.tuindice.security.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
@@ -16,6 +9,13 @@ import com.gdavidpb.tuindice.di.createSharedJson
 import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
 import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
 import com.gdavidpb.tuindice.platform.android.model.ProviderAttestation
+import com.gdavidpb.tuindice.security.data.model.AttestationProofOfPossessionRequest
+import com.gdavidpb.tuindice.security.domain.model.AttestationAuthorization
+import com.gdavidpb.tuindice.security.domain.model.AttestationEvidenceMode
+import com.gdavidpb.tuindice.security.domain.model.AttestationProofOfPossessionMode
+import com.gdavidpb.tuindice.security.domain.model.AttestationProvider
+import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
+import com.gdavidpb.tuindice.security.domain.model.ProtectedOperationCodes
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond

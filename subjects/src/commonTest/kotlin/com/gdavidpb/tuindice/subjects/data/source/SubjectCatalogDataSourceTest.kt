@@ -4,12 +4,12 @@ import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectCatalogLocalDataRepository
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectCatalogRemoteDataRepository
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchResult
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.test.runTest
 
 class SubjectCatalogDataSourceTest {
 	@Test

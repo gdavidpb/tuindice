@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.base.data.source.messaging
 
-import com.gdavidpb.tuindice.base.utils.PreferencesKeys
 import com.gdavidpb.tuindice.base.data.repository.messaging.MessagingLocalDataRepository
+import com.gdavidpb.tuindice.base.utils.PreferencesKeys
 import com.russhwolf.settings.Settings
 
 class MessagingSettingsDataSource(

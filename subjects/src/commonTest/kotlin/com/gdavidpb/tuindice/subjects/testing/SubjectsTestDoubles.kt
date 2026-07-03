@@ -3,7 +3,6 @@ package com.gdavidpb.tuindice.subjects.testing
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumNodeStatus
 import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectAttemptBin
-import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail as SubjectDetailModel
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetailResult
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDifficultyBand
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectGradeBin
@@ -14,6 +13,7 @@ import com.gdavidpb.tuindice.subjects.domain.repository.SubjectStatsRepository
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
+import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail as SubjectDetailModel
 
 class RecordingSubjectStatsRepository(
 	private val freshResult: SubjectDetailResult? = null,

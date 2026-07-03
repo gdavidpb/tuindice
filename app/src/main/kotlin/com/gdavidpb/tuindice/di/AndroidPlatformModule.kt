@@ -5,44 +5,43 @@ import androidx.core.content.getSystemService
 import com.gdavidpb.tuindice.BuildConfig
 import com.gdavidpb.tuindice.about.data.repository.AppInfoDataRepository
 import com.gdavidpb.tuindice.about.data.repository.EnvironmentDataRepository
-import com.gdavidpb.tuindice.about.domain.repository.StoreUrlRepository
 import com.gdavidpb.tuindice.about.data.source.AndroidAppInfoDataSource
 import com.gdavidpb.tuindice.about.data.source.AndroidEnvironmentDataSource
 import com.gdavidpb.tuindice.about.data.source.AndroidShareTextHandler
 import com.gdavidpb.tuindice.about.data.source.AndroidStoreUrlDataSource
+import com.gdavidpb.tuindice.about.domain.repository.StoreUrlRepository
 import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
 import com.gdavidpb.tuindice.auth.data.repository.AuthApiDataRepository
 import com.gdavidpb.tuindice.auth.data.source.KtorAuthApiDataSource
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository
-import com.gdavidpb.tuindice.base.data.source.event.ReportingBreadcrumbEventSubscriber
+import com.gdavidpb.tuindice.base.data.repository.messaging.PushTokenDataRepository
 import com.gdavidpb.tuindice.base.data.source.UUIDIdentifierDataSource
+import com.gdavidpb.tuindice.base.data.source.event.ReportingBreadcrumbEventSubscriber
 import com.gdavidpb.tuindice.base.data.source.secure.ACTIVE_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.secure.LEGACY_SECURE_STORE_QUALIFIER
 import com.gdavidpb.tuindice.base.data.source.settings.APP_SECURE_STORE_NAME
 import com.gdavidpb.tuindice.base.data.source.usage.UsageDataCollectionDataSource
 import com.gdavidpb.tuindice.base.domain.coroutine.AppCoroutineScope
 import com.gdavidpb.tuindice.base.domain.repository.*
-import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.base.utils.extension.toFirebaseDefaultsMap
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationProviderDataRepository
+import com.gdavidpb.tuindice.data.repository.playcore.PlayCoreAvailabilityDataRepository
+import com.gdavidpb.tuindice.data.repository.playcore.PlayCoreEnvironmentDataRepository
+import com.gdavidpb.tuindice.data.source.actions.AndroidFileOpenerDataSource
+import com.gdavidpb.tuindice.data.source.activity.CurrentActivityDataSource
+import com.gdavidpb.tuindice.data.source.analytics.FirebaseAnalyticsEventSubscriber
+import com.gdavidpb.tuindice.data.source.application.AndroidApplicationDataSource
 import com.gdavidpb.tuindice.data.source.attestation.AndroidAttestationDataSource
 import com.gdavidpb.tuindice.data.source.attestation.PlayIntegrityDataSource
-import com.gdavidpb.tuindice.base.data.repository.messaging.PushTokenDataRepository
-import com.gdavidpb.tuindice.data.source.messaging.FirebasePushTokenDataSource
-import com.gdavidpb.tuindice.data.source.actions.AndroidFileOpenerDataSource
-import com.gdavidpb.tuindice.data.source.analytics.FirebaseAnalyticsEventSubscriber
-import com.gdavidpb.tuindice.data.source.activity.CurrentActivityDataSource
-import com.gdavidpb.tuindice.data.source.application.AndroidApplicationDataSource
 import com.gdavidpb.tuindice.data.source.browser.AndroidBrowserDataSource
 import com.gdavidpb.tuindice.data.source.config.AndroidRemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.device.AndroidDeviceInfoDataSource
 import com.gdavidpb.tuindice.data.source.environment.BuildConfigEnvironmentDataSource
+import com.gdavidpb.tuindice.data.source.messaging.FirebasePushTokenDataSource
 import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
-import com.gdavidpb.tuindice.data.repository.playcore.PlayCoreAvailabilityDataRepository
-import com.gdavidpb.tuindice.data.repository.playcore.PlayCoreEnvironmentDataRepository
 import com.gdavidpb.tuindice.data.source.playcore.AndroidPlayCoreAvailabilityDataSource
 import com.gdavidpb.tuindice.data.source.playcore.AndroidPlayCoreEnvironmentDataSource
 import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSource
@@ -54,6 +53,7 @@ import com.gdavidpb.tuindice.platform.android.AndroidKeystoreProofOfPossessionCa
 import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
 import com.gdavidpb.tuindice.platform.android.UserAgent
 import com.gdavidpb.tuindice.platform.android.androidDefaultConfigValues
+import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
 import com.gdavidpb.tuindice.summary.data.source.AndroidBitmapPictureEncoderDataSource
@@ -78,11 +78,11 @@ import kotlinx.serialization.json.Json
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
-import org.koin.core.module.dsl.named as definitionNamed
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository as BaseExternalActionsRepository
+import org.koin.core.module.dsl.named as definitionNamed
 
 val androidPlatformModule = module {
 	single<Settings.Factory> {

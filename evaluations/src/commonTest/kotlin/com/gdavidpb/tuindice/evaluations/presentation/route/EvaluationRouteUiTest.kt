@@ -6,8 +6,8 @@ import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableAttemptsUseCase
