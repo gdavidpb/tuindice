@@ -1,0 +1,50 @@
+rules:
+  - id: no-database-outside-persistence
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Las features no reciben TuIndiceDatabase: consumen DAOs específicos,
+      entities/projections públicas y contratos de infraestructura expuestos por
+      persistence (README "Capas por feature > DI"). El registro por plataforma
+      también pasa por helpers de persistence.
+    pattern-regex: '\bTuIndiceDatabase\b'
+    paths:
+      exclude:
+        - 'persistence/**'
+    metadata:
+      area: infrastructure
+      referencia: 'README.md § DI'
+
+  - id: eventpublisher-only-at-mvi-boundary
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      EventPublisher se inyecta solo en la frontera MVI: los ViewModel lo entregan al
+      motor con override y el wiring vive en di (README "Eventos y datos de uso").
+      Máquinas, use cases y data sources no publican eventos directamente.
+    pattern-regex: '^import\s+com\.gdavidpb\.tuindice\.base\.domain\.repository\.EventPublisher$'
+    paths:
+      exclude:
+        - '**/presentation/viewmodel/**'
+        - '**/di/**'
+        - 'base/**'
+    metadata:
+      area: infrastructure
+      referencia: 'README.md § Eventos y datos de uso'
+
+  - id: no-println
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      println no es un canal de logging: base expone el contrato de logging/reporting
+      del proyecto. En producción multiplataforma println no llega a ningún colector
+      y se pierde (la excepción es el diagnóstico de testkit, excluido por paths).
+    pattern: println(...)
+    paths:
+      include:
+        - '**/src/commonMain/**'
+      exclude:
+        - 'testkit/**'
+    metadata:
+      area: infrastructure
+      referencia: 'base (módulo): logging y ReportingRepository'

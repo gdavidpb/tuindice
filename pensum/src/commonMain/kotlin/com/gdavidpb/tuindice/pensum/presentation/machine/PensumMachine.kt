@@ -6,10 +6,11 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
+import com.gdavidpb.tuindice.pensum.domain.repository.PensumSettingsRepository
 import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase.Result
-import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumSummaryCollapsedUseCase
+import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumUseCase
@@ -34,7 +35,8 @@ class PensumMachine(
 	private val selectPensumUseCase: SelectPensumUseCase,
 	private val selectPensumModalityUseCase: SelectPensumModalityUseCase,
 	private val selectPensumSelectionUseCase: SelectPensumSelectionUseCase,
-	private val setPensumSummaryCollapsedUseCase: SetPensumSummaryCollapsedUseCase
+	private val setPensumSummaryCollapsedUseCase: SetPensumSummaryCollapsedUseCase,
+	private val pensumSettingsRepository: PensumSettingsRepository
 ) : ScreenMachine<Pensum.State, Pensum.Effect> {
 	override fun initialState(): Pensum.State = Pensum.State.Idle
 
@@ -198,7 +200,7 @@ class PensumMachine(
 			is PensumObservation.Content ->
 				PensumInternalEvent.PensumContentObserved(
 					pensum = pensum,
-					isSummaryCollapsed = observePensumSummaryCollapsedUseCase.currentValue()
+					isSummaryCollapsed = pensumSettingsRepository.isSummaryCollapsed()
 				)
 
 			PensumObservation.Missing,

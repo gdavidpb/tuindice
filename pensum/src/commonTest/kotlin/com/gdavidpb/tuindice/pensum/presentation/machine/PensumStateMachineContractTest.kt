@@ -139,7 +139,8 @@ class PensumStateMachineContractTest {
 			setPensumSummaryCollapsedUseCase = SetPensumSummaryCollapsedUseCase(
 				pensumSettingsRepository = settingsRepository,
 				reportingRepository = reportingRepository
-			)
+			),
+			pensumSettingsRepository = settingsRepository
 		)
 
 		val graph = PensumGraph(
@@ -249,7 +250,8 @@ class PensumStateMachineContractTest {
 				setPensumSummaryCollapsedUseCase = SetPensumSummaryCollapsedUseCase(
 					pensumSettingsRepository = settingsRepository,
 					reportingRepository = reportingRepository
-				)
+				),
+				pensumSettingsRepository = settingsRepository
 			),
 			eventPublisher = NoOpEventPublisher
 		)

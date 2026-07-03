@@ -18,4 +18,12 @@ class BrokenSampleUseCase(
 	}
 
 	fun observe(flow: Flow<Int>): Flow<Int> = flow.flowOn(Dispatchers.Default)
+
+	fun currentValue(): Int {
+		return 1
+	}
 }
+
+class RogueParamsValidator
+
+object RogueExceptionHandler

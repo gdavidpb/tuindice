@@ -14,6 +14,10 @@ import kotlinx.coroutines.flow.MutableStateFlow
 class SampleFlowViewModel : ViewModel() {
 	private val uiState = MutableStateFlow(0)
 
+	init {
+		refreshAction()
+	}
+
 	fun refreshAction() {
 		viewModelScope.launch { }
 	}

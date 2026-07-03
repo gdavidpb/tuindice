@@ -1,0 +1,72 @@
+rules:
+  - id: testtag-no-inline-literal
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Los selectores E2E usan tags estables definidos en el objeto *UiTags del módulo,
+      no literales inline (testkit/e2e/selector-policy.md). Los flows Maestro y
+      critical-selectors.txt dependen de que el identificador tenga un único dueño.
+    pattern-either:
+      - pattern: $M.testTag("...")
+      - pattern: testTag("...")
+    paths:
+      include:
+        - '**/src/commonMain/**'
+    metadata:
+      area: composable-boundary
+      referencia: 'testkit/e2e/selector-policy.md'
+
+  - id: koinviewmodel-only-in-navigation
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      koinViewModel(...) se resuelve únicamente en presentation/navigation
+      (skill "Navigation resolves the ViewModel"). Route puentea state/effect y
+      Screen queda libre de DI; resolver el ViewModel en otra capa rompe la frontera.
+    pattern-regex: '\bkoinViewModel\s*[(<]'
+    paths:
+      include:
+        - '**/src/commonMain/**'
+      exclude:
+        - '**/presentation/navigation/**'
+        # Raíz del árbol de UI: el host route aloja el NavHost y no tiene capa de
+        # navegación por encima; resuelve MainViewModel (arranque/chrome) y el
+        # overlay del wizard por diseño documentado (README § Flujo estándar).
+        - '**/presentation/route/TuIndiceAppHostRoute.kt'
+    metadata:
+      area: composable-boundary
+      referencia: '.codex/skills/implement-tuindice-module § composable boundary'
+
+  - id: draft-only-in-machine
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Los <Screen>Draft son registros de entrada reificados: se inyectan solo en la
+      máquina y se escriben solo desde filas y comandos (skill "draft pattern").
+      Importarlos desde ViewModel, Route o UI crea una segunda vía de escritura
+      fuera de la tabla.
+    pattern-regex: '^import\s+com\.gdavidpb\.tuindice\..*\.presentation\.machine\.\w+Draft$'
+    paths:
+      exclude:
+        - '**/presentation/machine/**'
+        - '**/di/**'
+    metadata:
+      area: composable-boundary
+      referencia: '.codex/skills/implement-tuindice-module § draft pattern'
+
+  - id: navigateback-explicit-result-type
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      navigateBackWithResult exige el tipo base explícito:
+      navigateBackWithResult<BaseResult>(SubResult). Sin él, writer y collector pueden
+      derivar clave y serializer de tipos distintos y el resultado se pierde
+      (base/utils/extension/NavigationResult.kt).
+    pattern-regex: '\bnavigateBackWithResult\s*\('
+    paths:
+      exclude:
+        # La definición del helper vive en base y su firma lleva paréntesis directo.
+        - 'base/**'
+    metadata:
+      area: composable-boundary
+      referencia: 'base/utils/extension/NavigationResult.kt'

@@ -86,6 +86,21 @@ rules:
       area: viewmodel-purity
       referencia: 'base/presentation/statemachine/StateMachineViewModel.kt § sendEffect'
 
+  - id: viewmodel-no-init-block
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      El ViewModel no usa init { }: el arranque de pantalla es initialAction en el
+      constructor del motor, disparado por onStart del state flow. Un init corre
+      antes de que exista suscriptor y fuera del loop FIFO de la máquina.
+    pattern-regex: '\binit\s*\{'
+    paths:
+      include:
+        - '**/presentation/viewmodel/**'
+    metadata:
+      area: viewmodel-purity
+      referencia: 'base/presentation/statemachine/StateMachineViewModel.kt § state.onStart'
+
   - id: viewmodel-no-state-reads
     languages: [kotlin]
     severity: ERROR

@@ -1,0 +1,52 @@
+rules:
+  - id: usecase-single-operation
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Un use case expone una sola operación: execute(params) sobre su
+      executeOnBackground. Funciones públicas adicionales crean lecturas que
+      esquivan Loading/validator/handler/reporting; muévelas a su propio use case
+      o, si es un read síncrono para un comando, inyecta el repositorio en la
+      máquina (precedente AboutMachine).
+    # Solo funciones públicas tab-1 sin modificador: override/private/internal y
+    # miembros anidados (doble tab) quedan fuera.
+    pattern-regex: '^\t(?:suspend\s+)?fun\s+\w+'
+    paths:
+      include:
+        - '**/domain/usecase/*UseCase.kt'
+        - '**/domain/usecase/**/*UseCase.kt'
+      exclude:
+        - '**/base/domain/usecase/base/**'
+    metadata:
+      area: base-components
+      referencia: 'base/domain/usecase/base/FlowUseCase.kt'
+
+  - id: paramsvalidator-location
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Los *ParamsValidator viven en domain/usecase/validator (README "Capas por
+      feature > Domain"). Anclado al sufijo ParamsValidator: los guards EFSM de
+      comandos (p. ej. SyntheticTermCommandValidator) son otra pieza y no aplican.
+    pattern-regex: '\b(?:class|object)\s+\w+ParamsValidator\b'
+    paths:
+      exclude:
+        - '**/domain/usecase/validator/**'
+    metadata:
+      area: base-components
+      referencia: 'README.md § Capas por feature'
+
+  - id: exceptionhandler-location
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Los *ExceptionHandler viven en domain/usecase/exceptionhandler (README "Capas
+      por feature > Domain"): traducen throwable a error tipado del use case y el
+      pipeline de FlowUseCase los invoca en execute().
+    pattern-regex: '\b(?:class|object)\s+\w+ExceptionHandler\b'
+    paths:
+      exclude:
+        - '**/domain/usecase/exceptionhandler/**'
+    metadata:
+      area: base-components
+      referencia: 'README.md § Capas por feature'

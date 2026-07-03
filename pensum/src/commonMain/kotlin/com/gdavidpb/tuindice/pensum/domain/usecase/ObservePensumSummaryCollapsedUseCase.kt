@@ -13,8 +13,4 @@ class ObservePensumSummaryCollapsedUseCase(
 	override suspend fun executeOnBackground(params: Unit): Flow<Boolean> {
 		return pensumSettingsRepository.observeSummaryCollapsed()
 	}
-
-	fun currentValue(): Boolean {
-		return pensumSettingsRepository.isSummaryCollapsed()
-	}
 }

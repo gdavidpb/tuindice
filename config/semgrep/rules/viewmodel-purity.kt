@@ -22,6 +22,11 @@ class BadViewModel : ViewModel() {
 	// ruleid: viewmodel-no-state-holding
 	private val uiState = MutableStateFlow(0)
 
+	// ruleid: viewmodel-no-init-block
+	init {
+		refresh()
+	}
+
 	// ruleid: viewmodel-no-state-holding
 	private val events = MutableSharedFlow<Int>()
 

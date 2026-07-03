@@ -538,7 +538,8 @@ class PensumViewModelContractTest {
 				setPensumSummaryCollapsedUseCase = SetPensumSummaryCollapsedUseCase(
 					pensumSettingsRepository = settingsRepository,
 					reportingRepository = reportingRepository
-				)
+				),
+				pensumSettingsRepository = settingsRepository
 			),
 			eventPublisher = NoOpEventPublisher,
 			dispatchers = dispatchers

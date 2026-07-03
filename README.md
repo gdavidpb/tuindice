@@ -369,7 +369,7 @@ Reglas:
 ## Enforcement de arquitectura (Semgrep)
 
 Las reglas de `config/semgrep/rules/` codifican las piezas base de este README como chequeos estáticos
-(29 reglas en 6 familias):
+(43 reglas en 11 archivos por área):
 
 - `kmp-portability`: límites KMP en `commonMain` (imports `android.*`/`java.*`, `BuildConfig`,
   Koin androidx, Firebase directo).
@@ -378,11 +378,22 @@ Las reglas de `config/semgrep/rules/` codifican las piezas base de este README c
 - `dispatchers`: sin `Dispatchers.*` crudo fuera de `base`; sin `TuIndiceDispatchers`/`flowOn`/`withContext`
   en use cases, máquinas o contratos.
 - `viewmodel-purity`: `ViewModel` como API pura de pantalla (hereda de `StateMachineViewModel`; sin estado
-  propio, corrutinas, use cases, lecturas de estado ni `sendEffect`/`processInternalEvent` directos).
+  propio, corrutinas, use cases, lecturas de estado, `init { }` ni `sendEffect`/`processInternalEvent`
+  directos).
 - `koin-conventions`: sin módulos vacíos, sin `*CoreModule`, sin módulos de plataforma por feature.
 - `base-components`: implementación correcta de las primitivas (`*UseCase` extiende `FlowUseCase`, sin
   try/catch ni `executeOnBackground` directo, `UseCaseState`/`AppEvent` solo desde `base`, `*Machine`
   implementa `ScreenMachine`, `MutableStateFlow` de máquina solo en `*Draft.kt`).
+- `usecase-discipline`: un use case expone una sola operación (`execute`); `*ParamsValidator` en
+  `usecase/validator` y `*ExceptionHandler` en `usecase/exceptionhandler`.
+- `mvi-contracts` y `transition-purity`: `Action`/`Effect` solo en `presentation/contract` (el `ViewState`
+  de chrome de ruta queda exento por diseño), máquinas sin `host` como propiedad y `transition/` con solo
+  extension functions de la tabla.
+- `composable-boundary`: `testTag` solo vía objetos `*UiTags`, `koinViewModel` solo en
+  `presentation/navigation` (exención documentada: `TuIndiceAppHostRoute`, raíz del árbol), Drafts
+  importables solo desde `machine`/`di`, y `navigateBackWithResult` siempre con tipo base explícito.
+- `infrastructure`: `TuIndiceDatabase` solo en `persistence`, `EventPublisher` solo en la frontera MVI
+  (ViewModels y `di`), y sin `println` (el logging pasa por los contratos de `base`).
 
 Cada archivo de reglas tiene un fixture `.kt` homónimo validado con `semgrep --test`, y el módulo
 sintético de `config/semgrep/generality/` prueba que toda regla dispara sobre layouts y nombres de módulo

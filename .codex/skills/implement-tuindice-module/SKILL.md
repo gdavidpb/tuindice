@@ -170,6 +170,9 @@ Implement module work by copying the nearest existing module pattern instead of 
 - Start with targeted compilation:
   - `./gradlew --continue --console=plain :<module>:compileAndroidMain`
   - `./gradlew --continue --console=plain :<module>:compileKotlinIosSimulatorArm64`
+- For any Kotlin change, run static analysis before closing — both are preflight gates, so skipping them locally only defers the failure to CI:
+  - `./gradlew --continue --console=plain :<module>:detekt` for each touched module (root `detekt` when `config/detekt/*`, `.editorconfig`, or any `detekt-baseline.xml` changes)
+  - `scripts/semgrep-architecture.sh scan` (run the full `scripts/semgrep-architecture.sh` when `config/semgrep/**`, `.semgrepignore`, or the runner script itself changes; new rules ship test-first with a same-named `.kt` fixture plus a violation in `config/semgrep/generality/`)
 - For module dependency changes, run `./gradlew verifyModuleGraph` and update `scripts/validate-module-graph.sh` plus `README.md` together.
 - For feature DI changes, run the module smoke test.
 - For machine or transition-table changes, run `./gradlew verifySharedHostTests`: the android host is the only platform where the alphabet/Λ validators enforce (on iOS they report SKIPPED), and the contract tests' seeded random walk (`assertMachineRandomWalk`) runs everywhere.
