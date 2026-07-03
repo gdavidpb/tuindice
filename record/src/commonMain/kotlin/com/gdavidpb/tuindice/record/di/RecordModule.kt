@@ -16,7 +16,6 @@ import com.gdavidpb.tuindice.record.data.source.AcademicRecordApiDataSource
 import com.gdavidpb.tuindice.record.data.source.AcademicRecordDataSource
 import com.gdavidpb.tuindice.record.data.source.AcademicRecordRoomDataSource
 import com.gdavidpb.tuindice.record.data.source.LocalSettingsDataSource
-import com.gdavidpb.tuindice.record.data.source.RecordSelectionDataSource
 import com.gdavidpb.tuindice.record.data.source.SyntheticTermCreationDataSource
 import com.gdavidpb.tuindice.record.data.source.SyntheticTermLoadPreviewDataSource
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
@@ -26,8 +25,8 @@ import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermLoadPreviewRe
 import com.gdavidpb.tuindice.record.domain.usecase.CreateSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.EnsureRecordLoadedUseCase
-import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermPreviewUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermEditSeedUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermPreviewUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermCreationUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RefreshSyntheticTermSubjectSearchUseCase
@@ -112,13 +111,15 @@ val recordModule = module {
 			identifierRepository = get()
 		)
 	}
-	singleOf(::RecordSelectionDataSource) { bind<RecordSelectionRepository>() }
 	singleOf(::SyntheticTermCreationDataSource) { bind<SyntheticTermCreationRepository>() }
 	singleOf(::SyntheticTermLoadPreviewDataSource) { bind<SyntheticTermLoadPreviewRepository>() }
 
 	/* Data sources */
 
-	singleOf(::LocalSettingsDataSource) { bind<RecordSettingsDataRepository>() }
+	singleOf(::LocalSettingsDataSource) {
+		bind<RecordSettingsDataRepository>()
+		bind<RecordSelectionRepository>()
+	}
 	singleOf(::AcademicRecordApiDataSource) { bind<AcademicRecordRemoteDataRepository>() }
 	singleOf(::AcademicRecordRoomDataSource) { bind<AcademicRecordLocalDataRepository>() }
 

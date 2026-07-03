@@ -3,18 +3,19 @@ package com.gdavidpb.tuindice.evaluations.di
 import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
-import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
-import com.gdavidpb.tuindice.evaluations.data.source.EvaluationDataSource
-import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataRepository
-import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataRepository
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
+import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
+import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataRepository
+import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataRepository
+import com.gdavidpb.tuindice.evaluations.data.resolver.VisibleEvaluationsStateResolver
+import com.gdavidpb.tuindice.evaluations.data.source.EvaluationDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.KtorEvaluationsApiDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.LocalSettingsDataSource
 import com.gdavidpb.tuindice.evaluations.data.source.RoomDatabaseDataSource
-import com.gdavidpb.tuindice.evaluations.data.resolver.VisibleEvaluationsStateResolver
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsSelectionRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableAttemptsUseCase
@@ -22,6 +23,7 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailabl
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.SetSelectedWeekUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEvaluationExceptionHandler
@@ -67,6 +69,7 @@ val evaluationsModule = module {
 	factoryOf(::RemoveEvaluationUseCase)
 	factoryOf(::AddEvaluationUseCase)
 	factoryOf(::GetAvailableAttemptsUseCase)
+	factoryOf(::SetSelectedWeekUseCase)
 
 	/* Validators */
 
@@ -114,7 +117,10 @@ val evaluationsModule = module {
 			visibleEvaluationsStateResolver = get()
 		)
 	}
-	singleOf(::LocalSettingsDataSource) { bind<SettingsDataRepository>() }
+	singleOf(::LocalSettingsDataSource) {
+		bind<SettingsDataRepository>()
+		bind<EvaluationsSelectionRepository>()
+	}
 
 	/* Exception handlers */
 

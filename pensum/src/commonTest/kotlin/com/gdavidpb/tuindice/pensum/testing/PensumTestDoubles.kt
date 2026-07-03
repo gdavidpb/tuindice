@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumGraph
 import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
 import com.gdavidpb.tuindice.pensum.domain.model.PensumSelection
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
@@ -24,7 +25,13 @@ class RecordingPensumRepository(
 	val selectedSelections = mutableListOf<Pair<Int, String>>()
 
 	override fun observePensumFlow(): Flow<PensumObservation> = flow {
-		observations.forEach { observation -> emit(observation) }
+		observations.forEach { observation ->
+			emit(observation)
+			// El fold de selección usa combine, que confla ráfagas por fuente; el delay
+			// (tiempo virtual en runTest) deja drenar el fan-in entre emisiones para que
+			// los tests observen cada valor intermedio.
+			delay(1)
+		}
 		observeThrowable?.let { throwable -> throw throwable }
 	}
 

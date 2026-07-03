@@ -12,10 +12,11 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.intl.Locale
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
-import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.SetSelectedWeekUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.RemoveEvaluationExceptionHandler
@@ -25,6 +26,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewM
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
+import com.gdavidpb.tuindice.evaluations.testing.InMemoryEvaluationsSelectionRepository
 import com.gdavidpb.tuindice.evaluations.testing.ReadyRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
@@ -173,6 +175,7 @@ class EvaluationsRtlA11yUiTest {
 			),
 			availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT)
 		)
+		val selectionRepository = InMemoryEvaluationsSelectionRepository()
 
 		return EvaluationsViewModel(
 			screenMachine = EvaluationsMachine(
@@ -180,6 +183,7 @@ class EvaluationsRtlA11yUiTest {
 					evaluationRepository = repository,
 					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 					syncStatusRepository = RecordingSyncStatusRepository(),
+					evaluationsSelectionRepository = selectionRepository,
 					reportingRepository = RecordingReportingRepository()
 				),
 				ensureEvaluationsLoadedUseCase = EnsureEvaluationsLoadedUseCase(
@@ -203,6 +207,10 @@ class EvaluationsRtlA11yUiTest {
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = RemoveEvaluationExceptionHandler()
+				),
+				setSelectedWeekUseCase = SetSelectedWeekUseCase(
+					evaluationsSelectionRepository = selectionRepository,
+					reportingRepository = RecordingReportingRepository()
 				)
 			),
 			eventPublisher = NoOpEventPublisher

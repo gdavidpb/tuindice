@@ -2,13 +2,20 @@ package com.gdavidpb.tuindice.evaluations.data.source
 
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataRepository
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsSelectionRepository
 import com.gdavidpb.tuindice.evaluations.utils.CooldownTimes
 import com.gdavidpb.tuindice.evaluations.utils.PreferencesKeys
 import com.russhwolf.settings.Settings
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableStateFlow
 
 class LocalSettingsDataSource(
 	private val settings: Settings
-) : SettingsDataRepository {
+) : SettingsDataRepository, EvaluationsSelectionRepository {
+	private val selectedWeekKey = MutableStateFlow(
+		settings.getStringOrNull(PreferencesKeys.SELECTED_EVALUATIONS_WEEK)
+	)
+
 	override suspend fun isGetEvaluationsOnCooldown(): Boolean {
 		val cooldownTime = settings.getLongOrNull(PreferencesKeys.COOLDOWN_GET_EVALUATIONS) ?: 0L
 
@@ -19,5 +26,14 @@ class LocalSettingsDataSource(
 		val cooldownTime = currentTimeMillis() + CooldownTimes.COOLDOWN_GET_EVALUATIONS
 
 		settings.putLong(PreferencesKeys.COOLDOWN_GET_EVALUATIONS, cooldownTime)
+	}
+
+	override fun observeSelectedWeekKey(): Flow<String?> {
+		return selectedWeekKey
+	}
+
+	override suspend fun setSelectedWeekKey(weekKey: String) {
+		settings.putString(PreferencesKeys.SELECTED_EVALUATIONS_WEEK, weekKey)
+		selectedWeekKey.value = weekKey
 	}
 }

@@ -40,6 +40,7 @@ class EvaluationsUseCaseContractTest {
 			),
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 			syncStatusRepository = RecordingSyncStatusRepository(),
+			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
 			reportingRepository = RecordingReportingRepository()
 		)
 
@@ -49,7 +50,7 @@ class EvaluationsUseCaseContractTest {
 				listOf(pastEvaluation, futureEvaluation),
 				result.evaluations
 			)
-			awaitComplete()
+			cancelAndIgnoreRemainingEvents()
 		}
 	}
 
@@ -64,6 +65,7 @@ class EvaluationsUseCaseContractTest {
 			),
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 			syncStatusRepository = RecordingSyncStatusRepository(),
+			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
 			reportingRepository = reportingRepository
 		)
 
@@ -89,6 +91,7 @@ class EvaluationsUseCaseContractTest {
 			syncStatusRepository = RecordingSyncStatusRepository(
 				initialReport = SyncReport.partialEnrollmentUnavailable()
 			),
+			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
 			reportingRepository = RecordingReportingRepository()
 		)
 
@@ -113,6 +116,7 @@ class EvaluationsUseCaseContractTest {
 				states = flowOf(RecordDataPrerequisiteState(isReady = false, hasFailed = false))
 			),
 			syncStatusRepository = RecordingSyncStatusRepository(),
+			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
 			reportingRepository = RecordingReportingRepository()
 		)
 
@@ -130,6 +134,7 @@ class EvaluationsUseCaseContractTest {
 				states = flowOf(RecordDataPrerequisiteState(isReady = false, hasFailed = true))
 			),
 			syncStatusRepository = RecordingSyncStatusRepository(),
+			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
 			reportingRepository = RecordingReportingRepository()
 		)
 

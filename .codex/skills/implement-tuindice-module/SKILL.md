@@ -109,6 +109,13 @@ Implement module work by copying the nearest existing module pattern instead of 
   - observation commands should ignore `UseCaseState.Loading` from local reads; do not show a full-screen loading illustration for a fast local cache read
   - use an `Idle` state for initial UI when the route immediately dispatches observation plus refresh; render `Idle` as no content and let refresh decide whether to move to `Loading`
   - when data uses freshness/expiry instead of a continuously observed local flow, follow `subjects`: local `getFresh*()` returns cached data or null, remote `refresh*()` fetches and persists, and the load use case emits an explicit remote-loading domain signal before calling refresh
+- Persisted screen selection/preference state (record's selected term and view mode, pensum's summary collapsed, evaluations' selected week) follows one canonical shape across all features:
+  - a feature-owned `*SelectionRepository` contract in `domain/repository` exposing `observe*(): Flow<...>` plus `suspend set*(...)`; no sync getters
+  - implemented directly by the module's settings-backed `LocalSettingsDataSource` (a `MutableStateFlow` mirror seeded from `Settings` with write-through on set); never a trivial delegate `*DataSource` in between
+  - writes go through a dedicated `Set*UseCase` fired from the transition row's machine command; the row updates state optimistically and the fold re-emission converges to the same value
+  - reads are folded into the feature's main observe/get use case with `combine`, so the observed domain model already carries the persisted value; machines never inject selection repositories nor read persisted state directly
+  - validity guards over the persisted value (e.g., a stale week key against the current term) live in the machine's mapping to internal events, falling back to the computed default
+  - test note: `combine` conflates same-source bursts; fakes that emit multiple observations must separate emissions with virtual-time `delay(1)` (see `RecordingPensumRepository`) so contract tests observe intermediate values
 - Preserve the composable boundary:
   - `Navigation` injects or resolves `ViewModel` instances with `koinViewModel(...)`
   - `Route` observes `state` and `effect`, triggers initial actions with `LaunchedEffect`, and passes plain state/callbacks to `Screen`

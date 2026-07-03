@@ -1,13 +1,13 @@
 package com.gdavidpb.tuindice.pensum.data.source
 
-import com.gdavidpb.tuindice.pensum.domain.repository.PensumSettingsRepository
+import com.gdavidpb.tuindice.pensum.domain.repository.PensumSelectionRepository
 import com.russhwolf.settings.Settings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 
-class LocalPensumSettingsDataSource(
+class LocalSettingsDataSource(
 	private val settings: Settings
-) : PensumSettingsRepository {
+) : PensumSelectionRepository {
 	private val summaryCollapsed = MutableStateFlow(
 		settings.getBooleanOrNull(PENSUM_SUMMARY_COLLAPSED_KEY) ?: false
 	)
@@ -16,11 +16,7 @@ class LocalPensumSettingsDataSource(
 		return summaryCollapsed
 	}
 
-	override fun isSummaryCollapsed(): Boolean {
-		return summaryCollapsed.value
-	}
-
-	override fun setSummaryCollapsed(isCollapsed: Boolean) {
+	override suspend fun setSummaryCollapsed(isCollapsed: Boolean) {
 		settings.putBoolean(PENSUM_SUMMARY_COLLAPSED_KEY, isCollapsed)
 		summaryCollapsed.value = isCollapsed
 	}

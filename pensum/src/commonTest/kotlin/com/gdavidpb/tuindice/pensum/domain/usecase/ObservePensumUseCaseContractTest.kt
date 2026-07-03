@@ -3,11 +3,14 @@ package com.gdavidpb.tuindice.pensum.domain.usecase
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
+import com.gdavidpb.tuindice.pensum.domain.repository.PensumSelectionRepository
 import com.gdavidpb.tuindice.pensum.testing.RecordingPensumRepository
 import com.gdavidpb.tuindice.pensum.testing.sampleObservedPensum
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenError
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -101,7 +104,14 @@ class ObservePensumUseCaseContractTest {
 	): ObservePensumUseCase {
 		return ObservePensumUseCase(
 			pensumRepository = repository,
+			pensumSelectionRepository = ExpandedPensumSelectionRepository(),
 			reportingRepository = reportingRepository
 		)
 	}
+}
+
+private class ExpandedPensumSelectionRepository : PensumSelectionRepository {
+	override fun observeSummaryCollapsed(): Flow<Boolean> = flowOf(false)
+
+	override suspend fun setSummaryCollapsed(isCollapsed: Boolean) = Unit
 }

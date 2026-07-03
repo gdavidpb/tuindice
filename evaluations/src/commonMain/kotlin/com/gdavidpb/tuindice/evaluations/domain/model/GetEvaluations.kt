@@ -14,7 +14,8 @@ sealed interface GetEvaluations {
 	data class Content(
 		val evaluations: List<Evaluation>,
 		val hasSyncedEvaluations: Boolean,
-		val displayContext: EvaluationDisplayContext
+		val displayContext: EvaluationDisplayContext,
+		val selectedWeekKey: String?
 	) : GetEvaluations
 }
 

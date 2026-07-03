@@ -19,7 +19,6 @@ import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
 import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository
-import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import io.ktor.http.HttpStatusCode
@@ -1036,18 +1035,6 @@ private class FakeRecordSettingsDataRepository(
 	override suspend fun setGetAcademicRecordOnCooldown() {
 		cooldownMarked = true
 	}
-
-	override fun observeSelectedTermId(viewMode: RecordViewMode): Flow<String?> = MutableStateFlow(null)
-
-	override fun observeRecordViewMode(): Flow<RecordViewMode> = MutableStateFlow(RecordViewMode.Projection)
-
-	override fun getSelectedTermId(viewMode: RecordViewMode): String? = null
-
-	override fun setSelectedTermId(viewMode: RecordViewMode, termId: String) = Unit
-
-	override fun getRecordViewMode(): RecordViewMode = RecordViewMode.Projection
-
-	override fun setRecordViewMode(viewMode: RecordViewMode) = Unit
 }
 
 private class FakeIdentifierRepository : IdentifierRepository {

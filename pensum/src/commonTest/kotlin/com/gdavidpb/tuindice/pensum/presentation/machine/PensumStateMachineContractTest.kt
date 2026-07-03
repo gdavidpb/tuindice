@@ -8,10 +8,9 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
 import com.gdavidpb.tuindice.pensum.domain.model.PensumOption
 import com.gdavidpb.tuindice.pensum.domain.model.PensumSelection
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
-import com.gdavidpb.tuindice.pensum.domain.repository.PensumSettingsRepository
+import com.gdavidpb.tuindice.pensum.domain.repository.PensumSelectionRepository
 import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
-import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumSummaryCollapsedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumUseCase
@@ -79,7 +78,6 @@ class PensumStateMachineContractTest {
 			"failed",
 			"ObservePensum",
 			"PensumContentObserved",
-			"PensumSummaryCollapsedObserved",
 			"PensumRefreshNotFound",
 			"ToggleSummaryCollapsed",
 			"SelectSelection"
@@ -105,10 +103,7 @@ class PensumStateMachineContractTest {
 		val screenMachine = PensumMachine(
 			observePensumUseCase = ObservePensumUseCase(
 				pensumRepository = repository,
-				reportingRepository = reportingRepository
-			),
-			observePensumSummaryCollapsedUseCase = ObservePensumSummaryCollapsedUseCase(
-				pensumSettingsRepository = settingsRepository,
+				pensumSelectionRepository = settingsRepository,
 				reportingRepository = reportingRepository
 			),
 			ensurePensumLoadedUseCase = EnsurePensumLoadedUseCase(
@@ -137,10 +132,9 @@ class PensumStateMachineContractTest {
 				exceptionHandler = exceptionHandler
 			),
 			setPensumSummaryCollapsedUseCase = SetPensumSummaryCollapsedUseCase(
-				pensumSettingsRepository = settingsRepository,
+				pensumSelectionRepository = settingsRepository,
 				reportingRepository = reportingRepository
-			),
-			pensumSettingsRepository = settingsRepository
+			)
 		)
 
 		val graph = PensumGraph(
@@ -188,7 +182,6 @@ class PensumStateMachineContractTest {
 					pensum = observedPensum,
 					isSummaryCollapsed = false
 				),
-				PensumInternalEvent.PensumSummaryCollapsedObserved(isCollapsed = true),
 				PensumInternalEvent.PensumDataMissing,
 				PensumInternalEvent.PensumRecordDataUnavailableObserved,
 				PensumInternalEvent.PensumObservationFailed,
@@ -216,10 +209,7 @@ class PensumStateMachineContractTest {
 			screenMachine = PensumMachine(
 				observePensumUseCase = ObservePensumUseCase(
 					pensumRepository = repository,
-					reportingRepository = reportingRepository
-				),
-				observePensumSummaryCollapsedUseCase = ObservePensumSummaryCollapsedUseCase(
-					pensumSettingsRepository = settingsRepository,
+					pensumSelectionRepository = settingsRepository,
 					reportingRepository = reportingRepository
 				),
 				ensurePensumLoadedUseCase = EnsurePensumLoadedUseCase(
@@ -248,10 +238,9 @@ class PensumStateMachineContractTest {
 					exceptionHandler = exceptionHandler
 				),
 				setPensumSummaryCollapsedUseCase = SetPensumSummaryCollapsedUseCase(
-					pensumSettingsRepository = settingsRepository,
+					pensumSelectionRepository = settingsRepository,
 					reportingRepository = reportingRepository
-				),
-				pensumSettingsRepository = settingsRepository
+				)
 			),
 			eventPublisher = NoOpEventPublisher
 		)
@@ -272,14 +261,12 @@ private class StaticPensumRepository : PensumRepository {
 	override suspend fun selectSelection(year: Int, modalityId: String) = Unit
 }
 
-private class StaticPensumSettingsRepository : PensumSettingsRepository {
+private class StaticPensumSettingsRepository : PensumSelectionRepository {
 	private val summaryCollapsed = MutableStateFlow(false)
 
 	override fun observeSummaryCollapsed(): Flow<Boolean> = summaryCollapsed
 
-	override fun isSummaryCollapsed(): Boolean = summaryCollapsed.value
-
-	override fun setSummaryCollapsed(isCollapsed: Boolean) {
+	override suspend fun setSummaryCollapsed(isCollapsed: Boolean) {
 		summaryCollapsed.value = isCollapsed
 	}
 }

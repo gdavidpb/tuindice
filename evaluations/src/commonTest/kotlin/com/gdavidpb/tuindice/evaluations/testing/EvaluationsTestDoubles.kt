@@ -35,6 +35,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsRefreshResult
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsSelectionRepository
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
@@ -574,6 +575,18 @@ class FakeSettingsDataSource(
 
 	override suspend fun setGetEvaluationsOnCooldown() {
 		cooldownMarked = true
+	}
+}
+
+class InMemoryEvaluationsSelectionRepository(
+	initialWeekKey: String? = null
+) : EvaluationsSelectionRepository {
+	private val selectedWeekKey = MutableStateFlow(initialWeekKey)
+
+	override fun observeSelectedWeekKey(): Flow<String?> = selectedWeekKey
+
+	override suspend fun setSelectedWeekKey(weekKey: String) {
+		selectedWeekKey.value = weekKey
 	}
 }
 

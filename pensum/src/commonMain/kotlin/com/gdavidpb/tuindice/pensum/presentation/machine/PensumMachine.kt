@@ -6,10 +6,8 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
-import com.gdavidpb.tuindice.pensum.domain.repository.PensumSettingsRepository
 import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase.Result
-import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumSummaryCollapsedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
@@ -29,14 +27,12 @@ import kotlinx.coroutines.flow.Flow
 
 class PensumMachine(
 	private val observePensumUseCase: ObservePensumUseCase,
-	private val observePensumSummaryCollapsedUseCase: ObservePensumSummaryCollapsedUseCase,
 	private val ensurePensumLoadedUseCase: EnsurePensumLoadedUseCase,
 	private val updatePensumUseCase: UpdatePensumUseCase,
 	private val selectPensumUseCase: SelectPensumUseCase,
 	private val selectPensumModalityUseCase: SelectPensumModalityUseCase,
 	private val selectPensumSelectionUseCase: SelectPensumSelectionUseCase,
-	private val setPensumSummaryCollapsedUseCase: SetPensumSummaryCollapsedUseCase,
-	private val pensumSettingsRepository: PensumSettingsRepository
+	private val setPensumSummaryCollapsedUseCase: SetPensumSummaryCollapsedUseCase
 ) : ScreenMachine<Pensum.State, Pensum.Effect> {
 	override fun initialState(): Pensum.State = Pensum.State.Idle
 
@@ -63,21 +59,6 @@ class PensumMachine(
 					is UseCaseState.Error -> host.processInternalEvent(
 						PensumInternalEvent.PensumObservationFailed
 					)
-				}
-			}
-		}
-		host.launchMachineJob {
-			observePensumSummaryCollapsedUseCase.execute(Unit).collect { useCaseState ->
-				when (useCaseState) {
-					is UseCaseState.Loading -> Unit
-
-					is UseCaseState.Data -> host.processInternalEvent(
-						PensumInternalEvent.PensumSummaryCollapsedObserved(
-							isCollapsed = useCaseState.value
-						)
-					)
-
-					is UseCaseState.Error -> Unit
 				}
 			}
 		}
@@ -200,7 +181,7 @@ class PensumMachine(
 			is PensumObservation.Content ->
 				PensumInternalEvent.PensumContentObserved(
 					pensum = pensum,
-					isSummaryCollapsed = pensumSettingsRepository.isSummaryCollapsed()
+					isSummaryCollapsed = isSummaryCollapsed
 				)
 
 			PensumObservation.Missing,

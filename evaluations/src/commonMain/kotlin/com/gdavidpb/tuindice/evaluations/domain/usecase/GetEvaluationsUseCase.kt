@@ -11,9 +11,11 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDisplayContext
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsSelectionRepository
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -24,6 +26,7 @@ class GetEvaluationsUseCase(
 	private val evaluationRepository: EvaluationRepository,
 	private val recordDataPrerequisiteRepository: RecordDataPrerequisiteRepository,
 	private val syncStatusRepository: SyncStatusRepository,
+	private val evaluationsSelectionRepository: EvaluationsSelectionRepository,
 	override val reportingRepository: ReportingRepository
 ) : FlowUseCase<Unit, GetEvaluations, EvaluationsUseCaseError>() {
 
@@ -69,13 +72,16 @@ class GetEvaluationsUseCase(
 			currentTerm = evaluationRepository.getCurrentTerm()
 		)
 
-		return evaluationRepository.observeEvaluationsSnapshotFlow()
-			.map { snapshot ->
-				GetEvaluations.Content(
-					evaluations = snapshot.value.sortedWith(evaluationComparator),
-					hasSyncedEvaluations = snapshot.hasSynced,
-					displayContext = displayContext
-				)
-			}
+		return combine(
+			evaluationRepository.observeEvaluationsSnapshotFlow(),
+			evaluationsSelectionRepository.observeSelectedWeekKey()
+		) { snapshot, selectedWeekKey ->
+			GetEvaluations.Content(
+				evaluations = snapshot.value.sortedWith(evaluationComparator),
+				hasSyncedEvaluations = snapshot.hasSynced,
+				displayContext = displayContext,
+				selectedWeekKey = selectedWeekKey
+			)
+		}
 	}
 }

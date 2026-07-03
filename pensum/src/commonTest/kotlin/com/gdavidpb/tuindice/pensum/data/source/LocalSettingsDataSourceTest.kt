@@ -7,24 +7,22 @@ import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-class LocalPensumSettingsDataSourceTest {
+class LocalSettingsDataSourceTest {
 	@Test
 	fun defaultSummaryState_isExpanded() = runTest {
-		val dataSource = LocalPensumSettingsDataSource(FakeSettings())
+		val dataSource = LocalSettingsDataSource(FakeSettings())
 
-		assertFalse(dataSource.isSummaryCollapsed())
 		assertFalse(dataSource.observeSummaryCollapsed().first())
 	}
 
 	@Test
 	fun setSummaryCollapsed_persistsAndPublishesState() = runTest {
 		val settings = FakeSettings()
-		val dataSource = LocalPensumSettingsDataSource(settings)
+		val dataSource = LocalSettingsDataSource(settings)
 
 		dataSource.setSummaryCollapsed(true)
 
-		assertTrue(dataSource.isSummaryCollapsed())
 		assertTrue(dataSource.observeSummaryCollapsed().first())
-		assertTrue(LocalPensumSettingsDataSource(settings).isSummaryCollapsed())
+		assertTrue(LocalSettingsDataSource(settings).observeSummaryCollapsed().first())
 	}
 }
