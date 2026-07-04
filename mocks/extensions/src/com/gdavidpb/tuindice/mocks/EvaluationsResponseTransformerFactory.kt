@@ -22,7 +22,8 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 	private class EvaluationsResponseTransformer(services: WireMockServices) : ResponseDefinitionTransformerV2 {
 		private val objectMapper = ObjectMapper()
 		private val lock = Any()
-		private val state: RuntimeState = readBaseState(services.files)
+		private val files: FileSource = services.files
+		private var state: RuntimeState = readBaseState(files)
 
 		override fun getName(): String = "evaluations-response-transformer"
 
@@ -33,6 +34,7 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 			val pathSegments = pathSegments(request)
 
 			return when {
+				isResetRequest(request, pathSegments) -> resetResponse()
 				isListRequest(request, pathSegments) -> listResponse()
 				isSingleGetRequest(request, pathSegments) -> singleGetResponse(pathSegments)
 				isPostRequest(request, pathSegments) -> postResponse(request)
@@ -101,6 +103,14 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 				isDone = node.get("is_done").asBoolean(),
 				revision = node.get("revision").asLong(),
 			)
+
+		private fun isResetRequest(request: com.github.tomakehurst.wiremock.http.Request, pathSegments: List<String>): Boolean =
+			request.method == RequestMethod.POST && pathSegments == listOf("evaluations", "v3", "reset")
+
+		private fun resetResponse(): ResponseDefinition {
+			state = readBaseState(files)
+			return jsonResponse(200, mapOf("reset" to true), 0)
+		}
 
 		private fun isListRequest(request: com.github.tomakehurst.wiremock.http.Request, pathSegments: List<String>): Boolean =
 			request.method == RequestMethod.GET && pathSegments == listOf("evaluations", "v3")

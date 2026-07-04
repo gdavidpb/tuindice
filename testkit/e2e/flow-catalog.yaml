@@ -1517,11 +1517,11 @@ actions_covered:
 - evaluations.Evaluation.SetType
 - evaluations.Evaluation.ClickSubmitEvaluation
 primary_selectors:
-- evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
+- evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435
 - evaluation_swipe_to_dismiss_container
 - evaluation_swipe_edit_action
 - evaluation_content_container
-- evaluation_type_chip_report
+- evaluation_type_chip_written_work
 - evaluation_type_chip_test
 - evaluation_done_fab
 - base_snackbar_container
@@ -1536,7 +1536,7 @@ primary_selectors:
     actions_covered:
       - evaluations.Evaluations.RemoveEvaluation
     primary_selectors:
-      - evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
+      - evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435
       - evaluation_swipe_to_dismiss_container
       - evaluation_swipe_delete_action
       - base_snackbar_container

@@ -962,6 +962,11 @@ reset_wiremock() {
 		--request POST "${E2E_WIREMOCK_URL}/__admin/scenarios/reset"
 	curl --fail --silent --output /dev/null \
 		--request DELETE "${E2E_WIREMOCK_URL}/__admin/requests"
+	# Scenario reset does not touch the custom transformer's in-memory dataset;
+	# without this, dataset mutations leak across cases and retry attempts.
+	curl --fail --silent --output /dev/null \
+		--header "Authorization: Bearer e2e-harness-reset" \
+		--request POST "${E2E_WIREMOCK_URL}/evaluations/v3/reset"
 }
 
 wiremock_pid_file() {

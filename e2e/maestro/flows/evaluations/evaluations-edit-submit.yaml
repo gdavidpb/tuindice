@@ -12,23 +12,15 @@ appId: com.gdavidpb.tuindice.debug
 - runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - scrollUntilVisible:
     element:
-      id: evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
+      id: evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435
     direction: DOWN
     visibilityPercentage: 50
     centerElement: true
     timeout: 15000
 - assertVisible:
-    id: evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
-- swipe:
-    direction: LEFT
-    duration: 600
-- runFlow:
-    when:
-      notVisible:
-        id: evaluation_swipe_edit_action
-    commands:
-      - tapOn:
-          id: evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
+    id: evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435
+- tapOn:
+    id: evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435
 - extendedWaitUntil:
     visible:
       id: evaluation_swipe_edit_action
@@ -43,6 +35,8 @@ appId: com.gdavidpb.tuindice.debug
     timeout: 20000
 - runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - assertVisible:
+    id: evaluation_subject_chip_722cc2cc935e0aefdc73f9ebf9d2f1b6
+- assertVisible:
     id: evaluation_subject_picker_row
 - assertVisible:
     id: evaluation_type_picker_row
@@ -55,10 +49,6 @@ appId: com.gdavidpb.tuindice.debug
     enabled: false
 - tapOn:
     id: evaluation_type_chip_written_work
-- tapOn:
-    id: evaluation_type_chip_report
-- tapOn:
-    id: evaluation_type_chip_report
 - tapOn:
     id: evaluation_type_chip_test
 - assertVisible:
