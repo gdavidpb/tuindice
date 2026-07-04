@@ -272,6 +272,21 @@ else
 	log "Local E2E evidence plan: scope-aware suites; android=${android_scope} tcp:${ANDROID_WIREMOCK_PORT}; ios=${ios_scope} tcp:${IOS_WIREMOCK_PORT}."
 fi
 
+if [[ "${E2E_DEVICE_REBOOT_BEFORE_EVIDENCE:-1}" == "1" ]]; then
+	reboot_platforms=()
+	if [[ "${E2E_SKIP_ANDROID:-0}" != "1" && "${android_scope}" == "required" ]]; then
+		reboot_platforms+=(android)
+	fi
+	if [[ "${ios_scope}" == "required" ]] && is_macos && command -v xcrun >/dev/null 2>&1; then
+		reboot_platforms+=(ios)
+	fi
+	if [[ "${#reboot_platforms[@]}" -gt 0 ]]; then
+		log "Cold-rebooting devices before evidence (${reboot_platforms[*]}); disable with E2E_DEVICE_REBOOT_BEFORE_EVIDENCE=0."
+		bash "${SCRIPT_DIR}/reboot-devices.sh" "${reboot_platforms[@]}" ||
+			log "Device reboot failed; continuing with the evidence run."
+	fi
+fi
+
 if [[ "${E2E_SKIP_ANDROID:-0}" == "1" ]]; then
 	log "Skipping Android Maestro evidence because E2E_SKIP_ANDROID=1."
 elif [[ "$android_scope" == "required" ]]; then
