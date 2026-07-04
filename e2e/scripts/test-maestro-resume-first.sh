@@ -223,4 +223,44 @@ assert_equals \
 	"$(order_csv "${ORDER_FOUR}")" \
 	"missing checkpoint target should restart from the first case"
 
+MIXED_FILE="${SUITE_ROOT}/mixed.yaml"
+cat >"${MIXED_FILE}" <<'MIXED'
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: flows/flow-1.yaml
+- runFlow: flows/flow-2.yaml
+- tapOn:
+    id: some_inline_command
+MIXED
+
+run_fake_mixed() {
+	local order_file="$1"
+	local status
+
+	: >"${order_file}"
+	export ORDER_FILE="${order_file}"
+	export FAIL_TARGET=""
+	export NONZERO_AFTER_PASS_TARGET=""
+	export HANG_AFTER_PASS_TARGET=""
+	set +e
+	run_maestro_suite_resume_first \
+		"Test" \
+		"${E2E_REPORT_DIR}/maestro-mixed.log" \
+		"${MIXED_FILE}" \
+		"${E2E_REPORT_DIR}/output-mixed" \
+		"${E2E_REPORT_DIR}/debug-mixed" \
+		"${E2E_REPORT_DIR}/junit-mixed.xml" \
+		"${TEST_ROOT}/maestro-home"
+	status="$?"
+	set -e
+	return "${status}"
+}
+
+ORDER_MIXED="${TEST_ROOT}/order-mixed.txt"
+run_fake_mixed "${ORDER_MIXED}"
+assert_equals \
+	"flow-2.yaml" \
+	"$(order_csv "${ORDER_MIXED}")" \
+	"mixed runFlow refs + inline commands must run as one single flow, never expand into ref-only cases"
+
 printf 'Maestro resume-first tests passed.\n'

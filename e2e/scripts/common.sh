@@ -526,6 +526,28 @@ maestro_case_targets() {
 	done < <(maestro_direct_flow_entries "${suite_path}")
 }
 
+# A yaml is only an expandable suite when every top-level entry is a plain
+# `- runFlow: <path>` ref. Mixed files (refs + inline commands, or runFlow
+# blocks with when/commands) must run as a single flow: expanding them runs
+# the refs alone and silently skips every inline command, so a broken flow
+# reports a false PASS.
+maestro_suite_has_inline_commands() {
+	local suite_path="$1"
+
+	[[ -f "${suite_path}" ]] || return 1
+	awk '
+		/^---[[:space:]]*$/ { inCommands = 1; next }
+		!inCommands { next }
+		/^-([[:space:]]|$)/ {
+			if ($0 !~ /^-[[:space:]]+runFlow:[[:space:]]*[^[:space:]]/) {
+				found = 1
+				exit
+			}
+		}
+		END { exit found ? 0 : 1 }
+	' "${suite_path}"
+}
+
 maestro_last_useful_line() {
 	local log_file="$1"
 
@@ -752,6 +774,11 @@ run_maestro_suite_resume_first() {
 	done < <(maestro_case_targets "${suite_path}")
 
 	total_count="${#targets[@]}"
+	if [[ "${total_count}" -gt 0 ]] && maestro_suite_has_inline_commands "${suite_path}"; then
+		log "${platform} Maestro target $(basename "${suite_path}") mixes runFlow refs with inline commands; running it as a single flow (no case expansion)."
+		targets=()
+		total_count=0
+	fi
 	if [[ "${total_count}" == "0" ]]; then
 		fallback_command=(env "HOME=${maestro_home}" maestro)
 		if [[ -n "${maestro_device_id}" ]]; then
