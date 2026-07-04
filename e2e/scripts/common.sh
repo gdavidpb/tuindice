@@ -260,6 +260,10 @@ run_maestro_suite_with_retries() {
 	if [[ ! "${retries_left}" =~ ^[0-9]+$ ]]; then
 		retries_left=1
 	fi
+	if [[ "${E2E_MAESTRO_SURVEY_MODE:-0}" == "1" && "${retries_left}" != "0" ]]; then
+		log "Maestro survey mode: suite retries disabled; a single pass reports every failing case."
+		retries_left=0
+	fi
 
 	while :; do
 		local run_status=0
@@ -767,6 +771,14 @@ run_maestro_suite_resume_first() {
 	local fallback_command
 	local maestro_command
 	local targets=()
+	# Survey mode: keep executing after failures so one pass reports every broken
+	# case, instead of paying a full suite run per discovered failure.
+	local survey_mode="${E2E_MAESTRO_SURVEY_MODE:-0}"
+	local survey_failed_labels=""
+	local survey_failed_count=0
+	local survey_first_failed_target=""
+	local survey_first_failed_index=0
+	local survey_first_failed_log=""
 
 	while IFS= read -r target; do
 		[[ -n "${target}" ]] || continue
@@ -943,17 +955,40 @@ run_maestro_suite_resume_first() {
 
 		status="${command_status}"
 		latest_line="$(maestro_last_useful_line "${item_log}")"
-		write_maestro_checkpoint "${platform}" "${suite_path}" "${target}" "${original_index}" "${total_count}" "${item_log}" "failed"
+		if [[ "${survey_mode}" != "1" ]]; then
+			write_maestro_checkpoint "${platform}" "${suite_path}" "${target}" "${original_index}" "${total_count}" "${item_log}" "failed"
+		fi
 		write_maestro_aggregate_junit "${report_file}" "${suite_name}" "${results_file}"
 		log "${platform} Maestro FAIL progress=${progress_percent}% case=${original_index}/${total_count} ${target_label}; exit=${status}; elapsed=$(elapsed_label "${elapsed}")."
 		if [[ -n "${latest_line}" ]]; then
 			log "${platform} Maestro failure detail: failureSummary='${latest_line}'."
 		fi
 		log "${platform} Maestro failure artifacts: log=$(display_path "${item_log}"), report=$(display_path "${item_report}"), debug=$(display_path "${item_debug_output_dir}")."
+		if [[ "${survey_mode}" == "1" ]]; then
+			survey_failed_count=$((survey_failed_count + 1))
+			if [[ -z "${survey_first_failed_target}" ]]; then
+				survey_first_failed_target="${target}"
+				survey_first_failed_index="${original_index}"
+				survey_first_failed_log="${item_log}"
+			fi
+			if [[ -n "${survey_failed_labels}" ]]; then
+				survey_failed_labels="${survey_failed_labels}, ${target_label}"
+			else
+				survey_failed_labels="${target_label}"
+			fi
+			continue
+		fi
 		return "${status}"
 	done
 
 	write_maestro_aggregate_junit "${report_file}" "${suite_name}" "${results_file}"
+	if [[ "${survey_mode}" == "1" && "${survey_failed_count}" -gt 0 ]]; then
+		# The checkpoint lands on the FIRST failure so a follow-up normal run
+		# resumes exactly where a fail-fast run would have stopped.
+		write_maestro_checkpoint "${platform}" "${suite_path}" "${survey_first_failed_target}" "${survey_first_failed_index}" "${total_count}" "${survey_first_failed_log}" "failed"
+		log "${platform} Maestro survey finished: passed $((total_count - survey_failed_count))/${total_count}; failed=${survey_failed_count}: ${survey_failed_labels}. Checkpoint set to first failure ($(maestro_flow_label "${survey_first_failed_target}"))."
+		return "${status}"
+	fi
 	clear_maestro_checkpoint "${platform}" "${suite_path}"
 	log "${platform} Maestro finished: passed ${total_count}/${total_count}; checkpoint cleared."
 	return 0
