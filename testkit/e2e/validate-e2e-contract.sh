@@ -914,7 +914,12 @@ if [[ -f "${QUARANTINE_FILE}" ]]; then
 	done < <(sed -e 's/#.*$//' -e 's/[[:space:]]*$//' -e '/^[[:space:]]*$/d' "${QUARANTINE_FILE}")
 fi
 
-if [[ "${missing_catalog_entries}" == "1" || "${missing_flow_files}" == "1" || "${invalid_flow_actions}" == "1" || "${missing_primary_selectors}" == "1" || "${missing_local_certification_flows}" == "1" || "${suite_action_inheritance_issues}" == "1" || "${missing_mvi_actions}" == "1" || "${unknown_mvi_actions}" == "1" || "${invalid_mvi_entries}" == "1" || "${missing_selectors}" == "1" || "${invalid_auth_usb_id_inputs}" == "1" || "${record_search_fixture_mismatches}" == "1" || "${fixture_contract_mismatches}" == "1" || "${refresh_retry_fixture_mismatches}" == "1" || "${quarantine_issues}" == "1" ]]; then
+maestro_lint_issues=0
+if ! bash "${REPO_ROOT}/e2e/scripts/lint-maestro-flows.sh"; then
+	maestro_lint_issues=1
+fi
+
+if [[ "${missing_catalog_entries}" == "1" || "${missing_flow_files}" == "1" || "${invalid_flow_actions}" == "1" || "${missing_primary_selectors}" == "1" || "${missing_local_certification_flows}" == "1" || "${suite_action_inheritance_issues}" == "1" || "${missing_mvi_actions}" == "1" || "${unknown_mvi_actions}" == "1" || "${invalid_mvi_entries}" == "1" || "${missing_selectors}" == "1" || "${invalid_auth_usb_id_inputs}" == "1" || "${record_search_fixture_mismatches}" == "1" || "${fixture_contract_mismatches}" == "1" || "${refresh_retry_fixture_mismatches}" == "1" || "${quarantine_issues}" == "1" || "${maestro_lint_issues}" == "1" ]]; then
 	exit 1
 fi
 
