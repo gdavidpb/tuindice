@@ -41,6 +41,7 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: evaluation_content_container
     timeout: 20000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - assertVisible:
     id: evaluation_subject_picker_row
 - assertVisible:
@@ -52,6 +53,10 @@ appId: com.gdavidpb.tuindice.debug
 - assertVisible:
     id: evaluation_done_fab
     enabled: false
+- tapOn:
+    id: evaluation_type_chip_written_work
+- tapOn:
+    id: evaluation_type_chip_report
 - tapOn:
     id: evaluation_type_chip_report
 - tapOn:
