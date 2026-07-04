@@ -1,14 +1,15 @@
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
-import com.gdavidpb.tuindice.base.domain.model.EvaluationState
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_TERM
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
+import com.gdavidpb.tuindice.evaluations.testing.InMemoryEvaluationsSelectionRepository
 import com.gdavidpb.tuindice.evaluations.testing.ReadyRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
@@ -35,13 +36,14 @@ class GetEvaluationsUseCaseContentTest {
 			),
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 			syncStatusRepository = RecordingSyncStatusRepository(),
+			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
 			reportingRepository = RecordingReportingRepository()
 		)
 
 		useCase.execute(Unit).test {
 			val content = assertIs<GetEvaluations.Content>(awaitLoadingThenData(this))
 			assertFalse(content.hasSyncedEvaluations)
-			awaitComplete()
+			cancelAndIgnoreRemainingEvents()
 		}
 	}
 
@@ -59,6 +61,7 @@ class GetEvaluationsUseCaseContentTest {
 			),
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 			syncStatusRepository = RecordingSyncStatusRepository(),
+			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
 			reportingRepository = RecordingReportingRepository()
 		)
 
@@ -69,7 +72,7 @@ class GetEvaluationsUseCaseContentTest {
 				content.displayContext.attempts
 			)
 			assertEquals(DEFAULT_EVALUATION_TERM, content.displayContext.currentTerm)
-			awaitComplete()
+			cancelAndIgnoreRemainingEvents()
 		}
 	}
 
@@ -112,6 +115,7 @@ class GetEvaluationsUseCaseContentTest {
 			),
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 			syncStatusRepository = RecordingSyncStatusRepository(),
+			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
 			reportingRepository = RecordingReportingRepository()
 		)
 
@@ -121,7 +125,7 @@ class GetEvaluationsUseCaseContentTest {
 				listOf(pastOverdue, pastCompleted, continuousWithoutDate, futurePending),
 				content.evaluations
 			)
-			awaitComplete()
+			cancelAndIgnoreRemainingEvents()
 		}
 	}
 
@@ -135,6 +139,7 @@ class GetEvaluationsUseCaseContentTest {
 			),
 			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 			syncStatusRepository = RecordingSyncStatusRepository(),
+			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
 			reportingRepository = reportingRepository
 		)
 

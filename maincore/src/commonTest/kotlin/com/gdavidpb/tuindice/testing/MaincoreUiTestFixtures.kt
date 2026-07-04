@@ -6,15 +6,17 @@ import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
+import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
+import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
+import com.gdavidpb.tuindice.domain.usecase.EnsureMessagingSubscribedUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.ScheduleSyncUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastMainSectionUseCase
 import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
-import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
 import com.gdavidpb.tuindice.presentation.machine.BrowserMachine
 import com.gdavidpb.tuindice.presentation.machine.MainMachine
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
@@ -30,8 +32,9 @@ import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserE
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
-import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeMessagingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
@@ -92,6 +95,7 @@ fun createMainViewModel(
 	deviceInfoRepository: DeviceInfoRepository = FakeDeviceInfoRepository(),
 	credentialsRepository: CredentialsRepository = FakeCredentialsRepository(),
 	syncRepository: SyncRepository = FakeSyncRepository(),
+	messagingRepository: MessagingRepository = FakeMessagingRepository(),
 	coreCacheStateRepository: CoreCacheStateRepository = FakeCoreCacheStateRepository(),
 	updateRepository: FakeUpdateRepository = FakeUpdateRepository(),
 	applicationRepository: RecordingApplicationRepository = RecordingApplicationRepository(),
@@ -124,6 +128,11 @@ fun createMainViewModel(
 				credentialsRepository = credentialsRepository,
 				syncRepository = syncRepository,
 				coreCacheStateRepository = coreCacheStateRepository,
+				reportingRepository = reportingRepository
+			),
+			ensureMessagingSubscribedUseCase = EnsureMessagingSubscribedUseCase(
+				sessionRepository = sessionRepository,
+				messagingRepository = messagingRepository,
 				reportingRepository = reportingRepository
 			),
 			setLastMainSectionUseCase = SetLastMainSectionUseCase(

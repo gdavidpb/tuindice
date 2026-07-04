@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
-import com.gdavidpb.tuindice.base.domain.model.EvaluationType
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse

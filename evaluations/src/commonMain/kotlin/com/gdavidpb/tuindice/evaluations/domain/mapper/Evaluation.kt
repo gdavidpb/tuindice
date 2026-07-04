@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.domain.mapper
 
-import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.usecase.param.AddEvaluationParams

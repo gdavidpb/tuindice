@@ -3,14 +3,14 @@ package com.gdavidpb.tuindice.pensum.di
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
+import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
-import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
-import com.gdavidpb.tuindice.pensum.domain.repository.PensumSettingsRepository
+import com.gdavidpb.tuindice.pensum.domain.repository.PensumSelectionRepository
 import com.gdavidpb.tuindice.pensum.presentation.viewmodel.PensumViewModel
 import com.gdavidpb.tuindice.pensum.testing.FakeSettings
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -20,8 +20,8 @@ import com.russhwolf.settings.Settings
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
-import kotlin.test.Test
 import org.koin.dsl.module
+import kotlin.test.Test
 
 class PensumModuleKoinSmokeTest {
 	@Test
@@ -39,7 +39,7 @@ class PensumModuleKoinSmokeTest {
 	) {
 		assertResolves(
 			PensumViewModel::class,
-			PensumSettingsRepository::class
+			PensumSelectionRepository::class
 		)
 	}
 }

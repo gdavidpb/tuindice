@@ -1,10 +1,10 @@
 package com.gdavidpb.tuindice.evaluations.data.mutation
 
-import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
-import com.gdavidpb.tuindice.base.domain.model.EvaluationType
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
-import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_LOCAL_PENDING_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
+import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_LOCAL_PENDING_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.FakeDatabaseDataSource
 import com.gdavidpb.tuindice.evaluations.testing.FakeEvaluationsApiDataSource
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope

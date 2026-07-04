@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.data.model
 
-import com.gdavidpb.tuindice.base.domain.model.GradingMode
+import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 
 data class LocalEditableAttemptDescriptor(
 	val id: String,

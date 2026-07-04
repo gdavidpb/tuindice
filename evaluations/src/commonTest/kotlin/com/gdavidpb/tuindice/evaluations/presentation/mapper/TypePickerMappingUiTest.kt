@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
-import com.gdavidpb.tuindice.base.domain.model.EvaluationType
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import kotlinx.coroutines.test.runTest
 import org.jetbrains.compose.resources.getString
 import tuindice.evaluations.generated.resources.Res

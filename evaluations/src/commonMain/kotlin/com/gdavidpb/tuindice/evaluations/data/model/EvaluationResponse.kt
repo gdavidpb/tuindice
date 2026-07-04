@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.data.model
 
-import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

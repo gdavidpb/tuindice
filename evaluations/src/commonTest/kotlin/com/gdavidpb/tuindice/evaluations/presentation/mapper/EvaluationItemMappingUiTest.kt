@@ -4,8 +4,8 @@ import androidx.compose.material3.Text
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
-import com.gdavidpb.tuindice.base.domain.model.EvaluationState
-import com.gdavidpb.tuindice.base.domain.model.EvaluationType
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest

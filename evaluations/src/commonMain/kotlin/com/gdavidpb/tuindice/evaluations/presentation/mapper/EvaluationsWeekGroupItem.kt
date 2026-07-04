@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
-import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
-import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem

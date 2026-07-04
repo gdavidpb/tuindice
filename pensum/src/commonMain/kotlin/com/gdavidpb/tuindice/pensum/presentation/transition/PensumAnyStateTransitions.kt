@@ -62,14 +62,6 @@ internal fun MachineDefinitionBuilder<Pensum.State>.anyStateTransitions(
 			)
 		}
 
-		on<PensumInternalEvent.PensumSummaryCollapsedObserved> { state, event ->
-			if (state is Pensum.State.Content) {
-				state.copy(isSummaryCollapsed = event.isCollapsed)
-			} else {
-				state
-			}
-		}
-
 		on<PensumInternalEvent.PensumDataMissing> { state, _ -> state }
 
 		onTo<PensumInternalEvent.PensumRecordDataUnavailableObserved, Pensum.State.RecordDataUnavailable> { _, _ ->

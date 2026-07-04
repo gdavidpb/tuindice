@@ -4,18 +4,18 @@ import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.data.source.network.AuthErrorHeaders
-import com.gdavidpb.tuindice.base.domain.model.Attestation
-import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
-import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
-import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
+import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
-import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
-import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.utils.extension.isAccessRejected
 import com.gdavidpb.tuindice.data.source.session.SessionRecoveryDataSource
+import com.gdavidpb.tuindice.security.domain.model.Attestation
+import com.gdavidpb.tuindice.security.domain.model.AttestationAuthorization
+import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
+import com.gdavidpb.tuindice.security.domain.model.ProtectedOperationCodes
+import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
@@ -35,19 +35,19 @@ import io.ktor.client.request.setBody
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.headersOf
+import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitCancellation
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
+import kotlinx.serialization.Serializable
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.awaitCancellation
-import kotlinx.coroutines.CompletableDeferred
-import kotlinx.coroutines.async
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.runTest
-import kotlinx.serialization.Serializable
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class KtorClientTest {

@@ -33,9 +33,34 @@ class CertificationScope:
     error: str = ""
 
 
+@dataclass(frozen=True)
+class SuiteReuse:
+    platform: str
+    suite: str
+    fingerprint: str
+    verdict: str  # "current" | "reusable" | "rerun"
+    detail: str
+
+
 def run_git(*args: str) -> GitResult:
     completed = subprocess.run(
         ["git", *args],
+        cwd=REPO_ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        check=False,
+    )
+    return GitResult(
+        code=completed.returncode,
+        stdout=completed.stdout.strip(),
+        stderr=completed.stderr.strip(),
+    )
+
+
+def run_repo_script(*args: str) -> GitResult:
+    completed = subprocess.run(
+        ["bash", *args],
         cwd=REPO_ROOT,
         text=True,
         stdout=subprocess.PIPE,
@@ -130,6 +155,118 @@ def detect_certification_scope(head: str) -> CertificationScope:
         )
 
 
+def resolve_e2e_scope_pairs() -> tuple[list[tuple[str, str]], str | None]:
+    result = run_repo_script("e2e/scripts/resolve-e2e-scope.sh", "all")
+    if result.code != 0:
+        return [], result.stderr or "resolve-e2e-scope failed"
+
+    pairs: list[tuple[str, str]] = []
+    for line in result.stdout.splitlines():
+        parts = line.strip().split(",")
+        if len(parts) >= 2 and parts[0] and parts[1]:
+            pair = (parts[0], parts[1])
+            if pair not in pairs:
+                pairs.append(pair)
+    return pairs, None
+
+
+def e2e_fingerprint(platform: str, suite: str, ref: str = "HEAD") -> str:
+    result = run_repo_script("e2e/scripts/e2e-fingerprint.sh", platform, suite, ref)
+    if result.code != 0:
+        return ""
+    return result.stdout
+
+
+def passing_manifest_for_fingerprint(
+    fingerprint: str, platform: str, suite: str
+) -> dict[str, object] | None:
+    manifest_path = (
+        REPO_ROOT
+        / "build"
+        / "e2e"
+        / "certifications"
+        / "by-fingerprint"
+        / fingerprint
+        / platform
+        / suite
+        / "manifest.json"
+    )
+    if not manifest_path.is_file():
+        return None
+
+    manifest, _ = load_manifest(manifest_path)
+    if manifest is None or manifest.get("statusCode") != 0:
+        return None
+    return manifest
+
+
+def suite_reuse_verdict(head: str, platform: str, suite: str) -> SuiteReuse:
+    fingerprint = e2e_fingerprint(platform, suite)
+    if not fingerprint:
+        return SuiteReuse(platform, suite, "", "rerun", "unable to compute fingerprint")
+
+    manifest = passing_manifest_for_fingerprint(fingerprint, platform, suite)
+    covered_by = suite
+    if manifest is None and suite != "local-certification-suite":
+        aggregate_fingerprint = e2e_fingerprint(platform, "local-certification-suite")
+        if aggregate_fingerprint:
+            manifest = passing_manifest_for_fingerprint(
+                aggregate_fingerprint, platform, "local-certification-suite"
+            )
+            covered_by = "local-certification-suite"
+
+    if manifest is None:
+        return SuiteReuse(
+            platform, suite, fingerprint, "rerun", "no passing evidence for this fingerprint"
+        )
+
+    commit_sha = str(manifest.get("commitSha", ""))
+    finished_at = str(manifest.get("finishedAt", ""))
+    if commit_sha == head:
+        return SuiteReuse(
+            platform, suite, fingerprint, "current", f"evidence produced by HEAD ({finished_at})"
+        )
+
+    source = f"{commit_sha[:7]} ({finished_at})"
+    if covered_by != suite:
+        source += f", covered by {covered_by}"
+    return SuiteReuse(
+        platform,
+        suite,
+        fingerprint,
+        "reusable",
+        f"passing evidence from {source}; preflight republishes its status by fingerprint",
+    )
+
+
+def report_fingerprint_reusability(head: str) -> tuple[list[SuiteReuse], bool]:
+    pairs, error = resolve_e2e_scope_pairs()
+    if error:
+        print_check(False, "E2E fingerprint reusability resolved", error)
+        return [], True
+
+    if not pairs:
+        print_check(True, "E2E fingerprint reusability resolved", "no suites in scope")
+        return [], False
+
+    print("Evidence reusability by fingerprint (HEAD):")
+    rows: list[SuiteReuse] = []
+    for platform, suite in pairs:
+        row = suite_reuse_verdict(head, platform, suite)
+        rows.append(row)
+        ok = row.verdict in ("current", "reusable")
+        fingerprint_label = row.fingerprint[:12] if row.fingerprint else "<unknown>"
+        print_check(ok, f"{platform}/{suite} fp={fingerprint_label}", f"{row.verdict}: {row.detail}")
+
+    rerun_rows = [row for row in rows if row.verdict == "rerun"]
+    if rerun_rows:
+        targets = ", ".join(f"{row.platform}/{row.suite}" for row in rerun_rows)
+        print(f"  E2E rerun required for: {targets}")
+    else:
+        print("  No local E2E rerun required: every required suite has passing evidence for its current fingerprint.")
+    return rows, False
+
+
 def main() -> int:
     failures = 0
 
@@ -184,12 +321,28 @@ def main() -> int:
         print("  Bump gradle/app-version.properties before running commit-bound E2E evidence.")
         return failures + 1
 
+    reuse_rows: list[SuiteReuse] = []
+    if certification_scope.requires_e2e:
+        print()
+        reuse_rows, reuse_error = report_fingerprint_reusability(head)
+        if reuse_error:
+            failures += 1
+
+    print()
     evidence_root = REPO_ROOT / "build" / "e2e" / "certifications" / head
     manifests = sorted(evidence_root.glob("*/*/manifest.json"))
 
     if not manifests:
         if certification_scope.requires_e2e is False:
             print_check(True, "no E2E evidence required for HEAD", f"scope={certification_scope.e2e_scope}")
+            return 1 if failures else 0
+
+        if reuse_rows and all(row.verdict in ("current", "reusable") for row in reuse_rows):
+            print_check(
+                True,
+                "evidence reusable via fingerprint; local E2E rerun not required",
+                "preflight republishes fingerprint-matched statuses",
+            )
             return 1 if failures else 0
 
         print_check(False, "evidence manifests exist for HEAD", str(evidence_root))

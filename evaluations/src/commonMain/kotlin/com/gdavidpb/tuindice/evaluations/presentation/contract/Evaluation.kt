@@ -1,14 +1,14 @@
 package com.gdavidpb.tuindice.evaluations.presentation.contract
 
-import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
-import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationGradeSectionItem
+import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationAttemptPickerItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationGradeSectionItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.top_bar_add_evaluation
@@ -20,6 +20,7 @@ object Evaluation {
 
 		data class Content(
 			val evaluationId: String? = null,
+			val initialDraft: Draft? = null,
 			override val topBarTitle: UiText =
 				if (evaluationId != null)
 					UiText.Resource(Res.string.top_bar_edit_evaluation)
@@ -44,12 +45,34 @@ object Evaluation {
 				showsGradeChip = false
 			)
 		) : State() {
+			val draft: Draft
+				get() = Draft(
+					attemptId = selectedAttempt?.id,
+					type = type,
+					scheduleMode = scheduleMode,
+					date = date,
+					grade = grade,
+					maxGrade = maxGrade
+				)
+
+			val hasDraftChanges: Boolean
+				get() = initialDraft?.let { draft -> draft != this.draft } ?: (evaluationId == null)
+
 			val canSubmit: Boolean
-				get() = !isSubmitting
+				get() = !isSubmitting && hasDraftChanges
 		}
 
 		data object Failed : State()
 	}
+
+	data class Draft(
+		val attemptId: String?,
+		val type: EvaluationType?,
+		val scheduleMode: EvaluationScheduleMode,
+		val date: Long?,
+		val grade: Double?,
+		val maxGrade: Double?
+	)
 
 	sealed class Action : ViewAction {
 		data object LoadAvailableAttempts : Action()

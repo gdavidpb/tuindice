@@ -13,10 +13,10 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
-import com.gdavidpb.tuindice.evaluations.presentation.utils.*
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsShortDayOfWeekAndDate
+import com.gdavidpb.tuindice.evaluations.presentation.utils.*
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.*

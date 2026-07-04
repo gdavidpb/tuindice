@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.record.data.source
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
 import com.gdavidpb.tuindice.record.utils.CooldownTimes
 import com.gdavidpb.tuindice.record.utils.PreferencesKeys
 import com.russhwolf.settings.Settings
@@ -11,7 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class LocalSettingsDataSource(
 	private val settings: Settings
-) : RecordSettingsDataRepository {
+) : RecordSettingsDataRepository, RecordSelectionRepository {
 	private val historicalSelectedTermId = MutableStateFlow(
 		settings.getStringOrNull(PreferencesKeys.SELECTED_HISTORICAL_TERM_ID)
 	)
@@ -47,14 +48,14 @@ class LocalSettingsDataSource(
 		return recordViewMode
 	}
 
-	override fun getSelectedTermId(viewMode: RecordViewMode): String? {
+	override suspend fun getSelectedTermId(viewMode: RecordViewMode): String? {
 		return when (viewMode) {
 			RecordViewMode.Historical -> historicalSelectedTermId.value
 			RecordViewMode.Projection -> projectionSelectedTermId.value
 		}
 	}
 
-	override fun setSelectedTermId(viewMode: RecordViewMode, termId: String) {
+	override suspend fun setSelectedTermId(viewMode: RecordViewMode, termId: String) {
 		settings.putString(
 			when (viewMode) {
 				RecordViewMode.Historical -> PreferencesKeys.SELECTED_HISTORICAL_TERM_ID
@@ -68,11 +69,11 @@ class LocalSettingsDataSource(
 		}
 	}
 
-	override fun getRecordViewMode(): RecordViewMode {
+	override suspend fun getRecordViewMode(): RecordViewMode {
 		return recordViewMode.value
 	}
 
-	override fun setRecordViewMode(viewMode: RecordViewMode) {
+	override suspend fun setRecordViewMode(viewMode: RecordViewMode) {
 		settings.putString(
 			PreferencesKeys.RECORD_VIEW_MODE,
 			viewMode.storageValue

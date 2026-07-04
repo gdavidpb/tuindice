@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.di
 
+import com.gdavidpb.tuindice.domain.usecase.EnsureMessagingSubscribedUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.ScheduleSyncUseCase
@@ -28,6 +29,7 @@ val mainModule = module {
 	factoryOf(::StartUpUseCase)
 	factoryOf(::RequestReviewUseCase)
 	factoryOf(::ScheduleSyncUseCase)
+	factoryOf(::EnsureMessagingSubscribedUseCase)
 	factoryOf(::SetLastMainSectionUseCase)
 	factoryOf(::GetUpdateInfoUseCase)
 

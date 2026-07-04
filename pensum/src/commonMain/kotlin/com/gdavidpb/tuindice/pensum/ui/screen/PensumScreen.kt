@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
@@ -15,6 +16,7 @@ import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumOptionItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenSessionStore
 import com.gdavidpb.tuindice.pensum.ui.view.PensumContentView
 import com.gdavidpb.tuindice.pensum.ui.view.PensumEmptyView
 import com.gdavidpb.tuindice.pensum.ui.view.PensumLoadingView
@@ -37,9 +39,11 @@ fun PensumScreen(
 	onSelectionSheetDismiss: () -> Unit,
 	onSubjectStatsClick: (subjectCode: String) -> Unit,
 	onSelectionApplied: (PensumOptionItem, PensumModalityItem) -> Unit,
-	onPensumContextClick: () -> Unit = {}
+	onPensumContextClick: () -> Unit = {},
+	screenSessionStore: PensumScreenSessionStore? = null
 ) {
 	val graphColors = pensumGraphColors()
+	val activeScreenSessionStore = screenSessionStore ?: remember { PensumScreenSessionStore() }
 
 	Box(
 		modifier = Modifier
@@ -63,10 +67,11 @@ fun PensumScreen(
 					)
 					is Pensum.State.Content -> PensumContentView(
 						model = targetState.model,
-						isRefreshing = targetState.isRefreshing,
-						localDataMessage = targetState.localDataMessage,
-						showSelectionSheet = showSelectionSheet,
-						isSummaryCollapsed = targetState.isSummaryCollapsed,
+					isRefreshing = targetState.isRefreshing,
+					localDataMessage = targetState.localDataMessage,
+					showSelectionSheet = showSelectionSheet,
+					screenSessionStore = activeScreenSessionStore,
+					isSummaryCollapsed = targetState.isSummaryCollapsed,
 						onSummaryCollapsedToggle = onSummaryCollapsedToggle,
 						onSelectionSheetDismiss = onSelectionSheetDismiss,
 						onSubjectStatsClick = onSubjectStatsClick,

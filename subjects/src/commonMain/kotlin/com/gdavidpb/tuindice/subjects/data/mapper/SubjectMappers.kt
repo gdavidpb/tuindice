@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.subjects.data.mapper
 
-import com.gdavidpb.tuindice.base.domain.model.GradingMode
+import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectDetailEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsAttemptBinEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectStatsGradeBinEntity

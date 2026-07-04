@@ -19,6 +19,8 @@ Ver la configuración completa en `docs/release-pipeline.md`.
   reutilizables.
 - `academiccore`: modelos académicos compartidos y motor de proyección de historial.
 - `persistence`: schema Room compartido, DAOs/entities públicas, outbox genérico e infraestructura de storage.
+- `security`: subsistema compartido de attestation: modelos, contrato de repositorio, headers y helpers de
+  binding/canonicalización de payloads.
 - `about`: información de app, enlaces y soporte.
 - `auth`: autenticación, sesión y actualización de credenciales.
 - `summary`: resumen del perfil y foto de perfil.
@@ -82,15 +84,17 @@ Regla general:
 
 La fuente de verdad del grafo es `scripts/module-graph.txt`, validada contra los `build.gradle.kts` reales con
 `./gradlew verifyModuleGraph` (también corre en preflight). CI deriva de ese archivo qué módulos recompilar,
-testear y certificar con E2E. Si cambia una frontera, actualizar el archivo y esta sección en el mismo cambio.
+testear, pasar por detekt y certificar con E2E. Si cambia una frontera, actualizar el archivo y esta sección en
+el mismo cambio.
 
 Dependencias actuales:
 
 - `base`: sin dependencias de proyecto.
 - `academiccore`: sin dependencias de proyecto.
-- `persistence`: depende de `:base`.
+- `persistence`: depende de `:academiccore`, `:base`.
+- `security`: depende de `:base`.
 - `about`: depende de `:base`.
-- `auth`: depende de `:base`.
+- `auth`: depende de `:base`, `:security`.
 - `summary`: depende de `:base`, `:persistence`.
 - `record`: depende de `:academiccore`, `:base`, `:persistence`.
 - `enrollmentproof`: depende de `:base`, `:persistence`.
@@ -98,7 +102,7 @@ Dependencias actuales:
 - `subjects`: depende de `:academiccore`, `:base`, `:persistence`.
 - `pensum`: depende de `:academiccore`, `:base`, `:persistence`.
 - `wizard`: depende de `:base`, `:summary`, `:record`, `:evaluations`, `:pensum`, `:subjects` y `:about`.
-- `maincore`: depende de `:base`, `:persistence` y todas las features.
+- `maincore`: depende de `:base`, `:persistence`, `:security` y todas las features.
 - `app`: host Android; ensambla `maincore`.
 
 Acuerdo de límites:
@@ -362,6 +366,50 @@ Reglas:
 - Si agregas un flujo E2E, actualizas `testkit/e2e/flow-catalog.yaml` y ejecutas `verifyE2eContract`.
 - Ejecutas las verificaciones necesarias antes de cerrar el cambio.
 
+## Enforcement de arquitectura (Semgrep)
+
+Las reglas de `config/semgrep/rules/` codifican las piezas base de este README como chequeos estáticos
+(43 reglas en 11 archivos por área):
+
+- `kmp-portability`: límites KMP en `commonMain` (imports `android.*`/`java.*`, `BuildConfig`,
+  Koin androidx, Firebase directo).
+- `layering`: `domain` sin imports de `data`; `ui` compartida sin repositorios, use cases ni Koin;
+  sin interfaces `*DataSource`; `data/repository` solo interfaces.
+- `dispatchers`: sin `Dispatchers.*` crudo fuera de `base`; sin `TuIndiceDispatchers`/`flowOn`/`withContext`
+  en use cases, máquinas o contratos.
+- `viewmodel-purity`: `ViewModel` como API pura de pantalla (hereda de `StateMachineViewModel`; sin estado
+  propio, corrutinas, use cases, lecturas de estado, `init { }` ni `sendEffect`/`processInternalEvent`
+  directos).
+- `koin-conventions`: sin módulos vacíos, sin `*CoreModule`, sin módulos de plataforma por feature.
+- `base-components`: implementación correcta de las primitivas (`*UseCase` extiende `FlowUseCase`, sin
+  try/catch ni `executeOnBackground` directo, `UseCaseState`/`AppEvent` solo desde `base`, `*Machine`
+  implementa `ScreenMachine`, `MutableStateFlow` de máquina solo en `*Draft.kt`).
+- `usecase-discipline`: un use case expone una sola operación (`execute`); `*ParamsValidator` en
+  `usecase/validator` y `*ExceptionHandler` en `usecase/exceptionhandler`.
+- `mvi-contracts` y `transition-purity`: `Action`/`Effect` solo en `presentation/contract` (el `ViewState`
+  de chrome de ruta queda exento por diseño), máquinas sin `host` como propiedad y `transition/` con solo
+  extension functions de la tabla.
+- `composable-boundary`: `testTag` solo vía objetos `*UiTags`, `koinViewModel` solo en
+  `presentation/navigation` (exención documentada: `TuIndiceAppHostRoute`, raíz del árbol), Drafts
+  importables solo desde `machine`/`di`, y `navigateBackWithResult` siempre con tipo base explícito.
+- `infrastructure`: `TuIndiceDatabase` solo en `persistence`, `EventPublisher` solo en la frontera MVI
+  (ViewModels y `di`), y sin `println` (el logging pasa por los contratos de `base`).
+
+Cada archivo de reglas tiene un fixture `.kt` homónimo validado con `semgrep --test`, y el módulo
+sintético de `config/semgrep/generality/` prueba que toda regla dispara sobre layouts y nombres de módulo
+que no existen en el repo (generalidad, no ajuste al código actual), con controles negativos para las
+exenciones por paths. Las exclusiones de scan viven en `.semgrepignore`.
+
+En preflight, `detect-changed-app.sh` expone `semgrep_required` (true cuando cambió código de módulos o la
+configuración del ruleset) y el job compartido ejecuta `scripts/semgrep-architecture.sh`; la paridad local
+del skill de certificación corre el mismo script, junto a los tasks de detekt que ya viajan en las tareas
+Android.
+
+```bash
+scripts/semgrep-architecture.sh              # validate + fixtures + generalidad + scan
+scripts/semgrep-architecture.sh generality   # solo prueba de generalidad
+```
+
 ## Verificaciones útiles
 
 Ejemplos de comandos usados habitualmente:
@@ -377,6 +425,7 @@ Ejemplos de comandos usados habitualmente:
 ./gradlew --continue --console=plain verifySharedHostTests
 ./gradlew --continue --console=plain detekt
 ./gradlew --continue --console=plain koverHtmlReport
+scripts/semgrep-architecture.sh
 ```
 
 Nota: `verifySharedHostTests` corre los tests compartidos en el host JVM de Android — la única plataforma donde los validadores de alfabeto/Λ de las máquinas validan de verdad (en iOS reportan SKIPPED). `detekt` usa baselines por módulo y `koverHtmlReport` es medición de cobertura sin umbral.

@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.platform.android
 
-import com.gdavidpb.tuindice.base.data.model.AttestationProofOfPossessionRequest
+import com.gdavidpb.tuindice.security.data.model.AttestationProofOfPossessionRequest
 
 interface AndroidProofOfPossessionCapability {
 	suspend fun resolveProofOfPossessionKeyId(): String

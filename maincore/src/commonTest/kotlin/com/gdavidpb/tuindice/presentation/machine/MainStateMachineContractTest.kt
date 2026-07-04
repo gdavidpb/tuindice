@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
+import com.gdavidpb.tuindice.domain.usecase.EnsureMessagingSubscribedUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.ScheduleSyncUseCase
@@ -20,6 +21,7 @@ import com.gdavidpb.tuindice.testing.createBrowserViewModel
 import com.gdavidpb.tuindice.testing.createMainViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeMessagingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
@@ -72,6 +74,11 @@ class MainStateMachineContractTest {
 				credentialsRepository = FakeCredentialsRepository(),
 				syncRepository = FakeSyncRepository(),
 				coreCacheStateRepository = FakeCoreCacheStateRepository(),
+				reportingRepository = reportingRepository
+			),
+			ensureMessagingSubscribedUseCase = EnsureMessagingSubscribedUseCase(
+				sessionRepository = sessionRepository,
+				messagingRepository = FakeMessagingRepository(),
 				reportingRepository = reportingRepository
 			),
 			setLastMainSectionUseCase = SetLastMainSectionUseCase(

@@ -6,10 +6,9 @@ import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
-import com.gdavidpb.tuindice.pensum.domain.repository.PensumSettingsRepository
+import com.gdavidpb.tuindice.pensum.domain.repository.PensumSelectionRepository
 import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
-import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumSummaryCollapsedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumUseCase
@@ -504,10 +503,7 @@ class PensumViewModelContractTest {
 			screenMachine = PensumMachine(
 				observePensumUseCase = ObservePensumUseCase(
 					pensumRepository = repository,
-					reportingRepository = reportingRepository
-				),
-				observePensumSummaryCollapsedUseCase = ObservePensumSummaryCollapsedUseCase(
-					pensumSettingsRepository = settingsRepository,
+					pensumSelectionRepository = settingsRepository,
 					reportingRepository = reportingRepository
 				),
 				ensurePensumLoadedUseCase = EnsurePensumLoadedUseCase(
@@ -536,7 +532,7 @@ class PensumViewModelContractTest {
 					exceptionHandler = exceptionHandler
 				),
 				setPensumSummaryCollapsedUseCase = SetPensumSummaryCollapsedUseCase(
-					pensumSettingsRepository = settingsRepository,
+					pensumSelectionRepository = settingsRepository,
 					reportingRepository = reportingRepository
 				)
 			),
@@ -558,15 +554,13 @@ private data class PensumFixture(
 	val settingsRepository: ControllablePensumSettingsRepository
 )
 
-private class ControllablePensumSettingsRepository : PensumSettingsRepository {
+private class ControllablePensumSettingsRepository : PensumSelectionRepository {
 	private val summaryCollapsed = MutableStateFlow(false)
 	private val summaryCollapsedCalls = Channel<Boolean>(Channel.UNLIMITED)
 
 	override fun observeSummaryCollapsed(): Flow<Boolean> = summaryCollapsed
 
-	override fun isSummaryCollapsed(): Boolean = summaryCollapsed.value
-
-	override fun setSummaryCollapsed(isCollapsed: Boolean) {
+	override suspend fun setSummaryCollapsed(isCollapsed: Boolean) {
 		summaryCollapsed.value = isCollapsed
 		summaryCollapsedCalls.trySend(isCollapsed)
 	}

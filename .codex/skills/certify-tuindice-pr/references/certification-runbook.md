@@ -36,6 +36,21 @@ The helper also prints the focused Android and iOS Gradle tasks selected by
 `.github/scripts/detect-changed-app.sh`. Treat these as the local preflight
 contract for the branch.
 
+The helper also reports, per required platform/suite, whether passing E2E
+evidence already exists for the current content fingerprint:
+
+- `current`: the evidence for this fingerprint was produced by HEAD.
+- `reusable`: an earlier commit produced passing evidence for the same
+  fingerprint. Production preflight republishes that status onto the PR head
+  (`E2E_REUSE_STATUS_BY_FINGERPRINT`), so no local rerun is needed.
+- `rerun`: no passing evidence exists for the fingerprint; evidence must run.
+
+Fingerprints are platform-scoped (`e2e/scripts/e2e-fingerprint.sh`): Android
+hashes the Android host plus shared runtime paths, iOS hashes the iOS host plus
+shared runtime paths. A host-only fix on one platform keeps the other
+platform's evidence valid. Version bumps in `gradle/app-version.properties` do
+not change fingerprints.
+
 ## Running PR Preflight Parity
 
 Before spending time on Maestro evidence, run the local parity helper:
@@ -62,9 +77,17 @@ claim full certification for a ready production PR. Either fix the local
 environment, run the platform check on suitable hardware, or explicitly report
 that the branch still depends on GitHub preflight for that platform.
 
+During the correction loop, you may skip rerunning parity when the incremental
+diff since the last parity-passed commit only touches `e2e/maestro/**`,
+`mocks/**`, or documentation/skill files — none of these are Gradle inputs.
+Parity must still pass for the final SHA before opening the PR.
+
 ## Running Evidence
 
-Run the aggregate local evidence task:
+Run the audit helper first and skip this step entirely when every required
+platform/suite is `current` or `reusable`; production preflight republishes
+fingerprint-matched statuses on its own. Otherwise run the aggregate local
+evidence task:
 
 ```bash
 ./gradlew --continue --console=plain e2eMaestroEvidenceLocal
@@ -91,6 +114,21 @@ If evidence fails, stop the PR path and diagnose:
 - If the failure is stale or insufficient E2E coverage, fix the flow, fixture, assertion, or selector.
 - If the failure is local environment only, clean the specific simulator/device, WireMock process, port, or temporary state and rerun without unrelated code changes.
 
+### Diagnosis Runs
+
+Reproduce and iterate on failures with targeted runs before spending on
+commit-bound evidence. Diagnosis runs need no clean or pushed tree, publish
+nothing, and write no evidence:
+
+```bash
+E2E_MAESTRO_SUITE=e2e/maestro/flows/suites/<suite>.yaml ./gradlew --console=plain e2eMaestroAndroid
+E2E_MAESTRO_SUITE=e2e/maestro/flows/<failing-flow>.yaml ./gradlew --console=plain e2eMaestroIos
+```
+
+Batch every fix found this way instead of certifying fix-by-fix. Resume-first
+checkpoints make the eventual evidence rerun start at the previously failing
+case, so an unfixed failure still surfaces within minutes.
+
 ### Product Integrity Gate
 
 Treat E2E stabilization as a test and certification activity unless the evidence
@@ -110,7 +148,7 @@ flow becomes easier to drive.
 - Stop and ask before committing or pushing when a passing certification path
   depends on a user-visible product change whose product rationale is unclear.
 
-After a code or test fix:
+After the batch of code or test fixes:
 
 ```bash
 git status --short --branch
@@ -120,13 +158,19 @@ git push
 git rev-parse HEAD
 git rev-parse @{u}
 .codex/skills/certify-tuindice-pr/scripts/run_preflight_parity_checks.sh
-./gradlew --continue --console=plain e2eMaestroEvidenceLocal
+python3 .codex/skills/certify-tuindice-pr/scripts/inspect_certification_state.py
+./gradlew --continue --console=plain e2eMaestroEvidenceLocal   # only when the audit reports rerun suites
 ```
 
-Repeat until the final pushed SHA has passing preflight parity and evidence. Do
-not reuse evidence from a previous commit after pushing new changes.
+Repeat until the final pushed SHA has passing preflight parity and every
+required suite `current` or `reusable`. Evidence validity follows the content
+fingerprint — the same rule production preflight enforces — so pushing commits
+that do not change a platform's fingerprint does not require rerunning that
+platform's evidence.
 
-If `production` advances or the branch is rebased, rerun evidence for the new final SHA.
+If `production` advances or the branch is rebased, rerun the audit for the new
+final SHA; evidence stays valid for any platform/suite whose fingerprint is
+unchanged.
 
 ## Evidence Audit
 
@@ -136,13 +180,16 @@ Run the helper after evidence:
 python3 .codex/skills/certify-tuindice-pr/scripts/inspect_certification_state.py
 ```
 
-For each required platform/suite manifest, verify:
+For each required platform/suite, verify one of:
 
-- `commitSha` equals `git rev-parse HEAD`.
-- `statusCode` is `0`.
-- Platform and suite names match the resolved scope.
-- The local branch has no uncommitted changes.
-- `HEAD` equals upstream.
+- A HEAD manifest: `commitSha` equals `git rev-parse HEAD`, `statusCode` is `0`,
+  and platform/suite names match the resolved scope.
+- A `reusable` fingerprint verdict: a passing manifest from an earlier commit
+  whose fingerprint equals HEAD's; preflight republishes that status onto the
+  PR head.
+
+In both cases the local branch must have no uncommitted changes and `HEAD` must
+equal upstream.
 
 The aggregate evidence command may publish covered suite statuses from `local-certification-suite`; PR preflight requires trusted success statuses with the expected fingerprint, not just local files.
 

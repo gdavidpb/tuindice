@@ -1,14 +1,14 @@
 package com.gdavidpb.tuindice.evaluations.data.source
 
+import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
-import com.gdavidpb.tuindice.base.domain.model.GradingMode
-import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalCurrentTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationEntity
+import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalCurrentTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
-import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEditableAttemptDescriptor
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOPE
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation

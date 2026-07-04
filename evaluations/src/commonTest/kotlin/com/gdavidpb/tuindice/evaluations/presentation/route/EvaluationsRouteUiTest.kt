@@ -12,15 +12,17 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedU
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
-import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.SetSelectedWeekUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.RemoveEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateEvaluationExceptionHandler
 import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationsMachine
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
-import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
+import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
+import com.gdavidpb.tuindice.evaluations.testing.InMemoryEvaluationsSelectionRepository
 import com.gdavidpb.tuindice.evaluations.testing.ReadyRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
@@ -372,6 +374,7 @@ class EvaluationsRouteUiTest {
 			availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT)
 		)
 	): EvaluationsViewModel {
+		val selectionRepository = InMemoryEvaluationsSelectionRepository()
 
 		return EvaluationsViewModel(
 			screenMachine = EvaluationsMachine(
@@ -379,6 +382,7 @@ class EvaluationsRouteUiTest {
 					evaluationRepository = repository,
 					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 					syncStatusRepository = RecordingSyncStatusRepository(),
+					evaluationsSelectionRepository = selectionRepository,
 					reportingRepository = RecordingReportingRepository()
 				),
 				ensureEvaluationsLoadedUseCase = EnsureEvaluationsLoadedUseCase(
@@ -402,6 +406,10 @@ class EvaluationsRouteUiTest {
 					evaluationRepository = repository,
 					reportingRepository = RecordingReportingRepository(),
 					exceptionHandler = RemoveEvaluationExceptionHandler()
+				),
+				setSelectedWeekUseCase = SetSelectedWeekUseCase(
+					evaluationsSelectionRepository = selectionRepository,
+					reportingRepository = RecordingReportingRepository()
 				)
 			),
 			eventPublisher = NoOpEventPublisher

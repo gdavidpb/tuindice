@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.data.source.sync
 
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
+import com.gdavidpb.tuindice.data.model.SyncRetryBackoffState
 import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepository
 import com.russhwolf.settings.Settings
 import kotlin.time.Duration.Companion.days
@@ -10,7 +11,6 @@ import com.gdavidpb.tuindice.record.utils.CooldownTimes as RecordCooldownTimes
 import com.gdavidpb.tuindice.record.utils.PreferencesKeys as RecordPreferencesKeys
 import com.gdavidpb.tuindice.summary.utils.CooldownTimes as SummaryCooldownTimes
 import com.gdavidpb.tuindice.summary.utils.PreferencesKeys as SummaryPreferencesKeys
-import com.gdavidpb.tuindice.data.repository.sync.SyncRetryBackoffState
 
 class SyncSettingsDataSource(
 	private val settings: Settings

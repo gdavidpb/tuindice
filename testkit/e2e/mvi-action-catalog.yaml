@@ -208,7 +208,7 @@ actions:
     fixture_state: evaluations-content
   - id: evaluations.Evaluation.ClickSubmitEvaluation
     classification: user
-    variants: [add-success, edit-success, missing-attempt, missing-type, missing-max-grade, already-exists, not-found]
+variants: [add-success, edit-success, edit-unchanged-disabled, missing-attempt, missing-type, missing-max-grade, already-exists, not-found]
     selector: evaluation_done_fab
     flow: e2e/maestro/flows/evaluations/evaluations-add-submit.yaml
     fixture_state: post-evaluations-success
@@ -389,7 +389,7 @@ actions:
     fixture_state: synthetic-term-success
   - id: record.CreateSyntheticTerm.CreateTerm
     classification: user
-    variants: [create-success, edit-success, empty-subjects-disabled]
+variants: [create-success, edit-success, edit-unchanged-disabled, empty-subjects-disabled]
     selector: record_create_synthetic_term_submit_button
     flow: e2e/maestro/flows/record/record-synthetic-term-lifecycle.yaml
     fixture_state: synthetic-term-success

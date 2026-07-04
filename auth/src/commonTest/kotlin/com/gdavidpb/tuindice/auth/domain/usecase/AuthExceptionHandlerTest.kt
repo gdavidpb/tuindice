@@ -57,11 +57,22 @@ class AuthExceptionHandlerTest {
 	}
 
 	@Test
-	fun signInExceptionHandler_mapsUnavailable_fromTooManyRequests() {
+	fun signInExceptionHandler_mapsTooManyRequests() {
 		val actual = SignInExceptionHandler(
 			networkRepository = FakeNetworkRepository(isAvailable = true)
 		).parseException(
-			clientRequestException(HttpStatusCode.TooManyRequests, path = "/auth/v1/token")
+			clientRequestException(HttpStatusCode.TooManyRequests, path = "/auth/v2/bootstrap")
+		)
+
+		assertEquals(SignInUseCaseError.TooManyRequests, actual)
+	}
+
+	@Test
+	fun signInExceptionHandler_mapsUnavailable_fromServiceUnavailable() {
+		val actual = SignInExceptionHandler(
+			networkRepository = FakeNetworkRepository(isAvailable = true)
+		).parseException(
+			clientRequestException(HttpStatusCode.ServiceUnavailable, path = "/auth/v2/bootstrap")
 		)
 
 		assertEquals(SignInUseCaseError.Unavailable, actual)

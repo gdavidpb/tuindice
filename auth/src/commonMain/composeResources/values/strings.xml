@@ -39,6 +39,7 @@
 	<string name="error_invalid_password">Contraseña inválida</string>
 	<string name="label_retry">Reintentar</string>
 	<string name="snack_service_unavailable">Servicio no disponible</string>
+	<string name="snack_too_many_requests">Demasiados intentos. Espera un momento e intenta de nuevo</string>
 	<string name="snack_network_unavailable">Comprueba tu conexión</string>
 	<string name="snack_timeout">Tiempo de espera agotado</string>
 	<string name="snack_sign_in_failed">No pudimos iniciar sesión. Intenta nuevamente</string>

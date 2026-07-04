@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.pensum.presentation.machine
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
+import com.gdavidpb.tuindice.base.presentation.statemachine.InitialContentRefreshGate
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
@@ -8,7 +9,6 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
 import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase.Result
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
-import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumSummaryCollapsedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumModalityUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumSelectionUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.SelectPensumUseCase
@@ -27,7 +27,6 @@ import kotlinx.coroutines.flow.Flow
 
 class PensumMachine(
 	private val observePensumUseCase: ObservePensumUseCase,
-	private val observePensumSummaryCollapsedUseCase: ObservePensumSummaryCollapsedUseCase,
 	private val ensurePensumLoadedUseCase: EnsurePensumLoadedUseCase,
 	private val updatePensumUseCase: UpdatePensumUseCase,
 	private val selectPensumUseCase: SelectPensumUseCase,
@@ -63,21 +62,6 @@ class PensumMachine(
 				}
 			}
 		}
-		host.launchMachineJob {
-			observePensumSummaryCollapsedUseCase.execute(Unit).collect { useCaseState ->
-				when (useCaseState) {
-					is UseCaseState.Loading -> Unit
-
-					is UseCaseState.Data -> host.processInternalEvent(
-						PensumInternalEvent.PensumSummaryCollapsedObserved(
-							isCollapsed = useCaseState.value
-						)
-					)
-
-					is UseCaseState.Error -> Unit
-				}
-			}
-		}
 	}
 
 	internal fun refreshPensum(host: MachineHost<Pensum.Effect>) {
@@ -86,24 +70,38 @@ class PensumMachine(
 
 	internal fun ensurePensumLoaded(host: MachineHost<Pensum.Effect>) {
 		host.launchMachineJob {
+			val initialRefreshGate = InitialContentRefreshGate(
+				isCached = { result: Result -> result == Result.Cached },
+				isRefreshStarted = { result -> result == Result.RefreshStarted }
+			)
+
 			ensurePensumLoadedUseCase.execute(Unit).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> Unit
 
-					is UseCaseState.Data -> when (useCaseState.value) {
-						Result.Cached -> Unit
-						Result.RefreshStarted -> host.processInternalEvent(
-							PensumInternalEvent.PensumRefreshLoading
-						)
+					is UseCaseState.Data -> {
+						val result = useCaseState.value
+						if (initialRefreshGate.shouldProcess(result)) {
+							when (result) {
+								Result.Cached -> Unit
+								Result.RefreshStarted -> host.processInternalEvent(
+									PensumInternalEvent.PensumRefreshLoading
+								)
 
-						Result.RefreshSucceeded -> host.processInternalEvent(
-							PensumInternalEvent.PensumRefreshSucceeded
-						)
+								Result.RefreshSucceeded -> host.processInternalEvent(
+									PensumInternalEvent.PensumRefreshSucceeded
+								)
+							}
+						}
 					}
 
-					is UseCaseState.Error -> host.processInternalEvent(
-						useCaseState.error.toRefreshFailureEvent()
-					)
+					is UseCaseState.Error -> {
+						if (initialRefreshGate.shouldProcessError()) {
+							host.processInternalEvent(
+								useCaseState.error.toRefreshFailureEvent()
+							)
+						}
+					}
 				}
 			}
 		}
@@ -183,7 +181,7 @@ class PensumMachine(
 			is PensumObservation.Content ->
 				PensumInternalEvent.PensumContentObserved(
 					pensum = pensum,
-					isSummaryCollapsed = observePensumSummaryCollapsedUseCase.currentValue()
+					isSummaryCollapsed = isSummaryCollapsed
 				)
 
 			PensumObservation.Missing,

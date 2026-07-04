@@ -22,6 +22,13 @@ If this reports a missing app version/build-number bump, stop and fix the bump
 before running E2E evidence. Evidence from a SHA that preflight will reject is
 not useful.
 
+The audit also prints, per required platform/suite, whether passing E2E
+evidence already exists for the current content fingerprint: `current`
+(produced by HEAD), `reusable` (produced by an earlier commit with the same
+fingerprint; production preflight republishes its status onto the PR head via
+`E2E_REUSE_STATUS_BY_FINGERPRINT`), or `rerun` (no passing evidence for the
+fingerprint). Suites marked `current` or `reusable` need no local rerun.
+
 4. Run local PR preflight parity checks:
 
 ```bash
@@ -32,15 +39,17 @@ This resolves the same focused Android/iOS Gradle tasks as
 `preflight-production-pr.yml` for the current diff, including the iOS host flags
 used by `Run focused iOS checks`.
 
-5. Run local commit-bound evidence:
+5. Run local commit-bound evidence only when the audit reports `rerun` suites:
 
 ```bash
 ./gradlew --continue --console=plain e2eMaestroEvidenceLocal
 ```
 
+Skip this step entirely when every required suite is `current` or `reusable`.
+
 6. If preflight parity or evidence fails, enter the iterative correction loop. Do not open or mark a PR ready.
 7. Before accepting any E2E/preflight stabilization fix, enforce the product integrity gate below.
-8. After evidence passes, rerun the audit helper and verify manifests for the final remote SHA.
+8. After the final push, rerun the audit helper and confirm every required platform/suite is `current` or `reusable` for the final remote SHA.
 9. Open or update a non-draft PR against `production` with a title that does not mention Codex.
 10. Verify the PR head SHA matches the certified SHA.
 
@@ -56,18 +65,27 @@ E2E and preflight fixes must not arbitrarily alter the product experience.
 
 ## Iterative Correction Loop
 
-Treat failures as normal certification work:
+Treat failures as normal certification work. Iterate with cheap targeted
+diagnosis runs; pay for full commit-bound evidence once, on the final SHA:
 
 1. Identify the failing platform, suite, and flow from Gradle output, `maestro.log`, and `junit.xml`.
 2. Decide whether the failure is product behavior, E2E coverage, or local environment.
-3. Fix product code or E2E fixtures/tests when the failure is real.
-4. For local environment failures, clean the affected simulator/device/WireMock/port state and rerun without unrelated code changes.
-5. Commit every code or test fix, push it, and verify `HEAD == @{u}`.
-6. Rerun `.codex/skills/certify-tuindice-pr/scripts/run_preflight_parity_checks.sh`.
-7. Rerun `./gradlew --continue --console=plain e2eMaestroEvidenceLocal`.
-8. Repeat until the final pushed SHA has passing preflight parity and evidence.
+3. Reproduce and fix with diagnosis runs, which need no clean or pushed tree and publish nothing:
 
-Never rely on evidence from an older SHA after new commits are pushed.
+```bash
+E2E_MAESTRO_SUITE=e2e/maestro/flows/<failing-flow-or-suite>.yaml ./gradlew --console=plain e2eMaestroAndroid   # or e2eMaestroIos
+```
+
+4. Fix product code or E2E fixtures/tests when the failure is real. For local environment failures, clean the affected simulator/device/WireMock/port state and rerun without unrelated code changes.
+5. When every known failure is fixed, commit the batch, push it, and verify `HEAD == @{u}`.
+6. Rerun `.codex/skills/certify-tuindice-pr/scripts/run_preflight_parity_checks.sh`. You may skip this rerun when the incremental diff since the last parity-passed commit only touches `e2e/maestro/**`, `mocks/**`, or documentation/skill files (none are Gradle inputs); parity must still pass for the final SHA before opening the PR.
+7. Rerun the audit helper and run `./gradlew --continue --console=plain e2eMaestroEvidenceLocal` only when it reports `rerun` suites.
+8. Repeat until the final pushed SHA has passing preflight parity and every required suite `current` or `reusable`.
+
+Evidence validity follows the content fingerprint — the same rule production
+preflight enforces. Do not rerun evidence just because the SHA moved; rerun the
+suites whose fingerprint changed. Fingerprints are platform-scoped: an
+iOS-host-only fix keeps Android evidence reusable, and vice versa.
 
 ## Pull Request Rules
 
@@ -81,5 +99,5 @@ Never rely on evidence from an older SHA after new commits are pushed.
 ## Resources
 
 - `references/certification-runbook.md`: detailed TuIndice certification and PR procedure.
-- `scripts/inspect_certification_state.py`: local audit helper for branch/upstream/evidence manifests.
+- `scripts/inspect_certification_state.py`: local audit helper for branch/upstream/evidence manifests and fingerprint reusability.
 - `scripts/run_preflight_parity_checks.sh`: local reproduction of the PR focused preflight jobs.

@@ -243,6 +243,74 @@ class CreateSyntheticTermViewModelContractTest {
 	}
 
 	@Test
+	fun editTerm_disablesSubmitUntilDraftChanges() = runTest {
+		val period = SyntheticTermPeriodOption(
+			periodYear = 9999,
+			periodCode = AcademicTermPeriod.JAN_MAR
+		)
+		val originalSubject = SyntheticTermSubject(
+			subjectCode = "MA1112",
+			name = "MA1112",
+			credits = 4
+		)
+		val addedSubject = SyntheticTermSubject(
+			subjectCode = "CI2125",
+			name = "CI2125",
+			credits = 4
+		)
+		val fixture = createFixture()
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		fun editSnapshot(subjects: List<SyntheticTermSubject>) = SyntheticTermCreationSnapshot(
+			editingTermId = "synthetic-term",
+			editingTermKey = period.termKey,
+			periodOptions = listOf(period),
+			selectedPeriod = period,
+			selectedSubjects = subjects,
+			suggestedSubjects = emptyList(),
+			searchResults = emptyList()
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				fixture.creationRepository.snapshotFlow.value = editSnapshot(
+					subjects = listOf(originalSubject)
+				)
+				val loaded = awaitUntilState<CreateSyntheticTerm.State> { state ->
+					state.isEditing && state.initialDraft != null
+				}
+				assertEquals(false, loaded.canSubmit)
+
+				fixture.creationRepository.snapshotFlow.value = editSnapshot(
+					subjects = listOf(originalSubject, addedSubject)
+				)
+				val changed = awaitUntilState<CreateSyntheticTerm.State> { state ->
+					state.canSubmit
+				}
+				assertEquals(
+					listOf("MA1112", "CI2125"),
+					changed.draft.subjectCodes
+				)
+
+				fixture.creationRepository.snapshotFlow.value = editSnapshot(
+					subjects = listOf(originalSubject)
+				)
+				val restored = awaitUntilState<CreateSyntheticTerm.State> { state ->
+					!state.canSubmit && state.selectedSubjects.size == 1
+				}
+				assertEquals(false, restored.canSubmit)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
 	fun createTerm_validationError_setsSubmitError() = runTest {
 		val period = SyntheticTermPeriodOption(
 			periodYear = 9999,

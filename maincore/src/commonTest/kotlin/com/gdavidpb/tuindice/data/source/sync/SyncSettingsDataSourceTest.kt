@@ -1,14 +1,14 @@
 package com.gdavidpb.tuindice.data.source.sync
 
+import com.gdavidpb.tuindice.data.model.SyncRetryBackoffState
 import com.russhwolf.settings.Settings
-import com.gdavidpb.tuindice.data.repository.sync.SyncRetryBackoffState
+import kotlinx.coroutines.test.runTest
+import kotlin.math.abs
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import kotlin.test.assertEquals
-import kotlin.math.abs
 import kotlin.time.Duration.Companion.hours
-import kotlinx.coroutines.test.runTest
 import com.gdavidpb.tuindice.evaluations.utils.PreferencesKeys as EvaluationsPreferencesKeys
 import com.gdavidpb.tuindice.record.utils.PreferencesKeys as RecordPreferencesKeys
 import com.gdavidpb.tuindice.summary.utils.PreferencesKeys as SummaryPreferencesKeys

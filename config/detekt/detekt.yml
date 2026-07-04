@@ -1,0 +1,14 @@
+# Ajustes sobre la config por defecto de detekt (buildUponDefaultConfig = true).
+#
+# Indentation (ktlint) exige espacios y no respeta indent_style=tab del
+# .editorconfig en detekt 1.23.x; la convención del repo es tabs, así que la
+# regla queda desactivada en lugar de baselinear miles de hallazgos.
+formatting:
+  Indentation:
+    active: false
+
+# Los composables son PascalCase por diseño; sin esta excepción cada Screen/View
+# termina baselineado como falso positivo de naming.
+naming:
+  FunctionNaming:
+    ignoreAnnotated: ['Composable']

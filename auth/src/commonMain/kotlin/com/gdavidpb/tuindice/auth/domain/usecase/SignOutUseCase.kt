@@ -3,17 +3,17 @@ package com.gdavidpb.tuindice.auth.domain.usecase
 import com.gdavidpb.tuindice.auth.domain.model.RevokeTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
-import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
-import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
-import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
-import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
-import com.gdavidpb.tuindice.base.utils.canonicalAttestationPayloadJson
+import com.gdavidpb.tuindice.security.domain.model.AttestationAuthorization
+import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
+import com.gdavidpb.tuindice.security.domain.model.ProtectedOperationCodes
+import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.security.utils.canonicalAttestationPayloadJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 

@@ -1,0 +1,25 @@
+# Semgrep scan exclusions for the architecture ruleset (config/semgrep/rules).
+# Rule fixtures and the synthetic generality module contain intentional
+# violations and must never be scanned as repo code.
+config/semgrep/
+
+# Generated and vendored content.
+build/
+**/build/
+.gradle/
+graphify-out/
+iosApp/Pods/
+
+# Test source sets: the architecture doctrine targets production code;
+# fakes and fixtures may intentionally bend naming and state rules.
+**/src/test/
+**/src/androidTest/
+**/src/commonTest/
+**/src/androidHostTest/
+**/src/androidUnitTest/
+**/src/androidInstrumentedTest/
+**/src/iosTest/
+
+# Local QA infrastructure, not app architecture.
+e2e/
+mocks/

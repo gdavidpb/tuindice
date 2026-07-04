@@ -3,340 +3,40 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>ArgumentListWrapping:TopAppBarAnimatedTitleView.kt$( targetState = title, transitionSpec = { val enter = slideInHorizontally { x -&gt; -x } val exit = slideOutHorizontally { x -&gt; 2 * x } enter togetherWith exit }, label = "TopAppBarAnimatedTitleViewAnimatedContent" )</ID>
+    <ID>ComplexCondition:SessionDataSource.kt$SessionDataSource$memoryUsbId != null &amp;&amp; memorySessionId != null &amp;&amp; memoryAccessToken != null &amp;&amp; memoryRefreshToken != null</ID>
+    <ID>ComplexCondition:SessionDataSource.kt$SessionDataSource$preferencesSessionId == null || preferencesAccessToken == null || preferencesRefreshToken == null || usbId == null</ID>
+    <ID>CyclomaticComplexMethod:DebugRemoteConfigDataSource.kt$DebugRemoteConfigDataSource$override fun getString(key: String): String?</ID>
     <ID>Filename:Keys.kt$com.gdavidpb.tuindice.base.utils.Keys.kt</ID>
     <ID>Filename:SubjectColorGeneratorTest.kt$com.gdavidpb.tuindice.base.ui.style.SubjectColorGeneratorTest.kt</ID>
     <ID>FinalNewline:Destination.kt$com.gdavidpb.tuindice.base.presentation.navigation.Destination.kt</ID>
-    <ID>FinalNewline:EvaluationState.kt$com.gdavidpb.tuindice.base.domain.model.EvaluationState.kt</ID>
-    <ID>FinalNewline:EvaluationType.kt$com.gdavidpb.tuindice.base.domain.model.EvaluationType.kt</ID>
     <ID>FinalNewline:IdentifierRepository.kt$com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository.kt</ID>
     <ID>FinalNewline:ParamsValidator.kt$com.gdavidpb.tuindice.base.domain.usecase.base.ParamsValidator.kt</ID>
     <ID>FinalNewline:SealedCrossfade.kt$com.gdavidpb.tuindice.base.ui.view.SealedCrossfade.kt</ID>
     <ID>FinalNewline:SnackBarMessage.kt$com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage.kt</ID>
     <ID>FinalNewline:UseCaseError.kt$com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseError.kt</ID>
     <ID>FinalNewline:User.kt$com.gdavidpb.tuindice.base.domain.model.User.kt</ID>
-    <ID>FunctionNaming:AppLogoView.kt$@Composable fun AppLogoView( modifier: Modifier = Modifier, contentDescription: String? = null )</ID>
-    <ID>FunctionNaming:Compose.kt$@Composable fun MeasureUnconstrainedViewSize( viewToMeasure: @Composable () -&gt; Unit, content: @Composable (measuredSize: DpSize) -&gt; Unit, )</ID>
-    <ID>FunctionNaming:ConfirmationDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ConfirmationDialog( sheetState: SheetState, titleText: String? = null, dismissOnPositive: Boolean = true, dismissOnNegative: Boolean = true, positiveLoading: Boolean = false, positiveEnabled: Boolean = true, negativeEnabled: Boolean = true, positiveText: String? = null, negativeText: String? = null, onPositiveClick: () -&gt; Unit = {}, onNegativeClick: () -&gt; Unit = {}, onDismissRequest: () -&gt; Unit = {}, properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties, content: @Composable () -&gt; Unit = {} )</ID>
-    <ID>FunctionNaming:ConfirmationDialogEntry.kt$@Composable fun ConfirmationDialogEntry( icon: ImageVector, iconColor: Color = MaterialTheme.colorScheme.onSecondaryContainer, text: String, textColor: Color = Color.Unspecified, onClick: () -&gt; Unit )</ID>
-    <ID>FunctionNaming:DropdownMenuTextField.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun &lt;T : DropdownMenuItem&gt; DropdownMenuTextField( modifier: Modifier = Modifier, items: List&lt;T&gt;, selectedItem: T? = items.firstOrNull(), onItemSelected: (item: T) -&gt; Unit, error: String? = null, placeholder: @Composable (() -&gt; Unit)? = null, leadingIcon: @Composable (() -&gt; Unit)? = null )</ID>
-    <ID>FunctionNaming:EmptyStateAnimationView.kt$@OptIn(ExperimentalResourceApi::class) @Composable fun EmptyStateAnimationView()</ID>
-    <ID>FunctionNaming:EmptyView.kt$@Composable fun EmptyView( title: String, message: String, actionLabel: String? = null, onActionClick: () -&gt; Unit = {}, headerContent: @Composable () -&gt; Unit = {} )</ID>
-    <ID>FunctionNaming:ErrorStateAnimationView.kt$@OptIn(ExperimentalResourceApi::class) @Composable fun ErrorStateAnimationView()</ID>
-    <ID>FunctionNaming:ErrorView.kt$@Composable fun ErrorView( title: String, message: String, retryText: String, onRetryClick: () -&gt; Unit, headerContent: @Composable () -&gt; Unit = {} )</ID>
-    <ID>FunctionNaming:ExternalResourceDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ExternalResourceDialog( url: String, titleText: String, messageText: String, openText: String, cancelText: String, onConfirmClick: (url: String) -&gt; Unit, onDismissRequest: () -&gt; Unit )</ID>
-    <ID>FunctionNaming:Flow.kt$@Composable fun &lt;T&gt; CollectEffectWithLifecycle( flow: Flow&lt;T&gt;, lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current, minActiveState: Lifecycle.State = Lifecycle.State.STARTED, action: suspend (T) -&gt; Unit )</ID>
-    <ID>FunctionNaming:IllustratedMessageView.kt$@Composable fun IllustratedMessageView( modifier: Modifier = Modifier, title: String, message: String, actionLabel: String? = null, onActionClick: () -&gt; Unit = {}, horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally, verticalArrangement: Arrangement.Vertical = Arrangement.Top, titleTestTag: String? = null, messageTestTag: String? = null, actionTestTag: String? = null, titleStyle: TextStyle = MaterialTheme.typography.titleLarge, messageStyle: TextStyle = MaterialTheme.typography.bodyLarge, titleTextAlign: TextAlign = TextAlign.Center, messageTextAlign: TextAlign = TextAlign.Center, headerContent: @Composable ColumnScope.() -&gt; Unit = {}, messageContent: @Composable ColumnScope.() -&gt; Unit = { Text( modifier = (if (messageTestTag != null) Modifier.testTag(messageTestTag) else Modifier) .padding(vertical = 16.dp), text = message, textAlign = messageTextAlign, style = messageStyle ) } )</ID>
-    <ID>FunctionNaming:LottieResourceAnimationView.kt$@Composable fun LottieResourceAnimationView( readBytes: suspend () -&gt; ByteArray, modifier: Modifier = Modifier, testTag: String? = null, iterations: Int = Compottie.IterateForever )</ID>
-    <ID>FunctionNaming:Navigation.kt$@Composable fun &lt;T&gt; CollectValueWithLifecycle( value: T, lifecycle: Lifecycle, isActive: Boolean = true, minActiveState: Lifecycle.State = Lifecycle.State.RESUMED, awaitFrame: Boolean = false, onValue: (T) -&gt; Unit )</ID>
-    <ID>FunctionNaming:Navigation.kt$@Composable fun &lt;T&gt; NavController.CollectCurrentEntryValueWithLifecycle( backStackEntry: NavBackStackEntry, value: T, minActiveState: Lifecycle.State = Lifecycle.State.RESUMED, awaitFrame: Boolean = false, onValue: (T) -&gt; Unit )</ID>
-    <ID>FunctionNaming:NavigationResult.kt$@Composable inline fun &lt;reified T : Any&gt; NavController.CollectBackResultWithLifecycle( backStackEntry: NavBackStackEntry, minActiveState: Lifecycle.State = Lifecycle.State.RESUMED, awaitFrame: Boolean = false, crossinline onResult: (T) -&gt; Unit )</ID>
-    <ID>FunctionNaming:PeekingSelectorView.kt$@Composable fun &lt;T&gt; PeekingSelectorView( items: List&lt;T&gt;, selectedItemKey: Any?, itemKey: (T) -&gt; Any, onItemSelected: (T) -&gt; Unit, modifier: Modifier = Modifier, itemTestTag: ((T) -&gt; String)? = null, itemWidthFraction: Float = DefaultItemWidthFraction, horizontalItemSpacing: Dp = DefaultHorizontalItemSpacing, userScrollEnabled: Boolean = false, contentType: Any? = null, itemContent: @Composable BoxScope.(item: T, isSelected: Boolean) -&gt; Unit )</ID>
-    <ID>FunctionNaming:SealedCrossfade.kt$@OptIn(ExperimentalAnimationApi::class) @Composable fun &lt;T : Any&gt; SealedCrossfade( targetState: T, modifier: Modifier = Modifier, animationSpec: FiniteAnimationSpec&lt;Float&gt; = tween(durationMillis = TuIndiceAnimation.StandardMillis), label: String = "SealedCrossfade", content: @Composable (T) -&gt; Unit )</ID>
-    <ID>FunctionNaming:SearchTextField.kt$@Composable fun SearchTextField( value: TextFieldValue, placeholderText: String, clearContentDescription: String, onValueChange: (TextFieldValue) -&gt; Unit, onClearClick: () -&gt; Unit, onSearch: () -&gt; Unit, modifier: Modifier = Modifier, clearButtonModifier: Modifier = Modifier, textStyle: TextStyle = MaterialTheme.typography.bodyLarge )</ID>
-    <ID>FunctionNaming:StatsLoadingAnimationView.kt$@OptIn(ExperimentalResourceApi::class) @Composable fun StatsLoadingAnimationView()</ID>
-    <ID>FunctionNaming:SubjectCodeChip.kt$@Composable fun SubjectCodeChip( subjectCode: String, modifier: Modifier = Modifier, cornerRadius: Dp? = null, horizontalPadding: Dp? = null, verticalPadding: Dp? = null, variant: SubjectCodeChipVariant = SubjectCodeChipVariant.Default, containerColor: Color? = null, contentColor: Color? = null )</ID>
-    <ID>FunctionNaming:SubjectResultCard.kt$@Composable fun SubjectResultCard( subjectCode: String, nameText: String, creditsText: String, modifier: Modifier = Modifier, containerTestTag: String? = null, onClick: (() -&gt; Unit)? = null, statusContent: (@Composable () -&gt; Unit)? = null, trailingContent: (@Composable () -&gt; Unit)? = null )</ID>
-    <ID>FunctionNaming:TopAppBarActionsView.kt$@Composable fun TopAppBarActionsView( topBarConfig: TopBarConfig?, onAction: (action: TopBarAction) -&gt; Unit, actionIconContent: @Composable (action: TopBarAction) -&gt; Unit )</ID>
-    <ID>FunctionNaming:TopAppBarAnimatedTitleView.kt$@Composable fun TopAppBarAnimatedTitleView( title: String, modifier: Modifier = Modifier )</ID>
-    <ID>FunctionNaming:WheelPicker.kt$@Composable fun WheelPicker( modifier: Modifier = Modifier, count: Int, enabled: Boolean = true, state: LazyListState = rememberLazyListState(), itemHeight: Dp, additionalItemCount: Int = WheelPickerDefaults.AdditionalItemCount, itemValidator: (index: Int) -&gt; Boolean = { true }, onItemPicked: (index: Int) -&gt; Unit, content: @Composable BoxScope.(index: Int) -&gt; Unit )</ID>
-    <ID>ImportOrdering:BufferedEventPublisher.kt$import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers import com.gdavidpb.tuindice.base.domain.model.event.AppEvent import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository import com.gdavidpb.tuindice.base.domain.repository.EventPublisher import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber import kotlinx.coroutines.CoroutineScope import kotlinx.coroutines.SupervisorJob import kotlinx.coroutines.channels.Channel import kotlinx.coroutines.channels.BufferOverflow import kotlinx.coroutines.launch</ID>
+    <ID>ImportOrdering:AppCoroutineScope.kt$import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers import kotlin.coroutines.CoroutineContext import kotlinx.coroutines.CoroutineScope import kotlinx.coroutines.SupervisorJob</ID>
     <ID>ImportOrdering:ConfirmationDialogEntryUiTest.kt$import androidx.compose.ui.graphics.vector.ImageVector import androidx.compose.ui.test.ExperimentalTestApi import androidx.compose.ui.test.onNodeWithTag import androidx.compose.ui.test.onNodeWithText import androidx.compose.ui.test.assertIsDisplayed import androidx.compose.ui.test.performClick import androidx.compose.ui.unit.dp import com.gdavidpb.tuindice.base.ui.BaseUiTags import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent import kotlin.test.Test import kotlin.test.assertEquals</ID>
     <ID>ImportOrdering:ConfirmationDialogUiTest.kt$import androidx.compose.material3.ExperimentalMaterial3Api import androidx.compose.material3.rememberModalBottomSheetState import androidx.compose.runtime.LaunchedEffect import androidx.compose.ui.test.assertIsDisplayed import androidx.compose.ui.test.ExperimentalTestApi import androidx.compose.ui.test.onNodeWithText import androidx.compose.ui.test.onNodeWithTag import androidx.compose.ui.test.performClick import com.gdavidpb.tuindice.base.ui.BaseUiTags import com.gdavidpb.tuindice.testkit.ui.assertNodeDisabled import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent import kotlin.test.Test import kotlin.test.assertEquals</ID>
-    <ID>ImportOrdering:DebugEventSubscriber.kt$import com.gdavidpb.tuindice.base.domain.model.event.AppEvent import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber import com.gdavidpb.tuindice.base.logging.appLogger</ID>
     <ID>ImportOrdering:DebugRemoteConfigDataSource.kt$import com.gdavidpb.tuindice.base.data.repository.config.RemoteConfigDataRepository import com.gdavidpb.tuindice.base.logging.appLogger import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues import com.gdavidpb.tuindice.base.utils.RemoteConfigKeys import kotlinx.serialization.json.Json</ID>
     <ID>ImportOrdering:DropdownMenuTextField.kt$import androidx.compose.material3.DropdownMenuItem import androidx.compose.material3.ExperimentalMaterial3Api import androidx.compose.material3.ExposedDropdownMenuAnchorType import androidx.compose.material3.ExposedDropdownMenuBox import androidx.compose.material3.ExposedDropdownMenuDefaults import androidx.compose.material3.MaterialTheme import androidx.compose.material3.OutlinedTextField import androidx.compose.material3.Text import androidx.compose.runtime.Composable import androidx.compose.runtime.LaunchedEffect import androidx.compose.runtime.remember import androidx.compose.runtime.mutableStateOf import androidx.compose.ui.Modifier import androidx.compose.ui.platform.testTag import androidx.compose.ui.text.style.TextOverflow import com.gdavidpb.tuindice.base.ui.BaseUiTags</ID>
     <ID>ImportOrdering:DropdownMenuTextFieldUiTest.kt$import androidx.compose.ui.test.ExperimentalTestApi import androidx.compose.ui.test.assertIsDisplayed import androidx.compose.ui.test.assertTextContains import androidx.compose.ui.test.onNodeWithTag import androidx.compose.ui.test.onNodeWithText import androidx.compose.ui.test.performClick import androidx.compose.runtime.mutableStateOf import com.gdavidpb.tuindice.base.ui.BaseUiTags import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent import kotlin.test.Test import kotlin.test.assertEquals</ID>
-    <ID>ImportOrdering:EventPipelineTest.kt$import app.cash.turbine.test import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers import com.gdavidpb.tuindice.base.domain.model.event.AppEvent import com.gdavidpb.tuindice.base.domain.model.event.EventNames import com.gdavidpb.tuindice.base.domain.model.event.EventParameterKeys import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository import com.gdavidpb.tuindice.base.domain.repository.EventPublisher import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber import com.gdavidpb.tuindice.base.presentation.ViewAction import com.gdavidpb.tuindice.base.presentation.ViewEffect import com.gdavidpb.tuindice.base.presentation.ViewState import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine import com.gdavidpb.tuindice.base.presentation.statemachine.StateMachineViewModel import com.gdavidpb.tuindice.testkit.coroutines.withMainDispatcher import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector import kotlin.test.Test import kotlin.test.assertEquals import kotlin.test.assertFalse import kotlin.test.assertTrue import kotlinx.coroutines.CoroutineScope import kotlinx.coroutines.ExperimentalCoroutinesApi import kotlinx.coroutines.flow.first import kotlinx.coroutines.flow.MutableStateFlow import kotlinx.coroutines.test.TestScope import kotlinx.coroutines.test.UnconfinedTestDispatcher import kotlinx.coroutines.test.runTest import kotlinx.coroutines.withTimeout</ID>
-    <ID>ImportOrdering:MessagingDataSource.kt$import com.gdavidpb.tuindice.data.repository.messaging.MessagingLocalDataRepository import com.gdavidpb.tuindice.data.repository.messaging.MessagingRemoteDataRepository import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataRepository import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository</ID>
-    <ID>ImportOrdering:SecureStoreSessionDataSource.kt$import com.gdavidpb.tuindice.base.data.repository.PreferencesSessionDataRepository import com.gdavidpb.tuindice.base.utils.PreferencesKeys import eu.anifantakis.lib.ksafe.KSafe</ID>
+    <ID>ImportOrdering:EventPipelineTest.kt$import app.cash.turbine.test import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers import com.gdavidpb.tuindice.base.domain.model.event.AppEvent import com.gdavidpb.tuindice.base.domain.model.event.EventNames import com.gdavidpb.tuindice.base.domain.model.event.EventParameterKeys import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository import com.gdavidpb.tuindice.base.domain.repository.EventPublisher import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber import com.gdavidpb.tuindice.base.presentation.ViewAction import com.gdavidpb.tuindice.base.presentation.ViewEffect import com.gdavidpb.tuindice.base.presentation.ViewState import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine import com.gdavidpb.tuindice.base.presentation.statemachine.StateMachineViewModel import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository import com.gdavidpb.tuindice.testkit.coroutines.withMainDispatcher import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector import kotlin.test.Test import kotlin.test.assertEquals import kotlin.test.assertFalse import kotlin.test.assertTrue import kotlinx.coroutines.CoroutineScope import kotlinx.coroutines.ExperimentalCoroutinesApi import kotlinx.coroutines.flow.first import kotlinx.coroutines.flow.MutableStateFlow import kotlinx.coroutines.test.TestScope import kotlinx.coroutines.test.UnconfinedTestDispatcher import kotlinx.coroutines.test.runTest import kotlinx.coroutines.withTimeout</ID>
+    <ID>ImportOrdering:SecureStoreSessionDataSourceTest.kt$import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository import com.gdavidpb.tuindice.base.utils.PreferencesKeys import kotlin.test.Test import kotlin.test.assertEquals import kotlin.test.assertFalse import kotlin.test.assertNull import kotlin.test.assertTrue import kotlinx.coroutines.flow.Flow import kotlinx.coroutines.flow.emptyFlow import kotlinx.coroutines.test.runTest</ID>
+    <ID>ImportOrdering:SessionCoroutineScope.kt$import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers import kotlin.coroutines.CoroutineContext import kotlinx.coroutines.CoroutineScope import kotlinx.coroutines.Job import kotlinx.coroutines.SupervisorJob import kotlinx.coroutines.cancel import kotlinx.coroutines.joinAll</ID>
+    <ID>ImportOrdering:SessionCoroutineScopeTest.kt$import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers import kotlin.test.Test import kotlin.test.assertTrue import kotlinx.coroutines.awaitCancellation import kotlinx.coroutines.ExperimentalCoroutinesApi import kotlinx.coroutines.launch import kotlinx.coroutines.test.StandardTestDispatcher import kotlinx.coroutines.test.runCurrent import kotlinx.coroutines.test.runTest</ID>
+    <ID>ImportOrdering:SessionDataSourceTest.kt$import com.gdavidpb.tuindice.base.data.repository.MemorySessionDataRepository import com.gdavidpb.tuindice.base.data.repository.PreferencesSessionDataRepository import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot import kotlin.test.Test import kotlin.test.assertEquals import kotlinx.coroutines.test.runTest</ID>
     <ID>ImportOrdering:SubjectCodeChip.kt$import androidx.compose.foundation.background import androidx.compose.foundation.layout.heightIn import androidx.compose.foundation.layout.padding import androidx.compose.foundation.shape.RoundedCornerShape import androidx.compose.material3.MaterialTheme import androidx.compose.material3.Text import androidx.compose.runtime.Composable import androidx.compose.runtime.remember import androidx.compose.ui.Modifier import androidx.compose.ui.graphics.Color import androidx.compose.ui.text.TextStyle import androidx.compose.ui.text.font.FontWeight import androidx.compose.ui.unit.Dp import androidx.compose.ui.unit.dp import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing import com.gdavidpb.tuindice.base.ui.model.SubjectCodeChipVariant</ID>
-    <ID>ImportOrdering:UsageDataCollectionControllerDataSourceTest.kt$import kotlin.test.Test import kotlin.test.assertEquals import kotlinx.coroutines.CoroutineScope import kotlinx.coroutines.ExperimentalCoroutinesApi import kotlinx.coroutines.cancel import kotlinx.coroutines.test.UnconfinedTestDispatcher import kotlinx.coroutines.test.runTest</ID>
+    <ID>ImportOrdering:SyncStatusRepository.kt$import com.gdavidpb.tuindice.base.domain.model.SyncStatus import com.gdavidpb.tuindice.base.domain.model.SyncReport import kotlinx.coroutines.flow.Flow</ID>
+    <ID>ImportOrdering:UsageDataCollectionDataSourceTest.kt$import kotlin.test.Test import kotlin.test.assertEquals import kotlinx.coroutines.CoroutineScope import kotlinx.coroutines.ExperimentalCoroutinesApi import kotlinx.coroutines.cancel import kotlinx.coroutines.test.UnconfinedTestDispatcher import kotlinx.coroutines.test.runTest</ID>
     <ID>ImportOrdering:WheelPickerUiTest.kt$import androidx.compose.material3.Text import androidx.compose.ui.test.ExperimentalTestApi import androidx.compose.ui.test.onNodeWithTag import androidx.compose.ui.test.performClick import androidx.compose.ui.test.assertIsDisplayed import androidx.compose.ui.test.onNodeWithText import androidx.compose.ui.unit.dp import com.gdavidpb.tuindice.base.ui.BaseUiTags import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent import kotlin.test.Test import kotlin.test.assertEquals</ID>
-    <ID>Indentation:AcademicStatusColors.kt$AcademicStatusColors$ </ID>
-    <ID>Indentation:AcademicTerm.kt$ </ID>
-    <ID>Indentation:AcademicTermTest.kt$ </ID>
-    <ID>Indentation:AcademicTermTest.kt$AcademicTermTest$ </ID>
-    <ID>Indentation:AnalyticsEventPolicy.kt$ </ID>
-    <ID>Indentation:AnalyticsEventPolicyTest.kt$AnalyticsEventPolicyTest$ </ID>
-    <ID>Indentation:Any.kt$ </ID>
-    <ID>Indentation:AppEnvironment.kt$AppEnvironment$ </ID>
-    <ID>Indentation:AppEnvironmentRepository.kt$AppEnvironmentRepository$ </ID>
-    <ID>Indentation:AppEvent.kt$AppEvent$ </ID>
-    <ID>Indentation:AppEvent.kt$AppEvent.Action$ </ID>
-    <ID>Indentation:AppEvent.kt$AppEvent.Effect$ </ID>
-    <ID>Indentation:AppEvent.kt$AppEvent.InvalidTransition$ </ID>
-    <ID>Indentation:AppEvent.kt$AppEvent.ScreenView$ </ID>
-    <ID>Indentation:AppEvent.kt$AppEvent.State$ </ID>
-    <ID>Indentation:AppEvent.kt$AppEvent.Transition$ </ID>
-    <ID>Indentation:AppLogging.kt$ </ID>
-    <ID>Indentation:AppLogoView.kt$ </ID>
-    <ID>Indentation:ApplicationRepository.kt$ApplicationRepository$ </ID>
-    <ID>Indentation:AttestationAuthorizationRequest.kt$ </ID>
-    <ID>Indentation:AttestationAuthorizationRequest.kt$AttestationAuthorizationRequest$ </ID>
-    <ID>Indentation:AttestationBinding.kt$ </ID>
-    <ID>Indentation:AttestationEvidenceMode.kt$AttestationEvidenceMode$ </ID>
-    <ID>Indentation:AttestationEvidenceMode.kt$AttestationEvidenceMode.APP_ATTEST_ASSERTION$ </ID>
-    <ID>Indentation:AttestationEvidenceMode.kt$AttestationEvidenceMode.APP_ATTEST_ATTESTATION$ </ID>
-    <ID>Indentation:AttestationEvidenceMode.kt$AttestationEvidenceMode.PLAY_INTEGRITY_CLASSIC$ </ID>
-    <ID>Indentation:AttestationEvidenceMode.kt$AttestationEvidenceMode.PLAY_INTEGRITY_STANDARD$ </ID>
-    <ID>Indentation:AttestationException.kt$ </ID>
-    <ID>Indentation:AttestationKeyUserMismatchResponse.kt$AttestationKeyUserMismatchResponse$ </ID>
-    <ID>Indentation:AttestationPreparationCode.kt$AttestationPreparationCode$ </ID>
-    <ID>Indentation:AttestationPreparationCode.kt$AttestationPreparationCode.BOOTSTRAP$ </ID>
-    <ID>Indentation:AttestationPreparationRequiredResponse.kt$AttestationPreparationRequiredResponse$ </ID>
-    <ID>Indentation:AttestationProofOfPossessionMode.kt$AttestationProofOfPossessionMode$ </ID>
-    <ID>Indentation:AttestationProofOfPossessionMode.kt$AttestationProofOfPossessionMode.ANDROID_KEYSTORE$ </ID>
-    <ID>Indentation:AttestationProofOfPossessionRequest.kt$AttestationProofOfPossessionRequest$ </ID>
-    <ID>Indentation:AttestationProvider.kt$AttestationProvider$ </ID>
-    <ID>Indentation:AuthErrorHeaders.kt$AuthErrorHeaders$ </ID>
-    <ID>Indentation:BaseUiTags.kt$BaseUiTags$ </ID>
-    <ID>Indentation:BoldMarkerAnnotatedText.kt$ </ID>
-    <ID>Indentation:BoldMarkerAnnotatedTextTest.kt$BoldMarkerAnnotatedTextTest$ </ID>
-    <ID>Indentation:BrowserRepository.kt$BrowserRepository$ </ID>
-    <ID>Indentation:BufferedEventPublisher.kt$BufferedEventPublisher$ </ID>
-    <ID>Indentation:BufferedEventPublisherStressTest.kt$BufferedEventPublisherStressTest$ </ID>
-    <ID>Indentation:BufferedEventPublisherStressTest.kt$ChannelEventSubscriber$ </ID>
-    <ID>Indentation:CompleteAttestationPreparationRequest.kt$CompleteAttestationPreparationRequest$ </ID>
-    <ID>Indentation:Compose.kt$ </ID>
-    <ID>Indentation:ComposeUiTest.kt$ComposeUiTest$ </ID>
-    <ID>Indentation:CompositeEventSubscriber.kt$CompositeEventSubscriber$ </ID>
-    <ID>Indentation:ConfigDataSource.kt$ </ID>
-    <ID>Indentation:ConfigDataSource.kt$ConfigDataSource$ </ID>
-    <ID>Indentation:ConfigRepository.kt$ConfigRepository$ </ID>
-    <ID>Indentation:ConfirmationDialog.kt$ </ID>
-    <ID>Indentation:ConfirmationDialogEntry.kt$ </ID>
-    <ID>Indentation:ConfirmationDialogEntryUiTest.kt$ConfirmationDialogEntryUiTest$ </ID>
-    <ID>Indentation:ConfirmationDialogUiTest.kt$ConfirmationDialogUiTest$ </ID>
-    <ID>Indentation:Coroutines.kt$ </ID>
-    <ID>Indentation:CourseCodeColorGenerator.kt$CourseCodeColorGenerator$ </ID>
-    <ID>Indentation:CourseCodeColorGenerator.kt$CourseCodeColorGenerator.CourseColors$ </ID>
-    <ID>Indentation:CreateAttestationPreparationSessionRequest.kt$CreateAttestationPreparationSessionRequest$ </ID>
-    <ID>Indentation:CreateAttestationSessionRequest.kt$CreateAttestationSessionRequest$ </ID>
-    <ID>Indentation:CreateAttestationSessionResponse.kt$CreateAttestationSessionResponse$ </ID>
-    <ID>Indentation:CredentialsRepository.kt$CredentialsRepository$ </ID>
-    <ID>Indentation:Date.kt$ </ID>
-    <ID>Indentation:Date.kt$DateTextStyle$ </ID>
-    <ID>Indentation:DebugEventSubscriber.kt$DebugEventSubscriber$ </ID>
-    <ID>Indentation:DebugPushTokenDataSource.kt$DebugPushTokenDataSource$ </ID>
-    <ID>Indentation:DebugRemoteConfigDataSource.kt$DebugRemoteConfigDataSource$ </ID>
-    <ID>Indentation:DebugReportingDataSource.kt$DebugReportingDataSource$ </ID>
-    <ID>Indentation:DefaultTuIndiceDispatchers.kt$DefaultTuIndiceDispatchers$ </ID>
-    <ID>Indentation:DeviceInfoRepository.kt$DeviceInfoRepository$ </ID>
-    <ID>Indentation:DropdownMenuTextField.kt$ </ID>
-    <ID>Indentation:DropdownMenuTextField.kt$DropdownMenuItem$ </ID>
-    <ID>Indentation:DropdownMenuTextFieldUiTest.kt$DropdownMenuTextFieldUiTest$ </ID>
-    <ID>Indentation:DropdownMenuTextFieldUiTest.kt$DropdownMenuTextFieldUiTest.TestDropdownItem$ </ID>
-    <ID>Indentation:EmptyStateAnimationView.kt$ </ID>
-    <ID>Indentation:EmptyStateAnimationViewUiTest.kt$EmptyStateAnimationViewUiTest$ </ID>
-    <ID>Indentation:EmptyView.kt$ </ID>
-    <ID>Indentation:EmptyViewUiTest.kt$EmptyViewUiTest$ </ID>
-    <ID>Indentation:EncodedImage.kt$EncodedImage$ </ID>
-    <ID>Indentation:ErrorStateAnimationView.kt$ </ID>
-    <ID>Indentation:ErrorStateAnimationViewUiTest.kt$ErrorStateAnimationViewUiTest$ </ID>
-    <ID>Indentation:ErrorView.kt$ </ID>
-    <ID>Indentation:ErrorViewUiTest.kt$ErrorViewUiTest$ </ID>
-    <ID>Indentation:Evaluation.kt$Evaluation$ </ID>
-    <ID>Indentation:EvaluationScheduleMode.kt$EvaluationScheduleMode$ </ID>
-    <ID>Indentation:EvaluationScheduleMode.kt$EvaluationScheduleMode.CONTINUOUS$ </ID>
-    <ID>Indentation:EvaluationScheduleMode.kt$EvaluationScheduleMode.DATED$ </ID>
-    <ID>Indentation:EvaluationState.kt$EvaluationState$ </ID>
-    <ID>Indentation:EvaluationType.kt$EvaluationType$ </ID>
-    <ID>Indentation:EventNames.kt$EventNames$ </ID>
-    <ID>Indentation:EventParameterKeys.kt$EventParameterKeys$ </ID>
-    <ID>Indentation:EventPipelineTest.kt$ </ID>
-    <ID>Indentation:EventPipelineTest.kt$EventPipelineTest$ </ID>
-    <ID>Indentation:EventPipelineTest.kt$EventTestAction$ </ID>
-    <ID>Indentation:EventPipelineTest.kt$EventTestEffect$ </ID>
-    <ID>Indentation:EventPipelineTest.kt$EventTestMachine$ </ID>
-    <ID>Indentation:EventPipelineTest.kt$EventTestState$ </ID>
-    <ID>Indentation:EventPipelineTest.kt$EventTestViewModel$ </ID>
-    <ID>Indentation:EventPipelineTest.kt$RecordingEventPublisher$ </ID>
-    <ID>Indentation:EventPipelineTest.kt$RecordingEventSubscriber$ </ID>
-    <ID>Indentation:EventPipelineTest.kt$ThrowingEventSubscriber$ </ID>
-    <ID>Indentation:EventPublisher.kt$EventPublisher$ </ID>
-    <ID>Indentation:EventSubscriber.kt$EventSubscriber$ </ID>
-    <ID>Indentation:Exception.kt$ </ID>
-    <ID>Indentation:ExceptionHandler.kt$ExceptionHandler$ </ID>
-    <ID>Indentation:ExternalResourceDialog.kt$ </ID>
-    <ID>Indentation:ExternalResourceDialogUiTest.kt$ExternalResourceDialogUiTest$ </ID>
-    <ID>Indentation:FileOpenerRepository.kt$FileOpenerRepository$ </ID>
-    <ID>Indentation:FileRepository.kt$FileRepository$ </ID>
-    <ID>Indentation:Flow.kt$ </ID>
-    <ID>Indentation:FlowUiTest.kt$FlowUiTest$ </ID>
-    <ID>Indentation:FlowUseCase.kt$FlowUseCase$ </ID>
-    <ID>Indentation:FlowUseCaseTest.kt$FlowUseCaseTest$ </ID>
-    <ID>Indentation:FlowUseCaseTest.kt$FlowUseCaseTest.TestExceptionHandler$ </ID>
-    <ID>Indentation:FlowUseCaseTest.kt$FlowUseCaseTest.TestFallbackUseCase$ </ID>
-    <ID>Indentation:FlowUseCaseTest.kt$FlowUseCaseTest.TestHandledUseCase$ </ID>
-    <ID>Indentation:FlowUseCaseTest.kt$FlowUseCaseTest.TestUseCaseError$ </ID>
-    <ID>Indentation:FlushPendingChangesResult.kt$FlushPendingChangesResult$ </ID>
-    <ID>Indentation:FlushPendingChangesResult.kt$FlushPendingChangesResult.OutdatedCredentials$ </ID>
-    <ID>Indentation:FlushPendingChangesResult.kt$FlushPendingChangesResult.PendingRemaining$ </ID>
-    <ID>Indentation:Format.kt$ </ID>
-    <ID>Indentation:GradingMode.kt$GradingMode$ </ID>
-    <ID>Indentation:GradingMode.kt$GradingMode.NUMERIC$ </ID>
-    <ID>Indentation:GradingMode.kt$GradingMode.QUALITATIVE_PASS_FAIL$ </ID>
-    <ID>Indentation:HttpClientFactory.kt$ </ID>
-    <ID>Indentation:IdentifierRepository.kt$IdentifierRepository$ </ID>
-    <ID>Indentation:IllustratedMessageView.kt$ </ID>
-    <ID>Indentation:InMemorySessionDataSource.kt$InMemorySessionDataSource$ </ID>
-    <ID>Indentation:InMemoryUsageDataConsentRepository.kt$InMemoryUsageDataConsentRepository$ </ID>
-    <ID>Indentation:InternalScreenDefaults.kt$InternalScreenDefaults$ </ID>
-    <ID>Indentation:IssueAttestationTokenRequest.kt$IssueAttestationTokenRequest$ </ID>
-    <ID>Indentation:IssueAttestationTokenResponse.kt$IssueAttestationTokenResponse$ </ID>
-    <ID>Indentation:Keys.kt$PreferencesKeys$ </ID>
-    <ID>Indentation:LocalizedDateFormatter.kt$ </ID>
-    <ID>Indentation:LocalizedDateFormatterTest.kt$LocalizedDateFormatterTest$ </ID>
-    <ID>Indentation:LottieResourceAnimationView.kt$ </ID>
-    <ID>Indentation:MachineDefinition.kt$MachineDefinition$ </ID>
-    <ID>Indentation:MachineDefinition.kt$MachineDefinition.Companion$ </ID>
-    <ID>Indentation:MachineDefinitionBuilder.kt$MachineDefinitionBuilder$ </ID>
-    <ID>Indentation:MachineDefinitionBuilder.kt$MachineDefinitionBuilder.AnyStateTransitions$ </ID>
-    <ID>Indentation:MachineDefinitionBuilder.kt$MachineDefinitionBuilder.StateTransitions$ </ID>
-    <ID>Indentation:MachineDefinitionTest.kt$MachineDefinitionTest$ </ID>
-    <ID>Indentation:MachineDefinitionTest.kt$MachineDefinitionTest.TestEffect$ </ID>
-    <ID>Indentation:MachineDefinitionTest.kt$MachineDefinitionTest.TestEvent$ </ID>
-    <ID>Indentation:MachineDefinitionTest.kt$MachineDefinitionTest.TestState$ </ID>
-    <ID>Indentation:MachineHost.kt$MachineHost$ </ID>
-    <ID>Indentation:MainSection.kt$MainSection$ </ID>
-    <ID>Indentation:MemorySessionDataRepository.kt$MemorySessionDataRepository$ </ID>
-    <ID>Indentation:MessagingApiDataSource.kt$MessagingApiDataSource$ </ID>
-    <ID>Indentation:MessagingDataSource.kt$MessagingDataSource$ </ID>
-    <ID>Indentation:MessagingLocalDataRepository.kt$MessagingLocalDataRepository$ </ID>
-    <ID>Indentation:MessagingRemoteDataRepository.kt$MessagingRemoteDataRepository$ </ID>
-    <ID>Indentation:MessagingRepository.kt$MessagingRepository$ </ID>
-    <ID>Indentation:MessagingSettingsDataSource.kt$MessagingSettingsDataSource$ </ID>
-    <ID>Indentation:Modifier.kt$ </ID>
-    <ID>Indentation:Navigation.kt$ </ID>
-    <ID>Indentation:NavigationResult.kt$ </ID>
-    <ID>Indentation:NavigationUiTest.kt$NavigationUiTest$ </ID>
-    <ID>Indentation:NavigationUiTest.kt$TestLifecycleOwner$ </ID>
-    <ID>Indentation:NavigationUiTest.kt$TestValue$ </ID>
-    <ID>Indentation:NetworkRepository.kt$NetworkRepository$ </ID>
-    <ID>Indentation:NoOpEventPublisher.kt$NoOpEventPublisher$ </ID>
-    <ID>Indentation:NoOpEventSubscriber.kt$NoOpEventSubscriber$ </ID>
-    <ID>Indentation:NoOpUsageDataCollectionController.kt$NoOpUsageDataCollectionController$ </ID>
-    <ID>Indentation:NumberTest.kt$NumberTest$ </ID>
-    <ID>Indentation:ObservedSyncedSnapshot.kt$ObservedSyncedSnapshot$ </ID>
-    <ID>Indentation:OutboxMutation.kt$OutboxMutation$ </ID>
-    <ID>Indentation:ParamsValidator.kt$ParamsValidator$ </ID>
-    <ID>Indentation:PeekingSelectorView.kt$ </ID>
-    <ID>Indentation:PendingChanges.kt$PendingChanges$ </ID>
-    <ID>Indentation:PendingChanges.kt$PendingChanges.Companion$ </ID>
-    <ID>Indentation:PendingChangesRepository.kt$PendingChangesRepository$ </ID>
-    <ID>Indentation:PendingMutationStatus.kt$PendingMutationStatus$ </ID>
-    <ID>Indentation:PreferencesSessionDataRepository.kt$PreferencesSessionDataRepository$ </ID>
-    <ID>Indentation:ProtectedOperationCode.kt$ProtectedOperationCode$ </ID>
-    <ID>Indentation:ProtectedOperationCode.kt$ProtectedOperationCodes$ </ID>
-    <ID>Indentation:PushTokenDataRepository.kt$PushTokenDataRepository$ </ID>
-    <ID>Indentation:RecordDataPrerequisiteRepository.kt$RecordDataPrerequisiteRepository$ </ID>
-    <ID>Indentation:RecordDataPrerequisiteState.kt$RecordDataPrerequisiteState$ </ID>
-    <ID>Indentation:RemoteConfig.kt$ </ID>
-    <ID>Indentation:RemoteConfigDataRepository.kt$RemoteConfigDataRepository$ </ID>
-    <ID>Indentation:RemoteConfigDefaults.kt$DefaultRemoteConfig$ </ID>
-    <ID>Indentation:RemoteConfigDefaults.kt$DefaultRemoteConfigValues$ </ID>
-    <ID>Indentation:RemoteConfigDefaults.kt$RemoteConfigDefaultsProfile$ </ID>
-    <ID>Indentation:RemoteConfigDefaults.kt$RemoteConfigKeys$ </ID>
-    <ID>Indentation:Reporting.kt$ </ID>
-    <ID>Indentation:ReportingRepository.kt$ReportingRepository$ </ID>
-    <ID>Indentation:ReviewRepository.kt$ReviewRepository$ </ID>
-    <ID>Indentation:ScreenMachine.kt$ScreenMachine$ </ID>
-    <ID>Indentation:SealedCrossfade.kt$ </ID>
-    <ID>Indentation:SealedCrossfadeUiTest.kt$SealedCrossfadeUiTest$ </ID>
-    <ID>Indentation:SealedCrossfadeUiTest.kt$SealedCrossfadeUiTest.UiState$ </ID>
-    <ID>Indentation:SearchTextField.kt$ </ID>
-    <ID>Indentation:SecureStoreSessionDataSource.kt$SecureStoreSessionDataSource$ </ID>
-    <ID>Indentation:SessionDataSource.kt$SessionDataSource$ </ID>
-    <ID>Indentation:SessionInvalidationDataSource.kt$SessionInvalidationDataSource$ </ID>
-    <ID>Indentation:SessionInvalidationRepository.kt$SessionInvalidationRepository$ </ID>
-    <ID>Indentation:SessionRepository.kt$SessionRepository$ </ID>
-    <ID>Indentation:SettingsRepository.kt$SettingsRepository$ </ID>
-    <ID>Indentation:SnackBarMessage.kt$SnackBarMessage$ </ID>
-    <ID>Indentation:StateMachineViewModel.kt$MachineInput$ </ID>
-    <ID>Indentation:StateMachineViewModel.kt$StateMachineViewModel$ </ID>
-    <ID>Indentation:StateMachineViewModel.kt$StateMachineViewModel.&lt;no name provided&gt;$ </ID>
-    <ID>Indentation:StatsLoadingAnimationView.kt$ </ID>
-    <ID>Indentation:StatsLoadingAnimationViewUiTest.kt$StatsLoadingAnimationViewUiTest$ </ID>
-    <ID>Indentation:String.kt$ </ID>
-    <ID>Indentation:StringTest.kt$StringTest$ </ID>
-    <ID>Indentation:SubjectCatalogSearchNormalizer.kt$SubjectCatalogSearchNormalizer$ </ID>
-    <ID>Indentation:SubjectCodeChip.kt$ </ID>
-    <ID>Indentation:SubjectCodeChip.kt$SubjectCodeChipDefaults$ </ID>
-    <ID>Indentation:SubjectCodeChipVariant.kt$SubjectCodeChipVariant$ </ID>
-    <ID>Indentation:SubjectColorGeneratorTest.kt$CourseCodeColorGeneratorTest$ </ID>
-    <ID>Indentation:SubjectResultCard.kt$ </ID>
-    <ID>Indentation:SubjectResultCardUiTest.kt$SubjectResultCardUiTest$ </ID>
-    <ID>Indentation:SubjectResultCardUiTest.kt$SubjectResultCardUiTest.Companion$ </ID>
-    <ID>Indentation:SubscribeRequest.kt$SubscribeRequest$ </ID>
-    <ID>Indentation:SyncPolicy.kt$SyncPolicy$ </ID>
-    <ID>Indentation:SyncRepository.kt$SyncRepository$ </ID>
-    <ID>Indentation:SyncStatus.kt$SyncStatus$ </ID>
-    <ID>Indentation:SyncStatusRepository.kt$SyncStatusRepository$ </ID>
-    <ID>Indentation:SyncedContentResolution.kt$ </ID>
-    <ID>Indentation:SyncedContentResolution.kt$SyncedContentResolution$ </ID>
-    <ID>Indentation:SyncedContentResolutionTest.kt$SyncedContentResolutionTest$ </ID>
-    <ID>Indentation:SystemService.kt$ </ID>
-    <ID>Indentation:TestTagSemantics.android.kt$ </ID>
-    <ID>Indentation:TopAppBarActionsView.kt$ </ID>
-    <ID>Indentation:TopAppBarActionsViewUiTest.kt$TopAppBarActionsViewUiTest$ </ID>
-    <ID>Indentation:TopAppBarAnimatedTitleView.kt$ </ID>
-    <ID>Indentation:TopAppBarAnimatedTitleViewUiTest.kt$TopAppBarAnimatedTitleViewUiTest$ </ID>
-    <ID>Indentation:TopBarAction.kt$TopBarAction$ </ID>
-    <ID>Indentation:TopBarAction.kt$TopBarAction.ChangePensumAction$ </ID>
-    <ID>Indentation:TopBarAction.kt$TopBarAction.FetchEnrollmentProofAction$ </ID>
-    <ID>Indentation:TopBarAction.kt$TopBarAction.RecordTermSelectionAction$ </ID>
-    <ID>Indentation:TopBarAction.kt$TopBarAction.SearchPensumAction$ </ID>
-    <ID>Indentation:TopBarAction.kt$TopBarAction.SignOutAction$ </ID>
-    <ID>Indentation:TopBarBannerBehavior.kt$TopBarBannerBehavior$ </ID>
-    <ID>Indentation:TopBarBannerBehavior.kt$TopBarBannerBehavior.AutoDismiss$ </ID>
-    <ID>Indentation:TopBarConfig.kt$TopBarConfig$ </ID>
-    <ID>Indentation:TopBarConfig.kt$TopBarConfig.Pensum$ </ID>
-    <ID>Indentation:TopBarConfig.kt$TopBarConfig.Record$ </ID>
-    <ID>Indentation:TopBarConfig.kt$TopBarConfig.Summary$ </ID>
-    <ID>Indentation:TransitionResult.kt$TransitionResult$ </ID>
-    <ID>Indentation:TransitionResult.kt$TransitionResult.Transitioned$ </ID>
-    <ID>Indentation:TransitionSpec.kt$TransitionSpec$ </ID>
-    <ID>Indentation:TuIndiceAlpha.kt$TuIndiceAlpha$ </ID>
-    <ID>Indentation:TuIndiceAnimation.kt$TuIndiceAnimation$ </ID>
-    <ID>Indentation:TuIndiceComponentSizes.kt$TuIndiceComponentSizes$ </ID>
-    <ID>Indentation:TuIndiceDarkTheme.kt$TuIndiceDarkTheme$ </ID>
-    <ID>Indentation:TuIndiceDispatchers.kt$TuIndiceDispatchers$ </ID>
-    <ID>Indentation:TuIndiceElevations.kt$TuIndiceElevations$ </ID>
-    <ID>Indentation:TuIndiceRadius.kt$TuIndiceRadius$ </ID>
-    <ID>Indentation:TuIndiceShapes.kt$ </ID>
-    <ID>Indentation:TuIndiceShellColors.kt$TuIndiceShellColors$ </ID>
-    <ID>Indentation:TuIndiceSpacing.kt$TuIndiceSpacing$ </ID>
-    <ID>Indentation:UUIDIdentifierDataSource.kt$UUIDIdentifierDataSource$ </ID>
-    <ID>Indentation:UUIDIdentifierDataSource.kt$UUIDIdentifierDataSource.Companion$ </ID>
-    <ID>Indentation:UUIDIdentifierDataSourceTest.kt$UUIDIdentifierDataSourceTest$ </ID>
-    <ID>Indentation:UUIDIdentifierDataSourceTest.kt$UUIDIdentifierDataSourceTest.Companion$ </ID>
-    <ID>Indentation:UiText.kt$UiText$ </ID>
-    <ID>Indentation:UiText.kt$UiText.Raw$ </ID>
-    <ID>Indentation:UiText.kt$UiText.Resource$ </ID>
-    <ID>Indentation:UiTextString.kt$ </ID>
-    <ID>Indentation:UpdateAction.kt$UpdateAction$ </ID>
-    <ID>Indentation:UpdateRepository.kt$UpdateRepository$ </ID>
-    <ID>Indentation:UsageDataCollectionController.kt$UsageDataCollectionController$ </ID>
-    <ID>Indentation:UsageDataCollectionControllerDataSource.kt$UsageDataCollectionControllerDataSource$ </ID>
-    <ID>Indentation:UsageDataCollectionControllerDataSourceTest.kt$UsageDataCollectionControllerDataSourceTest$ </ID>
-    <ID>Indentation:UsageDataConsentRepository.kt$UsageDataConsentRepository$ </ID>
-    <ID>Indentation:UsageDataConsentSettingsDataSource.kt$UsageDataConsentSettingsDataSource$ </ID>
-    <ID>Indentation:UsageDataConsentSettingsDataSourceTest.kt$FakeSettings$ </ID>
-    <ID>Indentation:UsageDataConsentSettingsDataSourceTest.kt$UsageDataConsentSettingsDataSourceTest$ </ID>
-    <ID>Indentation:UseCaseState.kt$UseCaseState$ </ID>
-    <ID>Indentation:User.kt$User$ </ID>
-    <ID>Indentation:Utils.kt$ </ID>
-    <ID>Indentation:ViewState.kt$ViewState$ </ID>
-    <ID>Indentation:WheelPicker.kt$ </ID>
-    <ID>Indentation:WheelPicker.kt$WheelPickerDefaults$ </ID>
-    <ID>Indentation:WheelPickerUiTest.kt$WheelPickerUiTest$ </ID>
-    <ID>LongMethod:ConfirmationDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ConfirmationDialog( sheetState: SheetState, titleText: String? = null, dismissOnPositive: Boolean = true, dismissOnNegative: Boolean = true, positiveLoading: Boolean = false, positiveEnabled: Boolean = true, negativeEnabled: Boolean = true, positiveText: String? = null, negativeText: String? = null, onPositiveClick: () -&gt; Unit = {}, onNegativeClick: () -&gt; Unit = {}, onDismissRequest: () -&gt; Unit = {}, properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties, content: @Composable () -&gt; Unit = {} )</ID>
+    <ID>LongMethod:ConfirmationDialog.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun ConfirmationDialog( sheetState: SheetState, titleText: String? = null, dismissOnPositive: Boolean = true, dismissOnNegative: Boolean = true, positiveLoading: Boolean = false, positiveEnabled: Boolean = true, negativeEnabled: Boolean = true, positiveButtonTestTag: String = BaseUiTags.ConfirmationDialogPositiveButton, positiveLoadingTestTag: String = BaseUiTags.ConfirmationDialogPositiveLoading, positiveText: String? = null, negativeText: String? = null, onPositiveClick: () -&gt; Unit = {}, onNegativeClick: () -&gt; Unit = {}, onDismissRequest: () -&gt; Unit = {}, properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties, content: @Composable () -&gt; Unit = {} )</ID>
     <ID>LongMethod:DropdownMenuTextField.kt$@OptIn(ExperimentalMaterial3Api::class) @Composable fun &lt;T : DropdownMenuItem&gt; DropdownMenuTextField( modifier: Modifier = Modifier, items: List&lt;T&gt;, selectedItem: T? = items.firstOrNull(), onItemSelected: (item: T) -&gt; Unit, error: String? = null, placeholder: @Composable (() -&gt; Unit)? = null, leadingIcon: @Composable (() -&gt; Unit)? = null )</ID>
     <ID>LongMethod:NavigationUiTest.kt$NavigationUiTest$@Test fun when_collectValueWithLifecycleRequiresActiveResumedEntry_then_defersAndReplaysLatestValue()</ID>
     <ID>LongMethod:PeekingSelectorView.kt$@Composable fun &lt;T&gt; PeekingSelectorView( items: List&lt;T&gt;, selectedItemKey: Any?, itemKey: (T) -&gt; Any, onItemSelected: (T) -&gt; Unit, modifier: Modifier = Modifier, itemTestTag: ((T) -&gt; String)? = null, itemWidthFraction: Float = DefaultItemWidthFraction, horizontalItemSpacing: Dp = DefaultHorizontalItemSpacing, userScrollEnabled: Boolean = false, contentType: Any? = null, itemContent: @Composable BoxScope.(item: T, isSelected: Boolean) -&gt; Unit )</ID>
     <ID>LongMethod:SubjectResultCard.kt$@Composable fun SubjectResultCard( subjectCode: String, nameText: String, creditsText: String, modifier: Modifier = Modifier, containerTestTag: String? = null, onClick: (() -&gt; Unit)? = null, statusContent: (@Composable () -&gt; Unit)? = null, trailingContent: (@Composable () -&gt; Unit)? = null )</ID>
     <ID>LongMethod:WheelPicker.kt$@Composable fun WheelPicker( modifier: Modifier = Modifier, count: Int, enabled: Boolean = true, state: LazyListState = rememberLazyListState(), itemHeight: Dp, additionalItemCount: Int = WheelPickerDefaults.AdditionalItemCount, itemValidator: (index: Int) -&gt; Boolean = { true }, onItemPicked: (index: Int) -&gt; Unit, content: @Composable BoxScope.(index: Int) -&gt; Unit )</ID>
-    <ID>LongParameterList:ConfirmationDialog.kt$( sheetState: SheetState, titleText: String? = null, dismissOnPositive: Boolean = true, dismissOnNegative: Boolean = true, positiveLoading: Boolean = false, positiveEnabled: Boolean = true, negativeEnabled: Boolean = true, positiveText: String? = null, negativeText: String? = null, onPositiveClick: () -&gt; Unit = {}, onNegativeClick: () -&gt; Unit = {}, onDismissRequest: () -&gt; Unit = {}, properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties, content: @Composable () -&gt; Unit = {} )</ID>
+    <ID>LongParameterList:ConfirmationDialog.kt$( sheetState: SheetState, titleText: String? = null, dismissOnPositive: Boolean = true, dismissOnNegative: Boolean = true, positiveLoading: Boolean = false, positiveEnabled: Boolean = true, negativeEnabled: Boolean = true, positiveButtonTestTag: String = BaseUiTags.ConfirmationDialogPositiveButton, positiveLoadingTestTag: String = BaseUiTags.ConfirmationDialogPositiveLoading, positiveText: String? = null, negativeText: String? = null, onPositiveClick: () -&gt; Unit = {}, onNegativeClick: () -&gt; Unit = {}, onDismissRequest: () -&gt; Unit = {}, properties: ModalBottomSheetProperties = ModalBottomSheetDefaults.properties, content: @Composable () -&gt; Unit = {} )</ID>
     <ID>LongParameterList:DropdownMenuTextField.kt$( modifier: Modifier = Modifier, items: List&lt;T&gt;, selectedItem: T? = items.firstOrNull(), onItemSelected: (item: T) -&gt; Unit, error: String? = null, placeholder: @Composable (() -&gt; Unit)? = null, leadingIcon: @Composable (() -&gt; Unit)? = null )</ID>
     <ID>LongParameterList:ExternalResourceDialog.kt$( url: String, titleText: String, messageText: String, openText: String, cancelText: String, onConfirmClick: (url: String) -&gt; Unit, onDismissRequest: () -&gt; Unit )</ID>
     <ID>LongParameterList:IllustratedMessageView.kt$( modifier: Modifier = Modifier, title: String, message: String, actionLabel: String? = null, onActionClick: () -&gt; Unit = {}, horizontalAlignment: Alignment.Horizontal = Alignment.CenterHorizontally, verticalArrangement: Arrangement.Vertical = Arrangement.Top, titleTestTag: String? = null, messageTestTag: String? = null, actionTestTag: String? = null, titleStyle: TextStyle = MaterialTheme.typography.titleLarge, messageStyle: TextStyle = MaterialTheme.typography.bodyLarge, titleTextAlign: TextAlign = TextAlign.Center, messageTextAlign: TextAlign = TextAlign.Center, headerContent: @Composable ColumnScope.() -&gt; Unit = {}, messageContent: @Composable ColumnScope.() -&gt; Unit = { Text( modifier = (if (messageTestTag != null) Modifier.testTag(messageTestTag) else Modifier) .padding(vertical = 16.dp), text = message, textAlign = messageTextAlign, style = messageStyle ) } )</ID>
@@ -379,7 +79,6 @@
     <ID>MagicNumber:Exception.kt$599</ID>
     <ID>MagicNumber:InternalScreenDefaults.kt$InternalScreenDefaults$6</ID>
     <ID>MagicNumber:Number.kt$10L</ID>
-    <ID>MagicNumber:TopAppBarActionsView.kt$2</ID>
     <ID>MagicNumber:UUIDIdentifierDataSource.kt$UUIDIdentifierDataSource$0xFF</ID>
     <ID>MagicNumber:UUIDIdentifierDataSource.kt$UUIDIdentifierDataSource$16</ID>
     <ID>MagicNumber:UUIDIdentifierDataSource.kt$UUIDIdentifierDataSource$4</ID>
@@ -391,12 +90,12 @@
     <ID>MatchingDeclarationName:WheelPicker.kt$WheelPickerDefaults</ID>
     <ID>MaxLineLength:Exception.kt$return isUnavailable() || isFailedDependency() || isTooManyRequests() || isServerError() || isConnection() || isTimeout()</ID>
     <ID>MaximumLineLength:Exception.kt$ </ID>
-    <ID>MultiLineIfElse:ConfirmationDialog.kt$Button( modifier = Modifier.testTag(BaseUiTags.ConfirmationDialogPositiveButton), onClick = { onPositiveClick() if (dismissOnPositive) dismiss() }, enabled = positiveEnabled &amp;&amp; !positiveLoading ) { Box( contentAlignment = Alignment.Center ) { Text( text = positiveText, color = if (positiveLoading) Color.Transparent else Color.Unspecified ) if (positiveLoading) CircularProgressIndicator( modifier = Modifier .testTag(BaseUiTags.ConfirmationDialogPositiveLoading) .size(18.dp), color = LocalContentColor.current ) } }</ID>
-    <ID>MultiLineIfElse:ConfirmationDialog.kt$CircularProgressIndicator( modifier = Modifier .testTag(BaseUiTags.ConfirmationDialogPositiveLoading) .size(18.dp), color = LocalContentColor.current )</ID>
+    <ID>MultiLineIfElse:ConfirmationDialog.kt$Button( modifier = Modifier.testTag(positiveButtonTestTag), onClick = { onPositiveClick() if (dismissOnPositive) dismiss() }, enabled = positiveEnabled &amp;&amp; !positiveLoading ) { Box( contentAlignment = Alignment.Center ) { Text( text = positiveText, color = if (positiveLoading) Color.Transparent else Color.Unspecified ) if (positiveLoading) CircularProgressIndicator( modifier = Modifier .testTag(positiveLoadingTestTag) .size(18.dp), color = LocalContentColor.current ) } }</ID>
+    <ID>MultiLineIfElse:ConfirmationDialog.kt$CircularProgressIndicator( modifier = Modifier .testTag(positiveLoadingTestTag) .size(18.dp), color = LocalContentColor.current )</ID>
     <ID>MultiLineIfElse:ConfirmationDialog.kt$Color.Transparent</ID>
     <ID>MultiLineIfElse:ConfirmationDialog.kt$Color.Unspecified</ID>
     <ID>MultiLineIfElse:ConfirmationDialog.kt$OutlinedButton( modifier = Modifier.testTag(BaseUiTags.ConfirmationDialogNegativeButton), onClick = { onNegativeClick() if (dismissOnNegative) dismiss() }, border = null, enabled = negativeEnabled ) { Text(text = negativeText) }</ID>
-    <ID>MultiLineIfElse:ConfirmationDialog.kt$Row( modifier = Modifier .fillMaxWidth() .padding(vertical = 24.dp), horizontalArrangement = Arrangement.End ) { if (negativeText != null) OutlinedButton( modifier = Modifier.testTag(BaseUiTags.ConfirmationDialogNegativeButton), onClick = { onNegativeClick() if (dismissOnNegative) dismiss() }, border = null, enabled = negativeEnabled ) { Text(text = negativeText) } if (positiveText != null) Button( modifier = Modifier.testTag(BaseUiTags.ConfirmationDialogPositiveButton), onClick = { onPositiveClick() if (dismissOnPositive) dismiss() }, enabled = positiveEnabled &amp;&amp; !positiveLoading ) { Box( contentAlignment = Alignment.Center ) { Text( text = positiveText, color = if (positiveLoading) Color.Transparent else Color.Unspecified ) if (positiveLoading) CircularProgressIndicator( modifier = Modifier .testTag(BaseUiTags.ConfirmationDialogPositiveLoading) .size(18.dp), color = LocalContentColor.current ) } } }</ID>
+    <ID>MultiLineIfElse:ConfirmationDialog.kt$Row( modifier = Modifier .fillMaxWidth() .padding(vertical = 24.dp), horizontalArrangement = Arrangement.End ) { if (negativeText != null) OutlinedButton( modifier = Modifier.testTag(BaseUiTags.ConfirmationDialogNegativeButton), onClick = { onNegativeClick() if (dismissOnNegative) dismiss() }, border = null, enabled = negativeEnabled ) { Text(text = negativeText) } if (positiveText != null) Button( modifier = Modifier.testTag(positiveButtonTestTag), onClick = { onPositiveClick() if (dismissOnPositive) dismiss() }, enabled = positiveEnabled &amp;&amp; !positiveLoading ) { Box( contentAlignment = Alignment.Center ) { Text( text = positiveText, color = if (positiveLoading) Color.Transparent else Color.Unspecified ) if (positiveLoading) CircularProgressIndicator( modifier = Modifier .testTag(positiveLoadingTestTag) .size(18.dp), color = LocalContentColor.current ) } } }</ID>
     <ID>MultiLineIfElse:ConfirmationDialog.kt$Text( modifier = Modifier .testTag(BaseUiTags.ConfirmationDialogTitle) .padding(bottom = 16.dp), text = titleText, style = MaterialTheme.typography.titleLarge, fontWeight = FontWeight.Bold )</ID>
     <ID>MultiLineIfElse:ConfirmationDialog.kt$dismiss()</ID>
     <ID>MultiLineIfElse:WheelPicker.kt$coroutineScope.launch { state.animateScrollToItem(counter - additionalItemCount) }</ID>
@@ -404,8 +103,6 @@
     <ID>MultiLineIfElse:WheelPicker.kt$firstVisibleItemIndex + 1</ID>
     <ID>MultiLineIfElse:WheelPicker.kt$if (counter - additionalItemCount &gt;= 0) coroutineScope.launch { state.animateScrollToItem(counter - additionalItemCount) }</ID>
     <ID>NewLineAtEndOfFile:Destination.kt$com.gdavidpb.tuindice.base.presentation.navigation.Destination.kt</ID>
-    <ID>NewLineAtEndOfFile:EvaluationState.kt$com.gdavidpb.tuindice.base.domain.model.EvaluationState.kt</ID>
-    <ID>NewLineAtEndOfFile:EvaluationType.kt$com.gdavidpb.tuindice.base.domain.model.EvaluationType.kt</ID>
     <ID>NewLineAtEndOfFile:IdentifierRepository.kt$com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository.kt</ID>
     <ID>NewLineAtEndOfFile:ParamsValidator.kt$com.gdavidpb.tuindice.base.domain.usecase.base.ParamsValidator.kt</ID>
     <ID>NewLineAtEndOfFile:SealedCrossfade.kt$com.gdavidpb.tuindice.base.ui.view.SealedCrossfade.kt</ID>
@@ -417,20 +114,25 @@
     <ID>NoConsecutiveBlankLines:PreferencesSessionDataRepository.kt$ </ID>
     <ID>NoConsecutiveBlankLines:PushTokenDataRepository.kt$ </ID>
     <ID>NoConsecutiveBlankLines:SessionInvalidationDataSource.kt$ </ID>
+    <ID>NoUnusedImports:SecureStoreSessionDataSourceTest.kt$com.gdavidpb.tuindice.base.data.source.SecureStoreSessionDataSourceTest.kt</ID>
     <ID>NoWildcardImports:Date.kt$import kotlinx.datetime.*</ID>
-    <ID>ReturnCount:AttestationException.kt$suspend fun Throwable.isAttestationKeyUserMismatch(): Boolean</ID>
     <ID>ReturnCount:NavigationResult.kt$inline fun &lt;reified T : Any&gt; NavController.setBackResult(result: T): Boolean</ID>
     <ID>ReturnCount:Number.kt$fun truncateScaledDivision( numerator: Long, denominator: Long, decimals: Int ): Double</ID>
+    <ID>ReturnCount:SessionDataSource.kt$SessionDataSource$private suspend fun readActiveSessionSnapshot(): SessionSnapshot?</ID>
     <ID>ReturnCount:Utils.kt$private fun String.hostRange(): IntRange?</ID>
     <ID>SpreadOperator:UiTextString.kt$(resource, *args.toTypedArray())</ID>
     <ID>ThrowingExceptionsWithoutMessageOrCause:SessionDataSource.kt$SessionDataSource$IllegalStateException()</ID>
     <ID>TooManyFunctions:Exception.kt$com.gdavidpb.tuindice.base.utils.extension.Exception.kt</ID>
+    <ID>TooManyFunctions:SecureStoreSessionDataSource.kt$SecureStoreSessionDataSource : PreferencesSessionDataRepository</ID>
+    <ID>TooManyFunctions:SessionDataSource.kt$SessionDataSource : SessionRepository</ID>
+    <ID>TooManyFunctions:SessionRepository.kt$SessionRepository</ID>
     <ID>TopLevelPropertyNaming:PeekingSelectorView.kt$private const val DefaultItemWidthFraction = 0.5f</ID>
     <ID>TopLevelPropertyNaming:PeekingSelectorView.kt$private const val UnselectedAlpha = 0.76f</ID>
     <ID>TopLevelPropertyNaming:PeekingSelectorView.kt$private const val UnselectedScale = 0.95f</ID>
     <ID>TopLevelPropertyNaming:SearchTextField.kt$private const val SearchTextFieldContainerAlpha = 0.48f</ID>
     <ID>TopLevelPropertyNaming:WheelPicker.kt$private const val WheelPickerItemContentType = "wheel_picker_item"</ID>
     <ID>UseCheckOrError:MessagingDataSource.kt$MessagingDataSource$throw IllegalStateException("Push token unavailable.")</ID>
+    <ID>UseCheckOrError:SecureStoreSessionDataSourceTest.kt$FakeSecureKeyValueDataRepository$throw IllegalStateException("Unreadable secure store")</ID>
     <ID>UseCheckOrError:SessionDataSource.kt$SessionDataSource$throw IllegalStateException()</ID>
     <ID>WildcardImport:Date.kt$import kotlinx.datetime.*</ID>
     <ID>Wrapping:EventPipelineTest.kt$EventPipelineTest$(</ID>

@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.data.mutation
 
-import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertContains

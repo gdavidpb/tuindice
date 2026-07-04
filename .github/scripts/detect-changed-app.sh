@@ -16,6 +16,8 @@ RELEASE_IMPACTED_MODULES_FILE="${RELEASE_IMPACTED_MODULES_FILE:-${STATE_DIR}/rel
 MISSING_VERSION_BUMP_FILE="${MISSING_VERSION_BUMP_FILE:-${STATE_DIR}/missing-version-bump.txt}"
 ANDROID_TASKS_FILE="${ANDROID_TASKS_FILE:-${STATE_DIR}/android-gradle-tasks.txt}"
 IOS_TASKS_FILE="${IOS_TASKS_FILE:-${STATE_DIR}/ios-gradle-tasks.txt}"
+IOS_TEST_TASKS_FILE="${IOS_TEST_TASKS_FILE:-${STATE_DIR}/ios-test-gradle-tasks.txt}"
+IOS_HOST_TASKS_FILE="${IOS_HOST_TASKS_FILE:-${STATE_DIR}/ios-host-gradle-tasks.txt}"
 E2E_SUITES_FILE="${E2E_SUITES_FILE:-${STATE_DIR}/e2e-suites.txt}"
 E2E_SCOPE_FILE="${E2E_SCOPE_FILE:-${STATE_DIR}/e2e-scope.csv}"
 E2E_ANDROID_CONTEXTS_FILE="${E2E_ANDROID_CONTEXTS_FILE:-${STATE_DIR}/e2e-android-contexts.txt}"
@@ -28,6 +30,8 @@ mkdir -p "$STATE_DIR"
 : >"$MISSING_VERSION_BUMP_FILE"
 : >"$ANDROID_TASKS_FILE"
 : >"$IOS_TASKS_FILE"
+: >"$IOS_TEST_TASKS_FILE"
+: >"$IOS_HOST_TASKS_FILE"
 : >"$E2E_SUITES_FILE"
 : >"$E2E_SCOPE_FILE"
 : >"$E2E_ANDROID_CONTEXTS_FILE"
@@ -43,6 +47,8 @@ CI_CONFIG_TOUCHED=false
 IOS_CI_SCRIPTS_TOUCHED=false
 MODULE_GRAPH_TOUCHED=false
 E2E_CONTRACT_TOUCHED=false
+DETEKT_CONFIG_TOUCHED=false
+SEMGREP_CONFIG_TOUCHED=false
 HAS_RELEVANT_CHANGES=false
 HAS_RELEASE_IMPACT=false
 REQUIRES_E2E_CERTIFICATION=false
@@ -217,10 +223,20 @@ mark_e2e_suite_for_module() {
 	append_e2e_scopes_for_impacted_features all "$module" "module-runtime"
 }
 
+append_ios_test_task() {
+	append_unique_line "$IOS_TASKS_FILE" "$1"
+	append_unique_line "$IOS_TEST_TASKS_FILE" "$1"
+}
+
+append_ios_host_task() {
+	append_unique_line "$IOS_TASKS_FILE" "$1"
+	append_unique_line "$IOS_HOST_TASKS_FILE" "$1"
+}
+
 append_ios_signing_config_validation() {
 	CI_CONFIG_TOUCHED=true
 	HAS_RELEVANT_CHANGES=true
-	append_unique_line "$IOS_TASKS_FILE" "verifyIosHostBuildDeviceRelease"
+	append_ios_host_task "verifyIosHostBuildDeviceRelease"
 }
 
 is_ios_signing_only_config_change() {
@@ -355,6 +371,20 @@ classify_changed_file() {
 		AGENTS.md|README.md|LICENSE|docs/*|.codex/*)
 			return 0
 			;;
+		config/detekt/*|.editorconfig|*/detekt-baseline.xml)
+			# Solo afecta análisis estático: corre detekt completo sin marcar
+			# impacto de runtime ni suites E2E.
+			DETEKT_CONFIG_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			return 0
+			;;
+		config/semgrep/*|.semgrepignore|scripts/semgrep-architecture.sh)
+			# Solo afecta análisis estático: corre el ruleset semgrep de
+			# arquitectura sin marcar impacto de runtime ni suites E2E.
+			SEMGREP_CONFIG_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			return 0
+			;;
 		e2e/maestro/flows/suites/*-suite.yaml)
 			E2E_CONTRACT_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
@@ -406,6 +436,7 @@ classify_changed_file() {
 			HAS_RELEVANT_CHANGES=true
 			HAS_RELEASE_IMPACT=true
 			MODULE_GRAPH_TOUCHED=true
+			DETEKT_CONFIG_TOUCHED=true
 			append_e2e_scope all local-certification-suite "root-build"
 			return 0
 			;;
@@ -425,14 +456,14 @@ classify_changed_file() {
 			CI_CONFIG_TOUCHED=true
 			IOS_CI_SCRIPTS_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
-			append_unique_line "$IOS_TASKS_FILE" "verifyIosHostBuildDeviceRelease"
+			append_ios_host_task "verifyIosHostBuildDeviceRelease"
 			return 0
 			;;
 		iosApp/scripts/ci-typecheck-ios-host.sh)
 			CI_CONFIG_TOUCHED=true
 			IOS_CI_SCRIPTS_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
-			append_unique_line "$IOS_TASKS_FILE" "verifyIosHostTypecheck"
+			append_ios_host_task "verifyIosHostTypecheck"
 			return 0
 			;;
 		iosApp/scripts/*)
@@ -567,6 +598,7 @@ while IFS= read -r module; do
 	[[ -n "$module" ]] || continue
 	case "$module" in
 		app)
+			append_unique_line "$ANDROID_TASKS_FILE" ":app:detekt"
 			append_unique_line "$ANDROID_TASKS_FILE" ":app:testDebugUnitTest"
 			if [[ "$HAS_RELEASE_IMPACT" == "true" || "$APP_VERSION_CHANGED" == "true" ]]; then
 				append_unique_line "$ANDROID_TASKS_FILE" ":app:bundleRelease"
@@ -574,20 +606,21 @@ while IFS= read -r module; do
 			;;
 		iosApp)
 			if [[ "$HAS_RELEASE_IMPACT" == "true" || "$APP_VERSION_CHANGED" == "true" ]]; then
-				append_unique_line "$IOS_TASKS_FILE" "verifyIosHostBuildDeviceRelease"
+				append_ios_host_task "verifyIosHostBuildDeviceRelease"
 			else
-				append_unique_line "$IOS_TASKS_FILE" "verifyIosHostTypecheck"
+				append_ios_host_task "verifyIosHostTypecheck"
 			fi
 			;;
 		*)
 			if module_is_kmp "$module"; then
 				append_unique_line "$ANDROID_TASKS_FILE" ":${module}:compileAndroidMain"
+				append_unique_line "$ANDROID_TASKS_FILE" ":${module}:detekt"
 				if [[ "$module" != "testkit" ]]; then
 					append_unique_line "$ANDROID_TASKS_FILE" ":${module}:testAndroidHostTest"
 				fi
-				append_unique_line "$IOS_TASKS_FILE" ":${module}:compileKotlinIosSimulatorArm64"
+				append_ios_test_task ":${module}:compileKotlinIosSimulatorArm64"
 				if [[ "$module" != "testkit" ]]; then
-					append_unique_line "$IOS_TASKS_FILE" ":${module}:iosSimulatorArm64Test"
+					append_ios_test_task ":${module}:iosSimulatorArm64Test"
 				fi
 			fi
 			;;
@@ -606,8 +639,21 @@ if [[ "$MODULE_GRAPH_TOUCHED" == "true" ]]; then
 	append_unique_line "$ANDROID_TASKS_FILE" "verifyModuleGraph"
 fi
 
+if [[ "$DETEKT_CONFIG_TOUCHED" == "true" ]]; then
+	append_unique_line "$ANDROID_TASKS_FILE" "detekt"
+fi
+
+# Semgrep valida arquitectura repo-wide: corre cuando cambió código de algún
+# módulo o cuando cambió la propia configuración del ruleset.
+SEMGREP_REQUIRED=false
+if [[ "$SEMGREP_CONFIG_TOUCHED" == "true" ]] || [[ -s "$IMPACTED_MODULES_FILE" ]]; then
+	SEMGREP_REQUIRED=true
+fi
+
 sort_file_if_present "$ANDROID_TASKS_FILE"
 sort_file_if_present "$IOS_TASKS_FILE"
+sort_file_if_present "$IOS_TEST_TASKS_FILE"
+sort_file_if_present "$IOS_HOST_TASKS_FILE"
 sort_file_if_present "$E2E_SCOPE_FILE"
 
 ANDROID_SCOPE_HAS_LOCAL_CERTIFICATION=false
@@ -652,12 +698,17 @@ info "Missing version bump: $(file_to_csv "$MISSING_VERSION_BUMP_FILE" || true)"
 info "CI/CD configuration touched: ${CI_CONFIG_TOUCHED}"
 info "iOS CI scripts touched: ${IOS_CI_SCRIPTS_TOUCHED}"
 info "Module graph touched: ${MODULE_GRAPH_TOUCHED}"
+info "Detekt config touched: ${DETEKT_CONFIG_TOUCHED}"
+info "Semgrep config touched: ${SEMGREP_CONFIG_TOUCHED}"
+info "Semgrep required: ${SEMGREP_REQUIRED}"
 info "E2E suites requiring local certification: $(file_to_csv "$E2E_SUITES_FILE" || true)"
 info "E2E scope: $(file_to_csv "$E2E_SCOPE_FILE" || true)"
 info "E2E Android contexts: $(file_to_csv "$E2E_ANDROID_CONTEXTS_FILE" || true)"
 info "E2E iOS contexts: $(file_to_csv "$E2E_IOS_CONTEXTS_FILE" || true)"
 info "Android Gradle tasks: $(file_to_space_list "$ANDROID_TASKS_FILE" || true)"
 info "iOS Gradle tasks: $(file_to_space_list "$IOS_TASKS_FILE" || true)"
+info "iOS test Gradle tasks: $(file_to_space_list "$IOS_TEST_TASKS_FILE" || true)"
+info "iOS host Gradle tasks: $(file_to_space_list "$IOS_HOST_TASKS_FILE" || true)"
 
 if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
 	{
@@ -671,8 +722,12 @@ if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
 		printf 'missing_version_bump_csv=%s\n' "$(file_to_csv "$MISSING_VERSION_BUMP_FILE" || true)"
 		printf 'android_tasks=%s\n' "$(file_to_space_list "$ANDROID_TASKS_FILE" || true)"
 		printf 'ios_tasks=%s\n' "$(file_to_space_list "$IOS_TASKS_FILE" || true)"
+		printf 'ios_test_tasks=%s\n' "$(file_to_space_list "$IOS_TEST_TASKS_FILE" || true)"
+		printf 'ios_host_tasks=%s\n' "$(file_to_space_list "$IOS_HOST_TASKS_FILE" || true)"
 		printf 'android_tasks_file=%s\n' "$ANDROID_TASKS_FILE"
 		printf 'ios_tasks_file=%s\n' "$IOS_TASKS_FILE"
+		printf 'ios_test_tasks_file=%s\n' "$IOS_TEST_TASKS_FILE"
+		printf 'ios_host_tasks_file=%s\n' "$IOS_HOST_TASKS_FILE"
 		printf 'app_version_touched=%s\n' "$APP_VERSION_TOUCHED"
 		printf 'app_version_changed=%s\n' "$APP_VERSION_CHANGED"
 		printf 'app_release_build_numbers_changed=%s\n' "$APP_RELEASE_BUILD_NUMBERS_CHANGED"
@@ -687,6 +742,8 @@ if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
 		printf 'e2e_scope_csv=%s\n' "$(file_to_csv "$E2E_SCOPE_FILE" || true)"
 		printf 'e2e_android_contexts_file=%s\n' "$E2E_ANDROID_CONTEXTS_FILE"
 		printf 'e2e_ios_contexts_file=%s\n' "$E2E_IOS_CONTEXTS_FILE"
+		printf 'semgrep_config_touched=%s\n' "$SEMGREP_CONFIG_TOUCHED"
+		printf 'semgrep_required=%s\n' "$SEMGREP_REQUIRED"
 		printf 'has_relevant_changes=%s\n' "$HAS_RELEVANT_CHANGES"
 		printf 'has_release_impact=%s\n' "$HAS_RELEASE_IMPACT"
 	} >>"$GITHUB_OUTPUT"

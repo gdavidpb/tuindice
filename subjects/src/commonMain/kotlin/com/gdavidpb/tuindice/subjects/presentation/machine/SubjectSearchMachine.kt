@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.subjects.presentation.machine
 
+import com.gdavidpb.tuindice.academiccore.domain.utils.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
-import com.gdavidpb.tuindice.base.domain.utils.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine

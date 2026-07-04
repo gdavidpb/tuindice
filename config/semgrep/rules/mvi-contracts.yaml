@@ -1,0 +1,37 @@
+rules:
+  - id: mvi-actions-effects-in-contract
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Las implementaciones de ViewAction y ViewEffect de una pantalla viven en
+      presentation/contract (README "Capas por feature > Presentation"): son el
+      alfabeto de entrada y los símbolos de salida que validan los contract tests.
+      Nota: los ViewState de chrome de ruta sí pueden vivir en route/navigation/model
+      (diseño del chrome del host), por eso ViewState queda fuera de esta regla.
+    pattern-regex: ':\s*View(?:Action|Effect)\b'
+    paths:
+      include:
+        - '**/src/commonMain/**'
+      exclude:
+        - '**/presentation/contract/**'
+        - 'base/**'
+        - 'testkit/**'
+    metadata:
+      area: mvi-contracts
+      referencia: 'README.md § Capas por feature'
+
+  - id: machine-no-host-property
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      La máquina no almacena el host como propiedad: llega por parámetro a define()
+      y a cada comando. Guardarlo crea un canal para emitir efectos o eventos fuera
+      de la transición activa — exactamente lo que el motor rechaza en runtime con
+      la validación de emits (G as data).
+    pattern-regex: '\bva[lr]\s+host\s*[:=]'
+    paths:
+      include:
+        - '**/presentation/machine/**'
+    metadata:
+      area: mvi-contracts
+      referencia: 'base/presentation/statemachine/StateMachineViewModel.kt § sendEffect'

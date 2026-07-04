@@ -8,6 +8,7 @@ sealed interface PensumObservation {
 	data object Missing : PensumObservation
 
 	data class Content(
-		val pensum: ObservedPensum
+		val pensum: ObservedPensum,
+		val isSummaryCollapsed: Boolean = false
 	) : PensumObservation
 }

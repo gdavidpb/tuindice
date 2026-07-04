@@ -92,7 +92,8 @@ class SignInMachine(
 		when (error) {
 			is SignInUseCaseError.InvalidCredentials,
 			is SignInUseCaseError.AccountDisabled,
-			is SignInUseCaseError.Untrusted ->
+			is SignInUseCaseError.Untrusted,
+			is SignInUseCaseError.TooManyRequests ->
 				host.sendEffect(
 					SignIn.Effect.ShowSnackBar(
 						message = errorMessage

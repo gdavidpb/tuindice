@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.machine
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.model.SyncedContentResolution
 import com.gdavidpb.tuindice.base.presentation.model.resolveSyncedContentResolution
+import com.gdavidpb.tuindice.base.presentation.statemachine.InitialContentRefreshGate
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
@@ -12,6 +13,7 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedU
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.SetSelectedWeekUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
@@ -19,9 +21,12 @@ import com.gdavidpb.tuindice.evaluations.presentation.mapper.buildEvaluationsWee
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.defaultEvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationItemMapping
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationsWeekGroupItemList
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationsWeekKeyOrNull
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toGradeSaveErrorMessage
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toRemoveErrorMessage
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toStorageValue
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toUpdateEvaluationParams
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsAnyStateTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsContentTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsEmptyTransitions
@@ -29,6 +34,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsFail
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsIdleTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsLoadingTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsNoAttemptsTransitions
+import kotlinx.coroutines.flow.collect
 import org.jetbrains.compose.resources.getString
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.evaluations_continuous_label
@@ -43,7 +49,8 @@ class EvaluationsMachine(
 	private val updateEvaluationsUseCase: UpdateEvaluationsUseCase,
 	private val getEvaluationUseCase: GetEvaluationUseCase,
 	private val updateEvaluationUseCase: UpdateEvaluationUseCase,
-	private val removeEvaluationUseCase: RemoveEvaluationUseCase
+	private val removeEvaluationUseCase: RemoveEvaluationUseCase,
+	private val setSelectedWeekUseCase: SetSelectedWeekUseCase
 ) : ScreenMachine<Evaluations.State, Evaluations.Effect> {
 	override fun initialState(): Evaluations.State = Evaluations.State.Idle
 
@@ -134,25 +141,43 @@ class EvaluationsMachine(
 
 	internal fun ensureLoaded(host: MachineHost<Evaluations.Effect>) {
 		host.launchMachineJob {
+			val initialRefreshGate = InitialContentRefreshGate(
+				isCached = { result: EnsureEvaluationsLoadedUseCase.Result ->
+					result == EnsureEvaluationsLoadedUseCase.Result.Cached
+				},
+				isRefreshStarted = { result ->
+					result == EnsureEvaluationsLoadedUseCase.Result.RefreshStarted
+				}
+			)
+
 			ensureEvaluationsLoadedUseCase.execute(Unit).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> Unit
 
-					is UseCaseState.Data -> when (val result = useCaseState.value) {
-						EnsureEvaluationsLoadedUseCase.Result.Cached -> Unit
-						EnsureEvaluationsLoadedUseCase.Result.RefreshStarted -> host.processInternalEvent(
-							EvaluationsInternalEvent.EvaluationsRefreshStarted
-						)
+					is UseCaseState.Data -> {
+						val result = useCaseState.value
+						if (initialRefreshGate.shouldProcess(result)) {
+							when (result) {
+								EnsureEvaluationsLoadedUseCase.Result.Cached -> Unit
+								EnsureEvaluationsLoadedUseCase.Result.RefreshStarted -> host.processInternalEvent(
+									EvaluationsInternalEvent.EvaluationsRefreshStarted
+								)
 
-						is EnsureEvaluationsLoadedUseCase.Result.RefreshSucceeded -> processRefreshResult(
-							host = host,
-							refreshResult = result.refreshResult
-						)
+								is EnsureEvaluationsLoadedUseCase.Result.RefreshSucceeded -> processRefreshResult(
+									host = host,
+									refreshResult = result.refreshResult
+								)
+							}
+						}
 					}
 
-					is UseCaseState.Error -> host.processInternalEvent(
-						EvaluationsInternalEvent.EvaluationsRefreshFailed
-					)
+					is UseCaseState.Error -> {
+						if (initialRefreshGate.shouldProcessError()) {
+							host.processInternalEvent(
+								EvaluationsInternalEvent.EvaluationsRefreshFailed
+							)
+						}
+					}
 				}
 			}
 		}
@@ -233,6 +258,15 @@ class EvaluationsMachine(
 		}
 	}
 
+	internal fun persistSelectedWeek(
+		host: MachineHost<Evaluations.Effect>,
+		weekKey: EvaluationsWeekKey
+	) {
+		host.launchMachineJob {
+			setSelectedWeekUseCase.execute(weekKey.toStorageValue()).collect()
+		}
+	}
+
 	internal fun remove(host: MachineHost<Evaluations.Effect>, evaluationId: String) {
 		host.launchMachineJob {
 			removeEvaluationUseCase.execute(evaluationId).collect { useCaseState ->
@@ -266,9 +300,16 @@ class EvaluationsMachine(
 			continuousLabel = continuousLabel
 		)
 
+		// EFSM guard: la semana persistida (plegada en la observación) siembra el default
+		// solo si sigue siendo una semana válida del término actual; si quedó obsoleta,
+		// el default vuelve a la semana corriente en vez de caer a la primera de la lista.
+		val persistedWeekKey = selectedWeekKey
+			?.toEvaluationsWeekKeyOrNull()
+			?.takeIf { key -> weekItems.any { item -> item.key == key } }
+
 		return EvaluationsInternalEvent.EvaluationsContentObserved(
 			weekItems = weekItems,
-			defaultWeekKey = defaultEvaluationsWeekKey(
+			defaultWeekKey = persistedWeekKey ?: defaultEvaluationsWeekKey(
 				currentTerm = displayContext.currentTerm,
 				evaluations = evaluations
 			),

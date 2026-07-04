@@ -1,0 +1,16 @@
+rules:
+  - id: transition-files-pure
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      presentation/transition contiene solo la tabla: extension functions del builder,
+      un archivo por estado origen (README "Capas por feature > Presentation").
+      Clases, objects o interfaces ahí indican lógica que pertenece a la máquina,
+      al contract o a presentation/model.
+    pattern-regex: '^\s*(?:(?:public|internal|private)\s+)?(?:(?:sealed|abstract|open|data|enum|value)\s+)*(?:class|object|interface)\b'
+    paths:
+      include:
+        - '**/presentation/transition/**'
+    metadata:
+      area: mvi-contracts
+      referencia: 'README.md § Capas por feature'

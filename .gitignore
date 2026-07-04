@@ -14,6 +14,7 @@ xcuserdata/
 !/scripts/dump-machine-diagrams.sh
 !/scripts/generate-common-ui-matrix.sh
 !/scripts/module-graph.txt
+!/scripts/semgrep-architecture.sh
 !/scripts/validate-module-graph.sh
 !/scripts/verify-common-ui-test-density.sh
 GoogleService-Info.plist

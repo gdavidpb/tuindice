@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
+import com.gdavidpb.tuindice.domain.usecase.EnsureMessagingSubscribedUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.ScheduleSyncUseCase
@@ -22,6 +23,7 @@ class MainMachine(
 	private val requestReviewUseCase: RequestReviewUseCase,
 	private val getUpdateInfoUseCase: GetUpdateInfoUseCase,
 	private val scheduleSyncUseCase: ScheduleSyncUseCase,
+	private val ensureMessagingSubscribedUseCase: EnsureMessagingSubscribedUseCase,
 	private val setLastMainSectionUseCase: SetLastMainSectionUseCase
 ) : ScreenMachine<Main.State, Main.Effect> {
 	override fun initialState(): Main.State = Main.State.Starting
@@ -79,6 +81,12 @@ class MainMachine(
 	internal fun requestSync(host: MachineHost<Main.Effect>) {
 		host.launchMachineJob {
 			scheduleSyncUseCase.execute(Unit).collect()
+		}
+	}
+
+	internal fun ensureMessagingSubscribed(host: MachineHost<Main.Effect>) {
+		host.launchMachineJob {
+			ensureMessagingSubscribedUseCase.execute(Unit).collect()
 		}
 	}
 

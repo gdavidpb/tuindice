@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
-import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateGroup
 import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
 import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationEpochMillis

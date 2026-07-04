@@ -1,11 +1,6 @@
 package com.gdavidpb.tuindice.auth.domain.usecase
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
-import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
-import com.gdavidpb.tuindice.base.domain.model.PendingChanges
-import com.gdavidpb.tuindice.base.domain.model.ProtectedOperationCodes
-import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
@@ -13,20 +8,26 @@ import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.UpdatePasswordParamsValidator
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
-import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
-import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
-import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
-import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenError
-import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
+import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
+import com.gdavidpb.tuindice.base.domain.model.PendingChanges
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.security.domain.model.AttestationAuthorization
+import com.gdavidpb.tuindice.security.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeMessagingRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
+import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
+import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
+import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenError
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -88,6 +89,41 @@ class AuthUseCaseContractTest {
 		assertEquals(SyncStatus.Failed, syncStatusRepository.getSyncStatus())
 		assertEquals(listOf(SyncStatus.Failed), syncStatusRepository.setStatuses)
 		assertEquals(listOf("secret123"), syncRepository.scheduledSyncCalls)
+	}
+
+	@Test
+	fun signInUseCase_completesSignIn_whenMessagingSubscriptionFails() = runTest {
+		val subscribeThrowable = IllegalStateException("FCM registration failed")
+		val repository = RecordingAuthRepository()
+		val messagingRepository = FakeMessagingRepository(throwable = subscribeThrowable)
+		val syncRepository = FakeSyncRepository()
+		val credentialsRepository = FakeCredentialsRepository()
+		val reportingRepository = RecordingReportingRepository()
+		val useCase = SignInUseCase(
+			authRepository = repository,
+			messagingRepository = messagingRepository,
+			syncRepository = syncRepository,
+			credentialsRepository = credentialsRepository,
+			syncStatusRepository = FakeSyncStatusRepository(),
+			attestationRepository = FakeAttestationRepository(),
+			reportingRepository = reportingRepository,
+			paramsValidator = SignInParamsValidator(),
+			exceptionHandler = SignInExceptionHandler(
+				networkRepository = FakeNetworkRepository(isAvailable = true)
+			)
+		)
+
+		useCase.execute(SignInParams(usbId = VALID_USB_ID, password = "secret123")).test {
+			assertEquals(Unit, awaitLoadingThenData(this))
+			awaitComplete()
+		}
+
+		assertEquals(1, messagingRepository.subscribeCalls)
+		assertEquals(listOf("secret123"), credentialsRepository.storedPasswords)
+		assertEquals(listOf("secret123"), syncRepository.scheduledSyncCalls)
+		assertEquals(subscribeThrowable, reportingRepository.loggedExceptions.single())
+		assertEquals(true, reportingRepository.customKeys["is-handled"])
+		assertEquals("SignInUseCase", reportingRepository.customKeys["use-case"])
 	}
 
 	@Test
@@ -184,13 +220,14 @@ class AuthUseCaseContractTest {
 		val syncRepository = FakeSyncRepository()
 		val credentialsRepository = FakeCredentialsRepository()
 		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
+		val attestationRepository = FakeAttestationRepository()
 		val useCase = UpdatePasswordUseCase(
 			authRepository = repository,
 			sessionRepository = sessionRepository,
 			syncRepository = syncRepository,
 			credentialsRepository = credentialsRepository,
 			syncStatusRepository = syncStatusRepository,
-			attestationRepository = FakeAttestationRepository(),
+			attestationRepository = attestationRepository,
 			reportingRepository = RecordingReportingRepository(),
 			paramsValidator = UpdatePasswordParamsValidator(),
 			exceptionHandler = UpdatePasswordExceptionHandler(
@@ -205,6 +242,7 @@ class AuthUseCaseContractTest {
 
 		val call = repository.reissueTokensCalls.single()
 		assertEquals("20261234", call.usbId)
+		assertEquals(AttestationAuthorization.CurrentSession, attestationRepository.lastRequest?.authorization)
 		assertEquals(listOf("new-secret"), credentialsRepository.storedPasswords)
 		assertEquals(SyncStatus.Failed, syncStatusRepository.getSyncStatus())
 		assertEquals(listOf(SyncStatus.Failed), syncStatusRepository.setStatuses)

@@ -1,9 +1,9 @@
 package com.gdavidpb.tuindice.evaluations.presentation.machine
 
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
-import com.gdavidpb.tuindice.base.domain.model.EvaluationType
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
+import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.domain.usecase.AddEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.EnsureEvaluationsLoadedUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetAvailableAttemptsUseCase
@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationAndAvailabl
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.GetEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.RemoveEvaluationUseCase
+import com.gdavidpb.tuindice.evaluations.domain.usecase.SetSelectedWeekUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.UpdateEvaluationsUseCase
 import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.AddEvaluationExceptionHandler
@@ -25,6 +26,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
 import com.gdavidpb.tuindice.evaluations.testing.FakeIdentifierRepository
+import com.gdavidpb.tuindice.evaluations.testing.InMemoryEvaluationsSelectionRepository
 import com.gdavidpb.tuindice.evaluations.testing.ReadyRecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
@@ -34,9 +36,9 @@ import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertTrue
-import kotlinx.coroutines.test.runTest
 
 class EvaluationsStateMachineContractTest {
 	@Test
@@ -136,12 +138,14 @@ class EvaluationsStateMachineContractTest {
 	fun listMachine_survivesSeededRandomWalk() = runTest {
 		val repository = RecordingEvaluationRepository()
 		val reportingRepository = RecordingReportingRepository()
+		val selectionRepository = InMemoryEvaluationsSelectionRepository()
 
 		val screenMachine = EvaluationsMachine(
 			getEvaluationsUseCase = GetEvaluationsUseCase(
 				evaluationRepository = repository,
 				recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 				syncStatusRepository = RecordingSyncStatusRepository(),
+				evaluationsSelectionRepository = selectionRepository,
 				reportingRepository = reportingRepository
 			),
 			ensureEvaluationsLoadedUseCase = EnsureEvaluationsLoadedUseCase(
@@ -165,6 +169,10 @@ class EvaluationsStateMachineContractTest {
 				evaluationRepository = repository,
 				reportingRepository = reportingRepository,
 				exceptionHandler = RemoveEvaluationExceptionHandler()
+			),
+			setSelectedWeekUseCase = SetSelectedWeekUseCase(
+				evaluationsSelectionRepository = selectionRepository,
+				reportingRepository = reportingRepository
 			)
 		)
 
@@ -316,6 +324,7 @@ class EvaluationsStateMachineContractTest {
 	private fun createListViewModel(): EvaluationsViewModel {
 		val repository = RecordingEvaluationRepository()
 		val reportingRepository = RecordingReportingRepository()
+		val selectionRepository = InMemoryEvaluationsSelectionRepository()
 
 		return EvaluationsViewModel(
 			screenMachine = EvaluationsMachine(
@@ -323,6 +332,7 @@ class EvaluationsStateMachineContractTest {
 					evaluationRepository = repository,
 					recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
 					syncStatusRepository = RecordingSyncStatusRepository(),
+					evaluationsSelectionRepository = selectionRepository,
 					reportingRepository = reportingRepository
 				),
 				ensureEvaluationsLoadedUseCase = EnsureEvaluationsLoadedUseCase(
@@ -346,6 +356,10 @@ class EvaluationsStateMachineContractTest {
 					evaluationRepository = repository,
 					reportingRepository = reportingRepository,
 					exceptionHandler = RemoveEvaluationExceptionHandler()
+				),
+				setSelectedWeekUseCase = SetSelectedWeekUseCase(
+					evaluationsSelectionRepository = selectionRepository,
+					reportingRepository = reportingRepository
 				)
 			),
 			eventPublisher = NoOpEventPublisher

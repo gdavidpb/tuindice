@@ -10,16 +10,17 @@
 # maincore, whose umbrella framework it links.
 about=:base
 academiccore=-
-app=:about :auth :base :enrollmentproof :evaluations :maincore :pensum :persistence :record :subjects :summary :wizard
-auth=:base
+app=:about :auth :base :enrollmentproof :evaluations :maincore :pensum :persistence :record :security :subjects :summary :wizard
+auth=:base :security
 base=-
 enrollmentproof=:base :persistence
 evaluations=:academiccore :base :persistence
-maincore=:about :auth :base :enrollmentproof :evaluations :pensum :persistence :record :subjects :summary :wizard
+maincore=:about :auth :base :enrollmentproof :evaluations :pensum :persistence :record :security :subjects :summary :wizard
 pensum=:academiccore :base :persistence
-persistence=:base
+persistence=:academiccore :base
 record=:academiccore :base :persistence
+security=:base
 subjects=:academiccore :base :persistence
 summary=:base :persistence
-testkit=:base
+testkit=:base :security
 wizard=:about :base :evaluations :pensum :record :subjects :summary

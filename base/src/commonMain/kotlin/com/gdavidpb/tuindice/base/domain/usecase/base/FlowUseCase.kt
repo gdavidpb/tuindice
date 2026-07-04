@@ -33,19 +33,28 @@ abstract class FlowUseCase<P, T, E : UseCaseError> {
 		}
 	}
 
+	protected fun reportHandledException(throwable: Throwable) {
+		reportThrowable(throwable = throwable, error = null, isHandled = true)
+	}
+
 	private fun reportException(throwable: Throwable): E? {
 		val error = exceptionHandler?.parseException(throwable)
+
+		reportThrowable(throwable = throwable, error = error, isHandled = error != null)
+
+		return error
+	}
+
+	private fun reportThrowable(throwable: Throwable, error: UseCaseError?, isHandled: Boolean) {
 		val rootCause = throwable.rootCause()
 
 		reportingRepository.setCustomKey("use-case", this::class.reportingName())
-		reportingRepository.setCustomKey("is-handled", error != null)
+		reportingRepository.setCustomKey("is-handled", isHandled)
 		reportingRepository.setCustomKey("throwable-class", throwable.reportingName())
 		reportingRepository.setCustomKey("throwable-message", throwable.reportingMessage())
 		reportingRepository.setCustomKey("root-cause-class", rootCause.reportingName())
 		reportingRepository.setCustomKey("root-cause-message", rootCause.reportingMessage())
 		reportingRepository.setCustomKey("error-class", error.reportingName())
 		reportingRepository.logException(throwable)
-
-		return error
 	}
 }

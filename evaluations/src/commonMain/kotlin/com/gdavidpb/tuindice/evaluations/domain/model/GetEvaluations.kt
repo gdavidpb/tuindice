@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.domain.model
 
-import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 
 sealed interface GetEvaluations {
 	data object WaitingForRecordData : GetEvaluations
@@ -14,7 +14,8 @@ sealed interface GetEvaluations {
 	data class Content(
 		val evaluations: List<Evaluation>,
 		val hasSyncedEvaluations: Boolean,
-		val displayContext: EvaluationDisplayContext
+		val displayContext: EvaluationDisplayContext,
+		val selectedWeekKey: String?
 	) : GetEvaluations
 }
 

@@ -189,7 +189,7 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
                     IosPlatformAttestation(
                         token: attestation.base64EncodedString(),
                         keyId: keyId,
-                        provider: BaseAttestationProvider.appAttest
+                        provider: SecurityAttestationProvider.appAttest
                     ),
                     nil
                 )
@@ -211,7 +211,7 @@ final class TuIndicePlatformBridge: NSObject, IosPlatformBridge {
                     IosPlatformAttestation(
                         token: assertion.base64EncodedString(),
                         keyId: keyId,
-                        provider: BaseAttestationProvider.appAttest
+                        provider: SecurityAttestationProvider.appAttest
                     ),
                     nil
                 )

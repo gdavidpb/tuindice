@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
-import com.gdavidpb.tuindice.base.domain.model.GradingMode
+import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 import com.gdavidpb.tuindice.record.presentation.model.AttemptItem
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest

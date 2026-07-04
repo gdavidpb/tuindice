@@ -1,32 +1,32 @@
 package com.gdavidpb.tuindice.evaluations.testing
 
-import com.gdavidpb.tuindice.base.domain.model.Evaluation
-import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
-import com.gdavidpb.tuindice.base.domain.model.EvaluationState
-import com.gdavidpb.tuindice.base.domain.model.EvaluationType
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
+import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
-import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalCurrentTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEditableAttemptDescriptor
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
-import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
-import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataRepository
-import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataRepository
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutationAck
+import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
+import com.gdavidpb.tuindice.evaluations.data.repository.EvaluationsApiDataRepository
+import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataRepository
 import com.gdavidpb.tuindice.evaluations.domain.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationAdd
@@ -35,6 +35,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationUpdate
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsRefreshResult
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
+import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsSelectionRepository
 import com.gdavidpb.tuindice.evaluations.utils.extension.computeEvaluationState
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
@@ -253,6 +254,7 @@ class RecordingEvaluationRepository(
 	private val availableAttemptsThrowable: Throwable? = null,
 	private val hasSyncedEvaluationsFlow: Flow<Boolean> = flowOf(true),
 	private val evaluationsSnapshotFlow: Flow<ObservedSyncedSnapshot<List<Evaluation>>>? = null,
+	private val evaluationsSnapshot: ObservedSyncedSnapshot<List<Evaluation>>? = null,
 	private val refreshResult: EvaluationsRefreshResult? = null,
 	private val availableSubjects: List<EditableAttemptDescriptor> = listOf(
 		DEFAULT_EVALUATION_SUBJECT,
@@ -285,7 +287,7 @@ class RecordingEvaluationRepository(
 	}
 
 	override suspend fun getEvaluationsSnapshot(): ObservedSyncedSnapshot<List<Evaluation>> {
-		return observeEvaluationsSnapshotFlow().first()
+		return evaluationsSnapshot ?: observeEvaluationsSnapshotFlow().first()
 	}
 
 	override suspend fun updateEvaluations(): EvaluationsRefreshResult {
@@ -573,6 +575,18 @@ class FakeSettingsDataSource(
 
 	override suspend fun setGetEvaluationsOnCooldown() {
 		cooldownMarked = true
+	}
+}
+
+class InMemoryEvaluationsSelectionRepository(
+	initialWeekKey: String? = null
+) : EvaluationsSelectionRepository {
+	private val selectedWeekKey = MutableStateFlow(initialWeekKey)
+
+	override fun observeSelectedWeekKey(): Flow<String?> = selectedWeekKey
+
+	override suspend fun setSelectedWeekKey(weekKey: String) {
+		selectedWeekKey.value = weekKey
 	}
 }
 

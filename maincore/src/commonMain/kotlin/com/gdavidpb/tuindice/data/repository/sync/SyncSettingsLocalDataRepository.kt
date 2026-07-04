@@ -1,10 +1,6 @@
 package com.gdavidpb.tuindice.data.repository.sync
 
-data class SyncRetryBackoffState(
-	val retryCount: Int,
-	val lastRetryAt: Long,
-	val retryBackoffUntil: Long
-)
+import com.gdavidpb.tuindice.data.model.SyncRetryBackoffState
 
 interface SyncSettingsLocalDataRepository {
 	suspend fun isSyncOnCooldown(): Boolean

@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.data.source.messaging
 
-import com.gdavidpb.tuindice.data.repository.messaging.PushTokenDataRepository
+import com.gdavidpb.tuindice.base.data.repository.messaging.PushTokenDataRepository
 import com.google.firebase.messaging.FirebaseMessaging
 import kotlinx.coroutines.tasks.await
 

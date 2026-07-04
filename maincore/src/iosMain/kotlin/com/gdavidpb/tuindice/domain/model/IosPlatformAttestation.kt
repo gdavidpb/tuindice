@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.domain.model
 
-import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
+import com.gdavidpb.tuindice.security.domain.model.AttestationProvider
 
 data class IosPlatformAttestation(
 	val token: String,

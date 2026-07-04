@@ -2,23 +2,23 @@ package com.gdavidpb.tuindice.auth.domain.usecase
 
 import com.gdavidpb.tuindice.auth.domain.exception.AuthenticationStage
 import com.gdavidpb.tuindice.auth.domain.exception.AuthenticationStageException
-import com.gdavidpb.tuindice.base.domain.model.SyncStatus
-import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
-import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
-import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
-import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
-import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
-import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
-import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
-import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
-import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
-import com.gdavidpb.tuindice.base.utils.canonicalAttestationPayloadJson
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.model.IssueTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
 import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.UpdatePasswordParamsValidator
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
+import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
+import com.gdavidpb.tuindice.security.domain.model.AttestationAuthorization
+import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
+import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.security.utils.canonicalAttestationPayloadJson
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -35,7 +35,6 @@ class UpdatePasswordUseCase(
 ) : FlowUseCase<String, Unit, SignInUseCaseError>() {
 	override suspend fun executeOnBackground(params: String): Flow<Unit> {
 		val usbId = sessionRepository.getUsbId()
-		val accessToken = sessionRepository.getAccessToken()
 		val flow = AttestedTokenFlow.ReissueTokens
 		val attestationPayload = IssueTokensAttestationPayload(
 			usbId = usbId,
@@ -51,9 +50,7 @@ class UpdatePasswordUseCase(
 						serializer = IssueTokensAttestationPayload.serializer(),
 						value = attestationPayload
 					),
-					authorization = AttestationAuthorization.Bearer(
-						accessToken = accessToken
-					)
+					authorization = AttestationAuthorization.CurrentSession
 				)
 			)
 		}.getOrElse { throwable ->

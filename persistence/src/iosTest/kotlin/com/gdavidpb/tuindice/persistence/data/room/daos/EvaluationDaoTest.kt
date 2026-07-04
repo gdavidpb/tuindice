@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.persistence.data.room.daos
 
-import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.persistence.data.room.TuIndiceDatabase
 import com.gdavidpb.tuindice.persistence.data.room.entity.EvaluationEntity
 import kotlinx.coroutines.flow.first

@@ -1,10 +1,10 @@
 package com.gdavidpb.tuindice.subjects.data.source
 
-import com.gdavidpb.tuindice.base.domain.model.GradingMode
+import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertNull
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class DebugSubjectScenarioResolverTest {
 	@Test

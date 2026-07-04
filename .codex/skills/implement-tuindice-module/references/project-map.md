@@ -265,6 +265,7 @@ Useful checks are already present in the repo:
 - `./gradlew --continue --console=plain verifySharedTests`
 - `./gradlew --continue --console=plain verifySharedHostTests` (android host JVM — the only platform where machine alphabet/Λ validators enforce)
 - `./gradlew --continue --console=plain detekt` (per-module baselines)
+- `scripts/semgrep-architecture.sh` (architecture ruleset: rule fixtures + generality check + repo scan; use `scan` mode for change validation)
 - `./gradlew --continue --console=plain koverHtmlReport` (coverage measurement, no thresholds)
 - `./gradlew --continue --console=plain verifyCommonUiGate`
 - `./gradlew --continue --console=plain verifyIosHostTypecheck`

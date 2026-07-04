@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
+import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
@@ -21,8 +22,9 @@ import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.testing.FakeCoreCacheStateRepository
 import com.gdavidpb.tuindice.testing.FakeDeviceInfoRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeMessagingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
@@ -35,8 +37,8 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReviewRepository
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
 import com.gdavidpb.tuindice.wizard.di.wizardModule
-import kotlin.test.Test
 import org.koin.dsl.module
+import kotlin.test.Test
 
 class MainModuleKoinSmokeTest {
 	@Test
@@ -53,6 +55,7 @@ class MainModuleKoinSmokeTest {
 			single<ReportingRepository> { RecordingReportingRepository() }
 			single<NetworkRepository> { FakeNetworkRepository() }
 			single<ReviewRepository> { RecordingReviewRepository() }
+			single<MessagingRepository> { FakeMessagingRepository() }
 			single<SyncRepository> { FakeSyncRepository() }
 			single<CoreCacheStateRepository> { FakeCoreCacheStateRepository() }
 			single<UpdateRepository> { FakeUpdateRepository() }

@@ -1,29 +1,32 @@
 package com.gdavidpb.tuindice.data.source.attestation
 
-import com.gdavidpb.tuindice.base.data.model.CreateAttestationPreparationSessionRequest
-import com.gdavidpb.tuindice.base.data.model.toRequestAuthorizationOrNull
-import com.gdavidpb.tuindice.base.data.model.AttestationPreparationRequiredResponse
-import com.gdavidpb.tuindice.base.data.model.AttestationProofOfPossessionRequest
-import com.gdavidpb.tuindice.base.data.model.CompleteAttestationPreparationRequest
-import com.gdavidpb.tuindice.base.data.model.CreateAttestationSessionRequest
-import com.gdavidpb.tuindice.base.data.model.CreateAttestationSessionResponse
-import com.gdavidpb.tuindice.base.data.model.IssueAttestationTokenRequest
-import com.gdavidpb.tuindice.base.data.model.IssueAttestationTokenResponse
-import com.gdavidpb.tuindice.base.domain.model.AttestationAuthorization
-import com.gdavidpb.tuindice.base.domain.model.AttestationEvidenceMode
-import com.gdavidpb.tuindice.base.domain.model.AttestationPreparationCode
-import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
-import com.gdavidpb.tuindice.base.domain.model.Attestation
-import com.gdavidpb.tuindice.base.domain.model.AttestationRequest
-import com.gdavidpb.tuindice.base.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
-import com.gdavidpb.tuindice.base.utils.attestationBindingInput
-import com.gdavidpb.tuindice.base.utils.extension.isAttestationKeyUserMismatch
+import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.utils.extension.isForbidden
 import com.gdavidpb.tuindice.base.utils.extension.isPreconditionRequired
+import com.gdavidpb.tuindice.base.utils.extension.isUnauthorized
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationProviderDataRepository
 import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
 import com.gdavidpb.tuindice.platform.android.model.ProviderAttestation
+import com.gdavidpb.tuindice.security.data.model.AttestationPreparationRequiredResponse
+import com.gdavidpb.tuindice.security.data.model.AttestationProofOfPossessionRequest
+import com.gdavidpb.tuindice.security.data.model.CompleteAttestationPreparationRequest
+import com.gdavidpb.tuindice.security.data.model.CreateAttestationPreparationSessionRequest
+import com.gdavidpb.tuindice.security.data.model.CreateAttestationSessionRequest
+import com.gdavidpb.tuindice.security.data.model.CreateAttestationSessionResponse
+import com.gdavidpb.tuindice.security.data.model.IssueAttestationTokenRequest
+import com.gdavidpb.tuindice.security.data.model.IssueAttestationTokenResponse
+import com.gdavidpb.tuindice.security.data.model.toRequestAuthorizationOrNull
+import com.gdavidpb.tuindice.security.domain.model.Attestation
+import com.gdavidpb.tuindice.security.domain.model.AttestationAuthorization
+import com.gdavidpb.tuindice.security.domain.model.AttestationEvidenceMode
+import com.gdavidpb.tuindice.security.domain.model.AttestationPreparationCode
+import com.gdavidpb.tuindice.security.domain.model.AttestationProvider
+import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
+import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.security.utils.attestationBindingInput
+import com.gdavidpb.tuindice.security.utils.extension.isAttestationKeyUserMismatch
 import io.ktor.client.HttpClient
 import io.ktor.client.call.body
 import io.ktor.client.plugins.ClientRequestException
@@ -31,43 +34,104 @@ import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.bearerAuth
 import io.ktor.client.request.post
 import io.ktor.client.request.setBody
-import java.security.MessageDigest
-import kotlin.io.encoding.Base64
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import java.security.MessageDigest
+import kotlin.io.encoding.Base64
+
+private typealias UnauthorizedSessionRecovery = suspend (
+	attemptedAuthorizationAccessToken: String?,
+	attemptedCachedAccessToken: String?,
+	attemptedCachedRefreshToken: String?
+) -> SessionSnapshot?
 
 class AndroidAttestationDataSource(
 	private val ktorClient: HttpClient,
 	private val providerDataSource: AttestationProviderDataRepository,
 	private val proofOfPossessionCapability: AndroidProofOfPossessionCapability,
-	private val configRepository: ConfigRepository
+	private val configRepository: ConfigRepository,
+	private val sessionRepository: SessionRepository? = null,
+	private val recoverUnauthorizedSession: UnauthorizedSessionRecovery? = null
 ) : AttestationRepository {
 	private val proofOfPossessionMutex = Mutex()
 
 	override suspend fun attest(request: AttestationRequest): Attestation {
-		return proofOfPossessionMutex.withLock {
-			val requestHash = sha256Base64Url(request.payloadJson)
+		val requestHash = sha256Base64Url(request.payloadJson)
 
-			if (!configRepository.getAttestationAndroidEnforcementEnabled()) {
-				return@withLock runCatching {
-					attestWithBypass(
-						request = request,
-						requestHash = requestHash
-					)
-				}.recoverCatching { throwable ->
-					if (!throwable.shouldFallbackToEnforcedAttestation()) throw throwable
-					attestWithRecovery(
-						request = request,
-						requestHash = requestHash
-					)
-				}.getOrThrow()
-			}
-
-			attestWithRecovery(
-				request = request,
-				requestHash = requestHash
-			)
+		if (request.authorization is AttestationAuthorization.CurrentSession) {
+			return attestCurrentSession(request = request, requestHash = requestHash)
 		}
+
+		return proofOfPossessionMutex.withLock {
+			attestConfigured(request = request, requestHash = requestHash)
+		}
+	}
+
+	private suspend fun attestCurrentSession(
+		request: AttestationRequest,
+		requestHash: String
+	): Attestation {
+		val attemptedSnapshot = requireNotNull(sessionRepository) {
+			"SessionRepository is required for current-session attestation."
+		}.getActiveSessionSnapshot()
+			?: throw IllegalStateException("Active session is unavailable for current-session attestation.")
+
+		return try {
+			proofOfPossessionMutex.withLock {
+				attestConfigured(
+					request = request.withAccessToken(attemptedSnapshot.accessToken),
+					requestHash = requestHash
+				)
+			}
+		} catch (throwable: Throwable) {
+			if (!throwable.isUnauthorized()) throw throwable
+
+			val recoveredSnapshot = requireNotNull(recoverUnauthorizedSession) {
+				"Session recovery is required for current-session attestation."
+			}(
+				attemptedSnapshot.accessToken,
+				attemptedSnapshot.accessToken,
+				attemptedSnapshot.refreshToken
+			) ?: throw throwable
+
+			proofOfPossessionMutex.withLock {
+				attestConfigured(
+					request = request.withAccessToken(recoveredSnapshot.accessToken),
+					requestHash = requestHash
+				)
+			}
+		}
+	}
+
+	private suspend fun attestConfigured(
+		request: AttestationRequest,
+		requestHash: String
+	): Attestation {
+		if (!configRepository.getAttestationAndroidEnforcementEnabled()) {
+			return runCatching {
+				attestWithBypass(
+					request = request,
+					requestHash = requestHash
+				)
+			}.recoverCatching { throwable ->
+				if (!throwable.shouldFallbackToEnforcedAttestation()) throw throwable
+				attestWithRecovery(
+					request = request,
+					requestHash = requestHash
+				)
+			}.getOrThrow()
+		}
+
+		return attestWithRecovery(
+			request = request,
+			requestHash = requestHash
+		)
+	}
+
+	private fun AttestationRequest.withAccessToken(accessToken: String): AttestationRequest {
+		return copy(
+			authorization = AttestationAuthorization.Bearer(accessToken = accessToken)
+		)
 	}
 
 	private suspend fun attestWithRecovery(

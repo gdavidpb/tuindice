@@ -1,0 +1,63 @@
+rules:
+  - id: no-raw-dispatchers
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Dispatchers.* crudo fuera de base (README "Capas por feature > Domain").
+      Inyecta TuIndiceDispatchers en la frontera MVI, BufferedEventPublisher o el DataSource
+      con trabajo bloqueante; el resto del pipeline hereda el contexto.
+    pattern-either:
+      - pattern: Dispatchers.IO
+      - pattern: Dispatchers.Main
+      - pattern: Dispatchers.Default
+      - pattern: Dispatchers.Unconfined
+    paths:
+      include:
+        - '**/src/commonMain/**'
+      exclude:
+        - '**/base/domain/dispatcher/**'
+        - '**/base/utils/extension/**'
+        # testkit es infraestructura de pruebas: Unconfined ahí es por diseño.
+        - 'testkit/**'
+    metadata:
+      area: dispatchers
+      referencia: 'README.md § Capas por feature; base/utils/extension usa Main.immediate por decisión documentada'
+
+  - id: pipeline-no-dispatcher-injection
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Los UseCase, máquinas y contratos de repositorio no reciben TuIndiceDispatchers
+      (README "Capas por feature > Domain"). Heredan el contexto del pipeline: el único
+      flowOn vive en StateMachineViewModel; las hojas bloqueantes son DataSource concretos.
+    pattern-regex: '\bTuIndiceDispatchers\b'
+    paths:
+      include:
+        - '**/domain/usecase/**'
+        - '**/presentation/machine/**'
+        - '**/domain/repository/**'
+        - '**/data/repository/**'
+    metadata:
+      area: dispatchers
+      referencia: 'README.md § Capas por feature'
+
+  - id: pipeline-no-context-switch
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Sin flowOn/withContext en use cases, máquinas o contratos (README "Capas por feature > Domain").
+      El flowOn(dispatchers.default) de StateMachineViewModel ya mueve todo el upstream fuera
+      del main thread; cambiar contexto en capas intermedias rompe ese punto único de sustitución.
+    pattern-either:
+      - pattern: $RECEIVER.flowOn(...)
+      - pattern: flowOn(...)
+      - pattern: withContext(...)
+    paths:
+      include:
+        - '**/domain/usecase/**'
+        - '**/presentation/machine/**'
+        - '**/domain/repository/**'
+        - '**/data/repository/**'
+    metadata:
+      area: dispatchers
+      referencia: 'README.md § Capas por feature; skill "Dispatchers live only at the MVI boundary"'

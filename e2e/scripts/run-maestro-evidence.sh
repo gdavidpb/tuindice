@@ -80,6 +80,9 @@ publish_github_statuses() {
 	local include_covered="${3:-1}"
 	local context
 	local contexts=()
+	local publish_pids=()
+	local pid
+	local failed_publishes=0
 
 	while IFS= read -r context; do
 		[[ -n "${context}" ]] || continue
@@ -97,8 +100,19 @@ publish_github_statuses() {
 			-f state="${state}" \
 			-f context="${context}" \
 			-f description="${description}" \
-			>/dev/null
+			>/dev/null &
+		publish_pids+=("$!")
 	done
+
+	for pid in "${publish_pids[@]}"; do
+		wait "${pid}" || failed_publishes=$((failed_publishes + 1))
+	done
+
+	if [[ "${failed_publishes}" != "0" ]]; then
+		printf '%s of %s GitHub commit status publishes failed for %s.\n' \
+			"${failed_publishes}" "${#contexts[@]}" "${COMMIT_SHA}" >&2
+		return 1
+	fi
 }
 
 maestro_report_has_no_failures() {
@@ -276,7 +290,10 @@ run_suite_evidence() {
 
 	if [[ "${CERTIFICATION_DIR}" != "${FINGERPRINT_CERTIFICATION_DIR}" ]]; then
 		mkdir -p "${FINGERPRINT_CERTIFICATION_DIR}"
-		cp -R "${CERTIFICATION_DIR}/." "${FINGERPRINT_CERTIFICATION_DIR}/"
+		# APFS clonefile keeps the by-fingerprint mirror instant even with large
+		# Maestro video/screenshot outputs; fall back to a plain copy elsewhere.
+		cp -c -R "${CERTIFICATION_DIR}/." "${FINGERPRINT_CERTIFICATION_DIR}/" 2>/dev/null ||
+			cp -R "${CERTIFICATION_DIR}/." "${FINGERPRINT_CERTIFICATION_DIR}/"
 	fi
 
 	publish_description="Local E2E ${SUITE_ID} passed for ${COMMIT_SHA:0:7} fp ${E2E_FINGERPRINT:0:12}."

@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.subjects.data.model
 
-import com.gdavidpb.tuindice.base.domain.model.GradingMode
+import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 

@@ -47,15 +47,32 @@ El detector compara el PR contra el merge-base de `production` y ejecuta solo pi
 - Cambios en `base`, `persistence`, `academiccore`, `maincore`, Gradle raíz o hosts amplían el alcance.
 - Cambios en cualquier `build.gradle.kts`, `settings.gradle.kts` o en el propio grafo ejecutan
   `verifyModuleGraph` en preflight, así el grafo no puede derivar en silencio.
+- Cada módulo impactado (y `app`) pasa por `:módulo:detekt` contra su baseline; cambios en
+  `config/detekt/`, `.editorconfig`, cualquier `detekt-baseline.xml` o el Gradle raíz ejecutan `detekt`
+  completo sin marcar impacto de runtime.
 - Cambios runtime exigen bump de versión.
 - Cambios user-visible cubiertos por E2E exigen commit statuses locales exitosos.
 - Cambios en `iosApp/scripts/build-kmp-framework.sh` o `ci-build-ios-host.sh` compilan el host device release;
   cambios en `ci-typecheck-ios-host.sh` ejecutan el typecheck; el resto de `iosApp/scripts/*` solo dispara un
   smoke liviano en macOS.
+- El detector separa las tareas iOS en `ios_test_tasks` (compilación y tests de simulador) e `ios_host_tasks`
+  (typecheck y builds del host); `ios_tasks` sigue emitiéndose como unión. Preflight las corre en dos jobs
+  macOS paralelos (`ios-test-preflight` e `ios-host-preflight`), así el wall-clock es el mayor de los dos y
+  una falla de tests no espera al build del host.
 
 El preflight de PR no recibe secretos de producción: `:app:bundleRelease` firma con un keystore descartable y
 configs Firebase placeholder (`.github/scripts/materialize-ci-placeholders.sh`). La firma real ocurre solo en
 deploy bajo el environment `production`.
+
+### Caches de build
+
+Los jobs de PR escriben el Gradle User Home cache (`cache-read-only: false`, scoped al PR), por lo que pushes
+sucesivos del mismo PR reusan compilaciones del intento anterior. Como nada en `production` construye las
+variantes de simulador iOS, `warm-ios-caches.yml` las compila tras cada push a `production` y publica el cache
+bajo la identidad del job `ios-test-preflight` (vía `GRADLE_BUILD_ACTION_CACHE_KEY_JOB`), de modo que los PRs
+nuevos restauran módulos no tocados como `FROM-CACHE`. Ese workflow es independiente de stage/deploy: su
+resultado nunca bloquea un release. La cuota de cache del repo es 10 GB con evicción LRU; `cache-cleanup:
+on-success` recorta las entradas antes de guardarlas.
 
 Validación local del detector:
 

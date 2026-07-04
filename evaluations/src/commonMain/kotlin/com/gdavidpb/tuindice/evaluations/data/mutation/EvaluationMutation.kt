@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.data.mutation
 
-import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import kotlinx.serialization.ExperimentalSerializationApi
 import kotlinx.serialization.SerialName

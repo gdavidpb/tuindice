@@ -187,6 +187,7 @@ flows:
       - version-modality-selection
       - zoom
       - canvas-pan-sticky-headers
+      - session-state-restoration
       - node-selection
       - subject-detail-navigation
       - subject-detail-dismiss-keeps-focus
@@ -946,7 +947,7 @@ flows:
     type: interaction
     platforms: [android, ios]
     status: active
-    variant: synthetic-term-create-edit-delete-search-clear
+variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
     fixture_state: synthetic-term-success
     actions_covered:
       - record.CreateSyntheticTerm.UpdateQuery
@@ -1102,7 +1103,7 @@ flows:
     type: smoke
     platforms: [android, ios]
     status: active
-    variant: canvas-pan-zoom-sticky-terms
+    variant: canvas-pan-zoom-sticky-terms-session-restore
     fixture_state: pensum-success
     actions_covered:
       - pensum.Pensum.RefreshPensum
@@ -1122,6 +1123,8 @@ flows:
       - pensum_sticky_terms
       - pensum_zoom_in
       - pensum_zoom_out
+      - maincore_tuindice_bottom_bar_summary_item
+      - summary_content_container
   - id: pensum-refresh-not-found
     path: e2e/maestro/flows/pensum/pensum-refresh-not-found.yaml
     module: pensum
@@ -1507,18 +1510,21 @@ flows:
     type: interaction
     platforms: [android, ios]
     status: active
-    variant: swipe-edit-submit
+variant: swipe-edit-change-submit-unchanged-disabled
     fixture_state: patch-evaluations-success
-    actions_covered:
-      - evaluations.Evaluations.EditEvaluation
-      - evaluations.Evaluation.ClickSubmitEvaluation
-    primary_selectors:
-      - evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
-      - evaluation_swipe_to_dismiss_container
-      - evaluation_swipe_edit_action
-      - evaluation_content_container
-      - evaluation_done_fab
-      - base_snackbar_container
+actions_covered:
+- evaluations.Evaluations.EditEvaluation
+- evaluations.Evaluation.SetType
+- evaluations.Evaluation.ClickSubmitEvaluation
+primary_selectors:
+- evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435
+- evaluation_swipe_to_dismiss_container
+- evaluation_swipe_edit_action
+- evaluation_content_container
+- evaluation_type_chip_written_work
+- evaluation_type_chip_test
+- evaluation_done_fab
+- base_snackbar_container
   - id: evaluations-swipe-delete
     path: e2e/maestro/flows/evaluations/evaluations-swipe-delete.yaml
     module: evaluations
@@ -1530,7 +1536,7 @@ flows:
     actions_covered:
       - evaluations.Evaluations.RemoveEvaluation
     primary_selectors:
-      - evaluation_item_card_bfa02abf2292f47e5baee862a8a50ff1
+      - evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435
       - evaluation_swipe_to_dismiss_container
       - evaluation_swipe_delete_action
       - base_snackbar_container

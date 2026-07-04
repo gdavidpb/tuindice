@@ -15,10 +15,6 @@ sealed interface PensumInternalEvent {
 		val isSummaryCollapsed: Boolean
 	) : PensumInternalEvent
 
-	data class PensumSummaryCollapsedObserved(
-		val isCollapsed: Boolean
-	) : PensumInternalEvent
-
 	data object PensumDataMissing : PensumInternalEvent
 
 	data object PensumRecordDataUnavailableObserved : PensumInternalEvent

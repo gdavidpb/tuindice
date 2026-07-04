@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.subjects.presentation.mapper
 
-import com.gdavidpb.tuindice.base.domain.model.GradingMode
+import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetailResult
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSegmentTab
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectStatsSegment

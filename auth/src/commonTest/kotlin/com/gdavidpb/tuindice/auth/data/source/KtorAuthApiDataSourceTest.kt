@@ -1,17 +1,17 @@
 package com.gdavidpb.tuindice.auth.data.source
 
-import com.gdavidpb.tuindice.base.data.source.network.AttestationHeaders
-import com.gdavidpb.tuindice.base.domain.model.Attestation
+import com.gdavidpb.tuindice.security.data.source.network.AttestationHeaders
+import com.gdavidpb.tuindice.security.domain.model.Attestation
 import io.ktor.client.HttpClient
 import io.ktor.client.engine.mock.MockEngine
 import io.ktor.client.engine.mock.respond
 import io.ktor.client.plugins.DefaultRequest
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
-import io.ktor.http.content.OutgoingContent
 import io.ktor.http.ContentType
 import io.ktor.http.HttpHeaders
 import io.ktor.http.HttpMethod
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.content.OutgoingContent
 import io.ktor.http.headersOf
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.coroutines.test.runTest

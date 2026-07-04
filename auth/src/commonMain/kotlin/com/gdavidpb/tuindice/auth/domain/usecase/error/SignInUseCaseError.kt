@@ -12,6 +12,7 @@ sealed interface SignInUseCaseError : UseCaseError {
 	data object AccountDisabled : SignInUseCaseError
 	data object Untrusted : SignInUseCaseError
 	data object Unavailable : SignInUseCaseError
+	data object TooManyRequests : SignInUseCaseError
 	data object OutdatedApp : SignInUseCaseError
 	class NoConnection(val isNetworkAvailable: Boolean) : SignInUseCaseError
 }

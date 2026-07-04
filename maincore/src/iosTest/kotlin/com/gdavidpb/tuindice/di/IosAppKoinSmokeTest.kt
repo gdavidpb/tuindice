@@ -2,11 +2,11 @@ package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
-import com.gdavidpb.tuindice.base.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.domain.model.IosBuildVariant
 import com.gdavidpb.tuindice.domain.model.IosHostCapabilities
 import com.gdavidpb.tuindice.domain.model.IosPlatformAttestation
+import com.gdavidpb.tuindice.platform.IOSContext
 import com.gdavidpb.tuindice.platform.IosAttestationCapability
 import com.gdavidpb.tuindice.platform.IosDeviceCapability
 import com.gdavidpb.tuindice.platform.IosExternalActionsCapability
@@ -16,11 +16,11 @@ import com.gdavidpb.tuindice.platform.IosRemoteConfigCapability
 import com.gdavidpb.tuindice.platform.IosReviewCapability
 import com.gdavidpb.tuindice.platform.IosSecureStoreCapability
 import com.gdavidpb.tuindice.platform.IosUpdateCapability
-import com.gdavidpb.tuindice.platform.IOSContext
-import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.platform.iosDefaultConfigValues
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
+import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
+import com.gdavidpb.tuindice.security.domain.model.AttestationProvider
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withStartedKoin
 import kotlin.test.Test

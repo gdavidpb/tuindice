@@ -1,0 +1,73 @@
+rules:
+  - id: kmp-no-android-import
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Import de android.* en commonMain rompe la portabilidad KMP (README "Límites KMP").
+      Mueve el código a androidMain o introduce una abstracción en base.
+    pattern-regex: '^import\s+android\.'
+    paths:
+      include:
+        - '**/src/commonMain/**'
+    metadata:
+      area: kmp-portability
+      referencia: 'README.md § Límites KMP'
+
+  - id: kmp-no-java-import
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Import de java.* en commonMain no compila para iOS (README "Límites KMP").
+      Usa equivalentes de kotlin.* / kotlinx.* o mueve el código a androidMain.
+    pattern-regex: '^import\s+java\.'
+    paths:
+      include:
+        - '**/src/commonMain/**'
+    metadata:
+      area: kmp-portability
+      referencia: 'README.md § Límites KMP'
+
+  - id: kmp-no-buildconfig
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      BuildConfig no está permitido en commonMain (README "Límites KMP").
+      Expone el valor mediante un contrato en base (p. ej. AppEnvironmentRepository).
+    pattern-either:
+      - pattern: BuildConfig.$FIELD
+      - pattern-regex: '^import\s+.*\.BuildConfig$'
+    paths:
+      include:
+        - '**/src/commonMain/**'
+    metadata:
+      area: kmp-portability
+      referencia: 'README.md § Límites KMP'
+
+  - id: kmp-no-koin-androidx-import
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      DSL Android de ViewModel de Koin en source sets KMP (README "Límites KMP").
+      En navegación compartida resuelve ViewModels con org.koin.compose.viewmodel.koinViewModel(...).
+    pattern-regex: '^import\s+org\.koin\.androidx\.'
+    paths:
+      include:
+        - '**/src/commonMain/**'
+    metadata:
+      area: kmp-portability
+      referencia: 'README.md § Límites KMP'
+
+  - id: kmp-no-firebase-import
+    languages: [kotlin]
+    severity: ERROR
+    message: >-
+      Firebase directo en commonMain acopla features/base a una herramienta concreta
+      (README "Eventos y datos de uso"). Publica mediante EventPublisher o contratos de base;
+      los subscribers reales se registran en plataforma.
+    pattern-regex: '^import\s+(?:com\.google\.firebase|dev\.gitlive\.firebase)'
+    paths:
+      include:
+        - '**/src/commonMain/**'
+    metadata:
+      area: kmp-portability
+      referencia: 'README.md § Eventos y datos de uso'

@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.utils.extension
 
-import com.gdavidpb.tuindice.base.domain.model.EvaluationScheduleMode
-import com.gdavidpb.tuindice.base.domain.model.EvaluationState
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import kotlin.math.roundToInt
 

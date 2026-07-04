@@ -77,6 +77,7 @@ subprojects {
 		buildUponDefaultConfig = true
 		parallel = true
 		baseline = file("detekt-baseline.xml")
+		config.setFrom(rootProject.files("config/detekt/detekt.yml"))
 		source.setFrom(files("src"))
 	}
 }
@@ -172,6 +173,8 @@ tasks.register("verifySharedCompilation") {
 		":persistence:compileKotlinIosSimulatorArm64",
 		":record:compileAndroidMain",
 		":record:compileKotlinIosSimulatorArm64",
+		":security:compileAndroidMain",
+		":security:compileKotlinIosSimulatorArm64",
 		":summary:compileAndroidMain",
 		":summary:compileKotlinIosSimulatorArm64",
 		":subjects:compileAndroidMain",
@@ -197,6 +200,7 @@ tasks.register("verifySharedTests") {
 		":auth:iosSimulatorArm64Test",
 		":persistence:iosSimulatorArm64Test",
 		":record:iosSimulatorArm64Test",
+		":security:iosSimulatorArm64Test",
 		":summary:iosSimulatorArm64Test",
 		":subjects:iosSimulatorArm64Test",
 		":pensum:iosSimulatorArm64Test",
@@ -219,6 +223,7 @@ tasks.register("verifySharedHostTests") {
 		":auth:testAndroidHostTest",
 		":persistence:testAndroidHostTest",
 		":record:testAndroidHostTest",
+		":security:testAndroidHostTest",
 		":summary:testAndroidHostTest",
 		":subjects:testAndroidHostTest",
 		":pensum:testAndroidHostTest",

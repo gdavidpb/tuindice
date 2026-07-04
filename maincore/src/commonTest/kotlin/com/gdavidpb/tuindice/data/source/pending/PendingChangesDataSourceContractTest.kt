@@ -3,7 +3,7 @@ package com.gdavidpb.tuindice.data.source.pending
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
-import com.gdavidpb.tuindice.base.domain.model.Evaluation
+import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
@@ -19,18 +19,18 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsRefreshResult
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.PendingMutationEntity
-import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
-import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_SCOPE
 import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_STORE_ID
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
-import kotlin.test.Test
-import kotlin.test.assertEquals
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
 
 class PendingChangesDataSourceContractTest {
 	@Test

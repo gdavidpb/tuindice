@@ -18,6 +18,15 @@ extension_factory_classes=(
 	"com.gdavidpb.tuindice.mocks.EvaluationsResponseTransformerFactory"
 )
 
+if lsof -nP -iTCP:"${port}" -sTCP:LISTEN >/dev/null 2>&1; then
+	# WireMock queda huérfano cuando un runner mata al wrapper de kotlin pero no
+	# al java hijo; fallar aquí evita compilar extensiones para morir en el bind.
+	echo "Port ${port} is already in use (stale WireMock from a previous run?)." >&2
+	echo "Inspect it with: lsof -nP -iTCP:${port} -sTCP:LISTEN" >&2
+	echo "Free it with:    kill \$(lsof -t -iTCP:${port} -sTCP:LISTEN)" >&2
+	exit 1
+fi
+
 if [ ! -f "${wiremock_jar}" ]; then
 	echo "Missing ${wiremock_jar} in ${script_dir}." >&2
 	exit 1
