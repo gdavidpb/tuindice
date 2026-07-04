@@ -113,6 +113,9 @@ if [[ "$HAS_RELEVANT_CHANGES" != "true" ]]; then
 fi
 
 if [[ "$DRY_RUN" == "true" ]]; then
+	# Siempre: la deriva working-tree vs git (script ignorado por /scripts/*)
+	# no depende de que el diff toque CI.
+	print_command bash ./.github/scripts/verify-workflow-refs.sh
 	if [[ "$CI_CONFIG_TOUCHED" == "true" ]]; then
 		print_command bash ./.github/scripts/validate-ci-config.sh
 	fi
@@ -143,6 +146,11 @@ if [[ "$DRY_RUN" == "true" ]]; then
 	fi
 	exit 0
 fi
+
+# Siempre, no solo con CI tocado: atrapa archivos referenciados por workflows
+# que existen localmente pero no están trackeados (la parity corre contra el
+# working tree; CI corre contra el checkout de git).
+bash ./.github/scripts/verify-workflow-refs.sh
 
 if [[ "$CI_CONFIG_TOUCHED" == "true" ]]; then
 	bash ./.github/scripts/validate-ci-config.sh

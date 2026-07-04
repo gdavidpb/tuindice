@@ -46,4 +46,6 @@ bash "${SCRIPT_DIR}/test-google-play-draft-check.sh"
 bash "${SCRIPT_DIR}/test-appstore-connect-check.sh"
 bash "${SCRIPT_DIR}/test-production-release-artifact.sh"
 
+bash "${SCRIPT_DIR}/verify-workflow-refs.sh"
+
 info "CI configuration syntax checks passed."
