@@ -51,6 +51,12 @@ appId: com.gdavidpb.tuindice.debug
     id: pensum_canvas
 - tapOn:
     id: pensum_zoom_in
+- tapOn:
+    id: pensum_zoom_in
+- tapOn:
+    id: pensum_zoom_in
+- tapOn:
+    id: pensum_zoom_in
 - extendedWaitUntil:
     visible:
       id: pensum_fit_to_screen
@@ -61,14 +67,17 @@ appId: com.gdavidpb.tuindice.debug
     timeout: 10000
 - tapOn:
     id: pensum_minimap_toggle
-- assertVisible:
-    id: pensum_minimap
+- extendedWaitUntil:
+    visible:
+      id: pensum_minimap
     timeout: 10000
 - tapOn:
     id: pensum_status_filter_available
 - runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - assertVisible:
     id: pensum_status_filter_clear
+- assertVisible:
+    id: pensum_sticky_terms
 - tapOn:
     id: maincore_tuindice_bottom_bar_summary_item
 - extendedWaitUntil:
@@ -85,8 +94,9 @@ appId: com.gdavidpb.tuindice.debug
     id: pensum_status_filter_clear
 - assertVisible:
     id: pensum_sticky_terms
-- assertVisible:
-    id: pensum_minimap
+- extendedWaitUntil:
+    visible:
+      id: pensum_minimap
     timeout: 10000
 - tapOn:
     id: pensum_minimap
