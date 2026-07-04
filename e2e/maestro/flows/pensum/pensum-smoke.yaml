@@ -47,8 +47,8 @@ appId: com.gdavidpb.tuindice.debug
     duration: 600
 - assertVisible:
     id: pensum_sticky_terms
-- doubleTapOn:
-    id: pensum_canvas
+- tapOn:
+    id: pensum_fit_to_screen
 - tapOn:
     id: pensum_zoom_in
 - tapOn:
