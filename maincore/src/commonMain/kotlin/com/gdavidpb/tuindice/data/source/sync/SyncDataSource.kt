@@ -73,31 +73,40 @@ class SyncDataSource(
 			}.onFailure { throwable ->
 				if (throwable is CancellationException) throw throwable
 
-				val syncHttpStatusCode = throwable.syncHttpStatusCode()
-				val syncStatus = when {
-					syncHttpStatusCode == HttpStatusCode.Conflict || throwable.isConflict() ->
-						SyncStatus.OutdatedCredentials
+				markSyncFailure(throwable)
+			}
+		}
+	}
 
-					syncHttpStatusCode == HttpStatusCode.ServiceUnavailable ||
-						syncHttpStatusCode == HttpStatusCode.FailedDependency ||
-						throwable.isUnavailable() ||
-						throwable.isFailedDependency() ->
-						SyncStatus.Unavailable
+	private suspend fun markSyncFailure(throwable: Throwable) {
+		val syncHttpStatusCode = throwable.syncHttpStatusCode()
+		val syncStatus = when {
+			syncHttpStatusCode == HttpStatusCode.Conflict || throwable.isConflict() ->
+				SyncStatus.OutdatedCredentials
 
-					else ->
-						SyncStatus.Failed
-				}
-				val isSyncRetryable = throwable.isSyncRetryable(syncHttpStatusCode)
+			syncHttpStatusCode == HttpStatusCode.ServiceUnavailable ||
+				syncHttpStatusCode == HttpStatusCode.FailedDependency ||
+				throwable.isUnavailable() ||
+				throwable.isFailedDependency() ->
+				SyncStatus.Unavailable
 
-				runCatching {
-					syncStatusRepository.setSyncReport(throwable.syncReportOrDefault())
-					syncStatusRepository.setSyncStatus(syncStatus)
-				}
-				if (isSyncRetryable) {
-					runCatching {
-						settingsDataSource.markSyncRetryBackoff(throwable)
-					}
-				}
+			else ->
+				SyncStatus.Failed
+		}
+		val isSyncRetryable = throwable.isSyncRetryable(syncHttpStatusCode)
+
+		runCatching {
+			syncStatusRepository.setSyncReport(throwable.syncReportOrDefault())
+			syncStatusRepository.setSyncStatus(syncStatus)
+		}
+		if (syncStatus != SyncStatus.OutdatedCredentials) {
+			runCatching {
+				settingsDataSource.setSyncOnCooldown()
+			}
+		}
+		if (isSyncRetryable) {
+			runCatching {
+				settingsDataSource.markSyncRetryBackoff(throwable)
 			}
 		}
 	}
