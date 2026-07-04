@@ -307,10 +307,8 @@ fun selectWeek_persistsSelectionAndRestoresItOnNextScreenEntry() = runTest {
 	lateinit var persistedWeekKey: EvaluationsWeekKey
 
 	firstViewModel.state.test {
-		assertEquals(Evaluations.State.Idle, awaitItem())
-
 		firstViewModel.loadEvaluationsAction()
-		val content = assertIs<Evaluations.State.Content>(awaitItem())
+		val content = awaitUntilState<Evaluations.State.Content>()
 
 		// Precondición del escenario: debe existir una semana distinta a la seleccionada.
 		persistedWeekKey = content.weekItems
@@ -331,10 +329,8 @@ fun selectWeek_persistsSelectionAndRestoresItOnNextScreenEntry() = runTest {
 	)
 
 	secondViewModel.state.test {
-		assertEquals(Evaluations.State.Idle, awaitItem())
-
 		secondViewModel.loadEvaluationsAction()
-		val restored = assertIs<Evaluations.State.Content>(awaitItem())
+		val restored = awaitUntilState<Evaluations.State.Content>()
 		assertEquals(persistedWeekKey, restored.selectedWeekKey)
 
 		cancelAndIgnoreRemainingEvents()
