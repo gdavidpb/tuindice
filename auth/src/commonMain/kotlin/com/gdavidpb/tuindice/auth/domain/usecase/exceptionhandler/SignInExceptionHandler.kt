@@ -30,7 +30,8 @@ class SignInExceptionHandler(
 			rootThrowable.isLocked() -> SignInUseCaseError.AccountDisabled
 			rootThrowable.isForbidden() -> SignInUseCaseError.Untrusted
 			rootThrowable.isUpgradeRequired() -> SignInUseCaseError.OutdatedApp
-			rootThrowable.isUnavailable() || rootThrowable.isTooManyRequests() -> SignInUseCaseError.Unavailable
+			rootThrowable.isTooManyRequests() -> SignInUseCaseError.TooManyRequests
+			rootThrowable.isUnavailable() -> SignInUseCaseError.Unavailable
 			rootThrowable.isUnauthorized() -> SignInUseCaseError.AuthenticationFailed
 			rootThrowable.isTimeout() -> SignInUseCaseError.Timeout
 			rootThrowable.isConnection() -> SignInUseCaseError.NoConnection(networkRepository.isAvailable())

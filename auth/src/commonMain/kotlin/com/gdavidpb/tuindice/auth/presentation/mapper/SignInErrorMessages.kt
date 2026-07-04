@@ -13,6 +13,7 @@ import tuindice.auth.generated.resources.snack_network_unavailable
 import tuindice.auth.generated.resources.snack_service_unavailable
 import tuindice.auth.generated.resources.snack_sign_in_failed
 import tuindice.auth.generated.resources.snack_timeout
+import tuindice.auth.generated.resources.snack_too_many_requests
 
 internal suspend fun SignInUseCaseError?.toErrorMessage(
 	identifierMode: SignInIdentifierMode
@@ -47,6 +48,9 @@ internal suspend fun SignInUseCaseError?.toErrorMessage(
 
 		is SignInUseCaseError.Unavailable ->
 			getString(Res.string.snack_service_unavailable)
+
+		is SignInUseCaseError.TooManyRequests ->
+			getString(Res.string.snack_too_many_requests)
 
 		else ->
 			getString(Res.string.snack_default_error)
