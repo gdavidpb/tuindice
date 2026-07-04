@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.security.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.security.utils.canonicalAttestationPayloadJson
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOf
 
@@ -93,8 +94,18 @@ class SignInUseCase(
 			password = params.password
 		)
 
-		messagingRepository.subscribe()
+		trySubscribeMessaging()
 
 		return flowOf(Unit)
+	}
+
+	private suspend fun trySubscribeMessaging() {
+		runCatching {
+			messagingRepository.subscribe()
+		}.onFailure { throwable ->
+			if (throwable is CancellationException) throw throwable
+
+			reportHandledException(throwable)
+		}
 	}
 }

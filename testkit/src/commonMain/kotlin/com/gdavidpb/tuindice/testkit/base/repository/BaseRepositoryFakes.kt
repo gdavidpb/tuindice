@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.testkit.base.repository
 
-import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
+import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
 import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
@@ -16,7 +16,9 @@ import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.FileRepository
+import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
@@ -25,7 +27,6 @@ import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepositor
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
-import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import io.github.vinceglb.filekit.PlatformFile
@@ -349,6 +350,23 @@ class FakeSyncRepository : SyncRepository {
 	}
 
 	override fun observeSyncInProgress(): Flow<Boolean> = flowOf(false)
+}
+
+class FakeMessagingRepository(
+	var throwable: Throwable? = null
+) : MessagingRepository {
+	var subscribeCalls = 0
+	var unsubscribeCalls = 0
+
+	override suspend fun subscribe() {
+		subscribeCalls++
+
+		throwable?.let { throw it }
+	}
+
+	override suspend fun unsubscribe() {
+		unsubscribeCalls++
+	}
 }
 
 class FakeCredentialsRepository(

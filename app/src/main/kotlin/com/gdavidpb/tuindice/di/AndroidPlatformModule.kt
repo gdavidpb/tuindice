@@ -51,6 +51,7 @@ import com.gdavidpb.tuindice.data.source.update.PlayUpdateDataSource
 import com.gdavidpb.tuindice.persistence.di.registerAndroidPersistencePlatformStorage
 import com.gdavidpb.tuindice.platform.android.AndroidKeystoreProofOfPossessionCapability
 import com.gdavidpb.tuindice.platform.android.AndroidProofOfPossessionCapability
+import com.gdavidpb.tuindice.platform.android.PushTokenRotationHandler
 import com.gdavidpb.tuindice.platform.android.UserAgent
 import com.gdavidpb.tuindice.platform.android.androidDefaultConfigValues
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
@@ -186,6 +187,7 @@ val androidPlatformModule = module {
 	}
 	singleOf(::AndroidRemoteConfigDataSource) { bind<RemoteConfigDataRepository>() }
 	singleOf(::FirebasePushTokenDataSource) { bind<PushTokenDataRepository>() }
+	singleOf(::PushTokenRotationHandler)
 	singleOf(::CurrentActivityDataSource)
 	singleOf(::AndroidPlayCoreEnvironmentDataSource) { bind<PlayCoreEnvironmentDataRepository>() }
 	singleOf(::AndroidPlayCoreAvailabilityDataSource) {

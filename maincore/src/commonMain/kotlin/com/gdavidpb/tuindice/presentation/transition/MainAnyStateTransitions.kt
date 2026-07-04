@@ -51,6 +51,7 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 
 		on<Main.Action.RequestSync> { state, _ ->
 			machine.requestSync(host = host)
+			machine.ensureMessagingSubscribed(host = host)
 			state
 		}
 

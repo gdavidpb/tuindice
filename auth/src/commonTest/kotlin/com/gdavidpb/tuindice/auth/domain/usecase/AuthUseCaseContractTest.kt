@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.security.domain.model.AttestationAuthorization
 import com.gdavidpb.tuindice.security.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeMessagingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
@@ -88,6 +89,41 @@ class AuthUseCaseContractTest {
 		assertEquals(SyncStatus.Failed, syncStatusRepository.getSyncStatus())
 		assertEquals(listOf(SyncStatus.Failed), syncStatusRepository.setStatuses)
 		assertEquals(listOf("secret123"), syncRepository.scheduledSyncCalls)
+	}
+
+	@Test
+	fun signInUseCase_completesSignIn_whenMessagingSubscriptionFails() = runTest {
+		val subscribeThrowable = IllegalStateException("FCM registration failed")
+		val repository = RecordingAuthRepository()
+		val messagingRepository = FakeMessagingRepository(throwable = subscribeThrowable)
+		val syncRepository = FakeSyncRepository()
+		val credentialsRepository = FakeCredentialsRepository()
+		val reportingRepository = RecordingReportingRepository()
+		val useCase = SignInUseCase(
+			authRepository = repository,
+			messagingRepository = messagingRepository,
+			syncRepository = syncRepository,
+			credentialsRepository = credentialsRepository,
+			syncStatusRepository = FakeSyncStatusRepository(),
+			attestationRepository = FakeAttestationRepository(),
+			reportingRepository = reportingRepository,
+			paramsValidator = SignInParamsValidator(),
+			exceptionHandler = SignInExceptionHandler(
+				networkRepository = FakeNetworkRepository(isAvailable = true)
+			)
+		)
+
+		useCase.execute(SignInParams(usbId = VALID_USB_ID, password = "secret123")).test {
+			assertEquals(Unit, awaitLoadingThenData(this))
+			awaitComplete()
+		}
+
+		assertEquals(1, messagingRepository.subscribeCalls)
+		assertEquals(listOf("secret123"), credentialsRepository.storedPasswords)
+		assertEquals(listOf("secret123"), syncRepository.scheduledSyncCalls)
+		assertEquals(subscribeThrowable, reportingRepository.loggedExceptions.single())
+		assertEquals(true, reportingRepository.customKeys["is-handled"])
+		assertEquals("SignInUseCase", reportingRepository.customKeys["use-case"])
 	}
 
 	@Test
