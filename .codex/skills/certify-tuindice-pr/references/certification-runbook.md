@@ -95,6 +95,11 @@ evidence task:
 
 The task resolves the diff against `production` or `origin/production`, selects required suites, runs locally available platforms, writes evidence, and publishes passing GitHub commit statuses when possible.
 
+Before starting the platform workers it cold-reboots the in-scope
+emulator/simulators — endurance flakiness after hours of device uptime is
+real and was measured during certification. Set
+`E2E_DEVICE_REBOOT_BEFORE_EVIDENCE=0` to skip the reboot.
+
 Evidence is written under:
 
 ```text
@@ -124,6 +129,35 @@ nothing, and write no evidence:
 E2E_MAESTRO_SUITE=e2e/maestro/flows/suites/<suite>.yaml ./gradlew --console=plain e2eMaestroAndroid
 E2E_MAESTRO_SUITE=e2e/maestro/flows/<failing-flow>.yaml ./gradlew --console=plain e2eMaestroIos
 ```
+
+Diagnosis doctrine, in order:
+
+1. **Survey first when more than one case might be broken.** Run with
+   `E2E_MAESTRO_SURVEY_MODE=1` so the runner keeps executing after failures
+   and reports every failing case in one pass; the checkpoint lands on the
+   first failure and suite retries are disabled. One survey run replaces one
+   full run per discovered failure.
+2. **Probe before hypothesizing on tap/assert failures.** iOS reports
+   off-viewport lazy-list items as visible, so hierarchy asserts can pass
+   while taps silently no-op. Generate a step-screenshot probe and observe
+   the actual screens instead:
+
+   ```bash
+   e2e/scripts/make-probe.sh e2e/maestro/flows/<failing-flow>.yaml
+   e2e/scripts/make-probe.sh --clean
+   ```
+
+3. **Verify flow fixes on BOTH platforms before committing.** Screen-geometry
+   differences resurface one-platform fixes as fresh failures during the next
+   60-90 minute evidence run:
+
+   ```bash
+   e2e/scripts/diagnose-suite.sh e2e/maestro/flows/suites/<suite>.yaml [--survey]
+   ```
+
+Module flows that open with shared runFlow refs run as a single flow when
+targeted directly; only pure runFlow-list suites expand into per-case
+execution, so a diagnosis run always exercises the flow's inline commands.
 
 Batch every fix found this way instead of certifying fix-by-fix. Resume-first
 checkpoints make the eventual evidence rerun start at the previously failing
