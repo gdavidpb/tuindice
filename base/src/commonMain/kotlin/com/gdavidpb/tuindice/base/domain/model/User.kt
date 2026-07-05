@@ -21,5 +21,6 @@ data class User(
 	val retiredCredits: Int,
 	val failedSubjects: Int,
 	val failedCredits: Int,
-	val lastUpdate: Long
+	val lastUpdate: Long,
+	val pictureVersion: Int = 0
 )

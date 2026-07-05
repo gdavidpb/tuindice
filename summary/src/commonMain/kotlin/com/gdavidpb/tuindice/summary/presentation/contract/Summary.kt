@@ -36,6 +36,8 @@ object Summary {
 			val failedSubjects: Int,
 			val failedCredits: Int,
 			val profilePictureUrl: String,
+			val profilePictureVersion: Int = 0,
+			val profilePictureLocalPreview: String? = null,
 			val isProfilePictureLoading: Boolean,
 			override val isUserRefreshing: Boolean,
 			val syncStatusText: String = ""

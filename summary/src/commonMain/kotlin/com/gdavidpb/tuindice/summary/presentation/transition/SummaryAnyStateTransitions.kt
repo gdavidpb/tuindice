@@ -56,7 +56,9 @@ internal fun MachineDefinitionBuilder<Summary.State>.anyStateTransitions(
 			event.content.copy(
 				isUserRefreshing = state.isUserRefreshing,
 				isProfilePictureLoading =
-					(state as? Summary.State.Content)?.isProfilePictureLoading ?: false
+					(state as? Summary.State.Content)?.isProfilePictureLoading ?: false,
+				profilePictureLocalPreview =
+					(state as? Summary.State.Content)?.profilePictureLocalPreview
 			)
 		}
 
@@ -82,7 +84,10 @@ internal fun MachineDefinitionBuilder<Summary.State>.anyStateTransitions(
 			host.sendEffect(Summary.Effect.ShowSnackBar(message = event.message))
 
 			if (state is Summary.State.Content) {
-				state.copy(isProfilePictureLoading = false)
+				state.copy(
+					isProfilePictureLoading = false,
+					profilePictureLocalPreview = null
+				)
 			} else {
 				state
 			}

@@ -21,7 +21,9 @@ sealed interface SummaryInternalEvent {
 		val message: String
 	) : SummaryInternalEvent
 
-	data object ProfilePictureUploadStarted : SummaryInternalEvent
+	data class ProfilePictureUploadStarted(
+		val previewPath: String
+	) : SummaryInternalEvent
 
 	data class ProfilePictureUploadSucceeded(
 		val message: String

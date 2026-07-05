@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.summary.presentation.transition.failedTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.idleTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.loadingTransitions
 import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.path
 import org.jetbrains.compose.resources.getString
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.snack_default_error
@@ -69,6 +70,7 @@ class SummaryMachine(
 										failedSubjects = failedSubjects,
 										failedCredits = failedCredits,
 										profilePictureUrl = pictureUrl,
+											profilePictureVersion = pictureVersion,
 										isProfilePictureLoading = false,
 										isUserRefreshing = false
 									)
@@ -112,7 +114,9 @@ class SummaryMachine(
 			uploadProfilePictureUseCase.execute(params = file).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> host.processInternalEvent(
-						SummaryInternalEvent.ProfilePictureUploadStarted
+						SummaryInternalEvent.ProfilePictureUploadStarted(
+							previewPath = file.path
+						)
 					)
 
 					is UseCaseState.Data -> host.processInternalEvent(

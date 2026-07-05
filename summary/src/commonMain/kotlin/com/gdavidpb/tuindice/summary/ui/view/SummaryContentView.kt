@@ -32,6 +32,7 @@ import com.gdavidpb.tuindice.base.ui.view.PulsingIconHalo
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryItem
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import com.gdavidpb.tuindice.summary.ui.model.ProfilePictureDisplay
 import kotlin.math.abs
 import kotlin.math.ceil
 
@@ -111,8 +112,12 @@ fun SummaryContentView(
 		ProfilePictureView(
 			modifier = Modifier,
 			isEnabled = isProfilePictureInteractionEnabled,
-			url = state.profilePictureUrl,
-			isLoading = state.isProfilePictureLoading,
+			display = ProfilePictureDisplay(
+				url = state.profilePictureUrl,
+				cacheVersion = state.profilePictureVersion,
+				localPreviewPath = state.profilePictureLocalPreview,
+				isUploading = state.isProfilePictureLoading
+			),
 			onClick = onEditProfilePictureClick
 		)
 

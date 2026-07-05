@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import com.gdavidpb.tuindice.summary.ui.model.ProfilePictureDisplay
 import com.gdavidpb.tuindice.testkit.ui.assertNodeDisabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -19,8 +20,7 @@ class ProfilePictureViewUiTest {
 
 		setTuIndiceTestContent {
 			ProfilePictureView(
-				url = "",
-				isLoading = false,
+				display = ProfilePictureDisplay(url = ""),
 				onClick = { pictureClicks++ }
 			)
 		}
@@ -43,8 +43,7 @@ class ProfilePictureViewUiTest {
 
 		setTuIndiceTestContent {
 			ProfilePictureView(
-				url = "",
-				isLoading = false,
+				display = ProfilePictureDisplay(url = ""),
 				onClick = { pictureClicks++ }
 			)
 		}
@@ -55,18 +54,23 @@ class ProfilePictureViewUiTest {
 	}
 
 	@Test
-	fun when_pictureIsLoading_then_disablesEditButtonAndShowsLoader() = runTuIndiceUiTest {
+	fun when_pictureIsUploading_then_disablesEditButtonAndShowsButtonLoader() = runTuIndiceUiTest {
 		var pictureClicks = 0
 
 		setTuIndiceTestContent {
 			ProfilePictureView(
-				url = "https://tuindice.test/profile.jpg",
-				isLoading = true,
+				display = ProfilePictureDisplay(
+					url = "https://tuindice.test/profile.jpg",
+					isUploading = true
+				),
 				onClick = { pictureClicks++ }
 			)
 		}
 
-		assertNodeVisible(SummaryUiTags.ProfilePictureLoadingIndicator)
+		assertNodeVisible(
+			tag = SummaryUiTags.ProfilePictureLoadingIndicator,
+			useUnmergedTree = true
+		)
 		assertNodeDisabled(SummaryUiTags.ProfilePictureContainer)
 		assertNodeDisabled(SummaryUiTags.ProfilePictureEditButton)
 
@@ -80,8 +84,7 @@ class ProfilePictureViewUiTest {
 		setTuIndiceTestContent {
 			ProfilePictureView(
 				isEnabled = false,
-				url = "https://tuindice.test/profile.jpg",
-				isLoading = false,
+				display = ProfilePictureDisplay(url = "https://tuindice.test/profile.jpg"),
 				onClick = { pictureClicks++ }
 			)
 		}
@@ -89,5 +92,29 @@ class ProfilePictureViewUiTest {
 		assertNodeDisabled(SummaryUiTags.ProfilePictureContainer)
 		assertNodeDisabled(SummaryUiTags.ProfilePictureEditButton)
 		assertEquals(0, pictureClicks)
+	}
+
+	@Test
+	fun when_uploadPreviewIsSet_then_showsLocalPreviewLayer() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			ProfilePictureView(
+				display = ProfilePictureDisplay(
+					url = "https://tuindice.test/profile.jpg",
+					localPreviewPath = "/tmp/profile-preview.jpg",
+					isUploading = true
+				),
+				onClick = { }
+			)
+		}
+
+		assertNodeVisible(
+			tag = SummaryUiTags.ProfilePicturePreviewImage,
+			useUnmergedTree = true
+		)
+		assertNodeVisible(
+			tag = SummaryUiTags.ProfilePictureLoadingIndicator,
+			useUnmergedTree = true
+		)
+		assertNodeDisabled(SummaryUiTags.ProfilePictureContainer)
 	}
 }
