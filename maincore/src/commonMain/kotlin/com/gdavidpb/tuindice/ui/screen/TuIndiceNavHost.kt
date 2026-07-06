@@ -186,6 +186,9 @@ fun TuIndiceNavHost(
 				navController.navigate(AuthDestination.UpdatePasswordDialog)
 			},
 			onDismissRequest = { navController.navigateUp() },
+			onRetryRequest = {
+				navController.navigate(EnrollmentProofDestination.EnrollmentProofDialog)
+			},
 			showSnackBar = showSnackBar
 		)
 

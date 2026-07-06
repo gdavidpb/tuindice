@@ -24,6 +24,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
+import com.gdavidpb.tuindice.base.ui.view.LoadingView
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.filteredProjectionFor
@@ -33,7 +34,6 @@ import com.gdavidpb.tuindice.record.ui.view.RecordContentView
 import com.gdavidpb.tuindice.record.ui.view.RecordEmptyView
 import com.gdavidpb.tuindice.record.ui.view.RecordEnrollmentProofActionView
 import com.gdavidpb.tuindice.record.ui.view.RecordFailedView
-import com.gdavidpb.tuindice.record.ui.view.RecordLoadingView
 import com.gdavidpb.tuindice.record.ui.view.RecordSyntheticTermActionsView
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
@@ -96,7 +96,7 @@ fun RecordScreen(
 				is Record.State.Idle -> Unit
 
 				is Record.State.Loading ->
-					RecordLoadingView()
+					LoadingView(indicatorTag = RecordUiTags.LoadingIndicator)
 
 				is Record.State.Content ->
 					RecordContentView(

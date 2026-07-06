@@ -153,13 +153,16 @@ class FakeCoreCacheStateRepository(
 class FakeDeviceInfoRepository(
 	private val hasCamera: Boolean = false,
 	private val versionName: String = "1.0.0",
-	private val versionCode: Long = 1L
+	private val versionCode: Long = 1L,
+	private val osDescription: String = "Android 14 · Test Device"
 ) : DeviceInfoRepository {
 	override fun appVersionName(): String = versionName
 
 	override fun appVersionCode(): Long = versionCode
 
 	override fun hasCamera(): Boolean = hasCamera
+
+	override fun osDescription(): String = osDescription
 }
 
 private class FakeUserRepository(

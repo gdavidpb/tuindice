@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Bitmap
 import android.webkit.WebChromeClient
+import android.webkit.WebResourceError
 import android.webkit.WebResourceRequest
 import android.webkit.WebView
 import android.webkit.WebViewClient
@@ -14,6 +15,7 @@ fun Context.createBrowserWebView(
 	initialUrl: String,
 	onPageStarted: () -> Unit,
 	onPageFinished: () -> Unit,
+	onPageError: () -> Unit,
 	onExternalPageRequested: (url: String) -> Unit
 ): WebView {
 	return WebView(this).apply {
@@ -27,6 +29,16 @@ fun Context.createBrowserWebView(
 
 			override fun onPageFinished(view: WebView, url: String) {
 				onPageFinished()
+			}
+
+			override fun onReceivedError(
+				view: WebView,
+				request: WebResourceRequest,
+				error: WebResourceError
+			) {
+				if (request.isForMainFrame) {
+					onPageError()
+				}
 			}
 
 			override fun shouldOverrideUrlLoading(

@@ -125,6 +125,9 @@ fun TuIndiceAppHostRoute(
 		onOpenUpdateStoreFallback = { result ->
 			browserRepository.openUpdateStoreFallback(result)
 		},
+		onShowSnackBar = { message ->
+			showSnackBar(SnackBarMessage(message = message))
+		},
 		viewModel = viewModel
 	) { state ->
 		val shellState = remember {

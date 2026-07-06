@@ -98,7 +98,9 @@ class PensumMachine(
 					is UseCaseState.Error -> {
 						if (initialRefreshGate.shouldProcessError()) {
 							host.processInternalEvent(
-								useCaseState.error.toRefreshFailureEvent()
+								useCaseState.error.toRefreshFailureEvent(
+									isSelectionChange = false
+								)
 							)
 						}
 					}
@@ -110,14 +112,16 @@ class PensumMachine(
 	internal fun selectPensum(host: MachineHost<Pensum.Effect>, year: Int) {
 		launchRefresh(
 			host = host,
-			results = selectPensumUseCase.execute(SelectPensumParams(year = year))
+			results = selectPensumUseCase.execute(SelectPensumParams(year = year)),
+			isSelectionChange = true
 		)
 	}
 
 	internal fun selectModality(host: MachineHost<Pensum.Effect>, modalityId: String) {
 		launchRefresh(
 			host = host,
-			results = selectPensumModalityUseCase.execute(modalityId)
+			results = selectPensumModalityUseCase.execute(modalityId),
+			isSelectionChange = true
 		)
 	}
 
@@ -133,7 +137,8 @@ class PensumMachine(
 					year = year,
 					modalityId = modalityId
 				)
-			)
+			),
+			isSelectionChange = true
 		)
 	}
 
@@ -147,7 +152,8 @@ class PensumMachine(
 
 	private fun launchRefresh(
 		host: MachineHost<Pensum.Effect>,
-		results: Flow<UseCaseState<*, UpdatePensumUseCaseError>>
+		results: Flow<UseCaseState<*, UpdatePensumUseCaseError>>,
+		isSelectionChange: Boolean = false
 	) {
 		host.launchMachineJob {
 			results.collect { useCaseState ->
@@ -161,18 +167,25 @@ class PensumMachine(
 					)
 
 					is UseCaseState.Error -> host.processInternalEvent(
-						useCaseState.error.toRefreshFailureEvent()
+						useCaseState.error.toRefreshFailureEvent(
+							isSelectionChange = isSelectionChange
+						)
 					)
 				}
 			}
 		}
 	}
 
-	private fun UpdatePensumUseCaseError?.toRefreshFailureEvent(): PensumInternalEvent {
+	private fun UpdatePensumUseCaseError?.toRefreshFailureEvent(
+		isSelectionChange: Boolean
+	): PensumInternalEvent {
 		return if (this == UpdatePensumUseCaseError.NotFound) {
 			PensumInternalEvent.PensumRefreshNotFound
 		} else {
-			PensumInternalEvent.PensumRefreshFailed(error = this)
+			PensumInternalEvent.PensumRefreshFailed(
+				error = this,
+				isSelectionChange = isSelectionChange
+			)
 		}
 	}
 

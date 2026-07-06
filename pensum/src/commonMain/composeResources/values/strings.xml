@@ -5,6 +5,7 @@
 	<string name="pensum_empty_title">Pensum no disponible</string>
 	<string name="pensum_empty_message">No encontramos un pensum para esta carrera o modalidad. Intenta de nuevo más tarde.</string>
 	<string name="pensum_selection_not_found">Ese pensum no está disponible. Seguimos mostrando tu selección actual.</string>
+	<string name="pensum_selection_change_failed">No pudimos cambiar el pensum. Seguimos mostrando tu selección actual.</string>
 	<string name="pensum_failed_title">No pudimos cargar el pensum</string>
 	<string name="pensum_failed_message">Ocurrió un error inesperado. Intenta de nuevo en unos segundos.</string>
 	<string name="pensum_failed_network_unavailable">Revisa tu conexión e intenta cargar el pensum de nuevo.</string>
@@ -14,8 +15,6 @@
 	<string name="pensum_record_unavailable_title">Historial no sincronizado</string>
 	<string name="pensum_record_unavailable_message">No pudimos leer tu historial académico. El avance y los estados del pensum pueden no estar actualizados.</string>
 	<string name="pensum_failed_retry">Reintentar</string>
-	<string name="pensum_selector_placeholder">Pensum</string>
-	<string name="pensum_modality_placeholder">Modalidad</string>
 	<string name="pensum_progress_label">Avance</string>
 	<string name="pensum_summary_pensum_label">Pensum</string>
 	<string name="pensum_refreshing_indicator">Actualizando pensum</string>
@@ -24,10 +23,8 @@
 	<string name="pensum_local_data_warning_timeout">La actualización tardó demasiado. Mostramos la información guardada en este dispositivo.</string>
 	<string name="pensum_context_content_description">Ver y cambiar pensum</string>
 	<string name="pensum_selection_title">Cambiar pensum</string>
-	<string name="pensum_selection_current">%1$s · Pensum %2$d · %3$s</string>
 	<string name="pensum_selection_active_title">Pensum actual</string>
 	<string name="pensum_selection_progress_summary">%1$s avance · %2$d / %3$d UC aprobadas</string>
-	<string name="pensum_selection_career">Carrera</string>
 	<string name="pensum_selection_version">Versión del pensum</string>
 	<string name="pensum_selection_modality">Modalidad</string>
 	<string name="pensum_selection_apply">Aplicar</string>
@@ -43,7 +40,6 @@
 	<string name="pensum_hide_minimap">Ocultar mapa</string>
 	<string name="pensum_zoom_in">Acercar</string>
 	<string name="pensum_zoom_out">Alejar</string>
-	<string name="pensum_subject_stats_content_description">Ver estadísticas de %1$s</string>
 	<string name="pensum_subject_detail_title">Detalle de materia</string>
 	<string name="pensum_subject_detail_close">Cerrar</string>
 	<string name="pensum_subject_detail_more">Más detalle</string>

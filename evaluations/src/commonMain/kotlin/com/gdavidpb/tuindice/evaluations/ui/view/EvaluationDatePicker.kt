@@ -83,6 +83,19 @@ fun EvaluationDatePicker(
 				}
 			},
 			dismissButton = {
+				// Shortcut to jump the draft back to today; confirmation stays on Accept.
+				TextButton(
+					modifier = Modifier.testTag(EvaluationsUiTags.EvaluationDateDialogTodayButton),
+					onClick = {
+						val today = currentEvaluationLocalDate()
+
+						draftSelectedDate.value = today
+						displayedMonth.value = today.monthStart()
+					}
+				) {
+					Text(text = stringResource(Res.string.label_evaluation_assign_today))
+				}
+
 				TextButton(
 					modifier = Modifier.testTag(EvaluationsUiTags.EvaluationDateDialogCancelButton),
 					onClick = {

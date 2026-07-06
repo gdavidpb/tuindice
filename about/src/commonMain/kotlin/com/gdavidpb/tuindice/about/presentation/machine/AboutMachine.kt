@@ -18,6 +18,7 @@ import org.jetbrains.compose.resources.getString
 import tuindice.about.generated.resources.Res
 import tuindice.about.generated.resources.about_share_message
 import tuindice.about.generated.resources.about_share_subject
+import tuindice.about.generated.resources.about_version_unavailable
 import tuindice.about.generated.resources.label_privacy_policy
 import tuindice.about.generated.resources.label_support
 import tuindice.about.generated.resources.label_terms_and_conditions
@@ -54,7 +55,11 @@ class AboutMachine(
 					)
 
 					is UseCaseState.Error -> host.processInternalEvent(
-						AboutInternalEvent.AboutVersionLoadFailed
+						AboutInternalEvent.AboutVersionLoadFailed(
+							versionFallbackText = getString(Res.string.about_version_unavailable),
+							usageDataCollectionEnabled =
+								usageDataConsentRepository.isUsageDataCollectionEnabled()
+						)
 					)
 				}
 			}

@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
+import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.FileRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
@@ -234,6 +235,21 @@ class FakeSessionInvalidationRepository : SessionInvalidationRepository {
 	}
 }
 
+class FakeDeviceInfoRepository(
+	private val versionName: String = "1.0.0",
+	private val versionCode: Long = 1L,
+	private val deviceHasCamera: Boolean = false,
+	private val deviceOsDescription: String = "Android 14 · Test Device"
+) : DeviceInfoRepository {
+	override fun appVersionName(): String = versionName
+
+	override fun appVersionCode(): Long = versionCode
+
+	override fun hasCamera(): Boolean = deviceHasCamera
+
+	override fun osDescription(): String = deviceOsDescription
+}
+
 class FakeSettingsRepository(
 	private val reviewSuggested: Boolean = false,
 	private var lastMainSection: MainSection = MainSection.SUMMARY,
@@ -275,12 +291,26 @@ class FakeSettingsRepository(
 		seenCoachmarkIds += coachmarkId
 	}
 
+	override suspend fun setSessionResetNoticePending() {
+		sessionResetNoticePending = true
+	}
+
+	override suspend fun consumeSessionResetNoticePending(): Boolean {
+		val pending = sessionResetNoticePending
+
+		sessionResetNoticePending = false
+
+		return pending
+	}
+
 	override suspend fun clear() {
 		cleared = true
 		outdatedAppState = null
 		seenCoachmarkIds.clear()
 		legacyOnboardingCompleted = false
 	}
+
+	var sessionResetNoticePending = false
 }
 
 class FakeConfigRepository(

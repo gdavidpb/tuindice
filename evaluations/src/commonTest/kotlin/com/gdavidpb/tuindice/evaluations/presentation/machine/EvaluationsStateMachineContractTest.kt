@@ -203,7 +203,9 @@ class EvaluationsStateMachineContractTest {
 				Evaluations.Action.EditEvaluation(evaluationId = "evaluation-1"),
 				Evaluations.Action.RemoveEvaluation(evaluationId = "evaluation-1"),
 				EvaluationsInternalEvent.EvaluationsWaitingObserved,
-				EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved,
+				EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved(
+					message = "No pudimos leer tu informe académico"
+				),
 				EvaluationsInternalEvent.EvaluationsNoAttemptsObserved(
 					reason = EvaluationsNoAttemptsReason.NoCurrentTerm
 				),
@@ -220,9 +222,13 @@ class EvaluationsStateMachineContractTest {
 				),
 				EvaluationsInternalEvent.EvaluationsEmptyObserved,
 				EvaluationsInternalEvent.EvaluationsEmptyConfirmed,
-				EvaluationsInternalEvent.EvaluationsObservationFailed,
+				EvaluationsInternalEvent.EvaluationsObservationFailed(
+					message = "Comprueba tu conexión"
+				),
 				EvaluationsInternalEvent.EvaluationsRefreshStarted,
-				EvaluationsInternalEvent.EvaluationsRefreshFailed,
+				EvaluationsInternalEvent.EvaluationsRefreshFailed(
+					message = "Ocurrió un error inesperado"
+				),
 				EvaluationsInternalEvent.GradePickerLoaded(
 					evaluationId = "evaluation-1",
 					evaluationName = "Parcial 1",

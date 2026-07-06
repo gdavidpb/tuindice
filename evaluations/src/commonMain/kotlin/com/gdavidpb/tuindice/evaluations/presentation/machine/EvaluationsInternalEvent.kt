@@ -13,7 +13,9 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 sealed interface EvaluationsInternalEvent {
 	data object EvaluationsWaitingObserved : EvaluationsInternalEvent
 
-	data object EvaluationsRecordDataUnavailableObserved : EvaluationsInternalEvent
+	data class EvaluationsRecordDataUnavailableObserved(
+		val message: String
+	) : EvaluationsInternalEvent
 
 	data class EvaluationsNoAttemptsObserved(
 		val reason: EvaluationsNoAttemptsReason
@@ -29,11 +31,15 @@ sealed interface EvaluationsInternalEvent {
 
 	data object EvaluationsEmptyConfirmed : EvaluationsInternalEvent
 
-	data object EvaluationsObservationFailed : EvaluationsInternalEvent
+	data class EvaluationsObservationFailed(
+		val message: String
+	) : EvaluationsInternalEvent
 
 	data object EvaluationsRefreshStarted : EvaluationsInternalEvent
 
-	data object EvaluationsRefreshFailed : EvaluationsInternalEvent
+	data class EvaluationsRefreshFailed(
+		val message: String
+	) : EvaluationsInternalEvent
 
 	data class GradePickerLoaded(
 		val evaluationId: String,

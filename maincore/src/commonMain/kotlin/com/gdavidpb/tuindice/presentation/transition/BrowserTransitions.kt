@@ -31,5 +31,17 @@ internal fun MachineDefinitionBuilder<Browser.State>.browserTransitions(
 		on<Browser.Action.SetLoading> { state, action ->
 			state.copy(isLoading = action.isLoading)
 		}
+
+		on<Browser.Action.SetLoadFailed> { state, _ ->
+			state.copy(isLoading = false, hasError = true)
+		}
+
+		on<Browser.Action.ClickRetry> { state, _ ->
+			state.copy(
+				isLoading = true,
+				hasError = false,
+				reloadKey = state.reloadKey + 1
+			)
+		}
 	}
 }

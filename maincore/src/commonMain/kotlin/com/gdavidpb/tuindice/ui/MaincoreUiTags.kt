@@ -24,4 +24,5 @@ object MaincoreUiTags {
 	const val AppAvailabilityNoticeScreen = "maincore_app_availability_notice_screen"
 	const val AppAvailabilityNoticeTitle = "maincore_app_availability_notice_title"
 	const val AppAvailabilityNoticeMessage = "maincore_app_availability_notice_message"
+	const val AppAvailabilityNoticeRetryButton = "maincore_app_availability_notice_retry_button"
 }

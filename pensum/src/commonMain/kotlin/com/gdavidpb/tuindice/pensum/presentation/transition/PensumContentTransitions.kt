@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.pensum.presentation.machine.PensumInternalEvent
 import com.gdavidpb.tuindice.pensum.presentation.mapper.toLocalDataWarningMessage
 import com.gdavidpb.tuindice.pensum.presentation.mapper.toScreenModel
 import tuindice.pensum.generated.resources.Res
+import tuindice.pensum.generated.resources.pensum_selection_change_failed
 import tuindice.pensum.generated.resources.pensum_selection_not_found
 
 internal fun MachineDefinitionBuilder<Pensum.State>.contentTransitions() {
@@ -22,10 +23,16 @@ internal fun MachineDefinitionBuilder<Pensum.State>.contentTransitions() {
 			state.copy(isRefreshing = true, localDataMessage = null)
 		}
 
+		// A failed selection change never replaced the on-screen pensum, so the banner
+		// must say the switch failed instead of implying stale data of the new one.
 		on<PensumInternalEvent.PensumRefreshFailed> { state, event ->
 			state.copy(
 				isRefreshing = false,
-				localDataMessage = event.error.toLocalDataWarningMessage()
+				localDataMessage = if (event.isSelectionChange) {
+					UiText.Resource(Res.string.pensum_selection_change_failed)
+				} else {
+					event.error.toLocalDataWarningMessage()
+				}
 			)
 		}
 

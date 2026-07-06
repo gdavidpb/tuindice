@@ -22,6 +22,7 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.subjects.presentation.model.SubjectSearchResultItem
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import tuindice.subjects.generated.resources.Res
 import tuindice.subjects.generated.resources.subjects_search_no_results_message
@@ -56,7 +57,7 @@ fun SubjectSearchResults(
 				title = if (results.isEmpty() && !isRefreshing) {
 					stringResource(Res.string.subjects_search_no_results_title)
 				} else {
-					stringResource(Res.string.subjects_search_results, results.size, query)
+					pluralStringResource(Res.plurals.subjects_search_results, results.size, results.size, query)
 				},
 				description = if (results.isEmpty() && !isRefreshing) {
 					stringResource(Res.string.subjects_search_no_results_message, query)

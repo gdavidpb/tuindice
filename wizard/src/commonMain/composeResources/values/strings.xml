@@ -17,7 +17,7 @@
 	<string name="coachmark_evaluations_title">Evaluaciones</string>
 	<string name="coachmark_evaluations_message">Organiza lo próximo del trimestre y registra notas cuando tengas resultados.</string>
 	<string name="coachmark_evaluations_tools_title">Agenda de evaluaciones</string>
-	<string name="coachmark_evaluations_tools_message">Toca una evaluación para ver sus acciones: editar, registrar notas o eliminar pendientes.</string>
+	<string name="coachmark_evaluations_tools_message">Toca una evaluación para ver sus acciones: modificar, registrar notas o eliminar pendientes.</string>
 	<string name="coachmark_evaluation_editor_title">Editor de evaluación</string>
 	<string name="coachmark_evaluation_editor_message">Define materia, tipo, fecha y notas para guardar una evaluación alineada con tu trimestre.</string>
 	<string name="coachmark_subject_search_title">Búsqueda de materias</string>

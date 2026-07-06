@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
@@ -85,7 +86,8 @@ class UpdatePasswordStateMachineContractTest {
 					exceptionHandler = UpdatePasswordExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true)
 					)
-				)
+				),
+				configRepository = FakeConfigRepository()
 			),
 			eventPublisher = NoOpEventPublisher
 		)

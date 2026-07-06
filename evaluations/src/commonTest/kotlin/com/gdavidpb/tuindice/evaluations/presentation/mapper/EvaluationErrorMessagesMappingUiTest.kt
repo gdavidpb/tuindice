@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
+import com.gdavidpb.tuindice.base.presentation.mapper.commonUnexpectedErrorMessage
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.AddEvaluationUseCaseError
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.RemoveEvaluationUseCaseError
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.UpdateEvaluationUseCaseError
@@ -9,7 +10,6 @@ import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.error_evaluation_max_grade_missed
 import tuindice.evaluations.generated.resources.error_evaluation_subject_missed
 import tuindice.evaluations.generated.resources.error_evaluation_type_missed
-import tuindice.evaluations.generated.resources.snack_default_error
 import tuindice.evaluations.generated.resources.snack_evaluation_already_exists
 import tuindice.evaluations.generated.resources.snack_evaluation_not_found
 import kotlin.test.Test
@@ -40,7 +40,7 @@ class EvaluationErrorMessagesMappingUiTest {
 	@Test
 	fun toAddSubmitErrorMessage_whenErrorIsUnknown_fallsBackToDefaultMessage() = runTest {
 		assertEquals(
-			getString(Res.string.snack_default_error),
+			commonUnexpectedErrorMessage(),
 			(null as AddEvaluationUseCaseError?).toAddSubmitErrorMessage()
 		)
 	}
@@ -56,7 +56,7 @@ class EvaluationErrorMessagesMappingUiTest {
 	@Test
 	fun toEditSubmitErrorMessage_whenErrorIsUnknown_fallsBackToDefaultMessage() = runTest {
 		assertEquals(
-			getString(Res.string.snack_default_error),
+			commonUnexpectedErrorMessage(),
 			(null as UpdateEvaluationUseCaseError?).toEditSubmitErrorMessage()
 		)
 	}
@@ -84,7 +84,7 @@ class EvaluationErrorMessagesMappingUiTest {
 	@Test
 	fun toRemoveErrorMessage_whenErrorIsUnknown_fallsBackToDefaultMessage() = runTest {
 		assertEquals(
-			getString(Res.string.snack_default_error),
+			commonUnexpectedErrorMessage(),
 			(null as RemoveEvaluationUseCaseError?).toRemoveErrorMessage()
 		)
 	}

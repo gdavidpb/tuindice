@@ -4,20 +4,21 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
+import com.gdavidpb.tuindice.base.ui.view.LoadingView
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
+import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.dialog.SyncStatusInfoContentDialog
 import com.gdavidpb.tuindice.summary.ui.view.SummaryContentView
 import com.gdavidpb.tuindice.summary.ui.view.SummaryFailedView
-import com.gdavidpb.tuindice.summary.ui.view.SummaryLoadingView
 import com.gdavidpb.tuindice.summary.ui.view.rememberSummaryItems
 import org.jetbrains.compose.resources.stringResource
 import tuindice.summary.generated.resources.Res
@@ -61,7 +62,7 @@ fun SummaryScreen(
 				Summary.State.Idle -> Unit
 
 				is Summary.State.Loading ->
-					SummaryLoadingView()
+					LoadingView(indicatorTag = SummaryUiTags.LoadingIndicator)
 
 				is Summary.State.Failed ->
 					SummaryFailedView(

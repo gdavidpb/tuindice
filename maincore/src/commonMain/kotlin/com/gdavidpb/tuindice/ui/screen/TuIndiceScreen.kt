@@ -175,7 +175,9 @@ fun TuIndiceScreen(
 				title = state.notice.title.takeIf { it.isNotBlank() }
 					?: stringResource(Res.string.app_availability_notice_default_title),
 				message = state.notice.message.takeIf { it.isNotBlank() }
-					?: stringResource(Res.string.app_availability_notice_default_message)
+					?: stringResource(Res.string.app_availability_notice_default_message),
+				retryText = stringResource(Res.string.main_start_failed_retry),
+				onRetryClick = onRetryStartUp
 			)
 			return
 		}

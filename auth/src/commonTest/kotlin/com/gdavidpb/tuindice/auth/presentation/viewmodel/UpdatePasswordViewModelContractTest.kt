@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.auth.presentation.machine.UpdatePasswordInternalEve
 import com.gdavidpb.tuindice.auth.presentation.machine.UpdatePasswordMachine
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -44,7 +45,8 @@ class UpdatePasswordViewModelContractTest {
 					exceptionHandler = UpdatePasswordExceptionHandler(
 						networkRepository = FakeNetworkRepository(isAvailable = true)
 					)
-				)
+				),
+				configRepository = FakeConfigRepository()
 			),
 			eventPublisher = NoOpEventPublisher
 		)
@@ -103,7 +105,8 @@ class UpdatePasswordViewModelContractTest {
 				exceptionHandler = UpdatePasswordExceptionHandler(
 					networkRepository = FakeNetworkRepository(isAvailable = true)
 				)
-			)
+			),
+			configRepository = FakeConfigRepository()
 		)
 
 		assertMachineRandomWalk(

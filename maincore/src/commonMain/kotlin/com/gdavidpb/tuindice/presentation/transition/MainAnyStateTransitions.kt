@@ -64,7 +64,13 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 			Main.State.Starting
 		}
 
-		onTo<MainInternalEvent.StartUpCompleted, Main.State.Content> { _, event ->
+		onTo<MainInternalEvent.StartUpCompleted, Main.State.Content>(
+			emits = setOf(Main.Effect.ShowSnackBar::class)
+		) { _, event ->
+			event.sessionResetMessage?.let { message ->
+				host.sendEffect(Main.Effect.ShowSnackBar(message = message))
+			}
+
 			Main.State.Content(startDestination = event.startDestination)
 		}
 

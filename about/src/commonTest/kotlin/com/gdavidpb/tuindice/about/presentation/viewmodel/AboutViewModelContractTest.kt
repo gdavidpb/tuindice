@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.about.testing.FakeAboutRepository
 import com.gdavidpb.tuindice.about.testing.FakeStoreUrlDataSource
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
@@ -60,6 +61,7 @@ class AboutViewModelContractTest {
 			),
 			sendSupportEmailUseCase = SendSupportEmailUseCase(
 				configRepository = FakeConfigRepository(),
+				deviceInfoRepository = FakeDeviceInfoRepository(),
 				reportingRepository = RecordingReportingRepository()
 			),
 			openStoreUseCase = OpenStoreUseCase(
@@ -91,7 +93,10 @@ class AboutViewModelContractTest {
 					versionText = CURRENT_PRODUCTION_VERSION_TEXT,
 					usageDataCollectionEnabled = false
 				),
-				AboutInternalEvent.AboutVersionLoadFailed,
+				AboutInternalEvent.AboutVersionLoadFailed(
+					versionFallbackText = "—",
+					usageDataCollectionEnabled = false
+				),
 				AboutInternalEvent.SupportEmailUriLoaded(uri = "mailto:support@tuindice.app"),
 				AboutInternalEvent.StoreUriLoaded(uri = "https://example.com/store")
 			),
@@ -114,6 +119,7 @@ class AboutViewModelContractTest {
 				),
 				sendSupportEmailUseCase = SendSupportEmailUseCase(
 					configRepository = FakeConfigRepository(),
+					deviceInfoRepository = FakeDeviceInfoRepository(),
 					reportingRepository = RecordingReportingRepository()
 				),
 				openStoreUseCase = OpenStoreUseCase(

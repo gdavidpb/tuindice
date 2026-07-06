@@ -54,7 +54,6 @@ internal fun MachineDefinitionBuilder<Evaluation.State>.evaluationContentTransit
 				date = action.date,
 				isOverdue = isOverdue,
 				gradeSection = state.gradeSection.updated(
-					isOverdue = isOverdue,
 					grade = state.grade,
 					maxGrade = state.maxGrade
 				)
@@ -65,7 +64,6 @@ internal fun MachineDefinitionBuilder<Evaluation.State>.evaluationContentTransit
 			state.copy(
 				grade = action.grade,
 				gradeSection = state.gradeSection.updated(
-					isOverdue = state.isOverdue,
 					grade = action.grade,
 					maxGrade = state.maxGrade
 				)
@@ -78,7 +76,6 @@ internal fun MachineDefinitionBuilder<Evaluation.State>.evaluationContentTransit
 			state.copy(
 				maxGrade = maxGrade,
 				gradeSection = state.gradeSection.updated(
-					isOverdue = state.isOverdue,
 					grade = state.grade,
 					maxGrade = maxGrade
 				),

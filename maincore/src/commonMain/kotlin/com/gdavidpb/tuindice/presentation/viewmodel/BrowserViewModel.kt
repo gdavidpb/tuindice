@@ -27,4 +27,10 @@ class BrowserViewModel(
 
 	fun hideLoadingAction() =
 		sendAction(Browser.Action.SetLoading(false))
+
+	fun pageLoadFailedAction() =
+		sendAction(Browser.Action.SetLoadFailed)
+
+	fun retryAction() =
+		sendAction(Browser.Action.ClickRetry)
 }

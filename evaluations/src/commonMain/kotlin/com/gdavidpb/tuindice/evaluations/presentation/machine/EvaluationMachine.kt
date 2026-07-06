@@ -60,7 +60,6 @@ class EvaluationMachine(
 									selectedType = null
 								),
 								gradeSection = getEvaluationGradeSectionItem(
-									isOverdue = false,
 									grade = null,
 									maxGrade = null
 								)
@@ -115,7 +114,6 @@ class EvaluationMachine(
 							grade = evaluation?.grade,
 							maxGrade = evaluation?.maxGrade,
 							gradeSection = getEvaluationGradeSectionItem(
-								isOverdue = isOverdue,
 								grade = evaluation?.grade,
 								maxGrade = evaluation?.maxGrade
 							)

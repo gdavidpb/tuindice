@@ -1,10 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="top_bar_record">Informe Académico</string>
+	<string name="top_bar_record">Informe académico</string>
 	<string name="top_bar_create_synthetic_term">Crear trimestre</string>
 	<string name="top_bar_edit_synthetic_term">Modificar trimestre</string>
-	<string name="record_loading_title">Informe académico</string>
-	<string name="record_loading_message">Cargando...</string>
 	<string name="record_failed_title">No pudimos cargar tu historial</string>
 	<string name="record_failed_message">Intenta de nuevo en unos segundos.</string>
 	<string name="record_failed_retry">Reintentar</string>
@@ -46,10 +44,6 @@
 	<string name="attempt_retired">Retirada</string>
 	<string name="attempt_without_effect">Sin efecto</string>
 	<string name="attempt_status_selector_placeholder">Seleccionar</string>
-	<string name="snack_service_unavailable">Servicio no disponible</string>
-	<string name="snack_network_unavailable">Comprueba tu conexión</string>
-	<string name="snack_timeout">Tiempo de espera agotado</string>
-	<string name="snack_default_error">¡Ha ocurrido un error!</string>
 	<string name="snack_synthetic_term_deleted">Trimestre eliminado</string>
 	<string name="snack_synthetic_term_delete_failed">No pudimos eliminar el trimestre</string>
 	<string name="create_term_period_label">Trimestre</string>
@@ -73,7 +67,10 @@
 	<string name="create_term_load_tooltip_unavailable">No pudimos estimar la carga con los datos disponibles.</string>
 	<string name="create_term_load_tooltip_terms_singular">Se usó 1 trimestre.</string>
 	<string name="create_term_load_tooltip_terms_plural">Se usaron %1$d trimestres.</string>
-	<string name="create_term_selected_count">%1$d materias seleccionadas</string>
+	<plurals name="create_term_selected_count">
+		<item quantity="one">%1$d materia seleccionada</item>
+		<item quantity="other">%1$d materias seleccionadas</item>
+	</plurals>
 	<string name="create_term_search_placeholder">Código, nombre o palabra clave</string>
 	<string name="create_term_search_clear_content_description">Limpiar búsqueda</string>
 	<string name="create_term_selected_title">Materias del trimestre</string>
@@ -95,7 +92,7 @@
 	<string name="create_term_no_suggestions">No hay materias sugeridas disponibles.</string>
 	<string name="create_term_search_error">No pudimos actualizar la búsqueda. Mostramos lo disponible en cache.</string>
 	<string name="create_term_error_record_unavailable">No pudimos validar tu informe. Intenta de nuevo.</string>
-	<string name="create_term_error_unsupported_period">Ese trimestre sólo está disponible como histórico de lectura.</string>
+	<string name="create_term_error_unsupported_period">Ese trimestre solo está disponible como histórico de lectura.</string>
 	<string name="create_term_error_period_in_past">El trimestre seleccionado ya no está disponible.</string>
 	<string name="create_term_error_term_already_exists">Ya existe un trimestre con ese periodo.</string>
 	<string name="create_term_error_term_must_be_after_latest">El trimestre debe ser posterior al último registrado.</string>
@@ -128,6 +125,7 @@
 	<string name="create_term_button">Crear</string>
 	<string name="edit_term_button">Modificar</string>
 	<string name="a11y_create_synthetic_term">Crear término de proyección</string>
+	<string name="a11y_attempt_grade_slider">Nota simulada de %1$s</string>
 	<string name="a11y_add_subject">Agregar materia</string>
 	<string name="a11y_remove_subject">Quitar materia</string>
 </resources>

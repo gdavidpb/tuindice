@@ -12,6 +12,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun NavGraphBuilder.enrollmentProofNavigation(
 	navigateToUpdatePassword: () -> Unit,
 	onDismissRequest: () -> Unit,
+	onRetryRequest: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
 	dialog<EnrollmentProofDestination.EnrollmentProofDialog> { backStackEntry ->
@@ -21,6 +22,7 @@ fun NavGraphBuilder.enrollmentProofNavigation(
 		EnrollmentProofRoute(
 			onNavigateToUpdatePassword = navigateToUpdatePassword,
 			onDismissRequest = onDismissRequest,
+			onRetryRequest = onRetryRequest,
 			showSnackBar = showSnackBar,
 			externalActions = externalActions,
 			viewModel = viewModel

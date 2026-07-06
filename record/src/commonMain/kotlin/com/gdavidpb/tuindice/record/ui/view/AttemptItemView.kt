@@ -27,6 +27,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
@@ -40,6 +42,7 @@ import com.gdavidpb.tuindice.record.ui.model.toAttemptItemDisplay
 import com.gdavidpb.tuindice.record.utils.Ranges
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
+import tuindice.record.generated.resources.a11y_attempt_grade_slider
 import tuindice.record.generated.resources.attempt_approved
 import tuindice.record.generated.resources.attempt_failed
 import tuindice.record.generated.resources.attempt_retired
@@ -260,9 +263,17 @@ fun AttemptItemView(
 		}
 
 		if (hasNumericEditor) {
+			// The slider exposes its numeric value natively; the description names
+			// which subject the simulated grade belongs to.
+			val gradeSliderDescription =
+				stringResource(Res.string.a11y_attempt_grade_slider, item.codeText)
+
 			Slider(
 				modifier = Modifier
 					.testTag(RecordUiTags.attemptGradeSlider(item.attemptId))
+					.semantics {
+						contentDescription = gradeSliderDescription
+					}
 					.fillMaxWidth()
 					.padding(top = 8.dp),
 				value = currentGrade.toFloat(),

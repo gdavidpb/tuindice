@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.presentation.machine
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
+import com.gdavidpb.tuindice.base.presentation.mapper.commonUnexpectedErrorMessage
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
@@ -23,7 +24,6 @@ import io.github.vinceglb.filekit.PlatformFile
 import io.github.vinceglb.filekit.path
 import org.jetbrains.compose.resources.getString
 import tuindice.summary.generated.resources.Res
-import tuindice.summary.generated.resources.snack_default_error
 import tuindice.summary.generated.resources.snack_profile_picture_removed
 import tuindice.summary.generated.resources.snack_profile_picture_updated
 
@@ -81,7 +81,7 @@ class SummaryMachine(
 
 					is UseCaseState.Error -> host.processInternalEvent(
 						SummaryInternalEvent.ObservationFailed(
-							message = getString(Res.string.snack_default_error)
+							message = commonUnexpectedErrorMessage()
 						)
 					)
 				}

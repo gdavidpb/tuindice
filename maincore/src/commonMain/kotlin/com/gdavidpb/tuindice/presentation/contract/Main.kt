@@ -47,5 +47,7 @@ object Main {
 		class OpenUpdateStoreFallback(
 			val result: UpdateLaunchResult.OpenStoreFallback
 		) : Effect()
+
+		class ShowSnackBar(val message: String) : Effect()
 	}
 }

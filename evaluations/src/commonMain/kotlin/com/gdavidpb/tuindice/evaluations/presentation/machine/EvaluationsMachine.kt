@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.machine
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
+import com.gdavidpb.tuindice.base.presentation.mapper.commonUnexpectedErrorMessage
 import com.gdavidpb.tuindice.base.presentation.model.SyncedContentResolution
 import com.gdavidpb.tuindice.base.presentation.model.resolveSyncedContentResolution
 import com.gdavidpb.tuindice.base.presentation.statemachine.InitialContentRefreshGate
@@ -20,6 +21,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.buildEvaluationsWeekItems
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.defaultEvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationItemMapping
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationsFailedMessage
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationsWeekGroupItemList
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationsWeekKeyOrNull
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toGradeSaveErrorMessage
@@ -38,8 +40,8 @@ import kotlinx.coroutines.flow.collect
 import org.jetbrains.compose.resources.getString
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.evaluations_continuous_label
+import tuindice.evaluations.generated.resources.evaluations_failed_record_unavailable
 import tuindice.evaluations.generated.resources.evaluations_week_label
-import tuindice.evaluations.generated.resources.snack_default_error
 import tuindice.evaluations.generated.resources.snack_evaluation_removed
 import tuindice.evaluations.generated.resources.snack_evaluation_set_grade
 
@@ -78,7 +80,9 @@ class EvaluationsMachine(
 						)
 
 						GetEvaluations.RecordDataUnavailable -> host.processInternalEvent(
-							EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved
+							EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved(
+								message = getString(Res.string.evaluations_failed_record_unavailable)
+							)
 						)
 
 						is GetEvaluations.NoAttempts -> host.processInternalEvent(
@@ -111,7 +115,9 @@ class EvaluationsMachine(
 					}
 
 					is UseCaseState.Error -> host.processInternalEvent(
-						EvaluationsInternalEvent.EvaluationsObservationFailed
+						EvaluationsInternalEvent.EvaluationsObservationFailed(
+							message = useCaseState.error.toEvaluationsFailedMessage()
+						)
 					)
 				}
 			}
@@ -132,7 +138,9 @@ class EvaluationsMachine(
 					)
 
 					is UseCaseState.Error -> host.processInternalEvent(
-						EvaluationsInternalEvent.EvaluationsRefreshFailed
+						EvaluationsInternalEvent.EvaluationsRefreshFailed(
+							message = commonUnexpectedErrorMessage()
+						)
 					)
 				}
 			}
@@ -174,7 +182,9 @@ class EvaluationsMachine(
 					is UseCaseState.Error -> {
 						if (initialRefreshGate.shouldProcessError()) {
 							host.processInternalEvent(
-								EvaluationsInternalEvent.EvaluationsRefreshFailed
+								EvaluationsInternalEvent.EvaluationsRefreshFailed(
+									message = commonUnexpectedErrorMessage()
+								)
 							)
 						}
 					}
@@ -217,7 +227,7 @@ class EvaluationsMachine(
 						} else {
 							host.processInternalEvent(
 								EvaluationsInternalEvent.GradePickerLoadFailed(
-									message = getString(Res.string.snack_default_error)
+									message = commonUnexpectedErrorMessage()
 								)
 							)
 						}
@@ -225,7 +235,7 @@ class EvaluationsMachine(
 
 					is UseCaseState.Error -> host.processInternalEvent(
 						EvaluationsInternalEvent.GradePickerLoadFailed(
-							message = getString(Res.string.snack_default_error)
+							message = commonUnexpectedErrorMessage()
 						)
 					)
 				}

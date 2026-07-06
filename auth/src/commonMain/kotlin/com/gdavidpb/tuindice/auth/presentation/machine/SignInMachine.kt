@@ -106,7 +106,10 @@ class SignInMachine(
 		event: SignInInternalEvent.SignInFailed
 	): SignIn.State.Idle {
 		val error = event.error
-		val errorMessage = error.toErrorMessage(identifierMode = state.identifierMode)
+		val errorMessage = error.toErrorMessage(
+			identifierMode = state.identifierMode,
+			supportEmail = configRepository.getContactEmail()
+		)
 
 		when (error) {
 			is SignInUseCaseError.InvalidCredentials,

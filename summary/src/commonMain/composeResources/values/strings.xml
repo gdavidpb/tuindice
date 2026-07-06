@@ -1,23 +1,22 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="top_bar_summary">Resumen</string>
-    <string name="summary_loading_title">Resumen</string>
-    <string name="summary_loading_message">Cargando...</string>
     <string name="summary_failed_title">No pudimos cargar el resumen</string>
     <string name="summary_failed_message">Intenta de nuevo en unos segundos.</string>
     <string name="summary_failed_retry">Reintentar</string>
-    <string name="dialog_title_remove_profile_picture">Atención</string>
-    <string name="dialog_message_remove_profile_picture">¿Estás seguro de que deseas remover tu foto de perfil?</string>
+    <string name="dialog_title_remove_profile_picture">Eliminar foto</string>
+    <string name="dialog_message_remove_profile_picture">¿Estás seguro de que deseas eliminar tu foto de perfil?</string>
     <string name="dialog_button_remove">Eliminar</string>
     <string name="dialog_button_cancel">Cancelar</string>
     <string name="a11y_profile_picture">Foto de perfil</string>
+    <string name="a11y_sync_status_details">Ver detalles de sincronización</string>
     <string name="a11y_edit_profile_picture">Editar foto de perfil</string>
     <string name="title_menu_profile_picture">Mi foto de perfil</string>
     <string name="menu_pick_profile_picture">Subir foto</string>
     <string name="menu_take_profile_picture">Tomar foto</string>
     <string name="menu_remove_profile_picture">Eliminar foto</string>
     <string name="snack_profile_picture_updated">Foto de perfil actualizada</string>
-    <string name="snack_profile_picture_removed">Foto de perfil removida</string>
+    <string name="snack_profile_picture_removed">Foto de perfil eliminada</string>
     <string name="snack_profile_picture_not_image">El archivo seleccionado no es una imagen válida.</string>
     <string name="snack_profile_picture_size_exceeded">La imagen supera el tamaño máximo permitido de 1 MB.</string>
     <string name="text_last_sync">Última sincronización: %1$s</string>
@@ -35,10 +34,6 @@
     <string name="dialog_button_close">Cerrar</string>
     <string name="dialog_button_update_password">Actualizar contraseña</string>
     <string name="snack_no_service">No pudimos actualizar, intentaremos más tarde</string>
-    <string name="snack_service_unavailable">Servicio no disponible</string>
-    <string name="snack_network_unavailable">Comprueba tu conexión</string>
-    <string name="snack_timeout">Tiempo de espera agotado</string>
-    <string name="snack_default_error">¡Ha ocurrido un error!</string>
     <string name="summary_subjects_approved">Aprobadas</string>
     <string name="summary_subjects_failed">Reprobadas</string>
     <string name="summary_subjects_retired">Retiradas</string>

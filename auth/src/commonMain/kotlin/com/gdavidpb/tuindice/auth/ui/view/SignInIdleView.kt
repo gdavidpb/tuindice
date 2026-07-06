@@ -5,11 +5,12 @@ import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.imePadding
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
@@ -23,6 +24,7 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -30,8 +32,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
-import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
+import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.auth.utils.extension.isUsbEmail
 import com.gdavidpb.tuindice.auth.utils.extension.isUsbId
 import com.gdavidpb.tuindice.base.ui.view.AppLogoView
@@ -144,9 +146,17 @@ fun SignInIdleView(
 			})
 		)
 
+		// One toggleable row with a checkbox role: the screen reader announces the
+		// consent text and state together instead of a nameless box plus a label.
 		Row(
 			modifier = Modifier
 				.fillMaxWidth()
+				.toggleable(
+					value = state.usageDataCollectionEnabled,
+					role = Role.Checkbox,
+					onValueChange = onUsageDataCollectionEnabledChange
+				)
+				.testTag(AuthUiTags.UsageDataConsentCheckbox)
 				.padding(
 					top = 12.dp,
 					start = 24.dp,
@@ -155,17 +165,12 @@ fun SignInIdleView(
 			verticalAlignment = Alignment.CenterVertically
 		) {
 			Checkbox(
-				modifier = Modifier.testTag(AuthUiTags.UsageDataConsentCheckbox),
 				checked = state.usageDataCollectionEnabled,
-				onCheckedChange = onUsageDataCollectionEnabledChange
+				onCheckedChange = null
 			)
 
 			Text(
-				modifier = Modifier
-					.weight(1f)
-					.clickable {
-						onUsageDataCollectionEnabledChange(!state.usageDataCollectionEnabled)
-				},
+				modifier = Modifier.weight(1f),
 				text = usageDataConsentText.toBoldMarkerAnnotatedText(),
 				color = MaterialTheme.colorScheme.onBackground,
 				style = MaterialTheme.typography.bodyMedium

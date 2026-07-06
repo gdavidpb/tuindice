@@ -15,7 +15,6 @@ class GradeSectionMappingUiTest {
 	@Test
 	fun getEvaluationGradeSectionItem_whenBuilt_resolvesTitlesFromResources() = runTest {
 		val item = getEvaluationGradeSectionItem(
-			isOverdue = false,
 			grade = 18.5,
 			maxGrade = 20.0
 		)
@@ -27,9 +26,8 @@ class GradeSectionMappingUiTest {
 	}
 
 	@Test
-	fun getEvaluationGradeSectionItem_whenOverdueWithPositiveMaxGrade_showsGradeChipAndOverdueTitle() = runTest {
+	fun getEvaluationGradeSectionItem_whenMaxGradeIsUsable_showsGradeChipAndGradesTitle() = runTest {
 		val item = getEvaluationGradeSectionItem(
-			isOverdue = true,
 			grade = null,
 			maxGrade = 20.0
 		)
@@ -40,9 +38,8 @@ class GradeSectionMappingUiTest {
 	}
 
 	@Test
-	fun getEvaluationGradeSectionItem_whenNotOverdue_hidesGradeChipAndUsesMaxGradeTitle() = runTest {
+	fun getEvaluationGradeSectionItem_whenMaxGradeIsNotUsable_hidesGradeChipAndUsesMaxGradeTitle() = runTest {
 		val item = getEvaluationGradeSectionItem(
-			isOverdue = false,
 			grade = null,
 			maxGrade = null
 		)

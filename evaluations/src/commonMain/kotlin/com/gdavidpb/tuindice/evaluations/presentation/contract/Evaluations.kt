@@ -42,7 +42,9 @@ object Evaluations {
 			val reason: EvaluationsNoAttemptsReason
 		) : State()
 
-		data object Failed : State()
+		data class Failed(
+			val message: String
+		) : State()
 	}
 
 	sealed class Action : ViewAction {

@@ -93,7 +93,7 @@ appId: com.gdavidpb.tuindice.debug
       - waitForAnimationToEnd:
           timeout: 5000
       - extendedWaitUntil:
-          visible: "1 materias seleccionadas"
+          visible: "1 materia seleccionada"
           timeout: 10000
 - assertVisible:
     id: record_create_synthetic_term_submit_button

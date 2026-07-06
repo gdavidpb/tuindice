@@ -1,25 +1,23 @@
 package com.gdavidpb.tuindice.record.presentation.mapper
 
+import com.gdavidpb.tuindice.base.presentation.mapper.commonNetworkUnavailableMessage
+import com.gdavidpb.tuindice.base.presentation.mapper.commonServiceUnavailableMessage
+import com.gdavidpb.tuindice.base.presentation.mapper.commonTimeoutMessage
+import com.gdavidpb.tuindice.base.presentation.mapper.commonUnexpectedErrorMessage
 import com.gdavidpb.tuindice.record.domain.usecase.error.RecordUseCaseError
-import org.jetbrains.compose.resources.getString
-import tuindice.record.generated.resources.Res
-import tuindice.record.generated.resources.snack_default_error
-import tuindice.record.generated.resources.snack_network_unavailable
-import tuindice.record.generated.resources.snack_service_unavailable
-import tuindice.record.generated.resources.snack_timeout
 
 internal suspend fun RecordUseCaseError?.toRecordFailureMessage(): String {
 	return when (this) {
 		RecordUseCaseError.NoConnection ->
-			getString(Res.string.snack_network_unavailable)
+			commonNetworkUnavailableMessage()
 
 		RecordUseCaseError.Timeout ->
-			getString(Res.string.snack_timeout)
+			commonTimeoutMessage()
 
 		RecordUseCaseError.Unavailable ->
-			getString(Res.string.snack_service_unavailable)
+			commonServiceUnavailableMessage()
 
 		else ->
-			getString(Res.string.snack_default_error)
+			commonUnexpectedErrorMessage()
 	}
 }

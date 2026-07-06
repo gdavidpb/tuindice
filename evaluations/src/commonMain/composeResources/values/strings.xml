@@ -4,7 +4,6 @@
 	<string name="screen_title_evaluation">Evaluación</string>
 	<string name="top_bar_add_evaluation">Crear evaluación</string>
 	<string name="top_bar_edit_evaluation">Modificar evaluación</string>
-	<string name="state_message_loading">Cargando...</string>
 
 	<string name="title_empty_evaluations">Empieza con una evaluación</string>
 	<string name="message_empty_evaluations">Registra el primer parcial, quiz o entrega de este trimestre.</string>
@@ -12,8 +11,8 @@
 	<string name="message_no_subjects_evaluations">Cuando tengas un trimestre activo, podrás agregar evaluaciones desde aquí.</string>
 	<string name="title_enrollment_unavailable_evaluations">Servicio de inscripción no disponible</string>
 	<string name="message_enrollment_unavailable_evaluations">En este momento no está disponible el servicio de inscripción de la universidad. Intenta cargar de nuevo más tarde.</string>
-	<string name="title_empty_match_evaluations">Sin resultados</string>
-	<string name="message_empty_match_evaluations">Ajusta los filtros o la búsqueda para encontrar otras evaluaciones.</string>
+	<string name="title_empty_match_evaluations">Sin evaluaciones aquí</string>
+	<string name="message_empty_match_evaluations">Cambia de semana o crea una evaluación nueva.</string>
 	<string name="button_add_evaluation">Crear</string>
 	<string name="button_save_evaluation_changes">Modificar</string>
 	<string name="evaluations_week_label">Semana %1$d</string>
@@ -33,7 +32,6 @@
 	<string name="evaluation_empty_grade">-- / %1$s</string>
 	<string name="evaluation_not_grade">Sin nota / %1$.2f</string>
 	<string name="evaluation_pending_grade">Pendiente / %1$.2f</string>
-	<string name="evaluation_title">%1$s ─ %2$s</string>
 	<string name="evaluation_test">Parcial</string>
 	<string name="evaluation_essay">Ensayo</string>
 	<string name="evaluation_attendance">Asistencia</string>
@@ -63,7 +61,7 @@
 	<string name="label_evaluation_assign_grade">Sin nota</string>
 	<string name="label_evaluation_no_date_short">Sin fecha</string>
 	<string name="label_evaluation_swipe_delete">Eliminar</string>
-	<string name="label_evaluation_swipe_edit">Editar</string>
+	<string name="label_evaluation_swipe_edit">Modificar</string>
 	<string name="evaluation_date_today">Hoy</string>
 	<string name="evaluation_date_tomorrow">Mañana</string>
 	<string name="evaluation_date_yesterday">Ayer</string>
@@ -92,9 +90,8 @@
 	<string name="snack_evaluation_not_found">La evaluación ya no está disponible</string>
 	<string name="snack_evaluation_updated">Evaluación actualizada</string>
 	<string name="snack_evaluation_removed">Evaluación eliminada</string>
-	<string name="snack_default_error">¡Ha ocurrido un error!</string>
-	<string name="snack_service_unavailable">Servicio no disponible</string>
-	<string name="snack_network_unavailable">Comprueba tu conexión</string>
-	<string name="snack_timeout">Tiempo de espera agotado</string>
+	<string name="evaluations_failed_record_unavailable">No pudimos leer tu informe académico</string>
 	<string name="a11y_add_evaluation">Agregar evaluación</string>
+	<string name="a11y_evaluation_show_actions">Ver acciones</string>
+	<string name="a11y_evaluation_register_grade">Registrar nota</string>
 </resources>

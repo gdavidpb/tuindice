@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
@@ -80,6 +81,7 @@ class AboutStateMachineContractTest {
 				),
 				sendSupportEmailUseCase = SendSupportEmailUseCase(
 					configRepository = FakeConfigRepository(),
+					deviceInfoRepository = FakeDeviceInfoRepository(),
 					reportingRepository = RecordingReportingRepository()
 				),
 				openStoreUseCase = OpenStoreUseCase(

@@ -27,9 +27,9 @@
 	<key>LSRequiresIPhoneOS</key>
 	<true/>
 	<key>NSCameraUsageDescription</key>
-	<string>TuIndice usa la camara para tomar la foto de perfil.</string>
+	<string>TuIndice usa la cámara para tomar la foto de perfil.</string>
 	<key>NSPhotoLibraryUsageDescription</key>
-	<string>TuIndice usa la galeria para seleccionar la foto de perfil.</string>
+	<string>TuIndice usa la galería para seleccionar la foto de perfil.</string>
 	<key>TUINDICE_API_BASE_URL</key>
 	<string>$(TUINDICE_API_BASE_URL)</string>
 	<key>TUINDICE_APP_STORE_URL</key>

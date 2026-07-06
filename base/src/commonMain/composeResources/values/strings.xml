@@ -3,4 +3,8 @@
 	<string name="outdated_app_title">Actualiza la app para continuar</string>
 	<string name="outdated_app_message">Esta versión de TuIndice ya no puede conectarse de forma segura. Actualiza la app desde la tienda para seguir usándola.</string>
 	<string name="outdated_app_action">Actualizar app</string>
+	<string name="snack_network_unavailable">Comprueba tu conexión</string>
+	<string name="snack_service_unavailable">Servicio no disponible</string>
+	<string name="snack_timeout">Tiempo de espera agotado</string>
+	<string name="snack_unexpected_error">Ocurrió un error inesperado</string>
 </resources>

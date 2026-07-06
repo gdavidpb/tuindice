@@ -68,8 +68,8 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsAnyStateTran
 		onTo<
 			EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved,
 			Evaluations.State.Failed,
-			> { _, _ ->
-			Evaluations.State.Failed
+			> { _, event ->
+			Evaluations.State.Failed(message = event.message)
 		}
 
 		onTo<EvaluationsInternalEvent.EvaluationsNoAttemptsObserved, Evaluations.State.NoAttempts> { _, event ->
@@ -88,16 +88,16 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsAnyStateTran
 			Evaluations.State.Empty
 		}
 
-		onTo<EvaluationsInternalEvent.EvaluationsObservationFailed, Evaluations.State.Failed> { _, _ ->
-			Evaluations.State.Failed
+		onTo<EvaluationsInternalEvent.EvaluationsObservationFailed, Evaluations.State.Failed> { _, event ->
+			Evaluations.State.Failed(message = event.message)
 		}
 
 		onTo<EvaluationsInternalEvent.EvaluationsRefreshStarted, Evaluations.State.Loading> { _, _ ->
 			Evaluations.State.Loading
 		}
 
-		onTo<EvaluationsInternalEvent.EvaluationsRefreshFailed, Evaluations.State.Failed> { _, _ ->
-			Evaluations.State.Failed
+		onTo<EvaluationsInternalEvent.EvaluationsRefreshFailed, Evaluations.State.Failed> { _, event ->
+			Evaluations.State.Failed(message = event.message)
 		}
 
 		on<EvaluationsInternalEvent.GradePickerLoaded>(
