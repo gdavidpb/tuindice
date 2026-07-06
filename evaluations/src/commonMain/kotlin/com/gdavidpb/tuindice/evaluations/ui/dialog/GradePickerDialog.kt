@@ -48,34 +48,48 @@ fun GradePickerDialog(
 					text = title
 				)
 
-				Row(
-					modifier = Modifier
-						.fillMaxWidth()
-						.padding(top = 4.dp)
-						.testTag(EvaluationsUiTags.EvaluationDialogSubtitle),
-					verticalAlignment = Alignment.CenterVertically
-				) {
-					Text(
-						modifier = Modifier.weight(1f, fill = false),
-						text = evaluationName,
-						color = MaterialTheme.colorScheme.onSurfaceVariant,
-						style = MaterialTheme.typography.bodyMedium,
-						maxLines = 2,
-						overflow = TextOverflow.Ellipsis
-					)
+				val hasEvaluationName = evaluationName.isNotBlank()
+				val hasSubjectCode = subjectCode.isNotBlank()
 
-					Text(
-						modifier = Modifier.padding(horizontal = 8.dp),
-						text = "•",
-						color = MaterialTheme.colorScheme.onSurfaceVariant,
-						style = MaterialTheme.typography.bodyMedium
-					)
+				// While adding an evaluation the type and subject may still be unset;
+				// only render the subtitle for the parts that already have a value,
+				// and drop it entirely when neither does.
+				if (hasEvaluationName || hasSubjectCode) {
+					Row(
+						modifier = Modifier
+							.fillMaxWidth()
+							.padding(top = 4.dp)
+							.testTag(EvaluationsUiTags.EvaluationDialogSubtitle),
+						verticalAlignment = Alignment.CenterVertically
+					) {
+						if (hasEvaluationName) {
+							Text(
+								modifier = Modifier.weight(1f, fill = false),
+								text = evaluationName,
+								color = MaterialTheme.colorScheme.onSurfaceVariant,
+								style = MaterialTheme.typography.bodyMedium,
+								maxLines = 2,
+								overflow = TextOverflow.Ellipsis
+							)
+						}
 
-					SubjectCodeChip(
-						modifier = Modifier.testTag(EvaluationsUiTags.EvaluationDialogSubjectCodeChip),
-						subjectCode = subjectCode,
-						variant = SubjectCodeChipVariant.Dense
-					)
+						if (hasEvaluationName && hasSubjectCode) {
+							Text(
+								modifier = Modifier.padding(horizontal = 8.dp),
+								text = "•",
+								color = MaterialTheme.colorScheme.onSurfaceVariant,
+								style = MaterialTheme.typography.bodyMedium
+							)
+						}
+
+						if (hasSubjectCode) {
+							SubjectCodeChip(
+								modifier = Modifier.testTag(EvaluationsUiTags.EvaluationDialogSubjectCodeChip),
+								subjectCode = subjectCode,
+								variant = SubjectCodeChipVariant.Dense
+							)
+						}
+					}
 				}
 			}
 		},
