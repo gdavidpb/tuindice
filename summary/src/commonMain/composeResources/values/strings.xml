@@ -10,6 +10,8 @@
     <string name="dialog_message_remove_profile_picture">¿Estás seguro de que deseas remover tu foto de perfil?</string>
     <string name="dialog_button_remove">Eliminar</string>
     <string name="dialog_button_cancel">Cancelar</string>
+    <string name="a11y_profile_picture">Foto de perfil</string>
+    <string name="a11y_edit_profile_picture">Editar foto de perfil</string>
     <string name="title_menu_profile_picture">Mi foto de perfil</string>
     <string name="menu_pick_profile_picture">Subir foto</string>
     <string name="menu_take_profile_picture">Tomar foto</string>

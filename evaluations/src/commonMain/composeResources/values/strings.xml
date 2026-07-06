@@ -82,6 +82,9 @@
 	<string name="dialog_title_delete_evaluation">Eliminar evaluación</string>
 	<string name="dialog_message_delete_evaluation">Se eliminará esta evaluación de tu plan del trimestre.</string>
 	<string name="dialog_button_delete">Eliminar</string>
+	<string name="dialog_title_discard_evaluation">¿Descartar cambios?</string>
+	<string name="dialog_message_discard_evaluation">Se perderán los datos de esta evaluación.</string>
+	<string name="dialog_button_discard">Descartar</string>
 
 	<string name="snack_evaluation_set_grade">Nota actualizada</string>
 	<string name="snack_evaluation_added">Evaluación agregada</string>

@@ -122,6 +122,9 @@
 	<string name="dialog_message_delete_synthetic_term">Se eliminarán las materias y cambios de este trimestre de proyección.</string>
 	<string name="dialog_button_cancel">Cancelar</string>
 	<string name="dialog_button_delete">Eliminar</string>
+	<string name="dialog_title_discard_synthetic_term">¿Descartar cambios?</string>
+	<string name="dialog_message_discard_synthetic_term">Se perderán el periodo y las materias de este trimestre de proyección.</string>
+	<string name="dialog_button_discard">Descartar</string>
 	<string name="create_term_button">Crear</string>
 	<string name="edit_term_button">Modificar</string>
 	<string name="a11y_create_synthetic_term">Crear término de proyección</string>

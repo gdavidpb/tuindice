@@ -3,6 +3,7 @@
     <string name="top_bar_tuindice">TuIndice</string>
 	<string name="app_name">TuIndice</string>
 	<string name="button_sign_in">Iniciar sesión</string>
+	<string name="button_cancel_sign_in">Cancelar</string>
 	<string name="label_policies">Al usar la aplicación, aceptas los\nTérminos y condiciones y Política de privacidad</string>
 	<string name="hint_usb_id">USBID</string>
 	<string name="hint_usb_email">Correo USB</string>

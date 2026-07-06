@@ -20,6 +20,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import coil3.ImageLoader
 import coil3.PlatformContext
@@ -33,7 +35,10 @@ import coil3.request.crossfade
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.model.ProfilePictureDisplay
 import org.jetbrains.compose.resources.painterResource
+import org.jetbrains.compose.resources.stringResource
 import tuindice.summary.generated.resources.Res
+import tuindice.summary.generated.resources.a11y_edit_profile_picture
+import tuindice.summary.generated.resources.a11y_profile_picture
 import tuindice.summary.generated.resources.il_profile_picture_placeholder_owl
 
 @Composable
@@ -56,13 +61,15 @@ fun ProfilePictureView(
 			.testTag(SummaryUiTags.ProfilePictureContainer)
 			.clickable(
 				enabled = isInteractionEnabled,
+				onClickLabel = stringResource(Res.string.a11y_edit_profile_picture),
 				onClick = onClick
 			)
 	) {
 		ProfilePictureLayerStack(
 			layers = viewState.layers,
 			imageLoader = imageLoader,
-			placeholderPainter = placeholderPainter
+			placeholderPainter = placeholderPainter,
+			contentDescription = stringResource(Res.string.a11y_profile_picture)
 		)
 
 		ProfilePictureEditButton(
@@ -87,13 +94,15 @@ fun ProfilePictureView(
 private fun ProfilePictureLayerStack(
 	layers: List<ProfilePictureLayer>,
 	imageLoader: ImageLoader,
-	placeholderPainter: Painter
+	placeholderPainter: Painter,
+	contentDescription: String
 ) {
 	Box(
 		modifier = Modifier
 			.size(128.dp)
 			.clip(CircleShape)
-			.background(MaterialTheme.colorScheme.surfaceVariant),
+			.background(MaterialTheme.colorScheme.surfaceVariant)
+			.semantics { this.contentDescription = contentDescription },
 		contentAlignment = Alignment.Center
 	) {
 		layers.forEach { layer ->

@@ -27,11 +27,18 @@ internal fun MachineDefinitionBuilder<Record.State>.recordContentTransitions(
 
 		on<RecordInternalEvent.RecordRefreshStarted> { state, _ -> state }
 
+		// A failed refresh keeps the on-screen record; the user still gets told,
+		// mirroring the Summary refresh-failure feedback.
 		on<RecordInternalEvent.RecordRefreshFailed>(
-			emits = setOf(Record.Effect.NavigateToOutdatedCredentials::class)
+			emits = setOf(
+				Record.Effect.NavigateToOutdatedCredentials::class,
+				Record.Effect.ShowSnackBar::class
+			)
 		) { state, event ->
 			if (event.navigateToOutdatedCredentials) {
 				host.sendEffect(Record.Effect.NavigateToOutdatedCredentials)
+			} else {
+				host.sendEffect(Record.Effect.ShowSnackBar(message = event.message))
 			}
 
 			state

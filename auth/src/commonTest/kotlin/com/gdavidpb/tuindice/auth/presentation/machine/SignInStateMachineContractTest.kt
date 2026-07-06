@@ -293,6 +293,7 @@ class SignInStateMachineContractTest {
 			"idle",
 			"logging_in",
 			"ClickSignIn",
+			"ClickCancelSignIn",
 			"SignInSucceeded / NavigateToSummary",
 			"OutdatedAppDetected / ShowOutdatedApp",
 			"SignInFailed / ShowSnackBar · ShowRetrySnackBar",

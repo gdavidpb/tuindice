@@ -105,5 +105,25 @@ appId: com.gdavidpb.tuindice.debug
     id: maincore_tuindice_top_bar_back_button
 - extendedWaitUntil:
     visible:
+      id: evaluation_discard_confirmation_message
+    timeout: 10000
+- tapOn:
+    id: base_confirmation_dialog_negative_button
+- extendedWaitUntil:
+    notVisible:
+      id: evaluation_discard_confirmation_message
+    timeout: 10000
+- assertVisible:
+    id: evaluation_content_container
+- tapOn:
+    id: maincore_tuindice_top_bar_back_button
+- extendedWaitUntil:
+    visible:
+      id: evaluation_discard_confirmation_message
+    timeout: 10000
+- tapOn:
+    id: base_confirmation_dialog_positive_button
+- extendedWaitUntil:
+    visible:
       id: evaluations_content_container
     timeout: 10000

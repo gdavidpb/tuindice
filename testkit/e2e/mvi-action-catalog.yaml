@@ -100,6 +100,12 @@ actions:
     selector: auth_sign_in_button
     flow: e2e/maestro/flows/auth/login-success.yaml
     fixture_state: auth-success
+  - id: auth.SignIn.ClickCancelSignIn
+    classification: user
+    variants: [cancel-while-logging-in]
+    selector: auth_sign_in_cancel_button
+    flow: e2e/maestro/flows/auth/login-cancel.yaml
+    fixture_state: auth-login-cancel-delayed
   - id: auth.SignIn.ClickTermsAndConditions
     classification: user
     variants: [internal-browser]

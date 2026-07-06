@@ -60,6 +60,7 @@ flows:
       - auth.SignIn.TogglePasswordVisibility
       - auth.SignIn.SetUsageDataCollectionEnabled
       - auth.SignIn.ClickSignIn
+      - auth.SignIn.ClickCancelSignIn
       - auth.SignIn.ClickTermsAndConditions
       - auth.SignIn.ClickPrivacyPolicy
       - auth.SignOut.RetryFlushAndSignOut
@@ -83,6 +84,7 @@ flows:
       - summary.Summary.TakeProfilePicture
       - record.CreateSyntheticTerm.UpdateQuery
       - record.CreateSyntheticTerm.CreateTerm
+      - record.CreateSyntheticTerm.SelectPeriod
       - record.Record.RefreshRecord
       - record.Record.SelectTerm
       - record.Record.SetViewMode
@@ -129,6 +131,7 @@ flows:
     fixture_state: auth-local-certification
     covers:
       - login
+      - login-cancel
       - login-usb-email
       - login-usb-email-usbid
       - outdated-app
@@ -374,6 +377,21 @@ flows:
       - auth_usb_id_text_field
       - auth_password_text_field
       - auth_sign_in_button
+  - id: auth-login-cancel
+    path: e2e/maestro/flows/auth/login-cancel.yaml
+    module: auth
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: cancel-while-logging-in
+    fixture_state: auth-login-cancel-delayed
+    actions_covered:
+      - auth.SignIn.ClickCancelSignIn
+    primary_selectors:
+      - auth_sign_in_button
+      - auth_sign_in_cancel_button
+      - auth_sign_in_logging_in_container
+      - auth_usb_id_text_field
   - id: auth-login-summary-ready
     path: e2e/maestro/flows/auth/login-summary-ready.yaml
     module: auth
@@ -941,6 +959,25 @@ flows:
       - record_create_synthetic_term_taken_subjects_toggle
       - record_create_synthetic_term_subject_MA1111_status_approved
       - record_create_synthetic_term_subject_MA1111_stats_button
+  - id: record-synthetic-term-discard
+    path: e2e/maestro/flows/record/record-synthetic-term-discard.yaml
+    module: record
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: synthetic-term-discard-guard
+    fixture_state: synthetic-term-success
+    actions_covered:
+      - record.CreateSyntheticTerm.SelectPeriod
+    primary_selectors:
+      - record_create_synthetic_term_fab
+      - record_create_synthetic_term_screen
+      - record_create_synthetic_term_period_selector
+      - maincore_tuindice_top_bar_back_button
+      - record_discard_synthetic_term_message
+      - base_confirmation_dialog_negative_button
+      - base_confirmation_dialog_positive_button
+      - record_content_container
   - id: record-synthetic-term-lifecycle
     path: e2e/maestro/flows/record/record-synthetic-term-lifecycle.yaml
     module: record
@@ -979,6 +1016,7 @@ variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
     actions_covered:
       - record.CreateSyntheticTerm.UpdateQuery
       - record.CreateSyntheticTerm.CreateTerm
+      - record.CreateSyntheticTerm.SelectPeriod
       - record.Record.RefreshRecord
       - record.Record.SetViewMode
       - record.Record.SelectTerm

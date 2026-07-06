@@ -12,10 +12,15 @@ internal fun MachineDefinitionBuilder<Record.State>.recordEmptyTransitions(
 		on<RecordInternalEvent.RecordObservationFailed> { state, _ -> state }
 
 		on<RecordInternalEvent.RecordRefreshFailed>(
-			emits = setOf(Record.Effect.NavigateToOutdatedCredentials::class)
+			emits = setOf(
+				Record.Effect.NavigateToOutdatedCredentials::class,
+				Record.Effect.ShowSnackBar::class
+			)
 		) { state, event ->
 			if (event.navigateToOutdatedCredentials) {
 				host.sendEffect(Record.Effect.NavigateToOutdatedCredentials)
+			} else {
+				host.sendEffect(Record.Effect.ShowSnackBar(message = event.message))
 			}
 
 			state

@@ -1,0 +1,53 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- runFlow: ../auth/login-success.yaml
+- runFlow: ../_shared/continue-to-summary-after-auth.yaml
+- tapOn:
+    id: maincore_tuindice_bottom_bar_record_item
+- extendedWaitUntil:
+    visible:
+      id: record_content_container
+    timeout: 30000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+- tapOn:
+    id: record_create_synthetic_term_fab
+- extendedWaitUntil:
+    visible:
+      id: record_create_synthetic_term_screen
+    timeout: 10000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+- tapOn:
+    id: record_create_synthetic_term_period_selector
+- extendedWaitUntil:
+    visible: "Sep - Dic 2026"
+    timeout: 10000
+- tapOn: "Sep - Dic 2026"
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    id: maincore_tuindice_top_bar_back_button
+- extendedWaitUntil:
+    visible:
+      id: record_discard_synthetic_term_message
+    timeout: 10000
+- tapOn:
+    id: base_confirmation_dialog_negative_button
+- extendedWaitUntil:
+    notVisible:
+      id: record_discard_synthetic_term_message
+    timeout: 10000
+- assertVisible:
+    id: record_create_synthetic_term_screen
+- tapOn:
+    id: maincore_tuindice_top_bar_back_button
+- extendedWaitUntil:
+    visible:
+      id: record_discard_synthetic_term_message
+    timeout: 10000
+- tapOn:
+    id: base_confirmation_dialog_positive_button
+- extendedWaitUntil:
+    visible:
+      id: record_content_container
+    timeout: 10000

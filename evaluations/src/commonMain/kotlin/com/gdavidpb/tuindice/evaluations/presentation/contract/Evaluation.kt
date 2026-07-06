@@ -69,6 +69,16 @@ object Evaluation {
 					if (type == null) add(EvaluationRequiredField.TYPE)
 					if (maxGrade == null) add(EvaluationRequiredField.MAX_GRADE)
 				}
+
+			// An untouched add form is not worth a discard warning; in edit mode any
+			// divergence from the loaded draft is.
+			val hasDiscardableInput: Boolean
+				get() = if (evaluationId == null) {
+					selectedAttempt != null || type != null || date != null ||
+						grade != null || maxGrade != null
+				} else {
+					hasDraftChanges
+				}
 		}
 
 		data object Failed : State()

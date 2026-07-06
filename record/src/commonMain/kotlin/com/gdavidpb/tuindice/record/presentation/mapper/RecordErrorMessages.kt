@@ -8,7 +8,7 @@ import tuindice.record.generated.resources.snack_network_unavailable
 import tuindice.record.generated.resources.snack_service_unavailable
 import tuindice.record.generated.resources.snack_timeout
 
-internal suspend fun RecordUseCaseError?.toAttemptSelectionMessage(): String {
+internal suspend fun RecordUseCaseError?.toRecordFailureMessage(): String {
 	return when (this) {
 		RecordUseCaseError.NoConnection ->
 			getString(Res.string.snack_network_unavailable)

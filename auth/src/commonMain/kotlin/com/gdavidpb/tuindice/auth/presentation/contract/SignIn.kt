@@ -49,6 +49,8 @@ object SignIn {
 
 		data object ClickSignIn : Action()
 
+		data object ClickCancelSignIn : Action()
+
 		data object ClickTermsAndConditions : Action()
 
 		data object ClickPrivacyPolicy : Action()

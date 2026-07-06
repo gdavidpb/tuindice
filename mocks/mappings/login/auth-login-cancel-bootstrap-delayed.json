@@ -1,0 +1,25 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic MTEtMTExMTE6bG9naW4tY2FuY2VsLXBhc3M="
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "login-cancel-user",
+      "usb_id": "11-11111",
+      "access_token": "bootstrap.mock.login.cancel.token",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 15000
+  }
+}

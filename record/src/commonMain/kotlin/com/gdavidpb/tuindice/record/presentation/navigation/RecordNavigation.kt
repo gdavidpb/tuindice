@@ -30,6 +30,7 @@ fun NavGraphBuilder.recordNavigation(
 	onNavigateToSubjectDetail: (String) -> Unit,
 	onTopBarViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onTopBarTermSelectionAvailable: ((() -> Unit)?) -> Unit,
+	onBackInterceptorAvailable: ((() -> Boolean)?) -> Unit,
 	onNavigateToEnrollmentProof: () -> Unit,
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
@@ -92,6 +93,7 @@ fun NavGraphBuilder.recordNavigation(
 				termId = args.termId,
 				viewModel = viewModel,
 				onBack = { navController.navigateUp() },
+				onBackInterceptorAvailable = onBackInterceptorAvailable,
 				onSubjectStatsClick = onNavigateToSubjectDetail
 			)
 		}

@@ -31,6 +31,7 @@ fun NavGraphBuilder.evaluationsNavigation(
 	onNavigateToGradePickerDialog: (evaluationName: String, subjectCode: String, grade: Double?, maxGrade: Double?) -> Unit,
 	onNavigateToMaxGradePickerDialog: (evaluationName: String, subjectCode: String, maxGrade: Double?) -> Unit,
 	onNavigateToEvaluations: () -> Unit,
+	onBackInterceptorAvailable: ((() -> Boolean)?) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit
 ) {
@@ -104,6 +105,8 @@ fun NavGraphBuilder.evaluationsNavigation(
 				onNavigateToEvaluations = onNavigateToEvaluations,
 				onNavigateToGradePickerDialog = onNavigateToGradePickerDialog,
 				onNavigateToMaxGradePickerDialog = onNavigateToMaxGradePickerDialog,
+				onBack = { navController.navigateUp() },
+				onBackInterceptorAvailable = onBackInterceptorAvailable,
 				showSnackBar = showSnackBar,
 				viewModel = viewModel
 			)

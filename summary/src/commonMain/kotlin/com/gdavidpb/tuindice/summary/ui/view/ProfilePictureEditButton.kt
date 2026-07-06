@@ -14,6 +14,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import org.jetbrains.compose.resources.stringResource
+import tuindice.summary.generated.resources.Res
+import tuindice.summary.generated.resources.a11y_edit_profile_picture
 
 @Composable
 fun ProfilePictureEditButton(
@@ -25,7 +28,7 @@ fun ProfilePictureEditButton(
 	IconButton(
 		modifier = modifier
 			.testTag(SummaryUiTags.ProfilePictureEditButton)
-			.size(42.dp),
+			.size(48.dp),
 		enabled = isEnabled,
 		colors = IconButtonDefaults.filledIconButtonColors(),
 		onClick = onClick
@@ -44,7 +47,7 @@ fun ProfilePictureEditButton(
 					.padding(4.dp),
 				imageVector = Icons.Outlined.Edit,
 				tint = MaterialTheme.colorScheme.onPrimary,
-				contentDescription = null
+				contentDescription = stringResource(Res.string.a11y_edit_profile_picture)
 			)
 		}
 	}

@@ -142,6 +142,9 @@ fun TuIndiceAppHostRoute(
 		val onRecordTermSelection = remember {
 			mutableStateOf<(() -> Unit)?>(null)
 		}
+		val backInterceptor = remember {
+			mutableStateOf<(() -> Boolean)?>(null)
+		}
 		val coachmarkOverlayState by coachmarkOverlayViewModel.state.collectAsStateWithLifecycle()
 		val coachmarkSurfaceKey = remember {
 			mutableStateOf<String?>(null)
@@ -289,6 +292,9 @@ fun TuIndiceAppHostRoute(
 			onRecordTermSelectionAvailable = { callback ->
 				onRecordTermSelection.value = callback
 			},
+			onBackInterceptorAvailable = { interceptor ->
+				backInterceptor.value = interceptor
+			},
 			onNavigateTo = { destination ->
 				val currentDestination = navController.currentDestination?.parent?.route
 				val isNewDestination = !navController.isCurrentDestination(destination)
@@ -306,7 +312,11 @@ fun TuIndiceAppHostRoute(
 					}
 				}
 			},
-			onNavigateBack = { navController.navigateUp() },
+			onNavigateBack = {
+				if (backInterceptor.value?.invoke() != true) {
+					navController.navigateUp()
+				}
+			},
 			onConfirmExitClick = onConfirmExitClick,
 			isCameraAvailable = deviceInfoRepository.hasCamera(),
 			onNavigateToExternalResource = browserRepository::open,

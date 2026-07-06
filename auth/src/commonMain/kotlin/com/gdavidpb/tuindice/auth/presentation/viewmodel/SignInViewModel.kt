@@ -36,6 +36,9 @@ class SignInViewModel(
 	fun toggleIdentifierModeAction() =
 		sendAction(SignIn.Action.ToggleIdentifierMode)
 
+	fun cancelSignInAction() =
+		sendAction(SignIn.Action.ClickCancelSignIn)
+
 	fun setUsageDataCollectionEnabledAction(enabled: Boolean) =
 		sendAction(SignIn.Action.SetUsageDataCollectionEnabled(enabled))
 

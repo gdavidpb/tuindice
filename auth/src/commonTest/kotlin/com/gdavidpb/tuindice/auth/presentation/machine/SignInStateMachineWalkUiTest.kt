@@ -56,6 +56,7 @@ class SignInStateMachineWalkUiTest {
 				SignIn.Action.ToggleIdentifierMode,
 				SignIn.Action.SetUsageDataCollectionEnabled(enabled = true),
 				SignIn.Action.ClickSignIn,
+				SignIn.Action.ClickCancelSignIn,
 				SignIn.Action.ClickTermsAndConditions,
 				SignIn.Action.ClickPrivacyPolicy,
 				SignInInternalEvent.SignInSucceeded,
