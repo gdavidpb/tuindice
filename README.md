@@ -103,7 +103,10 @@ Dependencias actuales:
 - `pensum`: depende de `:academiccore`, `:base`, `:persistence`.
 - `wizard`: depende de `:base`, `:summary`, `:record`, `:evaluations`, `:pensum`, `:subjects` y `:about`.
 - `maincore`: depende de `:base`, `:persistence`, `:security` y todas las features.
-- `app`: host Android; ensambla `maincore`.
+- `app`: host Android; ensambla `maincore` y aporta en `androidPlatformModule` los bindings de plataforma
+  Android de cada feature, por lo que en el grafo depende de todos los módulos.
+- `testkit`: soporte de pruebas; depende de `:base` y `:security`, y solo lo consumen los source sets de test
+  de los demás módulos.
 
 Acuerdo de límites:
 
@@ -342,7 +345,8 @@ En `testkit/e2e` vive el contrato de implementacion:
 - `selector-policy.md`: reglas para usar `Modifier.testTag` como selector estable.
 - `fixture-contract.md`: reglas de uso de WireMock como backend local de QA.
 - `local-runbook.md`: comandos y variables para ejecucion local.
-- `validate-e2e-contract.sh`: validador de catalogo y selectors criticos.
+- `validate-e2e-contract.sh`: valida el catalogo, los selectors criticos y el contrato de fixtures, y lintea los
+  flows Maestro; corre dentro de `verifyE2eContract`.
 
 Reglas:
 
