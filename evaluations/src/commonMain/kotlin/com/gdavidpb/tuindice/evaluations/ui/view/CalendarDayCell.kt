@@ -14,6 +14,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextAlign
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import kotlinx.datetime.LocalDate
 
@@ -23,18 +24,21 @@ fun CalendarDayCell(
 	date: LocalDate?,
 	selectedDate: LocalDate?,
 	today: LocalDate,
+	isSelectable: Boolean = true,
 	onDateSelected: (LocalDate) -> Unit
 ) {
 	val isSelected = date != null && date == selectedDate
 	val isToday = date != null && date == today
 	val containerColor = when {
 		isSelected -> MaterialTheme.colorScheme.secondaryContainer
-		isToday -> MaterialTheme.colorScheme.secondaryContainer
+		isToday && isSelectable -> MaterialTheme.colorScheme.secondaryContainer
 		else -> Color.Transparent
 	}
 	val textColor = when {
 		isSelected -> MaterialTheme.colorScheme.onSecondaryContainer
-		isToday -> MaterialTheme.colorScheme.onSecondaryContainer
+		isToday && isSelectable -> MaterialTheme.colorScheme.onSecondaryContainer
+		// Days outside the term range stay visible but read as disabled.
+		!isSelectable -> MaterialTheme.colorScheme.onSurface.copy(alpha = TuIndiceAlpha.Disabled)
 		else -> MaterialTheme.colorScheme.onSurface
 	}
 
@@ -50,7 +54,7 @@ fun CalendarDayCell(
 			.aspectRatio(1f)
 			.clip(CircleShape)
 			.background(containerColor)
-			.clickable(enabled = date != null) {
+			.clickable(enabled = date != null && isSelectable) {
 				if (date != null) {
 					onDateSelected(date)
 				}

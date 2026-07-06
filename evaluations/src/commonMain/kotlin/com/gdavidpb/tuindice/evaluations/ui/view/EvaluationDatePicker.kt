@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.base.ui.exposeTestTagsAsResourceId
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.formatAsShortDayOfWeekAndDate
 import com.gdavidpb.tuindice.evaluations.presentation.utils.*
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import kotlinx.datetime.LocalDate
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.*
 
@@ -26,20 +27,33 @@ fun EvaluationDatePicker(
 	modifier: Modifier = Modifier,
 	selectedScheduleMode: EvaluationScheduleMode,
 	selectedDate: Long?,
-	onDateChange: (date: Long?) -> Unit
+	onDateChange: (date: Long?) -> Unit,
+	selectableRange: ClosedRange<LocalDate>? = null
 ) {
 	val committedDate = selectedDate?.toEvaluationLocalDate()
 	val isPickerDialogOpen = remember { mutableStateOf(false) }
 	val draftSelectedDate = remember(selectedDate) { mutableStateOf(committedDate) }
-	val displayedMonth = remember(selectedDate) {
-		mutableStateOf((committedDate ?: currentEvaluationLocalDate()).monthStart())
+
+	// Open on the committed date's month, or today's, clamped into the term range so
+	// the picker never lands on a fully-disabled month.
+	fun initialDisplayedMonth(): LocalDate {
+		return (committedDate ?: currentEvaluationLocalDate()).clampToMonthRange(selectableRange)
+	}
+
+	val displayedMonth = remember(selectedDate, selectableRange) {
+		mutableStateOf(initialDisplayedMonth())
 	}
 	val pickerContainerColor = MaterialTheme.colorScheme.surfaceContainerLow
 	val selectedPickerContainerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.16f)
 
+	val canGoPreviousMonth = selectableRange == null ||
+		displayedMonth.value > selectableRange.start.monthStart()
+	val canGoNextMonth = selectableRange == null ||
+		displayedMonth.value < selectableRange.endInclusive.monthStart()
+
 	fun resetDialogState() {
 		draftSelectedDate.value = committedDate
-		displayedMonth.value = (committedDate ?: currentEvaluationLocalDate()).monthStart()
+		displayedMonth.value = initialDisplayedMonth()
 	}
 
 	if (isPickerDialogOpen.value) {
@@ -60,14 +74,21 @@ fun EvaluationDatePicker(
 					displayedMonth = displayedMonth.value,
 					selectedDate = draftSelectedDate.value,
 					onPreviousMonthClick = {
-						displayedMonth.value = displayedMonth.value.previousMonthStart()
+						if (canGoPreviousMonth) {
+							displayedMonth.value = displayedMonth.value.previousMonthStart()
+						}
 					},
 					onNextMonthClick = {
-						displayedMonth.value = displayedMonth.value.nextMonthStart()
+						if (canGoNextMonth) {
+							displayedMonth.value = displayedMonth.value.nextMonthStart()
+						}
 					},
 					onDateSelected = { date ->
 						draftSelectedDate.value = date
-					}
+					},
+					selectableRange = selectableRange,
+					canGoPreviousMonth = canGoPreviousMonth,
+					canGoNextMonth = canGoNextMonth
 				)
 			},
 			confirmButton = {

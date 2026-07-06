@@ -29,7 +29,10 @@ fun EvaluationCalendarContent(
 	selectedDate: LocalDate?,
 	onPreviousMonthClick: () -> Unit,
 	onNextMonthClick: () -> Unit,
-	onDateSelected: (LocalDate) -> Unit
+	onDateSelected: (LocalDate) -> Unit,
+	selectableRange: ClosedRange<LocalDate>? = null,
+	canGoPreviousMonth: Boolean = true,
+	canGoNextMonth: Boolean = true
 ) {
 	Column(
 		modifier = Modifier.testTag(EvaluationsUiTags.EvaluationCalendarContainer),
@@ -41,6 +44,7 @@ fun EvaluationCalendarContent(
 		) {
 			IconButton(
 				modifier = Modifier.testTag(EvaluationsUiTags.EvaluationCalendarPreviousMonthButton),
+				enabled = canGoPreviousMonth,
 				onClick = onPreviousMonthClick
 			) {
 				Icon(
@@ -60,6 +64,7 @@ fun EvaluationCalendarContent(
 
 			IconButton(
 				modifier = Modifier.testTag(EvaluationsUiTags.EvaluationCalendarNextMonthButton),
+				enabled = canGoNextMonth,
 				onClick = onNextMonthClick
 			) {
 				Icon(
@@ -82,6 +87,8 @@ fun EvaluationCalendarContent(
 						date = date,
 						selectedDate = selectedDate,
 						today = currentEvaluationLocalDate(),
+						isSelectable = date != null &&
+							(selectableRange == null || date in selectableRange),
 						onDateSelected = onDateSelected
 					)
 				}

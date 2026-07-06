@@ -134,7 +134,8 @@ fun EvaluationContentView(
 				modifier = Modifier.fillMaxWidth(),
 				selectedScheduleMode = state.scheduleMode,
 				selectedDate = state.date,
-				onDateChange = onDateChange
+				onDateChange = onDateChange,
+				selectableRange = state.selectableDateRange
 			)
 
 			Text(

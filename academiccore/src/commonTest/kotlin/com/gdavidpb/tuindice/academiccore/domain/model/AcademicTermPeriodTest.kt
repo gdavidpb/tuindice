@@ -42,4 +42,24 @@ class AcademicTermPeriodTest {
 			sortedTerms.map(AcademicTerm::termOrder)
 		)
 	}
+
+	@Test
+	fun startMonthAndEndMonth_matchTheMonthsEachPeriodSpans() {
+		val expectedRanges = mapOf(
+			AcademicTermPeriod.JAN_MAR to (1 to 3),
+			AcademicTermPeriod.JAN_MAY to (1 to 5),
+			AcademicTermPeriod.APR_JUL to (4 to 7),
+			AcademicTermPeriod.JUL_AUG to (7 to 8),
+			AcademicTermPeriod.APR_SEP to (4 to 9),
+			AcademicTermPeriod.SEP_DEC to (9 to 12),
+			AcademicTermPeriod.JUL_DEC to (7 to 12)
+		)
+
+		for ((period, range) in expectedRanges) {
+			val (start, end) = range
+
+			assertEquals(start, period.startMonth, "startMonth of $period")
+			assertEquals(end, period.endMonth, "endMonth of $period")
+		}
+	}
 }

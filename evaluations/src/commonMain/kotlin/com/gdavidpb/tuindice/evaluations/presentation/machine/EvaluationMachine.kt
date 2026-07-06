@@ -22,6 +22,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.mapper.toUpdateEvaluationP
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationAnyStateTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationContentTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.utils.isDateInPast
+import com.gdavidpb.tuindice.evaluations.presentation.utils.toSelectableDateRange
 import org.jetbrains.compose.resources.getString
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.snack_evaluation_added
@@ -53,12 +54,13 @@ class EvaluationMachine(
 					is UseCaseState.Data -> host.processInternalEvent(
 						EvaluationInternalEvent.EditorContentLoaded(
 							content = Evaluation.State.Content(
-								attemptItems = useCaseState.value.toEvaluationAttemptPickerItems(
-									selectedAttempt = null
-								),
+								attemptItems = useCaseState.value.availableAttempts
+									.toEvaluationAttemptPickerItems(selectedAttempt = null),
 								typeItems = getEvaluationTypePickerItemList(
 									selectedType = null
 								),
+								selectableDateRange = useCaseState.value.currentTerm
+									?.toSelectableDateRange(),
 								gradeSection = getEvaluationGradeSectionItem(
 									grade = null,
 									maxGrade = null
@@ -110,6 +112,7 @@ class EvaluationMachine(
 							scheduleMode = evaluation?.scheduleMode
 								?: EvaluationScheduleMode.CONTINUOUS,
 							date = evaluation?.date,
+							selectableDateRange = currentTerm?.toSelectableDateRange(),
 							isOverdue = isOverdue,
 							grade = evaluation?.grade,
 							maxGrade = evaluation?.maxGrade,

@@ -37,6 +37,28 @@ class CalendarDayCellUiTest {
 	}
 
 	@Test
+	fun when_dayIsNotSelectable_then_isDisabledAndIgnoresTaps() = runTuIndiceUiTest {
+		val date = LocalDate(2026, 5, 20)
+		var selectedDate: LocalDate? = null
+
+		setTuIndiceTestContent {
+			CalendarDayCell(
+				date = date,
+				selectedDate = null,
+				today = LocalDate(2026, 1, 10),
+				isSelectable = false,
+				onDateSelected = { selected -> selectedDate = selected }
+			)
+		}
+
+		onNodeWithText("20").assertIsDisplayed()
+		onNodeWithTag(EvaluationsUiTags.calendarDayCell(20)).assertIsNotEnabled()
+		onNodeWithTag(EvaluationsUiTags.calendarDayCell(20)).performClick()
+
+		assertEquals(null, selectedDate)
+	}
+
+	@Test
 	fun when_dateIsNull_then_rendersPlaceholderWithoutTextAndIsDisabled() = runTuIndiceUiTest {
 		var selectedDate: LocalDate? = null
 

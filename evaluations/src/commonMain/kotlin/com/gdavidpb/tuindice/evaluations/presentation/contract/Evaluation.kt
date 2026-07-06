@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationAttemptPic
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationGradeSectionItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationRequiredField
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
+import kotlinx.datetime.LocalDate
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.top_bar_add_evaluation
 import tuindice.evaluations.generated.resources.top_bar_edit_evaluation
@@ -34,6 +35,9 @@ object Evaluation {
 			val typeItems: List<EvaluationTypePickerItem> = emptyList(),
 			val scheduleMode: EvaluationScheduleMode = EvaluationScheduleMode.CONTINUOUS,
 			val date: Long? = null,
+			// Dates outside this range are disabled in the picker; null means unbounded
+			// (no current term resolved).
+			val selectableDateRange: ClosedRange<LocalDate>? = null,
 			val isOverdue: Boolean = false,
 			val grade: Double? = null,
 			val maxGrade: Double? = null,
