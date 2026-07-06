@@ -19,7 +19,6 @@ object EvaluationsUiTags {
 	const val EvaluationDateDialogTitle = "evaluation_date_dialog_title"
 	const val EvaluationDateDialogAcceptButton = "evaluation_date_dialog_accept_button"
 	const val EvaluationDateDialogCancelButton = "evaluation_date_dialog_cancel_button"
-	const val EvaluationDateDialogTodayButton = "evaluation_date_dialog_today_button"
 	const val EvaluationCalendarContainer = "evaluation_calendar_container"
 	const val EvaluationCalendarMonthLabel = "evaluation_calendar_month_label"
 	const val EvaluationCalendarPreviousMonthButton = "evaluation_calendar_previous_month_button"
