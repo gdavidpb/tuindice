@@ -17,12 +17,8 @@ internal fun MachineDefinitionBuilder<UpdatePassword.State>.updatePasswordUpdati
 		}
 
 		// Failure restores Idle with the typed password and the error inline; the
-		// visibility resets, mirroring the old reducer.
-		onTo<UpdatePasswordInternalEvent.PasswordUpdateFailed, UpdatePassword.State.Idle>(
-			emits = setOf(UpdatePassword.Effect.ShowSnackBar::class)
-		) { state, event ->
-			host.sendEffect(UpdatePassword.Effect.ShowSnackBar(message = event.message))
-
+		// dialog stays open so the user can correct the password in place.
+		onTo<UpdatePasswordInternalEvent.PasswordUpdateFailed, UpdatePassword.State.Idle> { state, event ->
 			UpdatePassword.State.Idle(
 				password = state.password,
 				error = event.message

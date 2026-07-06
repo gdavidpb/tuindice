@@ -97,6 +97,11 @@ import tuindice.maincore.generated.resources.a11y_top_bar_search_pensum
 import tuindice.maincore.generated.resources.a11y_top_bar_sign_out
 import tuindice.maincore.generated.resources.app_availability_notice_default_message
 import tuindice.maincore.generated.resources.app_availability_notice_default_title
+import tuindice.maincore.generated.resources.bottom_bar_about
+import tuindice.maincore.generated.resources.bottom_bar_evaluations
+import tuindice.maincore.generated.resources.bottom_bar_pensum
+import tuindice.maincore.generated.resources.bottom_bar_record
+import tuindice.maincore.generated.resources.bottom_bar_summary
 import tuindice.maincore.generated.resources.main_start_failed_message
 import tuindice.maincore.generated.resources.main_start_failed_retry
 import tuindice.maincore.generated.resources.main_start_failed_title
@@ -379,7 +384,7 @@ fun TuIndiceScreen(
 												Modifier.testTag(bottomBarSelectedItemTag(bottomBarConfig))
 											else Modifier,
 											imageVector = navigationBarItemIcon,
-											contentDescription = null
+											contentDescription = bottomBarLabel(config = bottomBarConfig)
 										)
 									},
 									colors = NavigationBarItemDefaults.colors(
@@ -482,6 +487,15 @@ private fun bottomBarIcon(
 		if (selected) Icons.AutoMirrored.Filled.Assignment else Icons.AutoMirrored.Outlined.Assignment
 	BottomBarConfig.About ->
 		if (selected) Icons.Filled.Favorite else Icons.Outlined.FavoriteBorder
+}
+
+@Composable
+private fun bottomBarLabel(config: BottomBarConfig): String = when (config) {
+	BottomBarConfig.Summary -> stringResource(Res.string.bottom_bar_summary)
+	BottomBarConfig.Record -> stringResource(Res.string.bottom_bar_record)
+	BottomBarConfig.Pensum -> stringResource(Res.string.bottom_bar_pensum)
+	BottomBarConfig.Evaluations -> stringResource(Res.string.bottom_bar_evaluations)
+	BottomBarConfig.About -> stringResource(Res.string.bottom_bar_about)
 }
 
 private fun bottomBarItemTag(config: BottomBarConfig): String = when (config) {

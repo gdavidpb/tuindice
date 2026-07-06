@@ -59,7 +59,7 @@ class UpdatePasswordStateMachineContractTest {
 			"SetPassword",
 			"ClickSignIn",
 			"PasswordUpdateSucceeded / PasswordUpdated",
-			"PasswordUpdateFailed / ShowSnackBar"
+			"PasswordUpdateFailed"
 		)
 
 		for (fragment in expectedFragments) {

@@ -79,13 +79,16 @@
 	<string name="dialog_title_add_evaluation_grade">Nota obtenida</string>
 	<string name="dialog_title_add_evaluation_max_grade">Nota máxima</string>
 	<string name="dialog_title_edit_evaluation_grade">Modificar nota</string>
+	<string name="dialog_title_delete_evaluation">Eliminar evaluación</string>
+	<string name="dialog_message_delete_evaluation">Se eliminará esta evaluación de tu plan del trimestre.</string>
+	<string name="dialog_button_delete">Eliminar</string>
 
 	<string name="snack_evaluation_set_grade">Nota actualizada</string>
 	<string name="snack_evaluation_added">Evaluación agregada</string>
 	<string name="snack_evaluation_already_exists">Ya existe una evaluación igual</string>
 	<string name="snack_evaluation_not_found">La evaluación ya no está disponible</string>
 	<string name="snack_evaluation_updated">Evaluación actualizada</string>
-	<string name="snack_evaluation_removed">Evaluación removida</string>
+	<string name="snack_evaluation_removed">Evaluación eliminada</string>
 	<string name="snack_default_error">¡Ha ocurrido un error!</string>
 	<string name="snack_service_unavailable">Servicio no disponible</string>
 	<string name="snack_network_unavailable">Comprueba tu conexión</string>

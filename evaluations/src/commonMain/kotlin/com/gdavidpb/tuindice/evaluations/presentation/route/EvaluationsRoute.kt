@@ -15,6 +15,7 @@ fun EvaluationsRoute(
 	onNavigateToAddEvaluation: () -> Unit,
 	onNavigateToEvaluation: (evaluationId: String) -> Unit,
 	onNavigateToEvaluationGradePickerDialog: (evaluationId: String, evaluationName: String, subjectCode: String, grade: Double, maxGrade: Double) -> Unit,
+	onNavigateToDeleteEvaluationConfirmation: (evaluationId: String) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: EvaluationsViewModel
 ) {
@@ -57,7 +58,7 @@ fun EvaluationsRoute(
 		onAddEvaluationClick = viewModel::addEvaluationAction,
 		onEvaluationClick = viewModel::showEvaluationGradeDialogAction,
 		onEvaluationEdit = viewModel::editEvaluationAction,
-		onEvaluationDelete = viewModel::removeEvaluationAction,
+		onEvaluationDelete = onNavigateToDeleteEvaluationConfirmation,
 		onWeekClick = viewModel::selectWeekAction,
 		onRetryClick = {
 			viewModel.loadEvaluationsAction()

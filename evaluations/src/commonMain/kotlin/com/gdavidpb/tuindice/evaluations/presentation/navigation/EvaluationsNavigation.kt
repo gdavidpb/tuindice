@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.route.EvaluationRoute
 import com.gdavidpb.tuindice.evaluations.presentation.route.EvaluationsRoute
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationsViewModel
+import com.gdavidpb.tuindice.evaluations.ui.dialog.DeleteEvaluationConfirmationContentDialog
 import com.gdavidpb.tuindice.evaluations.ui.dialog.EvaluationGradePickerContentDialog
 import com.gdavidpb.tuindice.evaluations.ui.dialog.GradePickerContentDialog
 import com.gdavidpb.tuindice.evaluations.ui.dialog.MaxGradePickerContentDialog
@@ -53,6 +54,9 @@ fun NavGraphBuilder.evaluationsNavigation(
 							evaluationId = result.evaluationId,
 							grade = result.grade
 						)
+
+					is EvaluationsBackResult.RemoveEvaluation ->
+						viewModel.removeEvaluationAction(result.evaluationId)
 				}
 			}
 
@@ -60,6 +64,13 @@ fun NavGraphBuilder.evaluationsNavigation(
 				onNavigateToAddEvaluation = onNavigateToAddEvaluation,
 				onNavigateToEvaluation = onNavigateToEvaluation,
 				onNavigateToEvaluationGradePickerDialog = onNavigateToEvaluationGradePickerDialog,
+				onNavigateToDeleteEvaluationConfirmation = { evaluationId ->
+					navController.navigate(
+						EvaluationsDestination.DeleteEvaluationConfirmationDialog(
+							evaluationId = evaluationId
+						)
+					)
+				},
 				showSnackBar = showSnackBar,
 				viewModel = viewModel
 			)
@@ -130,6 +141,19 @@ fun NavGraphBuilder.evaluationsNavigation(
 				},
 				onDismissRequest = { navController.navigateUp() },
 				dismissOnConfirm = false
+			)
+		}
+
+		dialog<EvaluationsDestination.DeleteEvaluationConfirmationDialog> { backStackEntry ->
+			val args = backStackEntry.toRoute<EvaluationsDestination.DeleteEvaluationConfirmationDialog>()
+
+			DeleteEvaluationConfirmationContentDialog(
+				onConfirmClick = {
+					navController.navigateBackWithResult<EvaluationsBackResult>(
+						EvaluationsBackResult.RemoveEvaluation(evaluationId = args.evaluationId)
+					)
+				},
+				onDismissRequest = { navController.navigateUp() }
 			)
 		}
 

@@ -9,4 +9,9 @@ sealed class EvaluationsBackResult {
 		val evaluationId: String,
 		val grade: Double
 	) : EvaluationsBackResult()
+
+	@Serializable
+	data class RemoveEvaluation(
+		val evaluationId: String
+	) : EvaluationsBackResult()
 }

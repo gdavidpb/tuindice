@@ -14,6 +14,11 @@
 	<string name="app_availability_notice_default_message">Estamos trabajando para restablecer el servicio. Intenta nuevamente más tarde.</string>
 	<string name="snack_session_invalidated">Inicia sesión nuevamente</string>
 	<string name="snack_pending_changes_unavailable">No pudimos revisar tus cambios pendientes. Intenta nuevamente.</string>
+	<string name="bottom_bar_summary">Resumen</string>
+	<string name="bottom_bar_record">Informe</string>
+	<string name="bottom_bar_pensum">Pensum</string>
+	<string name="bottom_bar_evaluations">Evaluaciones</string>
+	<string name="bottom_bar_about">Acerca de</string>
 	<string name="a11y_navigate_back">Volver</string>
 	<string name="a11y_top_bar_sign_out">Cerrar sesión</string>
 	<string name="a11y_top_bar_enrollment_proof">Ver comprobante</string>

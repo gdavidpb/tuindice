@@ -55,6 +55,7 @@ class AboutRouteUiTest {
 					onNavigateToBrowser = { _, url ->
 						navigatedUrl = url
 					},
+					showSnackBar = { },
 					viewModel = fixture.viewModel
 				)
 			}
@@ -85,6 +86,7 @@ class AboutRouteUiTest {
 					onNavigateToBrowser = { _, url ->
 						navigatedUrl = url
 					},
+					showSnackBar = { },
 					viewModel = fixture.viewModel
 				)
 			}
@@ -116,6 +118,7 @@ class AboutRouteUiTest {
 			) {
 				AboutRoute(
 					onNavigateToBrowser = { _, _ -> },
+					showSnackBar = { },
 					viewModel = fixture.viewModel
 				)
 			}
@@ -133,6 +136,37 @@ class AboutRouteUiTest {
 	}
 
 	@Test
+	fun when_mailUriCannotOpen_then_showsSnackBar() = runTuIndiceUiTest {
+		val fixture = createAboutViewModel(termsAndConditionsUrl = "https://tuindice.test/terms")
+		var snackBarMessage = ""
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(
+				LocalShareTextHandler provides { _, _ -> },
+				LocalUriHandler provides object : UriHandler {
+					override fun openUri(uri: String) {
+						error("No mail app installed")
+					}
+				}
+			) {
+				AboutRoute(
+					onNavigateToBrowser = { _, _ -> },
+					showSnackBar = { message -> snackBarMessage = message.message },
+					viewModel = fixture.viewModel
+				)
+			}
+		}
+
+		runOnIdle {
+			fixture.viewModel.contactDeveloperAction()
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			snackBarMessage.isNotEmpty()
+		}
+	}
+
+	@Test
 	fun when_shareAppActionTriggered_then_delegatesToShareTextHandler() = runTuIndiceUiTest {
 		val fixture = createAboutViewModel(termsAndConditionsUrl = "https://tuindice.test/terms")
 		var subject = ""
@@ -147,6 +181,7 @@ class AboutRouteUiTest {
 			) {
 				AboutRoute(
 					onNavigateToBrowser = { _, _ -> },
+					showSnackBar = { },
 					viewModel = fixture.viewModel
 				)
 			}
@@ -179,6 +214,7 @@ class AboutRouteUiTest {
 			) {
 				AboutRoute(
 					onNavigateToBrowser = { _, _ -> },
+					showSnackBar = { },
 					viewModel = fixture.viewModel
 				)
 			}
@@ -209,6 +245,7 @@ class AboutRouteUiTest {
 					onNavigateToBrowser = { _, url ->
 						navigatedUrl = url
 					},
+					showSnackBar = { },
 					viewModel = fixture.viewModel
 				)
 			}
@@ -239,6 +276,7 @@ class AboutRouteUiTest {
 					onNavigateToBrowser = { _, url ->
 						navigatedUrl = url
 					},
+					showSnackBar = { },
 					viewModel = fixture.viewModel
 				)
 			}
@@ -271,6 +309,7 @@ class AboutRouteUiTest {
 					onNavigateToBrowser = { _, url ->
 						navigatedUrl = url
 					},
+					showSnackBar = { },
 					viewModel = fixture.viewModel
 				)
 			}
@@ -304,6 +343,7 @@ class AboutRouteUiTest {
 					onNavigateToBrowser = { _, url ->
 						navigatedUrl = url
 					},
+					showSnackBar = { },
 					viewModel = fixture.viewModel
 				)
 			}
@@ -336,6 +376,7 @@ class AboutRouteUiTest {
 			) {
 				AboutRoute(
 					onNavigateToBrowser = { _, _ -> },
+					showSnackBar = { },
 					viewModel = fixture.viewModel
 				)
 			}
@@ -369,6 +410,7 @@ class AboutRouteUiTest {
 			) {
 				AboutRoute(
 					onNavigateToBrowser = { _, _ -> },
+					showSnackBar = { },
 					viewModel = fixture.viewModel
 				)
 			}
@@ -406,6 +448,7 @@ class AboutRouteUiTest {
 					onNavigateToBrowser = { _, _ ->
 						navigateCalls++
 					},
+					showSnackBar = { },
 					viewModel = fixture.viewModel
 				)
 			}
@@ -447,6 +490,7 @@ class AboutRouteUiTest {
 					onNavigateToBrowser = { _, _ ->
 						navigateCalls++
 					},
+					showSnackBar = { },
 					viewModel = fixture.viewModel
 				)
 			}
@@ -483,6 +527,7 @@ class AboutRouteUiTest {
 			) {
 				AboutRoute(
 					onNavigateToBrowser = { _, _ -> },
+					showSnackBar = { },
 					viewModel = fixture.viewModel
 				)
 			}
@@ -516,6 +561,7 @@ class AboutRouteUiTest {
 			) {
 				AboutRoute(
 					onNavigateToBrowser = { _, _ -> },
+					showSnackBar = { },
 					viewModel = fixture.viewModel
 				)
 			}
@@ -548,6 +594,7 @@ class AboutRouteUiTest {
 			) {
 				AboutRoute(
 					onNavigateToBrowser = { _, _ -> },
+					showSnackBar = { },
 					viewModel = fixture.viewModel
 				)
 			}
@@ -599,6 +646,7 @@ class AboutRouteUiTest {
 					onNavigateToBrowser = { _, _ ->
 						navigateCalls++
 					},
+					showSnackBar = { },
 					viewModel = fixture.viewModel
 				)
 			}

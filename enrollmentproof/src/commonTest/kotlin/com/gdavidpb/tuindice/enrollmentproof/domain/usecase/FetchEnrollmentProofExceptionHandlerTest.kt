@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.enrollmentproof.domain.usecase
 
+import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofOfflineException
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmentProofUseCaseError
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.exceptionhandler.FetchEnrollmentProofExceptionHandler
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
@@ -30,6 +31,18 @@ class FetchEnrollmentProofExceptionHandlerTest {
 		).parseException(throwable)
 
 		assertEquals(FetchEnrollmentProofUseCaseError.NotFound, actual)
+	}
+
+	@Test
+	fun fetchEnrollmentProofExceptionHandler_mapsOfflineCacheMissToNoConnection() {
+		val throwable = EnrollmentProofOfflineException()
+
+		val actual = FetchEnrollmentProofExceptionHandler(
+			networkRepository = FakeNetworkRepository(isAvailable = false)
+		).parseException(throwable)
+
+		val error = assertIs<FetchEnrollmentProofUseCaseError.NoConnection>(actual)
+		assertEquals(false, error.isNetworkAvailable)
 	}
 
 	@Test

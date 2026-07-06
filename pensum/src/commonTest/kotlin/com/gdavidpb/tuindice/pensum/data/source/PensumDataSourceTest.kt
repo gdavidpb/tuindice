@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class PensumDataSourceTest {
 	@Test
@@ -42,6 +43,60 @@ class PensumDataSourceTest {
 		assertEquals(false, local.lastInferredSelection)
 	}
 
+	@Test
+	fun selectSelection_validatesAgainstRemoteBeforePersisting() = runTest {
+		val local = FakePensumLocalDataRepository(selection = PensumSelectionParams())
+		val remote = FakePensumRemoteDataRepository()
+		val dataSource = createDataSource(local = local, remote = remote)
+
+		dataSource.selectSelection(year = 2019, modalityId = "degree_project")
+
+		assertEquals(
+			PensumSelectionParams(year = 2019, modalityId = "degree_project"),
+			remote.lastSelection
+		)
+		assertEquals(2019 to "degree_project", local.lastSelectedSelection)
+		assertEquals(false, local.lastInferredSelection)
+	}
+
+	@Test
+	fun selectSelection_whenRemoteFails_persistsNothing() = runTest {
+		val local = FakePensumLocalDataRepository(selection = PensumSelectionParams())
+		val remote = FakePensumRemoteDataRepository(
+			throwable = IllegalStateException("pensum not found")
+		)
+		val dataSource = createDataSource(local = local, remote = remote)
+
+		assertFailsWith<IllegalStateException> {
+			dataSource.selectSelection(year = 1999, modalityId = "missing")
+		}
+
+		assertEquals(null, local.lastSelectedSelection)
+		assertEquals(null, local.lastInferredSelection)
+	}
+
+	@Test
+	fun selectPensum_whenRemoteFails_persistsNothing() = runTest {
+		val local = FakePensumLocalDataRepository(
+			selection = PensumSelectionParams(year = 2019, modalityId = "degree_project")
+		)
+		val remote = FakePensumRemoteDataRepository(
+			throwable = IllegalStateException("pensum not found")
+		)
+		val dataSource = createDataSource(local = local, remote = remote)
+
+		assertFailsWith<IllegalStateException> {
+			dataSource.selectPensum(year = 1999)
+		}
+
+		assertEquals(
+			PensumSelectionParams(year = 1999, modalityId = "degree_project"),
+			remote.lastSelection
+		)
+		assertEquals(null, local.lastSelectedPensumYear)
+		assertEquals(null, local.lastInferredSelection)
+	}
+
 	private fun createDataSource(
 		local: FakePensumLocalDataRepository,
 		remote: FakePensumRemoteDataRepository
@@ -59,6 +114,9 @@ private class FakePensumLocalDataRepository(
 	private val selection: PensumSelectionParams
 ) : PensumLocalDataRepository {
 	var lastInferredSelection: Boolean? = null
+	var lastSelectedPensumYear: Int? = null
+	var lastSelectedModalityId: String? = null
+	var lastSelectedSelection: Pair<Int, String>? = null
 
 	override fun observePensumResponseFlow(): Flow<GetPensumResponse?> = emptyFlow()
 
@@ -72,18 +130,27 @@ private class FakePensumLocalDataRepository(
 		lastInferredSelection = inferredSelection
 	}
 
-	override suspend fun selectPensum(year: Int) = Unit
+	override suspend fun selectPensum(year: Int) {
+		lastSelectedPensumYear = year
+	}
 
-	override suspend fun selectModality(modalityId: String) = Unit
+	override suspend fun selectModality(modalityId: String) {
+		lastSelectedModalityId = modalityId
+	}
 
-	override suspend fun selectSelection(year: Int, modalityId: String) = Unit
+	override suspend fun selectSelection(year: Int, modalityId: String) {
+		lastSelectedSelection = year to modalityId
+	}
 }
 
-private class FakePensumRemoteDataRepository : PensumRemoteDataRepository {
+private class FakePensumRemoteDataRepository(
+	private val throwable: Throwable? = null
+) : PensumRemoteDataRepository {
 	var lastSelection: PensumSelectionParams? = null
 
 	override suspend fun getPensum(selection: PensumSelectionParams): GetPensumResponse {
 		lastSelection = selection
+		throwable?.let { throw it }
 		return sampleResponse()
 	}
 }

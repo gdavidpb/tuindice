@@ -21,6 +21,8 @@
     <string name="about_source_code">GitHub Repository\nTuIndice</string>
     <string name="about_dev_contact">Contacto\nContactar al desarrollador</string>
     <string name="about_dev_report">Reportar un error\nReportar un error al desarrollador</string>
+    <string name="snack_mail_app_missing">Instala una app de correo para escribirnos</string>
+    <string name="snack_open_uri_failed">No encontramos una aplicación para abrir este enlace</string>
     <string name="about_header_libs">Detrás de TuIndice</string>
     <string name="about_header_special_thanks">Agradecimientos especiales</string>
     <string name="about_dst">Dirección de Servicios Telemáticos\nUniversidad Simón Bolívar\nUnidad administrativa

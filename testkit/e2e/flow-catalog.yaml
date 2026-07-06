@@ -1504,6 +1504,26 @@ variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
       - evaluation_dialog_subject_code_chip
       - evaluation_done_fab
       - base_snackbar_container
+  - id: evaluations-add-validation
+    path: e2e/maestro/flows/evaluations/evaluations-add-validation.yaml
+    module: evaluations
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: create-submit-missing-fields-inline
+    fixture_state: evaluations-content
+    actions_covered:
+      - evaluations.Evaluations.AddEvaluation
+      - evaluations.Evaluation.ClickSubmitEvaluation
+      - evaluations.Evaluation.SetAttempt
+    primary_selectors:
+      - evaluations_add_fab
+      - evaluation_content_container
+      - evaluation_done_fab
+      - evaluation_subject_required_error
+      - evaluation_type_required_error
+      - evaluation_max_grade_required_error
+      - evaluation_subject_chip_e21f0d7e481d13d19f328d6818ce4d77
   - id: evaluations-edit-submit
     path: e2e/maestro/flows/evaluations/evaluations-edit-submit.yaml
     module: evaluations

@@ -33,6 +33,10 @@ sealed interface RecordInternalEvent {
 
 	data object RecordUnauthorized : RecordInternalEvent
 
+	data class AttemptSelectionFailed(
+		val message: String
+	) : RecordInternalEvent
+
 	data class SyntheticTermDeleted(
 		val message: String
 	) : RecordInternalEvent

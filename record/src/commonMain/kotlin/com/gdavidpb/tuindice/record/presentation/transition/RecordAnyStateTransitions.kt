@@ -100,6 +100,14 @@ internal fun MachineDefinitionBuilder<Record.State>.recordAnyStateTransitions(
 			state
 		}
 
+		on<RecordInternalEvent.AttemptSelectionFailed>(
+			emits = setOf(Record.Effect.ShowSnackBar::class)
+		) { state, event ->
+			host.sendEffect(Record.Effect.ShowSnackBar(message = event.message))
+
+			state
+		}
+
 		on<RecordInternalEvent.SyntheticTermDeleted>(
 			emits = setOf(Record.Effect.ShowSnackBar::class)
 		) { state, event ->

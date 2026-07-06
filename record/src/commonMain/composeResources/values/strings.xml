@@ -49,8 +49,6 @@
 	<string name="snack_service_unavailable">Servicio no disponible</string>
 	<string name="snack_network_unavailable">Comprueba tu conexión</string>
 	<string name="snack_timeout">Tiempo de espera agotado</string>
-	<string name="snack_record_not_found">No pudimos actualizar la nota porque el informe cambió</string>
-	<string name="snack_record_read_only">No puedes editar notas de un trimestre de solo lectura</string>
 	<string name="snack_default_error">¡Ha ocurrido un error!</string>
 	<string name="snack_synthetic_term_deleted">Trimestre eliminado</string>
 	<string name="snack_synthetic_term_delete_failed">No pudimos eliminar el trimestre</string>

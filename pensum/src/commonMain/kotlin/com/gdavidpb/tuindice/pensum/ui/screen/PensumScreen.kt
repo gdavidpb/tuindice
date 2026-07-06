@@ -57,7 +57,9 @@ fun PensumScreen(
 					is Pensum.State.Loading -> PensumLoadingView()
 					is Pensum.State.Empty -> PensumEmptyView(
 						title = stringResource(Res.string.pensum_empty_title),
-						message = stringResource(Res.string.pensum_empty_message)
+						message = stringResource(Res.string.pensum_empty_message),
+						actionLabel = stringResource(Res.string.pensum_failed_retry),
+						onActionClick = onRetryClick
 					)
 					is Pensum.State.RecordDataUnavailable -> PensumEmptyView(
 						title = stringResource(Res.string.pensum_record_unavailable_title),

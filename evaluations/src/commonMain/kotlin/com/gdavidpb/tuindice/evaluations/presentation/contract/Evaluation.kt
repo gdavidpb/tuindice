@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationAttemptPickerItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationGradeSectionItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationRequiredField
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationTypePickerItem
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.top_bar_add_evaluation
@@ -37,6 +38,7 @@ object Evaluation {
 			val grade: Double? = null,
 			val maxGrade: Double? = null,
 			val isSubmitting: Boolean = false,
+			val missingFields: Set<EvaluationRequiredField> = emptySet(),
 			val gradeSection: EvaluationGradeSectionItem = EvaluationGradeSectionItem(
 				maxGradeTitleText = "",
 				overdueTitleText = "",
@@ -60,6 +62,13 @@ object Evaluation {
 
 			val canSubmit: Boolean
 				get() = !isSubmitting && hasDraftChanges
+
+			val missingRequiredFields: Set<EvaluationRequiredField>
+				get() = buildSet {
+					if (selectedAttempt == null) add(EvaluationRequiredField.SUBJECT)
+					if (type == null) add(EvaluationRequiredField.TYPE)
+					if (maxGrade == null) add(EvaluationRequiredField.MAX_GRADE)
+				}
 		}
 
 		data object Failed : State()

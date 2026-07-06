@@ -1,0 +1,37 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- runFlow: ../auth/login-success.yaml
+- runFlow: ../_shared/continue-to-summary-after-auth.yaml
+- tapOn:
+    id: maincore_tuindice_bottom_bar_evaluations_item
+- extendedWaitUntil:
+    visible:
+      id: evaluations_content_container
+    timeout: 30000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+- tapOn:
+    id: evaluations_add_fab
+- extendedWaitUntil:
+    visible:
+      id: evaluation_content_container
+    timeout: 20000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+- tapOn:
+    id: evaluation_done_fab
+- extendedWaitUntil:
+    visible:
+      id: evaluation_subject_required_error
+    timeout: 10000
+- assertVisible:
+    id: evaluation_type_required_error
+- assertVisible:
+    id: evaluation_max_grade_required_error
+- assertVisible:
+    id: evaluation_content_container
+- tapOn:
+    id: evaluation_subject_chip_e21f0d7e481d13d19f328d6818ce4d77
+- extendedWaitUntil:
+    notVisible:
+      id: evaluation_subject_required_error
+    timeout: 10000

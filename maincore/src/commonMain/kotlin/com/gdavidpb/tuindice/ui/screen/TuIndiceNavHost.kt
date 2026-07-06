@@ -173,6 +173,7 @@ fun TuIndiceNavHost(
 			onNavigateToBrowser = { title, url ->
 				navController.navigate(BrowserDestination.Browser(title = title, url = url))
 			},
+			showSnackBar = showSnackBar,
 			onViewStateChanged = onViewStateChanged
 		)
 
