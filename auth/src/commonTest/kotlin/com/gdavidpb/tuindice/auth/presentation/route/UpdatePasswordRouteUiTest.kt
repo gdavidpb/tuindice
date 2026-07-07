@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.usecase.UpdatePasswordUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.UpdatePasswordParamsValidator
+import com.gdavidpb.tuindice.auth.presentation.contract.UpdatePassword
 import com.gdavidpb.tuindice.auth.presentation.machine.UpdatePasswordMachine
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.UpdatePasswordViewModel
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
@@ -29,6 +30,7 @@ import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import io.ktor.http.HttpStatusCode
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
@@ -120,7 +122,7 @@ class UpdatePasswordRouteUiTest {
 	}
 
 	@Test
-	fun when_updatePasswordActionFails_then_showsSnackBarAndDismisses() = runTuIndiceUiTest {
+	fun when_updatePasswordActionFails_then_showsInlineErrorAndKeepsDialogOpen() = runTuIndiceUiTest {
 		val fixture = createUpdatePasswordViewModel(
 			throwable = clientRequestException(HttpStatusCode.Unauthorized, path = "/auth/v1/token")
 		)
@@ -142,12 +144,16 @@ class UpdatePasswordRouteUiTest {
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			snackBarMessages.isNotEmpty() && dismissCalls > 0
+			val state = fixture.viewModel.state.value
+			state is UpdatePassword.State.Idle && !state.error.isNullOrBlank()
 		}
 
-		assertEquals(1, snackBarMessages.size)
-		assertEquals(1, dismissCalls)
-		assertTrue(snackBarMessages.first().message.isNotBlank())
+		val state = fixture.viewModel.state.value
+		assertIs<UpdatePassword.State.Idle>(state)
+		assertEquals("password-invalida", state.password)
+		assertTrue(!state.error.isNullOrBlank())
+		assertEquals(0, dismissCalls)
+		assertTrue(snackBarMessages.isEmpty())
 	}
 
 	private fun createUpdatePasswordViewModel(): UpdatePasswordRouteFixture {

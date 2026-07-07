@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateE
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationMachine
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationRequiredField
 import com.gdavidpb.tuindice.evaluations.presentation.viewmodel.EvaluationViewModel
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
@@ -31,6 +32,7 @@ import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
@@ -153,7 +155,7 @@ class EvaluationRouteUiTest {
 	}
 
 	@Test
-	fun when_doneFabTappedInAddModeWithIncompleteForm_then_showsSnackBarWithoutNavigation() = runTuIndiceUiTest {
+	fun when_doneFabTappedInAddModeWithIncompleteForm_then_showsMissingFieldsWithoutNavigation() = runTuIndiceUiTest {
 		val viewModel = createViewModel()
 		val snackBars = mutableListOf<SnackBarMessage>()
 		var navigateCalls = 0
@@ -177,11 +179,22 @@ class EvaluationRouteUiTest {
 		onNodeWithTag(EvaluationsUiTags.EvaluationDoneFab).performClick()
 
 		waitUntil(timeoutMillis = 2_000) {
-			snackBars.isNotEmpty()
+			val state = viewModel.state.value
+			state is Evaluation.State.Content && state.missingFields.isNotEmpty()
 		}
 
+		val state = viewModel.state.value
+		assertIs<Evaluation.State.Content>(state)
+		assertEquals(
+			setOf(
+				EvaluationRequiredField.SUBJECT,
+				EvaluationRequiredField.TYPE,
+				EvaluationRequiredField.MAX_GRADE
+			),
+			state.missingFields
+		)
 		assertEquals(0, navigateCalls)
-		assertTrue(snackBars.first().message.isNotBlank())
+		assertTrue(snackBars.isEmpty())
 	}
 
 	@Test
@@ -345,7 +358,7 @@ class EvaluationRouteUiTest {
 	}
 
 	@Test
-	fun when_addEvaluationActionHasInvalidPayload_then_showsSnackBarWithoutNavigation() = runTuIndiceUiTest {
+	fun when_addEvaluationActionMissingMaxGrade_then_showsMissingFieldInlineWithoutNavigation() = runTuIndiceUiTest {
 		val viewModel = createViewModel()
 		val snackBars = mutableListOf<SnackBarMessage>()
 		var navigateCalls = 0
@@ -370,15 +383,20 @@ class EvaluationRouteUiTest {
 			viewModel.setTypeAction(DEFAULT_PENDING_EVALUATION.type)
 			viewModel.setDateAction(DEFAULT_PENDING_EVALUATION.date)
 			DEFAULT_PENDING_EVALUATION.grade?.let(viewModel::setGradeAction)
+			// maxGrade is deliberately left unset: the only remaining required field.
 			viewModel.submitEvaluationAction()
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			snackBars.isNotEmpty()
+			val state = viewModel.state.value
+			state is Evaluation.State.Content && state.missingFields.isNotEmpty()
 		}
 
+		val state = viewModel.state.value
+		assertIs<Evaluation.State.Content>(state)
+		assertEquals(setOf(EvaluationRequiredField.MAX_GRADE), state.missingFields)
 		assertEquals(0, navigateCalls)
-		assertTrue(snackBars.first().message.isNotBlank())
+		assertTrue(snackBars.isEmpty())
 	}
 
 	private fun createViewModel(
