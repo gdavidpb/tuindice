@@ -14,6 +14,10 @@ export E2E_REPORT_DIR="${TEST_ROOT}/reports"
 export E2E_MAESTRO_CHECKPOINT_DIR="${TEST_ROOT}/checkpoints"
 export E2E_MAESTRO_RESET_WIREMOCK_PER_ITEM=0
 export E2E_MAESTRO_SUCCESS_REPORT_GRACE_SECONDS=1
+# Pin the changed-flows source to an empty file so the repo's real git state
+# cannot reorder the fixture plans these cases assert against.
+export E2E_MAESTRO_CHANGED_FLOWS_FILE="${TEST_ROOT}/changed-flows.txt"
+: >"${E2E_MAESTRO_CHANGED_FLOWS_FILE}"
 
 source "${SCRIPT_DIR}/common.sh"
 
@@ -313,5 +317,30 @@ assert_equals \
 	"$(order_csv "${ORDER_SURVEY_RETRIES}")" \
 	"survey mode must disable suite retries: exactly one pass over the cases"
 assert_equals "flows/flow-3.yaml" "$(cat "${checkpoint_file}")" "survey wrapper should leave the checkpoint at the failing target"
+rm -f "${checkpoint_file}"
+
+printf '%s\n' "flows/flow-4.yaml" >"${E2E_MAESTRO_CHANGED_FLOWS_FILE}"
+ORDER_CHANGED="${TEST_ROOT}/order-changed.txt"
+if run_fake_suite "flow-2.yaml" "${ORDER_CHANGED}"; then
+	printf 'Expected changed-first run to fail at flow-2.yaml.\n' >&2
+	exit 1
+fi
+assert_equals \
+	"flow-4.yaml,flow-1.yaml,flow-2.yaml" \
+	"$(order_csv "${ORDER_CHANGED}")" \
+	"changed flow case must run first, untouched cases keep their relative order"
+assert_equals "flows/flow-2.yaml" "$(cat "${checkpoint_file}")" "changed-first failure should checkpoint the failing target"
+
+ORDER_CHANGED_RESUME="${TEST_ROOT}/order-changed-resume.txt"
+run_fake_suite "" "${ORDER_CHANGED_RESUME}"
+assert_equals \
+	"flow-2.yaml,flow-3.yaml,flow-5.yaml,flow-6.yaml,flow-4.yaml,flow-1.yaml" \
+	"$(order_csv "${ORDER_CHANGED_RESUME}")" \
+	"resume must rotate from the checkpoint within the changed-first order"
+if [[ -e "${checkpoint_file}" ]]; then
+	printf 'Expected checkpoint to be cleared after the changed-first passing run.\n' >&2
+	exit 1
+fi
+: >"${E2E_MAESTRO_CHANGED_FLOWS_FILE}"
 
 printf 'Maestro resume-first tests passed.\n'

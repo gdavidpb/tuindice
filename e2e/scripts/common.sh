@@ -442,6 +442,84 @@ maestro_is_setup_target() {
 	return 1
 }
 
+# Flow paths changed on this branch, relative to the flows root
+# (e2e/maestro/flows). File override exists for self-tests and manual runs;
+# the list is empty when git or the base ref is unavailable, degrading to the
+# plain plan order.
+maestro_changed_flows_list() {
+	local changed_file="${E2E_MAESTRO_CHANGED_FLOWS_FILE:-}"
+	local base_ref="${E2E_MAESTRO_CHANGED_FIRST_BASE:-origin/production}"
+	local merge_base
+
+	if [[ "${E2E_MAESTRO_CHANGED_FIRST:-1}" != "1" ]]; then
+		return 0
+	fi
+
+	if [[ -n "${changed_file}" ]]; then
+		[[ -f "${changed_file}" ]] || return 0
+		cat "${changed_file}"
+		return 0
+	fi
+
+	command -v git >/dev/null 2>&1 || return 0
+	merge_base="$(git -C "${REPO_ROOT}" merge-base HEAD "${base_ref}" 2>/dev/null)" || return 0
+	[[ -n "${merge_base}" ]] || return 0
+
+	{
+		git -C "${REPO_ROOT}" diff --name-only "${merge_base}" -- e2e/maestro/flows 2>/dev/null || true
+		git -C "${REPO_ROOT}" ls-files --others --exclude-standard -- e2e/maestro/flows 2>/dev/null || true
+	} | sed 's|^e2e/maestro/flows/||' | LC_ALL=C sort -u
+}
+
+maestro_flow_in_changed_list() {
+	local flow_file="$1"
+	local flows_root="$2"
+	local suite_dir="$3"
+	local changed_flows="$4"
+	local flow_rel
+
+	flow_rel="${flow_file#"${flows_root}/"}"
+	if [[ "${flow_rel}" == "${flow_file}" ]]; then
+		flow_rel="${flow_file#"${suite_dir}/"}"
+	fi
+	if [[ "${flow_rel}" == "${flow_file}" ]]; then
+		return 1
+	fi
+
+	printf '%s\n' "${changed_flows}" | grep -Fxq -- "${flow_rel}"
+}
+
+# A case counts as changed when its own yaml differs from the base, or when
+# one of its direct runFlow refs does (covers module sub-suites whose children
+# changed without the suite yaml moving). Deeper nesting stays out on purpose:
+# shared setup helpers are referenced by nearly every flow, so recursing would
+# promote the whole plan and cancel the ordering.
+maestro_target_matches_changed_flows() {
+	local target="$1"
+	local suite_dir="$2"
+	local flows_root="$3"
+	local changed_flows="$4"
+	local target_file
+	local child_ref
+	local child_file
+
+	target_file="$(maestro_resolve_flow_target "${target}" "${suite_dir}")"
+	if maestro_flow_in_changed_list "${target_file}" "${flows_root}" "${suite_dir}" "${changed_flows}"; then
+		return 0
+	fi
+
+	[[ -f "${target_file}" ]] || return 1
+	while IFS= read -r child_ref; do
+		[[ -n "${child_ref}" ]] || continue
+		child_file="$(maestro_resolve_flow_target "${child_ref}" "$(dirname "${target_file}")")"
+		if maestro_flow_in_changed_list "${child_file}" "${flows_root}" "${suite_dir}" "${changed_flows}"; then
+			return 0
+		fi
+	done < <(maestro_direct_flow_entries "${target_file}")
+
+	return 1
+}
+
 maestro_flow_has_bootstrap() {
 	local target_file="$1"
 
@@ -779,6 +857,11 @@ run_maestro_suite_resume_first() {
 	local survey_first_failed_target=""
 	local survey_first_failed_index=0
 	local survey_first_failed_log=""
+	local changed_first_flows
+	local changed_first_root
+	local changed_first_suite_dir
+	local promoted_targets=()
+	local deferred_targets=()
 
 	while IFS= read -r target; do
 		[[ -n "${target}" ]] || continue
@@ -818,6 +901,32 @@ run_maestro_suite_resume_first() {
 			"${debug_output_dir}" \
 			"${fallback_command[@]}"
 		return "$?"
+	fi
+
+	# Changed flows first: cases whose yaml (or a direct runFlow ref) differs
+	# from the merge-base with production run before untouched cases, so a
+	# broken new flow fails within the first cases instead of deep into the
+	# rotation. Stable partition; checkpoint resume looks targets up by value,
+	# so rotation and resume behave the same afterwards.
+	changed_first_flows="$(maestro_changed_flows_list)"
+	if [[ -n "${changed_first_flows}" ]]; then
+		changed_first_root="$(maestro_flows_root_for_suite "${suite_path}")"
+		# Physical path: maestro_resolve_flow_target resolves targets with
+		# pwd -P, so the prefix strip must compare physical against physical.
+		changed_first_suite_dir="$(cd "$(dirname "${suite_path}")" && pwd -P)"
+		promoted_targets=()
+		deferred_targets=()
+		for target in "${targets[@]}"; do
+			if maestro_target_matches_changed_flows "${target}" "${changed_first_suite_dir}" "${changed_first_root}" "${changed_first_flows}"; then
+				promoted_targets+=("${target}")
+			else
+				deferred_targets+=("${target}")
+			fi
+		done
+		if [[ "${#promoted_targets[@]}" -gt 0 && "${#deferred_targets[@]}" -gt 0 ]]; then
+			targets=("${promoted_targets[@]}" "${deferred_targets[@]}")
+			log "${platform} Maestro changed-first: ${#promoted_targets[@]} changed flow case(s) run before ${#deferred_targets[@]} untouched case(s)."
+		fi
 	fi
 
 	suite_name="$(basename "${suite_path}" .yaml)"

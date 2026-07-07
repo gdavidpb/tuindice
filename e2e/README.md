@@ -116,3 +116,12 @@ Platform runners isolate Maestro CLI runtime logs under `E2E_TMP_DIR` by
 default; set `E2E_MAESTRO_HOME` only when debugging Maestro itself.
 Set `E2E_MAESTRO_SUITE` only for ad-hoc debugging when you want to bypass smart
 scope resolution and run one explicit suite.
+
+Suite plans run changed flows first: a case whose yaml (or a direct runFlow
+ref) differs from the merge-base with `origin/production` — committed,
+unstaged, or untracked — executes before untouched cases, so a broken new flow
+fails within the first cases instead of minutes into the rotation. Checkpoint
+resume and retry rotation compose with the reordered plan unchanged. Set
+`E2E_MAESTRO_CHANGED_FIRST=0` to disable, `E2E_MAESTRO_CHANGED_FIRST_BASE` to
+diff against another ref, or `E2E_MAESTRO_CHANGED_FLOWS_FILE` to inject the
+changed list explicitly (paths relative to `e2e/maestro/flows`).
