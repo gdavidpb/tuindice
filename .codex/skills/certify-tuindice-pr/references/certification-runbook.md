@@ -274,3 +274,34 @@ After creation or update, verify:
 - PR head branch is the current branch.
 - PR is not draft.
 - PR head SHA equals the certified SHA.
+
+## Post-PR Wrap-up
+
+Once the PR exists and its head SHA is verified:
+
+1. Stop the local test devices — evidence runs leave an Android emulator and
+   an iOS simulator running:
+
+```bash
+e2e/scripts/stop-devices.sh android ios
+```
+
+2. Deliver a store-copy proposal in the session (never inside the PR body),
+   written in Spanish and derived from the certified diff against
+   `production`:
+
+- **Promotional Text** — 170 characters max.
+- **What's New in This Version** — 4000 characters max.
+
+Rules for both texts:
+
+- End-user language in the app's voice: describe what the user can now do or
+  what annoyance went away.
+- External functionality only. Never mention tests, CI, harness, E2E,
+  refactors, state machines, dependencies, or any internal detail invisible
+  to the user.
+- Source the content from the user-visible changes in
+  `git diff production..HEAD` — new screens, flows, copy, and fixes a user
+  would actually notice.
+- When the diff contains no user-visible changes, say so explicitly and
+  propose keeping the store's current texts instead of inventing content.
