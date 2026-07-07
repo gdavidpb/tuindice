@@ -14,11 +14,20 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.semantics.stateDescription
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusType
 import com.gdavidpb.tuindice.pensum.ui.model.toStatusIconVisual
+import org.jetbrains.compose.resources.stringResource
+import tuindice.pensum.generated.resources.Res
+import tuindice.pensum.generated.resources.pensum_canvas_legend_approved
+import tuindice.pensum.generated.resources.pensum_canvas_legend_available
+import tuindice.pensum.generated.resources.pensum_canvas_legend_blocked
+import tuindice.pensum.generated.resources.pensum_canvas_legend_current
 
 @Composable
 fun PensumNodeCard(
@@ -38,9 +47,21 @@ fun PensumNodeCard(
 		fallbackContainer = colors.chip,
 		fallbackContent = colors.chipText
 	)
+	// Screen readers cannot rely on the color/icon coding, so the node exposes the
+	// same wording the on-screen legend uses.
+	val statusDescription = stringResource(
+		when (node.status.type) {
+			PensumNodeStatusType.APPROVED -> Res.string.pensum_canvas_legend_approved
+			PensumNodeStatusType.CURRENT -> Res.string.pensum_canvas_legend_current
+			PensumNodeStatusType.AVAILABLE -> Res.string.pensum_canvas_legend_available
+			PensumNodeStatusType.BLOCKED -> Res.string.pensum_canvas_legend_blocked
+		}
+	)
 
 	Surface(
-		modifier = modifier,
+		modifier = modifier.semantics {
+			stateDescription = statusDescription
+		},
 		shape = PensumElementShape,
 		color = colors.container,
 		border = BorderStroke(

@@ -28,6 +28,7 @@ sealed interface PensumInternalEvent {
 	data object PensumRefreshNotFound : PensumInternalEvent
 
 	data class PensumRefreshFailed(
-		val error: UpdatePensumUseCaseError?
+		val error: UpdatePensumUseCaseError?,
+		val isSelectionChange: Boolean = false
 	) : PensumInternalEvent
 }

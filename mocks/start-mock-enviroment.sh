@@ -12,7 +12,9 @@ kotlinc_bin="${KOTLINC_BIN:-kotlinc}"
 kotlin_bin="${KOTLIN_BIN:-kotlin}"
 port="${PORT:-8080}"
 delay_profile="${WIREMOCK_DELAY_PROFILE:-legacy}"
-wiremock_main_class="wiremock.Run"
+# Custom entrypoint: wiremock.Run with a notifier that omits binary bodies
+# (see extensions/src/.../RunMockEnvironment.kt).
+wiremock_main_class="com.gdavidpb.tuindice.mocks.RunMockEnvironment"
 extension_factory_classes=(
 	"com.gdavidpb.tuindice.mocks.RecordResponseTransformerFactory"
 	"com.gdavidpb.tuindice.mocks.EvaluationsResponseTransformerFactory"
@@ -68,7 +70,7 @@ apply_fast_delay_profile() {
 
 		delay_ms=250
 		case "${mapping_file}" in
-			*enrollment-proof-fetching-cancel.json)
+			*enrollment-proof-fetching-cancel.json|*auth-login-cancel-bootstrap-delayed.json)
 				delay_ms=30000
 				;;
 			*enrollment-proof-success.json)

@@ -59,6 +59,7 @@ class EvaluationsRtlA11yUiTest {
 				onNavigateToAddEvaluation = {},
 				onNavigateToEvaluation = {},
 				onNavigateToEvaluationGradePickerDialog = { _, _, _, _, _ -> },
+				onNavigateToDeleteEvaluationConfirmation = {},
 				showSnackBar = {},
 				viewModel = viewModel
 			)
@@ -87,6 +88,7 @@ class EvaluationsRtlA11yUiTest {
 				onNavigateToAddEvaluation = { addNavigationCalls++ },
 				onNavigateToEvaluation = {},
 				onNavigateToEvaluationGradePickerDialog = { _, _, _, _, _ -> },
+				onNavigateToDeleteEvaluationConfirmation = {},
 				showSnackBar = {},
 				viewModel = viewModel
 			)
@@ -116,6 +118,7 @@ class EvaluationsRtlA11yUiTest {
 				onNavigateToAddEvaluation = {},
 				onNavigateToEvaluation = {},
 				onNavigateToEvaluationGradePickerDialog = { _, _, _, _, _ -> },
+				onNavigateToDeleteEvaluationConfirmation = {},
 				showSnackBar = {},
 				viewModel = viewModel
 			)
@@ -151,6 +154,7 @@ class EvaluationsRtlA11yUiTest {
 				onNavigateToAddEvaluation = {},
 				onNavigateToEvaluation = {},
 				onNavigateToEvaluationGradePickerDialog = { _, _, _, _, _ -> },
+				onNavigateToDeleteEvaluationConfirmation = {},
 				showSnackBar = {},
 				viewModel = viewModel
 			)

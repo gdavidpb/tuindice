@@ -77,6 +77,49 @@ class GradePickerDialogUiTest {
 	}
 
 	@Test
+	fun when_subtitleValuesAreBlank_then_hidesSubtitle() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			GradePickerDialog(
+				title = "Nota maxima",
+				evaluationName = "",
+				subjectCode = "",
+				acceptText = "Aceptar",
+				cancelText = "Cancelar",
+				selectedGrade = null,
+				gradeRange = 0.0..20.0,
+				onGradeChange = {},
+				onDismissRequest = {}
+			)
+		}
+
+		assertNodeVisible(EvaluationsUiTags.EvaluationDialogTitle)
+		onNodeWithTag(EvaluationsUiTags.EvaluationDialogSubtitle).assertDoesNotExist()
+		onNodeWithTag(EvaluationsUiTags.EvaluationDialogSubjectCodeChip).assertDoesNotExist()
+	}
+
+	@Test
+	fun when_onlySubjectCodeProvided_then_showsChipWithoutBullet() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			GradePickerDialog(
+				title = "Nota maxima",
+				evaluationName = "",
+				subjectCode = "MA1111",
+				acceptText = "Aceptar",
+				cancelText = "Cancelar",
+				selectedGrade = null,
+				gradeRange = 0.0..20.0,
+				onGradeChange = {},
+				onDismissRequest = {}
+			)
+		}
+
+		assertNodeVisible(EvaluationsUiTags.EvaluationDialogSubtitle)
+		assertNodeVisible(EvaluationsUiTags.EvaluationDialogSubjectCodeChip)
+		onNodeWithText("MA1111").assertExists()
+		onNodeWithText("•").assertDoesNotExist()
+	}
+
+	@Test
 	fun when_cancelTapped_then_dismissesWithoutChangingGrade() = runTuIndiceUiTest {
 		var changedGrade: Double? = null
 		var dismissCalls = 0

@@ -117,10 +117,11 @@ class UserRepositoryContractTest {
 		val localDataSource = FakeLocalDataSource()
 		val remoteDataSource = FakeRemoteDataSource(profilePicture = DEFAULT_SUMMARY_PROFILE_PICTURE)
 		val encoderDataSource = FakePictureEncoderDataSource()
+		val settingsDataSource = FakeSettingsDataSource(onCooldown = true)
 		val repository = UserDataSource(
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
-			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+			settingsDataSource = settingsDataSource,
 			profilePictureInputDataSource = FakeProfilePictureInputDataSource(),
 			pictureEncoderDataSource = encoderDataSource
 		)
@@ -135,6 +136,7 @@ class UserRepositoryContractTest {
 			localDataSource.savedUsers.single().pictureUrl
 		)
 		assertEquals("image/jpeg", remoteDataSource.uploadCalls.single().second)
+		assertEquals(1, settingsDataSource.profilePictureVersion.value)
 	}
 
 	@Test
@@ -191,10 +193,11 @@ class UserRepositoryContractTest {
 	fun removeProfilePicture_clearsLocalPicture_andDelegatesRemoteRemoval() = runTest {
 		val localDataSource = FakeLocalDataSource()
 		val remoteDataSource = FakeRemoteDataSource()
+		val settingsDataSource = FakeSettingsDataSource(onCooldown = true)
 		val repository = UserDataSource(
 			localDataSource = localDataSource,
 			remoteDataSource = remoteDataSource,
-			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+			settingsDataSource = settingsDataSource,
 			profilePictureInputDataSource = FakeProfilePictureInputDataSource(),
 			pictureEncoderDataSource = FakePictureEncoderDataSource()
 		)
@@ -203,6 +206,7 @@ class UserRepositoryContractTest {
 
 		assertEquals("", localDataSource.savedUsers.single().pictureUrl)
 		assertEquals(1, remoteDataSource.removeCalls)
+		assertEquals(1, settingsDataSource.profilePictureVersion.value)
 	}
 
 	@Test
@@ -226,6 +230,30 @@ class UserRepositoryContractTest {
 
 		assertEquals("", localDataSource.savedUsers.single().pictureUrl)
 		assertEquals(1, remoteDataSource.removeCalls)
+	}
+
+	@Test
+	fun uploadProfilePicture_bumpsPictureVersion_soObservationReEmitsOnStableUrl() = runTest {
+		val stableUser = DEFAULT_SUMMARY_USER.copy(
+			pictureUrl = DEFAULT_SUMMARY_PROFILE_PICTURE.url
+		)
+		val repository = UserDataSource(
+			localDataSource = FakeLocalDataSource(initialUser = stableUser),
+			remoteDataSource = FakeRemoteDataSource(profilePicture = DEFAULT_SUMMARY_PROFILE_PICTURE),
+			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+			profilePictureInputDataSource = FakeProfilePictureInputDataSource(),
+			pictureEncoderDataSource = FakePictureEncoderDataSource()
+		)
+
+		val before = repository.observeUserFlow().first()
+
+		repository.uploadProfilePicture(PlatformFile("content://profile/same-url.jpg"))
+
+		val after = repository.observeUserFlow().first()
+
+		assertEquals(0, before.pictureVersion)
+		assertEquals(1, after.pictureVersion)
+		assertEquals(before.pictureUrl, after.pictureUrl)
 	}
 
 	private suspend fun createTempFile(

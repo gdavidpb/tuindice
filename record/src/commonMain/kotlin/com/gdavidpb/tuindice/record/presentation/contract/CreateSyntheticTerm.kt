@@ -45,6 +45,15 @@ object CreateSyntheticTerm {
 		val hasDraftChanges: Boolean
 			get() = initialDraft?.let { draft -> draft != this.draft } ?: !isEditing
 
+		// An untouched create form is not worth a discard warning; in edit mode any
+		// divergence from the loaded seed is.
+		val hasDiscardableDraft: Boolean
+			get() = if (isEditing) {
+				hasDraftChanges
+			} else {
+				selectedPeriod != null || selectedSubjects.isNotEmpty()
+			}
+
 		val canSubmit: Boolean
 			get() = selectedPeriod != null &&
 				selectedSubjects.isNotEmpty() &&

@@ -13,12 +13,13 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.presentation.contract.Browser
-import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -35,6 +36,8 @@ class BrowserScreenUiTest {
 				),
 				onPageStarted = {},
 				onPageFinished = {},
+				onPageError = {},
+				onRetryClick = {},
 				onExternalResourceClick = {},
 				renderer = FakeBrowserRenderer
 			)
@@ -56,6 +59,8 @@ class BrowserScreenUiTest {
 				),
 				onPageStarted = {},
 				onPageFinished = {},
+				onPageError = {},
+				onRetryClick = {},
 				onExternalResourceClick = {},
 				renderer = FakeBrowserRenderer
 			)
@@ -71,6 +76,8 @@ class BrowserScreenUiTest {
 				state = Browser.State.Idle,
 				onPageStarted = {},
 				onPageFinished = {},
+				onPageError = {},
+				onRetryClick = {},
 				onExternalResourceClick = {},
 				renderer = FakeBrowserRenderer
 			)
@@ -91,6 +98,8 @@ class BrowserScreenUiTest {
 				),
 				onPageStarted = {},
 				onPageFinished = {},
+				onPageError = {},
+				onRetryClick = {},
 				onExternalResourceClick = {},
 				renderer = FakeBrowserRenderer
 			)
@@ -104,6 +113,7 @@ class BrowserScreenUiTest {
 	fun when_rendererFiresCallbacks_then_browserScreenForwardsThem() = runTuIndiceUiTest {
 		var pageStartedCalls = 0
 		var pageFinishedCalls = 0
+		var pageErrorCalls = 0
 		var externalResourceUrl = ""
 
 		val renderer = object : BrowserScreenRenderer {
@@ -113,11 +123,13 @@ class BrowserScreenUiTest {
 				modifier: Modifier,
 				onPageStarted: () -> Unit,
 				onPageFinished: () -> Unit,
+				onPageError: () -> Unit,
 				onExternalResourceClick: (url: String) -> Unit
 			) {
 				LaunchedEffect(url) {
 					onPageStarted()
 					onPageFinished()
+					onPageError()
 					onExternalResourceClick("https://externo.tuindice.app")
 				}
 
@@ -134,6 +146,8 @@ class BrowserScreenUiTest {
 				),
 				onPageStarted = { pageStartedCalls++ },
 				onPageFinished = { pageFinishedCalls++ },
+				onPageError = { pageErrorCalls++ },
+				onRetryClick = {},
 				onExternalResourceClick = { url -> externalResourceUrl = url },
 				renderer = renderer
 			)
@@ -142,12 +156,41 @@ class BrowserScreenUiTest {
 		waitUntil(timeoutMillis = 2_000) {
 			pageStartedCalls > 0 &&
 				pageFinishedCalls > 0 &&
+				pageErrorCalls > 0 &&
 				externalResourceUrl.isNotBlank()
 		}
 
 		assertEquals(1, pageStartedCalls)
 		assertEquals(1, pageFinishedCalls)
+		assertEquals(1, pageErrorCalls)
 		assertEquals("https://externo.tuindice.app", externalResourceUrl)
+	}
+
+	@Test
+	fun when_browserFailedToLoad_then_displaysErrorViewWithRetry() = runTuIndiceUiTest {
+		var retryCalls = 0
+
+		setTuIndiceTestContent {
+			BrowserScreen(
+				state = Browser.State.Content(
+					topBarTitle = UiText.Raw("Navegador"),
+					url = "https://tuindice.app/privacy",
+					isLoading = false,
+					hasError = true
+				),
+				onPageStarted = {},
+				onPageFinished = {},
+				onPageError = {},
+				onRetryClick = { retryCalls++ },
+				onExternalResourceClick = {},
+				renderer = FakeBrowserRenderer
+			)
+		}
+
+		assertNodeHidden(MaincoreUiTags.BrowserContainer)
+		assertNodeVisible(BaseUiTags.ErrorViewRetryButton)
+		onNodeWithTag(BaseUiTags.ErrorViewRetryButton).performClick()
+		assertEquals(1, retryCalls)
 	}
 
 	@Test
@@ -163,6 +206,8 @@ class BrowserScreenUiTest {
 				),
 				onPageStarted = {},
 				onPageFinished = {},
+				onPageError = {},
+				onRetryClick = {},
 				onExternalResourceClick = { url -> externalResourceUrl = url },
 				renderer = FakeBrowserRenderer
 			)
@@ -181,6 +226,7 @@ class BrowserScreenUiTest {
 			modifier: Modifier,
 			onPageStarted: () -> Unit,
 			onPageFinished: () -> Unit,
+			onPageError: () -> Unit,
 			onExternalResourceClick: (url: String) -> Unit
 		) {
 			Column(modifier = modifier) {

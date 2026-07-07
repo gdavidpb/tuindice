@@ -13,10 +13,12 @@ import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
+import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
@@ -33,6 +35,7 @@ class AboutModuleKoinSmokeTest {
 			single<AppEnvironmentRepository> { FakeAppEnvironmentRepository() }
 			single<BrowserRepository> { RecordingBrowserRepository() }
 			single<ConfigRepository> { FakeConfigRepository() }
+			single<DeviceInfoRepository> { FakeDeviceInfoRepository() }
 			single<StoreUrlRepository> { FakeStoreUrlDataSource() }
 			single<ReportingRepository> { RecordingReportingRepository() }
 			single<UsageDataConsentRepository> { InMemoryUsageDataConsentRepository() }

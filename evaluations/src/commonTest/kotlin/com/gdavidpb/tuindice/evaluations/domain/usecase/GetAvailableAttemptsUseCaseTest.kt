@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
+import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_TERM
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.evaluations.testing.SECOND_EVALUATION_SUBJECT
@@ -28,10 +29,14 @@ class GetAvailableAttemptsUseCaseTest {
 		)
 
 		useCase.execute(Unit).test {
+			val data = awaitLoadingThenData(this)
+
 			assertEquals(
 				listOf(DEFAULT_EVALUATION_SUBJECT, SECOND_EVALUATION_SUBJECT),
-				awaitLoadingThenData(this)
+				data.availableAttempts
 			)
+			assertNull(data.evaluation)
+			assertEquals(DEFAULT_EVALUATION_TERM, data.currentTerm)
 			awaitComplete()
 		}
 
@@ -48,7 +53,7 @@ class GetAvailableAttemptsUseCaseTest {
 		)
 
 		useCase.execute(Unit).test {
-			assertTrue(awaitLoadingThenData(this).isEmpty())
+			assertTrue(awaitLoadingThenData(this).availableAttempts.isEmpty())
 			awaitComplete()
 		}
 	}

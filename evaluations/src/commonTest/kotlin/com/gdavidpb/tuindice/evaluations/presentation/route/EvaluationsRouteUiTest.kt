@@ -52,6 +52,7 @@ class EvaluationsRouteUiTest {
 				},
 				onNavigateToEvaluation = {},
 				onNavigateToEvaluationGradePickerDialog = { _, _, _, _, _ -> },
+				onNavigateToDeleteEvaluationConfirmation = {},
 				showSnackBar = { message ->
 					snackBars += message
 				},
@@ -84,6 +85,7 @@ class EvaluationsRouteUiTest {
 				},
 				onNavigateToEvaluation = {},
 				onNavigateToEvaluationGradePickerDialog = { _, _, _, _, _ -> },
+				onNavigateToDeleteEvaluationConfirmation = {},
 				showSnackBar = { message ->
 					snackBars += message
 				},
@@ -118,6 +120,7 @@ class EvaluationsRouteUiTest {
 					navigatedEvaluationId = evaluationId
 				},
 				onNavigateToEvaluationGradePickerDialog = { _, _, _, _, _ -> },
+				onNavigateToDeleteEvaluationConfirmation = {},
 				showSnackBar = {},
 				viewModel = viewModel
 			)
@@ -154,6 +157,7 @@ class EvaluationsRouteUiTest {
 						requestedGrade = grade
 						requestedMaxGrade = maxGrade
 					},
+				onNavigateToDeleteEvaluationConfirmation = {},
 				showSnackBar = {},
 				viewModel = viewModel
 			)
@@ -200,6 +204,7 @@ class EvaluationsRouteUiTest {
 						requestedGrade = grade
 						requestedMaxGrade = maxGrade
 					},
+				onNavigateToDeleteEvaluationConfirmation = {},
 				showSnackBar = {},
 				viewModel = viewModel
 			)
@@ -239,6 +244,7 @@ class EvaluationsRouteUiTest {
 				onNavigateToEvaluationGradePickerDialog = { _, _, _, _, _ ->
 					gradeNavigationCalls++
 				},
+				onNavigateToDeleteEvaluationConfirmation = {},
 				showSnackBar = { message ->
 					snackBars += message
 				},
@@ -272,6 +278,7 @@ class EvaluationsRouteUiTest {
 				onNavigateToAddEvaluation = {},
 				onNavigateToEvaluation = {},
 				onNavigateToEvaluationGradePickerDialog = { _, _, _, _, _ -> },
+				onNavigateToDeleteEvaluationConfirmation = {},
 				showSnackBar = { message ->
 					snackBars += message
 				},
@@ -305,6 +312,7 @@ class EvaluationsRouteUiTest {
 				onNavigateToEvaluationGradePickerDialog = { _, _, _, _, _ ->
 					gradeNavigationCalls++
 				},
+				onNavigateToDeleteEvaluationConfirmation = {},
 				showSnackBar = { message ->
 					snackBars += message
 				},
@@ -340,6 +348,7 @@ class EvaluationsRouteUiTest {
 				onNavigateToAddEvaluation = {},
 				onNavigateToEvaluation = {},
 				onNavigateToEvaluationGradePickerDialog = { _, _, _, _, _ -> },
+				onNavigateToDeleteEvaluationConfirmation = {},
 				showSnackBar = { message ->
 					snackBars += message
 				},

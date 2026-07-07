@@ -92,7 +92,9 @@ class SummaryStateMachineWalkUiTest {
 				SummaryInternalEvent.ObservationFailed(message = "No se pudo cargar"),
 				SummaryInternalEvent.RefreshSucceeded,
 				SummaryInternalEvent.RefreshFailed(message = "No se pudo actualizar"),
-				SummaryInternalEvent.ProfilePictureUploadStarted,
+				SummaryInternalEvent.ProfilePictureUploadStarted(
+					previewPath = "content://profile/new.jpg"
+				),
 				SummaryInternalEvent.ProfilePictureUploadSucceeded(message = "Foto actualizada"),
 				SummaryInternalEvent.ProfilePictureUploadFailed(message = "No se pudo subir"),
 				SummaryInternalEvent.ProfilePictureRemovalStarted,

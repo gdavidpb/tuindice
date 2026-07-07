@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReaso
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsContentState
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -55,7 +56,7 @@ class EvaluationsScreenUiTest {
 
 		setTuIndiceTestContent {
 			EvaluationsScreen(
-				state = Evaluations.State.Failed,
+				state = Evaluations.State.Failed(message = "Comprueba tu conexión"),
 				onAddEvaluationClick = {},
 				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
@@ -103,11 +104,14 @@ class EvaluationsScreenUiTest {
 		}
 
 		assertNodeVisible(BaseUiTags.EmptyViewContainer)
+		assertNodeHidden(BaseUiTags.EmptyViewActionButton)
 	}
 
 	@Test
 	fun when_stateIsNoAttemptsBecauseEnrollmentIsUnavailable_then_displaysEnrollmentUnavailableMessage() =
 		runTuIndiceUiTest {
+			var retryClicks = 0
+
 			setTuIndiceTestContent {
 				EvaluationsScreen(
 					state = Evaluations.State.NoAttempts(EvaluationsNoAttemptsReason.EnrollmentUnavailable),
@@ -115,7 +119,7 @@ class EvaluationsScreenUiTest {
 					onEvaluationClick = { _, _, _ -> },
 					onEvaluationEdit = {},
 					onEvaluationDelete = {},
-					onRetryClick = {}
+					onRetryClick = { retryClicks++ }
 				)
 			}
 
@@ -124,5 +128,8 @@ class EvaluationsScreenUiTest {
 				"En este momento no está disponible el servicio de inscripción de la universidad. " +
 					"Intenta cargar de nuevo más tarde."
 			).assertExists()
+			assertNodeVisible(BaseUiTags.EmptyViewActionButton)
+			onNodeWithTag(BaseUiTags.EmptyViewActionButton).performClick()
+			assertEquals(1, retryClicks)
 		}
 }

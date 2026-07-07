@@ -139,6 +139,8 @@ class MainStateMachineContractTest {
 					url = "https://tuindice.app/terms"
 				),
 				Browser.Action.SetLoading(isLoading = false),
+				Browser.Action.SetLoadFailed,
+				Browser.Action.ClickRetry,
 				Browser.Action.OpenExternalResource(url = "https://example.com/resource")
 			),
 			coroutineScope = backgroundScope,
@@ -189,6 +191,8 @@ class MainStateMachineContractTest {
 			"content",
 			"NavigateTo",
 			"SetLoading",
+			"SetLoadFailed",
+			"ClickRetry",
 			"OpenExternalResource / NavigateToExternalResourceDialog"
 		)
 

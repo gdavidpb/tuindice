@@ -72,6 +72,7 @@ fun SignInRoute(
 		onIdentifierModeToggle = viewModel::toggleIdentifierModeAction,
 		onUsageDataCollectionEnabledChange = viewModel::setUsageDataCollectionEnabledAction,
 		onSignInClick = onSignInClick,
+		onCancelSignInClick = viewModel::cancelSignInAction,
 		onTermsAndConditionsClick = viewModel::openTermsAndConditionsAction,
 		onPrivacyPolicyClick = viewModel::openPrivacyPolicyAction
 	)

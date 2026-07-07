@@ -43,6 +43,11 @@ object EvaluationsUiTags {
 	const val EvaluationSwipeToDismissContainer = "evaluation_swipe_to_dismiss_container"
 	const val EvaluationSwipeEditAction = "evaluation_swipe_edit_action"
 	const val EvaluationSwipeDeleteAction = "evaluation_swipe_delete_action"
+	const val DeleteEvaluationMessage = "evaluation_delete_confirmation_message"
+	const val DiscardEvaluationMessage = "evaluation_discard_confirmation_message"
+	const val EvaluationSubjectRequiredError = "evaluation_subject_required_error"
+	const val EvaluationTypeRequiredError = "evaluation_type_required_error"
+	const val EvaluationMaxGradeRequiredError = "evaluation_max_grade_required_error"
 
 	fun evaluationHeader(label: String): String =
 		"evaluation_header_${label.toTagSuffix()}"

@@ -15,6 +15,7 @@ fun MainRoute(
 	onRequestReviewFlow: suspend () -> Unit,
 	onRequestUpdateFlow: suspend (UpdateAction) -> UpdateLaunchResult,
 	onOpenUpdateStoreFallback: suspend (UpdateLaunchResult.OpenStoreFallback) -> Unit = {},
+	onShowSnackBar: (message: String) -> Unit = {},
 	viewModel: MainViewModel,
 	content: @Composable (state: Main.State) -> Unit
 ) {
@@ -35,6 +36,9 @@ fun MainRoute(
 
 			is Main.Effect.TriggerReviewFlow ->
 				onRequestReviewFlow()
+
+			is Main.Effect.ShowSnackBar ->
+				onShowSnackBar(effect.message)
 		}
 	}
 

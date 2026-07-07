@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.viewinterop.UIKitView
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.ObjCSignatureOverride
+import platform.Foundation.NSError
 import platform.Foundation.NSURL
 import platform.Foundation.NSURLRequest
 import platform.WebKit.WKNavigation
@@ -25,13 +26,15 @@ class IosBrowserScreenRenderer : BrowserScreenRenderer {
 		modifier: Modifier,
 		onPageStarted: () -> Unit,
 		onPageFinished: () -> Unit,
+		onPageError: () -> Unit,
 		onExternalResourceClick: (url: String) -> Unit
 	) {
-		val navigationDelegate = remember(url, onPageStarted, onPageFinished, onExternalResourceClick) {
+		val navigationDelegate = remember(url, onPageStarted, onPageFinished, onPageError, onExternalResourceClick) {
 			BrowserNavigationDelegate(
 				initialUrl = url,
 				onPageStarted = onPageStarted,
 				onPageFinished = onPageFinished,
+				onPageError = onPageError,
 				onExternalResourceClick = onExternalResourceClick
 			)
 		}
@@ -66,6 +69,7 @@ private class BrowserNavigationDelegate(
 	private val initialUrl: String,
 	private val onPageStarted: () -> Unit,
 	private val onPageFinished: () -> Unit,
+	private val onPageError: () -> Unit,
 	private val onExternalResourceClick: (url: String) -> Unit
 ) : NSObject(), WKNavigationDelegateProtocol {
 	@ObjCSignatureOverride
@@ -82,6 +86,24 @@ private class BrowserNavigationDelegate(
 		didFinishNavigation: WKNavigation?
 	) {
 		onPageFinished()
+	}
+
+	@ObjCSignatureOverride
+	override fun webView(
+		webView: WKWebView,
+		didFailNavigation: WKNavigation?,
+		withError: NSError
+	) {
+		onPageError()
+	}
+
+	@ObjCSignatureOverride
+	override fun webView(
+		webView: WKWebView,
+		didFailProvisionalNavigation: WKNavigation?,
+		withError: NSError
+	) {
+		onPageError()
 	}
 
 	@ObjCSignatureOverride

@@ -143,7 +143,9 @@ fun EvaluationsView(
 								)
 							}
 						},
-						onCardClick = onActionsClick
+						onCardClick = onActionsClick,
+						onEditAction = { onEvaluationEdit(evaluation.evaluationId) },
+						onDeleteAction = { onEvaluationDelete(evaluation.evaluationId) }
 					)
 				}
 			}

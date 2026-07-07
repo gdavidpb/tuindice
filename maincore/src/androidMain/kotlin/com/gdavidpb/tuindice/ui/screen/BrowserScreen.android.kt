@@ -15,6 +15,7 @@ class AndroidBrowserScreenRenderer : BrowserScreenRenderer {
 		modifier: Modifier,
 		onPageStarted: () -> Unit,
 		onPageFinished: () -> Unit,
+		onPageError: () -> Unit,
 		onExternalResourceClick: (url: String) -> Unit
 	) {
 		val context = LocalContext.current
@@ -23,6 +24,7 @@ class AndroidBrowserScreenRenderer : BrowserScreenRenderer {
 				initialUrl = url,
 				onPageStarted = onPageStarted,
 				onPageFinished = onPageFinished,
+				onPageError = onPageError,
 				onExternalPageRequested = onExternalResourceClick
 			)
 		}

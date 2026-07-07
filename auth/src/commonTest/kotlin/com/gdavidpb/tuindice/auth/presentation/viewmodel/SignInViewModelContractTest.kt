@@ -32,6 +32,65 @@ class SignInViewModelContractTest {
 
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun cancelWhileLoggingIn_restoresIdlePreservingInput() = runTest {
+		val viewModel = SignInViewModel(
+			screenMachine = SignInMachine(
+				signInUseCase = SignInUseCase(
+					authRepository = RecordingAuthRepository(),
+					messagingRepository = RecordingMessagingRepository(),
+					syncRepository = FakeSyncRepository(),
+					credentialsRepository = FakeCredentialsRepository(),
+					syncStatusRepository = FakeSyncStatusRepository(),
+					attestationRepository = FakeAttestationRepository(),
+					reportingRepository = RecordingReportingRepository(),
+					paramsValidator = SignInParamsValidator(),
+					exceptionHandler = SignInExceptionHandler(
+						networkRepository = FakeNetworkRepository(isAvailable = true)
+					)
+				),
+				configRepository = FakeConfigRepository(),
+				appEnvironmentRepository = FakeAppEnvironmentRepository(),
+				usageDataConsentRepository = InMemoryUsageDataConsentRepository()
+			),
+			eventPublisher = NoOpEventPublisher
+		)
+
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				assertEquals(SignIn.State.Idle(), awaitItem())
+
+				viewModel.setUsbIdAction(VALID_USB_ID)
+				awaitItem()
+
+				viewModel.setPasswordAction("secret123")
+				awaitItem()
+
+				viewModel.signInAction()
+				assertIs<SignIn.State.LoggingIn>(awaitItem())
+
+				viewModel.cancelSignInAction()
+				assertEquals(
+					SignIn.State.Idle(
+						usbId = VALID_USB_ID,
+						password = "secret123"
+					),
+					awaitItem()
+				)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	fun publicActions_updateState_andEmitEffects() = runTest {
 		val viewModel = SignInViewModel(
 			screenMachine = SignInMachine(

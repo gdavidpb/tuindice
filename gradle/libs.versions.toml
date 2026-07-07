@@ -125,6 +125,7 @@ compose-ui-test-junit4 = { module = "androidx.compose.ui:ui-test-junit4" }
 components-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "components-resources" }
 material-icons-extended = { module = "org.jetbrains.compose.material:material-icons-extended", version.ref = "material-icons-extended" }
 jetbrains-compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose-mpp" }
+jetbrains-compose-backhandler = { module = "org.jetbrains.compose.ui:ui-backhandler", version.ref = "compose-mpp" }
 jetbrains-compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose-mpp" }
 jetbrains-compose-animation = { module = "org.jetbrains.compose.animation:animation", version.ref = "compose-mpp" }
 jetbrains-compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "compose-mpp-material3" }

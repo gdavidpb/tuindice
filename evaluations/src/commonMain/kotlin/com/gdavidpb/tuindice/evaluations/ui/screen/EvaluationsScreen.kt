@@ -7,16 +7,17 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
-import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
+import com.gdavidpb.tuindice.base.ui.view.LoadingView
+import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
+import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsContentView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsEmptyView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsFailedView
-import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsLoadingView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsNoAttemptsView
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
@@ -27,7 +28,6 @@ import tuindice.evaluations.generated.resources.message_no_subjects_evaluations
 import tuindice.evaluations.generated.resources.title_empty_evaluations
 import tuindice.evaluations.generated.resources.title_enrollment_unavailable_evaluations
 import tuindice.evaluations.generated.resources.title_no_subjects_evaluations
-import tuindice.evaluations.generated.resources.view_error_message
 import tuindice.evaluations.generated.resources.view_error_retry
 import tuindice.evaluations.generated.resources.view_error_title
 
@@ -57,7 +57,7 @@ fun EvaluationsScreen(
 				is Evaluations.State.Idle -> Unit
 
 				is Evaluations.State.Loading ->
-					EvaluationsLoadingView()
+					LoadingView(indicatorTag = EvaluationsUiTags.EvaluationsLoadingIndicator)
 
 				is Evaluations.State.Content ->
 					EvaluationsContentView(
@@ -76,7 +76,7 @@ fun EvaluationsScreen(
 				is Evaluations.State.Failed ->
 					EvaluationsFailedView(
 						title = stringResource(Res.string.view_error_title),
-						message = stringResource(Res.string.view_error_message),
+						message = targetState.message,
 						retryText = stringResource(Res.string.view_error_retry),
 						onRetryClick = onRetryClick,
 						headerContent = {
@@ -88,6 +88,8 @@ fun EvaluationsScreen(
 					EvaluationsNoAttemptsView(
 						title = targetState.noAttemptsTitle(),
 						message = targetState.noAttemptsMessage(),
+						actionLabel = targetState.noAttemptsActionLabel(),
+						onActionClick = onRetryClick,
 						headerContent = {
 							EmptyStateAnimationView()
 						}
@@ -127,5 +129,17 @@ private fun Evaluations.State.NoAttempts.noAttemptsMessage(): String {
 
 		EvaluationsNoAttemptsReason.EnrollmentUnavailable ->
 			stringResource(Res.string.message_enrollment_unavailable_evaluations)
+	}
+}
+
+// Only the enrollment outage is retryable; a missing current term is resolved
+// by time, not by refreshing.
+@Composable
+private fun Evaluations.State.NoAttempts.noAttemptsActionLabel(): String? {
+	return when (reason) {
+		EvaluationsNoAttemptsReason.NoCurrentTerm -> null
+
+		EvaluationsNoAttemptsReason.EnrollmentUnavailable ->
+			stringResource(Res.string.view_error_retry)
 	}
 }

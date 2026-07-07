@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.base.utils.extension.isTimeout
 import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
 import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
+import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofOfflineException
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmentProofUseCaseError
 
 class FetchEnrollmentProofExceptionHandler(
@@ -16,6 +17,8 @@ class FetchEnrollmentProofExceptionHandler(
 	override fun parseException(throwable: Throwable): FetchEnrollmentProofUseCaseError? {
 		return when {
 			throwable is EnrollmentProofNotFoundException -> FetchEnrollmentProofUseCaseError.NotFound
+			throwable is EnrollmentProofOfflineException ->
+				FetchEnrollmentProofUseCaseError.NoConnection(networkRepository.isAvailable())
 			throwable is UnsupportedOperationException -> FetchEnrollmentProofUseCaseError.UnsupportedFile
 			throwable.isNotFound() -> FetchEnrollmentProofUseCaseError.NotFound
 			throwable.isUnavailable() -> FetchEnrollmentProofUseCaseError.Unavailable

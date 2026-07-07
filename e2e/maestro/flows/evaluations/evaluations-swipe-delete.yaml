@@ -31,6 +31,12 @@ appId: com.gdavidpb.tuindice.debug
     id: evaluation_swipe_delete_action
 - extendedWaitUntil:
     visible:
+      id: evaluation_delete_confirmation_message
+    timeout: 10000
+- tapOn:
+    id: base_confirmation_dialog_positive_button
+- extendedWaitUntil:
+    visible:
       id: base_snackbar_container
     timeout: 15000
 - assertVisible:

@@ -14,6 +14,7 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.drawscope.translate
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryEntry
@@ -29,6 +30,9 @@ fun StatusCardItemView(
 
 	ElevatedCard(
 		modifier = modifier
+			// One focus target per card: the header, counts and legend read together
+			// instead of as disconnected fragments.
+			.semantics(mergeDescendants = true) {}
 			.fillMaxWidth()
 			.padding(
 				horizontal = 16.dp,

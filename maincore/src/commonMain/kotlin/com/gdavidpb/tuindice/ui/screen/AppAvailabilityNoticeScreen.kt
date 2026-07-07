@@ -19,7 +19,9 @@ import com.gdavidpb.tuindice.ui.MaincoreUiTags
 @Composable
 fun AppAvailabilityNoticeScreen(
 	title: String,
-	message: String
+	message: String,
+	retryText: String,
+	onRetryClick: () -> Unit
 ) {
 	Surface(
 		modifier = Modifier
@@ -35,9 +37,12 @@ fun AppAvailabilityNoticeScreen(
 				.padding(horizontal = 24.dp),
 			title = title,
 			message = message,
+			actionLabel = retryText,
+			onActionClick = onRetryClick,
 			verticalArrangement = Arrangement.Center,
 			titleTestTag = MaincoreUiTags.AppAvailabilityNoticeTitle,
 			messageTestTag = MaincoreUiTags.AppAvailabilityNoticeMessage,
+			actionTestTag = MaincoreUiTags.AppAvailabilityNoticeRetryButton,
 			headerContent = { ErrorStateAnimationView() }
 		)
 	}

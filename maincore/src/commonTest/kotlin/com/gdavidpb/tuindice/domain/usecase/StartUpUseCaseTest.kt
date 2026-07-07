@@ -96,6 +96,57 @@ class StartUpUseCaseTest {
 		assertEquals(null, settingsRepository.getOutdatedAppState())
 	}
 
+	@Test
+	fun execute_setsSessionResetNoticeWhenSessionReadFailsAndDataIsCleared() = runTest {
+		val settingsRepository = FakeSettingsRepository()
+		val applicationRepository = RecordingApplicationRepository()
+		val useCase = StartUpUseCase(
+			sessionRepository = FailingSessionRepository(),
+			settingsRepository = settingsRepository,
+			configRepository = FakeConfigRepository(),
+			deviceInfoRepository = FakeDeviceInfoRepository(),
+			applicationRepository = applicationRepository,
+			reportingRepository = RecordingReportingRepository(),
+			exceptionHandler = StartUpExceptionHandler()
+		)
+
+		useCase.execute(Unit).test {
+			assertIs<UseCaseState.Loading>(awaitItem())
+			assertIs<UseCaseState.Error<*>>(awaitItem())
+			awaitComplete()
+		}
+
+		assertEquals(true, settingsRepository.sessionResetNoticePending)
+	}
+
+	@Test
+	fun execute_consumesSessionResetNoticeAndFlagsAuthStart() = runTest {
+		val settingsRepository = FakeSettingsRepository()
+		settingsRepository.setSessionResetNoticePending()
+
+		val useCase = StartUpUseCase(
+			sessionRepository = FakeSessionRepository(sessionId = ""),
+			settingsRepository = settingsRepository,
+			configRepository = FakeConfigRepository(),
+			deviceInfoRepository = FakeDeviceInfoRepository(),
+			applicationRepository = RecordingApplicationRepository(),
+			reportingRepository = RecordingReportingRepository(),
+			exceptionHandler = StartUpExceptionHandler()
+		)
+
+		useCase.execute(Unit).test {
+			assertIs<UseCaseState.Loading>(awaitItem())
+
+			val data = assertIs<UseCaseState.Data<StartUpResult>>(awaitItem())
+			val result = assertIs<StartUpResult.Available>(data.value)
+			assertEquals(true, result.showSessionResetNotice)
+
+			awaitComplete()
+		}
+
+		assertEquals(false, settingsRepository.sessionResetNoticePending)
+	}
+
 	private class FailingSessionRepository : SessionRepository {
 		override suspend fun hasActiveSession(): Boolean {
 			error("Session should not be resolved when the app availability notice is enabled.")

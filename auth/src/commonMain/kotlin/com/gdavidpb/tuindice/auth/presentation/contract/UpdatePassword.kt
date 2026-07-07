@@ -26,6 +26,5 @@ object UpdatePassword {
 
 	sealed class Effect : ViewEffect {
 		class PasswordUpdated(val message: String) : Effect()
-		class ShowSnackBar(val message: String) : Effect()
 	}
 }

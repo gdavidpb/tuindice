@@ -46,6 +46,8 @@ fun TuIndiceNavHost(
 	onUpdatePasswordDismissRequest: () -> Unit = {},
 	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onRecordTermSelectionAvailable: ((() -> Unit)?) -> Unit,
+	onBackInterceptorAvailable: ((() -> Boolean)?) -> Unit = {},
+	onNavigateBack: () -> Unit = { navController.navigateUp() },
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
@@ -58,7 +60,7 @@ fun TuIndiceNavHost(
 			startDestination = startDestination,
 			modifier = modifier.edgeSwipeBackNavigation(
 				enabled = isSwipeBackNavigationEnabled && canNavigateBack,
-				onBack = { navController.navigateUp() }
+				onBack = onNavigateBack
 			)
 				.background(MaterialTheme.colorScheme.background)
 				.testTag(MaincoreUiTags.TuIndiceNavHost)
@@ -117,6 +119,7 @@ fun TuIndiceNavHost(
 			},
 			onTopBarViewModeChangeAvailable = onRecordViewModeChangeAvailable,
 			onTopBarTermSelectionAvailable = onRecordTermSelectionAvailable,
+			onBackInterceptorAvailable = onBackInterceptorAvailable,
 			onNavigateToEnrollmentProof = {
 				navController.navigate(EnrollmentProofDestination.EnrollmentProofDialog)
 			},
@@ -127,6 +130,7 @@ fun TuIndiceNavHost(
 
 		evaluationsNavigation(
 			navController = navController,
+			onBackInterceptorAvailable = onBackInterceptorAvailable,
 			onNavigateToAddEvaluation = {
 				navController.navigate(EvaluationsDestination.Evaluation(evaluationId = null))
 			},
@@ -173,6 +177,7 @@ fun TuIndiceNavHost(
 			onNavigateToBrowser = { title, url ->
 				navController.navigate(BrowserDestination.Browser(title = title, url = url))
 			},
+			showSnackBar = showSnackBar,
 			onViewStateChanged = onViewStateChanged
 		)
 
@@ -181,6 +186,9 @@ fun TuIndiceNavHost(
 				navController.navigate(AuthDestination.UpdatePasswordDialog)
 			},
 			onDismissRequest = { navController.navigateUp() },
+			onRetryRequest = {
+				navController.navigate(EnrollmentProofDestination.EnrollmentProofDialog)
+			},
 			showSnackBar = showSnackBar
 		)
 

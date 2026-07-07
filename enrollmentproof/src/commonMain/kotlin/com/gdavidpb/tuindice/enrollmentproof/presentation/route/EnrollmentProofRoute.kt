@@ -12,6 +12,10 @@ import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
 import com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel.EnrollmentProofViewModel
 import com.gdavidpb.tuindice.enrollmentproof.ui.dialog.EnrollmentProofContentDialog
+import org.jetbrains.compose.resources.stringResource
+import tuindice.enrollmentproof.generated.resources.Res
+import tuindice.enrollmentproof.generated.resources.enrollment_proof_retry
+import tuindice.enrollmentproof.generated.resources.error_enrollment_unsupported
 
 @Composable
 fun EnrollmentProofRoute(
@@ -19,10 +23,13 @@ fun EnrollmentProofRoute(
 	onDismissRequest: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	externalActions: FileOpenerRepository,
-	viewModel: EnrollmentProofViewModel
+	viewModel: EnrollmentProofViewModel,
+	onRetryRequest: () -> Unit = {}
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 	var dismissed by remember { mutableStateOf(false) }
+	val proofViewerMissingMessage = stringResource(Res.string.error_enrollment_unsupported)
+	val retryActionLabel = stringResource(Res.string.enrollment_proof_retry)
 
 	val dismiss = {
 		dismissed = true
@@ -37,12 +44,20 @@ fun EnrollmentProofRoute(
 				onNavigateToUpdatePassword()
 
 			is Enrollment.Effect.OpenEnrollmentProof -> {
-				externalActions.openFile(effect.file)
+				if (!externalActions.openFile(effect.file)) {
+					showSnackBar(SnackBarMessage(message = proofViewerMissingMessage))
+				}
 				dismiss()
 			}
 
 			is Enrollment.Effect.ShowSnackBar -> {
-				showSnackBar(SnackBarMessage(message = effect.message))
+				showSnackBar(
+					SnackBarMessage(
+						message = effect.message,
+						actionLabel = retryActionLabel,
+						onAction = onRetryRequest
+					)
+				)
 				dismiss()
 			}
 		}

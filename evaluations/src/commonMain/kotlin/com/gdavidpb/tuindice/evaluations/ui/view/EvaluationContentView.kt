@@ -30,11 +30,15 @@ import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationRequiredField
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.button_add_evaluation
 import tuindice.evaluations.generated.resources.button_save_evaluation_changes
+import tuindice.evaluations.generated.resources.error_evaluation_max_grade_missed
+import tuindice.evaluations.generated.resources.error_evaluation_subject_missed
+import tuindice.evaluations.generated.resources.error_evaluation_type_missed
 import tuindice.evaluations.generated.resources.evaluation_name
 import tuindice.evaluations.generated.resources.label_add_evaluation_date
 import tuindice.evaluations.generated.resources.label_add_evaluation_subject
@@ -87,6 +91,13 @@ fun EvaluationContentView(
 				onAttemptChange = onAttemptChange
 			)
 
+			if (EvaluationRequiredField.SUBJECT in state.missingFields) {
+				EvaluationRequiredFieldError(
+					modifier = Modifier.testTag(EvaluationsUiTags.EvaluationSubjectRequiredError),
+					text = stringResource(Res.string.error_evaluation_subject_missed)
+				)
+			}
+
 			Text(
 				modifier = Modifier
 					.fillMaxWidth()
@@ -102,6 +113,13 @@ fun EvaluationContentView(
 				onTypeChange = onTypeChange
 			)
 
+			if (EvaluationRequiredField.TYPE in state.missingFields) {
+				EvaluationRequiredFieldError(
+					modifier = Modifier.testTag(EvaluationsUiTags.EvaluationTypeRequiredError),
+					text = stringResource(Res.string.error_evaluation_type_missed)
+				)
+			}
+
 			Text(
 				modifier = Modifier
 					.fillMaxWidth()
@@ -116,7 +134,8 @@ fun EvaluationContentView(
 				modifier = Modifier.fillMaxWidth(),
 				selectedScheduleMode = state.scheduleMode,
 				selectedDate = state.date,
-				onDateChange = onDateChange
+				onDateChange = onDateChange,
+				selectableRange = state.selectableDateRange
 			)
 
 			Text(
@@ -142,6 +161,13 @@ fun EvaluationContentView(
 							style = MaterialTheme.typography.titleMedium
 						)
 					}
+				)
+			}
+
+			if (EvaluationRequiredField.MAX_GRADE in state.missingFields) {
+				EvaluationRequiredFieldError(
+					modifier = Modifier.testTag(EvaluationsUiTags.EvaluationMaxGradeRequiredError),
+					text = stringResource(Res.string.error_evaluation_max_grade_missed)
 				)
 			}
 

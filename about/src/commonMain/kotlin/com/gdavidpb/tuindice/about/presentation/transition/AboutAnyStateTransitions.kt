@@ -23,8 +23,13 @@ internal fun MachineDefinitionBuilder<About.State>.aboutAnyStateTransitions(
 			)
 		}
 
-		onTo<AboutInternalEvent.AboutVersionLoadFailed, About.State.Idle> { _, _ ->
-			About.State.Idle
+		// A failed version read must not leave the screen blank: fall back to Content
+		// so the support and legal entry points stay reachable.
+		onTo<AboutInternalEvent.AboutVersionLoadFailed, About.State.Content> { _, event ->
+			About.State.Content(
+				versionText = event.versionFallbackText,
+				usageDataCollectionEnabled = event.usageDataCollectionEnabled
+			)
 		}
 
 		on<About.Action.OpenTermsAndConditions>(

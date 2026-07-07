@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-	<string name="dialog_title_no_gms_failure">¡Oops, lo sentimos!</string>
-	<string name="dialog_message_no_gms_failure">Parece que tu dispositivo  no dispone de Google Play Services ;(</string>
-	<string name="dialog_title_warning_external">Atención</string>
+	<string name="dialog_title_no_gms_failure">Google Play Services no disponible</string>
+	<string name="dialog_message_no_gms_failure">TuIndice necesita Google Play Services para funcionar y tu dispositivo no dispone de él.</string>
+	<string name="dialog_title_warning_external">Abrir enlace externo</string>
 	<string name="dialog_message_warning_external">¿Deseas abrir el siguiente enlace?</string>
 	<string name="open">Abrir</string>
 	<string name="cancel">Cancelar</string>
@@ -13,7 +13,16 @@
 	<string name="app_availability_notice_default_title">La app no está disponible</string>
 	<string name="app_availability_notice_default_message">Estamos trabajando para restablecer el servicio. Intenta nuevamente más tarde.</string>
 	<string name="snack_session_invalidated">Inicia sesión nuevamente</string>
+	<string name="snack_session_reset_on_startup">No pudimos leer tus datos y reiniciamos la sesión. Inicia sesión de nuevo.</string>
 	<string name="snack_pending_changes_unavailable">No pudimos revisar tus cambios pendientes. Intenta nuevamente.</string>
+	<string name="bottom_bar_summary">Resumen</string>
+	<string name="bottom_bar_record">Informe</string>
+	<string name="bottom_bar_pensum">Pensum</string>
+	<string name="bottom_bar_evaluations">Evaluaciones</string>
+	<string name="bottom_bar_about">Acerca de</string>
+	<string name="browser_error_title">No pudimos cargar la página</string>
+	<string name="browser_error_message">Comprueba tu conexión e intenta de nuevo.</string>
+	<string name="browser_error_retry">Reintentar</string>
 	<string name="a11y_navigate_back">Volver</string>
 	<string name="a11y_top_bar_sign_out">Cerrar sesión</string>
 	<string name="a11y_top_bar_enrollment_proof">Ver comprobante</string>

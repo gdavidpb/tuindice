@@ -126,6 +126,7 @@
     <ID>TooManyFunctions:SecureStoreSessionDataSource.kt$SecureStoreSessionDataSource : PreferencesSessionDataRepository</ID>
     <ID>TooManyFunctions:SessionDataSource.kt$SessionDataSource : SessionRepository</ID>
     <ID>TooManyFunctions:SessionRepository.kt$SessionRepository</ID>
+    <ID>TooManyFunctions:SettingsRepository.kt$SettingsRepository</ID>
     <ID>TopLevelPropertyNaming:PeekingSelectorView.kt$private const val DefaultItemWidthFraction = 0.5f</ID>
     <ID>TopLevelPropertyNaming:PeekingSelectorView.kt$private const val UnselectedAlpha = 0.76f</ID>
     <ID>TopLevelPropertyNaming:PeekingSelectorView.kt$private const val UnselectedScale = 0.95f</ID>

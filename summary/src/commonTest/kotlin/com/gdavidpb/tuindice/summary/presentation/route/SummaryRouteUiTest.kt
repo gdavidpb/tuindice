@@ -301,7 +301,7 @@ class SummaryRouteUiTest {
 			shownSnackBars.isNotEmpty()
 		}
 
-		assertEquals("¡Ha ocurrido un error!", shownSnackBars.first().message)
+		assertEquals("Ocurrió un error inesperado", shownSnackBars.first().message)
 		assertEquals(0, outdatedPasswordNavigations)
 	}
 
@@ -343,7 +343,7 @@ class SummaryRouteUiTest {
 		}
 
 		assertEquals(0, outdatedPasswordNavigations)
-		assertEquals("¡Ha ocurrido un error!", shownSnackBars.first().message)
+		assertEquals("Ocurrió un error inesperado", shownSnackBars.first().message)
 	}
 
 	@Test

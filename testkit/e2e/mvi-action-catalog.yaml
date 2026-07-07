@@ -100,6 +100,12 @@ actions:
     selector: auth_sign_in_button
     flow: e2e/maestro/flows/auth/login-success.yaml
     fixture_state: auth-success
+  - id: auth.SignIn.ClickCancelSignIn
+    classification: user
+    variants: [cancel-while-logging-in]
+    selector: auth_sign_in_cancel_button
+    flow: e2e/maestro/flows/auth/login-cancel.yaml
+    fixture_state: auth-login-cancel-delayed
   - id: auth.SignIn.ClickTermsAndConditions
     classification: user
     variants: [internal-browser]
@@ -268,6 +274,12 @@ variants: [add-success, edit-success, edit-unchanged-disabled, missing-attempt, 
   - id: maincore.Browser.SetLoading
     classification: internal
     reason: renderer callback
+  - id: maincore.Browser.SetLoadFailed
+    classification: internal
+    reason: renderer callback
+  - id: maincore.Browser.ClickRetry
+    classification: user
+    platform_edge: forcing a web view load failure needs host-level network manipulation; retry UI is covered by BrowserScreenUiTest
   - id: maincore.Browser.OpenExternalResource
     classification: platform-edge
     variants: [cancel, confirm]

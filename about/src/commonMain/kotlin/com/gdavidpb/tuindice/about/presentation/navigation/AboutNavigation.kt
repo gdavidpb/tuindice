@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.about.presentation.utils.LocalShareTextHandler
 import com.gdavidpb.tuindice.about.presentation.utils.ShareTextHandler
 import com.gdavidpb.tuindice.about.presentation.viewmodel.AboutViewModel
 import com.gdavidpb.tuindice.base.presentation.ViewState
+import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLifecycle
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
@@ -19,6 +20,7 @@ import org.koin.compose.viewmodel.koinViewModel
 fun NavGraphBuilder.aboutNavigation(
 	navController: NavHostController,
 	onNavigateToBrowser: (title: String, url: String) -> Unit,
+	showSnackBar: (message: SnackBarMessage) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit
 ) {
 	navigation<AboutDestination.NavGraph>(startDestination = AboutDestination.About) {
@@ -38,6 +40,7 @@ fun NavGraphBuilder.aboutNavigation(
 			) {
 				AboutRoute(
 					onNavigateToBrowser = onNavigateToBrowser,
+					showSnackBar = showSnackBar,
 					viewModel = viewModel
 				)
 			}

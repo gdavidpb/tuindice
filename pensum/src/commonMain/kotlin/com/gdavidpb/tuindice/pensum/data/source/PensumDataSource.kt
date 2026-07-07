@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.pensum.data.repository.PensumRemoteDataRepository
 import com.gdavidpb.tuindice.pensum.domain.engine.PensumStatusEngine
 import com.gdavidpb.tuindice.pensum.domain.model.ObservedPensum
 import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
+import com.gdavidpb.tuindice.pensum.domain.model.PensumSelectionParams
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -69,20 +70,47 @@ class PensumDataSource(
 		localDataRepository.hasSelectedPensumResponse()
 
 	override suspend fun selectPensum(year: Int) {
-		localDataRepository.selectPensum(year = year)
-		refreshPensum()
+		applySelection(
+			selection = localDataRepository.getSelectionParams().copy(year = year)
+		) {
+			localDataRepository.selectPensum(year = year)
+		}
 	}
 
 	override suspend fun selectModality(modalityId: String) {
-		localDataRepository.selectModality(modalityId)
-		refreshPensum()
+		applySelection(
+			selection = localDataRepository.getSelectionParams().copy(modalityId = modalityId)
+		) {
+			localDataRepository.selectModality(modalityId)
+		}
 	}
 
 	override suspend fun selectSelection(year: Int, modalityId: String) {
-		localDataRepository.selectSelection(
-			year = year,
-			modalityId = modalityId
+		applySelection(
+			selection = PensumSelectionParams(
+				year = year,
+				modalityId = modalityId
+			)
+		) {
+			localDataRepository.selectSelection(
+				year = year,
+				modalityId = modalityId
+			)
+		}
+	}
+
+	// The candidate selection is validated against the backend before persisting,
+	// so a not-found selection never becomes the sticky default.
+	private suspend fun applySelection(
+		selection: PensumSelectionParams,
+		persistSelection: suspend () -> Unit
+	) {
+		val response = remoteDataRepository.getPensum(selection)
+
+		persistSelection()
+		localDataRepository.savePensumResponse(
+			response = response,
+			inferredSelection = selection.year == null && selection.modalityId == null
 		)
-		refreshPensum()
 	}
 }

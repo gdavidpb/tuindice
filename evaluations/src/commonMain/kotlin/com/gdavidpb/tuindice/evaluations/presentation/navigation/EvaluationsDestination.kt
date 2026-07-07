@@ -39,4 +39,9 @@ sealed class EvaluationsDestination : Destination() {
 		val grade: Double,
 		val maxGrade: Double
 	) : EvaluationsDestination()
+
+	@Serializable
+	data class DeleteEvaluationConfirmationDialog(
+		val evaluationId: String
+	) : EvaluationsDestination()
 }

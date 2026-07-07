@@ -21,6 +21,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.CustomAccessibilityAction
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.customActions
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -30,24 +34,56 @@ import com.gdavidpb.tuindice.base.ui.view.SubjectCodeChip
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationItem
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
+import org.jetbrains.compose.resources.stringResource
+import tuindice.evaluations.generated.resources.Res
+import tuindice.evaluations.generated.resources.a11y_evaluation_register_grade
+import tuindice.evaluations.generated.resources.a11y_evaluation_show_actions
+import tuindice.evaluations.generated.resources.label_evaluation_swipe_delete
+import tuindice.evaluations.generated.resources.label_evaluation_swipe_edit
 
 @Composable
 fun EvaluationItemView(
 	modifier: Modifier = Modifier,
 	item: EvaluationItem,
 	onGradeClick: () -> Unit = {},
-	onCardClick: () -> Unit = {}
+	onCardClick: () -> Unit = {},
+	onEditAction: (() -> Unit)? = null,
+	onDeleteAction: (() -> Unit)? = null
 ) {
 	val metadataColor = when (item.highlightTone) {
 		EvaluationHighlightTone.Error -> MaterialTheme.colorScheme.error
 		else -> MaterialTheme.colorScheme.onSurfaceVariant
 	}
 	val statusColors = statusColors(item.statusTone)
+	val showActionsLabel = stringResource(Res.string.a11y_evaluation_show_actions)
+	val editActionLabel = stringResource(Res.string.label_evaluation_swipe_edit)
+	val deleteActionLabel = stringResource(Res.string.label_evaluation_swipe_delete)
 
 	ElevatedCard(
 		modifier = modifier
 			.testTag(EvaluationsUiTags.evaluationItemCard(item.evaluationId))
-			.clickable(onClick = onCardClick)
+			.clickable(
+				onClickLabel = showActionsLabel,
+				onClick = onCardClick
+			)
+			// The swipe gesture is invisible to screen readers, so the row actions
+			// are also exposed as custom accessibility actions.
+			.semantics {
+				customActions = listOfNotNull(
+					onEditAction?.let { action ->
+						CustomAccessibilityAction(editActionLabel) {
+							action()
+							true
+						}
+					},
+					onDeleteAction?.let { action ->
+						CustomAccessibilityAction(deleteActionLabel) {
+							action()
+							true
+						}
+					}
+				)
+			}
 			.fillMaxWidth()
 			.padding(
 				horizontal = EvaluationCardHorizontalPadding,
@@ -149,7 +185,11 @@ fun EvaluationItemView(
 						Box(
 							modifier = Modifier
 								.testTag(EvaluationsUiTags.evaluationGradeActionButton(item.evaluationId))
-								.clickable(onClick = onGradeClick)
+								.clickable(
+									onClickLabel = stringResource(Res.string.a11y_evaluation_register_grade),
+									role = Role.Button,
+									onClick = onGradeClick
+								)
 								.border(
 									border = BorderStroke(1.dp, MaterialTheme.colorScheme.outlineVariant),
 									shape = RoundedCornerShape(TuIndiceRadius.Large)

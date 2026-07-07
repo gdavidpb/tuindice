@@ -6,7 +6,10 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.dynamicDarkColorScheme
 import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.platform.LocalContext
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceDarkTheme
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceShapes
 
 @Composable
 fun TuIndiceTheme(
@@ -24,9 +27,14 @@ fun TuIndiceTheme(
 		else -> TuIndiceColorScheme.light
 	}
 
-	MaterialTheme(
-		colorScheme = colorScheme,
-		typography = TuIndiceTypography,
-		content = content
-	)
+	// Mirrors TuIndiceSharedTheme so both hosts resolve the same shapes and
+	// dark-theme local; only the dynamic-color branch is Android-specific.
+	CompositionLocalProvider(TuIndiceDarkTheme.Local provides darkTheme) {
+		MaterialTheme(
+			colorScheme = colorScheme,
+			typography = TuIndiceTypography,
+			shapes = TuIndiceShapes,
+			content = content
+		)
+	}
 }

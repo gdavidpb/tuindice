@@ -35,6 +35,7 @@ import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import tuindice.pensum.generated.resources.Res
 import tuindice.pensum.generated.resources.pensum_local_data_warning_service
+import tuindice.pensum.generated.resources.pensum_selection_not_found
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -354,7 +355,7 @@ class PensumViewModelContractTest {
 
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-	fun refreshNotFound_movesToEmpty() = runTest {
+	fun refreshNotFound_overContent_keepsContentWithNotice() = runTest {
 		val fixture = createFixture()
 		val viewModel = fixture.viewModel
 
@@ -374,6 +375,39 @@ class PensumViewModelContractTest {
 
 				fixture.repository.emit(PensumObservation.Content(sampleObservedPensum()))
 				awaitUntilState<Pensum.State.Content> { true }
+
+				viewModel.refreshPensumAction()
+				awaitUntilState<Pensum.State.Content> { state ->
+					state.localDataMessage ==
+						UiText.Resource(Res.string.pensum_selection_not_found)
+				}
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun refreshNotFound_withoutContent_movesToEmpty() = runTest {
+		val fixture = createFixture()
+		val viewModel = fixture.viewModel
+
+		fixture.repository.refreshThrowable = clientRequestException(
+			statusCode = HttpStatusCode.NotFound,
+			path = "/pensums/v4"
+		)
+
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				assertEquals(Pensum.State.Idle, awaitItem())
 
 				viewModel.refreshPensumAction()
 				awaitUntilState<Pensum.State.Empty> { true }

@@ -11,7 +11,10 @@ sealed interface AboutInternalEvent {
 		val usageDataCollectionEnabled: Boolean
 	) : AboutInternalEvent
 
-	data object AboutVersionLoadFailed : AboutInternalEvent
+	data class AboutVersionLoadFailed(
+		val versionFallbackText: String,
+		val usageDataCollectionEnabled: Boolean
+	) : AboutInternalEvent
 
 	data class SupportEmailUriLoaded(
 		val uri: String

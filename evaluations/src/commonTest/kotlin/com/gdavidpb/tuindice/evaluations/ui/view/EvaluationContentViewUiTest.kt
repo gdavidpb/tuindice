@@ -8,6 +8,7 @@ import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationRequiredField
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
 import com.gdavidpb.tuindice.evaluations.testing.evaluationContentState
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -51,6 +52,52 @@ class EvaluationContentViewUiTest {
 
 		assertEquals(1, maxGradeClicks)
 		assertEquals(1, doneDispatches)
+	}
+
+	@Test
+	fun when_missingFieldsFlagged_then_showsInlineRequiredErrors() = runTuIndiceUiTest {
+		val state = evaluationContentState(isOverdue = false).copy(
+			missingFields = setOf(
+				EvaluationRequiredField.SUBJECT,
+				EvaluationRequiredField.TYPE,
+				EvaluationRequiredField.MAX_GRADE
+			)
+		)
+
+		setTuIndiceTestContent {
+			EvaluationContentView(
+					state = state,
+					onAttemptChange = {},
+					onTypeChange = {},
+					onDateChange = {},
+					onGradeClick = { _, _, _, _ -> },
+					onMaxGradeClick = { _, _, _ -> },
+				onDoneClick = {}
+			)
+		}
+
+		assertNodeVisible(EvaluationsUiTags.EvaluationSubjectRequiredError)
+		assertNodeVisible(EvaluationsUiTags.EvaluationTypeRequiredError)
+		assertNodeVisible(EvaluationsUiTags.EvaluationMaxGradeRequiredError)
+	}
+
+	@Test
+	fun when_noMissingFieldsFlagged_then_hidesInlineRequiredErrors() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			EvaluationContentView(
+					state = evaluationContentState(isOverdue = false),
+					onAttemptChange = {},
+					onTypeChange = {},
+					onDateChange = {},
+					onGradeClick = { _, _, _, _ -> },
+					onMaxGradeClick = { _, _, _ -> },
+				onDoneClick = {}
+			)
+		}
+
+		assertNodeHidden(EvaluationsUiTags.EvaluationSubjectRequiredError)
+		assertNodeHidden(EvaluationsUiTags.EvaluationTypeRequiredError)
+		assertNodeHidden(EvaluationsUiTags.EvaluationMaxGradeRequiredError)
 	}
 
 	@Test

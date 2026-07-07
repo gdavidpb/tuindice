@@ -1,6 +1,11 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
+import com.gdavidpb.tuindice.base.presentation.mapper.commonNetworkUnavailableMessage
+import com.gdavidpb.tuindice.base.presentation.mapper.commonServiceUnavailableMessage
+import com.gdavidpb.tuindice.base.presentation.mapper.commonTimeoutMessage
+import com.gdavidpb.tuindice.base.presentation.mapper.commonUnexpectedErrorMessage
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.AddEvaluationUseCaseError
+import com.gdavidpb.tuindice.evaluations.domain.usecase.error.EvaluationsUseCaseError
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.RemoveEvaluationUseCaseError
 import com.gdavidpb.tuindice.evaluations.domain.usecase.error.UpdateEvaluationUseCaseError
 import org.jetbrains.compose.resources.getString
@@ -8,9 +13,28 @@ import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.error_evaluation_max_grade_missed
 import tuindice.evaluations.generated.resources.error_evaluation_subject_missed
 import tuindice.evaluations.generated.resources.error_evaluation_type_missed
-import tuindice.evaluations.generated.resources.snack_default_error
 import tuindice.evaluations.generated.resources.snack_evaluation_already_exists
 import tuindice.evaluations.generated.resources.snack_evaluation_not_found
+
+internal suspend fun EvaluationsUseCaseError?.toEvaluationsFailedMessage(): String {
+	return when (this) {
+		is EvaluationsUseCaseError.NoConnection ->
+			if (isNetworkAvailable) {
+				commonServiceUnavailableMessage()
+			} else {
+				commonNetworkUnavailableMessage()
+			}
+
+		EvaluationsUseCaseError.Timeout ->
+			commonTimeoutMessage()
+
+		EvaluationsUseCaseError.Unavailable ->
+			commonServiceUnavailableMessage()
+
+		else ->
+			commonUnexpectedErrorMessage()
+	}
+}
 
 internal suspend fun AddEvaluationUseCaseError?.toAddSubmitErrorMessage(): String {
 	return when (this) {
@@ -27,7 +51,7 @@ internal suspend fun AddEvaluationUseCaseError?.toAddSubmitErrorMessage(): Strin
 			getString(Res.string.error_evaluation_max_grade_missed)
 
 		else ->
-			getString(Res.string.snack_default_error)
+			commonUnexpectedErrorMessage()
 	}
 }
 
@@ -37,7 +61,7 @@ internal suspend fun UpdateEvaluationUseCaseError?.toEditSubmitErrorMessage(): S
 			getString(Res.string.snack_evaluation_not_found)
 
 		else ->
-			getString(Res.string.snack_default_error)
+			commonUnexpectedErrorMessage()
 	}
 }
 
@@ -51,6 +75,6 @@ internal suspend fun RemoveEvaluationUseCaseError?.toRemoveErrorMessage(): Strin
 			getString(Res.string.snack_evaluation_not_found)
 
 		else ->
-			getString(Res.string.snack_default_error)
+			commonUnexpectedErrorMessage()
 	}
 }

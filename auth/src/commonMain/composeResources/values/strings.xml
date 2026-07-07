@@ -3,7 +3,8 @@
     <string name="top_bar_tuindice">TuIndice</string>
 	<string name="app_name">TuIndice</string>
 	<string name="button_sign_in">Iniciar sesión</string>
-	<string name="label_policies">Al usar la aplicación, aceptas los\nTérminos y condiciones y Política de privacidad</string>
+	<string name="button_cancel_sign_in">Cancelar</string>
+	<string name="label_policies">Al usar la aplicación, aceptas los\nTérminos y condiciones y la Política de privacidad</string>
 	<string name="hint_usb_id">USBID</string>
 	<string name="hint_usb_email">Correo USB</string>
 	<string name="placeholder_usb_id">12-34567</string>
@@ -12,18 +13,27 @@
 	<string name="label_usage_data_consent">Ayudar a mejorar **TuIndice** compartiendo datos de uso anónimos</string>
 	<string name="link_terms_and_conditions">Términos y condiciones</string>
 	<string name="link_privacy_policy">Política de privacidad</string>
-	<string name="dialog_title_sign_out">Atención</string>
+	<string name="dialog_title_sign_out">Cerrar sesión</string>
 	<string name="dialog_message_sign_out">¿Estás seguro de que deseas cerrar sesión?</string>
-	<string name="dialog_message_sign_out_pending">Tienes %1$d cambios pendientes de sincronización. Intentaremos enviarlos antes de cerrar sesión.</string>
-	<string name="dialog_message_sign_out_flush_failed">No pudimos enviar %1$d cambios pendientes. Puedes reintentar o cerrar sesión igualmente.</string>
-	<string name="dialog_message_sign_out_outdated_credentials">No pudimos enviar %1$d cambios pendientes porque tu contraseña necesita actualizarse. Puedes actualizarla ahora o cerrar sesión igualmente.</string>
+	<plurals name="dialog_message_sign_out_pending">
+		<item quantity="one">Tienes %1$d cambio pendiente de sincronización. Intentaremos enviarlo antes de cerrar sesión.</item>
+		<item quantity="other">Tienes %1$d cambios pendientes de sincronización. Intentaremos enviarlos antes de cerrar sesión.</item>
+	</plurals>
+	<plurals name="dialog_message_sign_out_flush_failed">
+		<item quantity="one">No pudimos enviar %1$d cambio pendiente. Puedes reintentar o cerrar sesión igualmente.</item>
+		<item quantity="other">No pudimos enviar %1$d cambios pendientes. Puedes reintentar o cerrar sesión igualmente.</item>
+	</plurals>
+	<plurals name="dialog_message_sign_out_outdated_credentials">
+		<item quantity="one">No pudimos enviar %1$d cambio pendiente porque tu contraseña necesita actualizarse. Puedes actualizarla ahora o cerrar sesión igualmente.</item>
+		<item quantity="other">No pudimos enviar %1$d cambios pendientes porque tu contraseña necesita actualizarse. Puedes actualizarla ahora o cerrar sesión igualmente.</item>
+	</plurals>
 	<string name="dialog_button_sign_out">Cerrar sesión</string>
 	<string name="dialog_button_sign_out_and_sync">Enviar y cerrar sesión</string>
 	<string name="dialog_button_sign_out_anyway">Cerrar igualmente</string>
 	<string name="dialog_button_cancel">Cancelar</string>
 	<string name="dialog_button_retry">Reintentar</string>
 	<string name="dialog_title_update_password">Tu contraseña ha cambiado</string>
-	<string name="dialog_message_update_password">Confirma tu contraseña para seguir disfrutando de TuIndice.</string>
+	<string name="dialog_message_update_password">Tu contraseña USB cambió. Ingresa la nueva para seguir usando TuIndice.</string>
 	<string name="dialog_button_update_password_later">Más tarde</string>
 	<string name="dialog_button_update_password_confirm">Aceptar</string>
 	<string name="a11y_show_password">Mostrar contraseña</string>
@@ -34,17 +44,13 @@
 	<string name="title_privacy_policy">Política de privacidad</string>
 	<string name="error_invalid_usb_id_credentials">Revisa tu USBID y contraseña</string>
 	<string name="error_invalid_usb_email_credentials">Revisa tu correo USB y contraseña</string>
-	<string name="error_account_disabled">Cuenta inhabilitada</string>
-	<string name="error_untrusted">No pudimos verificar la seguridad del dispositivo</string>
+	<string name="error_account_disabled">Cuenta inhabilitada. Escríbenos a %1$s para recuperarla.</string>
+	<string name="error_untrusted">No pudimos verificar la seguridad del dispositivo. Si persiste, escríbenos a %1$s.</string>
 	<string name="error_invalid_password">Contraseña inválida</string>
 	<string name="label_retry">Reintentar</string>
-	<string name="snack_service_unavailable">Servicio no disponible</string>
 	<string name="snack_too_many_requests">Demasiados intentos. Espera un momento e intenta de nuevo</string>
-	<string name="snack_network_unavailable">Comprueba tu conexión</string>
-	<string name="snack_timeout">Tiempo de espera agotado</string>
 	<string name="snack_sign_in_failed">No pudimos iniciar sesión. Intenta nuevamente</string>
 	<string name="snack_update_password_failed">No pudimos actualizar tu contraseña. Intenta nuevamente</string>
 	<string name="snack_password_updated">Contraseña actualizada</string>
-	<string name="snack_default_error">¡Ha ocurrido un error!</string>
 	<string name="dialog_button_update_password">Actualizar contraseña</string>
 </resources>

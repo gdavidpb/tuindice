@@ -76,6 +76,13 @@ diagnosis runs; pay for full commit-bound evidence once, on the final SHA:
 E2E_MAESTRO_SUITE=e2e/maestro/flows/<failing-flow-or-suite>.yaml ./gradlew --console=plain e2eMaestroAndroid   # or e2eMaestroIos
 ```
 
+Prefix with `E2E_MAESTRO_SURVEY_MODE=1` to report every failing case in one
+pass instead of stopping at the first. When a tap/assert fails against an
+element the hierarchy claims visible, run `e2e/scripts/make-probe.sh <flow>`
+and read the per-step screenshots before hypothesizing. Verify flow fixes on
+both platforms with `e2e/scripts/diagnose-suite.sh <suite> [--survey]` before
+committing them. See the runbook's Diagnosis Runs doctrine for details.
+
 4. Fix product code or E2E fixtures/tests when the failure is real. For local environment failures, clean the affected simulator/device/WireMock/port state and rerun without unrelated code changes.
 5. When every known failure is fixed, commit the batch, push it, and verify `HEAD == @{u}`.
 6. Rerun `.codex/skills/certify-tuindice-pr/scripts/run_preflight_parity_checks.sh`. You may skip this rerun when the incremental diff since the last parity-passed commit only touches `e2e/maestro/**`, `mocks/**`, or documentation/skill files (none are Gradle inputs); parity must still pass for the final SHA before opening the PR.

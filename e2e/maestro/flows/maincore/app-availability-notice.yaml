@@ -36,3 +36,12 @@ appId: com.gdavidpb.tuindice.debug
     id: maincore_tuindice_bottom_bar
 - assertNotVisible:
     id: base_error_view_retry_button
+- assertVisible:
+    id: maincore_app_availability_notice_retry_button
+# Retry re-runs startup; the forced notice keeps the screen, proving the tap lands.
+- tapOn:
+    id: maincore_app_availability_notice_retry_button
+- extendedWaitUntil:
+    visible:
+      id: maincore_app_availability_notice_screen
+    timeout: 10000

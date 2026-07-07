@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.auth.presentation.contract.UpdatePassword
 import com.gdavidpb.tuindice.auth.presentation.mapper.toUpdatePasswordErrorMessage
 import com.gdavidpb.tuindice.auth.presentation.transition.updatePasswordIdleTransitions
 import com.gdavidpb.tuindice.auth.presentation.transition.updatePasswordUpdatingTransitions
+import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
@@ -14,7 +15,8 @@ import tuindice.auth.generated.resources.Res
 import tuindice.auth.generated.resources.snack_password_updated
 
 class UpdatePasswordMachine(
-	private val updatePasswordUseCase: UpdatePasswordUseCase
+	private val updatePasswordUseCase: UpdatePasswordUseCase,
+	private val configRepository: ConfigRepository
 ) : ScreenMachine<UpdatePassword.State, UpdatePassword.Effect> {
 	override fun initialState(): UpdatePassword.State = UpdatePassword.State.Idle()
 
@@ -44,7 +46,9 @@ class UpdatePasswordMachine(
 
 					is UseCaseState.Error -> host.processInternalEvent(
 						UpdatePasswordInternalEvent.PasswordUpdateFailed(
-							message = useCaseState.error.toUpdatePasswordErrorMessage()
+							message = useCaseState.error.toUpdatePasswordErrorMessage(
+								supportEmail = configRepository.getContactEmail()
+							)
 						)
 					)
 				}

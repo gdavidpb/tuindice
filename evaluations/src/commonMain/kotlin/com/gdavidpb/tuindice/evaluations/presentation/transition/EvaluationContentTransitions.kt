@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.machine.EvaluationMachine
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.updated
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.withSelectedAttempt
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.withSelectedType
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationRequiredField
 import com.gdavidpb.tuindice.evaluations.presentation.utils.isDateInPast
 import com.gdavidpb.tuindice.evaluations.ui.model.MIN_EVALUATION_GRADE
 
@@ -20,14 +21,24 @@ internal fun MachineDefinitionBuilder<Evaluation.State>.evaluationContentTransit
 		on<Evaluation.Action.SetAttempt> { state, action ->
 			state.copy(
 				selectedAttempt = action.attempt,
-				attemptItems = state.attemptItems.withSelectedAttempt(action.attempt)
+				attemptItems = state.attemptItems.withSelectedAttempt(action.attempt),
+				missingFields = if (action.attempt != null) {
+					state.missingFields - EvaluationRequiredField.SUBJECT
+				} else {
+					state.missingFields
+				}
 			)
 		}
 
 		on<Evaluation.Action.SetType> { state, action ->
 			state.copy(
 				type = action.type,
-				typeItems = state.typeItems.withSelectedType(action.type)
+				typeItems = state.typeItems.withSelectedType(action.type),
+				missingFields = if (action.type != null) {
+					state.missingFields - EvaluationRequiredField.TYPE
+				} else {
+					state.missingFields
+				}
 			)
 		}
 
@@ -43,7 +54,6 @@ internal fun MachineDefinitionBuilder<Evaluation.State>.evaluationContentTransit
 				date = action.date,
 				isOverdue = isOverdue,
 				gradeSection = state.gradeSection.updated(
-					isOverdue = isOverdue,
 					grade = state.grade,
 					maxGrade = state.maxGrade
 				)
@@ -54,7 +64,6 @@ internal fun MachineDefinitionBuilder<Evaluation.State>.evaluationContentTransit
 			state.copy(
 				grade = action.grade,
 				gradeSection = state.gradeSection.updated(
-					isOverdue = state.isOverdue,
 					grade = action.grade,
 					maxGrade = state.maxGrade
 				)
@@ -67,10 +76,14 @@ internal fun MachineDefinitionBuilder<Evaluation.State>.evaluationContentTransit
 			state.copy(
 				maxGrade = maxGrade,
 				gradeSection = state.gradeSection.updated(
-					isOverdue = state.isOverdue,
 					grade = state.grade,
 					maxGrade = maxGrade
-				)
+				),
+				missingFields = if (maxGrade != null) {
+					state.missingFields - EvaluationRequiredField.MAX_GRADE
+				} else {
+					state.missingFields
+				}
 			)
 		}
 
@@ -108,9 +121,17 @@ internal fun MachineDefinitionBuilder<Evaluation.State>.evaluationContentTransit
 			state
 		}
 
+		// Missing required fields surface inline all at once instead of one
+		// snackbar per submit attempt; the use case validator stays as backstop.
 		on<Evaluation.Action.ClickSubmitEvaluation> { state, _ ->
-			machine.submit(host = host, state = state)
-			state
+			val missingFields = state.missingRequiredFields
+
+			if (missingFields.isEmpty()) {
+				machine.submit(host = host, state = state)
+				state
+			} else {
+				state.copy(missingFields = missingFields)
+			}
 		}
 
 		on<EvaluationInternalEvent.SubmitStarted> { state, _ ->

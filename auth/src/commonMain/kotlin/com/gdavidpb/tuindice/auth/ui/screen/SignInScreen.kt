@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.auth.ui.view.SignInLoggingInView
 import org.jetbrains.compose.resources.stringResource
 import tuindice.auth.generated.resources.Res
 import tuindice.auth.generated.resources.background
+import tuindice.auth.generated.resources.button_cancel_sign_in
 import tuindice.auth.generated.resources.button_sign_in
 import tuindice.auth.generated.resources.hint_password
 import tuindice.auth.generated.resources.hint_usb_email
@@ -39,6 +40,7 @@ fun SignInScreen(
 	onIdentifierModeToggle: () -> Unit,
 	onUsageDataCollectionEnabledChange: (enabled: Boolean) -> Unit = {},
 	onSignInClick: () -> Unit,
+	onCancelSignInClick: () -> Unit = {},
 	onTermsAndConditionsClick: () -> Unit,
 	onPrivacyPolicyClick: () -> Unit
 ) {
@@ -88,7 +90,9 @@ fun SignInScreen(
 
 				is SignIn.State.LoggingIn ->
 					SignInLoggingInView(
-						state = targetState
+						state = targetState,
+						cancelText = stringResource(Res.string.button_cancel_sign_in),
+						onCancelClick = onCancelSignInClick
 					)
 			}
 		}

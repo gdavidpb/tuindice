@@ -100,19 +100,21 @@ class EnrollmentProofRouteUiTest {
 	}
 
 	@Test
-	fun when_fetchFailsWithNotFound_then_showsSnackBarAndDismissesSheet() = runTuIndiceUiTest {
+	fun when_fetchFailsWithNotFound_then_showsRetryableSnackBarAndDismissesSheet() = runTuIndiceUiTest {
 		val externalActions = RecordingFileOpenerRepository()
 		val viewModel = createEnrollmentProofViewModel(
 			throwable = EnrollmentProofNotFoundException()
 		)
 		var navigateCalls = 0
 		var dismissCalls = 0
+		var retryRequests = 0
 		val snackBarMessages = mutableListOf<SnackBarMessage>()
 
 		setTuIndiceTestContent {
 			EnrollmentProofRoute(
 				onNavigateToUpdatePassword = { navigateCalls++ },
 				onDismissRequest = { dismissCalls++ },
+				onRetryRequest = { retryRequests++ },
 				showSnackBar = { message -> snackBarMessages += message },
 				externalActions = externalActions,
 				viewModel = viewModel
@@ -127,6 +129,9 @@ class EnrollmentProofRouteUiTest {
 		assertEquals(1, dismissCalls)
 		assertEquals(1, snackBarMessages.size)
 		assertEquals("Comprobante no disponible", snackBarMessages.first().message)
+		assertEquals("Reintentar", snackBarMessages.first().actionLabel)
+		assertNotNull(snackBarMessages.first().onAction).invoke()
+		assertEquals(1, retryRequests)
 		assertEquals(null, externalActions.lastOpenedFile)
 	}
 
@@ -187,7 +192,7 @@ class EnrollmentProofRouteUiTest {
 		assertEquals(0, navigateCalls)
 		assertEquals(1, dismissCalls)
 		assertEquals(1, snackBarMessages.size)
-		assertEquals("Archivo no soportado ;(", snackBarMessages.first().message)
+		assertEquals("Instala un lector de PDF para ver tu comprobante", snackBarMessages.first().message)
 		assertEquals(null, externalActions.lastOpenedFile)
 	}
 
@@ -344,12 +349,12 @@ class EnrollmentProofRouteUiTest {
 		assertEquals(0, navigateCalls)
 		assertEquals(1, dismissCalls)
 		assertEquals(1, snackBarMessages.size)
-		assertEquals("¡Ha ocurrido un error!", snackBarMessages.first().message)
+		assertEquals("Ocurrió un error inesperado", snackBarMessages.first().message)
 		assertEquals(null, externalActions.lastOpenedFile)
 	}
 
 	@Test
-	fun when_fetchSucceedsButFileOpenerReturnsFalse_then_stillDismissesSheetWithoutSnackBarOrNavigation() = runTuIndiceUiTest {
+	fun when_fetchSucceedsButFileOpenerReturnsFalse_then_showsViewerMissingSnackBarAndDismissesSheet() = runTuIndiceUiTest {
 		val externalActions = RecordingFileOpenerRepository(openResult = false)
 		val viewModel = createEnrollmentProofViewModel()
 		var navigateCalls = 0
@@ -370,10 +375,16 @@ class EnrollmentProofRouteUiTest {
 			externalActions.lastOpenedFile != null
 		}
 
+		waitUntil(timeoutMillis = 2_000) {
+			snackBarMessages.isNotEmpty()
+		}
+
 		assertNotNull(externalActions.lastOpenedFile)
 		assertEquals(0, navigateCalls)
 		assertEquals(1, dismissCalls)
-		assertEquals(0, snackBarMessages.size)
+		assertEquals(1, snackBarMessages.size)
+		assertEquals("Instala un lector de PDF para ver tu comprobante", snackBarMessages.first().message)
+		assertEquals(null, snackBarMessages.first().actionLabel)
 	}
 
 	private fun createEnrollmentProofViewModel(): EnrollmentProofViewModel {

@@ -19,9 +19,13 @@ class GetEvaluationAndAvailableAttemptsUseCase(
 		val availableAttempts = evaluationRepository
 			.getAvailableAttempts()
 
+		val currentTerm = evaluationRepository
+			.getCurrentTerm()
+
 		val evaluationAndAvailableAttempts = EvaluationAndAvailableAttempts(
 			evaluation = evaluation,
-			availableAttempts = availableAttempts
+			availableAttempts = availableAttempts,
+			currentTerm = currentTerm
 		)
 
 		return flowOf(evaluationAndAvailableAttempts)

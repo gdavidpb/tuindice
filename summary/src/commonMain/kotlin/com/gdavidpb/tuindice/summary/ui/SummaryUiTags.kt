@@ -17,8 +17,11 @@ object SummaryUiTags {
 
 	const val ProfilePictureContainer = "summary_profile_picture_container"
 	const val ProfilePicturePlaceholderIcon = "summary_profile_picture_placeholder_icon"
+	const val ProfilePicturePreviewImage = "summary_profile_picture_preview_image"
+	const val ProfilePictureContinuityImage = "summary_profile_picture_continuity_image"
 	const val ProfilePictureEditButton = "summary_profile_picture_edit_button"
 	const val ProfilePictureLoadingIndicator = "summary_profile_picture_loading_indicator"
+	const val ProfilePictureRemoteLoadingIndicator = "summary_profile_picture_remote_loading_indicator"
 
 	const val ProfilePicturePickAction = "summary_profile_picture_pick_action"
 	const val ProfilePictureTakeAction = "summary_profile_picture_take_action"

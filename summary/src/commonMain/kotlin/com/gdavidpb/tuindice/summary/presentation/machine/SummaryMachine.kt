@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.presentation.machine
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
+import com.gdavidpb.tuindice.base.presentation.mapper.commonUnexpectedErrorMessage
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
@@ -20,9 +21,9 @@ import com.gdavidpb.tuindice.summary.presentation.transition.failedTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.idleTransitions
 import com.gdavidpb.tuindice.summary.presentation.transition.loadingTransitions
 import io.github.vinceglb.filekit.PlatformFile
+import io.github.vinceglb.filekit.path
 import org.jetbrains.compose.resources.getString
 import tuindice.summary.generated.resources.Res
-import tuindice.summary.generated.resources.snack_default_error
 import tuindice.summary.generated.resources.snack_profile_picture_removed
 import tuindice.summary.generated.resources.snack_profile_picture_updated
 
@@ -69,6 +70,7 @@ class SummaryMachine(
 										failedSubjects = failedSubjects,
 										failedCredits = failedCredits,
 										profilePictureUrl = pictureUrl,
+											profilePictureVersion = pictureVersion,
 										isProfilePictureLoading = false,
 										isUserRefreshing = false
 									)
@@ -79,7 +81,7 @@ class SummaryMachine(
 
 					is UseCaseState.Error -> host.processInternalEvent(
 						SummaryInternalEvent.ObservationFailed(
-							message = getString(Res.string.snack_default_error)
+							message = commonUnexpectedErrorMessage()
 						)
 					)
 				}
@@ -112,7 +114,9 @@ class SummaryMachine(
 			uploadProfilePictureUseCase.execute(params = file).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> host.processInternalEvent(
-						SummaryInternalEvent.ProfilePictureUploadStarted
+						SummaryInternalEvent.ProfilePictureUploadStarted(
+							previewPath = file.path
+						)
 					)
 
 					is UseCaseState.Data -> host.processInternalEvent(

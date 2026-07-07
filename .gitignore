@@ -17,6 +17,8 @@ xcuserdata/
 !/scripts/semgrep-architecture.sh
 !/scripts/validate-module-graph.sh
 !/scripts/verify-common-ui-test-density.sh
+/zz-probe-*.png
+/e2e/maestro/flows/**/zz-probe-*.yaml
 GoogleService-Info.plist
 /mocks/.build/
 /mocks/.runtime/

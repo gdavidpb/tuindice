@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.auth.ui.dialog
 
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.auth.presentation.contract.SignOut
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import tuindice.auth.generated.resources.Res
 import tuindice.auth.generated.resources.dialog_button_cancel
@@ -34,20 +35,23 @@ fun SignOutContentDialog(
 			stringResource(Res.string.dialog_message_sign_out)
 
 		is SignOut.State.Pending ->
-			stringResource(
-				Res.string.dialog_message_sign_out_pending,
+			pluralStringResource(
+				Res.plurals.dialog_message_sign_out_pending,
+				state.pendingChanges.totalCount,
 				state.pendingChanges.totalCount
 			)
 
 		is SignOut.State.FlushFailed ->
 			if (state.requiresPasswordUpdate) {
-				stringResource(
-					Res.string.dialog_message_sign_out_outdated_credentials,
+				pluralStringResource(
+					Res.plurals.dialog_message_sign_out_outdated_credentials,
+					state.pendingChanges.totalCount,
 					state.pendingChanges.totalCount
 				)
 			} else {
-				stringResource(
-					Res.string.dialog_message_sign_out_flush_failed,
+				pluralStringResource(
+					Res.plurals.dialog_message_sign_out_flush_failed,
+					state.pendingChanges.totalCount,
 					state.pendingChanges.totalCount
 				)
 			}
@@ -55,14 +59,16 @@ fun SignOutContentDialog(
 		is SignOut.State.LoggingOut ->
 			when {
 				state.requiresPasswordUpdate && pendingChanges != null ->
-					stringResource(
-						Res.string.dialog_message_sign_out_outdated_credentials,
+					pluralStringResource(
+						Res.plurals.dialog_message_sign_out_outdated_credentials,
+						pendingChanges.totalCount,
 						pendingChanges.totalCount
 					)
 
 				pendingChanges != null ->
-					stringResource(
-						Res.string.dialog_message_sign_out_pending,
+					pluralStringResource(
+						Res.plurals.dialog_message_sign_out_pending,
+						pendingChanges.totalCount,
 						pendingChanges.totalCount
 					)
 

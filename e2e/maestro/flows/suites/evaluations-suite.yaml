@@ -7,3 +7,4 @@ name: TuIndice evaluations E2E suite
 - runFlow: ../evaluations/evaluations-edit-submit.yaml
 - runFlow: ../evaluations/evaluations-swipe-delete.yaml
 - runFlow: ../evaluations/evaluations-add-submit.yaml
+- runFlow: ../evaluations/evaluations-add-validation.yaml

@@ -24,6 +24,7 @@ sealed interface RecordInternalEvent {
 	data object RecordRefreshStarted : RecordInternalEvent
 
 	data class RecordRefreshFailed(
+		val message: String,
 		val navigateToOutdatedCredentials: Boolean
 	) : RecordInternalEvent
 
@@ -32,6 +33,10 @@ sealed interface RecordInternalEvent {
 	) : RecordInternalEvent
 
 	data object RecordUnauthorized : RecordInternalEvent
+
+	data class AttemptSelectionFailed(
+		val message: String
+	) : RecordInternalEvent
 
 	data class SyntheticTermDeleted(
 		val message: String

@@ -14,6 +14,7 @@ import io.github.vinceglb.filekit.delete
 import io.github.vinceglb.filekit.exists
 import io.github.vinceglb.filekit.path
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.mapNotNull
@@ -26,7 +27,14 @@ class UserDataSource(
 	private val pictureEncoderDataSource: PictureEncoderDataRepository
 ) : UserRepository {
 	override suspend fun observeUserFlow(): Flow<User> {
-		return localDataSource.getUserFlow()
+		// The picture version rides along with the observed user so a re-upload that
+		// keeps the same URL still re-emits and rolls the image cache identity.
+		return combine(
+			localDataSource.getUserFlow(),
+			settingsDataSource.observeProfilePictureVersion()
+		) { localUser, pictureVersion ->
+			localUser?.copy(pictureVersion = pictureVersion)
+		}
 			.mapNotNull { localUser -> localUser }
 			.distinctUntilChanged()
 	}
@@ -76,5 +84,6 @@ class UserDataSource(
 		}
 
 		localDataSource.updateUser(user = currentUser.copy(pictureUrl = url))
+		settingsDataSource.bumpProfilePictureVersion()
 	}
 }

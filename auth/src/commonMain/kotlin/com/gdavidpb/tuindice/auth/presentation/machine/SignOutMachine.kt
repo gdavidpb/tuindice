@@ -12,12 +12,10 @@ import com.gdavidpb.tuindice.auth.presentation.transition.signOutPlainTransition
 import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
+import com.gdavidpb.tuindice.base.presentation.mapper.commonUnexpectedErrorMessage
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
-import org.jetbrains.compose.resources.getString
-import tuindice.auth.generated.resources.Res
-import tuindice.auth.generated.resources.snack_default_error
 
 class SignOutMachine(
 	private val confirmSignOutUseCase: ConfirmSignOutUseCase,
@@ -73,7 +71,7 @@ class SignOutMachine(
 								),
 								onError = {
 									SignOutInternalEvent.SignOutFailedToPlain(
-										message = getString(Res.string.snack_default_error)
+										message = commonUnexpectedErrorMessage()
 									)
 								}
 							)
@@ -81,7 +79,7 @@ class SignOutMachine(
 
 					is UseCaseState.Error -> host.processInternalEvent(
 						SignOutInternalEvent.SignOutFailedToPlain(
-							message = getString(Res.string.snack_default_error)
+							message = commonUnexpectedErrorMessage()
 						)
 					)
 				}
@@ -111,7 +109,7 @@ class SignOutMachine(
 								SignOutInternalEvent.FlushFailedObserved(
 									pendingChanges = pendingChanges,
 									requiresPasswordUpdate = false,
-									message = getString(Res.string.snack_default_error)
+									message = commonUnexpectedErrorMessage()
 								)
 							}
 						)
@@ -137,7 +135,7 @@ class SignOutMachine(
 						SignOutInternalEvent.FlushFailedObserved(
 							pendingChanges = pendingChanges,
 							requiresPasswordUpdate = false,
-							message = getString(Res.string.snack_default_error)
+							message = commonUnexpectedErrorMessage()
 						)
 					)
 				}
@@ -161,7 +159,7 @@ class SignOutMachine(
 					SignOutInternalEvent.FlushFailedObserved(
 						pendingChanges = pendingChanges,
 						requiresPasswordUpdate = requiresPasswordUpdate,
-						message = getString(Res.string.snack_default_error)
+						message = commonUnexpectedErrorMessage()
 					)
 				}
 			)

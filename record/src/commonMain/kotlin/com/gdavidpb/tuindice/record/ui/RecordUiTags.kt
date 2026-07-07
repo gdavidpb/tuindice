@@ -19,6 +19,7 @@ object RecordUiTags {
 	const val EditSyntheticTermButton = "record_edit_synthetic_term_button"
 	const val DeleteSyntheticTermButton = "record_delete_synthetic_term_button"
 	const val DeleteSyntheticTermMessage = "record_delete_synthetic_term_message"
+	const val DiscardSyntheticTermMessage = "record_discard_synthetic_term_message"
 	const val CreateSyntheticTermScreen = "record_create_synthetic_term_screen"
 	const val CreateSyntheticTermContentList = "record_create_synthetic_term_content_list"
 	const val CreateSyntheticTermPeriodSelector = "record_create_synthetic_term_period_selector"

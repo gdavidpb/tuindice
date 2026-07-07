@@ -45,6 +45,7 @@ class StartUpUseCase(
 		}
 
 		val startUpResult = runCatching {
+			val sessionResetNoticePending = settingsRepository.consumeSessionResetNoticePending()
 			val hasActiveTokens = sessionRepository.hasActiveSession()
 
 			val startTarget = if (hasActiveTokens)
@@ -53,10 +54,14 @@ class StartUpUseCase(
 				StartUpTarget.Auth
 
 			StartUpResult.Available(
-				startTarget = startTarget
+				startTarget = startTarget,
+				showSessionResetNotice = sessionResetNoticePending && !hasActiveTokens
 			)
 		}.onFailure {
 			applicationRepository.clearData()
+			// Written after clearData so the wipe cannot erase it: the next start
+			// lands on sign-in and must be able to explain why the session is gone.
+			settingsRepository.setSessionResetNoticePending()
 		}.getOrThrow()
 
 		return flowOf(startUpResult)

@@ -103,7 +103,7 @@ class PensumScreenUiTest {
 		assertNodeHidden(BaseUiTags.EmptyViewActionButton)
 		onNodeWithText("Pensum no disponible").assertExists()
 		onNodeWithText(
-			"No encontramos un pensum para esta carrera o modalidad. Prueba otra selección o inténtalo más tarde."
+			"No encontramos un pensum para esta carrera o modalidad. Intenta de nuevo más tarde."
 		).assertExists()
 	}
 

@@ -38,6 +38,8 @@ fun BrowserRoute(
 		state = viewState,
 		onPageStarted = viewModel::showLoadingAction,
 		onPageFinished = viewModel::hideLoadingAction,
+		onPageError = viewModel::pageLoadFailedAction,
+		onRetryClick = viewModel::retryAction,
 		onExternalResourceClick = viewModel::openExternalResourceAction,
 		renderer = renderer
 	)

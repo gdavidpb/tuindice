@@ -78,12 +78,25 @@ class MultiplatformSettingsDataSource(
 		)
 	}
 
+	override suspend fun setSessionResetNoticePending() {
+		settings.putBoolean(SESSION_RESET_NOTICE_PENDING_KEY, true)
+	}
+
+	override suspend fun consumeSessionResetNoticePending(): Boolean {
+		val pending = settings.getBooleanOrNull(SESSION_RESET_NOTICE_PENDING_KEY) == true
+
+		settings.remove(SESSION_RESET_NOTICE_PENDING_KEY)
+
+		return pending
+	}
+
 	override suspend fun clear() {
 		settings.clear()
 	}
 }
 
 private const val LAST_MAIN_SECTION_KEY = "lastDestination"
+private const val SESSION_RESET_NOTICE_PENDING_KEY = "sessionResetNoticePending"
 private const val OUTDATED_APP_MIN_VERSION_CODE_KEY = "outdatedAppMinVersionCode"
 private const val LEGACY_WIZARD_COMPLETED_KEY = "wizardCompleted"
 private const val LEGACY_GUIDED_TOUR_COMPLETED_KEY = "guidedTourCompleted"

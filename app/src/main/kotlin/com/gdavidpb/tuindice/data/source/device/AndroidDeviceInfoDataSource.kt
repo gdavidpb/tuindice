@@ -27,4 +27,8 @@ class AndroidDeviceInfoDataSource(
 	override fun hasCamera(): Boolean {
 		return context.packageManager.hasSystemFeature(PackageManager.FEATURE_CAMERA_ANY)
 	}
+
+	override fun osDescription(): String {
+		return "Android ${Build.VERSION.RELEASE} · ${Build.MANUFACTURER} ${Build.MODEL}"
+	}
 }

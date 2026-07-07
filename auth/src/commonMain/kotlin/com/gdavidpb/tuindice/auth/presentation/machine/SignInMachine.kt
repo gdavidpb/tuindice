@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
+import kotlinx.coroutines.Job
 import org.jetbrains.compose.resources.getString
 import tuindice.auth.generated.resources.Res
 import tuindice.auth.generated.resources.label_retry
@@ -27,6 +28,10 @@ class SignInMachine(
 	private val appEnvironmentRepository: AppEnvironmentRepository,
 	private val usageDataConsentRepository: UsageDataConsentRepository
 ) : ScreenMachine<SignIn.State, SignIn.Effect> {
+	// Held only to support the mid-flight cancel affordance; the table already
+	// rejects zombie results for every other exit.
+	private var signInJob: Job? = null
+
 	override fun initialState(): SignIn.State {
 		return SignIn.State.Idle(
 			usageDataCollectionEnabled = usageDataConsentRepository.isUsageDataCollectionEnabled()
@@ -51,7 +56,7 @@ class SignInMachine(
 			identifierMode = state.identifierMode
 		)
 
-		host.launchMachineJob {
+		signInJob = host.launchMachineJob {
 			signInUseCase.execute(params).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> Unit
@@ -81,13 +86,30 @@ class SignInMachine(
 		)
 	}
 
+	internal fun cancelSignIn(
+		state: SignIn.State.LoggingIn
+	): SignIn.State.Idle {
+		signInJob?.cancel()
+		signInJob = null
+
+		return SignIn.State.Idle(
+			usbId = state.usbId,
+			password = state.password,
+			identifierMode = state.identifierMode,
+			usageDataCollectionEnabled = state.usageDataCollectionEnabled
+		)
+	}
+
 	internal suspend fun failSignIn(
 		host: MachineHost<SignIn.Effect>,
 		state: SignIn.State.LoggingIn,
 		event: SignInInternalEvent.SignInFailed
 	): SignIn.State.Idle {
 		val error = event.error
-		val errorMessage = error.toErrorMessage(identifierMode = state.identifierMode)
+		val errorMessage = error.toErrorMessage(
+			identifierMode = state.identifierMode,
+			supportEmail = configRepository.getContactEmail()
+		)
 
 		when (error) {
 			is SignInUseCaseError.InvalidCredentials,

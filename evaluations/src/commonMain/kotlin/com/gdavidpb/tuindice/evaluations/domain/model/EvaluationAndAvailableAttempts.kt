@@ -4,5 +4,6 @@ import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 
 data class EvaluationAndAvailableAttempts(
 	val evaluation: Evaluation?,
-	val availableAttempts: List<EditableAttemptDescriptor>
+	val availableAttempts: List<EditableAttemptDescriptor>,
+	val currentTerm: EvaluationTermDescriptor? = null
 )

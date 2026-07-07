@@ -121,10 +121,18 @@ class FakeSettingsDataSource(
 ) : SettingsDataRepository {
 	var cooldownMarked = false
 
+	val profilePictureVersion = MutableStateFlow(0)
+
 	override suspend fun isGetUserOnCooldown(): Boolean = onCooldown
 
 	override suspend fun setGetUserOnCooldown() {
 		cooldownMarked = true
+	}
+
+	override fun observeProfilePictureVersion(): Flow<Int> = profilePictureVersion
+
+	override suspend fun bumpProfilePictureVersion() {
+		profilePictureVersion.value += 1
 	}
 }
 

@@ -27,11 +27,6 @@ fun UpdatePasswordRoute(
 				showSnackBar(SnackBarMessage(message = effect.message))
 				onPasswordUpdated()
 			}
-
-			is UpdatePassword.Effect.ShowSnackBar -> {
-				showSnackBar(SnackBarMessage(message = effect.message))
-				onDismissRequest()
-			}
 		}
 	}
 

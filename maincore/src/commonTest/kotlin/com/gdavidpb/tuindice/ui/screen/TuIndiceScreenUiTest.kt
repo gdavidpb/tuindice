@@ -107,6 +107,8 @@ class TuIndiceScreenUiTest {
 
 	@Test
 	fun when_stateIsAppUnavailable_then_displaysBlockingAvailabilityNotice() = runTuIndiceUiTest {
+		var retryCalls = 0
+
 		setTuIndiceTestContent {
 			val navController = rememberNavController()
 
@@ -124,7 +126,7 @@ class TuIndiceScreenUiTest {
 					isTopBarVisible = true,
 					isBottomBarVisible = true
 				),
-				onRetryStartUp = {},
+				onRetryStartUp = { retryCalls++ },
 				onUpdateAppClick = {},
 				navController = navController,
 				snackbarHostState = remember { SnackbarHostState() },
@@ -148,7 +150,9 @@ class TuIndiceScreenUiTest {
 		assertNodeHidden(MaincoreUiTags.TuIndiceNavHost)
 		assertNodeHidden(MaincoreUiTags.TuIndiceBottomBar)
 		assertNodeHidden(BaseUiTags.TopAppBarActionsContainer)
-		assertNodeHidden(BaseUiTags.ErrorViewRetryButton)
+		assertNodeVisible(MaincoreUiTags.AppAvailabilityNoticeRetryButton)
+		onNodeWithTag(MaincoreUiTags.AppAvailabilityNoticeRetryButton).performClick()
+		assertEquals(1, retryCalls)
 	}
 
 	@Test
@@ -685,6 +689,7 @@ class TuIndiceScreenUiTest {
 			modifier: Modifier,
 			onPageStarted: () -> Unit,
 			onPageFinished: () -> Unit,
+			onPageError: () -> Unit,
 			onExternalResourceClick: (url: String) -> Unit
 		) {
 			Text(text = "Browser: $url")

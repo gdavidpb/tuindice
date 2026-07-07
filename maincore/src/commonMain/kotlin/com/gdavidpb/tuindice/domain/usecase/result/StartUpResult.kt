@@ -6,7 +6,8 @@ import com.gdavidpb.tuindice.domain.model.StartUpTarget
 
 sealed interface StartUpResult {
 	data class Available(
-		val startTarget: StartUpTarget
+		val startTarget: StartUpTarget,
+		val showSessionResetNotice: Boolean = false
 	) : StartUpResult
 
 	data class AppUnavailable(

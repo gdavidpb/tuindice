@@ -10,7 +10,6 @@ class GradeSectionMappingTest {
 	@Test
 	fun updated_whenGradesAreKnown_formatsThemWithTwoDecimals() {
 		val updated = gradeSectionItem().updated(
-			isOverdue = false,
 			grade = 18.5,
 			maxGrade = 20.0
 		)
@@ -22,7 +21,6 @@ class GradeSectionMappingTest {
 	@Test
 	fun updated_whenGradesAreMissing_fallsBackToZero() {
 		val updated = gradeSectionItem().updated(
-			isOverdue = false,
 			grade = null,
 			maxGrade = null
 		)
@@ -31,10 +29,11 @@ class GradeSectionMappingTest {
 		assertEquals("0.00", updated.maxGradeText)
 	}
 
+	// The editor mirrors the list row rule: any evaluation with a usable max grade
+	// can take a grade, whether or not its date has passed.
 	@Test
-	fun updated_whenEvaluationIsOverdueWithPositiveMaxGrade_showsGradeChip() {
+	fun updated_whenMaxGradeIsUsable_showsGradeChip() {
 		val updated = gradeSectionItem().updated(
-			isOverdue = true,
 			grade = null,
 			maxGrade = 20.0
 		)
@@ -43,17 +42,15 @@ class GradeSectionMappingTest {
 	}
 
 	@Test
-	fun updated_whenEvaluationIsOverdueWithoutUsableMaxGrade_hidesGradeChip() {
+	fun updated_whenMaxGradeIsNotUsable_hidesGradeChip() {
 		assertFalse(
 			gradeSectionItem().updated(
-				isOverdue = true,
 				grade = null,
 				maxGrade = null
 			).showsGradeChip
 		)
 		assertFalse(
 			gradeSectionItem().updated(
-				isOverdue = true,
 				grade = null,
 				maxGrade = 0.0
 			).showsGradeChip
@@ -61,31 +58,18 @@ class GradeSectionMappingTest {
 	}
 
 	@Test
-	fun updated_whenEvaluationIsNotOverdue_hidesGradeChip() {
-		assertFalse(
-			gradeSectionItem().updated(
-				isOverdue = false,
-				grade = 10.0,
-				maxGrade = 20.0
-			).showsGradeChip
-		)
-	}
-
-	@Test
 	fun titleText_whenGradeChipVisibilityChanges_switchesBetweenTitles() {
-		val overdueItem = gradeSectionItem().updated(
-			isOverdue = true,
+		val gradableItem = gradeSectionItem().updated(
 			grade = null,
 			maxGrade = 20.0
 		)
-		val regularItem = gradeSectionItem().updated(
-			isOverdue = false,
+		val maxGradeOnlyItem = gradeSectionItem().updated(
 			grade = null,
-			maxGrade = 20.0
+			maxGrade = null
 		)
 
-		assertEquals(OVERDUE_TITLE, overdueItem.titleText)
-		assertEquals(MAX_GRADE_TITLE, regularItem.titleText)
+		assertEquals(OVERDUE_TITLE, gradableItem.titleText)
+		assertEquals(MAX_GRADE_TITLE, maxGradeOnlyItem.titleText)
 	}
 
 	private fun gradeSectionItem() = EvaluationGradeSectionItem(

@@ -31,8 +31,23 @@ internal fun MachineDefinitionBuilder<Summary.State>.contentTransitions(
 		}
 
 		on<SummaryInternalEvent.UserObserved> { state, event ->
+			// A changed URL or version means the pending picture mutation landed:
+			// only then the in-flight flag and the optimistic preview are released.
+			val hasNewProfilePicture =
+				event.content.profilePictureUrl != state.profilePictureUrl ||
+					event.content.profilePictureVersion != state.profilePictureVersion
+
 			event.content.copy(
-				isProfilePictureLoading = state.isProfilePictureLoading,
+				isProfilePictureLoading = if (hasNewProfilePicture) {
+					false
+				} else {
+					state.isProfilePictureLoading
+				},
+				profilePictureLocalPreview = if (hasNewProfilePicture) {
+					null
+				} else {
+					state.profilePictureLocalPreview
+				},
 				isUserRefreshing = state.isUserRefreshing
 			)
 		}
@@ -57,8 +72,11 @@ internal fun MachineDefinitionBuilder<Summary.State>.contentTransitions(
 			state.copy(isUserRefreshing = false)
 		}
 
-		on<SummaryInternalEvent.ProfilePictureUploadStarted> { state, _ ->
-			state.copy(isProfilePictureLoading = true)
+		on<SummaryInternalEvent.ProfilePictureUploadStarted> { state, event ->
+			state.copy(
+				isProfilePictureLoading = true,
+				profilePictureLocalPreview = event.previewPath
+			)
 		}
 
 		on<SummaryInternalEvent.ProfilePictureUploadSucceeded>(
@@ -66,7 +84,9 @@ internal fun MachineDefinitionBuilder<Summary.State>.contentTransitions(
 		) { state, event ->
 			host.sendEffect(Summary.Effect.ShowSnackBar(message = event.message))
 
-			state.copy(isProfilePictureLoading = false)
+			// The preview and the in-flight flag survive the upload ack on purpose;
+			// UserObserved releases them once the new picture identity is local.
+			state
 		}
 
 		on<SummaryInternalEvent.ProfilePictureRemovalStarted> { state, _ ->
@@ -80,6 +100,7 @@ internal fun MachineDefinitionBuilder<Summary.State>.contentTransitions(
 
 			state.copy(
 				profilePictureUrl = "",
+				profilePictureLocalPreview = null,
 				isProfilePictureLoading = false
 			)
 		}
@@ -91,6 +112,7 @@ internal fun MachineDefinitionBuilder<Summary.State>.contentTransitions(
 
 			state.copy(
 				profilePictureUrl = if (event.clearProfilePicture) "" else state.profilePictureUrl,
+				profilePictureLocalPreview = null,
 				isProfilePictureLoading = false
 			)
 		}

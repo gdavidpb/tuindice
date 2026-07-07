@@ -183,9 +183,13 @@ class RecordStateMachineContractTest {
 				RecordInternalEvent.RecordWaitingObserved,
 				RecordInternalEvent.RecordObservationFailed,
 				RecordInternalEvent.RecordRefreshStarted,
-				RecordInternalEvent.RecordRefreshFailed(navigateToOutdatedCredentials = false),
+				RecordInternalEvent.RecordRefreshFailed(
+					message = "Comprueba tu conexión",
+					navigateToOutdatedCredentials = false
+				),
 				RecordInternalEvent.RecordViewModeSet(viewMode = RecordViewMode.Projection),
 				RecordInternalEvent.RecordUnauthorized,
+				RecordInternalEvent.AttemptSelectionFailed(message = "Comprueba tu conexión"),
 				RecordInternalEvent.SyntheticTermDeleted(message = "Período eliminado"),
 				RecordInternalEvent.SyntheticTermDeleteFailed(
 					message = "No se pudo eliminar",

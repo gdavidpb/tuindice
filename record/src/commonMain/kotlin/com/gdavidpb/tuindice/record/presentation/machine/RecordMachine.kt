@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.record.domain.usecase.error.RecordUseCaseError
 import com.gdavidpb.tuindice.record.domain.usecase.param.SetSelectedTermParams
 import com.gdavidpb.tuindice.record.domain.usecase.param.UpsertAttemptSelectionParams
 import com.gdavidpb.tuindice.record.presentation.contract.Record
+import com.gdavidpb.tuindice.record.presentation.mapper.toRecordFailureMessage
 import com.gdavidpb.tuindice.record.presentation.transition.recordAnyStateTransitions
 import com.gdavidpb.tuindice.record.presentation.transition.recordContentTransitions
 import com.gdavidpb.tuindice.record.presentation.transition.recordEmptyTransitions
@@ -109,6 +110,7 @@ class RecordMachine(
 
 					is UseCaseState.Error -> host.processInternalEvent(
 						RecordInternalEvent.RecordRefreshFailed(
+							message = useCaseState.error.toRecordFailureMessage(),
 							navigateToOutdatedCredentials =
 								useCaseState.error == RecordUseCaseError.Unauthorized
 						)
@@ -151,6 +153,7 @@ class RecordMachine(
 						if (initialRefreshGate.shouldProcessError()) {
 							host.processInternalEvent(
 								RecordInternalEvent.RecordRefreshFailed(
+									message = useCaseState.error.toRecordFailureMessage(),
 									navigateToOutdatedCredentials =
 										useCaseState.error == RecordUseCaseError.Unauthorized
 								)
@@ -209,11 +212,18 @@ class RecordMachine(
 					commit = commit
 				)
 			).collect { useCaseState ->
-				if (
-					useCaseState is UseCaseState.Error &&
-					useCaseState.error == RecordUseCaseError.Unauthorized
-				) {
-					host.processInternalEvent(RecordInternalEvent.RecordUnauthorized)
+				if (useCaseState is UseCaseState.Error) {
+					when {
+						useCaseState.error == RecordUseCaseError.Unauthorized ->
+							host.processInternalEvent(RecordInternalEvent.RecordUnauthorized)
+
+						commit ->
+							host.processInternalEvent(
+								RecordInternalEvent.AttemptSelectionFailed(
+									message = useCaseState.error.toRecordFailureMessage()
+								)
+							)
+					}
 				}
 			}
 		}

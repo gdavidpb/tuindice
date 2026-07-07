@@ -28,11 +28,12 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import org.jetbrains.compose.resources.pluralStringResource
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.create_term_button
-import tuindice.record.generated.resources.edit_term_button
 import tuindice.record.generated.resources.create_term_selected_count
+import tuindice.record.generated.resources.edit_term_button
 
 @Composable
 fun CreateTermSubmitBar(
@@ -78,7 +79,11 @@ fun CreateTermSubmitBar(
 					modifier = Modifier
 						.weight(1f)
 						.widthIn(min = 148.dp),
-					text = stringResource(Res.string.create_term_selected_count, selectedCount),
+					text = pluralStringResource(
+					Res.plurals.create_term_selected_count,
+					selectedCount,
+					selectedCount
+				),
 					style = MaterialTheme.typography.bodyMedium,
 					color = MaterialTheme.colorScheme.onSurfaceVariant,
 					maxLines = 1,

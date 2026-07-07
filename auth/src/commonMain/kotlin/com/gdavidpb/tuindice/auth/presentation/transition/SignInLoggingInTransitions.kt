@@ -11,6 +11,10 @@ internal fun MachineDefinitionBuilder<SignIn.State>.loggingInTransitions(
 	host: MachineHost<SignIn.Effect>
 ) {
 	from<SignIn.State.LoggingIn> {
+		onTo<SignIn.Action.ClickCancelSignIn, SignIn.State.Idle> { state, _ ->
+			machine.cancelSignIn(state = state)
+		}
+
 		on<SignInInternalEvent.SignInSucceeded>(
 			emits = setOf(SignIn.Effect.NavigateToSummary::class)
 		) { state, _ ->

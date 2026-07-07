@@ -17,6 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.LiveRegionMode
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -40,7 +43,13 @@ fun CoachmarkBubble(
 	modifier: Modifier = Modifier
 ) {
 	Surface(
-		modifier = modifier.testTag(CoachmarkUiTags.Bubble),
+		modifier = modifier
+			.testTag(CoachmarkUiTags.Bubble)
+			// Announce each tip as it appears; the overlay never receives focus on
+			// its own, so without a live region TalkBack stays silent.
+			.semantics {
+				liveRegion = LiveRegionMode.Polite
+			},
 		shape = RoundedCornerShape(TuIndiceRadius.Medium),
 		color = MaterialTheme.colorScheme.surface,
 		tonalElevation = 4.dp,
@@ -62,7 +71,7 @@ fun CoachmarkBubble(
 					style = MaterialTheme.typography.titleMedium,
 					fontWeight = FontWeight.SemiBold,
 					color = MaterialTheme.colorScheme.onSurface,
-					maxLines = 1,
+					maxLines = 2,
 					overflow = TextOverflow.Ellipsis
 				)
 
@@ -70,7 +79,7 @@ fun CoachmarkBubble(
 					text = stringResource(coachmark.message),
 					style = MaterialTheme.typography.bodyMedium,
 					color = MaterialTheme.colorScheme.onSurfaceVariant,
-					maxLines = 4,
+					maxLines = 6,
 					overflow = TextOverflow.Ellipsis
 				)
 			}

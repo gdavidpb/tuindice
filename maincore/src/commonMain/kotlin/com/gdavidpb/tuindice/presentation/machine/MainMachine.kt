@@ -17,6 +17,9 @@ import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.mapper.toDestination
 import com.gdavidpb.tuindice.presentation.transition.mainAnyStateTransitions
 import kotlinx.coroutines.flow.collect
+import org.jetbrains.compose.resources.getString
+import tuindice.maincore.generated.resources.Res
+import tuindice.maincore.generated.resources.snack_session_reset_on_startup
 
 class MainMachine(
 	private val startUpUseCase: StartUpUseCase,
@@ -96,10 +99,15 @@ class MainMachine(
 		}
 	}
 
-	private fun StartUpResult.toStartUpEvent(): MainInternalEvent {
+	private suspend fun StartUpResult.toStartUpEvent(): MainInternalEvent {
 		return when (this) {
 			is StartUpResult.Available -> MainInternalEvent.StartUpCompleted(
-				startDestination = startTarget.toDestination()
+				startDestination = startTarget.toDestination(),
+				sessionResetMessage = if (showSessionResetNotice) {
+					getString(Res.string.snack_session_reset_on_startup)
+				} else {
+					null
+				}
 			)
 			is StartUpResult.AppUnavailable -> MainInternalEvent.AppUnavailableResolved(
 				notice = notice

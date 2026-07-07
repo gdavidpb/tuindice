@@ -130,6 +130,7 @@ class BrowserRouteUiTest {
 				modifier: Modifier,
 				onPageStarted: () -> Unit,
 				onPageFinished: () -> Unit,
+				onPageError: () -> Unit,
 				onExternalResourceClick: (url: String) -> Unit
 			) {
 				LaunchedEffect(url) {
@@ -182,6 +183,7 @@ class BrowserRouteUiTest {
 				modifier: Modifier,
 				onPageStarted: () -> Unit,
 				onPageFinished: () -> Unit,
+				onPageError: () -> Unit,
 				onExternalResourceClick: (url: String) -> Unit
 			) {
 				Button(onClick = onPageStarted) {
@@ -246,6 +248,7 @@ class BrowserRouteUiTest {
 				modifier: Modifier,
 				onPageStarted: () -> Unit,
 				onPageFinished: () -> Unit,
+				onPageError: () -> Unit,
 				onExternalResourceClick: (url: String) -> Unit
 			) {
 				LaunchedEffect(url) {
@@ -299,6 +302,7 @@ class BrowserRouteUiTest {
 				modifier: Modifier,
 				onPageStarted: () -> Unit,
 				onPageFinished: () -> Unit,
+				onPageError: () -> Unit,
 				onExternalResourceClick: (url: String) -> Unit
 			) {
 				Button(
@@ -355,6 +359,7 @@ class BrowserRouteUiTest {
 			modifier: Modifier,
 			onPageStarted: () -> Unit,
 			onPageFinished: () -> Unit,
+			onPageError: () -> Unit,
 			onExternalResourceClick: (url: String) -> Unit
 		) {
 			Text(text = "Browser route: $url")

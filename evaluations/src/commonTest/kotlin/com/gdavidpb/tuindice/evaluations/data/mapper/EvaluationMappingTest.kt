@@ -187,6 +187,23 @@ class EvaluationMappingTest {
 	}
 
 	@Test
+	fun toEvaluation_whenDateIsToday_isNotOverdue() {
+		val today = currentTimeMillis()
+
+		val pendingToday = DEFAULT_LOCAL_PENDING_EVALUATION.copy(
+			grade = null,
+			date = today
+		).toEvaluation()
+		val completedToday = DEFAULT_LOCAL_PENDING_EVALUATION.copy(
+			grade = 18.0,
+			date = today
+		).toEvaluation()
+
+		assertEquals(EvaluationState.PENDING, pendingToday.state)
+		assertEquals(EvaluationState.COMPLETED, completedToday.state)
+	}
+
+	@Test
 	fun toEvaluation_whenScheduleModeIsContinuous_mapsToContinuousState() {
 		val evaluation = DEFAULT_LOCAL_PENDING_EVALUATION.copy(
 			scheduleMode = EvaluationScheduleMode.CONTINUOUS,

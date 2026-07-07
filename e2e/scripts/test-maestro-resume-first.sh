@@ -60,7 +60,7 @@ printf '%s\n' "${target_name}" >>"${ORDER_FILE}"
 printf 'fake maestro ran %s\n' "${target_name}"
 
 status=0
-if [[ -n "${FAIL_TARGET:-}" && "${target_name}" == "${FAIL_TARGET}" ]]; then
+if [[ -n "${FAIL_TARGET:-}" ]] && [[ ",${FAIL_TARGET}," == *",${target_name},"* ]]; then
 	status=7
 fi
 reported_status="${status}"
@@ -222,5 +222,96 @@ assert_equals \
 	"flow-1.yaml,flow-2.yaml,flow-3.yaml,flow-4.yaml,flow-5.yaml,flow-6.yaml" \
 	"$(order_csv "${ORDER_FOUR}")" \
 	"missing checkpoint target should restart from the first case"
+
+MIXED_FILE="${SUITE_ROOT}/mixed.yaml"
+cat >"${MIXED_FILE}" <<'MIXED'
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: flows/flow-1.yaml
+- runFlow: flows/flow-2.yaml
+- tapOn:
+    id: some_inline_command
+MIXED
+
+run_fake_mixed() {
+	local order_file="$1"
+	local status
+
+	: >"${order_file}"
+	export ORDER_FILE="${order_file}"
+	export FAIL_TARGET=""
+	export NONZERO_AFTER_PASS_TARGET=""
+	export HANG_AFTER_PASS_TARGET=""
+	set +e
+	run_maestro_suite_resume_first \
+		"Test" \
+		"${E2E_REPORT_DIR}/maestro-mixed.log" \
+		"${MIXED_FILE}" \
+		"${E2E_REPORT_DIR}/output-mixed" \
+		"${E2E_REPORT_DIR}/debug-mixed" \
+		"${E2E_REPORT_DIR}/junit-mixed.xml" \
+		"${TEST_ROOT}/maestro-home"
+	status="$?"
+	set -e
+	return "${status}"
+}
+
+ORDER_MIXED="${TEST_ROOT}/order-mixed.txt"
+run_fake_mixed "${ORDER_MIXED}"
+assert_equals \
+	"flow-2.yaml" \
+	"$(order_csv "${ORDER_MIXED}")" \
+	"mixed runFlow refs + inline commands must run as one single flow, never expand into ref-only cases"
+
+ORDER_SURVEY="${TEST_ROOT}/order-survey.txt"
+export E2E_MAESTRO_SURVEY_MODE=1
+if run_fake_suite "flow-2.yaml,flow-5.yaml" "${ORDER_SURVEY}"; then
+	printf 'Expected survey run to exit nonzero when cases fail.\n' >&2
+	exit 1
+fi
+unset E2E_MAESTRO_SURVEY_MODE
+assert_equals \
+	"flow-1.yaml,flow-2.yaml,flow-3.yaml,flow-4.yaml,flow-5.yaml,flow-6.yaml" \
+	"$(order_csv "${ORDER_SURVEY}")" \
+	"survey mode must keep executing every case despite failures"
+assert_equals "flows/flow-2.yaml" "$(cat "${checkpoint_file}")" "survey checkpoint should store the first failing target"
+
+ORDER_SURVEY_HANDOFF="${TEST_ROOT}/order-survey-handoff.txt"
+run_fake_suite "" "${ORDER_SURVEY_HANDOFF}"
+assert_equals \
+	"flow-2.yaml,flow-3.yaml,flow-4.yaml,flow-5.yaml,flow-6.yaml,flow-1.yaml" \
+	"$(order_csv "${ORDER_SURVEY_HANDOFF}")" \
+	"normal run after a survey should rotate from the first surveyed failure"
+if [[ -e "${checkpoint_file}" ]]; then
+	printf 'Expected checkpoint to be cleared after the post-survey passing run.\n' >&2
+	exit 1
+fi
+
+ORDER_SURVEY_RETRIES="${TEST_ROOT}/order-survey-retries.txt"
+: >"${ORDER_SURVEY_RETRIES}"
+export ORDER_FILE="${ORDER_SURVEY_RETRIES}"
+export FAIL_TARGET="flow-3.yaml"
+export NONZERO_AFTER_PASS_TARGET=""
+export HANG_AFTER_PASS_TARGET=""
+export E2E_MAESTRO_SURVEY_MODE=1
+wrapper_status=0
+run_maestro_suite_with_retries \
+	"Test" \
+	"${E2E_REPORT_DIR}/maestro-survey.log" \
+	"${SUITE_FILE}" \
+	"${E2E_REPORT_DIR}/output-survey" \
+	"${E2E_REPORT_DIR}/debug-survey" \
+	"${E2E_REPORT_DIR}/junit-survey.xml" \
+	"${TEST_ROOT}/maestro-home" || wrapper_status="$?"
+unset E2E_MAESTRO_SURVEY_MODE
+if [[ "${wrapper_status}" == "0" ]]; then
+	printf 'Expected survey wrapper run to exit nonzero.\n' >&2
+	exit 1
+fi
+assert_equals \
+	"flow-1.yaml,flow-2.yaml,flow-3.yaml,flow-4.yaml,flow-5.yaml,flow-6.yaml" \
+	"$(order_csv "${ORDER_SURVEY_RETRIES}")" \
+	"survey mode must disable suite retries: exactly one pass over the cases"
+assert_equals "flows/flow-3.yaml" "$(cat "${checkpoint_file}")" "survey wrapper should leave the checkpoint at the failing target"
 
 printf 'Maestro resume-first tests passed.\n'

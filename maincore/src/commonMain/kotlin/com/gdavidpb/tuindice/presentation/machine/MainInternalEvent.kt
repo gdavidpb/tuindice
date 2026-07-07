@@ -13,7 +13,8 @@ sealed interface MainInternalEvent {
 	data object StartUpStarting : MainInternalEvent
 
 	data class StartUpCompleted(
-		val startDestination: Destination
+		val startDestination: Destination,
+		val sessionResetMessage: String? = null
 	) : MainInternalEvent
 
 	data class AppUnavailableResolved(
