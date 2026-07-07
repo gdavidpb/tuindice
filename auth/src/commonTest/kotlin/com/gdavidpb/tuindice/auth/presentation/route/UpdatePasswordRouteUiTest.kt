@@ -5,8 +5,6 @@ import androidx.compose.ui.test.onNodeWithContentDescription
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performTextInput
-import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
-import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.usecase.UpdatePasswordUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
@@ -17,12 +15,14 @@ import com.gdavidpb.tuindice.auth.presentation.viewmodel.UpdatePasswordViewModel
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
+import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
