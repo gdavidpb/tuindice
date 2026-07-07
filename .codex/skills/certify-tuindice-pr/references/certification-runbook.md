@@ -155,6 +155,16 @@ Diagnosis doctrine, in order:
    e2e/scripts/diagnose-suite.sh e2e/maestro/flows/suites/<suite>.yaml [--survey]
    ```
 
+4. **Reproduce iOS Compose UI-test failures at full-module granularity before
+   investigating.** The first test in a fresh `iosSimulatorArm64Test` process
+   pays a cold-start tax, so a narrow `--tests` filter changes which test goes
+   first and can manufacture `ComposeTimeoutException` failures that do not
+   exist in the unfiltered module run — the granularity CI and preflight
+   parity use. Confirm with `./gradlew :module:iosSimulatorArm64Test
+   --max-workers=1` (no `--tests` filter): a test that only fails under a
+   filter is a phantom, not a regression, and diagnosing it wastes the
+   isolation rounds it appears to justify.
+
 Module flows that open with shared runFlow refs run as a single flow when
 targeted directly; only pure runFlow-list suites expand into per-case
 execution, so a diagnosis run always exercises the flow's inline commands.

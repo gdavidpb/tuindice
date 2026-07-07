@@ -81,7 +81,11 @@ pass instead of stopping at the first. When a tap/assert fails against an
 element the hierarchy claims visible, run `e2e/scripts/make-probe.sh <flow>`
 and read the per-step screenshots before hypothesizing. Verify flow fixes on
 both platforms with `e2e/scripts/diagnose-suite.sh <suite> [--survey]` before
-committing them. See the runbook's Diagnosis Runs doctrine for details.
+committing them. For iOS Compose UI-test failures, reproduce at full-module
+granularity (`:module:iosSimulatorArm64Test` without `--tests`) before
+investigating: narrow filters shift the process cold-start onto a different
+test and manufacture phantom ComposeTimeoutExceptions. See the runbook's
+Diagnosis Runs doctrine for details.
 
 4. Fix product code or E2E fixtures/tests when the failure is real. For local environment failures, clean the affected simulator/device/WireMock/port state and rerun without unrelated code changes.
 5. When every known failure is fixed, commit the batch, push it, and verify `HEAD == @{u}`.
