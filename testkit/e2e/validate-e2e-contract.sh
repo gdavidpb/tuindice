@@ -752,6 +752,30 @@ check_protected_mappings_require_bearer() {
 
 check_protected_mappings_require_bearer
 
+# Mappings whose delay a flow depends on (cancel windows, reveal timers) must
+# pin the value the fast profile keeps; without the marker the fast profile
+# collapses the delay to 250ms and the dependent flow breaks only at runtime.
+check_semantic_delays_declare_fast_profile() {
+	local semantic_delay_issues=0
+
+	while IFS= read -r mapping_path; do
+		if jq -e '
+			(.metadata.fastDelayMilliseconds? // null) as $fast |
+			(((.response.fixedDelayMilliseconds? // 0) >= 5000) and $fast == null) or
+				($fast != null and (($fast | type) != "number"))
+		' "${mapping_path}" >/dev/null; then
+			printf 'Mapping with a semantic delay (>=5000ms) must declare numeric metadata.fastDelayMilliseconds: %s\n' "${mapping_path#"${REPO_ROOT}/"}" >&2
+			semantic_delay_issues=1
+		fi
+	done < <(find "${REPO_ROOT}/mocks/mappings" -name '*.json' -type f | sort)
+
+	if [[ "${semantic_delay_issues}" -ne 0 ]]; then
+		fixture_contract_mismatches=1
+	fi
+}
+
+check_semantic_delays_declare_fast_profile
+
 check_flow_types_value \
 	"${FLOWS_ROOT}/summary/summary-refresh-retry.yaml" \
 	"${E2E_SUMMARY_REFRESH_RETRY_PASSWORD}" \

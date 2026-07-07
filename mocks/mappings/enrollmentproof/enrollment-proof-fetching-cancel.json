@@ -24,5 +24,8 @@
       "content": "JVBERi0xLjEKMSAwIG9iajw8L1R5cGUvQ2F0YWxvZy9QYWdlcyAyIDAgUj4+ZW5kb2JqCjIgMCBvYmo8PC9UeXBlL1BhZ2VzL0NvdW50IDA+PmVuZG9iagp0cmFpbGVyPDwvUm9vdCAxIDAgUj4+CiUlRU9GCg=="
     },
     "fixedDelayMilliseconds": 30000
+  },
+  "metadata": {
+    "fastDelayMilliseconds": 30000
   }
 }

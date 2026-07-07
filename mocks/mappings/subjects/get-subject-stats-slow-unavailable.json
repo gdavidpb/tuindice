@@ -15,5 +15,8 @@
     },
     "bodyFileName": "subjects/get-subject-stats-slow-unavailable.json",
     "fixedDelayMilliseconds": 10000
+  },
+  "metadata": {
+    "fastDelayMilliseconds": 2000
   }
 }

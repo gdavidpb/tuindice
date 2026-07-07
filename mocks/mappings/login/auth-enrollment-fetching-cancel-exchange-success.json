@@ -29,5 +29,8 @@
       "expires_in": 3600
     },
     "fixedDelayMilliseconds": 1000
+  },
+  "metadata": {
+    "fastDelayMilliseconds": 2000
   }
 }

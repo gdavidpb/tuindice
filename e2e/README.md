@@ -103,9 +103,13 @@ the current SHA instead of requiring a full local E2E rerun.
 
 The suite uses the WireMock runtime under `mocks/` and does not install external tools.
 E2E runners start WireMock with `E2E_WIREMOCK_DELAY_PROFILE=fast` by default,
-which rewrites generated runtime mappings to keep normal responses short and
-slow/loading fixtures bounded. Set `E2E_WIREMOCK_DELAY_PROFILE=legacy` to keep
-the checked-in fixture delays unchanged for debugging.
+which rewrites every generated runtime mapping's `fixedDelayMilliseconds` to
+250ms unless the mapping pins its own value in `metadata.fastDelayMilliseconds`
+(see `mocks/scripts/apply-fast-delay-profile.sh`). A mapping whose flow depends
+on the delay — cancel windows, reveal timers — must declare that marker;
+`verifyE2eContract` fails any mapping with a legacy delay of 5s or more that
+lacks it. Set `E2E_WIREMOCK_DELAY_PROFILE=legacy` to keep the checked-in
+fixture delays unchanged for debugging.
 Platform runners stop their owned WireMock process on success, failure, or
 interruption so the default `8080` port is not left occupied after local E2E.
 Platform runners isolate Maestro CLI runtime logs under `E2E_TMP_DIR` by
