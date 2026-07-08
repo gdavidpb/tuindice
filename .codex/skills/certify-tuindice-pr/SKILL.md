@@ -54,6 +54,7 @@ Skip this step entirely when every required suite is `current` or `reusable`.
 10. Verify the PR head SHA matches the certified SHA.
 11. Stop the local test devices left running by evidence: `e2e/scripts/stop-devices.sh android ios`.
 12. Deliver in the session (never in the PR body) a Spanish store-copy proposal derived from the certified diff against `production`: **Promotional Text** (170 characters max) and **What's New in This Version** (4000 characters max). Both in end-user language describing external functionality only — no tests, CI, harness, refactors, or other internals. If the diff has no user-visible changes, say so and propose keeping the current store texts. See the runbook's Post-PR Wrap-up for the full rules.
+13. Close with a self meta-analysis of this certification run: recommend — do not implement — concrete improvements to this skill's own scripts, runbook, or `SKILL.md`, grounded in what actually happened during the fix loop rather than generic advice. Present it as text in the session; this step must not edit skill files, commit, branch, or spawn a task to implement its own suggestions. See the runbook's Post-Certification Meta-Analysis for the full rules.
 
 ## Product Integrity Gate
 

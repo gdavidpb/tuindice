@@ -305,3 +305,34 @@ Rules for both texts:
   would actually notice.
 - When the diff contains no user-visible changes, say so explicitly and
   propose keeping the store's current texts instead of inventing content.
+
+## Post-Certification Meta-Analysis
+
+After the store-copy proposal, close the session with a short retrospective
+on this specific certification run — not a generic checklist. **Recommend
+only**: this step must never edit skill files, commit, open a branch, or
+spawn a task to implement its own suggestions. Acting on a recommendation is
+separate, deliberate work the user starts explicitly in a later session.
+
+Ground every recommendation in something that actually happened during this
+run:
+
+- A failure that took more than one diagnosis round to root-cause, and what
+  would have caught it sooner (a lint, a doctrine rule, a script).
+- A false lead chased before the real cause surfaced (e.g., isolating too
+  narrowly, misreading a log) — and what signal, surfaced earlier, would have
+  prevented it.
+- A step in this runbook, or a script's guardrail, that was missing,
+  ambiguous, or contradicted what actually happened.
+- A manual step a script could have automated, if the pattern is likely to
+  recur — not a one-off.
+
+Skip filler. If nothing meaningful surfaced this run, say so plainly instead
+of padding the list with generic advice ("add more tests", "improve
+documentation"). A recommendation with no concrete moment behind it does not
+belong here.
+
+Format: a short prioritized list, each item naming the concrete trigger from
+this run and the specific change proposed (file, script, or doctrine point).
+Do not restate points already closed by a prior certification's
+meta-analysis unless this run surfaced a gap in that fix.
