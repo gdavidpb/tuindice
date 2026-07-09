@@ -155,6 +155,16 @@ Diagnosis doctrine, in order:
    e2e/scripts/diagnose-suite.sh e2e/maestro/flows/suites/<suite>.yaml [--survey]
    ```
 
+4. **Reproduce iOS Compose UI-test failures at full-module granularity before
+   investigating.** The first test in a fresh `iosSimulatorArm64Test` process
+   pays a cold-start tax, so a narrow `--tests` filter changes which test goes
+   first and can manufacture `ComposeTimeoutException` failures that do not
+   exist in the unfiltered module run — the granularity CI and preflight
+   parity use. Confirm with `./gradlew :module:iosSimulatorArm64Test
+   --max-workers=1` (no `--tests` filter): a test that only fails under a
+   filter is a phantom, not a regression, and diagnosing it wastes the
+   isolation rounds it appears to justify.
+
 Module flows that open with shared runFlow refs run as a single flow when
 targeted directly; only pure runFlow-list suites expand into per-case
 execution, so a diagnosis run always exercises the flow's inline commands.
@@ -264,3 +274,65 @@ After creation or update, verify:
 - PR head branch is the current branch.
 - PR is not draft.
 - PR head SHA equals the certified SHA.
+
+## Post-PR Wrap-up
+
+Once the PR exists and its head SHA is verified:
+
+1. Stop the local test devices — evidence runs leave an Android emulator and
+   an iOS simulator running:
+
+```bash
+e2e/scripts/stop-devices.sh android ios
+```
+
+2. Deliver a store-copy proposal in the session (never inside the PR body),
+   written in Spanish and derived from the certified diff against
+   `production`:
+
+- **Promotional Text** — 170 characters max.
+- **What's New in This Version** — 4000 characters max.
+
+Rules for both texts:
+
+- End-user language in the app's voice: describe what the user can now do or
+  what annoyance went away.
+- External functionality only. Never mention tests, CI, harness, E2E,
+  refactors, state machines, dependencies, or any internal detail invisible
+  to the user.
+- Source the content from the user-visible changes in
+  `git diff production..HEAD` — new screens, flows, copy, and fixes a user
+  would actually notice.
+- When the diff contains no user-visible changes, say so explicitly and
+  propose keeping the store's current texts instead of inventing content.
+
+## Post-Certification Meta-Analysis
+
+After the store-copy proposal, close the session with a short retrospective
+on this specific certification run — not a generic checklist. **Recommend
+only**: this step must never edit skill files, commit, open a branch, or
+spawn a task to implement its own suggestions. Acting on a recommendation is
+separate, deliberate work the user starts explicitly in a later session.
+
+Ground every recommendation in something that actually happened during this
+run:
+
+- A failure that took more than one diagnosis round to root-cause, and what
+  would have caught it sooner (a lint, a doctrine rule, a script).
+- A false lead chased before the real cause surfaced (e.g., isolating too
+  narrowly, misreading a log) — and what signal, surfaced earlier, would have
+  prevented it.
+- A step in this runbook, or a script's guardrail, that was missing,
+  ambiguous, or contradicted what actually happened.
+- A manual step a script could have automated, if the pattern is likely to
+  recur — not a one-off.
+
+Skip filler. If nothing meaningful surfaced this run, say so plainly instead
+of padding the list with generic advice ("add more tests", "improve
+documentation"). A recommendation with no concrete moment behind it does not
+belong here.
+
+Format: a short prioritized list, each item naming the concrete trigger from
+this run and the specific change proposed (file, script, or doctrine point).
+Do not restate points already closed by a prior certification's
+meta-analysis unless this run surfaced a gap in that fix.

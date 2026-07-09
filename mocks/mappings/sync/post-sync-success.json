@@ -17,5 +17,8 @@
     },
     "bodyFileName": "sync/post-sync-success.json",
     "fixedDelayMilliseconds": 6000
+  },
+  "metadata": {
+    "fastDelayMilliseconds": 250
   }
 }

@@ -87,6 +87,13 @@ HEAD_SHA="${TARGET_GIT_SHA:-$(git rev-parse HEAD)}"
 BEFORE_SHA="${BASE_SHA:-$(resolve_merge_base "$HEAD_SHA" || true)}"
 [[ -n "$BEFORE_SHA" ]] || die "Unable to resolve merge-base with production."
 
+# validate-app-version.sh only runs its tag-conflict branch when
+# TARGET_GIT_SHA/GITHUB_SHA is set (CI always sets it; a plain local shell
+# never does), so without this export the SKIP_APP_VERSION_TAG_CONFLICT_CHECK=0
+# intent below is a no-op and an already-released versionName passes parity
+# while failing CI — exactly how PR #47's Shared preflight failed.
+export TARGET_GIT_SHA="$HEAD_SHA"
+
 STATE_DIR="$(mktemp -d "${RUNNER_TEMP:-/tmp}/tuindice-preflight-parity.XXXXXX")"
 GITHUB_OUTPUT_FILE="${STATE_DIR}/detect-output.env"
 

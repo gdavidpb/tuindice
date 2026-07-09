@@ -44,6 +44,7 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.a11y_attempt_grade_slider
 import tuindice.record.generated.resources.attempt_approved
+import tuindice.record.generated.resources.attempt_equivalence
 import tuindice.record.generated.resources.attempt_failed
 import tuindice.record.generated.resources.attempt_retired
 import tuindice.record.generated.resources.attempt_status_selector_placeholder
@@ -70,6 +71,7 @@ fun AttemptItemView(
 	val retiredLabel = stringResource(Res.string.attempt_retired)
 	val unreportedLabel = stringResource(Res.string.attempt_unreported)
 	val withoutEffectLabel = stringResource(Res.string.attempt_without_effect)
+	val equivalenceLabel = stringResource(Res.string.attempt_equivalence)
 	val selectorPlaceholderLabel = stringResource(Res.string.attempt_status_selector_placeholder)
 	val qualitativeOptions = listOf(
 		QualitativeStatusDropdownItem(
@@ -90,6 +92,7 @@ fun AttemptItemView(
 	}
 	val qualitativeMetadataText = when (display.badge) {
 		AttemptItemBadge.WITHOUT_EFFECT -> withoutEffectLabel
+		AttemptItemBadge.EQUIVALENCE -> equivalenceLabel
 		else -> null
 	}
 	val headerVerticalAlignment = if (!item.isReadOnly && isQualitative) {
@@ -214,6 +217,15 @@ fun AttemptItemView(
 									)
 								}
 							}
+						}
+
+						AttemptItemBadge.EQUIVALENCE -> {
+							AttemptStatusChip(
+								modifier = Modifier
+									.padding(start = 8.dp)
+									.testTag(RecordUiTags.attemptStatusChip(item.attemptId)),
+								text = equivalenceLabel
+							)
 						}
 
 						null -> {

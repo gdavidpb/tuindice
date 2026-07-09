@@ -52,6 +52,9 @@ Skip this step entirely when every required suite is `current` or `reusable`.
 8. After the final push, rerun the audit helper and confirm every required platform/suite is `current` or `reusable` for the final remote SHA.
 9. Open or update a non-draft PR against `production` with a title that does not mention Codex.
 10. Verify the PR head SHA matches the certified SHA.
+11. Stop the local test devices left running by evidence: `e2e/scripts/stop-devices.sh android ios`.
+12. Deliver in the session (never in the PR body) a Spanish store-copy proposal derived from the certified diff against `production`: **Promotional Text** (170 characters max) and **What's New in This Version** (4000 characters max). Both in end-user language describing external functionality only — no tests, CI, harness, refactors, or other internals. If the diff has no user-visible changes, say so and propose keeping the current store texts. See the runbook's Post-PR Wrap-up for the full rules.
+13. Close with a self meta-analysis of this certification run: recommend — do not implement — concrete improvements to this skill's own scripts, runbook, or `SKILL.md`, grounded in what actually happened during the fix loop rather than generic advice. Present it as text in the session; this step must not edit skill files, commit, branch, or spawn a task to implement its own suggestions. See the runbook's Post-Certification Meta-Analysis for the full rules.
 
 ## Product Integrity Gate
 
@@ -81,7 +84,11 @@ pass instead of stopping at the first. When a tap/assert fails against an
 element the hierarchy claims visible, run `e2e/scripts/make-probe.sh <flow>`
 and read the per-step screenshots before hypothesizing. Verify flow fixes on
 both platforms with `e2e/scripts/diagnose-suite.sh <suite> [--survey]` before
-committing them. See the runbook's Diagnosis Runs doctrine for details.
+committing them. For iOS Compose UI-test failures, reproduce at full-module
+granularity (`:module:iosSimulatorArm64Test` without `--tests`) before
+investigating: narrow filters shift the process cold-start onto a different
+test and manufacture phantom ComposeTimeoutExceptions. See the runbook's
+Diagnosis Runs doctrine for details.
 
 4. Fix product code or E2E fixtures/tests when the failure is real. For local environment failures, clean the affected simulator/device/WireMock/port state and rerun without unrelated code changes.
 5. When every known failure is fixed, commit the batch, push it, and verify `HEAD == @{u}`.

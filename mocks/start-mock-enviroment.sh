@@ -56,42 +56,11 @@ cp -R "${script_dir}/config" "${runtime_dir}/config"
 cp -R "${script_dir}/config" "${runtime_dir}/__files/config"
 cp -R "${script_dir}/mappings" "${runtime_dir}/mappings"
 
-apply_fast_delay_profile() {
-	if ! command -v jq >/dev/null 2>&1; then
-		echo "Missing jq: required when WIREMOCK_DELAY_PROFILE=fast." >&2
-		exit 1
-	fi
-
-	while IFS= read -r mapping_file; do
-		[ -n "${mapping_file}" ] || continue
-		if ! jq -e '.response.fixedDelayMilliseconds? != null' "${mapping_file}" >/dev/null; then
-			continue
-		fi
-
-		delay_ms=250
-		case "${mapping_file}" in
-			*enrollment-proof-fetching-cancel.json|*auth-login-cancel-bootstrap-delayed.json)
-				delay_ms=30000
-				;;
-			*enrollment-proof-success.json)
-				delay_ms=15000
-				;;
-			*slow*|*fetching*|*auth-update-password-reissue-success.json)
-				delay_ms=2000
-				;;
-		esac
-
-		tmp_file="${mapping_file}.tmp"
-		jq --argjson delay "${delay_ms}" \
-			'.response.fixedDelayMilliseconds = $delay' \
-			"${mapping_file}" >"${tmp_file}"
-		mv "${tmp_file}" "${mapping_file}"
-	done < <(find "${runtime_dir}/mappings" -name '*.json' -type f | sort)
-}
-
+# The fast profile's per-mapping delays live in each mapping's
+# metadata.fastDelayMilliseconds (see scripts/apply-fast-delay-profile.sh).
 case "${delay_profile}" in
 	fast)
-		apply_fast_delay_profile
+		"${script_dir}/scripts/apply-fast-delay-profile.sh" "${runtime_dir}/mappings"
 		;;
 	legacy)
 		;;

@@ -9,5 +9,8 @@ enum class AttemptBadge {
 	NONE,
 
 	@SerialName("without_effect")
-	WITHOUT_EFFECT
+	WITHOUT_EFFECT,
+
+	@SerialName("equivalence")
+	EQUIVALENCE
 }

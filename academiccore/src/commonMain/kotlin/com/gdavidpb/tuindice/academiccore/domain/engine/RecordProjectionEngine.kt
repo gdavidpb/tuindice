@@ -93,9 +93,8 @@ object RecordProjectionEngine {
 
 			val attemptProjections = termState.attempts.map { attempt ->
 				val badge = when {
-					attempt.badge == AttemptBadge.WITHOUT_EFFECT -> AttemptBadge.WITHOUT_EFFECT
 					includeProjectionBehavior && attempt.attempt.id in excludedAttemptIds -> AttemptBadge.WITHOUT_EFFECT
-					else -> AttemptBadge.NONE
+					else -> attempt.badge
 				}
 
 				AttemptProjection(

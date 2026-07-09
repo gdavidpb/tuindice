@@ -43,6 +43,7 @@
     <string name="attempt_failed">Reprobada</string>
 	<string name="attempt_retired">Retirada</string>
 	<string name="attempt_without_effect">Sin efecto</string>
+	<string name="attempt_equivalence">Aprobada por equivalencia</string>
 	<string name="attempt_status_selector_placeholder">Seleccionar</string>
 	<string name="snack_synthetic_term_deleted">Trimestre eliminado</string>
 	<string name="snack_synthetic_term_delete_failed">No pudimos eliminar el trimestre</string>

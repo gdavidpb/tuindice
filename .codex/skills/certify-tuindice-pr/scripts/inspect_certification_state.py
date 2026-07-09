@@ -30,6 +30,8 @@ class CertificationScope:
     android_tasks: str = ""
     ios_tasks: str = ""
     ios_ci_scripts_touched: bool = False
+    app_version_changed: bool = False
+    has_release_impact: bool = False
     error: str = ""
 
 
@@ -107,6 +109,50 @@ def merge_base_for_e2e_scope(head: str) -> str | None:
     return None
 
 
+def app_version_name() -> str:
+    properties_path = REPO_ROOT / "gradle" / "app-version.properties"
+    try:
+        for line in properties_path.read_text(encoding="utf-8").splitlines():
+            key, separator, value = line.partition("=")
+            if separator and key.strip() == "versionName":
+                return value.strip()
+    except OSError:
+        return ""
+    return ""
+
+
+def release_tag_target(tag_name: str) -> tuple[str, str]:
+    """Commit a release tag points at, and which source answered.
+
+    origin is authoritative (local tags can be stale); the local lookup only
+    covers offline runs. An empty sha means the tag does not exist on that
+    source.
+    """
+    # The peeled ref must be requested explicitly: the plain pattern only
+    # returns the annotated tag object, whose sha never equals a commit.
+    remote = run_git(
+        "ls-remote",
+        "--tags",
+        "origin",
+        f"refs/tags/{tag_name}",
+        f"refs/tags/{tag_name}^{{}}",
+    )
+    if remote.code == 0:
+        target = ""
+        for line in remote.stdout.splitlines():
+            sha, _, ref = line.partition("\t")
+            if ref.strip() == f"refs/tags/{tag_name}^{{}}":
+                return sha.strip(), "origin"
+            if ref.strip() == f"refs/tags/{tag_name}":
+                target = sha.strip()
+        return target, "origin"
+
+    local = run_git("rev-parse", "-q", "--verify", f"refs/tags/{tag_name}^{{commit}}")
+    if local.code == 0:
+        return local.stdout, "local tags (origin unreachable)"
+    return "", "local tags (origin unreachable)"
+
+
 def detect_certification_scope(head: str) -> CertificationScope:
     before_sha = merge_base_for_e2e_scope(head)
     if not before_sha:
@@ -152,6 +198,8 @@ def detect_certification_scope(head: str) -> CertificationScope:
             android_tasks=values.get("android_tasks") or "",
             ios_tasks=values.get("ios_tasks") or "",
             ios_ci_scripts_touched=values.get("ios_ci_scripts_touched") == "true",
+            app_version_changed=values.get("app_version_changed") == "true",
+            has_release_impact=values.get("has_release_impact") == "true",
         )
 
 
@@ -320,6 +368,44 @@ def main() -> int:
         )
         print("  Bump gradle/app-version.properties before running commit-bound E2E evidence.")
         return failures + 1
+
+    # A bumped build number is not enough: production preflight also rejects a
+    # versionName whose app-<version> tag already exists at another SHA, and a
+    # plain local validate-app-version.sh run skips that branch because
+    # TARGET_GIT_SHA is unset outside CI. CI parity: the conflict check only
+    # applies to release-impacting changes (SKIP_APP_VERSION_TAG_CONFLICT_CHECK
+    # stays 1 otherwise), so a non-release branch may keep the released name.
+    if certification_scope.app_version_changed or certification_scope.has_release_impact:
+        version_name = app_version_name()
+        if not version_name:
+            print_check(
+                False,
+                "app versionName is unreleased",
+                "unable to read versionName from gradle/app-version.properties",
+            )
+            return failures + 1
+
+        tag_name = f"app-{version_name}"
+        tag_target, tag_source = release_tag_target(tag_name)
+        if tag_target and tag_target != head:
+            print_check(
+                False,
+                "app versionName is unreleased",
+                f"tag {tag_name} already exists at {tag_target[:12]} ({tag_source})",
+            )
+            print(
+                "  Bump versionName in gradle/app-version.properties and run"
+                " ./gradlew syncAppVersion: production preflight rejects an"
+                " already-released versionName."
+            )
+            return failures + 1
+        print_check(
+            True,
+            "app versionName is unreleased",
+            f"tag {tag_name} points at HEAD ({tag_source})"
+            if tag_target
+            else f"tag {tag_name} not found on {tag_source}",
+        )
 
     reuse_rows: list[SuiteReuse] = []
     if certification_scope.requires_e2e:
