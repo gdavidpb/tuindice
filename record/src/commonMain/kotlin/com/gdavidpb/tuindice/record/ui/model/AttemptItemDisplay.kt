@@ -23,31 +23,26 @@ data class AttemptItemDisplay(
 
 fun AttemptItem.toAttemptItemDisplay(currentGrade: Int): AttemptItemDisplay {
 	val isQualitative = gradingMode == GradingMode.QUALITATIVE_PASS_FAIL
-	val displayBadge = when {
-		badge == AttemptBadge.WITHOUT_EFFECT -> AttemptItemBadge.WITHOUT_EFFECT
-		badge == AttemptBadge.EQUIVALENCE -> AttemptItemBadge.EQUIVALENCE
-		outcome == AttemptOutcome.UNREPORTED -> AttemptItemBadge.UNREPORTED
-		isQualitative && (outcome == AttemptOutcome.APPROVED) -> AttemptItemBadge.APPROVED
-		isQualitative && (outcome == AttemptOutcome.FAILED) -> AttemptItemBadge.FAILED
-		outcome == AttemptOutcome.RETIRED -> AttemptItemBadge.RETIRED
-		!isQualitative && (currentGrade == MIN_SUBJECT_GRADE) -> AttemptItemBadge.RETIRED
-		else -> null
-	}
-	val displayGradeText = if (
-		isQualitative
-	) {
-		""
-	} else if (
-		(currentGrade == grade) &&
-		(currentGrade != MIN_SUBJECT_GRADE)
-	) {
-		gradeText
-	} else {
-		"$currentGrade / $MAX_SUBJECT_GRADE"
-	}
 
 	return AttemptItemDisplay(
-		badge = displayBadge,
-		gradeText = displayGradeText
+		badge = toAttemptItemBadge(isQualitative = isQualitative, currentGrade = currentGrade),
+		gradeText = toDisplayGradeText(isQualitative = isQualitative, currentGrade = currentGrade)
 	)
+}
+
+private fun AttemptItem.toAttemptItemBadge(isQualitative: Boolean, currentGrade: Int): AttemptItemBadge? = when {
+	badge == AttemptBadge.WITHOUT_EFFECT -> AttemptItemBadge.WITHOUT_EFFECT
+	badge == AttemptBadge.EQUIVALENCE -> AttemptItemBadge.EQUIVALENCE
+	outcome == AttemptOutcome.UNREPORTED -> AttemptItemBadge.UNREPORTED
+	isQualitative && (outcome == AttemptOutcome.APPROVED) -> AttemptItemBadge.APPROVED
+	isQualitative && (outcome == AttemptOutcome.FAILED) -> AttemptItemBadge.FAILED
+	outcome == AttemptOutcome.RETIRED -> AttemptItemBadge.RETIRED
+	!isQualitative && (currentGrade == MIN_SUBJECT_GRADE) -> AttemptItemBadge.RETIRED
+	else -> null
+}
+
+private fun AttemptItem.toDisplayGradeText(isQualitative: Boolean, currentGrade: Int): String = when {
+	isQualitative -> ""
+	(currentGrade == grade) && (currentGrade != MIN_SUBJECT_GRADE) -> gradeText
+	else -> "$currentGrade / $MAX_SUBJECT_GRADE"
 }
