@@ -12,7 +12,8 @@ enum class AttemptItemBadge {
 	APPROVED,
 	FAILED,
 	RETIRED,
-	WITHOUT_EFFECT
+	WITHOUT_EFFECT,
+	EQUIVALENCE
 }
 
 data class AttemptItemDisplay(
@@ -24,6 +25,7 @@ fun AttemptItem.toAttemptItemDisplay(currentGrade: Int): AttemptItemDisplay {
 	val isQualitative = gradingMode == GradingMode.QUALITATIVE_PASS_FAIL
 	val displayBadge = when {
 		badge == AttemptBadge.WITHOUT_EFFECT -> AttemptItemBadge.WITHOUT_EFFECT
+		badge == AttemptBadge.EQUIVALENCE -> AttemptItemBadge.EQUIVALENCE
 		outcome == AttemptOutcome.UNREPORTED -> AttemptItemBadge.UNREPORTED
 		isQualitative && (outcome == AttemptOutcome.APPROVED) -> AttemptItemBadge.APPROVED
 		isQualitative && (outcome == AttemptOutcome.FAILED) -> AttemptItemBadge.FAILED
