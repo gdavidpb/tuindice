@@ -37,13 +37,32 @@ source "${FIXTURES_ENV}"
 catalog_paths="$(awk '/^[[:space:]]*path:/ { print $2 }' "${CATALOG}" | sort -u)"
 missing_catalog_entries=0
 
+# A killed or delayed producer behind `< <(...)` is indistinguishable from an
+# empty result to the reading loop, so a producer that dies under CI memory
+# pressure silently yields "0 flows found" instead of a loud failure. Writing
+# to a real file first and checking the producer's exit status turns that
+# into a hard error instead of a false "missing" verdict downstream.
+require_producer_output() {
+	local out_file
+	out_file="$(mktemp)"
+	if ! "$@" >"${out_file}"; then
+		printf 'E2E contract validation producer failed: %s\n' "$*" >&2
+		rm -f "${out_file}"
+		exit 1
+	fi
+	printf '%s\n' "${out_file}"
+}
+
+flow_files_list="$(require_producer_output find "${FLOWS_ROOT}" -name '*.yaml' -type f)"
+sort -o "${flow_files_list}" "${flow_files_list}"
 while IFS= read -r flow_file; do
 	relative_path="${flow_file#"${REPO_ROOT}/"}"
 	if ! printf '%s\n' "${catalog_paths}" | grep --fixed-strings --line-regexp --quiet "${relative_path}"; then
 		printf 'Flow missing from catalog: %s\n' "${relative_path}" >&2
 		missing_catalog_entries=1
 	fi
-done < <(find "${FLOWS_ROOT}" -name '*.yaml' -type f | sort)
+done < "${flow_files_list}"
+rm -f "${flow_files_list}"
 
 missing_flow_files=0
 while IFS= read -r catalog_path; do
@@ -402,6 +421,15 @@ while IFS='|' read -r suite_path suite_id suite_module suite_type; do
 
 	suite_actions="$(awk -F '|' -v path="${suite_path}" '$1 == path { print $2 }' "${flow_catalog_path_actions}")"
 
+	suite_child_refs="$(require_producer_output awk '
+		/runFlow:[[:space:]]*[^[:space:]].*[.]ya?ml/ {
+			line = $0
+			sub(/^.*runFlow:[[:space:]]*/, "", line)
+			gsub(/[" ]/, "", line)
+			print line
+		}
+	' "${REPO_ROOT}/${suite_path}")"
+
 	while IFS= read -r child_ref; do
 		[[ -z "${child_ref}" ]] && continue
 
@@ -419,23 +447,17 @@ while IFS='|' read -r suite_path suite_id suite_module suite_type; do
 			continue
 		fi
 
+		child_actions_list="$(require_producer_output awk -F '|' -v path="${child_path}" '$1 == path { print $2 }' "${flow_catalog_path_actions}")"
 		while IFS= read -r child_action; do
 			[[ -z "${child_action}" ]] && continue
 			if ! printf '%s\n' "${suite_actions}" | grep --fixed-strings --line-regexp --quiet "${child_action}"; then
 				printf 'Suite %s omits child action %s from %s\n' "${suite_id}" "${child_action}" "${child_id}" >&2
 				suite_action_inheritance_issues=1
 			fi
-		done < <(awk -F '|' -v path="${child_path}" '$1 == path { print $2 }' "${flow_catalog_path_actions}")
-	done < <(
-		awk '
-			/runFlow:[[:space:]]*[^[:space:]].*[.]ya?ml/ {
-				line = $0
-				sub(/^.*runFlow:[[:space:]]*/, "", line)
-				gsub(/[" ]/, "", line)
-				print line
-			}
-		' "${REPO_ROOT}/${suite_path}"
-	)
+		done < "${child_actions_list}"
+		rm -f "${child_actions_list}"
+	done < "${suite_child_refs}"
+	rm -f "${suite_child_refs}"
 done < "${flow_catalog_records}"
 
 invalid_flow_actions=0
