@@ -256,6 +256,8 @@ quarantine_active_entries() {
 run_maestro_suite_with_retries() {
 	local retries_left="${E2E_MAESTRO_SUITE_RETRIES}"
 	local attempt=1
+	local platform="$1"
+	local platform_lower
 
 	if [[ ! "${retries_left}" =~ ^[0-9]+$ ]]; then
 		retries_left=1
@@ -279,6 +281,17 @@ run_maestro_suite_with_retries() {
 		log "Maestro suite failed (exit ${run_status}); retry attempt ${attempt} resumes from the failed flow. Retries left after this one: ${retries_left}."
 		if declare -F reset_wiremock >/dev/null 2>&1; then
 			reset_wiremock || true
+		fi
+		# A retry rotation re-runs the full suite from the checkpoint, adding
+		# another 30-100+ minutes of continuous device uptime on top of the
+		# initial pass. The cold-reboot in run-maestro-evidence-local.sh only
+		# fires once before the first attempt, so endurance flakiness is just
+		# as likely to strike the retry and never gets the same mitigation.
+		if [[ "${E2E_DEVICE_REBOOT_BEFORE_EVIDENCE:-1}" == "1" ]]; then
+			platform_lower="$(printf '%s' "${platform}" | tr '[:upper:]' '[:lower:]')"
+			log "Cold-rebooting ${platform} device before retry attempt ${attempt}; disable with E2E_DEVICE_REBOOT_BEFORE_EVIDENCE=0."
+			bash "${SCRIPT_DIR}/reboot-devices.sh" "${platform_lower}" ||
+				log "Device reboot failed; continuing with the retry."
 		fi
 	done
 }

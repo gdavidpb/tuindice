@@ -77,6 +77,14 @@ claim full certification for a ready production PR. Either fix the local
 environment, run the platform check on suitable hardware, or explicitly report
 that the branch still depends on GitHub preflight for that platform.
 
+Do not pipe this script (or the evidence command below) through `tee` or any
+other wrapper for logging. Both scripts use `set -euo pipefail` internally,
+but wrapping the whole invocation in `command | tee file` makes the *outer*
+shell's exit code `tee`'s, not the script's — a real failure deep inside can
+report exit 0 to whatever is watching it. Redirect straight to a file
+(`command > file 2>&1`) or, when running in the background, rely on the
+background task's own captured output instead of adding a manual `tee`.
+
 During the correction loop, you may skip rerunning parity when the incremental
 diff since the last parity-passed commit only touches `e2e/maestro/**`,
 `mocks/**`, or documentation/skill files — none of these are Gradle inputs.
@@ -98,7 +106,46 @@ The task resolves the diff against `production` or `origin/production`, selects 
 Before starting the platform workers it cold-reboots the in-scope
 emulator/simulators — endurance flakiness after hours of device uptime is
 real and was measured during certification. Set
-`E2E_DEVICE_REBOOT_BEFORE_EVIDENCE=0` to skip the reboot.
+`E2E_DEVICE_REBOOT_BEFORE_EVIDENCE=0` to skip the reboot. The same reboot also
+runs before the suite's single retry rotation (not just the first attempt),
+since a retry re-runs the full suite and adds just as much continuous device
+uptime as the initial pass.
+
+When the audit shows only one platform needs `rerun` (the other is already
+`current` or `reusable`), do not pay for a full re-verification of the
+platform that already passed:
+
+```bash
+E2E_SKIP_ANDROID=1 ./gradlew --continue --console=plain e2eMaestroEvidenceLocal
+```
+
+This flag only exists for Android — there is no symmetric `E2E_SKIP_IOS`. When
+only Android needs `rerun` and iOS is already `current`/`reusable`, the iOS
+worker still starts and runs the full suite again; there is no local way to
+skip it today.
+
+If evidence runs after `stop-devices.sh` already shut the local emulator and
+simulator down (for example, a harness-only fix landed post-PR and changed
+the fingerprint), boot them again first:
+
+```bash
+e2e/scripts/boot-devices.sh android ios
+```
+
+This resolves the Android emulator through `$ANDROID_HOME`/`$ANDROID_SDK_ROOT`
+or `local.properties`, never bare `emulator` on `PATH` — on Apple Silicon that
+usually resolves to the legacy `tools/emulator` launcher, which fails looking
+for a `darwin-x86_64` qemu binary that does not exist on arm64.
+
+If a PR already exists and its `shared-preflight` gate already failed on the
+current SHA because evidence was missing, publishing that evidence afterward
+does not retrigger CI on its own — no new commit was pushed, so there is
+nothing for GitHub to react to. Rerun the workflow explicitly once the audit
+confirms the SHA is `current`/`reusable`:
+
+```bash
+gh run rerun <run-id>
+```
 
 Evidence is written under:
 
@@ -172,6 +219,32 @@ execution, so a diagnosis run always exercises the flow's inline commands.
 Batch every fix found this way instead of certifying fix-by-fix. Resume-first
 checkpoints make the eventual evidence rerun start at the previously failing
 case, so an unfixed failure still surfaces within minutes.
+
+### CI-Only Failures
+
+Some certification-harness failures only manifest on the GitHub-hosted
+runner and never reproduce locally, even in a matching Linux container: a PR
+preflight once failed `verifyE2eContract` twice on the identical SHA with two
+different false "missing" verdicts for catalog entries that were genuinely
+present, while 18 local and containerized reproduction attempts (matching
+bash version, matching `awk`/`grep` implementation, sequential and
+concurrent, constrained file descriptors) all passed cleanly. The common
+thread across these is resource pressure unique to the real runner — the
+Android preflight job compiles and tests a dozen Kotlin/Android modules
+concurrently under `--max-workers=2`, which a lightweight local repro of the
+one failing script does not recreate.
+
+When local reproduction is exhausted and the failure is still CI-only:
+
+1. Identify the most resource-fragile pattern in the failing code path — a
+   subprocess whose output is consumed by `< <(...)` into a `while read` loop
+   is a common one: a killed producer looks identical to an empty result to
+   the reader, no error surfaces.
+2. Harden that pattern to fail loudly instead of silently on a killed or
+   partial producer (write to a real file, check the producer's exit status)
+   rather than chasing the exact trigger indefinitely.
+3. Push and verify against real CI directly — local reproduction has already
+   proven insufficient as a verification signal for this class of failure.
 
 ### Product Integrity Gate
 
