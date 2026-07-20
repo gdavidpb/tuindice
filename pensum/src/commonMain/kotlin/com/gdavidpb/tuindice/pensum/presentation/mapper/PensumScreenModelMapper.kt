@@ -129,24 +129,20 @@ fun ObservedPensum.toScreenModel(): PensumScreenModel {
 			relationshipType = PensumEdgeRelationshipType.REQUIREMENT,
 			nodesById = displayNodesById
 		)
-		val corequisites = displayEdges.incomingRelations(
+		val corequisites = displayEdges.corequisiteRelations(
 			nodeId = node.id,
-			relationshipType = PensumEdgeRelationshipType.COREQUISITE,
 			nodesById = displayNodesById
 		)
 		val unlocks = displayEdges.outgoingRelations(
 			nodeId = node.id,
+			relationshipType = PensumEdgeRelationshipType.REQUIREMENT,
 			nodesById = displayNodesById
 		)
 		node.copy(
 			detail = node.detail.copy(
 				requirements = requirements,
 				corequisites = corequisites,
-				unlocks = unlocks,
-				blockingReasons = node.blockingReasons(
-					requirements = requirements,
-					corequisites = corequisites
-				)
+				unlocks = unlocks
 			)
 		)
 	}
@@ -268,10 +264,29 @@ private fun List<PensumEdgeItem>.incomingRelations(
 
 private fun List<PensumEdgeItem>.outgoingRelations(
 	nodeId: String,
+	relationshipType: PensumEdgeRelationshipType,
 	nodesById: Map<String, PensumNodeItem>
 ): List<PensumSubjectRelationItem> {
-	return filter { edge -> edge.fromNodeId == nodeId }
+	return filter { edge -> edge.fromNodeId == nodeId && edge.relationshipType == relationshipType }
 		.mapNotNull { edge -> nodesById[edge.toNodeId]?.let { node -> edge to node } }
+		.sortedByNodePosition()
+		.map { (edge, node) -> node.toSubjectRelationItem(edge.relationshipType) }
+}
+
+private fun List<PensumEdgeItem>.corequisiteRelations(
+	nodeId: String,
+	nodesById: Map<String, PensumNodeItem>
+): List<PensumSubjectRelationItem> {
+	return filter { edge -> edge.relationshipType == PensumEdgeRelationshipType.COREQUISITE }
+		.mapNotNull { edge ->
+			val relatedNodeId = when (nodeId) {
+				edge.fromNodeId -> edge.toNodeId
+				edge.toNodeId -> edge.fromNodeId
+				else -> null
+			}
+			relatedNodeId?.let { id -> nodesById[id]?.let { node -> edge to node } }
+		}
+		.distinctBy { (_, node) -> node.id }
 		.sortedByNodePosition()
 		.map { (edge, node) -> node.toSubjectRelationItem(edge.relationshipType) }
 }
@@ -295,19 +310,6 @@ private fun PensumNodeItem.toSubjectRelationItem(
 		visualStyle = visualStyle,
 		relationshipType = relationshipType
 	)
-}
-
-private fun PensumNodeItem.blockingReasons(
-	requirements: List<PensumSubjectRelationItem>,
-	corequisites: List<PensumSubjectRelationItem>
-): List<PensumSubjectRelationItem> {
-	if (!isBlocked) return emptyList()
-
-	return requirements.filter { requirement ->
-		requirement.status.type != PensumNodeStatusType.APPROVED
-	} + corequisites.filter { corequisite ->
-		corequisite.status.type !in setOf(PensumNodeStatusType.APPROVED, PensumNodeStatusType.CURRENT)
-	}
 }
 
 private fun String?.hasSubjectStatsAction(displayCode: String): Boolean {

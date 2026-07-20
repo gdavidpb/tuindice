@@ -53,7 +53,6 @@ fun PensumSubjectDetailBottomSheet(
 	val statsCode = detail.statsCode
 	val hasMoreDetail =
 		detail.fulfilledSubject != null ||
-			detail.blockingReasons.isNotEmpty() ||
 			detail.requirements.isNotEmpty() ||
 			detail.corequisites.isNotEmpty() ||
 			detail.unlocks.isNotEmpty()

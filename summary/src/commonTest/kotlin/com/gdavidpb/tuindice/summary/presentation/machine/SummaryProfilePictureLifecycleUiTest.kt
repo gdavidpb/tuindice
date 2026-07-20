@@ -29,6 +29,7 @@ import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.withTimeout
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
@@ -91,6 +92,76 @@ class SummaryProfilePictureLifecycleUiTest {
 				assertEquals(false, converged.isProfilePictureLoading)
 				assertNull(converged.profilePictureLocalPreview)
 				assertEquals(1, converged.profilePictureVersion)
+			} finally {
+				stateCollector.cancel()
+			}
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun signedUrlRotation_keepsPreviewAndLoading_whileUploadIsPending() = runTest {
+		withMainDispatcher { dispatchers ->
+			val picturePath = "https://storage.googleapis.com/tuindice/profile_pictures/uid.jpg"
+			val signedUser = DEFAULT_SUMMARY_USER.copy(
+				pictureUrl = "$picturePath?X-Goog-Signature=aaa"
+			)
+			val users = MutableStateFlow(signedUser)
+			val viewModel = createViewModel(
+				userRepository = RecordingUserRepository(
+					users = users,
+					profilePicture = ProfilePicture(url = "$picturePath?X-Goog-Signature=ccc")
+				),
+				dispatchers = dispatchers
+			)
+			val stateCollector = backgroundScope.launchStateCollector(
+				flow = viewModel.state,
+				testScheduler = testScheduler
+			)
+
+			try {
+				withTimeout(3_000) {
+					viewModel.state
+						.filterIsInstance<Summary.State.Content>()
+						.first()
+				}
+
+				viewModel.uploadProfilePictureAction(
+					file = PlatformFile("/tmp/profile-preview.jpg")
+				)
+
+				withTimeout(3_000) {
+					viewModel.state
+						.filterIsInstance<Summary.State.Content>()
+						.first { state -> state.profilePictureLocalPreview != null }
+				}
+
+				// A backend re-fetch rotates only the signature: same picture identity,
+				// so the optimistic preview and the in-flight flag must survive.
+				users.value = signedUser.copy(
+					pictureUrl = "$picturePath?X-Goog-Signature=bbb"
+				)
+
+				val rotated = withTimeout(3_000) {
+					viewModel.state
+						.filterIsInstance<Summary.State.Content>()
+						.first { state -> state.profilePictureUrl.endsWith("bbb") }
+				}
+				assertTrue(rotated.isProfilePictureLoading)
+				assertNotNull(rotated.profilePictureLocalPreview)
+
+				users.value = signedUser.copy(
+					pictureUrl = "$picturePath?X-Goog-Signature=ccc",
+					pictureVersion = 1
+				)
+
+				val converged = withTimeout(3_000) {
+					viewModel.state
+						.filterIsInstance<Summary.State.Content>()
+						.first { state -> state.profilePictureVersion == 1 }
+				}
+				assertEquals(false, converged.isProfilePictureLoading)
+				assertNull(converged.profilePictureLocalPreview)
 			} finally {
 				stateCollector.cancel()
 			}

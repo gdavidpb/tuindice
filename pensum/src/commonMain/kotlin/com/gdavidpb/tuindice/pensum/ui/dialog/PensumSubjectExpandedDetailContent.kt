@@ -31,22 +31,13 @@ fun PensumSubjectExpandedDetailContent(
 			)
 		}
 
-		val routeBeforeItems = detail.blockingReasons.ifEmpty { detail.requirements }
-		if (routeBeforeItems.isNotEmpty() || detail.unlocks.isNotEmpty()) {
+		if (detail.requirements.isNotEmpty() || detail.unlocks.isNotEmpty()) {
 			PensumSubjectRouteContext(
 				node = node,
-				beforeItems = routeBeforeItems,
-				beforeTestTag = if (detail.blockingReasons.isNotEmpty()) {
-					PensumUiTags.SubjectDetailBlockingReasons
-				} else {
-					PensumUiTags.SubjectDetailRequirements
-				},
+				beforeItems = detail.requirements,
+				beforeTestTag = PensumUiTags.SubjectDetailRequirements,
 				beforeRowTag = { nodeId ->
-					if (detail.blockingReasons.isNotEmpty()) {
-						PensumUiTags.subjectDetailBlockingReason(nodeId)
-					} else {
-						PensumUiTags.subjectDetailRequirement(nodeId)
-					}
+					PensumUiTags.subjectDetailRequirement(nodeId)
 				},
 				afterItems = detail.unlocks,
 				navigationOriginNodeId = navigationOriginNodeId,

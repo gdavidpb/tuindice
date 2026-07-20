@@ -1076,7 +1076,6 @@ fun when_nodeFocusChanges_then_statusLegendFiltersAreReset() = runTuIndiceUiTest
 		assertNodeVisible(PensumUiTags.SubjectDetailSelectedRouteCard)
 		assertNodeVisible(PensumUiTags.SubjectDetailUnlocks)
 		assertNodeHidden(PensumUiTags.SubjectDetailRequirements)
-		assertNodeHidden(PensumUiTags.SubjectDetailBlockingReasons)
 		onAllNodesWithText("Requisito").assertCountEquals(0)
 		onNodeWithText("Materia seleccionada").assertExists()
 		onNodeWithText("Requisito para").assertExists()

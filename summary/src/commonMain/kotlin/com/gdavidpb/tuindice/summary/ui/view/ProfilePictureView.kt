@@ -12,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -106,21 +107,25 @@ private fun ProfilePictureLayerStack(
 		contentAlignment = Alignment.Center
 	) {
 		layers.forEach { layer ->
-			AsyncImage(
-				modifier = Modifier
-					.testTag(layer.tag)
-					.fillMaxSize(),
-				model = layer.request,
-				imageLoader = imageLoader,
-				placeholder = if (layer.showsPlaceholder) placeholderPainter else null,
-				error = if (layer.showsPlaceholder) placeholderPainter else null,
-				fallback = if (layer.showsFallback) placeholderPainter else null,
-				contentDescription = null,
-				contentScale = ContentScale.Crop,
-				onLoading = layer.onState?.let { onState -> { state -> onState(state) } },
-				onSuccess = layer.onState?.let { onState -> { state -> onState(state) } },
-				onError = layer.onState?.let { onState -> { state -> onState(state) } }
-			)
+			// Keyed by role so a layer entering or leaving the stack never re-binds a
+			// sibling's painter to a different request mid-transition.
+			key(layer.tag) {
+				AsyncImage(
+					modifier = Modifier
+						.testTag(layer.tag)
+						.fillMaxSize(),
+					model = layer.request,
+					imageLoader = imageLoader,
+					placeholder = if (layer.showsPlaceholder) placeholderPainter else null,
+					error = if (layer.showsPlaceholder) placeholderPainter else null,
+					fallback = if (layer.showsFallback) placeholderPainter else null,
+					contentDescription = null,
+					contentScale = ContentScale.Crop,
+					onLoading = layer.onState?.let { onState -> { state -> onState(state) } },
+					onSuccess = layer.onState?.let { onState -> { state -> onState(state) } },
+					onError = layer.onState?.let { onState -> { state -> onState(state) } }
+				)
+			}
 		}
 	}
 }
@@ -145,24 +150,24 @@ private fun rememberProfilePictureViewState(
 	val platformContext = LocalPlatformContext.current
 	// Last model that actually rendered; it backs the picture while the remote
 	// request swaps identity so the swap itself never flashes a placeholder.
-	val lastShownImageData = remember {
-		mutableStateOf<String?>(null)
+	val lastShownImage = remember {
+		mutableStateOf<ProfilePictureShownImage?>(null)
 	}
-	val isRemoteImageLoading = remember(display.url, display.cacheVersion) {
+	val isRemoteImageLoading = remember(display.identity, display.cacheVersion) {
 		mutableStateOf(false)
 	}
-	val presentation = remember(platformContext, display, lastShownImageData.value) {
+	val presentation = remember(platformContext, display, lastShownImage.value) {
 		profilePictureLayerPresentation(
 			platformContext = platformContext,
 			display = display,
-			lastShownImageData = lastShownImageData,
+			lastShownImage = lastShownImage,
 			isRemoteImageLoading = isRemoteImageLoading
 		)
 	}
 
 	LaunchedEffect(presentation.remoteImageData) {
 		if (presentation.remoteImageData == null) {
-			lastShownImageData.value = null
+			lastShownImage.value = null
 		}
 	}
 
@@ -178,18 +183,23 @@ private class ProfilePicturePresentation(
 	val layers: List<ProfilePictureLayer>
 )
 
+private data class ProfilePictureShownImage(
+	val data: String,
+	val cacheKey: String?
+)
+
 private class ProfilePictureLayerContext(
 	val platformContext: PlatformContext,
 	val remoteImageData: String?,
 	val remoteCacheKey: String?,
 	val previewImageData: String?,
-	val lastShownImageData: MutableState<String?>,
+	val lastShownImage: MutableState<ProfilePictureShownImage?>,
 	val isRemoteImageLoading: MutableState<Boolean>
 ) {
-	val continuityImageData = lastShownImageData.value?.takeIf { data ->
-		remoteImageData != null && data != remoteImageData && data != previewImageData
+	val continuityImage = lastShownImage.value?.takeIf { shown ->
+		remoteImageData != null && shown.data != remoteImageData && shown.data != previewImageData
 	}
-	val hasCoveringImage = previewImageData != null || continuityImageData != null
+	val hasCoveringImage = previewImageData != null || continuityImage != null
 }
 
 // Bottom-to-top stack: continuity (last rendered pixels), the remote picture, and
@@ -198,18 +208,19 @@ private class ProfilePictureLayerContext(
 private fun profilePictureLayerPresentation(
 	platformContext: PlatformContext,
 	display: ProfilePictureDisplay,
-	lastShownImageData: MutableState<String?>,
+	lastShownImage: MutableState<ProfilePictureShownImage?>,
 	isRemoteImageLoading: MutableState<Boolean>
 ): ProfilePicturePresentation {
 	val remoteImageData = display.url.takeIf { it.isNotBlank() }
 	val layerContext = ProfilePictureLayerContext(
 		platformContext = platformContext,
 		remoteImageData = remoteImageData,
-		// The version keys the cache identity so a re-upload behind a stable URL
-		// still invalidates the previously cached bitmap.
-		remoteCacheKey = remoteImageData?.let { data -> "$data#v${display.cacheVersion}" },
+		// The cache identity ignores the rotating signed-URL signature and keys on
+		// the version so a re-upload behind a stable path still invalidates the
+		// previously cached bitmap, while a signature-only rotation keeps hitting it.
+		remoteCacheKey = remoteImageData?.let { "${display.identity}#v${display.cacheVersion}" },
 		previewImageData = display.localPreviewPath?.takeIf { it.isNotBlank() },
-		lastShownImageData = lastShownImageData,
+		lastShownImage = lastShownImage,
 		isRemoteImageLoading = isRemoteImageLoading
 	)
 
@@ -225,12 +236,14 @@ private fun profilePictureLayerPresentation(
 }
 
 private fun ProfilePictureLayerContext.continuityLayer(): ProfilePictureLayer? {
-	val imageData = continuityImageData ?: return null
+	val shownImage = continuityImage ?: return null
 
 	return ProfilePictureLayer(
 		tag = SummaryUiTags.ProfilePictureContinuityImage,
 		request = ImageRequest.Builder(platformContext)
-			.data(imageData)
+			.data(shownImage.data)
+			.memoryCacheKey(shownImage.cacheKey)
+			.diskCacheKey(shownImage.cacheKey)
 			.crossfade(false)
 			.build()
 	)
@@ -254,7 +267,9 @@ private fun ProfilePictureLayerContext.remoteLayer(): ProfilePictureLayer {
 
 				is AsyncImagePainter.State.Success -> {
 					isRemoteImageLoading.value = false
-					lastShownImageData.value = remoteImageData
+					lastShownImage.value = remoteImageData?.let { data ->
+						ProfilePictureShownImage(data = data, cacheKey = remoteCacheKey)
+					}
 				}
 
 				is AsyncImagePainter.State.Error ->
@@ -277,7 +292,7 @@ private fun ProfilePictureLayerContext.previewLayer(): ProfilePictureLayer? {
 			.build(),
 		onState = { state ->
 			if (state is AsyncImagePainter.State.Success) {
-				lastShownImageData.value = imageData
+				lastShownImage.value = ProfilePictureShownImage(data = imageData, cacheKey = null)
 			}
 		}
 	)
