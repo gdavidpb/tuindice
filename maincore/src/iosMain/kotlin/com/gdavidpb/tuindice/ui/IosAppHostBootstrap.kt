@@ -23,8 +23,7 @@ class IosAppHostBootstrap(
 		return ComposeUIViewController {
 			TuIndiceSharedTheme {
 				TuIndiceAppHostRoute(
-					onConfirmExitClick = {},
-					isSwipeBackNavigationEnabled = true
+					onConfirmExitClick = {}
 				)
 			}
 		}

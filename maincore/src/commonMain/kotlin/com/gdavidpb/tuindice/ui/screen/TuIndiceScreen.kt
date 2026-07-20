@@ -3,16 +3,16 @@ package com.gdavidpb.tuindice.ui.screen
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBars
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.windowInsetsPadding
@@ -29,8 +29,8 @@ import androidx.compose.material.icons.outlined.AccountTree
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.BookmarkBorder
 import androidx.compose.material.icons.outlined.DateRange
-import androidx.compose.material.icons.outlined.FindInPage
 import androidx.compose.material.icons.outlined.FavoriteBorder
+import androidx.compose.material.icons.outlined.FindInPage
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.CircularProgressIndicator
@@ -58,13 +58,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
+import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
 import com.gdavidpb.tuindice.base.presentation.model.asString
-import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceShellColors
@@ -73,11 +72,10 @@ import com.gdavidpb.tuindice.base.ui.view.ErrorView
 import com.gdavidpb.tuindice.base.ui.view.OutdatedAppScreen
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarActionsView
 import com.gdavidpb.tuindice.base.ui.view.TopAppBarAnimatedTitleView
-import com.gdavidpb.tuindice.base.utils.extension.canNavigateBackFromCurrentDestination
-import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.model.BottomBarConfig
 import com.gdavidpb.tuindice.presentation.model.MainShellState
+import com.gdavidpb.tuindice.presentation.navigation.TuIndiceNavigator
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeBannerView
 import com.gdavidpb.tuindice.record.ui.view.RecordTopBarViewModeSwitchView
@@ -113,15 +111,14 @@ fun TuIndiceScreen(
 	shellState: MainShellState,
 	onRetryStartUp: () -> Unit,
 	onUpdateAppClick: () -> Unit,
-	navController: NavHostController,
-	isSwipeBackNavigationEnabled: Boolean = false,
+	navigator: TuIndiceNavigator?,
 	snackbarHostState: SnackbarHostState,
 	onAction: (action: TopBarAction) -> Unit,
 	onRecordViewModeChange: ((RecordViewMode) -> Unit)?,
 	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onRecordTermSelectionAvailable: ((() -> Unit)?) -> Unit = {},
 	onBackInterceptorAvailable: ((() -> Boolean)?) -> Unit = {},
-	onNavigateTo: (destination: Destination) -> Unit,
+	onNavigateTo: (section: MainSection) -> Unit,
 	onNavigateBack: () -> Unit,
 	onConfirmExitClick: () -> Unit,
 	isCameraAvailable: Boolean,
@@ -192,9 +189,11 @@ fun TuIndiceScreen(
 		is Main.State.Content -> Unit
 	}
 
-	val contentState = state
-	val canNavigateBack = navController.canNavigateBackFromCurrentDestination()
-	val shouldShowTopBarBackButton = canNavigateBack && shellState.showsTopBarBackButton
+	val contentNavigator = checkNotNull(navigator) {
+		"TuIndiceScreen requires a navigator once Main.State.Content is reached"
+	}
+	val shouldShowTopBarBackButton =
+		contentNavigator.showsBackButton && shellState.showsTopBarBackButton
 	val topBarBannerBehavior = remember {
 		mutableStateOf<TopBarBannerBehavior?>(null)
 	}
@@ -370,8 +369,8 @@ fun TuIndiceScreen(
 							windowInsets = WindowInsets(left = 0, top = 0, right = 0, bottom = 0)
 						) {
 							bottomBarConfigs.forEach { bottomBarConfig ->
-								val isNavigationBarItemSelected = navController
-									.isCurrentDestination(destination = bottomBarConfig.destination)
+								val isNavigationBarItemSelected =
+									contentNavigator.currentTab == bottomBarConfig.section
 
 								val navigationBarItemIcon =
 									bottomBarIcon(
@@ -394,7 +393,7 @@ fun TuIndiceScreen(
 										indicatorColor = TuIndiceShellColors.bottomBarIndicator()
 									),
 									selected = isNavigationBarItemSelected,
-									onClick = { onNavigateTo(bottomBarConfig.destination) }
+									onClick = { onNavigateTo(bottomBarConfig.section) }
 								)
 							}
 						}
@@ -402,10 +401,8 @@ fun TuIndiceScreen(
 				}
 			}
 		) { innerPadding ->
-			TuIndiceNavHost(
-				navController = navController,
-				startDestination = contentState.startDestination,
-				isSwipeBackNavigationEnabled = isSwipeBackNavigationEnabled,
+			TuIndiceNavDisplay(
+				navigator = contentNavigator,
 				modifier = Modifier
 					.padding(innerPadding)
 					.coachmarkAnchor(
@@ -420,7 +417,6 @@ fun TuIndiceScreen(
 				onRecordViewModeChangeAvailable = onRecordViewModeChangeAvailable,
 				onRecordTermSelectionAvailable = onRecordTermSelectionAvailable,
 				onBackInterceptorAvailable = onBackInterceptorAvailable,
-				onNavigateBack = onNavigateBack,
 				showTopBarBanner = showTopBarBanner,
 				onViewStateChanged = onViewStateChanged,
 				showSnackBar = showSnackBar,

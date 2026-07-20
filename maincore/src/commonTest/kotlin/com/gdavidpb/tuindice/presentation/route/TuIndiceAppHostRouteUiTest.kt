@@ -46,6 +46,7 @@ import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
 import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
+import com.gdavidpb.tuindice.presentation.navigation.NavEntryStoresViewModel
 import com.gdavidpb.tuindice.security.domain.model.Attestation
 import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
@@ -106,7 +107,6 @@ class TuIndiceAppHostRouteUiTest {
 			setTuIndiceTestContent {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
-					isSwipeBackNavigationEnabled = false,
 					browserRepository = RecordingBrowserRepository(),
 					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
@@ -149,7 +149,6 @@ class TuIndiceAppHostRouteUiTest {
 			setTuIndiceTestContent {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
-					isSwipeBackNavigationEnabled = false,
 					browserRepository = RecordingBrowserRepository(),
 					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
@@ -279,7 +278,6 @@ class TuIndiceAppHostRouteUiTest {
 			setTuIndiceTestContent {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
-					isSwipeBackNavigationEnabled = false,
 					browserRepository = RecordingBrowserRepository(),
 					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
@@ -345,7 +343,6 @@ class TuIndiceAppHostRouteUiTest {
 			setTuIndiceTestContent {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
-					isSwipeBackNavigationEnabled = false,
 					browserRepository = RecordingBrowserRepository(),
 					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
@@ -384,7 +381,6 @@ class TuIndiceAppHostRouteUiTest {
 			setTuIndiceTestContent {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
-					isSwipeBackNavigationEnabled = false,
 					browserRepository = RecordingBrowserRepository(),
 					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
@@ -429,7 +425,6 @@ class TuIndiceAppHostRouteUiTest {
 			setTuIndiceTestContent {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
-					isSwipeBackNavigationEnabled = false,
 					browserRepository = browserRepository,
 					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
@@ -531,7 +526,6 @@ class TuIndiceAppHostRouteUiTest {
 			setTuIndiceTestContent {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
-					isSwipeBackNavigationEnabled = false,
 					browserRepository = RecordingBrowserRepository(),
 					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					pendingChangesRepository = FakePendingChangesRepository(pendingChanges = pendingChanges),
@@ -587,7 +581,6 @@ class TuIndiceAppHostRouteUiTest {
 			setTuIndiceTestContent {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
-					isSwipeBackNavigationEnabled = false,
 					browserRepository = RecordingBrowserRepository(),
 					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					pendingChangesRepository = pendingChangesRepository,
@@ -715,7 +708,6 @@ class TuIndiceAppHostRouteUiTest {
 			setTuIndiceTestContent {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
-					isSwipeBackNavigationEnabled = false,
 					browserRepository = RecordingBrowserRepository(),
 					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					sessionInvalidationRepository = sessionInvalidationRepository,
@@ -836,8 +828,7 @@ class TuIndiceAppHostRouteUiTest {
 				setTuIndiceTestContent {
 					TuIndiceAppHostRoute(
 						onConfirmExitClick = {},
-						isSwipeBackNavigationEnabled = false,
-						browserRepository = RecordingBrowserRepository(),
+							browserRepository = RecordingBrowserRepository(),
 						deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 						sessionInvalidationRepository = sessionInvalidationRepository,
 						syncStatusRepository = syncStatusRepository,
@@ -960,7 +951,6 @@ class TuIndiceAppHostRouteUiTest {
 			setTuIndiceTestContent {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
-					isSwipeBackNavigationEnabled = false,
 					browserRepository = RecordingBrowserRepository(),
 					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					sessionInvalidationRepository = sessionInvalidationRepository,
@@ -1006,6 +996,7 @@ class TuIndiceAppHostRouteUiTest {
 		sessionInvalidationRepository: SessionInvalidationRepository = FakeSessionInvalidationRepository()
 	) = module {
 		factory { createSummaryViewModel() }
+		factory { NavEntryStoresViewModel() }
 		single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 		single { testSessionCoroutineScope() }
 		single<EventPublisher> { NoOpEventPublisher }
