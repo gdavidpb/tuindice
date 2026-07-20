@@ -33,6 +33,8 @@ kotlin {
 				api(libs.compose.runtime)
 				api(libs.bundles.compose.mpp.core)
 				api(libs.navigation.compose)
+				api(libs.navigation3.runtime)
+				implementation(libs.navigation3.ui)
 				api(libs.kotlinx.coroutines.core)
 				api(libs.ktor.client.core)
 				api(libs.lifecycle.runtime.compose)

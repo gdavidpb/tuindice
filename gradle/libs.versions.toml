@@ -42,6 +42,8 @@ material = "1.14.0"
 ktor = "3.5.0"
 material3 = "1.4.0"
 navigation = "2.9.2"
+navigation3-runtime = "1.1.4"
+navigation3-ui = "1.1.1"
 compose = "1.11.3"
 compose-mpp = "1.11.1"
 compose-mpp-material3 = "1.9.0"
@@ -133,6 +135,8 @@ jetbrains-compose-ui-test = { module = "org.jetbrains.compose.ui:ui-test", versi
 
 # Navigation
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigation" }
+navigation3-runtime = { module = "androidx.navigation3:navigation3-runtime", version.ref = "navigation3-runtime" }
+navigation3-ui = { module = "org.jetbrains.androidx.navigation3:navigation3-ui", version.ref = "navigation3-ui" }
 
 # Lifecycle
 lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycle" }
