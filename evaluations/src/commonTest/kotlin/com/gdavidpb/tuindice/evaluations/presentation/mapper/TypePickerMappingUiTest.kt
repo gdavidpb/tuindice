@@ -13,7 +13,7 @@ import kotlin.test.assertTrue
 // Resolves type labels through getString, so it runs on the iOS host only (androidHostTestExcludedPatterns).
 class TypePickerMappingUiTest {
 	@Test
-	fun getEvaluationTypeLabels_whenResolved_coversEveryTypeWithNonBlankLabels() = runTest {
+	fun when_typeLabelsAreResolved_then_coversEveryTypeWithNonBlankLabels() = runTest {
 		val typeLabels = getEvaluationTypeLabels()
 
 		assertEquals(EvaluationType.entries.toSet(), typeLabels.keys)
@@ -21,7 +21,7 @@ class TypePickerMappingUiTest {
 	}
 
 	@Test
-	fun getEvaluationTypeLabels_whenResolved_matchesExpectedResources() = runTest {
+	fun when_typeLabelsAreResolved_then_matchesExpectedResources() = runTest {
 		val typeLabels = getEvaluationTypeLabels()
 
 		assertEquals(
@@ -35,7 +35,7 @@ class TypePickerMappingUiTest {
 	}
 
 	@Test
-	fun getEvaluationTypePickerItemList_whenTypeIsSelected_marksOnlyThatTypeVisible() = runTest {
+	fun when_typeIsSelected_then_marksOnlyThatTypeVisibleInPickerItems() = runTest {
 		val items = getEvaluationTypePickerItemList(selectedType = EvaluationType.TEST)
 
 		val selectedItem = items.first { item -> item.type == EvaluationType.TEST }

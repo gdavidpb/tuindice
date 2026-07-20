@@ -20,7 +20,7 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 class AttemptItemMappingUiTest {
 	@Test
-	fun toAttemptItem_buildsTextsAndColors_forGradedNumericAttempt() = runTuIndiceUiTest {
+	fun when_attemptIsGradedNumeric_then_buildsTextsAndColors() = runTuIndiceUiTest {
 		var item: AttemptItem? = null
 
 		setTuIndiceTestContent {
@@ -52,7 +52,7 @@ class AttemptItemMappingUiTest {
 	}
 
 	@Test
-	fun toAttemptItem_hidesGradeText_forRetiredAttempt() = runTuIndiceUiTest {
+	fun when_attemptIsRetired_then_hidesGradeText() = runTuIndiceUiTest {
 		var item: AttemptItem? = null
 
 		setTuIndiceTestContent {
@@ -71,7 +71,7 @@ class AttemptItemMappingUiTest {
 	}
 
 	@Test
-	fun toAttemptItem_resolvesPendingOutcomeToNull_andHidesGradeText() = runTuIndiceUiTest {
+	fun when_attemptOutcomeIsPending_then_resolvesToNullAndHidesGradeText() = runTuIndiceUiTest {
 		var item: AttemptItem? = null
 
 		setTuIndiceTestContent {
@@ -91,7 +91,7 @@ class AttemptItemMappingUiTest {
 	}
 
 	@Test
-	fun toAttemptItem_showsMinimumGrade_forUnreportedAttempt() = runTuIndiceUiTest {
+	fun when_attemptIsUnreported_then_showsMinimumGrade() = runTuIndiceUiTest {
 		var item: AttemptItem? = null
 
 		setTuIndiceTestContent {
@@ -110,7 +110,7 @@ class AttemptItemMappingUiTest {
 	}
 
 	@Test
-	fun toAttemptItem_hidesGradeText_forQualitativeAttempts() = runTuIndiceUiTest {
+	fun when_attemptIsQualitative_then_hidesGradeText() = runTuIndiceUiTest {
 		var item: AttemptItem? = null
 
 		setTuIndiceTestContent {
@@ -130,7 +130,7 @@ class AttemptItemMappingUiTest {
 	}
 
 	@Test
-	fun toAttemptItem_passesThroughReadOnlyFlagAndBadge() = runTuIndiceUiTest {
+	fun when_attemptItemIsMapped_then_passesThroughReadOnlyFlagAndBadge() = runTuIndiceUiTest {
 		var item: AttemptItem? = null
 
 		setTuIndiceTestContent {

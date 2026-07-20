@@ -42,7 +42,7 @@ import kotlin.test.assertTrue
 class SummaryProfilePictureLifecycleUiTest {
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-	fun uploadKeepsPreviewAndLoading_untilObservationDeliversNewPictureIdentity() = runTest {
+	fun when_uploadIsPending_then_keepsPreviewAndLoadingUntilNewPictureIdentityArrives() = runTest {
 		withMainDispatcher { dispatchers ->
 			val users = MutableStateFlow(DEFAULT_SUMMARY_USER)
 			val uploadedPicture = ProfilePicture(
@@ -100,7 +100,7 @@ class SummaryProfilePictureLifecycleUiTest {
 
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-	fun signedUrlRotation_keepsPreviewAndLoading_whileUploadIsPending() = runTest {
+	fun when_signedUrlRotatesDuringUpload_then_keepsPreviewAndLoading() = runTest {
 		withMainDispatcher { dispatchers ->
 			val picturePath = "https://storage.googleapis.com/tuindice/profile_pictures/uid.jpg"
 			val signedUser = DEFAULT_SUMMARY_USER.copy(
@@ -170,7 +170,7 @@ class SummaryProfilePictureLifecycleUiTest {
 
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-	fun uploadFailure_releasesPreview_andKeepsPreviousPicture() = runTest {
+	fun when_uploadFails_then_releasesPreviewAndKeepsPreviousPicture() = runTest {
 		withMainDispatcher { dispatchers ->
 			val users = MutableStateFlow(DEFAULT_SUMMARY_USER)
 			val viewModel = createViewModel(

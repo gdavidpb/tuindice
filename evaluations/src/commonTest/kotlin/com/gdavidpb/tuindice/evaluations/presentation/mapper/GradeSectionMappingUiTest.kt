@@ -13,7 +13,7 @@ import kotlin.test.assertTrue
 // Resolves titles through getString, so it runs on the iOS host only (androidHostTestExcludedPatterns).
 class GradeSectionMappingUiTest {
 	@Test
-	fun getEvaluationGradeSectionItem_whenBuilt_resolvesTitlesFromResources() = runTest {
+	fun when_gradeSectionItemIsBuilt_then_resolvesTitlesFromResources() = runTest {
 		val item = getEvaluationGradeSectionItem(
 			grade = 18.5,
 			maxGrade = 20.0
@@ -26,7 +26,7 @@ class GradeSectionMappingUiTest {
 	}
 
 	@Test
-	fun getEvaluationGradeSectionItem_whenMaxGradeIsUsable_showsGradeChipAndGradesTitle() = runTest {
+	fun when_maxGradeIsUsable_then_showsGradeChipAndGradesTitle() = runTest {
 		val item = getEvaluationGradeSectionItem(
 			grade = null,
 			maxGrade = 20.0
@@ -38,7 +38,7 @@ class GradeSectionMappingUiTest {
 	}
 
 	@Test
-	fun getEvaluationGradeSectionItem_whenMaxGradeIsNotUsable_hidesGradeChipAndUsesMaxGradeTitle() = runTest {
+	fun when_maxGradeIsNotUsable_then_hidesGradeChipAndUsesMaxGradeTitle() = runTest {
 		val item = getEvaluationGradeSectionItem(
 			grade = null,
 			maxGrade = null
