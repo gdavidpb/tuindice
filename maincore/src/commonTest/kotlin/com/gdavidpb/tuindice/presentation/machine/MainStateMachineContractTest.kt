@@ -106,7 +106,7 @@ class MainStateMachineContractTest {
 				Main.Action.SetLastMainSection(section = MainSection.SUMMARY),
 				MainInternalEvent.StartUpStarting,
 				MainInternalEvent.StartUpCompleted(
-					startDestination = SummaryDestination.NavGraph
+					startDestination = SummaryDestination.Summary
 				),
 				MainInternalEvent.AppUnavailableResolved(
 					notice = AppAvailabilityNotice(

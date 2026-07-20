@@ -10,24 +10,24 @@ import com.gdavidpb.tuindice.pensum.presentation.navigation.PensumDestination
 import com.gdavidpb.tuindice.record.presentation.navigation.RecordDestination
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 
-fun Destination.toMainSectionOrNull(): MainSection? = when (this) {
-	is SummaryDestination.NavGraph -> MainSection.SUMMARY
-	is RecordDestination.NavGraph -> MainSection.RECORD
-	is PensumDestination.NavGraph -> MainSection.PENSUM
-	is EvaluationsDestination.NavGraph -> MainSection.EVALUATIONS
-	is AboutDestination.NavGraph -> MainSection.ABOUT
+fun MainSection.toTabRootDestination(): Destination = when (this) {
+	MainSection.SUMMARY -> SummaryDestination.Summary
+	MainSection.RECORD -> RecordDestination.Record
+	MainSection.PENSUM -> PensumDestination.Pensum
+	MainSection.EVALUATIONS -> EvaluationsDestination.Evaluations
+	MainSection.ABOUT -> AboutDestination.About
+}
+
+fun Destination.toTabSectionOrNull(): MainSection? = when (this) {
+	is SummaryDestination.Summary -> MainSection.SUMMARY
+	is RecordDestination.Record -> MainSection.RECORD
+	is PensumDestination.Pensum -> MainSection.PENSUM
+	is EvaluationsDestination.Evaluations -> MainSection.EVALUATIONS
+	is AboutDestination.About -> MainSection.ABOUT
 	else -> null
 }
 
-fun MainSection.toDestination(): Destination = when (this) {
-	MainSection.SUMMARY -> SummaryDestination.NavGraph
-	MainSection.RECORD -> RecordDestination.NavGraph
-	MainSection.PENSUM -> PensumDestination.NavGraph
-	MainSection.EVALUATIONS -> EvaluationsDestination.NavGraph
-	MainSection.ABOUT -> AboutDestination.NavGraph
-}
-
 fun StartUpTarget.toDestination(): Destination = when (this) {
-	StartUpTarget.Auth -> AuthDestination.NavGraph
-	is StartUpTarget.Main -> section.toDestination()
+	StartUpTarget.Auth -> AuthDestination.SignIn
+	is StartUpTarget.Main -> section.toTabRootDestination()
 }

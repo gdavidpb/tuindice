@@ -1,9 +1,10 @@
 package com.gdavidpb.tuindice.summary.presentation.navigation
 
+import com.gdavidpb.tuindice.base.presentation.navigation.NavResult
 import kotlinx.serialization.Serializable
 
 @Serializable
-sealed class ProfilePictureSettingsResult {
+sealed class ProfilePictureSettingsResult : NavResult {
 	@Serializable
 	data object Pick : ProfilePictureSettingsResult()
 

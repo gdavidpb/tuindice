@@ -2,62 +2,56 @@ package com.gdavidpb.tuindice.subjects.presentation.navigation
 
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.navigation.NavGraphBuilder
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.composable
-import androidx.navigation.toRoute
+import androidx.navigation3.runtime.EntryProviderScope
+import androidx.navigation3.runtime.NavKey
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.base.presentation.navigation.NavShellBindings
+import com.gdavidpb.tuindice.base.presentation.navigation.TuIndiceNavActions
 import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLifecycle
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectDetail
 import com.gdavidpb.tuindice.subjects.presentation.route.SubjectDetailRoute
 import com.gdavidpb.tuindice.subjects.presentation.route.SubjectSearchRoute
+import com.gdavidpb.tuindice.subjects.presentation.viewmodel.SubjectDetailViewModel
+import com.gdavidpb.tuindice.subjects.presentation.viewmodel.SubjectSearchViewModel
 import org.koin.compose.viewmodel.koinViewModel
 import tuindice.subjects.generated.resources.Res
 import tuindice.subjects.generated.resources.top_bar_subject_detail
 
-fun NavGraphBuilder.subjectsNavigation(
-	navController: NavHostController,
-	onViewStateChanged: (ViewState) -> Unit,
-	onDismissRequest: () -> Unit
+fun EntryProviderScope<NavKey>.subjectsEntries(
+	navActions: TuIndiceNavActions,
+	shellBindings: NavShellBindings
 ) {
-	composable<SubjectsDestination.SubjectSearch> { backStackEntry ->
-		val viewModel = koinViewModel<com.gdavidpb.tuindice.subjects.presentation.viewmodel.SubjectSearchViewModel>(
-			viewModelStoreOwner = backStackEntry
-		)
+	entry<SubjectsDestination.SubjectSearch> {
+		val viewModel = koinViewModel<SubjectSearchViewModel>()
 		val viewState by viewModel.state.collectAsStateWithLifecycle()
 
-		navController.CollectCurrentEntryValueWithLifecycle(
-			backStackEntry = backStackEntry,
+		CollectCurrentEntryValueWithLifecycle(
 			value = viewState,
-			onValue = onViewStateChanged
+			onValue = shellBindings.onViewStateChanged
 		)
 
 		SubjectSearchRoute(
 			viewModel = viewModel,
 			onSubjectClick = { subjectCode ->
-				navController.navigate(SubjectsDestination.SubjectDetail(subjectCode = subjectCode))
+				navActions.push(SubjectsDestination.SubjectDetail(subjectCode = subjectCode))
 			}
 		)
 	}
 
-	composable<SubjectsDestination.SubjectDetail> { backStackEntry ->
-		val args = backStackEntry.toRoute<SubjectsDestination.SubjectDetail>()
-		val viewModel = koinViewModel<com.gdavidpb.tuindice.subjects.presentation.viewmodel.SubjectDetailViewModel>(
-			viewModelStoreOwner = backStackEntry
-		)
+	entry<SubjectsDestination.SubjectDetail> { key ->
+		val viewModel = koinViewModel<SubjectDetailViewModel>()
 		val viewState by viewModel.state.collectAsStateWithLifecycle()
 
-		navController.CollectCurrentEntryValueWithLifecycle(
-			backStackEntry = backStackEntry,
-			value = viewState.resolveNavigationViewState(subjectCode = args.subjectCode),
-			onValue = onViewStateChanged
+		CollectCurrentEntryValueWithLifecycle(
+			value = viewState.resolveNavigationViewState(subjectCode = key.subjectCode),
+			onValue = shellBindings.onViewStateChanged
 		)
 
 		SubjectDetailRoute(
-			subjectCode = args.subjectCode,
+			subjectCode = key.subjectCode,
 			viewModel = viewModel,
-			onDismissRequest = onDismissRequest
+			onDismissRequest = { navActions.pop() }
 		)
 	}
 }

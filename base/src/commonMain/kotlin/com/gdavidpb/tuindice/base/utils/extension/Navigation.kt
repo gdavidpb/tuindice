@@ -6,27 +6,11 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
-import androidx.navigation.FloatingWindow
-import androidx.navigation.NavBackStackEntry
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import com.gdavidpb.tuindice.base.presentation.navigation.Destination
+import com.gdavidpb.tuindice.base.presentation.navigation.LocalNavEntryScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-
-fun NavController.isCurrentDestination(destination: Destination): Boolean {
-	return currentDestination?.parent?.route == destination::class.qualifiedName
-}
-
-@Composable
-fun NavController.canNavigateBackFromCurrentDestination(): Boolean {
-	val currentBackStackEntry = currentBackStackEntryAsState().value
-	val destination = currentDestination ?: return false
-	return currentBackStackEntry != null &&
-			previousBackStackEntry != null &&
-			destination !is FloatingWindow
-}
 
 @Composable
 fun <T> CollectValueWithLifecycle(
@@ -55,19 +39,18 @@ fun <T> CollectValueWithLifecycle(
 }
 
 @Composable
-fun <T> NavController.CollectCurrentEntryValueWithLifecycle(
-	backStackEntry: NavBackStackEntry,
+fun <T> CollectCurrentEntryValueWithLifecycle(
 	value: T,
 	minActiveState: Lifecycle.State = Lifecycle.State.RESUMED,
 	awaitFrame: Boolean = false,
 	onValue: (T) -> Unit
 ) {
-	val currentBackStackEntry = currentBackStackEntryAsState().value
+	val entryScope = LocalNavEntryScope.current
 
 	CollectValueWithLifecycle(
 		value = value,
-		lifecycle = backStackEntry.lifecycle,
-		isActive = currentBackStackEntry == backStackEntry,
+		lifecycle = LocalLifecycleOwner.current.lifecycle,
+		isActive = entryScope.isCurrent.value,
 		minActiveState = minActiveState,
 		awaitFrame = awaitFrame,
 		onValue = onValue

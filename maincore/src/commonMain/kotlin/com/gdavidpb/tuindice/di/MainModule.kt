@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.domain.usecase.StartUpUseCase
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
 import com.gdavidpb.tuindice.presentation.machine.BrowserMachine
 import com.gdavidpb.tuindice.presentation.machine.MainMachine
+import com.gdavidpb.tuindice.presentation.navigation.NavEntryStoresViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import org.koin.core.module.dsl.factoryOf
@@ -19,6 +20,7 @@ val mainModule = module {
 	/* View models */
 
 	viewModelOf(::MainViewModel)
+	viewModelOf(::NavEntryStoresViewModel)
 
 	factoryOf(::MainMachine)
 	factoryOf(::BrowserMachine)

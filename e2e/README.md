@@ -125,3 +125,11 @@ resume and retry rotation compose with the reordered plan unchanged. Set
 `E2E_MAESTRO_CHANGED_FIRST=0` to disable, `E2E_MAESTRO_CHANGED_FIRST_BASE` to
 diff against another ref, or `E2E_MAESTRO_CHANGED_FLOWS_FILE` to inject the
 changed list explicitly (paths relative to `e2e/maestro/flows`).
+
+The iOS runner also keeps the simulator lean: Maestro drives iOS through
+XCTest, so `testmanagerd` accumulates per-run diagnostics inside the simulator
+without bound. `e2e/scripts/clean-devices.sh` (invoked by
+`run-maestro-ios.sh`) measures that container and, only past
+`E2E_IOS_DIAGNOSTICS_LIMIT_GB` (default 10), shuts the simulator down, deletes
+the diagnostics, and boots it back; below the limit it is a no-op. Set
+`E2E_DEVICE_CLEAN_DIAGNOSTICS=0` to disable the clean entirely.

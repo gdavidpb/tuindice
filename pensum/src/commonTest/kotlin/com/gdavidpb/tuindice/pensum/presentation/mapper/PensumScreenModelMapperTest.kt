@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.pensum.domain.model.PensumProgress
 import com.gdavidpb.tuindice.pensum.domain.model.PensumRelationshipType
 import com.gdavidpb.tuindice.pensum.domain.model.PensumSelection
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumEdgeRelationshipType
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumScreenModel
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -251,72 +252,65 @@ class PensumScreenModelMapperTest {
 	}
 
 	@Test
-	fun when_edgesExist_then_subjectDetailExposesRelationsAndBlockingReasons() {
-		val approvedRequirement = course(
-			id = "ma1111",
-			displayCode = "MA1111",
-			y = 84.0,
-			height = 120.0
-		)
-		val pendingCorequisite = course(
-			id = "ci2693",
-			displayCode = "CI2693",
-			y = 228.0,
-			height = 120.0
-		)
-		val blockedNode = course(
-			id = "ci4325",
-			displayCode = "CI4325",
-			y = 372.0,
-			height = 120.0
-		)
-		val unlockedNode = course(
-			id = "ci5406",
-			displayCode = "CI5406",
-			y = 516.0,
-			height = 120.0
-		)
-		val pensum = graph(
-			nodes = listOf(approvedRequirement, pendingCorequisite, blockedNode, unlockedNode),
-			edges = listOf(
-				edge(
-					fromNodeId = approvedRequirement.id,
-					toNodeId = blockedNode.id
-				),
-				edge(
-					fromNodeId = pendingCorequisite.id,
-					toNodeId = blockedNode.id,
-					relationshipType = PensumRelationshipType.COREQUISITE
-				),
-				edge(
-					fromNodeId = blockedNode.id,
-					toNodeId = unlockedNode.id
-				)
-			)
-		)
+	fun when_edgesExist_then_subjectDetailExposesRelations() {
+		val model = subjectRelationsModel()
+		val detail = model.nodes.single { node -> node.id == "ci4325" }.detail
 
-		val model = observedPensum(
-			nodes = pensum.nodes,
-			pensum = pensum,
-			nodeStatuses = mapOf(
-				approvedRequirement.id to PensumNodeStatus.APPROVED,
-				pendingCorequisite.id to PensumNodeStatus.AVAILABLE,
-				blockedNode.id to PensumNodeStatus.BLOCKED,
-				unlockedNode.id to PensumNodeStatus.BLOCKED
-			)
-		).toScreenModel()
-		val detail = model.nodes.single { node -> node.id == blockedNode.id }.detail
-
-		assertEquals(listOf(approvedRequirement.id), detail.requirements.map { item -> item.nodeId })
-		assertEquals(listOf(pendingCorequisite.id), detail.corequisites.map { item -> item.nodeId })
-		assertEquals(listOf(unlockedNode.id), detail.unlocks.map { item -> item.nodeId })
-		assertEquals(listOf(pendingCorequisite.id), detail.blockingReasons.map { item -> item.nodeId })
-		assertEquals(PensumEdgeRelationshipType.COREQUISITE, detail.blockingReasons.single().relationshipType)
+		assertEquals(listOf("ma1111"), detail.requirements.map { item -> item.nodeId })
+		assertEquals(listOf("ci2693"), detail.corequisites.map { item -> item.nodeId })
+		assertEquals(listOf("ci5406"), detail.unlocks.map { item -> item.nodeId })
+		assertEquals(PensumEdgeRelationshipType.COREQUISITE, detail.corequisites.single().relationshipType)
 		assertEquals(
-			model.nodes.single { node -> node.id == pendingCorequisite.id }.visualStyle,
+			model.nodes.single { node -> node.id == "ci2693" }.visualStyle,
 			detail.corequisites.single().visualStyle
 		)
 	}
+
+	@Test
+	fun when_corequisiteEdgeIsOutgoing_then_partnerDetailShowsCorequisiteInsteadOfUnlock() {
+		val model = subjectRelationsModel()
+		val detail = model.nodes.single { node -> node.id == "ci2693" }.detail
+
+		assertEquals(listOf("ci4325"), detail.corequisites.map { item -> item.nodeId })
+		assertEquals(emptyList(), detail.unlocks.map { item -> item.nodeId })
+	}
+}
+
+private fun subjectRelationsModel(): PensumScreenModel {
+	val nodes = listOf(
+		course(id = "ma1111", displayCode = "MA1111", y = 84.0, height = 120.0),
+		course(id = "ci2693", displayCode = "CI2693", y = 228.0, height = 120.0),
+		course(id = "ci4325", displayCode = "CI4325", y = 372.0, height = 120.0),
+		course(id = "ci5406", displayCode = "CI5406", y = 516.0, height = 120.0)
+	)
+	val pensum = graph(
+		nodes = nodes,
+		edges = listOf(
+			edge(fromNodeId = "ma1111", toNodeId = "ci4325"),
+			edge(
+				fromNodeId = "ci2693",
+				toNodeId = "ci4325",
+				relationshipType = PensumRelationshipType.COREQUISITE
+			),
+			edge(
+				fromNodeId = "ci4325",
+				toNodeId = "ci2693",
+				relationshipType = PensumRelationshipType.COREQUISITE
+			),
+			edge(fromNodeId = "ci4325", toNodeId = "ci5406")
+		)
+	)
+
+	return observedPensum(
+		nodes = pensum.nodes,
+		pensum = pensum,
+		nodeStatuses = mapOf(
+			"ma1111" to PensumNodeStatus.APPROVED,
+			"ci2693" to PensumNodeStatus.AVAILABLE,
+			"ci4325" to PensumNodeStatus.BLOCKED,
+			"ci5406" to PensumNodeStatus.BLOCKED
+		)
+	).toScreenModel()
 }
 
 private fun observedPensum(

@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -27,7 +28,16 @@ import kotlin.test.Test
  */
 class SignInStateMachineWalkUiTest {
 	@Test
-	fun machine_survivesSeededRandomWalk() = runTest {
+	fun when_seededRandomWalkRuns_then_machineSurvives() = runTest {
+		runSignInMachineWalk(seed = 0x7E57AB1E)
+	}
+
+	@Test
+	fun when_alternateSeededRandomWalkRuns_then_machineSurvives() = runTest {
+		runSignInMachineWalk(seed = 0x5EEDCAFE)
+	}
+
+	private suspend fun TestScope.runSignInMachineWalk(seed: Long) {
 		val screenMachine = SignInMachine(
 			signInUseCase = SignInUseCase(
 				authRepository = RecordingAuthRepository(),
@@ -49,6 +59,7 @@ class SignInStateMachineWalkUiTest {
 
 		assertMachineRandomWalk(
 			screenMachine = screenMachine,
+			seed = seed,
 			sampleEvents = listOf(
 				SignIn.Action.SetUsbId(usbId = "20-26123"),
 				SignIn.Action.SetPassword(password = "secret123"),

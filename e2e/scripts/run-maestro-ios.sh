@@ -12,6 +12,8 @@ require_command maestro
 require_command xcrun
 
 log "iOS Maestro setup: WireMock=${E2E_WIREMOCK_URL}; bundleId=${E2E_IOS_BUNDLE_ID}; requestedDevice=${E2E_IOS_DEVICE_ID}."
+bash "${SCRIPT_DIR}/clean-devices.sh" ios ||
+	log "Device clean failed; continuing with the run."
 register_wiremock_cleanup
 "${SCRIPT_DIR}/start-wiremock.sh"
 reset_wiremock

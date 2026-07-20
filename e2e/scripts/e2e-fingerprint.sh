@@ -21,7 +21,16 @@ require_command git
 
 # Pathspecs are platform-scoped so a host-only fix on one platform does not
 # invalidate the other platform's published evidence. Shared runtime content
-# (KMP modules, mocks, Maestro flows, testkit) stays in both fingerprints.
+# (KMP modules, mocks, Maestro flows) stays in both fingerprints.
+#
+# testkit/e2e is listed file-by-file rather than as a directory: only the
+# data/config files that Maestro flows actually read at runtime belong in the
+# fingerprint (a quarantine or fixture change can change what a flow does).
+# testkit/e2e/validate-*.sh and *.md docs are deliberately excluded — they run
+# as their own separate, independent Gradle task (verifyE2eContract) that
+# re-verifies on every preflight regardless of the fingerprint, and never
+# influence what a Maestro flow does at runtime. Including them here forces a
+# full evidence re-run for a change that cannot affect evidence outcomes.
 declare -a fingerprint_pathspecs=(
 	"settings.gradle.kts"
 	"gradle.properties"
@@ -29,7 +38,11 @@ declare -a fingerprint_pathspecs=(
 	"gradle/wrapper/gradle-wrapper.properties"
 	"mocks"
 	"e2e/maestro"
-	"testkit/e2e"
+	"testkit/e2e/critical-selectors.txt"
+	"testkit/e2e/fixture-contract.env"
+	"testkit/e2e/flow-catalog.yaml"
+	"testkit/e2e/mvi-action-catalog.yaml"
+	"testkit/e2e/quarantine.txt"
 )
 
 if [[ "$PLATFORM" == "android" ]]; then
@@ -94,7 +107,7 @@ if ! command -v shasum >/dev/null 2>&1; then
 fi
 
 {
-	printf 'tuindice-e2e-fingerprint-v3\n'
+	printf 'tuindice-e2e-fingerprint-v4\n'
 	printf 'platform=%s\n' "$PLATFORM"
 	printf 'suite=%s\n' "$SUITE_ID"
 	git -C "$REPO_ROOT" ls-tree -r "$GIT_REF" -- "${fingerprint_pathspecs[@]}" | LC_ALL=C sort

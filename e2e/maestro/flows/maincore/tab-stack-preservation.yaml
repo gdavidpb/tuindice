@@ -1,0 +1,45 @@
+appId: com.gdavidpb.tuindice.debug
+---
+# Navigation 3 tab back semantics. Covers the one user-observable, Maestro-stable
+# behavior not already exercised by bottom-bar-state (tab switching) or back-stack
+# (within-tab push + top-bar back): on Android, the system back gesture at a
+# non-start tab root returns to the start tab (Summary) instead of leaving the app.
+#
+# Not covered here, on purpose:
+#  - iOS predictive-back edge swipe: a UIKit edge-pan gesture Maestro cannot drive
+#    stably; verified by manual QA. The iOS pop path itself is covered by back-stack
+#    (top-bar back button).
+#  - Deep per-tab stack/state retention: unreachable through the UI (the bottom bar
+#    is hidden on pushed screens, so tabs switch only from a tab root); covered by
+#    TuIndiceNavigatorTest and TuIndiceNavRetentionUiTest.
+
+# Tab round-trip (both platforms): switch to About and back to the start tab.
+- tapOn:
+    id: maincore_tuindice_bottom_bar_about_item
+- extendedWaitUntil:
+    visible:
+      id: about_content_container
+    timeout: 20000
+- tapOn:
+    id: maincore_tuindice_bottom_bar_summary_item
+- extendedWaitUntil:
+    visible:
+      id: summary_content_container
+    timeout: 20000
+
+# Android: system back at a non-start tab root returns to the start tab.
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - tapOn:
+          id: maincore_tuindice_bottom_bar_about_item
+      - extendedWaitUntil:
+          visible:
+            id: about_content_container
+          timeout: 20000
+      - back
+      - extendedWaitUntil:
+          visible:
+            id: summary_content_container
+          timeout: 15000

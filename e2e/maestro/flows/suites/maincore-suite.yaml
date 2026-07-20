@@ -6,5 +6,6 @@ name: TuIndice maincore E2E suite
 - runFlow: ../_shared/continue-to-summary-after-auth.yaml
 - runFlow: ../maincore/bottom-bar-state.yaml
 - runFlow: ../maincore/back-stack.yaml
+- runFlow: ../maincore/tab-stack-preservation.yaml
 - runFlow: ../maincore/browser-external-dialog.yaml
 - runFlow: ../maincore/app-availability-notice.yaml

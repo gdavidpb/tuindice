@@ -2,14 +2,13 @@ package com.gdavidpb.tuindice.presentation.viewmodel
 
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
-import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 import com.gdavidpb.tuindice.base.presentation.statemachine.StateMachineViewModel
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.machine.MainMachine
-import com.gdavidpb.tuindice.presentation.mapper.toMainSectionOrNull
 
 class MainViewModel(
 	override val screenMachine: MainMachine,
@@ -30,10 +29,8 @@ class MainViewModel(
 	fun showOutdatedAppAction(state: OutdatedAppState) =
 		sendAction(Main.Action.ShowOutdatedApp(outdatedAppState = state))
 
-	fun setLastDestinationAction(destination: Destination) {
-		destination.toMainSectionOrNull()
-			?.let { sendAction(Main.Action.SetLastMainSection(section = it)) }
-	}
+	fun setLastSectionAction(section: MainSection) =
+		sendAction(Main.Action.SetLastMainSection(section = section))
 
 	fun checkUpdateAction() =
 		sendAction(Main.Action.RequestUpdateCheck)

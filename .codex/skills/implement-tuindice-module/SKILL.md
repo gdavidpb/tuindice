@@ -132,9 +132,9 @@ Implement module work by copying the nearest existing module pattern instead of 
 - Prefer feature dialogs as navigation destinations instead of rendering them from the feature state. Keep state-driven dialogs only for small widget-local popups when promoting them to navigation would add unnecessary ceremony.
 - Choose one dialog-result pattern deliberately:
   - If the dialog only needs to mutate the parent screen state, resolve the parent/shared `ViewModel` from the dialog destination and dispatch the action directly, as in `evaluations`.
-  - If the dialog needs to hand intent back to the previous destination and the parent must execute a lifecycle-sensitive side effect after the dialog is gone, use `base/.../NavigationResult.kt` with `CollectBackResultWithLifecycle`, as in `summary`.
-- For navigation back results, use dedicated `@Serializable` result types instead of raw `String` or `Boolean` values. The shared helper derives the key from the result base type and serializes the payload into `savedStateHandle`.
-- When sending a sealed back result, call `navigateBackWithResult<BaseResult>(SubResult)` with the base type explicit so the writer and collector use the same key and serializer.
+  - If the dialog needs to hand intent back to the previous destination and the parent must execute a lifecycle-sensitive side effect after the dialog is gone, pop with `navActions.popWithResult(<Result>)` and collect with `CollectNavResultWithLifecycle<Result>`, as in `summary`.
+- For navigation results, use dedicated result types implementing `base/.../presentation/navigation/NavResult.kt` instead of raw `String` or `Boolean` values; delivery is typed in memory (no serialization involved).
+- Every navigable destination must be registered by the module's `TuIndiceNavContribution` and added to `TuIndiceNavigationSerializationTest` in maincore: a missing polymorphic registration crashes back-stack restoration on iOS.
 - Match the repo's Compose local-state style: when using `remember { mutableStateOf(...) }`, prefer `val state = ...` plus `.value` reads/writes instead of delegated `var ... by remember { ... }`, unless the file already follows a different established pattern.
 - Keep presentation models in `presentation/model`. Each presentation `data class` should live in its own file named after the class.
 - Use one public top-level declaration per file across feature code. Do not group multiple public models, DTOs, enums, entities, repository interfaces, or state types into catch-all files such as `SubjectModels.kt` or `*Repositories.kt`.

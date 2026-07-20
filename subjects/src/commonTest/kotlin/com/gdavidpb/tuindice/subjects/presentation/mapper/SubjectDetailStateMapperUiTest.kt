@@ -18,7 +18,7 @@ import kotlin.test.assertTrue
 
 class SubjectDetailStateMapperUiTest {
 	@Test
-	fun toViewState_whenCareerSegmentIsPresent_thenSelectsCareerTabAndFormatsMetrics() = runTest {
+	fun when_careerSegmentIsPresent_then_selectsCareerTabAndFormatsMetrics() = runTest {
 		val state = readySubjectDetail(subjectCode = "MAT101").toViewState()
 
 		val content = assertIs<SubjectDetail.State.Content>(state)
@@ -66,7 +66,7 @@ class SubjectDetailStateMapperUiTest {
 	}
 
 	@Test
-	fun toViewState_whenOnlyGlobalSegmentIsPresent_thenSelectsGlobalTab() = runTest {
+	fun when_onlyGlobalSegmentIsPresent_then_selectsGlobalTab() = runTest {
 		val ready = readySubjectDetail(subjectCode = "MAT101")
 		val onlyGlobal = SubjectDetailResult.Ready(
 			detail = ready.detail.copy(
@@ -85,7 +85,7 @@ class SubjectDetailStateMapperUiTest {
 	}
 
 	@Test
-	fun toViewState_whenBothSegmentsArePresent_thenEnablesSegmentTabsAndPrefersCareer() = runTest {
+	fun when_bothSegmentsArePresent_then_enablesSegmentTabsAndPrefersCareer() = runTest {
 		val ready = readySubjectDetail(subjectCode = "MAT101")
 		val bothSegments = SubjectDetailResult.Ready(
 			detail = ready.detail.copy(
@@ -103,7 +103,7 @@ class SubjectDetailStateMapperUiTest {
 	}
 
 	@Test
-	fun toViewState_whenGradingIsQualitativeAndMetricsAreMissing_thenUsesQualitativeAndEmptyTexts() = runTest {
+	fun when_gradingIsQualitativeAndMetricsAreMissing_then_usesQualitativeAndEmptyTexts() = runTest {
 		val ready = readySubjectDetail(subjectCode = "CSA215")
 		val qualitative = SubjectDetailResult.Ready(
 			detail = ready.detail.copy(
@@ -141,7 +141,7 @@ class SubjectDetailStateMapperUiTest {
 	}
 
 	@Test
-	fun toViewState_whenResultIsUnavailable_thenMapsToUnavailableState() = runTest {
+	fun when_resultIsUnavailable_then_mapsToUnavailableState() = runTest {
 		val state = SubjectDetailResult.Unavailable(
 			subjectCode = "MAT404",
 			expiresAt = 123L
@@ -151,7 +151,7 @@ class SubjectDetailStateMapperUiTest {
 	}
 
 	@Test
-	fun withSelectedTab_whenTabChanges_thenOnlyUpdatesSelectedTab() = runTest {
+	fun when_selectedTabChanges_then_onlyUpdatesSelectedTab() = runTest {
 		val ready = readySubjectDetail(subjectCode = "MAT101")
 		val bothSegments = SubjectDetailResult.Ready(
 			detail = ready.detail.copy(

@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepositor
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
@@ -26,11 +27,26 @@ import kotlin.test.Test
  */
 class SummaryStateMachineWalkUiTest {
 	@Test
-	fun machine_survivesSeededRandomWalk() = runTest {
+	fun when_seededRandomWalkRuns_then_machineSurvives() = runTest {
+		runSummaryMachineWalk(seed = 0x7E57AB1E)
+	}
+
+	@Test
+	fun when_alternateSeededRandomWalkRuns_then_machineSurvives() = runTest {
+		runSummaryMachineWalk(seed = 0x5EEDCAFE)
+	}
+
+	private suspend fun TestScope.runSummaryMachineWalk(seed: Long) {
+		val screenMachine = createSummaryMachine()
+
+		runSummaryWalkAssertions(screenMachine = screenMachine, seed = seed)
+	}
+
+	private fun createSummaryMachine(): SummaryMachine {
 		val userRepository = RecordingUserRepository(users = flowOf(DEFAULT_SUMMARY_USER))
 		val reportingRepository = RecordingReportingRepository()
 
-		val screenMachine = SummaryMachine(
+		return SummaryMachine(
 			observeUserUseCase = ObserveUserUseCase(
 				userRepository = userRepository,
 				reportingRepository = reportingRepository
@@ -57,12 +73,17 @@ class SummaryStateMachineWalkUiTest {
 				)
 			)
 		)
+	}
 
-			val content = Summary.State.Content(
-				name = "Jane Doe",
-				careerName = "Ingeniería de Computación",
-				grade = 4.2f,
-				enrolledSubjects = 5,
+	private suspend fun TestScope.runSummaryWalkAssertions(
+		screenMachine: SummaryMachine,
+		seed: Long
+	) {
+		val content = Summary.State.Content(
+			name = "Jane Doe",
+			careerName = "Ingeniería de Computación",
+			grade = 4.2f,
+			enrolledSubjects = 5,
 			enrolledCredits = 16,
 			approvedSubjects = 30,
 			approvedCredits = 120,
@@ -77,6 +98,7 @@ class SummaryStateMachineWalkUiTest {
 
 		assertMachineRandomWalk(
 			screenMachine = screenMachine,
+			seed = seed,
 			sampleEvents = listOf(
 				Summary.Action.ObserveSummary,
 				Summary.Action.RefreshSummary,

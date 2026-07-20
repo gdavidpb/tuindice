@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryInternalEvent
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
+import com.gdavidpb.tuindice.summary.presentation.mapper.profilePictureIdentity
 
 internal fun MachineDefinitionBuilder<Summary.State>.contentTransitions(
 	machine: SummaryMachine,
@@ -31,10 +32,13 @@ internal fun MachineDefinitionBuilder<Summary.State>.contentTransitions(
 		}
 
 		on<SummaryInternalEvent.UserObserved> { state, event ->
-			// A changed URL or version means the pending picture mutation landed:
-			// only then the in-flight flag and the optimistic preview are released.
+			// A changed picture identity or version means the pending picture mutation
+			// landed: only then the in-flight flag and the optimistic preview are
+			// released. The identity strips the signed-URL signature, which rotates on
+			// every backend fetch without the picture itself changing.
 			val hasNewProfilePicture =
-				event.content.profilePictureUrl != state.profilePictureUrl ||
+				profilePictureIdentity(event.content.profilePictureUrl) !=
+					profilePictureIdentity(state.profilePictureUrl) ||
 					event.content.profilePictureVersion != state.profilePictureVersion
 
 			event.content.copy(

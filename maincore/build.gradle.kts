@@ -57,7 +57,7 @@ kotlin {
 				implementation(libs.components.resources)
 				implementation(libs.kotlinx.serialization.json)
 				implementation(libs.material.icons.extended)
-				implementation(libs.navigation.compose)
+				implementation(libs.navigation3.ui)
 				implementation(libs.bundles.ktor)
 			}
 		}

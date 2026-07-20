@@ -37,12 +37,12 @@ If the request does not fit one of those buckets, pause and explain why before i
    - check both request matchers and response payloads, not just the happy-path body
 7. If the change adds or changes destinations:
    - update the feature `*Navigation.kt`
-   - update `maincore/.../TuIndiceNavHost.kt` if the host must navigate to it
+   - update `maincore/.../ui/screen/TuIndiceNavDisplay.kt` if the host must navigate to it
    - if the destination is a feature dialog, prefer `dialog<Destination>` in navigation over rendering the dialog from feature state
    - for dialog destinations, pick one result pattern explicitly:
      - resolve the parent/shared `ViewModel` from the dialog destination and dispatch actions directly when the dialog only edits parent state
-     - use `base/.../NavigationResult.kt` when the dialog must return an intent to the previous destination and that destination must run a lifecycle-sensitive side effect after the dialog closes
-   - when using `NavigationResult`, create a dedicated `@Serializable` result type per flow instead of raw primitives; for sealed results, send them with the base generic type so the writer and collector share the same key
+     - use `navActions.popWithResult(...)` + `CollectNavResultWithLifecycle` when the dialog must return an intent to the previous destination and that destination must run a lifecycle-sensitive side effect after the dialog closes
+   - create a dedicated `NavResult` type per flow instead of raw primitives, and register new destinations in the module's `TuIndiceNavContribution` plus the maincore serialization canary test
 8. Validate with targeted compilation plus the feature smoke test and the smallest relevant contract/UI tests.
 9. If the feature change affects a user-visible flow, presentation `Action`, selector, navigation path, platform hand-off, app startup/reset path, or mock-backed state, update local E2E in the same change:
    - `testkit/e2e/flow-catalog.yaml`
@@ -98,7 +98,7 @@ If the request does not fit one of those buckets, pause and explain why before i
 11. If the feature has navigation:
    - create `<Feature>Destination`
    - create `<feature>Navigation(...)`
-   - integrate it in `maincore/.../TuIndiceNavHost.kt`
+   - integrate it in `maincore/.../ui/screen/TuIndiceNavDisplay.kt` and register its `TuIndiceNavContribution` in `TuIndiceSavedStateConfiguration.kt`
 12. If the feature is a top-level tab:
    - update `maincore/.../BottomBarConfig.kt`
    - update `maincore/.../TuIndiceScreen.kt`
@@ -194,7 +194,7 @@ These files are easy to miss when adding or widening a module:
 - `maincore/build.gradle.kts`
 - `app/build.gradle.kts`
 - `maincore/.../SharedModules.kt`
-- `maincore/.../TuIndiceNavHost.kt`
+- `maincore/.../ui/screen/TuIndiceNavDisplay.kt`
 - `maincore/.../BottomBarConfig.kt`
 - `maincore/.../TuIndiceScreen.kt`
 - `testkit/e2e/flow-catalog.yaml`

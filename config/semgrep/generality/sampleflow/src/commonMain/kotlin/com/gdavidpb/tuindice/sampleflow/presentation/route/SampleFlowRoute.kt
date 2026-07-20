@@ -7,6 +7,7 @@ object RogueRouteAction : ViewAction
 
 fun sampleFlowRoute(draft: SampleFlowDraft, navController: Any): Any {
 	val viewModel = koinViewModel<Any>()
-	navController.navigateBackWithResult(RogueRouteAction)
-	return viewModel to draft
+	return viewModel to (draft to navController)
 }
+
+fun EntryProviderScope<Any>.rogueEntries(viewModel: Any): Any = viewModel

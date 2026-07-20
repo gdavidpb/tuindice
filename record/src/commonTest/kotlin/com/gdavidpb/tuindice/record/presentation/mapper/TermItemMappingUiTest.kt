@@ -26,7 +26,7 @@ import kotlin.test.assertTrue
 @OptIn(ExperimentalTestApi::class)
 class TermItemMappingUiTest {
 	@Test
-	fun toTermItem_buildsHeaderTextsAndFlags_forSyntheticTermInProjectionMode() = runTuIndiceUiTest {
+	fun when_termIsSyntheticInProjectionMode_then_buildsHeaderTextsAndFlags() = runTuIndiceUiTest {
 		var item: TermItem? = null
 
 		setTuIndiceTestContent {
@@ -60,7 +60,7 @@ class TermItemMappingUiTest {
 	}
 
 	@Test
-	fun toTermItem_computesMetricDeltas_againstOlderTerm() = runTuIndiceUiTest {
+	fun when_termHasOlderNeighbor_then_computesMetricDeltas() = runTuIndiceUiTest {
 		var item: TermItem? = null
 
 		setTuIndiceTestContent {
@@ -98,7 +98,7 @@ class TermItemMappingUiTest {
 	}
 
 	@Test
-	fun toTermItem_marksNegativeAndZeroDeltas_withExpectedTexts() = runTuIndiceUiTest {
+	fun when_deltasAreNegativeOrZero_then_marksThemWithExpectedTexts() = runTuIndiceUiTest {
 		var item: TermItem? = null
 
 		setTuIndiceTestContent {
@@ -132,7 +132,7 @@ class TermItemMappingUiTest {
 	}
 
 	@Test
-	fun toTermItem_skipsDeltas_whenTermHasNoAttempts() = runTuIndiceUiTest {
+	fun when_termHasNoAttempts_then_skipsDeltas() = runTuIndiceUiTest {
 		var item: TermItem? = null
 
 		setTuIndiceTestContent {
@@ -153,7 +153,7 @@ class TermItemMappingUiTest {
 	}
 
 	@Test
-	fun toTermItem_flagsCurrentTermReadOnly_inHistoricalMode() = runTuIndiceUiTest {
+	fun when_currentTermIsInHistoricalMode_then_flagsItReadOnly() = runTuIndiceUiTest {
 		var item: TermItem? = null
 
 		setTuIndiceTestContent {
@@ -175,7 +175,7 @@ class TermItemMappingUiTest {
 	}
 
 	@Test
-	fun toTermItemList_pairsEachTermWithItsOlderNeighbor() = runTuIndiceUiTest {
+	fun when_termListIsMapped_then_pairsEachTermWithItsOlderNeighbor() = runTuIndiceUiTest {
 		var items: List<TermItem>? = null
 
 		setTuIndiceTestContent {

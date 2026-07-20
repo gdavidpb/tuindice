@@ -18,7 +18,7 @@ import kotlin.test.assertEquals
 // Resolves messages through getString, so it runs on the iOS host only (androidHostTestExcludedPatterns).
 class EvaluationErrorMessagesMappingUiTest {
 	@Test
-	fun toAddSubmitErrorMessage_whenErrorIsKnown_mapsToItsResource() = runTest {
+	fun when_addSubmitErrorIsKnown_then_mapsToItsResource() = runTest {
 		assertEquals(
 			getString(Res.string.snack_evaluation_already_exists),
 			AddEvaluationUseCaseError.AlreadyExists.toAddSubmitErrorMessage()
@@ -38,7 +38,7 @@ class EvaluationErrorMessagesMappingUiTest {
 	}
 
 	@Test
-	fun toAddSubmitErrorMessage_whenErrorIsUnknown_fallsBackToDefaultMessage() = runTest {
+	fun when_addSubmitErrorIsUnknown_then_fallsBackToDefaultMessage() = runTest {
 		assertEquals(
 			commonUnexpectedErrorMessage(),
 			(null as AddEvaluationUseCaseError?).toAddSubmitErrorMessage()
@@ -46,7 +46,7 @@ class EvaluationErrorMessagesMappingUiTest {
 	}
 
 	@Test
-	fun toEditSubmitErrorMessage_whenEvaluationIsNotFound_mapsToNotFoundResource() = runTest {
+	fun when_editSubmitErrorIsEvaluationNotFound_then_mapsToNotFoundResource() = runTest {
 		assertEquals(
 			getString(Res.string.snack_evaluation_not_found),
 			UpdateEvaluationUseCaseError.NotFound.toEditSubmitErrorMessage()
@@ -54,7 +54,7 @@ class EvaluationErrorMessagesMappingUiTest {
 	}
 
 	@Test
-	fun toEditSubmitErrorMessage_whenErrorIsUnknown_fallsBackToDefaultMessage() = runTest {
+	fun when_editSubmitErrorIsUnknown_then_fallsBackToDefaultMessage() = runTest {
 		assertEquals(
 			commonUnexpectedErrorMessage(),
 			(null as UpdateEvaluationUseCaseError?).toEditSubmitErrorMessage()
@@ -62,7 +62,7 @@ class EvaluationErrorMessagesMappingUiTest {
 	}
 
 	@Test
-	fun toGradeSaveErrorMessage_whenInvoked_delegatesToEditMessages() = runTest {
+	fun when_gradeSaveErrorMessageIsResolved_then_delegatesToEditMessages() = runTest {
 		assertEquals(
 			UpdateEvaluationUseCaseError.NotFound.toEditSubmitErrorMessage(),
 			UpdateEvaluationUseCaseError.NotFound.toGradeSaveErrorMessage()
@@ -74,7 +74,7 @@ class EvaluationErrorMessagesMappingUiTest {
 	}
 
 	@Test
-	fun toRemoveErrorMessage_whenEvaluationIsNotFound_mapsToNotFoundResource() = runTest {
+	fun when_removeErrorIsEvaluationNotFound_then_mapsToNotFoundResource() = runTest {
 		assertEquals(
 			getString(Res.string.snack_evaluation_not_found),
 			RemoveEvaluationUseCaseError.NotFound.toRemoveErrorMessage()
@@ -82,7 +82,7 @@ class EvaluationErrorMessagesMappingUiTest {
 	}
 
 	@Test
-	fun toRemoveErrorMessage_whenErrorIsUnknown_fallsBackToDefaultMessage() = runTest {
+	fun when_removeErrorIsUnknown_then_fallsBackToDefaultMessage() = runTest {
 		assertEquals(
 			commonUnexpectedErrorMessage(),
 			(null as RemoveEvaluationUseCaseError?).toRemoveErrorMessage()

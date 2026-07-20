@@ -4,17 +4,19 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.SideEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.repeatOnLifecycle
-import androidx.navigation.compose.rememberNavController
+import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
@@ -28,15 +30,16 @@ import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.logging.appLogger
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
-import com.gdavidpb.tuindice.base.utils.extension.isCurrentDestination
-import com.gdavidpb.tuindice.auth.presentation.navigation.AuthDestination
-import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofDestination
 import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
+import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofDestination
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.model.MainShellState
 import com.gdavidpb.tuindice.presentation.model.toMainShellState
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
+import com.gdavidpb.tuindice.presentation.navigation.TuIndiceNavigator
+import com.gdavidpb.tuindice.presentation.navigation.TuIndiceRootMode
+import com.gdavidpb.tuindice.presentation.navigation.rememberTuIndiceNavigator
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.subjects.presentation.navigation.SubjectsDestination
@@ -47,23 +50,18 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.yield
+import org.jetbrains.compose.resources.stringResource
 import org.koin.compose.koinInject
 import org.koin.compose.viewmodel.koinViewModel
-import org.jetbrains.compose.resources.stringResource
 import tuindice.maincore.generated.resources.Res
 import tuindice.maincore.generated.resources.snack_pending_changes_unavailable
 import tuindice.maincore.generated.resources.snack_session_invalidated
 
 private val logger = appLogger(tag = "SignOut")
-private val updatePasswordSuppressedRoutes = setOf(
-	AuthDestination.NavGraph::class.qualifiedName,
-	AuthDestination.SignIn::class.qualifiedName
-)
 
 @Composable
 fun TuIndiceAppHostRoute(
 	onConfirmExitClick: () -> Unit,
-	isSwipeBackNavigationEnabled: Boolean = false,
 	browserRepository: BrowserRepository = koinInject(),
 	deviceInfoRepository: DeviceInfoRepository = koinInject(),
 	pendingChangesRepository: PendingChangesRepository = koinInject(),
@@ -77,9 +75,9 @@ fun TuIndiceAppHostRoute(
 	coachmarkOverlayViewModel: CoachmarkOverlayViewModel = koinViewModel<CoachmarkOverlayViewModel>()
 ) {
 	val lifecycleOwner = LocalLifecycleOwner.current
-	val navController = rememberNavController()
 	val coroutineScope = rememberCoroutineScope()
 	val snackbarHostState = remember { SnackbarHostState() }
+	val navigatorHolder = remember { mutableStateOf<TuIndiceNavigator?>(null) }
 
 	val showSnackBar: (SnackBarMessage) -> Unit = { message ->
 		coroutineScope.launch {
@@ -114,7 +112,7 @@ fun TuIndiceAppHostRoute(
 
 	MainRoute(
 		onNavigateToGooglePlayServicesUnavailableDialog = {
-			navController.navigate(MainDestination.GooglePlayServicesUnavailableDialog)
+			navigatorHolder.value?.push(MainDestination.GooglePlayServicesUnavailableDialog)
 		},
 		onRequestReviewFlow = {
 			reviewRepository.launchReview()
@@ -161,6 +159,16 @@ fun TuIndiceAppHostRoute(
 		val isContentAvailable = state is Main.State.Content
 		val isUpdatePasswordDismissed = isUpdatePasswordDismissedForOutdatedCredentials.value
 
+		val navigator = if (state is Main.State.Content) {
+			rememberTuIndiceNavigator(startKey = state.startDestination)
+		} else {
+			null
+		}
+
+		SideEffect {
+			navigatorHolder.value = navigator
+		}
+
 		LaunchedEffect(syncStatus) {
 			if (syncStatus != SyncStatus.OutdatedCredentials) {
 				isUpdatePasswordDismissedForOutdatedCredentials.value = false
@@ -187,26 +195,15 @@ fun TuIndiceAppHostRoute(
 			lifecycleOwner,
 			sessionInvalidationRepository,
 			sessionInvalidatedMessage,
-			isContentAvailable
+			navigator
 		) {
-			if (!isContentAvailable) return@LaunchedEffect
+			if (navigator == null) return@LaunchedEffect
 
 			lifecycleOwner.repeatOnLifecycle(state = Lifecycle.State.RESUMED) {
 				sessionInvalidationRepository.observeSessionInvalidation().collect {
 					yield()
 
-					val graphId = runCatching { navController.graph.id }
-						.getOrElse {
-							navController.currentBackStackEntryFlow.first()
-							navController.graph.id
-						}
-
-					navController.navigate(AuthDestination.NavGraph) {
-						launchSingleTop = true
-						popUpTo(graphId) {
-							inclusive = true
-						}
-					}
+					navigator.replaceAllForSignIn()
 					showSnackBar(
 						SnackBarMessage(
 							message = sessionInvalidatedMessage
@@ -216,21 +213,20 @@ fun TuIndiceAppHostRoute(
 			}
 		}
 
-		LaunchedEffect(syncStatus, state, isUpdatePasswordDismissed) {
-			if (state !is Main.State.Content) return@LaunchedEffect
+		LaunchedEffect(syncStatus, navigator, isUpdatePasswordDismissed) {
+			if (navigator == null) return@LaunchedEffect
 			if (syncStatus != SyncStatus.OutdatedCredentials) return@LaunchedEffect
 			if (isUpdatePasswordDismissed) return@LaunchedEffect
 
-			navController.currentBackStackEntryFlow
-				.first { backStackEntry ->
-					backStackEntry.destination.route.canShowUpdatePasswordDialog()
+			snapshotFlow { navigator.rootMode to navigator.currentKey }
+				.first { (rootMode, currentKey) ->
+					rootMode == TuIndiceRootMode.SIGNED_IN &&
+						currentKey != AuthDestination.UpdatePasswordDialog
 				}
 
 			if (isUpdatePasswordDismissedForOutdatedCredentials.value) return@LaunchedEffect
 
-			navController.navigate(AuthDestination.UpdatePasswordDialog) {
-				launchSingleTop = true
-			}
+			navigator.push(AuthDestination.UpdatePasswordDialog)
 		}
 
 		TuIndiceScreen(
@@ -238,8 +234,7 @@ fun TuIndiceAppHostRoute(
 			shellState = shellState.value,
 			onRetryStartUp = viewModel::startUpAction,
 			onUpdateAppClick = viewModel::updateAppAction,
-			navController = navController,
-			isSwipeBackNavigationEnabled = isSwipeBackNavigationEnabled,
+			navigator = navigator,
 			snackbarHostState = snackbarHostState,
 			onAction = { action ->
 				when (action) {
@@ -264,7 +259,7 @@ fun TuIndiceAppHostRoute(
 										return@launch
 									}
 
-									navController.navigate(
+									navigator?.push(
 										AuthDestination.SignOutDialog(
 											totalCount = pendingChanges.totalCount,
 											recordCount = pendingChanges.recordCount,
@@ -279,13 +274,13 @@ fun TuIndiceAppHostRoute(
 						}
 
 					is TopBarAction.FetchEnrollmentProofAction ->
-						navController.navigate(EnrollmentProofDestination.EnrollmentProofDialog)
+						navigator?.push(EnrollmentProofDestination.EnrollmentProofDialog)
 
 					is TopBarAction.RecordTermSelectionAction ->
 						onRecordTermSelection.value?.invoke()
 
 					is TopBarAction.SearchPensumAction ->
-						navController.navigate(SubjectsDestination.SubjectSearch)
+						navigator?.push(SubjectsDestination.SubjectSearch)
 
 					is TopBarAction.ChangePensumAction ->
 						pensumTopBarActionBus.dispatch(action)
@@ -298,26 +293,15 @@ fun TuIndiceAppHostRoute(
 			onBackInterceptorAvailable = { interceptor ->
 				backInterceptor.value = interceptor
 			},
-			onNavigateTo = { destination ->
-				val currentDestination = navController.currentDestination?.parent?.route
-				val isNewDestination = !navController.isCurrentDestination(destination)
-
-				if (isNewDestination) {
-					viewModel.setLastDestinationAction(destination)
-
-					navController.navigate(destination) {
-						launchSingleTop = true
-
-						if (currentDestination != null)
-							popUpTo(currentDestination) {
-								inclusive = true
-							}
-					}
+			onNavigateTo = { section ->
+				if (navigator != null && navigator.currentTab != section) {
+					viewModel.setLastSectionAction(section)
+					navigator.switchTab(section)
 				}
 			},
 			onNavigateBack = {
 				if (backInterceptor.value?.invoke() != true) {
-					navController.navigateUp()
+					navigator?.pop()
 				}
 			},
 			onConfirmExitClick = onConfirmExitClick,
@@ -332,7 +316,7 @@ fun TuIndiceAppHostRoute(
 				if (syncStatus == SyncStatus.OutdatedCredentials) {
 					isUpdatePasswordDismissedForOutdatedCredentials.value = true
 				}
-				navController.navigateUp()
+				navigator?.pop()
 			},
 			onRecordViewModeChangeAvailable = { callback ->
 				onRecordViewModeChange.value = callback
@@ -363,11 +347,6 @@ fun TuIndiceAppHostRoute(
 		)
 	}
 }
-
-private fun String?.canShowUpdatePasswordDialog(): Boolean =
-	this != null &&
-		this !in updatePasswordSuppressedRoutes &&
-		this != AuthDestination.UpdatePasswordDialog::class.qualifiedName
 
 private fun BrowserRepository.openUpdateStoreFallback(
 	result: UpdateLaunchResult.OpenStoreFallback

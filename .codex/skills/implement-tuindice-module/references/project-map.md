@@ -187,14 +187,14 @@ Feature navigation lives inside each feature module, for example:
 
 Shared integration lives in:
 
-- `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/screen/TuIndiceNavHost.kt`
+- `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/screen/TuIndiceNavDisplay.kt`
 - `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/presentation/model/BottomBarConfig.kt`
 - `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/screen/TuIndiceScreen.kt`
 
 Implications:
 
 - new user-facing modules usually need a navigation builder inside the feature
-- if the feature is reachable from the main host, `TuIndiceNavHost.kt` must integrate it
+- if the feature is reachable from the main host, `TuIndiceNavDisplay.kt` must integrate its entries and `TuIndiceSavedStateConfiguration.kt` must register its nav contribution
 - if the feature is a top-level tab, also update `BottomBarConfig.kt` and `TuIndiceScreen.kt`
 
 ## What `maincore` Really Owns

@@ -32,6 +32,7 @@ TEMPLATE_FILES = {
     "update-exception-handler": "update-exception-handler.kt.tpl",
     "validator": "validator.kt.tpl",
     "destination": "destination.kt.tpl",
+    "nav-contribution": "nav-contribution.kt.tpl",
     "navigation": "navigation.kt.tpl",
     "route": "route.kt.tpl",
     "screen": "screen.kt.tpl",
@@ -53,7 +54,8 @@ SCAFFOLD_LAYOUT = {
     "error-messages": "{module_dir}/src/commonMain/kotlin/{package_path}/presentation/mapper/{FEATURE_NAME}ErrorMessages.kt",
     "machine-contract-test": "{module_dir}/src/commonTest/kotlin/{package_path}/presentation/machine/{MACHINE_CONTRACT_TEST_CLASS_NAME}.kt",
     "destination": "{module_dir}/src/commonMain/kotlin/{package_path}/presentation/navigation/{DESTINATION_NAME}.kt",
-    "navigation": "{module_dir}/src/commonMain/kotlin/{package_path}/presentation/navigation/{FEATURE_NAME}Navigation.kt",
+    "nav-contribution": "{module_dir}/src/commonMain/kotlin/{package_path}/presentation/navigation/{FEATURE_NAME}NavContribution.kt",
+    "navigation": "{module_dir}/src/commonMain/kotlin/{package_path}/presentation/navigation/{FEATURE_NAME}EntryProviders.kt",
     "route": "{module_dir}/src/commonMain/kotlin/{package_path}/presentation/route/{ROUTE_NAME}.kt",
     "screen": "{module_dir}/src/commonMain/kotlin/{package_path}/ui/screen/{SCREEN_NAME}.kt",
     "repository-interface": "{module_dir}/src/commonMain/kotlin/{package_path}/domain/repository/{REPOSITORY_INTERFACE_NAME}.kt",
@@ -180,7 +182,7 @@ def build_context(args: argparse.Namespace) -> dict[str, str]:
         "DESTINATION_NAME": f"{feature_name}Destination",
         "ROUTE_NAME": f"{feature_name}Route",
         "SCREEN_NAME": f"{feature_name}Screen",
-        "NAVIGATION_FUNCTION_NAME": f"{feature_lower_camel}Navigation",
+        "NAVIGATION_FUNCTION_NAME": f"{feature_lower_camel}Entries",
         "SMOKE_TEST_CLASS_NAME": f"{feature_name}ModuleKoinSmokeTest",
         "RECORDING_REPOSITORY_NAME": f"Recording{feature_name}Repository",
         "GENERATED_RESOURCES_PACKAGE": f"tuindice.{module_name}.generated.resources",
@@ -250,7 +252,7 @@ def run_scaffold_feature(args: argparse.Namespace) -> int:
     print("- add the module to settings.gradle.kts")
     print("- add dependencies in maincore/build.gradle.kts and app/build.gradle.kts if needed")
     print("- register the feature in maincore/.../SharedModules.kt when it is part of the shared runtime")
-    print("- wire navigation from maincore/.../TuIndiceNavHost.kt when the feature is reachable")
+    print("- wire entries from maincore/.../ui/screen/TuIndiceNavDisplay.kt when the feature is reachable")
     print("- adjust README.md if architectural boundaries change")
     return 0
 
@@ -341,36 +343,20 @@ def integrate_shared_modules(text: str, context: dict[str, str]) -> tuple[str, b
     return text, changed
 
 
-def integrate_nav_host(text: str, context: dict[str, str]) -> tuple[str, bool]:
-    changed = False
-
-    import_snippet = (
-        f'import com.gdavidpb.tuindice.{context["MODULE_NAME"]}.presentation.navigation.'
-        f'{context["NAVIGATION_FUNCTION_NAME"]}\n'
+def print_nav_display_wiring_steps(context: dict[str, str]) -> None:
+    print("Manual Nav3 wiring (maincore):")
+    print(
+        f"- call {context['NAVIGATION_FUNCTION_NAME']}(shellBindings = shellBindings) inside the "
+        "entryProvider block of maincore/.../ui/screen/TuIndiceNavDisplay.kt"
     )
-    text, import_changed = insert_before(
-        text=text,
-        marker="import com.gdavidpb.tuindice.ui.MaincoreUiTags\n",
-        snippet=import_snippet,
-        error_message="Could not find UI import anchor in TuIndiceNavHost.kt",
+    print(
+        f"- register {context['FEATURE_NAME']}NavContribution in "
+        "maincore/.../presentation/navigation/TuIndiceSavedStateConfiguration.kt"
     )
-    changed = changed or import_changed
-
-    navigation_call = (
-        f'\n\t\t{context["NAVIGATION_FUNCTION_NAME"]}(\n'
-        '\t\t\tonViewStateChanged = onViewStateChanged,\n'
-        '\t\t\tshowSnackBar = showSnackBar\n'
-        '\t\t)\n'
+    print(
+        "- add every new destination to TuIndiceNavigationSerializationTest "
+        "(maincore commonTest): a missing polymorphic registration crashes iOS restoration"
     )
-    text, navigation_changed = insert_before(
-        text=text,
-        marker="\n\t\tbrowserNavigation(",
-        snippet=navigation_call,
-        error_message="Could not find browserNavigation anchor in TuIndiceNavHost.kt",
-    )
-    changed = changed or navigation_changed
-
-    return text, changed
 
 
 def run_integrate_feature(args: argparse.Namespace) -> int:
@@ -389,7 +375,6 @@ def run_integrate_feature(args: argparse.Namespace) -> int:
         "maincore/build.gradle.kts": root / "maincore" / "build.gradle.kts",
         "app/build.gradle.kts": root / "app" / "build.gradle.kts",
         "SharedModules.kt": root / "maincore" / "src" / "commonMain" / "kotlin" / "com" / "gdavidpb" / "tuindice" / "di" / "SharedModules.kt",
-        "TuIndiceNavHost.kt": root / "maincore" / "src" / "commonMain" / "kotlin" / "com" / "gdavidpb" / "tuindice" / "ui" / "screen" / "TuIndiceNavHost.kt",
     }
 
     changed_files: list[str] = []
@@ -424,10 +409,7 @@ def run_integrate_feature(args: argparse.Namespace) -> int:
         changed_files.append("maincore/.../SharedModules.kt")
 
     if not args.skip_nav_host:
-        nav_host_text = read_required_file(file_paths["TuIndiceNavHost.kt"])
-        nav_host_text, _ = integrate_nav_host(nav_host_text, context)
-        if write_text_if_changed(file_paths["TuIndiceNavHost.kt"], nav_host_text, args.dry_run):
-            changed_files.append("maincore/.../TuIndiceNavHost.kt")
+        print_nav_display_wiring_steps(context)
 
     if changed_files:
         mode_label = "Would update" if args.dry_run else "Updated"
@@ -438,7 +420,7 @@ def run_integrate_feature(args: argparse.Namespace) -> int:
         print("No integration changes were needed.")
 
     print("Manual follow-up still required:")
-    print("- review TuIndiceNavHost wiring if the feature navigation signature differs from the scaffold baseline")
+    print("- review TuIndiceNavDisplay wiring if the feature entries signature differs from the scaffold baseline")
     print("- update BottomBarConfig.kt and TuIndiceScreen.kt if the feature should be a top-level tab")
     print("- update root build.gradle.kts verification task lists if the module should be included there")
     print("- update README.md if architectural boundaries changed")
