@@ -20,9 +20,8 @@ fun sampleView(modifier: Modifier): Modifier {
 	return modifier.testTag(SampleUiTags.Screen)
 }
 
-fun goBack(navController: Any) {
-	// ruleid: navigateback-explicit-result-type
-	navController.navigateBackWithResult(SampleResult)
-	// ok: navigateback-explicit-result-type
-	navController.navigateBackWithResult<SampleBaseResult>(SampleResult)
-}
+// ruleid: entryprovider-only-in-navigation
+fun EntryProviderScope<Any>.sampleEntries(viewModel: Any): Any = viewModel
+
+// ok: entryprovider-only-in-navigation
+fun sampleEntriesHost(scope: Any): Any = scope

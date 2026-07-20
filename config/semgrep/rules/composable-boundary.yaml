@@ -54,19 +54,20 @@ rules:
       area: composable-boundary
       referencia: '.codex/skills/implement-tuindice-module § draft pattern'
 
-  - id: navigateback-explicit-result-type
+  - id: entryprovider-only-in-navigation
     languages: [kotlin]
     severity: ERROR
     message: >-
-      navigateBackWithResult exige el tipo base explícito:
-      navigateBackWithResult<BaseResult>(SubResult). Sin él, writer y collector pueden
-      derivar clave y serializer de tipos distintos y el resultado se pierde
-      (base/utils/extension/NavigationResult.kt).
-    pattern-regex: '\bnavigateBackWithResult\s*\('
+      Los entry providers de Nav3 (extensiones de EntryProviderScope) viven en
+      presentation/navigation/**: ahí se resuelven ViewModels y se traducen
+      efectos a navegación; declararlos en otra capa rompe la frontera de
+      composables.
+    pattern-regex: '\bfun\s+EntryProviderScope<[^>]*>\.'
     paths:
+      include:
+        - '**/src/commonMain/**'
       exclude:
-        # La definición del helper vive en base y su firma lleva paréntesis directo.
-        - 'base/**'
+        - '**/presentation/navigation/**'
     metadata:
       area: composable-boundary
-      referencia: 'base/utils/extension/NavigationResult.kt'
+      referencia: 'base/presentation/navigation/TuIndiceNavActions.kt'
