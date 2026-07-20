@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.pensum.presentation.navigation
 
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
@@ -20,7 +21,9 @@ fun EntryProviderScope<NavKey>.pensumEntries(
 	entry<PensumDestination.Pensum> {
 		val viewModel = koinViewModel<PensumViewModel>()
 		val topBarActionBus = koinInject<PensumTopBarActionBus>()
-		val screenSessionStore = koinInject<PensumScreenSessionStore>()
+		val screenSessionStore = rememberSaveable(saver = PensumScreenSessionStore.saver()) {
+			PensumScreenSessionStore()
+		}
 		val viewState by viewModel.state.collectAsStateWithLifecycle()
 
 		CollectCurrentEntryValueWithLifecycle(
