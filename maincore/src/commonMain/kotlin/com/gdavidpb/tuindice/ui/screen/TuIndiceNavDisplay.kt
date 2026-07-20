@@ -40,6 +40,9 @@ import com.gdavidpb.tuindice.ui.MaincoreUiTags
 import com.gdavidpb.tuindice.ui.navigation.rememberTuIndiceEntryScopeDecorator
 import com.gdavidpb.tuindice.ui.navigation.rememberTuIndiceRetainedSavedStateDecorator
 import com.gdavidpb.tuindice.ui.navigation.rememberTuIndiceRetainedViewModelStoreDecorator
+import com.gdavidpb.tuindice.ui.navigation.tuIndiceNavForwardTransitionSpec
+import com.gdavidpb.tuindice.ui.navigation.tuIndiceNavPopTransitionSpec
+import com.gdavidpb.tuindice.ui.navigation.tuIndiceNavPredictivePopTransitionSpec
 
 @Composable
 fun TuIndiceNavDisplay(
@@ -172,6 +175,9 @@ fun TuIndiceNavDisplay(
 		sceneStrategies = remember {
 			listOf(DialogSceneStrategy(), SinglePaneSceneStrategy())
 		},
+		transitionSpec = tuIndiceNavForwardTransitionSpec(),
+		popTransitionSpec = tuIndiceNavPopTransitionSpec(),
+		predictivePopTransitionSpec = tuIndiceNavPredictivePopTransitionSpec(),
 		entryProvider = { key ->
 			val entry = navEntryProvider(key)
 
