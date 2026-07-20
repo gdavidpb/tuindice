@@ -33,7 +33,7 @@ fun rememberTuIndiceNavigator(
 	storesViewModel: NavEntryStoresViewModel = koinViewModel<NavEntryStoresViewModel>()
 ): TuIndiceNavigator {
 	val startSection = startKey.toTabSectionOrNull()
-	val isAuthStartKey = startKey is AuthDestination.SignIn || startKey is AuthDestination.NavGraph
+	val isAuthStartKey = startKey is AuthDestination.SignIn
 
 	val startTabState = rememberSaveable(stateSaver = mainSectionSaver) {
 		mutableStateOf(startSection ?: MainSection.SUMMARY)

@@ -218,10 +218,10 @@ class MainRouteUiTest {
 		}
 
 		waitUntil(timeoutMillis = 2_000) {
-			(latestState as? Main.State.Content)?.startDestination == SummaryDestination.NavGraph
+			(latestState as? Main.State.Content)?.startDestination == SummaryDestination.Summary
 		}
 
-		assertEquals(SummaryDestination.NavGraph, (latestState as Main.State.Content).startDestination)
+		assertEquals(SummaryDestination.Summary, (latestState as Main.State.Content).startDestination)
 	}
 
 	@Test

@@ -7,9 +7,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed class AuthDestination : Destination() {
 	@Serializable
-	data object NavGraph : AuthDestination()
-
-	@Serializable
 	data object SignIn : AuthDestination()
 
 	@Serializable

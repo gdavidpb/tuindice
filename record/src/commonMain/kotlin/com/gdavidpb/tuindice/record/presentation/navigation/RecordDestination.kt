@@ -7,9 +7,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed class RecordDestination : Destination() {
 	@Serializable
-	data object NavGraph : RecordDestination()
-
-	@Serializable
 	data object Record : RecordDestination()
 
 	@Serializable

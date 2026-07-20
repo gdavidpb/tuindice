@@ -7,9 +7,6 @@ import kotlinx.serialization.Serializable
 @Serializable
 sealed class SummaryDestination : Destination() {
 	@Serializable
-	data object NavGraph : SummaryDestination()
-
-	@Serializable
 	data object Summary : SummaryDestination()
 
 	@Serializable

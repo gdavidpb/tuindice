@@ -1,6 +1,6 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-07-19 22:57:59 -0400_
+_Generated automatically on 2026-07-19 23:01:51 -0400_
 
 ## Summary by module
 
@@ -8,10 +8,10 @@ _Generated automatically on 2026-07-19 22:57:59 -0400_
 |---|---:|---:|---:|---:|---:|---:|
 | `about` | 2 | 8 | 8 | 7 | 7 | 7 |
 | `auth` | 2 | 20 | 20 | 18 | 16 | 16 |
-| `base` | 2 | 33 | 47 | 18 | 18 | 18 |
+| `base` | 2 | 32 | 44 | 18 | 18 | 18 |
 | `enrollmentproof` | 2 | 5 | 5 | 5 | 5 | 5 |
 | `evaluations` | 2 | 42 | 48 | 31 | 24 | 24 |
-| `maincore` | 3 | 15 | 18 | 10 | 9 | 9 |
+| `maincore` | 3 | 14 | 17 | 10 | 9 | 9 |
 | `pensum` | 2 | 40 | 47 | 2 | 2 | 2 |
 | `record` | 2 | 50 | 62 | 11 | 7 | 7 |
 | `subjects` | 2 | 24 | 27 | 4 | 3 | 3 |
@@ -93,8 +93,7 @@ _Generated automatically on 2026-07-19 22:57:59 -0400_
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/utils/extension/CollectNavResultWithLifecycle.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/utils/extension/CollectNavResultWithLifecycleUiTest.kt` | 0 | MISSING TEST |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/utils/extension/Compose.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/utils/extension/ComposeUiTest.kt` | 2 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/utils/extension/Flow.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/utils/extension/FlowUiTest.kt` | 2 | PASS threshold (2) |
-| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/utils/extension/Navigation.kt` | 4 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/utils/extension/NavigationUiTest.kt` | 2 | PASS threshold (2) |
-| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/utils/extension/NavigationResult.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/utils/extension/NavigationResultUiTest.kt` | 0 | MISSING TEST |
+| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/utils/extension/Navigation.kt` | 2 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/utils/extension/NavigationUiTest.kt` | 2 | PASS threshold (2) |
 
 ### `enrollmentproof`
 
@@ -168,7 +167,6 @@ _Generated automatically on 2026-07-19 22:57:59 -0400_
 | `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/screen/AppAvailabilityNoticeScreen.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/ui/screen/AppAvailabilityNoticeScreenUiTest.kt` | 0 | MISSING TEST |
 | `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/screen/BrowserScreen.kt` | 2 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/ui/screen/BrowserScreenUiTest.kt` | 7 | PASS threshold (3) |
 | `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/screen/TuIndiceNavDisplay.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/ui/screen/TuIndiceNavDisplayUiTest.kt` | 3 | PASS threshold (3) |
-| `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/screen/TuIndiceNavHost.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/ui/screen/TuIndiceNavHostUiTest.kt` | 0 | MISSING TEST |
 | `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/screen/TuIndiceScreen.kt` | 3 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/ui/screen/TuIndiceScreenUiTest.kt` | 14 | PASS threshold (3) |
 | `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/theme/TuIndiceSharedTheme.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/ui/theme/TuIndiceSharedThemeUiTest.kt` | 4 | PASS threshold (3) |
 | `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/view/TopBarBannerHost.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/ui/view/TopBarBannerHostUiTest.kt` | 3 | PASS threshold (3) |
