@@ -6,12 +6,14 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.runtime.withFrameNanos
 import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.compose.LocalLifecycleOwner
 import androidx.lifecycle.flowWithLifecycle
 import androidx.navigation.FloatingWindow
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
+import com.gdavidpb.tuindice.base.presentation.navigation.LocalNavEntryScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -68,6 +70,25 @@ fun <T> NavController.CollectCurrentEntryValueWithLifecycle(
 		value = value,
 		lifecycle = backStackEntry.lifecycle,
 		isActive = currentBackStackEntry == backStackEntry,
+		minActiveState = minActiveState,
+		awaitFrame = awaitFrame,
+		onValue = onValue
+	)
+}
+
+@Composable
+fun <T> CollectCurrentEntryValueWithLifecycle(
+	value: T,
+	minActiveState: Lifecycle.State = Lifecycle.State.RESUMED,
+	awaitFrame: Boolean = false,
+	onValue: (T) -> Unit
+) {
+	val entryScope = LocalNavEntryScope.current
+
+	CollectValueWithLifecycle(
+		value = value,
+		lifecycle = LocalLifecycleOwner.current.lifecycle,
+		isActive = entryScope.isCurrent.value,
 		minActiveState = minActiveState,
 		awaitFrame = awaitFrame,
 		onValue = onValue
