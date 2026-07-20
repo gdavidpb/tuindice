@@ -67,7 +67,7 @@ The baseline uses a trivial `String` content flow, but it follows the repo's cur
 - `maincore/build.gradle.kts`
 - `app/build.gradle.kts`
 - `maincore/.../SharedModules.kt`
-- `maincore/.../TuIndiceNavHost.kt`
+- `maincore/.../ui/screen/TuIndiceNavDisplay.kt` (manual wiring; the script prints the steps)
 
 Assumptions:
 

@@ -138,7 +138,7 @@ Ubicación típica:
 - `transition/*`: la tabla de transiciones como extension functions del builder, un archivo por estado origen.
 - `mapper/*`: funciones de mapeo error→texto (`<Screen>ErrorMessages`) y mappers de presentación.
 - `route/*`: traducción de `Effect` a navegación o side effects UI.
-- `navigation/*`: builders de `NavGraphBuilder`.
+- `navigation/*`: entry providers de Navigation 3 (extensiones de `EntryProviderScope`), el destino serializable del feature y su `TuIndiceNavContribution`.
 - `composeResources/values/*`: strings y recursos de UI del feature.
 
 Reglas:
@@ -395,7 +395,7 @@ Las reglas de `config/semgrep/rules/` codifican las piezas base de este README c
   extension functions de la tabla.
 - `composable-boundary`: `testTag` solo vía objetos `*UiTags`, `koinViewModel` solo en
   `presentation/navigation` (exención documentada: `TuIndiceAppHostRoute`, raíz del árbol), Drafts
-  importables solo desde `machine`/`di`, y `navigateBackWithResult` siempre con tipo base explícito.
+  importables solo desde `machine`/`di`, y los entry providers de Nav3 solo en `presentation/navigation`.
 - `infrastructure`: `TuIndiceDatabase` solo en `persistence`, `EventPublisher` solo en la frontera MVI
   (ViewModels y `di`), y sin `println` (el logging pasa por los contratos de `base`).
 
