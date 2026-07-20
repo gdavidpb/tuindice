@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.auth.presentation.navigation
 
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
+import com.gdavidpb.tuindice.base.presentation.navigation.DialogDestination
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -17,8 +18,8 @@ sealed class AuthDestination : Destination() {
 		val recordCount: Int,
 		val evaluationsCount: Int,
 		val hasFailedMutations: Boolean
-	) : AuthDestination()
+	) : AuthDestination(), DialogDestination
 
 	@Serializable
-	data object UpdatePasswordDialog : AuthDestination()
+	data object UpdatePasswordDialog : AuthDestination(), DialogDestination
 }

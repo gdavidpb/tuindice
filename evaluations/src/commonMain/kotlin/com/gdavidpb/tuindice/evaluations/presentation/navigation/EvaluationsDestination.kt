@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.evaluations.presentation.navigation
 
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
+import com.gdavidpb.tuindice.base.presentation.navigation.DialogDestination
 import kotlinx.serialization.Serializable
 
 @Serializable
@@ -22,14 +23,14 @@ sealed class EvaluationsDestination : Destination() {
 		val subjectCode: String,
 		val grade: Double?,
 		val maxGrade: Double?
-	) : EvaluationsDestination()
+	) : EvaluationsDestination(), DialogDestination
 
 	@Serializable
 	data class MaxGradePickerDialog(
 		val evaluationName: String,
 		val subjectCode: String,
 		val grade: Double?
-	) : EvaluationsDestination()
+	) : EvaluationsDestination(), DialogDestination
 
 	@Serializable
 	data class EvaluationGradePickerDialog(
@@ -38,10 +39,10 @@ sealed class EvaluationsDestination : Destination() {
 		val subjectCode: String,
 		val grade: Double,
 		val maxGrade: Double
-	) : EvaluationsDestination()
+	) : EvaluationsDestination(), DialogDestination
 
 	@Serializable
 	data class DeleteEvaluationConfirmationDialog(
 		val evaluationId: String
-	) : EvaluationsDestination()
+	) : EvaluationsDestination(), DialogDestination
 }

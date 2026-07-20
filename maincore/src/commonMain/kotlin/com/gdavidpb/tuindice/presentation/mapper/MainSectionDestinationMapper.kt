@@ -31,3 +31,20 @@ fun StartUpTarget.toDestination(): Destination = when (this) {
 	StartUpTarget.Auth -> AuthDestination.NavGraph
 	is StartUpTarget.Main -> section.toDestination()
 }
+
+fun MainSection.toTabRootDestination(): Destination = when (this) {
+	MainSection.SUMMARY -> SummaryDestination.Summary
+	MainSection.RECORD -> RecordDestination.Record
+	MainSection.PENSUM -> PensumDestination.Pensum
+	MainSection.EVALUATIONS -> EvaluationsDestination.Evaluations
+	MainSection.ABOUT -> AboutDestination.About
+}
+
+fun Destination.toTabSectionOrNull(): MainSection? = when (this) {
+	is SummaryDestination.Summary, is SummaryDestination.NavGraph -> MainSection.SUMMARY
+	is RecordDestination.Record, is RecordDestination.NavGraph -> MainSection.RECORD
+	is PensumDestination.Pensum, is PensumDestination.NavGraph -> MainSection.PENSUM
+	is EvaluationsDestination.Evaluations, is EvaluationsDestination.NavGraph -> MainSection.EVALUATIONS
+	is AboutDestination.About, is AboutDestination.NavGraph -> MainSection.ABOUT
+	else -> null
+}
