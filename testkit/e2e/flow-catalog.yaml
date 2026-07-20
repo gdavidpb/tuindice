@@ -350,13 +350,13 @@ flows:
     type: interaction
     platforms: [android, ios]
     status: active
-    variant: per-tab-back-stacks
+    variant: tab-back-navigation
     fixture_state: authenticated-content
     actions_covered:
-      - maincore.Browser.NavigateTo
+      - maincore.Main.SetLastMainSection
     primary_selectors:
-      - maincore_browser_container
-      - maincore_tuindice_bottom_bar_pensum_item
+      - maincore_tuindice_bottom_bar_about_item
+      - about_content_container
       - summary_content_container
   - id: maincore-browser-external-dialog
     path: e2e/maestro/flows/maincore/browser-external-dialog.yaml

@@ -1,7 +1,19 @@
 appId: com.gdavidpb.tuindice.debug
 ---
-# Retención por tab: un browser pusheado en About sobrevive el viaje de ida y
-# vuelta por Pensum (pilas por tab de Navigation 3).
+# Navigation 3 tab back semantics. Covers the one user-observable, Maestro-stable
+# behavior not already exercised by bottom-bar-state (tab switching) or back-stack
+# (within-tab push + top-bar back): on Android, the system back gesture at a
+# non-start tab root returns to the start tab (Summary) instead of leaving the app.
+#
+# Not covered here, on purpose:
+#  - iOS predictive-back edge swipe: a UIKit edge-pan gesture Maestro cannot drive
+#    stably; verified by manual QA. The iOS pop path itself is covered by back-stack
+#    (top-bar back button).
+#  - Deep per-tab stack/state retention: unreachable through the UI (the bottom bar
+#    is hidden on pushed screens, so tabs switch only from a tab root); covered by
+#    TuIndiceNavigatorTest and TuIndiceNavRetentionUiTest.
+
+# Tab round-trip (both platforms): switch to About and back to the start tab.
 - tapOn:
     id: maincore_tuindice_bottom_bar_about_item
 - extendedWaitUntil:
@@ -9,63 +21,25 @@ appId: com.gdavidpb.tuindice.debug
       id: about_content_container
     timeout: 20000
 - tapOn:
-    id: about_open_terms
+    id: maincore_tuindice_bottom_bar_summary_item
 - extendedWaitUntil:
     visible:
-      id: maincore_browser_container
-    timeout: 15000
-- tapOn:
-    id: maincore_tuindice_bottom_bar_pensum_item
-- extendedWaitUntil:
-    visible:
-      id: pensum_screen
+      id: summary_content_container
     timeout: 20000
-- tapOn:
-    id: maincore_tuindice_bottom_bar_about_item
-- extendedWaitUntil:
-    visible:
-      id: maincore_browser_container
-    timeout: 10000
-- tapOn:
-    id: maincore_tuindice_top_bar_back_button
-- extendedWaitUntil:
-    visible:
-      id: about_content_container
-    timeout: 10000
-# Android: back de sistema en la raíz de un tab no inicial regresa al tab
-# inicial (Summary) en vez de salir de la app.
+
+# Android: system back at a non-start tab root returns to the start tab.
 - runFlow:
     when:
       platform: Android
     commands:
+      - tapOn:
+          id: maincore_tuindice_bottom_bar_about_item
+      - extendedWaitUntil:
+          visible:
+            id: about_content_container
+          timeout: 20000
       - back
       - extendedWaitUntil:
           visible:
             id: summary_content_container
-          timeout: 10000
-# iOS: el gesto nativo de borde (predictive back de NavDisplay) hace pop de una
-# entrada pusheada; luego el flujo converge en Summary como Android.
-- runFlow:
-    when:
-      platform: iOS
-    commands:
-      - tapOn:
-          id: about_open_terms
-      - extendedWaitUntil:
-          visible:
-            id: maincore_browser_container
           timeout: 15000
-      - swipe:
-          start: 1%, 50%
-          end: 60%, 50%
-          duration: 500
-      - extendedWaitUntil:
-          visible:
-            id: about_content_container
-          timeout: 10000
-      - tapOn:
-          id: maincore_tuindice_bottom_bar_summary_item
-      - extendedWaitUntil:
-          visible:
-            id: summary_content_container
-          timeout: 20000
