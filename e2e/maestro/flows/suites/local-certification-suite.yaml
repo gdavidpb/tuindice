@@ -24,6 +24,7 @@ name: TuIndice local certification E2E suite
 - runFlow: ../coachmarks/coachmark-contextual-summary.yaml
 - runFlow: ../maincore/bottom-bar-state.yaml
 - runFlow: ../maincore/back-stack.yaml
+- runFlow: ../maincore/tab-stack-preservation.yaml
 - runFlow: ../maincore/browser-external-dialog.yaml
 - runFlow: ../summary/summary-smoke.yaml
 - runFlow: ../summary/summary-refresh-retry.yaml

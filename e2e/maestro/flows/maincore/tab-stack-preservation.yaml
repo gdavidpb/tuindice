@@ -1,0 +1,71 @@
+appId: com.gdavidpb.tuindice.debug
+---
+# Retención por tab: un browser pusheado en About sobrevive el viaje de ida y
+# vuelta por Pensum (pilas por tab de Navigation 3).
+- tapOn:
+    id: maincore_tuindice_bottom_bar_about_item
+- extendedWaitUntil:
+    visible:
+      id: about_content_container
+    timeout: 20000
+- tapOn:
+    id: about_open_terms
+- extendedWaitUntil:
+    visible:
+      id: maincore_browser_container
+    timeout: 15000
+- tapOn:
+    id: maincore_tuindice_bottom_bar_pensum_item
+- extendedWaitUntil:
+    visible:
+      id: pensum_screen
+    timeout: 20000
+- tapOn:
+    id: maincore_tuindice_bottom_bar_about_item
+- extendedWaitUntil:
+    visible:
+      id: maincore_browser_container
+    timeout: 10000
+- tapOn:
+    id: maincore_tuindice_top_bar_back_button
+- extendedWaitUntil:
+    visible:
+      id: about_content_container
+    timeout: 10000
+# Android: back de sistema en la raíz de un tab no inicial regresa al tab
+# inicial (Summary) en vez de salir de la app.
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - back
+      - extendedWaitUntil:
+          visible:
+            id: summary_content_container
+          timeout: 10000
+# iOS: el gesto nativo de borde (predictive back de NavDisplay) hace pop de una
+# entrada pusheada; luego el flujo converge en Summary como Android.
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - tapOn:
+          id: about_open_terms
+      - extendedWaitUntil:
+          visible:
+            id: maincore_browser_container
+          timeout: 15000
+      - swipe:
+          start: 1%, 50%
+          end: 60%, 50%
+          duration: 500
+      - extendedWaitUntil:
+          visible:
+            id: about_content_container
+          timeout: 10000
+      - tapOn:
+          id: maincore_tuindice_bottom_bar_summary_item
+      - extendedWaitUntil:
+          visible:
+            id: summary_content_container
+          timeout: 20000

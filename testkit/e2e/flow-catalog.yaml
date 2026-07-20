@@ -344,6 +344,20 @@ flows:
       - maincore_tuindice_top_bar_back_button
       - maincore_browser_container
       - subjects_search_screen
+  - id: maincore-tab-stack-preservation
+    path: e2e/maestro/flows/maincore/tab-stack-preservation.yaml
+    module: maincore
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: per-tab-back-stacks
+    fixture_state: authenticated-content
+    actions_covered:
+      - maincore.Browser.NavigateTo
+    primary_selectors:
+      - maincore_browser_container
+      - maincore_tuindice_bottom_bar_pensum_item
+      - summary_content_container
   - id: maincore-browser-external-dialog
     path: e2e/maestro/flows/maincore/browser-external-dialog.yaml
     module: maincore
