@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.base.utils.extension.authErrorCode
 import com.gdavidpb.tuindice.base.utils.extension.isAccessRejected
 import com.gdavidpb.tuindice.base.utils.extension.isSessionSuperseded
 import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
@@ -69,7 +70,6 @@ class SessionRecoveryDataSource(
 			val recoveredSnapshot = try {
 				refreshAttemptedSession(
 					attemptedSnapshot = attemptedSnapshot,
-					attestationRepository = attestationRepository,
 					authRepository = authRepository
 				)
 			} catch (throwable: Throwable) {
@@ -77,7 +77,6 @@ class SessionRecoveryDataSource(
 					throwable = throwable,
 					attemptedSnapshot = attemptedSnapshot,
 					credentialsRepository = credentialsRepository,
-					attestationRepository = attestationRepository,
 					authRepository = authRepository
 				)
 			}
@@ -96,14 +95,13 @@ class SessionRecoveryDataSource(
 
 	private suspend fun refreshAttemptedSession(
 		attemptedSnapshot: SessionSnapshot,
-		attestationRepository: AttestationRepository,
 		authRepository: AuthRepository
 	): SessionSnapshot? {
 		val attestationPayload = RefreshTokensAttestationPayload(
 			sessionId = attemptedSnapshot.sessionId,
 			refreshToken = attemptedSnapshot.refreshToken
 		)
-		val attestation = attestationRepository.attest(
+		val attestation = attestForRecovery(
 			request = AttestationRequest(
 				operationCode = ProtectedOperationCodes.AuthRefreshTokens,
 				payloadJson = canonicalAttestationPayloadJson(
@@ -134,37 +132,39 @@ class SessionRecoveryDataSource(
 		throwable: Throwable,
 		attemptedSnapshot: SessionSnapshot,
 		credentialsRepository: CredentialsRepository,
-		attestationRepository: AttestationRepository,
 		authRepository: AuthRepository
 	): SessionSnapshot? {
 		if (!throwable.isAccessRejected()) throw throwable
 
-		sessionRepository.getSessionChangedSnapshot(attemptedSnapshot)?.let { snapshot ->
-			return snapshot
-		}
-
-		if (throwable.shouldAttemptCredentialRecovery()) {
-			tryBootstrapExchangeAttemptedSession(
+		val recoveredSnapshot = sessionRepository.getSessionChangedSnapshot(attemptedSnapshot)
+			?: attemptCredentialRecovery(
+				throwable = throwable,
 				attemptedSnapshot = attemptedSnapshot,
 				credentialsRepository = credentialsRepository,
-				attestationRepository = attestationRepository,
 				authRepository = authRepository
-			)?.let { snapshot ->
-				return snapshot
-			}
+			)
 
-			sessionRepository.getSessionChangedSnapshot(attemptedSnapshot)?.let { snapshot ->
-				return snapshot
-			}
-		}
+		return recoveredSnapshot ?: invalidateAttemptedSession(attemptedSnapshot)
+	}
 
-		return invalidateAttemptedSession(attemptedSnapshot)
+	private suspend fun attemptCredentialRecovery(
+		throwable: Throwable,
+		attemptedSnapshot: SessionSnapshot,
+		credentialsRepository: CredentialsRepository,
+		authRepository: AuthRepository
+	): SessionSnapshot? {
+		if (!throwable.shouldAttemptCredentialRecovery()) return null
+
+		return tryBootstrapExchangeAttemptedSession(
+			attemptedSnapshot = attemptedSnapshot,
+			credentialsRepository = credentialsRepository,
+			authRepository = authRepository
+		) ?: sessionRepository.getSessionChangedSnapshot(attemptedSnapshot)
 	}
 
 	private suspend fun tryBootstrapExchangeAttemptedSession(
 		attemptedSnapshot: SessionSnapshot,
 		credentialsRepository: CredentialsRepository,
-		attestationRepository: AttestationRepository,
 		authRepository: AuthRepository
 	): SessionSnapshot? {
 		if (!credentialsRepository.hasPassword()) return null
@@ -184,7 +184,7 @@ class SessionRecoveryDataSource(
 				return@runCatching snapshot
 			}
 
-			val attestation = attestationRepository.attest(
+			val attestation = attestForRecovery(
 				request = AttestationRequest(
 					operationCode = ProtectedOperationCodes.AuthExchange,
 					payloadJson = canonicalAttestationPayloadJson(
@@ -244,10 +244,26 @@ class SessionRecoveryDataSource(
 		return null
 	}
 
+	private suspend fun attestForRecovery(request: AttestationRequest) = try {
+		attestationRepository.attest(request)
+	} catch (throwable: Throwable) {
+		if (throwable.isAccessRejected() && throwable.authErrorCode() == null) {
+			// An unclassified attestation rejection is an integrity-plumbing failure,
+			// not a session verdict; surface it without burning the stored session.
+			throw SessionRecoveryAttestationException(throwable)
+		}
+
+		throw throwable
+	}
+
 	private fun Throwable.shouldAttemptCredentialRecovery(): Boolean {
 		return isSessionSuperseded()
 	}
 }
+
+private class SessionRecoveryAttestationException(
+	cause: Throwable
+) : Exception("Attestation rejected during session recovery.", cause)
 
 private fun isStaleTokenAttempt(
 	attemptedAuthorizationAccessToken: String?,

@@ -1,16 +1,17 @@
 package com.gdavidpb.tuindice.base.data.source
 
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
+import com.gdavidpb.tuindice.base.domain.exception.SecureStoreUnavailableException
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
-import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.emptyFlow
-import kotlinx.coroutines.test.runTest
 
 class SecureStoreSessionDataSourceTest {
 	@Test
@@ -103,6 +104,52 @@ class SecureStoreSessionDataSourceTest {
 	}
 
 	@Test
+	fun transientUnavailableReadRetriesAndPreservesSession() = runTest {
+		val activeStore = FakeSecureKeyValueDataRepository(
+			unavailableReads = 1,
+			initialValues = completeSessionValues("active")
+		)
+		val legacyStore = FakeSecureKeyValueDataRepository()
+		val invalidationRepository = RecordingSessionInvalidationRepository()
+		val dataSource = secureStoreSessionDataSource(
+			activeStore = activeStore,
+			legacyStore = legacyStore,
+			invalidationRepository = invalidationRepository
+		)
+
+		assertTrue(dataSource.hasActiveSession())
+
+		assertEquals(0, activeStore.clearCalls)
+		assertEquals(emptyList(), invalidationRepository.notifiedSessionIds)
+	}
+
+	@Test
+	fun persistentUnavailableStorePropagatesWithoutWipingStores() = runTest {
+		val activeStore = FakeSecureKeyValueDataRepository(
+			unavailableReads = Int.MAX_VALUE,
+			initialValues = completeSessionValues("active")
+		)
+		val legacyStore = FakeSecureKeyValueDataRepository(
+			initialValues = mapOf("legacy-value" to "left-over")
+		)
+		val invalidationRepository = RecordingSessionInvalidationRepository()
+		val dataSource = secureStoreSessionDataSource(
+			activeStore = activeStore,
+			legacyStore = legacyStore,
+			invalidationRepository = invalidationRepository
+		)
+
+		val thrown = runCatching { dataSource.hasActiveSession() }.exceptionOrNull()
+
+		assertTrue(thrown is SecureStoreUnavailableException)
+		assertEquals(0, activeStore.clearCalls)
+		assertEquals(0, legacyStore.clearCalls)
+		assertEquals(completeSessionValues("active"), activeStore.values)
+		assertEquals(mapOf("legacy-value" to "left-over"), legacyStore.values)
+		assertEquals(emptyList(), invalidationRepository.notifiedSessionIds)
+	}
+
+	@Test
 	fun migrationVerificationFailureInvalidatesSession() = runTest {
 		val activeStore = FakeSecureKeyValueDataRepository(dropWrites = true)
 		val legacyStore = FakeSecureKeyValueDataRepository(
@@ -155,6 +202,7 @@ class SecureStoreSessionDataSourceTest {
 private class FakeSecureKeyValueDataRepository(
 	initialValues: Map<String, String> = emptyMap(),
 	private var readFailures: Int = 0,
+	private var unavailableReads: Int = 0,
 	private val dropWrites: Boolean = false
 ) : SecureKeyValueDataRepository {
 	val values = initialValues.toMutableMap()
@@ -162,6 +210,10 @@ private class FakeSecureKeyValueDataRepository(
 		private set
 
 	override suspend fun getString(key: String): String? {
+		if (unavailableReads > 0) {
+			unavailableReads--
+			throw SecureStoreUnavailableException("Secure store unavailable")
+		}
 		if (readFailures > 0) {
 			readFailures--
 			throw IllegalStateException("Unreadable secure store")
