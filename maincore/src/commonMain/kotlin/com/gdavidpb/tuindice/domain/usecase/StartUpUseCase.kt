@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.domain.usecase
 
-import com.gdavidpb.tuindice.domain.model.StartUpTarget
+import com.gdavidpb.tuindice.base.domain.exception.SecureStoreUnavailableException
 import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
+import com.gdavidpb.tuindice.domain.model.StartUpTarget
 import com.gdavidpb.tuindice.domain.usecase.error.StartUpUseCaseError
 import com.gdavidpb.tuindice.domain.usecase.exceptionhandler.StartUpExceptionHandler
 import com.gdavidpb.tuindice.domain.usecase.result.StartUpResult
@@ -57,11 +58,15 @@ class StartUpUseCase(
 				startTarget = startTarget,
 				showSessionResetNotice = sessionResetNoticePending && !hasActiveTokens
 			)
-		}.onFailure {
-			applicationRepository.clearData()
-			// Written after clearData so the wipe cannot erase it: the next start
-			// lands on sign-in and must be able to explain why the session is gone.
-			settingsRepository.setSessionResetNoticePending()
+		}.onFailure { throwable ->
+			// A transient secure-store outage must fail the startup (retryable)
+			// without wiping data the store still holds.
+			if (throwable !is SecureStoreUnavailableException) {
+				applicationRepository.clearData()
+				// Written after clearData so the wipe cannot erase it: the next start
+				// lands on sign-in and must be able to explain why the session is gone.
+				settingsRepository.setSessionResetNoticePending()
+			}
 		}.getOrThrow()
 
 		return flowOf(startUpResult)

@@ -145,7 +145,9 @@ private fun Long.toDateText(): String {
 	val localDate = Instant.fromEpochMilliseconds(this)
 		.toLocalDateTime(TimeZone.currentSystemDefault())
 		.date
-	return "${localDate.day}/${localDate.month.number}/${localDate.year}"
+	val day = localDate.day.toString().padStart(2, '0')
+	val month = localDate.month.number.toString().padStart(2, '0')
+	return "$day/$month/${localDate.year}"
 }
 
 private fun Double?.toPercentText(textMapping: SubjectDetailTextMapping): String {

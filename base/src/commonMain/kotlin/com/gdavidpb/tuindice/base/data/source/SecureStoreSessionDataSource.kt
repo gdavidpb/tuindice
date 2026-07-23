@@ -2,8 +2,10 @@ package com.gdavidpb.tuindice.base.data.source
 
 import com.gdavidpb.tuindice.base.data.repository.PreferencesSessionDataRepository
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
+import com.gdavidpb.tuindice.base.domain.exception.SecureStoreUnavailableException
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.utils.PreferencesKeys
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -138,21 +140,36 @@ class SecureStoreSessionDataSource(
 		store: SecureKeyValueDataRepository
 	): SessionStoreState {
 		return runCatching {
-			val session = StoredSession(
-				usbId = store.getString(PreferencesKeys.USER_USB_ID)?.takeIf(String::isNotBlank),
-				sessionId = store.getString(PreferencesKeys.USER_SESSION_ID)?.takeIf(String::isNotBlank),
-				accessToken = store.getString(PreferencesKeys.USER_ACCESS_TOKEN)?.takeIf(String::isNotBlank),
-				refreshToken = store.getString(PreferencesKeys.USER_REFRESH_TOKEN)?.takeIf(String::isNotBlank)
-			)
+			readStoredSession(store)
+		}.recoverCatching { throwable ->
+			if (throwable !is SecureStoreUnavailableException) throw throwable
 
+			// One retry bridges transient keystore hiccups; a persistent outage keeps
+			// the stored session untouched instead of degrading into an invalidation.
+			delay(SECURE_STORE_RETRY_DELAY_MILLIS)
+			readStoredSession(store)
+		}.map { session ->
 			when {
 				session.isComplete -> SessionStoreState.Complete(session.toComplete())
 				session.isEmpty -> SessionStoreState.Empty
 				else -> SessionStoreState.Partial(session.sessionId)
 			}
-		}.getOrElse {
+		}.getOrElse { throwable ->
+			if (throwable is SecureStoreUnavailableException) throw throwable
+
 			SessionStoreState.Failed
 		}
+	}
+
+	private suspend fun readStoredSession(
+		store: SecureKeyValueDataRepository
+	): StoredSession {
+		return StoredSession(
+			usbId = store.getString(PreferencesKeys.USER_USB_ID)?.takeIf(String::isNotBlank),
+			sessionId = store.getString(PreferencesKeys.USER_SESSION_ID)?.takeIf(String::isNotBlank),
+			accessToken = store.getString(PreferencesKeys.USER_ACCESS_TOKEN)?.takeIf(String::isNotBlank),
+			refreshToken = store.getString(PreferencesKeys.USER_REFRESH_TOKEN)?.takeIf(String::isNotBlank)
+		)
 	}
 
 	private data class StoredSession(
@@ -199,6 +216,8 @@ class SecureStoreSessionDataSource(
 	}
 
 	private companion object {
+		const val SECURE_STORE_RETRY_DELAY_MILLIS = 150L
+
 		val sessionKeys = listOf(
 			PreferencesKeys.USER_USB_ID,
 			PreferencesKeys.USER_SESSION_ID,

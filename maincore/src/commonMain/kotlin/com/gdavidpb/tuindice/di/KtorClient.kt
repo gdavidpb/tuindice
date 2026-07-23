@@ -67,19 +67,14 @@ fun createSharedHttpClient(
 			json(json)
 		}
 
+		installInsufficientScopeSessionInvalidation(
+			sessionRepository = sessionRepository,
+			sessionRecoveryRepository = sessionRecoveryRepository
+		)
+
 		HttpResponseValidator {
 			handleResponseExceptionWithRequest { exception, _ ->
 				val clientRequestException = exception as? ClientRequestException ?: return@handleResponseExceptionWithRequest
-				val authError = clientRequestException.response.headers[AuthErrorHeaders.HEADER]
-
-				if (
-					clientRequestException.response.status == HttpStatusCode.Forbidden &&
-					authError == AuthErrorHeaders.INSUFFICIENT_SCOPE
-				) {
-					sessionRecoveryRepository.invalidateSession(
-						sessionId = sessionRepository.getActiveSessionSnapshot()?.sessionId
-					)
-				}
 
 				if (clientRequestException.response.status == HttpStatusCode.UpgradeRequired) {
 					exception.persistOutdatedAppStateIfUpgradeRequired(
@@ -117,7 +112,10 @@ internal fun AuthConfig.installSharedBearerAuth(
 	sessionRecoveryRepository: SessionRecoveryRepository
 ) {
 	reAuthorizeOnResponse { response ->
-		response.status == HttpStatusCode.Unauthorized &&
+		val insufficientScope = response.status == HttpStatusCode.Forbidden &&
+				response.headers[AuthErrorHeaders.HEADER] == AuthErrorHeaders.INSUFFICIENT_SCOPE
+
+		(response.status == HttpStatusCode.Unauthorized || insufficientScope) &&
 				response.call.request.url.encodedPath.shouldSendBearerAuth()
 	}
 
@@ -141,6 +139,35 @@ internal fun AuthConfig.installSharedBearerAuth(
 				attemptedCachedAccessToken = oldTokens?.accessToken,
 				attemptedCachedRefreshToken = oldTokens?.refreshToken
 			)?.toBearerTokens()
+		}
+	}
+}
+
+internal fun HttpClientConfig<*>.installInsufficientScopeSessionInvalidation(
+	sessionRepository: SessionRepository,
+	sessionRecoveryRepository: SessionRecoveryRepository
+) {
+	HttpResponseValidator {
+		handleResponseExceptionWithRequest { exception, _ ->
+			val clientRequestException = exception as? ClientRequestException ?: return@handleResponseExceptionWithRequest
+			val authError = clientRequestException.response.headers[AuthErrorHeaders.HEADER]
+
+			if (
+				clientRequestException.response.status == HttpStatusCode.Forbidden &&
+				authError == AuthErrorHeaders.INSUFFICIENT_SCOPE
+			) {
+				val attemptedAccessToken = clientRequestException.response.call.request
+					.headers[HttpHeaders.Authorization]?.bearerAccessToken()
+				val activeSnapshot = sessionRepository.getActiveSessionSnapshot()
+
+				// Invalidate only when a current token still lacks the scope; a
+				// stale token is refreshed and retried by the Auth plugin instead.
+				if (activeSnapshot != null && attemptedAccessToken == activeSnapshot.accessToken) {
+					sessionRecoveryRepository.invalidateSession(
+						sessionId = activeSnapshot.sessionId
+					)
+				}
+			}
 		}
 	}
 }

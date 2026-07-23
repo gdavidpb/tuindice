@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.data.source.secure
 import android.content.Context
 import android.content.SharedPreferences
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
+import com.gdavidpb.tuindice.base.domain.exception.SecureStoreUnavailableException
 import com.google.crypto.tink.Aead
 import com.google.crypto.tink.RegistryConfiguration
 import com.google.crypto.tink.aead.AeadConfig
@@ -35,24 +36,28 @@ class AndroidTinkSecureKeyValueDataSource : SecureKeyValueDataRepository {
 		val encodedCiphertext = valuePreferences.getString(key, null) ?: return null
 
 		return runCatching {
-			val plaintext = aeadProvider.aead().decrypt(
+			val plaintext = availableAead(key).decrypt(
 				decodeBase64(encodedCiphertext),
 				associatedData(key)
 			)
 			plaintext.decodeToString()
 		}.getOrElse { throwable ->
+			if (throwable is SecureStoreUnavailableException) throw throwable
+
 			throw IllegalStateException("Unable to read secure value for key $key.", throwable)
 		}
 	}
 
 	override suspend fun putString(key: String, value: String) {
 		val encodedCiphertext = runCatching {
-			val ciphertext = aeadProvider.aead().encrypt(
+			val ciphertext = availableAead(key).encrypt(
 				value.encodeToByteArray(),
 				associatedData(key)
 			)
 			encodeBase64(ciphertext)
 		}.getOrElse { throwable ->
+			if (throwable is SecureStoreUnavailableException) throw throwable
+
 			throw IllegalStateException("Unable to encrypt secure value for key $key.", throwable)
 		}
 
@@ -84,6 +89,14 @@ class AndroidTinkSecureKeyValueDataSource : SecureKeyValueDataRepository {
 			"Unable to clear secure values."
 		}
 		aeadProvider.clear()
+	}
+
+	// Failing to obtain the Aead is a keystore outage (recoverable); a decrypt
+	// failure on existing ciphertext is corruption and keeps its old semantics.
+	private fun availableAead(key: String): Aead {
+		return runCatching { aeadProvider.aead() }.getOrElse { throwable ->
+			throw SecureStoreUnavailableException("Secure store unavailable for key $key.", throwable)
+		}
 	}
 
 	private fun associatedData(key: String): ByteArray {

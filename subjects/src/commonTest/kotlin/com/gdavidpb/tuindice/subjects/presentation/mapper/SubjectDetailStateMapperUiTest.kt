@@ -28,7 +28,7 @@ class SubjectDetailStateMapperUiTest {
 		assertEquals("Calculo I", item.name)
 		assertEquals("5 UC", item.creditsText)
 		assertNull(item.gradingModeText)
-		assertTrue(item.generatedAtText.startsWith("Actualizado "))
+		assertTrue(item.generatedAtText.matches(Regex("""Actualizado \d{2}/\d{2}/\d{4}""")))
 		assertEquals(SubjectSegmentTab.CAREER, item.selectedTab)
 		assertFalse(item.hasSegmentTabs)
 		assertEquals(SubjectDetailItem.ChartMode.NUMERIC_GRADES, item.chartMode)
