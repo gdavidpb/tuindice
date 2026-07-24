@@ -63,9 +63,6 @@ class SignOutUseCase(
 		}
 
 		sessionCoroutineScope.cancelActiveWork()
-		// Los datos van primero: el desmontaje no es atómico, y una interrupción aquí
-		// debe dejar "sin datos + con sesión" (se resincroniza solo) y nunca
-		// "con datos + sin sesión", que es el estado que el siguiente usuario hereda.
 		applicationRepository.clearData()
 		sessionRepository.clear()
 		syncStatusRepository.reset()

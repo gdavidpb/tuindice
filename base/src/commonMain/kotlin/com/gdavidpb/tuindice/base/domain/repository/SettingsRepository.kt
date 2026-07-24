@@ -20,10 +20,6 @@ interface SettingsRepository {
 	suspend fun setSessionResetNoticePending()
 	suspend fun consumeSessionResetNoticePending(): Boolean
 
-	// Identidad dueña de los datos locales. Se escribe al final del alta de sesión y
-	// se borra con el resto de los settings, que `clearData()` limpia DESPUÉS de la
-	// base: si el borrado de datos falla, la marca sobrevive y el desajuste es
-	// detectable en el siguiente inicio de sesión.
 	suspend fun getLocalDataOwner(): String?
 	suspend fun setLocalDataOwner(usbId: String)
 

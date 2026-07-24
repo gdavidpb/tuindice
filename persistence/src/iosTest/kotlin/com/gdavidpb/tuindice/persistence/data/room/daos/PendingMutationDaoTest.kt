@@ -150,7 +150,6 @@ class PendingMutationDaoTest {
 
 		dao.upsertEntities(listOf(failed, pending, failedInOtherScope))
 
-		// `Long.MAX_VALUE` = sin backoff, que es lo que usa el flush del cierre de sesión.
 		val retried = dao.requeueFailedMutations(
 			storeId = "evaluations",
 			scopeKey = "scope-1",
@@ -280,7 +279,6 @@ class PendingMutationDaoTest {
 			)
 		)
 
-		// Eje de envío: solo lo elegible.
 		assertEquals(
 			listOf("mutation-1"),
 			dao.observePendingMutations(storeId = "evaluations", scopeKey = "scope-1")
@@ -293,7 +291,6 @@ class PendingMutationDaoTest {
 				.map(PendingMutationEntity::mutationId)
 		)
 
-		// Eje de visibilidad: todo cambio del usuario que siga guardado, en orden.
 		assertEquals(
 			listOf("mutation-1", "mutation-2"),
 			dao.observeMutations(storeId = "evaluations", scopeKey = "scope-1")
@@ -329,17 +326,14 @@ class PendingMutationDaoTest {
 		val byId = dao.getMutations(storeId = "evaluations", scopeKey = "scope-1")
 			.associateBy(PendingMutationEntity::mutationId)
 
-		// Vencido: vuelve a la cola y pierde el error anterior.
 		assertEquals("Pending", byId.getValue("stale-failed").status)
 		assertNull(byId.getValue("stale-failed").lastError)
 		assertEquals(1_000L, byId.getValue("stale-failed").updatedAt)
 
-		// Dentro del backoff: intacto. Es el amortiguador del ciclo de reintento.
 		assertEquals("Failed", byId.getValue("fresh-failed").status)
 		assertEquals("boom", byId.getValue("fresh-failed").lastError)
 		assertEquals(900L, byId.getValue("fresh-failed").updatedAt)
 
-		// Ya elegible: la consulta no debe rescribirle el `updatedAt`.
 		assertEquals(100L, byId.getValue("already-pending").updatedAt)
 	}
 

@@ -93,8 +93,6 @@ class SignInUseCase(
 			password = params.password
 		)
 
-		// Después de todo lo que puede borrar: a partir de aquí los datos locales
-		// tienen dueño declarado y un alta de otra identidad puede detectarlo.
 		settingsRepository.setLocalDataOwner(canonicalUsbId)
 
 		if (syncStatusRepository.getSyncStatus() == SyncStatus.OutdatedCredentials) {
@@ -110,10 +108,6 @@ class SignInUseCase(
 		return flowOf(Unit)
 	}
 
-	// El desmontaje de sesión no es atómico: si `clearData()` falla o se interrumpe,
-	// los datos del usuario anterior sobreviven sin sesión. Como la marca de dueño se
-	// borra después de la base, sobrevivir a ese fallo significa que sigue apuntando
-	// al dueño anterior; un alta de otra identidad lo detecta aquí y repara.
 	private suspend fun discardForeignLocalData(canonicalUsbId: String) {
 		val localDataOwner = settingsRepository.getLocalDataOwner() ?: return
 		if (localDataOwner == canonicalUsbId) return

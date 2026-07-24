@@ -11,11 +11,6 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-/**
- * `record` escribe la base local de inmediato y reaplica los sobres del outbox sobre
- * cada snapshot remoto. Si esa reaplicacion solo mira los `Pending`, un fallo terminal
- * revierte en silencio un cambio que el usuario ya veia aplicado.
- */
 class AcademicRecordFailedMutationVisibilityTest {
 	@Test
 	fun updateAcademicRecord_reappliesFailedMutationsOverRemoteSnapshot() = runTest {
@@ -37,7 +32,6 @@ class AcademicRecordFailedMutationVisibilityTest {
 		val localDataSource = FakeAcademicRecordLocalDataRepository(
 			record = defaultVersionedRecord(revision = 1L)
 		)
-		// El snapshot remoto no conoce el cambio: nunca llego a enviarse.
 		val remoteDataSource = ControlledAcademicRecordRemoteDataRepository(
 			upsertResponse = defaultVersionedRecord(revision = 2L)
 		)
@@ -48,9 +42,6 @@ class AcademicRecordFailedMutationVisibilityTest {
 			mutationEngine = createMutationEngine(
 				coroutineScope = this,
 				outboxStore = InMemoryMutationEnvelopeStore(listOf(failedMutation)),
-				// Backoff que no vence: este test aisla la proyeccion, no la politica de
-				// reintento. Sin esto, `drain` reencolaria el sobre y la respuesta del
-				// remoto falso taparia lo que se quiere observar.
 				failedRetryBackoffMillis = Long.MAX_VALUE
 			),
 			identifierRepository = FakeIdentifierRepository()

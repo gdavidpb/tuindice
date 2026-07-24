@@ -78,8 +78,6 @@ class PendingChangesDataSource(
 		}
 	}
 
-	// Sin backoff: es la última oportunidad antes de que la sesión se cierre y el
-	// outbox se borre, así que todo sobre fallido es elegible.
 	private suspend fun retryFailedMutations(
 		storeId: String,
 		scopeKey: String

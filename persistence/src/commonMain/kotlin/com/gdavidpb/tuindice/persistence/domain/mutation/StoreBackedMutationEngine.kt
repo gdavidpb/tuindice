@@ -132,7 +132,6 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Confir
 				)
 			)
 
-	// Elegibles para envío: las lee `drain` y el propio ciclo de ejecución.
 	fun observePendingMutations(
 		scopeKey: ScopeKey
 	) = outboxStore.observePendingMutations(scopeKey)
@@ -143,8 +142,6 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Confir
 		return outboxStore.getPendingMutations(scopeKey)
 	}
 
-	// Visibles: las lee la proyección de estado visible de cada feature. Incluye las
-	// `Failed`, que siguen siendo cambios del usuario guardados en el dispositivo.
 	fun observeMutations(
 		scopeKey: ScopeKey
 	) = outboxStore.observeMutations(scopeKey)
@@ -174,12 +171,6 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Confir
 		}
 	}
 
-	/**
-	 * Testigo de "algo cambió localmente". Quien lee un snapshot remoto lo compara a
-	 * ambos lados del fetch para no pisar escrituras locales que la respuesta no
-	 * contiene. Avanza en TODA escritura local que un snapshot remoto podría no
-	 * traer: creación ([beginMutation]), confirmación y baja del sobre.
-	 */
 	suspend fun currentMutationVersion(): Long {
 		return versionMutex.withLock { latestMutationVersion }
 	}
@@ -231,9 +222,6 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Confir
 		propagateTerminalErrors: Boolean = false,
 		targetMutationId: String? = null
 	) {
-		// `Failed` deja de ser absorbente aquí: cada drenaje devuelve a la cola los
-		// sobres que ya cumplieron el backoff, así que el reintento vive en el camino
-		// normal (refresco) y no solo en el cierre de sesión.
 		outboxStore.requeueFailedMutations(
 			scopeKey = scopeKey,
 			retryableBefore = currentTimeMillis() - failedRetryBackoffMillis
@@ -318,8 +306,6 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Confir
 					forgetMutationVersion(currentMutation.mutationId)
 				}
 
-				// El estado local acaba de cambiar por confirmación: un fetch en vuelo
-				// que arrancó antes debe descartar su snapshot en vez de pisarlo.
 				advanceMutationVersion()
 
 				return UpdaterResult.Success.Typed(ack)
@@ -432,9 +418,6 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Confir
 		}
 	}
 
-	// Solo mueve el contador global; `latestMutationVersionByReplaceKey` no se toca, de
-	// modo que la regla "gana la última escritura por replaceKey" queda intacta: usa el
-	// contador como fuente de tokens crecientes, no su valor absoluto.
 	private suspend fun advanceMutationVersion() {
 		versionMutex.withLock {
 			latestMutationVersion += 1

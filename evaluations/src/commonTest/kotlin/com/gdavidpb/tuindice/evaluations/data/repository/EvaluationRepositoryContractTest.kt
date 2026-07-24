@@ -268,8 +268,6 @@ class EvaluationRepositoryContractTest {
 
 		repository.removeEvaluation(EvaluationRemove(id = "reference-1"))
 
-		// Sin ver el alta fallida se construiría un `Remove` contra un id local que el
-		// servidor no conoce, y el alta resucitaría en el siguiente reintento.
 		assertEquals(0, evaluationsApiDataSource.removeCalls.size)
 		assertTrue(pendingMutationStore.getMutations(EVALUATIONS_MUTATION_SCOPE).isEmpty())
 	}
@@ -300,8 +298,6 @@ class EvaluationRepositoryContractTest {
 			)
 		)
 
-		// Mismo `replaceKey`: el sobre fallido se reemplaza, no se acumula junto a un
-		// `Update` que apuntaría a una evaluación inexistente en el remoto.
 		val rewritten = pendingMutationStore.getMutations(EVALUATIONS_MUTATION_SCOPE).single()
 		val command = rewritten.command
 		assertTrue(command is EvaluationMutation.Add)
@@ -326,8 +322,6 @@ class EvaluationRepositoryContractTest {
 
 		repository.addEvaluation(equivalentAdd(reference = "reference-2"))
 
-		// El servidor deduplica por `referenceId`. Dos referencias para el mismo hecho
-		// crearian dos evaluaciones cuando el sobre viejo se reintente.
 		val envelope = pendingMutationStore.getMutations(EVALUATIONS_MUTATION_SCOPE).single()
 		val command = envelope.command
 		assertTrue(command is EvaluationMutation.Add)
@@ -353,8 +347,6 @@ class EvaluationRepositoryContractTest {
 			equivalentAdd(reference = "reference-2").copy(date = 1_900_000_001_000L)
 		)
 
-		// La comparacion es estructural sobre todos los campos salvo la referencia: no
-		// puede fusionar dos evaluaciones que difieran en algo.
 		val references = pendingMutationStore.getMutations(EVALUATIONS_MUTATION_SCOPE)
 			.map(MutationEnvelope<String, EvaluationMutation>::command)
 			.filterIsInstance<EvaluationMutation.Add>()

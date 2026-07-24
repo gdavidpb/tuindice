@@ -381,11 +381,8 @@ class StoreBackedMutationEngineTest {
 
 		engine.submit(mutation, syncSpec, propagateTerminalErrors = false)
 
-		// Eje de envío: fuera de la cola, es lo que `drain` debe ignorar.
 		assertEquals(emptyList(), engine.getPendingMutations("record"))
 
-		// Eje de visibilidad: sigue siendo un cambio del usuario guardado en el
-		// dispositivo, y la proyección debe poder representarlo.
 		val visible = engine.getMutations("record").single()
 		assertEquals("mutation-1", visible.mutationId)
 		assertEquals(PendingMutationStatus.Failed, visible.status)
@@ -415,8 +412,6 @@ class StoreBackedMutationEngineTest {
 
 		engine.drain(scopeKey = "record", syncSpec = syncSpec)
 
-		// El reintento vive en el camino normal: `Failed` deja de ser absorbente sin
-		// pasar por el cierre de sesion.
 		assertEquals(listOf(80), sentValues)
 		assertEquals(emptyList(), store.getMutations("record"))
 	}
@@ -444,8 +439,6 @@ class StoreBackedMutationEngineTest {
 
 		engine.drain(scopeKey = "record", syncSpec = syncSpec)
 
-		// El amortiguador: sin el, un fallo determinista dispararia una peticion
-		// condenada en cada refresco.
 		assertTrue(sentValues.isEmpty())
 		assertEquals(PendingMutationStatus.Failed, store.getMutations("record").single().status)
 	}
@@ -474,15 +467,11 @@ class StoreBackedMutationEngineTest {
 		engine.rememberMutationVersion(mutation.mutationId, version)
 		engine.submitInBackground(mutation, syncSpec)
 
-		// Aqui arranca el fetch de un snapshot remoto: la mutacion YA fue creada, asi
-		// que un testigo que solo mirara `beginMutation` no veria nada cambiar.
 		val snapshotVersion = engine.currentMutationVersion()
 
-		// La confirmacion aterriza durante el fetch.
 		releaseAck.complete(Unit)
 		yield()
 
-		// Al volver el fetch, el guard debe descartar su snapshot en vez de pisarla.
 		assertTrue(snapshotVersion != engine.currentMutationVersion())
 	}
 }

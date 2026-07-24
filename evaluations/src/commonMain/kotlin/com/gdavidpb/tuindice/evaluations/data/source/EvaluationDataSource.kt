@@ -122,11 +122,6 @@ class EvaluationDataSource(
 			type = add.type.ordinal
 		)
 		val mutation = buildPendingAddMutation(
-			// La clave con la que el servidor deduplica es `referenceId`, y el caso de
-			// uso acuña una nueva en cada invocación: dos altas del mismo hecho serían
-			// dos hechos distintos y crearían un duplicado en el remoto. Si ya hay un
-			// sobre de alta idéntico en todo salvo la referencia, se reescribe ese
-			// —mismo `replaceKey`— en lugar de acuñar una segunda referencia.
 			command = equivalentPendingAdd(command) ?: command
 		)
 		val mutationVersion = mutationEngine.beginMutation(replaceKey = mutation.replaceKey)
@@ -221,15 +216,6 @@ class EvaluationDataSource(
 		return remoteSnapshot
 	}
 
-	// Debe ver también las `Failed`: ahora que la proyección las muestra, el usuario
-	// puede editar o borrar un alta fallida, y reescribir ese mismo sobre (mismo
-	// `replaceKey`) es lo correcto. Leer solo las `Pending` construiría un `Update` o
-	// un `Remove` contra un id local que el servidor no conoce.
-	/**
-	 * Devuelve el alta ya encolada que expresa exactamente el mismo hecho que [command],
-	 * si existe. La comparación es estructural sobre todos los campos salvo la
-	 * referencia, así que nunca puede fusionar dos evaluaciones que difieran en algo.
-	 */
 	private suspend fun equivalentPendingAdd(
 		command: EvaluationMutation.Add
 	): EvaluationMutation.Add? {

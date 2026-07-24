@@ -26,9 +26,6 @@ abstract class PendingMutationDao : UpsertDao<PendingMutationEntity>() {
 	)
 	abstract suspend fun getPendingMutations(storeId: String, scopeKey: String): List<PendingMutationEntity>
 
-	// Sin filtro de estado: alimenta la proyección de estado visible, que debe
-	// representar todo cambio del usuario que siga guardado, esté o no en `Pending`.
-	// El envío (`drain`) sigue leyendo las consultas filtradas de arriba.
 	@Query(
 		"SELECT * FROM ${PendingMutationTable.TABLE_NAME} " +
 			"WHERE ${PendingMutationTable.STORE_ID} = :storeId " +
@@ -76,12 +73,6 @@ abstract class PendingMutationDao : UpsertDao<PendingMutationEntity>() {
 	)
 	abstract suspend fun deletePendingMutationsByReplaceKey(storeId: String, replaceKey: String): Int
 
-	// Devuelve a la cola de envío los sobres `Failed` que llevan parados al menos el
-	// backoff. Es el único dual del operador que marca el fallo: el camino normal
-	// (`drain`) pasa el backoff configurado, y el cierre de sesión pasa
-	// `Long.MAX_VALUE` porque ahí todo es elegible — es la última oportunidad.
-	// El amortiguador es obligatorio en el camino normal: sin él, un fallo determinista
-	// dispararía una petición condenada en cada refresco.
 	@Query(
 		"UPDATE ${PendingMutationTable.TABLE_NAME} " +
 			"SET ${PendingMutationTable.STATUS} = :status, " +

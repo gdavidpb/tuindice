@@ -237,9 +237,6 @@ class AcademicRecordDataSource(
 		)
 	}
 
-	// `getMutations`, no `getPendingMutations`: si una mutación quedó en `Failed`, el
-	// cambio sigue escrito en la base local, y reaplicar solo las `Pending` sobre el
-	// snapshot remoto lo revertía en silencio en el siguiente refresco.
 	private suspend fun currentPendingMutations(): List<MutationEnvelope<String, AcademicRecordMutation>> {
 		return mutationEngine.getMutations(RECORD_MUTATION_SCOPE)
 			.sortedWith(compareBy(MutationEnvelope<String, AcademicRecordMutation>::createdAt, MutationEnvelope<String, AcademicRecordMutation>::mutationId))
