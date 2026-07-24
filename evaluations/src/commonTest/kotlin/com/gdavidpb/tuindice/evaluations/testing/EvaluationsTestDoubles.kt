@@ -629,6 +629,23 @@ class FakeMutationEnvelopeStore<ScopeKey : Any, T : OutboxMutation>(
 		}
 	}
 
+	override suspend fun requeueFailedMutations(scopeKey: ScopeKey, retryableBefore: Long): Int {
+		var requeued = 0
+		state.value = state.value.map { mutation ->
+			if (
+				mutation.scopeKey == scopeKey &&
+				mutation.status == PendingMutationStatus.Failed &&
+				mutation.updatedAt <= retryableBefore
+			) {
+				requeued += 1
+				mutation.copy(status = PendingMutationStatus.Pending, lastError = null)
+			} else {
+				mutation
+			}
+		}
+		return requeued
+	}
+
 	override fun observeMutations(scopeKey: ScopeKey): Flow<List<MutationEnvelope<ScopeKey, T>>> {
 		return state.map { mutations ->
 			mutations.filter { mutation -> mutation.scopeKey == scopeKey }

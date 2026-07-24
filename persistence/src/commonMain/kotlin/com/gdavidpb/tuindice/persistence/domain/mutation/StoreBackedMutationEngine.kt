@@ -13,11 +13,14 @@ import kotlinx.coroutines.sync.withLock
 import org.mobilenativefoundation.store.core5.ExperimentalStoreApi
 import org.mobilenativefoundation.store.store5.*
 
+const val DEFAULT_FAILED_RETRY_BACKOFF_MILLIS: Long = 5 * 60 * 1000
+
 @OptIn(ExperimentalStoreApi::class)
 class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, ConfirmedState, VisibleState, Ack : Any>(
 	private val storeId: String,
 	private val outboxStore: MutationEnvelopeStore<ScopeKey, Command>,
-	private val coroutineScope: CoroutineScope
+	private val coroutineScope: CoroutineScope,
+	private val failedRetryBackoffMillis: Long = DEFAULT_FAILED_RETRY_BACKOFF_MILLIS
 ) {
 	private val versionMutex = Mutex()
 	private val runtimeBookkeeperMutex = Mutex()
@@ -171,6 +174,12 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Confir
 		}
 	}
 
+	/**
+	 * Testigo de "algo cambió localmente". Quien lee un snapshot remoto lo compara a
+	 * ambos lados del fetch para no pisar escrituras locales que la respuesta no
+	 * contiene. Avanza en TODA escritura local que un snapshot remoto podría no
+	 * traer: creación ([beginMutation]), confirmación y baja del sobre.
+	 */
 	suspend fun currentMutationVersion(): Long {
 		return versionMutex.withLock { latestMutationVersion }
 	}
@@ -222,6 +231,14 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Confir
 		propagateTerminalErrors: Boolean = false,
 		targetMutationId: String? = null
 	) {
+		// `Failed` deja de ser absorbente aquí: cada drenaje devuelve a la cola los
+		// sobres que ya cumplieron el backoff, así que el reintento vive en el camino
+		// normal (refresco) y no solo en el cierre de sesión.
+		outboxStore.requeueFailedMutations(
+			scopeKey = scopeKey,
+			retryableBefore = currentTimeMillis() - failedRetryBackoffMillis
+		)
+
 		getPendingMutations(scopeKey).forEach { mutation ->
 			if (targetMutationId != null && mutation.mutationId != targetMutationId) {
 				return@forEach
@@ -243,6 +260,7 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Confir
 	) {
 		outboxStore.deletePendingMutation(scopeKey, mutationId)
 		forgetMutationVersion(mutationId)
+		advanceMutationVersion()
 	}
 
 	private suspend fun executeMutation(
@@ -300,6 +318,10 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Confir
 					forgetMutationVersion(currentMutation.mutationId)
 				}
 
+				// El estado local acaba de cambiar por confirmación: un fetch en vuelo
+				// que arrancó antes debe descartar su snapshot en vez de pisarlo.
+				advanceMutationVersion()
+
 				return UpdaterResult.Success.Typed(ack)
 			} catch (throwable: Throwable) {
 				if (throwable is CancellationException) throw throwable
@@ -328,6 +350,7 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Confir
 							mutationId = currentMutation.mutationId
 						)
 						forgetMutationVersion(currentMutation.mutationId)
+						advanceMutationVersion()
 
 						return if (resolution.propagate && execution.propagateTerminalErrors) {
 							UpdaterResult.Error.Exception(throwable)
@@ -406,6 +429,15 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Confir
 	) {
 		versionMutex.withLock {
 			mutationVersionById.remove(mutationId)
+		}
+	}
+
+	// Solo mueve el contador global; `latestMutationVersionByReplaceKey` no se toca, de
+	// modo que la regla "gana la última escritura por replaceKey" queda intacta: usa el
+	// contador como fuente de tokens crecientes, no su valor absoluto.
+	private suspend fun advanceMutationVersion() {
+		versionMutex.withLock {
+			latestMutationVersion += 1
 		}
 	}
 

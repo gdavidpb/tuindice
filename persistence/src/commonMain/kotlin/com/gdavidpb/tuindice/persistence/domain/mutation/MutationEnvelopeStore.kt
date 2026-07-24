@@ -40,4 +40,12 @@ interface MutationEnvelopeStore<ScopeKey, Command : OutboxMutation> {
 		scopeKey: ScopeKey,
 		mutationId: String
 	)
+
+	// Devuelve a la cola de envío los sobres `Failed` que llevan parados al menos el
+	// backoff. Es el dual del operador que marca el fallo, y el que evita que `Failed`
+	// sea un estado absorbente alcanzable solo desde el cierre de sesión.
+	suspend fun requeueFailedMutations(
+		scopeKey: ScopeKey,
+		retryableBefore: Long
+	): Int
 }

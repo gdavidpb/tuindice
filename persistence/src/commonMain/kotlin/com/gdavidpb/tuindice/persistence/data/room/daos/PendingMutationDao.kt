@@ -76,6 +76,12 @@ abstract class PendingMutationDao : UpsertDao<PendingMutationEntity>() {
 	)
 	abstract suspend fun deletePendingMutationsByReplaceKey(storeId: String, replaceKey: String): Int
 
+	// Devuelve a la cola de envío los sobres `Failed` que llevan parados al menos el
+	// backoff. Es el único dual del operador que marca el fallo: el camino normal
+	// (`drain`) pasa el backoff configurado, y el cierre de sesión pasa
+	// `Long.MAX_VALUE` porque ahí todo es elegible — es la última oportunidad.
+	// El amortiguador es obligatorio en el camino normal: sin él, un fallo determinista
+	// dispararía una petición condenada en cada refresco.
 	@Query(
 		"UPDATE ${PendingMutationTable.TABLE_NAME} " +
 			"SET ${PendingMutationTable.STATUS} = :status, " +
@@ -83,11 +89,13 @@ abstract class PendingMutationDao : UpsertDao<PendingMutationEntity>() {
 			"${PendingMutationTable.UPDATED_AT} = :updatedAt " +
 			"WHERE ${PendingMutationTable.STORE_ID} = :storeId " +
 			"AND ${PendingMutationTable.SCOPE_KEY} = :scopeKey " +
-			"AND ${PendingMutationTable.STATUS} = 'Failed'"
+			"AND ${PendingMutationTable.STATUS} = 'Failed' " +
+			"AND ${PendingMutationTable.UPDATED_AT} <= :retryableBefore"
 	)
-	abstract suspend fun retryFailedMutations(
+	abstract suspend fun requeueFailedMutations(
 		storeId: String,
 		scopeKey: String,
+		retryableBefore: Long,
 		status: String = "Pending",
 		updatedAt: Long
 	): Int

@@ -391,15 +391,111 @@ class StoreBackedMutationEngineTest {
 		assertEquals(PendingMutationStatus.Failed, visible.status)
 		assertEquals(listOf(visible), engine.observeMutations("record").first())
 	}
+
+	@Test
+	fun drain_requeuesFailedMutationsPastTheBackoff_andSendsThem() = runTest {
+		val failedMutation = testMutationEnvelope(mutationId = "mutation-1", value = 80)
+			.copy(status = PendingMutationStatus.Failed, updatedAt = 1L, lastError = "terminal")
+		val store = InMemoryMutationEnvelopeStore(listOf(failedMutation))
+		val engine = createEngine(store, this)
+		val sentValues = mutableListOf<Int>()
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+			override suspend fun send(
+				mutation: MutationEnvelope<String, TestMutation>
+			): TestAck {
+				sentValues += mutation.command.value
+				return TestAck(mutation.mutationId, mutation.command.value)
+			}
+
+			override suspend fun confirm(
+				mutation: MutationEnvelope<String, TestMutation>,
+				ack: TestAck
+			) = Unit
+		}
+
+		engine.drain(scopeKey = "record", syncSpec = syncSpec)
+
+		// El reintento vive en el camino normal: `Failed` deja de ser absorbente sin
+		// pasar por el cierre de sesion.
+		assertEquals(listOf(80), sentValues)
+		assertEquals(emptyList(), store.getMutations("record"))
+	}
+
+	@Test
+	fun drain_leavesFailedMutationsInsideTheBackoffUntouched() = runTest {
+		val failedMutation = testMutationEnvelope(mutationId = "mutation-1", value = 80)
+			.copy(status = PendingMutationStatus.Failed, updatedAt = 1L, lastError = "terminal")
+		val store = InMemoryMutationEnvelopeStore(listOf(failedMutation))
+		val engine = createEngine(store, this, failedRetryBackoffMillis = Long.MAX_VALUE / 2)
+		val sentValues = mutableListOf<Int>()
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+			override suspend fun send(
+				mutation: MutationEnvelope<String, TestMutation>
+			): TestAck {
+				sentValues += mutation.command.value
+				return TestAck(mutation.mutationId, mutation.command.value)
+			}
+
+			override suspend fun confirm(
+				mutation: MutationEnvelope<String, TestMutation>,
+				ack: TestAck
+			) = Unit
+		}
+
+		engine.drain(scopeKey = "record", syncSpec = syncSpec)
+
+		// El amortiguador: sin el, un fallo determinista dispararia una peticion
+		// condenada en cada refresco.
+		assertTrue(sentValues.isEmpty())
+		assertEquals(PendingMutationStatus.Failed, store.getMutations("record").single().status)
+	}
+
+	@Test
+	fun mutationVersion_advancesOnConfirm_soASnapshotFetchedEarlierIsDiscarded() = runTest {
+		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
+		val engine = createEngine(store, this)
+		val releaseAck = CompletableDeferred<Unit>()
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+			override suspend fun send(
+				mutation: MutationEnvelope<String, TestMutation>
+			): TestAck {
+				releaseAck.await()
+				return TestAck(mutation.mutationId, mutation.command.value)
+			}
+
+			override suspend fun confirm(
+				mutation: MutationEnvelope<String, TestMutation>,
+				ack: TestAck
+			) = Unit
+		}
+
+		val mutation = testMutationEnvelope(mutationId = "mutation-1", value = 90)
+		val version = engine.beginMutation(replaceKey = mutation.replaceKey)
+		engine.rememberMutationVersion(mutation.mutationId, version)
+		engine.submitInBackground(mutation, syncSpec)
+
+		// Aqui arranca el fetch de un snapshot remoto: la mutacion YA fue creada, asi
+		// que un testigo que solo mirara `beginMutation` no veria nada cambiar.
+		val snapshotVersion = engine.currentMutationVersion()
+
+		// La confirmacion aterriza durante el fetch.
+		releaseAck.complete(Unit)
+		yield()
+
+		// Al volver el fetch, el guard debe descartar su snapshot en vez de pisarla.
+		assertTrue(snapshotVersion != engine.currentMutationVersion())
+	}
 }
 
 private fun createEngine(
 	store: MutationEnvelopeStore<String, TestMutation>,
-	coroutineScope: kotlinx.coroutines.CoroutineScope
+	coroutineScope: kotlinx.coroutines.CoroutineScope,
+	failedRetryBackoffMillis: Long = DEFAULT_FAILED_RETRY_BACKOFF_MILLIS
 ) = StoreBackedMutationEngine<String, TestMutation, Unit, Unit, TestAck>(
 	storeId = "test",
 	outboxStore = store,
-	coroutineScope = coroutineScope
+	coroutineScope = coroutineScope,
+	failedRetryBackoffMillis = failedRetryBackoffMillis
 )
 
 private fun testMutationEnvelope(
@@ -444,6 +540,26 @@ private class InMemoryMutationEnvelopeStore<ScopeKey : Any, Command : OutboxMuta
 		return state.value.filter { mutation ->
 			mutation.scopeKey == scopeKey && mutation.status == PendingMutationStatus.Pending
 		}
+	}
+
+	override suspend fun requeueFailedMutations(
+		scopeKey: ScopeKey,
+		retryableBefore: Long
+	): Int {
+		var requeued = 0
+		state.value = state.value.map { mutation ->
+			if (
+				mutation.scopeKey == scopeKey &&
+				mutation.status == PendingMutationStatus.Failed &&
+				mutation.updatedAt <= retryableBefore
+			) {
+				requeued += 1
+				mutation.copy(status = PendingMutationStatus.Pending, lastError = null)
+			} else {
+				mutation
+			}
+		}
+		return requeued
 	}
 
 	override fun observeMutations(

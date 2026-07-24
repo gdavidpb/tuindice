@@ -110,18 +110,24 @@ class EvaluationDataSource(
 	}
 
 	override suspend fun addEvaluation(add: EvaluationAdd) {
+		val command = EvaluationMutation.Add(
+			referenceId = add.reference,
+			attemptId = add.attemptId,
+			subjectCode = add.subjectCode,
+			termId = add.termId,
+			scheduleMode = add.scheduleMode,
+			grade = add.grade,
+			maxGrade = add.maxGrade,
+			date = add.date,
+			type = add.type.ordinal
+		)
 		val mutation = buildPendingAddMutation(
-			command = EvaluationMutation.Add(
-				referenceId = add.reference,
-				attemptId = add.attemptId,
-				subjectCode = add.subjectCode,
-				termId = add.termId,
-				scheduleMode = add.scheduleMode,
-				grade = add.grade,
-				maxGrade = add.maxGrade,
-				date = add.date,
-				type = add.type.ordinal
-			)
+			// La clave con la que el servidor deduplica es `referenceId`, y el caso de
+			// uso acuña una nueva en cada invocación: dos altas del mismo hecho serían
+			// dos hechos distintos y crearían un duplicado en el remoto. Si ya hay un
+			// sobre de alta idéntico en todo salvo la referencia, se reescribe ese
+			// —mismo `replaceKey`— en lugar de acuñar una segunda referencia.
+			command = equivalentPendingAdd(command) ?: command
 		)
 		val mutationVersion = mutationEngine.beginMutation(replaceKey = mutation.replaceKey)
 		mutationEngine.rememberMutationVersion(mutation.mutationId, mutationVersion)
@@ -219,6 +225,21 @@ class EvaluationDataSource(
 	// puede editar o borrar un alta fallida, y reescribir ese mismo sobre (mismo
 	// `replaceKey`) es lo correcto. Leer solo las `Pending` construiría un `Update` o
 	// un `Remove` contra un id local que el servidor no conoce.
+	/**
+	 * Devuelve el alta ya encolada que expresa exactamente el mismo hecho que [command],
+	 * si existe. La comparación es estructural sobre todos los campos salvo la
+	 * referencia, así que nunca puede fusionar dos evaluaciones que difieran en algo.
+	 */
+	private suspend fun equivalentPendingAdd(
+		command: EvaluationMutation.Add
+	): EvaluationMutation.Add? {
+		return mutationEngine.getMutations(EVALUATIONS_MUTATION_SCOPE)
+			.asSequence()
+			.map(MutationEnvelope<String, EvaluationMutation>::command)
+			.filterIsInstance<EvaluationMutation.Add>()
+			.firstOrNull { pending -> command.copy(referenceId = pending.referenceId) == pending }
+	}
+
 	private suspend fun pendingAddForReference(
 		referenceId: String
 	): MutationEnvelope<String, EvaluationMutation>? {

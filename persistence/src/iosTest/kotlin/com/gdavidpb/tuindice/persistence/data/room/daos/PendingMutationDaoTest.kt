@@ -150,9 +150,11 @@ class PendingMutationDaoTest {
 
 		dao.upsertEntities(listOf(failed, pending, failedInOtherScope))
 
-		val retried = dao.retryFailedMutations(
+		// `Long.MAX_VALUE` = sin backoff, que es lo que usa el flush del cierre de sesión.
+		val retried = dao.requeueFailedMutations(
 			storeId = "evaluations",
 			scopeKey = "scope-1",
+			retryableBefore = Long.MAX_VALUE,
 			updatedAt = 10L
 		)
 
@@ -303,6 +305,42 @@ class PendingMutationDaoTest {
 			dao.getMutations(storeId = "evaluations", scopeKey = "scope-1")
 				.map(PendingMutationEntity::mutationId)
 		)
+	}
+
+	@Test
+	fun requeueFailedMutations_onlyTouchesFailedRowsPastTheBackoff() = runTest {
+		dao.upsertEntities(
+			listOf(
+				pendingMutation(mutationId = "stale-failed", status = "Failed", updatedAt = 100L, lastError = "boom"),
+				pendingMutation(mutationId = "fresh-failed", status = "Failed", updatedAt = 900L, lastError = "boom"),
+				pendingMutation(mutationId = "already-pending", status = "Pending", updatedAt = 100L)
+			)
+		)
+
+		val requeued = dao.requeueFailedMutations(
+			storeId = "evaluations",
+			scopeKey = "scope-1",
+			retryableBefore = 500L,
+			updatedAt = 1_000L
+		)
+
+		assertEquals(1, requeued)
+
+		val byId = dao.getMutations(storeId = "evaluations", scopeKey = "scope-1")
+			.associateBy(PendingMutationEntity::mutationId)
+
+		// Vencido: vuelve a la cola y pierde el error anterior.
+		assertEquals("Pending", byId.getValue("stale-failed").status)
+		assertNull(byId.getValue("stale-failed").lastError)
+		assertEquals(1_000L, byId.getValue("stale-failed").updatedAt)
+
+		// Dentro del backoff: intacto. Es el amortiguador del ciclo de reintento.
+		assertEquals("Failed", byId.getValue("fresh-failed").status)
+		assertEquals("boom", byId.getValue("fresh-failed").lastError)
+		assertEquals(900L, byId.getValue("fresh-failed").updatedAt)
+
+		// Ya elegible: la consulta no debe rescribirle el `updatedAt`.
+		assertEquals(100L, byId.getValue("already-pending").updatedAt)
 	}
 
 	private fun pendingMutation(

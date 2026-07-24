@@ -225,30 +225,28 @@ private class FakePendingMutationDao(
 		return sizeBefore - mutations.size
 	}
 
-	override suspend fun retryFailedMutations(
+	override suspend fun requeueFailedMutations(
 		storeId: String,
 		scopeKey: String,
+		retryableBefore: Long,
 		status: String,
 		updatedAt: Long
 	): Int {
 		operations += "retry:$scopeKey"
-		var retried = 0
-		for (index in mutations.indices) {
-			val mutation = mutations[index]
-			if (
-				mutation.storeId == storeId &&
-				mutation.scopeKey == scopeKey &&
-				mutation.status == PendingMutationStatus.Failed.name
-			) {
-				retried++
-				mutations[index] = mutation.copy(
-					status = status,
-					updatedAt = updatedAt,
-					lastError = null
-				)
-			}
+
+		val requeueable = mutations.withIndex().filter { (_, mutation) ->
+			mutation.isRequeueable(
+				storeId = storeId,
+				scopeKey = scopeKey,
+				retryableBefore = retryableBefore
+			)
 		}
-		return retried
+
+		requeueable.forEach { (index, mutation) ->
+			mutations[index] = mutation.copy(status = status, lastError = null, updatedAt = updatedAt)
+		}
+
+		return requeueable.size
 	}
 
 	override suspend fun deleteAll(): Int {
@@ -350,3 +348,12 @@ private fun pendingMutation(
 		lastError = if (status == PendingMutationStatus.Failed) "boom" else null
 	)
 }
+
+private fun PendingMutationEntity.isRequeueable(
+	storeId: String,
+	scopeKey: String,
+	retryableBefore: Long
+): Boolean = this.storeId == storeId &&
+	this.scopeKey == scopeKey &&
+	status == PendingMutationStatus.Failed.name &&
+	updatedAt <= retryableBefore

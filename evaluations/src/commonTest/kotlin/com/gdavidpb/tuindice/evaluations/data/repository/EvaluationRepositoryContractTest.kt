@@ -310,6 +310,70 @@ class EvaluationRepositoryContractTest {
 		assertEquals(PendingMutationStatus.Pending, rewritten.status)
 	}
 
+	@Test
+	fun addEvaluation_reusesAnEquivalentQueuedAdd_insteadOfMintingASecondReference() = runTest {
+		val pendingMutationStore = failedAddStore()
+		val repository = EvaluationDataSource(
+			databaseDataSource = FakeDatabaseDataSource(),
+			evaluationsApiDataSource = FakeEvaluationsApiDataSource(),
+			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+			mutationEngine = createEvaluationsMutationEngine(
+				store = pendingMutationStore,
+				coroutineScope = backgroundScope
+			),
+			identifierRepository = FakeIdentifierRepository("mutation-2")
+		)
+
+		repository.addEvaluation(equivalentAdd(reference = "reference-2"))
+
+		// El servidor deduplica por `referenceId`. Dos referencias para el mismo hecho
+		// crearian dos evaluaciones cuando el sobre viejo se reintente.
+		val envelope = pendingMutationStore.getMutations(EVALUATIONS_MUTATION_SCOPE).single()
+		val command = envelope.command
+		assertTrue(command is EvaluationMutation.Add)
+		assertEquals("reference-1", command.referenceId)
+		assertEquals(PendingMutationStatus.Pending, envelope.status)
+	}
+
+	@Test
+	fun addEvaluation_keepsADistinctAdd_whenAnyFieldDiffers() = runTest {
+		val pendingMutationStore = failedAddStore()
+		val repository = EvaluationDataSource(
+			databaseDataSource = FakeDatabaseDataSource(),
+			evaluationsApiDataSource = FakeEvaluationsApiDataSource(),
+			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+			mutationEngine = createEvaluationsMutationEngine(
+				store = pendingMutationStore,
+				coroutineScope = backgroundScope
+			),
+			identifierRepository = FakeIdentifierRepository("mutation-2")
+		)
+
+		repository.addEvaluation(
+			equivalentAdd(reference = "reference-2").copy(date = 1_900_000_001_000L)
+		)
+
+		// La comparacion es estructural sobre todos los campos salvo la referencia: no
+		// puede fusionar dos evaluaciones que difieran en algo.
+		val references = pendingMutationStore.getMutations(EVALUATIONS_MUTATION_SCOPE)
+			.map(MutationEnvelope<String, EvaluationMutation>::command)
+			.filterIsInstance<EvaluationMutation.Add>()
+			.map(EvaluationMutation.Add::referenceId)
+		assertEquals(listOf("reference-1", "reference-2"), references.sorted())
+	}
+
+	private fun equivalentAdd(reference: String) = EvaluationAdd(
+		reference = reference,
+		attemptId = DEFAULT_EVALUATION_SUBJECT.id,
+		subjectCode = DEFAULT_EVALUATION_SUBJECT.code,
+		termId = DEFAULT_EVALUATION_SUBJECT.termId,
+		type = EvaluationType.QUIZ,
+		scheduleMode = EvaluationScheduleMode.DATED,
+		date = 1_900_000_000_000L,
+		grade = null,
+		maxGrade = 100.0
+	)
+
 	private fun failedAddStore(): FakeMutationEnvelopeStore<String, EvaluationMutation> {
 		return FakeMutationEnvelopeStore(
 			initialPendingMutations = listOf(

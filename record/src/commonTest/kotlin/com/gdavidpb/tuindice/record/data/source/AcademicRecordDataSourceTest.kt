@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
+import com.gdavidpb.tuindice.persistence.domain.mutation.DEFAULT_FAILED_RETRY_BACKOFF_MILLIS
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
@@ -675,11 +676,13 @@ internal fun defaultVersionedRecord(
 
 internal fun createMutationEngine(
 	coroutineScope: CoroutineScope,
-	outboxStore: MutationEnvelopeStore<String, AcademicRecordMutation> = InMemoryMutationEnvelopeStore()
+	outboxStore: MutationEnvelopeStore<String, AcademicRecordMutation> = InMemoryMutationEnvelopeStore(),
+	failedRetryBackoffMillis: Long = DEFAULT_FAILED_RETRY_BACKOFF_MILLIS
 ) = StoreBackedMutationEngine<String, AcademicRecordMutation, AcademicRecord, AcademicRecord, VersionedAcademicRecord>(
 	storeId = "record-test",
 	outboxStore = outboxStore,
-	coroutineScope = coroutineScope
+	coroutineScope = coroutineScope,
+	failedRetryBackoffMillis = failedRetryBackoffMillis
 )
 
 internal class FakeAcademicRecordLocalDataRepository(
@@ -1068,6 +1071,26 @@ internal class InMemoryMutationEnvelopeStore(
 		return state.value.filter { mutation ->
 			mutation.scopeKey == scopeKey && mutation.status == PendingMutationStatus.Pending
 		}
+	}
+
+	override suspend fun requeueFailedMutations(
+		scopeKey: String,
+		retryableBefore: Long
+	): Int {
+		var requeued = 0
+		state.value = state.value.map { mutation ->
+			if (
+				mutation.scopeKey == scopeKey &&
+				mutation.status == PendingMutationStatus.Failed &&
+				mutation.updatedAt <= retryableBefore
+			) {
+				requeued += 1
+				mutation.copy(status = PendingMutationStatus.Pending, lastError = null)
+			} else {
+				mutation
+			}
+		}
+		return requeued
 	}
 
 	override fun observeMutations(

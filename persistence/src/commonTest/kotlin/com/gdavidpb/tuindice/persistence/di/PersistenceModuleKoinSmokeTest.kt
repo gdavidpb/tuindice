@@ -198,6 +198,14 @@ internal abstract class FakeTuIndiceDatabase : TuIndiceDatabase() {
 			scopeKey: String
 		): Flow<List<PendingMutationEntity>> = emptyFlow()
 
+		override suspend fun requeueFailedMutations(
+			storeId: String,
+			scopeKey: String,
+			retryableBefore: Long,
+			status: String,
+			updatedAt: Long
+		): Int = 0
+
 		override suspend fun getMutations(
 			storeId: String,
 			scopeKey: String
@@ -220,13 +228,6 @@ internal abstract class FakeTuIndiceDatabase : TuIndiceDatabase() {
 		override suspend fun deletePendingMutationsByReplaceKey(
 			storeId: String,
 			replaceKey: String
-		): Int = 0
-
-		override suspend fun retryFailedMutations(
-			storeId: String,
-			scopeKey: String,
-			status: String,
-			updatedAt: Long
 		): Int = 0
 
 		override suspend fun deleteAll(): Int = 0

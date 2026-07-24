@@ -47,7 +47,11 @@ class AcademicRecordFailedMutationVisibilityTest {
 			settingsDataSource = FakeRecordSettingsDataRepository(),
 			mutationEngine = createMutationEngine(
 				coroutineScope = this,
-				outboxStore = InMemoryMutationEnvelopeStore(listOf(failedMutation))
+				outboxStore = InMemoryMutationEnvelopeStore(listOf(failedMutation)),
+				// Backoff que no vence: este test aisla la proyeccion, no la politica de
+				// reintento. Sin esto, `drain` reencolaria el sobre y la respuesta del
+				// remoto falso taparia lo que se quiere observar.
+				failedRetryBackoffMillis = Long.MAX_VALUE
 			),
 			identifierRepository = FakeIdentifierRepository()
 		)
