@@ -52,7 +52,10 @@ class RoomDatabaseDataSource(
 	}
 
 	override fun observeEvaluationsSnapshotFlow(): Flow<LocalEvaluationsSnapshot> {
-		val pendingFlow = mutationEngine.observePendingMutations(EVALUATIONS_MUTATION_SCOPE)
+		// `observeMutations`, no `observePendingMutations`: una mutación en `Failed`
+		// sigue siendo un cambio del usuario guardado, y filtrarla la volvía invisible
+		// —el sistema no tenía forma de representar su propio estado.
+		val pendingFlow = mutationEngine.observeMutations(EVALUATIONS_MUTATION_SCOPE)
 			.onEach { mutations ->
 				pendingMutationsSnapshot = mutations
 			}
@@ -247,7 +250,7 @@ class RoomDatabaseDataSource(
 
 	private suspend fun currentPendingMutations(): List<MutationEnvelope<String, EvaluationMutation>> {
 		return pendingMutationsSnapshot.ifEmpty {
-			mutationEngine.getPendingMutations(EVALUATIONS_MUTATION_SCOPE)
+			mutationEngine.getMutations(EVALUATIONS_MUTATION_SCOPE)
 		}
 	}
 

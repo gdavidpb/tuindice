@@ -315,6 +315,11 @@ private class RecordingPendingMutationDao(
 		scopeKey: String
 	): List<PendingMutationEntity> = emptyList()
 
+	override fun observeMutations(
+		storeId: String,
+		scopeKey: String
+	): Flow<List<PendingMutationEntity>> = emptyFlow()
+
 	override suspend fun getMutations(
 		storeId: String,
 		scopeKey: String

@@ -87,9 +87,13 @@ class SessionRecoveryDataSource(
 
 	override suspend fun invalidateSession(sessionId: String?) {
 		sessionCoroutineScope.cancelActiveWork()
+		// Los datos van primero: cada paso puede fallar y su fallo se descarta, así que
+		// el orden decide en qué estado queda el dispositivo si el borrado no termina.
+		// "sin datos + con sesión" se resincroniza solo; "con datos + sin sesión" es el
+		// estado que hereda el siguiente usuario que inicie sesión aquí.
+		runCatching { applicationRepository.clearData() }
 		runCatching { sessionRepository.clear() }
 		runCatching { syncStatusRepository.reset() }
-		runCatching { applicationRepository.clearData() }
 		runCatching { sessionInvalidationRepository.notifySessionInvalidated(sessionId = sessionId) }
 	}
 

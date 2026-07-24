@@ -26,6 +26,17 @@ abstract class PendingMutationDao : UpsertDao<PendingMutationEntity>() {
 	)
 	abstract suspend fun getPendingMutations(storeId: String, scopeKey: String): List<PendingMutationEntity>
 
+	// Sin filtro de estado: alimenta la proyección de estado visible, que debe
+	// representar todo cambio del usuario que siga guardado, esté o no en `Pending`.
+	// El envío (`drain`) sigue leyendo las consultas filtradas de arriba.
+	@Query(
+		"SELECT * FROM ${PendingMutationTable.TABLE_NAME} " +
+			"WHERE ${PendingMutationTable.STORE_ID} = :storeId " +
+			"AND ${PendingMutationTable.SCOPE_KEY} = :scopeKey " +
+			"ORDER BY ${PendingMutationTable.CREATED_AT} ASC"
+	)
+	abstract fun observeMutations(storeId: String, scopeKey: String): Flow<List<PendingMutationEntity>>
+
 	@Query(
 		"SELECT * FROM ${PendingMutationTable.TABLE_NAME} " +
 			"WHERE ${PendingMutationTable.STORE_ID} = :storeId " +

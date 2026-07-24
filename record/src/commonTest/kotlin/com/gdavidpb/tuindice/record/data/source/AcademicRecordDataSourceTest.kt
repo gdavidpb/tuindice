@@ -666,22 +666,23 @@ class AcademicRecordDataSourceTest {
 	}
 }
 
-private fun defaultVersionedRecord(
+internal fun defaultVersionedRecord(
 	revision: Long = 1L
 ) = VersionedAcademicRecord(
 	revision = revision,
 	record = AcademicRecord(id = "record-1")
 )
 
-private fun createMutationEngine(
-	coroutineScope: CoroutineScope
+internal fun createMutationEngine(
+	coroutineScope: CoroutineScope,
+	outboxStore: MutationEnvelopeStore<String, AcademicRecordMutation> = InMemoryMutationEnvelopeStore()
 ) = StoreBackedMutationEngine<String, AcademicRecordMutation, AcademicRecord, AcademicRecord, VersionedAcademicRecord>(
 	storeId = "record-test",
-	outboxStore = InMemoryMutationEnvelopeStore(),
+	outboxStore = outboxStore,
 	coroutineScope = coroutineScope
 )
 
-private class FakeAcademicRecordLocalDataRepository(
+internal class FakeAcademicRecordLocalDataRepository(
 	record: VersionedAcademicRecord?,
 	private val hasSyncedRecord: Boolean = true
 ) : AcademicRecordLocalDataRepository {
@@ -817,7 +818,7 @@ private class FakeAcademicRecordLocalDataRepository(
 	}
 }
 
-private class ControlledAcademicRecordRemoteDataRepository(
+internal class ControlledAcademicRecordRemoteDataRepository(
 	private val upsertResponse: VersionedAcademicRecord
 ) : AcademicRecordRemoteDataRepository {
 	val deleteStarted = CompletableDeferred<Unit>()
@@ -904,7 +905,7 @@ private class ControlledAcademicRecordRemoteDataRepository(
 	}
 }
 
-private class RebasingAcademicRecordRemoteDataRepository(
+internal class RebasingAcademicRecordRemoteDataRepository(
 	private val staleResponse: VersionedAcademicRecord,
 	private val latestResponse: VersionedAcademicRecord
 ) : AcademicRecordRemoteDataRepository {
@@ -970,7 +971,7 @@ private class RebasingAcademicRecordRemoteDataRepository(
 	): VersionedAcademicRecord = latestResponse
 }
 
-private class DelayedSequentialUpsertAcademicRecordRemoteDataRepository(
+internal class DelayedSequentialUpsertAcademicRecordRemoteDataRepository(
 	private val firstResponse: VersionedAcademicRecord,
 	private val secondResponse: VersionedAcademicRecord
 ) : AcademicRecordRemoteDataRepository {
@@ -1025,7 +1026,7 @@ private class DelayedSequentialUpsertAcademicRecordRemoteDataRepository(
 	): VersionedAcademicRecord = secondResponse
 }
 
-private class FakeRecordSettingsDataRepository(
+internal class FakeRecordSettingsDataRepository(
 	private val onCooldown: Boolean = false
 ) : RecordSettingsDataRepository {
 	var cooldownMarked = false
@@ -1037,7 +1038,7 @@ private class FakeRecordSettingsDataRepository(
 	}
 }
 
-private class FakeIdentifierRepository : IdentifierRepository {
+internal class FakeIdentifierRepository : IdentifierRepository {
 	private var nextId = 0
 
 	override fun generateRandomIdentifier(): String {
@@ -1046,7 +1047,7 @@ private class FakeIdentifierRepository : IdentifierRepository {
 	}
 }
 
-private class InMemoryMutationEnvelopeStore(
+internal class InMemoryMutationEnvelopeStore(
 	initialMutations: List<MutationEnvelope<String, AcademicRecordMutation>> = emptyList()
 ) : MutationEnvelopeStore<String, AcademicRecordMutation> {
 	private val state = MutableStateFlow(initialMutations)
@@ -1067,6 +1068,20 @@ private class InMemoryMutationEnvelopeStore(
 		return state.value.filter { mutation ->
 			mutation.scopeKey == scopeKey && mutation.status == PendingMutationStatus.Pending
 		}
+	}
+
+	override fun observeMutations(
+		scopeKey: String
+	): Flow<List<MutationEnvelope<String, AcademicRecordMutation>>> {
+		return state.map { mutations ->
+			mutations.filter { mutation -> mutation.scopeKey == scopeKey }
+		}
+	}
+
+	override suspend fun getMutations(
+		scopeKey: String
+	): List<MutationEnvelope<String, AcademicRecordMutation>> {
+		return state.value.filter { mutation -> mutation.scopeKey == scopeKey }
 	}
 
 	override suspend fun getPendingMutation(

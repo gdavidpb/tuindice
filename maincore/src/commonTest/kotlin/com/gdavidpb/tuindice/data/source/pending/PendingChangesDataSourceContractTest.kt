@@ -174,6 +174,14 @@ private class FakePendingMutationDao(
 		}
 	}
 
+	override fun observeMutations(storeId: String, scopeKey: String): Flow<List<PendingMutationEntity>> {
+		return flowOf(
+			mutations.filter { mutation ->
+				mutation.storeId == storeId && mutation.scopeKey == scopeKey
+			}
+		)
+	}
+
 	override suspend fun getMutations(storeId: String, scopeKey: String): List<PendingMutationEntity> {
 		return mutations.filter { mutation ->
 			mutation.storeId == storeId && mutation.scopeKey == scopeKey

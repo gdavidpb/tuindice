@@ -129,6 +129,7 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Confir
 				)
 			)
 
+	// Elegibles para envío: las lee `drain` y el propio ciclo de ejecución.
 	fun observePendingMutations(
 		scopeKey: ScopeKey
 	) = outboxStore.observePendingMutations(scopeKey)
@@ -137,6 +138,18 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Confir
 		scopeKey: ScopeKey
 	): List<MutationEnvelope<ScopeKey, Command>> {
 		return outboxStore.getPendingMutations(scopeKey)
+	}
+
+	// Visibles: las lee la proyección de estado visible de cada feature. Incluye las
+	// `Failed`, que siguen siendo cambios del usuario guardados en el dispositivo.
+	fun observeMutations(
+		scopeKey: ScopeKey
+	) = outboxStore.observeMutations(scopeKey)
+
+	suspend fun getMutations(
+		scopeKey: ScopeKey
+	): List<MutationEnvelope<ScopeKey, Command>> {
+		return outboxStore.getMutations(scopeKey)
 	}
 
 	suspend fun getPendingMutation(

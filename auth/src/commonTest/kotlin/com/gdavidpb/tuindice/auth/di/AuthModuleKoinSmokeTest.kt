@@ -24,6 +24,7 @@ import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
+import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
@@ -35,6 +36,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
@@ -60,6 +62,7 @@ class AuthModuleKoinSmokeTest {
 				single<CredentialsRepository> { FakeCredentialsRepository() }
 				single<SyncStatusRepository> { FakeSyncStatusRepository() }
 				single<ApplicationRepository> { RecordingApplicationRepository() }
+				single<SettingsRepository> { FakeSettingsRepository() }
 			single<NetworkRepository> { FakeNetworkRepository(isAvailable = true) }
 			single<ReportingRepository> { RecordingReportingRepository() }
 			single<ConfigRepository> { FakeConfigRepository() }

@@ -215,10 +215,14 @@ class EvaluationDataSource(
 		return remoteSnapshot
 	}
 
+	// Debe ver también las `Failed`: ahora que la proyección las muestra, el usuario
+	// puede editar o borrar un alta fallida, y reescribir ese mismo sobre (mismo
+	// `replaceKey`) es lo correcto. Leer solo las `Pending` construiría un `Update` o
+	// un `Remove` contra un id local que el servidor no conoce.
 	private suspend fun pendingAddForReference(
 		referenceId: String
 	): MutationEnvelope<String, EvaluationMutation>? {
-		return mutationEngine.getPendingMutations(EVALUATIONS_MUTATION_SCOPE)
+		return mutationEngine.getMutations(EVALUATIONS_MUTATION_SCOPE)
 			.firstOrNull { mutation ->
 				val command = mutation.command
 				command is EvaluationMutation.Add && command.referenceId == referenceId

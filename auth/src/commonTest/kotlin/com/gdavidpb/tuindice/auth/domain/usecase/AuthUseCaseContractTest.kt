@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
@@ -61,6 +62,8 @@ class AuthUseCaseContractTest {
 			credentialsRepository = credentialsRepository,
 			syncStatusRepository = syncStatusRepository,
 			attestationRepository = attestationRepository,
+			settingsRepository = FakeSettingsRepository(),
+			applicationRepository = RecordingApplicationRepository(),
 			reportingRepository = RecordingReportingRepository(),
 			paramsValidator = SignInParamsValidator(),
 			exceptionHandler = SignInExceptionHandler(
@@ -106,6 +109,8 @@ class AuthUseCaseContractTest {
 			credentialsRepository = credentialsRepository,
 			syncStatusRepository = FakeSyncStatusRepository(),
 			attestationRepository = FakeAttestationRepository(),
+			settingsRepository = FakeSettingsRepository(),
+			applicationRepository = RecordingApplicationRepository(),
 			reportingRepository = reportingRepository,
 			paramsValidator = SignInParamsValidator(),
 			exceptionHandler = SignInExceptionHandler(
@@ -136,6 +141,8 @@ class AuthUseCaseContractTest {
 			credentialsRepository = FakeCredentialsRepository(),
 			syncStatusRepository = FakeSyncStatusRepository(),
 			attestationRepository = FakeAttestationRepository(),
+			settingsRepository = FakeSettingsRepository(),
+			applicationRepository = RecordingApplicationRepository(),
 			reportingRepository = RecordingReportingRepository(),
 			paramsValidator = SignInParamsValidator(),
 			exceptionHandler = SignInExceptionHandler(
@@ -167,6 +174,8 @@ class AuthUseCaseContractTest {
 			credentialsRepository = FakeCredentialsRepository(),
 			syncStatusRepository = FakeSyncStatusRepository(),
 			attestationRepository = FakeAttestationRepository(),
+			settingsRepository = FakeSettingsRepository(),
+			applicationRepository = RecordingApplicationRepository(),
 			reportingRepository = RecordingReportingRepository(),
 			paramsValidator = SignInParamsValidator(),
 			exceptionHandler = SignInExceptionHandler(
@@ -198,6 +207,8 @@ class AuthUseCaseContractTest {
 			credentialsRepository = FakeCredentialsRepository(),
 			syncStatusRepository = FakeSyncStatusRepository(),
 			attestationRepository = FakeAttestationRepository(),
+			settingsRepository = FakeSettingsRepository(),
+			applicationRepository = RecordingApplicationRepository(),
 			reportingRepository = RecordingReportingRepository(),
 			paramsValidator = SignInParamsValidator(),
 			exceptionHandler = SignInExceptionHandler(
@@ -248,6 +259,79 @@ class AuthUseCaseContractTest {
 		assertEquals(listOf(SyncStatus.Failed), syncStatusRepository.setStatuses)
 		assertEquals(listOf("new-secret"), syncRepository.scheduledSyncCalls)
 	}
+
+	@Test
+	fun signInUseCase_whenLocalDataBelongsToAnotherIdentity_clearsItBeforeSigningIn() = runTest {
+		val settingsRepository = FakeSettingsRepository(localDataOwner = "20-19999")
+		val applicationRepository = RecordingApplicationRepository()
+		val useCase = signInUseCase(
+			settingsRepository = settingsRepository,
+			applicationRepository = applicationRepository
+		)
+
+		useCase.execute(SignInParams(usbId = VALID_USB_ID, password = "secret123")).test {
+			assertEquals(Unit, awaitLoadingThenData(this))
+			awaitComplete()
+		}
+
+		assertEquals(true, applicationRepository.cleared)
+		assertEquals(VALID_USB_ID, settingsRepository.getLocalDataOwner())
+	}
+
+	@Test
+	fun signInUseCase_whenLocalDataBelongsToSameIdentity_keepsIt() = runTest {
+		val settingsRepository = FakeSettingsRepository(localDataOwner = VALID_USB_ID)
+		val applicationRepository = RecordingApplicationRepository()
+		val useCase = signInUseCase(
+			settingsRepository = settingsRepository,
+			applicationRepository = applicationRepository
+		)
+
+		useCase.execute(SignInParams(usbId = VALID_USB_ID, password = "secret123")).test {
+			assertEquals(Unit, awaitLoadingThenData(this))
+			awaitComplete()
+		}
+
+		assertEquals(false, applicationRepository.cleared)
+		assertEquals(VALID_USB_ID, settingsRepository.getLocalDataOwner())
+	}
+
+	@Test
+	fun signInUseCase_whenNoOwnerRecorded_keepsDataAndRecordsOwner() = runTest {
+		val settingsRepository = FakeSettingsRepository()
+		val applicationRepository = RecordingApplicationRepository()
+		val useCase = signInUseCase(
+			settingsRepository = settingsRepository,
+			applicationRepository = applicationRepository
+		)
+
+		useCase.execute(SignInParams(usbId = VALID_USB_ID, password = "secret123")).test {
+			assertEquals(Unit, awaitLoadingThenData(this))
+			awaitComplete()
+		}
+
+		assertEquals(false, applicationRepository.cleared)
+		assertEquals(VALID_USB_ID, settingsRepository.getLocalDataOwner())
+	}
+
+	private fun signInUseCase(
+		settingsRepository: FakeSettingsRepository,
+		applicationRepository: RecordingApplicationRepository
+	) = SignInUseCase(
+		authRepository = RecordingAuthRepository(),
+		messagingRepository = RecordingMessagingRepository(),
+		syncRepository = FakeSyncRepository(),
+		credentialsRepository = FakeCredentialsRepository(),
+		syncStatusRepository = FakeSyncStatusRepository(),
+		attestationRepository = FakeAttestationRepository(),
+		settingsRepository = settingsRepository,
+		applicationRepository = applicationRepository,
+		reportingRepository = RecordingReportingRepository(),
+		paramsValidator = SignInParamsValidator(),
+		exceptionHandler = SignInExceptionHandler(
+			networkRepository = FakeNetworkRepository(isAvailable = true)
+		)
+	)
 
 	@Test
 	fun signOutUseCase_emitsLoadingThenData_andClearsSessionData() = runTest {

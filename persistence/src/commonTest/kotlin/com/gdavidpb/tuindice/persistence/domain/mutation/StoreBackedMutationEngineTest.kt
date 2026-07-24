@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
@@ -358,6 +359,38 @@ class StoreBackedMutationEngineTest {
 		assertEquals(listOf(50), confirmedValues)
 		assertEquals(emptyList(), store.getPendingMutations("record"))
 	}
+
+	@Test
+	fun terminalFailure_leavesMutationOutOfTheSendQueue_butStillVisible() = runTest {
+		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
+		val engine = createEngine(store, this)
+		val mutation = testMutationEnvelope(
+			mutationId = "mutation-1",
+			value = 70
+		)
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+			override suspend fun send(
+				mutation: MutationEnvelope<String, TestMutation>
+			): TestAck = throw TestTerminalFailure()
+
+			override suspend fun confirm(
+				mutation: MutationEnvelope<String, TestMutation>,
+				ack: TestAck
+			) = Unit
+		}
+
+		engine.submit(mutation, syncSpec, propagateTerminalErrors = false)
+
+		// Eje de envío: fuera de la cola, es lo que `drain` debe ignorar.
+		assertEquals(emptyList(), engine.getPendingMutations("record"))
+
+		// Eje de visibilidad: sigue siendo un cambio del usuario guardado en el
+		// dispositivo, y la proyección debe poder representarlo.
+		val visible = engine.getMutations("record").single()
+		assertEquals("mutation-1", visible.mutationId)
+		assertEquals(PendingMutationStatus.Failed, visible.status)
+		assertEquals(listOf(visible), engine.observeMutations("record").first())
+	}
 }
 
 private fun createEngine(
@@ -411,6 +444,20 @@ private class InMemoryMutationEnvelopeStore<ScopeKey : Any, Command : OutboxMuta
 		return state.value.filter { mutation ->
 			mutation.scopeKey == scopeKey && mutation.status == PendingMutationStatus.Pending
 		}
+	}
+
+	override fun observeMutations(
+		scopeKey: ScopeKey
+	): Flow<List<MutationEnvelope<ScopeKey, Command>>> {
+		return state.map { mutations ->
+			mutations.filter { mutation -> mutation.scopeKey == scopeKey }
+		}
+	}
+
+	override suspend fun getMutations(
+		scopeKey: ScopeKey
+	): List<MutationEnvelope<ScopeKey, Command>> {
+		return state.value.filter { mutation -> mutation.scopeKey == scopeKey }
 	}
 
 	override suspend fun getPendingMutation(

@@ -269,6 +269,42 @@ class PendingMutationDaoTest {
 		)
 	}
 
+	@Test
+	fun observeMutations_includesFailedRows_unlikeObservePendingMutations() = runTest {
+		dao.upsertEntities(
+			listOf(
+				pendingMutation(mutationId = "mutation-1", createdAt = 1L),
+				pendingMutation(mutationId = "mutation-2", createdAt = 2L, status = "Failed")
+			)
+		)
+
+		// Eje de envío: solo lo elegible.
+		assertEquals(
+			listOf("mutation-1"),
+			dao.observePendingMutations(storeId = "evaluations", scopeKey = "scope-1")
+				.first()
+				.map(PendingMutationEntity::mutationId)
+		)
+		assertEquals(
+			listOf("mutation-1"),
+			dao.getPendingMutations(storeId = "evaluations", scopeKey = "scope-1")
+				.map(PendingMutationEntity::mutationId)
+		)
+
+		// Eje de visibilidad: todo cambio del usuario que siga guardado, en orden.
+		assertEquals(
+			listOf("mutation-1", "mutation-2"),
+			dao.observeMutations(storeId = "evaluations", scopeKey = "scope-1")
+				.first()
+				.map(PendingMutationEntity::mutationId)
+		)
+		assertEquals(
+			listOf("mutation-1", "mutation-2"),
+			dao.getMutations(storeId = "evaluations", scopeKey = "scope-1")
+				.map(PendingMutationEntity::mutationId)
+		)
+	}
+
 	private fun pendingMutation(
 		mutationId: String,
 		storeId: String = "evaluations",

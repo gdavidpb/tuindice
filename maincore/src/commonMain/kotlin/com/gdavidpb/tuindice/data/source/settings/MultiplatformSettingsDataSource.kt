@@ -90,6 +90,14 @@ class MultiplatformSettingsDataSource(
 		return pending
 	}
 
+	override suspend fun getLocalDataOwner(): String? {
+		return settings.getStringOrNull(LOCAL_DATA_OWNER_KEY)
+	}
+
+	override suspend fun setLocalDataOwner(usbId: String) {
+		settings.putString(LOCAL_DATA_OWNER_KEY, usbId)
+	}
+
 	override suspend fun clear() {
 		settings.clear()
 	}
@@ -97,6 +105,7 @@ class MultiplatformSettingsDataSource(
 
 private const val LAST_MAIN_SECTION_KEY = "lastDestination"
 private const val SESSION_RESET_NOTICE_PENDING_KEY = "sessionResetNoticePending"
+private const val LOCAL_DATA_OWNER_KEY = "localDataOwner"
 private const val OUTDATED_APP_MIN_VERSION_CODE_KEY = "outdatedAppMinVersionCode"
 private const val LEGACY_WIZARD_COMPLETED_KEY = "wizardCompleted"
 private const val LEGACY_GUIDED_TOUR_COMPLETED_KEY = "guidedTourCompleted"

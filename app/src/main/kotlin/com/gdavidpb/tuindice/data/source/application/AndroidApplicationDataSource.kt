@@ -40,6 +40,9 @@ class AndroidApplicationDataSource(
 	}
 
 	override suspend fun clearData() {
+		// El orden importa: los settings guardan la marca de dueño de los datos locales
+		// y deben limpiarse DESPUÉS de la base. Si `clearAll()` falla, la marca
+		// sobrevive y el próximo inicio de sesión detecta que los datos son de otro.
 		persistenceMaintenanceRepository.clearAll()
 
 		proofOfPossessionCapability.invalidateProofOfPossessionKeyId()

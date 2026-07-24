@@ -46,6 +46,34 @@ class RoomMutationEnvelopeStore<Command : OutboxMutation>(
 		}
 	}
 
+	override fun observeMutations(
+		scopeKey: String
+	) = pendingMutationDao.observeMutations(
+		storeId = storeId,
+		scopeKey = scopeKey
+	).map { entities ->
+		entities.map { entity ->
+			entity.toMutationEnvelope(
+				commandSerializer = commandSerializer,
+				json = json
+			)
+		}
+	}
+
+	override suspend fun getMutations(
+		scopeKey: String
+	): List<MutationEnvelope<String, Command>> {
+		return pendingMutationDao.getMutations(
+			storeId = storeId,
+			scopeKey = scopeKey
+		).map { entity ->
+			entity.toMutationEnvelope(
+				commandSerializer = commandSerializer,
+				json = json
+			)
+		}
+	}
+
 	override suspend fun getPendingMutation(
 		scopeKey: String,
 		mutationId: String

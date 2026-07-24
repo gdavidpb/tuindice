@@ -4,11 +4,22 @@ import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import kotlinx.coroutines.flow.Flow
 
 interface MutationEnvelopeStore<ScopeKey, Command : OutboxMutation> {
+	// Elegibles para envío (`Pending`).
 	fun observePendingMutations(
 		scopeKey: ScopeKey
 	): Flow<List<MutationEnvelope<ScopeKey, Command>>>
 
 	suspend fun getPendingMutations(
+		scopeKey: ScopeKey
+	): List<MutationEnvelope<ScopeKey, Command>>
+
+	// Todo lo que el usuario cambió y sigue guardado, sin importar el estado de envío:
+	// el eje de visibilidad, separado del eje de elegibilidad de las dos de arriba.
+	fun observeMutations(
+		scopeKey: ScopeKey
+	): Flow<List<MutationEnvelope<ScopeKey, Command>>>
+
+	suspend fun getMutations(
 		scopeKey: ScopeKey
 	): List<MutationEnvelope<ScopeKey, Command>>
 

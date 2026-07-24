@@ -629,6 +629,16 @@ class FakeMutationEnvelopeStore<ScopeKey : Any, T : OutboxMutation>(
 		}
 	}
 
+	override fun observeMutations(scopeKey: ScopeKey): Flow<List<MutationEnvelope<ScopeKey, T>>> {
+		return state.map { mutations ->
+			mutations.filter { mutation -> mutation.scopeKey == scopeKey }
+		}
+	}
+
+	override suspend fun getMutations(scopeKey: ScopeKey): List<MutationEnvelope<ScopeKey, T>> {
+		return state.value.filter { mutation -> mutation.scopeKey == scopeKey }
+	}
+
 	override suspend fun getPendingMutation(
 		scopeKey: ScopeKey,
 		mutationId: String
