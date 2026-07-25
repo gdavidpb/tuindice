@@ -51,6 +51,73 @@ shared runtime paths. A host-only fix on one platform keeps the other
 platform's evidence valid. Version bumps in `gradle/app-version.properties` do
 not change fingerprints.
 
+## Pre-Certification Diff Audit
+
+Mandatory, and it runs *before* preflight parity and evidence — not after a
+failure. Certification is a verification mechanism, not a discovery mechanism:
+every regression found during an evidence run costs a full rotation (30-100+
+minutes of device time) plus a preflight rerun, and invalidates the fingerprint
+so the next attempt pays again. An audit that takes minutes routinely finds what
+several rotations would have surfaced one at a time.
+
+Audit the entire diff against `production`. Fix everything found **in one
+batch**, then certify once.
+
+### What to look for
+
+- **Regressions in the diff itself.** Read every production-code change and ask
+  what behaviour it altered that nothing now protects. Pay special attention to
+  changes that alter *timing* rather than logic: replacing one source of truth
+  with two combined sources, moving a write across an await point, or reordering
+  a persist against a delete. Those are invisible to reviews and to deterministic
+  tests.
+- **Reactive read → durable write loops.** Any code that observes state and, as a
+  side effect, writes something durable (settings, Room, the outbox, the network)
+  can turn one transiently-inconsistent read into a permanent wrong value. Find
+  them and check each against a lagging source.
+- **Imperative reads that sample two sources sequentially.** A `combine` holds the
+  latest of both at once; two consecutive `suspend` reads do not. An ordering
+  invariant that holds for the reactive path can be silently broken on the
+  imperative one.
+- **Consumers of anything the diff changed**, including in *other* modules. Sibling
+  modules that read shared Room tables directly will not appear in the diff at
+  all, yet can regress because the diff stopped writing those tables.
+- **Test doubles that cannot fail.** If every fake is a zero-latency
+  `MutableStateFlow`, no dispatch-order race is reachable under `runTest`, and a
+  green suite proves nothing about the class of bug that timing changes cause.
+  Check whether the harness can *express* the failure before trusting it.
+- **Harness state that leaks across cases and retries.** WireMock scenario reset
+  does not clear custom transformer datasets. A suite that fails after mutating a
+  dataset can poison its own retry so it is unpassable, burning the whole
+  rotation for nothing.
+- **Assertions whose detection power the diff removed.** If a projection now shows
+  optimistic local state, an E2E assertion that "the value appears" may pass even
+  when the backend rejected the write. Know which greens still mean something.
+- **Behaviour reachable only through E2E.** Anything the diff changed that has no
+  unit coverage is something certification will discover expensively. Prefer
+  adding the cheap test now.
+
+### Verify before believing
+
+Confirm each finding against the code yourself before acting on it, and confirm
+each proposed fix is actually correct in this codebase. Audits produce false
+positives, and a plausible-sounding fix can be wrong for reasons only visible
+locally. Record what you deliberately ruled out and why — an audit that only
+lists hits is indistinguishable from a fishing expedition.
+
+Also separate **regressions this branch introduced** from **pre-existing issues**
+(`git diff production...HEAD` on the specific lines settles it). Only the former
+block certification; file the rest instead of expanding scope.
+
+### Then verify cheaply, in risk order
+
+Before paying for a full evidence rotation, run the highest-risk flows in
+isolation with `e2e/scripts/diagnose-suite.sh <flow-or-suite> [--survey]`
+(~10 minutes for both platforms, no clean tree required, publishes nothing).
+Prioritise flows whose assertions depend on behaviour the diff changed. Finish
+with the affected suite under `--survey` so every remaining failure is reported
+in one pass instead of one per rotation.
+
 ## Running PR Preflight Parity
 
 Before spending time on Maestro evidence, run the local parity helper:
