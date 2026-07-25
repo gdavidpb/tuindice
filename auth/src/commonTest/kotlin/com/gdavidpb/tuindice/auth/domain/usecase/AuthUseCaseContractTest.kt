@@ -297,7 +297,7 @@ class AuthUseCaseContractTest {
 	}
 
 	@Test
-	fun signInUseCase_whenNoOwnerRecorded_keepsDataAndRecordsOwner() = runTest {
+	fun signInUseCase_whenNoOwnerRecorded_discardsUnattributableDataAndRecordsOwner() = runTest {
 		val settingsRepository = FakeSettingsRepository()
 		val applicationRepository = RecordingApplicationRepository()
 		val useCase = signInUseCase(
@@ -310,15 +310,35 @@ class AuthUseCaseContractTest {
 			awaitComplete()
 		}
 
-		assertEquals(false, applicationRepository.cleared)
+		assertEquals(true, applicationRepository.cleared)
 		assertEquals(VALID_USB_ID, settingsRepository.getLocalDataOwner())
+	}
+
+	@Test
+	fun signInUseCase_whenCredentialsAreRejected_keepsLocalData() = runTest {
+		val settingsRepository = FakeSettingsRepository()
+		val applicationRepository = RecordingApplicationRepository()
+		val useCase = signInUseCase(
+			settingsRepository = settingsRepository,
+			applicationRepository = applicationRepository,
+			authRepository = RecordingAuthRepository(throwable = IllegalStateException("rejected"))
+		)
+
+		useCase.execute(SignInParams(usbId = VALID_USB_ID, password = "secret123")).test {
+			awaitLoadingThenError(this)
+			awaitComplete()
+		}
+
+		assertEquals(false, applicationRepository.cleared)
+		assertEquals(null, settingsRepository.getLocalDataOwner())
 	}
 
 	private fun signInUseCase(
 		settingsRepository: FakeSettingsRepository,
-		applicationRepository: RecordingApplicationRepository
+		applicationRepository: RecordingApplicationRepository,
+		authRepository: RecordingAuthRepository = RecordingAuthRepository()
 	) = SignInUseCase(
-		authRepository = RecordingAuthRepository(),
+		authRepository = authRepository,
 		messagingRepository = RecordingMessagingRepository(),
 		syncRepository = FakeSyncRepository(),
 		credentialsRepository = FakeCredentialsRepository(),

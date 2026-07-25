@@ -43,8 +43,6 @@ class SignInUseCase(
 	override suspend fun executeOnBackground(params: SignInParams): Flow<Unit> {
 		val canonicalUsbId = params.usbId.toCanonicalUsbIdentifier()
 
-		discardForeignLocalData(canonicalUsbId)
-
 		val bootstrapTokens = runCatching {
 			authRepository.bootstrapSignIn(
 				usbId = canonicalUsbId,
@@ -56,6 +54,8 @@ class SignInUseCase(
 				cause = throwable
 			)
 		}
+
+		discardForeignLocalData(canonicalUsbId)
 
 		val attestation = runCatching {
 			attestationRepository.attest(
@@ -109,7 +109,7 @@ class SignInUseCase(
 	}
 
 	private suspend fun discardForeignLocalData(canonicalUsbId: String) {
-		val localDataOwner = settingsRepository.getLocalDataOwner() ?: return
+		val localDataOwner = settingsRepository.getLocalDataOwner()
 		if (localDataOwner == canonicalUsbId) return
 
 		applicationRepository.clearData()
