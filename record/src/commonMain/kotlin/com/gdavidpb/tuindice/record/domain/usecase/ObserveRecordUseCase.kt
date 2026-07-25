@@ -28,6 +28,11 @@ class ObserveRecordUseCase(
 				.terms
 				.map { term -> term.id }
 
+			val currentTermId = currentSelectedTermId(
+				viewMode = viewMode,
+				selectedHistoricalTermId = selectedHistoricalTermId,
+				selectedProjectionTermId = selectedProjectionTermId
+			)
 			val selectedTermId = resolveSelectedTermId(
 				viewMode = viewMode,
 				visibleTermIds = visibleTermIds,
@@ -35,12 +40,16 @@ class ObserveRecordUseCase(
 				selectedProjectionTermId = selectedProjectionTermId
 			)
 
-			if ((selectedTermId != null) && (selectedTermId != currentSelectedTermId(
-					viewMode = viewMode,
-					selectedHistoricalTermId = selectedHistoricalTermId,
-					selectedProjectionTermId = selectedProjectionTermId
-				))
-			) {
+			// Only self-heal (and persist) when this view mode never had an explicit
+			// selection. A non-null currentTermId that isn't (yet) in visibleTermIds is
+			// more likely a record snapshot that hasn't caught up than a genuine orphan:
+			// this combine() also reacts to recordSelectionRepository's own writes, which
+			// aren't Room-backed and dispatch immediately, while the confirmed record
+			// snapshot is and can lag behind. Persisting the transient fallback here would
+			// permanently clobber a fresher explicit selection (e.g. right after creating
+			// a synthetic term). The resolved fallback above still keeps this emission's
+			// own selectedTermId valid for display without needing to persist it.
+			if ((selectedTermId != null) && (currentTermId == null)) {
 				recordSelectionRepository.setSelectedTermId(
 					viewMode = viewMode,
 					termId = selectedTermId

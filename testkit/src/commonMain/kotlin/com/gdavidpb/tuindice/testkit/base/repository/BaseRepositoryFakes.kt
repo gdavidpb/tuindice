@@ -255,7 +255,8 @@ class FakeSettingsRepository(
 	private var lastMainSection: MainSection = MainSection.SUMMARY,
 	private var outdatedAppState: OutdatedAppState? = null,
 	private val seenCoachmarkIds: MutableSet<String> = mutableSetOf(),
-	private var legacyOnboardingCompleted: Boolean = false
+	private var legacyOnboardingCompleted: Boolean = false,
+	private var localDataOwner: String? = null
 ) : SettingsRepository {
 	var cleared = false
 		private set
@@ -303,11 +304,18 @@ class FakeSettingsRepository(
 		return pending
 	}
 
+	override suspend fun getLocalDataOwner(): String? = localDataOwner
+
+	override suspend fun setLocalDataOwner(usbId: String) {
+		localDataOwner = usbId
+	}
+
 	override suspend fun clear() {
 		cleared = true
 		outdatedAppState = null
 		seenCoachmarkIds.clear()
 		legacyOnboardingCompleted = false
+		localDataOwner = null
 	}
 
 	var sessionResetNoticePending = false

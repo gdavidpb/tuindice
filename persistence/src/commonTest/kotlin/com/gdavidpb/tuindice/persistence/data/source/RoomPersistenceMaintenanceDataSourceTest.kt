@@ -315,6 +315,19 @@ private class RecordingPendingMutationDao(
 		scopeKey: String
 	): List<PendingMutationEntity> = emptyList()
 
+	override fun observeMutations(
+		storeId: String,
+		scopeKey: String
+	): Flow<List<PendingMutationEntity>> = emptyFlow()
+
+	override suspend fun requeueMutations(
+		storeId: String,
+		scopeKey: String,
+		requeueFrom: String,
+		retryableBefore: Long,
+		updatedAt: Long
+	): Int = 0
+
 	override suspend fun getMutations(
 		storeId: String,
 		scopeKey: String
@@ -337,13 +350,6 @@ private class RecordingPendingMutationDao(
 	override suspend fun deletePendingMutationsByReplaceKey(
 		storeId: String,
 		replaceKey: String
-	): Int = 0
-
-	override suspend fun retryFailedMutations(
-		storeId: String,
-		scopeKey: String,
-		status: String,
-		updatedAt: Long
 	): Int = 0
 
 	override suspend fun deleteAll(): Int {

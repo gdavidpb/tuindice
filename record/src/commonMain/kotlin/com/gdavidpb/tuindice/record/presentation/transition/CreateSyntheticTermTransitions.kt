@@ -88,7 +88,11 @@ internal fun MachineDefinitionBuilder<CreateSyntheticTerm.State>.createSynthetic
 				hasSearchError = if (event.searchResults.isNotEmpty()) false else state.hasSearchError
 			)
 
-			if (state.initialDraft == null && event.editingTermId != null) {
+			if (
+				state.initialDraft == null &&
+				event.editingTermId != null &&
+				event.selectedSubjects.isNotEmpty()
+			) {
 				updatedState.copy(initialDraft = updatedState.draft)
 			} else {
 				updatedState

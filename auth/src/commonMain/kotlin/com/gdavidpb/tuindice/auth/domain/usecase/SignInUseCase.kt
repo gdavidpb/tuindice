@@ -10,9 +10,11 @@ import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.auth.utils.extension.toCanonicalUsbIdentifier
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.base.domain.repository.ApplicationRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
@@ -32,12 +34,15 @@ class SignInUseCase(
 	private val credentialsRepository: CredentialsRepository,
 	private val syncStatusRepository: SyncStatusRepository,
 	private val attestationRepository: AttestationRepository,
+	private val settingsRepository: SettingsRepository,
+	private val applicationRepository: ApplicationRepository,
 	override val reportingRepository: ReportingRepository,
 	override val paramsValidator: SignInParamsValidator,
 	override val exceptionHandler: SignInExceptionHandler
 ) : FlowUseCase<SignInParams, Unit, SignInUseCaseError>() {
 	override suspend fun executeOnBackground(params: SignInParams): Flow<Unit> {
 		val canonicalUsbId = params.usbId.toCanonicalUsbIdentifier()
+
 		val bootstrapTokens = runCatching {
 			authRepository.bootstrapSignIn(
 				usbId = canonicalUsbId,
@@ -49,6 +54,8 @@ class SignInUseCase(
 				cause = throwable
 			)
 		}
+
+		discardForeignLocalData(canonicalUsbId)
 
 		val attestation = runCatching {
 			attestationRepository.attest(
@@ -86,6 +93,8 @@ class SignInUseCase(
 			password = params.password
 		)
 
+		settingsRepository.setLocalDataOwner(canonicalUsbId)
+
 		if (syncStatusRepository.getSyncStatus() == SyncStatus.OutdatedCredentials) {
 			syncStatusRepository.setSyncStatus(SyncStatus.Failed)
 		}
@@ -97,6 +106,13 @@ class SignInUseCase(
 		trySubscribeMessaging()
 
 		return flowOf(Unit)
+	}
+
+	private suspend fun discardForeignLocalData(canonicalUsbId: String) {
+		val localDataOwner = settingsRepository.getLocalDataOwner()
+		if (localDataOwner == canonicalUsbId) return
+
+		applicationRepository.clearData()
 	}
 
 	private suspend fun trySubscribeMessaging() {

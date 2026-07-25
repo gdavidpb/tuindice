@@ -1,12 +1,12 @@
 package com.gdavidpb.tuindice.pensum.data.source
 
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumSnapshot
 import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.pensum.data.model.GetPensumResponse
 import com.gdavidpb.tuindice.pensum.data.repository.PensumLocalDataRepository
 import com.gdavidpb.tuindice.pensum.data.repository.PensumRemoteDataRepository
 import com.gdavidpb.tuindice.pensum.domain.engine.PensumStatusEngine
-import com.gdavidpb.tuindice.pensum.domain.model.AcademicPensumSnapshot
 import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
 import com.gdavidpb.tuindice.pensum.domain.model.PensumSelectionParams
 import kotlinx.coroutines.flow.Flow

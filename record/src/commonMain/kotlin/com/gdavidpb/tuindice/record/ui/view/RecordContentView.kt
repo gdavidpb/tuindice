@@ -81,7 +81,7 @@ fun RecordContentView(
 		)
 	}
 
-	val terms = state.record.filteredProjectionFor(state.viewMode)
+	val terms = state.visibleRecord.filteredProjectionFor(state.viewMode)
 		.terms
 		.toTermItemList(
 			viewMode = state.viewMode,

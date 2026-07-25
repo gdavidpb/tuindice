@@ -2,8 +2,8 @@ package com.gdavidpb.tuindice.record.data.repository
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.persistence.domain.record.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
-import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview
 
 interface AcademicRecordRemoteDataRepository {

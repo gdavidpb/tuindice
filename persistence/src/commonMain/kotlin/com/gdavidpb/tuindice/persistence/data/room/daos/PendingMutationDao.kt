@@ -32,6 +32,14 @@ abstract class PendingMutationDao : UpsertDao<PendingMutationEntity>() {
 			"AND ${PendingMutationTable.SCOPE_KEY} = :scopeKey " +
 			"ORDER BY ${PendingMutationTable.CREATED_AT} ASC"
 	)
+	abstract fun observeMutations(storeId: String, scopeKey: String): Flow<List<PendingMutationEntity>>
+
+	@Query(
+		"SELECT * FROM ${PendingMutationTable.TABLE_NAME} " +
+			"WHERE ${PendingMutationTable.STORE_ID} = :storeId " +
+			"AND ${PendingMutationTable.SCOPE_KEY} = :scopeKey " +
+			"ORDER BY ${PendingMutationTable.CREATED_AT} ASC"
+	)
 	abstract suspend fun getMutations(storeId: String, scopeKey: String): List<PendingMutationEntity>
 
 	@Query(
@@ -67,17 +75,19 @@ abstract class PendingMutationDao : UpsertDao<PendingMutationEntity>() {
 
 	@Query(
 		"UPDATE ${PendingMutationTable.TABLE_NAME} " +
-			"SET ${PendingMutationTable.STATUS} = :status, " +
+			"SET ${PendingMutationTable.STATUS} = 'Pending', " +
 			"${PendingMutationTable.LAST_ERROR} = NULL, " +
 			"${PendingMutationTable.UPDATED_AT} = :updatedAt " +
 			"WHERE ${PendingMutationTable.STORE_ID} = :storeId " +
 			"AND ${PendingMutationTable.SCOPE_KEY} = :scopeKey " +
-			"AND ${PendingMutationTable.STATUS} = 'Failed'"
+			"AND ${PendingMutationTable.STATUS} = :requeueFrom " +
+			"AND ${PendingMutationTable.UPDATED_AT} <= :retryableBefore"
 	)
-	abstract suspend fun retryFailedMutations(
+	abstract suspend fun requeueMutations(
 		storeId: String,
 		scopeKey: String,
-		status: String = "Pending",
+		requeueFrom: String,
+		retryableBefore: Long,
 		updatedAt: Long
 	): Int
 

@@ -33,6 +33,7 @@ import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
@@ -51,6 +52,12 @@ class EvaluationsStateMachineContractTest {
 			EvaluationsInternalEvent::class
 		)
 
+		assertMachineHasNoShadowedRows(
+			machine,
+			Evaluations.Action::class,
+			EvaluationsInternalEvent::class
+		)
+
 		assertMachineStatesReachable(
 			machine = machine,
 			initialState = Evaluations.State.Idle::class
@@ -64,6 +71,12 @@ class EvaluationsStateMachineContractTest {
 		val machine = createEditorViewModel().machine
 
 		assertMachineCoversAlphabet(
+			machine,
+			Evaluation.Action::class,
+			EvaluationInternalEvent::class
+		)
+
+		assertMachineHasNoShadowedRows(
 			machine,
 			Evaluation.Action::class,
 			EvaluationInternalEvent::class

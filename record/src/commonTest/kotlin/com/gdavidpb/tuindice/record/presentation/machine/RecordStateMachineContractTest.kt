@@ -32,6 +32,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepositor
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
@@ -59,6 +60,12 @@ class RecordStateMachineContractTest {
 			RecordInternalEvent::class
 		)
 
+		assertMachineHasNoShadowedRows(
+			machine,
+			Record.Action::class,
+			RecordInternalEvent::class
+		)
+
 		assertMachineStatesReachable(
 			machine = machine,
 			initialState = Record.State.Idle::class
@@ -72,6 +79,12 @@ class RecordStateMachineContractTest {
 		val machine = get<CreateSyntheticTermViewModel>().machine
 
 		assertMachineCoversAlphabet(
+			machine,
+			CreateSyntheticTerm.Action::class,
+			CreateSyntheticTermInternalEvent::class
+		)
+
+		assertMachineHasNoShadowedRows(
 			machine,
 			CreateSyntheticTerm.Action::class,
 			CreateSyntheticTermInternalEvent::class
@@ -300,8 +313,7 @@ private class StubAcademicRecordRepository : AcademicRecordRepository {
 	override suspend fun upsertAttemptOverride(
 		attemptId: String,
 		score: AttemptScore?,
-		outcome: AttemptOutcome?,
-		commit: Boolean
+		outcome: AttemptOutcome?
 	) = Unit
 
 	override suspend fun deleteAttemptOverride(attemptId: String) = Unit

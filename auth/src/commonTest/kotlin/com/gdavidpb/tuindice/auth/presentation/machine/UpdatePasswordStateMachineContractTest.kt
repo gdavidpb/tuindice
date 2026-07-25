@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import kotlin.test.Test
@@ -31,6 +32,12 @@ class UpdatePasswordStateMachineContractTest {
 		val machine = createViewModel().machine
 
 		assertMachineCoversAlphabet(
+			machine,
+			UpdatePassword.Action::class,
+			UpdatePasswordInternalEvent::class
+		)
+
+		assertMachineHasNoShadowedRows(
 			machine,
 			UpdatePassword.Action::class,
 			UpdatePasswordInternalEvent::class

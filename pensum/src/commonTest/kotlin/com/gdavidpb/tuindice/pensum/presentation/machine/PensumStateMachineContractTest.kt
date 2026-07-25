@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
@@ -37,6 +38,12 @@ class PensumStateMachineContractTest {
 	@Test
 	fun machine_coversTheFullInputAlphabet() {
 		assertMachineCoversAlphabet(
+			createViewModel().machine,
+			Pensum.Action::class,
+			PensumInternalEvent::class
+		)
+
+		assertMachineHasNoShadowedRows(
 			createViewModel().machine,
 			Pensum.Action::class,
 			PensumInternalEvent::class

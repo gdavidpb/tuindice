@@ -38,13 +38,13 @@ class RoomDatabaseDataSource(
 	private val academicTermDao: AcademicTermDao,
 	private val academicAttemptDao: AcademicAttemptDao,
 	private val transactionRunner: PersistenceTransactionRunner,
-	private val mutationEngine: StoreBackedMutationEngine<String, EvaluationMutation, LocalEvaluationsSnapshot, List<LocalEvaluation>, EvaluationMutationAck>,
+	private val mutationEngine: StoreBackedMutationEngine<String, EvaluationMutation, EvaluationMutationAck>,
 	private val visibleEvaluationsStateResolver: VisibleEvaluationsStateResolver
 ) : DatabaseDataRepository {
 	private val writeMutex = Mutex()
 
 	private var inMemoryConfirmedSnapshot: LocalEvaluationsSnapshot? = null
-	private var pendingMutationsSnapshot: List<MutationEnvelope<String, EvaluationMutation>> = emptyList()
+	private var pendingMutationsSnapshot: List<MutationEnvelope<String, EvaluationMutation>>? = null
 
 	override fun observeEvaluationsFlow(): Flow<List<LocalEvaluation>> {
 		return observeEvaluationsSnapshotFlow()
@@ -52,7 +52,7 @@ class RoomDatabaseDataSource(
 	}
 
 	override fun observeEvaluationsSnapshotFlow(): Flow<LocalEvaluationsSnapshot> {
-		val pendingFlow = mutationEngine.observePendingMutations(EVALUATIONS_MUTATION_SCOPE)
+		val pendingFlow = mutationEngine.observeMutations(EVALUATIONS_MUTATION_SCOPE)
 			.onEach { mutations ->
 				pendingMutationsSnapshot = mutations
 			}
@@ -177,7 +177,7 @@ class RoomDatabaseDataSource(
 		return evaluation
 	}
 
-	override suspend fun confirmRemovedEvaluation(eid: String) {
+	override suspend fun confirmEvaluationRemoval(eid: String) {
 		writeMutex.withLock {
 			val currentSnapshot = getConfirmedSnapshot()
 			transactionRunner.immediate {
@@ -194,7 +194,7 @@ class RoomDatabaseDataSource(
 		}
 	}
 
-	override suspend fun removeConfirmedEvaluation(eid: String) {
+	override suspend fun discardLocalEvaluationCopy(eid: String) {
 		writeMutex.withLock {
 			val currentSnapshot = getConfirmedSnapshot()
 			evaluationDao.deleteEvaluation(eid)
@@ -246,9 +246,8 @@ class RoomDatabaseDataSource(
 	}
 
 	private suspend fun currentPendingMutations(): List<MutationEnvelope<String, EvaluationMutation>> {
-		return pendingMutationsSnapshot.ifEmpty {
-			mutationEngine.getPendingMutations(EVALUATIONS_MUTATION_SCOPE)
-		}
+		return pendingMutationsSnapshot
+			?: mutationEngine.getMutations(EVALUATIONS_MUTATION_SCOPE)
 	}
 
 	internal companion object {

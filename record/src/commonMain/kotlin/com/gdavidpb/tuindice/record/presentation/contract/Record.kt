@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.record.presentation.contract
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
 import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
@@ -9,6 +10,7 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.domain.model.applying
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.top_bar_record
 
@@ -26,8 +28,23 @@ object Record {
 		data class Content(
 			val viewMode: RecordViewMode,
 			val record: AcademicRecord,
-			val selectedTermId: String
-		) : State()
+			val selectedTermId: String,
+			val inFlightSelection: InFlightSelection? = null
+		) : State() {
+			/**
+			 * Lo que la pantalla proyecta: el expediente observado más el override del
+			 * gesto en curso. Mientras el usuario arrastra no hay escritura en datos,
+			 * así que este es el único sitio donde ese valor existe.
+			 */
+			val visibleRecord: AcademicRecord
+				get() = inFlightSelection?.let { selection -> record.applying(selection.override) }
+					?: record
+		}
+
+		data class InFlightSelection(
+			val override: AttemptOverride,
+			val isCommitted: Boolean
+		)
 
 		data object Empty : State()
 

@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepositor
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import kotlin.test.Test
@@ -32,6 +33,12 @@ class SignOutStateMachineContractTest {
 		val machine = createViewModel().machine
 
 		assertMachineCoversAlphabet(
+			machine,
+			SignOut.Action::class,
+			SignOutInternalEvent::class
+		)
+
+		assertMachineHasNoShadowedRows(
 			machine,
 			SignOut.Action::class,
 			SignOutInternalEvent::class

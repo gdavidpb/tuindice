@@ -150,9 +150,11 @@ class PendingMutationDaoTest {
 
 		dao.upsertEntities(listOf(failed, pending, failedInOtherScope))
 
-		val retried = dao.retryFailedMutations(
+		val retried = dao.requeueMutations(
 			storeId = "evaluations",
 			scopeKey = "scope-1",
+			requeueFrom = "Failed",
+			retryableBefore = Long.MAX_VALUE,
 			updatedAt = 10L
 		)
 
@@ -267,6 +269,74 @@ class PendingMutationDaoTest {
 			emptyList(),
 			dao.getMutations(storeId = "subjects", scopeKey = "scope-1")
 		)
+	}
+
+	@Test
+	fun observeMutations_includesFailedRows_unlikeObservePendingMutations() = runTest {
+		dao.upsertEntities(
+			listOf(
+				pendingMutation(mutationId = "mutation-1", createdAt = 1L),
+				pendingMutation(mutationId = "mutation-2", createdAt = 2L, status = "Failed")
+			)
+		)
+
+		assertEquals(
+			listOf("mutation-1"),
+			dao.observePendingMutations(storeId = "evaluations", scopeKey = "scope-1")
+				.first()
+				.map(PendingMutationEntity::mutationId)
+		)
+		assertEquals(
+			listOf("mutation-1"),
+			dao.getPendingMutations(storeId = "evaluations", scopeKey = "scope-1")
+				.map(PendingMutationEntity::mutationId)
+		)
+
+		assertEquals(
+			listOf("mutation-1", "mutation-2"),
+			dao.observeMutations(storeId = "evaluations", scopeKey = "scope-1")
+				.first()
+				.map(PendingMutationEntity::mutationId)
+		)
+		assertEquals(
+			listOf("mutation-1", "mutation-2"),
+			dao.getMutations(storeId = "evaluations", scopeKey = "scope-1")
+				.map(PendingMutationEntity::mutationId)
+		)
+	}
+
+	@Test
+	fun requeueMutations_onlyTouchesMatchingRowsPastTheBackoff() = runTest {
+		dao.upsertEntities(
+			listOf(
+				pendingMutation(mutationId = "stale-failed", status = "Failed", updatedAt = 100L, lastError = "boom"),
+				pendingMutation(mutationId = "fresh-failed", status = "Failed", updatedAt = 900L, lastError = "boom"),
+				pendingMutation(mutationId = "already-pending", status = "Pending", updatedAt = 100L)
+			)
+		)
+
+		val requeued = dao.requeueMutations(
+			storeId = "evaluations",
+			scopeKey = "scope-1",
+			requeueFrom = "Failed",
+			retryableBefore = 500L,
+			updatedAt = 1_000L
+		)
+
+		assertEquals(1, requeued)
+
+		val byId = dao.getMutations(storeId = "evaluations", scopeKey = "scope-1")
+			.associateBy(PendingMutationEntity::mutationId)
+
+		assertEquals("Pending", byId.getValue("stale-failed").status)
+		assertNull(byId.getValue("stale-failed").lastError)
+		assertEquals(1_000L, byId.getValue("stale-failed").updatedAt)
+
+		assertEquals("Failed", byId.getValue("fresh-failed").status)
+		assertEquals("boom", byId.getValue("fresh-failed").lastError)
+		assertEquals(900L, byId.getValue("fresh-failed").updatedAt)
+
+		assertEquals(100L, byId.getValue("already-pending").updatedAt)
 	}
 
 	private fun pendingMutation(

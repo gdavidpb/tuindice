@@ -1,14 +1,14 @@
 package com.gdavidpb.tuindice.record.di
 
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
 import com.gdavidpb.tuindice.persistence.data.room.RoomMutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
+import com.gdavidpb.tuindice.persistence.domain.record.AcademicRecordMutation
+import com.gdavidpb.tuindice.persistence.domain.record.RECORD_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
-import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
-import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_STORE_ID
+import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
 import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository
@@ -93,7 +93,7 @@ val recordModule = module {
 			commandSerializer = AcademicRecordMutation.serializer()
 		)
 	}
-	single<StoreBackedMutationEngine<String, AcademicRecordMutation, AcademicRecord, AcademicRecord, AcademicRecord>>(
+	single<StoreBackedMutationEngine<String, AcademicRecordMutation, VersionedAcademicRecord>>(
 		named(RECORD_MUTATION_ENGINE_QUALIFIER)
 	) {
 		StoreBackedMutationEngine(

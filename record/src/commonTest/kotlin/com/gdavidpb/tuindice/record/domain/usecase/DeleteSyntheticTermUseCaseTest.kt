@@ -47,8 +47,7 @@ private class RecordingAcademicRecordRepository : AcademicRecordRepository {
 	override suspend fun upsertAttemptOverride(
 		attemptId: String,
 		score: AttemptScore?,
-		outcome: AttemptOutcome?,
-		commit: Boolean
+		outcome: AttemptOutcome?
 	) = Unit
 
 	override suspend fun deleteAttemptOverride(attemptId: String) = Unit

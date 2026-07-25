@@ -17,7 +17,7 @@ interface DatabaseDataRepository {
 	suspend fun getCurrentTerm(): LocalCurrentTermDescriptor?
 	suspend fun confirmAddedEvaluation(evaluation: LocalEvaluation): LocalEvaluation
 	suspend fun confirmUpdatedEvaluation(evaluation: LocalEvaluation): LocalEvaluation
-	suspend fun confirmRemovedEvaluation(eid: String)
-	suspend fun removeConfirmedEvaluation(eid: String)
+	suspend fun confirmEvaluationRemoval(eid: String)
+	suspend fun discardLocalEvaluationCopy(eid: String)
 	suspend fun saveConfirmedSnapshot(snapshot: LocalEvaluationsSnapshot)
 }

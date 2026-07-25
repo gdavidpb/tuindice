@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepositor
 import com.gdavidpb.tuindice.testkit.coroutines.withUnconfinedTestDispatchers
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
@@ -36,6 +37,12 @@ class CoachmarkOverlayStateMachineContractTest {
 		val machine = createViewModel().machine
 
 		assertMachineCoversAlphabet(
+			machine,
+			CoachmarkOverlay.Action::class,
+			CoachmarkOverlayInternalEvent::class
+		)
+
+		assertMachineHasNoShadowedRows(
 			machine,
 			CoachmarkOverlay.Action::class,
 			CoachmarkOverlayInternalEvent::class

@@ -63,8 +63,8 @@ class SignOutUseCase(
 		}
 
 		sessionCoroutineScope.cancelActiveWork()
-		sessionRepository.clear()
 		applicationRepository.clearData()
+		sessionRepository.clear()
 		syncStatusRepository.reset()
 
 		return flowOf(Unit)

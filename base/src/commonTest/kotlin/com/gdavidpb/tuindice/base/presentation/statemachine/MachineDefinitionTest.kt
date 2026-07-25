@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.base.presentation.statemachine
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import com.gdavidpb.tuindice.testkit.mvi.sealedSubclassesOf
 import kotlinx.coroutines.test.runTest
@@ -29,6 +30,42 @@ class MachineDefinitionTest {
 	private sealed class TestEffect {
 		data object Beep : TestEffect()
 		data object Boop : TestEffect()
+	}
+
+	private sealed class ShadowEvent {
+		sealed class Group : ShadowEvent() {
+			data object Member : Group()
+		}
+	}
+
+	@Test
+	fun assertMachineHasNoShadowedRows_detectsARowSwallowedByItsSealedParent() = runTest {
+		if (sealedSubclassesOf(ShadowEvent::class) == null) return@runTest
+
+		val machine = MachineDefinition.define<TestState> {
+			from<TestState.Idle> {
+				on<ShadowEvent.Group> { state, _ -> state }
+				on<ShadowEvent.Group.Member> { state, _ -> state }
+			}
+		}
+
+		assertFailsWith<AssertionError> {
+			assertMachineHasNoShadowedRows(machine, ShadowEvent::class)
+		}
+	}
+
+	@Test
+	fun assertMachineHasNoShadowedRows_acceptsSiblingRows() = runTest {
+		if (sealedSubclassesOf(TestEvent::class) == null) return@runTest
+
+		val machine = MachineDefinition.define<TestState> {
+			from<TestState.Idle> {
+				on<TestEvent.Increment> { state, _ -> state }
+				on<TestEvent.Ping> { state, _ -> state }
+			}
+		}
+
+		assertMachineHasNoShadowedRows(machine, TestEvent::class)
 	}
 
 	@Test

@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.test.runTest
@@ -26,7 +27,7 @@ class StoreBackedMutationEngineTest {
 		val releaseFirstAck = CompletableDeferred<Unit>()
 		val confirmedValues = mutableListOf<Int>()
 		val sentValues = mutableListOf<Int>()
-		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
 			override suspend fun send(
 				mutation: MutationEnvelope<String, TestMutation>
 			): TestAck {
@@ -92,7 +93,7 @@ class StoreBackedMutationEngineTest {
 		val releaseFirstFailure = CompletableDeferred<Unit>()
 		val confirmedValues = mutableListOf<Int>()
 		val sentValues = mutableListOf<Int>()
-		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
 			override suspend fun send(
 				mutation: MutationEnvelope<String, TestMutation>
 			): TestAck {
@@ -153,7 +154,7 @@ class StoreBackedMutationEngineTest {
 		val sentRevisions = mutableListOf<Long?>()
 		val confirmedValues = mutableListOf<Int>()
 		var attempts = 0
-		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
 			override val maxRebaseAttempts: Int = 3
 
 			override suspend fun send(
@@ -200,7 +201,7 @@ class StoreBackedMutationEngineTest {
 	fun submit_whenRebaseDoesNotAdvancePrecondition_marksMutationFailed() = runTest {
 		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
 		val engine = createEngine(store, this)
-		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
 			override suspend fun send(
 				mutation: MutationEnvelope<String, TestMutation>
 			): TestAck {
@@ -243,7 +244,7 @@ class StoreBackedMutationEngineTest {
 		val engine = createEngine(store, this)
 		val seenPreconditions = mutableListOf<MutationPrecondition>()
 		val confirmedValues = mutableListOf<Int>()
-		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
 			override suspend fun send(
 				mutation: MutationEnvelope<String, TestMutation>
 			): TestAck {
@@ -277,7 +278,7 @@ class StoreBackedMutationEngineTest {
 	fun submit_whenFailureIsDeferred_keepsMutationPending() = runTest {
 		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
 		val engine = createEngine(store, this)
-		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
 			override suspend fun send(
 				mutation: MutationEnvelope<String, TestMutation>
 			): TestAck {
@@ -323,7 +324,7 @@ class StoreBackedMutationEngineTest {
 			mutationId = "mutation-1",
 			value = 50
 		)
-		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
 			override suspend fun send(
 				mutation: MutationEnvelope<String, TestMutation>
 			): TestAck {
@@ -358,15 +359,162 @@ class StoreBackedMutationEngineTest {
 		assertEquals(listOf(50), confirmedValues)
 		assertEquals(emptyList(), store.getPendingMutations("record"))
 	}
+
+	@Test
+	fun terminalFailure_leavesMutationOutOfTheSendQueue_butStillVisible() = runTest {
+		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
+		val engine = createEngine(store, this)
+		val mutation = testMutationEnvelope(
+			mutationId = "mutation-1",
+			value = 70
+		)
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
+			override suspend fun send(
+				mutation: MutationEnvelope<String, TestMutation>
+			): TestAck = throw TestTerminalFailure()
+
+			override suspend fun confirm(
+				mutation: MutationEnvelope<String, TestMutation>,
+				ack: TestAck
+			) = Unit
+		}
+
+		engine.submit(mutation, syncSpec, propagateTerminalErrors = false)
+
+		assertEquals(emptyList(), engine.getPendingMutations("record"))
+
+		val visible = engine.getMutations("record").single()
+		assertEquals("mutation-1", visible.mutationId)
+		assertEquals(PendingMutationStatus.FailedTerminal, visible.status)
+		assertEquals(listOf(visible), engine.observeMutations("record").first())
+	}
+
+	@Test
+	fun drain_leavesTerminallyFailedMutationsAlone_howeverOldTheyAre() = runTest {
+		val terminalMutation = testMutationEnvelope(mutationId = "mutation-1", value = 80)
+			.copy(status = PendingMutationStatus.FailedTerminal, updatedAt = 1L, lastError = "terminal")
+		val store = InMemoryMutationEnvelopeStore(listOf(terminalMutation))
+		val engine = createEngine(store, this)
+		val sentValues = mutableListOf<Int>()
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
+			override suspend fun send(
+				mutation: MutationEnvelope<String, TestMutation>
+			): TestAck {
+				sentValues += mutation.command.value
+				return TestAck(mutation.mutationId, mutation.command.value)
+			}
+
+			override suspend fun confirm(
+				mutation: MutationEnvelope<String, TestMutation>,
+				ack: TestAck
+			) = Unit
+		}
+
+		engine.drain(scopeKey = "record", syncSpec = syncSpec)
+
+		assertEquals(emptyList(), sentValues)
+		assertEquals(
+			PendingMutationStatus.FailedTerminal,
+			engine.getMutations("record").single().status
+		)
+	}
+
+	@Test
+	fun drain_requeuesFailedMutationsPastTheBackoff_andSendsThem() = runTest {
+		val failedMutation = testMutationEnvelope(mutationId = "mutation-1", value = 80)
+			.copy(status = PendingMutationStatus.Failed, updatedAt = 1L, lastError = "terminal")
+		val store = InMemoryMutationEnvelopeStore(listOf(failedMutation))
+		val engine = createEngine(store, this)
+		val sentValues = mutableListOf<Int>()
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
+			override suspend fun send(
+				mutation: MutationEnvelope<String, TestMutation>
+			): TestAck {
+				sentValues += mutation.command.value
+				return TestAck(mutation.mutationId, mutation.command.value)
+			}
+
+			override suspend fun confirm(
+				mutation: MutationEnvelope<String, TestMutation>,
+				ack: TestAck
+			) = Unit
+		}
+
+		engine.drain(scopeKey = "record", syncSpec = syncSpec)
+
+		assertEquals(listOf(80), sentValues)
+		assertEquals(emptyList(), store.getMutations("record"))
+	}
+
+	@Test
+	fun drain_leavesFailedMutationsInsideTheBackoffUntouched() = runTest {
+		val failedMutation = testMutationEnvelope(mutationId = "mutation-1", value = 80)
+			.copy(status = PendingMutationStatus.Failed, updatedAt = 1L, lastError = "terminal")
+		val store = InMemoryMutationEnvelopeStore(listOf(failedMutation))
+		val engine = createEngine(store, this, failedRetryBackoffMillis = Long.MAX_VALUE / 2)
+		val sentValues = mutableListOf<Int>()
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
+			override suspend fun send(
+				mutation: MutationEnvelope<String, TestMutation>
+			): TestAck {
+				sentValues += mutation.command.value
+				return TestAck(mutation.mutationId, mutation.command.value)
+			}
+
+			override suspend fun confirm(
+				mutation: MutationEnvelope<String, TestMutation>,
+				ack: TestAck
+			) = Unit
+		}
+
+		engine.drain(scopeKey = "record", syncSpec = syncSpec)
+
+		assertTrue(sentValues.isEmpty())
+		assertEquals(PendingMutationStatus.Failed, store.getMutations("record").single().status)
+	}
+
+	@Test
+	fun mutationVersion_advancesOnConfirm_soASnapshotFetchedEarlierIsDiscarded() = runTest {
+		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
+		val engine = createEngine(store, this)
+		val releaseAck = CompletableDeferred<Unit>()
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
+			override suspend fun send(
+				mutation: MutationEnvelope<String, TestMutation>
+			): TestAck {
+				releaseAck.await()
+				return TestAck(mutation.mutationId, mutation.command.value)
+			}
+
+			override suspend fun confirm(
+				mutation: MutationEnvelope<String, TestMutation>,
+				ack: TestAck
+			) = Unit
+		}
+
+		val mutation = testMutationEnvelope(mutationId = "mutation-1", value = 90)
+		val version = engine.beginMutation(replaceKey = mutation.replaceKey)
+		engine.rememberMutationVersion(mutation.mutationId, version)
+		engine.submitInBackground(mutation, syncSpec)
+
+		val snapshotVersion = engine.currentMutationVersion()
+
+		releaseAck.complete(Unit)
+		yield()
+
+		assertTrue(snapshotVersion != engine.currentMutationVersion())
+	}
 }
 
 private fun createEngine(
 	store: MutationEnvelopeStore<String, TestMutation>,
-	coroutineScope: kotlinx.coroutines.CoroutineScope
-) = StoreBackedMutationEngine<String, TestMutation, Unit, Unit, TestAck>(
+	coroutineScope: kotlinx.coroutines.CoroutineScope,
+	failedRetryBackoffMillis: Long = DEFAULT_FAILED_RETRY_BACKOFF_MILLIS
+) = StoreBackedMutationEngine<String, TestMutation, TestAck>(
 	storeId = "test",
 	outboxStore = store,
-	coroutineScope = coroutineScope
+	coroutineScope = coroutineScope,
+	failedRetryBackoffMillis = failedRetryBackoffMillis
 )
 
 private fun testMutationEnvelope(
@@ -411,6 +559,40 @@ private class InMemoryMutationEnvelopeStore<ScopeKey : Any, Command : OutboxMuta
 		return state.value.filter { mutation ->
 			mutation.scopeKey == scopeKey && mutation.status == PendingMutationStatus.Pending
 		}
+	}
+
+	override suspend fun requeueFailedMutations(
+		scopeKey: ScopeKey,
+		retryableBefore: Long
+	): Int {
+		var requeued = 0
+		state.value = state.value.map { mutation ->
+			if (
+				mutation.scopeKey == scopeKey &&
+				mutation.status == PendingMutationStatus.Failed &&
+				mutation.updatedAt <= retryableBefore
+			) {
+				requeued += 1
+				mutation.copy(status = PendingMutationStatus.Pending, lastError = null)
+			} else {
+				mutation
+			}
+		}
+		return requeued
+	}
+
+	override fun observeMutations(
+		scopeKey: ScopeKey
+	): Flow<List<MutationEnvelope<ScopeKey, Command>>> {
+		return state.map { mutations ->
+			mutations.filter { mutation -> mutation.scopeKey == scopeKey }
+		}
+	}
+
+	override suspend fun getMutations(
+		scopeKey: ScopeKey
+	): List<MutationEnvelope<ScopeKey, Command>> {
+		return state.value.filter { mutation -> mutation.scopeKey == scopeKey }
 	}
 
 	override suspend fun getPendingMutation(

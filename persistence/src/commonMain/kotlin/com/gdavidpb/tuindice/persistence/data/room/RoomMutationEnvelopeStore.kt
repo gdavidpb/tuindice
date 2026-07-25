@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.persistence.data.room
 
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
+import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
+import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.data.room.mapper.toMutationEnvelope
 import com.gdavidpb.tuindice.persistence.data.room.mapper.toPendingMutationEntity
@@ -36,6 +38,34 @@ class RoomMutationEnvelopeStore<Command : OutboxMutation>(
 		scopeKey: String
 	): List<MutationEnvelope<String, Command>> {
 		return pendingMutationDao.getPendingMutations(
+			storeId = storeId,
+			scopeKey = scopeKey
+		).map { entity ->
+			entity.toMutationEnvelope(
+				commandSerializer = commandSerializer,
+				json = json
+			)
+		}
+	}
+
+	override fun observeMutations(
+		scopeKey: String
+	) = pendingMutationDao.observeMutations(
+		storeId = storeId,
+		scopeKey = scopeKey
+	).map { entities ->
+		entities.map { entity ->
+			entity.toMutationEnvelope(
+				commandSerializer = commandSerializer,
+				json = json
+			)
+		}
+	}
+
+	override suspend fun getMutations(
+		scopeKey: String
+	): List<MutationEnvelope<String, Command>> {
+		return pendingMutationDao.getMutations(
 			storeId = storeId,
 			scopeKey = scopeKey
 		).map { entity ->
@@ -98,6 +128,19 @@ class RoomMutationEnvelopeStore<Command : OutboxMutation>(
 			storeId = storeId,
 			scopeKey = scopeKey,
 			mutationId = mutationId
+		)
+	}
+
+	override suspend fun requeueFailedMutations(
+		scopeKey: String,
+		retryableBefore: Long
+	): Int {
+		return pendingMutationDao.requeueMutations(
+			storeId = storeId,
+			scopeKey = scopeKey,
+			requeueFrom = PendingMutationStatus.Failed.name,
+			retryableBefore = retryableBefore,
+			updatedAt = currentTimeMillis()
 		)
 	}
 }

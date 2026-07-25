@@ -10,7 +10,6 @@ import com.gdavidpb.tuindice.evaluations.data.mapper.toEditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
-import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOPE
@@ -37,7 +36,7 @@ class EvaluationDataSource(
 	private val databaseDataSource: DatabaseDataRepository,
 	private val evaluationsApiDataSource: EvaluationsApiDataRepository,
 	private val settingsDataSource: SettingsDataRepository,
-	private val mutationEngine: StoreBackedMutationEngine<String, EvaluationMutation, LocalEvaluationsSnapshot, List<LocalEvaluation>, EvaluationMutationAck>,
+	private val mutationEngine: StoreBackedMutationEngine<String, EvaluationMutation, EvaluationMutationAck>,
 	private val identifierRepository: IdentifierRepository
 ) : EvaluationRepository {
 	private val mutationSyncSpec = EvaluationMutationSyncSpec(
@@ -110,18 +109,19 @@ class EvaluationDataSource(
 	}
 
 	override suspend fun addEvaluation(add: EvaluationAdd) {
+		val command = EvaluationMutation.Add(
+			referenceId = add.reference,
+			attemptId = add.attemptId,
+			subjectCode = add.subjectCode,
+			termId = add.termId,
+			scheduleMode = add.scheduleMode,
+			grade = add.grade,
+			maxGrade = add.maxGrade,
+			date = add.date,
+			type = add.type.ordinal
+		)
 		val mutation = buildPendingAddMutation(
-			command = EvaluationMutation.Add(
-				referenceId = add.reference,
-				attemptId = add.attemptId,
-				subjectCode = add.subjectCode,
-				termId = add.termId,
-				scheduleMode = add.scheduleMode,
-				grade = add.grade,
-				maxGrade = add.maxGrade,
-				date = add.date,
-				type = add.type.ordinal
-			)
+			command = equivalentPendingAdd(command) ?: command
 		)
 		val mutationVersion = mutationEngine.beginMutation(replaceKey = mutation.replaceKey)
 		mutationEngine.rememberMutationVersion(mutation.mutationId, mutationVersion)
@@ -215,10 +215,20 @@ class EvaluationDataSource(
 		return remoteSnapshot
 	}
 
+	private suspend fun equivalentPendingAdd(
+		command: EvaluationMutation.Add
+	): EvaluationMutation.Add? {
+		return mutationEngine.getMutations(EVALUATIONS_MUTATION_SCOPE)
+			.asSequence()
+			.map(MutationEnvelope<String, EvaluationMutation>::command)
+			.filterIsInstance<EvaluationMutation.Add>()
+			.firstOrNull { pending -> command.copy(referenceId = pending.referenceId) == pending }
+	}
+
 	private suspend fun pendingAddForReference(
 		referenceId: String
 	): MutationEnvelope<String, EvaluationMutation>? {
-		return mutationEngine.getPendingMutations(EVALUATIONS_MUTATION_SCOPE)
+		return mutationEngine.getMutations(EVALUATIONS_MUTATION_SCOPE)
 			.firstOrNull { mutation ->
 				val command = mutation.command
 				command is EvaluationMutation.Add && command.referenceId == referenceId

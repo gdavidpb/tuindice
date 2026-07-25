@@ -87,9 +87,9 @@ class SessionRecoveryDataSource(
 
 	override suspend fun invalidateSession(sessionId: String?) {
 		sessionCoroutineScope.cancelActiveWork()
+		runCatching { applicationRepository.clearData() }
 		runCatching { sessionRepository.clear() }
 		runCatching { syncStatusRepository.reset() }
-		runCatching { applicationRepository.clearData() }
 		runCatching { sessionInvalidationRepository.notifySessionInvalidated(sessionId = sessionId) }
 	}
 

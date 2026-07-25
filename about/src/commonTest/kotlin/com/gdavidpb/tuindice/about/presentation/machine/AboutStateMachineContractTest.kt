@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import kotlin.test.Test
@@ -31,6 +32,12 @@ class AboutStateMachineContractTest {
 		val machine = createViewModel().machine
 
 		assertMachineCoversAlphabet(
+			machine,
+			About.Action::class,
+			AboutInternalEvent::class
+		)
+
+		assertMachineHasNoShadowedRows(
 			machine,
 			About.Action::class,
 			AboutInternalEvent::class

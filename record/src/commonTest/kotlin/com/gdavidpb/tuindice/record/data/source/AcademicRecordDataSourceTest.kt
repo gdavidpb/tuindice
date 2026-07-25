@@ -11,11 +11,12 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
+import com.gdavidpb.tuindice.persistence.domain.mutation.DEFAULT_FAILED_RETRY_BACKOFF_MILLIS
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
+import com.gdavidpb.tuindice.persistence.domain.record.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
-import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
 import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository
@@ -25,14 +26,18 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class AcademicRecordDataSourceTest {
 	@Test
 	fun updateAcademicRecord_ignoresCooldown_whenLocalRecordIsMissing() = runTest {
@@ -205,12 +210,21 @@ class AcademicRecordDataSourceTest {
 			identifierRepository = FakeIdentifierRepository()
 		)
 
+		val visibleGrades = mutableListOf<Int?>()
+		val collectorJob = launch {
+			dataSource.observeAcademicRecordFlow().collect { record ->
+				visibleGrades += record.attemptOverrides
+					.firstOrNull { override -> override.attemptId == secondAttemptId }
+					?.score
+					?.numericValue
+			}
+		}
+
 		val firstUpsertJob = async {
 			dataSource.upsertAttemptOverride(
 				attemptId = firstAttemptId,
 				score = AttemptScore.numeric(4),
-				outcome = null,
-				commit = true
+				outcome = null
 			)
 		}
 		remoteDataSource.firstUpsertStarted.await()
@@ -219,8 +233,7 @@ class AcademicRecordDataSourceTest {
 			dataSource.upsertAttemptOverride(
 				attemptId = secondAttemptId,
 				score = AttemptScore.numeric(5),
-				outcome = null,
-				commit = true
+				outcome = null
 			)
 		}
 
@@ -229,10 +242,12 @@ class AcademicRecordDataSourceTest {
 		firstUpsertJob.await()
 		secondUpsertJob.await()
 
-		assertEquals(
-			listOf(null, null, 5, 5, 5),
-			localDataSource.overrideGradeTimeline(secondAttemptId)
-		)
+		advanceUntilIdle()
+		collectorJob.cancel()
+
+		// El ack anterior no puede retroceder el override mas nuevo: el estado visible
+		// se deriva del outbox, donde solo queda la ultima mutacion por replaceKey.
+		assertEquals(listOf(5), visibleGrades.filterNotNull().distinct())
 		assertEquals(
 			listOf(
 				AttemptOverride(
@@ -246,7 +261,7 @@ class AcademicRecordDataSourceTest {
 					updatedAtMillis = 3L
 				)
 			),
-			requireNotNull(localDataSource.getAcademicRecord()).attemptOverrides
+			requireNotNull(dataSource.getAcademicRecord()).attemptOverrides
 		)
 	}
 
@@ -317,12 +332,21 @@ class AcademicRecordDataSourceTest {
 			identifierRepository = FakeIdentifierRepository()
 		)
 
+		val visibleGrades = mutableListOf<Int?>()
+		val collectorJob = launch {
+			dataSource.observeAcademicRecordFlow().collect { record ->
+				visibleGrades += record.attemptOverrides
+					.firstOrNull { override -> override.attemptId == attemptId }
+					?.score
+					?.numericValue
+			}
+		}
+
 		val firstUpsertJob = async {
 			dataSource.upsertAttemptOverride(
 				attemptId = attemptId,
 				score = AttemptScore.numeric(4),
-				outcome = null,
-				commit = true
+				outcome = null
 			)
 		}
 		remoteDataSource.firstUpsertStarted.await()
@@ -331,8 +355,7 @@ class AcademicRecordDataSourceTest {
 			dataSource.upsertAttemptOverride(
 				attemptId = attemptId,
 				score = AttemptScore.numeric(5),
-				outcome = null,
-				commit = true
+				outcome = null
 			)
 		}
 
@@ -343,7 +366,10 @@ class AcademicRecordDataSourceTest {
 
 		assertEquals(listOf("mutation-1", "mutation-2", "mutation-2"), remoteDataSource.upsertAttemptMutationIds)
 		assertEquals(listOf(2L, 2L, 3L), remoteDataSource.upsertAttemptExpectedRevisions)
-		assertEquals(listOf(4, 5, 5, 5), localDataSource.overrideGradeTimeline(attemptId).filterNotNull())
+		advanceUntilIdle()
+		collectorJob.cancel()
+
+		assertEquals(listOf(4, 5), visibleGrades.filterNotNull().distinct())
 		assertEquals(
 			listOf(
 				AttemptOverride(
@@ -352,7 +378,7 @@ class AcademicRecordDataSourceTest {
 					updatedAtMillis = 3L
 				)
 			),
-			requireNotNull(localDataSource.getAcademicRecord()).attemptOverrides
+			requireNotNull(dataSource.getAcademicRecord()).attemptOverrides
 		)
 	}
 
@@ -425,8 +451,7 @@ class AcademicRecordDataSourceTest {
 			dataSource.upsertAttemptOverride(
 				attemptId = attemptId,
 				score = AttemptScore.numeric(5),
-				outcome = null,
-				commit = true
+				outcome = null
 			)
 		}
 
@@ -450,7 +475,7 @@ class AcademicRecordDataSourceTest {
 					updatedAtMillis = 2L
 				)
 			),
-			requireNotNull(localDataSource.getAcademicRecord()).attemptOverrides
+			requireNotNull(dataSource.getAcademicRecord()).attemptOverrides
 		)
 	}
 
@@ -559,7 +584,7 @@ class AcademicRecordDataSourceTest {
 		assertEquals(listOf("MA1111"), remoteDataSource.updateSyntheticTermCommands.single().attempts.map { attempt ->
 			attempt.subjectCode
 		})
-		assertEquals(updatedRecord, requireNotNull(localDataSource.getAcademicRecord()))
+		assertEquals(updatedRecord, requireNotNull(dataSource.getAcademicRecord()))
 	}
 
 	@Test
@@ -622,7 +647,7 @@ class AcademicRecordDataSourceTest {
 		assertEquals(listOf("2026-SEP_DEC"), remoteDataSource.deleteSyntheticTermIds)
 		assertEquals(listOf("mutation-1"), remoteDataSource.deleteSyntheticTermMutationIds)
 		assertEquals(listOf(12L), remoteDataSource.deleteSyntheticTermExpectedRevisions)
-		assertEquals(updatedRecord, requireNotNull(localDataSource.getAcademicRecord()))
+		assertEquals(updatedRecord, requireNotNull(dataSource.getAcademicRecord()))
 	}
 
 	@Test
@@ -662,26 +687,31 @@ class AcademicRecordDataSourceTest {
 		dataSource.deleteSyntheticTerm("2026-APR_JUL")
 
 		assertEquals(0, remoteDataSource.deleteSyntheticTermCalls)
-		assertEquals(initialRecord, requireNotNull(localDataSource.getAcademicRecord()))
+		assertEquals(initialRecord, requireNotNull(dataSource.getAcademicRecord()))
 	}
 }
 
-private fun defaultVersionedRecord(
+internal const val DEFAULT_CONFIRMED_LANDING_LAG_MILLIS = 50L
+
+internal fun defaultVersionedRecord(
 	revision: Long = 1L
 ) = VersionedAcademicRecord(
 	revision = revision,
 	record = AcademicRecord(id = "record-1")
 )
 
-private fun createMutationEngine(
-	coroutineScope: CoroutineScope
-) = StoreBackedMutationEngine<String, AcademicRecordMutation, AcademicRecord, AcademicRecord, VersionedAcademicRecord>(
+internal fun createMutationEngine(
+	coroutineScope: CoroutineScope,
+	outboxStore: MutationEnvelopeStore<String, AcademicRecordMutation> = InMemoryMutationEnvelopeStore(),
+	failedRetryBackoffMillis: Long = DEFAULT_FAILED_RETRY_BACKOFF_MILLIS
+) = StoreBackedMutationEngine<String, AcademicRecordMutation, VersionedAcademicRecord>(
 	storeId = "record-test",
-	outboxStore = InMemoryMutationEnvelopeStore(),
-	coroutineScope = coroutineScope
+	outboxStore = outboxStore,
+	coroutineScope = coroutineScope,
+	failedRetryBackoffMillis = failedRetryBackoffMillis
 )
 
-private class FakeAcademicRecordLocalDataRepository(
+internal class FakeAcademicRecordLocalDataRepository(
 	record: VersionedAcademicRecord?,
 	private val hasSyncedRecord: Boolean = true
 ) : AcademicRecordLocalDataRepository {
@@ -709,105 +739,6 @@ private class FakeAcademicRecordLocalDataRepository(
 		savedRecords += record
 	}
 
-	override suspend fun upsertAttemptOverride(
-		attemptId: String,
-		score: AttemptScore?,
-		outcome: AttemptOutcome?,
-		committed: Boolean
-	): AcademicRecord {
-		val current = requireNotNull(recordState.value)
-		val updated = current.copy(
-			attemptOverrides = current.attemptOverrides
-				.filterNot { override -> override.attemptId == attemptId } +
-				AttemptOverride(
-					attemptId = attemptId,
-					score = score,
-					outcome = outcome,
-					updatedAtMillis = 10L
-				)
-		)
-		recordState.value = updated
-		stateHistory += updated
-		return updated
-	}
-
-	override suspend fun deleteAttemptOverride(attemptId: String): AcademicRecord {
-		val current = requireNotNull(recordState.value)
-		val updated = current.copy(
-			attemptOverrides = current.attemptOverrides.filterNot { override ->
-				override.attemptId == attemptId
-			}
-		)
-		recordState.value = updated
-		stateHistory += updated
-		return updated
-	}
-
-	override suspend fun addSyntheticTerm(command: AcademicRecordMutation.AddSyntheticTerm): AcademicRecord {
-		val current = requireNotNull(recordState.value)
-		val updated = current.copy(
-			terms = current.terms.filterNot { term -> term.id == command.termId } + AcademicTerm(
-				id = command.termId,
-				periodYear = command.periodYear,
-				periodCode = command.periodCode,
-				kind = TermKind.SYNTHETIC,
-				attempts = command.attempts.map { attempt ->
-					AcademicAttempt(
-						id = attempt.attemptId,
-						subjectCode = attempt.subjectCode,
-						subjectName = attempt.subjectName,
-						credits = attempt.credits,
-						gradingMode = attempt.gradingMode,
-						academicScore = attempt.score ?: AttemptScore.empty(),
-						academicOutcome = attempt.outcome ?: AttemptOutcome.PENDING
-					)
-				}
-			)
-		)
-		recordState.value = updated
-		stateHistory += updated
-		return updated
-	}
-
-	override suspend fun updateSyntheticTerm(command: AcademicRecordMutation.UpdateSyntheticTerm): AcademicRecord {
-		val current = requireNotNull(recordState.value)
-		val updatedTerms = current.terms.filterNot { term ->
-			term.id == command.targetTermId || term.termKey == command.targetTermKey
-		} + command.toAcademicTerm()
-		val availableAttemptIds = updatedTerms
-			.flatMap(AcademicTerm::attempts)
-			.map(AcademicAttempt::id)
-			.toSet()
-		val updated = current.copy(
-			terms = updatedTerms.sortedWith(compareBy(AcademicTerm::termOrder, AcademicTerm::id)),
-			attemptOverrides = current.attemptOverrides.filter { override ->
-				override.attemptId in availableAttemptIds
-			}
-		)
-		recordState.value = updated
-		stateHistory += updated
-		return updated
-	}
-
-	override suspend fun deleteSyntheticTerm(termId: String): AcademicRecord {
-		val current = requireNotNull(recordState.value)
-		val targetTerm = current.terms.firstOrNull { term -> term.id == termId }
-		val removedAttemptIds = targetTerm
-			?.attempts
-			?.map(AcademicAttempt::id)
-			?.toSet()
-			.orEmpty()
-		val updated = current.copy(
-			terms = current.terms.filterNot { term -> term.id == termId },
-			attemptOverrides = current.attemptOverrides.filterNot { override ->
-				override.attemptId in removedAttemptIds
-			}
-		)
-		recordState.value = updated
-		stateHistory += updated
-		return updated
-	}
-
 	fun overrideGradeTimeline(attemptId: String): List<Int?> {
 		return stateHistory.map { record ->
 			record.attemptOverrides.firstOrNull { override ->
@@ -817,7 +748,17 @@ private class FakeAcademicRecordLocalDataRepository(
 	}
 }
 
-private class ControlledAcademicRecordRemoteDataRepository(
+internal class LaggyAcademicRecordLocalDataRepository(
+	private val delegate: FakeAcademicRecordLocalDataRepository,
+	private val confirmedLandingLagMillis: Long = DEFAULT_CONFIRMED_LANDING_LAG_MILLIS
+) : AcademicRecordLocalDataRepository by delegate {
+	override suspend fun saveAcademicRecord(record: VersionedAcademicRecord) {
+		delay(confirmedLandingLagMillis)
+		delegate.saveAcademicRecord(record)
+	}
+}
+
+internal class ControlledAcademicRecordRemoteDataRepository(
 	private val upsertResponse: VersionedAcademicRecord
 ) : AcademicRecordRemoteDataRepository {
 	val deleteStarted = CompletableDeferred<Unit>()
@@ -904,7 +845,7 @@ private class ControlledAcademicRecordRemoteDataRepository(
 	}
 }
 
-private class RebasingAcademicRecordRemoteDataRepository(
+internal class RebasingAcademicRecordRemoteDataRepository(
 	private val staleResponse: VersionedAcademicRecord,
 	private val latestResponse: VersionedAcademicRecord
 ) : AcademicRecordRemoteDataRepository {
@@ -970,7 +911,7 @@ private class RebasingAcademicRecordRemoteDataRepository(
 	): VersionedAcademicRecord = latestResponse
 }
 
-private class DelayedSequentialUpsertAcademicRecordRemoteDataRepository(
+internal class DelayedSequentialUpsertAcademicRecordRemoteDataRepository(
 	private val firstResponse: VersionedAcademicRecord,
 	private val secondResponse: VersionedAcademicRecord
 ) : AcademicRecordRemoteDataRepository {
@@ -1025,7 +966,7 @@ private class DelayedSequentialUpsertAcademicRecordRemoteDataRepository(
 	): VersionedAcademicRecord = secondResponse
 }
 
-private class FakeRecordSettingsDataRepository(
+internal class FakeRecordSettingsDataRepository(
 	private val onCooldown: Boolean = false
 ) : RecordSettingsDataRepository {
 	var cooldownMarked = false
@@ -1037,7 +978,7 @@ private class FakeRecordSettingsDataRepository(
 	}
 }
 
-private class FakeIdentifierRepository : IdentifierRepository {
+internal class FakeIdentifierRepository : IdentifierRepository {
 	private var nextId = 0
 
 	override fun generateRandomIdentifier(): String {
@@ -1046,7 +987,7 @@ private class FakeIdentifierRepository : IdentifierRepository {
 	}
 }
 
-private class InMemoryMutationEnvelopeStore(
+internal class InMemoryMutationEnvelopeStore(
 	initialMutations: List<MutationEnvelope<String, AcademicRecordMutation>> = emptyList()
 ) : MutationEnvelopeStore<String, AcademicRecordMutation> {
 	private val state = MutableStateFlow(initialMutations)
@@ -1067,6 +1008,40 @@ private class InMemoryMutationEnvelopeStore(
 		return state.value.filter { mutation ->
 			mutation.scopeKey == scopeKey && mutation.status == PendingMutationStatus.Pending
 		}
+	}
+
+	override suspend fun requeueFailedMutations(
+		scopeKey: String,
+		retryableBefore: Long
+	): Int {
+		var requeued = 0
+		state.value = state.value.map { mutation ->
+			if (
+				mutation.scopeKey == scopeKey &&
+				mutation.status == PendingMutationStatus.Failed &&
+				mutation.updatedAt <= retryableBefore
+			) {
+				requeued += 1
+				mutation.copy(status = PendingMutationStatus.Pending, lastError = null)
+			} else {
+				mutation
+			}
+		}
+		return requeued
+	}
+
+	override fun observeMutations(
+		scopeKey: String
+	): Flow<List<MutationEnvelope<String, AcademicRecordMutation>>> {
+		return state.map { mutations ->
+			mutations.filter { mutation -> mutation.scopeKey == scopeKey }
+		}
+	}
+
+	override suspend fun getMutations(
+		scopeKey: String
+	): List<MutationEnvelope<String, AcademicRecordMutation>> {
+		return state.value.filter { mutation -> mutation.scopeKey == scopeKey }
 	}
 
 	override suspend fun getPendingMutation(

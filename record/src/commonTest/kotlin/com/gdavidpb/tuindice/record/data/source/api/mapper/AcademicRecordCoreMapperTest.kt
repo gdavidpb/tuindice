@@ -11,7 +11,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
-import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
+import com.gdavidpb.tuindice.persistence.domain.record.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.source.api.response.AcademicRecordResponse
 import com.gdavidpb.tuindice.record.data.source.api.response.SyntheticTermLoadPreviewResponse
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadBand

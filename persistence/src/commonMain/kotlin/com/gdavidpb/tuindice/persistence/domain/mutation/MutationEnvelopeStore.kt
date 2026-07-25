@@ -12,6 +12,14 @@ interface MutationEnvelopeStore<ScopeKey, Command : OutboxMutation> {
 		scopeKey: ScopeKey
 	): List<MutationEnvelope<ScopeKey, Command>>
 
+	fun observeMutations(
+		scopeKey: ScopeKey
+	): Flow<List<MutationEnvelope<ScopeKey, Command>>>
+
+	suspend fun getMutations(
+		scopeKey: ScopeKey
+	): List<MutationEnvelope<ScopeKey, Command>>
+
 	suspend fun getPendingMutation(
 		scopeKey: ScopeKey,
 		mutationId: String
@@ -29,4 +37,9 @@ interface MutationEnvelopeStore<ScopeKey, Command : OutboxMutation> {
 		scopeKey: ScopeKey,
 		mutationId: String
 	)
+
+	suspend fun requeueFailedMutations(
+		scopeKey: ScopeKey,
+		retryableBefore: Long
+	): Int
 }

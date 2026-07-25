@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.persistence.domain.mutation
 
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 
-interface MutationSyncSpec<ScopeKey, Command : OutboxMutation, ConfirmedState, VisibleState, Ack> {
+interface MutationSyncSpec<ScopeKey, Command : OutboxMutation, Ack> {
 	val maxRebaseAttempts: Int
 		get() = 0
 

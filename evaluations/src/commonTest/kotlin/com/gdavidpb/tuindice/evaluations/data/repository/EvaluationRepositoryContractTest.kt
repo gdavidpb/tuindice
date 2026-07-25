@@ -255,6 +255,145 @@ class EvaluationRepositoryContractTest {
 	}
 
 	@Test
+	fun removeEvaluation_cancels_failed_add_without_remote_call() = runTest {
+		val pendingMutationStore = failedAddStore()
+		val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
+		val repository = EvaluationDataSource(
+			databaseDataSource = FakeDatabaseDataSource(),
+			evaluationsApiDataSource = evaluationsApiDataSource,
+			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+			mutationEngine = createEvaluationsMutationEngine(pendingMutationStore),
+			identifierRepository = FakeIdentifierRepository("mutation-2")
+		)
+
+		repository.removeEvaluation(EvaluationRemove(id = "reference-1"))
+
+		assertEquals(0, evaluationsApiDataSource.removeCalls.size)
+		assertTrue(pendingMutationStore.getMutations(EVALUATIONS_MUTATION_SCOPE).isEmpty())
+	}
+
+	@Test
+	fun updateEvaluation_rewrites_failed_add_instead_of_enqueueing_an_update() = runTest {
+		val pendingMutationStore = failedAddStore()
+		val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
+		val repository = EvaluationDataSource(
+			databaseDataSource = FakeDatabaseDataSource(),
+			evaluationsApiDataSource = evaluationsApiDataSource,
+			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+			mutationEngine = createEvaluationsMutationEngine(
+				store = pendingMutationStore,
+				coroutineScope = backgroundScope
+			),
+			identifierRepository = FakeIdentifierRepository("mutation-2")
+		)
+
+		repository.updateEvaluation(
+			EvaluationUpdate(
+				id = "reference-1",
+				scheduleMode = null,
+				grade = 5.0,
+				maxGrade = null,
+				date = null,
+				type = null
+			)
+		)
+
+		val rewritten = pendingMutationStore.getMutations(EVALUATIONS_MUTATION_SCOPE).single()
+		val command = rewritten.command
+		assertTrue(command is EvaluationMutation.Add)
+		assertEquals("reference-1", command.referenceId)
+		assertEquals(5.0, command.grade)
+		assertEquals(PendingMutationStatus.Pending, rewritten.status)
+	}
+
+	@Test
+	fun addEvaluation_reusesAnEquivalentQueuedAdd_insteadOfMintingASecondReference() = runTest {
+		val pendingMutationStore = failedAddStore()
+		val repository = EvaluationDataSource(
+			databaseDataSource = FakeDatabaseDataSource(),
+			evaluationsApiDataSource = FakeEvaluationsApiDataSource(),
+			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+			mutationEngine = createEvaluationsMutationEngine(
+				store = pendingMutationStore,
+				coroutineScope = backgroundScope
+			),
+			identifierRepository = FakeIdentifierRepository("mutation-2")
+		)
+
+		repository.addEvaluation(equivalentAdd(reference = "reference-2"))
+
+		val envelope = pendingMutationStore.getMutations(EVALUATIONS_MUTATION_SCOPE).single()
+		val command = envelope.command
+		assertTrue(command is EvaluationMutation.Add)
+		assertEquals("reference-1", command.referenceId)
+		assertEquals(PendingMutationStatus.Pending, envelope.status)
+	}
+
+	@Test
+	fun addEvaluation_keepsADistinctAdd_whenAnyFieldDiffers() = runTest {
+		val pendingMutationStore = failedAddStore()
+		val repository = EvaluationDataSource(
+			databaseDataSource = FakeDatabaseDataSource(),
+			evaluationsApiDataSource = FakeEvaluationsApiDataSource(),
+			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+			mutationEngine = createEvaluationsMutationEngine(
+				store = pendingMutationStore,
+				coroutineScope = backgroundScope
+			),
+			identifierRepository = FakeIdentifierRepository("mutation-2")
+		)
+
+		repository.addEvaluation(
+			equivalentAdd(reference = "reference-2").copy(date = 1_900_000_001_000L)
+		)
+
+		val references = pendingMutationStore.getMutations(EVALUATIONS_MUTATION_SCOPE)
+			.map(MutationEnvelope<String, EvaluationMutation>::command)
+			.filterIsInstance<EvaluationMutation.Add>()
+			.map(EvaluationMutation.Add::referenceId)
+		assertEquals(listOf("reference-1", "reference-2"), references.sorted())
+	}
+
+	private fun equivalentAdd(reference: String) = EvaluationAdd(
+		reference = reference,
+		attemptId = DEFAULT_EVALUATION_SUBJECT.id,
+		subjectCode = DEFAULT_EVALUATION_SUBJECT.code,
+		termId = DEFAULT_EVALUATION_SUBJECT.termId,
+		type = EvaluationType.QUIZ,
+		scheduleMode = EvaluationScheduleMode.DATED,
+		date = 1_900_000_000_000L,
+		grade = null,
+		maxGrade = 100.0
+	)
+
+	private fun failedAddStore(): FakeMutationEnvelopeStore<String, EvaluationMutation> {
+		return FakeMutationEnvelopeStore(
+			initialPendingMutations = listOf(
+				MutationEnvelope(
+					mutationId = "mutation-1",
+					scopeKey = EVALUATIONS_MUTATION_SCOPE,
+					command = EvaluationMutation.Add(
+						referenceId = "reference-1",
+						attemptId = DEFAULT_EVALUATION_SUBJECT.id,
+						subjectCode = DEFAULT_EVALUATION_SUBJECT.code,
+						termId = DEFAULT_EVALUATION_SUBJECT.termId,
+						scheduleMode = EvaluationScheduleMode.DATED,
+						grade = null,
+						maxGrade = 100.0,
+						date = 1_900_000_000_000L,
+						type = EvaluationType.QUIZ.ordinal
+					),
+					precondition = MutationPrecondition.None,
+					status = PendingMutationStatus.Failed,
+					createdAt = currentTimeMillis(),
+					updatedAt = currentTimeMillis(),
+					lastError = "terminal"
+				)
+			)
+		)
+	}
+
+	@Test
 	fun updateEvaluation_enqueues_pending_update_locally_before_remote_ack() = runTest {
 		val evaluationsApiDataSource = FakeEvaluationsApiDataSource()
 		val pendingMutationStore = FakeMutationEnvelopeStore<String, EvaluationMutation>()

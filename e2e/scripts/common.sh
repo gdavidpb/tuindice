@@ -1151,6 +1151,9 @@ reset_wiremock() {
 	curl --fail --silent --output /dev/null \
 		--header "Authorization: Bearer e2e-harness-reset" \
 		--request POST "${E2E_WIREMOCK_URL}/evaluations/v3/reset"
+	curl --fail --silent --output /dev/null \
+		--header "Authorization: Bearer e2e-harness-reset" \
+		--request POST "${E2E_WIREMOCK_URL}/record/v5/reset"
 }
 
 wiremock_pid_file() {

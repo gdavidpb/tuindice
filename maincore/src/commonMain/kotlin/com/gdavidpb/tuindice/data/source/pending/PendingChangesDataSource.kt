@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.data.source.pending
 import com.gdavidpb.tuindice.base.domain.model.FlushPendingChangesResult
 import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
@@ -10,8 +11,8 @@ import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOP
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
-import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_SCOPE
-import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_STORE_ID
+import com.gdavidpb.tuindice.persistence.domain.record.RECORD_MUTATION_SCOPE
+import com.gdavidpb.tuindice.persistence.domain.record.RECORD_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 
 class PendingChangesDataSource(
@@ -35,7 +36,10 @@ class PendingChangesDataSource(
 			totalCount = allMutations.size,
 			recordCount = recordMutations.size,
 			evaluationsCount = evaluationMutations.size,
-			hasFailedMutations = allMutations.any { mutation -> mutation.status == "Failed" }
+			hasFailedMutations = allMutations.any { mutation ->
+				mutation.status == PendingMutationStatus.Failed.name ||
+					mutation.status == PendingMutationStatus.FailedTerminal.name
+			}
 		)
 	}
 
@@ -82,10 +86,14 @@ class PendingChangesDataSource(
 		storeId: String,
 		scopeKey: String
 	) {
-		pendingMutationDao.retryFailedMutations(
-			storeId = storeId,
-			scopeKey = scopeKey,
-			updatedAt = currentTimeMillis()
-		)
+		listOf(PendingMutationStatus.Failed, PendingMutationStatus.FailedTerminal).forEach { requeueFrom ->
+			pendingMutationDao.requeueMutations(
+				storeId = storeId,
+				scopeKey = scopeKey,
+				requeueFrom = requeueFrom.name,
+				retryableBefore = Long.MAX_VALUE,
+				updatedAt = currentTimeMillis()
+			)
+		}
 	}
 }

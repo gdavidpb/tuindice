@@ -19,8 +19,8 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsRefreshResult
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.PendingMutationEntity
-import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_SCOPE
-import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_STORE_ID
+import com.gdavidpb.tuindice.persistence.domain.record.RECORD_MUTATION_SCOPE
+import com.gdavidpb.tuindice.persistence.domain.record.RECORD_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
@@ -120,9 +120,11 @@ class PendingChangesDataSourceContractTest {
 		assertEquals(FlushPendingChangesResult.Success, actual)
 		assertEquals(
 			listOf(
-				"retry:$RECORD_MUTATION_SCOPE",
+				"retry:Failed:$RECORD_MUTATION_SCOPE",
+				"retry:FailedTerminal:$RECORD_MUTATION_SCOPE",
 				"drain:$RECORD_MUTATION_SCOPE",
-				"retry:$EVALUATIONS_MUTATION_SCOPE",
+				"retry:Failed:$EVALUATIONS_MUTATION_SCOPE",
+				"retry:FailedTerminal:$EVALUATIONS_MUTATION_SCOPE",
 				"drain:$EVALUATIONS_MUTATION_SCOPE"
 			),
 			operations
@@ -174,6 +176,14 @@ private class FakePendingMutationDao(
 		}
 	}
 
+	override fun observeMutations(storeId: String, scopeKey: String): Flow<List<PendingMutationEntity>> {
+		return flowOf(
+			mutations.filter { mutation ->
+				mutation.storeId == storeId && mutation.scopeKey == scopeKey
+			}
+		)
+	}
+
 	override suspend fun getMutations(storeId: String, scopeKey: String): List<PendingMutationEntity> {
 		return mutations.filter { mutation ->
 			mutation.storeId == storeId && mutation.scopeKey == scopeKey
@@ -217,30 +227,33 @@ private class FakePendingMutationDao(
 		return sizeBefore - mutations.size
 	}
 
-	override suspend fun retryFailedMutations(
+	override suspend fun requeueMutations(
 		storeId: String,
 		scopeKey: String,
-		status: String,
+		requeueFrom: String,
+		retryableBefore: Long,
 		updatedAt: Long
 	): Int {
-		operations += "retry:$scopeKey"
-		var retried = 0
-		for (index in mutations.indices) {
-			val mutation = mutations[index]
-			if (
-				mutation.storeId == storeId &&
-				mutation.scopeKey == scopeKey &&
-				mutation.status == PendingMutationStatus.Failed.name
-			) {
-				retried++
-				mutations[index] = mutation.copy(
-					status = status,
-					updatedAt = updatedAt,
-					lastError = null
-				)
-			}
+		operations += "retry:$requeueFrom:$scopeKey"
+
+		val requeueable = mutations.withIndex().filter { (_, mutation) ->
+			mutation.isRequeueable(
+				storeId = storeId,
+				scopeKey = scopeKey,
+				requeueFrom = requeueFrom,
+				retryableBefore = retryableBefore
+			)
 		}
-		return retried
+
+		requeueable.forEach { (index, mutation) ->
+			mutations[index] = mutation.copy(
+				status = PendingMutationStatus.Pending.name,
+				lastError = null,
+				updatedAt = updatedAt
+			)
+		}
+
+		return requeueable.size
 	}
 
 	override suspend fun deleteAll(): Int {
@@ -274,8 +287,7 @@ private class FakeAcademicRecordRepository(
 	override suspend fun upsertAttemptOverride(
 		attemptId: String,
 		score: AttemptScore?,
-		outcome: AttemptOutcome?,
-		commit: Boolean
+		outcome: AttemptOutcome?
 	) = Unit
 
 	override suspend fun deleteAttemptOverride(attemptId: String) = Unit
@@ -342,3 +354,13 @@ private fun pendingMutation(
 		lastError = if (status == PendingMutationStatus.Failed) "boom" else null
 	)
 }
+
+private fun PendingMutationEntity.isRequeueable(
+	storeId: String,
+	scopeKey: String,
+	requeueFrom: String,
+	retryableBefore: Long
+): Boolean = this.storeId == storeId &&
+	this.scopeKey == scopeKey &&
+	status == requeueFrom &&
+	updatedAt <= retryableBefore

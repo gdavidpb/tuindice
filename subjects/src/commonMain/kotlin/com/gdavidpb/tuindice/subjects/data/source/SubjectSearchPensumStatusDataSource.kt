@@ -3,15 +3,10 @@ package com.gdavidpb.tuindice.subjects.data.source
 import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicPensumStatusEngine
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumGraph
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumNodeStatus
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumSnapshot
-import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
-import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
-import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptDao
-import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
+import com.gdavidpb.tuindice.academiccore.domain.model.toAcademicPensumSnapshot
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumSelectionDao
-import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptEntity
-import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
+import com.gdavidpb.tuindice.persistence.domain.repository.VisibleAcademicRecordRepository
 import com.gdavidpb.tuindice.subjects.data.model.SubjectSearchPensumCacheResponse
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectSearchPensumStatusDataRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -25,21 +20,19 @@ import kotlinx.serialization.json.Json
 class SubjectSearchPensumStatusDataSource(
 	private val pensumSelectionDao: PensumSelectionDao,
 	private val pensumCacheDao: PensumCacheDao,
-	private val academicTermDao: AcademicTermDao,
-	private val academicAttemptDao: AcademicAttemptDao,
+	private val visibleAcademicRecordRepository: VisibleAcademicRecordRepository,
 	private val json: Json,
 	private val statusEngine: AcademicPensumStatusEngine
 ) : SubjectSearchPensumStatusDataRepository {
 	override fun observeStatusBySubjectCode(): Flow<Map<String, AcademicPensumNodeStatus>> {
 		return combine(
 			observePensum(),
-			academicTermDao.observeTermsFlow(),
-			academicAttemptDao.observeAttemptsFlow()
-		) { pensum, terms, attempts ->
+			visibleAcademicRecordRepository.observeVisibleAcademicRecordFlow()
+		) { pensum, visibleRecord ->
 			val graph = pensum?.toAcademicPensumGraph() ?: return@combine emptyMap()
 			val progress = statusEngine.resolve(
 				pensum = graph,
-				academicSnapshot = terms.toAcademicPensumSnapshot(attempts)
+				academicSnapshot = visibleRecord.toAcademicPensumSnapshot()
 			)
 
 			graph.nodes
@@ -118,29 +111,6 @@ class SubjectSearchPensumStatusDataSource(
 			fromNodeId = fromNodeId,
 			toNodeId = toNodeId,
 			relationshipType = type
-		)
-	}
-
-	private fun List<AcademicTermEntity>.toAcademicPensumSnapshot(
-		attempts: List<AcademicAttemptEntity>
-	): AcademicPensumSnapshot {
-		val termsById = associateBy(AcademicTermEntity::id)
-		return AcademicPensumSnapshot(
-			attempts = attempts.mapNotNull { attempt ->
-				val term = termsById[attempt.termId] ?: return@mapNotNull null
-				AcademicPensumSnapshot.Attempt(
-					id = attempt.id,
-					subjectCode = attempt.subjectCode,
-					subjectName = attempt.subjectName,
-					credits = attempt.credits,
-					termOrder = term.termOrder,
-					positionInTerm = attempt.positionInTerm,
-					termKind = runCatching { TermKind.valueOf(term.kind) }.getOrNull()
-						?: return@mapNotNull null,
-					outcome = runCatching { AttemptOutcome.valueOf(attempt.academicOutcome) }.getOrNull()
-						?: return@mapNotNull null
-				)
-			}
 		)
 	}
 

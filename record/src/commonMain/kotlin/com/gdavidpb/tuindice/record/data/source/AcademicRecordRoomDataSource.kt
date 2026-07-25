@@ -1,12 +1,6 @@
 package com.gdavidpb.tuindice.record.data.source
 
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
-import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
-import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
-import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
-import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptDao
@@ -16,9 +10,14 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicRecordSyncStateD
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicRecordEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicRecordSyncStateEntity
+import com.gdavidpb.tuindice.persistence.data.room.mapper.revisionValue
+import com.gdavidpb.tuindice.persistence.data.room.mapper.toAcademicAttemptEntity
+import com.gdavidpb.tuindice.persistence.data.room.mapper.toAcademicAttemptOverrideEntity
+import com.gdavidpb.tuindice.persistence.data.room.mapper.toAcademicTermEntity
+import com.gdavidpb.tuindice.persistence.data.room.mapper.toAcademicTerms
+import com.gdavidpb.tuindice.persistence.data.room.mapper.toAttemptOverride
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
-import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
@@ -86,124 +85,6 @@ class AcademicRecordRoomDataSource(
 		}
 	}
 
-	override suspend fun upsertAttemptOverride(
-		attemptId: String,
-		score: AttemptScore?,
-		outcome: AttemptOutcome?,
-		committed: Boolean
-	): AcademicRecord? {
-		return writeMutex.withLock {
-			val current = getAcademicRecord() ?: return@withLock null
-			val updated = current.copy(
-				attemptOverrides = current.attemptOverrides
-					.filterNot { override -> override.attemptId == attemptId } +
-					AttemptOverride(
-						attemptId = attemptId,
-						score = score,
-						outcome = outcome,
-						updatedAtMillis = currentTimeMillis()
-					)
-			)
-			persistVersionedRecord(
-				VersionedAcademicRecord(
-					revision = getRecordRevision() ?: 0L,
-					record = updated
-				)
-			)
-			updated
-		}
-	}
-
-	override suspend fun deleteAttemptOverride(attemptId: String): AcademicRecord? {
-		return writeMutex.withLock {
-			val current = getAcademicRecord() ?: return@withLock null
-			val updated = current.copy(
-				attemptOverrides = current.attemptOverrides.filterNot { override ->
-					override.attemptId == attemptId
-				}
-			)
-			persistVersionedRecord(
-				VersionedAcademicRecord(
-					revision = getRecordRevision() ?: 0L,
-					record = updated
-				)
-			)
-			updated
-		}
-	}
-
-	override suspend fun addSyntheticTerm(command: AcademicRecordMutation.AddSyntheticTerm): AcademicRecord? {
-		return writeMutex.withLock {
-			val current = getAcademicRecord() ?: return@withLock null
-			val updated = current.copy(
-				terms = normalizeTerms(
-					current.terms.filterNot { term -> term.id == command.termId } + command.toAcademicTerm()
-				)
-			)
-			persistVersionedRecord(
-				VersionedAcademicRecord(
-					revision = getRecordRevision() ?: 0L,
-					record = updated
-				)
-			)
-			updated
-		}
-	}
-
-	override suspend fun updateSyntheticTerm(command: AcademicRecordMutation.UpdateSyntheticTerm): AcademicRecord? {
-		return writeMutex.withLock {
-			val current = getAcademicRecord() ?: return@withLock null
-			val targetTerm = current.terms.firstOrNull { term ->
-				(term.id == command.targetTermId || term.termKey == command.targetTermKey) && term.kind.isSynthetic
-			} ?: return@withLock current
-			val updatedTerms = normalizeTerms(
-				current.terms.filterNot { term ->
-					term.id == targetTerm.id || term.termKey == targetTerm.termKey
-				} + command.toAcademicTerm()
-			)
-			val availableAttemptIds = updatedTerms
-				.flatMap(AcademicTerm::attempts)
-				.map(AcademicAttempt::id)
-				.toSet()
-			val updated = current.copy(
-				terms = updatedTerms,
-				attemptOverrides = current.attemptOverrides.filter { override ->
-					override.attemptId in availableAttemptIds
-				}
-			)
-			persistVersionedRecord(
-				VersionedAcademicRecord(
-					revision = getRecordRevision() ?: 0L,
-					record = updated
-				)
-			)
-			updated
-		}
-	}
-
-	override suspend fun deleteSyntheticTerm(termId: String): AcademicRecord? {
-		return writeMutex.withLock {
-			val current = getAcademicRecord() ?: return@withLock null
-			val targetTerm = current.terms.firstOrNull { term ->
-				term.id == termId && term.kind.isSynthetic
-			} ?: return@withLock current
-			val removedAttemptIds = targetTerm.attempts.map(AcademicAttempt::id).toSet()
-			val updated = current.copy(
-				terms = current.terms.filterNot { term -> term.id == termId },
-				attemptOverrides = current.attemptOverrides.filterNot { override ->
-					override.attemptId in removedAttemptIds
-				}
-			)
-			persistVersionedRecord(
-				VersionedAcademicRecord(
-					revision = getRecordRevision() ?: 0L,
-					record = updated
-				)
-			)
-			updated
-		}
-	}
-
 	private suspend fun persistVersionedRecord(record: VersionedAcademicRecord) {
 		transactionRunner.immediate {
 			academicAttemptOverrideDao.deleteAll()
@@ -237,11 +118,5 @@ class AcademicRecordRoomDataSource(
 				})
 			}
 		}
-	}
-
-	private fun normalizeTerms(terms: List<AcademicTerm>): List<AcademicTerm> {
-		return terms.sortedWith(
-			compareBy(AcademicTerm::termOrder, AcademicTerm::id)
-		)
 	}
 }

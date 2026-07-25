@@ -20,5 +20,8 @@ interface SettingsRepository {
 	suspend fun setSessionResetNoticePending()
 	suspend fun consumeSessionResetNoticePending(): Boolean
 
+	suspend fun getLocalDataOwner(): String?
+	suspend fun setLocalDataOwner(usbId: String)
+
 	suspend fun clear()
 }

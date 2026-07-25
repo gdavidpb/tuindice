@@ -37,6 +37,7 @@ import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
+import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
@@ -250,7 +251,6 @@ class TuIndiceAppHostRouteUiTest {
 						}
 					}
 					single<SessionRepository> { sessionRepository }
-					single<ApplicationRepository> { RecordingApplicationRepository() }
 					single<MessagingRepository> {
 						object : MessagingRepository {
 							override suspend fun subscribe() = Unit
@@ -498,7 +498,6 @@ class TuIndiceAppHostRouteUiTest {
 						}
 					}
 					single<SessionRepository> { FakeSessionRepository() }
-					single<ApplicationRepository> { RecordingApplicationRepository() }
 					single<MessagingRepository> {
 						object : MessagingRepository {
 							override suspend fun subscribe() = Unit
@@ -1002,6 +1001,8 @@ class TuIndiceAppHostRouteUiTest {
 		single<EventPublisher> { NoOpEventPublisher }
 		single<OutdatedAppEventRepository> { OutdatedAppEventDataSource() }
 		single<PendingChangesRepository> { FakePendingChangesRepository() }
+		single<ApplicationRepository> { RecordingApplicationRepository() }
+		single<SettingsRepository> { FakeSettingsRepository() }
 		single<SessionInvalidationRepository> { sessionInvalidationRepository }
 		single<SyncRepository> { FakeSyncRepository() }
 		single<SyncStatusRepository> { syncStatusRepository }

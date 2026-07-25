@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.enrollmentproof.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.enrollmentproof.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
 import kotlin.test.Test
@@ -27,6 +28,12 @@ class EnrollmentProofStateMachineContractTest {
 		val machine = createViewModel().machine
 
 		assertMachineCoversAlphabet(
+			machine,
+			Enrollment.Action::class,
+			EnrollmentProofInternalEvent::class
+		)
+
+		assertMachineHasNoShadowedRows(
 			machine,
 			Enrollment.Action::class,
 			EnrollmentProofInternalEvent::class

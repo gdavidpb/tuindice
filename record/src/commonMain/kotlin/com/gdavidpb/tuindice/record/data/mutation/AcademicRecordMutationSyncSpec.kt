@@ -1,8 +1,6 @@
 package com.gdavidpb.tuindice.record.data.mutation
 
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
-import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.base.utils.extension.isPreconditionFailed
@@ -11,18 +9,28 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureKind
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureResolution
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationSyncSpec
+import com.gdavidpb.tuindice.persistence.domain.record.AcademicRecordMutation
+import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
 
 class AcademicRecordMutationSyncSpec(
 	private val remoteDataSource: AcademicRecordRemoteDataRepository,
 	private val persistConfirmedSnapshot: suspend (VersionedAcademicRecord) -> Unit,
 	private val refreshRemoteSnapshot: suspend () -> VersionedAcademicRecord
-) : MutationSyncSpec<String, AcademicRecordMutation, AcademicRecord, AcademicRecord, VersionedAcademicRecord> {
+) : MutationSyncSpec<String, AcademicRecordMutation, VersionedAcademicRecord> {
 	override val maxRebaseAttempts: Int = 1
 
+	// false: confirm() (which persists the confirmed snapshot to localDataSource) must
+	// land BEFORE the outbox row is deleted. With the outbox emptied first, there is a
+	// real window where neither source shows the mutation — confirmed data hasn't
+	// landed yet and the overlay is already gone — and a reactive observer that reads
+	// mid-window (e.g. ObserveRecordUseCase's own "persist resolved selection" side
+	// effect racing Room's async invalidation dispatch) can act on a snapshot that
+	// looks like the mutation never happened. evaluations already made this choice for
+	// the same reason (EvaluationMutationSyncSpec.deletePendingBeforeConfirm).
 	override fun deletePendingBeforeConfirm(
 		mutation: MutationEnvelope<String, AcademicRecordMutation>
-	): Boolean = true
+	): Boolean = false
 
 	override suspend fun send(
 		mutation: MutationEnvelope<String, AcademicRecordMutation>

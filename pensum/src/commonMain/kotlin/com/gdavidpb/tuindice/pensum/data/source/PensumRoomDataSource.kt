@@ -1,29 +1,24 @@
 package com.gdavidpb.tuindice.pensum.data.source
 
-import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
-import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumSnapshot
+import com.gdavidpb.tuindice.academiccore.domain.model.toAcademicPensumSnapshot
 import com.gdavidpb.tuindice.academiccore.domain.utils.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.pensum.data.mapper.cacheKey
 import com.gdavidpb.tuindice.pensum.data.model.GetPensumResponse
 import com.gdavidpb.tuindice.pensum.data.repository.PensumLocalDataRepository
-import com.gdavidpb.tuindice.pensum.domain.model.AcademicPensumSnapshot
 import com.gdavidpb.tuindice.pensum.domain.model.PensumSelectionParams
-import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicAttemptDao
-import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumSelectionDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectCatalogCacheDao
-import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptEntity
-import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.PensumCacheEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.PensumSelectionEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity
 import com.gdavidpb.tuindice.persistence.data.room.schema.PensumSelectionTable
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
+import com.gdavidpb.tuindice.persistence.domain.repository.VisibleAcademicRecordRepository
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
@@ -36,8 +31,7 @@ class PensumRoomDataSource(
 	private val pensumCacheDao: PensumCacheDao,
 	private val pensumSelectionDao: PensumSelectionDao,
 	private val subjectCatalogCacheDao: SubjectCatalogCacheDao,
-	private val academicTermDao: AcademicTermDao,
-	private val academicAttemptDao: AcademicAttemptDao,
+	private val visibleAcademicRecordRepository: VisibleAcademicRecordRepository,
 	private val transactionRunner: PersistenceTransactionRunner,
 	private val json: Json
 ) : PensumLocalDataRepository {
@@ -58,12 +52,9 @@ class PensumRoomDataSource(
 	}
 
 	override fun observeAcademicSnapshotFlow(): Flow<AcademicPensumSnapshot> {
-		return combine(
-			academicTermDao.observeTermsFlow(),
-			academicAttemptDao.observeAttemptsFlow()
-		) { terms, attempts ->
-			terms.toAcademicSnapshot(attempts)
-		}
+		return visibleAcademicRecordRepository
+			.observeVisibleAcademicRecordFlow()
+			.map { visibleRecord -> visibleRecord.toAcademicPensumSnapshot() }
 	}
 
 	override suspend fun hasSelectedPensumResponse(): Boolean {
@@ -198,27 +189,6 @@ class PensumRoomDataSource(
 
 	private fun GetPensumResponse.selectedPensum(): GetPensumResponse.Pensum {
 		return pensum
-	}
-
-	private fun List<AcademicTermEntity>.toAcademicSnapshot(
-		attempts: List<AcademicAttemptEntity>
-	): AcademicPensumSnapshot {
-		val termsById = associateBy(AcademicTermEntity::id)
-		return AcademicPensumSnapshot(
-			attempts = attempts.mapNotNull { attempt ->
-				val term = termsById[attempt.termId] ?: return@mapNotNull null
-				AcademicPensumSnapshot.Attempt(
-					id = attempt.id,
-					subjectCode = attempt.subjectCode,
-					subjectName = attempt.subjectName,
-					credits = attempt.credits,
-					termOrder = term.termOrder,
-					positionInTerm = attempt.positionInTerm,
-					termKind = TermKind.valueOf(term.kind),
-					outcome = AttemptOutcome.valueOf(attempt.academicOutcome)
-				)
-			}
-		)
 	}
 }
 

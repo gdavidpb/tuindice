@@ -1,13 +1,20 @@
-package com.gdavidpb.tuindice.record.data.source
+package com.gdavidpb.tuindice.persistence.data.room.mapper
 
-import com.gdavidpb.tuindice.academiccore.domain.model.*
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptBadge
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicAttemptOverrideEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicRecordEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicTermEntity
-import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
 
-internal fun List<AcademicTermEntity>.toAcademicTerms(
+fun List<AcademicTermEntity>.toAcademicTerms(
 	attempts: List<AcademicAttemptEntity>
 ): List<AcademicTerm> {
 	val attemptsByTermId = attempts.groupBy(AcademicAttemptEntity::termId)
@@ -31,9 +38,9 @@ internal fun List<AcademicTermEntity>.toAcademicTerms(
 	}
 }
 
-internal fun AcademicRecordEntity.revisionValue(): Long = revision
+fun AcademicRecordEntity.revisionValue(): Long = revision
 
-internal fun AcademicTerm.toAcademicTermEntity(): AcademicTermEntity {
+fun AcademicTerm.toAcademicTermEntity(): AcademicTermEntity {
 	return AcademicTermEntity(
 		id = id,
 		periodYear = periodYear,
@@ -45,7 +52,7 @@ internal fun AcademicTerm.toAcademicTermEntity(): AcademicTermEntity {
 	)
 }
 
-internal fun AcademicAttempt.toAcademicAttemptEntity(
+fun AcademicAttempt.toAcademicAttemptEntity(
 	termId: String,
 	positionInTerm: Int
 ): AcademicAttemptEntity {
@@ -65,7 +72,7 @@ internal fun AcademicAttempt.toAcademicAttemptEntity(
 	)
 }
 
-internal fun AttemptOverride.toAcademicAttemptOverrideEntity(): AcademicAttemptOverrideEntity {
+fun AttemptOverride.toAcademicAttemptOverrideEntity(): AcademicAttemptOverrideEntity {
 	return AcademicAttemptOverrideEntity(
 		attemptId = attemptId,
 		scoreKind = score?.storageType,
@@ -76,7 +83,7 @@ internal fun AttemptOverride.toAcademicAttemptOverrideEntity(): AcademicAttemptO
 	)
 }
 
-internal fun AcademicAttemptEntity.toAcademicAttempt(): AcademicAttempt {
+fun AcademicAttemptEntity.toAcademicAttempt(): AcademicAttempt {
 	return AcademicAttempt(
 		id = id,
 		subjectCode = subjectCode,
@@ -93,7 +100,7 @@ internal fun AcademicAttemptEntity.toAcademicAttempt(): AcademicAttempt {
 	)
 }
 
-internal fun AcademicAttemptOverrideEntity.toAttemptOverride(): AttemptOverride {
+fun AcademicAttemptOverrideEntity.toAttemptOverride(): AttemptOverride {
 	return AttemptOverride(
 		attemptId = attemptId,
 		score = scoreKind?.let { kind ->
@@ -105,48 +112,6 @@ internal fun AcademicAttemptOverrideEntity.toAttemptOverride(): AttemptOverride 
 		},
 		outcome = outcome?.let(AttemptOutcome::valueOf),
 		updatedAtMillis = updatedAt
-	)
-}
-
-internal fun AcademicRecordMutation.AddSyntheticTerm.toAcademicTerm(): AcademicTerm {
-	return AcademicTerm(
-		id = termId,
-		periodYear = periodYear,
-		periodCode = periodCode,
-		kind = TermKind.SYNTHETIC,
-		attempts = attempts.map { attempt ->
-			AcademicAttempt(
-				id = attempt.attemptId,
-				subjectCode = attempt.subjectCode,
-				subjectName = attempt.subjectName,
-				credits = attempt.credits,
-				gradingMode = attempt.gradingMode,
-				academicScore = attempt.score ?: AttemptScore.empty(),
-				academicOutcome = attempt.outcome ?: AttemptOutcome.PENDING,
-				academicBadge = AttemptBadge.NONE
-			)
-		}
-	)
-}
-
-internal fun AcademicRecordMutation.UpdateSyntheticTerm.toAcademicTerm(): AcademicTerm {
-	return AcademicTerm(
-		id = termId,
-		periodYear = periodYear,
-		periodCode = periodCode,
-		kind = TermKind.SYNTHETIC,
-		attempts = attempts.map { attempt ->
-			AcademicAttempt(
-				id = attempt.attemptId,
-				subjectCode = attempt.subjectCode,
-				subjectName = attempt.subjectName,
-				credits = attempt.credits,
-				gradingMode = attempt.gradingMode,
-				academicScore = attempt.score ?: AttemptScore.empty(),
-				academicOutcome = attempt.outcome ?: AttemptOutcome.PENDING,
-				academicBadge = AttemptBadge.NONE
-			)
-		}
 	)
 }
 

@@ -434,7 +434,7 @@ class FakeDatabaseDataSource(
 		return evaluation
 	}
 
-	override suspend fun confirmRemovedEvaluation(eid: String) {
+	override suspend fun confirmEvaluationRemoval(eid: String) {
 		removedEvaluations += eid
 		hasSyncedEvaluationsState.value = true
 		snapshotState.value = snapshotState.value.copy(
@@ -443,7 +443,7 @@ class FakeDatabaseDataSource(
 		)
 	}
 
-	override suspend fun removeConfirmedEvaluation(eid: String) {
+	override suspend fun discardLocalEvaluationCopy(eid: String) {
 		removedEvaluations += eid
 		snapshotState.value = snapshotState.value.copy(
 			evaluations = snapshotState.value.evaluations.filterNot { evaluation -> evaluation.id == eid }
@@ -629,6 +629,33 @@ class FakeMutationEnvelopeStore<ScopeKey : Any, T : OutboxMutation>(
 		}
 	}
 
+	override suspend fun requeueFailedMutations(scopeKey: ScopeKey, retryableBefore: Long): Int {
+		var requeued = 0
+		state.value = state.value.map { mutation ->
+			if (
+				mutation.scopeKey == scopeKey &&
+				mutation.status == PendingMutationStatus.Failed &&
+				mutation.updatedAt <= retryableBefore
+			) {
+				requeued += 1
+				mutation.copy(status = PendingMutationStatus.Pending, lastError = null)
+			} else {
+				mutation
+			}
+		}
+		return requeued
+	}
+
+	override fun observeMutations(scopeKey: ScopeKey): Flow<List<MutationEnvelope<ScopeKey, T>>> {
+		return state.map { mutations ->
+			mutations.filter { mutation -> mutation.scopeKey == scopeKey }
+		}
+	}
+
+	override suspend fun getMutations(scopeKey: ScopeKey): List<MutationEnvelope<ScopeKey, T>> {
+		return state.value.filter { mutation -> mutation.scopeKey == scopeKey }
+	}
+
 	override suspend fun getPendingMutation(
 		scopeKey: ScopeKey,
 		mutationId: String
@@ -660,7 +687,7 @@ class FakeMutationEnvelopeStore<ScopeKey : Any, T : OutboxMutation>(
 fun createEvaluationsMutationEngine(
 	store: MutationEnvelopeStore<String, EvaluationMutation> = FakeMutationEnvelopeStore(),
 	coroutineScope: CoroutineScope? = null
-): StoreBackedMutationEngine<String, EvaluationMutation, LocalEvaluationsSnapshot, List<LocalEvaluation>, EvaluationMutationAck> {
+): StoreBackedMutationEngine<String, EvaluationMutation, EvaluationMutationAck> {
 	return StoreBackedMutationEngine(
 		storeId = EVALUATIONS_MUTATION_STORE_ID,
 		outboxStore = store,
