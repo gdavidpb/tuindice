@@ -410,7 +410,20 @@ classify_changed_file() {
 			esac
 			return 0
 			;;
+		testkit/e2e/validate-*.sh|testkit/e2e/*.md)
+			# Validators and docs cannot change what a Maestro flow does at runtime;
+			# verifyE2eContract re-runs them on every preflight regardless. They are
+			# excluded from the fingerprint for the same reason (e2e-fingerprint.sh),
+			# so requiring evidence here forces a full rotation that reuse cannot
+			# satisfy and that could not have changed its outcome anyway.
+			E2E_CONTRACT_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			return 0
+			;;
 		testkit/e2e/*)
+			# Everything else here is data a flow reads at runtime — the quarantine
+			# list decides which flows even execute — so it stays in the fingerprint
+			# and keeps requiring evidence. New files default to this branch.
 			E2E_CONTRACT_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
 			append_e2e_scope all local-certification-suite "e2e-contract"
