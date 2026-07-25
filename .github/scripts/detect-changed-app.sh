@@ -607,6 +607,15 @@ if [[ "$APP_VERSION_NAME_CHANGED" == "true" || "$IOS_BUILD_NUMBER_CHANGED" == "t
 fi
 
 if [[ "$HAS_RELEASE_IMPACT" == "true" || "$APP_VERSION_CHANGED" == "true" ]]; then
+	# Diff-based half of the release version invariant: all three values must
+	# move relative to the PR base. The history-based half lives in
+	# validate-app-version.sh, which rejects a versionName already published as
+	# `app-<versionName>`. They are complementary, not redundant: this one
+	# cannot see release history, and the tag check cannot see a versionName
+	# that was reused without ever having been tagged.
+	if [[ "$APP_VERSION_NAME_CHANGED" != "true" ]]; then
+		append_unique_line "$MISSING_VERSION_BUMP_FILE" versionName
+	fi
 	if [[ "$ANDROID_VERSION_CODE_CHANGED" != "true" ]]; then
 		append_unique_line "$MISSING_VERSION_BUMP_FILE" androidVersionCode
 	fi
@@ -661,7 +670,12 @@ if [[ "$E2E_CONTRACT_TOUCHED" == "true" ]]; then
 	append_unique_line "$ANDROID_TASKS_FILE" "verifyE2eContract"
 fi
 
-if [[ "$CI_CONFIG_TOUCHED" == "true" ]]; then
+# Touching either version source is the only way to desynchronize the generated
+# Version.xcconfig from app-version.properties. A hand edit that leaves every
+# property equal keeps app_version_changed=false, so preflight-production.sh
+# never reaches validate-app-version.sh; scheduling the task here is what makes
+# that diff fail instead of shipping a stale xcconfig.
+if [[ "$CI_CONFIG_TOUCHED" == "true" || "$APP_VERSION_TOUCHED" == "true" ]]; then
 	append_unique_line "$ANDROID_TASKS_FILE" "verifyAppVersionSync"
 fi
 

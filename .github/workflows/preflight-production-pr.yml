@@ -82,6 +82,9 @@ jobs:
           APP_VERSION_CHANGED: ${{ steps.changes.outputs.app_version_changed }}
           HAS_RELEASE_IMPACT: ${{ steps.changes.outputs.has_release_impact }}
           E2E_REUSE_BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          # Unset repo variable resolves to "", so the script keeps its default
+          # trust list (repo owner + github-actions[bot]).
+          E2E_TRUSTED_STATUS_CREATORS: ${{ vars.E2E_TRUSTED_STATUS_CREATORS }}
         run: |
           set -euo pipefail
           bash ./.github/scripts/preflight-production.sh

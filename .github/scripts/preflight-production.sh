@@ -118,7 +118,10 @@ status_creator_is_trusted() {
 	local creator="$1"
 	local trusted
 
-	[[ -n "$creator" ]] || return 0
+	# An unattributed status is not a trusted one. Returning success here made
+	# the trust check fail open exactly when the evidence of who published it
+	# is missing.
+	[[ -n "$creator" ]] || return 1
 
 	while IFS= read -r trusted; do
 		[[ -n "$trusted" ]] || continue
@@ -151,13 +154,6 @@ status_context_success_description_at_sha() {
 	fi
 
 	jq -r '.description // empty' <<<"$payload"
-}
-
-status_context_succeeded_at_sha_quiet() {
-	local sha="$1"
-	local context="$2"
-
-	status_context_success_description_at_sha "$sha" "$context" >/dev/null 2>&1
 }
 
 # Published evidence embeds the first 12 chars of the suite fingerprint in the
@@ -283,12 +279,18 @@ github_pull_request_head_shas() {
 
 	[[ -n "$repository" && -n "$token" ]] || return 0
 
-	curl --fail --silent --show-error --retry 3 \
+	if ! curl --fail --silent --show-error --retry 3 \
 		-H "Accept: application/vnd.github+json" \
 		-H "Authorization: Bearer ${token}" \
 		-H "X-GitHub-Api-Version: 2022-11-28" \
 		"${api_url}/repos/${repository}/commits/${sha}/pulls" 2>/dev/null \
-		| jq -r '.[].head.sha // empty' 2>/dev/null || true
+		| jq -r '.[].head.sha // empty' 2>/dev/null; then
+		# On the deploy path this lookup is the only source of candidates, so a
+		# transient failure here reads as "production is uncertified" and asks
+		# for a recertification that nothing actually requires.
+		warn "Unable to resolve pull request heads for ${sha}; evidence reuse will consider fewer candidates."
+		return 0
+	fi
 }
 
 # GitHub serves arbitrary reachable SHAs on fetch, so certified PR heads can
@@ -309,7 +311,14 @@ e2e_reuse_candidate_commits() {
 		github_pull_request_head_shas "$TARGET_GIT_SHA"
 		if [[ -n "$E2E_REUSE_BASE_SHA" ]] && ! is_zero_sha "$E2E_REUSE_BASE_SHA" &&
 			git merge-base --is-ancestor "$E2E_REUSE_BASE_SHA" "$TARGET_GIT_SHA" 2>/dev/null; then
+			# The base itself counts: `rev-list A ^B` excludes B, which left an
+			# up-to-date PR — the state branch protection requires to merge —
+			# unable to reuse evidence from production, while an out-of-date one
+			# reached it through the unbounded fallback below. Every candidate
+			# still has to match the fingerprint, so including it cannot loosen
+			# what "certified" means.
 			git rev-list "$TARGET_GIT_SHA" "^${E2E_REUSE_BASE_SHA}"
+			printf '%s\n' "$E2E_REUSE_BASE_SHA"
 		else
 			git rev-list --max-count="$E2E_REUSE_MAX_COMMITS" "$TARGET_GIT_SHA"
 		fi
@@ -323,6 +332,7 @@ reuse_successful_status_for_context() {
 	local current_fingerprint
 	local candidate_sha
 	local candidate_fingerprint
+	local candidate_description
 
 	[[ "${E2E_REUSE_STATUS_BY_FINGERPRINT:-1}" == "1" ]] || return 1
 
@@ -332,9 +342,8 @@ reuse_successful_status_for_context() {
 	current_fingerprint="$(e2e_fingerprint "$TARGET_GIT_SHA" "$platform" "$suite")"
 	while IFS= read -r candidate_sha; do
 		[[ -n "$candidate_sha" ]] || continue
-		if ! status_context_succeeded_at_sha_quiet "$candidate_sha" "$context"; then
-			continue
-		fi
+		candidate_description="$(status_context_success_description_at_sha "$candidate_sha" "$context" || true)"
+		[[ -n "$candidate_description" ]] || continue
 
 		if ! ensure_commit_available "$candidate_sha"; then
 			warn "Skipping E2E reuse candidate ${candidate_sha}: commit is not fetchable."
@@ -345,6 +354,17 @@ reuse_successful_status_for_context() {
 		if [[ "$candidate_fingerprint" != "$current_fingerprint" ]]; then
 			continue
 		fi
+
+		# The candidate's own description has to name its fingerprint too. Matching
+		# trees only proves the candidate *could* have been certified; without this
+		# a bare success from a trusted identity is laundered into the target as a
+		# properly fingerprinted status, which is exactly what the direct path
+		# refuses. Widening the candidate set widens where such a status can sit.
+		if ! description_matches_fingerprint "$candidate_description" "$platform" "$suite" "$candidate_sha"; then
+			warn "Skipping E2E reuse candidate ${candidate_sha}: its ${context} status does not name the fingerprint."
+			continue
+		fi
+
 
 		publish_reused_github_commit_status \
 			"$context" \
@@ -431,7 +451,7 @@ else
 fi
 
 if file_has_entries "$MISSING_VERSION_BUMP_FILE"; then
-	die "Runtime app changes or app version changes require both androidVersionCode and iosBuildNumber to change. Bump the missing build number(s) in $(app_version_file) before deploying."
+	die "Runtime or release changes require versionName, androidVersionCode and iosBuildNumber to change. Missing: $(file_to_csv "$MISSING_VERSION_BUMP_FILE"). Bump them in $(app_version_file) before deploying."
 fi
 
 if [[ "${SKIP_E2E_STATUS_CHECK:-0}" != "1" && "$REQUIRES_E2E_CERTIFICATION" == "true" ]]; then

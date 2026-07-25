@@ -110,6 +110,12 @@ if [[ "${url}" == *"/commits/"*"/status" ]]; then
 		printf '{"statuses":[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E record-suite passed for 1234567 fp 000000000000."}]}\n'
 	elif [[ "${mode}" == "untrusted-creator" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
 		printf '{"statuses":[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"intruder"},"description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]}\n'
+	elif [[ "${mode}" == "untrusted-candidate" && "${url}" != *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
+		printf '{"statuses":[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"intruder"},"description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]}\n'
+	elif [[ "${mode}" == "forged-candidate" && "${url}" != *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
+		printf '{"statuses":[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"gdavidpb"},"description":"no fingerprint at all"}]}\n'
+	elif [[ "${mode}" == "anonymous-status" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
+		printf '{"statuses":[{"context":"local-e2e/android/record-suite","state":"success","description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]}\n'
 	else
 		printf '{"statuses":[]}\n'
 	fi
@@ -180,23 +186,36 @@ SH
 				exit 1
 			fi
 			;;
-		forged-status)
+		forged-status|forged-status-reuse)
 			if ! grep -q 'does not match the current fingerprint' "${output_file}"; then
 				printf 'Preflight fixture %s did not reject the forged fingerprint.\n' "${name}" >&2
 				cat "${output_file}" >&2
 				exit 1
 			fi
 			;;
-		untrusted-creator)
+		untrusted-creator|untrusted-creator-reuse)
 			if ! grep -q 'is not trusted' "${output_file}"; then
 				printf 'Preflight fixture %s did not reject the untrusted status creator.\n' "${name}" >&2
 				cat "${output_file}" >&2
 				exit 1
 			fi
 			;;
-		publish-fails|missing-status)
+		publish-fails|missing-status|missing-status-reuse|untrusted-candidate|forged-candidate|anonymous-status)
 			if ! grep -q 'Missing successful E2E status' "${output_file}"; then
 				printf 'Preflight fixture %s did not report missing evidence.\n' "${name}" >&2
+				cat "${output_file}" >&2
+				exit 1
+			fi
+			;;
+	esac
+
+	# Adversarial fixtures run in the production configuration
+	# (E2E_REUSE_STATUS_BY_FINGERPRINT=1): fingerprint reuse must never launder a
+	# rejected status into a published one.
+	case "${name}" in
+		*-reuse|untrusted-candidate|forged-candidate)
+			if grep -q 'Reused successful E2E status' "${output_file}"; then
+				printf 'Preflight fixture %s reused a status that must not have been reusable.\n' "${name}" >&2
 				cat "${output_file}" >&2
 				exit 1
 			fi
@@ -210,5 +229,11 @@ E2E_REUSE_STATUS_BY_FINGERPRINT=0 run_preflight_fixture forged-status forged-sta
 E2E_REUSE_STATUS_BY_FINGERPRINT=0 run_preflight_fixture untrusted-creator untrusted-creator failure
 run_preflight_fixture publish-fails publish-fails failure
 E2E_REUSE_STATUS_BY_FINGERPRINT=0 run_preflight_fixture missing-status missing-status failure
+run_preflight_fixture forged-status-reuse forged-status failure
+run_preflight_fixture untrusted-creator-reuse untrusted-creator failure
+run_preflight_fixture missing-status-reuse missing-status failure
+run_preflight_fixture untrusted-candidate untrusted-candidate failure
+run_preflight_fixture forged-candidate forged-candidate failure
+run_preflight_fixture anonymous-status anonymous-status failure
 
 printf 'Preflight production shell fixtures passed.\n'

@@ -3,9 +3,13 @@
 Este repo replica el flujo de backend para el front:
 
 - Las ramas de trabajo deben ser `feat/*` y abrir PR contra `production`.
-- `production` es la rama protegida y el único disparador de deploy.
+- `production` es la rama protegida y el único disparador del release.
 - `preflight-production-pr.yml` corre en PRs hacia `production`.
-- `deploy-production.yml` corre solo en `push` a `production`, bajo el environment `production`.
+- `stage-production-artifacts.yml` corre en `push` a `production` (y `workflow_dispatch`): revalida el
+  preflight de deploy y construye los artefactos **firmados** bajo el environment `production`.
+- `deploy-production.yml` no escucha `push`: corre por `workflow_run` cuando *Stage production artifacts*
+  termina, o a mano con `workflow_dispatch`. Descarga el artefacto ya firmado, publica y taggea, bajo el
+  environment `production`.
 - Firebase Test Lab queda fuera del pipeline; los E2E requeridos se certifican localmente mediante GitHub commit statuses.
 
 ## Versión única
@@ -13,9 +17,9 @@ Este repo replica el flujo de backend para el front:
 La versión visible de Android e iOS vive en `gradle/app-version.properties`:
 
 ```properties
-versionName=6.0.0
-androidVersionCode=39
-iosBuildNumber=25
+versionName=6.3.2
+androidVersionCode=60
+iosBuildNumber=48
 ```
 
 Android lee estos valores desde `app/build.gradle.kts`. iOS consume `iosApp/Config/Version.xcconfig`, pero ese
@@ -48,8 +52,9 @@ El detector compara el PR contra el merge-base de `production` y ejecuta solo pi
 - Cambios en cualquier `build.gradle.kts`, `settings.gradle.kts` o en el propio grafo ejecutan
   `verifyModuleGraph` en preflight, así el grafo no puede derivar en silencio.
 - Cada módulo impactado (y `app`) pasa por `:módulo:detekt` contra su baseline; cambios en
-  `config/detekt/`, `.editorconfig`, cualquier `detekt-baseline.xml` o el Gradle raíz ejecutan `detekt`
-  completo sin marcar impacto de runtime.
+  `config/detekt/`, `.editorconfig` o cualquier `detekt-baseline.xml` ejecutan `detekt` completo sin marcar
+  impacto de runtime ni suites E2E. El Gradle raíz también ejecuta `detekt` completo, pero además marca
+  `has_release_impact=true` y exige la `local-certification-suite` en ambas plataformas.
 - Cambios runtime exigen bump de versión.
 - Cambios user-visible cubiertos por E2E exigen commit statuses locales exitosos.
 - Cambios en `iosApp/scripts/build-kmp-framework.sh` o `ci-build-ios-host.sh` compilan el host device release;
@@ -61,8 +66,9 @@ El detector compara el PR contra el merge-base de `production` y ejecuta solo pi
   una falla de tests no espera al build del host.
 
 El preflight de PR no recibe secretos de producción: `:app:bundleRelease` firma con un keystore descartable y
-configs Firebase placeholder (`.github/scripts/materialize-ci-placeholders.sh`). La firma real ocurre solo en
-deploy bajo el environment `production`.
+configs Firebase placeholder (`.github/scripts/materialize-ci-placeholders.sh`). La firma real ocurre en
+`stage-production-artifacts.yml` (jobs `stage-android` y `stage-ios`) bajo el environment `production`;
+`deploy-production.yml` no firma nada, publica el artefacto que stage produjo.
 
 ### Caches de build
 
@@ -120,27 +126,59 @@ local-e2e/ios/<suite>
 
 Un status `success` no basta por sí solo: preflight exige que la descripción contenga el fingerprint
 (`fp <12 hex>`) que corresponde al árbol del commit y la suite, y que el creator del status sea confiable
-(dueño del repo o `github-actions[bot]`; configurable con `E2E_TRUSTED_STATUS_CREATORS`). Un status fabricado
+(dueño del repo o `github-actions[bot]`; configurable con la variable de repo
+`E2E_TRUSTED_STATUS_CREATORS`, que `preflight-production-pr.yml` pasa al script). Un status fabricado
 sin el fingerprint correcto se rechaza. El reuso por fingerprint también considera los heads de PRs asociados
 al commit (API de GitHub), por lo que sobrevive a merges por squash.
 
-## Deploy
+La evidencia local también se espeja en `build/e2e/certifications/by-fingerprint/<fingerprint>/…`, pero solo
+cuando la corrida pasa: una corrida fallida conserva su evidencia bajo su propio SHA y deja intacto el espejo
+aprobado del mismo fingerprint.
 
-El deploy construye artefactos firmados y publica drafts:
+## Stage y deploy
 
-- Google Play: AAB firmado, draft en track `production`.
-- Apple: archive Release y upload a App Store Connect/TestFlight, sin submit a review.
-- Crashlytics: el mapping file se sube solo en deploy real con `TUINDICE_UPLOAD_CRASHLYTICS_MAPPING=1`.
-- Tag: `app-<versionName>` anotado al SHA de `production`, creado solo después de ambos uploads.
+El release está partido en dos workflows encadenados: stage construye y firma, deploy publica.
 
-Garantías del deploy:
+`stage-production-artifacts.yml` (`push` a `production` o `workflow_dispatch`):
+
+- `stage-preflight` corre `deploy-production.sh` en fase `preflight`: recalcula el diff contra el
+  `production` anterior, decide `should_deploy` y **revalida los commit statuses E2E** contra el SHA de
+  `production` reutilizando evidencia del head del PR por fingerprint; si `production` avanzó y el árbol ya
+  no coincide, exige recertificación. Este es el único preflight del release: `deploy-production.yml` no
+  corre ninguno.
+- `stage-android` construye el AAB con el keystore real y el `google-services.json` real.
+- `stage-ios` archiva y exporta el `.ipa` firmado con `DRY_RUN=1 ci-upload-ios-appstore.sh`, sin tocar App
+  Store Connect.
+- `assemble-artifact` junta AAB, IPA, `mapping.txt` y dSYMs en el artefacto `production-release-<sha>`
+  (retención 14 días) con su `release-manifest.json`.
+
+`deploy-production.yml` (`workflow_run` de *Stage production artifacts*, o `workflow_dispatch` con
+`target_sha`):
+
+- `resolve-artifact` localiza el artefacto `production-release-<sha>` de la corrida de stage; si no existe,
+  el deploy se salta en vez de construir nada.
+- Google Play: sube el AAB ya firmado del artefacto como draft en el track `production`.
+- Apple: `xcrun altool --upload-app` con el `.ipa` del artefacto. En deploy no hay archive ni firma, y no se
+  hace submit a review.
+- Tag: `app-<versionName>` anotado al `target_sha`, creado solo después de ambos uploads.
+
+Garantías:
 
 - Los deploys se encolan (`cancel-in-progress: false`); un push posterior no cancela un upload en curso.
-- `should_deploy` no depende solo del diff: si el tag `app-<versionName>` de la versión actual no existe,
-  el deploy se reanuda aunque el push que lo disparó no tenga cambios de release (recuperación de deploys
-  perdidos). También se puede disparar a mano con `workflow_dispatch`.
-- El deploy preflight revalida los statuses E2E contra el SHA de `production` reutilizando evidencia del
-  head del PR por fingerprint; si `production` avanzó y el árbol ya no coincide, exige recertificación.
+- Ambos uploads son idempotentes: consultan primero si el release de Play o el build de App Store Connect ya
+  existen para esa versión y salen sin subir.
+- Recuperación de un deploy perdido: la lógica de `should_deploy` vive en el preflight de **stage**, no en
+  deploy. Si el tag `app-<versionName>` de la versión actual no existe, stage fuerza `should_deploy=true`
+  aunque el push que lo disparó no tenga cambios de release — pero eso implica volver a correr *stage*, que
+  no reanuda nada: reconstruye los artefactos desde el SHA sobre el que se dispara (la punta de `production`,
+  no el SHA perdido), y el tag termina ahí. Para publicar exactamente el SHA perdido hay que disparar
+  `deploy-production.yml` con `target_sha`, y solo funciona mientras el artefacto de aquella corrida de stage
+  no haya expirado.
+
+El mapping de Crashlytics viaja dentro del artefacto (`android/mapping.txt`) pero hoy no se sube a
+Crashlytics: `uploadCrashlyticsMappingFileRelease` está deshabilitada salvo que
+`TUINDICE_UPLOAD_CRASHLYTICS_MAPPING=1`, y ningún workflow la define. Como `:app:bundleRelease` corre en
+stage, habilitarla subiría el mapping desde stage, no desde deploy.
 
 Preflight local sin secretos (sin token, la revalidación E2E se omite con un warning):
 
@@ -150,11 +188,20 @@ DEPLOY_PRODUCTION_PHASE=preflight \
 bash ./.github/scripts/deploy-production.sh
 ```
 
-Dry-run local o en CI, construyendo artefactos firmados pero sin publicar (requiere los secretos de firma;
-en iOS archiva y exporta el `.ipa` localmente con `destination=export`, sin tocar App Store Connect):
+Dry-run local del deploy: valida el artefacto ya staged y no publica nada. Desde el split ya no construye ni
+firma, así que necesita un `build/production-release/` con su `release-manifest.json` (por ejemplo, el
+artefacto descargado de una corrida de stage):
 
 ```bash
 DRY_RUN=1 bash ./.github/scripts/deploy-production.sh
+```
+
+Para reproducir localmente lo que sí construye y firma stage en iOS — archive y export del `.ipa` con
+`destination=export`, sin tocar App Store Connect — se corre el script directamente (requiere los secretos de
+firma):
+
+```bash
+DRY_RUN=1 bash ./iosApp/scripts/ci-upload-ios-appstore.sh
 ```
 
 ## Branch protection
@@ -166,29 +213,56 @@ Configurar `production` en GitHub con:
 - Require status checks before merging.
 - Require branches to be up to date before merging (el árbol certificado por E2E debe ser el que se mergea).
 - Requerir `preflight-production-pr`.
-- Usar el environment `production` para deploy y aprobaciones si se quieren gates manuales.
+- El environment `production` cubre tanto los jobs de firma de stage como los de publicación de deploy: una
+  aprobación manual configurada ahí frena primero a `stage-android`/`stage-ios`.
 
 ## Secrets y variables
 
-Los secretos solo se usan en `deploy-production.yml` bajo el environment `production`; el preflight de PR
-corre completo sin secretos. Secrets requeridos para CI/CD:
+El preflight de PR corre completo **sin secretos**. Los secretos de producción se reparten entre los dos
+workflows de release, ambos bajo el environment `production`, y la mayoría — incluidas las credenciales de
+firma — se usa en **stage**, no en deploy.
+
+Solo `stage-production-artifacts.yml` (firma y construcción de artefactos):
 
 ```text
-GCP_WORKLOAD_IDENTITY_PROVIDER
-GCP_PLAY_PUBLISHER_SERVICE_ACCOUNT
 ANDROID_GOOGLE_SERVICES_JSON_BASE64
-IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64
 ANDROID_RELEASE_KEYSTORE_BASE64
 TU_INDICE_KEY_ALIAS
 TU_INDICE_KEY_PASSWORD
 TU_INDICE_KEY_STORE_PASSWORD
-APP_STORE_CONNECT_KEY_ID
-APP_STORE_CONNECT_ISSUER_ID
-APP_STORE_CONNECT_API_KEY_P8_BASE64
+IOS_GOOGLE_SERVICE_INFO_PLIST_BASE64
 APPLE_TEAM_ID
 APPLE_DISTRIBUTION_CERTIFICATE_P12_BASE64
 APPLE_DISTRIBUTION_CERTIFICATE_PASSWORD
 APPLE_PROVISIONING_PROFILE_BASE64
 ```
+
+Solo `deploy-production.yml` (publicación en Google Play):
+
+```text
+GCP_WORKLOAD_IDENTITY_PROVIDER
+GCP_PLAY_PUBLISHER_SERVICE_ACCOUNT
+```
+
+En los dos workflows — stage autentica el `xcodebuild archive`/export, deploy hace el chequeo de idempotencia
+y el `altool --upload-app`:
+
+```text
+APP_STORE_CONNECT_KEY_ID
+APP_STORE_CONNECT_ISSUER_ID
+APP_STORE_CONNECT_API_KEY_P8_BASE64
+```
+
+Al auditar permisos: el keystore de Android, el certificado de distribución de Apple y el provisioning
+profile los ve `stage-production-artifacts.yml`, que se dispara en cada `push` a `production`.
+
+Variables de repo opcionales (`vars`, no secrets):
+
+```text
+E2E_TRUSTED_STATUS_CREATORS
+```
+
+`preflight-production-pr.yml` la pasa a `preflight-production.sh`; si no está definida, la lista de creators
+confiables sigue siendo el dueño del repo más `github-actions[bot]`.
 
 La cuenta de Google debe tener permisos de Android Publisher sobre `com.gdavidpb.tuindice`, y la key de App Store Connect debe poder subir builds para el bundle iOS.
