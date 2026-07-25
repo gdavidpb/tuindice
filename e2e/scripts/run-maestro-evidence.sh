@@ -68,8 +68,7 @@ covered_status_contexts() {
 		pensum-suite \
 		record-suite \
 		subjects-suite \
-		summary-suite \
-		wizard-suite; do
+		summary-suite; do
 		printf 'local-e2e/%s/%s\n' "${PLATFORM}" "${suite}"
 	done
 }
@@ -147,6 +146,20 @@ maestro_nonzero_after_passed_flow_is_recoverable() {
 suite_path_for_id() {
 	local suite_id="$1"
 	printf '%s/e2e/maestro/flows/suites/%s.yaml\n' "$REPO_ROOT" "$suite_id"
+}
+
+mirror_evidence_by_fingerprint() {
+	local source_dir="$1"
+	local mirror_dir="$2"
+
+	[[ "${source_dir}" != "${mirror_dir}" ]] || return 0
+
+	rm -rf "${mirror_dir}"
+	mkdir -p "${mirror_dir}"
+	# APFS clonefile keeps the by-fingerprint mirror instant even with large
+	# Maestro video/screenshot outputs; fall back to a plain copy elsewhere.
+	cp -c -R "${source_dir}/." "${mirror_dir}/" 2>/dev/null ||
+		cp -R "${source_dir}/." "${mirror_dir}/"
 }
 
 resolved_suite_ids() {
@@ -288,22 +301,15 @@ run_suite_evidence() {
 			}
 		}' >"${MANIFEST_FILE}"
 
-	if [[ "${CERTIFICATION_DIR}" != "${FINGERPRINT_CERTIFICATION_DIR}" ]]; then
-		mkdir -p "${FINGERPRINT_CERTIFICATION_DIR}"
-		# APFS clonefile keeps the by-fingerprint mirror instant even with large
-		# Maestro video/screenshot outputs; fall back to a plain copy elsewhere.
-		cp -c -R "${CERTIFICATION_DIR}/." "${FINGERPRINT_CERTIFICATION_DIR}/" 2>/dev/null ||
-			cp -R "${CERTIFICATION_DIR}/." "${FINGERPRINT_CERTIFICATION_DIR}/"
-	fi
-
 	publish_description="Local E2E ${SUITE_ID} passed for ${COMMIT_SHA:0:7} fp ${E2E_FINGERPRINT:0:12}."
 
 	if [[ "$status" == "0" ]]; then
+		mirror_evidence_by_fingerprint "${CERTIFICATION_DIR}" "${FINGERPRINT_CERTIFICATION_DIR}"
 		if github_status_publishing_available; then
 			publish_github_statuses "success" "${publish_description}" 1
 		fi
 	else
-		log "Skipping GitHub commit status publishing because E2E failed."
+		log "Skipping GitHub commit status publishing and by-fingerprint mirroring because E2E failed."
 	fi
 
 	if [[ "$status" == "0" ]]; then

@@ -301,11 +301,11 @@ if [[ "$ios_scope" != "required" ]]; then
 elif is_macos && command -v xcrun >/dev/null 2>&1; then
 	log "Starting iOS evidence worker."
 	start_platform_evidence_worker ios_pid ios "${IOS_WIREMOCK_PORT}" "${IOS_TMP_DIR}" "${IOS_STATUS_FILE}"
-elif [[ "${E2E_STRICT_IOS:-0}" == "1" ]]; then
-	printf 'iOS Maestro evidence is required but unavailable in this environment.\n' >&2
+elif [[ "${E2E_STRICT_IOS:-1}" == "1" ]]; then
+	printf 'iOS Maestro evidence is required for this diff but the local iOS simulator toolchain is unavailable; preflight will demand the iOS statuses this run cannot publish. Set E2E_STRICT_IOS=0 to accept Android-only evidence.\n' >&2
 	exit 1
 else
-	log "Skipping iOS Maestro evidence because the local iOS simulator toolchain is unavailable."
+	log "Skipping iOS Maestro evidence because the local iOS simulator toolchain is unavailable and E2E_STRICT_IOS=0; the required iOS statuses stay unpublished."
 fi
 
 android_status=0

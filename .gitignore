@@ -26,4 +26,6 @@ GoogleService-Info.plist
 /iosApp/.build/
 /graphify-out/
 /systemic-out/
+__pycache__/
+*.pyc
 /.claude/settings.local.json

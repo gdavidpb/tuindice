@@ -30,6 +30,7 @@ CHECK_ONLY="${APP_STORE_CONNECT_CHECK_ONLY:-0}"
 DRY_RUN="${DRY_RUN:-0}"
 BUILD_EXISTS_FILE="${APP_STORE_CONNECT_BUILD_EXISTS_FILE:-}"
 APP_STORE_CONNECT_API_ROOT="${APP_STORE_CONNECT_API_ROOT:-https://api.appstoreconnect.apple.com/v1}"
+VERSION_NAME="$(get_app_version_name)"
 IOS_BUILD_NUMBER="$(get_ios_build_number)"
 
 log() {
@@ -165,22 +166,40 @@ check_app_store_connect_build_exists() {
 	[[ -n "$app_id" ]] || die "Unable to resolve App Store Connect app for bundle id ${IOS_BUNDLE_IDENTIFIER}."
 
 	app_store_connect_get_json "${APP_STORE_CONNECT_API_ROOT}/builds?filter%5Bapp%5D=${app_id}&filter%5Bversion%5D=${IOS_BUILD_NUMBER}&include=preReleaseVersion&limit=200" "$builds_response"
+	# A build number can be reused across marketing versions and a rejected
+	# upload leaves a FAILED/INVALID record behind: only a build of this
+	# version that Apple accepted counts as already uploaded.
 	existing_build_id="$(
 		jq -r \
+			--arg version_name "$VERSION_NAME" \
 			'[
-				.data[]?.id
+				.data[]? as $build
+				| ($build.attributes.processingState // "") as $processing_state
+				| (
+					[
+						.included[]?
+						| select(.type == "preReleaseVersions")
+						| select(.id == ($build.relationships.preReleaseVersion.data.id // ""))
+						| .attributes.version
+					][0] // ""
+				) as $build_version
+				| select(
+					$build_version == $version_name
+					and ($processing_state == "PROCESSING" or $processing_state == "VALID")
+				)
+				| $build.id
 			][0] // empty' \
 			"$builds_response"
 	)"
 
 	if [[ -n "$existing_build_id" ]]; then
 		write_build_exists_state "true" "$existing_build_id"
-		log "App Store Connect build number ${IOS_BUILD_NUMBER} already exists for ${IOS_BUNDLE_IDENTIFIER}; skipping archive and upload."
+		log "App Store Connect build ${VERSION_NAME} (${IOS_BUILD_NUMBER}) already exists for ${IOS_BUNDLE_IDENTIFIER}; skipping archive and upload."
 		return 0
 	fi
 
 	write_build_exists_state "false" ""
-	log "App Store Connect build number ${IOS_BUILD_NUMBER} does not exist for ${IOS_BUNDLE_IDENTIFIER}; archive/upload is required."
+	log "App Store Connect has no accepted build ${VERSION_NAME} (${IOS_BUILD_NUMBER}) for ${IOS_BUNDLE_IDENTIFIER}; archive/upload is required."
 	return 1
 }
 

@@ -405,7 +405,6 @@ classify_changed_file() {
 				e2e/maestro/flows/record/*) append_e2e_scope all record-suite "e2e-flow-record" ;;
 				e2e/maestro/flows/subjects/*) append_e2e_scope all subjects-suite "e2e-flow-subjects" ;;
 				e2e/maestro/flows/summary/*) append_e2e_scope all summary-suite "e2e-flow-summary" ;;
-				e2e/maestro/flows/wizard/*) append_e2e_scope all wizard-suite "e2e-flow-wizard" ;;
 				*) append_e2e_scope all local-certification-suite "e2e-flow-shared" ;;
 			esac
 			return 0
@@ -464,6 +463,17 @@ classify_changed_file() {
 				append_ios_signing_config_validation
 				return 0
 			fi
+
+			# Anything beyond signing is host runtime: a Swift file added to the
+			# project, OTHER_LDFLAGS, entitlements, the bundle id. `;;` would end
+			# the case here rather than fall through to iosApp/*, and the trailing
+			# fallback only accepts KMP modules, which iosApp is not — so the file
+			# would produce no scope at all and preflight would pass green.
+			append_runtime_module iosApp
+			HAS_RELEVANT_CHANGES=true
+			HAS_RELEASE_IMPACT=true
+			append_e2e_scope ios local-certification-suite "ios-host-runtime"
+			return 0
 			;;
 		iosApp/scripts/build-kmp-framework.sh|iosApp/scripts/ci-build-ios-host.sh)
 			CI_CONFIG_TOUCHED=true
@@ -517,28 +527,35 @@ classify_changed_file() {
 			;;
 	esac
 
-	if module_is_kmp "$top_level"; then
+	if ! module_is_kmp "$top_level"; then
+		# Nothing matched. Defaulting to "no scope" is how an unclassified path
+		# reaches production behind a preflight that passed without validating
+		# anything, so treat it as relevant and say so instead of staying silent.
+		warn "Unclassified path '${file}': no scope rule matched. Treating it as a relevant change; add an explicit rule if that is wrong."
 		HAS_RELEVANT_CHANGES=true
+		return 0
+	fi
 
-		if is_kmp_test_source_file "$top_level" "$file"; then
-			append_changed_test_module "$top_level"
-			return 0
-		fi
+	HAS_RELEVANT_CHANGES=true
 
-		if [[ "$file" == "${top_level}/build.gradle.kts" ]]; then
-			MODULE_GRAPH_TOUCHED=true
-		fi
+	if is_kmp_test_source_file "$top_level" "$file"; then
+		append_changed_test_module "$top_level"
+		return 0
+	fi
 
-		append_runtime_module "$top_level"
+	if [[ "$file" == "${top_level}/build.gradle.kts" ]]; then
+		MODULE_GRAPH_TOUCHED=true
+	fi
 
-		if module_is_runtime "$top_level"; then
-			HAS_RELEASE_IMPACT=true
-			if is_kmp_runtime_source_or_build_file "$top_level" "$file"; then
-				if [[ "$top_level" == "base" || "$top_level" == "persistence" || "$top_level" == "academiccore" || "$top_level" == "maincore" ]]; then
-					append_e2e_scope_for_shared_module_path "$top_level" "$file"
-				else
-					mark_e2e_suite_for_module "$top_level"
-				fi
+	append_runtime_module "$top_level"
+
+	if module_is_runtime "$top_level"; then
+		HAS_RELEASE_IMPACT=true
+		if is_kmp_runtime_source_or_build_file "$top_level" "$file"; then
+			if [[ "$top_level" == "base" || "$top_level" == "persistence" || "$top_level" == "academiccore" || "$top_level" == "maincore" ]]; then
+				append_e2e_scope_for_shared_module_path "$top_level" "$file"
+			else
+				mark_e2e_suite_for_module "$top_level"
 			fi
 		fi
 	fi
@@ -590,6 +607,15 @@ if [[ "$APP_VERSION_NAME_CHANGED" == "true" || "$IOS_BUILD_NUMBER_CHANGED" == "t
 fi
 
 if [[ "$HAS_RELEASE_IMPACT" == "true" || "$APP_VERSION_CHANGED" == "true" ]]; then
+	# Diff-based half of the release version invariant: all three values must
+	# move relative to the PR base. The history-based half lives in
+	# validate-app-version.sh, which rejects a versionName already published as
+	# `app-<versionName>`. They are complementary, not redundant: this one
+	# cannot see release history, and the tag check cannot see a versionName
+	# that was reused without ever having been tagged.
+	if [[ "$APP_VERSION_NAME_CHANGED" != "true" ]]; then
+		append_unique_line "$MISSING_VERSION_BUMP_FILE" versionName
+	fi
 	if [[ "$ANDROID_VERSION_CODE_CHANGED" != "true" ]]; then
 		append_unique_line "$MISSING_VERSION_BUMP_FILE" androidVersionCode
 	fi
@@ -644,7 +670,12 @@ if [[ "$E2E_CONTRACT_TOUCHED" == "true" ]]; then
 	append_unique_line "$ANDROID_TASKS_FILE" "verifyE2eContract"
 fi
 
-if [[ "$CI_CONFIG_TOUCHED" == "true" ]]; then
+# Touching either version source is the only way to desynchronize the generated
+# Version.xcconfig from app-version.properties. A hand edit that leaves every
+# property equal keeps app_version_changed=false, so preflight-production.sh
+# never reaches validate-app-version.sh; scheduling the task here is what makes
+# that diff fail instead of shipping a stale xcconfig.
+if [[ "$CI_CONFIG_TOUCHED" == "true" || "$APP_VERSION_TOUCHED" == "true" ]]; then
 	append_unique_line "$ANDROID_TASKS_FILE" "verifyAppVersionSync"
 fi
 

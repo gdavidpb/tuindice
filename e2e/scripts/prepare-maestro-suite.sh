@@ -40,7 +40,7 @@ rewrite_setup_triples() {
 	local relative="${yaml_file#"${prepared_root}/"}"
 
 	case "${relative}" in
-		suites/auth-suite.yaml|suites/wizard-suite.yaml|auth/*|wizard/*)
+		suites/auth-suite.yaml|auth/*)
 			return 0
 			;;
 	esac

@@ -248,6 +248,25 @@ def passing_manifest_for_fingerprint(
     return manifest
 
 
+def preflight_reuse_candidates(head: str) -> set[str]:
+    """Commits preflight will actually consider when looking for reusable evidence.
+
+    It walks `rev-list HEAD ^base`, which excludes the base itself, so evidence
+    living on production — or on an already-merged branch — is invisible to it
+    no matter how well the fingerprint matches. Reporting such evidence as
+    reusable sends the operator into a preflight that then demands the rotation
+    they were told to skip.
+    """
+    base = merge_base_for_e2e_scope(head)
+    if not base:
+        return set()
+
+    result = run_git("rev-list", head, f"^{base}")
+    if result.code != 0:
+        return set()
+    return {line.strip() for line in result.stdout.splitlines() if line.strip()}
+
+
 def suite_reuse_verdict(head: str, platform: str, suite: str) -> SuiteReuse:
     fingerprint = e2e_fingerprint(platform, suite)
     if not fingerprint:
@@ -278,6 +297,17 @@ def suite_reuse_verdict(head: str, platform: str, suite: str) -> SuiteReuse:
     source = f"{commit_sha[:7]} ({finished_at})"
     if covered_by != suite:
         source += f", covered by {covered_by}"
+
+    if commit_sha not in preflight_reuse_candidates(head):
+        return SuiteReuse(
+            platform,
+            suite,
+            fingerprint,
+            "rerun",
+            f"local evidence from {source} matches the fingerprint, but {commit_sha[:7]} is not "
+            "on this branch, so preflight will not consider it and will require a rerun",
+        )
+
     return SuiteReuse(
         platform,
         suite,

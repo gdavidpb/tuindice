@@ -139,6 +139,10 @@ jobs:
           if [[ -s app/build/outputs/mapping/release/mapping.txt ]]; then
             cp app/build/outputs/mapping/release/mapping.txt build/stage/android/mapping.txt
           fi
+          mapping_file_id_resource="$(find app/build/generated -name 'com_google_firebase_crashlytics_mappingfileid.xml' -type f -print -quit 2>/dev/null || true)"
+          if [[ -n "$mapping_file_id_resource" ]]; then
+            cp "$mapping_file_id_resource" build/stage/android/com_google_firebase_crashlytics_mappingfileid.xml
+          fi
 
       - name: Upload staged Android artifact
         uses: actions/upload-artifact@v4
@@ -247,6 +251,10 @@ jobs:
           if [[ -s build/staged/android/mapping.txt ]]; then
             mkdir -p build/production-release/android
             cp build/staged/android/mapping.txt build/production-release/android/mapping.txt
+          fi
+          if [[ -s build/staged/android/com_google_firebase_crashlytics_mappingfileid.xml ]]; then
+            mkdir -p build/production-release/android
+            cp build/staged/android/com_google_firebase_crashlytics_mappingfileid.xml build/production-release/android/com_google_firebase_crashlytics_mappingfileid.xml
           fi
           if [[ -s build/staged/ios/TuIndiceHost.dSYMs.zip ]]; then
             mkdir -p build/production-release/ios

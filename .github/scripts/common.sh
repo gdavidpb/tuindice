@@ -248,7 +248,7 @@ module_e2e_suite() {
 	local module="$1"
 
 	case "$module" in
-		about|auth|enrollmentproof|evaluations|maincore|pensum|record|subjects|summary|wizard)
+		about|auth|enrollmentproof|evaluations|maincore|pensum|record|subjects|summary)
 			printf '%s-suite\n' "$module"
 			;;
 	esac
