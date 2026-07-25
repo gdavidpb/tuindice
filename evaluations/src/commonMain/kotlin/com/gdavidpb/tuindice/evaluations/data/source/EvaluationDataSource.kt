@@ -10,7 +10,6 @@ import com.gdavidpb.tuindice.evaluations.data.mapper.toEditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluation
 import com.gdavidpb.tuindice.evaluations.data.mapper.toEvaluationTermDescriptor
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
-import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOPE
@@ -37,7 +36,7 @@ class EvaluationDataSource(
 	private val databaseDataSource: DatabaseDataRepository,
 	private val evaluationsApiDataSource: EvaluationsApiDataRepository,
 	private val settingsDataSource: SettingsDataRepository,
-	private val mutationEngine: StoreBackedMutationEngine<String, EvaluationMutation, LocalEvaluationsSnapshot, List<LocalEvaluation>, EvaluationMutationAck>,
+	private val mutationEngine: StoreBackedMutationEngine<String, EvaluationMutation, EvaluationMutationAck>,
 	private val identifierRepository: IdentifierRepository
 ) : EvaluationRepository {
 	private val mutationSyncSpec = EvaluationMutationSyncSpec(

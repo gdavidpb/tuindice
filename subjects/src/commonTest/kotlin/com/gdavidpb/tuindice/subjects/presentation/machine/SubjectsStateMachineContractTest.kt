@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.subjects.testing.RecordingSubjectStatsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
@@ -34,6 +35,12 @@ class SubjectsStateMachineContractTest {
 			SubjectDetailInternalEvent::class
 		)
 
+		assertMachineHasNoShadowedRows(
+			machine,
+			SubjectDetail.Action::class,
+			SubjectDetailInternalEvent::class
+		)
+
 		assertMachineStatesReachable(
 			machine = machine,
 			initialState = SubjectDetail.State.Idle::class
@@ -47,6 +54,12 @@ class SubjectsStateMachineContractTest {
 		val machine = createSearchViewModel().machine
 
 		assertMachineCoversAlphabet(
+			machine,
+			SubjectSearch.Action::class,
+			SubjectSearchInternalEvent::class
+		)
+
+		assertMachineHasNoShadowedRows(
 			machine,
 			SubjectSearch.Action::class,
 			SubjectSearchInternalEvent::class

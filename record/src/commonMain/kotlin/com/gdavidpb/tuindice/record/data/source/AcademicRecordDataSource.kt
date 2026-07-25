@@ -33,7 +33,7 @@ class AcademicRecordDataSource(
 	private val localDataSource: AcademicRecordLocalDataRepository,
 	private val remoteDataSource: AcademicRecordRemoteDataRepository,
 	private val settingsDataSource: RecordSettingsDataRepository,
-	private val mutationEngine: StoreBackedMutationEngine<String, AcademicRecordMutation, AcademicRecord, AcademicRecord, VersionedAcademicRecord>,
+	private val mutationEngine: StoreBackedMutationEngine<String, AcademicRecordMutation, VersionedAcademicRecord>,
 	private val identifierRepository: IdentifierRepository
 ) : AcademicRecordRepository {
 	private val mutationSyncSpec = AcademicRecordMutationSyncSpec(

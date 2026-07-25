@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.record.data.mutation
 
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
@@ -17,7 +16,7 @@ class AcademicRecordMutationSyncSpec(
 	private val remoteDataSource: AcademicRecordRemoteDataRepository,
 	private val persistConfirmedSnapshot: suspend (VersionedAcademicRecord) -> Unit,
 	private val refreshRemoteSnapshot: suspend () -> VersionedAcademicRecord
-) : MutationSyncSpec<String, AcademicRecordMutation, AcademicRecord, AcademicRecord, VersionedAcademicRecord> {
+) : MutationSyncSpec<String, AcademicRecordMutation, VersionedAcademicRecord> {
 	override val maxRebaseAttempts: Int = 1
 
 	override fun deletePendingBeforeConfirm(

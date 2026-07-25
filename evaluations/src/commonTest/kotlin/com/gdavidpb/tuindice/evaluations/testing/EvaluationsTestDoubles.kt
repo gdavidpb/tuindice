@@ -434,7 +434,7 @@ class FakeDatabaseDataSource(
 		return evaluation
 	}
 
-	override suspend fun confirmRemovedEvaluation(eid: String) {
+	override suspend fun confirmEvaluationRemoval(eid: String) {
 		removedEvaluations += eid
 		hasSyncedEvaluationsState.value = true
 		snapshotState.value = snapshotState.value.copy(
@@ -443,7 +443,7 @@ class FakeDatabaseDataSource(
 		)
 	}
 
-	override suspend fun removeConfirmedEvaluation(eid: String) {
+	override suspend fun discardLocalEvaluationCopy(eid: String) {
 		removedEvaluations += eid
 		snapshotState.value = snapshotState.value.copy(
 			evaluations = snapshotState.value.evaluations.filterNot { evaluation -> evaluation.id == eid }
@@ -687,7 +687,7 @@ class FakeMutationEnvelopeStore<ScopeKey : Any, T : OutboxMutation>(
 fun createEvaluationsMutationEngine(
 	store: MutationEnvelopeStore<String, EvaluationMutation> = FakeMutationEnvelopeStore(),
 	coroutineScope: CoroutineScope? = null
-): StoreBackedMutationEngine<String, EvaluationMutation, LocalEvaluationsSnapshot, List<LocalEvaluation>, EvaluationMutationAck> {
+): StoreBackedMutationEngine<String, EvaluationMutation, EvaluationMutationAck> {
 	return StoreBackedMutationEngine(
 		storeId = EVALUATIONS_MUTATION_STORE_ID,
 		outboxStore = store,

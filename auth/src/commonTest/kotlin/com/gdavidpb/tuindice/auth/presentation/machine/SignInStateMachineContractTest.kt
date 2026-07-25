@@ -29,11 +29,12 @@ import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepositor
 import com.gdavidpb.tuindice.testkit.coroutines.TestTuIndiceDispatchers
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversEffects
+import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
-import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
+import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
@@ -254,6 +255,12 @@ class SignInStateMachineContractTest {
 		val fixture = createFixture()
 
 		assertMachineCoversAlphabet(
+			fixture.viewModel.machine,
+			SignIn.Action::class,
+			SignInInternalEvent::class
+		)
+
+		assertMachineHasNoShadowedRows(
 			fixture.viewModel.machine,
 			SignIn.Action::class,
 			SignInInternalEvent::class

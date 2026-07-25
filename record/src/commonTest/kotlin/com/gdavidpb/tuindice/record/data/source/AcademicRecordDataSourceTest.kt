@@ -678,7 +678,7 @@ internal fun createMutationEngine(
 	coroutineScope: CoroutineScope,
 	outboxStore: MutationEnvelopeStore<String, AcademicRecordMutation> = InMemoryMutationEnvelopeStore(),
 	failedRetryBackoffMillis: Long = DEFAULT_FAILED_RETRY_BACKOFF_MILLIS
-) = StoreBackedMutationEngine<String, AcademicRecordMutation, AcademicRecord, AcademicRecord, VersionedAcademicRecord>(
+) = StoreBackedMutationEngine<String, AcademicRecordMutation, VersionedAcademicRecord>(
 	storeId = "record-test",
 	outboxStore = outboxStore,
 	coroutineScope = coroutineScope,

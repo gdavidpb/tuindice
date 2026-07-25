@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.base.utils.extension.isPreconditionFailed
 import com.gdavidpb.tuindice.evaluations.data.mapper.toLocalEvaluation
-import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.RemoteEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.repository.DatabaseDataRepository
@@ -21,7 +20,7 @@ class EvaluationMutationSyncSpec(
 	private val databaseDataSource: DatabaseDataRepository,
 	private val evaluationsApiDataSource: EvaluationsApiDataRepository,
 	private val refreshRemoteSnapshot: suspend () -> RemoteEvaluationsSnapshot
-) : MutationSyncSpec<String, EvaluationMutation, LocalEvaluationsSnapshot, List<com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation>, EvaluationMutationAck> {
+) : MutationSyncSpec<String, EvaluationMutation, EvaluationMutationAck> {
 	override val maxRebaseAttempts: Int = 3
 
 	override fun deletePendingBeforeConfirm(
@@ -77,7 +76,7 @@ class EvaluationMutationSyncSpec(
 
 			is EvaluationMutationAck.Remove -> {
 				if (ack.mutationId != mutation.mutationId) return
-				databaseDataSource.confirmRemovedEvaluation(
+				databaseDataSource.confirmEvaluationRemoval(
 					eid = ack.removedEvaluationId
 				)
 			}
@@ -187,7 +186,7 @@ class EvaluationMutationSyncSpec(
 			}
 
 			MutationFailureKind.NotFound -> {
-				databaseDataSource.removeConfirmedEvaluation(command.evaluationId)
+				databaseDataSource.discardLocalEvaluationCopy(command.evaluationId)
 				refreshRemoteSnapshotSafely() ?: return MutationFailureResolution.Fail()
 				MutationFailureResolution.Drop(propagate = true)
 			}
@@ -209,7 +208,7 @@ class EvaluationMutationSyncSpec(
 					.firstOrNull { evaluation -> evaluation.id == command.evaluationId }
 
 				if (remoteEvaluation == null) {
-					databaseDataSource.removeConfirmedEvaluation(command.evaluationId)
+					databaseDataSource.discardLocalEvaluationCopy(command.evaluationId)
 					MutationFailureResolution.Drop()
 				} else {
 					MutationFailureResolution.Retry(
@@ -226,7 +225,7 @@ class EvaluationMutationSyncSpec(
 					.firstOrNull { evaluation -> evaluation.id == command.evaluationId }
 
 				if (remoteEvaluation == null) {
-					databaseDataSource.removeConfirmedEvaluation(command.evaluationId)
+					databaseDataSource.discardLocalEvaluationCopy(command.evaluationId)
 					MutationFailureResolution.Drop()
 				} else {
 					MutationFailureResolution.Drop(propagate = true)
@@ -234,7 +233,7 @@ class EvaluationMutationSyncSpec(
 			}
 
 			MutationFailureKind.NotFound -> {
-				databaseDataSource.removeConfirmedEvaluation(command.evaluationId)
+				databaseDataSource.discardLocalEvaluationCopy(command.evaluationId)
 				refreshRemoteSnapshotSafely() ?: return MutationFailureResolution.Fail()
 				MutationFailureResolution.Drop(propagate = true)
 			}

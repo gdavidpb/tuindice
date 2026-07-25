@@ -27,7 +27,7 @@ class StoreBackedMutationEngineTest {
 		val releaseFirstAck = CompletableDeferred<Unit>()
 		val confirmedValues = mutableListOf<Int>()
 		val sentValues = mutableListOf<Int>()
-		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
 			override suspend fun send(
 				mutation: MutationEnvelope<String, TestMutation>
 			): TestAck {
@@ -93,7 +93,7 @@ class StoreBackedMutationEngineTest {
 		val releaseFirstFailure = CompletableDeferred<Unit>()
 		val confirmedValues = mutableListOf<Int>()
 		val sentValues = mutableListOf<Int>()
-		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
 			override suspend fun send(
 				mutation: MutationEnvelope<String, TestMutation>
 			): TestAck {
@@ -154,7 +154,7 @@ class StoreBackedMutationEngineTest {
 		val sentRevisions = mutableListOf<Long?>()
 		val confirmedValues = mutableListOf<Int>()
 		var attempts = 0
-		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
 			override val maxRebaseAttempts: Int = 3
 
 			override suspend fun send(
@@ -201,7 +201,7 @@ class StoreBackedMutationEngineTest {
 	fun submit_whenRebaseDoesNotAdvancePrecondition_marksMutationFailed() = runTest {
 		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
 		val engine = createEngine(store, this)
-		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
 			override suspend fun send(
 				mutation: MutationEnvelope<String, TestMutation>
 			): TestAck {
@@ -244,7 +244,7 @@ class StoreBackedMutationEngineTest {
 		val engine = createEngine(store, this)
 		val seenPreconditions = mutableListOf<MutationPrecondition>()
 		val confirmedValues = mutableListOf<Int>()
-		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
 			override suspend fun send(
 				mutation: MutationEnvelope<String, TestMutation>
 			): TestAck {
@@ -278,7 +278,7 @@ class StoreBackedMutationEngineTest {
 	fun submit_whenFailureIsDeferred_keepsMutationPending() = runTest {
 		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
 		val engine = createEngine(store, this)
-		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
 			override suspend fun send(
 				mutation: MutationEnvelope<String, TestMutation>
 			): TestAck {
@@ -324,7 +324,7 @@ class StoreBackedMutationEngineTest {
 			mutationId = "mutation-1",
 			value = 50
 		)
-		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
 			override suspend fun send(
 				mutation: MutationEnvelope<String, TestMutation>
 			): TestAck {
@@ -368,7 +368,7 @@ class StoreBackedMutationEngineTest {
 			mutationId = "mutation-1",
 			value = 70
 		)
-		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
 			override suspend fun send(
 				mutation: MutationEnvelope<String, TestMutation>
 			): TestAck = throw TestTerminalFailure()
@@ -396,7 +396,7 @@ class StoreBackedMutationEngineTest {
 		val store = InMemoryMutationEnvelopeStore(listOf(failedMutation))
 		val engine = createEngine(store, this)
 		val sentValues = mutableListOf<Int>()
-		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
 			override suspend fun send(
 				mutation: MutationEnvelope<String, TestMutation>
 			): TestAck {
@@ -423,7 +423,7 @@ class StoreBackedMutationEngineTest {
 		val store = InMemoryMutationEnvelopeStore(listOf(failedMutation))
 		val engine = createEngine(store, this, failedRetryBackoffMillis = Long.MAX_VALUE / 2)
 		val sentValues = mutableListOf<Int>()
-		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
 			override suspend fun send(
 				mutation: MutationEnvelope<String, TestMutation>
 			): TestAck {
@@ -448,7 +448,7 @@ class StoreBackedMutationEngineTest {
 		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
 		val engine = createEngine(store, this)
 		val releaseAck = CompletableDeferred<Unit>()
-		val syncSpec = object : MutationSyncSpec<String, TestMutation, Unit, Unit, TestAck> {
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
 			override suspend fun send(
 				mutation: MutationEnvelope<String, TestMutation>
 			): TestAck {
@@ -480,7 +480,7 @@ private fun createEngine(
 	store: MutationEnvelopeStore<String, TestMutation>,
 	coroutineScope: kotlinx.coroutines.CoroutineScope,
 	failedRetryBackoffMillis: Long = DEFAULT_FAILED_RETRY_BACKOFF_MILLIS
-) = StoreBackedMutationEngine<String, TestMutation, Unit, Unit, TestAck>(
+) = StoreBackedMutationEngine<String, TestMutation, TestAck>(
 	storeId = "test",
 	outboxStore = store,
 	coroutineScope = coroutineScope,
