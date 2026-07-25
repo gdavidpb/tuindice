@@ -19,9 +19,17 @@ class AcademicRecordMutationSyncSpec(
 ) : MutationSyncSpec<String, AcademicRecordMutation, VersionedAcademicRecord> {
 	override val maxRebaseAttempts: Int = 1
 
+	// false: confirm() (which persists the confirmed snapshot to localDataSource) must
+	// land BEFORE the outbox row is deleted. With the outbox emptied first, there is a
+	// real window where neither source shows the mutation — confirmed data hasn't
+	// landed yet and the overlay is already gone — and a reactive observer that reads
+	// mid-window (e.g. ObserveRecordUseCase's own "persist resolved selection" side
+	// effect racing Room's async invalidation dispatch) can act on a snapshot that
+	// looks like the mutation never happened. evaluations already made this choice for
+	// the same reason (EvaluationMutationSyncSpec.deletePendingBeforeConfirm).
 	override fun deletePendingBeforeConfirm(
 		mutation: MutationEnvelope<String, AcademicRecordMutation>
-	): Boolean = true
+	): Boolean = false
 
 	override suspend fun send(
 		mutation: MutationEnvelope<String, AcademicRecordMutation>
