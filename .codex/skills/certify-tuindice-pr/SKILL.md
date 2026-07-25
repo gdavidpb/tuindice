@@ -11,14 +11,21 @@ Use this skill for TuIndice app branches that need production PR certification.
 Read `references/certification-runbook.md` for the detailed runbook before running long E2E evidence or opening a PR.
 
 1. Ensure the branch is `feat/*`, based on `production`, and not dirty.
-2. Commit and push all intended changes before certifying. The certified SHA must exist on GitHub.
-3. **Run the pre-certification diff audit before any preflight or evidence work.** This gate
+2. **Absorb pending certification feedback.** If `origin/chore/certification-feedback`
+exists, an earlier certification left process fixes waiting there — that branch existing is
+what marks feedback as pending. Merge it into this branch now, before the audit and before
+anything has been paid for, verify what it brings, and delete the remote branch once the
+merge is pushed. Report what was absorbed. If it does not belong in this branch, stop and
+say so rather than carrying it silently.
+
+3. Commit and push all intended changes before certifying. The certified SHA must exist on GitHub.
+4. **Run the pre-certification diff audit before any preflight or evidence work.** This gate
 is mandatory and is described in full in the runbook's Pre-Certification Diff Audit. Audit the
 whole diff against `production` for regressions and for test/harness weaknesses that would
 otherwise surface as expensive certification failures. Fix everything it finds, in one batch,
 *before* paying for preflight or evidence. Skipping it to "just start the run" is what makes
 certification take hours: every discovery made during evidence costs a full rotation.
-4. Run the non-mutating audit helper:
+5. Run the non-mutating audit helper:
 
 ```bash
 python3 .codex/skills/certify-tuindice-pr/scripts/inspect_certification_state.py
@@ -35,7 +42,7 @@ fingerprint; production preflight republishes its status onto the PR head via
 `E2E_REUSE_STATUS_BY_FINGERPRINT`), or `rerun` (no passing evidence for the
 fingerprint). Suites marked `current` or `reusable` need no local rerun.
 
-5. Run local PR preflight parity checks:
+6. Run local PR preflight parity checks:
 
 ```bash
 .codex/skills/certify-tuindice-pr/scripts/run_preflight_parity_checks.sh
@@ -45,7 +52,7 @@ This resolves the same focused Android/iOS Gradle tasks as
 `preflight-production-pr.yml` for the current diff, including the iOS host flags
 used by `Run focused iOS checks`.
 
-6. Run local commit-bound evidence only when the audit reports `rerun` suites:
+7. Run local commit-bound evidence only when the audit reports `rerun` suites:
 
 ```bash
 ./gradlew --continue --console=plain e2eMaestroEvidenceLocal
@@ -53,14 +60,14 @@ used by `Run focused iOS checks`.
 
 Skip this step entirely when every required suite is `current` or `reusable`.
 
-7. If preflight parity or evidence fails, enter the iterative correction loop. Do not open or mark a PR ready.
-8. Before accepting any E2E/preflight stabilization fix, enforce the product integrity gate below.
-9. After the final push, rerun the audit helper and confirm every required platform/suite is `current` or `reusable` for the final remote SHA.
-10. Open or update a non-draft PR against `production` with a title that does not mention Codex.
-11. Verify the PR head SHA matches the certified SHA.
-12. Stop the local test devices left running by evidence: `e2e/scripts/stop-devices.sh android ios`. If a later fix forces another evidence run after devices are stopped, boot them again first with `e2e/scripts/boot-devices.sh android ios`.
-13. Deliver in the session (never in the PR body) a Spanish store-copy proposal derived from the certified diff against `production`: **Promotional Text** (170 characters max) and **What's New in This Version** (4000 characters max). Both in end-user language describing external functionality only — no tests, CI, harness, refactors, or other internals. If the diff has no user-visible changes, say so and propose keeping the current store texts. See the runbook's Post-PR Wrap-up for the full rules.
-14. Close with a self meta-analysis of this certification run: recommend — do not implement — concrete improvements to this skill's own scripts, runbook, or `SKILL.md`, grounded in what actually happened during the fix loop rather than generic advice. Present it as text in the session; this step must not edit skill files, commit, branch, or spawn a task to implement its own suggestions. See the runbook's Post-Certification Meta-Analysis for the full rules.
+8. If preflight parity or evidence fails, enter the iterative correction loop. Do not open or mark a PR ready.
+9. Before accepting any E2E/preflight stabilization fix, enforce the product integrity gate below.
+10. After the final push, rerun the audit helper and confirm every required platform/suite is `current` or `reusable` for the final remote SHA.
+11. Open or update a non-draft PR against `production` with a title that does not mention Codex.
+12. Verify the PR head SHA matches the certified SHA.
+13. Stop the local test devices left running by evidence: `e2e/scripts/stop-devices.sh android ios`. If a later fix forces another evidence run after devices are stopped, boot them again first with `e2e/scripts/boot-devices.sh android ios`.
+14. Deliver in the session (never in the PR body) a Spanish store-copy proposal derived from the certified diff against `production`: **Promotional Text** (170 characters max) and **What's New in This Version** (4000 characters max). Both in end-user language describing external functionality only — no tests, CI, harness, refactors, or other internals. If the diff has no user-visible changes, say so and propose keeping the current store texts. See the runbook's Post-PR Wrap-up for the full rules.
+15. Close with a self meta-analysis of this certification run: concrete improvements to this skill's own scripts, runbook, or `SKILL.md`, grounded in what actually happened during the fix loop rather than generic advice. Present it as text in the session, then **apply whatever is mechanical onto `chore/certification-feedback`** — never onto the certified branch, whose diff is already certified. Push that branch so the next `feat/*` absorbs it at step 2. Recommendations that need a product or design decision stay as text for the user. See the runbook's Post-Certification Meta-Analysis for the full rules.
 
 ## Product Integrity Gate
 

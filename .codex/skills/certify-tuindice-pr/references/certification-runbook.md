@@ -514,10 +514,13 @@ Rules for both texts:
 ## Post-Certification Meta-Analysis
 
 After the store-copy proposal, close the session with a short retrospective
-on this specific certification run — not a generic checklist. **Recommend
-only**: this step must never edit skill files, commit, open a branch, or
-spawn a task to implement its own suggestions. Acting on a recommendation is
-separate, deliberate work the user starts explicitly in a later session.
+on this specific certification run — not a generic checklist. Then act on it:
+a recommendation that only ever exists as session text is lost the moment the
+session ends, which is how the same cost gets paid twice.
+
+Where it goes is covered below in Carrying Feedback Forward. The certified
+branch is off limits: its diff is already certified, and evidence is bound to
+its fingerprint.
 
 Ground every recommendation in something that actually happened during this
 run:
@@ -541,3 +544,45 @@ Format: a short prioritized list, each item naming the concrete trigger from
 this run and the specific change proposed (file, script, or doctrine point).
 Do not restate points already closed by a prior certification's
 meta-analysis unless this run surfaced a gap in that fix.
+
+## Carrying Feedback Forward
+
+Improvements found while certifying wait on `chore/certification-feedback` and
+are absorbed by the next `feat/*` branch. **The branch existing is what marks
+feedback as pending**; nothing else tracks it.
+
+The certified branch never carries them: its diff is certified and its evidence
+is bound to a fingerprint, so touching it invalidates both.
+
+### Writing feedback out (end of certification, step 15)
+
+Apply only what is mechanical — scripts, lints, runbook and `SKILL.md` text,
+harness fixtures. Anything needing a product or design decision stays as text
+for the user; do not guess it into the branch.
+
+1. Branch from current `origin/production`, not from the certified branch, so
+   the feedback carries no product changes.
+2. Apply the changes and verify them the same way any other change is verified.
+   A broken lint shipped here breaks the *next* branch, where nobody expects it.
+3. Commit with what the finding actually cost — "hid a BUILD FAILED and cost a
+   nine-minute preflight" is what makes a later reader keep the rule. A commit
+   that only says what changed loses the reason within a month.
+4. Push. If the branch already exists, add commits to it rather than replacing
+   it: an earlier certification's feedback may still be waiting.
+
+### Absorbing it (start of the next certification, step 2)
+
+Merge, do not cherry-pick — and note that a squash-merged PR does not make the
+feedback commits ancestors of `production`, so absorption cannot be detected
+from ancestry. That is why the branch is deleted explicitly once absorbed.
+
+1. Merge `origin/chore/certification-feedback` into the new `feat/*` branch.
+2. Verify what it brought: run the lints or scripts it touches before trusting
+   them, since they now gate this branch's own certification.
+3. Push the merge, then delete the remote branch — the feedback is now carried
+   by a branch heading for `production`.
+4. Report what was absorbed, so it is visible in the PR that will ship it.
+
+If the feedback does not belong in this branch — an unrelated hotfix, or a
+release branch that must stay minimal — say so and leave the branch untouched
+for the next one. Never carry it silently.
