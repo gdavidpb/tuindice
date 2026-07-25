@@ -150,9 +150,10 @@ class PendingMutationDaoTest {
 
 		dao.upsertEntities(listOf(failed, pending, failedInOtherScope))
 
-		val retried = dao.requeueFailedMutations(
+		val retried = dao.requeueMutations(
 			storeId = "evaluations",
 			scopeKey = "scope-1",
+			requeueFrom = "Failed",
 			retryableBefore = Long.MAX_VALUE,
 			updatedAt = 10L
 		)
@@ -305,7 +306,7 @@ class PendingMutationDaoTest {
 	}
 
 	@Test
-	fun requeueFailedMutations_onlyTouchesFailedRowsPastTheBackoff() = runTest {
+	fun requeueMutations_onlyTouchesMatchingRowsPastTheBackoff() = runTest {
 		dao.upsertEntities(
 			listOf(
 				pendingMutation(mutationId = "stale-failed", status = "Failed", updatedAt = 100L, lastError = "boom"),
@@ -314,9 +315,10 @@ class PendingMutationDaoTest {
 			)
 		)
 
-		val requeued = dao.requeueFailedMutations(
+		val requeued = dao.requeueMutations(
 			storeId = "evaluations",
 			scopeKey = "scope-1",
+			requeueFrom = "Failed",
 			retryableBefore = 500L,
 			updatedAt = 1_000L
 		)
