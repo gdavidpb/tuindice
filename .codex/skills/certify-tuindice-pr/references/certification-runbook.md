@@ -112,11 +112,76 @@ block certification; file the rest instead of expanding scope.
 ### Then verify cheaply, in risk order
 
 Before paying for a full evidence rotation, run the highest-risk flows in
-isolation with `e2e/scripts/diagnose-suite.sh <flow-or-suite> [--survey]`
-(~10 minutes for both platforms, no clean tree required, publishes nothing).
-Prioritise flows whose assertions depend on behaviour the diff changed. Finish
-with the affected suite under `--survey` so every remaining failure is reported
-in one pass instead of one per rotation.
+isolation. `e2e/scripts/diagnose-flows.sh` takes them in order, runs both
+platforms, and stops at the first failure:
+
+```bash
+e2e/scripts/diagnose-flows.sh \
+  e2e/maestro/flows/<module>/<highest-risk-flow>.yaml \
+  e2e/maestro/flows/<module>/<next>.yaml \
+  e2e/maestro/flows/suites/<module>-suite.yaml
+```
+
+Each target is roughly four minutes per platform, needs no clean or pushed
+tree, and publishes nothing. Order by which assertions depend on behaviour the
+diff changed; put anything with no unit coverage first. Finish with the
+affected suite, adding `--survey` on that last pass so every remaining failure
+is reported at once — and because only a suite run can expose state leaking
+between cases, which single-flow runs cannot reproduce.
+
+This is the step that decides whether certification takes one rotation or
+several. Skipping it does not save time; it moves the same discoveries to the
+most expensive place to make them.
+
+## Inner-Loop Discipline
+
+Three ways this loop lies about being green.
+
+**A green Android run says nothing about iOS.** `testAndroidHostTest` does not
+compile the `iosTest` source set. Renaming anything in `commonMain` can leave
+iOS call sites broken through an entire local verification cycle, surfacing
+only minutes into preflight. After any signature change in shared code, compile
+both sides before trusting the result:
+
+```bash
+./gradlew --continue :<module>:compileTestKotlinIosSimulatorArm64
+```
+
+It takes seconds against the nine minutes preflight costs to tell you the same
+thing.
+
+**Reading a long task through `tail` reports the wrong exit code.** In a
+`cmd | tail -n` pipeline the status belongs to `tail`, so a failed build looks
+like a success, and the surviving lines can show an unrelated part of the run —
+a retry-absorbed failure reads exactly like a fatal one. Redirect to a file and
+capture the status:
+
+```bash
+<command> > "${log}" 2>&1; echo "EXIT=$?"; tail -5 "${log}"
+```
+
+Then read the failure from the full log, not from the tail.
+
+**Verify a fix by reverting it.** A test that passes with the fix removed is
+not coverage. This matters most for anything timing-related, where the default
+test doubles cannot express the failure at all: revert the fix, confirm the
+test fails, restore it with an explicit edit — never `git checkout`/`restore`,
+which silently discards other uncommitted work.
+
+### Delegating parts of the loop
+
+Subagents handle well-scoped refactors and audits well, but their output needs
+the same verification as anything else — re-run the checks yourself rather than
+trusting the report. State these in the prompt, because each has been violated:
+
+- Never suppress findings in a `detekt-baseline.xml`. Debt the change itself
+  introduces gets fixed, not recorded. Never regenerate a baseline: it silently
+  drops unrelated suppressions.
+- Never use `git checkout --`/`restore`, never commit, push, or switch branches;
+  uncommitted work from the main session is usually present.
+- Prove any new test is falsifiable and report the experiment.
+- Update every call site of a renamed symbol across all source sets, not just
+  the one the local test task compiles.
 
 ## Running PR Preflight Parity
 

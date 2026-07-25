@@ -75,7 +75,13 @@ E2E and preflight fixes must not arbitrarily alter the product experience.
 ## Iterative Correction Loop
 
 Treat failures as normal certification work. Iterate with cheap targeted
-diagnosis runs; pay for full commit-bound evidence once, on the final SHA:
+diagnosis runs; pay for full commit-bound evidence once, on the final SHA.
+
+Read the runbook's Inner-Loop Discipline before iterating: a green local run
+can be lying — `testAndroidHostTest` never compiles `iosTest`, a `| tail`
+pipeline reports its own exit code rather than the build's, and a test that
+still passes with its fix reverted is not coverage. It also lists what every
+delegation prompt must forbid.
 
 1. Identify the failing platform, suite, and flow from Gradle output, `maestro.log`, and `junit.xml`.
 2. Decide whether the failure is product behavior, E2E coverage, or local environment.
