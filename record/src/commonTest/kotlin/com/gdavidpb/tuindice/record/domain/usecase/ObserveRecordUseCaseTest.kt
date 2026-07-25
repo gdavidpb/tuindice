@@ -93,6 +93,52 @@ class ObserveRecordUseCaseTest {
 	}
 
 	@Test
+	fun execute_doesNotClobberFreshSelection_whenRecordSnapshotHasNotCaughtUpYet() = runTest {
+		val initialRecord = AcademicRecord(
+			id = "record",
+			terms = listOf(academicTerm(id = "term-a", periodYear = 2024))
+		)
+		val academicRecordRepository = ControllableAcademicRecordRepository(initialRecord = initialRecord)
+		val selectionRepository = RecordingRecordSelectionRepository()
+		selectionRepository.setSelectedTermId(RecordViewMode.Historical, "term-a")
+		selectionRepository.setSelectedTermCalls.clear()
+		val useCase = createUseCase(academicRecordRepository, selectionRepository)
+
+		useCase.execute(Unit).test {
+			val initial = awaitLoadingThenData(this)
+			assertEquals("term-a", initial.selectedTermId)
+
+			// Simulates SetSelectedTermUseCase explicitly selecting a term the record
+			// snapshot doesn't know about yet (e.g. right after creating a synthetic
+			// term: this settings-backed StateFlow dispatches immediately, while the
+			// confirmed record snapshot is Room-backed and can lag behind it).
+			selectionRepository.setSelectedTermId(RecordViewMode.Historical, "term-new")
+			selectionRepository.setSelectedTermCalls.clear()
+
+			val duringLag = assertIs<UseCaseState.Data<ObservedRecord>>(awaitItem()).value
+			assertEquals("term-a", duringLag.selectedTermId)
+
+			val updatedRecord = AcademicRecord(
+				id = "record",
+				terms = listOf(
+					academicTerm(id = "term-new", periodYear = 2025),
+					academicTerm(id = "term-a", periodYear = 2024)
+				)
+			)
+			academicRecordRepository.recordFlow.value = updatedRecord
+
+			val caughtUp = assertIs<UseCaseState.Data<ObservedRecord>>(awaitItem()).value
+			assertEquals("term-new", caughtUp.selectedTermId)
+
+			cancelAndIgnoreRemainingEvents()
+		}
+
+		// The explicit selection must never have been overwritten back to "term-a"
+		// while the record snapshot was catching up.
+		assertEquals(emptyList(), selectionRepository.setSelectedTermCalls)
+	}
+
+	@Test
 	fun execute_fallsBackToMirroredSelection_whenCurrentModeHasNoSelection() = runTest {
 		val record = AcademicRecord(
 			id = "record",
