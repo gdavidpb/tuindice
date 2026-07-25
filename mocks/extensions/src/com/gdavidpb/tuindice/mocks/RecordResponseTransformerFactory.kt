@@ -21,10 +21,7 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 		private val objectMapper = ObjectMapper()
 		private val lock = Any()
 		private val baseState: BaseState = readBaseState(services.files)
-		private val state = RuntimeState(
-			recordRevision = initialRevision(baseState),
-			terms = baseState.terms.toMutableList()
-		)
+		private var state = initialRuntimeState()
 
 		override fun getName(): String = "record-response-transformer"
 
@@ -35,6 +32,7 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			val pathSegments = pathSegments(request)
 
 			return when {
+				isResetRequest(request, pathSegments) -> resetResponse()
 				isGetRequest(request, pathSegments) -> getResponse()
 				isPutAttemptRequest(request, pathSegments) -> putAttemptResponse(request, pathSegments[4])
 				isDeleteAttemptRequest(request, pathSegments) -> deleteAttemptResponse(request, pathSegments[4])
@@ -45,6 +43,11 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 				else -> jsonResponse(404, mapOf("error" to "record_endpoint_not_found"), ERROR_DELAY_MS)
 			}
 		}
+
+		private fun initialRuntimeState(): RuntimeState = RuntimeState(
+			recordRevision = initialRevision(baseState),
+			terms = baseState.terms.toMutableList()
+		)
 
 		private fun readBaseState(fileSource: FileSource): BaseState {
 			try {
@@ -156,6 +159,14 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 				academicBadge = canonicalBadgeValue(status),
 				mutable = node.path("mutable").asBoolean(false),
 			)
+		}
+
+		private fun isResetRequest(request: com.github.tomakehurst.wiremock.http.Request, pathSegments: List<String>): Boolean =
+			request.method == RequestMethod.POST && pathSegments == listOf("record", "v5", "reset")
+
+		private fun resetResponse(): ResponseDefinition {
+			state = initialRuntimeState()
+			return jsonResponse(200, mapOf("reset" to true), 0)
 		}
 
 		private fun isGetRequest(request: com.github.tomakehurst.wiremock.http.Request, pathSegments: List<String>): Boolean =
