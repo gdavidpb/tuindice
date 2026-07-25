@@ -32,8 +32,7 @@ interface AcademicRecordRepository {
 	suspend fun upsertAttemptOverride(
 		attemptId: String,
 		score: AttemptScore?,
-		outcome: AttemptOutcome?,
-		commit: Boolean
+		outcome: AttemptOutcome?
 	)
 	suspend fun deleteAttemptOverride(attemptId: String)
 	suspend fun addSyntheticTerm(command: SyntheticTermCreationCommand)

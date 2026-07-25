@@ -23,7 +23,8 @@ class UpsertAttemptSelectionUseCase(
 			outcome = params.outcome
 		)
 
-		if (params.commit && shouldClearOverride(
+		if (
+			shouldClearOverride(
 				attemptId = params.attemptId,
 				score = score,
 				outcome = outcome
@@ -34,8 +35,7 @@ class UpsertAttemptSelectionUseCase(
 			academicRecordRepository.upsertAttemptOverride(
 				attemptId = params.attemptId,
 				score = score,
-				outcome = outcome,
-				commit = params.commit
+				outcome = outcome
 			)
 		}
 

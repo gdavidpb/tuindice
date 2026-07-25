@@ -2,8 +2,6 @@ package com.gdavidpb.tuindice.data.repository.sync
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicProfile
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
-import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
-import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
@@ -15,7 +13,6 @@ import com.gdavidpb.tuindice.data.model.SyncRetryBackoffState
 import com.gdavidpb.tuindice.data.source.sync.SyncDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncRemoteException
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
-import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
@@ -778,21 +775,6 @@ private class FakeAcademicRecordLocalDataRepository : AcademicRecordLocalDataRep
 	override suspend fun saveAcademicRecord(record: VersionedAcademicRecord) {
 		savedRecords += record
 	}
-
-	override suspend fun upsertAttemptOverride(
-		attemptId: String,
-		score: AttemptScore?,
-		outcome: AttemptOutcome?,
-		committed: Boolean
-	): AcademicRecord? = null
-
-	override suspend fun deleteAttemptOverride(attemptId: String): AcademicRecord? = null
-
-	override suspend fun addSyntheticTerm(command: AcademicRecordMutation.AddSyntheticTerm): AcademicRecord? = null
-
-	override suspend fun updateSyntheticTerm(command: AcademicRecordMutation.UpdateSyntheticTerm): AcademicRecord? = null
-
-	override suspend fun deleteSyntheticTerm(termId: String): AcademicRecord? = null
 }
 
 private class FakeUserLocalDataRepository : LocalDataRepository {

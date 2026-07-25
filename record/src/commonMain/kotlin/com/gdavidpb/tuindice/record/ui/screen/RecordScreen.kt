@@ -68,7 +68,7 @@ fun RecordScreen(
 	val selectedTermIdValue = selectedTermId ?: contentState?.selectedTermId
 	val selectedSyntheticTerm = contentState
 		?.takeIf { content -> content.viewMode == RecordViewMode.Projection }
-		?.record
+		?.visibleRecord
 		?.filteredProjectionFor(RecordViewMode.Projection)
 		?.terms
 		?.firstOrNull { term ->
@@ -76,7 +76,7 @@ fun RecordScreen(
 		}
 	val isEnrollmentProofVisible = contentState
 		?.takeIf { content -> content.viewMode == RecordViewMode.Projection }
-		?.record
+		?.visibleRecord
 		?.filteredProjectionFor(RecordViewMode.Projection)
 		?.terms
 		?.any { term ->

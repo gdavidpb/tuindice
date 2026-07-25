@@ -149,5 +149,6 @@
     <ID>Wrapping:AcademicRecordDataSourceTest.kt$AcademicRecordDataSourceTest$(listOf("MA1111"), remoteDataSource.updateSyntheticTermCommands.single().attempts.map { attempt -&gt; attempt.subjectCode })</ID>
     <ID>Wrapping:AcademicRecordRoomDataSource.kt$AcademicRecordRoomDataSource$(</ID>
     <ID>Wrapping:ObserveRecordUseCase.kt$ObserveRecordUseCase$(</ID>
+    <ID>LargeClass:AcademicRecordDataSourceTest.kt$AcademicRecordDataSourceTest</ID>
   </CurrentIssues>
 </SmellBaseline>

@@ -27,27 +27,22 @@ internal fun MachineDefinitionBuilder<Record.State>.recordAnyStateTransitions(
 			state
 		}
 
-		on<Record.Action.UpsertAttemptSelection> { state, action ->
-			machine.upsertAttemptSelection(
-				host = host,
-				attemptId = action.attemptId,
-				grade = action.grade,
-				outcome = action.outcome,
-				commit = action.commit
-			)
-			state
-		}
-
 		on<Record.Action.DeleteSyntheticTerm> { state, action ->
 			machine.deleteSyntheticTerm(host = host, termId = action.termId)
 			state
 		}
 
-		onTo<RecordInternalEvent.RecordContentObserved, Record.State.Content> { _, event ->
+		onTo<RecordInternalEvent.RecordContentObserved, Record.State.Content> { state, event ->
 			Record.State.Content(
 				viewMode = event.viewMode,
 				record = event.record,
-				selectedTermId = event.selectedTermId
+				selectedTermId = event.selectedTermId,
+				// Una observación posterior al commit ya trae el cambio por el overlay
+				// del outbox, así que el valor en vuelo sobra. Si el gesto sigue en
+				// curso (aún sin commit) se conserva: la observación no lo contiene.
+				inFlightSelection = (state as? Record.State.Content)
+					?.inFlightSelection
+					?.takeUnless { selection -> selection.isCommitted }
 			)
 		}
 

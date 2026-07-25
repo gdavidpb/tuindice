@@ -200,29 +200,25 @@ class RecordMachine(
 		host: MachineHost<Record.Effect>,
 		attemptId: String,
 		grade: Int?,
-		outcome: AttemptOutcome?,
-		commit: Boolean
+		outcome: AttemptOutcome?
 	) {
 		host.launchMachineJob {
 			upsertAttemptSelectionUseCase.execute(
 				UpsertAttemptSelectionParams(
 					attemptId = attemptId,
 					grade = grade,
-					outcome = outcome,
-					commit = commit
+					outcome = outcome
 				)
 			).collect { useCaseState ->
 				if (useCaseState is UseCaseState.Error) {
-					when {
-						useCaseState.error == RecordUseCaseError.Unauthorized ->
-							host.processInternalEvent(RecordInternalEvent.RecordUnauthorized)
-
-						commit ->
-							host.processInternalEvent(
-								RecordInternalEvent.AttemptSelectionFailed(
-									message = useCaseState.error.toRecordFailureMessage()
-								)
+					if (useCaseState.error == RecordUseCaseError.Unauthorized) {
+						host.processInternalEvent(RecordInternalEvent.RecordUnauthorized)
+					} else {
+						host.processInternalEvent(
+							RecordInternalEvent.AttemptSelectionFailed(
+								message = useCaseState.error.toRecordFailureMessage()
 							)
+						)
 					}
 				}
 			}

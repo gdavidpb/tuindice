@@ -49,7 +49,7 @@ class AcademicRecordFailedMutationVisibilityTest {
 
 		dataSource.updateAcademicRecord(forceRemote = true)
 
-		val overrides = requireNotNull(localDataSource.getAcademicRecord()).attemptOverrides
+		val overrides = requireNotNull(dataSource.getAcademicRecord()).attemptOverrides
 		assertEquals(listOf(attemptId), overrides.map(AttemptOverride::attemptId))
 		assertEquals(AttemptScore.numeric(5), overrides.single().score)
 	}

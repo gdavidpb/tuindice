@@ -30,10 +30,13 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
+@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class AcademicRecordDataSourceTest {
 	@Test
 	fun updateAcademicRecord_ignoresCooldown_whenLocalRecordIsMissing() = runTest {
@@ -206,12 +209,21 @@ class AcademicRecordDataSourceTest {
 			identifierRepository = FakeIdentifierRepository()
 		)
 
+		val visibleGrades = mutableListOf<Int?>()
+		val collectorJob = launch {
+			dataSource.observeAcademicRecordFlow().collect { record ->
+				visibleGrades += record.attemptOverrides
+					.firstOrNull { override -> override.attemptId == secondAttemptId }
+					?.score
+					?.numericValue
+			}
+		}
+
 		val firstUpsertJob = async {
 			dataSource.upsertAttemptOverride(
 				attemptId = firstAttemptId,
 				score = AttemptScore.numeric(4),
-				outcome = null,
-				commit = true
+				outcome = null
 			)
 		}
 		remoteDataSource.firstUpsertStarted.await()
@@ -220,8 +232,7 @@ class AcademicRecordDataSourceTest {
 			dataSource.upsertAttemptOverride(
 				attemptId = secondAttemptId,
 				score = AttemptScore.numeric(5),
-				outcome = null,
-				commit = true
+				outcome = null
 			)
 		}
 
@@ -230,10 +241,12 @@ class AcademicRecordDataSourceTest {
 		firstUpsertJob.await()
 		secondUpsertJob.await()
 
-		assertEquals(
-			listOf(null, null, 5, 5, 5),
-			localDataSource.overrideGradeTimeline(secondAttemptId)
-		)
+		advanceUntilIdle()
+		collectorJob.cancel()
+
+		// El ack anterior no puede retroceder el override mas nuevo: el estado visible
+		// se deriva del outbox, donde solo queda la ultima mutacion por replaceKey.
+		assertEquals(listOf(5), visibleGrades.filterNotNull().distinct())
 		assertEquals(
 			listOf(
 				AttemptOverride(
@@ -247,7 +260,7 @@ class AcademicRecordDataSourceTest {
 					updatedAtMillis = 3L
 				)
 			),
-			requireNotNull(localDataSource.getAcademicRecord()).attemptOverrides
+			requireNotNull(dataSource.getAcademicRecord()).attemptOverrides
 		)
 	}
 
@@ -318,12 +331,21 @@ class AcademicRecordDataSourceTest {
 			identifierRepository = FakeIdentifierRepository()
 		)
 
+		val visibleGrades = mutableListOf<Int?>()
+		val collectorJob = launch {
+			dataSource.observeAcademicRecordFlow().collect { record ->
+				visibleGrades += record.attemptOverrides
+					.firstOrNull { override -> override.attemptId == attemptId }
+					?.score
+					?.numericValue
+			}
+		}
+
 		val firstUpsertJob = async {
 			dataSource.upsertAttemptOverride(
 				attemptId = attemptId,
 				score = AttemptScore.numeric(4),
-				outcome = null,
-				commit = true
+				outcome = null
 			)
 		}
 		remoteDataSource.firstUpsertStarted.await()
@@ -332,8 +354,7 @@ class AcademicRecordDataSourceTest {
 			dataSource.upsertAttemptOverride(
 				attemptId = attemptId,
 				score = AttemptScore.numeric(5),
-				outcome = null,
-				commit = true
+				outcome = null
 			)
 		}
 
@@ -344,7 +365,10 @@ class AcademicRecordDataSourceTest {
 
 		assertEquals(listOf("mutation-1", "mutation-2", "mutation-2"), remoteDataSource.upsertAttemptMutationIds)
 		assertEquals(listOf(2L, 2L, 3L), remoteDataSource.upsertAttemptExpectedRevisions)
-		assertEquals(listOf(4, 5, 5, 5), localDataSource.overrideGradeTimeline(attemptId).filterNotNull())
+		advanceUntilIdle()
+		collectorJob.cancel()
+
+		assertEquals(listOf(4, 5), visibleGrades.filterNotNull().distinct())
 		assertEquals(
 			listOf(
 				AttemptOverride(
@@ -353,7 +377,7 @@ class AcademicRecordDataSourceTest {
 					updatedAtMillis = 3L
 				)
 			),
-			requireNotNull(localDataSource.getAcademicRecord()).attemptOverrides
+			requireNotNull(dataSource.getAcademicRecord()).attemptOverrides
 		)
 	}
 
@@ -426,8 +450,7 @@ class AcademicRecordDataSourceTest {
 			dataSource.upsertAttemptOverride(
 				attemptId = attemptId,
 				score = AttemptScore.numeric(5),
-				outcome = null,
-				commit = true
+				outcome = null
 			)
 		}
 
@@ -451,7 +474,7 @@ class AcademicRecordDataSourceTest {
 					updatedAtMillis = 2L
 				)
 			),
-			requireNotNull(localDataSource.getAcademicRecord()).attemptOverrides
+			requireNotNull(dataSource.getAcademicRecord()).attemptOverrides
 		)
 	}
 
@@ -560,7 +583,7 @@ class AcademicRecordDataSourceTest {
 		assertEquals(listOf("MA1111"), remoteDataSource.updateSyntheticTermCommands.single().attempts.map { attempt ->
 			attempt.subjectCode
 		})
-		assertEquals(updatedRecord, requireNotNull(localDataSource.getAcademicRecord()))
+		assertEquals(updatedRecord, requireNotNull(dataSource.getAcademicRecord()))
 	}
 
 	@Test
@@ -623,7 +646,7 @@ class AcademicRecordDataSourceTest {
 		assertEquals(listOf("2026-SEP_DEC"), remoteDataSource.deleteSyntheticTermIds)
 		assertEquals(listOf("mutation-1"), remoteDataSource.deleteSyntheticTermMutationIds)
 		assertEquals(listOf(12L), remoteDataSource.deleteSyntheticTermExpectedRevisions)
-		assertEquals(updatedRecord, requireNotNull(localDataSource.getAcademicRecord()))
+		assertEquals(updatedRecord, requireNotNull(dataSource.getAcademicRecord()))
 	}
 
 	@Test
@@ -663,7 +686,7 @@ class AcademicRecordDataSourceTest {
 		dataSource.deleteSyntheticTerm("2026-APR_JUL")
 
 		assertEquals(0, remoteDataSource.deleteSyntheticTermCalls)
-		assertEquals(initialRecord, requireNotNull(localDataSource.getAcademicRecord()))
+		assertEquals(initialRecord, requireNotNull(dataSource.getAcademicRecord()))
 	}
 }
 
@@ -711,105 +734,6 @@ internal class FakeAcademicRecordLocalDataRepository(
 		recordState.value = record.record
 		stateHistory += record.record
 		savedRecords += record
-	}
-
-	override suspend fun upsertAttemptOverride(
-		attemptId: String,
-		score: AttemptScore?,
-		outcome: AttemptOutcome?,
-		committed: Boolean
-	): AcademicRecord {
-		val current = requireNotNull(recordState.value)
-		val updated = current.copy(
-			attemptOverrides = current.attemptOverrides
-				.filterNot { override -> override.attemptId == attemptId } +
-				AttemptOverride(
-					attemptId = attemptId,
-					score = score,
-					outcome = outcome,
-					updatedAtMillis = 10L
-				)
-		)
-		recordState.value = updated
-		stateHistory += updated
-		return updated
-	}
-
-	override suspend fun deleteAttemptOverride(attemptId: String): AcademicRecord {
-		val current = requireNotNull(recordState.value)
-		val updated = current.copy(
-			attemptOverrides = current.attemptOverrides.filterNot { override ->
-				override.attemptId == attemptId
-			}
-		)
-		recordState.value = updated
-		stateHistory += updated
-		return updated
-	}
-
-	override suspend fun addSyntheticTerm(command: AcademicRecordMutation.AddSyntheticTerm): AcademicRecord {
-		val current = requireNotNull(recordState.value)
-		val updated = current.copy(
-			terms = current.terms.filterNot { term -> term.id == command.termId } + AcademicTerm(
-				id = command.termId,
-				periodYear = command.periodYear,
-				periodCode = command.periodCode,
-				kind = TermKind.SYNTHETIC,
-				attempts = command.attempts.map { attempt ->
-					AcademicAttempt(
-						id = attempt.attemptId,
-						subjectCode = attempt.subjectCode,
-						subjectName = attempt.subjectName,
-						credits = attempt.credits,
-						gradingMode = attempt.gradingMode,
-						academicScore = attempt.score ?: AttemptScore.empty(),
-						academicOutcome = attempt.outcome ?: AttemptOutcome.PENDING
-					)
-				}
-			)
-		)
-		recordState.value = updated
-		stateHistory += updated
-		return updated
-	}
-
-	override suspend fun updateSyntheticTerm(command: AcademicRecordMutation.UpdateSyntheticTerm): AcademicRecord {
-		val current = requireNotNull(recordState.value)
-		val updatedTerms = current.terms.filterNot { term ->
-			term.id == command.targetTermId || term.termKey == command.targetTermKey
-		} + command.toAcademicTerm()
-		val availableAttemptIds = updatedTerms
-			.flatMap(AcademicTerm::attempts)
-			.map(AcademicAttempt::id)
-			.toSet()
-		val updated = current.copy(
-			terms = updatedTerms.sortedWith(compareBy(AcademicTerm::termOrder, AcademicTerm::id)),
-			attemptOverrides = current.attemptOverrides.filter { override ->
-				override.attemptId in availableAttemptIds
-			}
-		)
-		recordState.value = updated
-		stateHistory += updated
-		return updated
-	}
-
-	override suspend fun deleteSyntheticTerm(termId: String): AcademicRecord {
-		val current = requireNotNull(recordState.value)
-		val targetTerm = current.terms.firstOrNull { term -> term.id == termId }
-		val removedAttemptIds = targetTerm
-			?.attempts
-			?.map(AcademicAttempt::id)
-			?.toSet()
-			.orEmpty()
-		val updated = current.copy(
-			terms = current.terms.filterNot { term -> term.id == termId },
-			attemptOverrides = current.attemptOverrides.filterNot { override ->
-				override.attemptId in removedAttemptIds
-			}
-		)
-		recordState.value = updated
-		stateHistory += updated
-		return updated
 	}
 
 	fun overrideGradeTimeline(attemptId: String): List<Int?> {

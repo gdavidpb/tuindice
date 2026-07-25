@@ -8,13 +8,13 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
-import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
+import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutationSyncSpec
 import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_SCOPE
@@ -25,9 +25,9 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.mapNotNull
 
 class AcademicRecordDataSource(
 	private val localDataSource: AcademicRecordLocalDataRepository,
@@ -43,7 +43,19 @@ class AcademicRecordDataSource(
 	)
 
 	override suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord> {
-		return localDataSource.observeAcademicRecordFlow().filterNotNull()
+		return observeVisibleRecordFlow().filterNotNull()
+	}
+
+	// El estado visible se deriva al leer: lo confirmado más los sobres del outbox.
+	// La base local guarda solo lo confirmado, así que no hay dos representaciones del
+	// mismo cambio que puedan divergir.
+	private fun observeVisibleRecordFlow(): Flow<AcademicRecord?> {
+		return combine(
+			localDataSource.observeAcademicRecordFlow(),
+			mutationEngine.observeMutations(RECORD_MUTATION_SCOPE)
+		) { confirmedRecord, mutations ->
+			confirmedRecord?.reapplying(mutations.sortedForReplay())
+		}
 	}
 
 	override suspend fun observeHasSyncedRecordFlow(): Flow<Boolean> {
@@ -51,18 +63,21 @@ class AcademicRecordDataSource(
 	}
 
 	override suspend fun observeAcademicRecordSnapshotFlow(): Flow<ObservedSyncedSnapshot<AcademicRecord>> {
-		return localDataSource.observeAcademicRecordSnapshotFlow()
-			.mapNotNull { snapshot ->
-				val record = snapshot.value ?: return@mapNotNull null
+		return combine(
+			observeVisibleRecordFlow(),
+			localDataSource.observeHasSyncedRecordFlow()
+		) { record, hasSynced ->
+			record?.let { value ->
 				ObservedSyncedSnapshot(
-					value = record,
-					hasSynced = snapshot.hasSynced
+					value = value,
+					hasSynced = hasSynced
 				)
 			}
+		}.filterNotNull()
 	}
 
 	override suspend fun getAcademicRecord(): AcademicRecord? {
-		return localDataSource.getAcademicRecord()
+		return localDataSource.getAcademicRecord()?.reapplying(currentPendingMutations())
 	}
 
 	override suspend fun updateAcademicRecord() {
@@ -101,20 +116,10 @@ class AcademicRecordDataSource(
 	override suspend fun upsertAttemptOverride(
 		attemptId: String,
 		score: AttemptScore?,
-		outcome: AttemptOutcome?,
-		commit: Boolean
+		outcome: AttemptOutcome?
 	) {
 		localDataSource.getAcademicRecord() ?: return
 		val currentRevision = localDataSource.getRecordRevision() ?: return
-		localDataSource.upsertAttemptOverride(
-			attemptId = attemptId,
-			score = score,
-			outcome = outcome,
-			committed = commit
-		)
-
-		if (!commit) return
-
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
 			mutationId = identifierRepository.generateRandomIdentifier(),
 			scopeKey = RECORD_MUTATION_SCOPE,
@@ -135,7 +140,6 @@ class AcademicRecordDataSource(
 	override suspend fun deleteAttemptOverride(attemptId: String) {
 		localDataSource.getAcademicRecord() ?: return
 		val currentRevision = localDataSource.getRecordRevision() ?: return
-		localDataSource.deleteAttemptOverride(attemptId)
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
 			mutationId = identifierRepository.generateRandomIdentifier(),
 			scopeKey = RECORD_MUTATION_SCOPE,
@@ -153,7 +157,6 @@ class AcademicRecordDataSource(
 		localDataSource.getAcademicRecord() ?: return
 		val currentRevision = localDataSource.getRecordRevision() ?: return
 		val mutationCommand = command.toMutation()
-		localDataSource.addSyntheticTerm(mutationCommand)
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
 			mutationId = identifierRepository.generateRandomIdentifier(),
 			scopeKey = RECORD_MUTATION_SCOPE,
@@ -171,7 +174,6 @@ class AcademicRecordDataSource(
 		localDataSource.getAcademicRecord() ?: return
 		val currentRevision = localDataSource.getRecordRevision() ?: return
 		val mutationCommand = command.toMutation()
-		localDataSource.updateSyntheticTerm(mutationCommand)
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
 			mutationId = identifierRepository.generateRandomIdentifier(),
 			scopeKey = RECORD_MUTATION_SCOPE,
@@ -186,12 +188,11 @@ class AcademicRecordDataSource(
 	}
 
 	override suspend fun deleteSyntheticTerm(termId: String) {
-		val localRecord = localDataSource.getAcademicRecord() ?: return
-		localRecord.terms.firstOrNull { term ->
+		val visibleRecord = getAcademicRecord() ?: return
+		visibleRecord.terms.firstOrNull { term ->
 			term.id == termId && term.kind.isSynthetic
 		} ?: return
 		val currentRevision = localDataSource.getRecordRevision() ?: return
-		localDataSource.deleteSyntheticTerm(termId) ?: return
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
 			mutationId = identifierRepository.generateRandomIdentifier(),
 			scopeKey = RECORD_MUTATION_SCOPE,
@@ -217,9 +218,7 @@ class AcademicRecordDataSource(
 	private suspend fun persistRemoteSnapshot(
 		remoteRecord: VersionedAcademicRecord
 	) {
-		localDataSource.saveAcademicRecord(
-			remoteRecord.reapplyingPendingMutations(currentPendingMutations())
-		)
+		localDataSource.saveAcademicRecord(remoteRecord)
 	}
 
 	private suspend fun submitTrackedMutation(
@@ -238,15 +237,22 @@ class AcademicRecordDataSource(
 	}
 
 	private suspend fun currentPendingMutations(): List<MutationEnvelope<String, AcademicRecordMutation>> {
-		return mutationEngine.getMutations(RECORD_MUTATION_SCOPE)
-			.sortedWith(compareBy(MutationEnvelope<String, AcademicRecordMutation>::createdAt, MutationEnvelope<String, AcademicRecordMutation>::mutationId))
+		return mutationEngine.getMutations(RECORD_MUTATION_SCOPE).sortedForReplay()
 	}
 
-	private fun VersionedAcademicRecord.reapplyingPendingMutations(
+	private fun List<MutationEnvelope<String, AcademicRecordMutation>>.sortedForReplay() =
+		sortedWith(
+			compareBy(
+				MutationEnvelope<String, AcademicRecordMutation>::createdAt,
+				MutationEnvelope<String, AcademicRecordMutation>::mutationId
+			)
+		)
+
+	private fun AcademicRecord.reapplying(
 		pendingMutations: List<MutationEnvelope<String, AcademicRecordMutation>>
-	): VersionedAcademicRecord {
+	): AcademicRecord {
 		return pendingMutations.fold(this) { currentRecord, pendingMutation ->
-			currentRecord.copy(record = currentRecord.record.reapplying(pendingMutation.command))
+			currentRecord.reapplying(pendingMutation.command)
 		}
 	}
 
