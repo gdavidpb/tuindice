@@ -13,16 +13,23 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
+import com.gdavidpb.tuindice.persistence.domain.record.AcademicRecordMutation
+import com.gdavidpb.tuindice.persistence.domain.record.RECORD_MUTATION_SCOPE
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
+import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
 import com.gdavidpb.tuindice.record.data.source.AcademicRecordDataSource
 import com.gdavidpb.tuindice.record.data.source.FakeAcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.record.data.source.FakeIdentifierRepository
 import com.gdavidpb.tuindice.record.data.source.FakeRecordSettingsDataRepository
 import com.gdavidpb.tuindice.record.data.source.InMemoryMutationEnvelopeStore
+import com.gdavidpb.tuindice.record.data.source.LaggyAcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertFalse
@@ -65,35 +72,65 @@ class AcademicRecordMutationSyncSpecOrderingTest {
 
 	@Test
 	fun addSyntheticTerm_visibleRecordNeverLosesTheTermOnceItAppears() = runTest {
-		val recordWithTerm = academicRecordWithSyntheticTerm(TEST_TERM_ID)
-		val dataSource = academicRecordDataSource(
-			initialRecord = AcademicRecord(id = "record-1", terms = emptyList()),
-			remoteDataSource = errorRemoteDataSource(
-				addSyntheticTerm = { VersionedAcademicRecord(revision = 2L, record = recordWithTerm) }
-			),
-			coroutineScope = this
+		val observedTermPresence = observeTermPresenceDuringAddSyntheticTerm(
+			localDataSource = LaggyAcademicRecordLocalDataRepository(
+				delegate = FakeAcademicRecordLocalDataRepository(
+					record = VersionedAcademicRecord(
+						revision = 1L,
+						record = AcademicRecord(id = "record-1", terms = emptyList())
+					)
+				)
+			)
 		)
 
-		val observedTermPresence = mutableListOf<Boolean>()
-		val collector = launch {
-			dataSource.observeAcademicRecordFlow().collect { record ->
-				observedTermPresence += record.terms.any { term -> term.id == TEST_TERM_ID }
-			}
-		}
-
-		dataSource.addSyntheticTerm(syntheticTermCreationCommand(TEST_TERM_ID))
-		advanceUntilIdle()
-		collector.cancel()
-
-		val firstAppearance = observedTermPresence.indexOfFirst { present -> present }
-		check(firstAppearance >= 0) { "The term never appeared in the visible flow at all." }
-
-		// Once the term is visible, it must never disappear again — that regression is
-		// exactly what let a reactive selector observe "term not visible" mid-confirm
-		// and clobber an explicit selection back to the previous term.
-		val regressed = observedTermPresence.drop(firstAppearance + 1).any { present -> !present }
-		assertFalse(regressed, "Term visibility regressed after first appearing: $observedTermPresence")
+		assertTermVisibilityNeverRegressed(observedTermPresence)
 	}
+}
+
+private fun assertTermVisibilityNeverRegressed(observedTermPresence: List<Boolean>) {
+	val firstAppearance = observedTermPresence.indexOfFirst { present -> present }
+	check(firstAppearance >= 0) { "The term never appeared in the visible flow at all." }
+
+	val regressed = observedTermPresence.drop(firstAppearance + 1).any { present -> !present }
+	assertFalse(regressed, "Term visibility regressed after first appearing: $observedTermPresence")
+}
+
+private suspend fun TestScope.observeTermPresenceDuringAddSyntheticTerm(
+	localDataSource: AcademicRecordLocalDataRepository
+): List<Boolean> {
+	val recordWithTerm = academicRecordWithSyntheticTerm(TEST_TERM_ID)
+	val addSyntheticTermStarted = CompletableDeferred<Unit>()
+	val releaseAddSyntheticTerm = CompletableDeferred<Unit>()
+	val dataSource = academicRecordDataSource(
+		localDataSource = localDataSource,
+		remoteDataSource = errorRemoteDataSource(
+			addSyntheticTerm = {
+				addSyntheticTermStarted.complete(Unit)
+				releaseAddSyntheticTerm.await()
+				VersionedAcademicRecord(revision = 2L, record = recordWithTerm)
+			}
+		),
+		coroutineScope = this
+	)
+
+	val observedTermPresence = mutableListOf<Boolean>()
+	val collector = launch {
+		dataSource.observeAcademicRecordFlow().collect { record ->
+			observedTermPresence += record.terms.any { term -> term.id == TEST_TERM_ID }
+		}
+	}
+	runCurrent()
+
+	val creation = launch { dataSource.addSyntheticTerm(syntheticTermCreationCommand(TEST_TERM_ID)) }
+	addSyntheticTermStarted.await()
+	runCurrent()
+
+	releaseAddSyntheticTerm.complete(Unit)
+	creation.join()
+	advanceUntilIdle()
+	collector.cancel()
+
+	return observedTermPresence
 }
 
 private const val TEST_TERM_ID = "2026-SEP_DEC"
@@ -137,7 +174,7 @@ private fun syntheticTermCreationCommand(termId: String) = SyntheticTermCreation
 )
 
 private fun academicRecordDataSource(
-	initialRecord: AcademicRecord,
+	localDataSource: AcademicRecordLocalDataRepository,
 	remoteDataSource: AcademicRecordRemoteDataRepository,
 	coroutineScope: kotlinx.coroutines.CoroutineScope
 ): AcademicRecordDataSource {
@@ -149,9 +186,7 @@ private fun academicRecordDataSource(
 	)
 
 	return AcademicRecordDataSource(
-		localDataSource = FakeAcademicRecordLocalDataRepository(
-			record = VersionedAcademicRecord(revision = 1L, record = initialRecord)
-		),
+		localDataSource = localDataSource,
 		remoteDataSource = remoteDataSource,
 		settingsDataSource = FakeRecordSettingsDataRepository(),
 		mutationEngine = mutationEngine,

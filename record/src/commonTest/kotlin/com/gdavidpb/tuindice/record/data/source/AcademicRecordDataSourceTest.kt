@@ -15,8 +15,8 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.DEFAULT_FAILED_RETRY_BA
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
+import com.gdavidpb.tuindice.persistence.domain.record.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
-import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
 import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository
@@ -26,6 +26,7 @@ import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.async
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
@@ -690,6 +691,8 @@ class AcademicRecordDataSourceTest {
 	}
 }
 
+internal const val DEFAULT_CONFIRMED_LANDING_LAG_MILLIS = 50L
+
 internal fun defaultVersionedRecord(
 	revision: Long = 1L
 ) = VersionedAcademicRecord(
@@ -742,6 +745,16 @@ internal class FakeAcademicRecordLocalDataRepository(
 				override.attemptId == attemptId
 			}?.score?.numericValue
 		}
+	}
+}
+
+internal class LaggyAcademicRecordLocalDataRepository(
+	private val delegate: FakeAcademicRecordLocalDataRepository,
+	private val confirmedLandingLagMillis: Long = DEFAULT_CONFIRMED_LANDING_LAG_MILLIS
+) : AcademicRecordLocalDataRepository by delegate {
+	override suspend fun saveAcademicRecord(record: VersionedAcademicRecord) {
+		delay(confirmedLandingLagMillis)
+		delegate.saveAcademicRecord(record)
 	}
 }
 

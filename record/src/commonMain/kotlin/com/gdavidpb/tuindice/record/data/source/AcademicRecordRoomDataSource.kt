@@ -10,6 +10,12 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicRecordSyncStateD
 import com.gdavidpb.tuindice.persistence.data.room.daos.AcademicTermDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicRecordEntity
 import com.gdavidpb.tuindice.persistence.data.room.entity.AcademicRecordSyncStateEntity
+import com.gdavidpb.tuindice.persistence.data.room.mapper.revisionValue
+import com.gdavidpb.tuindice.persistence.data.room.mapper.toAcademicAttemptEntity
+import com.gdavidpb.tuindice.persistence.data.room.mapper.toAcademicAttemptOverrideEntity
+import com.gdavidpb.tuindice.persistence.data.room.mapper.toAcademicTermEntity
+import com.gdavidpb.tuindice.persistence.data.room.mapper.toAcademicTerms
+import com.gdavidpb.tuindice.persistence.data.room.mapper.toAttemptOverride
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository

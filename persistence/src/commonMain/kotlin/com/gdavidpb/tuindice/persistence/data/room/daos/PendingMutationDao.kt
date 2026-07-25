@@ -75,19 +75,19 @@ abstract class PendingMutationDao : UpsertDao<PendingMutationEntity>() {
 
 	@Query(
 		"UPDATE ${PendingMutationTable.TABLE_NAME} " +
-			"SET ${PendingMutationTable.STATUS} = :status, " +
+			"SET ${PendingMutationTable.STATUS} = 'Pending', " +
 			"${PendingMutationTable.LAST_ERROR} = NULL, " +
 			"${PendingMutationTable.UPDATED_AT} = :updatedAt " +
 			"WHERE ${PendingMutationTable.STORE_ID} = :storeId " +
 			"AND ${PendingMutationTable.SCOPE_KEY} = :scopeKey " +
-			"AND ${PendingMutationTable.STATUS} = 'Failed' " +
+			"AND ${PendingMutationTable.STATUS} = :requeueFrom " +
 			"AND ${PendingMutationTable.UPDATED_AT} <= :retryableBefore"
 	)
-	abstract suspend fun requeueFailedMutations(
+	abstract suspend fun requeueMutations(
 		storeId: String,
 		scopeKey: String,
+		requeueFrom: String,
 		retryableBefore: Long,
-		status: String = "Pending",
 		updatedAt: Long
 	): Int
 

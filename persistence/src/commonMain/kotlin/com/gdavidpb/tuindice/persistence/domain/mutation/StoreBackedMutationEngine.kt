@@ -378,7 +378,7 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 			}
 
 			is MutationFailureResolution.Fail -> {
-				outboxStore.savePendingMutation(mutation.failed(throwable.message))
+				outboxStore.savePendingMutation(mutation.failedTerminally(throwable.message))
 
 				terminalStep(throwable, resolution.propagate && execution.propagateTerminalErrors)
 			}
@@ -436,6 +436,14 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 		lastError: String?
 	) = copy(
 		status = PendingMutationStatus.Failed,
+		updatedAt = currentTimeMillis(),
+		lastError = lastError
+	)
+
+	private fun MutationEnvelope<ScopeKey, Command>.failedTerminally(
+		lastError: String?
+	) = copy(
+		status = PendingMutationStatus.FailedTerminal,
 		updatedAt = currentTimeMillis(),
 		lastError = lastError
 	)

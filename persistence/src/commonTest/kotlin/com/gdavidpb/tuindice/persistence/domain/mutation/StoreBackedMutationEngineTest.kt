@@ -385,8 +385,38 @@ class StoreBackedMutationEngineTest {
 
 		val visible = engine.getMutations("record").single()
 		assertEquals("mutation-1", visible.mutationId)
-		assertEquals(PendingMutationStatus.Failed, visible.status)
+		assertEquals(PendingMutationStatus.FailedTerminal, visible.status)
 		assertEquals(listOf(visible), engine.observeMutations("record").first())
+	}
+
+	@Test
+	fun drain_leavesTerminallyFailedMutationsAlone_howeverOldTheyAre() = runTest {
+		val terminalMutation = testMutationEnvelope(mutationId = "mutation-1", value = 80)
+			.copy(status = PendingMutationStatus.FailedTerminal, updatedAt = 1L, lastError = "terminal")
+		val store = InMemoryMutationEnvelopeStore(listOf(terminalMutation))
+		val engine = createEngine(store, this)
+		val sentValues = mutableListOf<Int>()
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
+			override suspend fun send(
+				mutation: MutationEnvelope<String, TestMutation>
+			): TestAck {
+				sentValues += mutation.command.value
+				return TestAck(mutation.mutationId, mutation.command.value)
+			}
+
+			override suspend fun confirm(
+				mutation: MutationEnvelope<String, TestMutation>,
+				ack: TestAck
+			) = Unit
+		}
+
+		engine.drain(scopeKey = "record", syncSpec = syncSpec)
+
+		assertEquals(emptyList(), sentValues)
+		assertEquals(
+			PendingMutationStatus.FailedTerminal,
+			engine.getMutations("record").single().status
+		)
 	}
 
 	@Test

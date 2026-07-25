@@ -14,3 +14,22 @@ data class AcademicPensumSnapshot(
 		val outcome: AttemptOutcome
 	)
 }
+
+fun AcademicRecord?.toAcademicPensumSnapshot(): AcademicPensumSnapshot {
+	return AcademicPensumSnapshot(
+		attempts = this?.terms.orEmpty().flatMap { term ->
+			term.attempts.mapIndexed { positionInTerm, attempt ->
+				AcademicPensumSnapshot.Attempt(
+					id = attempt.id,
+					subjectCode = attempt.subjectCode,
+					subjectName = attempt.subjectName,
+					credits = attempt.credits,
+					termOrder = term.termOrder,
+					positionInTerm = positionInTerm,
+					termKind = term.kind,
+					outcome = attempt.academicOutcome
+				)
+			}
+		}
+	)
+}

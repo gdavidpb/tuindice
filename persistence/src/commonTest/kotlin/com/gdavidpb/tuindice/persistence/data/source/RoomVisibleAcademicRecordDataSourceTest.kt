@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.persistence.data.room.mapper.toPendingMutationEntit
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.record.AcademicRecordMutation
+import com.gdavidpb.tuindice.persistence.domain.record.AcademicRecordMutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.record.RECORD_MUTATION_SCOPE
 import com.gdavidpb.tuindice.persistence.domain.record.RECORD_MUTATION_STORE_ID
 import kotlinx.coroutines.flow.Flow
@@ -127,33 +128,37 @@ private fun confirmedAttemptEntity() = AcademicAttemptEntity(
 
 private fun pendingSyntheticTermMutation(
 	status: PendingMutationStatus = PendingMutationStatus.Pending
-) = MutationEnvelope(
-	mutationId = "mutation-1",
-	scopeKey = RECORD_MUTATION_SCOPE,
-	command = AcademicRecordMutation.AddSyntheticTerm(
-		termId = "term-synthetic",
-		periodYear = 2027,
-		periodCode = AcademicTermPeriod.JAN_MAR,
-		attempts = listOf(
-			AcademicRecordMutation.AddSyntheticTerm.SyntheticAttemptSeed(
-				attemptId = "attempt-synthetic",
-				subjectCode = "MAT2205",
-				subjectName = "Ecuaciones Diferenciales",
-				credits = 5,
-				gradingMode = AttemptGradingMode.NUMERIC
+): PendingMutationEntity {
+	val mutation: AcademicRecordMutationEnvelope = MutationEnvelope(
+		mutationId = "mutation-1",
+		scopeKey = RECORD_MUTATION_SCOPE,
+		command = AcademicRecordMutation.AddSyntheticTerm(
+			termId = "term-synthetic",
+			periodYear = 2027,
+			periodCode = AcademicTermPeriod.JAN_MAR,
+			attempts = listOf(
+				AcademicRecordMutation.AddSyntheticTerm.SyntheticAttemptSeed(
+					attemptId = "attempt-synthetic",
+					subjectCode = "MAT2205",
+					subjectName = "Ecuaciones Diferenciales",
+					credits = 5,
+					gradingMode = AttemptGradingMode.NUMERIC
+				)
 			)
-		)
-	),
-	precondition = MutationPrecondition.Revision(1L),
-	status = status,
-	createdAt = 1L,
-	updatedAt = 1L,
-	lastError = null
-).toPendingMutationEntity(
-	storeId = RECORD_MUTATION_STORE_ID,
-	commandSerializer = AcademicRecordMutation.serializer(),
-	json = Json
-)
+		),
+		precondition = MutationPrecondition.Revision(1L),
+		status = status,
+		createdAt = 1L,
+		updatedAt = 1L,
+		lastError = null
+	)
+
+	return mutation.toPendingMutationEntity(
+		storeId = RECORD_MUTATION_STORE_ID,
+		commandSerializer = AcademicRecordMutation.serializer(),
+		json = Json
+	)
+}
 
 private class FakeAcademicRecordDao(
 	private val record: AcademicRecordEntity?
@@ -255,18 +260,11 @@ private class FakePendingMutationDao(
 		replaceKey: String
 	): Int = 0
 
-	override suspend fun requeueFailedMutations(
+	override suspend fun requeueMutations(
 		storeId: String,
 		scopeKey: String,
+		requeueFrom: String,
 		retryableBefore: Long,
-		status: String,
-		updatedAt: Long
-	): Int = 0
-
-	override suspend fun requeueTerminallyFailedMutations(
-		storeId: String,
-		scopeKey: String,
-		status: String,
 		updatedAt: Long
 	): Int = 0
 

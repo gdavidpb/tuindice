@@ -6,7 +6,9 @@ import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.record.domain.model.ObservedRecord
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.testing.ControllableAcademicRecordRepository
+import com.gdavidpb.tuindice.record.testing.LaggyAcademicRecordRepository
 import com.gdavidpb.tuindice.record.testing.RecordingRecordSelectionRepository
 import com.gdavidpb.tuindice.record.testing.academicTerm
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -98,44 +100,43 @@ class ObserveRecordUseCaseTest {
 			id = "record",
 			terms = listOf(academicTerm(id = "term-a", periodYear = 2024))
 		)
+		val updatedRecord = AcademicRecord(
+			id = "record",
+			terms = listOf(
+				academicTerm(id = "term-new", periodYear = 2025),
+				academicTerm(id = "term-a", periodYear = 2024)
+			)
+		)
 		val academicRecordRepository = ControllableAcademicRecordRepository(initialRecord = initialRecord)
 		val selectionRepository = RecordingRecordSelectionRepository()
 		selectionRepository.setSelectedTermId(RecordViewMode.Historical, "term-a")
 		selectionRepository.setSelectedTermCalls.clear()
-		val useCase = createUseCase(academicRecordRepository, selectionRepository)
+		val useCase = createUseCase(
+			academicRecordRepository = LaggyAcademicRecordRepository(delegate = academicRecordRepository),
+			selectionRepository = selectionRepository
+		)
+		val freshSelectionOnly = listOf(RecordViewMode.Historical to "term-new")
 
 		useCase.execute(Unit).test {
 			val initial = awaitLoadingThenData(this)
 			assertEquals("term-a", initial.selectedTermId)
 
-			// Simulates SetSelectedTermUseCase explicitly selecting a term the record
-			// snapshot doesn't know about yet (e.g. right after creating a synthetic
-			// term: this settings-backed StateFlow dispatches immediately, while the
-			// confirmed record snapshot is Room-backed and can lag behind it).
+			academicRecordRepository.recordFlow.value = updatedRecord
 			selectionRepository.setSelectedTermId(RecordViewMode.Historical, "term-new")
-			selectionRepository.setSelectedTermCalls.clear()
 
 			val duringLag = assertIs<UseCaseState.Data<ObservedRecord>>(awaitItem()).value
+			assertEquals(initialRecord, duringLag.record)
 			assertEquals("term-a", duringLag.selectedTermId)
-
-			val updatedRecord = AcademicRecord(
-				id = "record",
-				terms = listOf(
-					academicTerm(id = "term-new", periodYear = 2025),
-					academicTerm(id = "term-a", periodYear = 2024)
-				)
-			)
-			academicRecordRepository.recordFlow.value = updatedRecord
+			assertEquals(freshSelectionOnly, selectionRepository.setSelectedTermCalls)
 
 			val caughtUp = assertIs<UseCaseState.Data<ObservedRecord>>(awaitItem()).value
+			assertEquals(updatedRecord, caughtUp.record)
 			assertEquals("term-new", caughtUp.selectedTermId)
 
 			cancelAndIgnoreRemainingEvents()
 		}
 
-		// The explicit selection must never have been overwritten back to "term-a"
-		// while the record snapshot was catching up.
-		assertEquals(emptyList(), selectionRepository.setSelectedTermCalls)
+		assertEquals(freshSelectionOnly, selectionRepository.setSelectedTermCalls)
 	}
 
 	@Test
@@ -215,7 +216,7 @@ class ObserveRecordUseCaseTest {
 	}
 
 	private fun createUseCase(
-		academicRecordRepository: ControllableAcademicRecordRepository,
+		academicRecordRepository: AcademicRecordRepository,
 		selectionRepository: RecordingRecordSelectionRepository
 	): ObserveRecordUseCase {
 		return ObserveRecordUseCase(

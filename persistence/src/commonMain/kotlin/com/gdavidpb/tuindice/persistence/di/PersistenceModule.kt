@@ -20,8 +20,10 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.SyntheticTermLoadPreview
 import com.gdavidpb.tuindice.persistence.data.room.daos.UserDao
 import com.gdavidpb.tuindice.persistence.data.source.RoomPersistenceMaintenanceDataSource
 import com.gdavidpb.tuindice.persistence.data.source.RoomPersistenceTransactionRunner
+import com.gdavidpb.tuindice.persistence.data.source.RoomVisibleAcademicRecordDataSource
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceMaintenanceRepository
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
+import com.gdavidpb.tuindice.persistence.domain.repository.VisibleAcademicRecordRepository
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
@@ -47,4 +49,14 @@ val persistenceModule = module {
 
 	singleOf(::RoomPersistenceTransactionRunner) { bind<PersistenceTransactionRunner>() }
 	singleOf(::RoomPersistenceMaintenanceDataSource) { bind<PersistenceMaintenanceRepository>() }
+
+	single<VisibleAcademicRecordRepository> {
+		RoomVisibleAcademicRecordDataSource(
+			academicRecordDao = get(),
+			academicTermDao = get(),
+			academicAttemptDao = get(),
+			academicAttemptOverrideDao = get(),
+			pendingMutationDao = get()
+		)
+	}
 }

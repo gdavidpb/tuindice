@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.persistence.data.room
 
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
+import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.data.room.mapper.toMutationEnvelope
@@ -134,9 +135,10 @@ class RoomMutationEnvelopeStore<Command : OutboxMutation>(
 		scopeKey: String,
 		retryableBefore: Long
 	): Int {
-		return pendingMutationDao.requeueFailedMutations(
+		return pendingMutationDao.requeueMutations(
 			storeId = storeId,
 			scopeKey = scopeKey,
+			requeueFrom = PendingMutationStatus.Failed.name,
 			retryableBefore = retryableBefore,
 			updatedAt = currentTimeMillis()
 		)

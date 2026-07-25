@@ -19,8 +19,8 @@ import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsRefreshResult
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.data.room.entity.PendingMutationEntity
-import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_SCOPE
-import com.gdavidpb.tuindice.record.data.mutation.RECORD_MUTATION_STORE_ID
+import com.gdavidpb.tuindice.persistence.domain.record.RECORD_MUTATION_SCOPE
+import com.gdavidpb.tuindice.persistence.domain.record.RECORD_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
@@ -120,9 +120,11 @@ class PendingChangesDataSourceContractTest {
 		assertEquals(FlushPendingChangesResult.Success, actual)
 		assertEquals(
 			listOf(
-				"retry:$RECORD_MUTATION_SCOPE",
+				"retry:Failed:$RECORD_MUTATION_SCOPE",
+				"retry:FailedTerminal:$RECORD_MUTATION_SCOPE",
 				"drain:$RECORD_MUTATION_SCOPE",
-				"retry:$EVALUATIONS_MUTATION_SCOPE",
+				"retry:Failed:$EVALUATIONS_MUTATION_SCOPE",
+				"retry:FailedTerminal:$EVALUATIONS_MUTATION_SCOPE",
 				"drain:$EVALUATIONS_MUTATION_SCOPE"
 			),
 			operations
@@ -225,25 +227,30 @@ private class FakePendingMutationDao(
 		return sizeBefore - mutations.size
 	}
 
-	override suspend fun requeueFailedMutations(
+	override suspend fun requeueMutations(
 		storeId: String,
 		scopeKey: String,
+		requeueFrom: String,
 		retryableBefore: Long,
-		status: String,
 		updatedAt: Long
 	): Int {
-		operations += "retry:$scopeKey"
+		operations += "retry:$requeueFrom:$scopeKey"
 
 		val requeueable = mutations.withIndex().filter { (_, mutation) ->
 			mutation.isRequeueable(
 				storeId = storeId,
 				scopeKey = scopeKey,
+				requeueFrom = requeueFrom,
 				retryableBefore = retryableBefore
 			)
 		}
 
 		requeueable.forEach { (index, mutation) ->
-			mutations[index] = mutation.copy(status = status, lastError = null, updatedAt = updatedAt)
+			mutations[index] = mutation.copy(
+				status = PendingMutationStatus.Pending.name,
+				lastError = null,
+				updatedAt = updatedAt
+			)
 		}
 
 		return requeueable.size
@@ -351,8 +358,9 @@ private fun pendingMutation(
 private fun PendingMutationEntity.isRequeueable(
 	storeId: String,
 	scopeKey: String,
+	requeueFrom: String,
 	retryableBefore: Long
 ): Boolean = this.storeId == storeId &&
 	this.scopeKey == scopeKey &&
-	status == PendingMutationStatus.Failed.name &&
+	status == requeueFrom &&
 	updatedAt <= retryableBefore

@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.record.data.source
+package com.gdavidpb.tuindice.persistence.data.room.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
@@ -12,7 +12,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class AcademicRecordRoomMappersTest {
+class AcademicRecordMappersTest {
 	@Test
 	fun academicTerm_roundTripsThroughRoomEntity_withTermKind() {
 		val term = AcademicTerm(

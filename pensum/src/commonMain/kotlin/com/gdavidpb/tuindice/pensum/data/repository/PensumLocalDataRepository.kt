@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.pensum.data.repository
 
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumSnapshot
 import com.gdavidpb.tuindice.pensum.data.model.GetPensumResponse
-import com.gdavidpb.tuindice.pensum.domain.model.AcademicPensumSnapshot
 import com.gdavidpb.tuindice.pensum.domain.model.PensumSelectionParams
 import kotlinx.coroutines.flow.Flow
 

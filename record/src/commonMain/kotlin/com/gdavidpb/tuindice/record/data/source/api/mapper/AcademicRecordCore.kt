@@ -2,8 +2,8 @@ package com.gdavidpb.tuindice.record.data.source.api.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.persistence.domain.record.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
-import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.source.api.response.AcademicRecordResponse
 import com.gdavidpb.tuindice.record.data.source.api.response.AddSyntheticTermRequest
 import com.gdavidpb.tuindice.record.data.source.api.response.DeleteOverlayMutationRequest

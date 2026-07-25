@@ -2,15 +2,15 @@ package com.gdavidpb.tuindice.record.data.source
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.persistence.domain.record.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
-import com.gdavidpb.tuindice.record.data.mutation.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
-import com.gdavidpb.tuindice.record.data.source.api.mapper.buildDeleteOverlayMutationRequest
 import com.gdavidpb.tuindice.record.data.source.api.mapper.buildAcademicUpsertAttemptOverrideRequest
-import com.gdavidpb.tuindice.record.data.source.api.mapper.toVersionedAcademicRecord
+import com.gdavidpb.tuindice.record.data.source.api.mapper.buildDeleteOverlayMutationRequest
 import com.gdavidpb.tuindice.record.data.source.api.mapper.toAddSyntheticTermRequest
 import com.gdavidpb.tuindice.record.data.source.api.mapper.toSyntheticTermLoadPreview
 import com.gdavidpb.tuindice.record.data.source.api.mapper.toUpdateSyntheticTermRequest
+import com.gdavidpb.tuindice.record.data.source.api.mapper.toVersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.source.api.response.AcademicRecordResponse
 import com.gdavidpb.tuindice.record.data.source.api.response.LoadSyntheticTermPreviewRequest
 import com.gdavidpb.tuindice.record.data.source.api.response.SyntheticTermLoadPreviewResponse

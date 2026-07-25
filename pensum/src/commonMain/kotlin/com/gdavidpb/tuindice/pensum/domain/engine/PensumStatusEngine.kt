@@ -4,8 +4,7 @@ import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicPensumStatusEngi
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumGraph
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumNodeStatus
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumProgress
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumSnapshot as SharedAcademicPensumSnapshot
-import com.gdavidpb.tuindice.pensum.domain.model.AcademicPensumSnapshot
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumSnapshot
 import com.gdavidpb.tuindice.pensum.domain.model.PensumGraph
 import com.gdavidpb.tuindice.pensum.domain.model.PensumNodeStatus
 import com.gdavidpb.tuindice.pensum.domain.model.PensumNodeType
@@ -21,7 +20,7 @@ class PensumStatusEngine(
 	): PensumProgress {
 		return academicPensumStatusEngine.resolve(
 			pensum = pensum.toAcademicPensumGraph(),
-			academicSnapshot = academicSnapshot.toSharedSnapshot()
+			academicSnapshot = academicSnapshot
 		).toPensumProgress()
 	}
 }
@@ -61,23 +60,6 @@ private fun PensumGraph.Edge.toAcademicPensumEdge(): AcademicPensumGraph.Edge {
 		relationshipType = when (relationshipType) {
 			PensumRelationshipType.REQUIREMENT -> AcademicPensumGraph.RelationshipType.REQUIREMENT
 			PensumRelationshipType.COREQUISITE -> AcademicPensumGraph.RelationshipType.COREQUISITE
-		}
-	)
-}
-
-private fun AcademicPensumSnapshot.toSharedSnapshot(): SharedAcademicPensumSnapshot {
-	return SharedAcademicPensumSnapshot(
-		attempts = attempts.map { attempt ->
-			SharedAcademicPensumSnapshot.Attempt(
-				id = attempt.id,
-				subjectCode = attempt.subjectCode,
-				subjectName = attempt.subjectName,
-				credits = attempt.credits,
-				termOrder = attempt.termOrder,
-				positionInTerm = attempt.positionInTerm,
-				termKind = attempt.termKind,
-				outcome = attempt.outcome
-			)
 		}
 	)
 }

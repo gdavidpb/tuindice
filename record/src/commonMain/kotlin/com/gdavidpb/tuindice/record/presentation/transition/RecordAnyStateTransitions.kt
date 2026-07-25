@@ -1,8 +1,13 @@
 package com.gdavidpb.tuindice.record.presentation.transition
 
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
 import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
+import com.gdavidpb.tuindice.base.utils.currentTimeMillis
+import com.gdavidpb.tuindice.record.domain.mapper.attemptSelectionToOverridePayload
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.machine.RecordInternalEvent
 import com.gdavidpb.tuindice.record.presentation.machine.RecordMachine
@@ -27,6 +32,38 @@ internal fun MachineDefinitionBuilder<Record.State>.recordAnyStateTransitions(
 			state
 		}
 
+		on<Record.Action.UpsertAttemptSelection> { state, action ->
+			if (action.commit) {
+				machine.upsertAttemptSelection(
+					host = host,
+					attemptId = action.attemptId,
+					grade = action.grade,
+					outcome = action.outcome
+				)
+			}
+
+			val contentState = state as? Record.State.Content ?: return@on state
+
+			val payload = runCatching {
+				attemptSelectionToOverridePayload(
+					grade = action.grade,
+					outcome = action.outcome
+				)
+			}.getOrNull() ?: return@on state
+
+			contentState.copy(
+				inFlightSelection = Record.State.InFlightSelection(
+					override = AttemptOverride(
+						attemptId = action.attemptId,
+						score = payload.first,
+						outcome = payload.second,
+						updatedAtMillis = currentTimeMillis()
+					),
+					isCommitted = action.commit
+				)
+			)
+		}
+
 		on<Record.Action.DeleteSyntheticTerm> { state, action ->
 			machine.deleteSyntheticTerm(host = host, termId = action.termId)
 			state
@@ -37,12 +74,11 @@ internal fun MachineDefinitionBuilder<Record.State>.recordAnyStateTransitions(
 				viewMode = event.viewMode,
 				record = event.record,
 				selectedTermId = event.selectedTermId,
-				// Una observación posterior al commit ya trae el cambio por el overlay
-				// del outbox, así que el valor en vuelo sobra. Si el gesto sigue en
-				// curso (aún sin commit) se conserva: la observación no lo contiene.
 				inFlightSelection = (state as? Record.State.Content)
 					?.inFlightSelection
-					?.takeUnless { selection -> selection.isCommitted }
+					?.takeUnless { selection ->
+						selection.isCommitted && event.record.hasSettled(selection.override)
+					}
 			)
 		}
 
@@ -126,6 +162,25 @@ internal fun MachineDefinitionBuilder<Record.State>.recordAnyStateTransitions(
 			state
 		}
 	}
+}
+
+private fun AcademicRecord.hasSettled(override: AttemptOverride): Boolean {
+	val currentOverride = attemptOverrides.firstOrNull { candidate ->
+		candidate.attemptId == override.attemptId
+	}
+
+	if (currentOverride != null) {
+		return currentOverride.score == override.score &&
+			currentOverride.outcome == override.outcome
+	}
+
+	val attempt = terms
+		.flatMap(AcademicTerm::attempts)
+		.firstOrNull { candidate -> candidate.id == override.attemptId }
+
+	return attempt != null &&
+		attempt.academicScore == override.score &&
+		attempt.academicOutcome == (override.outcome ?: attempt.academicOutcome)
 }
 
 private const val RECORD_VIEW_MODE_BANNER_AUTO_DISMISS_MILLIS = 5_000L

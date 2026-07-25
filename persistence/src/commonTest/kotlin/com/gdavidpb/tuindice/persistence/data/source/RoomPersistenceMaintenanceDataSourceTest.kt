@@ -320,11 +320,11 @@ private class RecordingPendingMutationDao(
 		scopeKey: String
 	): Flow<List<PendingMutationEntity>> = emptyFlow()
 
-	override suspend fun requeueFailedMutations(
+	override suspend fun requeueMutations(
 		storeId: String,
 		scopeKey: String,
+		requeueFrom: String,
 		retryableBefore: Long,
-		status: String,
 		updatedAt: Long
 	): Int = 0
 

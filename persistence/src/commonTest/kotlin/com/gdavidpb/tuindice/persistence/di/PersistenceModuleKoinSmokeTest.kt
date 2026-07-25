@@ -38,12 +38,13 @@ import com.gdavidpb.tuindice.persistence.data.room.entity.SyntheticTermLoadPrevi
 import com.gdavidpb.tuindice.persistence.data.room.entity.UserEntity
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceMaintenanceRepository
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
+import com.gdavidpb.tuindice.persistence.domain.repository.VisibleAcademicRecordRepository
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
-import kotlin.test.Test
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.emptyFlow
 import org.koin.dsl.module
+import kotlin.test.Test
 
 class PersistenceModuleKoinSmokeTest {
 	@Test
@@ -72,7 +73,8 @@ class PersistenceModuleKoinSmokeTest {
 			PensumSelectionDao::class,
 			SyntheticTermLoadPreviewCacheDao::class,
 			PersistenceTransactionRunner::class,
-			PersistenceMaintenanceRepository::class
+			PersistenceMaintenanceRepository::class,
+			VisibleAcademicRecordRepository::class
 		)
 	}
 }
@@ -198,11 +200,11 @@ internal abstract class FakeTuIndiceDatabase : TuIndiceDatabase() {
 			scopeKey: String
 		): Flow<List<PendingMutationEntity>> = emptyFlow()
 
-		override suspend fun requeueFailedMutations(
+		override suspend fun requeueMutations(
 			storeId: String,
 			scopeKey: String,
+			requeueFrom: String,
 			retryableBefore: Long,
-			status: String,
 			updatedAt: Long
 		): Int = 0
 

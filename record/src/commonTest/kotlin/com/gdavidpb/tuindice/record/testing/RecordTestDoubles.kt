@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationSnapshot
@@ -19,10 +20,13 @@ import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermCreationRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermLoadPreviewRepository
 import kotlinx.coroutines.CompletableDeferred
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
+import kotlinx.coroutines.flow.onEach
 
 class ControllableAcademicRecordRepository(
 	initialRecord: AcademicRecord = AcademicRecord(id = "record"),
@@ -82,6 +86,27 @@ class ControllableAcademicRecordRepository(
 	override suspend fun deleteSyntheticTerm(termId: String) {
 		deletedTermIds += termId
 	}
+}
+
+const val DEFAULT_RECORD_SNAPSHOT_LAG_MILLIS = 50L
+
+class LaggyAcademicRecordRepository(
+	private val delegate: AcademicRecordRepository,
+	private val snapshotLagMillis: Long = DEFAULT_RECORD_SNAPSHOT_LAG_MILLIS
+) : AcademicRecordRepository by delegate {
+	override suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord> =
+		delegate.observeAcademicRecordFlow().onEach { delay(snapshotLagMillis) }
+
+	override suspend fun observeAcademicRecordSnapshotFlow(): Flow<ObservedSyncedSnapshot<AcademicRecord>> =
+		combine(
+			observeAcademicRecordFlow(),
+			delegate.observeHasSyncedRecordFlow()
+		) { record, hasSyncedRecord ->
+			ObservedSyncedSnapshot(
+				value = record,
+				hasSynced = hasSyncedRecord
+			)
+		}
 }
 
 class RecordingRecordSelectionRepository(
