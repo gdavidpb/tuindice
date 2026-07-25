@@ -13,6 +13,8 @@ TARGET_GIT_SHA="${TARGET_GIT_SHA:-${GITHUB_SHA:-$(git rev-parse HEAD)}}"
 DEPLOY_DIFF_BASE_SHA="${DEPLOY_DIFF_BASE_SHA:-}"
 STATE_DIR="${STATE_DIR:-$(mktemp -d "${RUNNER_TEMP:-/tmp}/tuindice-deploy.XXXXXX")}"
 DRY_RUN="${DRY_RUN:-0}"
+PRODUCTION_BRANCH="${PRODUCTION_BRANCH:-production}"
+SKIP_PRODUCTION_TIP_CHECK="${SKIP_PRODUCTION_TIP_CHECK:-0}"
 DEPLOY_PRODUCTION_PHASE="${DEPLOY_PRODUCTION_PHASE:-all}"
 PRODUCTION_RELEASE_ARTIFACT_DIR="${PRODUCTION_RELEASE_ARTIFACT_DIR:-build/production-release}"
 VERSION_NAME="$(get_app_version_name)"
@@ -37,6 +39,43 @@ resolve_deploy_diff_base_sha() {
 	printf '%s\n' "$before_sha"
 }
 
+resolve_production_tip_sha() {
+	if git fetch --quiet origin "$PRODUCTION_BRANCH" 2>/dev/null; then
+		git rev-parse FETCH_HEAD
+		return 0
+	fi
+
+	if git rev-parse --verify --quiet "refs/remotes/origin/${PRODUCTION_BRANCH}" >/dev/null; then
+		git rev-parse "refs/remotes/origin/${PRODUCTION_BRANCH}"
+		return 0
+	fi
+
+	return 1
+}
+
+# Two pushes in a row stage in parallel and their deploys queue by completion
+# order, not by commit order: the losing deploy must not publish or tag behind
+# the branch tip.
+deploy_is_superseded() {
+	local tip_sha
+
+	if [[ "$DRY_RUN" == "1" || "$SKIP_PRODUCTION_TIP_CHECK" == "1" ]]; then
+		return 1
+	fi
+
+	if ! tip_sha="$(resolve_production_tip_sha)"; then
+		warn "Unable to resolve the ${PRODUCTION_BRANCH} tip; deploying ${TARGET_GIT_SHA} without the superseded-deploy guard."
+		return 1
+	fi
+
+	if [[ "$tip_sha" == "$TARGET_GIT_SHA" ]]; then
+		return 1
+	fi
+
+	info "Skipping deploy of ${TARGET_GIT_SHA}: ${PRODUCTION_BRANCH} already advanced to ${tip_sha}."
+	return 0
+}
+
 create_release_tag() {
 	local existing_target
 
@@ -46,7 +85,7 @@ create_release_tag() {
 			info "Release tag ${TAG_NAME} already exists on ${TARGET_GIT_SHA}."
 			return 0
 		fi
-		die "Release tag ${TAG_NAME} already exists at ${existing_target}. Bump $(app_version_file) before deploying."
+		die "Release tag ${TAG_NAME} already points at ${existing_target}: ${VERSION_NAME} was released from another commit before this deploy of ${TARGET_GIT_SHA} reached the tag phase. Bump $(app_version_file) if this commit needs its own release."
 	fi
 
 	info "Creating release tag ${TAG_NAME} on ${TARGET_GIT_SHA}."
@@ -141,6 +180,10 @@ run_android_deploy() {
 	local release_exists_file="${STATE_DIR}/android-release-exists.env"
 	local staged_aab_path
 
+	if deploy_is_superseded; then
+		return 0
+	fi
+
 	if [[ "$DRY_RUN" != "1" ]]; then
 		GOOGLE_PLAY_CHECK_ONLY=1 \
 		GOOGLE_PLAY_RELEASE_EXISTS_FILE="$release_exists_file" \
@@ -167,6 +210,10 @@ run_ios_deploy() {
 	local build_exists_file="${STATE_DIR}/ios-build-exists.env"
 	local staged_ipa_path
 
+	if deploy_is_superseded; then
+		return 0
+	fi
+
 	if [[ "$DRY_RUN" != "1" ]]; then
 		APP_STORE_CONNECT_CHECK_ONLY=1 \
 		APP_STORE_CONNECT_BUILD_EXISTS_FILE="$build_exists_file" \
@@ -186,6 +233,10 @@ run_ios_deploy() {
 }
 
 run_release_tag() {
+	if deploy_is_superseded; then
+		return 0
+	fi
+
 	if [[ "$DRY_RUN" == "1" ]]; then
 		info "DRY_RUN=1: skipping release tag creation."
 		return 0

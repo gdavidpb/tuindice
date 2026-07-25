@@ -91,31 +91,44 @@ case "$url" in
 		printf '{"data":[{"id":"app-1"}]}\n' >"$output_file"
 		;;
 	*/builds\?*)
-		if [[ "$mode" == "exists" || "$mode" == "exists-other-version" ]]; then
-			if [[ "$mode" == "exists-other-version" ]]; then
-				version_name="0.0.0"
-			fi
-			jq -n --arg version_name "$version_name" '{
-				data: [
-					{
-						id: "build-1",
-						relationships: {
-							preReleaseVersion: {
-								data: { id: "pre-release-1" }
+		if [[ "$mode" == "missing" ]]; then
+			printf '{"data":[],"included":[]}\n' >"$output_file"
+		else
+			processing_state="VALID"
+			case "$mode" in
+				processing)
+					processing_state="PROCESSING"
+					;;
+				invalid-processing-state)
+					processing_state="INVALID"
+					;;
+				other-marketing-version)
+					version_name="0.0.0"
+					;;
+			esac
+			jq -n \
+				--arg version_name "$version_name" \
+				--arg processing_state "$processing_state" \
+				'{
+					data: [
+						{
+							id: "build-1",
+							attributes: { processingState: $processing_state },
+							relationships: {
+								preReleaseVersion: {
+									data: { id: "pre-release-1" }
+								}
 							}
 						}
-					}
-				],
-				included: [
-					{
-						type: "preReleaseVersions",
-						id: "pre-release-1",
-						attributes: { version: $version_name }
-					}
-				]
-			}' >"$output_file"
-		else
-			printf '{"data":[],"included":[]}\n' >"$output_file"
+					],
+					included: [
+						{
+							type: "preReleaseVersions",
+							id: "pre-release-1",
+							attributes: { version: $version_name }
+						}
+					]
+				}' >"$output_file"
 		fi
 		;;
 	*)
@@ -152,6 +165,8 @@ SH
 
 run_appstore_check_fixture missing false ""
 run_appstore_check_fixture exists true build-1
-run_appstore_check_fixture exists-other-version true build-1
+run_appstore_check_fixture processing true build-1
+run_appstore_check_fixture invalid-processing-state false ""
+run_appstore_check_fixture other-marketing-version false ""
 
 printf 'App Store Connect check-only fixtures passed for %s (%s).\n' "$VERSION_NAME" "$IOS_BUILD_NUMBER"

@@ -115,7 +115,9 @@ cleanup_edit() {
 trap cleanup_edit EXIT
 
 TRACK_STATE="$(mktemp "${RUNNER_TEMP:-/tmp}/tuindice-play-track-state.XXXXXX")"
+TRACK_EXISTS=0
 if api_get_json "${API_ROOT}/edits/${EDIT_ID}/tracks/${GOOGLE_PLAY_TRACK}" "$TRACK_STATE"; then
+	TRACK_EXISTS=1
 	EXISTING_RELEASE_STATUS="$(
 		jq -r \
 			--arg version_code "$ANDROID_VERSION_CODE" \
@@ -159,20 +161,38 @@ UPLOADED_VERSION_CODE="$(
 [[ -n "$UPLOADED_VERSION_CODE" ]] || die "Google Play bundle upload did not return a versionCode."
 [[ "$UPLOADED_VERSION_CODE" == "$ANDROID_VERSION_CODE" ]] || die "Uploaded versionCode ${UPLOADED_VERSION_CODE} does not match $(app_version_file) androidVersionCode ${ANDROID_VERSION_CODE}."
 
+# edits.tracks.update replaces the whole track resource, so every release that
+# is not the one being published has to be sent back untouched.
+PRESERVED_RELEASES='[]'
+if [[ "$TRACK_EXISTS" == "1" ]]; then
+	PRESERVED_RELEASES="$(
+		jq -c \
+			--arg version_code "$ANDROID_VERSION_CODE" \
+			'[
+				.releases[]?
+				| select(any(.versionCodes[]?; tostring == $version_code) | not)
+			]' \
+			"$TRACK_STATE"
+	)"
+fi
+
 TRACK_PAYLOAD="$(mktemp "${RUNNER_TEMP:-/tmp}/tuindice-play-track.XXXXXX")"
 jq -n \
 	--arg track "$GOOGLE_PLAY_TRACK" \
 	--arg release_name "${VERSION_NAME} (${ANDROID_VERSION_CODE})" \
 	--arg version_code "$ANDROID_VERSION_CODE" \
+	--argjson preserved_releases "$PRESERVED_RELEASES" \
 	'{
 		track: $track,
-		releases: [
-			{
-				name: $release_name,
-				versionCodes: [($version_code | tonumber)],
-				status: "draft"
-			}
-		]
+		releases: (
+			$preserved_releases + [
+				{
+					name: $release_name,
+					versionCodes: [($version_code | tonumber)],
+					status: "draft"
+				}
+			]
+		)
 	}' >"$TRACK_PAYLOAD"
 
 info "Creating Google Play draft release on track ${GOOGLE_PLAY_TRACK}."
