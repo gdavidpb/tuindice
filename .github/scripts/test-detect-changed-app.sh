@@ -146,6 +146,21 @@ create_ios_release_signing_commit() {
 	create_file_commit "$name" "$file_path" "$release_config_file"
 }
 
+create_ios_release_runtime_commit() {
+	local name="$1"
+	local file_path="iosApp/Config/Release.xcconfig"
+	local temp_dir
+	local release_config_file
+
+	temp_dir="$(mktemp -d "${RUNNER_TEMP:-/tmp}/tuindice-ios-runtime-detect-test.XXXXXX")"
+	release_config_file="${temp_dir}/Release.xcconfig"
+	git -C "${REPO_ROOT}" show "${HEAD_SHA}:${file_path}" \
+		| sed 's/^SWIFT_VERSION = .*/SWIFT_VERSION = 6.0/' \
+		>"$release_config_file"
+
+	create_file_commit "$name" "$file_path" "$release_config_file"
+}
+
 run_detector_fixture() {
 	local name="$1"
 	local changed_path="$2"
@@ -228,6 +243,22 @@ run_detector_fixture() {
 			assert_file_empty "${temp_dir}/state/ios-test-gradle-tasks.txt" "iOS test tasks"
 			assert_file_contains_line "$github_output_file" "ci_config_touched=true" "GitHub output"
 			;;
+		unclassified-path)
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_empty "${temp_dir}/state/release-impacted-modules.txt" "release impacted modules"
+			assert_file_empty "${temp_dir}/state/missing-version-bump.txt" "missing version bump"
+			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
+			assert_file_contains_line "$github_output_file" "has_relevant_changes=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			;;
+		ios-release-runtime)
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "iosApp" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/release-impacted-modules.txt" "iosApp" "release impacted modules"
+			assert_file_contains_line "${temp_dir}/state/missing-version-bump.txt" "iosBuildNumber" "missing version bump"
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,ios-host-runtime" "E2E scope"
+			assert_file_contains_line "$github_output_file" "has_release_impact=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
+			;;
 		android-version-code)
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "app" "impacted modules"
 			assert_file_contains_line "${temp_dir}/state/release-impacted-modules.txt" "app" "release impacted modules"
@@ -287,7 +318,7 @@ run_detector_fixture() {
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "persistence" "impacted modules"
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "wizard" "impacted modules"
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "subjects" "impacted modules"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,wizard-suite,persistence-runtime" "E2E scope"
+			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "android,wizard-suite,persistence-runtime" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,summary-suite,persistence-runtime" "E2E scope"
 			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "android,maincore-suite,persistence-bootstrap" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":wizard:testAndroidHostTest" "Android tasks"
@@ -299,14 +330,14 @@ run_detector_fixture() {
 			;;
 		persistence-bootstrap)
 			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,maincore-suite,persistence-bootstrap" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,wizard-suite,persistence-runtime" "E2E scope"
+			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "android,wizard-suite,persistence-runtime" "E2E scope"
 			;;
 		feature-module-dependents)
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "record" "impacted modules"
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "wizard" "impacted modules"
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "maincore" "impacted modules"
 			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,record-suite,module-runtime" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,wizard-suite,module-runtime" "E2E scope"
+			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "android,wizard-suite,module-runtime" "E2E scope"
 			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "android,subjects-suite,module-runtime" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":wizard:testAndroidHostTest" "Android tasks"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":record:detekt" "Android tasks"
@@ -416,6 +447,9 @@ version_name_commit="$(
 ios_release_signing_commit="$(
 	create_ios_release_signing_commit ios-release-signing
 )"
+ios_release_runtime_commit="$(
+	create_ios_release_runtime_commit ios-release-runtime
+)"
 
 run_detector_fixture e2e-runner e2e/scripts/common.sh
 run_detector_fixture ios-script-tooling iosApp/scripts/ci-upload-ios-appstore.sh
@@ -432,6 +466,8 @@ run_detector_fixture semgrep-config config/semgrep/rules/layering.yaml
 run_detector_fixture ios-host-runtime iosApp/Sources/TuIndiceHost/TuIndiceAppBootstrap.swift
 run_detector_fixture ios-version-xcconfig iosApp/Config/Version.xcconfig
 run_detector_fixture ios-release-signing iosApp/Config/Release.xcconfig "$HEAD_SHA" "$ios_release_signing_commit"
+run_detector_fixture ios-release-runtime iosApp/Config/Release.xcconfig "$HEAD_SHA" "$ios_release_runtime_commit"
+run_detector_fixture unclassified-path some-unmapped-top-level/nested/file.txt
 run_detector_fixture android-version-code "$APP_VERSION_FILE" "$HEAD_SHA" "$android_version_commit"
 run_detector_fixture ios-build-number "$APP_VERSION_FILE" "$HEAD_SHA" "$ios_build_commit"
 run_detector_fixture release-build-numbers "$APP_VERSION_FILE" "$HEAD_SHA" "$release_build_numbers_commit"

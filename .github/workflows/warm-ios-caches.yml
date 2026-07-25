@@ -21,10 +21,37 @@ permissions:
   contents: read
 
 jobs:
+  detect-ios-work:
+    name: Detect iOS simulator work
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    outputs:
+      ios_test_tasks: ${{ steps.changes.outputs.ios_test_tasks }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          fetch-depth: 0
+
+      - name: Detect changed app surfaces
+        id: changes
+        run: |
+          set -euo pipefail
+          bash ./.github/scripts/detect-changed-app.sh \
+            "${{ github.event.before }}" \
+            "${{ github.sha }}"
+
   warm-ios-caches:
     name: Warm iOS simulator build caches
     runs-on: macos-26
     timeout-minutes: 45
+    needs:
+      - detect-ios-work
+    # The Gradle build cache is content addressed, so a push that compiles to
+    # the same inputs would republish identical entries. Warming it then costs
+    # 45 minutes of the most expensive runner for nothing.
+    if: ${{ needs.detect-ios-work.outputs.ios_test_tasks != '' }}
     env:
       # gradle/actions keys the Gradle User Home cache by job id; override it
       # so entries written here match the ios-test-preflight restore keys.

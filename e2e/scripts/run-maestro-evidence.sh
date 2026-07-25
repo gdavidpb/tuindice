@@ -68,8 +68,7 @@ covered_status_contexts() {
 		pensum-suite \
 		record-suite \
 		subjects-suite \
-		summary-suite \
-		wizard-suite; do
+		summary-suite; do
 		printf 'local-e2e/%s/%s\n' "${PLATFORM}" "${suite}"
 	done
 }

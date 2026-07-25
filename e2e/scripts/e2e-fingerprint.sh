@@ -83,23 +83,21 @@ append_kmp_runtime_pathspecs() {
 	done < <(platform_source_sets)
 }
 
+# Derived from the module graph rather than transcribed. A second hand-written
+# copy is how `security` stayed outside the fingerprint while the detector
+# treated it as runtime: a change to the attestation layer left the hash
+# unmoved, so preflight reused evidence that had never exercised it.
+#
+# `app` contributes its own pathspecs in the platform section below, and
+# `testkit` only ships into commonTest, so neither belongs here.
 while IFS= read -r module; do
 	append_kmp_runtime_pathspecs "$module"
-done <<'MODULES'
-about
-academiccore
-auth
-base
-enrollmentproof
-evaluations
-maincore
-pensum
-persistence
-record
-subjects
-summary
-wizard
-MODULES
+done < <(
+	sed -e 's/#.*$//' -e '/^[[:space:]]*$/d' "${REPO_ROOT}/scripts/module-graph.txt" |
+		awk -F= 'NF { print $1 }' |
+		grep -vxE 'app|testkit' |
+		sort -u
+)
 
 hash_command=(shasum -a 256)
 if ! command -v shasum >/dev/null 2>&1; then
