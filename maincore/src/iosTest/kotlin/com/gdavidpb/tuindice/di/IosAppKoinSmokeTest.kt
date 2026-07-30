@@ -103,9 +103,9 @@ class IosAppKoinSmokeTest {
 							),
 							appEnvironment = AppEnvironment(
 								apiBaseUrl = "http://localhost:8080/",
-								privacyPolicyUrl = "https://tuindice.app/privacy_policy_v6_0.html",
-								termsAndConditionsUrl = "https://tuindice.app/terms_and_conditions_v6_0.html",
-								supportUrl = "https://tuindice.app/support_v6_0.html",
+								privacyPolicyUrl = "https://tuindice.app/privacy",
+								termsAndConditionsUrl = "https://tuindice.app/terms",
+								supportUrl = "https://tuindice.app/support",
 								debug = true
 							),
 							appStoreUrl = "itms-apps://apps.apple.com/app/id6760307454",

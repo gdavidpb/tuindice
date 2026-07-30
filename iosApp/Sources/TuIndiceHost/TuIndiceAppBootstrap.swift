@@ -35,17 +35,17 @@ enum TuIndiceAppBootstrap {
         privacyPolicyUrl: resolvedWebUrl(
             debugResource: .privacyPolicy,
             bundleKey: "TUINDICE_PRIVACY_POLICY_URL",
-            defaultValue: "https://tuindice.app/privacy_policy_v6_0.html"
+            defaultValue: "https://tuindice.app/privacy"
         ),
         termsAndConditionsUrl: resolvedWebUrl(
             debugResource: .termsAndConditions,
             bundleKey: "TUINDICE_TERMS_AND_CONDITIONS_URL",
-            defaultValue: "https://tuindice.app/terms_and_conditions_v6_0.html"
+            defaultValue: "https://tuindice.app/terms"
         ),
         supportUrl: resolvedWebUrl(
             debugResource: .support,
             bundleKey: "TUINDICE_SUPPORT_URL",
-            defaultValue: "https://tuindice.app/support_v6_0.html"
+            defaultValue: "https://tuindice.app/support"
         ),
         appStoreUrl: appStoreUrl,
         debug: bundleBoolean(for: "TUINDICE_DEBUG", defaultValue: false),
