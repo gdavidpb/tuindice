@@ -369,8 +369,17 @@ class EvaluationsResponseTransformerFactory : ExtensionFactory {
 
 		private companion object {
 			private const val CONFIG_DIRECTORY = "config"
-			private const val SETTINGS_FILENAME = "evaluations-base-state.json"
-			private const val RECORD_SETTINGS_FILENAME = "record-base-state.json"
+
+			// See RecordResponseTransformerFactory: unset keeps the E2E fixtures,
+			// "marketing" swaps in the capture dataset. Both files move together --
+			// evaluations reference attempts in the record state.
+			private val DATA_PROFILE: String = System.getenv("WIREMOCK_DATA_PROFILE").orEmpty()
+			private val SETTINGS_FILENAME: String =
+				if (DATA_PROFILE.isEmpty()) "evaluations-base-state.json"
+				else "evaluations-$DATA_PROFILE-state.json"
+			private val RECORD_SETTINGS_FILENAME: String =
+				if (DATA_PROFILE.isEmpty()) "record-base-state.json"
+				else "record-$DATA_PROFILE-state.json"
 			private const val GET_DELAY_MS = 3000
 			private const val POST_DELAY_MS = 1500
 			private const val PATCH_DELAY_MS = 1500
