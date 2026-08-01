@@ -8,3 +8,4 @@ name: TuIndice evaluations E2E suite
 - runFlow: ../evaluations/evaluations-swipe-delete.yaml
 - runFlow: ../evaluations/evaluations-add-submit.yaml
 - runFlow: ../evaluations/evaluations-add-validation.yaml
+- runFlow: ../evaluations/evaluations-enrollment-unavailable.yaml

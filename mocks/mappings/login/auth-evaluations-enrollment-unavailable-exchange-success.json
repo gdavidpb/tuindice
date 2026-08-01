@@ -1,0 +1,33 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-evaluations-enrollment-unavailable-login",
+  "requiredScenarioState": "BootstrapIssued",
+  "newScenarioState": "TokensIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/token/exchange",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer bootstrap.mock.evaluations.enrollment.unavailable.token"
+      },
+      "X-Attestation-Token": {
+        "matches": "attestation\\.mock\\.proof\\.(android|ios)"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "evaluations-enrollment-unavailable-user",
+      "usb_id": "10-10101",
+      "session_id": "evaluations-enrollment-unavailable-session",
+      "access_token": "evaluations.enrollment.unavailable.mock.access",
+      "refresh_token": "evaluations.enrollment.unavailable.mock.refresh",
+      "expires_in": 3600
+    },
+    "fixedDelayMilliseconds": 1000
+  }
+}
