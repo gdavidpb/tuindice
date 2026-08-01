@@ -29,5 +29,5 @@ appId: com.gdavidpb.tuindice.debug
     id: base_empty_view_title
 - assertVisible:
     id: base_empty_view_message
-- assertVisible:
+- assertNotVisible:
     id: base_empty_view_action_button

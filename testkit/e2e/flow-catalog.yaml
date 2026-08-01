@@ -91,6 +91,7 @@ flows:
       - record.Record.UpsertAttemptSelection
       - record.Record.DeleteSyntheticTerm
       - enrollmentproof.Enrollment.FetchEnrollmentProof
+      - pensum.Pensum.EnsurePensumLoaded
       - pensum.Pensum.RefreshPensum
       - pensum.Pensum.ToggleSummaryCollapsed
       - pensum.Pensum.SelectSelection
@@ -176,6 +177,7 @@ flows:
     variant: pensum-certification
     fixture_state: pensum-local-certification
     actions_covered:
+      - pensum.Pensum.EnsurePensumLoaded
       - pensum.Pensum.RefreshPensum
       - pensum.Pensum.ToggleSummaryCollapsed
       - pensum.Pensum.SelectSelection
@@ -1218,7 +1220,7 @@ variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
     variant: record-data-unavailable-empty
     fixture_state: record-sync-unavailable
     actions_covered:
-      - pensum.Pensum.RefreshPensum
+      - pensum.Pensum.EnsurePensumLoaded
     primary_selectors:
       - maincore_tuindice_bottom_bar_pensum_item
       - base_empty_view_container

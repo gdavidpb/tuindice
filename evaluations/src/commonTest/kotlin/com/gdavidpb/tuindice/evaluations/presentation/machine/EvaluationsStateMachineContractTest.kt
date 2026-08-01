@@ -111,6 +111,7 @@ class EvaluationsStateMachineContractTest {
 			"content",
 			"empty",
 			"no_attempts",
+			"record_data_unavailable",
 			"failed",
 			"LoadEvaluations",
 			"SelectWeek",
