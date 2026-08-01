@@ -7,8 +7,8 @@ import com.gdavidpb.tuindice.base.ui.view.ErrorView
 fun EvaluationsFailedView(
 	title: String,
 	message: String,
-	retryText: String,
-	onRetryClick: () -> Unit,
+	retryText: String? = null,
+	onRetryClick: () -> Unit = {},
 	headerContent: @Composable () -> Unit = {}
 ) {
 	ErrorView(

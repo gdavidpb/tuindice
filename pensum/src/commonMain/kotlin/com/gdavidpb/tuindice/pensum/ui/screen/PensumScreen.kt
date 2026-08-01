@@ -59,11 +59,11 @@ fun PensumScreen(
 						title = stringResource(Res.string.pensum_empty_title),
 						message = stringResource(Res.string.pensum_empty_message)
 					)
+					// No action: this state means the record sync is failing, and the retry
+					// reaches UpdatePensumUseCase, which cannot clear it. Only a sync can.
 					is Pensum.State.RecordDataUnavailable -> PensumEmptyView(
 						title = stringResource(Res.string.pensum_record_unavailable_title),
-						message = stringResource(Res.string.pensum_record_unavailable_message),
-						actionLabel = stringResource(Res.string.pensum_failed_retry),
-						onActionClick = onRetryClick
+						message = stringResource(Res.string.pensum_record_unavailable_message)
 					)
 					is Pensum.State.Content -> PensumContentView(
 						model = targetState.model,

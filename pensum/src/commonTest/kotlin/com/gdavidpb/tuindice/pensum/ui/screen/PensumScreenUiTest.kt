@@ -108,31 +108,29 @@ class PensumScreenUiTest {
 	}
 
 	@Test
-	fun when_recordDataIsUnavailable_then_displaysIllustratedEmptyViewWithRetryAction() = runTuIndiceUiTest {
-		var retryCount = 0
+	fun when_recordDataIsUnavailable_then_displaysIllustratedEmptyViewWithoutRetryAction() =
+		runTuIndiceUiTest {
+			setTuIndiceTestContent {
+				PensumScreen(
+					state = Pensum.State.RecordDataUnavailable,
+					onRetryClick = {},
+					showSelectionSheet = false,
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				)
+			}
 
-		setTuIndiceTestContent {
-			PensumScreen(
-				state = Pensum.State.RecordDataUnavailable,
-				onRetryClick = { retryCount += 1 },
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
-			)
+			assertNodeVisible(BaseUiTags.EmptyViewContainer)
+			assertNodeVisible(BaseUiTags.EmptyStateAnimation)
+			onNodeWithText("Historial no sincronizado").assertExists()
+			onNodeWithText(
+				"No pudimos leer tu historial académico. El avance y los estados del pensum pueden no estar actualizados."
+			).assertExists()
+			// The record sync is what failed, and the retry reaches UpdatePensumUseCase,
+			// which cannot clear it. No action is offered.
+			assertNodeHidden(BaseUiTags.EmptyViewActionButton)
 		}
-
-		assertNodeVisible(BaseUiTags.EmptyViewContainer)
-		assertNodeVisible(BaseUiTags.EmptyStateAnimation)
-		onNodeWithText("Historial no sincronizado").assertExists()
-		onNodeWithText(
-			"No pudimos leer tu historial académico. El avance y los estados del pensum pueden no estar actualizados."
-		).assertExists()
-		onNodeWithTag(BaseUiTags.EmptyViewActionButton)
-			.assertHasClickAction()
-			.performClick()
-		assertEquals(1, retryCount)
-	}
 
 	@Test
 	fun when_stateIsFailed_then_displaysPersistentFailureCauseAndRetryAction() = runTuIndiceUiTest {

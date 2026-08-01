@@ -25,9 +25,11 @@ import tuindice.evaluations.generated.resources.button_add_evaluation
 import tuindice.evaluations.generated.resources.message_empty_evaluations
 import tuindice.evaluations.generated.resources.message_enrollment_unavailable_evaluations
 import tuindice.evaluations.generated.resources.message_no_subjects_evaluations
+import tuindice.evaluations.generated.resources.message_record_unavailable_evaluations
 import tuindice.evaluations.generated.resources.title_empty_evaluations
 import tuindice.evaluations.generated.resources.title_enrollment_unavailable_evaluations
 import tuindice.evaluations.generated.resources.title_no_subjects_evaluations
+import tuindice.evaluations.generated.resources.title_record_unavailable_evaluations
 import tuindice.evaluations.generated.resources.view_error_retry
 import tuindice.evaluations.generated.resources.view_error_title
 
@@ -71,6 +73,15 @@ fun EvaluationsScreen(
 						openActionsEvaluationId = openActionsEvaluationId,
 						focusEvaluationId = focusEvaluationId,
 						onFocusEvaluationBoundsChange = onFocusEvaluationBoundsChange
+					)
+
+				is Evaluations.State.RecordDataUnavailable ->
+					EvaluationsFailedView(
+						title = stringResource(Res.string.title_record_unavailable_evaluations),
+						message = stringResource(Res.string.message_record_unavailable_evaluations),
+						headerContent = {
+							ErrorStateAnimationView()
+						}
 					)
 
 				is Evaluations.State.Failed ->

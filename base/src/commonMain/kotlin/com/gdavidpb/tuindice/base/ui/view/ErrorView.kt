@@ -8,12 +8,14 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 
+// A null retryText renders the failure without an action, for failures the user cannot
+// act on. The illustration and framing stay: it is still an error, just not theirs to fix.
 @Composable
 fun ErrorView(
 	title: String,
 	message: String,
-	retryText: String,
-	onRetryClick: () -> Unit,
+	retryText: String? = null,
+	onRetryClick: () -> Unit = {},
 	headerContent: @Composable () -> Unit = {}
 ) {
 	IllustratedMessageView(

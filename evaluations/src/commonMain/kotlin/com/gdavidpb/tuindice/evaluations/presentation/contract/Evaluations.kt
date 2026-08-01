@@ -42,6 +42,11 @@ object Evaluations {
 			val reason: EvaluationsNoAttemptsReason
 		) : State()
 
+		// Split from Failed because it is not the user's to retry: it means the record
+		// sync itself is failing, and only a sync can clear it. Mirrors Pensum, which
+		// already models this cause as its own state.
+		data object RecordDataUnavailable : State()
+
 		data class Failed(
 			val message: String
 		) : State()

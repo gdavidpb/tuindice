@@ -13,9 +13,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 sealed interface EvaluationsInternalEvent {
 	data object EvaluationsWaitingObserved : EvaluationsInternalEvent
 
-	data class EvaluationsRecordDataUnavailableObserved(
-		val message: String
-	) : EvaluationsInternalEvent
+	data object EvaluationsRecordDataUnavailableObserved : EvaluationsInternalEvent
 
 	data class EvaluationsNoAttemptsObserved(
 		val reason: EvaluationsNoAttemptsReason

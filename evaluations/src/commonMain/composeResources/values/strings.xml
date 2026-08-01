@@ -89,7 +89,8 @@
 	<string name="snack_evaluation_not_found">La evaluación ya no está disponible</string>
 	<string name="snack_evaluation_updated">Evaluación actualizada</string>
 	<string name="snack_evaluation_removed">Evaluación eliminada</string>
-	<string name="evaluations_failed_record_unavailable">No pudimos leer tu informe académico</string>
+	<string name="title_record_unavailable_evaluations">Historial no sincronizado</string>
+	<string name="message_record_unavailable_evaluations">No pudimos leer tu historial académico. Cuando se sincronice, tus evaluaciones aparecerán aquí.</string>
 	<string name="a11y_add_evaluation">Agregar evaluación</string>
 	<string name="a11y_evaluation_show_actions">Ver acciones</string>
 	<string name="a11y_evaluation_register_grade">Registrar nota</string>

@@ -40,7 +40,6 @@ import kotlinx.coroutines.flow.collect
 import org.jetbrains.compose.resources.getString
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.evaluations_continuous_label
-import tuindice.evaluations.generated.resources.evaluations_failed_record_unavailable
 import tuindice.evaluations.generated.resources.evaluations_week_label
 import tuindice.evaluations.generated.resources.snack_evaluation_removed
 import tuindice.evaluations.generated.resources.snack_evaluation_set_grade
@@ -80,9 +79,7 @@ class EvaluationsMachine(
 						)
 
 						GetEvaluations.RecordDataUnavailable -> host.processInternalEvent(
-							EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved(
-								message = getString(Res.string.evaluations_failed_record_unavailable)
-							)
+							EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved
 						)
 
 						is GetEvaluations.NoAttempts -> host.processInternalEvent(

@@ -71,6 +71,29 @@ class EvaluationsScreenUiTest {
 	}
 
 	@Test
+	fun when_stateIsRecordDataUnavailable_then_displaysFailureWithoutRetryAction() =
+		runTuIndiceUiTest {
+			setTuIndiceTestContent {
+				EvaluationsScreen(
+					state = Evaluations.State.RecordDataUnavailable,
+					onAddEvaluationClick = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {},
+					onRetryClick = {}
+				)
+			}
+
+			onNodeWithText("Historial no sincronizado").assertExists()
+			onNodeWithText(
+				"No pudimos leer tu historial académico. " +
+					"Cuando se sincronice, tus evaluaciones aparecerán aquí."
+			).assertExists()
+			// Sync-derived, so the retry the sibling Failed state offers would be inert here.
+			assertNodeHidden(BaseUiTags.ErrorViewRetryButton)
+		}
+
+	@Test
 	fun when_stateIsEmpty_then_addDispatchesCallback() = runTuIndiceUiTest {
 		var addClicks = 0
 
