@@ -108,10 +108,8 @@ class EvaluationsScreenUiTest {
 	}
 
 	@Test
-	fun when_stateIsNoAttemptsBecauseEnrollmentIsUnavailable_then_displaysEnrollmentUnavailableMessage() =
+	fun when_stateIsNoAttemptsBecauseEnrollmentIsUnavailable_then_displaysMessageWithoutActionButton() =
 		runTuIndiceUiTest {
-			var retryClicks = 0
-
 			setTuIndiceTestContent {
 				EvaluationsScreen(
 					state = Evaluations.State.NoAttempts(EvaluationsNoAttemptsReason.EnrollmentUnavailable),
@@ -119,17 +117,16 @@ class EvaluationsScreenUiTest {
 					onEvaluationClick = { _, _, _ -> },
 					onEvaluationEdit = {},
 					onEvaluationDelete = {},
-					onRetryClick = { retryClicks++ }
+					onRetryClick = {}
 				)
 			}
 
 			onNodeWithText("Servicio de inscripción no disponible").assertExists()
 			onNodeWithText(
-				"En este momento no está disponible el servicio de inscripción de la universidad. " +
-					"Intenta cargar de nuevo más tarde."
+				"El servicio de inscripción de la universidad no responde. " +
+					"Cuando se restablezca, tus evaluaciones aparecerán aquí."
 			).assertExists()
-			assertNodeVisible(BaseUiTags.EmptyViewActionButton)
-			onNodeWithTag(BaseUiTags.EmptyViewActionButton).performClick()
-			assertEquals(1, retryClicks)
+			// The outage is not resolved by the user, so the state offers no action.
+			assertNodeHidden(BaseUiTags.EmptyViewActionButton)
 		}
 }

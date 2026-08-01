@@ -88,8 +88,6 @@ fun EvaluationsScreen(
 					EvaluationsNoAttemptsView(
 						title = targetState.noAttemptsTitle(),
 						message = targetState.noAttemptsMessage(),
-						actionLabel = targetState.noAttemptsActionLabel(),
-						onActionClick = onRetryClick,
 						headerContent = {
 							EmptyStateAnimationView()
 						}
@@ -132,14 +130,8 @@ private fun Evaluations.State.NoAttempts.noAttemptsMessage(): String {
 	}
 }
 
-// Only the enrollment outage is retryable; a missing current term is resolved
-// by time, not by refreshing.
-@Composable
-private fun Evaluations.State.NoAttempts.noAttemptsActionLabel(): String? {
-	return when (reason) {
-		EvaluationsNoAttemptsReason.NoCurrentTerm -> null
-
-		EvaluationsNoAttemptsReason.EnrollmentUnavailable ->
-			stringResource(Res.string.view_error_retry)
-	}
-}
+// Neither reason takes an action. A missing current term is resolved by time; an
+// enrollment outage by the university. Retrying used to re-run UpdateEvaluationsUseCase,
+// which never touches the sync report this state is derived from -- only SyncDataSource
+// writes it -- so the button could not clear the state it offered to clear. The sync on
+// app resume does, and this state observes that report, so it recovers on its own.
