@@ -21,29 +21,26 @@ class AcademicPensumStatusEngine {
 			.sortedChronologically()
 		val approvedSubjectCodes = approvedAttempts.map { attempt -> attempt.normalizedSubjectCode() }.toSet()
 		val currentSubjectCodes = currentAttempts.map { attempt -> attempt.normalizedSubjectCode() }.toSet()
-		val fixedCourseSubjectCodes = pensum.nodes
-			.filter { node -> node.nodeType == AcademicPensumGraph.NodeType.COURSE }
-			.flatMap { node ->
-				listOfNotNull(node.subjectCode.normalizedSubjectCodeOrNull()) +
-					node.fulfillmentRules.flatMap { rule ->
-						rule.subjectCodes.mapNotNull { code -> code.normalizedSubjectCodeOrNull() }
-					}
-			}
-			.toSet()
+		val courseNodes = pensum.nodes.filter { node -> node.nodeType == AcademicPensumGraph.NodeType.COURSE }
 		val slotNodes = pensum.nodes.filter { node -> node.nodeType == AcademicPensumGraph.NodeType.SLOT }
+		val fixedCourseSubjectCodes = fixedCourseSubjectCodesOf(courseNodes)
 
-		val approvedCourseNodeIds = pensum.nodes
+		val approvedCourseNodeIds = courseNodes
 			.filter { node -> node.isApproved(approvedSubjectCodes) }
 			.map(AcademicPensumGraph.Node::id)
 			.toSet()
+		val approvedCourseEquivalenceFulfillments =
+			equivalenceFulfillmentsFor(courseNodes, approvedCourseNodeIds, approvedSubjectCodes, approvedAttempts)
 		val approvedSlotFulfillments = slotNodes.assignFulfillments(
 			attempts = approvedAttempts.filter { attempt -> attempt.normalizedSubjectCode() !in fixedCourseSubjectCodes }
 		)
 		val approvedNodeIds = approvedCourseNodeIds + approvedSlotFulfillments.keys
-		val currentCourseNodeIds = pensum.nodes
+		val currentCourseNodeIds = courseNodes
 			.filter { node -> node.id !in approvedNodeIds && node.isCurrent(currentSubjectCodes) }
 			.map(AcademicPensumGraph.Node::id)
 			.toSet()
+		val currentCourseEquivalenceFulfillments =
+			equivalenceFulfillmentsFor(courseNodes, currentCourseNodeIds, currentSubjectCodes, currentAttempts)
 		val currentSlotFulfillments = slotNodes
 			.filter { node -> node.id !in approvedNodeIds }
 			.assignFulfillments(
@@ -51,16 +48,7 @@ class AcademicPensumStatusEngine {
 			)
 		val currentNodeIds = currentCourseNodeIds + currentSlotFulfillments.keys
 
-		val statuses = pensum.nodes.associate { node ->
-			val status = when {
-				node.id in approvedNodeIds -> AcademicPensumNodeStatus.APPROVED
-				node.id in currentNodeIds -> AcademicPensumNodeStatus.CURRENT
-				node.isAvailable(pensum.edges, approvedNodeIds, currentNodeIds) -> AcademicPensumNodeStatus.AVAILABLE
-				else -> AcademicPensumNodeStatus.BLOCKED
-			}
-
-			node.id to status
-		}
+		val statuses = statusesOf(pensum, approvedNodeIds, currentNodeIds)
 		val approvedCredits = pensum.nodes
 			.filter { node -> statuses[node.id] == AcademicPensumNodeStatus.APPROVED }
 			.sumOf(AcademicPensumGraph.Node::credits)
@@ -68,20 +56,27 @@ class AcademicPensumStatusEngine {
 		return AcademicPensumProgress(
 			approvedCredits = approvedCredits,
 			nodeStatuses = statuses,
-			nodeFulfillments = approvedSlotFulfillments + currentSlotFulfillments
+			nodeFulfillments = approvedSlotFulfillments + approvedCourseEquivalenceFulfillments +
+				currentSlotFulfillments + currentCourseEquivalenceFulfillments
 		)
 	}
 
 	private fun AcademicPensumGraph.Node.isApproved(approvedSubjectCodes: Set<String>): Boolean {
 		return when (nodeType) {
-			AcademicPensumGraph.NodeType.COURSE -> subjectCode.normalizedSubjectCodeOrNull() in approvedSubjectCodes
+			AcademicPensumGraph.NodeType.COURSE ->
+				subjectCode.normalizedSubjectCodeOrNull() in approvedSubjectCodes ||
+					equivalenceCodes().any { code -> code in approvedSubjectCodes }
+
 			AcademicPensumGraph.NodeType.SLOT -> false
 		}
 	}
 
 	private fun AcademicPensumGraph.Node.isCurrent(currentSubjectCodes: Set<String>): Boolean {
 		return when (nodeType) {
-			AcademicPensumGraph.NodeType.COURSE -> subjectCode.normalizedSubjectCodeOrNull() in currentSubjectCodes
+			AcademicPensumGraph.NodeType.COURSE ->
+				subjectCode.normalizedSubjectCodeOrNull() in currentSubjectCodes ||
+					equivalenceCodes().any { code -> code in currentSubjectCodes }
+
 			AcademicPensumGraph.NodeType.SLOT -> false
 		}
 	}
@@ -121,21 +116,6 @@ class AcademicPensumStatusEngine {
 		return subjectCode in acceptedCodes || acceptedPrefixes.any(subjectCode::startsWith)
 	}
 
-	private fun AcademicPensumGraph.Node.isAvailable(
-		edges: List<AcademicPensumGraph.Edge>,
-		approvedNodeIds: Set<String>,
-		currentNodeIds: Set<String>
-	): Boolean {
-		val requirements = edges.filter { edge -> edge.toNodeId == id }
-		return requirements.all { edge ->
-			when (edge.relationshipType) {
-				AcademicPensumGraph.RelationshipType.REQUIREMENT -> edge.fromNodeId in approvedNodeIds
-				AcademicPensumGraph.RelationshipType.COREQUISITE ->
-					edge.fromNodeId in approvedNodeIds || edge.fromNodeId in currentNodeIds
-			}
-		}
-	}
-
 	private fun List<AcademicPensumSnapshot.Attempt>.sortedChronologically(): List<AcademicPensumSnapshot.Attempt> {
 		return sortedWith(
 			compareBy<AcademicPensumSnapshot.Attempt> { attempt -> attempt.termOrder }
@@ -144,12 +124,100 @@ class AcademicPensumStatusEngine {
 				.thenBy { attempt -> attempt.id }
 		)
 	}
+}
 
-	private fun AcademicPensumSnapshot.Attempt.normalizedSubjectCode(): String {
-		return subjectCode.normalizedSubjectCodeOrNull() ?: subjectCode.trim().uppercase()
-	}
+private fun statusesOf(
+	pensum: AcademicPensumGraph,
+	approvedNodeIds: Set<String>,
+	currentNodeIds: Set<String>
+): Map<String, AcademicPensumNodeStatus> {
+	return pensum.nodes.associate { node ->
+		val status = when {
+			node.id in approvedNodeIds -> AcademicPensumNodeStatus.APPROVED
+			node.id in currentNodeIds -> AcademicPensumNodeStatus.CURRENT
+			node.isAvailable(pensum.edges, approvedNodeIds, currentNodeIds) -> AcademicPensumNodeStatus.AVAILABLE
+			else -> AcademicPensumNodeStatus.BLOCKED
+		}
 
-	private fun String?.normalizedSubjectCodeOrNull(): String? {
-		return this?.trim()?.uppercase()?.takeIf(String::isNotBlank)
+		node.id to status
 	}
+}
+
+private fun AcademicPensumGraph.Node.isAvailable(
+	edges: List<AcademicPensumGraph.Edge>,
+	approvedNodeIds: Set<String>,
+	currentNodeIds: Set<String>
+): Boolean {
+	val requirements = edges.filter { edge -> edge.toNodeId == id }
+	return requirements.all { edge ->
+		when (edge.relationshipType) {
+			AcademicPensumGraph.RelationshipType.REQUIREMENT -> edge.fromNodeId in approvedNodeIds
+			AcademicPensumGraph.RelationshipType.COREQUISITE ->
+				edge.fromNodeId in approvedNodeIds || edge.fromNodeId in currentNodeIds
+		}
+	}
+}
+
+// Only nodes matched via their EQUIVALENCE rule (not their own code) carry a fulfillment — the
+// same "cursada como" affordance a SLOT gets, and the reason downstream stats/navigation know
+// which code the student actually sat under.
+private fun equivalenceFulfillmentsFor(
+	courseNodes: List<AcademicPensumGraph.Node>,
+	matchedNodeIds: Set<String>,
+	ownSubjectCodes: Set<String>,
+	attempts: List<AcademicPensumSnapshot.Attempt>
+): Map<String, AcademicPensumProgress.NodeFulfillment> {
+	return courseNodes
+		.filter { node ->
+			node.id in matchedNodeIds && node.subjectCode.normalizedSubjectCodeOrNull() !in ownSubjectCodes
+		}
+		.courseEquivalenceFulfillments(attempts)
+}
+
+// Strictly the EQUIVALENCE rule type — a COURSE node's other rule kinds (if any) describe
+// something else and must never let an unrelated attempt approve this node.
+private fun AcademicPensumGraph.Node.equivalenceCodes(): Set<String> {
+	return fulfillmentRules
+		.filter { rule -> rule.ruleType == "EQUIVALENCE" }
+		.flatMap { rule -> rule.subjectCodes }
+		.mapNotNull { code -> code.normalizedSubjectCodeOrNull() }
+		.toSet()
+}
+
+// Mirrors assignFulfillments' shape for SLOTs, but scoped to COURSE nodes already known to be
+// approved/current via equivalence (never via their own code) — each node's equivalence codes
+// are specific to that one canonical subject, so unlike slots there is no shared pool of
+// attempts to race for and no need to track which attempts are already spent.
+private fun List<AcademicPensumGraph.Node>.courseEquivalenceFulfillments(
+	attempts: List<AcademicPensumSnapshot.Attempt>
+): Map<String, AcademicPensumProgress.NodeFulfillment> {
+	return mapNotNull { node ->
+		val equivalenceCodes = node.equivalenceCodes()
+		val attempt = attempts.firstOrNull { attempt -> attempt.normalizedSubjectCode() in equivalenceCodes }
+			?: return@mapNotNull null
+
+		node.id to AcademicPensumProgress.NodeFulfillment(
+			subjectCode = attempt.normalizedSubjectCode(),
+			subjectName = attempt.subjectName
+		)
+	}.toMap()
+}
+
+private fun fixedCourseSubjectCodesOf(courseNodes: List<AcademicPensumGraph.Node>): Set<String> {
+	return courseNodes
+		.flatMap { node ->
+			listOfNotNull(node.subjectCode.normalizedSubjectCodeOrNull()) +
+				node.fulfillmentRules.flatMap { rule ->
+					rule.subjectCodes.mapNotNull { code -> code.normalizedSubjectCodeOrNull() }
+				}
+		}
+		.toSet()
+}
+
+private fun AcademicPensumSnapshot.Attempt.normalizedSubjectCode(): String {
+	return subjectCode.normalizedSubjectCodeOrNull() ?: subjectCode.trim().uppercase()
+}
+
+private fun String?.normalizedSubjectCodeOrNull(): String? {
+	return this?.trim()?.uppercase()?.takeIf(String::isNotBlank)
 }

@@ -1,0 +1,57 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- tapOn:
+    id: auth_usb_id_text_field
+- inputText: "6666666"
+- inputText: "6"
+- tapOn:
+    id: auth_password_text_field
+- inputText: "pensum-equivalence-pass"
+- tapOn:
+    id: auth_keyboard_dismiss_area
+- tapOn:
+    id: auth_sign_in_button
+- runFlow: ../_shared/continue-to-summary-after-auth.yaml
+- tapOn:
+    id: maincore_tuindice_bottom_bar_pensum_item
+- extendedWaitUntil:
+    visible:
+      id: pensum_screen
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: pensum_node_0800-2019-degree_project-t1-lla111
+    timeout: 15000
+- tapOn:
+    id: pensum_node_0800-2019-degree_project-t1-lla111
+- extendedWaitUntil:
+    visible:
+      id: pensum_subject_detail_sheet
+    timeout: 10000
+- assertVisible:
+    id: pensum_subject_detail_more_button
+- tapOn:
+    id: pensum_subject_detail_more_button
+- extendedWaitUntil:
+    visible:
+      text: "Cursada como"
+    timeout: 10000
+- assertVisible:
+    text: "Lenguaje I"
+- tapOn:
+    text: Ver estadísticas
+- extendedWaitUntil:
+    visible:
+      id: subjects_content
+    timeout: 30000
+- assertVisible:
+    id: subjects_segment_students_metric
+- assertVisible:
+    id: subjects_segment_attempts_metric
+- tapOn:
+    id: maincore_tuindice_top_bar_back_button
+- extendedWaitUntil:
+    visible:
+      id: pensum_screen
+    timeout: 10000

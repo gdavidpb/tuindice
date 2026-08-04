@@ -1280,6 +1280,23 @@ variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
       - subjects_content
       - subjects_segment_students_metric
       - subjects_segment_attempts_metric
+  - id: pensum-equivalence-fulfilled
+    path: e2e/maestro/flows/pensum/pensum-equivalence-fulfilled.yaml
+    module: pensum
+    type: navigation
+    platforms: [android, ios]
+    status: active
+    variant: course-node-fulfilled-by-legacy-code-equivalence
+    fixture_state: pensum-equivalence-fulfilled
+    actions_covered:
+      - subjects.SubjectDetail.SelectSubjectSegmentTab
+    primary_selectors:
+      - pensum_node_0800-2019-degree_project-t1-lla111
+      - pensum_subject_detail_sheet
+      - pensum_subject_detail_more_button
+      - subjects_content
+      - subjects_segment_students_metric
+      - subjects_segment_attempts_metric
   - id: pensum-detail-navigation
     path: e2e/maestro/flows/pensum/pensum-detail-navigation.yaml
     module: pensum

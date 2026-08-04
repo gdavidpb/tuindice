@@ -22,6 +22,12 @@ internal val SUBJECT_POOL = listOf(
 	"MA1111", "MA1112", "CI2525", "EP1308", "ID1101", "FS1111", "QM1181", "EP4135"
 )
 
+// A disjoint namespace standing in for pre-migration DST codes: never a pensum node's own
+// subjectCode, only ever reachable through a curated EQUIVALENCE rule.
+internal val LEGACY_SUBJECT_POOL = listOf("LL1111", "LL1112", "CS1111", "CS1112")
+
+private val SNAPSHOT_SUBJECT_POOL = SUBJECT_POOL + LEGACY_SUBJECT_POOL
+
 internal fun Random.nextScore(gradingMode: AttemptGradingMode): AttemptScore {
 	return when (gradingMode) {
 		AttemptGradingMode.NUMERIC -> when (nextInt(4)) {
@@ -172,6 +178,18 @@ internal fun Random.nextPensumGraph(maxNodes: Int = 8): AcademicPensumGraph {
 						minSubjects = null
 					)
 				)
+				// A third of COURSE nodes also carry a curated EQUIVALENCE rule, so the properties
+				// below exercise a mix of course-fulfillment and no-fulfillment shapes.
+			} else if (nextInt(3) == 0) {
+				listOf(
+					AcademicPensumGraph.FulfillmentRule(
+						ruleType = "EQUIVALENCE",
+						subjectCodes = listOf(LEGACY_SUBJECT_POOL[nextInt(LEGACY_SUBJECT_POOL.size)]),
+						subjectCodePrefixes = emptyList(),
+						minCredits = null,
+						minSubjects = null
+					)
+				)
 			} else {
 				emptyList()
 			}
@@ -199,7 +217,7 @@ internal fun Random.nextSnapshot(maxAttempts: Int = 10): AcademicPensumSnapshot 
 		attempts = List(nextInt(0, maxAttempts + 1)) { index ->
 			AcademicPensumSnapshot.Attempt(
 				id = "snapshot-attempt-$index",
-				subjectCode = SUBJECT_POOL[nextInt(SUBJECT_POOL.size)],
+				subjectCode = SNAPSHOT_SUBJECT_POOL[nextInt(SNAPSHOT_SUBJECT_POOL.size)],
 				subjectName = "Subject $index",
 				credits = nextInt(1, 7),
 				termOrder = nextInt(20200, 20270),

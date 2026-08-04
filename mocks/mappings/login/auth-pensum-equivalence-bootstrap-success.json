@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-pensum-equivalence-login",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "BootstrapIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic NjYtNjY2NjY6cGVuc3VtLWVxdWl2YWxlbmNlLXBhc3M="
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "pensum-equivalence-user",
+      "usb_id": "66-66666",
+      "access_token": "bootstrap.mock.pensum.equivalence.token",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

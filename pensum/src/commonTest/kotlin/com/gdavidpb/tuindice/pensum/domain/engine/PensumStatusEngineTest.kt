@@ -187,6 +187,30 @@ class PensumStatusEngineTest {
 	}
 
 	@Test
+	fun resolvesCourseApprovedByEquivalenceRuleThroughTheAdapter() {
+		val course = courseWithEquivalence(
+			id = "lla111",
+			code = "LLA111",
+			name = "Lenguaje I",
+			equivalentCodes = listOf("LL1111"),
+			credits = 3
+		)
+		val result = engine.resolve(
+			pensum = samplePensum(nodes = listOf(course), edges = emptyList()),
+			academicSnapshot = AcademicPensumSnapshot(
+				attempts = listOf(
+					attempt("LL1111", TermKind.HISTORICAL, AttemptOutcome.APPROVED, credits = 3, name = "Lenguaje I")
+				)
+			)
+		)
+
+		assertEquals(PensumNodeStatus.APPROVED, result.nodeStatuses["lla111"])
+		assertEquals("LL1111", result.nodeFulfillments.getValue("lla111").subjectCode)
+		assertEquals("Lenguaje I", result.nodeFulfillments.getValue("lla111").subjectName)
+		assertEquals(3, result.approvedCredits)
+	}
+
+	@Test
 	fun doesNotResolveGenericElectiveRulesEvenWhenPrefixesArePresent() {
 		val genericSlot = slot(
 			id = "generic-slot",
@@ -261,6 +285,40 @@ class PensumStatusEngineTest {
 			width = 120.0,
 			height = 90.0,
 			fulfillmentRules = emptyList()
+		)
+	}
+
+	private fun courseWithEquivalence(
+		id: String,
+		code: String,
+		name: String,
+		equivalentCodes: List<String>,
+		credits: Int
+	): PensumGraph.Node {
+		return PensumGraph.Node(
+			id = id,
+			nodeType = PensumNodeType.COURSE,
+			displayCode = code,
+			subjectCode = code,
+			name = name,
+			credits = credits,
+			category = "PROFESSIONAL",
+			termId = "T1",
+			x = 0.0,
+			y = 0.0,
+			width = 120.0,
+			height = 90.0,
+			fulfillmentRules = listOf(
+				PensumGraph.FulfillmentRule(
+					id = "equiv:$id:$code",
+					ruleType = "EQUIVALENCE",
+					subjectCodes = equivalentCodes,
+					subjectCodePrefixes = emptyList(),
+					slotEligibilityKind = null,
+					minCredits = null,
+					minSubjects = null
+				)
+			)
 		)
 	}
 

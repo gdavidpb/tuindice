@@ -158,6 +158,29 @@ class AcademicPensumStatusEngineGoldenTest {
 		assertEquals(0, progress.nodeFulfillments.size)
 		assertEquals(3, progress.approvedCredits)
 	}
+
+	@Test
+	fun fixedCourseEquivalenceCodes_approveTheirCourseNode_andStayOutOfSlotPools() {
+		val pensum = AcademicPensumGraph(
+			nodes = listOf(
+				courseWithEquivalence(id = "course", code = "LLA111", equivalentCodes = listOf("LL1111"), credits = 3),
+				slot(id = "slot", prefixes = listOf("LL"), minCredits = null)
+			),
+			edges = emptyList()
+		)
+
+		val progress = engine.resolve(
+			pensum,
+			snapshot(approved(id = "s1", code = "LL1111", credits = 3))
+		)
+
+		assertEquals(AcademicPensumNodeStatus.APPROVED, progress.nodeStatuses["course"])
+		assertEquals(AcademicPensumNodeStatus.AVAILABLE, progress.nodeStatuses["slot"])
+		// The COURSE claims the fulfillment; the slot must not also consume the same attempt.
+		assertEquals(1, progress.nodeFulfillments.size)
+		assertEquals("LL1111", progress.nodeFulfillments.getValue("course").subjectCode)
+		assertEquals(3, progress.approvedCredits)
+	}
 }
 
 private fun course(id: String, code: String, credits: Int): AcademicPensumGraph.Node {
@@ -167,6 +190,29 @@ private fun course(id: String, code: String, credits: Int): AcademicPensumGraph.
 		subjectCode = code,
 		credits = credits,
 		fulfillmentRules = emptyList()
+	)
+}
+
+private fun courseWithEquivalence(
+	id: String,
+	code: String,
+	equivalentCodes: List<String>,
+	credits: Int
+): AcademicPensumGraph.Node {
+	return AcademicPensumGraph.Node(
+		id = id,
+		nodeType = AcademicPensumGraph.NodeType.COURSE,
+		subjectCode = code,
+		credits = credits,
+		fulfillmentRules = listOf(
+			AcademicPensumGraph.FulfillmentRule(
+				ruleType = "EQUIVALENCE",
+				subjectCodes = equivalentCodes,
+				subjectCodePrefixes = emptyList(),
+				minCredits = null,
+				minSubjects = null
+			)
+		)
 	)
 }
 
