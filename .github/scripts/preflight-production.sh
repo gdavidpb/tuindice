@@ -97,12 +97,16 @@ github_commit_status_payload_at_sha() {
 
 	[[ -n "$token" ]] || die "GITHUB_TOKEN or GH_TOKEN is required to verify E2E commit status '${context}'."
 
+	# The combined-status endpoint (singular /status) never includes `creator`
+	# on its per-status entries, so the trust check below always saw an empty
+	# creator regardless of who published it. Only the list endpoint (plural
+	# /statuses) returns the full status objects, creator included.
 	curl --fail --silent --show-error --retry 3 \
 		-H "Accept: application/vnd.github+json" \
 		-H "Authorization: Bearer ${token}" \
 		-H "X-GitHub-Api-Version: 2022-11-28" \
-		"${api_url}/repos/${repository}/commits/${sha}/status" \
-		| jq -c --arg context "$context" '[.statuses[] | select(.context == $context)][0] // empty'
+		"${api_url}/repos/${repository}/commits/${sha}/statuses" \
+		| jq -c --arg context "$context" '[.[] | select(.context == $context)][0] // empty'
 }
 
 # Statuses are trusted only when created by the repository owner or the
