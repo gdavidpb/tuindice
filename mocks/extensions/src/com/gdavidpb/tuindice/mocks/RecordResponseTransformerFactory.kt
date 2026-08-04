@@ -806,7 +806,15 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 
 		private companion object {
 			private const val CONFIG_DIRECTORY = "config"
-			private const val CONFIG_FILENAME = "record-base-state.json"
+
+			// Selects which dataset the mock serves. Unset (the default) keeps the
+			// E2E fixtures, so the suite and its certification fingerprint are
+			// untouched. WIREMOCK_DATA_PROFILE=marketing swaps in the dataset used
+			// for store and landing captures -- see mocks/scripts/build-marketing-state.py.
+			private val DATA_PROFILE: String = System.getenv("WIREMOCK_DATA_PROFILE").orEmpty()
+			private val CONFIG_FILENAME: String =
+				if (DATA_PROFILE.isEmpty()) "record-base-state.json"
+				else "record-$DATA_PROFILE-state.json"
 			private const val SUBJECTS_DIRECTORY = "subjects"
 			private const val SUBJECTS_CATALOG_FILENAME = "search-subjects-catalog.json"
 			private const val RECORD_ID = "mock-record"

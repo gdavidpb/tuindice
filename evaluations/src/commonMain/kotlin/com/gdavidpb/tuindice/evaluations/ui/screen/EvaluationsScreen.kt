@@ -25,9 +25,11 @@ import tuindice.evaluations.generated.resources.button_add_evaluation
 import tuindice.evaluations.generated.resources.message_empty_evaluations
 import tuindice.evaluations.generated.resources.message_enrollment_unavailable_evaluations
 import tuindice.evaluations.generated.resources.message_no_subjects_evaluations
+import tuindice.evaluations.generated.resources.message_record_unavailable_evaluations
 import tuindice.evaluations.generated.resources.title_empty_evaluations
 import tuindice.evaluations.generated.resources.title_enrollment_unavailable_evaluations
 import tuindice.evaluations.generated.resources.title_no_subjects_evaluations
+import tuindice.evaluations.generated.resources.title_record_unavailable_evaluations
 import tuindice.evaluations.generated.resources.view_error_retry
 import tuindice.evaluations.generated.resources.view_error_title
 
@@ -73,6 +75,15 @@ fun EvaluationsScreen(
 						onFocusEvaluationBoundsChange = onFocusEvaluationBoundsChange
 					)
 
+				is Evaluations.State.RecordDataUnavailable ->
+					EvaluationsFailedView(
+						title = stringResource(Res.string.title_record_unavailable_evaluations),
+						message = stringResource(Res.string.message_record_unavailable_evaluations),
+						headerContent = {
+							ErrorStateAnimationView()
+						}
+					)
+
 				is Evaluations.State.Failed ->
 					EvaluationsFailedView(
 						title = stringResource(Res.string.view_error_title),
@@ -88,8 +99,6 @@ fun EvaluationsScreen(
 					EvaluationsNoAttemptsView(
 						title = targetState.noAttemptsTitle(),
 						message = targetState.noAttemptsMessage(),
-						actionLabel = targetState.noAttemptsActionLabel(),
-						onActionClick = onRetryClick,
 						headerContent = {
 							EmptyStateAnimationView()
 						}
@@ -132,14 +141,8 @@ private fun Evaluations.State.NoAttempts.noAttemptsMessage(): String {
 	}
 }
 
-// Only the enrollment outage is retryable; a missing current term is resolved
-// by time, not by refreshing.
-@Composable
-private fun Evaluations.State.NoAttempts.noAttemptsActionLabel(): String? {
-	return when (reason) {
-		EvaluationsNoAttemptsReason.NoCurrentTerm -> null
-
-		EvaluationsNoAttemptsReason.EnrollmentUnavailable ->
-			stringResource(Res.string.view_error_retry)
-	}
-}
+// Neither reason takes an action. A missing current term is resolved by time; an
+// enrollment outage by the university. Retrying used to re-run UpdateEvaluationsUseCase,
+// which never touches the sync report this state is derived from -- only SyncDataSource
+// writes it -- so the button could not clear the state it offered to clear. The sync on
+// app resume does, and this state observes that report, so it recovers on its own.

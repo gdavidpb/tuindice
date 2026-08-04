@@ -295,7 +295,7 @@ class AboutRouteUiTest {
 
 	@Test
 	fun when_supportActionTriggered_then_navigatesToBrowserSupportUrl() = runTuIndiceUiTest {
-		val expectedSupportUrl = "https://tuindice.test/support_v6_0.html"
+		val expectedSupportUrl = "https://tuindice.test/support"
 		val fixture = createAboutViewModel(
 			termsAndConditionsUrl = "https://tuindice.test/terms",
 			supportUrl = expectedSupportUrl
@@ -329,7 +329,7 @@ class AboutRouteUiTest {
 
 	@Test
 	fun when_supportItemTapped_then_navigatesToBrowserSupportUrl() = runTuIndiceUiTest {
-		val expectedSupportUrl = "https://tuindice.test/support_v6_0.html"
+		val expectedSupportUrl = "https://tuindice.test/support"
 		val fixture = createAboutViewModel(
 			termsAndConditionsUrl = "https://tuindice.test/terms",
 			supportUrl = expectedSupportUrl

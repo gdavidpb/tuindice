@@ -3,31 +3,25 @@ appId: com.gdavidpb.tuindice.debug
 - runFlow: ../_shared/launch-clean.yaml
 - tapOn:
     id: auth_usb_id_text_field
-- inputText: "4444444"
-- inputText: "4"
+- inputText: "1010101"
 - tapOn:
     id: auth_password_text_field
-- inputText: "pensum-record-unavailable-pass"
+- inputText: "evaluations-enrollment-unavailable-pass"
 - tapOn:
     id: auth_keyboard_dismiss_area
 - tapOn:
     id: auth_sign_in_button
 - runFlow: ../_shared/continue-to-summary-after-auth.yaml
-- extendedWaitUntil:
-    visible:
-      id: maincore_tuindice_bottom_bar_record_item
-    timeout: 30000
 - tapOn:
-    id: maincore_tuindice_bottom_bar_pensum_item
+    id: maincore_tuindice_bottom_bar_evaluations_item
 - extendedWaitUntil:
     visible:
       id: base_empty_view_container
     timeout: 30000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - assertVisible:
     id: base_empty_state_animation
-- assertVisible:
-    id: base_empty_view_title
-- assertVisible:
-    id: base_empty_view_message
+- assertVisible: "Servicio de inscripción no disponible"
+- assertVisible: "El servicio de inscripción de la universidad no responde. Cuando se restablezca, tus evaluaciones aparecerán aquí."
 - assertNotVisible:
     id: base_empty_view_action_button

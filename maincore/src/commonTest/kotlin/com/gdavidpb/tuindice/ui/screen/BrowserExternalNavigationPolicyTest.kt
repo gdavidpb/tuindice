@@ -31,9 +31,9 @@ class BrowserExternalNavigationPolicyTest {
 	fun when_requestedUrlOnlyChangesFragment_then_keepsNavigationEmbedded() {
 		assertFalse(
 			shouldOpenExternalResource(
-				initialUrl = "https://tuindice.app/privacy_policy_v6_0.html",
-				currentUrl = "https://tuindice.app/privacy_policy_v6_0.html",
-				requestedUrl = "https://tuindice.app/privacy_policy_v6_0.html#datos"
+				initialUrl = "https://tuindice.app/privacy",
+				currentUrl = "https://tuindice.app/privacy",
+				requestedUrl = "https://tuindice.app/privacy#datos"
 			)
 		)
 	}
@@ -42,9 +42,9 @@ class BrowserExternalNavigationPolicyTest {
 	fun when_requestedUrlChangesFragmentFromAnotherFragment_then_keepsNavigationEmbedded() {
 		assertFalse(
 			shouldOpenExternalResource(
-				initialUrl = "https://tuindice.app/privacy_policy_v6_0.html",
-				currentUrl = "https://tuindice.app/privacy_policy_v6_0.html#responsable",
-				requestedUrl = "https://tuindice.app/privacy_policy_v6_0.html#datos"
+				initialUrl = "https://tuindice.app/privacy",
+				currentUrl = "https://tuindice.app/privacy#responsable",
+				requestedUrl = "https://tuindice.app/privacy#datos"
 			)
 		)
 	}
@@ -53,8 +53,8 @@ class BrowserExternalNavigationPolicyTest {
 	fun when_requestedUrlIsRelativeFragment_then_keepsNavigationEmbedded() {
 		assertFalse(
 			shouldOpenExternalResource(
-				initialUrl = "https://tuindice.app/privacy_policy_v6_0.html",
-				currentUrl = "https://tuindice.app/privacy_policy_v6_0.html",
+				initialUrl = "https://tuindice.app/privacy",
+				currentUrl = "https://tuindice.app/privacy",
 				requestedUrl = "#datos"
 			)
 		)
@@ -75,9 +75,9 @@ class BrowserExternalNavigationPolicyTest {
 	fun when_requestedUrlChangesDocument_then_opensExternalResource() {
 		assertTrue(
 			shouldOpenExternalResource(
-				initialUrl = "https://tuindice.app/privacy_policy_v6_0.html",
-				currentUrl = "https://tuindice.app/privacy_policy_v6_0.html",
-				requestedUrl = "https://tuindice.app/terms_and_conditions_v6_0.html"
+				initialUrl = "https://tuindice.app/privacy",
+				currentUrl = "https://tuindice.app/privacy",
+				requestedUrl = "https://tuindice.app/terms"
 			)
 		)
 	}
@@ -97,8 +97,8 @@ class BrowserExternalNavigationPolicyTest {
 	fun when_currentUrlOnlyDiffersByFragment_then_doesNotReloadBrowserUrl() {
 		assertFalse(
 			shouldLoadBrowserUrl(
-				currentUrl = "https://tuindice.app/privacy_policy_v6_0.html#datos",
-				targetUrl = "https://tuindice.app/privacy_policy_v6_0.html"
+				currentUrl = "https://tuindice.app/privacy#datos",
+				targetUrl = "https://tuindice.app/privacy"
 			)
 		)
 	}
@@ -107,8 +107,8 @@ class BrowserExternalNavigationPolicyTest {
 	fun when_currentUrlDiffersByDocument_then_reloadsBrowserUrl() {
 		assertTrue(
 			shouldLoadBrowserUrl(
-				currentUrl = "https://tuindice.app/terms_and_conditions_v6_0.html",
-				targetUrl = "https://tuindice.app/privacy_policy_v6_0.html"
+				currentUrl = "https://tuindice.app/terms",
+				targetUrl = "https://tuindice.app/privacy"
 			)
 		)
 	}

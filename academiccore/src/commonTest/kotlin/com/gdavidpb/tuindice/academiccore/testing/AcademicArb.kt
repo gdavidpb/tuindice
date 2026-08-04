@@ -22,6 +22,12 @@ internal val SUBJECT_POOL = listOf(
 	"MA1111", "MA1112", "CI2525", "EP1308", "ID1101", "FS1111", "QM1181", "EP4135"
 )
 
+// A disjoint namespace standing in for pre-migration DST codes: never a pensum node's own
+// subjectCode, only ever reachable through a curated EQUIVALENCE rule.
+internal val LEGACY_SUBJECT_POOL = listOf("LL1111", "LL1112", "CS1111", "CS1112")
+
+private val SNAPSHOT_SUBJECT_POOL = SUBJECT_POOL + LEGACY_SUBJECT_POOL
+
 internal fun Random.nextScore(gradingMode: AttemptGradingMode): AttemptScore {
 	return when (gradingMode) {
 		AttemptGradingMode.NUMERIC -> when (nextInt(4)) {
@@ -151,6 +157,11 @@ internal fun Random.nextSimpleNumericRecord(maxTerms: Int = 4): AcademicRecord {
 
 internal fun Random.nextPensumGraph(maxNodes: Int = 8): AcademicPensumGraph {
 	val nodeCount = nextInt(1, maxNodes + 1)
+	// Dealt without replacement: curation maps each legacy code to exactly one canonical
+	// subject, so two COURSE nodes must never share an equivalence code — with replacement,
+	// a single attempt could fulfill two nodes at once and break the fulfillments-never-
+	// outnumber-attempts invariant the properties assert.
+	val legacyCodeDeck = LEGACY_SUBJECT_POOL.shuffled(this).toMutableList()
 	val nodes = List(nodeCount) { index ->
 		val isSlot = nextInt(4) == 0
 		AcademicPensumGraph.Node(
@@ -169,6 +180,19 @@ internal fun Random.nextPensumGraph(maxNodes: Int = 8): AcademicPensumGraph {
 						subjectCodes = emptyList(),
 						subjectCodePrefixes = listOf(SUBJECT_POOL[nextInt(SUBJECT_POOL.size)].take(2)),
 						minCredits = if (nextBoolean()) nextInt(1, 4) else null,
+						minSubjects = null
+					)
+				)
+				// A third of COURSE nodes also carry a curated EQUIVALENCE rule (while distinct
+				// legacy codes last), so the properties exercise a mix of course-fulfillment and
+				// no-fulfillment shapes.
+			} else if (nextInt(3) == 0 && legacyCodeDeck.isNotEmpty()) {
+				listOf(
+					AcademicPensumGraph.FulfillmentRule(
+						ruleType = "EQUIVALENCE",
+						subjectCodes = listOf(legacyCodeDeck.removeAt(0)),
+						subjectCodePrefixes = emptyList(),
+						minCredits = null,
 						minSubjects = null
 					)
 				)
@@ -199,7 +223,7 @@ internal fun Random.nextSnapshot(maxAttempts: Int = 10): AcademicPensumSnapshot 
 		attempts = List(nextInt(0, maxAttempts + 1)) { index ->
 			AcademicPensumSnapshot.Attempt(
 				id = "snapshot-attempt-$index",
-				subjectCode = SUBJECT_POOL[nextInt(SUBJECT_POOL.size)],
+				subjectCode = SNAPSHOT_SUBJECT_POOL[nextInt(SNAPSHOT_SUBJECT_POOL.size)],
 				subjectName = "Subject $index",
 				credits = nextInt(1, 7),
 				termOrder = nextInt(20200, 20270),

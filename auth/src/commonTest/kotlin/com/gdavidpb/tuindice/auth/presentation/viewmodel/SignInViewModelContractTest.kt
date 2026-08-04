@@ -183,7 +183,7 @@ class SignInViewModelContractTest {
 
 				viewModel.openTermsAndConditionsAction()
 				val browserEffect = assertIs<SignIn.Effect.NavigateToBrowser>(awaitItem())
-				assertEquals("https://tuindice.app/terms_and_conditions_v6_0.html", browserEffect.url)
+				assertEquals("https://tuindice.app/terms", browserEffect.url)
 
 				// Re-clicking sign-in while LoggingIn is an invalid transition: the machine
 				// ignores it, so no second NavigateToSummary may be emitted. Both events are

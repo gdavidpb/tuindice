@@ -111,6 +111,7 @@ class EvaluationsStateMachineContractTest {
 			"content",
 			"empty",
 			"no_attempts",
+			"record_data_unavailable",
 			"failed",
 			"LoadEvaluations",
 			"SelectWeek",
@@ -216,9 +217,7 @@ class EvaluationsStateMachineContractTest {
 				Evaluations.Action.EditEvaluation(evaluationId = "evaluation-1"),
 				Evaluations.Action.RemoveEvaluation(evaluationId = "evaluation-1"),
 				EvaluationsInternalEvent.EvaluationsWaitingObserved,
-				EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved(
-					message = "No pudimos leer tu informe académico"
-				),
+				EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved,
 				EvaluationsInternalEvent.EvaluationsNoAttemptsObserved(
 					reason = EvaluationsNoAttemptsReason.NoCurrentTerm
 				),

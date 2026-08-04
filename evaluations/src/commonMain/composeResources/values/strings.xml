@@ -10,7 +10,7 @@
 	<string name="title_no_subjects_evaluations">Sin trimestre en curso</string>
 	<string name="message_no_subjects_evaluations">Cuando tengas un trimestre activo, podrás agregar evaluaciones desde aquí.</string>
 	<string name="title_enrollment_unavailable_evaluations">Servicio de inscripción no disponible</string>
-	<string name="message_enrollment_unavailable_evaluations">En este momento no está disponible el servicio de inscripción de la universidad. Intenta cargar de nuevo más tarde.</string>
+	<string name="message_enrollment_unavailable_evaluations">El servicio de inscripción de la universidad no responde. Cuando se restablezca, tus evaluaciones aparecerán aquí.</string>
 	<string name="title_empty_match_evaluations">Sin evaluaciones aquí</string>
 	<string name="message_empty_match_evaluations">Cambia de semana o crea una evaluación nueva.</string>
 	<string name="button_add_evaluation">Crear</string>
@@ -89,7 +89,8 @@
 	<string name="snack_evaluation_not_found">La evaluación ya no está disponible</string>
 	<string name="snack_evaluation_updated">Evaluación actualizada</string>
 	<string name="snack_evaluation_removed">Evaluación eliminada</string>
-	<string name="evaluations_failed_record_unavailable">No pudimos leer tu informe académico</string>
+	<string name="title_record_unavailable_evaluations">Historial no sincronizado</string>
+	<string name="message_record_unavailable_evaluations">No pudimos leer tu historial académico. Cuando se sincronice, tus evaluaciones aparecerán aquí.</string>
 	<string name="a11y_add_evaluation">Agregar evaluación</string>
 	<string name="a11y_evaluation_show_actions">Ver acciones</string>
 	<string name="a11y_evaluation_register_grade">Registrar nota</string>

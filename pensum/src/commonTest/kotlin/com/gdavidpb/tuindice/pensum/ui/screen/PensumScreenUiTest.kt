@@ -22,6 +22,7 @@ import com.gdavidpb.tuindice.pensum.presentation.contract.Pensum
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumCanvasItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumEdgeItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumEdgeRelationshipType
+import com.gdavidpb.tuindice.pensum.presentation.model.PensumFulfilledSubjectItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumModalityItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeItem
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumNodeStatusDisplay
@@ -108,31 +109,29 @@ class PensumScreenUiTest {
 	}
 
 	@Test
-	fun when_recordDataIsUnavailable_then_displaysIllustratedEmptyViewWithRetryAction() = runTuIndiceUiTest {
-		var retryCount = 0
+	fun when_recordDataIsUnavailable_then_displaysIllustratedEmptyViewWithoutRetryAction() =
+		runTuIndiceUiTest {
+			setTuIndiceTestContent {
+				PensumScreen(
+					state = Pensum.State.RecordDataUnavailable,
+					onRetryClick = {},
+					showSelectionSheet = false,
+					onSelectionSheetDismiss = {},
+					onSubjectStatsClick = {},
+					onSelectionApplied = { _, _ -> }
+				)
+			}
 
-		setTuIndiceTestContent {
-			PensumScreen(
-				state = Pensum.State.RecordDataUnavailable,
-				onRetryClick = { retryCount += 1 },
-				showSelectionSheet = false,
-				onSelectionSheetDismiss = {},
-				onSubjectStatsClick = {},
-				onSelectionApplied = { _, _ -> }
-			)
+			assertNodeVisible(BaseUiTags.EmptyViewContainer)
+			assertNodeVisible(BaseUiTags.EmptyStateAnimation)
+			onNodeWithText("Historial no sincronizado").assertExists()
+			onNodeWithText(
+				"No pudimos leer tu historial académico. El avance y los estados del pensum pueden no estar actualizados."
+			).assertExists()
+			// The record sync is what failed, and the retry reaches UpdatePensumUseCase,
+			// which cannot clear it. No action is offered.
+			assertNodeHidden(BaseUiTags.EmptyViewActionButton)
 		}
-
-		assertNodeVisible(BaseUiTags.EmptyViewContainer)
-		assertNodeVisible(BaseUiTags.EmptyStateAnimation)
-		onNodeWithText("Historial no sincronizado").assertExists()
-		onNodeWithText(
-			"No pudimos leer tu historial académico. El avance y los estados del pensum pueden no estar actualizados."
-		).assertExists()
-		onNodeWithTag(BaseUiTags.EmptyViewActionButton)
-			.assertHasClickAction()
-			.performClick()
-		assertEquals(1, retryCount)
-	}
 
 	@Test
 	fun when_stateIsFailed_then_displaysPersistentFailureCauseAndRetryAction() = runTuIndiceUiTest {
@@ -307,6 +306,41 @@ class PensumScreenUiTest {
 		assertEquals("CI4325", selectedSubjectCode)
 		assertNodeHidden(PensumUiTags.SubjectDetailSheet)
 		assertNodeHidden(PensumUiTags.focusedNode("ci4325"), useUnmergedTree = true)
+	}
+
+	@Test
+	fun when_courseFulfilledByEquivalence_then_sheetShowsCursadaComoAndStatsUseFulfilledCode() = runTuIndiceUiTest {
+		var selectedSubjectCode: String? = null
+
+		setTuIndiceTestContent {
+			PensumScreen(
+				state = Pensum.State.Content(model = samplePensumModelWithFulfilledCourse()),
+				onRetryClick = {},
+				showSelectionSheet = false,
+				onSelectionSheetDismiss = {},
+				onSubjectStatsClick = { subjectCode -> selectedSubjectCode = subjectCode },
+				onSelectionApplied = { _, _ -> }
+			)
+		}
+
+		onNodeWithTag(PensumUiTags.node("ci4325")).performClick()
+		assertNodeVisible(PensumUiTags.SubjectDetailMoreButton)
+		onNodeWithTag(PensumUiTags.SubjectDetailMoreButton)
+			.assertHasClickAction()
+			.performClick()
+		waitForIdle()
+
+		// "LL1111" alone would also match the canvas node card, which shows the same fulfilled
+		// code as a small chip beneath its own displayCode (PensumNodeCard) — the fulfilled
+		// subject's name is unique to this sheet section, so it disambiguates the assertion.
+		onNodeWithText("Cursada como").assertExists()
+		onNodeWithText("Lenguaje I").assertExists()
+		onNodeWithText("Ver estadísticas").assertExists()
+
+		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performClick()
+		waitForIdle()
+
+		assertEquals("LL1111", selectedSubjectCode)
 	}
 
 	@Test
@@ -1243,6 +1277,27 @@ private fun samplePensumModelWithSubjectRelations(): PensumScreenModel {
 				toNodeId = relatedUnlockNode.id
 			)
 		)
+	)
+}
+
+private fun samplePensumModelWithFulfilledCourse(): PensumScreenModel {
+	val baseModel = samplePensumModel()
+	val currentNode = checkNotNull(baseModel.nodes.find { node -> node.id == "ci4325" })
+	// A COURSE approved/current via a curated EQUIVALENCE rule: the mapper serves the code the
+	// student actually attempted, not the pensum's canonical code — same shape a SLOT fulfillment
+	// already produces, just landing on a COURSE node this time.
+	val fulfilledSubject = PensumFulfilledSubjectItem(code = "LL1111", name = "Lenguaje I")
+	val fulfilledNode = currentNode.copy(
+		subjectStatsCode = fulfilledSubject.code,
+		fulfilledSubject = fulfilledSubject,
+		detail = currentNode.detail.copy(
+			statsCode = fulfilledSubject.code,
+			fulfilledSubject = fulfilledSubject
+		)
+	)
+
+	return baseModel.copy(
+		nodes = baseModel.nodes.map { node -> if (node.id == currentNode.id) fulfilledNode else node }
 	)
 }
 

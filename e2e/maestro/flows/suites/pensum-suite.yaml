@@ -10,3 +10,4 @@ name: TuIndice pensum E2E suite
 - runFlow: ../pensum/pensum-node-detail.yaml
 - runFlow: ../pensum/pensum-detail-navigation.yaml
 - runFlow: ../pensum/pensum-cache-refresh-failed.yaml
+- runFlow: ../pensum/pensum-equivalence-fulfilled.yaml

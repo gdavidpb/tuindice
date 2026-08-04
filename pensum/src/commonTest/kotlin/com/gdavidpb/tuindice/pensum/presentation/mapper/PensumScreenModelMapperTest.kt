@@ -179,6 +179,35 @@ class PensumScreenModelMapperTest {
 	}
 
 	@Test
+	fun when_courseHasFulfillment_then_displayModelExposesFilledSubjectForCardAndStats() {
+		// A COURSE approved/current via a curated EQUIVALENCE rule gets the same "cursada como"
+		// treatment as a SLOT — the mapper reads nodeFulfillments by node id regardless of type.
+		val course = course(
+			id = "lla111",
+			displayCode = "LLA111",
+			y = 84.0,
+			height = 120.0
+		)
+
+		val model = observedPensum(
+			nodes = listOf(course),
+			nodeFulfillments = mapOf(
+				"lla111" to PensumProgress.NodeFulfillment(
+					subjectCode = "LL1111",
+					subjectName = "Lenguaje I"
+				)
+			)
+		).toScreenModel()
+		val node = model.nodes.single()
+
+		assertEquals("LLA111", node.displayCode)
+		assertEquals("LL1111", node.fulfilledSubject?.code)
+		assertEquals("Lenguaje I", node.fulfilledSubject?.name)
+		assertEquals("LL1111", node.subjectStatsCode)
+		assertEquals(true, node.hasSubjectStatsAction)
+	}
+
+	@Test
 	fun when_nodeIsBlocked_then_displayModelKeepsApprovedBackgroundAndDisconnectsIncomingEdges() {
 		val approvedNode = course(
 			id = "ma1111",

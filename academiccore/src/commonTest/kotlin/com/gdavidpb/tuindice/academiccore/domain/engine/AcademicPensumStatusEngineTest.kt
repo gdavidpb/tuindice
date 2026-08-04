@@ -64,6 +64,105 @@ class AcademicPensumStatusEngineTest {
 		assertEquals(3, result.approvedCredits)
 	}
 
+	@Test
+	fun resolvesApprovedCourseViaEquivalenceRule() {
+		val course = courseWithEquivalence(id = "lla111", code = "LLA111", equivalentCodes = listOf("LL1111"), credits = 3)
+
+		val result = engine.resolve(
+			pensum = samplePensum(nodes = listOf(course), edges = emptyList()),
+			academicSnapshot = AcademicPensumSnapshot(
+				attempts = listOf(attempt("LL1111", TermKind.HISTORICAL, AttemptOutcome.APPROVED, credits = 3, name = "Lenguaje I"))
+			)
+		)
+
+		assertEquals(AcademicPensumNodeStatus.APPROVED, result.nodeStatuses["lla111"])
+		assertEquals("LL1111", result.nodeFulfillments.getValue("lla111").subjectCode)
+		assertEquals("Lenguaje I", result.nodeFulfillments.getValue("lla111").subjectName)
+		assertEquals(3, result.approvedCredits)
+	}
+
+	@Test
+	fun resolvesCurrentCourseViaEquivalenceRule() {
+		val course = courseWithEquivalence(id = "lla112", code = "LLA112", equivalentCodes = listOf("LL1112"), credits = 3)
+
+		val result = engine.resolve(
+			pensum = samplePensum(nodes = listOf(course), edges = emptyList()),
+			academicSnapshot = AcademicPensumSnapshot(
+				attempts = listOf(attempt("LL1112", TermKind.CURRENT, AttemptOutcome.PENDING, credits = 3))
+			)
+		)
+
+		assertEquals(AcademicPensumNodeStatus.CURRENT, result.nodeStatuses["lla112"])
+		assertEquals("LL1112", result.nodeFulfillments.getValue("lla112").subjectCode)
+	}
+
+	@Test
+	fun approvingByItsOwnCode_neverEmitsAFulfillmentEvenWithAnEquivalenceRulePresent() {
+		val course = courseWithEquivalence(id = "lla111", code = "LLA111", equivalentCodes = listOf("LL1111"), credits = 3)
+
+		val result = engine.resolve(
+			pensum = samplePensum(nodes = listOf(course), edges = emptyList()),
+			academicSnapshot = AcademicPensumSnapshot(
+				attempts = listOf(attempt("LLA111", TermKind.HISTORICAL, AttemptOutcome.APPROVED, credits = 3))
+			)
+		)
+
+		assertEquals(AcademicPensumNodeStatus.APPROVED, result.nodeStatuses["lla111"])
+		assertEquals(0, result.nodeFulfillments.size)
+	}
+
+	@Test
+	fun aRuleTypeOtherThanEquivalence_neverApprovesACourseNodeByAMatchingAttempt() {
+		val course = AcademicPensumGraph.Node(
+			id = "lla111",
+			nodeType = AcademicPensumGraph.NodeType.COURSE,
+			subjectCode = "LLA111",
+			credits = 3,
+			fulfillmentRules = listOf(
+				AcademicPensumGraph.FulfillmentRule(
+					ruleType = "SUBJECT_PREFIX",
+					subjectCodes = emptyList(),
+					subjectCodePrefixes = listOf("LL"),
+					minCredits = null,
+					minSubjects = null
+				)
+			)
+		)
+
+		val result = engine.resolve(
+			pensum = samplePensum(nodes = listOf(course), edges = emptyList()),
+			academicSnapshot = AcademicPensumSnapshot(
+				attempts = listOf(attempt("LL1111", TermKind.HISTORICAL, AttemptOutcome.APPROVED, credits = 3))
+			)
+		)
+
+		assertEquals(AcademicPensumNodeStatus.AVAILABLE, result.nodeStatuses["lla111"])
+		assertEquals(0, result.nodeFulfillments.size)
+	}
+
+	private fun courseWithEquivalence(
+		id: String,
+		code: String,
+		equivalentCodes: List<String>,
+		credits: Int
+	): AcademicPensumGraph.Node {
+		return AcademicPensumGraph.Node(
+			id = id,
+			nodeType = AcademicPensumGraph.NodeType.COURSE,
+			subjectCode = code,
+			credits = credits,
+			fulfillmentRules = listOf(
+				AcademicPensumGraph.FulfillmentRule(
+					ruleType = "EQUIVALENCE",
+					subjectCodes = equivalentCodes,
+					subjectCodePrefixes = emptyList(),
+					minCredits = null,
+					minSubjects = null
+				)
+			)
+		)
+	}
+
 	private fun samplePensum(
 		nodes: List<AcademicPensumGraph.Node> = listOf(
 			course("ma1111", "MA1111", credits = 5),

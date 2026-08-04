@@ -91,6 +91,7 @@ flows:
       - record.Record.UpsertAttemptSelection
       - record.Record.DeleteSyntheticTerm
       - enrollmentproof.Enrollment.FetchEnrollmentProof
+      - pensum.Pensum.EnsurePensumLoaded
       - pensum.Pensum.RefreshPensum
       - pensum.Pensum.ToggleSummaryCollapsed
       - pensum.Pensum.SelectSelection
@@ -98,6 +99,7 @@ flows:
       - subjects.SubjectSearch.Retry
       - subjects.SubjectDetail.RefreshSubjectDetail
       - subjects.SubjectDetail.SelectSubjectSegmentTab
+      - evaluations.Evaluations.EnsureEvaluationsLoaded
       - evaluations.Evaluations.AddEvaluation
       - evaluations.Evaluations.ShowEvaluationGradeDialog
       - evaluations.Evaluations.SetEvaluationGrade
@@ -176,6 +178,7 @@ flows:
     variant: pensum-certification
     fixture_state: pensum-local-certification
     actions_covered:
+      - pensum.Pensum.EnsurePensumLoaded
       - pensum.Pensum.RefreshPensum
       - pensum.Pensum.ToggleSummaryCollapsed
       - pensum.Pensum.SelectSelection
@@ -1218,7 +1221,7 @@ variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
     variant: record-data-unavailable-empty
     fixture_state: record-sync-unavailable
     actions_covered:
-      - pensum.Pensum.RefreshPensum
+      - pensum.Pensum.EnsurePensumLoaded
     primary_selectors:
       - maincore_tuindice_bottom_bar_pensum_item
       - base_empty_view_container
@@ -1274,6 +1277,23 @@ variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
       - pensum_subject_detail_status
       - pensum_subject_detail_term_value
       - base_confirmation_dialog_negative_button
+      - subjects_content
+      - subjects_segment_students_metric
+      - subjects_segment_attempts_metric
+  - id: pensum-equivalence-fulfilled
+    path: e2e/maestro/flows/pensum/pensum-equivalence-fulfilled.yaml
+    module: pensum
+    type: navigation
+    platforms: [android, ios]
+    status: active
+    variant: course-node-fulfilled-by-legacy-code-equivalence
+    fixture_state: pensum-equivalence-fulfilled
+    actions_covered:
+      - subjects.SubjectDetail.SelectSubjectSegmentTab
+    primary_selectors:
+      - pensum_node_0800-2019-degree_project-t1-lla111
+      - pensum_subject_detail_sheet
+      - pensum_subject_detail_more_button
       - subjects_content
       - subjects_segment_students_metric
       - subjects_segment_attempts_metric
@@ -1486,6 +1506,7 @@ variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
     variant: exhaustive-local
     fixture_state: evaluations-suite
     actions_covered:
+      - evaluations.Evaluations.EnsureEvaluationsLoaded
       - evaluations.Evaluations.AddEvaluation
       - evaluations.Evaluations.ShowEvaluationGradeDialog
       - evaluations.Evaluations.SetEvaluationGrade
@@ -1577,6 +1598,21 @@ variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
       - evaluation_type_required_error
       - evaluation_max_grade_required_error
       - evaluation_subject_chip_e21f0d7e481d13d19f328d6818ce4d77
+  - id: evaluations-enrollment-unavailable
+    path: e2e/maestro/flows/evaluations/evaluations-enrollment-unavailable.yaml
+    module: evaluations
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: enrollment-unavailable-empty
+    fixture_state: evaluations-enrollment-unavailable
+    actions_covered:
+      - evaluations.Evaluations.EnsureEvaluationsLoaded
+    primary_selectors:
+      - maincore_tuindice_bottom_bar_evaluations_item
+      - base_empty_view_container
+      - base_empty_state_animation
+      - base_empty_view_action_button
   - id: evaluations-edit-submit
     path: e2e/maestro/flows/evaluations/evaluations-edit-submit.yaml
     module: evaluations

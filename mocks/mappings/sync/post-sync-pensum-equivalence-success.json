@@ -1,0 +1,25 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "POST",
+    "urlPath": "/record/v5/sync",
+    "bodyPatterns": [
+      {
+        "matchesJsonPath": "$[?(@.password == 'pensum-equivalence-pass')]"
+      }
+    ],
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "sync/post-sync-pensum-equivalence-success.json",
+    "fixedDelayMilliseconds": 500
+  }
+}
