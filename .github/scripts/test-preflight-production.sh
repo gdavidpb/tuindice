@@ -101,23 +101,27 @@ if [[ "${url}" == *"/commits/"*"/pulls" ]]; then
 	exit 0
 fi
 
-if [[ "${url}" == *"/commits/"*"/status" ]]; then
+if [[ "${url}" == *"/commits/"*"/statuses" ]]; then
+	# The list endpoint (plural /statuses) returns a bare array of full status
+	# objects, creator included -- unlike the combined-status endpoint
+	# (singular /status), which never includes creator. preflight-production.sh
+	# queries the former precisely so a real creator is visible to check.
 	if [[ ("${mode}" == "reuse-success" || "${mode}" == "publish-fails") && "${url}" != *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
-		printf '{"statuses":[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]}\n'
+		printf '[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]\n'
 	elif [[ "${mode}" == "direct-success" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
-		printf '{"statuses":[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]}\n'
+		printf '[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]\n'
 	elif [[ "${mode}" == "forged-status" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
-		printf '{"statuses":[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E record-suite passed for 1234567 fp 000000000000."}]}\n'
+		printf '[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E record-suite passed for 1234567 fp 000000000000."}]\n'
 	elif [[ "${mode}" == "untrusted-creator" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
-		printf '{"statuses":[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"intruder"},"description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]}\n'
+		printf '[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"intruder"},"description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]\n'
 	elif [[ "${mode}" == "untrusted-candidate" && "${url}" != *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
-		printf '{"statuses":[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"intruder"},"description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]}\n'
+		printf '[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"intruder"},"description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]\n'
 	elif [[ "${mode}" == "forged-candidate" && "${url}" != *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
-		printf '{"statuses":[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"gdavidpb"},"description":"no fingerprint at all"}]}\n'
+		printf '[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"gdavidpb"},"description":"no fingerprint at all"}]\n'
 	elif [[ "${mode}" == "anonymous-status" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
-		printf '{"statuses":[{"context":"local-e2e/android/record-suite","state":"success","description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]}\n'
+		printf '[{"context":"local-e2e/android/record-suite","state":"success","description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]\n'
 	else
-		printf '{"statuses":[]}\n'
+		printf '[]\n'
 	fi
 	exit 0
 fi
