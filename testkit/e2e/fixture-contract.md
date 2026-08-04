@@ -36,7 +36,12 @@ Record synthetic term search fixture contract:
 - The local login sync fixture `mocks/__files/sync/post-sync-success.json` must keep those same historical outcomes; `/record/v5` transformer state alone is not enough for login-driven E2E.
 - `verifyE2eContract` validates record search subject selectors against the WireMock subject-search fixture resolved for each query used by the Maestro flow, and validates the historical outcomes needed by the create-term search flow.
 
-Current local backend entrypoint:
+Pensum equivalence fixture contract:
+
+- A dedicated user (raw USBID digits `6666666`, the pensum-equivalence password) exercises the server-curated legacy-code equivalence path: its pensum serves the canonical node `LLA111` carrying an `EQUIVALENCE` fulfillment rule for `LL1111`, and its sync record approves `LL1111` — never `LLA111` — so the node can only resolve through the rule.
+- The rule mirrors the backend synthesis shape exactly (`id: equiv:<nodeId>:<canonical>`, `rule_type: EQUIVALENCE`, legacy codes in `subject_codes`); keep it in sync with what pensums-api emits for curated `subject_equivalences`.
+- The pensum response is gated by the user's session bearer token and the sync response by the password in the JSON body, so the canonical login datasets stay untouched.
+- Stats for the fulfilled code reuse the shared `get-subject-stats-slow-success.json` body, like the other per-code stats mappings; the flow asserts segment metrics, not per-subject figures.
 
 ```bash
 PORT=8080 ./mocks/start-mock-enviroment.sh

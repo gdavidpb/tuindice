@@ -111,6 +111,33 @@ class AcademicPensumStatusEnginePropertyTest {
 	}
 
 	@Test
+	fun resolve_courseCurrentByItsOwnCode_neverCarriesAFulfillment() {
+		repeat(ROUNDS) { seed ->
+			val random = Random(seed.toLong())
+			val pensum = random.nextPensumGraph()
+			val snapshot = random.nextSnapshot()
+			val progress = engine.resolve(pensum, snapshot)
+			val currentSubjectCodes = snapshot.attempts
+				.filter { attempt -> attempt.termKind == TermKind.CURRENT && attempt.outcome != AttemptOutcome.APPROVED }
+				.map { attempt -> attempt.subjectCode.trim().uppercase() }
+				.toSet()
+			// Scoped to nodes the engine resolved as CURRENT: a node whose own code sits in the
+			// current set can still end up APPROVED via its equivalence rule, and that path
+			// legitimately carries the approved fulfillment.
+			val nodesCurrentByOwnCode = pensum.nodes.filter { node ->
+				node.nodeType == AcademicPensumGraph.NodeType.COURSE &&
+					progress.nodeStatuses[node.id] == AcademicPensumNodeStatus.CURRENT &&
+					node.subjectCode?.trim()?.uppercase() in currentSubjectCodes
+			}
+
+			assertTrue(
+				nodesCurrentByOwnCode.all { node -> node.id !in progress.nodeFulfillments },
+				"seed=$seed: a course current by its own code must never carry a fulfillment"
+			)
+		}
+	}
+
+	@Test
 	fun resolve_syntheticApprovals_neverApproveNorOccupyNodes() {
 		repeat(ROUNDS) { seed ->
 			val random = Random(seed.toLong())

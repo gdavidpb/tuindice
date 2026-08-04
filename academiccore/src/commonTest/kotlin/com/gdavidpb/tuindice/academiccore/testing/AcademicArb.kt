@@ -157,6 +157,11 @@ internal fun Random.nextSimpleNumericRecord(maxTerms: Int = 4): AcademicRecord {
 
 internal fun Random.nextPensumGraph(maxNodes: Int = 8): AcademicPensumGraph {
 	val nodeCount = nextInt(1, maxNodes + 1)
+	// Dealt without replacement: curation maps each legacy code to exactly one canonical
+	// subject, so two COURSE nodes must never share an equivalence code — with replacement,
+	// a single attempt could fulfill two nodes at once and break the fulfillments-never-
+	// outnumber-attempts invariant the properties assert.
+	val legacyCodeDeck = LEGACY_SUBJECT_POOL.shuffled(this).toMutableList()
 	val nodes = List(nodeCount) { index ->
 		val isSlot = nextInt(4) == 0
 		AcademicPensumGraph.Node(
@@ -178,13 +183,14 @@ internal fun Random.nextPensumGraph(maxNodes: Int = 8): AcademicPensumGraph {
 						minSubjects = null
 					)
 				)
-				// A third of COURSE nodes also carry a curated EQUIVALENCE rule, so the properties
-				// below exercise a mix of course-fulfillment and no-fulfillment shapes.
-			} else if (nextInt(3) == 0) {
+				// A third of COURSE nodes also carry a curated EQUIVALENCE rule (while distinct
+				// legacy codes last), so the properties exercise a mix of course-fulfillment and
+				// no-fulfillment shapes.
+			} else if (nextInt(3) == 0 && legacyCodeDeck.isNotEmpty()) {
 				listOf(
 					AcademicPensumGraph.FulfillmentRule(
 						ruleType = "EQUIVALENCE",
-						subjectCodes = listOf(LEGACY_SUBJECT_POOL[nextInt(LEGACY_SUBJECT_POOL.size)]),
+						subjectCodes = listOf(legacyCodeDeck.removeAt(0)),
 						subjectCodePrefixes = emptyList(),
 						minCredits = null,
 						minSubjects = null
