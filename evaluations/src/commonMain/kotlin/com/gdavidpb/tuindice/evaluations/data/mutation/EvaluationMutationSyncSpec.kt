@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureKind
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationFailureResolution
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationSyncSpec
+import kotlinx.coroutines.CancellationException
 
 class EvaluationMutationSyncSpec(
 	private val databaseDataSource: DatabaseDataRepository,
@@ -264,6 +265,8 @@ class EvaluationMutationSyncSpec(
 	}
 
 	private suspend fun refreshRemoteSnapshotSafely(): RemoteEvaluationsSnapshot? {
-		return runCatching { refreshRemoteSnapshot() }.getOrNull()
+		return runCatching { refreshRemoteSnapshot() }
+			.onFailure { throwable -> if (throwable is CancellationException) throw throwable }
+			.getOrNull()
 	}
 }

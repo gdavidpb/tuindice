@@ -22,18 +22,19 @@ import com.gdavidpb.tuindice.record.domain.usecase.error.RecordUseCaseError
 import com.gdavidpb.tuindice.record.domain.usecase.param.SetSelectedTermParams
 import com.gdavidpb.tuindice.record.domain.usecase.param.UpsertAttemptSelectionParams
 import com.gdavidpb.tuindice.record.presentation.contract.Record
+import com.gdavidpb.tuindice.record.presentation.mapper.syntheticTermRejectionMessage
 import com.gdavidpb.tuindice.record.presentation.mapper.toRecordFailureMessage
 import com.gdavidpb.tuindice.record.presentation.transition.recordAnyStateTransitions
 import com.gdavidpb.tuindice.record.presentation.transition.recordContentTransitions
 import com.gdavidpb.tuindice.record.presentation.transition.recordEmptyTransitions
 import com.gdavidpb.tuindice.record.presentation.transition.recordFailedTransitions
 import com.gdavidpb.tuindice.record.presentation.transition.recordIdleTransitions
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import org.jetbrains.compose.resources.getString
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.snack_synthetic_term_delete_failed
 import tuindice.record.generated.resources.snack_synthetic_term_deleted
-import tuindice.record.generated.resources.snack_synthetic_term_rejected
 
 class RecordMachine(
 	private val observeRecordUseCase: ObserveRecordUseCase,
@@ -45,6 +46,13 @@ class RecordMachine(
 	private val upsertAttemptSelectionUseCase: UpsertAttemptSelectionUseCase,
 	private val deleteSyntheticTermUseCase: DeleteSyntheticTermUseCase
 ) : ScreenMachine<Record.State, Record.Effect> {
+	// ObserveRecord is an Idle self-loop, and launchMachineJob accumulates rather than
+	// replaces: a second dispatch would leave two observers acknowledging and announcing
+	// the same rejection twice. Today only the initial action dispatches it, so these
+	// handles keep that guarantee from depending on the call site.
+	private var recordObservationJob: Job? = null
+	private var syntheticTermRejectionObservationJob: Job? = null
+
 	override fun initialState(): Record.State = Record.State.Idle
 
 	override fun define(host: MachineHost<Record.Effect>): MachineDefinition<Record.State> {
@@ -59,7 +67,10 @@ class RecordMachine(
 
 	internal fun startObservation(host: MachineHost<Record.Effect>) {
 		startSyntheticTermRejectionObservation(host = host)
-		host.launchMachineJob {
+
+		if (recordObservationJob?.isActive == true) return
+
+		recordObservationJob = host.launchMachineJob {
 			observeRecordUseCase.execute(Unit).collect { useCaseState ->
 				when (useCaseState) {
 					is UseCaseState.Loading -> Unit
@@ -103,12 +114,14 @@ class RecordMachine(
 	}
 
 	private fun startSyntheticTermRejectionObservation(host: MachineHost<Record.Effect>) {
-		host.launchMachineJob {
+		if (syntheticTermRejectionObservationJob?.isActive == true) return
+
+		syntheticTermRejectionObservationJob = host.launchMachineJob {
 			observeSyntheticTermRejectionsUseCase.execute(Unit).collect { useCaseState ->
 				if (useCaseState is UseCaseState.Data) {
 					host.processInternalEvent(
 						RecordInternalEvent.SyntheticTermRejected(
-							message = getString(Res.string.snack_synthetic_term_rejected)
+							message = syntheticTermRejectionMessage(count = useCaseState.value)
 						)
 					)
 				}

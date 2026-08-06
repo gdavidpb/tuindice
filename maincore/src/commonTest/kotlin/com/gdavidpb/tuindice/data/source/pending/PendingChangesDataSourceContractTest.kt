@@ -121,13 +121,61 @@ class PendingChangesDataSourceContractTest {
 		assertEquals(
 			listOf(
 				"retry:Failed:$RECORD_MUTATION_SCOPE",
-				"retry:FailedTerminal:$RECORD_MUTATION_SCOPE",
 				"drain:$RECORD_MUTATION_SCOPE",
 				"retry:Failed:$EVALUATIONS_MUTATION_SCOPE",
-				"retry:FailedTerminal:$EVALUATIONS_MUTATION_SCOPE",
 				"drain:$EVALUATIONS_MUTATION_SCOPE"
 			),
 			operations
+		)
+		assertEquals(0, repository.getPendingChanges().totalCount)
+	}
+
+	// A rejection that landed while the user was away from Record never got acknowledged
+	// there. Requeuing it here re-sent a mutation the server refused for good, leaving the
+	// dialog reporting pending changes that could never drain.
+	@Test
+	fun flushPendingChanges_discardsTerminallyRejectedRecordMutations_insteadOfRequeuingThem() = runTest {
+		val operations = mutableListOf<String>()
+		val pendingMutationDao = FakePendingMutationDao(
+			mutations = mutableListOf(
+				pendingMutation(
+					mutationId = "record-rejected",
+					storeId = RECORD_MUTATION_STORE_ID,
+					scopeKey = RECORD_MUTATION_SCOPE,
+					status = PendingMutationStatus.FailedTerminal
+				)
+			),
+			operations = operations
+		)
+		val repository = PendingChangesDataSource(
+			pendingMutationDao = pendingMutationDao,
+			academicRecordRepository = FakeAcademicRecordRepository(
+				terminallyRejectedMutationIds = listOf("record-rejected"),
+				onAcknowledgeTerminallyRejectedMutations = { mutationIds ->
+					operations += "discard:${mutationIds.joinToString(",")}"
+					mutationIds.forEach { mutationId ->
+						pendingMutationDao.deletePendingMutation(
+							storeId = RECORD_MUTATION_STORE_ID,
+							scopeKey = RECORD_MUTATION_SCOPE,
+							mutationId = mutationId
+						)
+					}
+				},
+				onDrainPendingMutations = { operations += "drain:$RECORD_MUTATION_SCOPE" }
+			),
+			evaluationRepository = FakeEvaluationRepository(
+				onDrainPendingMutations = { operations += "drain:$EVALUATIONS_MUTATION_SCOPE" }
+			),
+			syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.Healthy)
+		)
+
+		val actual = repository.flushPendingChanges()
+
+		assertEquals(FlushPendingChangesResult.Success, actual)
+		assertEquals("discard:record-rejected", operations.first())
+		assertEquals(
+			emptyList(),
+			operations.filter { operation -> operation.startsWith("retry:FailedTerminal") }
 		)
 		assertEquals(0, repository.getPendingChanges().totalCount)
 	}
@@ -270,11 +318,20 @@ private class FakePendingMutationDao(
 }
 
 private class FakeAcademicRecordRepository(
+	private val terminallyRejectedMutationIds: List<String> = emptyList(),
+	private val onAcknowledgeTerminallyRejectedMutations: suspend (List<String>) -> Unit = {},
 	private val onDrainPendingMutations: suspend () -> Unit = {}
 ) : AcademicRecordRepository {
 	override suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord> = emptyFlow()
 
 	override suspend fun observeHasSyncedRecordFlow(): Flow<Boolean> = flowOf(false)
+
+	override suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>> =
+		flowOf(terminallyRejectedMutationIds)
+
+	override suspend fun acknowledgeTerminallyRejectedMutations(mutationIds: List<String>) {
+		onAcknowledgeTerminallyRejectedMutations(mutationIds)
+	}
 
 	override suspend fun getAcademicRecord(): AcademicRecord? = null
 
