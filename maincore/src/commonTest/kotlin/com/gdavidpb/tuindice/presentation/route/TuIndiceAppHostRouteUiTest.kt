@@ -631,6 +631,12 @@ class TuIndiceAppHostRouteUiTest {
 
 	@Test
 	fun when_syncStatusBecomesUnavailable_then_hostRouteReportsDegradedSyncActionOnce() = runTuIndiceUiTest {
+		val sessionRepository = FakeSessionRepository(
+			sessionId = "",
+			usbId = "",
+			accessToken = "",
+			refreshToken = ""
+		)
 		val syncStatusRepository = FakeSyncStatusRepository()
 		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 		val eventPublisher = RecordingEventPublisher()
@@ -646,7 +652,7 @@ class TuIndiceAppHostRouteUiTest {
 				authModule,
 				module {
 					single<AuthRepository> { stubAuthRepository() }
-					single<SessionRepository> { FakeSessionRepository() }
+					single<SessionRepository> { sessionRepository }
 					single<MessagingRepository> {
 						object : MessagingRepository {
 							override suspend fun subscribe() = Unit
@@ -680,7 +686,10 @@ class TuIndiceAppHostRouteUiTest {
 					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = FakeUpdateRepository(),
-					viewModel = createMainViewModel(eventPublisher = eventPublisher)
+					viewModel = createMainViewModel(
+						sessionRepository = sessionRepository,
+						eventPublisher = eventPublisher
+					)
 				)
 			}
 
