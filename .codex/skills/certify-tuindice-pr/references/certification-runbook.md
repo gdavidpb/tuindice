@@ -233,6 +233,22 @@ evidence task:
 ./gradlew --continue --console=plain e2eMaestroEvidenceLocal
 ```
 
+**This parallel invocation is the default and the standing policy — both
+platforms run together in the same command.** Do not pre-emptively split
+Android and iOS into separate sequential runs (`e2eMaestroEvidenceAndroid`
+then `e2eMaestroEvidenceIos` on distinct `E2E_WIREMOCK_PORT` values) to save
+time or "because it seemed safer." Sequential is a diagnosed fallback for one
+specific symptom only: the parallel run fails the *same* early flow on
+*repeated* attempts (not a random flow, not a one-off), the failure screenshot
+shows no product error (the screen/inputs look correct, a tap/action simply
+never registers), and the identical flow passes cleanly when run standalone.
+That signature points at local device/resource contention (both
+emulator+simulator plus any other heavyweight process — e.g. leftover Gradle
+or Kotlin daemons from unrelated work — competing for CPU/memory), not a
+product regression. Only then fall back to sequential, and say so explicitly
+to the user when you do — it is a deviation from policy that needs to be
+visible, not a silent substitution.
+
 The task resolves the diff against `production` or `origin/production`, selects required suites, runs locally available platforms, writes evidence, and publishes passing GitHub commit statuses when possible.
 
 Before starting the platform workers it cold-reboots the in-scope

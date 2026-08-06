@@ -52,13 +52,19 @@ This resolves the same focused Android/iOS Gradle tasks as
 `preflight-production-pr.yml` for the current diff, including the iOS host flags
 used by `Run focused iOS checks`.
 
-7. Run local commit-bound evidence only when the audit reports `rerun` suites:
+7. Run local commit-bound evidence only when the audit reports `rerun` suites. **Evidence runs in parallel (both platforms in the same `e2eMaestroEvidenceLocal` invocation) by default — this is the standing policy, not a preference:**
 
 ```bash
 ./gradlew --continue --console=plain e2eMaestroEvidenceLocal
 ```
 
 Skip this step entirely when every required suite is `current` or `reusable`.
+
+Do not switch to sequential per-platform runs (`e2eMaestroEvidenceAndroid` /
+`e2eMaestroEvidenceIos` on separate ports) as a default or a time-saving
+habit. It is a diagnosed fallback only — see "Running Evidence" in the
+runbook for the exact symptom that justifies it and the requirement to
+report the switch explicitly.
 
 8. If preflight parity or evidence fails, enter the iterative correction loop. Do not open or mark a PR ready.
 9. Before accepting any E2E/preflight stabilization fix, enforce the product integrity gate below.
