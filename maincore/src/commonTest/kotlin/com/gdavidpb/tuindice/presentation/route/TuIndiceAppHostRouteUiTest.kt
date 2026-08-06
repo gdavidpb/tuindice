@@ -631,12 +631,7 @@ class TuIndiceAppHostRouteUiTest {
 
 	@Test
 	fun when_syncStatusBecomesUnavailable_then_hostRouteReportsDegradedSyncActionOnce() = runTuIndiceUiTest {
-		val sessionRepository = FakeSessionRepository(
-			sessionId = "",
-			usbId = "",
-			accessToken = "",
-			refreshToken = ""
-		)
+		val sessionRepository = signedOutSessionRepository()
 		val syncStatusRepository = FakeSyncStatusRepository()
 		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 		val eventPublisher = RecordingEventPublisher()
@@ -1147,6 +1142,13 @@ private fun createTestCoachmarkOverlayViewModel(): CoachmarkOverlayViewModel {
 		eventPublisher = NoOpEventPublisher
 	)
 }
+
+private fun signedOutSessionRepository() = FakeSessionRepository(
+	sessionId = "",
+	usbId = "",
+	accessToken = "",
+	refreshToken = ""
+)
 
 private fun stubAuthRepository(): AuthRepository = object : AuthRepository {
 	override suspend fun bootstrapSignIn(
