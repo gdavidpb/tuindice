@@ -1,0 +1,23 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "PATCH",
+    "urlPathPattern": "/record/v5/overlay/terms/[^/]+",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer record.term.rejected.mock.access"
+      }
+    }
+  },
+  "response": {
+    "status": 400,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "error": "synthetic_term_subject_already_taken",
+      "message": "Synthetic term contains a subject already taken in a previous term."
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

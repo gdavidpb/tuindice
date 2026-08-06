@@ -1,0 +1,217 @@
+appId: com.gdavidpb.tuindice.debug
+# Server-side terminal rejection of a synthetic term edit: the record-term-rejected
+# login earns an access token whose PATCH /record/v5/overlay/terms/* always returns
+# 400, so the optimistic edit must revert and the rejection snackbar must surface.
+---
+- runFlow: ../_shared/launch-clean.yaml
+- tapOn:
+    id: auth_usb_id_text_field
+- inputText: "7777777"
+- inputText: "7"
+- tapOn:
+    id: auth_password_text_field
+- inputText: "record-rejected-pass"
+- tapOn:
+    id: auth_keyboard_dismiss_area
+- tapOn:
+    id: auth_sign_in_button
+- extendedWaitUntil:
+    visible:
+      id: coachmark_bubble|maincore_tuindice_bottom_bar_record_item
+    timeout: 30000
+- runFlow:
+    when:
+      visible:
+        id: coachmark_bubble
+    commands:
+      - tapOn:
+          id: coachmark_confirm
+- extendedWaitUntil:
+    visible:
+      id: maincore_tuindice_bottom_bar_record_item
+    timeout: 30000
+- tapOn:
+    id: maincore_tuindice_bottom_bar_record_item
+- extendedWaitUntil:
+    visible:
+      id: record_content_container
+    timeout: 30000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+- tapOn:
+    id: record_create_synthetic_term_fab
+- extendedWaitUntil:
+    visible:
+      id: record_create_synthetic_term_screen
+    timeout: 10000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+- tapOn:
+    id: record_create_synthetic_term_period_selector
+- extendedWaitUntil:
+    visible: "Sep - Dic 2026"
+    timeout: 10000
+- tapOn: "Sep - Dic 2026"
+- waitForAnimationToEnd:
+    timeout: 5000
+- tapOn:
+    id: record_create_synthetic_term_search_tab
+- runFlow:
+    when:
+      visible: "Try out your stylus"
+    commands:
+      - tapOn: "Cancel"
+- extendedWaitUntil:
+    visible:
+      id: record_create_synthetic_term_search_field
+    timeout: 10000
+- tapOn:
+    id: record_create_synthetic_term_search_field
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - inputText: "ec"
+- runFlow:
+    when:
+      platform: iOS
+    commands:
+      - setClipboard: "ec"
+      - pasteText
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard
+- runFlow: ../_shared/submit-ios-search-key-if-visible.yaml
+- retry:
+    maxRetries: 3
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: record_create_synthetic_term_subject_EC5333_add_button
+          direction: DOWN
+          visibilityPercentage: 50
+          centerElement: true
+          timeout: 20000
+      - tapOn:
+          id: record_create_synthetic_term_subject_EC5333_add_button
+      - runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+      - waitForAnimationToEnd:
+          timeout: 5000
+      - extendedWaitUntil:
+          visible: "1 materia seleccionada"
+          timeout: 10000
+- assertVisible:
+    id: record_create_synthetic_term_submit_button
+    enabled: true
+- retry:
+    maxRetries: 3
+    commands:
+      - tapOn:
+          id: record_create_synthetic_term_submit_button
+      - extendedWaitUntil:
+          notVisible:
+            id: record_create_synthetic_term_screen
+          timeout: 10000
+- extendedWaitUntil:
+    visible:
+      id: record_content_container
+    timeout: 30000
+- extendedWaitUntil:
+    visible: "EC5333"
+    timeout: 15000
+- tapOn:
+    id: record_edit_synthetic_term_button
+- extendedWaitUntil:
+    visible:
+      id: record_create_synthetic_term_screen
+    timeout: 10000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+- extendedWaitUntil:
+    visible: "Modificar"
+    timeout: 10000
+- tapOn:
+    id: record_create_synthetic_term_search_tab
+- runFlow:
+    when:
+      visible: "Try out your stylus"
+    commands:
+      - tapOn: "Cancel"
+- runFlow:
+    when:
+      platform: Android
+    commands:
+      - hideKeyboard
+- scrollUntilVisible:
+    element:
+      id: record_create_synthetic_term_search_field
+    direction: DOWN
+    visibilityPercentage: 50
+    timeout: 10000
+- retry:
+    maxRetries: 3
+    commands:
+      - tapOn:
+          id: record_create_synthetic_term_search_field
+      - eraseText: 20
+      - runFlow:
+          when:
+            platform: Android
+          commands:
+            - inputText: "ma"
+      - runFlow:
+          when:
+            platform: iOS
+          commands:
+            - setClipboard: "ma"
+            - pasteText
+      - runFlow:
+          when:
+            platform: Android
+          commands:
+            - hideKeyboard
+      - runFlow: ../_shared/submit-ios-search-key-if-visible.yaml
+      - extendedWaitUntil:
+          visible:
+            id: record_create_synthetic_term_search_results_title
+          timeout: 20000
+- retry:
+    maxRetries: 3
+    commands:
+      - scrollUntilVisible:
+          element:
+            id: record_create_synthetic_term_subject_MA1121_add_button
+          direction: DOWN
+          visibilityPercentage: 50
+          centerElement: true
+          timeout: 20000
+      - tapOn:
+          id: record_create_synthetic_term_subject_MA1121_add_button
+      - runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+      - waitForAnimationToEnd:
+          timeout: 5000
+      - extendedWaitUntil:
+          visible: "2 materias seleccionadas"
+          timeout: 10000
+- retry:
+    maxRetries: 3
+    commands:
+      - tapOn:
+          id: record_create_synthetic_term_submit_button
+      - extendedWaitUntil:
+          notVisible:
+            id: record_create_synthetic_term_screen
+          timeout: 10000
+- extendedWaitUntil:
+    visible:
+      id: record_content_container
+    timeout: 30000
+- extendedWaitUntil:
+    visible:
+      id: base_snackbar_container
+    timeout: 20000
+- extendedWaitUntil:
+    notVisible: "MA1121"
+    timeout: 15000
+- assertVisible: "EC5333"
+- assertVisible:
+    id: record_term_chip_2026-SEP_DEC

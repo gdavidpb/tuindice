@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-record-term-rejected-login",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "BootstrapIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic NzctNzc3Nzc6cmVjb3JkLXJlamVjdGVkLXBhc3M="
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "record-term-rejected-user",
+      "usb_id": "77-77777",
+      "access_token": "bootstrap.mock.record.term.rejected.token",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

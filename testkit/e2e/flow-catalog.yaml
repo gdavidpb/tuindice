@@ -1023,6 +1023,28 @@ variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
       - record_delete_synthetic_term_button
       - record_delete_synthetic_term_message
       - record_term_chip_2026-SEP_DEC
+  - id: record-synthetic-term-rejected
+    path: e2e/maestro/flows/record/record-synthetic-term-rejected.yaml
+    module: record
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: synthetic-term-server-rejection-reverts-and-notifies
+    fixture_state: record-term-rejected
+    actions_covered:
+      - record.CreateSyntheticTerm.UpdateQuery
+      - record.CreateSyntheticTerm.CreateTerm
+    primary_selectors:
+      - record_create_synthetic_term_fab
+      - record_create_synthetic_term_screen
+      - record_create_synthetic_term_search_field
+      - record_create_synthetic_term_search_results_title
+      - record_create_synthetic_term_subject_EC5333_add_button
+      - record_create_synthetic_term_subject_MA1121_add_button
+      - record_create_synthetic_term_submit_button
+      - record_edit_synthetic_term_button
+      - base_snackbar_container
+      - record_term_chip_2026-SEP_DEC
   - id: record-suite
     path: e2e/maestro/flows/suites/record-suite.yaml
     module: record

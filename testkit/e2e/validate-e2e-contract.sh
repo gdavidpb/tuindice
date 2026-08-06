@@ -599,6 +599,7 @@ else
 	check_fixture_pair "${E2E_INVALID_USBID_RAW}" "INVALID_USBID_RAW"
 	check_fixture_pair "${E2E_SUMMARY_REFRESH_RETRY_PASSWORD}" "SUMMARY_REFRESH_RETRY_PASSWORD"
 	check_fixture_pair "${E2E_RECORD_REFRESH_RETRY_PASSWORD}" "RECORD_REFRESH_RETRY_PASSWORD"
+	check_fixture_pair "${E2E_RECORD_TERM_REJECTED_PASSWORD}" "RECORD_TERM_REJECTED_PASSWORD"
 	check_fixture_pair "${E2E_PENSUM_EQUIVALENCE_PASSWORD}" "PENSUM_EQUIVALENCE_PASSWORD"
 	check_fixture_pair "${E2E_RECORD_SEARCH_PRIORITY_PLANNED}" "PRIORITY_PLANNED"
 	check_fixture_pair "${E2E_RECORD_SEARCH_PRIORITY_BLOCKED}" "PRIORITY_BLOCKED"
@@ -807,6 +808,18 @@ check_flow_types_value \
 	"${FLOWS_ROOT}/record/record-refresh-retry.yaml" \
 	"${E2E_RECORD_REFRESH_RETRY_PASSWORD}" \
 	"Record refresh retry"
+check_flow_types_value \
+	"${FLOWS_ROOT}/record/record-synthetic-term-rejected.yaml" \
+	"${E2E_RECORD_TERM_REJECTED_PASSWORD}" \
+	"Record synthetic term rejected"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/record/patch-synthetic-term-rejected.json" \
+	"\"equalTo\": \"Bearer record.term.rejected.mock.access\"" \
+	"Record synthetic term rejected patch"
+check_mapping_contains \
+	"${REPO_ROOT}/mocks/mappings/login/auth-record-term-rejected-exchange-success.json" \
+	"\"access_token\": \"record.term.rejected.mock.access\"" \
+	"Record synthetic term rejected exchange"
 check_flow_contains \
 	"${FLOWS_ROOT}/record/record-refresh-retry.yaml" \
 	"coachmark_bubble|maincore_tuindice_bottom_bar_record_item|base_error_view_container" \
