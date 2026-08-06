@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.record.data.mutation
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOverride
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
+import com.gdavidpb.tuindice.base.utils.extension.isConnection
 import com.gdavidpb.tuindice.base.utils.extension.isNotFound
 import com.gdavidpb.tuindice.base.utils.extension.isPreconditionFailed
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
@@ -102,6 +103,10 @@ class AcademicRecordMutationSyncSpec(
 		mutation: MutationEnvelope<String, AcademicRecordMutation>,
 		throwable: Throwable
 	): MutationFailureResolution<String, AcademicRecordMutation> {
+		if (throwable.isConnection()) {
+			return MutationFailureResolution.Defer()
+		}
+
 		return when (val command = mutation.command) {
 			is AcademicRecordMutation.UpsertAttemptOverride ->
 				resolveUpsertAttemptOverrideFailure(
@@ -135,7 +140,8 @@ class AcademicRecordMutationSyncSpec(
 		return when (classifyError(mutation, throwable)) {
 			MutationFailureKind.Conflict,
 			MutationFailureKind.PreconditionFailed -> {
-				val refreshedSnapshot = refreshRemoteSnapshot()
+				val refreshedSnapshot = refreshRemoteSnapshotSafely()
+					?: return MutationFailureResolution.Defer()
 				val remoteOverride = refreshedSnapshot.record.attemptOverrides.firstOrNull { override ->
 					override.attemptId == command.attemptId
 				}
@@ -152,7 +158,7 @@ class AcademicRecordMutationSyncSpec(
 			}
 
 			MutationFailureKind.NotFound -> {
-				refreshRemoteSnapshot()
+				refreshRemoteSnapshotSafely()
 				MutationFailureResolution.Drop(propagate = true)
 			}
 
@@ -169,7 +175,8 @@ class AcademicRecordMutationSyncSpec(
 		return when (classifyError(mutation, throwable)) {
 			MutationFailureKind.Conflict,
 			MutationFailureKind.PreconditionFailed -> {
-				val refreshedSnapshot = refreshRemoteSnapshot()
+				val refreshedSnapshot = refreshRemoteSnapshotSafely()
+					?: return MutationFailureResolution.Defer()
 				val remoteOverride = refreshedSnapshot.record.attemptOverrides.firstOrNull { override ->
 					override.attemptId == command.attemptId
 				}
@@ -186,7 +193,7 @@ class AcademicRecordMutationSyncSpec(
 			}
 
 			MutationFailureKind.NotFound -> {
-				refreshRemoteSnapshot()
+				refreshRemoteSnapshotSafely()
 				MutationFailureResolution.Drop()
 			}
 
@@ -202,7 +209,8 @@ class AcademicRecordMutationSyncSpec(
 		return when (classifyError(mutation, throwable)) {
 			MutationFailureKind.Conflict,
 			MutationFailureKind.PreconditionFailed -> {
-				val refreshedSnapshot = refreshRemoteSnapshot()
+				val refreshedSnapshot = refreshRemoteSnapshotSafely()
+					?: return MutationFailureResolution.Defer()
 				MutationFailureResolution.Retry(
 					mutation.copy(
 						precondition = MutationPrecondition.Revision(refreshedSnapshot.revision)
@@ -211,13 +219,24 @@ class AcademicRecordMutationSyncSpec(
 			}
 
 			MutationFailureKind.NotFound -> {
-				refreshRemoteSnapshot()
+				refreshRemoteSnapshotSafely()
 				MutationFailureResolution.Drop(propagate = true)
 			}
 
 			MutationFailureKind.Terminal ->
 				MutationFailureResolution.Fail()
 		}
+	}
+
+	// runCatching: the refresh is a network read that fails during the same degraded windows that
+	// break sends. Decisional callers Defer on null — evaluations Fails there, but in record Fail
+	// parks the row as silent FailedTerminal, and after the isConnection preamble the remaining
+	// refresh failures are dominated by transient outages that self-heal on a later drain.
+	// Reconciliation callers (NotFound) treat it as best-effort: the 404 already decided the
+	// resolution, and a dropped envelope can transiently resurrect the stale local base state
+	// until the next successful GET converges the snapshot.
+	private suspend fun refreshRemoteSnapshotSafely(): VersionedAcademicRecord? {
+		return runCatching { refreshRemoteSnapshot() }.getOrNull()
 	}
 
 	private fun AttemptOverride?.matches(

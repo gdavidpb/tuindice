@@ -25,8 +25,10 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 
 class AcademicRecordDataSource(
 	private val localDataSource: AcademicRecordLocalDataRepository,
@@ -47,13 +49,34 @@ class AcademicRecordDataSource(
 
 	// El estado visible se deriva al leer: lo confirmado más los sobres del outbox.
 	// La base local guarda solo lo confirmado, así que no hay dos representaciones del
-	// mismo cambio que puedan divergir.
+	// mismo cambio que puedan divergir. Los sobres FailedTerminal quedan fuera: el
+	// servidor rechazó ese cambio de forma definitiva, y mantenerlo aplicado haría que
+	// la vista mintiera indefinidamente respecto al estado real.
 	private fun observeVisibleRecordFlow(): Flow<AcademicRecord?> {
 		return combine(
 			localDataSource.observeAcademicRecordFlow(),
 			mutationEngine.observeMutations(RECORD_MUTATION_SCOPE)
 		) { confirmedRecord, mutations ->
-			confirmedRecord?.reapplying(mutations.sortedForReplay())
+			confirmedRecord?.reapplying(mutations.visibleForReplay().sortedForReplay())
+		}
+	}
+
+	override suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>> {
+		return mutationEngine.observeMutations(RECORD_MUTATION_SCOPE)
+			.map { mutations ->
+				mutations.filter { mutation ->
+					mutation.status == PendingMutationStatus.FailedTerminal
+				}.map { mutation -> mutation.mutationId }
+			}
+			.distinctUntilChanged()
+	}
+
+	override suspend fun acknowledgeTerminallyRejectedMutations(mutationIds: List<String>) {
+		mutationIds.forEach { mutationId ->
+			mutationEngine.discardMutation(
+				scopeKey = RECORD_MUTATION_SCOPE,
+				mutationId = mutationId
+			)
 		}
 	}
 
@@ -238,8 +261,11 @@ class AcademicRecordDataSource(
 	}
 
 	private suspend fun currentPendingMutations(): List<MutationEnvelope<String, AcademicRecordMutation>> {
-		return mutationEngine.getMutations(RECORD_MUTATION_SCOPE).sortedForReplay()
+		return mutationEngine.getMutations(RECORD_MUTATION_SCOPE).visibleForReplay().sortedForReplay()
 	}
+
+	private fun List<MutationEnvelope<String, AcademicRecordMutation>>.visibleForReplay() =
+		filterNot { mutation -> mutation.status == PendingMutationStatus.FailedTerminal }
 
 	private fun SyntheticTermCreationCommand.toMutation(): AcademicRecordMutation.AddSyntheticTerm {
 		return AcademicRecordMutation.AddSyntheticTerm(

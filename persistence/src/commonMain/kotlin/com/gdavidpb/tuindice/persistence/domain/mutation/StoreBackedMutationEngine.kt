@@ -159,6 +159,18 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 		return outboxStore.getPendingMutation(scopeKey, mutationId)
 	}
 
+	// Acknowledge-and-forget for a parked envelope: removes it without running the spec,
+	// with the same version bookkeeping as a Drop resolution so stale-snapshot fences hold.
+	suspend fun discardMutation(
+		scopeKey: ScopeKey,
+		mutationId: String
+	) {
+		val mutation = outboxStore.getPendingMutation(scopeKey, mutationId) ?: return
+		outboxStore.deletePendingMutation(scopeKey = scopeKey, mutationId = mutationId)
+		forgetMutationVersion(mutation)
+		advanceMutationVersion()
+	}
+
 	suspend fun beginMutation(
 		replaceKey: String? = null
 	): Long {
@@ -357,7 +369,23 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 		throwable: Throwable,
 		rebaseAttempts: Int
 	): ExecutionStep<ScopeKey, Command> {
-		return when (val resolution = execution.syncSpec.resolveFailure(mutation, throwable)) {
+		val resolution = runCatching {
+			execution.syncSpec.resolveFailure(mutation, throwable)
+		}.getOrElse { resolverThrowable ->
+			if (resolverThrowable is CancellationException) throw resolverThrowable
+
+			// A resolver that cannot even decide is treated like an exhausted retry: the row
+			// survives as Failed so the drain requeue backoff owns the next attempt, and the
+			// pass keeps draining instead of aborting on a poison row. Anything else would
+			// either lose the mutation or re-send it at full drain cadence forever.
+			outboxStore.savePendingMutation(
+				mutation.failed(lastError = resolverThrowable.message ?: throwable.message)
+			)
+
+			return terminalStep(throwable, execution.propagateTerminalErrors)
+		}
+
+		return when (resolution) {
 			is MutationFailureResolution.Defer -> {
 				outboxStore.savePendingMutation(
 					mutation.retried(lastError = resolution.lastError ?: throwable.message)

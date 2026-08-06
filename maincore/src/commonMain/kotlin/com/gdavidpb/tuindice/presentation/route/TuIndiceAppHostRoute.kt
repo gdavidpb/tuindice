@@ -173,6 +173,14 @@ fun TuIndiceAppHostRoute(
 			if (syncStatus != SyncStatus.OutdatedCredentials) {
 				isUpdatePasswordDismissedForOutdatedCredentials.value = false
 			}
+
+			// One app_action per transition INTO a degraded status: the collected enum is
+			// snapshot state, so equal re-emissions never restart this effect.
+			when (syncStatus) {
+				SyncStatus.Unavailable -> viewModel.noteSyncUnavailableAction()
+				SyncStatus.Failed -> viewModel.noteSyncFailedAction()
+				else -> Unit
+			}
 		}
 
 		LaunchedEffect(isContentAvailable) {

@@ -12,3 +12,4 @@ name: TuIndice record E2E suite
 - runFlow: ../record/record-synthetic-term-search-states.yaml
 - runFlow: ../record/record-synthetic-term-discard.yaml
 - runFlow: ../record/record-synthetic-term-lifecycle.yaml
+- runFlow: ../record/record-synthetic-term-rejected.yaml

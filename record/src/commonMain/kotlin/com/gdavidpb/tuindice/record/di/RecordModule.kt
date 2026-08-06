@@ -29,6 +29,7 @@ import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermEditSeedUseC
 import com.gdavidpb.tuindice.record.domain.usecase.LoadSyntheticTermPreviewUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermCreationUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermRejectionsUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.RefreshSyntheticTermSubjectSearchUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedTermUseCase
@@ -66,6 +67,7 @@ val recordModule = module {
 	/* Use cases */
 
 	factoryOf(::ObserveRecordUseCase)
+	factoryOf(::ObserveSyntheticTermRejectionsUseCase)
 	factoryOf(::EnsureRecordLoadedUseCase)
 	factoryOf(::UpdateRecordUseCase)
 	factoryOf(::SetRecordViewModeUseCase)

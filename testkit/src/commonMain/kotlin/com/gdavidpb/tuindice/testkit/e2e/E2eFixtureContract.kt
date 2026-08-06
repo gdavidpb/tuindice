@@ -16,6 +16,7 @@ object E2eFixtureContract {
 	const val INVALID_USBID_RAW = "0000000"
 	const val SUMMARY_REFRESH_RETRY_PASSWORD = "summary-retry-pass"
 	const val RECORD_REFRESH_RETRY_PASSWORD = "record-retry-pass"
+	const val RECORD_TERM_REJECTED_PASSWORD = "record-rejected-pass"
 	const val PENSUM_EQUIVALENCE_PASSWORD = "pensum-equivalence-pass"
 
 	object RecordSearch {

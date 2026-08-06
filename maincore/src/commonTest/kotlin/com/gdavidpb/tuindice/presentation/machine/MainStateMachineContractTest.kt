@@ -103,6 +103,8 @@ class MainStateMachineContractTest {
 					)
 				),
 				Main.Action.RequestSync,
+				Main.Action.NoteSyncUnavailable,
+				Main.Action.NoteSyncFailed,
 				Main.Action.SetLastMainSection(section = MainSection.SUMMARY),
 				MainInternalEvent.StartUpStarting,
 				MainInternalEvent.StartUpCompleted(
@@ -176,7 +178,8 @@ class MainStateMachineContractTest {
 			"AppUnavailableResolved",
 			"OutdatedAppResolved",
 			"ReviewRequested / TriggerReviewFlow",
-			"UpdateFlowCompleted / OpenUpdateStoreFallback"
+			"UpdateFlowCompleted / OpenUpdateStoreFallback",
+			"NoteSyncUnavailable"
 		)
 
 		for (fragment in expectedMainFragments) {

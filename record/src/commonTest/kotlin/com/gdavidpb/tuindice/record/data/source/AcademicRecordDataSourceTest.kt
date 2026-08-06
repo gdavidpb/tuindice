@@ -14,14 +14,17 @@ import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.persistence.domain.mutation.DEFAULT_FAILED_RETRY_BACKOFF_MILLIS
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import com.gdavidpb.tuindice.persistence.domain.record.AcademicRecordMutation
+import com.gdavidpb.tuindice.persistence.domain.record.RECORD_MUTATION_SCOPE
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
 import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
+import com.gdavidpb.tuindice.testkit.ktor.serverResponseException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -29,6 +32,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -689,6 +693,99 @@ class AcademicRecordDataSourceTest {
 		assertEquals(0, remoteDataSource.deleteSyntheticTermCalls)
 		assertEquals(initialRecord, requireNotNull(dataSource.getAcademicRecord()))
 	}
+
+	// Incident regression: a DELETE that 404s while the reconciliation refresh fails inside
+	// the same degraded window must drop the envelope — not throw, and not leave a Pending
+	// row that every later drain re-sends at full cadence.
+	@Test
+	fun updateAcademicRecord_whenDeleteHits404AndRefreshFails_dropsMutationWithoutResending() = runTest {
+		val initialRecord = AcademicRecord(
+			id = "record-1",
+			terms = listOf(
+				AcademicTerm(
+					id = "2026-JUL_AUG",
+					periodYear = 2026,
+					periodCode = AcademicTermPeriod.JUL_AUG,
+					kind = TermKind.SYNTHETIC
+				)
+			)
+		)
+		val localDataSource = FakeAcademicRecordLocalDataRepository(
+			record = VersionedAcademicRecord(
+				revision = 12L,
+				record = initialRecord
+			)
+		)
+		val remoteDataSource = ControlledAcademicRecordRemoteDataRepository(
+			upsertResponse = defaultVersionedRecord()
+		).apply {
+			deleteSyntheticTermThrowable = clientRequestException(
+				statusCode = HttpStatusCode.NotFound,
+				path = "/record/v5/overlay/terms/2026-JUL_AUG"
+			)
+			getRecordThrowable = serverResponseException(HttpStatusCode.ServiceUnavailable)
+		}
+		val outboxStore: MutationEnvelopeStore<String, AcademicRecordMutation> = InMemoryMutationEnvelopeStore()
+		val dataSource = AcademicRecordDataSource(
+			localDataSource = localDataSource,
+			remoteDataSource = remoteDataSource,
+			settingsDataSource = FakeRecordSettingsDataRepository(),
+			mutationEngine = createMutationEngine(this, outboxStore = outboxStore),
+			identifierRepository = FakeIdentifierRepository()
+		)
+
+		dataSource.deleteSyntheticTerm("2026-JUL_AUG")
+
+		assertEquals(1, remoteDataSource.deleteSyntheticTermCalls)
+		assertEquals(emptyList(), outboxStore.getMutations(RECORD_MUTATION_SCOPE))
+
+		runCatching { dataSource.updateAcademicRecord() }
+
+		assertEquals(1, remoteDataSource.deleteSyntheticTermCalls)
+		assertEquals(emptyList(), outboxStore.getMutations(RECORD_MUTATION_SCOPE))
+	}
+
+	@Test
+	fun terminallyRejectedMutations_areObservable_andAcknowledgeDiscardsThem() = runTest {
+		val terminalMutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
+			mutationId = "mutation-terminal",
+			scopeKey = RECORD_MUTATION_SCOPE,
+			command = AcademicRecordMutation.UpdateSyntheticTerm(
+				targetTermId = "2026-JUL_AUG",
+				targetTermKey = "2026-JUL_AUG",
+				termId = "2026-JUL_AUG",
+				periodYear = 2026,
+				periodCode = AcademicTermPeriod.JUL_AUG,
+				attempts = emptyList()
+			),
+			precondition = MutationPrecondition.Revision(1L),
+			status = PendingMutationStatus.FailedTerminal,
+			createdAt = 1L,
+			updatedAt = 1L,
+			lastError = "rejected"
+		)
+		val outboxStore: MutationEnvelopeStore<String, AcademicRecordMutation> =
+			InMemoryMutationEnvelopeStore(listOf(terminalMutation))
+		val dataSource = AcademicRecordDataSource(
+			localDataSource = FakeAcademicRecordLocalDataRepository(
+				record = defaultVersionedRecord(revision = 1L)
+			),
+			remoteDataSource = ControlledAcademicRecordRemoteDataRepository(
+				upsertResponse = defaultVersionedRecord(revision = 2L)
+			),
+			settingsDataSource = FakeRecordSettingsDataRepository(),
+			mutationEngine = createMutationEngine(this, outboxStore = outboxStore),
+			identifierRepository = FakeIdentifierRepository()
+		)
+
+		val rejectedIds = dataSource.observeTerminallyRejectedMutationIdsFlow().first()
+		assertEquals(listOf("mutation-terminal"), rejectedIds)
+
+		dataSource.acknowledgeTerminallyRejectedMutations(rejectedIds)
+
+		assertEquals(emptyList(), outboxStore.getMutations(RECORD_MUTATION_SCOPE))
+		assertEquals(emptyList(), dataSource.observeTerminallyRejectedMutationIdsFlow().first())
+	}
 }
 
 internal const val DEFAULT_CONFIRMED_LANDING_LAG_MILLIS = 50L
@@ -780,8 +877,12 @@ internal class ControlledAcademicRecordRemoteDataRepository(
 	val deleteSyntheticTermMutationIds = mutableListOf<String>()
 	val deleteSyntheticTermExpectedRevisions = mutableListOf<Long>()
 
+	var getRecordThrowable: Throwable? = null
+	var deleteSyntheticTermThrowable: Throwable? = null
+
 	override suspend fun getAcademicRecord(): VersionedAcademicRecord {
 		getRecordCalls += 1
+		getRecordThrowable?.let { throw it }
 		return upsertResponse
 	}
 
@@ -841,6 +942,7 @@ internal class ControlledAcademicRecordRemoteDataRepository(
 		deleteSyntheticTermIds += termId
 		deleteSyntheticTermMutationIds += mutationId
 		deleteSyntheticTermExpectedRevisions += expectedRevision
+		deleteSyntheticTermThrowable?.let { throw it }
 		return upsertResponse
 	}
 }

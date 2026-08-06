@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emptyFlow
 
 interface AcademicRecordRepository {
 	suspend fun observeAcademicRecordFlow(): Flow<AcademicRecord>
@@ -23,6 +24,11 @@ interface AcademicRecordRepository {
 			)
 		}
 	}
+
+	// Defaults: only the real data source owns an outbox; test doubles without one
+	// observe no rejections and acknowledge nothing.
+	suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>> = emptyFlow()
+	suspend fun acknowledgeTerminallyRejectedMutations(mutationIds: List<String>) = Unit
 	suspend fun getAcademicRecord(): AcademicRecord?
 	suspend fun updateAcademicRecord()
 	suspend fun updateAcademicRecord(forceRemote: Boolean) {

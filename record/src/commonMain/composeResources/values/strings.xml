@@ -47,6 +47,7 @@
 	<string name="attempt_status_selector_placeholder">Seleccionar</string>
 	<string name="snack_synthetic_term_deleted">Trimestre eliminado</string>
 	<string name="snack_synthetic_term_delete_failed">No pudimos eliminar el trimestre</string>
+	<string name="snack_synthetic_term_rejected">El servidor rechazó un cambio del trimestre y lo descartamos</string>
 	<string name="create_term_period_label">Trimestre</string>
 	<string name="create_term_load_label">Carga</string>
 	<string name="create_term_load_placeholder">Sin materias</string>

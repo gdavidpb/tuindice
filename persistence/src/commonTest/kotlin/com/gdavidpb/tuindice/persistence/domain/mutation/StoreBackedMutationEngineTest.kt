@@ -474,6 +474,84 @@ class StoreBackedMutationEngineTest {
 	}
 
 	@Test
+	fun submit_whenResolveFailureThrows_marksMutationFailed_andPropagatesOriginalError() = runTest {
+		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
+		val engine = createEngine(store, this)
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
+			override suspend fun send(
+				mutation: MutationEnvelope<String, TestMutation>
+			): TestAck = throw TestTerminalFailure()
+
+			override suspend fun confirm(
+				mutation: MutationEnvelope<String, TestMutation>,
+				ack: TestAck
+			) = Unit
+
+			override suspend fun resolveFailure(
+				mutation: MutationEnvelope<String, TestMutation>,
+				throwable: Throwable
+			): MutationFailureResolution<String, TestMutation> {
+				error("resolver crashed")
+			}
+		}
+
+		assertFailsWith<TestTerminalFailure> {
+			engine.submit(
+				mutation = testMutationEnvelope(mutationId = "mutation-1", value = 45),
+				syncSpec = syncSpec,
+				propagateTerminalErrors = true
+			)
+		}
+
+		val failedMutation = store.getMutations("record").single()
+		assertEquals(PendingMutationStatus.Failed, failedMutation.status)
+		assertEquals("resolver crashed", failedMutation.lastError)
+		assertEquals(emptyList(), store.getPendingMutations("record"))
+	}
+
+	@Test
+	fun drain_whenResolveFailureThrows_marksMutationFailed_andKeepsDrainingRemainingMutations() = runTest {
+		val poisonMutation = testMutationEnvelope(mutationId = "mutation-1", value = 45)
+		val healthyMutation = testMutationEnvelope(mutationId = "mutation-2", value = 46)
+		val store = InMemoryMutationEnvelopeStore(listOf(poisonMutation, healthyMutation))
+		val engine = createEngine(store, this)
+		val sentValues = mutableListOf<Int>()
+		val confirmedValues = mutableListOf<Int>()
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
+			override suspend fun send(
+				mutation: MutationEnvelope<String, TestMutation>
+			): TestAck {
+				sentValues += mutation.command.value
+				if (mutation.command.value == 45) throw TestTerminalFailure()
+				return TestAck(mutation.mutationId, mutation.command.value)
+			}
+
+			override suspend fun confirm(
+				mutation: MutationEnvelope<String, TestMutation>,
+				ack: TestAck
+			) {
+				confirmedValues += ack.value
+			}
+
+			override suspend fun resolveFailure(
+				mutation: MutationEnvelope<String, TestMutation>,
+				throwable: Throwable
+			): MutationFailureResolution<String, TestMutation> {
+				error("resolver crashed")
+			}
+		}
+
+		engine.drain(scopeKey = "record", syncSpec = syncSpec)
+
+		assertEquals(listOf(45, 46), sentValues)
+		assertEquals(listOf(46), confirmedValues)
+
+		val remainingMutation = store.getMutations("record").single()
+		assertEquals("mutation-1", remainingMutation.mutationId)
+		assertEquals(PendingMutationStatus.Failed, remainingMutation.status)
+	}
+
+	@Test
 	fun mutationVersion_advancesOnConfirm_soASnapshotFetchedEarlierIsDiscarded() = runTest {
 		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
 		val engine = createEngine(store, this)

@@ -1,0 +1,33 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-record-term-rejected-login",
+  "requiredScenarioState": "BootstrapIssued",
+  "newScenarioState": "TokensIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/token/exchange",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer bootstrap.mock.record.term.rejected.token"
+      },
+      "X-Attestation-Token": {
+        "matches": "attestation\\.mock\\.proof\\.(android|ios)"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "record-term-rejected-user",
+      "usb_id": "77-77777",
+      "session_id": "record-term-rejected-session",
+      "access_token": "record.term.rejected.mock.access",
+      "refresh_token": "record.term.rejected.mock.refresh",
+      "expires_in": 3600
+    },
+    "fixedDelayMilliseconds": 1000
+  }
+}

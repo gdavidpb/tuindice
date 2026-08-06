@@ -37,6 +37,8 @@ object Main {
 		data object ClickUpdateApp : Action()
 		class UpdateFlowCompleted(val result: UpdateLaunchResult) : Action()
 		data object RequestSync : Action()
+		data object NoteSyncUnavailable : Action()
+		data object NoteSyncFailed : Action()
 		class SetLastMainSection(val section: MainSection) : Action()
 	}
 

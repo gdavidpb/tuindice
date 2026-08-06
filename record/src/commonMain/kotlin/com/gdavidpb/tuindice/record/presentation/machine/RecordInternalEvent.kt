@@ -46,4 +46,8 @@ sealed interface RecordInternalEvent {
 		val message: String,
 		val navigateToOutdatedCredentials: Boolean
 	) : RecordInternalEvent
+
+	data class SyntheticTermRejected(
+		val message: String
+	) : RecordInternalEvent
 }

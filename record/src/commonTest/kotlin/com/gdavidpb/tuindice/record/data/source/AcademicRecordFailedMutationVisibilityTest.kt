@@ -53,4 +53,47 @@ class AcademicRecordFailedMutationVisibilityTest {
 		assertEquals(listOf(attemptId), overrides.map(AttemptOverride::attemptId))
 		assertEquals(AttemptScore.numeric(5), overrides.single().score)
 	}
+
+	// Deliberate asymmetry with the Failed case above: Failed rows are transient (the drain
+	// backoff retries them) so their edits stay visible; FailedTerminal rows were rejected
+	// for good by the server, and keeping them applied would make the view lie indefinitely.
+	@Test
+	fun updateAcademicRecord_hidesTerminallyRejectedMutationsFromVisibleRecord() = runTest {
+		val terminalMutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
+			mutationId = "mutation-terminal",
+			scopeKey = RECORD_MUTATION_SCOPE,
+			command = AcademicRecordMutation.UpsertAttemptOverride(
+				attemptId = "attempt-1",
+				score = AttemptScore.numeric(5),
+				outcome = null
+			),
+			precondition = MutationPrecondition.Revision(1L),
+			status = PendingMutationStatus.FailedTerminal,
+			createdAt = 1L,
+			updatedAt = 1L,
+			lastError = "rejected"
+		)
+		val localDataSource = FakeAcademicRecordLocalDataRepository(
+			record = defaultVersionedRecord(revision = 1L)
+		)
+		val remoteDataSource = ControlledAcademicRecordRemoteDataRepository(
+			upsertResponse = defaultVersionedRecord(revision = 2L)
+		)
+		val dataSource = AcademicRecordDataSource(
+			localDataSource = localDataSource,
+			remoteDataSource = remoteDataSource,
+			settingsDataSource = FakeRecordSettingsDataRepository(),
+			mutationEngine = createMutationEngine(
+				coroutineScope = this,
+				outboxStore = InMemoryMutationEnvelopeStore(listOf(terminalMutation)),
+				failedRetryBackoffMillis = Long.MAX_VALUE
+			),
+			identifierRepository = FakeIdentifierRepository()
+		)
+
+		dataSource.updateAcademicRecord(forceRemote = true)
+
+		val overrides = requireNotNull(dataSource.getAcademicRecord()).attemptOverrides
+		assertEquals(emptyList(), overrides)
+	}
 }

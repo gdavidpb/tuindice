@@ -55,6 +55,18 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 			state
 		}
 
+		// Telemetry-only rows: the host route dispatches these when the sync status
+		// transitions into a degraded state, so backend outages become measurable on the
+		// app_action rail. The self-loop transition itself is filtered by the analytics
+		// policy — the action event is the signal.
+		on<Main.Action.NoteSyncUnavailable> { state, _ ->
+			state
+		}
+
+		on<Main.Action.NoteSyncFailed> { state, _ ->
+			state
+		}
+
 		on<Main.Action.SetLastMainSection> { state, action ->
 			machine.setLastMainSection(host = host, section = action.section)
 			state
