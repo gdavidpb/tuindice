@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.domain.record.RECORD_MUTATION_SCOPE
 import com.gdavidpb.tuindice.persistence.domain.record.RECORD_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
+import kotlinx.coroutines.flow.firstOrNull
 
 class PendingChangesDataSource(
 	private val pendingMutationDao: PendingMutationDao,
@@ -53,7 +54,8 @@ class PendingChangesDataSource(
 			return FlushPendingChangesResult.OutdatedCredentials(initialPendingChanges)
 		}
 
-		retryFailedMutations(
+		discardTerminallyRejectedRecordMutations()
+		requeueRetryableMutations(
 			storeId = RECORD_MUTATION_STORE_ID,
 			scopeKey = RECORD_MUTATION_SCOPE
 		)
@@ -64,7 +66,7 @@ class PendingChangesDataSource(
 			return FlushPendingChangesResult.OutdatedCredentials(recordPendingChanges)
 		}
 
-		retryFailedMutations(
+		requeueRetryableMutations(
 			storeId = EVALUATIONS_MUTATION_STORE_ID,
 			scopeKey = EVALUATIONS_MUTATION_SCOPE
 		)
@@ -82,18 +84,34 @@ class PendingChangesDataSource(
 		}
 	}
 
-	private suspend fun retryFailedMutations(
+	// Only Failed rows are retryable. Requeuing FailedTerminal ones re-sent mutations the
+	// server had already refused for good: each flush spent a doomed request and parked the
+	// row again, so the dialog reported pending changes that could never drain.
+	private suspend fun requeueRetryableMutations(
 		storeId: String,
 		scopeKey: String
 	) {
-		listOf(PendingMutationStatus.Failed, PendingMutationStatus.FailedTerminal).forEach { requeueFrom ->
-			pendingMutationDao.requeueMutations(
-				storeId = storeId,
-				scopeKey = scopeKey,
-				requeueFrom = requeueFrom.name,
-				retryableBefore = Long.MAX_VALUE,
-				updatedAt = currentTimeMillis()
-			)
-		}
+		pendingMutationDao.requeueMutations(
+			storeId = storeId,
+			scopeKey = scopeKey,
+			requeueFrom = PendingMutationStatus.Failed.name,
+			retryableBefore = Long.MAX_VALUE,
+			updatedAt = currentTimeMillis()
+		)
+	}
+
+	// A terminal rejection reaching the flush means the user never passed through Record to
+	// see it acknowledged. Sign-out is the last chance to reconcile: discard those envelopes
+	// so the count reflects only work that can still land. Evaluations has no acknowledge
+	// surface yet, so its terminal rows simply stop being requeued above.
+	private suspend fun discardTerminallyRejectedRecordMutations() {
+		val rejectedMutationIds = academicRecordRepository
+			.observeTerminallyRejectedMutationIdsFlow()
+			.firstOrNull()
+			.orEmpty()
+
+		if (rejectedMutationIds.isEmpty()) return
+
+		academicRecordRepository.acknowledgeTerminallyRejectedMutations(rejectedMutationIds)
 	}
 }

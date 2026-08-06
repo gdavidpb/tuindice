@@ -16,9 +16,11 @@ import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepo
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import com.gdavidpb.tuindice.testkit.ktor.serverResponseException
 import io.ktor.http.HttpStatusCode
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
@@ -44,6 +46,22 @@ class AcademicRecordMutationSyncSpecResolveFailureTest {
 
 		assertIs<MutationFailureResolution.Defer<String, AcademicRecordMutation>>(resolution)
 		assertEquals(0, refreshCalls)
+	}
+
+	// The safe refresh swallows failures on purpose, but a cancelled scope is not a failed
+	// refresh: swallowing it would resolve the mutation from inside a dead pass.
+	@Test
+	fun resolveFailure_whenRefreshIsCancelled_propagatesCancellationInsteadOfResolving() = runTest {
+		val spec = specUnderTest(refreshRemoteSnapshot = {
+			throw CancellationException("scope cancelled")
+		})
+
+		assertFailsWith<CancellationException> {
+			spec.resolveFailure(
+				mutation = deleteSyntheticTermEnvelope(),
+				throwable = clientRequestException(HttpStatusCode.NotFound)
+			)
+		}
 	}
 
 	@Test

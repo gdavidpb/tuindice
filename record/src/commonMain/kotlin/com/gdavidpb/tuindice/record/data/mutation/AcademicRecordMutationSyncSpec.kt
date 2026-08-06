@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.MutationSyncSpec
 import com.gdavidpb.tuindice.persistence.domain.record.AcademicRecordMutation
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
+import kotlinx.coroutines.CancellationException
 
 class AcademicRecordMutationSyncSpec(
 	private val remoteDataSource: AcademicRecordRemoteDataRepository,
@@ -236,7 +237,9 @@ class AcademicRecordMutationSyncSpec(
 	// resolution, and a dropped envelope can transiently resurrect the stale local base state
 	// until the next successful GET converges the snapshot.
 	private suspend fun refreshRemoteSnapshotSafely(): VersionedAcademicRecord? {
-		return runCatching { refreshRemoteSnapshot() }.getOrNull()
+		return runCatching { refreshRemoteSnapshot() }
+			.onFailure { throwable -> if (throwable is CancellationException) throw throwable }
+			.getOrNull()
 	}
 
 	private fun AttemptOverride?.matches(
