@@ -51,7 +51,9 @@ for target in "${targets[@]}"; do
 	printf '\n[diagnose-flows] %s/%s: %s\n' "${index}" "${total}" "${target}"
 
 	status=0
-	bash "${SCRIPT_DIR}/diagnose-suite.sh" "${survey_args[@]}" "${target}" || status="$?"
+	# ${survey_args[@]} alone throws unbound-variable under set -u when --survey was
+	# never passed (empty array); this expansion is the POSIX-safe empty-or-elements form.
+	bash "${SCRIPT_DIR}/diagnose-suite.sh" ${survey_args[@]+"${survey_args[@]}"} "${target}" || status="$?"
 
 	if [[ "${status}" != "0" ]]; then
 		printf '\n[diagnose-flows] Stopped at %s/%s: %s failed (exit %s).\n' \
