@@ -629,6 +629,132 @@ class TuIndiceAppHostRouteUiTest {
 	}
 
 	@Test
+	fun when_syncStatusBecomesUnavailable_then_hostRouteReportsDegradedSyncActionOnce() = runTuIndiceUiTest {
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
+		val eventPublisher = RecordingEventPublisher()
+
+		stopKoin()
+
+		startKoin {
+			modules(
+				hostRouteNavigationModule(
+					syncStatusRepository = syncStatusRepository,
+					sessionInvalidationRepository = sessionInvalidationRepository
+				),
+				authModule,
+				module {
+					single<AuthRepository> {
+						object : AuthRepository {
+							override suspend fun bootstrapSignIn(
+								usbId: String,
+								password: String
+							): BootstrapTokens = BootstrapTokens(
+								uid = "uid",
+								usbId = usbId,
+								accessToken = "bootstrap-token",
+								expiresIn = 300
+							)
+
+							override suspend fun exchangeSignIn(
+								bootstrapAccessToken: String,
+								attestation: Attestation
+							) = Unit
+
+							override suspend fun reissueTokens(
+								usbId: String,
+								password: String,
+								attestation: Attestation
+							) = Unit
+
+							override suspend fun refreshTokens(
+								sessionId: String,
+								refreshToken: String,
+								attestation: Attestation
+							): RefreshTokens = error("refreshTokens should not be called in this test")
+
+							override suspend fun revokeTokens(
+								sessionId: String,
+								refreshToken: String,
+								attestation: Attestation
+							) = Unit
+						}
+					}
+					single<SessionRepository> { FakeSessionRepository() }
+					single<MessagingRepository> {
+						object : MessagingRepository {
+							override suspend fun subscribe() = Unit
+
+							override suspend fun unsubscribe() = Unit
+						}
+					}
+					single<ConfigRepository> { FakeConfigRepository() }
+					single<AppEnvironmentRepository> { FakeAppEnvironmentRepository() }
+					single<CredentialsRepository> { FakeCredentialsRepository() }
+					single<AttestationRepository> {
+						object : AttestationRepository {
+							override suspend fun attest(request: AttestationRequest): Attestation {
+								return Attestation(token = "token")
+							}
+						}
+					}
+					single<NetworkRepository> { FakeNetworkRepository(isAvailable = true) }
+					single<ReportingRepository> { RecordingReportingRepository() }
+				}
+			)
+		}
+
+		try {
+			setTuIndiceTestContent {
+				TuIndiceAppHostRoute(
+					onConfirmExitClick = {},
+					browserRepository = RecordingBrowserRepository(),
+					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
+					sessionInvalidationRepository = sessionInvalidationRepository,
+					syncStatusRepository = syncStatusRepository,
+					reviewRepository = RecordingReviewRepository(),
+					updateRepository = FakeUpdateRepository(),
+					viewModel = createMainViewModel(eventPublisher = eventPublisher)
+				)
+			}
+
+			waitUntil(timeoutMillis = 5_000) {
+				onAllNodesWithTag(AuthUiTags.PasswordTextField).fetchSemanticsNodes().isNotEmpty()
+			}
+
+			assertTrue(
+				eventPublisher.events.none { event -> event.isDegradedSyncAction() },
+				"A healthy startup must not report degraded sync."
+			)
+
+			syncStatusRepository.emitSyncStatus(SyncStatus.Unavailable)
+
+			waitUntil(timeoutMillis = 5_000) {
+				eventPublisher.events.count { event -> event.isDegradedSyncAction() } == 1
+			}
+
+			// Equal re-emissions are conflated at the State layer: still exactly one event.
+			syncStatusRepository.emitSyncStatus(SyncStatus.Unavailable)
+			waitForIdle()
+			assertTrue(
+				eventPublisher.events.count { event -> event.isDegradedSyncAction() } == 1,
+				"Re-emitting the same degraded status must not report a second episode."
+			)
+
+			// A recovery followed by a new degradation is a new episode.
+			syncStatusRepository.emitSyncStatus(SyncStatus.Healthy)
+			waitForIdle()
+			syncStatusRepository.emitSyncStatus(SyncStatus.Unavailable)
+
+			waitUntil(timeoutMillis = 5_000) {
+				eventPublisher.events.count { event -> event.isDegradedSyncAction() } == 2
+			}
+		} finally {
+			stopKoin()
+		}
+	}
+
+	@Test
 	fun when_syncStatusIsOutdatedCredentials_then_hostRouteNavigatesToUpdatePasswordDialog() = runTuIndiceUiTest {
 		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
 		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
@@ -1055,4 +1181,10 @@ private fun AppEvent.isMainTransition(
 			parameters[EventParameterKeys.SOURCE] == "main" &&
 			(event == null || parameters[EventParameterKeys.EVENT] == event) &&
 			parameters[EventParameterKeys.TO] == to
+}
+
+private fun AppEvent.isDegradedSyncAction(): Boolean {
+	return name == EventNames.APP_ACTION &&
+			parameters[EventParameterKeys.SOURCE] == "main" &&
+			parameters[EventParameterKeys.ACTION] == "note_sync_unavailable"
 }

@@ -43,4 +43,10 @@ class MainViewModel(
 
 	fun requestSyncAction() =
 		sendAction(Main.Action.RequestSync)
+
+	fun noteSyncUnavailableAction() =
+		sendAction(Main.Action.NoteSyncUnavailable)
+
+	fun noteSyncFailedAction() =
+		sendAction(Main.Action.NoteSyncFailed)
 }

@@ -322,6 +322,12 @@ variants: [add-success, edit-success, edit-unchanged-disabled, missing-attempt, 
     selector: summary_status_row
     flow: e2e/maestro/flows/summary/summary-smoke.yaml
     fixture_state: sync-success
+  - id: maincore.Main.NoteSyncUnavailable
+    classification: internal
+    reason: route-dispatched telemetry marker when the sync status transitions into Unavailable
+  - id: maincore.Main.NoteSyncFailed
+    classification: internal
+    reason: route-dispatched telemetry marker when the sync status transitions into Failed
   - id: maincore.Main.SetLastMainSection
     classification: user
     variants: [summary, record, pensum, evaluations, about]
