@@ -32,6 +32,14 @@ First bump the missing build number(s) in `gradle/app-version.properties`, sync
 evidence is commit-bound and should only be spent on a SHA that production
 preflight can accept.
 
+`./gradlew syncAppVersion verifyAppVersionSync` in one invocation has no
+declared task dependency between the two, so Gradle is free to run
+`verifyAppVersionSync` first — it then fails against the not-yet-regenerated
+xcconfig even though `syncAppVersion` fixes it moments later in the same
+build. A `BUILD FAILED` here after editing `gradle/app-version.properties`
+is not necessarily real: rerun `verifyAppVersionSync` alone once `syncAppVersion`
+has completed before treating it as a genuine mismatch.
+
 The helper also prints the focused Android and iOS Gradle tasks selected by
 `.github/scripts/detect-changed-app.sh`. Treat these as the local preflight
 contract for the branch.

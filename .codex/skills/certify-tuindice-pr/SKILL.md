@@ -18,6 +18,18 @@ anything has been paid for, verify what it brings, and delete the remote branch 
 merge is pushed. Report what was absorbed. If it does not belong in this branch, stop and
 say so rather than carrying it silently.
 
+If the user asks you to edit this skill's own files (`SKILL.md`, the runbook, the scripts)
+*while* a certification is in progress — not just at the step-15 wrap-up — the same rule
+applies immediately: make the edit on `chore/certification-feedback` (branched fresh from
+`production`, or reusing/resetting a stale local one), never in the working tree of the
+branch currently being certified. `.claude/skills/certify-tuindice-pr/**` is a symlink into
+`.codex/skills/certify-tuindice-pr/**`, which is the tracked path `git status` will actually
+show — editing via either path lands on whatever branch is checked out, so check `git branch
+--show-current` before editing, not after. Do not `git checkout` a different branch in this
+same working tree while a local Gradle/Maestro evidence run is still active in the
+background — switching branches mid-run changes the files a live process may still read;
+stash the edit, wait for the run to finish, then move it.
+
 3. Commit and push all intended changes before certifying. The certified SHA must exist on GitHub.
 4. **Run the pre-certification diff audit before any preflight or evidence work.** This gate
 is mandatory and is described in full in the runbook's Pre-Certification Diff Audit. Audit the
