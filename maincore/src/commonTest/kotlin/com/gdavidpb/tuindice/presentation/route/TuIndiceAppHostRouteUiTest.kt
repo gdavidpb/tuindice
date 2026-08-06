@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.presentation.route
 
+import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onAllNodesWithText
@@ -644,42 +645,7 @@ class TuIndiceAppHostRouteUiTest {
 				),
 				authModule,
 				module {
-					single<AuthRepository> {
-						object : AuthRepository {
-							override suspend fun bootstrapSignIn(
-								usbId: String,
-								password: String
-							): BootstrapTokens = BootstrapTokens(
-								uid = "uid",
-								usbId = usbId,
-								accessToken = "bootstrap-token",
-								expiresIn = 300
-							)
-
-							override suspend fun exchangeSignIn(
-								bootstrapAccessToken: String,
-								attestation: Attestation
-							) = Unit
-
-							override suspend fun reissueTokens(
-								usbId: String,
-								password: String,
-								attestation: Attestation
-							) = Unit
-
-							override suspend fun refreshTokens(
-								sessionId: String,
-								refreshToken: String,
-								attestation: Attestation
-							): RefreshTokens = error("refreshTokens should not be called in this test")
-
-							override suspend fun revokeTokens(
-								sessionId: String,
-								refreshToken: String,
-								attestation: Attestation
-							) = Unit
-						}
-					}
+					single<AuthRepository> { stubAuthRepository() }
 					single<SessionRepository> { FakeSessionRepository() }
 					single<MessagingRepository> {
 						object : MessagingRepository {
@@ -722,35 +688,45 @@ class TuIndiceAppHostRouteUiTest {
 				onAllNodesWithTag(AuthUiTags.PasswordTextField).fetchSemanticsNodes().isNotEmpty()
 			}
 
-			assertTrue(
-				eventPublisher.events.none { event -> event.isDegradedSyncAction() },
-				"A healthy startup must not report degraded sync."
+			assertDegradedSyncEpisodesReportOnce(
+				syncStatusRepository = syncStatusRepository,
+				eventPublisher = eventPublisher
 			)
-
-			syncStatusRepository.emitSyncStatus(SyncStatus.Unavailable)
-
-			waitUntil(timeoutMillis = 5_000) {
-				eventPublisher.events.count { event -> event.isDegradedSyncAction() } == 1
-			}
-
-			// Equal re-emissions are conflated at the State layer: still exactly one event.
-			syncStatusRepository.emitSyncStatus(SyncStatus.Unavailable)
-			waitForIdle()
-			assertTrue(
-				eventPublisher.events.count { event -> event.isDegradedSyncAction() } == 1,
-				"Re-emitting the same degraded status must not report a second episode."
-			)
-
-			// A recovery followed by a new degradation is a new episode.
-			syncStatusRepository.emitSyncStatus(SyncStatus.Healthy)
-			waitForIdle()
-			syncStatusRepository.emitSyncStatus(SyncStatus.Unavailable)
-
-			waitUntil(timeoutMillis = 5_000) {
-				eventPublisher.events.count { event -> event.isDegradedSyncAction() } == 2
-			}
 		} finally {
 			stopKoin()
+		}
+	}
+
+	private fun ComposeUiTest.assertDegradedSyncEpisodesReportOnce(
+		syncStatusRepository: FakeSyncStatusRepository,
+		eventPublisher: RecordingEventPublisher
+	) {
+		assertTrue(
+			eventPublisher.events.none { event -> event.isDegradedSyncAction() },
+			"A healthy startup must not report degraded sync."
+		)
+
+		syncStatusRepository.emitSyncStatus(SyncStatus.Unavailable)
+
+		waitUntil(timeoutMillis = 5_000) {
+			eventPublisher.events.count { event -> event.isDegradedSyncAction() } == 1
+		}
+
+		// Equal re-emissions are conflated at the State layer: still exactly one event.
+		syncStatusRepository.emitSyncStatus(SyncStatus.Unavailable)
+		waitForIdle()
+		assertTrue(
+			eventPublisher.events.count { event -> event.isDegradedSyncAction() } == 1,
+			"Re-emitting the same degraded status must not report a second episode."
+		)
+
+		// A recovery followed by a new degradation is a new episode.
+		syncStatusRepository.emitSyncStatus(SyncStatus.Healthy)
+		waitForIdle()
+		syncStatusRepository.emitSyncStatus(SyncStatus.Unavailable)
+
+		waitUntil(timeoutMillis = 5_000) {
+			eventPublisher.events.count { event -> event.isDegradedSyncAction() } == 2
 		}
 	}
 
@@ -1161,6 +1137,41 @@ private fun createTestCoachmarkOverlayViewModel(): CoachmarkOverlayViewModel {
 		),
 		eventPublisher = NoOpEventPublisher
 	)
+}
+
+private fun stubAuthRepository(): AuthRepository = object : AuthRepository {
+	override suspend fun bootstrapSignIn(
+		usbId: String,
+		password: String
+	): BootstrapTokens = BootstrapTokens(
+		uid = "uid",
+		usbId = usbId,
+		accessToken = "bootstrap-token",
+		expiresIn = 300
+	)
+
+	override suspend fun exchangeSignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation
+	) = Unit
+
+	override suspend fun reissueTokens(
+		usbId: String,
+		password: String,
+		attestation: Attestation
+	) = Unit
+
+	override suspend fun refreshTokens(
+		sessionId: String,
+		refreshToken: String,
+		attestation: Attestation
+	): RefreshTokens = error("refreshTokens should not be called in this test")
+
+	override suspend fun revokeTokens(
+		sessionId: String,
+		refreshToken: String,
+		attestation: Attestation
+	) = Unit
 }
 
 private class RecordingEventPublisher : EventPublisher {

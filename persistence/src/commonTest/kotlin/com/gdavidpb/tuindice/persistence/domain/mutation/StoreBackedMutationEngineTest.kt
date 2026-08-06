@@ -491,7 +491,7 @@ class StoreBackedMutationEngineTest {
 				mutation: MutationEnvelope<String, TestMutation>,
 				throwable: Throwable
 			): MutationFailureResolution<String, TestMutation> {
-				throw IllegalStateException("resolver crashed")
+				error("resolver crashed")
 			}
 		}
 
@@ -537,7 +537,7 @@ class StoreBackedMutationEngineTest {
 				mutation: MutationEnvelope<String, TestMutation>,
 				throwable: Throwable
 			): MutationFailureResolution<String, TestMutation> {
-				throw IllegalStateException("resolver crashed")
+				error("resolver crashed")
 			}
 		}
 

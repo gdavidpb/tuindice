@@ -698,7 +698,7 @@ class AcademicRecordDataSourceTest {
 	// the same degraded window must drop the envelope — not throw, and not leave a Pending
 	// row that every later drain re-sends at full cadence.
 	@Test
-	fun updateAcademicRecord_whenDeleteSyntheticTermHits404AndRefreshFails_dropsMutationWithoutThrowingOrResending() = runTest {
+	fun updateAcademicRecord_whenDeleteHits404AndRefreshFails_dropsMutationWithoutResending() = runTest {
 		val initialRecord = AcademicRecord(
 			id = "record-1",
 			terms = listOf(

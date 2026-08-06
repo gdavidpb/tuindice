@@ -264,9 +264,8 @@ class AcademicRecordDataSource(
 		return mutationEngine.getMutations(RECORD_MUTATION_SCOPE).visibleForReplay().sortedForReplay()
 	}
 
-	private fun List<MutationEnvelope<String, AcademicRecordMutation>>.visibleForReplay(): List<MutationEnvelope<String, AcademicRecordMutation>> {
-		return filterNot { mutation -> mutation.status == PendingMutationStatus.FailedTerminal }
-	}
+	private fun List<MutationEnvelope<String, AcademicRecordMutation>>.visibleForReplay() =
+		filterNot { mutation -> mutation.status == PendingMutationStatus.FailedTerminal }
 
 	private fun SyntheticTermCreationCommand.toMutation(): AcademicRecordMutation.AddSyntheticTerm {
 		return AcademicRecordMutation.AddSyntheticTerm(

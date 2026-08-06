@@ -24,6 +24,7 @@ interface AcademicRecordRepository {
 			)
 		}
 	}
+
 	// Defaults: only the real data source owns an outbox; test doubles without one
 	// observe no rejections and acknowledge nothing.
 	suspend fun observeTerminallyRejectedMutationIdsFlow(): Flow<List<String>> = emptyFlow()

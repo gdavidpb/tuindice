@@ -369,9 +369,9 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 		throwable: Throwable,
 		rebaseAttempts: Int
 	): ExecutionStep<ScopeKey, Command> {
-		val resolution = try {
+		val resolution = runCatching {
 			execution.syncSpec.resolveFailure(mutation, throwable)
-		} catch (resolverThrowable: Throwable) {
+		}.getOrElse { resolverThrowable ->
 			if (resolverThrowable is CancellationException) throw resolverThrowable
 
 			// A resolver that cannot even decide is treated like an exhausted retry: the row
