@@ -16,12 +16,14 @@ import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import com.gdavidpb.tuindice.persistence.domain.record.AcademicRecordMutation
+import com.gdavidpb.tuindice.persistence.domain.record.RECORD_MUTATION_SCOPE
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
 import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
+import com.gdavidpb.tuindice.testkit.ktor.serverResponseException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.CoroutineScope
@@ -689,6 +691,57 @@ class AcademicRecordDataSourceTest {
 		assertEquals(0, remoteDataSource.deleteSyntheticTermCalls)
 		assertEquals(initialRecord, requireNotNull(dataSource.getAcademicRecord()))
 	}
+
+	// Incident regression: a DELETE that 404s while the reconciliation refresh fails inside
+	// the same degraded window must drop the envelope — not throw, and not leave a Pending
+	// row that every later drain re-sends at full cadence.
+	@Test
+	fun updateAcademicRecord_whenDeleteSyntheticTermHits404AndRefreshFails_dropsMutationWithoutThrowingOrResending() = runTest {
+		val initialRecord = AcademicRecord(
+			id = "record-1",
+			terms = listOf(
+				AcademicTerm(
+					id = "2026-JUL_AUG",
+					periodYear = 2026,
+					periodCode = AcademicTermPeriod.JUL_AUG,
+					kind = TermKind.SYNTHETIC
+				)
+			)
+		)
+		val localDataSource = FakeAcademicRecordLocalDataRepository(
+			record = VersionedAcademicRecord(
+				revision = 12L,
+				record = initialRecord
+			)
+		)
+		val remoteDataSource = ControlledAcademicRecordRemoteDataRepository(
+			upsertResponse = defaultVersionedRecord()
+		).apply {
+			deleteSyntheticTermThrowable = clientRequestException(
+				statusCode = HttpStatusCode.NotFound,
+				path = "/record/v5/overlay/terms/2026-JUL_AUG"
+			)
+			getRecordThrowable = serverResponseException(HttpStatusCode.ServiceUnavailable)
+		}
+		val outboxStore: MutationEnvelopeStore<String, AcademicRecordMutation> = InMemoryMutationEnvelopeStore()
+		val dataSource = AcademicRecordDataSource(
+			localDataSource = localDataSource,
+			remoteDataSource = remoteDataSource,
+			settingsDataSource = FakeRecordSettingsDataRepository(),
+			mutationEngine = createMutationEngine(this, outboxStore = outboxStore),
+			identifierRepository = FakeIdentifierRepository()
+		)
+
+		dataSource.deleteSyntheticTerm("2026-JUL_AUG")
+
+		assertEquals(1, remoteDataSource.deleteSyntheticTermCalls)
+		assertEquals(emptyList(), outboxStore.getMutations(RECORD_MUTATION_SCOPE))
+
+		runCatching { dataSource.updateAcademicRecord() }
+
+		assertEquals(1, remoteDataSource.deleteSyntheticTermCalls)
+		assertEquals(emptyList(), outboxStore.getMutations(RECORD_MUTATION_SCOPE))
+	}
 }
 
 internal const val DEFAULT_CONFIRMED_LANDING_LAG_MILLIS = 50L
@@ -780,8 +833,12 @@ internal class ControlledAcademicRecordRemoteDataRepository(
 	val deleteSyntheticTermMutationIds = mutableListOf<String>()
 	val deleteSyntheticTermExpectedRevisions = mutableListOf<Long>()
 
+	var getRecordThrowable: Throwable? = null
+	var deleteSyntheticTermThrowable: Throwable? = null
+
 	override suspend fun getAcademicRecord(): VersionedAcademicRecord {
 		getRecordCalls += 1
+		getRecordThrowable?.let { throw it }
 		return upsertResponse
 	}
 
@@ -841,6 +898,7 @@ internal class ControlledAcademicRecordRemoteDataRepository(
 		deleteSyntheticTermIds += termId
 		deleteSyntheticTermMutationIds += mutationId
 		deleteSyntheticTermExpectedRevisions += expectedRevision
+		deleteSyntheticTermThrowable?.let { throw it }
 		return upsertResponse
 	}
 }
