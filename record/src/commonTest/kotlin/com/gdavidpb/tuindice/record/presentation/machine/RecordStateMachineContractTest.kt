@@ -127,7 +127,8 @@ class RecordStateMachineContractTest {
 			"RecordWaitingObserved",
 			"RecordRefreshFailed / NavigateToOutdatedCredentials",
 			"RecordViewModeSet / ShowTopBarBanner",
-			"SyntheticTermDeleted / ShowSnackBar"
+			"SyntheticTermDeleted / ShowSnackBar",
+			"SyntheticTermRejected / ShowSnackBar"
 		)
 
 		for (fragment in expectedRecordFragments) {
@@ -207,7 +208,8 @@ class RecordStateMachineContractTest {
 				RecordInternalEvent.SyntheticTermDeleteFailed(
 					message = "No se pudo eliminar",
 					navigateToOutdatedCredentials = false
-				)
+				),
+				RecordInternalEvent.SyntheticTermRejected(message = "Cambio rechazado")
 			),
 			coroutineScope = backgroundScope,
 			// Conservative floor: every internal event is sampled by hand; raise to the

@@ -14,6 +14,7 @@ import com.gdavidpb.tuindice.base.domain.repository.IdentifierRepository
 import com.gdavidpb.tuindice.persistence.domain.mutation.DEFAULT_FAILED_RETRY_BACKOFF_MILLIS
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
+import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import com.gdavidpb.tuindice.persistence.domain.mutation.StoreBackedMutationEngine
 import com.gdavidpb.tuindice.persistence.domain.record.AcademicRecordMutation
 import com.gdavidpb.tuindice.persistence.domain.record.RECORD_MUTATION_SCOPE
@@ -31,6 +32,7 @@ import kotlinx.coroutines.async
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -741,6 +743,48 @@ class AcademicRecordDataSourceTest {
 
 		assertEquals(1, remoteDataSource.deleteSyntheticTermCalls)
 		assertEquals(emptyList(), outboxStore.getMutations(RECORD_MUTATION_SCOPE))
+	}
+
+	@Test
+	fun terminallyRejectedMutations_areObservable_andAcknowledgeDiscardsThem() = runTest {
+		val terminalMutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
+			mutationId = "mutation-terminal",
+			scopeKey = RECORD_MUTATION_SCOPE,
+			command = AcademicRecordMutation.UpdateSyntheticTerm(
+				targetTermId = "2026-JUL_AUG",
+				targetTermKey = "2026-JUL_AUG",
+				termId = "2026-JUL_AUG",
+				periodYear = 2026,
+				periodCode = AcademicTermPeriod.JUL_AUG,
+				attempts = emptyList()
+			),
+			precondition = MutationPrecondition.Revision(1L),
+			status = PendingMutationStatus.FailedTerminal,
+			createdAt = 1L,
+			updatedAt = 1L,
+			lastError = "rejected"
+		)
+		val outboxStore: MutationEnvelopeStore<String, AcademicRecordMutation> =
+			InMemoryMutationEnvelopeStore(listOf(terminalMutation))
+		val dataSource = AcademicRecordDataSource(
+			localDataSource = FakeAcademicRecordLocalDataRepository(
+				record = defaultVersionedRecord(revision = 1L)
+			),
+			remoteDataSource = ControlledAcademicRecordRemoteDataRepository(
+				upsertResponse = defaultVersionedRecord(revision = 2L)
+			),
+			settingsDataSource = FakeRecordSettingsDataRepository(),
+			mutationEngine = createMutationEngine(this, outboxStore = outboxStore),
+			identifierRepository = FakeIdentifierRepository()
+		)
+
+		val rejectedIds = dataSource.observeTerminallyRejectedMutationIdsFlow().first()
+		assertEquals(listOf("mutation-terminal"), rejectedIds)
+
+		dataSource.acknowledgeTerminallyRejectedMutations(rejectedIds)
+
+		assertEquals(emptyList(), outboxStore.getMutations(RECORD_MUTATION_SCOPE))
+		assertEquals(emptyList(), dataSource.observeTerminallyRejectedMutationIdsFlow().first())
 	}
 }
 

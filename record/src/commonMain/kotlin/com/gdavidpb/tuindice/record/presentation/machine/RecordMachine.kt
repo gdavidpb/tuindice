@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.EnsureRecordLoadedUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermRejectionsUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateRecordUseCase
@@ -32,9 +33,11 @@ import org.jetbrains.compose.resources.getString
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.snack_synthetic_term_delete_failed
 import tuindice.record.generated.resources.snack_synthetic_term_deleted
+import tuindice.record.generated.resources.snack_synthetic_term_rejected
 
 class RecordMachine(
 	private val observeRecordUseCase: ObserveRecordUseCase,
+	private val observeSyntheticTermRejectionsUseCase: ObserveSyntheticTermRejectionsUseCase,
 	private val ensureRecordLoadedUseCase: EnsureRecordLoadedUseCase,
 	private val updateRecordUseCase: UpdateRecordUseCase,
 	private val setRecordViewModeUseCase: SetRecordViewModeUseCase,
@@ -55,6 +58,7 @@ class RecordMachine(
 	}
 
 	internal fun startObservation(host: MachineHost<Record.Effect>) {
+		startSyntheticTermRejectionObservation(host = host)
 		host.launchMachineJob {
 			observeRecordUseCase.execute(Unit).collect { useCaseState ->
 				when (useCaseState) {
@@ -92,6 +96,20 @@ class RecordMachine(
 
 					is UseCaseState.Error -> host.processInternalEvent(
 						RecordInternalEvent.RecordObservationFailed
+					)
+				}
+			}
+		}
+	}
+
+	private fun startSyntheticTermRejectionObservation(host: MachineHost<Record.Effect>) {
+		host.launchMachineJob {
+			observeSyntheticTermRejectionsUseCase.execute(Unit).collect { useCaseState ->
+				if (useCaseState is UseCaseState.Data) {
+					host.processInternalEvent(
+						RecordInternalEvent.SyntheticTermRejected(
+							message = getString(Res.string.snack_synthetic_term_rejected)
+						)
 					)
 				}
 			}

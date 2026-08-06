@@ -161,6 +161,14 @@ internal fun MachineDefinitionBuilder<Record.State>.recordAnyStateTransitions(
 
 			state
 		}
+
+		on<RecordInternalEvent.SyntheticTermRejected>(
+			emits = setOf(Record.Effect.ShowSnackBar::class)
+		) { state, event ->
+			host.sendEffect(Record.Effect.ShowSnackBar(message = event.message))
+
+			state
+		}
 	}
 }
 

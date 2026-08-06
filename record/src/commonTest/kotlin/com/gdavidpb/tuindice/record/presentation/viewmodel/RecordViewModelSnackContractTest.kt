@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.EnsureRecordLoadedUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermRejectionsUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetSelectedTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.UpdateRecordUseCase
@@ -42,6 +43,10 @@ class RecordViewModelSnackContractTest {
 				observeRecordUseCase = ObserveRecordUseCase(
 					academicRecordRepository = academicRecordRepository,
 					recordSelectionRepository = selectionRepository,
+					reportingRepository = reportingRepository
+				),
+				observeSyntheticTermRejectionsUseCase = ObserveSyntheticTermRejectionsUseCase(
+					academicRecordRepository = academicRecordRepository,
 					reportingRepository = reportingRepository
 				),
 				ensureRecordLoadedUseCase = EnsureRecordLoadedUseCase(

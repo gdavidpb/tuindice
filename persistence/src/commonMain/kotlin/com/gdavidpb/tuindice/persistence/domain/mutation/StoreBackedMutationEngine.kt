@@ -159,6 +159,18 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 		return outboxStore.getPendingMutation(scopeKey, mutationId)
 	}
 
+	// Acknowledge-and-forget for a parked envelope: removes it without running the spec,
+	// with the same version bookkeeping as a Drop resolution so stale-snapshot fences hold.
+	suspend fun discardMutation(
+		scopeKey: ScopeKey,
+		mutationId: String
+	) {
+		val mutation = outboxStore.getPendingMutation(scopeKey, mutationId) ?: return
+		outboxStore.deletePendingMutation(scopeKey = scopeKey, mutationId = mutationId)
+		forgetMutationVersion(mutation)
+		advanceMutationVersion()
+	}
+
 	suspend fun beginMutation(
 		replaceKey: String? = null
 	): Long {
