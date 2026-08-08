@@ -207,6 +207,39 @@ class KtorClientProactiveRefreshTest {
 	}
 
 	@Test
+	fun proactiveRefresh_retriesOnNextRequestAfterATransientFailure() = runTest {
+		val expiredToken = expiredJwt()
+		val sessionRepository = FakeSessionRepository(
+			sessionId = "session-old",
+			usbId = "12-34567",
+			accessToken = expiredToken,
+			refreshToken = "refresh-old"
+		)
+		val authRepository = FailOnceThenRefreshAuthRepository(sessionRepository = sessionRepository)
+		val authorizationHeaders = mutableListOf<String>()
+		val client = proactiveClient(
+			sessionRepository = sessionRepository,
+			authRepository = authRepository,
+			authorizationHeaders = authorizationHeaders
+		)
+
+		try {
+			client.get("https://api.tuindice.app/record/v5/sync")
+			client.get("https://api.tuindice.app/users/v1")
+		} finally {
+			client.close()
+		}
+
+		// A transient transport failure must not latch: the second request has to
+		// attempt its own refresh instead of resending the known-expired token.
+		assertEquals(2, authRepository.refreshCalls)
+		assertEquals(
+			listOf("Bearer $expiredToken", "Bearer access-new"),
+			authorizationHeaders
+		)
+	}
+
+	@Test
 	fun proactiveRefresh_arbitratesPersistentlyExpiringTokenOnce() = runTest {
 		val stillExpiredToken = jwtWithPayload("""{"exp":2000}""")
 		val sessionRepository = expiredSessionRepository()
@@ -346,6 +379,59 @@ private class ProactiveRefreshAuthRepository(
 		return RefreshTokens(
 			sessionId = "session-new",
 			accessToken = newAccessToken,
+			refreshToken = "refresh-new",
+			expiresIn = 3600
+		)
+	}
+
+	override suspend fun revokeTokens(
+		sessionId: String,
+		refreshToken: String,
+		attestation: Attestation
+	) = error("unused")
+}
+
+private class FailOnceThenRefreshAuthRepository(
+	private val sessionRepository: SessionRepository
+) : AuthRepository {
+	var refreshCalls = 0
+
+	override suspend fun bootstrapSignIn(
+		usbId: String,
+		password: String
+	): BootstrapTokens = error("unused")
+
+	override suspend fun exchangeSignIn(
+		bootstrapAccessToken: String,
+		attestation: Attestation
+	) = error("unused")
+
+	override suspend fun reissueTokens(
+		usbId: String,
+		password: String,
+		attestation: Attestation
+	) = error("unused")
+
+	override suspend fun refreshTokens(
+		sessionId: String,
+		refreshToken: String,
+		attestation: Attestation
+	): RefreshTokens {
+		refreshCalls++
+
+		if (refreshCalls == 1) throw clientRequestException(HttpStatusCode.ServiceUnavailable)
+
+		sessionRepository.setSessionSnapshot(
+			SessionSnapshot(
+				sessionId = "session-new",
+				accessToken = "access-new",
+				refreshToken = "refresh-new",
+				usbId = "12-34567"
+			)
+		)
+		return RefreshTokens(
+			sessionId = "session-new",
+			accessToken = "access-new",
 			refreshToken = "refresh-new",
 			expiresIn = 3600
 		)

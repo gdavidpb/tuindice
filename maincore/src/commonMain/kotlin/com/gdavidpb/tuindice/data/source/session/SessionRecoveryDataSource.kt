@@ -107,7 +107,7 @@ class SessionRecoveryDataSource(
 			if (attemptedSnapshot.accessToken == expiryArbitratedAccessToken) return@withLock attemptedSnapshot
 
 			val recoveredSnapshot = try {
-				try {
+				val refreshedSnapshot = try {
 					refreshAttemptedSession(
 						attemptedSnapshot = attemptedSnapshot,
 						authRepository = authRepository
@@ -120,16 +120,23 @@ class SessionRecoveryDataSource(
 						authRepository = authRepository
 					)
 				}
+
+				// Only a completed refresh attempt can prove the new token is still
+				// inside the margin (clock skew, a short-lived issuance); latching here
+				// is what makes that verdict sticky for this exact token.
+				if (refreshedSnapshot != null && isAccessTokenExpiring(refreshedSnapshot.accessToken)) {
+					expiryArbitratedAccessToken = refreshedSnapshot.accessToken
+				}
+
+				refreshedSnapshot
 			} catch (ignored: Throwable) {
 				coroutineContext.ensureActive()
 				// A proactive refresh precedes a live request: when the refresh chain fails
 				// for non-session reasons (transport, attestation plumbing), keep the stored
 				// token and let the reactive 401 path arbitrate instead of failing the request.
+				// Not latched: a transient failure should not permanently disable proactive
+				// refresh for this session — retry on the next request.
 				attemptedSnapshot
-			}
-
-			if (recoveredSnapshot != null && isAccessTokenExpiring(recoveredSnapshot.accessToken)) {
-				expiryArbitratedAccessToken = recoveredSnapshot.accessToken
 			}
 
 			recoveredSnapshot
