@@ -103,7 +103,7 @@ fun createSharedHttpClient(
 			)
 		}
 
-		installCurrentSessionBearerAuth(sessionRepository)
+		installCurrentSessionBearerAuth(sessionRecoveryRepository)
 	}
 }
 
@@ -173,25 +173,25 @@ internal fun HttpClientConfig<*>.installInsufficientScopeSessionInvalidation(
 }
 
 internal fun HttpClientConfig<*>.installCurrentSessionBearerAuth(
-	sessionRepository: SessionRepository
+	sessionRecoveryRepository: SessionRecoveryRepository
 ) {
 	install(CurrentSessionBearerAuth) {
-		this.sessionRepository = sessionRepository
+		this.sessionRecoveryRepository = sessionRecoveryRepository
 	}
 }
 
 private class CurrentSessionBearerAuthConfig {
-	lateinit var sessionRepository: SessionRepository
+	lateinit var sessionRecoveryRepository: SessionRecoveryRepository
 }
 
 private val CurrentSessionBearerAuth = createClientPlugin(
 	name = "CurrentSessionBearerAuth",
 	createConfiguration = ::CurrentSessionBearerAuthConfig
 ) {
-	val sessionRepository = pluginConfig.sessionRepository
+	val sessionRecoveryRepository = pluginConfig.sessionRecoveryRepository
 
 	on(SendingRequest) { request, _ ->
-		request.attachCurrentSessionBearerAuth(sessionRepository)
+		request.attachCurrentSessionBearerAuth(sessionRecoveryRepository)
 	}
 }
 
@@ -209,11 +209,13 @@ private fun SessionSnapshot.toBearerTokens(): BearerTokens {
 }
 
 private suspend fun HttpRequestBuilder.attachCurrentSessionBearerAuth(
-	sessionRepository: SessionRepository
+	sessionRecoveryRepository: SessionRecoveryRepository
 ) {
 	if (!url.encodedPath.shouldSendBearerAuth()) return
 
-	val snapshot = sessionRepository.getActiveSessionSnapshot() ?: return
+	// Refresh ahead of expiry so requests never leave with a token the gateway is
+	// already known to reject; concurrent callers share one refresh via the recovery lock.
+	val snapshot = sessionRecoveryRepository.ensureFreshSession() ?: return
 
 	headers.remove(HttpHeaders.Authorization)
 	headers.append(HttpHeaders.Authorization, "Bearer ${snapshot.accessToken}")

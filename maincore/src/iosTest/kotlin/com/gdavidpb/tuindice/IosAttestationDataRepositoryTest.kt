@@ -759,6 +759,8 @@ private class RecordingSessionRecoveryRepository(
 		return recoveredSnapshot
 	}
 
+	override suspend fun ensureFreshSession(): SessionSnapshot? = error("Unexpected proactive session refresh.")
+
 	override suspend fun invalidateSession(sessionId: String?) = error("Unexpected session invalidation.")
 }
 
