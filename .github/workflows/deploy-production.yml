@@ -275,7 +275,7 @@ jobs:
           buildtools_jar="${RUNNER_TEMP}/firebase-crashlytics-buildtools.jar"
           curl --fail --silent --show-error --location --retry 3 \
             -o "$buildtools_jar" \
-            "https://repo1.maven.org/maven2/com/google/firebase/firebase-crashlytics-buildtools/${buildtools_version}/firebase-crashlytics-buildtools-${buildtools_version}.jar"
+            "https://dl.google.com/dl/android/maven2/com/google/firebase/firebase-crashlytics-buildtools/${buildtools_version}/firebase-crashlytics-buildtools-${buildtools_version}.jar"
 
           java -jar "$buildtools_jar" \
             -uploadMappingFile "$mapping_file" \

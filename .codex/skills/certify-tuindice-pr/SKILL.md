@@ -18,6 +18,18 @@ anything has been paid for, verify what it brings, and delete the remote branch 
 merge is pushed. Report what was absorbed. If it does not belong in this branch, stop and
 say so rather than carrying it silently.
 
+If the user asks you to edit this skill's own files (`SKILL.md`, the runbook, the scripts)
+*while* a certification is in progress — not just at the step-15 wrap-up — the same rule
+applies immediately: make the edit on `chore/certification-feedback` (branched fresh from
+`production`, or reusing/resetting a stale local one), never in the working tree of the
+branch currently being certified. `.claude/skills/certify-tuindice-pr/**` is a symlink into
+`.codex/skills/certify-tuindice-pr/**`, which is the tracked path `git status` will actually
+show — editing via either path lands on whatever branch is checked out, so check `git branch
+--show-current` before editing, not after. Do not `git checkout` a different branch in this
+same working tree while a local Gradle/Maestro evidence run is still active in the
+background — switching branches mid-run changes the files a live process may still read;
+stash the edit, wait for the run to finish, then move it.
+
 3. Commit and push all intended changes before certifying. The certified SHA must exist on GitHub.
 4. **Run the pre-certification diff audit before any preflight or evidence work.** This gate
 is mandatory and is described in full in the runbook's Pre-Certification Diff Audit. Audit the
@@ -52,13 +64,19 @@ This resolves the same focused Android/iOS Gradle tasks as
 `preflight-production-pr.yml` for the current diff, including the iOS host flags
 used by `Run focused iOS checks`.
 
-7. Run local commit-bound evidence only when the audit reports `rerun` suites:
+7. Run local commit-bound evidence only when the audit reports `rerun` suites. **Evidence runs in parallel (both platforms in the same `e2eMaestroEvidenceLocal` invocation) by default — this is the standing policy, not a preference:**
 
 ```bash
 ./gradlew --continue --console=plain e2eMaestroEvidenceLocal
 ```
 
 Skip this step entirely when every required suite is `current` or `reusable`.
+
+Do not switch to sequential per-platform runs (`e2eMaestroEvidenceAndroid` /
+`e2eMaestroEvidenceIos` on separate ports) as a default or a time-saving
+habit. It is a diagnosed fallback only — see "Running Evidence" in the
+runbook for the exact symptom that justifies it and the requirement to
+report the switch explicitly.
 
 8. If preflight parity or evidence fails, enter the iterative correction loop. Do not open or mark a PR ready.
 9. Before accepting any E2E/preflight stabilization fix, enforce the product integrity gate below.

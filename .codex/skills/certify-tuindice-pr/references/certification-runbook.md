@@ -32,6 +32,14 @@ First bump the missing build number(s) in `gradle/app-version.properties`, sync
 evidence is commit-bound and should only be spent on a SHA that production
 preflight can accept.
 
+`./gradlew syncAppVersion verifyAppVersionSync` in one invocation has no
+declared task dependency between the two, so Gradle is free to run
+`verifyAppVersionSync` first — it then fails against the not-yet-regenerated
+xcconfig even though `syncAppVersion` fixes it moments later in the same
+build. A `BUILD FAILED` here after editing `gradle/app-version.properties`
+is not necessarily real: rerun `verifyAppVersionSync` alone once `syncAppVersion`
+has completed before treating it as a genuine mismatch.
+
 The helper also prints the focused Android and iOS Gradle tasks selected by
 `.github/scripts/detect-changed-app.sh`. Treat these as the local preflight
 contract for the branch.
@@ -232,6 +240,22 @@ evidence task:
 ```bash
 ./gradlew --continue --console=plain e2eMaestroEvidenceLocal
 ```
+
+**This parallel invocation is the default and the standing policy — both
+platforms run together in the same command.** Do not pre-emptively split
+Android and iOS into separate sequential runs (`e2eMaestroEvidenceAndroid`
+then `e2eMaestroEvidenceIos` on distinct `E2E_WIREMOCK_PORT` values) to save
+time or "because it seemed safer." Sequential is a diagnosed fallback for one
+specific symptom only: the parallel run fails the *same* early flow on
+*repeated* attempts (not a random flow, not a one-off), the failure screenshot
+shows no product error (the screen/inputs look correct, a tap/action simply
+never registers), and the identical flow passes cleanly when run standalone.
+That signature points at local device/resource contention (both
+emulator+simulator plus any other heavyweight process — e.g. leftover Gradle
+or Kotlin daemons from unrelated work — competing for CPU/memory), not a
+product regression. Only then fall back to sequential, and say so explicitly
+to the user when you do — it is a deviation from policy that needs to be
+visible, not a silent substitution.
 
 The task resolves the diff against `production` or `origin/production`, selects required suites, runs locally available platforms, writes evidence, and publishes passing GitHub commit statuses when possible.
 

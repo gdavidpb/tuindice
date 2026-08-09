@@ -20,8 +20,10 @@ import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.security.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.security.utils.canonicalAttestationPayloadJson
+import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlin.coroutines.coroutineContext
 
 class SessionRecoveryDataSource(
 	private val sessionRepository: SessionRepository,
@@ -34,6 +36,11 @@ class SessionRecoveryDataSource(
 	private val sessionCoroutineScope: SessionCoroutineScope
 ) : SessionRecoveryRepository {
 	private val recoveryMutex = Mutex()
+
+	// Guarded by recoveryMutex. Marks a token that still reported near-expiry after the
+	// freshest refresh this device can obtain, so the gateway arbitrates it instead of
+	// this data source refreshing again before every request.
+	private var expiryArbitratedAccessToken: String? = null
 
 	override suspend fun recoverUnauthorizedSession(
 		attemptedAuthorizationAccessToken: String?,
@@ -79,6 +86,57 @@ class SessionRecoveryDataSource(
 					credentialsRepository = credentialsRepository,
 					authRepository = authRepository
 				)
+			}
+
+			recoveredSnapshot
+		}
+	}
+
+	override suspend fun ensureFreshSession(): SessionSnapshot? {
+		val activeSnapshot = sessionRepository.getActiveSessionSnapshot()
+
+		if (activeSnapshot == null || !isAccessTokenExpiring(activeSnapshot.accessToken)) {
+			return activeSnapshot
+		}
+
+		return recoveryMutex.withLock {
+			val attemptedSnapshot = sessionRepository.getActiveSessionSnapshot()
+				?: return@withLock null
+
+			if (!isAccessTokenExpiring(attemptedSnapshot.accessToken)) return@withLock attemptedSnapshot
+			if (attemptedSnapshot.accessToken == expiryArbitratedAccessToken) return@withLock attemptedSnapshot
+
+			val recoveredSnapshot = try {
+				val refreshedSnapshot = try {
+					refreshAttemptedSession(
+						attemptedSnapshot = attemptedSnapshot,
+						authRepository = authRepository
+					)
+				} catch (throwable: Throwable) {
+					recoverFromRefreshFailure(
+						throwable = throwable,
+						attemptedSnapshot = attemptedSnapshot,
+						credentialsRepository = credentialsRepository,
+						authRepository = authRepository
+					)
+				}
+
+				// Only a completed refresh attempt can prove the new token is still
+				// inside the margin (clock skew, a short-lived issuance); latching here
+				// is what makes that verdict sticky for this exact token.
+				if (refreshedSnapshot != null && isAccessTokenExpiring(refreshedSnapshot.accessToken)) {
+					expiryArbitratedAccessToken = refreshedSnapshot.accessToken
+				}
+
+				refreshedSnapshot
+			} catch (ignored: Throwable) {
+				coroutineContext.ensureActive()
+				// A proactive refresh precedes a live request: when the refresh chain fails
+				// for non-session reasons (transport, attestation plumbing), keep the stored
+				// token and let the reactive 401 path arbitrate instead of failing the request.
+				// Not latched: a transient failure should not permanently disable proactive
+				// refresh for this session — retry on the next request.
+				attemptedSnapshot
 			}
 
 			recoveredSnapshot
@@ -255,10 +313,10 @@ class SessionRecoveryDataSource(
 
 		throw throwable
 	}
+}
 
-	private fun Throwable.shouldAttemptCredentialRecovery(): Boolean {
-		return isSessionSuperseded()
-	}
+private fun Throwable.shouldAttemptCredentialRecovery(): Boolean {
+	return isSessionSuperseded()
 }
 
 private class SessionRecoveryAttestationException(

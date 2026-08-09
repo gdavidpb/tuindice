@@ -117,6 +117,7 @@ extensions.configure<ApplicationExtension> {
 		getByName("release") {
 			isDebuggable = false
 			isMinifyEnabled = true
+			isShrinkResources = true
 
 			buildConfigField("String", "URL_API", "\"https://api.tuindice.app/\"")
 			buildConfigField(

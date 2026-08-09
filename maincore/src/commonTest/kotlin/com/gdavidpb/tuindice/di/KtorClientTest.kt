@@ -385,7 +385,9 @@ class KtorClientTest {
 			install(DefaultRequest) {
 				url("https://api.tuindice.app/")
 			}
-			installCurrentSessionBearerAuth(sessionRepository)
+			installCurrentSessionBearerAuth(
+				sessionRecoveryDataSource(sessionRepository = sessionRepository)
+			)
 		}
 
 		try {
@@ -424,7 +426,9 @@ class KtorClientTest {
 			install(DefaultRequest) {
 				url("https://api.tuindice.app/")
 			}
-			installCurrentSessionBearerAuth(sessionRepository)
+			installCurrentSessionBearerAuth(
+				sessionRecoveryDataSource(sessionRepository = sessionRepository)
+			)
 		}
 
 		try {
