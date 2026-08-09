@@ -75,6 +75,15 @@ batch**, then certify once.
   side effect, writes something durable (settings, Room, the outbox, the network)
   can turn one transiently-inconsistent read into a permanent wrong value. Find
   them and check each against a lagging source.
+- **A latch set from a catch-all failure path.** A flag meant to suppress retries
+  after a *terminal* verdict (a value the server confirmed, a limit genuinely
+  reached) is easy to also set from a *transient* one (timeout, transport error,
+  plumbing failure) if the code that sets it doesn't distinguish why the branch
+  it's in was reached. Once mixed, the transient case never gets a real retry
+  again until unrelated state changes reset the latch — a persistent, hard-to-spot
+  regression of exactly the retry behavior the surrounding code exists to provide.
+  Check every latch/flag write against which failures can reach it, not just
+  which failures it's meant to react to.
 - **Imperative reads that sample two sources sequentially.** A `combine` holds the
   latest of both at once; two consecutive `suspend` reads do not. An ordering
   invariant that holds for the reactive path can be silently broken on the
