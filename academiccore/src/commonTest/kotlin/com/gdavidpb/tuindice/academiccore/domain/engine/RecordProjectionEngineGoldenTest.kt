@@ -264,6 +264,92 @@ class RecordProjectionEngineGoldenTest {
 		assertEquals(AttemptScore.numeric(5), projectedTerm.attempts.single().score)
 		assertEquals(AttemptOutcome.APPROVED, projectedTerm.attempts.single().outcome)
 	}
+
+	@Test
+	fun anchoredHistoricalTerm_showsWhatDstPrinted_insteadOfWhatWeDerive() {
+		// MA1111 alone derives 12 / 4 = 3.0; DST printed 2.8 for the period and 3.5 accumulated.
+		val record = record(
+			term(
+				id = "t1",
+				attempts = listOf(
+					numeric(id = "a1", code = "MA1111", credits = 4, value = 3, outcome = AttemptOutcome.APPROVED)
+				),
+				officialPeriodAverage = 2.8,
+				officialCumulativeAverage = 3.5
+			)
+		)
+
+		val term = RecordProjectionEngine.projectAcademic(record).terms.single()
+
+		assertEquals(2.8, term.periodAverage)
+		assertEquals(3.5, term.cumulativeAverage)
+		// Credits stay ours: the anchor replaces the average, not the weighting.
+		assertEquals(4, term.cumulativeCredits)
+	}
+
+	@Test
+	fun anchoredCumulative_rebasesEveryLaterTerm_andTheProjectionThatContinuesFromIt() {
+		// t1 derives 12 / 4 = 3.0 but is anchored at 3.5, so its numerator becomes 3.5 * 4 = 14.
+		// t2 adds FS1111 at 5 * 4 = 20 over 4 credits: (14 + 20) / 8 = 4.25, not (12 + 20) / 8 = 4.0.
+		// The synthetic term then continues from there: (14 + 20 + 20) / 12 = 4.5.
+		val record = record(
+			term(
+				id = "t1",
+				year = 2024,
+				attempts = listOf(
+					numeric(id = "a1", code = "MA1111", credits = 4, value = 3, outcome = AttemptOutcome.APPROVED)
+				),
+				officialCumulativeAverage = 3.5
+			),
+			term(
+				id = "t2",
+				year = 2025,
+				attempts = listOf(
+					numeric(id = "a2", code = "FS1111", credits = 4, value = 5, outcome = AttemptOutcome.APPROVED)
+				)
+			),
+			term(
+				id = "t3",
+				year = 2026,
+				kind = TermKind.SYNTHETIC,
+				attempts = listOf(
+					numeric(id = "a3", code = "CI2525", credits = 4, value = 5, outcome = AttemptOutcome.APPROVED)
+				)
+			)
+		)
+
+		val academic = RecordProjectionEngine.projectAcademic(record).terms.associateBy { term -> term.id }
+
+		assertEquals(3.5, academic.getValue("t1").cumulativeAverage)
+		assertEquals(4.25, academic.getValue("t2").cumulativeAverage)
+
+		val projection = RecordProjectionEngine.projectProjection(record).terms.associateBy { term -> term.id }
+
+		assertEquals(3.5, projection.getValue("t1").cumulativeAverage)
+		assertEquals(4.25, projection.getValue("t2").cumulativeAverage)
+		assertEquals(4.5, projection.getValue("t3").cumulativeAverage)
+	}
+
+	@Test
+	fun anchorOnANonHistoricalTerm_isIgnored() {
+		// Only a closed term has an official number; a current one is still being graded.
+		val record = record(
+			term(
+				id = "t1",
+				kind = TermKind.CURRENT,
+				attempts = listOf(
+					numeric(id = "a1", code = "MA1111", credits = 4, value = 3, outcome = AttemptOutcome.APPROVED)
+				),
+				officialPeriodAverage = 2.8,
+				officialCumulativeAverage = 3.5
+			)
+		)
+
+		val term = RecordProjectionEngine.projectAcademic(record).terms.single()
+
+		assertEquals(3.0, term.periodAverage)
+		assertEquals(3.0, term.cumulativeAverage)
+	}
 }
 
 private fun record(vararg terms: AcademicTerm): AcademicRecord {
@@ -274,14 +360,18 @@ private fun term(
 	id: String,
 	year: Int = 2024,
 	kind: TermKind = TermKind.HISTORICAL,
-	attempts: List<AcademicAttempt>
+	attempts: List<AcademicAttempt>,
+	officialPeriodAverage: Double? = null,
+	officialCumulativeAverage: Double? = null
 ): AcademicTerm {
 	return AcademicTerm(
 		id = id,
 		periodYear = year,
 		periodCode = AcademicTermPeriod.SEP_DEC,
 		kind = kind,
-		attempts = attempts
+		attempts = attempts,
+		officialPeriodAverage = officialPeriodAverage,
+		officialCumulativeAverage = officialCumulativeAverage
 	)
 }
 

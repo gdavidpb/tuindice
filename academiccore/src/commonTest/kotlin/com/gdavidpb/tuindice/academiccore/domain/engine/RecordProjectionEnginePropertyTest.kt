@@ -1,5 +1,8 @@
 package com.gdavidpb.tuindice.academiccore.domain.engine
 
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
@@ -136,6 +139,66 @@ class RecordProjectionEnginePropertyTest {
 	}
 
 	@Test
+	fun anchoringATerm_pinsItsAverage_andLeavesEveryEarlierTermUntouched() {
+		repeat(ROUNDS) { seed ->
+			val record = Random(seed.toLong()).nextSimpleNumericRecord()
+			val before = RecordProjectionEngine.projectAcademic(record)
+				.terms.associateBy { term -> term.id }
+			val last = before.values.maxBy { term -> term.termOrder }
+			if (last.cumulativeCredits <= 0) return@repeat
+
+			val anchored = record.copy(
+				terms = record.terms.map { term ->
+					if (term.id == last.id) term.copy(officialCumulativeAverage = ANCHOR) else term
+				}
+			)
+			val after = RecordProjectionEngine.projectAcademic(anchored)
+				.terms.associateBy { term -> term.id }
+
+			assertEquals(ANCHOR, after.getValue(last.id).cumulativeAverage, "seed=$seed")
+			before.values
+				.filter { term -> term.termOrder < last.termOrder }
+				.forEach { term ->
+					assertEquals(
+						term.cumulativeAverage,
+						after.getValue(term.id).cumulativeAverage,
+						"seed=$seed: anchoring ${last.id} moved the earlier term ${term.id}"
+					)
+				}
+		}
+	}
+
+	@Test
+	fun theProjectionContinuesFromTheAnchor_withoutAJumpAtTheSeam() {
+		repeat(ROUNDS) { seed ->
+			val record = Random(seed.toLong()).nextSimpleNumericRecord()
+			val baseline = RecordProjectionEngine.projectAcademic(record)
+				.terms.maxBy { term -> term.termOrder }
+			if (baseline.cumulativeCredits <= 0) return@repeat
+
+			// Anchor the last closed term, then plan one more subject on top of it. The projected
+			// cumulative has to be the anchor carried forward — not our own numerator carried
+			// forward — or the number would jump between the last term shown and the first planned.
+			val anchored = record.copy(
+				terms = record.terms.map { term ->
+					if (term.id == baseline.id) term.copy(officialCumulativeAverage = ANCHOR) else term
+				} + syntheticTerm(afterTermOrder = baseline.termOrder)
+			)
+
+			val projected = RecordProjectionEngine.projectProjection(anchored)
+				.terms.single { term -> term.id == SYNTHETIC_TERM_ID }
+			val credits = baseline.cumulativeCredits + SYNTHETIC_CREDITS
+			val weighted = ANCHOR * baseline.cumulativeCredits + SYNTHETIC_GRADE * SYNTHETIC_CREDITS
+
+			assertEquals(
+				truncateToFourDecimals(weighted / credits),
+				projected.cumulativeAverage,
+				"seed=$seed: the projection did not continue from the anchor"
+			)
+		}
+	}
+
+	@Test
 	fun projectProjection_defaultsPendingEmptyNumericAttempts_inEditableTerms() {
 		repeat(ROUNDS) { seed ->
 			val record = Random(seed.toLong()).nextRecord()
@@ -167,6 +230,36 @@ class RecordProjectionEnginePropertyTest {
 				}
 		}
 	}
+}
+
+private const val ANCHOR = 4.1234
+private const val SYNTHETIC_TERM_ID = "synthetic-seam"
+private const val SYNTHETIC_CREDITS = 3
+private const val SYNTHETIC_GRADE = 5
+
+private fun syntheticTerm(afterTermOrder: Int): AcademicTerm {
+	return AcademicTerm(
+		id = SYNTHETIC_TERM_ID,
+		periodYear = afterTermOrder / 10 + 1,
+		periodCode = AcademicTermPeriod.SEP_DEC,
+		kind = TermKind.SYNTHETIC,
+		attempts = listOf(
+			AcademicAttempt(
+				id = "synthetic-seam-attempt",
+				// A code no generated record uses, so this is never a retake of anything.
+				subjectCode = "ZZ9999",
+				subjectName = "ZZ9999",
+				credits = SYNTHETIC_CREDITS,
+				gradingMode = AttemptGradingMode.NUMERIC,
+				academicScore = AttemptScore.numeric(SYNTHETIC_GRADE),
+				academicOutcome = AttemptOutcome.APPROVED
+			)
+		)
+	)
+}
+
+private fun truncateToFourDecimals(value: Double): Double {
+	return (value * 10_000L).toLong().toDouble() / 10_000.0
 }
 
 private fun naiveTruncatedAverage(pairs: List<Pair<Int, Int>>): Double {
