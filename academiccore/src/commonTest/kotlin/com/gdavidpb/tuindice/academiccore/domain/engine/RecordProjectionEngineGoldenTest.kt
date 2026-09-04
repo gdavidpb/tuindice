@@ -274,8 +274,7 @@ class RecordProjectionEngineGoldenTest {
 				attempts = listOf(
 					numeric(id = "a1", code = "MA1111", credits = 4, value = 3, outcome = AttemptOutcome.APPROVED)
 				),
-				officialPeriodAverage = 2.8,
-				officialCumulativeAverage = 3.5
+				official = OfficialAverages(period = 2.8, cumulative = 3.5)
 			)
 		)
 
@@ -299,7 +298,7 @@ class RecordProjectionEngineGoldenTest {
 				attempts = listOf(
 					numeric(id = "a1", code = "MA1111", credits = 4, value = 3, outcome = AttemptOutcome.APPROVED)
 				),
-				officialCumulativeAverage = 3.5
+				official = OfficialAverages(cumulative = 3.5)
 			),
 			term(
 				id = "t2",
@@ -340,8 +339,7 @@ class RecordProjectionEngineGoldenTest {
 				attempts = listOf(
 					numeric(id = "a1", code = "MA1111", credits = 4, value = 3, outcome = AttemptOutcome.APPROVED)
 				),
-				officialPeriodAverage = 2.8,
-				officialCumulativeAverage = 3.5
+				official = OfficialAverages(period = 2.8, cumulative = 3.5)
 			)
 		)
 
@@ -361,8 +359,7 @@ private fun term(
 	year: Int = 2024,
 	kind: TermKind = TermKind.HISTORICAL,
 	attempts: List<AcademicAttempt>,
-	officialPeriodAverage: Double? = null,
-	officialCumulativeAverage: Double? = null
+	official: OfficialAverages? = null
 ): AcademicTerm {
 	return AcademicTerm(
 		id = id,
@@ -370,10 +367,16 @@ private fun term(
 		periodCode = AcademicTermPeriod.SEP_DEC,
 		kind = kind,
 		attempts = attempts,
-		officialPeriodAverage = officialPeriodAverage,
-		officialCumulativeAverage = officialCumulativeAverage
+		officialPeriodAverage = official?.period,
+		officialCumulativeAverage = official?.cumulative
 	)
 }
+
+/** What DST printed for a closed term, as the golden cases read it. */
+private data class OfficialAverages(
+	val period: Double? = null,
+	val cumulative: Double? = null
+)
 
 private fun numeric(
 	id: String,

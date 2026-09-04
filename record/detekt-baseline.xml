@@ -142,5 +142,6 @@
     <ID>Wrapping:AcademicRecordRoomDataSource.kt$AcademicRecordRoomDataSource$(</ID>
     <ID>Wrapping:ObserveRecordUseCase.kt$ObserveRecordUseCase$(</ID>
     <ID>LargeClass:AcademicRecordDataSourceTest.kt$AcademicRecordDataSourceTest</ID>
+    <ID>MagicNumber:AcademicRecordMutationSyncSpec.kt$AcademicRecordMutationSyncSpec$3</ID>
   </CurrentIssues>
 </SmellBaseline>

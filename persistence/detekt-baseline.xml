@@ -81,5 +81,7 @@
     <ID>TooGenericExceptionCaught:StoreBackedMutationEngine.kt$StoreBackedMutationEngine$throwable: Throwable</ID>
     <ID>TooManyFunctions:StoreBackedMutationEngine.kt$StoreBackedMutationEngine&lt;ScopeKey : Any, Command : OutboxMutation, Ack : Any&gt;</ID>
     <ID>WildcardImport:StoreBackedMutationEngine.kt$import org.mobilenativefoundation.store.store5.*</ID>
+    <ID>MagicNumber:TuIndiceRoomMigrations.kt$Migration33To34$33</ID>
+    <ID>MagicNumber:TuIndiceRoomMigrations.kt$Migration33To34$34</ID>
   </CurrentIssues>
 </SmellBaseline>
