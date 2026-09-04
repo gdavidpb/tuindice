@@ -23,10 +23,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
-// The reasons the server names on a 409 that are not about credentials. Compared as strings on
-// purpose: the contract documents `reason` as a string so a new value can never fail a parse.
-private const val CONCURRENT_WRITE_REASON = "CONCURRENT_WRITE"
-private const val STALE_PRECONDITION_REASON = "STALE_PRECONDITION"
+// Compared as a string on purpose: the contract documents `reason` as a string so a new value can
+// never fail a parse.
+private const val OUTDATED_CREDENTIALS_REASON = "OUTDATED_CREDENTIALS"
 
 class SyncDataSource(
 	private val settingsDataSource: SyncSettingsLocalDataRepository,
@@ -87,14 +86,12 @@ class SyncDataSource(
 		val syncHttpStatusCode = throwable.syncHttpStatusCode()
 		val syncStatus = when {
 			// A 409 is not always an expired password: the record can also be written by another
-			// device while this sync was fetching. Telling that user their credentials expired sends
-			// them to re-enter a password that was never the problem, so only the reason the server
-			// names as OUTDATED_CREDENTIALS gets that message. Anything else — a concurrent write, a
-			// stale precondition, a server too old to send a reason at all — is a plain failure the
-			// next sync can clear.
+			// device while this sync was fetching. OutdatedCredentials is a latch — it stops syncing
+			// and blocks the pending-changes flush until the user re-authenticates — so only the
+			// reason the server actually names gets to set it. Any other reason, an unrecognized one,
+			// or a body we could not read falls through to a plain failure the next sync can clear.
 			(syncHttpStatusCode == HttpStatusCode.Conflict || throwable.isConflict()) &&
-				throwable.syncConflictReason() != CONCURRENT_WRITE_REASON &&
-				throwable.syncConflictReason() != STALE_PRECONDITION_REASON ->
+				throwable.syncConflictReason() == OUTDATED_CREDENTIALS_REASON ->
 				SyncStatus.OutdatedCredentials
 
 			syncHttpStatusCode == HttpStatusCode.ServiceUnavailable ||

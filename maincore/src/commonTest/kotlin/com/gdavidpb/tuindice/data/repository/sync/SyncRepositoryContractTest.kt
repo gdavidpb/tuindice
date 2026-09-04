@@ -419,13 +419,43 @@ class SyncRepositoryContractTest {
 	}
 
 	@Test
-	fun scheduleSync_ignoresConflictAndKeepsCooldownUntouched() = runTest {
+	fun scheduleSync_doesNotLatchCredentials_whenTheConflictBodyCarriesNoReason() = runTest {
+		// OutdatedCredentials stops syncing and blocks the pending-changes flush until the user
+		// re-authenticates, so a 409 we could not read a reason from must not set it.
 		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
 		val syncStatusRepository = FakeSyncStatusRepository()
 		val remoteDataSource = FakeSyncRemoteDataSource(
 			throwable = clientRequestException(
 				statusCode = HttpStatusCode.Conflict,
 				path = "/record/v5/sync"
+			)
+		)
+		val repository = createRepository(
+			settingsDataSource = settingsDataSource,
+			syncStatusRepository = syncStatusRepository,
+			remoteDataSource = remoteDataSource,
+			dispatcher = StandardTestDispatcher(testScheduler)
+		)
+
+		repository.scheduleSync(password = "stored-secret", policy = SyncPolicy.RespectCooldown)
+		advanceUntilIdle()
+
+		assertEquals(SyncStatus.Failed, syncStatusRepository.getSyncStatus())
+	}
+
+	@Test
+	fun scheduleSync_ignoresConflictAndKeepsCooldownUntouched() = runTest {
+		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val remoteDataSource = FakeSyncRemoteDataSource(
+			throwable = SyncRemoteException(
+				statusCode = HttpStatusCode.Conflict,
+				syncReport = null,
+				conflictReason = "OUTDATED_CREDENTIALS",
+				cause = clientRequestException(
+					statusCode = HttpStatusCode.Conflict,
+					path = "/record/v5/sync"
+				)
 			)
 		)
 		val repository = createRepository(
