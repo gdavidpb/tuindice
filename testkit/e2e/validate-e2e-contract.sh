@@ -321,15 +321,27 @@ normalize_flow_path() {
 	printf '%s/%s\n' "${normalized_dir#"${REPO_ROOT}/"}" "${child_base}"
 }
 
+# The seen-set is shared across one search instead of carried down each branch. With 436 runFlow
+# edges and shared children reached from dozens of flows, a per-branch set re-explores every shared
+# subtree once per path into it, and the work grows exponentially with the graph — a full preflight
+# was observed spinning for hours on it. Within a single search the memo is sound: a flow that did
+# not contain the selector cannot start containing it when reached by another route. It is reset per
+# search, because that answer *is* specific to the selector being looked for.
+FLOW_SEARCH_VISITED=""
+
 flow_contains_selector() {
+	FLOW_SEARCH_VISITED=""
+	flow_contains_selector_within_search "$1" "$2"
+}
+
+flow_contains_selector_within_search() {
 	local flow_path="$1"
 	local selector="$2"
-	local visited="${3:-}"
 	local absolute_path="${REPO_ROOT}/${flow_path}"
 	local child_ref child_path
 
 	[[ -f "${absolute_path}" ]] || return 1
-	case "|${visited}|" in
+	case "|${FLOW_SEARCH_VISITED}|" in
 		*"|${flow_path}|"*)
 			return 1
 			;;
@@ -339,11 +351,11 @@ flow_contains_selector() {
 		return 0
 	fi
 
-	visited="${visited}|${flow_path}"
+	FLOW_SEARCH_VISITED="${FLOW_SEARCH_VISITED}|${flow_path}"
 	while IFS= read -r child_ref; do
 		[[ -z "${child_ref}" ]] && continue
 		child_path="$(normalize_flow_path "${flow_path}" "${child_ref}")"
-		if flow_contains_selector "${child_path}" "${selector}" "${visited}"; then
+		if flow_contains_selector_within_search "${child_path}" "${selector}"; then
 			return 0
 		fi
 	done < <(
@@ -360,25 +372,33 @@ flow_contains_selector() {
 	return 1
 }
 
+# Same discipline, same reason. Reset per root: the caller asks what one root reaches, so a flow
+# already emitted for a previous root must still be emitted for this one.
+FLOW_REACHABLE_VISITED=""
+
 collect_reachable_flow_paths() {
+	FLOW_REACHABLE_VISITED=""
+	collect_reachable_flow_paths_within_walk "$1"
+}
+
+collect_reachable_flow_paths_within_walk() {
 	local flow_path="$1"
-	local visited="${2:-}"
 	local absolute_path="${REPO_ROOT}/${flow_path}"
 	local child_ref child_path
 
 	[[ -f "${absolute_path}" ]] || return 0
-	case "|${visited}|" in
+	case "|${FLOW_REACHABLE_VISITED}|" in
 		*"|${flow_path}|"*)
 			return 0
 			;;
 	esac
 
 	printf '%s\n' "${flow_path}"
-	visited="${visited}|${flow_path}"
+	FLOW_REACHABLE_VISITED="${FLOW_REACHABLE_VISITED}|${flow_path}"
 	while IFS= read -r child_ref; do
 		[[ -z "${child_ref}" ]] && continue
 		child_path="$(normalize_flow_path "${flow_path}" "${child_ref}")"
-		collect_reachable_flow_paths "${child_path}" "${visited}"
+		collect_reachable_flow_paths_within_walk "${child_path}"
 	done < <(
 		awk '
 			/runFlow:[[:space:]]*[^[:space:]].*[.]ya?ml/ {
