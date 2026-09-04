@@ -135,6 +135,10 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 				periodLabel = node.get("period_label").asText(),
 				kind = node.get("kind").asText(),
 				revision = node.get("revision").asLong(),
+				officialPeriodAverage = node.path("official_period_average")
+					.takeIf(JsonNode::isNumber)?.asDouble(),
+				officialCumulativeAverage = node.path("official_cumulative_average")
+					.takeIf(JsonNode::isNumber)?.asDouble(),
 				attempts = node.get("attempts").map(::parseAttempt),
 			)
 
@@ -714,6 +718,8 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			val periodLabel: String,
 			val kind: String,
 			val revision: Long,
+			val officialPeriodAverage: Double?,
+			val officialCumulativeAverage: Double?,
 			val attempts: List<AttemptModel>,
 		) {
 			fun toRecordTermModel(): Map<String, Any> =
@@ -726,7 +732,12 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 					"term_key" to termKey,
 					"term_order" to termOrder,
 					"period_label" to periodLabel,
-				)
+				).apply {
+					// Mirrors the server: the anchor is absent from the payload unless the term
+					// carries one, so the client's fallback path stays exercised by every other term.
+					officialPeriodAverage?.let { put("official_period_average", it) }
+					officialCumulativeAverage?.let { put("official_cumulative_average", it) }
+				}
 		}
 
 		private data class AttemptModel(
