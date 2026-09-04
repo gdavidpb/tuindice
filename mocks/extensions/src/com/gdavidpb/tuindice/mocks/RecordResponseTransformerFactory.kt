@@ -525,6 +525,9 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 				periodLabel = "${period.labelPrefix} $periodYear",
 				kind = baseState.addedTermTemplate.kind,
 				revision = revision,
+				// A term the student adds is projected, never printed by DST, so it carries no anchor.
+				officialPeriodAverage = null,
+				officialCumulativeAverage = null,
 				attempts = attempts,
 			)
 		}
