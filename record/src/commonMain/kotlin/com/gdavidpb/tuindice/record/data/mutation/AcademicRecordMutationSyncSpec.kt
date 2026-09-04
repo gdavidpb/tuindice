@@ -74,7 +74,7 @@ class AcademicRecordMutationSyncSpec(
 
 			is AcademicRecordMutation.DeleteSyntheticTerm ->
 				remoteDataSource.deleteSyntheticTerm(
-					termId = command.termId,
+					termRef = command.termKey.ifBlank { command.termId },
 					mutationId = mutation.mutationId,
 					expectedRevision = expectedRevision
 				)

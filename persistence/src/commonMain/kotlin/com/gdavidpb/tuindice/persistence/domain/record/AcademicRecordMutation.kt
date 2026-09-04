@@ -88,7 +88,11 @@ sealed interface AcademicRecordMutation : OutboxMutation {
 	@Serializable
 	@SerialName("delete_synthetic_term")
 	data class DeleteSyntheticTerm(
-		val termId: String
+		val termId: String,
+		// The server addresses overlay terms by key, as the update already does. Defaulted so a row
+		// enqueued before this field existed still deserializes; the sender falls back to the id,
+		// which the server accepts precisely because the app used to send it.
+		val termKey: String = ""
 	) : AcademicRecordMutation {
 		override val entityType: String = "record:delete_synthetic_term"
 		override val entityId: String = termId

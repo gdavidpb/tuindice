@@ -179,12 +179,47 @@ class AcademicRecordMutationSyncSpecResolveFailureTest {
 		val retry = assertIs<MutationFailureResolution.Retry<String, AcademicRecordMutation>>(resolution)
 		assertEquals(MutationPrecondition.Revision(7L), retry.mutation.precondition)
 	}
+
+	@Test
+	fun send_deleteSyntheticTerm_addressesTheTermByKey_asTheUpdateAlreadyDoes() = runTest {
+		var sentRef: String? = null
+		val spec = specUnderTest(onDeleteSyntheticTerm = { ref ->
+			sentRef = ref
+			versionedRecord(revision = 2L)
+		})
+
+		spec.send(
+			recordMutationEnvelope(
+				AcademicRecordMutation.DeleteSyntheticTerm(
+					termId = "a3f1c9",
+					termKey = "2026-JUL_AUG"
+				)
+			)
+		)
+
+		assertEquals("2026-JUL_AUG", sentRef)
+	}
+
+	@Test
+	fun send_deleteSyntheticTerm_fallsBackToTheId_forARowEnqueuedBeforeTheKeyExisted() = runTest {
+		// The server still accepts the id precisely because that is what the app used to send.
+		var sentRef: String? = null
+		val spec = specUnderTest(onDeleteSyntheticTerm = { ref ->
+			sentRef = ref
+			versionedRecord(revision = 2L)
+		})
+
+		spec.send(recordMutationEnvelope(AcademicRecordMutation.DeleteSyntheticTerm(termId = "a3f1c9")))
+
+		assertEquals("a3f1c9", sentRef)
+	}
 }
 
 private fun specUnderTest(
-	refreshRemoteSnapshot: suspend () -> VersionedAcademicRecord = { error("not used") }
+	refreshRemoteSnapshot: suspend () -> VersionedAcademicRecord = { error("not used") },
+	onDeleteSyntheticTerm: (String) -> VersionedAcademicRecord = { error("not used") }
 ) = AcademicRecordMutationSyncSpec(
-	remoteDataSource = errorRemoteDataSource(),
+	remoteDataSource = errorRemoteDataSource(onDeleteSyntheticTerm = onDeleteSyntheticTerm),
 	persistConfirmedSnapshot = { },
 	refreshRemoteSnapshot = refreshRemoteSnapshot
 )
@@ -232,7 +267,9 @@ private fun versionedRecord(revision: Long) = VersionedAcademicRecord(
 /**
  * resolveFailure never calls send, so every member errors.
  */
-private fun errorRemoteDataSource(): AcademicRecordRemoteDataRepository =
+private fun errorRemoteDataSource(
+	onDeleteSyntheticTerm: (String) -> VersionedAcademicRecord = { error("not used") }
+): AcademicRecordRemoteDataRepository =
 	object : AcademicRecordRemoteDataRepository {
 		override suspend fun getAcademicRecord(): VersionedAcademicRecord = error("not used")
 
@@ -263,8 +300,8 @@ private fun errorRemoteDataSource(): AcademicRecordRemoteDataRepository =
 		): VersionedAcademicRecord = error("not used")
 
 		override suspend fun deleteSyntheticTerm(
-			termId: String,
+			termRef: String,
 			mutationId: String,
 			expectedRevision: Long
-		): VersionedAcademicRecord = error("not used")
+		): VersionedAcademicRecord = onDeleteSyntheticTerm(termRef)
 	}

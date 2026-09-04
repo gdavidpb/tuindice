@@ -31,7 +31,7 @@ interface AcademicRecordRemoteDataRepository {
 		expectedRevision: Long
 	): VersionedAcademicRecord
 	suspend fun deleteSyntheticTerm(
-		termId: String,
+		termRef: String,
 		mutationId: String,
 		expectedRevision: Long
 	): VersionedAcademicRecord
