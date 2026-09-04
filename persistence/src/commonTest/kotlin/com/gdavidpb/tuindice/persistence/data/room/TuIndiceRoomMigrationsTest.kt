@@ -11,7 +11,7 @@ class TuIndiceRoomMigrationsTest {
 		val migrations = TuIndiceRoomMigrations.all
 
 		assertEquals(
-			listOf(30 to 31, 31 to 32, 32 to 33),
+			listOf(30 to 31, 31 to 32, 32 to 33, 33 to 34),
 			migrations.map { migration -> migration.startVersion to migration.endVersion }
 		)
 
@@ -24,6 +24,7 @@ class TuIndiceRoomMigrationsTest {
 		val migration30To31Sql = executedSqlByMigration[30 to 31].orEmpty()
 		val migration31To32Sql = executedSqlByMigration[31 to 32].orEmpty()
 		val migration32To33Sql = executedSqlByMigration[32 to 33].orEmpty()
+		val migration33To34Sql = executedSqlByMigration[33 to 34].orEmpty()
 
 		assertEquals(
 			listOf(
@@ -45,6 +46,15 @@ class TuIndiceRoomMigrationsTest {
 		assertEquals(
 			listOf("ALTER TABLE pensum_selection ADD COLUMN inferred INTEGER NOT NULL DEFAULT 1"),
 			migration32To33Sql
+		)
+		// Nullable and without a default on purpose: a term stored before the anchor existed has no
+		// official average, and a 0.0 default would read as a real DST average of 0.00.
+		assertEquals(
+			listOf(
+				"ALTER TABLE academic_term ADD COLUMN official_period_average REAL",
+				"ALTER TABLE academic_term ADD COLUMN official_cumulative_average REAL"
+			),
+			migration33To34Sql
 		)
 	}
 }

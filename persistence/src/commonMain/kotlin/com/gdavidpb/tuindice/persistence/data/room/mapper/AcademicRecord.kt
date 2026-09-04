@@ -33,7 +33,9 @@ fun List<AcademicTermEntity>.toAcademicTerms(
 				.sortedWith(
 					compareBy(AcademicAttemptEntity::positionInTerm, AcademicAttemptEntity::id)
 				)
-				.map(AcademicAttemptEntity::toAcademicAttempt)
+				.map(AcademicAttemptEntity::toAcademicAttempt),
+			officialPeriodAverage = term.officialPeriodAverage,
+			officialCumulativeAverage = term.officialCumulativeAverage
 		)
 	}
 }
@@ -48,7 +50,9 @@ fun AcademicTerm.toAcademicTermEntity(): AcademicTermEntity {
 		termKey = termKey,
 		termOrder = termOrder,
 		periodLabel = periodLabel,
-		kind = kind.name
+		kind = kind.name,
+		officialPeriodAverage = officialPeriodAverage,
+		officialCumulativeAverage = officialCumulativeAverage
 	)
 }
 
