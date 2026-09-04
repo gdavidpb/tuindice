@@ -360,6 +360,65 @@ class SyncRepositoryContractTest {
 	}
 
 	@Test
+	fun scheduleSync_reportsPlainFailure_whenConflictIsAConcurrentWrite() = runTest {
+		// The record was written by another device while this sync was fetching. Telling the user
+		// their credentials expired would send them to re-enter a password that was never wrong.
+		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val remoteDataSource = FakeSyncRemoteDataSource(
+			throwable = SyncRemoteException(
+				statusCode = HttpStatusCode.Conflict,
+				syncReport = null,
+				conflictReason = "CONCURRENT_WRITE",
+				cause = clientRequestException(
+					statusCode = HttpStatusCode.Conflict,
+					path = "/record/v5/sync"
+				)
+			)
+		)
+		val repository = createRepository(
+			settingsDataSource = settingsDataSource,
+			syncStatusRepository = syncStatusRepository,
+			remoteDataSource = remoteDataSource,
+			dispatcher = StandardTestDispatcher(testScheduler)
+		)
+
+		repository.scheduleSync(password = "stored-secret", policy = SyncPolicy.RespectCooldown)
+		advanceUntilIdle()
+
+		assertEquals(SyncStatus.Failed, syncStatusRepository.getSyncStatus())
+		assertEquals(listOf(SyncStatus.Failed), syncStatusRepository.setStatuses)
+	}
+
+	@Test
+	fun scheduleSync_keepsOutdatedCredentials_whenConflictNamesThatReason() = runTest {
+		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val remoteDataSource = FakeSyncRemoteDataSource(
+			throwable = SyncRemoteException(
+				statusCode = HttpStatusCode.Conflict,
+				syncReport = null,
+				conflictReason = "OUTDATED_CREDENTIALS",
+				cause = clientRequestException(
+					statusCode = HttpStatusCode.Conflict,
+					path = "/record/v5/sync"
+				)
+			)
+		)
+		val repository = createRepository(
+			settingsDataSource = settingsDataSource,
+			syncStatusRepository = syncStatusRepository,
+			remoteDataSource = remoteDataSource,
+			dispatcher = StandardTestDispatcher(testScheduler)
+		)
+
+		repository.scheduleSync(password = "stored-secret", policy = SyncPolicy.RespectCooldown)
+		advanceUntilIdle()
+
+		assertEquals(SyncStatus.OutdatedCredentials, syncStatusRepository.getSyncStatus())
+	}
+
+	@Test
 	fun scheduleSync_ignoresConflictAndKeepsCooldownUntouched() = runTest {
 		val settingsDataSource = FakeSyncSettingsLocalDataSource(onCooldown = false)
 		val syncStatusRepository = FakeSyncStatusRepository()
@@ -421,6 +480,7 @@ class SyncRepositoryContractTest {
 			throwable = SyncRemoteException(
 				statusCode = HttpStatusCode.ServiceUnavailable,
 				syncReport = report,
+				conflictReason = null,
 				cause = serverResponseException(
 					statusCode = HttpStatusCode.ServiceUnavailable,
 					path = "/record/v5/sync"

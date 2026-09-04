@@ -20,6 +20,7 @@ import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertFailsWith
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
@@ -88,13 +89,30 @@ class AcademicRecordMutationSyncSpecResolveFailureTest {
 	}
 
 	@Test
-	fun resolveFailure_deleteSyntheticTermNotFound_dropsEvenWhenRefreshFails() = runTest {
+	fun resolveFailure_deleteSyntheticTermNotFound_dropsQuietlyEvenWhenRefreshFails() = runTest {
+		// The term is already gone, which is what this mutation wanted. Propagating would show the
+		// user an error for something that did happen — the attempt-override delete never did.
 		val spec = specUnderTest(refreshRemoteSnapshot = {
 			throw serverResponseException(HttpStatusCode.ServiceUnavailable)
 		})
 
 		val resolution = spec.resolveFailure(
 			mutation = deleteSyntheticTermEnvelope(),
+			throwable = clientRequestException(HttpStatusCode.NotFound)
+		)
+
+		val drop = assertIs<MutationFailureResolution.Drop<String, AcademicRecordMutation>>(resolution)
+		assertFalse(drop.propagate)
+	}
+
+	@Test
+	fun resolveFailure_addSyntheticTermNotFound_stillPropagates() = runTest {
+		// Adding is not idempotent the way deleting is: a 404 there means the write did not land,
+		// and the user has to know. Only the delete path went quiet.
+		val spec = specUnderTest(refreshRemoteSnapshot = { versionedRecord(revision = 3L) })
+
+		val resolution = spec.resolveFailure(
+			mutation = addSyntheticTermEnvelope(),
 			throwable = clientRequestException(HttpStatusCode.NotFound)
 		)
 
@@ -169,6 +187,15 @@ private fun specUnderTest(
 	remoteDataSource = errorRemoteDataSource(),
 	persistConfirmedSnapshot = { },
 	refreshRemoteSnapshot = refreshRemoteSnapshot
+)
+
+private fun addSyntheticTermEnvelope() = recordMutationEnvelope(
+	AcademicRecordMutation.AddSyntheticTerm(
+		termId = "2026-JUL_AUG",
+		periodYear = 2026,
+		periodCode = AcademicTermPeriod.JUL_AUG,
+		attempts = emptyList()
+	)
 )
 
 private fun deleteSyntheticTermEnvelope() = recordMutationEnvelope(

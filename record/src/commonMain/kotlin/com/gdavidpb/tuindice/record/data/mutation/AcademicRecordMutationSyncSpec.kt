@@ -20,7 +20,7 @@ class AcademicRecordMutationSyncSpec(
 	private val persistConfirmedSnapshot: suspend (VersionedAcademicRecord) -> Unit,
 	private val refreshRemoteSnapshot: suspend () -> VersionedAcademicRecord
 ) : MutationSyncSpec<String, AcademicRecordMutation, VersionedAcademicRecord> {
-	override val maxRebaseAttempts: Int = 1
+	override val maxRebaseAttempts: Int = 3
 
 	// false: confirm() (which persists the confirmed snapshot to localDataSource) must
 	// land BEFORE the outbox row is deleted. With the outbox emptied first, there is a
@@ -124,11 +124,20 @@ class AcademicRecordMutationSyncSpec(
 				)
 
 			is AcademicRecordMutation.AddSyntheticTerm,
-			is AcademicRecordMutation.UpdateSyntheticTerm,
-			is AcademicRecordMutation.DeleteSyntheticTerm ->
+			is AcademicRecordMutation.UpdateSyntheticTerm ->
 				resolveGenericRecordFailure(
 					mutation = mutation,
 					throwable = throwable
+				)
+
+			is AcademicRecordMutation.DeleteSyntheticTerm ->
+				resolveGenericRecordFailure(
+					mutation = mutation,
+					throwable = throwable,
+					// A term that is already gone is the end state this mutation wanted. Reporting it
+					// as a failure shows the user an error for something that did happen, which is why
+					// the attempt-override delete has always dropped quietly here.
+					propagateNotFound = false
 				)
 		}
 	}
@@ -205,7 +214,8 @@ class AcademicRecordMutationSyncSpec(
 
 	private suspend fun resolveGenericRecordFailure(
 		mutation: MutationEnvelope<String, AcademicRecordMutation>,
-		throwable: Throwable
+		throwable: Throwable,
+		propagateNotFound: Boolean = true
 	): MutationFailureResolution<String, AcademicRecordMutation> {
 		return when (classifyError(mutation, throwable)) {
 			MutationFailureKind.Conflict,
@@ -221,7 +231,7 @@ class AcademicRecordMutationSyncSpec(
 
 			MutationFailureKind.NotFound -> {
 				refreshRemoteSnapshotSafely()
-				MutationFailureResolution.Drop(propagate = true)
+				MutationFailureResolution.Drop(propagate = propagateNotFound)
 			}
 
 			MutationFailureKind.Terminal ->
