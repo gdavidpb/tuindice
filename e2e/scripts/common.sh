@@ -1262,6 +1262,15 @@ disable_android_keyboard_helpers() {
 	adb shell settings put secure autofill_service null >/dev/null 2>&1 || true
 	adb shell settings put secure show_ime_with_hard_keyboard 0 >/dev/null 2>&1 || true
 	adb shell cmd autofill disable >/dev/null 2>&1 || true
+
+	# Maestro waits for the UI to settle after every tap, so animations are paid
+	# once per command. Left at 1.0 a single tap took 5.85s to settle, which made
+	# update-password's three disabled-field assertions unreachable inside the
+	# 1s loading window the mock holds open. Settings persist across reboots, but
+	# a fresh AVD starts at 1.0 again.
+	adb shell settings put global window_animation_scale 0 >/dev/null 2>&1 || true
+	adb shell settings put global transition_animation_scale 0 >/dev/null 2>&1 || true
+	adb shell settings put global animator_duration_scale 0 >/dev/null 2>&1 || true
 }
 
 disable_ios_keyboard_helpers() {

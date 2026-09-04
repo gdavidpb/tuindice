@@ -7,6 +7,16 @@ require_command adb
 require_command maestro
 
 log "Android Maestro setup: WireMock=${E2E_WIREMOCK_URL}; appId=${E2E_APP_ID}."
+
+# A diagnosis run defaults E2E_WIREMOCK_PORT to 8080 while evidence uses 18626,
+# so an API base URL carried over from an evidence run points the APK at a port
+# nothing is listening on. The suite then fails at the first networked screen and
+# reads like a product break.
+if [[ "${E2E_ANDROID_API_BASE_URL}" != *":${E2E_WIREMOCK_PORT}/"* ]]; then
+	printf 'E2E_ANDROID_API_BASE_URL (%s) does not target the WireMock port (%s).\n' \
+		"${E2E_ANDROID_API_BASE_URL}" "${E2E_WIREMOCK_PORT}" >&2
+	exit 1
+fi
 register_wiremock_cleanup
 "${SCRIPT_DIR}/start-wiremock.sh"
 reset_wiremock

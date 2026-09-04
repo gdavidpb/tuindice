@@ -124,7 +124,16 @@ PORT="${E2E_WIREMOCK_PORT}" \
 printf '%s\n' "$!" > "${WIREMOCK_PID_FILE}"
 STARTED_WIREMOCK=1
 
-wait_for_url "${E2E_WIREMOCK_URL}/__admin" 45
+# A timeout here reads like a busy port, but the usual cause is that the mock
+# environment never came up -- most often because the Kotlin extensions failed
+# to compile. The log holds the compiler error; without it the next stop is a
+# fruitless hunt through ports and stale processes.
+if ! wait_for_url "${E2E_WIREMOCK_URL}/__admin" 45; then
+	printf 'WireMock never became ready. Last lines of %s:\n' "${WIREMOCK_LOG}" >&2
+	tail -40 "${WIREMOCK_LOG}" >&2 || true
+	exit 1
+fi
+
 reset_wiremock
 log "WireMock ready. Log: ${WIREMOCK_LOG}"
 trap - EXIT

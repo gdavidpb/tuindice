@@ -250,6 +250,13 @@ specific symptom only: the parallel run fails the *same* early flow on
 *repeated* attempts (not a random flow, not a one-off), the failure screenshot
 shows no product error (the screen/inputs look correct, a tap/action simply
 never registers), and the identical flow passes cleanly when run standalone.
+A second signature counts as the same diagnosis: a *different* flow fails on
+each parallel attempt, on either platform, and every one of them passes when
+run standalone. Contention does not pick a favourite flow; it drops whichever
+action happens to land while the machine is saturated. Measure before
+concluding -- on a 10-core M1 Max one platform alone already drew a load
+average near 7, so two saturate the machine and taps stop registering.
+
 That signature points at local device/resource contention (both
 emulator+simulator plus any other heavyweight process — e.g. leftover Gradle
 or Kotlin daemons from unrelated work — competing for CPU/memory), not a
