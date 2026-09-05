@@ -484,7 +484,9 @@
       "period_code": "JAN_MAR",
       "term_key": "2023-JAN_MAR",
       "term_order": 20231,
-      "period_label": "Enero - Marzo 2023"
+      "period_label": "Enero - Marzo 2023",
+      "official_period_average": 3.5,
+      "official_cumulative_average": 3.9
     },
     {
       "id": "34eafe92bae79ca0db9f1d4a4585d8a0",

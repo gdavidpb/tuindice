@@ -46,6 +46,7 @@
 	<string name="error_invalid_usb_email_credentials">Revisa tu correo USB y contraseña</string>
 	<string name="error_account_disabled">Cuenta inhabilitada. Escríbenos a %1$s para recuperarla.</string>
 	<string name="error_untrusted">No pudimos verificar la seguridad del dispositivo. Si persiste, escríbenos a %1$s.</string>
+	<string name="error_usb_unavailable">Los servicios de la universidad no están disponibles en este momento. Intenta más tarde</string>
 	<string name="error_invalid_password">Contraseña inválida</string>
 	<string name="label_retry">Reintentar</string>
 	<string name="snack_too_many_requests">Demasiados intentos. Espera un momento e intenta de nuevo</string>

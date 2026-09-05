@@ -2,9 +2,12 @@ package com.gdavidpb.tuindice.academiccore.domain.engine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.*
 import kotlin.math.abs
+import kotlin.math.roundToLong
 
 private const val DEFAULT_PROJECTION_NUMERIC_GRADE = 5
 private const val MIN_APPROVED_GRADE = 3
+private const val AVERAGE_DECIMALS = 4
+private const val AVERAGE_SCALE = 10_000L
 
 object RecordProjectionEngine {
 	fun projectAcademic(record: AcademicRecord): RecordProjection {
@@ -53,7 +56,9 @@ object RecordProjectionEngine {
 		val excludedAttemptIds = resolveExcludedAttemptIds(visibleTermsAscending)
 		val projectionsAscending = mutableListOf<TermProjection>()
 		val codeStates = hashMapOf<String, EffectiveCodeState>()
-		var cumulativeWeighted = 0L
+		// The running numerator is kept scaled by AVERAGE_SCALE so an official anchor — a value with
+		// four decimals — can replace it exactly, without leaving integer arithmetic.
+		var cumulativeWeightedScaled = 0L
 		var cumulativeCredits = 0L
 
 		visibleTermsAscending.forEach { termState ->
@@ -82,8 +87,21 @@ object RecordProjectionEngine {
 					)
 				)
 
-				cumulativeWeighted += state.effectiveWeighted - previousWeighted
+				cumulativeWeightedScaled += (state.effectiveWeighted - previousWeighted) * AVERAGE_SCALE
 				cumulativeCredits += state.effectiveCredits - previousCredits
+			}
+
+			// A closed term shows what DST printed for it. Re-basing the running numerator on that value
+			// is what keeps every later term — and the projection that continues from here — starting
+			// where the record says. Credits stay ours, so a new term still moves the average by our own
+			// weighting.
+			val officialPeriodAverage = termState.term.officialPeriodAverage
+				?.takeIf { termState.term.kind.isHistorical }
+			val officialCumulativeAverage = termState.term.officialCumulativeAverage
+				?.takeIf { termState.term.kind.isHistorical }
+
+			if (officialCumulativeAverage != null) {
+				cumulativeWeightedScaled = scaleAverage(officialCumulativeAverage) * cumulativeCredits
 			}
 
 			val academicTermProjection = academicProjectionByTermId[termState.term.id]
@@ -133,12 +151,12 @@ object RecordProjectionEngine {
 					termOrder = termState.term.termOrder,
 					periodLabel = termState.term.periodLabel,
 					kind = termState.term.kind,
-					periodAverage = computeAverage(
+					periodAverage = officialPeriodAverage ?: computeAverage(
 						weighted = periodWeighted,
 						credits = periodAverageCredits.toLong()
 					),
-					cumulativeAverage = computeAverage(
-						weighted = cumulativeWeighted,
+					cumulativeAverage = officialCumulativeAverage ?: computeScaledAverage(
+						weightedScaled = cumulativeWeightedScaled,
 						credits = cumulativeCredits
 					),
 					periodCredits = periodDisplayedCredits,
@@ -347,8 +365,20 @@ object RecordProjectionEngine {
 		return truncateScaledDivision(
 			numerator = weighted,
 			denominator = credits,
-			decimals = 4
+			decimals = AVERAGE_DECIMALS
 		)
+	}
+
+	private fun computeScaledAverage(weightedScaled: Long, credits: Long): Double {
+		return truncateScaledDivision(
+			numerator = weightedScaled,
+			denominator = credits * AVERAGE_SCALE,
+			decimals = AVERAGE_DECIMALS
+		)
+	}
+
+	private fun scaleAverage(average: Double): Long {
+		return (average * AVERAGE_SCALE).roundToLong()
 	}
 
 	private fun truncateScaledDivision(

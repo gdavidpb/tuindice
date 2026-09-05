@@ -6,5 +6,6 @@ import io.ktor.http.HttpStatusCode
 class SyncRemoteException(
 	val statusCode: HttpStatusCode,
 	val syncReport: SyncReport?,
+	val conflictReason: String?,
 	cause: Throwable
 ) : RuntimeException(cause)

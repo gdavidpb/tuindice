@@ -51,7 +51,10 @@ bash "$REPO_ROOT/.github/scripts/sync-app-version.sh"
 
 if [[ -f "$ROOT_DIR/Podfile" ]] && command -v pod >/dev/null 2>&1; then
 	if [[ ! -d "$WORKSPACE_PATH" || "${FORCE_POD_INSTALL:-0}" == "1" ]]; then
-		(cd "$ROOT_DIR" && pod install --silent)
+		# CocoaPods normalizes paths as UTF-8 and dies with Encoding::CompatibilityError when the
+		# locale is unset — which is what a Gradle daemon passes down when it was started from a shell
+		# without one. Pinning it here keeps the build independent of who launched the daemon.
+		(cd "$ROOT_DIR" && LANG="${LANG:-en_US.UTF-8}" LC_ALL="${LC_ALL:-en_US.UTF-8}" pod install --silent)
 	fi
 fi
 

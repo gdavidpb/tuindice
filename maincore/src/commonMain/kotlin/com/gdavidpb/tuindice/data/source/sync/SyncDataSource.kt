@@ -23,6 +23,10 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
+// Compared as a string on purpose: the contract documents `reason` as a string so a new value can
+// never fail a parse.
+private const val OUTDATED_CREDENTIALS_REASON = "OUTDATED_CREDENTIALS"
+
 class SyncDataSource(
 	private val settingsDataSource: SyncSettingsLocalDataRepository,
 	private val syncStatusRepository: SyncStatusRepository,
@@ -81,7 +85,13 @@ class SyncDataSource(
 	private suspend fun markSyncFailure(throwable: Throwable) {
 		val syncHttpStatusCode = throwable.syncHttpStatusCode()
 		val syncStatus = when {
-			syncHttpStatusCode == HttpStatusCode.Conflict || throwable.isConflict() ->
+			// A 409 is not always an expired password: the record can also be written by another
+			// device while this sync was fetching. OutdatedCredentials is a latch — it stops syncing
+			// and blocks the pending-changes flush until the user re-authenticates — so only the
+			// reason the server actually names gets to set it. Any other reason, an unrecognized one,
+			// or a body we could not read falls through to a plain failure the next sync can clear.
+			(syncHttpStatusCode == HttpStatusCode.Conflict || throwable.isConflict()) &&
+				throwable.syncConflictReason() == OUTDATED_CREDENTIALS_REASON ->
 				SyncStatus.OutdatedCredentials
 
 			syncHttpStatusCode == HttpStatusCode.ServiceUnavailable ||
@@ -114,6 +124,13 @@ class SyncDataSource(
 	private fun Throwable.syncHttpStatusCode(): HttpStatusCode? {
 		return when (this) {
 			is SyncRemoteException -> statusCode
+			else -> null
+		}
+	}
+
+	private fun Throwable.syncConflictReason(): String? {
+		return when (this) {
+			is SyncRemoteException -> conflictReason
 			else -> null
 		}
 	}

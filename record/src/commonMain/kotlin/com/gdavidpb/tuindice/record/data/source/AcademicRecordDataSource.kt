@@ -213,14 +213,17 @@ class AcademicRecordDataSource(
 
 	override suspend fun deleteSyntheticTerm(termId: String) {
 		val visibleRecord = getAcademicRecord() ?: return
-		visibleRecord.terms.firstOrNull { term ->
+		val term = visibleRecord.terms.firstOrNull { term ->
 			term.id == termId && term.kind.isSynthetic
 		} ?: return
 		val currentRevision = localDataSource.getRecordRevision() ?: return
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(
 			mutationId = identifierRepository.generateRandomIdentifier(),
 			scopeKey = RECORD_MUTATION_SCOPE,
-			command = AcademicRecordMutation.DeleteSyntheticTerm(termId),
+			command = AcademicRecordMutation.DeleteSyntheticTerm(
+				termId = termId,
+				termKey = term.termKey
+			),
 			precondition = MutationPrecondition.Revision(currentRevision),
 			status = PendingMutationStatus.Pending,
 			createdAt = currentTimeMillis(),

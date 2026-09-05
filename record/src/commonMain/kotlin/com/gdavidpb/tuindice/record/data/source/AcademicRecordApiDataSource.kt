@@ -89,11 +89,11 @@ class AcademicRecordApiDataSource(
 	}
 
 	override suspend fun deleteSyntheticTerm(
-		termId: String,
+		termRef: String,
 		mutationId: String,
 		expectedRevision: Long
 	): VersionedAcademicRecord {
-		return ktorClient.delete("record/v5/overlay/terms/$termId") {
+		return ktorClient.delete("record/v5/overlay/terms/$termRef") {
 			setBody(
 				buildDeleteOverlayMutationRequest(
 					mutationId = mutationId,

@@ -14,6 +14,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.runComposeUiTest
 import androidx.compose.ui.text.intl.Locale
@@ -109,11 +110,27 @@ fun ComposeUiTest.advanceAnimationsBy(millis: Long) {
 	waitForIdle()
 }
 
+// Generous on purpose: it only bounds a hang, and a CI runner with three cores
+// composes far slower than a developer machine.
+private const val NODE_TIMEOUT_MILLIS = 5_000L
+
 @OptIn(ExperimentalTestApi::class)
 fun ComposeUiTest.assertNodeVisible(
 	tag: String,
 	useUnmergedTree: Boolean = false
 ) {
+	// Wait for the node before asserting on it. Asserting straight away passes only
+	// while the machine composes faster than the test reads, which is why these
+	// assertions held on an idle laptop and failed on a loaded CI runner. The wait
+	// has to read the same tree the assertion will, or a tag that lives only in the
+	// unmerged one never satisfies it.
+	waitUntil(timeoutMillis = NODE_TIMEOUT_MILLIS) {
+		onAllNodesWithTag(
+			testTag = tag,
+			useUnmergedTree = useUnmergedTree
+		).fetchSemanticsNodes().size == 1
+	}
+
 	onNodeWithTag(
 		testTag = tag,
 		useUnmergedTree = useUnmergedTree

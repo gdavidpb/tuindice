@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.withTimeout
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -39,6 +38,11 @@ import kotlin.test.assertTrue
  * re-emits the new picture identity. UiTest-suffixed for the same reason as the walk:
  * the flow constructs PlatformFile instances the android host JVM stub cannot parse.
  */
+// Waits here carry no withTimeout on purpose. runTest's own deadline is real
+// time, but a withTimeout inside it counts virtual time, which jumps the moment
+// the scheduler goes idle -- before the work being awaited has finished on a
+// busy machine. That is why this suite passed on an idle laptop and failed on a
+// three-core CI runner every time.
 class SummaryProfilePictureLifecycleUiTest {
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
@@ -61,21 +65,17 @@ class SummaryProfilePictureLifecycleUiTest {
 			)
 
 			try {
-				withTimeout(3_000) {
-					viewModel.state
-						.filterIsInstance<Summary.State.Content>()
-						.first()
-				}
+				viewModel.state
+					.filterIsInstance<Summary.State.Content>()
+					.first()
 
 				viewModel.uploadProfilePictureAction(
 					file = PlatformFile("/tmp/profile-preview.jpg")
 				)
 
-				val uploading = withTimeout(3_000) {
-					viewModel.state
-						.filterIsInstance<Summary.State.Content>()
-						.first { state -> state.profilePictureLocalPreview != null }
-				}
+				val uploading = viewModel.state
+					.filterIsInstance<Summary.State.Content>()
+					.first { state -> state.profilePictureLocalPreview != null }
 				assertTrue(uploading.isProfilePictureLoading)
 				assertEquals(DEFAULT_SUMMARY_USER.pictureUrl, uploading.profilePictureUrl)
 
@@ -84,11 +84,9 @@ class SummaryProfilePictureLifecycleUiTest {
 					pictureVersion = 1
 				)
 
-				val converged = withTimeout(3_000) {
-					viewModel.state
-						.filterIsInstance<Summary.State.Content>()
-						.first { state -> state.profilePictureUrl == uploadedPicture.url }
-				}
+				val converged = viewModel.state
+					.filterIsInstance<Summary.State.Content>()
+					.first { state -> state.profilePictureUrl == uploadedPicture.url }
 				assertEquals(false, converged.isProfilePictureLoading)
 				assertNull(converged.profilePictureLocalPreview)
 				assertEquals(1, converged.profilePictureVersion)
@@ -120,21 +118,17 @@ class SummaryProfilePictureLifecycleUiTest {
 			)
 
 			try {
-				withTimeout(3_000) {
-					viewModel.state
-						.filterIsInstance<Summary.State.Content>()
-						.first()
-				}
+				viewModel.state
+					.filterIsInstance<Summary.State.Content>()
+					.first()
 
 				viewModel.uploadProfilePictureAction(
 					file = PlatformFile("/tmp/profile-preview.jpg")
 				)
 
-				withTimeout(3_000) {
-					viewModel.state
-						.filterIsInstance<Summary.State.Content>()
-						.first { state -> state.profilePictureLocalPreview != null }
-				}
+				viewModel.state
+					.filterIsInstance<Summary.State.Content>()
+					.first { state -> state.profilePictureLocalPreview != null }
 
 				// A backend re-fetch rotates only the signature: same picture identity,
 				// so the optimistic preview and the in-flight flag must survive.
@@ -142,11 +136,9 @@ class SummaryProfilePictureLifecycleUiTest {
 					pictureUrl = "$picturePath?X-Goog-Signature=bbb"
 				)
 
-				val rotated = withTimeout(3_000) {
-					viewModel.state
-						.filterIsInstance<Summary.State.Content>()
-						.first { state -> state.profilePictureUrl.endsWith("bbb") }
-				}
+				val rotated = viewModel.state
+					.filterIsInstance<Summary.State.Content>()
+					.first { state -> state.profilePictureUrl.endsWith("bbb") }
 				assertTrue(rotated.isProfilePictureLoading)
 				assertNotNull(rotated.profilePictureLocalPreview)
 
@@ -155,11 +147,9 @@ class SummaryProfilePictureLifecycleUiTest {
 					pictureVersion = 1
 				)
 
-				val converged = withTimeout(3_000) {
-					viewModel.state
-						.filterIsInstance<Summary.State.Content>()
-						.first { state -> state.profilePictureVersion == 1 }
-				}
+				val converged = viewModel.state
+					.filterIsInstance<Summary.State.Content>()
+					.first { state -> state.profilePictureVersion == 1 }
 				assertEquals(false, converged.isProfilePictureLoading)
 				assertNull(converged.profilePictureLocalPreview)
 			} finally {
@@ -189,11 +179,9 @@ class SummaryProfilePictureLifecycleUiTest {
 			)
 
 			try {
-				withTimeout(3_000) {
-					viewModel.state
-						.filterIsInstance<Summary.State.Content>()
-						.first()
-				}
+				viewModel.state
+					.filterIsInstance<Summary.State.Content>()
+					.first()
 
 				val failureSnackBar = async {
 					viewModel.effect
@@ -205,16 +193,14 @@ class SummaryProfilePictureLifecycleUiTest {
 					file = PlatformFile("/tmp/profile-preview.jpg")
 				)
 
-				withTimeout(3_000) { failureSnackBar.await() }
+				failureSnackBar.await()
 
-				val rolledBack = withTimeout(3_000) {
-					viewModel.state
-						.filterIsInstance<Summary.State.Content>()
-						.first { state ->
-							!state.isProfilePictureLoading &&
-								state.profilePictureLocalPreview == null
-						}
-				}
+				val rolledBack = viewModel.state
+					.filterIsInstance<Summary.State.Content>()
+					.first { state ->
+						!state.isProfilePictureLoading &&
+							state.profilePictureLocalPreview == null
+					}
 				assertEquals(DEFAULT_SUMMARY_USER.pictureUrl, rolledBack.profilePictureUrl)
 				assertEquals(DEFAULT_SUMMARY_USER.pictureVersion, rolledBack.profilePictureVersion)
 			} finally {

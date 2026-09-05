@@ -21,5 +21,9 @@ data class AcademicTermEntity(
 	@ColumnInfo(name = AcademicTermTable.TERM_KEY) val termKey: String,
 	@ColumnInfo(name = AcademicTermTable.TERM_ORDER) val termOrder: Int,
 	@ColumnInfo(name = AcademicTermTable.PERIOD_LABEL) val periodLabel: String,
-	@ColumnInfo(name = AcademicTermTable.TERM_KIND) val kind: String
+	@ColumnInfo(name = AcademicTermTable.TERM_KIND) val kind: String,
+	// Nullable on purpose: rows written before the anchor existed, and every non-HISTORICAL term,
+	// carry no official average and must keep falling back to what the engine computes.
+	@ColumnInfo(name = AcademicTermTable.OFFICIAL_PERIOD_AVERAGE) val officialPeriodAverage: Double? = null,
+	@ColumnInfo(name = AcademicTermTable.OFFICIAL_CUMULATIVE_AVERAGE) val officialCumulativeAverage: Double? = null
 )

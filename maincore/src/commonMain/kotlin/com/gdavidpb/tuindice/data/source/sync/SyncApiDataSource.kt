@@ -28,17 +28,21 @@ class SyncApiDataSource(
 				.body<SyncRecordResponse>()
 				.toSyncResult()
 		} catch (throwable: ResponseException) {
+			val errorBody = throwable.errorBodyOrNull()
+
 			throw SyncRemoteException(
 				statusCode = throwable.response.status,
-				syncReport = throwable.syncReportOrNull(),
+				syncReport = errorBody?.sync?.toSyncReport(),
+				conflictReason = errorBody?.reason,
 				cause = throwable
 			)
 		}
 	}
 
-	private suspend fun ResponseException.syncReportOrNull() =
+	// Read once: the body is a stream, and both the report and the reason come out of it.
+	private suspend fun ResponseException.errorBodyOrNull() =
 		runCatching {
-			response.body<SyncRecordErrorResponse>().sync.toSyncReport()
+			response.body<SyncRecordErrorResponse>()
 		}
 			.getOrNull()
 }

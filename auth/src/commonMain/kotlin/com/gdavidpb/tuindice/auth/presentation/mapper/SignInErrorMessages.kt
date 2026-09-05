@@ -12,6 +12,7 @@ import tuindice.auth.generated.resources.error_account_disabled
 import tuindice.auth.generated.resources.error_invalid_usb_email_credentials
 import tuindice.auth.generated.resources.error_invalid_usb_id_credentials
 import tuindice.auth.generated.resources.error_untrusted
+import tuindice.auth.generated.resources.error_usb_unavailable
 import tuindice.auth.generated.resources.snack_sign_in_failed
 import tuindice.auth.generated.resources.snack_too_many_requests
 
@@ -49,8 +50,10 @@ internal suspend fun SignInUseCaseError?.toErrorMessage(
 		is SignInUseCaseError.Timeout ->
 			commonTimeoutMessage()
 
+		// Fault belongs to the university's upstream, not TuIndice — say so, otherwise a
+		// new user with no other context reads the generic message as our app being broken.
 		is SignInUseCaseError.Unavailable ->
-			commonServiceUnavailableMessage()
+			getString(Res.string.error_usb_unavailable)
 
 		is SignInUseCaseError.TooManyRequests ->
 			getString(Res.string.snack_too_many_requests)
