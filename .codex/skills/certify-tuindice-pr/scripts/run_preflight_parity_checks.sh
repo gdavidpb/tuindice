@@ -232,4 +232,28 @@ if [[ -n "$IOS_TASKS" ]]; then
 fi
 
 require_clean_tree
+
+# A local run reuses task results; CI always starts from a clean checkout. A test
+# task left UP-TO-DATE by an earlier local run therefore contributes a pass it
+# never re-earned -- that is how a broken iOS test reached CI behind a green
+# preflight. Name them rather than fail: the result may be legitimate, but the
+# reader has to know which tests this run did not actually execute.
+warn_about_reused_test_tasks() {
+	local log_dir="${GRADLE_RETRY_LOG_DIR:-${RUNNER_TEMP:-/tmp}/gradle-retry-logs}"
+	local reused
+
+	[[ -d "$log_dir" ]] || return 0
+
+	reused="$(grep -hoE '^> Task :[A-Za-z0-9_-]+:[A-Za-z0-9]*[Tt]est[A-Za-z0-9]* (UP-TO-DATE|FROM-CACHE)' \
+		"$log_dir"/gradle-attempt-*.log 2>/dev/null | sort -u || true)"
+
+	[[ -n "$reused" ]] || return 0
+
+	printf '[WARN] Test tasks reused instead of executed in this preflight:\n' >&2
+	printf '%s\n' "$reused" | sed 's/^> Task /[WARN]   /' >&2
+	printf '[WARN] Re-run them with --rerun-tasks before trusting this green.\n' >&2
+}
+
+warn_about_reused_test_tasks
+
 info "Preflight parity checks passed for ${HEAD_SHA}."

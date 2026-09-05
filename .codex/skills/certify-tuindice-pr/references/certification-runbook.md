@@ -230,6 +230,34 @@ diff since the last parity-passed commit only touches `e2e/maestro/**`,
 `mocks/**`, or documentation/skill files — none of these are Gradle inputs.
 Parity must still pass for the final SHA before opening the PR.
 
+## The First CI Run of a Branch Always Fails
+
+Preflight refuses to run without published E2E statuses for the exact SHA, and
+those statuses only exist once evidence has finished -- hours after the push
+that triggered CI. So the first run on any new SHA fails at Shared preflight
+with `Missing successful E2E status(es)`, and every later job is skipped.
+
+That is ordering, not breakage. Re-run the workflow once evidence is published
+and read the second result. Do not chase the first one, and do not treat a red
+`preflight-production-pr` as a verdict on the diff until you have checked
+whether it failed on this gate. The same gate makes a throwaway "same diff
+without X" probe branch useless as an experiment: it carries a different
+fingerprint, so it has no evidence and never reaches the jobs you wanted to
+compare.
+
+## Local Green Can Be Stale, Not Just Wrong
+
+The inner loop reuses task results; CI always starts from a clean checkout. A
+test task another local run left `UP-TO-DATE` still prints as part of a passing
+preflight while contributing a result it did not re-earn. That is how a broken
+iOS test reached CI behind a green local preflight: the bisection that preceded
+the preflight had already run that exact task, so the preflight skipped it.
+
+The preflight now names reused test tasks at the end of its run. When it does,
+re-run them with `--rerun-tasks` before believing the green. Reach for
+`--rerun-tasks` by default after any bisection or diagnosis run in the same
+worktree.
+
 ## Running Evidence
 
 Run the audit helper first and skip this step entirely when every required
