@@ -1,6 +1,6 @@
 package com.gdavidpb.tuindice.subjects.presentation.mapper
 
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumNodeStatus
+import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchPensumStatus
 import com.gdavidpb.tuindice.subjects.testing.subjectSearchResult
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -21,9 +21,9 @@ class SubjectSearchResultItemMapperTest {
 	fun toSubjectSearchResultItem_whenPensumStatusIsKnown_thenKeepsStatus() {
 		val item = subjectSearchResult(
 			subjectCode = "EC5201",
-			pensumStatus = AcademicPensumNodeStatus.APPROVED
+			pensumStatus = SubjectSearchPensumStatus.APPROVED
 		).toSubjectSearchResultItem()
 
-		assertEquals(AcademicPensumNodeStatus.APPROVED, item.pensumStatus)
+		assertEquals(SubjectSearchPensumStatus.APPROVED, item.pensumStatus)
 	}
 }

@@ -8,7 +8,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumNodeStatus
+import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchPensumStatus
 import com.gdavidpb.tuindice.subjects.presentation.model.SubjectSearchResultItem
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -29,7 +29,7 @@ class SubjectSearchResultCardUiTest {
 					subjectCode = "CI2511",
 					name = "Lógica Simbólica",
 					creditsText = "4 UC",
-					pensumStatus = AcademicPensumNodeStatus.APPROVED
+					pensumStatus = SubjectSearchPensumStatus.APPROVED
 				),
 				onClick = { clickedSubjectCode = "CI2511" }
 			)
@@ -52,7 +52,7 @@ class SubjectSearchResultCardUiTest {
 					subjectCode = "CI2511",
 					name = "Lógica Simbólica",
 					creditsText = "4 UC",
-					pensumStatus = AcademicPensumNodeStatus.AVAILABLE
+					pensumStatus = SubjectSearchPensumStatus.AVAILABLE
 				),
 				onClick = {}
 			)
@@ -61,6 +61,44 @@ class SubjectSearchResultCardUiTest {
 		onNodeWithTag(SubjectsUiTags.searchResultStatus("CI2511", "available"))
 			.assertIsDisplayed()
 		onNodeWithText("Disponible").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_subjectCountsAsElective_then_displaysElectiveBadge() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SubjectSearchResultCard(
+				item = SubjectSearchResultItem(
+					subjectCode = "MC5123",
+					name = "Los grandes retos",
+					creditsText = "3 UC",
+					pensumStatus = SubjectSearchPensumStatus.COUNTS_AS_ELECTIVE
+				),
+				onClick = {}
+			)
+		}
+
+		onNodeWithTag(SubjectsUiTags.searchResultStatus("MC5123", "counts_as_elective"))
+			.assertIsDisplayed()
+		onNodeWithText("Cuenta como electiva").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_subjectCountsAsGeneralStudies_then_displaysGeneralStudiesBadge() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SubjectSearchResultCard(
+				item = SubjectSearchResultItem(
+					subjectCode = "CS2316",
+					name = "La guerra",
+					creditsText = "3 UC",
+					pensumStatus = SubjectSearchPensumStatus.COUNTS_AS_GENERAL_STUDIES
+				),
+				onClick = {}
+			)
+		}
+
+		onNodeWithTag(SubjectsUiTags.searchResultStatus("CS2316", "counts_as_general_studies"))
+			.assertIsDisplayed()
+		onNodeWithText("Cuenta como Estudios Generales").assertIsDisplayed()
 	}
 
 	@Test

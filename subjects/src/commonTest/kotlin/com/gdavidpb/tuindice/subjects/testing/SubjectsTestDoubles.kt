@@ -1,11 +1,11 @@
 package com.gdavidpb.tuindice.subjects.testing
 
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumNodeStatus
 import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectAttemptBin
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetailResult
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDifficultyBand
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectGradeBin
+import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchPensumStatus
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchResult
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectStatsSegment
 import com.gdavidpb.tuindice.subjects.domain.repository.SubjectCatalogRepository
@@ -89,7 +89,7 @@ class ControllableSubjectCatalogRepository(
 
 fun subjectSearchResult(
 	subjectCode: String,
-	pensumStatus: AcademicPensumNodeStatus? = null
+	pensumStatus: SubjectSearchPensumStatus? = null
 ): SubjectSearchResult {
 	return SubjectSearchResult(
 		subjectCode = subjectCode,

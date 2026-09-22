@@ -57,4 +57,6 @@
     <string name="subjects_search_status_current">En curso</string>
     <string name="subjects_search_status_available">Disponible</string>
     <string name="subjects_search_status_blocked">Bloqueada</string>
+    <string name="subjects_search_status_counts_as_elective">Cuenta como electiva</string>
+    <string name="subjects_search_status_counts_as_general_studies">Cuenta como Estudios Generales</string>
 </resources>

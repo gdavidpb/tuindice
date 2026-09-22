@@ -7,7 +7,7 @@ import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumNodeStatus
+import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchPensumStatus
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectSearch
 import com.gdavidpb.tuindice.subjects.presentation.model.SubjectSearchResultItem
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
@@ -73,7 +73,7 @@ class SubjectSearchScreenUiTest {
 							subjectCode = "CI2511",
 							name = "Lógica Simbólica",
 							creditsText = "4 UC",
-							pensumStatus = AcademicPensumNodeStatus.APPROVED
+							pensumStatus = SubjectSearchPensumStatus.APPROVED
 						)
 					)
 				),

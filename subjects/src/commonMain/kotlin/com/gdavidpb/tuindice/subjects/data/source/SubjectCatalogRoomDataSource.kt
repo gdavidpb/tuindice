@@ -28,11 +28,11 @@ class SubjectCatalogRoomDataSource(
 				normalizedQuery = normalizedQuery,
 				limit = limit.coerceIn(1, 50)
 			),
-			pensumStatusDataRepository.observeStatusBySubjectCode()
-		) { entities, statusBySubjectCode ->
+			pensumStatusDataRepository.observePensumStatusResolver()
+		) { entities, pensumStatus ->
 			entities.map { entity ->
 				entity.toSubjectSearchResult(
-					pensumStatus = statusBySubjectCode[entity.subjectCode.uppercase()]
+					pensumStatus = pensumStatus.statusOf(subjectCode = entity.subjectCode, credits = entity.credits)
 				)
 			}
 		}

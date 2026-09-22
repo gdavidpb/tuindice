@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.subjects.data.mapper
 
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumNodeStatus
 import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity
+import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchPensumStatus
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchResult
 import com.gdavidpb.tuindice.subjects.testing.readySubjectDetail
 import kotlin.test.Test
@@ -63,11 +63,11 @@ class SubjectCatalogMappersTest {
 		)
 
 		val result = entity.toSubjectSearchResult(
-			pensumStatus = AcademicPensumNodeStatus.AVAILABLE
+			pensumStatus = SubjectSearchPensumStatus.AVAILABLE
 		)
 
 		assertEquals(GradingMode.NUMERIC, result.gradingMode)
-		assertEquals(AcademicPensumNodeStatus.AVAILABLE, result.pensumStatus)
+		assertEquals(SubjectSearchPensumStatus.AVAILABLE, result.pensumStatus)
 	}
 
 	@Test

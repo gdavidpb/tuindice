@@ -1,12 +1,12 @@
 package com.gdavidpb.tuindice.subjects.data.mapper
 
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumNodeStatus
 import com.gdavidpb.tuindice.academiccore.domain.model.GradingMode
 import com.gdavidpb.tuindice.academiccore.domain.utils.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.persistence.data.room.entity.SubjectCatalogCacheEntity
 import com.gdavidpb.tuindice.subjects.data.model.SearchSubjectsResponse
 import com.gdavidpb.tuindice.subjects.data.model.SubjectSearchResultResponse
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectDetail
+import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchPensumStatus
 import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchResult
 
 fun SearchSubjectsResponse.toSubjectSearchResults(): List<SubjectSearchResult> {
@@ -26,7 +26,7 @@ fun SubjectSearchResult.toSubjectCatalogCacheEntity(updatedAt: Long): SubjectCat
 }
 
 fun SubjectCatalogCacheEntity.toSubjectSearchResult(
-	pensumStatus: AcademicPensumNodeStatus? = null
+	pensumStatus: SubjectSearchPensumStatus? = null
 ): SubjectSearchResult {
 	return SubjectSearchResult(
 		subjectCode = subjectCode,

@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.subjects.domain.usecase
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumNodeStatus
+import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchPensumStatus
 import com.gdavidpb.tuindice.subjects.domain.usecase.param.SubjectSearchParams
 import com.gdavidpb.tuindice.subjects.testing.ControllableSubjectCatalogRepository
 import com.gdavidpb.tuindice.subjects.testing.subjectSearchResult
@@ -18,7 +18,7 @@ class ObserveSubjectSearchUseCaseContractTest {
 			subjectSearchResult(subjectCode = "EC5333"),
 			subjectSearchResult(
 				subjectCode = "EC5201",
-				pensumStatus = AcademicPensumNodeStatus.APPROVED
+				pensumStatus = SubjectSearchPensumStatus.APPROVED
 			)
 		)
 		val repository = ControllableSubjectCatalogRepository(localResults = results)
