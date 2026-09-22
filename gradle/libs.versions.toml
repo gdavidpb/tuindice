@@ -1,5 +1,6 @@
 [versions]
-components-resources = "1.12.0"
+# Atado a compose-mpp (ver su comentario).
+components-resources = "1.11.1"
 kotlin = "2.4.20"
 ksp = "2.3.12"
 # Congelado: JetBrains dejó de publicar los íconos Material después de 1.7.3.
@@ -17,8 +18,10 @@ detekt = "1.23.8"
 firebase-bom = "34.19.0"
 firebase-perf-gradle = "2.0.2"
 coil3 = "3.6.3"
-compose-bom = "2026.09.00"
-compottie = "2.3.1"
+# Atado a compose-mpp (ver su comentario).
+compose-bom = "2026.08.00"
+# Atado a compose-mpp: la 2.3.x exige foundation 1.12 y arrastraría Compose Multiplatform a 1.12.
+compottie = "2.2.4"
 kotlinx-datetime = "0.8.0"
 kotlinx-serialization-json = "1.11.0"
 browser = "1.10.0"
@@ -47,8 +50,13 @@ material3 = "1.4.0"
 navigation3-runtime = "1.1.7"
 # Estable de JetBrains: lo más nuevo (1.2.0) sigue en beta.
 navigation3-ui = "1.1.1"
-compose = "1.12.1"
-compose-mpp = "1.12.0"
+# Atado a compose-mpp (ver su comentario).
+compose = "1.11.4"
+# Se queda en 1.11.1: con 1.12.0 los tests de UI de iOS que cargan un Lottie fallan de forma
+# intermitente ("Detected multithreaded access to SnapshotStateObserver"). runComposeUiTest v1
+# compone en un UnconfinedTestDispatcher y el nuevo FrameRecomposer observa desde el hilo de IO.
+# Subir junto con la migración de runTuIndiceUiTest a la API v2 (StandardTestDispatcher).
+compose-mpp = "1.11.1"
 # Estable de JetBrains: material3 va versionado aparte de compose-mpp y lo más nuevo es alpha.
 compose-mpp-material3 = "1.9.0"
 datastore = "1.2.1"
