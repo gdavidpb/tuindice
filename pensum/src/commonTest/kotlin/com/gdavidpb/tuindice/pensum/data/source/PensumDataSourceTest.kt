@@ -294,7 +294,7 @@ class PensumDataSourceTest {
 
 private const val HOUR = 60L * 60L * 1000L
 
-private class FakePensumLocalDataRepository(
+internal class FakePensumLocalDataRepository(
 	private val selection: PensumSelectionParams,
 	var cacheState: SelectedPensumCacheState? = null
 ) : PensumLocalDataRepository {
@@ -335,7 +335,7 @@ private class FakePensumLocalDataRepository(
 	}
 }
 
-private class FakePensumRemoteDataRepository(
+internal class FakePensumRemoteDataRepository(
 	var throwable: Throwable? = null,
 	private val throwableBySelection: Map<PensumSelectionParams, Throwable> = emptyMap(),
 	// Holds only the first request, so a later one can overtake it: a shared gate would hold every
