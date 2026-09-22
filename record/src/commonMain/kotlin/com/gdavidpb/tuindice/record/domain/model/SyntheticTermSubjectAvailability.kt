@@ -7,4 +7,7 @@ enum class SyntheticTermSubjectAvailability {
 	BLOCKED,
 	ALREADY_PLANNED,
 	NOT_IN_PENSUM,
+
+	// Not a fixed course, but an open elective or Estudios Generales slot of the pensum takes it.
+	COUNTS_AS_SLOT,
 }

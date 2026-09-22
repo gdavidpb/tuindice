@@ -3,6 +3,7 @@
 package com.gdavidpb.tuindice.record.data.source
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumSlotKind
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
@@ -529,6 +530,118 @@ class SyntheticTermCreationDataSourceTest {
 		)
 	}
 
+	@Test
+	fun observeSnapshot_labelsSubjectsThatCountTowardAnOpenSlot() = runTest {
+		val dataSource = dataSource(
+			record = academicRecord(approvedSubjectCodes = listOf("MA1111")),
+			pensumPayloadJson = pensumPayload(
+				nodes = listOf(
+					pensumNode(id = "ma1111", subjectCode = "MA1111", name = "Matemáticas I"),
+					pensumSlotNode(id = "elective-1", kind = "ELECTIVE", category = "AREA_ELECTIVE", subjectCodes = listOf("MC5123")),
+					pensumSlotNode(id = "eg-1", kind = "GENERAL", category = "GENERAL_STUDIES", subjectCodes = listOf("CS2316"))
+				),
+				edges = emptyList()
+			),
+			searchEntities = listOf(
+				subjectCatalogEntity(subjectCode = "MC5123", name = "Opcion electiva"),
+				subjectCatalogEntity(subjectCode = "CS2316", name = "Opcion general"),
+				subjectCatalogEntity(subjectCode = "ZZ1111", name = "Opcion ajena")
+			)
+		)
+
+		val results = dataSource.observeSnapshot(
+			queryFlow = MutableStateFlow("opcion"),
+			selectedSubjectsFlow = MutableStateFlow(emptyList()),
+			selectedPeriodKeyFlow = MutableStateFlow(null),
+			editingTermIdFlow = MutableStateFlow(null),
+			editingTermKeyFlow = MutableStateFlow(null)
+		).first().searchResults.associateBy { subject -> subject.subjectCode }
+
+		assertEquals(SyntheticTermSubjectAvailability.COUNTS_AS_SLOT, results.getValue("MC5123").availability)
+		assertEquals(AcademicPensumSlotKind.ELECTIVE, results.getValue("MC5123").availabilityDetail?.slotKind)
+		assertEquals(SyntheticTermSubjectAvailability.COUNTS_AS_SLOT, results.getValue("CS2316").availability)
+		assertEquals(AcademicPensumSlotKind.GENERAL_STUDIES, results.getValue("CS2316").availabilityDetail?.slotKind)
+		assertEquals(SyntheticTermSubjectAvailability.NOT_IN_PENSUM, results.getValue("ZZ1111").availability)
+		assertEquals(null, results.getValue("ZZ1111").availabilityDetail?.slotKind)
+		assertTrue(results.getValue("MC5123").canAdd)
+	}
+
+	@Test
+	fun observeSnapshot_anElectiveThatFilledTheSlotReadsApproved_andTheNextOneReadsTheSlotAsFilled() = runTest {
+		val dataSource = dataSource(
+			record = academicRecord(approvedSubjectCodes = listOf("MC5122")),
+			pensumPayloadJson = pensumPayload(
+				nodes = listOf(
+					pensumNode(id = "ma1111", subjectCode = "MA1111", name = "Matemáticas I"),
+					pensumSlotNode(
+						id = "elective-1",
+						kind = "ELECTIVE",
+						category = "AREA_ELECTIVE",
+						subjectCodes = listOf("MC5122", "MC5123")
+					)
+				),
+				edges = emptyList()
+			),
+			searchEntities = listOf(
+				subjectCatalogEntity(subjectCode = "MC5122", name = "Electiva cursada"),
+				subjectCatalogEntity(subjectCode = "MC5123", name = "Electiva nueva")
+			)
+		)
+
+		val results = dataSource.observeSnapshot(
+			queryFlow = MutableStateFlow("electiva"),
+			selectedSubjectsFlow = MutableStateFlow(emptyList()),
+			selectedPeriodKeyFlow = MutableStateFlow(null),
+			editingTermIdFlow = MutableStateFlow(null),
+			editingTermKeyFlow = MutableStateFlow(null)
+		).first().searchResults.associateBy { subject -> subject.subjectCode }
+
+		// Before: MC5122 read "Fuera de tu pensum" although the pensum screen counts it.
+		assertEquals(SyntheticTermSubjectAvailability.APPROVED, results.getValue("MC5122").availability)
+		assertEquals(SyntheticTermSubjectAvailability.NOT_IN_PENSUM, results.getValue("MC5123").availability)
+		assertEquals(AcademicPensumSlotKind.ELECTIVE, results.getValue("MC5123").availabilityDetail?.slotKind)
+	}
+
+	@Test
+	fun observeSnapshot_resolvesAnEquivalenceCodeAsItsCourse() = runTest {
+		val dataSource = dataSource(
+			record = academicRecord(approvedSubjectCodes = listOf("CI2521")),
+			pensumPayloadJson = pensumPayload(
+				nodes = listOf(
+					pensumCourseNodeWithEquivalence(
+						id = "ci2525",
+						subjectCode = "CI2525",
+						name = "Estructuras Discretas I",
+						equivalenceCodes = listOf("CI2521")
+					),
+					pensumCourseNodeWithEquivalence(
+						id = "ci2526",
+						subjectCode = "CI2526",
+						name = "Estructuras Discretas II",
+						equivalenceCodes = listOf("CI2522")
+					)
+				),
+				edges = listOf(pensumEdge(fromNodeId = "ci2525", toNodeId = "ci2526", relationshipType = "REQUIREMENT"))
+			),
+			searchEntities = listOf(
+				subjectCatalogEntity(subjectCode = "CI2525", name = "Estructuras Discretas I"),
+				subjectCatalogEntity(subjectCode = "CI2522", name = "Estructuras Discretas II")
+			)
+		)
+
+		val results = dataSource.observeSnapshot(
+			queryFlow = MutableStateFlow("estructuras"),
+			selectedSubjectsFlow = MutableStateFlow(emptyList()),
+			selectedPeriodKeyFlow = MutableStateFlow(null),
+			editingTermIdFlow = MutableStateFlow(null),
+			editingTermKeyFlow = MutableStateFlow(null)
+		).first().searchResults.associateBy { subject -> subject.subjectCode }
+
+		// The approved alternate CI2521 approves CI2525, which unlocks CI2526 and its alternate CI2522.
+		assertEquals(SyntheticTermSubjectAvailability.APPROVED, results.getValue("CI2525").availability)
+		assertEquals(SyntheticTermSubjectAvailability.AVAILABLE, results.getValue("CI2522").availability)
+	}
+
 	private fun dataSource(
 		record: AcademicRecord,
 		pensumPayloadJson: String,
@@ -816,6 +929,59 @@ private fun pensumEdge(
 		  "from_node_id": "$fromNodeId",
 		  "to_node_id": "$toNodeId",
 		  "relationship_type": "$relationshipType"
+		}
+	""".trimIndent()
+}
+
+private fun pensumSlotNode(
+	id: String,
+	kind: String,
+	category: String,
+	subjectCodes: List<String>
+): String {
+	return """
+		{
+		  "id": "$id",
+		  "node_type": "SLOT",
+		  "name": "Slot $id",
+		  "credits": 3,
+		  "category": "$category",
+		  "fulfillment_rules": [
+		    {
+		      "id": "$id::subject-eligibility",
+		      "rule_type": "SUBJECT_ELIGIBILITY",
+		      "subject_codes": [${subjectCodes.joinToString(separator = ",") { code -> "\"$code\"" }}],
+		      "subject_code_prefixes": [],
+		      "slot_eligibility_kind": "$kind",
+		      "min_credits": 3,
+		      "min_subjects": 1
+		    }
+		  ]
+		}
+	""".trimIndent()
+}
+
+private fun pensumCourseNodeWithEquivalence(
+	id: String,
+	subjectCode: String,
+	name: String,
+	equivalenceCodes: List<String>
+): String {
+	return """
+		{
+		  "id": "$id",
+		  "node_type": "COURSE",
+		  "subject_code": "$subjectCode",
+		  "name": "$name",
+		  "credits": 4,
+		  "category": "PROFESSIONAL",
+		  "fulfillment_rules": [
+		    {
+		      "id": "$id::equivalence",
+		      "rule_type": "EQUIVALENCE",
+		      "subject_codes": [${equivalenceCodes.joinToString(separator = ",") { code -> "\"$code\"" }}]
+		    }
+		  ]
 		}
 	""".trimIndent()
 }

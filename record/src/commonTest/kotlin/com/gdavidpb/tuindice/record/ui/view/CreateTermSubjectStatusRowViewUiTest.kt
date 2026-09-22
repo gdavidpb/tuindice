@@ -4,6 +4,7 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumSlotKind
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailabilityDetail
@@ -109,6 +110,60 @@ class CreateTermSubjectStatusRowViewUiTest {
 		}
 
 		onNodeWithText("Disponible").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_electiveSlotStatusClicked_then_showsPendingElectiveTooltip() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateTermSubjectStatusRow(
+				subject = subject(
+					availability = SyntheticTermSubjectAvailability.COUNTS_AS_SLOT,
+					detail = SyntheticTermSubjectAvailabilityDetail(slotKind = AcademicPensumSlotKind.ELECTIVE)
+				),
+				availableText = "Disponible",
+				availableIcon = CreateTermSubjectStatusIcon.Dot
+			)
+		}
+
+		onNodeWithText("Cuenta como electiva").performClick()
+
+		onNodeWithText("Cubre una electiva pendiente de tu pensum").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_generalStudiesSlotStatusClicked_then_showsPendingGeneralStudiesTooltip() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateTermSubjectStatusRow(
+				subject = subject(
+					availability = SyntheticTermSubjectAvailability.COUNTS_AS_SLOT,
+					detail = SyntheticTermSubjectAvailabilityDetail(slotKind = AcademicPensumSlotKind.GENERAL_STUDIES)
+				),
+				availableText = "Disponible",
+				availableIcon = CreateTermSubjectStatusIcon.Dot
+			)
+		}
+
+		onNodeWithText("Cuenta como Estudios Generales").performClick()
+
+		onNodeWithText("Cubre un Estudio General pendiente de tu pensum").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_outsidePensumBecauseElectivesAreFilled_then_tooltipSaysSo() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			CreateTermSubjectStatusRow(
+				subject = subject(
+					availability = SyntheticTermSubjectAvailability.NOT_IN_PENSUM,
+					detail = SyntheticTermSubjectAvailabilityDetail(slotKind = AcademicPensumSlotKind.ELECTIVE)
+				),
+				availableText = "Disponible",
+				availableIcon = CreateTermSubjectStatusIcon.Dot
+			)
+		}
+
+		onNodeWithText("Fuera de tu pensum").performClick()
+
+		onNodeWithText("Ya cubriste las electivas donde cuenta esta materia").assertIsDisplayed()
 	}
 
 	private fun subject(
