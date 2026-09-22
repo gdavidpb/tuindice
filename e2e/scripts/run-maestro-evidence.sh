@@ -14,6 +14,23 @@ fi
 require_command git
 require_command jq
 
+# Running one platform at a time only helps if the other platform's device is
+# actually off. An idle Android emulator still burns most of a core, which was
+# enough to make an otherwise clean iOS suite fail on an action that never
+# registered -- the same symptom the parallel runs produce.
+warn_about_idle_foreign_device() {
+	if [[ "$PLATFORM" == "ios" ]] && pgrep -f 'qemu-system-aarch64 -avd' >/dev/null 2>&1; then
+		log "Warning: an Android emulator is running while this iOS suite is. It competes for CPU even when idle; stop it with e2e/scripts/stop-devices.sh android."
+	fi
+
+	if [[ "$PLATFORM" == "android" ]] && command -v xcrun >/dev/null 2>&1 &&
+		xcrun simctl list devices booted 2>/dev/null | grep -q 'Booted'; then
+		log "Warning: an iOS simulator is booted while this Android suite is. It competes for CPU even when idle; stop it with e2e/scripts/stop-devices.sh ios."
+	fi
+}
+
+warn_about_idle_foreign_device
+
 COMMIT_SHA="${E2E_COMMIT_SHA:-${E2E_HEAD_SHA:-$(git -C "${REPO_ROOT}" rev-parse HEAD)}}"
 COMMIT_SHA="$(git -C "${REPO_ROOT}" rev-parse "${COMMIT_SHA}^{commit}")"
 
