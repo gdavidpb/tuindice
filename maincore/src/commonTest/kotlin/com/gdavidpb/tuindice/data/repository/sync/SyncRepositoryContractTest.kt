@@ -12,6 +12,8 @@ import com.gdavidpb.tuindice.data.model.SyncResult
 import com.gdavidpb.tuindice.data.model.SyncRetryBackoffState
 import com.gdavidpb.tuindice.data.source.sync.SyncDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncRemoteException
+import com.gdavidpb.tuindice.data.source.sync.SyncResultLocalDataSource
+import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationRepository
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
@@ -696,14 +698,17 @@ class SyncRepositoryContractTest {
 			settingsDataSource = settingsDataSource,
 			syncStatusRepository = syncStatusRepository,
 			remoteDataSource = remoteDataSource,
-			recordLocalDataSource = recordLocalDataSource,
-			userLocalDataSource = userLocalDataSource,
+			syncResultLocalDataSource = SyncResultLocalDataSource(
+				recordLocalDataSource = recordLocalDataSource,
+				userLocalDataSource = userLocalDataSource
+			),
+			pensumRevalidationRepository = FakePensumRevalidationRepository(),
 			coroutineScope = coroutineScope
 		)
 	}
 }
 
-private class FakeSyncSettingsLocalDataSource(
+internal class FakeSyncSettingsLocalDataSource(
 	var onCooldown: Boolean,
 	var syncRetryBackoffActive: Boolean = false,
 	var syncRetryBackoffMarked: Boolean = false,
@@ -766,7 +771,7 @@ private class FakeSyncSettingsLocalDataSource(
 	override suspend fun getSyncRetryBackoffState(): SyncRetryBackoffState = syncRetryBackoffState
 }
 
-private class FakeSyncStatusRepository(
+internal class FakeSyncStatusRepository(
 	initialValue: SyncStatus = SyncStatus.Healthy,
 	initialReport: SyncReport = SyncReport.success(),
 	initialLastSuccessfulSyncAt: Long? = null
@@ -812,7 +817,28 @@ private class FakeSyncStatusRepository(
 	}
 }
 
-private class FakeSyncRemoteDataSource(
+internal class FakePensumRevalidationRepository(
+	var throwable: Throwable? = null,
+	private val gate: CompletableDeferred<Unit>? = null
+) : PensumRevalidationRepository {
+	var calls = 0
+		private set
+	var cancelled = false
+		private set
+
+	override suspend fun revalidateSelectedPensum() {
+		calls++
+		try {
+			gate?.await()
+		} catch (throwable: CancellationException) {
+			cancelled = true
+			throw throwable
+		}
+		throwable?.let { throw it }
+	}
+}
+
+internal class FakeSyncRemoteDataSource(
 	private val result: SyncResult = SyncResult(
 		record = DEFAULT_RECORD,
 		user = DEFAULT_USER
@@ -849,7 +875,7 @@ private class FakeSyncRemoteDataSource(
 	}
 }
 
-private class FakeAcademicRecordLocalDataRepository : AcademicRecordLocalDataRepository {
+internal class FakeAcademicRecordLocalDataRepository : AcademicRecordLocalDataRepository {
 	val savedRecords = mutableListOf<VersionedAcademicRecord>()
 
 	override fun observeAcademicRecordFlow(): Flow<AcademicRecord?> = flowOf(savedRecords.lastOrNull()?.record)
@@ -867,7 +893,7 @@ private class FakeAcademicRecordLocalDataRepository : AcademicRecordLocalDataRep
 	}
 }
 
-private class FakeUserLocalDataRepository : LocalDataRepository {
+internal class FakeUserLocalDataRepository : LocalDataRepository {
 	val updatedUsers = mutableListOf<User>()
 
 	override fun getUserFlow(): Flow<User?> = flowOf(updatedUsers.lastOrNull())

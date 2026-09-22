@@ -1,18 +1,18 @@
 package com.gdavidpb.tuindice.data.source.sync
 
+import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
-import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.utils.extension.isConflict
 import com.gdavidpb.tuindice.base.utils.extension.isFailedDependency
-import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
 import com.gdavidpb.tuindice.base.utils.extension.isSyncRetryable
+import com.gdavidpb.tuindice.base.utils.extension.isUnavailable
 import com.gdavidpb.tuindice.data.repository.sync.SyncRemoteDataRepository
+import com.gdavidpb.tuindice.data.repository.sync.SyncResultLocalDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepository
-import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
-import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
+import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationRepository
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -31,8 +31,8 @@ class SyncDataSource(
 	private val settingsDataSource: SyncSettingsLocalDataRepository,
 	private val syncStatusRepository: SyncStatusRepository,
 	private val remoteDataSource: SyncRemoteDataRepository,
-	private val recordLocalDataSource: AcademicRecordLocalDataRepository,
-	private val userLocalDataSource: LocalDataRepository,
+	private val syncResultLocalDataSource: SyncResultLocalDataRepository,
+	private val pensumRevalidationRepository: PensumRevalidationRepository,
 	private val coroutineScope: CoroutineScope
 ) : SyncRepository {
 	private val syncMutex = Mutex()
@@ -61,8 +61,7 @@ class SyncDataSource(
 					try {
 						val syncResult = remoteDataSource.sync(password)
 
-						recordLocalDataSource.saveAcademicRecord(syncResult.record)
-						userLocalDataSource.updateUser(syncResult.user)
+						syncResultLocalDataSource.saveSyncResult(syncResult)
 						syncStatusRepository.setLastSuccessfulSyncAt(syncResult.user.lastUpdate)
 						syncStatusRepository.setSyncReport(syncResult.sync)
 						syncStatusRepository.setSyncStatus(SyncStatus.Healthy)
@@ -70,6 +69,7 @@ class SyncDataSource(
 						settingsDataSource.setSyncOnCooldown()
 						settingsDataSource.setSyncedFeatureCooldowns()
 						settingsDataSource.clearStaleFeatureCooldowns()
+						launchPensumRevalidation()
 					} finally {
 						syncInProgress.value = false
 					}
@@ -79,6 +79,17 @@ class SyncDataSource(
 
 				markSyncFailure(throwable)
 			}
+		}
+	}
+
+	// A sync is the one moment every student reaches regularly, even one who stopped opening the
+	// pensum tab while the planner and the subject search keep reading its cache. The check is
+	// fire-and-forget on the session scope: it never holds the sync lock (a ForceRefresh right after
+	// is not delayed), sign-out cancels it before clearing data, and a failure never marks the sync.
+	private fun launchPensumRevalidation() {
+		coroutineScope.launch {
+			runCatching { pensumRevalidationRepository.revalidateSelectedPensum() }
+				.onFailure { throwable -> if (throwable is CancellationException) throw throwable }
 		}
 	}
 
