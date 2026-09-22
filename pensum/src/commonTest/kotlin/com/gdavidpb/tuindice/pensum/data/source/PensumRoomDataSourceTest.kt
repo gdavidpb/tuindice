@@ -88,14 +88,42 @@ class PensumRoomDataSourceTest {
 		assertTrue(state.updatedAt >= before, "expected a stamp taken on save, got ${state.updatedAt} < $before")
 	}
 
+	@Test
+	fun savePensumResponse_keepsTheGradingModeTheSubjectsApiStored() = runTest {
+		// The subjects API stored EP3308 as pass/fail; the pensum knows no grading mode.
+		val catalogDao = InMemorySubjectCatalogCacheDao(
+			catalogRow(subjectCode = "EP3308", name = "PROYECTO III", credits = 2, gradingMode = "QUALITATIVE_PASS_FAIL")
+		)
+		val dataSource = createDataSource(InMemoryPensumCacheDao(), InMemoryPensumSelectionDao(null), catalogDao)
+
+		dataSource.savePensumResponse(
+			response = sampleResponse(
+				nodes = listOf(
+					courseNode(subjectCode = "EP3308", name = "PROYECTO DE GRADO III", credits = 3),
+					courseNode(subjectCode = "CI2525", name = "ESTRUCTURAS DISCRETAS I", credits = 4)
+				)
+			),
+			inferredSelection = false
+		)
+
+		val kept = catalogDao.rows.getValue("EP3308")
+		assertEquals("QUALITATIVE_PASS_FAIL", kept.gradingMode)
+		// Only the grading mode is kept: name and credits still follow the pensum.
+		assertEquals("PROYECTO DE GRADO III", kept.name)
+		assertEquals(3, kept.credits)
+		// A subject the API never described is still added, with no grading mode to keep.
+		assertNull(catalogDao.rows.getValue("CI2525").gradingMode)
+	}
+
 	private fun createDataSource(
 		pensumCacheDao: InMemoryPensumCacheDao,
-		selectionDao: InMemoryPensumSelectionDao
+		selectionDao: InMemoryPensumSelectionDao,
+		subjectCatalogCacheDao: InMemorySubjectCatalogCacheDao = InMemorySubjectCatalogCacheDao()
 	): PensumRoomDataSource {
 		return PensumRoomDataSource(
 			pensumCacheDao = pensumCacheDao,
 			pensumSelectionDao = selectionDao,
-			subjectCatalogCacheDao = InMemorySubjectCatalogCacheDao(),
+			subjectCatalogCacheDao = subjectCatalogCacheDao,
 			visibleAcademicRecordRepository = EmptyVisibleAcademicRecordRepository(),
 			transactionRunner = DirectTransactionRunner(),
 			json = Json { ignoreUnknownKeys = true }
@@ -143,16 +171,26 @@ private class InMemoryPensumSelectionDao(private var selection: PensumSelectionE
 	override suspend fun deleteAll(): Int = (if (selection == null) 0 else 1).also { selection = null }
 }
 
-private class InMemorySubjectCatalogCacheDao : SubjectCatalogCacheDao() {
+private class InMemorySubjectCatalogCacheDao(vararg initial: SubjectCatalogCacheEntity) : SubjectCatalogCacheDao() {
+	val rows = initial.associateBy(SubjectCatalogCacheEntity::subjectCode).toMutableMap()
+
 	override fun observeSearch(normalizedQuery: String, limit: Int): Flow<List<SubjectCatalogCacheEntity>> {
 		return emptyFlow()
 	}
 
-	override suspend fun upsertEntity(entity: SubjectCatalogCacheEntity) = Unit
+	override suspend fun getEntities(subjectCodes: List<String>): List<SubjectCatalogCacheEntity> {
+		return subjectCodes.mapNotNull(rows::get)
+	}
 
-	override suspend fun upsertEntities(entities: List<SubjectCatalogCacheEntity>) = Unit
+	override suspend fun upsertEntity(entity: SubjectCatalogCacheEntity) {
+		rows[entity.subjectCode] = entity
+	}
 
-	override suspend fun deleteAll(): Int = 0
+	override suspend fun upsertEntities(entities: List<SubjectCatalogCacheEntity>) {
+		entities.forEach { entity -> rows[entity.subjectCode] = entity }
+	}
+
+	override suspend fun deleteAll(): Int = rows.size.also { rows.clear() }
 }
 
 private class EmptyVisibleAcademicRecordRepository : VisibleAcademicRecordRepository {
@@ -163,7 +201,7 @@ private class DirectTransactionRunner : PersistenceTransactionRunner {
 	override suspend fun <R> immediate(block: suspend () -> R): R = block()
 }
 
-private fun sampleResponse(): GetPensumResponse {
+private fun sampleResponse(nodes: List<GetPensumResponse.Node> = emptyList()): GetPensumResponse {
 	return GetPensumResponse(
 		careerName = "Computacion",
 		selectedPensumId = "computacion-2019-degree-project",
@@ -184,8 +222,42 @@ private fun sampleResponse(): GetPensumResponse {
 			totalCredits = 170,
 			canvas = GetPensumResponse.Canvas(width = 1200.0, height = 900.0),
 			terms = emptyList(),
-			nodes = emptyList(),
+			nodes = nodes,
 			edges = emptyList()
 		)
+	)
+}
+
+private fun courseNode(subjectCode: String, name: String, credits: Int): GetPensumResponse.Node {
+	return GetPensumResponse.Node(
+		id = subjectCode.lowercase(),
+		nodeType = "COURSE",
+		displayCode = subjectCode,
+		subjectCode = subjectCode,
+		name = name,
+		credits = credits,
+		category = "CORE",
+		termId = "term-1",
+		x = 0.0,
+		y = 0.0,
+		width = 120.0,
+		height = 60.0
+	)
+}
+
+private fun catalogRow(
+	subjectCode: String,
+	name: String,
+	credits: Int,
+	gradingMode: String?
+): SubjectCatalogCacheEntity {
+	return SubjectCatalogCacheEntity(
+		subjectCode = subjectCode,
+		name = name,
+		credits = credits,
+		gradingMode = gradingMode,
+		normalizedCode = subjectCode.lowercase(),
+		normalizedName = name.lowercase(),
+		updatedAt = 0L
 	)
 }

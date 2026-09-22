@@ -387,6 +387,8 @@ private class RecordingSubjectCatalogCacheDao(
 		limit: Int
 	): Flow<List<SubjectCatalogCacheEntity>> = emptyFlow()
 
+	override suspend fun getEntities(subjectCodes: List<String>): List<SubjectCatalogCacheEntity> = emptyList()
+
 	override suspend fun deleteAll(): Int {
 		calls += "subject_catalog_cache"
 		return 0

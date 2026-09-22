@@ -96,7 +96,7 @@ class PensumRoomDataSource(
 				pensumCacheDao.upsertEntity(response.toCacheEntity(cacheKey))
 				val subjectCatalog = response.toSubjectCatalogCacheEntities(updatedAt = now)
 				if (subjectCatalog.isNotEmpty()) {
-					subjectCatalogCacheDao.upsertEntities(subjectCatalog)
+					subjectCatalogCacheDao.upsertEntities(subjectCatalog.keepingStoredGradingModes())
 				}
 				val selectedPensum = response.selectedPensum()
 				pensumSelectionDao.upsertEntity(
@@ -202,6 +202,17 @@ class PensumRoomDataSource(
 				)
 			}
 			.distinctBy(SubjectCatalogCacheEntity::subjectCode)
+	}
+
+	// The pensum knows no grading mode, but the subjects API does: keep the one it stored, or every
+	// pensum save (now at least daily) would erase it until the next search refreshed the subject.
+	// Runs inside the save's immediate transaction, so no catalog write lands in between.
+	private suspend fun List<SubjectCatalogCacheEntity>.keepingStoredGradingModes(): List<SubjectCatalogCacheEntity> {
+		val storedGradingModes = subjectCatalogCacheDao
+			.getEntities(subjectCodes = map(SubjectCatalogCacheEntity::subjectCode))
+			.associate { stored -> stored.subjectCode to stored.gradingMode }
+
+		return map { entity -> entity.copy(gradingMode = storedGradingModes[entity.subjectCode]) }
 	}
 
 	private fun GetPensumResponse.selectedPensum(): GetPensumResponse.Pensum {

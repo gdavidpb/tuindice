@@ -760,6 +760,9 @@ private class FakeSubjectCatalogCacheDao(
 		)
 	}
 
+	override suspend fun getEntities(subjectCodes: List<String>): List<SubjectCatalogCacheEntity> =
+		entities.filter { entity -> entity.subjectCode in subjectCodes }
+
 	override suspend fun upsertEntity(entity: SubjectCatalogCacheEntity) = Unit
 
 	override suspend fun upsertEntities(entities: List<SubjectCatalogCacheEntity>) = Unit

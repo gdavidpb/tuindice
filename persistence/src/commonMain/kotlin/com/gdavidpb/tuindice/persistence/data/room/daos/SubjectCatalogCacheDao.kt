@@ -26,6 +26,12 @@ abstract class SubjectCatalogCacheDao : UpsertDao<SubjectCatalogCacheEntity>() {
 		limit: Int
 	): Flow<List<SubjectCatalogCacheEntity>>
 
+	@Query(
+		"SELECT * FROM ${SubjectCatalogCacheTable.TABLE_NAME} " +
+			"WHERE ${SubjectCatalogCacheTable.SUBJECT_CODE} IN (:subjectCodes)"
+	)
+	abstract suspend fun getEntities(subjectCodes: List<String>): List<SubjectCatalogCacheEntity>
+
 	@Query("DELETE FROM ${SubjectCatalogCacheTable.TABLE_NAME}")
 	abstract suspend fun deleteAll(): Int
 }

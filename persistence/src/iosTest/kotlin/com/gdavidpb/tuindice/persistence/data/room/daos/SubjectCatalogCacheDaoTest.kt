@@ -89,6 +89,17 @@ class SubjectCatalogCacheDaoTest {
 	}
 
 	@Test
+	fun getEntities_returnsOnlyTheRequestedCodes() = runTest {
+		val requested = catalogSubject(subjectCode = "MA1112", name = "Algebra Basica")
+		val other = catalogSubject(subjectCode = "MA2115", name = "Algebra Lineal")
+
+		dao.upsertEntities(listOf(requested, other))
+
+		assertEquals(listOf(requested), dao.getEntities(subjectCodes = listOf("MA1112", "ZZ9999")))
+		assertEquals(emptyList(), dao.getEntities(subjectCodes = emptyList()))
+	}
+
+	@Test
 	fun deleteAll_removesEveryRow() = runTest {
 		dao.upsertEntities(
 			listOf(
