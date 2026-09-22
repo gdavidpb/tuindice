@@ -1,0 +1,17 @@
+{
+  "query": "slot",
+  "results": [
+    {
+      "subject_code": "EG1511",
+      "name": "Slot estudios generales",
+      "credits": 3,
+      "grading_mode": "numeric"
+    },
+    {
+      "subject_code": "CI5312",
+      "name": "Slot electiva de area",
+      "credits": 4,
+      "grading_mode": "numeric"
+    }
+  ]
+}

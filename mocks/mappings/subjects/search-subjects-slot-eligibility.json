@@ -1,0 +1,25 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPath": "/subjects/v1/search",
+    "queryParameters": {
+      "query": {
+        "contains": "slot"
+      }
+    },
+    "headers": {
+      "Authorization": {
+        "matches": "Bearer .+"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "fixedDelayMilliseconds": 250,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "subjects/search-subjects-slot-eligibility.json"
+  }
+}
