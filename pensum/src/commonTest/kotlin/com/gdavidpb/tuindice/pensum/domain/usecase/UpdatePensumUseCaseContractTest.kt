@@ -30,7 +30,8 @@ class UpdatePensumUseCaseContractTest {
 			awaitComplete()
 		}
 
-		assertEquals(1, repository.refreshCalls)
+		// An explicit refresh never waits for the cached pensum to age.
+		assertEquals(listOf(true), repository.refreshForceRemote)
 	}
 
 	@Test

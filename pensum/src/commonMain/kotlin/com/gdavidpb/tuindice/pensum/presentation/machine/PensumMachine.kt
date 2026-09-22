@@ -22,7 +22,9 @@ import com.gdavidpb.tuindice.pensum.presentation.transition.anyStateTransitions
 import com.gdavidpb.tuindice.pensum.presentation.transition.contentTransitions
 import com.gdavidpb.tuindice.pensum.presentation.transition.emptyTransitions
 import com.gdavidpb.tuindice.pensum.presentation.transition.idleTransitions
+import com.gdavidpb.tuindice.pensum.presentation.transition.loadingTransitions
 import com.gdavidpb.tuindice.pensum.presentation.transition.recordDataUnavailableTransitions
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 
 class PensumMachine(
@@ -34,11 +36,17 @@ class PensumMachine(
 	private val selectPensumSelectionUseCase: SelectPensumSelectionUseCase,
 	private val setPensumSummaryCollapsedUseCase: SetPensumSummaryCollapsedUseCase
 ) : ScreenMachine<Pensum.State, Pensum.Effect> {
+	// The in-flight load, if any. Every entry into the pensum tab dispatches EnsurePensumLoaded,
+	// and it is handled from any state, so re-entering while a load runs must join it instead of
+	// starting a second one: an EFSM guard over the machine's own extended state.
+	private var ensureJob: Job? = null
+
 	override fun initialState(): Pensum.State = Pensum.State.Idle
 
 	override fun define(host: MachineHost<Pensum.Effect>): MachineDefinition<Pensum.State> {
 		return MachineDefinition.define {
 			idleTransitions(machine = this@PensumMachine, host = host)
+			loadingTransitions()
 			contentTransitions()
 			emptyTransitions()
 			recordDataUnavailableTransitions()
@@ -69,7 +77,9 @@ class PensumMachine(
 	}
 
 	internal fun ensurePensumLoaded(host: MachineHost<Pensum.Effect>) {
-		host.launchMachineJob {
+		if (ensureJob?.isActive == true) return
+
+		ensureJob = host.launchMachineJob {
 			val initialRefreshGate = InitialContentRefreshGate(
 				isCached = { result: Result -> result == Result.Cached },
 				isRefreshStarted = { result -> result == Result.RefreshStarted }

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.pensum.data.repository
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumSnapshot
 import com.gdavidpb.tuindice.pensum.data.model.GetPensumResponse
+import com.gdavidpb.tuindice.pensum.data.model.SelectedPensumCacheState
 import com.gdavidpb.tuindice.pensum.domain.model.PensumSelectionParams
 import kotlinx.coroutines.flow.Flow
 
@@ -9,6 +10,7 @@ interface PensumLocalDataRepository {
 	fun observePensumResponseFlow(): Flow<GetPensumResponse?>
 	fun observeAcademicSnapshotFlow(): Flow<AcademicPensumSnapshot>
 	suspend fun hasSelectedPensumResponse(): Boolean
+	suspend fun getSelectedPensumCacheState(): SelectedPensumCacheState?
 	suspend fun getSelectionParams(): PensumSelectionParams
 	suspend fun savePensumResponse(response: GetPensumResponse, inferredSelection: Boolean)
 	suspend fun selectPensum(year: Int)

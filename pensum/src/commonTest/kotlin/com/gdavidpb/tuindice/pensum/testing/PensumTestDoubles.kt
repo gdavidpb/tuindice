@@ -18,6 +18,7 @@ class RecordingPensumRepository(
 ) : PensumRepository {
 	var refreshCalls = 0
 		private set
+	val refreshForceRemote = mutableListOf<Boolean>()
 	var hasSelectedPensumResponseCalls = 0
 		private set
 	val selectedPensumYears = mutableListOf<Int>()
@@ -35,8 +36,9 @@ class RecordingPensumRepository(
 		observeThrowable?.let { throwable -> throw throwable }
 	}
 
-	override suspend fun refreshPensum() {
+	override suspend fun refreshPensum(forceRemote: Boolean) {
 		refreshCalls++
+		refreshForceRemote += forceRemote
 		refreshThrowable?.let { throwable -> throw throwable }
 	}
 

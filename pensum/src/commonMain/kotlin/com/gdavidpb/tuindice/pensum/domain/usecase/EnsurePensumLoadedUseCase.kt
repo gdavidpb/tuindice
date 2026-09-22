@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.pensum.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
+import com.gdavidpb.tuindice.base.domain.usecase.base.InitialContentFreshness
 import com.gdavidpb.tuindice.base.domain.usecase.base.InitialContentLoadResult
 import com.gdavidpb.tuindice.base.domain.usecase.base.InitialContentRefreshPolicy
 import com.gdavidpb.tuindice.base.domain.usecase.base.ensureInitialContentLoaded
@@ -25,8 +26,14 @@ class EnsurePensumLoadedUseCase(
 	override suspend fun executeOnBackground(params: Unit): Flow<Result> {
 		return ensureInitialContentLoaded(
 			hasLocalContent = { pensumRepository.hasSelectedPensumResponse() },
-			refreshPolicy = InitialContentRefreshPolicy.MissingOnly,
-			refresh = { _ -> pensumRepository.refreshPensum() }
+			// Always, not MissingOnly: a cached pensum is revalidated on every entry once it is older
+			// than a day (the repository decides), so curation reaches installed apps.
+			refreshPolicy = InitialContentRefreshPolicy.Always,
+			refresh = { request ->
+				pensumRepository.refreshPensum(
+					forceRemote = request.freshness == InitialContentFreshness.ForceRemote
+				)
+			}
 		).map { result ->
 			when (result) {
 				InitialContentLoadResult.Cached -> Result.Cached

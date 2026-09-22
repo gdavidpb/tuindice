@@ -14,7 +14,7 @@ import kotlin.test.assertIs
 
 class EnsurePensumLoadedUseCaseContractTest {
     @Test
-    fun execute_whenSelectedPensumIsCached_thenSkipsRemoteRefresh() = runTest {
+    fun execute_whenSelectedPensumIsCached_thenRevalidatesRespectingItsAge() = runTest {
         val repository = RecordingPensumRepository(hasCachedPensum = true)
         val useCase = createUseCase(repository = repository)
 
@@ -23,12 +23,21 @@ class EnsurePensumLoadedUseCaseContractTest {
                 EnsurePensumLoadedUseCase.Result.Cached,
                 awaitLoadingThenData(this)
             )
+            assertEquals(
+                EnsurePensumLoadedUseCase.Result.RefreshStarted,
+                assertIs<UseCaseState.Data<EnsurePensumLoadedUseCase.Result>>(awaitItem()).value
+            )
+            assertEquals(
+                EnsurePensumLoadedUseCase.Result.RefreshSucceeded,
+                assertIs<UseCaseState.Data<EnsurePensumLoadedUseCase.Result>>(awaitItem()).value
+            )
 
             awaitComplete()
         }
 
         assertEquals(1, repository.hasSelectedPensumResponseCalls)
-        assertEquals(0, repository.refreshCalls)
+        // Not forced: the repository keeps a pensum younger than a day and skips the request.
+        assertEquals(listOf(false), repository.refreshForceRemote)
     }
 
     @Test
@@ -50,7 +59,8 @@ class EnsurePensumLoadedUseCaseContractTest {
         }
 
         assertEquals(1, repository.hasSelectedPensumResponseCalls)
-        assertEquals(1, repository.refreshCalls)
+        // Nothing cached: the first load always reaches the backend.
+        assertEquals(listOf(true), repository.refreshForceRemote)
     }
 
     private fun createUseCase(

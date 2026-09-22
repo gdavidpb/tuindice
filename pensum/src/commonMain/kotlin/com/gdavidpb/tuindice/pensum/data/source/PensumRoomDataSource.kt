@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.academiccore.domain.utils.SubjectCatalogSearchNorma
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.pensum.data.mapper.cacheKey
 import com.gdavidpb.tuindice.pensum.data.model.GetPensumResponse
+import com.gdavidpb.tuindice.pensum.data.model.SelectedPensumCacheState
 import com.gdavidpb.tuindice.pensum.data.repository.PensumLocalDataRepository
 import com.gdavidpb.tuindice.pensum.domain.model.PensumSelectionParams
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao
@@ -60,6 +61,22 @@ class PensumRoomDataSource(
 	override suspend fun hasSelectedPensumResponse(): Boolean {
 		val cacheKey = pensumSelectionDao.getSelection()?.cacheKey ?: return false
 		return pensumCacheDao.getPensum(cacheKey) != null
+	}
+
+	// The cache row's own stamp, not the selection's: switching modality rewrites the selection
+	// without fetching anything, and must not make an old pensum look fresh.
+	override suspend fun getSelectedPensumCacheState(): SelectedPensumCacheState? {
+		val selection = pensumSelectionDao.getSelection() ?: return null
+		val cachedPensum = selection.cacheKey?.let { cacheKey -> pensumCacheDao.getPensum(cacheKey) }
+
+		return cachedPensum?.let { cached ->
+			SelectedPensumCacheState(
+				year = selection.year,
+				modalityId = selection.modalityId,
+				inferred = selection.inferred,
+				updatedAt = cached.updatedAt
+			)
+		}
 	}
 
 	override suspend fun getSelectionParams(): PensumSelectionParams {

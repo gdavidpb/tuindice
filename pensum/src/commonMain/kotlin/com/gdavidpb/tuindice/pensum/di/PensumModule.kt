@@ -8,6 +8,7 @@ import com.gdavidpb.tuindice.pensum.data.source.PensumDataSource
 import com.gdavidpb.tuindice.pensum.data.source.PensumRoomDataSource
 import com.gdavidpb.tuindice.pensum.domain.engine.PensumStatusEngine
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
+import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationRepository
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumSelectionRepository
 import com.gdavidpb.tuindice.pensum.domain.usecase.EnsurePensumLoadedUseCase
 import com.gdavidpb.tuindice.pensum.domain.usecase.ObservePensumUseCase
@@ -43,7 +44,10 @@ val pensumModule = module {
 	singleOf(::KtorPensumApiDataSource) { bind<PensumRemoteDataRepository>() }
 	singleOf(::PensumRoomDataSource) { bind<PensumLocalDataRepository>() }
 	singleOf(::LocalSettingsDataSource) { bind<PensumSelectionRepository>() }
-	singleOf(::PensumDataSource) { bind<PensumRepository>() }
+	singleOf(::PensumDataSource) {
+		bind<PensumRepository>()
+		bind<PensumRevalidationRepository>()
+	}
 
 	factoryOf(::UpdatePensumExceptionHandler)
 	singleOf(::PensumTopBarActionBus)
