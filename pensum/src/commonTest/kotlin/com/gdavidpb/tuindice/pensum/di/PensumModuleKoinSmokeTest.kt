@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.pensum.di
 
+import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicPensumStatusEngine
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
@@ -8,8 +9,14 @@ import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.RecordDataPrerequisiteRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.pensum.data.repository.PensumLocalDataRepository
+import com.gdavidpb.tuindice.pensum.data.repository.PensumRemoteDataRepository
+import com.gdavidpb.tuindice.pensum.data.source.FakePensumLocalDataRepository
+import com.gdavidpb.tuindice.pensum.data.source.FakePensumRemoteDataRepository
 import com.gdavidpb.tuindice.pensum.domain.model.PensumObservation
+import com.gdavidpb.tuindice.pensum.domain.model.PensumSelectionParams
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumRepository
+import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationRepository
 import com.gdavidpb.tuindice.pensum.domain.repository.PensumSelectionRepository
 import com.gdavidpb.tuindice.pensum.presentation.viewmodel.PensumViewModel
 import com.gdavidpb.tuindice.pensum.testing.FakeSettings
@@ -22,6 +29,7 @@ import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import org.koin.dsl.module
 import kotlin.test.Test
+import kotlin.test.assertSame
 
 class PensumModuleKoinSmokeTest {
 	@Test
@@ -42,12 +50,28 @@ class PensumModuleKoinSmokeTest {
 			PensumSelectionRepository::class
 		)
 	}
+
+	// One instance behind both contracts: a revalidation and a manual selection must share its
+	// remoteWriteMutex, or a late revalidation could write back the pensum the student just left.
+	@Test
+	fun bindsRevalidationToTheSameDataSourceAsSelection() = withKoinSmokeTest(
+		pensumModule,
+		module {
+			single<PensumLocalDataRepository> { FakePensumLocalDataRepository(selection = PensumSelectionParams()) }
+			single<PensumRemoteDataRepository> { FakePensumRemoteDataRepository() }
+			single<RecordDataPrerequisiteRepository> { FakeRecordDataPrerequisiteRepository() }
+			// subjectsModule provides it in the app.
+			single { AcademicPensumStatusEngine() }
+		}
+	) {
+		assertSame<Any>(get<PensumRepository>(), get<PensumRevalidationRepository>())
+	}
 }
 
 private class FakePensumRepository : PensumRepository {
 	override fun observePensumFlow(): Flow<PensumObservation> = emptyFlow()
 	override suspend fun hasSelectedPensumResponse(): Boolean = false
-	override suspend fun refreshPensum() = Unit
+	override suspend fun refreshPensum(forceRemote: Boolean) = Unit
 	override suspend fun selectPensum(year: Int) = Unit
 	override suspend fun selectModality(modalityId: String) = Unit
 	override suspend fun selectSelection(year: Int, modalityId: String) = Unit

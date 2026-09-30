@@ -27,9 +27,13 @@ class CreateTermSubjectItemTest {
 	}
 
 	@Test
-	fun canAdd_isTrue_forAvailableNotInPensumAndBlockedSubjects() {
+	fun canAdd_isTrue_forAvailableNotInPensumBlockedAndSlotSubjects() {
 		assertTrue(
 			syntheticSubject(availability = SyntheticTermSubjectAvailability.AVAILABLE)
+				.toCreateTermSubjectItem().canAdd
+		)
+		assertTrue(
+			syntheticSubject(availability = SyntheticTermSubjectAvailability.COUNTS_AS_SLOT)
 				.toCreateTermSubjectItem().canAdd
 		)
 		assertTrue(

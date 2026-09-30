@@ -11,6 +11,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.Add
+import androidx.compose.material.icons.outlined.Extension
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Map
 import androidx.compose.material.icons.outlined.Schedule
@@ -32,6 +33,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumSlotKind
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
@@ -41,12 +43,18 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.create_term_subject_already_planned
 import tuindice.record.generated.resources.create_term_subject_approved
+import tuindice.record.generated.resources.create_term_subject_counts_as_elective
+import tuindice.record.generated.resources.create_term_subject_counts_as_general_studies
 import tuindice.record.generated.resources.create_term_subject_current
 import tuindice.record.generated.resources.create_term_subject_not_in_pensum
 import tuindice.record.generated.resources.create_term_subject_requirement_pending
 import tuindice.record.generated.resources.create_term_subject_tooltip_already_planned
 import tuindice.record.generated.resources.create_term_subject_tooltip_approved
+import tuindice.record.generated.resources.create_term_subject_tooltip_counts_as_elective
+import tuindice.record.generated.resources.create_term_subject_tooltip_counts_as_general_studies
 import tuindice.record.generated.resources.create_term_subject_tooltip_current
+import tuindice.record.generated.resources.create_term_subject_tooltip_electives_filled
+import tuindice.record.generated.resources.create_term_subject_tooltip_general_studies_filled
 import tuindice.record.generated.resources.create_term_subject_tooltip_unavailable
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -66,7 +74,9 @@ fun CreateTermSubjectStatusRow(
 			currentText = stringResource(Res.string.create_term_subject_current),
 			alreadyPlannedText = stringResource(Res.string.create_term_subject_already_planned),
 			notInPensumText = stringResource(Res.string.create_term_subject_not_in_pensum),
-			blockedText = stringResource(Res.string.create_term_subject_requirement_pending)
+			blockedText = stringResource(Res.string.create_term_subject_requirement_pending),
+			countsAsElectiveText = stringResource(Res.string.create_term_subject_counts_as_elective),
+			countsAsGeneralStudiesText = stringResource(Res.string.create_term_subject_counts_as_general_studies)
 		),
 		palette = SubjectStatusPalette(
 			availableColor = AcademicStatusColors.available(),
@@ -156,8 +166,35 @@ private fun CreateTermSubjectItem.tooltipText(): String? {
 					stringResource(Res.string.create_term_subject_tooltip_unavailable, missingSubjectCodes)
 				}
 
-		else -> null
+		SyntheticTermSubjectAvailability.COUNTS_AS_SLOT,
+		SyntheticTermSubjectAvailability.NOT_IN_PENSUM,
+		-> slotTooltipText()
+
+		SyntheticTermSubjectAvailability.AVAILABLE -> null
 	}
+}
+
+// Counts toward an open slot of that kind, or is outside the pensum because those slots are filled.
+@Composable
+private fun CreateTermSubjectItem.slotTooltipText(): String? {
+	val slotKind = availabilityDetail?.slotKind ?: return null
+	val countsAsSlot = availability == SyntheticTermSubjectAvailability.COUNTS_AS_SLOT
+
+	return stringResource(
+		when (slotKind) {
+			AcademicPensumSlotKind.ELECTIVE -> if (countsAsSlot) {
+				Res.string.create_term_subject_tooltip_counts_as_elective
+			} else {
+				Res.string.create_term_subject_tooltip_electives_filled
+			}
+
+			AcademicPensumSlotKind.GENERAL_STUDIES -> if (countsAsSlot) {
+				Res.string.create_term_subject_tooltip_counts_as_general_studies
+			} else {
+				Res.string.create_term_subject_tooltip_general_studies_filled
+			}
+		}
+	)
 }
 
 @Composable
@@ -228,6 +265,17 @@ private fun CreateTermSubjectItem.status(
 				color = palette.blockedColor,
 				icon = CreateTermSubjectStatusIcon.Blocked
 			)
+
+		SyntheticTermSubjectAvailability.COUNTS_AS_SLOT ->
+			SubjectStatus(
+				text = if (availabilityDetail?.slotKind == AcademicPensumSlotKind.GENERAL_STUDIES) {
+					copy.countsAsGeneralStudiesText
+				} else {
+					copy.countsAsElectiveText
+				},
+				color = palette.availableColor,
+				icon = CreateTermSubjectStatusIcon.Slot
+			)
 	}
 }
 
@@ -264,6 +312,7 @@ private fun CreateTermSubjectStatusIcon.imageVector(): ImageVector? {
 		CreateTermSubjectStatusIcon.OutsidePensum -> Icons.Outlined.Map
 		CreateTermSubjectStatusIcon.Available -> Icons.Outlined.Add
 		CreateTermSubjectStatusIcon.Blocked -> Icons.Outlined.Lock
+		CreateTermSubjectStatusIcon.Slot -> Icons.Outlined.Extension
 	}
 }
 
@@ -279,7 +328,9 @@ private data class SubjectStatusCopy(
     val currentText: String,
     val alreadyPlannedText: String,
     val notInPensumText: String,
-    val blockedText: String
+    val blockedText: String,
+    val countsAsElectiveText: String,
+    val countsAsGeneralStudiesText: String
 )
 
 private data class SubjectStatusPalette(

@@ -15,7 +15,7 @@ class UpdatePensumUseCase(
 ) : FlowUseCase<Unit, Unit, UpdatePensumUseCaseError>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<Unit> {
 		return flow {
-			pensumRepository.refreshPensum()
+			pensumRepository.refreshPensum(forceRemote = true)
 			emit(Unit)
 		}
 	}

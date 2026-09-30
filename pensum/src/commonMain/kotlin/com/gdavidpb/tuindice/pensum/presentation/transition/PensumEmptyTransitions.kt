@@ -9,5 +9,9 @@ internal fun MachineDefinitionBuilder<Pensum.State>.emptyTransitions() {
 		on<PensumInternalEvent.PensumDataMissing> { state, _ -> state }
 
 		on<PensumInternalEvent.PensumRecordDataUnavailableObserved> { state, _ -> state }
+
+		// The backend answered that this student has no pensum; asking on every entry would only
+		// repeat that answer. The next screen instance (a new launch) asks again.
+		on<Pensum.Action.EnsurePensumLoaded> { state, _ -> state }
 	}
 }

@@ -7,5 +7,6 @@ enum class CreateTermSubjectStatusIcon {
 	Planned,
 	OutsidePensum,
 	Available,
-	Blocked
+	Blocked,
+	Slot
 }

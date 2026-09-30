@@ -38,6 +38,7 @@ import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncRemoteDataRepository
+import com.gdavidpb.tuindice.data.repository.sync.SyncResultLocalDataRepository
 import com.gdavidpb.tuindice.data.repository.sync.SyncSettingsLocalDataRepository
 import com.gdavidpb.tuindice.data.source.cache.CoreCacheStateDataSource
 import com.gdavidpb.tuindice.data.source.credentials.CredentialsDataSource
@@ -48,13 +49,13 @@ import com.gdavidpb.tuindice.data.source.session.SessionRecoveryDataSource
 import com.gdavidpb.tuindice.data.source.settings.MultiplatformSettingsDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncApiDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncDataSource
+import com.gdavidpb.tuindice.data.source.sync.SyncResultLocalDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncSettingsDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncStatusSettingsDataSource
 import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
 import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.domain.repository.SessionRecoveryRepository
-import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
-import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
+import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationRepository
 import com.russhwolf.settings.Settings
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
@@ -109,6 +110,7 @@ val commonModule = module {
 	singleOf(::SyncSettingsDataSource) { bind<SyncSettingsLocalDataRepository>() }
 	singleOf(::SyncStatusSettingsDataSource) { bind<SyncStatusRepository>() }
 	singleOf(::SyncApiDataSource) { bind<SyncRemoteDataRepository>() }
+	singleOf(::SyncResultLocalDataSource) { bind<SyncResultLocalDataRepository>() }
 	singleOf(::CoreCacheStateDataSource) { bind<CoreCacheStateRepository>() }
 	singleOf(::RecordDataPrerequisiteDataSource) { bind<RecordDataPrerequisiteRepository>() }
 	single<SyncRepository> {
@@ -116,8 +118,8 @@ val commonModule = module {
 			settingsDataSource = get<SyncSettingsLocalDataRepository>(),
 			syncStatusRepository = get<SyncStatusRepository>(),
 			remoteDataSource = get<SyncRemoteDataRepository>(),
-			recordLocalDataSource = get<AcademicRecordLocalDataRepository>(),
-			userLocalDataSource = get<LocalDataRepository>(),
+			syncResultLocalDataSource = get<SyncResultLocalDataRepository>(),
+			pensumRevalidationRepository = get<PensumRevalidationRepository>(),
 			coroutineScope = get<SessionCoroutineScope>()
 		)
 	}

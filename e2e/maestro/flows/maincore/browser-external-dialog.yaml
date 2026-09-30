@@ -16,6 +16,12 @@ appId: com.gdavidpb.tuindice.debug
     when:
       platform: Android
     commands:
+      # The container appears before the page inside it has rendered; tapping by
+      # coordinate right away lands on a blank WebView when the machine is loaded.
+      # Only Android exposes the WebView's text to the hierarchy.
+      - extendedWaitUntil:
+          visible: "Abrir enlace externo"
+          timeout: 15000
       - tapOn:
           point: "50%,25%"
 - runFlow:

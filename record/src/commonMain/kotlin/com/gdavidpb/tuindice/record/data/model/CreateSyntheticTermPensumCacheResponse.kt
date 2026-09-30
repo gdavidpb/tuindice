@@ -28,7 +28,21 @@ internal data class CreateSyntheticTermPensumCacheResponse(
 		@SerialName("node_type") val nodeType: String,
 		@SerialName("subject_code") val subjectCode: String? = null,
 		@SerialName("name") val name: String,
-		@SerialName("credits") val credits: Int
+		@SerialName("credits") val credits: Int,
+		// Both default: a cache written before rules were read (or by the legacy `pensum` shape)
+		// must still decode, it just resolves no slot or equivalence.
+		@SerialName("category") val category: String? = null,
+		@SerialName("fulfillment_rules") val fulfillmentRules: List<FulfillmentRule> = emptyList()
+	)
+
+	@Serializable
+	internal data class FulfillmentRule(
+		@SerialName("rule_type") val ruleType: String,
+		@SerialName("subject_codes") val subjectCodes: List<String> = emptyList(),
+		@SerialName("subject_code_prefixes") val subjectCodePrefixes: List<String> = emptyList(),
+		@SerialName("slot_eligibility_kind") val slotEligibilityKind: String? = null,
+		@SerialName("min_credits") val minCredits: Int? = null,
+		@SerialName("min_subjects") val minSubjects: Int? = null
 	)
 
 	@Serializable

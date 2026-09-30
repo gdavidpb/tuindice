@@ -115,6 +115,12 @@
 	<string name="create_term_subject_tooltip_current">En curso en %1$s</string>
 	<string name="create_term_subject_tooltip_already_planned">Planificada en %1$s</string>
 	<string name="create_term_subject_tooltip_unavailable">Faltan requisitos: %1$s</string>
+	<string name="create_term_subject_counts_as_elective">Cuenta como electiva</string>
+	<string name="create_term_subject_counts_as_general_studies">Cuenta como Estudios Generales</string>
+	<string name="create_term_subject_tooltip_counts_as_elective">Cubre una electiva pendiente de tu pensum</string>
+	<string name="create_term_subject_tooltip_counts_as_general_studies">Cubre un Estudio General pendiente de tu pensum</string>
+	<string name="create_term_subject_tooltip_electives_filled">Ya cubriste las electivas donde cuenta esta materia</string>
+	<string name="create_term_subject_tooltip_general_studies_filled">Ya cubriste los Estudios Generales donde cuenta esta materia</string>
 	<string name="create_term_subject_stats_content_description">Ver estadísticas de %1$s</string>
 	<string name="label_edit_synthetic_term">Modificar trimestre</string>
 	<string name="label_delete_synthetic_term">Eliminar trimestre</string>

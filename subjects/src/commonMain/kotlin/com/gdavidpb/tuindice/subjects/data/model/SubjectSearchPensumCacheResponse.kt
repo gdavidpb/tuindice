@@ -28,6 +28,7 @@ internal data class SubjectSearchPensumCacheResponse(
 		@SerialName("node_type") val nodeType: String,
 		@SerialName("subject_code") val subjectCode: String? = null,
 		@SerialName("credits") val credits: Int = 0,
+		@SerialName("category") val category: String? = null,
 		@SerialName("fulfillment_rules") val fulfillmentRules: List<FulfillmentRule> = emptyList()
 	)
 
@@ -37,7 +38,8 @@ internal data class SubjectSearchPensumCacheResponse(
 		@SerialName("subject_codes") val subjectCodes: List<String> = emptyList(),
 		@SerialName("subject_code_prefixes") val subjectCodePrefixes: List<String> = emptyList(),
 		@SerialName("min_credits") val minCredits: Int? = null,
-		@SerialName("min_subjects") val minSubjects: Int? = null
+		@SerialName("min_subjects") val minSubjects: Int? = null,
+		@SerialName("slot_eligibility_kind") val slotEligibilityKind: String? = null
 	)
 
 	@Serializable

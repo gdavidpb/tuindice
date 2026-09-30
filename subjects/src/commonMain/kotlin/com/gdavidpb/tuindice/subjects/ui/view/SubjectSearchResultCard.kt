@@ -15,6 +15,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.outlined.Add
 import androidx.compose.material.icons.outlined.BarChart
+import androidx.compose.material.icons.outlined.Extension
 import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.material3.Icon
@@ -30,11 +31,11 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumNodeStatus
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.view.SubjectResultCard
+import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchPensumStatus
 import com.gdavidpb.tuindice.subjects.presentation.model.SubjectSearchResultItem
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
 import org.jetbrains.compose.resources.stringResource
@@ -43,6 +44,8 @@ import tuindice.subjects.generated.resources.subjects_search_result_content_desc
 import tuindice.subjects.generated.resources.subjects_search_status_approved
 import tuindice.subjects.generated.resources.subjects_search_status_available
 import tuindice.subjects.generated.resources.subjects_search_status_blocked
+import tuindice.subjects.generated.resources.subjects_search_status_counts_as_elective
+import tuindice.subjects.generated.resources.subjects_search_status_counts_as_general_studies
 import tuindice.subjects.generated.resources.subjects_search_status_current
 
 @Composable
@@ -97,7 +100,7 @@ fun SubjectSearchResultCard(
 @Composable
 private fun SubjectSearchResultStatusBadge(
 	subjectCode: String,
-	status: AcademicPensumNodeStatus,
+	status: SubjectSearchPensumStatus,
 	onClick: () -> Unit
 ) {
 	val visual = status.visual()
@@ -128,30 +131,42 @@ private fun SubjectSearchResultStatusBadge(
 }
 
 @Composable
-private fun AcademicPensumNodeStatus.visual(): SubjectSearchStatusVisual {
+private fun SubjectSearchPensumStatus.visual(): SubjectSearchStatusVisual {
 	return when (this) {
-		AcademicPensumNodeStatus.APPROVED -> SubjectSearchStatusVisual(
+		SubjectSearchPensumStatus.APPROVED -> SubjectSearchStatusVisual(
 			text = stringResource(Res.string.subjects_search_status_approved),
 			icon = SubjectSearchStatusIcon.Check,
 			color = AcademicStatusColors.approved()
 		)
 
-		AcademicPensumNodeStatus.CURRENT -> SubjectSearchStatusVisual(
+		SubjectSearchPensumStatus.CURRENT -> SubjectSearchStatusVisual(
 			text = stringResource(Res.string.subjects_search_status_current),
 			icon = SubjectSearchStatusIcon.Current,
 			color = AcademicStatusColors.available()
 		)
 
-		AcademicPensumNodeStatus.AVAILABLE -> SubjectSearchStatusVisual(
+		SubjectSearchPensumStatus.AVAILABLE -> SubjectSearchStatusVisual(
 			text = stringResource(Res.string.subjects_search_status_available),
 			icon = SubjectSearchStatusIcon.Available,
 			color = AcademicStatusColors.available()
 		)
 
-		AcademicPensumNodeStatus.BLOCKED -> SubjectSearchStatusVisual(
+		SubjectSearchPensumStatus.BLOCKED -> SubjectSearchStatusVisual(
 			text = stringResource(Res.string.subjects_search_status_blocked),
 			icon = SubjectSearchStatusIcon.Blocked,
 			color = AcademicStatusColors.blocked()
+		)
+
+		SubjectSearchPensumStatus.COUNTS_AS_ELECTIVE -> SubjectSearchStatusVisual(
+			text = stringResource(Res.string.subjects_search_status_counts_as_elective),
+			icon = SubjectSearchStatusIcon.Slot,
+			color = AcademicStatusColors.available()
+		)
+
+		SubjectSearchPensumStatus.COUNTS_AS_GENERAL_STUDIES -> SubjectSearchStatusVisual(
+			text = stringResource(Res.string.subjects_search_status_counts_as_general_studies),
+			icon = SubjectSearchStatusIcon.Slot,
+			color = AcademicStatusColors.available()
 		)
 	}
 }
@@ -186,6 +201,7 @@ private fun SubjectSearchStatusIcon.imageVector(): ImageVector? {
 		SubjectSearchStatusIcon.Current -> Icons.Outlined.Schedule
 		SubjectSearchStatusIcon.Available -> Icons.Outlined.Add
 		SubjectSearchStatusIcon.Blocked -> Icons.Outlined.Lock
+		SubjectSearchStatusIcon.Slot -> Icons.Outlined.Extension
 	}
 }
 
@@ -199,5 +215,6 @@ private enum class SubjectSearchStatusIcon {
     Check,
     Current,
     Available,
-    Blocked
+    Blocked,
+    Slot
 }

@@ -259,7 +259,7 @@ private class StaticPensumRepository : PensumRepository {
 
 	override suspend fun hasSelectedPensumResponse(): Boolean = false
 
-	override suspend fun refreshPensum() = Unit
+	override suspend fun refreshPensum(forceRemote: Boolean) = Unit
 
 	override suspend fun selectPensum(year: Int) = Unit
 

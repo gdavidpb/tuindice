@@ -16,7 +16,12 @@ internal fun MachineDefinitionBuilder<Pensum.State>.anyStateTransitions(
 	host: MachineHost<Pensum.Effect>
 ) {
 	fromAny {
-		on<Pensum.Action.EnsurePensumLoaded> { state, _ -> state }
+		// Every entry into the tab: loads a missing pensum, or revalidates a cached one silently once
+		// it is older than a day. Loading, Empty and RecordDataUnavailable override it with no-ops.
+		on<Pensum.Action.EnsurePensumLoaded> { state, _ ->
+			machine.ensurePensumLoaded(host = host)
+			state
+		}
 
 		on<Pensum.Action.RefreshPensum> { state, _ ->
 			machine.refreshPensum(host = host)

@@ -293,6 +293,8 @@ internal abstract class FakeTuIndiceDatabase : TuIndiceDatabase() {
 			limit: Int
 		): Flow<List<SubjectCatalogCacheEntity>> = emptyFlow()
 
+		override suspend fun getEntities(subjectCodes: List<String>): List<SubjectCatalogCacheEntity> = emptyList()
+
 		override suspend fun deleteAll(): Int = 0
 
 		override suspend fun upsertEntity(entity: SubjectCatalogCacheEntity) = Unit

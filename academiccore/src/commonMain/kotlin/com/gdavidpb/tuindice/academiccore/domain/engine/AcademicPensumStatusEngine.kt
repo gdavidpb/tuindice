@@ -23,7 +23,7 @@ class AcademicPensumStatusEngine {
 		val currentSubjectCodes = currentAttempts.map { attempt -> attempt.normalizedSubjectCode() }.toSet()
 		val courseNodes = pensum.nodes.filter { node -> node.nodeType == AcademicPensumGraph.NodeType.COURSE }
 		val slotNodes = pensum.nodes.filter { node -> node.nodeType == AcademicPensumGraph.NodeType.SLOT }
-		val fixedCourseSubjectCodes = fixedCourseSubjectCodesOf(courseNodes)
+		val fixedCourseSubjectCodes = pensum.fixedCourseSubjectCodes()
 
 		val approvedCourseNodeIds = courseNodes
 			.filter { node -> node.isApproved(approvedSubjectCodes) }
@@ -87,7 +87,8 @@ class AcademicPensumStatusEngine {
 		val usedAttemptIds = mutableSetOf<String>()
 		return mapNotNull { node ->
 			val attempt = attempts.firstOrNull { attempt ->
-				attempt.id !in usedAttemptIds && node.matchesAttempt(attempt)
+				attempt.id !in usedAttemptIds &&
+					node.acceptsSubject(subjectCode = attempt.subjectCode, credits = attempt.credits)
 			} ?: return@mapNotNull null
 			usedAttemptIds += attempt.id
 			node.id to AcademicPensumProgress.NodeFulfillment(
@@ -95,25 +96,6 @@ class AcademicPensumStatusEngine {
 				subjectName = attempt.subjectName
 			)
 		}.toMap()
-	}
-
-	private fun AcademicPensumGraph.Node.matchesAttempt(attempt: AcademicPensumSnapshot.Attempt): Boolean {
-		return fulfillmentRules.any { rule -> rule.matchesAttempt(attempt) }
-	}
-
-	private fun AcademicPensumGraph.FulfillmentRule.matchesAttempt(
-		attempt: AcademicPensumSnapshot.Attempt
-	): Boolean {
-		if (ruleType == "GENERIC_ELECTIVE") return false
-		if (minSubjects != null && minSubjects > 1) return false
-		if (minCredits != null && attempt.credits < minCredits) return false
-
-		val subjectCode = attempt.normalizedSubjectCode()
-		val acceptedCodes = subjectCodes.mapNotNull { code -> code.normalizedSubjectCodeOrNull() }.toSet()
-		val acceptedPrefixes = subjectCodePrefixes.mapNotNull { prefix -> prefix.normalizedSubjectCodeOrNull() }
-		if (acceptedCodes.isEmpty() && acceptedPrefixes.isEmpty()) return false
-
-		return subjectCode in acceptedCodes || acceptedPrefixes.any(subjectCode::startsWith)
 	}
 
 	private fun List<AcademicPensumSnapshot.Attempt>.sortedChronologically(): List<AcademicPensumSnapshot.Attempt> {
@@ -201,17 +183,6 @@ private fun List<AcademicPensumGraph.Node>.courseEquivalenceFulfillments(
 			subjectName = attempt.subjectName
 		)
 	}.toMap()
-}
-
-private fun fixedCourseSubjectCodesOf(courseNodes: List<AcademicPensumGraph.Node>): Set<String> {
-	return courseNodes
-		.flatMap { node ->
-			listOfNotNull(node.subjectCode.normalizedSubjectCodeOrNull()) +
-				node.fulfillmentRules.flatMap { rule ->
-					rule.subjectCodes.mapNotNull { code -> code.normalizedSubjectCodeOrNull() }
-				}
-		}
-		.toSet()
 }
 
 private fun AcademicPensumSnapshot.Attempt.normalizedSubjectCode(): String {

@@ -9,5 +9,8 @@ internal fun MachineDefinitionBuilder<Pensum.State>.recordDataUnavailableTransit
 		on<PensumInternalEvent.PensumDataMissing> { state, _ -> state }
 
 		on<PensumInternalEvent.PensumRecordDataUnavailableObserved> { state, _ -> state }
+
+		// Without record data there is nothing to load against; the record flow recovers it.
+		on<Pensum.Action.EnsurePensumLoaded> { state, _ -> state }
 	}
 }

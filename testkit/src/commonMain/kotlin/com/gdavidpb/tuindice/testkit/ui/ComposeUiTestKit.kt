@@ -16,7 +16,7 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.runComposeUiTest
+import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.LayoutDirection
@@ -25,6 +25,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.LifecycleRegistry
 import androidx.lifecycle.compose.LocalLifecycleOwner
+import kotlinx.coroutines.test.TestResult
 
 enum class TuIndiceTestSizeClass(
 	val widthDp: Int,
@@ -44,11 +45,15 @@ enum class TuIndiceTestSizeClass(
 	)
 }
 
+// The v2 harness composes on a StandardTestDispatcher: coroutines are queued and run on the test
+// thread when the clock advances, as they would on the UI thread. The v1 harness composed on an
+// UnconfinedTestDispatcher, so a LaunchedEffect resumed on whatever thread its withContext finished
+// on (a Lottie loaded on IO), and Compose 1.12 rejects observing snapshots from a second thread.
 @OptIn(ExperimentalTestApi::class)
 fun runTuIndiceUiTest(
-	block: ComposeUiTest.() -> Unit
-) {
-	runComposeUiTest(block = block)
+	block: suspend ComposeUiTest.() -> Unit
+): TestResult {
+	return runComposeUiTest(block = block)
 }
 
 @OptIn(ExperimentalTestApi::class)

@@ -2,9 +2,13 @@
 
 package com.gdavidpb.tuindice.record.data.source
 
+import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicPensumSlotEligibilityResolver
 import com.gdavidpb.tuindice.academiccore.domain.engine.AcademicPensumStatusEngine
+import com.gdavidpb.tuindice.academiccore.domain.engine.fulfilledSubjectStatuses
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumGraph
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumNodeStatus
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumProgress
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumSlotEligibility
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicPensumSnapshot
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
@@ -84,12 +88,23 @@ class SyntheticTermCreationDataSource(
 			)
 		}
 
+		// Resolved once per record or pensum change, never per keystroke: the status engine and the
+		// slot resolver both walk the whole pensum.
+		val pensumStateFlow = combine(recordFlow, pensumFlow) { record, pensum ->
+			PlannerPensumState(
+				record = record,
+				pensum = pensum,
+				availability = record.pensumAvailability(pensum = pensum)
+			)
+		}
+
 		return combine(
-			recordFlow,
-			pensumFlow,
+			pensumStateFlow,
 			searchFlow,
 			selectionFlow
-		) { record, pensum, searchResults, selection ->
+		) { pensumState, searchResults, selection ->
+			val record = pensumState.record
+			val pensum = pensumState.pensum
 			val periodOptions = record.periodOptions(editingTermId = selection.editingTermId)
 			val selectedPeriod = periodOptions.firstOrNull { option -> option.termKey == selection.selectedPeriodKey }
 				?: periodOptions.firstOrNull()
@@ -97,7 +112,7 @@ class SyntheticTermCreationDataSource(
 			val editorAvailabilityBySubjectCode = record.editorAvailabilityBySubjectCode(
 				editingTermId = selection.editingTermId
 			)
-			val pensumAvailabilityBySubjectCode = record.pensumAvailabilityBySubjectCode(pensum = pensum)
+			val pensumAvailability = pensumState.availability
 
 			SyntheticTermCreationSnapshot(
 				editingTermId = selection.editingTermId,
@@ -107,14 +122,14 @@ class SyntheticTermCreationDataSource(
 				selectedSubjects = selection.selectedSubjects.map { subject ->
 					subject.withAvailability(
 						editorAvailabilityBySubjectCode = editorAvailabilityBySubjectCode,
-						pensumAvailabilityBySubjectCode = pensumAvailabilityBySubjectCode
+						pensumAvailability = pensumAvailability
 					)
 				},
 				suggestedSubjects = record.suggestedSubjects(
 					pensum = pensum,
 					selectedCodes = selectedCodes,
 					editorAvailabilityBySubjectCode = editorAvailabilityBySubjectCode,
-					pensumAvailabilityBySubjectCode = pensumAvailabilityBySubjectCode
+					pensumAvailabilityBySubjectCode = pensumAvailability.bySubjectCode
 				),
 				searchResults = searchResults
 					.mapNotNull { subject ->
@@ -122,12 +137,12 @@ class SyntheticTermCreationDataSource(
 							.takeIf { item -> RealSubjectCodeRegex.matches(item.subjectCode) }
 							?.withAvailability(
 								editorAvailabilityBySubjectCode = editorAvailabilityBySubjectCode,
-								pensumAvailabilityBySubjectCode = pensumAvailabilityBySubjectCode
+								pensumAvailability = pensumAvailability
 							)
 					}
 					.sortedWith(
 						compareBy<SyntheticTermSubject> { subject ->
-							subject.subjectCode !in pensumAvailabilityBySubjectCode
+							subject.subjectCode !in pensumAvailability.bySubjectCode
 						}
 							.thenBy { subject -> subject.availability.searchOrder }
 							.thenBy(SyntheticTermSubject::subjectCode)
@@ -311,6 +326,19 @@ class SyntheticTermCreationDataSource(
 		val detail: SyntheticTermSubjectAvailabilityDetail? = null
 	)
 
+	private data class PlannerPensumState(
+		val record: AcademicRecord,
+		val pensum: CreateSyntheticTermPensumCacheResponse?,
+		val availability: PensumAvailability
+	)
+
+	// What the pensum says about a subject code: fixed courses, their equivalences and the codes that
+	// already fulfil a node are looked up; anything else is asked to the slot resolver.
+	private data class PensumAvailability(
+		val bySubjectCode: Map<String, SubjectAvailabilityResolution>,
+		val slotEligibility: AcademicPensumSlotEligibilityResolver?
+	)
+
 	private fun MutableMap<String, SubjectAvailabilityResolution>.putWithPriority(
 		key: String,
 		resolution: SubjectAvailabilityResolution
@@ -367,24 +395,25 @@ class SyntheticTermCreationDataSource(
 			.toList()
 	}
 
-	private fun AcademicRecord.pensumAvailabilityBySubjectCode(
+	private fun AcademicRecord.pensumAvailability(
 		pensum: CreateSyntheticTermPensumCacheResponse?
-	): Map<String, SubjectAvailabilityResolution> {
+	): PensumAvailability {
 		val pensumGraph = pensum?.pensum
 		val courseNodes = pensumGraph?.nodes
 			.orEmpty()
 			.filter { node -> node.nodeType == NodeTypeCourse }
 		return if (pensumGraph == null || courseNodes.isEmpty()) {
-			emptyMap()
+			PensumAvailability(bySubjectCode = emptyMap(), slotEligibility = null)
 		} else {
 			val courseNodeById = courseNodes.associateBy { node -> node.id }
+			val academicGraph = pensumGraph.toAcademicPensumGraph()
 			val progress = academicPensumStatusEngine.resolve(
-				pensum = pensumGraph.toAcademicPensumGraph(),
+				pensum = academicGraph,
 				academicSnapshot = toAcademicPensumSnapshot()
 			)
 			val detailBySubjectCode = pensumStatusDetailBySubjectCode()
 
-			buildMap {
+			val bySubjectCode = buildMap {
 				courseNodes.forEach { node ->
 					val subjectCode = node.subjectCode
 						?.trim()
@@ -410,19 +439,52 @@ class SyntheticTermCreationDataSource(
 						SyntheticTermSubjectAvailability.AVAILABLE,
 						SyntheticTermSubjectAvailability.ALREADY_PLANNED,
 						SyntheticTermSubjectAvailability.NOT_IN_PENSUM,
+						SyntheticTermSubjectAvailability.COUNTS_AS_SLOT,
 						-> null
 					}
-
-					putWithPensumPriority(
-						key = subjectCode,
-						resolution = SubjectAvailabilityResolution(
-							availability = availability,
-							detail = detail
-						)
+					val resolution = SubjectAvailabilityResolution(
+						availability = availability,
+						detail = detail
 					)
+
+					putWithPensumPriority(key = subjectCode, resolution = resolution)
+					// An equivalence code fulfils this same node, so it reads exactly like it.
+					node.equivalenceSubjectCodes().forEach { equivalenceCode ->
+						putWithPensumPriority(key = equivalenceCode, resolution = resolution)
+					}
 				}
+				putFulfilledSubjects(progress = progress, detailBySubjectCode = detailBySubjectCode)
 			}
+
+			PensumAvailability(
+				bySubjectCode = bySubjectCode,
+				slotEligibility = AcademicPensumSlotEligibilityResolver(pensum = academicGraph, progress = progress)
+			)
 		}
+	}
+
+	// A code that already fulfilled a node (an elective slot, a course by equivalence) is approved or
+	// current, not outside the pensum.
+	private fun MutableMap<String, SubjectAvailabilityResolution>.putFulfilledSubjects(
+		progress: AcademicPensumProgress,
+		detailBySubjectCode: Map<String, SyntheticTermSubjectAvailabilityDetail>
+	) {
+		progress.fulfilledSubjectStatuses().forEach { (subjectCode, status) ->
+			putWithPensumPriority(
+				key = subjectCode,
+				resolution = SubjectAvailabilityResolution(
+					availability = status.toSyntheticTermSubjectAvailability(),
+					detail = detailBySubjectCode[subjectCode]
+				)
+			)
+		}
+	}
+
+	private fun CreateSyntheticTermPensumCacheResponse.Node.equivalenceSubjectCodes(): List<String> {
+		return fulfillmentRules
+			.filter { rule -> rule.ruleType == RULE_TYPE_EQUIVALENCE }
+			.flatMap { rule -> rule.subjectCodes }
+			.mapNotNull { code -> code.trim().uppercase().takeIf(RealSubjectCodeRegex::matches) }
 	}
 
 	private fun CreateSyntheticTermPensumCacheResponse.Node.missingRequirementCodes(
@@ -479,7 +541,17 @@ class SyntheticTermCreationDataSource(
 			},
 			subjectCode = subjectCode,
 			credits = credits,
-			fulfillmentRules = emptyList()
+			fulfillmentRules = fulfillmentRules.map { rule ->
+				AcademicPensumGraph.FulfillmentRule(
+					ruleType = rule.ruleType,
+					subjectCodes = rule.subjectCodes,
+					subjectCodePrefixes = rule.subjectCodePrefixes,
+					minCredits = rule.minCredits,
+					minSubjects = rule.minSubjects,
+					slotEligibilityKind = rule.slotEligibilityKind
+				)
+			},
+			category = category
 		)
 	}
 
@@ -560,21 +632,41 @@ class SyntheticTermCreationDataSource(
 		}
 	}
 
+	// Editor first (already planned elsewhere), then what the pensum lists for the code, and only
+	// then whether one of its open slots would take it.
 	private fun SyntheticTermSubject.withAvailability(
 		editorAvailabilityBySubjectCode: Map<String, SubjectAvailabilityResolution>,
-		pensumAvailabilityBySubjectCode: Map<String, SubjectAvailabilityResolution>
+		pensumAvailability: PensumAvailability
 	): SyntheticTermSubject {
-		val resolution = when {
-			editorAvailabilityBySubjectCode[subjectCode] != null ->
-				editorAvailabilityBySubjectCode.getValue(subjectCode)
-			else -> pensumAvailabilityBySubjectCode[subjectCode]
-				?: SubjectAvailabilityResolution(availability = SyntheticTermSubjectAvailability.NOT_IN_PENSUM)
-		}
+		val resolution = editorAvailabilityBySubjectCode[subjectCode]
+			?: pensumAvailability.bySubjectCode[subjectCode]
+			?: pensumAvailability.slotEligibility
+				?.eligibilityOf(subjectCode = subjectCode, credits = credits)
+				.toSlotResolution()
 
 		return copy(
 			availability = resolution.availability,
 			availabilityDetail = resolution.detail
 		)
+	}
+
+	private fun AcademicPensumSlotEligibility?.toSlotResolution(): SubjectAvailabilityResolution {
+		return when (this) {
+			is AcademicPensumSlotEligibility.CountsTowardSlot -> SubjectAvailabilityResolution(
+				availability = SyntheticTermSubjectAvailability.COUNTS_AS_SLOT,
+				detail = SyntheticTermSubjectAvailabilityDetail(slotKind = slotKind)
+			)
+
+			// Taking it would count toward nothing: those slots are full. The kind still tells why.
+			is AcademicPensumSlotEligibility.SlotsFilled -> SubjectAvailabilityResolution(
+				availability = SyntheticTermSubjectAvailability.NOT_IN_PENSUM,
+				detail = SyntheticTermSubjectAvailabilityDetail(slotKind = slotKind)
+			)
+
+			AcademicPensumSlotEligibility.NotEligible,
+			null,
+			-> SubjectAvailabilityResolution(availability = SyntheticTermSubjectAvailability.NOT_IN_PENSUM)
+		}
 	}
 
 	private val SyntheticTermSubjectAvailability.searchOrder: Int
@@ -585,6 +677,7 @@ class SyntheticTermCreationDataSource(
 			SyntheticTermSubjectAvailability.CURRENT -> 4
 			SyntheticTermSubjectAvailability.APPROVED -> 6
 			SyntheticTermSubjectAvailability.NOT_IN_PENSUM -> 1
+			SyntheticTermSubjectAvailability.COUNTS_AS_SLOT -> 0
 		}
 
 	private val SyntheticTermSubjectAvailability.pensumStatusPriority: Int
@@ -595,6 +688,7 @@ class SyntheticTermCreationDataSource(
 			SyntheticTermSubjectAvailability.BLOCKED -> 3
 			SyntheticTermSubjectAvailability.ALREADY_PLANNED,
 			SyntheticTermSubjectAvailability.NOT_IN_PENSUM,
+			SyntheticTermSubjectAvailability.COUNTS_AS_SLOT,
 			-> 4
 		}
 }
@@ -607,5 +701,6 @@ private const val SearchLimit = 20
 private const val FuturePeriodCount = 20
 private const val SuggestedSubjectLimit = 8
 private const val NodeTypeCourse = "COURSE"
+private const val RULE_TYPE_EQUIVALENCE = "EQUIVALENCE"
 private const val AcademicCalendarTimeZoneId = "America/Caracas"
 private val RealSubjectCodeRegex = Regex("^([A-Z]{2}\\d{4}|[A-Z]{3}\\d{3})$")

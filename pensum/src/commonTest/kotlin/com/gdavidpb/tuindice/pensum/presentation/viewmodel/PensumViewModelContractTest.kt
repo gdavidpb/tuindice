@@ -197,9 +197,10 @@ class PensumViewModelContractTest {
 
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-	fun ensureLoaded_whenContentAlreadyExists_doesNotShowRefreshingOrHitRepository() = runTest {
+	fun ensureLoaded_whenContentAlreadyExists_revalidatesWithoutShowingRefreshing() = runTest {
 		val fixture = createFixture()
 		val viewModel = fixture.viewModel
+		fixture.repository.hasCachedPensum = true
 
 		val stateCollector = backgroundScope.launchStateCollector(
 			flow = viewModel.state,
@@ -218,8 +219,9 @@ class PensumViewModelContractTest {
 
 				val content = viewModel.state.value as Pensum.State.Content
 				assertEquals(false, content.isRefreshing)
-				assertEquals(0, fixture.repository.hasSelectedPensumResponseCalls)
-				assertEquals(0, fixture.repository.refreshCalls)
+				assertEquals(1, fixture.repository.hasSelectedPensumResponseCalls)
+				// Re-entering the tab asks the repository, which keeps a pensum younger than a day.
+				assertEquals(listOf(false), fixture.repository.refreshForceRemote)
 
 				cancelAndIgnoreRemainingEvents()
 			}
@@ -230,7 +232,7 @@ class PensumViewModelContractTest {
 
 	@Test
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
-	fun ensureLoaded_whenCacheExistsBeforeObservation_doesNotRefreshRemote() = runTest {
+	fun ensureLoaded_whenCacheExistsBeforeObservation_revalidatesWithoutShowingLoading() = runTest {
 		val fixture = createFixture()
 		val viewModel = fixture.viewModel
 		fixture.repository.hasCachedPensum = true
@@ -249,7 +251,85 @@ class PensumViewModelContractTest {
 
 				assertEquals(Pensum.State.Idle, viewModel.state.value)
 				assertEquals(1, fixture.repository.hasSelectedPensumResponseCalls)
-				assertEquals(0, fixture.repository.refreshCalls)
+				assertEquals(listOf(false), fixture.repository.refreshForceRemote)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun ensureLoaded_whileALoadIsInFlight_joinsItInsteadOfStartingAnother() = runTest {
+		val fixture = createFixture()
+		val viewModel = fixture.viewModel
+		fixture.repository.hasCachedPensum = true
+		fixture.repository.blockRefresh = true
+
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				assertEquals(Pensum.State.Idle, awaitItem())
+
+				fixture.repository.emit(PensumObservation.Content(sampleObservedPensum()))
+				awaitUntilState<Pensum.State.Content> { true }
+
+				viewModel.ensurePensumLoadedAction()
+				advanceUntilIdle()
+				viewModel.ensurePensumLoadedAction()
+				advanceUntilIdle()
+
+				assertEquals(1, fixture.repository.refreshCalls)
+
+				fixture.repository.releaseRefresh()
+				advanceUntilIdle()
+				viewModel.ensurePensumLoadedAction()
+				advanceUntilIdle()
+
+				// Once the first load finished, the next entry asks again.
+				assertEquals(2, fixture.repository.refreshCalls)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			fixture.repository.releaseRefresh()
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun ensureLoaded_whenRevalidationFails_keepsTheContentWithoutAWarning() = runTest {
+		val fixture = createFixture()
+		val viewModel = fixture.viewModel
+		fixture.repository.hasCachedPensum = true
+		fixture.repository.refreshThrowable = IllegalStateException("offline")
+
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				assertEquals(Pensum.State.Idle, awaitItem())
+
+				fixture.repository.emit(PensumObservation.Content(sampleObservedPensum()))
+				awaitUntilState<Pensum.State.Content> { true }
+
+				viewModel.ensurePensumLoadedAction()
+				advanceUntilIdle()
+
+				val content = viewModel.state.value as Pensum.State.Content
+				assertEquals(1, fixture.repository.refreshCalls)
+				assertEquals(false, content.isRefreshing)
+				assertEquals(null, content.localDataMessage)
 
 				cancelAndIgnoreRemainingEvents()
 			}
@@ -278,7 +358,7 @@ class PensumViewModelContractTest {
 				awaitUntilState<Pensum.State.Loading> { true }
 
 				assertEquals(1, fixture.repository.hasSelectedPensumResponseCalls)
-				assertEquals(1, fixture.repository.refreshCalls)
+				assertEquals(listOf(true), fixture.repository.refreshForceRemote)
 
 				fixture.repository.releaseRefresh()
 				advanceUntilIdle()
@@ -616,6 +696,7 @@ private class ControllablePensumRepository : PensumRepository {
 		private set
 	var refreshCalls = 0
 		private set
+	val refreshForceRemote = mutableListOf<Boolean>()
 
 	fun emit(observation: PensumObservation) {
 		observations.trySend(Result.success(observation))
@@ -641,8 +722,9 @@ private class ControllablePensumRepository : PensumRepository {
 		}
 	}
 
-	override suspend fun refreshPensum() {
+	override suspend fun refreshPensum(forceRemote: Boolean) {
 		refreshCalls++
+		refreshForceRemote += forceRemote
 		if (blockRefresh) refreshGate.receive()
 		refreshThrowable?.let { throw it }
 	}

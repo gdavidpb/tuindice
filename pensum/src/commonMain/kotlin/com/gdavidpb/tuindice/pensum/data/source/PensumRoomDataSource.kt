@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.academiccore.domain.utils.SubjectCatalogSearchNorma
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.pensum.data.mapper.cacheKey
 import com.gdavidpb.tuindice.pensum.data.model.GetPensumResponse
+import com.gdavidpb.tuindice.pensum.data.model.SelectedPensumCacheState
 import com.gdavidpb.tuindice.pensum.data.repository.PensumLocalDataRepository
 import com.gdavidpb.tuindice.pensum.domain.model.PensumSelectionParams
 import com.gdavidpb.tuindice.persistence.data.room.daos.PensumCacheDao
@@ -62,6 +63,22 @@ class PensumRoomDataSource(
 		return pensumCacheDao.getPensum(cacheKey) != null
 	}
 
+	// The cache row's own stamp, not the selection's: switching modality rewrites the selection
+	// without fetching anything, and must not make an old pensum look fresh.
+	override suspend fun getSelectedPensumCacheState(): SelectedPensumCacheState? {
+		val selection = pensumSelectionDao.getSelection() ?: return null
+		val cachedPensum = selection.cacheKey?.let { cacheKey -> pensumCacheDao.getPensum(cacheKey) }
+
+		return cachedPensum?.let { cached ->
+			SelectedPensumCacheState(
+				year = selection.year,
+				modalityId = selection.modalityId,
+				inferred = selection.inferred,
+				updatedAt = cached.updatedAt
+			)
+		}
+	}
+
 	override suspend fun getSelectionParams(): PensumSelectionParams {
 		val selection = pensumSelectionDao.getSelection() ?: return PensumSelectionParams()
 		if (selection.inferred) return PensumSelectionParams()
@@ -79,7 +96,7 @@ class PensumRoomDataSource(
 				pensumCacheDao.upsertEntity(response.toCacheEntity(cacheKey))
 				val subjectCatalog = response.toSubjectCatalogCacheEntities(updatedAt = now)
 				if (subjectCatalog.isNotEmpty()) {
-					subjectCatalogCacheDao.upsertEntities(subjectCatalog)
+					subjectCatalogCacheDao.upsertEntities(subjectCatalog.keepingStoredGradingModes())
 				}
 				val selectedPensum = response.selectedPensum()
 				pensumSelectionDao.upsertEntity(
@@ -185,6 +202,17 @@ class PensumRoomDataSource(
 				)
 			}
 			.distinctBy(SubjectCatalogCacheEntity::subjectCode)
+	}
+
+	// The pensum knows no grading mode, but the subjects API does: keep the one it stored, or every
+	// pensum save (now at least daily) would erase it until the next search refreshed the subject.
+	// Runs inside the save's immediate transaction, so no catalog write lands in between.
+	private suspend fun List<SubjectCatalogCacheEntity>.keepingStoredGradingModes(): List<SubjectCatalogCacheEntity> {
+		val storedGradingModes = subjectCatalogCacheDao
+			.getEntities(subjectCodes = map(SubjectCatalogCacheEntity::subjectCode))
+			.associate { stored -> stored.subjectCode to stored.gradingMode }
+
+		return map { entity -> entity.copy(gradingMode = storedGradingModes[entity.subjectCode]) }
 	}
 
 	private fun GetPensumResponse.selectedPensum(): GetPensumResponse.Pensum {

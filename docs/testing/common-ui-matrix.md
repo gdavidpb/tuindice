@@ -1,6 +1,6 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-07-20 01:50:32 -0400_
+_Generated automatically on 2026-09-22 01:43:14 -0300_
 
 ## Summary by module
 
@@ -10,10 +10,10 @@ _Generated automatically on 2026-07-20 01:50:32 -0400_
 | `auth` | 2 | 20 | 20 | 18 | 16 | 16 |
 | `base` | 2 | 32 | 44 | 18 | 18 | 18 |
 | `enrollmentproof` | 2 | 5 | 5 | 5 | 5 | 5 |
-| `evaluations` | 2 | 42 | 48 | 31 | 24 | 24 |
+| `evaluations` | 2 | 42 | 47 | 31 | 24 | 24 |
 | `maincore` | 3 | 14 | 17 | 10 | 9 | 9 |
 | `pensum` | 2 | 40 | 47 | 2 | 2 | 2 |
-| `record` | 2 | 50 | 62 | 11 | 7 | 7 |
+| `record` | 2 | 50 | 63 | 11 | 7 | 7 |
 | `subjects` | 2 | 24 | 27 | 4 | 3 | 3 |
 | `summary` | 2 | 17 | 20 | 14 | 10 | 10 |
 | `wizard` | 2 | 2 | 3 | 1 | 1 | 1 |
@@ -121,7 +121,7 @@ _Generated automatically on 2026-07-20 01:50:32 -0400_
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/dialog/GradePickerDialog.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/dialog/GradePickerDialogUiTest.kt` | 9 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/dialog/MaxGradePickerContentDialog.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/dialog/MaxGradePickerContentDialogUiTest.kt` | 0 | MISSING TEST |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/screen/EvaluationScreen.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/screen/EvaluationScreenUiTest.kt` | 3 | PASS threshold (2) |
-| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/screen/EvaluationsScreen.kt` | 4 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/screen/EvaluationsScreenUiTest.kt` | 6 | PASS threshold (2) |
+| `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/screen/EvaluationsScreen.kt` | 3 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/screen/EvaluationsScreenUiTest.kt` | 7 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/CalendarDayCell.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/CalendarDayCellUiTest.kt` | 3 | PASS threshold (2) |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationActionButton.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationActionButtonUiTest.kt` | 0 | MISSING TEST |
 | `evaluations/src/commonMain/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationActions.kt` | 1 | `evaluations/src/commonTest/kotlin/com/gdavidpb/tuindice/evaluations/ui/view/EvaluationActionsUiTest.kt` | 0 | MISSING TEST |
@@ -159,7 +159,7 @@ _Generated automatically on 2026-07-20 01:50:32 -0400_
 | `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/presentation/navigation/RememberTuIndiceNavigator.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/presentation/navigation/RememberTuIndiceNavigatorUiTest.kt` | 0 | MISSING TEST |
 | `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/presentation/route/BrowserRoute.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/presentation/route/BrowserRouteUiTest.kt` | 6 | PASS threshold (3) |
 | `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/presentation/route/MainRoute.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/presentation/route/MainRouteUiTest.kt` | 6 | PASS threshold (3) |
-| `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/presentation/route/TuIndiceAppHostRoute.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/presentation/route/TuIndiceAppHostRouteUiTest.kt` | 11 | PASS threshold (3) |
+| `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/presentation/route/TuIndiceAppHostRoute.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/presentation/route/TuIndiceAppHostRouteUiTest.kt` | 12 | PASS threshold (3) |
 | `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/dialog/GooglePlayServicesDialog.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/ui/dialog/GooglePlayServicesDialogUiTest.kt` | 3 | PASS threshold (3) |
 | `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/navigation/TuIndiceEntryScopeDecorator.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/ui/navigation/TuIndiceEntryScopeDecoratorUiTest.kt` | 0 | MISSING TEST |
 | `maincore/src/commonMain/kotlin/com/gdavidpb/tuindice/ui/navigation/TuIndiceRetainedSavedStateDecorator.kt` | 1 | `maincore/src/commonTest/kotlin/com/gdavidpb/tuindice/ui/navigation/TuIndiceRetainedSavedStateDecoratorUiTest.kt` | 0 | MISSING TEST |
@@ -196,7 +196,7 @@ _Generated automatically on 2026-07-20 01:50:32 -0400_
 | `pensum/src/commonMain/kotlin/com/gdavidpb/tuindice/pensum/ui/dialog/PensumSubjectRouteColumn.kt` | 1 | `pensum/src/commonTest/kotlin/com/gdavidpb/tuindice/pensum/ui/dialog/PensumSubjectRouteColumnUiTest.kt` | 0 | MISSING TEST |
 | `pensum/src/commonMain/kotlin/com/gdavidpb/tuindice/pensum/ui/dialog/PensumSubjectRouteContext.kt` | 1 | `pensum/src/commonTest/kotlin/com/gdavidpb/tuindice/pensum/ui/dialog/PensumSubjectRouteContextUiTest.kt` | 0 | MISSING TEST |
 | `pensum/src/commonMain/kotlin/com/gdavidpb/tuindice/pensum/ui/dialog/PensumSubjectStatusBadge.kt` | 1 | `pensum/src/commonTest/kotlin/com/gdavidpb/tuindice/pensum/ui/dialog/PensumSubjectStatusBadgeUiTest.kt` | 0 | MISSING TEST |
-| `pensum/src/commonMain/kotlin/com/gdavidpb/tuindice/pensum/ui/screen/PensumScreen.kt` | 1 | `pensum/src/commonTest/kotlin/com/gdavidpb/tuindice/pensum/ui/screen/PensumScreenUiTest.kt` | 38 | PASS threshold (2) |
+| `pensum/src/commonMain/kotlin/com/gdavidpb/tuindice/pensum/ui/screen/PensumScreen.kt` | 1 | `pensum/src/commonTest/kotlin/com/gdavidpb/tuindice/pensum/ui/screen/PensumScreenUiTest.kt` | 39 | PASS threshold (2) |
 | `pensum/src/commonMain/kotlin/com/gdavidpb/tuindice/pensum/ui/view/PensumCanvasLegend.kt` | 5 | `pensum/src/commonTest/kotlin/com/gdavidpb/tuindice/pensum/ui/view/PensumCanvasLegendUiTest.kt` | 0 | MISSING TEST |
 | `pensum/src/commonMain/kotlin/com/gdavidpb/tuindice/pensum/ui/view/PensumContentView.kt` | 1 | `pensum/src/commonTest/kotlin/com/gdavidpb/tuindice/pensum/ui/view/PensumContentViewUiTest.kt` | 0 | MISSING TEST |
 | `pensum/src/commonMain/kotlin/com/gdavidpb/tuindice/pensum/ui/view/PensumEmptyView.kt` | 1 | `pensum/src/commonTest/kotlin/com/gdavidpb/tuindice/pensum/ui/view/PensumEmptyViewUiTest.kt` | 0 | MISSING TEST |
@@ -249,7 +249,7 @@ _Generated automatically on 2026-07-20 01:50:32 -0400_
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSubjectActionButtonView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSubjectActionButtonViewUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSubjectCodeChipView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSubjectCodeChipViewUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSubjectStatsButtonView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSubjectStatsButtonViewUiTest.kt` | 0 | MISSING TEST |
-| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSubjectStatusRowView.kt` | 4 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSubjectStatusRowViewUiTest.kt` | 5 | PASS threshold (2) |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSubjectStatusRowView.kt` | 5 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSubjectStatusRowViewUiTest.kt` | 8 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSubmitBarView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSubmitBarViewUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSuggestedSubjectCardView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSuggestedSubjectCardViewUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/QualitativeStatusSelector.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/QualitativeStatusSelectorUiTest.kt` | 0 | MISSING TEST |
@@ -296,7 +296,7 @@ _Generated automatically on 2026-07-20 01:50:32 -0400_
 | `subjects/src/commonMain/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchError.kt` | 1 | `subjects/src/commonTest/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchErrorUiTest.kt` | 0 | MISSING TEST |
 | `subjects/src/commonMain/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchGuidanceView.kt` | 1 | `subjects/src/commonTest/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchGuidanceViewUiTest.kt` | 0 | MISSING TEST |
 | `subjects/src/commonMain/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchMessage.kt` | 1 | `subjects/src/commonTest/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchMessageUiTest.kt` | 0 | MISSING TEST |
-| `subjects/src/commonMain/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchResultCard.kt` | 4 | `subjects/src/commonTest/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchResultCardUiTest.kt` | 3 | PASS threshold (2) |
+| `subjects/src/commonMain/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchResultCard.kt` | 4 | `subjects/src/commonTest/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchResultCardUiTest.kt` | 5 | PASS threshold (2) |
 | `subjects/src/commonMain/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchResults.kt` | 1 | `subjects/src/commonTest/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchResultsUiTest.kt` | 0 | MISSING TEST |
 | `subjects/src/commonMain/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchTextField.kt` | 1 | `subjects/src/commonTest/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchTextFieldUiTest.kt` | 0 | MISSING TEST |
 
