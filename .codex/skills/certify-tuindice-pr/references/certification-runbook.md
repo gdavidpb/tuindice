@@ -110,6 +110,10 @@ batch**, then certify once.
 - **Assertions whose detection power the diff removed.** If a projection now shows
   optimistic local state, an E2E assertion that "the value appears" may pass even
   when the backend rejected the write. Know which greens still mean something.
+- **Harness scripts the diff adds or changes.** Run each one once in isolation
+  before evidence (`bash -n`, then its happy path and the fallback its own error
+  message recommends). A guard whose recommended fallback is still blocked by the
+  guard cost a full build and boot cycle to discover mid-certification.
 - **Behaviour reachable only through E2E.** Anything the diff changed that has no
   unit coverage is something certification will discover expensively. Prefer
   adding the cheap test now.
@@ -354,6 +358,35 @@ build/e2e/certifications/<sha>/<platform>/<suite>/
 ```
 
 Each suite directory should contain `manifest.json`, `maestro.log`, `junit.xml`, and Maestro outputs. The manifest must describe the same SHA that will be used as the PR head.
+
+### Contention Evidence And Sequential Fallback Mechanics
+
+Two things that turned a diagnosis into a two-hour detour, and how to shortcut them:
+
+- **Prove keystroke corruption from the mock, not from Maestro.** Under saturation
+  iOS reorders or drops characters in `inputText`, and the Maestro log still says
+  `Input text ... COMPLETED`. The truth is in the WireMock log: decode the
+  `Authorization: Basic ...` header of the `POST /auth/v2/bootstrap` that got a
+  `401`. A password like `penum-cache-passs` for `pensum-cache-pass` is the
+  contention signature; it is not a product or flow bug. Record `uptime` and
+  `ps -Ao pcpu,comm -r | head` next to it.
+- **Run the fallback with `scripts/run_sequential_evidence.sh`** instead of
+  hand-writing a chain. It turns the other platform's device fully off and waits
+  for the emulator process to exit before starting iOS (an emulator still shutting
+  down while iOS begins re-creates the contention). Snapshot the failed attempt's
+  `build/e2e/certifications/<sha>/<platform>/<suite>/` **before** the suite's
+  retry starts: the retry overwrites the first attempt's `maestro-output`.
+- **`adb reverse` can be dead on a fresh emulator (API 37 seen).** The probe in
+  `reset-android-app.sh` says so; restarting the tunnel or adb does not fix it.
+  Run the evidence with `E2E_ANDROID_TUNNEL=off` (see the script header) or, for
+  the parallel task, `E2E_ANDROID_API_BASE_URL=http://10.0.2.2:<port>/
+  E2E_ANDROID_WEB_BASE_URL=http://10.0.2.2:<port>`.
+- **Watching the log:** filter on `Maestro FAIL|E2E evidence (failed|passed)|_EXIT=|BUILD (FAILED|SUCCESSFUL) in [0-9]+m`.
+  A bare `Error` or `FAILED` matches Gradle task names such as
+  `checkKotlinGradlePluginConfigurationErrors` and floods the monitor.
+- **zsh quoting:** quote `'@{u}'` in `git rev-parse` and build Gradle task lists
+  as arrays (`T+=(":$m:task")`, `"${T[@]}"`); an unquoted string is passed as one
+  task name.
 
 ## Iterative Failure Handling
 
