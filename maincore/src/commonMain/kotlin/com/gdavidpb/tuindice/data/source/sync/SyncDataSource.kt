@@ -44,7 +44,7 @@ class SyncDataSource(
 		coroutineScope.launch {
 			runCatching {
 				syncMutex.withLock {
-					if (syncStatusRepository.getSyncStatus() == SyncStatus.OutdatedCredentials)
+					if (syncStatusRepository.getSyncStatus().requiresPassword)
 						return@withLock
 
 					val isOnCooldown = settingsDataSource.isSyncOnCooldown()

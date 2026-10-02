@@ -170,7 +170,7 @@ fun TuIndiceAppHostRoute(
 		}
 
 		LaunchedEffect(syncStatus) {
-			if (syncStatus != SyncStatus.OutdatedCredentials) {
+			if (!syncStatus.requiresPassword) {
 				isUpdatePasswordDismissedForOutdatedCredentials.value = false
 			}
 
@@ -223,7 +223,7 @@ fun TuIndiceAppHostRoute(
 
 		LaunchedEffect(syncStatus, navigator, isUpdatePasswordDismissed) {
 			if (navigator == null) return@LaunchedEffect
-			if (syncStatus != SyncStatus.OutdatedCredentials) return@LaunchedEffect
+			if (!syncStatus.requiresPassword) return@LaunchedEffect
 			if (isUpdatePasswordDismissed) return@LaunchedEffect
 
 			snapshotFlow { navigator.rootMode to navigator.currentKey }
@@ -321,7 +321,7 @@ fun TuIndiceAppHostRoute(
 				)
 			},
 			onUpdatePasswordDismissRequest = {
-				if (syncStatus == SyncStatus.OutdatedCredentials) {
+				if (syncStatus.requiresPassword) {
 					isUpdatePasswordDismissedForOutdatedCredentials.value = true
 				}
 				navigator?.pop()

@@ -95,7 +95,7 @@ class SignInUseCase(
 
 		settingsRepository.setLocalDataOwner(canonicalUsbId)
 
-		if (syncStatusRepository.getSyncStatus() == SyncStatus.OutdatedCredentials) {
+		if (syncStatusRepository.getSyncStatus().requiresPassword) {
 			syncStatusRepository.setSyncStatus(SyncStatus.Failed)
 		}
 

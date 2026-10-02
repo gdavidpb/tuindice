@@ -220,6 +220,7 @@ internal fun syncStatusIcon(
 		SyncStatus.Unavailable,
 		SyncStatus.Failed,
 		SyncStatus.OutdatedCredentials,
+		SyncStatus.MissingCredentials,
 		-> Icons.Outlined.SyncProblem
 		}
 	}

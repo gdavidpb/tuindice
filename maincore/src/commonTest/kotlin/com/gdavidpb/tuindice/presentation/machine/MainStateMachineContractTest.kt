@@ -25,6 +25,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeMessagingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeUpdateRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -73,6 +74,7 @@ class MainStateMachineContractTest {
 				sessionRepository = sessionRepository,
 				credentialsRepository = FakeCredentialsRepository(),
 				syncRepository = FakeSyncRepository(),
+				syncStatusRepository = FakeSyncStatusRepository(),
 				coreCacheStateRepository = FakeCoreCacheStateRepository(),
 				reportingRepository = reportingRepository
 			),

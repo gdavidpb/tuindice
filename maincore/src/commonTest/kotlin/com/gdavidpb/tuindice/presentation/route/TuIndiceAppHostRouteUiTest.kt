@@ -735,8 +735,15 @@ class TuIndiceAppHostRouteUiTest {
 	}
 
 	@Test
-	fun when_syncStatusIsOutdatedCredentials_then_hostRouteNavigatesToUpdatePasswordDialog() = runTuIndiceUiTest {
-		val syncStatusRepository = FakeSyncStatusRepository(initialValue = SyncStatus.OutdatedCredentials)
+	fun when_syncStatusIsOutdatedCredentials_then_hostRouteNavigatesToUpdatePasswordDialog() =
+		assertHostRouteAsksForPassword(syncStatus = SyncStatus.OutdatedCredentials)
+
+	@Test
+	fun when_syncStatusIsMissingCredentials_then_hostRouteNavigatesToUpdatePasswordDialog() =
+		assertHostRouteAsksForPassword(syncStatus = SyncStatus.MissingCredentials)
+
+	private fun assertHostRouteAsksForPassword(syncStatus: SyncStatus) = runTuIndiceUiTest {
+		val syncStatusRepository = FakeSyncStatusRepository(initialValue = syncStatus)
 		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 
 		stopKoin()

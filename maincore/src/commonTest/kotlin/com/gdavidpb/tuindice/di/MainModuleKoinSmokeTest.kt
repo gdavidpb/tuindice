@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
@@ -29,6 +30,7 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeUpdateRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingBrowserRepository
@@ -57,6 +59,7 @@ class MainModuleKoinSmokeTest {
 			single<ReviewRepository> { RecordingReviewRepository() }
 			single<MessagingRepository> { FakeMessagingRepository() }
 			single<SyncRepository> { FakeSyncRepository() }
+			single<SyncStatusRepository> { FakeSyncStatusRepository() }
 			single<CoreCacheStateRepository> { FakeCoreCacheStateRepository() }
 			single<UpdateRepository> { FakeUpdateRepository() }
 			single<BrowserRepository> { RecordingBrowserRepository() }

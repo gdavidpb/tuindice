@@ -30,6 +30,9 @@
     <string name="dialog_message_sync_failed">No pudimos sincronizar tus datos. Intentaremos sincronizar de nuevo más tarde.</string>
     <string name="dialog_title_sync_outdated_credentials">Actualiza tu contraseña</string>
     <string name="dialog_message_sync_outdated_credentials">No pudimos sincronizar tus datos porque tu contraseña está desactualizada. Actualízala para volver a sincronizar.</string>
+    <string name="dialog_title_sync_missing_credentials">Vuelve a ingresar tu contraseña</string>
+    <string name="dialog_message_sync_missing_credentials">No pudimos leer tu contraseña USB guardada en este dispositivo, así que tus datos dejaron de sincronizarse. Ingrésala de nuevo para volver a sincronizar.</string>
+    <string name="dialog_button_enter_password">Ingresar contraseña</string>
     <string name="dialog_button_understood">Entendido</string>
     <string name="dialog_button_close">Cerrar</string>
     <string name="dialog_button_update_password">Actualizar contraseña</string>

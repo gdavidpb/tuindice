@@ -32,8 +32,8 @@
 	<string name="dialog_button_sign_out_anyway">Cerrar igualmente</string>
 	<string name="dialog_button_cancel">Cancelar</string>
 	<string name="dialog_button_retry">Reintentar</string>
-	<string name="dialog_title_update_password">Tu contraseña ha cambiado</string>
-	<string name="dialog_message_update_password">Tu contraseña USB cambió. Ingresa la nueva para seguir usando TuIndice.</string>
+	<string name="dialog_title_update_password">Ingresa tu contraseña USB</string>
+	<string name="dialog_message_update_password">Necesitamos tu contraseña USB para seguir sincronizando tus datos. Si la cambiaste, ingresa la nueva.</string>
 	<string name="dialog_button_update_password_later">Más tarde</string>
 	<string name="dialog_button_update_password_confirm">Aceptar</string>
 	<string name="a11y_show_password">Mostrar contraseña</string>

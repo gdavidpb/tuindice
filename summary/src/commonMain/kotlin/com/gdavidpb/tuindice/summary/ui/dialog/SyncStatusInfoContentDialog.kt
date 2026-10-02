@@ -2,22 +2,25 @@ package com.gdavidpb.tuindice.summary.ui.dialog
 
 import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
-import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.SyncSourceStatus
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import org.jetbrains.compose.resources.stringResource
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.dialog_button_close
+import tuindice.summary.generated.resources.dialog_button_enter_password
 import tuindice.summary.generated.resources.dialog_button_understood
 import tuindice.summary.generated.resources.dialog_button_update_password
-import tuindice.summary.generated.resources.dialog_message_sync_sources_enrollment_unavailable
 import tuindice.summary.generated.resources.dialog_message_sync_failed
+import tuindice.summary.generated.resources.dialog_message_sync_missing_credentials
+import tuindice.summary.generated.resources.dialog_message_sync_outdated_credentials
+import tuindice.summary.generated.resources.dialog_message_sync_sources_enrollment_unavailable
 import tuindice.summary.generated.resources.dialog_message_sync_sources_record_and_enrollment_unavailable
 import tuindice.summary.generated.resources.dialog_message_sync_sources_record_unavailable
-import tuindice.summary.generated.resources.dialog_message_sync_outdated_credentials
 import tuindice.summary.generated.resources.dialog_message_sync_unavailable
-import tuindice.summary.generated.resources.dialog_title_sync_sources_unavailable
 import tuindice.summary.generated.resources.dialog_title_sync_failed
+import tuindice.summary.generated.resources.dialog_title_sync_missing_credentials
 import tuindice.summary.generated.resources.dialog_title_sync_outdated_credentials
+import tuindice.summary.generated.resources.dialog_title_sync_sources_unavailable
 import tuindice.summary.generated.resources.dialog_title_sync_unavailable
 
 @Composable
@@ -27,7 +30,7 @@ fun SyncStatusInfoContentDialog(
 	onUpdatePasswordClick: () -> Unit,
 	onDismissRequest: () -> Unit
 ) {
-	if (syncStatus != SyncStatus.OutdatedCredentials && syncReport.hasUnavailableSource) {
+	if (!syncStatus.requiresPassword && syncReport.hasUnavailableSource) {
 		SyncStatusInfoDialog(
 			titleText = stringResource(Res.string.dialog_title_sync_sources_unavailable),
 			messageText = syncReport.unavailableSourcesMessage(),
@@ -61,6 +64,15 @@ fun SyncStatusInfoContentDialog(
 			titleText = stringResource(Res.string.dialog_title_sync_outdated_credentials),
 			messageText = stringResource(Res.string.dialog_message_sync_outdated_credentials),
 			confirmText = stringResource(Res.string.dialog_button_update_password),
+			dismissText = stringResource(Res.string.dialog_button_close),
+			onConfirmClick = onUpdatePasswordClick,
+			onDismissRequest = onDismissRequest
+		)
+
+		SyncStatus.MissingCredentials -> SyncStatusInfoDialog(
+			titleText = stringResource(Res.string.dialog_title_sync_missing_credentials),
+			messageText = stringResource(Res.string.dialog_message_sync_missing_credentials),
+			confirmText = stringResource(Res.string.dialog_button_enter_password),
 			dismissText = stringResource(Res.string.dialog_button_close),
 			onConfirmClick = onUpdatePasswordClick,
 			onDismissRequest = onDismissRequest

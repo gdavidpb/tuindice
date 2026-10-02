@@ -35,6 +35,7 @@ class RecordDataPrerequisiteDataSource(
 			SyncStatus.Failed,
 			SyncStatus.Unavailable,
 			SyncStatus.OutdatedCredentials,
+			SyncStatus.MissingCredentials,
 			-> true
 
 			SyncStatus.Healthy -> false
