@@ -7,6 +7,8 @@ import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onAllNodesWithText
 import androidx.compose.ui.test.onNodeWithText
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryEntry
+import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
@@ -52,7 +54,8 @@ class StatusCardItemViewUiTest {
 		onNodeWithText("Aprobados").assertIsDisplayed()
 		onNodeWithText("Reprobados").assertIsDisplayed()
 		onNodeWithText("Retirados").assertIsDisplayed()
-		// One empty track with its zero, not one per entry and not a card with a hole in it.
-		onAllNodesWithText("0").assertCountEquals(1)
+		// One empty track and no figure under it: the header already says zero.
+		assertNodeVisible(SummaryUiTags.StatusCardEmptyTrack)
+		onAllNodesWithText("0").assertCountEquals(0)
 	}
 }

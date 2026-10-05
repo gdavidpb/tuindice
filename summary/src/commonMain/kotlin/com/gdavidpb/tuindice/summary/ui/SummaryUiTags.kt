@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.ui
 
 object SummaryUiTags {
+	const val StatusCardEmptyTrack = "summary_status_card_empty_track"
 	const val LoadingIndicator = "summary_loading_indicator"
 
 	const val NewStudentContainer = "summary_new_student_container"

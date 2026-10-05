@@ -17,13 +17,14 @@ import androidx.compose.ui.unit.dp
 fun RowScope.DistributionView(
 	label: String,
 	weight: Float,
-	color: Color
+	color: Color,
+	modifier: Modifier = Modifier
 ) {
 	val heightPx = with(LocalDensity.current) { 6.dp.toPx() }
 	val radiusPx = with(LocalDensity.current) { 8.dp.toPx() }
 
 	Text(
-		modifier = Modifier
+		modifier = modifier
 			.weight(weight)
 			.drawWithContent {
 				drawRoundRect(
