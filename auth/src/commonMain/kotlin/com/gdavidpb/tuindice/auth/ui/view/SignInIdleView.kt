@@ -39,6 +39,9 @@ import com.gdavidpb.tuindice.auth.utils.extension.isUsbEmail
 import com.gdavidpb.tuindice.auth.utils.extension.isUsbId
 import com.gdavidpb.tuindice.base.ui.view.AppLogoView
 import com.gdavidpb.tuindice.base.ui.view.toBoldMarkerAnnotatedText
+import org.jetbrains.compose.resources.stringResource
+import tuindice.auth.generated.resources.Res
+import tuindice.auth.generated.resources.sign_in_service_unavailable
 
 @Composable
 fun SignInIdleView(
@@ -70,7 +73,7 @@ fun SignInIdleView(
 		SignInIdentifierMode.UsbId -> state.usbId.isUsbId()
 		SignInIdentifierMode.UsbEmail -> state.usbId.isUsbEmail()
 	}
-	val isSignInEnabled = isValidIdentifier && state.password.isNotEmpty()
+	val isSignInEnabled = isValidIdentifier && state.password.isNotEmpty() && !state.isServiceUnavailable
 	val policyIntroText = policiesText.substringBefore(termsAndConditionsText).trimEnd()
 	val policyTextStyle = TextStyle(
 		textAlign = TextAlign.Center,
@@ -193,6 +196,23 @@ fun SignInIdleView(
 			onClick = { onSignInClick() }
 		) {
 			Text(text = signInButtonText)
+		}
+
+		if (state.isServiceUnavailable) {
+			Text(
+				modifier = Modifier
+					.testTag(AuthUiTags.ServiceUnavailableMessage)
+					.fillMaxWidth()
+					.padding(
+						start = 32.dp,
+						end = 32.dp,
+						bottom = 16.dp
+					),
+				text = stringResource(Res.string.sign_in_service_unavailable),
+				style = MaterialTheme.typography.bodySmall,
+				color = MaterialTheme.colorScheme.onSurfaceVariant,
+				textAlign = TextAlign.Center
+			)
 		}
 
 		Column(

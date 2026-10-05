@@ -49,6 +49,7 @@
 	<string name="error_usb_unavailable">Los servicios de la universidad no están disponibles en este momento. Intenta más tarde</string>
 	<string name="error_invalid_password">Contraseña inválida</string>
 	<string name="label_retry">Reintentar</string>
+	<string name="sign_in_service_unavailable">Servicios de la universidad no disponibles. Vuelve a intentarlo en unos segundos.</string>
 	<string name="snack_too_many_requests">Demasiados intentos. Espera un momento e intenta de nuevo</string>
 	<string name="snack_sign_in_failed">No pudimos iniciar sesión. Intenta nuevamente</string>
 	<string name="snack_update_password_failed">No pudimos actualizar tu contraseña. Intenta nuevamente</string>

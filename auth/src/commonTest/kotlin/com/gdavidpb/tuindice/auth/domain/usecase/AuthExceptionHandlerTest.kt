@@ -1,9 +1,12 @@
 package com.gdavidpb.tuindice.auth.domain.usecase
 
+import com.gdavidpb.tuindice.auth.domain.exception.AuthenticationStage
+import com.gdavidpb.tuindice.auth.domain.exception.AuthenticationStageException
 import com.gdavidpb.tuindice.auth.domain.exception.SignInIllegalArgumentException
 import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.UpdatePasswordExceptionHandler
+import com.gdavidpb.tuindice.base.domain.exception.ServiceRetryWindowException
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import io.ktor.http.HttpStatusCode
@@ -76,6 +79,21 @@ class AuthExceptionHandlerTest {
 		)
 
 		assertEquals(SignInUseCaseError.Unavailable, actual)
+	}
+
+	@Test
+	fun handlers_mapACallHeldBackByTheServersWait_asUnavailable() {
+		val heldBack = AuthenticationStageException(
+			stage = AuthenticationStage.SignInBootstrap,
+			cause = ServiceRetryWindowException(retryAfterMillis = 30_000L)
+		)
+		val network = FakeNetworkRepository(isAvailable = true)
+
+		assertEquals(SignInUseCaseError.Unavailable, SignInExceptionHandler(network).parseException(heldBack))
+		assertEquals(
+			SignInUseCaseError.Unavailable,
+			UpdatePasswordExceptionHandler(network).parseException(ServiceRetryWindowException(1_000L))
+		)
 	}
 
 	@Test

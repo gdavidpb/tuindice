@@ -1,17 +1,18 @@
 package com.gdavidpb.tuindice.auth.presentation.viewmodel
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.auth.presentation.machine.SignInMachine
-import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
-import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
+import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
-import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
+import com.gdavidpb.tuindice.auth.presentation.machine.SignInMachine
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
+import com.gdavidpb.tuindice.auth.testing.FakeAuthRetryWindowRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
@@ -54,7 +55,8 @@ class SignInViewModelContractTest {
 				),
 				configRepository = FakeConfigRepository(),
 				appEnvironmentRepository = FakeAppEnvironmentRepository(),
-				usageDataConsentRepository = InMemoryUsageDataConsentRepository()
+				usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
+				authRetryWindowRepository = FakeAuthRetryWindowRepository()
 			),
 			eventPublisher = NoOpEventPublisher
 		)
@@ -115,7 +117,8 @@ class SignInViewModelContractTest {
 				),
 				configRepository = FakeConfigRepository(),
 				appEnvironmentRepository = FakeAppEnvironmentRepository(),
-				usageDataConsentRepository = InMemoryUsageDataConsentRepository()
+				usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
+				authRetryWindowRepository = FakeAuthRetryWindowRepository()
 			),
 			eventPublisher = NoOpEventPublisher
 		)

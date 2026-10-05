@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.auth.di
 
 import com.gdavidpb.tuindice.auth.data.source.AuthDataSource
+import com.gdavidpb.tuindice.auth.data.source.AuthRetryWindowDataSource
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.auth.domain.repository.AuthRetryWindowRepository
 import com.gdavidpb.tuindice.auth.domain.usecase.ConfirmSignOutUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.FlushPendingChangesUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
@@ -53,6 +55,8 @@ val authModule = module {
 	/* Repositories */
 
 	factoryOf(::AuthDataSource) { bind<AuthRepository>() }
+	// One memory of the server's waits, shared by sign-in and the background session recovery.
+	single<AuthRetryWindowRepository> { AuthRetryWindowDataSource() }
 
 	/* Exception handlers */
 

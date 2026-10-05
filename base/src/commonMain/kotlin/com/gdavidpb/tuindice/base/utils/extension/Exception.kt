@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.base.utils.extension
 
 import com.gdavidpb.tuindice.base.data.source.network.AuthErrorHeaders
+import com.gdavidpb.tuindice.base.domain.exception.ServiceRetryWindowException
 import io.ktor.client.plugins.ResponseException
 import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.TimeoutCancellationException
@@ -63,6 +64,8 @@ private val connectionMessageFragments = setOf(
 
 fun Throwable.isUnavailable() = when (this) {
 	is ResponseException -> response.status == HttpStatusCode.ServiceUnavailable
+	// A call held back inside the wait the server asked for stands in for the 503 that caused it.
+	is ServiceRetryWindowException -> true
 	else -> false
 }
 

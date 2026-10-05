@@ -156,7 +156,8 @@ val iosPlatformModule = module {
 	factoryOf(::IosPushTokenDataSource) { bind<PushTokenDataRepository>() }
 	factory<AuthApiDataRepository> {
 		KtorAuthApiDataSource(
-			ktorClient = get<HttpClient>(qualifier = named(IDENTITY_HTTP_CLIENT_QUALIFIER))
+			ktorClient = get<HttpClient>(qualifier = named(IDENTITY_HTTP_CLIENT_QUALIFIER)),
+			retryWindow = get()
 		)
 	}
 	factory<AttestationRepository> {

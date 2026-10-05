@@ -2,25 +2,28 @@ package com.gdavidpb.tuindice.auth.presentation.route
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsFocused
+import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
-import com.gdavidpb.tuindice.auth.presentation.machine.SignInMachine
-import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
-import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
-import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
-import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.auth.domain.model.AttestedTokenFlow
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
+import com.gdavidpb.tuindice.auth.presentation.machine.SignInMachine
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
-import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
+import com.gdavidpb.tuindice.auth.testing.FakeAuthRetryWindowRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
+import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
+import com.gdavidpb.tuindice.base.domain.exception.ServiceRetryWindowException
+import com.gdavidpb.tuindice.base.domain.model.AppEnvironment
+import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
@@ -31,6 +34,8 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingApplicationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
+import com.gdavidpb.tuindice.testkit.ui.assertNodeDisabled
+import com.gdavidpb.tuindice.testkit.ui.assertNodeEnabled
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import io.ktor.http.HttpStatusCode
@@ -38,6 +43,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
@@ -402,11 +408,83 @@ class SignInRouteUiTest {
 		assertTrue(shownSnackBars.size >= 2)
 	}
 
+	@Test
+	fun when_signInFailsWithTooManyRequests_then_itIsNeverShownAsWrongCredentials() = runTuIndiceUiTest {
+		val fixture = createSignInViewModel(
+			termsAndConditionsUrl = "https://tuindice.test/terms",
+			signInThrowable = clientRequestException(HttpStatusCode.TooManyRequests, path = "/auth/v2/bootstrap")
+		)
+		val shownSnackBars = mutableListOf<SnackBarMessage>()
+
+		setTuIndiceTestContent {
+			SignInRoute(
+				onNavigateToSummary = {},
+				onNavigateToBrowser = { _, _ -> },
+				showSnackBar = { message -> shownSnackBars += message },
+				viewModel = fixture.viewModel
+			)
+		}
+
+		runOnIdle {
+			fixture.viewModel.setUsbIdAction("12-34567")
+			fixture.viewModel.setPasswordAction("1234")
+			fixture.viewModel.signInAction()
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			shownSnackBars.isNotEmpty()
+		}
+
+		val message = shownSnackBars.first()
+		assertTrue("contraseña" !in message.message, "A 429 is not a wrong password: ${message.message}")
+		assertNull(message.onAction)
+	}
+
+	@Test
+	fun when_theServiceAskedForAWait_then_signInWaitsWithoutASnackBarAndComesBack() = runTuIndiceUiTest {
+		val retryWindow = FakeAuthRetryWindowRepository(signInWaitMillis = 400L)
+		val fixture = createSignInViewModel(
+			termsAndConditionsUrl = "https://tuindice.test/terms",
+			signInThrowable = ServiceRetryWindowException(retryAfterMillis = 400L),
+			retryWindow = retryWindow
+		)
+		val shownSnackBars = mutableListOf<SnackBarMessage>()
+
+		setTuIndiceTestContent {
+			SignInRoute(
+				onNavigateToSummary = {},
+				onNavigateToBrowser = { _, _ -> },
+				showSnackBar = { message -> shownSnackBars += message },
+				viewModel = fixture.viewModel
+			)
+		}
+
+		runOnIdle {
+			fixture.viewModel.setUsbIdAction("12-34567")
+			fixture.viewModel.setPasswordAction("1234")
+			fixture.viewModel.signInAction()
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			onAllNodesWithTag(AuthUiTags.ServiceUnavailableMessage).fetchSemanticsNodes().isNotEmpty()
+		}
+
+		assertNodeDisabled(AuthUiTags.SignInButton)
+		assertTrue(shownSnackBars.isEmpty())
+
+		waitUntil(timeoutMillis = 4_000) {
+			onAllNodesWithTag(AuthUiTags.ServiceUnavailableMessage).fetchSemanticsNodes().isEmpty()
+		}
+
+		assertNodeEnabled(AuthUiTags.SignInButton)
+	}
+
 	private fun createSignInViewModel(
 		termsAndConditionsUrl: String,
 		privacyPolicyUrl: String = "https://tuindice.test/privacy",
 		signInThrowable: Throwable? = null,
-		networkAvailable: Boolean = true
+		networkAvailable: Boolean = true,
+		retryWindow: FakeAuthRetryWindowRepository = FakeAuthRetryWindowRepository()
 	): SignInRouteFixture {
 		val authRepository = RecordingAuthRepository(throwable = signInThrowable)
 		val signInUseCase = SignInUseCase(
@@ -439,7 +517,8 @@ class SignInRouteUiTest {
 							debug = true
 						)
 					),
-					usageDataConsentRepository = InMemoryUsageDataConsentRepository()
+					usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
+					authRetryWindowRepository = retryWindow
 				),
 				eventPublisher = NoOpEventPublisher
 			),

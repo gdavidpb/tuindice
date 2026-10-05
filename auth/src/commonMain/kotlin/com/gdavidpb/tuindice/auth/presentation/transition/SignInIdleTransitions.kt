@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.auth.presentation.transition
 
 import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
+import com.gdavidpb.tuindice.auth.presentation.machine.SignInInternalEvent
 import com.gdavidpb.tuindice.auth.presentation.machine.SignInMachine
 import com.gdavidpb.tuindice.auth.utils.extension.isUsbId
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
@@ -38,6 +39,10 @@ internal fun MachineDefinitionBuilder<SignIn.State>.idleTransitions(
 				usbId = nextUsbId,
 				identifierMode = nextMode
 			)
+		}
+
+		on<SignInInternalEvent.ServiceWaitElapsed> { state, _ ->
+			state.copy(isServiceUnavailable = false)
 		}
 
 		onTo<SignIn.Action.ClickSignIn, SignIn.State.LoggingIn> { state, _ ->

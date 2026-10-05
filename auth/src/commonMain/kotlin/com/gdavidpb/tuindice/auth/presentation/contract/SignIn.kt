@@ -18,7 +18,9 @@ object SignIn {
 			val password: String = "",
 			val identifierMode: SignInIdentifierMode = SignInIdentifierMode.UsbId,
 			val isPasswordVisible: Boolean = false,
-			val usageDataCollectionEnabled: Boolean = false
+			val usageDataCollectionEnabled: Boolean = false,
+			// The university's services asked for a wait: sign-in stays disabled until it elapses.
+			val isServiceUnavailable: Boolean = false
 		) : State()
 
 		data class LoggingIn(

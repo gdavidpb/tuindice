@@ -5,6 +5,7 @@ object AuthUiTags {
 	const val KeyboardDismissArea = "auth_keyboard_dismiss_area"
 	const val SignInLoggingInContainer = "auth_sign_in_logging_in_container"
 	const val SignInButton = "auth_sign_in_button"
+	const val ServiceUnavailableMessage = "auth_service_unavailable_message"
 	const val SignInCancelButton = "auth_sign_in_cancel_button"
 	const val UsbIdTextField = "auth_usb_id_text_field"
 	const val IdentifierModeToggle = "auth_identifier_mode_toggle"

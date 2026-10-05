@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.auth.presentation.machine
 
+import com.gdavidpb.tuindice.auth.domain.repository.AuthRetryWindowRepository
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
@@ -8,6 +9,7 @@ import com.gdavidpb.tuindice.auth.presentation.mapper.toErrorMessage
 import com.gdavidpb.tuindice.auth.presentation.transition.anyStateTransitions
 import com.gdavidpb.tuindice.auth.presentation.transition.idleTransitions
 import com.gdavidpb.tuindice.auth.presentation.transition.loggingInTransitions
+import com.gdavidpb.tuindice.auth.utils.extension.toCanonicalUsbIdentifier
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
@@ -16,6 +18,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import org.jetbrains.compose.resources.getString
 import tuindice.auth.generated.resources.Res
 import tuindice.auth.generated.resources.label_retry
@@ -26,11 +29,15 @@ class SignInMachine(
 	private val signInUseCase: SignInUseCase,
 	private val configRepository: ConfigRepository,
 	private val appEnvironmentRepository: AppEnvironmentRepository,
-	private val usageDataConsentRepository: UsageDataConsentRepository
+	private val usageDataConsentRepository: UsageDataConsentRepository,
+	private val authRetryWindowRepository: AuthRetryWindowRepository
 ) : ScreenMachine<SignIn.State, SignIn.Effect> {
 	// Held only to support the mid-flight cancel affordance; the table already
 	// rejects zombie results for every other exit.
 	private var signInJob: Job? = null
+
+	// Re-enables sign-in when the wait the identity service asked for is over.
+	private var serviceWaitJob: Job? = null
 
 	override fun initialState(): SignIn.State {
 		return SignIn.State.Idle(
@@ -50,6 +57,9 @@ class SignInMachine(
 		host: MachineHost<SignIn.Effect>,
 		state: SignIn.State.Idle
 	): SignIn.State.LoggingIn {
+		serviceWaitJob?.cancel()
+		serviceWaitJob = null
+
 		val params = SignInParams(
 			usbId = state.usbId,
 			password = state.password,
@@ -106,6 +116,28 @@ class SignInMachine(
 		event: SignInInternalEvent.SignInFailed
 	): SignIn.State.Idle {
 		val error = event.error
+		val serviceWaitMillis = if (error is SignInUseCaseError.Unavailable) {
+			authRetryWindowRepository.signInRemainingMillis(state.usbId.toCanonicalUsbIdentifier())
+		} else {
+			0L
+		}
+
+		// A server that asked for a wait is explained by the screen itself, not by a retry snackbar.
+		if (serviceWaitMillis > 0) {
+			serviceWaitJob = host.launchMachineJob {
+				delay(serviceWaitMillis)
+				host.processInternalEvent(SignInInternalEvent.ServiceWaitElapsed)
+			}
+
+			return SignIn.State.Idle(
+				usbId = state.usbId,
+				password = state.password,
+				identifierMode = state.identifierMode,
+				usageDataCollectionEnabled = state.usageDataCollectionEnabled,
+				isServiceUnavailable = true
+			)
+		}
+
 		val errorMessage = error.toErrorMessage(
 			identifierMode = state.identifierMode,
 			supportEmail = configRepository.getContactEmail()

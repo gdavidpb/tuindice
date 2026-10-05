@@ -8,11 +8,13 @@ import com.gdavidpb.tuindice.auth.domain.usecase.validator.SignInParamsValidator
 import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import com.gdavidpb.tuindice.auth.presentation.viewmodel.SignInViewModel
 import com.gdavidpb.tuindice.auth.testing.FakeAttestationRepository
+import com.gdavidpb.tuindice.auth.testing.FakeAuthRetryWindowRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingAuthRepository
 import com.gdavidpb.tuindice.auth.testing.RecordingMessagingRepository
 import com.gdavidpb.tuindice.base.data.source.usage.InMemoryUsageDataConsentRepository
 import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.exception.ServiceRetryWindowException
 import com.gdavidpb.tuindice.base.domain.model.event.AppEvent
 import com.gdavidpb.tuindice.base.domain.model.event.EventNames
 import com.gdavidpb.tuindice.base.domain.model.event.EventParameterKeys
@@ -38,6 +40,7 @@ import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -319,11 +322,52 @@ class SignInStateMachineContractTest {
 		}
 	}
 
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun unavailableWithAWait_returnsToIdleDisabled_andReenablesWhenTheWaitElapses() = runTest {
+		val fixture = createFixture(
+			testScheduler = testScheduler,
+			signInThrowable = ServiceRetryWindowException(retryAfterMillis = 30_000L),
+			serviceWaitMillis = 30_000L
+		)
+		val viewModel = fixture.viewModel
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				assertEquals(SignIn.State.Idle(), awaitItem())
+
+				viewModel.setUsbIdAction(VALID_USB_ID)
+				viewModel.setPasswordAction(PASSWORD)
+				viewModel.signInAction()
+
+				val waiting = awaitUntilState<SignIn.State.Idle> { state -> state.isServiceUnavailable }
+				assertEquals(VALID_USB_ID, waiting.usbId)
+				assertEquals(PASSWORD, waiting.password)
+
+				advanceTimeBy(29_000L)
+				assertTrue(viewModel.state.value.let { it is SignIn.State.Idle && it.isServiceUnavailable })
+
+				advanceTimeBy(2_000L)
+				awaitUntilState<SignIn.State.Idle> { state -> !state.isServiceUnavailable }
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	private fun createFixture(
-		testScheduler: TestCoroutineScheduler? = null
+		testScheduler: TestCoroutineScheduler? = null,
+		signInThrowable: Throwable? = null,
+		serviceWaitMillis: Long = 0L
 	): SignInStateMachineFixture {
-		val authRepository = RecordingAuthRepository()
+		val authRepository = RecordingAuthRepository(throwable = signInThrowable)
 		val eventPublisher = RecordingEventPublisher()
 		val dispatchers: TuIndiceDispatchers = testScheduler
 			?.let { scheduler -> TestTuIndiceDispatchers(UnconfinedTestDispatcher(scheduler)) }
@@ -348,7 +392,8 @@ class SignInStateMachineContractTest {
 				),
 				configRepository = FakeConfigRepository(),
 				appEnvironmentRepository = FakeAppEnvironmentRepository(),
-				usageDataConsentRepository = InMemoryUsageDataConsentRepository()
+				usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
+				authRetryWindowRepository = FakeAuthRetryWindowRepository(signInWaitMillis = serviceWaitMillis)
 			),
 			eventPublisher = eventPublisher,
 			dispatchers = dispatchers
