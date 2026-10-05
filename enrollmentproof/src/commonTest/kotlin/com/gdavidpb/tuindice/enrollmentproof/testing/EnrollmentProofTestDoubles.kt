@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNot
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
 import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
 import com.gdavidpb.tuindice.enrollmentproof.presentation.resource.EnrollmentProofTextProvider
+import io.github.vinceglb.filekit.PlatformFile
 import io.ktor.client.HttpClient
 import io.ktor.client.call.HttpClientCall
 import io.ktor.client.engine.mock.MockEngine
@@ -17,14 +18,13 @@ import io.ktor.client.engine.mock.respondOk
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.client.request.HttpRequestBuilder
 import io.ktor.client.request.HttpResponseData
-import io.ktor.http.HttpStatusCode
-import io.ktor.http.HttpProtocolVersion
 import io.ktor.http.Headers
+import io.ktor.http.HttpProtocolVersion
+import io.ktor.http.HttpStatusCode
 import io.ktor.http.takeFrom
 import io.ktor.util.date.GMTDate
 import io.ktor.utils.io.ByteReadChannel
 import io.ktor.utils.io.InternalAPI
-import io.github.vinceglb.filekit.PlatformFile
 import kotlin.coroutines.EmptyCoroutineContext
 
 const val CURRENT_QUARTER_NAME = "2026-1"
@@ -138,6 +138,10 @@ class FakeEnrollmentProofTextProvider : EnrollmentProofTextProvider {
 	override suspend fun networkUnavailable(): String = "Comprueba tu conexión"
 
 	override suspend fun enrollmentNotFound(): String = "Comprobante no disponible"
+
+	override suspend fun enrollmentAnnulled(): String = "Inscripción anulada"
+
+	override suspend fun notEnrolled(): String = "Sin inscripción vigente"
 
 	override suspend fun enrollmentUnsupported(): String = "Archivo no soportado ;("
 

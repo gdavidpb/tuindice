@@ -16,6 +16,7 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.enrollmentproof.generated.resources.Res
 import tuindice.enrollmentproof.generated.resources.enrollment_proof_retry
 import tuindice.enrollmentproof.generated.resources.error_enrollment_unsupported
+import tuindice.enrollmentproof.generated.resources.snack_enrollment_proof_cached
 
 @Composable
 fun EnrollmentProofRoute(
@@ -30,6 +31,7 @@ fun EnrollmentProofRoute(
 	var dismissed by remember { mutableStateOf(false) }
 	val proofViewerMissingMessage = stringResource(Res.string.error_enrollment_unsupported)
 	val retryActionLabel = stringResource(Res.string.enrollment_proof_retry)
+	val cachedProofMessage = stringResource(Res.string.snack_enrollment_proof_cached)
 
 	val dismiss = {
 		dismissed = true
@@ -46,6 +48,9 @@ fun EnrollmentProofRoute(
 			is Enrollment.Effect.OpenEnrollmentProof -> {
 				if (!externalActions.openFile(effect.file)) {
 					showSnackBar(SnackBarMessage(message = proofViewerMissingMessage))
+				} else if (effect.isFromCache) {
+					// The saved copy stands in for a fresh one: say so, with nothing to retry.
+					showSnackBar(SnackBarMessage(message = cachedProofMessage))
 				}
 				dismiss()
 			}
@@ -54,8 +59,8 @@ fun EnrollmentProofRoute(
 				showSnackBar(
 					SnackBarMessage(
 						message = effect.message,
-						actionLabel = retryActionLabel,
-						onAction = onRetryRequest
+						actionLabel = retryActionLabel.takeIf { effect.canRetry },
+						onAction = onRetryRequest.takeIf { effect.canRetry }
 					)
 				)
 				dismiss()

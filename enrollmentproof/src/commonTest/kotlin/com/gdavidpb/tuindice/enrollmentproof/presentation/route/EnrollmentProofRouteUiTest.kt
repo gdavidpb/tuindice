@@ -1,13 +1,14 @@
 package com.gdavidpb.tuindice.enrollmentproof.presentation.route
 
-import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
+import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProofNotFoundReason
 import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.FetchEnrollmentProofUseCase
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.exceptionhandler.FetchEnrollmentProofExceptionHandler
@@ -21,8 +22,8 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
-import io.ktor.http.HttpStatusCode
 import io.github.vinceglb.filekit.PlatformFile
+import io.ktor.http.HttpStatusCode
 import kotlinx.coroutines.CompletableDeferred
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -100,7 +101,7 @@ class EnrollmentProofRouteUiTest {
 	}
 
 	@Test
-	fun when_fetchFailsWithNotFound_then_showsRetryableSnackBarAndDismissesSheet() = runTuIndiceUiTest {
+	fun when_fetchFailsWithNotFound_then_showsSnackBarWithoutRetryAndDismissesSheet() = runTuIndiceUiTest {
 		val externalActions = RecordingFileOpenerRepository()
 		val viewModel = createEnrollmentProofViewModel(
 			throwable = EnrollmentProofNotFoundException()
@@ -129,10 +130,115 @@ class EnrollmentProofRouteUiTest {
 		assertEquals(1, dismissCalls)
 		assertEquals(1, snackBarMessages.size)
 		assertEquals("Comprobante no disponible", snackBarMessages.first().message)
-		assertEquals("Reintentar", snackBarMessages.first().actionLabel)
-		assertNotNull(snackBarMessages.first().onAction).invoke()
-		assertEquals(1, retryRequests)
+		// There is nothing to try again when the university has no proof to give.
+		assertEquals(null, snackBarMessages.first().actionLabel)
+		assertEquals(null, snackBarMessages.first().onAction)
+		assertEquals(0, retryRequests)
 		assertEquals(null, externalActions.lastOpenedFile)
+	}
+
+	@Test
+	fun when_theProofIsMissingBecauseTheEnrollmentWasAnnulled_then_saysSoWithoutRetry() = runTuIndiceUiTest {
+		val viewModel = createEnrollmentProofViewModel(
+			throwable = EnrollmentProofNotFoundException(reason = EnrollmentProofNotFoundReason.Annulled)
+		)
+		val snackBarMessages = mutableListOf<SnackBarMessage>()
+
+		setTuIndiceTestContent {
+			EnrollmentProofRoute(
+				onNavigateToUpdatePassword = {},
+				onDismissRequest = {},
+				showSnackBar = { message -> snackBarMessages += message },
+				externalActions = RecordingFileOpenerRepository(),
+				viewModel = viewModel
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) { snackBarMessages.isNotEmpty() }
+
+		assertEquals(
+			"Tu inscripción de este trimestre fue anulada, por eso no hay comprobante.",
+			snackBarMessages.single().message
+		)
+		assertEquals(null, snackBarMessages.single().actionLabel)
+	}
+
+	@Test
+	fun when_theProofIsMissingBecauseThereIsNoEnrollment_then_saysSoWithoutRetry() = runTuIndiceUiTest {
+		val viewModel = createEnrollmentProofViewModel(
+			throwable = EnrollmentProofNotFoundException(reason = EnrollmentProofNotFoundReason.NotEnrolled)
+		)
+		val snackBarMessages = mutableListOf<SnackBarMessage>()
+
+		setTuIndiceTestContent {
+			EnrollmentProofRoute(
+				onNavigateToUpdatePassword = {},
+				onDismissRequest = {},
+				showSnackBar = { message -> snackBarMessages += message },
+				externalActions = RecordingFileOpenerRepository(),
+				viewModel = viewModel
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) { snackBarMessages.isNotEmpty() }
+
+		assertEquals(
+			"No tienes una inscripción vigente, así que no hay comprobante que mostrar.",
+			snackBarMessages.single().message
+		)
+		assertEquals(null, snackBarMessages.single().actionLabel)
+	}
+
+	@Test
+	fun when_theSavedCopyIsOpened_then_aSnackBarSaysSoWithoutAnAction() = runTuIndiceUiTest {
+		val externalActions = RecordingFileOpenerRepository()
+		val viewModel = createEnrollmentProofViewModel(
+			enrollmentProofRepository = object : EnrollmentProofRepository {
+				override suspend fun getEnrollmentProof() = EnrollmentProof(
+					source = "/tmp/enrollment-proof.pdf",
+					content = "PDF",
+					isFromCache = true
+				)
+			}
+		)
+		val snackBarMessages = mutableListOf<SnackBarMessage>()
+
+		setTuIndiceTestContent {
+			EnrollmentProofRoute(
+				onNavigateToUpdatePassword = {},
+				onDismissRequest = {},
+				showSnackBar = { message -> snackBarMessages += message },
+				externalActions = externalActions,
+				viewModel = viewModel
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) { snackBarMessages.isNotEmpty() }
+
+		assertNotNull(externalActions.lastOpenedFile)
+		assertEquals("Mostrando tu comprobante guardado", snackBarMessages.single().message)
+		assertEquals(null, snackBarMessages.single().actionLabel)
+	}
+
+	@Test
+	fun when_theFreshCopyIsOpened_then_noSavedCopyNoticeIsShown() = runTuIndiceUiTest {
+		val externalActions = RecordingFileOpenerRepository()
+		val viewModel = createEnrollmentProofViewModel()
+		val snackBarMessages = mutableListOf<SnackBarMessage>()
+
+		setTuIndiceTestContent {
+			EnrollmentProofRoute(
+				onNavigateToUpdatePassword = {},
+				onDismissRequest = {},
+				showSnackBar = { message -> snackBarMessages += message },
+				externalActions = externalActions,
+				viewModel = viewModel
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) { externalActions.lastOpenedFile != null }
+
+		assertEquals(emptyList(), snackBarMessages)
 	}
 
 	@Test

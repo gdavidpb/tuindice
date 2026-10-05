@@ -19,14 +19,18 @@ internal fun MachineDefinitionBuilder<Enrollment.State>.enrollmentProofTransitio
 		on<EnrollmentProofInternalEvent.EnrollmentProofFetched>(
 			emits = setOf(Enrollment.Effect.OpenEnrollmentProof::class)
 		) { state, event ->
-			host.sendEffect(Enrollment.Effect.OpenEnrollmentProof(file = event.file))
+			host.sendEffect(
+				Enrollment.Effect.OpenEnrollmentProof(file = event.file, isFromCache = event.isFromCache)
+			)
 			state
 		}
 
 		on<EnrollmentProofInternalEvent.EnrollmentProofFetchFailed>(
 			emits = setOf(Enrollment.Effect.ShowSnackBar::class)
 		) { state, event ->
-			host.sendEffect(Enrollment.Effect.ShowSnackBar(message = event.message))
+			host.sendEffect(
+				Enrollment.Effect.ShowSnackBar(message = event.message, canRetry = event.canRetry)
+			)
 			state
 		}
 

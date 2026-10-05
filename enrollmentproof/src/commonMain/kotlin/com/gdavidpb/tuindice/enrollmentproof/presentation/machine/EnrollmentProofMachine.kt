@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.FetchEnrollmentProofUseCase
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmentProofUseCaseError
 import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
+import com.gdavidpb.tuindice.enrollmentproof.presentation.mapper.canRetry
 import com.gdavidpb.tuindice.enrollmentproof.presentation.mapper.toErrorMessage
 import com.gdavidpb.tuindice.enrollmentproof.presentation.resource.EnrollmentProofTextProvider
 import com.gdavidpb.tuindice.enrollmentproof.presentation.transition.enrollmentProofTransitions
@@ -31,7 +32,8 @@ class EnrollmentProofMachine(
 
 					is UseCaseState.Data -> host.processInternalEvent(
 						EnrollmentProofInternalEvent.EnrollmentProofFetched(
-							file = useCaseState.value
+							file = useCaseState.value.file,
+							isFromCache = useCaseState.value.isFromCache
 						)
 					)
 
@@ -43,7 +45,8 @@ class EnrollmentProofMachine(
 
 						else -> host.processInternalEvent(
 							EnrollmentProofInternalEvent.EnrollmentProofFetchFailed(
-								message = useCaseState.error.toErrorMessage(textProvider)
+								message = useCaseState.error.toErrorMessage(textProvider),
+								canRetry = useCaseState.error.canRetry()
 							)
 						)
 					}

@@ -7,6 +7,8 @@ sealed interface FetchEnrollmentProofUseCaseError : UseCaseError {
 	data object Unavailable : FetchEnrollmentProofUseCaseError
 	data object OutdatedCredentials : FetchEnrollmentProofUseCaseError
 	data object NotFound : FetchEnrollmentProofUseCaseError
+	data object EnrollmentAnnulled : FetchEnrollmentProofUseCaseError
+	data object NotEnrolled : FetchEnrollmentProofUseCaseError
 	data object UnsupportedFile : FetchEnrollmentProofUseCaseError
 	class NoConnection(val isNetworkAvailable: Boolean) : FetchEnrollmentProofUseCaseError
 }

@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.enrollmentproof.domain.usecase
 import com.gdavidpb.tuindice.base.domain.repository.FileRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
+import com.gdavidpb.tuindice.enrollmentproof.domain.model.FetchedEnrollmentProof
 import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmentProofUseCaseError
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.exceptionhandler.FetchEnrollmentProofExceptionHandler
@@ -15,8 +16,8 @@ class FetchEnrollmentProofUseCase(
 	private val enrollmentProofRepository: EnrollmentProofRepository,
 	override val reportingRepository: ReportingRepository,
 	override val exceptionHandler: FetchEnrollmentProofExceptionHandler
-) : FlowUseCase<Unit, PlatformFile, FetchEnrollmentProofUseCaseError>() {
-	override suspend fun executeOnBackground(params: Unit): Flow<PlatformFile> {
+) : FlowUseCase<Unit, FetchedEnrollmentProof, FetchEnrollmentProofUseCaseError>() {
+	override suspend fun executeOnBackground(params: Unit): Flow<FetchedEnrollmentProof> {
 		val enrollmentProof = enrollmentProofRepository.getEnrollmentProof()
 		val file = PlatformFile(enrollmentProof.source)
 
@@ -24,6 +25,6 @@ class FetchEnrollmentProofUseCase(
 
 		check(canOpenEnrollmentProof) { throw UnsupportedOperationException() }
 
-		return flowOf(file)
+		return flowOf(FetchedEnrollmentProof(file = file, isFromCache = enrollmentProof.isFromCache))
 	}
 }

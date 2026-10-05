@@ -8,11 +8,13 @@ import io.github.vinceglb.filekit.PlatformFile
  */
 sealed interface EnrollmentProofInternalEvent {
 	data class EnrollmentProofFetched(
-		val file: PlatformFile
+		val file: PlatformFile,
+		val isFromCache: Boolean
 	) : EnrollmentProofInternalEvent
 
 	data class EnrollmentProofFetchFailed(
-		val message: String
+		val message: String,
+		val canRetry: Boolean
 	) : EnrollmentProofInternalEvent
 
 	data object EnrollmentProofUnauthorized : EnrollmentProofInternalEvent

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.enrollmentproof.domain.usecase
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
+import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProofNotFoundReason
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmentProofUseCaseError
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.exceptionhandler.FetchEnrollmentProofExceptionHandler
 import com.gdavidpb.tuindice.enrollmentproof.testing.DEFAULT_ENROLLMENT_PROOF
@@ -35,10 +36,47 @@ class FetchEnrollmentProofUseCaseContractTest {
 
 		useCase.execute(Unit).test {
 			val data = awaitLoadingThenData(this)
-			assertEquals(PlatformFile(DEFAULT_ENROLLMENT_PROOF_SOURCE), data)
+			assertEquals(PlatformFile(DEFAULT_ENROLLMENT_PROOF_SOURCE), data.file)
+			assertEquals(false, data.isFromCache)
 			assertEquals(PlatformFile(DEFAULT_ENROLLMENT_PROOF_SOURCE), fileRepository.lastCanOpenFile)
 
 			awaitComplete()
+		}
+	}
+
+	@Test
+	fun execute_tellsWhenTheFileIsTheSavedCopy() = runTest {
+		val useCase = createUseCase(
+			enrollmentProofRepository = FakeEnrollmentProofRepository(
+				enrollmentProof = DEFAULT_ENROLLMENT_PROOF.copy(isFromCache = true)
+			)
+		)
+
+		useCase.execute(Unit).test {
+			assertEquals(true, awaitLoadingThenData(this).isFromCache)
+
+			awaitComplete()
+		}
+	}
+
+	@Test
+	fun execute_explainsAMissingProofByWhatTheLastSyncSaid() = runTest {
+		mapOf(
+			EnrollmentProofNotFoundReason.Annulled to FetchEnrollmentProofUseCaseError.EnrollmentAnnulled,
+			EnrollmentProofNotFoundReason.NotEnrolled to FetchEnrollmentProofUseCaseError.NotEnrolled,
+			EnrollmentProofNotFoundReason.Unknown to FetchEnrollmentProofUseCaseError.NotFound
+		).forEach { (reason, expected) ->
+			val useCase = createUseCase(
+				enrollmentProofRepository = FakeEnrollmentProofRepository(
+					throwable = EnrollmentProofNotFoundException(reason = reason)
+				)
+			)
+
+			useCase.execute(Unit).test {
+				assertEquals(expected, awaitLoadingThenError(this).error)
+
+				awaitComplete()
+			}
 		}
 	}
 

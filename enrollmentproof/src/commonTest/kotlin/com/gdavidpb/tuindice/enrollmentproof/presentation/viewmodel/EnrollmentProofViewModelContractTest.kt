@@ -4,9 +4,9 @@ import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.FetchEnrollmentProofUseCase
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.exceptionhandler.FetchEnrollmentProofExceptionHandler
+import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
 import com.gdavidpb.tuindice.enrollmentproof.presentation.machine.EnrollmentProofInternalEvent
 import com.gdavidpb.tuindice.enrollmentproof.presentation.machine.EnrollmentProofMachine
-import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
 import com.gdavidpb.tuindice.enrollmentproof.testing.DEFAULT_ENROLLMENT_PROOF
 import com.gdavidpb.tuindice.enrollmentproof.testing.DEFAULT_ENROLLMENT_PROOF_SOURCE
 import com.gdavidpb.tuindice.enrollmentproof.testing.FakeEnrollmentProofRepository
@@ -85,10 +85,12 @@ class EnrollmentProofViewModelContractTest {
 			sampleEvents = listOf(
 				Enrollment.Action.FetchEnrollmentProof,
 				EnrollmentProofInternalEvent.EnrollmentProofFetched(
-					file = PlatformFile(DEFAULT_ENROLLMENT_PROOF_SOURCE)
+					file = PlatformFile(DEFAULT_ENROLLMENT_PROOF_SOURCE),
+					isFromCache = false
 				),
 				EnrollmentProofInternalEvent.EnrollmentProofFetchFailed(
-					message = "No se pudo descargar"
+					message = "No se pudo descargar",
+					canRetry = true
 				),
 				EnrollmentProofInternalEvent.EnrollmentProofUnauthorized
 			),

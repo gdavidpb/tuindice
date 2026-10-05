@@ -6,6 +6,8 @@ import com.gdavidpb.tuindice.base.presentation.mapper.commonTimeoutMessage
 import com.gdavidpb.tuindice.base.presentation.mapper.commonUnexpectedErrorMessage
 import org.jetbrains.compose.resources.getString
 import tuindice.enrollmentproof.generated.resources.Res
+import tuindice.enrollmentproof.generated.resources.error_enrollment_annulled
+import tuindice.enrollmentproof.generated.resources.error_enrollment_not_enrolled
 import tuindice.enrollmentproof.generated.resources.error_enrollment_not_found
 import tuindice.enrollmentproof.generated.resources.error_enrollment_unsupported
 
@@ -18,6 +20,12 @@ class DefaultEnrollmentProofTextProvider : EnrollmentProofTextProvider {
 
 	override suspend fun enrollmentNotFound(): String =
 		getString(Res.string.error_enrollment_not_found)
+
+	override suspend fun enrollmentAnnulled(): String =
+		getString(Res.string.error_enrollment_annulled)
+
+	override suspend fun notEnrolled(): String =
+		getString(Res.string.error_enrollment_not_enrolled)
 
 	override suspend fun enrollmentUnsupported(): String =
 		getString(Res.string.error_enrollment_unsupported)

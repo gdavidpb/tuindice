@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.enrollmentproof.domain.usecase
 
+import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
 import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofOfflineException
+import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProofNotFoundReason
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.error.FetchEnrollmentProofUseCaseError
 import com.gdavidpb.tuindice.enrollmentproof.domain.usecase.exceptionhandler.FetchEnrollmentProofExceptionHandler
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
@@ -55,5 +57,25 @@ class FetchEnrollmentProofExceptionHandlerTest {
 
 		val error = assertIs<FetchEnrollmentProofUseCaseError.NoConnection>(actual)
 		assertEquals(false, error.isNetworkAvailable)
+	}
+
+	@Test
+	fun fetchEnrollmentProofExceptionHandler_mapsAMissingProofByItsReason() {
+		val handler = FetchEnrollmentProofExceptionHandler(
+			networkRepository = FakeNetworkRepository(isAvailable = true)
+		)
+
+		assertEquals(
+			FetchEnrollmentProofUseCaseError.EnrollmentAnnulled,
+			handler.parseException(EnrollmentProofNotFoundException(EnrollmentProofNotFoundReason.Annulled))
+		)
+		assertEquals(
+			FetchEnrollmentProofUseCaseError.NotEnrolled,
+			handler.parseException(EnrollmentProofNotFoundException(EnrollmentProofNotFoundReason.NotEnrolled))
+		)
+		assertEquals(
+			FetchEnrollmentProofUseCaseError.NotFound,
+			handler.parseException(EnrollmentProofNotFoundException())
+		)
 	}
 }

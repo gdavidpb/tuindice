@@ -3,6 +3,9 @@
 	<string name="dialog_message_enrollment_downloading">Obteniendo comprobante…</string>
 	<string name="dialog_button_enrollment_cancel">Cancelar</string>
 	<string name="error_enrollment_not_found">Comprobante no disponible</string>
+	<string name="error_enrollment_annulled">Tu inscripción de este trimestre fue anulada, por eso no hay comprobante.</string>
+	<string name="error_enrollment_not_enrolled">No tienes una inscripción vigente, así que no hay comprobante que mostrar.</string>
+	<string name="snack_enrollment_proof_cached">Mostrando tu comprobante guardado</string>
 	<string name="error_enrollment_unsupported">Instala un lector de PDF para ver tu comprobante</string>
 	<string name="enrollment_proof_retry">Reintentar</string>
 </resources>

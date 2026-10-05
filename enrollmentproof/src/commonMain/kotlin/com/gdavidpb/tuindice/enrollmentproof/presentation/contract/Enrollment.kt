@@ -16,7 +16,7 @@ object Enrollment {
 
 	sealed class Effect : ViewEffect {
 		data object NavigateToOutdatedCredentials : Effect()
-		class OpenEnrollmentProof(val file: PlatformFile) : Effect()
-		class ShowSnackBar(val message: String) : Effect()
+		class OpenEnrollmentProof(val file: PlatformFile, val isFromCache: Boolean = false) : Effect()
+		class ShowSnackBar(val message: String, val canRetry: Boolean = true) : Effect()
 	}
 }

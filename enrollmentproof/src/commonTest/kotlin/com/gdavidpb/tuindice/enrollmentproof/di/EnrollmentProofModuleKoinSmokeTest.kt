@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.FileRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.enrollmentproof.domain.repository.EnrollmentProofRepository
 import com.gdavidpb.tuindice.enrollmentproof.presentation.resource.EnrollmentProofTextProvider
 import com.gdavidpb.tuindice.enrollmentproof.presentation.viewmodel.EnrollmentProofViewModel
@@ -15,10 +16,11 @@ import com.gdavidpb.tuindice.enrollmentproof.testing.FakeEnrollmentProofTextProv
 import com.gdavidpb.tuindice.enrollmentproof.testing.FakeFileRepository
 import com.gdavidpb.tuindice.enrollmentproof.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.enrollmentproof.testing.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
-import kotlin.test.Test
 import org.koin.dsl.module
+import kotlin.test.Test
 
 class EnrollmentProofModuleKoinSmokeTest {
 	@Test
@@ -28,6 +30,7 @@ class EnrollmentProofModuleKoinSmokeTest {
 			single<EnrollmentProofRepository> { FakeEnrollmentProofRepository() }
 			single<FileRepository> { FakeFileRepository(canOpen = true) }
 			single<NetworkRepository> { FakeNetworkRepository(isAvailable = true) }
+			single<SyncStatusRepository> { FakeSyncStatusRepository() }
 			single<ReportingRepository> { RecordingReportingRepository() }
 			single<EnrollmentProofTextProvider> { FakeEnrollmentProofTextProvider() }
 			single<EventPublisher> { NoOpEventPublisher }
