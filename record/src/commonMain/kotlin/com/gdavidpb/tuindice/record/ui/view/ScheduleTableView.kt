@@ -50,8 +50,7 @@ fun ScheduleTableView(
 				ScheduleTableRowView(
 					modifier = Modifier.fillMaxWidth(),
 					row = row,
-					days = table.days,
-					today = table.today
+					days = table.days
 				)
 			}
 		}

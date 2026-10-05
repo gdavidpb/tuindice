@@ -26,7 +26,7 @@ import kotlin.test.assertNotNull
 @OptIn(ExperimentalTestApi::class)
 class ScheduleTableRowViewUiTest {
 	@Test
-	fun when_theSubjectOverlapsAnother_then_theRowMarksTheMeetingAndSaysTheClashUnderIt() = runTuIndiceUiTest {
+	fun when_theSubjectOverlapsAnother_then_theRowMarksTheMeetingAndWritesNothingUnderIt() = runTuIndiceUiTest {
 		val table = table()
 
 		setTuIndiceTestContent {
@@ -34,8 +34,7 @@ class ScheduleTableRowViewUiTest {
 		}
 
 		onNodeWithText("Sec. 1 · MYS-116").assertIsDisplayed()
-		onNodeWithText("Choque de horario").assertIsDisplayed()
-		assertNodeVisible(RecordUiTags.scheduleTableError("a1"))
+		onAllNodesWithText("Choque de horario").assertCountEquals(0)
 		// The clash mark lives inside the merged row, so it is read from the unmerged tree.
 		assertNodeVisible(RecordUiTags.scheduleTableClash("a1", ScheduleDay.Monday.code), useUnmergedTree = true)
 		assertNodeHidden(RecordUiTags.scheduleTableClash("a1", ScheduleDay.Wednesday.code), useUnmergedTree = true)
@@ -53,7 +52,6 @@ class ScheduleTableRowViewUiTest {
 
 		onNodeWithText("Sin horario").assertIsDisplayed()
 		assertNodeVisible(RecordUiTags.scheduleTableUnscheduled("a3"), useUnmergedTree = true)
-		assertNodeHidden(RecordUiTags.scheduleTableError("a3"))
 		onAllNodesWithText("Choque de horario").assertCountEquals(0)
 		onNode(hasContentDescription("EG1114, sin horario")).assertIsDisplayed()
 	}

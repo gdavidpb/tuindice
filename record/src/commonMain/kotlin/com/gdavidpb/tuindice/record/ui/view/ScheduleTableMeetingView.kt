@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.ScheduleClashDefaults
 
 /**
  * One meeting in the schedule table, as the range of blocks it covers. A meeting that overlaps
@@ -65,7 +66,7 @@ fun ScheduleTableMeetingView(
 		shape = RoundedCornerShape(TuIndiceRadius.ExtraSmall),
 		color = fillColor,
 		border = if (isClash) {
-			BorderStroke(width = TuIndiceSpacing.Hairline, color = warning.copy(alpha = TuIndiceAlpha.BorderStrong))
+			BorderStroke(width = ScheduleClashDefaults.BorderWidth, color = warning.copy(alpha = TuIndiceAlpha.BorderStrong))
 		} else {
 			null
 		}

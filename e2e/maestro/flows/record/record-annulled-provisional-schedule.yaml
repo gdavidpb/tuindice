@@ -48,8 +48,6 @@ appId: com.gdavidpb.tuindice.debug
 - assertVisible:
     id: record_schedule_table_clash_722cc2cc935e0aefdc73f9ebf9d2f1b6_2
 - assertVisible:
-    id: record_schedule_table_error_722cc2cc935e0aefdc73f9ebf9d2f1b6
-- assertVisible:
     id: record_schedule_table_unscheduled_f47ff0fa7342cdaec37d9e9cff489ebd
 - assertVisible: "Sin horario"
 - tapOn:

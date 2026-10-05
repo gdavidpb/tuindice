@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.ScheduleClashDefaults
 
 /**
  * One meeting of a subject, in the colours of the subject's chip. A meeting that overlaps another
@@ -43,7 +44,7 @@ fun ScheduleCellView(
 		color = cell.codeContainerColor,
 		contentColor = cell.codeColor,
 		border = if (cell.isClash) {
-			BorderStroke(width = TuIndiceSpacing.Two, color = warning.copy(alpha = TuIndiceAlpha.BorderStrong))
+			BorderStroke(width = ScheduleClashDefaults.BorderWidth, color = warning.copy(alpha = TuIndiceAlpha.BorderStrong))
 		} else {
 			null
 		}

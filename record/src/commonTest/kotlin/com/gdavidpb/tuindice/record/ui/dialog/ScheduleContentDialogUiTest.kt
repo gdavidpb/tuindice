@@ -47,12 +47,9 @@ class ScheduleContentDialogUiTest {
 		onNodeWithText("Sec. 1 · MYS-116").assertIsDisplayed()
 		onNodeWithText("Sec. 2").assertIsDisplayed()
 		onNodeWithText("Sin horario").assertIsDisplayed()
-		// The clash the app works out hangs under both subjects involved, naming neither; what the
-		// university wrote on one of them stays on its card in the record.
-		onAllNodesWithText("Choque de horario").assertCountEquals(2)
-		assertNodeVisible(RecordUiTags.scheduleTableError("a1"))
-		assertNodeVisible(RecordUiTags.scheduleTableError("a2"))
-		assertNodeHidden(RecordUiTags.scheduleTableError("a3"))
+		// A clash is said by the outline of the meetings alone: no text under the rows, neither the
+		// app's nor what the university wrote, which stays on the subject's card in the record.
+		onAllNodesWithText("Choque de horario").assertCountEquals(0)
 		onAllNodesWithText("credito", substring = true, ignoreCase = true).assertCountEquals(0)
 		// The clash mark lives inside the merged row, so it is read from the unmerged tree.
 		assertNodeVisible(RecordUiTags.scheduleTableClash("a1", ScheduleDay.Monday.code), useUnmergedTree = true)

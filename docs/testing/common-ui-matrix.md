@@ -1,6 +1,6 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-10-05 20:26:14 -0300_
+_Generated automatically on 2026-10-05 20:38:07 -0300_
 
 ## Summary by module
 
@@ -13,7 +13,7 @@ _Generated automatically on 2026-10-05 20:26:14 -0300_
 | `evaluations` | 2 | 43 | 46 | 32 | 25 | 25 |
 | `maincore` | 3 | 14 | 17 | 10 | 9 | 9 |
 | `pensum` | 2 | 40 | 47 | 2 | 2 | 2 |
-| `record` | 2 | 73 | 86 | 18 | 12 | 12 |
+| `record` | 2 | 72 | 85 | 18 | 12 | 12 |
 | `subjects` | 2 | 24 | 27 | 4 | 3 | 3 |
 | `summary` | 2 | 20 | 22 | 17 | 13 | 13 |
 | `wizard` | 2 | 2 | 3 | 1 | 1 | 1 |
@@ -279,7 +279,6 @@ _Generated automatically on 2026-10-05 20:26:14 -0300_
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleHeaderView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleHeaderViewUiTest.kt` | 2 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleNowLineView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleNowLineViewUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableDayCellView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableDayCellViewUiTest.kt` | 0 | MISSING TEST |
-| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableErrorView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableErrorViewUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableHeaderRow.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableHeaderRowUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableMeetingView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableMeetingViewUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableRowView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableRowViewUiTest.kt` | 2 | PASS threshold (2) |

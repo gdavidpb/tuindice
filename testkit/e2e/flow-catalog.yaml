@@ -991,7 +991,6 @@ flows:
       - record_schedule_table
       - record_schedule_table_row_e21f0d7e481d13d19f328d6818ce4d77
       - record_schedule_table_clash_e21f0d7e481d13d19f328d6818ce4d77_2
-      - record_schedule_table_error_722cc2cc935e0aefdc73f9ebf9d2f1b6
       - record_schedule_table_unscheduled_f47ff0fa7342cdaec37d9e9cff489ebd
       - record_schedule_view_week_tab
       - record_schedule_grid

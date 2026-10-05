@@ -2,11 +2,8 @@ package com.gdavidpb.tuindice.record.ui.view
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -34,8 +31,7 @@ import com.gdavidpb.tuindice.record.ui.model.ScheduleTableDefaults
 fun ScheduleTableRowView(
 	modifier: Modifier = Modifier,
 	row: ScheduleTableRowItem,
-	days: List<ScheduleDay>,
-	today: ScheduleDay? = null
+	days: List<ScheduleDay>
 ) {
 	val description = row.description.asString()
 
@@ -57,10 +53,7 @@ fun ScheduleTableRowView(
 					.padding(
 						horizontal = ScheduleTableDefaults.RowPadding,
 						vertical = TuIndiceSpacing.Medium
-					)
-					// As tall as its tallest cell, so today's tint runs the whole row even where the
-					// subject has no meeting that day.
-					.height(IntrinsicSize.Min),
+					),
 				horizontalArrangement = Arrangement.spacedBy(ScheduleTableDefaults.CellGap),
 				verticalAlignment = Alignment.CenterVertically
 			) {
@@ -77,24 +70,14 @@ fun ScheduleTableRowView(
 				} else {
 					days.forEach { day ->
 						ScheduleTableDayCellView(
-							modifier = Modifier
-								.width(ScheduleTableDefaults.DayWidth)
-								.fillMaxHeight(),
+							modifier = Modifier.width(ScheduleTableDefaults.DayWidth),
 							attemptId = row.attemptId,
 							day = day,
-							meetings = row.meetings[day].orEmpty(),
-							isToday = day == today
+							meetings = row.meetings[day].orEmpty()
 						)
 					}
 				}
 			}
-		}
-
-		if (row.hasClash) {
-			ScheduleTableErrorView(
-				modifier = Modifier.padding(horizontal = ScheduleTableDefaults.RowPadding),
-				attemptId = row.attemptId
-			)
 		}
 	}
 }

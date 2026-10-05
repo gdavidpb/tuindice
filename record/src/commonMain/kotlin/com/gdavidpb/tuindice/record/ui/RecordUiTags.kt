@@ -78,7 +78,6 @@ object RecordUiTags {
 		"record_schedule_table_in_progress_${attemptId}_$dayCode"
 
 	fun scheduleTableUnscheduled(attemptId: String): String = "record_schedule_table_unscheduled_$attemptId"
-	fun scheduleTableError(attemptId: String): String = "record_schedule_table_error_$attemptId"
 	fun scheduleCell(attemptId: String, dayCode: Int, startBlock: Int): String =
 		"record_schedule_cell_${attemptId}_${dayCode}_$startBlock"
 
