@@ -64,6 +64,16 @@ fun StatusCardItemView(
 						color = color
 					)
 			}
+
+			// Nothing counted yet (a new student): an empty track keeps the card whole instead of
+			// leaving the header and the legend with nothing between them.
+			if (entries.none { entry -> entry.value > 0 }) {
+				DistributionView(
+					label = "0",
+					weight = 1f,
+					color = MaterialTheme.colorScheme.outlineVariant
+				)
+			}
 		}
 
 		Row(

@@ -36,7 +36,7 @@ class StatusCardItemViewUiTest {
 	}
 
 	@Test
-	fun when_allEntriesAreZero_then_keepsHeaderAndLabelsWithoutDistributionValues() = runTuIndiceUiTest {
+	fun when_allEntriesAreZero_then_keepsHeaderAndLabelsOverOneEmptyTrack() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			StatusCardItemView(
 				header = "Creditos cursados",
@@ -52,6 +52,7 @@ class StatusCardItemViewUiTest {
 		onNodeWithText("Aprobados").assertIsDisplayed()
 		onNodeWithText("Reprobados").assertIsDisplayed()
 		onNodeWithText("Retirados").assertIsDisplayed()
-		onAllNodesWithText("0").assertCountEquals(0)
+		// One empty track with its zero, not one per entry and not a card with a hole in it.
+		onAllNodesWithText("0").assertCountEquals(1)
 	}
 }
