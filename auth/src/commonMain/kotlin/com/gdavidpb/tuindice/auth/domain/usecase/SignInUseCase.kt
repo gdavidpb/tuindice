@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.auth.domain.exception.AuthenticationStage
 import com.gdavidpb.tuindice.auth.domain.exception.AuthenticationStageException
 import com.gdavidpb.tuindice.auth.domain.model.ExchangeTokensAttestationPayload
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRepository
+import com.gdavidpb.tuindice.auth.domain.repository.AuthRetryWindowRepository
 import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.auth.domain.usecase.exceptionhandler.SignInExceptionHandler
 import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
@@ -29,6 +30,7 @@ import kotlinx.coroutines.flow.flowOf
 
 class SignInUseCase(
 	private val authRepository: AuthRepository,
+	private val authRetryWindowRepository: AuthRetryWindowRepository,
 	private val messagingRepository: MessagingRepository,
 	private val syncRepository: SyncRepository,
 	private val credentialsRepository: CredentialsRepository,
@@ -49,10 +51,7 @@ class SignInUseCase(
 				password = params.password
 			)
 		}.getOrElse { throwable ->
-			throw AuthenticationStageException(
-				stage = AuthenticationStage.SignInBootstrap,
-				cause = throwable
-			)
+			throw stageFailure(stage = AuthenticationStage.SignInBootstrap, cause = throwable, usbId = canonicalUsbId)
 		}
 
 		discardForeignLocalData(canonicalUsbId)
@@ -71,10 +70,7 @@ class SignInUseCase(
 				)
 			)
 		}.getOrElse { throwable ->
-			throw AuthenticationStageException(
-				stage = AuthenticationStage.SignInAttestation,
-				cause = throwable
-			)
+			throw stageFailure(stage = AuthenticationStage.SignInAttestation, cause = throwable, usbId = canonicalUsbId)
 		}
 
 		runCatching {
@@ -83,10 +79,7 @@ class SignInUseCase(
 				attestation = attestation
 			)
 		}.getOrElse { throwable ->
-			throw AuthenticationStageException(
-				stage = AuthenticationStage.SignInExchange,
-				cause = throwable
-			)
+			throw stageFailure(stage = AuthenticationStage.SignInExchange, cause = throwable, usbId = canonicalUsbId)
 		}
 
 		credentialsRepository.setPassword(
@@ -106,6 +99,24 @@ class SignInUseCase(
 		trySubscribeMessaging()
 
 		return flowOf(Unit)
+	}
+
+	/**
+	 * The wait is read after the failed call, so it already counts the one that very answer asked
+	 * for; every stage reads it, because a wait left by an earlier attempt still holds the next
+	 * one back. The error carries it to the screen: the account is known here, not in the
+	 * exception handler.
+	 */
+	private fun stageFailure(
+		stage: AuthenticationStage,
+		cause: Throwable,
+		usbId: String
+	): AuthenticationStageException {
+		return AuthenticationStageException(
+			stage = stage,
+			cause = cause,
+			retryAfterMillis = authRetryWindowRepository.signInRemainingMillis(usbId)
+		)
 	}
 
 	private suspend fun discardForeignLocalData(canonicalUsbId: String) {

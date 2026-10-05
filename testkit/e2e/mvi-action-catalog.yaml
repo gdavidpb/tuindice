@@ -155,10 +155,11 @@ actions:
     fixture_state: update-password
   - id: auth.UpdatePassword.ClickSignIn
     classification: user
-    variants: [success, failure, loading-disabled]
+    variants: [success, failure, loading-disabled, missing-credentials-platform-edge]
     selector: base_confirmation_dialog_positive_button
     flow: e2e/maestro/flows/auth/update-password.yaml
     fixture_state: update-password
+    platform_edge: reaching this dialog because the stored password can no longer be read (SyncStatus.MissingCredentials) needs the secure store invalidated under a live session, which Maestro cannot do; assigned to e2e/platform/android/auth-missing-credentials-password-prompt.md and e2e/platform/ios/auth-missing-credentials-password-prompt.md; covered by ScheduleSyncUseCaseTest, TuIndiceAppHostRouteUiTest and AuthUseCaseContractTest
 
   - id: enrollmentproof.Enrollment.FetchEnrollmentProof
     classification: internal
@@ -167,7 +168,7 @@ actions:
     classification: platform-edge
     variants: [open-saved-pdf]
     selector: base_confirmation_dialog_positive_button
-    platform_edge: hands the saved PDF to the device viewer after a transient download failure; covered by EnrollmentProofRouteUiTest
+    platform_edge: hands the saved PDF to the device viewer after a transient download failure; seeding the saved copy needs an earlier download that opens the system PDF viewer, so the dialog is assigned to e2e/platform/android/enrollmentproof-saved-copy-dialog.md and e2e/platform/ios/enrollmentproof-saved-copy-dialog.md; covered by EnrollmentProofRouteUiTest and EnrollmentProofSavedCopyDialogUiTest
 
   - id: evaluations.Evaluation.LoadAvailableAttempts
     classification: internal

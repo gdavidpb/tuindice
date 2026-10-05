@@ -44,6 +44,7 @@ class SignInStateMachineWalkUiTest {
 		val screenMachine = SignInMachine(
 			signInUseCase = SignInUseCase(
 				authRepository = RecordingAuthRepository(),
+				authRetryWindowRepository = FakeAuthRetryWindowRepository(),
 				messagingRepository = RecordingMessagingRepository(),
 				syncRepository = FakeSyncRepository(),
 				credentialsRepository = FakeCredentialsRepository(),
@@ -59,8 +60,7 @@ class SignInStateMachineWalkUiTest {
 			),
 			configRepository = FakeConfigRepository(),
 			appEnvironmentRepository = FakeAppEnvironmentRepository(),
-			usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
-			authRetryWindowRepository = FakeAuthRetryWindowRepository()
+			usageDataConsentRepository = InMemoryUsageDataConsentRepository()
 		)
 
 		assertMachineRandomWalk(

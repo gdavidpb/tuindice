@@ -31,7 +31,10 @@ class SignInExceptionHandler(
 			rootThrowable.isForbidden() -> SignInUseCaseError.Untrusted
 			rootThrowable.isUpgradeRequired() -> SignInUseCaseError.OutdatedApp
 			rootThrowable.isTooManyRequests() -> SignInUseCaseError.TooManyRequests
-			rootThrowable.isUnavailable() -> SignInUseCaseError.Unavailable
+			// The use case resolved the wait: it knows the account, this handler only sees the failure.
+			rootThrowable.isUnavailable() -> SignInUseCaseError.Unavailable(
+				retryAfterMillis = (throwable as? AuthenticationStageException)?.retryAfterMillis ?: 0L
+			)
 			rootThrowable.isUnauthorized() -> SignInUseCaseError.AuthenticationFailed
 			rootThrowable.isTimeout() -> SignInUseCaseError.Timeout
 			rootThrowable.isConnection() -> SignInUseCaseError.NoConnection(networkRepository.isAvailable())

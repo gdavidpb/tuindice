@@ -129,9 +129,15 @@ class RecordingAuthRepository(
 class FakeAuthRetryWindowRepository(
 	var signInWaitMillis: Long = 0L
 ) : AuthRetryWindowRepository {
+	val signInWaitAccounts = mutableListOf<String>()
+
 	override fun remainingMillis(key: String): Long = signInWaitMillis
 
-	override fun signInRemainingMillis(account: String): Long = signInWaitMillis
+	override fun signInRemainingMillis(account: String): Long {
+		signInWaitAccounts += account
+
+		return signInWaitMillis
+	}
 
 	override fun recordUnavailable(key: String, retryAfterSeconds: Long?) = Unit
 

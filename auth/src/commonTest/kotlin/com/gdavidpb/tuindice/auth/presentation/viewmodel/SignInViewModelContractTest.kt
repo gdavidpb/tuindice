@@ -40,6 +40,7 @@ class SignInViewModelContractTest {
 			screenMachine = SignInMachine(
 				signInUseCase = SignInUseCase(
 					authRepository = RecordingAuthRepository(),
+					authRetryWindowRepository = FakeAuthRetryWindowRepository(),
 					messagingRepository = RecordingMessagingRepository(),
 					syncRepository = FakeSyncRepository(),
 					credentialsRepository = FakeCredentialsRepository(),
@@ -55,8 +56,7 @@ class SignInViewModelContractTest {
 				),
 				configRepository = FakeConfigRepository(),
 				appEnvironmentRepository = FakeAppEnvironmentRepository(),
-				usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
-				authRetryWindowRepository = FakeAuthRetryWindowRepository()
+				usageDataConsentRepository = InMemoryUsageDataConsentRepository()
 			),
 			eventPublisher = NoOpEventPublisher
 		)
@@ -102,6 +102,7 @@ class SignInViewModelContractTest {
 			screenMachine = SignInMachine(
 				signInUseCase = SignInUseCase(
 					authRepository = RecordingAuthRepository(),
+					authRetryWindowRepository = FakeAuthRetryWindowRepository(),
 					messagingRepository = RecordingMessagingRepository(),
 					syncRepository = FakeSyncRepository(),
 					credentialsRepository = FakeCredentialsRepository(),
@@ -117,8 +118,7 @@ class SignInViewModelContractTest {
 				),
 				configRepository = FakeConfigRepository(),
 				appEnvironmentRepository = FakeAppEnvironmentRepository(),
-				usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
-				authRetryWindowRepository = FakeAuthRetryWindowRepository()
+				usageDataConsentRepository = InMemoryUsageDataConsentRepository()
 			),
 			eventPublisher = NoOpEventPublisher
 		)

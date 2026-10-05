@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
 import com.gdavidpb.tuindice.enrollmentproof.presentation.machine.EnrollmentProofInternalEvent
 import com.gdavidpb.tuindice.enrollmentproof.presentation.machine.EnrollmentProofMachine
 
-internal fun MachineDefinitionBuilder<Enrollment.State>.enrollmentProofTransitions(
+internal fun MachineDefinitionBuilder<Enrollment.State>.fetchingTransitions(
 	machine: EnrollmentProofMachine,
 	host: MachineHost<Enrollment.Effect>
 ) {
@@ -43,15 +43,6 @@ internal fun MachineDefinitionBuilder<Enrollment.State>.enrollmentProofTransitio
 			emits = setOf(Enrollment.Effect.NavigateToOutdatedCredentials::class)
 		) { state, _ ->
 			host.sendEffect(Enrollment.Effect.NavigateToOutdatedCredentials)
-			state
-		}
-	}
-
-	from<Enrollment.State.ConfirmingSavedCopy> {
-		on<Enrollment.Action.OpenSavedEnrollmentProof>(
-			emits = setOf(Enrollment.Effect.OpenEnrollmentProof::class)
-		) { state, _ ->
-			host.sendEffect(Enrollment.Effect.OpenEnrollmentProof(file = state.file))
 			state
 		}
 	}

@@ -25,3 +25,13 @@ appId: com.gdavidpb.tuindice.debug
     timeout: 20000
 - assertVisible:
     id: record_content_container
+# Retrying from the snackbar asks for the proof again from where the user is: the service is still
+# down, so the snackbar comes back, and the record tab must still be the one on screen.
+- tapOn:
+    id: base_snackbar_action_button
+- extendedWaitUntil:
+    visible:
+      id: base_snackbar_container
+    timeout: 20000
+- assertVisible:
+    id: record_content_container

@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.auth.presentation.machine
 
-import com.gdavidpb.tuindice.auth.domain.repository.AuthRetryWindowRepository
 import com.gdavidpb.tuindice.auth.domain.usecase.SignInUseCase
 import com.gdavidpb.tuindice.auth.domain.usecase.error.SignInUseCaseError
 import com.gdavidpb.tuindice.auth.domain.usecase.param.SignInParams
@@ -9,7 +8,6 @@ import com.gdavidpb.tuindice.auth.presentation.mapper.toErrorMessage
 import com.gdavidpb.tuindice.auth.presentation.transition.anyStateTransitions
 import com.gdavidpb.tuindice.auth.presentation.transition.idleTransitions
 import com.gdavidpb.tuindice.auth.presentation.transition.loggingInTransitions
-import com.gdavidpb.tuindice.auth.utils.extension.toCanonicalUsbIdentifier
 import com.gdavidpb.tuindice.base.domain.repository.AppEnvironmentRepository
 import com.gdavidpb.tuindice.base.domain.repository.ConfigRepository
 import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
@@ -29,8 +27,7 @@ class SignInMachine(
 	private val signInUseCase: SignInUseCase,
 	private val configRepository: ConfigRepository,
 	private val appEnvironmentRepository: AppEnvironmentRepository,
-	private val usageDataConsentRepository: UsageDataConsentRepository,
-	private val authRetryWindowRepository: AuthRetryWindowRepository
+	private val usageDataConsentRepository: UsageDataConsentRepository
 ) : ScreenMachine<SignIn.State, SignIn.Effect> {
 	// Held only to support the mid-flight cancel affordance; the table already
 	// rejects zombie results for every other exit.
@@ -116,11 +113,7 @@ class SignInMachine(
 		event: SignInInternalEvent.SignInFailed
 	): SignIn.State.Idle {
 		val error = event.error
-		val serviceWaitMillis = if (error is SignInUseCaseError.Unavailable) {
-			authRetryWindowRepository.signInRemainingMillis(state.usbId.toCanonicalUsbIdentifier())
-		} else {
-			0L
-		}
+		val serviceWaitMillis = (error as? SignInUseCaseError.Unavailable)?.retryAfterMillis ?: 0L
 
 		// A server that asked for a wait is explained by the screen itself, not by a retry snackbar.
 		if (serviceWaitMillis > 0) {

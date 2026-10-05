@@ -288,7 +288,7 @@ flows:
     fixture_state: authenticated-coachmarks-seen
     primary_selectors:
       - summary_content_container
-  - id: maincore-snackbar-retry
+  - id: maincore-service-unavailable-wait
     path: e2e/maestro/flows/auth/login-retry-after-unavailable.yaml
     module: maincore
     type: interaction
@@ -301,7 +301,6 @@ flows:
     primary_selectors:
       - auth_service_unavailable_message
       - auth_sign_in_button
-      - base_snackbar_action_button
   - id: maincore-app-availability-notice
     path: e2e/maestro/flows/maincore/app-availability-notice.yaml
     module: maincore
@@ -594,6 +593,7 @@ flows:
     status: active
     variant: update-password-from-outdated-sign-out
     fixture_state: auth-outdated-credentials
+    platform_edge: The missing-credentials entry into this dialog (stored password unreadable under a live session) is assigned to e2e/platform/android/auth-missing-credentials-password-prompt.md and e2e/platform/ios/auth-missing-credentials-password-prompt.md.
     actions_covered:
       - auth.SignOut.ClickSignOut
       - auth.UpdatePassword.SetPassword
@@ -1298,14 +1298,17 @@ variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
     type: state
     platforms: [android, ios]
     status: active
-    variant: unavailable-snackbar
+    variant: unavailable-snackbar-retry
     fixture_state: enrollment-proof-unavailable
+    platform_edge: With a saved copy this same failure asks before opening it; that dialog is assigned to e2e/platform/android/enrollmentproof-saved-copy-dialog.md and e2e/platform/ios/enrollmentproof-saved-copy-dialog.md.
     actions_covered:
       - record.Record.SelectTerm
       - enrollmentproof.Enrollment.FetchEnrollmentProof
     primary_selectors:
       - record_enrollment_proof_button
       - base_snackbar_container
+      - base_snackbar_action_button
+      - record_content_container
   - id: enrollmentproof-not-found
     path: e2e/maestro/flows/enrollmentproof/enrollmentproof-not-found.yaml
     module: enrollmentproof

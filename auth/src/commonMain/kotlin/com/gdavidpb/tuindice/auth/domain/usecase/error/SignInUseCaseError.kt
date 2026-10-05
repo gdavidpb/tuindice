@@ -11,7 +11,9 @@ sealed interface SignInUseCaseError : UseCaseError {
 	data object EmptyPassword : SignInUseCaseError
 	data object AccountDisabled : SignInUseCaseError
 	data object Untrusted : SignInUseCaseError
-	data object Unavailable : SignInUseCaseError
+
+	/** [retryAfterMillis] is the wait the identity service asked for; zero when it named none. */
+	data class Unavailable(val retryAfterMillis: Long = 0L) : SignInUseCaseError
 	data object TooManyRequests : SignInUseCaseError
 	data object OutdatedApp : SignInUseCaseError
 	class NoConnection(val isNetworkAvailable: Boolean) : SignInUseCaseError

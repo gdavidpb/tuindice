@@ -135,12 +135,6 @@ fun TuIndiceNavDisplay(
 			shellBindings = shellBindings,
 			onNavigateToUpdatePassword = {
 				navigator.push(AuthDestination.UpdatePasswordDialog)
-			},
-			onRetryRequest = {
-				/* Nav2 stacked a second identical dialog; a fresh fetch needs a
-				   fresh entry, so retry is pop + push of the same key. */
-				navigator.pop()
-				navigator.push(EnrollmentProofDestination.EnrollmentProofDialog)
 			}
 		)
 

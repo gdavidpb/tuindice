@@ -175,6 +175,7 @@ class SignInRtlA11yUiTest {
 	private fun createSignInViewModel(): SignInViewModel {
 		val signInUseCase = SignInUseCase(
 			authRepository = RecordingAuthRepository(throwable = null),
+			authRetryWindowRepository = FakeAuthRetryWindowRepository(),
 			messagingRepository = RecordingMessagingRepository(),
 			syncRepository = FakeSyncRepository(),
 			credentialsRepository = FakeCredentialsRepository(),
@@ -202,8 +203,7 @@ class SignInRtlA11yUiTest {
 						debug = true
 					)
 				),
-				usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
-				authRetryWindowRepository = FakeAuthRetryWindowRepository()
+				usageDataConsentRepository = InMemoryUsageDataConsentRepository()
 			),
 			eventPublisher = NoOpEventPublisher
 		)

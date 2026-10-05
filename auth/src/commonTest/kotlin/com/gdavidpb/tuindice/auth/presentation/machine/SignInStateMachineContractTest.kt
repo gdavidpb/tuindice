@@ -377,6 +377,7 @@ class SignInStateMachineContractTest {
 			screenMachine = SignInMachine(
 				signInUseCase = SignInUseCase(
 					authRepository = authRepository,
+					authRetryWindowRepository = FakeAuthRetryWindowRepository(signInWaitMillis = serviceWaitMillis),
 					messagingRepository = RecordingMessagingRepository(),
 					syncRepository = FakeSyncRepository(),
 					credentialsRepository = FakeCredentialsRepository(),
@@ -392,8 +393,7 @@ class SignInStateMachineContractTest {
 				),
 				configRepository = FakeConfigRepository(),
 				appEnvironmentRepository = FakeAppEnvironmentRepository(),
-				usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
-				authRetryWindowRepository = FakeAuthRetryWindowRepository(signInWaitMillis = serviceWaitMillis)
+				usageDataConsentRepository = InMemoryUsageDataConsentRepository()
 			),
 			eventPublisher = eventPublisher,
 			dispatchers = dispatchers

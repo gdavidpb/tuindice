@@ -489,6 +489,7 @@ class SignInRouteUiTest {
 		val authRepository = RecordingAuthRepository(throwable = signInThrowable)
 		val signInUseCase = SignInUseCase(
 			authRepository = authRepository,
+			authRetryWindowRepository = retryWindow,
 			messagingRepository = RecordingMessagingRepository(),
 			syncRepository = FakeSyncRepository(),
 			credentialsRepository = FakeCredentialsRepository(),
@@ -517,8 +518,7 @@ class SignInRouteUiTest {
 							debug = true
 						)
 					),
-					usageDataConsentRepository = InMemoryUsageDataConsentRepository(),
-					authRetryWindowRepository = retryWindow
+					usageDataConsentRepository = InMemoryUsageDataConsentRepository()
 				),
 				eventPublisher = NoOpEventPublisher
 			),

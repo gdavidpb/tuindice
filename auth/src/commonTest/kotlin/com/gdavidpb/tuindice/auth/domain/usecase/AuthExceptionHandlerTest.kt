@@ -78,7 +78,22 @@ class AuthExceptionHandlerTest {
 			clientRequestException(HttpStatusCode.ServiceUnavailable, path = "/auth/v2/bootstrap")
 		)
 
-		assertEquals(SignInUseCaseError.Unavailable, actual)
+		assertEquals(SignInUseCaseError.Unavailable(), actual)
+	}
+
+	@Test
+	fun signInExceptionHandler_carriesTheWaitTheUseCaseResolved_inUnavailable() {
+		val actual = SignInExceptionHandler(
+			networkRepository = FakeNetworkRepository(isAvailable = true)
+		).parseException(
+			AuthenticationStageException(
+				stage = AuthenticationStage.SignInBootstrap,
+				cause = clientRequestException(HttpStatusCode.ServiceUnavailable, path = "/auth/v2/bootstrap"),
+				retryAfterMillis = 30_000L
+			)
+		)
+
+		assertEquals(SignInUseCaseError.Unavailable(retryAfterMillis = 30_000L), actual)
 	}
 
 	@Test
@@ -89,9 +104,9 @@ class AuthExceptionHandlerTest {
 		)
 		val network = FakeNetworkRepository(isAvailable = true)
 
-		assertEquals(SignInUseCaseError.Unavailable, SignInExceptionHandler(network).parseException(heldBack))
+		assertEquals(SignInUseCaseError.Unavailable(), SignInExceptionHandler(network).parseException(heldBack))
 		assertEquals(
-			SignInUseCaseError.Unavailable,
+			SignInUseCaseError.Unavailable(),
 			UpdatePasswordExceptionHandler(network).parseException(ServiceRetryWindowException(1_000L))
 		)
 	}
@@ -127,7 +142,7 @@ class AuthExceptionHandlerTest {
 			clientRequestException(HttpStatusCode.TooManyRequests, path = "/auth/v1/token")
 		)
 
-		assertEquals(SignInUseCaseError.Unavailable, actual)
+		assertEquals(SignInUseCaseError.Unavailable(), actual)
 	}
 
 	@Test
