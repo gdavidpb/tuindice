@@ -21,6 +21,7 @@ Tokens y convenciones de UI compartidos. La fuente de verdad vive en `base/ui/st
 - **Verde `AcademicStatusColors.approved()`** = aprobado, en todas las pantallas (summary, record, pensum, subjects).
 - **`colorScheme.error`** = reprobado / acciones destructivas.
 - **Gris `available()` / `blocked()`** = estados neutros de materia.
+- **Ícono de estado de sync** (summary): dos categorías. *Problema* (`SyncProblem`, tinte y halo `error`): servicio caído, fallo, credenciales vencidas o faltantes, acceso denegado al expediente, fuente no disponible. *Informativo* (`Outlined.Info`, tinte `AcademicStatusColors.available()`, **sin halo**, botón habilitado): inscripción no vigente, inscripción anulada, nuevo ingreso sin expediente. Algo que la universidad reporta y que no es una falla de la app no se pinta como error.
 - `tertiary` diverge de hue entre modos (teal en light, beige en dark) de forma intencional: no usarlo para nueva semántica sin revisar ambos temas.
 
 ## Iconografía
@@ -42,7 +43,12 @@ Tokens y convenciones de UI compartidos. La fuente de verdad vive en `base/ui/st
 - **Loading**: `CircularProgressIndicator` centrado. Excepción: pensum conserva su loading ilustrado (`PensumLoadingView`).
 - **Error**: `ErrorView` de base (ilustración + título + mensaje + reintentar).
 - **Empty**: `EmptyView` de base (ilustración + título + mensaje + CTA opcional). Summary no tiene estado empty porque un usuario autenticado siempre tiene resumen; su branch `Idle` es transitorio y pinta fondo opaco.
+- **Acción secundaria en estados ilustrados**: `IllustratedMessageView` (y por tanto `EmptyView`/`ErrorView`) acepta `isActionOutlined` para pintar la acción como `OutlinedButton` y `isActionEnabled` para deshabilitarla mientras algo sincroniza. Se usa cuando reintentar no es la salida natural (p. ej. nuevo ingreso sin expediente: "Reintentar" en el borde, no la acción primaria).
 - Pantallas con entrada de texto aplican `imePadding()` en su contenedor raíz; `ConfirmationDialog` ya lo aplica para todos los bottom sheets.
+
+## Avisos en pantalla
+
+`NoticeView` (`base/.../ui/view/NoticeView.kt`) es el aviso informativo que convive con el contenido: no bloquea ni pide acción. Fila con fondo `surfaceVariant`, borde 1dp `outlineVariant`, radio `TuIndiceRadius.Medium`, padding 12/10, ícono de 16dp (`Outlined.Info` para explicar una situación, `Outlined.Schedule` para datos desactualizados) en `onSurfaceVariant`, título opcional `titleSmall` y mensaje `bodySmall`. Nunca usa `error` ni lleva acción, y se alinea con `TuIndiceSpacing.Screen`; se muestra con `AnimatedVisibility` (parámetro `visible`). Un solo aviso a la vez por pantalla. Se usa para la inscripción anulada (provisional y definitiva) y para el dato viejo de inscripción en Record y Evaluaciones; el copy compartido de la anulada vive en `base` (`EnrollmentAnnulmentTexts`).
 
 ## Terminología
 
