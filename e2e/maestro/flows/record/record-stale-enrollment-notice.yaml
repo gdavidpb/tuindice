@@ -1,0 +1,34 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- tapOn:
+    id: auth_usb_id_text_field
+- inputText: "2222222"
+- tapOn:
+    id: auth_password_text_field
+- inputText: "enrollment-unavailable-pass"
+- tapOn:
+    id: auth_keyboard_dismiss_area
+- tapOn:
+    id: auth_sign_in_button
+- runFlow: ../_shared/continue-to-summary-after-auth.yaml
+- tapOn:
+    id: maincore_tuindice_bottom_bar_record_item
+- extendedWaitUntil:
+    visible:
+      id: record_content_container
+    timeout: 30000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+- tapOn:
+    id: record_term_chip_d377155d39da686f412622aaca9074cd
+# The enrollment service did not answer: the term on screen is the last one read, and the notice
+# says so.
+- extendedWaitUntil:
+    visible:
+      id: base_notice_view
+    timeout: 10000
+- assertVisible:
+    id: base_notice_message
+- assertVisible: "No pudimos actualizar tu inscripción. Mostramos la última guardada."
+- assertVisible:
+    id: record_attempts_list

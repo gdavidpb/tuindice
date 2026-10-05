@@ -1,0 +1,26 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- tapOn:
+    id: auth_usb_id_text_field
+- inputText: "3030303"
+- tapOn:
+    id: auth_password_text_field
+- inputText: "not-enrolled-pass"
+- tapOn:
+    id: auth_keyboard_dismiss_area
+- tapOn:
+    id: auth_sign_in_button
+- runFlow: ../_shared/continue-to-summary-after-auth.yaml
+- tapOn:
+    id: maincore_tuindice_bottom_bar_evaluations_item
+- extendedWaitUntil:
+    visible:
+      id: base_empty_view_container
+    timeout: 30000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+- assertVisible:
+    id: base_empty_state_animation
+- assertVisible: "No estás inscrito en este trimestre"
+- assertNotVisible:
+    id: base_empty_view_action_button

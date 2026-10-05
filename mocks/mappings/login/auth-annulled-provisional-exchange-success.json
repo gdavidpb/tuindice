@@ -23,7 +23,7 @@
     "jsonBody": {
       "uid": "annulled-provisional-user",
       "usb_id": "31-31313",
-      "session_id": "annulled-provisional-session",
+      "session_id": "auth-annulled-provisional-session",
       "access_token": "annulled-provisional.mock.access",
       "refresh_token": "annulled-provisional.mock.refresh",
       "expires_in": 3600

@@ -853,6 +853,21 @@ flows:
       - summary_status_icon_button
       - summary_sync_status_message
       - base_confirmation_dialog_positive_button
+  - id: summary-annulled-final-status-dialog
+    path: e2e/maestro/flows/summary/summary-annulled-final-status-dialog.yaml
+    module: summary
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: sync-status-annulled-final-dialog
+    fixture_state: summary-sync-annulled-final
+    actions_covered:
+      - summary.Summary.RefreshSummary
+    primary_selectors:
+      - summary_content_container
+      - summary_status_icon_button
+      - summary_sync_status_message
+      - base_confirmation_dialog_positive_button
   - id: summary-new-student-no-record
     path: e2e/maestro/flows/summary/summary-new-student-no-record.yaml
     module: summary
@@ -981,6 +996,41 @@ flows:
       - record_schedule_view_week_tab
       - record_schedule_grid
       - record_schedule_unscheduled
+      - record_attempts_list
+  - id: record-schedule-view-remembered
+    path: e2e/maestro/flows/record/record-schedule-view-remembered.yaml
+    module: record
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: schedule-view-remembered-and-forgotten-on-sign-out
+    fixture_state: record-annulled-provisional
+    actions_covered:
+      - record.Record.SelectTerm
+      - record.Schedule.SelectScheduleView
+    primary_selectors:
+      - base_top_app_bar_action_record_schedule
+      - record_schedule_view_switch
+      - record_schedule_view_table_tab
+      - record_schedule_view_week_tab
+      - record_schedule_table
+      - record_schedule_grid
+      - record_schedule_sheet
+      - base_top_app_bar_action_sign_out
+  - id: record-stale-enrollment-notice
+    path: e2e/maestro/flows/record/record-stale-enrollment-notice.yaml
+    module: record
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: stale-enrollment-notice
+    fixture_state: record-enrollment-unavailable
+    actions_covered:
+      - record.Record.SelectTerm
+    primary_selectors:
+      - record_term_chip_d377155d39da686f412622aaca9074cd
+      - base_notice_view
+      - base_notice_message
       - record_attempts_list
   - id: record-annulled-final-notice
     path: e2e/maestro/flows/record/record-annulled-final-notice.yaml
@@ -1270,6 +1320,7 @@ variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
     primary_selectors:
       - record_enrollment_proof_button
       - base_snackbar_container
+      - base_snackbar_action_button
   - id: enrollmentproof-annulled-not-found
     path: e2e/maestro/flows/enrollmentproof/enrollmentproof-annulled-not-found.yaml
     module: enrollmentproof
@@ -1774,6 +1825,35 @@ variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
       - base_empty_view_container
       - base_empty_state_animation
       - base_empty_view_action_button
+  - id: evaluations-not-enrolled
+    path: e2e/maestro/flows/evaluations/evaluations-not-enrolled.yaml
+    module: evaluations
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: not-enrolled-empty
+    fixture_state: evaluations-not-enrolled
+    actions_covered:
+      - evaluations.Evaluations.EnsureEvaluationsLoaded
+    primary_selectors:
+      - maincore_tuindice_bottom_bar_evaluations_item
+      - base_empty_view_container
+      - base_empty_state_animation
+      - base_empty_view_action_button
+  - id: evaluations-annulled-provisional-notice
+    path: e2e/maestro/flows/evaluations/evaluations-annulled-provisional-notice.yaml
+    module: evaluations
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: annulled-provisional-notice-over-content
+    fixture_state: evaluations-annulled-provisional
+    actions_covered:
+      - evaluations.Evaluations.EnsureEvaluationsLoaded
+    primary_selectors:
+      - maincore_tuindice_bottom_bar_evaluations_item
+      - evaluations_content_container
+      - base_notice_view
   - id: evaluations-edit-submit
     path: e2e/maestro/flows/evaluations/evaluations-edit-submit.yaml
     module: evaluations

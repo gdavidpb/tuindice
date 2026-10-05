@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-annulled-provisional-login",
+  "requiredScenarioState": "TokensIssued",
+  "newScenarioState": "BootstrapIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic MzEtMzEzMTM6YW5udWxsZWQtcHJvdmlzaW9uYWwtcGFzcw=="
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "annulled-provisional-user",
+      "usb_id": "31-31313",
+      "access_token": "bootstrap.mock.annulled-provisional.token",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

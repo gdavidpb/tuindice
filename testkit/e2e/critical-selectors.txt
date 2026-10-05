@@ -208,6 +208,8 @@ base_notice_view
 base_top_app_bar_action_record_schedule
 record_schedule_sheet
 record_schedule_view_switch
+record_schedule_view_table_tab
+record_schedule_view_week_tab
 record_schedule_table
 record_schedule_grid
 auth_service_unavailable_message

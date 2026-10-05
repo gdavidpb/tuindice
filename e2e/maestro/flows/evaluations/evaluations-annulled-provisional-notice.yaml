@@ -1,0 +1,28 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- tapOn:
+    id: auth_usb_id_text_field
+- inputText: "3131313"
+- tapOn:
+    id: auth_password_text_field
+- inputText: "annulled-provisional-pass"
+- tapOn:
+    id: auth_keyboard_dismiss_area
+- tapOn:
+    id: auth_sign_in_button
+- runFlow: ../_shared/continue-to-summary-after-auth.yaml
+- tapOn:
+    id: maincore_tuindice_bottom_bar_evaluations_item
+- extendedWaitUntil:
+    visible:
+      id: evaluations_content_container
+    timeout: 30000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+# During the corrections window the term is still there: the evaluations stay usable and the
+# notice explains the annulment above them.
+- extendedWaitUntil:
+    visible:
+      id: base_notice_view
+    timeout: 10000
+- assertVisible: "Tu inscripción aparece anulada"

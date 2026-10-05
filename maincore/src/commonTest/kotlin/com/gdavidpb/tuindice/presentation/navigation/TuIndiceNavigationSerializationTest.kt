@@ -56,6 +56,7 @@ class TuIndiceNavigationSerializationTest {
 		RecordDestination.CreateSyntheticTerm(termId = "term-1"),
 		RecordDestination.CreateSyntheticTerm(termId = null),
 		RecordDestination.DeleteSyntheticTermConfirmationDialog(termId = "term-1"),
+		RecordDestination.ScheduleDialog,
 		EvaluationsDestination.Evaluations,
 		EvaluationsDestination.Evaluation(evaluationId = "evaluation-1"),
 		EvaluationsDestination.Evaluation(evaluationId = null),

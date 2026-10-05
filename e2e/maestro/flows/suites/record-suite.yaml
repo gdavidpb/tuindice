@@ -14,4 +14,6 @@ name: TuIndice record E2E suite
 - runFlow: ../record/record-synthetic-term-lifecycle.yaml
 - runFlow: ../record/record-synthetic-term-rejected.yaml
 - runFlow: ../record/record-annulled-provisional-schedule.yaml
+- runFlow: ../record/record-schedule-view-remembered.yaml
+- runFlow: ../record/record-stale-enrollment-notice.yaml
 - runFlow: ../record/record-annulled-final-notice.yaml

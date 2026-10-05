@@ -23,5 +23,8 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: base_snackbar_container
     timeout: 20000
+# There is nothing to retry: the university has no proof for this term.
+- assertNotVisible:
+    id: base_snackbar_action_button
 - assertVisible:
     id: record_content_container
