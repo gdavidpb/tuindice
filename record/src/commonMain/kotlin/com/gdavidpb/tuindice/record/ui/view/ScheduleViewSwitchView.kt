@@ -1,15 +1,17 @@
 package com.gdavidpb.tuindice.record.ui.view
 
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.CalendarViewWeek
+import androidx.compose.material.icons.outlined.TableRows
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.style.TextOverflow
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -19,7 +21,10 @@ import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.schedule_view_table
 import tuindice.record.generated.resources.schedule_view_week
 
-/** Tabla | Semana: how the schedule below is drawn. */
+/**
+ * Tabla | Semana: how the schedule below is drawn. Two icons that sit next to the sheet's title
+ * instead of a row of their own; each one is read aloud by the name of its view.
+ */
 @Composable
 fun ScheduleViewSwitchView(
 	modifier: Modifier = Modifier,
@@ -28,18 +33,16 @@ fun ScheduleViewSwitchView(
 ) {
 	val modes = ScheduleViewMode.entries
 	val colors = SegmentedButtonDefaults.colors(
-		activeContainerColor = MaterialTheme.colorScheme.primary,
-		activeContentColor = MaterialTheme.colorScheme.onPrimary,
-		activeBorderColor = MaterialTheme.colorScheme.primary,
+		activeContainerColor = MaterialTheme.colorScheme.secondaryContainer,
+		activeContentColor = MaterialTheme.colorScheme.onSecondaryContainer,
+		activeBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = TuIndiceAlpha.Muted),
 		inactiveContainerColor = MaterialTheme.colorScheme.surface.copy(alpha = 0.48f),
 		inactiveContentColor = MaterialTheme.colorScheme.onSurfaceVariant,
 		inactiveBorderColor = MaterialTheme.colorScheme.outlineVariant.copy(alpha = TuIndiceAlpha.Muted)
 	)
 
 	SingleChoiceSegmentedButtonRow(
-		modifier = modifier
-			.fillMaxWidth()
-			.testTag(RecordUiTags.ScheduleViewSwitch)
+		modifier = modifier.testTag(RecordUiTags.ScheduleViewSwitch)
 	) {
 		modes.forEachIndexed { index, mode ->
 			SegmentedButton(
@@ -50,10 +53,9 @@ fun ScheduleViewSwitchView(
 				colors = colors,
 				icon = {}
 			) {
-				Text(
-					text = stringResource(mode.labelResource),
-					maxLines = 1,
-					overflow = TextOverflow.Ellipsis
+				Icon(
+					imageVector = mode.icon,
+					contentDescription = stringResource(mode.labelResource)
 				)
 			}
 		}
@@ -64,6 +66,12 @@ private val ScheduleViewMode.labelResource: StringResource
 	get() = when (this) {
 		ScheduleViewMode.Table -> Res.string.schedule_view_table
 		ScheduleViewMode.Week -> Res.string.schedule_view_week
+	}
+
+private val ScheduleViewMode.icon: ImageVector
+	get() = when (this) {
+		ScheduleViewMode.Table -> Icons.Outlined.TableRows
+		ScheduleViewMode.Week -> Icons.Outlined.CalendarViewWeek
 	}
 
 private val ScheduleViewMode.testTag: String

@@ -52,10 +52,10 @@
 	<string name="schedule_empty_message">Tu trimestre actual todavía no tiene horario.</string>
 	<string name="schedule_table_section">Sec. %1$d</string>
 	<string name="schedule_table_section_classroom">Sec. %1$d · %2$s</string>
-	<string name="schedule_table_unscheduled">Por convenir</string>
+	<string name="schedule_table_unscheduled">Sin horario</string>
 	<string name="schedule_table_description_section">%1$s, sección %2$d</string>
 	<string name="schedule_table_description_classroom">%1$s, aula %2$s</string>
-	<string name="schedule_table_description_unscheduled">%1$s, horario por convenir</string>
+	<string name="schedule_table_description_unscheduled">%1$s, sin horario</string>
 	<string name="schedule_table_description_meeting">%1$s, %2$s</string>
 	<string name="schedule_table_meeting_block">%1$s bloque %2$d</string>
 	<string name="schedule_table_meeting_blocks">%1$s bloques %2$d a %3$d</string>
@@ -73,7 +73,7 @@
 	<string name="schedule_day_friday">viernes</string>
 	<string name="schedule_day_saturday">sábado</string>
 	<string name="schedule_day_sunday">domingo</string>
-	<string name="schedule_unscheduled">Por convenir: %1$s</string>
+	<string name="schedule_unscheduled">Sin horario: %1$s</string>
 	<string name="schedule_cell_description">%1$s, %2$s, bloque %3$d</string>
 	<string name="schedule_cell_description_span">%1$s, %2$s, bloques %3$d a %4$d</string>
 	<string name="schedule_cell_description_classroom">%1$s, aula %2$s</string>

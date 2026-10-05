@@ -42,7 +42,7 @@ class ScheduleContentDialogUiTest {
 		onNodeWithText("CI5311").assertIsDisplayed()
 		onNodeWithText("Sec. 1 · MYS-116").assertIsDisplayed()
 		onNodeWithText("Sec. 2").assertIsDisplayed()
-		onNodeWithText("Por convenir").assertIsDisplayed()
+		onNodeWithText("Sin horario").assertIsDisplayed()
 		onNodeWithText("Choque de horario").assertIsDisplayed()
 		// The clash mark lives inside the merged row, so it is read from the unmerged tree.
 		assertNodeVisible(RecordUiTags.scheduleTableClash("a1", ScheduleDay.Monday.code), useUnmergedTree = true)
@@ -64,7 +64,7 @@ class ScheduleContentDialogUiTest {
 
 		assertNodeVisible(RecordUiTags.ScheduleGrid)
 		assertNodeHidden(RecordUiTags.ScheduleTable)
-		onNodeWithText("Por convenir: EG1114").assertIsDisplayed()
+		onNodeWithText("Sin horario: EG1114").assertIsDisplayed()
 	}
 
 	@Test

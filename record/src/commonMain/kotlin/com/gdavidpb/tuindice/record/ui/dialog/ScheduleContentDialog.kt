@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.record.ui.dialog
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.CircularProgressIndicator
@@ -53,7 +54,10 @@ fun ScheduleContentDialog(
 				.padding(bottom = TuIndiceSpacing.Dialog),
 			verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Section)
 		) {
-			ScheduleHeaderView(termName = (state as? Schedule.State.Content)?.termName)
+			ScheduleHeaderView(
+				content = state as? Schedule.State.Content,
+				onViewModeSelected = onViewModeSelected
+			)
 
 			when (state) {
 				is Schedule.State.Idle -> Unit
@@ -69,10 +73,7 @@ fun ScheduleContentDialog(
 					}
 
 				is Schedule.State.Content ->
-					ScheduleViewsView(
-						state = state,
-						onViewModeSelected = onViewModeSelected
-					)
+					ScheduleViewsView(state = state)
 
 				is Schedule.State.Empty ->
 					Text(
@@ -84,39 +85,51 @@ fun ScheduleContentDialog(
 	}
 }
 
-// The sheet's title with the term it speaks of right under it, as one block.
+// The sheet's title with the term it speaks of right under it, as one block, and the view switch at
+// its side once there is a schedule to draw.
 @Composable
-private fun ScheduleHeaderView(termName: String?) {
-	Column(verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Two)) {
-		Text(
-			modifier = Modifier.testTag(RecordUiTags.ScheduleTitle),
-			text = stringResource(Res.string.dialog_title_schedule),
-			style = MaterialTheme.typography.titleLarge,
-			fontWeight = FontWeight.Bold
-		)
-
-		if (termName != null) {
+private fun ScheduleHeaderView(
+	content: Schedule.State.Content?,
+	onViewModeSelected: (ScheduleViewMode) -> Unit
+) {
+	Row(
+		modifier = Modifier.fillMaxWidth(),
+		horizontalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Section),
+		verticalAlignment = Alignment.CenterVertically
+	) {
+		Column(
+			modifier = Modifier.weight(1f),
+			verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Two)
+		) {
 			Text(
-				text = termName,
-				style = MaterialTheme.typography.bodyMedium,
-				color = MaterialTheme.colorScheme.onSurfaceVariant,
-				maxLines = 1,
-				overflow = TextOverflow.Ellipsis
+				modifier = Modifier.testTag(RecordUiTags.ScheduleTitle),
+				text = stringResource(Res.string.dialog_title_schedule),
+				style = MaterialTheme.typography.titleLarge,
+				fontWeight = FontWeight.Bold
+			)
+
+			if (content != null) {
+				Text(
+					text = content.termName,
+					style = MaterialTheme.typography.bodyMedium,
+					color = MaterialTheme.colorScheme.onSurfaceVariant,
+					maxLines = 1,
+					overflow = TextOverflow.Ellipsis
+				)
+			}
+		}
+
+		if (content != null) {
+			ScheduleViewSwitchView(
+				selectedMode = content.viewMode,
+				onModeSelected = onViewModeSelected
 			)
 		}
 	}
 }
 
 @Composable
-private fun ScheduleViewsView(
-	state: Schedule.State.Content,
-	onViewModeSelected: (ScheduleViewMode) -> Unit
-) {
-	ScheduleViewSwitchView(
-		selectedMode = state.viewMode,
-		onModeSelected = onViewModeSelected
-	)
-
+private fun ScheduleViewsView(state: Schedule.State.Content) {
 	// Both views read the same layout; only the one chosen is composed.
 	when (state.viewMode) {
 		ScheduleViewMode.Table ->

@@ -47,7 +47,7 @@ class ScheduleWeekViewUiTest {
 		}
 
 		onNodeWithTag(lastCellTag).assertIsNotDisplayed()
-		onNodeWithText("Por convenir: EG1114").assertIsDisplayed()
+		onNodeWithText("Sin horario: EG1114").assertIsDisplayed()
 
 		repeat(times = 4) {
 			onNodeWithTag(RecordUiTags.ScheduleGrid).performTouchInput { swipeUp() }
@@ -55,7 +55,7 @@ class ScheduleWeekViewUiTest {
 
 		onNodeWithTag(lastCellTag).assertIsDisplayed()
 		onNodeWithText("Lun").assertIsDisplayed()
-		onNodeWithText("Por convenir: EG1114").assertIsDisplayed()
+		onNodeWithText("Sin horario: EG1114").assertIsDisplayed()
 	}
 
 	@Test

@@ -51,7 +51,7 @@ appId: com.gdavidpb.tuindice.debug
     id: record_schedule_table_error_722cc2cc935e0aefdc73f9ebf9d2f1b6
 - assertVisible:
     id: record_schedule_table_unscheduled_f47ff0fa7342cdaec37d9e9cff489ebd
-- assertVisible: "Por convenir"
+- assertVisible: "Sin horario"
 - tapOn:
     id: record_schedule_view_week_tab
 - extendedWaitUntil:
@@ -62,7 +62,7 @@ appId: com.gdavidpb.tuindice.debug
     id: record_schedule_table
 - assertVisible:
     id: record_schedule_unscheduled
-- assertVisible: "Por convenir: EG1114"
+- assertVisible: "Sin horario: EG1114"
 # The schedule is a sheet over the record: dragging it down by its title closes it.
 - swipe:
     from:
