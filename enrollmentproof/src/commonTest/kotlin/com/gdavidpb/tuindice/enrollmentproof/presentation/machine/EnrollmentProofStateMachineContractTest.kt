@@ -61,6 +61,8 @@ class EnrollmentProofStateMachineContractTest {
 			"fetching",
 			"FetchEnrollmentProof",
 			"EnrollmentProofFetched / OpenEnrollmentProof",
+			"SavedEnrollmentProofFound",
+			"OpenSavedEnrollmentProof / OpenEnrollmentProof",
 			"EnrollmentProofFetchFailed / ShowSnackBar",
 			"EnrollmentProofUnauthorized / NavigateToOutdatedCredentials"
 		)

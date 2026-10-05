@@ -62,7 +62,7 @@ private fun ScheduleTableMeetingView(
 	meeting: ScheduleCellItem
 ) {
 	val warning = AcademicStatusColors.warning()
-	val isClash = meeting.isNarrow
+	val isClash = meeting.isClash
 	val text = if (meeting.blockSpan > 1) "${meeting.startBlock}-${meeting.endBlock}" else "${meeting.startBlock}"
 	val textColor = if (isClash) warning else MaterialTheme.colorScheme.onSurface
 	val surfaceModifier = if (isClash) {

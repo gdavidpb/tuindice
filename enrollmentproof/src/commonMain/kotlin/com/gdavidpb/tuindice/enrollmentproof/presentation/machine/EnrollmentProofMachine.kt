@@ -31,10 +31,15 @@ class EnrollmentProofMachine(
 					is UseCaseState.Loading -> Unit
 
 					is UseCaseState.Data -> host.processInternalEvent(
-						EnrollmentProofInternalEvent.EnrollmentProofFetched(
-							file = useCaseState.value.file,
-							isFromCache = useCaseState.value.isFromCache
-						)
+						if (useCaseState.value.isFromCache) {
+							EnrollmentProofInternalEvent.SavedEnrollmentProofFound(
+								file = useCaseState.value.file
+							)
+						} else {
+							EnrollmentProofInternalEvent.EnrollmentProofFetched(
+								file = useCaseState.value.file
+							)
+						}
 					)
 
 					is UseCaseState.Error -> when (useCaseState.error) {

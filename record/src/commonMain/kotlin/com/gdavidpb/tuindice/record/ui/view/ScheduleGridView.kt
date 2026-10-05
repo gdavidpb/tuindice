@@ -33,13 +33,15 @@ private val BlockColumnWidth = 18.dp
 private val BlockRowHeight = 32.dp
 private val BlockRowGap = TuIndiceSpacing.Two
 
-// The narrowest a day can get and still fit a subject code. Five days fit a phone; with a weekend
-// day the grid grows past the screen and scrolls sideways instead of squeezing every column.
-private val MinDayWidth = 52.dp
+// The narrowest a meeting can get and still fit a subject code with room around it. A day is as
+// wide as the meetings it has side by side, so two subjects that clash each keep a whole cell; when
+// that (or a weekend day) does not fit the screen, the grid scrolls sideways instead of squeezing.
+private val MinLaneWidth = 56.dp
 
 /**
  * Weekly grid of the university's class blocks: the block numbers on the left, one column per day
- * and each meeting as a cell spanning its blocks. Overlapping meetings share the width of the day.
+ * and each meeting as a cell spanning its blocks. Overlapping meetings sit side by side in a day
+ * that widens to hold them.
  */
 @Composable
 fun ScheduleGridView(
@@ -49,7 +51,8 @@ fun ScheduleGridView(
 	val gridHeight = BlockRowHeight * grid.blockCount + BlockRowGap * (grid.blockCount - 1)
 
 	BoxWithConstraints(modifier = modifier.testTag(RecordUiTags.ScheduleGrid)) {
-		val dayWidth = maxOf((maxWidth - BlockColumnWidth) / grid.days.size, MinDayWidth)
+		val laneCount = grid.days.sumOf { dayItem -> dayItem.laneCount }
+		val laneWidth = maxOf((maxWidth - BlockColumnWidth) / laneCount, MinLaneWidth)
 
 		Column(
 			modifier = Modifier.horizontalScroll(rememberScrollState()),
@@ -60,7 +63,7 @@ fun ScheduleGridView(
 
 				grid.days.forEach { dayItem ->
 					Text(
-						modifier = Modifier.width(dayWidth),
+						modifier = Modifier.width(laneWidth * dayItem.laneCount),
 						text = dayItem.day.label(isShort = true),
 						style = MaterialTheme.typography.labelMedium,
 						color = MaterialTheme.colorScheme.onSurfaceVariant,
@@ -77,7 +80,7 @@ fun ScheduleGridView(
 				grid.days.forEach { dayItem ->
 					ScheduleDayColumn(
 						modifier = Modifier
-							.width(dayWidth)
+							.width(laneWidth * dayItem.laneCount)
 							.height(gridHeight),
 						dayItem = dayItem
 					)
@@ -137,3 +140,7 @@ private fun ScheduleDayColumn(
 		}
 	}
 }
+
+// How many meetings the day has side by side at its busiest.
+private val ScheduleDayItem.laneCount: Int
+	get() = cells.maxOfOrNull { cell -> cell.laneCount } ?: 1

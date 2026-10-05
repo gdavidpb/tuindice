@@ -28,7 +28,10 @@ import tuindice.record.generated.resources.schedule_cell_description_classroom
 import tuindice.record.generated.resources.schedule_cell_description_error
 import tuindice.record.generated.resources.schedule_cell_description_span
 
-/** One meeting of a subject. A subject with an enrollment error takes the alert tone of its chip. */
+/**
+ * One meeting of a subject. A meeting that overlaps another subject's that day takes the alert tone,
+ * the same rule the table follows, so a clash is marked on the same cells in both views.
+ */
 @Composable
 fun ScheduleCellView(
 	modifier: Modifier = Modifier,
@@ -43,17 +46,17 @@ fun ScheduleCellView(
 			.testTag(RecordUiTags.scheduleCell(cell.attemptId, day.code, cell.startBlock))
 			.semantics(mergeDescendants = true) { contentDescription = description },
 		shape = RoundedCornerShape(TuIndiceRadius.Small),
-		color = if (cell.hasError) {
+		color = if (cell.isClash) {
 			warning.copy(alpha = TuIndiceAlpha.SurfaceTint)
 		} else {
 			MaterialTheme.colorScheme.secondaryContainer
 		},
-		contentColor = if (cell.hasError) {
+		contentColor = if (cell.isClash) {
 			MaterialTheme.colorScheme.onSurface
 		} else {
 			MaterialTheme.colorScheme.onSecondaryContainer
 		},
-		border = if (cell.hasError) {
+		border = if (cell.isClash) {
 			BorderStroke(width = TuIndiceSpacing.Hairline, color = warning.copy(alpha = TuIndiceAlpha.BorderStrong))
 		} else {
 			null
@@ -61,29 +64,18 @@ fun ScheduleCellView(
 	) {
 		Column(
 			modifier = Modifier.padding(
-				horizontal = if (cell.isNarrow) TuIndiceSpacing.Hairline else TuIndiceSpacing.XSmall,
-				vertical = if (cell.isNarrow) TuIndiceSpacing.None else TuIndiceSpacing.Two
+				horizontal = TuIndiceSpacing.Small,
+				vertical = TuIndiceSpacing.XSmall
 			)
 		) {
-			if (cell.isNarrow) {
-				// Half a day's width cannot hold a whole code: its letters and its number take a
-				// line each, so two subjects that clash still read as two different subjects.
-				Text(
-					text = cell.codeText.toStackedCode(),
-					style = MaterialTheme.typography.labelSmall,
-					maxLines = 2,
-					overflow = TextOverflow.Clip
-				)
-			} else {
-				Text(
-					text = cell.codeText,
-					style = MaterialTheme.typography.labelMedium,
-					maxLines = 1,
-					overflow = TextOverflow.Ellipsis
-				)
-			}
+			Text(
+				text = cell.codeText,
+				style = MaterialTheme.typography.labelMedium,
+				maxLines = 1,
+				overflow = TextOverflow.Ellipsis
+			)
 
-			if (!cell.isNarrow && cell.blockSpan > 1 && cell.classroomText != null) {
+			if (cell.blockSpan > 1 && cell.classroomText != null) {
 				Text(
 					text = cell.classroomText,
 					style = MaterialTheme.typography.labelSmall,
@@ -114,11 +106,4 @@ private fun scheduleCellDescription(
 	return cell.errorText?.let { error ->
 		stringResource(Res.string.schedule_cell_description_error, withClassroom, error)
 	} ?: withClassroom
-}
-
-// "CI5311" -> "CI" over "5311". A code with no number, or nothing before it, stays on one line.
-private fun String.toStackedCode(): String {
-	val numberStart = indexOfFirst(Char::isDigit)
-
-	return if (numberStart > 0) "${take(numberStart)}\n${drop(numberStart)}" else this
 }

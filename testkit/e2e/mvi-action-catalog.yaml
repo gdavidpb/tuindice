@@ -163,6 +163,11 @@ actions:
   - id: enrollmentproof.Enrollment.FetchEnrollmentProof
     classification: internal
     reason: enrollment proof dialog bootstrap after record route navigation
+  - id: enrollmentproof.Enrollment.OpenSavedEnrollmentProof
+    classification: platform-edge
+    variants: [open-saved-pdf]
+    selector: base_confirmation_dialog_positive_button
+    platform_edge: hands the saved PDF to the device viewer after a transient download failure; covered by EnrollmentProofRouteUiTest
 
   - id: evaluations.Evaluation.LoadAvailableAttempts
     classification: internal

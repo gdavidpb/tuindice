@@ -19,10 +19,15 @@ internal fun MachineDefinitionBuilder<Enrollment.State>.enrollmentProofTransitio
 		on<EnrollmentProofInternalEvent.EnrollmentProofFetched>(
 			emits = setOf(Enrollment.Effect.OpenEnrollmentProof::class)
 		) { state, event ->
-			host.sendEffect(
-				Enrollment.Effect.OpenEnrollmentProof(file = event.file, isFromCache = event.isFromCache)
-			)
+			host.sendEffect(Enrollment.Effect.OpenEnrollmentProof(file = event.file))
 			state
+		}
+
+		onTo<
+			EnrollmentProofInternalEvent.SavedEnrollmentProofFound,
+			Enrollment.State.ConfirmingSavedCopy,
+			> { _, event ->
+			Enrollment.State.ConfirmingSavedCopy(file = event.file)
 		}
 
 		on<EnrollmentProofInternalEvent.EnrollmentProofFetchFailed>(
@@ -38,6 +43,15 @@ internal fun MachineDefinitionBuilder<Enrollment.State>.enrollmentProofTransitio
 			emits = setOf(Enrollment.Effect.NavigateToOutdatedCredentials::class)
 		) { state, _ ->
 			host.sendEffect(Enrollment.Effect.NavigateToOutdatedCredentials)
+			state
+		}
+	}
+
+	from<Enrollment.State.ConfirmingSavedCopy> {
+		on<Enrollment.Action.OpenSavedEnrollmentProof>(
+			emits = setOf(Enrollment.Effect.OpenEnrollmentProof::class)
+		) { state, _ ->
+			host.sendEffect(Enrollment.Effect.OpenEnrollmentProof(file = state.file))
 			state
 		}
 	}

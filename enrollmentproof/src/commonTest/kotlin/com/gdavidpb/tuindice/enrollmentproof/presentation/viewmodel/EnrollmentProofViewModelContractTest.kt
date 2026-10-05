@@ -85,9 +85,12 @@ class EnrollmentProofViewModelContractTest {
 			sampleEvents = listOf(
 				Enrollment.Action.FetchEnrollmentProof,
 				EnrollmentProofInternalEvent.EnrollmentProofFetched(
-					file = PlatformFile(DEFAULT_ENROLLMENT_PROOF_SOURCE),
-					isFromCache = false
+					file = PlatformFile(DEFAULT_ENROLLMENT_PROOF_SOURCE)
 				),
+				EnrollmentProofInternalEvent.SavedEnrollmentProofFound(
+					file = PlatformFile(DEFAULT_ENROLLMENT_PROOF_SOURCE)
+				),
+				Enrollment.Action.OpenSavedEnrollmentProof,
 				EnrollmentProofInternalEvent.EnrollmentProofFetchFailed(
 					message = "No se pudo descargar",
 					canRetry = true

@@ -19,7 +19,7 @@ data class ScheduleCellItem(
 	val hasError: Boolean
 		get() = errorText != null
 
-	// Shares the day's width with another meeting: there is room for the code only.
-	val isNarrow: Boolean
+	// Overlaps another subject's meeting that day: both views mark it with the alert tone.
+	val isClash: Boolean
 		get() = laneCount > 1
 }

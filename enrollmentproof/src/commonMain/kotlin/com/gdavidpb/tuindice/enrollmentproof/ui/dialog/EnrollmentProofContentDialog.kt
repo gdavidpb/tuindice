@@ -7,11 +7,18 @@ import com.gdavidpb.tuindice.enrollmentproof.ui.view.EnrollmentProofFetchingView
 @Composable
 fun EnrollmentProofContentDialog(
 	state: Enrollment.State,
+	onOpenSavedClick: () -> Unit = {},
 	onDismissRequest: () -> Unit
 ) {
 	when (state) {
 		is Enrollment.State.Fetching ->
 			EnrollmentProofFetchingView(
+				onDismissRequest = onDismissRequest
+			)
+
+		is Enrollment.State.ConfirmingSavedCopy ->
+			EnrollmentProofSavedCopyDialog(
+				onOpenSavedClick = onOpenSavedClick,
 				onDismissRequest = onDismissRequest
 			)
 	}

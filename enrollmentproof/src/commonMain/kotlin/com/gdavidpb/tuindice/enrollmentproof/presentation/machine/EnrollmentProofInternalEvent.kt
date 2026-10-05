@@ -8,8 +8,12 @@ import io.github.vinceglb.filekit.PlatformFile
  */
 sealed interface EnrollmentProofInternalEvent {
 	data class EnrollmentProofFetched(
-		val file: PlatformFile,
-		val isFromCache: Boolean
+		val file: PlatformFile
+	) : EnrollmentProofInternalEvent
+
+	/** The download failed for now and the copy saved earlier is all there is. */
+	data class SavedEnrollmentProofFound(
+		val file: PlatformFile
 	) : EnrollmentProofInternalEvent
 
 	data class EnrollmentProofFetchFailed(

@@ -145,7 +145,7 @@ class ScheduleItemTest {
 		val cell = grid.days.first().cells.single()
 
 		assertEquals(1, cell.laneCount)
-		assertFalse(cell.isNarrow)
+		assertFalse(cell.isClash)
 	}
 
 	@Test
@@ -157,7 +157,7 @@ class ScheduleItemTest {
 			).toScheduleItem()?.grid
 		)
 
-		assertTrue(grid.days.first().cells.all { cell -> cell.isNarrow })
+		assertTrue(grid.days.first().cells.all { cell -> cell.isClash })
 	}
 
 	@Test
@@ -192,7 +192,7 @@ class ScheduleItemTest {
 			).toScheduleItem()?.table
 		)
 		val clashing = table.rows.associate { row ->
-			row.subjectCode to row.meetings.mapValues { (_, cells) -> cells.map { it.isNarrow } }
+			row.subjectCode to row.meetings.mapValues { (_, cells) -> cells.map { it.isClash } }
 		}
 
 		assertEquals(listOf(true), clashing.getValue("CI5311").getValue(ScheduleDay.Monday))

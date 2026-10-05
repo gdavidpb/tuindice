@@ -93,6 +93,9 @@ fun AttemptItemView(
 		AttemptItemBadge.EQUIVALENCE -> equivalenceLabel
 		else -> null
 	}
+	// A withdrawn subject stays in the list but no longer weighs on the term: what describes it is
+	// dimmed, while the "Retirada" pill and any enrollment error stay at full strength to be read.
+	val contentAlpha = if (item.isWithdrawn) TuIndiceAlpha.Muted else 1f
 	val headerVerticalAlignment = if (!item.isReadOnly && isQualitative) {
 		Alignment.Top
 	} else {
@@ -102,8 +105,6 @@ fun AttemptItemView(
 	Column(
 		modifier = modifier
 			.testTag(RecordUiTags.attemptItem(item.attemptId))
-			// A withdrawn subject stays in the list but no longer weighs on the term.
-			.alpha(if (item.isWithdrawn) TuIndiceAlpha.Muted else 1f)
 			.fillMaxWidth()
 			.padding(
 				start = 16.dp,
@@ -119,7 +120,8 @@ fun AttemptItemView(
 			Text(
 				modifier = Modifier
 					.padding(end = 12.dp)
-					.weight(1f),
+					.weight(1f)
+					.alpha(contentAlpha),
 				text = item.nameText,
 				maxLines = 1,
 				style = MaterialTheme.typography.titleMedium,
@@ -248,7 +250,9 @@ fun AttemptItemView(
 		}
 
 		AttemptSubjectRowView(
-			modifier = Modifier.padding(top = 8.dp),
+			modifier = Modifier
+				.padding(top = 8.dp)
+				.alpha(contentAlpha),
 			item = item
 		)
 

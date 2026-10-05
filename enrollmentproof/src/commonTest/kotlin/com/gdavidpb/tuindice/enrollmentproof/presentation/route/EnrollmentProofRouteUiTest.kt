@@ -2,10 +2,12 @@ package com.gdavidpb.tuindice.enrollmentproof.presentation.route
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProof
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProofNotFoundReason
@@ -20,6 +22,7 @@ import com.gdavidpb.tuindice.enrollmentproof.ui.EnrollmentProofUiTags
 import com.gdavidpb.tuindice.testkit.base.repository.FakeFileRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
+import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import io.github.vinceglb.filekit.PlatformFile
@@ -190,7 +193,7 @@ class EnrollmentProofRouteUiTest {
 	}
 
 	@Test
-	fun when_theSavedCopyIsOpened_then_aSnackBarSaysSoWithoutAnAction() = runTuIndiceUiTest {
+	fun when_onlyTheSavedCopyIsLeft_then_asksBeforeOpeningIt() = runTuIndiceUiTest {
 		val externalActions = RecordingFileOpenerRepository()
 		val viewModel = createEnrollmentProofViewModel(
 			enrollmentProofRepository = object : EnrollmentProofRepository {
@@ -213,11 +216,16 @@ class EnrollmentProofRouteUiTest {
 			)
 		}
 
-		waitUntil(timeoutMillis = 2_000) { snackBarMessages.isNotEmpty() }
+		// Nothing opens on its own: the saved copy waits for the answer.
+		assertNodeVisible(EnrollmentProofUiTags.SavedCopyMessage)
+		onNodeWithText("No pudimos descargar tu comprobante").assertExists()
+		assertEquals(null, externalActions.lastOpenedFile)
+
+		onNodeWithTag(BaseUiTags.ConfirmationDialogPositiveButton).performClick()
+		waitUntil(timeoutMillis = 2_000) { externalActions.lastOpenedFile != null }
 
 		assertNotNull(externalActions.lastOpenedFile)
-		assertEquals("Mostrando tu comprobante guardado", snackBarMessages.single().message)
-		assertEquals(null, snackBarMessages.single().actionLabel)
+		assertEquals(emptyList(), snackBarMessages)
 	}
 
 	@Test

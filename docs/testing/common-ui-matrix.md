@@ -1,6 +1,6 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-10-05 15:04:52 -0300_
+_Generated automatically on 2026-10-05 15:13:30 -0300_
 
 ## Summary by module
 
@@ -9,7 +9,7 @@ _Generated automatically on 2026-10-05 15:04:52 -0300_
 | `about` | 2 | 8 | 8 | 7 | 7 | 7 |
 | `auth` | 2 | 20 | 20 | 18 | 16 | 16 |
 | `base` | 2 | 33 | 46 | 20 | 20 | 20 |
-| `enrollmentproof` | 2 | 5 | 5 | 5 | 5 | 5 |
+| `enrollmentproof` | 2 | 6 | 6 | 5 | 5 | 5 |
 | `evaluations` | 2 | 42 | 47 | 31 | 24 | 24 |
 | `maincore` | 3 | 14 | 17 | 10 | 9 | 9 |
 | `pensum` | 2 | 40 | 47 | 2 | 2 | 2 |
@@ -103,6 +103,7 @@ _Generated automatically on 2026-10-05 15:04:52 -0300_
 | `enrollmentproof/src/commonMain/kotlin/com/gdavidpb/tuindice/enrollmentproof/presentation/route/EnrollmentProofRoute.kt` | 1 | `enrollmentproof/src/commonTest/kotlin/com/gdavidpb/tuindice/enrollmentproof/presentation/route/EnrollmentProofRouteUiTest.kt` | 15 | PASS threshold (2) |
 | `enrollmentproof/src/commonMain/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/dialog/EnrollmentProofContentDialog.kt` | 1 | `enrollmentproof/src/commonTest/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/dialog/EnrollmentProofContentDialogUiTest.kt` | 2 | PASS threshold (2) |
 | `enrollmentproof/src/commonMain/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/dialog/EnrollmentProofFetchingSheet.kt` | 1 | `enrollmentproof/src/commonTest/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/dialog/EnrollmentProofFetchingSheetUiTest.kt` | 3 | PASS threshold (2) |
+| `enrollmentproof/src/commonMain/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/dialog/EnrollmentProofSavedCopyDialog.kt` | 1 | `enrollmentproof/src/commonTest/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/dialog/EnrollmentProofSavedCopyDialogUiTest.kt` | 0 | MISSING TEST |
 | `enrollmentproof/src/commonMain/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/view/EnrollmentProofFetchingView.kt` | 1 | `enrollmentproof/src/commonTest/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/view/EnrollmentProofFetchingViewUiTest.kt` | 3 | PASS threshold (2) |
 | `enrollmentproof/src/commonMain/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/view/EnrollmentProofLoadingView.kt` | 1 | `enrollmentproof/src/commonTest/kotlin/com/gdavidpb/tuindice/enrollmentproof/ui/view/EnrollmentProofLoadingViewUiTest.kt` | 2 | PASS threshold (2) |
 

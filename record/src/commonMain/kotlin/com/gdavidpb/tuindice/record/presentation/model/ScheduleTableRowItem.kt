@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.record.presentation.model
 
 // A subject and its meetings by day. The cells are the grid's own, so a meeting that shares its
-// day with another subject's (isNarrow) is the same clash in both views.
+// day with another subject's (isClash) is the same clash in both views.
 data class ScheduleTableRowItem(
 	val attemptId: String,
 	val subjectCode: String,

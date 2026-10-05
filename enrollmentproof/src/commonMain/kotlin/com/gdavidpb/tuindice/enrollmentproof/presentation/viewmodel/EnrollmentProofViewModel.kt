@@ -16,4 +16,8 @@ class EnrollmentProofViewModel(
 	initialState = screenMachine.initialState(),
 	initialAction = Enrollment.Action.FetchEnrollmentProof,
 	dispatchers = dispatchers
-)
+) {
+	fun openSavedEnrollmentProofAction() {
+		sendAction(Enrollment.Action.OpenSavedEnrollmentProof)
+	}
+}
