@@ -1,0 +1,29 @@
+package com.gdavidpb.tuindice.data.source.sync
+
+import com.gdavidpb.tuindice.base.domain.model.SyncSourceStatus
+import com.gdavidpb.tuindice.testing.FakeSettings
+import kotlinx.coroutines.test.runTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertNull
+
+class SyncStatusSettingsDataSourceTest {
+	// A report persisted by a build that predates `enrollment_read_at` and `situation` must still
+	// load: falling back to success() would hide an unavailable source.
+	@Test
+	fun getSyncReport_decodesAReportPersistedBeforeTheNewFields() = runTest {
+		val settings = FakeSettings()
+
+		settings.putString(
+			key = "syncReport",
+			value = """{"status":"partial","sources":{"record":{"status":"success"},""" +
+				""""enrollment":{"status":"unavailable"}}}"""
+		)
+
+		val report = SyncStatusSettingsDataSource(settings).getSyncReport()
+
+		assertEquals(SyncSourceStatus.Unavailable, report.sources.enrollment.status)
+		assertNull(report.sources.enrollment.situation)
+		assertNull(report.enrollmentReadAt)
+	}
+}

@@ -36,6 +36,8 @@ class RecordDataPrerequisiteDataSource(
 			SyncStatus.Unavailable,
 			SyncStatus.OutdatedCredentials,
 			SyncStatus.MissingCredentials,
+			SyncStatus.NewStudentNoRecord,
+			SyncStatus.RecordAccessDenied,
 			-> true
 
 			SyncStatus.Healthy -> false

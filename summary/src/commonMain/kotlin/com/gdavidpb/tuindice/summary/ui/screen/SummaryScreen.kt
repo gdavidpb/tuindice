@@ -120,7 +120,10 @@ private fun syncAttentionKey(
 	syncReport: SyncReport
 ): String? {
 	return if (syncStatus != SyncStatus.Healthy || syncReport.hasUnavailableSource) {
-		"$syncStatus|$syncReport"
+		// Built field by field: the report also carries the instant of the last enrollment read,
+		// which changes on every sync and must not re-arm the halo.
+		"$syncStatus|${syncReport.status}|${syncReport.sources.record.status}|" +
+			"${syncReport.sources.enrollment.status}|${syncReport.sources.enrollment.situation}"
 	} else {
 		null
 	}

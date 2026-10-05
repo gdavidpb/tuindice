@@ -1,16 +1,14 @@
 package com.gdavidpb.tuindice.data.source.sync.api.response
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Serializable
-enum class SyncSourceStatusResponse {
-	@SerialName("success")
-	Success,
-
-	@SerialName("unavailable")
-	Unavailable,
-
-	@SerialName("not_attempted")
-	NotAttempted
+// Serialized by hand so a value this build does not know decodes to [Unknown] instead of failing
+// the whole sync parse.
+@Serializable(with = SyncSourceStatusResponseSerializer::class)
+enum class SyncSourceStatusResponse(val wireName: String?) {
+	Success("success"),
+	Unavailable("unavailable"),
+	NotAttempted("not_attempted"),
+	NotEnrolled("not_enrolled"),
+	Unknown(null)
 }

@@ -1,16 +1,12 @@
 package com.gdavidpb.tuindice.data.source.sync.api.response
 
-import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
-@Serializable
-enum class SyncReportStatusResponse {
-	@SerialName("success")
-	Success,
-
-	@SerialName("partial")
-	Partial,
-
-	@SerialName("failed")
-	Failed
+// Same tolerance as [SyncSourceStatusResponse]: an unknown value decodes to [Unknown].
+@Serializable(with = SyncReportStatusResponseSerializer::class)
+enum class SyncReportStatusResponse(val wireName: String?) {
+	Success("success"),
+	Partial("partial"),
+	Failed("failed"),
+	Unknown(null)
 }

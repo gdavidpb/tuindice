@@ -26,6 +26,8 @@ import kotlinx.coroutines.sync.withLock
 // Compared as a string on purpose: the contract documents `reason` as a string so a new value can
 // never fail a parse.
 private const val OUTDATED_CREDENTIALS_REASON = "OUTDATED_CREDENTIALS"
+private const val NEW_STUDENT_NO_RECORD_REASON = "NEW_STUDENT_NO_RECORD"
+private const val RECORD_ACCESS_DENIED_REASON = "DST_RECORD_ACCESS_DENIED"
 
 class SyncDataSource(
 	private val settingsDataSource: SyncSettingsLocalDataRepository,
@@ -63,7 +65,11 @@ class SyncDataSource(
 
 						syncResultLocalDataSource.saveSyncResult(syncResult)
 						syncStatusRepository.setLastSuccessfulSyncAt(syncResult.user.lastUpdate)
-						syncStatusRepository.setSyncReport(syncResult.sync)
+						syncStatusRepository.setSyncReport(
+							syncResult.sync
+								.readAt(syncResult.user.lastUpdate)
+								.carryingEnrollmentFrom(syncStatusRepository.getSyncReport())
+						)
 						syncStatusRepository.setSyncStatus(SyncStatus.Healthy)
 						settingsDataSource.clearSyncRetryBackoff()
 						settingsDataSource.setSyncOnCooldown()
@@ -95,29 +101,13 @@ class SyncDataSource(
 
 	private suspend fun markSyncFailure(throwable: Throwable) {
 		val syncHttpStatusCode = throwable.syncHttpStatusCode()
-		val syncStatus = when {
-			// A 409 is not always an expired password: the record can also be written by another
-			// device while this sync was fetching. OutdatedCredentials is a latch — it stops syncing
-			// and blocks the pending-changes flush until the user re-authenticates — so only the
-			// reason the server actually names gets to set it. Any other reason, an unrecognized one,
-			// or a body we could not read falls through to a plain failure the next sync can clear.
-			(syncHttpStatusCode == HttpStatusCode.Conflict || throwable.isConflict()) &&
-				throwable.syncConflictReason() == OUTDATED_CREDENTIALS_REASON ->
-				SyncStatus.OutdatedCredentials
-
-			syncHttpStatusCode == HttpStatusCode.ServiceUnavailable ||
-				syncHttpStatusCode == HttpStatusCode.FailedDependency ||
-				throwable.isUnavailable() ||
-				throwable.isFailedDependency() ->
-				SyncStatus.Unavailable
-
-			else ->
-				SyncStatus.Failed
-		}
-		val isSyncRetryable = throwable.isSyncRetryable(syncHttpStatusCode)
+		val syncStatus = throwable.toSyncFailureStatus(syncHttpStatusCode)
+		// A new student is not an outage: the daily cooldown applies but no automatic retry is armed.
+		val isSyncRetryable = syncStatus != SyncStatus.NewStudentNoRecord &&
+			throwable.isSyncRetryable(syncHttpStatusCode)
 
 		runCatching {
-			syncStatusRepository.setSyncReport(throwable.syncReportOrDefault())
+			syncStatusRepository.setSyncReport(throwable.syncReportKeepingSituation())
 			syncStatusRepository.setSyncStatus(syncStatus)
 		}
 		if (syncStatus != SyncStatus.OutdatedCredentials) {
@@ -129,6 +119,40 @@ class SyncDataSource(
 			runCatching {
 				settingsDataSource.markSyncRetryBackoff(throwable)
 			}
+		}
+	}
+
+	private fun Throwable.toSyncFailureStatus(syncHttpStatusCode: HttpStatusCode?): SyncStatus {
+		val conflictReason = syncConflictReason()
+
+		return when {
+			// A 409 is not always an expired password: the record can also be written by another
+			// device while this sync was fetching. OutdatedCredentials is a latch — it stops syncing
+			// and blocks the pending-changes flush until the user re-authenticates — so only the
+			// reason the server actually names gets to set it. Any other reason, an unrecognized one,
+			// or a body we could not read falls through to a plain failure the next sync can clear.
+			(syncHttpStatusCode == HttpStatusCode.Conflict || isConflict()) &&
+				conflictReason == OUTDATED_CREDENTIALS_REASON ->
+				SyncStatus.OutdatedCredentials
+
+			// Both reasons are plain strings on the wire; they are checked before the generic
+			// outage branch because the status (424/503) is the same one an outage uses.
+			syncHttpStatusCode == HttpStatusCode.FailedDependency &&
+				conflictReason == NEW_STUDENT_NO_RECORD_REASON ->
+				SyncStatus.NewStudentNoRecord
+
+			syncHttpStatusCode == HttpStatusCode.ServiceUnavailable &&
+				conflictReason == RECORD_ACCESS_DENIED_REASON ->
+				SyncStatus.RecordAccessDenied
+
+			syncHttpStatusCode == HttpStatusCode.ServiceUnavailable ||
+				syncHttpStatusCode == HttpStatusCode.FailedDependency ||
+				isUnavailable() ||
+				isFailedDependency() ->
+				SyncStatus.Unavailable
+
+			else ->
+				SyncStatus.Failed
 		}
 	}
 
@@ -146,11 +170,16 @@ class SyncDataSource(
 		}
 	}
 
-	private fun Throwable.syncReportOrDefault(): SyncReport {
-		return when (this) {
+	// A failure read no enrollment, so the situation of the previous report stays either way.
+	private suspend fun Throwable.syncReportKeepingSituation(): SyncReport {
+		val previous = syncStatusRepository.getSyncReport()
+		val report = when (this) {
 			is SyncRemoteException -> syncReport
 			else -> null
-		} ?: SyncReport.success()
+		}
+
+		return report?.carryingEnrollmentFrom(previous)
+			?: SyncReport.success().withEnrollment(previous)
 	}
 
 	private fun Throwable.isSyncRetryable(statusCode: HttpStatusCode?): Boolean {

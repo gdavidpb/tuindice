@@ -69,8 +69,10 @@ class SyncRepositoryContractTest {
 		assertEquals(true, settingsDataSource.staleFeatureCooldownsCleared)
 		assertEquals(SyncStatus.Healthy, syncStatusRepository.getSyncStatus())
 		assertEquals(listOf(SyncStatus.Healthy), syncStatusRepository.setStatuses)
-		assertEquals(SyncReport.success(), syncStatusRepository.getSyncReport())
-		assertEquals(listOf(SyncReport.success()), syncStatusRepository.setReports)
+		val readReport = SyncReport.success().copy(enrollmentReadAt = DEFAULT_USER.lastUpdate)
+
+		assertEquals(readReport, syncStatusRepository.getSyncReport())
+		assertEquals(listOf(readReport), syncStatusRepository.setReports)
 		assertEquals(DEFAULT_USER.lastUpdate, syncStatusRepository.getLastSuccessfulSyncAt())
 		assertEquals(listOf(DEFAULT_USER.lastUpdate), syncStatusRepository.setLastSuccessfulSyncTimestamps)
 	}
@@ -903,7 +905,7 @@ internal class FakeUserLocalDataRepository : LocalDataRepository {
 	}
 }
 
-private val DEFAULT_RECORD = VersionedAcademicRecord(
+internal val DEFAULT_RECORD = VersionedAcademicRecord(
 	revision = 7L,
 	record = AcademicRecord(
 		id = "user-1",
@@ -921,7 +923,7 @@ private val DEFAULT_RECORD = VersionedAcademicRecord(
 	)
 )
 
-private val DEFAULT_USER = User(
+internal val DEFAULT_USER = User(
 	id = "user-1",
 	cid = "12345678",
 	usbId = "12-34567",

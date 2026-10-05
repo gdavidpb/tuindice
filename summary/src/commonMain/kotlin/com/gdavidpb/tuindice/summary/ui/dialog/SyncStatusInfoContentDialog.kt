@@ -44,7 +44,9 @@ fun SyncStatusInfoContentDialog(
 	when (syncStatus) {
 		SyncStatus.Healthy -> Unit
 
-		SyncStatus.Unavailable -> SyncStatusInfoDialog(
+		SyncStatus.Unavailable,
+		SyncStatus.NewStudentNoRecord,
+		SyncStatus.RecordAccessDenied -> SyncStatusInfoDialog(
 			titleText = stringResource(Res.string.dialog_title_sync_unavailable),
 			messageText = stringResource(Res.string.dialog_message_sync_unavailable),
 			confirmText = stringResource(Res.string.dialog_button_understood),

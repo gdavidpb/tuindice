@@ -12,5 +12,9 @@ enum class SyncReportStatus {
 	Partial,
 
 	@SerialName("failed")
-	Failed
+	Failed,
+
+	// A value this build does not know; treated as a healthy report.
+	@SerialName("unknown")
+	Unknown
 }

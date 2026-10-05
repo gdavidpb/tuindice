@@ -221,6 +221,8 @@ internal fun syncStatusIcon(
 		SyncStatus.Failed,
 		SyncStatus.OutdatedCredentials,
 		SyncStatus.MissingCredentials,
+		SyncStatus.NewStudentNoRecord,
+		SyncStatus.RecordAccessDenied,
 		-> Icons.Outlined.SyncProblem
 		}
 	}

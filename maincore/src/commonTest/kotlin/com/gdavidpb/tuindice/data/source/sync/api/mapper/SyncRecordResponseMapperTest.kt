@@ -2,7 +2,11 @@ package com.gdavidpb.tuindice.data.source.sync.api.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicProfile
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
+import com.gdavidpb.tuindice.base.domain.model.EnrollmentSituation
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
+import com.gdavidpb.tuindice.base.domain.model.SyncReportStatus
+import com.gdavidpb.tuindice.base.domain.model.SyncSourceStatus
+import com.gdavidpb.tuindice.data.source.sync.api.response.SyncEnrollmentSituationResponse
 import com.gdavidpb.tuindice.data.source.sync.api.response.SyncRecordResponse
 import com.gdavidpb.tuindice.data.source.sync.api.response.SyncReportResponse
 import com.gdavidpb.tuindice.data.source.sync.api.response.SyncReportSourcesResponse
@@ -46,6 +50,42 @@ class SyncRecordResponseMapperTest {
 		).toSyncResult()
 
 		assertEquals(SyncReport.partialEnrollmentUnavailable(), result.sync)
+	}
+
+	@Test
+	fun toSyncResult_mapsNotEnrolledAndTheEnrollmentSituation() {
+		val result = syncRecordResponse(
+			sync = SyncReportResponse(
+				status = SyncReportStatusResponse.Success,
+				sources = SyncReportSourcesResponse(
+					record = SyncSourceReportResponse(SyncSourceStatusResponse.Success),
+					enrollment = SyncSourceReportResponse(
+						status = SyncSourceStatusResponse.NotEnrolled,
+						situation = SyncEnrollmentSituationResponse(code = "01", description = "ANULADA")
+					)
+				)
+			)
+		).toSyncResult()
+
+		assertEquals(SyncSourceStatus.NotEnrolled, result.sync.sources.enrollment.status)
+		assertEquals(
+			EnrollmentSituation(code = "01", description = "ANULADA"),
+			result.sync.sources.enrollment.situation
+		)
+	}
+
+	@Test
+	fun toSyncResult_mapsUnknownValuesToUnknown() {
+		val result = syncRecordResponse(
+			sync = syncReportResponse(
+				status = SyncReportStatusResponse.Unknown,
+				record = SyncSourceStatusResponse.Unknown,
+				enrollment = SyncSourceStatusResponse.Unknown
+			)
+		).toSyncResult()
+
+		assertEquals(SyncReportStatus.Unknown, result.sync.status)
+		assertEquals(SyncSourceStatus.Unknown, result.sync.sources.record.status)
 	}
 
 	private fun syncRecordResponse(sync: SyncReportResponse?): SyncRecordResponse {
