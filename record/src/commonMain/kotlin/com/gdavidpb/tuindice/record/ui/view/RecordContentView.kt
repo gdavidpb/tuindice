@@ -30,6 +30,8 @@ import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.term_attempt_credits_pattern
 import tuindice.record.generated.resources.term_attempt_grade_pattern
+import tuindice.record.generated.resources.term_attempt_section_classroom_pattern
+import tuindice.record.generated.resources.term_attempt_section_pattern
 import tuindice.record.generated.resources.term_credits_pattern
 import tuindice.record.generated.resources.term_grade_diff_pattern
 import tuindice.record.generated.resources.term_grade_sum_pattern
@@ -54,13 +56,17 @@ fun RecordContentView(
 	val termCreditsPattern = stringResource(Res.string.term_credits_pattern)
 	val attemptGradePattern = stringResource(Res.string.term_attempt_grade_pattern)
 	val attemptCreditsPattern = stringResource(Res.string.term_attempt_credits_pattern)
+	val attemptSectionPattern = stringResource(Res.string.term_attempt_section_pattern)
+	val attemptSectionClassroomPattern = stringResource(Res.string.term_attempt_section_classroom_pattern)
 
 	val texts = remember(
 		termGradeDiffPattern,
 		termGradeSumPattern,
 		termCreditsPattern,
 		attemptGradePattern,
-		attemptCreditsPattern
+		attemptCreditsPattern,
+		attemptSectionPattern,
+		attemptSectionClassroomPattern
 	) {
 		RecordMapperTexts(
 			termGrade = { grade ->
@@ -77,6 +83,14 @@ fun RecordContentView(
 			},
 			termAttemptCredits = { credits ->
 				attemptCreditsPattern.replace("%1${'$'}d", credits.toString())
+			},
+			termAttemptSection = { section ->
+				attemptSectionPattern.replace("%1${'$'}d", section.toString())
+			},
+			termAttemptSectionClassroom = { section, classroom ->
+				attemptSectionClassroomPattern
+					.replace("%1${'$'}d", section.toString())
+					.replace("%2${'$'}s", classroom)
 			}
 		)
 	}

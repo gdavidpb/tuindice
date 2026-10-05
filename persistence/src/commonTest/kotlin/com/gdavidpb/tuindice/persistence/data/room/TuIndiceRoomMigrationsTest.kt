@@ -11,7 +11,7 @@ class TuIndiceRoomMigrationsTest {
 		val migrations = TuIndiceRoomMigrations.all
 
 		assertEquals(
-			listOf(30 to 31, 31 to 32, 32 to 33, 33 to 34),
+			listOf(30 to 31, 31 to 32, 32 to 33, 33 to 34, 34 to 35),
 			migrations.map { migration -> migration.startVersion to migration.endVersion }
 		)
 
@@ -25,6 +25,7 @@ class TuIndiceRoomMigrationsTest {
 		val migration31To32Sql = executedSqlByMigration[31 to 32].orEmpty()
 		val migration32To33Sql = executedSqlByMigration[32 to 33].orEmpty()
 		val migration33To34Sql = executedSqlByMigration[33 to 34].orEmpty()
+		val migration34To35Sql = executedSqlByMigration[34 to 35].orEmpty()
 
 		assertEquals(
 			listOf(
@@ -55,6 +56,18 @@ class TuIndiceRoomMigrationsTest {
 				"ALTER TABLE academic_term ADD COLUMN official_cumulative_average REAL"
 			),
 			migration33To34Sql
+		)
+		// The schedule columns are nullable and defaultless (an attempt stored before the schedule
+		// existed has none); the rebase count starts at zero for every queued mutation.
+		assertEquals(
+			listOf(
+				"ALTER TABLE academic_attempt ADD COLUMN section INTEGER",
+				"ALTER TABLE academic_attempt ADD COLUMN withdrawn INTEGER",
+				"ALTER TABLE academic_attempt ADD COLUMN schedule TEXT",
+				"ALTER TABLE academic_attempt ADD COLUMN enrollment_errors TEXT",
+				"ALTER TABLE pending_mutations ADD COLUMN rebase_count INTEGER NOT NULL DEFAULT 0"
+			),
+			migration34To35Sql
 		)
 	}
 }

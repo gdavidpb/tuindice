@@ -17,5 +17,6 @@ data class TermItem(
 	val isCurrent: Boolean,
 	val canDelete: Boolean,
 	val canEdit: Boolean,
-	val attempts: List<AttemptItem>
+	val attempts: List<AttemptItem>,
+	val schedule: ScheduleGridItem? = null
 )

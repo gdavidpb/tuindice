@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.persistence.data.room.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicAttempt
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicScheduleEntry
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptBadge
@@ -27,6 +28,43 @@ class AcademicRecordMappersTest {
 			.single()
 
 		assertEquals(term, roundTrip)
+	}
+
+	@Test
+	fun academicAttempt_roundTripsThroughRoomEntity_withScheduleSectionErrorsAndWithdrawn() {
+		val attempt = AcademicAttempt(
+			id = "attempt-1",
+			subjectCode = "MA2115",
+			subjectName = "Matematicas 3",
+			credits = 4,
+			section = 1,
+			schedule = listOf(
+				AcademicScheduleEntry(dayOfWeek = 2, startBlock = 1, endBlock = 2, classroom = "MYS-116"),
+				AcademicScheduleEntry(dayOfWeek = 4, startBlock = 3, endBlock = 3)
+			),
+			enrollmentErrors = listOf("CHOQUE DE HORARIO"),
+			withdrawn = true
+		)
+
+		val entity = attempt.toAcademicAttemptEntity(termId = "term-1", positionInTerm = 0)
+
+		assertEquals(attempt, entity.toAcademicAttempt())
+	}
+
+	@Test
+	fun academicAttempt_withoutScheduleFields_roundTripsAsAbsent() {
+		val attempt = AcademicAttempt(
+			id = "attempt-1",
+			subjectCode = "MA2115",
+			subjectName = "Matematicas 3",
+			credits = 4
+		)
+
+		val entity = attempt.toAcademicAttemptEntity(termId = "term-1", positionInTerm = 0)
+
+		assertEquals(null, entity.schedule)
+		assertEquals(null, entity.withdrawn)
+		assertEquals(attempt, entity.toAcademicAttempt())
 	}
 
 	@Test

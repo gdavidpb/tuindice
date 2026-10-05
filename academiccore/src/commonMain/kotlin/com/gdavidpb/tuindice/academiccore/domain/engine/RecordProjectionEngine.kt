@@ -123,7 +123,11 @@ object RecordProjectionEngine {
 					gradingMode = attempt.attempt.gradingMode,
 					score = attempt.score,
 					outcome = attempt.outcome,
-					badge = badge
+					badge = badge,
+					section = attempt.attempt.section,
+					schedule = attempt.attempt.schedule,
+					enrollmentErrors = attempt.attempt.enrollmentErrors,
+					withdrawn = attempt.attempt.withdrawn
 				)
 			}
 

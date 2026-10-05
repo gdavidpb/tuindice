@@ -18,5 +18,8 @@ data class AttemptItem(
 	val creditsText: String,
 	val codeColor: Color,
 	val codeContainerColor: Color,
-	val isReadOnly: Boolean
+	val isReadOnly: Boolean,
+	val detailText: String? = null,
+	val enrollmentErrorText: String? = null,
+	val isWithdrawn: Boolean = false
 )

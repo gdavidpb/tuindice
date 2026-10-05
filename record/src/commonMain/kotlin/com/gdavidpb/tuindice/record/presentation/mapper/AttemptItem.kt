@@ -47,6 +47,9 @@ fun AttemptProjection.toAttemptItem(
 		creditsText = texts.termAttemptCredits(credits),
 		codeColor = subjectColors.color,
 		codeContainerColor = subjectColors.containerColor,
-		isReadOnly = isReadOnly
+		isReadOnly = isReadOnly || withdrawn,
+		detailText = toEnrollmentDetailText(texts),
+		enrollmentErrorText = toEnrollmentErrorText(),
+		isWithdrawn = withdrawn
 	)
 }

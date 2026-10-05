@@ -211,7 +211,9 @@ class TermItemMappingUiTest {
 			termGradeSum = { value -> "$value acum" },
 			termCredits = { credits -> "$credits UC" },
 			termAttemptGrade = { grade -> "Nota $grade" },
-			termAttemptCredits = { credits -> "$credits UC" }
+			termAttemptCredits = { credits -> "$credits UC" },
+			termAttemptSection = { section -> "Sección $section" },
+			termAttemptSectionClassroom = { section, classroom -> "Sección $section · $classroom" }
 		)
 	}
 

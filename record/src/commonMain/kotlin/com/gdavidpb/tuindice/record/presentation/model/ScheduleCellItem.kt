@@ -1,0 +1,17 @@
+package com.gdavidpb.tuindice.record.presentation.model
+
+// One meeting of a subject placed on a day column. Blocks are 1-based and inclusive; the lane
+// splits the width of the cell with the meetings that overlap it on the same day.
+data class ScheduleCellItem(
+	val attemptId: String,
+	val codeText: String,
+	val classroomText: String?,
+	val startBlock: Int,
+	val endBlock: Int,
+	val lane: Int,
+	val laneCount: Int,
+	val hasError: Boolean
+) {
+	val blockSpan: Int
+		get() = endBlock - startBlock + 1
+}

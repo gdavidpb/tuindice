@@ -12,5 +12,9 @@ data class AcademicAttempt(
 	@SerialName("grading_mode") val gradingMode: AttemptGradingMode = AttemptGradingMode.NUMERIC,
 	@SerialName("academic_score") val academicScore: AttemptScore = AttemptScore.empty(),
 	@SerialName("academic_outcome") val academicOutcome: AttemptOutcome = AttemptOutcome.PENDING,
-	@SerialName("academic_badge") val academicBadge: AttemptBadge = AttemptBadge.NONE
+	@SerialName("academic_badge") val academicBadge: AttemptBadge = AttemptBadge.NONE,
+	val section: Int? = null,
+	val schedule: List<AcademicScheduleEntry>? = null,
+	@SerialName("enrollment_errors") val enrollmentErrors: List<String>? = null,
+	val withdrawn: Boolean = false
 )

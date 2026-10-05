@@ -55,5 +55,7 @@ data class PendingMutationEntity(
 	@ColumnInfo(name = PendingMutationTable.UPDATED_AT)
 	val updatedAt: Long,
 	@ColumnInfo(name = PendingMutationTable.LAST_ERROR)
-	val lastError: String?
+	val lastError: String?,
+	@ColumnInfo(name = PendingMutationTable.REBASE_COUNT)
+	val rebaseCount: Int = 0
 )

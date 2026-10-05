@@ -36,6 +36,14 @@ object RecordUiTags {
 	const val CreateSyntheticTermSuggestedTab = "record_create_synthetic_term_suggested_tab"
 	const val CreateSyntheticTermSearchTab = "record_create_synthetic_term_search_tab"
 
+	const val TermViewSwitch = "record_term_view_switch"
+	const val TermViewGradesTab = "record_term_view_grades_tab"
+	const val TermViewScheduleTab = "record_term_view_schedule_tab"
+	const val ScheduleContainer = "record_schedule_container"
+	const val ScheduleGrid = "record_schedule_grid"
+	const val ScheduleBlocksNote = "record_schedule_blocks_note"
+	const val ScheduleUnscheduled = "record_schedule_unscheduled"
+
 	const val EmptyContainer = "record_empty_container"
 	const val EmptyTitle = "record_empty_title"
 	const val EmptyMessage = "record_empty_message"
@@ -52,6 +60,11 @@ object RecordUiTags {
 	fun attemptSubjectChip(attemptId: String): String = "record_attempt_subject_chip_$attemptId"
 	fun attemptGradeSlider(attemptId: String): String = "record_attempt_grade_slider_$attemptId"
 	fun attemptGradeValue(attemptId: String, grade: Int): String = "record_attempt_grade_value_${attemptId}_$grade"
+	fun attemptDetail(attemptId: String): String = "record_attempt_detail_$attemptId"
+	fun attemptEnrollmentError(attemptId: String): String = "record_attempt_enrollment_error_$attemptId"
+	fun scheduleCell(attemptId: String, dayCode: Int, startBlock: Int): String =
+		"record_schedule_cell_${attemptId}_${dayCode}_$startBlock"
+
 	fun attemptStatusChip(attemptId: String): String = "record_attempt_status_chip_$attemptId"
 	fun attemptStatusSelector(attemptId: String): String = "record_attempt_status_selector_$attemptId"
 	fun attemptStatusOption(attemptId: String, status: String): String = "record_attempt_status_option_${attemptId}_$status"

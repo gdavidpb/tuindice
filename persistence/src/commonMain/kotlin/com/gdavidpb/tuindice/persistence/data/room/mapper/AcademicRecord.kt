@@ -72,7 +72,11 @@ fun AcademicAttempt.toAcademicAttemptEntity(
 		scoreNumericValue = academicScore.numericValue,
 		scoreSymbolicValue = academicScore.symbolicValue,
 		academicOutcome = academicOutcome.name,
-		academicBadge = academicBadge.name
+		academicBadge = academicBadge.name,
+		section = section,
+		withdrawn = withdrawn.takeIf { it },
+		schedule = schedule?.let(::encodeSchedule),
+		enrollmentErrors = enrollmentErrors?.let(::encodeEnrollmentErrors)
 	)
 }
 
@@ -100,7 +104,11 @@ fun AcademicAttemptEntity.toAcademicAttempt(): AcademicAttempt {
 			symbolicValue = scoreSymbolicValue
 		),
 		academicOutcome = AttemptOutcome.valueOf(academicOutcome),
-		academicBadge = AttemptBadge.valueOf(academicBadge)
+		academicBadge = AttemptBadge.valueOf(academicBadge),
+		section = section,
+		schedule = schedule?.let(::decodeSchedule),
+		enrollmentErrors = enrollmentErrors?.let(::decodeEnrollmentErrors),
+		withdrawn = withdrawn == true
 	)
 }
 

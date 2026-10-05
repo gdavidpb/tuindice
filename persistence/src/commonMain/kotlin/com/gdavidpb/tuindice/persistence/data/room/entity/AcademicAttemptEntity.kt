@@ -26,5 +26,9 @@ data class AcademicAttemptEntity(
 	@ColumnInfo(name = AcademicAttemptTable.SCORE_NUMERIC_VALUE) val scoreNumericValue: Int? = null,
 	@ColumnInfo(name = AcademicAttemptTable.SCORE_SYMBOLIC_VALUE) val scoreSymbolicValue: String? = null,
 	@ColumnInfo(name = AcademicAttemptTable.ACADEMIC_OUTCOME) val academicOutcome: String,
-	@ColumnInfo(name = AcademicAttemptTable.ACADEMIC_BADGE) val academicBadge: String
+	@ColumnInfo(name = AcademicAttemptTable.ACADEMIC_BADGE) val academicBadge: String,
+	@ColumnInfo(name = AcademicAttemptTable.SECTION) val section: Int? = null,
+	@ColumnInfo(name = AcademicAttemptTable.WITHDRAWN) val withdrawn: Boolean? = null,
+	@ColumnInfo(name = AcademicAttemptTable.SCHEDULE) val schedule: String? = null,
+	@ColumnInfo(name = AcademicAttemptTable.ENROLLMENT_ERRORS) val enrollmentErrors: String? = null
 )

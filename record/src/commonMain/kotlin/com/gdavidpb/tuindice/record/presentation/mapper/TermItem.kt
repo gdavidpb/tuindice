@@ -95,7 +95,9 @@ fun TermProjection.toTermItem(
 				isReadOnly = isAttemptReadOnly(viewMode),
 				texts = texts
 			)
-		}
+		},
+		// Only the term being lived has a schedule worth switching to.
+		schedule = attempts.takeIf { isCurrent }?.toScheduleGridItem()
 	)
 }
 

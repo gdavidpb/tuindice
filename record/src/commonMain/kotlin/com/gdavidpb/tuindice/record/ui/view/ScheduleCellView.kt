@@ -1,0 +1,107 @@
+package com.gdavidpb.tuindice.record.ui.view
+
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.style.TextOverflow
+import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
+import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
+import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
+import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.label
+import org.jetbrains.compose.resources.stringResource
+import tuindice.record.generated.resources.Res
+import tuindice.record.generated.resources.schedule_cell_description
+import tuindice.record.generated.resources.schedule_cell_description_classroom
+import tuindice.record.generated.resources.schedule_cell_description_error
+import tuindice.record.generated.resources.schedule_cell_description_span
+
+/** One meeting of a subject. A subject with an enrollment error takes the alert tone of its chip. */
+@Composable
+fun ScheduleCellView(
+	modifier: Modifier = Modifier,
+	day: ScheduleDay,
+	cell: ScheduleCellItem
+) {
+	val warning = AcademicStatusColors.warning()
+	val description = scheduleCellDescription(day = day, cell = cell)
+
+	Surface(
+		modifier = modifier
+			.testTag(RecordUiTags.scheduleCell(cell.attemptId, day.code, cell.startBlock))
+			.semantics(mergeDescendants = true) { contentDescription = description },
+		shape = RoundedCornerShape(TuIndiceRadius.Small),
+		color = if (cell.hasError) {
+			warning.copy(alpha = 0.12f)
+		} else {
+			MaterialTheme.colorScheme.secondaryContainer
+		},
+		contentColor = if (cell.hasError) {
+			MaterialTheme.colorScheme.onSurface
+		} else {
+			MaterialTheme.colorScheme.onSecondaryContainer
+		},
+		border = if (cell.hasError) {
+			BorderStroke(width = TuIndiceSpacing.Hairline, color = warning.copy(alpha = 0.9f))
+		} else {
+			null
+		}
+	) {
+		Column(
+			modifier = Modifier.padding(
+				horizontal = TuIndiceSpacing.XSmall,
+				vertical = TuIndiceSpacing.Two
+			)
+		) {
+			Text(
+				text = cell.codeText,
+				style = MaterialTheme.typography.labelMedium,
+				maxLines = 1,
+				overflow = TextOverflow.Ellipsis
+			)
+
+			if (cell.blockSpan > 1 && cell.classroomText != null) {
+				Text(
+					text = cell.classroomText,
+					style = MaterialTheme.typography.labelSmall,
+					color = MaterialTheme.colorScheme.onSurfaceVariant,
+					maxLines = 1,
+					overflow = TextOverflow.Ellipsis
+				)
+			}
+		}
+	}
+}
+
+@Composable
+private fun scheduleCellDescription(
+	day: ScheduleDay,
+	cell: ScheduleCellItem
+): String {
+	val dayName = day.label(isShort = false)
+	val timing = if (cell.blockSpan > 1) {
+		stringResource(Res.string.schedule_cell_description_span, cell.codeText, dayName, cell.startBlock, cell.endBlock)
+	} else {
+		stringResource(Res.string.schedule_cell_description, cell.codeText, dayName, cell.startBlock)
+	}
+	val withClassroom = cell.classroomText?.let { classroom ->
+		stringResource(Res.string.schedule_cell_description_classroom, timing, classroom)
+	} ?: timing
+
+	return if (cell.hasError) {
+		stringResource(Res.string.schedule_cell_description_error, withClassroom)
+	} else {
+		withClassroom
+	}
+}

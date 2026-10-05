@@ -19,4 +19,5 @@ object PendingMutationTable {
 	const val CREATED_AT = "created_at"
 	const val UPDATED_AT = "updated_at"
 	const val LAST_ERROR = "last_error"
+	const val REBASE_COUNT = "rebase_count"
 }

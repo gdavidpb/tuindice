@@ -14,4 +14,8 @@ object AcademicAttemptTable {
 	const val SCORE_SYMBOLIC_VALUE = "score_symbolic_value"
 	const val ACADEMIC_OUTCOME = "academic_outcome"
 	const val ACADEMIC_BADGE = "academic_badge"
+	const val SECTION = "section"
+	const val WITHDRAWN = "withdrawn"
+	const val SCHEDULE = "schedule"
+	const val ENROLLMENT_ERRORS = "enrollment_errors"
 }
