@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.SyncProblem
 import androidx.compose.material3.Icon
@@ -25,12 +26,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAnimation
 import com.gdavidpb.tuindice.base.ui.view.PulsingIconHalo
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
+import com.gdavidpb.tuindice.summary.presentation.mapper.resolveSyncAttention
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryItem
+import com.gdavidpb.tuindice.summary.presentation.model.SyncAttention
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.model.ProfilePictureDisplay
 import org.jetbrains.compose.resources.stringResource
@@ -53,19 +57,22 @@ fun SummaryContentView(
 	val animationsEnabled = LocalTuIndiceAnimationsEnabled.current
 	val isProfilePictureInteractionEnabled = !state.isUserRefreshing
 	val isStatusRefreshing = isSyncing
-	val hasSyncIssue = syncStatus != SyncStatus.Healthy || syncReport.hasUnavailableSource
+	val syncAttention = resolveSyncAttention(syncStatus = syncStatus, syncReport = syncReport)
 	val statusIcon = syncStatusIcon(
-		syncStatus = syncStatus,
-		isStatusRefreshing = isStatusRefreshing,
-		hasSyncSourceIssue = syncReport.hasUnavailableSource
+		syncAttention = syncAttention,
+		isStatusRefreshing = isStatusRefreshing
 	)
-	val statusTint = if (isStatusRefreshing) {
-		MaterialTheme.colorScheme.onSurfaceVariant
-	} else {
-		if (hasSyncIssue) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onSurfaceVariant
+	val statusTint = when {
+		isStatusRefreshing -> MaterialTheme.colorScheme.onSurfaceVariant
+		syncAttention == SyncAttention.Problem -> MaterialTheme.colorScheme.error
+		syncAttention == SyncAttention.Informative -> AcademicStatusColors.available()
+		else -> MaterialTheme.colorScheme.onSurfaceVariant
 	}
-	val canOpenStatusDetails = hasSyncIssue && !isStatusRefreshing
-	val shouldShowHalo = showSyncAttentionHalo && canOpenStatusDetails
+	val canOpenStatusDetails = syncAttention != SyncAttention.None && !isStatusRefreshing
+	// Only a problem asks for attention with the halo; information waits quietly to be tapped.
+	val shouldShowHalo = showSyncAttentionHalo &&
+		canOpenStatusDetails &&
+		syncAttention == SyncAttention.Problem
 	val syncRotation = remember { Animatable(0f) }
 
 	LaunchedEffect(isStatusRefreshing, animationsEnabled) {
@@ -207,25 +214,13 @@ fun SummaryContentView(
 }
 
 internal fun syncStatusIcon(
-	syncStatus: SyncStatus,
-	isStatusRefreshing: Boolean,
-	hasSyncSourceIssue: Boolean = false
-) = if (isStatusRefreshing) {
-	Icons.Outlined.Sync
-} else {
-	when {
-		hasSyncSourceIssue -> Icons.Outlined.SyncProblem
-		else -> when (syncStatus) {
-		SyncStatus.Healthy -> Icons.Outlined.Sync
-		SyncStatus.Unavailable,
-		SyncStatus.Failed,
-		SyncStatus.OutdatedCredentials,
-		SyncStatus.MissingCredentials,
-		SyncStatus.NewStudentNoRecord,
-		SyncStatus.RecordAccessDenied,
-		-> Icons.Outlined.SyncProblem
-		}
-	}
+	syncAttention: SyncAttention,
+	isStatusRefreshing: Boolean
+) = when {
+	isStatusRefreshing -> Icons.Outlined.Sync
+	syncAttention == SyncAttention.Problem -> Icons.Outlined.SyncProblem
+	syncAttention == SyncAttention.Informative -> Icons.Outlined.Info
+	else -> Icons.Outlined.Sync
 }
 
 internal fun syncStatusIconRotation(

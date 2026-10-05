@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfi
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
+import com.gdavidpb.tuindice.summary.testing.FakeCurrentTermRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
@@ -56,7 +57,8 @@ class SummaryRtlA11yUiTest {
 				showSnackBar = {},
 				viewModel = viewModel,
 				syncStatusRepository = FakeSyncStatusRepository(),
-				syncRepository = FakeSyncRepository()
+				syncRepository = FakeSyncRepository(),
+				currentTermRepository = FakeCurrentTermRepository()
 			)
 		}
 
@@ -91,7 +93,8 @@ class SummaryRtlA11yUiTest {
 				showSnackBar = {},
 				viewModel = viewModel,
 				syncStatusRepository = FakeSyncStatusRepository(),
-				syncRepository = FakeSyncRepository()
+				syncRepository = FakeSyncRepository(),
+				currentTermRepository = FakeCurrentTermRepository()
 			)
 		}
 
@@ -121,7 +124,8 @@ class SummaryRtlA11yUiTest {
 				showSnackBar = {},
 				viewModel = viewModel,
 				syncStatusRepository = FakeSyncStatusRepository(),
-				syncRepository = FakeSyncRepository()
+				syncRepository = FakeSyncRepository(),
+				currentTermRepository = FakeCurrentTermRepository()
 			)
 		}
 
@@ -160,7 +164,8 @@ class SummaryRtlA11yUiTest {
 				showSnackBar = {},
 				viewModel = viewModel,
 				syncStatusRepository = FakeSyncStatusRepository(),
-				syncRepository = FakeSyncRepository()
+				syncRepository = FakeSyncRepository(),
+				currentTermRepository = FakeCurrentTermRepository()
 			)
 		}
 

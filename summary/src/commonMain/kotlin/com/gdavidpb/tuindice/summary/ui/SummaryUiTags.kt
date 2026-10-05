@@ -3,6 +3,11 @@ package com.gdavidpb.tuindice.summary.ui
 object SummaryUiTags {
 	const val LoadingIndicator = "summary_loading_indicator"
 
+	const val NewStudentContainer = "summary_new_student_container"
+	const val NewStudentTitle = "summary_new_student_title"
+	const val NewStudentMessage = "summary_new_student_message"
+	const val NewStudentRetryButton = "summary_new_student_retry_button"
+
 	const val ContentContainer = "summary_content_container"
 	const val GradeText = "summary_grade_text"
 	const val NameText = "summary_name_text"

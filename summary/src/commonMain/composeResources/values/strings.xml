@@ -51,4 +51,8 @@
         <item quantity="one">%1$d crédito cursado</item>
         <item quantity="other">%1$d créditos cursados</item>
     </plurals>
+    <string name="dialog_title_not_enrolled">No estás inscrito en este trimestre</string>
+    <string name="dialog_message_not_enrolled">La universidad no reporta una inscripción vigente para ti en este trimestre. Tus notas anteriores siguen disponibles.</string>
+    <string name="dialog_title_record_access_denied">No pudimos consultar tu expediente</string>
+    <string name="dialog_message_record_access_denied">La universidad no nos permite consultar tu expediente ahora. Mantenemos tus datos anteriores.</string>
 </resources>

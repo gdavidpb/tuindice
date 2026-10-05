@@ -30,6 +30,7 @@ fun IllustratedMessageView(
 	messageTestTag: String? = null,
 	actionTestTag: String? = null,
 	isActionOutlined: Boolean = false,
+	isActionEnabled: Boolean = true,
 	titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
 	messageStyle: TextStyle = MaterialTheme.typography.bodyLarge,
 	titleTextAlign: TextAlign = TextAlign.Center,
@@ -66,11 +67,11 @@ fun IllustratedMessageView(
 			val actionModifier = if (actionTestTag != null) Modifier.testTag(actionTestTag) else Modifier
 
 			if (isActionOutlined) {
-				OutlinedButton(modifier = actionModifier, onClick = onActionClick) {
+				OutlinedButton(modifier = actionModifier, enabled = isActionEnabled, onClick = onActionClick) {
 					Text(text = actionLabel)
 				}
 			} else {
-				Button(modifier = actionModifier, onClick = onActionClick) {
+				Button(modifier = actionModifier, enabled = isActionEnabled, onClick = onActionClick) {
 					Text(text = actionLabel)
 				}
 			}

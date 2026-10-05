@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.SyncProblem
 import androidx.compose.runtime.CompositionLocalProvider
@@ -12,9 +13,16 @@ import androidx.compose.ui.test.assertTextContains
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.base.domain.model.EnrollmentSituation
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
+import com.gdavidpb.tuindice.base.domain.model.SyncReportSources
+import com.gdavidpb.tuindice.base.domain.model.SyncReportStatus
+import com.gdavidpb.tuindice.base.domain.model.SyncSourceReport
+import com.gdavidpb.tuindice.base.domain.model.SyncSourceStatus
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
+import com.gdavidpb.tuindice.summary.presentation.mapper.resolveSyncAttention
+import com.gdavidpb.tuindice.summary.presentation.model.SyncAttention
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SYNC_STATUS_TEXT
 import com.gdavidpb.tuindice.summary.testing.summaryContentState
 import com.gdavidpb.tuindice.summary.testing.summaryItemsFor
@@ -181,7 +189,7 @@ class SummaryContentViewUiTest {
 			assertEquals(
 				expected = Icons.Outlined.Sync,
 				actual = syncStatusIcon(
-					syncStatus = syncStatus,
+					syncAttention = resolveSyncAttention(syncStatus, SyncReport.success()),
 					isStatusRefreshing = true
 				)
 			)
@@ -249,16 +257,18 @@ class SummaryContentViewUiTest {
 		assertEquals(
 			expected = Icons.Outlined.SyncProblem,
 			actual = syncStatusIcon(
-				syncStatus = SyncStatus.Failed,
+				syncAttention = SyncAttention.Problem,
 				isStatusRefreshing = false
 			)
 		)
 		assertEquals(
 			expected = Icons.Outlined.SyncProblem,
 			actual = syncStatusIcon(
-				syncStatus = SyncStatus.Healthy,
-				isStatusRefreshing = false,
-				hasSyncSourceIssue = true
+				syncAttention = resolveSyncAttention(
+					SyncStatus.Healthy,
+					SyncReport.partialEnrollmentUnavailable()
+				),
+				isStatusRefreshing = false
 			)
 		)
 		assertEquals(
@@ -388,5 +398,48 @@ class SummaryContentViewUiTest {
 		onNodeWithTag(SummaryUiTags.StatusText).assertTextContains(DEFAULT_SYNC_STATUS_TEXT)
 		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
 		assertEquals(1, statusIconClicks)
+	}
+
+	@Test
+	fun when_enrollmentIsNotEnrolled_then_statusIsInformativeWithoutHaloAndCanOpenDetails() = runTuIndiceUiTest {
+		val contentState = summaryContentState()
+		var statusIconClicks = 0
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+				SummaryContentView(
+					state = contentState,
+					syncStatus = SyncStatus.Healthy,
+					syncReport = SyncReport(
+						status = SyncReportStatus.Success,
+						sources = SyncReportSources(
+							record = SyncSourceReport(SyncSourceStatus.Success),
+							enrollment = SyncSourceReport(SyncSourceStatus.Success, EnrollmentSituation(code = "01"))
+						)
+					),
+					showSyncAttentionHalo = true,
+					summaryItems = summaryItemsFor(contentState),
+					onEditProfilePictureClick = {},
+					onStatusIconClick = { statusIconClicks++ }
+				)
+			}
+		}
+
+		assertNodeHidden(SummaryUiTags.StatusIconHalo)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+		assertEquals(1, statusIconClicks)
+	}
+
+	@Test
+	fun when_attentionIsInformative_then_iconIsInfoNotTheSyncProblemOne() {
+		assertEquals(
+			expected = Icons.Outlined.Info,
+			actual = syncStatusIcon(syncAttention = SyncAttention.Informative, isStatusRefreshing = false)
+		)
+		assertEquals(
+			expected = Icons.Outlined.Sync,
+			actual = syncStatusIcon(syncAttention = SyncAttention.Informative, isStatusRefreshing = true)
+		)
 	}
 }

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.summary.ui.screen
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
@@ -187,5 +188,44 @@ class SummaryScreenUiTest {
 		}
 
 		assertEquals(1, updatePasswordClicks)
+	}
+
+	@Test
+	fun when_failedForANewStudent_then_showsTheNewStudentViewWithAnEnabledRetry() = runTuIndiceUiTest {
+		var retryClicks = 0
+
+		setTuIndiceTestContent {
+			SummaryScreen(
+				state = Summary.State.Failed(),
+				syncStatus = SyncStatus.NewStudentNoRecord,
+				syncReport = SyncReport.success(),
+				onRetryClick = { retryClicks++ },
+				onEditProfilePictureClick = {},
+				onUpdatePasswordClick = {}
+			)
+		}
+
+		assertNodeVisible(SummaryUiTags.NewStudentContainer)
+		assertNodeHidden(BaseUiTags.ErrorViewContainer)
+		onNodeWithTag(SummaryUiTags.NewStudentRetryButton).assertIsEnabled()
+		onNodeWithTag(SummaryUiTags.NewStudentRetryButton).performClick()
+		assertEquals(1, retryClicks)
+	}
+
+	@Test
+	fun when_newStudentIsSyncing_then_retryIsDisabled() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryScreen(
+				state = Summary.State.Failed(),
+				syncStatus = SyncStatus.NewStudentNoRecord,
+				syncReport = SyncReport.success(),
+				isSyncing = true,
+				onRetryClick = {},
+				onEditProfilePictureClick = {},
+				onUpdatePasswordClick = {}
+			)
+		}
+
+		onNodeWithTag(SummaryUiTags.NewStudentRetryButton).assertIsNotEnabled()
 	}
 }

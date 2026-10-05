@@ -15,10 +15,13 @@ import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.LoadingView
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
+import com.gdavidpb.tuindice.summary.presentation.mapper.resolveSyncAttention
+import com.gdavidpb.tuindice.summary.presentation.model.SyncAttention
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.dialog.SyncStatusInfoContentDialog
 import com.gdavidpb.tuindice.summary.ui.view.SummaryContentView
 import com.gdavidpb.tuindice.summary.ui.view.SummaryFailedView
+import com.gdavidpb.tuindice.summary.ui.view.SummaryNewStudentView
 import com.gdavidpb.tuindice.summary.ui.view.rememberSummaryItems
 import org.jetbrains.compose.resources.stringResource
 import tuindice.summary.generated.resources.Res
@@ -31,6 +34,7 @@ fun SummaryScreen(
 	state: Summary.State,
 	syncStatus: SyncStatus,
 	syncReport: SyncReport,
+	hasCurrentTerm: Boolean = false,
 	isSyncing: Boolean = false,
 	onRetryClick: () -> Unit,
 	onEditProfilePictureClick: () -> Unit,
@@ -38,7 +42,9 @@ fun SummaryScreen(
 ) {
 	val displayedSyncStatusDetails = remember { mutableStateOf<SyncStatusDetails?>(null) }
 	val acknowledgedSyncAttentionKey = remember { mutableStateOf<String?>(null) }
+	val syncAttention = resolveSyncAttention(syncStatus = syncStatus, syncReport = syncReport)
 	val syncAttentionKey = syncAttentionKey(
+		syncAttention = syncAttention,
 		syncStatus = syncStatus,
 		syncReport = syncReport
 	)
@@ -65,15 +71,22 @@ fun SummaryScreen(
 					LoadingView(indicatorTag = SummaryUiTags.LoadingIndicator)
 
 				is Summary.State.Failed ->
-					SummaryFailedView(
-						title = stringResource(Res.string.summary_failed_title),
-						message = stringResource(Res.string.summary_failed_message),
-						retryText = stringResource(Res.string.summary_failed_retry),
-						onRetryClick = onRetryClick,
-						headerContent = {
-							ErrorStateAnimationView()
-						}
-					)
+					if (syncStatus == SyncStatus.NewStudentNoRecord) {
+						SummaryNewStudentView(
+							isRetryEnabled = !isSyncing,
+							onRetryClick = onRetryClick
+						)
+					} else {
+						SummaryFailedView(
+							title = stringResource(Res.string.summary_failed_title),
+							message = stringResource(Res.string.summary_failed_message),
+							retryText = stringResource(Res.string.summary_failed_retry),
+							onRetryClick = onRetryClick,
+							headerContent = {
+								ErrorStateAnimationView()
+							}
+						)
+					}
 
 				is Summary.State.Content ->
 					SummaryContentView(
@@ -87,8 +100,10 @@ fun SummaryScreen(
 						),
 						onEditProfilePictureClick = onEditProfilePictureClick,
 						onStatusIconClick = {
-							syncAttentionKey?.let { currentKey ->
-								acknowledgedSyncAttentionKey.value = currentKey
+							if (syncAttention != SyncAttention.None) {
+								syncAttentionKey?.let { currentKey ->
+									acknowledgedSyncAttentionKey.value = currentKey
+								}
 								displayedSyncStatusDetails.value = SyncStatusDetails(
 									status = syncStatus,
 									report = syncReport
@@ -104,6 +119,7 @@ fun SummaryScreen(
 		SyncStatusInfoContentDialog(
 			syncStatus = currentSyncStatus.status,
 			syncReport = currentSyncStatus.report,
+			hasCurrentTerm = hasCurrentTerm,
 			onUpdatePasswordClick = onUpdatePasswordClick,
 			onDismissRequest = { displayedSyncStatusDetails.value = null }
 		)
@@ -115,11 +131,13 @@ private data class SyncStatusDetails(
 	val report: SyncReport
 )
 
+// The key re-arms the halo, which only a problem uses.
 private fun syncAttentionKey(
+	syncAttention: SyncAttention,
 	syncStatus: SyncStatus,
 	syncReport: SyncReport
 ): String? {
-	return if (syncStatus != SyncStatus.Healthy || syncReport.hasUnavailableSource) {
+	return if (syncAttention == SyncAttention.Problem) {
 		// Built field by field: the report also carries the instant of the last enrollment read,
 		// which changes on every sync and must not re-arm the halo.
 		"$syncStatus|${syncReport.status}|${syncReport.sources.record.status}|" +
