@@ -37,7 +37,7 @@ class IllustratedMessageViewUiTest {
 		setTuIndiceTestContent {
 			IllustratedMessageView(
 				title = "Tu inscripción fue anulada",
-				message = "Consulta con DACE.",
+				message = "Consulta en DACE.",
 				actionTestTag = "action",
 				isActionOutlined = true
 			)

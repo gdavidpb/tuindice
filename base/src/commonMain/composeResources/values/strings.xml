@@ -8,11 +8,11 @@
 	<string name="snack_timeout">Tiempo de espera agotado</string>
 	<string name="snack_unexpected_error">Ocurrió un error inesperado</string>
 	<string name="enrollment_annulled_provisional_title">Tu inscripción aparece anulada</string>
-	<string name="enrollment_annulled_provisional_message">La universidad la tiene anulada %1$s. Durante las correcciones de inscripción todavía puedes regularizarla con DACE. Tus notas se mantienen.</string>
-	<string name="enrollment_annulled_provisional_message_generic">La universidad la tiene anulada. Durante las correcciones de inscripción todavía puedes regularizarla con DACE. Tus notas se mantienen.</string>
+	<string name="enrollment_annulled_provisional_message">Anulada %1$s. Consulta en DACE.</string>
+	<string name="enrollment_annulled_provisional_message_generic">Consulta en DACE para regularizarla.</string>
 	<string name="enrollment_annulled_final_title">Tu inscripción fue anulada</string>
-	<string name="enrollment_annulled_final_message">La universidad anuló tu inscripción de este trimestre %1$s. Consulta con DACE para regularizar tu situación.</string>
-	<string name="enrollment_annulled_final_message_generic">La universidad anuló tu inscripción de este trimestre. Consulta con DACE para regularizar tu situación.</string>
+	<string name="enrollment_annulled_final_message">Anulada %1$s. Consulta en DACE.</string>
+	<string name="enrollment_annulled_final_message_generic">Consulta en DACE para regularizarla.</string>
 	<string name="new_student_no_record_title">Aún no tienes expediente en la universidad</string>
 	<string name="new_student_no_record_message">La universidad todavía no tiene un expediente académico para tu cuenta. Si eres de nuevo ingreso, es normal: DACE lo crea más adelante. Vuelve a intentarlo en unos días.</string>
 	<string name="enrollment_annulled_cause_credit_limit">por el límite de créditos</string>

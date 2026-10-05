@@ -23,7 +23,7 @@ appId: com.gdavidpb.tuindice.debug
       id: summary_sync_status_message
     timeout: 10000
 - assertVisible: "Tu inscripción aparece anulada"
-- assertVisible: "La universidad la tiene anulada por tu índice académico. Durante las correcciones de inscripción todavía puedes regularizarla con DACE. Tus notas se mantienen."
+- assertVisible: "Anulada por tu índice académico. Consulta en DACE."
 - tapOn:
     id: base_confirmation_dialog_positive_button
 - extendedWaitUntil:
