@@ -6,6 +6,9 @@ import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDayItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleGridItem
+import com.gdavidpb.tuindice.record.presentation.model.ScheduleItem
+import com.gdavidpb.tuindice.record.presentation.model.ScheduleTableItem
+import com.gdavidpb.tuindice.record.presentation.model.ScheduleTableRowItem
 
 private const val FIRST_BLOCK = 1
 
@@ -14,11 +17,11 @@ private const val FIRST_BLOCK = 1
 private const val LAST_BLOCK = 24
 
 /**
- * Lays the current term's meetings out on a grid, or returns null when no subject has a schedule
- * (so the term has nothing to switch to). Monday to Friday are always columns; Saturday and
- * Sunday only when something meets then. Withdrawn subjects stay out of the grid.
+ * Lays the current term's meetings out once and reads that layout as a grid and as a table, or
+ * returns null when no subject has a schedule (so the term has none to show). Monday to Friday are
+ * always columns; Saturday and Sunday only when something meets then. Withdrawn subjects stay out.
  */
-internal fun List<AttemptProjection>.toScheduleGridItem(): ScheduleGridItem? {
+internal fun List<AttemptProjection>.toScheduleItem(): ScheduleItem? {
 	val active = filterNot { attempt -> attempt.withdrawn }
 	// distinct: the same meeting listed twice is still one cell.
 	val placed = active.flatMap { attempt ->
@@ -42,12 +45,34 @@ internal fun List<AttemptProjection>.toScheduleGridItem(): ScheduleGridItem? {
 		.filter { attempt -> attempt.id !in placedAttemptIds }
 		.map(AttemptProjection::subjectCode)
 
-	return ScheduleGridItem(
+	val grid = ScheduleGridItem(
 		blockCount = placed.maxOf { placement -> placement.endBlock },
 		days = days,
 		unscheduledCodes = unscheduledCodes
 	)
+
+	return ScheduleItem(
+		grid = grid,
+		table = ScheduleTableItem(
+			days = days.map(ScheduleDayItem::day),
+			rows = active.map { attempt -> attempt.toTableRow(days = days) }
+		)
+	)
 }
+
+// The row takes the grid's cells, so tinting a clash in the table cannot disagree with the grid.
+private fun AttemptProjection.toTableRow(days: List<ScheduleDayItem>) = ScheduleTableRowItem(
+	attemptId = id,
+	subjectCode = subjectCode,
+	section = section,
+	classroom = sharedClassroom(),
+	errorText = toEnrollmentErrorText(),
+	meetings = days
+		.associate { dayItem ->
+			dayItem.day to dayItem.cells.filter { cell -> cell.attemptId == id }
+		}
+		.filterValues { cells -> cells.isNotEmpty() }
+)
 
 private data class SchedulePlacement(
 	val attemptId: String,

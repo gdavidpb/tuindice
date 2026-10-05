@@ -4,7 +4,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -68,7 +67,7 @@ fun TermProjection.toTermItem(
 		termId = id,
 		periodYear = periodYear,
 		termOrder = termOrder,
-		shortNameText = "${periodCode.shortLabel} $periodYear",
+		shortNameText = toShortNameText(),
 		kind = toTermItemKind(),
 		gradeText = texts
 			.termGrade(animatedGrade.value)
@@ -96,13 +95,11 @@ fun TermProjection.toTermItem(
 				isReadOnly = isAttemptReadOnly(viewMode),
 				texts = texts
 			)
-		},
-		// Only the term being lived has a schedule worth switching to.
-		schedule = remember(attempts, isCurrent) {
-			attempts.takeIf { isCurrent }?.toScheduleGridItem()
 		}
 	)
 }
+
+internal fun TermProjection.toShortNameText(): String = "${periodCode.shortLabel} $periodYear"
 
 private fun TermProjection.toTermItemKind(): TermItemKind = when {
 	kind.isSynthetic -> TermItemKind.SYNTHETIC

@@ -87,6 +87,7 @@ flows:
       - record.CreateSyntheticTerm.SelectPeriod
       - record.Record.RefreshRecord
       - record.Record.SelectTerm
+      - record.Schedule.SelectScheduleView
       - record.Record.SetViewMode
       - record.Record.UpsertAttemptSelection
       - record.Record.DeleteSyntheticTerm
@@ -963,16 +964,22 @@ flows:
     fixture_state: record-annulled-provisional
     actions_covered:
       - record.Record.SelectTerm
+      - record.Schedule.SelectScheduleView
     primary_selectors:
       - record_term_chip_d377155d39da686f412622aaca9074cd
-      - record_term_view_switch
       - base_notice_view
       - record_attempt_detail_e21f0d7e481d13d19f328d6818ce4d77
       - record_attempt_enrollment_error_722cc2cc935e0aefdc73f9ebf9d2f1b6
-      - record_term_view_schedule_tab
+      - base_top_app_bar_action_record_schedule
+      - record_schedule_table
+      - record_schedule_table_row_e21f0d7e481d13d19f328d6818ce4d77
+      - record_schedule_table_clash_e21f0d7e481d13d19f328d6818ce4d77_2
+      - record_schedule_table_error_722cc2cc935e0aefdc73f9ebf9d2f1b6
+      - record_schedule_table_unscheduled_f47ff0fa7342cdaec37d9e9cff489ebd
+      - record_schedule_view_week_tab
       - record_schedule_grid
       - record_schedule_unscheduled
-      - record_term_view_grades_tab
+      - maincore_tuindice_top_bar_back_button
       - record_attempts_list
   - id: record-annulled-final-notice
     path: e2e/maestro/flows/record/record-annulled-final-notice.yaml
@@ -986,7 +993,7 @@ flows:
       - record_content_container
       - base_notice_view
       - record_term_selector_row
-      - record_term_view_switch
+      - base_top_app_bar_action_record_schedule
   - id: record-term-selection
     path: e2e/maestro/flows/record/record-term-selection.yaml
     module: record
@@ -1160,6 +1167,7 @@ variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
       - record.Record.RefreshRecord
       - record.Record.SetViewMode
       - record.Record.SelectTerm
+      - record.Schedule.SelectScheduleView
       - record.Record.UpsertAttemptSelection
       - record.Record.DeleteSyntheticTerm
     primary_selectors:

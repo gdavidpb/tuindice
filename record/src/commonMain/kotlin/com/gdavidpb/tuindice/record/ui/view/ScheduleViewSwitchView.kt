@@ -11,19 +11,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
+import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
-import tuindice.record.generated.resources.term_view_grades
-import tuindice.record.generated.resources.term_view_schedule
+import tuindice.record.generated.resources.schedule_view_table
+import tuindice.record.generated.resources.schedule_view_week
 
-/** Notas | Horario: what the current term's page shows below the summary. */
+/** Tabla | Semana: how the schedule below is drawn. */
 @Composable
-fun TermViewSwitchView(
+fun ScheduleViewSwitchView(
 	modifier: Modifier = Modifier,
-	isScheduleSelected: Boolean,
-	onScheduleSelectedChange: (Boolean) -> Unit
+	selectedMode: ScheduleViewMode,
+	onModeSelected: (ScheduleViewMode) -> Unit
 ) {
+	val modes = ScheduleViewMode.entries
 	val colors = SegmentedButtonDefaults.colors(
 		activeContainerColor = MaterialTheme.colorScheme.primary,
 		activeContentColor = MaterialTheme.colorScheme.onPrimary,
@@ -36,36 +39,35 @@ fun TermViewSwitchView(
 	SingleChoiceSegmentedButtonRow(
 		modifier = modifier
 			.fillMaxWidth()
-			.testTag(RecordUiTags.TermViewSwitch)
+			.testTag(RecordUiTags.ScheduleViewSwitch)
 	) {
-		SegmentedButton(
-			modifier = Modifier.testTag(RecordUiTags.TermViewGradesTab),
-			selected = !isScheduleSelected,
-			onClick = { onScheduleSelectedChange(false) },
-			shape = SegmentedButtonDefaults.itemShape(index = 0, count = 2),
-			colors = colors,
-			icon = {}
-		) {
-			Text(
-				text = stringResource(Res.string.term_view_grades),
-				maxLines = 1,
-				overflow = TextOverflow.Ellipsis
-			)
-		}
-
-		SegmentedButton(
-			modifier = Modifier.testTag(RecordUiTags.TermViewScheduleTab),
-			selected = isScheduleSelected,
-			onClick = { onScheduleSelectedChange(true) },
-			shape = SegmentedButtonDefaults.itemShape(index = 1, count = 2),
-			colors = colors,
-			icon = {}
-		) {
-			Text(
-				text = stringResource(Res.string.term_view_schedule),
-				maxLines = 1,
-				overflow = TextOverflow.Ellipsis
-			)
+		modes.forEachIndexed { index, mode ->
+			SegmentedButton(
+				modifier = Modifier.testTag(mode.testTag),
+				selected = selectedMode == mode,
+				onClick = { onModeSelected(mode) },
+				shape = SegmentedButtonDefaults.itemShape(index = index, count = modes.size),
+				colors = colors,
+				icon = {}
+			) {
+				Text(
+					text = stringResource(mode.labelResource),
+					maxLines = 1,
+					overflow = TextOverflow.Ellipsis
+				)
+			}
 		}
 	}
 }
+
+private val ScheduleViewMode.labelResource: StringResource
+	get() = when (this) {
+		ScheduleViewMode.Table -> Res.string.schedule_view_table
+		ScheduleViewMode.Week -> Res.string.schedule_view_week
+	}
+
+private val ScheduleViewMode.testTag: String
+	get() = when (this) {
+		ScheduleViewMode.Table -> RecordUiTags.ScheduleViewTableTab
+		ScheduleViewMode.Week -> RecordUiTags.ScheduleViewWeekTab
+	}

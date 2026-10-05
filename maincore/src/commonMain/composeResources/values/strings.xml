@@ -27,6 +27,7 @@
 	<string name="a11y_top_bar_sign_out">Cerrar sesión</string>
 	<string name="a11y_top_bar_enrollment_proof">Ver comprobante</string>
 	<string name="a11y_top_bar_record_term_selection">Ver todos los trimestres</string>
+	<string name="a11y_top_bar_record_schedule">Ver horario</string>
 	<string name="a11y_top_bar_search_pensum">Buscar materias</string>
 	<string name="a11y_top_bar_change_pensum">Cambiar pensum</string>
 </resources>

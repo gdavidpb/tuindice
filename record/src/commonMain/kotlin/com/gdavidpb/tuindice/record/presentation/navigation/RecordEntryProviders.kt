@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.record.presentation.navigation
 
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation3.runtime.EntryProviderScope
 import androidx.navigation3.runtime.NavKey
@@ -11,9 +13,11 @@ import com.gdavidpb.tuindice.base.utils.extension.CollectCurrentEntryValueWithLi
 import com.gdavidpb.tuindice.base.utils.extension.CollectNavResultWithLifecycle
 import com.gdavidpb.tuindice.record.presentation.route.CreateSyntheticTermRoute
 import com.gdavidpb.tuindice.record.presentation.route.RecordRoute
+import com.gdavidpb.tuindice.record.presentation.route.ScheduleRoute
 import com.gdavidpb.tuindice.record.presentation.route.toRouteViewState
 import com.gdavidpb.tuindice.record.presentation.viewmodel.CreateSyntheticTermViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
+import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
 import com.gdavidpb.tuindice.record.ui.dialog.DeleteSyntheticTermConfirmationContentDialog
 import org.koin.compose.viewmodel.koinViewModel
 
@@ -23,6 +27,7 @@ fun EntryProviderScope<NavKey>.recordEntries(
 	dependencies: RecordNavDependencies
 ) {
 	recordEntry(navActions = navActions, shellBindings = shellBindings, dependencies = dependencies)
+	scheduleEntry(shellBindings = shellBindings)
 	createSyntheticTermEntry(navActions = navActions, shellBindings = shellBindings, dependencies = dependencies)
 	deleteSyntheticTermConfirmationDialogEntry(navActions = navActions)
 }
@@ -37,9 +42,21 @@ private fun EntryProviderScope<NavKey>.recordEntry(
 		val viewState by viewModel.state.collectAsStateWithLifecycle()
 
 		CollectCurrentEntryValueWithLifecycle(
-			value = viewState.toRouteViewState(),
+			value = remember(viewState) { viewState.toRouteViewState() },
 			onValue = shellBindings.onViewStateChanged
 		)
+
+		// The bar's schedule icon is drawn only when the route state says the selected term has a
+		// schedule; this is what it opens, while the record is the entry on screen.
+		DisposableEffect(dependencies) {
+			dependencies.onTopBarScheduleAvailable {
+				navActions.push(RecordDestination.Schedule)
+			}
+
+			onDispose {
+				dependencies.onTopBarScheduleAvailable(null)
+			}
+		}
 
 		CollectNavResultWithLifecycle<DeleteSyntheticTermConfirmationResult> { result ->
 			when (result) {
@@ -66,6 +83,22 @@ private fun EntryProviderScope<NavKey>.recordEntry(
 			showSnackBar = shellBindings.showSnackBar,
 			viewModel = viewModel
 		)
+	}
+}
+
+private fun EntryProviderScope<NavKey>.scheduleEntry(
+	shellBindings: NavShellBindings
+) {
+	entry<RecordDestination.Schedule> {
+		val viewModel = koinViewModel<ScheduleViewModel>()
+		val viewState by viewModel.state.collectAsStateWithLifecycle()
+
+		CollectCurrentEntryValueWithLifecycle(
+			value = viewState,
+			onValue = shellBindings.onViewStateChanged
+		)
+
+		ScheduleRoute(viewModel = viewModel)
 	}
 }
 

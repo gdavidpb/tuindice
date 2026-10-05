@@ -55,6 +55,7 @@ fun TuIndiceNavDisplay(
 	onUpdatePasswordDismissRequest: () -> Unit = {},
 	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onRecordTermSelectionAvailable: ((() -> Unit)?) -> Unit,
+	onRecordScheduleAvailable: ((() -> Unit)?) -> Unit,
 	onBackInterceptorAvailable: ((() -> Boolean)?) -> Unit = {},
 	showTopBarBanner: (behavior: TopBarBannerBehavior) -> Unit,
 	onViewStateChanged: (ViewState) -> Unit,
@@ -110,6 +111,7 @@ fun TuIndiceNavDisplay(
 				},
 				onTopBarViewModeChangeAvailable = onRecordViewModeChangeAvailable,
 				onTopBarTermSelectionAvailable = onRecordTermSelectionAvailable,
+				onTopBarScheduleAvailable = onRecordScheduleAvailable,
 				onNavigateToEnrollmentProof = {
 					navigator.push(EnrollmentProofDestination.EnrollmentProofDialog)
 				}

@@ -1,6 +1,6 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-10-05 14:35:17 -0300_
+_Generated automatically on 2026-10-05 15:04:52 -0300_
 
 ## Summary by module
 
@@ -13,7 +13,7 @@ _Generated automatically on 2026-10-05 14:35:17 -0300_
 | `evaluations` | 2 | 42 | 47 | 31 | 24 | 24 |
 | `maincore` | 3 | 14 | 17 | 10 | 9 | 9 |
 | `pensum` | 2 | 40 | 47 | 2 | 2 | 2 |
-| `record` | 2 | 57 | 78 | 13 | 8 | 8 |
+| `record` | 2 | 64 | 90 | 14 | 9 | 9 |
 | `subjects` | 2 | 24 | 27 | 4 | 3 | 3 |
 | `summary` | 2 | 18 | 23 | 15 | 11 | 11 |
 | `wizard` | 2 | 2 | 3 | 1 | 1 | 1 |
@@ -225,6 +225,7 @@ _Generated automatically on 2026-10-05 14:35:17 -0300_
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/presentation/mapper/TermItem.kt` | 3 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/presentation/mapper/TermItemUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/presentation/route/CreateSyntheticTermRoute.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/presentation/route/CreateSyntheticTermRouteUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/presentation/route/RecordRoute.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/presentation/route/RecordRouteUiTest.kt` | 0 | MISSING TEST |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/presentation/route/ScheduleRoute.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/presentation/route/ScheduleRouteUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/dialog/DeleteSyntheticTermConfirmationContentDialog.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/dialog/DeleteSyntheticTermConfirmationContentDialogUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/dialog/DeleteSyntheticTermConfirmationDialog.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/dialog/DeleteSyntheticTermConfirmationDialogUiTest.kt` | 2 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/dialog/DiscardSyntheticTermContentDialog.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/dialog/DiscardSyntheticTermContentDialogUiTest.kt` | 0 | MISSING TEST |
@@ -234,6 +235,7 @@ _Generated automatically on 2026-10-05 14:35:17 -0300_
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/model/ScheduleDayLabel.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/model/ScheduleDayLabelUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/screen/CreateSyntheticTermScreen.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/screen/CreateSyntheticTermScreenUiTest.kt` | 14 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/screen/RecordScreen.kt` | 6 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/screen/RecordScreenUiTest.kt` | 11 | PASS threshold (2) |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/screen/ScheduleScreen.kt` | 2 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/screen/ScheduleScreenUiTest.kt` | 5 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ApprovedSearchResultsToggleView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ApprovedSearchResultsToggleViewUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/AttemptCardItemView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/AttemptCardItemViewUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/AttemptEnrollmentErrorChipView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/AttemptEnrollmentErrorChipViewUiTest.kt` | 0 | MISSING TEST |
@@ -268,16 +270,21 @@ _Generated automatically on 2026-10-05 14:35:17 -0300_
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/RecordViewModeBannerColorsProvider.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/RecordViewModeBannerColorsProviderUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleCellView.kt` | 2 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleCellViewUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleGridView.kt` | 3 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleGridViewUiTest.kt` | 0 | MISSING TEST |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableDayCellView.kt` | 2 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableDayCellViewUiTest.kt` | 0 | MISSING TEST |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableErrorView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableErrorViewUiTest.kt` | 0 | MISSING TEST |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableRowDescription.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableRowDescriptionUiTest.kt` | 0 | MISSING TEST |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableRowView.kt` | 3 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableRowViewUiTest.kt` | 0 | MISSING TEST |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableView.kt` | 2 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleTableViewUiTest.kt` | 0 | MISSING TEST |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleViewSwitchView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleViewSwitchViewUiTest.kt` | 0 | MISSING TEST |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleWeekView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ScheduleWeekViewUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/SelectedTermView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/SelectedTermViewUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/TermDeltaChip.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/TermDeltaChipUiTest.kt` | 0 | MISSING TEST |
-| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/TermItemView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/TermItemViewUiTest.kt` | 4 | PASS threshold (2) |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/TermItemView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/TermItemViewUiTest.kt` | 2 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/TermMetricDivider.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/TermMetricDividerUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/TermMetricItem.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/TermMetricItemUiTest.kt` | 0 | MISSING TEST |
-| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/TermScheduleView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/TermScheduleViewUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/TermSelectorView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/TermSelectorViewUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/TermSummaryContent.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/TermSummaryContentUiTest.kt` | 0 | MISSING TEST |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/TermSummaryView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/TermSummaryViewUiTest.kt` | 0 | MISSING TEST |
-| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/TermViewSwitchView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/TermViewSwitchViewUiTest.kt` | 0 | MISSING TEST |
 
 ### `subjects`
 

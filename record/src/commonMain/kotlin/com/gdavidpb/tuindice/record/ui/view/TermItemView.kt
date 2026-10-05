@@ -8,8 +8,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Schedule
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
@@ -35,23 +33,7 @@ fun TermItemView(
 	) -> Unit,
 	onScrollInProgressChange: (Boolean) -> Unit = {}
 ) {
-	val isScheduleSelected = rememberSaveable { mutableStateOf(false) }
-	val schedule = item.schedule
-	val selectedSchedule = schedule.takeIf { isScheduleSelected.value }
-
 	Column(modifier = modifier.fillMaxSize()) {
-		// Only the current term has a schedule; the switch sits right under the term selector.
-		if (schedule != null) {
-			TermViewSwitchView(
-				modifier = Modifier.padding(
-					horizontal = TuIndiceSpacing.Screen,
-					vertical = TuIndiceSpacing.Medium
-				),
-				isScheduleSelected = selectedSchedule != null,
-				onScheduleSelectedChange = { isScheduleSelected.value = it }
-			)
-		}
-
 		// Provisional annulment and stale data describe the current term, so only its page shows them.
 		// Always composed, so it animates in and out instead of making the page jump.
 		val pageNotice = notice?.takeIf { item.isCurrent }
@@ -76,23 +58,13 @@ fun TermItemView(
 			item = item
 		)
 
-		if (selectedSchedule != null) {
-			TermScheduleView(
-				modifier = Modifier
-					.fillMaxWidth()
-					.weight(1f),
-				grid = selectedSchedule,
-				onScrollInProgressChange = onScrollInProgressChange
-			)
-		} else {
-			SelectedTermView(
-				modifier = Modifier
-					.fillMaxWidth()
-					.weight(1f),
-				term = item,
-				onAttemptSelectionChange = onAttemptSelectionChange,
-				onScrollInProgressChange = onScrollInProgressChange
-			)
-		}
+		SelectedTermView(
+			modifier = Modifier
+				.fillMaxWidth()
+				.weight(1f),
+			term = item,
+			onAttemptSelectionChange = onAttemptSelectionChange,
+			onScrollInProgressChange = onScrollInProgressChange
+		)
 	}
 }

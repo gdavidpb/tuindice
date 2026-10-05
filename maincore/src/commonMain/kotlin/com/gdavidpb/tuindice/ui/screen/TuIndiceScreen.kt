@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.AccountTree
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.BookmarkBorder
+import androidx.compose.material.icons.outlined.CalendarViewWeek
 import androidx.compose.material.icons.outlined.DateRange
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.FindInPage
@@ -90,6 +91,7 @@ import tuindice.maincore.generated.resources.Res
 import tuindice.maincore.generated.resources.a11y_navigate_back
 import tuindice.maincore.generated.resources.a11y_top_bar_change_pensum
 import tuindice.maincore.generated.resources.a11y_top_bar_enrollment_proof
+import tuindice.maincore.generated.resources.a11y_top_bar_record_schedule
 import tuindice.maincore.generated.resources.a11y_top_bar_record_term_selection
 import tuindice.maincore.generated.resources.a11y_top_bar_search_pensum
 import tuindice.maincore.generated.resources.a11y_top_bar_sign_out
@@ -117,6 +119,7 @@ fun TuIndiceScreen(
 	onRecordViewModeChange: ((RecordViewMode) -> Unit)?,
 	onRecordViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	onRecordTermSelectionAvailable: ((() -> Unit)?) -> Unit = {},
+	onRecordScheduleAvailable: ((() -> Unit)?) -> Unit = {},
 	onBackInterceptorAvailable: ((() -> Boolean)?) -> Unit = {},
 	onNavigateTo: (section: MainSection) -> Unit,
 	onNavigateBack: () -> Unit,
@@ -416,6 +419,7 @@ fun TuIndiceScreen(
 				onUpdatePasswordDismissRequest = onUpdatePasswordDismissRequest,
 				onRecordViewModeChangeAvailable = onRecordViewModeChangeAvailable,
 				onRecordTermSelectionAvailable = onRecordTermSelectionAvailable,
+				onRecordScheduleAvailable = onRecordScheduleAvailable,
 				onBackInterceptorAvailable = onBackInterceptorAvailable,
 				showTopBarBanner = showTopBarBanner,
 				onViewStateChanged = onViewStateChanged,
@@ -452,6 +456,8 @@ private fun TopBarAction.getContentDescription(): String {
 			stringResource(Res.string.a11y_top_bar_enrollment_proof)
 		is TopBarAction.RecordTermSelectionAction ->
 			stringResource(Res.string.a11y_top_bar_record_term_selection)
+		is TopBarAction.RecordScheduleAction ->
+			stringResource(Res.string.a11y_top_bar_record_schedule)
 		is TopBarAction.SearchPensumAction ->
 			stringResource(Res.string.a11y_top_bar_search_pensum)
 		is TopBarAction.ChangePensumAction ->
@@ -467,6 +473,8 @@ private fun TopBarAction.getIcon(): ImageVector {
 			Icons.Outlined.FindInPage
 		is TopBarAction.RecordTermSelectionAction ->
 			Icons.Outlined.DateRange
+		is TopBarAction.RecordScheduleAction ->
+			Icons.Outlined.CalendarViewWeek
 		is TopBarAction.SearchPensumAction ->
 			Icons.Outlined.Search
 		is TopBarAction.ChangePensumAction ->

@@ -10,6 +10,9 @@ sealed class RecordDestination : Destination() {
 	data object Record : RecordDestination()
 
 	@Serializable
+	data object Schedule : RecordDestination()
+
+	@Serializable
 	data class CreateSyntheticTerm(
 		val termId: String? = null
 	) : RecordDestination()

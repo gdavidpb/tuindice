@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationSnapshot
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview
@@ -17,6 +18,7 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
+import com.gdavidpb.tuindice.record.domain.repository.ScheduleSelectionRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermCreationRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermLoadPreviewRepository
 import kotlinx.coroutines.CompletableDeferred
@@ -140,6 +142,20 @@ class RecordingRecordSelectionRepository(
 
 	private fun selectedTermIdFlow(viewMode: RecordViewMode): MutableStateFlow<String?> =
 		if (viewMode == RecordViewMode.Historical) historicalTermIdFlow else projectionTermIdFlow
+}
+
+class RecordingScheduleSelectionRepository(
+	initialViewMode: ScheduleViewMode = ScheduleViewMode.Table
+) : ScheduleSelectionRepository {
+	private val viewModeFlow = MutableStateFlow(initialViewMode)
+	val setViewModeCalls = mutableListOf<ScheduleViewMode>()
+
+	override fun observeScheduleViewMode(): Flow<ScheduleViewMode> = viewModeFlow
+
+	override suspend fun setScheduleViewMode(viewMode: ScheduleViewMode) {
+		setViewModeCalls += viewMode
+		viewModeFlow.value = viewMode
+	}
 }
 
 class ControllableSyntheticTermCreationRepository : SyntheticTermCreationRepository {

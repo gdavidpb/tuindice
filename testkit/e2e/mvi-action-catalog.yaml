@@ -442,6 +442,15 @@ variants: [create-success, edit-success, edit-unchanged-disabled, empty-subjects
     selector: record_attempts_list
     flow: e2e/maestro/flows/record/record-attempt-overrides.yaml
     fixture_state: attempt-override-success
+  - id: record.Schedule.ObserveSchedule
+    classification: internal
+    reason: screen bootstrap
+  - id: record.Schedule.SelectScheduleView
+    classification: user
+    variants: [table, week]
+    selector: record_schedule_view_week_tab
+    flow: e2e/maestro/flows/record/record-annulled-provisional-schedule.yaml
+    fixture_state: record-annulled-provisional
   - id: record.Record.DeleteSyntheticTerm
     classification: user
     variants: [delete-success]

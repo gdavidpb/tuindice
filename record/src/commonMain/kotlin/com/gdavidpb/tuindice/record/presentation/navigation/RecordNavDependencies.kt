@@ -9,5 +9,6 @@ class RecordNavDependencies(
 	val onNavigateToSubjectDetail: (String) -> Unit,
 	val onTopBarViewModeChangeAvailable: (((RecordViewMode) -> Unit)?) -> Unit,
 	val onTopBarTermSelectionAvailable: ((() -> Unit)?) -> Unit,
+	val onTopBarScheduleAvailable: ((() -> Unit)?) -> Unit,
 	val onNavigateToEnrollmentProof: () -> Unit
 )

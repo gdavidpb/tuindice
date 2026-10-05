@@ -10,9 +10,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarBannerBehavior
+import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.domain.model.filteredProjectionFor
 import com.gdavidpb.tuindice.record.presentation.contract.Record
+import com.gdavidpb.tuindice.record.presentation.mapper.isCurrentTerm
+import com.gdavidpb.tuindice.record.presentation.mapper.toScheduleItem
 import com.gdavidpb.tuindice.record.presentation.model.RecordRouteViewState
 import com.gdavidpb.tuindice.record.presentation.model.RecordTopBarViewModeState
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
@@ -109,7 +113,8 @@ internal fun Record.State.toRouteViewState(): ViewState {
 	return RecordRouteViewState(
 		topBarTitle = topBarTitle,
 		topBarConfig = when (this) {
-			is Record.State.Content -> topBarConfig
+			is Record.State.Content ->
+				if (hasSelectedTermSchedule()) TopBarConfig.RecordWithSchedule else topBarConfig
 			is Record.State.Idle,
 			is Record.State.Empty,
 			is Record.State.Failed,
@@ -129,4 +134,14 @@ internal fun Record.State.toRouteViewState(): ViewState {
 			-> null
 		}
 	)
+}
+
+// The bar offers the schedule only on the current term's page, and only when something is scheduled.
+private fun Record.State.Content.hasSelectedTermSchedule(): Boolean {
+	return visibleRecord.filteredProjectionFor(viewMode)
+		.terms
+		.firstOrNull { term -> term.id == selectedTermId }
+		?.takeIf { term -> term.isCurrentTerm() }
+		?.attempts
+		?.toScheduleItem() != null
 }

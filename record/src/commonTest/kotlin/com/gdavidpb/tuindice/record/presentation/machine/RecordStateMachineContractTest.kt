@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.record.di.recordModule
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationSnapshot
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermLoadPreview
@@ -21,14 +22,20 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
+import com.gdavidpb.tuindice.record.domain.repository.ScheduleSelectionRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermCreationRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermLoadPreviewRepository
 import com.gdavidpb.tuindice.record.presentation.contract.CreateSyntheticTerm
 import com.gdavidpb.tuindice.record.presentation.contract.Record
+import com.gdavidpb.tuindice.record.presentation.contract.Schedule
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
+import com.gdavidpb.tuindice.record.presentation.model.ScheduleGridItem
+import com.gdavidpb.tuindice.record.presentation.model.ScheduleItem
+import com.gdavidpb.tuindice.record.presentation.model.ScheduleTableItem
 import com.gdavidpb.tuindice.record.presentation.viewmodel.CreateSyntheticTermViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
+import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
@@ -98,6 +105,30 @@ class RecordStateMachineContractTest {
 		)
 
 		assertMachineCoversEffects(machine, CreateSyntheticTerm.Effect::class)
+	}
+
+	@Test
+	fun scheduleMachine_coversAlphabet_andStatesAreReachable() = withMachineKoin {
+		val machine = get<ScheduleViewModel>().machine
+
+		assertMachineCoversAlphabet(
+			machine,
+			Schedule.Action::class,
+			ScheduleInternalEvent::class
+		)
+
+		assertMachineHasNoShadowedRows(
+			machine,
+			Schedule.Action::class,
+			ScheduleInternalEvent::class
+		)
+
+		assertMachineStatesReachable(
+			machine = machine,
+			initialState = Schedule.State.Idle::class
+		)
+
+		assertMachineCoversEffects(machine, Schedule.Effect::class)
 	}
 
 	@Test
@@ -291,11 +322,42 @@ class RecordStateMachineContractTest {
 		)
 	}
 
+	@Test
+	fun scheduleMachine_survivesSeededRandomWalk() = runTest {
+		var resolvedMachine: ScheduleMachine? = null
+
+		withMachineKoin {
+			resolvedMachine = get()
+		}
+
+		assertMachineRandomWalk(
+			screenMachine = requireNotNull(resolvedMachine),
+			sampleEvents = listOf(
+				Schedule.Action.ObserveSchedule,
+				Schedule.Action.SelectScheduleView(viewMode = ScheduleViewMode.Week),
+				ScheduleInternalEvent.ScheduleContentObserved(
+					termName = "SEP-DIC 2026",
+					schedule = ScheduleItem(
+						grid = ScheduleGridItem(blockCount = 1, days = emptyList(), unscheduledCodes = emptyList()),
+						table = ScheduleTableItem(days = emptyList(), rows = emptyList())
+					),
+					viewMode = ScheduleViewMode.Table
+				),
+				ScheduleInternalEvent.ScheduleEmptyObserved,
+				ScheduleInternalEvent.ScheduleWaitingObserved
+			),
+			coroutineScope = backgroundScope,
+			// Five samples over a handful of rows: every row resolves from them.
+			minRowCoverage = 0.5
+		)
+	}
+
 	private fun withMachineKoin(block: Koin.() -> Unit) = withKoinSmokeTest(
 		recordModule,
 		module {
 			single<AcademicRecordRepository> { StubAcademicRecordRepository() }
 			single<RecordSelectionRepository> { StubRecordSelectionRepository() }
+			single<ScheduleSelectionRepository> { StubScheduleSelectionRepository() }
 			single<SyntheticTermCreationRepository> { StubSyntheticTermCreationRepository() }
 			single<SyntheticTermLoadPreviewRepository> { StubSyntheticTermLoadPreviewRepository() }
 			single<ReportingRepository> { RecordingReportingRepository() }
@@ -345,6 +407,12 @@ private class StubRecordSelectionRepository : RecordSelectionRepository {
 	override suspend fun getRecordViewMode(): RecordViewMode = RecordViewMode.Projection
 
 	override suspend fun setRecordViewMode(viewMode: RecordViewMode) = Unit
+}
+
+private class StubScheduleSelectionRepository : ScheduleSelectionRepository {
+	override fun observeScheduleViewMode(): Flow<ScheduleViewMode> = flowOf(ScheduleViewMode.Table)
+
+	override suspend fun setScheduleViewMode(viewMode: ScheduleViewMode) = Unit
 }
 
 private class StubSyntheticTermCreationRepository : SyntheticTermCreationRepository {

@@ -23,31 +23,55 @@ appId: com.gdavidpb.tuindice.debug
     id: record_term_chip_d377155d39da686f412622aaca9074cd
 - extendedWaitUntil:
     visible:
-      id: record_term_view_switch
+      id: base_notice_view
     timeout: 10000
-- assertVisible:
-    id: base_notice_view
 - assertVisible: "Tu inscripción aparece anulada"
 - assertVisible:
     id: record_attempt_detail_e21f0d7e481d13d19f328d6818ce4d77
 - assertVisible:
     id: record_attempt_enrollment_error_722cc2cc935e0aefdc73f9ebf9d2f1b6
+- assertNotVisible:
+    id: record_schedule_view_switch
 - tapOn:
-    id: record_term_view_schedule_tab
+    id: base_top_app_bar_action_record_schedule
+- extendedWaitUntil:
+    visible:
+      id: record_schedule_table
+    timeout: 10000
+- assertNotVisible:
+    id: base_notice_view
+- assertVisible:
+    id: record_schedule_table_row_e21f0d7e481d13d19f328d6818ce4d77
+- assertVisible: "Sec. 1 · MYS-116"
+- assertVisible:
+    id: record_schedule_table_clash_e21f0d7e481d13d19f328d6818ce4d77_2
+- assertVisible:
+    id: record_schedule_table_clash_722cc2cc935e0aefdc73f9ebf9d2f1b6_2
+- assertVisible:
+    id: record_schedule_table_error_722cc2cc935e0aefdc73f9ebf9d2f1b6
+- assertVisible:
+    id: record_schedule_table_unscheduled_f47ff0fa7342cdaec37d9e9cff489ebd
+- assertVisible: "Por convenir"
+- tapOn:
+    id: record_schedule_view_week_tab
 - extendedWaitUntil:
     visible:
       id: record_schedule_grid
     timeout: 10000
-- assertVisible:
-    id: base_notice_view
+- assertNotVisible:
+    id: record_schedule_table
 - assertVisible:
     id: record_schedule_unscheduled
 - assertVisible: "Por convenir: EG1114"
 - tapOn:
-    id: record_term_view_grades_tab
+    id: maincore_tuindice_top_bar_back_button
 - extendedWaitUntil:
     visible:
       id: record_attempts_list
     timeout: 10000
+- assertVisible:
+    id: base_notice_view
+- assertNotVisible:
+    id: record_schedule_view_switch
 - assertNotVisible:
     id: record_schedule_grid

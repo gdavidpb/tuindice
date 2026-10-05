@@ -143,6 +143,9 @@ fun TuIndiceAppHostRoute(
 		val onRecordTermSelection = remember {
 			mutableStateOf<(() -> Unit)?>(null)
 		}
+		val onRecordSchedule = remember {
+			mutableStateOf<(() -> Unit)?>(null)
+		}
 		val backInterceptor = remember {
 			mutableStateOf<(() -> Boolean)?>(null)
 		}
@@ -287,6 +290,9 @@ fun TuIndiceAppHostRoute(
 					is TopBarAction.RecordTermSelectionAction ->
 						onRecordTermSelection.value?.invoke()
 
+					is TopBarAction.RecordScheduleAction ->
+						onRecordSchedule.value?.invoke()
+
 					is TopBarAction.SearchPensumAction ->
 						navigator?.push(SubjectsDestination.SubjectSearch)
 
@@ -297,6 +303,9 @@ fun TuIndiceAppHostRoute(
 			onRecordViewModeChange = onRecordViewModeChange.value,
 			onRecordTermSelectionAvailable = { callback ->
 				onRecordTermSelection.value = callback
+			},
+			onRecordScheduleAvailable = { callback ->
+				onRecordSchedule.value = callback
 			},
 			onBackInterceptorAvailable = { interceptor ->
 				backInterceptor.value = interceptor

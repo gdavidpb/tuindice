@@ -9,6 +9,7 @@ object RecordNavContribution : TuIndiceNavContribution {
 
 	override fun registerNavKeys(builder: PolymorphicModuleBuilder<NavKey>) {
 		builder.subclass(RecordDestination.Record::class)
+		builder.subclass(RecordDestination.Schedule::class)
 		builder.subclass(RecordDestination.CreateSyntheticTerm::class)
 		builder.subclass(RecordDestination.DeleteSyntheticTermConfirmationDialog::class)
 	}

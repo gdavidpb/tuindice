@@ -15,6 +15,10 @@ sealed class TopBarAction(
 		action = "record_term_selection"
 	)
 
+	data object RecordScheduleAction : TopBarAction(
+		action = "record_schedule"
+	)
+
 	data object SearchPensumAction : TopBarAction(
 		action = "search_pensum"
 	)

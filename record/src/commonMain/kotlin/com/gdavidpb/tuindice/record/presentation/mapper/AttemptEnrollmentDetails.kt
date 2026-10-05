@@ -7,13 +7,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection
  * it; with several rooms only the section is shown, and with neither there is nothing to show.
  */
 internal fun AttemptProjection.toEnrollmentDetailText(texts: RecordMapperTexts): String? {
-	val classroom = schedule
-		.orEmpty()
-		.map { entry -> entry.classroom.trim() }
-		.filter { room -> room.isNotEmpty() }
-		.distinct()
-		.singleOrNull()
-
+	val classroom = sharedClassroom()
 	val section = section ?: return classroom
 
 	return if (classroom != null) {
@@ -21,6 +15,16 @@ internal fun AttemptProjection.toEnrollmentDetailText(texts: RecordMapperTexts):
 	} else {
 		texts.termAttemptSection(section)
 	}
+}
+
+/** The one classroom every meeting that names a room agrees on, or null when there are several or none. */
+internal fun AttemptProjection.sharedClassroom(): String? {
+	return schedule
+		.orEmpty()
+		.map { entry -> entry.classroom.trim() }
+		.filter { room -> room.isNotEmpty() }
+		.distinct()
+		.singleOrNull()
 }
 
 /**

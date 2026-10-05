@@ -2,17 +2,12 @@ package com.gdavidpb.tuindice.record.ui.view
 
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.test.ExperimentalTestApi
-import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.hasContentDescription
-import androidx.compose.ui.test.onNodeWithTag
-import androidx.compose.ui.test.onNodeWithText
-import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.AnnotatedString
+import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.record.presentation.model.AttemptItem
-import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
-import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
-import com.gdavidpb.tuindice.record.presentation.model.ScheduleDayItem
-import com.gdavidpb.tuindice.record.presentation.model.ScheduleGridItem
+import com.gdavidpb.tuindice.record.presentation.model.RecordNotice
+import com.gdavidpb.tuindice.record.presentation.model.RecordNoticeKind
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.presentation.model.TermItemKind
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -25,92 +20,40 @@ import kotlin.test.Test
 @OptIn(ExperimentalTestApi::class)
 class TermItemViewUiTest {
 	@Test
-	fun when_termHasASchedule_then_theSwitchOffersNotesAndSchedule() = runTuIndiceUiTest {
+	fun when_termIsShown_then_pageShowsOnlyGrades_andTheSummaryStays() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			TermItemView(
-				item = termItem(schedule = grid()),
+				item = termItem(),
 				onAttemptSelectionChange = { _, _, _, _ -> }
 			)
 		}
 
-		assertNodeVisible(RecordUiTags.TermViewSwitch)
+		assertNodeVisible(RecordUiTags.SelectedTermSummary)
 		assertNodeVisible(RecordUiTags.AttemptsList)
+		assertNodeHidden(RecordUiTags.ScheduleViewSwitch)
 		assertNodeHidden(RecordUiTags.ScheduleContainer)
 	}
 
 	@Test
-	fun when_scheduleIsSelected_then_theGridReplacesTheListAndTheSummaryStays() = runTuIndiceUiTest {
+	fun when_currentTermHasANotice_then_itSitsAboveTheSummaryOfThePage() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			TermItemView(
-				item = termItem(schedule = grid()),
+				item = termItem(),
+				notice = RecordNotice(
+					title = UiText.Raw("Tu inscripción aparece anulada"),
+					message = UiText.Raw("La universidad la tiene anulada."),
+					kind = RecordNoticeKind.AnnulledProvisional
+				),
 				onAttemptSelectionChange = { _, _, _, _ -> }
 			)
 		}
 
-		onNodeWithTag(RecordUiTags.TermViewScheduleTab).performClick()
-
-		assertNodeVisible(RecordUiTags.ScheduleContainer)
+		assertNodeVisible(BaseUiTags.NoticeView)
 		assertNodeVisible(RecordUiTags.SelectedTermSummary)
-		assertNodeHidden(RecordUiTags.AttemptsList)
-		onNodeWithText("Por convenir: EP1420").assertIsDisplayed()
-
-		onNodeWithTag(RecordUiTags.TermViewGradesTab).performClick()
-
-		assertNodeVisible(RecordUiTags.AttemptsList)
+		assertNodeHidden(RecordUiTags.ScheduleViewSwitch)
 	}
 
-	@Test
-	fun when_scheduleCellIsShown_then_itSpeaksSubjectDayBlocksAndClassroom() = runTuIndiceUiTest {
-		setTuIndiceTestContent {
-			TermItemView(
-				item = termItem(schedule = grid()),
-				onAttemptSelectionChange = { _, _, _, _ -> }
-			)
-		}
-
-		onNodeWithTag(RecordUiTags.TermViewScheduleTab).performClick()
-
-		onNodeWithTag(RecordUiTags.scheduleCell(attemptId = "attempt-1", dayCode = 2, startBlock = 1))
-			.assertIsDisplayed()
-		onNode(hasContentDescription("MA2115, lunes, bloques 1 a 2, aula MYS-116")).assertIsDisplayed()
-	}
-
-	@Test
-	fun when_termHasNoSchedule_then_thereIsNoSwitch() = runTuIndiceUiTest {
-		setTuIndiceTestContent {
-			TermItemView(
-				item = termItem(schedule = null),
-				onAttemptSelectionChange = { _, _, _, _ -> }
-			)
-		}
-
-		assertNodeHidden(RecordUiTags.TermViewSwitch)
-		assertNodeVisible(RecordUiTags.AttemptsList)
-	}
-
-	private fun grid() = ScheduleGridItem(
-		blockCount = 3,
-		days = listOf(
-			ScheduleDayItem(
-				day = ScheduleDay.Monday,
-				cells = listOf(
-					ScheduleCellItem(
-						attemptId = "attempt-1",
-						codeText = "MA2115",
-						classroomText = "MYS-116",
-						startBlock = 1,
-						endBlock = 2,
-						lane = 0,
-						laneCount = 1
-					)
-				)
-			),
-			ScheduleDayItem(day = ScheduleDay.Tuesday, cells = emptyList())
-		),
-		unscheduledCodes = listOf("EP1420")
-	)
-
-	private fun termItem(schedule: ScheduleGridItem?) = TermItem(
+	private fun termItem() = TermItem(
 		termId = "current-term",
 		periodYear = 2026,
 		termOrder = 1,
@@ -138,7 +81,6 @@ class TermItemViewUiTest {
 				codeContainerColor = Color(0xFFDCE8F5),
 				isReadOnly = false
 			)
-		),
-		schedule = schedule
+		)
 	)
 }
