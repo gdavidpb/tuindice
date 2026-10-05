@@ -21,6 +21,7 @@ sealed interface RecordInternalEvent {
 		val notice: RecordNotice?
 	) : RecordInternalEvent
 
+	// isNewStudentNoRecord: what the same observation says of why the record is still to come.
 	data class RecordWaitingObserved(
 		val isNewStudentNoRecord: Boolean
 	) : RecordInternalEvent
@@ -34,6 +35,7 @@ sealed interface RecordInternalEvent {
 
 	data object RecordRefreshStarted : RecordInternalEvent
 
+	// isNewStudentNoRecord: asked by the refresh as it fails, so the failure arrives with its reason.
 	data class RecordRefreshFailed(
 		val message: String,
 		val navigateToOutdatedCredentials: Boolean,

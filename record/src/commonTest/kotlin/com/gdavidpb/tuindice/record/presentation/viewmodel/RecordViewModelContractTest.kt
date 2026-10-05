@@ -12,6 +12,7 @@ import com.gdavidpb.tuindice.base.domain.model.SyncReportSources
 import com.gdavidpb.tuindice.base.domain.model.SyncReportStatus
 import com.gdavidpb.tuindice.base.domain.model.SyncSourceReport
 import com.gdavidpb.tuindice.base.domain.model.SyncSourceStatus
+import com.gdavidpb.tuindice.base.presentation.mapper.EnrollmentAnnulmentTexts
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.EnsureRecordLoadedUseCase
@@ -403,7 +404,7 @@ class RecordViewModelContractTest {
 	}
 
 	@Test
-	fun observe_whenEmptyAndAnnulled_emptyCarriesFinalNotice() = runTest {
+	fun observe_whenEmptyAndAnnulled_emptySaysTheFinalAnnulment() = runTest {
 		val fixture = createFixture(
 			record = AcademicRecord(id = "record"),
 			hasSynced = true
@@ -419,7 +420,7 @@ class RecordViewModelContractTest {
 			fixture.viewModel.state.test {
 				val empty = awaitUntilState<Record.State.Empty>()
 
-				assertEquals(RecordNoticeKind.AnnulledFinal, empty.notice?.kind)
+				assertEquals(EnrollmentAnnulmentTexts.title(isProvisional = false), empty.title)
 
 				cancelAndIgnoreRemainingEvents()
 			}

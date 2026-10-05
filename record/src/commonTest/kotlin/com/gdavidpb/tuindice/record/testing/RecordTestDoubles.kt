@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationSnapshot
@@ -18,6 +19,7 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
+import com.gdavidpb.tuindice.record.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.record.domain.repository.ScheduleSelectionRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermCreationRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermLoadPreviewRepository
@@ -156,6 +158,16 @@ class RecordingScheduleSelectionRepository(
 		setViewModeCalls += viewMode
 		viewModeFlow.value = viewMode
 	}
+}
+
+// A clock the test moves by hand: Monday at 8:00 unless told otherwise, which is halfway through
+// block 1 of the assumed block clock.
+class ControllableScheduleClockRepository(
+	initialNow: ScheduleNow = ScheduleNow(dayOfWeek = 2, minuteOfDay = 8 * 60)
+) : ScheduleClockRepository {
+	val nowFlow = MutableStateFlow(initialNow)
+
+	override fun observeNow(): Flow<ScheduleNow> = nowFlow
 }
 
 class ControllableSyntheticTermCreationRepository : SyntheticTermCreationRepository {

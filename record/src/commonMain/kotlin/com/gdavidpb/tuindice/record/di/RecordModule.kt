@@ -19,10 +19,12 @@ import com.gdavidpb.tuindice.record.data.source.AcademicRecordDataSource
 import com.gdavidpb.tuindice.record.data.source.AcademicRecordOutboxDataSource
 import com.gdavidpb.tuindice.record.data.source.AcademicRecordRoomDataSource
 import com.gdavidpb.tuindice.record.data.source.LocalSettingsDataSource
+import com.gdavidpb.tuindice.record.data.source.ScheduleClockDataSource
 import com.gdavidpb.tuindice.record.data.source.SyntheticTermCreationDataSource
 import com.gdavidpb.tuindice.record.data.source.SyntheticTermLoadPreviewDataSource
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
+import com.gdavidpb.tuindice.record.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.record.domain.repository.ScheduleSelectionRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermCreationRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermLoadPreviewRepository
@@ -139,6 +141,8 @@ val recordModule = module {
 		bind<ScheduleSelectionRepository>()
 		bind<SessionMemory>()
 	}
+	// Stateless: every schedule sheet gets its own ticker, which dies with it.
+	factoryOf(::ScheduleClockDataSource) { bind<ScheduleClockRepository>() }
 	singleOf(::AcademicRecordApiDataSource) { bind<AcademicRecordRemoteDataRepository>() }
 	singleOf(::AcademicRecordRoomDataSource) { bind<AcademicRecordLocalDataRepository>() }
 	single<AcademicRecordOutboxDataRepository> {

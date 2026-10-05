@@ -22,6 +22,7 @@ import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubject
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
+import com.gdavidpb.tuindice.record.domain.repository.ScheduleClockRepository
 import com.gdavidpb.tuindice.record.domain.repository.ScheduleSelectionRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermCreationRepository
 import com.gdavidpb.tuindice.record.domain.repository.SyntheticTermLoadPreviewRepository
@@ -36,6 +37,7 @@ import com.gdavidpb.tuindice.record.presentation.model.ScheduleTableItem
 import com.gdavidpb.tuindice.record.presentation.viewmodel.CreateSyntheticTermViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.ScheduleViewModel
+import com.gdavidpb.tuindice.record.testing.ControllableScheduleClockRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
@@ -196,6 +198,39 @@ class RecordStateMachineContractTest {
 		}
 	}
 
+	// Its own test so the record export above stays readable; the name still ends in ToMermaid,
+	// which is what scripts/dump-machine-diagrams.sh filters on.
+	@Test
+	fun scheduleMachine_exportsDeclaredTransitionsToMermaid() = withMachineKoin {
+		val scheduleDiagram = get<ScheduleViewModel>()
+			.machine.exportToMermaid(
+				machineName = "schedule",
+				initialState = Schedule.State.Idle::class
+			)
+
+		// Captured from test output to publish the generated diagram as a docs artifact.
+		println(scheduleDiagram)
+
+		val expectedScheduleFragments = listOf(
+			"idle",
+			"loading",
+			"content",
+			"empty",
+			"ObserveSchedule",
+			"SelectScheduleView",
+			"ScheduleContentObserved",
+			"ScheduleEmptyObserved",
+			"ScheduleWaitingObserved"
+		)
+
+		for (fragment in expectedScheduleFragments) {
+			assertTrue(
+				scheduleDiagram.contains(fragment),
+				"Expected schedule Mermaid export to mention '$fragment':\n$scheduleDiagram"
+			)
+		}
+	}
+
 	@Test
 	fun recordMachine_survivesSeededRandomWalk() = runTest {
 		// The walk is suspend and withMachineKoin's block is not, so the machine is
@@ -338,7 +373,7 @@ class RecordStateMachineContractTest {
 				ScheduleInternalEvent.ScheduleContentObserved(
 					termName = "SEP-DIC 2026",
 					schedule = ScheduleItem(
-						grid = ScheduleGridItem(blockCount = 1, days = emptyList(), unscheduledCodes = emptyList()),
+						grid = ScheduleGridItem(blockCount = 1, days = emptyList(), unscheduledText = null),
 						table = ScheduleTableItem(days = emptyList(), rows = emptyList())
 					),
 					viewMode = ScheduleViewMode.Table
@@ -358,6 +393,8 @@ class RecordStateMachineContractTest {
 			single<AcademicRecordRepository> { StubAcademicRecordRepository() }
 			single<RecordSelectionRepository> { StubRecordSelectionRepository() }
 			single<ScheduleSelectionRepository> { StubScheduleSelectionRepository() }
+			// Overrides the module's clock: the real one ticks forever, and the walks wait for idle.
+			single<ScheduleClockRepository> { ControllableScheduleClockRepository() }
 			single<SyntheticTermCreationRepository> { StubSyntheticTermCreationRepository() }
 			single<SyntheticTermLoadPreviewRepository> { StubSyntheticTermLoadPreviewRepository() }
 			single<ReportingRepository> { RecordingReportingRepository() }

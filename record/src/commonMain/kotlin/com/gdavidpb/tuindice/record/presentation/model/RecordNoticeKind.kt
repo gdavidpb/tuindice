@@ -1,7 +1,7 @@
 package com.gdavidpb.tuindice.record.presentation.model
 
-// Where a notice lives. A provisional annulment and stale data belong to the current term, so they
-// sit on its page; a final annulment has no current term to sit on and goes above the pager.
+// What a notice is about. A provisional annulment and stale data belong to the current term; a final
+// annulment has dropped it. Where each one sits and its icon follow from here, in the resolver.
 enum class RecordNoticeKind {
 	AnnulledProvisional,
 	AnnulledFinal,

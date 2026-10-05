@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.presentation.machine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.usecase.base.InitialContentLoadResult
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.model.SyncedContentResolution
@@ -34,6 +35,8 @@ import com.gdavidpb.tuindice.record.presentation.transition.recordFailedTransiti
 import com.gdavidpb.tuindice.record.presentation.transition.recordIdleTransitions
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.mapNotNull
 import org.jetbrains.compose.resources.getString
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.snack_synthetic_term_delete_failed
@@ -57,11 +60,6 @@ class RecordMachine(
 	private var recordObservationJob: Job? = null
 	private var syntheticTermRejectionObservationJob: Job? = null
 	private var newStudentObservationJob: Job? = null
-
-	// EFSM register: whether the university has no record for this account yet. It has its own
-	// observation because the record's never emits for an account with nothing stored. A refresh
-	// failure reads it so Failed knows why it failed.
-	private var isNewStudentNoRecord = false
 
 	override fun initialState(): Record.State = Record.State.Idle
 
@@ -113,7 +111,10 @@ class RecordMachine(
 							SyncedContentResolution.KeepCurrent,
 							-> host.processInternalEvent(
 								RecordInternalEvent.RecordWaitingObserved(
-									isNewStudentNoRecord = isNewStudentNoRecord
+									// Read from the observation that says the record is still to come,
+									// so the wait and its reason are one fact.
+									isNewStudentNoRecord =
+										record.syncStatus == SyncStatus.NewStudentNoRecord
 								)
 							)
 						}
@@ -128,13 +129,13 @@ class RecordMachine(
 	}
 
 	// What the screen listens to besides the record itself: whether the account is a new student
-	// with no record yet, and the edits the server refused for good.
+	// with no record yet, and the edits the server refused for good. The first has its own
+	// observation because the record's never emits for an account with nothing stored.
 	private fun startSideObservations(host: MachineHost<Record.Effect>) {
 		if (newStudentObservationJob?.isActive != true) {
 			newStudentObservationJob = host.launchMachineJob {
 				observeNewStudentNoRecordUseCase.execute(Unit).collect { useCaseState ->
 					if (useCaseState is UseCaseState.Data) {
-						isNewStudentNoRecord = useCaseState.value
 						host.processInternalEvent(
 							RecordInternalEvent.NewStudentNoRecordObserved(
 								isNewStudentNoRecord = useCaseState.value
@@ -178,7 +179,7 @@ class RecordMachine(
 							message = useCaseState.error.toRecordFailureMessage(),
 							navigateToOutdatedCredentials =
 								useCaseState.error == RecordUseCaseError.Unauthorized,
-							isNewStudentNoRecord = isNewStudentNoRecord
+							isNewStudentNoRecord = observeNewStudentNoRecordUseCase.currentValue()
 						)
 					)
 				}
@@ -222,7 +223,7 @@ class RecordMachine(
 									message = useCaseState.error.toRecordFailureMessage(),
 									navigateToOutdatedCredentials =
 										useCaseState.error == RecordUseCaseError.Unauthorized,
-									isNewStudentNoRecord = isNewStudentNoRecord
+									isNewStudentNoRecord = observeNewStudentNoRecordUseCase.currentValue()
 								)
 							)
 						}
@@ -315,4 +316,15 @@ class RecordMachine(
 			}
 		}
 	}
+}
+
+// Whether the university has no record for this account yet, as of now. A refresh asks it in its
+// own job at the moment it fails, so the failure re-enters the table already knowing why; a sync
+// that learns it later reaches Failed as NewStudentNoRecordObserved. Between the two the table
+// needs no register that one job writes for another to read.
+private suspend fun ObserveNewStudentNoRecordUseCase.currentValue(): Boolean {
+	return execute(Unit)
+		.mapNotNull { useCaseState -> (useCaseState as? UseCaseState.Data)?.value }
+		.firstOrNull()
+		?: false
 }

@@ -1,5 +1,8 @@
 package com.gdavidpb.tuindice.record.presentation.mapper
 
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
+import androidx.compose.material.icons.outlined.Schedule
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.domain.model.EnrollmentAnnulmentCause
@@ -14,12 +17,51 @@ import com.gdavidpb.tuindice.base.presentation.mapper.EnrollmentAnnulmentTexts
 import com.gdavidpb.tuindice.record.domain.model.ObservedRecord
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.model.RecordNoticeKind
+import com.gdavidpb.tuindice.record.presentation.model.RecordNoticePlacement
 import com.gdavidpb.tuindice.record.testing.academicTerm
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class RecordNoticeResolverTest {
+	@Test
+	fun resolve_placesWhatSpeaksOfTheCurrentTermOnItsPage_andAFinalAnnulmentAboveThePager() {
+		val provisional = assertNotNull(
+			resolveRecordNotice(
+				observed(report = report(situation = EnrollmentSituation(code = "01")), hasCurrentTerm = true)
+			)
+		)
+		val final = assertNotNull(
+			resolveRecordNotice(
+				observed(report = report(situation = EnrollmentSituation(code = "01")), hasCurrentTerm = false)
+			)
+		)
+
+		assertEquals(RecordNoticePlacement.CurrentTermPage, provisional.placement)
+		assertEquals(provisional, provisional.takeIfOnTermPage(isCurrentTerm = true))
+		assertNull(provisional.takeIfOnTermPage(isCurrentTerm = false))
+		assertNull(provisional.takeIfAbovePager())
+
+		assertEquals(RecordNoticePlacement.AbovePager, final.placement)
+		assertEquals(final, final.takeIfAbovePager())
+		assertNull(final.takeIfOnTermPage(isCurrentTerm = true))
+	}
+
+	@Test
+	fun resolve_givesStaleDataTheClockIcon_andAnAnnulmentTheInfoOne() {
+		val stale = resolveRecordNotice(
+			observed(report = report(enrollmentStatus = SyncSourceStatus.Unavailable), hasCurrentTerm = true)
+		)
+		val annulled = resolveRecordNotice(
+			observed(report = report(situation = EnrollmentSituation(code = "01")), hasCurrentTerm = true)
+		)
+
+		assertEquals(Icons.Outlined.Schedule, stale?.icon)
+		assertEquals(RecordNoticePlacement.CurrentTermPage, stale?.placement)
+		assertEquals(Icons.Outlined.Info, annulled?.icon)
+	}
+
 	@Test
 	fun resolve_whenSituationAndCurrentTerm_isProvisionalWithCauseCopy() {
 		val notice = resolveRecordNotice(

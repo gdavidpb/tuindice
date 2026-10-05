@@ -5,8 +5,8 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.text.AnnotatedString
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.record.presentation.mapper.recordNotice
 import com.gdavidpb.tuindice.record.presentation.model.AttemptItem
-import com.gdavidpb.tuindice.record.presentation.model.RecordNotice
 import com.gdavidpb.tuindice.record.presentation.model.RecordNoticeKind
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.presentation.model.TermItemKind
@@ -35,14 +35,15 @@ class TermItemViewUiTest {
 	}
 
 	@Test
-	fun when_currentTermHasANotice_then_itSitsAboveTheSummaryOfThePage() = runTuIndiceUiTest {
+	fun when_thePageCarriesANotice_then_itSitsAboveTheSummaryOfThePage() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			TermItemView(
-				item = termItem(),
-				notice = RecordNotice(
-					title = UiText.Raw("Tu inscripción aparece anulada"),
-					message = UiText.Raw("La universidad la tiene anulada."),
-					kind = RecordNoticeKind.AnnulledProvisional
+				item = termItem().copy(
+					notice = recordNotice(
+						title = UiText.Raw("Tu inscripción aparece anulada"),
+						message = UiText.Raw("La universidad la tiene anulada."),
+						kind = RecordNoticeKind.AnnulledProvisional
+					)
 				),
 				onAttemptSelectionChange = { _, _, _, _ -> }
 			)
@@ -51,6 +52,19 @@ class TermItemViewUiTest {
 		assertNodeVisible(BaseUiTags.NoticeView)
 		assertNodeVisible(RecordUiTags.SelectedTermSummary)
 		assertNodeHidden(RecordUiTags.ScheduleViewSwitch)
+	}
+
+	@Test
+	fun when_thePageCarriesNoNotice_then_noneIsDrawn() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			TermItemView(
+				item = termItem(),
+				onAttemptSelectionChange = { _, _, _, _ -> }
+			)
+		}
+
+		assertNodeHidden(BaseUiTags.NoticeView)
+		assertNodeVisible(RecordUiTags.SelectedTermSummary)
 	}
 
 	private fun termItem() = TermItem(

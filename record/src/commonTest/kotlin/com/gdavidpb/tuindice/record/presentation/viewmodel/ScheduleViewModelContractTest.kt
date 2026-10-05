@@ -5,12 +5,15 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicScheduleEntry
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.record.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveScheduleUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetScheduleViewModeUseCase
 import com.gdavidpb.tuindice.record.presentation.contract.Schedule
 import com.gdavidpb.tuindice.record.presentation.machine.ScheduleMachine
+import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.testing.ControllableAcademicRecordRepository
+import com.gdavidpb.tuindice.record.testing.ControllableScheduleClockRepository
 import com.gdavidpb.tuindice.record.testing.RecordingScheduleSelectionRepository
 import com.gdavidpb.tuindice.record.testing.academicAttempt
 import com.gdavidpb.tuindice.record.testing.academicTerm
@@ -20,6 +23,8 @@ import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
 
 class ScheduleViewModelContractTest {
 	@Test
@@ -62,6 +67,40 @@ class ScheduleViewModelContractTest {
 
 				assertEquals(ScheduleViewMode.Week, content.viewMode)
 				assertEquals(listOf(ScheduleViewMode.Week), fixture.selectionRepository.setViewModeCalls)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun observe_whenTheMinuteChanges_contentFollowsTheClock() = runTest {
+		val fixture = createFixture(record = scheduledRecord(), hasSynced = true)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = fixture.viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			fixture.viewModel.state.test {
+				// Monday 8:00: halfway through block 1 of the Monday meeting.
+				val atEight = awaitUntilState<Schedule.State.Content>()
+
+				assertEquals(ScheduleDay.Monday, atEight.schedule.table.today)
+				assertEquals(0.5f, atEight.schedule.grid.days.first().nowBlockOffset)
+				assertTrue(atEight.schedule.grid.days.first().cells.single().isInProgress)
+
+				// 9:30: the meeting (blocks 1-2) is over, and so is the grid.
+				fixture.clockRepository.nowFlow.value = ScheduleNow(dayOfWeek = 2, minuteOfDay = 9 * 60 + 30)
+
+				val afterClass = awaitUntilState<Schedule.State.Content> { content ->
+					content.schedule.grid.days.first().nowBlockOffset == null
+				}
+
+				assertEquals(ScheduleDay.Monday, afterClass.schedule.table.today)
+				assertFalse(afterClass.schedule.grid.days.first().cells.single().isInProgress)
 
 				cancelAndIgnoreRemainingEvents()
 			}
@@ -117,6 +156,7 @@ class ScheduleViewModelContractTest {
 			initialHasSynced = hasSynced
 		)
 		val selectionRepository = RecordingScheduleSelectionRepository()
+		val clockRepository = ControllableScheduleClockRepository()
 		val reportingRepository = RecordingReportingRepository()
 
 		return ScheduleFixture(
@@ -125,6 +165,7 @@ class ScheduleViewModelContractTest {
 					observeScheduleUseCase = ObserveScheduleUseCase(
 						academicRecordRepository = academicRecordRepository,
 						scheduleSelectionRepository = selectionRepository,
+						scheduleClockRepository = clockRepository,
 						reportingRepository = reportingRepository
 					),
 					setScheduleViewModeUseCase = SetScheduleViewModeUseCase(
@@ -135,13 +176,15 @@ class ScheduleViewModelContractTest {
 				eventPublisher = NoOpEventPublisher
 			),
 			academicRecordRepository = academicRecordRepository,
-			selectionRepository = selectionRepository
+			selectionRepository = selectionRepository,
+			clockRepository = clockRepository
 		)
 	}
 
 	private class ScheduleFixture(
 		val viewModel: ScheduleViewModel,
 		val academicRecordRepository: ControllableAcademicRecordRepository,
-		val selectionRepository: RecordingScheduleSelectionRepository
+		val selectionRepository: RecordingScheduleSelectionRepository,
+		val clockRepository: ControllableScheduleClockRepository
 	)
 }

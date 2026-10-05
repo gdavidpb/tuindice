@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.isHistorical
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.presentation.model.RecordNotice
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.presentation.model.TermItemKind
 import com.gdavidpb.tuindice.record.presentation.model.TermMetricDelta
@@ -30,13 +31,15 @@ private const val DOWN_DELTA_SYMBOL = "▼"
 fun List<TermProjection>.toTermItemList(
 	viewMode: RecordViewMode,
 	texts: RecordMapperTexts,
-	highlightColor: Color
+	highlightColor: Color,
+	notice: RecordNotice? = null
 ) = mapIndexed { index, term ->
 	term.toTermItem(
 		viewMode = viewMode,
 		texts = texts,
 		highlightColor = highlightColor,
-		previousTerm = getOrNull(index + 1)
+		previousTerm = getOrNull(index + 1),
+		notice = notice
 	)
 }
 
@@ -45,7 +48,8 @@ fun TermProjection.toTermItem(
 	viewMode: RecordViewMode,
 	texts: RecordMapperTexts,
 	highlightColor: Color,
-	previousTerm: TermProjection? = null
+	previousTerm: TermProjection? = null,
+	notice: RecordNotice? = null
 ): TermItem {
 	val animatedGrade = animateFloatAsState(
 		targetValue = periodAverage.toFloat(),
@@ -95,7 +99,10 @@ fun TermProjection.toTermItem(
 				isReadOnly = isAttemptReadOnly(viewMode),
 				texts = texts
 			)
-		}
+		},
+		// A provisional annulment and stale data describe the current term, so only its page
+		// carries them.
+		notice = notice?.takeIfOnTermPage(isCurrentTerm = isCurrent)
 	)
 }
 

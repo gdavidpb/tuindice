@@ -77,7 +77,12 @@
 	<string name="schedule_cell_description">%1$s, %2$s, bloque %3$d</string>
 	<string name="schedule_cell_description_span">%1$s, %2$s, bloques %3$d a %4$d</string>
 	<string name="schedule_cell_description_classroom">%1$s, aula %2$s</string>
-	<string name="schedule_cell_description_error">%1$s. %2$s</string>
+	<string name="schedule_cell_description_clash">%1$s. %2$s</string>
+	<string name="schedule_clash">Choque de horario</string>
+	<string name="schedule_cell_description_in_progress">%1$s. En curso</string>
+	<string name="schedule_table_meeting_in_progress">%1$s, en curso</string>
+	<string name="schedule_day_today">%1$s, hoy</string>
+	<string name="schedule_now_line">Ahora</string>
 	<string name="attempt_without_effect">Sin efecto</string>
 	<string name="attempt_equivalence">Aprobada por equivalencia</string>
 	<string name="attempt_status_selector_placeholder">Seleccionar</string>

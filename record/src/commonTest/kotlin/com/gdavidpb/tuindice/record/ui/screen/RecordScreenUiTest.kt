@@ -17,6 +17,9 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
+import com.gdavidpb.tuindice.record.presentation.mapper.recordNotice
+import com.gdavidpb.tuindice.record.presentation.mapper.resolveRecordEmpty
+import com.gdavidpb.tuindice.record.presentation.mapper.resolveRecordFailed
 import com.gdavidpb.tuindice.record.presentation.model.RecordNotice
 import com.gdavidpb.tuindice.record.presentation.model.RecordNoticeKind
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -325,7 +328,7 @@ class RecordScreenUiTest {
 	fun when_stateIsEmptyWithFinalAnnulment_then_emptyViewExplainsTheAnnulment() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			RecordScreen(
-				state = Record.State.Empty(notice = annulment(RecordNoticeKind.AnnulledFinal)),
+				state = resolveRecordEmpty(notice = annulment(RecordNoticeKind.AnnulledFinal)),
 				selectedTermId = null,
 				onSelectedTermChange = {},
 				onRetryClick = {},
@@ -344,7 +347,7 @@ class RecordScreenUiTest {
 
 		setTuIndiceTestContent {
 			RecordScreen(
-				state = Record.State.Failed(isNewStudentNoRecord = true),
+				state = resolveRecordFailed(isNewStudentNoRecord = true),
 				selectedTermId = null,
 				onSelectedTermChange = {},
 				onRetryClick = { retryClicks++ },
@@ -397,7 +400,7 @@ class RecordScreenUiTest {
 	}
 
 	private fun annulment(kind: RecordNoticeKind): RecordNotice {
-		return RecordNotice(
+		return recordNotice(
 			title = UiText.Raw("Tu inscripción aparece anulada"),
 			message = UiText.Raw("La universidad la tiene anulada."),
 			kind = kind

@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.Info
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
@@ -20,7 +22,6 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.view.NoticeView
 import com.gdavidpb.tuindice.base.utils.extension.rememberLastNonNull
 import com.gdavidpb.tuindice.record.presentation.model.RecordNotice
-import com.gdavidpb.tuindice.record.presentation.model.RecordNoticeKind
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -91,15 +92,17 @@ fun RecordTermPagerView(
 			onTermSelected = onSelectedTermChange
 		)
 
-		// A final annulment has no current term to sit on, so it is shared by every page.
-		val finalNotice = notice?.takeIf { it.kind == RecordNoticeKind.AnnulledFinal }
-		val shownNotice = rememberLastNonNull(finalNotice)
+		// The notice every page shares (a final annulment has no current term to sit on). Always
+		// composed, so it animates in and out instead of making the pages jump.
+		val shownNotice = rememberLastNonNull(notice)
 
 		NoticeView(
 			modifier = Modifier.padding(vertical = TuIndiceSpacing.Medium),
-			visible = finalNotice != null,
+			visible = notice != null,
 			title = shownNotice?.title?.asString(),
-			message = shownNotice?.message?.asString().orEmpty()
+			message = shownNotice?.message?.asString().orEmpty(),
+			// The fallback is never drawn: nothing shows until a notice has brought its own icon.
+			icon = shownNotice?.icon ?: Icons.Outlined.Info
 		)
 
 		HorizontalPager(
@@ -113,7 +116,6 @@ fun RecordTermPagerView(
 			TermItemView(
 				modifier = Modifier.fillMaxSize(),
 				item = terms[page],
-				notice = notice?.takeIf { it.kind != RecordNoticeKind.AnnulledFinal },
 				onAttemptSelectionChange = onAttemptSelectionChange,
 				onScrollInProgressChange = { isScrollInProgress ->
 					listScrollInProgress.value = isScrollInProgress

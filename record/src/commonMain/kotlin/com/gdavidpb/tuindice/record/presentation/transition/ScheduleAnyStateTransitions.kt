@@ -6,7 +6,7 @@ import com.gdavidpb.tuindice.record.presentation.contract.Schedule
 import com.gdavidpb.tuindice.record.presentation.machine.ScheduleInternalEvent
 import com.gdavidpb.tuindice.record.presentation.machine.ScheduleMachine
 
-internal fun MachineDefinitionBuilder<Schedule.State>.scheduleTransitions(
+internal fun MachineDefinitionBuilder<Schedule.State>.scheduleAnyStateTransitions(
 	machine: ScheduleMachine,
 	host: MachineHost<Schedule.Effect>
 ) {
@@ -32,15 +32,6 @@ internal fun MachineDefinitionBuilder<Schedule.State>.scheduleTransitions(
 
 		onTo<ScheduleInternalEvent.ScheduleWaitingObserved, Schedule.State.Loading> { _, _ ->
 			Schedule.State.Loading
-		}
-	}
-
-	// Choosing a view only makes sense with a schedule on screen: the row shows it right away and
-	// persists it, so the observation that follows already agrees.
-	from<Schedule.State.Content> {
-		on<Schedule.Action.SelectScheduleView> { state, action ->
-			machine.setViewMode(host = host, viewMode = action.viewMode)
-			state.copy(viewMode = action.viewMode)
 		}
 	}
 }

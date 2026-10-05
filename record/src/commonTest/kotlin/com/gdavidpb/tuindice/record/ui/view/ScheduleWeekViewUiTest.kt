@@ -12,14 +12,20 @@ import androidx.compose.ui.test.performTouchInput
 import androidx.compose.ui.test.swipeLeft
 import androidx.compose.ui.test.swipeUp
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
+import com.gdavidpb.tuindice.academiccore.domain.model.AcademicScheduleEntry
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptBadge
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptGradingMode
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptProjection
+import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
+import com.gdavidpb.tuindice.record.presentation.mapper.toScheduleItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
-import com.gdavidpb.tuindice.record.presentation.model.ScheduleDayItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleGridItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
+import kotlin.test.assertNotNull
 
 @OptIn(ExperimentalTestApi::class)
 class ScheduleWeekViewUiTest {
@@ -30,18 +36,10 @@ class ScheduleWeekViewUiTest {
 		setTuIndiceTestContent {
 			ScheduleWeekView(
 				modifier = Modifier.height(200.dp),
-				grid = ScheduleGridItem(
-					blockCount = LastBlock,
-					days = listOf(
-						ScheduleDayItem(
-							day = ScheduleDay.Monday,
-							cells = listOf(
-								cell(attemptId = "a1", code = "CI5311", blocks = 1..2),
-								cell(attemptId = "a2", code = "CI3725", blocks = LastBlock - 1..LastBlock)
-							)
-						)
-					),
-					unscheduledCodes = listOf("EG1114")
+				grid = grid(
+					attempt(id = "a1", code = "CI5311", day = ScheduleDay.Monday, blocks = 1..2),
+					attempt(id = "a2", code = "CI3725", day = ScheduleDay.Monday, blocks = LastBlock - 1..LastBlock),
+					attempt(id = "a3", code = "EG1114")
 				)
 			)
 		}
@@ -61,25 +59,10 @@ class ScheduleWeekViewUiTest {
 	@Test
 	fun when_theWeekIsWiderThanItsSpace_then_theDaysScrollPastTheBlockNumbers() = runTuIndiceUiTest {
 		val saturdayCellTag = RecordUiTags.scheduleCell("a2", ScheduleDay.Saturday.code, 1)
-		val weekdays = listOf(
-			ScheduleDay.Monday,
-			ScheduleDay.Tuesday,
-			ScheduleDay.Wednesday,
-			ScheduleDay.Thursday,
-			ScheduleDay.Friday
-		)
-
 		setTuIndiceTestContent {
 			ScheduleWeekView(
 				modifier = Modifier.width(200.dp),
-				grid = ScheduleGridItem(
-					blockCount = 2,
-					days = weekdays.map { day -> ScheduleDayItem(day = day, cells = emptyList()) } + ScheduleDayItem(
-						day = ScheduleDay.Saturday,
-						cells = listOf(cell(attemptId = "a2", code = "FS2211", blocks = 1..2))
-					),
-					unscheduledCodes = emptyList()
-				)
+				grid = grid(attempt(id = "a2", code = "FS2211", day = ScheduleDay.Saturday, blocks = 1..2))
 			)
 		}
 
@@ -94,18 +77,35 @@ class ScheduleWeekViewUiTest {
 		onNodeWithText("1").assertIsDisplayed()
 	}
 
-	private fun cell(
-		attemptId: String,
+	// Laid out by the mapper, so the cells are the ones the app draws: Monday to Friday always, and
+	// a weekend day only when something meets then.
+	private fun grid(vararg attempts: AttemptProjection): ScheduleGridItem =
+		assertNotNull(attempts.toList().toScheduleItem()).grid
+
+	private fun attempt(
+		id: String,
 		code: String,
-		blocks: IntRange
-	) = ScheduleCellItem(
-		attemptId = attemptId,
-		codeText = code,
-		classroomText = null,
-		startBlock = blocks.first,
-		endBlock = blocks.last,
-		lane = 0,
-		laneCount = 1
+		day: ScheduleDay? = null,
+		blocks: IntRange = 1..1
+	) = AttemptProjection(
+		id = id,
+		subjectCode = code,
+		subjectName = code,
+		credits = 3,
+		gradingMode = AttemptGradingMode.NUMERIC,
+		score = AttemptScore.empty(),
+		outcome = AttemptOutcome.PENDING,
+		badge = AttemptBadge.NONE,
+		schedule = day?.let {
+			listOf(
+				AcademicScheduleEntry(
+					dayOfWeek = day.code,
+					startBlock = blocks.first,
+					endBlock = blocks.last,
+					classroom = ""
+				)
+			)
+		}
 	)
 
 	private companion object {

@@ -20,6 +20,7 @@ import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.record.domain.model.filteredProjectionFor
 import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.mapper.RecordMapperTexts
+import com.gdavidpb.tuindice.record.presentation.mapper.takeIfAbovePager
 import com.gdavidpb.tuindice.record.presentation.mapper.toTermItemList
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -100,7 +101,8 @@ fun RecordContentView(
 		.toTermItemList(
 			viewMode = state.viewMode,
 			texts = texts,
-			highlightColor = MaterialTheme.colorScheme.primary
+			highlightColor = MaterialTheme.colorScheme.primary,
+			notice = state.notice
 		)
 		.asReversed()
 	val effectiveSelectedTermId = selectedTermId ?: terms.firstOrNull()?.termId
@@ -116,7 +118,7 @@ fun RecordContentView(
 					.fillMaxSize()
 					.padding(top = InternalScreenDefaults.TopBarSpacing),
 				terms = terms,
-				notice = state.notice,
+				notice = state.notice?.takeIfAbovePager(),
 				selectedTermId = effectiveSelectedTermId,
 				onSelectedTermChange = onSelectedTermChange,
 				onAttemptSelectionChange = onAttemptSelectionChange,

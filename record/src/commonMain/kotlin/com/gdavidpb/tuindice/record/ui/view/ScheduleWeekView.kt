@@ -9,12 +9,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleGridItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
-import org.jetbrains.compose.resources.stringResource
-import tuindice.record.generated.resources.Res
-import tuindice.record.generated.resources.schedule_unscheduled
 
 /** The "Semana" view of the schedule: the weekly grid and the subjects still to be scheduled. */
 @Composable
@@ -34,13 +32,10 @@ fun ScheduleWeekView(
 			grid = grid
 		)
 
-		if (grid.unscheduledCodes.isNotEmpty()) {
+		if (grid.unscheduledText != null) {
 			Text(
 				modifier = Modifier.testTag(RecordUiTags.ScheduleUnscheduled),
-				text = stringResource(
-					Res.string.schedule_unscheduled,
-					grid.unscheduledCodes.joinToString(separator = ", ")
-				),
+				text = grid.unscheduledText.asString(),
 				style = MaterialTheme.typography.bodySmall,
 				color = MaterialTheme.colorScheme.onSurfaceVariant,
 				maxLines = 3,

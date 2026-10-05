@@ -23,17 +23,12 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
-import com.gdavidpb.tuindice.base.presentation.mapper.NewStudentNoRecordTexts
 import com.gdavidpb.tuindice.base.presentation.model.asString
-import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
-import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.LoadingView
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.filteredProjectionFor
 import com.gdavidpb.tuindice.record.presentation.contract.Record
-import com.gdavidpb.tuindice.record.presentation.model.RecordNotice
-import com.gdavidpb.tuindice.record.presentation.model.RecordNoticeKind
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.record.ui.view.RecordContentView
 import com.gdavidpb.tuindice.record.ui.view.RecordEmptyView
@@ -43,11 +38,7 @@ import com.gdavidpb.tuindice.record.ui.view.RecordSyntheticTermActionsView
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.a11y_create_synthetic_term
-import tuindice.record.generated.resources.record_empty_message
-import tuindice.record.generated.resources.record_empty_title
-import tuindice.record.generated.resources.record_failed_message
 import tuindice.record.generated.resources.record_failed_retry
-import tuindice.record.generated.resources.record_failed_title
 
 @Composable
 fun RecordScreen(
@@ -118,17 +109,17 @@ fun RecordScreen(
 
 				is Record.State.Failed ->
 					RecordFailedView(
-						title = targetState.failedTitle(),
-						message = targetState.failedMessage(),
+						title = targetState.title.asString(),
+						message = targetState.message.asString(),
+						art = targetState.art,
 						retryText = stringResource(Res.string.record_failed_retry),
-						onRetryClick = onRetryClick,
-						headerContent = { targetState.FailedArt() }
+						onRetryClick = onRetryClick
 					)
 
 				is Record.State.Empty ->
 					RecordEmptyView(
-						title = targetState.emptyTitle(),
-						message = targetState.emptyMessage()
+						title = targetState.title.asString(),
+						message = targetState.message.asString()
 					)
 			}
 		}
@@ -172,43 +163,4 @@ fun RecordScreen(
 			}
 		}
 	}
-}
-
-@Composable
-private fun Record.State.Failed.failedTitle(): String {
-	return if (isNewStudentNoRecord) {
-		NewStudentNoRecordTexts.title.asString()
-	} else {
-		stringResource(Res.string.record_failed_title)
-	}
-}
-
-@Composable
-private fun Record.State.Failed.failedMessage(): String {
-	return if (isNewStudentNoRecord) {
-		NewStudentNoRecordTexts.message.asString()
-	} else {
-		stringResource(Res.string.record_failed_message)
-	}
-}
-
-// A final annulment is why there is nothing to show: it replaces the generic copy.
-@Composable
-private fun Record.State.Empty.emptyTitle(): String {
-	return annulment()?.title?.asString() ?: stringResource(Res.string.record_empty_title)
-}
-
-@Composable
-private fun Record.State.Empty.emptyMessage(): String {
-	return annulment()?.message?.asString() ?: stringResource(Res.string.record_empty_message)
-}
-
-private fun Record.State.Empty.annulment(): RecordNotice? {
-	return notice?.takeIf { candidate -> candidate.kind == RecordNoticeKind.AnnulledFinal }
-}
-
-// The university has no record yet: nothing failed, so that case gets no error art.
-@Composable
-private fun Record.State.Failed.FailedArt() {
-	if (isNewStudentNoRecord) EmptyStateAnimationView() else ErrorStateAnimationView()
 }

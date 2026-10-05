@@ -13,7 +13,8 @@ import com.gdavidpb.tuindice.record.domain.usecase.SetScheduleViewModeUseCase
 import com.gdavidpb.tuindice.record.presentation.contract.Schedule
 import com.gdavidpb.tuindice.record.presentation.mapper.toScheduleItem
 import com.gdavidpb.tuindice.record.presentation.mapper.toShortNameText
-import com.gdavidpb.tuindice.record.presentation.transition.scheduleTransitions
+import com.gdavidpb.tuindice.record.presentation.transition.scheduleAnyStateTransitions
+import com.gdavidpb.tuindice.record.presentation.transition.scheduleContentTransitions
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 
@@ -29,7 +30,8 @@ class ScheduleMachine(
 
 	override fun define(host: MachineHost<Schedule.Effect>): MachineDefinition<Schedule.State> {
 		return MachineDefinition.define {
-			scheduleTransitions(machine = this@ScheduleMachine, host = host)
+			scheduleAnyStateTransitions(machine = this@ScheduleMachine, host = host)
+			scheduleContentTransitions(machine = this@ScheduleMachine, host = host)
 		}
 	}
 
@@ -62,7 +64,9 @@ class ScheduleMachine(
 
 	private fun ObservedSchedule.toInternalEvent(): ScheduleInternalEvent {
 		val term = currentTerm
-		val schedule = term?.attempts?.toScheduleItem()
+		// Mapped again with every minute the observation brings, so today, the "now" line and the
+		// class in progress re-enter the table as content like any other change.
+		val schedule = term?.attempts?.toScheduleItem(now = now)
 
 		return if (term != null && schedule != null) {
 			ScheduleInternalEvent.ScheduleContentObserved(

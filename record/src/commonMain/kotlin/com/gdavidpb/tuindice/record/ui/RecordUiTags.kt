@@ -46,6 +46,8 @@ object RecordUiTags {
 	const val ScheduleContainer = "record_schedule_container"
 	const val ScheduleGrid = "record_schedule_grid"
 	const val ScheduleUnscheduled = "record_schedule_unscheduled"
+	const val ScheduleTodayHeader = "record_schedule_today_header"
+	const val ScheduleNowLine = "record_schedule_now_line"
 
 	const val EmptyContainer = "record_empty_container"
 	const val EmptyTitle = "record_empty_title"
@@ -71,6 +73,9 @@ object RecordUiTags {
 
 	fun scheduleTableClash(attemptId: String, dayCode: Int): String =
 		"record_schedule_table_clash_${attemptId}_$dayCode"
+
+	fun scheduleTableInProgress(attemptId: String, dayCode: Int): String =
+		"record_schedule_table_in_progress_${attemptId}_$dayCode"
 
 	fun scheduleTableUnscheduled(attemptId: String): String = "record_schedule_table_unscheduled_$attemptId"
 	fun scheduleTableError(attemptId: String): String = "record_schedule_table_error_$attemptId"

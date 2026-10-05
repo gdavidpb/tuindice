@@ -1,6 +1,5 @@
 package com.gdavidpb.tuindice.record.presentation.navigation
 
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -46,18 +45,6 @@ private fun EntryProviderScope<NavKey>.recordEntry(
 			onValue = shellBindings.onViewStateChanged
 		)
 
-		// The bar's schedule icon is drawn only when the route state says the selected term has a
-		// schedule; this is what it opens, while the record is the entry on screen.
-		DisposableEffect(dependencies) {
-			dependencies.onTopBarScheduleAvailable {
-				navActions.push(RecordDestination.ScheduleDialog)
-			}
-
-			onDispose {
-				dependencies.onTopBarScheduleAvailable(null)
-			}
-		}
-
 		CollectNavResultWithLifecycle<DeleteSyntheticTermConfirmationResult> { result ->
 			when (result) {
 				is DeleteSyntheticTermConfirmationResult.Confirmed ->
@@ -78,6 +65,10 @@ private fun EntryProviderScope<NavKey>.recordEntry(
 			},
 			onTopBarViewModeChangeAvailable = dependencies.onTopBarViewModeChangeAvailable,
 			onTopBarTermSelectionAvailable = dependencies.onTopBarTermSelectionAvailable,
+			onTopBarScheduleAvailable = dependencies.onTopBarScheduleAvailable,
+			onNavigateToSchedule = {
+				navActions.push(RecordDestination.ScheduleDialog)
+			},
 			onNavigateToEnrollmentProof = dependencies.onNavigateToEnrollmentProof,
 			showTopBarBanner = shellBindings.showTopBarBanner,
 			showSnackBar = shellBindings.showSnackBar,
