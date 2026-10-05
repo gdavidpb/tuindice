@@ -55,7 +55,8 @@ class StatusCardItemViewUiTest {
 		onNodeWithText("Reprobados").assertIsDisplayed()
 		onNodeWithText("Retirados").assertIsDisplayed()
 		// One empty track and no figure under it: the header already says zero.
-		assertNodeVisible(SummaryUiTags.StatusCardEmptyTrack)
+		// The card reads as one node, so the track is only addressable in the unmerged tree.
+		assertNodeVisible(SummaryUiTags.StatusCardEmptyTrack, useUnmergedTree = true)
 		onAllNodesWithText("0").assertCountEquals(0)
 	}
 }
