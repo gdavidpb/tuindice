@@ -1,10 +1,12 @@
 package com.gdavidpb.tuindice.summary.di
 
 import com.gdavidpb.tuindice.base.domain.session.SessionMemory
+import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataRepository
 import com.gdavidpb.tuindice.summary.data.source.LocalSettingsDataSource
+import com.gdavidpb.tuindice.summary.data.source.ProfilePictureImageLoaderDataSource
 import com.gdavidpb.tuindice.summary.data.source.RoomCurrentTermDataSource
 import com.gdavidpb.tuindice.summary.data.source.RoomDataSource
 import com.gdavidpb.tuindice.summary.data.source.SummaryApiDataSource
@@ -24,6 +26,7 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
+import org.koin.core.qualifier.named
 import org.koin.dsl.module
 
 val summaryModule = module {
@@ -55,6 +58,11 @@ val summaryModule = module {
 		bind<SettingsDataRepository>()
 		bind<SessionMemory>()
 	}
+	singleOf(::ProfilePictureImageLoaderDataSource) { bind<SessionMemory>() }
+	// Named: an unnamed startup task would take the place of the platform's own.
+	single<AppStartupTask>(named(PROFILE_PICTURE_IMAGE_LOADER_TASK_QUALIFIER)) {
+		get<ProfilePictureImageLoaderDataSource>()
+	}
 
 	/* Exception handlers */
 
@@ -62,3 +70,5 @@ val summaryModule = module {
 	factoryOf(::RemoveProfilePictureExceptionHandler)
 	factoryOf(::UploadProfilePictureExceptionHandler)
 }
+
+private const val PROFILE_PICTURE_IMAGE_LOADER_TASK_QUALIFIER = "summaryProfilePictureImageLoaderTask"

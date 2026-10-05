@@ -53,7 +53,8 @@ class SessionMemoryBindingTest {
 				"persistence.domain.mutation.StoreBackedMutationEngine",
 				"record.data.source.LocalSettingsDataSource",
 				"subjects.data.source.SubjectStatsRoomDataSource",
-				"summary.data.source.LocalSettingsDataSource"
+				"summary.data.source.LocalSettingsDataSource",
+				"summary.data.source.ProfilePictureImageLoaderDataSource"
 			),
 			bound
 		)
