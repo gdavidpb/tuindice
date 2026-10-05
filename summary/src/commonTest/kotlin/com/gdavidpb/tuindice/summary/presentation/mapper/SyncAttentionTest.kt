@@ -10,6 +10,9 @@ import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.summary.presentation.model.SyncAttention
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotEquals
+import kotlin.test.assertNotNull
+import kotlin.test.assertNull
 
 class SyncAttentionTest {
 	@Test
@@ -56,6 +59,104 @@ class SyncAttentionTest {
 		assertEquals(
 			SyncAttention.None,
 			resolveSyncAttention(SyncStatus.Healthy, report(SyncSourceStatus.Unknown, null))
+		)
+	}
+
+	@Test
+	fun resolveSyncAttentionKey_isNullWhenTheRowAnnouncesNothing() {
+		assertNull(resolveSyncAttentionKey(SyncStatus.Healthy, SyncReport.success(), hasCurrentTerm = true))
+	}
+
+	@Test
+	fun resolveSyncAttentionKey_namesInformativeAnnouncementsToo() {
+		assertNotNull(
+			resolveSyncAttentionKey(
+				SyncStatus.Healthy,
+				report(SyncSourceStatus.NotEnrolled, null),
+				hasCurrentTerm = false
+			)
+		)
+		assertNotNull(
+			resolveSyncAttentionKey(
+				SyncStatus.NewStudentNoRecord,
+				SyncReport.failedRecordUnavailable(),
+				hasCurrentTerm = false
+			)
+		)
+	}
+
+	@Test
+	fun resolveSyncAttentionKey_staysTheSameAcrossSyncsThatRepeatTheAnnouncement() {
+		val annulled = report(SyncSourceStatus.Success, EnrollmentSituation(code = "01"))
+
+		// Every sync stamps a new read instant on the report; the announcement is still the same.
+		assertEquals(
+			resolveSyncAttentionKey(SyncStatus.Healthy, annulled.readAt(1_000L), hasCurrentTerm = true),
+			resolveSyncAttentionKey(SyncStatus.Healthy, annulled.readAt(2_000L), hasCurrentTerm = true)
+		)
+		assertEquals(
+			resolveSyncAttentionKey(
+				SyncStatus.Failed,
+				SyncReport.failedRecordUnavailable().copy(enrollmentReadAt = 1_000L),
+				hasCurrentTerm = true
+			),
+			resolveSyncAttentionKey(
+				SyncStatus.Failed,
+				SyncReport.failedRecordUnavailable().copy(enrollmentReadAt = 2_000L),
+				hasCurrentTerm = true
+			)
+		)
+	}
+
+	@Test
+	fun resolveSyncAttentionKey_changesWhenAProvisionalAnnulmentBecomesFinal() {
+		val annulled = report(SyncSourceStatus.Success, EnrollmentSituation(code = "01"))
+
+		assertNotEquals(
+			resolveSyncAttentionKey(SyncStatus.Healthy, annulled, hasCurrentTerm = true),
+			resolveSyncAttentionKey(SyncStatus.Healthy, annulled, hasCurrentTerm = false)
+		)
+	}
+
+	@Test
+	fun resolveSyncAttentionKey_changesWhenTheCauseOfTheAnnulmentChanges() {
+		assertNotEquals(
+			resolveSyncAttentionKey(
+				SyncStatus.Healthy,
+				report(SyncSourceStatus.Success, EnrollmentSituation(code = "01")),
+				hasCurrentTerm = true
+			),
+			resolveSyncAttentionKey(
+				SyncStatus.Healthy,
+				report(SyncSourceStatus.Success, EnrollmentSituation(code = "06")),
+				hasCurrentTerm = true
+			)
+		)
+	}
+
+	@Test
+	fun resolveSyncAttentionKey_changesWhenInformationBecomesAProblem() {
+		val notEnrolled = report(SyncSourceStatus.NotEnrolled, null)
+
+		assertNotEquals(
+			resolveSyncAttentionKey(SyncStatus.Healthy, notEnrolled, hasCurrentTerm = false),
+			resolveSyncAttentionKey(SyncStatus.Failed, notEnrolled, hasCurrentTerm = false)
+		)
+	}
+
+	@Test
+	fun resolveSyncAttentionKey_ignoresTheCurrentTermWhenNoAnnulmentIsRead() {
+		val notEnrolled = report(SyncSourceStatus.NotEnrolled, null)
+		val annulled = report(SyncSourceStatus.Success, EnrollmentSituation(code = "01"))
+
+		assertEquals(
+			resolveSyncAttentionKey(SyncStatus.Healthy, notEnrolled, hasCurrentTerm = true),
+			resolveSyncAttentionKey(SyncStatus.Healthy, notEnrolled, hasCurrentTerm = false)
+		)
+		// A problem explains itself, not the annulment the report still carries.
+		assertEquals(
+			resolveSyncAttentionKey(SyncStatus.Failed, annulled, hasCurrentTerm = true),
+			resolveSyncAttentionKey(SyncStatus.Failed, annulled, hasCurrentTerm = false)
 		)
 	}
 

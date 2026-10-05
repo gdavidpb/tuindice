@@ -20,6 +20,8 @@ import com.gdavidpb.tuindice.evaluations.domain.usecase.exceptionhandler.UpdateE
 import com.gdavidpb.tuindice.evaluations.domain.usecase.validator.AddEvaluationParamsValidator
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveNoAttemptsExplanation
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveRecordDataUnavailableExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
@@ -217,9 +219,11 @@ class EvaluationsStateMachineContractTest {
 				Evaluations.Action.EditEvaluation(evaluationId = "evaluation-1"),
 				Evaluations.Action.RemoveEvaluation(evaluationId = "evaluation-1"),
 				EvaluationsInternalEvent.EvaluationsWaitingObserved,
-				EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved(isNewStudentNoRecord = false),
+				EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved(
+					explanation = resolveRecordDataUnavailableExplanation(isNewStudentNoRecord = false)
+				),
 				EvaluationsInternalEvent.EvaluationsNoAttemptsObserved(
-					reason = EvaluationsNoAttemptsReason.NoCurrentTerm
+					explanation = resolveNoAttemptsExplanation(EvaluationsNoAttemptsReason.NoCurrentTerm)
 				),
 				EvaluationsInternalEvent.EvaluationsContentObserved(
 					weekItems = listOf(weekItem),

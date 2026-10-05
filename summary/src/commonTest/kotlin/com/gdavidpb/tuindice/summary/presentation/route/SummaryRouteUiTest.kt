@@ -76,8 +76,7 @@ class SummaryRouteUiTest {
 				},
 				viewModel = viewModel,
 				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository(),
-				currentTermRepository = FakeCurrentTermRepository()
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -110,8 +109,7 @@ class SummaryRouteUiTest {
 				},
 				viewModel = viewModel,
 				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository(),
-				currentTermRepository = FakeCurrentTermRepository()
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -150,8 +148,7 @@ class SummaryRouteUiTest {
 				},
 				viewModel = viewModel,
 				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository(),
-				currentTermRepository = FakeCurrentTermRepository()
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -187,8 +184,7 @@ class SummaryRouteUiTest {
 					showSnackBar = {},
 					viewModel = viewModel,
 					syncStatusRepository = syncStatusRepository,
-					syncRepository = FakeSyncRepository(),
-					currentTermRepository = FakeCurrentTermRepository()
+					syncRepository = FakeSyncRepository()
 				)
 			}
 		}
@@ -226,8 +222,7 @@ class SummaryRouteUiTest {
 					showSnackBar = {},
 					viewModel = viewModel,
 					syncStatusRepository = syncStatusRepository,
-					syncRepository = FakeSyncRepository(),
-					currentTermRepository = FakeCurrentTermRepository()
+					syncRepository = FakeSyncRepository()
 				)
 			}
 		}
@@ -261,8 +256,7 @@ class SummaryRouteUiTest {
 				showSnackBar = {},
 				viewModel = viewModel,
 				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository(),
-				currentTermRepository = FakeCurrentTermRepository()
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -300,8 +294,7 @@ class SummaryRouteUiTest {
 				},
 				viewModel = viewModel,
 				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository(),
-				currentTermRepository = FakeCurrentTermRepository()
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -342,8 +335,7 @@ class SummaryRouteUiTest {
 				},
 				viewModel = viewModel,
 				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository(),
-				currentTermRepository = FakeCurrentTermRepository()
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -377,8 +369,7 @@ class SummaryRouteUiTest {
 				showSnackBar = {},
 				viewModel = viewModel,
 				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository(),
-				currentTermRepository = FakeCurrentTermRepository()
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -419,8 +410,7 @@ class SummaryRouteUiTest {
 				showSnackBar = {},
 				viewModel = viewModel,
 				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository(),
-				currentTermRepository = FakeCurrentTermRepository()
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -454,8 +444,7 @@ class SummaryRouteUiTest {
 				},
 				viewModel = viewModel,
 				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository(),
-				currentTermRepository = FakeCurrentTermRepository()
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -488,8 +477,7 @@ class SummaryRouteUiTest {
 				showSnackBar = {},
 				viewModel = viewModel,
 				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository(),
-				currentTermRepository = FakeCurrentTermRepository()
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -525,8 +513,7 @@ class SummaryRouteUiTest {
 				},
 				viewModel = viewModel,
 				syncStatusRepository = syncStatusRepository,
-				syncRepository = FakeSyncRepository(),
-				currentTermRepository = FakeCurrentTermRepository()
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -551,6 +538,7 @@ class SummaryRouteUiTest {
 			screenMachine = SummaryMachine(
 				observeUserUseCase = ObserveUserUseCase(
 					userRepository = userRepository,
+					currentTermRepository = FakeCurrentTermRepository(),
 					reportingRepository = RecordingReportingRepository()
 				),
 				updateUserUseCase = UpdateUserUseCase(

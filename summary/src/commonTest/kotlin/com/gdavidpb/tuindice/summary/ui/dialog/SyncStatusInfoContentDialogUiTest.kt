@@ -49,8 +49,7 @@ class SyncStatusInfoContentDialogUiTest {
 		}
 
 		onNodeWithText("Tu inscripción aparece anulada").assertExists()
-		onNodeWithText("por el límite de créditos", substring = true).assertExists()
-		onNodeWithText("todavía puedes regularizarla", substring = true).assertExists()
+		onNodeWithText("Anulada por el límite de créditos. Consulta en DACE.").assertExists()
 	}
 
 	@Test
@@ -67,7 +66,7 @@ class SyncStatusInfoContentDialogUiTest {
 			}
 
 			onNodeWithText("Tu inscripción fue anulada").assertExists()
-			onNodeWithText("de este trimestre. Consulta con DACE", substring = true).assertExists()
+			onNodeWithText("Consulta en DACE para regularizarla.").assertExists()
 		}
 
 	@Test

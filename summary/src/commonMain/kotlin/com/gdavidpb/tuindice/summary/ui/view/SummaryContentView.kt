@@ -24,15 +24,11 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.base.domain.model.SyncReport
-import com.gdavidpb.tuindice.base.domain.model.SyncStatus
-import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAnimation
 import com.gdavidpb.tuindice.base.ui.view.PulsingIconHalo
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
-import com.gdavidpb.tuindice.summary.presentation.mapper.resolveSyncAttention
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryItem
 import com.gdavidpb.tuindice.summary.presentation.model.SyncAttention
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
@@ -46,8 +42,7 @@ import kotlin.math.ceil
 @Composable
 fun SummaryContentView(
 	state: Summary.State.Content,
-	syncStatus: SyncStatus,
-	syncReport: SyncReport = SyncReport.success(),
+	syncAttention: SyncAttention,
 	isSyncing: Boolean = false,
 	showSyncAttentionHalo: Boolean = false,
 	summaryItems: List<SummaryItem>,
@@ -57,7 +52,6 @@ fun SummaryContentView(
 	val animationsEnabled = LocalTuIndiceAnimationsEnabled.current
 	val isProfilePictureInteractionEnabled = !state.isUserRefreshing
 	val isStatusRefreshing = isSyncing
-	val syncAttention = resolveSyncAttention(syncStatus = syncStatus, syncReport = syncReport)
 	val statusIcon = syncStatusIcon(
 		syncAttention = syncAttention,
 		isStatusRefreshing = isStatusRefreshing
@@ -65,14 +59,13 @@ fun SummaryContentView(
 	val statusTint = when {
 		isStatusRefreshing -> MaterialTheme.colorScheme.onSurfaceVariant
 		syncAttention == SyncAttention.Problem -> MaterialTheme.colorScheme.error
-		syncAttention == SyncAttention.Informative -> AcademicStatusColors.available()
+		syncAttention == SyncAttention.Informative -> MaterialTheme.colorScheme.primary
 		else -> MaterialTheme.colorScheme.onSurfaceVariant
 	}
 	val canOpenStatusDetails = syncAttention != SyncAttention.None && !isStatusRefreshing
-	// Only a problem asks for attention with the halo; information waits quietly to be tapped.
-	val shouldShowHalo = showSyncAttentionHalo &&
-		canOpenStatusDetails &&
-		syncAttention == SyncAttention.Problem
+	// A problem and information both ask for attention with the halo, each in its own tint, until
+	// the details are opened; whether they already were arrives decided in showSyncAttentionHalo.
+	val shouldShowHalo = showSyncAttentionHalo && canOpenStatusDetails
 	val syncRotation = remember { Animatable(0f) }
 
 	LaunchedEffect(isStatusRefreshing, animationsEnabled) {
@@ -163,7 +156,7 @@ fun SummaryContentView(
 			) {
 				if (shouldShowHalo) {
 					PulsingIconHalo(
-						color = MaterialTheme.colorScheme.error,
+						color = statusTint,
 						testTag = SummaryUiTags.StatusIconHalo
 					)
 				}

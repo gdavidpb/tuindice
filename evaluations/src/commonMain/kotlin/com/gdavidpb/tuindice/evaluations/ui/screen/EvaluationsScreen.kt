@@ -7,34 +7,24 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
-import com.gdavidpb.tuindice.base.presentation.mapper.EnrollmentAnnulmentTexts
-import com.gdavidpb.tuindice.base.presentation.mapper.NewStudentNoRecordTexts
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.LoadingView
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsContentView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsEmptyView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsFailedView
+import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsIllustrationView
 import com.gdavidpb.tuindice.evaluations.ui.view.EvaluationsNoAttemptsView
 import org.jetbrains.compose.resources.stringResource
 import tuindice.evaluations.generated.resources.Res
 import tuindice.evaluations.generated.resources.button_add_evaluation
 import tuindice.evaluations.generated.resources.message_empty_evaluations
-import tuindice.evaluations.generated.resources.message_enrollment_unavailable_evaluations
-import tuindice.evaluations.generated.resources.message_no_subjects_evaluations
-import tuindice.evaluations.generated.resources.message_not_enrolled_evaluations
-import tuindice.evaluations.generated.resources.message_record_unavailable_evaluations
 import tuindice.evaluations.generated.resources.title_empty_evaluations
-import tuindice.evaluations.generated.resources.title_enrollment_unavailable_evaluations
-import tuindice.evaluations.generated.resources.title_no_subjects_evaluations
-import tuindice.evaluations.generated.resources.title_not_enrolled_evaluations
-import tuindice.evaluations.generated.resources.title_record_unavailable_evaluations
 import tuindice.evaluations.generated.resources.view_error_retry
 import tuindice.evaluations.generated.resources.view_error_title
 
@@ -82,23 +72,10 @@ fun EvaluationsScreen(
 
 				is Evaluations.State.RecordDataUnavailable ->
 					EvaluationsFailedView(
-						title = if (targetState.isNewStudentNoRecord) {
-							NewStudentNoRecordTexts.title.asString()
-						} else {
-							stringResource(Res.string.title_record_unavailable_evaluations)
-						},
-						message = if (targetState.isNewStudentNoRecord) {
-							NewStudentNoRecordTexts.message.asString()
-						} else {
-							stringResource(Res.string.message_record_unavailable_evaluations)
-						},
+						title = targetState.explanation.title.asString(),
+						message = targetState.explanation.message.asString(),
 						headerContent = {
-							// The university has no record yet: nothing failed, so no error art.
-							if (targetState.isNewStudentNoRecord) {
-								EmptyStateAnimationView()
-							} else {
-								ErrorStateAnimationView()
-							}
+							EvaluationsIllustrationView(illustration = targetState.explanation.illustration)
 						}
 					)
 
@@ -113,12 +90,17 @@ fun EvaluationsScreen(
 						}
 					)
 
+				// No action on purpose. A missing current term is resolved by time; an enrollment
+				// outage by the university. Retrying used to re-run UpdateEvaluationsUseCase, which
+				// never touches the sync report this state is derived from -- only SyncDataSource
+				// writes it -- so the button could not clear the state it offered to clear. The sync
+				// on app resume does, and this state observes that report, so it recovers on its own.
 				is Evaluations.State.NoAttempts ->
 					EvaluationsNoAttemptsView(
-						title = targetState.noAttemptsTitle(),
-						message = targetState.noAttemptsMessage(),
+						title = targetState.explanation.title.asString(),
+						message = targetState.explanation.message.asString(),
 						headerContent = {
-							EmptyStateAnimationView()
+							EvaluationsIllustrationView(illustration = targetState.explanation.illustration)
 						}
 					)
 
@@ -136,43 +118,3 @@ fun EvaluationsScreen(
 		}
 	}
 }
-
-@Composable
-private fun Evaluations.State.NoAttempts.noAttemptsTitle(): String {
-	return when (reason) {
-		EvaluationsNoAttemptsReason.NoCurrentTerm ->
-			stringResource(Res.string.title_no_subjects_evaluations)
-
-		EvaluationsNoAttemptsReason.EnrollmentUnavailable ->
-			stringResource(Res.string.title_enrollment_unavailable_evaluations)
-
-		EvaluationsNoAttemptsReason.NotEnrolled ->
-			stringResource(Res.string.title_not_enrolled_evaluations)
-
-		is EvaluationsNoAttemptsReason.Annulled ->
-			EnrollmentAnnulmentTexts.title(isProvisional = false).asString()
-	}
-}
-
-@Composable
-private fun Evaluations.State.NoAttempts.noAttemptsMessage(): String {
-	return when (reason) {
-		EvaluationsNoAttemptsReason.NoCurrentTerm ->
-			stringResource(Res.string.message_no_subjects_evaluations)
-
-		EvaluationsNoAttemptsReason.EnrollmentUnavailable ->
-			stringResource(Res.string.message_enrollment_unavailable_evaluations)
-
-		EvaluationsNoAttemptsReason.NotEnrolled ->
-			stringResource(Res.string.message_not_enrolled_evaluations)
-
-		is EvaluationsNoAttemptsReason.Annulled ->
-			EnrollmentAnnulmentTexts.message(cause = reason.cause, isProvisional = false).asString()
-	}
-}
-
-// Neither reason takes an action. A missing current term is resolved by time; an
-// enrollment outage by the university. Retrying used to re-run UpdateEvaluationsUseCase,
-// which never touches the sync report this state is derived from -- only SyncDataSource
-// writes it -- so the button could not clear the state it offered to clear. The sync on
-// app resume does, and this state observes that report, so it recovers on its own.

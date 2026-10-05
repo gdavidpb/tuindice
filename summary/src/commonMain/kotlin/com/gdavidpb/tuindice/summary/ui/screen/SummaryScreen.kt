@@ -11,11 +11,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.LoadingView
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
+import com.gdavidpb.tuindice.summary.presentation.mapper.resolveSummaryFailedItem
 import com.gdavidpb.tuindice.summary.presentation.mapper.resolveSyncAttention
+import com.gdavidpb.tuindice.summary.presentation.mapper.resolveSyncAttentionKey
+import com.gdavidpb.tuindice.summary.presentation.model.SummaryFailedKind
 import com.gdavidpb.tuindice.summary.presentation.model.SyncAttention
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.dialog.SyncStatusInfoContentDialog
@@ -25,16 +29,13 @@ import com.gdavidpb.tuindice.summary.ui.view.SummaryNewStudentView
 import com.gdavidpb.tuindice.summary.ui.view.rememberSummaryItems
 import org.jetbrains.compose.resources.stringResource
 import tuindice.summary.generated.resources.Res
-import tuindice.summary.generated.resources.summary_failed_message
 import tuindice.summary.generated.resources.summary_failed_retry
-import tuindice.summary.generated.resources.summary_failed_title
 
 @Composable
 fun SummaryScreen(
 	state: Summary.State,
 	syncStatus: SyncStatus,
 	syncReport: SyncReport,
-	hasCurrentTerm: Boolean = false,
 	isSyncing: Boolean = false,
 	onRetryClick: () -> Unit,
 	onEditProfilePictureClick: () -> Unit,
@@ -42,12 +43,17 @@ fun SummaryScreen(
 ) {
 	val displayedSyncStatusDetails = remember { mutableStateOf<SyncStatusDetails?>(null) }
 	val acknowledgedSyncAttentionKey = remember { mutableStateOf<String?>(null) }
+	// Read from the state on every composition, so what the row announces follows a record refresh
+	// that drops or brings back the current term.
+	val hasCurrentTerm = (state as? Summary.State.Content)?.hasCurrentTerm == true
 	val syncAttention = resolveSyncAttention(syncStatus = syncStatus, syncReport = syncReport)
-	val syncAttentionKey = syncAttentionKey(
-		syncAttention = syncAttention,
+	val syncAttentionKey = resolveSyncAttentionKey(
 		syncStatus = syncStatus,
-		syncReport = syncReport
+		syncReport = syncReport,
+		hasCurrentTerm = hasCurrentTerm
 	)
+	// The halo asks for attention until the user opens the details of this very announcement; a
+	// running sync hides it, and a new announcement (another key) brings it back.
 	val shouldShowSyncAttentionHalo = syncAttentionKey != null &&
 		acknowledgedSyncAttentionKey.value != syncAttentionKey &&
 		!isSyncing
@@ -70,16 +76,20 @@ fun SummaryScreen(
 				is Summary.State.Loading ->
 					LoadingView(indicatorTag = SummaryUiTags.LoadingIndicator)
 
-				is Summary.State.Failed ->
-					if (syncStatus == SyncStatus.NewStudentNoRecord) {
-						SummaryNewStudentView(
+				is Summary.State.Failed -> {
+					val failedItem = resolveSummaryFailedItem(syncStatus = syncStatus)
+
+					when (failedItem.kind) {
+						SummaryFailedKind.NewStudentNoRecord -> SummaryNewStudentView(
+							title = failedItem.title.asString(),
+							message = failedItem.message.asString(),
 							isRetryEnabled = !isSyncing,
 							onRetryClick = onRetryClick
 						)
-					} else {
-						SummaryFailedView(
-							title = stringResource(Res.string.summary_failed_title),
-							message = stringResource(Res.string.summary_failed_message),
+
+						SummaryFailedKind.Error -> SummaryFailedView(
+							title = failedItem.title.asString(),
+							message = failedItem.message.asString(),
 							retryText = stringResource(Res.string.summary_failed_retry),
 							onRetryClick = onRetryClick,
 							headerContent = {
@@ -87,12 +97,12 @@ fun SummaryScreen(
 							}
 						)
 					}
+				}
 
 				is Summary.State.Content ->
 					SummaryContentView(
 						state = targetState,
-						syncStatus = syncStatus,
-						syncReport = syncReport,
+						syncAttention = syncAttention,
 						isSyncing = isSyncing,
 						showSyncAttentionHalo = shouldShowSyncAttentionHalo,
 						summaryItems = rememberSummaryItems(
@@ -130,19 +140,3 @@ private data class SyncStatusDetails(
 	val status: SyncStatus,
 	val report: SyncReport
 )
-
-// The key re-arms the halo, which only a problem uses.
-private fun syncAttentionKey(
-	syncAttention: SyncAttention,
-	syncStatus: SyncStatus,
-	syncReport: SyncReport
-): String? {
-	return if (syncAttention == SyncAttention.Problem) {
-		// Built field by field: the report also carries the instant of the last enrollment read,
-		// which changes on every sync and must not re-arm the halo.
-		"$syncStatus|${syncReport.status}|${syncReport.sources.record.status}|" +
-			"${syncReport.sources.enrollment.status}|${syncReport.sources.enrollment.situation}"
-	} else {
-		null
-	}
-}

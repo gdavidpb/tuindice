@@ -1,14 +1,21 @@
 package com.gdavidpb.tuindice.summary.ui.screen
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.base.domain.model.EnrollmentSituation
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
+import com.gdavidpb.tuindice.base.domain.model.SyncReportSources
+import com.gdavidpb.tuindice.base.domain.model.SyncReportStatus
+import com.gdavidpb.tuindice.base.domain.model.SyncSourceReport
+import com.gdavidpb.tuindice.base.domain.model.SyncSourceStatus
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.testing.summaryContentState
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
@@ -191,6 +198,84 @@ class SummaryScreenUiTest {
 	}
 
 	@Test
+	fun when_attentionIsInformative_then_haloPulsesUntilTheDetailsAreOpened() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryScreen(
+				state = summaryContentState().copy(hasCurrentTerm = true),
+				syncStatus = SyncStatus.Healthy,
+				syncReport = annulledReport(),
+				onRetryClick = {},
+				onEditProfilePictureClick = {},
+				onUpdatePasswordClick = {}
+			)
+		}
+
+		assertNodeVisible(SummaryUiTags.StatusIconHalo)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+
+		onNodeWithText("Tu inscripción aparece anulada").assertExists()
+		assertNodeHidden(SummaryUiTags.StatusIconHalo)
+	}
+
+	@Test
+	fun when_informativeAttentionIsSyncing_then_haloWaitsForTheSyncToEnd() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			// The sync icon spins for as long as the sync runs; with animations on the test never idles.
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+				SummaryScreen(
+					state = summaryContentState(),
+					syncStatus = SyncStatus.Healthy,
+					syncReport = annulledReport(),
+					isSyncing = true,
+					onRetryClick = {},
+					onEditProfilePictureClick = {},
+					onUpdatePasswordClick = {}
+				)
+			}
+		}
+
+		assertNodeHidden(SummaryUiTags.StatusIconHalo)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
+	}
+
+	@Test
+	fun when_annulledAndContentHasACurrentTerm_then_statusDialogShowsTheProvisionalCopy() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryScreen(
+				state = summaryContentState().copy(hasCurrentTerm = true),
+				syncStatus = SyncStatus.Healthy,
+				syncReport = annulledReport(),
+				onRetryClick = {},
+				onEditProfilePictureClick = {},
+				onUpdatePasswordClick = {}
+			)
+		}
+
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+
+		onNodeWithText("Tu inscripción aparece anulada").assertExists()
+	}
+
+	@Test
+	fun when_annulledAndContentHasNoCurrentTerm_then_statusDialogShowsTheFinalCopy() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryScreen(
+				state = summaryContentState(),
+				syncStatus = SyncStatus.Healthy,
+				syncReport = annulledReport(),
+				onRetryClick = {},
+				onEditProfilePictureClick = {},
+				onUpdatePasswordClick = {}
+			)
+		}
+
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+
+		onNodeWithText("Tu inscripción fue anulada").assertExists()
+	}
+
+	@Test
 	fun when_failedForANewStudent_then_showsTheNewStudentViewWithAnEnabledRetry() = runTuIndiceUiTest {
 		var retryClicks = 0
 
@@ -207,6 +292,7 @@ class SummaryScreenUiTest {
 
 		assertNodeVisible(SummaryUiTags.NewStudentContainer)
 		assertNodeHidden(BaseUiTags.ErrorViewContainer)
+		onNodeWithText("Aún no tienes expediente en la universidad").assertExists()
 		onNodeWithTag(SummaryUiTags.NewStudentRetryButton).assertIsEnabled()
 		onNodeWithTag(SummaryUiTags.NewStudentRetryButton).performClick()
 		assertEquals(1, retryClicks)
@@ -227,5 +313,15 @@ class SummaryScreenUiTest {
 		}
 
 		onNodeWithTag(SummaryUiTags.NewStudentRetryButton).assertIsNotEnabled()
+	}
+
+	private fun annulledReport(): SyncReport {
+		return SyncReport(
+			status = SyncReportStatus.Success,
+			sources = SyncReportSources(
+				record = SyncSourceReport(SyncSourceStatus.Success),
+				enrollment = SyncSourceReport(SyncSourceStatus.Success, EnrollmentSituation(code = "01"))
+			)
+		)
 	}
 }

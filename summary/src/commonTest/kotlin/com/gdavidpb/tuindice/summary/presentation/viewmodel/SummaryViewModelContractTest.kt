@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.summary.presentation.viewmodel
 
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
+import com.gdavidpb.tuindice.summary.domain.repository.CurrentTermRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
@@ -12,9 +13,10 @@ import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfi
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
+import com.gdavidpb.tuindice.summary.testing.FakeCurrentTermRepository
+import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
-import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.testkit.coroutines.withMainDispatcher
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.async
@@ -26,6 +28,7 @@ import kotlinx.coroutines.withTimeout
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
+import kotlin.test.assertTrue
 
 class SummaryViewModelContractTest {
 	@Test
@@ -88,8 +91,47 @@ class SummaryViewModelContractTest {
 		}
 	}
 
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun observedCurrentTerm_arrivesInContent_andFollowsTheRecord() = runTest {
+		withMainDispatcher { dispatchers ->
+			val currentTermRepository = FakeCurrentTermRepository(initialValue = true)
+			val viewModel = createViewModel(
+				dispatchers = dispatchers,
+				currentTermRepository = currentTermRepository
+			)
+			val stateCollector = backgroundScope.launchStateCollector(
+				flow = viewModel.state,
+				testScheduler = testScheduler
+			)
+
+			try {
+				val content = withTimeout(3_000) {
+					viewModel.state
+						.filterIsInstance<Summary.State.Content>()
+						.first()
+				}
+				assertTrue(content.hasCurrentTerm)
+
+				// The final annulment drops the current term: the same screen learns it from
+				// the state, with no repository read in the route.
+				currentTermRepository.hasCurrentTerm.value = false
+
+				val updated = withTimeout(3_000) {
+					viewModel.state
+						.filterIsInstance<Summary.State.Content>()
+						.first { state -> !state.hasCurrentTerm }
+				}
+				assertEquals(content.copy(hasCurrentTerm = false), updated)
+			} finally {
+				stateCollector.cancel()
+			}
+		}
+	}
+
 	private fun createViewModel(
-		dispatchers: TuIndiceDispatchers
+		dispatchers: TuIndiceDispatchers,
+		currentTermRepository: CurrentTermRepository = FakeCurrentTermRepository()
 	): SummaryViewModel {
 		val userRepository = RecordingUserRepository(users = flowOf(DEFAULT_SUMMARY_USER))
 
@@ -97,6 +139,7 @@ class SummaryViewModelContractTest {
 			screenMachine = SummaryMachine(
 				observeUserUseCase = ObserveUserUseCase(
 					userRepository = userRepository,
+					currentTermRepository = currentTermRepository,
 					reportingRepository = RecordingReportingRepository()
 				),
 				updateUserUseCase = UpdateUserUseCase(

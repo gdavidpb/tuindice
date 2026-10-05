@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.viewmodel
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
+import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.model.ObservedSyncedSnapshot
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationRepository
@@ -61,6 +62,91 @@ class EvaluationsViewModelContractTest {
 			viewModel.effect.test {
 				viewModel.addEvaluationAction()
 				assertIs<Evaluations.Effect.NavigateToAddEvaluation>(awaitItem())
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun observedEvaluationWhoseSubjectIsGone_isLeftOutInsteadOfClosingTheScreen() = runTest {
+		val orphan = DEFAULT_COMPLETED_EVALUATION.copy(
+			id = "orphan-evaluation",
+			attemptId = "attempt-that-is-gone"
+		)
+		val viewModel = createViewModel(
+			testScheduler = testScheduler,
+			repository = RecordingEvaluationRepository(
+				initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION, orphan),
+				availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
+			)
+		)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				val content = awaitUntilState<Evaluations.State.Content>()
+
+				assertEquals(
+					listOf(DEFAULT_PENDING_EVALUATION.id),
+					content.evaluationWeekGroups
+						.flatMap { weekGroup -> weekGroup.groups }
+						.flatMap { group -> group.items }
+						.map { item -> item.evaluationId }
+				)
+				// The week strip describes the same list: the only dot is the listed evaluation's.
+				assertEquals(
+					1,
+					content.weekItems
+						.flatMap { weekItem -> weekItem.days }
+						.count { day -> day.hasEvaluations }
+				)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	fun observedEvaluationsWhoseSubjectsAreAllGone_reachContentWithNothingListed() = runTest {
+		val viewModel = createViewModel(
+			testScheduler = testScheduler,
+			repository = RecordingEvaluationRepository(
+				initialEvaluations = listOf(
+					DEFAULT_PENDING_EVALUATION.copy(attemptId = "gone-1"),
+					DEFAULT_COMPLETED_EVALUATION.copy(
+						attemptId = "gone-2",
+						scheduleMode = EvaluationScheduleMode.CONTINUOUS
+					)
+				),
+				availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
+			)
+		)
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				val content = awaitUntilState<Evaluations.State.Content>()
+
+				assertEquals(emptyList(), content.evaluationWeekGroups)
+				assertEquals(emptyList(), content.evaluationGroups)
+				// Nothing continuous is listed, so the strip offers no continuous entry either.
+				assertFalse(content.weekItems.any { item -> item.key == EvaluationsWeekKey.Continuous })
+				assertFalse(
+					content.weekItems
+						.flatMap { weekItem -> weekItem.days }
+						.any { day -> day.hasEvaluations }
+				)
 
 				cancelAndIgnoreRemainingEvents()
 			}

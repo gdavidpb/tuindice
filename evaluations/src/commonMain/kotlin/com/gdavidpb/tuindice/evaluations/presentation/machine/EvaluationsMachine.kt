@@ -2,7 +2,6 @@ package com.gdavidpb.tuindice.evaluations.presentation.machine
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.mapper.commonUnexpectedErrorMessage
-import com.gdavidpb.tuindice.base.presentation.mapper.EnrollmentAnnulmentTexts
 import com.gdavidpb.tuindice.base.presentation.model.SyncedContentResolution
 import com.gdavidpb.tuindice.base.presentation.model.resolveSyncedContentResolution
 import com.gdavidpb.tuindice.base.presentation.statemachine.InitialContentRefreshGate
@@ -22,6 +21,10 @@ import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.buildEvaluationsWeekItems
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.defaultEvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationItemMapping
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.listedUnder
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveEvaluationsNotice
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveNoAttemptsExplanation
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveRecordDataUnavailableExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationsFailedMessage
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationsWeekGroupItemList
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationsWeekKeyOrNull
@@ -29,7 +32,6 @@ import com.gdavidpb.tuindice.evaluations.presentation.mapper.toGradeSaveErrorMes
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toRemoveErrorMessage
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toStorageValue
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toUpdateEvaluationParams
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsNotice
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsAnyStateTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsContentTransitions
@@ -84,13 +86,15 @@ class EvaluationsMachine(
 
 						is GetEvaluations.RecordDataUnavailable -> host.processInternalEvent(
 							EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved(
-								isNewStudentNoRecord = evaluations.isNewStudentNoRecord
+								explanation = resolveRecordDataUnavailableExplanation(
+									isNewStudentNoRecord = evaluations.isNewStudentNoRecord
+								)
 							)
 						)
 
 						is GetEvaluations.NoAttempts -> host.processInternalEvent(
 							EvaluationsInternalEvent.EvaluationsNoAttemptsObserved(
-								reason = evaluations.reason
+								explanation = resolveNoAttemptsExplanation(reason = evaluations.reason)
 							)
 						)
 
@@ -306,9 +310,12 @@ class EvaluationsMachine(
 		val mapping = getEvaluationItemMapping()
 		val weekLabelPattern = getString(Res.string.evaluations_week_label)
 		val continuousLabel = getString(Res.string.evaluations_continuous_label)
+		// Filtered once, here, so the week strip, the default week and the list all describe the
+		// same evaluations: one left out of the list must not leave a dot on its day behind.
+		val listedEvaluations = evaluations.listedUnder(attempts = displayContext.attempts)
 		val weekItems = buildEvaluationsWeekItems(
 			currentTerm = displayContext.currentTerm,
-			evaluations = evaluations,
+			evaluations = listedEvaluations,
 			weekLabelPattern = weekLabelPattern,
 			continuousLabel = continuousLabel
 		)
@@ -324,25 +331,15 @@ class EvaluationsMachine(
 			weekItems = weekItems,
 			defaultWeekKey = persistedWeekKey ?: defaultEvaluationsWeekKey(
 				currentTerm = displayContext.currentTerm,
-				evaluations = evaluations
+				evaluations = listedEvaluations
 			),
 			evaluationWeekGroups = weekItems.toEvaluationsWeekGroupItemList(
-				evaluations = evaluations,
+				evaluations = listedEvaluations,
 				currentTerm = displayContext.currentTerm,
 				attempts = displayContext.attempts,
 				mapping = mapping
 			),
-			notice = enrollmentSituation?.let { situation ->
-				// This observation only reaches here with a current term, so the annulment is the
-				// provisional one.
-				EvaluationsNotice(
-					title = EnrollmentAnnulmentTexts.title(isProvisional = true),
-					message = EnrollmentAnnulmentTexts.message(
-						cause = situation.annulmentCause,
-						isProvisional = true
-					)
-				)
-			}
+			notice = resolveEvaluationsNotice(observed = this)
 		)
 	}
 }

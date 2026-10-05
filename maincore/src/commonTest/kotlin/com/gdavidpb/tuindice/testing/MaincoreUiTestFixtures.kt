@@ -58,6 +58,7 @@ fun createSummaryViewModel(
 		screenMachine = SummaryMachine(
 			observeUserUseCase = ObserveUserUseCase(
 				userRepository = userRepository,
+				currentTermRepository = FakeCurrentTermRepository,
 				reportingRepository = RecordingReportingRepository()
 			),
 			updateUserUseCase = UpdateUserUseCase(

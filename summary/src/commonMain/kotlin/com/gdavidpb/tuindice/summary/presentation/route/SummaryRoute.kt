@@ -10,7 +10,6 @@ import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
-import com.gdavidpb.tuindice.summary.domain.repository.CurrentTermRepository
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.mapper.formatSyncTimestamp
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
@@ -32,8 +31,7 @@ fun SummaryRoute(
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: SummaryViewModel,
 	syncStatusRepository: SyncStatusRepository = koinInject(),
-	syncRepository: SyncRepository = koinInject(),
-	currentTermRepository: CurrentTermRepository = koinInject()
+	syncRepository: SyncRepository = koinInject()
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 	val syncStatus by syncStatusRepository
@@ -45,9 +43,6 @@ fun SummaryRoute(
 	val lastSuccessfulSyncAt by syncStatusRepository
 		.observeLastSuccessfulSyncAt()
 		.collectAsStateWithLifecycle(initialValue = null)
-	val hasCurrentTerm by currentTermRepository
-		.observeHasCurrentTerm()
-		.collectAsStateWithLifecycle(initialValue = false)
 	val isSyncing by syncRepository
 		.observeSyncInProgress()
 		.collectAsStateWithLifecycle(initialValue = false)
@@ -91,7 +86,6 @@ fun SummaryRoute(
 		state = screenState,
 		syncStatus = syncStatus,
 		syncReport = syncReport,
-		hasCurrentTerm = hasCurrentTerm,
 		isSyncing = isSyncing,
 		onRetryClick = viewModel::refreshSummaryAction,
 		onEditProfilePictureClick = viewModel::openProfilePictureSettingsAction,

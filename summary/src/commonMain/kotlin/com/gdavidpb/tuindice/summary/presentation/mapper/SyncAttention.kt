@@ -31,3 +31,42 @@ fun resolveSyncAttention(
 		else -> SyncAttention.None
 	}
 }
+
+// Names what the sync row is announcing, or null when it announces nothing. The halo pulses until
+// the user opens the details of the announcement with this key, and starts again only when the key
+// changes: a provisional annulment that became final, information that became a problem.
+//
+// Built field by field: the report also carries the instant of the last enrollment read, which
+// changes on every sync and must not re-arm the halo.
+fun resolveSyncAttentionKey(
+	syncStatus: SyncStatus,
+	syncReport: SyncReport,
+	hasCurrentTerm: Boolean
+): String? {
+	val syncAttention = resolveSyncAttention(syncStatus = syncStatus, syncReport = syncReport)
+	val enrollment = syncReport.sources.enrollment
+	// The moment of an annulment is part of what is read (provisional while the record keeps a
+	// current term, final once it does not). Only an informative row shows it, and without an
+	// annulment the current term says nothing here.
+	val annulmentMoment = enrollment.situation
+		?.takeIf { syncAttention == SyncAttention.Informative }
+		?.let { if (hasCurrentTerm) ANNULMENT_PROVISIONAL else ANNULMENT_FINAL }
+
+	return when (syncAttention) {
+		SyncAttention.None -> null
+
+		SyncAttention.Problem,
+		SyncAttention.Informative -> listOf(
+			syncAttention,
+			syncStatus,
+			syncReport.status,
+			syncReport.sources.record.status,
+			enrollment.status,
+			enrollment.situation?.annulmentCause,
+			annulmentMoment
+		).joinToString(separator = "|")
+	}
+}
+
+private const val ANNULMENT_PROVISIONAL = "provisional"
+private const val ANNULMENT_FINAL = "final"

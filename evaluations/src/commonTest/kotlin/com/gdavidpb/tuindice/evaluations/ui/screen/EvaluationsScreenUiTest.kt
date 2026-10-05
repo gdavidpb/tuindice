@@ -9,6 +9,8 @@ import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveNoAttemptsExplanation
+import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveRecordDataUnavailableExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsNotice
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsContentState
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -78,7 +80,9 @@ class EvaluationsScreenUiTest {
 		runTuIndiceUiTest {
 			setTuIndiceTestContent {
 				EvaluationsScreen(
-					state = Evaluations.State.RecordDataUnavailable(),
+					state = Evaluations.State.RecordDataUnavailable(
+						explanation = resolveRecordDataUnavailableExplanation(isNewStudentNoRecord = false)
+					),
 					onAddEvaluationClick = {},
 					onEvaluationClick = { _, _, _ -> },
 					onEvaluationEdit = {},
@@ -120,7 +124,9 @@ class EvaluationsScreenUiTest {
 	fun when_stateIsNoAttempts_then_displaysEmptyContainerWithoutActionButton() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			EvaluationsScreen(
-				state = Evaluations.State.NoAttempts(EvaluationsNoAttemptsReason.NoCurrentTerm),
+				state = Evaluations.State.NoAttempts(
+					explanation = resolveNoAttemptsExplanation(EvaluationsNoAttemptsReason.NoCurrentTerm)
+				),
 				onAddEvaluationClick = {},
 				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
@@ -138,7 +144,9 @@ class EvaluationsScreenUiTest {
 		runTuIndiceUiTest {
 			setTuIndiceTestContent {
 				EvaluationsScreen(
-					state = Evaluations.State.NoAttempts(EvaluationsNoAttemptsReason.EnrollmentUnavailable),
+					state = Evaluations.State.NoAttempts(
+						explanation = resolveNoAttemptsExplanation(EvaluationsNoAttemptsReason.EnrollmentUnavailable)
+					),
 					onAddEvaluationClick = {},
 					onEvaluationClick = { _, _, _ -> },
 					onEvaluationEdit = {},
@@ -162,7 +170,9 @@ class EvaluationsScreenUiTest {
 			setTuIndiceTestContent {
 				EvaluationsScreen(
 					state = Evaluations.State.NoAttempts(
-						EvaluationsNoAttemptsReason.Annulled(EnrollmentAnnulmentCause.CreditLimit)
+						explanation = resolveNoAttemptsExplanation(
+							EvaluationsNoAttemptsReason.Annulled(EnrollmentAnnulmentCause.CreditLimit)
+						)
 					),
 					onAddEvaluationClick = {},
 					onEvaluationClick = { _, _, _ -> },
@@ -173,10 +183,7 @@ class EvaluationsScreenUiTest {
 			}
 
 			onNodeWithText("Tu inscripción fue anulada").assertExists()
-			onNodeWithText(
-				"La universidad anuló tu inscripción de este trimestre por el límite de créditos. " +
-					"Consulta con DACE para regularizar tu situación."
-			).assertExists()
+			onNodeWithText("Anulada por el límite de créditos. Consulta en DACE.").assertExists()
 			assertNodeHidden(BaseUiTags.EmptyViewActionButton)
 		}
 
@@ -184,7 +191,9 @@ class EvaluationsScreenUiTest {
 	fun when_stateIsNoAttemptsBecauseNotEnrolled_then_displaysNotEnrolledCopy() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			EvaluationsScreen(
-				state = Evaluations.State.NoAttempts(EvaluationsNoAttemptsReason.NotEnrolled),
+				state = Evaluations.State.NoAttempts(
+					explanation = resolveNoAttemptsExplanation(EvaluationsNoAttemptsReason.NotEnrolled)
+				),
 				onAddEvaluationClick = {},
 				onEvaluationClick = { _, _, _ -> },
 				onEvaluationEdit = {},
@@ -202,7 +211,9 @@ class EvaluationsScreenUiTest {
 		runTuIndiceUiTest {
 			setTuIndiceTestContent {
 				EvaluationsScreen(
-					state = Evaluations.State.RecordDataUnavailable(isNewStudentNoRecord = true),
+					state = Evaluations.State.RecordDataUnavailable(
+						explanation = resolveRecordDataUnavailableExplanation(isNewStudentNoRecord = true)
+					),
 					onAddEvaluationClick = {},
 					onEvaluationClick = { _, _, _ -> },
 					onEvaluationEdit = {},
@@ -223,7 +234,7 @@ class EvaluationsScreenUiTest {
 					state = evaluationsContentState().copy(
 						notice = EvaluationsNotice(
 							title = UiText.Raw("Tu inscripción aparece anulada"),
-							message = UiText.Raw("Todavía puedes regularizarla con DACE.")
+							message = UiText.Raw("Todavía puedes regularizarla en DACE.")
 						)
 					),
 					onAddEvaluationClick = {},

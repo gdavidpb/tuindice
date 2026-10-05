@@ -57,8 +57,7 @@ class SummaryRtlA11yUiTest {
 				showSnackBar = {},
 				viewModel = viewModel,
 				syncStatusRepository = FakeSyncStatusRepository(),
-				syncRepository = FakeSyncRepository(),
-				currentTermRepository = FakeCurrentTermRepository()
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -93,8 +92,7 @@ class SummaryRtlA11yUiTest {
 				showSnackBar = {},
 				viewModel = viewModel,
 				syncStatusRepository = FakeSyncStatusRepository(),
-				syncRepository = FakeSyncRepository(),
-				currentTermRepository = FakeCurrentTermRepository()
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -124,8 +122,7 @@ class SummaryRtlA11yUiTest {
 				showSnackBar = {},
 				viewModel = viewModel,
 				syncStatusRepository = FakeSyncStatusRepository(),
-				syncRepository = FakeSyncRepository(),
-				currentTermRepository = FakeCurrentTermRepository()
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -164,8 +161,7 @@ class SummaryRtlA11yUiTest {
 				showSnackBar = {},
 				viewModel = viewModel,
 				syncStatusRepository = FakeSyncStatusRepository(),
-				syncRepository = FakeSyncRepository(),
-				currentTermRepository = FakeCurrentTermRepository()
+				syncRepository = FakeSyncRepository()
 			)
 		}
 
@@ -187,6 +183,7 @@ class SummaryRtlA11yUiTest {
 			screenMachine = SummaryMachine(
 				observeUserUseCase = ObserveUserUseCase(
 					userRepository = userRepository,
+					currentTermRepository = FakeCurrentTermRepository(),
 					reportingRepository = RecordingReportingRepository()
 				),
 				updateUserUseCase = UpdateUserUseCase(

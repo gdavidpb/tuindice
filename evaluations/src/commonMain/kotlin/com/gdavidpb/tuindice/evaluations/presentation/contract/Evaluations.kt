@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.base.presentation.ViewAction
 import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsNotice
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
@@ -40,15 +40,17 @@ object Evaluations {
 
 		data object Empty : State()
 
+		// Both states below arrive with what they say already resolved: why there is nothing to
+		// list is decided where it is observed, and the screen only paints it.
 		data class NoAttempts(
-			val reason: EvaluationsNoAttemptsReason
+			val explanation: EvaluationsExplanation
 		) : State()
 
 		// Split from Failed because it is not the user's to retry: it means the record
 		// sync itself is failing, and only a sync can clear it. Mirrors Pensum, which
 		// already models this cause as its own state.
 		data class RecordDataUnavailable(
-			val isNewStudentNoRecord: Boolean = false
+			val explanation: EvaluationsExplanation
 		) : State()
 
 		data class Failed(

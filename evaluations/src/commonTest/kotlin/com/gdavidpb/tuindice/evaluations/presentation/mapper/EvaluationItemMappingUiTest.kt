@@ -13,7 +13,6 @@ import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 @OptIn(ExperimentalTestApi::class)
@@ -84,15 +83,14 @@ class EvaluationItemMappingUiTest {
 		assertTrue(item.isClickable)
 	}
 
+	// It used to throw here, and the throw closed the app from the machine's job.
 	@Test
-	fun toEvaluationItemList_failsWhenLocalAttemptIsMissing() = runTest {
-		val error = assertFailsWith<IllegalStateException> {
-			listOf(DEFAULT_PENDING_EVALUATION).toEvaluationItemList(
-				mapping = getEvaluationItemMapping(),
-				attempts = emptyList()
-			)
-		}
+	fun toEvaluationItemList_leavesOutAnEvaluationWhenItsLocalAttemptIsMissing() = runTest {
+		val groups = listOf(DEFAULT_PENDING_EVALUATION).toEvaluationItemList(
+			mapping = getEvaluationItemMapping(),
+			attempts = emptyList()
+		)
 
-		assertTrue(error.message.orEmpty().contains(DEFAULT_PENDING_EVALUATION.attemptId))
+		assertEquals(emptyList(), groups)
 	}
 }
