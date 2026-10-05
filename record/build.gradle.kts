@@ -50,6 +50,8 @@ kotlin {
 				implementation(kotlin("test"))
 				implementation(project(":testkit"))
 				implementation(libs.ktor.client.mock)
+				implementation(libs.ktor.client.content.negotiation)
+				implementation(libs.ktor.serialization.kotlinx.json)
 			}
 		}
 

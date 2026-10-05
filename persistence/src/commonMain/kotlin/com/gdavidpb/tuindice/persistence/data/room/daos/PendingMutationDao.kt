@@ -2,8 +2,8 @@ package com.gdavidpb.tuindice.persistence.data.room.daos
 
 import androidx.room.Dao
 import androidx.room.Query
-import com.gdavidpb.tuindice.persistence.data.room.schema.PendingMutationTable
 import com.gdavidpb.tuindice.persistence.data.room.entity.PendingMutationEntity
+import com.gdavidpb.tuindice.persistence.data.room.schema.PendingMutationTable
 import kotlinx.coroutines.flow.Flow
 
 @Dao

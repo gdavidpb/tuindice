@@ -339,6 +339,15 @@ class PendingMutationDaoTest {
 		assertEquals(100L, byId.getValue("already-pending").updatedAt)
 	}
 
+	@Test
+	fun rebaseCount_startsAtZero_andRoundTrips() = runTest {
+		dao.upsertEntity(pendingMutation(mutationId = "fresh"))
+		dao.upsertEntity(pendingMutation(mutationId = "exhausted").copy(rebaseCount = 4))
+
+		assertEquals(0, dao.getPendingMutation(mutationId = "fresh")?.rebaseCount)
+		assertEquals(4, dao.getPendingMutation(mutationId = "exhausted")?.rebaseCount)
+	}
+
 	private fun pendingMutation(
 		mutationId: String,
 		storeId: String = "evaluations",

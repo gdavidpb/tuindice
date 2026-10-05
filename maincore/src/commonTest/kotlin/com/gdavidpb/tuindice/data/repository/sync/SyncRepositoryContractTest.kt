@@ -17,6 +17,7 @@ import com.gdavidpb.tuindice.pensum.domain.repository.PensumRevalidationReposito
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
+import com.gdavidpb.tuindice.testing.NoOpRecordOutboxDataRepository
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import com.gdavidpb.tuindice.testkit.ktor.serverResponseException
@@ -702,7 +703,8 @@ class SyncRepositoryContractTest {
 			remoteDataSource = remoteDataSource,
 			syncResultLocalDataSource = SyncResultLocalDataSource(
 				recordLocalDataSource = recordLocalDataSource,
-				userLocalDataSource = userLocalDataSource
+				userLocalDataSource = userLocalDataSource,
+				recordOutboxDataSource = NoOpRecordOutboxDataRepository
 			),
 			pensumRevalidationRepository = FakePensumRevalidationRepository(),
 			coroutineScope = coroutineScope

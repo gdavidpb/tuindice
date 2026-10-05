@@ -51,7 +51,8 @@ class AcademicRecordMutationSyncSpecOrderingTest {
 		val spec = AcademicRecordMutationSyncSpec(
 			remoteDataSource = errorRemoteDataSource(),
 			persistConfirmedSnapshot = { },
-			refreshRemoteSnapshot = { error("not used") }
+			refreshRemoteSnapshot = { error("not used") },
+			currentLocalRevision = { null }
 		)
 
 		val mutation: MutationEnvelope<String, AcademicRecordMutation> = MutationEnvelope(

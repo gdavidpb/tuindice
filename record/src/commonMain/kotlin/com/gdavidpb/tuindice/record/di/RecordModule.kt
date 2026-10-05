@@ -10,10 +10,12 @@ import com.gdavidpb.tuindice.persistence.domain.record.RECORD_MUTATION_STORE_ID
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceTransactionRunner
 import com.gdavidpb.tuindice.record.data.model.VersionedAcademicRecord
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordLocalDataRepository
+import com.gdavidpb.tuindice.record.data.repository.AcademicRecordOutboxDataRepository
 import com.gdavidpb.tuindice.record.data.repository.AcademicRecordRemoteDataRepository
 import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository
 import com.gdavidpb.tuindice.record.data.source.AcademicRecordApiDataSource
 import com.gdavidpb.tuindice.record.data.source.AcademicRecordDataSource
+import com.gdavidpb.tuindice.record.data.source.AcademicRecordOutboxDataSource
 import com.gdavidpb.tuindice.record.data.source.AcademicRecordRoomDataSource
 import com.gdavidpb.tuindice.record.data.source.LocalSettingsDataSource
 import com.gdavidpb.tuindice.record.data.source.SyntheticTermCreationDataSource
@@ -124,6 +126,9 @@ val recordModule = module {
 	}
 	singleOf(::AcademicRecordApiDataSource) { bind<AcademicRecordRemoteDataRepository>() }
 	singleOf(::AcademicRecordRoomDataSource) { bind<AcademicRecordLocalDataRepository>() }
+	single<AcademicRecordOutboxDataRepository> {
+		AcademicRecordOutboxDataSource(mutationEngine = get(named(RECORD_MUTATION_ENGINE_QUALIFIER)))
+	}
 
 	/* Exception handlers */
 

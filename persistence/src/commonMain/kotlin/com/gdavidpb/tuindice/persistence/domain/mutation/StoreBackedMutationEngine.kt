@@ -171,6 +171,14 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 		advanceMutationVersion()
 	}
 
+	/** A newer revision is known: the rows still waiting should expect it (see the store). */
+	suspend fun advancePendingRevisions(
+		scopeKey: ScopeKey,
+		revision: Long
+	) {
+		outboxStore.advancePendingRevisions(scopeKey = scopeKey, revision = revision)
+	}
+
 	suspend fun beginMutation(
 		replaceKey: String? = null
 	): Long {
@@ -239,10 +247,16 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 			retryableBefore = currentTimeMillis() - failedRetryBackoffMillis
 		)
 
-		getPendingMutations(scopeKey).forEach { mutation ->
-			if (targetMutationId != null && mutation.mutationId != targetMutationId) {
+		getPendingMutations(scopeKey).forEach { queued ->
+			if (targetMutationId != null && queued.mutationId != targetMutationId) {
 				return@forEach
 			}
+
+			// An earlier row of this pass may have moved the revision the rest expect, so the
+			// stored copy is the one to run, not the one read when the pass began.
+			val mutation = outboxStore.getPendingMutation(scopeKey, queued.mutationId)
+				?.takeIf { stored -> stored.status == PendingMutationStatus.Pending }
+				?: return@forEach
 
 			executeMutation(
 				MutationExecution.Execute(
@@ -286,7 +300,7 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 	private suspend fun processExecution(
 		execution: MutationExecution.Execute<ScopeKey, Command, Ack>
 	): UpdaterResult {
-		var currentMutation = execution.mutation
+		var currentMutation = alignedMutation(execution)
 		var rebaseAttempts = 0
 
 		while (true) {
@@ -301,6 +315,28 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 			rebaseAttempts += 1
 			currentMutation = step.mutation
 			outboxStore.savePendingMutation(currentMutation)
+			currentMutation.expectedRevision?.let { revision ->
+				advancePendingRevisions(scopeKey = currentMutation.scopeKey, revision = revision)
+			}
+		}
+	}
+
+	// Runs inside the scope's execution lock, so whatever the mutations ahead of this one
+	// confirmed is already stored: the row (not the copy captured when it was queued) is the
+	// truth, and the spec may know a newer revision still.
+	private suspend fun alignedMutation(
+		execution: MutationExecution.Execute<ScopeKey, Command, Ack>
+	): MutationEnvelope<ScopeKey, Command> {
+		val queued = execution.mutation
+		val stored = outboxStore.getPendingMutation(queued.scopeKey, queued.mutationId) ?: return queued
+		val precondition = execution.syncSpec.currentPrecondition(stored)
+
+		return if (precondition == stored.precondition) {
+			stored
+		} else {
+			stored.copy(precondition = precondition).also { aligned ->
+				outboxStore.savePendingMutation(aligned)
+			}
 		}
 	}
 
@@ -358,6 +394,10 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 		} else {
 			syncSpec.confirm(mutation, ack)
 			retire()
+		}
+
+		syncSpec.revisionOf(ack)?.let { revision ->
+			outboxStore.advancePendingRevisions(scopeKey = mutation.scopeKey, revision = revision)
 		}
 
 		advanceMutationVersion()
@@ -434,7 +474,18 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 
 		if (!exhausted) return ExecutionStep.Rebase(rebasedMutation)
 
-		outboxStore.savePendingMutation(rebasedMutation.failed(throwable.message))
+		// Each exhausted execution is counted for the life of the row: it is requeued after a
+		// backoff and would otherwise keep losing the same race forever.
+		val exhaustedExecutions = rebasedMutation.rebaseCount + 1
+		val parked = rebasedMutation.copy(rebaseCount = exhaustedExecutions)
+
+		outboxStore.savePendingMutation(
+			if (exhaustedExecutions >= execution.syncSpec.maxExhaustedExecutions) {
+				parked.failedTerminally(throwable.message)
+			} else {
+				parked.failed(throwable.message)
+			}
+		)
 
 		return terminalStep(throwable, execution.propagateTerminalErrors)
 	}

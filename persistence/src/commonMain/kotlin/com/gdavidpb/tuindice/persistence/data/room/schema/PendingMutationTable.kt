@@ -6,6 +6,9 @@ object PendingMutationTable {
 	const val STORE_SCOPE_CREATED_AT_INDEX = "idx_pending_mutations_store_scope_created_at"
 	const val STORE_ENTITY_TYPE_ENTITY_ID_INDEX = "idx_pending_mutations_store_entity_type_entity_id"
 
+	const val PRECONDITION_REVISION = "revision"
+	const val PRECONDITION_NONE = "none"
+
 	const val MUTATION_ID = "mutation_id"
 	const val STORE_ID = "store_id"
 	const val SCOPE_KEY = "scope_key"

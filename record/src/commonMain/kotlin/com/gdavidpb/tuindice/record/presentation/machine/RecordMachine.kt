@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.InitialContentRefres
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
+import com.gdavidpb.tuindice.record.domain.model.RecordRejection
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.EnsureRecordLoadedUseCase
@@ -23,8 +24,8 @@ import com.gdavidpb.tuindice.record.domain.usecase.error.RecordUseCaseError
 import com.gdavidpb.tuindice.record.domain.usecase.param.SetSelectedTermParams
 import com.gdavidpb.tuindice.record.domain.usecase.param.UpsertAttemptSelectionParams
 import com.gdavidpb.tuindice.record.presentation.contract.Record
+import com.gdavidpb.tuindice.record.presentation.mapper.recordRejectionMessage
 import com.gdavidpb.tuindice.record.presentation.mapper.resolveRecordNotice
-import com.gdavidpb.tuindice.record.presentation.mapper.syntheticTermRejectionMessage
 import com.gdavidpb.tuindice.record.presentation.mapper.toRecordFailureMessage
 import com.gdavidpb.tuindice.record.presentation.transition.recordAnyStateTransitions
 import com.gdavidpb.tuindice.record.presentation.transition.recordContentTransitions
@@ -131,11 +132,14 @@ class RecordMachine(
 		syntheticTermRejectionObservationJob = host.launchMachineJob {
 			observeSyntheticTermRejectionsUseCase.execute(Unit).collect { useCaseState ->
 				if (useCaseState is UseCaseState.Data) {
-					host.processInternalEvent(
-						RecordInternalEvent.SyntheticTermRejected(
-							message = syntheticTermRejectionMessage(count = useCaseState.value)
+					// A grade and a term are rejected for different reasons, so each gets its own snackbar.
+					useCaseState.value.groupBy(RecordRejection::kind).forEach { (kind, rejections) ->
+						host.processInternalEvent(
+							RecordInternalEvent.SyntheticTermRejected(
+								message = recordRejectionMessage(kind = kind, count = rejections.size)
+							)
 						)
-					)
+					}
 				}
 			}
 		}

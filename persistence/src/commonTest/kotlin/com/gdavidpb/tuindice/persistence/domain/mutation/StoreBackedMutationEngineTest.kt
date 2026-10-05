@@ -239,6 +239,139 @@ class StoreBackedMutationEngineTest {
 	}
 
 	@Test
+	fun drain_whenAMutationIsConfirmed_theRowsStillWaitingExpectTheNewRevision() = runTest {
+		val store = InMemoryMutationEnvelopeStore(
+			listOf(
+				testMutationEnvelope("mutation-1", value = 5, precondition = MutationPrecondition.Revision(1L)),
+				testMutationEnvelope("mutation-2", value = 6, precondition = MutationPrecondition.Revision(1L)),
+				testMutationEnvelope("mutation-3", value = 7, precondition = MutationPrecondition.Revision(1L))
+			)
+		)
+		val engine = createEngine(store, this)
+		val sentRevisions = mutableListOf<Long?>()
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
+			override fun revisionOf(ack: TestAck): Long = ack.value.toLong()
+
+			override suspend fun send(mutation: MutationEnvelope<String, TestMutation>): TestAck {
+				sentRevisions += mutation.expectedRevision
+				return TestAck(mutation.mutationId, mutation.command.value)
+			}
+
+			override suspend fun confirm(mutation: MutationEnvelope<String, TestMutation>, ack: TestAck) = Unit
+		}
+
+		engine.drain(scopeKey = "record", syncSpec = syncSpec)
+
+		// Each row is sent with the revision the one before it confirmed, not the one it was queued with.
+		assertEquals(listOf<Long?>(1L, 5L, 6L), sentRevisions)
+		assertEquals(emptyList(), store.getPendingMutations("record"))
+	}
+
+	@Test
+	fun drain_whenARowRebases_theRowsStillWaitingExpectTheRebasedRevision() = runTest {
+		val store = InMemoryMutationEnvelopeStore(
+			listOf(
+				testMutationEnvelope("mutation-1", value = 5, precondition = MutationPrecondition.Revision(1L)),
+				testMutationEnvelope("mutation-2", value = 6, precondition = MutationPrecondition.Revision(1L))
+			)
+		)
+		val engine = createEngine(store, this)
+		val sentRevisions = mutableListOf<Pair<String, Long?>>()
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
+			override val maxRebaseAttempts: Int = 3
+
+			override suspend fun send(mutation: MutationEnvelope<String, TestMutation>): TestAck {
+				sentRevisions += mutation.mutationId to mutation.expectedRevision
+				if (mutation.mutationId == "mutation-1" && mutation.expectedRevision == 1L) throw TestPreconditionFailure()
+				return TestAck(mutation.mutationId, mutation.command.value)
+			}
+
+			override suspend fun confirm(mutation: MutationEnvelope<String, TestMutation>, ack: TestAck) = Unit
+
+			override suspend fun resolveFailure(
+				mutation: MutationEnvelope<String, TestMutation>,
+				throwable: Throwable
+			): MutationFailureResolution<String, TestMutation> = MutationFailureResolution.Retry(
+				mutation.copy(precondition = MutationPrecondition.Revision(9L))
+			)
+		}
+
+		engine.drain(scopeKey = "record", syncSpec = syncSpec)
+
+		assertEquals(
+			listOf<Pair<String, Long?>>("mutation-1" to 1L, "mutation-1" to 9L, "mutation-2" to 9L),
+			sentRevisions
+		)
+	}
+
+	@Test
+	fun execution_readsTheCurrentPreconditionInsideTheLock() = runTest {
+		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
+		val engine = createEngine(store, this)
+		val sentRevisions = mutableListOf<Long?>()
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
+			override suspend fun currentPrecondition(
+				mutation: MutationEnvelope<String, TestMutation>
+			): MutationPrecondition = MutationPrecondition.Revision(9L)
+
+			override suspend fun send(mutation: MutationEnvelope<String, TestMutation>): TestAck {
+				sentRevisions += mutation.expectedRevision
+				return TestAck(mutation.mutationId, mutation.command.value)
+			}
+
+			override suspend fun confirm(mutation: MutationEnvelope<String, TestMutation>, ack: TestAck) = Unit
+		}
+
+		engine.submit(
+			mutation = testMutationEnvelope("mutation-1", value = 5, precondition = MutationPrecondition.Revision(1L)),
+			syncSpec = syncSpec
+		)
+
+		assertEquals(listOf<Long?>(9L), sentRevisions)
+	}
+
+	@Test
+	fun drain_whenRebasesAreExhaustedTooOften_parksTheRowForGood() = runTest {
+		val store = InMemoryMutationEnvelopeStore(
+			listOf(testMutationEnvelope("mutation-1", value = 5, precondition = MutationPrecondition.Revision(1L)))
+		)
+		val engine = createEngine(store, this, failedRetryBackoffMillis = 0L)
+		val syncSpec = object : MutationSyncSpec<String, TestMutation, TestAck> {
+			override val maxRebaseAttempts: Int = 3
+			override val maxExhaustedExecutions: Int = 3
+
+			override suspend fun send(mutation: MutationEnvelope<String, TestMutation>): TestAck =
+				throw TestPreconditionFailure()
+
+			override suspend fun confirm(mutation: MutationEnvelope<String, TestMutation>, ack: TestAck) = Unit
+
+			// Never learns anything new: the rebase lands on the same revision, so it is exhausted at once.
+			override suspend fun resolveFailure(
+				mutation: MutationEnvelope<String, TestMutation>,
+				throwable: Throwable
+			): MutationFailureResolution<String, TestMutation> = MutationFailureResolution.Retry(mutation)
+		}
+
+		val statuses = (1..4).map {
+			engine.drain(scopeKey = "record", syncSpec = syncSpec)
+			requireNotNull(store.getPendingMutation("record", "mutation-1")).let { row ->
+				row.status to row.rebaseCount
+			}
+		}
+
+		assertEquals(
+			listOf(
+				PendingMutationStatus.Failed to 1,
+				PendingMutationStatus.Failed to 2,
+				PendingMutationStatus.FailedTerminal to 3,
+				// A terminal row is never requeued, so the count stops there.
+				PendingMutationStatus.FailedTerminal to 3
+			),
+			statuses
+		)
+	}
+
+	@Test
 	fun submit_whenPreconditionIsNone_supportsSimpleWriteFlow() = runTest {
 		val store = InMemoryMutationEnvelopeStore<String, TestMutation>()
 		val engine = createEngine(store, this)
@@ -705,6 +838,27 @@ private class InMemoryMutationEnvelopeStore<ScopeKey : Any, Command : OutboxMuta
 		state.value = state.value.filterNot { mutation ->
 			mutation.scopeKey == scopeKey && mutation.mutationId == mutationId
 		}
+	}
+
+	override suspend fun advancePendingRevisions(
+		scopeKey: ScopeKey,
+		revision: Long
+	): Int {
+		var advanced = 0
+		state.value = state.value.map { mutation ->
+			val expected = mutation.expectedRevision
+			val isWaiting = mutation.status == PendingMutationStatus.Pending ||
+				mutation.status == PendingMutationStatus.Failed
+			val isBehind = expected != null && expected < revision
+
+			if (mutation.scopeKey == scopeKey && isWaiting && isBehind) {
+				advanced += 1
+				mutation.copy(precondition = MutationPrecondition.Revision(revision))
+			} else {
+				mutation
+			}
+		}
+		return advanced
 	}
 }
 

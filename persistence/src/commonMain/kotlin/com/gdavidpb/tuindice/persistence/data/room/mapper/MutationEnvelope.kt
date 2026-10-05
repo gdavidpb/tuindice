@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.persistence.data.room.mapper
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.persistence.data.room.entity.PendingMutationEntity
+import com.gdavidpb.tuindice.persistence.data.room.schema.PendingMutationTable
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelope
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationPrecondition
 import kotlinx.serialization.KSerializer
@@ -16,14 +17,15 @@ fun <Command : OutboxMutation> PendingMutationEntity.toMutationEnvelope(
 	scopeKey = scopeKey,
 	command = json.decodeFromString(commandSerializer, payload),
 	precondition = when (preconditionType) {
-		"none" -> MutationPrecondition.None
+		PendingMutationTable.PRECONDITION_NONE -> MutationPrecondition.None
 		else -> MutationPrecondition.Revision(expectedRevision)
 	},
 	status = PendingMutationStatus.valueOf(status),
 	createdAt = createdAt,
 	updatedAt = updatedAt,
 	lastError = lastError,
-	replaceKey = replaceKey
+	replaceKey = replaceKey,
+	rebaseCount = rebaseCount
 )
 
 fun <Command : OutboxMutation> MutationEnvelope<String, Command>.toPendingMutationEntity(
@@ -39,12 +41,13 @@ fun <Command : OutboxMutation> MutationEnvelope<String, Command>.toPendingMutati
 	replaceKey = replaceKey,
 	payload = json.encodeToString(commandSerializer, command),
 	preconditionType = when (precondition) {
-		MutationPrecondition.None -> "none"
-		is MutationPrecondition.Revision -> "revision"
+		MutationPrecondition.None -> PendingMutationTable.PRECONDITION_NONE
+		is MutationPrecondition.Revision -> PendingMutationTable.PRECONDITION_REVISION
 	},
 	expectedRevision = (precondition as? MutationPrecondition.Revision)?.value ?: 0L,
 	status = status.name,
 	createdAt = createdAt,
 	updatedAt = updatedAt,
-	lastError = lastError
+	lastError = lastError,
+	rebaseCount = rebaseCount
 )

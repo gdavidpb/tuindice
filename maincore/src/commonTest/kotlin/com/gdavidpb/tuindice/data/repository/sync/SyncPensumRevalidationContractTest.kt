@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.data.source.sync.SyncDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncResultLocalDataSource
+import com.gdavidpb.tuindice.testing.NoOpRecordOutboxDataRepository
 import com.gdavidpb.tuindice.testkit.coroutines.testSessionCoroutineScope
 import com.gdavidpb.tuindice.testkit.ktor.serverResponseException
 import io.ktor.http.HttpStatusCode
@@ -124,7 +125,8 @@ class SyncPensumRevalidationContractTest {
 			remoteDataSource = remoteDataSource,
 			syncResultLocalDataSource = SyncResultLocalDataSource(
 				recordLocalDataSource = FakeAcademicRecordLocalDataRepository(),
-				userLocalDataSource = FakeUserLocalDataRepository()
+				userLocalDataSource = FakeUserLocalDataRepository(),
+				recordOutboxDataSource = NoOpRecordOutboxDataRepository
 			),
 			pensumRevalidationRepository = pensumRevalidationRepository,
 			coroutineScope = coroutineScope

@@ -12,7 +12,9 @@ data class MutationEnvelope<ScopeKey, Command : OutboxMutation>(
 	val createdAt: Long,
 	val updatedAt: Long,
 	val lastError: String?,
-	val replaceKey: String = command.replaceKey
+	val replaceKey: String = command.replaceKey,
+	// Executions that used up every rebase without landing; see MutationSyncSpec.maxExhaustedExecutions.
+	val rebaseCount: Int = 0
 ) {
 	val entityType: String
 		get() = command.entityType

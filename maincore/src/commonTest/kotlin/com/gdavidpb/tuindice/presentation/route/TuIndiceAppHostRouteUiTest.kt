@@ -52,7 +52,9 @@ import com.gdavidpb.tuindice.presentation.navigation.NavEntryStoresViewModel
 import com.gdavidpb.tuindice.security.domain.model.Attestation
 import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
+import com.gdavidpb.tuindice.summary.domain.repository.CurrentTermRepository
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import com.gdavidpb.tuindice.testing.FakeCurrentTermRepository
 import com.gdavidpb.tuindice.testing.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testing.createMainViewModel
 import com.gdavidpb.tuindice.testing.createSummaryViewModel
@@ -1119,6 +1121,7 @@ class TuIndiceAppHostRouteUiTest {
 		single<SessionInvalidationRepository> { sessionInvalidationRepository }
 		single<SyncRepository> { FakeSyncRepository() }
 		single<SyncStatusRepository> { syncStatusRepository }
+		single<CurrentTermRepository> { FakeCurrentTermRepository }
 		single<UpdateRepository> { FakeUpdateRepository() }
 		single<UsageDataConsentRepository> { InMemoryUsageDataConsentRepository() }
 		factory { createTestCoachmarkOverlayViewModel() }

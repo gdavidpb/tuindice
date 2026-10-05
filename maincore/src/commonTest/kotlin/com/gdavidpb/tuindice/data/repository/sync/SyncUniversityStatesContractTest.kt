@@ -13,6 +13,7 @@ import com.gdavidpb.tuindice.data.model.SyncResult
 import com.gdavidpb.tuindice.data.source.sync.SyncDataSource
 import com.gdavidpb.tuindice.data.source.sync.SyncRemoteException
 import com.gdavidpb.tuindice.data.source.sync.SyncResultLocalDataSource
+import com.gdavidpb.tuindice.testing.NoOpRecordOutboxDataRepository
 import com.gdavidpb.tuindice.testkit.ktor.clientRequestException
 import com.gdavidpb.tuindice.testkit.ktor.serverResponseException
 import io.ktor.http.HttpStatusCode
@@ -201,7 +202,8 @@ class SyncUniversityStatesContractTest {
 			remoteDataSource = remoteDataSource,
 			syncResultLocalDataSource = SyncResultLocalDataSource(
 				recordLocalDataSource = FakeAcademicRecordLocalDataRepository(),
-				userLocalDataSource = FakeUserLocalDataRepository()
+				userLocalDataSource = FakeUserLocalDataRepository(),
+				recordOutboxDataSource = NoOpRecordOutboxDataRepository
 			),
 			pensumRevalidationRepository = FakePensumRevalidationRepository(),
 			coroutineScope = CoroutineScope(SupervisorJob() + dispatcher)

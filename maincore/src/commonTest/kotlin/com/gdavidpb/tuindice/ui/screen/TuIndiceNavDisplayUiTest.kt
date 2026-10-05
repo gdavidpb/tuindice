@@ -7,6 +7,8 @@ import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
+import com.gdavidpb.tuindice.summary.domain.repository.CurrentTermRepository
+import com.gdavidpb.tuindice.testing.FakeCurrentTermRepository
 import com.gdavidpb.tuindice.testing.createSummaryViewModel
 import com.gdavidpb.tuindice.testing.rememberTestNavigator
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
@@ -116,6 +118,7 @@ class TuIndiceNavDisplayUiTest {
 					factory { createSummaryViewModel() }
 					single<SyncRepository> { FakeSyncRepository() }
 					single<SyncStatusRepository> { FakeSyncStatusRepository() }
+					single<CurrentTermRepository> { FakeCurrentTermRepository }
 				}
 			)
 		}

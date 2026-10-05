@@ -1179,4 +1179,24 @@ internal class InMemoryMutationEnvelopeStore(
 			mutation.scopeKey == scopeKey && mutation.mutationId == mutationId
 		}
 	}
+	override suspend fun advancePendingRevisions(
+		scopeKey: String,
+		revision: Long
+	): Int {
+		var advanced = 0
+		state.value = state.value.map { mutation ->
+			val expected = mutation.expectedRevision
+			val isWaiting = mutation.status == PendingMutationStatus.Pending ||
+				mutation.status == PendingMutationStatus.Failed
+			val isBehind = expected != null && expected < revision
+
+			if (mutation.scopeKey == scopeKey && isWaiting && isBehind) {
+				advanced += 1
+				mutation.copy(precondition = MutationPrecondition.Revision(revision))
+			} else {
+				mutation
+			}
+		}
+		return advanced
+	}
 }
