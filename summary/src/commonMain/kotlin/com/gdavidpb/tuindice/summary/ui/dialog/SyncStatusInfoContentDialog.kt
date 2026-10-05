@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncSourceStatus
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
-import com.gdavidpb.tuindice.base.presentation.model.EnrollmentAnnulmentTexts
-import com.gdavidpb.tuindice.base.presentation.model.NewStudentNoRecordTexts
+import com.gdavidpb.tuindice.base.presentation.mapper.EnrollmentAnnulmentTexts
+import com.gdavidpb.tuindice.base.presentation.mapper.NewStudentNoRecordTexts
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import org.jetbrains.compose.resources.stringResource
 import tuindice.summary.generated.resources.Res

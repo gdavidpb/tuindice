@@ -2,7 +2,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.machine
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.mapper.commonUnexpectedErrorMessage
-import com.gdavidpb.tuindice.base.presentation.model.EnrollmentAnnulmentTexts
+import com.gdavidpb.tuindice.base.presentation.mapper.EnrollmentAnnulmentTexts
 import com.gdavidpb.tuindice.base.presentation.model.SyncedContentResolution
 import com.gdavidpb.tuindice.base.presentation.model.resolveSyncedContentResolution
 import com.gdavidpb.tuindice.base.presentation.statemachine.InitialContentRefreshGate

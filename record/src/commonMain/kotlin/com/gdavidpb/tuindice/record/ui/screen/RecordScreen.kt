@@ -23,7 +23,7 @@ import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
-import com.gdavidpb.tuindice.base.presentation.model.NewStudentNoRecordTexts
+import com.gdavidpb.tuindice.base.presentation.mapper.NewStudentNoRecordTexts
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView

@@ -4,7 +4,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
 import com.gdavidpb.tuindice.base.domain.model.SyncSourceStatus
 import com.gdavidpb.tuindice.base.presentation.mapper.DateTextStyle
 import com.gdavidpb.tuindice.base.presentation.mapper.formatDate
-import com.gdavidpb.tuindice.base.presentation.model.EnrollmentAnnulmentTexts
+import com.gdavidpb.tuindice.base.presentation.mapper.EnrollmentAnnulmentTexts
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.record.domain.model.ObservedRecord
 import com.gdavidpb.tuindice.record.presentation.model.RecordNotice

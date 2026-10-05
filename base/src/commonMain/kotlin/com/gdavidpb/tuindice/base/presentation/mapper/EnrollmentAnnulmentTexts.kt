@@ -1,6 +1,7 @@
-package com.gdavidpb.tuindice.base.presentation.model
+package com.gdavidpb.tuindice.base.presentation.mapper
 
 import com.gdavidpb.tuindice.base.domain.model.EnrollmentAnnulmentCause
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import tuindice.base.generated.resources.Res
 import tuindice.base.generated.resources.enrollment_annulled_cause_academic_index
 import tuindice.base.generated.resources.enrollment_annulled_cause_credit_limit

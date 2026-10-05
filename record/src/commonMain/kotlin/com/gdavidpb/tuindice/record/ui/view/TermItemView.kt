@@ -14,7 +14,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.view.NoticeView
-import com.gdavidpb.tuindice.base.ui.view.rememberLastNonNull
+import com.gdavidpb.tuindice.base.utils.extension.rememberLastNonNull
 import com.gdavidpb.tuindice.record.presentation.model.RecordNotice
 import com.gdavidpb.tuindice.record.presentation.model.RecordNoticeKind
 import com.gdavidpb.tuindice.record.presentation.model.TermItem

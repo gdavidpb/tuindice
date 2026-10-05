@@ -1,5 +1,6 @@
-package com.gdavidpb.tuindice.base.presentation.model
+package com.gdavidpb.tuindice.base.presentation.mapper
 
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import tuindice.base.generated.resources.Res
 import tuindice.base.generated.resources.new_student_no_record_message
 import tuindice.base.generated.resources.new_student_no_record_title

@@ -7,8 +7,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
-import com.gdavidpb.tuindice.base.presentation.model.EnrollmentAnnulmentTexts
-import com.gdavidpb.tuindice.base.presentation.model.NewStudentNoRecordTexts
+import com.gdavidpb.tuindice.base.presentation.mapper.EnrollmentAnnulmentTexts
+import com.gdavidpb.tuindice.base.presentation.mapper.NewStudentNoRecordTexts
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView

@@ -10,7 +10,7 @@ import com.gdavidpb.tuindice.base.domain.model.SyncReportStatus
 import com.gdavidpb.tuindice.base.domain.model.SyncSourceReport
 import com.gdavidpb.tuindice.base.domain.model.SyncSourceStatus
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
-import com.gdavidpb.tuindice.base.presentation.model.EnrollmentAnnulmentTexts
+import com.gdavidpb.tuindice.base.presentation.mapper.EnrollmentAnnulmentTexts
 import com.gdavidpb.tuindice.record.domain.model.ObservedRecord
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.model.RecordNoticeKind
