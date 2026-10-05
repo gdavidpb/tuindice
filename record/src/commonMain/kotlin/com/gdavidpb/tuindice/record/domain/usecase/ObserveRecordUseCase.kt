@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.domain.usecase
 
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.FlowUseCase
 import com.gdavidpb.tuindice.record.domain.model.ObservedRecord
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.combine
 class ObserveRecordUseCase(
 	private val academicRecordRepository: AcademicRecordRepository,
 	private val recordSelectionRepository: RecordSelectionRepository,
+	private val syncStatusRepository: SyncStatusRepository,
 	override val reportingRepository: ReportingRepository
 ) : FlowUseCase<Unit, ObservedRecord, Nothing>() {
 	override suspend fun executeOnBackground(params: Unit): Flow<ObservedRecord> {
@@ -21,8 +23,12 @@ class ObserveRecordUseCase(
 			academicRecordRepository.observeAcademicRecordSnapshotFlow(),
 			recordSelectionRepository.observeRecordViewMode(),
 			recordSelectionRepository.observeSelectedTermId(RecordViewMode.Historical),
-			recordSelectionRepository.observeSelectedTermId(RecordViewMode.Projection)
-		) { recordSnapshot, viewMode, selectedHistoricalTermId, selectedProjectionTermId ->
+			recordSelectionRepository.observeSelectedTermId(RecordViewMode.Projection),
+			combine(
+				syncStatusRepository.observeSyncStatus(),
+				syncStatusRepository.observeSyncReport()
+			) { syncStatus, syncReport -> syncStatus to syncReport }
+		) { recordSnapshot, viewMode, selectedHistoricalTermId, selectedProjectionTermId, syncState ->
 			val record = recordSnapshot.value
 			val visibleTermIds = record.filteredProjectionFor(viewMode)
 				.terms
@@ -60,7 +66,9 @@ class ObserveRecordUseCase(
 				record = record,
 				viewMode = viewMode,
 				selectedTermId = selectedTermId,
-				hasSyncedRecord = recordSnapshot.hasSynced
+				hasSyncedRecord = recordSnapshot.hasSynced,
+				syncStatus = syncState.first,
+				syncReport = syncState.second
 			)
 		}
 	}

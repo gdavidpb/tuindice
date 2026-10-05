@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.record.di.recordModule
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
@@ -28,6 +29,7 @@ import com.gdavidpb.tuindice.record.presentation.model.CreateTermAddSubjectTab
 import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
 import com.gdavidpb.tuindice.record.presentation.viewmodel.CreateSyntheticTermViewModel
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineCoversAlphabet
@@ -191,15 +193,17 @@ class RecordStateMachineContractTest {
 				RecordInternalEvent.RecordContentObserved(
 					viewMode = RecordViewMode.Projection,
 					record = AcademicRecord(id = "record-1"),
-					selectedTermId = "term-1"
+					selectedTermId = "term-1",
+					notice = null
 				),
-				RecordInternalEvent.RecordEmptyObserved,
-				RecordInternalEvent.RecordWaitingObserved,
+				RecordInternalEvent.RecordEmptyObserved(notice = null),
+				RecordInternalEvent.RecordWaitingObserved(isNewStudentNoRecord = false),
 				RecordInternalEvent.RecordObservationFailed,
 				RecordInternalEvent.RecordRefreshStarted,
 				RecordInternalEvent.RecordRefreshFailed(
 					message = "Comprueba tu conexión",
-					navigateToOutdatedCredentials = false
+					navigateToOutdatedCredentials = false,
+					isNewStudentNoRecord = false
 				),
 				RecordInternalEvent.RecordViewModeSet(viewMode = RecordViewMode.Projection),
 				RecordInternalEvent.RecordUnauthorized,
@@ -294,6 +298,7 @@ class RecordStateMachineContractTest {
 			single<SyntheticTermCreationRepository> { StubSyntheticTermCreationRepository() }
 			single<SyntheticTermLoadPreviewRepository> { StubSyntheticTermLoadPreviewRepository() }
 			single<ReportingRepository> { RecordingReportingRepository() }
+			single<SyncStatusRepository> { FakeSyncStatusRepository() }
 			single<EventPublisher> { NoOpEventPublisher }
 			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 		},

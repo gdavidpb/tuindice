@@ -20,8 +20,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
+import com.gdavidpb.tuindice.base.ui.view.NoticeView
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
@@ -65,6 +68,15 @@ fun EvaluationsContentView(
 				.fillMaxSize()
 				.padding(top = InternalScreenDefaults.TopBarSpacing)
 		) {
+			// The provisional annulment: the term and its evaluations stay usable, so it only warns.
+			state.notice?.let { notice ->
+				NoticeView(
+					modifier = Modifier.padding(top = TuIndiceSpacing.Medium),
+					title = notice.title.asString(),
+					message = notice.message.asString()
+				)
+			}
+
 			EvaluationsWeekStripView(
 				items = state.weekItems,
 				selectedWeekKey = state.selectedWeekKey,

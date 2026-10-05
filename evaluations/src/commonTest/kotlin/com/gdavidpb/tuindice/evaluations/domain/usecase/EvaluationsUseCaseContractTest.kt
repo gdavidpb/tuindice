@@ -1,8 +1,15 @@
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.base.domain.model.EnrollmentAnnulmentCause
+import com.gdavidpb.tuindice.base.domain.model.EnrollmentSituation
 import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
+import com.gdavidpb.tuindice.base.domain.model.SyncReportSources
+import com.gdavidpb.tuindice.base.domain.model.SyncReportStatus
+import com.gdavidpb.tuindice.base.domain.model.SyncSourceReport
+import com.gdavidpb.tuindice.base.domain.model.SyncSourceStatus
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.domain.model.GetEvaluations
@@ -139,8 +146,8 @@ class EvaluationsUseCaseContractTest {
 		)
 
 		useCase.execute(Unit).test {
-			assertEquals(GetEvaluations.RecordDataUnavailable, awaitLoadingThenData(this))
-			awaitComplete()
+			assertEquals(GetEvaluations.RecordDataUnavailable(), awaitLoadingThenData(this))
+			cancelAndIgnoreRemainingEvents()
 		}
 	}
 
@@ -164,6 +171,125 @@ class EvaluationsUseCaseContractTest {
 			)
 			awaitComplete()
 		}
+	}
+
+	@Test
+	fun getEvaluationsUseCase_reportsNewStudent_whenPrerequisiteFailedBecauseOfNoRecord() = runTest {
+		val useCase = noAttemptsUseCase(
+			syncStatusRepository = RecordingSyncStatusRepository(
+				initialStatus = SyncStatus.NewStudentNoRecord
+			),
+			prerequisite = RecordDataPrerequisiteState(isReady = false, hasFailed = true)
+		)
+
+		useCase.execute(Unit).test {
+			assertEquals(
+				GetEvaluations.RecordDataUnavailable(isNewStudentNoRecord = true),
+				awaitLoadingThenData(this)
+			)
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	@Test
+	fun getEvaluationsUseCase_withNoCurrentTermAndSituation_reportsAnnulledWithCause() = runTest {
+		val useCase = noAttemptsUseCase(
+			syncStatusRepository = RecordingSyncStatusRepository(
+				initialReport = enrollmentReport(
+					status = SyncSourceStatus.Success,
+					situation = EnrollmentSituation(code = "15")
+				)
+			)
+		)
+
+		useCase.execute(Unit).test {
+			assertEquals(
+				GetEvaluations.NoAttempts(
+					EvaluationsNoAttemptsReason.Annulled(EnrollmentAnnulmentCause.PermanenceRule)
+				),
+				awaitLoadingThenData(this)
+			)
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	@Test
+	fun getEvaluationsUseCase_withNoCurrentTermAndNotEnrolled_reportsNotEnrolled() = runTest {
+		val useCase = noAttemptsUseCase(
+			syncStatusRepository = RecordingSyncStatusRepository(
+				initialReport = enrollmentReport(status = SyncSourceStatus.NotEnrolled)
+			)
+		)
+
+		useCase.execute(Unit).test {
+			assertEquals(
+				GetEvaluations.NoAttempts(EvaluationsNoAttemptsReason.NotEnrolled),
+				awaitLoadingThenData(this)
+			)
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	@Test
+	fun getEvaluationsUseCase_withCurrentTermAndSituation_keepsContentAndExposesSituation() = runTest {
+		val situation = EnrollmentSituation(code = "01")
+		val useCase = GetEvaluationsUseCase(
+			evaluationRepository = RecordingEvaluationRepository(
+				evaluationsFlow = flowOf(listOf(DEFAULT_PENDING_EVALUATION)),
+				initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION)
+			),
+			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(),
+			syncStatusRepository = RecordingSyncStatusRepository(
+				initialReport = enrollmentReport(
+					status = SyncSourceStatus.Success,
+					situation = situation
+				)
+			),
+			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
+			reportingRepository = RecordingReportingRepository()
+		)
+
+		useCase.execute(Unit).test {
+			val content = awaitLoadingThenData(this) as GetEvaluations.Content
+
+			assertEquals(situation, content.enrollmentSituation)
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	private fun noAttemptsUseCase(
+		syncStatusRepository: RecordingSyncStatusRepository,
+		prerequisite: RecordDataPrerequisiteState = RecordDataPrerequisiteState(
+			isReady = true,
+			hasFailed = false
+		)
+	): GetEvaluationsUseCase {
+		return GetEvaluationsUseCase(
+			evaluationRepository = RecordingEvaluationRepository(
+				evaluationsFlow = flowOf(emptyList()),
+				initialEvaluations = emptyList(),
+				availableSubjects = emptyList()
+			),
+			recordDataPrerequisiteRepository = ReadyRecordDataPrerequisiteRepository(
+				states = flowOf(prerequisite)
+			),
+			syncStatusRepository = syncStatusRepository,
+			evaluationsSelectionRepository = InMemoryEvaluationsSelectionRepository(),
+			reportingRepository = RecordingReportingRepository()
+		)
+	}
+
+	private fun enrollmentReport(
+		status: SyncSourceStatus,
+		situation: EnrollmentSituation? = null
+	): SyncReport {
+		return SyncReport(
+			status = SyncReportStatus.Success,
+			sources = SyncReportSources(
+				record = SyncSourceReport(SyncSourceStatus.Success),
+				enrollment = SyncSourceReport(status = status, situation = situation)
+			)
+		)
 	}
 }
 

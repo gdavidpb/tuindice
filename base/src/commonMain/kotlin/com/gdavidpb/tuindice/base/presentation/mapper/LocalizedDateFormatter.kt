@@ -17,6 +17,21 @@ private val FULL_MONTH_NAMES = listOf(
 	"diciembre"
 )
 
+private val SHORT_MONTH_NAMES = listOf(
+	"ene",
+	"feb",
+	"mar",
+	"abr",
+	"may",
+	"jun",
+	"jul",
+	"ago",
+	"sep",
+	"oct",
+	"nov",
+	"dic"
+)
+
 private val FULL_WEEKDAY_NAMES = listOf(
 	"lunes",
 	"martes",
@@ -51,4 +66,8 @@ fun localizedFullWeekdayNames(): List<String> {
 
 fun localizedFullMonthNames(): List<String> {
 	return FULL_MONTH_NAMES
+}
+
+fun localizedShortMonthNames(): List<String> {
+	return SHORT_MONTH_NAMES
 }

@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.applying
+import com.gdavidpb.tuindice.record.presentation.model.RecordNotice
 import tuindice.record.generated.resources.Res
 import tuindice.record.generated.resources.top_bar_record
 
@@ -29,7 +30,8 @@ object Record {
 			val viewMode: RecordViewMode,
 			val record: AcademicRecord,
 			val selectedTermId: String,
-			val inFlightSelection: InFlightSelection? = null
+			val inFlightSelection: InFlightSelection? = null,
+			val notice: RecordNotice? = null
 		) : State() {
 			/**
 			 * Lo que la pantalla proyecta: el expediente observado más el override del
@@ -46,9 +48,15 @@ object Record {
 			val isCommitted: Boolean
 		)
 
-		data object Empty : State()
+		data class Empty(
+			val notice: RecordNotice? = null
+		) : State()
 
-		data object Failed : State()
+		// isNewStudentNoRecord: the university has no record for this account yet, so the retry
+		// is not about a failure of ours and the screen says so.
+		data class Failed(
+			val isNewStudentNoRecord: Boolean = false
+		) : State()
 	}
 
 	sealed class Action : ViewAction {

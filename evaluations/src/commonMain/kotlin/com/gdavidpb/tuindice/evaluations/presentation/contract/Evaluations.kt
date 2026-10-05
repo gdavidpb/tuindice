@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsNotice
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
@@ -33,7 +34,8 @@ object Evaluations {
 					title = weekItem.labelText,
 					groups = evaluationGroups
 				)
-			)
+			),
+			val notice: EvaluationsNotice? = null
 		) : State()
 
 		data object Empty : State()
@@ -45,7 +47,9 @@ object Evaluations {
 		// Split from Failed because it is not the user's to retry: it means the record
 		// sync itself is failing, and only a sync can clear it. Mirrors Pensum, which
 		// already models this cause as its own state.
-		data object RecordDataUnavailable : State()
+		data class RecordDataUnavailable(
+			val isNewStudentNoRecord: Boolean = false
+		) : State()
 
 		data class Failed(
 			val message: String

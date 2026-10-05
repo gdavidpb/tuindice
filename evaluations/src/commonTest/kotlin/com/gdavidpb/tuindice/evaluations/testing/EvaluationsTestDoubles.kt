@@ -66,9 +66,10 @@ class ReadyRecordDataPrerequisiteRepository(
 }
 
 class RecordingSyncStatusRepository(
-	initialReport: SyncReport = SyncReport.success()
+	initialReport: SyncReport = SyncReport.success(),
+	initialStatus: SyncStatus = SyncStatus.Healthy
 ) : SyncStatusRepository {
-	private val syncStatus = MutableStateFlow(SyncStatus.Healthy)
+	private val syncStatus = MutableStateFlow(initialStatus)
 	private val syncReport = MutableStateFlow(initialReport)
 	private val lastSuccessfulSyncAt = MutableStateFlow<Long?>(null)
 

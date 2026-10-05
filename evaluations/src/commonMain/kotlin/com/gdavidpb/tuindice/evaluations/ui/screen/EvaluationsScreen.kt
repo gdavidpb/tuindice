@@ -7,6 +7,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
+import com.gdavidpb.tuindice.base.presentation.model.EnrollmentAnnulmentTexts
+import com.gdavidpb.tuindice.base.presentation.model.NewStudentNoRecordTexts
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.LoadingView
@@ -25,10 +28,12 @@ import tuindice.evaluations.generated.resources.button_add_evaluation
 import tuindice.evaluations.generated.resources.message_empty_evaluations
 import tuindice.evaluations.generated.resources.message_enrollment_unavailable_evaluations
 import tuindice.evaluations.generated.resources.message_no_subjects_evaluations
+import tuindice.evaluations.generated.resources.message_not_enrolled_evaluations
 import tuindice.evaluations.generated.resources.message_record_unavailable_evaluations
 import tuindice.evaluations.generated.resources.title_empty_evaluations
 import tuindice.evaluations.generated.resources.title_enrollment_unavailable_evaluations
 import tuindice.evaluations.generated.resources.title_no_subjects_evaluations
+import tuindice.evaluations.generated.resources.title_not_enrolled_evaluations
 import tuindice.evaluations.generated.resources.title_record_unavailable_evaluations
 import tuindice.evaluations.generated.resources.view_error_retry
 import tuindice.evaluations.generated.resources.view_error_title
@@ -77,8 +82,16 @@ fun EvaluationsScreen(
 
 				is Evaluations.State.RecordDataUnavailable ->
 					EvaluationsFailedView(
-						title = stringResource(Res.string.title_record_unavailable_evaluations),
-						message = stringResource(Res.string.message_record_unavailable_evaluations),
+						title = if (targetState.isNewStudentNoRecord) {
+							NewStudentNoRecordTexts.title.asString()
+						} else {
+							stringResource(Res.string.title_record_unavailable_evaluations)
+						},
+						message = if (targetState.isNewStudentNoRecord) {
+							NewStudentNoRecordTexts.message.asString()
+						} else {
+							stringResource(Res.string.message_record_unavailable_evaluations)
+						},
 						headerContent = {
 							ErrorStateAnimationView()
 						}
@@ -127,6 +140,12 @@ private fun Evaluations.State.NoAttempts.noAttemptsTitle(): String {
 
 		EvaluationsNoAttemptsReason.EnrollmentUnavailable ->
 			stringResource(Res.string.title_enrollment_unavailable_evaluations)
+
+		EvaluationsNoAttemptsReason.NotEnrolled ->
+			stringResource(Res.string.title_not_enrolled_evaluations)
+
+		is EvaluationsNoAttemptsReason.Annulled ->
+			EnrollmentAnnulmentTexts.title(isProvisional = false).asString()
 	}
 }
 
@@ -138,6 +157,12 @@ private fun Evaluations.State.NoAttempts.noAttemptsMessage(): String {
 
 		EvaluationsNoAttemptsReason.EnrollmentUnavailable ->
 			stringResource(Res.string.message_enrollment_unavailable_evaluations)
+
+		EvaluationsNoAttemptsReason.NotEnrolled ->
+			stringResource(Res.string.message_not_enrolled_evaluations)
+
+		is EvaluationsNoAttemptsReason.Annulled ->
+			EnrollmentAnnulmentTexts.message(cause = reason.cause, isProvisional = false).asString()
 	}
 }
 

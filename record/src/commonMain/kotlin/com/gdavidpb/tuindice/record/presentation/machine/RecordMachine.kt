@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.presentation.machine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.usecase.base.InitialContentLoadResult
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.model.SyncedContentResolution
@@ -22,6 +23,7 @@ import com.gdavidpb.tuindice.record.domain.usecase.error.RecordUseCaseError
 import com.gdavidpb.tuindice.record.domain.usecase.param.SetSelectedTermParams
 import com.gdavidpb.tuindice.record.domain.usecase.param.UpsertAttemptSelectionParams
 import com.gdavidpb.tuindice.record.presentation.contract.Record
+import com.gdavidpb.tuindice.record.presentation.mapper.resolveRecordNotice
 import com.gdavidpb.tuindice.record.presentation.mapper.syntheticTermRejectionMessage
 import com.gdavidpb.tuindice.record.presentation.mapper.toRecordFailureMessage
 import com.gdavidpb.tuindice.record.presentation.transition.recordAnyStateTransitions
@@ -53,6 +55,10 @@ class RecordMachine(
 	private var recordObservationJob: Job? = null
 	private var syntheticTermRejectionObservationJob: Job? = null
 
+	// EFSM register: whether the last observation saw the account as a new student with no record
+	// at the university. A refresh failure reads it so Failed knows why it failed.
+	private var isNewStudentNoRecord = false
+
 	override fun initialState(): Record.State = Record.State.Idle
 
 	override fun define(host: MachineHost<Record.Effect>): MachineDefinition<Record.State> {
@@ -77,6 +83,9 @@ class RecordMachine(
 
 					is UseCaseState.Data -> {
 						val record = useCaseState.value
+						val notice = resolveRecordNotice(record)
+
+						isNewStudentNoRecord = record.syncStatus == SyncStatus.NewStudentNoRecord
 
 						when (
 							resolveSyncedContentResolution(
@@ -89,18 +98,21 @@ class RecordMachine(
 								RecordInternalEvent.RecordContentObserved(
 									viewMode = record.viewMode,
 									record = record.record,
-									selectedTermId = requireNotNull(record.selectedTermId)
+									selectedTermId = requireNotNull(record.selectedTermId),
+									notice = notice
 								)
 							)
 
 							SyncedContentResolution.Empty -> host.processInternalEvent(
-								RecordInternalEvent.RecordEmptyObserved
+								RecordInternalEvent.RecordEmptyObserved(notice = notice)
 							)
 
 							SyncedContentResolution.Loading,
 							SyncedContentResolution.KeepCurrent,
 							-> host.processInternalEvent(
-								RecordInternalEvent.RecordWaitingObserved
+								RecordInternalEvent.RecordWaitingObserved(
+									isNewStudentNoRecord = isNewStudentNoRecord
+								)
 							)
 						}
 					}
@@ -143,7 +155,8 @@ class RecordMachine(
 						RecordInternalEvent.RecordRefreshFailed(
 							message = useCaseState.error.toRecordFailureMessage(),
 							navigateToOutdatedCredentials =
-								useCaseState.error == RecordUseCaseError.Unauthorized
+								useCaseState.error == RecordUseCaseError.Unauthorized,
+							isNewStudentNoRecord = isNewStudentNoRecord
 						)
 					)
 				}
@@ -186,7 +199,8 @@ class RecordMachine(
 								RecordInternalEvent.RecordRefreshFailed(
 									message = useCaseState.error.toRecordFailureMessage(),
 									navigateToOutdatedCredentials =
-										useCaseState.error == RecordUseCaseError.Unauthorized
+										useCaseState.error == RecordUseCaseError.Unauthorized,
+									isNewStudentNoRecord = isNewStudentNoRecord
 								)
 							)
 						}

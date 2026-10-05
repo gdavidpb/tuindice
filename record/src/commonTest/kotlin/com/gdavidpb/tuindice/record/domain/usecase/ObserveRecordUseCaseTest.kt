@@ -3,6 +3,8 @@ package com.gdavidpb.tuindice.record.domain.usecase
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.base.domain.model.SyncReport
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.record.domain.model.ObservedRecord
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
@@ -11,6 +13,7 @@ import com.gdavidpb.tuindice.record.testing.ControllableAcademicRecordRepository
 import com.gdavidpb.tuindice.record.testing.LaggyAcademicRecordRepository
 import com.gdavidpb.tuindice.record.testing.RecordingRecordSelectionRepository
 import com.gdavidpb.tuindice.record.testing.academicTerm
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
 import kotlinx.coroutines.test.runTest
@@ -215,13 +218,43 @@ class ObserveRecordUseCaseTest {
 		assertEquals(emptyList(), selectionRepository.setSelectedTermCalls)
 	}
 
+	@Test
+	fun execute_carriesTheSyncStatusAndReport_withTheRecord() = runTest {
+		val syncStatusRepository = FakeSyncStatusRepository(
+			initialValue = SyncStatus.NewStudentNoRecord,
+			initialReport = SyncReport.partialEnrollmentUnavailable()
+		)
+		val useCase = createUseCase(
+			academicRecordRepository = ControllableAcademicRecordRepository(),
+			selectionRepository = RecordingRecordSelectionRepository(),
+			syncStatusRepository = syncStatusRepository
+		)
+
+		useCase.execute(Unit).test {
+			val observed = awaitLoadingThenData(this)
+
+			assertEquals(SyncStatus.NewStudentNoRecord, observed.syncStatus)
+			assertEquals(SyncReport.partialEnrollmentUnavailable(), observed.syncReport)
+
+			syncStatusRepository.emitSyncStatus(SyncStatus.Healthy)
+
+			val updated = assertIs<UseCaseState.Data<ObservedRecord>>(awaitItem())
+
+			assertEquals(SyncStatus.Healthy, updated.value.syncStatus)
+
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
 	private fun createUseCase(
 		academicRecordRepository: AcademicRecordRepository,
-		selectionRepository: RecordingRecordSelectionRepository
+		selectionRepository: RecordingRecordSelectionRepository,
+		syncStatusRepository: FakeSyncStatusRepository = FakeSyncStatusRepository()
 	): ObserveRecordUseCase {
 		return ObserveRecordUseCase(
 			academicRecordRepository = academicRecordRepository,
 			recordSelectionRepository = selectionRepository,
+			syncStatusRepository = syncStatusRepository,
 			reportingRepository = RecordingReportingRepository()
 		)
 	}

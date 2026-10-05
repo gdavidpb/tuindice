@@ -110,10 +110,10 @@ internal fun Record.State.toRouteViewState(): ViewState {
 		topBarTitle = topBarTitle,
 		topBarConfig = when (this) {
 			is Record.State.Content -> topBarConfig
-			Record.State.Idle,
-			Record.State.Empty,
-			Record.State.Failed,
-			Record.State.Loading,
+			is Record.State.Idle,
+			is Record.State.Empty,
+			is Record.State.Failed,
+			is Record.State.Loading,
 			-> null
 		},
 		isTopBarVisible = isTopBarVisible,
@@ -122,10 +122,10 @@ internal fun Record.State.toRouteViewState(): ViewState {
 			is Record.State.Content ->
 				RecordTopBarViewModeState(selectedMode = viewMode)
 
-			Record.State.Idle,
-			Record.State.Empty,
-			Record.State.Failed,
-			Record.State.Loading,
+			is Record.State.Idle,
+			is Record.State.Empty,
+			is Record.State.Failed,
+			is Record.State.Loading,
 			-> null
 		}
 	)

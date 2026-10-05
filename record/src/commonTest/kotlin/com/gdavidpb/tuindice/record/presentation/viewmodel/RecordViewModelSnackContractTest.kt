@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.record.presentation.contract.Record
 import com.gdavidpb.tuindice.record.presentation.machine.RecordMachine
 import com.gdavidpb.tuindice.record.testing.ControllableAcademicRecordRepository
 import com.gdavidpb.tuindice.record.testing.RecordingRecordSelectionRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlin.test.Test
@@ -43,6 +44,7 @@ class RecordViewModelSnackContractTest {
 				observeRecordUseCase = ObserveRecordUseCase(
 					academicRecordRepository = academicRecordRepository,
 					recordSelectionRepository = selectionRepository,
+					syncStatusRepository = FakeSyncStatusRepository(),
 					reportingRepository = reportingRepository
 				),
 				observeSyntheticTermRejectionsUseCase = ObserveSyntheticTermRejectionsUseCase(

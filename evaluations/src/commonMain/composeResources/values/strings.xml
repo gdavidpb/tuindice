@@ -9,6 +9,8 @@
 	<string name="message_empty_evaluations">Registra el primer parcial, quiz o entrega de este trimestre.</string>
 	<string name="title_no_subjects_evaluations">Sin trimestre en curso</string>
 	<string name="message_no_subjects_evaluations">Cuando tengas un trimestre activo, podrás agregar evaluaciones desde aquí.</string>
+	<string name="title_not_enrolled_evaluations">No estás inscrito en este trimestre</string>
+	<string name="message_not_enrolled_evaluations">La universidad no reporta una inscripción vigente para ti en este trimestre.</string>
 	<string name="title_enrollment_unavailable_evaluations">Servicio de inscripción no disponible</string>
 	<string name="message_enrollment_unavailable_evaluations">El servicio de inscripción de la universidad no responde. Cuando se restablezca, tus evaluaciones aparecerán aquí.</string>
 	<string name="title_empty_match_evaluations">Sin evaluaciones aquí</string>

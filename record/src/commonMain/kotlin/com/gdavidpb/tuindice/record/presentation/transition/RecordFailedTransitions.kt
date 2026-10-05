@@ -6,7 +6,10 @@ import com.gdavidpb.tuindice.record.presentation.machine.RecordInternalEvent
 
 internal fun MachineDefinitionBuilder<Record.State>.recordFailedTransitions() {
 	from<Record.State.Failed> {
-		// Keep-current-while-waiting: an unsynced empty observation keeps Failed visible.
-		on<RecordInternalEvent.RecordWaitingObserved> { state, _ -> state }
+		// Keep-current-while-waiting: an unsynced empty observation keeps Failed visible, and
+		// refreshes why it failed (a sync can learn the account is a new student later).
+		on<RecordInternalEvent.RecordWaitingObserved> { state, event ->
+			state.copy(isNewStudentNoRecord = event.isNewStudentNoRecord)
+		}
 	}
 }

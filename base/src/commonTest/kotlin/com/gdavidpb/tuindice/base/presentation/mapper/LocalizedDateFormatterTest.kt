@@ -28,6 +28,14 @@ class LocalizedDateFormatterTest {
 	}
 
 	@Test
+	fun returnsSpanishShortMonthNames() {
+		assertEquals(
+			listOf("ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"),
+			localizedShortMonthNames()
+		)
+	}
+
+	@Test
 	fun returnsSpanishWeekdayNames() {
 		assertEquals(
 			listOf("lunes", "martes", "miércoles", "jueves", "viernes", "sábado", "domingo"),

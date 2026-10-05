@@ -78,12 +78,13 @@ internal fun MachineDefinitionBuilder<Record.State>.recordAnyStateTransitions(
 					?.inFlightSelection
 					?.takeUnless { selection ->
 						selection.isCommitted && event.record.hasSettled(selection.override)
-					}
+					},
+				notice = event.notice
 			)
 		}
 
-		onTo<RecordInternalEvent.RecordEmptyObserved, Record.State.Empty> { _, _ ->
-			Record.State.Empty
+		onTo<RecordInternalEvent.RecordEmptyObserved, Record.State.Empty> { _, event ->
+			Record.State.Empty(notice = event.notice)
 		}
 
 		onTo<RecordInternalEvent.RecordWaitingObserved, Record.State.Loading> { _, _ ->
@@ -91,7 +92,7 @@ internal fun MachineDefinitionBuilder<Record.State>.recordAnyStateTransitions(
 		}
 
 		onTo<RecordInternalEvent.RecordObservationFailed, Record.State.Failed> { _, _ ->
-			Record.State.Failed
+			Record.State.Failed()
 		}
 
 		onTo<RecordInternalEvent.RecordRefreshStarted, Record.State.Loading> { _, _ ->
@@ -105,7 +106,7 @@ internal fun MachineDefinitionBuilder<Record.State>.recordAnyStateTransitions(
 				host.sendEffect(Record.Effect.NavigateToOutdatedCredentials)
 			}
 
-			Record.State.Failed
+			Record.State.Failed(isNewStudentNoRecord = event.isNewStudentNoRecord)
 		}
 
 		on<RecordInternalEvent.RecordViewModeSet>(

@@ -68,8 +68,8 @@ internal fun MachineDefinitionBuilder<Evaluations.State>.evaluationsAnyStateTran
 		onTo<
 			EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved,
 			Evaluations.State.RecordDataUnavailable,
-			> { _, _ ->
-			Evaluations.State.RecordDataUnavailable
+			> { _, event ->
+			Evaluations.State.RecordDataUnavailable(isNewStudentNoRecord = event.isNewStudentNoRecord)
 		}
 
 		onTo<EvaluationsInternalEvent.EvaluationsNoAttemptsObserved, Evaluations.State.NoAttempts> { _, event ->
@@ -172,6 +172,7 @@ private fun Evaluations.State.toObservedContent(
 		weekItems = event.weekItems,
 		selectedWeekKey = selectedWeekKey,
 		evaluationGroups = event.evaluationWeekGroups.flatMap { weekGroup -> weekGroup.groups },
-		evaluationWeekGroups = event.evaluationWeekGroups
+		evaluationWeekGroups = event.evaluationWeekGroups,
+		notice = event.notice
 	)
 }

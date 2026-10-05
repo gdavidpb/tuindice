@@ -6,6 +6,8 @@
 	<string name="record_failed_title">No pudimos cargar tu historial</string>
 	<string name="record_failed_message">Intenta de nuevo en unos segundos.</string>
 	<string name="record_failed_retry">Reintentar</string>
+	<string name="record_notice_stale_message">Actualizado por última vez el %1$s</string>
+	<string name="record_notice_stale_message_unknown">No pudimos actualizar tu inscripción. Mostramos la última guardada.</string>
 	<string name="record_empty_title">Informe académico</string>
 	<string name="record_empty_message">Cuando tengas periodos académicos disponibles, los verás aquí.</string>
 	<string name="record_view_mode_historical">Histórico</string>

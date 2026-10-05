@@ -13,8 +13,12 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTerm
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicTermPeriod
 import com.gdavidpb.tuindice.academiccore.domain.model.TermKind
+import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.contract.Record
+import com.gdavidpb.tuindice.record.presentation.model.RecordNotice
+import com.gdavidpb.tuindice.record.presentation.model.RecordNoticeKind
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -248,10 +252,117 @@ class RecordScreenUiTest {
 		onNodeWithText("Histórico: solo trimestres cerrados").assertIsDisplayed()
 	}
 
+	@Test
+	fun when_currentTermHasProvisionalNotice_then_noticeIsShownOnItsPage() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			RecordScreen(
+				state = contentState(
+					termId = "current-term",
+					termKind = TermKind.CURRENT,
+					notice = annulment(RecordNoticeKind.AnnulledProvisional)
+				),
+				selectedTermId = "current-term",
+				onSelectedTermChange = {},
+				onRetryClick = {},
+				onAttemptSelectionChange = { _, _, _, _ -> },
+				onCreateSyntheticTermClick = {}
+			)
+		}
+
+		assertNodeVisible(BaseUiTags.NoticeView)
+		onNodeWithText("Tu inscripción aparece anulada").assertIsDisplayed()
+	}
+
+	@Test
+	fun when_selectedTermIsNotCurrent_then_provisionalNoticeIsNotShown() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			RecordScreen(
+				state = contentState(
+					termId = SyntheticTermId,
+					termKind = TermKind.SYNTHETIC,
+					notice = annulment(RecordNoticeKind.AnnulledProvisional)
+				),
+				selectedTermId = SyntheticTermId,
+				onSelectedTermChange = {},
+				onRetryClick = {},
+				onAttemptSelectionChange = { _, _, _, _ -> },
+				onCreateSyntheticTermClick = {}
+			)
+		}
+
+		assertNodeHidden(BaseUiTags.NoticeView)
+	}
+
+	@Test
+	fun when_contentHasFinalNotice_then_noticeIsShownAboveTheTerms() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			RecordScreen(
+				state = contentState(
+					viewMode = RecordViewMode.Historical,
+					terms = listOf(
+						academicTerm(
+							id = "historical-2024",
+							periodYear = 2024,
+							periodCode = AcademicTermPeriod.JAN_MAR,
+							kind = TermKind.HISTORICAL
+						)
+					),
+					selectedTermId = "historical-2024",
+					notice = annulment(RecordNoticeKind.AnnulledFinal)
+				),
+				selectedTermId = "historical-2024",
+				onSelectedTermChange = {},
+				onRetryClick = {},
+				onAttemptSelectionChange = { _, _, _, _ -> },
+				onCreateSyntheticTermClick = {}
+			)
+		}
+
+		assertNodeVisible(BaseUiTags.NoticeView)
+	}
+
+	@Test
+	fun when_stateIsEmptyWithFinalAnnulment_then_emptyViewExplainsTheAnnulment() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			RecordScreen(
+				state = Record.State.Empty(notice = annulment(RecordNoticeKind.AnnulledFinal)),
+				selectedTermId = null,
+				onSelectedTermChange = {},
+				onRetryClick = {},
+				onAttemptSelectionChange = { _, _, _, _ -> },
+				onCreateSyntheticTermClick = {}
+			)
+		}
+
+		onNodeWithText("Tu inscripción aparece anulada").assertIsDisplayed()
+		onAllNodesWithText("Informe académico").assertCountEquals(0)
+	}
+
+	@Test
+	fun when_stateIsFailedForANewStudent_then_newStudentCopyKeepsTheRetryAction() = runTuIndiceUiTest {
+		var retryClicks = 0
+
+		setTuIndiceTestContent {
+			RecordScreen(
+				state = Record.State.Failed(isNewStudentNoRecord = true),
+				selectedTermId = null,
+				onSelectedTermChange = {},
+				onRetryClick = { retryClicks++ },
+				onAttemptSelectionChange = { _, _, _, _ -> },
+				onCreateSyntheticTermClick = {}
+			)
+		}
+
+		onNodeWithText("Aún no tienes expediente en la universidad").assertIsDisplayed()
+		onNodeWithTag(BaseUiTags.ErrorViewRetryButton).performClick()
+		assertEquals(1, retryClicks)
+	}
+
 	private fun contentState(
 		termId: String = SyntheticTermId,
 		termKind: TermKind,
-		attempts: List<AcademicAttempt> = emptyList()
+		attempts: List<AcademicAttempt> = emptyList(),
+		notice: RecordNotice? = null
 	): Record.State.Content {
 		return contentState(
 			terms = listOf(
@@ -263,14 +374,16 @@ class RecordScreenUiTest {
 					attempts = attempts
 				)
 			),
-			selectedTermId = termId
+			selectedTermId = termId,
+			notice = notice
 		)
 	}
 
 	private fun contentState(
 		viewMode: RecordViewMode = RecordViewMode.Projection,
 		terms: List<AcademicTerm>,
-		selectedTermId: String
+		selectedTermId: String,
+		notice: RecordNotice? = null
 	): Record.State.Content {
 		return Record.State.Content(
 			viewMode = viewMode,
@@ -278,7 +391,16 @@ class RecordScreenUiTest {
 				id = "record",
 				terms = terms
 			),
-			selectedTermId = selectedTermId
+			selectedTermId = selectedTermId,
+			notice = notice
+		)
+	}
+
+	private fun annulment(kind: RecordNoticeKind): RecordNotice {
+		return RecordNotice(
+			title = UiText.Raw("Tu inscripción aparece anulada"),
+			message = UiText.Raw("La universidad la tiene anulada."),
+			kind = kind
 		)
 	}
 

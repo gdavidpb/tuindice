@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.evaluations.presentation.machine
 
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.mapper.commonUnexpectedErrorMessage
+import com.gdavidpb.tuindice.base.presentation.model.EnrollmentAnnulmentTexts
 import com.gdavidpb.tuindice.base.presentation.model.SyncedContentResolution
 import com.gdavidpb.tuindice.base.presentation.model.resolveSyncedContentResolution
 import com.gdavidpb.tuindice.base.presentation.statemachine.InitialContentRefreshGate
@@ -28,6 +29,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.mapper.toGradeSaveErrorMes
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toRemoveErrorMessage
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toStorageValue
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toUpdateEvaluationParams
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsNotice
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsAnyStateTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsContentTransitions
@@ -78,8 +80,10 @@ class EvaluationsMachine(
 							EvaluationsInternalEvent.EvaluationsWaitingObserved
 						)
 
-						GetEvaluations.RecordDataUnavailable -> host.processInternalEvent(
-							EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved
+						is GetEvaluations.RecordDataUnavailable -> host.processInternalEvent(
+							EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved(
+								isNewStudentNoRecord = evaluations.isNewStudentNoRecord
+							)
 						)
 
 						is GetEvaluations.NoAttempts -> host.processInternalEvent(
@@ -325,7 +329,18 @@ class EvaluationsMachine(
 				currentTerm = displayContext.currentTerm,
 				attempts = displayContext.attempts,
 				mapping = mapping
-			)
+			),
+			notice = enrollmentSituation?.let { situation ->
+				// This observation only reaches here with a current term, so the annulment is the
+				// provisional one.
+				EvaluationsNotice(
+					title = EnrollmentAnnulmentTexts.title(isProvisional = true),
+					message = EnrollmentAnnulmentTexts.message(
+						cause = situation.annulmentCause,
+						isProvisional = true
+					)
+				)
+			}
 		)
 	}
 }

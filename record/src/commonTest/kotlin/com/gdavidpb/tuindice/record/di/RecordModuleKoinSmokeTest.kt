@@ -8,12 +8,14 @@ import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermCreationCommand
 import com.gdavidpb.tuindice.record.domain.model.SyntheticTermUpdateCommand
 import com.gdavidpb.tuindice.record.domain.repository.AcademicRecordRepository
 import com.gdavidpb.tuindice.record.domain.repository.RecordSelectionRepository
 import com.gdavidpb.tuindice.record.presentation.viewmodel.RecordViewModel
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.koin.assertResolves
 import com.gdavidpb.tuindice.testkit.koin.withKoinSmokeTest
@@ -31,6 +33,7 @@ class RecordModuleKoinSmokeTest {
 			single<AcademicRecordRepository> { StubAcademicRecordRepository() }
 			single<RecordSelectionRepository> { StubRecordSelectionRepository() }
 			single<ReportingRepository> { RecordingReportingRepository() }
+			single<SyncStatusRepository> { FakeSyncStatusRepository() }
 			single<EventPublisher> { NoOpEventPublisher }
 			single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 		}

@@ -15,7 +15,8 @@ enum class DateTextStyle {
 	WEEKDAY_PAST_DAY_MONTH,
 	WEEKDAY_DAY_MONTH,
 	WEEKDAY_NUMERIC_DATE,
-	SHORT_WEEKDAY_NUMERIC_DATE
+	SHORT_WEEKDAY_NUMERIC_DATE,
+	DAY_SHORT_MONTH
 }
 
 fun Long.formatDate(style: DateTextStyle): String? {
@@ -27,6 +28,7 @@ fun Long.formatDate(style: DateTextStyle): String? {
 	val dayName = localizedFullWeekdayNames()[dateTime.dayOfWeek.ordinal]
 	val shortDayName = localizedShortWeekdayNames()[dateTime.dayOfWeek.ordinal]
 	val monthName = localizedFullMonthNames()[dateTime.month.ordinal]
+	val shortMonthName = localizedShortMonthNames()[dateTime.month.ordinal]
 	val dayOfMonth = dateTime.day.toString().padStart(2, '0')
 	val monthNumber = (dateTime.month.ordinal + 1).toString().padStart(2, '0')
 	val year = dateTime.year.toString()
@@ -44,6 +46,7 @@ fun Long.formatDate(style: DateTextStyle): String? {
 		DateTextStyle.WEEKDAY_DAY_MONTH -> "$dayName — $dayOfMonth de $monthName"
 		DateTextStyle.WEEKDAY_NUMERIC_DATE -> "$dayName — $dayOfMonth/$monthNumber/$shortYear"
 		DateTextStyle.SHORT_WEEKDAY_NUMERIC_DATE -> "$shortDayName — $dayOfMonth/$monthNumber/$shortYear"
+		DateTextStyle.DAY_SHORT_MONTH -> "${dateTime.day} $shortMonthName."
 	}
 }
 

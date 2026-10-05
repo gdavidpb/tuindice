@@ -4,9 +4,12 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.base.domain.model.EnrollmentAnnulmentCause
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
+import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsNotice
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsContentState
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -75,7 +78,7 @@ class EvaluationsScreenUiTest {
 		runTuIndiceUiTest {
 			setTuIndiceTestContent {
 				EvaluationsScreen(
-					state = Evaluations.State.RecordDataUnavailable,
+					state = Evaluations.State.RecordDataUnavailable(),
 					onAddEvaluationClick = {},
 					onEvaluationClick = { _, _, _ -> },
 					onEvaluationEdit = {},
@@ -152,4 +155,103 @@ class EvaluationsScreenUiTest {
 			// The outage is not resolved by the user, so the state offers no action.
 			assertNodeHidden(BaseUiTags.EmptyViewActionButton)
 		}
+
+	@Test
+	fun when_stateIsNoAttemptsBecauseOfFinalAnnulment_then_displaysCauseCopyWithoutActionButton() =
+		runTuIndiceUiTest {
+			setTuIndiceTestContent {
+				EvaluationsScreen(
+					state = Evaluations.State.NoAttempts(
+						EvaluationsNoAttemptsReason.Annulled(EnrollmentAnnulmentCause.CreditLimit)
+					),
+					onAddEvaluationClick = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {},
+					onRetryClick = {}
+				)
+			}
+
+			onNodeWithText("Tu inscripción fue anulada").assertExists()
+			onNodeWithText(
+				"La universidad anuló tu inscripción de este trimestre por el límite de créditos. " +
+					"Consulta con DACE para regularizar tu situación."
+			).assertExists()
+			assertNodeHidden(BaseUiTags.EmptyViewActionButton)
+		}
+
+	@Test
+	fun when_stateIsNoAttemptsBecauseNotEnrolled_then_displaysNotEnrolledCopy() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			EvaluationsScreen(
+				state = Evaluations.State.NoAttempts(EvaluationsNoAttemptsReason.NotEnrolled),
+				onAddEvaluationClick = {},
+				onEvaluationClick = { _, _, _ -> },
+				onEvaluationEdit = {},
+				onEvaluationDelete = {},
+				onRetryClick = {}
+			)
+		}
+
+		onNodeWithText("No estás inscrito en este trimestre").assertExists()
+		assertNodeHidden(BaseUiTags.EmptyViewActionButton)
+	}
+
+	@Test
+	fun when_recordDataIsUnavailableForANewStudent_then_displaysNewStudentCopyWithoutRetry() =
+		runTuIndiceUiTest {
+			setTuIndiceTestContent {
+				EvaluationsScreen(
+					state = Evaluations.State.RecordDataUnavailable(isNewStudentNoRecord = true),
+					onAddEvaluationClick = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {},
+					onRetryClick = {}
+				)
+			}
+
+			onNodeWithText("Aún no tienes expediente en la universidad").assertExists()
+			assertNodeHidden(BaseUiTags.ErrorViewRetryButton)
+		}
+
+	@Test
+	fun when_contentHasProvisionalAnnulmentNotice_then_noticeIsShownAboveTheEvaluations() =
+		runTuIndiceUiTest {
+			setTuIndiceTestContent {
+				EvaluationsScreen(
+					state = evaluationsContentState().copy(
+						notice = EvaluationsNotice(
+							title = UiText.Raw("Tu inscripción aparece anulada"),
+							message = UiText.Raw("Todavía puedes regularizarla con DACE.")
+						)
+					),
+					onAddEvaluationClick = {},
+					onEvaluationClick = { _, _, _ -> },
+					onEvaluationEdit = {},
+					onEvaluationDelete = {},
+					onRetryClick = {}
+				)
+			}
+
+			assertNodeVisible(BaseUiTags.NoticeView)
+			onNodeWithText("Tu inscripción aparece anulada").assertExists()
+			assertNodeVisible(EvaluationsUiTags.EvaluationsContentContainer)
+		}
+
+	@Test
+	fun when_contentHasNoNotice_then_noNoticeIsShown() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			EvaluationsScreen(
+				state = evaluationsContentState(),
+				onAddEvaluationClick = {},
+				onEvaluationClick = { _, _, _ -> },
+				onEvaluationEdit = {},
+				onEvaluationDelete = {},
+				onRetryClick = {}
+			)
+		}
+
+		assertNodeHidden(BaseUiTags.NoticeView)
+	}
 }

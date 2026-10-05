@@ -102,6 +102,7 @@ fun RecordContentView(
 					.fillMaxSize()
 					.padding(top = InternalScreenDefaults.TopBarSpacing),
 				terms = terms,
+				notice = state.notice,
 				selectedTermId = effectiveSelectedTermId,
 				onSelectedTermChange = onSelectedTermChange,
 				onAttemptSelectionChange = onAttemptSelectionChange,

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.record.presentation.machine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AcademicRecord
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
+import com.gdavidpb.tuindice.record.presentation.model.RecordNotice
 
 /**
  * Internal machine inputs for the record screen. The observation resolution
@@ -12,12 +13,17 @@ sealed interface RecordInternalEvent {
 	data class RecordContentObserved(
 		val viewMode: RecordViewMode,
 		val record: AcademicRecord,
-		val selectedTermId: String
+		val selectedTermId: String,
+		val notice: RecordNotice?
 	) : RecordInternalEvent
 
-	data object RecordEmptyObserved : RecordInternalEvent
+	data class RecordEmptyObserved(
+		val notice: RecordNotice?
+	) : RecordInternalEvent
 
-	data object RecordWaitingObserved : RecordInternalEvent
+	data class RecordWaitingObserved(
+		val isNewStudentNoRecord: Boolean
+	) : RecordInternalEvent
 
 	data object RecordObservationFailed : RecordInternalEvent
 
@@ -25,7 +31,8 @@ sealed interface RecordInternalEvent {
 
 	data class RecordRefreshFailed(
 		val message: String,
-		val navigateToOutdatedCredentials: Boolean
+		val navigateToOutdatedCredentials: Boolean,
+		val isNewStudentNoRecord: Boolean
 	) : RecordInternalEvent
 
 	data class RecordViewModeSet(

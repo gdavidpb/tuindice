@@ -217,7 +217,7 @@ class EvaluationsStateMachineContractTest {
 				Evaluations.Action.EditEvaluation(evaluationId = "evaluation-1"),
 				Evaluations.Action.RemoveEvaluation(evaluationId = "evaluation-1"),
 				EvaluationsInternalEvent.EvaluationsWaitingObserved,
-				EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved,
+				EvaluationsInternalEvent.EvaluationsRecordDataUnavailableObserved(isNewStudentNoRecord = false),
 				EvaluationsInternalEvent.EvaluationsNoAttemptsObserved(
 					reason = EvaluationsNoAttemptsReason.NoCurrentTerm
 				),
@@ -230,7 +230,8 @@ class EvaluationsStateMachineContractTest {
 							title = "Semana 1",
 							groups = emptyList()
 						)
-					)
+					),
+					notice = null
 				),
 				EvaluationsInternalEvent.EvaluationsEmptyObserved,
 				EvaluationsInternalEvent.EvaluationsEmptyConfirmed,
