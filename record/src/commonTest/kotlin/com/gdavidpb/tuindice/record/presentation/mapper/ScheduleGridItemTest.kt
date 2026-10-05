@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptScore
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -108,7 +109,55 @@ class ScheduleGridItemTest {
 			listOf(attempt("MA2115", listOf(entry()), errors = listOf("CHOQUE DE HORARIO"))).toScheduleGridItem()
 		)
 
-		assertTrue(grid.days.first().cells.single().hasError)
+		val cell = grid.days.first().cells.single()
+
+		assertTrue(cell.hasError)
+		assertEquals("Choque de horario", cell.errorText)
+	}
+
+	@Test
+	fun when_theOnlyErrorIsBlank_then_theCellIsNotFlagged() {
+		val grid = assertNotNull(
+			listOf(attempt("MA2115", listOf(entry()), errors = listOf("  "))).toScheduleGridItem()
+		)
+
+		assertFalse(grid.days.first().cells.single().hasError)
+	}
+
+	@Test
+	fun when_everyMeetingOfASubjectIsMalformed_then_itIsListedAsToBeAgreed() {
+		val grid = assertNotNull(
+			listOf(
+				attempt("MA2115", listOf(entry())),
+				attempt("CI2691", listOf(entry(day = 9), entry(start = 4, end = 99)))
+			).toScheduleGridItem()
+		)
+
+		assertEquals(listOf("CI2691"), grid.unscheduledCodes)
+		assertEquals(2, grid.blockCount)
+	}
+
+	@Test
+	fun when_aMeetingIsListedTwice_then_itIsOneCell() {
+		val grid = assertNotNull(
+			listOf(attempt("MA2115", listOf(entry(), entry()))).toScheduleGridItem()
+		)
+		val cell = grid.days.first().cells.single()
+
+		assertEquals(1, cell.laneCount)
+		assertFalse(cell.isNarrow)
+	}
+
+	@Test
+	fun when_twoMeetingsOverlap_then_theirCellsAreNarrow() {
+		val grid = assertNotNull(
+			listOf(
+				attempt("CI5311", listOf(entry(start = 1, end = 2))),
+				attempt("CI5437", listOf(entry(start = 2, end = 3)))
+			).toScheduleGridItem()
+		)
+
+		assertTrue(grid.days.first().cells.all { cell -> cell.isNarrow })
 	}
 
 	private fun entry(day: Int = 2, start: Int = 1, end: Int = 2, classroom: String = "") =

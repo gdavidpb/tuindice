@@ -9,6 +9,10 @@ import com.gdavidpb.tuindice.record.presentation.model.ScheduleGridItem
 
 private const val FIRST_BLOCK = 1
 
+// Far above the 11 blocks the university has used so far: anything beyond it is a malformed entry,
+// and drawing it would stretch the grid into dozens of empty rows.
+private const val LAST_BLOCK = 24
+
 /**
  * Lays the current term's meetings out on a grid, or returns null when no subject has a schedule
  * (so the term has nothing to switch to). Monday to Friday are always columns; Saturday and
@@ -16,9 +20,10 @@ private const val FIRST_BLOCK = 1
  */
 internal fun List<AttemptProjection>.toScheduleGridItem(): ScheduleGridItem? {
 	val active = filterNot { attempt -> attempt.withdrawn }
+	// distinct: the same meeting listed twice is still one cell.
 	val placed = active.flatMap { attempt ->
 		attempt.schedule.orEmpty().mapNotNull { entry -> attempt.toPlacement(entry) }
-	}
+	}.distinct()
 
 	if (placed.isEmpty()) return null
 
@@ -30,8 +35,11 @@ internal fun List<AttemptProjection>.toScheduleGridItem(): ScheduleGridItem? {
 				cells = placed.filter { placement -> placement.day == day }.toCells()
 			)
 		}
+	// Whatever ended up without a cell is still to be agreed, including a subject whose entries
+	// were all malformed: it must not vanish from the screen.
+	val placedAttemptIds = placed.map(SchedulePlacement::attemptId).toSet()
 	val unscheduledCodes = active
-		.filter { attempt -> attempt.schedule.isNullOrEmpty() }
+		.filter { attempt -> attempt.id !in placedAttemptIds }
 		.map(AttemptProjection::subjectCode)
 
 	return ScheduleGridItem(
@@ -48,13 +56,16 @@ private data class SchedulePlacement(
 	val day: ScheduleDay,
 	val startBlock: Int,
 	val endBlock: Int,
-	val hasError: Boolean
+	val errorText: String?
 )
 
 // A malformed block range or day is dropped rather than drawn: a wrong cell is worse than none.
 private fun AttemptProjection.toPlacement(entry: AcademicScheduleEntry): SchedulePlacement? {
 	val day = ScheduleDay.fromCode(entry.dayOfWeek)
-	val isValid = day != null && entry.startBlock >= FIRST_BLOCK && entry.endBlock >= entry.startBlock
+	val isValid = day != null &&
+		entry.startBlock >= FIRST_BLOCK &&
+		entry.endBlock >= entry.startBlock &&
+		entry.endBlock <= LAST_BLOCK
 
 	return day?.takeIf { isValid }?.let {
 		SchedulePlacement(
@@ -64,7 +75,8 @@ private fun AttemptProjection.toPlacement(entry: AcademicScheduleEntry): Schedul
 			day = day,
 			startBlock = entry.startBlock,
 			endBlock = entry.endBlock,
-			hasError = !enrollmentErrors.isNullOrEmpty()
+			// Same text as the chip on the subject's row, so the cell is flagged exactly when it is.
+			errorText = toEnrollmentErrorText()
 		)
 	}
 }
@@ -112,5 +124,5 @@ private fun SchedulePlacement.toCell(lane: Int, laneCount: Int) = ScheduleCellIt
 	endBlock = endBlock,
 	lane = lane,
 	laneCount = laneCount,
-	hasError = hasError
+	errorText = errorText
 )

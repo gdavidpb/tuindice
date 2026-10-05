@@ -38,7 +38,10 @@ fun SyncStatusInfoContentDialog(
 	onUpdatePasswordClick: () -> Unit,
 	onDismissRequest: () -> Unit
 ) {
-	if (!syncStatus.requiresPassword && syncReport.hasUnavailableSource) {
+	// A failed sync always reports its sources as unavailable, so that alone cannot pick the dialog:
+	// the statuses that explain themselves (a new student, a denied record, a password to type) go
+	// to their own copy below.
+	if (!syncStatus.explainsItself && syncReport.hasUnavailableSource) {
 		SyncStatusInfoDialog(
 			titleText = stringResource(Res.string.dialog_title_sync_sources_unavailable),
 			messageText = syncReport.unavailableSourcesMessage(),
@@ -96,6 +99,11 @@ fun SyncStatusInfoContentDialog(
 		)
 	}
 }
+
+private val SyncStatus.explainsItself: Boolean
+	get() = requiresPassword ||
+		this == SyncStatus.NewStudentNoRecord ||
+		this == SyncStatus.RecordAccessDenied
 
 // Both latches end the same way, with the user typing the password again.
 @Composable

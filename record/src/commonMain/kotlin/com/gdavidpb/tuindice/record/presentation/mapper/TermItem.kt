@@ -4,6 +4,7 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.animateIntAsState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.ReadOnlyComposable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
@@ -97,7 +98,9 @@ fun TermProjection.toTermItem(
 			)
 		},
 		// Only the term being lived has a schedule worth switching to.
-		schedule = attempts.takeIf { isCurrent }?.toScheduleGridItem()
+		schedule = remember(attempts, isCurrent) {
+			attempts.takeIf { isCurrent }?.toScheduleGridItem()
+		}
 	)
 }
 

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.record.ui.view
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -44,17 +45,21 @@ fun AttemptSubjectRowView(
 			style = MaterialTheme.typography.labelLarge
 		)
 
-		Text(
-			modifier = Modifier
-				.weight(1f)
-				.padding(horizontal = TuIndiceSpacing.XLarge)
-				.testTag(RecordUiTags.attemptDetail(item.attemptId)),
-			text = item.detailText.orEmpty(),
-			color = MaterialTheme.colorScheme.onSurfaceVariant,
-			style = MaterialTheme.typography.labelLarge,
-			maxLines = 1,
-			overflow = TextOverflow.Ellipsis
-		)
+		if (item.detailText != null) {
+			Text(
+				modifier = Modifier
+					.weight(1f)
+					.padding(horizontal = TuIndiceSpacing.XLarge)
+					.testTag(RecordUiTags.attemptDetail(item.attemptId)),
+				text = item.detailText,
+				color = MaterialTheme.colorScheme.onSurfaceVariant,
+				style = MaterialTheme.typography.labelLarge,
+				maxLines = 1,
+				overflow = TextOverflow.Ellipsis
+			)
+		} else {
+			Spacer(modifier = Modifier.weight(1f))
+		}
 
 		Text(
 			text = item.creditsText,

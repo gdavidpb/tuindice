@@ -18,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.style.TextOverflow
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
@@ -35,10 +36,10 @@ fun AttemptEnrollmentErrorChipView(
 	Surface(
 		modifier = modifier.testTag(RecordUiTags.attemptEnrollmentError(attemptId)),
 		shape = RoundedCornerShape(TuIndiceRadius.Medium),
-		color = color.copy(alpha = 0.12f),
+		color = color.copy(alpha = TuIndiceAlpha.SurfaceTint),
 		border = BorderStroke(
 			width = TuIndiceSpacing.Hairline,
-			color = color.copy(alpha = 0.9f)
+			color = color.copy(alpha = TuIndiceAlpha.BorderStrong)
 		)
 	) {
 		Row(

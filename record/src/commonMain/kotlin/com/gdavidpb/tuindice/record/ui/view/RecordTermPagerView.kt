@@ -18,6 +18,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.view.NoticeView
+import com.gdavidpb.tuindice.base.ui.view.rememberLastNonNull
 import com.gdavidpb.tuindice.record.presentation.model.RecordNotice
 import com.gdavidpb.tuindice.record.presentation.model.RecordNoticeKind
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
@@ -91,13 +92,15 @@ fun RecordTermPagerView(
 		)
 
 		// A final annulment has no current term to sit on, so it is shared by every page.
-		if (notice?.kind == RecordNoticeKind.AnnulledFinal) {
-			NoticeView(
-				modifier = Modifier.padding(bottom = TuIndiceSpacing.Medium),
-				title = notice.title?.asString(),
-				message = notice.message.asString()
-			)
-		}
+		val finalNotice = notice?.takeIf { it.kind == RecordNoticeKind.AnnulledFinal }
+		val shownNotice = rememberLastNonNull(finalNotice)
+
+		NoticeView(
+			modifier = Modifier.padding(vertical = TuIndiceSpacing.Medium),
+			visible = finalNotice != null,
+			title = shownNotice?.title?.asString(),
+			message = shownNotice?.message?.asString().orEmpty()
+		)
 
 		HorizontalPager(
 			modifier = Modifier

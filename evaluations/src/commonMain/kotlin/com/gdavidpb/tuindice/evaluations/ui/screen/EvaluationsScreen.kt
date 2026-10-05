@@ -93,7 +93,12 @@ fun EvaluationsScreen(
 							stringResource(Res.string.message_record_unavailable_evaluations)
 						},
 						headerContent = {
-							ErrorStateAnimationView()
+							// The university has no record yet: nothing failed, so no error art.
+							if (targetState.isNewStudentNoRecord) {
+								EmptyStateAnimationView()
+							} else {
+								ErrorStateAnimationView()
+							}
 						}
 					)
 

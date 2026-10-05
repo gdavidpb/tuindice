@@ -19,11 +19,13 @@ fun resolveSyncAttention(
 		SyncStatus.Healthy,
 		SyncStatus.NewStudentNoRecord -> false
 	}
-	val isInformative = syncStatus == SyncStatus.NewStudentNoRecord ||
-		syncReport.sources.enrollment.status == SyncSourceStatus.NotEnrolled ||
+	val isInformative = syncReport.sources.enrollment.status == SyncSourceStatus.NotEnrolled ||
 		syncReport.sources.enrollment.situation != null
 
 	return when {
+		// Checked first: the report of that failed sync marks the record source unavailable, which
+		// must not turn "the university has no record for you yet" into a problem.
+		syncStatus == SyncStatus.NewStudentNoRecord -> SyncAttention.Informative
 		isProblem || syncReport.hasUnavailableSource -> SyncAttention.Problem
 		isInformative -> SyncAttention.Informative
 		else -> SyncAttention.None

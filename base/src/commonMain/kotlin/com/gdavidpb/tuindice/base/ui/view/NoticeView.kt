@@ -20,11 +20,11 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.style.TextOverflow
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceComponentSizes
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
@@ -32,7 +32,8 @@ import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 
 // A calm, non-actionable notice that sits above content: neutral surface, never the error color.
 // With a title the icon aligns to the top; a one-line notice centers it. The notice animates in
-// and out with [visible] so a sync that clears it does not make the content jump.
+// and out with [visible] so a sync that clears it does not make the content jump: callers keep it
+// in the composition and flip [visible], holding the last text with [rememberLastNonNull].
 @Composable
 fun NoticeView(
 	message: String,
@@ -62,6 +63,8 @@ fun NoticeView(
 			Icon(
 				modifier = Modifier
 					.testTag(BaseUiTags.NoticeIcon)
+					// Beside a title the icon sits on its first line, not above it.
+					.padding(top = if (title != null) TuIndiceSpacing.Two else TuIndiceSpacing.None)
 					.size(TuIndiceComponentSizes.IconSmall),
 				imageVector = icon,
 				contentDescription = null,
@@ -80,10 +83,26 @@ fun NoticeView(
 					modifier = Modifier.testTag(BaseUiTags.NoticeMessage),
 					text = message,
 					color = MaterialTheme.colorScheme.onSurfaceVariant,
-					style = MaterialTheme.typography.bodySmall,
-					overflow = TextOverflow.Ellipsis
+					style = MaterialTheme.typography.bodySmall
 				)
 			}
 		}
 	}
+}
+
+/**
+ * The last non-null [value] seen, so a view fed by it can animate out with the text it had instead
+ * of going blank the moment the value is cleared.
+ */
+@Composable
+fun <T : Any> rememberLastNonNull(value: T?): T? {
+	val last = remember { LastValue<T>() }
+
+	if (value != null) last.value = value
+
+	return last.value
+}
+
+private class LastValue<T : Any> {
+	var value: T? = null
 }

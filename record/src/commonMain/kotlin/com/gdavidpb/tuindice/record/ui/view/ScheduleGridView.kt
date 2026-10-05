@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.ui.view
 
+import androidx.compose.foundation.horizontalScroll
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,6 +33,10 @@ private val BlockColumnWidth = 18.dp
 private val BlockRowHeight = 32.dp
 private val BlockRowGap = TuIndiceSpacing.Two
 
+// The narrowest a day can get and still fit a subject code. Five days fit a phone; with a weekend
+// day the grid grows past the screen and scrolls sideways instead of squeezing every column.
+private val MinDayWidth = 52.dp
+
 /**
  * Weekly grid of the university's class blocks: the block numbers on the left, one column per day
  * and each meeting as a cell spanning its blocks. Overlapping meetings share the width of the day.
@@ -42,55 +48,66 @@ fun ScheduleGridView(
 ) {
 	val gridHeight = BlockRowHeight * grid.blockCount + BlockRowGap * (grid.blockCount - 1)
 
-	Column(
-		modifier = modifier.testTag(RecordUiTags.ScheduleGrid),
-		verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
-	) {
-		Row(modifier = Modifier.fillMaxWidth()) {
-			Spacer(modifier = Modifier.width(BlockColumnWidth))
+	BoxWithConstraints(modifier = modifier.testTag(RecordUiTags.ScheduleGrid)) {
+		val dayWidth = maxOf((maxWidth - BlockColumnWidth) / grid.days.size, MinDayWidth)
 
-			grid.days.forEach { dayItem ->
-				Text(
-					modifier = Modifier.weight(1f),
-					text = dayItem.day.label(isShort = true),
-					style = MaterialTheme.typography.labelMedium,
-					color = MaterialTheme.colorScheme.onSurfaceVariant,
-					textAlign = TextAlign.Center,
-					maxLines = 1,
-					overflow = TextOverflow.Ellipsis
-				)
-			}
-		}
+		Column(
+			modifier = Modifier.horizontalScroll(rememberScrollState()),
+			verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
+		) {
+			Row {
+				Spacer(modifier = Modifier.width(BlockColumnWidth))
 
-		Row(modifier = Modifier.fillMaxWidth()) {
-			Column(
-				modifier = Modifier.width(BlockColumnWidth),
-				verticalArrangement = Arrangement.spacedBy(BlockRowGap)
-			) {
-				repeat(grid.blockCount) { index ->
-					Box(
-						modifier = Modifier
-							.fillMaxWidth()
-							.height(BlockRowHeight),
-						contentAlignment = Alignment.CenterEnd
-					) {
-						Text(
-							text = (index + 1).toString(),
-							style = MaterialTheme.typography.labelSmall,
-							color = MaterialTheme.colorScheme.onSurfaceVariant,
-							textAlign = TextAlign.End,
-							maxLines = 1
-						)
-					}
+				grid.days.forEach { dayItem ->
+					Text(
+						modifier = Modifier.width(dayWidth),
+						text = dayItem.day.label(isShort = true),
+						style = MaterialTheme.typography.labelMedium,
+						color = MaterialTheme.colorScheme.onSurfaceVariant,
+						textAlign = TextAlign.Center,
+						maxLines = 1,
+						overflow = TextOverflow.Ellipsis
+					)
 				}
 			}
 
-			grid.days.forEach { dayItem ->
-				ScheduleDayColumn(
-					modifier = Modifier
-						.weight(1f)
-						.height(gridHeight),
-					dayItem = dayItem
+			Row {
+				ScheduleBlockColumn(blockCount = grid.blockCount)
+
+				grid.days.forEach { dayItem ->
+					ScheduleDayColumn(
+						modifier = Modifier
+							.width(dayWidth)
+							.height(gridHeight),
+						dayItem = dayItem
+					)
+				}
+			}
+		}
+	}
+}
+
+// The block numbers, each centered on its row and kept clear of the first day's cells.
+@Composable
+private fun ScheduleBlockColumn(blockCount: Int) {
+	Column(
+		modifier = Modifier.width(BlockColumnWidth),
+		verticalArrangement = Arrangement.spacedBy(BlockRowGap)
+	) {
+		repeat(blockCount) { index ->
+			Box(
+				modifier = Modifier
+					.fillMaxWidth()
+					.height(BlockRowHeight)
+					.padding(end = TuIndiceSpacing.XSmall),
+				contentAlignment = Alignment.CenterEnd
+			) {
+				Text(
+					text = (index + 1).toString(),
+					style = MaterialTheme.typography.labelSmall,
+					color = MaterialTheme.colorScheme.onSurfaceVariant,
+					textAlign = TextAlign.End,
+					maxLines = 1
 				)
 			}
 		}

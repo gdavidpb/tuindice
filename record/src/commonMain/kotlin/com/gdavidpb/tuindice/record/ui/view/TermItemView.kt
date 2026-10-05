@@ -16,6 +16,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
 import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.view.NoticeView
+import com.gdavidpb.tuindice.base.ui.view.rememberLastNonNull
 import com.gdavidpb.tuindice.record.presentation.model.RecordNotice
 import com.gdavidpb.tuindice.record.presentation.model.RecordNoticeKind
 import com.gdavidpb.tuindice.record.presentation.model.TermItem
@@ -52,18 +53,21 @@ fun TermItemView(
 		}
 
 		// Provisional annulment and stale data describe the current term, so only its page shows them.
-		if (item.isCurrent && notice != null) {
-			NoticeView(
-				modifier = Modifier.padding(top = TuIndiceSpacing.Medium),
-				title = notice.title?.asString(),
-				message = notice.message.asString(),
-				icon = if (notice.kind == RecordNoticeKind.StaleEnrollment) {
-					Icons.Outlined.Schedule
-				} else {
-					Icons.Outlined.Info
-				}
-			)
-		}
+		// Always composed, so it animates in and out instead of making the page jump.
+		val pageNotice = notice?.takeIf { item.isCurrent }
+		val shownNotice = rememberLastNonNull(pageNotice)
+
+		NoticeView(
+			modifier = Modifier.padding(vertical = TuIndiceSpacing.Medium),
+			visible = pageNotice != null,
+			title = shownNotice?.title?.asString(),
+			message = shownNotice?.message?.asString().orEmpty(),
+			icon = if (shownNotice?.kind == RecordNoticeKind.StaleEnrollment) {
+				Icons.Outlined.Schedule
+			} else {
+				Icons.Outlined.Info
+			}
+		)
 
 		TermSummaryView(
 			modifier = Modifier
@@ -77,7 +81,8 @@ fun TermItemView(
 				modifier = Modifier
 					.fillMaxWidth()
 					.weight(1f),
-				grid = selectedSchedule
+				grid = selectedSchedule,
+				onScrollInProgressChange = onScrollInProgressChange
 			)
 		} else {
 			SelectedTermView(

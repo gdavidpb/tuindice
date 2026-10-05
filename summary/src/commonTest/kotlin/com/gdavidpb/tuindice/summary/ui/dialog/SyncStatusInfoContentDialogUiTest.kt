@@ -75,6 +75,8 @@ class SyncStatusInfoContentDialogUiTest {
 		setTuIndiceTestContent {
 			SyncStatusInfoContentDialog(
 				syncStatus = SyncStatus.RecordAccessDenied,
+				// What the server sends with that failure: the generic "sources" copy must not win.
+				syncReport = SyncReport.failedRecordUnavailable(),
 				onUpdatePasswordClick = {},
 				onDismissRequest = {}
 			)
@@ -90,6 +92,7 @@ class SyncStatusInfoContentDialogUiTest {
 		setTuIndiceTestContent {
 			SyncStatusInfoContentDialog(
 				syncStatus = SyncStatus.NewStudentNoRecord,
+				syncReport = SyncReport.failedRecordUnavailable(),
 				onUpdatePasswordClick = {},
 				onDismissRequest = { dismissals++ }
 			)

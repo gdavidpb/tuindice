@@ -35,6 +35,11 @@ class SyncAttentionTest {
 			SyncAttention.Informative,
 			resolveSyncAttention(SyncStatus.NewStudentNoRecord, SyncReport.success())
 		)
+		// The report that failure really carries marks the record source unavailable.
+		assertEquals(
+			SyncAttention.Informative,
+			resolveSyncAttention(SyncStatus.NewStudentNoRecord, SyncReport.failedRecordUnavailable())
+		)
 		assertEquals(
 			SyncAttention.Informative,
 			resolveSyncAttention(SyncStatus.Healthy, report(SyncSourceStatus.NotEnrolled, null))

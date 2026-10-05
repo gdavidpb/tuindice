@@ -1,5 +1,5 @@
 {
-  "message": "The university has no academic record for this student yet",
+  "message": "No DST record exists for this student yet.",
   "reason": "NEW_STUDENT_NO_RECORD",
   "sync": {
     "status": "failed",

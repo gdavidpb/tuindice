@@ -46,11 +46,25 @@ class AttemptEnrollmentDetailsTest {
 
 	@Test
 	fun when_universityErrorIsInCapitals_then_showsTheFirstOneInSentenceCase() {
-		val attempt = attempt(enrollmentErrors = listOf("CHOQUE DE HORARIO", "OTRO"))
+		val attempt = attempt(enrollmentErrors = listOf("CHOQUE DE HORARIO"))
 
 		assertEquals("Choque de horario", attempt.toEnrollmentErrorText())
 		assertNull(attempt().toEnrollmentErrorText())
 		assertNull(attempt(enrollmentErrors = listOf("  ")).toEnrollmentErrorText())
+	}
+
+	@Test
+	fun when_thereAreSeveralErrors_then_showsTheFirstAndHowManyMore() {
+		val attempt = attempt(enrollmentErrors = listOf("CHOQUE DE HORARIO", " ", "SIN CUPO", "OTRO"))
+
+		assertEquals("Choque de horario · +2", attempt.toEnrollmentErrorText())
+	}
+
+	@Test
+	fun when_theErrorNamesASubjectOrAnAcronym_then_theyStayInCapitals() {
+		assertEquals("Choque de horario con MA1111", "CHOQUE DE HORARIO CON MA1111".toSentenceCase())
+		assertEquals("Consulte en DACE.", "CONSULTE EN DACE.".toSentenceCase())
+		assertEquals("Límite de créditos", "  LÍMITE   DE CRÉDITOS ".toSentenceCase())
 	}
 
 	private fun texts() = RecordMapperTexts(

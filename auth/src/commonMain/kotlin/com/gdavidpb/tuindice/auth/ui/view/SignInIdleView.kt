@@ -1,5 +1,10 @@
 package com.gdavidpb.tuindice.auth.ui.view
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.expandVertically
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
@@ -25,7 +30,10 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.semantics.LiveRegionMode
 import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.liveRegion
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
@@ -37,6 +45,7 @@ import com.gdavidpb.tuindice.auth.presentation.contract.SignIn
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.auth.utils.extension.isUsbEmail
 import com.gdavidpb.tuindice.auth.utils.extension.isUsbId
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.view.AppLogoView
 import com.gdavidpb.tuindice.base.ui.view.toBoldMarkerAnnotatedText
 import org.jetbrains.compose.resources.stringResource
@@ -198,15 +207,22 @@ fun SignInIdleView(
 			Text(text = signInButtonText)
 		}
 
-		if (state.isServiceUnavailable) {
+		// Animated so the form does not jump when the wait starts or ends, and a live region so a
+		// screen reader says why the button stopped responding.
+		AnimatedVisibility(
+			visible = state.isServiceUnavailable,
+			enter = fadeIn() + expandVertically(),
+			exit = fadeOut() + shrinkVertically()
+		) {
 			Text(
 				modifier = Modifier
 					.testTag(AuthUiTags.ServiceUnavailableMessage)
+					.semantics { liveRegion = LiveRegionMode.Polite }
 					.fillMaxWidth()
 					.padding(
-						start = 32.dp,
-						end = 32.dp,
-						bottom = 16.dp
+						start = TuIndiceSpacing.Wide,
+						end = TuIndiceSpacing.Wide,
+						bottom = TuIndiceSpacing.Screen
 					),
 				text = stringResource(Res.string.sign_in_service_unavailable),
 				style = MaterialTheme.typography.bodySmall,

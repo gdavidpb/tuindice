@@ -10,8 +10,16 @@ data class ScheduleCellItem(
 	val endBlock: Int,
 	val lane: Int,
 	val laneCount: Int,
-	val hasError: Boolean
+	// What the university flagged on the enrollment of the subject, as the chip on its row says it.
+	val errorText: String? = null
 ) {
 	val blockSpan: Int
 		get() = endBlock - startBlock + 1
+
+	val hasError: Boolean
+		get() = errorText != null
+
+	// Shares the day's width with another meeting: there is room for the code only.
+	val isNarrow: Boolean
+		get() = laneCount > 1
 }

@@ -65,6 +65,18 @@ class RecordNoticeResolverTest {
 	}
 
 	@Test
+	fun resolve_whenTheSyncFailedBeforeReadingTheEnrollment_isStaleToo() {
+		val notice = resolveRecordNotice(
+			observed(
+				report = report(enrollmentStatus = SyncSourceStatus.NotAttempted),
+				hasCurrentTerm = true
+			)
+		)
+
+		assertEquals(RecordNoticeKind.StaleEnrollment, notice?.kind)
+	}
+
+	@Test
 	fun resolve_whenAnnulledAndUnavailable_annulmentWins() {
 		val notice = resolveRecordNotice(
 			observed(

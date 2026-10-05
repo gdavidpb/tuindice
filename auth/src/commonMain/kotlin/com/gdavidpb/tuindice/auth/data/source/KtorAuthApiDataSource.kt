@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.auth.domain.model.BootstrapTokens
 import com.gdavidpb.tuindice.auth.domain.model.IssueTokens
 import com.gdavidpb.tuindice.auth.domain.model.RefreshTokens
 import com.gdavidpb.tuindice.auth.domain.repository.AuthRetryWindowRepository
+import com.gdavidpb.tuindice.auth.utils.extension.toCanonicalUsbIdentifier
 import com.gdavidpb.tuindice.base.domain.exception.ServiceRetryWindowException
 import com.gdavidpb.tuindice.security.data.source.network.AttestationHeaders
 import com.gdavidpb.tuindice.security.domain.model.Attestation
@@ -35,7 +36,9 @@ class KtorAuthApiDataSource(
 		usbId: String,
 		password: String
 	): BootstrapTokens {
-		val response = withRetryWindow(key = usbId) {
+		// Keyed by the canonical account so sign-in and the session recovery share one wait however
+		// each of them spells it.
+		val response = withRetryWindow(key = usbId.toCanonicalUsbIdentifier()) {
 			ktorClient.post("auth/v2/bootstrap") {
 				basicAuth(usbId, password)
 			}.body<BootstrapTokensResponse>()

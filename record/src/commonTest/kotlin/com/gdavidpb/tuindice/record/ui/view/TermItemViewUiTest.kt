@@ -102,8 +102,7 @@ class TermItemViewUiTest {
 						startBlock = 1,
 						endBlock = 2,
 						lane = 0,
-						laneCount = 1,
-						hasError = false
+						laneCount = 1
 					)
 				)
 			),

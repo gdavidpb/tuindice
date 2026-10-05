@@ -38,7 +38,9 @@ internal fun resolveRecordNotice(observed: ObservedRecord): RecordNotice? {
 			)
 		}
 
-		enrollment.status == SyncSourceStatus.Unavailable && hasCurrentTerm -> {
+		// Unavailable: the enrollment could not be read. NotAttempted: the sync failed before
+		// getting to it. Either way the current term on screen is the one an earlier sync left.
+		enrollment.status.isNotRefreshed && hasCurrentTerm -> {
 			val readAt = observed.syncReport.enrollmentReadAt
 				?.formatDate(DateTextStyle.DAY_SHORT_MONTH)
 
@@ -56,3 +58,6 @@ internal fun resolveRecordNotice(observed: ObservedRecord): RecordNotice? {
 		else -> null
 	}
 }
+
+private val SyncSourceStatus.isNotRefreshed: Boolean
+	get() = this == SyncSourceStatus.Unavailable || this == SyncSourceStatus.NotAttempted

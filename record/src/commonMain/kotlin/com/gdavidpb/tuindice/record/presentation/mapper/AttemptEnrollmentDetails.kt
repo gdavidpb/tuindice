@@ -23,16 +23,34 @@ internal fun AttemptProjection.toEnrollmentDetailText(texts: RecordMapperTexts):
 	}
 }
 
-/** The university prints its errors in capitals; the first one is shown in sentence case. */
+/**
+ * The university prints its errors in capitals; the first one is shown in sentence case, followed
+ * by how many more there are ("Choque de horario · +1").
+ */
 internal fun AttemptProjection.toEnrollmentErrorText(): String? {
-	return enrollmentErrors
+	val errors = enrollmentErrors
 		.orEmpty()
-		.firstNotNullOfOrNull { error -> error.trim().takeIf { text -> text.isNotEmpty() } }
-		?.toSentenceCase()
+		.map { error -> error.trim() }
+		.filter { error -> error.isNotEmpty() }
+	val first = errors.firstOrNull()?.toSentenceCase() ?: return null
+
+	return if (errors.size > 1) "$first · +${errors.size - 1}" else first
 }
 
-internal fun String.toSentenceCase(): String {
-	val lower = lowercase()
+private val whitespace = Regex("\\s+")
 
-	return lower.replaceFirstChar { first -> first.uppercase() }
+// Written in capitals whatever the sentence: the names the university goes by.
+private val acronyms = setOf("DACE", "DST", "USB", "UC")
+
+// Lowercases the words but not what must stay in capitals: a subject code ("MA1111") and the
+// acronyms above.
+internal fun String.toSentenceCase(): String {
+	return trim()
+		.split(whitespace)
+		.joinToString(separator = " ") { word ->
+			val core = word.filter(Char::isLetterOrDigit).uppercase()
+
+			if (core.any(Char::isDigit) || core in acronyms) word.uppercase() else word.lowercase()
+		}
+		.replaceFirstChar { first -> first.uppercase() }
 }

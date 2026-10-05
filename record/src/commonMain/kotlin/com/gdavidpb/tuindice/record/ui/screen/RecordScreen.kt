@@ -25,6 +25,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.isCurrent
 import com.gdavidpb.tuindice.academiccore.domain.model.isSynthetic
 import com.gdavidpb.tuindice.base.presentation.model.NewStudentNoRecordTexts
 import com.gdavidpb.tuindice.base.presentation.model.asString
+import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.ErrorStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.LoadingView
 import com.gdavidpb.tuindice.base.ui.view.SealedCrossfade
@@ -121,9 +122,7 @@ fun RecordScreen(
 						message = targetState.failedMessage(),
 						retryText = stringResource(Res.string.record_failed_retry),
 						onRetryClick = onRetryClick,
-						headerContent = {
-							ErrorStateAnimationView()
-						}
+						headerContent = { targetState.FailedArt() }
 					)
 
 				is Record.State.Empty ->
@@ -206,4 +205,10 @@ private fun Record.State.Empty.emptyMessage(): String {
 
 private fun Record.State.Empty.annulment(): RecordNotice? {
 	return notice?.takeIf { candidate -> candidate.kind == RecordNoticeKind.AnnulledFinal }
+}
+
+// The university has no record yet: nothing failed, so that case gets no error art.
+@Composable
+private fun Record.State.Failed.FailedArt() {
+	if (isNewStudentNoRecord) EmptyStateAnimationView() else ErrorStateAnimationView()
 }

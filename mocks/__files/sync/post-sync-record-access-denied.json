@@ -1,5 +1,5 @@
 {
-  "message": "The university denied access to the academic record",
+  "message": "DST denied access to the record.",
   "reason": "DST_RECORD_ACCESS_DENIED",
   "sync": {
     "status": "failed",

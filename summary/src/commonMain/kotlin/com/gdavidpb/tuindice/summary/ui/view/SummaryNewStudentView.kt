@@ -5,9 +5,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.presentation.model.NewStudentNoRecordTexts
 import com.gdavidpb.tuindice.base.presentation.model.asString
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
 import com.gdavidpb.tuindice.base.ui.view.IllustratedMessageView
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
@@ -25,7 +25,7 @@ fun SummaryNewStudentView(
 	IllustratedMessageView(
 		modifier = Modifier
 			.testTag(SummaryUiTags.NewStudentContainer)
-			.padding(horizontal = 24.dp)
+			.padding(horizontal = TuIndiceSpacing.Dialog)
 			.fillMaxSize(),
 		title = NewStudentNoRecordTexts.title.asString(),
 		message = NewStudentNoRecordTexts.message.asString(),

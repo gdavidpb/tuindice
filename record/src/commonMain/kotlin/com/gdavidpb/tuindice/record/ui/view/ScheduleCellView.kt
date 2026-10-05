@@ -14,6 +14,7 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
+import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
@@ -43,7 +44,7 @@ fun ScheduleCellView(
 			.semantics(mergeDescendants = true) { contentDescription = description },
 		shape = RoundedCornerShape(TuIndiceRadius.Small),
 		color = if (cell.hasError) {
-			warning.copy(alpha = 0.12f)
+			warning.copy(alpha = TuIndiceAlpha.SurfaceTint)
 		} else {
 			MaterialTheme.colorScheme.secondaryContainer
 		},
@@ -53,25 +54,36 @@ fun ScheduleCellView(
 			MaterialTheme.colorScheme.onSecondaryContainer
 		},
 		border = if (cell.hasError) {
-			BorderStroke(width = TuIndiceSpacing.Hairline, color = warning.copy(alpha = 0.9f))
+			BorderStroke(width = TuIndiceSpacing.Hairline, color = warning.copy(alpha = TuIndiceAlpha.BorderStrong))
 		} else {
 			null
 		}
 	) {
 		Column(
 			modifier = Modifier.padding(
-				horizontal = TuIndiceSpacing.XSmall,
-				vertical = TuIndiceSpacing.Two
+				horizontal = if (cell.isNarrow) TuIndiceSpacing.Hairline else TuIndiceSpacing.Two,
+				vertical = if (cell.isNarrow) TuIndiceSpacing.None else TuIndiceSpacing.Two
 			)
 		) {
-			Text(
-				text = cell.codeText,
-				style = MaterialTheme.typography.labelMedium,
-				maxLines = 1,
-				overflow = TextOverflow.Ellipsis
-			)
+			if (cell.isNarrow) {
+				// Half a day's width cannot hold a whole code: its letters and its number take a
+				// line each, so two subjects that clash still read as two different subjects.
+				Text(
+					text = cell.codeText.toStackedCode(),
+					style = MaterialTheme.typography.labelSmall,
+					maxLines = 2,
+					overflow = TextOverflow.Clip
+				)
+			} else {
+				Text(
+					text = cell.codeText,
+					style = MaterialTheme.typography.labelMedium,
+					maxLines = 1,
+					overflow = TextOverflow.Ellipsis
+				)
+			}
 
-			if (cell.blockSpan > 1 && cell.classroomText != null) {
+			if (!cell.isNarrow && cell.blockSpan > 1 && cell.classroomText != null) {
 				Text(
 					text = cell.classroomText,
 					style = MaterialTheme.typography.labelSmall,
@@ -99,9 +111,14 @@ private fun scheduleCellDescription(
 		stringResource(Res.string.schedule_cell_description_classroom, timing, classroom)
 	} ?: timing
 
-	return if (cell.hasError) {
-		stringResource(Res.string.schedule_cell_description_error, withClassroom)
-	} else {
-		withClassroom
-	}
+	return cell.errorText?.let { error ->
+		stringResource(Res.string.schedule_cell_description_error, withClassroom, error)
+	} ?: withClassroom
+}
+
+// "CI5311" -> "CI" over "5311". A code with no number, or nothing before it, stays on one line.
+private fun String.toStackedCode(): String {
+	val numberStart = indexOfFirst(Char::isDigit)
+
+	return if (numberStart > 0) "${take(numberStart)}\n${drop(numberStart)}" else this
 }
