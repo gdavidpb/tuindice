@@ -8,6 +8,11 @@ fun UiText.asString(): String {
 	return when (this) {
 		UiText.Empty -> ""
 		is UiText.Raw -> value
-		is UiText.Resource -> stringResource(resource, *args.toTypedArray())
+		is UiText.Resource -> {
+			// An argument can itself be a UiText (a cause phrase inside a template): resolved first.
+			val args = args.map { arg -> if (arg is UiText) arg.asString() else arg }
+
+			stringResource(resource, *args.toTypedArray())
+		}
 	}
 }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -28,6 +29,7 @@ fun IllustratedMessageView(
 	titleTestTag: String? = null,
 	messageTestTag: String? = null,
 	actionTestTag: String? = null,
+	isActionOutlined: Boolean = false,
 	titleStyle: TextStyle = MaterialTheme.typography.titleLarge,
 	messageStyle: TextStyle = MaterialTheme.typography.bodyLarge,
 	titleTextAlign: TextAlign = TextAlign.Center,
@@ -61,11 +63,16 @@ fun IllustratedMessageView(
 		messageContent()
 
 		if (actionLabel != null) {
-			Button(
-				modifier = if (actionTestTag != null) Modifier.testTag(actionTestTag) else Modifier,
-				onClick = onActionClick
-			) {
-				Text(text = actionLabel)
+			val actionModifier = if (actionTestTag != null) Modifier.testTag(actionTestTag) else Modifier
+
+			if (isActionOutlined) {
+				OutlinedButton(modifier = actionModifier, onClick = onActionClick) {
+					Text(text = actionLabel)
+				}
+			} else {
+				Button(modifier = actionModifier, onClick = onActionClick) {
+					Text(text = actionLabel)
+				}
 			}
 		}
 	}

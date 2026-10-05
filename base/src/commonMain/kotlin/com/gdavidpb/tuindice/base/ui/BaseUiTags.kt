@@ -13,6 +13,11 @@ object BaseUiTags {
 	const val ErrorViewMessage = "base_error_view_message"
 	const val ErrorViewRetryButton = "base_error_view_retry_button"
 
+	const val NoticeView = "base_notice_view"
+	const val NoticeIcon = "base_notice_icon"
+	const val NoticeTitle = "base_notice_title"
+	const val NoticeMessage = "base_notice_message"
+
 	const val OutdatedAppScreen = "base_outdated_app_screen"
 	const val OutdatedAppTitle = "base_outdated_app_title"
 	const val OutdatedAppMessage = "base_outdated_app_message"
