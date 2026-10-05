@@ -52,7 +52,6 @@ class TermItemViewUiTest {
 		assertNodeVisible(RecordUiTags.ScheduleContainer)
 		assertNodeVisible(RecordUiTags.SelectedTermSummary)
 		assertNodeHidden(RecordUiTags.AttemptsList)
-		onNodeWithText("Bloques de la universidad, no horas del reloj.").assertIsDisplayed()
 		onNodeWithText("Por convenir: EP1420").assertIsDisplayed()
 
 		onNodeWithTag(RecordUiTags.TermViewGradesTab).performClick()

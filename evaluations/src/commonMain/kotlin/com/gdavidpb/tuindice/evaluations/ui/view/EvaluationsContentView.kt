@@ -72,8 +72,9 @@ fun EvaluationsContentView(
 			// The provisional annulment: the term and its evaluations stay usable, so it only warns.
 			val shownNotice = rememberLastNonNull(state.notice)
 
+			// The column already keeps its distance from the top bar; only the gap below is its own.
 			NoticeView(
-				modifier = Modifier.padding(vertical = TuIndiceSpacing.Medium),
+				modifier = Modifier.padding(bottom = TuIndiceSpacing.Medium),
 				visible = state.notice != null,
 				title = shownNotice?.title?.asString(),
 				message = shownNotice?.message?.asString().orEmpty()

@@ -21,10 +21,9 @@ import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import kotlinx.coroutines.flow.distinctUntilChanged
 import org.jetbrains.compose.resources.stringResource
 import tuindice.record.generated.resources.Res
-import tuindice.record.generated.resources.schedule_blocks_note
 import tuindice.record.generated.resources.schedule_unscheduled
 
-/** The "Horario" view of the current term: the grid, what its blocks mean and the loose subjects. */
+/** The "Horario" view of the current term: the grid and the subjects still to be scheduled. */
 @Composable
 fun TermScheduleView(
 	modifier: Modifier = Modifier,
@@ -58,13 +57,6 @@ fun TermScheduleView(
 		verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
 	) {
 		ScheduleGridView(grid = grid)
-
-		Text(
-			modifier = Modifier.testTag(RecordUiTags.ScheduleBlocksNote),
-			text = stringResource(Res.string.schedule_blocks_note),
-			style = MaterialTheme.typography.bodySmall,
-			color = MaterialTheme.colorScheme.onSurfaceVariant
-		)
 
 		if (grid.unscheduledCodes.isNotEmpty()) {
 			Text(

@@ -208,4 +208,3 @@ base_notice_view
 record_term_view_switch
 record_schedule_grid
 auth_service_unavailable_message
-summary_new_student_container

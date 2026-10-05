@@ -863,25 +863,27 @@ flows:
     actions_covered:
       - summary.Summary.RefreshSummary
     primary_selectors:
-      - summary_new_student_container
-      - summary_new_student_title
-      - summary_new_student_message
-      - summary_new_student_retry_button
+      - summary_status_icon_button
+      - summary_sync_status_message
+      - base_confirmation_dialog_positive_button
+      - summary_content_container
       - base_error_view_container
+      - base_error_view_retry_button
   - id: summary-record-access-denied
     path: e2e/maestro/flows/summary/summary-record-access-denied.yaml
     module: summary
     type: error-path
     platforms: [android, ios]
     status: active
-    variant: record-access-denied-generic-failure
+    variant: record-access-denied-dialog
     fixture_state: summary-sync-record-access-denied
     actions_covered:
       - summary.Summary.RefreshSummary
     primary_selectors:
-      - base_error_view_container
-      - base_error_view_retry_button
-      - summary_new_student_container
+      - summary_status_icon_button
+      - summary_sync_status_message
+      - base_confirmation_dialog_positive_button
+      - summary_content_container
   - id: summary-profile-picture
     path: e2e/maestro/flows/summary/summary-profile-picture.yaml
     module: summary
@@ -969,7 +971,6 @@ flows:
       - record_attempt_enrollment_error_722cc2cc935e0aefdc73f9ebf9d2f1b6
       - record_term_view_schedule_tab
       - record_schedule_grid
-      - record_schedule_blocks_note
       - record_schedule_unscheduled
       - record_term_view_grades_tab
       - record_attempts_list

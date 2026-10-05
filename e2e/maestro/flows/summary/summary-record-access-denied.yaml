@@ -11,16 +11,26 @@ appId: com.gdavidpb.tuindice.debug
     id: auth_keyboard_dismiss_area
 - tapOn:
     id: auth_sign_in_button
+- runFlow: ../_shared/continue-to-summary-after-auth.yaml
+# The account has data from before; the university just refuses the record today. The content
+# stays and the sync row says why, in its own words and not as a generic outage.
 - extendedWaitUntil:
     visible:
-      id: base_error_view_container|coachmark_bubble
-    timeout: 40000
-- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+      id: summary_status_icon_button
+    timeout: 10000
+- tapOn:
+    id: summary_status_icon_button
 - extendedWaitUntil:
     visible:
-      id: base_error_view_container
-    timeout: 20000
+      id: summary_sync_status_message
+    timeout: 10000
+- assertVisible: "No pudimos consultar tu expediente"
+- assertVisible: "La universidad no nos permite consultar tu expediente ahora. Mantenemos tus datos anteriores."
+- tapOn:
+    id: base_confirmation_dialog_positive_button
+- extendedWaitUntil:
+    notVisible:
+      id: summary_sync_status_message
+    timeout: 10000
 - assertVisible:
-    id: base_error_view_retry_button
-- assertNotVisible:
-    id: summary_new_student_container
+    id: summary_content_container

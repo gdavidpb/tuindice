@@ -38,6 +38,7 @@ import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsFail
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsIdleTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsLoadingTransitions
 import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsNoAttemptsTransitions
+import com.gdavidpb.tuindice.evaluations.presentation.transition.evaluationsRecordDataUnavailableTransitions
 import kotlinx.coroutines.flow.collect
 import org.jetbrains.compose.resources.getString
 import tuindice.evaluations.generated.resources.Res
@@ -65,6 +66,7 @@ class EvaluationsMachine(
 			evaluationsEmptyTransitions()
 			evaluationsNoAttemptsTransitions()
 			evaluationsFailedTransitions()
+			evaluationsRecordDataUnavailableTransitions()
 			evaluationsAnyStateTransitions(machine = this@EvaluationsMachine, host = host)
 		}
 	}

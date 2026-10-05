@@ -61,7 +61,7 @@ fun ScheduleCellView(
 	) {
 		Column(
 			modifier = Modifier.padding(
-				horizontal = if (cell.isNarrow) TuIndiceSpacing.Hairline else TuIndiceSpacing.Two,
+				horizontal = if (cell.isNarrow) TuIndiceSpacing.Hairline else TuIndiceSpacing.XSmall,
 				vertical = if (cell.isNarrow) TuIndiceSpacing.None else TuIndiceSpacing.Two
 			)
 		) {

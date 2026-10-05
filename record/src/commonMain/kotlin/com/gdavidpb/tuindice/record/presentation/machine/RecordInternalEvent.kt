@@ -25,6 +25,11 @@ sealed interface RecordInternalEvent {
 		val isNewStudentNoRecord: Boolean
 	) : RecordInternalEvent
 
+	/** The sync learned (or stopped saying) that the university has no record for this account. */
+	data class NewStudentNoRecordObserved(
+		val isNewStudentNoRecord: Boolean
+	) : RecordInternalEvent
+
 	data object RecordObservationFailed : RecordInternalEvent
 
 	data object RecordRefreshStarted : RecordInternalEvent

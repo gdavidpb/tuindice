@@ -91,6 +91,9 @@ internal fun MachineDefinitionBuilder<Record.State>.recordAnyStateTransitions(
 			Record.State.Loading
 		}
 
+		// Only Failed shows it; everywhere else the machine just keeps the register up to date.
+		on<RecordInternalEvent.NewStudentNoRecordObserved> { state, _ -> state }
+
 		onTo<RecordInternalEvent.RecordObservationFailed, Record.State.Failed> { _, _ ->
 			Record.State.Failed()
 		}

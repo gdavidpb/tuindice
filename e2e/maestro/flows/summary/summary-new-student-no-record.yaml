@@ -11,21 +11,43 @@ appId: com.gdavidpb.tuindice.debug
     id: auth_keyboard_dismiss_area
 - tapOn:
     id: auth_sign_in_button
+- runFlow: ../_shared/continue-to-summary-after-auth.yaml
+# Signing in always leaves a profile (name and career); what the university does not have yet is
+# the record, so Summary shows its content and the sync row explains the rest.
 - extendedWaitUntil:
     visible:
-      id: summary_new_student_container|coachmark_bubble
-    timeout: 40000
-- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+      id: summary_status_icon_button
+    timeout: 10000
+- tapOn:
+    id: summary_status_icon_button
 - extendedWaitUntil:
     visible:
-      id: summary_new_student_container
-    timeout: 20000
+      id: summary_sync_status_message
+    timeout: 10000
+- assertVisible: "Aún no tienes expediente en la universidad"
+- tapOn:
+    id: base_confirmation_dialog_positive_button
+- extendedWaitUntil:
+    notVisible:
+      id: summary_sync_status_message
+    timeout: 10000
 - assertVisible:
-    id: summary_new_student_title
+    id: summary_content_container
+- tapOn:
+    id: maincore_tuindice_bottom_bar_record_item
+- extendedWaitUntil:
+    visible:
+      id: base_error_view_container
+    timeout: 30000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - assertVisible: "Aún no tienes expediente en la universidad"
 - assertVisible:
-    id: summary_new_student_message
-- assertVisible:
-    id: summary_new_student_retry_button
-- assertNotVisible:
-    id: base_error_view_container
+    id: base_error_view_retry_button
+- tapOn:
+    id: maincore_tuindice_bottom_bar_evaluations_item
+- extendedWaitUntil:
+    visible:
+      id: base_error_view_container
+    timeout: 30000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+- assertVisible: "Aún no tienes expediente en la universidad"

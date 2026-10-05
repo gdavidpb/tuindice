@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.record.presentation.machine
 
 import com.gdavidpb.tuindice.academiccore.domain.model.AttemptOutcome
-import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.usecase.base.InitialContentLoadResult
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.model.SyncedContentResolution
@@ -14,6 +13,7 @@ import com.gdavidpb.tuindice.record.domain.model.RecordRejection
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.EnsureRecordLoadedUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.ObserveNewStudentNoRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermRejectionsUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase
@@ -41,6 +41,7 @@ import tuindice.record.generated.resources.snack_synthetic_term_deleted
 
 class RecordMachine(
 	private val observeRecordUseCase: ObserveRecordUseCase,
+	private val observeNewStudentNoRecordUseCase: ObserveNewStudentNoRecordUseCase,
 	private val observeSyntheticTermRejectionsUseCase: ObserveSyntheticTermRejectionsUseCase,
 	private val ensureRecordLoadedUseCase: EnsureRecordLoadedUseCase,
 	private val updateRecordUseCase: UpdateRecordUseCase,
@@ -55,9 +56,11 @@ class RecordMachine(
 	// handles keep that guarantee from depending on the call site.
 	private var recordObservationJob: Job? = null
 	private var syntheticTermRejectionObservationJob: Job? = null
+	private var newStudentObservationJob: Job? = null
 
-	// EFSM register: whether the last observation saw the account as a new student with no record
-	// at the university. A refresh failure reads it so Failed knows why it failed.
+	// EFSM register: whether the university has no record for this account yet. It has its own
+	// observation because the record's never emits for an account with nothing stored. A refresh
+	// failure reads it so Failed knows why it failed.
 	private var isNewStudentNoRecord = false
 
 	override fun initialState(): Record.State = Record.State.Idle
@@ -73,7 +76,7 @@ class RecordMachine(
 	}
 
 	internal fun startObservation(host: MachineHost<Record.Effect>) {
-		startSyntheticTermRejectionObservation(host = host)
+		startSideObservations(host = host)
 
 		if (recordObservationJob?.isActive == true) return
 
@@ -85,8 +88,6 @@ class RecordMachine(
 					is UseCaseState.Data -> {
 						val record = useCaseState.value
 						val notice = resolveRecordNotice(record)
-
-						isNewStudentNoRecord = record.syncStatus == SyncStatus.NewStudentNoRecord
 
 						when (
 							resolveSyncedContentResolution(
@@ -126,7 +127,24 @@ class RecordMachine(
 		}
 	}
 
-	private fun startSyntheticTermRejectionObservation(host: MachineHost<Record.Effect>) {
+	// What the screen listens to besides the record itself: whether the account is a new student
+	// with no record yet, and the edits the server refused for good.
+	private fun startSideObservations(host: MachineHost<Record.Effect>) {
+		if (newStudentObservationJob?.isActive != true) {
+			newStudentObservationJob = host.launchMachineJob {
+				observeNewStudentNoRecordUseCase.execute(Unit).collect { useCaseState ->
+					if (useCaseState is UseCaseState.Data) {
+						isNewStudentNoRecord = useCaseState.value
+						host.processInternalEvent(
+							RecordInternalEvent.NewStudentNoRecordObserved(
+								isNewStudentNoRecord = useCaseState.value
+							)
+						)
+					}
+				}
+			}
+		}
+
 		if (syntheticTermRejectionObservationJob?.isActive == true) return
 
 		syntheticTermRejectionObservationJob = host.launchMachineJob {

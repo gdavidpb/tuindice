@@ -11,5 +11,10 @@ internal fun MachineDefinitionBuilder<Record.State>.recordFailedTransitions() {
 		on<RecordInternalEvent.RecordWaitingObserved> { state, event ->
 			state.copy(isNewStudentNoRecord = event.isNewStudentNoRecord)
 		}
+
+		// The reason can arrive after the failure, or change with a later sync.
+		on<RecordInternalEvent.NewStudentNoRecordObserved> { state, event ->
+			state.copy(isNewStudentNoRecord = event.isNewStudentNoRecord)
+		}
 	}
 }

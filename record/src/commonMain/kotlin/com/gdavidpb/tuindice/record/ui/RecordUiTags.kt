@@ -41,7 +41,6 @@ object RecordUiTags {
 	const val TermViewScheduleTab = "record_term_view_schedule_tab"
 	const val ScheduleContainer = "record_schedule_container"
 	const val ScheduleGrid = "record_schedule_grid"
-	const val ScheduleBlocksNote = "record_schedule_blocks_note"
 	const val ScheduleUnscheduled = "record_schedule_unscheduled"
 
 	const val EmptyContainer = "record_empty_container"

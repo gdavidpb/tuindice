@@ -62,7 +62,6 @@
 	<string name="schedule_day_friday">viernes</string>
 	<string name="schedule_day_saturday">sábado</string>
 	<string name="schedule_day_sunday">domingo</string>
-	<string name="schedule_blocks_note">Bloques de la universidad, no horas del reloj.</string>
 	<string name="schedule_unscheduled">Por convenir: %1$s</string>
 	<string name="schedule_cell_description">%1$s, %2$s, bloque %3$d</string>
 	<string name="schedule_cell_description_span">%1$s, %2$s, bloques %3$d a %4$d</string>

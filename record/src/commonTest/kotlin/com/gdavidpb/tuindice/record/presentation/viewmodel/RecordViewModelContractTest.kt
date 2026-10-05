@@ -15,6 +15,7 @@ import com.gdavidpb.tuindice.base.domain.model.SyncSourceStatus
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.usecase.DeleteSyntheticTermUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.EnsureRecordLoadedUseCase
+import com.gdavidpb.tuindice.record.domain.usecase.ObserveNewStudentNoRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveRecordUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.ObserveSyntheticTermRejectionsUseCase
 import com.gdavidpb.tuindice.record.domain.usecase.SetRecordViewModeUseCase
@@ -36,13 +37,13 @@ import com.gdavidpb.tuindice.testkit.mvi.awaitUntilState
 import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertIs
 import kotlin.test.assertTrue
-import kotlinx.coroutines.test.advanceUntilIdle
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
 
 @OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 class RecordViewModelContractTest {
@@ -487,6 +488,10 @@ class RecordViewModelContractTest {
 			observeRecordUseCase = ObserveRecordUseCase(
 				academicRecordRepository = academicRecordRepository,
 				recordSelectionRepository = selectionRepository,
+				syncStatusRepository = syncStatusRepository,
+				reportingRepository = reportingRepository
+			),
+			observeNewStudentNoRecordUseCase = ObserveNewStudentNoRecordUseCase(
 				syncStatusRepository = syncStatusRepository,
 				reportingRepository = reportingRepository
 			),

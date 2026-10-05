@@ -41,8 +41,6 @@ appId: com.gdavidpb.tuindice.debug
 - assertVisible:
     id: base_notice_view
 - assertVisible:
-    id: record_schedule_blocks_note
-- assertVisible:
     id: record_schedule_unscheduled
 - assertVisible: "Por convenir: EG1114"
 - tapOn:

@@ -198,6 +198,7 @@ class RecordStateMachineContractTest {
 				),
 				RecordInternalEvent.RecordEmptyObserved(notice = null),
 				RecordInternalEvent.RecordWaitingObserved(isNewStudentNoRecord = false),
+				RecordInternalEvent.NewStudentNoRecordObserved(isNewStudentNoRecord = true),
 				RecordInternalEvent.RecordObservationFailed,
 				RecordInternalEvent.RecordRefreshStarted,
 				RecordInternalEvent.RecordRefreshFailed(
