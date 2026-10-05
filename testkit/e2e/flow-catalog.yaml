@@ -971,6 +971,8 @@ flows:
       - record_attempt_detail_e21f0d7e481d13d19f328d6818ce4d77
       - record_attempt_enrollment_error_722cc2cc935e0aefdc73f9ebf9d2f1b6
       - base_top_app_bar_action_record_schedule
+      - record_schedule_sheet
+      - record_schedule_title
       - record_schedule_table
       - record_schedule_table_row_e21f0d7e481d13d19f328d6818ce4d77
       - record_schedule_table_clash_e21f0d7e481d13d19f328d6818ce4d77_2
@@ -979,7 +981,6 @@ flows:
       - record_schedule_view_week_tab
       - record_schedule_grid
       - record_schedule_unscheduled
-      - maincore_tuindice_top_bar_back_button
       - record_attempts_list
   - id: record-annulled-final-notice
     path: e2e/maestro/flows/record/record-annulled-final-notice.yaml

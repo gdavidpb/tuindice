@@ -27,7 +27,7 @@ fun EntryProviderScope<NavKey>.recordEntries(
 	dependencies: RecordNavDependencies
 ) {
 	recordEntry(navActions = navActions, shellBindings = shellBindings, dependencies = dependencies)
-	scheduleEntry(shellBindings = shellBindings)
+	scheduleEntry(navActions = navActions)
 	createSyntheticTermEntry(navActions = navActions, shellBindings = shellBindings, dependencies = dependencies)
 	deleteSyntheticTermConfirmationDialogEntry(navActions = navActions)
 }
@@ -50,7 +50,7 @@ private fun EntryProviderScope<NavKey>.recordEntry(
 		// schedule; this is what it opens, while the record is the entry on screen.
 		DisposableEffect(dependencies) {
 			dependencies.onTopBarScheduleAvailable {
-				navActions.push(RecordDestination.Schedule)
+				navActions.push(RecordDestination.ScheduleDialog)
 			}
 
 			onDispose {
@@ -87,18 +87,15 @@ private fun EntryProviderScope<NavKey>.recordEntry(
 }
 
 private fun EntryProviderScope<NavKey>.scheduleEntry(
-	shellBindings: NavShellBindings
+	navActions: TuIndiceNavActions
 ) {
-	entry<RecordDestination.Schedule> {
+	entry<RecordDestination.ScheduleDialog>(metadata = dialogMetadata()) {
 		val viewModel = koinViewModel<ScheduleViewModel>()
-		val viewState by viewModel.state.collectAsStateWithLifecycle()
 
-		CollectCurrentEntryValueWithLifecycle(
-			value = viewState,
-			onValue = shellBindings.onViewStateChanged
+		ScheduleRoute(
+			viewModel = viewModel,
+			onDismissRequest = { navActions.pop() }
 		)
-
-		ScheduleRoute(viewModel = viewModel)
 	}
 }
 

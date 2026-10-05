@@ -1,4 +1,4 @@
-package com.gdavidpb.tuindice.record.ui.screen
+package com.gdavidpb.tuindice.record.ui.dialog
 
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertCountEquals
@@ -26,13 +26,14 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
-class ScheduleScreenUiTest {
+class ScheduleContentDialogUiTest {
 	@Test
 	fun when_viewIsTable_then_rowsShowCodeDetailBlocksAndTheClash() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ScheduleScreen(
+			ScheduleContentDialog(
 				state = content(ScheduleViewMode.Table),
-				onViewModeSelected = {}
+				onViewModeSelected = {},
+				onDismissRequest = {}
 			)
 		}
 
@@ -54,9 +55,10 @@ class ScheduleScreenUiTest {
 	@Test
 	fun when_viewIsWeek_then_theGridAndTheUnscheduledLineAreShown() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ScheduleScreen(
+			ScheduleContentDialog(
 				state = content(ScheduleViewMode.Week),
-				onViewModeSelected = {}
+				onViewModeSelected = {},
+				onDismissRequest = {}
 			)
 		}
 
@@ -70,9 +72,10 @@ class ScheduleScreenUiTest {
 		var selected: ScheduleViewMode? = null
 
 		setTuIndiceTestContent {
-			ScheduleScreen(
+			ScheduleContentDialog(
 				state = content(ScheduleViewMode.Table),
-				onViewModeSelected = { selected = it }
+				onViewModeSelected = { selected = it },
+				onDismissRequest = {}
 			)
 		}
 
@@ -84,22 +87,25 @@ class ScheduleScreenUiTest {
 	@Test
 	fun when_nothingIsScheduled_then_theEmptyCopyIsShown() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ScheduleScreen(
+			ScheduleContentDialog(
 				state = Schedule.State.Empty,
-				onViewModeSelected = {}
+				onViewModeSelected = {},
+				onDismissRequest = {}
 			)
 		}
 
-		onNodeWithText("Sin horario").assertIsDisplayed()
+		// The sheet keeps its title; the body says why there is nothing under it.
+		onNodeWithText("Horario").assertIsDisplayed()
 		onNodeWithText("Tu trimestre actual todavía no tiene horario.").assertIsDisplayed()
 	}
 
 	@Test
 	fun when_loading_then_theSpinnerIsShown() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
-			ScheduleScreen(
+			ScheduleContentDialog(
 				state = Schedule.State.Loading,
-				onViewModeSelected = {}
+				onViewModeSelected = {},
+				onDismissRequest = {}
 			)
 		}
 

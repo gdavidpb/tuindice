@@ -38,8 +38,8 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: record_schedule_table
     timeout: 10000
-- assertNotVisible:
-    id: base_notice_view
+- assertVisible:
+    id: record_schedule_title
 - assertVisible:
     id: record_schedule_table_row_e21f0d7e481d13d19f328d6818ce4d77
 - assertVisible: "Sec. 1 · MYS-116"
@@ -63,12 +63,18 @@ appId: com.gdavidpb.tuindice.debug
 - assertVisible:
     id: record_schedule_unscheduled
 - assertVisible: "Por convenir: EG1114"
-- tapOn:
-    id: maincore_tuindice_top_bar_back_button
+# The schedule is a sheet over the record: dragging it down by its title closes it.
+- swipe:
+    from:
+      id: record_schedule_title
+    direction: DOWN
+    duration: 600
 - extendedWaitUntil:
-    visible:
-      id: record_attempts_list
+    notVisible:
+      id: record_schedule_sheet
     timeout: 10000
+- assertVisible:
+    id: record_attempts_list
 - assertVisible:
     id: base_notice_view
 - assertNotVisible:

@@ -36,7 +36,8 @@ object RecordUiTags {
 	const val CreateSyntheticTermSuggestedTab = "record_create_synthetic_term_suggested_tab"
 	const val CreateSyntheticTermSearchTab = "record_create_synthetic_term_search_tab"
 
-	const val ScheduleScreen = "record_schedule_screen"
+	const val ScheduleSheet = "record_schedule_sheet"
+	const val ScheduleTitle = "record_schedule_title"
 	const val ScheduleLoadingIndicator = "record_schedule_loading_indicator"
 	const val ScheduleViewSwitch = "record_schedule_view_switch"
 	const val ScheduleViewTableTab = "record_schedule_view_table_tab"

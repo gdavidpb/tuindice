@@ -10,7 +10,7 @@ sealed class RecordDestination : Destination() {
 	data object Record : RecordDestination()
 
 	@Serializable
-	data object Schedule : RecordDestination()
+	data object ScheduleDialog : RecordDestination(), DialogDestination
 
 	@Serializable
 	data class CreateSyntheticTerm(

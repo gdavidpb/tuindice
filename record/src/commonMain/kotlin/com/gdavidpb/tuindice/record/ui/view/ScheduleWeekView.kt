@@ -3,8 +3,6 @@ package com.gdavidpb.tuindice.record.ui.view
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,11 +25,14 @@ fun ScheduleWeekView(
 	Column(
 		modifier = modifier
 			.testTag(RecordUiTags.ScheduleContainer)
-			.verticalScroll(rememberScrollState())
 			.padding(bottom = TuIndiceSpacing.Screen),
 		verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.Medium)
 	) {
-		ScheduleGridView(grid = grid)
+		// The grid takes what the sheet leaves and scrolls inside it; the line below stays in sight.
+		ScheduleGridView(
+			modifier = Modifier.weight(1f, fill = false),
+			grid = grid
+		)
 
 		if (grid.unscheduledCodes.isNotEmpty()) {
 			Text(

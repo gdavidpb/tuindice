@@ -19,8 +19,10 @@ import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
+import com.gdavidpb.tuindice.base.ui.model.SubjectCodeChipVariant
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
+import com.gdavidpb.tuindice.base.ui.view.SubjectCodeChip
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleTableRowItem
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
@@ -52,7 +54,8 @@ fun ScheduleTableRowView(
 				.testTag(RecordUiTags.scheduleTableRow(row.attemptId))
 				.semantics(mergeDescendants = true) { contentDescription = description },
 			shape = RoundedCornerShape(TuIndiceRadius.Small),
-			color = MaterialTheme.colorScheme.surfaceContainerLow
+			// One step above the sheet the table sits on, so each subject reads as its own row.
+			color = MaterialTheme.colorScheme.surfaceContainerHigh
 		) {
 			Row(
 				modifier = Modifier.padding(
@@ -111,13 +114,14 @@ private fun ScheduleTableSubjectView(
 		else -> row.classroom
 	}
 
-	Column(modifier = modifier) {
-		Text(
-			text = row.subjectCode,
-			style = MaterialTheme.typography.labelLarge,
-			color = MaterialTheme.colorScheme.onSurface,
-			maxLines = 1,
-			overflow = TextOverflow.Ellipsis
+	Column(
+		modifier = modifier,
+		verticalArrangement = Arrangement.spacedBy(TuIndiceSpacing.XSmall)
+	) {
+		// The chip every other screen names a subject with, in its own colour.
+		SubjectCodeChip(
+			subjectCode = row.subjectCode,
+			variant = SubjectCodeChipVariant.Dense
 		)
 
 		if (detail != null) {

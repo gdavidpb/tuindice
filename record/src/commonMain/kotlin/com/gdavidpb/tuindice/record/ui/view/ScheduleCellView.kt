@@ -8,12 +8,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextOverflow
 import com.gdavidpb.tuindice.base.ui.style.AcademicStatusColors
+import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAlpha
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
@@ -29,8 +31,8 @@ import tuindice.record.generated.resources.schedule_cell_description_error
 import tuindice.record.generated.resources.schedule_cell_description_span
 
 /**
- * One meeting of a subject. A meeting that overlaps another subject's that day takes the alert tone,
- * the same rule the table follows, so a clash is marked on the same cells in both views.
+ * One meeting of a subject, in the colours of the subject's chip. A meeting that overlaps another
+ * subject's that day gains the alert border, the same rule the table follows.
  */
 @Composable
 fun ScheduleCellView(
@@ -40,24 +42,18 @@ fun ScheduleCellView(
 ) {
 	val warning = AcademicStatusColors.warning()
 	val description = scheduleCellDescription(day = day, cell = cell)
+	// The colours of the subject's chip, so a subject looks the same here as everywhere else.
+	val subjectColors = remember(cell.codeText) { CourseCodeColorGenerator.fromCode(cell.codeText) }
 
 	Surface(
 		modifier = modifier
 			.testTag(RecordUiTags.scheduleCell(cell.attemptId, day.code, cell.startBlock))
 			.semantics(mergeDescendants = true) { contentDescription = description },
 		shape = RoundedCornerShape(TuIndiceRadius.Small),
-		color = if (cell.isClash) {
-			warning.copy(alpha = TuIndiceAlpha.SurfaceTint)
-		} else {
-			MaterialTheme.colorScheme.secondaryContainer
-		},
-		contentColor = if (cell.isClash) {
-			MaterialTheme.colorScheme.onSurface
-		} else {
-			MaterialTheme.colorScheme.onSecondaryContainer
-		},
+		color = subjectColors.containerColor,
+		contentColor = subjectColors.color,
 		border = if (cell.isClash) {
-			BorderStroke(width = TuIndiceSpacing.Hairline, color = warning.copy(alpha = TuIndiceAlpha.BorderStrong))
+			BorderStroke(width = TuIndiceSpacing.Two, color = warning.copy(alpha = TuIndiceAlpha.BorderStrong))
 		} else {
 			null
 		}
@@ -79,7 +75,6 @@ fun ScheduleCellView(
 				Text(
 					text = cell.classroomText,
 					style = MaterialTheme.typography.labelSmall,
-					color = MaterialTheme.colorScheme.onSurfaceVariant,
 					maxLines = 1,
 					overflow = TextOverflow.Ellipsis
 				)
