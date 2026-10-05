@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.data.source
 
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.evaluations.data.repository.SettingsDataRepository
 import com.gdavidpb.tuindice.evaluations.domain.repository.EvaluationsSelectionRepository
@@ -11,7 +12,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class LocalSettingsDataSource(
 	private val settings: Settings
-) : SettingsDataRepository, EvaluationsSelectionRepository {
+) : SettingsDataRepository, EvaluationsSelectionRepository, SessionMemory {
 	private val selectedWeekKey = MutableStateFlow(
 		settings.getStringOrNull(PreferencesKeys.SELECTED_EVALUATIONS_WEEK)
 	)
@@ -35,5 +36,10 @@ class LocalSettingsDataSource(
 	override suspend fun setSelectedWeekKey(weekKey: String) {
 		settings.putString(PreferencesKeys.SELECTED_EVALUATIONS_WEEK, weekKey)
 		selectedWeekKey.value = weekKey
+	}
+
+	// The mirror goes back to what is stored, which the wipe has just emptied.
+	override suspend fun clearSessionMemory() {
+		selectedWeekKey.value = settings.getStringOrNull(PreferencesKeys.SELECTED_EVALUATIONS_WEEK)
 	}
 }

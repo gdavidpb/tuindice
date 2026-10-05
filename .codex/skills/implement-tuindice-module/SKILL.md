@@ -112,6 +112,7 @@ Implement module work by copying the nearest existing module pattern instead of 
 - Persisted screen selection/preference state (record's selected term and view mode, pensum's summary collapsed, evaluations' selected week) follows one canonical shape across all features:
   - a feature-owned `*SelectionRepository` contract in `domain/repository` exposing `observe*(): Flow<...>` plus `suspend set*(...)`; no sync getters
   - implemented directly by the module's settings-backed `LocalSettingsDataSource` (a `MutableStateFlow` mirror seeded from `Settings` with write-through on set); never a trivial delegate `*DataSource` in between
+  - the mirror outlives the session, so that `LocalSettingsDataSource` also implements `SessionMemory` and re-reads every mirror from `Settings` in `clearSessionMemory()`
   - writes go through a dedicated `Set*UseCase` fired from the transition row's machine command; the row updates state optimistically and the fold re-emission converges to the same value
   - reads are folded into the feature's main observe/get use case with `combine`, so the observed domain model already carries the persisted value; machines never inject selection repositories nor read persisted state directly
   - validity guards over the persisted value (e.g., a stale week key against the current term) live in the machine's mapping to internal events, falling back to the computed default
@@ -167,6 +168,7 @@ Implement module work by copying the nearest existing module pattern instead of 
   - no `BuildConfig`
   - no Java IO types in shared code
   - no Android-specific Koin ViewModel DSL in KMP source sets
+- Session memory: a shared (`single`) `*DataSource` that keeps anything in memory on behalf of the signed-in account (a `MutableStateFlow` mirror of a stored preference, a cache, a credential) implements `SessionMemory` (`base/domain/session`) and is bound with `bind<SessionMemory>()` in its Koin module. `clearSessionMemory()` goes back to what the stores say (re-read a mirror, drop a cache) and never takes a lock a network request may be holding. `ApplicationRepository.clearData()` is the only caller. State that belongs to the process or the device and must outlive the session is excluded by path, with its reason, in the semgrep rule `data-source-memory-is-session-memory`; `SessionMemoryBindingTest` in maincore keeps the inventory.
 - Feature modules expose a single public Koin module named `<feature>Module`.
 - Platform wiring stays centralized in `androidPlatformModule` and `iosPlatformModule`; do not create per-feature platform modules.
 - New user-facing text goes through `composeResources`.

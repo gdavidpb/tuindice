@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.pensum.di
 
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.pensum.data.repository.PensumLocalDataRepository
 import com.gdavidpb.tuindice.pensum.data.repository.PensumRemoteDataRepository
 import com.gdavidpb.tuindice.pensum.data.source.KtorPensumApiDataSource
@@ -43,10 +44,14 @@ val pensumModule = module {
 	singleOf(::PensumStatusEngine)
 	singleOf(::KtorPensumApiDataSource) { bind<PensumRemoteDataRepository>() }
 	singleOf(::PensumRoomDataSource) { bind<PensumLocalDataRepository>() }
-	singleOf(::LocalSettingsDataSource) { bind<PensumSelectionRepository>() }
+	singleOf(::LocalSettingsDataSource) {
+		bind<PensumSelectionRepository>()
+		bind<SessionMemory>()
+	}
 	singleOf(::PensumDataSource) {
 		bind<PensumRepository>()
 		bind<PensumRevalidationRepository>()
+		bind<SessionMemory>()
 	}
 
 	factoryOf(::UpdatePensumExceptionHandler)

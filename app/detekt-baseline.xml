@@ -16,6 +16,7 @@
     <ID>LongMethod:AndroidAttestationRepositoryTest.kt$AndroidAttestationDataSourceTest$@Test fun `current session attestation recovers unauthorized token before retry`()</ID>
     <ID>LongMethod:AndroidAttestationRepositoryTest.kt$private fun androidConflictRecoveryHttpClient(): HttpClient</ID>
     <ID>LongMethod:AndroidAttestationRepositoryTest.kt$private fun androidPreparationHttpClient( preparationSessionId: String = "preparation-session", preparationChallenge: String = "preparation-challenge" ): HttpClient</ID>
+    <ID>LongParameterList:AndroidApplicationDataSource.kt$AndroidApplicationDataSource$( private val context: Context, private val persistenceMaintenanceRepository: PersistenceMaintenanceRepository, private val settingsRepository: SettingsRepository, private val secureStore: SecureKeyValueDataRepository, private val legacySecureStore: SecureKeyValueDataRepository, private val proofOfPossessionCapability: AndroidProofOfPossessionCapability, // Resolved when the wipe runs, not when this is built: some holders need this repository. private val sessionMemory: () -&gt; List&lt;SessionMemory&gt; )</ID>
     <ID>MagicNumber:AndroidPlatformModule.kt$43_200L</ID>
     <ID>MagicNumber:E2eSeedBridge.kt$E2eSeedBridge$200</ID>
     <ID>MagicNumber:E2eSeedBridge.kt$E2eSeedBridge$299</ID>

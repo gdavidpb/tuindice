@@ -209,6 +209,26 @@ Reglas:
 - Si una feature necesita leer contratos compartidos de otro módulo, debe hacerlo mediante adapters propios de esa
   feature.
 
+#### Memoria de sesión
+
+Un `*DataSource` compartido (`single`) vive más que la sesión. Lo que guarda en memoria por cuenta de quien
+inició sesión —el espejo de una preferencia, una caché, una credencial— no lo alcanza el borrado de datos, que
+solo vacía lo almacenado.
+
+- Todo data source con ese estado implementa `SessionMemory` (`base/domain/session`) y en
+  `clearSessionMemory()` vuelve a lo que dicen los stores (un espejo se relee; una caché o una credencial se
+  sueltan).
+- Se enlaza en su módulo de Koin con `bind<SessionMemory>()`, junto a sus otros contratos.
+- `ApplicationRepository.clearData()` es el único punto que los invoca, al final y también si el borrado se
+  interrumpe: cubre el cierre de sesión, la sesión invalidada, el ingreso sobre datos de otra cuenta y el
+  arranque que descarta datos.
+- `clearSessionMemory()` no toma un candado que una petición de red pueda estar sosteniendo: esa misma
+  petición puede terminar la sesión y el borrado esperaría a quien lo llamó.
+- El estado del proceso o del dispositivo que debe sobrevivir a la sesión se excluye por ruta, con su razón,
+  en la regla `data-source-memory-is-session-memory`.
+- `SessionMemoryBindingTest` (maincore, host JVM) falla si una definición declarada como `SessionMemory` no
+  está enlazada, y lleva el inventario de lo que un cierre de sesión borra de memoria.
+
 ### DI
 
 Responsable del wiring.
@@ -373,7 +393,7 @@ Reglas:
 ## Enforcement de arquitectura (Semgrep)
 
 Las reglas de `config/semgrep/rules/` codifican las piezas base de este README como chequeos estáticos
-(43 reglas en 11 archivos por área):
+(44 reglas en 11 archivos por área):
 
 - `kmp-portability`: límites KMP en `commonMain` (imports `android.*`/`java.*`, `BuildConfig`,
   Koin androidx, Firebase directo).
@@ -397,7 +417,8 @@ Las reglas de `config/semgrep/rules/` codifican las piezas base de este README c
   `presentation/navigation` (exención documentada: `TuIndiceAppHostRoute`, raíz del árbol), Drafts
   importables solo desde `machine`/`di`, y los entry providers de Nav3 solo en `presentation/navigation`.
 - `infrastructure`: `TuIndiceDatabase` solo en `persistence`, `EventPublisher` solo en la frontera MVI
-  (ViewModels y `di`), y sin `println` (el logging pasa por los contratos de `base`).
+  (ViewModels y `di`), sin `println` (el logging pasa por los contratos de `base`), y todo data source con
+  estado en memoria implementa `SessionMemory` (ver "Memoria de sesión").
 
 Cada archivo de reglas tiene un fixture `.kt` homónimo validado con `semgrep --test`, y el módulo
 sintético de `config/semgrep/generality/` prueba que toda regla dispara sobre layouts y nombres de módulo

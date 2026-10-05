@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.summary.data.source
 
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataRepository
 import com.gdavidpb.tuindice.summary.utils.CooldownTimes
@@ -10,7 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class LocalSettingsDataSource(
 	private val settings: Settings
-) : SettingsDataRepository {
+) : SettingsDataRepository, SessionMemory {
 	private val profilePictureVersion = MutableStateFlow(
 		settings.getIntOrNull(PreferencesKeys.PROFILE_PICTURE_VERSION) ?: 0
 	)
@@ -36,5 +37,10 @@ class LocalSettingsDataSource(
 
 		settings.putInt(PreferencesKeys.PROFILE_PICTURE_VERSION, nextVersion)
 		profilePictureVersion.value = nextVersion
+	}
+
+	// The mirror goes back to what is stored, which the wipe has just emptied.
+	override suspend fun clearSessionMemory() {
+		profilePictureVersion.value = settings.getIntOrNull(PreferencesKeys.PROFILE_PICTURE_VERSION) ?: 0
 	}
 }

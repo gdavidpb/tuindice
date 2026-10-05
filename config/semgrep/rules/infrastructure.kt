@@ -24,3 +24,48 @@ class SampleTelemetryDataSource(
 		reportingRepository.setCustomKey("value", value)
 	}
 }
+
+// ruleid: data-source-memory-is-session-memory
+class SampleSelectionDataSource(
+	private val settings: Settings
+) : SampleSelectionRepository {
+	private val selectedKey = MutableStateFlow(settings.getStringOrNull("selectedKey"))
+}
+
+// ruleid: data-source-memory-is-session-memory
+class SampleCredentialsDataSource : SampleCredentialsRepository {
+	private var memoryPassword: String? = null
+}
+
+// ruleid: data-source-memory-is-session-memory
+class SampleCacheDataSource(
+	private val dao: SampleDao
+) : SampleCacheRepository {
+	private val writeMutex = Mutex()
+	private val cache = mutableMapOf<String, String>()
+}
+
+// ok: data-source-memory-is-session-memory
+class SampleClearedSelectionDataSource(
+	private val settings: Settings
+) : SampleSelectionRepository, SessionMemory {
+	private val selectedKey = MutableStateFlow(settings.getStringOrNull("selectedKey"))
+
+	override suspend fun clearSessionMemory() {
+		selectedKey.value = settings.getStringOrNull("selectedKey")
+	}
+}
+
+// ok: data-source-memory-is-session-memory
+class SampleStatelessDataSource(
+	private val dao: SampleDao
+) : SampleCacheRepository {
+	private val writeMutex = Mutex()
+
+	suspend fun read(key: String): String? {
+		var result: String? = null
+		val seen = mutableListOf<String>()
+
+		return result
+	}
+}

@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.persistence.domain.mutation
 
 import com.gdavidpb.tuindice.base.domain.model.mutation.OutboxMutation
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -21,7 +22,7 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 	private val outboxStore: MutationEnvelopeStore<ScopeKey, Command>,
 	private val coroutineScope: CoroutineScope,
 	private val failedRetryBackoffMillis: Long = DEFAULT_FAILED_RETRY_BACKOFF_MILLIS
-) {
+) : SessionMemory {
 	private val versionMutex = Mutex()
 	private val runtimeBookkeeperMutex = Mutex()
 	private val executionMutexesMutex = Mutex()
@@ -131,6 +132,21 @@ class StoreBackedMutationEngine<ScopeKey : Any, Command : OutboxMutation, Ack : 
 					}
 				)
 			)
+
+	// Forgets what was tracked for the mutations of the account that is leaving: their versions,
+	// their failed-sync marks and their runtime state. The version counter keeps counting, so a
+	// late result of an old mutation can never match a new one, and the per-scope execution locks
+	// stay: they carry no data and one may be held by the very request that ended the session.
+	override suspend fun clearSessionMemory() {
+		versionMutex.withLock {
+			latestMutationVersionByReplaceKey.clear()
+			mutationVersionById.clear()
+		}
+		runtimeBookkeeperMutex.withLock {
+			runtimeBookkeeper.clear()
+		}
+		runtimeState.value = emptyMap()
+	}
 
 	fun observePendingMutations(
 		scopeKey: ScopeKey

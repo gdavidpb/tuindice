@@ -112,6 +112,39 @@ class CredentialsDataSourceTest {
 		assertFalse(dataSource.hasPassword())
 	}
 
+	// Signing out wipes the stores without going through clearPassword: the copy held in memory
+	// must not outlive them.
+	@Test
+	fun clearSessionMemory_afterTheStoresAreWiped_dropsThePasswordHeldInMemory() = runTest {
+		val activeStore = FakeSecureKeyValueDataRepository()
+		val legacyStore = FakeSecureKeyValueDataRepository()
+		val dataSource = CredentialsDataSource(
+			secureStore = activeStore,
+			legacySecureStore = legacyStore
+		)
+
+		dataSource.setPassword("signed-out-password")
+		activeStore.clear()
+		legacyStore.clear()
+		dataSource.clearSessionMemory()
+
+		assertFalse(dataSource.hasPassword())
+	}
+
+	@Test
+	fun clearSessionMemory_whenTheStoreStillHoldsThePassword_readsItFromTheStore() = runTest {
+		val activeStore = FakeSecureKeyValueDataRepository()
+		val dataSource = CredentialsDataSource(
+			secureStore = activeStore,
+			legacySecureStore = FakeSecureKeyValueDataRepository()
+		)
+
+		dataSource.setPassword("stored-password")
+		dataSource.clearSessionMemory()
+
+		assertEquals("stored-password", dataSource.getPassword())
+	}
+
 	private companion object {
 		const val UNIVERSITY_PASSWORD_KEY = "universityPassword"
 	}

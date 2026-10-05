@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.data.source
 
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.record.data.repository.RecordSettingsDataRepository
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
@@ -14,7 +15,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 
 class LocalSettingsDataSource(
 	private val settings: Settings
-) : RecordSettingsDataRepository, RecordSelectionRepository, ScheduleSelectionRepository {
+) : RecordSettingsDataRepository, RecordSelectionRepository, ScheduleSelectionRepository, SessionMemory {
 	private val historicalSelectedTermId = MutableStateFlow(
 		settings.getStringOrNull(PreferencesKeys.SELECTED_HISTORICAL_TERM_ID)
 	)
@@ -99,5 +100,17 @@ class LocalSettingsDataSource(
 			viewMode.storageValue
 		)
 		scheduleViewMode.value = viewMode
+	}
+
+	// The mirrors go back to what is stored, which the wipe has just emptied.
+	override suspend fun clearSessionMemory() {
+		historicalSelectedTermId.value = settings.getStringOrNull(PreferencesKeys.SELECTED_HISTORICAL_TERM_ID)
+		projectionSelectedTermId.value = settings.getStringOrNull(PreferencesKeys.SELECTED_PROJECTION_TERM_ID)
+		recordViewMode.value = RecordViewMode.fromStorageValue(
+			settings.getStringOrNull(PreferencesKeys.RECORD_VIEW_MODE)
+		)
+		scheduleViewMode.value = ScheduleViewMode.fromStorageValue(
+			settings.getStringOrNull(PreferencesKeys.SCHEDULE_VIEW_MODE)
+		)
 	}
 }

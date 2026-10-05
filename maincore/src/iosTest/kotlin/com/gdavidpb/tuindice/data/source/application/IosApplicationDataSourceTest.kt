@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.data.source.application
 
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.domain.model.IosPlatformAttestation
 import com.gdavidpb.tuindice.persistence.domain.repository.PersistenceMaintenanceRepository
 import com.gdavidpb.tuindice.platform.IosAttestationCapability
@@ -41,17 +42,72 @@ class IosApplicationDataSourceTest {
 		assertEquals(true, settingsRepository.cleared)
 	}
 
+	@Test
+	fun clearData_whenEverythingSucceeds_clearsEverySessionMemoryAfterTheStores() = runTest {
+		val settingsRepository = FakeSettingsRepository(localDataOwner = "20-26123")
+		val holders = listOf(
+			RecordingSessionMemory(settingsRepository),
+			RecordingSessionMemory(settingsRepository)
+		)
+		val dataSource = dataSource(
+			persistenceMaintenanceRepository = NoOpPersistenceMaintenanceRepository(),
+			settingsRepository = settingsRepository,
+			sessionMemory = holders
+		)
+
+		dataSource.clearData()
+
+		assertEquals(listOf(true, true), holders.map(RecordingSessionMemory::clearedAfterTheStores))
+	}
+
+	@Test
+	fun clearData_whenDatabaseWipeFails_stillClearsEverySessionMemory() = runTest {
+		val settingsRepository = FakeSettingsRepository(localDataOwner = "20-26123")
+		val holders = listOf(
+			RecordingSessionMemory(settingsRepository, failure = IllegalStateException("holder failed")),
+			RecordingSessionMemory(settingsRepository)
+		)
+		val dataSource = dataSource(
+			persistenceMaintenanceRepository = FailingPersistenceMaintenanceRepository(),
+			settingsRepository = settingsRepository,
+			sessionMemory = holders
+		)
+
+		val failure = assertFailsWith<IllegalStateException> { dataSource.clearData() }
+
+		assertEquals("database wipe failed", failure.message)
+		assertEquals(listOf(1, 1), holders.map(RecordingSessionMemory::clearCount))
+	}
+
 	private fun dataSource(
 		persistenceMaintenanceRepository: PersistenceMaintenanceRepository,
-		settingsRepository: FakeSettingsRepository
+		settingsRepository: FakeSettingsRepository,
+		sessionMemory: List<SessionMemory> = emptyList()
 	) = IosApplicationDataSource(
 		persistenceMaintenanceRepository = persistenceMaintenanceRepository,
 		settingsRepository = settingsRepository,
 		secureStore = NoOpSecureKeyValueDataRepository(),
 		legacySecureStore = NoOpSecureKeyValueDataRepository(),
 		attestationCapability = NoOpAttestationCapability(),
-		externalActionsCapability = NoOpExternalActionsCapability()
+		externalActionsCapability = NoOpExternalActionsCapability(),
+		sessionMemory = { sessionMemory }
 	)
+}
+
+private class RecordingSessionMemory(
+	private val settingsRepository: FakeSettingsRepository,
+	private val failure: Throwable? = null
+) : SessionMemory {
+	var clearCount = 0
+		private set
+	var clearedAfterTheStores = false
+		private set
+
+	override suspend fun clearSessionMemory() {
+		clearCount += 1
+		clearedAfterTheStores = settingsRepository.cleared
+		failure?.let { throw it }
+	}
 }
 
 private class FailingPersistenceMaintenanceRepository : PersistenceMaintenanceRepository {

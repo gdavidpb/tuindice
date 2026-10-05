@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.record.di
 
 import com.gdavidpb.tuindice.base.domain.coroutine.SessionCoroutineScope
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.persistence.data.room.RoomMutationEnvelopeStore
 import com.gdavidpb.tuindice.persistence.data.room.daos.PendingMutationDao
 import com.gdavidpb.tuindice.persistence.domain.mutation.MutationEnvelopeStore
@@ -55,6 +56,7 @@ import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.core.module.dsl.viewModelOf
 import org.koin.core.qualifier.named
+import org.koin.dsl.bind
 import org.koin.dsl.module
 
 private const val RECORD_MUTATION_STORE_QUALIFIER = "recordMutationStore"
@@ -116,7 +118,7 @@ val recordModule = module {
 			outboxStore = get(named(RECORD_MUTATION_STORE_QUALIFIER)),
 			coroutineScope = get<SessionCoroutineScope>()
 		)
-	}
+	} bind SessionMemory::class
 	single<AcademicRecordRepository> {
 		AcademicRecordDataSource(
 			localDataSource = get(),
@@ -135,6 +137,7 @@ val recordModule = module {
 		bind<RecordSettingsDataRepository>()
 		bind<RecordSelectionRepository>()
 		bind<ScheduleSelectionRepository>()
+		bind<SessionMemory>()
 	}
 	singleOf(::AcademicRecordApiDataSource) { bind<AcademicRecordRemoteDataRepository>() }
 	singleOf(::AcademicRecordRoomDataSource) { bind<AcademicRecordLocalDataRepository>() }

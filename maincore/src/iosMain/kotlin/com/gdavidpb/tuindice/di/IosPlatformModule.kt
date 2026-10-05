@@ -23,6 +23,7 @@ import com.gdavidpb.tuindice.base.data.source.usage.NoOpUsageDataCollectionDataS
 import com.gdavidpb.tuindice.base.data.source.usage.UsageDataCollectionDataSource
 import com.gdavidpb.tuindice.base.domain.coroutine.AppCoroutineScope
 import com.gdavidpb.tuindice.base.domain.repository.*
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
 import com.gdavidpb.tuindice.base.utils.DefaultRemoteConfigValues
 import com.gdavidpb.tuindice.data.source.actions.IosFileOpenerDataSource
@@ -147,7 +148,8 @@ val iosPlatformModule = module {
 			secureStore = get(named(ACTIVE_SECURE_STORE_QUALIFIER)),
 			legacySecureStore = get(named(LEGACY_SECURE_STORE_QUALIFIER)),
 			attestationCapability = get(),
-			externalActionsCapability = get()
+			externalActionsCapability = get(),
+			sessionMemory = { getAll<SessionMemory>() }
 		)
 	}
 	single<ApplicationRepository> { get<IosApplicationDataSource>() }

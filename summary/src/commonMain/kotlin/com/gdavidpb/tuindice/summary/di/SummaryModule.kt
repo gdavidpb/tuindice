@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.summary.di
 
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataRepository
@@ -50,7 +51,10 @@ val summaryModule = module {
 
 	factoryOf(::RoomDataSource) { bind<LocalDataRepository>() }
 	factoryOf(::SummaryApiDataSource) { bind<RemoteDataRepository>() }
-	singleOf(::LocalSettingsDataSource) { bind<SettingsDataRepository>() }
+	singleOf(::LocalSettingsDataSource) {
+		bind<SettingsDataRepository>()
+		bind<SessionMemory>()
+	}
 
 	/* Exception handlers */
 

@@ -166,7 +166,7 @@
     <ID>TooManyFunctions:EvaluationsMachine.kt$EvaluationsMachine : ScreenMachine</ID>
     <ID>TooManyFunctions:EvaluationsUiTags.kt$EvaluationsUiTags</ID>
     <ID>TooManyFunctions:LocalDate.kt$com.gdavidpb.tuindice.evaluations.presentation.utils.LocalDate.kt</ID>
-    <ID>TooManyFunctions:RoomDatabaseDataSource.kt$RoomDatabaseDataSource : DatabaseDataRepository</ID>
+    <ID>TooManyFunctions:RoomDatabaseDataSource.kt$RoomDatabaseDataSource : DatabaseDataRepositorySessionMemory</ID>
     <ID>TopLevelPropertyNaming:EvaluationHeaderView.kt$private const val HeaderDividerAlpha = 0.18f</ID>
     <ID>TopLevelPropertyNaming:EvaluationsView.kt$private const val EvaluationItemContentType = "evaluation_item"</ID>
     <ID>TopLevelPropertyNaming:EvaluationsWeekStripView.kt$private const val WeekSelectorItemContentType = "week_selector_item"</ID>

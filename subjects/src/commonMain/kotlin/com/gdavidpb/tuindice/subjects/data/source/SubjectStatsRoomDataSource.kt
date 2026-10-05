@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.subjects.data.source
 
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectCatalogCacheDao
 import com.gdavidpb.tuindice.persistence.data.room.daos.SubjectDetailDao
@@ -26,9 +27,15 @@ class SubjectStatsRoomDataSource(
 	private val subjectStatsGradeBinDao: SubjectStatsGradeBinDao,
 	private val subjectStatsAttemptBinDao: SubjectStatsAttemptBinDao,
 	private val transactionRunner: PersistenceTransactionRunner
-) : SubjectStatsLocalDataRepository {
+) : SubjectStatsLocalDataRepository, SessionMemory {
 	private val writeMutex = Mutex()
 	private val cache = mutableMapOf<String, SubjectDetailResult>()
+
+	override suspend fun clearSessionMemory() {
+		writeMutex.withLock {
+			cache.clear()
+		}
+	}
 
 	override suspend fun getSubjectDetail(subjectCode: String): SubjectDetailResult? {
 		cache[subjectCode]?.let { result ->

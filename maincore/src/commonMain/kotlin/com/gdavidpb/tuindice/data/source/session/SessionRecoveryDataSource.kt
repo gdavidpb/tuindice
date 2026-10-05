@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 import com.gdavidpb.tuindice.base.utils.extension.authErrorCode
 import com.gdavidpb.tuindice.base.utils.extension.isAccessRejected
 import com.gdavidpb.tuindice.base.utils.extension.isSessionSuperseded
@@ -34,7 +35,7 @@ class SessionRecoveryDataSource(
 	private val authRepository: AuthRepository,
 	private val credentialsRepository: CredentialsRepository,
 	private val sessionCoroutineScope: SessionCoroutineScope
-) : SessionRecoveryRepository {
+) : SessionRecoveryRepository, SessionMemory {
 	private val recoveryMutex = Mutex()
 
 	// Guarded by recoveryMutex. Marks a token that still reported near-expiry after the
@@ -149,6 +150,12 @@ class SessionRecoveryDataSource(
 		runCatching { sessionRepository.clear() }
 		runCatching { syncStatusRepository.reset() }
 		runCatching { sessionInvalidationRepository.notifySessionInvalidated(sessionId = sessionId) }
+	}
+
+	// Not under recoveryMutex: the wipe can be reached from a recovery that still holds it, and
+	// forgetting a token of a session that is gone needs no ordering with the next one.
+	override suspend fun clearSessionMemory() {
+		expiryArbitratedAccessToken = null
 	}
 
 	private suspend fun refreshAttemptedSession(

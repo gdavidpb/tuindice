@@ -25,4 +25,16 @@ class LocalSettingsDataSourceTest {
 		assertTrue(dataSource.observeSummaryCollapsed().first())
 		assertTrue(LocalSettingsDataSource(settings).observeSummaryCollapsed().first())
 	}
+
+	@Test
+	fun clearSessionMemory_afterTheStoreIsWiped_expandsTheSummaryAgain() = runTest {
+		val settings = FakeSettings()
+		val dataSource = LocalSettingsDataSource(settings)
+
+		dataSource.setSummaryCollapsed(true)
+		settings.clear()
+		dataSource.clearSessionMemory()
+
+		assertFalse(dataSource.observeSummaryCollapsed().first())
+	}
 }

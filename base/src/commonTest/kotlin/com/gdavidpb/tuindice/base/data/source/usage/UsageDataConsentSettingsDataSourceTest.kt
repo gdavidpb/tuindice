@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.base.data.source.usage
 
 import com.russhwolf.settings.Settings
+import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
@@ -35,6 +36,21 @@ class UsageDataConsentSettingsDataSourceTest {
 		assertFalse(dataSource.isUsageDataCollectionEnabled())
 		assertFalse(settings.getBoolean("usageDataCollectionEnabled", true))
 		assertTrue(settings.getBoolean("analyticsCollectionEnabled", false))
+	}
+
+	// The consent is wiped with the rest of the stored data: collection stops with the session
+	// instead of running on until the process dies.
+	@Test
+	fun clearSessionMemory_afterTheStoreIsWiped_turnsCollectionOff() = runTest {
+		val settings = FakeSettings()
+		val dataSource = UsageDataConsentSettingsDataSource(settings)
+
+		dataSource.setUsageDataCollectionEnabled(true)
+		settings.clear()
+		dataSource.clearSessionMemory()
+
+		assertFalse(dataSource.isUsageDataCollectionEnabled())
+		assertFalse(dataSource.usageDataCollectionEnabled.value)
 	}
 }
 

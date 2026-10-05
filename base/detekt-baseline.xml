@@ -123,6 +123,7 @@
     <ID>SpreadOperator:UiTextString.kt$(resource, *args.toTypedArray())</ID>
     <ID>ThrowingExceptionsWithoutMessageOrCause:SessionDataSource.kt$SessionDataSource$IllegalStateException()</ID>
     <ID>TooManyFunctions:Exception.kt$com.gdavidpb.tuindice.base.utils.extension.Exception.kt</ID>
+    <ID>TooManyFunctions:InMemorySessionDataSource.kt$InMemorySessionDataSource : MemorySessionDataRepositorySessionMemory</ID>
     <ID>TooManyFunctions:SecureStoreSessionDataSource.kt$SecureStoreSessionDataSource : PreferencesSessionDataRepository</ID>
     <ID>TooManyFunctions:SessionDataSource.kt$SessionDataSource : SessionRepository</ID>
     <ID>TooManyFunctions:SessionRepository.kt$SessionRepository</ID>

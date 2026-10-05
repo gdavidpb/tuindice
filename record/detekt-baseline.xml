@@ -106,6 +106,7 @@
     <ID>TooManyFunctions:AcademicRecordLocalDataRepository.kt$AcademicRecordLocalDataRepository</ID>
     <ID>TooManyFunctions:AcademicRecordRepository.kt$AcademicRecordRepository</ID>
     <ID>TooManyFunctions:AcademicRecordRoomDataSource.kt$AcademicRecordRoomDataSource : AcademicRecordLocalDataRepository</ID>
+    <ID>TooManyFunctions:LocalSettingsDataSource.kt$LocalSettingsDataSource : RecordSettingsDataRepositoryRecordSelectionRepositoryScheduleSelectionRepositorySessionMemory</ID>
     <ID>TooManyFunctions:RecordUiTags.kt$RecordUiTags</ID>
     <ID>TooManyFunctions:SyntheticTermCreationDataSource.kt$SyntheticTermCreationDataSource : SyntheticTermCreationRepository</ID>
     <ID>TooManyFunctions:TermItem.kt$com.gdavidpb.tuindice.record.presentation.mapper.TermItem.kt</ID>

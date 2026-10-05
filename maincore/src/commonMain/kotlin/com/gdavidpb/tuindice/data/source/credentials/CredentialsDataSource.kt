@@ -2,11 +2,12 @@ package com.gdavidpb.tuindice.data.source.credentials
 
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
+import com.gdavidpb.tuindice.base.domain.session.SessionMemory
 
 class CredentialsDataSource(
 	private val secureStore: SecureKeyValueDataRepository,
 	private val legacySecureStore: SecureKeyValueDataRepository
-) : CredentialsRepository {
+) : CredentialsRepository, SessionMemory {
 	private var memoryPassword: String? = null
 
 	override suspend fun hasPassword(): Boolean {
@@ -37,6 +38,12 @@ class CredentialsDataSource(
 		runCatching {
 			legacySecureStore.remove(SecureStoreKeys.UNIVERSITY_PASSWORD)
 		}
+	}
+
+	// Only the copy held here: the stored one is wiped by the caller, and a later read falls
+	// back to the store, so nothing of the signed-out account can be served from memory.
+	override suspend fun clearSessionMemory() {
+		memoryPassword = null
 	}
 
 	private suspend fun readPassword(): String? {
