@@ -1,0 +1,31 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- tapOn:
+    id: auth_usb_id_text_field
+- inputText: "3333344"
+- tapOn:
+    id: auth_password_text_field
+- inputText: "new-student-pass"
+- tapOn:
+    id: auth_keyboard_dismiss_area
+- tapOn:
+    id: auth_sign_in_button
+- extendedWaitUntil:
+    visible:
+      id: summary_new_student_container|coachmark_bubble
+    timeout: 40000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+- extendedWaitUntil:
+    visible:
+      id: summary_new_student_container
+    timeout: 20000
+- assertVisible:
+    id: summary_new_student_title
+- assertVisible: "Aún no tienes expediente en la universidad"
+- assertVisible:
+    id: summary_new_student_message
+- assertVisible:
+    id: summary_new_student_retry_button
+- assertNotVisible:
+    id: base_error_view_container

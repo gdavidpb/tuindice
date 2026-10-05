@@ -13,3 +13,5 @@ name: TuIndice record E2E suite
 - runFlow: ../record/record-synthetic-term-discard.yaml
 - runFlow: ../record/record-synthetic-term-lifecycle.yaml
 - runFlow: ../record/record-synthetic-term-rejected.yaml
+- runFlow: ../record/record-annulled-provisional-schedule.yaml
+- runFlow: ../record/record-annulled-final-notice.yaml

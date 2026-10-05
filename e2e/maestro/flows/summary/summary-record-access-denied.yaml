@@ -1,0 +1,26 @@
+appId: com.gdavidpb.tuindice.debug
+---
+- runFlow: ../_shared/launch-clean.yaml
+- tapOn:
+    id: auth_usb_id_text_field
+- inputText: "3434343"
+- tapOn:
+    id: auth_password_text_field
+- inputText: "record-denied-pass"
+- tapOn:
+    id: auth_keyboard_dismiss_area
+- tapOn:
+    id: auth_sign_in_button
+- extendedWaitUntil:
+    visible:
+      id: base_error_view_container|coachmark_bubble
+    timeout: 40000
+- runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
+- extendedWaitUntil:
+    visible:
+      id: base_error_view_container
+    timeout: 20000
+- assertVisible:
+    id: base_error_view_retry_button
+- assertNotVisible:
+    id: summary_new_student_container

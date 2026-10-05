@@ -18,6 +18,11 @@ object E2eFixtureContract {
 	const val RECORD_REFRESH_RETRY_PASSWORD = "record-retry-pass"
 	const val RECORD_TERM_REJECTED_PASSWORD = "record-rejected-pass"
 	const val PENSUM_EQUIVALENCE_PASSWORD = "pensum-equivalence-pass"
+	const val NOT_ENROLLED_PASSWORD = "not-enrolled-pass"
+	const val ANNULLED_PROVISIONAL_PASSWORD = "annulled-provisional-pass"
+	const val ANNULLED_FINAL_PASSWORD = "annulled-final-pass"
+	const val NEW_STUDENT_PASSWORD = "new-student-pass"
+	const val RECORD_ACCESS_DENIED_PASSWORD = "record-denied-pass"
 
 	object RecordSearch {
 		const val PRIORITY_PLANNED = "EP1308"

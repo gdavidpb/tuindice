@@ -12,23 +12,30 @@ appId: com.gdavidpb.tuindice.debug
     id: auth_keyboard_dismiss_area
 - tapOn:
     id: auth_sign_in_button
+# The university's services answered 503 with Retry-After: sign-in waits instead of offering an
+# immediate retry, and comes back when the wait is over.
 - extendedWaitUntil:
     visible:
-      id: base_snackbar_action_button
+      id: auth_service_unavailable_message
     timeout: 20000
+- assertVisible: "Servicios de la universidad no disponibles. Vuelve a intentarlo en unos segundos."
 - assertVisible:
-    id: base_snackbar_container
-- assertVisible:
-    id: base_snackbar_message
-- tapOn:
+    id: auth_sign_in_button
+    enabled: false
+- assertNotVisible:
     id: base_snackbar_action_button
 - extendedWaitUntil:
+    notVisible:
+      id: auth_service_unavailable_message
+    timeout: 30000
+- assertVisible:
+    id: auth_sign_in_button
+    enabled: true
+- tapOn:
+    id: auth_sign_in_button
+- extendedWaitUntil:
     visible:
-      id: base_snackbar_action_button
+      id: auth_service_unavailable_message
     timeout: 20000
-- assertVisible:
-    id: base_snackbar_container
-- assertVisible:
-    id: base_snackbar_message
 - assertVisible:
     id: auth_sign_in_idle_container

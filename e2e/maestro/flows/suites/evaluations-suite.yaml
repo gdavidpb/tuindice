@@ -9,3 +9,4 @@ name: TuIndice evaluations E2E suite
 - runFlow: ../evaluations/evaluations-add-submit.yaml
 - runFlow: ../evaluations/evaluations-add-validation.yaml
 - runFlow: ../evaluations/evaluations-enrollment-unavailable.yaml
+- runFlow: ../evaluations/evaluations-annulled-no-attempts.yaml

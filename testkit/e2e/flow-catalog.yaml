@@ -293,13 +293,13 @@ flows:
     type: interaction
     platforms: [android, ios]
     status: active
-    variant: snackbar-action-retry
-    fixture_state: auth-unavailable-then-success
+    variant: service-unavailable-wait-message
+    fixture_state: auth-unavailable-retry-after
     actions_covered:
       - auth.SignIn.ClickSignIn
     primary_selectors:
-      - base_snackbar_container
-      - base_snackbar_message
+      - auth_service_unavailable_message
+      - auth_sign_in_button
       - base_snackbar_action_button
   - id: maincore-app-availability-notice
     path: e2e/maestro/flows/maincore/app-availability-notice.yaml
@@ -555,8 +555,8 @@ flows:
     type: error-path
     platforms: [android, ios]
     status: active
-    variant: connection-retry
-    fixture_state: auth-unavailable-then-success
+    variant: service-unavailable-retry-after
+    fixture_state: auth-unavailable-retry-after
     actions_covered:
       - auth.SignIn.SetUsbId
       - auth.SignIn.SetPassword
@@ -564,8 +564,8 @@ flows:
     primary_selectors:
       - auth_sign_in_idle_container
       - auth_sign_in_button
+      - auth_service_unavailable_message
       - base_snackbar_action_button
-      - base_snackbar_message
   - id: auth-login-outdated-app
     path: e2e/maestro/flows/auth/login-outdated-app.yaml
     module: auth
@@ -822,6 +822,66 @@ flows:
       - summary_status_icon_button
       - summary_sync_status_message
       - base_confirmation_dialog_positive_button
+  - id: summary-not-enrolled-status-dialog
+    path: e2e/maestro/flows/summary/summary-not-enrolled-status-dialog.yaml
+    module: summary
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: sync-status-not-enrolled-dialog
+    fixture_state: summary-sync-not-enrolled
+    actions_covered:
+      - summary.Summary.RefreshSummary
+    primary_selectors:
+      - summary_content_container
+      - summary_status_icon_button
+      - summary_sync_status_message
+      - base_confirmation_dialog_positive_button
+  - id: summary-annulled-status-dialog
+    path: e2e/maestro/flows/summary/summary-annulled-status-dialog.yaml
+    module: summary
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: sync-status-annulled-dialog
+    fixture_state: summary-sync-annulled-provisional
+    actions_covered:
+      - summary.Summary.RefreshSummary
+    primary_selectors:
+      - summary_content_container
+      - summary_status_icon_button
+      - summary_sync_status_message
+      - base_confirmation_dialog_positive_button
+  - id: summary-new-student-no-record
+    path: e2e/maestro/flows/summary/summary-new-student-no-record.yaml
+    module: summary
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: new-student-without-record
+    fixture_state: summary-sync-new-student-no-record
+    actions_covered:
+      - summary.Summary.RefreshSummary
+    primary_selectors:
+      - summary_new_student_container
+      - summary_new_student_title
+      - summary_new_student_message
+      - summary_new_student_retry_button
+      - base_error_view_container
+  - id: summary-record-access-denied
+    path: e2e/maestro/flows/summary/summary-record-access-denied.yaml
+    module: summary
+    type: error-path
+    platforms: [android, ios]
+    status: active
+    variant: record-access-denied-generic-failure
+    fixture_state: summary-sync-record-access-denied
+    actions_covered:
+      - summary.Summary.RefreshSummary
+    primary_selectors:
+      - base_error_view_container
+      - base_error_view_retry_button
+      - summary_new_student_container
   - id: summary-profile-picture
     path: e2e/maestro/flows/summary/summary-profile-picture.yaml
     module: summary
@@ -891,6 +951,41 @@ flows:
       - record_content_container
       - record_term_selector_row
       - record_attempts_list
+  - id: record-annulled-provisional-schedule
+    path: e2e/maestro/flows/record/record-annulled-provisional-schedule.yaml
+    module: record
+    type: interaction
+    platforms: [android, ios]
+    status: active
+    variant: annulled-provisional-notice-and-schedule
+    fixture_state: record-annulled-provisional
+    actions_covered:
+      - record.Record.SelectTerm
+    primary_selectors:
+      - record_term_chip_d377155d39da686f412622aaca9074cd
+      - record_term_view_switch
+      - base_notice_view
+      - record_attempt_detail_e21f0d7e481d13d19f328d6818ce4d77
+      - record_attempt_enrollment_error_722cc2cc935e0aefdc73f9ebf9d2f1b6
+      - record_term_view_schedule_tab
+      - record_schedule_grid
+      - record_schedule_blocks_note
+      - record_schedule_unscheduled
+      - record_term_view_grades_tab
+      - record_attempts_list
+  - id: record-annulled-final-notice
+    path: e2e/maestro/flows/record/record-annulled-final-notice.yaml
+    module: record
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: annulled-final-notice-without-current-term
+    fixture_state: record-annulled-final
+    primary_selectors:
+      - record_content_container
+      - base_notice_view
+      - record_term_selector_row
+      - record_term_view_switch
   - id: record-term-selection
     path: e2e/maestro/flows/record/record-term-selection.yaml
     module: record
@@ -1165,6 +1260,21 @@ variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
     primary_selectors:
       - record_enrollment_proof_button
       - base_snackbar_container
+  - id: enrollmentproof-annulled-not-found
+    path: e2e/maestro/flows/enrollmentproof/enrollmentproof-annulled-not-found.yaml
+    module: enrollmentproof
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: annulled-not-found-snackbar-without-retry
+    fixture_state: enrollment-proof-annulled-not-found
+    actions_covered:
+      - record.Record.SelectTerm
+      - enrollmentproof.Enrollment.FetchEnrollmentProof
+    primary_selectors:
+      - record_enrollment_proof_button
+      - base_snackbar_container
+      - base_snackbar_action_button
   - id: enrollmentproof-outdated-credentials
     path: e2e/maestro/flows/enrollmentproof/enrollmentproof-outdated-credentials.yaml
     module: enrollmentproof
@@ -1632,6 +1742,21 @@ variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
     status: active
     variant: enrollment-unavailable-empty
     fixture_state: evaluations-enrollment-unavailable
+    actions_covered:
+      - evaluations.Evaluations.EnsureEvaluationsLoaded
+    primary_selectors:
+      - maincore_tuindice_bottom_bar_evaluations_item
+      - base_empty_view_container
+      - base_empty_state_animation
+      - base_empty_view_action_button
+  - id: evaluations-annulled-no-attempts
+    path: e2e/maestro/flows/evaluations/evaluations-annulled-no-attempts.yaml
+    module: evaluations
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: annulled-enrollment-empty
+    fixture_state: evaluations-annulled-final
     actions_covered:
       - evaluations.Evaluations.EnsureEvaluationsLoaded
     primary_selectors:

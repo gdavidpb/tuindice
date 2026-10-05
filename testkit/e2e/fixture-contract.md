@@ -50,3 +50,12 @@ PORT=8080 ./mocks/start-mock-enviroment.sh
 The E2E scripts wrap this command and store logs under `/tmp/tuindice-e2e`.
 They pass `WIREMOCK_DELAY_PROFILE=fast` by default through
 `E2E_WIREMOCK_DELAY_PROFILE`; use `legacy` to preserve checked-in delays.
+
+University states fixture contract:
+
+- Each dedicated user below logs in with raw USBID digits and a password that selects its `/record/v5/sync` fixture and its own `auth-<key>-login` WireMock scenario: `3030303` / `not-enrolled-pass` (enrollment source `not_enrolled`, no current term), `3131313` / `annulled-provisional-pass` (a `situation` while the current term is still in the record, with `section`, `schedule`, `enrollment_errors` on its attempts), `3232323` / `annulled-final-pass` (a `situation` and no current term), `3333344` / `new-student-pass` (424 with reason `NEW_STUDENT_NO_RECORD`) and `3434343` / `record-denied-pass` (503 with reason `DST_RECORD_ACCESS_DENIED`).
+- The annulled-provisional user also gets a 404 from `/enrollment-proof/v1`, which the app explains from the last sync instead of offering a retry.
+- The sync fixtures must decode both the form deployed today (`situation` without a current term) and the one that follows the provisional window rule (`situation` with the current term); `MockSyncFixturesContractTest` in the app module decodes every one of them with the production DTOs.
+- Their field names (`day_of_week` with 1 = Sunday, `start_block`, `end_block`, `classroom`, `section`, `enrollment_errors`, `withdrawn`, and `current_revision` in the overlay 409) are the ones the backend's `openapi.yaml` declares.
+- `mocks/config/record-base-state.json` carries a schedule on the current term's attempts (one with an enrollment error, one withdrawn) so the default dataset exercises the schedule grid, and the record transformer answers a stale overlay write with the real 409 body (`reason: STALE_PRECONDITION`, `current_revision`).
+- `auth-retry-bootstrap-unavailable*.json` answer 503 with `Retry-After: 3`, so the sign-in wait finishes inside a flow.

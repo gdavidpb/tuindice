@@ -1,0 +1,28 @@
+{
+  "priority": 1,
+  "scenarioName": "auth-new-student-login",
+  "requiredScenarioState": "Started",
+  "newScenarioState": "BootstrapIssued",
+  "request": {
+    "method": "POST",
+    "urlPath": "/auth/v2/bootstrap",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Basic MzMtMzMzNDQ6bmV3LXN0dWRlbnQtcGFzcw=="
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "uid": "new-student-user",
+      "usb_id": "33-33344",
+      "access_token": "bootstrap.mock.new-student.token",
+      "expires_in": 300
+    },
+    "fixedDelayMilliseconds": 500
+  }
+}

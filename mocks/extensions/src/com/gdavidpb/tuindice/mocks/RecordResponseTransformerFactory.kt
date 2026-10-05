@@ -162,6 +162,9 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 				academicOutcome = canonicalOutcomeValue(status),
 				academicBadge = canonicalBadgeValue(status),
 				mutable = node.path("mutable").asBoolean(false),
+				scheduleFields = SCHEDULE_FIELDS
+					.filter { field -> node.has(field) }
+					.associateWith { field -> objectMapper.convertValue(node.get(field), Any::class.java) },
 			)
 		}
 
@@ -237,7 +240,7 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			}
 
 			if (expectedRevision != state.recordRevision) {
-				return jsonResponse(412, mapOf("error" to "precondition_failed"), ERROR_DELAY_MS)
+				return stalePreconditionResponse()
 			}
 
 			val attempt = editableAttemptById(attemptId)
@@ -279,7 +282,7 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			}
 
 			if (expectedRevision != state.recordRevision) {
-				return jsonResponse(412, mapOf("error" to "precondition_failed"), ERROR_DELAY_MS)
+				return stalePreconditionResponse()
 			}
 
 			editableAttemptById(attemptId)
@@ -305,7 +308,7 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			}
 
 			if (expectedRevision != state.recordRevision) {
-				return jsonResponse(412, mapOf("error" to "precondition_failed"), ERROR_DELAY_MS)
+				return stalePreconditionResponse()
 			}
 
 			if (state.addedTerm != null) {
@@ -359,7 +362,7 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			}
 
 			if (expectedRevision != state.recordRevision) {
-				return jsonResponse(412, mapOf("error" to "precondition_failed"), ERROR_DELAY_MS)
+				return stalePreconditionResponse()
 			}
 
 			val targetTerm = visibleTerms().firstOrNull { term ->
@@ -476,7 +479,7 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			}
 
 			if (expectedRevision != state.recordRevision) {
-				return jsonResponse(412, mapOf("error" to "precondition_failed"), ERROR_DELAY_MS)
+				return stalePreconditionResponse()
 			}
 
 			val addedTerm = state.addedTerm
@@ -629,6 +632,19 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 				?.lowercase()
 				?.takeIf(VALID_OUTCOMES::contains)
 
+		// What the server answers when the write expected an older revision: a 409 that names the
+		// reason and the revision to retry with, so the client can rebase without fetching the record.
+		private fun stalePreconditionResponse(): ResponseDefinition =
+			jsonResponse(
+				409,
+				linkedMapOf(
+					"message" to "the record changed since the revision the write expected",
+					"reason" to "STALE_PRECONDITION",
+					"current_revision" to state.recordRevision,
+				),
+				ERROR_DELAY_MS,
+			)
+
 		private fun invalidPayload(): ResponseDefinition =
 			jsonResponse(400, mapOf("error" to "invalid_payload"), ERROR_DELAY_MS)
 
@@ -754,9 +770,12 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			val academicOutcome: String,
 			val academicBadge: String,
 			val mutable: Boolean,
+			// section, schedule, enrollment_errors and withdrawn, passed through as the server sends
+			// them: absent unless the term carries them, so every other attempt stays as it was.
+			val scheduleFields: Map<String, Any?> = emptyMap(),
 		) {
 			fun toRecordAttemptModel(): Map<String, Any> =
-				linkedMapOf(
+				linkedMapOf<String, Any>(
 					"id" to id,
 					"subject_code" to code,
 					"subject_name" to name,
@@ -765,7 +784,9 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 					"academic_score" to academicScore.toJson(),
 					"academic_outcome" to academicOutcome,
 					"academic_badge" to academicBadge,
-				)
+				).apply {
+					scheduleFields.forEach { (field, value) -> value?.let { put(field, it) } }
+				}
 		}
 
 		private data class AttemptOverrideState(
@@ -832,6 +853,7 @@ class RecordResponseTransformerFactory : ExtensionFactory {
 			private const val SUBJECTS_DIRECTORY = "subjects"
 			private const val SUBJECTS_CATALOG_FILENAME = "search-subjects-catalog.json"
 			private const val RECORD_ID = "mock-record"
+			private val SCHEDULE_FIELDS = listOf("section", "schedule", "enrollment_errors", "withdrawn")
 			private const val GET_DELAY_MS = 3000
 			private const val PUT_DELAY_MS = 1500
 			private const val DELETE_DELAY_MS = 1000
