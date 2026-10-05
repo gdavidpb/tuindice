@@ -18,7 +18,7 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: auth_service_unavailable_message
     timeout: 20000
-- assertVisible: "Servicios de la universidad no disponibles. Vuelve a intentarlo en unos segundos."
+- assertVisible: "Servicios de la universidad no disponibles. Vuelve a intentarlo en un momento."
 - assertVisible:
     id: auth_sign_in_button
     enabled: false

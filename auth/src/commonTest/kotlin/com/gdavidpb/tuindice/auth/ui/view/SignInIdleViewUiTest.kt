@@ -47,7 +47,7 @@ class SignInIdleViewUiTest {
 
 		assertNodeDisabled(AuthUiTags.SignInButton)
 		assertNodeVisible(AuthUiTags.ServiceUnavailableMessage)
-		onNodeWithText("Servicios de la universidad no disponibles. Vuelve a intentarlo en unos segundos.")
+		onNodeWithText("Servicios de la universidad no disponibles. Vuelve a intentarlo en un momento.")
 			.assertIsDisplayed()
 	}
 
