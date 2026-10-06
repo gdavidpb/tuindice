@@ -11,6 +11,7 @@ object AuthUiTags {
 	const val IdentifierModeToggle = "auth_identifier_mode_toggle"
 	const val IdentifierModeTogglePulse = "auth_identifier_mode_toggle_pulse"
 	const val PasswordTextField = "auth_password_text_field"
+	const val SignInRejectedMarker = "auth_sign_in_rejected_marker"
 	const val PasswordToggle = "auth_password_toggle"
 	const val UsageDataConsentCheckbox = "auth_usage_data_consent_checkbox"
 	const val TermsAndConditionsLink = "auth_terms_and_conditions_link"

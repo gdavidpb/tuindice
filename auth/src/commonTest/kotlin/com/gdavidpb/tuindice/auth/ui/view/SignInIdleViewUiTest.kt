@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.auth.ui.view
 
+import androidx.compose.runtime.Composable
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onNodeWithTag
@@ -209,5 +210,50 @@ class SignInIdleViewUiTest {
 		}
 
 		assertNodeEnabled(AuthUiTags.SignInButton)
+	}
+
+	@Test
+	fun when_theLastAttemptFailed_then_theRejectedMarkerExists() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			RejectedMarkerView(state = SignIn.State.Idle(usbId = "12-34567", password = "1234", lastAttemptFailed = true))
+		}
+
+		assertNodeVisible(AuthUiTags.SignInRejectedMarker)
+		assertNodeVisible(AuthUiTags.PasswordTextField)
+	}
+
+	@Test
+	fun when_nothingFailed_then_theRejectedMarkerIsAbsent() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			RejectedMarkerView(state = SignIn.State.Idle(usbId = "12-34567", password = "1234"))
+		}
+
+		assertNodeHidden(AuthUiTags.SignInRejectedMarker)
+		assertNodeVisible(AuthUiTags.PasswordTextField)
+	}
+
+	@Composable
+	private fun RejectedMarkerView(state: SignIn.State.Idle) {
+		SignInIdleView(
+			state = state,
+			onUsbIdChange = {},
+			onPasswordChange = {},
+			onPasswordVisibilityToggle = {},
+			onIdentifierModeToggle = {},
+			onSignInClick = {},
+			onTermsAndConditionsClick = {},
+			onPrivacyPolicyClick = {},
+			termsAndConditionsText = "Terminos",
+			privacyPolicyText = "Privacidad",
+			policiesText = "Acepto Terminos y Privacidad",
+			usbIdLabelText = "USB",
+			usbEmailLabelText = "Correo USB",
+			usbIdPlaceholderText = "12-34567",
+			usbEmailPlaceholderText = "correo@usb.ve",
+			useUsbEmailContentDescription = "Iniciar con correo USB",
+			useUsbIdContentDescription = "Usar USBID",
+			passwordLabelText = "Clave",
+			signInButtonText = "Entrar"
+		)
 	}
 }

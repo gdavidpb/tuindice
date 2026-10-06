@@ -1,13 +1,13 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-10-06 16:36:34 -0300_
+_Generated automatically on 2026-10-06 17:27:07 -0300_
 
 ## Summary by module
 
 | Module | when_ threshold | commonMain composable files | @Composable occurrences | commonTest UI tests | Nominal tests | UiTest files meeting threshold |
 |---|---:|---:|---:|---:|---:|---:|
 | `about` | 2 | 8 | 8 | 8 | 8 | 8 |
-| `auth` | 2 | 20 | 22 | 22 | 20 | 20 |
+| `auth` | 2 | 20 | 23 | 22 | 20 | 20 |
 | `base` | 2 | 34 | 46 | 36 | 34 | 34 |
 | `enrollmentproof` | 2 | 6 | 6 | 7 | 6 | 6 |
 | `evaluations` | 2 | 41 | 43 | 46 | 41 | 41 |
@@ -53,7 +53,7 @@ _Generated automatically on 2026-10-06 16:36:34 -0300_
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/LinkText.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/LinkTextUiTest.kt` | 2 | PASS threshold (2) |
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/PasswordTextField.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/PasswordTextFieldUiTest.kt` | 7 | PASS threshold (2) |
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/RandomFlipperText.kt` | 2 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/RandomFlipperTextUiTest.kt` | 3 | PASS threshold (2) |
-| `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/SignInIdleView.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/SignInIdleViewUiTest.kt` | 6 | PASS threshold (2) |
+| `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/SignInIdleView.kt` | 2 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/SignInIdleViewUiTest.kt` | 8 | PASS threshold (2) |
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/SignInLoggingInView.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/SignInLoggingInViewUiTest.kt` | 2 | PASS threshold (2) |
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/UpdatePasswordIdleView.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/UpdatePasswordIdleViewUiTest.kt` | 3 | PASS threshold (2) |
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/UsbIdTextField.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/UsbIdTextFieldUiTest.kt` | 13 | PASS threshold (2) |

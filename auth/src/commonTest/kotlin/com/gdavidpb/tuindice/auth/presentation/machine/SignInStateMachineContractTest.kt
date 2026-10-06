@@ -361,6 +361,88 @@ class SignInStateMachineContractTest {
 		}
 	}
 
+	// Uses the wait branch of failSignIn: the other branch resolves a string resource, which only
+	// iOS can do (see SignInViewModelContractTest.signInRejected_marksTheLastAttemptAsFailed).
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun signInFailure_marksTheLastAttemptAsFailed() = runTest {
+		val fixture = createFixture(
+			testScheduler = testScheduler,
+			signInThrowable = ServiceRetryWindowException(retryAfterMillis = 30_000L),
+			serviceWaitMillis = 30_000L
+		)
+		val viewModel = fixture.viewModel
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				assertEquals(false, (awaitItem() as SignIn.State.Idle).lastAttemptFailed)
+
+				viewModel.setUsbIdAction(VALID_USB_ID)
+				viewModel.setPasswordAction(PASSWORD)
+				viewModel.signInAction()
+
+				val failed = awaitUntilState<SignIn.State.Idle> { state -> state.lastAttemptFailed }
+				assertEquals(VALID_USB_ID, failed.usbId)
+				assertEquals(PASSWORD, failed.password)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun editingEitherField_clearsTheFailedMark() = runTest {
+		val fixture = createFixture(
+			testScheduler = testScheduler,
+			signInThrowable = ServiceRetryWindowException(retryAfterMillis = 30_000L),
+			serviceWaitMillis = 30_000L
+		)
+		val viewModel = fixture.viewModel
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				awaitItem()
+
+				viewModel.setUsbIdAction(VALID_USB_ID)
+				viewModel.setPasswordAction(PASSWORD)
+				viewModel.signInAction()
+				awaitUntilState<SignIn.State.Idle> { state -> state.lastAttemptFailed }
+
+				viewModel.setPasswordAction("${PASSWORD}x")
+				awaitUntilState<SignIn.State.Idle> { state -> !state.lastAttemptFailed }
+
+				viewModel.signInAction()
+				awaitUntilState<SignIn.State.Idle> { state -> state.lastAttemptFailed }
+
+				viewModel.setUsbIdAction("20-26124")
+				awaitUntilState<SignIn.State.Idle> { state -> !state.lastAttemptFailed }
+
+				viewModel.signInAction()
+				awaitUntilState<SignIn.State.Idle> { state -> state.lastAttemptFailed }
+
+				viewModel.toggleIdentifierModeAction()
+				awaitUntilState<SignIn.State.Idle> { state ->
+					!state.lastAttemptFailed && state.identifierMode == SignInIdentifierMode.UsbEmail
+				}
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
 	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
 	private fun createFixture(
 		testScheduler: TestCoroutineScheduler? = null,

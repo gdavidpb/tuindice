@@ -127,7 +127,8 @@ class SignInMachine(
 				password = state.password,
 				identifierMode = state.identifierMode,
 				usageDataCollectionEnabled = state.usageDataCollectionEnabled,
-				isServiceUnavailable = true
+				isServiceUnavailable = true,
+				lastAttemptFailed = true
 			)
 		}
 
@@ -160,7 +161,8 @@ class SignInMachine(
 			usbId = state.usbId,
 			password = state.password,
 			identifierMode = state.identifierMode,
-			usageDataCollectionEnabled = state.usageDataCollectionEnabled
+			usageDataCollectionEnabled = state.usageDataCollectionEnabled,
+			lastAttemptFailed = true
 		)
 	}
 

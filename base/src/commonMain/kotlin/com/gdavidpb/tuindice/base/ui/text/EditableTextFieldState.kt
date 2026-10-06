@@ -44,9 +44,11 @@ internal const val MAX_REPORTED_TEXTS = 256
  * the view model drops an edit, the field keeps showing what was typed until the screen is
  * recreated; that only happens while a screen is leaving its idle state.
  *
- * A5: the state-machine loop stays on `Dispatchers.Default`, two hops per key. After this holder
- * nothing the user types waits for the echo; only derived UI (button enablement, search gating)
- * lags by the round trip. The engine is untouched, in line with the accepted trade-off.
+ * A5: the state-machine loop stays on `Dispatchers.Default`, so every key still travels to the
+ * loop and back as an echo. After this holder nothing the user types waits for that echo: the
+ * text, the selection and the IME composition live in the field. What still arrives with the
+ * round trip is derived UI only: button enablement (for example the sign-in button) and search
+ * gating. The engine is untouched, in line with the accepted trade-off.
  *
  * CMP-7312: the hoisted-state `String` overload of the text fields corrupts input on iOS
  * (`test` becomes `estt`). JetBrains' workaround is the `TextFieldValue` overload with

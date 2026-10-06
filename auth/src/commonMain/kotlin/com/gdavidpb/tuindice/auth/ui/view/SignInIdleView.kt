@@ -143,21 +143,23 @@ fun SignInIdleView(
 			)
 		)
 
-		PasswordTextField(
-			modifier = Modifier
-				.focusRequester(passwordFocusRequester)
-				.fillMaxWidth()
-				.padding(horizontal = 32.dp),
-			labelText = passwordLabelText,
-			password = state.password,
-			isPasswordVisible = state.isPasswordVisible,
-			onPasswordChange = onPasswordChange,
-			onPasswordVisibilityToggle = onPasswordVisibilityToggle,
-			imeAction = ImeAction.Done,
-			keyboardActions = KeyboardActions(onDone = {
-				if (isSignInEnabled) onSignInClick()
-			})
-		)
+		RejectedMarkerBox(isRejected = state.lastAttemptFailed) {
+			PasswordTextField(
+				modifier = Modifier
+					.focusRequester(passwordFocusRequester)
+					.fillMaxWidth()
+					.padding(horizontal = 32.dp),
+				labelText = passwordLabelText,
+				password = state.password,
+				isPasswordVisible = state.isPasswordVisible,
+				onPasswordChange = onPasswordChange,
+				onPasswordVisibilityToggle = onPasswordVisibilityToggle,
+				imeAction = ImeAction.Done,
+				keyboardActions = KeyboardActions(onDone = {
+					if (isSignInEnabled) onSignInClick()
+				})
+			)
+		}
 
 		// One toggleable row with a checkbox role: the screen reader announces the
 		// consent text and state together instead of a nameless box plus a label.
@@ -266,5 +268,26 @@ fun SignInIdleView(
 				)
 			}
 		}
+	}
+}
+
+// Tag-only wrapper: no pixels, and the same measures as the bare content. It exists so a rejected
+// sign-in can be asserted by tag without any visible change.
+@Composable
+private fun RejectedMarkerBox(
+	isRejected: Boolean,
+	content: @Composable () -> Unit
+) {
+	Box(
+		modifier = Modifier
+			.fillMaxWidth()
+			.then(
+				when {
+					isRejected -> Modifier.testTag(AuthUiTags.SignInRejectedMarker)
+					else -> Modifier
+				}
+			)
+	) {
+		content()
 	}
 }

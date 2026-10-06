@@ -20,7 +20,10 @@ object SignIn {
 			val isPasswordVisible: Boolean = false,
 			val usageDataCollectionEnabled: Boolean = false,
 			// The university's services asked for a wait: sign-in stays disabled until it elapses.
-			val isServiceUnavailable: Boolean = false
+			val isServiceUnavailable: Boolean = false,
+			// The last sign-in attempt was rejected and nothing has been edited since. Not rendered:
+			// it only backs a test tag, so a rejected login is assertable without any visible change.
+			val lastAttemptFailed: Boolean = false
 		) : State()
 
 		data class LoggingIn(
