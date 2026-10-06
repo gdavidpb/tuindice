@@ -28,11 +28,11 @@ import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.outlined.AccountTree
 import androidx.compose.material.icons.outlined.Book
 import androidx.compose.material.icons.outlined.BookmarkBorder
-import androidx.compose.material.icons.outlined.CalendarViewWeek
-import androidx.compose.material.icons.outlined.DateRange
+import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.FavoriteBorder
 import androidx.compose.material.icons.outlined.FindInPage
 import androidx.compose.material.icons.outlined.Search
+import androidx.compose.material.icons.outlined.TableChart
 import androidx.compose.material.icons.outlined.Tune
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -471,10 +471,12 @@ private fun TopBarAction.getIcon(): ImageVector {
 			Icons.AutoMirrored.Outlined.Logout
 		is TopBarAction.FetchEnrollmentProofAction ->
 			Icons.Outlined.FindInPage
+		// A term is a stretch of the year and the schedule is a table of blocks: a calendar and a
+		// table, so the two actions cannot be taken for each other (both used to be calendars).
 		is TopBarAction.RecordTermSelectionAction ->
-			Icons.Outlined.DateRange
+			Icons.Outlined.CalendarMonth
 		is TopBarAction.RecordScheduleAction ->
-			Icons.Outlined.CalendarViewWeek
+			Icons.Outlined.TableChart
 		is TopBarAction.SearchPensumAction ->
 			Icons.Outlined.Search
 		is TopBarAction.ChangePensumAction ->
