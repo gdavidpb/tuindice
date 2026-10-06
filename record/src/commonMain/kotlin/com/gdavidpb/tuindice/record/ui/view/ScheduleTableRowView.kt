@@ -25,7 +25,8 @@ import com.gdavidpb.tuindice.record.ui.model.ScheduleTableDefaults
 
 /**
  * One subject of the table: its code and where it is taught on the left, then a cell per day.
- * A subject that clashes with another says so under its row, in the alert tone.
+ * A meeting that clashes with another subject's is outlined in the alert tone; nothing is written
+ * under the row for it.
  */
 @Composable
 fun ScheduleTableRowView(

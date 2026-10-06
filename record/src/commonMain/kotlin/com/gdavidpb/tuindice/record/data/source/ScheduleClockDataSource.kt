@@ -21,13 +21,18 @@ private const val DAYS_PER_WEEK = 7
 
 /**
  * The device's clock, read once a minute. It keeps nothing: every collector gets its own ticker,
- * which stops with the screen that was listening.
+ * which stops with the screen that was listening. The clock and the time zone come in so a test
+ * can say what time it is; the app uses the device's.
  */
-class ScheduleClockDataSource : ScheduleClockRepository {
+class ScheduleClockDataSource(
+	private val clock: Clock = Clock.System,
+	// Asked on every tick: a traveller's schedule follows the device.
+	private val timeZone: () -> TimeZone = TimeZone::currentSystemDefault
+) : ScheduleClockRepository {
 	override fun observeNow(): Flow<ScheduleNow> {
 		return flow {
 			while (true) {
-				val instant = Clock.System.now()
+				val instant = clock.now()
 
 				emit(instant.toScheduleNow())
 				// Sleep up to the start of the next minute, so the schedule moves when the clock does.
@@ -36,9 +41,8 @@ class ScheduleClockDataSource : ScheduleClockRepository {
 		}.distinctUntilChanged()
 	}
 
-	// The time zone is asked on every tick: a traveller's schedule follows the device.
 	private fun Instant.toScheduleNow(): ScheduleNow {
-		val dateTime = toLocalDateTime(TimeZone.currentSystemDefault())
+		val dateTime = toLocalDateTime(timeZone())
 
 		return ScheduleNow(
 			// ISO counts from Monday (1) to Sunday (7); the backend counts from Sunday (1) to Saturday (7).

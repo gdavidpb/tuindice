@@ -13,7 +13,9 @@ import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.ScheduleNow
 import com.gdavidpb.tuindice.record.domain.model.projectionFor
+import com.gdavidpb.tuindice.record.presentation.model.ScheduleCellItem
 import com.gdavidpb.tuindice.record.presentation.model.ScheduleDay
+import com.gdavidpb.tuindice.record.presentation.model.ScheduleTableRowItem
 import com.gdavidpb.tuindice.record.testing.academicAttempt
 import com.gdavidpb.tuindice.record.testing.academicTerm
 import tuindice.record.generated.resources.Res
@@ -387,7 +389,7 @@ class ScheduleItemTest {
 				attempt("FS2111", listOf(entry(day = 3))),
 				attempt("EG1114", schedule = null)
 			).toScheduleItem()?.table
-		).rows.associate { row -> row.subjectCode to row.hasClash }
+		).rows.associate { row -> row.subjectCode to row.hasClash() }
 
 		assertEquals(
 			mapOf("CI5311" to true, "CI5437" to true, "FS2111" to false, "EG1114" to false),
@@ -407,7 +409,7 @@ class ScheduleItemTest {
 		val schedule = assertNotNull(listOf(flagged, attempt("CI5311", schedule = null)).toScheduleItem())
 		val cell = schedule.grid.days.first().cells.single()
 
-		assertFalse(schedule.table.rows.first().hasClash)
+		assertFalse(schedule.table.rows.first().hasClash())
 		assertFalse(cell.isClash)
 		assertEquals(
 			UiText.Resource(
@@ -595,4 +597,9 @@ class ScheduleItemTest {
 		enrollmentErrors = errors,
 		withdrawn = withdrawn
 	)
+}
+
+// Some meeting of the row overlaps another subject's.
+private fun ScheduleTableRowItem.hasClash(): Boolean {
+	return meetings.values.any { cells -> cells.any(ScheduleCellItem::isClash) }
 }

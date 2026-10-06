@@ -18,9 +18,4 @@ data class ScheduleTableRowItem(
 	// Nothing placed on any day: the schedule is still to be agreed.
 	val isUnscheduled: Boolean
 		get() = meetings.isEmpty()
-
-	// Some meeting of the subject overlaps another subject's: the row says so under it. It is the
-	// clash the app works out, so it shows on every subject involved and names none of them.
-	val hasClash: Boolean
-		get() = meetings.values.any { cells -> cells.any(ScheduleCellItem::isClash) }
 }
