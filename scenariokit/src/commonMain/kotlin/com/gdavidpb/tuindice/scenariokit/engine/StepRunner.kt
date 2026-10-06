@@ -12,7 +12,7 @@ internal class StepRunner(
 	val recorder: StepRecorder = StepRecorder()
 ) {
 	private val poller = Poller(driver, clocks.timeSource)
-	private val gestures = GestureSteps(driver)
+	private val gestures = GestureSteps(driver, poller, clocks.timeSource)
 	private val text = TextSteps(driver, poller)
 	private val waits = WaitSteps(driver, poller, ScrollEngine(driver, poller))
 	private val app = AppSteps(driver)

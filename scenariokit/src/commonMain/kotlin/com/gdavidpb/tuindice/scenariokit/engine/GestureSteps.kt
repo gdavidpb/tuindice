@@ -4,9 +4,15 @@ import com.gdavidpb.tuindice.scenariokit.driver.ScenarioDriver
 import com.gdavidpb.tuindice.scenariokit.driver.SwipeVector
 import com.gdavidpb.tuindice.scenariokit.model.FailureKind
 import com.gdavidpb.tuindice.scenariokit.model.Step
+import com.gdavidpb.tuindice.scenariokit.model.Timeouts
 import com.gdavidpb.tuindice.scenariokit.model.describe
+import kotlin.time.TimeSource
 
-internal class GestureSteps(private val driver: ScenarioDriver) {
+internal class GestureSteps(
+	private val driver: ScenarioDriver,
+	private val poller: Poller,
+	private val timeSource: TimeSource
+) {
 	fun execute(step: Step): StepResult = when (step) {
 		is Step.Tap -> tap(step)
 		is Step.TapAt -> driver.awaitTarget(step.q)
@@ -22,17 +28,24 @@ internal class GestureSteps(private val driver: ScenarioDriver) {
 		else -> unhandled(step)
 	}
 
-	/** A tap needs the target visible and, unless the step opts out, enabled. */
-	private fun tap(step: Step.Tap): StepResult =
-		driver.awaitTarget(step.q)
-			?: disabledTarget(step)
-			?: passIf(driver.tap(step.q), FailureKind.ASSERTION) { "tap on ${step.q.describe()} was refused" }
+	/**
+	 * A tap needs the target visible and, unless the step opts out, enabled, both within one
+	 * [Timeouts.Action] budget: a control that enables itself when a load ends is normal UI.
+	 * The gesture is made once; a target still disabled when the budget runs out is a failure.
+	 */
+	private fun tap(step: Step.Tap): StepResult {
+		val mark = timeSource.markNow()
 
-	private fun disabledTarget(step: Step.Tap): StepResult.Failed? =
-		if (step.requireEnabled && !driver.isEnabled(step.q)) {
+		return driver.awaitTarget(step.q)
+			?: awaitEnabled(step, Timeouts.Action - mark.elapsedNow().inWholeMilliseconds)
+			?: passIf(driver.tap(step.q), FailureKind.ASSERTION) { "tap on ${step.q.describe()} was refused" }
+	}
+
+	private fun awaitEnabled(step: Step.Tap, remainingMs: Long): StepResult.Failed? =
+		if (step.requireEnabled && !poller.until(remainingMs.coerceAtLeast(0)) { driver.isEnabled(step.q) }) {
 			StepResult.Failed(
 				FailureKind.ASSERTION,
-				"${step.q.describe()} is disabled and cannot be tapped",
+				"${step.q.describe()} is disabled and cannot be tapped; still disabled after ${Timeouts.Action} ms",
 				expected = "enabled",
 				actual = "disabled"
 			)

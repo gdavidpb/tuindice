@@ -6,10 +6,12 @@ import com.gdavidpb.tuindice.scenariokit.model.Scroll
 import com.gdavidpb.tuindice.scenariokit.model.Step
 import com.gdavidpb.tuindice.scenariokit.model.StepOutcome
 import com.gdavidpb.tuindice.scenariokit.model.TextEntryMode
+import com.gdavidpb.tuindice.scenariokit.model.Timeouts
 import kotlin.test.Test
 import kotlin.test.assertContains
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlin.time.Duration.Companion.milliseconds
 
 class StepKindsTest {
 	private val button: Query = Query.Tag("button")
@@ -50,6 +52,31 @@ class StepKindsTest {
 		val failure = assertFailed(fake.run(Step.Tap(button)), FailureKind.ASSERTION)
 
 		assertEquals("disabled", failure.actual)
+		assertTrue(fake.taps.isEmpty())
+	}
+
+	@Test
+	fun tap_onAnElementThatEnablesMidBudget_waitsAndTapsItOnce() {
+		val fake = driver(button to FakeElement(enabled = false, enabledAfterChecks = 5))
+		val start = fake.time.markNow()
+
+		assertPassed(fake.run(Step.Tap(button)))
+
+		assertEquals(listOf(button), fake.taps)
+		assertTrue(start.elapsedNow() < Timeouts.Action.milliseconds)
+	}
+
+	@Test
+	fun tap_onAnElementDisabledForTheWholeBudget_failsAfterWaitingIt() {
+		val fake = driver(button to FakeElement(enabled = false))
+		val start = fake.time.markNow()
+
+		val failure = assertFailed(fake.run(Step.Tap(button)), FailureKind.ASSERTION)
+
+		assertEquals("enabled", failure.expected)
+		assertEquals("disabled", failure.actual)
+		assertContains(failure.message, "${Timeouts.Action} ms")
+		assertTrue(start.elapsedNow() >= Timeouts.Action.milliseconds)
 		assertTrue(fake.taps.isEmpty())
 	}
 

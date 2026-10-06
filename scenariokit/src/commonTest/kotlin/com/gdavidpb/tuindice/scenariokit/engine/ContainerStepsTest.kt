@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.scenariokit.model.Query
 import com.gdavidpb.tuindice.scenariokit.model.Step
 import com.gdavidpb.tuindice.scenariokit.model.StepOutcome
 import com.gdavidpb.tuindice.scenariokit.model.TextEntryMode
+import com.gdavidpb.tuindice.scenariokit.model.Timeouts
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -92,7 +93,9 @@ class ContainerStepsTest {
 
 	@Test
 	fun retry_stopsAtTheFirstSuccess() {
-		val fake = driver(button to FakeElement(enabled = false, enabledAfterChecks = 1))
+		// Disabled through the whole first tap budget (one check plus one per poll), enabled for the second attempt.
+		val firstAttemptChecks = (Timeouts.Action / Timeouts.PollInterval).toInt() + 1
+		val fake = driver(button to FakeElement(enabled = false, enabledAfterChecks = firstAttemptChecks))
 
 		val outcome = fake.run(Step.Retry(3, "flaky", listOf(tapButton)))
 
