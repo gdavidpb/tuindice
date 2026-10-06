@@ -41,37 +41,42 @@ class DateTest {
 		)
 	}
 
-	// Characterization of what the screen shows today, kept because moving the texts to resources
-	// must not change any of them: the distance to a day in the past is negative, so "less than
-	// seven" holds however long ago the sync was and the day-month-year style is only reached by
-	// an instant a week or more ahead.
 	@Test
-	fun formatSyncTimestamp_whenSyncWasEarlier_describesTheCapitalizedWeekdayAndTheTime() {
-		val twoDaysAgo = millisDaysAgo(2)
-		val aMonthAgo = millisDaysAgo(30)
+	fun formatSyncTimestamp_whenSyncWasWithinTheLastWeek_describesTheCapitalizedWeekdayAndTheTime() {
+		listOf(2, 6).forEach { daysAgo ->
+			val instant = millisDaysAgo(daysAgo)
 
-		assertEquals(
-			UiText.Capitalized(twoDaysAgo.formatDate(DateTextStyle.WEEKDAY_TIME)),
-			twoDaysAgo.formatSyncTimestamp()
-		)
-		assertEquals(
-			UiText.Capitalized(aMonthAgo.formatDate(DateTextStyle.WEEKDAY_TIME)),
-			aMonthAgo.formatSyncTimestamp()
-		)
+			assertEquals(
+				UiText.Capitalized(instant.formatDate(DateTextStyle.WEEKDAY_TIME)),
+				instant.formatSyncTimestamp(),
+				"$daysAgo days ago"
+			)
+		}
 	}
 
+	// A weekday alone names a single day only inside the last week: a sync from the same weekday a
+	// week or a month ago must not read as if it were this week's.
 	@Test
-	fun formatSyncTimestamp_whenInstantIsAWeekOrMoreAhead_describesTheDayMonthAndYear() {
-		val inSixDays = millisDaysAgo(-6)
-		val inAWeek = millisDaysAgo(-7)
+	fun formatSyncTimestamp_whenSyncWasAWeekAgoOrMore_describesTheDayMonthAndYear() {
+		listOf(7, 30).forEach { daysAgo ->
+			val instant = millisDaysAgo(daysAgo)
+
+			assertEquals(
+				UiText.Capitalized(instant.formatDate(DateTextStyle.DAY_MONTH_YEAR)),
+				instant.formatSyncTimestamp(),
+				"$daysAgo days ago"
+			)
+		}
+	}
+
+	// Only a clock set wrong puts the last sync ahead of today; it says its date too.
+	@Test
+	fun formatSyncTimestamp_whenInstantIsAhead_describesTheDayMonthAndYear() {
+		val tomorrow = millisDaysAgo(-1)
 
 		assertEquals(
-			UiText.Capitalized(inSixDays.formatDate(DateTextStyle.WEEKDAY_TIME)),
-			inSixDays.formatSyncTimestamp()
-		)
-		assertEquals(
-			UiText.Capitalized(inAWeek.formatDate(DateTextStyle.DAY_MONTH_YEAR)),
-			inAWeek.formatSyncTimestamp()
+			UiText.Capitalized(tomorrow.formatDate(DateTextStyle.DAY_MONTH_YEAR)),
+			tomorrow.formatSyncTimestamp()
 		)
 	}
 

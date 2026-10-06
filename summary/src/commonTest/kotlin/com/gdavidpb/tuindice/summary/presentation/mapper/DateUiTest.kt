@@ -48,7 +48,7 @@ class DateUiTest {
 	}
 
 	@Test
-	fun when_syncWasEarlier_then_lineReadsTheCapitalizedWeekdayAndTheTime() = runTuIndiceUiTest {
+	fun when_syncWasWithinTheLastWeek_then_lineReadsTheCapitalizedWeekdayAndTheTime() = runTuIndiceUiTest {
 		val threeDaysAgo = millisDaysAgo(3, hour = 15, minute = 5)
 
 		assertResolvedTexts(
@@ -57,13 +57,13 @@ class DateUiTest {
 	}
 
 	@Test
-	fun when_instantIsAWeekAhead_then_lineReadsThePaddedDayTheMonthAndTheYear() = runTuIndiceUiTest {
-		val inAWeek = millisDaysAgo(-7)
-		val date = Instant.fromEpochMilliseconds(inAWeek).toLocalDateTime(TimeZone.currentSystemDefault()).date
+	fun when_syncWasAMonthAgo_then_lineReadsThePaddedDayTheMonthAndTheYear() = runTuIndiceUiTest {
+		val aMonthAgo = millisDaysAgo(30)
+		val date = Instant.fromEpochMilliseconds(aMonthAgo).toLocalDateTime(TimeZone.currentSystemDefault()).date
 		val day = date.day.toString().padStart(2, '0')
 
 		assertResolvedTexts(
-			"Última sincronización: $day de ${date.month.monthName()} ${date.year}" to inAWeek.toSyncStatusText()
+			"Última sincronización: $day de ${date.month.monthName()} ${date.year}" to aMonthAgo.toSyncStatusText()
 		)
 	}
 
