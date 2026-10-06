@@ -89,10 +89,16 @@ class EvaluationDataSource(
 		)
 
 		val visibleSnapshot = databaseDataSource.getEvaluationsSnapshot()
+		val availableAttemptIds = databaseDataSource.getAvailableAttempts()
+			.mapTo(HashSet()) { attempt -> attempt.id }
+		// An evaluation counts only under a subject of the current term: one whose subject is gone
+		// is never listed, so it must not keep the screen waiting for a list that will not come.
 		return EvaluationsRefreshResult(
-			hasEvaluations = fetchedSnapshot?.evaluations?.isNotEmpty() == true ||
-					visibleSnapshot.evaluations.isNotEmpty(),
-			hasAvailableAttempts = databaseDataSource.getAvailableAttempts().isNotEmpty()
+			hasEvaluations = fetchedSnapshot?.evaluations
+				?.any { evaluation -> evaluation.attemptId in availableAttemptIds } == true ||
+				visibleSnapshot.evaluations
+					.any { evaluation -> evaluation.attemptId in availableAttemptIds },
+			hasAvailableAttempts = availableAttemptIds.isNotEmpty()
 		)
 	}
 

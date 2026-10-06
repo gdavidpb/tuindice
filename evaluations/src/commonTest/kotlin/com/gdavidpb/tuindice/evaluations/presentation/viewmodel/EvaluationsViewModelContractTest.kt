@@ -114,18 +114,23 @@ class EvaluationsViewModelContractTest {
 		}
 	}
 
+	// Evaluations left with no subject to be listed under are not content: once the refresh
+	// confirms there is nothing else, the screen is the empty one, with its invitation to add the
+	// first evaluation, never a list with nothing in it.
 	@Test
-	fun observedEvaluationsWhoseSubjectsAreAllGone_reachContentWithNothingListed() = runTest {
+	fun observedEvaluationsWhoseSubjectsAreAllGone_reachEmpty() = runTest {
+		val orphans = listOf(
+			DEFAULT_PENDING_EVALUATION.copy(attemptId = "gone-1"),
+			DEFAULT_COMPLETED_EVALUATION.copy(
+				attemptId = "gone-2",
+				scheduleMode = EvaluationScheduleMode.CONTINUOUS
+			)
+		)
 		val viewModel = createViewModel(
 			testScheduler = testScheduler,
 			repository = RecordingEvaluationRepository(
-				initialEvaluations = listOf(
-					DEFAULT_PENDING_EVALUATION.copy(attemptId = "gone-1"),
-					DEFAULT_COMPLETED_EVALUATION.copy(
-						attemptId = "gone-2",
-						scheduleMode = EvaluationScheduleMode.CONTINUOUS
-					)
-				),
+				initialEvaluations = orphans,
+				refreshedEvaluations = orphans,
 				availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
 			)
 		)
@@ -136,18 +141,10 @@ class EvaluationsViewModelContractTest {
 
 		try {
 			viewModel.state.test {
-				val content = awaitUntilState<Evaluations.State.Content>()
+				viewModel.ensureEvaluationsLoadedAction()
+				advanceUntilIdle()
 
-				assertEquals(emptyList(), content.evaluationWeekGroups)
-				assertEquals(emptyList(), content.evaluationGroups)
-				// Nothing continuous is listed, so the strip offers no continuous entry either.
-				assertFalse(content.weekItems.any { item -> item.key == EvaluationsWeekKey.Continuous })
-				assertFalse(
-					content.weekItems
-						.flatMap { weekItem -> weekItem.days }
-						.any { day -> day.hasEvaluations }
-				)
-
+				awaitUntilState<Evaluations.State.Empty>()
 				cancelAndIgnoreRemainingEvents()
 			}
 		} finally {

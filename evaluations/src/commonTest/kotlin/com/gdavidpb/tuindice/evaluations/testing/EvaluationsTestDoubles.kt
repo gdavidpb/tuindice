@@ -300,8 +300,11 @@ class RecordingEvaluationRepository(
 		updateEvaluationsForceRemoteCalls += forceRemote
 		refreshThrowable?.let { throw it }
 		refreshedEvaluations?.let { evaluations -> evaluationsState.value = evaluations }
+		// Same rule as the real repository: only an evaluation under an available subject counts.
+		val availableAttemptIds = availableSubjects.mapTo(HashSet()) { subject -> subject.id }
 		return refreshResult ?: EvaluationsRefreshResult(
-			hasEvaluations = evaluationsState.value.isNotEmpty(),
+			hasEvaluations = evaluationsState.value
+				.any { evaluation -> evaluation.attemptId in availableAttemptIds },
 			hasAvailableAttempts = availableSubjects.isNotEmpty()
 		)
 	}

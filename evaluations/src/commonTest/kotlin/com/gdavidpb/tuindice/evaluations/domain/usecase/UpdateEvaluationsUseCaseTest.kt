@@ -1,8 +1,8 @@
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_COMPLETED_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_SUBJECT
+import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
 import com.gdavidpb.tuindice.evaluations.testing.RecordingEvaluationRepository
 import com.gdavidpb.tuindice.evaluations.testing.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
@@ -61,7 +61,7 @@ class UpdateEvaluationsUseCaseTest {
 	fun updateEvaluationsUseCase_whenRefreshSucceeds_emitsPostRefreshAvailability() = runTest {
 		val evaluationRepository = RecordingEvaluationRepository(
 			initialEvaluations = emptyList(),
-			refreshedEvaluations = listOf(DEFAULT_COMPLETED_EVALUATION),
+			refreshedEvaluations = listOf(DEFAULT_PENDING_EVALUATION),
 			availableSubjects = listOf(DEFAULT_EVALUATION_SUBJECT)
 		)
 		val useCase = UpdateEvaluationsUseCase(

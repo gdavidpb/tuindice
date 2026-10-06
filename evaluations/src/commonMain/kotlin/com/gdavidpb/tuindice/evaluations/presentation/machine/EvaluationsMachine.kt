@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.presentation.machine
 
+import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.base.presentation.mapper.commonUnexpectedErrorMessage
 import com.gdavidpb.tuindice.base.presentation.model.SyncedContentResolution
@@ -100,7 +101,10 @@ class EvaluationsMachine(
 
 						is GetEvaluations.Content -> when (
 							resolveSyncedContentResolution(
-								hasContent = evaluations.evaluations.isNotEmpty(),
+								// Counted over what the list will show: evaluations with no subject
+								// to be listed under are left out, and a screen left with none of
+								// them is the empty one, not a list with nothing in it.
+								hasContent = evaluations.listedEvaluations().isNotEmpty(),
 								hasSynced = evaluations.hasSyncedEvaluations,
 								keepCurrentWhileWaiting = false
 							)
@@ -312,7 +316,7 @@ class EvaluationsMachine(
 		val continuousLabel = getString(Res.string.evaluations_continuous_label)
 		// Filtered once, here, so the week strip, the default week and the list all describe the
 		// same evaluations: one left out of the list must not leave a dot on its day behind.
-		val listedEvaluations = evaluations.listedUnder(attempts = displayContext.attempts)
+		val listedEvaluations = listedEvaluations()
 		val weekItems = buildEvaluationsWeekItems(
 			currentTerm = displayContext.currentTerm,
 			evaluations = listedEvaluations,
@@ -341,5 +345,9 @@ class EvaluationsMachine(
 			),
 			notice = resolveEvaluationsNotice(observed = this)
 		)
+	}
+
+	private fun GetEvaluations.Content.listedEvaluations(): List<Evaluation> {
+		return evaluations.listedUnder(attempts = displayContext.attempts)
 	}
 }

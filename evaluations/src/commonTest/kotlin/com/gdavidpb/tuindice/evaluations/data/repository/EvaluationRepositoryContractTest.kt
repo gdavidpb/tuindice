@@ -4,6 +4,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
 import com.gdavidpb.tuindice.base.domain.model.mutation.PendingMutationStatus
 import com.gdavidpb.tuindice.base.utils.currentTimeMillis
+import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluation
 import com.gdavidpb.tuindice.evaluations.data.model.LocalEvaluationsSnapshot
 import com.gdavidpb.tuindice.evaluations.data.mutation.EVALUATIONS_MUTATION_SCOPE
 import com.gdavidpb.tuindice.evaluations.data.mutation.EvaluationMutation
@@ -118,6 +119,30 @@ class EvaluationRepositoryContractTest {
 		assertEquals(1, evaluationsApiDataSource.getEvaluationsCalls)
 		assertEquals(1, databaseDataSource.savedSnapshots.size)
 		assertTrue(settingsDataSource.cooldownMarked)
+	}
+
+	// Evaluations whose subject is no longer in the current term are never listed, so the refresh
+	// must not report them as something to wait for: the screen would wait forever.
+	@Test
+	fun updateEvaluations_countsOnlyEvaluationsUnderAnAvailableSubject() = runTest {
+		val orphan = DEFAULT_LOCAL_PENDING_EVALUATION.copy(attemptId = "attempt-that-is-gone")
+
+		fun repositoryWith(evaluations: List<LocalEvaluation>) = EvaluationDataSource(
+			databaseDataSource = FakeDatabaseDataSource(
+				initialSnapshot = LocalEvaluationsSnapshot(hasSynced = true, evaluations = evaluations)
+			),
+			evaluationsApiDataSource = FakeEvaluationsApiDataSource(),
+			settingsDataSource = FakeSettingsDataSource(onCooldown = true),
+			mutationEngine = createEvaluationsMutationEngine(),
+			identifierRepository = FakeIdentifierRepository()
+		)
+
+		val onlyOrphans = repositoryWith(listOf(orphan)).updateEvaluations()
+		val withListed = repositoryWith(listOf(orphan, DEFAULT_LOCAL_PENDING_EVALUATION)).updateEvaluations()
+
+		assertEquals(false, onlyOrphans.hasEvaluations)
+		assertEquals(true, onlyOrphans.hasAvailableAttempts)
+		assertEquals(true, withListed.hasEvaluations)
 	}
 
 	@Test
