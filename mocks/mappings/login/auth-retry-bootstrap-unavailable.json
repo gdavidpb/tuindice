@@ -16,7 +16,7 @@
     "status": 503,
     "headers": {
       "Content-Type": "application/json",
-      "Retry-After": "3"
+      "Retry-After": "10"
     },
     "fixedDelayMilliseconds": 500
   }
