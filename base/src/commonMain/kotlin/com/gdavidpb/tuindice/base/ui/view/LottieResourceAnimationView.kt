@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import io.github.alexzhirkevich.compottie.Compottie
 import io.github.alexzhirkevich.compottie.LottieCompositionSpec
 import io.github.alexzhirkevich.compottie.rememberLottieComposition
@@ -25,6 +26,7 @@ fun LottieResourceAnimationView(
 		modifier = if (testTag != null) modifier.testTag(testTag) else modifier,
 		painter = rememberLottiePainter(
 			composition = composition,
+			isPlaying = LocalTuIndiceAnimationsEnabled.current,
 			iterations = iterations
 		),
 		contentDescription = null

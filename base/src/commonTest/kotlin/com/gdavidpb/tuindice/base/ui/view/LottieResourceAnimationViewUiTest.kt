@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.base.ui.view
 
 import androidx.compose.foundation.layout.size
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -9,6 +10,8 @@ import androidx.compose.ui.test.assertHeightIsEqualTo
 import androidx.compose.ui.test.assertWidthIsEqualTo
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
+import com.gdavidpb.tuindice.testkit.ui.advanceAnimationsBy
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -101,6 +104,34 @@ class LottieResourceAnimationViewUiTest {
 		onNodeWithTag(AnimationTag)
 			.assertWidthIsEqualTo(64.dp)
 			.assertHeightIsEqualTo(64.dp)
+	}
+
+	@Test
+	fun when_animationsAreDisabled_then_theAnimationNodeStaysInPlace() = runTuIndiceUiTest {
+		var readCount = 0
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+				LottieResourceAnimationView(
+					readBytes = {
+						readCount++
+						Res.readBytes(ANIMATION_PATH)
+					},
+					modifier = Modifier.size(96.dp),
+					testTag = AnimationTag
+				)
+			}
+		}
+
+		waitUntil(timeoutMillis = LOAD_TIMEOUT_MILLIS) { readCount == 1 }
+		advanceAnimationsBy(5_000)
+
+		// A frozen animation still loads and still occupies its slot; only the playback stops.
+		assertNodeVisible(AnimationTag)
+		onNodeWithTag(AnimationTag)
+			.assertWidthIsEqualTo(96.dp)
+			.assertHeightIsEqualTo(96.dp)
+		assertEquals(1, readCount)
 	}
 
 	private companion object {

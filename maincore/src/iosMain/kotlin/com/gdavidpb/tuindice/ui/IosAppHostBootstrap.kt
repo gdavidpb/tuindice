@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.ui
 
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.window.ComposeUIViewController
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.debug.IosAuthenticatedCoachmarksPendingStartupHook
 import com.gdavidpb.tuindice.debug.IosAuthenticatedCoachmarksSeenStartupHook
 import com.gdavidpb.tuindice.debug.IosDebugStartupHook
@@ -17,14 +19,21 @@ import platform.UIKit.UIViewController
 class IosAppHostBootstrap(
 	private val hostConfig: IosAppHostConfig
 ) {
+	// Set only by the debug launch-argument entry point; nothing enables it yet.
+	private var debugAnimationsDisabled = false
+
 	fun createRootViewController(): UIViewController {
 		startIfNeeded()
 
 		return ComposeUIViewController {
 			TuIndiceSharedTheme {
-				TuIndiceAppHostRoute(
-					onConfirmExitClick = {}
-				)
+				CompositionLocalProvider(
+					LocalTuIndiceAnimationsEnabled provides (rememberIosSystemAnimationsEnabled() && !debugAnimationsDisabled)
+				) {
+					TuIndiceAppHostRoute(
+						onConfirmExitClick = {}
+					)
+				}
 			}
 		}
 	}

@@ -21,11 +21,19 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.flow
 
 @Composable
 fun RandomFlipperText(items: List<String>) {
+	val animationsEnabled = LocalTuIndiceAnimationsEnabled.current
+
+	if (!animationsEnabled) {
+		FlipperMessage(text = remember(items) { items.random() })
+		return
+	}
+
 	val randomTextFlow = remember {
 		flow {
 			while (true) {
@@ -48,21 +56,26 @@ fun RandomFlipperText(items: List<String>) {
 			enter togetherWith exit
 		}, label = "RandomFlipperTextAnimatedContent"
 	) { text ->
-		Box(
-			modifier = Modifier.fillMaxWidth()
-		) {
-			Text(
-				modifier = Modifier
-					.testTag(AuthUiTags.RandomFlipperText)
-					.padding(horizontal = 16.dp)
-					.align(alignment = Alignment.Center),
-				text = text,
-				fontWeight = FontWeight.Medium,
-				maxLines = 1,
-				overflow = TextOverflow.Ellipsis,
-				style = MaterialTheme.typography.titleLarge,
-				color = MaterialTheme.colorScheme.primary
-			)
-		}
+		FlipperMessage(text = text)
+	}
+}
+
+@Composable
+private fun FlipperMessage(text: String) {
+	Box(
+		modifier = Modifier.fillMaxWidth()
+	) {
+		Text(
+			modifier = Modifier
+				.testTag(AuthUiTags.RandomFlipperText)
+				.padding(horizontal = 16.dp)
+				.align(alignment = Alignment.Center),
+			text = text,
+			fontWeight = FontWeight.Medium,
+			maxLines = 1,
+			overflow = TextOverflow.Ellipsis,
+			style = MaterialTheme.typography.titleLarge,
+			color = MaterialTheme.colorScheme.primary
+		)
 	}
 }
