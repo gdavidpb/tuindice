@@ -106,7 +106,6 @@ class TuIndiceNavRetentionUiTest {
 		TuIndiceNavDisplay(
 			navigator = navigator,
 			onConfirmExitClick = {},
-			isCameraAvailable = false,
 			onNavigateToExternalResource = {},
 			onRecordViewModeChangeAvailable = {},
 			onRecordTermSelectionAvailable = {},

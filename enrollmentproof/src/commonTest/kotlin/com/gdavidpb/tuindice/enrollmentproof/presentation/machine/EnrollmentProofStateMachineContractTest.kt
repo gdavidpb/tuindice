@@ -64,7 +64,9 @@ class EnrollmentProofStateMachineContractTest {
 			"SavedEnrollmentProofFound",
 			"OpenSavedEnrollmentProof / OpenEnrollmentProof",
 			"EnrollmentProofFetchFailed / ShowSnackBar",
-			"EnrollmentProofUnauthorized / NavigateToOutdatedCredentials"
+			"EnrollmentProofUnauthorized / NavigateToOutdatedCredentials",
+			"OpenEnrollmentProofCompleted",
+			"EnrollmentProofViewerMissing / ShowSnackBar"
 		)
 
 		for (fragment in expectedFragments) {

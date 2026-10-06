@@ -58,7 +58,6 @@ class TuIndiceScreenUiTest {
 				onNavigateTo = {},
 				onNavigateBack = {},
 				onConfirmExitClick = {},
-				isCameraAvailable = false,
 				onNavigateToExternalResource = {},
 				onViewStateChanged = {},
 				showSnackBar = {}
@@ -86,7 +85,6 @@ class TuIndiceScreenUiTest {
 				onNavigateTo = {},
 				onNavigateBack = {},
 				onConfirmExitClick = {},
-				isCameraAvailable = false,
 				onNavigateToExternalResource = {},
 				onViewStateChanged = {},
 				showSnackBar = {}
@@ -128,7 +126,6 @@ class TuIndiceScreenUiTest {
 				onNavigateTo = {},
 				onNavigateBack = {},
 				onConfirmExitClick = {},
-				isCameraAvailable = false,
 				onNavigateToExternalResource = {},
 				onViewStateChanged = {},
 				showSnackBar = {}
@@ -172,7 +169,6 @@ class TuIndiceScreenUiTest {
 				onNavigateTo = {},
 				onNavigateBack = {},
 				onConfirmExitClick = {},
-				isCameraAvailable = false,
 				onNavigateToExternalResource = {},
 				onViewStateChanged = {},
 				showSnackBar = {}
@@ -207,7 +203,6 @@ class TuIndiceScreenUiTest {
 					onNavigateTo = {},
 					onNavigateBack = {},
 					onConfirmExitClick = {},
-					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
 					onViewStateChanged = {},
 					showSnackBar = {}
@@ -241,7 +236,6 @@ class TuIndiceScreenUiTest {
 					onNavigateTo = {},
 					onNavigateBack = {},
 					onConfirmExitClick = {},
-					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
 					onViewStateChanged = {},
 					showSnackBar = {}
@@ -280,7 +274,6 @@ class TuIndiceScreenUiTest {
 					onNavigateTo = {},
 					onNavigateBack = {},
 					onConfirmExitClick = {},
-					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
 					onViewStateChanged = {},
 					showSnackBar = {}
@@ -315,7 +308,6 @@ class TuIndiceScreenUiTest {
 					onNavigateTo = {},
 					onNavigateBack = {},
 					onConfirmExitClick = {},
-					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
 					onViewStateChanged = {},
 					showSnackBar = {}
@@ -349,7 +341,6 @@ class TuIndiceScreenUiTest {
 					onNavigateTo = {},
 					onNavigateBack = {},
 					onConfirmExitClick = {},
-					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
 					onViewStateChanged = {},
 					showSnackBar = {}
@@ -388,7 +379,6 @@ class TuIndiceScreenUiTest {
 					onNavigateTo = {},
 					onNavigateBack = {},
 					onConfirmExitClick = {},
-					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
 					onViewStateChanged = {},
 					showSnackBar = {}
@@ -436,7 +426,6 @@ class TuIndiceScreenUiTest {
 					onNavigateTo = {},
 					onNavigateBack = {},
 					onConfirmExitClick = {},
-					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
 					onViewStateChanged = {},
 					showSnackBar = {}
@@ -478,7 +467,6 @@ class TuIndiceScreenUiTest {
 					onNavigateTo = { section -> sections += section },
 					onNavigateBack = {},
 					onConfirmExitClick = {},
-					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
 					onViewStateChanged = {},
 					showSnackBar = {}
@@ -528,7 +516,6 @@ class TuIndiceScreenUiTest {
 					onNavigateTo = {},
 					onNavigateBack = { navigator.pop() },
 					onConfirmExitClick = {},
-					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
 					onViewStateChanged = {},
 					showSnackBar = {}
@@ -577,7 +564,6 @@ class TuIndiceScreenUiTest {
 					onNavigateTo = {},
 					onNavigateBack = { navigator.pop() },
 					onConfirmExitClick = {},
-					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
 					onViewStateChanged = {},
 					showSnackBar = {}

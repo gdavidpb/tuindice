@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.presentation.mapper.commonUnexpectedErrorMessa
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinition
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
+import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
@@ -32,6 +33,7 @@ import tuindice.summary.generated.resources.snack_profile_picture_updated
 class SummaryMachine(
 	private val observeUserUseCase: ObserveUserUseCase,
 	private val observeSyncUseCase: ObserveSyncUseCase,
+	private val getCameraAvailabilityUseCase: GetCameraAvailabilityUseCase,
 	private val updateUserUseCase: UpdateUserUseCase,
 	private val uploadProfilePictureUseCase: UploadProfilePictureUseCase,
 	private val removeProfilePictureUseCase: RemoveProfilePictureUseCase
@@ -99,6 +101,30 @@ class SummaryMachine(
 					host.processInternalEvent(
 						SummaryInternalEvent.SyncObserved(
 							sync = useCaseState.value.toSummarySyncItem()
+						)
+					)
+				}
+			}
+		}
+	}
+
+	internal fun resolveCameraAvailability(host: MachineHost<Summary.Effect>) {
+		host.launchMachineJob {
+			getCameraAvailabilityUseCase.execute(Unit).collect { useCaseState ->
+				when (useCaseState) {
+					is UseCaseState.Loading -> Unit
+
+					is UseCaseState.Data -> host.processInternalEvent(
+						SummaryInternalEvent.CameraAvailabilityResolved(
+							isCameraAvailable = useCaseState.value
+						)
+					)
+
+					// A device that cannot say still gets its options: picking does not
+					// need a camera, so only taking a picture is left out.
+					is UseCaseState.Error -> host.processInternalEvent(
+						SummaryInternalEvent.CameraAvailabilityResolved(
+							isCameraAvailable = false
 						)
 					)
 				}

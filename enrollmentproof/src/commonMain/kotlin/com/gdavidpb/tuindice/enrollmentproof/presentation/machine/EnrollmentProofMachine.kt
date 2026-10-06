@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.enrollmentproof.presentation.contract.Enrollment
 import com.gdavidpb.tuindice.enrollmentproof.presentation.mapper.canRetry
 import com.gdavidpb.tuindice.enrollmentproof.presentation.mapper.toErrorMessage
 import com.gdavidpb.tuindice.enrollmentproof.presentation.resource.EnrollmentProofTextProvider
+import com.gdavidpb.tuindice.enrollmentproof.presentation.transition.anyStateTransitions
 import com.gdavidpb.tuindice.enrollmentproof.presentation.transition.confirmingSavedCopyTransitions
 import com.gdavidpb.tuindice.enrollmentproof.presentation.transition.fetchingTransitions
 
@@ -23,6 +24,7 @@ class EnrollmentProofMachine(
 		return MachineDefinition.define {
 			fetchingTransitions(machine = this@EnrollmentProofMachine, host = host)
 			confirmingSavedCopyTransitions(host = host)
+			anyStateTransitions(machine = this@EnrollmentProofMachine, host = host)
 		}
 	}
 
@@ -59,6 +61,16 @@ class EnrollmentProofMachine(
 					}
 				}
 			}
+		}
+	}
+
+	internal fun reportViewerMissing(host: MachineHost<Enrollment.Effect>) {
+		host.launchMachineJob {
+			host.processInternalEvent(
+				EnrollmentProofInternalEvent.EnrollmentProofViewerMissing(
+					message = textProvider.enrollmentUnsupported()
+				)
+			)
 		}
 	}
 }

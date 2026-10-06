@@ -9,7 +9,6 @@ import com.gdavidpb.tuindice.base.data.source.config.DebugRemoteConfigDataSource
 import com.gdavidpb.tuindice.base.data.source.messaging.DebugPushTokenDataSource
 import com.gdavidpb.tuindice.base.data.source.reporting.DebugReportingDataSource
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
-import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
 import com.gdavidpb.tuindice.base.domain.repository.FileOpenerRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
@@ -25,7 +24,6 @@ import com.gdavidpb.tuindice.data.source.activity.CurrentActivityDataSource
 import com.gdavidpb.tuindice.data.source.config.AndroidRemoteConfigDataSource
 import com.gdavidpb.tuindice.data.source.messaging.FirebasePushTokenDataSource
 import com.gdavidpb.tuindice.data.source.reporting.CrashlyticsReportingDataSource
-import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
 import com.gdavidpb.tuindice.platform.android.PushTokenRotationHandler
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
@@ -98,13 +96,11 @@ class AndroidAppKoinSmokeTest {
 			ShareTextHandler::class,
 			FileOpenerRepository::class,
 			BrowserRepository::class,
-			DeviceInfoRepository::class,
 			ReviewRepository::class,
 			UpdateRepository::class,
 			SyncStatusRepository::class,
 			PendingChangesRepository::class,
 			SessionInvalidationRepository::class,
-			OutdatedAppEventRepository::class,
 			PensumTopBarActionBus::class,
 			SignInViewModel::class,
 			MainViewModel::class,

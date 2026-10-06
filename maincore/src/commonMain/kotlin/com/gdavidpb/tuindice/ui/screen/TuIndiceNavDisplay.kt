@@ -49,7 +49,6 @@ fun TuIndiceNavDisplay(
 	navigator: TuIndiceNavigator,
 	modifier: Modifier = Modifier.fillMaxSize(),
 	onConfirmExitClick: () -> Unit,
-	isCameraAvailable: Boolean,
 	onNavigateToExternalResource: (url: String) -> Unit,
 	onOutdatedAppDetected: () -> Unit = {},
 	onUpdatePasswordDismissRequest: () -> Unit = {},
@@ -93,7 +92,6 @@ fun TuIndiceNavDisplay(
 		summaryEntries(
 			navActions = navigator,
 			shellBindings = shellBindings,
-			isCameraAvailable = isCameraAvailable,
 			onNavigateToUpdatePassword = {
 				navigator.push(AuthDestination.UpdatePasswordDialog)
 			}

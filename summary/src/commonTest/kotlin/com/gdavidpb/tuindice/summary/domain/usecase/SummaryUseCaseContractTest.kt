@@ -4,6 +4,7 @@ import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
 import com.gdavidpb.tuindice.summary.domain.model.ObservedSync
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
@@ -12,6 +13,7 @@ import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.FakeSyncProgressRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -35,6 +37,41 @@ class SummaryUseCaseContractTest {
 			assertEquals(DEFAULT_SUMMARY_USER, awaitLoadingThenData(this))
 			awaitComplete()
 		}
+	}
+
+	@Test
+	fun getCameraAvailabilityUseCase_emitsLoadingThenData_withWhatTheDeviceSays() = runTest {
+		for (hasCamera in listOf(true, false)) {
+			val useCase = GetCameraAvailabilityUseCase(
+				deviceInfoRepository = FakeDeviceInfoRepository(deviceHasCamera = hasCamera),
+				reportingRepository = RecordingReportingRepository()
+			)
+
+			useCase.execute(Unit).test {
+				assertEquals(hasCamera, awaitLoadingThenData(this))
+				awaitComplete()
+			}
+		}
+	}
+
+	@Test
+	fun getCameraAvailabilityUseCase_reportsAndEmitsError_whenTheDeviceCannotSay() = runTest {
+		val failure = IllegalStateException("summary-camera")
+		val reportingRepository = RecordingReportingRepository()
+		val useCase = GetCameraAvailabilityUseCase(
+			deviceInfoRepository = object : DeviceInfoRepository by FakeDeviceInfoRepository() {
+				override fun hasCamera(): Boolean = throw failure
+			},
+			reportingRepository = reportingRepository
+		)
+
+		useCase.execute(Unit).test {
+			assertIs<UseCaseState.Loading>(awaitItem())
+			assertIs<UseCaseState.Error<*>>(awaitItem())
+			awaitComplete()
+		}
+
+		assertEquals(failure, reportingRepository.loggedExceptions.single())
 	}
 
 	@Test

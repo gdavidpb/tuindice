@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.presentation.route
 
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.test.ComposeUiTest
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
@@ -13,12 +14,14 @@ import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
 import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.User
+import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
+import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
@@ -35,6 +38,7 @@ import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.FakeSyncProgressRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
+import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
@@ -70,7 +74,7 @@ class SummaryRouteUiTest {
 		setTuIndiceTestContent {
 			SummaryRoute(
 				onNavigateToUpdatePassword = { outdatedPasswordNavigations++ },
-				onNavigateToProfilePictureSettingsDialog = { showRemove ->
+				onNavigateToProfilePictureSettingsDialog = { showRemove, _ ->
 					profilePictureSettingsNavigations += showRemove
 				},
 				onNavigateToRemoveProfilePictureConfirmationDialog = {
@@ -102,7 +106,7 @@ class SummaryRouteUiTest {
 		setTuIndiceTestContent {
 			SummaryRoute(
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = { showRemove ->
+				onNavigateToProfilePictureSettingsDialog = { showRemove, _ ->
 					profilePictureSettingsNavigations += showRemove
 				},
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
@@ -130,6 +134,22 @@ class SummaryRouteUiTest {
 	}
 
 	@Test
+	fun when_theDeviceHasACamera_then_requestsDialogWithTheTakeOption() = runTuIndiceUiTest {
+		assertEquals(
+			listOf(true to true),
+			profilePictureSettingsNavigationsFor(deviceHasCamera = true)
+		)
+	}
+
+	@Test
+	fun when_theDeviceHasNoCamera_then_requestsDialogWithoutTheTakeOption() = runTuIndiceUiTest {
+		assertEquals(
+			listOf(true to false),
+			profilePictureSettingsNavigationsFor(deviceHasCamera = false)
+		)
+	}
+
+	@Test
 	fun when_profilePictureEditTappedFromUi_then_requestsDialogWithRemoveOption() = runTuIndiceUiTest {
 		val viewModel = createSummaryViewModel()
 		val profilePictureSettingsNavigations = mutableListOf<Boolean>()
@@ -138,7 +158,7 @@ class SummaryRouteUiTest {
 		setTuIndiceTestContent {
 			SummaryRoute(
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = { showRemove ->
+				onNavigateToProfilePictureSettingsDialog = { showRemove, _ ->
 					profilePictureSettingsNavigations += showRemove
 				},
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
@@ -173,7 +193,7 @@ class SummaryRouteUiTest {
 			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
 				SummaryRoute(
 					onNavigateToUpdatePassword = {},
-					onNavigateToProfilePictureSettingsDialog = { showRemove ->
+					onNavigateToProfilePictureSettingsDialog = { showRemove, _ ->
 						profilePictureSettingsNavigations += showRemove
 					},
 					onNavigateToRemoveProfilePictureConfirmationDialog = {},
@@ -213,7 +233,7 @@ class SummaryRouteUiTest {
 			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
 				SummaryRoute(
 					onNavigateToUpdatePassword = {},
-					onNavigateToProfilePictureSettingsDialog = {},
+					onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 					onNavigateToRemoveProfilePictureConfirmationDialog = {},
 					showSnackBar = {},
 					viewModel = viewModel
@@ -243,7 +263,7 @@ class SummaryRouteUiTest {
 			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
 				SummaryRoute(
 					onNavigateToUpdatePassword = {},
-					onNavigateToProfilePictureSettingsDialog = {},
+					onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 					onNavigateToRemoveProfilePictureConfirmationDialog = {},
 					showSnackBar = {},
 					viewModel = viewModel
@@ -282,7 +302,7 @@ class SummaryRouteUiTest {
 			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
 				SummaryRoute(
 					onNavigateToUpdatePassword = {},
-					onNavigateToProfilePictureSettingsDialog = {},
+					onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 					onNavigateToRemoveProfilePictureConfirmationDialog = {},
 					showSnackBar = {},
 					viewModel = viewModel
@@ -320,7 +340,7 @@ class SummaryRouteUiTest {
 		setTuIndiceTestContent {
 			SummaryRoute(
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = {},
+				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 				onNavigateToRemoveProfilePictureConfirmationDialog = {
 					removeProfilePictureConfirmationNavigations++
 				},
@@ -355,7 +375,7 @@ class SummaryRouteUiTest {
 				onNavigateToUpdatePassword = {
 					outdatedPasswordNavigations++
 				},
-				onNavigateToProfilePictureSettingsDialog = {},
+				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = { message ->
 					shownSnackBars += message
@@ -393,7 +413,7 @@ class SummaryRouteUiTest {
 				onNavigateToUpdatePassword = {
 					outdatedPasswordNavigations++
 				},
-				onNavigateToProfilePictureSettingsDialog = {},
+				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = { message ->
 					shownSnackBars += message
@@ -424,7 +444,7 @@ class SummaryRouteUiTest {
 		setTuIndiceTestContent {
 			SummaryRoute(
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = { showRemove ->
+				onNavigateToProfilePictureSettingsDialog = { showRemove, _ ->
 					profilePictureSettingsNavigations += showRemove
 				},
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
@@ -462,7 +482,7 @@ class SummaryRouteUiTest {
 		setTuIndiceTestContent {
 			SummaryRoute(
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = { showRemove ->
+				onNavigateToProfilePictureSettingsDialog = { showRemove, _ ->
 					profilePictureSettingsNavigations += showRemove
 				},
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
@@ -493,7 +513,7 @@ class SummaryRouteUiTest {
 		setTuIndiceTestContent {
 			SummaryRoute(
 				onNavigateToUpdatePassword = { navigateOutdatedCalls++ },
-				onNavigateToProfilePictureSettingsDialog = {},
+				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = { message ->
 					shownSnackBars += message
@@ -525,7 +545,7 @@ class SummaryRouteUiTest {
 		setTuIndiceTestContent {
 			SummaryRoute(
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = {},
+				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
 				viewModel = viewModel
@@ -556,7 +576,7 @@ class SummaryRouteUiTest {
 		setTuIndiceTestContent {
 			SummaryRoute(
 				onNavigateToUpdatePassword = {},
-				onNavigateToProfilePictureSettingsDialog = {},
+				onNavigateToProfilePictureSettingsDialog = { _, _ -> },
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = { message ->
 					shownSnackBars += message
@@ -578,10 +598,44 @@ class SummaryRouteUiTest {
 		assertTrue(userRepository.updateUserCalls >= 2)
 	}
 
+	// What the route asks the navigator for when the edit button is tapped: whether removing is
+	// offered (the state's to know) and whether taking a picture is (the device's).
+	private fun ComposeUiTest.profilePictureSettingsNavigationsFor(
+		deviceHasCamera: Boolean
+	): List<Pair<Boolean, Boolean>> {
+		val viewModel = createSummaryViewModel(
+			deviceInfoRepository = FakeDeviceInfoRepository(deviceHasCamera = deviceHasCamera)
+		)
+		val navigations = mutableListOf<Pair<Boolean, Boolean>>()
+
+		setTuIndiceTestContent {
+			SummaryRoute(
+				onNavigateToUpdatePassword = {},
+				onNavigateToProfilePictureSettingsDialog = { showRemove, isCameraAvailable ->
+					navigations += showRemove to isCameraAvailable
+				},
+				onNavigateToRemoveProfilePictureConfirmationDialog = {},
+				showSnackBar = {},
+				viewModel = viewModel
+			)
+		}
+
+		waitUntil(timeoutMillis = 2_000) {
+			(viewModel.state.value as? Summary.State.Content)?.isUserRefreshing == false
+		}
+
+		onNodeWithTag(SummaryUiTags.ProfilePictureEditButton).performClick()
+
+		waitUntil(timeoutMillis = 2_000) { navigations.isNotEmpty() }
+
+		return navigations
+	}
+
 	private fun createSummaryViewModel(
 		userRepository: UserRepository = RecordingUserRepository(),
 		syncStatusRepository: SyncStatusRepository = FakeSyncStatusRepository(),
 		syncRepository: SyncRepository = FakeSyncRepository(),
+		deviceInfoRepository: DeviceInfoRepository = FakeDeviceInfoRepository(),
 		dispatchers: TuIndiceDispatchers = TestTuIndiceDispatchers(Dispatchers.Unconfined)
 	): SummaryViewModel {
 		return SummaryViewModel(
@@ -593,6 +647,10 @@ class SummaryRouteUiTest {
 				observeSyncUseCase = ObserveSyncUseCase(
 					syncStatusRepository = syncStatusRepository,
 					syncRepository = syncRepository,
+					reportingRepository = RecordingReportingRepository()
+				),
+				getCameraAvailabilityUseCase = GetCameraAvailabilityUseCase(
+					deviceInfoRepository = deviceInfoRepository,
 					reportingRepository = RecordingReportingRepository()
 				),
 				updateUserUseCase = UpdateUserUseCase(

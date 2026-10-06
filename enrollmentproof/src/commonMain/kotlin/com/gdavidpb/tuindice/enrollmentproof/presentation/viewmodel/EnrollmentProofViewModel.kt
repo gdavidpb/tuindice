@@ -20,4 +20,8 @@ class EnrollmentProofViewModel(
 	fun openSavedEnrollmentProofAction() {
 		sendAction(Enrollment.Action.OpenSavedEnrollmentProof)
 	}
+
+	fun openEnrollmentProofCompletedAction(opened: Boolean) {
+		sendAction(Enrollment.Action.OpenEnrollmentProofCompleted(opened = opened))
+	}
 }

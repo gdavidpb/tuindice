@@ -124,7 +124,6 @@ fun TuIndiceScreen(
 	onNavigateTo: (section: MainSection) -> Unit,
 	onNavigateBack: () -> Unit,
 	onConfirmExitClick: () -> Unit,
-	isCameraAvailable: Boolean,
 	onNavigateToExternalResource: (url: String) -> Unit,
 	onOutdatedAppDetected: () -> Unit = {},
 	onUpdatePasswordDismissRequest: () -> Unit = {},
@@ -413,7 +412,6 @@ fun TuIndiceScreen(
 						registry = coachmarkAnchorRegistry
 					),
 				onConfirmExitClick = onConfirmExitClick,
-				isCameraAvailable = isCameraAvailable,
 				onNavigateToExternalResource = onNavigateToExternalResource,
 				onOutdatedAppDetected = onOutdatedAppDetected,
 				onUpdatePasswordDismissRequest = onUpdatePasswordDismissRequest,

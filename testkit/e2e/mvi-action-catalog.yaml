@@ -169,6 +169,9 @@ actions:
     variants: [open-saved-pdf]
     selector: base_confirmation_dialog_positive_button
     platform_edge: hands the saved PDF to the device viewer after a transient download failure; seeding the saved copy needs an earlier download that opens the system PDF viewer, so the dialog is assigned to e2e/platform/android/enrollmentproof-saved-copy-dialog.md and e2e/platform/ios/enrollmentproof-saved-copy-dialog.md; covered by EnrollmentProofRouteUiTest and EnrollmentProofSavedCopyDialogUiTest
+  - id: enrollmentproof.Enrollment.OpenEnrollmentProofCompleted
+    classification: internal
+    reason: route re-enters the machine with whether the device viewer opened the proof
 
   - id: evaluations.Evaluation.LoadAvailableAttempts
     classification: internal

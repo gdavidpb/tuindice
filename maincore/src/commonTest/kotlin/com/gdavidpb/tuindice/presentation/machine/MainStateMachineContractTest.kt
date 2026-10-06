@@ -5,8 +5,10 @@ import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
+import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
 import com.gdavidpb.tuindice.domain.usecase.EnsureMessagingSubscribedUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
+import com.gdavidpb.tuindice.domain.usecase.ObserveOutdatedAppUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.ScheduleSyncUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastMainSectionUseCase
@@ -59,6 +61,10 @@ class MainStateMachineContractTest {
 				applicationRepository = applicationRepository,
 				reportingRepository = reportingRepository,
 				exceptionHandler = StartUpExceptionHandler()
+			),
+			observeOutdatedAppUseCase = ObserveOutdatedAppUseCase(
+				outdatedAppEventRepository = OutdatedAppEventDataSource(),
+				reportingRepository = reportingRepository
 			),
 			requestReviewUseCase = RequestReviewUseCase(
 				settingsRepository = settingsRepository,
@@ -122,6 +128,9 @@ class MainStateMachineContractTest {
 				MainInternalEvent.OutdatedAppResolved(
 					outdatedAppState = OutdatedAppState(minimumVersionCode = 52)
 				),
+				MainInternalEvent.OutdatedAppObserved(
+					outdatedAppState = OutdatedAppState(minimumVersionCode = 52)
+				),
 				MainInternalEvent.StartUpFailed(noServices = false),
 				MainInternalEvent.ReviewRequested,
 				MainInternalEvent.UpdateInfoLoaded(action = UpdateAction.Immediate)
@@ -179,6 +188,7 @@ class MainStateMachineContractTest {
 				"StartUpCompleted",
 			"AppUnavailableResolved",
 			"OutdatedAppResolved",
+			"OutdatedAppObserved",
 			"ReviewRequested / TriggerReviewFlow",
 			"UpdateFlowCompleted / OpenUpdateStoreFallback",
 			"NoteSyncUnavailable"

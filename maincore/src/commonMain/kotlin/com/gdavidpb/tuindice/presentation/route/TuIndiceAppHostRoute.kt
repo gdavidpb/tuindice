@@ -21,7 +21,6 @@ import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.base.domain.repository.BrowserRepository
-import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
@@ -30,7 +29,6 @@ import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
 import com.gdavidpb.tuindice.base.logging.appLogger
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
-import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.enrollmentproof.presentation.navigation.EnrollmentProofDestination
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
 import com.gdavidpb.tuindice.presentation.contract.Main
@@ -63,13 +61,11 @@ private val logger = appLogger(tag = "SignOut")
 fun TuIndiceAppHostRoute(
 	onConfirmExitClick: () -> Unit,
 	browserRepository: BrowserRepository = koinInject(),
-	deviceInfoRepository: DeviceInfoRepository = koinInject(),
 	pendingChangesRepository: PendingChangesRepository = koinInject(),
 	sessionInvalidationRepository: SessionInvalidationRepository = koinInject(),
 	syncStatusRepository: SyncStatusRepository = koinInject(),
 	reviewRepository: ReviewRepository = koinInject(),
 	updateRepository: UpdateRepository = koinInject(),
-	outdatedAppEventRepository: OutdatedAppEventRepository = koinInject(),
 	pensumTopBarActionBus: PensumTopBarActionBus = koinInject(),
 	viewModel: MainViewModel = koinViewModel<MainViewModel>(),
 	coachmarkOverlayViewModel: CoachmarkOverlayViewModel = koinViewModel<CoachmarkOverlayViewModel>()
@@ -103,12 +99,6 @@ fun TuIndiceAppHostRoute(
 	}
 	val pendingChangesUnavailableMessage = stringResource(Res.string.snack_pending_changes_unavailable)
 	val sessionInvalidatedMessage = stringResource(Res.string.snack_session_invalidated)
-
-	LaunchedEffect(outdatedAppEventRepository) {
-		outdatedAppEventRepository.observeOutdatedApp().collect { state ->
-			viewModel.showOutdatedAppAction(state)
-		}
-	}
 
 	MainRoute(
 		onNavigateToGooglePlayServicesUnavailableDialog = {
@@ -322,7 +312,6 @@ fun TuIndiceAppHostRoute(
 				}
 			},
 			onConfirmExitClick = onConfirmExitClick,
-			isCameraAvailable = deviceInfoRepository.hasCamera(),
 			onNavigateToExternalResource = browserRepository::open,
 			onOutdatedAppDetected = {
 				viewModel.showOutdatedAppAction(

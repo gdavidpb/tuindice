@@ -18,7 +18,9 @@ import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.domain.repository.UpdateRepository
+import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
 import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
+import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.testing.FakeCoreCacheStateRepository
@@ -61,6 +63,7 @@ class MainModuleKoinSmokeTest {
 			single<SyncRepository> { FakeSyncRepository() }
 			single<SyncStatusRepository> { FakeSyncStatusRepository() }
 			single<CoreCacheStateRepository> { FakeCoreCacheStateRepository() }
+			single<OutdatedAppEventRepository> { OutdatedAppEventDataSource() }
 			single<UpdateRepository> { FakeUpdateRepository() }
 			single<BrowserRepository> { RecordingBrowserRepository() }
 			single<EventPublisher> { NoOpEventPublisher }

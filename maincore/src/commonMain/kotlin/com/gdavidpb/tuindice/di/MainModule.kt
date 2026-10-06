@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.di
 
 import com.gdavidpb.tuindice.domain.usecase.EnsureMessagingSubscribedUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
+import com.gdavidpb.tuindice.domain.usecase.ObserveOutdatedAppUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.ScheduleSyncUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastMainSectionUseCase
@@ -29,6 +30,7 @@ val mainModule = module {
 	/* Use cases */
 
 	factoryOf(::StartUpUseCase)
+	factoryOf(::ObserveOutdatedAppUseCase)
 	factoryOf(::RequestReviewUseCase)
 	factoryOf(::ScheduleSyncUseCase)
 	factoryOf(::EnsureMessagingSubscribedUseCase)

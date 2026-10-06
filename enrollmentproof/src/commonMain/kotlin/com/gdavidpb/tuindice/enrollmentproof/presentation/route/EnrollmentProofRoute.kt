@@ -15,7 +15,6 @@ import com.gdavidpb.tuindice.enrollmentproof.ui.dialog.EnrollmentProofContentDia
 import org.jetbrains.compose.resources.stringResource
 import tuindice.enrollmentproof.generated.resources.Res
 import tuindice.enrollmentproof.generated.resources.enrollment_proof_retry
-import tuindice.enrollmentproof.generated.resources.error_enrollment_unsupported
 
 @Composable
 fun EnrollmentProofRoute(
@@ -28,7 +27,6 @@ fun EnrollmentProofRoute(
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 	var dismissed by remember { mutableStateOf(false) }
-	val proofViewerMissingMessage = stringResource(Res.string.error_enrollment_unsupported)
 	val retryActionLabel = stringResource(Res.string.enrollment_proof_retry)
 
 	val dismiss = {
@@ -44,10 +42,14 @@ fun EnrollmentProofRoute(
 				onNavigateToUpdatePassword()
 
 			is Enrollment.Effect.OpenEnrollmentProof -> {
-				if (!externalActions.openFile(effect.file)) {
-					showSnackBar(SnackBarMessage(message = proofViewerMissingMessage))
-				}
-				dismiss()
+				val opened = externalActions.openFile(effect.file)
+
+				viewModel.openEnrollmentProofCompletedAction(opened = opened)
+
+				// With no viewer the dialog stays until the machine says so: its snackbar is
+				// an effect of this same ViewModel, and popping the entry now would clear it
+				// (and raise the guard above) before the message got here.
+				if (opened) dismiss()
 			}
 
 			is Enrollment.Effect.ShowSnackBar -> {

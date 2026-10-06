@@ -17,16 +17,25 @@ internal fun MachineDefinitionBuilder<Summary.State>.contentTransitions(
 			state.copy(isUserRefreshing = true)
 		}
 
-		on<Summary.Action.OpenProfilePictureSettings>(
-			emits = setOf(Summary.Effect.ShowProfilePictureSettingsDialog::class)
-		) { state, _ ->
+		// The options depend on the device too (taking a picture needs a camera), so the
+		// dialog opens once the device has answered.
+		on<Summary.Action.OpenProfilePictureSettings> { state, _ ->
 			if (!state.isUserRefreshing && !state.isProfilePictureLoading) {
-				host.sendEffect(
-					Summary.Effect.ShowProfilePictureSettingsDialog(
-						showRemove = state.profilePictureUrl.isNotEmpty()
-					)
-				)
+				machine.resolveCameraAvailability(host = host)
 			}
+
+			state
+		}
+
+		on<SummaryInternalEvent.CameraAvailabilityResolved>(
+			emits = setOf(Summary.Effect.ShowProfilePictureSettingsDialog::class)
+		) { state, event ->
+			host.sendEffect(
+				Summary.Effect.ShowProfilePictureSettingsDialog(
+					showRemove = state.profilePictureUrl.isNotEmpty(),
+					isCameraAvailable = event.isCameraAvailable
+				)
+			)
 
 			state
 		}

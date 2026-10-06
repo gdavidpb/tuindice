@@ -32,7 +32,6 @@ class TuIndiceNavDisplayUiTest {
 						startKey = MainDestination.GooglePlayServicesUnavailableDialog
 					),
 					onConfirmExitClick = {},
-					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
 					onRecordViewModeChangeAvailable = {},
 					onRecordTermSelectionAvailable = {},
@@ -58,7 +57,6 @@ class TuIndiceNavDisplayUiTest {
 						startKey = MainDestination.GooglePlayServicesUnavailableDialog
 					),
 					onConfirmExitClick = { confirmExitCalls++ },
-					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
 					onRecordViewModeChangeAvailable = {},
 					onRecordTermSelectionAvailable = {},
@@ -85,7 +83,6 @@ class TuIndiceNavDisplayUiTest {
 						startKey = MainDestination.GooglePlayServicesUnavailableDialog
 					),
 					onConfirmExitClick = { confirmExitCalls++ },
-					isCameraAvailable = false,
 					onNavigateToExternalResource = {},
 					onRecordViewModeChangeAvailable = {},
 					onRecordTermSelectionAvailable = {},

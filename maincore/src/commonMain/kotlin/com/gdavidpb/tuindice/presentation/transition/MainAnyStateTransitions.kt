@@ -14,6 +14,7 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 ) {
 	fromAny {
 		on<Main.Action.StartUp> { state, _ ->
+			machine.observeOutdatedApp(host = host)
 			machine.startUp(host = host)
 			state
 		}
@@ -91,6 +92,10 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 		}
 
 		onTo<MainInternalEvent.OutdatedAppResolved, Main.State.OutdatedApp> { _, event ->
+			Main.State.OutdatedApp(outdatedAppState = event.outdatedAppState)
+		}
+
+		onTo<MainInternalEvent.OutdatedAppObserved, Main.State.OutdatedApp> { _, event ->
 			Main.State.OutdatedApp(outdatedAppState = event.outdatedAppState)
 		}
 

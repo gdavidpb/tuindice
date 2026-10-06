@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.testing
 
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.base.domain.dispatcher.DefaultTuIndiceDispatchers
+import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.User
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
@@ -10,9 +12,12 @@ import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
 import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
+import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.domain.usecase.EnsureMessagingSubscribedUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
+import com.gdavidpb.tuindice.domain.usecase.ObserveOutdatedAppUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.ScheduleSyncUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastMainSectionUseCase
@@ -24,6 +29,7 @@ import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
+import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
@@ -56,7 +62,8 @@ fun createBrowserViewModel(): BrowserViewModel = BrowserViewModel(
 fun createSummaryViewModel(
 	userRepository: UserRepository = FakeUserRepository(),
 	syncStatusRepository: SyncStatusRepository = FakeSyncStatusRepository(),
-	syncRepository: SyncRepository = FakeSyncRepository()
+	syncRepository: SyncRepository = FakeSyncRepository(),
+	deviceInfoRepository: DeviceInfoRepository = FakeDeviceInfoRepository()
 ): SummaryViewModel {
 	return SummaryViewModel(
 		screenMachine = SummaryMachine(
@@ -67,6 +74,10 @@ fun createSummaryViewModel(
 			observeSyncUseCase = ObserveSyncUseCase(
 				syncStatusRepository = syncStatusRepository,
 				syncRepository = syncRepository,
+				reportingRepository = RecordingReportingRepository()
+			),
+			getCameraAvailabilityUseCase = GetCameraAvailabilityUseCase(
+				deviceInfoRepository = deviceInfoRepository,
 				reportingRepository = RecordingReportingRepository()
 			),
 			updateUserUseCase = UpdateUserUseCase(
@@ -103,6 +114,7 @@ fun createMainViewModel(
 	),
 	configRepository: FakeConfigRepository = FakeConfigRepository(),
 	deviceInfoRepository: DeviceInfoRepository = FakeDeviceInfoRepository(),
+	outdatedAppEventRepository: OutdatedAppEventRepository = OutdatedAppEventDataSource(),
 	credentialsRepository: CredentialsRepository = FakeCredentialsRepository(),
 	syncRepository: SyncRepository = FakeSyncRepository(),
 	messagingRepository: MessagingRepository = FakeMessagingRepository(),
@@ -110,7 +122,8 @@ fun createMainViewModel(
 	updateRepository: FakeUpdateRepository = FakeUpdateRepository(),
 	applicationRepository: RecordingApplicationRepository = RecordingApplicationRepository(),
 	reportingRepository: RecordingReportingRepository = RecordingReportingRepository(),
-	eventPublisher: EventPublisher = NoOpEventPublisher
+	eventPublisher: EventPublisher = NoOpEventPublisher,
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
 ): MainViewModel {
 	return MainViewModel(
 		screenMachine = MainMachine(
@@ -122,6 +135,10 @@ fun createMainViewModel(
 				applicationRepository = applicationRepository,
 				reportingRepository = reportingRepository,
 				exceptionHandler = StartUpExceptionHandler()
+			),
+			observeOutdatedAppUseCase = ObserveOutdatedAppUseCase(
+				outdatedAppEventRepository = outdatedAppEventRepository,
+				reportingRepository = reportingRepository
 			),
 			requestReviewUseCase = RequestReviewUseCase(
 				settingsRepository = settingsRepository,
@@ -151,7 +168,8 @@ fun createMainViewModel(
 				reportingRepository = reportingRepository
 			)
 		),
-		eventPublisher = eventPublisher
+		eventPublisher = eventPublisher,
+		dispatchers = dispatchers
 	)
 }
 

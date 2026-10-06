@@ -17,6 +17,9 @@ object Enrollment {
 	sealed class Action : ViewAction {
 		data object FetchEnrollmentProof : Action()
 		data object OpenSavedEnrollmentProof : Action()
+
+		// What came of handing the file to the device: the route opens the viewer and tells.
+		class OpenEnrollmentProofCompleted(val opened: Boolean) : Action()
 	}
 
 	sealed class Effect : ViewEffect {

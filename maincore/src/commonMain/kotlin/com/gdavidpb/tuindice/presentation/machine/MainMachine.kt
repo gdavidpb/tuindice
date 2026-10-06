@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
 import com.gdavidpb.tuindice.base.presentation.statemachine.ScreenMachine
 import com.gdavidpb.tuindice.domain.usecase.EnsureMessagingSubscribedUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
+import com.gdavidpb.tuindice.domain.usecase.ObserveOutdatedAppUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.ScheduleSyncUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastMainSectionUseCase
@@ -16,6 +17,7 @@ import com.gdavidpb.tuindice.domain.usecase.result.StartUpResult
 import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.mapper.toDestination
 import com.gdavidpb.tuindice.presentation.transition.mainAnyStateTransitions
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.collect
 import org.jetbrains.compose.resources.getString
 import tuindice.maincore.generated.resources.Res
@@ -23,12 +25,17 @@ import tuindice.maincore.generated.resources.snack_session_reset_on_startup
 
 class MainMachine(
 	private val startUpUseCase: StartUpUseCase,
+	private val observeOutdatedAppUseCase: ObserveOutdatedAppUseCase,
 	private val requestReviewUseCase: RequestReviewUseCase,
 	private val getUpdateInfoUseCase: GetUpdateInfoUseCase,
 	private val scheduleSyncUseCase: ScheduleSyncUseCase,
 	private val ensureMessagingSubscribedUseCase: EnsureMessagingSubscribedUseCase,
 	private val setLastMainSectionUseCase: SetLastMainSectionUseCase
 ) : ScreenMachine<Main.State, Main.Effect> {
+	// StartUp is dispatched again when a failed startup is retried, and launchMachineJob
+	// accumulates rather than replaces: this handle keeps a single observer of the refusals.
+	private var outdatedAppObservationJob: Job? = null
+
 	override fun initialState(): Main.State = Main.State.Starting
 
 	override fun define(host: MachineHost<Main.Effect>): MachineDefinition<Main.State> {
@@ -52,6 +59,24 @@ class MainMachine(
 					is UseCaseState.Error -> host.processInternalEvent(
 						MainInternalEvent.StartUpFailed(
 							noServices = useCaseState.error is StartUpUseCaseError.NoServices
+						)
+					)
+				}
+			}
+		}
+	}
+
+	// The refusals are not replayed, so this starts with the machine (its first input) rather
+	// than once the startup has resolved: a request made in between must not go unheard.
+	internal fun observeOutdatedApp(host: MachineHost<Main.Effect>) {
+		if (outdatedAppObservationJob?.isActive == true) return
+
+		outdatedAppObservationJob = host.launchMachineJob {
+			observeOutdatedAppUseCase.execute(Unit).collect { useCaseState ->
+				if (useCaseState is UseCaseState.Data) {
+					host.processInternalEvent(
+						MainInternalEvent.OutdatedAppObserved(
+							outdatedAppState = useCaseState.value
 						)
 					)
 				}

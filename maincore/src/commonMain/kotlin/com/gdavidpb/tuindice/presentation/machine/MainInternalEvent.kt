@@ -7,7 +7,7 @@ import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 
 /**
  * Internal machine inputs for the app host: the startup lifecycle split per outcome,
- * plus the platform flow triggers (review, update).
+ * the version refusals observed afterwards, plus the platform flow triggers (review, update).
  */
 sealed interface MainInternalEvent {
 	data object StartUpStarting : MainInternalEvent
@@ -22,6 +22,11 @@ sealed interface MainInternalEvent {
 	) : MainInternalEvent
 
 	data class OutdatedAppResolved(
+		val outdatedAppState: OutdatedAppState
+	) : MainInternalEvent
+
+	/** A request made while the app was running was refused for this version. */
+	data class OutdatedAppObserved(
 		val outdatedAppState: OutdatedAppState
 	) : MainInternalEvent
 

@@ -71,7 +71,10 @@ object Summary {
 	}
 
 	sealed class Effect : ViewEffect {
-		class ShowProfilePictureSettingsDialog(val showRemove: Boolean) : Effect()
+		class ShowProfilePictureSettingsDialog(
+			val showRemove: Boolean,
+			val isCameraAvailable: Boolean
+		) : Effect()
 		data object ShowRemoveProfilePictureConfirmationDialog : Effect()
 		data object OpenCamera : Effect()
 		data object OpenPicker : Effect()

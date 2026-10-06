@@ -5,9 +5,12 @@ import com.gdavidpb.tuindice.base.domain.dispatcher.TuIndiceDispatchers
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.User
+import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
+import com.gdavidpb.tuindice.summary.domain.usecase.GetCameraAvailabilityUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
@@ -23,6 +26,7 @@ import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
 import com.gdavidpb.tuindice.summary.testing.FakeSyncProgressRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeDeviceInfoRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
@@ -69,6 +73,118 @@ class SummaryViewModelContractTest {
 
 				assertIs<Summary.Effect.OpenPicker>(pickerEffect.await())
 			} finally {
+				stateCollector.cancel()
+			}
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun openProfilePictureSettings_tellsTheDialogWhatTheDeviceAndTheStateAllow() = runTest {
+		withMainDispatcher { dispatchers ->
+			// Removing is offered by the state (there is a picture or not), taking a picture by
+			// the device (it has a camera or not): every pair travels in the one effect.
+			for (hasPicture in listOf(true, false)) {
+				for (hasCamera in listOf(true, false)) {
+					val viewModel = createViewModel(
+						dispatchers = dispatchers,
+						userRepository = RecordingUserRepository(
+							users = flowOf(
+								DEFAULT_SUMMARY_USER.copy(
+									pictureUrl = if (hasPicture) DEFAULT_SUMMARY_USER.pictureUrl else ""
+								)
+							)
+						),
+						deviceInfoRepository = FakeDeviceInfoRepository(deviceHasCamera = hasCamera)
+					)
+					val stateCollector = backgroundScope.launchStateCollector(
+						flow = viewModel.state,
+						testScheduler = testScheduler
+					)
+
+					try {
+						viewModel.awaitContent { true }
+
+						val effect = async { viewModel.effect.first() }
+						viewModel.openProfilePictureSettingsAction()
+
+						val dialog = assertIs<Summary.Effect.ShowProfilePictureSettingsDialog>(
+							effect.await()
+						)
+						assertEquals(hasPicture, dialog.showRemove)
+						assertEquals(hasCamera, dialog.isCameraAvailable)
+					} finally {
+						stateCollector.cancel()
+					}
+				}
+			}
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun openProfilePictureSettings_stillOpensWithoutTheTakeOption_whenTheDeviceCannotSay() = runTest {
+		withMainDispatcher { dispatchers ->
+			val viewModel = createViewModel(
+				dispatchers = dispatchers,
+				deviceInfoRepository = object : DeviceInfoRepository by FakeDeviceInfoRepository() {
+					override fun hasCamera(): Boolean = error("summary-view-model-camera")
+				}
+			)
+			val stateCollector = backgroundScope.launchStateCollector(
+				flow = viewModel.state,
+				testScheduler = testScheduler
+			)
+
+			try {
+				viewModel.awaitContent { true }
+
+				val effect = async { viewModel.effect.first() }
+				viewModel.openProfilePictureSettingsAction()
+
+				val dialog = assertIs<Summary.Effect.ShowProfilePictureSettingsDialog>(
+					effect.await()
+				)
+				assertEquals(true, dialog.showRemove)
+				assertEquals(false, dialog.isCameraAvailable)
+			} finally {
+				stateCollector.cancel()
+			}
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun openProfilePictureSettings_doesNotAskTheDevice_whileThePictureIsBeingChanged() = runTest {
+		withMainDispatcher { dispatchers ->
+			val deviceInfoRepository = CountingDeviceInfoRepository()
+			val userRepository = BlockingUploadUserRepository()
+			val viewModel = createViewModel(
+				dispatchers = dispatchers,
+				userRepository = userRepository,
+				deviceInfoRepository = deviceInfoRepository
+			)
+			val stateCollector = backgroundScope.launchStateCollector(
+				flow = viewModel.state,
+				testScheduler = testScheduler
+			)
+
+			try {
+				viewModel.awaitContent { true }
+
+				viewModel.uploadProfilePictureAction(PlatformFile("/tmp/profile.jpg"))
+				viewModel.awaitContent { content -> content.isProfilePictureLoading }
+
+				viewModel.openProfilePictureSettingsAction()
+				// The picker goes through the same queue: once its effect is out, the open
+				// request before it has been resolved, and it opened nothing.
+				val effect = async { viewModel.effect.first() }
+				viewModel.pickProfilePictureAction()
+
+				assertIs<Summary.Effect.OpenPicker>(effect.await())
+				assertEquals(0, deviceInfoRepository.hasCameraCalls)
+			} finally {
+				userRepository.finishUpload()
 				stateCollector.cancel()
 			}
 		}
@@ -287,7 +403,8 @@ class SummaryViewModelContractTest {
 		dispatchers: TuIndiceDispatchers,
 		userRepository: UserRepository = RecordingUserRepository(users = flowOf(DEFAULT_SUMMARY_USER)),
 		syncStatusRepository: SyncStatusRepository = FakeSyncStatusRepository(),
-		syncRepository: SyncRepository = FakeSyncRepository()
+		syncRepository: SyncRepository = FakeSyncRepository(),
+		deviceInfoRepository: DeviceInfoRepository = FakeDeviceInfoRepository()
 	): SummaryViewModel {
 		return SummaryViewModel(
 			screenMachine = SummaryMachine(
@@ -298,6 +415,10 @@ class SummaryViewModelContractTest {
 				observeSyncUseCase = ObserveSyncUseCase(
 					syncStatusRepository = syncStatusRepository,
 					syncRepository = syncRepository,
+					reportingRepository = RecordingReportingRepository()
+				),
+				getCameraAvailabilityUseCase = GetCameraAvailabilityUseCase(
+					deviceInfoRepository = deviceInfoRepository,
 					reportingRepository = RecordingReportingRepository()
 				),
 				updateUserUseCase = UpdateUserUseCase(
@@ -344,6 +465,36 @@ class SummaryViewModelContractTest {
 
 		fun failRefresh() {
 			refreshFailure.complete(Unit)
+		}
+	}
+
+	// An upload that stays in flight until told: the picture is loading for as long as it does.
+	private class BlockingUploadUserRepository : UserRepository {
+		private val uploadFinished = CompletableDeferred<Unit>()
+
+		override suspend fun observeUserFlow(): Flow<User> = flowOf(DEFAULT_SUMMARY_USER)
+
+		override suspend fun updateUser() = Unit
+
+		override suspend fun uploadProfilePicture(file: PlatformFile): ProfilePicture {
+			uploadFinished.await()
+			return DEFAULT_SUMMARY_PROFILE_PICTURE
+		}
+
+		override suspend fun removeProfilePicture() = Unit
+
+		fun finishUpload() {
+			uploadFinished.complete(Unit)
+		}
+	}
+
+	private class CountingDeviceInfoRepository : DeviceInfoRepository by FakeDeviceInfoRepository() {
+		var hasCameraCalls = 0
+			private set
+
+		override fun hasCamera(): Boolean {
+			hasCameraCalls++
+			return true
 		}
 	}
 

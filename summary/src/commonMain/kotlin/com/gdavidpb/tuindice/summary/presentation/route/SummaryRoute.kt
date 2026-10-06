@@ -18,7 +18,7 @@ import io.github.vinceglb.filekit.dialogs.openFilePicker
 @Composable
 fun SummaryRoute(
 	onNavigateToUpdatePassword: () -> Unit,
-	onNavigateToProfilePictureSettingsDialog: (showRemove: Boolean) -> Unit,
+	onNavigateToProfilePictureSettingsDialog: (showRemove: Boolean, isCameraAvailable: Boolean) -> Unit,
 	onNavigateToRemoveProfilePictureConfirmationDialog: () -> Unit,
 	showSnackBar: (message: SnackBarMessage) -> Unit,
 	viewModel: SummaryViewModel
@@ -49,7 +49,10 @@ fun SummaryRoute(
 				showSnackBar(SnackBarMessage(message = effect.message))
 
 			is Summary.Effect.ShowProfilePictureSettingsDialog ->
-				onNavigateToProfilePictureSettingsDialog(effect.showRemove)
+				onNavigateToProfilePictureSettingsDialog(
+					effect.showRemove,
+					effect.isCameraAvailable
+				)
 
 			is Summary.Effect.ShowRemoveProfilePictureConfirmationDialog ->
 				onNavigateToRemoveProfilePictureConfirmationDialog()

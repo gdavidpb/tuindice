@@ -46,7 +46,6 @@ import com.gdavidpb.tuindice.base.domain.repository.UsageDataConsentRepository
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
-import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
 import com.gdavidpb.tuindice.presentation.navigation.NavEntryStoresViewModel
 import com.gdavidpb.tuindice.security.domain.model.Attestation
@@ -110,7 +109,6 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 					syncStatusRepository = syncStatusRepository,
 					reviewRepository = reviewRepository,
@@ -152,7 +150,6 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 					syncStatusRepository = syncStatusRepository,
 					reviewRepository = reviewRepository,
@@ -280,16 +277,15 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = FakeUpdateRepository(),
-					outdatedAppEventRepository = outdatedAppEventRepository,
 					viewModel = createMainViewModel(
 						sessionRepository = sessionRepository,
 						settingsRepository = settingsRepository,
 						deviceInfoRepository = FakeDeviceInfoRepository(versionCode = 1),
+						outdatedAppEventRepository = outdatedAppEventRepository,
 						eventPublisher = eventPublisher
 					)
 				)
@@ -315,7 +311,7 @@ class TuIndiceAppHostRouteUiTest {
 			val gateEvents = eventPublisher.events.drop(eventCountBeforeSignIn)
 			assertTrue(
 				gateEvents.any { event ->
-					event.isMainTransition(event = "show_outdated_app", to = "outdated_app")
+					event.isMainTransition(event = "outdated_app_observed", to = "outdated_app")
 				},
 				"Expected sign-in 426 to show the global outdated screen directly."
 			)
@@ -345,7 +341,6 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
@@ -383,7 +378,6 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
@@ -427,7 +421,6 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = browserRepository,
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
@@ -527,7 +520,6 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					pendingChangesRepository = FakePendingChangesRepository(pendingChanges = pendingChanges),
 					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 					syncStatusRepository = syncStatusRepository,
@@ -582,7 +574,6 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					pendingChangesRepository = pendingChangesRepository,
 					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
 					syncStatusRepository = syncStatusRepository,
@@ -676,7 +667,6 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					sessionInvalidationRepository = sessionInvalidationRepository,
 					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
@@ -821,7 +811,6 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					sessionInvalidationRepository = sessionInvalidationRepository,
 					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
@@ -941,7 +930,6 @@ class TuIndiceAppHostRouteUiTest {
 					TuIndiceAppHostRoute(
 						onConfirmExitClick = {},
 							browserRepository = RecordingBrowserRepository(),
-						deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 						sessionInvalidationRepository = sessionInvalidationRepository,
 						syncStatusRepository = syncStatusRepository,
 						reviewRepository = RecordingReviewRepository(),
@@ -1064,7 +1052,6 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					deviceInfoRepository = FakeDeviceInfoRepository(hasCamera = false),
 					sessionInvalidationRepository = sessionInvalidationRepository,
 					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
@@ -1119,7 +1106,6 @@ class TuIndiceAppHostRouteUiTest {
 		single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 		single { testSessionCoroutineScope() }
 		single<EventPublisher> { NoOpEventPublisher }
-		single<OutdatedAppEventRepository> { OutdatedAppEventDataSource() }
 		single<PendingChangesRepository> { FakePendingChangesRepository() }
 		single<ApplicationRepository> { RecordingApplicationRepository() }
 		single<SettingsRepository> { FakeSettingsRepository() }
