@@ -1,9 +1,12 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationEpochMillis
 import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationLocalDate
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeDisabled
@@ -11,6 +14,7 @@ import com.gdavidpb.tuindice.testkit.ui.assertNodeEnabled
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
+import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -36,6 +40,28 @@ class EvaluationDatePickerUiTest {
 		onNodeWithTag(EvaluationsUiTags.EvaluationDateNoDateButton).performClick()
 
 		assertEquals(null, selectedDate)
+	}
+
+	@Test
+	fun when_dateIsCommitted_then_selectButtonReadsTheCapitalizedShortWeekdayAndTheDate() = runTuIndiceUiTest {
+		val selectedDate = mutableStateOf<Long?>(LocalDate(2026, 1, 15).toEvaluationEpochMillis())
+
+		setTuIndiceTestContent {
+			EvaluationDatePicker(
+				selectedScheduleMode = EvaluationScheduleMode.DATED,
+				selectedDate = selectedDate.value,
+				onDateChange = {}
+			)
+		}
+
+		onNodeWithTag(EvaluationsUiTags.EvaluationDateSelectButton).assertTextEquals("Jue — 15/01/26")
+
+		runOnIdle {
+			selectedDate.value = null
+		}
+
+		// Without a date the button asks for one instead.
+		onNodeWithTag(EvaluationsUiTags.EvaluationDateSelectButton).assertTextEquals("Elige una fecha")
 	}
 
 	@Test

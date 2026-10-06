@@ -3,9 +3,10 @@ package com.gdavidpb.tuindice.evaluations.ui.view
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.onAllNodesWithText
-import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
+import com.gdavidpb.tuindice.evaluations.testing.FIXTURE_OVERDUE_DATE_TEXT
 import com.gdavidpb.tuindice.evaluations.testing.evaluationItemFixture
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -32,7 +33,7 @@ class EvaluationItemViewUiTest {
 		assertNodeVisible(EvaluationsUiTags.evaluationItemCard(item.evaluationId))
 		assertTrue(onAllNodesWithText(item.subjectNameText).fetchSemanticsNodes().isEmpty())
 		onNodeWithText(item.subjectCodeText).assertIsDisplayed()
-		onNodeWithText(item.dateText).assertIsDisplayed()
+		onNodeWithText(FIXTURE_OVERDUE_DATE_TEXT).assertIsDisplayed()
 		onNodeWithText(item.typeNameText).assertIsDisplayed()
 		onNodeWithText(item.statusText).assertIsDisplayed()
 		onNodeWithText(item.gradeText).assertIsDisplayed()

@@ -70,6 +70,7 @@
 	<string name="evaluation_date_this_week">Este %1$s</string>
 	<string name="evaluation_date_next_week">El próximo %1$s</string>
 	<string name="evaluation_date_weeks_ahead">En %1$d semanas</string>
+	<string name="evaluation_date_exact_header">%1$s %2$s de %3$s</string>
 
 	<string name="error_evaluation_subject_missed">Debes seleccionar una materia</string>
 	<string name="error_evaluation_type_missed">Debes seleccionar un tipo</string>

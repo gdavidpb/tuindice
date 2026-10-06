@@ -6,6 +6,7 @@ import androidx.compose.material.icons.outlined.CalendarToday
 import androidx.compose.material.icons.outlined.Quiz
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateGroup
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
@@ -78,6 +79,31 @@ class EvaluationsWeekGroupItemMappingTest {
 		assertEquals(
 			listOf(DEFAULT_PENDING_EVALUATION.id),
 			groups.flatMap { group -> group.items }.map { item -> item.evaluationId }
+		)
+	}
+
+	@Test
+	fun toEvaluationItemList_takesTheGroupTitleAndTheItemDateTextFromTheMapping() {
+		val continuous = DEFAULT_PENDING_EVALUATION.copy(
+			id = "continuous-evaluation",
+			scheduleMode = EvaluationScheduleMode.CONTINUOUS,
+			date = null
+		)
+		val dated = DEFAULT_PENDING_EVALUATION.copy(
+			date = LocalDate(2026, 5, 21).toEvaluationEpochMillis()
+		)
+
+		val groups = listOf(continuous, dated).toEvaluationItemList(
+			mapping = testEvaluationItemMapping(),
+			attempts = listOf(DEFAULT_EVALUATION_SUBJECT)
+		)
+
+		// Dated first, then the ones without a date: the order comes from the instant, never
+		// from the text of the date.
+		assertEquals(listOf(DATED_DATE_TEXT, CONTINUOUS_DATE_TEXT), groups.map { group -> group.title })
+		assertEquals(
+			listOf(DATED_DATE_TEXT, CONTINUOUS_DATE_TEXT),
+			groups.flatMap { group -> group.items }.map { item -> item.dateText }
 		)
 	}
 
@@ -187,15 +213,15 @@ private fun testEvaluationItemMapping() = EvaluationItemMapping(
 	gradesIcon = { Icons.Outlined.AssignmentTurnedIn },
 	dateGroupTitle = { group ->
 		when (group) {
-			EvaluationDateGroup.Continuous -> "Evaluacion continua"
-			else -> "Fecha"
+			EvaluationDateGroup.Continuous -> CONTINUOUS_DATE_TEXT
+			else -> DATED_DATE_TEXT
 		}
 	},
 	dateHeaderText = { evaluation ->
-		if (evaluation.scheduleMode == EvaluationScheduleMode.CONTINUOUS) "Evaluacion continua" else "Fecha"
+		if (evaluation.scheduleMode == EvaluationScheduleMode.CONTINUOUS) CONTINUOUS_DATE_TEXT else DATED_DATE_TEXT
 	},
 	dateText = { evaluation ->
-		if (evaluation.scheduleMode == EvaluationScheduleMode.CONTINUOUS) "Evaluacion continua" else "Fecha"
+		if (evaluation.scheduleMode == EvaluationScheduleMode.CONTINUOUS) CONTINUOUS_DATE_TEXT else DATED_DATE_TEXT
 	},
 	highlightTone = { state ->
 		when (state) {
@@ -205,3 +231,6 @@ private fun testEvaluationItemMapping() = EvaluationItemMapping(
 		}
 	}
 )
+
+private val CONTINUOUS_DATE_TEXT = UiText.Raw("Evaluacion continua")
+private val DATED_DATE_TEXT = UiText.Raw("Fecha")

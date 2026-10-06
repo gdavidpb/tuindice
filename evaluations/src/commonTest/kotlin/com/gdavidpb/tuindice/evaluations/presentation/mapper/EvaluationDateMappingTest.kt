@@ -1,13 +1,29 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.base.presentation.mapper.DateTextStyle
+import com.gdavidpb.tuindice.base.presentation.mapper.formatDate
+import com.gdavidpb.tuindice.base.presentation.mapper.toNameText
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateGroup
 import com.gdavidpb.tuindice.evaluations.presentation.utils.currentEvaluationLocalDate
 import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationEpochMillis
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
 import kotlinx.datetime.DatePeriod
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.Month
 import kotlinx.datetime.plus
+import tuindice.evaluations.generated.resources.Res
+import tuindice.evaluations.generated.resources.evaluation_date_exact_header
+import tuindice.evaluations.generated.resources.evaluation_date_next_week
+import tuindice.evaluations.generated.resources.evaluation_date_past_week
+import tuindice.evaluations.generated.resources.evaluation_date_this_week
+import tuindice.evaluations.generated.resources.evaluation_date_today
+import tuindice.evaluations.generated.resources.evaluation_date_tomorrow
+import tuindice.evaluations.generated.resources.evaluation_date_weeks_ahead
+import tuindice.evaluations.generated.resources.evaluation_date_yesterday
+import tuindice.evaluations.generated.resources.label_evaluation_no_date
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
@@ -87,6 +103,59 @@ class EvaluationDateMappingTest {
 	}
 
 	@Test
+	fun getLabel_whenGroupIsARelativeDayOrContinuous_describesItsOwnLabel() {
+		assertEquals(
+			UiText.Resource(Res.string.label_evaluation_no_date),
+			EvaluationDateGroup.Continuous.getLabel()
+		)
+		assertEquals(UiText.Resource(Res.string.evaluation_date_today), EvaluationDateGroup.Today.getLabel())
+		assertEquals(UiText.Resource(Res.string.evaluation_date_tomorrow), EvaluationDateGroup.Tomorrow.getLabel())
+		assertEquals(UiText.Resource(Res.string.evaluation_date_yesterday), EvaluationDateGroup.Yesterday.getLabel())
+	}
+
+	@Test
+	fun getLabel_whenGroupIsADayOfAWeek_describesItsPatternWithTheDateInside() {
+		val date = LocalDate(2026, 1, 15)
+		val millis = date.toEvaluationEpochMillis()
+
+		assertEquals(
+			UiText.Resource(
+				Res.string.evaluation_date_past_week,
+				listOf(millis.formatDate(DateTextStyle.WEEKDAY_PAST_DAY_MONTH))
+			),
+			EvaluationDateGroup.PastThisWeek(date).getLabel()
+		)
+		assertEquals(
+			UiText.Resource(
+				Res.string.evaluation_date_this_week,
+				listOf(millis.formatDate(DateTextStyle.WEEKDAY_DAY_MONTH))
+			),
+			EvaluationDateGroup.ThisWeek(date).getLabel()
+		)
+		assertEquals(
+			UiText.Resource(
+				Res.string.evaluation_date_next_week,
+				listOf(millis.formatDate(DateTextStyle.WEEKDAY_DAY_MONTH))
+			),
+			EvaluationDateGroup.NextWeek(date).getLabel()
+		)
+	}
+
+	@Test
+	fun getLabel_whenGroupIsWeeksAheadOrAnExactDate_describesTheCountOrTheCapitalizedDate() {
+		val date = LocalDate(2026, 1, 15)
+
+		assertEquals(
+			UiText.Resource(Res.string.evaluation_date_weeks_ahead, listOf(3L)),
+			EvaluationDateGroup.WeeksAhead(weeks = 3).getLabel()
+		)
+		assertEquals(
+			UiText.Capitalized(date.toEvaluationEpochMillis().formatDate(DateTextStyle.WEEKDAY_NUMERIC_DATE)),
+			EvaluationDateGroup.ExactDate(date).getLabel()
+		)
+	}
+
+	@Test
 	fun formatAsDayOfWeekAndDate_whenEvaluationIsContinuousOrUndated_returnsNoDateLabel() {
 		val continuousEvaluation = DEFAULT_PENDING_EVALUATION.copy(
 			scheduleMode = EvaluationScheduleMode.CONTINUOUS,
@@ -102,40 +171,62 @@ class EvaluationDateMappingTest {
 	}
 
 	@Test
-	fun formatAsDayOfWeekAndDate_whenEvaluationIsDated_formatsCapitalizedWeekdayAndNumericDate() {
+	fun formatAsDayOfWeekAndDate_whenEvaluationIsDated_describesTheCapitalizedWeekdayAndNumericDate() {
+		val date = LocalDate(2026, 1, 15).toEvaluationEpochMillis()
 		val evaluation = DEFAULT_PENDING_EVALUATION.copy(
 			scheduleMode = EvaluationScheduleMode.DATED,
-			date = LocalDate(2026, 1, 15).toEvaluationEpochMillis()
+			date = date
 		)
 
-		assertEquals("Jueves — 15/01/26", evaluation.formatAsDayOfWeekAndDate(NO_DATE_LABEL))
+		assertEquals(
+			UiText.Capitalized(date.formatDate(DateTextStyle.WEEKDAY_NUMERIC_DATE)),
+			evaluation.formatAsDayOfWeekAndDate(NO_DATE_LABEL)
+		)
 	}
 
 	@Test
-	fun formatAsExactDateHeader_whenEvaluationIsContinuous_returnsNoDateLabel() {
-		val evaluation = DEFAULT_PENDING_EVALUATION.copy(
+	fun formatAsExactDateHeader_whenEvaluationIsContinuousOrUndated_returnsNoDateLabel() {
+		val continuousEvaluation = DEFAULT_PENDING_EVALUATION.copy(
 			scheduleMode = EvaluationScheduleMode.CONTINUOUS,
+			date = daysFromToday(2)
+		)
+		val undatedEvaluation = DEFAULT_PENDING_EVALUATION.copy(
+			scheduleMode = EvaluationScheduleMode.DATED,
 			date = null
 		)
 
-		assertEquals(NO_DATE_LABEL, evaluation.formatAsExactDateHeader(NO_DATE_LABEL))
+		assertEquals(NO_DATE_LABEL, continuousEvaluation.formatAsExactDateHeader(NO_DATE_LABEL))
+		assertEquals(NO_DATE_LABEL, undatedEvaluation.formatAsExactDateHeader(NO_DATE_LABEL))
 	}
 
 	@Test
-	fun formatAsExactDateHeader_whenEvaluationIsDated_formatsWeekdayDayAndMonth() {
+	fun formatAsExactDateHeader_whenEvaluationIsDated_describesTheCapitalizedWeekdayTheDayAndTheCapitalizedMonth() {
 		val evaluation = DEFAULT_PENDING_EVALUATION.copy(
 			scheduleMode = EvaluationScheduleMode.DATED,
-			date = LocalDate(2026, 1, 15).toEvaluationEpochMillis()
+			date = LocalDate(2026, 2, 4).toEvaluationEpochMillis()
 		)
 
-		assertEquals("Jueves 15 de Enero", evaluation.formatAsExactDateHeader(NO_DATE_LABEL))
+		assertEquals(
+			UiText.Resource(
+				Res.string.evaluation_date_exact_header,
+				listOf(
+					UiText.Capitalized(DayOfWeek.WEDNESDAY.toNameText()),
+					"4",
+					UiText.Capitalized(Month.FEBRUARY.toNameText())
+				)
+			),
+			evaluation.formatAsExactDateHeader(NO_DATE_LABEL)
+		)
 	}
 
 	@Test
-	fun formatAsShortDayOfWeekAndDate_whenDateIsKnown_formatsCapitalizedShortWeekday() {
+	fun formatAsShortDayOfWeekAndDate_whenDateIsKnown_describesTheCapitalizedShortWeekdayAndNumericDate() {
 		val date = LocalDate(2026, 1, 15).toEvaluationEpochMillis()
 
-		assertEquals("Jue — 15/01/26", date.formatAsShortDayOfWeekAndDate())
+		assertEquals(
+			UiText.Capitalized(date.formatDate(DateTextStyle.SHORT_WEEKDAY_NUMERIC_DATE)),
+			date.formatAsShortDayOfWeekAndDate()
+		)
 	}
 
 	private fun localDateFromToday(days: Int): LocalDate {
@@ -147,4 +238,4 @@ class EvaluationDateMappingTest {
 	}
 }
 
-private const val NO_DATE_LABEL = "Sin fecha"
+private val NO_DATE_LABEL = UiText.Raw("Sin fecha")

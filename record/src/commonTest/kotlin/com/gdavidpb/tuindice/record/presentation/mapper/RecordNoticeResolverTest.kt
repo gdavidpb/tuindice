@@ -13,12 +13,18 @@ import com.gdavidpb.tuindice.base.domain.model.SyncReportStatus
 import com.gdavidpb.tuindice.base.domain.model.SyncSourceReport
 import com.gdavidpb.tuindice.base.domain.model.SyncSourceStatus
 import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.base.presentation.mapper.DateTextStyle
 import com.gdavidpb.tuindice.base.presentation.mapper.EnrollmentAnnulmentTexts
+import com.gdavidpb.tuindice.base.presentation.mapper.formatDate
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.record.domain.model.ObservedRecord
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.model.RecordNoticeKind
 import com.gdavidpb.tuindice.record.presentation.model.RecordNoticePlacement
 import com.gdavidpb.tuindice.record.testing.academicTerm
+import tuindice.record.generated.resources.Res
+import tuindice.record.generated.resources.record_notice_stale_message
+import tuindice.record.generated.resources.record_notice_stale_message_unknown
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -104,6 +110,37 @@ class RecordNoticeResolverTest {
 
 		assertEquals(RecordNoticeKind.StaleEnrollment, notice?.kind)
 		assertNull(notice?.title)
+	}
+
+	@Test
+	fun resolve_whenStaleAndTheLastReadIsKnown_describesTheMessageWithItsDayAndShortMonth() {
+		val readAt = 1_767_625_200_000L
+		val notice = resolveRecordNotice(
+			observed(
+				report = report(enrollmentStatus = SyncSourceStatus.Unavailable).copy(enrollmentReadAt = readAt),
+				hasCurrentTerm = true
+			)
+		)
+
+		assertEquals(
+			UiText.Resource(
+				Res.string.record_notice_stale_message,
+				listOf(readAt.formatDate(DateTextStyle.DAY_SHORT_MONTH))
+			),
+			notice?.message
+		)
+	}
+
+	@Test
+	fun resolve_whenStaleAndTheLastReadIsUnknown_describesTheMessageWithoutADate() {
+		val notice = resolveRecordNotice(
+			observed(
+				report = report(enrollmentStatus = SyncSourceStatus.Unavailable),
+				hasCurrentTerm = true
+			)
+		)
+
+		assertEquals(UiText.Resource(Res.string.record_notice_stale_message_unknown), notice?.message)
 	}
 
 	@Test

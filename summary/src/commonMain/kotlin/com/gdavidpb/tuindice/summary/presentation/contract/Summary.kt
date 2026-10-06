@@ -49,7 +49,7 @@ object Summary {
 			val profilePictureLocalPreview: String? = null,
 			val isProfilePictureLoading: Boolean,
 			override val isUserRefreshing: Boolean,
-			val syncStatusText: String = "",
+			val syncStatusText: UiText = UiText.Empty,
 			override val sync: SummarySyncItem = SummarySyncItem()
 		) : State(isUserRefreshing = isUserRefreshing)
 

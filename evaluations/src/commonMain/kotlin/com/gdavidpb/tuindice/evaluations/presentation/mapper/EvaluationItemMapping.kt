@@ -27,6 +27,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateGroup
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
@@ -56,6 +57,7 @@ import tuindice.evaluations.generated.resources.evaluation_status_scheduled
 import tuindice.evaluations.generated.resources.evaluation_test
 import tuindice.evaluations.generated.resources.evaluation_workshop
 import tuindice.evaluations.generated.resources.evaluation_written_work
+import tuindice.evaluations.generated.resources.label_evaluation_no_date
 
 data class EvaluationItemMapping(
 	val evaluationName: (type: EvaluationType, ordinal: Int) -> String,
@@ -68,16 +70,14 @@ data class EvaluationItemMapping(
 	val typeIcon: (type: EvaluationType) -> ImageVector,
 	val dateIcon: (state: EvaluationState) -> ImageVector,
 	val gradesIcon: (state: EvaluationState) -> ImageVector,
-	val dateGroupTitle: (group: EvaluationDateGroup) -> String,
-	val dateHeaderText: (evaluation: Evaluation) -> String,
-	val dateText: (evaluation: Evaluation) -> String,
+	val dateGroupTitle: (group: EvaluationDateGroup) -> UiText,
+	val dateHeaderText: (evaluation: Evaluation) -> UiText,
+	val dateText: (evaluation: Evaluation) -> UiText,
 	val highlightTone: (state: EvaluationState) -> EvaluationHighlightTone
 )
 
 @Composable
 fun rememberEvaluationItemMapping(): EvaluationItemMapping {
-	val dateTextMapping = rememberEvaluationDateTextMapping()
-
 	val evaluationNamePattern = stringResource(Res.string.evaluation_name)
 	val evaluationGradePattern = stringResource(Res.string.evaluation_grade)
 	val evaluationScoreGradePattern = stringResource(Res.string.evaluation_score_grade)
@@ -91,7 +91,6 @@ fun rememberEvaluationItemMapping(): EvaluationItemMapping {
 	val typeLabels = rememberEvaluationTypeLabels()
 
 	return remember(
-		dateTextMapping,
 		evaluationNamePattern,
 		evaluationGradePattern,
 		evaluationScoreGradePattern,
@@ -105,7 +104,6 @@ fun rememberEvaluationItemMapping(): EvaluationItemMapping {
 		typeLabels
 	) {
 		buildEvaluationItemMapping(
-			dateTextMapping = dateTextMapping,
 			evaluationNamePattern = evaluationNamePattern,
 			evaluationGradePattern = evaluationGradePattern,
 			evaluationScoreGradePattern = evaluationScoreGradePattern,
@@ -123,7 +121,6 @@ fun rememberEvaluationItemMapping(): EvaluationItemMapping {
 
 suspend fun getEvaluationItemMapping(): EvaluationItemMapping {
 	return buildEvaluationItemMapping(
-		dateTextMapping = getEvaluationDateTextMapping(),
 		evaluationNamePattern = getString(Res.string.evaluation_name),
 		evaluationGradePattern = getString(Res.string.evaluation_grade),
 		evaluationScoreGradePattern = getString(Res.string.evaluation_score_grade),
@@ -139,7 +136,6 @@ suspend fun getEvaluationItemMapping(): EvaluationItemMapping {
 }
 
 private fun buildEvaluationItemMapping(
-	dateTextMapping: EvaluationDateTextMapping,
 	evaluationNamePattern: String,
 	evaluationGradePattern: String,
 	evaluationScoreGradePattern: String,
@@ -152,6 +148,8 @@ private fun buildEvaluationItemMapping(
 	evaluationContinuousStatusLabel: String,
 	typeLabels: Map<EvaluationType, String>
 ): EvaluationItemMapping {
+	val noDateLabel = UiText.Resource(Res.string.label_evaluation_no_date)
+
 	return EvaluationItemMapping(
 		evaluationName = { type, ordinal ->
 			evaluationNamePattern
@@ -199,13 +197,13 @@ private fun buildEvaluationItemMapping(
 			}
 		},
 		dateGroupTitle = { bucket ->
-			bucket.getLabel(dateTextMapping)
+			bucket.getLabel()
 		},
 		dateHeaderText = { evaluation: Evaluation ->
-			evaluation.formatAsExactDateHeader(noDateLabel = dateTextMapping.noDateLabel)
+			evaluation.formatAsExactDateHeader(noDateLabel = noDateLabel)
 		},
 		dateText = { evaluation: Evaluation ->
-			evaluation.formatAsDayOfWeekAndDate(noDateLabel = dateTextMapping.noDateLabel)
+			evaluation.formatAsDayOfWeekAndDate(noDateLabel = noDateLabel)
 		},
 		highlightTone = { state ->
 			when (state) {

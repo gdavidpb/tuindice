@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationWeekDayItem
 
 @Composable
@@ -31,7 +32,7 @@ fun EvaluationWeekDayView(
 		horizontalAlignment = Alignment.CenterHorizontally
 	) {
 		Text(
-			text = item.weekdayText,
+			text = item.weekdayText.asString(),
 			color = if (item.isSelected) selectedAccentColor else MaterialTheme.colorScheme.onSurfaceVariant,
 			style = MaterialTheme.typography.labelSmall,
 			fontWeight = FontWeight.Bold

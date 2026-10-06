@@ -1,73 +1,32 @@
 package com.gdavidpb.tuindice.base.presentation.mapper
 
+import com.gdavidpb.tuindice.base.presentation.model.UiText
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
+import kotlinx.datetime.Month
+import tuindice.base.generated.resources.Res
+import tuindice.base.generated.resources.date_month_names
+import tuindice.base.generated.resources.date_month_short_names
+import tuindice.base.generated.resources.date_month_year
+import tuindice.base.generated.resources.date_weekday_names
+import tuindice.base.generated.resources.date_weekday_short_names
 
-private val FULL_MONTH_NAMES = listOf(
-	"enero",
-	"febrero",
-	"marzo",
-	"abril",
-	"mayo",
-	"junio",
-	"julio",
-	"agosto",
-	"septiembre",
-	"octubre",
-	"noviembre",
-	"diciembre"
-)
+// The names live in the resources as lists, January and Monday first. What is built here says
+// which element of which list; it is read where the text is drawn.
 
-private val SHORT_MONTH_NAMES = listOf(
-	"ene",
-	"feb",
-	"mar",
-	"abr",
-	"may",
-	"jun",
-	"jul",
-	"ago",
-	"sep",
-	"oct",
-	"nov",
-	"dic"
-)
+/** The full name of a month, in lower case. */
+fun Month.toNameText(): UiText = UiText.ArrayItem(Res.array.date_month_names, ordinal)
 
-private val FULL_WEEKDAY_NAMES = listOf(
-	"lunes",
-	"martes",
-	"miércoles",
-	"jueves",
-	"viernes",
-	"sábado",
-	"domingo"
-)
+/** The three-letter name of a month, in lower case and without a period. */
+fun Month.toShortNameText(): UiText = UiText.ArrayItem(Res.array.date_month_short_names, ordinal)
 
-private val SHORT_WEEKDAY_NAMES = listOf(
-	"lun",
-	"mar",
-	"mié",
-	"jue",
-	"vie",
-	"sáb",
-	"dom"
-)
+/** The full name of a weekday, in lower case. */
+fun DayOfWeek.toNameText(): UiText = UiText.ArrayItem(Res.array.date_weekday_names, ordinal)
 
-fun LocalDate.formatLocalizedMonthYear(): String {
-	return "${localizedFullMonthNames()[month.ordinal]} $year"
-}
+/** The three-letter name of a weekday, in lower case. */
+fun DayOfWeek.toShortNameText(): UiText = UiText.ArrayItem(Res.array.date_weekday_short_names, ordinal)
 
-fun localizedShortWeekdayNames(): List<String> {
-	return SHORT_WEEKDAY_NAMES
-}
-
-fun localizedFullWeekdayNames(): List<String> {
-	return FULL_WEEKDAY_NAMES
-}
-
-fun localizedFullMonthNames(): List<String> {
-	return FULL_MONTH_NAMES
-}
-
-fun localizedShortMonthNames(): List<String> {
-	return SHORT_MONTH_NAMES
+/** The month of a date and its year: "abril 2026". */
+fun LocalDate.formatLocalizedMonthYear(): UiText {
+	return UiText.Resource(Res.string.date_month_year, listOf(month.toNameText(), year.toString()))
 }

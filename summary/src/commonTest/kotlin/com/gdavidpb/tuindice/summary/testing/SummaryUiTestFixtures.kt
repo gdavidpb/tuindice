@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.summary.testing
 
 import androidx.compose.ui.graphics.Color
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.mapper.toSummaryItemList
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryItemsColors
@@ -10,7 +11,7 @@ fun summaryContentState(
 	profilePictureUrl: String = "https://cdn.tuindice.app/profile.jpg",
 	isProfilePictureLoading: Boolean = false,
 	isUserRefreshing: Boolean = false,
-	syncStatusText: String = DEFAULT_SYNC_STATUS_TEXT
+	syncStatusText: UiText = UiText.Raw(DEFAULT_SYNC_STATUS_TEXT)
 ): Summary.State.Content = Summary.State.Content(
 	name = "Ana Diaz",
 	careerName = "Ingenieria Informatica",

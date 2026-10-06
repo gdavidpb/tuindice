@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceAnimation
@@ -183,7 +184,7 @@ fun SummaryContentView(
 
 			AnimatedSyncStatusText(
 				modifier = Modifier.weight(1f, fill = false),
-				text = state.syncStatusText,
+				text = state.syncStatusText.asString(),
 			)
 		}
 

@@ -7,6 +7,7 @@ import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationType
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.style.CourseCodeColorGenerator
 import com.gdavidpb.tuindice.base.utils.extension.formatGrade
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
@@ -26,7 +27,9 @@ import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation as Eva
 
 private const val PENDING_DATE = 1_900_000_000_000L
 private const val COMPLETED_DATE = 1_700_000_000_000L
-private const val FIXTURE_GROUP_TITLE = "Esta semana"
+const val FIXTURE_GROUP_TITLE = "Esta semana"
+const val FIXTURE_OVERDUE_DATE_TEXT = "Vencida"
+const val FIXTURE_PENDING_DATE_TEXT = "Manana"
 
 fun uiSubjects(): List<EditableAttemptDescriptor> = listOf(
 	DEFAULT_EVALUATION_SUBJECT,
@@ -108,7 +111,7 @@ fun evaluationItemFixture(
 		typeText = "Quiz",
 		typeNameText = "Quiz #1",
 		typeIcon = EvaluationType.QUIZ.asIcon(),
-		dateText = if (isOverdue) "Vencida" else "Manana",
+		dateText = UiText.Raw(if (isOverdue) FIXTURE_OVERDUE_DATE_TEXT else FIXTURE_PENDING_DATE_TEXT),
 		dateIcon = Icons.Outlined.Event,
 		gradeText = if (isOverdue) "-- / 35" else "10 / 35",
 		gradesText = if (isOverdue) "Sin nota / 35,00" else "10,00 / 35,00",
@@ -122,7 +125,7 @@ fun evaluationItemFixture(
 
 fun evaluationsGroupItemsFixture(): List<EvaluationsGroupItem> = listOf(
 	EvaluationsGroupItem(
-		title = FIXTURE_GROUP_TITLE,
+		title = UiText.Raw(FIXTURE_GROUP_TITLE),
 		items = listOf(
 			evaluationItemFixture(evaluationId = "evaluation-item-1", isClickable = true)
 		)
@@ -143,13 +146,13 @@ fun evaluationsWeekItemFixture(): EvaluationsWeekItem = EvaluationsWeekItem(
 	key = EvaluationsWeekKey.Academic(8),
 	labelText = "Semana 8",
 	days = listOf(
-		EvaluationWeekDayItem("LUN", "19", isSelected = false, hasEvaluations = false),
-		EvaluationWeekDayItem("MAR", "20", isSelected = false, hasEvaluations = true),
-		EvaluationWeekDayItem("MIE", "21", isSelected = true, hasEvaluations = true),
-		EvaluationWeekDayItem("JUE", "22", isSelected = false, hasEvaluations = true),
-		EvaluationWeekDayItem("VIE", "23", isSelected = false, hasEvaluations = false),
-		EvaluationWeekDayItem("SAB", "24", isSelected = false, hasEvaluations = false),
-		EvaluationWeekDayItem("DOM", "25", isSelected = false, hasEvaluations = false)
+		EvaluationWeekDayItem(UiText.Raw("LUN"), "19", isSelected = false, hasEvaluations = false),
+		EvaluationWeekDayItem(UiText.Raw("MAR"), "20", isSelected = false, hasEvaluations = true),
+		EvaluationWeekDayItem(UiText.Raw("MIE"), "21", isSelected = true, hasEvaluations = true),
+		EvaluationWeekDayItem(UiText.Raw("JUE"), "22", isSelected = false, hasEvaluations = true),
+		EvaluationWeekDayItem(UiText.Raw("VIE"), "23", isSelected = false, hasEvaluations = false),
+		EvaluationWeekDayItem(UiText.Raw("SAB"), "24", isSelected = false, hasEvaluations = false),
+		EvaluationWeekDayItem(UiText.Raw("DOM"), "25", isSelected = false, hasEvaluations = false)
 	)
 )
 
@@ -186,7 +189,7 @@ private fun List<Evaluation>.toFixtureEvaluationGroups(): List<EvaluationsGroupI
 
 	return listOf(
 		EvaluationsGroupItem(
-			title = FIXTURE_GROUP_TITLE,
+			title = UiText.Raw(FIXTURE_GROUP_TITLE),
 			items = map { evaluation -> evaluation.toFixtureEvaluationItem() }
 		)
 	)
@@ -227,7 +230,7 @@ private fun Evaluation.toFixtureEvaluationItem(): EvaluationItem {
 		typeText = uiTypeLabels().getValue(type),
 		typeNameText = "${uiTypeLabels().getValue(type)} #1",
 		typeIcon = type.asIcon(),
-		dateText = "Fecha",
+		dateText = UiText.Raw("Fecha"),
 			dateIcon = Icons.Outlined.Event,
 			gradeText = currentGrade?.let {
 				"${it.formatGrade(decimals = 0)} / ${maxGrade.formatGrade(decimals = 0)}"

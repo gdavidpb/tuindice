@@ -1,10 +1,13 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
+import com.gdavidpb.tuindice.base.presentation.mapper.toShortNameText
+import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationEpochMillis
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_EVALUATION_TERM
 import com.gdavidpb.tuindice.evaluations.testing.DEFAULT_PENDING_EVALUATION
+import kotlinx.datetime.DayOfWeek
 import kotlinx.datetime.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -39,6 +42,25 @@ class EvaluationsWeekItemMappingTest {
 		)
 		assertTrue(nextWeek.days.any { day -> day.dayText == "28" && day.hasEvaluations })
 		assertTrue(nextWeek.days.none { day -> day.isSelected })
+	}
+
+	@Test
+	fun buildEvaluationsWeekItems_describesEachDayByItsShortWeekdayNameInUpperCase() {
+		val items = buildEvaluationsWeekItems(
+			currentTerm = DEFAULT_EVALUATION_TERM,
+			evaluations = emptyList(),
+			weekLabelPattern = "Semana %1${'$'}d",
+			continuousLabel = "Continuas",
+			currentDate = LocalDate(2026, 5, 21)
+		)
+
+		// Every week runs from Monday to Sunday; the name is read where the strip is drawn.
+		items.forEach { item ->
+			assertEquals(
+				DayOfWeek.entries.map { day -> UiText.Uppercase(day.toShortNameText()) },
+				item.days.map { day -> day.weekdayText }
+			)
+		}
 	}
 
 	@Test

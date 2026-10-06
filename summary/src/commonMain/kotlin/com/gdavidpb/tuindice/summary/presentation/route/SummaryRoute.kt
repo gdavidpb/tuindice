@@ -7,16 +7,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.gdavidpb.tuindice.base.presentation.model.SnackBarMessage
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
-import com.gdavidpb.tuindice.summary.presentation.mapper.formatSyncTimestamp
+import com.gdavidpb.tuindice.summary.presentation.mapper.toSyncStatusText
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.ui.screen.SummaryScreen
 import io.github.vinceglb.filekit.FileKit
 import io.github.vinceglb.filekit.dialogs.FileKitType
 import io.github.vinceglb.filekit.dialogs.openCameraPicker
 import io.github.vinceglb.filekit.dialogs.openFilePicker
-import org.jetbrains.compose.resources.stringResource
-import tuindice.summary.generated.resources.Res
-import tuindice.summary.generated.resources.text_last_sync
 
 @Composable
 fun SummaryRoute(
@@ -28,12 +25,9 @@ fun SummaryRoute(
 ) {
 	val viewState by viewModel.state.collectAsStateWithLifecycle()
 	val sync = viewState.sync
-	// The state carries the instant and the text is read here: it says "today" or "yesterday"
+	// The state carries the instant and the text is described here: it says "today" or "yesterday"
 	// by the day it is rendered, not by the day the sync was observed.
-	val syncStatusText = stringResource(
-		Res.string.text_last_sync,
-		sync.lastSuccessfulSyncAt.formatSyncTimestamp()
-	)
+	val syncStatusText = sync.lastSuccessfulSyncAt.toSyncStatusText()
 	val screenState = when (val currentState = viewState) {
 		is Summary.State.Content -> currentState.copy(syncStatusText = syncStatusText)
 		else -> currentState

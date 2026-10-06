@@ -1,6 +1,8 @@
 package com.gdavidpb.tuindice.evaluations.presentation.model
 
+import com.gdavidpb.tuindice.base.presentation.model.UiText
+
 data class EvaluationsGroupItem(
-	val title: String,
+	val title: UiText,
 	val items: List<EvaluationItem>
 )
