@@ -17,6 +17,7 @@ xcuserdata/
 !/scripts/semgrep-architecture.sh
 !/scripts/validate-module-graph.sh
 !/scripts/verify-common-ui-test-density.sh
+!/scripts/verify-e2e-artifacts.sh
 !/scripts/verify-launch-argument-contract.sh
 /zz-probe-*.png
 /e2e/maestro/flows/**/zz-probe-*.yaml

@@ -109,6 +109,10 @@ Dependencias actuales:
   de los demás módulos.
 - `scenariokit`: núcleo de los escenarios E2E nativos (modelo de pasos, intérprete, contrato de driver y códec
   del catálogo); no depende de ningún módulo del proyecto y produce el framework estático iOS `ScenarioKit`.
+- `scenarios`: catálogo de escenarios E2E (cuentas, fixtures y escenarios escritos con el DSL de `scenariokit`);
+  depende de `:scenariokit` y de los módulos dueños de `*UiTags`, no produce binario y sus tests de host generan
+  `e2e/catalog/scenarios.json` y `iosApp/UITests/Generated/ScenarioTests.generated.swift`
+  (`./gradlew syncE2eArtifacts`).
 
 Acuerdo de límites:
 

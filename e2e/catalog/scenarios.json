@@ -1,0 +1,865 @@
+{
+    "accounts": [
+        {
+            "accessToken": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
+            "id": "canonical",
+            "mockScenario": "login-token-lifecycle",
+            "password": "123456",
+            "refreshToken": "refresh.mock.token.value",
+            "sessionId": "auth-session-initial",
+            "usbId": "11-11111"
+        },
+        {
+            "accessToken": null,
+            "id": "login-cancel",
+            "mockScenario": null,
+            "password": "login-cancel-pass",
+            "refreshToken": null,
+            "sessionId": null,
+            "usbId": "11-11111"
+        }
+    ],
+    "contractFixture": {
+        "absentTag": "driver_contract_never_present",
+        "disabledTag": "auth_sign_in_button",
+        "presentTag": "auth_sign_in_idle_container",
+        "start": {
+            "arguments": {
+                "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                "TUINDICE_E2E_NETWORK_AVAILABLE": "true"
+            },
+            "mockStates": []
+        },
+        "textFieldTag": "auth_usb_id_text_field"
+    },
+    "scenarios": [
+        {
+            "account": "login-cancel",
+            "android": {
+                "scenarioArg": "auth-login-cancel"
+            },
+            "covers": [
+                "auth.SignIn.ClickCancelSignIn"
+            ],
+            "id": "auth-login-cancel",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/AuthScenarioTests/test_auth_login_cancel"
+            },
+            "module": "auth",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": true,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true"
+                },
+                "mockStates": []
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_sign_in_idle_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
+                        "line": 18
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "name": "signInThroughUi",
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
+                        "line": 18
+                    },
+                    "steps": [
+                        {
+                            "q": {
+                                "type": "tag",
+                                "value": "auth_usb_id_text_field"
+                            },
+                            "requireEnabled": true,
+                            "site": {
+                                "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
+                                "line": 19
+                            },
+                            "type": "tap"
+                        },
+                        {
+                            "expect": "11-11111",
+                            "mode": "keys",
+                            "q": {
+                                "type": "tag",
+                                "value": "auth_usb_id_text_field"
+                            },
+                            "replace": false,
+                            "secure": false,
+                            "site": {
+                                "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
+                                "line": 20
+                            },
+                            "text": "1111111",
+                            "type": "enterText"
+                        },
+                        {
+                            "q": {
+                                "type": "tag",
+                                "value": "auth_password_text_field"
+                            },
+                            "requireEnabled": true,
+                            "site": {
+                                "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
+                                "line": 21
+                            },
+                            "type": "tap"
+                        },
+                        {
+                            "expect": null,
+                            "mode": "keys",
+                            "q": {
+                                "type": "tag",
+                                "value": "auth_password_text_field"
+                            },
+                            "replace": false,
+                            "secure": true,
+                            "site": {
+                                "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
+                                "line": 22
+                            },
+                            "text": "login-cancel-pass",
+                            "type": "enterText"
+                        },
+                        {
+                            "q": {
+                                "type": "tag",
+                                "value": "auth_keyboard_dismiss_area"
+                            },
+                            "requireEnabled": true,
+                            "site": {
+                                "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
+                                "line": 23
+                            },
+                            "type": "tap"
+                        },
+                        {
+                            "enabled": true,
+                            "q": {
+                                "type": "tag",
+                                "value": "auth_sign_in_button"
+                            },
+                            "site": {
+                                "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
+                                "line": 24
+                            },
+                            "timeoutMs": 5000,
+                            "type": "assertEnabled"
+                        },
+                        {
+                            "q": {
+                                "type": "tag",
+                                "value": "auth_sign_in_button"
+                            },
+                            "requireEnabled": true,
+                            "site": {
+                                "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
+                                "line": 25
+                            },
+                            "type": "tap"
+                        },
+                        {
+                            "basicAuth": "11-11111:login-cancel-pass",
+                            "method": "POST",
+                            "path": "/auth/v2/bootstrap",
+                            "site": {
+                                "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
+                                "line": 26
+                            },
+                            "timeoutMs": 20000,
+                            "type": "expectRequest"
+                        }
+                    ],
+                    "type": "group"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_sign_in_cancel_button"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
+                        "line": 20
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_sign_in_cancel_button"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
+                        "line": 21
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_sign_in_button"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
+                        "line": 22
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_sign_in_logging_in_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
+                        "line": 23
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitGone"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_usb_id_text_field"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
+                        "line": 24
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                }
+            ],
+            "stepsHash": "6ab082a7d7f7a2f9",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": "canonical",
+            "android": {
+                "scenarioArg": "evaluations-swipe-delete"
+            },
+            "covers": [
+                "evaluations.Evaluations.RemoveEvaluation"
+            ],
+            "id": "evaluations-swipe-delete",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/EvaluationsScenarioTests/test_evaluations_swipe_delete"
+            },
+            "module": "evaluations",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_MAIN_SECTION": "SUMMARY",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
+                    "TUINDICE_E2E_SEED_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
+                    "TUINDICE_E2E_SEED_COACHMARKS": "seen",
+                    "TUINDICE_E2E_SEED_PASSWORD": "123456",
+                    "TUINDICE_E2E_SEED_REFRESH_TOKEN": "refresh.mock.token.value",
+                    "TUINDICE_E2E_SEED_SESSION_ID": "auth-session-initial",
+                    "TUINDICE_E2E_SEED_USB_ID": "11-11111"
+                },
+                "mockStates": [
+                    {
+                        "scenario": "login-token-lifecycle",
+                        "state": "TokensIssued"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 25
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "maincore_tuindice_bottom_bar_evaluations_item"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 26
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluations_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 27
+                    },
+                    "timeoutMs": 30000,
+                    "type": "waitVisible"
+                },
+                {
+                    "direction": "contentDown",
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 28
+                    },
+                    "timeoutMs": 20000,
+                    "type": "scrollUntilVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 33
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluation_swipe_delete_action"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 34
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluation_swipe_to_dismiss_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 35
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluation_swipe_delete_action"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 36
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluation_delete_confirmation_message"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 37
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "base_confirmation_dialog_positive_button"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 38
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "base_snackbar_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 39
+                    },
+                    "timeoutMs": 20000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluations_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 40
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                }
+            ],
+            "stepsHash": "64d0d6f5c4c9816e",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": "canonical",
+            "android": {
+                "scenarioArg": "summary-profile-picture"
+            },
+            "covers": [
+                "summary.Summary.OpenProfilePictureSettings",
+                "summary.Summary.PickProfilePicture",
+                "summary.Summary.TakeProfilePicture",
+                "summary.Summary.RemoveProfilePicture",
+                "summary.Summary.ConfirmRemoveProfilePicture"
+            ],
+            "id": "summary-profile-picture",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/SummaryScenarioTests/test_summary_profile_picture"
+            },
+            "module": "summary",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_MAIN_SECTION": "SUMMARY",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
+                    "TUINDICE_E2E_SEED_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
+                    "TUINDICE_E2E_SEED_COACHMARKS": "seen",
+                    "TUINDICE_E2E_SEED_PASSWORD": "123456",
+                    "TUINDICE_E2E_SEED_REFRESH_TOKEN": "refresh.mock.token.value",
+                    "TUINDICE_E2E_SEED_SESSION_ID": "auth-session-initial",
+                    "TUINDICE_E2E_SEED_USB_ID": "11-11111"
+                },
+                "mockStates": [
+                    {
+                        "scenario": "login-token-lifecycle",
+                        "state": "TokensIssued"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 36
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "maincore_tuindice_bottom_bar_summary_item"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 37
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 38
+                    },
+                    "timeoutMs": 20000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_profile_picture_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 39
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_profile_picture_edit_button"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 40
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_profile_picture_edit_button"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 41
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_profile_picture_pick_action"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 42
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_profile_picture_take_action"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 43
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_profile_picture_remove_action"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 44
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_profile_picture_remove_action"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 45
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_remove_profile_picture_message"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 46
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "base_confirmation_dialog_negative_button"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 47
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 48
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_profile_picture_edit_button"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 49
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_profile_picture_remove_action"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 50
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_profile_picture_remove_action"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 51
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_remove_profile_picture_message"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 52
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "base_confirmation_dialog_positive_button"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 53
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "base_snackbar_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 54
+                    },
+                    "timeoutMs": 20000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_profile_picture_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 55
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_profile_picture_edit_button"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 56
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_profile_picture_pick_action"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 57
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_profile_picture_remove_action"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 58
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitGone"
+                },
+                {
+                    "platform": "android",
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 59
+                    },
+                    "steps": [
+                        {
+                            "site": {
+                                "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                                "line": 60
+                            },
+                            "type": "back"
+                        }
+                    ],
+                    "type": "onPlatform"
+                },
+                {
+                    "platform": "ios",
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 62
+                    },
+                    "steps": [
+                        {
+                            "durationMs": 600,
+                            "dx": 0.0,
+                            "dy": 0.4,
+                            "from": null,
+                            "fx": 0.5,
+                            "fy": 0.2,
+                            "site": {
+                                "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                                "line": 63
+                            },
+                            "type": "swipe"
+                        }
+                    ],
+                    "type": "onPlatform"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 65
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                }
+            ],
+            "stepsHash": "5814ac89af4da6a7",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": null,
+            "android": {
+                "scenarioArg": "poc-expected-failure"
+            },
+            "covers": [],
+            "id": "poc-expected-failure",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/PocScenarioTests/test_poc_expected_failure"
+            },
+            "module": "poc",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true"
+                },
+                "mockStates": []
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "poc_never_present"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PocScenarios.kt",
+                        "line": 12
+                    },
+                    "timeoutMs": 2000,
+                    "type": "waitVisible"
+                }
+            ],
+            "stepsHash": "d0a2b9d753b244e2",
+            "tags": [
+                "poc"
+            ],
+            "timeoutSeconds": 180
+        }
+    ],
+    "schema": "tuindice-e2e-catalog/1"
+}

@@ -20,6 +20,7 @@ pensum=:academiccore :base :persistence
 persistence=:academiccore :base
 record=:academiccore :base :persistence
 scenariokit=-
+scenarios=:about :auth :base :enrollmentproof :evaluations :maincore :pensum :record :scenariokit :subjects :summary :wizard
 security=:base
 subjects=:academiccore :base :persistence
 summary=:base :persistence

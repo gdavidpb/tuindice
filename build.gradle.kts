@@ -164,6 +164,8 @@ tasks.register("verifySharedCompilation") {
 		":testkit:compileKotlinIosSimulatorArm64",
 		":scenariokit:compileAndroidMain",
 		":scenariokit:compileKotlinIosSimulatorArm64",
+		":scenarios:compileAndroidMain",
+		":scenarios:compileKotlinIosSimulatorArm64",
 		":enrollmentproof:compileAndroidMain",
 		":enrollmentproof:compileKotlinIosSimulatorArm64",
 		":evaluations:compileAndroidMain",
@@ -223,6 +225,7 @@ tasks.register("verifySharedHostTests") {
 		":base:testAndroidHostTest",
 		":testkit:testAndroidHostTest",
 		":scenariokit:testAndroidHostTest",
+		":scenarios:testAndroidHostTest",
 		":enrollmentproof:testAndroidHostTest",
 		":evaluations:testAndroidHostTest",
 		":auth:testAndroidHostTest",
@@ -311,6 +314,47 @@ tasks.register<Exec>("verifyE2eContract") {
 	group = "verification"
 	description = "Validates the local E2E flow catalog and critical selector coverage."
 	commandLine("bash", "${rootDir}/testkit/e2e/validate-e2e-contract.sh")
+}
+
+private val e2eCatalogJson = "e2e/catalog/scenarios.json"
+private val e2eCatalogSwift = "iosApp/UITests/Generated/ScenarioTests.generated.swift"
+
+tasks.register("syncE2eArtifacts") {
+	group = "build setup"
+	description = "Regenerates the versioned scenario catalog JSON and the generated XCUITest class list from the scenarios."
+	dependsOn(":scenarios:testAndroidHostTest")
+
+	val generated = layout.projectDirectory.dir("scenarios/build/e2e/catalog")
+	val targets = mapOf(
+		"scenarios.json" to layout.projectDirectory.file(e2eCatalogJson),
+		"ScenarioTests.generated.swift" to layout.projectDirectory.file(e2eCatalogSwift)
+	)
+
+	doLast {
+		targets.forEach { (name, target) ->
+			val destination = target.asFile
+
+			destination.parentFile.mkdirs()
+			generated.file(name).asFile.copyTo(destination, overwrite = true)
+		}
+	}
+}
+
+tasks.register<Exec>("verifyE2eArtifactsFresh") {
+	group = "verification"
+	description = "Fails when the versioned scenario catalog or the generated XCUITest list differ from the scenarios."
+	dependsOn(":scenarios:testAndroidHostTest")
+	commandLine("bash", "${rootDir}/scripts/verify-e2e-artifacts.sh")
+}
+
+tasks.register("verifyScenarioContract") {
+	group = "verification"
+	description = "Validates the scenario catalog, its fixtures and that the generated artifacts are committed fresh."
+	dependsOn(
+		":scenariokit:testAndroidHostTest",
+		":scenarios:testAndroidHostTest",
+		"verifyE2eArtifactsFresh"
+	)
 }
 
 tasks.register<Exec>("syncAppVersion") {
