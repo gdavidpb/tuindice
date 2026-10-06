@@ -40,19 +40,11 @@ enum TuIndiceDebugRuntimeOverrides {
     }
 
     #if canImport(maincore) || canImport(Maincore)
-    static func applyLaunchArguments(
-        appBootstrap: IosAppHostBootstrap,
-        apiBaseUrl: String
-    ) {
+    static func applyLaunchArguments(appBootstrap: IosAppHostBootstrap) {
         #if DEBUG
-        if launchArguments.sessionSeed != nil {
-            seedWireMockTokensIssuedState(apiBaseUrl: apiBaseUrl)
-        }
-
         appBootstrap.applyDebugLaunchArguments(arguments: launchArguments)
         #else
         _ = appBootstrap
-        _ = apiBaseUrl
         #endif
     }
     #endif
@@ -80,40 +72,6 @@ private extension TuIndiceDebugRuntimeOverrides {
         return DebugLaunchArguments.companion.parse(values: values)
     }()
     #endif
-
-    static func seedWireMockTokensIssuedState(apiBaseUrl: String) {
-        let adminUrl = "\(apiBaseUrl.trimmingCharacters(in: CharacterSet(charactersIn: "/")))/__admin/scenarios/login-token-lifecycle/state"
-        guard let url = URL(string: adminUrl) else {
-            fatalError("Invalid WireMock admin URL: \(adminUrl)")
-        }
-
-        var request = URLRequest(url: url)
-        request.httpMethod = "PUT"
-        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
-        request.httpBody = #"{"state":"TokensIssued"}"#.data(using: .utf8)
-
-        let semaphore = DispatchSemaphore(value: 0)
-        var requestError: Error?
-        var responseStatusCode = 0
-
-        URLSession.shared.dataTask(with: request) { _, response, error in
-            requestError = error
-            responseStatusCode = (response as? HTTPURLResponse)?.statusCode ?? 0
-            semaphore.signal()
-        }.resume()
-
-        guard semaphore.wait(timeout: .now() + 5) == .success else {
-            fatalError("Timed out seeding WireMock login-token-lifecycle scenario.")
-        }
-
-        if let requestError {
-            fatalError("Failed to seed WireMock login-token-lifecycle scenario: \(requestError)")
-        }
-
-        guard (200...299).contains(responseStatusCode) else {
-            fatalError("WireMock scenario seed failed with HTTP \(responseStatusCode).")
-        }
-    }
 }
 
 private extension TuIndiceDebugRuntimeOverrides.WebResource {

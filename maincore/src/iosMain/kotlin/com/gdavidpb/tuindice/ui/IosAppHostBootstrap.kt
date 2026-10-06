@@ -4,7 +4,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.window.ComposeUIViewController
 import com.gdavidpb.tuindice.base.ui.style.LocalTuIndiceAnimationsEnabled
 import com.gdavidpb.tuindice.debug.DebugLaunchArguments
-import com.gdavidpb.tuindice.debug.seedAuthenticatedState
+import com.gdavidpb.tuindice.debug.seedDebugSession
 import com.gdavidpb.tuindice.debug.setDebugAppAvailabilityNoticeOverride
 import com.gdavidpb.tuindice.di.startIosKoin
 import com.gdavidpb.tuindice.domain.model.IosAppHostConfig
@@ -59,7 +59,7 @@ class IosAppHostBootstrap(
 		}
 
 		arguments.sessionSeed?.let { seed ->
-			runBlocking { seedAuthenticatedState(koin = koin, seed = seed) }
+			runBlocking { koin.seedDebugSession(seed) }
 		}
 	}
 }
