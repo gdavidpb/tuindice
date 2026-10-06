@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.SyncProblem
 import androidx.compose.material3.Icon
@@ -56,15 +55,15 @@ fun SummaryContentView(
 		syncAttention = syncAttention,
 		isStatusRefreshing = isStatusRefreshing
 	)
-	val statusTint = when {
-		isStatusRefreshing -> MaterialTheme.colorScheme.onSurfaceVariant
-		syncAttention == SyncAttention.Problem -> MaterialTheme.colorScheme.error
-		syncAttention == SyncAttention.Informative -> MaterialTheme.colorScheme.primary
-		else -> MaterialTheme.colorScheme.onSurfaceVariant
+	// Only a problem has details to open, and a running sync takes the icon over until it ends.
+	val canOpenStatusDetails = syncAttention == SyncAttention.Problem && !isStatusRefreshing
+	val statusTint = if (canOpenStatusDetails) {
+		MaterialTheme.colorScheme.error
+	} else {
+		MaterialTheme.colorScheme.onSurfaceVariant
 	}
-	val canOpenStatusDetails = syncAttention != SyncAttention.None && !isStatusRefreshing
-	// A problem and information both ask for attention with the halo, each in its own tint, until
-	// the details are opened; whether they already were arrives decided in showSyncAttentionHalo.
+	// A problem asks for attention with the halo until its details are opened; whether they already
+	// were arrives decided in showSyncAttentionHalo.
 	val shouldShowHalo = showSyncAttentionHalo && canOpenStatusDetails
 	val syncRotation = remember { Animatable(0f) }
 
@@ -212,7 +211,6 @@ internal fun syncStatusIcon(
 ) = when {
 	isStatusRefreshing -> Icons.Outlined.Sync
 	syncAttention == SyncAttention.Problem -> Icons.Outlined.SyncProblem
-	syncAttention == SyncAttention.Informative -> Icons.Outlined.Info
 	else -> Icons.Outlined.Sync
 }
 

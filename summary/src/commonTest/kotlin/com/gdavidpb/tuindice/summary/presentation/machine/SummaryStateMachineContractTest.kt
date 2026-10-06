@@ -11,7 +11,6 @@ import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfi
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
-import com.gdavidpb.tuindice.summary.testing.FakeCurrentTermRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -91,7 +90,6 @@ class SummaryStateMachineContractTest {
 			screenMachine = SummaryMachine(
 				observeUserUseCase = ObserveUserUseCase(
 					userRepository = userRepository,
-					currentTermRepository = FakeCurrentTermRepository(),
 					reportingRepository = reportingRepository
 				),
 				updateUserUseCase = UpdateUserUseCase(

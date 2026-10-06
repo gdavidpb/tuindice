@@ -7,11 +7,9 @@ import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataRepository
 import com.gdavidpb.tuindice.summary.data.source.LocalSettingsDataSource
 import com.gdavidpb.tuindice.summary.data.source.ProfilePictureImageLoaderDataSource
-import com.gdavidpb.tuindice.summary.data.source.RoomCurrentTermDataSource
 import com.gdavidpb.tuindice.summary.data.source.RoomDataSource
 import com.gdavidpb.tuindice.summary.data.source.SummaryApiDataSource
 import com.gdavidpb.tuindice.summary.data.source.UserDataSource
-import com.gdavidpb.tuindice.summary.domain.repository.CurrentTermRepository
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
@@ -48,7 +46,6 @@ val summaryModule = module {
 	/* Repositories */
 
 	factoryOf(::UserDataSource) { bind<UserRepository>() }
-	factoryOf(::RoomCurrentTermDataSource) { bind<CurrentTermRepository>() }
 
 	/* Data sources */
 

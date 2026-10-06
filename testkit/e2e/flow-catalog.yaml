@@ -823,51 +823,6 @@ flows:
       - summary_status_icon_button
       - summary_sync_status_message
       - base_confirmation_dialog_positive_button
-  - id: summary-not-enrolled-status-dialog
-    path: e2e/maestro/flows/summary/summary-not-enrolled-status-dialog.yaml
-    module: summary
-    type: interaction
-    platforms: [android, ios]
-    status: active
-    variant: sync-status-not-enrolled-dialog
-    fixture_state: summary-sync-not-enrolled
-    actions_covered:
-      - summary.Summary.RefreshSummary
-    primary_selectors:
-      - summary_content_container
-      - summary_status_icon_button
-      - summary_sync_status_message
-      - base_confirmation_dialog_positive_button
-  - id: summary-annulled-status-dialog
-    path: e2e/maestro/flows/summary/summary-annulled-status-dialog.yaml
-    module: summary
-    type: interaction
-    platforms: [android, ios]
-    status: active
-    variant: sync-status-annulled-dialog
-    fixture_state: summary-sync-annulled-provisional
-    actions_covered:
-      - summary.Summary.RefreshSummary
-    primary_selectors:
-      - summary_content_container
-      - summary_status_icon_button
-      - summary_sync_status_message
-      - base_confirmation_dialog_positive_button
-  - id: summary-annulled-final-status-dialog
-    path: e2e/maestro/flows/summary/summary-annulled-final-status-dialog.yaml
-    module: summary
-    type: interaction
-    platforms: [android, ios]
-    status: active
-    variant: sync-status-annulled-final-dialog
-    fixture_state: summary-sync-annulled-final
-    actions_covered:
-      - summary.Summary.RefreshSummary
-    primary_selectors:
-      - summary_content_container
-      - summary_status_icon_button
-      - summary_sync_status_message
-      - base_confirmation_dialog_positive_button
   - id: summary-new-student-no-record
     path: e2e/maestro/flows/summary/summary-new-student-no-record.yaml
     module: summary
@@ -879,12 +834,12 @@ flows:
     actions_covered:
       - summary.Summary.RefreshSummary
     primary_selectors:
-      - summary_status_icon_button
-      - summary_sync_status_message
-      - base_confirmation_dialog_positive_button
       - summary_content_container
       - base_error_view_container
       - base_error_view_retry_button
+      - maincore_tuindice_bottom_bar_summary_item
+      - summary_status_icon_button
+      - summary_sync_status_message
   - id: summary-record-access-denied
     path: e2e/maestro/flows/summary/summary-record-access-denied.yaml
     module: summary

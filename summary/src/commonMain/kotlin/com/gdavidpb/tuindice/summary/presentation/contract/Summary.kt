@@ -40,9 +40,6 @@ object Summary {
 			val profilePictureLocalPreview: String? = null,
 			val isProfilePictureLoading: Boolean,
 			override val isUserRefreshing: Boolean,
-			// Whether the local record still has a current term: the moment of an annulled
-			// enrollment (provisional keeps the term, final has dropped it).
-			val hasCurrentTerm: Boolean = false,
 			val syncStatusText: String = ""
 		) : State(isUserRefreshing = isUserRefreshing)
 

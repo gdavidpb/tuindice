@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.summary.ui.view
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.outlined.Info
 import androidx.compose.material.icons.outlined.Sync
 import androidx.compose.material.icons.outlined.SyncProblem
 import androidx.compose.runtime.CompositionLocalProvider
@@ -399,7 +398,7 @@ class SummaryContentViewUiTest {
 	}
 
 	@Test
-	fun when_attentionIsInformative_then_statusShowsHaloAndCanOpenDetails() = runTuIndiceUiTest {
+	fun when_enrollmentIsAnnulled_then_statusAsksForNothingAndCannotOpenDetails() = runTuIndiceUiTest {
 		val contentState = summaryContentState()
 		var statusIconClicks = 0
 
@@ -408,6 +407,7 @@ class SummaryContentViewUiTest {
 				SummaryContentView(
 					state = contentState,
 					syncAttention = resolveSyncAttention(SyncStatus.Healthy, annulledReport()),
+					// Even told to pulse, a row with no problem to announce has no halo.
 					showSyncAttentionHalo = true,
 					summaryItems = summaryItemsFor(contentState),
 					onEditProfilePictureClick = {},
@@ -416,75 +416,124 @@ class SummaryContentViewUiTest {
 			}
 		}
 
-		// What the university reports is worth the same pulse a problem gets, in the accent tint.
-		assertNodeVisible(SummaryUiTags.StatusIconHalo)
-		assertNodeVisible(SummaryUiTags.StatusIcon, useUnmergedTree = true)
-		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
-		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
-		assertEquals(1, statusIconClicks)
-	}
-
-	@Test
-	fun when_informativeDetailsWereAlreadyOpened_then_statusKeepsTheIconWithoutHalo() = runTuIndiceUiTest {
-		val contentState = summaryContentState()
-
-		setTuIndiceTestContent {
-			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
-				SummaryContentView(
-					state = contentState,
-					syncAttention = resolveSyncAttention(SyncStatus.Healthy, annulledReport()),
-					showSyncAttentionHalo = false,
-					summaryItems = summaryItemsFor(contentState),
-					onEditProfilePictureClick = {},
-					onStatusIconClick = {}
-				)
-			}
-		}
-
+		// Record and Evaluations carry the annulment notice; the sync itself had no problem.
 		assertNodeHidden(SummaryUiTags.StatusIconHalo)
-		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
+		assertNodeVisible(SummaryUiTags.StatusIcon, useUnmergedTree = true)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+		assertEquals(0, statusIconClicks)
 	}
 
 	@Test
-	fun when_attentionIsInformativeButSyncIsRunning_then_statusUsesLoadingWithoutHalo() = runTuIndiceUiTest {
+	fun when_enrollmentIsNotEnrolled_then_statusAsksForNothingAndCannotOpenDetails() = runTuIndiceUiTest {
 		val contentState = summaryContentState()
+		var statusIconClicks = 0
 
 		setTuIndiceTestContent {
 			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
 				SummaryContentView(
 					state = contentState,
-					syncAttention = resolveSyncAttention(SyncStatus.NewStudentNoRecord, SyncReport.failedRecordUnavailable()),
-					isSyncing = true,
+					syncAttention = resolveSyncAttention(
+						SyncStatus.Healthy,
+						enrollmentReport(SyncSourceStatus.NotEnrolled)
+					),
 					showSyncAttentionHalo = true,
 					summaryItems = summaryItemsFor(contentState),
 					onEditProfilePictureClick = {},
-					onStatusIconClick = {}
+					onStatusIconClick = { statusIconClicks++ }
 				)
 			}
 		}
 
 		assertNodeHidden(SummaryUiTags.StatusIconHalo)
 		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+		assertEquals(0, statusIconClicks)
 	}
 
 	@Test
-	fun when_attentionIsInformative_then_iconIsInfoNotTheSyncProblemOne() {
-		assertEquals(
-			expected = Icons.Outlined.Info,
-			actual = syncStatusIcon(syncAttention = SyncAttention.Informative, isStatusRefreshing = false)
-		)
-		assertEquals(
-			expected = Icons.Outlined.Sync,
-			actual = syncStatusIcon(syncAttention = SyncAttention.Informative, isStatusRefreshing = true)
-		)
+	fun when_newStudentHasNoRecord_then_statusAsksForNothingAndCannotOpenDetails() = runTuIndiceUiTest {
+		val contentState = summaryContentState()
+		var statusIconClicks = 0
+
+		setTuIndiceTestContent {
+			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+				SummaryContentView(
+					state = contentState,
+					syncAttention = resolveSyncAttention(
+						SyncStatus.NewStudentNoRecord,
+						SyncReport.failedRecordUnavailable()
+					),
+					showSyncAttentionHalo = true,
+					summaryItems = summaryItemsFor(contentState),
+					onEditProfilePictureClick = {},
+					onStatusIconClick = { statusIconClicks++ }
+				)
+			}
+		}
+
+		assertNodeHidden(SummaryUiTags.StatusIconHalo)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+		assertEquals(0, statusIconClicks)
+	}
+
+	@Test
+	fun when_enrollmentIsUnavailableAndAnAnnulmentIsCarriedOver_then_statusShowsTheProblem() =
+		runTuIndiceUiTest {
+			val contentState = summaryContentState()
+			var statusIconClicks = 0
+
+			setTuIndiceTestContent {
+				CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
+					SummaryContentView(
+						state = contentState,
+						syncAttention = resolveSyncAttention(
+							SyncStatus.Healthy,
+							SyncReport.partialEnrollmentUnavailable().carryingEnrollmentFrom(annulledReport())
+						),
+						showSyncAttentionHalo = true,
+						summaryItems = summaryItemsFor(contentState),
+						onEditProfilePictureClick = {},
+						onStatusIconClick = { statusIconClicks++ }
+					)
+				}
+			}
+
+			// The source that could not be read is a problem of the sync, annulment or not.
+			assertNodeVisible(SummaryUiTags.StatusIconHalo)
+			onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
+			onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+			assertEquals(1, statusIconClicks)
+		}
+
+	@Test
+	fun when_universityReportsAnEnrollmentState_then_iconIsThePlainSyncOne() {
+		listOf(
+			resolveSyncAttention(SyncStatus.Healthy, annulledReport()),
+			resolveSyncAttention(SyncStatus.Healthy, enrollmentReport(SyncSourceStatus.NotEnrolled)),
+			resolveSyncAttention(SyncStatus.NewStudentNoRecord, SyncReport.failedRecordUnavailable())
+		).forEach { syncAttention ->
+			assertEquals(
+				expected = Icons.Outlined.Sync,
+				actual = syncStatusIcon(syncAttention = syncAttention, isStatusRefreshing = false)
+			)
+		}
 	}
 
 	private fun annulledReport(): SyncReport {
+		return enrollmentReport(SyncSourceStatus.Success, EnrollmentSituation(code = "01"))
+	}
+
+	private fun enrollmentReport(
+		enrollment: SyncSourceStatus,
+		situation: EnrollmentSituation? = null
+	): SyncReport {
 		return SyncReport(
 			status = SyncReportStatus.Success,
 			sources = SyncReportSources(
 				record = SyncSourceReport(SyncSourceStatus.Success),
-				enrollment = SyncSourceReport(SyncSourceStatus.Success, EnrollmentSituation(code = "01"))
+				enrollment = SyncSourceReport(enrollment, situation)
 			)
 		)
 	}

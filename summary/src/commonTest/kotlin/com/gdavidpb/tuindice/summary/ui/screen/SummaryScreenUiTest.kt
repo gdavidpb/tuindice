@@ -198,12 +198,104 @@ class SummaryScreenUiTest {
 	}
 
 	@Test
-	fun when_attentionIsInformative_then_haloPulsesUntilTheDetailsAreOpened() = runTuIndiceUiTest {
+	fun when_enrollmentIsAnnulled_then_statusIconShowsNoHaloAndOpensNoDialog() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryScreen(
-				state = summaryContentState().copy(hasCurrentTerm = true),
+				state = summaryContentState(),
 				syncStatus = SyncStatus.Healthy,
-				syncReport = annulledReport(),
+				syncReport = enrollmentReport(SyncSourceStatus.Success, EnrollmentSituation(code = "01")),
+				onRetryClick = {},
+				onEditProfilePictureClick = {},
+				onUpdatePasswordClick = {}
+			)
+		}
+
+		// Record and Evaluations carry the annulment notice; the sync row only speaks of sync problems.
+		assertNodeHidden(SummaryUiTags.StatusIconHalo)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+
+		assertNodeHidden(SummaryUiTags.SyncStatusMessage)
+		onNodeWithText("Tu inscripción aparece anulada").assertDoesNotExist()
+		onNodeWithText("Tu inscripción fue anulada").assertDoesNotExist()
+	}
+
+	@Test
+	fun when_enrollmentIsNotEnrolled_then_statusIconShowsNoHaloAndOpensNoDialog() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryScreen(
+				state = summaryContentState(),
+				syncStatus = SyncStatus.Healthy,
+				syncReport = enrollmentReport(SyncSourceStatus.NotEnrolled),
+				onRetryClick = {},
+				onEditProfilePictureClick = {},
+				onUpdatePasswordClick = {}
+			)
+		}
+
+		assertNodeHidden(SummaryUiTags.StatusIconHalo)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+
+		assertNodeHidden(SummaryUiTags.SyncStatusMessage)
+		onNodeWithText("No estás inscrito en este trimestre").assertDoesNotExist()
+	}
+
+	@Test
+	fun when_contentBelongsToANewStudent_then_statusIconShowsNoHaloAndOpensNoDialog() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryScreen(
+				// Signing in leaves a profile, so Summary has content while the record is still missing.
+				state = summaryContentState(),
+				syncStatus = SyncStatus.NewStudentNoRecord,
+				syncReport = SyncReport.failedRecordUnavailable(),
+				onRetryClick = {},
+				onEditProfilePictureClick = {},
+				onUpdatePasswordClick = {}
+			)
+		}
+
+		assertNodeVisible(SummaryUiTags.ContentContainer)
+		assertNodeHidden(SummaryUiTags.StatusIconHalo)
+		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
+		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+
+		assertNodeHidden(SummaryUiTags.SyncStatusMessage)
+		onNodeWithText("Aún no tienes expediente en la universidad").assertDoesNotExist()
+	}
+
+	@Test
+	fun when_enrollmentIsUnavailableAndAnAnnulmentIsCarriedOver_then_statusDialogExplainsTheProblem() =
+		runTuIndiceUiTest {
+			setTuIndiceTestContent {
+				SummaryScreen(
+					state = summaryContentState(),
+					syncStatus = SyncStatus.Healthy,
+					syncReport = SyncReport.partialEnrollmentUnavailable().carryingEnrollmentFrom(
+						enrollmentReport(SyncSourceStatus.Success, EnrollmentSituation(code = "01"))
+					),
+					onRetryClick = {},
+					onEditProfilePictureClick = {},
+					onUpdatePasswordClick = {}
+				)
+			}
+
+			assertNodeVisible(SummaryUiTags.StatusIconHalo)
+			onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
+			onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
+
+			onNodeWithText("Servicios de la universidad no disponibles").assertExists()
+			onNodeWithText("Tu inscripción aparece anulada").assertDoesNotExist()
+			assertNodeHidden(SummaryUiTags.StatusIconHalo)
+		}
+
+	@Test
+	fun when_recordAccessIsDenied_then_statusIconOpensTheDeniedRecordDialog() = runTuIndiceUiTest {
+		setTuIndiceTestContent {
+			SummaryScreen(
+				state = summaryContentState(),
+				syncStatus = SyncStatus.RecordAccessDenied,
+				syncReport = SyncReport.failedRecordUnavailable(),
 				onRetryClick = {},
 				onEditProfilePictureClick = {},
 				onUpdatePasswordClick = {}
@@ -211,22 +303,21 @@ class SummaryScreenUiTest {
 		}
 
 		assertNodeVisible(SummaryUiTags.StatusIconHalo)
-		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsEnabled()
 		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
 
-		onNodeWithText("Tu inscripción aparece anulada").assertExists()
+		onNodeWithText("No pudimos consultar tu expediente").assertExists()
 		assertNodeHidden(SummaryUiTags.StatusIconHalo)
 	}
 
 	@Test
-	fun when_informativeAttentionIsSyncing_then_haloWaitsForTheSyncToEnd() = runTuIndiceUiTest {
+	fun when_problemIsSyncing_then_haloWaitsForTheSyncToEnd() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			// The sync icon spins for as long as the sync runs; with animations on the test never idles.
 			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
 				SummaryScreen(
 					state = summaryContentState(),
 					syncStatus = SyncStatus.Healthy,
-					syncReport = annulledReport(),
+					syncReport = SyncReport.partialEnrollmentUnavailable(),
 					isSyncing = true,
 					onRetryClick = {},
 					onEditProfilePictureClick = {},
@@ -237,42 +328,6 @@ class SummaryScreenUiTest {
 
 		assertNodeHidden(SummaryUiTags.StatusIconHalo)
 		onNodeWithTag(SummaryUiTags.StatusIconButton).assertIsNotEnabled()
-	}
-
-	@Test
-	fun when_annulledAndContentHasACurrentTerm_then_statusDialogShowsTheProvisionalCopy() = runTuIndiceUiTest {
-		setTuIndiceTestContent {
-			SummaryScreen(
-				state = summaryContentState().copy(hasCurrentTerm = true),
-				syncStatus = SyncStatus.Healthy,
-				syncReport = annulledReport(),
-				onRetryClick = {},
-				onEditProfilePictureClick = {},
-				onUpdatePasswordClick = {}
-			)
-		}
-
-		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
-
-		onNodeWithText("Tu inscripción aparece anulada").assertExists()
-	}
-
-	@Test
-	fun when_annulledAndContentHasNoCurrentTerm_then_statusDialogShowsTheFinalCopy() = runTuIndiceUiTest {
-		setTuIndiceTestContent {
-			SummaryScreen(
-				state = summaryContentState(),
-				syncStatus = SyncStatus.Healthy,
-				syncReport = annulledReport(),
-				onRetryClick = {},
-				onEditProfilePictureClick = {},
-				onUpdatePasswordClick = {}
-			)
-		}
-
-		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
-
-		onNodeWithText("Tu inscripción fue anulada").assertExists()
 	}
 
 	@Test
@@ -315,12 +370,15 @@ class SummaryScreenUiTest {
 		onNodeWithTag(SummaryUiTags.NewStudentRetryButton).assertIsNotEnabled()
 	}
 
-	private fun annulledReport(): SyncReport {
+	private fun enrollmentReport(
+		enrollment: SyncSourceStatus,
+		situation: EnrollmentSituation? = null
+	): SyncReport {
 		return SyncReport(
 			status = SyncReportStatus.Success,
 			sources = SyncReportSources(
 				record = SyncSourceReport(SyncSourceStatus.Success),
-				enrollment = SyncSourceReport(SyncSourceStatus.Success, EnrollmentSituation(code = "01"))
+				enrollment = SyncSourceReport(enrollment, situation)
 			)
 		)
 	}

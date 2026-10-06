@@ -1,10 +1,10 @@
 package com.gdavidpb.tuindice.summary.presentation.model
 
-// How much the sync row asks of the user. A problem is something to fix or wait out (error tint);
-// information is something the university reports that is not a failure of the app (accent tint).
-// Both matter enough to pulse a halo in their tint until the user opens the details.
+// Whether the sync row asks something of the user. A problem is something to fix or wait out: it
+// takes the error tint and pulses a halo until the user opens its details. What the university
+// reports about the enrollment or the record is not a problem of the sync, and the screens that own
+// it explain it (Record, Evaluations, Summary's own new-student screen): the row stays quiet.
 enum class SyncAttention {
 	None,
-	Problem,
-	Informative
+	Problem
 }

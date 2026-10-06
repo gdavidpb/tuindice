@@ -9,64 +9,42 @@ fun resolveSyncAttention(
 	syncStatus: SyncStatus,
 	syncReport: SyncReport
 ): SyncAttention {
-	val isProblem = when (syncStatus) {
+	return when (syncStatus) {
+		// Not a problem of the sync, whatever its report says: that failed sync marks the record
+		// source unavailable, which must not turn "the university has no record for you yet" into one.
+		SyncStatus.NewStudentNoRecord -> SyncAttention.None
+
 		SyncStatus.Unavailable,
 		SyncStatus.Failed,
 		SyncStatus.OutdatedCredentials,
 		SyncStatus.MissingCredentials,
-		SyncStatus.RecordAccessDenied -> true
+		SyncStatus.RecordAccessDenied -> SyncAttention.Problem
 
-		SyncStatus.Healthy,
-		SyncStatus.NewStudentNoRecord -> false
-	}
-	val isInformative = syncReport.sources.enrollment.status == SyncSourceStatus.NotEnrolled ||
-		syncReport.sources.enrollment.situation != null
-
-	return when {
-		// Checked first: the report of that failed sync marks the record source unavailable, which
-		// must not turn "the university has no record for you yet" into a problem.
-		syncStatus == SyncStatus.NewStudentNoRecord -> SyncAttention.Informative
-		isProblem || syncReport.hasUnavailableSource -> SyncAttention.Problem
-		isInformative -> SyncAttention.Informative
-		else -> SyncAttention.None
+		// A healthy sync is a problem only for the source it could not read. What it did read about
+		// the enrollment (not enrolled, annulled) is not the row's to announce.
+		SyncStatus.Healthy ->
+			if (syncReport.hasUnavailableSource) SyncAttention.Problem else SyncAttention.None
 	}
 }
 
-// Names what the sync row is announcing, or null when it announces nothing. The halo pulses until
-// the user opens the details of the announcement with this key, and starts again only when the key
-// changes: a provisional annulment that became final, information that became a problem.
+// Names the problem the sync row is announcing, or null when it announces none. The halo pulses
+// until the user opens the details of the problem with this key, and starts again only when the key
+// changes: another status, another source that could not be read.
 //
-// Built field by field: the report also carries the instant of the last enrollment read, which
-// changes on every sync and must not re-arm the halo.
+// Built from what the details say and nothing else. The report also carries the instant of the last
+// enrollment read, which changes on every sync, and what the university reports about the
+// enrollment, which other screens explain: neither must re-arm the halo.
 fun resolveSyncAttentionKey(
 	syncStatus: SyncStatus,
-	syncReport: SyncReport,
-	hasCurrentTerm: Boolean
+	syncReport: SyncReport
 ): String? {
-	val syncAttention = resolveSyncAttention(syncStatus = syncStatus, syncReport = syncReport)
-	val enrollment = syncReport.sources.enrollment
-	// The moment of an annulment is part of what is read (provisional while the record keeps a
-	// current term, final once it does not). Only an informative row shows it, and without an
-	// annulment the current term says nothing here.
-	val annulmentMoment = enrollment.situation
-		?.takeIf { syncAttention == SyncAttention.Informative }
-		?.let { if (hasCurrentTerm) ANNULMENT_PROVISIONAL else ANNULMENT_FINAL }
-
-	return when (syncAttention) {
+	return when (resolveSyncAttention(syncStatus = syncStatus, syncReport = syncReport)) {
 		SyncAttention.None -> null
 
-		SyncAttention.Problem,
-		SyncAttention.Informative -> listOf(
-			syncAttention,
+		SyncAttention.Problem -> listOf(
 			syncStatus,
-			syncReport.status,
-			syncReport.sources.record.status,
-			enrollment.status,
-			enrollment.situation?.annulmentCause,
-			annulmentMoment
+			syncReport.sources.record.status == SyncSourceStatus.Unavailable,
+			syncReport.sources.enrollment.status == SyncSourceStatus.Unavailable
 		).joinToString(separator = "|")
 	}
 }
-
-private const val ANNULMENT_PROVISIONAL = "provisional"
-private const val ANNULMENT_FINAL = "final"

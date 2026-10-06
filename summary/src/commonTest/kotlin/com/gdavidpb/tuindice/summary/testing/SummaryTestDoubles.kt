@@ -8,7 +8,6 @@ import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDat
 import com.gdavidpb.tuindice.summary.data.repository.user.RemoteDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.SettingsDataRepository
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
-import com.gdavidpb.tuindice.summary.domain.repository.CurrentTermRepository
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
 import io.github.vinceglb.filekit.PlatformFile
 import kotlinx.coroutines.flow.Flow
@@ -159,12 +158,4 @@ class FakeProfilePictureInputDataSource(
 		lastFile = file
 		return normalizedFile ?: file
 	}
-}
-
-class FakeCurrentTermRepository(
-	initialValue: Boolean = false
-) : CurrentTermRepository {
-	val hasCurrentTerm = MutableStateFlow(initialValue)
-
-	override fun observeHasCurrentTerm(): Flow<Boolean> = hasCurrentTerm
 }

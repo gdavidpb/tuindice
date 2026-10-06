@@ -12,25 +12,8 @@ appId: com.gdavidpb.tuindice.debug
 - tapOn:
     id: auth_sign_in_button
 - runFlow: ../_shared/continue-to-summary-after-auth.yaml
-# Signing in always leaves a profile (name and career); what the university does not have yet is
-# the record, so Summary shows its content and the sync row explains the rest.
-- extendedWaitUntil:
-    visible:
-      id: summary_status_icon_button
-    timeout: 10000
-- tapOn:
-    id: summary_status_icon_button
-- extendedWaitUntil:
-    visible:
-      id: summary_sync_status_message
-    timeout: 10000
-- assertVisible: "Aún no tienes expediente en la universidad"
-- tapOn:
-    id: base_confirmation_dialog_positive_button
-- extendedWaitUntil:
-    notVisible:
-      id: summary_sync_status_message
-    timeout: 10000
+# Signing in always leaves a profile (name and career), so Summary shows its content. What the
+# university does not have yet is the record, and Record and Evaluations are the ones that say so.
 - assertVisible:
     id: summary_content_container
 - tapOn:
@@ -51,3 +34,20 @@ appId: com.gdavidpb.tuindice.debug
     timeout: 30000
 - runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - assertVisible: "Aún no tienes expediente en la universidad"
+# Back on Summary, once the sync has answered (Record and Evaluations just read it): a missing
+# record is not a sync problem, so the sync row asks for nothing and its icon opens no details.
+- tapOn:
+    id: maincore_tuindice_bottom_bar_summary_item
+- extendedWaitUntil:
+    visible:
+      id: summary_content_container
+    timeout: 10000
+- assertVisible:
+    id: summary_status_icon_button
+    enabled: false
+- tapOn:
+    id: summary_status_icon_button
+- assertNotVisible:
+    id: summary_sync_status_message
+- assertVisible:
+    id: summary_content_container

@@ -20,7 +20,6 @@ import com.gdavidpb.tuindice.summary.presentation.mapper.resolveSummaryFailedIte
 import com.gdavidpb.tuindice.summary.presentation.mapper.resolveSyncAttention
 import com.gdavidpb.tuindice.summary.presentation.mapper.resolveSyncAttentionKey
 import com.gdavidpb.tuindice.summary.presentation.model.SummaryFailedKind
-import com.gdavidpb.tuindice.summary.presentation.model.SyncAttention
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.summary.ui.dialog.SyncStatusInfoContentDialog
 import com.gdavidpb.tuindice.summary.ui.view.SummaryContentView
@@ -43,17 +42,10 @@ fun SummaryScreen(
 ) {
 	val displayedSyncStatusDetails = remember { mutableStateOf<SyncStatusDetails?>(null) }
 	val acknowledgedSyncAttentionKey = remember { mutableStateOf<String?>(null) }
-	// Read from the state on every composition, so what the row announces follows a record refresh
-	// that drops or brings back the current term.
-	val hasCurrentTerm = (state as? Summary.State.Content)?.hasCurrentTerm == true
 	val syncAttention = resolveSyncAttention(syncStatus = syncStatus, syncReport = syncReport)
-	val syncAttentionKey = resolveSyncAttentionKey(
-		syncStatus = syncStatus,
-		syncReport = syncReport,
-		hasCurrentTerm = hasCurrentTerm
-	)
-	// The halo asks for attention until the user opens the details of this very announcement; a
-	// running sync hides it, and a new announcement (another key) brings it back.
+	val syncAttentionKey = resolveSyncAttentionKey(syncStatus = syncStatus, syncReport = syncReport)
+	// The halo asks for attention until the user opens the details of this very problem; a running
+	// sync hides it, and a new problem (another key) brings it back.
 	val shouldShowSyncAttentionHalo = syncAttentionKey != null &&
 		acknowledgedSyncAttentionKey.value != syncAttentionKey &&
 		!isSyncing
@@ -110,10 +102,9 @@ fun SummaryScreen(
 						),
 						onEditProfilePictureClick = onEditProfilePictureClick,
 						onStatusIconClick = {
-							if (syncAttention != SyncAttention.None) {
-								syncAttentionKey?.let { currentKey ->
-									acknowledgedSyncAttentionKey.value = currentKey
-								}
+							// Only a problem has a key, and only a problem has details to open.
+							syncAttentionKey?.let { currentKey ->
+								acknowledgedSyncAttentionKey.value = currentKey
 								displayedSyncStatusDetails.value = SyncStatusDetails(
 									status = syncStatus,
 									report = syncReport
@@ -129,7 +120,6 @@ fun SummaryScreen(
 		SyncStatusInfoContentDialog(
 			syncStatus = currentSyncStatus.status,
 			syncReport = currentSyncStatus.report,
-			hasCurrentTerm = hasCurrentTerm,
 			onUpdatePasswordClick = onUpdatePasswordClick,
 			onDismissRequest = { displayedSyncStatusDetails.value = null }
 		)

@@ -28,7 +28,6 @@ import com.gdavidpb.tuindice.summary.presentation.machine.SummaryMachine
 import com.gdavidpb.tuindice.summary.presentation.viewmodel.SummaryViewModel
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
-import com.gdavidpb.tuindice.summary.testing.FakeCurrentTermRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
@@ -538,7 +537,6 @@ class SummaryRouteUiTest {
 			screenMachine = SummaryMachine(
 				observeUserUseCase = ObserveUserUseCase(
 					userRepository = userRepository,
-					currentTermRepository = FakeCurrentTermRepository(),
 					reportingRepository = RecordingReportingRepository()
 				),
 				updateUserUseCase = UpdateUserUseCase(

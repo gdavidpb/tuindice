@@ -10,10 +10,8 @@ import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.presentation.navigation.BrowserDestination
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.presentation.navigation.TuIndiceNavigator
-import com.gdavidpb.tuindice.summary.domain.repository.CurrentTermRepository
 import com.gdavidpb.tuindice.summary.presentation.navigation.SummaryDestination
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
-import com.gdavidpb.tuindice.testing.FakeCurrentTermRepository
 import com.gdavidpb.tuindice.testing.createBrowserViewModel
 import com.gdavidpb.tuindice.testing.createSummaryViewModel
 import com.gdavidpb.tuindice.testing.rememberTestNavigator
@@ -141,7 +139,6 @@ class TuIndiceNavRetentionUiTest {
 					factory { createBrowserViewModel().also { onBrowserViewModelBuilt() } }
 					single<SyncRepository> { FakeSyncRepository() }
 					single<SyncStatusRepository> { FakeSyncStatusRepository() }
-					single<CurrentTermRepository> { FakeCurrentTermRepository }
 					single<BrowserScreenRenderer> { RetentionTestBrowserRenderer }
 				}
 			)

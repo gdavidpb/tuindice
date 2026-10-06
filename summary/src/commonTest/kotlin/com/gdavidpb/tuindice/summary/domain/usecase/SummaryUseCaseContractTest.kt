@@ -1,13 +1,10 @@
 package com.gdavidpb.tuindice.summary.domain.usecase
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
-import com.gdavidpb.tuindice.summary.domain.model.ObservedSummary
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
-import com.gdavidpb.tuindice.summary.testing.FakeCurrentTermRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
@@ -17,50 +14,18 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertIs
 
 class SummaryUseCaseContractTest {
 	@Test
 	fun observeUserUseCase_emitsLoadingThenData_fromRepositoryFlow() = runTest {
 		val useCase = ObserveUserUseCase(
 			userRepository = RecordingUserRepository(users = flowOf(DEFAULT_SUMMARY_USER)),
-			currentTermRepository = FakeCurrentTermRepository(),
 			reportingRepository = RecordingReportingRepository()
 		)
 
 		useCase.execute(Unit).test {
-			assertEquals(
-				ObservedSummary(user = DEFAULT_SUMMARY_USER, hasCurrentTerm = false),
-				awaitLoadingThenData(this)
-			)
-			cancelAndIgnoreRemainingEvents()
-		}
-	}
-
-	@Test
-	fun observeUserUseCase_foldsTheCurrentTermIntoTheObservation_andFollowsItsChanges() = runTest {
-		val currentTermRepository = FakeCurrentTermRepository(initialValue = true)
-		val useCase = ObserveUserUseCase(
-			userRepository = RecordingUserRepository(users = flowOf(DEFAULT_SUMMARY_USER)),
-			currentTermRepository = currentTermRepository,
-			reportingRepository = RecordingReportingRepository()
-		)
-
-		useCase.execute(Unit).test {
-			assertEquals(
-				ObservedSummary(user = DEFAULT_SUMMARY_USER, hasCurrentTerm = true),
-				awaitLoadingThenData(this)
-			)
-
-			// A record refresh that drops the current term re-emits with the same user.
-			currentTermRepository.hasCurrentTerm.value = false
-
-			val next = assertIs<UseCaseState.Data<ObservedSummary>>(awaitItem())
-			assertEquals(
-				ObservedSummary(user = DEFAULT_SUMMARY_USER, hasCurrentTerm = false),
-				next.value
-			)
-			cancelAndIgnoreRemainingEvents()
+			assertEquals(DEFAULT_SUMMARY_USER, awaitLoadingThenData(this))
+			awaitComplete()
 		}
 	}
 

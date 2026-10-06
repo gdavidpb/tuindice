@@ -27,8 +27,6 @@ import com.gdavidpb.tuindice.presentation.navigation.TuIndiceNavigator
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.presentation.model.RecordTopBarViewModeState
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
-import com.gdavidpb.tuindice.summary.domain.repository.CurrentTermRepository
-import com.gdavidpb.tuindice.testing.FakeCurrentTermRepository
 import com.gdavidpb.tuindice.testing.createBrowserViewModel
 import com.gdavidpb.tuindice.testing.createSummaryViewModel
 import com.gdavidpb.tuindice.testing.rememberTestNavigator
@@ -650,7 +648,6 @@ class TuIndiceScreenUiTest {
 		factory { createSummaryViewModel() }
 		single<SyncRepository> { FakeSyncRepository() }
 		single<SyncStatusRepository> { FakeSyncStatusRepository() }
-		single<CurrentTermRepository> { FakeCurrentTermRepository }
 		single<BrowserScreenRenderer> { TestBrowserRenderer }
 	}
 

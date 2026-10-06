@@ -52,11 +52,11 @@ class SummaryMachine(
 					is UseCaseState.Loading -> Unit
 
 					is UseCaseState.Data -> {
-						val observed = useCaseState.value
+						val user = useCaseState.value
 
 						host.processInternalEvent(
 							SummaryInternalEvent.UserObserved(
-								content = with(observed.user) {
+								content = with(user) {
 									Summary.State.Content(
 										name = toShortName(),
 										careerName = careerName,
@@ -72,8 +72,7 @@ class SummaryMachine(
 										profilePictureUrl = pictureUrl,
 										profilePictureVersion = pictureVersion,
 										isProfilePictureLoading = false,
-										isUserRefreshing = false,
-										hasCurrentTerm = observed.hasCurrentTerm
+										isUserRefreshing = false
 									)
 								}
 							)

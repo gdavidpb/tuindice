@@ -10,8 +10,5 @@ name: TuIndice summary E2E suite
 - runFlow: ../summary/summary-partial-enrollment-status-dialog.yaml
 - runFlow: ../summary/summary-profile-picture.yaml
 - runFlow: ../summary/summary-outdated-credentials.yaml
-- runFlow: ../summary/summary-not-enrolled-status-dialog.yaml
-- runFlow: ../summary/summary-annulled-status-dialog.yaml
-- runFlow: ../summary/summary-annulled-final-status-dialog.yaml
 - runFlow: ../summary/summary-new-student-no-record.yaml
 - runFlow: ../summary/summary-record-access-denied.yaml
