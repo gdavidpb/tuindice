@@ -8,6 +8,7 @@ include(
 	":base",
 	":academiccore",
 	":testkit",
+	":scenariokit",
 	":persistence",
 	":security",
 	":auth",

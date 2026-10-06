@@ -107,6 +107,8 @@ Dependencias actuales:
   Android de cada feature, por lo que en el grafo depende de todos los módulos.
 - `testkit`: soporte de pruebas; depende de `:base` y `:security`, y solo lo consumen los source sets de test
   de los demás módulos.
+- `scenariokit`: núcleo de los escenarios E2E nativos (modelo de pasos, intérprete, contrato de driver y códec
+  del catálogo); no depende de ningún módulo del proyecto y produce el framework estático iOS `ScenarioKit`.
 
 Acuerdo de límites:
 
