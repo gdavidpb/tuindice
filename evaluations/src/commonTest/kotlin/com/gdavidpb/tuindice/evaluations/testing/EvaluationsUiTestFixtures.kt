@@ -27,7 +27,6 @@ import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluation as Eva
 
 private const val PENDING_DATE = 1_900_000_000_000L
 private const val COMPLETED_DATE = 1_700_000_000_000L
-const val FIXTURE_GROUP_TITLE = "Esta semana"
 const val FIXTURE_OVERDUE_DATE_TEXT = "Vencida"
 const val FIXTURE_PENDING_DATE_TEXT = "Manana"
 
@@ -125,7 +124,6 @@ fun evaluationItemFixture(
 
 fun evaluationsGroupItemsFixture(): List<EvaluationsGroupItem> = listOf(
 	EvaluationsGroupItem(
-		title = UiText.Raw(FIXTURE_GROUP_TITLE),
 		items = listOf(
 			evaluationItemFixture(evaluationId = "evaluation-item-1", isClickable = true)
 		)
@@ -189,7 +187,6 @@ private fun List<Evaluation>.toFixtureEvaluationGroups(): List<EvaluationsGroupI
 
 	return listOf(
 		EvaluationsGroupItem(
-			title = UiText.Raw(FIXTURE_GROUP_TITLE),
 			items = map { evaluation -> evaluation.toFixtureEvaluationItem() }
 		)
 	)

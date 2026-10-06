@@ -56,20 +56,6 @@ class DateUiTest {
 	}
 
 	@Test
-	fun when_styleIsWeekdayPastDayMonth_then_readsTheWeekdayAsPastAndTheDate() = runTuIndiceUiTest {
-		assertDateText("jueves pasado — 15 de enero", millisOf(), DateTextStyle.WEEKDAY_PAST_DAY_MONTH)
-	}
-
-	@Test
-	fun when_styleIsWeekdayDayMonth_then_readsTheWeekdayAndTheDate() = runTuIndiceUiTest {
-		assertDateTexts(
-			"jueves — 15 de enero" to millisOf().formatDate(DateTextStyle.WEEKDAY_DAY_MONTH),
-			"miércoles — 04 de febrero" to millisOf(month = 2, day = 4)
-				.formatDate(DateTextStyle.WEEKDAY_DAY_MONTH)
-		)
-	}
-
-	@Test
 	fun when_styleIsWeekdayNumericDate_then_readsTheWeekdayAndThePaddedNumbers() = runTuIndiceUiTest {
 		assertDateTexts(
 			"jueves — 15/01/26" to millisOf().formatDate(DateTextStyle.WEEKDAY_NUMERIC_DATE),

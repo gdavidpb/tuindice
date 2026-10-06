@@ -7,7 +7,6 @@ import androidx.compose.material.icons.outlined.Quiz
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationState
 import com.gdavidpb.tuindice.base.presentation.model.UiText
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateGroup
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationHighlightTone
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationEpochMillis
@@ -83,7 +82,7 @@ class EvaluationsWeekGroupItemMappingTest {
 	}
 
 	@Test
-	fun toEvaluationItemList_takesTheGroupTitleAndTheItemDateTextFromTheMapping() {
+	fun toEvaluationItemList_takesTheItemDateTextFromTheMapping() {
 		val continuous = DEFAULT_PENDING_EVALUATION.copy(
 			id = "continuous-evaluation",
 			scheduleMode = EvaluationScheduleMode.CONTINUOUS,
@@ -100,7 +99,6 @@ class EvaluationsWeekGroupItemMappingTest {
 
 		// Dated first, then the ones without a date: the order comes from the instant, never
 		// from the text of the date.
-		assertEquals(listOf(DATED_DATE_TEXT, CONTINUOUS_DATE_TEXT), groups.map { group -> group.title })
 		assertEquals(
 			listOf(DATED_DATE_TEXT, CONTINUOUS_DATE_TEXT),
 			groups.flatMap { group -> group.items }.map { item -> item.dateText }
@@ -211,15 +209,6 @@ private fun testEvaluationItemMapping() = EvaluationItemMapping(
 	typeIcon = { Icons.Outlined.Quiz },
 	dateIcon = { Icons.Outlined.CalendarToday },
 	gradesIcon = { Icons.Outlined.AssignmentTurnedIn },
-	dateGroupTitle = { group ->
-		when (group) {
-			EvaluationDateGroup.Continuous -> CONTINUOUS_DATE_TEXT
-			else -> DATED_DATE_TEXT
-		}
-	},
-	dateHeaderText = { evaluation ->
-		if (evaluation.scheduleMode == EvaluationScheduleMode.CONTINUOUS) CONTINUOUS_DATE_TEXT else DATED_DATE_TEXT
-	},
 	dateText = { evaluation ->
 		if (evaluation.scheduleMode == EvaluationScheduleMode.CONTINUOUS) CONTINUOUS_DATE_TEXT else DATED_DATE_TEXT
 	},

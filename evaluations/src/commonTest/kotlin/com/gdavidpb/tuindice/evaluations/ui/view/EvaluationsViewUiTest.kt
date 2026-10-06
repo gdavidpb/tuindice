@@ -8,7 +8,6 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
-import com.gdavidpb.tuindice.evaluations.testing.FIXTURE_GROUP_TITLE
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsGroupItemsFixture
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsWeekGroupItemsFixture
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
@@ -50,7 +49,6 @@ class EvaluationsViewUiTest {
 		assertNodeVisible(EvaluationsUiTags.evaluationsWeekHeader(8))
 		assertNodeVisible(EvaluationsUiTags.evaluationHeader("Semana 8"))
 		assertNodeVisible(EvaluationsUiTags.evaluationItemCard(item.evaluationId))
-		assertNodeHidden(EvaluationsUiTags.evaluationHeader(FIXTURE_GROUP_TITLE))
 		onNodeWithText("1 evaluación").assertIsDisplayed()
 
 		onNodeWithTag(EvaluationsUiTags.evaluationGradeActionButton(item.evaluationId)).performClick()

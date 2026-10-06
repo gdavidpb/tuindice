@@ -12,7 +12,6 @@ import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
 import com.gdavidpb.tuindice.academiccore.domain.model.EvaluationScheduleMode
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.model.asString
-import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationDateGroup
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.presentation.utils.formatMonthYear
 import com.gdavidpb.tuindice.evaluations.presentation.utils.toEvaluationEpochMillis
@@ -39,17 +38,7 @@ class EvaluationDateTextUiTest {
 	}
 
 	@Test
-	fun when_evaluationIsDated_then_dateHeaderReadsTheWeekdayAndTheMonthCapitalized() = runTuIndiceUiTest {
-		val mapping = getEvaluationItemMapping()
-
-		assertResolvedTexts(
-			"Jueves 15 de Enero" to mapping.dateHeaderText(evaluationOn(LocalDate(2026, 1, 15))),
-			"Miércoles 4 de Febrero" to mapping.dateHeaderText(evaluationOn(LocalDate(2026, 2, 4)))
-		)
-	}
-
-	@Test
-	fun when_evaluationIsContinuousOrUndated_then_itsDateTextsReadTheNoDateLabel() = runTuIndiceUiTest {
+	fun when_evaluationIsContinuousOrUndated_then_itsDateTextReadsTheNoDateLabel() = runTuIndiceUiTest {
 		val mapping = getEvaluationItemMapping()
 		val continuous = DEFAULT_PENDING_EVALUATION.copy(
 			scheduleMode = EvaluationScheduleMode.CONTINUOUS,
@@ -62,9 +51,7 @@ class EvaluationDateTextUiTest {
 
 		assertResolvedTexts(
 			"Evaluación continua" to mapping.dateText(continuous),
-			"Evaluación continua" to mapping.dateText(undated),
-			"Evaluación continua" to mapping.dateHeaderText(continuous),
-			"Evaluación continua" to mapping.dateHeaderText(undated)
+			"Evaluación continua" to mapping.dateText(undated)
 		)
 	}
 
@@ -81,40 +68,6 @@ class EvaluationDateTextUiTest {
 		assertResolvedTexts(
 			"abril 2026" to LocalDate(2026, 4, 1).formatMonthYear(),
 			"diciembre 2026" to LocalDate(2026, 12, 31).formatMonthYear()
-		)
-	}
-
-	@Test
-	fun when_dateGroupIsARelativeDayOrContinuous_then_readsItsOwnLabel() = runTuIndiceUiTest {
-		val mapping = getEvaluationItemMapping()
-
-		assertResolvedTexts(
-			"Hoy" to mapping.dateGroupTitle(EvaluationDateGroup.Today),
-			"Mañana" to mapping.dateGroupTitle(EvaluationDateGroup.Tomorrow),
-			"Ayer" to mapping.dateGroupTitle(EvaluationDateGroup.Yesterday),
-			"Evaluación continua" to mapping.dateGroupTitle(EvaluationDateGroup.Continuous)
-		)
-	}
-
-	@Test
-	fun when_dateGroupIsADayOfAWeek_then_readsTheDateInsideItsPattern() = runTuIndiceUiTest {
-		val mapping = getEvaluationItemMapping()
-		val date = LocalDate(2026, 1, 15)
-
-		assertResolvedTexts(
-			"El jueves pasado — 15 de enero" to mapping.dateGroupTitle(EvaluationDateGroup.PastThisWeek(date)),
-			"Este jueves — 15 de enero" to mapping.dateGroupTitle(EvaluationDateGroup.ThisWeek(date)),
-			"El próximo jueves — 15 de enero" to mapping.dateGroupTitle(EvaluationDateGroup.NextWeek(date))
-		)
-	}
-
-	@Test
-	fun when_dateGroupIsWeeksAheadOrAnExactDate_then_readsTheCountOrTheCapitalizedDate() = runTuIndiceUiTest {
-		val mapping = getEvaluationItemMapping()
-
-		assertResolvedTexts(
-			"En 3 semanas" to mapping.dateGroupTitle(EvaluationDateGroup.WeeksAhead(weeks = 3)),
-			"Jueves — 15/01/26" to mapping.dateGroupTitle(EvaluationDateGroup.ExactDate(LocalDate(2026, 1, 15)))
 		)
 	}
 

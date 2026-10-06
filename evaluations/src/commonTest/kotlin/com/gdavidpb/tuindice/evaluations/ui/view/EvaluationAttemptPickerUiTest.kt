@@ -1,12 +1,14 @@
 package com.gdavidpb.tuindice.evaluations.ui.view
 
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.semantics.SemanticsProperties
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.SemanticsMatcher
 import androidx.compose.ui.test.assert
+import androidx.compose.ui.test.assertIsNotEnabled
+import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
-import androidx.compose.ui.semantics.SemanticsProperties
-import androidx.compose.runtime.mutableStateOf
 import com.gdavidpb.tuindice.evaluations.domain.model.EditableAttemptDescriptor
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationAttemptPickerItems
 import com.gdavidpb.tuindice.evaluations.testing.uiSubjects
@@ -19,7 +21,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 @OptIn(ExperimentalTestApi::class)
-class EvaluationSubjectPickerUiTest {
+class EvaluationAttemptPickerUiTest {
 	@Test
 	fun when_noAttemptIsSelected_then_attemptChipTapped_invokesSelectionCallback() = runTuIndiceUiTest {
 		val subjects = uiSubjects()
@@ -84,9 +86,35 @@ class EvaluationSubjectPickerUiTest {
 
 		onNodeWithTag(
 			EvaluationsUiTags.evaluationSubjectChip(subjects[1].id)
+		).assertIsNotEnabled()
+
+		onNodeWithTag(
+			EvaluationsUiTags.evaluationSubjectChip(subjects[1].id)
 		).performClick()
 
 		assertEquals(null, selectedAttempt)
+	}
+
+	@Test
+	fun when_attemptsAreListed_then_eachChipReadsItsSubjectCode_andNoneIsSelected() = runTuIndiceUiTest {
+		val subjects = uiSubjects()
+
+		setTuIndiceTestContent {
+			EvaluationAttemptPicker(
+				items = subjects.toEvaluationAttemptPickerItems(selectedAttempt = null),
+				onAttemptChange = {}
+			)
+		}
+
+		subjects.forEach { subject ->
+			val chipTag = EvaluationsUiTags.evaluationSubjectChip(subject.id)
+
+			assertNodeVisible(chipTag)
+			onNodeWithTag(chipTag).assertTextEquals(subject.code)
+			onNodeWithTag(chipTag).assert(
+				SemanticsMatcher.expectValue(SemanticsProperties.Selected, false)
+			)
+		}
 	}
 
 	@Test

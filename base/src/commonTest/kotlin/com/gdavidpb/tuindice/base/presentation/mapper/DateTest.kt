@@ -14,10 +14,8 @@ import tuindice.base.generated.resources.date_time
 import tuindice.base.generated.resources.date_time_am
 import tuindice.base.generated.resources.date_time_pm
 import tuindice.base.generated.resources.date_today_time
-import tuindice.base.generated.resources.date_weekday_day_month
 import tuindice.base.generated.resources.date_weekday_names
 import tuindice.base.generated.resources.date_weekday_numeric_date
-import tuindice.base.generated.resources.date_weekday_past_day_month
 import tuindice.base.generated.resources.date_weekday_short_names
 import tuindice.base.generated.resources.date_weekday_time
 import tuindice.base.generated.resources.date_yesterday_time
@@ -72,18 +70,6 @@ class DateTest {
 		assertEquals(
 			UiText.Resource(Res.string.date_day_month_year, listOf("05", MARCH, "2026")),
 			millisOf(month = 3, day = 5).formatDate(DateTextStyle.DAY_MONTH_YEAR)
-		)
-	}
-
-	@Test
-	fun formatDate_weekdayAndDayMonth_describeTheWeekdayThePaddedDayAndTheMonthName() {
-		assertEquals(
-			UiText.Resource(Res.string.date_weekday_past_day_month, listOf(THURSDAY, "15", JANUARY)),
-			THURSDAY_AFTERNOON.formatDate(DateTextStyle.WEEKDAY_PAST_DAY_MONTH)
-		)
-		assertEquals(
-			UiText.Resource(Res.string.date_weekday_day_month, listOf(THURSDAY, "15", JANUARY)),
-			THURSDAY_AFTERNOON.formatDate(DateTextStyle.WEEKDAY_DAY_MONTH)
 		)
 	}
 
@@ -151,5 +137,4 @@ private fun millisOf(
 private val THURSDAY_AFTERNOON = millisOf()
 private val AFTERNOON_TIME = timeText("03", "05", isMorning = false)
 private val THURSDAY = UiText.ArrayItem(Res.array.date_weekday_names, 3)
-private val JANUARY = UiText.ArrayItem(Res.array.date_month_names, 0)
 private val MARCH = UiText.ArrayItem(Res.array.date_month_names, 2)

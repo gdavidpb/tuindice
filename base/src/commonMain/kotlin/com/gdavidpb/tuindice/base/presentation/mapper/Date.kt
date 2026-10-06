@@ -12,9 +12,7 @@ import tuindice.base.generated.resources.date_time
 import tuindice.base.generated.resources.date_time_am
 import tuindice.base.generated.resources.date_time_pm
 import tuindice.base.generated.resources.date_today_time
-import tuindice.base.generated.resources.date_weekday_day_month
 import tuindice.base.generated.resources.date_weekday_numeric_date
-import tuindice.base.generated.resources.date_weekday_past_day_month
 import tuindice.base.generated.resources.date_weekday_time
 import tuindice.base.generated.resources.date_yesterday_time
 import kotlin.time.Clock
@@ -26,8 +24,6 @@ enum class DateTextStyle {
 	YESTERDAY_TIME,
 	WEEKDAY_TIME,
 	DAY_MONTH_YEAR,
-	WEEKDAY_PAST_DAY_MONTH,
-	WEEKDAY_DAY_MONTH,
 	WEEKDAY_NUMERIC_DATE,
 	SHORT_WEEKDAY_NUMERIC_DATE,
 	DAY_SHORT_MONTH
@@ -64,12 +60,6 @@ fun Long.formatDate(style: DateTextStyle): UiText {
 		DateTextStyle.DAY_MONTH_YEAR ->
 			UiText.Resource(Res.string.date_day_month_year, listOf(dayOfMonth, monthName, year))
 
-		DateTextStyle.WEEKDAY_PAST_DAY_MONTH ->
-			UiText.Resource(Res.string.date_weekday_past_day_month, listOf(dayName, dayOfMonth, monthName))
-
-		DateTextStyle.WEEKDAY_DAY_MONTH ->
-			UiText.Resource(Res.string.date_weekday_day_month, listOf(dayName, dayOfMonth, monthName))
-
 		DateTextStyle.WEEKDAY_NUMERIC_DATE ->
 			UiText.Resource(
 				Res.string.date_weekday_numeric_date,
@@ -103,14 +93,4 @@ fun Long.daysToNow() =
 				.fromEpochMilliseconds(this)
 				.toLocalDateTime(TimeZone.currentSystemDefault())
 				.date
-		)
-
-fun Long.weeksToNow() =
-	Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault()).date
-		.until(
-			other = Instant
-				.fromEpochMilliseconds(this)
-				.toLocalDateTime(TimeZone.currentSystemDefault())
-				.date,
-			unit = DateTimeUnit.WEEK
 		)

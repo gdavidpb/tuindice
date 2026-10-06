@@ -73,8 +73,6 @@
 	<string name="date_yesterday_time">Ayer, %1$s</string>
 	<string name="date_weekday_time">%1$s, %2$s</string>
 	<string name="date_day_month_year">%1$s de %2$s %3$s</string>
-	<string name="date_weekday_past_day_month">%1$s pasado — %2$s de %3$s</string>
-	<string name="date_weekday_day_month">%1$s — %2$s de %3$s</string>
 	<string name="date_weekday_numeric_date">%1$s — %2$s/%3$s/%4$s</string>
 	<string name="date_short_weekday_numeric_date">%1$s — %2$s/%3$s/%4$s</string>
 	<string name="date_day_short_month">%1$s %2$s.</string>

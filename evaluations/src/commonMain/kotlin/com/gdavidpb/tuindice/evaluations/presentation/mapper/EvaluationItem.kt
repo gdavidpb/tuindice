@@ -44,7 +44,6 @@ fun List<Evaluation>.toEvaluationItemList(
 		.groupBy { evaluation -> evaluation.date?.toEvaluationLocalDate() }
 		.map { (_, evaluations) ->
 			EvaluationsGroupItem(
-				title = mapping.dateHeaderText(evaluations.first()),
 				items = evaluations.mapNotNull { evaluation ->
 					attemptsById[evaluation.attemptId]?.let { attempt ->
 						evaluation.toEvaluationItem(
