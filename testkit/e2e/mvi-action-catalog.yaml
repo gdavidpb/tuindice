@@ -310,6 +310,18 @@ variants: [add-success, edit-success, edit-unchanged-disabled, missing-attempt, 
     flow: e2e/maestro/flows/auth/login-outdated-app.yaml
     fixture_state: auth-upgrade-required
     platform_edge: Store handoff opens Google Play or App Store and requires host/system assertion.
+  - id: maincore.Main.RequestSignOut
+    classification: user
+    variants: [no-pending-changes, pending-changes]
+    selector: base_top_app_bar_action_sign_out
+    flow: e2e/maestro/flows/auth/sign-out.yaml
+    fixture_state: auth-revoke-success
+  - id: maincore.Main.DismissUpdatePassword
+    classification: user
+    variants: [dismissed-while-password-required]
+    selector: base_confirmation_dialog_negative_button
+    flow: e2e/maestro/flows/summary/summary-outdated-credentials.yaml
+    fixture_state: summary-sync-outdated-credentials
   - id: maincore.Main.UpdateFlowCompleted
     classification: internal
     reason: route re-enters the machine with the platform update launch result

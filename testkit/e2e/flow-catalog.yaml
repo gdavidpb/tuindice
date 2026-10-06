@@ -33,6 +33,7 @@ flows:
       - evaluations.Evaluation.ClickSubmitEvaluation
       - about.About.OpenPrivacyPolicy
       - maincore.Browser.NavigateTo
+      - maincore.Main.RequestSignOut
       - auth.SignOut.ClickSignOut
     covers:
       - login
@@ -55,6 +56,7 @@ flows:
     fixture_state: wiremock-local
     actions_covered:
       - auth.SignIn.SetUsbId
+      - maincore.Main.DismissUpdatePassword
       - auth.SignIn.SetPassword
       - auth.SignIn.ToggleIdentifierMode
       - auth.SignIn.TogglePasswordVisibility
@@ -63,6 +65,7 @@ flows:
       - auth.SignIn.ClickCancelSignIn
       - auth.SignIn.ClickTermsAndConditions
       - auth.SignIn.ClickPrivacyPolicy
+      - maincore.Main.RequestSignOut
       - auth.SignOut.RetryFlushAndSignOut
       - auth.SignOut.ForceSignOut
       - auth.SignOut.ClickSignOut
@@ -595,6 +598,7 @@ flows:
     fixture_state: auth-outdated-credentials
     platform_edge: The missing-credentials entry into this dialog (stored password unreadable under a live session) is assigned to e2e/platform/android/auth-missing-credentials-password-prompt.md and e2e/platform/ios/auth-missing-credentials-password-prompt.md.
     actions_covered:
+      - maincore.Main.RequestSignOut
       - auth.SignOut.ClickSignOut
       - auth.UpdatePassword.SetPassword
       - auth.UpdatePassword.TogglePasswordVisibility
@@ -617,6 +621,7 @@ flows:
     variant: update-password-invalid-credentials
     fixture_state: auth-outdated-credentials-update-password-failure
     actions_covered:
+      - maincore.Main.RequestSignOut
       - auth.SignOut.ClickSignOut
       - auth.UpdatePassword.SetPassword
       - auth.UpdatePassword.ClickSignIn
@@ -651,6 +656,7 @@ flows:
     variant: pending-flush-failure-force
     fixture_state: pending-evaluation-mutation
     actions_covered:
+      - maincore.Main.RequestSignOut
       - auth.SignOut.ClickSignOut
       - auth.SignOut.RetryFlushAndSignOut
       - auth.SignOut.ForceSignOut
@@ -668,6 +674,7 @@ flows:
     variant: pending-flush-success
     fixture_state: pending-evaluation-mutation-flush-success
     actions_covered:
+      - maincore.Main.RequestSignOut
       - auth.SignOut.ClickSignOut
       - auth.SignOut.RetryFlushAndSignOut
     primary_selectors:
@@ -684,6 +691,7 @@ flows:
     variant: sign-out
     fixture_state: auth-revoke-success
     actions_covered:
+      - maincore.Main.RequestSignOut
       - auth.SignOut.ClickSignOut
     primary_selectors:
       - base_top_app_bar_action_sign_out
@@ -698,6 +706,7 @@ flows:
     variant: sign-out-cancel
     fixture_state: auth-sign-out-cancel
     actions_covered:
+      - maincore.Main.RequestSignOut
       - auth.SignOut.ClickSignOut
     primary_selectors:
       - base_top_app_bar_action_sign_out
@@ -888,6 +897,7 @@ flows:
     fixture_state: summary-sync-outdated-credentials
     actions_covered:
       - summary.Summary.RefreshSummary
+      - maincore.Main.DismissUpdatePassword
     primary_selectors:
       - summary_content_container
       - summary_status_icon_button

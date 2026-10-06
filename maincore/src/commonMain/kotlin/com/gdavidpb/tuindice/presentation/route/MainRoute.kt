@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.presentation.route
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.gdavidpb.tuindice.base.domain.model.PendingChanges
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.base.utils.extension.CollectEffectWithLifecycle
@@ -16,6 +17,8 @@ fun MainRoute(
 	onRequestUpdateFlow: suspend (UpdateAction) -> UpdateLaunchResult,
 	onOpenUpdateStoreFallback: suspend (UpdateLaunchResult.OpenStoreFallback) -> Unit = {},
 	onShowSnackBar: (message: String) -> Unit = {},
+	onSessionInvalidated: (message: String) -> Unit = {},
+	onNavigateToSignOutDialog: (pendingChanges: PendingChanges) -> Unit = {},
 	viewModel: MainViewModel,
 	content: @Composable (state: Main.State) -> Unit
 ) {
@@ -39,6 +42,12 @@ fun MainRoute(
 
 			is Main.Effect.ShowSnackBar ->
 				onShowSnackBar(effect.message)
+
+			is Main.Effect.SessionInvalidated ->
+				onSessionInvalidated(effect.message)
+
+			is Main.Effect.NavigateToSignOutDialog ->
+				onNavigateToSignOutDialog(effect.pendingChanges)
 		}
 	}
 

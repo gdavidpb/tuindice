@@ -11,8 +11,10 @@ import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
+import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReviewRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
@@ -29,6 +31,8 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeMessagingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
@@ -62,6 +66,8 @@ class MainModuleKoinSmokeTest {
 			single<MessagingRepository> { FakeMessagingRepository() }
 			single<SyncRepository> { FakeSyncRepository() }
 			single<SyncStatusRepository> { FakeSyncStatusRepository() }
+			single<SessionInvalidationRepository> { FakeSessionInvalidationRepository() }
+			single<PendingChangesRepository> { FakePendingChangesRepository() }
 			single<CoreCacheStateRepository> { FakeCoreCacheStateRepository() }
 			single<OutdatedAppEventRepository> { OutdatedAppEventDataSource() }
 			single<UpdateRepository> { FakeUpdateRepository() }

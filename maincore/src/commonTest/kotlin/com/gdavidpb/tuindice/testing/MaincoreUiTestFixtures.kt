@@ -9,6 +9,8 @@ import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
 import com.gdavidpb.tuindice.base.domain.repository.DeviceInfoRepository
 import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
+import com.gdavidpb.tuindice.base.domain.repository.PendingChangesRepository
+import com.gdavidpb.tuindice.base.domain.repository.SessionInvalidationRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
@@ -16,8 +18,11 @@ import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
 import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
 import com.gdavidpb.tuindice.domain.repository.OutdatedAppEventRepository
 import com.gdavidpb.tuindice.domain.usecase.EnsureMessagingSubscribedUseCase
+import com.gdavidpb.tuindice.domain.usecase.GetPendingChangesUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.ObserveOutdatedAppUseCase
+import com.gdavidpb.tuindice.domain.usecase.ObserveSessionInvalidationUseCase
+import com.gdavidpb.tuindice.domain.usecase.ObserveSyncStatusUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.ScheduleSyncUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastMainSectionUseCase
@@ -44,6 +49,8 @@ import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeMessagingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
@@ -123,7 +130,10 @@ fun createMainViewModel(
 	applicationRepository: RecordingApplicationRepository = RecordingApplicationRepository(),
 	reportingRepository: RecordingReportingRepository = RecordingReportingRepository(),
 	eventPublisher: EventPublisher = NoOpEventPublisher,
-	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers
+	dispatchers: TuIndiceDispatchers = DefaultTuIndiceDispatchers,
+	syncStatusRepository: SyncStatusRepository = FakeSyncStatusRepository(),
+	sessionInvalidationRepository: SessionInvalidationRepository = FakeSessionInvalidationRepository(),
+	pendingChangesRepository: PendingChangesRepository = FakePendingChangesRepository()
 ): MainViewModel {
 	return MainViewModel(
 		screenMachine = MainMachine(
@@ -154,6 +164,8 @@ fun createMainViewModel(
 				sessionRepository = sessionRepository,
 				credentialsRepository = credentialsRepository,
 				syncRepository = syncRepository,
+				// Its own status store, as before the host learnt the status from the machine: what a
+				// scheduled sync writes here must not send these tests to the password dialog.
 				syncStatusRepository = FakeSyncStatusRepository(),
 				coreCacheStateRepository = coreCacheStateRepository,
 				reportingRepository = reportingRepository
@@ -165,6 +177,18 @@ fun createMainViewModel(
 			),
 			setLastMainSectionUseCase = SetLastMainSectionUseCase(
 				settingsRepository = settingsRepository,
+				reportingRepository = reportingRepository
+			),
+			observeSyncStatusUseCase = ObserveSyncStatusUseCase(
+				syncStatusRepository = syncStatusRepository,
+				reportingRepository = reportingRepository
+			),
+			observeSessionInvalidationUseCase = ObserveSessionInvalidationUseCase(
+				sessionInvalidationRepository = sessionInvalidationRepository,
+				reportingRepository = reportingRepository
+			),
+			getPendingChangesUseCase = GetPendingChangesUseCase(
+				pendingChangesRepository = pendingChangesRepository,
 				reportingRepository = reportingRepository
 			)
 		),

@@ -56,6 +56,21 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 			state
 		}
 
+		// Closing the password dialog is remembered only while the status still asks for one:
+		// closed for any other reason there is nothing to hold back.
+		on<Main.Action.DismissUpdatePassword> { state, _ ->
+			if (state is Main.State.Content && state.syncStatus.requiresPassword) {
+				state.copy(isUpdatePasswordDismissed = true)
+			} else {
+				state
+			}
+		}
+
+		on<Main.Action.RequestSignOut> { state, _ ->
+			machine.prepareSignOut(host = host)
+			state
+		}
+
 		// Telemetry-only rows: the host route dispatches these when the sync status
 		// transitions into a degraded state, so backend outages become measurable on the
 		// app_action rail. The self-loop transition itself is filtered by the analytics
@@ -84,7 +99,44 @@ internal fun MachineDefinitionBuilder<Main.State>.mainAnyStateTransitions(
 				host.sendEffect(Main.Effect.ShowSnackBar(message = message))
 			}
 
+			machine.observeContent(host = host)
+
 			Main.State.Content(startDestination = event.startDestination)
+		}
+
+		// The status belongs to the content: before it there is no sync to speak of. A status that
+		// no longer asks for the password forgets the dismissal, so the next problem asks again.
+		on<MainInternalEvent.SyncStatusObserved> { state, event ->
+			if (state is Main.State.Content) {
+				state.copy(
+					syncStatus = event.syncStatus,
+					isUpdatePasswordDismissed = state.isUpdatePasswordDismissed &&
+						event.syncStatus.requiresPassword
+				)
+			} else {
+				state
+			}
+		}
+
+		on<MainInternalEvent.SessionInvalidationObserved>(
+			emits = setOf(Main.Effect.SessionInvalidated::class)
+		) { state, event ->
+			host.sendEffect(Main.Effect.SessionInvalidated(message = event.message))
+			state
+		}
+
+		on<MainInternalEvent.SignOutPrepared>(
+			emits = setOf(Main.Effect.NavigateToSignOutDialog::class)
+		) { state, event ->
+			host.sendEffect(Main.Effect.NavigateToSignOutDialog(pendingChanges = event.pendingChanges))
+			state
+		}
+
+		on<MainInternalEvent.SignOutPreparationFailed>(
+			emits = setOf(Main.Effect.ShowSnackBar::class)
+		) { state, event ->
+			host.sendEffect(Main.Effect.ShowSnackBar(message = event.message))
+			state
 		}
 
 		onTo<MainInternalEvent.AppUnavailableResolved, Main.State.AppUnavailable> { _, event ->

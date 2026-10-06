@@ -3,12 +3,17 @@ package com.gdavidpb.tuindice.presentation.machine
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
+import com.gdavidpb.tuindice.base.domain.model.PendingChanges
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.domain.model.UpdateLaunchResult
 import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
 import com.gdavidpb.tuindice.domain.usecase.EnsureMessagingSubscribedUseCase
+import com.gdavidpb.tuindice.domain.usecase.GetPendingChangesUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
 import com.gdavidpb.tuindice.domain.usecase.ObserveOutdatedAppUseCase
+import com.gdavidpb.tuindice.domain.usecase.ObserveSessionInvalidationUseCase
+import com.gdavidpb.tuindice.domain.usecase.ObserveSyncStatusUseCase
 import com.gdavidpb.tuindice.domain.usecase.RequestReviewUseCase
 import com.gdavidpb.tuindice.domain.usecase.ScheduleSyncUseCase
 import com.gdavidpb.tuindice.domain.usecase.SetLastMainSectionUseCase
@@ -24,6 +29,8 @@ import com.gdavidpb.tuindice.testing.createMainViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeMessagingRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSettingsRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
@@ -92,6 +99,18 @@ class MainStateMachineContractTest {
 			setLastMainSectionUseCase = SetLastMainSectionUseCase(
 				settingsRepository = settingsRepository,
 				reportingRepository = reportingRepository
+			),
+			observeSyncStatusUseCase = ObserveSyncStatusUseCase(
+				syncStatusRepository = FakeSyncStatusRepository(),
+				reportingRepository = reportingRepository
+			),
+			observeSessionInvalidationUseCase = ObserveSessionInvalidationUseCase(
+				sessionInvalidationRepository = FakeSessionInvalidationRepository(),
+				reportingRepository = reportingRepository
+			),
+			getPendingChangesUseCase = GetPendingChangesUseCase(
+				pendingChangesRepository = FakePendingChangesRepository(),
+				reportingRepository = reportingRepository
 			)
 		)
 
@@ -114,6 +133,13 @@ class MainStateMachineContractTest {
 				Main.Action.NoteSyncUnavailable,
 				Main.Action.NoteSyncFailed,
 				Main.Action.SetLastMainSection(section = MainSection.SUMMARY),
+				Main.Action.DismissUpdatePassword,
+				Main.Action.RequestSignOut,
+				MainInternalEvent.SyncStatusObserved(syncStatus = SyncStatus.OutdatedCredentials),
+				MainInternalEvent.SyncStatusObserved(syncStatus = SyncStatus.Healthy),
+				MainInternalEvent.SessionInvalidationObserved(message = "Inicia sesión nuevamente"),
+				MainInternalEvent.SignOutPrepared(pendingChanges = PendingChanges.Empty),
+				MainInternalEvent.SignOutPreparationFailed(message = "No pudimos revisar tus cambios"),
 				MainInternalEvent.StartUpStarting,
 				MainInternalEvent.StartUpCompleted(
 					startDestination = SummaryDestination.Summary

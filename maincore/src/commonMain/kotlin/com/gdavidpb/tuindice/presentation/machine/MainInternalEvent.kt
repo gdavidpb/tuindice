@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.presentation.machine
 
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
+import com.gdavidpb.tuindice.base.domain.model.PendingChanges
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
 import com.gdavidpb.tuindice.base.domain.model.UpdateAction
 import com.gdavidpb.tuindice.base.presentation.navigation.Destination
 
@@ -38,5 +40,24 @@ sealed interface MainInternalEvent {
 
 	data class UpdateInfoLoaded(
 		val action: UpdateAction
+	) : MainInternalEvent
+
+	/** How the last sync ended, observed while the content is up. */
+	data class SyncStatusObserved(
+		val syncStatus: SyncStatus
+	) : MainInternalEvent
+
+	/** The server ended the session behind the user's back. */
+	data class SessionInvalidationObserved(
+		val message: String
+	) : MainInternalEvent
+
+	/** The pending work was read: the sign-out dialog can say what would be lost. */
+	data class SignOutPrepared(
+		val pendingChanges: PendingChanges
+	) : MainInternalEvent
+
+	data class SignOutPreparationFailed(
+		val message: String
 	) : MainInternalEvent
 }

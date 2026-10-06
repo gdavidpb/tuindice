@@ -47,6 +47,7 @@ import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.data.source.network.OutdatedAppEventDataSource
 import com.gdavidpb.tuindice.pensum.presentation.model.PensumTopBarActionBus
+import com.gdavidpb.tuindice.presentation.contract.Main
 import com.gdavidpb.tuindice.presentation.navigation.NavEntryStoresViewModel
 import com.gdavidpb.tuindice.security.domain.model.Attestation
 import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
@@ -58,6 +59,7 @@ import com.gdavidpb.tuindice.testing.createSummaryViewModel
 import com.gdavidpb.tuindice.testkit.base.repository.FakeAppEnvironmentRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeConfigRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeMessagingRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakePendingChangesRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSessionInvalidationRepository
@@ -109,15 +111,17 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = reviewRepository,
 					updateRepository = FakeUpdateRepository(),
-					viewModel = createMainViewModel()
+					viewModel = createMainViewModel(
+						syncStatusRepository = syncStatusRepository
+					)
 				)
 			}
 
-			waitUntil(timeoutMillis = 2_000) {
+			// The first route of the class pays for the cold start of the whole host (navigation,
+			// resources, Koin), and the effect is handed over on the main queue behind it.
+			waitUntil(timeoutMillis = 10_000) {
 				reviewRepository.launchCalls > 0
 			}
 			waitUntil(timeoutMillis = 2_000) {
@@ -150,11 +154,10 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = reviewRepository,
 					updateRepository = updateRepository,
 					viewModel = createMainViewModel(
+						syncStatusRepository = syncStatusRepository,
 						configRepository = FakeConfigRepository(
 							appAvailabilityNotice = AppAvailabilityNotice(
 								enabled = true,
@@ -277,11 +280,10 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = FakeUpdateRepository(),
 					viewModel = createMainViewModel(
+						syncStatusRepository = syncStatusRepository,
 						sessionRepository = sessionRepository,
 						settingsRepository = settingsRepository,
 						deviceInfoRepository = FakeDeviceInfoRepository(versionCode = 1),
@@ -341,11 +343,10 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = FakeUpdateRepository(),
 					viewModel = createMainViewModel(
+						syncStatusRepository = syncStatusRepository,
 						credentialsRepository = FakeCredentialsRepository(password = "secret123"),
 						syncRepository = syncRepository
 					)
@@ -378,8 +379,6 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = updateRepository,
 					viewModel = viewModel
@@ -421,8 +420,6 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = browserRepository,
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = updateRepository,
 					viewModel = viewModel
@@ -520,12 +517,11 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					pendingChangesRepository = FakePendingChangesRepository(pendingChanges = pendingChanges),
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = FakeUpdateRepository(),
 					viewModel = createMainViewModel(
+						pendingChangesRepository = FakePendingChangesRepository(pendingChanges = pendingChanges),
+						syncStatusRepository = syncStatusRepository,
 						settingsRepository = FakeSettingsRepository(
 							reviewSuggested = true,
 							lastMainSection = MainSection.SUMMARY
@@ -574,12 +570,11 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					pendingChangesRepository = pendingChangesRepository,
-					sessionInvalidationRepository = FakeSessionInvalidationRepository(),
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = FakeUpdateRepository(),
 					viewModel = createMainViewModel(
+						pendingChangesRepository = pendingChangesRepository,
+						syncStatusRepository = syncStatusRepository,
 						settingsRepository = FakeSettingsRepository(
 							reviewSuggested = true,
 							lastMainSection = MainSection.SUMMARY
@@ -626,7 +621,12 @@ class TuIndiceAppHostRouteUiTest {
 		val syncStatusRepository = FakeSyncStatusRepository()
 		val sessionInvalidationRepository = FakeSessionInvalidationRepository()
 		val eventPublisher = RecordingEventPublisher()
-
+		val viewModel = createMainViewModel(
+			sessionInvalidationRepository = sessionInvalidationRepository,
+			syncStatusRepository = syncStatusRepository,
+			sessionRepository = sessionRepository,
+			eventPublisher = eventPublisher
+		)
 		stopKoin()
 
 		startKoin {
@@ -639,13 +639,7 @@ class TuIndiceAppHostRouteUiTest {
 				module {
 					single<AuthRepository> { stubAuthRepository() }
 					single<SessionRepository> { sessionRepository }
-					single<MessagingRepository> {
-						object : MessagingRepository {
-							override suspend fun subscribe() = Unit
-
-							override suspend fun unsubscribe() = Unit
-						}
-					}
+					single<MessagingRepository> { FakeMessagingRepository() }
 					single<ConfigRepository> { FakeConfigRepository() }
 					single<AppEnvironmentRepository> { FakeAppEnvironmentRepository() }
 					single<CredentialsRepository> { FakeCredentialsRepository() }
@@ -667,14 +661,9 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					sessionInvalidationRepository = sessionInvalidationRepository,
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = FakeUpdateRepository(),
-					viewModel = createMainViewModel(
-						sessionRepository = sessionRepository,
-						eventPublisher = eventPublisher
-					)
+					viewModel = viewModel
 				)
 			}
 
@@ -684,7 +673,8 @@ class TuIndiceAppHostRouteUiTest {
 
 			assertDegradedSyncEpisodesReportOnce(
 				syncStatusRepository = syncStatusRepository,
-				eventPublisher = eventPublisher
+				eventPublisher = eventPublisher,
+				observedSyncStatus = { (viewModel.state.value as? Main.State.Content)?.syncStatus }
 			)
 		} finally {
 			stopKoin()
@@ -693,7 +683,8 @@ class TuIndiceAppHostRouteUiTest {
 
 	private fun ComposeUiTest.assertDegradedSyncEpisodesReportOnce(
 		syncStatusRepository: FakeSyncStatusRepository,
-		eventPublisher: RecordingEventPublisher
+		eventPublisher: RecordingEventPublisher,
+		observedSyncStatus: () -> SyncStatus?
 	) {
 		assertTrue(
 			eventPublisher.events.none { event -> event.isDegradedSyncAction() },
@@ -714,9 +705,11 @@ class TuIndiceAppHostRouteUiTest {
 			"Re-emitting the same degraded status must not report a second episode."
 		)
 
-		// A recovery followed by a new degradation is a new episode.
+		// A recovery followed by a new degradation is a new episode. The machine follows the status
+		// on its own thread and equal values are conflated, so the recovery has to be seen by the
+		// host before the next degradation is emitted.
 		syncStatusRepository.emitSyncStatus(SyncStatus.Healthy)
-		waitForIdle()
+		waitUntil(timeoutMillis = 5_000) { observedSyncStatus() == SyncStatus.Healthy }
 		syncStatusRepository.emitSyncStatus(SyncStatus.Unavailable)
 
 		waitUntil(timeoutMillis = 5_000) {
@@ -811,11 +804,11 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					sessionInvalidationRepository = sessionInvalidationRepository,
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = FakeUpdateRepository(),
 					viewModel = createMainViewModel(
+						sessionInvalidationRepository = sessionInvalidationRepository,
+						syncStatusRepository = syncStatusRepository,
 						settingsRepository = FakeSettingsRepository(
 							reviewSuggested = true,
 							lastMainSection = MainSection.SUMMARY
@@ -930,11 +923,11 @@ class TuIndiceAppHostRouteUiTest {
 					TuIndiceAppHostRoute(
 						onConfirmExitClick = {},
 							browserRepository = RecordingBrowserRepository(),
-						sessionInvalidationRepository = sessionInvalidationRepository,
-						syncStatusRepository = syncStatusRepository,
 						reviewRepository = RecordingReviewRepository(),
 						updateRepository = FakeUpdateRepository(),
 						viewModel = createMainViewModel(
+							sessionInvalidationRepository = sessionInvalidationRepository,
+							syncStatusRepository = syncStatusRepository,
 							sessionRepository = sessionRepository,
 							settingsRepository = FakeSettingsRepository(
 								reviewSuggested = true,
@@ -1052,11 +1045,11 @@ class TuIndiceAppHostRouteUiTest {
 				TuIndiceAppHostRoute(
 					onConfirmExitClick = {},
 					browserRepository = RecordingBrowserRepository(),
-					sessionInvalidationRepository = sessionInvalidationRepository,
-					syncStatusRepository = syncStatusRepository,
 					reviewRepository = RecordingReviewRepository(),
 					updateRepository = FakeUpdateRepository(),
 					viewModel = createMainViewModel(
+						sessionInvalidationRepository = sessionInvalidationRepository,
+						syncStatusRepository = syncStatusRepository,
 						settingsRepository = FakeSettingsRepository(
 							reviewSuggested = true,
 							lastMainSection = MainSection.SUMMARY
