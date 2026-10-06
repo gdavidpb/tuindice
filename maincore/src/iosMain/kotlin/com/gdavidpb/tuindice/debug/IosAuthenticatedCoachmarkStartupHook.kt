@@ -14,10 +14,12 @@ object IosAuthenticatedCoachmarksSeenStartupHook : IosDebugStartupHook {
 	const val NAME = "authenticatedCoachmarksSeen"
 
 	override suspend fun run(koin: Koin, mainSectionName: String) {
-		seedAuthenticatedCoachmarkState(
+		seedAuthenticatedState(
 			koin = koin,
-			mainSectionName = mainSectionName,
-			areCoachmarksSeen = true
+			seed = DebugSessionSeed.Canonical.copy(
+				coachmarksSeen = true,
+				mainSection = MainSection.valueOf(mainSectionName)
+			)
 		)
 	}
 }
@@ -26,20 +28,20 @@ object IosAuthenticatedCoachmarksPendingStartupHook : IosDebugStartupHook {
 	const val NAME = "authenticatedCoachmarksPending"
 
 	override suspend fun run(koin: Koin, mainSectionName: String) {
-		seedAuthenticatedCoachmarkState(
+		seedAuthenticatedState(
 			koin = koin,
-			mainSectionName = mainSectionName,
-			areCoachmarksSeen = false
+			seed = DebugSessionSeed.Canonical.copy(
+				coachmarksSeen = false,
+				mainSection = MainSection.valueOf(mainSectionName)
+			)
 		)
 	}
 }
 
-private suspend fun seedAuthenticatedCoachmarkState(
+internal suspend fun seedAuthenticatedState(
 	koin: Koin,
-	mainSectionName: String,
-	areCoachmarksSeen: Boolean
+	seed: DebugSessionSeed
 ) {
-	val section = MainSection.valueOf(mainSectionName)
 	val sessionRepository = koin.get<SessionRepository>()
 	val settingsRepository = koin.get<SettingsRepository>()
 	val credentialsRepository = koin.get<CredentialsRepository>()
@@ -52,17 +54,17 @@ private suspend fun seedAuthenticatedCoachmarkState(
 
 	sessionRepository.setSessionSnapshot(
 		SessionSnapshot(
-			sessionId = "auth-session-initial",
-			accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
-			refreshToken = "refresh.mock.token.value",
-			usbId = "11-11111"
+			sessionId = seed.sessionId,
+			accessToken = seed.accessToken,
+			refreshToken = seed.refreshToken,
+			usbId = seed.usbId
 		)
 	)
-	credentialsRepository.setPassword("123456")
-	if (areCoachmarksSeen) {
+	credentialsRepository.setPassword(seed.password)
+	if (seed.coachmarksSeen) {
 		contextualCoachmarks().forEach { coachmark ->
 			settingsRepository.markCoachmarkSeen(coachmark.id.persistedId)
 		}
 	}
-	settingsRepository.setLastMainSection(section)
+	settingsRepository.setLastMainSection(seed.mainSection)
 }

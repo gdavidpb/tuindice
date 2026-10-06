@@ -297,6 +297,12 @@ tasks.register<Exec>("verifyModuleGraph") {
 	commandLine("bash", "${rootDir}/scripts/validate-module-graph.sh")
 }
 
+tasks.register<Exec>("verifyLaunchArgumentContract") {
+	group = "verification"
+	description = "Validates that debug launch arguments are declared once and never read in release builds."
+	commandLine("bash", "${rootDir}/scripts/verify-launch-argument-contract.sh")
+}
+
 tasks.register<Exec>("verifyE2eContract") {
 	group = "verification"
 	description = "Validates the local E2E flow catalog and critical selector coverage."

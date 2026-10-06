@@ -8,10 +8,13 @@ import com.gdavidpb.tuindice.base.data.source.messaging.DebugPushTokenDataSource
 import com.gdavidpb.tuindice.base.data.source.reporting.DebugReportingDataSource
 import com.gdavidpb.tuindice.base.data.source.usage.NoOpUsageDataCollectionDataSource
 import com.gdavidpb.tuindice.base.domain.repository.EventSubscriber
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.startup.AppStartupTask
 import com.gdavidpb.tuindice.data.MockAttestationProviderDataSource
 import com.gdavidpb.tuindice.data.repository.attestation.AttestationProviderDataRepository
+import com.gdavidpb.tuindice.data.source.network.AndroidNetworkDataSource
+import com.gdavidpb.tuindice.debug.OverridableNetworkDataSource
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectCatalogRemoteDataRepository
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectStatsApiDataRepository
 import com.gdavidpb.tuindice.subjects.data.repository.SubjectStatsLocalDataRepository
@@ -36,6 +39,12 @@ val androidDebugVariantModule = module {
 	single<EventSubscriber>(named("androidDebugEventSubscriber")) {
 		DebugEventSubscriber(
 			sourceName = "android-debug"
+		)
+	}
+
+	single<NetworkRepository> {
+		OverridableNetworkDataSource(
+			delegate = AndroidNetworkDataSource(connectivityManager = get())
 		)
 	}
 

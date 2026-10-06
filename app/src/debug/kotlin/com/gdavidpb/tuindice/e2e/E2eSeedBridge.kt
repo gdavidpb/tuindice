@@ -1,14 +1,16 @@
 package com.gdavidpb.tuindice.e2e
 
 import android.content.Intent
-import androidx.activity.ComponentActivity
 import com.gdavidpb.tuindice.BuildConfig
-import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.SessionSnapshot
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
+import com.gdavidpb.tuindice.base.domain.repository.NetworkRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SettingsRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
+import com.gdavidpb.tuindice.debug.DebugLaunchArguments
+import com.gdavidpb.tuindice.debug.DebugSessionSeed
+import com.gdavidpb.tuindice.debug.OverridableNetworkDataSource
 import com.gdavidpb.tuindice.debug.setDebugAppAvailabilityNoticeOverride
 import com.gdavidpb.tuindice.wizard.presentation.model.contextualCoachmarks
 import com.gdavidpb.tuindice.wizard.presentation.model.persistedId
@@ -21,61 +23,50 @@ import org.koin.core.Koin
 import org.koin.core.context.GlobalContext
 
 object E2eSeedBridge {
-	private const val SEED_STATE_ARG = "TUINDICE_E2E_SEED_STATE"
-	private const val MAIN_SECTION_ARG = "TUINDICE_E2E_MAIN_SECTION"
-	private const val AVAILABILITY_NOTICE_ENABLED_ARG = "TUINDICE_E2E_AVAILABILITY_NOTICE_ENABLED"
-	private const val AVAILABILITY_NOTICE_TITLE_ARG = "TUINDICE_E2E_AVAILABILITY_NOTICE_TITLE"
-	private const val AVAILABILITY_NOTICE_MESSAGE_ARG = "TUINDICE_E2E_AVAILABILITY_NOTICE_MESSAGE"
-	private const val AUTHENTICATED_COACHMARKS_SEEN = "authenticatedCoachmarksSeen"
-	private const val AUTHENTICATED_COACHMARKS_PENDING = "authenticatedCoachmarksPending"
-
+	/**
+	 * Parses the `TUINDICE_E2E_*` extras of the launch intent and applies them.
+	 * Returns the parsed arguments so the activity can read the ones it owns.
+	 */
 	@JvmStatic
-	fun seedIfRequested(activity: ComponentActivity, intent: Intent?) {
-		configureAvailabilityNoticeOverrideIfRequested(
-			koin = GlobalContext.get(),
-			intent = intent
-		)
+	fun applyLaunchArguments(intent: Intent?): DebugLaunchArguments {
+		val koin = GlobalContext.get()
+		val extras = intent?.extras
+		val raw = extras?.keySet().orEmpty()
+			.filter { it.startsWith(DebugLaunchArguments.PREFIX) }
+			.associateWith { extras?.getString(it).orEmpty() }
+		val arguments = DebugLaunchArguments.parse(raw)
 
-		val seedState = intent?.getStringExtra(SEED_STATE_ARG)
-			?.takeIf { it.isNotBlank() }
-			?: return
-
-		check(seedState in setOf(AUTHENTICATED_COACHMARKS_SEEN, AUTHENTICATED_COACHMARKS_PENDING)) {
-			"Unsupported E2E seed state: $seedState"
-		}
-
-		val section = intent.getStringExtra(MAIN_SECTION_ARG)
-			?.takeIf { it.isNotBlank() }
-			?.let(MainSection::valueOf)
-			?: MainSection.SUMMARY
-
-		runBlocking {
-			putWireMockTokensIssuedState(BuildConfig.URL_API)
-			seedAuthenticatedCoachmarkState(
-				koin = GlobalContext.get(),
-				section = section,
-				areCoachmarksSeen = seedState == AUTHENTICATED_COACHMARKS_SEEN
+		arguments.availabilityNotice?.let { notice ->
+			koin.setDebugAppAvailabilityNoticeOverride(
+				enabled = notice.enabled,
+				title = notice.title,
+				message = notice.message
 			)
 		}
+
+		arguments.networkAvailable?.let { forced ->
+			val network = koin.get<NetworkRepository>()
+
+			check(network is OverridableNetworkDataSource) {
+				"Network availability overrides require OverridableNetworkDataSource."
+			}
+
+			network.forced = forced
+		}
+
+		arguments.sessionSeed?.let { seed ->
+			runBlocking {
+				putWireMockTokensIssuedState(BuildConfig.URL_API)
+				seedAuthenticatedState(koin = koin, seed = seed)
+			}
+		}
+
+		return arguments
 	}
 
-	private fun configureAvailabilityNoticeOverrideIfRequested(koin: Koin, intent: Intent?) {
-		val enabled = intent?.getStringExtra(AVAILABILITY_NOTICE_ENABLED_ARG)
-			?.takeIf { it.isNotBlank() }
-			?.toBooleanStrictOrNull()
-			?: return
-
-		koin.setDebugAppAvailabilityNoticeOverride(
-			enabled = enabled,
-			title = intent.getStringExtra(AVAILABILITY_NOTICE_TITLE_ARG).orEmpty(),
-			message = intent.getStringExtra(AVAILABILITY_NOTICE_MESSAGE_ARG).orEmpty()
-		)
-	}
-
-	private suspend fun seedAuthenticatedCoachmarkState(
+	private suspend fun seedAuthenticatedState(
 		koin: Koin,
-		section: MainSection,
-		areCoachmarksSeen: Boolean
+		seed: DebugSessionSeed
 	) {
 		val sessionRepository = koin.get<SessionRepository>()
 		val settingsRepository = koin.get<SettingsRepository>()
@@ -89,19 +80,19 @@ object E2eSeedBridge {
 
 		sessionRepository.setSessionSnapshot(
 			SessionSnapshot(
-				sessionId = "auth-session-initial",
-				accessToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
-				refreshToken = "refresh.mock.token.value",
-				usbId = "11-11111"
+				sessionId = seed.sessionId,
+				accessToken = seed.accessToken,
+				refreshToken = seed.refreshToken,
+				usbId = seed.usbId
 			)
 		)
-		credentialsRepository.setPassword("123456")
-		if (areCoachmarksSeen) {
+		credentialsRepository.setPassword(seed.password)
+		if (seed.coachmarksSeen) {
 			contextualCoachmarks().forEach { coachmark ->
 				settingsRepository.markCoachmarkSeen(coachmark.id.persistedId)
 			}
 		}
-		settingsRepository.setLastMainSection(section)
+		settingsRepository.setLastMainSection(seed.mainSection)
 	}
 
 	private suspend fun putWireMockTokensIssuedState(apiBaseUrl: String) = withContext(Dispatchers.IO) {

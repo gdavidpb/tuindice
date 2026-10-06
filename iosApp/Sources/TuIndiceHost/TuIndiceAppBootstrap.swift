@@ -63,10 +63,7 @@ enum TuIndiceAppBootstrap {
     static func makeRootViewController() -> UIViewController {
         #if canImport(maincore) || canImport(Maincore)
         configureLocale()
-        TuIndiceDebugRuntimeOverrides.configureRemoteConfigOverridesIfNeeded(
-            appBootstrap: appBootstrap
-        )
-        TuIndiceDebugRuntimeOverrides.runStartupHooksIfNeeded(
+        TuIndiceDebugRuntimeOverrides.applyLaunchArguments(
             appBootstrap: appBootstrap,
             apiBaseUrl: hostConfig.apiBaseUrl
         )
@@ -96,7 +93,10 @@ enum TuIndiceAppBootstrap {
         return defaultValue
     }
 
+    /// Release builds read only the bundle and the hard-coded defaults: the environment and
+    /// the argument domain are debug-only inputs.
     private static func launchArgumentString(for key: String) -> String? {
+        #if DEBUG
         if let value = ProcessInfo.processInfo.environment[key], value.isEmpty == false {
             return value
         }
@@ -104,6 +104,7 @@ enum TuIndiceAppBootstrap {
         if let value = UserDefaults.standard.string(forKey: key), value.isEmpty == false {
             return value
         }
+        #endif
 
         return nil
     }
@@ -121,6 +122,7 @@ enum TuIndiceAppBootstrap {
     }
 
     private static func bundleBoolean(for key: String, defaultValue: Bool) -> Bool {
+        #if DEBUG
         if let raw = ProcessInfo.processInfo.environment[key] {
             switch raw.lowercased() {
             case "1", "true", "yes":
@@ -131,6 +133,7 @@ enum TuIndiceAppBootstrap {
                 return defaultValue
             }
         }
+        #endif
 
         if let value = Bundle.main.object(forInfoDictionaryKey: key) as? Bool {
             return value
