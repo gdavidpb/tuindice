@@ -16,6 +16,7 @@ import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.onAllNodesWithTag
 import androidx.compose.ui.test.onNodeWithTag
+import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.test.v2.runComposeUiTest
 import androidx.compose.ui.text.intl.Locale
 import androidx.compose.ui.unit.Density
@@ -173,6 +174,21 @@ fun ComposeUiTest.assertNodeDisabled(
 		testTag = tag,
 		useUnmergedTree = useUnmergedTree
 	).assertIsNotEnabled()
+}
+
+// One performTextInput per character, as a soft keyboard delivers them. `beforeEach` runs ahead of
+// each keystroke with its index, which is where a test lands the view model's lagging answers.
+@OptIn(ExperimentalTestApi::class)
+fun ComposeUiTest.performTextInputPerCharacter(
+	tag: String,
+	text: String,
+	beforeEach: (index: Int) -> Unit = {}
+) {
+	text.forEachIndexed { index, character ->
+		beforeEach(index)
+
+		onNodeWithTag(tag).performTextInput(character.toString())
+	}
 }
 
 private fun Locale?.toLayoutDirection(): LayoutDirection {

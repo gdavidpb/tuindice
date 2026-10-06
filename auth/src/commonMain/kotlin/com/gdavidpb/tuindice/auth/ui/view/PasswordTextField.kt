@@ -12,17 +12,16 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.base.ui.text.EditableTextFieldState
 import org.jetbrains.compose.resources.stringResource
 import tuindice.auth.generated.resources.Res
 import tuindice.auth.generated.resources.a11y_hide_password
@@ -41,26 +40,10 @@ fun PasswordTextField(
 	imeAction: ImeAction = ImeAction.Default,
 	keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
-	val passwordField = remember {
-		mutableStateOf(
-			TextFieldValue(
-				text = password,
-				selection = TextRange(password.length)
-			)
-		)
-	}
+	val field = remember { EditableTextFieldState(password) }
 	val supportingText = remember { mutableStateOf(error) }
 
-	LaunchedEffect(password) {
-		if (passwordField.value.text != password) {
-			val selectionEnd = passwordField.value.selection.end.coerceAtMost(password.length)
-
-			passwordField.value = TextFieldValue(
-				text = password,
-				selection = TextRange(selectionEnd)
-			)
-		}
-	}
+	field.syncExternal(password)
 
 	LaunchedEffect(error) {
 		supportingText.value = error
@@ -68,17 +51,12 @@ fun PasswordTextField(
 
 	OutlinedTextField(
 		modifier = modifier.testTag(AuthUiTags.PasswordTextField),
-		value = passwordField.value,
+		value = field.value,
 		enabled = enabled,
 		onValueChange = { newValue ->
-			val previousText = passwordField.value.text
-
-			passwordField.value = newValue
 			supportingText.value = null
 
-			if (newValue.text != previousText) {
-				onPasswordChange(newValue.text)
-			}
+			if (field.edit(newValue)) onPasswordChange(newValue.text)
 		},
 		isError = supportingText.value != null,
 		supportingText = {

@@ -15,21 +15,19 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.auth.domain.model.SignInIdentifierMode
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
+import com.gdavidpb.tuindice.base.ui.text.EditableTextFieldState
 import com.gdavidpb.tuindice.base.ui.view.PulsingIconHalo
 
-private const val USB_ID_MAX_DIGITS = 7
 private val identifierModeTogglePulseSize = 32.dp
 
 @Composable
@@ -46,29 +44,12 @@ fun UsbIdTextField(
 	usbId: String,
 	keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
-	val textField = remember {
-		mutableStateOf(
-			TextFieldValue(
-				text = usbId,
-				selection = TextRange(usbId.length)
-			)
-		)
-	}
+	val field = remember { EditableTextFieldState(usbId, identifierMode) }
 	val supportingText = remember { mutableStateOf(error) }
-	val digitsOnlyRegex = remember { "\\D+".toRegex() }
 	val shouldShowTogglePulse =
 		showTogglePulse && usbId.isEmpty() && identifierMode == SignInIdentifierMode.UsbId
 
-	LaunchedEffect(usbId, identifierMode) {
-		if (textField.value.text != usbId) {
-			val selectionEnd = textField.value.selection.end.coerceAtMost(usbId.length)
-
-			textField.value = TextFieldValue(
-				text = usbId,
-				selection = TextRange(selectionEnd)
-			)
-		}
-	}
+	field.syncExternal(usbId, identifierMode)
 
 	LaunchedEffect(error) {
 		supportingText.value = error
@@ -76,38 +57,20 @@ fun UsbIdTextField(
 
 	OutlinedTextField(
 		modifier = modifier.testTag(AuthUiTags.UsbIdTextField),
-		value = textField.value,
+		value = field.value,
 		onValueChange = { newValue ->
-			val previousText = textField.value.text
-			if (newValue.text == previousText) {
-				textField.value = newValue
-				return@OutlinedTextField
-			}
+			if (newValue.text == field.value.text) {
+				field.edit(newValue)
+			} else {
+				val edited = when (identifierMode) {
+					SignInIdentifierMode.UsbId -> newValue.toMaskedUsbId(previous = field.value)
+					SignInIdentifierMode.UsbEmail -> newValue
+				}
 
-			val s = when (identifierMode) {
-				SignInIdentifierMode.UsbId -> newValue.text
-					.replace(digitsOnlyRegex, "")
-					.let { digitsOnly ->
-						StringBuilder(digitsOnly).apply {
-							val atLeast2Digits = length >= 2
-							val newContainsDash = newValue.text.elementAtOrNull(2) == '-'
-							val oldContainsDash = previousText.elementAtOrNull(2) == '-'
-
-							if (atLeast2Digits && (!oldContainsDash || newContainsDash))
-								insert(2, '-')
-						}.toString()
-					}
-
-				SignInIdentifierMode.UsbEmail -> newValue.text
-			}
-
-			if (identifierMode == SignInIdentifierMode.UsbEmail || s.length <= USB_ID_MAX_DIGITS + 1) {
-				textField.value = TextFieldValue(
-					text = s,
-					selection = TextRange(s.length)
-				)
-				supportingText.value = null
-				onUsbIdChange(textField.value.text)
+				if (field.edit(edited)) {
+					supportingText.value = null
+					onUsbIdChange(edited.text)
+				}
 			}
 		},
 		isError = supportingText.value != null,
