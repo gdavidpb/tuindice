@@ -49,29 +49,28 @@ class CredentialsDataSource(
 	}
 
 	private suspend fun readPassword(strict: Boolean = false): String? {
-		memoryPassword?.let { return it }
+		return memoryPassword
+			?: readActivePassword(strict)?.also { password -> memoryPassword = password }
+			?: readLegacyPassword()?.let { password -> migrateLegacyPassword(password) }
+	}
 
-		val activePassword = if (strict) {
+	private suspend fun readActivePassword(strict: Boolean): String? {
+		if (strict) {
+			return secureStore.getString(SecureStoreKeys.UNIVERSITY_PASSWORD)
+				?.takeIf(String::isNotBlank)
+		}
+
+		return runCatching {
 			secureStore.getString(SecureStoreKeys.UNIVERSITY_PASSWORD)
 				?.takeIf(String::isNotBlank)
-		} else {
-			runCatching {
-				secureStore.getString(SecureStoreKeys.UNIVERSITY_PASSWORD)
-					?.takeIf(String::isNotBlank)
-			}.getOrNull()
-		}
+		}.getOrNull()
+	}
 
-		if (activePassword != null) {
-			memoryPassword = activePassword
-			return activePassword
-		}
-
-		val legacyPassword = runCatching {
+	private suspend fun readLegacyPassword(): String? {
+		return runCatching {
 			legacySecureStore.getString(SecureStoreKeys.UNIVERSITY_PASSWORD)
 				?.takeIf(String::isNotBlank)
-		}.getOrNull() ?: return null
-
-		return migrateLegacyPassword(legacyPassword)
+		}.getOrNull()
 	}
 
 	private suspend fun migrateLegacyPassword(password: String): String? {
