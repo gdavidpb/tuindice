@@ -23,7 +23,6 @@ import com.gdavidpb.tuindice.evaluations.presentation.mapper.buildEvaluationsWee
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.defaultEvaluationsWeekKey
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.getEvaluationItemMapping
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.listedUnder
-import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveEvaluationsNotice
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveNoAttemptsExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveRecordDataUnavailableExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.toEvaluationsFailedMessage
@@ -342,8 +341,7 @@ class EvaluationsMachine(
 				currentTerm = displayContext.currentTerm,
 				attempts = displayContext.attempts,
 				mapping = mapping
-			),
-			notice = resolveEvaluationsNotice(observed = this)
+			)
 		)
 	}
 

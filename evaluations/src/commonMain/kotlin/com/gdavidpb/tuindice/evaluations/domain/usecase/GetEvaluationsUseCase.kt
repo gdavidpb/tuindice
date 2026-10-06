@@ -65,12 +65,14 @@ class GetEvaluationsUseCase(
 			return syncStatusRepository.observeSyncReport()
 				.map { syncReport ->
 					val enrollment = syncReport.sources.enrollment
-					val situation = enrollment.situation
 
 					GetEvaluations.NoAttempts(
 						reason = when {
-							situation != null ->
-								EvaluationsNoAttemptsReason.Annulled(cause = situation.annulmentCause)
+							// A final annulment drops the term, and the university reports it together
+							// with "not enrolled". It has to win: the record and the summary are the
+							// ones that explain it, and here it reads as having no current term.
+							enrollment.situation != null ->
+								EvaluationsNoAttemptsReason.NoCurrentTerm
 
 							enrollment.status == SyncSourceStatus.NotEnrolled ->
 								EvaluationsNoAttemptsReason.NotEnrolled
@@ -90,15 +92,13 @@ class GetEvaluationsUseCase(
 
 		return combine(
 			evaluationRepository.observeEvaluationsSnapshotFlow(),
-			evaluationsSelectionRepository.observeSelectedWeekKey(),
-			syncStatusRepository.observeSyncReport()
-		) { snapshot, selectedWeekKey, syncReport ->
+			evaluationsSelectionRepository.observeSelectedWeekKey()
+		) { snapshot, selectedWeekKey ->
 			GetEvaluations.Content(
 				evaluations = snapshot.value.sortedWith(evaluationComparator),
 				hasSyncedEvaluations = snapshot.hasSynced,
 				displayContext = displayContext,
-				selectedWeekKey = selectedWeekKey,
-				enrollmentSituation = syncReport.sources.enrollment.situation
+				selectedWeekKey = selectedWeekKey
 			)
 		}
 	}

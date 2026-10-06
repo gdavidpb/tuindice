@@ -21,6 +21,8 @@ appId: com.gdavidpb.tuindice.debug
 - runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - assertVisible:
     id: base_empty_state_animation
-- assertVisible: "Tu inscripción fue anulada"
+# The record explains the final annulment; here it only reads as a term that is not there.
+- assertVisible: "Sin trimestre en curso"
+- assertNotVisible: "Tu inscripción fue anulada"
 - assertNotVisible:
     id: base_empty_view_action_button

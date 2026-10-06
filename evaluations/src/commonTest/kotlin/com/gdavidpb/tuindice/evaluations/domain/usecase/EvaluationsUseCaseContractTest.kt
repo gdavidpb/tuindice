@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.domain.usecase
 
 import app.cash.turbine.test
-import com.gdavidpb.tuindice.base.domain.model.EnrollmentAnnulmentCause
 import com.gdavidpb.tuindice.base.domain.model.EnrollmentSituation
 import com.gdavidpb.tuindice.base.domain.model.RecordDataPrerequisiteState
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
@@ -192,7 +191,7 @@ class EvaluationsUseCaseContractTest {
 	}
 
 	@Test
-	fun getEvaluationsUseCase_withNoCurrentTermAndSituation_reportsAnnulledWithCause() = runTest {
+	fun getEvaluationsUseCase_withNoCurrentTermAndSituation_reportsNoCurrentTerm() = runTest {
 		val useCase = noAttemptsUseCase(
 			syncStatusRepository = RecordingSyncStatusRepository(
 				initialReport = enrollmentReport(
@@ -204,9 +203,29 @@ class EvaluationsUseCaseContractTest {
 
 		useCase.execute(Unit).test {
 			assertEquals(
-				GetEvaluations.NoAttempts(
-					EvaluationsNoAttemptsReason.Annulled(EnrollmentAnnulmentCause.PermanenceRule)
-				),
+				GetEvaluations.NoAttempts(EvaluationsNoAttemptsReason.NoCurrentTerm),
+				awaitLoadingThenData(this)
+			)
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	// The final annulment arrives as "not enrolled" together with its situation. The situation
+	// wins: the record and the summary explain it, and here it is only a term that is not there.
+	@Test
+	fun getEvaluationsUseCase_withNotEnrolledAndSituation_reportsNoCurrentTermInsteadOfNotEnrolled() = runTest {
+		val useCase = noAttemptsUseCase(
+			syncStatusRepository = RecordingSyncStatusRepository(
+				initialReport = enrollmentReport(
+					status = SyncSourceStatus.NotEnrolled,
+					situation = EnrollmentSituation(code = "15")
+				)
+			)
+		)
+
+		useCase.execute(Unit).test {
+			assertEquals(
+				GetEvaluations.NoAttempts(EvaluationsNoAttemptsReason.NoCurrentTerm),
 				awaitLoadingThenData(this)
 			)
 			cancelAndIgnoreRemainingEvents()
@@ -231,9 +250,8 @@ class EvaluationsUseCaseContractTest {
 	}
 
 	@Test
-	fun getEvaluationsUseCase_withCurrentTermAndSituation_keepsContentAndExposesSituation() = runTest {
-		val situation = EnrollmentSituation(code = "01")
-		val useCase = GetEvaluationsUseCase(
+	fun getEvaluationsUseCase_withCurrentTermAndSituation_observesTheSameContentAsWithoutIt() = runTest {
+		fun contentUseCase(situation: EnrollmentSituation?) = GetEvaluationsUseCase(
 			evaluationRepository = RecordingEvaluationRepository(
 				evaluationsFlow = flowOf(listOf(DEFAULT_PENDING_EVALUATION)),
 				initialEvaluations = listOf(DEFAULT_PENDING_EVALUATION)
@@ -249,10 +267,19 @@ class EvaluationsUseCaseContractTest {
 			reportingRepository = RecordingReportingRepository()
 		)
 
-		useCase.execute(Unit).test {
+		var contentWithoutSituation: GetEvaluations? = null
+
+		contentUseCase(situation = null).execute(Unit).test {
+			contentWithoutSituation = awaitLoadingThenData(this)
+			cancelAndIgnoreRemainingEvents()
+		}
+
+		// The provisional annulment keeps the term: the list is the one it would be without it.
+		contentUseCase(situation = EnrollmentSituation(code = "01")).execute(Unit).test {
 			val content = awaitLoadingThenData(this) as GetEvaluations.Content
 
-			assertEquals(situation, content.enrollmentSituation)
+			assertEquals(listOf(DEFAULT_PENDING_EVALUATION), content.evaluations)
+			assertEquals(contentWithoutSituation, content)
 			cancelAndIgnoreRemainingEvents()
 		}
 	}

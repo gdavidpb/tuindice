@@ -234,8 +234,7 @@ class EvaluationsStateMachineContractTest {
 							title = "Semana 1",
 							groups = emptyList()
 						)
-					),
-					notice = null
+					)
 				),
 				EvaluationsInternalEvent.EvaluationsEmptyObserved,
 				EvaluationsInternalEvent.EvaluationsEmptyConfirmed,

@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.presentation.machine
 
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsExplanation
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsNotice
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
@@ -25,8 +24,7 @@ sealed interface EvaluationsInternalEvent {
 	data class EvaluationsContentObserved(
 		val weekItems: List<EvaluationsWeekItem>,
 		val defaultWeekKey: EvaluationsWeekKey,
-		val evaluationWeekGroups: List<EvaluationsWeekGroupItem>,
-		val notice: EvaluationsNotice?
+		val evaluationWeekGroups: List<EvaluationsWeekGroupItem>
 	) : EvaluationsInternalEvent
 
 	data object EvaluationsEmptyObserved : EvaluationsInternalEvent

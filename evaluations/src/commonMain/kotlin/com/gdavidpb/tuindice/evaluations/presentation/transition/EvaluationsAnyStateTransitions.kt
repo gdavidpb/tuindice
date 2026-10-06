@@ -172,7 +172,6 @@ private fun Evaluations.State.toObservedContent(
 		weekItems = event.weekItems,
 		selectedWeekKey = selectedWeekKey,
 		evaluationGroups = event.evaluationWeekGroups.flatMap { weekGroup -> weekGroup.groups },
-		evaluationWeekGroups = event.evaluationWeekGroups,
-		notice = event.notice
+		evaluationWeekGroups = event.evaluationWeekGroups
 	)
 }

@@ -20,12 +20,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Rect
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import com.gdavidpb.tuindice.base.presentation.model.asString
 import com.gdavidpb.tuindice.base.ui.style.InternalScreenDefaults
-import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
 import com.gdavidpb.tuindice.base.ui.view.EmptyStateAnimationView
-import com.gdavidpb.tuindice.base.ui.view.NoticeView
-import com.gdavidpb.tuindice.base.utils.extension.rememberLastNonNull
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
@@ -69,17 +65,6 @@ fun EvaluationsContentView(
 				.fillMaxSize()
 				.padding(top = InternalScreenDefaults.TopBarSpacing)
 		) {
-			// The provisional annulment: the term and its evaluations stay usable, so it only warns.
-			val shownNotice = rememberLastNonNull(state.notice)
-
-			// The column already keeps its distance from the top bar; only the gap below is its own.
-			NoticeView(
-				modifier = Modifier.padding(bottom = TuIndiceSpacing.Medium),
-				visible = state.notice != null,
-				title = shownNotice?.title?.asString(),
-				message = shownNotice?.message?.asString().orEmpty()
-			)
-
 			EvaluationsWeekStripView(
 				items = state.weekItems,
 				selectedWeekKey = state.selectedWeekKey,

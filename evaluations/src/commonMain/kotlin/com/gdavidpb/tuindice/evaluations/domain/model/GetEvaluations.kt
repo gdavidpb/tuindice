@@ -1,7 +1,6 @@
 package com.gdavidpb.tuindice.evaluations.domain.model
 
 import com.gdavidpb.tuindice.academiccore.domain.model.Evaluation
-import com.gdavidpb.tuindice.base.domain.model.EnrollmentSituation
 
 sealed interface GetEvaluations {
 	data object WaitingForRecordData : GetEvaluations
@@ -20,9 +19,6 @@ sealed interface GetEvaluations {
 		val evaluations: List<Evaluation>,
 		val hasSyncedEvaluations: Boolean,
 		val displayContext: EvaluationDisplayContext,
-		val selectedWeekKey: String?,
-		// Present while the university reports the enrollment as annulled but the current term is
-		// still kept (the provisional moment): the evaluations stay usable and get a notice.
-		val enrollmentSituation: EnrollmentSituation? = null
+		val selectedWeekKey: String?
 	) : GetEvaluations
 }

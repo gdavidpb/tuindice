@@ -19,10 +19,12 @@ appId: com.gdavidpb.tuindice.debug
       id: evaluations_content_container
     timeout: 30000
 - runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
-# During the corrections window the term is still there: the evaluations stay usable and the
-# notice explains the annulment above them.
-- extendedWaitUntil:
-    visible:
-      id: base_notice_view
-    timeout: 10000
-- assertVisible: "Tu inscripción aparece anulada"
+# During the corrections window the term is still there: the evaluations stay usable and look as
+# they would without the annulment. The record is the one that explains it, not this screen.
+- assertVisible:
+    id: evaluations_content_container
+- assertVisible:
+    id: evaluations_week_strip
+- assertNotVisible:
+    id: base_notice_view
+- assertNotVisible: "Tu inscripción aparece anulada"

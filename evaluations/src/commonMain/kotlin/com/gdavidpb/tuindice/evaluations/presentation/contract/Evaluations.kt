@@ -6,7 +6,6 @@ import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsGroupItem
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsNotice
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekGroupItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekItem
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsWeekKey
@@ -34,8 +33,7 @@ object Evaluations {
 					title = weekItem.labelText,
 					groups = evaluationGroups
 				)
-			),
-			val notice: EvaluationsNotice? = null
+			)
 		) : State()
 
 		data object Empty : State()

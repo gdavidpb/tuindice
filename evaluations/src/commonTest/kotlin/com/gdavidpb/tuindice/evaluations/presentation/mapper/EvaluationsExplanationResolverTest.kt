@@ -1,8 +1,5 @@
 package com.gdavidpb.tuindice.evaluations.presentation.mapper
 
-import com.gdavidpb.tuindice.base.domain.model.EnrollmentAnnulmentCause
-import com.gdavidpb.tuindice.base.presentation.mapper.EnrollmentAnnulmentTexts
-import com.gdavidpb.tuindice.base.presentation.mapper.NewStudentNoRecordTexts
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsExplanation
@@ -49,20 +46,6 @@ class EvaluationsExplanationResolverTest {
 	}
 
 	@Test
-	fun resolveNoAttemptsExplanation_readsAnAnnulmentAsTheFinalOneWithItsCause() {
-		val cause = EnrollmentAnnulmentCause.PermanenceRule
-
-		assertEquals(
-			EvaluationsExplanation(
-				title = EnrollmentAnnulmentTexts.title(isProvisional = false),
-				message = EnrollmentAnnulmentTexts.message(cause = cause, isProvisional = false),
-				illustration = EvaluationsIllustration.Empty
-			),
-			resolveNoAttemptsExplanation(EvaluationsNoAttemptsReason.Annulled(cause = cause))
-		)
-	}
-
-	@Test
 	fun resolveRecordDataUnavailableExplanation_readsAFailedSyncAsAnError() {
 		assertEquals(
 			EvaluationsExplanation(
@@ -75,13 +58,18 @@ class EvaluationsExplanationResolverTest {
 	}
 
 	@Test
-	fun resolveRecordDataUnavailableExplanation_readsANewStudentWithTheSharedCopyAndNoErrorArt() {
+	fun resolveRecordDataUnavailableExplanation_readsANewStudentAsHavingNoCurrentTermUnderTheCalmArt() {
 		assertEquals(
 			EvaluationsExplanation(
-				title = NewStudentNoRecordTexts.title,
-				message = NewStudentNoRecordTexts.message,
+				title = UiText.Resource(Res.string.title_no_subjects_evaluations),
+				message = UiText.Resource(Res.string.message_no_subjects_evaluations),
 				illustration = EvaluationsIllustration.Empty
 			),
+			resolveRecordDataUnavailableExplanation(isNewStudentNoRecord = true)
+		)
+		// The same thing the screen says when there is simply no term: one copy, not two.
+		assertEquals(
+			resolveNoAttemptsExplanation(EvaluationsNoAttemptsReason.NoCurrentTerm),
 			resolveRecordDataUnavailableExplanation(isNewStudentNoRecord = true)
 		)
 	}

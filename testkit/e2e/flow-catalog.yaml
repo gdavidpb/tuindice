@@ -1790,7 +1790,7 @@ variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
     type: state
     platforms: [android, ios]
     status: active
-    variant: annulled-enrollment-empty
+    variant: annulled-enrollment-reads-as-no-current-term
     fixture_state: evaluations-annulled-final
     actions_covered:
       - evaluations.Evaluations.EnsureEvaluationsLoaded
@@ -1820,13 +1820,14 @@ variant: synthetic-term-create-edit-delete-search-clear-unchanged-disabled
     type: state
     platforms: [android, ios]
     status: active
-    variant: annulled-provisional-notice-over-content
+    variant: annulled-provisional-content-without-notice
     fixture_state: evaluations-annulled-provisional
     actions_covered:
       - evaluations.Evaluations.EnsureEvaluationsLoaded
     primary_selectors:
       - maincore_tuindice_bottom_bar_evaluations_item
       - evaluations_content_container
+      - evaluations_week_strip
       - base_notice_view
   - id: evaluations-edit-submit
     path: e2e/maestro/flows/evaluations/evaluations-edit-submit.yaml

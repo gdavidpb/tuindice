@@ -4,14 +4,11 @@ import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
-import com.gdavidpb.tuindice.base.domain.model.EnrollmentAnnulmentCause
-import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.evaluations.domain.model.EvaluationsNoAttemptsReason
 import com.gdavidpb.tuindice.evaluations.presentation.contract.Evaluations
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveNoAttemptsExplanation
 import com.gdavidpb.tuindice.evaluations.presentation.mapper.resolveRecordDataUnavailableExplanation
-import com.gdavidpb.tuindice.evaluations.presentation.model.EvaluationsNotice
 import com.gdavidpb.tuindice.evaluations.testing.evaluationsContentState
 import com.gdavidpb.tuindice.evaluations.ui.EvaluationsUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
@@ -136,6 +133,8 @@ class EvaluationsScreenUiTest {
 		}
 
 		assertNodeVisible(BaseUiTags.EmptyViewContainer)
+		onNodeWithText("Sin trimestre en curso").assertExists()
+		onNodeWithText("Cuando tengas un trimestre activo, podrás agregar evaluaciones desde aquí.").assertExists()
 		assertNodeHidden(BaseUiTags.EmptyViewActionButton)
 	}
 
@@ -165,29 +164,6 @@ class EvaluationsScreenUiTest {
 		}
 
 	@Test
-	fun when_stateIsNoAttemptsBecauseOfFinalAnnulment_then_displaysCauseCopyWithoutActionButton() =
-		runTuIndiceUiTest {
-			setTuIndiceTestContent {
-				EvaluationsScreen(
-					state = Evaluations.State.NoAttempts(
-						explanation = resolveNoAttemptsExplanation(
-							EvaluationsNoAttemptsReason.Annulled(EnrollmentAnnulmentCause.CreditLimit)
-						)
-					),
-					onAddEvaluationClick = {},
-					onEvaluationClick = { _, _, _ -> },
-					onEvaluationEdit = {},
-					onEvaluationDelete = {},
-					onRetryClick = {}
-				)
-			}
-
-			onNodeWithText("Tu inscripción fue anulada").assertExists()
-			onNodeWithText("Anulada por el límite de créditos. Consulta en DACE.").assertExists()
-			assertNodeHidden(BaseUiTags.EmptyViewActionButton)
-		}
-
-	@Test
 	fun when_stateIsNoAttemptsBecauseNotEnrolled_then_displaysNotEnrolledCopy() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			EvaluationsScreen(
@@ -207,7 +183,7 @@ class EvaluationsScreenUiTest {
 	}
 
 	@Test
-	fun when_recordDataIsUnavailableForANewStudent_then_displaysNewStudentCopyWithoutRetry() =
+	fun when_recordDataIsUnavailableForANewStudent_then_displaysNoCurrentTermCopyWithoutRetry() =
 		runTuIndiceUiTest {
 			setTuIndiceTestContent {
 				EvaluationsScreen(
@@ -222,36 +198,16 @@ class EvaluationsScreenUiTest {
 				)
 			}
 
-			onNodeWithText("Aún no tienes expediente en la universidad").assertExists()
+			// The record and the summary tell a new student about the missing record; here it only
+			// reads as a term that is not there yet, the same as any other empty term.
+			onNodeWithText("Sin trimestre en curso").assertExists()
+			onNodeWithText("Cuando tengas un trimestre activo, podrás agregar evaluaciones desde aquí.").assertExists()
+			onNodeWithText("Aún no tienes expediente en la universidad").assertDoesNotExist()
 			assertNodeHidden(BaseUiTags.ErrorViewRetryButton)
 		}
 
 	@Test
-	fun when_contentHasProvisionalAnnulmentNotice_then_noticeIsShownAboveTheEvaluations() =
-		runTuIndiceUiTest {
-			setTuIndiceTestContent {
-				EvaluationsScreen(
-					state = evaluationsContentState().copy(
-						notice = EvaluationsNotice(
-							title = UiText.Raw("Tu inscripción aparece anulada"),
-							message = UiText.Raw("Todavía puedes regularizarla en DACE.")
-						)
-					),
-					onAddEvaluationClick = {},
-					onEvaluationClick = { _, _, _ -> },
-					onEvaluationEdit = {},
-					onEvaluationDelete = {},
-					onRetryClick = {}
-				)
-			}
-
-			assertNodeVisible(BaseUiTags.NoticeView)
-			onNodeWithText("Tu inscripción aparece anulada").assertExists()
-			assertNodeVisible(EvaluationsUiTags.EvaluationsContentContainer)
-		}
-
-	@Test
-	fun when_contentHasNoNotice_then_noNoticeIsShown() = runTuIndiceUiTest {
+	fun when_stateIsContent_then_theListShowsWithNoNoticeAboveIt() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			EvaluationsScreen(
 				state = evaluationsContentState(),
@@ -263,6 +219,8 @@ class EvaluationsScreenUiTest {
 			)
 		}
 
+		assertNodeVisible(EvaluationsUiTags.EvaluationsContentContainer)
+		assertNodeVisible(EvaluationsUiTags.EvaluationsWeekStrip)
 		assertNodeHidden(BaseUiTags.NoticeView)
 	}
 }
