@@ -9,6 +9,7 @@ include(
 	":academiccore",
 	":testkit",
 	":scenariokit",
+	":scenariorunner",
 	":scenarios",
 	":persistence",
 	":security",

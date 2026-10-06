@@ -113,6 +113,9 @@ Dependencias actuales:
   depende de `:scenariokit` y de los módulos dueños de `*UiTags`, no produce binario y sus tests de host generan
   `e2e/catalog/scenarios.json` y `iosApp/UITests/Generated/ScenarioTests.generated.swift`
   (`./gradlew syncE2eArtifacts`).
+- `scenariorunner`: runner E2E de Android (`com.android.test` autoinstrumentado sobre `:app`, solo variante debug);
+  depende de `:scenariokit`, lee `e2e/catalog/scenarios.json` como asset y maneja la app con UI Automator fuera de
+  proceso. Deja `result.json` en `files/e2e/<id>/` de su propio APK.
 
 Acuerdo de límites:
 
