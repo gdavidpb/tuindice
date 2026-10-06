@@ -3,10 +3,11 @@
 #
 # Source of truth: maincore/.../debug/DebugLaunchArguments.kt declares every
 # TUINDICE_E2E_* key once. Rules encoded here:
-# 1. No TUINDICE_E2E_* literal in any .kt or .swift file outside that definition
-#    and test source sets (everything else reads the constants).
-# 2. Every TUINDICE_E2E_* literal in e2e/, testkit/e2e/ and .codex/ is declared
-#    in the definition.
+# 1. No TUINDICE_E2E_* literal in any .kt or .swift file outside that definition,
+#    test source sets and the iOS UI-test runner (iosApp/UITests, whose literals
+#    are checked by rule 2 instead); everything else reads the constants.
+# 2. Every TUINDICE_E2E_* literal in e2e/, testkit/e2e/, .codex/ and iosApp/UITests/
+#    is declared in the definition.
 # 3. The iOS host reads the process environment, the process arguments and
 #    UserDefaults strings only inside an #if DEBUG block, so release builds
 #    take no input from launch.
@@ -46,7 +47,7 @@ declared_keys=$(grep -oE "$KEY_PATTERN" "$DEFINITION" | sort -u)
 while IFS= read -r file; do
 	[[ "$file" == "$DEFINITION" ]] && continue
 	case "$file" in
-		*/commonTest/* | */androidHostTest/* | */iosTest/* | */androidTest/* | */androidUnitTest/* | */test/*) continue ;;
+		*/iosApp/UITests/* | */commonTest/* | */androidHostTest/* | */iosTest/* | */androidTest/* | */androidUnitTest/* | */test/*) continue ;;
 	esac
 
 	if hits=$(grep -nE "$KEY_PATTERN" "$file"); then
@@ -57,7 +58,7 @@ while IFS= read -r file; do
 done < <(list_sources "$ROOT_DIR" \( -name '*.kt' -o -name '*.swift' \))
 
 # Rule 2: literals in the E2E assets must be declared.
-for dir in e2e testkit/e2e .codex; do
+for dir in e2e testkit/e2e .codex iosApp/UITests; do
 	[[ -d "${ROOT_DIR}/${dir}" ]] || continue
 
 	while IFS= read -r file; do
