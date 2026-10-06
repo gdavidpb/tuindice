@@ -54,6 +54,7 @@ internal fun MachineDefinitionBuilder<Summary.State>.anyStateTransitions(
 
 		onTo<SummaryInternalEvent.UserObserved, Summary.State.Content> { state, event ->
 			event.content.copy(
+				sync = state.sync,
 				isUserRefreshing = state.isUserRefreshing,
 				isProfilePictureLoading =
 					(state as? Summary.State.Content)?.isProfilePictureLoading ?: false,
@@ -67,15 +68,18 @@ internal fun MachineDefinitionBuilder<Summary.State>.anyStateTransitions(
 		) { state, event ->
 			host.sendEffect(Summary.Effect.ShowSnackBar(message = event.message))
 
-			Summary.State.Failed(isUserRefreshing = state.isUserRefreshing)
+			Summary.State.Failed(
+				isUserRefreshing = state.isUserRefreshing,
+				sync = state.sync
+			)
 		}
 
 		onTo<SummaryInternalEvent.RefreshFailed, Summary.State.Failed>(
 			emits = setOf(Summary.Effect.ShowSnackBar::class)
-		) { _, event ->
+		) { state, event ->
 			host.sendEffect(Summary.Effect.ShowSnackBar(message = event.message))
 
-			Summary.State.Failed()
+			Summary.State.Failed(sync = state.sync)
 		}
 
 		on<SummaryInternalEvent.ProfilePictureUploadFailed>(

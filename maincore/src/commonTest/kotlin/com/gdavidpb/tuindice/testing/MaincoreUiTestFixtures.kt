@@ -9,6 +9,7 @@ import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.MessagingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SessionRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
+import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.domain.repository.CoreCacheStateRepository
 import com.gdavidpb.tuindice.domain.usecase.EnsureMessagingSubscribedUseCase
 import com.gdavidpb.tuindice.domain.usecase.GetUpdateInfoUseCase
@@ -23,6 +24,7 @@ import com.gdavidpb.tuindice.presentation.viewmodel.BrowserViewModel
 import com.gdavidpb.tuindice.presentation.viewmodel.MainViewModel
 import com.gdavidpb.tuindice.summary.domain.model.ProfilePicture
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
@@ -52,12 +54,19 @@ fun createBrowserViewModel(): BrowserViewModel = BrowserViewModel(
 )
 
 fun createSummaryViewModel(
-	userRepository: UserRepository = FakeUserRepository()
+	userRepository: UserRepository = FakeUserRepository(),
+	syncStatusRepository: SyncStatusRepository = FakeSyncStatusRepository(),
+	syncRepository: SyncRepository = FakeSyncRepository()
 ): SummaryViewModel {
 	return SummaryViewModel(
 		screenMachine = SummaryMachine(
 			observeUserUseCase = ObserveUserUseCase(
 				userRepository = userRepository,
+				reportingRepository = RecordingReportingRepository()
+			),
+			observeSyncUseCase = ObserveSyncUseCase(
+				syncStatusRepository = syncStatusRepository,
+				syncRepository = syncRepository,
 				reportingRepository = RecordingReportingRepository()
 			),
 			updateUserUseCase = UpdateUserUseCase(

@@ -52,8 +52,13 @@ internal fun MachineDefinitionBuilder<Summary.State>.contentTransitions(
 				} else {
 					state.profilePictureLocalPreview
 				},
-				isUserRefreshing = state.isUserRefreshing
+				isUserRefreshing = state.isUserRefreshing,
+				sync = state.sync
 			)
+		}
+
+		on<SummaryInternalEvent.SyncObserved> { state, event ->
+			state.copy(sync = event.sync)
 		}
 
 		on<SummaryInternalEvent.ObservationFailed>(

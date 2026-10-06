@@ -1,12 +1,19 @@
 package com.gdavidpb.tuindice.summary.domain.usecase
 
+import app.cash.turbine.ReceiveTurbine
 import app.cash.turbine.test
+import com.gdavidpb.tuindice.base.domain.model.SyncReport
+import com.gdavidpb.tuindice.base.domain.model.SyncStatus
+import com.gdavidpb.tuindice.base.domain.usecase.base.UseCaseState
+import com.gdavidpb.tuindice.summary.domain.model.ObservedSync
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UpdateUserExceptionHandler
 import com.gdavidpb.tuindice.summary.domain.usecase.exceptionhandler.UploadProfilePictureExceptionHandler
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_PROFILE_PICTURE
 import com.gdavidpb.tuindice.summary.testing.DEFAULT_SUMMARY_USER
+import com.gdavidpb.tuindice.summary.testing.FakeSyncProgressRepository
 import com.gdavidpb.tuindice.summary.testing.RecordingUserRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeNetworkRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.base.repository.RecordingReportingRepository
 import com.gdavidpb.tuindice.testkit.domain.awaitLoadingThenData
 import io.github.vinceglb.filekit.PlatformFile
@@ -14,6 +21,7 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertIs
 
 class SummaryUseCaseContractTest {
 	@Test
@@ -26,6 +34,81 @@ class SummaryUseCaseContractTest {
 		useCase.execute(Unit).test {
 			assertEquals(DEFAULT_SUMMARY_USER, awaitLoadingThenData(this))
 			awaitComplete()
+		}
+	}
+
+	@Test
+	fun observeSyncUseCase_emitsLoadingThenData_fromTheFourSyncFlows() = runTest {
+		val useCase = ObserveSyncUseCase(
+			syncStatusRepository = FakeSyncStatusRepository(
+				initialValue = SyncStatus.RecordAccessDenied,
+				initialReport = SyncReport.failedRecordUnavailable(),
+				initialLastSuccessfulSyncAt = 1_709_251_200_000L
+			),
+			syncRepository = FakeSyncProgressRepository(initialSyncInProgress = true),
+			reportingRepository = RecordingReportingRepository()
+		)
+
+		useCase.execute(Unit).test {
+			assertEquals(
+				ObservedSync(
+					status = SyncStatus.RecordAccessDenied,
+					report = SyncReport.failedRecordUnavailable(),
+					lastSuccessfulSyncAt = 1_709_251_200_000L,
+					isInProgress = true
+				),
+				awaitLoadingThenData(this)
+			)
+			cancelAndIgnoreRemainingEvents()
+		}
+	}
+
+	@Test
+	fun observeSyncUseCase_emitsAgain_whenAnyOfTheFourSyncFlowsChanges() = runTest {
+		val syncStatusRepository = FakeSyncStatusRepository()
+		val syncRepository = FakeSyncProgressRepository()
+		val useCase = ObserveSyncUseCase(
+			syncStatusRepository = syncStatusRepository,
+			syncRepository = syncRepository,
+			reportingRepository = RecordingReportingRepository()
+		)
+
+		useCase.execute(Unit).test {
+			val initial = awaitLoadingThenData(this)
+
+			assertEquals(
+				ObservedSync(
+					status = SyncStatus.Healthy,
+					report = SyncReport.success(),
+					lastSuccessfulSyncAt = null,
+					isInProgress = false
+				),
+				initial
+			)
+
+			syncRepository.syncInProgress.value = true
+			val syncing = awaitSync()
+			assertEquals(initial.copy(isInProgress = true), syncing)
+
+			syncStatusRepository.setSyncStatus(SyncStatus.Unavailable)
+			val unavailable = awaitSync()
+			assertEquals(syncing.copy(status = SyncStatus.Unavailable), unavailable)
+
+			syncStatusRepository.setSyncReport(SyncReport.partialEnrollmentUnavailable())
+			val partial = awaitSync()
+			assertEquals(
+				unavailable.copy(report = SyncReport.partialEnrollmentUnavailable()),
+				partial
+			)
+
+			syncStatusRepository.setLastSuccessfulSyncAt(1_709_251_200_000L)
+			val synced = awaitSync()
+			assertEquals(partial.copy(lastSuccessfulSyncAt = 1_709_251_200_000L), synced)
+
+			syncRepository.syncInProgress.value = false
+			assertEquals(synced.copy(isInProgress = false), awaitSync())
+
+			cancelAndIgnoreRemainingEvents()
 		}
 	}
 
@@ -66,5 +149,9 @@ class SummaryUseCaseContractTest {
 		}
 
 		assertEquals(listOf(file), repository.uploadCalls)
+	}
+
+	private suspend fun ReceiveTurbine<UseCaseState<ObservedSync, Nothing>>.awaitSync(): ObservedSync {
+		return assertIs<UseCaseState.Data<ObservedSync>>(awaitItem()).value
 	}
 }

@@ -12,8 +12,6 @@ import androidx.compose.ui.test.performClick
 import com.gdavidpb.tuindice.base.domain.model.AppAvailabilityNotice
 import com.gdavidpb.tuindice.base.domain.model.MainSection
 import com.gdavidpb.tuindice.base.domain.model.OutdatedAppState
-import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
-import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
@@ -30,8 +28,6 @@ import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.testing.createBrowserViewModel
 import com.gdavidpb.tuindice.testing.createSummaryViewModel
 import com.gdavidpb.tuindice.testing.rememberTestNavigator
-import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
@@ -646,8 +642,6 @@ class TuIndiceScreenUiTest {
 	private fun testScreenModule() = module {
 		factory { createBrowserViewModel() }
 		factory { createSummaryViewModel() }
-		single<SyncRepository> { FakeSyncRepository() }
-		single<SyncStatusRepository> { FakeSyncStatusRepository() }
 		single<BrowserScreenRenderer> { TestBrowserRenderer }
 	}
 

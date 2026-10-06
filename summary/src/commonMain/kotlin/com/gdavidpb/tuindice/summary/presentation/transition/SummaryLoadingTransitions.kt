@@ -16,6 +16,10 @@ internal fun MachineDefinitionBuilder<Summary.State>.loadingTransitions(
 			state.copy(isUserRefreshing = true)
 		}
 
+		on<SummaryInternalEvent.SyncObserved> { state, event ->
+			state.copy(sync = event.sync)
+		}
+
 		on<SummaryInternalEvent.RefreshSucceeded> { state, _ ->
 			state.copy(isUserRefreshing = false)
 		}

@@ -5,8 +5,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.test.ExperimentalTestApi
 import androidx.compose.ui.test.onNodeWithText
-import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
-import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.presentation.navigation.BrowserDestination
 import com.gdavidpb.tuindice.presentation.navigation.MainDestination
 import com.gdavidpb.tuindice.presentation.navigation.TuIndiceNavigator
@@ -15,8 +13,6 @@ import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.testing.createBrowserViewModel
 import com.gdavidpb.tuindice.testing.createSummaryViewModel
 import com.gdavidpb.tuindice.testing.rememberTestNavigator
-import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
-import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
@@ -137,8 +133,6 @@ class TuIndiceNavRetentionUiTest {
 				module {
 					factory { createSummaryViewModel().also { onSummaryViewModelBuilt() } }
 					factory { createBrowserViewModel().also { onBrowserViewModelBuilt() } }
-					single<SyncRepository> { FakeSyncRepository() }
-					single<SyncStatusRepository> { FakeSyncStatusRepository() }
 					single<BrowserScreenRenderer> { RetentionTestBrowserRenderer }
 				}
 			)

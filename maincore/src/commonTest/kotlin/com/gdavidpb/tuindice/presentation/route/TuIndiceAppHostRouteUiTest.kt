@@ -1107,7 +1107,14 @@ class TuIndiceAppHostRouteUiTest {
 		syncStatusRepository: SyncStatusRepository,
 		sessionInvalidationRepository: SessionInvalidationRepository = FakeSessionInvalidationRepository()
 	) = module {
-		factory { createSummaryViewModel() }
+		// Summary reads the sync through its own use case: it gets the very repositories the
+		// host and the auth module resolve, as it does in production.
+		factory {
+			createSummaryViewModel(
+				syncStatusRepository = get(),
+				syncRepository = get()
+			)
+		}
 		factory { NavEntryStoresViewModel() }
 		single<TuIndiceDispatchers> { DefaultTuIndiceDispatchers }
 		single { testSessionCoroutineScope() }

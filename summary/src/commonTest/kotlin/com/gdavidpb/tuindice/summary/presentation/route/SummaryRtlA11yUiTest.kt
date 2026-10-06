@@ -10,6 +10,7 @@ import androidx.compose.ui.test.onNodeWithTag
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.text.intl.Locale
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
@@ -54,9 +55,7 @@ class SummaryRtlA11yUiTest {
 				onNavigateToProfilePictureSettingsDialog = {},
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
-				viewModel = viewModel,
-				syncStatusRepository = FakeSyncStatusRepository(),
-				syncRepository = FakeSyncRepository()
+				viewModel = viewModel
 			)
 		}
 
@@ -89,9 +88,7 @@ class SummaryRtlA11yUiTest {
 				},
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
-				viewModel = viewModel,
-				syncStatusRepository = FakeSyncStatusRepository(),
-				syncRepository = FakeSyncRepository()
+				viewModel = viewModel
 			)
 		}
 
@@ -119,9 +116,7 @@ class SummaryRtlA11yUiTest {
 				onNavigateToProfilePictureSettingsDialog = {},
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
-				viewModel = viewModel,
-				syncStatusRepository = FakeSyncStatusRepository(),
-				syncRepository = FakeSyncRepository()
+				viewModel = viewModel
 			)
 		}
 
@@ -158,9 +153,7 @@ class SummaryRtlA11yUiTest {
 				onNavigateToProfilePictureSettingsDialog = {},
 				onNavigateToRemoveProfilePictureConfirmationDialog = {},
 				showSnackBar = {},
-				viewModel = viewModel,
-				syncStatusRepository = FakeSyncStatusRepository(),
-				syncRepository = FakeSyncRepository()
+				viewModel = viewModel
 			)
 		}
 
@@ -182,6 +175,11 @@ class SummaryRtlA11yUiTest {
 			screenMachine = SummaryMachine(
 				observeUserUseCase = ObserveUserUseCase(
 					userRepository = userRepository,
+					reportingRepository = RecordingReportingRepository()
+				),
+				observeSyncUseCase = ObserveSyncUseCase(
+					syncStatusRepository = FakeSyncStatusRepository(),
+					syncRepository = FakeSyncRepository(),
 					reportingRepository = RecordingReportingRepository()
 				),
 				updateUserUseCase = UpdateUserUseCase(

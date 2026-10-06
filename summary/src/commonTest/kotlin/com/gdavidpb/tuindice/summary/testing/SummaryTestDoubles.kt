@@ -1,7 +1,9 @@
 package com.gdavidpb.tuindice.summary.testing
 
 import com.gdavidpb.tuindice.base.domain.model.EncodedImage
+import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
 import com.gdavidpb.tuindice.base.domain.model.User
+import com.gdavidpb.tuindice.base.domain.repository.SyncRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.LocalDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.PictureEncoderDataRepository
 import com.gdavidpb.tuindice.summary.data.repository.user.ProfilePictureInputDataRepository
@@ -74,6 +76,17 @@ class RecordingUserRepository(
 		removeCalls++
 		throwable?.let { throw it }
 	}
+}
+
+// The testkit fake reports a sync that never runs; this one lets a test start and stop it.
+class FakeSyncProgressRepository(
+	initialSyncInProgress: Boolean = false
+) : SyncRepository {
+	val syncInProgress = MutableStateFlow(initialSyncInProgress)
+
+	override fun scheduleSync(password: String, policy: SyncPolicy) = Unit
+
+	override fun observeSyncInProgress(): Flow<Boolean> = syncInProgress
 }
 
 class FakeLocalDataSource(

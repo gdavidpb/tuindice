@@ -5,6 +5,7 @@ import com.gdavidpb.tuindice.base.presentation.ViewEffect
 import com.gdavidpb.tuindice.base.presentation.ViewState
 import com.gdavidpb.tuindice.base.presentation.model.TopBarConfig
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.summary.presentation.model.SummarySyncItem
 import io.github.vinceglb.filekit.PlatformFile
 import tuindice.summary.generated.resources.Res
 import tuindice.summary.generated.resources.top_bar_summary
@@ -17,10 +18,18 @@ object Summary {
 		override val isBottomBarVisible: Boolean = true,
 		open val isUserRefreshing: Boolean = false
 	) : ViewState {
-		data object Idle : State()
+		// What the sync says of the account. Every state carries it: the failed screen tells a new
+		// student apart by it, the content shows it, and the states in between must not lose what
+		// was last observed, because the observation only speaks again when something changes.
+		abstract val sync: SummarySyncItem
+
+		data class Idle(
+			override val sync: SummarySyncItem = SummarySyncItem()
+		) : State()
 
 		data class Loading(
-			override val isUserRefreshing: Boolean = false
+			override val isUserRefreshing: Boolean = false,
+			override val sync: SummarySyncItem = SummarySyncItem()
 		) : State(isUserRefreshing = isUserRefreshing)
 
 		data class Content(
@@ -40,11 +49,13 @@ object Summary {
 			val profilePictureLocalPreview: String? = null,
 			val isProfilePictureLoading: Boolean,
 			override val isUserRefreshing: Boolean,
-			val syncStatusText: String = ""
+			val syncStatusText: String = "",
+			override val sync: SummarySyncItem = SummarySyncItem()
 		) : State(isUserRefreshing = isUserRefreshing)
 
 		data class Failed(
-			override val isUserRefreshing: Boolean = false
+			override val isUserRefreshing: Boolean = false,
+			override val sync: SummarySyncItem = SummarySyncItem()
 		) : State(isUserRefreshing = isUserRefreshing)
 	}
 

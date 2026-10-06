@@ -1,9 +1,10 @@
 package com.gdavidpb.tuindice.summary.presentation.machine
 
 import com.gdavidpb.tuindice.summary.presentation.contract.Summary
+import com.gdavidpb.tuindice.summary.presentation.model.SummarySyncItem
 
 /**
- * Internal machine inputs: the user observation, the refresh lifecycle, and the two
+ * Internal machine inputs: the user and sync observations, the refresh lifecycle, and the two
  * profile-picture flows. Messages arrive pre-resolved (the jobs own resource loading).
  */
 sealed interface SummaryInternalEvent {
@@ -13,6 +14,11 @@ sealed interface SummaryInternalEvent {
 
 	data class ObservationFailed(
 		val message: String
+	) : SummaryInternalEvent
+
+	/** The sync changed what it says of the account, or started or stopped running. */
+	data class SyncObserved(
+		val sync: SummarySyncItem
 	) : SummaryInternalEvent
 
 	data object RefreshSucceeded : SummaryInternalEvent

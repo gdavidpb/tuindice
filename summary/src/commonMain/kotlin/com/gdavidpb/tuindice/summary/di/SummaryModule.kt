@@ -11,6 +11,7 @@ import com.gdavidpb.tuindice.summary.data.source.RoomDataSource
 import com.gdavidpb.tuindice.summary.data.source.SummaryApiDataSource
 import com.gdavidpb.tuindice.summary.data.source.UserDataSource
 import com.gdavidpb.tuindice.summary.domain.repository.UserRepository
+import com.gdavidpb.tuindice.summary.domain.usecase.ObserveSyncUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.ObserveUserUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.RemoveProfilePictureUseCase
 import com.gdavidpb.tuindice.summary.domain.usecase.UpdateUserUseCase
@@ -39,6 +40,7 @@ val summaryModule = module {
 	/* Use cases */
 
 	factoryOf(::ObserveUserUseCase)
+	factoryOf(::ObserveSyncUseCase)
 	factoryOf(::UpdateUserUseCase)
 	factoryOf(::UploadProfilePictureUseCase)
 	factoryOf(::RemoveProfilePictureUseCase)
