@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.subjects.presentation.viewmodel
 
 import app.cash.turbine.test
 import com.gdavidpb.tuindice.base.data.source.event.NoOpEventPublisher
+import com.gdavidpb.tuindice.subjects.domain.model.SubjectSearchResult
+import com.gdavidpb.tuindice.subjects.domain.repository.SubjectCatalogRepository
 import com.gdavidpb.tuindice.subjects.domain.usecase.ObserveSubjectSearchUseCase
 import com.gdavidpb.tuindice.subjects.domain.usecase.RefreshSubjectSearchUseCase
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectSearch
@@ -15,6 +17,8 @@ import com.gdavidpb.tuindice.testkit.mvi.launchStateCollector
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.test.runTest
 
 class SubjectSearchViewModelContractTest {
@@ -142,9 +146,86 @@ class SubjectSearchViewModelContractTest {
 		}
 	}
 
-	private fun createFixture(
-		repository: ControllableSubjectCatalogRepository
-	): SubjectSearchFixture {
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun updateQuery_withANormalisationEqualEdit_keepsTheTypedQueryWhenResultsArrive() = runTest {
+		val fixture = createFixture(
+			repository = ControllableSubjectCatalogRepository(
+				localResults = listOf(subjectSearchResult(subjectCode = "MAT101"))
+			)
+		)
+		val viewModel = fixture.viewModel
+
+		fixture.repository.blockRefresh = true
+
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				assertEquals(SubjectSearch.State(), awaitItem())
+
+				viewModel.updateQueryAction(query = "calculo")
+				viewModel.updateQueryAction(query = "calculo ")
+
+				awaitUntilState<SubjectSearch.State> { state -> state.results.size == 1 }
+
+				val refreshing = awaitUntilState<SubjectSearch.State> { state -> state.isRefreshing }
+				assertEquals("calculo ", refreshing.query)
+
+				fixture.repository.releaseRefresh()
+
+				val settled = awaitUntilState<SubjectSearch.State> { state -> !state.isRefreshing }
+				assertEquals("calculo ", settled.query)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	@Test
+	@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)
+	fun resultsOfASupersededQuery_areIgnored() = runTest {
+		val repository = PerQuerySubjectCatalogRepository()
+		val fixture = createFixture(repository = repository)
+		val viewModel = fixture.viewModel
+
+		val stateCollector = backgroundScope.launchStateCollector(
+			flow = viewModel.state,
+			testScheduler = testScheduler
+		)
+
+		try {
+			viewModel.state.test {
+				assertEquals(SubjectSearch.State(), awaitItem())
+
+				viewModel.updateQueryAction(query = "calculo")
+				awaitUntilState<SubjectSearch.State> { state -> state.query == "calculo" }
+
+				viewModel.updateQueryAction(query = "fisica")
+				awaitUntilState<SubjectSearch.State> { state -> state.query == "fisica" }
+
+				repository.emit(query = "calculo", results = listOf(subjectSearchResult(subjectCode = "MAT101")))
+				repository.emit(query = "fisica", results = listOf(subjectSearchResult(subjectCode = "FIS101")))
+
+				val settled = awaitUntilState<SubjectSearch.State> { state -> state.results.isNotEmpty() }
+				assertEquals("fisica", settled.query)
+				assertEquals("FIS101", settled.results.single().subjectCode)
+
+				cancelAndIgnoreRemainingEvents()
+			}
+		} finally {
+			stateCollector.cancel()
+		}
+	}
+
+	private fun <R : SubjectCatalogRepository> createFixture(
+		repository: R
+	): SubjectSearchFixture<R> {
 		val reportingRepository = RecordingReportingRepository()
 
 		val viewModel = SubjectSearchViewModel(
@@ -169,7 +250,22 @@ class SubjectSearchViewModelContractTest {
 	}
 }
 
-private data class SubjectSearchFixture(
+private data class SubjectSearchFixture<R : SubjectCatalogRepository>(
 	val viewModel: SubjectSearchViewModel,
-	val repository: ControllableSubjectCatalogRepository
+	val repository: R
 )
+
+private class PerQuerySubjectCatalogRepository : SubjectCatalogRepository {
+	private val flows = mutableMapOf<String, MutableSharedFlow<List<SubjectSearchResult>>>()
+
+	private fun flowFor(query: String) = flows.getOrPut(query) { MutableSharedFlow(replay = 1) }
+
+	fun emit(query: String, results: List<SubjectSearchResult>) {
+		flowFor(query).tryEmit(results)
+	}
+
+	override fun observeSearchResults(query: String, limit: Int): Flow<List<SubjectSearchResult>> =
+		flowFor(query)
+
+	override suspend fun refreshSearchResults(query: String, limit: Int) = Unit
+}
