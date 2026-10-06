@@ -22,6 +22,7 @@
     "contractFixture": {
         "absentTag": "driver_contract_never_present",
         "disabledTag": "auth_sign_in_button",
+        "expectedText": "12-34567",
         "presentTag": "auth_sign_in_idle_container",
         "start": {
             "arguments": {
@@ -30,7 +31,8 @@
             },
             "mockStates": []
         },
-        "textFieldTag": "auth_usb_id_text_field"
+        "textFieldTag": "auth_usb_id_text_field",
+        "textSample": "1234567"
     },
     "scenarios": [
         {

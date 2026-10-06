@@ -80,6 +80,54 @@ class DriverContractTest {
 		assertEquals("text-entry", failure.primitive)
 	}
 
+	private fun masked(fake: FakeDriver) = object : ScenarioDriver by fake {
+		override fun readText(q: Query) = fake.readText(q)?.let { if (it.length > 2) it.take(2) + "-" + it.drop(2) else it }
+	}
+
+	private fun maskedCatalog(expected: String) = CatalogCodec.encode(
+		sampleCatalog().let {
+			it.copy(contractFixture = it.contractFixture.copy(textSample = "1234567", expectedText = expected))
+		}
+	)
+
+	@Test
+	fun aFieldThatTransformsTheText_passesWhenTheExpectationIsTheTransformedText() {
+		val fake = conformant()
+
+		val outcome = ScenarioRunner.driverContractWith(maskedCatalog("12-34567"), masked(fake), fake.clocks)
+
+		assertNull(outcome.failure, outcome.report)
+	}
+
+	@Test
+	fun aFieldThatTransformsTheText_failsWhenTheExpectationIsTheRawText() {
+		val fake = conformant()
+
+		val failure = assertNotNull(
+			ScenarioRunner.driverContractWith(maskedCatalog("1234567"), masked(fake), fake.clocks).failure
+		)
+
+		assertEquals("text-entry", failure.primitive)
+		assertContains(failure.message, "\"12-34567\"")
+		assertContains(failure.message, "\"1234567\"")
+	}
+
+	@Test
+	fun aFailingCheck_doesNotStopTheRest() {
+		val fake = conformant().apply { typing = { it.drop(1) } }
+		val impatient = object : ScenarioDriver by fake {
+			override fun tap(q: Query) = true
+		}
+
+		val outcome = contract(impatient, fake)
+
+		assertEquals(9, outcome.steps.size)
+		val failed = outcome.steps.filter { it.outcome.wire == "failed" }.map { it.primitive }
+		assertEquals(listOf("absent-element", "text-entry"), failed)
+		assertContains(outcome.report, "2 of 9 checks")
+		assertContains(assertNotNull(outcome.failure).message, "text-entry:")
+	}
+
 	@Test
 	fun aDriverThatThrows_isADriverError() {
 		val fake = conformant().apply { throwOn = "isVisible" }

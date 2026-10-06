@@ -2,6 +2,7 @@ package com.gdavidpb.tuindice.scenariokit.contract
 
 import com.gdavidpb.tuindice.scenariokit.driver.ScenarioDriver
 import com.gdavidpb.tuindice.scenariokit.engine.Clocks
+import com.gdavidpb.tuindice.scenariokit.engine.Poller
 import com.gdavidpb.tuindice.scenariokit.model.Query
 import com.gdavidpb.tuindice.scenariokit.model.Timeouts
 
@@ -71,16 +72,32 @@ internal class DriverContractChecks(
 	}
 
 	private fun textEntry(field: Query): String? {
-		val atomic = driver.setText(field, "ab1") && driver.readText(field) == "ab1"
-		val cleared = driver.clearText(field) && driver.readText(field).orEmpty().isEmpty()
-		val typed = driver.typeKeys(field, "xy2") && driver.readText(field) == "xy2"
+		val wanted = fixture.expectedText
+		val atomic = driver.setText(field, fixture.textSample)
+		val afterSet = settledText(field) { it == wanted }
+		val cleared = driver.clearText(field)
+		val afterClear = settledText(field) { it.isNullOrEmpty() }
+		val typed = driver.typeKeys(field, fixture.textSample)
+		val afterType = settledText(field) { it == wanted }
 		driver.finishTextEntry()
 		return when {
-			!atomic -> "setText did not leave the exact text in the field"
-			!cleared -> "clearText did not empty the field"
-			!typed -> "typeKeys did not leave the exact text in the field"
+			!atomic || afterSet != wanted ->
+				"setText of \"${fixture.textSample}\" left \"$afterSet\" in the field, expected \"$wanted\""
+			!cleared || !afterClear.isNullOrEmpty() -> "clearText left \"$afterClear\" in the field, expected it empty"
+			!typed || afterType != wanted ->
+				"typeKeys of \"${fixture.textSample}\" left \"$afterType\" in the field, expected \"$wanted\""
 			else -> null
 		}
+	}
+
+	/** Reads the field like the interpreter does: for up to [Timeouts.TextReread], until [accepted] or the time is up. */
+	private fun settledText(field: Query, accepted: (String?) -> Boolean): String? {
+		var seen: String? = null
+		Poller(driver, clocks.timeSource).until(Timeouts.TextReread) {
+			seen = driver.readText(field)
+			accepted(seen)
+		}
+		return seen
 	}
 
 	private companion object {

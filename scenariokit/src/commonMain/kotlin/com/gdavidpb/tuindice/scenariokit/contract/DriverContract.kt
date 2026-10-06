@@ -12,10 +12,11 @@ import com.gdavidpb.tuindice.scenariokit.model.StepRecord
 internal object DriverContract {
 	const val ID = "driver-contract"
 
+	/** Runs every check, even after a failure, so one run reports everything that is wrong. */
 	fun run(fixture: DriverContractFixture, driver: ScenarioDriver, clocks: Clocks): ScenarioOutcome {
 		val startedAt = clocks.nowIso()
 		val records = mutableListOf<StepRecord>()
-		var failure: ScenarioFailure? = null
+		val failures = mutableListOf<ScenarioFailure>()
 		for ((index, check) in DriverContractChecks(fixture, driver, clocks).all().withIndex()) {
 			val mark = clocks.timeSource.markNow()
 			val result = runCatching { check.run() }
@@ -23,12 +24,11 @@ internal object DriverContract {
 			val broken = problem != null || result.isFailure
 			val outcome = if (broken) StepOutcome.Failed else StepOutcome.Passed
 			records += StepRecord(index, check.name, "", mark.elapsedNow().inWholeMilliseconds, outcome)
-			if (broken) {
-				failure = failureOf(index, check, problem, result.exceptionOrNull())
-				break
-			}
+			if (broken) failures += failureOf(index, check, problem, result.exceptionOrNull())
 		}
-		val report = failure?.let { "Driver contract failed at ${it.primitive}: ${it.message}" } ?: "Driver contract passed"
+		val failure = failures.firstOrNull()?.copy(message = failures.joinToString("\n") { "${it.primitive}: ${it.message}" })
+		val report = failure?.let { "Driver contract failed (${failures.size} of ${records.size} checks):\n${it.message}" }
+			?: "Driver contract passed"
 		return ScenarioOutcome(ID, startedAt, clocks.nowIso(), records, failure, report)
 	}
 
