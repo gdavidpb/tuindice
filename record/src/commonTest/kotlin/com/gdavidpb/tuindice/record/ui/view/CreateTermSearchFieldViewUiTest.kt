@@ -14,7 +14,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
-import androidx.compose.ui.text.input.TextFieldValue
+import com.gdavidpb.tuindice.base.ui.text.EditableTextFieldState
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
@@ -65,8 +65,48 @@ class CreateTermSearchFieldViewUiTest {
 			.performClick()
 
 		assertEquals(1, clearClicks)
-		// Clearing is the caller's to do: the field shows what it is handed.
-		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).assert(hasText("fisica"))
+		// The field empties itself: the caller is only told.
+		waitForIdle()
+		onNodeWithText("Código, nombre o palabra clave").assertIsDisplayed()
+		assertNodeHidden(RecordUiTags.CreateSyntheticTermSearchClearButton)
+	}
+
+	// The view model answers each keystroke later: an answer already stale when it lands must not
+	// take back what was typed after it was sent.
+	@Test
+	fun when_staleEchoLandsBetweenKeystrokes_then_keepsEveryTypedCharacter() = runTuIndiceUiTest {
+		val echoedQuery = mutableStateOf("")
+		val reported = mutableListOf<String>()
+
+		setTuIndiceTestContent {
+			val fieldState = remember { EditableTextFieldState(echoedQuery.value) }
+
+			fieldState.syncExternal(echoedQuery.value)
+
+			CreateTermSearchField(
+				fieldState = fieldState,
+				focusRequester = remember { FocusRequester() },
+				onQueryChange = { query -> reported += query },
+				onClearQueryClick = {},
+				onSearch = {}
+			)
+		}
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).performTextInput("a")
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).performTextInput("b")
+
+		runOnIdle { echoedQuery.value = reported.first() }
+		waitForIdle()
+
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).performTextInput("c")
+
+		reported.drop(1).forEach { query ->
+			runOnIdle { echoedQuery.value = query }
+			waitForIdle()
+		}
+
+		assertEquals("abc", reported.last())
+		onNodeWithTag(RecordUiTags.CreateSyntheticTermSearchField).assert(hasText("abc"))
 	}
 
 	@Test
@@ -82,7 +122,7 @@ class CreateTermSearchFieldViewUiTest {
 		assertEquals(1, searches)
 	}
 
-	// The field is stateless: the test plays the screen, handing back what was typed.
+	// The test plays the screen: it hands back what was typed.
 	@Composable
 	private fun SearchField(
 		initialQuery: String,
@@ -90,14 +130,18 @@ class CreateTermSearchFieldViewUiTest {
 		onClearQueryClick: () -> Unit = {},
 		onSearch: () -> Unit = {}
 	) {
-		val query = remember { mutableStateOf(TextFieldValue(initialQuery)) }
+		val query = remember { mutableStateOf(initialQuery) }
+
+		val fieldState = remember { EditableTextFieldState(initialQuery) }
+
+		fieldState.syncExternal(query.value)
 
 		CreateTermSearchField(
-			query = query.value,
+			fieldState = fieldState,
 			focusRequester = remember { FocusRequester() },
 			onQueryChange = { value ->
 				query.value = value
-				onQueryChange(value.text)
+				onQueryChange(value)
 			},
 			onClearQueryClick = onClearQueryClick,
 			onSearch = onSearch

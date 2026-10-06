@@ -20,9 +20,10 @@ import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performImeAction
 import androidx.compose.ui.test.performTextInput
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.TextFieldValue
+import com.gdavidpb.tuindice.base.ui.text.EditableTextFieldState
 import com.gdavidpb.tuindice.testkit.ui.assertNodeHidden
 import com.gdavidpb.tuindice.testkit.ui.assertNodeVisible
+import com.gdavidpb.tuindice.testkit.ui.performTextInputPerCharacter
 import com.gdavidpb.tuindice.testkit.ui.runTuIndiceUiTest
 import com.gdavidpb.tuindice.testkit.ui.setTuIndiceTestContent
 import kotlin.test.Test
@@ -63,7 +64,7 @@ class SearchTextFieldUiTest {
 	}
 
 	@Test
-	fun when_clearButtonIsTapped_then_reportsTheClearAndLeavesTheValueToTheCaller() = runTuIndiceUiTest {
+	fun when_clearButtonIsTapped_then_emptiesTheFieldAndReportsTheClear() = runTuIndiceUiTest {
 		var clearClicks = 0
 
 		setTuIndiceTestContent {
@@ -73,13 +74,108 @@ class SearchTextFieldUiTest {
 			)
 		}
 
-		onNodeWithTag(ClearTag, useUnmergedTree = true).performClick()
-
-		assertEquals(1, clearClicks)
 		// The icon inside the button is what a screen reader announces.
 		onNodeWithTag(ClearTag).assertContentDescriptionEquals("Limpiar búsqueda")
-		// The field is stateless: it keeps showing the value it is handed.
-		onNodeWithTag(FieldTag).assert(hasText("matematicas"))
+		onNodeWithTag(ClearTag, useUnmergedTree = true).performClick()
+		waitForIdle()
+
+		assertEquals(1, clearClicks)
+		onNodeWithText("Código o nombre").assertIsDisplayed()
+		assertNodeHidden(tag = ClearTag, useUnmergedTree = true)
+	}
+
+	// The view model answers each keystroke later, off the main thread. An answer that is already
+	// stale when it lands must not take back what was typed after it was sent.
+	@Test
+	fun when_staleEchoLandsBetweenKeystrokes_then_keepsEveryTypedCharacter() = runTuIndiceUiTest {
+		val echoedQuery = mutableStateOf("")
+		val reported = mutableListOf<String>()
+
+		setTuIndiceTestContent {
+			EchoedSearchField(echoedQuery = echoedQuery.value, onQueryChange = { query -> reported += query })
+		}
+
+		onNodeWithTag(FieldTag).performTextInput("a")
+		onNodeWithTag(FieldTag).performTextInput("b")
+
+		// The answer to "a" lands only now, after "b" is already in the field.
+		runOnIdle { echoedQuery.value = reported.first() }
+		waitForIdle()
+
+		onNodeWithTag(FieldTag).performTextInput("c")
+
+		reported.drop(1).forEach { query ->
+			runOnIdle { echoedQuery.value = query }
+			waitForIdle()
+		}
+
+		assertEquals("abc", reported.last())
+		onNodeWithTag(FieldTag).assert(hasText("abc"))
+	}
+
+	// The stale answer lands after "b", then the answer to "b", and only then comes "c".
+	@Test
+	fun when_staleEchoRestoresTheTextBeforeTheNextKey_then_keepsTheTypingOrder() = runTuIndiceUiTest {
+		val echoedQuery = mutableStateOf("")
+		val reported = mutableListOf<String>()
+
+		setTuIndiceTestContent {
+			EchoedSearchField(echoedQuery = echoedQuery.value, onQueryChange = { query -> reported += query })
+		}
+
+		onNodeWithTag(FieldTag).performTextInput("a")
+		onNodeWithTag(FieldTag).performTextInput("b")
+
+		runOnIdle { echoedQuery.value = reported[0] }
+		waitForIdle()
+		runOnIdle { echoedQuery.value = reported[1] }
+		waitForIdle()
+
+		onNodeWithTag(FieldTag).performTextInput("c")
+
+		assertEquals("abc", reported.last())
+		onNodeWithTag(FieldTag).assert(hasText("abc"))
+	}
+
+	@Test
+	fun when_charactersAreTypedOneByOneWithALaggingEcho_then_reportsTheQuery() = runTuIndiceUiTest {
+		val input = "matematicas-i"
+		val echoedQuery = mutableStateOf("")
+		val reported = mutableListOf<String>()
+
+		setTuIndiceTestContent {
+			EchoedSearchField(echoedQuery = echoedQuery.value, onQueryChange = { query -> reported += query })
+		}
+
+		performTextInputPerCharacter(FieldTag, input) { index ->
+			// The answer to the keystroke from two keys ago lands just before this one.
+			if (index >= 2) {
+				runOnIdle { echoedQuery.value = reported[index - 2] }
+				waitForIdle()
+			}
+		}
+
+		runOnIdle { echoedQuery.value = reported.last() }
+		waitForIdle()
+
+		assertEquals(input, reported.last())
+		onNodeWithTag(FieldTag).assert(hasText(input))
+	}
+
+	@Test
+	fun when_theCallerSetsATextTheUserNeverTyped_then_showsIt() = runTuIndiceUiTest {
+		val echoedQuery = mutableStateOf("fisica")
+
+		setTuIndiceTestContent {
+			EchoedSearchField(echoedQuery = echoedQuery.value)
+		}
+
+		onNodeWithTag(FieldTag).assert(hasText("fisica"))
+
+		runOnIdle { echoedQuery.value = "quimica" }
+		waitForIdle()
+
+		onNodeWithTag(FieldTag).assert(hasText("quimica"))
 	}
 
 	@Test
@@ -100,7 +196,7 @@ class SearchTextFieldUiTest {
 		assertEquals(1, searches)
 	}
 
-	// The field is stateless: the test plays the screen, handing back what was typed.
+	// The test plays the screen: it hands back what was typed.
 	@Composable
 	private fun SearchField(
 		initialQuery: String,
@@ -108,18 +204,43 @@ class SearchTextFieldUiTest {
 		onClearClick: () -> Unit = {},
 		onSearch: () -> Unit = {}
 	) {
-		val value = remember { mutableStateOf(TextFieldValue(initialQuery)) }
+		val query = remember { mutableStateOf(initialQuery) }
+		val fieldState = remember { EditableTextFieldState(initialQuery) }
+
+		fieldState.syncExternal(query.value)
 
 		SearchTextField(
-			value = value.value,
+			fieldState = fieldState,
 			placeholderText = "Código o nombre",
 			clearContentDescription = "Limpiar búsqueda",
-			onValueChange = { newValue ->
-				value.value = newValue
-				onQueryChange(newValue.text)
+			onQueryChange = { newQuery ->
+				query.value = newQuery
+				onQueryChange(newQuery)
 			},
 			onClearClick = onClearClick,
 			onSearch = onSearch,
+			modifier = Modifier.testTag(FieldTag),
+			clearButtonModifier = Modifier.testTag(ClearTag)
+		)
+	}
+
+	// The test plays a view model that answers late: it decides what the field is handed.
+	@Composable
+	private fun EchoedSearchField(
+		echoedQuery: String,
+		onQueryChange: (String) -> Unit = {}
+	) {
+		val fieldState = remember { EditableTextFieldState(echoedQuery) }
+
+		fieldState.syncExternal(echoedQuery)
+
+		SearchTextField(
+			fieldState = fieldState,
+			placeholderText = "Código o nombre",
+			clearContentDescription = "Limpiar búsqueda",
+			onQueryChange = onQueryChange,
+			onClearClick = {},
+			onSearch = {},
 			modifier = Modifier.testTag(FieldTag),
 			clearButtonModifier = Modifier.testTag(ClearTag)
 		)

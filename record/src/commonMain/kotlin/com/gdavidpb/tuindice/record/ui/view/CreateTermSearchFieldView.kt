@@ -6,7 +6,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.text.input.TextFieldValue
+import com.gdavidpb.tuindice.base.ui.text.EditableTextFieldState
 import com.gdavidpb.tuindice.base.ui.view.SearchTextField
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
 import org.jetbrains.compose.resources.stringResource
@@ -16,9 +16,9 @@ import tuindice.record.generated.resources.create_term_search_placeholder
 
 @Composable
 fun CreateTermSearchField(
-	query: TextFieldValue,
+	fieldState: EditableTextFieldState,
 	focusRequester: FocusRequester,
-	onQueryChange: (TextFieldValue) -> Unit,
+	onQueryChange: (String) -> Unit,
 	onClearQueryClick: () -> Unit,
 	onSearch: () -> Unit
 ) {
@@ -26,10 +26,10 @@ fun CreateTermSearchField(
 		modifier = Modifier
 			.focusRequester(focusRequester)
 			.testTag(RecordUiTags.CreateSyntheticTermSearchField),
-		value = query,
+		fieldState = fieldState,
 		placeholderText = stringResource(Res.string.create_term_search_placeholder),
 		clearContentDescription = stringResource(Res.string.create_term_search_clear_content_description),
-		onValueChange = onQueryChange,
+		onQueryChange = onQueryChange,
 		onClearClick = onClearQueryClick,
 		onSearch = onSearch,
 		clearButtonModifier = Modifier.testTag(RecordUiTags.CreateSyntheticTermSearchClearButton),

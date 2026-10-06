@@ -19,16 +19,16 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextOverflow
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceRadius
+import com.gdavidpb.tuindice.base.ui.text.EditableTextFieldState
 
 @Composable
 fun SearchTextField(
-	value: TextFieldValue,
+	fieldState: EditableTextFieldState,
 	placeholderText: String,
 	clearContentDescription: String,
-	onValueChange: (TextFieldValue) -> Unit,
+	onQueryChange: (String) -> Unit,
 	onClearClick: () -> Unit,
 	onSearch: () -> Unit,
 	modifier: Modifier = Modifier,
@@ -37,8 +37,10 @@ fun SearchTextField(
 ) {
 	OutlinedTextField(
 		modifier = modifier.fillMaxWidth(),
-		value = value,
-		onValueChange = onValueChange,
+		value = fieldState.value,
+		onValueChange = { newValue ->
+			if (fieldState.edit(newValue)) onQueryChange(newValue.text)
+		},
 		singleLine = true,
 		shape = RoundedCornerShape(TuIndiceRadius.Large),
 		textStyle = textStyle,
@@ -57,10 +59,13 @@ fun SearchTextField(
 			)
 		},
 		trailingIcon = {
-			if (value.text.isNotEmpty()) {
+			if (fieldState.value.text.isNotEmpty()) {
 				IconButton(
 					modifier = clearButtonModifier,
-					onClick = onClearClick
+					onClick = {
+						fieldState.replace("")
+						onClearClick()
+					}
 				) {
 					Icon(
 						imageVector = Icons.Outlined.Close,

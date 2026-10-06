@@ -315,11 +315,7 @@ class RecordStateMachineContractTest {
 			sampleEvents = listOf(
 				CreateSyntheticTerm.Action.Observe,
 				CreateSyntheticTerm.Action.ConfigureTerm(termId = null),
-				CreateSyntheticTerm.Action.UpdateQuery(
-					query = "algoritmos",
-					selectionStart = 10,
-					selectionEnd = 10
-				),
+				CreateSyntheticTerm.Action.UpdateQuery(query = "algoritmos"),
 				CreateSyntheticTerm.Action.SelectAddSubjectTab(
 					tab = CreateTermAddSubjectTab.Search
 				),

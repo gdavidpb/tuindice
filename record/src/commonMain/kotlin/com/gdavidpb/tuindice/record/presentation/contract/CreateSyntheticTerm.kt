@@ -20,8 +20,6 @@ object CreateSyntheticTerm {
 		override val isBottomBarVisible: Boolean = false,
 		val initialDraft: Draft? = null,
 		val query: String = "",
-		val querySelectionStart: Int = 0,
-		val querySelectionEnd: Int = 0,
 		val selectedAddSubjectTab: CreateTermAddSubjectTab = CreateTermAddSubjectTab.Suggested,
 		val periodOptions: List<SyntheticTermPeriodOption> = emptyList(),
 		val selectedPeriod: SyntheticTermPeriodOption? = null,
@@ -83,11 +81,7 @@ object CreateSyntheticTerm {
 			val termId: String?
 		) : Action()
 
-		data class UpdateQuery(
-			val query: String,
-			val selectionStart: Int,
-			val selectionEnd: Int
-		) : Action()
+		data class UpdateQuery(val query: String) : Action()
 
 		data class SelectAddSubjectTab(
 			val tab: CreateTermAddSubjectTab

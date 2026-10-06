@@ -25,11 +25,9 @@ class CreateSyntheticTermStateTest {
 	}
 
 	@Test
-	fun searchUiState_defaultsToSuggestedTabWithEmptyCursorSelection() {
+	fun searchUiState_defaultsToSuggestedTab() {
 		val state = CreateSyntheticTerm.State()
 
 		assertEquals(CreateTermAddSubjectTab.Suggested, state.selectedAddSubjectTab)
-		assertEquals(0, state.querySelectionStart)
-		assertEquals(0, state.querySelectionEnd)
 	}
 }

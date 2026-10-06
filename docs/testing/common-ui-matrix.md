@@ -1,6 +1,6 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-10-05 23:28:12 -0300_
+_Generated automatically on 2026-10-06 16:22:24 -0300_
 
 ## Summary by module
 
@@ -51,12 +51,12 @@ _Generated automatically on 2026-10-05 23:28:12 -0300_
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/screen/SignInScreen.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/screen/SignInScreenUiTest.kt` | 4 | PASS threshold (2) |
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/AnimatedPatternBackground.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/AnimatedPatternBackgroundUiTest.kt` | 2 | PASS threshold (2) |
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/LinkText.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/LinkTextUiTest.kt` | 2 | PASS threshold (2) |
-| `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/PasswordTextField.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/PasswordTextFieldUiTest.kt` | 4 | PASS threshold (2) |
+| `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/PasswordTextField.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/PasswordTextFieldUiTest.kt` | 7 | PASS threshold (2) |
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/RandomFlipperText.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/RandomFlipperTextUiTest.kt` | 2 | PASS threshold (2) |
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/SignInIdleView.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/SignInIdleViewUiTest.kt` | 6 | PASS threshold (2) |
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/SignInLoggingInView.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/SignInLoggingInViewUiTest.kt` | 2 | PASS threshold (2) |
 | `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/UpdatePasswordIdleView.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/UpdatePasswordIdleViewUiTest.kt` | 3 | PASS threshold (2) |
-| `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/UsbIdTextField.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/UsbIdTextFieldUiTest.kt` | 7 | PASS threshold (2) |
+| `auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/ui/view/UsbIdTextField.kt` | 1 | `auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/ui/view/UsbIdTextFieldUiTest.kt` | 13 | PASS threshold (2) |
 
 ### `base`
 
@@ -84,7 +84,7 @@ _Generated automatically on 2026-10-05 23:28:12 -0300_
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/PeekingSelectorView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/PeekingSelectorViewUiTest.kt` | 5 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/PulsingIconHalo.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/PulsingIconHaloUiTest.kt` | 4 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/SealedCrossfade.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/SealedCrossfadeUiTest.kt` | 2 | PASS threshold (2) |
-| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/SearchTextField.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/SearchTextFieldUiTest.kt` | 4 | PASS threshold (2) |
+| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/SearchTextField.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/SearchTextFieldUiTest.kt` | 8 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/StatsLoadingAnimationView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/StatsLoadingAnimationViewUiTest.kt` | 2 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/SubjectCodeChip.kt` | 2 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/SubjectCodeChipUiTest.kt` | 3 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/SubjectResultCard.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/SubjectResultCardUiTest.kt` | 2 | PASS threshold (2) |
@@ -235,7 +235,7 @@ _Generated automatically on 2026-10-05 23:28:12 -0300_
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/dialog/TermSelectionTermRowView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/dialog/TermSelectionTermRowViewUiTest.kt` | 4 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/dialog/TermSelectionYearHeaderView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/dialog/TermSelectionYearHeaderViewUiTest.kt` | 2 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/model/ScheduleDayLabel.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/model/ScheduleDayLabelUiTest.kt` | 2 | PASS threshold (2) |
-| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/screen/CreateSyntheticTermScreen.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/screen/CreateSyntheticTermScreenUiTest.kt` | 14 | PASS threshold (2) |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/screen/CreateSyntheticTermScreen.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/screen/CreateSyntheticTermScreenUiTest.kt` | 17 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/screen/RecordScreen.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/screen/RecordScreenUiTest.kt` | 11 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/ApprovedSearchResultsToggleView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/ApprovedSearchResultsToggleViewUiTest.kt` | 3 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/AttemptCardItemView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/AttemptCardItemViewUiTest.kt` | 3 | PASS threshold (2) |
@@ -248,7 +248,7 @@ _Generated automatically on 2026-10-05 23:28:12 -0300_
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermControlLabel.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermControlLabelUiTest.kt` | 2 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermLoadChipView.kt` | 6 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermLoadChipViewUiTest.kt` | 8 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermPeriodRowView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermPeriodRowViewUiTest.kt` | 3 | PASS threshold (2) |
-| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSearchFieldView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSearchFieldViewUiTest.kt` | 4 | PASS threshold (2) |
+| `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSearchFieldView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSearchFieldViewUiTest.kt` | 5 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSearchGuidanceView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSearchGuidanceViewUiTest.kt` | 4 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSearchMessageView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSearchMessageViewUiTest.kt` | 4 | PASS threshold (2) |
 | `record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSectionTitleView.kt` | 1 | `record/src/commonTest/kotlin/com/gdavidpb/tuindice/record/ui/view/CreateTermSectionTitleViewUiTest.kt` | 2 | PASS threshold (2) |
@@ -302,7 +302,7 @@ _Generated automatically on 2026-10-05 23:28:12 -0300_
 | `subjects/src/commonMain/kotlin/com/gdavidpb/tuindice/subjects/presentation/route/SubjectDetailRoute.kt` | 1 | `subjects/src/commonTest/kotlin/com/gdavidpb/tuindice/subjects/presentation/route/SubjectDetailRouteUiTest.kt` | 4 | PASS threshold (2) |
 | `subjects/src/commonMain/kotlin/com/gdavidpb/tuindice/subjects/presentation/route/SubjectSearchRoute.kt` | 1 | `subjects/src/commonTest/kotlin/com/gdavidpb/tuindice/subjects/presentation/route/SubjectSearchRouteUiTest.kt` | 5 | PASS threshold (2) |
 | `subjects/src/commonMain/kotlin/com/gdavidpb/tuindice/subjects/ui/screen/SubjectDetailScreen.kt` | 1 | `subjects/src/commonTest/kotlin/com/gdavidpb/tuindice/subjects/ui/screen/SubjectDetailScreenUiTest.kt` | 5 | PASS threshold (2) |
-| `subjects/src/commonMain/kotlin/com/gdavidpb/tuindice/subjects/ui/screen/SubjectSearchScreen.kt` | 1 | `subjects/src/commonTest/kotlin/com/gdavidpb/tuindice/subjects/ui/screen/SubjectSearchScreenUiTest.kt` | 5 | PASS threshold (2) |
+| `subjects/src/commonMain/kotlin/com/gdavidpb/tuindice/subjects/ui/screen/SubjectSearchScreen.kt` | 1 | `subjects/src/commonTest/kotlin/com/gdavidpb/tuindice/subjects/ui/screen/SubjectSearchScreenUiTest.kt` | 7 | PASS threshold (2) |
 | `subjects/src/commonMain/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectDetailBarChartCard.kt` | 1 | `subjects/src/commonTest/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectDetailBarChartCardUiTest.kt` | 3 | PASS threshold (2) |
 | `subjects/src/commonMain/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectDetailBarChartColumnProvider.kt` | 1 | `subjects/src/commonTest/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectDetailBarChartColumnProviderUiTest.kt` | 3 | PASS threshold (2) |
 | `subjects/src/commonMain/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectDetailChartsView.kt` | 1 | `subjects/src/commonTest/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectDetailChartsViewUiTest.kt` | 4 | PASS threshold (2) |
@@ -322,7 +322,7 @@ _Generated automatically on 2026-10-05 23:28:12 -0300_
 | `subjects/src/commonMain/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchMessage.kt` | 1 | `subjects/src/commonTest/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchMessageUiTest.kt` | 3 | PASS threshold (2) |
 | `subjects/src/commonMain/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchResultCard.kt` | 4 | `subjects/src/commonTest/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchResultCardUiTest.kt` | 5 | PASS threshold (2) |
 | `subjects/src/commonMain/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchResults.kt` | 1 | `subjects/src/commonTest/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchResultsUiTest.kt` | 5 | PASS threshold (2) |
-| `subjects/src/commonMain/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchTextField.kt` | 1 | `subjects/src/commonTest/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchTextFieldUiTest.kt` | 5 | PASS threshold (2) |
+| `subjects/src/commonMain/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchTextField.kt` | 1 | `subjects/src/commonTest/kotlin/com/gdavidpb/tuindice/subjects/ui/view/SubjectSearchTextFieldUiTest.kt` | 7 | PASS threshold (2) |
 
 ### `summary`
 

@@ -17,6 +17,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import com.gdavidpb.tuindice.base.ui.style.TuIndiceSpacing
+import com.gdavidpb.tuindice.base.ui.text.EditableTextFieldState
 import com.gdavidpb.tuindice.subjects.presentation.contract.SubjectSearch
 import com.gdavidpb.tuindice.subjects.ui.SubjectsUiTags
 import com.gdavidpb.tuindice.subjects.ui.view.SubjectSearchError
@@ -35,6 +36,9 @@ fun SubjectSearchScreen(
 ) {
 	val focusRequester = remember { FocusRequester() }
 	val focusManager = LocalFocusManager.current
+	val searchField = remember { EditableTextFieldState(state.query) }
+
+	searchField.syncExternal(state.query)
 
 	LaunchedEffect(Unit) {
 		focusRequester.requestFocus()
@@ -53,7 +57,7 @@ fun SubjectSearchScreen(
 			.testTag(SubjectsUiTags.SearchScreen)
 	) {
 		SubjectSearchTextField(
-			query = state.query,
+			fieldState = searchField,
 			focusRequester = focusRequester,
 			onQueryChange = onQueryChange,
 			onClearClick = onClearClick,
@@ -65,7 +69,10 @@ fun SubjectSearchScreen(
 			state.query.trim().length < 2 ->
 				SubjectSearchGuidanceView(
 					query = state.query,
-					onExampleClick = onQueryChange,
+					onExampleClick = { example ->
+						searchField.replace(example)
+						onQueryChange(example)
+					},
 					modifier = Modifier.weight(1f)
 				)
 

@@ -29,14 +29,9 @@ internal fun MachineDefinitionBuilder<CreateSyntheticTerm.State>.createSynthetic
 		on<CreateSyntheticTerm.Action.UpdateQuery> { state, action ->
 			machine.draft.setQuery(action.query)
 
-			val selectionStart = action.selectionStart.coerceIn(0, action.query.length)
-			val selectionEnd = action.selectionEnd.coerceIn(0, action.query.length)
-
 			if (action.query.trim().length < MinimumSearchQueryLength) {
 				state.copy(
 					query = action.query,
-					querySelectionStart = selectionStart,
-					querySelectionEnd = selectionEnd,
 					searchResults = emptyList(),
 					isRefreshingSearch = false,
 					hasSearchError = false
@@ -44,8 +39,6 @@ internal fun MachineDefinitionBuilder<CreateSyntheticTerm.State>.createSynthetic
 			} else {
 				state.copy(
 					query = action.query,
-					querySelectionStart = selectionStart,
-					querySelectionEnd = selectionEnd,
 					hasSearchError = false
 				)
 			}

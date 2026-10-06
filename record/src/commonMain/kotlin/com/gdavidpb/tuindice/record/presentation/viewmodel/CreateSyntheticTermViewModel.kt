@@ -22,24 +22,11 @@ class CreateSyntheticTermViewModel(
 	fun configureAction(termId: String?) =
 		sendAction(CreateSyntheticTerm.Action.ConfigureTerm(termId))
 
-	fun updateQueryAction(
-		query: String,
-		selectionStart: Int = query.length,
-		selectionEnd: Int = query.length
-	) = sendAction(
-		CreateSyntheticTerm.Action.UpdateQuery(
-			query = query,
-			selectionStart = selectionStart,
-			selectionEnd = selectionEnd
-		)
-	)
+	fun updateQueryAction(query: String) =
+		sendAction(CreateSyntheticTerm.Action.UpdateQuery(query))
 
 	fun clearQueryAction() =
-		updateQueryAction(
-			query = "",
-			selectionStart = 0,
-			selectionEnd = 0
-		)
+		updateQueryAction("")
 
 	fun selectAddSubjectTabAction(tab: CreateTermAddSubjectTab) =
 		sendAction(CreateSyntheticTerm.Action.SelectAddSubjectTab(tab))

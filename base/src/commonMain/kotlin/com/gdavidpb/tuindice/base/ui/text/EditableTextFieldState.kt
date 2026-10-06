@@ -39,9 +39,10 @@ internal const val MAX_REPORTED_TEXTS = 256
  * After a configuration change or process death the holder is rebuilt from the view model state.
  *
  * Call sites use `val field = remember { EditableTextFieldState(text, key) }` followed by
- * `field.syncExternal(text, key)`. If the view model drops an edit, the field keeps showing what
- * was typed until the screen is recreated; that only happens while a screen is leaving its idle
- * state.
+ * `field.syncExternal(text, key)`. Whoever owns the state syncs it, once per composition: a field
+ * that receives the state only displays and edits it, and never syncs it with another text. If
+ * the view model drops an edit, the field keeps showing what was typed until the screen is
+ * recreated; that only happens while a screen is leaving its idle state.
  *
  * A5: the state-machine loop stays on `Dispatchers.Default`, two hops per key. After this holder
  * nothing the user types waits for the echo; only derived UI (button enablement, search gating)

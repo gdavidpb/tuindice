@@ -40,7 +40,7 @@ import kotlinx.coroutines.test.runTest
 
 class CreateSyntheticTermViewModelContractTest {
 	@Test
-	fun updateQuery_preservesCursorSelection() = runTest {
+	fun updateQuery_clearsResultsForShortQuery() = runTest {
 		val fixture = createFixture()
 
 		val stateCollector = backgroundScope.launchStateCollector(
@@ -52,49 +52,11 @@ class CreateSyntheticTermViewModelContractTest {
 			fixture.viewModel.state.test {
 				assertEquals(CreateSyntheticTerm.State(), awaitItem())
 
-				fixture.viewModel.updateQueryAction(
-					query = "ma",
-					selectionStart = 1,
-					selectionEnd = 2
-				)
-
-				val updated = awaitUntilState<CreateSyntheticTerm.State> { state ->
-					state.query == "ma"
-				}
-				assertEquals(1, updated.querySelectionStart)
-				assertEquals(2, updated.querySelectionEnd)
-
-				cancelAndIgnoreRemainingEvents()
-			}
-		} finally {
-			stateCollector.cancel()
-		}
-	}
-
-	@Test
-	fun updateQuery_clampsSelectionAndClearsResultsForShortQuery() = runTest {
-		val fixture = createFixture()
-
-		val stateCollector = backgroundScope.launchStateCollector(
-			flow = fixture.viewModel.state,
-			testScheduler = testScheduler
-		)
-
-		try {
-			fixture.viewModel.state.test {
-				assertEquals(CreateSyntheticTerm.State(), awaitItem())
-
-				fixture.viewModel.updateQueryAction(
-					query = "a",
-					selectionStart = 5,
-					selectionEnd = 9
-				)
+				fixture.viewModel.updateQueryAction(query = "a")
 
 				val updated = awaitUntilState<CreateSyntheticTerm.State> { state ->
 					state.query == "a"
 				}
-				assertEquals(1, updated.querySelectionStart)
-				assertEquals(1, updated.querySelectionEnd)
 				assertTrue(updated.searchResults.isEmpty())
 				assertEquals(false, updated.isRefreshingSearch)
 				assertEquals(false, updated.hasSearchError)
