@@ -38,7 +38,9 @@ class MockSyncFixturesContractTest {
 		val result = decodeSync("post-sync-annulled-provisional.json")
 		val situation = assertNotNull(result.sync.sources.enrollment.situation)
 		val current = result.record.record.terms.single { term -> term.kind == TermKind.CURRENT }
-		val scheduled = current.attempts.filter { attempt -> !attempt.schedule.isNullOrEmpty() }
+		val withdrawn = current.attempts.single { attempt -> attempt.withdrawn == true }
+		val scheduled = current.attempts
+			.filter { attempt -> attempt.withdrawn != true && !attempt.schedule.isNullOrEmpty() }
 
 		assertEquals(EnrollmentAnnulmentCause.AcademicIndex, situation.annulmentCause)
 		assertEquals(2, scheduled.size)
@@ -46,6 +48,9 @@ class MockSyncFixturesContractTest {
 		assertEquals("MYS-116", scheduled.first().schedule?.first()?.classroom)
 		assertEquals(listOf("CHOQUE DE HORARIO"), scheduled.last().enrollmentErrors)
 		assertTrue(current.attempts.any { attempt -> attempt.schedule.isNullOrEmpty() })
+		// The withdrawn subject keeps the schedule the university sent: that is what lets a flow
+		// check the app leaves it off the schedule.
+		assertTrue(!withdrawn.schedule.isNullOrEmpty())
 	}
 
 	@Test

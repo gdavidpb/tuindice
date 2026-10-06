@@ -1016,6 +1016,23 @@ flows:
       - record_schedule_grid
       - record_schedule_sheet
       - base_top_app_bar_action_sign_out
+  - id: record-withdrawn-subject
+    path: e2e/maestro/flows/record/record-withdrawn-subject.yaml
+    module: record
+    type: state
+    platforms: [android, ios]
+    status: active
+    variant: withdrawn-subject-listed-and-off-the-schedule
+    fixture_state: record-annulled-provisional
+    actions_covered:
+      - record.Record.SelectTerm
+    primary_selectors:
+      - record_term_chip_d377155d39da686f412622aaca9074cd
+      - record_attempt_status_chip_5288ee9acb2b3a199331d0dc908a494a
+      - base_top_app_bar_action_record_schedule
+      - record_schedule_table
+      - record_schedule_table_row_e21f0d7e481d13d19f328d6818ce4d77
+      - record_schedule_table_row_5288ee9acb2b3a199331d0dc908a494a
   - id: record-stale-enrollment-notice
     path: e2e/maestro/flows/record/record-stale-enrollment-notice.yaml
     module: record

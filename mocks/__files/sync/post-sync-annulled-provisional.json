@@ -125,6 +125,29 @@
               },
               "academic_outcome": "pending",
               "academic_badge": "none"
+            },
+            {
+              "id": "5288ee9acb2b3a199331d0dc908a494a",
+              "subject_code": "CSA213",
+              "subject_name": "Venezuela ante el Siglo XXI",
+              "credits": 3,
+              "grading_mode": "numeric",
+              "academic_score": {
+                "type": "numeric",
+                "value": 1
+              },
+              "academic_outcome": "pending",
+              "academic_badge": "none",
+              "section": 2,
+              "schedule": [
+                {
+                  "day_of_week": 6,
+                  "start_block": 7,
+                  "end_block": 8,
+                  "classroom": "ENE-101"
+                }
+              ],
+              "withdrawn": true
             }
           ],
           "period_year": 2026,
