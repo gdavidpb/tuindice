@@ -2,8 +2,10 @@ package com.gdavidpb.tuindice.enrollmentproof.di
 
 import com.gdavidpb.tuindice.enrollmentproof.data.repository.DatabaseDataRepository
 import com.gdavidpb.tuindice.enrollmentproof.data.repository.EnrollmentProofApiDataRepository
-import com.gdavidpb.tuindice.enrollmentproof.data.source.EnrollmentProofDataSource
+import com.gdavidpb.tuindice.enrollmentproof.data.repository.EnrollmentSyncDataRepository
 import com.gdavidpb.tuindice.enrollmentproof.data.repository.StorageDataRepository
+import com.gdavidpb.tuindice.enrollmentproof.data.source.EnrollmentProofDataSource
+import com.gdavidpb.tuindice.enrollmentproof.data.source.EnrollmentSyncDataSource
 import com.gdavidpb.tuindice.enrollmentproof.data.source.FileKitStorageDataSource
 import com.gdavidpb.tuindice.enrollmentproof.data.source.KtorEnrollmentProofApiDataSource
 import com.gdavidpb.tuindice.enrollmentproof.data.source.RoomDatabaseDataSource
@@ -39,6 +41,7 @@ val enrollmentProofModule = module {
 	/* Data sources */
 
 	factoryOf(::RoomDatabaseDataSource) { bind<DatabaseDataRepository>() }
+	factoryOf(::EnrollmentSyncDataSource) { bind<EnrollmentSyncDataRepository>() }
 	factoryOf(::KtorEnrollmentProofApiDataSource) { bind<EnrollmentProofApiDataRepository>() }
 	factoryOf(::FileKitStorageDataSource) { bind<StorageDataRepository>() }
 

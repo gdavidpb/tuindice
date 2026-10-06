@@ -1,9 +1,11 @@
 package com.gdavidpb.tuindice.enrollmentproof.data.repository
 
 import com.gdavidpb.tuindice.base.domain.model.EnrollmentSituation
+import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
 import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncSourceStatus
 import com.gdavidpb.tuindice.enrollmentproof.data.source.EnrollmentProofDataSource
+import com.gdavidpb.tuindice.enrollmentproof.data.source.EnrollmentSyncDataSource
 import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofNotFoundException
 import com.gdavidpb.tuindice.enrollmentproof.domain.exception.EnrollmentProofOfflineException
 import com.gdavidpb.tuindice.enrollmentproof.domain.model.EnrollmentProofNotFoundReason
@@ -15,6 +17,7 @@ import com.gdavidpb.tuindice.enrollmentproof.testing.FakeNetworkRepository
 import com.gdavidpb.tuindice.enrollmentproof.testing.RecordingStorageDataSource
 import com.gdavidpb.tuindice.enrollmentproof.testing.clientRequestException
 import com.gdavidpb.tuindice.testkit.base.repository.FakeCredentialsRepository
+import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncRepository
 import com.gdavidpb.tuindice.testkit.base.repository.FakeSyncStatusRepository
 import io.ktor.client.plugins.ClientRequestException
 import io.ktor.http.HttpStatusCode
@@ -37,7 +40,7 @@ class EnrollmentProofRepositoryContractTest {
 			storageDataSource = storageDataSource,
 			networkRepository = FakeNetworkRepository(isAvailable = true),
 			credentialsRepository = credentialsRepository,
-			syncStatusRepository = FakeSyncStatusRepository()
+			enrollmentSyncDataSource = enrollmentSync()
 		)
 
 		val enrollmentProof = repository.getEnrollmentProof()
@@ -64,7 +67,7 @@ class EnrollmentProofRepositoryContractTest {
 			storageDataSource = storageDataSource,
 			networkRepository = FakeNetworkRepository(isAvailable = true),
 			credentialsRepository = FakeCredentialsRepository(password = "secret123"),
-			syncStatusRepository = FakeSyncStatusRepository()
+			enrollmentSyncDataSource = enrollmentSync()
 		)
 
 		val enrollmentProof = repository.getEnrollmentProof()
@@ -91,7 +94,7 @@ class EnrollmentProofRepositoryContractTest {
 			storageDataSource = storageDataSource,
 			networkRepository = FakeNetworkRepository(isAvailable = true),
 			credentialsRepository = FakeCredentialsRepository(password = "secret123"),
-			syncStatusRepository = FakeSyncStatusRepository()
+			enrollmentSyncDataSource = enrollmentSync()
 		)
 
 		val enrollmentProof = repository.getEnrollmentProof()
@@ -112,7 +115,7 @@ class EnrollmentProofRepositoryContractTest {
 			storageDataSource = RecordingStorageDataSource(),
 			networkRepository = FakeNetworkRepository(isAvailable = true),
 			credentialsRepository = FakeCredentialsRepository(password = "secret123"),
-			syncStatusRepository = FakeSyncStatusRepository()
+			enrollmentSyncDataSource = enrollmentSync()
 		)
 
 		assertFailsWith<ClientRequestException> {
@@ -129,7 +132,7 @@ class EnrollmentProofRepositoryContractTest {
 			storageDataSource = RecordingStorageDataSource(),
 			networkRepository = FakeNetworkRepository(isAvailable = false),
 			credentialsRepository = FakeCredentialsRepository(password = "secret123"),
-			syncStatusRepository = FakeSyncStatusRepository()
+			enrollmentSyncDataSource = enrollmentSync()
 		)
 
 		assertFailsWith<EnrollmentProofOfflineException> {
@@ -150,7 +153,7 @@ class EnrollmentProofRepositoryContractTest {
 			storageDataSource = storageDataSource,
 			networkRepository = FakeNetworkRepository(isAvailable = false),
 			credentialsRepository = FakeCredentialsRepository(password = "secret123"),
-			syncStatusRepository = FakeSyncStatusRepository()
+			enrollmentSyncDataSource = enrollmentSync()
 		)
 
 		val enrollmentProof = repository.getEnrollmentProof()
@@ -167,7 +170,7 @@ class EnrollmentProofRepositoryContractTest {
 			storageDataSource = RecordingStorageDataSource(),
 			networkRepository = FakeNetworkRepository(isAvailable = true),
 			credentialsRepository = FakeCredentialsRepository(password = "secret123"),
-			syncStatusRepository = FakeSyncStatusRepository()
+			enrollmentSyncDataSource = enrollmentSync()
 		)
 
 		assertFailsWith<EnrollmentProofNotFoundException> {
@@ -239,6 +242,55 @@ class EnrollmentProofRepositoryContractTest {
 		}
 	}
 
+	// The proof is the university saying the enrollment stands: a last sync that denied it is out
+	// of date, and waiting for the next one would leave the record announcing an annulment.
+	@Test
+	fun getEnrollmentProof_whenTheProofContradictsTheLastSync_asksForANewSyncPastTheCooldown() = runTest {
+		val annulled = SyncReport.success().withSituation(EnrollmentSituation(code = "06"))
+		val notEnrolled = SyncReport.success().withEnrollmentStatus(SyncSourceStatus.NotEnrolled)
+
+		listOf(annulled, notEnrolled).forEach { report ->
+			val sync = FakeSyncRepository()
+			val repository = repositoryWith(
+				syncStatus = FakeSyncStatusRepository(initialReport = report),
+				sync = sync
+			)
+
+			repository.getEnrollmentProof()
+
+			assertEquals(listOf("secret123"), sync.scheduledSyncCalls)
+			assertEquals(listOf(SyncPolicy.ForceRefresh), sync.scheduledSyncPolicies)
+		}
+	}
+
+	@Test
+	fun getEnrollmentProof_whenTheLastSyncAgrees_asksForNoSync() = runTest {
+		val sync = FakeSyncRepository()
+		val repository = repositoryWith(sync = sync)
+
+		repository.getEnrollmentProof()
+
+		assertEquals(emptyList(), sync.scheduledSyncCalls)
+	}
+
+	// A saved copy proves nothing about today: only a proof the university has just given does.
+	@Test
+	fun getEnrollmentProof_whenOnlyTheSavedCopyIsOpened_asksForNoSync() = runTest {
+		val sync = FakeSyncRepository()
+		val repository = repositoryWith(
+			api = FakeEnrollmentProofApiDataSource(throwable = clientRequestException(HttpStatusCode.ServiceUnavailable)),
+			storage = RecordingStorageDataSource(mapOf(CURRENT_QUARTER_NAME to DEFAULT_ENROLLMENT_PROOF)),
+			syncStatus = FakeSyncStatusRepository(
+				initialReport = SyncReport.success().withSituation(EnrollmentSituation(code = "06"))
+			),
+			sync = sync
+		)
+
+		repository.getEnrollmentProof()
+
+		assertEquals(emptyList(), sync.scheduledSyncCalls)
+	}
+
 	@Test
 	fun getEnrollmentProof_withoutACurrentTerm_explainsItLikeANotFound() = runTest {
 		val repository = repositoryWith(
@@ -257,14 +309,24 @@ class EnrollmentProofRepositoryContractTest {
 		api: FakeEnrollmentProofApiDataSource = FakeEnrollmentProofApiDataSource(),
 		storage: RecordingStorageDataSource = RecordingStorageDataSource(),
 		database: FakeDatabaseDataSource = FakeDatabaseDataSource(),
-		syncStatus: FakeSyncStatusRepository = FakeSyncStatusRepository()
+		syncStatus: FakeSyncStatusRepository = FakeSyncStatusRepository(),
+		sync: FakeSyncRepository = FakeSyncRepository()
 	) = EnrollmentProofDataSource(
 		databaseDataSource = database,
 		enrollmentProofApiDataSource = api,
 		storageDataSource = storage,
 		networkRepository = FakeNetworkRepository(isAvailable = true),
 		credentialsRepository = FakeCredentialsRepository(password = "secret123"),
-		syncStatusRepository = syncStatus
+		enrollmentSyncDataSource = enrollmentSync(syncStatus = syncStatus, sync = sync)
+	)
+
+	private fun enrollmentSync(
+		syncStatus: FakeSyncStatusRepository = FakeSyncStatusRepository(),
+		sync: FakeSyncRepository = FakeSyncRepository()
+	) = EnrollmentSyncDataSource(
+		syncStatusRepository = syncStatus,
+		syncRepository = sync,
+		credentialsRepository = FakeCredentialsRepository(password = "secret123")
 	)
 
 	private fun SyncReport.withSituation(situation: EnrollmentSituation) = copy(

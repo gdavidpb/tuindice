@@ -23,7 +23,7 @@ appId: com.gdavidpb.tuindice.debug
     visible:
       id: base_snackbar_container
     timeout: 20000
-- assertVisible: "Tu inscripción de este trimestre fue anulada, por eso no hay comprobante."
+- assertVisible: "Tu inscripción aparece anulada, por eso no hay comprobante."
 - assertNotVisible:
     id: base_snackbar_action_button
 - assertVisible:

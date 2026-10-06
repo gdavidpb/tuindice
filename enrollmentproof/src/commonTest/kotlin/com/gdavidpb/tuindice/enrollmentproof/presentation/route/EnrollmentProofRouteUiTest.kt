@@ -160,7 +160,7 @@ class EnrollmentProofRouteUiTest {
 		waitUntil(timeoutMillis = 2_000) { snackBarMessages.isNotEmpty() }
 
 		assertEquals(
-			"Tu inscripción de este trimestre fue anulada, por eso no hay comprobante.",
+			"Tu inscripción aparece anulada, por eso no hay comprobante.",
 			snackBarMessages.single().message
 		)
 		assertEquals(null, snackBarMessages.single().actionLabel)
