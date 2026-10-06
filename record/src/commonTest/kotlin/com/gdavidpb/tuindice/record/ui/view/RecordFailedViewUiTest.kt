@@ -37,7 +37,7 @@ class RecordFailedViewUiTest {
 	fun when_theArtIsNoRecord_then_theCalmIllustrationTakesTheErrorOnesPlace() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			RecordFailedView(
-				title = "Aún no tienes expediente en la universidad",
+				title = "Aún no tienes expediente",
 				message = "Aparecerá aquí cuando la universidad lo publique.",
 				art = RecordFailedArt.NoRecord,
 				retryText = "Reintentar",
@@ -48,7 +48,7 @@ class RecordFailedViewUiTest {
 		// A university with no record for the account yet is not a failure of ours.
 		assertNodeVisible(BaseUiTags.EmptyStateAnimation)
 		assertNodeHidden(BaseUiTags.ErrorStateAnimation)
-		onNodeWithTag(BaseUiTags.ErrorViewTitle).assertTextEquals("Aún no tienes expediente en la universidad")
+		onNodeWithTag(BaseUiTags.ErrorViewTitle).assertTextEquals("Aún no tienes expediente")
 		onNodeWithTag(BaseUiTags.ErrorViewMessage)
 			.assertTextEquals("Aparecerá aquí cuando la universidad lo publique.")
 	}
@@ -59,7 +59,7 @@ class RecordFailedViewUiTest {
 
 		setTuIndiceTestContent {
 			RecordFailedView(
-				title = "Aún no tienes expediente en la universidad",
+				title = "Aún no tienes expediente",
 				message = "Aparecerá aquí cuando la universidad lo publique.",
 				art = RecordFailedArt.NoRecord,
 				retryText = "Reintentar",

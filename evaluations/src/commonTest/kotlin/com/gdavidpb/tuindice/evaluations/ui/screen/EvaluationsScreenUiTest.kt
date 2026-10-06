@@ -202,7 +202,7 @@ class EvaluationsScreenUiTest {
 			// reads as a term that is not there yet, the same as any other empty term.
 			onNodeWithText("Sin trimestre en curso").assertExists()
 			onNodeWithText("Cuando tengas un trimestre activo, podrás agregar evaluaciones desde aquí.").assertExists()
-			onNodeWithText("Aún no tienes expediente en la universidad").assertDoesNotExist()
+			onNodeWithText("Aún no tienes expediente").assertDoesNotExist()
 			assertNodeHidden(BaseUiTags.ErrorViewRetryButton)
 		}
 

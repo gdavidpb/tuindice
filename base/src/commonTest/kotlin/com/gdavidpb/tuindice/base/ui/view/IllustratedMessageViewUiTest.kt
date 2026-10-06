@@ -18,7 +18,7 @@ class IllustratedMessageViewUiTest {
 
 		setTuIndiceTestContent {
 			IllustratedMessageView(
-				title = "Aún no tienes expediente en la universidad",
+				title = "Aún no tienes expediente",
 				message = "Vuelve a intentarlo en unos días.",
 				actionLabel = "Reintentar",
 				onActionClick = { clicks++ },

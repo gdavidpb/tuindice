@@ -68,7 +68,7 @@ class SyncStatusInfoContentDialogUiTest {
 		}
 
 		assertNodeHidden(SummaryUiTags.SyncStatusMessage)
-		onNodeWithText("Aún no tienes expediente en la universidad").assertDoesNotExist()
+		onNodeWithText("Aún no tienes expediente").assertDoesNotExist()
 		onNodeWithText("Servicios de la universidad no disponibles").assertDoesNotExist()
 	}
 

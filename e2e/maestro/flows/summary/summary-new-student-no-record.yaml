@@ -24,7 +24,7 @@ appId: com.gdavidpb.tuindice.debug
       id: base_error_view_container
     timeout: 30000
 - runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
-- assertVisible: "Aún no tienes expediente en la universidad"
+- assertVisible: "Aún no tienes expediente"
 - assertVisible:
     id: base_error_view_retry_button
 - tapOn:
@@ -35,7 +35,7 @@ appId: com.gdavidpb.tuindice.debug
     timeout: 30000
 - runFlow: ../_shared/dismiss-coachmarks-if-visible.yaml
 - assertVisible: "Sin trimestre en curso"
-- assertNotVisible: "Aún no tienes expediente en la universidad"
+- assertNotVisible: "Aún no tienes expediente"
 - assertNotVisible:
     id: base_error_view_retry_button
 # Back on Summary, once the sync has answered (Record and Evaluations just read it): a missing

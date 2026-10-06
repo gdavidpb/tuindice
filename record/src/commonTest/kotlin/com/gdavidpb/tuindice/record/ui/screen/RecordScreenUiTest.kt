@@ -356,7 +356,7 @@ class RecordScreenUiTest {
 			)
 		}
 
-		onNodeWithText("Aún no tienes expediente en la universidad").assertIsDisplayed()
+		onNodeWithText("Aún no tienes expediente").assertIsDisplayed()
 		onNodeWithTag(BaseUiTags.ErrorViewRetryButton).performClick()
 		assertEquals(1, retryClicks)
 	}

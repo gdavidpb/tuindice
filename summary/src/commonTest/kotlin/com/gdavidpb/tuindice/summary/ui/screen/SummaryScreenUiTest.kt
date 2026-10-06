@@ -261,7 +261,7 @@ class SummaryScreenUiTest {
 		onNodeWithTag(SummaryUiTags.StatusIconButton).performClick()
 
 		assertNodeHidden(SummaryUiTags.SyncStatusMessage)
-		onNodeWithText("Aún no tienes expediente en la universidad").assertDoesNotExist()
+		onNodeWithText("Aún no tienes expediente").assertDoesNotExist()
 	}
 
 	@Test
@@ -347,7 +347,7 @@ class SummaryScreenUiTest {
 
 		assertNodeVisible(SummaryUiTags.NewStudentContainer)
 		assertNodeHidden(BaseUiTags.ErrorViewContainer)
-		onNodeWithText("Aún no tienes expediente en la universidad").assertExists()
+		onNodeWithText("Aún no tienes expediente").assertExists()
 		onNodeWithTag(SummaryUiTags.NewStudentRetryButton).assertIsEnabled()
 		onNodeWithTag(SummaryUiTags.NewStudentRetryButton).performClick()
 		assertEquals(1, retryClicks)

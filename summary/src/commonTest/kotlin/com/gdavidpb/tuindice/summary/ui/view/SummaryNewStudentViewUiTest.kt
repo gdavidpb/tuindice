@@ -21,7 +21,7 @@ class SummaryNewStudentViewUiTest {
 	fun when_theUniversityHasNoRecordYet_then_theCalmArtHeadsTheCopyItWasGiven() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SummaryNewStudentView(
-				title = "Aún no tienes expediente en la universidad",
+				title = "Aún no tienes expediente",
 				message = "Aparecerá aquí cuando la universidad lo publique.",
 				isRetryEnabled = true,
 				onRetryClick = {}
@@ -33,7 +33,7 @@ class SummaryNewStudentViewUiTest {
 		assertNodeVisible(BaseUiTags.EmptyStateAnimation)
 		assertNodeHidden(BaseUiTags.ErrorStateAnimation)
 		assertNodeHidden(BaseUiTags.ErrorViewContainer)
-		onNodeWithTag(SummaryUiTags.NewStudentTitle).assertTextEquals("Aún no tienes expediente en la universidad")
+		onNodeWithTag(SummaryUiTags.NewStudentTitle).assertTextEquals("Aún no tienes expediente")
 		onNodeWithTag(SummaryUiTags.NewStudentMessage)
 			.assertTextEquals("Aparecerá aquí cuando la universidad lo publique.")
 	}
@@ -44,7 +44,7 @@ class SummaryNewStudentViewUiTest {
 
 		setTuIndiceTestContent {
 			SummaryNewStudentView(
-				title = "Aún no tienes expediente en la universidad",
+				title = "Aún no tienes expediente",
 				message = "Aparecerá aquí cuando la universidad lo publique.",
 				isRetryEnabled = true,
 				onRetryClick = { retryClicks++ }
@@ -65,7 +65,7 @@ class SummaryNewStudentViewUiTest {
 
 		setTuIndiceTestContent {
 			SummaryNewStudentView(
-				title = "Aún no tienes expediente en la universidad",
+				title = "Aún no tienes expediente",
 				message = "Aparecerá aquí cuando la universidad lo publique.",
 				isRetryEnabled = false,
 				onRetryClick = { retryClicks++ }

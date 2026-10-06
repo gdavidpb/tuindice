@@ -13,8 +13,8 @@
 	<string name="enrollment_annulled_final_title">Tu inscripción fue anulada</string>
 	<string name="enrollment_annulled_final_message">Anulada %1$s. Consulta en DACE.</string>
 	<string name="enrollment_annulled_final_message_generic">Consulta en DACE para regularizarla.</string>
-	<string name="new_student_no_record_title">Aún no tienes expediente en la universidad</string>
-	<string name="new_student_no_record_message">La universidad todavía no tiene un expediente académico para tu cuenta. Si eres de nuevo ingreso, es normal: DACE lo crea más adelante. Vuelve a intentarlo en unos días.</string>
+	<string name="new_student_no_record_title">Aún no tienes expediente</string>
+	<string name="new_student_no_record_message">Si eres nuevo ingreso, es normal. Vuelve en unos días.</string>
 	<string name="enrollment_annulled_cause_credit_limit">por el límite de créditos</string>
 	<string name="enrollment_annulled_cause_academic_index">por tu índice académico</string>
 	<string name="enrollment_annulled_cause_withdrawal_rule">por la norma de retiros</string>
