@@ -1,0 +1,20 @@
+{
+  "priority": 1,
+  "request": {
+    "method": "GET",
+    "urlPath": "/record/v5",
+    "headers": {
+      "Authorization": {
+        "equalTo": "Bearer annulled-provisional.mock.access"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "bodyFileName": "record/get-record-annulled-provisional.json",
+    "fixedDelayMilliseconds": 500
+  }
+}

@@ -10,8 +10,10 @@ class CredentialsDataSource(
 ) : CredentialsRepository, SessionMemory {
 	private var memoryPassword: String? = null
 
+	// A store that fails to read is not a store without a password: the failure is thrown so
+	// a caller that latches on "absent" never latches on a transient Keystore/Keychain error.
 	override suspend fun hasPassword(): Boolean {
-		return readPassword() != null
+		return readPassword(strict = true) != null
 	}
 
 	override suspend fun getPassword(): String {
@@ -46,13 +48,18 @@ class CredentialsDataSource(
 		memoryPassword = null
 	}
 
-	private suspend fun readPassword(): String? {
+	private suspend fun readPassword(strict: Boolean = false): String? {
 		memoryPassword?.let { return it }
 
-		val activePassword = runCatching {
+		val activePassword = if (strict) {
 			secureStore.getString(SecureStoreKeys.UNIVERSITY_PASSWORD)
 				?.takeIf(String::isNotBlank)
-		}.getOrNull()
+		} else {
+			runCatching {
+				secureStore.getString(SecureStoreKeys.UNIVERSITY_PASSWORD)
+					?.takeIf(String::isNotBlank)
+			}.getOrNull()
+		}
 
 		if (activePassword != null) {
 			memoryPassword = activePassword

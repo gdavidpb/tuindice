@@ -21,6 +21,7 @@ import com.gdavidpb.tuindice.security.domain.model.AttestationRequest
 import com.gdavidpb.tuindice.security.domain.model.ProtectedOperationCodes
 import com.gdavidpb.tuindice.security.domain.repository.AttestationRepository
 import com.gdavidpb.tuindice.security.utils.canonicalAttestationPayloadJson
+import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.ensureActive
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -232,7 +233,15 @@ class SessionRecoveryDataSource(
 		credentialsRepository: CredentialsRepository,
 		authRepository: AuthRepository
 	): SessionSnapshot? {
-		if (!credentialsRepository.hasPassword()) return null
+		val hasPassword = try {
+			credentialsRepository.hasPassword()
+		} catch (cancellation: CancellationException) {
+			throw cancellation
+		} catch (_: Exception) {
+			false
+		}
+
+		if (!hasPassword) return null
 
 		return runCatching {
 			sessionRepository.getSessionChangedSnapshot(attemptedSnapshot)?.let { snapshot ->

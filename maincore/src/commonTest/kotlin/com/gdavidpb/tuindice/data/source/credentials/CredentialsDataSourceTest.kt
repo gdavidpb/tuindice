@@ -3,6 +3,7 @@ package com.gdavidpb.tuindice.data.source.credentials
 import com.gdavidpb.tuindice.base.data.repository.SecureKeyValueDataRepository
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertNull
 import kotlin.test.assertTrue
@@ -75,6 +76,18 @@ class CredentialsDataSourceTest {
 		assertTrue(dataSource.hasPassword())
 		assertEquals("new-password", dataSource.getPassword())
 		assertEquals("new-password", activeStore.values[UNIVERSITY_PASSWORD_KEY])
+	}
+
+	// A store that cannot be read right now is not a store without a password: answering false
+	// would let ScheduleSyncUseCase latch MissingCredentials over a perfectly good password.
+	@Test
+	fun hasPassword_whenTheActiveStoreFailsToRead_throwsInsteadOfAnsweringFalse() = runTest {
+		val dataSource = CredentialsDataSource(
+			secureStore = FakeSecureKeyValueDataRepository(failReads = true),
+			legacySecureStore = FakeSecureKeyValueDataRepository()
+		)
+
+		assertFailsWith<IllegalStateException> { dataSource.hasPassword() }
 	}
 
 	@Test
@@ -152,12 +165,16 @@ class CredentialsDataSourceTest {
 
 private class FakeSecureKeyValueDataRepository(
 	initialValues: Map<String, String> = emptyMap(),
-	private val dropReads: Boolean = false
+	private val dropReads: Boolean = false,
+	private val failReads: Boolean = false
 ) : SecureKeyValueDataRepository {
 	val values = initialValues.toMutableMap()
 
-	override suspend fun getString(key: String): String? =
-		if (dropReads) null else values[key]
+	override suspend fun getString(key: String): String? {
+		if (failReads) error("secure store unavailable")
+
+		return if (dropReads) null else values[key]
+	}
 
 	override suspend fun putString(key: String, value: String) {
 		values[key] = value
