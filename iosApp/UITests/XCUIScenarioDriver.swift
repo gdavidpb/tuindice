@@ -29,7 +29,9 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
 
     // MARK: AppControl
 
-    func launch(spec: LaunchSpec) -> Bool {
+    func launch(spec: LaunchSpec) -> Bool { traced("launch") { launchApp(spec) } }
+
+    private func launchApp(_ spec: LaunchSpec) -> Bool {
         app.terminate()
 
         var environment = spec.arguments
@@ -42,64 +44,80 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     }
 
     func foreground() -> Bool {
-        guard resolver.isAppRunning else { return false }
-        app.activate()
-        return app.wait(for: .runningForeground, timeout: Self.launchTimeout)
+        traced("foreground") {
+            guard resolver.isAppRunning else { return false }
+            app.activate()
+            return app.wait(for: .runningForeground, timeout: Self.launchTimeout)
+        }
     }
 
-    func isForeground() -> Bool { app.state == .runningForeground }
+    func isForeground() -> Bool { traced("isForeground") { app.state == .runningForeground } }
 
-    func terminate() { app.terminate() }
+    func terminate() { traced("terminate") { app.terminate() } }
 
     // MARK: ElementProbe
 
     func waitVisible(q: Query, timeoutMs: Int64) -> Bool {
-        poll(timeoutMs: timeoutMs) { resolver.visibleFacts(q) != nil }
+        traced("waitVisible") { poll(timeoutMs: timeoutMs) { resolver.visibleFacts(q) != nil } }
     }
 
     func waitGone(q: Query, timeoutMs: Int64) -> Bool {
-        poll(timeoutMs: timeoutMs) { resolver.visibleFacts(q) == nil }
+        traced("waitGone") { poll(timeoutMs: timeoutMs) { resolver.visibleFacts(q) == nil } }
     }
 
-    func isVisible(q: Query) -> Bool { resolver.visibleFacts(q) != nil }
+    func isVisible(q: Query) -> Bool { traced("isVisible") { resolver.visibleFacts(q) != nil } }
 
-    func isEnabled(q: Query) -> Bool { resolver.visibleFacts(q)?.1.isEnabled ?? false }
+    func isEnabled(q: Query) -> Bool { traced("isEnabled") { resolver.visibleFacts(q)?.1.isEnabled ?? false } }
 
     func readText(q: Query) -> String? {
-        guard let (_, facts) = resolver.visibleFacts(q) else { return nil }
-        if facts.isTextInput { return facts.typedText }
-        return facts.value ?? facts.label
+        traced("readText") {
+            guard let (_, facts) = resolver.visibleFacts(q) else { return nil }
+            if facts.isTextInput { return facts.typedText }
+            return facts.value ?? facts.label
+        }
     }
 
     func bounds(q: Query?) -> ElementBounds? {
-        guard let q else { return rectBounds(resolver.screen) }
-        guard let (_, facts) = resolver.visibleFacts(q) else { return nil }
-        return rectBounds(resolver.visiblePart(of: facts.frame))
+        traced("bounds") {
+            guard let q else { return rectBounds(resolver.screen) }
+            guard let (_, facts) = resolver.visibleFacts(q) else { return nil }
+            return rectBounds(resolver.visiblePart(of: facts.frame))
+        }
     }
 
     // MARK: Gestures
 
     func tap(q: Query) -> Bool {
-        guard let (resolved, facts) = resolver.visibleFacts(q) else { return false }
-        return tap(resolved, facts)
+        traced("tap") {
+            guard let (resolved, facts) = resolver.visibleFacts(q) else { return false }
+            return tap(resolved, facts)
+        }
     }
 
     func tapAt(q: Query?, fx: Double, fy: Double) -> Bool {
-        guard resolver.isAppRunning else { return false }
-        guard let (resolved, area) = area(of: q) else { return false }
-        let point = CGPoint(x: area.minX + area.width * fx, y: area.minY + area.height * fy)
-        resolver.coordinate(at: point, in: resolved).tap()
-        return true
+        traced("tapAt") {
+            guard resolver.isAppRunning else { return false }
+            guard let (resolved, area) = area(of: q) else { return false }
+            let point = CGPoint(x: area.minX + area.width * fx, y: area.minY + area.height * fy)
+            resolver.coordinate(at: point, in: resolved).tap()
+            return true
+        }
     }
 
     func doubleTap(q: Query) -> Bool {
-        guard let (resolved, facts) = resolver.visibleFacts(q) else { return false }
-        let target = resolver.visiblePart(of: facts.frame)
-        resolver.coordinate(at: CGPoint(x: target.midX, y: target.midY), in: resolved).doubleTap()
-        return true
+        traced("doubleTap") {
+            guard let (resolved, facts) = resolver.visibleFacts(q) else { return false }
+            let target = resolver.visiblePart(of: facts.frame)
+            resolver.coordinate(at: CGPoint(x: target.midX, y: target.midY), in: resolved).doubleTap()
+            return true
+        }
     }
 
     func swipe(from: Query?, vector: SwipeVector, durationMs: Int64) -> Bool {
+        traced("swipe") { performSwipe(from: from, vector: vector, durationMs: durationMs) }
+    }
+
+    private func performSwipe(from: Query?, vector: SwipeVector, durationMs: Int64) -> Bool {
         guard resolver.isAppRunning, let (resolved, area) = area(of: from) else { return false }
         let screen = resolver.screen
         let start = CGPoint(x: area.minX + area.width * vector.fx, y: area.minY + area.height * vector.fy)
@@ -121,22 +139,22 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
         return true
     }
 
-    func pressBack() -> Bool { false }
+    func pressBack() -> Bool { traced("pressBack") { false } }
 
     // MARK: TextEntry
 
-    func typeKeys(q: Query, text: String) -> Bool { typing.typeKeys(q, text: text) }
+    func typeKeys(q: Query, text: String) -> Bool { traced("typeKeys") { typing.typeKeys(q, text: text) } }
 
-    func setText(q: Query, text: String) -> Bool { typing.setText(q, text: text) }
+    func setText(q: Query, text: String) -> Bool { traced("setText") { typing.setText(q, text: text) } }
 
-    func clearText(q: Query) -> Bool { typing.clearText(q) }
+    func clearText(q: Query) -> Bool { traced("clearText") { typing.clearText(q) } }
 
-    func finishTextEntry() -> Bool { typing.finishTextEntry() }
+    func finishTextEntry() -> Bool { traced("finishTextEntry") { typing.finishTextEntry() } }
 
     // MARK: BackendControl
 
     func http(method: String, path: String, body: String?, authorization: String?) -> HttpReply {
-        backend.http(method: method, path: path, body: body, authorization: authorization)
+        traced("http") { backend.http(method: method, path: path, body: body, authorization: authorization) }
     }
 
     // MARK: Diagnostics
@@ -149,7 +167,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     }
 
     func pause(ms: Int64) {
-        Thread.sleep(forTimeInterval: Double(max(ms, 0)) / 1000.0)
+        traced("pause") { Thread.sleep(forTimeInterval: Double(max(ms, 0)) / 1000.0) }
     }
 
     func captureFailure(scenarioId: String, stepIndex: Int32) {
@@ -176,6 +194,19 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
     }
 
     // MARK: Helpers
+
+    /// With `E2E_TRACE`, adds one `[driver] <call> <microseconds>` line to the driver log for each
+    /// call the interpreter makes. The interpreter logs `[<index>] ...` right after each step, so
+    /// the calls between two such lines belong to the step the second one names. Calls the driver
+    /// makes to itself are not traced again: only the entry points above are.
+    private func traced<T>(_ name: String, _ body: () -> T) -> T {
+        guard config.trace else { return body() }
+        let start = DispatchTime.now().uptimeNanoseconds
+        let result = body()
+        let micros = (DispatchTime.now().uptimeNanoseconds - start) / 1_000
+        logLines.append("[driver] \(name) \(micros)")
+        return result
+    }
 
     private func tap(_ resolved: ResolvedElement, _ facts: ElementFacts) -> Bool {
         guard resolver.isAppRunning else { return false }

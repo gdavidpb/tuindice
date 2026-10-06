@@ -14,6 +14,8 @@ xcuserdata/
 !/scripts/dump-machine-diagrams.sh
 !/scripts/generate-common-ui-matrix.sh
 !/scripts/module-graph.txt
+!/scripts/measure-scenario-poc.sh
+!/scripts/measure-scenario-poc-report.py
 !/scripts/semgrep-architecture.sh
 !/scripts/validate-module-graph.sh
 !/scripts/verify-common-ui-test-density.sh

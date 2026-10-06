@@ -14,14 +14,21 @@ class ScenarioTestCase: XCTestCase {
     func runScenario(_ id: String) {
         let config = RunConfig.shared
         let driver = XCUIScenarioDriver(config: config)
-        let outcome = ScenarioRunner.shared.run(catalogJson: config.catalogJson, scenarioId: id, driver: driver)
+        let catalogJson = config.catalogJson
+        let start = DispatchTime.now().uptimeNanoseconds
+        let outcome = ScenarioRunner.shared.run(catalogJson: catalogJson, scenarioId: id, driver: driver)
+        if config.trace {
+            // Whole interpreter run seen from Swift; with the `[driver]` lines it gives the bridge overhead.
+            driver.log(line: "[bridge] run-total \((DispatchTime.now().uptimeNanoseconds - start) / 1_000)")
+        }
         report(outcome, driver: driver)
     }
 
     /// Writes `result.json`, attaches the logs and, on failure, records one issue pointing at the Kotlin step.
     func report(_ outcome: ScenarioOutcome, driver: XCUIScenarioDriver, file: StaticString = #filePath, line: UInt = #line) {
-        publishResult(outcome)
-        attach("driver.log", driver.logLines.joined(separator: "\n"))
+        let driverLog = driver.logLines.joined(separator: "\n")
+        publishResult(outcome, driverLog: driverLog)
+        attach("driver.log", driverLog)
         attach("report.txt", outcome.report)
         guard !outcome.passed else { return }
 
@@ -39,7 +46,7 @@ class ScenarioTestCase: XCTestCase {
         record(issue)
     }
 
-    private func publishResult(_ outcome: ScenarioOutcome) {
+    private func publishResult(_ outcome: ScenarioOutcome, driverLog: String) {
         let json = outcome.resultJson
         guard let outputDir = RunConfig.shared.outputDir else {
             attach("result.json", json)
@@ -50,6 +57,7 @@ class ScenarioTestCase: XCTestCase {
         do {
             try FileManager.default.createDirectory(at: directory, withIntermediateDirectories: true)
             try json.write(to: directory.appendingPathComponent("result.json"), atomically: true, encoding: .utf8)
+            try driverLog.write(to: directory.appendingPathComponent("driver.log"), atomically: true, encoding: .utf8)
         } catch {
             // The runner cannot write to the host path: keep the result with the test instead.
             attach("result.json", json)
