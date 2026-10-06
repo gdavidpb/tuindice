@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.enrollmentproof.data.source
 
 import com.gdavidpb.tuindice.base.domain.model.SyncPolicy
+import com.gdavidpb.tuindice.base.domain.model.SyncReport
 import com.gdavidpb.tuindice.base.domain.model.SyncSourceReport
 import com.gdavidpb.tuindice.base.domain.model.SyncSourceStatus
 import com.gdavidpb.tuindice.base.domain.repository.CredentialsRepository
@@ -27,25 +28,47 @@ class EnrollmentSyncDataSource(
 
 	// A proof just fetched is the university saying the enrollment stands. When the last sync said
 	// otherwise (annulled, or not enrolled) that sync is stale, and the record and the evaluations
-	// would go on announcing what is no longer true until the next one: it is asked for right away,
-	// past the cooldown. Best effort: the proof is already in hand, and a regular sync corrects it
-	// anyway.
+	// would go on announcing what is no longer true. Two steps, in this order:
+	// 1. The saved report stops denying the enrollment right away, so the notice is gone before the
+	//    user is back on the record, without waiting for the network.
+	// 2. A sync is asked for past the cooldown, to bring whatever else changed with the enrollment.
+	// Best effort both: the proof is already in hand, and a regular sync corrects it anyway.
 	override suspend fun refreshWhenContradicted() {
-		val enrollment = lastSyncEnrollment()
-		val deniedTheEnrollment = enrollment?.situation != null ||
-			enrollment?.status == SyncSourceStatus.NotEnrolled
+		val report = lastSyncReport() ?: return
+		val enrollment = report.sources.enrollment
+		val deniedTheEnrollment = enrollment.situation != null ||
+			enrollment.status == SyncSourceStatus.NotEnrolled
 
 		if (!deniedTheEnrollment) return
 
-		runCatching { credentialsRepository.getPassword() }
-			.onFailure { throwable -> if (throwable is CancellationException) throw throwable }
-			.onSuccess { password ->
-				syncRepository.scheduleSync(password = password, policy = SyncPolicy.ForceRefresh)
-			}
+		bestEffort {
+			syncStatusRepository.setSyncReport(
+				report.copy(
+					sources = report.sources.copy(
+						enrollment = SyncSourceReport(status = SyncSourceStatus.Success)
+					)
+				)
+			)
+		}
+
+		bestEffort {
+			syncRepository.scheduleSync(
+				password = credentialsRepository.getPassword(),
+				policy = SyncPolicy.ForceRefresh
+			)
+		}
 	}
 
 	private suspend fun lastSyncEnrollment(): SyncSourceReport? {
-		return runCatching { syncStatusRepository.getSyncReport().sources.enrollment }
+		return lastSyncReport()?.sources?.enrollment
+	}
+
+	private suspend fun lastSyncReport(): SyncReport? {
+		return bestEffort { syncStatusRepository.getSyncReport() }
+	}
+
+	private suspend fun <T> bestEffort(block: suspend () -> T): T? {
+		return runCatching { block() }
 			.onFailure { throwable -> if (throwable is CancellationException) throw throwable }
 			.getOrNull()
 	}

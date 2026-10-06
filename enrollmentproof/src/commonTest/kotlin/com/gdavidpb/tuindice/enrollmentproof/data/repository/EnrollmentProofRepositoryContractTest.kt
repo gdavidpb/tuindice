@@ -263,6 +263,45 @@ class EnrollmentProofRepositoryContractTest {
 		}
 	}
 
+	// The notice must be gone when the user is back on the record, not when the new sync ends: the
+	// saved report stops denying the enrollment at once, and keeps everything else it said.
+	@Test
+	fun getEnrollmentProof_whenTheProofContradictsTheLastSync_correctsTheSavedReportAtOnce() = runTest {
+		val base = SyncReport.partialEnrollmentUnavailable().copy(enrollmentReadAt = 1_000L)
+		val annulled = base.withSituation(EnrollmentSituation(code = "06"))
+		val notEnrolled = base.withEnrollmentStatus(SyncSourceStatus.NotEnrolled)
+
+		listOf(annulled, notEnrolled).forEach { report ->
+			val syncStatus = FakeSyncStatusRepository(initialReport = report)
+			val repository = repositoryWith(syncStatus = syncStatus)
+
+			repository.getEnrollmentProof()
+
+			val corrected = syncStatus.getSyncReport()
+
+			assertEquals(SyncSourceStatus.Success, corrected.sources.enrollment.status)
+			assertEquals(null, corrected.sources.enrollment.situation)
+			assertEquals(report.sources.record, corrected.sources.record)
+			assertEquals(report.status, corrected.status)
+			assertEquals(1_000L, corrected.enrollmentReadAt)
+		}
+	}
+
+	@Test
+	fun getEnrollmentProof_whenOnlyTheSavedCopyIsOpened_leavesTheSavedReportAlone() = runTest {
+		val report = SyncReport.success().withSituation(EnrollmentSituation(code = "06"))
+		val syncStatus = FakeSyncStatusRepository(initialReport = report)
+		val repository = repositoryWith(
+			api = FakeEnrollmentProofApiDataSource(throwable = clientRequestException(HttpStatusCode.ServiceUnavailable)),
+			storage = RecordingStorageDataSource(mapOf(CURRENT_QUARTER_NAME to DEFAULT_ENROLLMENT_PROOF)),
+			syncStatus = syncStatus
+		)
+
+		repository.getEnrollmentProof()
+
+		assertEquals(report, syncStatus.getSyncReport())
+	}
+
 	@Test
 	fun getEnrollmentProof_whenTheLastSyncAgrees_asksForNoSync() = runTest {
 		val sync = FakeSyncRepository()
