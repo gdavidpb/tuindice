@@ -155,5 +155,70 @@ class BaseRefTests(unittest.TestCase):
         self.assertEqual(creators(E2E_TRUSTED_STATUS_CREATORS="a,b"), ["a", "b"])
 
 
+class ScopeChainTests(unittest.TestCase):
+    """D-15: the real chain resolve-e2e-scope.sh -> detect-changed-app.sh over a real diff (every harness test
+    replaces it with E2E_SCOPE_CMD)."""
+
+    def setUp(self):
+        self.dir = os.path.realpath(tempfile.mkdtemp(prefix="e2e-scope-chain-"))
+        self.addCleanup(shutil.rmtree, self.dir, True)
+        self.repo = self.dir
+        for source, target in ((".github/scripts/common.sh", ".github/scripts/common.sh"),
+                (".github/scripts/detect-changed-app.sh", ".github/scripts/detect-changed-app.sh"),
+                ("e2e/scripts/shared/layout.env", "e2e/scripts/shared/layout.env"),
+                ("e2e/scripts/shared/resolve-e2e-scope.sh", "e2e/scripts/shared/resolve-e2e-scope.sh"),
+                ("scripts/module-graph.txt", "scripts/module-graph.txt"),
+                ("gradle/app-version.properties", "gradle/app-version.properties")):
+            os.makedirs(os.path.dirname(os.path.join(self.repo, target)), exist_ok=True)
+            shutil.copy(os.path.join(ROOT, source), os.path.join(self.repo, target))
+        self.write("auth/src/commonMain/kotlin/X.kt", "class X\n")
+        self.write("docs/readme.md", "docs\n")
+        self.git("init", "-q", "-b", "main")
+        self.git("config", "user.name", "Scope Chain Test")
+        self.git("config", "user.email", "test@example.invalid")
+        self.git("add", "-A")
+        self.git("commit", "-q", "-m", "base")
+        self.git("branch", "production")
+
+    def git(self, *args):
+        subprocess.run(["git"] + list(args), cwd=self.repo, check=True, stdout=subprocess.DEVNULL)
+
+    def write(self, relative, text):
+        path = os.path.join(self.repo, relative)
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        with open(path, "w") as handle:
+            handle.write(text)
+
+    def scope(self, platform="all"):
+        env = {key: value for key, value in os.environ.items() if not key.startswith("E2E_")}
+        done = subprocess.run(["bash", os.path.join(self.repo, "e2e", "scripts", "shared", "resolve-e2e-scope.sh"), platform],
+            cwd=self.repo, env=env, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True)
+        self.assertEqual(done.returncode, 0, done.stderr)
+        return done.stdout.split()
+
+    def commit(self, message):
+        self.git("add", "-A")
+        self.git("commit", "-q", "-m", message)
+
+    def test_a_doc_change_requires_no_evidence(self):
+        self.write("docs/readme.md", "changed\n")
+        self.commit("docs")
+        self.assertEqual(self.scope(), [])
+
+    def test_a_platform_source_requires_that_platform_only(self):
+        self.write("auth/src/iosMain/kotlin/Y.kt", "class Y\n")
+        self.commit("ios source")
+        self.assertEqual(self.scope(), ["ios,local-certification-suite,module-runtime"])
+        self.assertEqual(self.scope("android"), [])
+
+    def test_moving_runtime_sources_into_a_test_source_set_still_requires_evidence(self):
+        # D-1 through the whole chain: the diff of a rename names only the destination unless renames are off.
+        os.makedirs(os.path.join(self.repo, "auth/src/commonTest/kotlin"))
+        self.git("mv", "auth/src/commonMain/kotlin/X.kt", "auth/src/commonTest/kotlin/X.kt")
+        self.commit("move")
+        self.assertEqual(self.scope(), ["android,local-certification-suite,module-runtime",
+            "ios,local-certification-suite,module-runtime"])
+
+
 if __name__ == "__main__":
     unittest.main()

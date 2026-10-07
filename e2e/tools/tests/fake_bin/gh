@@ -7,6 +7,8 @@
 #   E2E_FAKE_GH_OWNER      what `repos/{owner}/{repo}` answers (default "owner"; set but empty: nothing)
 #   E2E_FAKE_GH_UNREACHABLE  when non-empty, every GET fails
 #   E2E_FAKE_GH_SLEEP      seconds the status POST takes before it answers (a gh that hangs)
+#   E2E_FAKE_GH_FAIL_SHAS  space-separated SHAs whose statuses query fails (HTTP 500)
+#   E2E_FAKE_GH_MISSING_SHAS  space-separated SHAs GitHub does not know (HTTP 422, as for an unpushed commit)
 set -euo pipefail
 
 printf '%s\n' "$*" >> "${E2E_FAKE_GH_LOG:?E2E_FAKE_GH_LOG is required}"
@@ -71,6 +73,16 @@ fi
 if [[ "${endpoint}" == "repos/{owner}/{repo}" ]]; then
 	printf '%s\n' "${E2E_FAKE_GH_OWNER-owner}"
 	exit 0
+fi
+if [[ "${endpoint}" == */commits/*/statuses ]]; then
+	sha="${endpoint%/statuses}"
+	sha="${sha##*/}"
+	case " ${E2E_FAKE_GH_FAIL_SHAS:-} " in
+		*" ${sha} "*) printf 'HTTP 500: server error\n' >&2; exit 1 ;;
+	esac
+	case " ${E2E_FAKE_GH_MISSING_SHAS:-} " in
+		*" ${sha} "*) printf 'HTTP 422: No commit found for SHA: %s\n' "${sha}" >&2; exit 1 ;;
+	esac
 fi
 if [[ -n "${E2E_FAKE_GH_STATUSES_DIR:-}" && "${endpoint}" == */commits/*/statuses ]]; then
 	sha="${endpoint%/statuses}"

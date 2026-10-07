@@ -208,6 +208,27 @@ class VerdictTests(unittest.TestCase):
         self.assertEqual(len(asked), 3, asked)
         self.assertEqual(len(set(asked)), len(asked), "a commit was fetched twice")
 
+    def test_a_head_github_does_not_know_is_unreachable_not_rerun(self):
+        # An unpushed HEAD answers 422: nothing was asked successfully, so the ledger is the only source.
+        self.green()
+        self.assertEqual(self.status(E2E_FAKE_GH_MISSING_SHAS=head(self.ws))["remote"]["reachable"], False)
+        self.assertEqual(self.status(E2E_FAKE_GH_MISSING_SHAS=head(self.ws))["verdict"], "unpublished")
+
+    def test_a_failed_query_for_one_commit_does_not_hide_evidence_on_another(self):
+        first = commit(self.ws, "first")
+        self.remote(first, success())
+        commit(self.ws, "second")
+        info = self.status(E2E_FAKE_GH_FAIL_SHAS=head(self.ws))
+        self.assertEqual((info["verdict"], info["evidence"]), ("reusable", {"sha": first, "source": "remote"}))
+
+    def test_a_failed_query_for_the_candidate_that_holds_the_evidence_is_not_a_hit(self):
+        first = commit(self.ws, "first")
+        self.remote(first, success())
+        commit(self.ws, "second")
+        info = self.status(E2E_FAKE_GH_FAIL_SHAS=first)
+        self.assertEqual((info["verdict"], info["evidence"]), ("rerun", None))
+        self.assertTrue(info["remote"]["reachable"])  # other commits did answer
+
     def test_the_text_form_names_the_verdict(self):
         self.remote(head(self.ws), success())
         lines = self.ws.run("status").lines
