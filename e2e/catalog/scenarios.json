@@ -3322,10 +3322,21 @@
                     "type": "tap"
                 },
                 {
+                    "basicAuth": "55-55555:123456",
+                    "method": "POST",
+                    "path": "/auth/v1/token",
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
+                        "line": 348
+                    },
+                    "timeoutMs": 20000,
+                    "type": "expectRequest"
+                },
+                {
                     "platform": "android",
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
-                        "line": 349
+                        "line": 354
                     },
                     "steps": [
                         {
@@ -3335,7 +3346,7 @@
                             },
                             "site": {
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
-                                "line": 350
+                                "line": 355
                             },
                             "timeoutMs": 5000,
                             "type": "waitVisible"
@@ -3348,7 +3359,7 @@
                             },
                             "site": {
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
-                                "line": 351
+                                "line": 356
                             },
                             "timeoutMs": 5000,
                             "type": "assertEnabled"
@@ -3361,7 +3372,7 @@
                             },
                             "site": {
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
-                                "line": 352
+                                "line": 357
                             },
                             "timeoutMs": 5000,
                             "type": "assertEnabled"
@@ -3374,24 +3385,13 @@
                             },
                             "site": {
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
-                                "line": 353
+                                "line": 358
                             },
                             "timeoutMs": 5000,
                             "type": "assertEnabled"
                         }
                     ],
                     "type": "onPlatform"
-                },
-                {
-                    "basicAuth": "55-55555:123456",
-                    "method": "POST",
-                    "path": "/auth/v1/token",
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
-                        "line": 355
-                    },
-                    "timeoutMs": 20000,
-                    "type": "expectRequest"
                 },
                 {
                     "q": {
@@ -3462,7 +3462,7 @@
                     "type": "waitVisible"
                 }
             ],
-            "stepsHash": "b983a68f79eae805",
+            "stepsHash": "d11e1441a7805067",
             "tags": [],
             "timeoutSeconds": 180
         },

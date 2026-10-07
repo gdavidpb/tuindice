@@ -345,18 +345,18 @@ private val authUpdatePassword = scenario(
 	waitVisible(AuthUiTags.UpdatePasswordIdleContainer, Within.Assert)
 	tap(AuthUiTags.PasswordToggle)
 	tap(AuthUiTags.UpdatePasswordConfirmButton)
-	// The sheet shows its loading state only while the reissue is in flight, so look at it first.
+	expectRequest(
+		"POST",
+		"/auth/v1/token",
+		basicAuth = "${E2eAccounts.UpdatePassword.backendIdentifier}:${E2eFixtures.UpdatedPassword}"
+	)
+	// The sheet shows its loading state only while the reissue is in flight, so look at it right after the request.
 	onPlatform(Platform.Android) {
 		waitVisible(AuthUiTags.UpdatePasswordConfirmLoading, Within.Assert)
 		assertEnabled(AuthUiTags.PasswordTextField, false)
 		assertEnabled(AuthUiTags.PasswordToggle, false)
 		assertEnabled(AuthUiTags.UpdatePasswordConfirmButton, false)
 	}
-	expectRequest(
-		"POST",
-		"/auth/v1/token",
-		basicAuth = "${E2eAccounts.UpdatePassword.backendIdentifier}:${E2eFixtures.UpdatedPassword}"
-	)
 	waitGone(AuthUiTags.UpdatePasswordIdleContainer, Within.Wait)
 	waitAnyVisible(
 		tag(AuthUiTags.SignOutSecondaryButton),
