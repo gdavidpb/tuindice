@@ -46,7 +46,8 @@ kotlin {
 }
 
 // The host tests read repo files outside this module and write the generated catalog artifacts,
-// so both ends are declared: a changed mock or tag file reruns them, and a cache hit restores the output.
+// so both ends are declared: a changed mock, tag, string or host file reruns them, and a cache hit restores
+// the output. `TestInputsDeclaredTest` keeps this list in step with what the tests read.
 tasks.withType<Test>().configureEach {
 	if (name == "testAndroidHostTest") {
 		inputs.dir(rootProject.file("mocks")).withPropertyName("mocks")
@@ -55,6 +56,20 @@ tasks.withType<Test>().configureEach {
 				include("*/src/commonMain/**/*UiTags.kt")
 			}
 		).withPropertyName("uiTags")
+		// The rest of what the tests read from outside this module: the string resources `CopyTest` binds
+		// the texts to, the contracts `ActionCoverageTest` lists the actions of, and the debug hosts
+		// `LaunchArgsParityTest` compares (the iOS Swift host and the Android and iOS debug code are on no
+		// classpath of this module, so a change there would otherwise leave the task up to date).
+		inputs.files(
+			rootProject.fileTree(rootDir) {
+				include("*/src/commonMain/composeResources/values/strings.xml")
+				include("*/src/commonMain/kotlin/**/presentation/contract/*.kt")
+				include("*/build.gradle.kts")
+				include("app/src/debug/**/*.kt")
+				include("maincore/src/iosMain/**/*.kt")
+				include("iosApp/Sources/TuIndiceHost/**/*.swift")
+			}
+		).withPropertyName("repoFilesRead")
 		outputs.dir(layout.buildDirectory.dir("e2e/catalog"))
 	}
 }
