@@ -175,6 +175,47 @@ create_ios_release_runtime_commit() {
 	create_file_commit "$name" "$file_path" "$release_config_file"
 }
 
+# A commit that moves a file without changing it, so `git diff` sees a rename unless renames are turned off.
+create_rename_commit() {
+	local name="$1"
+	local from_path="$2"
+	local to_path="$3"
+	local temp_dir
+	local index_file
+	local blob_sha
+	local tree_sha
+
+	temp_dir="$(mktemp -d "${RUNNER_TEMP:-/tmp}/tuindice-rename-detect-test.XXXXXX")"
+	index_file="${temp_dir}/index"
+
+	GIT_INDEX_FILE="$index_file" git -C "${REPO_ROOT}" read-tree "$HEAD_SHA"
+	blob_sha="$(git -C "${REPO_ROOT}" rev-parse "${HEAD_SHA}:${from_path}")"
+	GIT_INDEX_FILE="$index_file" git -C "${REPO_ROOT}" update-index --force-remove "$from_path"
+	GIT_INDEX_FILE="$index_file" git -C "${REPO_ROOT}" update-index --add --cacheinfo "100644,${blob_sha},${to_path}"
+	tree_sha="$(GIT_INDEX_FILE="$index_file" git -C "${REPO_ROOT}" write-tree)"
+
+	GIT_AUTHOR_NAME="TuIndice CI Test" \
+		GIT_AUTHOR_EMAIL="tuindice-ci-test@example.invalid" \
+		GIT_COMMITTER_NAME="TuIndice CI Test" \
+		GIT_COMMITTER_EMAIL="tuindice-ci-test@example.invalid" \
+		git -C "${REPO_ROOT}" commit-tree "$tree_sha" -p "$HEAD_SHA" -m "test ${name}"
+}
+
+# Runs the detector over a real diff (no changed-files override); the results stay in RENAME_SCOPE / RENAME_CHANGED.
+run_rename_fixture() {
+	local before_sha="$1"
+	local after_sha="$2"
+	local temp_dir
+
+	temp_dir="$(mktemp -d "${RUNNER_TEMP:-/tmp}/tuindice-rename-run.XXXXXX")"
+	(
+		cd "${REPO_ROOT}"
+		STATE_DIR="${temp_dir}/state" bash ./.github/scripts/detect-changed-app.sh "$before_sha" "$after_sha"
+	) >"${temp_dir}/output.log" 2>&1
+	RENAME_SCOPE="${temp_dir}/state/e2e-scope.csv"
+	RENAME_CHANGED="${temp_dir}/state/changed-files.txt"
+}
+
 join_changed_paths() {
 	printf '%s\n' "$@"
 }
@@ -693,5 +734,17 @@ run_detector_fixture platform-asymmetric-scope "$(
 		record/src/androidMain/kotlin/com/gdavidpb/tuindice/record/Android.kt \
 		iosApp/Sources/TuIndiceHost/TuIndiceAppBootstrap.swift
 )"
+
+# D-1: a file moved out of a runtime path is a deletion there. A plain diff folds a rename into its destination
+# and the destination alone (a test source set) asks for no evidence.
+renamed_commit="$(
+	create_rename_commit rename-out-of-runtime \
+		auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/data/model/BootstrapTokensResponse.kt \
+		auth/src/commonTest/kotlin/com/gdavidpb/tuindice/auth/data/model/BootstrapTokensResponse.kt
+)"
+run_rename_fixture "$HEAD_SHA" "$renamed_commit"
+assert_file_contains_line "$RENAME_CHANGED" "auth/src/commonMain/kotlin/com/gdavidpb/tuindice/auth/data/model/BootstrapTokensResponse.kt" "changed files of a rename"
+assert_file_contains_line "$RENAME_SCOPE" "android,local-certification-suite,module-runtime" "E2E scope of a rename out of runtime"
+assert_file_contains_line "$RENAME_SCOPE" "ios,local-certification-suite,module-runtime" "E2E scope of a rename out of runtime"
 
 printf 'Detect changed app shell fixtures passed.\n'

@@ -139,10 +139,12 @@ changed_files_between_refs() {
 
 	if is_zero_sha "$before_sha"; then
 		info "Using single-commit diff because the previous SHA is empty."
-		git diff-tree --no-commit-id --name-only -r "$after_sha"
+		git diff-tree --no-renames --no-commit-id --name-only -r "$after_sha"
 	else
 		info "Detecting changes between ${before_sha} and ${after_sha}."
-		git diff --name-only "$before_sha" "$after_sha"
+		# --no-renames: a moved file is a deletion at its origin and an addition at its destination. Folding it
+		# into the destination hides the origin, so moving runtime sources into a test source set asked for nothing.
+		git diff --no-renames --name-only "$before_sha" "$after_sha"
 	fi
 }
 
