@@ -86,7 +86,8 @@ Stop and report to the person who owns the branch on any of these:
 - three evidence invocations for one platform in the session;
 - four hours of evidence wall time in the session.
 
-The helper prints these counters. Raising `E2E_MAX_RETRIES`, invoking evidence again on the same fingerprint,
+The helper prints these counters; a session is a platform's runs under the current fingerprint since its last
+complete run (a green run or a fix that moves the fingerprint starts a new one). Raising `E2E_MAX_RETRIES`, invoking evidence again on the same fingerprint,
 forcing `E2E_PARALLEL`, rebooting devices or the host, and `E2E_ENV_OVERRIDE` are not remedies. Hand over: the
 `STOP` line and the `stop` block of the run's `manifest.json` (reason, scenario, class, diagnosis), the attempt
 artifacts in `build/e2e/runs/<runId>/scenarios/<id>/attempt-<n>/`, the class, and the helper output. Say that you
@@ -129,8 +130,8 @@ E2E and preflight fixes must not alter the product experience to please automati
   Incident narrative goes in the commit message. No sentence states a cause without a measured datum and source.
 - Edits to this skill and to `e2e/tools/**` leave the fingerprint alone; edits to `e2e/scripts/**` change it, so
   batch them before the final evidence run or ship them in a follow-up PR.
-- Line budgets (`SKILL.md` 140, runbook 300, `e2e/scripts/{shared,android,ios}` 4,500) are checked by
-  `./gradlew verifyE2eHarness`; raising one needs its own commit stating why.
+- Line budgets of this file, the runbook and `e2e/scripts/{shared,android,ios}` live in
+  `e2e/tools/verify/line-budgets.env` and are checked by `./gradlew verifyE2eHarness`; raising one needs its own commit.
 
 ## Resources
 

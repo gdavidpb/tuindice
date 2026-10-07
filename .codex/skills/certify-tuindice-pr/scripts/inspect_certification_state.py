@@ -26,6 +26,9 @@ REPO_ROOT = Path(__file__).resolve().parents[4]
 HARNESS = Path("e2e") / "scripts" / "shared" / "e2e.py"
 
 SAFE_VERDICTS = ("current", "reusable")
+COMPLETE_EXITS = (0, 6)  # green: published (0) or green with the publication failing (6)
+# A session, for a platform, is its evidence invocations under the fingerprint HEAD has now, made after the last
+# complete one: a fix that moves the fingerprint, or a green run, starts a new one.
 MAX_EVIDENCE_INVOCATIONS = 3  # per platform, in one session
 MAX_EVIDENCE_HOURS = 4.0  # wall time of evidence, in one session
 MAX_ENVIRONMENT_EXITS = 2  # exit 3 runs, in one session
@@ -120,11 +123,20 @@ def parse_github_output(path: Path) -> dict[str, str]:
 
 
 def merge_base_for_e2e_scope(head: str) -> str | None:
-    for ref in ("origin/production", "production"):
-        result = run_git("merge-base", ref, head)
-        if result.code == 0 and result.stdout:
-            return result.stdout
-    return None
+    """Merge-base with the base branch; the base ref has one definition, e2e_base_ref in common.sh (origin first)."""
+    completed = subprocess.run(
+        ["bash", "-c", 'source .github/scripts/common.sh; e2e_base_ref "$1"', "_", str(REPO_ROOT)],
+        cwd=REPO_ROOT,
+        text=True,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.DEVNULL,
+        check=False,
+    )
+    ref = completed.stdout.strip()
+    if completed.returncode != 0 or not ref:
+        return None
+    result = run_git("merge-base", ref, head)
+    return result.stdout if result.code == 0 and result.stdout else None
 
 
 def app_version_name() -> str:
@@ -306,9 +318,19 @@ def evidence_runs(root: Path, shas: set[str] | None, platform: str | None = None
                 "start": epoch(data.get("startedAt")),
                 "seconds": float(data.get("durationSeconds") or 0),
                 "lockMatches": toolchain.get("lockMatches"),
+                "fingerprint": data.get("fingerprint"),
             }
         )
     return sorted(runs, key=lambda run: run["start"])
+
+
+def session_runs(runs: list[dict], fingerprint: str | None) -> list[dict]:
+    """The session of one platform: its runs under `fingerprint` made after the last complete one (oldest first)."""
+    if not fingerprint:
+        return []
+    mine = [run for run in runs if run.get("fingerprint") == fingerprint]
+    last_complete = max((run["start"] for run in mine if run["exitCode"] in COMPLETE_EXITS), default=None)
+    return [run for run in mine if last_complete is None or run["start"] > last_complete]
 
 
 def evidence_hours(runs: list[dict]) -> float:
@@ -425,11 +447,13 @@ def report_evidence(platforms: list[str], status: dict, head: str, shas: set[str
     """Prints the verdict of each required platform; returns (failures, stop conditions)."""
     failures, stops = 0, 0
     all_runs = evidence_runs(root, shas)
+    session: list[dict] = []
     unsafe = []
     print("Evidence by platform (what counts is the remote SHA; the verdict reads GitHub, then the local ledger):")
     for platform in platforms:
         info = (status.get("platforms") or {}).get(platform) or {"error": "platform missing from status"}
-        runs = [run for run in all_runs if run["platform"] == platform]
+        runs = session_runs([run for run in all_runs if run["platform"] == platform], info.get("fingerprint"))
+        session.extend(runs)
         lines, reasons = report_platform(
             platform, info, runs, repeated_failures(root, platform, shas), drift_since_last_complete_run(root, platform, head)
         )
@@ -441,11 +465,11 @@ def report_evidence(platforms: list[str], status: dict, head: str, shas: set[str
             print(f"  STOP: {reason}")
             stops += 1
     if unsafe:
-        reasons = session_stop_reasons(all_runs, evidence_hours(all_runs))
+        reasons = session_stop_reasons(session, evidence_hours(session))
         for reason in reasons:
             print(f"STOP: {reason}")
             stops += 1
-        print(f"Session so far: {len(all_runs)} evidence invocation(s), {evidence_hours(all_runs):.1f} h of evidence.")
+        print(f"Session so far: {len(session)} evidence invocation(s), {evidence_hours(session):.1f} h of evidence.")
         if stops:
             print("A stop condition holds: hand the diagnosis to the person who owns the branch; do not try again "
                   "(raising retries, re-invoking, forcing sequential or rebooting are not remedies).")
@@ -507,7 +531,7 @@ def main() -> int:
             f"missing: {certification_scope.missing_version_bump}",
         )
         print("  Bump gradle/app-version.properties before running commit-bound E2E evidence.")
-        return failures + 1
+        return 1
 
     # A bumped build number is not enough: production preflight also rejects a
     # versionName whose app-<version> tag already exists at another SHA, and a
@@ -523,7 +547,7 @@ def main() -> int:
                 "app versionName is unreleased",
                 "unable to read versionName from gradle/app-version.properties",
             )
-            return failures + 1
+            return 1
 
         tag_name = f"app-{version_name}"
         tag_target, tag_source = release_tag_target(tag_name)
@@ -538,7 +562,7 @@ def main() -> int:
                 " ./gradlew syncAppVersion: production preflight rejects an"
                 " already-released versionName."
             )
-            return failures + 1
+            return 1
         print_check(
             True,
             "app versionName is unreleased",
@@ -555,11 +579,15 @@ def main() -> int:
     platforms, error = required_platforms()
     if error:
         print_check(False, "required E2E platforms resolved", error)
-        return failures + 1
+        return 1
+    if not platforms:
+        # The detector says evidence is required; a resolver that lists no platform must not turn that into a pass.
+        print_check(False, "required E2E platforms resolved", f"the detector requires evidence (scope={certification_scope.e2e_scope}) but the scope resolver listed no platform")
+        return 1
     status, error = load_status()
     if status is None:
         print_check(False, "e2e.py status --json", error)
-        return failures + 1
+        return 1
 
     evidence_failures, stops = report_evidence(platforms, status, head, branch_commits(head), state_root())
     failures += evidence_failures

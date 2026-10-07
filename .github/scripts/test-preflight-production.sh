@@ -43,13 +43,23 @@ run_preflight_fixture() {
 	output_file="${temp_dir}/output.log"
 	mkdir -p "${bin_dir}"
 
-	printf '%s\n' "${TUINDICE_PREFLIGHT_TEST_CONTEXT:-local-e2e/android/local-certification-suite}" >"${android_contexts_file}"
+	if [[ -n "${TUINDICE_PREFLIGHT_TEST_NO_CONTEXTS:-}" ]]; then
+		: >"${android_contexts_file}"
+	else
+		printf '%s\n' "${TUINDICE_PREFLIGHT_TEST_CONTEXT:-local-e2e/android/local-certification-suite}" >"${android_contexts_file}"
+	fi
 	: >"${ios_contexts_file}"
 	: >"${missing_version_file}"
 	cat >"${fingerprint_script}" <<'SH'
 #!/usr/bin/env bash
 set -euo pipefail
-printf 'fixture-fingerprint-%s-%s\n' "$1" "$2"
+# The fingerprint is a function of the ref: with TUINDICE_PREFLIGHT_TEST_OTHER_FP set, every ref but the target's
+# has another one, as a commit whose tree differs would.
+if [[ -n "${TUINDICE_PREFLIGHT_TEST_OTHER_FP:-}" && "$3" != "${TUINDICE_PREFLIGHT_TEST_TARGET_SHA:-}" ]]; then
+	printf 'other-fingerprint-%s-%s\n' "$1" "$2"
+else
+	printf 'fixture-fingerprint-%s-%s\n' "$1" "$2"
+fi
 SH
 	chmod +x "${fingerprint_script}"
 
@@ -106,7 +116,16 @@ if [[ "${url}" == *"/commits/"*"/statuses" ]]; then
 	# objects, creator included -- unlike the combined-status endpoint
 	# (singular /status), which never includes creator. preflight-production.sh
 	# queries the former precisely so a real creator is visible to check.
-	if [[ ("${mode}" == "reuse-success" || "${mode}" == "publish-fails") && "${url}" != *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
+	if [[ "${mode}" == "latest-failure" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
+		# Newest first, as the API lists them: a later failure hides the earlier success.
+		printf '[{"context":"local-e2e/android/local-certification-suite","state":"failure","creator":{"login":"gdavidpb"},"description":"Local E2E android failed."},{"context":"local-e2e/android/local-certification-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E android 12/12 passed for 1234567 fp fixture-fing."}]\n'
+	elif [[ "${mode}" == "reuse-only-old-sha" ]]; then
+		if [[ "${url}" == *"${TUINDICE_PREFLIGHT_TEST_OLD_SHA}"* ]]; then
+			printf '[{"context":"local-e2e/android/local-certification-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E android 12/12 passed for 1234567 fp fixture-fing."}]\n'
+		else
+			printf '[]\n'
+		fi
+	elif [[ ("${mode}" == "reuse-success" || "${mode}" == "publish-fails") && "${url}" != *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
 		printf '[{"context":"local-e2e/android/local-certification-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E android 12/12 passed for 1234567 fp fixture-fing."}]\n'
 	elif [[ "${mode}" == "direct-success" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
 		printf '[{"context":"local-e2e/android/local-certification-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E android 12/12 passed for 1234567 fp fixture-fing."}]\n'
@@ -138,11 +157,13 @@ SH
 		PATH="${bin_dir}:${PATH}" \
 		TUINDICE_PREFLIGHT_TEST_CURL_MODE="${curl_mode}" \
 		TUINDICE_PREFLIGHT_TEST_TARGET_SHA="${TARGET_SHA}" \
+		TUINDICE_PREFLIGHT_TEST_OLD_SHA="${TUINDICE_PREFLIGHT_TEST_OLD_SHA:-}" \
+		TUINDICE_PREFLIGHT_TEST_OTHER_FP="${TUINDICE_PREFLIGHT_TEST_OTHER_FP:-}" \
 		GITHUB_REPOSITORY="gdavidpb/tuindice" \
 		GITHUB_TOKEN="fixture-token" \
 		GITHUB_API_URL="https://api.github.test" \
 		TARGET_GIT_SHA="${TARGET_SHA}" \
-		E2E_REUSE_BASE_SHA="" \
+		E2E_REUSE_BASE_SHA="${TUINDICE_PREFLIGHT_TEST_REUSE_BASE:-}" \
 		E2E_REUSE_MAX_COMMITS="5" \
 		E2E_REUSE_STATUS_BY_FINGERPRINT="${E2E_REUSE_STATUS_BY_FINGERPRINT:-1}" \
 		E2E_FINGERPRINT_SCRIPT="${fingerprint_script}" \
@@ -206,7 +227,21 @@ SH
 				exit 1
 			fi
 			;;
-		publish-fails|missing-status|missing-status-reuse|untrusted-candidate|forged-candidate|anonymous-status)
+		no-contexts)
+			if ! grep -q 'neither context file lists a context' "${output_file}"; then
+				printf 'Preflight fixture %s did not reject a required certification with no contexts.\n' "${name}" >&2
+				cat "${output_file}" >&2
+				exit 1
+			fi
+			;;
+		reuse-from-base)
+			if ! grep -q 'Reused successful E2E status' "${output_file}"; then
+				printf 'Preflight fixture %s did not reuse the status found on the base commit.\n' "${name}" >&2
+				cat "${output_file}" >&2
+				exit 1
+			fi
+			;;
+		publish-fails|missing-status|missing-status-reuse|untrusted-candidate|forged-candidate|anonymous-status|latest-failure|reuse-other-fingerprint|reuse-before-base)
 			if ! grep -q 'Missing successful E2E status' "${output_file}"; then
 				printf 'Preflight fixture %s did not report missing evidence.\n' "${name}" >&2
 				cat "${output_file}" >&2
@@ -219,7 +254,7 @@ SH
 	# (E2E_REUSE_STATUS_BY_FINGERPRINT=1): fingerprint reuse must never launder a
 	# rejected status into a published one.
 	case "${name}" in
-		*-reuse|untrusted-candidate|forged-candidate)
+		*-reuse|untrusted-candidate|forged-candidate|reuse-other-fingerprint|reuse-before-base|latest-failure)
 			if grep -q 'Reused successful E2E status' "${output_file}"; then
 				printf 'Preflight fixture %s reused a status that must not have been reusable.\n' "${name}" >&2
 				cat "${output_file}" >&2
@@ -243,5 +278,19 @@ run_preflight_fixture forged-candidate forged-candidate failure
 run_preflight_fixture anonymous-status anonymous-status failure
 # A context other than the platform's single status context is never evidence, even when it is green.
 TUINDICE_PREFLIGHT_TEST_CONTEXT=local-e2e/android/record-suite run_preflight_fixture legacy-context legacy-context failure
+
+# D-14: a certification that is required but lists no context cannot pass by checking nothing.
+TUINDICE_PREFLIGHT_TEST_NO_CONTEXTS=1 run_preflight_fixture no-contexts direct-success failure
+# D-15: the fake fingerprint now depends on the ref, so a candidate whose tree differs is not reused...
+TUINDICE_PREFLIGHT_TEST_OTHER_FP=1 run_preflight_fixture reuse-other-fingerprint reuse-success failure
+# ...the base commit is a candidate and an older commit is not (E2E_REUSE_BASE_SHA is no longer always empty)...
+BASE_PARENT_SHA="$(git -C "${REPO_ROOT}" rev-parse HEAD~1)"
+OLDER_SHA="$(git -C "${REPO_ROOT}" rev-parse HEAD~3)"
+TUINDICE_PREFLIGHT_TEST_REUSE_BASE="${BASE_PARENT_SHA}" TUINDICE_PREFLIGHT_TEST_OLD_SHA="${BASE_PARENT_SHA}" \
+	run_preflight_fixture reuse-from-base reuse-only-old-sha success
+TUINDICE_PREFLIGHT_TEST_REUSE_BASE="${BASE_PARENT_SHA}" TUINDICE_PREFLIGHT_TEST_OLD_SHA="${OLDER_SHA}" \
+	run_preflight_fixture reuse-before-base reuse-only-old-sha failure
+# ...and the newest status of the context is the one that counts.
+run_preflight_fixture latest-failure latest-failure failure
 
 printf 'Preflight production shell fixtures passed.\n'

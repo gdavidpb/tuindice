@@ -97,7 +97,7 @@ trusted_status_creators() {
 	local repository="${GITHUB_REPOSITORY:-}"
 	local owner="${repository%%/*}"
 
-	printf '%s\n' "${E2E_TRUSTED_STATUS_CREATORS:-${owner},github-actions[bot]}" | tr ',' '\n'
+	e2e_trusted_status_creators "$owner"
 }
 
 status_creator_is_trusted() {
@@ -417,6 +417,11 @@ if file_has_entries "$MISSING_VERSION_BUMP_FILE"; then
 fi
 
 if [[ "${SKIP_E2E_STATUS_CHECK:-0}" != "1" && "$REQUIRES_E2E_CERTIFICATION" == "true" ]]; then
+	# verify_contexts_file passes an empty file. When evidence is required, both files being empty is a detector or
+	# wiring fault, not "nothing to check": fail instead of printing "required and validated".
+	if ! file_has_entries "$E2E_ANDROID_CONTEXTS_FILE" && ! file_has_entries "$E2E_IOS_CONTEXTS_FILE"; then
+		die "E2E certification is required but neither context file lists a context (android: '${E2E_ANDROID_CONTEXTS_FILE}', ios: '${E2E_IOS_CONTEXTS_FILE}')."
+	fi
 	: >"$MISSING_E2E_STATUSES_FILE"
 	e2e_status_check_failed=false
 	verify_contexts_file "$E2E_ANDROID_CONTEXTS_FILE" android || e2e_status_check_failed=true

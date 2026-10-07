@@ -143,6 +143,28 @@ class VerdictTests(unittest.TestCase):
         self.remote(head(self.ws), success(creator="github-actions[bot]"))
         self.assertEqual(self.status()["verdict"], "current")
 
+    def test_the_trusted_creators_are_the_ones_the_preflight_reads(self):
+        # D-7: E2E_TRUSTED_STATUS_CREATORS replaces the default list for the verdict exactly as for the preflight.
+        self.remote(head(self.ws), success(creator="release-bot"))
+        self.assertEqual(self.status()["verdict"], "rerun")
+        self.assertEqual(self.status(E2E_TRUSTED_STATUS_CREATORS="release-bot")["verdict"], "current")
+        self.remote(head(self.ws), success(creator="owner"))
+        self.assertEqual(self.status(E2E_TRUSTED_STATUS_CREATORS="release-bot,other")["verdict"], "rerun")
+        # An empty value (an unset repository variable in a workflow) keeps the default: the owner.
+        self.assertEqual(self.status(E2E_TRUSTED_STATUS_CREATORS="")["verdict"], "current")
+
+    def test_the_base_is_origin_production_when_both_exist(self):
+        # D-7: every tool reads origin/production first (the local branch may lag). A status on a commit that lies
+        # between the two bases is a candidate only under origin/production... the other way round it is not.
+        old = head(self.ws)
+        ahead = commit(self.ws, "ahead of the local production")
+        self.remote(old, success())
+        self.ws.git("update-ref", "refs/remotes/origin/production", ahead)
+        commit(self.ws, "first")
+        self.assertEqual(self.status()["verdict"], "rerun")  # `old` lies before origin/production
+        self.ws.git("update-ref", "-d", "refs/remotes/origin/production")
+        self.assertEqual(self.status()["evidence"], {"sha": old, "source": "remote"})  # only `production` is left
+
     def test_only_the_newest_status_of_the_context_counts(self):
         self.remote(head(self.ws), success(state="failure"), success())
         self.assertEqual(self.status()["verdict"], "rerun")

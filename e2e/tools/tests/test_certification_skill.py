@@ -56,10 +56,10 @@ class SessionFixtureMixin:
         self.addCleanup(shutil.rmtree, str(self.root), True)
 
     def manifest(self, run_id, platform="ios", exit_code=0, start=0, seconds=600, sha=HEAD, mode="evidence",
-            outcome="passed", lock=True):
+            outcome="passed", lock=True, fingerprint=FP):
         write_json(self.root / "runs" / run_id / "manifest.json", {
             "runId": run_id, "platform": platform, "mode": mode, "exitCode": exit_code, "outcome": outcome,
-            "startedAt": stamp(start), "durationSeconds": seconds, "commitSha": sha,
+            "startedAt": stamp(start), "durationSeconds": seconds, "commitSha": sha, "fingerprint": fingerprint,
             "toolchain": {"lockMatches": lock}})
 
     def ledger(self, platform, fingerprint, created, scenarios, sha=HEAD):
@@ -115,6 +115,46 @@ class SessionCounterTests(SessionFixtureMixin, unittest.TestCase):
         self.assertEqual(inspector.repeated_failures(self.root, "ios", {HEAD}), [])
         self.ledger("ios", "2" * 64, 100, {"x": "passed"})
         self.assertEqual(inspector.repeated_failures(self.root, "ios", {HEAD}), [])
+
+    def session(self, platform="ios", fingerprint=FP):
+        return inspector.session_runs(inspector.evidence_runs(self.root, {HEAD}, platform), fingerprint)
+
+    def test_a_green_run_ends_the_session(self):
+        # D-5: three invocations that ended in 0 are not "without a complete result".
+        self.manifest("r1", exit_code=1, start=0)
+        self.manifest("r2", exit_code=4, start=1000)
+        self.manifest("r3", exit_code=0, start=2000)
+        self.manifest("r4", exit_code=1, start=3000)
+        self.assertEqual([r["runId"] for r in self.session()], ["r4"])
+        self.manifest("r5", exit_code=6, start=4000)  # green, publication failed: still a complete result
+        self.assertEqual(self.session(), [])
+
+    def test_runs_of_another_fingerprint_are_not_this_session(self):
+        for index in range(3):
+            self.manifest("old%d" % index, exit_code=1, start=index * 100, fingerprint="d" * 64)
+        self.manifest("new", exit_code=1, start=1000)
+        self.assertEqual([r["runId"] for r in self.session()], ["new"])
+        self.assertEqual(self.session(fingerprint=None), [])
+        self.assertEqual(len(self.session(fingerprint="d" * 64)), 3)
+
+    def test_a_stop_exit_under_an_earlier_fingerprint_does_not_stop_the_fixed_branch(self):
+        self.manifest("r1", exit_code=5, start=0, fingerprint="d" * 64)
+        (failures, stops), out = self.run_report_status({"platforms": {"ios": info("rerun")}})
+        self.assertEqual((failures, stops), (1, 0), out)
+        self.assertNotIn("STOP", out)
+
+    def test_three_failed_invocations_under_the_current_fingerprint_stop(self):
+        for index in range(3):
+            self.manifest("r%d" % index, exit_code=1, start=index * 100)
+        (_failures, stops), out = self.run_report_status({"platforms": {"ios": info("partial")}})
+        self.assertEqual(stops, 1, out)
+        self.assertIn("3 evidence invocations in this session", out)
+
+    def run_report_status(self, status):
+        out = io.StringIO()
+        with contextlib.redirect_stdout(out):
+            result = inspector.report_evidence(["ios"], status, HEAD, {HEAD}, self.root)
+        return result, out.getvalue()
 
     def test_the_drift_warning_reads_the_last_complete_run(self):
         write_json(self.root / "ledger" / "ios" / "index.json", [
@@ -242,25 +282,26 @@ class ReportTests(SessionFixtureMixin, unittest.TestCase):
     def test_session_limits_stop_while_a_platform_is_unfinished(self):
         self.manifest("a", platform="android", start=0, seconds=3 * 3600, exit_code=3, outcome="environment_refused")
         self.manifest("b", platform="ios", start=4 * 3600, seconds=3700, exit_code=3, outcome="environment_refused")
-        (_failures, stops), out = self.run_report({"platforms": {"ios": info("rerun")}})
+        status = {"platforms": {"ios": info("rerun"), "android": info("rerun", platform="android")}}
+        (_failures, stops), out = self.run_report(status, ("ios", "android"))
         self.assertEqual(stops, 2)
         self.assertIn("2 evidence runs ended with exit 3", out)
         self.assertIn("h of evidence in this session", out)
 
 
 class MainExitCodeTests(SessionFixtureMixin, unittest.TestCase):
-    def run_main(self, status, manifests=()):
+    def run_main(self, status, manifests=(), platforms=("ios",), scope=None, dirty=False):
         for args in manifests:
             self.manifest(*args[0], **args[1])
-        scope = inspector.CertificationScope(requires_e2e=True, e2e_scope="ios", missing_version_bump="")
+        scope = scope or inspector.CertificationScope(requires_e2e=True, e2e_scope="ios", missing_version_bump="")
 
         def fake_git(*args):
-            answers = {("branch", "--show-current"): "feat/x", ("rev-parse", "HEAD"): HEAD, ("status", "--porcelain"): "",
+            answers = {("branch", "--show-current"): "feat/x", ("rev-parse", "HEAD"): HEAD, ("status", "--porcelain"): " M x" if dirty else "",
                 ("rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"): "origin/feat/x", ("rev-parse", "@{u}"): HEAD}
             return inspector.GitResult(0, answers.get(args, ""), "")
 
         replaced = {"run_git": fake_git, "detect_certification_scope": lambda head: scope,
-            "required_platforms": lambda: (["ios"], None), "load_status": lambda: (status, ""),
+            "required_platforms": lambda: (list(platforms), None), "load_status": lambda: (status, ""),
             "branch_commits": lambda head: {HEAD}, "state_root": lambda: self.root}
         saved = {name: getattr(inspector, name) for name in replaced}
         for name, value in replaced.items():
@@ -281,6 +322,15 @@ class MainExitCodeTests(SessionFixtureMixin, unittest.TestCase):
 
     def test_exit_1_when_status_cannot_be_read(self):
         self.assertEqual(self.run_main(None), 1)
+
+    def test_exit_1_not_2_for_a_missing_version_bump(self):
+        # D-5: 2 is the stop condition; an early failed check is "not done yet".
+        scope = inspector.CertificationScope(requires_e2e=True, e2e_scope="ios", missing_version_bump="versionName")
+        self.assertEqual(self.run_main({"platforms": {"ios": info("current")}}, scope=scope, dirty=True), 1)
+
+    def test_exit_1_when_the_detector_requires_evidence_and_no_platform_is_listed(self):
+        # D-7: an empty platform list must not turn a required certification into a pass.
+        self.assertEqual(self.run_main({"platforms": {}}, platforms=()), 1)
 
 
 if __name__ == "__main__":

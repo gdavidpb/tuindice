@@ -21,15 +21,11 @@ resolve_merge_base() {
 	local ref
 	local merge_base
 
-	for ref in origin/production production; do
-		merge_base="$(git merge-base "$ref" "$head_sha" 2>/dev/null || true)"
-		if [[ -n "$merge_base" ]]; then
-			printf '%s\n' "$merge_base"
-			return 0
-		fi
-	done
-
-	return 1
+	# The base ref has one definition (common.sh), shared with the scope resolver, the audit helper and the verdict.
+	ref="$(e2e_base_ref "$REPO_ROOT")" || return 1
+	merge_base="$(git merge-base "$ref" "$head_sha" 2>/dev/null || true)"
+	[[ -n "$merge_base" ]] || return 1
+	printf '%s\n' "$merge_base"
 }
 
 github_output_value() {

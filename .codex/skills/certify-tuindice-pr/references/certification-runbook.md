@@ -156,7 +156,8 @@ Precedence when `--platform all` returns several: 2, 3, 5, 7, 1, 4, 6.
 Stop and report on: exit 5; exit 7; exit 3 twice; the same scenario failing under two consecutive fingerprints
 after a fix; three evidence invocations for one platform; four hours of evidence wall time (platforms that ran
 together count once). `inspect_certification_state.py` computes the last four from the run manifests and ledgers
-of the branch and exits 2 when one holds.
+and exits 2 when one holds. The session of a platform is its evidence runs under the fingerprint HEAD has now, made
+after its last complete run (exit 0 or 6): a fix that moves the fingerprint, or a green run, starts a new one.
 
 Raising retries, reinvoking, forcing sequential mode and rebooting are not remedies: raising `E2E_MAX_RETRIES`,
 invoking evidence again on the same fingerprint, `E2E_PARALLEL=never|always`, rebooting a device or the host, and
@@ -272,8 +273,8 @@ Wrap-up:
 - No sentence may state a cause without a measured datum and its source. Section 1 lists the data this runbook
   relies on; a new cause enters there with its measurement or does not enter.
 - Line budgets are in `e2e/tools/verify/line-budgets.env` and are checked by `./gradlew verifyE2eHarness`
-  (`e2e/tools/verify/verify-line-budgets.sh`): `SKILL.md` 140, this runbook 300, `e2e/scripts/{shared,android,ios}`
-  4,500. Raising one needs its own commit stating why.
+  (`e2e/tools/verify/verify-line-budgets.sh`) for `SKILL.md`, this runbook and `e2e/scripts/{shared,android,ios}`;
+  the numbers live only there. Raising one needs its own commit stating why.
 - Edits here, in `SKILL.md`, the scripts of the skill and `e2e/tools/**` do not change the fingerprint, so they can
   ride the certified branch; the evidence stays `reusable`. Edits under `e2e/scripts/**` change it: batch them
   before the final evidence run or ship them in a follow-up PR.
