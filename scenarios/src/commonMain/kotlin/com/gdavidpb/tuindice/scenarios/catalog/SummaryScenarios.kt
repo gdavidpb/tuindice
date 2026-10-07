@@ -32,7 +32,6 @@ private val summarySmoke = scenario(
 	"summary",
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
-	covers("maincore.Main.RequestSync")
 	tags("smoke")
 	account(E2eAccounts.Canonical.id)
 

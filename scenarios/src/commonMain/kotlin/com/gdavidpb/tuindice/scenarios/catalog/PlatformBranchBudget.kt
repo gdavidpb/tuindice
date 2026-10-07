@@ -1,10 +1,9 @@
 package com.gdavidpb.tuindice.scenarios.catalog
 
 /**
- * How many `onPlatform` branches a scenario may hold. A scenario not listed may hold none. The numbers start at
- * the count of platform conditions in the Maestro flow each scenario replaces, an upper bound: translating
- * removes most of them (the iOS paste patches and keystroke guards go away). Lower an entry when its batch lands;
- * raising one, or adding one, needs the owner's agreement.
+ * How many `onPlatform` branches a scenario holds, exactly (`CatalogRulesTest` compares with equality). A scenario
+ * not listed holds none. Lowering an entry when a branch goes away is part of removing it; raising one, or
+ * adding one, needs the owner's agreement.
  */
 class PlatformBranchBudget private constructor() {
 	companion object {

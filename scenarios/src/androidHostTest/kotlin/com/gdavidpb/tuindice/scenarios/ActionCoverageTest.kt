@@ -45,20 +45,39 @@ class ActionCoverageTest {
 	}
 
 	@Test
-	fun theDispositionsKeepTheTwentyEightInternalAndThirteenPlatformEdgeEntriesAndTheThreePendingDebts() {
+	fun theDispositionsKeepTheirCountsPerKind() {
 		assertEquals(INTERNAL_COUNT, ActionDispositions.all.count { it is ActionDisposition.Internal })
 		assertEquals(PLATFORM_EDGE_COUNT, ActionDispositions.all.count { it is ActionDisposition.PlatformEdge })
 		assertEquals(PENDING_COUNT, ActionDispositions.all.count { it is ActionDisposition.Pending })
 	}
 
 	@Test
-	fun aPendingActionIsNotAlsoCoveredSoTheDebtIsDeletedWhenSomeoneCoversIt() {
-		val covers = ActionDispositions.all.filterIsInstance<ActionDisposition.Pending>()
-			.map { it.action }
-			.filter { it in covered }
+	fun noActionIsBothCoveredAndDispositionedWhateverTheKind() {
+		val overlap = overlapOf(covered, ActionDispositions.all)
 
-		assertTrue(covers.isEmpty(), "pending actions a scenario now covers; delete their disposition: $covers")
+		assertTrue(
+			overlap.isEmpty(),
+			"actions a scenario covers and a disposition also excuses; keep only the true one: $overlap"
+		)
 	}
+
+	@Test
+	fun theOverlapCheckSeesEveryKindOfDisposition() {
+		val dispositions = listOf(
+			ActionDisposition.Internal("a.A.One", "it fires itself"),
+			ActionDisposition.PlatformEdge("a.A.Two", "the OS does it"),
+			ActionDisposition.Pending("a.A.Three", "nobody fires it"),
+			ActionDisposition.Internal("a.A.Four", "it fires itself")
+		)
+
+		assertEquals(
+			listOf("a.A.One", "a.A.Two", "a.A.Three"),
+			overlapOf(setOf("a.A.One", "a.A.Two", "a.A.Three", "a.A.Five"), dispositions)
+		)
+	}
+
+	private fun overlapOf(covers: Set<String>, dispositions: List<ActionDisposition>): List<String> =
+		dispositions.map { it.action }.filter { it in covers }
 
 	@Test
 	fun everyActionOfATranslatedModuleIsCoveredOrDispositioned() {
@@ -118,9 +137,9 @@ class ActionCoverageTest {
 
 	private companion object {
 		const val MINIMUM_ACTIONS = 100
-		const val INTERNAL_COUNT = 28
-		const val PLATFORM_EDGE_COUNT = 13
-		const val PENDING_COUNT = 3
+		const val INTERNAL_COUNT = 24
+		const val PLATFORM_EDGE_COUNT = 6
+		const val PENDING_COUNT = 5
 		val actionStart = Regex("""^\s*sealed\s+(class|interface)\s+Action(\s|:|\{|$)""")
 		val declaration = Regex("""^(?:data\s+)?(?:object|class)\s+([A-Za-z_][A-Za-z0-9_]*)""")
 	}

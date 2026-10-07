@@ -11,29 +11,9 @@ object ActionDispositions {
 			action = "about.About.LoadVersion",
 			reason = "screen bootstrap"
 		),
-		ActionDisposition.PlatformEdge(
-			action = "about.About.RateOnStore",
-			reason = "store intent requires host/system assertion"
-		),
-		ActionDisposition.PlatformEdge(
-			action = "about.About.ReportBug",
-			reason = "external composer/browser requires host/system assertion"
-		),
-		ActionDisposition.PlatformEdge(
-			action = "about.About.ContactDeveloper",
-			reason = "mail composer requires host/system assertion"
-		),
-		ActionDisposition.PlatformEdge(
-			action = "about.About.ShareApp",
-			reason = "share sheet requires UI Automator/XCUITest"
-		),
 		ActionDisposition.Internal(
 			action = "auth.SignOut.Initialize",
 			reason = "route state bootstrap from pending changes"
-		),
-		ActionDisposition.Internal(
-			action = "enrollmentproof.Enrollment.FetchEnrollmentProof",
-			reason = "enrollment proof dialog bootstrap after record route navigation"
 		),
 		ActionDisposition.PlatformEdge(
 			action = "enrollmentproof.Enrollment.OpenSavedEnrollmentProof",
@@ -60,10 +40,6 @@ object ActionDispositions {
 			action = "evaluations.Evaluations.LoadEvaluations",
 			reason = "list bootstrap"
 		),
-		ActionDisposition.Internal(
-			action = "evaluations.Evaluations.EnsureEvaluationsLoaded",
-			reason = "route entry confirms initial evaluations refresh before showing empty"
-		),
 		ActionDisposition.Pending(
 			action = "evaluations.Evaluations.RefreshEvaluations",
 			reason =
@@ -75,10 +51,6 @@ object ActionDispositions {
 			reason =
 				"no scenario taps a week of the strip; the scenarios that scroll the list only do it to " +
 				"reach a card, and none checks which week that leaves selected"
-		),
-		ActionDisposition.Internal(
-			action = "maincore.Browser.NavigateTo",
-			reason = "route effect from link actions"
 		),
 		ActionDisposition.Internal(
 			action = "maincore.Browser.SetLoading",
@@ -94,13 +66,9 @@ object ActionDispositions {
 				"forcing a web view load failure needs host-level network manipulation; the retry UI is " +
 				"covered by BrowserScreenUiTest"
 		),
-		ActionDisposition.PlatformEdge(
-			action = "maincore.Browser.OpenExternalResource",
-			reason = "confirm/open handoff requires UI Automator/XCUITest host assertion"
-		),
 		ActionDisposition.Internal(
-			action = "maincore.Main.StartUp",
-			reason = "app bootstrap"
+			action = "maincore.Main.RequestSync",
+			reason = "the host dispatches it each time the app resumes with content; no user performs it"
 		),
 		ActionDisposition.Internal(
 			action = "maincore.Main.ShowOutdatedApp",
@@ -133,12 +101,6 @@ object ActionDispositions {
 		ActionDisposition.Internal(
 			action = "pensum.Pensum.ObservePensum",
 			reason = "screen bootstrap"
-		),
-		ActionDisposition.Internal(
-			action = "pensum.Pensum.EnsurePensumLoaded",
-			reason =
-				"every entry into the pensum tab loads a missing pensum or silently revalidates a cached " +
-				"one older than a day"
 		),
 		ActionDisposition.Internal(
 			action = "pensum.Pensum.SelectPensum",
@@ -185,20 +147,23 @@ object ActionDispositions {
 			action = "summary.Summary.ObserveSummary",
 			reason = "screen bootstrap"
 		),
-		ActionDisposition.PlatformEdge(
+		ActionDisposition.Pending(
 			action = "summary.Summary.TakeProfilePicture",
-			reason = "camera picker requires UI Automator/XCUITest"
+			reason =
+				"no scenario taps the camera option: it opens the system camera, which the suite can reach " +
+				"as system UI but nobody has written a scenario for"
 		),
-		ActionDisposition.PlatformEdge(
+		ActionDisposition.Pending(
 			action = "summary.Summary.PickProfilePicture",
-			reason = "photo picker requires UI Automator/XCUITest"
+			reason =
+				"no scenario taps the gallery option: it opens the system photo picker, which the suite " +
+				"can reach as system UI but nobody has written a scenario for"
 		),
 		ActionDisposition.PlatformEdge(
 			action = "summary.Summary.UploadProfilePicture",
 			reason =
-				"Upload requires a native picker/camera file source; Maestro covers the visible triggers, " +
-				"while file selection and upload variants belong in UI Automator/XCUITest or a debug-only " +
-				"host adapter."
+				"it runs once the system picker or camera hands a file back, and no scenario can put a " +
+				"file in them; the upload path needs a debug-only source of that file"
 		),
 		ActionDisposition.Internal(
 			action = "wizard.CoachmarkOverlay.SurfaceChanged",
