@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.record.presentation.transition
 
+import com.gdavidpb.tuindice.academiccore.domain.utils.SubjectCatalogSearchNormalizer
 import com.gdavidpb.tuindice.base.presentation.model.UiText
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineDefinitionBuilder
 import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
@@ -92,33 +93,49 @@ internal fun MachineDefinitionBuilder<CreateSyntheticTerm.State>.createSynthetic
 			}
 		}
 
-		on<CreateSyntheticTermInternalEvent.SearchCleared> { state, _ ->
-			state.copy(
-				searchResults = emptyList(),
-				isRefreshingSearch = false,
-				hasSearchError = false
-			)
+		on<CreateSyntheticTermInternalEvent.SearchCleared> { state, event ->
+			if (!state.isAbout(event.query)) {
+				state
+			} else {
+				state.copy(
+					searchResults = emptyList(),
+					isRefreshingSearch = false,
+					hasSearchError = false
+				)
+			}
 		}
 
-		on<CreateSyntheticTermInternalEvent.SearchStarted> { state, _ ->
-			state.copy(
-				isRefreshingSearch = true,
-				hasSearchError = false
-			)
+		on<CreateSyntheticTermInternalEvent.SearchStarted> { state, event ->
+			if (!state.isAbout(event.query)) {
+				state
+			} else {
+				state.copy(
+					isRefreshingSearch = true,
+					hasSearchError = false
+				)
+			}
 		}
 
-		on<CreateSyntheticTermInternalEvent.SearchSucceeded> { state, _ ->
-			state.copy(
-				isRefreshingSearch = false,
-				hasSearchError = false
-			)
+		on<CreateSyntheticTermInternalEvent.SearchSucceeded> { state, event ->
+			if (!state.isAbout(event.query)) {
+				state
+			} else {
+				state.copy(
+					isRefreshingSearch = false,
+					hasSearchError = false
+				)
+			}
 		}
 
-		on<CreateSyntheticTermInternalEvent.SearchFailed> { state, _ ->
-			state.copy(
-				isRefreshingSearch = false,
-				hasSearchError = state.searchResults.isEmpty()
-			)
+		on<CreateSyntheticTermInternalEvent.SearchFailed> { state, event ->
+			if (!state.isAbout(event.query)) {
+				state
+			} else {
+				state.copy(
+					isRefreshingSearch = false,
+					hasSearchError = state.searchResults.isEmpty()
+				)
+			}
 		}
 
 		on<CreateSyntheticTermInternalEvent.LoadPreviewCleared> { state, _ ->
@@ -179,5 +196,8 @@ internal fun MachineDefinitionBuilder<CreateSyntheticTerm.State>.createSynthetic
 		}
 	}
 }
+
+private fun CreateSyntheticTerm.State.isAbout(query: String) =
+	SubjectCatalogSearchNormalizer.normalize(this.query) == SubjectCatalogSearchNormalizer.normalize(query)
 
 private const val MinimumSearchQueryLength = 2

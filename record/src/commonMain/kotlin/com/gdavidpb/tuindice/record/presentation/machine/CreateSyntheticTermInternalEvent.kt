@@ -9,6 +9,10 @@ import com.gdavidpb.tuindice.record.presentation.model.CreateTermSubjectItem
  * Internal machine inputs for the synthetic-term editor: flattened emissions of the
  * three observation pipelines over the draft registers (creation snapshot, debounced
  * subject search, and debounced load preview) plus the submit lifecycle.
+ *
+ * The search events carry the query they belong to; the machine ignores the ones whose query
+ * is no longer the typed one (compared normalized), because `flatMapLatest` does not cancel
+ * events that are already queued.
  */
 sealed interface CreateSyntheticTermInternalEvent {
 	data class SnapshotObserved(
@@ -21,13 +25,21 @@ sealed interface CreateSyntheticTermInternalEvent {
 		val searchResults: List<CreateTermSubjectItem>
 	) : CreateSyntheticTermInternalEvent
 
-	data object SearchCleared : CreateSyntheticTermInternalEvent
+	data class SearchCleared(
+		val query: String
+	) : CreateSyntheticTermInternalEvent
 
-	data object SearchStarted : CreateSyntheticTermInternalEvent
+	data class SearchStarted(
+		val query: String
+	) : CreateSyntheticTermInternalEvent
 
-	data object SearchSucceeded : CreateSyntheticTermInternalEvent
+	data class SearchSucceeded(
+		val query: String
+	) : CreateSyntheticTermInternalEvent
 
-	data object SearchFailed : CreateSyntheticTermInternalEvent
+	data class SearchFailed(
+		val query: String
+	) : CreateSyntheticTermInternalEvent
 
 	data object LoadPreviewCleared : CreateSyntheticTermInternalEvent
 

@@ -195,23 +195,23 @@ class CreateSyntheticTermMachine(
 
 				if (normalizedQuery.length < MinimumSearchQueryLength) {
 					flowOf<CreateSyntheticTermInternalEvent>(
-						CreateSyntheticTermInternalEvent.SearchCleared
+						CreateSyntheticTermInternalEvent.SearchCleared(query = query)
 					)
 				} else {
 					flow {
 						delay(SearchDebounceMillis.milliseconds)
 
-						emit(CreateSyntheticTermInternalEvent.SearchStarted)
+						emit(CreateSyntheticTermInternalEvent.SearchStarted(query = query))
 
 						refreshSyntheticTermSubjectSearchUseCase.execute(
 							RefreshSyntheticTermSubjectSearchParams(query = query)
 						).collect { useCaseState ->
 							when (useCaseState) {
 								is UseCaseState.Data ->
-									emit(CreateSyntheticTermInternalEvent.SearchSucceeded)
+									emit(CreateSyntheticTermInternalEvent.SearchSucceeded(query = query))
 
 								is UseCaseState.Error ->
-									emit(CreateSyntheticTermInternalEvent.SearchFailed)
+									emit(CreateSyntheticTermInternalEvent.SearchFailed(query = query))
 
 								is UseCaseState.Loading -> Unit
 							}

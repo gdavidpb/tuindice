@@ -11,6 +11,8 @@ import com.gdavidpb.tuindice.base.domain.repository.EventPublisher
 import com.gdavidpb.tuindice.base.domain.repository.ReportingRepository
 import com.gdavidpb.tuindice.base.domain.repository.SyncStatusRepository
 import com.gdavidpb.tuindice.base.presentation.model.UiText
+import com.gdavidpb.tuindice.base.presentation.statemachine.MachineHost
+import com.gdavidpb.tuindice.base.presentation.statemachine.TransitionResult
 import com.gdavidpb.tuindice.record.di.recordModule
 import com.gdavidpb.tuindice.record.domain.model.RecordViewMode
 import com.gdavidpb.tuindice.record.domain.model.ScheduleViewMode
@@ -47,6 +49,8 @@ import com.gdavidpb.tuindice.testkit.mvi.assertMachineHasNoShadowedRows
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineRandomWalk
 import com.gdavidpb.tuindice.testkit.mvi.assertMachineStatesReachable
 import com.gdavidpb.tuindice.testkit.mvi.exportToMermaid
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.emptyFlow
@@ -55,6 +59,8 @@ import kotlinx.coroutines.test.runTest
 import org.koin.core.Koin
 import org.koin.dsl.module
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertIs
 import kotlin.test.assertTrue
 
 // The machines need twelve use cases between them, so instead of hand-building that
@@ -332,10 +338,10 @@ class RecordStateMachineContractTest {
 					suggestedSubjects = emptyList(),
 					searchResults = emptyList()
 				),
-				CreateSyntheticTermInternalEvent.SearchCleared,
-				CreateSyntheticTermInternalEvent.SearchStarted,
-				CreateSyntheticTermInternalEvent.SearchSucceeded,
-				CreateSyntheticTermInternalEvent.SearchFailed,
+				CreateSyntheticTermInternalEvent.SearchCleared(query = "algoritmos"),
+				CreateSyntheticTermInternalEvent.SearchStarted(query = "algoritmos"),
+				CreateSyntheticTermInternalEvent.SearchSucceeded(query = "algoritmos"),
+				CreateSyntheticTermInternalEvent.SearchFailed(query = "algoritmos"),
 				CreateSyntheticTermInternalEvent.LoadPreviewCleared,
 				CreateSyntheticTermInternalEvent.LoadPreviewStarted,
 				CreateSyntheticTermInternalEvent.LoadPreviewLoaded(
@@ -380,6 +386,64 @@ class RecordStateMachineContractTest {
 			coroutineScope = backgroundScope,
 			// Five samples over a handful of rows: every row resolves from them.
 			minRowCoverage = 0.5
+		)
+	}
+
+	@Test
+	fun createSyntheticTermMachine_ignoresTheSearchEventsOfAnotherQuery_andAppliesTheOnesOfTheTypedOne() = runTest {
+		var resolvedMachine: CreateSyntheticTermMachine? = null
+
+		withMachineKoin {
+			resolvedMachine = get()
+		}
+
+		val host = object : MachineHost<CreateSyntheticTerm.Effect> {
+			override fun sendEffect(effect: CreateSyntheticTerm.Effect) = Unit
+
+			override fun processInternalEvent(event: Any) = Unit
+
+			override fun launchMachineJob(block: suspend CoroutineScope.() -> Unit): Job = Job()
+		}
+		val definition = requireNotNull(resolvedMachine).define(host)
+		val typing = CreateSyntheticTerm.State(
+			query = "fisica",
+			isRefreshingSearch = true,
+			hasSearchError = false
+		)
+
+		suspend fun next(state: CreateSyntheticTerm.State, event: Any): CreateSyntheticTerm.State {
+			val result = definition.process(state, event)
+
+			assertIs<TransitionResult.Transitioned<CreateSyntheticTerm.State>>(result)
+
+			return result.toState
+		}
+
+		val superseded = listOf(
+			CreateSyntheticTermInternalEvent.SearchCleared(query = "calculo"),
+			CreateSyntheticTermInternalEvent.SearchStarted(query = "calculo"),
+			CreateSyntheticTermInternalEvent.SearchSucceeded(query = "calculo"),
+			CreateSyntheticTermInternalEvent.SearchFailed(query = "calculo")
+		)
+
+		for (event in superseded) {
+			assertEquals(typing, next(typing, event), "$event must be ignored")
+		}
+
+		assertEquals(
+			typing.copy(isRefreshingSearch = false),
+			next(typing, CreateSyntheticTermInternalEvent.SearchSucceeded(query = "fisica"))
+		)
+		assertEquals(
+			typing.copy(isRefreshingSearch = false),
+			next(typing.copy(query = "FÍSICA "), CreateSyntheticTermInternalEvent.SearchSucceeded(query = "fisica"))
+				.copy(query = "fisica")
+		)
+		assertTrue(
+			next(
+				typing.copy(isRefreshingSearch = false),
+				CreateSyntheticTermInternalEvent.SearchFailed(query = "fisica")
+			).hasSearchError
 		)
 	}
 
