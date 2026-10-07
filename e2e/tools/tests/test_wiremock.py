@@ -7,6 +7,7 @@ import socket
 import subprocess
 import sys
 import tempfile
+import time
 import unittest
 from pathlib import Path
 
@@ -91,6 +92,49 @@ class OwnershipTests(WireMockCase):
         mock = self.wiremock()
         mock.start()
         self.assertTrue(mock.health()[0])
+
+    def test_an_orphan_of_a_dead_harness_is_stopped_and_replaced_not_treated_as_foreign(self):
+        env = dict(self.cfg.env, PORT=str(self.ports["ios"]))
+        orphan = subprocess.Popen([sys.executable, FAKE_SERVER, "RunMockEnvironment"], env=env, start_new_session=True,
+            stdout=subprocess.DEVNULL)
+        self.addCleanup(orphan.wait)
+        self.addCleanup(orphan.kill)
+        dead = subprocess.Popen(["true"])
+        dead.wait()
+        deadline = time.monotonic() + 10
+        while time.monotonic() < deadline:
+            with socket.socket() as probe:
+                if probe.connect_ex(("127.0.0.1", self.ports["ios"])) == 0:
+                    break
+            time.sleep(0.1)
+        os.makedirs(os.path.dirname(self.owner_file()))
+        with open(self.owner_file(), "w") as handle:
+            handle.write('{"pid": %d, "pgid": %d, "port": %d, "runId": "killed-run", "harnessPid": %d}'
+                % (orphan.pid, orphan.pid, self.ports["ios"], dead.pid))
+        mock = self.wiremock()
+        mock.start()
+        self.assertTrue(mock.health()[0])
+        self.assertIsNotNone(orphan.poll(), "the orphan of the dead harness must have been stopped")
+
+    def test_a_wiremock_of_a_live_harness_is_still_refused(self):
+        first = self.wiremock(run="run-first")
+        first.start()
+        with self.assertRaises(EnvironmentRefused):
+            self.wiremock(run="run-second").claim()
+        self.assertTrue(first.health()[0])
+
+    def test_restart_replaces_the_server_on_the_same_port(self):
+        mock = self.wiremock()
+        mock.start()
+        first = mock.process.pid
+        mock.restart()
+        self.assertTrue(mock.health()[0])
+        self.assertNotEqual(mock.process.pid, first)
+
+    def test_an_unreadable_journal_says_why(self):
+        mock = self.wiremock()
+        self.assertEqual(mock.journal(), [])
+        self.assertIn("could not be read", mock.journal_error)
 
     def test_a_live_pid_that_is_not_wiremock_does_not_keep_the_lock(self):
         os.makedirs(os.path.dirname(self.owner_file()))

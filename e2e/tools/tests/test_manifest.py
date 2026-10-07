@@ -19,7 +19,7 @@ class ManifestTests(unittest.TestCase):
         self.assertEqual((manifest["outcome"], manifest["exitCode"], manifest["mode"], manifest["platform"]),
             ("failed", 1, "evidence", "ios"))
         self.assertEqual(manifest["fingerprint"], "a" * 64)
-        self.assertEqual(manifest["retryPolicy"], {"maxRetries": 0, "nonRetryable": ["typed_text_mismatch", "app_crash"]})
+        self.assertEqual(manifest["retryPolicy"], {"maxRetries": 0, "attemptCap": 1, "nonRetryable": ["typed_text_mismatch", "app_crash"]})
         self.assertEqual(manifest["scenarios"]["inScope"], 2)
         self.assertEqual((manifest["scenarios"]["passed"], manifest["scenarios"]["failed"]), (1, 1))
         self.assertEqual([p["name"] for p in manifest["phases"]],
@@ -34,7 +34,7 @@ class ManifestTests(unittest.TestCase):
         self.assertEqual(ws.evidence(E2E_FAKE_SCOPE_SUITE="other-suite", E2E_PUBLISH_GITHUB_STATUS="auto").code, 2)
         manifest = ws.manifest()
         self.assertEqual((manifest["outcome"], manifest["exitCode"]), ("failed", 2))
-        self.assertIn("the scope requires the status", manifest["stop"]["reason"])
+        self.assertIn("the scope requires the suite", manifest["stop"]["reason"])
 
     def test_a_green_platform_leaves_a_certification_copy_and_an_index(self):
         ws = Workspace(self, [scenario("fix-a")])
@@ -82,8 +82,8 @@ class JunitTests(unittest.TestCase):
         self.assertEqual(by_name["fix-q"], ["skipped"])
 
     def test_greens_from_earlier_runs_carry_their_run_id(self):
-        ws = Workspace(self, [scenario("fix-a"), scenario("fix-b")], {"behaviours": {"fix-b": ["fail:assertion", "pass"]}})
-        self.assertEqual(ws.evidence(E2E_MAX_RETRIES="0").code, 1)
+        ws = Workspace(self, [scenario("fix-a"), scenario("fix-b")], {"behaviours": {"fix-b": ["fail:typed", "pass"]}})
+        self.assertEqual(ws.evidence().code, 5)
         first_run = ws.manifest()["runId"]
         self.assertEqual(ws.evidence().code, 0)
         root = suite_of(ws)

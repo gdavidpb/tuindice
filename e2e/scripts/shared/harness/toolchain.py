@@ -1,10 +1,8 @@
 """Toolchain locks: e2e/toolchain/<platform>.lock against what the adapter's `toolchain` verb reports."""
 
-import os
 import re
 
-from . import proc
-from .config import VERB_TIMEOUTS, EnvironmentRefused, UsageError, parse_layout
+from .config import EnvironmentRefused, UsageError, parse_layout
 
 LOCK_KEYS = {
     "ios": ("XCODE_VERSION", "XCODE_BUILD", "IOS_RUNTIME_ID", "IOS_RUNTIME_BUILD", "IOS_DEVICE_TYPE_ID",
@@ -13,6 +11,9 @@ LOCK_KEYS = {
         "ANDROID_DEVICE_PROFILE", "ANDROID_LOCALE", "ANDROID_EMULATOR_MEMORY_MB", "ANDROID_EMULATOR_CORES",
         "ANDROID_EMULATOR_HEADLESS"),
 }
+# Lock keys nothing ever checks: a boot flag only matters when the harness starts the emulator itself, and nothing reads it back
+# from one that is already running. The manifest and the log say so instead of counting them among the verified.
+NOT_VERIFIED = ("ANDROID_EMULATOR_HEADLESS",)
 # Versions recorded in the manifest; they are covered by gradle/libs.versions.toml, which is in the fingerprint.
 LIB_KEYS = ("kotlin", "android-gradle-plugin", "uiautomator", "test-runner", "compose-mpp")
 
@@ -60,31 +61,24 @@ def libs(cfg):
     return versions
 
 
-def _actual(run):
-    """The adapter's `toolchain` output. Until the real adapters exist (F16) device.sh answers it directly."""
-    cfg, platform = run.cfg, run.platform
-    if cfg.seam("E2E_ADAPTER_%s_CMD" % platform.upper()) or os.path.exists(cfg.adapter_command(platform)[-1]):
-        return run.adapter.call("toolchain")
-    device = str(cfg.root / cfg.layout["E2E_ADAPTER_ROOT"] / platform / "device.sh")
-    result = proc.run(["bash", device, "toolchain"], VERB_TIMEOUTS["toolchain"], cwd=str(cfg.root), env=cfg.env)
-    result.json = proc.parse_json(result.stdout)
-    return result
-
-
 def check(run):
     """Hook of the runner: evidence refuses on a difference (exit 3); diagnose and dry-run only report."""
     lock = read_lock(run.cfg, run.platform)
-    result = _actual(run)
+    result = run.adapter.call("toolchain")
     if not result.ok or not result.json:
         raise EnvironmentRefused("the toolchain verb failed (exit %s): %s" % (result.returncode, result.stderr.strip()[-300:]))
     differences, unverified = compare(lock, result.json)
+    never = [key for key in unverified if key in NOT_VERIFIED]
+    unverified = [key for key in unverified if key not in NOT_VERIFIED]
     informational = {k: v for k, v in result.json.items() if k not in lock}
     run.manifest.update(toolchain={"lockFile": str(lock_path(run.cfg, run.platform).relative_to(run.cfg.root)),
         "lockMatches": not differences, "actual": {k: result.json.get(k) for k in lock}, "unverified": unverified,
+        "neverVerified": never,
         "informational": informational, "libs": libs(run.cfg)})
     if not differences:
-        run.log.say("TOOLCHAIN matches %s (%d keys; %d verified when the device starts)"
-            % (lock_path(run.cfg, run.platform).name, len(lock) - len(unverified), len(unverified)))
+        run.log.say("TOOLCHAIN matches %s (%d keys; %d more verified when the device starts%s)"
+            % (lock_path(run.cfg, run.platform).name, len(lock) - len(unverified) - len(never), len(unverified),
+                "; not verified at all: %s" % ", ".join(never) if never else ""))
         return
     for key, expected, actual in differences:
         run.log.say("TOOLCHAIN DIFFERS %s: lock %s, actual %s" % (key, expected, actual))

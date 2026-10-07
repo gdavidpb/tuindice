@@ -23,14 +23,20 @@ ACCOUNTS = [
      "refreshToken": "r", "sessionId": "s", "mockScenario": "login-token-lifecycle"},
     {"id": "record-retry", "usbId": "11-11111", "password": "record-retry-pass", "accessToken": None,
      "refreshToken": None, "sessionId": None, "mockScenario": None},
+    {"id": "update-password", "usbId": "55-55555", "password": "outdated-pass", "accessToken": None,
+     "refreshToken": None, "sessionId": None, "mockScenario": None},
 ]
 
 
-def scenario(sid, timeout=30, platforms=("android", "ios"), account=None, tags=(), quarantine=None):
+def expect_request(basic_auth, path="/auth/v2/bootstrap"):
+    return {"type": "expectRequest", "method": "POST", "path": path, "basicAuth": basic_auth, "timeoutMs": 20000}
+
+
+def scenario(sid, timeout=30, platforms=("android", "ios"), account=None, tags=(), quarantine=None, steps=()):
     module = sid.split("-")[0]
     return {
         "id": sid, "module": module, "tags": list(tags), "platforms": list(platforms), "account": account,
-        "signsIn": bool(account), "timeoutSeconds": timeout, "stepsHash": "h-" + sid, "start": {}, "steps": [],
+        "signsIn": bool(account), "timeoutSeconds": timeout, "stepsHash": "h-" + sid, "start": {}, "steps": list(steps),
         "quarantine": quarantine, "covers": [],
         "ios": {"onlyTesting": "TuIndiceUITests/%s/test_%s" % (module, sid.replace("-", "_"))},
         "android": {"scenarioArg": sid},
@@ -123,7 +129,7 @@ class Workspace:
             "E2E_SCOPE_CMD": "sh -c 'if [ -z \"$E2E_FAKE_SCOPE_EMPTY\" ]; then echo \"$1,${E2E_FAKE_SCOPE_SUITE:-"
                              "local-certification-suite},fixture\"; fi' _",
             "E2E_PUBLISH_GITHUB_STATUS": "0", "E2E_GH_CMD": FAKE_GH, "E2E_FAKE_GH_LOG": self.gh_log,
-            "E2E_FAKE_GH_FAIL_FILE": self.gh_fail,
+            "E2E_FAKE_GH_FAIL_FILE": self.gh_fail, "E2E_TEST_ALLOW_SEAMS": "1",
         })
         return env
 

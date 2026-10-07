@@ -19,7 +19,8 @@ from .report import Log
 # Provisional; revise from `e2e-profile.py --compare`.
 PARALLEL_MIN_CPUS = 8
 PARALLEL_MIN_MEMORY_GB = 32
-CHILD_FINALISE_SECONDS = 60
+# A child finalises its manifest first and then cleans up (WireMock up to 20 s, the device up to 120 s); the parent waits for both.
+CHILD_FINALISE_SECONDS = 160
 
 
 def decide(cfg, host, cpu_idle):
@@ -71,9 +72,13 @@ def _stop_children(children):
             kill_group(child, 10)
 
 
-def _wait(children):
-    """Waits for every child, whatever any of them returns; forwards an interruption and re-raises it."""
+def _launch_and_wait(cfg, argvs):
+    """Starts one child per platform and waits for all of them, whatever any returns. An interruption at any point, even
+    between two starts, stops the children already started and is re-raised."""
+    children = {}
     try:
+        for platform, argv in argvs.items():
+            children[platform] = subprocess.Popen(argv, cwd=str(cfg.root), env=cfg.env, stdin=subprocess.DEVNULL, start_new_session=True)
         while any(child.poll() is None for child in children.values()):
             time.sleep(0.2)
     except Interrupted:
@@ -115,14 +120,10 @@ def run_all(cfg, platforms, args, options, failed, combine):
         run_id, run_dir = make_run_dir(cfg.state_root, "all", args.mode, sha7)
         codes = {}
         if decision == "parallel":
-            children = {p: subprocess.Popen(_child_argv(args, p, run_id, decision, reason, False), cwd=str(cfg.root),
-                env=cfg.env, stdin=subprocess.DEVNULL, start_new_session=True) for p in order}
-            codes = _wait(children)
+            codes = _launch_and_wait(cfg, {p: _child_argv(args, p, run_id, decision, reason, False) for p in order})
         else:
             for platform in order:
-                child = subprocess.Popen(_child_argv(args, platform, run_id, decision, reason, True), cwd=str(cfg.root),
-                    env=cfg.env, stdin=subprocess.DEVNULL, start_new_session=True)
-                codes.update(_wait({platform: child}))
+                codes.update(_launch_and_wait(cfg, {platform: _child_argv(args, platform, run_id, decision, reason, True)}))
         _write_summary(cfg, run_dir, run_id, args, decision, reason, order, codes)
     print("[e2e] exit codes: %s" % " ".join("%s=%d" % (p, codes[p]) for p in platforms))
     return max(codes.values()) if any(code >= 128 for code in codes.values()) else combine(list(codes.values()))

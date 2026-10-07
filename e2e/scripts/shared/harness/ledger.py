@@ -29,45 +29,74 @@ class Ledger:
 
     @classmethod
     def memory(cls, platform):
-        return cls(None, cls._fresh(platform, "diagnose", "", "diagnose"))
+        return cls(None, cls._fresh(platform, "diagnose", "", "diagnose", None))
 
     @staticmethod
-    def _fresh(platform, fingerprint, catalog_sha, version):
+    def _fresh(platform, fingerprint, catalog_sha, version, attempt_cap):
         return {
             "schema": SCHEMA, "platform": platform, "fingerprint": fingerprint, "fingerprintVersion": version,
-            "catalogSha256": catalog_sha, "createdAt": now(), "updatedAt": now(), "scenarios": {}, "publications": [],
+            "catalogSha256": catalog_sha, "attemptCap": attempt_cap, "runOverrides": [],
+            "createdAt": now(), "updatedAt": now(), "scenarios": {}, "publications": [],
         }
 
     @classmethod
-    def open(cls, state_root, platform, fingerprint, catalog_sha, version, lock=True, create=True):
+    def open(cls, state_root, platform, fingerprint, catalog_sha, version, lock=True, create=True, attempt_cap=None):
+        """The ledger of one (platform, fingerprint). With `lock` the lock is taken before the file is read, so that
+        what a finishing run saved is never overwritten. `attempt_cap` is stored when the ledger is created; a later
+        invocation that asks for another one is refused (None reads whatever is stored)."""
         directory = os.path.join(str(state_root), "ledger", platform, fingerprint)
         path = os.path.join(directory, "ledger.json")
-        if os.path.exists(path):
-            try:
-                data = json.load(open(path))
-            except ValueError:
-                raise UsageError("ledger %s is not valid JSON; move it away deliberately" % path)
-            expected = (platform, fingerprint, catalog_sha)
-            found = (data.get("platform"), data.get("fingerprint"), data.get("catalogSha256"))
-            if found != expected:
-                raise UsageError(
-                    "ledger %s was written for platform/fingerprint/catalog %s, not %s; it is not read"
-                    % (path, "/".join(str(v)[:12] for v in found), "/".join(v[:12] for v in expected)))
-        elif create:
-            data = cls._fresh(platform, fingerprint, catalog_sha, version)
-        else:
-            return cls(directory, cls._fresh(platform, fingerprint, catalog_sha, version))
-        ledger = cls(directory, data)
+        if not os.path.exists(path) and (not lock or not create):
+            return cls(directory, cls._fresh(platform, fingerprint, catalog_sha, version, attempt_cap))
+        lock_fd = None
         if lock:
             os.makedirs(directory, exist_ok=True)
-            ledger.lock_fd = os.open(os.path.join(directory, "ledger.lock"), os.O_CREAT | os.O_RDWR)
+            lock_fd = os.open(os.path.join(directory, "ledger.lock"), os.O_CREAT | os.O_RDWR)
             try:
-                fcntl.flock(ledger.lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
+                fcntl.flock(lock_fd, fcntl.LOCK_EX | fcntl.LOCK_NB)
             except OSError:
-                os.close(ledger.lock_fd)
-                ledger.lock_fd = None
+                os.close(lock_fd)
                 raise EnvironmentRefused("another run holds the ledger of %s fingerprint %s" % (platform, fingerprint[:12]))
+        try:
+            ledger = cls(directory, cls._read(path, platform, fingerprint, catalog_sha, version, attempt_cap))
+        except BaseException:
+            if lock_fd is not None:
+                os.close(lock_fd)
+            raise
+        ledger.lock_fd = lock_fd
         return ledger
+
+    @classmethod
+    def _read(cls, path, platform, fingerprint, catalog_sha, version, attempt_cap):
+        if not os.path.exists(path):
+            return cls._fresh(platform, fingerprint, catalog_sha, version, attempt_cap)
+        try:
+            data = json.load(open(path))
+        except ValueError:
+            raise UsageError("ledger %s is not valid JSON; move it away deliberately" % path)
+        expected = (platform, fingerprint, catalog_sha)
+        found = (data.get("platform"), data.get("fingerprint"), data.get("catalogSha256"))
+        if found != expected:
+            raise UsageError(
+                "ledger %s was written for platform/fingerprint/catalog %s, not %s; it is not read"
+                % (path, "/".join(str(v)[:12] for v in found), "/".join(v[:12] for v in expected)))
+        stored = data.get("attemptCap")
+        if attempt_cap is not None and stored is not None and stored != attempt_cap:
+            raise UsageError("the attempt cap of this fingerprint is %d, fixed when its ledger was created; this invocation asks "
+                "for %d (E2E_MAX_RETRIES=%d). Rerun with E2E_MAX_RETRIES=%d; an extra attempt needs e2e.py reset-scenario"
+                % (stored, attempt_cap, attempt_cap - 1, stored - 1))
+        if stored is None:
+            data["attemptCap"] = attempt_cap
+        data.setdefault("runOverrides", [])
+        return data
+
+    def cap(self, default):
+        """The attempt cap of this ledger: the stored one, else `default`."""
+        return self.data.get("attemptCap") or default
+
+    def note_overrides(self, overrides):
+        """Records the overrides a run used (environment checks, parallelism, retries); the status description counts them."""
+        self.data["runOverrides"] = sorted(set(self.data["runOverrides"]) | set(overrides))
 
     def release(self):
         if self.lock_fd is not None:
@@ -105,10 +134,13 @@ class Ledger:
     def exhausted(self, scenario_id, cap):
         return not self.passed(scenario_id) and len(self.counted(scenario_id)) >= self.allowance(scenario_id, cap)
 
+    def environment_events(self, scenario_id):
+        return [a for a in self.attempts(scenario_id) if a.get("failureClass") == "environment"]
+
     def has_failed_attempts(self, scenario_id):
         return any(a.get("outcome") == "failed" for a in self.attempts(scenario_id))
 
-    def record_attempt(self, scenario_id, attempt, cap):
+    def record_attempt(self, scenario_id, attempt):
         entry = self.entry(scenario_id)
         attempt["n"] = len(entry["attempts"]) + 1
         entry["attempts"].append(attempt)
@@ -116,14 +148,12 @@ class Ledger:
             entry["status"] = "passed"
             entry["passedAttempt"] = attempt["n"]
         elif attempt.get("countsAgainstCap"):
-            entry["status"] = "exhausted" if self.exhausted(scenario_id, cap) else "failed"
+            entry["status"] = "failed"  # whether the cap is spent is computed from the attempts and the overrides, never stored
         return attempt["n"]
 
     def add_override(self, scenario_id, reason, user):
         entry = self.entry(scenario_id)
         entry["overrides"].append({"at": now(), "reason": reason, "by": user})
-        if entry["status"] == "exhausted":
-            entry["status"] = "failed"
 
     def add_publication(self, record):
         self.data["publications"].append(record)

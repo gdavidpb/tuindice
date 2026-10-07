@@ -4,9 +4,9 @@ import datetime
 import hashlib
 import json
 import re
-import subprocess
 
 from .config import PLATFORMS, UsageError
+from .gitstate import run_git
 
 SCHEMA = "tuindice-e2e-catalog/1"
 ID_PATTERN = re.compile(r"^[a-z0-9]+(-[a-z0-9]+)*$")
@@ -100,29 +100,23 @@ def load(path):
 
 
 def changed_ids(config, catalog, ref):
-    """Scenarios whose stepsHash differs from the catalog committed at `ref`."""
+    """Scenarios whose stepsHash differs from the catalog committed at `ref`. A ref that is not a commit is a usage
+    error; a base without the catalog file (the first branch that has one) or with an unreadable one changes every scenario."""
     if not ref:
         return set()
-    relative = config.layout["E2E_CATALOG_JSON"]
-    result = subprocess.run(
-        ["git", "show", "%s:%s" % (ref, relative)], cwd=str(config.root),
-        stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, universal_newlines=True,
-    )
-    if result.returncode != 0:
-        return set()
+    if run_git(config.root, "rev-parse", "--verify", "--quiet", "%s^{commit}" % ref)[0] != 0:
+        raise UsageError("--changed-since %s is not a commit of this repository" % ref)
+    code, shown = run_git(config.root, "show", "%s:%s" % (ref, config.layout["E2E_CATALOG_JSON"]))
     try:
-        old = {s["id"]: s.get("stepsHash") for s in json.loads(result.stdout)["scenarios"]}
+        old = {s["id"]: s.get("stepsHash") for s in json.loads(shown)["scenarios"]} if code == 0 else {}
     except (ValueError, KeyError):
-        return set()
+        old = {}
     return {s.id for s in catalog.scenarios if old.get(s.id) != s.steps_hash}
 
 
 def default_base_ref(config):
     for ref in ("origin/production", "production"):
-        result = subprocess.run(
-            ["git", "merge-base", "HEAD", ref], cwd=str(config.root),
-            stdout=subprocess.PIPE, stderr=subprocess.DEVNULL, universal_newlines=True,
-        )
-        if result.returncode == 0 and result.stdout.strip():
-            return result.stdout.strip()
+        code, base = run_git(config.root, "merge-base", "HEAD", ref)
+        if code == 0 and base:
+            return base
     return None

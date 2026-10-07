@@ -64,6 +64,9 @@ class RuleOrderTests(unittest.TestCase):
         verdict = cl.classify(evidence(result(), killed_after=180))
         self.assertEqual((verdict.klass, verdict.summary),
             (cl.TIMEOUT, "scenario exceeded 180s; last completed step 0 Tap(tag:a)"))
+        unknown = cl.classify(evidence(None, native_ok=False, killed_after=180))
+        self.assertIn("the step it was in is not known", unknown.summary)
+        self.assertNotIn("no step completed", unknown.summary)
 
     def test_result_kinds(self):
         self.assertEqual(cl.classify(evidence(result(kind="SYSTEM_DIALOG"))).klass, cl.ENVIRONMENT)
@@ -79,6 +82,9 @@ class RuleOrderTests(unittest.TestCase):
         typed = cl.classify(evidence(result(kind="TYPED_TEXT_MISMATCH")))
         self.assertEqual(typed.klass, cl.TYPED)
         self.assertIn("typed '123456' but the field held '12456'", typed.summary)
+        request = result(kind="TYPED_TEXT_MISMATCH")
+        request["failure"]["primitive"] = "ExpectRequest"
+        self.assertIn("typed '123456' but the backend received '12456'", cl.classify(evidence(request)).summary)
 
     def test_the_summary_is_taken_from_result_json(self):
         verdict = cl.classify(evidence(result(message="snackbar not shown"), runner_log="last log line\n"))
@@ -89,13 +95,14 @@ class JournalTests(unittest.TestCase):
     def test_the_audit_case_recordretry_ass_instead_of_the_password(self):
         verdict = cl.classify(evidence(result(), account=RETRY, journal=fixture_journal("typed-mismatch")))
         self.assertEqual(verdict.klass, cl.TYPED)
-        self.assertTrue(verdict.summary.startswith("typed 'record-retry-pass' but the backend received 'recordretry-ass' (diff at "),
+        self.assertTrue(verdict.summary.startswith(
+            "typed 'record-retry-pass' but the backend received 'recordretry-ass' on POST /auth/v2/bootstrap (diff at "),
             verdict.summary)
 
     def test_an_equal_credential_rejected_is_a_backend_mismatch(self):
         verdict = cl.classify(evidence(result(), account=RETRY, journal=fixture_journal("equal-credential-401")))
         self.assertEqual(verdict.klass, cl.BACKEND)
-        self.assertIn("rejected the declared credential", verdict.summary)
+        self.assertIn("answered 401 to the declared credential", verdict.summary)
 
     def test_an_unmatched_request_is_a_backend_mismatch_that_lists_the_url(self):
         verdict = cl.classify(evidence(result(), account=RETRY, journal=fixture_journal("unmatched")))
@@ -115,6 +122,78 @@ class JournalTests(unittest.TestCase):
                     "response": {"status": 401}, "wasMatched": True}]
         account = dict(CANONICAL, usbId="mail@usb.ve")
         self.assertEqual(cl.classify(evidence(result(), account=account, journal=journal)).klass, cl.BACKEND)
+
+
+def basic(credential):
+    return "Basic " + base64.b64encode(credential.encode()).decode()
+
+
+def request(path, credential, status=404, matched=False, method="POST"):
+    return {"request": {"url": path, "method": method, "headers": {"Authorization": basic(credential)}},
+        "response": {"status": status}, "wasMatched": matched}
+
+
+def scripted(account, *steps):
+    """A scenario whose catalog entry carries `steps`, the way the generated JSON does."""
+    return Scenario(scenario("fix-a", account=account["id"] if account else None, steps=steps))
+
+
+class DeclaredCredentialTests(unittest.TestCase):
+    """A request that carries a credential the scenario never declares was typed wrong, wherever it landed."""
+    UPDATE = {"id": "update-password", "usbId": "55-55555", "password": "outdated-pass", "accessToken": None}
+
+    def judge(self, journal, *steps, account=None, **fields):
+        ev = evidence(result(), account=account or self.UPDATE, journal=journal, **fields)
+        ev.scenario = scripted(account or self.UPDATE, *steps)
+        return cl.classify(ev)
+
+    def test_the_real_journal_of_a_corrupt_password_on_an_unscripted_endpoint(self):
+        verdict = self.judge(fixture_journal("typed-corrupt-token"), support.expect_request("55-55555:123456"))
+        self.assertEqual(verdict.klass, cl.TYPED)
+        self.assertTrue(verdict.summary.startswith("typed '123456' but the backend received 'v123456' on POST /auth/v1/token (diff at "),
+            verdict.summary)
+
+    def test_a_different_user_is_reported_whole(self):
+        verdict = self.judge([request("/auth/v1/token", "66-66666:123456")], support.expect_request("55-55555:123456"))
+        self.assertEqual(verdict.klass, cl.TYPED)
+        self.assertIn("received '66-66666:123456'", verdict.summary)
+
+    def test_credentials_the_scenario_declares_never_trigger_it_even_when_the_backend_rejects_them(self):
+        # auth-login-invalid / auth-update-password-failure: the script itself sends a credential the backend refuses.
+        invalid = {"id": "bad", "usbId": "00-00000", "password": "bad-password", "accessToken": None}
+        journal = [request("/auth/v2/bootstrap", "00-00000:bad-password", status=401, matched=True)]
+        verdict = self.judge(journal, support.expect_request("00-00000:bad-password"), account=invalid)
+        self.assertEqual(verdict.klass, cl.BACKEND)
+        stored = [request("/auth/v1/token", "55-55555:outdated-pass", status=401, matched=True)]  # the account's own password
+        self.assertEqual(self.judge(stored, support.expect_request("55-55555:123456")).klass, cl.PRODUCT)
+
+    def test_an_expect_request_nested_in_a_group_or_an_if_counts(self):
+        nested = {"type": "ifVisible", "steps": [{"type": "group", "steps": [support.expect_request("55-55555:123456")]}]}
+        self.assertEqual(self.judge([request("/auth/v1/token", "55-55555:123456", matched=True)], nested).klass, cl.PRODUCT)
+
+    def test_a_scenario_that_declares_no_credential_is_not_judged(self):
+        ev = evidence(result(), account=None, journal=[request("/x", "any:thing", matched=True)])
+        ev.scenario = scripted(None)
+        self.assertEqual(cl.classify(ev).klass, cl.PRODUCT)
+
+    def test_the_backend_identifier_rule_of_an_email_account_still_applies(self):
+        mail = {"id": "mail", "usbId": "mail@usb.ve", "password": "123456", "accessToken": None}
+        self.assertEqual(self.judge([request("/auth/v2/bootstrap", "mail:123456", status=401, matched=True)], account=mail).klass, cl.BACKEND)
+
+    def test_before_the_first_step_the_journal_is_the_previous_scenarios(self):
+        stale = [request("/record/v5/terms", "55-55555:v123456")]
+        driver = cl.classify(evidence(result(kind="DRIVER_ERROR", step=-1), account=self.UPDATE, journal=stale))
+        self.assertEqual(driver.klass, cl.TOOLING)
+
+    def test_an_anr_of_another_process_only_reclassifies_a_failure(self):
+        anr = {"kind": "system_anr", "excerpt": "ANR in com.google.android.gms"}
+        passed = cl.classify(evidence(result("passed"), crash=anr))
+        self.assertTrue(passed.passed)
+        self.assertIn("ignored, the scenario passed", passed.note)
+        failed = cl.classify(evidence(result(), crash=anr))
+        self.assertEqual(failed.klass, cl.ENVIRONMENT)
+        typed = cl.classify(evidence(result(kind="TYPED_TEXT_MISMATCH"), crash=anr))
+        self.assertEqual(typed.klass, cl.TYPED, "a typing defect is not an environment event")
 
 
 class EndToEndAuditCaseTests(unittest.TestCase):

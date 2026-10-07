@@ -171,12 +171,21 @@ class ToolchainTests(unittest.TestCase):
         self.assertEqual(ws.evidence().code, 0)
         manifest = ws.manifest()
         self.assertEqual(manifest["toolchain"]["unverified"], ["IOS_LANGUAGE"])
+        self.assertEqual(manifest["toolchain"]["neverVerified"], [])
         self.assertTrue(manifest["toolchain"]["lockMatches"])
         self.assertEqual(manifest["toolchain"]["lockFile"], "e2e/toolchain/ios.lock")
         self.assertEqual(manifest["toolchain"]["libs"]["kotlin"], "2.4.20")
         lock = {"A": "1", "B": "2"}
         self.assertEqual(toolchain.compare(lock, {"A": "1"}), ([("B", "2", "<not reported>")], []))
         self.assertEqual(toolchain.compare(lock, {"A": "1", "B": None, "extra": "x"}), ([], ["B"]))
+
+    def test_a_key_nothing_reads_back_is_said_to_be_unverified_not_counted_as_verified(self):
+        ws = Workspace(self, [support.scenario("fix-a")], {"toolchain": {"android": {"ANDROID_EMULATOR_HEADLESS": None}}})
+        result = ws.evidence("android")
+        self.assertEqual(result.code, 0, result.out)
+        self.assertEqual(ws.manifest()["toolchain"]["neverVerified"], ["ANDROID_EMULATOR_HEADLESS"])
+        self.assertIn("not verified at all: ANDROID_EMULATOR_HEADLESS", result.out)
+        self.assertIn("(8 keys; 0 more verified when the device starts;", result.out)
 
     def test_every_android_key_is_strict(self):
         for key in toolchain.LOCK_KEYS["android"]:
@@ -274,8 +283,8 @@ class PlatformsAllTests(unittest.TestCase):
         self.assertIn("[e2e all] parallel: ncpu=10, CPU idle=53%", result.out)
 
     def test_sequential_runs_first_the_platform_that_has_failed_attempts(self):
-        ws = Workspace(self, [scenario("fix-a")], {"behaviours": {"ios:fix-a": ["fail:assertion", "pass"]}})
-        self.assertEqual(ws.evidence("ios", E2E_MAX_RETRIES="0").code, 1)
+        ws = Workspace(self, [scenario("fix-a")], {"behaviours": {"ios:fix-a": ["fail:typed", "pass"]}})
+        self.assertEqual(ws.evidence("ios").code, 5)
         result = ws.run("run", "--platform", "all", "--mode", "evidence", E2E_PARALLEL="never")
         self.assertEqual(result.code, 0, result.out)
         self.assertIn("order ios, android", result.out)

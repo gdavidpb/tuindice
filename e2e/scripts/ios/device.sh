@@ -25,43 +25,25 @@ KEYBOARD_KEYS=(KeyboardAutocorrection KeyboardPrediction KeyboardShowPredictionB
 	KeyboardCheckSpelling KeyboardPeriodShortcut)
 TEXT_KEYS=(NSAutomaticSpellingCorrectionEnabled NSAutomaticTextCompletionEnabled NSUseSpellCheckerForCompletions)
 
-fail() {
-	printf '%s\n' "$*" >&2
-	exit 3
-}
-
-load_lock() {
-	local key line value
-	[[ -f "${LOCK_FILE}" ]] || { printf 'Missing lock %s\n' "${LOCK_FILE}" >&2; exit 2; }
-	while IFS= read -r line || [[ -n "${line}" ]]; do
-		[[ -z "${line}" || "${line}" == \#* ]] && continue
-		[[ "${line%%=*}" =~ ^[A-Z_]+$ ]] || { printf 'Bad line in %s: %s\n' "${LOCK_FILE}" "${line}" >&2; exit 2; }
-		printf -v "${line%%=*}" '%s' "${line#*=}"
-	done < "${LOCK_FILE}"
-	for key in "${LOCK_KEYS[@]}"; do
-		value="${!key:-}"
-		[[ -n "${value}" ]] || { printf 'The lock %s has no %s\n' "${LOCK_FILE}" "${key}" >&2; exit 2; }
-	done
-}
-
-# simctl_query <simctl list kind> <python expression over `data`>: prints the value, or nothing when simctl fails
+# simctl_query <simctl list kind> <python expression over `data`>: prints the value; fails when simctl itself fails
 simctl_query() {
 	local kind="$1" expression="$2" out
-	if out="$(xcrun simctl list "${kind}" -j 2> /dev/null)"; then
-		python3 -c 'import json, sys; data = json.loads(sys.stdin.read()); print(eval(sys.argv[1]))' "${expression}" <<< "${out}"
-	fi
+	out="$(xcrun simctl list "${kind}" -j 2> /dev/null)" || return 1
+	python3 -c 'import json, sys; data = json.loads(sys.stdin.read()); print(eval(sys.argv[1]))' "${expression}" <<< "${out}"
 }
 
-# Sets UDID and STATE for the simulator named in the lock (under the pinned runtime); false when it does not exist.
+# Sets UDID, STATE and TYPE for the simulator named in the lock (under the pinned runtime); false when it does not exist.
+# A simctl that fails is not an absent simulator: that would create a second one.
 find_simulator() {
 	local line
-	line="$(simctl_query devices "next((d['udid'] + ' ' + d['state'] for d in data['devices'].get('${IOS_RUNTIME_ID}', []) if d['name'] == '${IOS_SIMULATOR_NAME}'), '')")"
+	line="$(simctl_query devices "next((d['udid'] + ' ' + d['state'] + ' ' + d.get('deviceTypeIdentifier', '-') for d in data['devices'].get('${IOS_RUNTIME_ID}', []) if d['name'] == '${IOS_SIMULATOR_NAME}'), '')")" ||
+		fail "simctl list devices failed; the harness does not assume the simulator ${IOS_SIMULATOR_NAME} is absent"
 	[[ -n "${line}" ]] || return 1
-	read -r UDID STATE <<< "${line}"
+	read -r UDID STATE TYPE <<< "${line}"
 }
 
 pref_set() { # domain key type value...
-	xcrun simctl spawn "${UDID}" defaults write "$@"
+	xcrun simctl spawn "${UDID}" defaults write "$@" || { printf 'defaults write %s failed\n' "$*" >&2; return 1; }
 }
 
 pref_get() { # domain key
@@ -74,31 +56,32 @@ pref_get() { # domain key
 check_pref() { # domain key expected; appends to PAIRS
 	local actual
 	actual="$(pref_get "$1" "$2")"
-	[[ "${actual}" == "$3" ]] || fail "The preference $1 $2 reads back '${actual}', expected '$3'"
+	[[ "${actual}" == "$3" ]] || { printf "The preference %s %s reads back '%s', expected '%s'\n" "$1" "$2" "${actual}" "$3" >&2; return 1; }
 	PAIRS+=("$1.$2=s:${actual}")
 }
 
-apply_settings() { # sets SETTINGS_JSON; exits 3 on a read-back mismatch
-	local key domain
+# Sets SETTINGS_JSON. Returns 1 (with the reason on stderr) when a write fails or a value does not read back, so that
+# `ensure` can recover a simulator that is booted but not answering before it gives up.
+apply_settings() {
+	local key domain hardware
 	PAIRS=()
 	for domain in NSGlobalDomain com.apple.Preferences; do
 		for key in "${KEYBOARD_KEYS[@]}"; do
-			pref_set "${domain/NSGlobalDomain/-g}" "${key}" -bool false
-			check_pref "${domain/NSGlobalDomain/-g}" "${key}" 0
+			pref_set "${domain/NSGlobalDomain/-g}" "${key}" -bool false || return 1
+			check_pref "${domain/NSGlobalDomain/-g}" "${key}" 0 || return 1
 		done
 	done
 	for key in "${TEXT_KEYS[@]}"; do
-		pref_set -g "${key}" -bool false
-		check_pref -g "${key}" 0
+		pref_set -g "${key}" -bool false || return 1
+		check_pref -g "${key}" 0 || return 1
 	done
-	pref_set -g AppleLanguages -array "${IOS_LANGUAGE}"
-	check_pref -g AppleLanguages "${IOS_LANGUAGE}"
-	pref_set -g AppleLocale -string "${IOS_LOCALE}"
-	check_pref -g AppleLocale "${IOS_LOCALE}"
-	defaults write "${HOST_DOMAIN}" DevicePreferences -dict-add "${UDID}" '<dict><key>ConnectHardwareKeyboard</key><false/></dict>'
-	local hardware
-	hardware="$(defaults export "${HOST_DOMAIN}" - | plutil -extract "DevicePreferences.${UDID}.ConnectHardwareKeyboard" raw -o - -)"
-	[[ "${hardware}" == "false" ]] || fail "ConnectHardwareKeyboard reads back '${hardware}' for ${UDID}, expected false"
+	pref_set -g AppleLanguages -array "${IOS_LANGUAGE}" || return 1
+	check_pref -g AppleLanguages "${IOS_LANGUAGE}" || return 1
+	pref_set -g AppleLocale -string "${IOS_LOCALE}" || return 1
+	check_pref -g AppleLocale "${IOS_LOCALE}" || return 1
+	defaults write "${HOST_DOMAIN}" DevicePreferences -dict-add "${UDID}" '<dict><key>ConnectHardwareKeyboard</key><false/></dict>' || return 1
+	hardware="$(defaults export "${HOST_DOMAIN}" - | plutil -extract "DevicePreferences.${UDID}.ConnectHardwareKeyboard" raw -o - -)" || return 1
+	[[ "${hardware}" == "false" ]] || { printf "ConnectHardwareKeyboard reads back '%s' for %s, expected false\n" "${hardware}" "${UDID}" >&2; return 1; }
 	PAIRS+=("ConnectHardwareKeyboard=s:${hardware}")
 	SETTINGS_JSON="$(emit_json "${PAIRS[@]}")"
 }
@@ -145,13 +128,17 @@ cmd_toolchain() {
 }
 
 cmd_ensure() {
-	local created=false booted_by_harness=false model size
+	local created=false booted_by_harness=false recovered=false model size
 	if ! find_simulator; then
 		[[ -n "$(simctl_query runtimes "next((r['identifier'] for r in data['runtimes'] if r['identifier'] == '${IOS_RUNTIME_ID}' and r['isAvailable']), '')")" ]] ||
 			fail "The runtime ${IOS_RUNTIME_ID} is not installed"
 		UDID="$(xcrun simctl create "${IOS_SIMULATOR_NAME}" "${IOS_DEVICE_TYPE_ID}" "${IOS_RUNTIME_ID}")"
 		STATE="Shutdown"
+		TYPE="${IOS_DEVICE_TYPE_ID}"
 		created=true
+	fi
+	if [[ "${TYPE}" != "-" && "${TYPE}" != "${IOS_DEVICE_TYPE_ID}" ]]; then
+		fail "The simulator ${IOS_SIMULATOR_NAME} (${UDID}) is of type ${TYPE}, the lock pins ${IOS_DEVICE_TYPE_ID}; delete it so that ensure creates the pinned one"
 	fi
 	case "${STATE}" in
 		Shutdown)
@@ -169,10 +156,19 @@ cmd_ensure() {
 			;;
 		*) fail "The simulator ${UDID} is '${STATE}'; wait for it to settle and run ensure again" ;;
 	esac
-	apply_settings
+	if ! apply_settings; then
+		# A simulator that was already booted may be up but not answering (`defaults write` cannot reach its domains): one
+		# recovery, recorded in the result. A simulator this run booted, or one that fails again, is the environment's fault.
+		[[ "${booted_by_harness}" == "false" ]] || fail "The simulator ${UDID} refused its settings right after the harness booted it"
+		log "The settings could not be applied to the booted simulator ${UDID}; shutting it down, booting it and trying once more."
+		xcrun simctl shutdown "${UDID}" || fail "simctl shutdown ${UDID} failed during the recovery"
+		boot_simulator
+		recovered=true
+		apply_settings || fail "The simulator ${UDID} refused its settings again after one recovery"
+	fi
 	model="$(simctl_query devicetypes "next((t['name'] for t in data['devicetypes'] if t['identifier'] == '${IOS_DEVICE_TYPE_ID}'), '')")"
 	emit_json "id=s:${UDID}" "model=s:${model}" "created=j:${created}" "bootedByHarness=j:${booted_by_harness}" \
-		"bootedAt=j:null" "dataDirGb=j:$(data_gb)" "settings=j:${SETTINGS_JSON}"
+		"recoveredAtEnsure=j:${recovered}" "bootedAt=j:null" "dataDirGb=j:$(data_gb)" "settings=j:${SETTINGS_JSON}"
 }
 
 cmd_health() {
@@ -187,7 +183,7 @@ cmd_recover() {
 		xcrun simctl shutdown "${UDID}"
 	fi
 	boot_simulator
-	apply_settings
+	apply_settings || fail "The simulator ${UDID} refused its settings after the recovery"
 	emit_json "ok=j:true" "id=s:${UDID}" "settings=j:${SETTINGS_JSON}"
 }
 

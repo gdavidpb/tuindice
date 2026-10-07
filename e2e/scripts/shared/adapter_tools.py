@@ -12,13 +12,16 @@ Usage: adapter_tools.py <command> [args...]. Every command prints one JSON objec
   cap-log <max bytes> <file>                     {bytes, truncated} stdin to <file>, the last <max bytes> of it
   xctest-summary <log> <exit code>               {nativeOk, testsExecuted} of an xcodebuild test run
   xctest-tests <enumeration json>                {tests} the `Target/Class/method` identifiers of an enumeration
-  ios-crash <reports dir> <since> <process> <file>  {kind, excerpt} from the crash reports of the app process
+  ios-crash <reports dir> <since> <until> <process> <file> <udid> <wait s>  {kind, excerpt} from the crash report of the app
+                                                 process captured in [since, until] on that simulator, waiting up to <wait s> for it
 """
 
+import datetime
 import json
 import os
 import re
 import sys
+import time
 
 INSTRUMENT_CODE = re.compile(r"^INSTRUMENTATION_STATUS_CODE: (-?\d+)", re.M)
 INSTRUMENT_TEST = re.compile(r"^INSTRUMENTATION_STATUS: test=run\[(.+)\]\s*$", re.M)
@@ -85,22 +88,23 @@ def _logcat_events(text, since):
 
 
 def logcat_crash(log, since, app_id, evidence_file):
-    """Kinds: app_crash (Java or native, of the app), app_anr, system_anr (an ANR of any other process), none."""
+    """Kinds: app_crash (Java or native, of the app), app_anr, system_anr (an ANR of any other process), none. The whole
+    log is read: a crash or ANR of the app wins over an ANR of another process, whichever came first."""
     lines = list(_logcat_events(_read(log), int(since)))
-    kind, at = "none", 0
+    found = {}
     for index, line in enumerate(lines):
         if "FATAL EXCEPTION" in line and any(("Process: %s," % app_id) in l or ("Process: %s" % app_id) in l
                 for l in lines[index:index + 4]):
-            kind, at = "app_crash", index
+            found.setdefault("app_crash", index)
         elif re.search(r">>> %s <<<" % re.escape(app_id), line) and "Fatal signal" in "".join(lines[max(0, index - 3):index + 1]):
-            kind, at = "app_crash", index
+            found.setdefault("app_crash", index)
         elif "ANR in " in line:
             culprit = line.split("ANR in ", 1)[1].split()[0].rstrip(",")
-            kind, at = ("app_anr" if culprit == app_id else "system_anr"), index
-        if kind != "none":
-            break
+            found.setdefault("app_anr" if culprit == app_id else "system_anr", index)
+    kind = next((k for k in ("app_crash", "app_anr", "system_anr") if k in found), "none")
     if kind == "none":
         return {"kind": "none", "excerpt": ""}
+    at = found[kind]
     excerpt = lines[max(0, at - 1):at + EXCERPT_LINES]
     with open(evidence_file, "w") as handle:
         handle.write("\n".join(excerpt) + "\n")
@@ -172,15 +176,48 @@ def xctest_tests(path):
     return {"tests": names}
 
 
-def ios_crash(reports_dir, since, process, evidence_file):
-    newest = None
+REPORT_TIME = re.compile(r'"captureTime"\s*:\s*"(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d)(?:\.\d+)? ([+-]\d{4})"|'
+    r'^Date/Time:\s+(\d{4}-\d\d-\d\d \d\d:\d\d:\d\d)(?:\.\d+)? ([+-]\d{4})', re.M)
+# A report written this long after the attempt ended still belongs to it when its capture time is inside the attempt.
+IOS_CRASH_POLL_SECONDS = 1.0
+
+
+def _captured_at(text, fallback):
+    """The epoch second a crash report says the crash happened (its own clock, not the file's); `fallback` if it has none."""
+    match = REPORT_TIME.search(text)
+    if not match:
+        return fallback
+    stamp, zone = (match.group(1), match.group(2)) if match.group(1) else (match.group(3), match.group(4))
+    moment = datetime.datetime.strptime(stamp + zone, "%Y-%m-%d %H:%M:%S%z")
+    return moment.timestamp()
+
+
+def _ios_crash_report(reports_dir, since, until, process, udid):
+    best = None
     for name in sorted(os.listdir(reports_dir)) if os.path.isdir(reports_dir) else []:
         path = os.path.join(reports_dir, name)
-        if name.startswith(process) and name.endswith((".ips", ".crash")) and os.path.getmtime(path) >= int(since):
-            newest = path
-    if not newest:
+        if not (name.startswith(process) and name.endswith((".ips", ".crash"))):
+            continue
+        text = _read(path)
+        captured = _captured_at(text, os.path.getmtime(path))
+        # Attributed by when the crash happened, never by when the file was written, and only if it is the dedicated simulator's.
+        if since <= captured <= until and (not udid or udid in text) and (best is None or captured >= best[0]):
+            best = (captured, path, text)
+    return best
+
+
+def ios_crash(reports_dir, since, until, process, evidence_file, udid="", wait="0"):
+    """The crash report of the app process whose capture time lies in [since, until] and that names the dedicated simulator.
+    The report lands some seconds after the crash, so `wait` seconds are spent polling for it (the harness asks for that
+    only when the attempt failed)."""
+    since, until, deadline = float(since), float(until), time.monotonic() + float(wait)
+    found = _ios_crash_report(reports_dir, since, until, process, udid)
+    while not found and time.monotonic() < deadline:
+        time.sleep(IOS_CRASH_POLL_SECONDS)
+        found = _ios_crash_report(reports_dir, since, until, process, udid)
+    if not found:
         return {"kind": "none", "excerpt": ""}
-    text = _read(newest)
+    _captured, newest, text = found
     with open(evidence_file, "w") as handle:
         handle.write("# %s\n%s" % (newest, text[:20000]))
     reason = re.search(r'"(?:exception|termination)"\s*:\s*\{[^}]*\}', text)
@@ -191,7 +228,7 @@ COMMANDS = {
     "apk-outputs": (apk_outputs, 2), "catalog-field": (catalog_field, 3), "instrument-summary": (instrument_summary, 1),
     "instrument-tests": (instrument_tests, 1), "logcat-crash": (logcat_crash, 4), "logcat-window": (logcat_window, 4), "cap-log": (cap_log, 2),
     "xctest-summary": (xctest_summary, 2),
-    "xctest-tests": (xctest_tests, 1), "ios-crash": (ios_crash, 4),
+    "xctest-tests": (xctest_tests, 1), "ios-crash": (ios_crash, 7),
 }
 
 

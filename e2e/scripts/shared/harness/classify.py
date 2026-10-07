@@ -1,6 +1,7 @@
 """Failure classification. First match wins; see plan section 4.5."""
 
 import base64
+import difflib
 import re
 
 PRODUCT = "product_assertion"
@@ -35,9 +36,10 @@ class Evidence:
 
 
 class Classification:
-    def __init__(self, klass, summary):
+    def __init__(self, klass, summary, note=None):
         self.klass = klass       # None means the attempt passed
         self.summary = summary
+        self.note = note         # something worth keeping that did not change the verdict
 
     @property
     def passed(self):
@@ -82,29 +84,69 @@ def _decode_basic(value):
 def _expected_credentials(account):
     user, password = account["usbId"], account["password"]
     expected = ["%s:%s" % (user, password)]
-    if "@" in user:
+    if account.get("backendIdentifier"):  # exported by the catalog when it knows it
+        expected.append("%s:%s" % (account["backendIdentifier"], password))
+    elif "@" in user:  # otherwise the rule the app applies: the local part of an e-mail
         expected.append("%s:%s" % (user.split("@")[0], password))
     return expected
 
 
-def _journal_verdict(ev):
-    account = ev.account
-    for entry in ev.journal:
-        request = entry.get("request") or {}
-        decoded = _decode_basic(_header(request, "Authorization"))
-        if _path(entry) != BOOTSTRAP_PATH or _status(entry) != 401 or decoded is None or not account:
+def _walk(node):
+    if isinstance(node, dict):
+        yield node
+        for value in node.values():
+            yield from _walk(value)
+    elif isinstance(node, list):
+        for value in node:
+            yield from _walk(value)
+
+
+def declared_credentials(scenario, account):
+    """Every `user:password` the scenario declares: its account (with the backend identifier rule) and the `basicAuth` of
+    each ExpectRequest step, nested ones included. A request that carries any other Basic credential was typed wrong."""
+    declared = _expected_credentials(account) if account else []
+    declared += [step["basicAuth"] for step in _walk(scenario.raw.get("steps", [])) if isinstance(step.get("basicAuth"), str)]
+    return declared
+
+
+def _request_name(entry):
+    request = entry.get("request") or {}
+    return "%s %s" % (request.get("method", "?"), _path(entry))
+
+
+def _typed_verdict(ev):
+    """TYPED when any request reached the backend with credentials the scenario does not declare: text typed wrong never
+    depends on which endpoint saw it first, and it is never retried."""
+    declared = declared_credentials(ev.scenario, ev.account)
+    for entry in ev.journal if declared else []:
+        decoded = _decode_basic(_header(entry.get("request") or {}, "Authorization"))
+        if decoded is None or decoded in declared:
             continue
-        expected = _expected_credentials(account)
-        if decoded in expected:
-            return Classification(BACKEND, "the mock rejected the declared credential '%s' with 401 on %s" % (decoded, BOOTSTRAP_PATH))
-        want, got = expected[0], decoded
+        user = decoded.split(":", 1)[0]
+        same_user = [c for c in declared if c.split(":", 1)[0] == user] or declared
+        # The declared credential the received one is closest to is the one that was being typed.
+        want = max(same_user, key=lambda c: difflib.SequenceMatcher(None, c, decoded).ratio())
+        got = decoded
         if want.split(":", 1)[0] == got.split(":", 1)[0]:
             want, got = want.split(":", 1)[1], got.split(":", 1)[1]
-        return Classification(TYPED, "typed '%s' but the backend received '%s' (diff at %s)"
-            % (want, got, _diff_indexes(want, got)))
-    unmatched = [_path(e) for e in ev.journal if e.get("wasMatched") is False]
+        return Classification(TYPED, "typed '%s' but the backend received '%s' on %s (diff at %s)"
+            % (want, got, _request_name(entry), _diff_indexes(want, got)))
+    return None
+
+
+def _journal_verdict(ev):
+    typed = _typed_verdict(ev)
+    if typed:
+        return typed
+    account = ev.account
+    for entry in ev.journal:
+        decoded = _decode_basic(_header(entry.get("request") or {}, "Authorization"))
+        if _path(entry) == BOOTSTRAP_PATH and _status(entry) == 401 and decoded is not None:
+            return Classification(BACKEND, "the backend answered 401 to the declared credential '%s' on %s; a scenario that "
+                "scripts that rejection fails at its own step, so read the step" % (decoded, BOOTSTRAP_PATH))
+    unmatched = _unmatched_paths(ev.journal)
     if unmatched:
-        return Classification(BACKEND, "requests without a stub: %s" % ", ".join(sorted(set(unmatched))))
+        return Classification(BACKEND, "requests without a stub: %s" % ", ".join(unmatched))
     if account and account.get("accessToken"):
         for entry in ev.journal:
             path = _path(entry)
@@ -115,19 +157,40 @@ def _journal_verdict(ev):
     return None
 
 
+def _unmatched_paths(journal):
+    return sorted(set(_path(e) for e in journal if e.get("wasMatched") is False))
+
+
+def unmatched_summary(journal):
+    """What the attempt keeps of the requests that had no stub, green attempts included: the retention may delete the
+    journal itself, this stays in the ledger."""
+    count = sum(1 for e in journal if e.get("wasMatched") is False)
+    return {"count": count, "paths": _unmatched_paths(journal)[:10]}
+
+
 def classify(ev):
-    """Returns a Classification; `klass is None` means the attempt passed."""
+    """Returns a Classification; `klass is None` means the attempt passed. An ANR of another process only reclassifies an
+    attempt that failed (and was not a crash or a typing defect); on a passing attempt it is noted and nothing more."""
+    verdict = _verdict(ev)
+    anr = ev.crash.get("kind") == "system_anr"
+    text = "system ANR: %s" % (ev.crash.get("excerpt") or "").strip()[:200]
+    if anr and verdict.passed:
+        verdict.note = "ignored, the scenario passed: " + text
+    elif anr and verdict.klass not in (ENVIRONMENT,) + NON_RETRYABLE:
+        return Classification(ENVIRONMENT, text)
+    return verdict
+
+
+def _verdict(ev):
     if ev.pre_failure:
         return Classification(ENVIRONMENT, ev.pre_failure)
     if ev.crash.get("kind") in ("app_crash", "app_anr"):
         return Classification(CRASH, "%s: %s" % (ev.crash["kind"], (ev.crash.get("excerpt") or "").strip()[:200]))
-    if ev.crash.get("kind") == "system_anr":
-        return Classification(ENVIRONMENT, "system ANR: %s" % (ev.crash.get("excerpt") or "").strip()[:200])
     result = ev.result
     if ev.killed_after is not None:
         steps = [s for s in (result or {}).get("steps", []) if s.get("outcome") == "passed"]
         last = "last completed step %s %s(%s)" % (steps[-1].get("index"), steps[-1].get("primitive"), steps[-1].get("target")) \
-            if steps else "no step completed"
+            if steps else "the runner writes result.json only when it ends, so the step it was in is not known"
         return Classification(TIMEOUT, "scenario exceeded %ds; %s" % (ev.killed_after, last))
     if result is None:
         matches = [line for line in ev.runner_log.splitlines() if RUNNER_ERROR.search(line)]
@@ -146,8 +209,10 @@ def classify(ev):
     kind = failure.get("kind")
     where = "%s: %s" % (_step_text(failure), failure.get("message", ""))
     if kind == "TYPED_TEXT_MISMATCH":
-        return Classification(TYPED, "%s: typed '%s' but the field held '%s'"
-            % (_step_text(failure), failure.get("expected", ""), failure.get("actual", "")))
+        # ExpectRequest compares what the backend received; every other step compares what the field held.
+        place = "the backend received" if failure.get("primitive") == "ExpectRequest" else "the field held"
+        return Classification(TYPED, "%s: typed '%s' but %s '%s'"
+            % (_step_text(failure), failure.get("expected", ""), place, failure.get("actual", "")))
     if kind in ("SYSTEM_DIALOG", "BACKEND_UNAVAILABLE"):
         return Classification(ENVIRONMENT, where)
     if kind == "APP_NOT_RUNNING" and int(failure.get("stepIndex", -1)) < 0:
@@ -155,7 +220,8 @@ def classify(ev):
         # was not ready, which is environment. Later, a crash needs crash-probe evidence (the
         # branch above); a driver that merely finds the app gone is a product assertion.
         return Classification(ENVIRONMENT, where)
-    journal = _journal_verdict(ev)
+    # Before the first step (index -1) the journal still holds the previous scenario's requests: it says nothing.
+    journal = None if int(failure.get("stepIndex", 0)) < 0 else _journal_verdict(ev)
     if journal:
         return journal
     if kind == "DRIVER_ERROR":

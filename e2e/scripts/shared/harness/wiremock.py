@@ -63,6 +63,8 @@ class WireMock:
         self.lock_dir = self.state_dir / "lock"
         self.marker = config.seam("E2E_FAKE_WIREMOCK_MARKER") or OWNER_MARKER
         self.log_path = os.path.join(str(run_dir), "wiremock.log")
+        self.claimed = False
+        self.journal_error = None
 
     @property
     def base_url(self):
@@ -89,6 +91,12 @@ class WireMock:
             return _alive(owner["harnessPid"])
         return _alive(owner["pid"]) and any(self.marker in command for command in _group_commands().get(owner["pgid"], []))
 
+    def _orphan(self, owner):
+        """A WireMock this harness started whose harness is gone: the process is alive and is still the one that was started
+        (pid, process group and marker agree), so it is ours to stop and not somebody else's."""
+        return owner["pid"] is not None and owner.get("harnessPid") is not None and not _alive(owner["harnessPid"]) \
+            and self._running(owner)
+
     def _claim(self):
         os.makedirs(str(self.state_dir), exist_ok=True)
         for _ in range(2):
@@ -99,11 +107,26 @@ class WireMock:
             except FileExistsError:
                 owner = self._owner()
                 young = owner is None and time.time() - os.stat(str(self.lock_dir)).st_mtime < CLAIM_GRACE_SECONDS
-                if young or (owner and self._running(owner)):
+                if owner and self._orphan(owner):
+                    self._kill_orphan(owner)
+                elif young or (owner and self._running(owner)):
                     raise EnvironmentRefused("the %s WireMock is owned by run %s (pid %s); the harness does not start a second one"
                         % (self.platform, owner["runId"] if owner else "unknown", owner["pid"] if owner else "unknown"))
                 shutil.rmtree(str(self.lock_dir), ignore_errors=True)
         raise EnvironmentRefused("could not claim the WireMock lock %s" % self.lock_dir)
+
+    @staticmethod
+    def _kill_orphan(owner):
+        for signum in (signal.SIGTERM, signal.SIGKILL):
+            try:
+                os.killpg(owner["pgid"], signum)
+            except (ProcessLookupError, PermissionError):
+                return
+            deadline = time.monotonic() + KILL_GRACE_SECONDS
+            while time.monotonic() < deadline and _alive(owner["pid"]):
+                time.sleep(0.1)
+            if not _alive(owner["pid"]):
+                return
 
     def _release(self):
         owner = self._owner()
@@ -125,10 +148,16 @@ class WireMock:
 
     # -- lifecycle ---------------------------------------------------------------------------
 
+    def claim(self):
+        """Takes the platform's WireMock lock without starting anything: the run does it before it touches the device."""
+        if not self.fake_dir and not self.claimed:
+            self._claim()
+            self.claimed = True
+
     def start(self):
         if self.fake_dir:
             return
-        self._claim()
+        self.claim()
         try:
             if self._listening():
                 raise EnvironmentRefused("port %d already has a listener the harness did not start; it is never killed. "
@@ -162,6 +191,11 @@ class WireMock:
             tail = "\n".join(handle.read().splitlines()[-40:])
         raise EnvironmentRefused("WireMock did not become ready on port %d:\n%s" % (self.port, tail))
 
+    def restart(self):
+        """Stops this run's WireMock and starts a new one on the same port and lock; the device is not touched."""
+        self.stop()
+        self.start()
+
     def health(self):
         if self.fake_dir:
             down = os.path.exists(os.path.join(self.fake_dir, "down"))
@@ -173,7 +207,8 @@ class WireMock:
             return (False, str(error))
 
     def journal(self):
-        """The request journal as WireMock lists it; an empty list when unreadable."""
+        """The request journal as WireMock lists it; an empty list when unreadable, with the reason in `journal_error`."""
+        self.journal_error = None
         try:
             if self.fake_dir:
                 with open(os.path.join(self.fake_dir, "journal.json")) as handle:
@@ -182,7 +217,8 @@ class WireMock:
                 with urllib.request.urlopen(self.base_url + "/__admin/requests", timeout=10) as response:
                     text = response.read().decode("utf-8")
             return json.loads(text).get("requests", [])
-        except (OSError, ValueError, AttributeError):
+        except (OSError, ValueError, AttributeError) as error:
+            self.journal_error = "the WireMock journal could not be read: %s" % error
             return []
 
     def stop(self):
@@ -196,3 +232,4 @@ class WireMock:
                 pass
         if not self.fake_dir:
             self._release()
+            self.claimed = False

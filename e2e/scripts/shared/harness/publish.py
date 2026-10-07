@@ -7,6 +7,9 @@ import subprocess
 from .config import UsageError
 
 
+PUBLISH_TIMEOUT_SECONDS = 120
+
+
 class PublishError(Exception):
     pass
 
@@ -31,9 +34,17 @@ def status_context(config, platform):
     return context
 
 
-def description(platform, total, sha, fingerprint, retried=0, quarantined=0, overrides=0):
+def description(platform, runnable, quarantined, sha, fingerprint, ledger):
+    """The status text. Every number comes from the ledger, so a run and a later `publish` word it the same way:
+    retried = scenarios that failed a counted attempt, env = scenarios that had an environment failure (they do not count
+    against the cap), overrides = scenario resets plus the environment, parallelism and retry overrides the runs used."""
+    total = len(runnable)
+    retried = sum(1 for s in runnable if any(a["outcome"] == "failed" and a["countsAgainstCap"] for a in ledger.attempts(s.id)))
+    env = sum(1 for s in runnable if ledger.environment_events(s.id))
+    overrides = sum(len(ledger.data["scenarios"].get(s.id, {}).get("overrides", [])) for s in runnable) \
+        + len(ledger.data.get("runOverrides", []))
     text = "Local E2E %s %d/%d passed for %s fp %s." % (platform, total, total, sha[:7], fingerprint[:12])
-    for count, word in ((retried, "retried"), (quarantined, "quarantined"), (overrides, "overrides")):
+    for count, word in ((retried, "retried"), (env, "env"), (len(quarantined), "quarantined"), (overrides, "overrides")):
         if count:
             text += " %s %d." % (word, count)
     return text[:140]
@@ -44,9 +55,16 @@ def publish_success(config, platform, sha, context, text):
         "api", "-X", "POST", "repos/{owner}/{repo}/statuses/%s" % sha,
         "-f", "state=success", "-f", "context=%s" % context, "-f", "description=%s" % text,
     ]
-    result = subprocess.run(
-        command, cwd=str(config.root), stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, timeout=120,
-    )
+    timeout = float(config.seam("E2E_FAKE_PUBLISH_TIMEOUT_SECONDS") or PUBLISH_TIMEOUT_SECONDS)
+    try:
+        result = subprocess.run(
+            command, cwd=str(config.root), stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True,
+            timeout=timeout,
+        )
+    except subprocess.TimeoutExpired:
+        raise PublishError("gh did not answer within %ds" % timeout)
+    except OSError as error:
+        raise PublishError("gh could not be run: %s" % error)
     if result.returncode != 0:
         raise PublishError("gh could not publish the status: %s" % result.stderr.strip()[:300])
     try:

@@ -2,6 +2,9 @@
 # Fake xcrun for the device.sh tests. State lives in $FAKE_XCRUN_DIR:
 #   sim               "<udid> <state>" while the simulator exists (state: Shutdown|Booted)
 #   ignore            "<domain> <key>" lines whose `defaults write` is silently ignored
+#   fail-first-write  while this file exists, the next `defaults write` fails (like a booted simulator that does not answer) and removes it
+#   list-fails        while this file exists, `simctl list devices` fails
+#   type              the deviceTypeIdentifier `simctl list devices` reports for the simulator (default: the pinned one)
 #   prefs/<udid>/<domain>/<key>   stored preference values as `defaults read` prints them
 #   terminate.answer  with terminate.rc (default 3): `simctl terminate` fails with this message
 #   tests.list        identifiers the fake xcodebuild enumerates (with their trailing parentheses)
@@ -34,9 +37,14 @@ case "${verb}" in
 				echo '{"devicetypes":[{"identifier":"com.apple.CoreSimulator.SimDeviceType.iPhone-18-Pro","name":"iPhone 18 Pro"}]}'
 				;;
 			devices)
+				if [[ -f "${dir}/list-fails" ]]; then
+					echo "simctl list failed" >&2
+					exit 1
+				fi
 				if [[ -f "${dir}/sim" ]]; then
 					read -r id state < "${dir}/sim"
-					printf '{"devices":{"%s":[{"udid":"%s","name":"TuIndice-E2E","state":"%s"}]}}\n' "${runtime}" "${id}" "${state}"
+					printf '{"devices":{"%s":[{"udid":"%s","name":"TuIndice-E2E","state":"%s","deviceTypeIdentifier":"%s"}]}}\n' \
+						"${runtime}" "${id}" "${state}" "$(cat "${dir}/type" 2> /dev/null || echo com.apple.CoreSimulator.SimDeviceType.iPhone-18-Pro)"
 				else
 					echo '{"devices":{}}'
 				fi
@@ -67,6 +75,11 @@ case "${verb}" in
 		key="$5"
 		file="${dir}/prefs/${id}/${domain}/${key}"
 		if [[ "${action}" == "write" ]]; then
+			if [[ -f "${dir}/fail-first-write" ]]; then
+				rm -f "${dir}/fail-first-write"
+				echo "Could not write domain Apple Global Domain; exiting" >&2
+				exit 1
+			fi
 			grep -qxF -e "${domain} ${key}" "${dir}/ignore" 2> /dev/null && exit 0
 			mkdir -p "$(dirname "${file}")"
 			case "$6" in

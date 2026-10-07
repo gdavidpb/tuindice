@@ -9,12 +9,15 @@ E2E_FAKE_WIREMOCK_DIR (dir), E2E_CATALOG_FILE, E2E_CURRENT_SCENARIO (set by the 
 The script maps scenario ids ("<platform>:<id>" wins over "<id>") to one behaviour per
 attempt; the last one repeats. A behaviour is a string or {"do": ..., "journal": ...}:
 pass, fail:assertion, fail:typed, fail:driver, fail:app-not-running, fail:app-not-running-late,
-fail:dialog, hang, crash, no-result, disagree, zero-tests, env, system-anr, wiremock-down.
-`slow` maps "<platform>:<verb>" to seconds slept after the call is logged; `failVerbs` lists the "<platform>:<verb>" that exit 1.
+fail:dialog, hang, crash, no-result, disagree, zero-tests, env, system-anr, pass-system-anr (passes, but the probe reports
+a system ANR), wiremock-down (a fake WireMock directory goes down), wiremock-kill (the real fake WireMock of the run dies).
+`slow` maps "<platform>:<verb>" to seconds slept after the call is logged; `failVerbs` lists the "<platform>:<verb>" that exit 1;
+`mutate` maps "<platform>:<verb>" to "file" (an untracked file appears in the checkout) or "commit" (an empty commit lands).
 """
 
 import json
 import os
+import signal
 import subprocess
 import sys
 import time
@@ -28,7 +31,7 @@ FAILURES = {
     "fail:app-not-running-late": ("APP_NOT_RUNNING", 2, "Tap", "tag:x", "the app is gone"),
     "fail:dialog": ("SYSTEM_DIALOG", 1, "Tap", "tag:x", "a system dialog is in front"),
 }
-CRASH_KINDS = {"crash": "app_crash", "system-anr": "system_anr"}
+CRASH_KINDS = {"crash": "app_crash", "system-anr": "system_anr", "pass-system-anr": "system_anr"}
 
 
 def load_script():
@@ -82,6 +85,8 @@ def run_scenario(platform, scenario, directory, current):
         journal = json.load(open(os.path.join(HERE, "fixtures", "journals", current["journal"] + ".json")))
     if wiremock:
         json.dump(journal, open(os.path.join(wiremock, "journal.json"), "w"))
+        if current.get("journal_raw"):
+            open(os.path.join(wiremock, "journal.json"), "w").write(current["journal_raw"])
     do = current["do"]
     with open(os.path.join(directory, "runner.log"), "w") as log:
         log.write("fake runner for %s\n" % scenario)
@@ -93,13 +98,16 @@ def run_scenario(platform, scenario, directory, current):
         time.sleep(300)
     if do == "no-result":
         emit({"nativeOk": False, "testsExecuted": 1}, 1)
+    if do == "result-list":
+        open(os.path.join(directory, "result.json"), "w").write("[]")
+        emit({"nativeOk": False, "testsExecuted": 1}, 1)
     if do in FAILURES:
         kind, step, primitive, target, message = FAILURES[do]
         failure = {"kind": kind, "stepIndex": step, "primitive": primitive, "target": target, "message": message,
                    "expected": "123456", "actual": "12456", "site": {"file": "Fake.kt", "line": 1}}
         json.dump(result_json(scenario, failure, False), open(os.path.join(directory, "result.json"), "w"))
         emit({"nativeOk": False, "testsExecuted": 1}, 1)
-    if do in CRASH_KINDS:
+    if do in CRASH_KINDS and do != "pass-system-anr":
         failure = {"kind": "ASSERTION", "stepIndex": 1, "primitive": "Tap", "target": "tag:b", "message": "app vanished"}
         json.dump(result_json(scenario, failure, False), open(os.path.join(directory, "result.json"), "w"))
         emit({"nativeOk": False, "testsExecuted": 1}, 1)
@@ -107,6 +115,22 @@ def run_scenario(platform, scenario, directory, current):
     if do == "disagree":
         emit({"nativeOk": False, "testsExecuted": 1}, 1)
     emit({"nativeOk": True, "testsExecuted": 0 if do == "zero-tests" else 1})
+
+
+def kill_wiremock(platform):
+    """Kills the process group of the platform's real (fake) WireMock, as found in its owner file."""
+    owner = json.load(open(os.path.join(os.environ["E2E_TMP_ROOT"], platform, "wiremock", "lock", "owner.json")))
+    os.killpg(owner["pgid"], signal.SIGKILL)
+    time.sleep(0.3)
+
+
+def mutate_checkout(script, key):
+    """The harness runs the adapter inside the repository: what it does to the checkout is what an editor or a commit would."""
+    what = script.get("mutate", {}).get(key)
+    if what == "file":
+        open("stray-by-adapter.txt", "w").write("x")
+    elif what == "commit":
+        subprocess.run(["git", "commit", "-q", "--allow-empty", "-m", "during the run"], check=True)
 
 
 def main(argv):
@@ -119,6 +143,7 @@ def main(argv):
     if key in script.get("failVerbs", []):
         sys.stderr.write("fake %s failed\n" % key)
         sys.exit(1)
+    mutate_checkout(script, key)
     scenario = os.environ.get("E2E_CURRENT_SCENARIO", "")
     wiremock = os.environ.get("E2E_FAKE_WIREMOCK_DIR")
     if verb == "health":
@@ -132,6 +157,8 @@ def main(argv):
             sys.exit(3)
         if current["do"] == "wiremock-down" and wiremock:
             open(os.path.join(wiremock, "down"), "w").close()
+        if current["do"] == "wiremock-kill":
+            kill_wiremock(platform)
         emit({"ok": True})
     current = json.load(open(state_path(platform, scenario + ".current"))) \
         if os.path.exists(state_path(platform, scenario + ".current")) else {"do": "pass"}
@@ -145,11 +172,11 @@ def main(argv):
     elif verb == "enumerate":
         tests = catalog_tests(platform)
         extra = script.get("enumerate", {})
+        if "raw" in extra:
+            emit({"tests": extra["raw"]})
         tests = [t for t in tests if t not in extra.get("missing", [])] + list(extra.get("duplicate", []))
         emit({"tests": tests})
     elif verb == "recover":
-        if wiremock and os.path.exists(os.path.join(wiremock, "down")):
-            os.remove(os.path.join(wiremock, "down"))
         sys.exit(3 if script.get("recover_fails") else 0)
     elif verb == "collect-failure":
         open(os.path.join(args[0], "collect-failure.txt"), "w").write("collected\n")

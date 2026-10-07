@@ -28,6 +28,14 @@ class LayoutTests(unittest.TestCase):
         self.assertIsNotNone(header)
         self.assertEqual(header.group(1), self.layout["E2E_FINGERPRINT_VERSION"])
 
+    def test_evidence_tasks_wait_for_fresh_artifacts_and_every_task_derives_its_timeout_from_the_budget(self):
+        build = open(os.path.join(ROOT, "build.gradle.kts")).read()
+        register = build[build.index("private fun registerE2eRun"):build.index("registerE2eRun(\n")]
+        self.assertRegex(register, r'if \(mode == "evidence"\) \{\s*dependsOn\("verifyE2eArtifactsFresh"\)')
+        calls = re.findall(r'registerE2eRun\(\s*"(\w+)".*?\n\)', build, re.S)
+        self.assertEqual(calls, ["e2eAndroid", "e2eIos", "e2eEvidenceAndroid", "e2eEvidenceIos", "e2eEvidence"])
+        self.assertNotIn("Duration.ofMinutes(90)", build, "a fixed 90 minutes cuts the harness before its own budget of 120")
+
     def test_the_fingerprint_script_prints_the_hash_the_harness_expects(self):
         script = os.path.join(ROOT, self.layout["E2E_FINGERPRINT_SCRIPT"])
         result = subprocess.run(["bash", script, "ios", "local-certification-suite", "HEAD"], cwd=ROOT,

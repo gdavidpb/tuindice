@@ -253,13 +253,14 @@ class IosAdapterTests(unittest.TestCase):
     def test_crash_probe_reads_the_crash_report_of_the_app_process(self):
         report = os.path.join(self.box.reports, "TuIndiceHost-2026-10-07-011506.ips")
         with open(report, "w") as handle:
-            handle.write('{"exception":{"type":"EXC_CRASH","signal":"SIGSEGV"}}')
+            handle.write('{"exception":{"type":"EXC_CRASH","signal":"SIGSEGV"},"procPath":"/CoreSimulator/Devices/%s/data/x"}' % UDID)
         attempt = os.path.join(self.box.dir, "p")
         os.makedirs(attempt)
-        done = self.box.run("crash-probe", str(int(time.time()) - 60), attempt)
+        now = int(time.time())
+        done = self.box.run("crash-probe", str(now - 60), attempt, str(now + 5), "0")
         self.assertEqual(done.json["kind"], "app_crash")
         self.assertIn("SIGSEGV", support.text(os.path.join(attempt, "crash.txt")))
-        self.assertEqual(self.box.run("crash-probe", str(int(time.time()) + 60), attempt).json["kind"], "none")
+        self.assertEqual(self.box.run("crash-probe", str(now + 60), attempt, str(now + 90), "0").json["kind"], "none")
 
     def test_collect_failure_reads_the_log_store_from_the_start_of_the_attempt(self):
         attempt = os.path.join(self.box.dir, "c")
@@ -301,6 +302,52 @@ class IosAdapterTests(unittest.TestCase):
         self.assertEqual(unaddressed, [])
         for call in (c for c in self.box.xcrun_calls() if c.startswith("xcodebuild ")):
             self.assertIn("id=%s" % UDID, call)
+
+
+def crash_report(directory, name, captured, udid=UDID, mtime=None):
+    """A crash report the way macOS writes it: its own captureTime, and the path of the app inside the simulator's data."""
+    path = os.path.join(directory, name)
+    with open(path, "w") as handle:
+        handle.write('{"app_name":"TuIndiceHost"}\n{"captureTime" : "%s", "procPath" : "\\/CoreSimulator\\/Devices\\/%s\\/data"}'
+            % (captured, udid))
+    if mtime is not None:
+        os.utime(path, (mtime, mtime))
+    return path
+
+
+class IosCrashAttributionTests(unittest.TestCase):
+    """The report is the attempt's when the crash happened inside it, whatever the file's date says."""
+
+    def setUp(self):
+        self.dir = tempfile.mkdtemp(prefix="e2e-crash-test-")
+        self.addCleanup(__import__("shutil").rmtree, self.dir, True)
+        self.evidence = os.path.join(self.dir, "crash.txt")
+        # 2026-10-07 01:15:00 -0300 is 04:15:00 UTC.
+        self.at = 1791346500
+
+    def probe(self, since, until, udid=UDID, wait="0"):
+        return adapter_tools.ios_crash(self.dir, since, until, "TuIndiceHost", self.evidence, udid, wait)
+
+    def test_a_crash_is_the_attempts_by_its_capture_time_not_by_the_file_date(self):
+        crash_report(self.dir, "TuIndiceHost-a.ips", "2026-10-07 01:15:00.6272 -0300", mtime=self.at + 3600)  # written an hour later
+        self.assertEqual(self.probe(self.at - 10, self.at + 10)["kind"], "app_crash")
+        self.assertEqual(self.probe(self.at + 11, self.at + 60)["kind"], "none", "a crash before the attempt began is not this one")
+        self.assertEqual(self.probe(self.at - 60, self.at - 1)["kind"], "none", "a report that lands during a later attempt is not its")
+
+    def test_a_report_of_another_simulator_is_not_the_dedicated_ones(self):
+        crash_report(self.dir, "TuIndiceHost-a.ips", "2026-10-07 01:15:00.6272 -0300", udid="OTHER-SIMULATOR")
+        self.assertEqual(self.probe(self.at - 10, self.at + 10)["kind"], "none")
+
+    def test_a_report_that_lands_late_is_waited_for(self):
+        timer = __import__("threading").Timer(1.5, crash_report, [self.dir, "TuIndiceHost-late.ips", "2026-10-07 01:15:00.1 -0300"])
+        timer.start()
+        self.addCleanup(timer.cancel)
+        began = time.monotonic()
+        found = self.probe(self.at - 10, self.at + 10, wait="10")
+        self.assertEqual(found["kind"], "app_crash")
+        self.assertLess(time.monotonic() - began, 8, "it stops waiting as soon as the report is there")
+        self.assertEqual(adapter_tools.ios_crash(os.path.join(self.dir, "none"), self.at - 10, self.at + 10, "TuIndiceHost",
+            self.evidence, UDID, "0")["kind"], "none")
 
 
 class FailureCaptureTests(unittest.TestCase):
@@ -361,6 +408,15 @@ class ReaderTests(unittest.TestCase):
                          "1791346198.200  100  100 F DEBUG   : pid: 100, tid: 100, name: x  >>> %s <<<\n" % APP_ID)
         evidence = os.path.join(os.path.dirname(log), "crash.txt")
         self.assertEqual(adapter_tools.logcat_crash(log, "1791346000", APP_ID, evidence)["kind"], "app_crash")
+
+    def test_a_crash_of_the_app_wins_over_an_earlier_anr_of_another_process(self):
+        log = self.write("1791346198.100   689   771 E ActivityManager: ANR in com.google.android.gms (x)\n"
+                         "1791346199.100  6054  6054 E AndroidRuntime: FATAL EXCEPTION: main\n"
+                         "1791346199.101  6054  6054 E AndroidRuntime: Process: %s, PID: 6054\n" % APP_ID)
+        evidence = os.path.join(os.path.dirname(log), "crash.txt")
+        found = adapter_tools.logcat_crash(log, "1791346000", APP_ID, evidence)
+        self.assertEqual(found["kind"], "app_crash")
+        self.assertIn("FATAL EXCEPTION", support.text(evidence))
 
     def test_an_anr_of_the_app_is_an_app_anr(self):
         log = self.write("1791346198.100   689   771 E ActivityManager: ANR in %s (%s/.Main)\n" % (APP_ID, APP_ID))

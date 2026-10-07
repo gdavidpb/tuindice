@@ -3,16 +3,17 @@
 import xml.etree.ElementTree as ET
 
 from .classify import JUNIT_FAILURES
+from .config import SUITE_ID
 
 
 def write(path, platform, results):
     """`results` is a list of dicts: id, status (passed|failed|skipped), class, summary, seconds, producedByRunId."""
     counts = {"failures": 0, "errors": 0, "skipped": 0}
-    suite = ET.Element("testsuite", {"name": "local-certification-suite.%s" % platform})
+    suite = ET.Element("testsuite", {"name": "%s.%s" % (SUITE_ID, platform)})
     total_time = 0.0
     for item in results:
         case = ET.SubElement(suite, "testcase", {
-            "classname": "local-certification-suite.%s" % platform, "name": item["id"], "time": "%.3f" % item["seconds"]})
+            "classname": "%s.%s" % (SUITE_ID, platform), "name": item["id"], "time": "%.3f" % item["seconds"]})
         total_time += item["seconds"]
         if item.get("producedByRunId"):
             props = ET.SubElement(case, "properties")
@@ -31,4 +32,3 @@ def write(path, platform, results):
     suite.set("skipped", str(counts["skipped"]))
     suite.set("time", "%.3f" % total_time)
     ET.ElementTree(suite).write(path, encoding="utf-8", xml_declaration=True)
-    return counts

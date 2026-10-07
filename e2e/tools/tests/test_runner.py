@@ -3,6 +3,7 @@
 import json
 import os
 import re
+import shlex
 import subprocess
 import sys
 import threading
@@ -11,6 +12,7 @@ import unittest
 
 import support
 from support import FP_A, Workspace, scenario, text
+from test_wiremock import FAKE_SERVER, free_port
 
 
 def write_metrics(path, load, idle=80.0):
@@ -21,20 +23,27 @@ def write_metrics(path, load, idle=80.0):
 BUSY = [40.0, 30.0, 20.0]  # load1/ncpu = 10
 
 
+def real_wiremock_env(ws):
+    """Environment that swaps the WireMock directory for the real fake server of the harness tests, on a free port."""
+    port = free_port()
+    return {"E2E_FAKE_WIREMOCK_DIR": "", "E2E_IOS_WIREMOCK_PORT": str(port),
+        "E2E_FAKE_WIREMOCK_START_CMD": "%s %s RunMockEnvironment" % (shlex.quote(sys.executable), shlex.quote(FAKE_SERVER))}
+
+
 def three(timeout=30):
     return [scenario("fix-a", timeout), scenario("fix-b", timeout), scenario("fix-c", timeout)]
 
 
 class AccumulationTests(unittest.TestCase):
     def test_second_invocation_runs_only_what_is_not_green(self):
-        ws = Workspace(self, three(), {"behaviours": {"fix-b": ["fail:assertion", "pass"]}})
-        first = ws.evidence(E2E_MAX_RETRIES="0")
-        self.assertEqual(first.code, 1, first.out)
-        self.assertEqual(ws.executed(), ["fix-a", "fix-b", "fix-c"])
+        ws = Workspace(self, three(), {"behaviours": {"fix-b": ["fail:typed", "pass"]}})
+        first = ws.evidence()
+        self.assertEqual(first.code, 5, first.out)
+        self.assertEqual(ws.executed(), ["fix-a", "fix-b"])
         second = ws.evidence()
         self.assertEqual(second.code, 0, second.out)
-        self.assertEqual(ws.executed(), ["fix-a", "fix-b", "fix-c", "fix-b"])
-        self.assertIn("scope: 3 scenarios; 2 already green for fp %s; 1 to run (1 previously failed, 0 pending)." % FP_A[:12],
+        self.assertEqual(ws.executed(), ["fix-a", "fix-b", "fix-b", "fix-c"])
+        self.assertIn("scope: 3 scenarios; 1 already green for fp %s; 2 to run (1 previously failed, 1 pending)." % FP_A[:12],
             second.out)
         third = ws.evidence()
         self.assertEqual(third.code, 0)
@@ -112,7 +121,7 @@ class CapTests(unittest.TestCase):
         result = ws.evidence()
         self.assertEqual(result.code, 1, result.out)
         self.assertEqual(ws.executed(), ["fix-a", "fix-a", "fix-b", "fix-c"])
-        self.assertEqual(ws.ledger()["scenarios"]["fix-a"]["status"], "exhausted")
+        self.assertEqual(ws.ledger()["scenarios"]["fix-a"]["status"], "failed")
         self.assertIn("failed: fix-a (tooling_error)", result.out)
 
     def test_survey_runs_each_once_and_never_stops(self):
@@ -122,17 +131,16 @@ class CapTests(unittest.TestCase):
         self.assertEqual(ws.executed(), ["fix-a", "fix-b", "fix-c"])
         self.assertIn("failed: fix-a (typed_text_mismatch), fix-b (app_crash)", result.out)
 
-    def test_third_invocation_is_refused_before_touching_devices(self):
+    def test_an_invocation_after_the_cap_is_refused_before_touching_devices(self):
         ws = Workspace(self, three(), {"behaviours": {"fix-b": ["fail:assertion", "fail:driver"]}})
-        self.assertEqual(ws.evidence(E2E_MAX_RETRIES="0").code, 1)
-        second = ws.evidence()
-        self.assertEqual(second.code, 1, second.out)
-        self.assertEqual(ws.ledger()["scenarios"]["fix-b"]["status"], "exhausted")
+        first = ws.evidence()
+        self.assertEqual(first.code, 1, first.out)
+        self.assertEqual(ws.ledger()["scenarios"]["fix-b"]["status"], "failed")
         before = len(ws.calls())
-        third = ws.evidence()
-        self.assertEqual(third.code, 7, third.out)
+        second = ws.evidence()
+        self.assertEqual(second.code, 7, second.out)
         self.assertEqual(len(ws.calls()), before, "exit 7 must not call the adapter at all")
-        self.assertIn("EXHAUSTED fix-b used 2 of 2 attempts", third.out)
+        self.assertIn("EXHAUSTED fix-b used 2 of 2 attempts", second.out)
         self.assertEqual(ws.manifest()["outcome"], "exhausted")
 
     def test_reset_scenario_grants_one_more_attempt_once(self):
@@ -173,7 +181,7 @@ class BudgetAndProcessTests(unittest.TestCase):
         result = ws.evidence(E2E_MAX_RETRIES="0")
         self.assertLess(time.monotonic() - began, 1 + 1 + 15)
         self.assertEqual(result.code, 1, result.out)
-        self.assertIn("class=timeout: scenario exceeded 1s; no step completed", result.out)
+        self.assertIn("class=timeout: scenario exceeded 1s; the runner writes result.json only when it ends", result.out)
         pid = int(text(os.path.join(ws.fake, "ios", "hang.pid")))
         with self.assertRaises(ProcessLookupError):
             os.kill(pid, 0)
@@ -194,15 +202,25 @@ class BudgetAndProcessTests(unittest.TestCase):
         self.assertEqual(result.code, 3, result.out)
         self.assertEqual(len(ws.calls("recover")), 1)
         self.assertEqual(ws.manifest()["outcome"], "environment_refused")
-        self.assertNotIn("fix-b", ws.ledger()["scenarios"].get("fix-b", {}).get("status", ""))
+        fix_b = ws.ledger()["scenarios"]["fix-b"]
+        self.assertEqual([a["failureClass"] for a in fix_b["attempts"]], ["environment"])
+        self.assertEqual(fix_b["status"], "pending", "an environment event never makes a scenario failed or exhausted")
 
-    def test_an_unhealthy_wiremock_is_environment_not_a_scenario_failure(self):
-        ws = Workspace(self, [scenario("fix-a")], {"behaviours": {"fix-a": ["wiremock-down", "pass"]}})
-        result = ws.evidence()
+    def test_a_dead_wiremock_is_restarted_by_the_harness_and_the_device_is_left_alone(self):
+        ws = Workspace(self, [scenario("fix-a")], {"behaviours": {"fix-a": ["wiremock-kill", "pass"]}})
+        result = ws.evidence(**real_wiremock_env(ws))
         self.assertEqual(result.code, 0, result.out)
-        first = ws.ledger()["scenarios"]["fix-a"]["attempts"][0]
-        self.assertEqual(first["failureClass"], "environment")
-        self.assertIn("WireMock is not healthy", first["failureSummary"])
+        self.assertEqual(ws.calls("recover"), [], "restarting WireMock is not a reason to reboot the device")
+        attempts = ws.ledger()["scenarios"]["fix-a"]["attempts"]
+        self.assertEqual([a["failureClass"] for a in attempts], ["environment", None])
+        self.assertIn("WireMock is not healthy", attempts[0]["failureSummary"])
+        self.assertIn("WireMock is down; restarting it", result.out)
+
+    def test_a_wiremock_that_cannot_be_restarted_stops_the_run(self):
+        ws = Workspace(self, [scenario("fix-a")], {"behaviours": {"fix-a": ["wiremock-down", "pass"]}})
+        result = ws.evidence()  # a fake WireMock directory has nothing to restart: it stays down
+        self.assertEqual(result.code, 5, result.out)
+        self.assertIn("failed with class environment twice", result.out)
 
     def test_app_not_running_before_the_first_step_is_environment(self):
         ws = Workspace(self, [scenario("fix-a")], {"behaviours": {"fix-a": ["fail:app-not-running", "pass"]}})
@@ -297,7 +315,7 @@ class ModeTests(unittest.TestCase):
         ws = Workspace(self, three(), {"behaviours": {"fix-b": ["fail:assertion"]}})
         result = ws.diagnose("ios", "--scenario", "fix-b,fix-a", E2E_MAX_RETRIES="0")
         self.assertEqual(result.code, 1, result.out)
-        self.assertEqual(ws.executed(), ["fix-a", "fix-b"])
+        self.assertEqual(ws.executed(), ["fix-b", "fix-a"], "an explicit list keeps the order it was given in")
         self.assertFalse(os.path.exists(os.path.join(ws.state, "ledger")))
         self.assertEqual(ws.manifest()["fingerprint"], "diagnose")
 
@@ -359,7 +377,7 @@ class ModeTests(unittest.TestCase):
         result = ws.run("run", "--platform", "all", "--mode", "evidence", E2E_MAX_RETRIES="0")
         self.assertEqual(result.code, 1, result.out)
         self.assertIn("[e2e] exit codes: android=1 ios=0", result.out)
-        skipped = ws.run("run", "--platform", "all", "--mode", "evidence", E2E_SKIP_ANDROID="1")
+        skipped = ws.run("run", "--platform", "all", "--mode", "evidence", E2E_SKIP_ANDROID="1", E2E_MAX_RETRIES="0")
         self.assertEqual(skipped.code, 0, skipped.out)
         self.assertEqual(ws.run("run", "--platform", "all", "--mode", "evidence",
             E2E_SKIP_ANDROID="1", E2E_SKIP_IOS="1").code, 2)

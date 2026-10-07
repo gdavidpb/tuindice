@@ -6,6 +6,7 @@
 #   E2E_FAKE_GH_STATUSES_DIR  directory of <sha>.json: what `commits/<sha>/statuses` answers ([] when absent)
 #   E2E_FAKE_GH_OWNER      what `repos/{owner}/{repo}` answers (default "owner"; set but empty: nothing)
 #   E2E_FAKE_GH_UNREACHABLE  when non-empty, every GET fails
+#   E2E_FAKE_GH_SLEEP      seconds the status POST takes before it answers (a gh that hangs)
 set -euo pipefail
 
 printf '%s\n' "$*" >> "${E2E_FAKE_GH_LOG:?E2E_FAKE_GH_LOG is required}"
@@ -50,6 +51,9 @@ while (( $# > 0 )); do
 done
 
 if [[ "${method}" == "POST" ]]; then
+	if [[ -n "${E2E_FAKE_GH_SLEEP:-}" ]]; then
+		exec sleep "${E2E_FAKE_GH_SLEEP}"
+	fi
 	if [[ -n "${E2E_FAKE_GH_FAIL_FILE:-}" && -e "${E2E_FAKE_GH_FAIL_FILE}" ]]; then
 		printf 'HTTP 502: bad gateway\n' >&2
 		exit 1

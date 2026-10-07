@@ -7,13 +7,14 @@ import shutil
 import subprocess
 import sys
 import time
+import traceback
 from contextlib import nullcontext
 from pathlib import Path
 
 from . import catalog as catalog_mod
 from . import classify as cl
 from . import envcheck, hostlock, junit, proc, publish, report, toolchain
-from .config import SUITE_ID, VERB_TIMEOUTS, EnvironmentRefused, UsageError
+from .config import EXIT_HARNESS_ERROR, SUITE_ID, VERB_TIMEOUTS, EnvironmentRefused, UsageError
 from .gitstate import GitState
 from .ledger import Ledger, now
 from .manifest import Manifest, make_run_dir, read_load
@@ -23,6 +24,8 @@ from .wiremock import WireMock
 # not part of the evidence fingerprint; E2E_RETENTION_CMD replaces it in tests.
 RETENTION_SCRIPT = Path(__file__).resolve().parents[3] / "tools" / "e2e-retention.py"
 RETENTION_TIMEOUT_SECONDS = 600
+# A failed iOS attempt waits this long for the crash report of the app, which lands some seconds after the crash.
+CRASH_REPORT_WAIT_SECONDS = 15
 
 # HOOKS["toolchain"](run) compares the adapter's toolchain with the lock, HOOKS["env_check"](run) measures
 # the environment. Each raises EnvironmentRefused to refuse.
@@ -52,14 +55,30 @@ class Adapter:
     def __init__(self, config, platform):
         self.config, self.platform = config, platform
         self.base = config.adapter_command(platform)
+        self.verbs_dir = None  # set with the run directory: the full output of every verb that failed goes there
+        self.failures = {}
 
     def call(self, verb, *args, **kwargs):
         env = dict(self.config.env)
         env.update(kwargs.get("env") or {})
         timeout = kwargs.get("timeout") or VERB_TIMEOUTS[verb]
-        result = proc.run(self.base + [verb] + [str(a) for a in args], timeout, cwd=str(self.config.root), env=env)
+        argv = self.base + [verb] + [str(a) for a in args]
+        result = proc.run(argv, timeout, cwd=str(self.config.root), env=env)
         result.json = proc.parse_json(result.stdout)
+        result.log = self._keep_failure(verb, argv, result) if not result.ok else None
         return result
+
+    def _keep_failure(self, verb, argv, result):
+        """Writes the complete stdout and stderr of a failed verb to verbs/<verb>-<n>.log and returns that relative path."""
+        if not self.verbs_dir:
+            return None
+        self.failures[verb] = self.failures.get(verb, 0) + 1
+        name = "verbs/%s-%d.log" % (verb, self.failures[verb])
+        os.makedirs(self.verbs_dir, exist_ok=True)
+        with open(os.path.join(os.path.dirname(self.verbs_dir), name), "w") as handle:
+            handle.write("$ %s\nexit %s%s after %.1fs\n--- stdout ---\n%s\n--- stderr ---\n%s\n" % (
+                " ".join(argv), result.returncode, " (timed out)" if result.timed_out else "", result.seconds, result.stdout, result.stderr))
+        return name
 
 
 class PlatformRun:
@@ -71,6 +90,7 @@ class PlatformRun:
         self.started = time.monotonic()
         self.recoveries = 0
         self.load_waited = 0.0
+        self.load_gate_spent = False
         self.ledger = None
         self.catalog = None
         self.runnable, self.quarantined = [], []
@@ -86,6 +106,7 @@ class PlatformRun:
         self.device_booted = False
         self.env_checked = False
         self.device_health = {}
+        self.cap = config.attempt_cap
 
     # -- entry point -------------------------------------------------------------------------
 
@@ -94,6 +115,7 @@ class PlatformRun:
         if not self.opts.dry_run:
             self.run_id, self.run_dir = make_run_dir(self.cfg.state_root, self.platform, self.opts.mode, self.git.sha7)
             self.log.attach(os.path.join(self.run_dir, "run.log"))
+            self.adapter.verbs_dir = os.path.join(self.run_dir, "verbs")
         self.manifest = Manifest(self.run_dir or "", self.run_id or "dry-run", self.opts.mode, self.platform, self.cfg,
             enabled=not self.opts.dry_run)
         self.manifest.update(commitSha=self.git.sha, branch=self.git.branch, upstreamSha=self.git.upstream_sha,
@@ -102,7 +124,7 @@ class PlatformRun:
             self.manifest.data["parallel"].update(decision=self.opts.parallel[0], reason=self.opts.parallel[1])
         self.manifest.data["parentRunId"] = self.opts.child_of
         self.manifest.write()
-        outcome, code = "failed", 1
+        outcome, code, signum = "failed", 1, None
         try:
             outcome, code = self._pipeline()
         except UsageError as error:
@@ -114,12 +136,25 @@ class PlatformRun:
             self.manifest.data["stop"]["reason"] = str(error)
             outcome, code = "environment_refused", 3
         except proc.Interrupted as error:
-            self.log.say("INTERRUPTED by signal %d; the manifest is finalised" % error.signum)
-            self.manifest.data["stop"]["reason"] = "signal %d" % error.signum
-            outcome, code = "interrupted", 128 + error.signum
+            signum = error.signum
+            self.log.say("INTERRUPTED by signal %d" % signum)
+            self.manifest.data["stop"]["reason"] = "signal %d" % signum
+            outcome, code = "interrupted", 128 + signum
+        except Exception as error:  # a defect of the harness itself: its own exit code, never the 1 of "scenarios failed"
+            self.log.say("HARNESS ERROR %s: %s (traceback in harness-error.txt)" % (type(error).__name__, error))
+            self.manifest.data["stop"]["reason"] = "%s: %s" % (type(error).__name__, error)
+            if self.run_dir:
+                with open(os.path.join(self.run_dir, "harness-error.txt"), "w") as handle:
+                    handle.write(traceback.format_exc())
+            outcome, code = "harness_error", EXIT_HARNESS_ERROR
         finally:
-            self._cleanup()
+            # The cheap, valuable part first (results, JUnit, manifest); the slow cleanup (WireMock up to 20 s, the device up to
+            # 120 s) after it, so that a kill during the cleanup still leaves a finalised manifest.
             self._finish(outcome, code)
+            if signum is not None:
+                self.log.say("the manifest is finalised; stopping WireMock and the device now")
+            self._cleanup()
+            self.log.close()
         return code
 
     def _cleanup(self):
@@ -138,6 +173,8 @@ class PlatformRun:
         required = cfg.publish_required(self.opts.mode)
         m.data["published"]["required"] = required
         if self.evidence:
+            if required:
+                cfg.require_no_seams("publishing evidence")
             git.require_clean()
             if required:
                 git.require_publishable(publish.gh_command(cfg))
@@ -158,12 +195,13 @@ class PlatformRun:
         self.runnable = self._select(self.runnable)
         if self.evidence:
             self.ledger = Ledger.open(cfg.state_root, self.platform, self.fingerprint, self.catalog.sha256,
-                cfg.layout["E2E_FINGERPRINT_VERSION"], lock=not self.opts.dry_run)
+                cfg.layout["E2E_FINGERPRINT_VERSION"], lock=not self.opts.dry_run, attempt_cap=cfg.attempt_cap)
             if not self.opts.dry_run:
+                self.ledger.note_overrides(cfg.run_overrides())
                 self.ledger.save()
         else:
             self.ledger = Ledger.memory(self.platform)
-        cap = cfg.attempt_cap
+        cap = self.cap = self.ledger.cap(cfg.attempt_cap)
         pending = [s for s in self.runnable if not self.ledger.passed(s.id)]
         exhausted = [s for s in pending if self.ledger.exhausted(s.id, cap)]
         if exhausted:
@@ -174,7 +212,8 @@ class PlatformRun:
                         self.platform, s.id))
             m.data["stop"].update(reason="a scenario exhausted its attempts", scenario=exhausted[0].id)
             return "exhausted", 7
-        pending = self._order(pending)
+        if self.evidence or not (self.opts.scenarios or cfg.scenario_filter):
+            pending = self._order(pending)  # an explicit --scenario list keeps the order it was given in
         green = len(self.runnable) - len(pending)
         failed_before = sum(1 for s in pending if self.ledger.has_failed_attempts(s.id))
         log.scope(len(self.runnable), green, len(pending), failed_before, self.fingerprint)
@@ -220,11 +259,12 @@ class PlatformRun:
         return [tuple(line.split(",")) for line in out.splitlines() if line.strip()]
 
     def _reconcile_contexts(self, lines):
+        """The scope names a suite per platform; this harness certifies one. The status context has one definition, in shell."""
         for fields in lines:
-            required = "local-e2e/%s/%s" % (self.platform, fields[1] if len(fields) > 1 else SUITE_ID)
-            if required != self.context:
-                raise UsageError("the scope requires the status %s but this harness can only publish %s"
-                    % (required, self.context))
+            suite = fields[1] if len(fields) > 1 else SUITE_ID
+            if suite != SUITE_ID:
+                raise UsageError("the scope requires the suite %s but this harness can only publish %s (%s)"
+                    % (suite, SUITE_ID, self.context))
 
     def _fingerprint(self):
         value = self._tool("E2E_FINGERPRINT_CMD", "E2E_FINGERPRINT_SCRIPT", self.platform, SUITE_ID, "HEAD").strip()
@@ -276,23 +316,28 @@ class PlatformRun:
         lock = hostlock.prepare_lock(cfg, self.platform, self.run_id, self.log.say, m.data["prepareLock"].update) \
             if self.opts.child_of else nullcontext()  # `--platform all`: one platform prepares its device at a time
         with lock:
+            # The platform's WireMock lock is the claim on this platform: a second run on it learns that before the device is touched.
+            self.wiremock = WireMock(cfg, self.platform, self.run_dir)
+            self.wiremock.claim()
             with m.phase("device"):
                 result = adapter.call("ensure-device")
                 if not result.ok:
-                    raise EnvironmentRefused("ensure-device failed: %s" % (result.stderr.strip()[-300:] or result.returncode))
+                    raise EnvironmentRefused("ensure-device failed (full output in %s): %s"
+                        % (result.log, result.stderr.strip()[-300:] or result.returncode))
                 m.update(device=result.json)
                 self.device_booted = bool(result.json.get("bootedByHarness"))
             with m.phase("wiremock"):
-                self.wiremock = WireMock(cfg, self.platform, self.run_dir)
                 self.wiremock.start()
                 m.data["wiremock"]["log"] = "wiremock.log"
             with m.phase("build"):
                 result = adapter.call("build", cfg.ports[self.platform])
                 if not result.ok:
-                    raise StopRun("failed", 1, "build failed: %s" % result.stderr.strip()[-300:])
+                    raise StopRun("failed", 1, "build failed (full output in %s): %s" % (result.log, result.stderr.strip()[-300:]))
+                self._require_unchanged("after the build")
             with m.phase("install"):
-                if not adapter.call("install").ok:
-                    raise EnvironmentRefused("install failed")
+                result = adapter.call("install")
+                if not result.ok:
+                    raise EnvironmentRefused("install failed (full output in %s)" % result.log)
         with m.phase("enumerate"):
             result = adapter.call("enumerate")
             if not result.ok:
@@ -302,6 +347,11 @@ class PlatformRun:
                 if tests.count(s.runner_identifier(self.platform)) != 1]
             if bad:
                 raise UsageError("every catalog id needs exactly one runner test; mismatches: %s" % ", ".join(bad))
+
+    def _require_unchanged(self, moment):
+        """Evidence comes from one commit and a clean tree: HEAD and the tree are read again, and a change is exit 2."""
+        if self.evidence:
+            self.git.require_unchanged(moment)
 
     # -- the scenario loop -------------------------------------------------------------------
 
@@ -319,8 +369,9 @@ class PlatformRun:
             self.log.say("REPEAT %d runs: %d scenarios failed in at least one" % (self.opts.repeat, len(self.failed_overall)))
 
     def _last_class(self, scenario):
-        counted = self.ledger.counted(scenario.id)
-        return counted[-1].get("failureClass") if counted else None
+        """The class of the last counted attempt; a scenario that only had environment failures has no counted one."""
+        attempts = self.ledger.counted(scenario.id) or self.ledger.attempts(scenario.id)
+        return attempts[-1].get("failureClass") if attempts else None
 
     def _budget_check(self, scenario):
         elapsed = time.monotonic() - self.started
@@ -330,9 +381,10 @@ class PlatformRun:
             self.log.say("BUDGET %s" % text)
             raise StopRun("budget_exhausted", 4, text, scenario.id)
 
-    def _wait_for_load(self):
+    def _wait_for_load(self, scenario):
         """The host gate before a scenario, in two steps: load1/ncpu is the cheap filter and the CPU is measured only
-        above it; the run waits only while the CPU is busy. Returns (seconds waited, CPU idle percent if measured)."""
+        above it; the run waits only while the CPU is busy, within a cap per scenario and one per run. When the run's cap is
+        spent the gate says so once and the rest of the run starts without waiting. Returns (seconds waited, CPU idle percent)."""
         cfg, m = self.cfg, self.manifest
         load, ncpu = read_load(cfg)
         m.sample_load(load)
@@ -344,12 +396,17 @@ class PlatformRun:
         poll = float(cfg.seam("E2E_FAKE_LOAD_POLL_SECONDS") or 10)
         per_scenario, per_run = (float(v) for v in (cfg.seam("E2E_FAKE_LOAD_WAIT_CAPS") or "%d,%d" % (
             envcheck.LOAD_WAIT_PER_SCENARIO_SECONDS, envcheck.LOAD_WAIT_PER_RUN_SECONDS)).split(","))
+        if self.load_waited >= per_run:
+            self._load_gate_spent(scenario, per_run, idle)
+            return 0, idle
         began = time.monotonic()
         self.log.say("LOAD  load1/ncpu is %.2f and the CPU is %.0f%% idle; waiting for %d%% idle"
             % (load[0] / ncpu, idle, envcheck.CPU_IDLE_WAIT_UNTIL))
         while idle is not None and idle < envcheck.CPU_IDLE_WAIT_UNTIL:
             waited = time.monotonic() - began
             if waited >= per_scenario or self.load_waited + waited >= per_run:
+                self.log.say("LOAD  gave up after %ds: the CPU is %.0f%% idle, short of %d%%; the scenario starts anyway"
+                    % (waited, idle, envcheck.CPU_IDLE_WAIT_UNTIL))
                 break
             time.sleep(poll)
             load, ncpu = read_load(cfg)
@@ -358,32 +415,59 @@ class PlatformRun:
         waited = time.monotonic() - began
         self.load_waited += waited
         m.data["load"]["waitSeconds"] = round(self.load_waited, 1)
+        if self.load_waited >= per_run:
+            self._load_gate_spent(scenario, per_run, idle)
         return round(waited, 1), idle
 
+    def _load_gate_spent(self, scenario, per_run, idle):
+        if self.load_gate_spent:
+            return
+        self.load_gate_spent = True
+        self.manifest.data["load"]["gateExhaustedAt"] = {"scenario": scenario.id, "at": now(), "waitedSeconds": round(self.load_waited, 1)}
+        self.log.say("LOAD  gate exhausted after %ds of waiting in this run (at %s, CPU %s%% idle): the remaining scenarios start "
+            "without waiting" % (per_run, scenario.id, "unmeasured" if idle is None else "%.0f" % idle))
+
     def _scenario(self, scenario, index, total):
-        cap, ledger, log = self.cfg.attempt_cap, self.ledger, self.log
+        cap, ledger, log = self.cap, self.ledger, self.log
+        single = self.opts.survey or self.opts.repeat > 1  # a survey or a repeated run samples: one attempt each, no retry
         while True:
             self._budget_check(scenario)
-            waited, idle = self._wait_for_load()
+            waited, idle = self._wait_for_load(scenario)
             before = ledger.counted(scenario.id)
-            allowed = len(before) + 1 if self.opts.survey else ledger.allowance(scenario.id, cap)
+            environment_before = ledger.environment_events(scenario.id)
+            allowed = len(before) + 1 if single else ledger.allowance(scenario.id, cap)
             log.start(index, total, scenario, len(before) + 1, allowed)
             attempt, verdict = self._attempt(scenario)
             attempt.update(loadWaitSeconds=waited, cpuIdle=idle)
-            ledger.record_attempt(scenario.id, attempt, cap)
+            self._require_unchanged("before recording the attempt of %s" % scenario.id)
+            ledger.record_attempt(scenario.id, attempt)
             ledger.save()
-            self.manifest.data["attempts"].append({"scenario": scenario.id, "n": attempt["n"], "outcome": attempt["outcome"],
+            self.manifest.data["attempts"].append({"scenario": scenario.id, "n": attempt["n"], "attemptDir": attempt["attemptDir"],
+                "repetition": attempt["repetition"], "outcome": attempt["outcome"],
                 "failureClass": attempt["failureClass"], "durationMs": attempt["durationMs"],
                 "runnerDurationMs": attempt["runnerDurationMs"], "loadWaitSeconds": waited, "load1": attempt["load"]["start"][0],
-                "cpuIdle": idle, "deviceLoad1": attempt["deviceLoad1"]})
+                "cpuIdle": idle, "deviceLoad1": attempt["deviceLoad1"], "unmatchedRequests": attempt["unmatchedRequests"]["count"]})
             self.executed.add(scenario.id)
             self.manifest.write()
             seconds = attempt["durationMs"] / 1000.0
+            if attempt["unmatchedRequests"]["count"]:
+                log.say("NOTE  %s attempt %d: %d request(s) had no stub: %s" % (scenario.id, attempt["n"],
+                    attempt["unmatchedRequests"]["count"], ", ".join(attempt["unmatchedRequests"]["paths"])))
             if verdict.passed:
                 log.passed(scenario, attempt["n"], seconds)
+                if verdict.note:
+                    log.say("NOTE  %s attempt %d: %s" % (scenario.id, attempt["n"], verdict.note))
                 return
             log.failed(scenario, attempt["n"], seconds, verdict.klass, verdict.summary)
             if verdict.klass == cl.ENVIRONMENT:
+                if self.opts.survey:
+                    log.say("ENV   %s: noted; the survey goes on" % scenario.id)
+                    return
+                if environment_before:
+                    text = "failed with class environment twice for this fingerprint. Another retry is not a remedy: something in " \
+                        "the environment, or a mock state the scenario declares, breaks it every time."
+                    log.stop(scenario, text)
+                    raise StopRun("stopped", 5, text, scenario.id, verdict.klass, report.same_class_diagnosis(verdict.klass))
                 self._recover(scenario, verdict)
                 continue
             previous = [a["failureClass"] for a in before if a.get("failureClass")]
@@ -397,7 +481,7 @@ class PlatformRun:
                     log.stop(scenario, text)
                     raise StopRun("stopped", 5, text, scenario.id, verdict.klass, report.same_class_diagnosis(verdict.klass))
             used = len(ledger.counted(scenario.id))
-            if self.opts.survey or used >= allowed:
+            if single or used >= allowed:
                 return
             log.retry(scenario, used + 1, allowed)
 
@@ -407,9 +491,21 @@ class PlatformRun:
             self.log.stop(scenario, text)
             raise StopRun("environment_refused", 3, text, scenario.id, cl.ENVIRONMENT, verdict.summary)
         self.recoveries += 1
+        if not self.wiremock.health()[0]:
+            # A dead WireMock is the harness's to restart; rebooting the device would find it dead again.
+            self.log.say("ENV   %s: WireMock is down; restarting it (the device is not touched) and rerunning; this attempt does not count"
+                % scenario.id)
+            try:
+                self.wiremock.restart()
+            except EnvironmentRefused as error:
+                raise StopRun("environment_refused", 3, "WireMock could not be restarted: %s" % error, scenario.id, cl.ENVIRONMENT,
+                    verdict.summary)
+            return
         self.log.say("ENV   %s: recovering the device once and rerunning; this attempt does not count" % scenario.id)
-        if not self.adapter.call("recover").ok:
-            raise StopRun("environment_refused", 3, "recover failed", scenario.id, cl.ENVIRONMENT, verdict.summary)
+        recovered = self.adapter.call("recover")
+        if not recovered.ok:
+            raise StopRun("environment_refused", 3, "recover failed (full output in %s)" % recovered.log, scenario.id, cl.ENVIRONMENT,
+                verdict.summary)
 
     def _pre_attempt(self, scenario, env):
         healthy = self.adapter.call("health", env=env)
@@ -426,8 +522,8 @@ class PlatformRun:
     def _attempt(self, scenario):
         cfg, p, ledger = self.cfg, self.platform, self.ledger
         n = len(ledger.attempts(scenario.id)) + 1
-        suffix = "-r%d" % (self.repetition + 1) if self.repetition else ""
-        adir = os.path.join(self.run_dir, "scenarios", scenario.id, "attempt-%d%s" % (n, suffix))
+        directory = "attempt-%d%s" % (n, "-r%d" % (self.repetition + 1) if self.repetition else "")
+        adir = os.path.join(self.run_dir, "scenarios", scenario.id, directory)
         os.makedirs(adir)
         env = {"E2E_CURRENT_SCENARIO": scenario.id, "E2E_TRACE": "1" if self.opts.trace else "0"}
         evidence = cl.Evidence(scenario, self.catalog.account(scenario))
@@ -435,6 +531,7 @@ class PlatformRun:
         started_at, began = now(), time.monotonic()
         load_start = read_load(cfg)[0]
         runner_ms = 0
+        errors = []
         self.device_health = {}
         evidence.pre_failure = self._pre_attempt(scenario, env)
         if not evidence.pre_failure:
@@ -447,10 +544,10 @@ class PlatformRun:
             evidence.tests_executed = result.json.get("testsExecuted")
             evidence.runner_log = self._read(os.path.join(adir, "runner.log")) or (result.stdout + result.stderr)
             self._read_result(adir, evidence)
-            probe = self.adapter.call("crash-probe", since, adir, env=env)
-            if probe.ok and probe.json.get("kind"):
-                evidence.crash = probe.json
+            errors += self._probe(evidence, since, adir, env)
             evidence.journal = self.wiremock.journal()
+            if self.wiremock.journal_error:
+                errors.append(self.wiremock.journal_error)
             with open(os.path.join(adir, "wiremock-requests.json"), "w") as handle:
                 json.dump({"requests": evidence.journal}, handle, indent=2)
         verdict = cl.classify(evidence)
@@ -466,9 +563,24 @@ class PlatformRun:
             "load": {"start": load_start, "end": read_load(cfg)[0]}, "loadWaitSeconds": 0, "cpuIdle": None,
             "deviceLoad1": self.device_health.get("deviceLoad1"),
             "deviceLoadWaitSeconds": self.device_health.get("loadWaitSeconds"),
+            "attemptDir": directory, "repetition": self.repetition + 1,
+            "unmatchedRequests": cl.unmatched_summary(evidence.journal), "notes": [verdict.note] if verdict.note else [],
+            "probeErrors": errors,
             "artifacts": os.path.relpath(adir, str(cfg.root)) if adir.startswith(str(cfg.root)) else adir,
         }
         return attempt, verdict
+
+    def _probe(self, evidence, since, adir, env):
+        """The crash probe of the finished attempt. A crash report lands seconds after the crash, so a failed attempt waits for it
+        (iOS); the report is attributed by when the crash happened, between the attempt's start and now. Returns the errors."""
+        failed = evidence.killed_after is not None or not (evidence.result and evidence.result.get("outcome") == "passed")
+        until = int(time.time()) + 1
+        probe = self.adapter.call("crash-probe", since, adir, until, CRASH_REPORT_WAIT_SECONDS if failed else 0, env=env)
+        if probe.ok and probe.json.get("kind"):
+            evidence.crash = probe.json
+        if not probe.ok or not probe.json.get("kind"):
+            return ["crash-probe gave no answer (exit %s, %s); a crash would have gone unseen" % (probe.returncode, probe.log or "no output")]
+        return []
 
     @staticmethod
     def _read(path):
@@ -482,9 +594,14 @@ class PlatformRun:
         if not os.path.exists(path):
             return
         try:
-            evidence.result = json.load(open(path))
+            result = json.load(open(path))
         except ValueError as error:
             evidence.result_error = "result.json is not valid JSON: %s" % error
+            return
+        if isinstance(result, dict):
+            evidence.result = result
+        else:
+            evidence.result_error = "result.json is not a JSON object (it holds %s)" % type(result).__name__
 
     # -- finalisation ------------------------------------------------------------------------
 
@@ -493,17 +610,17 @@ class PlatformRun:
         for s in self.runnable:
             if s.id in self.failed_overall:
                 failed.append((s.id, self.failed_overall[s.id]))
-            elif not self.ledger.passed(s.id) and self.ledger.counted(s.id):
-                failed.append((s.id, self._last_class(s)))
+            elif not self.ledger.passed(s.id) and (self.ledger.counted(s.id) or (self.opts.survey and s.id in self.executed)):
+                failed.append((s.id, self._last_class(s)))  # a survey does not recover: what it could not measure is not a pass
         return failed
 
     def _publish(self):
         cfg, m, ledger, git = self.cfg, self.manifest, self.ledger, self.git
-        retried = sum(1 for s in self.runnable
-            if any(a["outcome"] == "failed" and a["countsAgainstCap"] for a in ledger.attempts(s.id)))
-        overrides = sum(len(ledger.data["scenarios"].get(s.id, {}).get("overrides", [])) for s in self.runnable)
-        text = publish.description(self.platform, len(self.runnable), git.sha, self.fingerprint, retried,
-            len(self.quarantined), overrides)
+        pending = [s.id for s in self.runnable if not ledger.passed(s.id)]
+        if pending or self._failed_list():
+            raise UsageError("refusing to publish: %d scenario(s) are not green (%s)" % (len(pending), ", ".join(pending)))
+        self._require_unchanged("before publishing")
+        text = publish.description(self.platform, self.runnable, self.quarantined, git.sha, self.fingerprint, ledger)
         m.data["published"].update(description=text, attempted=True)
         with m.phase("publish"):
             if ledger.publication(git.sha, self.context, text):
@@ -545,10 +662,10 @@ class PlatformRun:
     def _finish(self, outcome, code):
         m = self.manifest
         if self.run_dir and outcome != "interrupted":
-            self._retention()  # before the RESULT line, which stays the last one of the run
+            self._retention()  # before the RESULT line
         if self.ledger is not None and self.catalog is not None and self.run_dir:
             results = self._results()
-            counts = junit.write(os.path.join(self.run_dir, "junit.xml"), self.platform, results)
+            junit.write(os.path.join(self.run_dir, "junit.xml"), self.platform, results)
             m.data["results"] = [self._manifest_result(r) for r in results]
             m.data["overrides"]["scenarioResets"] = [
                 dict(o, scenario=s.id) for s in self.runnable
@@ -574,7 +691,16 @@ class PlatformRun:
         if self.env_checked and self.run_dir and not self.cfg.seam("E2E_FAKE_HOST_METRICS"):
             m.data["competingProcesses"]["end"] = envcheck.top_processes(envcheck._process_table())
         m.finalize(outcome, code)
-        self.log.close()
+
+    def _retention_fingerprint(self):
+        """The fingerprint of HEAD, whose ledger and runs the retention keeps; a diagnose run asks for it too, or the
+        failures of the evidence in progress would be trimmed away by diagnostic runs."""
+        if self.evidence:
+            return self.fingerprint
+        try:
+            return self._fingerprint()
+        except UsageError:
+            return None
 
     def _retention(self):
         """Trims what earlier runs left (this run is named, so it is never touched). A failure is logged and recorded in
@@ -583,14 +709,18 @@ class PlatformRun:
         command = shlex.split(cfg.seam("E2E_RETENTION_CMD")) if cfg.seam("E2E_RETENTION_CMD") else [sys.executable, str(RETENTION_SCRIPT)]
         argv = command + ["--apply", "--json", "--state-root", str(cfg.state_root), "--tmp-root", str(cfg.tmp_root),
             "--current-run", self.run_id, "--max-gb", str(cfg.artifacts_max_gb)]
-        if self.evidence and self.fingerprint:
-            argv += ["--fingerprint", self.fingerprint]
+        fingerprint = self._retention_fingerprint()
+        if fingerprint:
+            argv += ["--fingerprint", fingerprint]
         record = {"ran": True, "ok": False, "exitCode": None, "freedBytes": 0, "actions": 0, "error": None}
         try:
             result = proc.run(argv, RETENTION_TIMEOUT_SECONDS, cwd=str(cfg.root), env=cfg.env)
             summary = proc.parse_json(result.stdout)
             record.update(exitCode=result.returncode, freedBytes=summary.get("freedBytes", 0), actions=summary.get("actions", 0))
-            record["ok"] = result.ok and not summary.get("errors") and bool(summary)
+            if summary.get("busy"):  # another retention is trimming right now: nothing for this run to do
+                record.update(ok=True, busy=True)
+            else:
+                record["ok"] = result.ok and not summary.get("errors") and bool(summary)
             if not record["ok"]:
                 record["error"] = "timed out" if result.timed_out \
                     else "; ".join(summary.get("errors") or []) or result.stderr.strip()[-300:] or "exit %s" % result.returncode
@@ -599,7 +729,8 @@ class PlatformRun:
         except (OSError, proc.Interrupted) as error:
             record["error"] = "interrupted" if isinstance(error, proc.Interrupted) else str(error)
         m.data["retention"] = record
-        self.log.say("RETENTION %s" % ("freed %d bytes in %d action(s)" % (record["freedBytes"], record["actions"]) if record["ok"]
+        self.log.say("RETENTION %s" % ("skipped, another retention is running" if record.get("busy") else
+            "freed %d bytes in %d action(s)" % (record["freedBytes"], record["actions"]) if record["ok"]
             else "FAILED, the run result is unchanged: %s" % record["error"]))
 
     @staticmethod

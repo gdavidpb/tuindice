@@ -1,23 +1,25 @@
 #!/usr/bin/env python3
-"""Local E2E certification harness: run, status, env-check, list, publish, reset-scenario, contexts."""
+"""Local E2E certification harness: run, status, env-check, list, publish, reset-scenario, contexts, stop-devices."""
 
 import argparse
 import json
 import os
 import signal
 import sys
+import traceback
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from harness import catalog as catalog_mod  # noqa: E402
 from harness import publish as publish_mod  # noqa: E402
 from harness import envcheck, parallel, report, runner, verdict  # noqa: E402
-from harness.config import PLATFORMS, SUITE_ID, Config, EnvironmentRefused, UsageError, find_repo_root  # noqa: E402
+from harness.config import EXIT_HARNESS_ERROR, PLATFORMS, Config, EnvironmentRefused, UsageError, find_repo_root  # noqa: E402
 from harness.gitstate import GitState  # noqa: E402
 from harness.ledger import Ledger, now  # noqa: E402
 from harness.proc import Interrupted  # noqa: E402
+from harness.wiremock import WireMock  # noqa: E402
 
-EXIT_PRECEDENCE = (2, 3, 5, 7, 1, 4, 6)
+EXIT_PRECEDENCE = (EXIT_HARNESS_ERROR, 2, 3, 5, 7, 1, 4, 6)
 
 
 def combine(codes):
@@ -49,7 +51,7 @@ def open_ledger(cfg, platform, lock, create):
     catalog = catalog_mod.load(cfg.catalog_path)
     fingerprint = fingerprint_for(cfg, platform)
     ledger = Ledger.open(cfg.state_root, platform, fingerprint, catalog.sha256, cfg.layout["E2E_FINGERPRINT_VERSION"],
-        lock=lock, create=create)
+        lock=lock, create=create)  # no attempt cap asked: these commands read the one the ledger stores
     return catalog, fingerprint, ledger
 
 
@@ -103,7 +105,7 @@ def platform_status(cfg, platform, head, candidates, github):
     try:
         catalog, fingerprint, ledger = open_ledger(cfg, platform, lock=False, create=False)
         runnable, quarantined = catalog.in_scope(platform)
-        cap = cfg.attempt_cap
+        cap = ledger.cap(cfg.attempt_cap)
         ids = [s.id for s in runnable]
         info.update(
             fingerprint=fingerprint, ledgerPresent=os.path.exists(os.path.join(ledger.directory, "ledger.json")),
@@ -136,6 +138,8 @@ def cmd_status(cfg, args):
         print("%s: %s; fp %s; %d in scope; %d green; %d pending; %d exhausted; %d publications"
             % (platform, info["verdict"], info["fingerprint"][:12], info["inScope"], len(info["green"]),
                 len(info["pending"]), len(info["exhausted"]), len(info["publications"])))
+        if info["remote"]["truncated"]:
+            print("  note: the history was cut short, so evidence on older commits was not looked for")
     return 0
 
 
@@ -156,6 +160,7 @@ def cmd_publish(cfg, args):
     log = report.Log(args.platform)
     git = GitState(cfg.root)
     git.require_clean()
+    cfg.require_no_seams("publishing a status")
     git.require_publishable(publish_mod.gh_command(cfg))
     catalog, fingerprint, ledger = open_ledger(cfg, args.platform, lock=True, create=False)
     try:
@@ -164,10 +169,7 @@ def cmd_publish(cfg, args):
         if pending:
             raise UsageError("%d scenarios are not green for fp %s: %s" % (len(pending), fingerprint[:12], ", ".join(pending)))
         context = publish_mod.status_context(cfg, args.platform)
-        retried = sum(1 for s in runnable if any(a["outcome"] == "failed" and a["countsAgainstCap"]
-            for a in ledger.attempts(s.id)))
-        overrides = sum(len(ledger.data["scenarios"].get(s.id, {}).get("overrides", [])) for s in runnable)
-        text = publish_mod.description(args.platform, len(runnable), git.sha, fingerprint, retried, len(quarantined), overrides)
+        text = publish_mod.description(args.platform, runnable, quarantined, git.sha, fingerprint, ledger)
         if ledger.publication(git.sha, context, text):
             log.say("status %s already published for %s" % (context, git.sha7))
             return 0
@@ -195,7 +197,7 @@ def cmd_reset_scenario(cfg, args):
         entry = ledger.data["scenarios"].get(args.id, {})
         if entry.get("overrides"):
             raise UsageError("%s was already reset once for fp %s; it is not reset twice" % (args.id, fingerprint[:12]))
-        if not ledger.exhausted(args.id, cfg.attempt_cap):
+        if not ledger.exhausted(args.id, ledger.cap(cfg.attempt_cap)):
             raise UsageError("%s has not exhausted its attempts for fp %s" % (args.id, fingerprint[:12]))
         ledger.add_override(args.id, args.reason, GitState(cfg.root).user)
         ledger.save()
@@ -209,6 +211,23 @@ def cmd_contexts(cfg, args):
     for platform in ([args.platform] if args.platform else PLATFORMS):
         print("%s %s" % (platform, publish_mod.status_context(cfg, platform)))
     return 0
+
+
+def cmd_stop_devices(cfg, args):
+    """A device the harness booted stays up after a run of one platform (the next run reuses it); this stops the pinned
+    emulator and simulator, and nothing else. It refuses while a run owns the platform."""
+    platforms = [args.platform] if args.platform else list(PLATFORMS)
+    for platform in platforms:
+        mock = WireMock(cfg, platform, "")
+        owner = mock._owner()
+        if owner and mock._running(owner):
+            raise EnvironmentRefused("a run (%s, pid %s) is using the %s device; stop it first" % (owner["runId"], owner["pid"], platform))
+    failed = 0
+    for platform in platforms:
+        result = runner.Adapter(cfg, platform).call("stop-device")
+        print("[e2e %s] %s" % (platform, "device stopped" if result.ok else "stop-device failed: %s" % result.stderr.strip()[-300:]))
+        failed += 0 if result.ok else 1
+    return 3 if failed else 0
 
 
 def cmd_env_check(cfg, args):
@@ -247,11 +266,12 @@ def build_parser():
     reset.add_argument("--reason", required=True)
     contexts = sub.add_parser("contexts")
     contexts.add_argument("--platform", choices=PLATFORMS)
+    sub.add_parser("stop-devices").add_argument("--platform", choices=PLATFORMS)
     return parser
 
 
 COMMANDS = {"run": cmd_run, "status": cmd_status, "list": cmd_list, "publish": cmd_publish,
-    "reset-scenario": cmd_reset_scenario, "contexts": cmd_contexts, "env-check": cmd_env_check}
+    "reset-scenario": cmd_reset_scenario, "contexts": cmd_contexts, "env-check": cmd_env_check, "stop-devices": cmd_stop_devices}
 
 
 def main(argv=None, env=None):
@@ -267,6 +287,9 @@ def main(argv=None, env=None):
         return 3
     except Interrupted as error:
         return 128 + error.signum
+    except Exception as error:  # a defect of the harness: its own exit code, never the 1 of "scenarios failed"
+        print("e2e: internal error %s: %s\n%s" % (type(error).__name__, error, traceback.format_exc()), file=sys.stderr)
+        return EXIT_HARNESS_ERROR
 
 
 if __name__ == "__main__":

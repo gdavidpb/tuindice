@@ -285,6 +285,54 @@ class IosDeviceTests(unittest.TestCase):
         self.assertEqual(done.returncode, 3)
         self.assertIn("-g KeyboardPrediction reads back ''", done.stderr)
 
+    def test_a_booted_simulator_that_does_not_answer_gets_one_recovery_inside_ensure(self):
+        box = Sandbox(self, "ios")
+        box.write("sim", "FAKE-0000-0000-0000-000000000001 Booted\n", box.xcrun)
+        box.write("fail-first-write", "", box.xcrun)  # the first `defaults write` fails: Could not write domain Apple Global Domain
+        done = box.run("ensure")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertTrue(done.json["recoveredAtEnsure"])
+        self.assertFalse(done.json["bootedByHarness"], "it was booted before the run; the recovery is recorded apart")
+        calls = box.calls(box.xcrun)
+        self.assertEqual(sum(1 for c in calls if c.startswith("simctl shutdown")), 1)
+        self.assertLess(calls.index("simctl shutdown FAKE-0000-0000-0000-000000000001"),
+            calls.index("simctl boot FAKE-0000-0000-0000-000000000001"))
+        self.assertIn("could not be applied", done.stderr)
+        self.assertEqual(done.json["settings"]["-g.AppleLanguages"], "es")
+
+    def test_a_simulator_that_refuses_its_settings_after_the_recovery_exits_3_with_the_reason(self):
+        box = Sandbox(self, "ios")
+        box.write("sim", "FAKE-0000-0000-0000-000000000001 Booted\n", box.xcrun)
+        box.write("ignore", "-g KeyboardPrediction\n", box.xcrun)
+        done = box.run("ensure")
+        self.assertEqual(done.returncode, 3)
+        self.assertEqual(sum(1 for c in box.calls(box.xcrun) if c.startswith("simctl shutdown")), 1, "one recovery, not a loop")
+        self.assertIn("refused its settings again after one recovery", done.stderr)
+        self.assertIn("-g KeyboardPrediction reads back ''", done.stderr)
+
+    def test_a_healthy_simulator_is_not_recovered(self):
+        box, done = self.ensure("Booted")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        self.assertFalse(done.json["recoveredAtEnsure"])
+
+    def test_an_existing_simulator_of_another_device_type_exits_3(self):
+        box = Sandbox(self, "ios")
+        box.write("sim", "FAKE-0000-0000-0000-000000000001 Booted\n", box.xcrun)
+        box.write("type", "com.apple.CoreSimulator.SimDeviceType.iPhone-17\n", box.xcrun)
+        done = box.run("ensure")
+        self.assertEqual(done.returncode, 3)
+        self.assertIn("is of type com.apple.CoreSimulator.SimDeviceType.iPhone-17, the lock pins", done.stderr)
+        self.assertEqual([c for c in box.calls(box.xcrun) if c.split()[1] in ("boot", "erase", "shutdown", "create")], [])
+
+    def test_a_simctl_that_fails_is_not_an_absent_simulator(self):
+        box = Sandbox(self, "ios")
+        box.write("list-fails", "", box.xcrun)
+        for verb in ("ensure", "health", "toolchain"):
+            done = box.run(verb)
+            self.assertEqual(done.returncode, 3, verb)
+            self.assertIn("simctl list devices failed", done.stderr)
+        self.assertFalse([c for c in box.calls(box.xcrun) if "create" in c], "a second TuIndice-E2E must never be created")
+
     def test_a_missing_runtime_exits_3_before_creating_anything(self):
         box = Sandbox(self, "ios")
         lock = os.path.join(box.dir, "ios.lock")

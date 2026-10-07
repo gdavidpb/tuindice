@@ -49,6 +49,15 @@ class VerdictTests(unittest.TestCase):
     def green(self, **env):
         self.assertEqual(self.ws.evidence(**env).code, 0)
 
+    def test_the_text_status_says_when_the_history_was_cut_short(self):
+        for number in range(105):
+            commit(self.ws, "c%d" % number)
+        text = self.ws.run("status")
+        self.assertEqual(text.code, 0, text.err)
+        self.assertIn("the history was cut short", text.out)
+        quiet = Workspace(self, three())
+        self.assertNotIn("cut short", quiet.run("status").out)
+
     def test_nothing_green_is_rerun(self):
         info = self.status()
         self.assertEqual(info["verdict"], "rerun")

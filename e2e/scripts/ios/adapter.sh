@@ -7,7 +7,8 @@
 #   enumerate                             the XCUITest tests, without running them
 #   reset-app                             terminate, uninstall, keychain reset, reinstall
 #   run-scenario <id> <attemptDir> <port> exactly one xcodebuild invocation; the verdict comes from result.json, not from xcodebuild
-#   crash-probe <sinceEpoch> <attemptDir> crash reports of the app process
+#   crash-probe <sinceEpoch> <attemptDir> [<untilEpoch> [<waitSeconds>]]   the crash report of the app process captured between the two
+#                                         times on this simulator, polling up to <waitSeconds> for a report that lands late
 #   collect-failure <attemptDir> <sinceEpoch>   failed attempts only: the log store from the attempt on (capped), a fallback screenshot
 # Every simctl call and every xcodebuild destination carries the UDID of the dedicated simulator.
 set -euo pipefail
@@ -26,22 +27,12 @@ WORKSPACE="${REPO_ROOT}/iosApp/TuIndiceHost.xcworkspace"
 # The log kept for a failed attempt is at most this long (the last bytes of it); E2E_FAKE_LOG_CAP_BYTES is the test seam.
 LOG_CAP_BYTES="${E2E_FAKE_LOG_CAP_BYTES:-20971520}"
 
-fail() {
-	printf '%s\n' "$*" >&2
-	exit 3
-}
-
 resolve_device() {
 	UDID="$(bash "${DEVICE}" serial)"
 }
 
-read_build() {
-	[[ -f "${BUILD_STATE}" ]] || fail "No build is recorded in ${BUILD_STATE}; run the build verb first"
-	eval "$(python3 -c '
-import json, shlex, sys
-state = json.load(open(sys.argv[1]))
-for key, name in (("app", "APP"), ("appId", "APP_ID"), ("executable", "EXECUTABLE"), ("derivedData", "DERIVED_DATA")):
-    print("%s=%s" % (name, shlex.quote(state[key])))' "${BUILD_STATE}")"
+read_build_state() {
+	read_build app=APP appId=APP_ID executable=EXECUTABLE derivedData=DERIVED_DATA
 }
 
 # The arguments every xcodebuild test invocation shares. -collect-test-diagnostics never is mandatory: without it a
@@ -60,7 +51,7 @@ cmd_build() {
 
 cmd_install() {
 	resolve_device
-	read_build
+	read_build_state
 	xcrun simctl install "${UDID}" "${APP}"
 	emit_json "ok=j:true" "app=s:${APP_ID}"
 }
@@ -68,7 +59,7 @@ cmd_install() {
 cmd_enumerate() {
 	local listing="${WORK}/enumeration.json"
 	resolve_device
-	read_build
+	read_build_state
 	rm -f "${listing}"
 	xcodebuild_test -enumerate-tests -test-enumeration-style flat -test-enumeration-format json \
 		-test-enumeration-output-path "${listing}" >&2
@@ -78,7 +69,7 @@ cmd_enumerate() {
 cmd_reset_app() {
 	local answer
 	resolve_device
-	read_build
+	read_build_state
 	# An app that is not running is the normal case after the previous attempt; any other answer is a failure.
 	if ! answer="$(xcrun simctl terminate "${UDID}" "${APP_ID}" 2>&1)"; then
 		case "${answer}" in
@@ -95,7 +86,7 @@ cmd_reset_app() {
 cmd_run_scenario() {
 	local id="${1:?id}" dir="${2:?attempt dir}" port="${3:?port}" only status=0
 	resolve_device
-	read_build
+	read_build_state
 	mkdir -p "${dir}"
 	only="$(python3 "${TOOLS}" catalog-field "${E2E_CATALOG_FILE:-${REPO_ROOT}/${E2E_CATALOG_JSON}}" "${id}" ios)"
 	export TEST_RUNNER_E2E_WIREMOCK_URL="http://localhost:${port}"
@@ -112,15 +103,16 @@ cmd_run_scenario() {
 }
 
 cmd_crash_probe() {
-	local since="${1:?since}" dir="${2:?attempt dir}"
-	read_build
-	python3 "${TOOLS}" ios-crash "${REPORTS_DIR}" "${since}" "${EXECUTABLE}" "${dir}/crash.txt"
+	local since="${1:?since}" dir="${2:?attempt dir}" until_epoch="${3:-$(date +%s)}" wait_seconds="${4:-0}"
+	resolve_device
+	read_build_state
+	python3 "${TOOLS}" ios-crash "${REPORTS_DIR}" "${since}" "${until_epoch}" "${EXECUTABLE}" "${dir}/crash.txt" "${UDID}" "${wait_seconds}"
 }
 
 cmd_collect_failure() {
 	local dir="${1:?attempt dir}" since="${2:?since}" start
 	resolve_device
-	read_build
+	read_build_state
 	if ! compgen -G "${dir}/*.png" > /dev/null; then
 		xcrun simctl io "${UDID}" screenshot "${dir}/fallback-screen.png" >&2
 	fi

@@ -28,25 +28,6 @@ MEMORY_TOLERANCE_PERCENT=80 # the guest kernel reports less than the configured 
 SETTINGS=("global window_animation_scale 0" "global transition_animation_scale 0" "global animator_duration_scale 0"
 	"secure spell_checker_enabled 0" "secure autofill_service null" "secure show_ime_with_hard_keyboard 0")
 
-fail() {
-	printf '%s\n' "$*" >&2
-	exit 3
-}
-
-load_lock() {
-	local key line value
-	[[ -f "${LOCK_FILE}" ]] || { printf 'Missing lock %s\n' "${LOCK_FILE}" >&2; exit 2; }
-	while IFS= read -r line || [[ -n "${line}" ]]; do
-		[[ -z "${line}" || "${line}" == \#* ]] && continue
-		[[ "${line%%=*}" =~ ^[A-Z_]+$ ]] || { printf 'Bad line in %s: %s\n' "${LOCK_FILE}" "${line}" >&2; exit 2; }
-		printf -v "${line%%=*}" '%s' "${line#*=}"
-	done < "${LOCK_FILE}"
-	for key in "${LOCK_KEYS[@]}"; do
-		value="${!key:-}"
-		[[ -n "${value}" ]] || { printf 'The lock %s has no %s\n' "${LOCK_FILE}" "${key}" >&2; exit 2; }
-	done
-}
-
 resolve_sdk() {
 	if [[ -n "${ANDROID_HOME:-}" ]]; then
 		printf '%s\n' "${ANDROID_HOME}"

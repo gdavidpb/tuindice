@@ -54,7 +54,7 @@ class PublishTests(unittest.TestCase):
         ws = Workspace(self, [scenario("fix-a")])
         result = publishing(ws, E2E_FAKE_SCOPE_SUITE="local-maestro-suite")
         self.assertEqual(result.code, 2, result.out)
-        self.assertIn("requires the status local-e2e/ios/local-maestro-suite", result.out)
+        self.assertIn("requires the suite local-maestro-suite but this harness can only publish local-certification-suite", result.out)
         self.assertEqual(ws.calls(), [])
         self.assertEqual(gh_posts(ws), [])
 

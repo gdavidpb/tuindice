@@ -7,7 +7,8 @@
 #   enumerate                             the runner's tests, without running them
 #   reset-app                             pm clear of the app and the runner's output directory (never pm clear of the runner)
 #   run-scenario <id> <attemptDir> <port> exactly one instrumentation run; the verdict comes from result.json, not from adb
-#   crash-probe <sinceEpoch> <attemptDir> crash or ANR evidence in the device log
+#   crash-probe <sinceEpoch> <attemptDir> [<untilEpoch> <waitSeconds>]   crash or ANR evidence in the device log (the log is cleared
+#                                         per attempt and the evidence is immediate, so the optional arguments are not needed)
 #   collect-failure <attemptDir> <sinceEpoch>   failed attempts only: the device log of the attempt (capped), a fallback screenshot
 # Every adb call carries the serial of the pinned emulator.
 set -euo pipefail
@@ -26,23 +27,13 @@ TEST_OUTPUT_DIR="files/e2e"
 # The device log kept for a failed attempt is at most this long (the last bytes of it); E2E_FAKE_LOG_CAP_BYTES is the test seam.
 LOG_CAP_BYTES="${E2E_FAKE_LOG_CAP_BYTES:-10485760}"
 
-fail() {
-	printf '%s\n' "$*" >&2
-	exit 3
-}
-
 # Sets SERIAL, APP_ID, TEST_ID and the APK paths; the first needs the pinned emulator, the others need a build.
 resolve_device() {
 	SERIAL="$(bash "${DEVICE}" serial)"
 }
 
-read_build() {
-	[[ -f "${BUILD_STATE}" ]] || fail "No build is recorded in ${BUILD_STATE}; run the build verb first"
-	eval "$(python3 -c '
-import json, shlex, sys
-state = json.load(open(sys.argv[1]))
-for key, name in (("app", "APP_APK"), ("appId", "APP_ID"), ("test", "TEST_APK"), ("testId", "TEST_ID")):
-    print("%s=%s" % (name, shlex.quote(state[key])))' "${BUILD_STATE}")"
+read_build_state() {
+	read_build app=APP_APK appId=APP_ID test=TEST_APK testId=TEST_ID
 }
 
 adb_s() {
@@ -68,7 +59,7 @@ cmd_build() {
 
 cmd_install() {
 	resolve_device
-	read_build
+	read_build_state
 	adb_s install -r -t "${APP_APK}" >&2
 	adb_s install -r -t "${TEST_APK}" >&2
 	emit_json "ok=j:true" "app=s:${APP_ID}" "test=s:${TEST_ID}"
@@ -77,7 +68,7 @@ cmd_install() {
 cmd_enumerate() {
 	local listing="${WORK}/enumerate.log"
 	resolve_device
-	read_build
+	read_build_state
 	instrument -e log true -e class "${SUITE_CLASS}" > "${listing}"
 	python3 "${TOOLS}" instrument-tests "${listing}"
 }
@@ -85,7 +76,7 @@ cmd_enumerate() {
 cmd_reset_app() {
 	local answer
 	resolve_device
-	read_build
+	read_build_state
 	answer="$(adb_s shell pm clear "${APP_ID}" | tr -d '\r')"
 	[[ "${answer}" == "Success" ]] || fail "pm clear ${APP_ID} answered '${answer}'"
 	# Only the runner's output directory is emptied: pm clear of the test package would erase result.json.
@@ -115,7 +106,7 @@ pull_output() { # id dir
 cmd_run_scenario() {
 	local id="${1:?id}" dir="${2:?attempt dir}" port="${3:?port}" pid status=0 args
 	resolve_device
-	read_build
+	read_build_state
 	mkdir -p "${dir}"
 	args=(-e class "${SUITE_CLASS}" -e scenario "${id}" -e wiremockUrl "$(wiremock_url "${port}")")
 	if [[ "${E2E_TRACE:-0}" == "1" ]]; then
@@ -135,7 +126,7 @@ cmd_run_scenario() {
 cmd_crash_probe() {
 	local since="${1:?since}" dir="${2:?attempt dir}" events="${WORK}/crash-probe.log"
 	resolve_device
-	read_build
+	read_build_state
 	adb_s logcat -b all -d -v epoch > "${events}"
 	python3 "${TOOLS}" logcat-crash "${events}" "${since}" "${APP_ID}" "${dir}/crash.txt"
 }

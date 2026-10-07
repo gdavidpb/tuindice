@@ -8,7 +8,7 @@ from pathlib import Path
 
 PLATFORMS = ("android", "ios")
 SUITE_ID = "local-certification-suite"
-MODES = ("evidence", "diagnose")
+EXIT_HARNESS_ERROR = 70  # a defect of the harness itself, not a verdict about the scenarios
 
 # The only env-check ids that can refuse a run, hence the only ones E2E_ENV_OVERRIDE accepts.
 REFUSABLE_CHECKS = ("cpu", "disk")
@@ -28,11 +28,23 @@ VERB_TIMEOUTS = {
     "enumerate": 120,       # measured 6-7 s
     "health": 180,          # the Android probe may wait up to 120 s for the emulator load to drop; measured 0.2 s idle
     "reset-app": 60,        # measured 0.5 s Android, 1.9 s iOS
-    "crash-probe": 30,      # measured 0.2 s Android, 1 s iOS
+    "crash-probe": 45,      # measured 0.2 s Android, 1 s iOS; a failed iOS attempt may wait 15 s for the crash report
     "collect-failure": 60,  # measured 3-4 s
-    "recover": 600,         # not measured: device.sh recover refuses on the Android locale mismatch
+    "recover": 180,         # measured 53.5 s on the Android emulator (reboot, gate, settings), 58 s for an iOS boot
     "stop-device": 120,     # measured 1.2 s Android, 3.5 s iOS
 }
+
+
+# Test seams: variables that replace a piece of the harness (an adapter, the scope, the catalog, the host measures). They
+# exist so that the harness can be tested without devices. Evidence that is published for real refuses to run with any of
+# them set, because each one changes what is measured or certified without leaving a trace in the status. The one key
+# below is the harness tests' explicit permission to publish through fakes (a fake `gh`); nothing else sets it.
+ALLOW_SEAMS_KEY = "E2E_TEST_ALLOW_SEAMS"
+SEAM_NAMES = frozenset(("E2E_CATALOG_FILE", "E2E_SCOPE_FILE", "DETECT_CHANGED_APP_CHANGED_FILES_FILE"))
+
+
+def is_seam(name):
+    return name in SEAM_NAMES or name.startswith("E2E_FAKE_") or (name.startswith("E2E_") and name.endswith("_CMD"))
 
 
 class UsageError(Exception):
@@ -94,7 +106,6 @@ class Config:
             "android": _choice(env, "E2E_SKIP_ANDROID", "0", ("0", "1")) == "1",
             "ios": _choice(env, "E2E_SKIP_IOS", "0", ("0", "1")) == "1",
         }
-        self.strict_ios = _choice(env, "E2E_STRICT_IOS", "1", ("0", "1")) == "1"
         self.ports = {
             "android": _int(env, "E2E_ANDROID_WIREMOCK_PORT", 18626, 1024, 65535),
             "ios": _int(env, "E2E_IOS_WIREMOCK_PORT", 18627, 1024, 65535),
@@ -112,6 +123,23 @@ class Config:
         state = Path(env.get("E2E_STATE_ROOT") or "build/e2e")
         self.state_root = state if state.is_absolute() else self.root / state
         self.env = env
+
+    def run_overrides(self):
+        """The knobs a run turned away from their defaults; the status description counts them."""
+        found = ["env-check:%s" % item for item in self.env_override]
+        found += ["parallel:%s" % self.parallel] if self.parallel != "auto" else []
+        found += ["retries:%d" % self.max_retries] if self.max_retries != 1 else []
+        return found
+
+    def seams(self):
+        """The test seams set in the environment (sorted names), the permission key included when present."""
+        return sorted(name for name in self.env if (is_seam(name) or name == ALLOW_SEAMS_KEY) and self.env[name] != "")
+
+    def require_no_seams(self, what):
+        """Publishing for real (a status on GitHub) refuses every seam, except where the tests allow them."""
+        found = [name for name in self.seams() if name != ALLOW_SEAMS_KEY]
+        if found and self.env.get(ALLOW_SEAMS_KEY) != "1":
+            raise UsageError("%s needs a real environment: unset the test seams %s" % (what, ", ".join(found)))
 
     def root_script_dir(self):
         return Path(__file__).resolve().parent.parent
