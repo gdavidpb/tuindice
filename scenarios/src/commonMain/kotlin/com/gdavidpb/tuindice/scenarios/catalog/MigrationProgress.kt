@@ -11,7 +11,6 @@ object MigrationProgress {
 		"auth",
 		"maincore",
 		"coachmarks",
-		"summary",
 		"record",
 		"enrollmentproof",
 		"pensum",
