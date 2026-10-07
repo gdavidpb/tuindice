@@ -238,6 +238,13 @@ class ModeTests(unittest.TestCase):
         self.assertFalse(os.path.exists(os.path.join(ws.state, "ledger")))
         self.assertEqual(ws.manifest()["fingerprint"], "diagnose")
 
+    def test_tag_selects_by_tag_or_by_module(self):
+        catalog = [scenario("alpha-one"), scenario("beta-two", tags=("alpha",)), scenario("gamma-three", tags=("other",))]
+        ws = Workspace(self, catalog)
+        result = ws.diagnose("ios", "--tag", "alpha", E2E_MAX_RETRIES="0")
+        self.assertEqual(result.code, 0, result.out)
+        self.assertEqual(sorted(ws.executed()), ["alpha-one", "beta-two"])
+
     def test_evidence_rejects_filters_and_a_dirty_tree(self):
         ws = Workspace(self, three())
         for flag in (["--scenario", "fix-a"], ["--tag", "x"], ["--repeat", "2"], ["--trace"], ["--survey"]):

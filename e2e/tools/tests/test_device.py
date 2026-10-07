@@ -169,7 +169,7 @@ class AndroidDeviceTests(unittest.TestCase):
 
     def test_the_shape_of_a_running_emulator_must_match_the_lock(self):
         for prop, value, message in (("nproc", "4", "has 4 cores"), ("meminfo_kb", "2000000", "reports 2000000 kB"),
-                ("locale", "en-US", "locale is 'en-US'"), ("sdk", "36", "API level is '36'")):
+                ("locale", "es-VE", "locale is 'es-VE'"), ("sdk", "36", "API level is '36'")):
             box = Sandbox(self, "android")
             box.online()
             box.write("props/" + prop, value + "\n")

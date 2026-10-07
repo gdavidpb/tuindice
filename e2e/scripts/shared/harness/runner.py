@@ -240,7 +240,7 @@ class PlatformRun:
                 raise UsageError("scenarios not in the %s catalog scope: %s" % (self.platform, ", ".join(missing)))
             runnable = [known[i] for i in wanted]
         if self.opts.tag:
-            runnable = [s for s in runnable if self.opts.tag in s.tags]
+            runnable = [s for s in runnable if self.opts.tag in s.tags or self.opts.tag == s.module]
         if self.opts.changed_since:
             changed = catalog_mod.changed_ids(self.cfg, self.catalog, self.opts.changed_since)
             runnable = [s for s in runnable if s.id in changed]

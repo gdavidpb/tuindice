@@ -119,7 +119,7 @@ case "${verb}" in
 					sys.boot_completed) if [[ -f "${dir}/boot_completed" ]]; then cat "${dir}/boot_completed"; else echo 1; fi ;;
 					init.svc.bootanim) prop bootanim stopped ;;
 					ro.build.version.sdk) prop sdk 37 ;;
-					persist.sys.locale) prop locale es-VE ;;
+					persist.sys.locale) prop locale en-US ;;
 					ro.product.locale) prop product_locale en-US ;;
 					ro.product.model) echo "Pixel 10 Pro XL" ;;
 				esac

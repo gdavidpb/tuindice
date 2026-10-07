@@ -5,7 +5,7 @@ ANDROID_SYSTEM_IMAGE_DIR=system-images/android-37.1/google_apis_playstore_ps16k/
 ANDROID_SYSTEM_IMAGE_REVISION=9
 ANDROID_API_LEVEL=37
 ANDROID_DEVICE_PROFILE=pixel_10_pro_xl
-ANDROID_LOCALE=es
+ANDROID_LOCALE=en
 # Emulator shape, chosen by the owner: passed as boot flags and read back from inside the device by `ensure`.
 ANDROID_EMULATOR_MEMORY_MB=16384
 ANDROID_EMULATOR_CORES=8
