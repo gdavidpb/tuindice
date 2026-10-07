@@ -13,6 +13,18 @@ object E2eFixtures {
 	private const val PENSUM_2016 = "mocks/__files/pensums/get-pensum-2016-degree_project.json"
 	private const val PENSUM_2019 = "mocks/__files/pensums/get-pensum-2019-degree_project.json"
 
+	/**
+	 * The new password the update flows type for `E2eAccounts.UpdatePassword`; the reissue mapping
+	 * `auth-update-password-reissue-success.json` accepts it (`AccountFixturesTest` checks that).
+	 */
+	const val UpdatedPassword = "123456"
+
+	/**
+	 * The new password the failure flow types for `E2eAccounts.UpdatePasswordFailure`; the mapping
+	 * `auth-update-password-failure-reissue-unauthorized.json` answers it with 401.
+	 */
+	const val RejectedPassword = "000000"
+
 	/** The term of the canonical record that is in progress. */
 	val CurrentTerm = E2eFixture("d377155d39da686f412622aaca9074cd", listOf(SYNC_SUCCESS))
 

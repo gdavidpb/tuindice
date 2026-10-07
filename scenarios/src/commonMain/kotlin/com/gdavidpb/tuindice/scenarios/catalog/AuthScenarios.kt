@@ -38,15 +38,6 @@ private const val EVALUATION_TYPE_TEST = "test"
 /** A day of the month the date picker always offers. */
 private const val EVALUATION_DAY = 15
 
-/**
- * The new password the update flows type. The reissue mappings (`auth-update-password-reissue-success.json`)
- * accept this one.
- */
-private const val UPDATED_PASSWORD = "123456"
-
-/** The password the failure flow types; `auth-update-password-failure-reissue-unauthorized.json` rejects it. */
-private const val REJECTED_PASSWORD = "000000"
-
 /** The arguments of a clean launch, to start the app again the way the scenario started it. */
 private val cleanArguments = Start.Clean().toLaunchSpec().arguments
 
@@ -348,7 +339,7 @@ private val authUpdatePassword = scenario(
 	tap(BaseUiTags.ConfirmationDialogPositiveButton)
 	waitVisible(AuthUiTags.SignOutSecondaryButton, Within.Wait)
 	tap(BaseUiTags.ConfirmationDialogPositiveButton)
-	typeNewPassword(UPDATED_PASSWORD)
+	typeNewPassword(E2eFixtures.UpdatedPassword)
 	tap(AuthUiTags.PasswordToggle)
 	waitVisible(AuthUiTags.UpdatePasswordIdleContainer, Within.Assert)
 	tap(AuthUiTags.PasswordToggle)
@@ -363,7 +354,7 @@ private val authUpdatePassword = scenario(
 	expectRequest(
 		"POST",
 		"/auth/v1/token",
-		basicAuth = "${E2eAccounts.UpdatePassword.backendIdentifier}:$UPDATED_PASSWORD"
+		basicAuth = "${E2eAccounts.UpdatePassword.backendIdentifier}:${E2eFixtures.UpdatedPassword}"
 	)
 	waitGone(AuthUiTags.UpdatePasswordIdleContainer, Within.Wait)
 	waitAnyVisible(
@@ -397,12 +388,12 @@ private val authUpdatePasswordFailure = scenario(
 	tap(BaseUiTags.ConfirmationDialogPositiveButton)
 	waitVisible(AuthUiTags.SignOutSecondaryButton, Within.Wait)
 	tap(BaseUiTags.ConfirmationDialogPositiveButton)
-	typeNewPassword(REJECTED_PASSWORD)
+	typeNewPassword(E2eFixtures.RejectedPassword)
 	tap(AuthUiTags.UpdatePasswordConfirmButton)
 	expectRequest(
 		"POST",
 		"/auth/v1/token",
-		basicAuth = "${E2eAccounts.UpdatePasswordFailure.backendIdentifier}:$REJECTED_PASSWORD"
+		basicAuth = "${E2eAccounts.UpdatePasswordFailure.backendIdentifier}:${E2eFixtures.RejectedPassword}"
 	)
 	// The update answered 401: the sheet leaves its loading state and stays open.
 	assertEnabled(AuthUiTags.UpdatePasswordConfirmButton, true, Within.Wait)
