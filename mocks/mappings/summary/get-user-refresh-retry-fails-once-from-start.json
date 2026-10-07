@@ -7,9 +7,6 @@
     "method": "GET",
     "urlPath": "/users/v1",
     "headers": {
-      "User-Agent": {
-        "contains": "iOS"
-      },
       "Authorization": {
         "equalTo": "Bearer summary.refresh.retry.mock.access"
       }

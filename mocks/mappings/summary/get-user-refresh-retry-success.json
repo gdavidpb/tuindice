@@ -6,9 +6,6 @@
     "method": "GET",
     "urlPath": "/users/v1",
     "headers": {
-      "User-Agent": {
-        "contains": "Android"
-      },
       "Authorization": {
         "matches": "Bearer .+"
       }

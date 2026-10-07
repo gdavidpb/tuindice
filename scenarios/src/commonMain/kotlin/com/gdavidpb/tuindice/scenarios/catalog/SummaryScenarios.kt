@@ -5,14 +5,12 @@ import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.scenariokit.dsl.SwipeDirection
 import com.gdavidpb.tuindice.scenariokit.dsl.assertEnabled
 import com.gdavidpb.tuindice.scenariokit.dsl.back
-import com.gdavidpb.tuindice.scenariokit.dsl.ifVisible
 import com.gdavidpb.tuindice.scenariokit.dsl.onPlatform
 import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.swipeScreen
 import com.gdavidpb.tuindice.scenariokit.dsl.tag
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.text
-import com.gdavidpb.tuindice.scenariokit.dsl.waitAnyVisible
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
 import com.gdavidpb.tuindice.scenariokit.model.Platform
@@ -54,13 +52,6 @@ private val summaryRefreshRetry = scenario(
 
 	waitVisible(BaseUiTags.ErrorViewContainer, Within.Sync)
 	tap(BaseUiTags.ErrorViewRetryButton)
-	onPlatform(Platform.Android) {
-		// The Android mocks fail the user request twice before answering.
-		waitAnyVisible(tag(SummaryUiTags.ContentContainer), tag(BaseUiTags.ErrorViewContainer), timeout = Within.Long)
-		ifVisible(BaseUiTags.ErrorViewContainer) {
-			tap(BaseUiTags.ErrorViewRetryButton)
-		}
-	}
 	waitVisible(SummaryUiTags.ContentContainer, Within.Long)
 	waitVisible(SummaryUiTags.StatusRow, Within.Assert)
 	waitVisible(SummaryUiTags.ItemsList, Within.Assert)

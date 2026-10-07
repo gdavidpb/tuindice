@@ -29,7 +29,7 @@ class RetryOrderMocksTest {
 	fun theSummaryRetryFailsTheUserReadAsManyTimesAsEachPlatformNeedsInEveryOrder() {
 		val expectedByPlatform = mapOf(
 			"iOS" to listOf(UNAVAILABLE, OK),
-			"Android" to listOf(UNAVAILABLE, UNAVAILABLE, OK)
+			"Android" to listOf(UNAVAILABLE, OK)
 		)
 
 		expectedByPlatform.forEach { (platform, expected) ->

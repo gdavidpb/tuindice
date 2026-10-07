@@ -23,8 +23,7 @@ class PlatformBranchBudget private constructor() {
 			"subjects-search-failed-retry" to 1,
 			"subjects-search-query-clear" to 1,
 			"subjects-smoke" to 1,
-			"summary-profile-picture" to 2,
-			"summary-refresh-retry" to 1
+			"summary-profile-picture" to 2
 		)
 
 		fun of(scenarioId: String): Int = perScenario[scenarioId] ?: 0
