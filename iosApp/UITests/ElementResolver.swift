@@ -32,6 +32,7 @@ final class ElementResolver {
     static let springboardId = "com.apple.springboard"
     private static let settleTimeout = 2.0
     private static let settlePoll = 0.1
+    private static let stableReads = 3
 
     let app: XCUIApplication
     let springboard = XCUIApplication(bundleIdentifier: ElementResolver.springboardId)
@@ -86,7 +87,7 @@ final class ElementResolver {
 
     /// The element's facts once its frame has stopped moving, so a gesture lands on the element and not
     /// on whatever is passing over its old place (a sheet sliding in, the form the keyboard pushes up).
-    /// The frame is read every [settlePoll] until two reads agree or [settleTimeout] passes; the last
+    /// The frame is read every [settlePoll] until [stableReads] reads in a row agree or [settleTimeout] passes; the last
     /// read is then used as it is.
     func settledFacts(_ q: Query) -> (ResolvedElement, ElementFacts)? {
         guard let (resolved, facts, _) = settle(q) else { return nil }
@@ -94,15 +95,20 @@ final class ElementResolver {
     }
 
     /// Like [settledFacts], and says whether the frame stopped moving (`false`: the last read after
-    /// [settleTimeout], or the element vanished while it was being watched).
+    /// [settleTimeout], or the element vanished while it was being watched). The frame must read the same
+    /// [stableReads] times in a row: the accessibility tree of a list that is still decelerating repeats a
+    /// frame once or twice before the next one arrives, so two equal reads were seen to hold a tap on a
+    /// button that was still moving (the tap landed on the place it had left).
     func settle(_ q: Query) -> (ResolvedElement, ElementFacts, Bool)? {
         guard var last = visibleFacts(q) else { return nil }
+        var equalReads = 1
         let deadline = Date().addingTimeInterval(Self.settleTimeout)
         while Date() < deadline {
             Thread.sleep(forTimeInterval: Self.settlePoll)
             guard let current = visibleFacts(q) else { return (last.0, last.1, false) }
-            if current.1.frame == last.1.frame { return (current.0, current.1, true) }
+            equalReads = current.1.frame == last.1.frame ? equalReads + 1 : 1
             last = current
+            if equalReads >= Self.stableReads { return (current.0, current.1, true) }
         }
         return (last.0, last.1, false)
     }
