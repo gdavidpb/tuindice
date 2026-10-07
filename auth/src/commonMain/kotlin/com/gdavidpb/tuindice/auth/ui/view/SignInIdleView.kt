@@ -74,7 +74,8 @@ fun SignInIdleView(
 	useUsbIdContentDescription: String,
 	passwordLabelText: String,
 	usageDataConsentText: String = "",
-	signInButtonText: String
+	signInButtonText: String,
+	isWaiting: Boolean
 ) {
 	val focusManager = LocalFocusManager.current
 	val passwordFocusRequester = remember { FocusRequester() }
@@ -135,6 +136,7 @@ fun SignInIdleView(
 				SignInIdentifierMode.UsbEmail -> useUsbIdContentDescription
 			},
 			showTogglePulse = state.identifierMode == SignInIdentifierMode.UsbId && state.usbId.isEmpty(),
+			isWaiting = isWaiting,
 			usbId = state.usbId,
 			onUsbIdChange = onUsbIdChange,
 			onIdentifierModeToggle = onIdentifierModeToggle,
@@ -152,6 +154,7 @@ fun SignInIdleView(
 				labelText = passwordLabelText,
 				password = state.password,
 				isPasswordVisible = state.isPasswordVisible,
+				isWaiting = isWaiting,
 				onPasswordChange = onPasswordChange,
 				onPasswordVisibilityToggle = onPasswordVisibilityToggle,
 				imeAction = ImeAction.Done,

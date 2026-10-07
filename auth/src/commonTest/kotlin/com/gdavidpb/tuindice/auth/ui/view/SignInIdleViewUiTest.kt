@@ -24,6 +24,7 @@ class SignInIdleViewUiTest {
 	fun when_serviceIsUnavailable_then_buttonIsDisabledAndTheFixedMessageIsShown() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SignInIdleView(
+				isWaiting = false,
 				state = SignIn.State.Idle(usbId = "12-34567", password = "1234", isServiceUnavailable = true),
 				onUsbIdChange = {},
 				onPasswordChange = {},
@@ -56,6 +57,7 @@ class SignInIdleViewUiTest {
 	fun when_serviceIsAvailable_then_noUnavailableMessageIsShown() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SignInIdleView(
+				isWaiting = false,
 				state = SignIn.State.Idle(usbId = "12-34567", password = "1234"),
 				onUsbIdChange = {},
 				onPasswordChange = {},
@@ -86,6 +88,7 @@ class SignInIdleViewUiTest {
 	fun when_stateIsInvalid_then_signInButtonIsDisabled() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SignInIdleView(
+				isWaiting = false,
 				state = SignIn.State.Idle(usbId = "12-34", password = ""),
 				onUsbIdChange = {},
 				onPasswordChange = {},
@@ -118,6 +121,7 @@ class SignInIdleViewUiTest {
 
 		setTuIndiceTestContent {
 			SignInIdleView(
+				isWaiting = false,
 				state = SignIn.State.Idle(usbId = "12-34567", password = "1234"),
 				onUsbIdChange = {},
 				onPasswordChange = {},
@@ -150,6 +154,7 @@ class SignInIdleViewUiTest {
 	fun when_stateHasValidUsbEmailAndPassword_then_signInButtonIsEnabled() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SignInIdleView(
+				isWaiting = false,
 				state = SignIn.State.Idle(
 					usbId = "mail@usb.ve",
 					password = "1234",
@@ -183,6 +188,7 @@ class SignInIdleViewUiTest {
 	fun when_stateHasUsbIdInUsbEmailModeAndPassword_then_signInButtonIsEnabled() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			SignInIdleView(
+				isWaiting = false,
 				state = SignIn.State.Idle(
 					usbId = "12-34567@usb.ve",
 					password = "1234",
@@ -235,6 +241,7 @@ class SignInIdleViewUiTest {
 	@Composable
 	private fun RejectedMarkerView(state: SignIn.State.Idle) {
 		SignInIdleView(
+			isWaiting = false,
 			state = state,
 			onUsbIdChange = {},
 			onPasswordChange = {},

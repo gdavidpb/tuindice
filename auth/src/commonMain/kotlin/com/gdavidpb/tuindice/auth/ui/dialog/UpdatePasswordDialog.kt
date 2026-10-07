@@ -5,10 +5,8 @@ import androidx.compose.material3.ModalBottomSheetProperties
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import com.gdavidpb.tuindice.auth.presentation.contract.UpdatePassword
 import com.gdavidpb.tuindice.auth.ui.AuthUiTags
-import com.gdavidpb.tuindice.auth.ui.view.LocalFormWaiting
 import com.gdavidpb.tuindice.auth.ui.view.UpdatePasswordIdleView
 import com.gdavidpb.tuindice.base.ui.dialog.ConfirmationDialog
 
@@ -65,17 +63,15 @@ fun UpdatePasswordDialog(
 		onDismissRequest = onDismissRequest,
 		properties = ModalBottomSheetProperties(shouldDismissOnBackPress = false)
 	) {
-		CompositionLocalProvider(LocalFormWaiting provides isLoading) {
-			UpdatePasswordIdleView(
-				state = contentState,
-				enabled = !isLoading,
-				onPasswordChange = onPasswordChange,
-				onPasswordVisibilityToggle = onPasswordVisibilityToggle,
-				onConfirmClick = onConfirmClick,
-				appNameText = appNameText,
-				messageText = messageText,
-				passwordLabelText = passwordLabelText
-			)
-		}
+		UpdatePasswordIdleView(
+			state = contentState,
+			enabled = !isLoading,
+			onPasswordChange = onPasswordChange,
+			onPasswordVisibilityToggle = onPasswordVisibilityToggle,
+			onConfirmClick = onConfirmClick,
+			appNameText = appNameText,
+			messageText = messageText,
+			passwordLabelText = passwordLabelText
+		)
 	}
 }

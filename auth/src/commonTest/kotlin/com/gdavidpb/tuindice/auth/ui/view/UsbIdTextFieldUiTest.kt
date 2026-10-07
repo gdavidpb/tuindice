@@ -33,6 +33,7 @@ class UsbIdTextFieldUiTest {
 
 		setTuIndiceTestContent {
 			UsbIdTextField(
+				isWaiting = false,
 				labelText = "USB ID",
 				placeholderText = "12-34567",
 				usbId = "",
@@ -55,6 +56,7 @@ class UsbIdTextFieldUiTest {
 
 		setTuIndiceTestContent {
 			UsbIdTextField(
+				isWaiting = false,
 				labelText = "USB ID",
 				placeholderText = "12-34567",
 				usbId = "",
@@ -76,6 +78,7 @@ class UsbIdTextFieldUiTest {
 
 		setTuIndiceTestContent {
 			UsbIdTextField(
+				isWaiting = false,
 				labelText = "USB ID",
 				placeholderText = "12-34567",
 				usbId = "",
@@ -98,6 +101,7 @@ class UsbIdTextFieldUiTest {
 
 		setTuIndiceTestContent {
 			UsbIdTextField(
+				isWaiting = false,
 				labelText = "USB ID",
 				placeholderText = "12-34567",
 				usbId = usbId.value,
@@ -126,6 +130,7 @@ class UsbIdTextFieldUiTest {
 
 		setTuIndiceTestContent {
 			UsbIdTextField(
+				isWaiting = false,
 				labelText = "USB ID",
 				placeholderText = "12-34567",
 				usbId = echoedUsbId.value,
@@ -162,6 +167,7 @@ class UsbIdTextFieldUiTest {
 
 		setTuIndiceTestContent {
 			UsbIdTextField(
+				isWaiting = false,
 				labelText = "USB ID",
 				placeholderText = "12-34567",
 				usbId = echoedUsbId.value,
@@ -193,6 +199,7 @@ class UsbIdTextFieldUiTest {
 
 		setTuIndiceTestContent {
 			UsbIdTextField(
+				isWaiting = false,
 				labelText = "USB ID",
 				placeholderText = "12-34567",
 				usbId = "",
@@ -215,6 +222,7 @@ class UsbIdTextFieldUiTest {
 
 		setTuIndiceTestContent {
 			UsbIdTextField(
+				isWaiting = false,
 				labelText = "USB ID",
 				placeholderText = "12-34567",
 				usbId = usbId.value,
@@ -238,6 +246,7 @@ class UsbIdTextFieldUiTest {
 
 		setTuIndiceTestContent {
 			UsbIdTextField(
+				isWaiting = false,
 				labelText = "USB ID",
 				placeholderText = "12-34567",
 				usbId = "12-34567",
@@ -262,6 +271,7 @@ class UsbIdTextFieldUiTest {
 
 		setTuIndiceTestContent {
 			UsbIdTextField(
+				isWaiting = false,
 				labelText = "Correo USB",
 				placeholderText = "correo@usb.ve",
 				identifierMode = identifierMode.value,
@@ -292,6 +302,7 @@ class UsbIdTextFieldUiTest {
 
 		setTuIndiceTestContent {
 			UsbIdTextField(
+				isWaiting = false,
 				labelText = "Correo USB",
 				placeholderText = "correo@usb.ve",
 				identifierMode = SignInIdentifierMode.UsbEmail,
@@ -313,6 +324,7 @@ class UsbIdTextFieldUiTest {
 		setTuIndiceTestContent {
 			CompositionLocalProvider(LocalTuIndiceAnimationsEnabled provides false) {
 				UsbIdTextField(
+					isWaiting = false,
 					labelText = "USB ID",
 					placeholderText = "12-34567",
 					usbId = "",
@@ -333,6 +345,7 @@ class UsbIdTextFieldUiTest {
 	fun when_showTogglePulseIsTrueButFieldHasValue_then_pulseIsHidden() = runTuIndiceUiTest {
 		setTuIndiceTestContent {
 			UsbIdTextField(
+				isWaiting = false,
 				labelText = "USB ID",
 				placeholderText = "12-34567",
 				usbId = "12-34567",
@@ -353,19 +366,18 @@ class UsbIdTextFieldUiTest {
 		var viewModelWaiting = false
 
 		setTuIndiceTestContent {
-			CompositionLocalProvider(LocalFormWaiting provides isWaiting.value) {
-				UsbIdTextField(
-					labelText = "USB ID",
-					placeholderText = "12-34567",
-					usbId = echoedUsbId.value,
-					toggleContentDescription = "Iniciar con correo USB",
-					showTogglePulse = false,
-					onIdentifierModeToggle = {},
-					onUsbIdChange = { value ->
-						if (!viewModelWaiting) echoedUsbId.value = value
-					}
-				)
-			}
+			UsbIdTextField(
+				isWaiting = isWaiting.value,
+				labelText = "USB ID",
+				placeholderText = "12-34567",
+				usbId = echoedUsbId.value,
+				toggleContentDescription = "Iniciar con correo USB",
+				showTogglePulse = false,
+				onIdentifierModeToggle = {},
+				onUsbIdChange = { value ->
+					if (!viewModelWaiting) echoedUsbId.value = value
+				}
+			)
 		}
 
 		onNodeWithTag(AuthUiTags.UsbIdTextField).performTextInput("123")

@@ -52,6 +52,7 @@ fun UpdatePasswordIdleView(
 			password = state.password,
 			isPasswordVisible = state.isPasswordVisible,
 			enabled = enabled,
+			isWaiting = !enabled,
 			onPasswordChange = onPasswordChange,
 			onPasswordVisibilityToggle = onPasswordVisibilityToggle,
 			error = state.error,
