@@ -23869,9 +23869,6 @@
             },
             "covers": [],
             "id": "conformance-back",
-            "ios": {
-                "onlyTesting": "TuIndiceUITests/ConformanceScenarioTests/test_conformance_back"
-            },
             "module": "conformance",
             "platforms": [
                 "android"

@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.scenariokit.codec
 
+import com.gdavidpb.tuindice.scenariokit.model.Platform
 import com.gdavidpb.tuindice.scenariokit.model.Scenario
 import com.gdavidpb.tuindice.scenariokit.model.ScenarioCatalog
 import kotlinx.serialization.json.Json
@@ -41,12 +42,18 @@ object CatalogCodec {
 		return catalog
 	}
 
-	private fun withDerivedFields(element: JsonObject, scenario: Scenario): JsonObject =
-		JsonObject(
-			element + mapOf(
-				"stepsHash" to JsonPrimitive(StepsHash.of(scenario.steps)),
-				"ios" to JsonObject(mapOf("onlyTesting" to JsonPrimitive(ScenarioNaming.iosOnlyTesting(scenario)))),
-				"android" to JsonObject(mapOf("scenarioArg" to JsonPrimitive(ScenarioNaming.androidScenarioArg(scenario))))
-			)
-		)
+	/** Each platform's entry exists only for a scenario that runs on that platform. */
+	private fun withDerivedFields(element: JsonObject, scenario: Scenario): JsonObject {
+		val derived = buildMap<String, JsonElement> {
+			put("stepsHash", JsonPrimitive(StepsHash.of(scenario.steps)))
+			if (Platform.Ios in scenario.platforms) {
+				put("ios", JsonObject(mapOf("onlyTesting" to JsonPrimitive(ScenarioNaming.iosOnlyTesting(scenario)))))
+			}
+			if (Platform.Android in scenario.platforms) {
+				put("android", JsonObject(mapOf("scenarioArg" to JsonPrimitive(ScenarioNaming.androidScenarioArg(scenario)))))
+			}
+		}
+
+		return JsonObject(element + derived)
+	}
 }

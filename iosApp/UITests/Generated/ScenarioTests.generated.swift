@@ -36,7 +36,6 @@ final class CoachmarksScenarioTests: ScenarioTestCase {
 }
 
 final class ConformanceScenarioTests: ScenarioTestCase {
-    func test_conformance_back() { runScenario("conformance-back") }
     func test_conformance_backend() { runScenario("conformance-backend") }
     func test_conformance_double_tap_swipe() { runScenario("conformance-double-tap-swipe") }
     func test_conformance_enabled() { runScenario("conformance-enabled") }

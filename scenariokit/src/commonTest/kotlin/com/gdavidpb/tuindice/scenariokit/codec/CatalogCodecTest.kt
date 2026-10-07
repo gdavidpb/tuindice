@@ -1,6 +1,7 @@
 package com.gdavidpb.tuindice.scenariokit.codec
 
 import com.gdavidpb.tuindice.scenariokit.model.LaunchSpec
+import com.gdavidpb.tuindice.scenariokit.model.Platform
 import com.gdavidpb.tuindice.scenariokit.model.ScenarioCatalog
 import kotlinx.serialization.json.Json
 import kotlinx.serialization.json.JsonArray
@@ -85,6 +86,17 @@ class CatalogCodecTest {
 			"auth-login-success",
 			scenario.getValue("android").jsonObject.getValue("scenarioArg").jsonPrimitive.content
 		)
+	}
+
+	@Test
+	fun encode_givesEachPlatformDerivedEntryOnlyToTheScenariosThatRunThere() {
+		val androidOnly = sampleScenario("conformance-back").copy(platforms = listOf(Platform.Android))
+		val iosOnly = sampleScenario("ios-only").copy(platforms = listOf(Platform.Ios))
+		val scenarios = Json.parseToJsonElement(CatalogCodec.encode(sampleCatalog(listOf(androidOnly, iosOnly))))
+			.jsonObject.getValue("scenarios").jsonArray.map { it.jsonObject }
+
+		assertTrue("ios" !in scenarios[0] && "android" in scenarios[0])
+		assertTrue("android" !in scenarios[1] && "ios" in scenarios[1])
 	}
 
 	@Test
