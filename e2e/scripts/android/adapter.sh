@@ -8,7 +8,7 @@
 #   reset-app                             pm clear of the app and the runner's output directory (never pm clear of the runner)
 #   run-scenario <id> <attemptDir> <port> exactly one instrumentation run; the verdict comes from result.json, not from adb
 #   crash-probe <sinceEpoch> <attemptDir> crash or ANR evidence in the device log
-#   collect-failure <attemptDir> <sinceEpoch>
+#   collect-failure <attemptDir> <sinceEpoch>   failed attempts only: the device log of the attempt (capped), a fallback screenshot
 # Every adb call carries the serial of the pinned emulator.
 set -euo pipefail
 
@@ -23,6 +23,8 @@ WORK="${E2E_TMP_ROOT:-${TMPDIR:-/tmp}/tuindice-e2e}/android"
 BUILD_STATE="${WORK}/build.json"
 SUITE_CLASS="${E2E_ANDROID_TEST_PACKAGE}.ScenarioSuiteTest"
 TEST_OUTPUT_DIR="files/e2e"
+# The device log kept for a failed attempt is at most this long (the last bytes of it); E2E_FAKE_LOG_CAP_BYTES is the test seam.
+LOG_CAP_BYTES="${E2E_FAKE_LOG_CAP_BYTES:-10485760}"
 
 fail() {
 	printf '%s\n' "$*" >&2
@@ -139,9 +141,12 @@ cmd_crash_probe() {
 }
 
 cmd_collect_failure() {
-	local dir="${1:?attempt dir}"
+	local dir="${1:?attempt dir}" since="${2:?since}" events="${WORK}/failure-logcat.log"
 	resolve_device
-	adb_s logcat -b all -d -v threadtime -t 4000 > "${dir}/logcat.txt"
+	mkdir -p "${WORK}"
+	# Read once from the device's log store, only now that the attempt failed: nothing streams while scenarios run.
+	adb_s logcat -b all -d -v epoch > "${events}"
+	python3 "${TOOLS}" logcat-window "${events}" "${since}" "${LOG_CAP_BYTES}" "${dir}/logcat.txt" >&2
 	if ! compgen -G "${dir}/*.png" > /dev/null; then
 		adb_s exec-out screencap -p > "${dir}/fallback-screen.png"
 		if adb_s shell uiautomator dump /sdcard/e2e-window.xml > /dev/null 2>&1; then

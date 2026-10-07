@@ -5,7 +5,9 @@ import os
 import shlex
 import shutil
 import subprocess
+import sys
 import time
+from pathlib import Path
 
 from . import catalog as catalog_mod
 from . import classify as cl
@@ -21,6 +23,11 @@ LOAD_WAIT_START_RATIO = 1.0
 LOAD_WAIT_END_RATIO = 0.8
 LOAD_WAIT_PER_SCENARIO_SECONDS = 300
 LOAD_WAIT_PER_RUN_SECONDS = 900
+
+# Step 10 of the run: e2e/tools/e2e-retention.py trims what earlier runs left. It lives outside e2e/scripts, so it is
+# not part of the evidence fingerprint; E2E_RETENTION_CMD replaces it in tests.
+RETENTION_SCRIPT = Path(__file__).resolve().parents[3] / "tools" / "e2e-retention.py"
+RETENTION_TIMEOUT_SECONDS = 600
 
 # HOOKS["toolchain"](run) compares the adapter's toolchain with the lock, HOOKS["env_check"](run) measures
 # the environment. Each raises EnvironmentRefused to refuse.
@@ -357,6 +364,9 @@ class PlatformRun:
             attempt["loadWaitSeconds"] = waited
             ledger.record_attempt(scenario.id, attempt, cap)
             ledger.save()
+            self.manifest.data["attempts"].append({"scenario": scenario.id, "n": attempt["n"], "outcome": attempt["outcome"],
+                "failureClass": attempt["failureClass"], "durationMs": attempt["durationMs"],
+                "runnerDurationMs": attempt["runnerDurationMs"], "loadWaitSeconds": waited})
             self.executed.add(scenario.id)
             self.manifest.write()
             seconds = attempt["durationMs"] / 1000.0
@@ -525,6 +535,8 @@ class PlatformRun:
 
     def _finish(self, outcome, code):
         m = self.manifest
+        if self.run_dir and outcome != "interrupted":
+            self._retention()  # before the RESULT line, which stays the last one of the run
         if self.ledger is not None and self.catalog is not None and self.run_dir:
             results = self._results()
             counts = junit.write(os.path.join(self.run_dir, "junit.xml"), self.platform, results)
@@ -554,6 +566,32 @@ class PlatformRun:
             m.data["competingProcesses"]["end"] = envcheck.top_processes(envcheck._process_table())
         m.finalize(outcome, code)
         self.log.close()
+
+    def _retention(self):
+        """Trims what earlier runs left (this run is named, so it is never touched). A failure is logged and recorded in
+        the manifest and changes neither the outcome nor the exit code."""
+        cfg, m = self.cfg, self.manifest
+        command = shlex.split(cfg.seam("E2E_RETENTION_CMD")) if cfg.seam("E2E_RETENTION_CMD") else [sys.executable, str(RETENTION_SCRIPT)]
+        argv = command + ["--apply", "--json", "--state-root", str(cfg.state_root), "--tmp-root", str(cfg.tmp_root),
+            "--current-run", self.run_id, "--max-gb", str(cfg.artifacts_max_gb)]
+        if self.evidence and self.fingerprint:
+            argv += ["--fingerprint", self.fingerprint]
+        record = {"ran": True, "ok": False, "exitCode": None, "freedBytes": 0, "actions": 0, "error": None}
+        try:
+            result = proc.run(argv, RETENTION_TIMEOUT_SECONDS, cwd=str(cfg.root), env=cfg.env)
+            summary = proc.parse_json(result.stdout)
+            record.update(exitCode=result.returncode, freedBytes=summary.get("freedBytes", 0), actions=summary.get("actions", 0))
+            record["ok"] = result.ok and not summary.get("errors") and bool(summary)
+            if not record["ok"]:
+                record["error"] = "timed out" if result.timed_out \
+                    else "; ".join(summary.get("errors") or []) or result.stderr.strip()[-300:] or "exit %s" % result.returncode
+            if summary.get("currentRunBytes") is not None:
+                m.data["artifactsBytes"] = summary["currentRunBytes"]
+        except (OSError, proc.Interrupted) as error:
+            record["error"] = "interrupted" if isinstance(error, proc.Interrupted) else str(error)
+        m.data["retention"] = record
+        self.log.say("RETENTION %s" % ("freed %d bytes in %d action(s)" % (record["freedBytes"], record["actions"]) if record["ok"]
+            else "FAILED, the run result is unchanged: %s" % record["error"]))
 
     @staticmethod
     def _manifest_result(item):

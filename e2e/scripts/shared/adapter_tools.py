@@ -8,6 +8,8 @@ Usage: adapter_tools.py <command> [args...]. Every command prints one JSON objec
   instrument-summary <log>                       {nativeOk, testsExecuted} of an `am instrument -r` run
   instrument-tests <log>                         {tests} the `run[<id>]` tests of an `am instrument -e log true` listing
   logcat-crash <log> <since> <app id> <file>     {kind, excerpt} from `logcat -v epoch`; the evidence goes to <file>
+  logcat-window <log> <since> <max bytes> <file> {bytes, truncated} the `logcat -v epoch` lines from <since> on, the last <max bytes> of them
+  cap-log <max bytes> <file>                     {bytes, truncated} stdin to <file>, the last <max bytes> of it
   xctest-summary <log> <exit code>               {nativeOk, testsExecuted} of an xcodebuild test run
   xctest-tests <enumeration json>                {tests} the `Target/Class/method` identifiers of an enumeration
   ios-crash <reports dir> <since> <process> <file>  {kind, excerpt} from the crash reports of the app process
@@ -21,7 +23,10 @@ import sys
 INSTRUMENT_CODE = re.compile(r"^INSTRUMENTATION_STATUS_CODE: (-?\d+)", re.M)
 INSTRUMENT_TEST = re.compile(r"^INSTRUMENTATION_STATUS: test=run\[(.+)\]\s*$", re.M)
 LOGCAT_LINE = re.compile(r"^\s*(\d+)\.\d+\s+\d+\s+\d+\s+[A-Z]\s+(\S+)\s*:\s?(.*)$")
+LOGCAT_STAMP = re.compile(rb"^\s*(\d+)\.\d+\s")
 EXCERPT_LINES = 40
+# Room the first line of a capped log may use, counted inside the cap.
+MARKER_BUDGET = 160
 
 
 def _read(path):
@@ -102,6 +107,54 @@ def logcat_crash(log, since, app_id, evidence_file):
     return {"kind": kind, "excerpt": "\n".join(line.strip() for line in excerpt[:3])}
 
 
+def _write_capped(path, data, max_bytes, what, total=None):
+    """`data` (bytes, the end of an input `total` bytes long) to `path`, at most `max_bytes` long including a first
+    line that says what was dropped. The end is what a failure leaves, so the end is what stays; the cut falls on a
+    line boundary."""
+    max_bytes = int(max_bytes)
+    budget = max_bytes - MARKER_BUDGET
+    total = len(data) if total is None else total
+    truncated = total > max_bytes
+    if truncated:
+        tail = data[-budget:]
+        newline = tail.find(b"\n")
+        tail = tail[newline + 1:] if newline >= 0 else b""
+        note = "# e2e: truncated, kept the last %d of %d bytes of %s\n" % (len(tail), total, what)
+        data = note.encode()[:MARKER_BUDGET - 1].rstrip(b"\n") + b"\n" + tail
+    elif not data:
+        data = ("# e2e: %s has no lines\n" % what).encode()[:MARKER_BUDGET]
+    with open(path, "wb") as handle:
+        handle.write(data)
+    return {"bytes": len(data), "truncated": truncated}
+
+
+def logcat_window(log, since, max_bytes, output):
+    """The lines of a `logcat -v epoch` dump stamped at or after `since` (a line without a stamp follows its predecessor)."""
+    kept, inside = [], False
+    with open(log, "rb") as handle:
+        for line in handle:
+            match = LOGCAT_STAMP.match(line)
+            if match:
+                inside = int(match.group(1)) >= int(since)
+            if inside:
+                kept.append(line)
+    return _write_capped(output, b"".join(kept), max_bytes, "the log since %s" % since)
+
+
+def cap_log(max_bytes, output):
+    """stdin to `output`, holding only the last `max_bytes` of it in memory while it reads."""
+    keep, total = bytearray(), 0
+    while True:
+        chunk = sys.stdin.buffer.read(65536)
+        if not chunk:
+            break
+        total += len(chunk)
+        keep += chunk
+        if len(keep) > 2 * int(max_bytes):
+            del keep[:-int(max_bytes)]
+    return _write_capped(output, bytes(keep), max_bytes, "the log", total)
+
+
 def xctest_summary(log, exit_code):
     text = _read(log)
     executed = [int(n) for n in re.findall(r"Executed (\d+) tests?", text)]
@@ -136,7 +189,8 @@ def ios_crash(reports_dir, since, process, evidence_file):
 
 COMMANDS = {
     "apk-outputs": (apk_outputs, 2), "catalog-field": (catalog_field, 3), "instrument-summary": (instrument_summary, 1),
-    "instrument-tests": (instrument_tests, 1), "logcat-crash": (logcat_crash, 4), "xctest-summary": (xctest_summary, 2),
+    "instrument-tests": (instrument_tests, 1), "logcat-crash": (logcat_crash, 4), "logcat-window": (logcat_window, 4), "cap-log": (cap_log, 2),
+    "xctest-summary": (xctest_summary, 2),
     "xctest-tests": (xctest_tests, 1), "ios-crash": (ios_crash, 4),
 }
 

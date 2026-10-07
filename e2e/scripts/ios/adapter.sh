@@ -8,7 +8,7 @@
 #   reset-app                             terminate, uninstall, keychain reset, reinstall
 #   run-scenario <id> <attemptDir> <port> exactly one xcodebuild invocation; the verdict comes from result.json, not from xcodebuild
 #   crash-probe <sinceEpoch> <attemptDir> crash reports of the app process
-#   collect-failure <attemptDir> <sinceEpoch>
+#   collect-failure <attemptDir> <sinceEpoch>   failed attempts only: the log store from the attempt on (capped), a fallback screenshot
 # Every simctl call and every xcodebuild destination carries the UDID of the dedicated simulator.
 set -euo pipefail
 
@@ -23,6 +23,8 @@ WORK="${E2E_TMP_ROOT:-${TMPDIR:-/tmp}/tuindice-e2e}/ios"
 BUILD_STATE="${WORK}/build.json"
 REPORTS_DIR="${E2E_FAKE_DIAGNOSTIC_REPORTS:-${HOME}/Library/Logs/DiagnosticReports}"
 WORKSPACE="${REPO_ROOT}/iosApp/TuIndiceHost.xcworkspace"
+# The log kept for a failed attempt is at most this long (the last bytes of it); E2E_FAKE_LOG_CAP_BYTES is the test seam.
+LOG_CAP_BYTES="${E2E_FAKE_LOG_CAP_BYTES:-20971520}"
 
 fail() {
 	printf '%s\n' "$*" >&2
@@ -116,13 +118,16 @@ cmd_crash_probe() {
 }
 
 cmd_collect_failure() {
-	local dir="${1:?attempt dir}"
+	local dir="${1:?attempt dir}" since="${2:?since}" start
 	resolve_device
 	read_build
 	if ! compgen -G "${dir}/*.png" > /dev/null; then
 		xcrun simctl io "${UDID}" screenshot "${dir}/fallback-screen.png" >&2
 	fi
-	xcrun simctl spawn "${UDID}" log show --last 3m --style compact --predicate "process == \"${EXECUTABLE}\"" | tail -n 2000 > "${dir}/app.log"
+	# `log show` reads the log store, so nothing streams while scenarios run and nothing is lost to a late start.
+	start="$(date -r "${since}" '+%Y-%m-%d %H:%M:%S')"
+	xcrun simctl spawn "${UDID}" log show --start "${start}" --style compact \
+		--predicate "process == \"${EXECUTABLE}\" OR process CONTAINS \"UITests\"" | python3 "${TOOLS}" cap-log "${LOG_CAP_BYTES}" "${dir}/app.log" >&2
 	emit_json "ok=j:true"
 }
 

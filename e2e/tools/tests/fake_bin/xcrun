@@ -5,6 +5,7 @@
 #   prefs/<udid>/<domain>/<key>   stored preference values as `defaults read` prints them
 #   terminate.answer  with terminate.rc (default 3): `simctl terminate` fails with this message
 #   tests.list        identifiers the fake xcodebuild enumerates (with their trailing parentheses)
+#   log.txt           what `simctl spawn <udid> log show` prints (default: one line)
 #   calls.log         one line per call
 set -euo pipefail
 
@@ -56,7 +57,7 @@ case "${verb}" in
 	io) echo "screenshot" > "${3}" ;;
 	spawn)
 		if [[ "${2:-}" == "log" ]]; then
-			echo "app log line"
+			if [[ -f "${dir}/log.txt" ]]; then cat "${dir}/log.txt"; else echo "app log line"; fi
 			exit 0
 		fi
 		id="$1"

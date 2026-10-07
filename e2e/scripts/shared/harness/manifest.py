@@ -102,7 +102,7 @@ class Manifest:
             "device": {}, "appVersion": {}, "wiremock": {"port": config.ports[platform], "delayProfile": config.delay_profile},
             "scenarios": {"inScope": 0, "quarantined": 0, "alreadyGreen": 0, "executed": 0, "passed": 0,
                 "passedOnRetry": 0, "failed": 0, "notRun": 0},
-            "results": [], "stop": {"reason": None, "scenario": None, "failureClass": None, "diagnosis": None},
+            "attempts": [], "results": [], "stop": {"reason": None, "scenario": None, "failureClass": None, "diagnosis": None},
             "artifactsBytes": 0,
         }
 

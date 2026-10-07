@@ -9,6 +9,7 @@ import time
 import unittest
 
 import support  # puts e2e/scripts/shared on sys.path
+from support import Workspace, scenario
 from test_device import Sandbox
 
 import adapter_tools
@@ -144,13 +145,43 @@ class AndroidAdapterTests(unittest.TestCase):
         self.box.write("logcat.txt", "1791346198.148   689   771 E ActivityManager: ANR in com.android.systemui\n")
         self.assertEqual(self.box.run("crash-probe", "1791346190", attempt).json["kind"], "system_anr")
 
-    def test_collect_failure_keeps_bounded_logs_and_a_fallback_screenshot(self):
+    def test_collect_failure_keeps_a_fallback_screenshot_and_reads_the_log_store_once(self):
         attempt = os.path.join(self.box.dir, "c")
         os.makedirs(attempt)
         done = self.box.run("collect-failure", attempt, "1")
         self.assertEqual(done.returncode, 0, done.stderr)
         self.assertTrue(os.path.exists(os.path.join(attempt, "fallback-screen.png")))
-        self.assertIn("logcat -b all -d -v threadtime -t 4000", "\n".join(self.box.adb_calls()))
+        reads = [c for c in self.box.adb_calls() if " logcat " in c and not c.endswith(" -c")]
+        self.assertEqual(reads, ["-s emulator-5554 logcat -b all -d -v epoch"])
+        self.assertNotIn("-t 4000", "\n".join(self.box.adb_calls()))
+
+    def test_collect_failure_keeps_only_the_lines_of_the_attempt(self):
+        self.box.write("logcat.txt", "1791346100.000  1  1 I Old: before the attempt\n"
+            "1791346189.999  1  1 I Old: one second before\n"
+            "1791346190.000  1  1 I App: the attempt starts\n"
+            "1791346195.500  2  2 E App: it failed here\n")
+        attempt = os.path.join(self.box.dir, "w")
+        os.makedirs(attempt)
+        done = self.box.run("collect-failure", attempt, "1791346190")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        kept = support.text(os.path.join(attempt, "logcat.txt"))
+        self.assertIn("the attempt starts", kept)
+        self.assertIn("it failed here", kept)
+        self.assertNotIn("before the attempt", kept)
+        self.assertNotIn("one second before", kept)
+
+    def test_collect_failure_caps_the_log_and_keeps_the_end_of_it(self):
+        self.box.write("logcat.txt", "".join("17913461%02d.000  1  1 I App: line %04d %s\n" % (i % 100, i, "x" * 60) for i in range(400)))
+        attempt = os.path.join(self.box.dir, "k")
+        os.makedirs(attempt)
+        done = self.box.run("collect-failure", attempt, "1", E2E_FAKE_LOG_CAP_BYTES="4096")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        path = os.path.join(attempt, "logcat.txt")
+        self.assertLessEqual(os.path.getsize(path), 4096)
+        kept = support.text(path)
+        self.assertTrue(kept.startswith("# e2e: truncated"), kept[:80])
+        self.assertIn("line 0399", kept)
+        self.assertNotIn("line 0000", kept)
 
     def test_every_device_call_names_the_serial(self):
         self.put_result()
@@ -230,6 +261,34 @@ class IosAdapterTests(unittest.TestCase):
         self.assertIn("SIGSEGV", support.text(os.path.join(attempt, "crash.txt")))
         self.assertEqual(self.box.run("crash-probe", str(int(time.time()) + 60), attempt).json["kind"], "none")
 
+    def test_collect_failure_reads_the_log_store_from_the_start_of_the_attempt(self):
+        attempt = os.path.join(self.box.dir, "c")
+        os.makedirs(attempt)
+        since = 1791346190
+        done = self.box.run("collect-failure", attempt, str(since))
+        self.assertEqual(done.returncode, 0, done.stderr)
+        calls = [c for c in self.box.xcrun_calls() if " log show " in c]
+        self.assertEqual(len(calls), 1, calls)
+        start = time.strftime("%Y-%m-%d %H:%M:%S", time.localtime(since))
+        self.assertIn("simctl spawn %s log show --start %s --style compact --predicate " % (UDID, start), calls[0])
+        self.assertIn('process == "TuIndiceHost" OR process CONTAINS "UITests"', calls[0])
+        self.assertNotIn("--last", calls[0])
+        self.assertIn("app log line", support.text(os.path.join(attempt, "app.log")))
+
+    def test_collect_failure_caps_the_app_log_and_keeps_the_end_of_it(self):
+        self.box.write("log.txt", "".join("2026-10-07 01:22:%02d.000 I TuIndiceHost[1:1] line %04d %s\n" % (i % 60, i, "y" * 60)
+            for i in range(600)), self.box.xcrun)
+        attempt = os.path.join(self.box.dir, "k")
+        os.makedirs(attempt)
+        done = self.box.run("collect-failure", attempt, "1", E2E_FAKE_LOG_CAP_BYTES="5000")
+        self.assertEqual(done.returncode, 0, done.stderr)
+        path = os.path.join(attempt, "app.log")
+        self.assertLessEqual(os.path.getsize(path), 5000)
+        kept = support.text(path)
+        self.assertTrue(kept.startswith("# e2e: truncated"), kept[:80])
+        self.assertIn("line 0599", kept)
+        self.assertNotIn("line 0000", kept)
+
     def test_every_simulator_call_names_the_udid(self):
         attempt = os.path.join(self.box.dir, "s")
         os.makedirs(attempt)
@@ -242,6 +301,19 @@ class IosAdapterTests(unittest.TestCase):
         self.assertEqual(unaddressed, [])
         for call in (c for c in self.box.xcrun_calls() if c.startswith("xcodebuild ")):
             self.assertIn("id=%s" % UDID, call)
+
+
+class FailureCaptureTests(unittest.TestCase):
+    """The orchestrator asks for logs only when an attempt failed."""
+
+    def test_logs_are_collected_for_failed_attempts_only_and_from_the_start_of_the_attempt(self):
+        ws = Workspace(self, [scenario("fix-a"), scenario("fix-b")], {"behaviours": {"fix-b": ["fail:assertion", "pass"]}})
+        before = int(time.time())
+        self.assertEqual(ws.evidence().code, 0)
+        calls = ws.calls("collect-failure")
+        self.assertEqual(len(calls), 1, calls)
+        self.assertTrue(calls[0][2].endswith(os.path.join("fix-b", "attempt-1")), calls[0])
+        self.assertTrue(before <= int(calls[0][3]) <= int(time.time()), "the window starts at the attempt, not at the run")
 
 
 class UiTestTargetCheckTests(unittest.TestCase):
@@ -294,6 +366,42 @@ class ReaderTests(unittest.TestCase):
         log = self.write("1791346198.100   689   771 E ActivityManager: ANR in %s (%s/.Main)\n" % (APP_ID, APP_ID))
         evidence = os.path.join(os.path.dirname(log), "crash.txt")
         self.assertEqual(adapter_tools.logcat_crash(log, "1791346000", APP_ID, evidence)["kind"], "app_anr")
+
+    def test_a_log_window_starts_at_the_first_second_of_the_attempt_and_keeps_unstamped_continuations(self):
+        log = self.write("1791346189.999 1 1 I A: before\n1791346190.000 1 1 E A: first\n    at continuation without a stamp\n1791346191.000 1 1 I A: second\n")
+        out = os.path.join(os.path.dirname(log), "out")
+        expected = ["1791346190.000 1 1 E A: first", "    at continuation without a stamp", "1791346191.000 1 1 I A: second"]
+        result = adapter_tools.logcat_window(log, "1791346190", 1000, out)
+        self.assertEqual(result, {"bytes": sum(len(line) + 1 for line in expected), "truncated": False})
+        self.assertEqual(support.text(out).splitlines(), expected)
+
+    def test_an_empty_log_window_says_so_instead_of_leaving_an_empty_file(self):
+        log = self.write("1791346100.000 1 1 I A: old\n")
+        out = os.path.join(os.path.dirname(log), "out")
+        adapter_tools.logcat_window(log, "1791346190", 1000, out)
+        self.assertIn("has no lines", support.text(out))
+
+    def test_a_capped_log_never_exceeds_the_cap_and_ends_with_the_last_line(self):
+        log = self.write("".join("1791346200.%03d 1 1 I A: line %03d\n" % (i, i) for i in range(500)))
+        out = os.path.join(os.path.dirname(log), "out")
+        for cap in (300, 1000, 5000):
+            result = adapter_tools.logcat_window(log, "1", cap, out)
+            self.assertLessEqual(os.path.getsize(out), cap, cap)
+            self.assertTrue(result["truncated"])
+            self.assertTrue(support.text(out).endswith("line 499\n"))
+            self.assertTrue(support.text(out).splitlines()[1].startswith("1791346200."), "the cut must fall on a line boundary")
+
+    def test_cap_log_reads_stdin_and_keeps_the_end(self):
+        source = "".join("2026-10-07 01:22:00.%03d I TuIndiceHost: line %04d\n" % (i, i) for i in range(2000))
+        out = os.path.join(tempfile.mkdtemp(prefix="e2e-reader-"), "app.log")
+        self.addCleanup(support.shutil.rmtree, os.path.dirname(out), True)
+        done = subprocess.run(["python3", os.path.join(support.SHARED, "adapter_tools.py"), "cap-log", "2000", out],
+            input=source, stdout=subprocess.PIPE, universal_newlines=True, timeout=60)
+        self.assertEqual(done.returncode, 0)
+        self.assertEqual(json.loads(done.stdout)["truncated"], True)
+        self.assertLessEqual(os.path.getsize(out), 2000)
+        self.assertTrue(support.text(out).endswith("line 1999\n"))
+        self.assertNotIn("line 0000", support.text(out))
 
 
 if __name__ == "__main__":

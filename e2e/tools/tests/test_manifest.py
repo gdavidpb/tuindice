@@ -45,6 +45,16 @@ class ManifestTests(unittest.TestCase):
         index = ws.read(os.path.join(ws.state, "ledger", "ios", "index.json"))
         self.assertEqual((index[0]["fingerprint"], index[0]["completeAtSha"]), ("a" * 64, sha))
 
+    def test_the_manifest_lists_every_attempt_with_the_timings_the_profile_reads(self):
+        ws = Workspace(self, [scenario("fix-a"), scenario("fix-b")], {"behaviours": {"fix-b": ["fail:assertion", "pass"]}})
+        self.assertEqual(ws.evidence().code, 0)
+        attempts = ws.manifest()["attempts"]
+        self.assertEqual([(a["scenario"], a["n"], a["outcome"]) for a in attempts], [("fix-a", 1, "passed"), ("fix-b", 1, "failed"), ("fix-b", 2, "passed")])
+        self.assertEqual(attempts[1]["failureClass"], "product_assertion")
+        for attempt in attempts:
+            self.assertGreaterEqual(attempt["durationMs"], attempt["runnerDurationMs"])
+            self.assertGreaterEqual(attempt["runnerDurationMs"], 0)
+
     def test_run_directories_never_collide(self):
         ws = Workspace(self, [scenario("fix-a")])
         for _ in range(3):
