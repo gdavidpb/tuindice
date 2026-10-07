@@ -3,9 +3,10 @@
 #
 # Source of truth: maincore/.../debug/DebugLaunchArguments.kt declares every
 # TUINDICE_E2E_* key once. Rules encoded here:
-# 1. No TUINDICE_E2E_* literal in any .kt or .swift file outside that definition,
-#    test source sets and the iOS UI-test runner (iosApp/UITests, whose literals
-#    are checked by rule 2 instead); everything else reads the constants.
+# 1. No TUINDICE_E2E_* literal in any .kt, .swift, .plist, .xcscheme, .xcconfig, .kts, .gradle,
+#    .yml/.yaml, .sh, .py or .rb file outside that definition, test source sets, e2e/, .codex/,
+#    this script and the iOS UI-test runner (iosApp/UITests); the literals of e2e/, .codex/ and
+#    iosApp/UITests are checked by rule 2 instead; everything else reads the constants.
 # 2. Every TUINDICE_E2E_* literal in e2e/, testkit/e2e/, .codex/ and iosApp/UITests/
 #    is declared in the definition. No file is skipped for its size; binary files are not text.
 # 3. The iOS host reads the process environment, the process arguments and
@@ -87,12 +88,13 @@ declared_keys=$(grep -oE "$KEY_PATTERN" "$DEFINITION" | sort -u)
 while IFS= read -r file; do
 	[[ "$file" == "$DEFINITION" ]] && continue
 	case "$file" in
-		*/iosApp/UITests/*) continue ;;
+		"$ROOT_DIR"/iosApp/UITests/* | "$ROOT_DIR"/e2e/* | "$ROOT_DIR"/.codex/* | "$ROOT_DIR"/scripts/verify-launch-argument-contract.sh) continue ;;
 	esac
 	is_test_source "$file" && continue
 
 	report_matches 1 "launch argument literal outside DebugLaunchArguments.kt" "$KEY_PATTERN" "$file"
-done < <(list_sources "$ROOT_DIR" \( -name '*.kt' -o -name '*.swift' \))
+done < <(list_sources "$ROOT_DIR" \( -name '*.kt' -o -name '*.swift' -o -name '*.plist' -o -name '*.xcscheme' -o -name '*.xcconfig' \
+	-o -name '*.kts' -o -name '*.gradle' -o -name '*.yml' -o -name '*.yaml' -o -name '*.sh' -o -name '*.py' -o -name '*.rb' \))
 
 # Rule 2: literals in the E2E assets must be declared.
 for dir in e2e testkit/e2e .codex iosApp/UITests; do

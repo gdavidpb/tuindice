@@ -151,6 +151,28 @@ class LaunchContractTests(unittest.TestCase):
         self.write("app/src/test/kotlin/Literal.kt", 'val k = "%s"\n' % SEED)
         self.assertPasses()
 
+    def test_a_literal_in_configuration_and_script_files_outside_the_allowed_paths_fails(self):
+        # D-12: rule 1 read only .kt and .swift; the same literal in a plist, a scheme, an xcconfig, a build script, a
+        # workflow or a helper script is also a launch argument written by hand.
+        files = ("iosApp/Resources/Info.plist", "iosApp/TuIndiceHost.xcodeproj/xcshareddata/xcschemes/Host.xcscheme",
+            "iosApp/Config/Debug.xcconfig", "app/build.gradle.kts", "settings.gradle", ".github/workflows/ci.yml",
+            ".github/workflows/ci.yaml", "scripts/helper.sh", "scripts/helper.py", "iosApp/scripts/helper.rb")
+        for path in files:
+            self.write(path, "key = %s\n" % SEED)
+            code, out = self.run_script()
+            self.assertEqual(code, 1, "%s: %s" % (path, out))
+            self.assertIn("FAIL [rule 1]", out)
+            self.assertIn(path, out)
+            os.remove(os.path.join(self.dir, path))
+        self.assertPasses()
+
+    def test_the_allowed_paths_may_carry_the_literal_in_any_file_type(self):
+        # The definition, e2e/ (rule 2 checks it is declared), the iOS UI tests, .codex/ and the script with its tests.
+        for path in ("e2e/scripts/ios/run.sh", "e2e/tools/tests/test_x.py", "iosApp/UITests/Config.plist", ".codex/skills/x/run.sh",
+                "scripts/verify-launch-argument-contract.sh", "app/src/test/resources/x.yml"):
+            self.write(path, "key = %s\n" % SEED)
+        self.assertPasses()
+
     def test_an_undeclared_key_in_a_large_asset_is_not_skipped(self):
         # D-12: a 2 MB cut-off silently skipped files; the real catalog weighs 988 KB and grows.
         self.write("e2e/catalog/big.json", ('{"x":"%s"}\n' % ("a" * 100)) * 25000 + UNDECLARED + "\n")
