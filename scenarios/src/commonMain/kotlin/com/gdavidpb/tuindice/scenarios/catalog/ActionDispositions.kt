@@ -64,6 +64,18 @@ object ActionDispositions {
 			action = "evaluations.Evaluations.EnsureEvaluationsLoaded",
 			reason = "route entry confirms initial evaluations refresh before showing empty"
 		),
+		ActionDisposition.Pending(
+			action = "evaluations.Evaluations.RefreshEvaluations",
+			reason =
+				"its only trigger is the retry button of the failed list, and no scenario drives the " +
+				"evaluations list into that state"
+		),
+		ActionDisposition.Pending(
+			action = "evaluations.Evaluations.SelectWeek",
+			reason =
+				"no scenario taps a week of the strip; the scenarios that scroll the list only do it to " +
+				"reach a card, and none checks which week that leaves selected"
+		),
 		ActionDisposition.Internal(
 			action = "maincore.Browser.NavigateTo",
 			reason = "route effect from link actions"

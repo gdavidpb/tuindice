@@ -57,7 +57,7 @@ private fun StepBuilder.openResultAndGoBack(code: String, detail: String) {
 }
 
 private val subjectsSmoke = scenario("subjects-smoke", "subjects", canonical()) {
-	covers("subjects.SubjectSearch.UpdateQuery", "subjects.SubjectDetail.RefreshSubjectDetail")
+	covers("subjects.SubjectSearch.UpdateQuery")
 	account(E2eAccounts.Canonical.id)
 	tags("smoke")
 
@@ -152,7 +152,6 @@ private val subjectsDetailTabsTooltip = scenario("subjects-detail-tabs-tooltip",
 }
 
 private val subjectsDetailUnavailable = scenario("subjects-detail-unavailable", "subjects", canonical()) {
-	covers("subjects.SubjectDetail.RefreshSubjectDetail")
 	account(E2eAccounts.Canonical.id)
 
 	openPensum()

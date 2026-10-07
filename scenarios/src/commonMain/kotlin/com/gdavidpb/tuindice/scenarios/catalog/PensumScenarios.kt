@@ -61,7 +61,7 @@ private fun StepBuilder.openStatisticsAndGoBack() {
 }
 
 private val pensumSmoke = scenario("pensum-smoke", "pensum", seeded(E2eAccounts.Canonical)) {
-	covers("pensum.Pensum.RefreshPensum", "pensum.Pensum.ToggleSummaryCollapsed")
+	covers("pensum.Pensum.ToggleSummaryCollapsed")
 	account(E2eAccounts.Canonical.id)
 	tags("smoke")
 
@@ -120,7 +120,6 @@ private val pensumSelection = scenario("pensum-selection", "pensum", seeded(E2eA
 }
 
 private val pensumNodeDetail = scenario("pensum-node-detail", "pensum", seeded(E2eAccounts.Canonical)) {
-	covers("subjects.SubjectDetail.SelectSubjectSegmentTab")
 	account(E2eAccounts.Canonical.id)
 
 	openPensum()
@@ -142,7 +141,6 @@ private val pensumDetailNavigation = scenario(
 	"pensum",
 	seeded(E2eAccounts.Canonical)
 ) {
-	covers("pensum.Pensum.RefreshPensum")
 	account(E2eAccounts.Canonical.id)
 
 	openPensum()
@@ -168,7 +166,6 @@ private val pensumRefreshNotFound = scenario(
 	"pensum",
 	seeded(E2eAccounts.PensumNotFound)
 ) {
-	covers("pensum.Pensum.RefreshPensum")
 	account(E2eAccounts.PensumNotFound.id)
 
 	openPensum(BaseUiTags.EmptyViewContainer)
@@ -213,7 +210,6 @@ private val pensumCurrentAbsent = scenario(
 	"pensum",
 	seeded(E2eAccounts.PensumNoCurrent)
 ) {
-	covers("pensum.Pensum.RefreshPensum")
 	account(E2eAccounts.PensumNoCurrent.id)
 
 	openPensum()
@@ -243,7 +239,6 @@ private val pensumEquivalenceFulfilled = scenario(
 	"pensum",
 	seeded(E2eAccounts.PensumEquivalence)
 ) {
-	covers("subjects.SubjectDetail.SelectSubjectSegmentTab")
 	account(E2eAccounts.PensumEquivalence.id)
 
 	openPensum()

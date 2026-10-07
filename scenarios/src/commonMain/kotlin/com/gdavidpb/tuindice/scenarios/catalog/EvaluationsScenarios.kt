@@ -71,12 +71,7 @@ private val evaluationsSmoke = scenario(
 	"evaluations",
 	seeded(E2eAccounts.Canonical)
 ) {
-	// RefreshEvaluations and SelectWeek are the old action catalog's claim for this flow; it never triggered them.
-	covers(
-		"evaluations.Evaluations.AddEvaluation",
-		"evaluations.Evaluations.RefreshEvaluations",
-		"evaluations.Evaluations.SelectWeek"
-	)
+	covers("evaluations.Evaluations.AddEvaluation")
 	account(E2eAccounts.Canonical.id)
 	tags("smoke")
 
