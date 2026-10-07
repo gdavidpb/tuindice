@@ -37,7 +37,7 @@ list_sources() {
 	shift
 
 	find "$base" \
-		\( -name build -o -name Pods -o -name .git -o -name .gradle -o -name graphify-out -o -name node_modules \) -prune \
+		\( -name build -o -name Pods -o -name .git -o -name .gradle -o -name .claude -o -name graphify-out -o -name node_modules \) -prune \
 		-o -type f "$@" -print
 }
 

@@ -121,7 +121,7 @@ while IFS= read -r contract_file; do
 			}
 		}
 	' "${contract_file}"
-done < <(find "${REPO_ROOT}" -path '*/src/commonMain/kotlin/*/presentation/contract/*.kt' -type f | sort) \
+done < <(find "${REPO_ROOT}" -path '*/.claude' -prune -o -path '*/src/commonMain/kotlin/*/presentation/contract/*.kt' -type f -print | sort) \
 	| sort -u > "${mvi_contract_actions}"
 
 awk '
