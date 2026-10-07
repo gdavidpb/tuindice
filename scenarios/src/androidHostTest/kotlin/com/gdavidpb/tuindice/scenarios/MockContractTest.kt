@@ -168,6 +168,8 @@ class MockContractTest {
 			"$SUMMARY_USER-fails-android-first.json" to "\"requiredScenarioState\": \"InitialSyncUnavailable\"",
 			// Order independence: a seeded session asks for the user before it syncs, so the first failure also
 			// starts from the initial state, and a sync that arrives after it is refused too.
+			"$SUMMARY_USER-fails-once-from-start.json" to "\"equalTo\": \"Bearer summary.refresh.retry.mock.access\"",
+			"$SUMMARY_USER-fails-android-first-from-start.json" to "\"equalTo\": \"Bearer summary.refresh.retry.mock.access\"",
 			"$SUMMARY_USER-fails-once-from-start.json" to "\"requiredScenarioState\": \"Started\"",
 			"$SUMMARY_USER-fails-once-from-start.json" to "\"newScenarioState\": \"FailedOnce\"",
 			"$SUMMARY_USER-fails-android-first-from-start.json" to "\"requiredScenarioState\": \"Started\"",

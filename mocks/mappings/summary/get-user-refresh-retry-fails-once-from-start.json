@@ -11,7 +11,7 @@
         "contains": "iOS"
       },
       "Authorization": {
-        "matches": "Bearer .+"
+        "equalTo": "Bearer summary.refresh.retry.mock.access"
       }
     }
   },
