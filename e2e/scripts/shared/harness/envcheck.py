@@ -4,13 +4,21 @@ import json
 import os
 import re
 import subprocess
+import time
 
 from . import manifest as manifest_mod
 from . import toolchain
 from .config import PLATFORMS, EnvironmentRefused
 
 # Provisional thresholds; revise from `e2e-profile.py --compare`.
-LOAD_WARN, LOAD_REFUSE = 0.50, 1.00  # load1 / ncpu
+LOAD_WARN = 0.50  # load1 / ncpu: informational only. macOS counts threads that wake for an instant, so it overstates contention.
+# Host CPU, measured as the idle percentage over a short window (`top -l 2 -n 0 -s 1`, about 1.6 s). Every CPU number is here.
+LOAD_MEASURE_RATIO = 1.0  # per-scenario gate: below this load1/ncpu the CPU is not even measured
+CPU_IDLE_WAIT_BELOW, CPU_IDLE_WAIT_UNTIL = 20, 35  # per-scenario gate: wait when idle < 20 % and until it reaches 35 %
+LOAD_WAIT_PER_SCENARIO_SECONDS, LOAD_WAIT_PER_RUN_SECONDS = 300, 900
+CPU_IDLE_WARN, CPU_IDLE_REFUSE = 35, 15  # env check: refusal needs both samples below CPU_IDLE_REFUSE
+CPU_RESAMPLE_SECONDS = 5  # gap before the second sample that confirms a low reading
+PARALLEL_MIN_CPU_IDLE = 50
 DISK_WARN_GB, DISK_REFUSE_GB = 40, 15
 UPTIME_WARN_DAYS = 14
 MEMORY_WARN_GB = 8
@@ -20,8 +28,9 @@ TOP_PROCESSES = 5
 
 # id, measure, warns, refuses (None: never refuses), limits text.
 CHECKS = (
-    ("load", lambda m: m["load"], lambda v: v >= LOAD_WARN, lambda v: v >= LOAD_REFUSE,
-        "load1/ncpu: warn >= %.2f, refuse >= %.2f" % (LOAD_WARN, LOAD_REFUSE)),
+    ("load", lambda m: m["load"], lambda v: v >= LOAD_WARN, None, "load1/ncpu: warn >= %.2f, informational" % LOAD_WARN),
+    ("cpu", lambda m: m["cpuIdle"], lambda v: v < CPU_IDLE_WARN, lambda v: v < CPU_IDLE_REFUSE,
+        "CPU idle %%: warn < %d, refuse < %d in two samples" % (CPU_IDLE_WARN, CPU_IDLE_REFUSE)),
     ("disk", lambda m: m["diskFreeGb"], lambda v: v < DISK_WARN_GB, lambda v: v < DISK_REFUSE_GB,
         "free GB: warn < %d, refuse < %d" % (DISK_WARN_GB, DISK_REFUSE_GB)),
     ("uptime", lambda m: m["uptimeDays"], lambda v: v >= UPTIME_WARN_DAYS, None, "days up: warn >= %d" % UPTIME_WARN_DAYS),
@@ -38,6 +47,17 @@ def _output(argv):
             timeout=30).stdout
     except (OSError, subprocess.SubprocessError):
         return ""
+
+
+def cpu_idle(cfg, sample=0):
+    """Idle CPU percent over the last second, or None when it cannot be read. With E2E_FAKE_HOST_METRICS set,
+    `cpuIdle` is a number or a list indexed by `sample`; nothing is probed."""
+    fake = manifest_mod.fake_metrics(cfg)
+    if fake:
+        value = fake["cpuIdle"]
+        return float(value[min(sample, len(value) - 1)] if isinstance(value, list) else value)
+    found = re.findall(r"CPU usage:.*?([\d.]+)% idle", _output(["top", "-l", "2", "-n", "0", "-s", "1"]))
+    return float(found[-1]) if found else None  # the second report covers the interval; the first is since boot
 
 
 def _process_table():
@@ -88,6 +108,14 @@ def measure(cfg, platforms=PLATFORMS, devices=True):
     ratio = load[0] / host["ncpu"]
     result = {"loadAvg": load, "ncpu": host["ncpu"], "load": ratio, "diskFreeGb": host["diskFreeGb"],
         "uptimeDays": host["uptimeDays"], "memTotalGb": host["memGb"]}
+    idle = cpu_idle(cfg)
+    result["cpuSamples"] = [idle]
+    if idle is not None and idle < CPU_IDLE_REFUSE:  # confirm with a second sample so that a burst cannot refuse
+        if not manifest_mod.fake_metrics(cfg):
+            time.sleep(CPU_RESAMPLE_SECONDS)
+        result["cpuSamples"].append(cpu_idle(cfg, 1))
+    known = [v for v in result["cpuSamples"] if v is not None]
+    result["cpuIdle"] = max(known) if known else None
     fake = manifest_mod.fake_metrics(cfg)
     if fake:
         result.update({key: fake[key] for key in ("memAvailableGb", "procs", "daemons", "foreignDevices")})
@@ -163,8 +191,8 @@ def main(cfg, args):
     from . import parallel
     measures = measure(cfg)
     rows = evaluate(measures, True, cfg.env_override)
-    host, load = manifest_mod.collect_host(cfg)
-    decision, reason = parallel.decide(cfg, host, load)
+    host, _load = manifest_mod.collect_host(cfg)
+    decision, reason = parallel.decide(cfg, host, measures["cpuIdle"])
     if args.json:
         print(json.dumps({"checks": rows, "measures": measures, "parallel": {"decision": decision, "reason": reason}},
             indent=2, sort_keys=True))

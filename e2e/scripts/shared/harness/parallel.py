@@ -18,28 +18,27 @@ from .report import Log
 
 # Provisional; revise from `e2e-profile.py --compare`.
 PARALLEL_MIN_CPUS = 8
-PARALLEL_MAX_LOAD_RATIO = envcheck.LOAD_WARN
 PARALLEL_MIN_MEMORY_GB = 32
 CHILD_FINALISE_SECONDS = 60
 
 
-def decide(cfg, host, load):
-    """("parallel"|"sequential", reason) for the platforms of one invocation."""
+def decide(cfg, host, cpu_idle):
+    """("parallel"|"sequential", reason) for the platforms of one invocation; `cpu_idle` is the measured percent."""
     if cfg.parallel == "never":
         return "sequential", "E2E_PARALLEL=never"
     if cfg.parallel == "always":
         return "parallel", "E2E_PARALLEL=always overrides the policy"
-    ratio, memory = load[0] / host["ncpu"], host["memGb"]
+    memory = host["memGb"]
     blockers = []
     if host["ncpu"] < PARALLEL_MIN_CPUS:
         blockers.append("ncpu=%d < %d" % (host["ncpu"], PARALLEL_MIN_CPUS))
-    if ratio >= PARALLEL_MAX_LOAD_RATIO:
-        blockers.append("load1/ncpu=%.2f >= %.2f" % (ratio, PARALLEL_MAX_LOAD_RATIO))
+    if cpu_idle is None or cpu_idle < envcheck.PARALLEL_MIN_CPU_IDLE:
+        blockers.append("CPU idle=%s%% < %d%%" % ("unmeasured" if cpu_idle is None else "%.0f" % cpu_idle, envcheck.PARALLEL_MIN_CPU_IDLE))
     if memory is None or memory < PARALLEL_MIN_MEMORY_GB:
         blockers.append("memory=%s GB < %d GB" % (memory, PARALLEL_MIN_MEMORY_GB))
     if blockers:
         return "sequential", "; ".join(blockers)
-    return "parallel", "ncpu=%d, load1/ncpu=%.2f, memory=%d GB" % (host["ncpu"], ratio, memory)
+    return "parallel", "ncpu=%d, CPU idle=%.0f%%, memory=%d GB" % (host["ncpu"], cpu_idle, memory)
 
 
 def sequence(platforms, failed):
@@ -101,8 +100,8 @@ def _write_summary(cfg, run_dir, run_id, args, decision, reason, order, codes):
 
 def run_all(cfg, platforms, args, options, failed, combine):
     """Runs the platforms; one failing never cancels the other. Returns the combined exit code."""
-    host, load = collect_host(cfg)
-    decision, reason = decide(cfg, host, load)
+    host, _load = collect_host(cfg)
+    decision, reason = decide(cfg, host, envcheck.cpu_idle(cfg) if cfg.parallel == "auto" else None)
     order = sequence(platforms, failed)
     log = Log("all")
     log.say("%s: %s; %s" % (decision, reason, "both at once" if decision == "parallel" else "order " + ", ".join(order)))

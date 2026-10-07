@@ -44,6 +44,9 @@ These are the only measurements this runbook relies on. Each says where it came 
   a final `load1` of 12.9 or more on 10 cores, while iOS passed 80 of 80 with host load up to 54. With a 4-core
   emulator the emulator's own load reached 12-13; with 8 cores and 16 GB it stayed at 2-5. One real source of load
   peaks was another session running `pytest -n auto`.
+- Same host, emulator and simulator running scenarios together (October 2026): `load1` was 7.7 (0.77 per core)
+  while `top` showed 53 % of the CPU idle, and a parallel probe waited on load 37 times with the machine half free.
+  The load average overstates contention there; only the `pytest -n auto` session brought the idle CPU near zero.
 
 ## 2. Before paying for evidence
 
@@ -168,12 +171,13 @@ the class, the helper output, and what you tried. State that you are not trying 
 ## 6. Environment, toolchain and long branches
 
 `./gradlew e2eEnvCheck` (or `e2e.py env-check [--json]`) measures the host with the thresholds below, which are
-provisional until compared against `e2e-profile.py --compare` data. Evidence is refused (exit 3) only on `load` and
-`disk`; everything else warns. All of it is recorded in the manifest.
+provisional until compared against `e2e-profile.py --compare` data. Evidence is refused (exit 3) only on `cpu` and
+`disk`; everything else warns. `E2E_ENV_OVERRIDE` accepts only those two ids. All of it is recorded in the manifest.
 
 | Check | Measure | Warn | Refuse (evidence only) |
 |---|---|---|---|
-| `load` | `load1 / ncpu` | 0.50 or more | 1.00 or more |
+| `load` | `load1 / ncpu` (informational) | 0.50 or more | never |
+| `cpu` | idle CPU % (`top`, 1 s window); a reading under 15 is confirmed by a second sample 5 s later | under 35 | under 15 in both samples |
 | `disk` | free GB | under 40 | under 15 |
 | `uptime` | days up | 14 or more | never |
 | `memory` | available GB | under 8 | never |
@@ -181,11 +185,14 @@ provisional until compared against `e2e-profile.py --compare` data. Evidence is 
 | `daemons` | Gradle and Kotlin daemons | more than 3 | never |
 | `foreign_device` | other emulator or simulator running | any | never |
 
-- **Parallel or sequential** is decided by the harness: parallel only with `ncpu >= 8`, `load1/ncpu < 0.50` and
+- **Parallel or sequential** is decided by the harness: parallel only with `ncpu >= 8`, idle CPU of 50 % or more and
   memory of 32 GB or more; otherwise sequential. The decision and its reason are in the manifest. The skill sets no
   policy; do not choose it.
-- **Before each scenario** the harness waits for `load1/ncpu` to fall from 1.0 to 0.8 (at most 300 s per scenario,
-  900 s per run), and the Android adapter checks the device's own load (`health`, limit 6.0).
+- **Before each scenario** the harness measures the idle CPU when `load1/ncpu` is 1.0 or more, and waits only if it
+  is under 20 %, until it reaches 35 % (at most 300 s per scenario, 900 s per run); the Android adapter checks the
+  device's own load (`health`, limit 6.0). The waits and the idle CPU are recorded per attempt in the manifest.
+- **`--platform all`** prepares one platform at a time (device, build, install, under a host lock); scenarios still
+  run in parallel. The wait for the lock is in the manifest (`prepareLock`).
 - **Devices.** Android: the AVD of `e2e/toolchain/android.lock` as an 8-core, 16 GB emulator without a window,
   started with no snapshot. iOS: the dedicated simulator `TuIndice-E2E`, created from `e2e/toolchain/ios.lock`.
   A booted device is not rebooted. Reboot exists only as the recovery after an environment failure, once per run.

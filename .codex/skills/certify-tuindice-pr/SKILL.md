@@ -94,8 +94,9 @@ are not trying again.
 
 ## Host load
 
-The harness measures load, disk, uptime, memory, competing processes and foreign devices, decides parallel or
-sequential from those numbers, and records them in the manifest. Do not record `uptime` by hand, do not infer load
+The harness measures free CPU (not just the load average), the emulator's own load, disk, uptime, memory, competing
+processes and foreign devices, waits or refuses from those numbers, decides parallel or sequential, and records
+them in the manifest. Do not record `uptime` by hand, do not infer load
 from symptoms, and do not choose the mode. A typed-text mismatch is never load.
 
 ## Long branches

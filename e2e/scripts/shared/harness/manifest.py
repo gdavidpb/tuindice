@@ -27,12 +27,13 @@ def _sysctl(name):
 
 
 FAKE_HOST_DEFAULTS = {"diskFreeGb": 500.0, "uptimeDays": 1.0, "memGb": 64, "memAvailableGb": 64.0, "procs": [],
-    "daemons": 0, "foreignDevices": []}
+    "daemons": 0, "foreignDevices": [], "cpuIdle": 80.0}
 
 
 def fake_metrics(config):
     """E2E_FAKE_HOST_METRICS is a JSON file re-read on every call: {"load": [...], "ncpu": n} plus optional
-    diskFreeGb, uptimeDays, memGb, memAvailableGb, procs, daemons, foreignDevices (healthy defaults).
+    diskFreeGb, uptimeDays, memGb, memAvailableGb, procs, daemons, foreignDevices, cpuIdle (healthy defaults; cpuIdle
+    is a number or a list of successive samples).
     None when the seam is unset; with it set nothing about the host is probed."""
     path = config.seam("E2E_FAKE_HOST_METRICS")
     if not path:
@@ -96,7 +97,8 @@ class Manifest:
                 "reason": "single platform"},
             "overrides": {"env": list(config.env_override), "parallel": None if config.parallel == "auto" else config.parallel,
                 "scenarioResets": []},
-            "host": host, "load": {"start": load, "end": load, "max1m": load[0], "samples": []},
+            "host": host, "load": {"start": load, "end": load, "max1m": load[0], "samples": [], "waitSeconds": 0.0},
+            "prepareLock": {"waitSeconds": 0.0, "waitedFor": None},
             "competingProcesses": {"start": [], "end": [], "atFailures": []},
             "envCheck": [], "toolchain": {"lockFile": None, "lockMatches": None, "actual": {}, "informational": {}, "libs": {}},
             "device": {}, "appVersion": {}, "wiremock": {"port": config.ports[platform], "delayProfile": config.delay_profile},

@@ -13,9 +13,12 @@ import support
 from support import FP_A, Workspace, scenario, text
 
 
-def write_metrics(path, load):
+def write_metrics(path, load, idle=80.0):
     with open(path, "w") as handle:
-        json.dump({"load": load, "ncpu": 4}, handle)
+        json.dump({"load": load, "ncpu": 4, "cpuIdle": idle}, handle)
+
+
+BUSY = [40.0, 30.0, 20.0]  # load1/ncpu = 10
 
 
 def three(timeout=30):
@@ -217,15 +220,68 @@ class BudgetAndProcessTests(unittest.TestCase):
         self.assertEqual(twice.evidence().code, 5)
         self.assertEqual(len(twice.ledger()["scenarios"]["fix-a"]["attempts"]), 2)
 
-    def test_the_run_waits_for_the_load_to_drop(self):
+    def test_a_high_load_average_with_an_idle_cpu_does_not_wait_and_the_cpu_is_recorded(self):
         ws = Workspace(self, [scenario("fix-a")])
-        write_metrics(ws.metrics, [40.0, 30.0, 20.0])
-        threading.Timer(1.0, write_metrics, (ws.metrics, [0.5, 1.0, 1.0])).start()
-        result = ws.evidence(E2E_FAKE_LOAD_POLL_SECONDS="0.2", E2E_ENV_OVERRIDE="load")
+        write_metrics(ws.metrics, BUSY, 70.0)
+        result = ws.evidence()
         self.assertEqual(result.code, 0, result.out)
-        self.assertIn("LOAD  load1/ncpu is 10.00; waiting for it to drop below 0.8", result.out)
-        self.assertGreater(ws.ledger()["scenarios"]["fix-a"]["attempts"][0]["loadWaitSeconds"], 0)
-        self.assertGreaterEqual(ws.manifest()["load"]["max1m"], 40.0)
+        self.assertNotIn("LOAD ", result.out)
+        attempt = ws.ledger()["scenarios"]["fix-a"]["attempts"][0]
+        self.assertEqual((attempt["loadWaitSeconds"], attempt["cpuIdle"]), (0, 70.0))
+        manifest = ws.manifest()
+        self.assertEqual(manifest["load"]["waitSeconds"], 0)
+        self.assertEqual((manifest["attempts"][0]["cpuIdle"], manifest["attempts"][0]["load1"]), (70.0, 40.0))
+        self.assertIn("deviceLoad1", manifest["attempts"][0])
+
+    def test_the_cpu_is_not_measured_below_the_load_threshold(self):
+        ws = Workspace(self, [scenario("fix-a")])
+        write_metrics(ws.metrics, [0.5, 0.5, 0.5], 5.0)
+        result = ws.diagnose("ios")
+        self.assertEqual(result.code, 0, result.out)
+        self.assertNotIn("LOAD ", result.out)
+        self.assertIsNone(ws.manifest()["attempts"][0]["cpuIdle"])
+
+    def test_the_run_waits_while_the_cpu_is_busy_and_resumes_at_35_percent(self):
+        ws = Workspace(self, [scenario("fix-a")])
+        write_metrics(ws.metrics, BUSY, 10.0)
+
+        def recover():  # starts once the run reports that it waits, so process start-up cannot shift the timeline
+            deadline = time.monotonic() + 60
+            while time.monotonic() < deadline and not any("LOAD " in support.text(os.path.join(d, "run.log")) for d in ws.run_dirs()
+                    if os.path.exists(os.path.join(d, "run.log"))):
+                time.sleep(0.05)
+            write_metrics(ws.metrics, BUSY, 34.0)  # still short of 35: keeps waiting
+            time.sleep(1.5)
+            write_metrics(ws.metrics, BUSY, 35.0)
+
+        threading.Thread(target=recover, daemon=True).start()
+        result = ws.evidence(E2E_FAKE_LOAD_POLL_SECONDS="0.2", E2E_ENV_OVERRIDE="cpu")
+        self.assertEqual(result.code, 0, result.out)
+        self.assertIn("LOAD  load1/ncpu is 10.00 and the CPU is 10% idle; waiting for 35% idle", result.out)
+        attempt = ws.ledger()["scenarios"]["fix-a"]["attempts"][0]
+        self.assertGreaterEqual(attempt["loadWaitSeconds"], 1.4)
+        self.assertEqual(attempt["cpuIdle"], 35.0)
+        manifest = ws.manifest()
+        self.assertGreaterEqual(manifest["load"]["waitSeconds"], 1.4)
+        self.assertGreaterEqual(manifest["load"]["max1m"], 40.0)
+
+    def test_a_cpu_at_20_percent_does_not_start_a_wait(self):
+        ws = Workspace(self, [scenario("fix-a")])
+        write_metrics(ws.metrics, BUSY, 20.0)
+        result = ws.evidence(E2E_ENV_OVERRIDE="cpu")
+        self.assertEqual(result.code, 0, result.out)
+        self.assertNotIn("LOAD ", result.out)
+
+    def test_the_wait_is_capped_per_scenario_and_per_run(self):
+        ws = Workspace(self, three())
+        write_metrics(ws.metrics, BUSY, 10.0)
+        result = ws.evidence(E2E_FAKE_LOAD_POLL_SECONDS="0.2", E2E_ENV_OVERRIDE="cpu", E2E_FAKE_LOAD_WAIT_CAPS="1,1.5")
+        self.assertEqual(result.code, 0, result.out)
+        waits = [a["loadWaitSeconds"] for a in ws.manifest()["attempts"]]
+        self.assertGreaterEqual(waits[0], 1.0)  # the per-scenario cap ends the first wait
+        self.assertLess(waits[1], waits[0] + 0.01)  # the run cap cuts the second short
+        self.assertEqual(waits[2], 0)  # the run cap is spent
+        self.assertLess(sum(waits), 2.5)
 
     def test_enumeration_must_match_exactly_one_test_per_scenario(self):
         ws = Workspace(self, three(), {"enumerate": {"missing": ["fix-a"], "duplicate": ["fix-b", "fix-b"]}})

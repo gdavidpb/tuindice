@@ -10,6 +10,7 @@ The script maps scenario ids ("<platform>:<id>" wins over "<id>") to one behavio
 attempt; the last one repeats. A behaviour is a string or {"do": ..., "journal": ...}:
 pass, fail:assertion, fail:typed, fail:driver, fail:app-not-running, fail:app-not-running-late,
 fail:dialog, hang, crash, no-result, disagree, zero-tests, env, system-anr, wiremock-down.
+`slow` maps "<platform>:<verb>" to seconds slept after the call is logged; `failVerbs` lists the "<platform>:<verb>" that exit 1.
 """
 
 import json
@@ -113,6 +114,11 @@ def main(argv):
     with open(os.environ["E2E_FAKE_CALL_LOG"], "a") as log:
         log.write(" ".join([platform, verb] + args) + "\n")
     script = load_script()
+    key = "%s:%s" % (platform, verb)
+    time.sleep(script.get("slow", {}).get(key, 0))
+    if key in script.get("failVerbs", []):
+        sys.stderr.write("fake %s failed\n" % key)
+        sys.exit(1)
     scenario = os.environ.get("E2E_CURRENT_SCENARIO", "")
     wiremock = os.environ.get("E2E_FAKE_WIREMOCK_DIR")
     if verb == "health":

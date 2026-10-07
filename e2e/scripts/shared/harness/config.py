@@ -11,7 +11,7 @@ SUITE_ID = "local-certification-suite"
 MODES = ("evidence", "diagnose")
 
 # The only env-check ids that can refuse a run, hence the only ones E2E_ENV_OVERRIDE accepts.
-REFUSABLE_CHECKS = ("load", "disk")
+REFUSABLE_CHECKS = ("cpu", "disk")
 
 # Time the runner needs besides the scenario's own timeout (build of the test
 # process, xcodebuild start-up), added to the kill deadline.

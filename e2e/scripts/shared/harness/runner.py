@@ -7,22 +7,17 @@ import shutil
 import subprocess
 import sys
 import time
+from contextlib import nullcontext
 from pathlib import Path
 
 from . import catalog as catalog_mod
 from . import classify as cl
-from . import envcheck, junit, proc, publish, report, toolchain
+from . import envcheck, hostlock, junit, proc, publish, report, toolchain
 from .config import SUITE_ID, VERB_TIMEOUTS, EnvironmentRefused, UsageError
 from .gitstate import GitState
 from .ledger import Ledger, now
 from .manifest import Manifest, make_run_dir, read_load
 from .wiremock import WireMock
-
-# Host load gate before each scenario: wait from START down to END (load1 / ncpu).
-LOAD_WAIT_START_RATIO = 1.0
-LOAD_WAIT_END_RATIO = 0.8
-LOAD_WAIT_PER_SCENARIO_SECONDS = 300
-LOAD_WAIT_PER_RUN_SECONDS = 900
 
 # Step 10 of the run: e2e/tools/e2e-retention.py trims what earlier runs left. It lives outside e2e/scripts, so it is
 # not part of the evidence fingerprint; E2E_RETENTION_CMD replaces it in tests.
@@ -278,23 +273,26 @@ class PlatformRun:
             with m.phase("env-check" if name == "env_check" else name):
                 if HOOKS[name]:
                     HOOKS[name](self)
-        with m.phase("device"):
-            result = adapter.call("ensure-device")
-            if not result.ok:
-                raise EnvironmentRefused("ensure-device failed: %s" % (result.stderr.strip()[-300:] or result.returncode))
-            m.update(device=result.json)
-            self.device_booted = bool(result.json.get("bootedByHarness"))
-        with m.phase("wiremock"):
-            self.wiremock = WireMock(cfg, self.platform, self.run_dir)
-            self.wiremock.start()
-            m.data["wiremock"]["log"] = "wiremock.log"
-        with m.phase("build"):
-            result = adapter.call("build", cfg.ports[self.platform])
-            if not result.ok:
-                raise StopRun("failed", 1, "build failed: %s" % result.stderr.strip()[-300:])
-        with m.phase("install"):
-            if not adapter.call("install").ok:
-                raise EnvironmentRefused("install failed")
+        lock = hostlock.prepare_lock(cfg, self.platform, self.run_id, self.log.say, m.data["prepareLock"].update) \
+            if self.opts.child_of else nullcontext()  # `--platform all`: one platform prepares its device at a time
+        with lock:
+            with m.phase("device"):
+                result = adapter.call("ensure-device")
+                if not result.ok:
+                    raise EnvironmentRefused("ensure-device failed: %s" % (result.stderr.strip()[-300:] or result.returncode))
+                m.update(device=result.json)
+                self.device_booted = bool(result.json.get("bootedByHarness"))
+            with m.phase("wiremock"):
+                self.wiremock = WireMock(cfg, self.platform, self.run_dir)
+                self.wiremock.start()
+                m.data["wiremock"]["log"] = "wiremock.log"
+            with m.phase("build"):
+                result = adapter.call("build", cfg.ports[self.platform])
+                if not result.ok:
+                    raise StopRun("failed", 1, "build failed: %s" % result.stderr.strip()[-300:])
+            with m.phase("install"):
+                if not adapter.call("install").ok:
+                    raise EnvironmentRefused("install failed")
         with m.phase("enumerate"):
             result = adapter.call("enumerate")
             if not result.ok:
@@ -333,40 +331,51 @@ class PlatformRun:
             raise StopRun("budget_exhausted", 4, text, scenario.id)
 
     def _wait_for_load(self):
+        """The host gate before a scenario, in two steps: load1/ncpu is the cheap filter and the CPU is measured only
+        above it; the run waits only while the CPU is busy. Returns (seconds waited, CPU idle percent if measured)."""
         cfg, m = self.cfg, self.manifest
         load, ncpu = read_load(cfg)
         m.sample_load(load)
-        if load[0] / ncpu < LOAD_WAIT_START_RATIO:
-            return 0
+        if load[0] / ncpu < envcheck.LOAD_MEASURE_RATIO:
+            return 0, None
+        idle = envcheck.cpu_idle(cfg)
+        if idle is None or idle >= envcheck.CPU_IDLE_WAIT_BELOW:
+            return 0, idle
         poll = float(cfg.seam("E2E_FAKE_LOAD_POLL_SECONDS") or 10)
+        per_scenario, per_run = (float(v) for v in (cfg.seam("E2E_FAKE_LOAD_WAIT_CAPS") or "%d,%d" % (
+            envcheck.LOAD_WAIT_PER_SCENARIO_SECONDS, envcheck.LOAD_WAIT_PER_RUN_SECONDS)).split(","))
         began = time.monotonic()
-        self.log.say("LOAD  load1/ncpu is %.2f; waiting for it to drop below %.1f" % (load[0] / ncpu, LOAD_WAIT_END_RATIO))
-        while load[0] / ncpu >= LOAD_WAIT_END_RATIO:
+        self.log.say("LOAD  load1/ncpu is %.2f and the CPU is %.0f%% idle; waiting for %d%% idle"
+            % (load[0] / ncpu, idle, envcheck.CPU_IDLE_WAIT_UNTIL))
+        while idle is not None and idle < envcheck.CPU_IDLE_WAIT_UNTIL:
             waited = time.monotonic() - began
-            if waited >= LOAD_WAIT_PER_SCENARIO_SECONDS or self.load_waited + waited >= LOAD_WAIT_PER_RUN_SECONDS:
+            if waited >= per_scenario or self.load_waited + waited >= per_run:
                 break
             time.sleep(poll)
             load, ncpu = read_load(cfg)
             m.sample_load(load)
+            idle = envcheck.cpu_idle(cfg)
         waited = time.monotonic() - began
         self.load_waited += waited
-        return round(waited, 1)
+        m.data["load"]["waitSeconds"] = round(self.load_waited, 1)
+        return round(waited, 1), idle
 
     def _scenario(self, scenario, index, total):
         cap, ledger, log = self.cfg.attempt_cap, self.ledger, self.log
         while True:
             self._budget_check(scenario)
-            waited = self._wait_for_load()
+            waited, idle = self._wait_for_load()
             before = ledger.counted(scenario.id)
             allowed = len(before) + 1 if self.opts.survey else ledger.allowance(scenario.id, cap)
             log.start(index, total, scenario, len(before) + 1, allowed)
             attempt, verdict = self._attempt(scenario)
-            attempt["loadWaitSeconds"] = waited
+            attempt.update(loadWaitSeconds=waited, cpuIdle=idle)
             ledger.record_attempt(scenario.id, attempt, cap)
             ledger.save()
             self.manifest.data["attempts"].append({"scenario": scenario.id, "n": attempt["n"], "outcome": attempt["outcome"],
                 "failureClass": attempt["failureClass"], "durationMs": attempt["durationMs"],
-                "runnerDurationMs": attempt["runnerDurationMs"], "loadWaitSeconds": waited})
+                "runnerDurationMs": attempt["runnerDurationMs"], "loadWaitSeconds": waited, "load1": attempt["load"]["start"][0],
+                "cpuIdle": idle, "deviceLoad1": attempt["deviceLoad1"]})
             self.executed.add(scenario.id)
             self.manifest.write()
             seconds = attempt["durationMs"] / 1000.0
@@ -454,7 +463,7 @@ class PlatformRun:
             "durationMs": int((time.monotonic() - began) * 1000), "runnerDurationMs": runner_ms,
             "outcome": "passed" if verdict.passed else "failed", "failureClass": verdict.klass,
             "failureSummary": verdict.summary, "countsAgainstCap": verdict.klass != cl.ENVIRONMENT,
-            "load": {"start": load_start, "end": read_load(cfg)[0]}, "loadWaitSeconds": 0,
+            "load": {"start": load_start, "end": read_load(cfg)[0]}, "loadWaitSeconds": 0, "cpuIdle": None,
             "deviceLoad1": self.device_health.get("deviceLoad1"),
             "deviceLoadWaitSeconds": self.device_health.get("loadWaitSeconds"),
             "artifacts": os.path.relpath(adir, str(cfg.root)) if adir.startswith(str(cfg.root)) else adir,
