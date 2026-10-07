@@ -8,11 +8,14 @@ import com.gdavidpb.tuindice.scenariokit.model.Query
 import com.gdavidpb.tuindice.scenariokit.model.Scroll
 import com.gdavidpb.tuindice.scenariokit.model.Step
 import com.gdavidpb.tuindice.scenariokit.model.describe
+import kotlin.math.abs
 
 /**
  * Scrolls until the target is visible and either sits comfortably inside the screen (centre between
  * 15 % and 80 % along the scrolling axis) or one more scroll no longer moves it: the end of the
- * content, or an element that does not belong to the scrolling content (a floating button).
+ * content, or an element that does not belong to the scrolling content (a floating button). "Moves" is
+ * counted past [STILL_TOLERANCE] of the screen along the axis: a list at its end still bounces a few
+ * points under a swipe (iOS rubber band), while a real scroll moves the element by a third of the screen.
  */
 internal class ScrollEngine(private val driver: ScenarioDriver, private val poller: Poller) {
 	fun execute(step: Step.ScrollUntilVisible): StepResult {
@@ -50,12 +53,19 @@ internal class ScrollEngine(private val driver: ScenarioDriver, private val poll
 			!driver.isVisible(q) -> Placement.HIDDEN
 			bounds == null || screen == null -> Placement.SETTLED
 			isCentered(bounds, screen, direction) -> Placement.SETTLED
-			bounds == previous -> Placement.SETTLED
+			previous != null && screen != null && isStill(previous, bounds, screen, direction) -> Placement.SETTLED
 			else -> Placement.OFF_CENTER
 		}
 	}
 
 	private enum class Placement { HIDDEN, OFF_CENTER, SETTLED }
+
+	private fun isStill(before: ElementBounds, now: ElementBounds, screen: ElementBounds, direction: Scroll): Boolean {
+		val vertical = direction == Scroll.ContentDown || direction == Scroll.ContentUp
+		val moved = if (vertical) now.centerY - before.centerY else now.centerX - before.centerX
+		val extent = if (vertical) screen.bottom - screen.top else screen.right - screen.left
+		return abs(moved) <= extent * STILL_TOLERANCE
+	}
 
 	private fun isCentered(bounds: ElementBounds, screen: ElementBounds, direction: Scroll): Boolean {
 		val vertical = direction == Scroll.ContentDown || direction == Scroll.ContentUp
@@ -76,6 +86,7 @@ internal class ScrollEngine(private val driver: ScenarioDriver, private val poll
 		driver.swipe(null, SwipeVector(fx, fy, dx, dy), SWIPE_MS)
 
 	private companion object {
+		const val STILL_TOLERANCE = 0.03
 		const val VIEW_MIN = 0.15
 		const val VIEW_MAX = 0.80
 		const val MID = 0.5

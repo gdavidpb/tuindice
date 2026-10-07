@@ -252,6 +252,20 @@ class StepKindsTest {
 	}
 
 	@Test
+	fun scrollUntilVisible_passesWhenTheListBouncesAFewPointsAtItsEnd() {
+		val fake = driver(button to FakeElement(bounds = FakeElement.NEAR_BOTTOM))
+		fake.onSwipe = { count ->
+			val bounce = if (count % 2 == 0) 20 else -20
+			val current = fake.screen.getValue(button).bounds
+			fake.screen.getValue(button).bounds =
+				ElementBounds(current.left, current.top + bounce, current.right, current.bottom + bounce)
+		}
+
+		assertPassed(fake.run(Step.ScrollUntilVisible(button, Scroll.ContentDown, 20_000)))
+		assertTrue(fake.swipes in 1..3, "swipes were ${fake.swipes}")
+	}
+
+	@Test
 	fun scrollUntilVisible_passesForAFixedElementJustOutsideTheComfortZone() {
 		val fixed = ElementBounds(450.0, 1560.0, 550.0, 1670.0)
 		val fake = driver(button to FakeElement(bounds = fixed))
@@ -267,7 +281,7 @@ class StepKindsTest {
 			if (count <= 2) {
 				val current = fake.screen.getValue(button).bounds
 				fake.screen.getValue(button).bounds =
-					ElementBounds(current.left, current.top - 40, current.right, current.bottom - 40)
+					ElementBounds(current.left, current.top - 100, current.right, current.bottom - 100)
 			}
 		}
 
@@ -277,7 +291,13 @@ class StepKindsTest {
 
 	@Test
 	fun scrollUntilVisible_doesNotAcceptAnElementThatKeepsMovingNearTheEdge() {
-		val fake = driver(button to FakeElement(bounds = FakeElement.NEAR_BOTTOM, drift = 3.0))
+		val fake = driver(button to FakeElement(bounds = FakeElement.NEAR_BOTTOM))
+		fake.onSwipe = { count ->
+			val shift = if (count % 2 == 0) 150 else -150
+			val current = fake.screen.getValue(button).bounds
+			fake.screen.getValue(button).bounds =
+				ElementBounds(current.left, current.top + shift, current.right, current.bottom + shift)
+		}
 
 		assertFailed(fake.run(Step.ScrollUntilVisible(button, Scroll.ContentDown, 2_000)), FailureKind.STEP_TIMEOUT)
 		assertTrue(fake.swipes in 1..20, "swipes were ${fake.swipes}")
