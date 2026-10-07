@@ -29,7 +29,8 @@ class LayoutTests(unittest.TestCase):
         self.assertEqual(header.group(1), self.layout["E2E_FINGERPRINT_VERSION"])
 
     def test_evidence_tasks_wait_for_fresh_artifacts_and_every_task_derives_its_timeout_from_the_budget(self):
-        build = open(os.path.join(ROOT, "build.gradle.kts")).read()
+        with open(os.path.join(ROOT, "gradle", "e2e-tasks.gradle.kts")) as script:
+            build = script.read()
         register = build[build.index("private fun registerE2eRun"):build.index("registerE2eRun(\n")]
         self.assertRegex(register, r'if \(mode == "evidence"\) \{\s*dependsOn\("verifyE2eArtifactsFresh"\)')
         calls = re.findall(r'registerE2eRun\(\s*"(\w+)".*?\n\)', build, re.S)
