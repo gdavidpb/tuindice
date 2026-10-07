@@ -89,6 +89,22 @@ class DslTest {
 	}
 
 	@Test
+	fun conditionalBlocks_acceptAnyQueryKind() {
+		val built = scenario("a-b", "a", start) {
+			ifVisible(Query.System("Cancel"), within = 2.seconds) { tap(Query.System("Cancel")) }
+			ifGone(Query.Text("Cargando")) { back() }
+		}
+
+		val (visible, gone) = built.steps
+		assertIs<Step.IfVisible>(visible)
+		assertIs<Step.IfGone>(gone)
+		assertEquals(Query.System("Cancel"), visible.q)
+		assertEquals(2_000L, visible.withinMs)
+		assertEquals(Query.Text("Cargando"), gone.q)
+		assertEquals(1_500L, gone.withinMs)
+	}
+
+	@Test
 	fun retry_rejectsMoreThanThreeAttemptsAndMissingReasons() {
 		assertFailsWith<IllegalArgumentException> { scenario("a-b", "a", start) { retry(4, "why") { back() } } }
 		assertFailsWith<IllegalArgumentException> { scenario("a-b", "a", start) { retry(0, "why") { back() } } }

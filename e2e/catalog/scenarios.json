@@ -11,12 +11,273 @@
         },
         {
             "accessToken": null,
+            "id": "canonical-email",
+            "mockScenario": null,
+            "password": "123456",
+            "refreshToken": null,
+            "sessionId": null,
+            "usbId": "mail@usb.ve"
+        },
+        {
+            "accessToken": null,
+            "id": "invalid",
+            "mockScenario": null,
+            "password": "bad-password",
+            "refreshToken": null,
+            "sessionId": null,
+            "usbId": "00-00000"
+        },
+        {
+            "accessToken": null,
+            "id": "auth-disabled",
+            "mockScenario": null,
+            "password": "disabled-pass",
+            "refreshToken": null,
+            "sessionId": null,
+            "usbId": "22-22222"
+        },
+        {
+            "accessToken": null,
+            "id": "auth-retry",
+            "mockScenario": null,
+            "password": "retry-pass",
+            "refreshToken": null,
+            "sessionId": null,
+            "usbId": "33-33333"
+        },
+        {
+            "accessToken": null,
             "id": "login-cancel",
             "mockScenario": null,
             "password": "login-cancel-pass",
             "refreshToken": null,
             "sessionId": null,
             "usbId": "11-11111"
+        },
+        {
+            "accessToken": null,
+            "id": "outdated-app",
+            "mockScenario": null,
+            "password": "upgrade-pass",
+            "refreshToken": null,
+            "sessionId": null,
+            "usbId": "44-44444"
+        },
+        {
+            "accessToken": "update.password.mock.access",
+            "id": "update-password",
+            "mockScenario": "auth-update-password-login",
+            "password": "outdated-pass",
+            "refreshToken": "update.password.mock.refresh",
+            "sessionId": "auth-update-password-session",
+            "usbId": "55-55555"
+        },
+        {
+            "accessToken": "update.password.failure.mock.access",
+            "id": "update-password-failure",
+            "mockScenario": "auth-update-password-failure-login",
+            "password": "outdated-pass",
+            "refreshToken": "update.password.failure.mock.refresh",
+            "sessionId": "auth-update-password-failure-session",
+            "usbId": "77-77777"
+        },
+        {
+            "accessToken": "expired.session.mock.access",
+            "id": "session-invalidated",
+            "mockScenario": "auth-session-invalidated-login",
+            "password": "expired-pass",
+            "refreshToken": "expired.session.mock.refresh",
+            "sessionId": "auth-expired-session",
+            "usbId": "66-66666"
+        },
+        {
+            "accessToken": "summary.refresh.retry.mock.access",
+            "id": "summary-refresh-retry",
+            "mockScenario": "auth-summary-refresh-retry-login",
+            "password": "summary-retry-pass",
+            "refreshToken": "summary.refresh.retry.mock.refresh",
+            "sessionId": "summary-refresh-retry-session",
+            "usbId": "99-99999"
+        },
+        {
+            "accessToken": "summary.status.unavailable.mock.access",
+            "id": "summary-status-unavailable",
+            "mockScenario": "auth-summary-status-unavailable-login",
+            "password": "summary-unavailable-pass",
+            "refreshToken": "summary.status.unavailable.mock.refresh",
+            "sessionId": "summary-status-unavailable-session",
+            "usbId": "88-88888"
+        },
+        {
+            "accessToken": "summary.outdated.credentials.mock.access",
+            "id": "summary-outdated-credentials",
+            "mockScenario": "auth-summary-outdated-credentials-login",
+            "password": "outdated-pass",
+            "refreshToken": "summary.outdated.credentials.mock.refresh",
+            "sessionId": "summary-outdated-credentials-session",
+            "usbId": "44-44444"
+        },
+        {
+            "accessToken": "enrollment.unavailable.mock.access",
+            "id": "enrollment-unavailable",
+            "mockScenario": "auth-enrollment-unavailable-login",
+            "password": "enrollment-unavailable-pass",
+            "refreshToken": "enrollment.unavailable.mock.refresh",
+            "sessionId": "enrollment-unavailable-session",
+            "usbId": "22-22222"
+        },
+        {
+            "accessToken": "enrollment.fetching.cancel.mock.access",
+            "id": "enrollment-fetching-cancel",
+            "mockScenario": "auth-enrollment-fetching-cancel-login",
+            "password": "enrollment-fetching-cancel-pass",
+            "refreshToken": "enrollment.fetching.cancel.mock.refresh",
+            "sessionId": "enrollment-fetching-cancel-session",
+            "usbId": "11-11111"
+        },
+        {
+            "accessToken": "enrollment.notfound.mock.access",
+            "id": "enrollment-not-found",
+            "mockScenario": "auth-enrollment-not-found-login",
+            "password": "enrollment-not-found-pass",
+            "refreshToken": "enrollment.notfound.mock.refresh",
+            "sessionId": "enrollment-not-found-session",
+            "usbId": "23-45678"
+        },
+        {
+            "accessToken": "enrollment.outdated.mock.access",
+            "id": "enrollment-outdated",
+            "mockScenario": "auth-enrollment-outdated-login",
+            "password": "enrollment-outdated-pass",
+            "refreshToken": "enrollment.outdated.mock.refresh",
+            "sessionId": "enrollment-outdated-session",
+            "usbId": "33-33333"
+        },
+        {
+            "accessToken": "new-student.mock.access",
+            "id": "new-student",
+            "mockScenario": "auth-new-student-login",
+            "password": "new-student-pass",
+            "refreshToken": "new-student.mock.refresh",
+            "sessionId": "new-student-session",
+            "usbId": "33-33344"
+        },
+        {
+            "accessToken": "record-denied.mock.access",
+            "id": "record-denied",
+            "mockScenario": "auth-record-denied-login",
+            "password": "record-denied-pass",
+            "refreshToken": "record-denied.mock.refresh",
+            "sessionId": "record-denied-session",
+            "usbId": "34-34343"
+        },
+        {
+            "accessToken": "record.refresh.retry.mock.access",
+            "id": "record-refresh-retry",
+            "mockScenario": "auth-record-refresh-retry-login",
+            "password": "record-retry-pass",
+            "refreshToken": "record.refresh.retry.mock.refresh",
+            "sessionId": "record-refresh-retry-session",
+            "usbId": "88-88888"
+        },
+        {
+            "accessToken": "record.term.rejected.mock.access",
+            "id": "record-term-rejected",
+            "mockScenario": "auth-record-term-rejected-login",
+            "password": "record-rejected-pass",
+            "refreshToken": "record.term.rejected.mock.refresh",
+            "sessionId": "record-term-rejected-session",
+            "usbId": "77-77777"
+        },
+        {
+            "accessToken": "annulled-provisional.mock.access",
+            "id": "annulled-provisional",
+            "mockScenario": "auth-annulled-provisional-login",
+            "password": "annulled-provisional-pass",
+            "refreshToken": "annulled-provisional.mock.refresh",
+            "sessionId": "auth-annulled-provisional-session",
+            "usbId": "31-31313"
+        },
+        {
+            "accessToken": "annulled-final.mock.access",
+            "id": "annulled-final",
+            "mockScenario": "auth-annulled-final-login",
+            "password": "annulled-final-pass",
+            "refreshToken": "annulled-final.mock.refresh",
+            "sessionId": "annulled-final-session",
+            "usbId": "32-32323"
+        },
+        {
+            "accessToken": "not-enrolled.mock.access",
+            "id": "not-enrolled",
+            "mockScenario": "auth-not-enrolled-login",
+            "password": "not-enrolled-pass",
+            "refreshToken": "not-enrolled.mock.refresh",
+            "sessionId": "not-enrolled-session",
+            "usbId": "30-30303"
+        },
+        {
+            "accessToken": "evaluations.enrollment.unavailable.mock.access",
+            "id": "evaluations-enrollment-unavailable",
+            "mockScenario": "auth-evaluations-enrollment-unavailable-login",
+            "password": "evaluations-enrollment-unavailable-pass",
+            "refreshToken": "evaluations.enrollment.unavailable.mock.refresh",
+            "sessionId": "evaluations-enrollment-unavailable-session",
+            "usbId": "10-10101"
+        },
+        {
+            "accessToken": "pensum.cache.mock.access",
+            "id": "pensum-cache",
+            "mockScenario": "auth-pensum-cache-login",
+            "password": "pensum-cache-pass",
+            "refreshToken": "pensum.cache.mock.refresh",
+            "sessionId": "pensum-cache-session",
+            "usbId": "99-99999"
+        },
+        {
+            "accessToken": "pensum.no.current.mock.access",
+            "id": "pensum-no-current",
+            "mockScenario": "auth-pensum-no-current-login",
+            "password": "pensum-no-current-pass",
+            "refreshToken": "pensum.no.current.mock.refresh",
+            "sessionId": "pensum-no-current-session",
+            "usbId": "55-55555"
+        },
+        {
+            "accessToken": "pensum.equivalence.mock.access",
+            "id": "pensum-equivalence",
+            "mockScenario": "auth-pensum-equivalence-login",
+            "password": "pensum-equivalence-pass",
+            "refreshToken": "pensum.equivalence.mock.refresh",
+            "sessionId": "pensum-equivalence-session",
+            "usbId": "66-66666"
+        },
+        {
+            "accessToken": "pensum.record.unavailable.mock.access",
+            "id": "pensum-record-unavailable",
+            "mockScenario": "auth-pensum-record-unavailable-login",
+            "password": "pensum-record-unavailable-pass",
+            "refreshToken": "pensum.record.unavailable.mock.refresh",
+            "sessionId": "pensum-record-unavailable-session",
+            "usbId": "44-44444"
+        },
+        {
+            "accessToken": "pensum.retry.mock.access",
+            "id": "pensum-retry",
+            "mockScenario": "auth-pensum-retry-login",
+            "password": "pensum-retry-pass",
+            "refreshToken": "pensum.retry.mock.refresh",
+            "sessionId": "pensum-retry-session",
+            "usbId": "77-77777"
+        },
+        {
+            "accessToken": "pensum.notfound.mock.access",
+            "id": "pensum-not-found",
+            "mockScenario": "auth-pensum-not-found-login",
+            "password": "pensum-not-found-pass",
+            "refreshToken": "pensum.notfound.mock.refresh",
+            "sessionId": "pensum-not-found-session",
+            "usbId": "66-66666"
         }
     ],
     "contractFixture": {
@@ -69,7 +330,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
-                        "line": 18
+                        "line": 19
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -78,7 +339,7 @@
                     "name": "signInThroughUi",
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
-                        "line": 18
+                        "line": 26
                     },
                     "steps": [
                         {
@@ -89,7 +350,7 @@
                             "requireEnabled": true,
                             "site": {
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
-                                "line": 19
+                                "line": 27
                             },
                             "type": "tap"
                         },
@@ -104,7 +365,7 @@
                             "secure": false,
                             "site": {
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
-                                "line": 20
+                                "line": 28
                             },
                             "text": "1111111",
                             "type": "enterText"
@@ -117,7 +378,7 @@
                             "requireEnabled": true,
                             "site": {
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
-                                "line": 21
+                                "line": 29
                             },
                             "type": "tap"
                         },
@@ -132,7 +393,7 @@
                             "secure": true,
                             "site": {
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
-                                "line": 22
+                                "line": 30
                             },
                             "text": "login-cancel-pass",
                             "type": "enterText"
@@ -145,7 +406,7 @@
                             "requireEnabled": true,
                             "site": {
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
-                                "line": 23
+                                "line": 31
                             },
                             "type": "tap"
                         },
@@ -157,7 +418,7 @@
                             },
                             "site": {
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
-                                "line": 24
+                                "line": 32
                             },
                             "timeoutMs": 5000,
                             "type": "assertEnabled"
@@ -170,7 +431,7 @@
                             "requireEnabled": true,
                             "site": {
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
-                                "line": 25
+                                "line": 33
                             },
                             "type": "tap"
                         },
@@ -180,7 +441,7 @@
                             "path": "/auth/v2/bootstrap",
                             "site": {
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/shared/SignInSteps.kt",
-                                "line": 26
+                                "line": 34
                             },
                             "timeoutMs": 20000,
                             "type": "expectRequest"
@@ -195,7 +456,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
-                        "line": 20
+                        "line": 21
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -208,7 +469,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
-                        "line": 21
+                        "line": 22
                     },
                     "type": "tap"
                 },
@@ -219,7 +480,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
-                        "line": 22
+                        "line": 23
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -231,7 +492,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
-                        "line": 23
+                        "line": 24
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -243,202 +504,13 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/AuthScenarios.kt",
-                        "line": 24
+                        "line": 25
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
                 }
             ],
             "stepsHash": "6ab082a7d7f7a2f9",
-            "tags": [],
-            "timeoutSeconds": 180
-        },
-        {
-            "account": "canonical",
-            "android": {
-                "scenarioArg": "evaluations-swipe-delete"
-            },
-            "covers": [
-                "evaluations.Evaluations.RemoveEvaluation"
-            ],
-            "id": "evaluations-swipe-delete",
-            "ios": {
-                "onlyTesting": "TuIndiceUITests/EvaluationsScenarioTests/test_evaluations_swipe_delete"
-            },
-            "module": "evaluations",
-            "platforms": [
-                "android",
-                "ios"
-            ],
-            "quarantine": null,
-            "signsIn": false,
-            "start": {
-                "arguments": {
-                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
-                    "TUINDICE_E2E_MAIN_SECTION": "SUMMARY",
-                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
-                    "TUINDICE_E2E_SEED_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
-                    "TUINDICE_E2E_SEED_COACHMARKS": "seen",
-                    "TUINDICE_E2E_SEED_PASSWORD": "123456",
-                    "TUINDICE_E2E_SEED_REFRESH_TOKEN": "refresh.mock.token.value",
-                    "TUINDICE_E2E_SEED_SESSION_ID": "auth-session-initial",
-                    "TUINDICE_E2E_SEED_USB_ID": "11-11111"
-                },
-                "mockStates": [
-                    {
-                        "scenario": "login-token-lifecycle",
-                        "state": "TokensIssued"
-                    }
-                ]
-            },
-            "steps": [
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "summary_content_container"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 25
-                    },
-                    "timeoutMs": 60000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "maincore_tuindice_bottom_bar_evaluations_item"
-                    },
-                    "requireEnabled": true,
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 26
-                    },
-                    "type": "tap"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "evaluations_content_container"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 27
-                    },
-                    "timeoutMs": 30000,
-                    "type": "waitVisible"
-                },
-                {
-                    "direction": "contentDown",
-                    "q": {
-                        "type": "tag",
-                        "value": "evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 28
-                    },
-                    "timeoutMs": 20000,
-                    "type": "scrollUntilVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435"
-                    },
-                    "requireEnabled": true,
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 33
-                    },
-                    "type": "tap"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "evaluation_swipe_delete_action"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 34
-                    },
-                    "timeoutMs": 10000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "evaluation_swipe_to_dismiss_container"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 35
-                    },
-                    "timeoutMs": 5000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "evaluation_swipe_delete_action"
-                    },
-                    "requireEnabled": true,
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 36
-                    },
-                    "type": "tap"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "evaluation_delete_confirmation_message"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 37
-                    },
-                    "timeoutMs": 10000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "base_confirmation_dialog_positive_button"
-                    },
-                    "requireEnabled": true,
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 38
-                    },
-                    "type": "tap"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "base_snackbar_container"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 39
-                    },
-                    "timeoutMs": 20000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "evaluations_content_container"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
-                        "line": 40
-                    },
-                    "timeoutMs": 5000,
-                    "type": "waitVisible"
-                }
-            ],
-            "stepsHash": "64d0d6f5c4c9816e",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -492,7 +564,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 36
+                        "line": 37
                     },
                     "timeoutMs": 60000,
                     "type": "waitVisible"
@@ -505,7 +577,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 37
+                        "line": 38
                     },
                     "type": "tap"
                 },
@@ -516,7 +588,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 38
+                        "line": 39
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -525,18 +597,6 @@
                     "q": {
                         "type": "tag",
                         "value": "summary_profile_picture_container"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 39
-                    },
-                    "timeoutMs": 5000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "summary_profile_picture_edit_button"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
@@ -550,10 +610,22 @@
                         "type": "tag",
                         "value": "summary_profile_picture_edit_button"
                     },
-                    "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
                         "line": 41
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_profile_picture_edit_button"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 42
                     },
                     "type": "tap"
                 },
@@ -564,7 +636,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 42
+                        "line": 43
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -573,18 +645,6 @@
                     "q": {
                         "type": "tag",
                         "value": "summary_profile_picture_take_action"
-                    },
-                    "site": {
-                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 43
-                    },
-                    "timeoutMs": 5000,
-                    "type": "waitVisible"
-                },
-                {
-                    "q": {
-                        "type": "tag",
-                        "value": "summary_profile_picture_remove_action"
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
@@ -598,10 +658,22 @@
                         "type": "tag",
                         "value": "summary_profile_picture_remove_action"
                     },
-                    "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
                         "line": 45
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_profile_picture_remove_action"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
+                        "line": 46
                     },
                     "type": "tap"
                 },
@@ -612,7 +684,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 46
+                        "line": 47
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -625,7 +697,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 47
+                        "line": 48
                     },
                     "type": "tap"
                 },
@@ -636,7 +708,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 48
+                        "line": 49
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -649,7 +721,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 49
+                        "line": 50
                     },
                     "type": "tap"
                 },
@@ -660,7 +732,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 50
+                        "line": 51
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -673,7 +745,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 51
+                        "line": 52
                     },
                     "type": "tap"
                 },
@@ -684,7 +756,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 52
+                        "line": 53
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -697,7 +769,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 53
+                        "line": 54
                     },
                     "type": "tap"
                 },
@@ -708,7 +780,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 54
+                        "line": 55
                     },
                     "timeoutMs": 20000,
                     "type": "waitVisible"
@@ -720,7 +792,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 55
+                        "line": 56
                     },
                     "timeoutMs": 5000,
                     "type": "waitVisible"
@@ -733,7 +805,7 @@
                     "requireEnabled": true,
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 56
+                        "line": 57
                     },
                     "type": "tap"
                 },
@@ -744,7 +816,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 57
+                        "line": 58
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
@@ -756,7 +828,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 58
+                        "line": 59
                     },
                     "timeoutMs": 5000,
                     "type": "waitGone"
@@ -765,13 +837,13 @@
                     "platform": "android",
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 59
+                        "line": 60
                     },
                     "steps": [
                         {
                             "site": {
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                                "line": 60
+                                "line": 61
                             },
                             "type": "back"
                         }
@@ -782,7 +854,7 @@
                     "platform": "ios",
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 62
+                        "line": 63
                     },
                     "steps": [
                         {
@@ -794,7 +866,7 @@
                             "fy": 0.2,
                             "site": {
                                 "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                                "line": 63
+                                "line": 64
                             },
                             "type": "swipe"
                         }
@@ -808,13 +880,202 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/SummaryScenarios.kt",
-                        "line": 65
+                        "line": 66
                     },
                     "timeoutMs": 10000,
                     "type": "waitVisible"
                 }
             ],
             "stepsHash": "5814ac89af4da6a7",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": "canonical",
+            "android": {
+                "scenarioArg": "evaluations-swipe-delete"
+            },
+            "covers": [
+                "evaluations.Evaluations.RemoveEvaluation"
+            ],
+            "id": "evaluations-swipe-delete",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/EvaluationsScenarioTests/test_evaluations_swipe_delete"
+            },
+            "module": "evaluations",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_MAIN_SECTION": "SUMMARY",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
+                    "TUINDICE_E2E_SEED_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
+                    "TUINDICE_E2E_SEED_COACHMARKS": "seen",
+                    "TUINDICE_E2E_SEED_PASSWORD": "123456",
+                    "TUINDICE_E2E_SEED_REFRESH_TOKEN": "refresh.mock.token.value",
+                    "TUINDICE_E2E_SEED_SESSION_ID": "auth-session-initial",
+                    "TUINDICE_E2E_SEED_USB_ID": "11-11111"
+                },
+                "mockStates": [
+                    {
+                        "scenario": "login-token-lifecycle",
+                        "state": "TokensIssued"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 26
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "maincore_tuindice_bottom_bar_evaluations_item"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 27
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluations_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 28
+                    },
+                    "timeoutMs": 30000,
+                    "type": "waitVisible"
+                },
+                {
+                    "direction": "contentDown",
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 29
+                    },
+                    "timeoutMs": 20000,
+                    "type": "scrollUntilVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluation_item_card_741ee22ed3a76b1bbd7deb77e9490435"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 34
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluation_swipe_delete_action"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 35
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluation_swipe_to_dismiss_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 36
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluation_swipe_delete_action"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 37
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluation_delete_confirmation_message"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 38
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "base_confirmation_dialog_positive_button"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 39
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "base_snackbar_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 40
+                    },
+                    "timeoutMs": 20000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "evaluations_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/EvaluationsScenarios.kt",
+                        "line": 41
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                }
+            ],
+            "stepsHash": "64d0d6f5c4c9816e",
             "tags": [],
             "timeoutSeconds": 180
         },
@@ -850,7 +1111,7 @@
                     },
                     "site": {
                         "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/PocScenarios.kt",
-                        "line": 12
+                        "line": 13
                     },
                     "timeoutMs": 2000,
                     "type": "waitVisible"

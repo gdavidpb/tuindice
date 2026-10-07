@@ -5,12 +5,13 @@ import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
+import com.gdavidpb.tuindice.scenariokit.model.Scenario
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.scenarios.shared.signInThroughUi
 
-val authLoginCancel = scenario("auth-login-cancel", "auth", Start.Clean().toLaunchSpec()) {
+private val authLoginCancel = scenario("auth-login-cancel", "auth", Start.Clean().toLaunchSpec()) {
 	covers("auth.SignIn.ClickCancelSignIn")
 	account(E2eAccounts.LoginCancel.id)
 	signsIn()
@@ -23,3 +24,6 @@ val authLoginCancel = scenario("auth-login-cancel", "auth", Start.Clean().toLaun
 	waitGone(AuthUiTags.SignInLoggingInContainer, Within.Assert)
 	waitVisible(AuthUiTags.UsbIdTextField, Within.Assert)
 }
+
+/** The scenarios of this module; list every new one here. */
+val authScenarios: List<Scenario> = listOf(authLoginCancel)

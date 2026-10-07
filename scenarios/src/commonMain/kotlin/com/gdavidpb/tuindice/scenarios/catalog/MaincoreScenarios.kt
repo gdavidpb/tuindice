@@ -1,0 +1,10 @@
+package com.gdavidpb.tuindice.scenarios.catalog
+
+import com.gdavidpb.tuindice.scenariokit.model.Scenario
+
+/**
+ * The scenarios of the `maincore` module. Declare each one above this list as
+ * `private val x = scenario(id, module, start) { ... }` and add it to the list;
+ * `E2eCatalog` already includes the list.
+ */
+val maincoreScenarios: List<Scenario> = emptyList()

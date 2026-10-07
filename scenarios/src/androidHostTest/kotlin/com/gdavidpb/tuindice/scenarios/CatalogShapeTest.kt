@@ -2,6 +2,8 @@ package com.gdavidpb.tuindice.scenarios
 
 import com.gdavidpb.tuindice.scenariokit.codec.ScenarioNaming
 import com.gdavidpb.tuindice.scenarios.catalog.E2eCatalog
+import com.gdavidpb.tuindice.scenarios.catalog.MigrationProgress
+import java.time.LocalDate
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -47,5 +49,22 @@ class CatalogShapeTest {
 
 		assertTrue(declared.isNotEmpty(), "no scenario declarations found under ${RepoFiles.catalogSources}")
 		assertEquals(scenarios.map { it.id }.sorted(), declared, "E2eCatalog.all differs from the declared scenarios")
+	}
+
+	@Test
+	fun everyTranslatedModuleHasASmokeScenario() {
+		val translated = E2eCatalog.byModule.keys.filter { it != "poc" && it !in MigrationProgress.pendingModules }
+
+		translated.forEach { module ->
+			assertTrue(scenarios.any { it.module == module && "smoke" in it.tags }, "module '$module' has no smoke scenario")
+		}
+	}
+
+	@Test
+	fun aQuarantineHasAReasonAndAnIsoDate() {
+		scenarios.mapNotNull { scenario -> scenario.quarantine?.let { scenario.id to it } }.forEach { (id, quarantine) ->
+			assertTrue(quarantine.reason.isNotBlank(), "$id is quarantined without a reason")
+			LocalDate.parse(quarantine.until)
+		}
 	}
 }

@@ -326,6 +326,25 @@ run_detector_fixture() {
 			assert_file_contains_line "$github_output_file" "app_version_changed=true" "GitHub output"
 			assert_file_contains_line "$github_output_file" "app_release_build_numbers_changed=true" "GitHub output"
 			;;
+		scenarios-test-only)
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "scenarios" "impacted modules"
+			assert_file_empty "${temp_dir}/state/release-impacted-modules.txt" "release impacted modules"
+			assert_file_empty "${temp_dir}/state/missing-version-bump.txt" "missing version bump"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenarios:testAndroidHostTest" "Android tasks"
+			assert_file_contains_line "$github_output_file" "has_relevant_changes=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			;;
+		scenariokit-test-only)
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "scenariokit" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "scenarios" "impacted modules"
+			assert_file_empty "${temp_dir}/state/release-impacted-modules.txt" "release impacted modules"
+			assert_file_empty "${temp_dir}/state/missing-version-bump.txt" "missing version bump"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenariokit:testAndroidHostTest" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenarios:testAndroidHostTest" "Android tasks"
+			assert_file_not_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenariorunner:compileAndroidMain" "Android tasks"
+			assert_file_not_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" ":scenariorunner:compileKotlinIosSimulatorArm64" "iOS tasks"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			;;
 		persistence-runtime)
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "persistence" "impacted modules"
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "wizard" "impacted modules"
@@ -544,6 +563,8 @@ ios_release_runtime_commit="$(
 
 run_detector_fixture e2e-runner e2e/scripts/common.sh
 run_detector_fixture ios-script-tooling iosApp/scripts/ci-upload-ios-appstore.sh
+run_detector_fixture scenarios-test-only scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/E2eCatalog.kt
+run_detector_fixture scenariokit-test-only scenariokit/src/commonMain/kotlin/com/gdavidpb/tuindice/scenariokit/model/Step.kt
 run_detector_fixture persistence-runtime persistence/src/commonMain/kotlin/com/gdavidpb/tuindice/persistence/data/repository/MutationRepository.kt
 run_detector_fixture persistence-bootstrap persistence/src/commonMain/kotlin/com/gdavidpb/tuindice/persistence/di/PersistenceModule.kt
 run_detector_fixture feature-module-dependents record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/presentation/RecordScreen.kt

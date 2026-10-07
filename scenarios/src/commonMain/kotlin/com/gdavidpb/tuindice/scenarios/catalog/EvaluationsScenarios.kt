@@ -6,6 +6,7 @@ import com.gdavidpb.tuindice.scenariokit.dsl.scenario
 import com.gdavidpb.tuindice.scenariokit.dsl.scrollUntilVisible
 import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
+import com.gdavidpb.tuindice.scenariokit.model.Scenario
 import com.gdavidpb.tuindice.scenariokit.model.Scroll
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.E2eFixtures
@@ -14,7 +15,7 @@ import com.gdavidpb.tuindice.scenarios.shared.Within
 import com.gdavidpb.tuindice.summary.ui.SummaryUiTags
 import com.gdavidpb.tuindice.ui.MaincoreUiTags
 
-val evaluationsSwipeDelete = scenario(
+private val evaluationsSwipeDelete = scenario(
 	"evaluations-swipe-delete",
 	"evaluations",
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
@@ -39,3 +40,6 @@ val evaluationsSwipeDelete = scenario(
 	waitVisible(BaseUiTags.SnackbarContainer, Within.Wait)
 	waitVisible(EvaluationsUiTags.EvaluationsContentContainer, Within.Assert)
 }
+
+/** The scenarios of this module; list every new one here. */
+val evaluationsScenarios: List<Scenario> = listOf(evaluationsSwipeDelete)

@@ -223,13 +223,18 @@ module_reverse_closure() {
 	fi
 }
 
+# Modules with Kotlin Multiplatform tasks: everything but the Android app and the
+# Android-only instrumentation runner of the E2E scenarios.
 kmp_modules() {
-	module_graph_modules | grep -Fxv app
+	module_graph_modules | grep -Fxv app | grep -Fxv scenariorunner
 }
 
+# Modules that ship in the app. The test-only modules (testkit and the E2E
+# scenario kit, catalog and runner) never reach a release build.
 runtime_modules() {
 	{
-		module_graph_modules | grep -Fxv testkit
+		module_graph_modules |
+			grep -Fxv testkit | grep -Fxv scenariokit | grep -Fxv scenarios | grep -Fxv scenariorunner
 		printf 'iosApp\n'
 	} | sort
 }

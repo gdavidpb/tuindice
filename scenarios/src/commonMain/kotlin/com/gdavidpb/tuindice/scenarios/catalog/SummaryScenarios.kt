@@ -10,6 +10,7 @@ import com.gdavidpb.tuindice.scenariokit.dsl.tap
 import com.gdavidpb.tuindice.scenariokit.dsl.waitGone
 import com.gdavidpb.tuindice.scenariokit.dsl.waitVisible
 import com.gdavidpb.tuindice.scenariokit.model.Platform
+import com.gdavidpb.tuindice.scenariokit.model.Scenario
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
 import com.gdavidpb.tuindice.scenarios.fixture.Start
 import com.gdavidpb.tuindice.scenarios.shared.Within
@@ -19,7 +20,7 @@ import kotlin.time.Duration.Companion.milliseconds
 
 private const val IOS_SHEET_SWIPE_MS = 600L
 
-val summaryProfilePicture = scenario(
+private val summaryProfilePicture = scenario(
 	"summary-profile-picture",
 	"summary",
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
@@ -64,3 +65,6 @@ val summaryProfilePicture = scenario(
 	}
 	waitVisible(SummaryUiTags.ContentContainer, Within.Action)
 }
+
+/** The scenarios of this module; list every new one here. */
+val summaryScenarios: List<Scenario> = listOf(summaryProfilePicture)

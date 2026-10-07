@@ -1,18 +1,11 @@
 package com.gdavidpb.tuindice.scenarios
 
-import com.gdavidpb.tuindice.debug.DebugLaunchArguments
-import com.gdavidpb.tuindice.debug.DebugSessionSeed
+import com.gdavidpb.tuindice.scenarios.MockJson.string
+import com.gdavidpb.tuindice.scenarios.catalog.E2eCatalog
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccount
 import com.gdavidpb.tuindice.scenarios.fixture.E2eAccounts
-import com.gdavidpb.tuindice.scenarios.fixture.Start
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.json.JsonObject
-import kotlinx.serialization.json.JsonPrimitive
-import java.io.File
-import java.util.Base64
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 /** The accounts the scenarios sign in with must be the ones the WireMock mappings accept. */
@@ -20,104 +13,75 @@ class AccountFixturesTest {
 	private val accounts = E2eAccounts.all
 	private val canonicalUsbId = Regex("""\d{2}-\d{5}""")
 
+	/** The one credential no mapping accepts: the 401 fallback answers it. */
+	private val rejectedAccount = E2eAccounts.Invalid
+
 	@Test
-	fun accountIdsAreUnique() {
+	fun thereAreThirtyOneAccountsWithUniqueKebabCaseIds() {
+		assertEquals(ACCOUNT_COUNT, accounts.size)
 		assertEquals(accounts.size, accounts.map { it.id }.toSet().size)
+		accounts.forEach { assertTrue(Regex("[a-z0-9-]+").matches(it.id), "'${it.id}' is not kebab-case") }
 	}
 
 	@Test
-	fun everyCredentialIsAcceptedByALoginMapping() {
-		val loginMappings = RepoFiles.loginMappings.listFiles { file -> file.extension == "json" }.orEmpty()
-			.map { it.readText() }
+	fun theCatalogCarriesEveryAccountInOrder() {
+		assertEquals(accounts.map { it.id }, E2eCatalog.catalog().accounts.map { it.id })
+	}
 
+	@Test
+	fun usbIdFieldsAgreeWithEachOther() {
 		accounts.forEach { account ->
-			val header = Regex(""""equalTo"\s*:\s*"Basic ${Regex.escape(basicCredential(account))}"""")
+			if (account.usbIdFormatted.endsWith("@usb.ve")) {
+				assertEquals(account.usbIdFormatted, account.usbIdDigits, account.id)
+			} else {
+				assertTrue(canonicalUsbId.matches(account.usbIdFormatted), account.id)
+				assertEquals(account.usbIdFormatted.replace("-", ""), account.usbIdDigits, account.id)
+			}
+		}
+	}
 
+	@Test
+	fun theBackendReceivesTheIdentifierWithoutTheEmailSuffix() {
+		assertEquals("mail", E2eAccounts.CanonicalEmail.backendIdentifier)
+		assertEquals("11-11111", E2eAccounts.Canonical.backendIdentifier)
+	}
+
+	@Test
+	fun everyCredentialButTheRejectedOneIsAcceptedByALoginMapping() {
+		val loginMappings = loginMappingTexts()
+
+		accounts.filter { it != rejectedAccount }.forEach { account ->
 			assertTrue(
-				loginMappings.any { header.containsMatchIn(it) },
-				"no mapping under mocks/mappings/login accepts ${account.usbIdFormatted}:${account.password} (${account.id})"
+				loginMappings.any { acceptsCredential(it, account) },
+				"no mapping under mocks/mappings/login accepts ${account.backendIdentifier}:${account.password} (${account.id})"
 			)
 		}
 	}
 
 	@Test
-	fun sessionValuesAreThoseOfTheExchangeMapping() {
-		accounts.filter { it.session != null }.forEach { account ->
-			val session = checkNotNull(account.session)
-			val exchanges = mappings(RepoFiles.loginMappings)
-				.filter { it.string("request", "urlPath") == "/auth/v2/token/exchange" }
-				.filter { it.string("scenarioName") == account.mockScenario }
-				.filter { it.string("response", "jsonBody", "usb_id") == account.usbIdFormatted }
+	fun theRejectedCredentialIsAcceptedByNoMappingAndFallsToTheUnauthorizedOne() {
+		assertTrue(loginMappingTexts().none { acceptsCredential(it, rejectedAccount) })
 
-			assertEquals(1, exchanges.size, "expected one exchange mapping of ${account.id}, found ${exchanges.size}")
+		val fallback = MockJson.objects(RepoFiles.loginMappings)
+			.single { it.string("request", "urlPath") == "/auth/v2/bootstrap" && it.string("response", "status") == "401" }
 
-			val body = exchanges.single()
-			assertEquals(session.sessionId, body.string("response", "jsonBody", "session_id"), account.id)
-			assertEquals(session.accessToken, body.string("response", "jsonBody", "access_token"), account.id)
-			assertEquals(session.refreshToken, body.string("response", "jsonBody", "refresh_token"), account.id)
-		}
+		assertEquals(
+			"Basic ${basicCredential(E2eAccounts.Canonical)}",
+			fallback.string("request", "headers", "Authorization", "doesNotMatch"),
+			"the 401 fallback must stay 'anything but the canonical credential'"
+		)
+		assertTrue(basicCredential(rejectedAccount) != basicCredential(E2eAccounts.Canonical))
 	}
 
-	@Test
-	fun theMockScenarioAndItsSeededStateExistInTheMappings() {
-		val all = mappings(RepoFiles.allMappings)
+	private fun loginMappingTexts(): List<String> =
+		RepoFiles.loginMappings.listFiles { file -> file.extension == "json" }.orEmpty().map { it.readText() }
 
-		accounts.mapNotNull { it.mockScenario }.forEach { scenario ->
-			val ofScenario = all.filter { it.string("scenarioName") == scenario }
+	private fun acceptsCredential(mapping: String, account: E2eAccount): Boolean =
+		Regex(""""equalTo"\s*:\s*"Basic ${Regex.escape(basicCredential(account))}"""").containsMatchIn(mapping)
 
-			assertTrue(ofScenario.isNotEmpty(), "no mapping declares the scenario '$scenario'")
-			assertTrue(
-				ofScenario.any {
-					it.string("requiredScenarioState") == "TokensIssued" || it.string("newScenarioState") == "TokensIssued"
-				},
-				"scenario '$scenario' never reaches the TokensIssued state"
-			)
-		}
-	}
+	private fun basicCredential(account: E2eAccount): String = AccountCredentials.basic(account)
 
-	@Test
-	fun seededLaunchesCarryTheCanonicalUsbIdAndTheSessionTheAppParses() {
-		accounts.filter { it.session != null }.forEach { account ->
-			val arguments = Start.Seeded(account).toLaunchSpec().arguments
-			val seed = checkNotNull(DebugLaunchArguments.parse(arguments).sessionSeed)
-
-			assertTrue(canonicalUsbId.matches(arguments.getValue(DebugLaunchArguments.SEED_USB_ID)))
-			assertEquals(account.usbIdFormatted, seed.usbId)
-			assertEquals(account.password, seed.password)
-		}
-	}
-
-	@Test
-	fun theCanonicalSessionMatchesTheLegacySeed() {
-		val session = checkNotNull(E2eAccounts.Canonical.session)
-		val legacy = DebugSessionSeed.Canonical
-
-		assertEquals(legacy.sessionId, session.sessionId)
-		assertEquals(legacy.accessToken, session.accessToken)
-		assertEquals(legacy.refreshToken, session.refreshToken)
-		assertEquals(legacy.usbId, E2eAccounts.Canonical.usbIdFormatted)
-		assertEquals(legacy.password, E2eAccounts.Canonical.password)
-	}
-
-	@Test
-	fun anAccountWithoutSessionCannotBeSeeded() {
-		assertFailsWith<IllegalArgumentException> { Start.Seeded(E2eAccounts.LoginCancel) }
-	}
-
-	private fun basicCredential(account: E2eAccount): String =
-		Base64.getEncoder().encodeToString("${account.usbIdFormatted}:${account.password}".toByteArray())
-
-	private fun mappings(directory: File): List<JsonObject> =
-		directory.walkTopDown().filter { it.isFile && it.extension == "json" }
-			.map { Json.parseToJsonElement(it.readText()) }
-			.filterIsInstance<JsonObject>()
-			.toList()
-
-	private fun JsonObject.string(vararg path: String): String? {
-		var node: JsonObject = this
-
-		path.dropLast(1).forEach { key -> node = node[key] as? JsonObject ?: return null }
-
-		return (node[path.last()] as? JsonPrimitive)?.content
+	private companion object {
+		const val ACCOUNT_COUNT = 31
 	}
 }

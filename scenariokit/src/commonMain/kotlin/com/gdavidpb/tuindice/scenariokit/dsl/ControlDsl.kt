@@ -14,6 +14,14 @@ fun StepBuilder.ifVisible(tag: String, within: Duration = Timeouts.Probe.asDurat
 fun StepBuilder.ifGone(tag: String, within: Duration = Timeouts.Probe.asDuration(), block: StepBuilder.() -> Unit) =
 	add(Step.IfGone(Query.Tag(tag), within.millis(), collectSteps(block), site()))
 
+/** Same as the tag overload, for an element found by text or by OS-level label. */
+fun StepBuilder.ifVisible(query: Query, within: Duration = Timeouts.Probe.asDuration(), block: StepBuilder.() -> Unit) =
+	add(Step.IfVisible(query, within.millis(), collectSteps(block), site()))
+
+/** Same as the tag overload, for an element found by text or by OS-level label. */
+fun StepBuilder.ifGone(query: Query, within: Duration = Timeouts.Probe.asDuration(), block: StepBuilder.() -> Unit) =
+	add(Step.IfGone(query, within.millis(), collectSteps(block), site()))
+
 fun StepBuilder.onPlatform(platform: Platform, block: StepBuilder.() -> Unit) =
 	add(Step.OnPlatform(platform, collectSteps(block), site()))
 
