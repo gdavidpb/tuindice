@@ -1,6 +1,6 @@
 # Common UI Coverage Matrix
 
-_Generated automatically on 2026-10-07 18:17:33 -0300_
+_Generated automatically on 2026-10-07 18:24:35 -0300_
 
 ## Summary by module
 
@@ -8,7 +8,7 @@ _Generated automatically on 2026-10-07 18:17:33 -0300_
 |---|---:|---:|---:|---:|---:|---:|
 | `about` | 2 | 8 | 8 | 8 | 8 | 8 |
 | `auth` | 2 | 20 | 24 | 22 | 20 | 20 |
-| `base` | 2 | 33 | 46 | 35 | 33 | 33 |
+| `base` | 2 | 33 | 45 | 35 | 33 | 33 |
 | `enrollmentproof` | 2 | 6 | 6 | 7 | 6 | 6 |
 | `evaluations` | 2 | 41 | 43 | 46 | 41 | 41 |
 | `maincore` | 3 | 14 | 17 | 15 | 14 | 14 |
@@ -76,7 +76,7 @@ _Generated automatically on 2026-10-07 18:17:33 -0300_
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/ErrorView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/ErrorViewUiTest.kt` | 2 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/IllustratedMessageView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/IllustratedMessageViewUiTest.kt` | 2 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/LoadingView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/LoadingViewUiTest.kt` | 3 | PASS threshold (2) |
-| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/LottieResourceAnimationView.kt` | 2 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/LottieResourceAnimationViewUiTest.kt` | 6 | PASS threshold (2) |
+| `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/LottieResourceAnimationView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/LottieResourceAnimationViewUiTest.kt` | 4 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/NoticeView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/NoticeViewUiTest.kt` | 3 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/OutdatedAppAnimationView.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/OutdatedAppAnimationViewUiTest.kt` | 2 | PASS threshold (2) |
 | `base/src/commonMain/kotlin/com/gdavidpb/tuindice/base/ui/view/OutdatedAppScreen.kt` | 1 | `base/src/commonTest/kotlin/com/gdavidpb/tuindice/base/ui/view/OutdatedAppScreenUiTest.kt` | 4 | PASS threshold (2) |
