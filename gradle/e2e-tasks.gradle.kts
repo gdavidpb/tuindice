@@ -124,22 +124,29 @@ private val e2eBudgetMinutes = providers.environmentVariable("E2E_BUDGET_MINUTES
 	.map { it.toLongOrNull() ?: 120L }
 	.orElse(120L)
 
+// The Gradle timeout is the harness budget plus 30 minutes (twice the budget for both platforms), so that the harness ends
+// by itself with its own exit code 4 before Gradle cuts it. Evidence depends on the generated artifacts being fresh: a
+// scenario changed in Kotlin whose catalog JSON was not regenerated would otherwise be certified with the old steps.
+// Running e2e.py directly does not go through this check.
 private fun registerE2eRun(name: String, description: String, platform: String, mode: String, timeout: Provider<Duration>) {
 	tasks.register<Exec>(name) {
 		group = "verification"
 		this.description = description
 		this.timeout.set(timeout)
+		if (mode == "evidence") {
+			dependsOn("verifyE2eArtifactsFresh")
+		}
 		commandLine("python3", e2eHarnessScript, "run", "--platform", platform, "--mode", mode)
 	}
 }
 
 registerE2eRun(
 	"e2eAndroid", "Diagnostic E2E run on Android; E2E_SCENARIOS narrows it. Never produces evidence.",
-	"android", "diagnose", provider { Duration.ofMinutes(90) }
+	"android", "diagnose", e2eBudgetMinutes.map { Duration.ofMinutes(it + 30) }
 )
 registerE2eRun(
 	"e2eIos", "Diagnostic E2E run on iOS; E2E_SCENARIOS narrows it. Never produces evidence.",
-	"ios", "diagnose", provider { Duration.ofMinutes(90) }
+	"ios", "diagnose", e2eBudgetMinutes.map { Duration.ofMinutes(it + 30) }
 )
 registerE2eRun(
 	"e2eEvidenceAndroid", "Local E2E evidence for Android: the whole catalog, accumulated per fingerprint, published as a status.",
