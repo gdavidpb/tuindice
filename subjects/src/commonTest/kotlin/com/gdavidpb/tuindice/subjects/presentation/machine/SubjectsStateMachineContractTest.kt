@@ -203,10 +203,10 @@ class SubjectsStateMachineContractTest {
 					results = emptyList()
 				),
 				SubjectSearchInternalEvent.RemoteSearchStarted(query = "algoritmos"),
-				SubjectSearchInternalEvent.RemoteSearchSucceeded,
-				SubjectSearchInternalEvent.RemoteSearchFailed,
-				SubjectSearchInternalEvent.RetryStarted,
-				SubjectSearchInternalEvent.RetryCleared
+				SubjectSearchInternalEvent.RemoteSearchSucceeded(query = "algoritmos"),
+				SubjectSearchInternalEvent.RemoteSearchFailed(query = "algoritmos"),
+				SubjectSearchInternalEvent.RetryStarted(query = "algoritmos"),
+				SubjectSearchInternalEvent.RetryCleared(query = "algoritmos")
 			),
 			coroutineScope = backgroundScope,
 			// Conservative floor: single state class, so every row resolves from these

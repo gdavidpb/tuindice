@@ -75,32 +75,48 @@ internal fun MachineDefinitionBuilder<SubjectSearch.State>.searchTransitions(
 			}
 		}
 
-		on<SubjectSearchInternalEvent.RemoteSearchSucceeded> { state, _ ->
-			state.copy(
-				isRefreshing = false,
-				hasRemoteError = false
-			)
+		on<SubjectSearchInternalEvent.RemoteSearchSucceeded> { state, event ->
+			if (!state.isAbout(event.query)) {
+				state
+			} else {
+				state.copy(
+					isRefreshing = false,
+					hasRemoteError = false
+				)
+			}
 		}
 
-		on<SubjectSearchInternalEvent.RemoteSearchFailed> { state, _ ->
-			state.copy(
-				isRefreshing = false,
-				hasRemoteError = state.results.isEmpty()
-			)
+		on<SubjectSearchInternalEvent.RemoteSearchFailed> { state, event ->
+			if (!state.isAbout(event.query)) {
+				state
+			} else {
+				state.copy(
+					isRefreshing = false,
+					hasRemoteError = state.results.isEmpty()
+				)
+			}
 		}
 
-		on<SubjectSearchInternalEvent.RetryStarted> { state, _ ->
-			state.copy(
-				isRefreshing = true,
-				hasRemoteError = false
-			)
+		on<SubjectSearchInternalEvent.RetryStarted> { state, event ->
+			if (!state.isAbout(event.query)) {
+				state
+			} else {
+				state.copy(
+					isRefreshing = true,
+					hasRemoteError = false
+				)
+			}
 		}
 
-		on<SubjectSearchInternalEvent.RetryCleared> { state, _ ->
-			state.copy(
-				isRefreshing = false,
-				hasRemoteError = false
-			)
+		on<SubjectSearchInternalEvent.RetryCleared> { state, event ->
+			if (!state.isAbout(event.query)) {
+				state
+			} else {
+				state.copy(
+					isRefreshing = false,
+					hasRemoteError = false
+				)
+			}
 		}
 	}
 }
