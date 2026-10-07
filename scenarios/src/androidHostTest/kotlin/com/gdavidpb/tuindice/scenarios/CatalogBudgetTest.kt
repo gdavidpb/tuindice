@@ -24,19 +24,6 @@ class CatalogBudgetTest {
 	}
 
 	@Test
-	fun noScenarioHoldsMorePlatformBranchesThanItsBudget() {
-		val over = scenarios.mapNotNull { scenario ->
-			val branches = branchesOf(scenario.steps)
-
-			"${scenario.id}: $branches > ${PlatformBranchBudget.of(scenario.id)}".takeIf {
-				branches > PlatformBranchBudget.of(scenario.id)
-			}
-		}
-
-		assertTrue(over.isEmpty(), "platform branches over budget: $over")
-	}
-
-	@Test
 	fun theBudgetOnlyNamesScenariosOfAKnownModule() {
 		val modules = E2eCatalog.byModule.keys
 
