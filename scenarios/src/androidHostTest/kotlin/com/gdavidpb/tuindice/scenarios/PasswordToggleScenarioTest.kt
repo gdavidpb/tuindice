@@ -9,7 +9,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
-/** The password toggle scenario proves what the field shows once the password is visible, not only that it survives. */
+/** The password toggle scenario proves what the field shows once the password is visible, not that it survives. */
 class PasswordToggleScenarioTest {
 	private val steps = E2eCatalog.all.single { it.id == "auth-login-password-toggle" }.steps
 
@@ -28,7 +28,9 @@ class PasswordToggleScenarioTest {
 
 	@Test
 	fun theSecondToggleComesAfterThatAssertion() {
-		val toggles = steps.withIndex().filter { (_, step) -> step is Step.Tap && step.q == Query.Tag(AuthUiTags.PasswordToggle) }
+		val toggles = steps.withIndex().filter { (_, step) ->
+			step is Step.Tap && step.q == Query.Tag(AuthUiTags.PasswordToggle)
+		}
 		val shown = steps.indexOfFirst { it is Step.WaitVisible && it.q == Query.Text(E2eAccounts.Canonical.password) }
 
 		assertEquals(2, toggles.size)

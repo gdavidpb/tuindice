@@ -76,9 +76,6 @@ class ActionCoverageTest {
 		)
 	}
 
-	private fun overlapOf(covers: Set<String>, dispositions: List<ActionDisposition>): List<String> =
-		dispositions.map { it.action }.filter { it in covers }
-
 	@Test
 	fun everyActionOfATranslatedModuleIsCoveredOrDispositioned() {
 		val uncovered = contractActions
@@ -144,3 +141,6 @@ class ActionCoverageTest {
 		val declaration = Regex("""^(?:data\s+)?(?:object|class)\s+([A-Za-z_][A-Za-z0-9_]*)""")
 	}
 }
+
+private fun overlapOf(covers: Set<String>, dispositions: List<ActionDisposition>): List<String> =
+	dispositions.map { it.action }.filter { it in covers }

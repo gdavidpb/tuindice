@@ -19,6 +19,14 @@ internal class MockReplay(private val mappings: List<Pair<String, JsonObject>>) 
 	/** The status sent, and the file that sent it ("none" for a 404). */
 	data class Reply(val status: Int, val mapping: String)
 
+	private class Request(
+		val method: String,
+		val path: String,
+		val headers: Map<String, String>,
+		val query: Map<String, String>,
+		val password: String?
+	)
+
 	fun send(
 		method: String,
 		path: String,
@@ -26,11 +34,14 @@ internal class MockReplay(private val mappings: List<Pair<String, JsonObject>>) 
 		query: Map<String, String> = emptyMap(),
 		password: String? = null
 	): Reply {
-		val matching = mappings.filter { (_, mapping) -> matches(mapping, method, path, headers, query, password) }
+		val request = Request(method, path, headers, query, password)
+		val matching = mappings.filter { (_, mapping) -> matches(mapping, request) }
 		val best = matching.minOfOrNull { priorityOf(it.second) } ?: return Reply(NOT_FOUND, "none")
 		val candidates = matching.filter { priorityOf(it.second) == best }
 
-		check(candidates.size == 1) { "$method $path is answered by ${candidates.map { it.first }} with the same priority" }
+		check(candidates.size == 1) {
+			"$method $path is answered by ${candidates.map { it.first }} with the same priority"
+		}
 
 		val (name, mapping) = candidates.single()
 		val scenario = mapping.string("scenarioName")
@@ -43,26 +54,22 @@ internal class MockReplay(private val mappings: List<Pair<String, JsonObject>>) 
 		return Reply(status, name)
 	}
 
-	private fun priorityOf(mapping: JsonObject): Int = (mapping["priority"] as? JsonPrimitive)?.intOrNull ?: DEFAULT_PRIORITY
+	private fun priorityOf(mapping: JsonObject): Int =
+		(mapping["priority"] as? JsonPrimitive)?.intOrNull ?: DEFAULT_PRIORITY
 
-	private fun matches(
-		mapping: JsonObject,
-		method: String,
-		path: String,
-		headers: Map<String, String>,
-		query: Map<String, String>,
-		password: String?
-	): Boolean {
+	private fun matches(mapping: JsonObject, sent: Request): Boolean {
 		val request = mapping["request"] as? JsonObject ?: return false
 		val scenario = mapping.string("scenarioName")
 		val required = mapping.string("requiredScenarioState")
+		val headers = request["headers"] as? JsonObject ?: JsonObject(emptyMap())
+		val query = request["queryParameters"] as? JsonObject ?: JsonObject(emptyMap())
 
-		return request.string("method").equals(method, ignoreCase = true) &&
-			request.string("urlPath") == path &&
+		return request.string("method").equals(sent.method, ignoreCase = true) &&
+			request.string("urlPath") == sent.path &&
 			(scenario == null || required == null || (states[scenario] ?: STARTED) == required) &&
-			(request["headers"] as? JsonObject).orEmpty().all { (name, matcher) -> valueMatches(matcher as JsonObject, headers[name]) } &&
-			(request["queryParameters"] as? JsonObject).orEmpty().all { (name, matcher) -> valueMatches(matcher as JsonObject, query[name]) } &&
-			request.array("bodyPatterns").all { pattern -> bodyMatches(pattern as JsonObject, password) }
+			headers.all { (name, matcher) -> valueMatches(matcher as JsonObject, sent.headers[name]) } &&
+			query.all { (name, matcher) -> valueMatches(matcher as JsonObject, sent.query[name]) } &&
+			request.array("bodyPatterns").all { pattern -> bodyMatches(pattern as JsonObject, sent.password) }
 	}
 
 	private fun valueMatches(matcher: JsonObject, value: String?): Boolean {
@@ -79,12 +86,11 @@ internal class MockReplay(private val mappings: List<Pair<String, JsonObject>>) 
 	}
 
 	private fun bodyMatches(pattern: JsonObject, password: String?): Boolean {
-		val expected = Regex("""@\.password == '([^']*)'""").find(pattern.string("matchesJsonPath").orEmpty())?.groupValues?.get(1)
+		val path = pattern.string("matchesJsonPath").orEmpty()
+		val expected = Regex("""@\.password == '([^']*)'""").find(path)?.groupValues?.get(1)
 
 		return expected != null && expected == password
 	}
-
-	private fun JsonObject?.orEmpty(): JsonObject = this ?: JsonObject(emptyMap())
 
 	private companion object {
 		const val OK = 200
