@@ -142,6 +142,7 @@ class MockContractTest {
 		const val SEMANTIC_DELAY_MS = 5000.0
 		const val UNAVAILABLE_BODY = "\"bodyFileName\": \"sync/post-sync-record-unavailable.json\""
 
+		private const val SYNC_RETRY = "sync/post-sync-summary-refresh-retry-unavailable"
 		private const val SUMMARY_USER = "summary/get-user-refresh-retry"
 		private const val RECORD_RETRY = "record/get-record-refresh-retry"
 
@@ -152,6 +153,7 @@ class MockContractTest {
 			"sync/post-sync-summary-refresh-retry-unavailable.json" to "\$[?(@.password == 'summary-retry-pass')]",
 			"sync/post-sync-summary-refresh-retry-unavailable.json" to UNAVAILABLE_BODY,
 			"sync/post-sync-summary-refresh-retry-unavailable.json" to "\"newScenarioState\": \"InitialSyncUnavailable\"",
+			"sync/post-sync-record-term-rejected-success.json" to "\$[?(@.password == 'record-rejected-pass')]",
 			"sync/post-sync-record-refresh-retry-unavailable.json" to "\$[?(@.password == 'record-retry-pass')]",
 			"sync/post-sync-record-refresh-retry-unavailable.json" to UNAVAILABLE_BODY,
 			"sync/post-sync-record-refresh-retry-unavailable.json" to "\"newScenarioState\": \"InitialSyncUnavailable\"",
@@ -164,6 +166,16 @@ class MockContractTest {
 			"$SUMMARY_USER-fails-once.json" to "\"newScenarioState\": \"FailedOnce\"",
 			"$SUMMARY_USER-fails-once.json" to "\"contains\": \"iOS\"",
 			"$SUMMARY_USER-fails-android-first.json" to "\"requiredScenarioState\": \"InitialSyncUnavailable\"",
+			// Order independence: a seeded session asks for the user before it syncs, so the first failure also
+			// starts from the initial state, and a sync that arrives after it is refused too.
+			"$SUMMARY_USER-fails-once-from-start.json" to "\"requiredScenarioState\": \"Started\"",
+			"$SUMMARY_USER-fails-once-from-start.json" to "\"newScenarioState\": \"FailedOnce\"",
+			"$SUMMARY_USER-fails-android-first-from-start.json" to "\"requiredScenarioState\": \"Started\"",
+			"$SUMMARY_USER-fails-android-first-from-start.json" to "\"newScenarioState\": \"AndroidFailedOnce\"",
+			"$SYNC_RETRY-after-failure.json" to "\"requiredScenarioState\": \"FailedOnce\"",
+			"$SYNC_RETRY-after-failure.json" to UNAVAILABLE_BODY,
+			"$SYNC_RETRY-after-android-failure.json" to "\"requiredScenarioState\": \"AndroidFailedOnce\"",
+			"$SYNC_RETRY-after-android-failure.json" to UNAVAILABLE_BODY,
 			"$SUMMARY_USER-fails-android-first.json" to "\"newScenarioState\": \"AndroidFailedOnce\"",
 			"$SUMMARY_USER-fails-android-first.json" to "\"contains\": \"Android\"",
 			"$SUMMARY_USER-fails-android-second.json" to "\"requiredScenarioState\": \"AndroidFailedOnce\"",
