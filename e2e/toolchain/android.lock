@@ -1,0 +1,12 @@
+# Android toolchain lock. Every key is strict: a difference exits 3 in evidence mode.
+# Changing a value is a deliberate commit and changes the Android fingerprint.
+ANDROID_AVD_NAME=Pixel_10_Pro_XL
+ANDROID_SYSTEM_IMAGE_DIR=system-images/android-37.1/google_apis_playstore_ps16k/arm64-v8a
+ANDROID_SYSTEM_IMAGE_REVISION=9
+ANDROID_API_LEVEL=37
+ANDROID_DEVICE_PROFILE=pixel_10_pro_xl
+ANDROID_LOCALE=es
+# Provisional emulator shape; confirm with a measurement before F16 closes.
+ANDROID_EMULATOR_MEMORY_MB=8192
+ANDROID_EMULATOR_CORES=6
+ANDROID_EMULATOR_HEADLESS=1

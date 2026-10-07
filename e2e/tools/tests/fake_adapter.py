@@ -152,7 +152,12 @@ def main(argv):
               "dataDirGb": 0.1, "settings": {}})
     elif verb == "build":
         emit({"artifacts": ["fake-app", "fake-runner"]})
-    elif verb in ("toolchain", "install", "reset-app", "stop-device"):
+    elif verb == "toolchain":
+        keys = dict(line.split("=", 1) for line in open(os.path.join("e2e", "toolchain", platform + ".lock")).read().splitlines()
+            if line and not line.startswith("#"))
+        keys.update(script.get("toolchain", {}).get(platform, {}))
+        emit(keys)
+    elif verb in ("install", "reset-app", "stop-device"):
         emit({})
     else:
         sys.stderr.write("unknown verb %s\n" % verb)

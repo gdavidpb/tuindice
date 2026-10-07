@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+# Fake emulator binary (copied to <sdk>/emulator/emulator by the tests): records its arguments and goes online.
+set -euo pipefail
+dir="${FAKE_ADB_DIR:?FAKE_ADB_DIR is required}"
+mkdir -p "${dir}"
+if [[ "${1:-}" == "-version" ]]; then
+	echo "Android emulator version 37.0.0.0 (fake)"
+	exit 0
+fi
+printf '%s\n' "$*" >> "${dir}/emulator.args"
+touch "${dir}/online"

@@ -11,7 +11,7 @@ sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 
 from harness import catalog as catalog_mod  # noqa: E402
 from harness import publish as publish_mod  # noqa: E402
-from harness import report, runner  # noqa: E402
+from harness import envcheck, parallel, report, runner  # noqa: E402
 from harness.config import PLATFORMS, SUITE_ID, Config, EnvironmentRefused, UsageError, find_repo_root  # noqa: E402
 from harness.gitstate import GitState  # noqa: E402
 from harness.ledger import Ledger, now  # noqa: E402
@@ -59,23 +59,31 @@ def cmd_run(cfg, args):
             ("--trace", args.trace), ("E2E_SCENARIOS", cfg.scenario_filter)) if value]
         if rejected:
             raise UsageError("evidence mode runs the whole catalog; it rejects %s" % ", ".join(rejected))
+        if args.survey:
+            raise UsageError("--survey is a diagnostic: it retries nothing and never stops, so it cannot produce evidence")
     if not 1 <= args.repeat <= 50:
         raise UsageError("--repeat must be between 1 and 50")
     options = runner.Options(
         args.mode, scenarios=[i for i in (args.scenario or "").split(",") if i], tag=args.tag,
         changed_since=args.changed_since, survey=args.survey, repeat=args.repeat, trace=args.trace,
-        dry_run=args.dry_run, force=args.force)
+        dry_run=args.dry_run, force=args.force, child_of=args.child_of, stop_device=args.stop_device)
+    if args.parallel_decision:
+        options.parallel = (args.parallel_decision, args.parallel_reason or "")
     platforms = cfg.platforms_for(args.platform)
-    codes = {}
-    for platform in platforms:
-        codes[platform] = runner.PlatformRun(cfg, platform, options).execute()
-        if codes[platform] >= 128:
-            break
-    if len(platforms) > 1:
-        print("[e2e] exit codes: %s" % " ".join("%s=%d" % item for item in codes.items()))
-    if any(code >= 128 for code in codes.values()):
-        return max(codes.values())
-    return combine(list(codes.values()))
+    if len(platforms) == 1:
+        return runner.PlatformRun(cfg, platforms[0], options).execute()
+    failed = set() if args.mode == "diagnose" else {p for p in platforms if has_failed_attempts(cfg, p)}
+    return parallel.run_all(cfg, platforms, args, options, failed, combine)
+
+
+def has_failed_attempts(cfg, platform):
+    """True when the platform's ledger for the current fingerprint holds a failed attempt (it then runs first)."""
+    try:
+        catalog, _fingerprint, ledger = open_ledger(cfg, platform, lock=False, create=False)
+        runnable, _quarantined = catalog.in_scope(platform)
+        return any(ledger.has_failed_attempts(s.id) for s in runnable)
+    except (UsageError, EnvironmentRefused):
+        return False
 
 
 def platform_status(cfg, platform):
@@ -187,10 +195,6 @@ def cmd_contexts(cfg, args):
 
 
 def cmd_env_check(cfg, args):
-    try:
-        from harness import envcheck
-    except ImportError:
-        raise UsageError("env-check is provided by harness/envcheck.py, which arrives with F15")
     return envcheck.main(cfg, args)
 
 
@@ -208,6 +212,11 @@ def build_parser():
     run.add_argument("--trace", action="store_true")
     run.add_argument("--dry-run", action="store_true")
     run.add_argument("--force", action="store_true")
+    # Internal: how `--platform all` starts each platform as an independent process.
+    run.add_argument("--child-of", help=argparse.SUPPRESS)
+    run.add_argument("--parallel-decision", help=argparse.SUPPRESS)
+    run.add_argument("--parallel-reason", help=argparse.SUPPRESS)
+    run.add_argument("--stop-device", action="store_true", help=argparse.SUPPRESS)
     for name in ("status", "env-check"):
         sub.add_parser(name).add_argument("--json", action="store_true")
     listing = sub.add_parser("list")

@@ -9,21 +9,22 @@ import time
 
 from . import catalog as catalog_mod
 from . import classify as cl
-from . import junit, proc, publish, report
+from . import envcheck, junit, proc, publish, report, toolchain
 from .config import SUITE_ID, VERB_TIMEOUTS, EnvironmentRefused, UsageError
 from .gitstate import GitState
 from .ledger import Ledger, now
 from .manifest import Manifest, make_run_dir, read_load
 from .wiremock import WireMock
 
-LOAD_WAIT_START_RATIO = 1.5
-LOAD_WAIT_END_RATIO = 1.0
+# Host load gate before each scenario: wait from START down to END (load1 / ncpu).
+LOAD_WAIT_START_RATIO = 1.0
+LOAD_WAIT_END_RATIO = 0.8
 LOAD_WAIT_PER_SCENARIO_SECONDS = 300
 LOAD_WAIT_PER_RUN_SECONDS = 900
 
-# F15 fills these: HOOKS["toolchain"](run) compares the adapter's toolchain with the lock,
-# HOOKS["env_check"](run) measures the environment. Each raises EnvironmentRefused to refuse.
-HOOKS = {"toolchain": None, "env_check": None}
+# HOOKS["toolchain"](run) compares the adapter's toolchain with the lock, HOOKS["env_check"](run) measures
+# the environment. Each raises EnvironmentRefused to refuse.
+HOOKS = {"toolchain": toolchain.check, "env_check": envcheck.check}
 
 
 class StopRun(Exception):
@@ -35,22 +36,14 @@ class StopRun(Exception):
 
 class Options:
     def __init__(self, mode, scenarios=None, tag=None, changed_since=None, survey=False, repeat=1,
-            trace=False, dry_run=False, force=False):
+            trace=False, dry_run=False, force=False, child_of=None, stop_device=False):
         self.mode = mode
         self.scenarios = scenarios or []
         self.tag, self.changed_since, self.survey = tag, changed_since, survey
         self.repeat, self.trace, self.dry_run, self.force = repeat, trace, dry_run, force
-
-
-def parse_json(text):
-    text = (text or "").strip()
-    for candidate in (text, text.splitlines()[-1] if text else ""):
-        try:
-            value = json.loads(candidate)
-            return value if isinstance(value, dict) else {}
-        except ValueError:
-            continue
-    return {}
+        # Set for a platform of `--platform all`: the parent run id, whether to stop a device this run booted,
+        # and the parent's (decision, reason).
+        self.child_of, self.stop_device, self.parallel = child_of, stop_device, None
 
 
 class Adapter:
@@ -63,7 +56,7 @@ class Adapter:
         env.update(kwargs.get("env") or {})
         timeout = kwargs.get("timeout") or VERB_TIMEOUTS[verb]
         result = proc.run(self.base + [verb] + [str(a) for a in args], timeout, cwd=str(self.config.root), env=env)
-        result.json = parse_json(result.stdout)
+        result.json = proc.parse_json(result.stdout)
         return result
 
 
@@ -87,6 +80,9 @@ class PlatformRun:
         self.failed_overall = {}
         self.executed = set()
         self.stop = None
+        self.device_booted = False
+        self.env_checked = False
+        self.device_health = {}
 
     # -- entry point -------------------------------------------------------------------------
 
@@ -99,6 +95,9 @@ class PlatformRun:
             enabled=not self.opts.dry_run)
         self.manifest.update(commitSha=self.git.sha, branch=self.git.branch, upstreamSha=self.git.upstream_sha,
             treeClean=self.git.tree_clean, headEqualsUpstream=self.git.head_equals_upstream)
+        if self.opts.parallel:
+            self.manifest.data["parallel"].update(decision=self.opts.parallel[0], reason=self.opts.parallel[1])
+        self.manifest.data["parentRunId"] = self.opts.child_of
         self.manifest.write()
         outcome, code = "failed", 1
         try:
@@ -123,6 +122,9 @@ class PlatformRun:
     def _cleanup(self):
         if self.wiremock:
             self.wiremock.stop()
+        if self.opts.stop_device and self.device_booted and not self.opts.dry_run:
+            self.log.say("DEVICE stopping the device this run booted before the next platform starts")
+            self.adapter.call("stop-device")
         if self.ledger:
             self.ledger.release()
 
@@ -175,6 +177,7 @@ class PlatformRun:
         log.scope(len(self.runnable), green, len(pending), failed_before, self.fingerprint)
         m.data["scenarios"].update(inScope=len(self.runnable), quarantined=len(self.quarantined), alreadyGreen=green)
         if self.opts.dry_run:
+            self._dry_run_checks()
             log.say("DRY-RUN would run: %s" % (", ".join(s.id for s in pending) or "nothing"))
             return "not_required", 0
         if pending:
@@ -255,6 +258,12 @@ class PlatformRun:
 
     # -- preparation -------------------------------------------------------------------------
 
+    def _dry_run_checks(self):
+        """The read-only checks of the preparation: they report and never refuse; nothing boots or builds."""
+        for name in ("toolchain", "env_check"):
+            if HOOKS[name]:
+                HOOKS[name](self)
+
     def _prepare(self):
         m, adapter, cfg = self.manifest, self.adapter, self.cfg
         for name in ("toolchain", "env_check"):
@@ -266,6 +275,7 @@ class PlatformRun:
             if not result.ok:
                 raise EnvironmentRefused("ensure-device failed: %s" % (result.stderr.strip()[-300:] or result.returncode))
             m.update(device=result.json)
+            self.device_booted = bool(result.json.get("bootedByHarness"))
         with m.phase("wiremock"):
             self.wiremock = WireMock(cfg, self.platform, self.run_dir)
             self.wiremock.start()
@@ -384,6 +394,7 @@ class PlatformRun:
         healthy = self.adapter.call("health", env=env)
         if not healthy.ok:
             return "health failed: %s" % (healthy.stderr.strip()[-200:] or "exit %d" % healthy.returncode)
+        self.device_health = healthy.json
         ok, message = self.wiremock.health()
         if not ok:
             return "WireMock is not healthy: %s" % message
@@ -402,6 +413,7 @@ class PlatformRun:
         started_at, began = now(), time.monotonic()
         load_start = read_load(cfg)[0]
         runner_ms = 0
+        self.device_health = {}
         evidence.pre_failure = self._pre_attempt(scenario, env)
         if not evidence.pre_failure:
             result = self.adapter.call("run-scenario", scenario.id, adir, cfg.ports[p],
@@ -430,6 +442,8 @@ class PlatformRun:
             "outcome": "passed" if verdict.passed else "failed", "failureClass": verdict.klass,
             "failureSummary": verdict.summary, "countsAgainstCap": verdict.klass != cl.ENVIRONMENT,
             "load": {"start": load_start, "end": read_load(cfg)[0]}, "loadWaitSeconds": 0,
+            "deviceLoad1": self.device_health.get("deviceLoad1"),
+            "deviceLoadWaitSeconds": self.device_health.get("loadWaitSeconds"),
             "artifacts": os.path.relpath(adir, str(cfg.root)) if adir.startswith(str(cfg.root)) else adir,
         }
         return attempt, verdict
@@ -533,6 +547,8 @@ class PlatformRun:
                 os.makedirs(target, exist_ok=True)
                 m.finalize(outcome, code)
                 shutil.copyfile(m.path, os.path.join(target, "manifest.json"))
+        if self.env_checked and self.run_dir and not self.cfg.seam("E2E_FAKE_HOST_METRICS"):
+            m.data["competingProcesses"]["end"] = envcheck.top_processes(envcheck._process_table())
         m.finalize(outcome, code)
         self.log.close()
 

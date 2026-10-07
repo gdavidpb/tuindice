@@ -214,9 +214,9 @@ class BudgetAndProcessTests(unittest.TestCase):
         ws = Workspace(self, [scenario("fix-a")])
         write_metrics(ws.metrics, [40.0, 30.0, 20.0])
         threading.Timer(1.0, write_metrics, (ws.metrics, [0.5, 1.0, 1.0])).start()
-        result = ws.evidence(E2E_FAKE_LOAD_POLL_SECONDS="0.2")
+        result = ws.evidence(E2E_FAKE_LOAD_POLL_SECONDS="0.2", E2E_ENV_OVERRIDE="load")
         self.assertEqual(result.code, 0, result.out)
-        self.assertIn("LOAD  load1/ncpu is 10.00", result.out)
+        self.assertIn("LOAD  load1/ncpu is 10.00; waiting for it to drop below 0.8", result.out)
         self.assertGreater(ws.ledger()["scenarios"]["fix-a"]["attempts"][0]["loadWaitSeconds"], 0)
         self.assertGreaterEqual(ws.manifest()["load"]["max1m"], 40.0)
 
@@ -240,7 +240,7 @@ class ModeTests(unittest.TestCase):
 
     def test_evidence_rejects_filters_and_a_dirty_tree(self):
         ws = Workspace(self, three())
-        for flag in (["--scenario", "fix-a"], ["--tag", "x"], ["--repeat", "2"], ["--trace"]):
+        for flag in (["--scenario", "fix-a"], ["--tag", "x"], ["--repeat", "2"], ["--trace"], ["--survey"]):
             self.assertEqual(ws.run("run", "--platform", "ios", "--mode", "evidence", *flag).code, 2, flag)
         self.assertEqual(ws.evidence(E2E_SCENARIOS="fix-a").code, 2)
         with open(os.path.join(ws.repo, "stray.txt"), "w") as handle:
@@ -273,7 +273,7 @@ class ModeTests(unittest.TestCase):
         result = ws.run("run", "--platform", "ios", "--mode", "evidence", "--dry-run")
         self.assertEqual(result.code, 0, result.out)
         self.assertIn("DRY-RUN would run: fix-a, fix-b, fix-c", result.out)
-        self.assertEqual(ws.calls(), [])
+        self.assertEqual([c[1] for c in ws.calls()], ["toolchain"], "the only adapter call of a dry run is the read-only toolchain")
         self.assertFalse(os.path.exists(ws.state))
 
     def test_platform_all_runs_both_and_combines_the_codes(self):

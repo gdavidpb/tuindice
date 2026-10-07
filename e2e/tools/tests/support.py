@@ -68,6 +68,9 @@ class Workspace:
         for path in (self.repo, self.fake, self.wiremock, os.path.join(self.repo, ".github", "scripts")):
             os.makedirs(path)
         shutil.copy(os.path.join(TESTS, "fixtures", "common.sh"), os.path.join(self.repo, ".github", "scripts", "common.sh"))
+        shutil.copytree(os.path.join(TESTS, "..", "..", "toolchain"), os.path.join(self.repo, "e2e", "toolchain"))
+        shutil.copytree(os.path.join(TESTS, "..", "..", "..", "gradle"), os.path.join(self.repo, "gradle"),
+            ignore=shutil.ignore_patterns("wrapper", "*.jar"))
         self.git("init", "-q", "-b", "main")
         self.git("config", "user.name", "Harness Test")
         self.git("config", "user.email", "test@example.invalid")
@@ -147,10 +150,22 @@ class Workspace:
         return self.read(os.path.join(self.state, "ledger", platform, fingerprint, "ledger.json"))
 
     def run_dirs(self):
-        return sorted(glob.glob(os.path.join(self.state, "runs", "*")))
+        """Run directories of single-platform runs (the `all` parent directory only holds summary.json)."""
+        return [d for d in sorted(glob.glob(os.path.join(self.state, "runs", "*")))
+            if os.path.exists(os.path.join(d, "manifest.json"))]
 
     def manifest(self, index=-1):
         return self.read(os.path.join(self.run_dirs()[index], "manifest.json"))
+
+    def manifests(self):
+        """{platform: newest manifest}."""
+        return {m["platform"]: m for m in (self.read(os.path.join(d, "manifest.json")) for d in self.run_dirs())}
+
+    def set_metrics(self, **values):
+        data = {"load": [0.1, 0.1, 0.1], "ncpu": 10}
+        data.update(values)
+        with open(self.metrics, "w") as handle:
+            json.dump(data, handle)
 
     @staticmethod
     def read(path):

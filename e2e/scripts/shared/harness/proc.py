@@ -1,11 +1,23 @@
 """Child processes with deadlines. Every child gets its own process group, killed as a whole."""
 
+import json
 import os
 import signal
 import subprocess
 import time
 
 KILL_GRACE_SECONDS = 10.0
+
+
+def parse_json(text):
+    text = (text or "").strip()
+    for candidate in (text, text.splitlines()[-1] if text else ""):
+        try:
+            value = json.loads(candidate)
+            return value if isinstance(value, dict) else {}
+        except ValueError:
+            continue
+    return {}
 
 
 class Interrupted(BaseException):

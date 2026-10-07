@@ -10,6 +10,9 @@ PLATFORMS = ("android", "ios")
 SUITE_ID = "local-certification-suite"
 MODES = ("evidence", "diagnose")
 
+# The only env-check ids that can refuse a run, hence the only ones E2E_ENV_OVERRIDE accepts.
+REFUSABLE_CHECKS = ("load", "disk")
+
 # Time the runner needs besides the scenario's own timeout (build of the test
 # process, xcodebuild start-up), added to the kill deadline.
 RUNNER_OVERHEAD_SECONDS = {"android": 30, "ios": 90}
@@ -21,7 +24,7 @@ VERB_TIMEOUTS = {
     "build": 2400,
     "install": 300,
     "enumerate": 300,
-    "health": 60,
+    "health": 180,  # the Android probe may wait up to 120 s for the emulator load to drop
     "reset-app": 120,
     "crash-probe": 60,
     "collect-failure": 120,
@@ -97,7 +100,10 @@ class Config:
         self.tunnel = _choice(env, "E2E_ANDROID_TUNNEL", "host-alias", ("host-alias", "reverse"))
         self.delay_profile = _choice(env, "E2E_WIREMOCK_DELAY_PROFILE", "fast", ("fast", "legacy"))
         self.env_override = [item for item in env.get("E2E_ENV_OVERRIDE", "").split(",") if item]
-        self.scenario_filter = [item for item in env.get("E2E_SCENARIOS", "").split(",") if item]
+        unknown = [item for item in self.env_override if item not in REFUSABLE_CHECKS]
+        if unknown:
+            raise UsageError("E2E_ENV_OVERRIDE accepts only %s; got %s" % (", ".join(REFUSABLE_CHECKS), ", ".join(unknown)))
+        self.scenario_filter =[item for item in env.get("E2E_SCENARIOS", "").split(",") if item]
         self.artifacts_max_gb = _int(env, "E2E_ARTIFACTS_MAX_GB", 5, 1, 1000)
         tmp_default = os.path.join(env.get("TMPDIR") or "/tmp", "tuindice-e2e")
         self.tmp_root = Path(os.path.realpath(env.get("E2E_TMP_ROOT") or tmp_default))

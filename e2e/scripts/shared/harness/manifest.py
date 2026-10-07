@@ -26,15 +26,29 @@ def _sysctl(name):
         return ""
 
 
+FAKE_HOST_DEFAULTS = {"diskFreeGb": 500.0, "uptimeDays": 1.0, "memGb": 64, "memAvailableGb": 64.0, "procs": [],
+    "daemons": 0, "foreignDevices": []}
+
+
+def fake_metrics(config):
+    """E2E_FAKE_HOST_METRICS is a JSON file re-read on every call: {"load": [...], "ncpu": n} plus optional
+    diskFreeGb, uptimeDays, memGb, memAvailableGb, procs, daemons, foreignDevices (healthy defaults).
+    None when the seam is unset; with it set nothing about the host is probed."""
+    path = config.seam("E2E_FAKE_HOST_METRICS")
+    if not path:
+        return None
+    try:
+        data = json.load(open(path))
+    except (OSError, ValueError):
+        data = {}
+    return dict(FAKE_HOST_DEFAULTS, **data)
+
+
 def read_load(config):
-    """(load averages, ncpu). E2E_FAKE_HOST_METRICS is a JSON file {"load": [...], "ncpu": n} read on every call."""
-    fake = config.seam("E2E_FAKE_HOST_METRICS")
-    if fake:
-        try:
-            data = json.load(open(fake))
-            return list(data["load"]), int(data["ncpu"])
-        except (OSError, ValueError, KeyError):
-            pass
+    """(load averages, ncpu), from the fake metrics when the seam is set."""
+    fake = fake_metrics(config)
+    if fake and "load" in fake and "ncpu" in fake:
+        return list(fake["load"]), int(fake["ncpu"])
     try:
         return list(os.getloadavg()), os.cpu_count() or 1
     except OSError:
@@ -52,12 +66,16 @@ def collect_host(config):
             pass
     mem = _sysctl("hw.memsize")
     usage = shutil.disk_usage(str(config.root))
-    return {
+    host = {
         "model": _sysctl("hw.model") or host_platform.node(), "cpu": _sysctl("machdep.cpu.brand_string"), "ncpu": ncpu,
         "memGb": round(int(mem) / 2 ** 30) if mem.isdigit() else None,
         "os": "%s %s" % (host_platform.system(), host_platform.release()), "uptimeDays": uptime_days,
         "diskFreeGb": round(usage.free / 2 ** 30, 1),
-    }, load
+    }
+    fake = fake_metrics(config)
+    if fake:
+        host.update({key: fake[key] for key in ("memGb", "uptimeDays", "diskFreeGb")})
+    return host, load
 
 
 class Manifest:
@@ -68,14 +86,14 @@ class Manifest:
         host, load = collect_host(config)
         self.data = {
             "schema": SCHEMA, "runId": run_id, "mode": mode, "platform": platform, "outcome": "running", "exitCode": None,
-            "commitSha": None, "branch": None, "upstreamSha": None, "treeClean": None, "headEqualsUpstream": None,
+            "parentRunId": None, "commitSha": None, "branch": None, "upstreamSha": None, "treeClean": None, "headEqualsUpstream": None,
             "fingerprint": None, "fingerprintVersion": config.layout.get("E2E_FINGERPRINT_VERSION"), "statusContext": None,
             "published": {"required": False, "attempted": False, "ok": None, "description": None},
             "startedAt": now(), "finishedAt": None, "durationSeconds": 0, "phases": [],
             "budget": {"minutes": config.budget_minutes, "usedSeconds": 0},
             "retryPolicy": {"maxRetries": config.max_retries, "nonRetryable": ["typed_text_mismatch", "app_crash"]},
             "parallel": {"requested": config.parallel, "decision": "sequential",
-                "reason": "parallel policy is not implemented yet (F15)"},
+                "reason": "single platform"},
             "overrides": {"env": list(config.env_override), "parallel": None if config.parallel == "auto" else config.parallel,
                 "scenarioResets": []},
             "host": host, "load": {"start": load, "end": load, "max1m": load[0], "samples": []},

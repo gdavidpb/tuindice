@@ -1,0 +1,68 @@
+#!/usr/bin/env bash
+# Fake xcrun for the device.sh tests. State lives in $FAKE_XCRUN_DIR:
+#   sim               "<udid> <state>" while the simulator exists (state: Shutdown|Booted)
+#   ignore            "<domain> <key>" lines whose `defaults write` is silently ignored
+#   prefs/<udid>/<domain>/<key>   stored preference values as `defaults read` prints them
+#   calls.log         one line per call
+set -euo pipefail
+
+dir="${FAKE_XCRUN_DIR:?FAKE_XCRUN_DIR is required}"
+mkdir -p "${dir}"
+printf '%s\n' "$*" >> "${dir}/calls.log"
+runtime="com.apple.CoreSimulator.SimRuntime.iOS-27-0"
+udid="FAKE-0000-0000-0000-000000000001"
+
+if [[ "${1:-}" == "xcodebuild" ]]; then
+	printf 'Xcode %s\nBuild version %s\n' "${FAKE_XCODE_VERSION:-27.0}" "${FAKE_XCODE_BUILD:-27A266a}"
+	exit 0
+fi
+[[ "${1:-}" == "simctl" ]] || { echo "fake xcrun: unsupported $*" >&2; exit 64; }
+shift
+verb="${1:-}"
+if (( $# > 0 )); then shift; fi
+
+case "${verb}" in
+	list)
+		case "$1" in
+			runtimes)
+				printf '{"runtimes":[{"identifier":"%s","version":"27.0","buildversion":"%s","isAvailable":true}]}\n' "${runtime}" "${FAKE_RUNTIME_BUILD:-24A434}"
+				;;
+			devicetypes)
+				echo '{"devicetypes":[{"identifier":"com.apple.CoreSimulator.SimDeviceType.iPhone-18-Pro","name":"iPhone 18 Pro"}]}'
+				;;
+			devices)
+				if [[ -f "${dir}/sim" ]]; then
+					read -r id state < "${dir}/sim"
+					printf '{"devices":{"%s":[{"udid":"%s","name":"TuIndice-E2E","state":"%s"}]}}\n' "${runtime}" "${id}" "${state}"
+				else
+					echo '{"devices":{}}'
+				fi
+				;;
+		esac
+		;;
+	create) echo "${udid} Shutdown" > "${dir}/sim"; echo "${udid}" ;;
+	erase | bootstatus) ;;
+	boot) echo "${1} Booted" > "${dir}/sim" ;;
+	shutdown) echo "${1} Shutdown" > "${dir}/sim" ;;
+	spawn)
+		id="$1"
+		[[ "$2" == "defaults" ]] || exit 64
+		action="$3"
+		domain="$4"
+		key="$5"
+		file="${dir}/prefs/${id}/${domain}/${key}"
+		if [[ "${action}" == "write" ]]; then
+			grep -qxF -e "${domain} ${key}" "${dir}/ignore" 2> /dev/null && exit 0
+			mkdir -p "$(dirname "${file}")"
+			case "$6" in
+				-bool) if [[ "$7" == "false" ]]; then echo 0 > "${file}"; else echo 1 > "${file}"; fi ;;
+				-array) printf '(\n    %s\n)\n' "$7" > "${file}" ;;
+				*) echo "$7" > "${file}" ;;
+			esac
+		else
+			[[ -f "${file}" ]] || exit 1
+			cat "${file}"
+		fi
+		;;
+	*) echo "fake xcrun: unsupported simctl ${verb}" >&2; exit 64 ;;
+esac
