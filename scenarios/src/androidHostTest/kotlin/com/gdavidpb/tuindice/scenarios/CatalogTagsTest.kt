@@ -1,5 +1,6 @@
 package com.gdavidpb.tuindice.scenarios
 
+import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.scenariokit.codec.CatalogCodec
 import com.gdavidpb.tuindice.scenarios.catalog.E2eCatalog
 import kotlinx.serialization.json.Json
@@ -8,31 +9,28 @@ import kotlinx.serialization.json.JsonElement
 import kotlinx.serialization.json.JsonObject
 import kotlinx.serialization.json.JsonPrimitive
 import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class CatalogTagsTest {
-	private val constant = Regex("""const\s+val\s+\w+\s*=\s*"([^"]+)"""")
-	private val builder = Regex("""fun\s+\w+\([^)]*\)\s*:\s*String\s*=\s*"((?:[^"\\]|\\.)*)"""")
-	private val interpolation = Regex("""\$\{[^}]*}|\$\w+""")
-
 	/** Tags no `*UiTags` declares, on purpose. */
 	private val exceptions = setOf("poc_never_present")
 
+	private val real = UiTagSources(RepoFiles.uiTagFiles().map { it.readText() })
+
 	@Test
 	fun everyTagIsAUiTagConstantOrFitsABuilderTemplate() {
-		val sources = RepoFiles.uiTagFiles().map { it.readText() }
-		val constants = sources.flatMap { text -> constant.findAll(text).map { it.groupValues[1] }.toList() }.toSet()
-		val templates = sources.flatMap { text -> builder.findAll(text).map { it.groupValues[1] }.toList() }
-			.filter { interpolation.containsMatchIn(it) }
-			.map(::templateRegex)
+		assertTrue(real.hasTags, "no UiTags found")
 
-		assertTrue(constants.isNotEmpty() && templates.isNotEmpty(), "no UiTags found")
-
-		val unknown = resolvedTags().filter { tag ->
-			tag !in exceptions && tag !in constants && templates.none { it.matches(tag) }
-		}
+		val unknown = resolvedTags().filter { tag -> tag !in exceptions && !real.accepts(tag) }
 
 		assertTrue(unknown.isEmpty(), "tags that no UiTags declares: ${unknown.sorted()}")
+	}
+
+	@Test
+	fun noBuilderTemplateLacksALiteralPrefix() {
+		assertTrue(real.degenerate.isEmpty(), "templates that would accept any tag: ${real.degenerate}")
 	}
 
 	@Test
@@ -42,10 +40,47 @@ class CatalogTagsTest {
 		assertTrue(stale.isEmpty(), "exceptions no scenario uses: $stale")
 	}
 
-	private fun templateRegex(template: String): Regex {
-		val literals = template.split(interpolation).map(Regex::escape)
+	@Test
+	fun aMisspelledTagIsRejected() {
+		assertTrue(real.accepts(AuthUiTags.SignInButton))
+		assertFalse(real.accepts("auth_sign_in_buton"))
+		assertFalse(real.accepts("not_a_tag_at_all"))
+	}
 
-		return Regex(literals.joinToString(".+"))
+	@Test
+	fun aTemplateResolvesTheConstantsOfItsFileAndOnlyLeavesTheCallerPartFree() {
+		val sources = UiTagSources(
+			listOf(
+				"""
+				const val Action = "grade_action"
+				fun actionFor(id: String): String = "${'$'}{Action}_${'$'}{id}"
+				""".trimIndent()
+			)
+		)
+
+		assertTrue(sources.degenerate.isEmpty())
+		assertTrue(sources.accepts("grade_action_7"))
+		assertFalse(sources.accepts("other_action_7"))
+		assertFalse(sources.accepts("grade_acton_7"))
+	}
+
+	@Test
+	fun aTemplateWithoutALiteralPrefixIsReportedInsteadOfAcceptingEveryUnderscoreTag() {
+		val sources = UiTagSources(
+			listOf("""fun both(a: String, b: String): String = "${'$'}{a}_${'$'}{b}"""")
+		)
+
+		assertEquals(listOf("${'$'}{a}_${'$'}{b}"), sources.degenerate)
+		assertFalse(sources.accepts("any_tag"))
+	}
+
+	@Test
+	fun aTemplateWhoseOnlyPrefixIsAnUnknownNameIsReportedToo() {
+		val sources = UiTagSources(
+			listOf("""fun unresolved(id: String): String = "${'$'}{Missing}_${'$'}{id}"""")
+		)
+
+		assertTrue(sources.degenerate.isNotEmpty())
 	}
 
 	/** Every `Query.Tag` of the catalog as it is exported, wherever a step holds it. */

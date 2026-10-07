@@ -4,7 +4,9 @@ import com.gdavidpb.tuindice.auth.ui.AuthUiTags
 import com.gdavidpb.tuindice.base.presentation.model.TopBarAction
 import com.gdavidpb.tuindice.base.ui.BaseUiTags
 import com.gdavidpb.tuindice.pensum.ui.PensumUiTags
+import com.gdavidpb.tuindice.record.domain.model.SyntheticTermSubjectAvailability
 import com.gdavidpb.tuindice.record.ui.RecordUiTags
+import com.gdavidpb.tuindice.record.ui.model.CreateTermSubjectCardAction
 import com.gdavidpb.tuindice.scenariokit.dsl.StepBuilder
 import com.gdavidpb.tuindice.scenariokit.dsl.SwipeDirection
 import com.gdavidpb.tuindice.scenariokit.dsl.assertEnabled
@@ -43,15 +45,16 @@ private const val SLIDER_HIGH_X = 0.95
 private const val SLIDER_LOW_X = 0.75
 private const val SLIDER_MIDDLE_Y = 0.5
 
-// The status of a subject in the search results, as the tags of the rows name it.
-private const val STATUS_AVAILABLE = "available"
-private const val STATUS_ALREADY_PLANNED = "already_planned"
-private const val STATUS_BLOCKED = "blocked"
-private const val STATUS_NOT_IN_PENSUM = "not_in_pensum"
-private const val STATUS_APPROVED = "approved"
-private const val STATUS_SLOT = "counts_as_slot"
-private const val ACTION_ADD = "add"
-private const val ACTION_REMOVE = "remove"
+// The status and the action of a subject in the search results, as the tags of the rows name them: the
+// lowercase name of the enum the rows are built from, so a rename in the product breaks the compile.
+private val STATUS_AVAILABLE = SyntheticTermSubjectAvailability.AVAILABLE.name.lowercase()
+private val STATUS_ALREADY_PLANNED = SyntheticTermSubjectAvailability.ALREADY_PLANNED.name.lowercase()
+private val STATUS_BLOCKED = SyntheticTermSubjectAvailability.BLOCKED.name.lowercase()
+private val STATUS_NOT_IN_PENSUM = SyntheticTermSubjectAvailability.NOT_IN_PENSUM.name.lowercase()
+private val STATUS_APPROVED = SyntheticTermSubjectAvailability.APPROVED.name.lowercase()
+private val STATUS_SLOT = SyntheticTermSubjectAvailability.COUNTS_AS_SLOT.name.lowercase()
+private val ACTION_ADD = CreateTermSubjectCardAction.Add.name.lowercase()
+private val ACTION_REMOVE = CreateTermSubjectCardAction.Remove.name.lowercase()
 private const val ATTEMPT_APPROVED = "approved"
 private const val CLASH_DAY = 2
 private const val GRADE_BEFORE = 4
