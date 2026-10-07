@@ -22,7 +22,7 @@ SUMMARY_FILE="${SUMMARY_FILE:-${GITHUB_STEP_SUMMARY:-${RUNNER_TEMP:-/tmp}/prefli
 TARGET_GIT_SHA="${TARGET_GIT_SHA:-${GITHUB_SHA:-$(git rev-parse HEAD)}}"
 E2E_REUSE_BASE_SHA="${E2E_REUSE_BASE_SHA:-}"
 E2E_REUSE_MAX_COMMITS="${E2E_REUSE_MAX_COMMITS:-50}"
-E2E_FINGERPRINT_SCRIPT="${E2E_FINGERPRINT_SCRIPT:-${REPO_ROOT}/e2e/scripts/e2e-fingerprint.sh}"
+E2E_FINGERPRINT_SCRIPT="${E2E_FINGERPRINT_SCRIPT:-${REPO_ROOT}/e2e/scripts/shared/e2e-fingerprint.sh}"
 MISSING_E2E_STATUSES_FILE="${MISSING_E2E_STATUSES_FILE:-${RUNNER_TEMP:-/tmp}/missing-e2e-statuses.txt}"
 
 file_has_entries() {
@@ -38,22 +38,6 @@ join_file_lines_as_csv() {
 	fi
 }
 
-evidence_task_for_platform() {
-	local platform="$1"
-
-	case "$platform" in
-		android)
-			printf 'e2eMaestroEvidenceAndroid\n'
-			;;
-		ios)
-			printf 'e2eMaestroEvidenceIos\n'
-			;;
-		*)
-			die "Unsupported E2E evidence platform '${platform}'."
-			;;
-	esac
-}
-
 record_missing_e2e_status() {
 	local platform="$1"
 	local context="$2"
@@ -64,7 +48,6 @@ record_missing_e2e_status() {
 write_missing_e2e_guidance() {
 	local platform
 	local context
-	local task
 
 	file_has_entries "$MISSING_E2E_STATUSES_FILE" || return 0
 	sort -u "$MISSING_E2E_STATUSES_FILE" -o "$MISSING_E2E_STATUSES_FILE"
@@ -72,19 +55,18 @@ write_missing_e2e_guidance() {
 	warn "Missing successful E2E statuses on ${TARGET_GIT_SHA}:"
 	while IFS=$'\t' read -r platform context; do
 		[[ -n "$platform" && -n "$context" ]] || continue
-		task="$(evidence_task_for_platform "$platform")"
-		warn " - ${context} (publish with: E2E_COMMIT_SHA=${TARGET_GIT_SHA} ./gradlew ${task})"
+		warn " - ${context}"
 	done <"$MISSING_E2E_STATUSES_FILE"
+	warn "On a clean checkout of ${TARGET_GIT_SHA} with HEAD == upstream, run ./gradlew e2eEvidence (or e2eEvidenceAndroid / e2eEvidenceIos). The harness runs only the scenarios not yet green for the fingerprint and publishes each status."
 
 	{
 		printf '\n### Missing local E2E evidence\n\n'
 		printf 'Publish every missing commit status for `%s` before rerunning preflight:\n\n' "$TARGET_GIT_SHA"
 		while IFS=$'\t' read -r platform context; do
 			[[ -n "$platform" && -n "$context" ]] || continue
-			task="$(evidence_task_for_platform "$platform")"
-			printf -- '- `%s` with `E2E_COMMIT_SHA=%s ./gradlew %s`\n' "$context" "$TARGET_GIT_SHA" "$task"
+			printf -- '- `%s`\n' "$context"
 		done <"$MISSING_E2E_STATUSES_FILE"
-		printf '\nOr run `E2E_COMMIT_SHA=%s ./gradlew e2eMaestroEvidenceLocal` to publish all required local evidence for this diff.\n' "$TARGET_GIT_SHA"
+		printf '\nOn a clean checkout of `%s` with HEAD == upstream, run `./gradlew e2eEvidence` (or `e2eEvidenceAndroid` / `e2eEvidenceIos`). The harness runs only the scenarios not yet green for the fingerprint and publishes the context above.\n' "$TARGET_GIT_SHA"
 	} >>"$SUMMARY_FILE"
 }
 
@@ -161,9 +143,7 @@ status_context_success_description_at_sha() {
 }
 
 # Published evidence embeds the first 12 chars of the suite fingerprint in the
-# status description; a success state alone is not accepted as evidence. The
-# aggregate certification-suite fingerprint also covers focused suites because
-# e2eMaestroEvidenceLocal publishes covered contexts with its own description.
+# status description; a success state alone is not accepted as evidence.
 description_matches_fingerprint() {
 	local description="$1"
 	local platform="$2"
@@ -172,18 +152,7 @@ description_matches_fingerprint() {
 	local fingerprint
 
 	fingerprint="$(e2e_fingerprint "$sha" "$platform" "$suite" || true)"
-	if [[ -n "$fingerprint" && "$description" == *"fp ${fingerprint:0:12}"* ]]; then
-		return 0
-	fi
-
-	if [[ "$suite" != "local-certification-suite" ]]; then
-		fingerprint="$(e2e_fingerprint "$sha" "$platform" "local-certification-suite" || true)"
-		if [[ -n "$fingerprint" && "$description" == *"fp ${fingerprint:0:12}"* ]]; then
-			return 0
-		fi
-	fi
-
-	return 1
+	[[ -n "$fingerprint" && "$description" == *"fp ${fingerprint:0:12}"* ]]
 }
 
 status_context_succeeded() {
@@ -255,13 +224,13 @@ publish_reused_github_commit_status() {
 	return 1
 }
 
+# The suite is read out of the platform's one status context (common.sh); any other context is not evidence.
 e2e_suite_from_context() {
 	local context="$1"
 	local platform="$2"
-	local prefix="local-e2e/${platform}/"
 
-	[[ "$context" == "${prefix}"* ]] || return 1
-	printf '%s\n' "${context#"$prefix"}"
+	[[ "$context" == "$(e2e_status_context "$platform")" ]] || return 1
+	printf '%s\n' "${context##*/}"
 }
 
 e2e_fingerprint() {
@@ -385,7 +354,6 @@ verify_contexts_file() {
 	local file="$1"
 	local platform="$2"
 	local context
-	local fallback_context="local-e2e/${platform}/local-certification-suite"
 	local missing_status=false
 
 	file_has_entries "$file" || return 0
@@ -397,17 +365,7 @@ verify_contexts_file() {
 			continue
 		fi
 
-		if [[ "$context" != "$fallback_context" ]] && status_context_succeeded "$fallback_context" "$platform"; then
-			info "Found successful aggregate E2E status for ${context}: ${fallback_context}"
-			continue
-		fi
-
 		if reuse_successful_status_for_context "$context" "$platform"; then
-			continue
-		fi
-
-		if [[ "$context" != "$fallback_context" ]] && reuse_successful_status_for_context "$fallback_context" "$platform"; then
-			info "Reused successful aggregate E2E status for ${context}: ${fallback_context}"
 			continue
 		fi
 

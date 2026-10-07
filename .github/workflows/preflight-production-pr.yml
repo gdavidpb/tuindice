@@ -23,6 +23,7 @@ jobs:
       ios_test_tasks: ${{ steps.changes.outputs.ios_test_tasks }}
       ios_host_tasks: ${{ steps.changes.outputs.ios_host_tasks }}
       ios_ci_scripts_touched: ${{ steps.changes.outputs.ios_ci_scripts_touched }}
+      ios_uitest_build_required: ${{ steps.changes.outputs.ios_uitest_build_required }}
       has_relevant_changes: ${{ steps.changes.outputs.has_relevant_changes }}
       app_version_changed: ${{ steps.changes.outputs.app_version_changed }}
       has_release_impact: ${{ steps.changes.outputs.has_release_impact }}
@@ -226,6 +227,36 @@ jobs:
             -Pcompose.ios.resources.archs=arm64 \
             ${{ needs.shared-preflight.outputs.ios_host_tasks }}
 
+  # The E2E UI test target is built by the same script the local harness uses. It is a job of its own
+  # because ios-host-preflight exports device-release variables (PLATFORM_NAME=iphoneos and the
+  # compose iphoneos resources) that would break a simulator build. The Xcode is whatever
+  # ./.github/actions/setup-ios-build selects for every iOS job.
+  ios-uitest-preflight:
+    name: iOS UI test target preflight
+    runs-on: macos-26
+    timeout-minutes: 45
+    needs:
+      - shared-preflight
+    if: ${{ !cancelled() && needs.shared-preflight.result == 'success' && needs.shared-preflight.outputs.ios_uitest_build_required == 'true' }}
+
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          fetch-depth: 0
+
+      - name: Set up iOS build environment
+        uses: ./.github/actions/setup-ios-build
+        with:
+          cache-device-framework: "false"
+          cache-read-only: "false"
+
+      - name: Build the iOS UI test target
+        run: |
+          set -euo pipefail
+          bash ./e2e/scripts/ios/build.sh --for-testing-only
+
   preflight-production-pr:
     name: preflight-production-pr
     runs-on: ubuntu-latest
@@ -234,6 +265,7 @@ jobs:
       - android-preflight
       - ios-test-preflight
       - ios-host-preflight
+      - ios-uitest-preflight
     if: always()
     steps:
       - name: Verify preflight jobs
@@ -243,14 +275,17 @@ jobs:
           android_result="${{ needs.android-preflight.result }}"
           ios_test_result="${{ needs.ios-test-preflight.result }}"
           ios_host_result="${{ needs.ios-host-preflight.result }}"
+          ios_uitest_result="${{ needs.ios-uitest-preflight.result }}"
           android_tasks="${{ needs.shared-preflight.outputs.android_tasks }}"
           ios_test_tasks="${{ needs.shared-preflight.outputs.ios_test_tasks }}"
           ios_host_tasks="${{ needs.shared-preflight.outputs.ios_host_tasks }}"
           ios_ci_scripts_touched="${{ needs.shared-preflight.outputs.ios_ci_scripts_touched }}"
+          ios_uitest_build_required="${{ needs.shared-preflight.outputs.ios_uitest_build_required }}"
           echo "Shared preflight result: ${shared_result}"
           echo "Android preflight result: ${android_result}"
           echo "iOS test preflight result: ${ios_test_result}"
           echo "iOS host preflight result: ${ios_host_result}"
+          echo "iOS UI test preflight result: ${ios_uitest_result}"
           if [[ "${shared_result}" != "success" ]]; then
             exit 1
           fi
@@ -261,5 +296,8 @@ jobs:
             exit 1
           fi
           if [[ ( -n "${ios_host_tasks}" || "${ios_ci_scripts_touched}" == "true" ) && "${ios_host_result}" != "success" ]]; then
+            exit 1
+          fi
+          if [[ "${ios_uitest_build_required}" == "true" && "${ios_uitest_result}" != "success" ]]; then
             exit 1
           fi

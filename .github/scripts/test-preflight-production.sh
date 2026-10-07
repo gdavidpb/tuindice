@@ -43,7 +43,7 @@ run_preflight_fixture() {
 	output_file="${temp_dir}/output.log"
 	mkdir -p "${bin_dir}"
 
-	printf 'local-e2e/android/record-suite\n' >"${android_contexts_file}"
+	printf '%s\n' "${TUINDICE_PREFLIGHT_TEST_CONTEXT:-local-e2e/android/local-certification-suite}" >"${android_contexts_file}"
 	: >"${ios_contexts_file}"
 	: >"${missing_version_file}"
 	cat >"${fingerprint_script}" <<'SH'
@@ -107,19 +107,21 @@ if [[ "${url}" == *"/commits/"*"/statuses" ]]; then
 	# (singular /status), which never includes creator. preflight-production.sh
 	# queries the former precisely so a real creator is visible to check.
 	if [[ ("${mode}" == "reuse-success" || "${mode}" == "publish-fails") && "${url}" != *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
-		printf '[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]\n'
+		printf '[{"context":"local-e2e/android/local-certification-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E android 12/12 passed for 1234567 fp fixture-fing."}]\n'
 	elif [[ "${mode}" == "direct-success" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
-		printf '[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]\n'
+		printf '[{"context":"local-e2e/android/local-certification-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E android 12/12 passed for 1234567 fp fixture-fing."}]\n'
 	elif [[ "${mode}" == "forged-status" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
-		printf '[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E record-suite passed for 1234567 fp 000000000000."}]\n'
+		printf '[{"context":"local-e2e/android/local-certification-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E android 12/12 passed for 1234567 fp 000000000000."}]\n'
 	elif [[ "${mode}" == "untrusted-creator" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
-		printf '[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"intruder"},"description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]\n'
+		printf '[{"context":"local-e2e/android/local-certification-suite","state":"success","creator":{"login":"intruder"},"description":"Local E2E android 12/12 passed for 1234567 fp fixture-fing."}]\n'
 	elif [[ "${mode}" == "untrusted-candidate" && "${url}" != *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
-		printf '[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"intruder"},"description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]\n'
+		printf '[{"context":"local-e2e/android/local-certification-suite","state":"success","creator":{"login":"intruder"},"description":"Local E2E android 12/12 passed for 1234567 fp fixture-fing."}]\n'
 	elif [[ "${mode}" == "forged-candidate" && "${url}" != *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
-		printf '[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"gdavidpb"},"description":"no fingerprint at all"}]\n'
+		printf '[{"context":"local-e2e/android/local-certification-suite","state":"success","creator":{"login":"gdavidpb"},"description":"no fingerprint at all"}]\n'
+	elif [[ "${mode}" == "legacy-context" ]]; then
+		printf '[{"context":"local-e2e/android/record-suite","state":"success","creator":{"login":"gdavidpb"},"description":"Local E2E android 12/12 passed for 1234567 fp fixture-fing."}]\n'
 	elif [[ "${mode}" == "anonymous-status" && "${url}" == *"${TUINDICE_PREFLIGHT_TEST_TARGET_SHA}"* ]]; then
-		printf '[{"context":"local-e2e/android/record-suite","state":"success","description":"Local E2E record-suite passed for 1234567 fp fixture-fing."}]\n'
+		printf '[{"context":"local-e2e/android/local-certification-suite","state":"success","description":"Local E2E android 12/12 passed for 1234567 fp fixture-fing."}]\n'
 	else
 		printf '[]\n'
 	fi
@@ -239,5 +241,7 @@ run_preflight_fixture missing-status-reuse missing-status failure
 run_preflight_fixture untrusted-candidate untrusted-candidate failure
 run_preflight_fixture forged-candidate forged-candidate failure
 run_preflight_fixture anonymous-status anonymous-status failure
+# A context other than the platform's single status context is never evidence, even when it is green.
+TUINDICE_PREFLIGHT_TEST_CONTEXT=local-e2e/android/record-suite run_preflight_fixture legacy-context legacy-context failure
 
 printf 'Preflight production shell fixtures passed.\n'

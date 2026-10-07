@@ -55,6 +55,7 @@ REQUIRES_E2E_CERTIFICATION=false
 PROCESSED_RUNTIME_MODULES=$'\n'
 PROCESSED_E2E_SUITES=$'\n'
 PROCESSED_E2E_SCOPES=$'\n'
+IOS_UITEST_BUILD_REQUIRED=false
 
 value_seen_in_newline_set() {
 	local set_value="$1"
@@ -78,73 +79,37 @@ append_e2e_suite() {
 	fi
 }
 
+# Local E2E evidence is one suite per platform: the whole scenario catalog. A platform either needs it or not.
+E2E_SUITE_ID="local-certification-suite"
+
 append_e2e_scope() {
 	local platform="$1"
-	local suite="$2"
-	local reason="${3:-changed-runtime}"
-	local key
+	local reason="${2:-changed-runtime}"
 
 	if [[ "$platform" == "all" ]]; then
-		append_e2e_scope android "$suite" "$reason"
-		append_e2e_scope ios "$suite" "$reason"
+		append_e2e_scope android "$reason"
+		append_e2e_scope ios "$reason"
 		return 0
 	fi
 
 	case "$platform" in
 		android|ios)
 			;;
+		none)
+			return 0
+			;;
 		*)
 			die "Unsupported E2E platform scope '${platform}'."
 			;;
 	esac
 
-	if [[ -z "$suite" ]]; then
-		return 0
+	if ! value_seen_in_newline_set "$PROCESSED_E2E_SCOPES" "$platform"; then
+		PROCESSED_E2E_SCOPES="${PROCESSED_E2E_SCOPES}${platform}"$'\n'
+		append_unique_line "$E2E_SCOPE_FILE" "${platform},${E2E_SUITE_ID},${reason}"
 	fi
 
-	key="${platform}|${suite}"
-	if ! value_seen_in_newline_set "$PROCESSED_E2E_SCOPES" "$key"; then
-		PROCESSED_E2E_SCOPES="${PROCESSED_E2E_SCOPES}${key}"$'\n'
-		append_unique_line "$E2E_SCOPE_FILE" "${platform},${suite},${reason}"
-	fi
-
-	append_e2e_suite "$suite"
+	append_e2e_suite "$E2E_SUITE_ID"
 	REQUIRES_E2E_CERTIFICATION=true
-}
-
-append_e2e_scope_for_module() {
-	local platform="$1"
-	local module="$2"
-	local reason="${3:-changed-runtime}"
-	local suite
-
-	suite="$(module_e2e_suite "$module" || true)"
-	if [[ -n "$suite" ]]; then
-		append_e2e_scope "$platform" "$suite" "$reason"
-	fi
-}
-
-append_e2e_scopes_for_modules() {
-	local platform="$1"
-	local reason="$2"
-	shift 2
-
-	local module
-	for module in "$@"; do
-		append_e2e_scope_for_module "$platform" "$module" "$reason"
-	done
-}
-
-append_e2e_scopes_for_impacted_features() {
-	local platform="$1"
-	local module="$2"
-	local reason="$3"
-	local feature
-
-	while IFS= read -r feature; do
-		[[ -n "$feature" ]] || continue
-		append_e2e_scope_for_module "$platform" "$feature" "$reason"
-	done < <(module_impacted_feature_suites "$module")
 }
 
 append_runtime_module() {
@@ -217,12 +182,6 @@ is_kmp_runtime_source_or_build_file() {
 	return 1
 }
 
-mark_e2e_suite_for_module() {
-	local module="$1"
-
-	append_e2e_scopes_for_impacted_features all "$module" "module-runtime"
-}
-
 append_ios_test_task() {
 	append_unique_line "$IOS_TASKS_FILE" "$1"
 	append_unique_line "$IOS_TEST_TASKS_FILE" "$1"
@@ -278,76 +237,9 @@ is_ios_signing_only_config_change() {
 	[[ "$has_signing_change" == "true" ]]
 }
 
-append_e2e_scope_for_mock_path() {
-	local file="$1"
-
-	case "$file" in
-		mocks/mappings/login/*)
-			append_e2e_scope all auth-suite "mock-login"
-			;;
-		mocks/mappings/enrollmentproof/*)
-			append_e2e_scope all enrollmentproof-suite "mock-enrollmentproof"
-			;;
-		mocks/mappings/evaluations/*)
-			append_e2e_scope all evaluations-suite "mock-evaluations"
-			;;
-		mocks/mappings/pensums/*|mocks/__files/pensums/*)
-			append_e2e_scope all pensum-suite "mock-pensum"
-			;;
-		mocks/mappings/record/*)
-			append_e2e_scope all record-suite "mock-record"
-			;;
-		mocks/mappings/subjects/*|mocks/__files/subjects/*)
-			append_e2e_scope all subjects-suite "mock-subjects"
-			;;
-		mocks/mappings/summary/*|mocks/__files/summary/*)
-			append_e2e_scope all summary-suite "mock-summary"
-			;;
-		*)
-			append_e2e_scope all local-certification-suite "mock-shared"
-			;;
-	esac
-}
-
-append_e2e_scope_for_shared_module_path() {
-	local module="$1"
-	local file="$2"
-
-	case "$module" in
-		academiccore)
-			append_e2e_scopes_for_impacted_features all academiccore "academiccore-runtime"
-			;;
-		persistence)
-			append_e2e_scopes_for_impacted_features all persistence "persistence-runtime"
-			case "$file" in
-				persistence/build.gradle.kts|persistence/src/*Main/kotlin/*/di/*|persistence/src/*Main/kotlin/*/data/source/*|persistence/src/*Main/kotlin/*/data/room/schema/*)
-					append_e2e_scope all maincore-suite "persistence-bootstrap"
-					;;
-			esac
-			;;
-		base)
-			case "$file" in
-				base/src/*Main/kotlin/*/domain/model/quarter/*|base/src/*Main/kotlin/*/domain/model/subject/*)
-					append_e2e_scopes_for_modules all "base-academic-models" summary record evaluations subjects pensum wizard
-					;;
-				base/src/*Main/kotlin/*/domain/model/mutation/*)
-					append_e2e_scopes_for_modules all "base-mutation-models" auth record evaluations
-					;;
-				*)
-					append_e2e_scope all local-certification-suite "base-shared-runtime"
-					;;
-			esac
-			;;
-		maincore)
-			append_e2e_scope all local-certification-suite "maincore-runtime"
-			;;
-	esac
-}
-
 classify_changed_file() {
 	local file="$1"
 	local top_level="${file%%/*}"
-	local suite_name
 
 	case "$file" in
 		.DS_Store|*/.DS_Store)
@@ -385,58 +277,84 @@ classify_changed_file() {
 			HAS_RELEVANT_CHANGES=true
 			return 0
 			;;
-		e2e/maestro/flows/suites/*-suite.yaml)
+		e2e/catalog/*)
 			E2E_CONTRACT_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
-			suite_name="$(basename "$file" .yaml)"
-			append_e2e_scope all "$suite_name" "e2e-suite"
+			append_e2e_scope all "e2e-catalog"
 			return 0
 			;;
-		e2e/maestro/flows/*/*)
+		e2e/scripts/shared/*)
 			E2E_CONTRACT_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
-			case "$file" in
-				e2e/maestro/flows/auth/*) append_e2e_scope all auth-suite "e2e-flow-auth" ;;
-				e2e/maestro/flows/about/*) append_e2e_scope all about-suite "e2e-flow-about" ;;
-				e2e/maestro/flows/enrollmentproof/*) append_e2e_scope all enrollmentproof-suite "e2e-flow-enrollmentproof" ;;
-				e2e/maestro/flows/evaluations/*) append_e2e_scope all evaluations-suite "e2e-flow-evaluations" ;;
-				e2e/maestro/flows/maincore/*) append_e2e_scope all maincore-suite "e2e-flow-maincore" ;;
-				e2e/maestro/flows/pensum/*) append_e2e_scope all pensum-suite "e2e-flow-pensum" ;;
-				e2e/maestro/flows/record/*) append_e2e_scope all record-suite "e2e-flow-record" ;;
-				e2e/maestro/flows/subjects/*) append_e2e_scope all subjects-suite "e2e-flow-subjects" ;;
-				e2e/maestro/flows/summary/*) append_e2e_scope all summary-suite "e2e-flow-summary" ;;
-				*) append_e2e_scope all local-certification-suite "e2e-flow-shared" ;;
-			esac
+			append_e2e_scope all "e2e-harness-shared"
+			return 0
+			;;
+		e2e/scripts/android/*|e2e/toolchain/android.lock)
+			E2E_CONTRACT_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			append_e2e_scope android "e2e-harness-android"
+			return 0
+			;;
+		e2e/scripts/ios/*|e2e/toolchain/ios.lock)
+			E2E_CONTRACT_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			append_e2e_scope ios "e2e-harness-ios"
+			return 0
+			;;
+		e2e/tools/*|e2e/platform/*|e2e/*.md)
+			# Verifiers, their tests and the platform notes sit outside the fingerprint:
+			# they cannot change what a scenario does, and verifyE2eContract re-runs them.
+			E2E_CONTRACT_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			return 0
+			;;
+		e2e/maestro/*|e2e/scripts/*)
+			# Legacy Maestro flows and the pre-v5 scripts under e2e/scripts: the v5 fingerprint
+			# does not read them. verifyE2eContract still validates them until they are removed.
+			E2E_CONTRACT_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
 			return 0
 			;;
 		testkit/e2e/validate-*.sh|testkit/e2e/*.md)
-			# Validators and docs cannot change what a Maestro flow does at runtime;
-			# verifyE2eContract re-runs them on every preflight regardless. They are
-			# excluded from the fingerprint for the same reason (e2e-fingerprint.sh),
-			# so requiring evidence here forces a full rotation that reuse cannot
-			# satisfy and that could not have changed its outcome anyway.
+			# Validators and docs cannot change what a scenario does at runtime;
+			# verifyE2eContract re-runs them on every preflight regardless, so
+			# requiring evidence here would force a rotation that could not
+			# have changed its outcome.
 			E2E_CONTRACT_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
 			return 0
 			;;
 		testkit/e2e/*)
-			# Everything else here is data a flow reads at runtime — the quarantine
-			# list decides which flows even execute — so it stays in the fingerprint
-			# and keeps requiring evidence. New files default to this branch.
+			# Other files here are fixture contracts and legacy catalogs. They stay in scope
+			# as before; new files default to this branch.
 			E2E_CONTRACT_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
-			append_e2e_scope all local-certification-suite "e2e-contract"
-			return 0
-			;;
-		e2e/scripts/*|e2e/platform/*)
-			E2E_CONTRACT_TOUCHED=true
-			HAS_RELEVANT_CHANGES=true
+			append_e2e_scope all "e2e-contract"
 			return 0
 			;;
 		mocks/*)
 			E2E_CONTRACT_TOUCHED=true
 			HAS_RELEVANT_CHANGES=true
-			append_e2e_scope_for_mock_path "$file"
+			append_e2e_scope all "mocks"
+			return 0
+			;;
+		scenariorunner/*)
+			# The Android test APK: instrumentation runner of the scenarios. It builds with
+			# :app, so assembling it is the Android check of the change.
+			E2E_CONTRACT_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			append_runtime_module scenariorunner
+			append_unique_line "$ANDROID_TASKS_FILE" ":scenariorunner:assembleDebug"
+			append_e2e_scope android "e2e-android-runner"
+			return 0
+			;;
+		iosApp/UITests/*|iosApp/Config/UITests.xcconfig)
+			# Before the iosApp test-source rule below, which would swallow the UI test
+			# target as a unit test.
+			E2E_CONTRACT_TOUCHED=true
+			HAS_RELEVANT_CHANGES=true
+			IOS_UITEST_BUILD_REQUIRED=true
+			append_e2e_scope ios "e2e-ios-uitests"
 			return 0
 			;;
 		settings.gradle.kts|build.gradle.kts|gradle.properties|gradlew|gradlew.bat|gradle/*)
@@ -449,7 +367,7 @@ classify_changed_file() {
 			HAS_RELEASE_IMPACT=true
 			MODULE_GRAPH_TOUCHED=true
 			DETEKT_CONFIG_TOUCHED=true
-			append_e2e_scope all local-certification-suite "root-build"
+			append_e2e_scope all "root-build"
 			return 0
 			;;
 		scripts/module-graph.txt|scripts/validate-module-graph.sh)
@@ -472,7 +390,11 @@ classify_changed_file() {
 			append_runtime_module iosApp
 			HAS_RELEVANT_CHANGES=true
 			HAS_RELEASE_IMPACT=true
-			append_e2e_scope ios local-certification-suite "ios-host-runtime"
+			# The project file defines the UI test target as well as the host.
+			case "$file" in
+				iosApp/TuIndiceHost.xcodeproj/*) IOS_UITEST_BUILD_REQUIRED=true ;;
+			esac
+			append_e2e_scope ios "ios-host-runtime"
 			return 0
 			;;
 		iosApp/scripts/build-kmp-framework.sh|iosApp/scripts/ci-build-ios-host.sh)
@@ -502,10 +424,15 @@ classify_changed_file() {
 				return 0
 			fi
 
+			# The scheme and the Podfile decide how the UI test target builds.
+			case "$file" in
+				iosApp/TuIndiceHost.xcodeproj/*|iosApp/Podfile*) IOS_UITEST_BUILD_REQUIRED=true ;;
+			esac
+
 			append_runtime_module iosApp
 			HAS_RELEVANT_CHANGES=true
 			HAS_RELEASE_IMPACT=true
-			append_e2e_scope ios local-certification-suite "ios-host-runtime"
+			append_e2e_scope ios "ios-host-runtime"
 			return 0
 			;;
 		app/*)
@@ -522,7 +449,7 @@ classify_changed_file() {
 			append_runtime_module app
 			HAS_RELEVANT_CHANGES=true
 			HAS_RELEASE_IMPACT=true
-			append_e2e_scope android local-certification-suite "android-host-runtime"
+			append_e2e_scope android "android-host-runtime"
 			return 0
 			;;
 	esac
@@ -552,12 +479,17 @@ classify_changed_file() {
 	if module_is_runtime "$top_level"; then
 		HAS_RELEASE_IMPACT=true
 		if is_kmp_runtime_source_or_build_file "$top_level" "$file"; then
-			if [[ "$top_level" == "base" || "$top_level" == "persistence" || "$top_level" == "academiccore" || "$top_level" == "maincore" ]]; then
-				append_e2e_scope_for_shared_module_path "$top_level" "$file"
-			else
-				mark_e2e_suite_for_module "$top_level"
-			fi
+			append_e2e_scope "$(e2e_platform_for_kmp_file "$top_level" "$file")" "module-runtime"
 		fi
+	else
+		# The scenario kit and catalog never reach a release build, but the scenarios run
+		# through them: their sources are part of the evidence of the platform they compile for.
+		case "$top_level" in
+			scenariokit|scenarios)
+				E2E_CONTRACT_TOUCHED=true
+				append_e2e_scope "$(e2e_platform_for_kmp_file "$top_level" "$file")" "e2e-${top_level}"
+				;;
+		esac
 	fi
 }
 
@@ -700,29 +632,15 @@ sort_file_if_present "$IOS_TEST_TASKS_FILE"
 sort_file_if_present "$IOS_HOST_TASKS_FILE"
 sort_file_if_present "$E2E_SCOPE_FILE"
 
-ANDROID_SCOPE_HAS_LOCAL_CERTIFICATION=false
-IOS_SCOPE_HAS_LOCAL_CERTIFICATION=false
-if grep -q '^android,local-certification-suite,' "$E2E_SCOPE_FILE"; then
-	ANDROID_SCOPE_HAS_LOCAL_CERTIFICATION=true
-fi
-if grep -q '^ios,local-certification-suite,' "$E2E_SCOPE_FILE"; then
-	IOS_SCOPE_HAS_LOCAL_CERTIFICATION=true
-fi
-
+# The context files hold the one status each required platform must carry, as defined once in common.sh.
 while IFS=, read -r platform suite reason; do
 	[[ -n "$platform" && -n "$suite" ]] || continue
 	case "$platform" in
 		android)
-			if [[ "$ANDROID_SCOPE_HAS_LOCAL_CERTIFICATION" == "true" && "$suite" != "local-certification-suite" ]]; then
-				continue
-			fi
-			append_unique_line "$E2E_ANDROID_CONTEXTS_FILE" "local-e2e/android/${suite}"
+			append_unique_line "$E2E_ANDROID_CONTEXTS_FILE" "$(e2e_status_context android)"
 			;;
 		ios)
-			if [[ "$IOS_SCOPE_HAS_LOCAL_CERTIFICATION" == "true" && "$suite" != "local-certification-suite" ]]; then
-				continue
-			fi
-			append_unique_line "$E2E_IOS_CONTEXTS_FILE" "local-e2e/ios/${suite}"
+			append_unique_line "$E2E_IOS_CONTEXTS_FILE" "$(e2e_status_context ios)"
 			;;
 		*)
 			die "Unsupported E2E platform in scope file: ${platform}"
@@ -745,7 +663,8 @@ info "Module graph touched: ${MODULE_GRAPH_TOUCHED}"
 info "Detekt config touched: ${DETEKT_CONFIG_TOUCHED}"
 info "Semgrep config touched: ${SEMGREP_CONFIG_TOUCHED}"
 info "Semgrep required: ${SEMGREP_REQUIRED}"
-info "E2E suites requiring local certification: $(file_to_csv "$E2E_SUITES_FILE" || true)"
+info "iOS UI test build required: ${IOS_UITEST_BUILD_REQUIRED}"
+info "E2E suites requiring local certification:$(file_to_csv "$E2E_SUITES_FILE" || true)"
 info "E2E scope: $(file_to_csv "$E2E_SCOPE_FILE" || true)"
 info "E2E Android contexts: $(file_to_csv "$E2E_ANDROID_CONTEXTS_FILE" || true)"
 info "E2E iOS contexts: $(file_to_csv "$E2E_IOS_CONTEXTS_FILE" || true)"
@@ -779,6 +698,7 @@ if [[ -n "${GITHUB_OUTPUT:-}" ]]; then
 		printf 'ios_ci_scripts_touched=%s\n' "$IOS_CI_SCRIPTS_TOUCHED"
 		printf 'module_graph_touched=%s\n' "$MODULE_GRAPH_TOUCHED"
 		printf 'e2e_contract_touched=%s\n' "$E2E_CONTRACT_TOUCHED"
+		printf 'ios_uitest_build_required=%s\n' "$IOS_UITEST_BUILD_REQUIRED"
 		printf 'requires_e2e_certification=%s\n' "$REQUIRES_E2E_CERTIFICATION"
 		printf 'e2e_suites_file=%s\n' "$E2E_SUITES_FILE"
 		printf 'e2e_suites_csv=%s\n' "$(file_to_csv "$E2E_SUITES_FILE" || true)"

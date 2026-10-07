@@ -62,3 +62,7 @@ PY
 done
 
 python3 -m unittest discover -s e2e/tools/tests -p 'test_*.py' -v
+
+# The fingerprint covers what it must (verifier) and behaves as specified (its own tests).
+bash e2e/tools/verify/verify-e2e-fingerprint-coverage.sh
+bash e2e/tools/tests/test-fingerprint.sh

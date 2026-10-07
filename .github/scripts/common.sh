@@ -249,32 +249,34 @@ module_is_runtime() {
 	runtime_modules | grep -Fx "$module" >/dev/null 2>&1
 }
 
-module_e2e_suite() {
-	local module="$1"
-
-	case "$module" in
-		about|auth|enrollmentproof|evaluations|maincore|pensum|record|subjects|summary)
-			printf '%s-suite\n' "$module"
-			;;
-	esac
+# The commit status the local E2E evidence of a platform is published under. This is its only definition:
+# the change detector writes it into the context files, preflight verifies it, and the harness
+# (e2e/scripts/shared/harness/publish.py) asks this function before it publishes.
+e2e_status_context() {
+	printf 'local-e2e/%s/local-certification-suite\n' "$1"
 }
 
-# Feature modules in the reverse closure of a module, i.e. every module with
-# its own E2E suite whose behavior the change can impact. maincore is excluded:
-# its suite is only required by its own semantic triggers (maincore changes,
-# persistence bootstrap paths, shared E2E flow changes).
-module_impacted_feature_suites() {
+# The platform whose E2E fingerprint a file of a KMP module belongs to: android, ios, all (shared source set
+# or build file) or none (anything the fingerprint does not read). The source sets are the ones
+# e2e/scripts/shared/e2e-fingerprint.sh hashes for each platform; change both together.
+e2e_platform_for_kmp_file() {
 	local module="$1"
-	local impacted
-	local suite
+	local file="$2"
 
-	while IFS= read -r impacted; do
-		[[ -n "$impacted" && "$impacted" != "maincore" ]] || continue
-		suite="$(module_e2e_suite "$impacted" || true)"
-		if [[ -n "$suite" ]]; then
-			printf '%s\n' "$impacted"
-		fi
-	done < <(module_reverse_closure "$module") | sort -u
+	case "$file" in
+		"$module/build.gradle.kts"|"$module/src/commonMain/"*)
+			printf 'all\n'
+			;;
+		"$module/src/androidMain/"*)
+			printf 'android\n'
+			;;
+		"$module/src/iosMain/"*|"$module/src/appleMain/"*|"$module/src/nativeMain/"*|"$module/src/iosArm64Main/"*|"$module/src/iosSimulatorArm64Main/"*|"$module/src/iosX64Main/"*)
+			printf 'ios\n'
+			;;
+		*)
+			printf 'none\n'
+			;;
+	esac
 }
 
 append_module_closure() {

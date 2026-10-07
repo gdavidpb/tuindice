@@ -52,6 +52,20 @@ assert_file_not_contains_line() {
 	fi
 }
 
+assert_file_lines() {
+	local file="$1"
+	local label="$2"
+	shift 2
+	local expected
+	expected="$(printf '%s\n' "$@")"
+
+	if [[ "$(cat "$file")" != "$expected" ]]; then
+		printf 'Expected %s to hold exactly:\n%s\nGot:\n' "$label" "$expected" >&2
+		cat "$file" >&2 || true
+		exit 1
+	fi
+}
+
 app_version_property() {
 	local property_name="$1"
 
@@ -203,6 +217,20 @@ run_detector_fixture() {
 			assert_file_contains_line "$github_output_file" "app_version_changed=false" "GitHub output"
 			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
 			assert_file_contains_line "$github_output_file" "requires_e2e_certification=false" "GitHub output"
+			assert_file_contains_line "$github_output_file" "ios_uitest_build_required=false" "GitHub output"
+			;;
+		e2e-legacy)
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eContract" "Android tasks"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=false" "GitHub output"
+			;;
+		skill-docs)
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_empty "${temp_dir}/state/android-gradle-tasks.txt" "Android tasks"
+			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
+			assert_file_contains_line "$github_output_file" "has_relevant_changes=false" "GitHub output"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=false" "GitHub output"
 			;;
 		ios-script-tooling)
 			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
@@ -226,6 +254,7 @@ run_detector_fixture() {
 			assert_file_contains_line "${temp_dir}/state/ios-host-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS host tasks"
 			assert_file_empty "${temp_dir}/state/ios-test-gradle-tasks.txt" "iOS test tasks"
 			assert_file_contains_line "$github_output_file" "ios_ci_scripts_touched=false" "GitHub output"
+			assert_file_contains_line "$github_output_file" "ios_uitest_build_required=false" "GitHub output"
 			;;
 		ios-version-xcconfig)
 			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
@@ -329,47 +358,92 @@ run_detector_fixture() {
 		scenarios-test-only)
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "scenarios" "impacted modules"
 			assert_file_empty "${temp_dir}/state/release-impacted-modules.txt" "release impacted modules"
-			assert_file_empty "${temp_dir}/state/missing-version-bump.txt" "missing version bump"
+			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenarios:testAndroidHostTest" "Android tasks"
-			assert_file_contains_line "$github_output_file" "has_relevant_changes=true" "GitHub output"
 			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=false" "GitHub output"
 			;;
-		scenariokit-test-only)
-			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "scenariokit" "impacted modules"
+		scenarios-sources)
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "scenarios" "impacted modules"
 			assert_file_empty "${temp_dir}/state/release-impacted-modules.txt" "release impacted modules"
 			assert_file_empty "${temp_dir}/state/missing-version-bump.txt" "missing version bump"
-			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenariokit:testAndroidHostTest" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,local-certification-suite,e2e-scenarios" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,e2e-scenarios" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenarios:testAndroidHostTest" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eContract" "Android tasks"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			assert_file_lines "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts" "local-e2e/android/local-certification-suite"
+			assert_file_lines "${temp_dir}/state/e2e-ios-contexts.txt" "E2E iOS contexts" "local-e2e/ios/local-certification-suite"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
+			;;
+		scenariokit-test-only)
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "scenariokit" "impacted modules"
+			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenariokit:testAndroidHostTest" "Android tasks"
 			assert_file_not_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenariorunner:compileAndroidMain" "Android tasks"
 			assert_file_not_contains_line "${temp_dir}/state/ios-gradle-tasks.txt" ":scenariorunner:compileKotlinIosSimulatorArm64" "iOS tasks"
 			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			;;
+		scenariokit-common)
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "scenariokit" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "scenarios" "impacted modules"
+			assert_file_empty "${temp_dir}/state/release-impacted-modules.txt" "release impacted modules"
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,local-certification-suite,e2e-scenariokit" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,e2e-scenariokit" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenariokit:testAndroidHostTest" "Android tasks"
+			assert_file_not_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenariorunner:compileAndroidMain" "Android tasks"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			assert_file_lines "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts" "local-e2e/android/local-certification-suite"
+			assert_file_lines "${temp_dir}/state/e2e-ios-contexts.txt" "E2E iOS contexts" "local-e2e/ios/local-certification-suite"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
+			;;
+		scenariokit-android-source-set)
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,local-certification-suite,e2e-scenariokit" "E2E scope"
+			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,e2e-scenariokit" "E2E scope"
+			assert_file_lines "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts" "local-e2e/android/local-certification-suite"
+			assert_file_empty "${temp_dir}/state/e2e-ios-contexts.txt" "E2E iOS contexts"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
+			;;
+		scenariokit-ios-source-set)
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,e2e-scenariokit" "E2E scope"
+			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "android,local-certification-suite,e2e-scenariokit" "E2E scope"
+			assert_file_empty "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts"
+			assert_file_lines "${temp_dir}/state/e2e-ios-contexts.txt" "E2E iOS contexts" "local-e2e/ios/local-certification-suite"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
+			;;
+		scenariorunner)
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "scenariorunner" "impacted modules"
+			assert_file_empty "${temp_dir}/state/release-impacted-modules.txt" "release impacted modules"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":scenariorunner:assembleDebug" "Android tasks"
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eContract" "Android tasks"
+			assert_file_empty "${temp_dir}/state/ios-gradle-tasks.txt" "iOS tasks"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			assert_file_lines "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts" "local-e2e/android/local-certification-suite"
+			assert_file_empty "${temp_dir}/state/e2e-ios-contexts.txt" "E2E iOS contexts"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
 			;;
 		persistence-runtime)
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "persistence" "impacted modules"
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "wizard" "impacted modules"
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "subjects" "impacted modules"
-			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "android,wizard-suite,persistence-runtime" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,summary-suite,persistence-runtime" "E2E scope"
-			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "android,maincore-suite,persistence-bootstrap" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,local-certification-suite,module-runtime" "E2E scope"
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,module-runtime" "E2E scope"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":wizard:testAndroidHostTest" "Android tasks"
 			assert_file_contains_line "${temp_dir}/state/ios-test-gradle-tasks.txt" ":persistence:iosSimulatorArm64Test" "iOS test tasks"
 			assert_file_contains_line "${temp_dir}/state/ios-test-gradle-tasks.txt" ":wizard:compileKotlinIosSimulatorArm64" "iOS test tasks"
 			assert_file_contains_line "${temp_dir}/state/ios-host-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS host tasks"
 			assert_file_not_contains_line "${temp_dir}/state/ios-test-gradle-tasks.txt" "verifyIosHostBuildDeviceRelease" "iOS test tasks"
+			assert_file_lines "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts" "local-e2e/android/local-certification-suite"
+			assert_file_lines "${temp_dir}/state/e2e-ios-contexts.txt" "E2E iOS contexts" "local-e2e/ios/local-certification-suite"
 			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
-			;;
-		persistence-bootstrap)
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,maincore-suite,persistence-bootstrap" "E2E scope"
-			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "android,wizard-suite,persistence-runtime" "E2E scope"
 			;;
 		feature-module-dependents)
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "record" "impacted modules"
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "wizard" "impacted modules"
 			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "maincore" "impacted modules"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,record-suite,module-runtime" "E2E scope"
-			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "android,wizard-suite,module-runtime" "E2E scope"
-			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "android,subjects-suite,module-runtime" "E2E scope"
+			assert_file_lines "${temp_dir}/state/e2e-scope.csv" "E2E scope" \
+				"android,local-certification-suite,module-runtime" \
+				"ios,local-certification-suite,module-runtime"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":wizard:testAndroidHostTest" "Android tasks"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":record:detekt" "Android tasks"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" ":wizard:detekt" "Android tasks"
@@ -436,80 +510,91 @@ run_detector_fixture() {
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "detekt" "Android tasks"
 			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
 			;;
-		mock-feature-mappings)
+		e2e-catalog|e2e-harness-shared|mocks-all)
 			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
 			assert_file_empty "${temp_dir}/state/release-impacted-modules.txt" "release impacted modules"
 			assert_file_empty "${temp_dir}/state/missing-version-bump.txt" "missing version bump"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,auth-suite,mock-login" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,enrollmentproof-suite,mock-enrollmentproof" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,evaluations-suite,mock-evaluations" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,pensum-suite,mock-pensum" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,record-suite,mock-record" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,subjects-suite,mock-subjects" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,summary-suite,mock-summary" "E2E scope"
-			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "android,local-certification-suite,mock-shared" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-android-contexts.txt" "local-e2e/android/auth-suite" "E2E Android contexts"
-			assert_file_contains_line "${temp_dir}/state/e2e-android-contexts.txt" "local-e2e/android/summary-suite" "E2E Android contexts"
-			assert_file_contains_line "${temp_dir}/state/e2e-ios-contexts.txt" "local-e2e/ios/pensum-suite" "E2E iOS contexts"
-			assert_file_not_contains_line "${temp_dir}/state/e2e-android-contexts.txt" "local-e2e/android/local-certification-suite" "E2E Android contexts"
-			assert_file_not_contains_line "${temp_dir}/state/e2e-ios-contexts.txt" "local-e2e/ios/local-certification-suite" "E2E iOS contexts"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eContract" "Android tasks"
 			assert_file_contains_line "$github_output_file" "e2e_contract_touched=true" "GitHub output"
-			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
 			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
 			assert_file_contains_line "$github_output_file" "semgrep_required=false" "GitHub output"
-			;;
-		mock-shared-collapse)
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,record-suite,mock-record" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,local-certification-suite,mock-shared" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,mock-shared" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-suites.txt" "record-suite" "E2E suites"
-			assert_file_contains_line "${temp_dir}/state/e2e-suites.txt" "local-certification-suite" "E2E suites"
-			assert_file_contains_line "${temp_dir}/state/e2e-android-contexts.txt" "local-e2e/android/local-certification-suite" "E2E Android contexts"
-			assert_file_not_contains_line "${temp_dir}/state/e2e-android-contexts.txt" "local-e2e/android/record-suite" "E2E Android contexts"
-			assert_file_contains_line "${temp_dir}/state/e2e-ios-contexts.txt" "local-e2e/ios/local-certification-suite" "E2E iOS contexts"
-			assert_file_not_contains_line "${temp_dir}/state/e2e-ios-contexts.txt" "local-e2e/ios/record-suite" "E2E iOS contexts"
+			assert_file_contains_line "$github_output_file" "ios_uitest_build_required=false" "GitHub output"
+			assert_file_lines "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts" "local-e2e/android/local-certification-suite"
+			assert_file_lines "${temp_dir}/state/e2e-ios-contexts.txt" "E2E iOS contexts" "local-e2e/ios/local-certification-suite"
 			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
 			;;
-		e2e-flow-feature-suites)
+		e2e-harness-android)
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eContract" "Android tasks"
+			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,e2e-harness-android" "E2E scope"
+			assert_file_lines "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts" "local-e2e/android/local-certification-suite"
+			assert_file_empty "${temp_dir}/state/e2e-ios-contexts.txt" "E2E iOS contexts"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
+			;;
+		e2e-harness-ios)
+			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eContract" "Android tasks"
+			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "android,local-certification-suite,e2e-harness-ios" "E2E scope"
+			assert_file_empty "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts"
+			assert_file_lines "${temp_dir}/state/e2e-ios-contexts.txt" "E2E iOS contexts" "local-e2e/ios/local-certification-suite"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
+			;;
+		ios-uitests)
 			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,coachmarks-suite,e2e-suite" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,auth-suite,e2e-flow-auth" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,about-suite,e2e-flow-about" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,enrollmentproof-suite,e2e-flow-enrollmentproof" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,evaluations-suite,e2e-flow-evaluations" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,maincore-suite,e2e-flow-maincore" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,pensum-suite,e2e-flow-pensum" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,record-suite,e2e-flow-record" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,subjects-suite,e2e-flow-subjects" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,summary-suite,e2e-flow-summary" "E2E scope"
-			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "android,local-certification-suite,e2e-flow-shared" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-android-contexts.txt" "local-e2e/android/maincore-suite" "E2E Android contexts"
-			assert_file_contains_line "${temp_dir}/state/e2e-ios-contexts.txt" "local-e2e/ios/about-suite" "E2E iOS contexts"
-			assert_file_not_contains_line "${temp_dir}/state/e2e-android-contexts.txt" "local-e2e/android/local-certification-suite" "E2E Android contexts"
+			assert_file_empty "${temp_dir}/state/release-impacted-modules.txt" "release impacted modules"
+			assert_file_empty "${temp_dir}/state/missing-version-bump.txt" "missing version bump"
+			assert_file_empty "${temp_dir}/state/ios-gradle-tasks.txt" "iOS tasks"
+			assert_file_contains_line "$github_output_file" "ios_uitest_build_required=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "has_relevant_changes=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "has_release_impact=false" "GitHub output"
+			assert_file_empty "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts"
+			assert_file_lines "${temp_dir}/state/e2e-ios-contexts.txt" "E2E iOS contexts" "local-e2e/ios/local-certification-suite"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
+			;;
+		ios-xcodeproj-scheme|ios-podfile)
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "iosApp" "impacted modules"
+			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,ios-host-runtime" "E2E scope"
+			assert_file_contains_line "$github_output_file" "ios_uitest_build_required=true" "GitHub output"
+			assert_file_empty "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts"
+			assert_file_lines "${temp_dir}/state/e2e-ios-contexts.txt" "E2E iOS contexts" "local-e2e/ios/local-certification-suite"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
+			;;
+		ios-ui-test-xcconfig)
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
+			assert_file_contains_line "$github_output_file" "ios_uitest_build_required=true" "GitHub output"
+			assert_file_empty "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts"
+			assert_file_lines "${temp_dir}/state/e2e-ios-contexts.txt" "E2E iOS contexts" "local-e2e/ios/local-certification-suite"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
+			;;
+		e2e-tools)
+			assert_file_empty "${temp_dir}/state/impacted-modules.txt" "impacted modules"
 			assert_file_contains_line "${temp_dir}/state/android-gradle-tasks.txt" "verifyE2eContract" "Android tasks"
 			assert_file_contains_line "$github_output_file" "e2e_contract_touched=true" "GitHub output"
+			assert_file_contains_line "$github_output_file" "ios_uitest_build_required=false" "GitHub output"
+			assert_file_empty "${temp_dir}/state/e2e-scope.csv" "E2E scope"
+			assert_file_empty "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts"
+			assert_file_empty "${temp_dir}/state/e2e-ios-contexts.txt" "E2E iOS contexts"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=false" "GitHub output"
+			;;
+		kmp-android-source-set)
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "auth" "impacted modules"
+			assert_file_contains_line "$github_output_file" "has_release_impact=true" "GitHub output"
+			assert_file_lines "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts" "local-e2e/android/local-certification-suite"
+			assert_file_empty "${temp_dir}/state/e2e-ios-contexts.txt" "E2E iOS contexts"
 			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
 			;;
-		e2e-flow-shared-collapse)
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,about-suite,e2e-flow-about" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,e2e-flow-shared" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-android-contexts.txt" "local-e2e/android/local-certification-suite" "E2E Android contexts"
-			assert_file_not_contains_line "${temp_dir}/state/e2e-android-contexts.txt" "local-e2e/android/about-suite" "E2E Android contexts"
-			assert_file_contains_line "${temp_dir}/state/e2e-ios-contexts.txt" "local-e2e/ios/local-certification-suite" "E2E iOS contexts"
-			assert_file_not_contains_line "${temp_dir}/state/e2e-ios-contexts.txt" "local-e2e/ios/about-suite" "E2E iOS contexts"
-			assert_file_contains_line "$github_output_file" "e2e_contract_touched=true" "GitHub output"
+		kmp-ios-source-set)
+			assert_file_contains_line "${temp_dir}/state/impacted-modules.txt" "auth" "impacted modules"
+			assert_file_contains_line "$github_output_file" "has_release_impact=true" "GitHub output"
+			assert_file_empty "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts"
+			assert_file_lines "${temp_dir}/state/e2e-ios-contexts.txt" "E2E iOS contexts" "local-e2e/ios/local-certification-suite"
 			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
 			;;
-		platform-asymmetric-collapse)
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "android,record-suite,e2e-flow-record" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,record-suite,e2e-flow-record" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-scope.csv" "ios,local-certification-suite,ios-host-runtime" "E2E scope"
-			assert_file_not_contains_line "${temp_dir}/state/e2e-scope.csv" "android,local-certification-suite,ios-host-runtime" "E2E scope"
-			assert_file_contains_line "${temp_dir}/state/e2e-android-contexts.txt" "local-e2e/android/record-suite" "E2E Android contexts"
-			assert_file_not_contains_line "${temp_dir}/state/e2e-android-contexts.txt" "local-e2e/android/local-certification-suite" "E2E Android contexts"
-			assert_file_contains_line "${temp_dir}/state/e2e-ios-contexts.txt" "local-e2e/ios/local-certification-suite" "E2E iOS contexts"
-			assert_file_not_contains_line "${temp_dir}/state/e2e-ios-contexts.txt" "local-e2e/ios/record-suite" "E2E iOS contexts"
+		platform-asymmetric-scope)
+			assert_file_lines "${temp_dir}/state/e2e-scope.csv" "E2E scope" \
+				"android,local-certification-suite,module-runtime" \
+				"ios,local-certification-suite,ios-host-runtime"
+			assert_file_lines "${temp_dir}/state/e2e-android-contexts.txt" "E2E Android contexts" "local-e2e/android/local-certification-suite"
+			assert_file_lines "${temp_dir}/state/e2e-ios-contexts.txt" "E2E iOS contexts" "local-e2e/ios/local-certification-suite"
+			assert_file_contains_line "$github_output_file" "requires_e2e_certification=true" "GitHub output"
 			assert_file_contains_line "${temp_dir}/state/missing-version-bump.txt" "versionName" "missing version bump"
 			assert_file_contains_line "${temp_dir}/state/missing-version-bump.txt" "androidVersionCode" "missing version bump"
 			assert_file_contains_line "${temp_dir}/state/missing-version-bump.txt" "iosBuildNumber" "missing version bump"
@@ -561,12 +646,18 @@ ios_release_runtime_commit="$(
 	create_ios_release_runtime_commit ios-release-runtime
 )"
 
-run_detector_fixture e2e-runner e2e/scripts/common.sh
+run_detector_fixture e2e-runner e2e/tools/tests/support.py
+run_detector_fixture e2e-legacy e2e/scripts/common.sh
+run_detector_fixture skill-docs .codex/skills/certify-tuindice-pr/SKILL.md
 run_detector_fixture ios-script-tooling iosApp/scripts/ci-upload-ios-appstore.sh
-run_detector_fixture scenarios-test-only scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/E2eCatalog.kt
-run_detector_fixture scenariokit-test-only scenariokit/src/commonMain/kotlin/com/gdavidpb/tuindice/scenariokit/model/Step.kt
+run_detector_fixture scenarios-test-only scenarios/src/androidHostTest/kotlin/com/gdavidpb/tuindice/scenarios/CatalogShapeTest.kt
+run_detector_fixture scenarios-sources scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/E2eCatalog.kt
+run_detector_fixture scenariokit-test-only scenariokit/src/commonTest/kotlin/com/gdavidpb/tuindice/scenariokit/StepTest.kt
+run_detector_fixture scenariokit-common scenariokit/src/commonMain/kotlin/com/gdavidpb/tuindice/scenariokit/model/Step.kt
+run_detector_fixture scenariokit-android-source-set scenariokit/src/androidMain/kotlin/com/gdavidpb/tuindice/scenariokit/Platform.android.kt
+run_detector_fixture scenariokit-ios-source-set scenariokit/src/iosMain/kotlin/com/gdavidpb/tuindice/scenariokit/Platform.ios.kt
+run_detector_fixture scenariorunner scenariorunner/src/main/kotlin/com/gdavidpb/tuindice/scenariorunner/ScenarioSuiteTest.kt
 run_detector_fixture persistence-runtime persistence/src/commonMain/kotlin/com/gdavidpb/tuindice/persistence/data/repository/MutationRepository.kt
-run_detector_fixture persistence-bootstrap persistence/src/commonMain/kotlin/com/gdavidpb/tuindice/persistence/di/PersistenceModule.kt
 run_detector_fixture feature-module-dependents record/src/commonMain/kotlin/com/gdavidpb/tuindice/record/presentation/RecordScreen.kt
 run_detector_fixture module-graph-config scripts/module-graph.txt
 run_detector_fixture module-build-file record/build.gradle.kts
@@ -576,6 +667,18 @@ run_detector_fixture detekt-config config/detekt/detekt.yml
 run_detector_fixture detekt-baseline evaluations/detekt-baseline.xml
 run_detector_fixture semgrep-config config/semgrep/rules/layering.yaml
 run_detector_fixture ios-host-runtime iosApp/Sources/TuIndiceHost/TuIndiceAppBootstrap.swift
+run_detector_fixture ios-uitests iosApp/UITests/XCUIScenarioDriver.swift
+run_detector_fixture ios-ui-test-xcconfig iosApp/Config/UITests.xcconfig
+run_detector_fixture ios-xcodeproj-scheme iosApp/TuIndiceHost.xcodeproj/xcshareddata/xcschemes/TuIndiceUITests.xcscheme
+run_detector_fixture ios-podfile iosApp/Podfile
+run_detector_fixture e2e-catalog e2e/catalog/scenarios.json
+run_detector_fixture e2e-harness-shared e2e/scripts/shared/e2e.py
+run_detector_fixture e2e-harness-android "$(join_changed_paths e2e/scripts/android/adapter.sh e2e/toolchain/android.lock)"
+run_detector_fixture e2e-harness-ios "$(join_changed_paths e2e/scripts/ios/adapter.sh e2e/toolchain/ios.lock)"
+run_detector_fixture e2e-tools "$(join_changed_paths e2e/tools/tests/test_runner.py e2e/platform/android/README.md e2e/README.md)"
+run_detector_fixture mocks-all mocks/mappings/login/auth-email-success.json
+run_detector_fixture kmp-android-source-set auth/src/androidMain/kotlin/com/gdavidpb/tuindice/auth/Android.kt
+run_detector_fixture kmp-ios-source-set auth/src/iosMain/kotlin/com/gdavidpb/tuindice/auth/Ios.kt
 run_detector_fixture ios-version-xcconfig iosApp/Config/Version.xcconfig
 run_detector_fixture ios-release-signing iosApp/Config/Release.xcconfig "$HEAD_SHA" "$ios_release_signing_commit"
 run_detector_fixture ios-release-runtime iosApp/Config/Release.xcconfig "$HEAD_SHA" "$ios_release_runtime_commit"
@@ -585,42 +688,9 @@ run_detector_fixture ios-build-number "$APP_VERSION_FILE" "$HEAD_SHA" "$ios_buil
 run_detector_fixture release-build-numbers "$APP_VERSION_FILE" "$HEAD_SHA" "$release_build_numbers_commit"
 run_detector_fixture version-name "$APP_VERSION_FILE" "$HEAD_SHA" "$version_name_commit"
 
-run_detector_fixture mock-feature-mappings "$(
+run_detector_fixture platform-asymmetric-scope "$(
 	join_changed_paths \
-		mocks/mappings/login/auth-email-success.json \
-		mocks/mappings/enrollmentproof/enrollment-proof-success.json \
-		mocks/mappings/evaluations/get-evaluations-success.json \
-		mocks/__files/pensums/get-pensum-success.json \
-		mocks/mappings/record/get-record.json \
-		mocks/mappings/subjects/search-subjects-catalog.json \
-		mocks/__files/summary/get-user-started.json
-)"
-run_detector_fixture mock-shared-collapse "$(
-	join_changed_paths \
-		mocks/mappings/record/get-record.json \
-		mocks/mappings/sync/post-sync.json
-)"
-run_detector_fixture e2e-flow-feature-suites "$(
-	join_changed_paths \
-		e2e/maestro/flows/suites/coachmarks-suite.yaml \
-		e2e/maestro/flows/auth/login-success.yaml \
-		e2e/maestro/flows/about/about-smoke.yaml \
-		e2e/maestro/flows/enrollmentproof/enrollmentproof-smoke.yaml \
-		e2e/maestro/flows/evaluations/evaluations-smoke.yaml \
-		e2e/maestro/flows/maincore/back-stack.yaml \
-		e2e/maestro/flows/pensum/pensum-selection.yaml \
-		e2e/maestro/flows/record/record-smoke.yaml \
-		e2e/maestro/flows/subjects/subjects-smoke.yaml \
-		e2e/maestro/flows/summary/summary-smoke.yaml
-)"
-run_detector_fixture e2e-flow-shared-collapse "$(
-	join_changed_paths \
-		e2e/maestro/flows/about/about-smoke.yaml \
-		e2e/maestro/flows/_shared/launch-clean.yaml
-)"
-run_detector_fixture platform-asymmetric-collapse "$(
-	join_changed_paths \
-		e2e/maestro/flows/record/record-smoke.yaml \
+		record/src/androidMain/kotlin/com/gdavidpb/tuindice/record/Android.kt \
 		iosApp/Sources/TuIndiceHost/TuIndiceAppBootstrap.swift
 )"
 

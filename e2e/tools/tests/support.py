@@ -67,7 +67,9 @@ class Workspace:
         self.wiremock = os.path.join(self.dir, "wiremock")
         for path in (self.repo, self.fake, self.wiremock, os.path.join(self.repo, ".github", "scripts")):
             os.makedirs(path)
-        shutil.copy(os.path.join(TESTS, "fixtures", "common.sh"), os.path.join(self.repo, ".github", "scripts", "common.sh"))
+        # The real library, not a stand-in: the status context has exactly one definition in the repository.
+        shutil.copy(os.path.join(TESTS, "..", "..", "..", ".github", "scripts", "common.sh"),
+            os.path.join(self.repo, ".github", "scripts", "common.sh"))
         shutil.copytree(os.path.join(TESTS, "..", "..", "toolchain"), os.path.join(self.repo, "e2e", "toolchain"))
         shutil.copytree(os.path.join(TESTS, "..", "..", "..", "gradle"), os.path.join(self.repo, "gradle"),
             ignore=shutil.ignore_patterns("wrapper", "*.jar"))

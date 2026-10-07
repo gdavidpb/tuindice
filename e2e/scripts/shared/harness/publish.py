@@ -26,7 +26,7 @@ def status_context(config, platform):
     )
     context = result.stdout.strip()
     if result.returncode != 0 or not context:
-        raise UsageError("e2e_status_context is not defined in %s for %s (it arrives with F25): %s"
+        raise UsageError("e2e_status_context is not defined in %s for %s: %s"
             % (source, platform, result.stderr.strip()[:200]))
     return context
 
