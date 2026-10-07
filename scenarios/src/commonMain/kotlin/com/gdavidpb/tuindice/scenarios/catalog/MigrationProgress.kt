@@ -10,8 +10,7 @@ object MigrationProgress {
 	val pendingModules: Set<String> = setOf(
 		"enrollmentproof",
 		"pensum",
-		"subjects",
-		"evaluations"
+		"subjects"
 	)
 
 	/** The coachmark overlay lives in the `wizard` module; its scenarios are the `coachmarks` ones. */
