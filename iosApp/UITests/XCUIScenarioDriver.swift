@@ -89,7 +89,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
 
     func tap(q: Query) -> Bool {
         traced("tap") {
-            guard let (resolved, facts) = resolver.visibleFacts(q) else { return false }
+            guard let (resolved, facts) = settledForGesture("tap", q) else { return false }
             return tap(resolved, facts)
         }
     }
@@ -106,7 +106,7 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
 
     func doubleTap(q: Query) -> Bool {
         traced("doubleTap") {
-            guard let (resolved, facts) = resolver.visibleFacts(q) else { return false }
+            guard let (resolved, facts) = settledForGesture("doubleTap", q) else { return false }
             let target = resolver.visiblePart(of: facts.frame)
             resolver.coordinate(at: CGPoint(x: target.midX, y: target.midY), in: resolved).doubleTap()
             return true
@@ -215,6 +215,17 @@ final class XCUIScenarioDriver: NSObject, ScenarioDriver {
         let target = resolver.visiblePart(of: facts.frame)
         resolver.coordinate(at: CGPoint(x: target.midX, y: target.midY), in: resolved).tap()
         return true
+    }
+
+    /// The element's facts once its frame is still. If it never stops within the settle timeout the
+    /// gesture still goes to the last position read, and that decision is written to the driver log
+    /// (always, not only with E2E_TRACE) so a miss can be traced to an element that kept moving.
+    private func settledForGesture(_ gesture: String, _ q: Query) -> (ResolvedElement, ElementFacts)? {
+        guard let (resolved, facts, settled) = resolver.settle(q) else { return nil }
+        if !settled {
+            logLines.append("[driver] \(gesture) \(q): frame still moving after the settle timeout; using the last position read \(facts.frame)")
+        }
+        return (resolved, facts)
     }
 
     private func area(of q: Query?) -> (ResolvedElement?, CGRect)? {

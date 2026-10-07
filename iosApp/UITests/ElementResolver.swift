@@ -89,15 +89,22 @@ final class ElementResolver {
     /// The frame is read every [settlePoll] until two reads agree or [settleTimeout] passes; the last
     /// read is then used as it is.
     func settledFacts(_ q: Query) -> (ResolvedElement, ElementFacts)? {
+        guard let (resolved, facts, _) = settle(q) else { return nil }
+        return (resolved, facts)
+    }
+
+    /// Like [settledFacts], and says whether the frame stopped moving (`false`: the last read after
+    /// [settleTimeout], or the element vanished while it was being watched).
+    func settle(_ q: Query) -> (ResolvedElement, ElementFacts, Bool)? {
         guard var last = visibleFacts(q) else { return nil }
         let deadline = Date().addingTimeInterval(Self.settleTimeout)
         while Date() < deadline {
             Thread.sleep(forTimeInterval: Self.settlePoll)
-            guard let current = visibleFacts(q) else { return last }
-            if current.1.frame == last.1.frame { return current }
+            guard let current = visibleFacts(q) else { return (last.0, last.1, false) }
+            if current.1.frame == last.1.frame { return (current.0, current.1, true) }
             last = current
         }
-        return last
+        return (last.0, last.1, false)
     }
 
     /// The part of [frame] that is on screen.
