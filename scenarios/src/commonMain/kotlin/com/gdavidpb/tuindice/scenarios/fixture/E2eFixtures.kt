@@ -49,6 +49,16 @@ object E2eFixtures {
 	val SubjectCi5312 = E2eFixture("CI5312", listOf(SEARCH_SLOTS))
 	val SubjectEg1511 = E2eFixture("EG1511", listOf(SEARCH_SLOTS))
 	val SubjectEg1114 = E2eFixture("EG1114", listOf(SYNC_SUCCESS))
+	val SubjectCi4325 = E2eFixture("CI4325", listOf(SEARCH_CATALOG))
+
+	/** Served by the stats mock that answers 404 (`subjects-detail-unavailable`). */
+	val SubjectQa = E2eFixture("QA", listOf("mocks/__files/subjects/get-subject-stats-qa-unavailable.json"))
+
+	/** Its stats fail once and then succeed (`subjects-detail-failed-retry`). */
+	val SubjectQb = E2eFixture("QB", listOf("mocks/mappings/subjects/get-subject-stats-qb-success.json"))
+
+	/** The search result `DebugSubjectsApiDataSource` returns after one transient failure for the query `rx`. */
+	val SubjectRx = E2eFixture.derived("RX", "debug search result the app builds itself for the query rx")
 
 	/** Pensum nodes, as the tags of the pensum canvas name them. */
 	val PensumNodeMath1 = E2eFixture("0800-2019-degree_project-t1-math1-ma1111", listOf(PENSUM_2019))
@@ -100,6 +110,10 @@ object E2eFixtures {
 		SubjectCi5312,
 		SubjectEg1511,
 		SubjectEg1114,
+		SubjectCi4325,
+		SubjectQa,
+		SubjectQb,
+		SubjectRx,
 		PensumNodeMath1,
 		PensumNodeMath2,
 		PensumNodeLanguage1,

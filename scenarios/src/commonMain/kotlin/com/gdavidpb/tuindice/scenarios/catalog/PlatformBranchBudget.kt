@@ -18,12 +18,12 @@ class PlatformBranchBudget private constructor() {
 			"record-synthetic-term-lifecycle" to 1,
 			"record-synthetic-term-rejected" to 1,
 			"record-synthetic-term-search-states" to 3,
-			"subjects-detail-failed-retry" to 2,
-			"subjects-detail-tabs-tooltip" to 2,
-			"subjects-detail-unavailable" to 2,
-			"subjects-search-failed-retry" to 2,
-			"subjects-search-query-clear" to 3,
-			"subjects-smoke" to 3,
+			"subjects-detail-failed-retry" to 1,
+			"subjects-detail-tabs-tooltip" to 1,
+			"subjects-detail-unavailable" to 1,
+			"subjects-search-failed-retry" to 1,
+			"subjects-search-query-clear" to 1,
+			"subjects-smoke" to 1,
 			"summary-profile-picture" to 2,
 			"summary-refresh-retry" to 1
 		)

@@ -7,9 +7,7 @@ package com.gdavidpb.tuindice.scenarios.catalog
  * test becomes unconditional.
  */
 object MigrationProgress {
-	val pendingModules: Set<String> = setOf(
-		"subjects"
-	)
+	val pendingModules: Set<String> = setOf()
 
 	/** The coachmark overlay lives in the `wizard` module; its scenarios are the `coachmarks` ones. */
 	private val scenarioModuleOfActionModule = mapOf("wizard" to "coachmarks")
