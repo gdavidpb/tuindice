@@ -119,6 +119,24 @@ class UsbIdMaskTest {
 	}
 
 	@Test
+	fun when_deleteForwardIsPressedBeforeTheDash_then_deletesTheDigitThatFollowsAndKeepsTheCaret() {
+		assertMasked(previous = "12|-345", typed = "12|345", expected = "12|-45")
+		assertMasked(previous = "12|-34567", typed = "12|34567", expected = "12|-4567")
+		assertMasked(previous = "12|-3", typed = "12|3", expected = "12|-")
+	}
+
+	@Test
+	fun when_deleteForwardIsPressedBeforeTheDashWithNothingAfterIt_then_dropsTheDashLikeBackspaceDoes() {
+		assertMasked(previous = "12|-", typed = "12|", expected = "12|")
+	}
+
+	@Test
+	fun when_deleteForwardLeavesOnlyTwoDigitsAfterAMidDash_then_theCaretStaysBeforeTheDash() {
+		assertMasked(previous = "12|-34", typed = "12|34", expected = "12|-4")
+		assertMasked(previous = "12|-3456", typed = "12|3456", expected = "12|-456")
+	}
+
+	@Test
 	fun when_digitsOfOtherScriptsAreTyped_then_ignoresThem() {
 		assertMasked(previous = "|", typed = "\u0661\u0662|", expected = "|")
 		assertMasked(previous = "12-|", typed = "12-\u0663|", expected = "12-|")
