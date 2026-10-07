@@ -32,11 +32,7 @@ private val summarySmoke = scenario(
 	"summary",
 	Start.Seeded(E2eAccounts.Canonical).toLaunchSpec()
 ) {
-	covers(
-		"maincore.Main.RequestSync",
-		"summary.Summary.RefreshSummary",
-		"summary.Summary.OpenProfilePictureSettings"
-	)
+	covers("maincore.Main.RequestSync")
 	tags("smoke")
 	account(E2eAccounts.Canonical.id)
 
@@ -76,7 +72,6 @@ private val summaryStatusDialog = scenario(
 	"summary",
 	Start.Seeded(E2eAccounts.SummaryStatusUnavailable).toLaunchSpec()
 ) {
-	covers("summary.Summary.RefreshSummary")
 	account(E2eAccounts.SummaryStatusUnavailable.id)
 
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
@@ -93,7 +88,6 @@ private val summaryPartialEnrollmentStatusDialog = scenario(
 	"summary",
 	Start.Seeded(E2eAccounts.EnrollmentUnavailable).toLaunchSpec()
 ) {
-	covers("summary.Summary.RefreshSummary")
 	account(E2eAccounts.EnrollmentUnavailable.id)
 
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
@@ -112,10 +106,7 @@ private val summaryOutdatedCredentials = scenario(
 	"summary",
 	Start.Seeded(E2eAccounts.SummaryOutdatedCredentials).toLaunchSpec()
 ) {
-	covers(
-		"summary.Summary.RefreshSummary",
-		"maincore.Main.DismissUpdatePassword"
-	)
+	covers("maincore.Main.DismissUpdatePassword")
 	account(E2eAccounts.SummaryOutdatedCredentials.id)
 
 	// The sync of this account answers with outdated credentials, and the host asks for the password at once.
@@ -139,7 +130,6 @@ private val summaryNewStudentNoRecord = scenario(
 	"summary",
 	Start.Seeded(E2eAccounts.NewStudent).toLaunchSpec()
 ) {
-	covers("summary.Summary.RefreshSummary")
 	account(E2eAccounts.NewStudent.id)
 
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
@@ -169,7 +159,6 @@ private val summaryRecordAccessDenied = scenario(
 	"summary",
 	Start.Seeded(E2eAccounts.RecordDenied).toLaunchSpec()
 ) {
-	covers("summary.Summary.RefreshSummary")
 	account(E2eAccounts.RecordDenied.id)
 
 	waitVisible(SummaryUiTags.ContentContainer, Within.Sync)
@@ -190,8 +179,6 @@ private val summaryProfilePicture = scenario(
 ) {
 	covers(
 		"summary.Summary.OpenProfilePictureSettings",
-		"summary.Summary.PickProfilePicture",
-		"summary.Summary.TakeProfilePicture",
 		"summary.Summary.RemoveProfilePicture",
 		"summary.Summary.ConfirmRemoveProfilePicture"
 	)
