@@ -10,11 +10,15 @@ the stop conditions; this file has the detail behind them.
   on that SHA with the context `local-e2e/<platform>/local-certification-suite` (one definition,
   `e2e_status_context` in `.github/scripts/common.sh`; `e2e.py contexts` prints it). Trusted means created by the
   repository owner or `github-actions[bot]`. Its description is `Local E2E <p> <N>/<N> passed for <sha7> fp
-  <fp12>.`, plus counts of retried, quarantined and overridden scenarios when there are any.
+  <fp12>.`, plus the counts that apply: `retried N`, `env N` (scenarios with an environment failure, which does not
+  count against the cap), `quarantined N` and `overrides N` (scenario resets plus the environment, parallelism and
+  retry settings the runs used).
 - **The ledger.** `build/e2e/ledger/<platform>/<fingerprint>/ledger.json` records every attempt of every scenario
   (SHA, duration, class, summary, load, artifacts). It is read only when platform, fingerprint and catalog hash
   match. A scenario green for the fingerprint is never rerun; a scenario gets 2 attempts per fingerprint across
-  invocations (`E2E_MAX_RETRIES`, default 1, allowed 0 to 2). Root `./gradlew clean` deletes `build/e2e`, ledgers
+  invocations (`E2E_MAX_RETRIES`, default 1, allowed 0 to 2). The cap is fixed when the ledger of the fingerprint is
+  created: another `E2E_MAX_RETRIES` for the same fingerprint exits 2, and `reset-scenario` is the only way to one more
+  attempt. Root `./gradlew clean` deletes `build/e2e`, ledgers
   included: do not run it mid-certification. `status` falls back to remote statuses, local accumulation is lost.
 - **The fingerprint** (`e2e/scripts/shared/e2e-fingerprint.sh`, version in `layout.env`) is a function of the
   git tree alone, so CI and this machine agree. Platform-scoped: an iOS-only fix keeps Android evidence valid.
@@ -102,7 +106,8 @@ python3 e2e/scripts/shared/e2e.py run --platform all --mode evidence --dry-run
 - Budget: `E2E_BUDGET_MINUTES` (default 120, 10 to 240) per platform. When it runs out the greens are kept (exit
   4) and the next invocation continues. It counts as an invocation for the stop conditions.
 - Each platform publishes its own status when it is fully green, `HEAD == @{u}` and the commit is visible on
-  GitHub. `E2E_PUBLISH_GITHUB_STATUS=0` runs without publishing.
+  GitHub. `E2E_PUBLISH_GITHUB_STATUS=0` runs without publishing. A run that publishes for real rejects the test
+  variables (`E2E_FAKE_*`, `E2E_*_CMD`, `E2E_CATALOG_FILE`, `E2E_SCOPE_FILE`) with exit 2.
 - One runner invocation per scenario; the host cleans app state between scenarios, the driver never does. WireMock
   has an ownership lock per platform and its log is kept inside the run directory.
 - Devices stay running afterwards. Stop them in the wrap-up (section 8).
@@ -141,15 +146,16 @@ leftovers of the previous harness and is the owner's command.
 |---|---|---|
 | 0 | Green, and published when publishing was required | Open or update the PR |
 | 1 | Some scenarios failed; greens are kept | Read `summary.txt`, fix by class (`SKILL.md`), push, rerun the helper |
-| 2 | A precondition failed: dirty tree, an invalid catalog or expired quarantine, a variable out of range, a refused flag, a status context the harness cannot publish, a scenario selection that matches nothing | Fix what the message names; nothing was run |
+| 2 | Misuse or a precondition that does not hold: dirty tree, an invalid catalog or expired quarantine, a variable out of range, a refused flag, a test variable set while publishing, an `E2E_MAX_RETRIES` other than the ledger's, a selection that matches nothing. Some are found after the device is prepared or the build is done (including "the checkout changed during the run"), never after publishing | Fix what the message names; nothing is recorded or published from that point |
 | 3 | The environment was refused or could not be recovered | Fix the machine (section 6), rerun once. A second exit 3 in the session is a stop condition |
 | 4 | Budget exhausted; greens are kept | Rerun; it continues with the pending scenarios |
-| 5 | Stopped with a diagnosis: `typed_text_mismatch` or `app_crash` at the first attempt, or the same class twice for a scenario | Stop |
+| 5 | Stopped with a diagnosis: `typed_text_mismatch` or `app_crash` at the first attempt, or the same class twice for a scenario (`environment` included, under the same fingerprint) | Stop |
 | 6 | Green, but publishing failed | Fix `gh` or the push, then `python3 e2e/scripts/shared/e2e.py publish --platform <p>`; the ledger is intact |
 | 7 | A scenario used all its attempts for this fingerprint; refused before touching a device | Stop |
+| 70 | A defect of the harness itself (manifest outcome `harness_error`; traceback in `harness-error.txt`) | Report it; it says nothing about the scenarios |
 | 130, 143 | Interrupted; the manifest was still finalised | Rerun; the ledger kept what finished |
 
-Precedence when `--platform all` returns several: 2, 3, 5, 7, 1, 4, 6.
+Precedence when `--platform all` returns several: 70, 2, 3, 5, 7, 1, 4, 6.
 
 ### Stop conditions, in full
 
@@ -253,8 +259,8 @@ evidence outcome with the certified SHA and platform verdicts, notable fix loops
 
 Wrap-up:
 
-1. Stop the devices: `bash e2e/scripts/android/device.sh stop` and `bash e2e/scripts/ios/device.sh stop`. Evidence
-   needs them again after a later fix: the harness boots them on its own.
+1. Stop the devices: `python3 e2e/scripts/shared/e2e.py stop-devices [--platform <p>]` (refused while a run owns
+   one). Evidence needs them again after a later fix: the harness boots them on its own.
 2. Deliver in the session, never in the PR body, a Spanish store-copy proposal derived from `git diff
    production..HEAD`: **Promotional Text** (170 characters max) and **What's New in This Version** (4000 max). End-user
    language in the app's voice; external functionality only (never tests, CI, harness, E2E, refactors, state
