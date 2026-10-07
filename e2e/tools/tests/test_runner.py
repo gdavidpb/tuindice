@@ -245,6 +245,14 @@ class ModeTests(unittest.TestCase):
         self.assertEqual(result.code, 0, result.out)
         self.assertEqual(sorted(ws.executed()), ["alpha-one", "beta-two"])
 
+    def test_repeat_runs_every_scenario_each_time_in_its_own_attempt_directory(self):
+        ws = Workspace(self, [scenario("fix-a"), scenario("fix-b")])
+        result = ws.diagnose("ios", "--repeat", "3", E2E_MAX_RETRIES="0")
+        self.assertEqual(result.code, 0, result.out + result.err)
+        self.assertEqual(sorted(ws.executed()), ["fix-a"] * 3 + ["fix-b"] * 3)
+        attempts = os.listdir(os.path.join(ws.run_dirs()[-1], "scenarios", "fix-a"))
+        self.assertEqual(len(attempts), 3, attempts)
+
     def test_evidence_rejects_filters_and_a_dirty_tree(self):
         ws = Workspace(self, three())
         for flag in (["--scenario", "fix-a"], ["--tag", "x"], ["--repeat", "2"], ["--trace"], ["--survey"]):

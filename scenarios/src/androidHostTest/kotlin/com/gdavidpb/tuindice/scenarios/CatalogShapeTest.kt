@@ -53,7 +53,8 @@ class CatalogShapeTest {
 
 	@Test
 	fun everyTranslatedModuleHasASmokeScenario() {
-		val translated = E2eCatalog.byModule.keys.filter { it != "poc" && it !in MigrationProgress.pendingModules }
+		val translated = E2eCatalog.byModule.keys
+			.filter { it !in E2eCatalog.nonProductModules && it !in MigrationProgress.pendingModules }
 
 		translated.forEach { module ->
 			assertTrue(scenarios.any { it.module == module && "smoke" in it.tags }, "module '$module' has no smoke scenario")

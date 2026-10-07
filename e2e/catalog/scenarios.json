@@ -22177,6 +22177,1853 @@
             "timeoutSeconds": 180
         },
         {
+            "account": "canonical",
+            "android": {
+                "scenarioArg": "conformance-launch-seeded"
+            },
+            "covers": [],
+            "id": "conformance-launch-seeded",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/ConformanceScenarioTests/test_conformance_launch_seeded"
+            },
+            "module": "conformance",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_MAIN_SECTION": "SUMMARY",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
+                    "TUINDICE_E2E_SEED_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
+                    "TUINDICE_E2E_SEED_COACHMARKS": "seen",
+                    "TUINDICE_E2E_SEED_PASSWORD": "123456",
+                    "TUINDICE_E2E_SEED_REFRESH_TOKEN": "refresh.mock.token.value",
+                    "TUINDICE_E2E_SEED_SESSION_ID": "auth-session-initial",
+                    "TUINDICE_E2E_SEED_USB_ID": "11-11111"
+                },
+                "mockStates": [
+                    {
+                        "scenario": "login-token-lifecycle",
+                        "state": "TokensIssued"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 82
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "coachmark_bubble"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 83
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitGone"
+                }
+            ],
+            "stepsHash": "2b5b19f931cc62cf",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": null,
+            "android": {
+                "scenarioArg": "conformance-launch-clean"
+            },
+            "covers": [],
+            "id": "conformance-launch-clean",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/ConformanceScenarioTests/test_conformance_launch_clean"
+            },
+            "module": "conformance",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true"
+                },
+                "mockStates": []
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_sign_in_idle_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 88
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                }
+            ],
+            "stepsHash": "aba4bda51c84d8ac",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": null,
+            "android": {
+                "scenarioArg": "conformance-type-readback"
+            },
+            "covers": [],
+            "id": "conformance-type-readback",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/ConformanceScenarioTests/test_conformance_type_readback"
+            },
+            "module": "conformance",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true"
+                },
+                "mockStates": []
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_sign_in_idle_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 93
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_usb_id_text_field"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 67
+                    },
+                    "type": "tap"
+                },
+                {
+                    "expect": "11-11111",
+                    "mode": "keys",
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_usb_id_text_field"
+                    },
+                    "replace": false,
+                    "secure": false,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 68
+                    },
+                    "text": "1111111",
+                    "type": "enterText"
+                }
+            ],
+            "stepsHash": "fa6455e55e44355f",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": null,
+            "android": {
+                "scenarioArg": "conformance-type-replace"
+            },
+            "covers": [],
+            "id": "conformance-type-replace",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/ConformanceScenarioTests/test_conformance_type_replace"
+            },
+            "module": "conformance",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true"
+                },
+                "mockStates": []
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_sign_in_idle_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 99
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_identifier_mode_toggle"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 100
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "contains": false,
+                        "type": "text",
+                        "value": "Correo USB"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 101
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_usb_id_text_field"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 102
+                    },
+                    "type": "tap"
+                },
+                {
+                    "expect": null,
+                    "mode": "keys",
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_usb_id_text_field"
+                    },
+                    "replace": false,
+                    "secure": false,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 103
+                    },
+                    "text": "mail@usb.ve",
+                    "type": "enterText"
+                },
+                {
+                    "expect": null,
+                    "mode": "keys",
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_usb_id_text_field"
+                    },
+                    "replace": true,
+                    "secure": false,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 104
+                    },
+                    "text": "mail",
+                    "type": "enterText"
+                }
+            ],
+            "stepsHash": "28c9171b09714583",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": null,
+            "android": {
+                "scenarioArg": "conformance-secure-field"
+            },
+            "covers": [],
+            "id": "conformance-secure-field",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/ConformanceScenarioTests/test_conformance_secure_field"
+            },
+            "module": "conformance",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true"
+                },
+                "mockStates": []
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_sign_in_idle_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 109
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_usb_id_text_field"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 67
+                    },
+                    "type": "tap"
+                },
+                {
+                    "expect": "11-11111",
+                    "mode": "keys",
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_usb_id_text_field"
+                    },
+                    "replace": false,
+                    "secure": false,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 68
+                    },
+                    "text": "1111111",
+                    "type": "enterText"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_keyboard_dismiss_area"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 111
+                    },
+                    "type": "tap"
+                },
+                {
+                    "enabled": false,
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_sign_in_button"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 112
+                    },
+                    "timeoutMs": 5000,
+                    "type": "assertEnabled"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_password_text_field"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 73
+                    },
+                    "type": "tap"
+                },
+                {
+                    "expect": null,
+                    "mode": "keys",
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_password_text_field"
+                    },
+                    "replace": false,
+                    "secure": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 74
+                    },
+                    "text": "123456",
+                    "type": "enterText"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_keyboard_dismiss_area"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 75
+                    },
+                    "type": "tap"
+                },
+                {
+                    "enabled": true,
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_sign_in_button"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 114
+                    },
+                    "timeoutMs": 5000,
+                    "type": "assertEnabled"
+                }
+            ],
+            "stepsHash": "012f1659d214175d",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": null,
+            "android": {
+                "scenarioArg": "conformance-enabled"
+            },
+            "covers": [],
+            "id": "conformance-enabled",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/ConformanceScenarioTests/test_conformance_enabled"
+            },
+            "module": "conformance",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true"
+                },
+                "mockStates": []
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_sign_in_idle_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 119
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "enabled": false,
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_sign_in_button"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 120
+                    },
+                    "timeoutMs": 5000,
+                    "type": "assertEnabled"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_password_text_field"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 73
+                    },
+                    "type": "tap"
+                },
+                {
+                    "expect": null,
+                    "mode": "keys",
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_password_text_field"
+                    },
+                    "replace": false,
+                    "secure": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 74
+                    },
+                    "text": "123456",
+                    "type": "enterText"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_keyboard_dismiss_area"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 75
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_usb_id_text_field"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 67
+                    },
+                    "type": "tap"
+                },
+                {
+                    "expect": "11-11111",
+                    "mode": "keys",
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_usb_id_text_field"
+                    },
+                    "replace": false,
+                    "secure": false,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 68
+                    },
+                    "text": "1111111",
+                    "type": "enterText"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_keyboard_dismiss_area"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 123
+                    },
+                    "type": "tap"
+                },
+                {
+                    "enabled": true,
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_sign_in_button"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 124
+                    },
+                    "timeoutMs": 5000,
+                    "type": "assertEnabled"
+                }
+            ],
+            "stepsHash": "527c26ec9d88b67f",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": null,
+            "android": {
+                "scenarioArg": "conformance-text-query"
+            },
+            "covers": [],
+            "id": "conformance-text-query",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/ConformanceScenarioTests/test_conformance_text_query"
+            },
+            "module": "conformance",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true"
+                },
+                "mockStates": []
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_sign_in_idle_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 129
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_identifier_mode_toggle"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 130
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "contains": false,
+                        "type": "text",
+                        "value": "Correo USB"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 131
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                }
+            ],
+            "stepsHash": "e42e74929d2bf646",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": "canonical",
+            "android": {
+                "scenarioArg": "conformance-finish-text-entry"
+            },
+            "covers": [],
+            "id": "conformance-finish-text-entry",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/ConformanceScenarioTests/test_conformance_finish_text_entry"
+            },
+            "module": "conformance",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_MAIN_SECTION": "SUMMARY",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
+                    "TUINDICE_E2E_SEED_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
+                    "TUINDICE_E2E_SEED_COACHMARKS": "seen",
+                    "TUINDICE_E2E_SEED_PASSWORD": "123456",
+                    "TUINDICE_E2E_SEED_REFRESH_TOKEN": "refresh.mock.token.value",
+                    "TUINDICE_E2E_SEED_SESSION_ID": "auth-session-initial",
+                    "TUINDICE_E2E_SEED_USB_ID": "11-11111"
+                },
+                "mockStates": [
+                    {
+                        "scenario": "login-token-lifecycle",
+                        "state": "TokensIssued"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 60
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "maincore_tuindice_bottom_bar_pensum_item"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 61
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "pensum_screen"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 62
+                    },
+                    "timeoutMs": 30000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "base_top_app_bar_action_search_pensum"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 139
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "subjects_search_screen"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 140
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "subjects_search_text_field"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 141
+                    },
+                    "type": "tap"
+                },
+                {
+                    "expect": null,
+                    "mode": "keys",
+                    "q": {
+                        "type": "tag",
+                        "value": "subjects_search_text_field"
+                    },
+                    "replace": false,
+                    "secure": false,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 142
+                    },
+                    "text": "ci",
+                    "type": "enterText"
+                },
+                {
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 143
+                    },
+                    "type": "finishTextEntry"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "subjects_search_result_CI2511"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 144
+                    },
+                    "timeoutMs": 20000,
+                    "type": "waitVisible"
+                }
+            ],
+            "stepsHash": "bd7152bfe974ce4d",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": "canonical",
+            "android": {
+                "scenarioArg": "conformance-scroll"
+            },
+            "covers": [],
+            "id": "conformance-scroll",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/ConformanceScenarioTests/test_conformance_scroll"
+            },
+            "module": "conformance",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_MAIN_SECTION": "SUMMARY",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
+                    "TUINDICE_E2E_SEED_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
+                    "TUINDICE_E2E_SEED_COACHMARKS": "seen",
+                    "TUINDICE_E2E_SEED_PASSWORD": "123456",
+                    "TUINDICE_E2E_SEED_REFRESH_TOKEN": "refresh.mock.token.value",
+                    "TUINDICE_E2E_SEED_SESSION_ID": "auth-session-initial",
+                    "TUINDICE_E2E_SEED_USB_ID": "11-11111"
+                },
+                "mockStates": [
+                    {
+                        "scenario": "login-token-lifecycle",
+                        "state": "TokensIssued"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 60
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "maincore_tuindice_bottom_bar_about_item"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 61
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "about_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 62
+                    },
+                    "timeoutMs": 30000,
+                    "type": "waitVisible"
+                },
+                {
+                    "direction": "contentDown",
+                    "q": {
+                        "type": "tag",
+                        "value": "about_usage_data_consent_toggle"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 152
+                    },
+                    "timeoutMs": 10000,
+                    "type": "scrollUntilVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "about_usage_data_consent_toggle"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 153
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "about_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 154
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                }
+            ],
+            "stepsHash": "91ecd6becaf7c900",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": "canonical",
+            "android": {
+                "scenarioArg": "conformance-scroll-horizontal"
+            },
+            "covers": [],
+            "id": "conformance-scroll-horizontal",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/ConformanceScenarioTests/test_conformance_scroll_horizontal"
+            },
+            "module": "conformance",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_MAIN_SECTION": "SUMMARY",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
+                    "TUINDICE_E2E_SEED_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
+                    "TUINDICE_E2E_SEED_COACHMARKS": "seen",
+                    "TUINDICE_E2E_SEED_PASSWORD": "123456",
+                    "TUINDICE_E2E_SEED_REFRESH_TOKEN": "refresh.mock.token.value",
+                    "TUINDICE_E2E_SEED_SESSION_ID": "auth-session-initial",
+                    "TUINDICE_E2E_SEED_USB_ID": "11-11111"
+                },
+                "mockStates": [
+                    {
+                        "scenario": "login-token-lifecycle",
+                        "state": "TokensIssued"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 60
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "maincore_tuindice_bottom_bar_pensum_item"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 61
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "pensum_screen"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 62
+                    },
+                    "timeoutMs": 30000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "pensum_context_summary"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 162
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "base_confirmation_dialog_sheet"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 163
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "direction": "contentForward",
+                    "q": {
+                        "type": "tag",
+                        "value": "pensum_version_option_2018"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 164
+                    },
+                    "timeoutMs": 10000,
+                    "type": "scrollUntilVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "pensum_version_option_2018"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 165
+                    },
+                    "type": "tap"
+                }
+            ],
+            "stepsHash": "182c4dbf4762e7a7",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": "canonical",
+            "android": {
+                "scenarioArg": "conformance-tap-at"
+            },
+            "covers": [],
+            "id": "conformance-tap-at",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/ConformanceScenarioTests/test_conformance_tap_at"
+            },
+            "module": "conformance",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_MAIN_SECTION": "SUMMARY",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
+                    "TUINDICE_E2E_SEED_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
+                    "TUINDICE_E2E_SEED_COACHMARKS": "seen",
+                    "TUINDICE_E2E_SEED_PASSWORD": "123456",
+                    "TUINDICE_E2E_SEED_REFRESH_TOKEN": "refresh.mock.token.value",
+                    "TUINDICE_E2E_SEED_SESSION_ID": "auth-session-initial",
+                    "TUINDICE_E2E_SEED_USB_ID": "11-11111"
+                },
+                "mockStates": [
+                    {
+                        "scenario": "login-token-lifecycle",
+                        "state": "TokensIssued"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 60
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "maincore_tuindice_bottom_bar_record_item"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 61
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "record_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 62
+                    },
+                    "timeoutMs": 30000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "record_term_chip_d377155d39da686f412622aaca9074cd"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 175
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "record_attempt_grade_value_e21f0d7e481d13d19f328d6818ce4d77_4"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 176
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "fx": 0.95,
+                    "fy": 0.5,
+                    "q": {
+                        "type": "tag",
+                        "value": "record_attempt_grade_slider_e21f0d7e481d13d19f328d6818ce4d77"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 177
+                    },
+                    "type": "tapAt"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "record_attempt_grade_value_e21f0d7e481d13d19f328d6818ce4d77_5"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 178
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "fx": 0.75,
+                    "fy": 0.5,
+                    "q": {
+                        "type": "tag",
+                        "value": "record_attempt_grade_slider_e21f0d7e481d13d19f328d6818ce4d77"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 179
+                    },
+                    "type": "tapAt"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "record_attempt_grade_value_e21f0d7e481d13d19f328d6818ce4d77_4"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 180
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                }
+            ],
+            "stepsHash": "3e2969b2ee233d50",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": "canonical",
+            "android": {
+                "scenarioArg": "conformance-double-tap-swipe"
+            },
+            "covers": [],
+            "id": "conformance-double-tap-swipe",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/ConformanceScenarioTests/test_conformance_double_tap_swipe"
+            },
+            "module": "conformance",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_MAIN_SECTION": "SUMMARY",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
+                    "TUINDICE_E2E_SEED_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
+                    "TUINDICE_E2E_SEED_COACHMARKS": "seen",
+                    "TUINDICE_E2E_SEED_PASSWORD": "123456",
+                    "TUINDICE_E2E_SEED_REFRESH_TOKEN": "refresh.mock.token.value",
+                    "TUINDICE_E2E_SEED_SESSION_ID": "auth-session-initial",
+                    "TUINDICE_E2E_SEED_USB_ID": "11-11111"
+                },
+                "mockStates": [
+                    {
+                        "scenario": "login-token-lifecycle",
+                        "state": "TokensIssued"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 60
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "maincore_tuindice_bottom_bar_pensum_item"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 61
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "pensum_screen"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 62
+                    },
+                    "timeoutMs": 30000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "pensum_canvas"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 188
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "pensum_canvas"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 189
+                    },
+                    "type": "doubleTap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "pensum_sticky_terms"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 190
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                },
+                {
+                    "durationMs": 600,
+                    "dx": -0.6,
+                    "dy": 0.0,
+                    "from": null,
+                    "fx": 0.8,
+                    "fy": 0.5,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 191
+                    },
+                    "type": "swipe"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "pensum_sticky_terms"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 192
+                    },
+                    "timeoutMs": 5000,
+                    "type": "waitVisible"
+                }
+            ],
+            "stepsHash": "d19adb9ad0a4f5d5",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": "annulled-provisional",
+            "android": {
+                "scenarioArg": "conformance-swipe-from-element"
+            },
+            "covers": [],
+            "id": "conformance-swipe-from-element",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/ConformanceScenarioTests/test_conformance_swipe_from_element"
+            },
+            "module": "conformance",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_MAIN_SECTION": "SUMMARY",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
+                    "TUINDICE_E2E_SEED_ACCESS_TOKEN": "annulled-provisional.mock.access",
+                    "TUINDICE_E2E_SEED_COACHMARKS": "seen",
+                    "TUINDICE_E2E_SEED_PASSWORD": "annulled-provisional-pass",
+                    "TUINDICE_E2E_SEED_REFRESH_TOKEN": "annulled-provisional.mock.refresh",
+                    "TUINDICE_E2E_SEED_SESSION_ID": "auth-annulled-provisional-session",
+                    "TUINDICE_E2E_SEED_USB_ID": "31-31313"
+                },
+                "mockStates": [
+                    {
+                        "scenario": "auth-annulled-provisional-login",
+                        "state": "TokensIssued"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 60
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "maincore_tuindice_bottom_bar_record_item"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 61
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "record_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 62
+                    },
+                    "timeoutMs": 30000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "record_term_chip_d377155d39da686f412622aaca9074cd"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 204
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "base_top_app_bar_action_record_schedule"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 205
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "record_schedule_title"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 206
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "durationMs": 600,
+                    "dx": 0.0,
+                    "dy": 0.4,
+                    "from": {
+                        "type": "tag",
+                        "value": "record_schedule_title"
+                    },
+                    "fx": 0.5,
+                    "fy": 0.5,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 207
+                    },
+                    "type": "swipe"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "record_schedule_sheet"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 208
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitGone"
+                }
+            ],
+            "stepsHash": "0c8bdb1917081a0a",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": "canonical",
+            "android": {
+                "scenarioArg": "conformance-sheet-tags"
+            },
+            "covers": [],
+            "id": "conformance-sheet-tags",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/ConformanceScenarioTests/test_conformance_sheet_tags"
+            },
+            "module": "conformance",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_MAIN_SECTION": "SUMMARY",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
+                    "TUINDICE_E2E_SEED_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
+                    "TUINDICE_E2E_SEED_COACHMARKS": "seen",
+                    "TUINDICE_E2E_SEED_PASSWORD": "123456",
+                    "TUINDICE_E2E_SEED_REFRESH_TOKEN": "refresh.mock.token.value",
+                    "TUINDICE_E2E_SEED_SESSION_ID": "auth-session-initial",
+                    "TUINDICE_E2E_SEED_USB_ID": "11-11111"
+                },
+                "mockStates": [
+                    {
+                        "scenario": "login-token-lifecycle",
+                        "state": "TokensIssued"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 215
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "base_top_app_bar_action_sign_out"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 216
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "auth_sign_out_message_text"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 217
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "base_confirmation_dialog_negative_button"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 218
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "base_confirmation_dialog_sheet"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 219
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitGone"
+                }
+            ],
+            "stepsHash": "29e88c0adda124e5",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": "canonical",
+            "android": {
+                "scenarioArg": "conformance-foreground"
+            },
+            "covers": [],
+            "id": "conformance-foreground",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/ConformanceScenarioTests/test_conformance_foreground"
+            },
+            "module": "conformance",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_MAIN_SECTION": "SUMMARY",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
+                    "TUINDICE_E2E_SEED_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
+                    "TUINDICE_E2E_SEED_COACHMARKS": "seen",
+                    "TUINDICE_E2E_SEED_PASSWORD": "123456",
+                    "TUINDICE_E2E_SEED_REFRESH_TOKEN": "refresh.mock.token.value",
+                    "TUINDICE_E2E_SEED_SESSION_ID": "auth-session-initial",
+                    "TUINDICE_E2E_SEED_USB_ID": "11-11111"
+                },
+                "mockStates": [
+                    {
+                        "scenario": "login-token-lifecycle",
+                        "state": "TokensIssued"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 60
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "maincore_tuindice_bottom_bar_about_item"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 61
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "about_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 62
+                    },
+                    "timeoutMs": 30000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "about_open_creative_commons"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 227
+                    },
+                    "type": "tap"
+                },
+                {
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 228
+                    },
+                    "type": "foreground"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "about_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 229
+                    },
+                    "timeoutMs": 10000,
+                    "type": "waitVisible"
+                }
+            ],
+            "stepsHash": "a1e0852c76e315e3",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": "canonical",
+            "android": {
+                "scenarioArg": "conformance-back"
+            },
+            "covers": [],
+            "id": "conformance-back",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/ConformanceScenarioTests/test_conformance_back"
+            },
+            "module": "conformance",
+            "platforms": [
+                "android"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_MAIN_SECTION": "SUMMARY",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
+                    "TUINDICE_E2E_SEED_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
+                    "TUINDICE_E2E_SEED_COACHMARKS": "seen",
+                    "TUINDICE_E2E_SEED_PASSWORD": "123456",
+                    "TUINDICE_E2E_SEED_REFRESH_TOKEN": "refresh.mock.token.value",
+                    "TUINDICE_E2E_SEED_SESSION_ID": "auth-session-initial",
+                    "TUINDICE_E2E_SEED_USB_ID": "11-11111"
+                },
+                "mockStates": [
+                    {
+                        "scenario": "login-token-lifecycle",
+                        "state": "TokensIssued"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 60
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "maincore_tuindice_bottom_bar_about_item"
+                    },
+                    "requireEnabled": true,
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 61
+                    },
+                    "type": "tap"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "about_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 62
+                    },
+                    "timeoutMs": 30000,
+                    "type": "waitVisible"
+                },
+                {
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 238
+                    },
+                    "type": "back"
+                },
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 239
+                    },
+                    "timeoutMs": 20000,
+                    "type": "waitVisible"
+                }
+            ],
+            "stepsHash": "d099adbd4f778e55",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
+            "account": "canonical",
+            "android": {
+                "scenarioArg": "conformance-backend"
+            },
+            "covers": [],
+            "id": "conformance-backend",
+            "ios": {
+                "onlyTesting": "TuIndiceUITests/ConformanceScenarioTests/test_conformance_backend"
+            },
+            "module": "conformance",
+            "platforms": [
+                "android",
+                "ios"
+            ],
+            "quarantine": null,
+            "signsIn": false,
+            "start": {
+                "arguments": {
+                    "TUINDICE_E2E_DISABLE_ANIMATIONS": "true",
+                    "TUINDICE_E2E_MAIN_SECTION": "SUMMARY",
+                    "TUINDICE_E2E_NETWORK_AVAILABLE": "true",
+                    "TUINDICE_E2E_SEED_ACCESS_TOKEN": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.exchange.mock.access",
+                    "TUINDICE_E2E_SEED_COACHMARKS": "seen",
+                    "TUINDICE_E2E_SEED_PASSWORD": "123456",
+                    "TUINDICE_E2E_SEED_REFRESH_TOKEN": "refresh.mock.token.value",
+                    "TUINDICE_E2E_SEED_SESSION_ID": "auth-session-initial",
+                    "TUINDICE_E2E_SEED_USB_ID": "11-11111"
+                },
+                "mockStates": [
+                    {
+                        "scenario": "login-token-lifecycle",
+                        "state": "TokensIssued"
+                    }
+                ]
+            },
+            "steps": [
+                {
+                    "q": {
+                        "type": "tag",
+                        "value": "summary_content_container"
+                    },
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 246
+                    },
+                    "timeoutMs": 60000,
+                    "type": "waitVisible"
+                },
+                {
+                    "basicAuth": null,
+                    "method": "POST",
+                    "path": "/record/v5/sync",
+                    "site": {
+                        "file": "scenarios/src/commonMain/kotlin/com/gdavidpb/tuindice/scenarios/catalog/ConformanceScenarios.kt",
+                        "line": 247
+                    },
+                    "timeoutMs": 20000,
+                    "type": "expectRequest"
+                }
+            ],
+            "stepsHash": "9af1828ef89683c9",
+            "tags": [],
+            "timeoutSeconds": 180
+        },
+        {
             "account": null,
             "android": {
                 "scenarioArg": "poc-expected-failure"

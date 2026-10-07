@@ -78,6 +78,7 @@ class PlatformRun:
         self.fingerprint = options.mode if not self.evidence else None
         self.context = None
         self.failed_overall = {}
+        self.repetition = 0
         self.executed = set()
         self.stop = None
         self.device_booted = False
@@ -301,6 +302,7 @@ class PlatformRun:
 
     def _run_all(self, pending):
         for repetition in range(self.opts.repeat if not self.evidence else 1):
+            self.repetition = repetition
             if repetition:
                 self.ledger = Ledger.memory(self.platform)
             for index, scenario in enumerate(pending, 1):
@@ -405,7 +407,8 @@ class PlatformRun:
     def _attempt(self, scenario):
         cfg, p, ledger = self.cfg, self.platform, self.ledger
         n = len(ledger.attempts(scenario.id)) + 1
-        adir = os.path.join(self.run_dir, "scenarios", scenario.id, "attempt-%d" % n)
+        suffix = "-r%d" % (self.repetition + 1) if self.repetition else ""
+        adir = os.path.join(self.run_dir, "scenarios", scenario.id, "attempt-%d%s" % (n, suffix))
         os.makedirs(adir)
         env = {"E2E_CURRENT_SCENARIO": scenario.id, "E2E_TRACE": "1" if self.opts.trace else "0"}
         evidence = cl.Evidence(scenario, self.catalog.account(scenario))

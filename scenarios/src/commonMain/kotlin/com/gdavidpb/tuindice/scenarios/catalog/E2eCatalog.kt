@@ -23,8 +23,12 @@ object E2eCatalog {
 		"subjects" to subjectsScenarios,
 		"evaluations" to evaluationsScenarios,
 		"about" to aboutScenarios,
+		"conformance" to conformanceScenarios,
 		"poc" to pocScenarios
 	)
+
+	/** Modules that exist to measure the E2E tooling, not the product: they have no smoke scenario and no actions. */
+	val nonProductModules: Set<String> = setOf("poc", "conformance")
 
 	/** Every scenario; one left out of its module's list never runs. */
 	val all: List<Scenario> = byModule.values.flatten()
